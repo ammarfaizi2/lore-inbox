@@ -1,41 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932740AbWCRPLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbWCRPKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932740AbWCRPLE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 10:11:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932760AbWCRPLE
+	id S932392AbWCRPKl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 10:10:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932740AbWCRPKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 10:11:04 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:20436 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932740AbWCRPLB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 10:11:01 -0500
-Subject: Re: Idea: Automatic binary driver compiling system
-From: Arjan van de Ven <arjan@infradead.org>
-To: Benjamin Bach <benjamin@overtag.dk>
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <441C213A.3000404@overtag.dk>
-References: <441AF93C.6040407@overtag.dk>
-	 <1142620509.25258.53.camel@mindpipe>  <441C213A.3000404@overtag.dk>
-Content-Type: text/plain
-Date: Sat, 18 Mar 2006 16:10:55 +0100
-Message-Id: <1142694655.2889.22.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 18 Mar 2006 10:10:41 -0500
+Received: from mga03.intel.com ([143.182.124.21]:16461 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S932392AbWCRPKj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 10:10:39 -0500
+X-IronPort-AV: i="4.03,106,1141632000"; 
+   d="scan'208"; a="13395597:sNHT169392104"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+Date: Sat, 18 Mar 2006 23:10:32 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F84041AC268@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+Thread-Index: AcZKmfzUa0Bhp+hMQH63w39+eBJM1AAATzQw
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
+Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       <michael@mihu.de>, <mchehab@infradead.org>,
+       "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
+       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
+       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
+X-OriginalArrivalTime: 18 Mar 2006 15:10:33.0863 (UTC) FILETIME=[1AA02970:01C64A9E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> As of now Linux won't force vendors into creating open source drivers. 
+>> Hmm,  probably, you need to do :
+>>
+>> 4. in acpi_thermal_notify,
+>>       if (acpi_in_suspend == YES)
+>>               do nothing.
+>
+>I've just tested that.  It suspended twice without problem, which made
+>me think the problem was solved.  But it hung on the third suspend!
 
-it has happened several times already. So your claim is false.
+I'm NOT surprised about that hung, because kernel thread kacpid 
+is a kernel worker thread that has flag PF_NOFREEZE, that means
+kacpid won't be freezed.  I tried to freeze kacpid, but end up with 
+this conclusion.  From my understanding, for safety concern,
+kernel worker thread should be freezed. Because, kacpid could
+invoke AML methods that we are trying to avoid during suspend.
 
-> But really, think: If all these benefits why isn't there 
-> anymore open source drivers? 
+Please try additional ugly hack
+ 5. in acpi_os_queue_for_execution:
+	if(acpi_in_suspend == YES)
+		do nothing.
 
-there are over a thousand open source drivers, and at most a handful
-binary ones. Please go do your math.
+Also, please add acpi_debug_layer=0x10 acpi_debug_leve=0x10 
+boot option, then you can observe what methods were executed
+before suspend.
 
-
+Thanks,
+Luming

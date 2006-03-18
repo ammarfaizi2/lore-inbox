@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWCRP6r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932831AbWCRP67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751339AbWCRP6r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 10:58:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWCRP6r
+	id S932831AbWCRP67 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 10:58:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWCRP66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 10:58:47 -0500
-Received: from main.gmane.org ([80.91.229.2]:33499 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751339AbWCRP6r (ORCPT
+	Sat, 18 Mar 2006 10:58:58 -0500
+Received: from mga03.intel.com ([143.182.124.21]:60232 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S932101AbWCRP64 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 10:58:47 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: [PATCH 001/001] PCI: PCI quirk for Asus A8V and A8V Deluxe motherboards
-Date: Sat, 18 Mar 2006 15:58:28 +0000
-Message-ID: <yw1xoe0368yj.fsf@agrajag.inprovide.com>
-References: <20060305192709.GA3789@skyscraper.unix9.prv> <dve3j9$r50$1@sea.gmane.org> <20060317143303.GR20746@lug-owl.de> <dvehv7$j9r$1@sea.gmane.org> <20060317144920.GS20746@lug-owl.de> <dveugj$aob$1@sea.gmane.org> <yw1xmzfo98em.fsf@agrajag.inprovide.com> <dvh3rb$ui8$1@sea.gmane.org> <yw1x64mb7rwm.fsf@agrajag.inprovide.com> <dvh7aj$95v$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 82.153.166.94
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (linux)
-Cancel-Lock: sha1:shOaxC8/RG9KS5r4RnVeva/sFng=
+	Sat, 18 Mar 2006 10:58:56 -0500
+X-IronPort-AV: i="4.03,106,1141632000"; 
+   d="scan'208"; a="13397924:sNHT101152891"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+Date: Sat, 18 Mar 2006 23:58:49 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F84041AC269@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+Thread-Index: AcZKo4ltkA5MNN/GRTGN2UXItiZGuQAADDAQ
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
+Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       <michael@mihu.de>, <mchehab@infradead.org>,
+       "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
+       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
+       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
+X-OriginalArrivalTime: 18 Mar 2006 15:58:50.0693 (UTC) FILETIME=[D9455750:01C64AA4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andras Mantia <amantia@kde.org> writes:
 
-> Måns Rullgård wrote:
->> With the card in the bad slot I only got a few seconds of sound before
->> the machine locked up.  Since you have a different board, it could of
->> course still be a similar problem, just less likely to happen.
->> 
->> Which sound card were you using when your machine hung?
+>> Please try additional ugly hack
+>>  5. in acpi_os_queue_for_execution:
+>>	if(acpi_in_suspend == YES)
+>>		do nothing.
 >
-> I tried to use the onboard sound card at that time.
+>Am compiling it.  If acpi_in_suspend, I've had it do
+>return_ACPI_STATUS(AE_BAD_PARAMETER).  Is there a better error code to
+>use?  I didn't want to use AE_OK, since the caller might think that
+>the function will be executed eventually, and might do something silly
+>like wait for it to be executed -- and produce another hang.  I didn't
+>know, but to be safe I wanted to return an error code.
 
-Hmm, mine crashed when I used the PCI card.  Using the onboard sound
-was fine.
+just return AE_OK, because we are hacking. :-)
+The only place that could have issue is in acpi_ev_global_lock_handler,
+you can add a printk there, then you can know what happened.
 
->>> Can you tell me how can I find the real device ID for my chipset? It
->>> *should* be the same one as the original writer of the patch wrote (he
->>> also had an ASUS A8V Deluxe as I understood), but the experience tells it
->>> is not.
->> 
->> lspci -n will list the PCI IDs in hex.
 >
-> Thanks.
+>> Also, please add acpi_debug_layer=0x10 acpi_debug_leve=0x10 boot
+>> option, then you can observe what methods were executed before
+>> suspend.
+>
+>That's in my lilo.conf so all kernels I test use those options.  I can
+>send you the dmesgs from the suspends without the ugly hack (and will
+>send them from the upcoming suspends, with the ugly hack).
 
-Care to post the output?
-
--- 
-Måns Rullgård
-mru@inprovide.com
-
+Thanks, I'm waiting for that to understand if the hack is clean for
+killing unwanted AML methods call.

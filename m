@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbWCRUaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbWCRUeE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750947AbWCRUaL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 15:30:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbWCRUaK
+	id S1750949AbWCRUeE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 15:34:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWCRUeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 15:30:10 -0500
-Received: from 213-239-205-134.clients.your-server.de ([213.239.205.134]:55774
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1750947AbWCRUaJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 15:30:09 -0500
+	Sat, 18 Mar 2006 15:34:04 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:26523 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750949AbWCRUeD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 15:34:03 -0500
+Date: Sat, 18 Mar 2006 12:31:02 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: tglx@linutronix.de
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, trini@kernel.crashing.org
 Subject: Re: [patch 1/2] Validate itimer timeval from userspace
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       trini@kernel.crashing.org
-In-Reply-To: <9a8748490603181223i32391d96nf794e93aa734f785@mail.gmail.com>
+Message-Id: <20060318123102.7d8c048a.akpm@osdl.org>
+In-Reply-To: <1142712975.17279.131.camel@localhost.localdomain>
 References: <20060318142827.419018000@localhost.localdomain>
-	 <20060318142830.607556000@localhost.localdomain>
-	 <20060318120728.63cbad54.akpm@osdl.org>
-	 <9a8748490603181223i32391d96nf794e93aa734f785@mail.gmail.com>
-Content-Type: text/plain
-Date: Sat, 18 Mar 2006 21:30:20 +0100
-Message-Id: <1142713820.17279.140.camel@localhost.localdomain>
+	<20060318142830.607556000@localhost.localdomain>
+	<20060318120728.63cbad54.akpm@osdl.org>
+	<1142712975.17279.131.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-03-18 at 21:23 +0100, Jesper Juhl wrote:
-
-> Wouldn't this only break existing applications that do incorrect
-> things (passing invalid values) ?
-> If that's the case I'd say breaking them is OK and we should change to
-> follow the spec.
+Thomas Gleixner <tglx@linutronix.de> wrote:
+>
+> On Sat, 2006-03-18 at 12:07 -0800, Andrew Morton wrote:
 > 
-> I don't like potential userspace breakage any more than the next guy,
-> but if the breakage only affects buggy applications then I think it's
-> more acceptable.
+> > From my reading, 2.4's sys_setitimer() will normalise the incoming timeval
+> > rather than rejecting it.  And I think 2.6.13 did that too.
+> > 
+> > It would be bad of us to change this behaviour, even if that's what the
+> > spec says we should do - because we can break existing applications.
+> > 
+> > So I think we're stuck with it - we should normalise and then accept such
+> > timevals.  And we should have a big comment explaining how we differ from
+> > the spec, and why.
+> 
+> Hmm. How do you treat a negative value ?
+> 
 
-Yes, it only breaks buggy applications.
+In the same way as earlier kernels did!
 
-On a full blown desktop the check (I added a printk) did not trigger.
-
-The only application I found so far was the LTP setitimer "correctness"
-test, which did not initialize it_interval and handed random garbage to
-the kernel. :)
-
-	tglx
-
+Unless, of course, those kernels did something utterly insane.  In that
+case we'd need to have a little think.
 

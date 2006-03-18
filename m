@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbWCRV5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbWCRWCp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751057AbWCRV5h (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 16:57:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbWCRV5h
+	id S1751071AbWCRWCp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 17:02:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWCRWCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 16:57:37 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:61930 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751052AbWCRV5h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 16:57:37 -0500
-Date: Sat, 18 Mar 2006 22:57:19 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Xavier Bestel <xavier.bestel@free.fr>
-cc: Andrew Morton <akpm@osdl.org>, viro@ftp.linux.org.uk,
-       linux-kernel@vger.kernel.org, aia21@cantab.net, len.brown@intel.com
-Subject: Re: [patch 1/1] consolidate TRUE and FALSE
-In-Reply-To: <20060317234311.c5e338f6.xavier.bestel@free.fr>
-Message-ID: <Pine.LNX.4.61.0603182238140.4492@yvahk01.tjqt.qr>
-References: <200603161004.k2GA46Fc029649@shell0.pdx.osdl.net>
- <20060316164932.GT27946@ftp.linux.org.uk> <20060316132639.274691d6.akpm@osdl.org>
- <20060317234311.c5e338f6.xavier.bestel@free.fr>
+	Sat, 18 Mar 2006 17:02:45 -0500
+Received: from uproxy.gmail.com ([66.249.92.196]:18621 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751070AbWCRWCo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 17:02:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dEVcIjLzxd8wqlb47WGQFgk1SAEXC1xo5ZyWgzW0TZy6BYoDTnnaQ+FHA0HnOo4G34/qVLqogJ609wqnwxpc6QGOOF+79A97ds+oIBYDFmEwfcNo7633EPLXuR6ALv815JQJPcHL362JFlcur8rWakSRo+m+OilRMpy9lrSPdrA=
+Message-ID: <2c0942db0603181402o4115999jb990ac05cca7fb9e@mail.gmail.com>
+Date: Sat, 18 Mar 2006 14:02:43 -0800
+From: "Ray Lee" <madrabbit@gmail.com>
+Reply-To: ray-gmail@madrabbit.org
+To: "Jesper Juhl" <jesper.juhl@gmail.com>
+Subject: Re: [patch 1/2] Validate itimer timeval from userspace
+Cc: "Andrew Morton" <akpm@osdl.org>, tglx@linutronix.de,
+       linux-kernel@vger.kernel.org, mingo@elte.hu, trini@kernel.crashing.org
+In-Reply-To: <9a8748490603181245v47b9f0a5v1ef252f91c30a7d2@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060318142827.419018000@localhost.localdomain>
+	 <20060318142830.607556000@localhost.localdomain>
+	 <20060318120728.63cbad54.akpm@osdl.org>
+	 <1142712975.17279.131.camel@localhost.localdomain>
+	 <20060318123102.7d8c048a.akpm@osdl.org>
+	 <9a8748490603181245v47b9f0a5v1ef252f91c30a7d2@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Isn't there a runtime cost converting all "non-false" values to a unique "true" (i.e. converting non-zero values to one) ?
->
+On 3/18/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> If the change only affects buggy apps (as Thomas says), then it seems
+> completely obvious to me that the change should be made.
 
-Somewhat. The answer is "yes, but depends on usage". If you just 
-write
+But the app isn't buggy, it's just not coded to some arbitrary spec.
+Further, an arbitrary spec that *the kernel didn't implement*. The app
+author could very well have been competent and tested that behavior in
+a ten line program (I do that sort of code *all the time* to test
+corner cases that aren't clear in man pages). Once tested, they found
+out -1 is an effectively infinite timeout, went "Hey, cool, that makes
+sense", and went on with their day.
 
-	_Bool x = filthy_action();
-	if(x)
+You're now arguing that we should break apps -- possibly well tested
+apps -- because they didn't implement a spec that the kernel itself
+wasn't implementing.
 
-Then the compiler is smart enough to optimize 'x' away if it is not used 
-somewhere else, therefore we do not pay a price for converting the return 
-type of filthy_action (=int) to a _Bool.
+That's just nuts.
 
-The asm output for storing the result of filthy_action() [requires 
-'volatile int x' in this small example]
+> 3. Correct applications are unaffected.
 
-	call strxcmp
-	mov [ebp-4], eax
+You're assuming that the apps that we'd break are incorrect. That's a
+big assumption. Try imagining instead that it's a well-tested app that
+passed QA with flying colors on a previous version of the kernel. They
+exist. Honest.
 
-While making that a 'volatile _Bool x' makes it:
-
-	call strxcmp
-	test eax, eax
-	setnz al
-	mov [ebp-1], al
-
-Makes me prefer typedef int bool over _Bool.
-
-
-Jan Engelhardt
--- 
+Ray

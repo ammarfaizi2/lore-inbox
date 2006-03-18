@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWCRE5N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWCRFBp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbWCRE5N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 23:57:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWCRE5N
+	id S1751242AbWCRFBp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 00:01:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWCRFBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 23:57:13 -0500
-Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:56034 "EHLO
-	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751133AbWCRE5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 23:57:12 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH][RFC] mm: swsusp shrink_all_memory tweaks
-Date: Sat, 18 Mar 2006 15:56:22 +1100
-User-Agent: KMail/1.9.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, ck@vds.kolivas.org,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>,
-       Stefan Seyfried <seife@suse.de>
-References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <200603181546.20794.kernel@kolivas.org> <441B9205.5010701@yahoo.com.au>
-In-Reply-To: <441B9205.5010701@yahoo.com.au>
+	Sat, 18 Mar 2006 00:01:45 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43275 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751242AbWCRFBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 00:01:44 -0500
+Date: Sat, 18 Mar 2006 06:01:41 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] let BLK_DEV_RAM_COUNT depend on BLK_DEV_RAM
+Message-ID: <20060318050141.GC9717@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603181556.23307.kernel@kolivas.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 March 2006 15:52, Nick Piggin wrote:
-> Con Kolivas wrote:
-> > On Saturday 18 March 2006 15:41, Nick Piggin wrote:
-> >>>Index: linux-2.6.16-rc6-mm1/include/linux/swap.h
-> >>>===================================================================
-> >>>--- linux-2.6.16-rc6-mm1.orig/include/linux/swap.h	2006-03-18
-> >>>13:29:38.000000000 +1100 +++
-> >>>linux-2.6.16-rc6-mm1/include/linux/swap.h	2006-03-18 14:50:11.000000000
-> >>>+1100 @@ -66,6 +66,51 @@ typedef struct {
-> >>> 	unsigned long val;
-> >>> } swp_entry_t;
-> >>>
-> >>>+struct scan_control {
-> >>
-> >>Why did you put this here? scan_control really can't go outside vmscan.c,
-> >>it is meant only to ease the passing of lots of parameters, and not as a
-> >>consistent interface.
-> >
-> > #ifdeffery
->
-> Sorry I don't understand...
+It's purely cosmetical, but with the patch there's no longer a 
+BLK_DEV_RAM_COUNT setting in the .config if BLK_DEV_RAM=n.
 
-My bad.
 
-I added the suspend_pass member to struct scan_control within an #ifdef 
-CONFIG_PM to allow it to not be unnecessarily compiled in in the !CONFIG_PM 
-case and wanted to avoid having the #ifdefs in vmscan.c so moved it to a 
-header file.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Cheers,
-Con
+--- linux-2.6.16-rc6-mm1-full/drivers/block/Kconfig.old	2006-03-18 05:42:06.000000000 +0100
++++ linux-2.6.16-rc6-mm1-full/drivers/block/Kconfig	2006-03-18 05:42:39.000000000 +0100
+@@ -383,8 +383,9 @@
+ 	  thus say N here.
+ 
+ config BLK_DEV_RAM_COUNT
+-	int "Default number of RAM disks" if BLK_DEV_RAM
++	int "Default number of RAM disks"
+ 	default "16"
++	depends on BLK_DEV_RAM
+ 	help
+ 	  The default value is 16 RAM disks. Change this if you know what
+ 	  are doing. If you boot from a filesystem that needs to be extracted
+

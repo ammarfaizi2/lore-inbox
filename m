@@ -1,73 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWCRRIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWCRRVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWCRRIt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 12:08:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWCRRIt
+	id S1750717AbWCRRVk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 12:21:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWCRRVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 12:08:49 -0500
-Received: from mga01.intel.com ([192.55.52.88]:52517 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750706AbWCRRIr convert rfc822-to-8bit (ORCPT
+	Sat, 18 Mar 2006 12:21:17 -0500
+Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:16117 "EHLO
+	linux") by vger.kernel.org with ESMTP id S1750717AbWCRRVQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 12:08:47 -0500
-X-IronPort-AV: i="4.03,106,1141632000"; 
-   d="scan'208"; a="14228708:sNHT75545246"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Date: Sun, 19 Mar 2006 01:08:41 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F84041AC26B@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Thread-Index: AcZKriS2mz+vDn+dTBuBtWNgs2Xm5AAAFc7Q
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       <michael@mihu.de>, <mchehab@infradead.org>,
-       "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
-       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
-       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-X-OriginalArrivalTime: 18 Mar 2006 17:08:42.0388 (UTC) FILETIME=[9BB73D40:01C64AAE]
+	Sat, 18 Mar 2006 12:21:16 -0500
+Message-Id: <20060318171947.060818000@towertech.it>
+References: <20060318171946.821316000@towertech.it>
+User-Agent: quilt/0.43-1
+Date: Sat, 18 Mar 2006 18:19:47 +0100
+From: Alessandro Zummo <a.zummo@towertech.it>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@zip.com.au
+Subject: [PATCH 01/18] RTC Subsystem, library functions
+Content-Disposition: inline; filename=rtc-lib.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+RTC and date/time related functions. 
 
->>> PM: Preparing system for mem sleep
->>> Stopping tasks: 
->>> =======================================================|
->
->> Did you see any methods before and after this line in hang case on
->> screen?  If yes, do you recall what they are?
->
->I capture across a serial console, so here are the exact msgs (I just
->ran the second sleep and got the usual hang).  This is with vanilla
->2.6.16-rc5 (and vanilla DSDT):
->
->Stopping tasks: 
->=========================================================|
->Execute Method: [\_SB_.LID0._PSW] (Node c1564808)
->Execute Method: [\_SB_.SLPB._PSW] (Node c1564708)
->Execute Method: [\_S3_] (Node c157a988)
->Execute Method: [\_PTS] (Node c157ab48)
->
->The screen itself is full of garbage because the first 
->sleep/wake messes
->up the console.  Along with a giant white square that fills most of the
->screen, I see a fuzzy, dotted version of the above messages, plus one
->more line "ACPI" and then a flashing underscore cursor after that.  I
->don't know if it was trying to printk "ACPI" but then the rest of the
->message got lost, or it hung before printing it, or whether the ACPI is
->from a previous dmesg (i.e. the first sleep/wake) that didn't get
->cleared properly.
+Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
+---
+ drivers/Kconfig       |    2 
+ drivers/Makefile      |    1 
+ drivers/rtc/Kconfig   |    6 ++
+ drivers/rtc/Makefile  |    5 ++
+ drivers/rtc/rtc-lib.c |  101 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/rtc.h   |    5 ++
+ 6 files changed, 120 insertions(+)
 
-Do you load processor driver?
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-rtc/drivers/rtc/rtc-lib.c	2006-03-13 03:26:29.000000000 +0100
+@@ -0,0 +1,101 @@
++/*
++ * rtc and date/time utility functions
++ *
++ * Copyright (C) 2005-06 Tower Technologies
++ * Author: Alessandro Zummo <a.zummo@towertech.it>
++ *
++ * based on arch/arm/common/rtctime.c and other bits
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++*/
++
++#include <linux/module.h>
++#include <linux/rtc.h>
++
++static const unsigned char rtc_days_in_month[] = {
++	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
++};
++
++#define LEAPS_THRU_END_OF(y) ((y)/4 - (y)/100 + (y)/400)
++#define LEAP_YEAR(year) ((!(year % 4) && (year % 100)) || !(year % 400))
++
++int rtc_month_days(unsigned int month, unsigned int year)
++{
++	return rtc_days_in_month[month] + (LEAP_YEAR(year) && month == 1);
++}
++EXPORT_SYMBOL(rtc_month_days);
++
++/*
++ * Convert seconds since 01-01-1970 00:00:00 to Gregorian date.
++ */
++void rtc_time_to_tm(unsigned long time, struct rtc_time *tm)
++{
++	register int days, month, year;
++
++	days = time / 86400;
++	time -= days * 86400;
++
++	/* day of the week, 1970-01-01 was a Thursday */
++	tm->tm_wday = (days + 4) % 7;
++
++	year = 1970 + days / 365;
++	days -= (year - 1970) * 365
++		+ LEAPS_THRU_END_OF(year - 1)
++		- LEAPS_THRU_END_OF(1970 - 1);
++	if (days < 0) {
++		year -= 1;
++		days += 365 + LEAP_YEAR(year);
++	}
++	tm->tm_year = year - 1900;
++	tm->tm_yday = days + 1;
++
++	for (month = 0; month < 11; month++) {
++		int newdays;
++
++		newdays = days - rtc_month_days(month, year);
++		if (newdays < 0)
++			break;
++		days = newdays;
++	}
++	tm->tm_mon = month;
++	tm->tm_mday = days + 1;
++
++	tm->tm_hour = time / 3600;
++	time -= tm->tm_hour * 3600;
++	tm->tm_min = time / 60;
++	tm->tm_sec = time - tm->tm_min * 60;
++}
++EXPORT_SYMBOL(rtc_time_to_tm);
++
++/*
++ * Does the rtc_time represent a valid date/time?
++ */
++int rtc_valid_tm(struct rtc_time *tm)
++{
++	if (tm->tm_year < 70
++		|| tm->tm_mon >= 12
++		|| tm->tm_mday < 1
++		|| tm->tm_mday > rtc_month_days(tm->tm_mon, tm->tm_year + 1900)
++		|| tm->tm_hour >= 24
++		|| tm->tm_min >= 60
++		|| tm->tm_sec >= 60)
++		return -EINVAL;
++
++	return 0;
++}
++EXPORT_SYMBOL(rtc_valid_tm);
++
++/*
++ * Convert Gregorian date to seconds since 01-01-1970 00:00:00.
++ */
++int rtc_tm_to_time(struct rtc_time *tm, unsigned long *time)
++{
++	*time = mktime(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
++			tm->tm_hour, tm->tm_min, tm->tm_sec);
++	return 0;
++}
++EXPORT_SYMBOL(rtc_tm_to_time);
++
++MODULE_LICENSE("GPL")
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-rtc/drivers/rtc/Makefile	2006-03-13 03:26:05.000000000 +0100
+@@ -0,0 +1,5 @@
++#
++# Makefile for RTC class/drivers.
++#
++
++obj-$(CONFIG_RTC_LIB)	+= rtc-lib.o
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-rtc/drivers/rtc/Kconfig	2006-03-13 03:26:05.000000000 +0100
+@@ -0,0 +1,6 @@
++#
++# RTC class/drivers configuration
++#
++
++config RTC_LIB
++	tristate
+\ No newline at end of file
+--- linux-rtc.orig/drivers/Kconfig	2006-03-13 03:26:02.000000000 +0100
++++ linux-rtc/drivers/Kconfig	2006-03-13 03:26:05.000000000 +0100
+@@ -70,4 +70,6 @@ source "drivers/sn/Kconfig"
+ 
+ source "drivers/edac/Kconfig"
+ 
++source "drivers/rtc/Kconfig"
++
+ endmenu
+--- linux-rtc.orig/drivers/Makefile	2006-03-13 03:26:02.000000000 +0100
++++ linux-rtc/drivers/Makefile	2006-03-13 03:26:05.000000000 +0100
+@@ -56,6 +56,7 @@ obj-$(CONFIG_USB_GADGET)	+= usb/gadget/
+ obj-$(CONFIG_GAMEPORT)		+= input/gameport/
+ obj-$(CONFIG_INPUT)		+= input/
+ obj-$(CONFIG_I2O)		+= message/
++obj-$(CONFIG_RTC_LIB)		+= rtc/
+ obj-$(CONFIG_I2C)		+= i2c/
+ obj-$(CONFIG_W1)		+= w1/
+ obj-$(CONFIG_HWMON)		+= hwmon/
+--- linux-rtc.orig/include/linux/rtc.h	2006-03-13 03:26:02.000000000 +0100
++++ linux-rtc/include/linux/rtc.h	2006-03-13 03:26:05.000000000 +0100
+@@ -95,6 +95,11 @@ struct rtc_pll_info {
+ 
+ #ifdef __KERNEL__
+ 
++extern int rtc_month_days(unsigned int month, unsigned int year);
++extern int rtc_valid_tm(struct rtc_time *tm);
++extern int rtc_tm_to_time(struct rtc_time *tm, unsigned long *time);
++extern void rtc_time_to_tm(unsigned long time, struct rtc_time *tm);
++
+ typedef struct rtc_task {
+ 	void (*func)(void *private_data);
+ 	void *private_data;
+
+--

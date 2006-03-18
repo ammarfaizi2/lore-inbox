@@ -1,91 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWCRIqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWCRIx2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932300AbWCRIqO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 03:46:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWCRIqO
+	id S932306AbWCRIx2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 03:53:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWCRIx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 03:46:14 -0500
-Received: from 213-239-205-134.clients.your-server.de ([213.239.205.134]:47575
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932300AbWCRIqO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 03:46:14 -0500
-Subject: Re: [patch 5/8] hrtimer remove state field
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <Pine.LNX.4.64.0603172242370.16802@scrub.home>
-References: <20060312080316.826824000@localhost.localdomain>
-	 <20060312080332.274315000@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121302590.16802@scrub.home>
-	 <1142169010.19916.397.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121422180.16802@scrub.home>
-	 <1142170505.19916.402.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121444530.16802@scrub.home>
-	 <1142172917.19916.421.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121523320.16802@scrub.home>
-	 <1142175286.19916.459.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121608440.17704@scrub.home>
-	 <1142178108.19916.475.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121650230.16802@scrub.home>
-	 <1142180796.19916.497.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603152055380.16802@scrub.home>
-	 <1142499713.29968.11.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603172242370.16802@scrub.home>
-Content-Type: text/plain
-Date: Sat, 18 Mar 2006 09:46:22 +0100
-Message-Id: <1142671582.17279.32.camel@localhost.localdomain>
+	Sat, 18 Mar 2006 03:53:28 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:29875 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932306AbWCRIx1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 03:53:27 -0500
+Date: Sat, 18 Mar 2006 09:51:13 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.16-rc6 patch] fix interactive task starvation
+Message-ID: <20060318085113.GA23317@elte.hu>
+References: <1142658480.8262.38.camel@homer> <20060317211529.26969a16.akpm@osdl.org> <1142661030.8937.7.camel@homer> <20060317222203.06d7f450.akpm@osdl.org> <1142666985.7881.5.camel@homer>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1142666985.7881.5.camel@homer>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-17 at 23:07 +0100, Roman Zippel wrote:
-> > The general locking rules would be still the same and I dont see
-> > increased flexibility at all.
-> 
-> Current users already do the serialize the calls into hrtimer themselves 
-> (stopping and restarting), which can make the locking even simpler.
 
-Serialization of the users does not help for protecting the timer queues
-especially not on SMP.
+* Mike Galbraith <efault@gmx.de> wrote:
 
-Can you please give a real example how to simplify this. Nobody has any
-objections to simplify locking when possible. But unproven claims in
-repeated form do not help. After a while they just get annoying.
+> Signed-off-by: Mike Galbraith <efault@gmx.de>
 
-> > > If we tightened a bit what a user is allowed to 
-> > > do, we could gain flexibility on the other side, e.g. allow drivers to 
-> > > create timer sources or how to integrate cpu timer.
-> > 
-> > -ENOPARSE. Can you please explain what "allow drivers to create timer
-> > sources" means and why the above locking is in the way ?
-> 
-> For example dynamically attaching a timer_base to a clock source (e.g. to 
-> create a monotonic timer independent of NTP adjustments). Right now as 
-> soon as any timer_base is active it cannot be deconfigured again due to 
-> pointers to it from timers, so this would require different locking.
+looks good to me.
 
-I do not really understand what you want to achieve. 
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-Timer bases are related to clock sources. You can switch the clock
-source of the CLOCK_MONOTONIC timer base at any given time to a
-different one which is not NTP adjusted. Where is the problem?
-
-The timer base does not care about the underlying clock source at all.
-All it knows of it is the function which reads the current time related
-to this clock. When the underlying clock changes the way it generates
-current time then the timer base does not care at all. 
-
-This is not a problem of hrtimers. Its a problem of the clock source
-abstraction layer like John Stultz GTOD framework.
-
-If you want to have timer bases with dynamic clock sources which can go
-away then you have to take care of much more than locking. But I really
-do not see a need for this.
-
-	tglx
-
-
+	Ingo

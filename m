@@ -1,61 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWCRPnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbWCRPnw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbWCRPnV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 10:43:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWCRPnV
+	id S1750935AbWCRPnw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 10:43:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWCRPnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 10:43:21 -0500
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:50300 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S1750893AbWCRPnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 10:43:20 -0500
-DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=zA2nAZC8nRDnJh+CoS+OyZ8a+m2J8lCL0Vq8pnnmjYFi+R2YI8/rOY4ZpGKKfHSXMh59JMXXArDU8oOZDwOGAs1OI9Dwc/pMq6p52kzGypEhRVvpQy+nuKifyArRkRAQ;
-X-IronPort-AV: i="4.03,106,1141624800"; 
-   d="scan'208"; a="396635476:sNHT39985836"
-Date: Sat, 18 Mar 2006 09:43:20 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-ia64@vger.kernel.org, ak@suse.de,
-       openipmi-developer@lists.sourceforge.net, matthew.e.tolentino@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.15] ia64: use i386 dmi_scan.c
-Message-ID: <20060318154319.GB29862@humbolt.us.dell.com>
-Reply-To: Matt Domsch <Matt_Domsch@dell.com>
-References: <20060104221627.GA26064@lists.us.dell.com> <20060106172140.GB19605@lists.us.dell.com> <20060106223932.GB9230@lists.us.dell.com> <20060317155445.602f07b9.akpm@osdl.org> <20060318145621.GA29862@humbolt.us.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060318145621.GA29862@humbolt.us.dell.com>
-User-Agent: Mutt/1.5.9i
+	Sat, 18 Mar 2006 10:43:52 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:28066 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750913AbWCRPnv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 10:43:51 -0500
+Message-ID: <441C2AA0.3080200@us.ibm.com>
+Date: Sat, 18 Mar 2006 10:43:28 -0500
+From: Janak Desai <janak@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Oleg Nesterov <oleg@tv-sign.ru>
+CC: Andrew Morton <akpm@osdl.org>, ebiederm@xmission.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk, hch@lst.de,
+       mtk-manpages@gmx.net, ak@muc.de, paulus@samba.org
+Subject: Re: [PATCH] unshare: Use rcu_assign_pointer when setting sighand
+References: <m1y7za9vy3.fsf@ebiederm.dsl.xmission.com>		<m1pskm9tz9.fsf@ebiederm.dsl.xmission.com>		<441AF596.F6E66BC9@tv-sign.ru> <20060317125607.78a5dbe4.akpm@osdl.org> <441C0741.3BC25010@tv-sign.ru>
+In-Reply-To: <441C0741.3BC25010@tv-sign.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 18, 2006 at 08:56:21AM -0600, Matt Domsch wrote:
-> On Fri, Mar 17, 2006 at 03:54:45PM -0800, Andrew Morton wrote:
-> > It could be that Andi's changes break the ia64 dmi impementation - I don't
-> > know.  I guess it's OK if ia64 is not doing a scan "early".
-> 
-> It's not done "early", because at this point it's only needed for
-> drivers.  On i386 it's done "early" to catch some chipsets
-> (coincidentally, Dell).
-> 
-> > The above might not compile, but I'll make sure that it does so before
-> > releasing next -mm.
-> > 
-> > So.  Bottom line: please test the ia64 dmi patches in next -mm, send any
-> > needed fixups, thanks.
-> 
-> 
-> Built 2.6.16-rc6-mm2 on ia64 Itanium2 (Dell PowerEdge 7250, aka Intel
-> Tiger4).  Compiled clean, loaded clean, works as expected.  Thanks!
+Oleg Nesterov wrote:
 
-Built 2.6.16-rc6-mm2 on x86_64 Dell PowerEdge 2800.  Compiled clean,
-loaded clean, works as expected.  Thanks!
+>Andrew Morton wrote:
+>  
+>
+>>Oleg Nesterov <oleg@tv-sign.ru> wrote:
+>>    
+>>
+>>>Isn't it better to just replace this code with
+>>>'BUG_ON(new_sigh != NULL)' ?
+>>>
+>>>It is never executed, but totally broken, afaics.
+>>>task_lock() has nothing to do with ->sighand changing.
+>>>
+>>>      
+>>>
+>>/*
+>> * Unsharing of sighand for tasks created with CLONE_SIGHAND is not
+>> * supported yet
+>> */
+>>static int unshare_sighand(unsigned long unshare_flags, struct sighand_struct **new_sighp)
+>>
+>>It's all just a place-holder at present.
+>>
+>>If we don't plan on ever supporting unshare(CLONE_SIGHAND) we should take
+>>that code out and make it return EINVAL.  Right now.
+>>
+>>And because we don't presently support CLONE_SIGHAND we should return
+>>EINVAL if it's set.  Right now.
+>>
+>>And we should change sys_unshare() to reject not-understood flags.  Right
+>>now.
+>>
+>>If we don't do these things we'll silently break 2.6.16-back-compatibility
+>>of applications which are coded for future kernels.
+>>    
+>>
+>
+>unshare_sighand() is ok, it never populates *new_sighp, it just returns
+>errror code: 0 when ->sighand is not shared, EINVAL otherwise.
+>
+>I argued about 'if (new_sigh)' code in sys_unshare() because it lies about
+>locking rules.
+>
+>Btw, copy_process() forbids CLONE_SIGHAND without CLONE_VM (is there a
+>good reason for that?), but one can do unshare(CLONE_VM). This is odd.
+>  
+>
+Yes, copy_process forbids cloning of signal handlers without cloning of vm.
+However, it does allow cloning of vm without cloning of signal handlers. For
+those processes, that are sharing vm but not signal handlers, unsharing 
+of vm
+is allowed.
 
--Matt
+>Oleg.
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
---
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com

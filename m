@@ -1,52 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWCRRVR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWCRRVQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWCRRVR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 12:21:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWCRRVQ
+	id S1750715AbWCRRVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 12:21:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWCRRVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Sat, 18 Mar 2006 12:21:16 -0500
-Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:16373 "EHLO
-	linux") by vger.kernel.org with ESMTP id S1750721AbWCRRVQ (ORCPT
+Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:15605 "EHLO
+	linux") by vger.kernel.org with ESMTP id S1750715AbWCRRVP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 12:21:16 -0500
-Message-Id: <20060318171946.821316000@towertech.it>
+	Sat, 18 Mar 2006 12:21:15 -0500
+Message-Id: <20060318171947.432965000@towertech.it>
+References: <20060318171946.821316000@towertech.it>
 User-Agent: quilt/0.43-1
-Date: Sat, 18 Mar 2006 18:19:46 +0100
+Date: Sat, 18 Mar 2006 18:19:49 +0100
 From: Alessandro Zummo <a.zummo@towertech.it>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@zip.com.au
-Subject: [PATCH 00/18] RTC subsystem
+Cc: akpm@zip.com.au, Richard Purdie <rpurdie@rpsys.net>
+Subject: [PATCH 03/18] RTC subsystem, ARM Integrator cleanup
+Content-Disposition: inline; filename=rtc-arm-integrator-cleanup.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Richard Purdie <rpurdie@rpsys.net>
 
- RTC subsystem. 
+Fix some namespace conflicts between the RTC subsystem and the ARM
+Integrator time functions.
 
- Original RFC available at http://lkml.org/lkml/2005/12/20/220
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
 
- Changelog. Between parentheses is the name
- of the person that suggested the change.
+---
+ arch/arm/mach-integrator/time.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
- - license and tristate for rtc-lib.c (Andrian Bunk)
- - added driver for ST M48T86
-
- The following patches have been incorporated:
-
-  none
-
- The following items are in the TODO:
-
- - Documentation of exported functions
- - Handling of max_user_freq
- - 11 min ntp update mode
-
---
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
+--- linux-rtc.orig/arch/arm/mach-integrator/time.c	2006-03-03 00:15:21.000000000 +0100
++++ linux-rtc/arch/arm/mach-integrator/time.c	2006-03-05 01:22:45.000000000 +0100
+@@ -40,13 +40,13 @@ static int integrator_set_rtc(void)
+ 	return 1;
+ }
+ 
+-static int rtc_read_alarm(struct rtc_wkalrm *alrm)
++static int integrator_rtc_read_alarm(struct rtc_wkalrm *alrm)
+ {
+ 	rtc_time_to_tm(readl(rtc_base + RTC_MR), &alrm->time);
+ 	return 0;
+ }
+ 
+-static inline int rtc_set_alarm(struct rtc_wkalrm *alrm)
++static inline int integrator_rtc_set_alarm(struct rtc_wkalrm *alrm)
+ {
+ 	unsigned long time;
+ 	int ret;
+@@ -62,7 +62,7 @@ static inline int rtc_set_alarm(struct r
+ 	return ret;
+ }
+ 
+-static int rtc_read_time(struct rtc_time *tm)
++static int integrator_rtc_read_time(struct rtc_time *tm)
+ {
+ 	rtc_time_to_tm(readl(rtc_base + RTC_DR), tm);
+ 	return 0;
+@@ -76,7 +76,7 @@ static int rtc_read_time(struct rtc_time
+  * edge of the 1Hz clock, we must write the time one second
+  * in advance.
+  */
+-static inline int rtc_set_time(struct rtc_time *tm)
++static inline int integrator_rtc_set_time(struct rtc_time *tm)
+ {
+ 	unsigned long time;
+ 	int ret;
+@@ -90,10 +90,10 @@ static inline int rtc_set_time(struct rt
+ 
+ static struct rtc_ops rtc_ops = {
+ 	.owner		= THIS_MODULE,
+-	.read_time	= rtc_read_time,
+-	.set_time	= rtc_set_time,
+-	.read_alarm	= rtc_read_alarm,
+-	.set_alarm	= rtc_set_alarm,
++	.read_time	= integrator_rtc_read_time,
++	.set_time	= integrator_rtc_set_time,
++	.read_alarm	= integrator_rtc_read_alarm,
++	.set_alarm	= integrator_rtc_set_alarm,
+ };
+ 
+ static irqreturn_t arm_rtc_interrupt(int irq, void *dev_id,
 
 --

@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWCRI6x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWCRI7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWCRI6x (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 03:58:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWCRI6w
+	id S932331AbWCRI7u (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 03:59:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWCRI7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 03:58:52 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:40661 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932331AbWCRI6v (ORCPT
+	Sat, 18 Mar 2006 03:59:50 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:20423 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932331AbWCRI7t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 03:58:51 -0500
-Date: Sat, 18 Mar 2006 09:56:31 +0100
+	Sat, 18 Mar 2006 03:59:49 -0500
+Date: Sat, 18 Mar 2006 09:57:25 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
+To: Tom Rini <trini@kernel.crashing.org>
 Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, Esben Nielsen <simlo@phys.au.dk>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Jan Altenberg <tb10alj@tglx.de>,
-       Sastien Dugu <sebastien.dugue@bull.net>
-Subject: Re: 2.6.16-rc6-rt3
-Message-ID: <20060318085631.GC23317@elte.hu>
-References: <20060314084658.GA28947@elte.hu> <4416C6DD.80209@cybsft.com> <20060314142458.GA21796@elte.hu> <4416F14E.1040708@cybsft.com> <20060317092351.GA18491@elte.hu> <441AE417.1030601@cybsft.com> <20060317203149.GA23069@elte.hu> <441B756A.9060309@cybsft.com>
+       John Stultz <johnstul@us.ibm.com>, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: 2.6.16-rc6-rt7
+Message-ID: <20060318085725.GE23317@elte.hu>
+References: <20060316095607.GA28571@elte.hu> <20060317233636.GB26253@smtp.west.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <441B756A.9060309@cybsft.com>
+In-Reply-To: <20060317233636.GB26253@smtp.west.cox.net>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -2.6
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.7 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* K.R. Foley <kr@cybsft.com> wrote:
+* Tom Rini <trini@kernel.crashing.org> wrote:
 
-> Ingo Molnar wrote:
-> > * K.R. Foley <kr@cybsft.com> wrote:
-> > 
-> >> OK. Tried rt9 with a clean build and still no joy. I've attached the 
-> >> log which looks like it could be a similar problem?
-> > 
-> > seems to be a different one:
-> > 
-> >> input: ImPS/2 Generic Wheel Mouse as /class/input/input1
-> >> Freeing unused kernel memory: 284k freed
-> >> Could not allocate 8 bytes percpu data
-> >> sd_mod: Unknown symbol scsi_print_sense_hdr
-> > 
-> > could you increase PERCPU_ENOUGH_ROOM in include/linux/percpu.h? (to 
-> > e.g. 65536)
-> > 
-> > 	Ingo
-> > 
+> On Thu, Mar 16, 2006 at 10:56:08AM +0100, Ingo Molnar wrote:
 > 
-> Perhaps I misunderstood what you wanted me to do before. Just for 
-> grins I doubled the PERCPU_ENOUGH_ROOM to 131072 and have successfully 
-> booted twice now.
+> > i have released the 2.6.16-rc6-rt7 tree, which can be downloaded from 
+> > the usual place:
+> > 
+> >    http://redhat.com/~mingo/realtime-preempt/
+> 
+> I was wondering, is it normal for the nanosleep02 and alarm02 LTP 
+> tests to fail?  For sometime I've seen these tests fail from time to 
+> time with the -RT patch but not the regular kernel.
 
-great. (i quoted the wrong number above, the -rt tree already doubled 
-the value, so we needed yet another doubling)
+no, it's not normal. How repeatable is it?
 
 	Ingo

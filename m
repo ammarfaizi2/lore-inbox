@@ -1,85 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbWCRCqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932856AbWCRCub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751011AbWCRCqi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 21:46:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932854AbWCRCqi
+	id S932856AbWCRCub (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 21:50:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932857AbWCRCub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 21:46:38 -0500
-Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:42624 "HELO
-	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751011AbWCRCqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 21:46:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=Wbsgr4cduPA3gXjd3dfJ29rFyrwhct1MoVmTWKQsHqoEX1EzuOsX/4qDP/mkb81AtohQAqFscsaiRS43HETtFKuJxsdnUCOWx4wibSFoJ3vfjm/ndYRLQlqDxZIWQWw4/UIY3RcqGHTmzxRxyl6WO/mezVhoVqnMoVL3HcrukLk=  ;
-Message-ID: <441B7489.1090403@yahoo.com.au>
-Date: Sat, 18 Mar 2006 13:46:33 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Fri, 17 Mar 2006 21:50:31 -0500
+Received: from mxsf19.cluster1.charter.net ([209.225.28.219]:57483 "EHLO
+	mxsf19.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S932856AbWCRCub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 21:50:31 -0500
+X-IronPort-AV: i="4.03,106,1141621200"; 
+   d="scan'208"; a="101198642:sNHT27865680"
+Message-ID: <441B756A.9060309@cybsft.com>
+Date: Fri, 17 Mar 2006 20:50:18 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: steiner@sgi.com, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] - Reduce overhead of calc_load
-References: <20060317145709.GA4296@sgi.com>	<20060317145912.GA13207@elte.hu>	<20060317152611.GA4449@sgi.com>	<20060317171538.3826eb41.akpm@osdl.org>	<441B6BD3.2030807@yahoo.com.au> <20060317183742.10431ba2.akpm@osdl.org>
-In-Reply-To: <20060317183742.10431ba2.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, Esben Nielsen <simlo@phys.au.dk>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Jan Altenberg <tb10alj@tglx.de>,
+       Sastien Dugu <sebastien.dugue@bull.net>
+Subject: Re: 2.6.16-rc6-rt3
+References: <20060314084658.GA28947@elte.hu> <4416C6DD.80209@cybsft.com> <20060314142458.GA21796@elte.hu> <4416F14E.1040708@cybsft.com> <20060317092351.GA18491@elte.hu> <441AE417.1030601@cybsft.com> <20060317203149.GA23069@elte.hu>
+In-Reply-To: <20060317203149.GA23069@elte.hu>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-
->>Is there a need? Do they (except calc_load) use multiple values at
->>the same time?
+Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
 > 
+>> OK. Tried rt9 with a clean build and still no joy. I've attached the 
+>> log which looks like it could be a similar problem?
 > 
-> Don't know.  It might happen in the future.  And the additional cost is
-> practically zero.
+> seems to be a different one:
 > 
-
-Unless it happens to hit another cacheline (cachelines for all other
-CPUs but our own will most likely be invalid on this cpu). In which
-case the cost could double quite easily.
-
+>> input: ImPS/2 Generic Wheel Mouse as /class/input/input1
+>> Freeing unused kernel memory: 284k freed
+>> Could not allocate 8 bytes percpu data
+>> sd_mod: Unknown symbol scsi_print_sense_hdr
 > 
->>>And then give get_sched_stuff() a hotplug handler (probably unneeded) and
->>
->>What would the hotplug handler do?
+> could you increase PERCPU_ENOUGH_ROOM in include/linux/percpu.h? (to 
+> e.g. 65536)
 > 
-> 
-> Move the stats from the going-away CPU into the current CPU's runqueue.
+> 	Ingo
 > 
 
-Oh, that. Yeah that is handled already for nr_uninterruptible (although,
-ironically, it isn't needed because of the for_each_cpu loop there!)
-
->>I think it need only iterate over possible CPUs.
-> 
-> 
-> Someone who has four online CPUs, sixteen present CPUs and 128 possible
-> CPUs would be justifiably disappointed, no?
-> 
-
-Yes. Ingo? This can be changed, right?
-
-> 
->>>IOW: this code's an inefficient mess and needs some caring for.
->>
->>What are the performance critical places that call the nr_blah() functions?
->>
-> 
-> 
-> That depends upon the frequency with which userspace reads /proc/loadavg,
-> /proc/stat or /proc/future-stuff.
-> 
-> 
-
-I think it might be better to leave it for the moment. If something comes
-up we can always take a look at it then (it isn't particularly tricky code).
+Perhaps I misunderstood what you wanted me to do before. Just for grins
+I doubled the PERCPU_ENOUGH_ROOM to 131072 and have successfully booted
+twice now.
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+   kr

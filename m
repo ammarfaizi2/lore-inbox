@@ -1,59 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWCRA0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWCRAkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbWCRA0H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 19:26:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWCRA0H
+	id S932299AbWCRAkl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 19:40:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932803AbWCRAkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 19:26:07 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:50853 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932253AbWCRA0E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 19:26:04 -0500
-Subject: Re: [PATCH 08/21] Cx88 default picture controls values
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
-       Marcin Rudowski <mar_rud@poczta.onet.pl>,
-       Ian Pickworth <ian@pickworth.me.uk>
-In-Reply-To: <1142629814.25258.96.camel@mindpipe>
-References: <20060317205359.PS65198900000@infradead.org>
-	 <20060317205434.PS87790000008@infradead.org>
-	 <1142629814.25258.96.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Fri, 17 Mar 2006 21:25:48 -0300
-Message-Id: <1142641548.4630.31.camel@praia>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-3mdk 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 17 Mar 2006 19:40:39 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:59570 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932299AbWCRAkQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 19:40:16 -0500
+Date: Fri, 17 Mar 2006 17:40:15 -0700
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: john stultz <johnstul@us.ibm.com>, george@wildturkeyranch.net,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Roman Zippel <zippel@linux-m68k.org>, Ingo Molnar <mingo@elte.hu>
+Message-Id: <20060318004014.32251.6037.sendpatchset@cog.beaverton.ibm.com>
+In-Reply-To: <20060318003955.32251.80532.sendpatchset@cog.beaverton.ibm.com>
+References: <20060318003955.32251.80532.sendpatchset@cog.beaverton.ibm.com>
+Subject: [PATCH 3/10] Time: Let user request precision from current_tick_length()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sex, 2006-03-17 às 16:10 -0500, Lee Revell escreveu:
-> On Fri, 2006-03-17 at 17:54 -0300, mchehab@infradead.org wrote:
-> >  - volume set to 0dB (now is -32dB)
-> 
-> Shouldn't volumes default to muted so as not to damage people's speakers
-> and/or hearing?
-Good point. Generally, video devices starts with an open volume when the
-user opens the video application. After closed, it turns off audio. In
-fact, for most applications, this is really not important, since default
-is also stored at the application itself. If we compare with a TV set,
-when people turn TV on, they expect to listen something.
+	Change the current_tick_length() function so it takes an 
+argument which specifies how much precision to return in shifted 
+nanoseconds. This provides a simple way to convert between NTPs 
+internal nanoseconds shifted by (SHIFT_SCALE - 10)  to other shifted 
+nanosecond units that are used by the clocksource abstraction.
 
-About cx88, in the past, we were starting with a low volume, but people
-complained that this is bad, since they don't know for sure if the audio
-is working fine.
+Signed-off-by John Stultz <johnstul@us.ibm.com>
 
-If we decide to change to start without volume, we will need to patch
-all other devices, since current V4L default is to start at maximum
-volume (except for msp3400, that starts at about 90% of max scale, due
-troubles with maximum volume on some boards).
+ arch/powerpc/kernel/time.c |    2 +-
+ include/linux/timex.h      |    2 +-
+ kernel/timer.c             |   21 +++++++++++++++++----
+ 3 files changed, 19 insertions(+), 6 deletions(-)
 
-> 
-> Lee
-> 
-Cheers, 
-Mauro.
-
+linux-2.6.16-rc6_timeofday-core2_C0.patch
+============================================
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index 86f7e3d..08a53a4 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -315,7 +315,7 @@ static __inline__ void timer_recalc_offs
+ 
+ 	if (__USE_RTC())
+ 		return;
+-	tlen = current_tick_length();
++	tlen = current_tick_length(SHIFT_SCALE - 10);
+ 	offset = cur_tb - do_gtod.varp->tb_orig_stamp;
+ 	if (tlen == last_tick_len && offset < 0x80000000u)
+ 		return;
+diff --git a/include/linux/timex.h b/include/linux/timex.h
+index b7ca120..e239f2d 100644
+--- a/include/linux/timex.h
++++ b/include/linux/timex.h
+@@ -346,7 +346,7 @@ time_interpolator_reset(void)
+ #endif /* !CONFIG_TIME_INTERPOLATION */
+ 
+ /* Returns how long ticks are at present, in ns / 2^(SHIFT_SCALE-10). */
+-extern u64 current_tick_length(void);
++extern u64 current_tick_length(long);
+ 
+ #endif /* KERNEL */
+ 
+diff --git a/kernel/timer.c b/kernel/timer.c
+index 0725e40..90fe137 100644
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -791,16 +791,29 @@ static void update_wall_time_one_tick(vo
+  * Return how long ticks are at the moment, that is, how much time
+  * update_wall_time_one_tick will add to xtime next time we call it
+  * (assuming no calls to do_adjtimex in the meantime).
+- * The return value is in fixed-point nanoseconds with SHIFT_SCALE-10
+- * bits to the right of the binary point.
++ * The return value is in fixed-point nanoseconds shifted by the
++ * specified number of bits to the right of the binary point.
+  * This function has no side-effects.
+  */
+-u64 current_tick_length(void)
++u64 current_tick_length(long shift)
+ {
+ 	long delta_nsec;
++	u64 ret;
+ 
++	/* calculate the finest interval NTP will allow.
++	 *    ie: nanosecond value shifted by (SHIFT_SCALE - 10)
++	 */
+ 	delta_nsec = tick_nsec + adjtime_adjustment() * 1000;
+-	return ((u64) delta_nsec << (SHIFT_SCALE - 10)) + time_adj;
++	ret = ((u64) delta_nsec << (SHIFT_SCALE - 10)) + time_adj;
++
++	/* convert from (SHIFT_SCALE - 10) to specified shift scale: */
++	shift = shift - (SHIFT_SCALE - 10);
++	if (shift < 0)
++		ret >>= -shift;
++	else
++		ret <<= shift;
++
++	return ret;
+ }
+ 
+ /* XXX - all of this timekeeping code should be later moved to time.c */

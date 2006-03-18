@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932793AbWCRPeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWCRPnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932793AbWCRPeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 10:34:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932843AbWCRPeZ
+	id S1751091AbWCRPnV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 10:43:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWCRPnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 10:34:25 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:64152 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932793AbWCRPeY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 10:34:24 -0500
-Message-ID: <441C2856.30102@us.ibm.com>
-Date: Sat, 18 Mar 2006 10:33:42 -0500
-From: Janak Desai <janak@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Andrew Morton <akpm@osdl.org>, Oleg Nesterov <oleg@tv-sign.ru>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk,
-       hch@lst.de, mtk-manpages@gmx.net, ak@muc.de, paulus@samba.org
-Subject: Re: [PATCH] unshare: Error if passed unsupported flags
-References: <m1y7za9vy3.fsf@ebiederm.dsl.xmission.com>	<m1pskm9tz9.fsf@ebiederm.dsl.xmission.com>	<441AF596.F6E66BC9@tv-sign.ru> <20060317125607.78a5dbe4.akpm@osdl.org> <m13bhf3i1z.fsf_-_@ebiederm.dsl.xmission.com>
-In-Reply-To: <m13bhf3i1z.fsf_-_@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Mar 2006 10:43:21 -0500
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:50300 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S1750893AbWCRPnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 10:43:20 -0500
+DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=zA2nAZC8nRDnJh+CoS+OyZ8a+m2J8lCL0Vq8pnnmjYFi+R2YI8/rOY4ZpGKKfHSXMh59JMXXArDU8oOZDwOGAs1OI9Dwc/pMq6p52kzGypEhRVvpQy+nuKifyArRkRAQ;
+X-IronPort-AV: i="4.03,106,1141624800"; 
+   d="scan'208"; a="396635476:sNHT39985836"
+Date: Sat, 18 Mar 2006 09:43:20 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-ia64@vger.kernel.org, ak@suse.de,
+       openipmi-developer@lists.sourceforge.net, matthew.e.tolentino@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.15] ia64: use i386 dmi_scan.c
+Message-ID: <20060318154319.GB29862@humbolt.us.dell.com>
+Reply-To: Matt Domsch <Matt_Domsch@dell.com>
+References: <20060104221627.GA26064@lists.us.dell.com> <20060106172140.GB19605@lists.us.dell.com> <20060106223932.GB9230@lists.us.dell.com> <20060317155445.602f07b9.akpm@osdl.org> <20060318145621.GA29862@humbolt.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060318145621.GA29862@humbolt.us.dell.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Thanks Eric. I had just started to do this based on Andrew's request.
-
--Janak
-
-Eric W. Biederman wrote:
-
->This patch does a bare bones trivial patch to ensure we always
->get -EINVAL on the unsupported cases for sys_unshare.  If this
->goes in before 2.6.16 it allows us to forward compatible with
->future applications using sys_unshare.
->
->Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
->
->
->---
->
-> kernel/fork.c |    6 ++++++
-> 1 files changed, 6 insertions(+), 0 deletions(-)
->
->46868b4b6ebeb9042dded68a6f6301ffe06820c9
->diff --git a/kernel/fork.c b/kernel/fork.c
->index 46060cb..411b10d 100644
->--- a/kernel/fork.c
->+++ b/kernel/fork.c
->@@ -1535,6 +1535,12 @@ asmlinkage long sys_unshare(unsigned lon
-> 	struct sem_undo_list *new_ulist = NULL;
+On Sat, Mar 18, 2006 at 08:56:21AM -0600, Matt Domsch wrote:
+> On Fri, Mar 17, 2006 at 03:54:45PM -0800, Andrew Morton wrote:
+> > It could be that Andi's changes break the ia64 dmi impementation - I don't
+> > know.  I guess it's OK if ia64 is not doing a scan "early".
 > 
-> 	check_unshare_flags(&unshare_flags);
->+       
->+	/* Return -EINVAL for all unsupported flags */
->+	err = -EINVAL;
->+	if (unshare_flags & ~(CLONE_THREAD|CLONE_FS|CLONE_NEWNS|CLONE_SIGHAND|
->+				CLONE_VM|CLONE_FILES|CLONE_SYSVSEM))
->+		goto bad_unshare_out;
+> It's not done "early", because at this point it's only needed for
+> drivers.  On i386 it's done "early" to catch some chipsets
+> (coincidentally, Dell).
 > 
-> 	if ((err = unshare_thread(unshare_flags)))
-> 		goto bad_unshare_out;
->  
->
+> > The above might not compile, but I'll make sure that it does so before
+> > releasing next -mm.
+> > 
+> > So.  Bottom line: please test the ia64 dmi patches in next -mm, send any
+> > needed fixups, thanks.
+> 
+> 
+> Built 2.6.16-rc6-mm2 on ia64 Itanium2 (Dell PowerEdge 7250, aka Intel
+> Tiger4).  Compiled clean, loaded clean, works as expected.  Thanks!
 
+Built 2.6.16-rc6-mm2 on x86_64 Dell PowerEdge 2800.  Compiled clean,
+loaded clean, works as expected.  Thanks!
+
+-Matt
+
+--
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWCRFBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWCRFDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbWCRFBp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 00:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWCRFBp
+	id S1751326AbWCRFDe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 00:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWCRFDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 00:01:45 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43275 "HELO
+	Sat, 18 Mar 2006 00:03:34 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44299 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751242AbWCRFBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 00:01:44 -0500
-Date: Sat, 18 Mar 2006 06:01:41 +0100
+	id S1751326AbWCRFDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 00:03:33 -0500
+Date: Sat, 18 Mar 2006 06:03:31 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] let BLK_DEV_RAM_COUNT depend on BLK_DEV_RAM
-Message-ID: <20060318050141.GC9717@stusta.de>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Suzuki <suzuki@in.ibm.com>,
+       linux-fsdevel@vger.kernel.org,
+       "linux-aio kvack.org" <linux-aio@kvack.org>,
+       lkml <linux-kernel@vger.kernel.org>, suparna <suparna@in.ibm.com>,
+       akpm@osdl.org, linux-xfs@oss.sgi.com
+Subject: Re: [RFC] Badness in __mutex_unlock_slowpath with XFS stress tests
+Message-ID: <20060318050331.GD9717@stusta.de>
+References: <440FDF3E.8060400@in.ibm.com> <20060309120306.GA26682@infradead.org> <20060309223042.GC1135@frodo> <20060309224219.GA6709@infradead.org> <20060309231422.GD1135@frodo> <20060310005020.GF1135@frodo> <20060317172210.GP3914@stusta.de> <20060318143444.E568717@wobbly.melbourne.sgi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060318143444.E568717@wobbly.melbourne.sgi.com>
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's purely cosmetical, but with the patch there's no longer a 
-BLK_DEV_RAM_COUNT setting in the .config if BLK_DEV_RAM=n.
+On Sat, Mar 18, 2006 at 02:34:44PM +1100, Nathan Scott wrote:
+> On Fri, Mar 17, 2006 at 06:22:10PM +0100, Adrian Bunk wrote:
+> > On Fri, Mar 10, 2006 at 11:50:20AM +1100, Nathan Scott wrote:
+> > > Something like this (works OK for me)...
+> > 
+> > Is this 2.6.16 material?
+> 
+> Its been merged already.
 
+Ups, sorry for missing this.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> cheers.
+> Nathan
 
---- linux-2.6.16-rc6-mm1-full/drivers/block/Kconfig.old	2006-03-18 05:42:06.000000000 +0100
-+++ linux-2.6.16-rc6-mm1-full/drivers/block/Kconfig	2006-03-18 05:42:39.000000000 +0100
-@@ -383,8 +383,9 @@
- 	  thus say N here.
- 
- config BLK_DEV_RAM_COUNT
--	int "Default number of RAM disks" if BLK_DEV_RAM
-+	int "Default number of RAM disks"
- 	default "16"
-+	depends on BLK_DEV_RAM
- 	help
- 	  The default value is 16 RAM disks. Change this if you know what
- 	  are doing. If you boot from a filesystem that needs to be extracted
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

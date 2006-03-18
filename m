@@ -1,77 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbWCRU5O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWCRU5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbWCRU5O (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 15:57:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWCRU5O
+	id S1750974AbWCRU5n (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 15:57:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbWCRU5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 15:57:14 -0500
-Received: from smtp1.ist.utl.pt ([193.136.128.21]:18071 "EHLO smtp1.ist.utl.pt")
-	by vger.kernel.org with ESMTP id S1750902AbWCRU5O (ORCPT
+	Sat, 18 Mar 2006 15:57:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:8095 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750974AbWCRU5m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 15:57:14 -0500
-From: Claudio Martins <ctpm@ist.utl.pt>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6.16-rc6: known regressions (v2)
-Date: Sat, 18 Mar 2006 20:57:09 +0000
-User-Agent: KMail/1.9.1
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Avuton Olrich <avuton@gmail.com>, Nathan Scott <nathans@sgi.com>,
-       linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org> <20060317143642.GJ3914@stusta.de>
-In-Reply-To: <20060317143642.GJ3914@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 18 Mar 2006 15:57:42 -0500
+Date: Sat, 18 Mar 2006 12:54:38 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: 2.6.16-rc6-mm2
+Message-Id: <20060318125438.420f0608.akpm@osdl.org>
+In-Reply-To: <200603182121.58071.rjw@sisk.pl>
+References: <20060318044056.350a2931.akpm@osdl.org>
+	<200603182121.58071.rjw@sisk.pl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603182057.10171.ctpm@ist.utl.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Friday 17 March 2006 14:36, Adrian Bunk wrote:
-> This email lists some known regressions in 2.6.16-rc6 compared to 2.6.15.
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 >
-> If you find your name in the Cc header, you are either submitter of one
-> of the bugs, maintainer of an affectected subsystem or driver, a patch
-> of you was declared guilty for a breakage or I'm considering you in any
-> other way possibly involved with one or more of these issues.
->
-> Due to the huge amount of recipients, please trim the Cc when answering.
+> On Saturday 18 March 2006 13:40, Andrew Morton wrote:
+>  > 
+>  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm2/
+> 
+>  I get the following oops from it 100% of the time (on boot):
+> 
+>  Trying to free ramdisk memory ... ----------- [cut here ] --------- [please bite here ] ---------
+>  Kernel BUG at fs/buffer.c:1629
+>  invalid opcode: 0000 [1] PREEMPT
+>  last sysfs file: /block/hdc/range
+>  CPU 0
+>  Modules linked in:
+>  Pid: 1, comm: swapper Not tainted 2.6.16-rc6-mm2 #16
+>  RIP: 0010:[<ffffffff80280d9a>] <ffffffff80280d9a>{block_invalidatepage+202}
+>  RSP: 0000:ffff81005ff07ac8  EFLAGS: 00010246
+>  RAX: 0000000000000000 RBX: ffff810037c09138 RCX: ffff810037c09228
+>  RDX: 0000000000000000 RSI: ffff81005ff07a88 RDI: 0000000000000000
+>  RBP: ffff81005ff07af8 R08: 0000000000000002 R09: ffff81005ff07a99
+>  R10: ffff810037c09138 R11: 0000000000000010 R12: ffff810037c09138
+>  R13: 0000000000001000 R14: ffff810037c09138 R15: ffff810001c34e28
+>  FS:  0000000000000000(0000) GS:ffffffff80690000(0000) knlGS:0000000000000000
+>  CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+>  CR2: 00002afbe89a3000 CR3: 000000005fe36000 CR4: 00000000000006e0
+>  Process swapper (pid: 1, threadinfo ffff81005ff06000, task ffff81005ff05530)
+>  Stack: 0000000000000000 ffff810001c34e28 0000000000000002 0000000000000001
+>         ffff810037df47e0 ffffffffffffffff ffff81005ff07b08 ffffffff8027f7b3
+>         ffff81005ff07b28 ffffffff802610d5
+>  Call Trace: <ffffffff8027f7b3>{do_invalidatepage+35}
+>         <ffffffff802610d5>{truncate_complete_page+37} <ffffffff8026154f>{truncate_inode_pages_range+207}
+>         <ffffffff802617c0>{truncate_inode_pages+16} <ffffffff803bac96>{rd_ioctl+86}
 
- [snip...]
+Yeah, ramdisk does strange things.
 
->
->
-> Subject    : XFS oopses on my box sometimes
-> References : http://bugzilla.kernel.org/show_bug.cgi?id=6180
-> Submitter  : Avuton Olrich <avuton@gmail.com>
-> Handled-By : Nathan Scott <nathans@sgi.com>
-> Status     : discussion in the bug
->
->
+That's two.  I guess I need to see if Neil left any other little timebombs
+in there for us ;)
 
-  Hi Adrian, Nathan and all,
-
- If think I might have hit this one! 
-I managed to get an oops which showed xfs related functions on the backtrace. 
-The process involved was "rm" and the specific stress test was some 32 
-paralell kernel builds (each one with "make -j8") on a quad Opteron box with 
-a 1 TB xfs filesystem. Preemption was disabled.
-
- After that the machine was still alive, but an fsck.xfs after a reboot showed 
-corruption that I was able to repair with xfs_repair. This was also with an 
-almost empty filesystem, hence the similarity with the above bug report.
-
- This was sometime ago, using the git tree from February 23 and unfortunately 
-I didn't record the oops and output from xfs_repair. I'll update my git tree 
-tonight, rebuild and retest in hopes to find that oops again. FWIW I managed 
-to hit this after some 4 to 6 hours of testing so it shouldn't take too long 
-to report back.
-
- See you later...
-
-Best regards
-
-Claudio Martins
+--- devel/fs/buffer.c~make-address_space_operations-invalidatepage-return-void-fix	2006-03-18 12:52:37.000000000 -0800
++++ devel-akpm/fs/buffer.c	2006-03-18 12:53:04.000000000 -0800
+@@ -1624,10 +1624,8 @@ void block_invalidatepage(struct page *p
+ 	 * The get_block cached value has been unconditionally invalidated,
+ 	 * so real IO is not possible anymore.
+ 	 */
+-	if (offset == 0) {
+-		int ret = try_to_release_page(page, 0);
+-		BUG_ON(!ret);
+-	}
++	if (offset == 0)
++		try_to_release_page(page, 0);
+ out:
+ 	return;
+ }
+_
 

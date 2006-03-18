@@ -1,75 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932760AbWCRPSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932786AbWCRPSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932760AbWCRPSO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 10:18:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932786AbWCRPSO
+	id S932786AbWCRPSj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 10:18:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932793AbWCRPSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 10:18:14 -0500
-Received: from 213-239-205-134.clients.your-server.de ([213.239.205.134]:45275
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932760AbWCRPSN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 10:18:13 -0500
-Message-Id: <20060318142830.607556000@localhost.localdomain>
-References: <20060318142827.419018000@localhost.localdomain>
-Date: Sat, 18 Mar 2006 15:18:25 -0000
-From: Thomas Gleixner <tglx@linutronix.de>
+	Sat, 18 Mar 2006 10:18:37 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50316 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932786AbWCRPSZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 10:18:25 -0500
 To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Tom Rini <trini@kernel.crashing.org>
-Subject: [patch 1/2] Validate itimer timeval from userspace
-Content-Disposition: inline; filename=itimer-validate-uservalue.patch
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, janak@us.ibm.com, viro@ftp.linux.org.uk,
+       hch@lst.de, mtk-manpages@gmx.net, ak@muc.de, paulus@samba.org
+Subject: [PATCH] unshare: Error if passed unsupported flags
+References: <m1y7za9vy3.fsf@ebiederm.dsl.xmission.com>
+	<m1pskm9tz9.fsf@ebiederm.dsl.xmission.com>
+	<441AF596.F6E66BC9@tv-sign.ru> <20060317125607.78a5dbe4.akpm@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sat, 18 Mar 2006 08:10:16 -0700
+In-Reply-To: <20060317125607.78a5dbe4.akpm@osdl.org> (Andrew Morton's
+ message of "Fri, 17 Mar 2006 12:56:07 -0800")
+Message-ID: <m13bhf3i1z.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-According to the specification the timeval must be validated and
-an errorcode -EINVAL returned in case the timeval is not in canonical
-form. Before the hrtimer merge this was silently ignored by the 
-timeval to jiffies conversion. The validation is done inside 
-do_setitimer so all callers are catched.
+This patch does a bare bones trivial patch to ensure we always
+get -EINVAL on the unsupported cases for sys_unshare.  If this
+goes in before 2.6.16 it allows us to forward compatible with
+future applications using sys_unshare.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 
- include/linux/time.h |    6 ++++++
- kernel/itimer.c      |    8 ++++++++
- 2 files changed, 14 insertions(+)
 
-Index: linux-2.6.16-rc6-updates/include/linux/time.h
-===================================================================
---- linux-2.6.16-rc6-updates.orig/include/linux/time.h
-+++ linux-2.6.16-rc6-updates/include/linux/time.h
-@@ -73,6 +73,12 @@ extern void set_normalized_timespec(stru
- #define timespec_valid(ts) \
- 	(((ts)->tv_sec >= 0) && (((unsigned long) (ts)->tv_nsec) < NSEC_PER_SEC))
+---
+
+ kernel/fork.c |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+46868b4b6ebeb9042dded68a6f6301ffe06820c9
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 46060cb..411b10d 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1535,6 +1535,12 @@ asmlinkage long sys_unshare(unsigned lon
+ 	struct sem_undo_list *new_ulist = NULL;
  
-+/*
-+ * Returns true if the timeval is in canonical form
-+ */
-+#define timeval_valid(t) \
-+	(((t)->tv_sec >= 0) && (((unsigned long) (t)->tv_usec) < USEC_PER_SEC))
-+
- extern struct timespec xtime;
- extern struct timespec wall_to_monotonic;
- extern seqlock_t xtime_lock;
-Index: linux-2.6.16-rc6-updates/kernel/itimer.c
-===================================================================
---- linux-2.6.16-rc6-updates.orig/kernel/itimer.c
-+++ linux-2.6.16-rc6-updates/kernel/itimer.c
-@@ -150,6 +150,14 @@ int do_setitimer(int which, struct itime
- 	ktime_t expires;
- 	cputime_t cval, cinterval, nval, ninterval;
+ 	check_unshare_flags(&unshare_flags);
++       
++	/* Return -EINVAL for all unsupported flags */
++	err = -EINVAL;
++	if (unshare_flags & ~(CLONE_THREAD|CLONE_FS|CLONE_NEWNS|CLONE_SIGHAND|
++				CLONE_VM|CLONE_FILES|CLONE_SYSVSEM))
++		goto bad_unshare_out;
  
-+	/*
-+	 * Validate the timeval. This catches all users of
-+	 * do_setitimer.
-+	 */
-+	if (!timeval_valid(&value->it_value) ||
-+	    !timeval_valid(&value->it_interval))
-+		return -EINVAL;
-+
- 	switch (which) {
- 	case ITIMER_REAL:
- again:
-
---
+ 	if ((err = unshare_thread(unshare_flags)))
+ 		goto bad_unshare_out;
+-- 
+1.2.4.g2d33
 

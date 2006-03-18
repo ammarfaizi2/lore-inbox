@@ -1,45 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWCRGZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751978AbWCRGZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbWCRGZI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 01:25:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752039AbWCRGZI
+	id S1751978AbWCRGZA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 01:25:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751997AbWCRGZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 01:25:08 -0500
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:42663 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S1751997AbWCRGZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 01:25:05 -0500
-Message-ID: <441BA74E.7090407@myrealbox.com>
-Date: Fri, 17 Mar 2006 22:23:10 -0800
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 18 Mar 2006 01:25:00 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:25821 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751978AbWCRGY7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 01:24:59 -0500
+Date: Fri, 17 Mar 2006 22:22:03 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: Mike Galbraith <efault@gmx.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: puting task to TASK_INTERRUPTIBLE before adding it to an wait
-   queue
-References: <e7aeb7c60603161431m6d873520r2b6754e115e26f80@mail.gmail.com> <1142582503.7973.15.camel@homer>
-In-Reply-To: <1142582503.7973.15.camel@homer>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [2.6.16-rc6 patch] fix interactive task starvation
+Message-Id: <20060317222203.06d7f450.akpm@osdl.org>
+In-Reply-To: <1142661030.8937.7.camel@homer>
+References: <1142658480.8262.38.camel@homer>
+	<20060317211529.26969a16.akpm@osdl.org>
+	<1142661030.8937.7.camel@homer>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> On Fri, 2006-03-17 at 00:31 +0200, Yitzchak Eidus wrote:
+Mike Galbraith <efault@gmx.de> wrote:
+>
+> > Does this have to be a macro?
+> > 
 > 
->>the function worker_thread in kernel 2.6.15.6  first put the task to
->>TASK_INTERRUPTIBLE and only then add itself to an wait queue:
->>	set_current_state(TASK_INTERRUPTIBLE);
->>	while (!kthread_should_stop()) {
->>		add_wait_queue(&cwq->more_work, &wait);
+> I suppose not, now inlined.
 > 
-> 
-> See dusty old archives...
 
-Also, preempted tasks get rescheduled regardless of state:
+It would be nice to uninline the function and then to modify it in a
+followup patch.  That way, we get to see what changed, which is one of the
+reasons to not use megamacros (sorry).
 
-http://www.cs.helsinki.fi/linux/linux-kernel/2003-15/0402.html
+> +static inline int expired_starving(runqueue_t *rq)
+> +{
+> +	int limit = STARVATION_LIMIT * rq->nr_running, starving;
+> +
+> +	if (!limit || !rq->expired_timestamp)
+> +		return 0;
+> +	starving = jiffies - rq->expired_timestamp >= limit;
+> +	starving += rq->curr->static_prio > rq->best_expired_prio;
+> +
+> +	return starving;
+> +}
 
---Andy
+ick.  Is that really what that macros does??
+
+The function returns a boolean, so we should short-circuit the evaluation
+where possible.
+
+
+static inline int expired_starving(runqueue_t *rq)
+{
+	int limit;
+
+	/* Comment goes here */
+	if (!rq->expired_timestamp)
+		return 0;
+
+	limit = STARVATION_LIMIT * rq->nr_running;
+
+	/* Here too */
+	if (!limit)
+		return 0;
+
+	/* And here */
+	if (jiffies - rq->expired_timestamp >= limit)
+		return 1;
+
+	/* And here */
+	if (rq->curr->static_prio > rq->best_expired_prio)
+		return 1;
+
+	/* And here */
+	return 0;
+}
+
+This way
+
+a) We get somewhere to put comments describing each step of the logic.
+
+b) We get to select the order of the comparisons in decreasing
+   (probability*expensiveness) order.
+
+   See how you're performing an unneeded multiplication if
+   !rq->expired_timestamp?
+
+c) See how the first test of `limit' comes after that multiplication? 
+   STARVATION_LIMIT is a constant (isn't it?) If so, we need only test
+   rq->nr_running.  
+
+d) The next guy who comes along has to update the comments ;)
+
+

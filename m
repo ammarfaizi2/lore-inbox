@@ -1,107 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751588AbWCRCCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932849AbWCRCJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751588AbWCRCCx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 21:02:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932843AbWCRCCw
+	id S932849AbWCRCJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 21:09:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932850AbWCRCJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 21:02:52 -0500
-Received: from mga03.intel.com ([143.182.124.21]:7696 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751290AbWCRCCv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 21:02:51 -0500
-X-IronPort-AV: i="4.03,106,1141632000"; 
-   d="scan'208"; a="13353441:sNHT81737159"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 17 Mar 2006 21:09:28 -0500
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:57236 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932849AbWCRCJ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 21:09:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=KxP+xmkpYj/Ygze95GTaMy1s4Oh8LZfPuCr+v8a6aEE0ikB1HyYCQUpIFWhOLkyKP2vg/IkOq6yr84m/x17JNFDYjUDMl4Rh25+TJjDlMR+7YCPwlkZj5qZZMdRh57M1epmXh4Be7hP1qBay61ALFiK/PKYfeilxrm2mVgekvws=  ;
+Message-ID: <441B6BD3.2030807@yahoo.com.au>
+Date: Sat, 18 Mar 2006 13:09:23 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Date: Sat, 18 Mar 2006 10:02:45 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F84041AC266@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Thread-Index: AcZJ8uRY84M1X2LHS4S2zg01RXuPJwAOGzaw
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       <michael@mihu.de>, <mchehab@infradead.org>,
-       "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
-       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
-       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-X-OriginalArrivalTime: 18 Mar 2006 02:02:46.0289 (UTC) FILETIME=[0CF4C010:01C64A30]
+To: Andrew Morton <akpm@osdl.org>
+CC: Jack Steiner <steiner@sgi.com>, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] - Reduce overhead of calc_load
+References: <20060317145709.GA4296@sgi.com>	<20060317145912.GA13207@elte.hu>	<20060317152611.GA4449@sgi.com> <20060317171538.3826eb41.akpm@osdl.org>
+In-Reply-To: <20060317171538.3826eb41.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> So, please try hack thermal.c by removing calls to _TMP.
->
->I did something like that before, by changing acpi_evaluate_integer()
->to return 3000 if it is asked for _TMP.  
->
->--- a/utils.c	2006-03-15 01:42:34.000000000 -0500
->+++ b/utils.c	2006-03-14 23:36:59.000000000 -0500
->@@ -270,7 +270,15 @@ acpi_evaluate_integer(acpi_handle handle
-> 	memset(element, 0, sizeof(union acpi_object));
-> 	buffer.length = sizeof(union acpi_object);
-> 	buffer.pointer = element;
->-	status = acpi_evaluate_object(handle, pathname, 
->arguments, &buffer);
->+	if (strcmp(pathname, "_TMP") != 0)
->+	  status = acpi_evaluate_object(handle, pathname, 
->arguments, &buffer);
->+	else {
->+	  printk(KERN_INFO PREFIX "acpi_evaluate_integer: 
->Faking _TMP\n");
->+	  status = AE_OK;
->+	  element->type = ACPI_TYPE_INTEGER;
->+	  element->integer.value = 3000; /* 27 C, in deciKelvins */
->+	}
->+
-> 	if (ACPI_FAILURE(status)) {
-> 		acpi_util_eval_error(handle, pathname, status);
-> 		return_ACPI_STATUS(status);
->
->
->The alternative, obvious change in thermal.c (diff below) turns out
->not to be a minimal change.  If acpi_thermal_get_temperature() returns
->with a failure, then most of the later methods in THM0 aren't
->executed, so one is actually commenting out much more than _TMP.
->
->Which is why I think the minimal change is the diff above to utils.c.
->With that change the system never hung.
+Andrew Morton wrote:
+> Jack Steiner <steiner@sgi.com> wrote:
+> 
+>>+unsigned long nr_active(void)
+>>+{
+>>+	unsigned long i, running = 0, uninterruptible = 0;
+>>+
+>>+	for_each_online_cpu(i) {
+>>+		running += cpu_rq(i)->nr_running;
+>>+		uninterruptible += cpu_rq(i)->nr_uninterruptible;
+>>+	}
+>>+
+>>+	if (unlikely((long)uninterruptible < 0))
+>>+		uninterruptible = 0;
+>>+
+>>+	return running + uninterruptible;
+>>+}
+> 
+> 
+> Is that check for (uninterruptible < 0) (copied from nr_uninterruptible)
+> really needed?  Can rq->nr_uninterruptible actually go negative?
+> 
 
-Good, this is exactly what I wanted.  How many times you tested with
-this
-hack without hang?  If s3 hang really goes away , then probably you can
-move on , and come up with a real patch that could go into the 2.6.16. 
-What do you think? :-)
+The sum cannot if there are no concurrent updates, however when
+there are concurrent updates then it can go negative.
 
-The short-term proper way could be:
-1. add a global variable: acpi_in_suspend.
-2. in acpi_pm_prepare:
-	a.call acpi_os_wait_events_complete()
-	b.set acpi_in_suspend = YES.
-   in acpi_pm_finish :
-	set acpi_in_suspend = NO.
-3. in acpi_thermal_run:
-	if (acpi_in_suspend == YES)
-		do nothing.
+rq->nr_uninterruptible itself is meaningless because it can be
+incremented on one rq and decremented on another.
 
-The long-term proper way should be:
-1. ACPI subsystem should stop invoking BIOS before Suspend except
-for several necessary AML methods that are required to put 
-the platform into S3 state.  Otherwise, un-tested BIOS code path 
-could cause trouble to linux, because I assume such platform 
-should have been tested under windows. 
+> Perhaps nr_context_switches() and nr_iowait() should also go into this
+> function, then we rename it all to
+> 
+> 	struct sched_stuff {
+> 		unsigned nr_uninterruptible;
+> 		unsigned nr_running;
+> 		unsigned nr_active;
+> 		unsigned long nr_context_switches;
+> 	};
+> 
+> 	void get_sched_stuff(struct sched_stuff *);
+> 
+> and then convert all those random little counter-upper-callers we have.
+> 
 
-Thanks,
-Luming
- 
+Is there a need? Do they (except calc_load) use multiple values at
+the same time?
+
+> And then give get_sched_stuff() a hotplug handler (probably unneeded) and
+
+What would the hotplug handler do?
+
+> then scratch our heads over why nr_uninterruptible() iterates across all
+> possible CPUs while this new nr_active() iterates over all online CPUs like
+> nr_running() and unlike nr_context_switches().
+> 
+
+I think it need only iterate over possible CPUs.
+
+> 
+> IOW: this code's an inefficient mess and needs some caring for.
+
+What are the performance critical places that call the nr_blah() functions?
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

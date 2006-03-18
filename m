@@ -1,422 +1,228 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWCRRWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWCRRWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbWCRRWW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 12:22:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWCRRV6
+	id S1750756AbWCRRWX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 12:22:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWCRRWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 12:21:58 -0500
+	Sat, 18 Mar 2006 12:22:03 -0500
 Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:15349 "EHLO
-	linux") by vger.kernel.org with ESMTP id S1750745AbWCRRV0 (ORCPT
+	linux") by vger.kernel.org with ESMTP id S1750751AbWCRRV1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 12:21:26 -0500
-Message-Id: <20060318171949.482414000@towertech.it>
+	Sat, 18 Mar 2006 12:21:27 -0500
+Message-Id: <20060318171949.853562000@towertech.it>
 References: <20060318171946.821316000@towertech.it>
 User-Agent: quilt/0.43-1
-Date: Sat, 18 Mar 2006 18:20:00 +0100
+Date: Sat, 18 Mar 2006 18:20:02 +0100
 From: Alessandro Zummo <a.zummo@towertech.it>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@zip.com.au, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 14/18] RTC subsystem, PCF8563 driver
-Content-Disposition: inline; filename=rtc-drv-pcf8563.patch
+Cc: akpm@zip.com.au
+Subject: [PATCH 16/18] RTC subsystem, EP93XX driver
+Content-Disposition: inline; filename=rtc-drv-ep93xx.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An RTC class aware driver for the Philips
-PCF8563 RTC and Epson RTC8564  chips.
-
-This chip is used on the Iomega NAS100D.
+This patch adds a driver for the RTC embedded
+in the Cirrus Logic EP93XX family of processors.
 
 Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
---
- drivers/rtc/Kconfig       |   11 +
- drivers/rtc/Makefile      |    1 
- drivers/rtc/rtc-pcf8563.c |  353 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 365 insertions(+)
+---
+ drivers/rtc/Kconfig      |   11 +++
+ drivers/rtc/Makefile     |    2 
+ drivers/rtc/rtc-ep93xx.c |  162 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 174 insertions(+), 1 deletion(-)
 
---- linux-rtc.orig/drivers/rtc/Kconfig	2006-03-15 03:12:59.000000000 +0100
-+++ linux-rtc/drivers/rtc/Kconfig	2006-03-15 03:13:58.000000000 +0100
-@@ -96,6 +96,17 @@ config RTC_DRV_DS1672
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-ds1672.
- 
-+config RTC_DRV_PCF8563
-+	tristate "Philips PCF8563/Epson RTC8564"
-+	depends on RTC_CLASS && I2C
-+	help
-+	  If you say yes here you get support for the
-+	  Philips PCF8563 RTC chip. The Epson RTC8564
-+	  should work as well.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-pcf8563.
-+
- config RTC_DRV_TEST
- 	tristate "Test driver/device"
- 	depends on RTC_CLASS
---- linux-rtc.orig/drivers/rtc/Makefile	2006-03-15 03:12:59.000000000 +0100
-+++ linux-rtc/drivers/rtc/Makefile	2006-03-15 03:13:58.000000000 +0100
-@@ -14,4 +14,5 @@ obj-$(CONFIG_RTC_INTF_DEV)	+= rtc-dev.o
- obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
- obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
- obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds1672.o
-+obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
- 
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-rtc/drivers/rtc/rtc-pcf8563.c	2006-03-15 03:20:41.000000000 +0100
-@@ -0,0 +1,353 @@
++++ linux-rtc/drivers/rtc/rtc-ep93xx.c	2006-03-13 03:31:29.000000000 +0100
+@@ -0,0 +1,162 @@
 +/*
-+ * An I2C driver for the Philips PCF8563 RTC
-+ * Copyright 2005-06 Tower Technologies
++ * A driver for the RTC embedded in the Cirrus Logic EP93XX processors
++ * Copyright (c) 2006 Tower Technologies
 + *
 + * Author: Alessandro Zummo <a.zummo@towertech.it>
-+ * Maintainers: http://www.nslu2-linux.org/
-+ *
-+ * based on the other drivers in this same directory.
-+ *
-+ * http://www.semiconductors.philips.com/acrobat/datasheets/PCF8563-04.pdf
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License version 2 as
 + * published by the Free Software Foundation.
 + */
 +
-+#include <linux/i2c.h>
-+#include <linux/bcd.h>
++#include <linux/module.h>
 +#include <linux/rtc.h>
++#include <linux/platform_device.h>
++#include <asm/hardware.h>
 +
-+#define DRV_VERSION "0.4.2"
++#define EP93XX_RTC_REG(x)	(EP93XX_RTC_BASE + (x))
++#define EP93XX_RTC_DATA		EP93XX_RTC_REG(0x0000)
++#define EP93XX_RTC_LOAD		EP93XX_RTC_REG(0x000C)
++#define EP93XX_RTC_SWCOMP	EP93XX_RTC_REG(0x0108)
 +
-+/* Addresses to scan: none
-+ * This chip cannot be reliably autodetected. An empty eeprom
-+ * located at 0x51 will pass the validation routine due to
-+ * the way the registers are implemented.
-+ */
-+static unsigned short normal_i2c[] = { I2C_CLIENT_END };
++#define DRV_VERSION "0.2"
 +
-+/* Module parameters */
-+I2C_CLIENT_INSMOD;
-+
-+#define PCF8563_REG_ST1		0x00 /* status */
-+#define PCF8563_REG_ST2		0x01
-+
-+#define PCF8563_REG_SC		0x02 /* datetime */
-+#define PCF8563_REG_MN		0x03
-+#define PCF8563_REG_HR		0x04
-+#define PCF8563_REG_DM		0x05
-+#define PCF8563_REG_DW		0x06
-+#define PCF8563_REG_MO		0x07
-+#define PCF8563_REG_YR		0x08
-+
-+#define PCF8563_REG_AMN		0x09 /* alarm */
-+#define PCF8563_REG_AHR		0x0A
-+#define PCF8563_REG_ADM		0x0B
-+#define PCF8563_REG_ADW		0x0C
-+
-+#define PCF8563_REG_CLKO	0x0D /* clock out */
-+#define PCF8563_REG_TMRC	0x0E /* timer control */
-+#define PCF8563_REG_TMR		0x0F /* timer */
-+
-+#define PCF8563_SC_LV		0x80 /* low voltage */
-+#define PCF8563_MO_C		0x80 /* century */
-+
-+static int pcf8563_probe(struct i2c_adapter *adapter, int address, int kind);
-+static int pcf8563_detach(struct i2c_client *client);
-+
-+/*
-+ * In the routines that deal directly with the pcf8563 hardware, we use
-+ * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch.
-+ */
-+static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
++static int ep93xx_get_swcomp(struct device *dev, unsigned short *preload,
++				unsigned short *delete)
 +{
-+	unsigned char buf[13] = { PCF8563_REG_ST1 };
++	unsigned short comp = __raw_readl(EP93XX_RTC_SWCOMP);
 +
-+	struct i2c_msg msgs[] = {
-+		{ client->addr, 0, 1, buf },	/* setup read ptr */
-+		{ client->addr, I2C_M_RD, 13, buf },	/* read status + date */
-+	};
++	if (preload)
++		*preload = comp & 0xffff;
 +
-+	/* read registers */
-+	if ((i2c_transfer(client->adapter, msgs, 2)) != 2) {
-+		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
-+		return -EIO;
-+	}
-+
-+	if (buf[PCF8563_REG_SC] & PCF8563_SC_LV)
-+		dev_info(&client->dev,
-+			"low voltage detected, date/time is not reliable.\n");
-+
-+	dev_dbg(&client->dev,
-+		"%s: raw data is st1=%02x, st2=%02x, sec=%02x, min=%02x, hr=%02x, "
-+		"mday=%02x, wday=%02x, mon=%02x, year=%02x\n",
-+		__FUNCTION__,
-+		buf[0], buf[1], buf[2], buf[3],
-+		buf[4], buf[5], buf[6], buf[7],
-+		buf[8]);
-+
-+
-+	tm->tm_sec = BCD2BIN(buf[PCF8563_REG_SC] & 0x7F);
-+	tm->tm_min = BCD2BIN(buf[PCF8563_REG_MN] & 0x7F);
-+	tm->tm_hour = BCD2BIN(buf[PCF8563_REG_HR] & 0x3F); /* rtc hr 0-23 */
-+	tm->tm_mday = BCD2BIN(buf[PCF8563_REG_DM] & 0x3F);
-+	tm->tm_wday = buf[PCF8563_REG_DW] & 0x07;
-+	tm->tm_mon = BCD2BIN(buf[PCF8563_REG_MO] & 0x1F) - 1; /* rtc mn 1-12 */
-+	tm->tm_year = BCD2BIN(buf[PCF8563_REG_YR])
-+		+ (buf[PCF8563_REG_MO] & PCF8563_MO_C ? 100 : 0);
-+
-+	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d, "
-+		"mday=%d, mon=%d, year=%d, wday=%d\n",
-+		__FUNCTION__,
-+		tm->tm_sec, tm->tm_min, tm->tm_hour,
-+		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
-+
-+	/* the clock can give out invalid datetime, but we cannot return
-+	 * -EINVAL otherwise hwclock will refuse to set the time on bootup.
-+	 */
-+	if (rtc_valid_tm(tm) < 0)
-+		dev_err(&client->dev, "retrieved date/time is not valid.\n");
++	if (delete)
++		*delete = (comp >> 16) & 0x1f;
 +
 +	return 0;
 +}
 +
-+static int pcf8563_set_datetime(struct i2c_client *client, struct rtc_time *tm)
++static int ep93xx_rtc_read_time(struct device *dev, struct rtc_time *tm)
 +{
-+	int i, err;
-+	unsigned char buf[9];
++	unsigned long time = __raw_readl(EP93XX_RTC_DATA);
 +
-+	dev_dbg(&client->dev, "%s: secs=%d, mins=%d, hours=%d, "
-+		"mday=%d, mon=%d, year=%d, wday=%d\n",
-+		__FUNCTION__,
-+		tm->tm_sec, tm->tm_min, tm->tm_hour,
-+		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
-+
-+	/* hours, minutes and seconds */
-+	buf[PCF8563_REG_SC] = BIN2BCD(tm->tm_sec);
-+	buf[PCF8563_REG_MN] = BIN2BCD(tm->tm_min);
-+	buf[PCF8563_REG_HR] = BIN2BCD(tm->tm_hour);
-+
-+	buf[PCF8563_REG_DM] = BIN2BCD(tm->tm_mday);
-+
-+	/* month, 1 - 12 */
-+	buf[PCF8563_REG_MO] = BIN2BCD(tm->tm_mon + 1);
-+
-+	/* year and century */
-+	buf[PCF8563_REG_YR] = BIN2BCD(tm->tm_year % 100);
-+	if (tm->tm_year / 100)
-+		buf[PCF8563_REG_MO] |= PCF8563_MO_C;
-+
-+	buf[PCF8563_REG_DW] = tm->tm_wday & 0x07;
-+
-+	/* write register's data */
-+	for (i = 0; i < 7; i++) {
-+		unsigned char data[2] = { PCF8563_REG_SC + i,
-+						buf[PCF8563_REG_SC + i] };
-+
-+		err = i2c_master_send(client, data, sizeof(data));
-+		if (err != sizeof(data)) {
-+			dev_err(&client->dev,
-+				"%s: err=%d addr=%02x, data=%02x\n",
-+				__FUNCTION__, err, data[0], data[1]);
-+			return -EIO;
-+		}
-+	};
-+
++	rtc_time_to_tm(time, tm);
 +	return 0;
 +}
 +
-+struct pcf8563_limit
++static int ep93xx_rtc_set_mmss(struct device *dev, unsigned long secs)
 +{
-+	unsigned char reg;
-+	unsigned char mask;
-+	unsigned char min;
-+	unsigned char max;
-+};
-+
-+static int pcf8563_validate_client(struct i2c_client *client)
-+{
-+	int i;
-+
-+	static const struct pcf8563_limit pattern[] = {
-+		/* register, mask, min, max */
-+		{ PCF8563_REG_SC,	0x7F,	0,	59	},
-+		{ PCF8563_REG_MN,	0x7F,	0,	59	},
-+		{ PCF8563_REG_HR,	0x3F,	0,	23	},
-+		{ PCF8563_REG_DM,	0x3F,	0,	31	},
-+		{ PCF8563_REG_MO,	0x1F,	0,	12	},
-+	};
-+
-+	/* check limits (only registers with bcd values) */
-+	for (i = 0; i < ARRAY_SIZE(pattern); i++) {
-+		int xfer;
-+		unsigned char value;
-+		unsigned char buf = pattern[i].reg;
-+
-+		struct i2c_msg msgs[] = {
-+			{ client->addr, 0, 1, &buf },
-+			{ client->addr, I2C_M_RD, 1, &buf },
-+		};
-+
-+		xfer = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
-+
-+		if (xfer != ARRAY_SIZE(msgs)) {
-+			dev_err(&client->adapter->dev,
-+				"%s: could not read register 0x%02X\n",
-+				__FUNCTION__, pattern[i].reg);
-+
-+			return -EIO;
-+		}
-+
-+		value = BCD2BIN(buf & pattern[i].mask);
-+
-+		if (value > pattern[i].max ||
-+			value < pattern[i].min) {
-+			dev_dbg(&client->adapter->dev,
-+				"%s: pattern=%d, reg=%x, mask=0x%02x, min=%d, "
-+				"max=%d, value=%d, raw=0x%02X\n",
-+				__FUNCTION__, i, pattern[i].reg, pattern[i].mask,
-+				pattern[i].min, pattern[i].max,
-+				value, buf);
-+
-+			return -ENODEV;
-+		}
-+	}
-+
++	__raw_writel(secs + 1, EP93XX_RTC_LOAD);
 +	return 0;
 +}
 +
-+static int pcf8563_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	return pcf8563_get_datetime(to_i2c_client(dev), tm);
-+}
-+
-+static int pcf8563_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	return pcf8563_set_datetime(to_i2c_client(dev), tm);
-+}
-+
-+static int pcf8563_rtc_proc(struct device *dev, struct seq_file *seq)
-+{
-+	seq_printf(seq, "24hr\t\t: yes\n");
-+	return 0;
-+}
-+
-+static struct rtc_class_ops pcf8563_rtc_ops = {
-+	.proc		= pcf8563_rtc_proc,
-+	.read_time	= pcf8563_rtc_read_time,
-+	.set_time	= pcf8563_rtc_set_time,
-+};
-+
-+static int pcf8563_attach(struct i2c_adapter *adapter)
-+{
-+	return i2c_probe(adapter, &addr_data, pcf8563_probe);
-+}
-+
-+static struct i2c_driver pcf8563_driver = {
-+	.driver		= {
-+		.name	= "pcf8563",
-+	},
-+	.id		= I2C_DRIVERID_PCF8563,
-+	.attach_adapter = &pcf8563_attach,
-+	.detach_client	= &pcf8563_detach,
-+};
-+
-+static int pcf8563_probe(struct i2c_adapter *adapter, int address, int kind)
-+{
-+	struct i2c_client *client;
-+	struct rtc_device *rtc;
-+
-+	int err = 0;
-+
-+	dev_dbg(&adapter->dev, "%s\n", __FUNCTION__);
-+
-+	if (!i2c_check_functionality(adapter, I2C_FUNC_I2C)) {
-+		err = -ENODEV;
-+		goto exit;
-+	}
-+
-+	if (!(client = kzalloc(sizeof(struct i2c_client), GFP_KERNEL))) {
-+		err = -ENOMEM;
-+		goto exit;
-+	}
-+
-+	client->addr = address;
-+	client->driver = &pcf8563_driver;
-+	client->adapter	= adapter;
-+
-+	strlcpy(client->name, pcf8563_driver.driver.name, I2C_NAME_SIZE);
-+
-+	/* Verify the chip is really an PCF8563 */
-+	if (kind < 0) {
-+		if (pcf8563_validate_client(client) < 0) {
-+			err = -ENODEV;
-+			goto exit_kfree;
-+		}
-+	}
-+
-+	/* Inform the i2c layer */
-+	if ((err = i2c_attach_client(client)))
-+		goto exit_kfree;
-+
-+	dev_info(&client->dev, "chip found, driver version " DRV_VERSION "\n");
-+
-+	rtc = rtc_device_register(pcf8563_driver.driver.name, &client->dev,
-+				&pcf8563_rtc_ops, THIS_MODULE);
-+
-+	if (IS_ERR(rtc)) {
-+		err = PTR_ERR(rtc);
-+		dev_err(&client->dev,
-+			"unable to register the class device\n");
-+		goto exit_detach;
-+	}
-+
-+	i2c_set_clientdata(client, rtc);
-+
-+	return 0;
-+
-+exit_detach:
-+	i2c_detach_client(client);
-+
-+exit_kfree:
-+	kfree(client);
-+
-+exit:
-+	return err;
-+}
-+
-+static int pcf8563_detach(struct i2c_client *client)
++static int ep93xx_rtc_set_time(struct device *dev, struct rtc_time *tm)
 +{
 +	int err;
-+	struct rtc_device *rtc = i2c_get_clientdata(client);
++	unsigned long secs;
 +
-+	dev_dbg(&client->dev, "%s\n", __FUNCTION__);
-+
-+	if (rtc)
-+		rtc_device_unregister(rtc);
-+
-+	if ((err = i2c_detach_client(client)))
++	err = rtc_tm_to_time(tm, &secs);
++	if (err != 0)
 +		return err;
 +
-+	kfree(client);
++	return ep93xx_rtc_set_mmss(dev, secs);
++}
++
++static int ep93xx_rtc_proc(struct device *dev, struct seq_file *seq)
++{
++	unsigned short preload, delete;
++
++	ep93xx_get_swcomp(dev, &preload, &delete);
++
++	seq_printf(seq, "24hr\t\t: yes\n");
++	seq_printf(seq, "preload\t\t: %d\n", preload);
++	seq_printf(seq, "delete\t\t: %d\n", delete);
 +
 +	return 0;
 +}
 +
-+static int __init pcf8563_init(void)
++static struct rtc_class_ops ep93xx_rtc_ops = {
++	.read_time	= ep93xx_rtc_read_time,
++	.set_time	= ep93xx_rtc_set_time,
++	.set_mmss	= ep93xx_rtc_set_mmss,
++	.proc		= ep93xx_rtc_proc,
++};
++
++static ssize_t ep93xx_sysfs_show_comp_preload(struct device *dev,
++			struct device_attribute *attr, char *buf)
 +{
-+	return i2c_add_driver(&pcf8563_driver);
++	unsigned short preload;
++
++	ep93xx_get_swcomp(dev, &preload, NULL);
++
++	return sprintf(buf, "%d\n", preload);
++}
++static DEVICE_ATTR(comp_preload, S_IRUGO, ep93xx_sysfs_show_comp_preload, NULL);
++
++static ssize_t ep93xx_sysfs_show_comp_delete(struct device *dev,
++			struct device_attribute *attr, char *buf)
++{
++	unsigned short delete;
++
++	ep93xx_get_swcomp(dev, NULL, &delete);
++
++	return sprintf(buf, "%d\n", delete);
++}
++static DEVICE_ATTR(comp_delete, S_IRUGO, ep93xx_sysfs_show_comp_delete, NULL);
++
++
++static int __devinit ep93xx_rtc_probe(struct platform_device *dev)
++{
++	struct rtc_device *rtc = rtc_device_register("ep93xx",
++				&dev->dev, &ep93xx_rtc_ops, THIS_MODULE);
++
++	if (IS_ERR(rtc)) {
++		dev_err(&dev->dev, "unable to register\n");
++		return PTR_ERR(rtc);
++	}
++
++	platform_set_drvdata(dev, rtc);
++
++	device_create_file(&dev->dev, &dev_attr_comp_preload);
++	device_create_file(&dev->dev, &dev_attr_comp_delete);
++
++	return 0;
 +}
 +
-+static void __exit pcf8563_exit(void)
++static int __devexit ep93xx_rtc_remove(struct platform_device *dev)
 +{
-+	i2c_del_driver(&pcf8563_driver);
++	struct rtc_device *rtc = platform_get_drvdata(dev);
++
++ 	if (rtc)
++		rtc_device_unregister(rtc);
++
++	platform_set_drvdata(dev, NULL);
++
++	return 0;
++}
++
++static struct platform_driver ep93xx_rtc_platform_driver = {
++	.driver		= {
++		.name	= "ep93xx-rtc",
++		.owner	= THIS_MODULE,
++	},
++	.probe		= ep93xx_rtc_probe,
++	.remove		= __devexit_p(ep93xx_rtc_remove),
++};
++
++static int __init ep93xx_rtc_init(void)
++{
++	return platform_driver_register(&ep93xx_rtc_platform_driver);
++}
++
++static void __exit ep93xx_rtc_exit(void)
++{
++	platform_driver_unregister(&ep93xx_rtc_platform_driver);
 +}
 +
 +MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
-+MODULE_DESCRIPTION("Philips PCF8563/Epson RTC8564 RTC driver");
++MODULE_DESCRIPTION("EP93XX RTC driver");
 +MODULE_LICENSE("GPL");
 +MODULE_VERSION(DRV_VERSION);
 +
-+module_init(pcf8563_init);
-+module_exit(pcf8563_exit);
++module_init(ep93xx_rtc_init);
++module_exit(ep93xx_rtc_exit);
+--- linux-rtc.orig/drivers/rtc/Makefile	2006-03-13 03:28:53.000000000 +0100
++++ linux-rtc/drivers/rtc/Makefile	2006-03-13 03:30:50.000000000 +0100
+@@ -16,4 +16,4 @@ obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
+ obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds1672.o
+ obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
+ obj-$(CONFIG_RTC_DRV_RS5C372)	+= rtc-rs5c372.o
+-
++obj-$(CONFIG_RTC_DRV_EP93XX)	+= rtc-ep93xx.o
+--- linux-rtc.orig/drivers/rtc/Kconfig	2006-03-13 03:28:53.000000000 +0100
++++ linux-rtc/drivers/rtc/Kconfig	2006-03-13 03:30:50.000000000 +0100
+@@ -117,6 +117,17 @@ config RTC_DRV_RS5C372
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-rs5c372.
+ 
++config RTC_DRV_EP93XX
++	tristate "Cirrus Logic EP93XX"
++	depends on RTC_CLASS && ARCH_EP93XX
++	help
++	  If you say yes here you get support for the
++	  RTC embedded in the Cirrus Logic EP93XX processors.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-ep93xx.
++
++
+ config RTC_DRV_TEST
+ 	tristate "Test driver/device"
+ 	depends on RTC_CLASS
 
 --

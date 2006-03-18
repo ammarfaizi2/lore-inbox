@@ -1,75 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWCRSqB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWCRSsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbWCRSqB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 13:46:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWCRSpf
+	id S1750811AbWCRSsy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 13:48:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWCRSsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 13:45:35 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:47887 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750796AbWCRSpc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 13:45:32 -0500
-Date: Sat, 18 Mar 2006 19:45:31 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, davem@davemloft.net
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [-mm patch] net/core/scm.c: make scm_detach_fds() static
-Message-ID: <20060318184531.GG14608@stusta.de>
-References: <20060318044056.350a2931.akpm@osdl.org>
+	Sat, 18 Mar 2006 13:48:54 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:40893 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750811AbWCRSsy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 13:48:54 -0500
+Message-ID: <441C55ED.6080702@us.ibm.com>
+Date: Sat, 18 Mar 2006 13:48:13 -0500
+From: Janak Desai <janak@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060318044056.350a2931.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Oleg Nesterov <oleg@tv-sign.ru>, Andrew Morton <akpm@osdl.org>,
+       ebiederm@xmission.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       viro@ftp.linux.org.uk, hch@lst.de, mtk-manpages@gmx.net, ak@muc.de,
+       paulus@samba.org, Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [PATCH] for 2.6.16, disable unshare_vm()
+References: <m1y7za9vy3.fsf@ebiederm.dsl.xmission.com>  <m1pskm9tz9.fsf@ebiederm.dsl.xmission.com>  <441AF596.F6E66BC9@tv-sign.ru> <20060317125607.78a5dbe4.akpm@osdl.org> <441C0741.3BC25010@tv-sign.ru> <441C2AA0.3080200@us.ibm.com> <441C4263.B779CDA8@tv-sign.ru> <441C4636.15F57F6@tv-sign.ru> <Pine.LNX.4.64.0603181007020.3826@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0603181007020.3826@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 18, 2006 at 04:40:56AM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.16-rc6-mm1:
->...
->  git-net.patch
->...
->  git trees.
->...
+Linus Torvalds wrote:
 
+>On Sat, 18 Mar 2006, Oleg Nesterov wrote:
+>  
+>
+>>sys_unshare() does mmput(new_mm). This is not enough
+>>if we have mm->core_waiters. This patch is a temporary
+>>fix for soon to be released 2.6.16.
+>>    
+>>
+>
+>Yes. Quick raising of hands: is there anybody out there that expects to 
+>use unshare(CLONE_VM) right now? One of the reasons it was integrated was 
+>that I thought glibc wanted it for distros. Is disabling the CLONE_VM 
+>unsharing going to impact that?
+>
+>		Linus
+>
+>  
+>
+We are using namespace and filesystem unsharing for our common criteria
+certification work and would not be impacted by disabling of vm unsharing.
 
-We can now make scm_detach_fds() static.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
- include/net/scm.h |    1 -
- net/core/scm.c    |    3 +--
- 2 files changed, 1 insertion(+), 3 deletions(-)
-
---- linux-2.6.16-rc6-mm2-full/include/net/scm.h.old	2006-03-18 18:48:20.000000000 +0100
-+++ linux-2.6.16-rc6-mm2-full/include/net/scm.h	2006-03-18 18:48:25.000000000 +0100
-@@ -24,7 +24,6 @@
- 	unsigned long		seq;		/* Connection seqno	*/
- };
- 
--extern void scm_detach_fds(struct msghdr *msg, struct scm_cookie *scm);
- extern void scm_detach_fds_compat(struct msghdr *msg, struct scm_cookie *scm);
- extern void __scm_destroy(struct scm_cookie *scm);
- extern struct scm_fp_list * scm_fp_dup(struct scm_fp_list *fpl);
---- linux-2.6.16-rc6-mm2-full/net/core/scm.c.old	2006-03-18 18:48:35.000000000 +0100
-+++ linux-2.6.16-rc6-mm2-full/net/core/scm.c	2006-03-18 18:48:46.000000000 +0100
-@@ -210,7 +210,7 @@
- 	return err;
- }
- 
--void scm_detach_fds(struct msghdr *msg, struct scm_cookie *scm)
-+static void scm_detach_fds(struct msghdr *msg, struct scm_cookie *scm)
- {
- 	struct cmsghdr __user *cm = (struct cmsghdr __user*)msg->msg_control;
- 
-@@ -329,5 +329,4 @@
- EXPORT_SYMBOL(scm_send);
- EXPORT_SYMBOL(scm_recv);
- EXPORT_SYMBOL(put_cmsg);
--EXPORT_SYMBOL(scm_detach_fds);
- EXPORT_SYMBOL(scm_fp_dup);
-
+-Janak

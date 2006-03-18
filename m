@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751974AbWCRGKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751971AbWCRGPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751974AbWCRGKu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 01:10:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751601AbWCRGKu
+	id S1751971AbWCRGPV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 01:15:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751978AbWCRGPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 01:10:50 -0500
-Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:6235 "HELO
-	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751971AbWCRGKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 01:10:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=3tqqWph6XJktQaW1je8nLBq5aI5DHadexBxlu5mtLSKu/eVt4z9m1QfVvB4JmDkmc8fabeg28SXZKzgtE9T+fDH+BUG7hILxhEuk8+iGdQpNyNwq8KSfuCq0hpXK/6m6JCOHaMkB330SX3vv493MUKYrWzN0TSXv+i4YCtB6xZg=  ;
-Message-ID: <441BA466.6000903@yahoo.com.au>
-Date: Sat, 18 Mar 2006 17:10:46 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Sat, 18 Mar 2006 01:15:21 -0500
+Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:53418 "EHLO
+	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751971AbWCRGPU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 01:15:20 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH][RFC] mm: swsusp shrink_all_memory tweaks
+Date: Sat, 18 Mar 2006 17:14:23 +1100
+User-Agent: KMail/1.9.1
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, ck@vds.kolivas.org,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>,
+       Stefan Seyfried <seife@suse.de>, Greg KH <gregkh@suse.de>
+References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <200603181556.23307.kernel@kolivas.org> <441B9E5A.1040703@yahoo.com.au>
+In-Reply-To: <441B9E5A.1040703@yahoo.com.au>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: steiner@sgi.com, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] - Reduce overhead of calc_load
-References: <20060317145709.GA4296@sgi.com>	<20060317145912.GA13207@elte.hu>	<20060317152611.GA4449@sgi.com>	<20060317171538.3826eb41.akpm@osdl.org>	<441B6BD3.2030807@yahoo.com.au>	<20060317183742.10431ba2.akpm@osdl.org>	<441B7489.1090403@yahoo.com.au> <20060317211315.55457f22.akpm@osdl.org> <441B9CE2.2050204@yahoo.com.au>
-In-Reply-To: <441B9CE2.2050204@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603181714.23977.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Andrew Morton wrote:
+cc'ed GregKH for comment hopefully.
 
->> Take a look at (for example) nr_iowait.  We forget to spill the count out
->> of the departing CPU's runqueue and hence we have to sum it across all
-> 
-> 
-> I don't think a departing runqueue should have any iowaiters on it, 
-> should it?
-> 
+On Saturday 18 March 2006 16:44, Nick Piggin wrote:
+> Con Kolivas wrote:
+> > I added the suspend_pass member to struct scan_control within an #ifdef
+> > CONFIG_PM to allow it to not be unnecessarily compiled in in the
+> > !CONFIG_PM case and wanted to avoid having the #ifdefs in vmscan.c so
+> > moved it to a header file.
+>
+> Oh no, that rule thumb isn't actually "don't put ifdefs in .c files", but
+> people commonly say it that way anyway. The rule is actually that you
+> should put ifdefs in declarations rather than call/usage sites.
 
-No I'm wrong there. Instead of doing all these migrations and having the
-ugly nr_iowait and nr_uninterruptible things I would much prefer just to
-migrate the stat when the actual task is migrated. This should take care
-of cpu hotplug, and also can make everything consistent.
+There isn't a formal reference to this in the Codingstyle documentation, but 
+Greg's 2002 ols presentation says simply says no ifdefs in .c files.
 
-I'll try doing a patch for that sometime.
+http://www.kroah.com/linux/talks/ols_2002_kernel_codingstyle_talk/html/mgp00031.html
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+I'm confused now because I've been working very hard to do this with all code.
+
+> You did the right thing there by introducing the accessor, which moves the
+> ifdef out of code that wants to query the member right? But you can still
+> leave it in the .c file if it is local (which it is).
+
+Once again I'm happy to do the right thing; I'm just not sure what that is.
+
+Cheers,
+Con

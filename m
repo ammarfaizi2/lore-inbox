@@ -1,75 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751742AbWCRAIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751800AbWCRAMB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751742AbWCRAIn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 19:08:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751790AbWCRAIn
+	id S1751800AbWCRAMB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 19:12:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751790AbWCRAMB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 19:08:43 -0500
-Received: from waste.org ([64.81.244.121]:64159 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1751742AbWCRAIn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 19:08:43 -0500
-Date: Fri, 17 Mar 2006 17:58:56 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/14] RTC: Remove RTC UIP synchronization on MIPS Footbridge
-Message-ID: <20060317235856.GD25452@waste.org>
-References: <2.132654658@selenic.com> <8.132654658@selenic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 17 Mar 2006 19:12:01 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:15769
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1751803AbWCRAMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 19:12:00 -0500
+From: Rob Landley <rob@landley.net>
+To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: kernel BUG at drivers/block/loop.c:621
+Date: Fri, 17 Mar 2006 19:12:11 -0500
+User-Agent: KMail/1.8.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <8.132654658@selenic.com>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200603171912.12082.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 17, 2006 at 05:30:36PM -0600, Matt Mackall wrote:
-> Remove RTC UIP synchronization on MIPS Footbridge
+I can reproduce the following in 2.6.16-rc5, User Mode Linux:
 
-Urgh, this is obviously ARM. And I noticed my per-patch cc:es got
-lost.
- 
-> Signed-off-by: Matt Mackall <mpm@selenic.com>
-> 
-> Index: rtc/arch/arm/mach-footbridge/time.c
-> ===================================================================
-> --- rtc.orig/arch/arm/mach-footbridge/time.c	2005-10-27 19:02:08.000000000 -0500
-> +++ rtc/arch/arm/mach-footbridge/time.c	2006-03-12 13:00:51.000000000 -0600
-> @@ -34,27 +34,12 @@ static int rtc_base;
->  static unsigned long __init get_isa_cmos_time(void)
->  {
->  	unsigned int year, mon, day, hour, min, sec;
-> -	int i;
->  
->  	// check to see if the RTC makes sense.....
->  	if ((CMOS_READ(RTC_VALID) & RTC_VRT) == 0)
->  		return mktime(1970, 1, 1, 0, 0, 0);
->  
-> -	/* The Linux interpretation of the CMOS clock register contents:
-> -	 * When the Update-In-Progress (UIP) flag goes from 1 to 0, the
-> -	 * RTC registers show the second which has precisely just started.
-> -	 * Let's hope other operating systems interpret the RTC the same way.
-> -	 */
-> -	/* read RTC exactly on falling edge of update flag */
-> -	for (i = 0 ; i < 1000000 ; i++) /* may take up to 1 second... */
-> -		if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP)
-> -			break;
-> -
-> -	for (i = 0 ; i < 1000000 ; i++) /* must try at least 2.228 ms */
-> -		if (!(CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP))
-> -			break;
-> -
-> -	do { /* Isn't this overkill ? UIP above should guarantee consistency */
-> +	do {
->  		sec  = CMOS_READ(RTC_SECONDS);
->  		min  = CMOS_READ(RTC_MINUTES);
->  		hour = CMOS_READ(RTC_HOURS);
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+kernel BUG at drivers/block/loop.c:621!
+Kernel panic - not syncing: BUG!
 
+EIP: 0073:[<ffffe410>] CPU: 0 Not tainted ESP: 007b:b7de1f9c EFLAGS: 00200246
+    Not tainted
+EAX: 00000000 EBX: 000018be ECX: 00000013 EDX: 000018be
+ESI: 000018bb EDI: 00000011 EBP: b7de1fb8 DS: 007b ES: 007b
+09b87bb4:  [<0806c762>] show_regs+0x102/0x110
+09b87bd0:  [<0805b6fc>] panic_exit+0x2c/0x50
+09b87be0:  [<0807ff7d>] notifier_call_chain+0x2d/0x50
+09b87c00:  [<08071095>] panic+0x75/0x120
+09b87c20:  [<0812e181>] loop_thread+0x151/0x160
+09b87c4c:  [<08065297>] run_kernel_thread+0x37/0x60
+09b87cfc:  [<0805bbd1>] new_thread_handler+0x91/0xc0
+09b87d20:  [<ffffe420>] disks+0xf7e7ec84/0x4
+
+The reproduction sequence is a bit involved (my mount regression test and the 
+current svn snapshot of busybox are involved), and running the following 
+sequence of commands:
+
+mount; mount -a; mount; mount /dev/loop1 /images/vfat.dir ; 
+losetup /dev/loop1; ls; vi /etc/fstab; cat /etc/fstab; losetup /dev/loop0; 
+mount /images/vfat.img /images/vfat.dir -o ro
+
+The current busybox mount is still broken in a couple of known places (hence 
+the testing; I'm fixing it).  But it probably shouldn't panic the kernel...
+
+Rob
 -- 
-Mathematics is the supreme nostalgia of our time.
+Never bet against the cheap plastic solution.

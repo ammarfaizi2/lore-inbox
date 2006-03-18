@@ -1,37 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWCRJUb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWCRJeB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbWCRJUb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 04:20:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWCRJUb
+	id S932185AbWCRJeB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 04:34:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWCRJeB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 04:20:31 -0500
-Received: from web35211.mail.mud.yahoo.com ([66.163.179.90]:24710 "HELO
-	web35211.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932171AbWCRJUa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 04:20:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=ljXB/920og7YIw71AuDKYQeuRiXKgE0o0MOFLBbBI0qptJvwbp88SrS/z3H0EXj4l8wsuWP+pPLHL0zqdfaR3YPwTIPEimXZADoS0KM+vvK06L4nlTQVpQGTFMRLQ0GD6aA2ffsp8FzstgmAgp5c+1ofIvF4kYvGCk7kW8k4ncM=  ;
-Message-ID: <20060318092027.58967.qmail@web35211.mail.mud.yahoo.com>
-Date: Sat, 18 Mar 2006 09:20:27 +0000 (GMT)
-From: Hooman Bahreini <hoomanbahreini@yahoo.com>
-Subject: Can't include <asm/checksum.h>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 18 Mar 2006 04:34:01 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:60054 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932185AbWCRJeB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 04:34:01 -0500
+Subject: Re: Can't include <asm/checksum.h>
+From: Arjan van de Ven <arjan@infradead.org>
+To: Hooman Bahreini <hoomanbahreini@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060318092027.58967.qmail@web35211.mail.mud.yahoo.com>
+References: <20060318092027.58967.qmail@web35211.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Sat, 18 Mar 2006 10:33:58 +0100
+Message-Id: <1142674439.2889.11.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir
-
-I am including <asm/checksum.h> to my code, because I
-need to use ip_fast_csum. But I am getting error while
-compiling my code?
-
-(I tried both redhat and FC4.)
-
+On Sat, 2006-03-18 at 09:20 +0000, Hooman Bahreini wrote:
+> Dear Sir
+> 
+> I am including <asm/checksum.h> to my code, because I
+> need to use ip_fast_csum. But I am getting error while
+> compiling my code?
 
 
-Send instant messages to your online friends http://uk.messenger.yahoo.com 
+you 
+1) failed to provide the exact error message
+2) failed to provide your code
+3) failed to specify even if your code is kernel or userspace
+
+so... how is anyone supposed to help you?
+

@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWCSOJm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbWCSOdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbWCSOJm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 09:09:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWCSOJm
+	id S1751165AbWCSOdN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 09:33:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWCSOdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 09:09:42 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20120 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932103AbWCSOJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 09:09:42 -0500
-To: Paul Jackson <pj@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Cpuset: remove unnecessary NULL check
-References: <20060319085743.18841.45970.sendpatchset@jackhammer.engr.sgi.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sun, 19 Mar 2006 07:08:10 -0700
-In-Reply-To: <20060319085743.18841.45970.sendpatchset@jackhammer.engr.sgi.com> (Paul
- Jackson's message of "Sun, 19 Mar 2006 00:57:43 -0800")
-Message-ID: <m1acbmzfw5.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 19 Mar 2006 09:33:13 -0500
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:23205 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751029AbWCSOdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 09:33:13 -0500
+To: "Yu, Luming" <luming.yu@intel.com>
+cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       michael@mihu.de, mchehab@infradead.org,
+       "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
+       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       jgarzik@pobox.com, "Duncan" <1i5t5.duncan@cox.net>,
+       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
+Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+In-Reply-To: Your message of "Sun, 19 Mar 2006 12:12:09 +0800."
+             <3ACA40606221794F80A5670F0AF15F84041AC26C@pdsmsx403> 
+Date: Sun, 19 Mar 2006 14:33:08 +0000
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1FKyxw-0003Iq-00@skye.ra.phy.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> writes:
+> Maybe I need to make a summary here for this issue:
+> 1. The s3 hang is in While-loop in SMPI that looks like
+> waiting BIOS response.
 
-> From: Paul Jackson <pj@sgi.com>
->
-> Remove a no longer needed test for NULL cpuset pointer, with
-> a little comment explaining why the test isn't needed.
+Right.
 
-Could we make that comment a little more explicit.  Say:
+> 2. If THM2, THM6, THM7 disabled, disabling THM0._TMP
+> fix the s3 hang.
 
-No need to check that tsk->cpuset != NULL, since cpuset_exit() sets
-it to top_cpuset instead.
+Right.  And many ways of disabling THM0._TMP fix the hang:
 
-Comments that refer to a nebulous hack in some other function
-a little hard to understand when new, and get really confusing
-when the other function changes and it isn't clear what aspect
-of that other function the comment depended on and if that property
-still exists.
+1. making acpi_evaluate_integer() not evaluate _TMP methods.
+2. the short-term fix using acpi_in_suspend
+3. taking out \_SB.PCI0.ISA0.EC0.UPDT () line from _TMP method.
 
->   *  - No need to task_lock(tsk) on this tsk->cpuset reference, as it
->   *    doesn't really matter if tsk->cpuset changes after we read it,
->   *    and we take manage_mutex, keeping attach_task() from changing it
-> - *    anyway.
-> + *    anyway.  No need to check that tsk->cpuset != NULL, thanks to the
-> + *    cpuset_exit() Hack.
->   */
+> I think you need to continue to find out which THMs, which methods
+> cause s3 hang when THM0._TMP disabled.  I assume the problem is:
+> THM0._TMP && THMx._XXX && THMy._YYY..
 
+I agree, and am testing the other thermal methods one at a time.  I
+suspect that THMx.AC0 will be involved, but we'll see.
 
-Eric
+-Sanjoy
+
+`Never underestimate the evil of which men of power are capable.'
+         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

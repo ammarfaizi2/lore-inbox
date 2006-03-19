@@ -1,38 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWCSDKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWCSDra@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWCSDKy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 22:10:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWCSDKy
+	id S1750807AbWCSDra (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 22:47:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750969AbWCSDra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 22:10:54 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:39365 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750714AbWCSDKx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 22:10:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mzpe06WsO7iDXnUNEU8FBJUoVQ17hgxoV+XyPQ5H9VT+Uy0NIOgw+2BfHE3FM2sRWhB5N9AzhJzpQ37f1GoFIm5uwNGNo7pnymORCBpQC/KD/ZHv03OGMyoZCdg0Wo4FiY9x4HeFZW5ncjcxdjR0hC46hJOc/nh/46afR7NFJ0U=
-Message-ID: <9e4733910603181910p21117f3anc107673e31f6352b@mail.gmail.com>
-Date: Sat, 18 Mar 2006 22:10:43 -0500
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Wu Fengguang" <wfg@mail.ustc.edu.cn>
-Subject: Re: [PATCH 00/23] Adaptive read-ahead V11
+	Sat, 18 Mar 2006 22:47:30 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:42692 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1750924AbWCSDr3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 22:47:29 -0500
+Date: Sun, 19 Mar 2006 11:47:51 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Jon Smirl <jonsmirl@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060319023413.305977000@localhost.localdomain>
+Subject: Re: [PATCH 00/23] Adaptive read-ahead V11
+Message-ID: <20060319034750.GA8732@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Jon Smirl <jonsmirl@gmail.com>, linux-kernel@vger.kernel.org
+References: <20060319023413.305977000@localhost.localdomain> <9e4733910603181910p21117f3anc107673e31f6352b@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060319023413.305977000@localhost.localdomain>
+In-Reply-To: <9e4733910603181910p21117f3anc107673e31f6352b@mail.gmail.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is probably a readahead problem. The lighttpd people that are
-encountering this problem are not regular lkml readers.
+On Sat, Mar 18, 2006 at 10:10:43PM -0500, Jon Smirl wrote:
+> This is probably a readahead problem. The lighttpd people that are
+> encountering this problem are not regular lkml readers.
+> 
+> http://bugzilla.kernel.org/show_bug.cgi?id=5949
 
-http://bugzilla.kernel.org/show_bug.cgi?id=5949
+[QUOTE]
+        My general conclusion is that since they were able to write a user
+        space implementation that avoids the problem something must be broken
+        in the kernel readahead logic for sendfile().
 
---
-Jon Smirl
-jonsmirl@gmail.com
+Maybe the user space solution does the trick by using a larger window size?
+
+IMHO, the stock read-ahead is not designed with extremely high concurrency in
+mind. However, 100 streams should not be a problem at all.
+
+Wu

@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751380AbWCSCpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWCSDKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751380AbWCSCpF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 21:45:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWCSCpF
+	id S1750714AbWCSDKy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 22:10:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWCSDKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 21:45:05 -0500
-Received: from thunk.org ([69.25.196.29]:39610 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1751291AbWCSCpC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 21:45:02 -0500
-Date: Sat, 18 Mar 2006 21:44:58 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Takashi Sato <sho@tnes.nec.co.jp>
-Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [PATCH 2/2] ext2/3: Support 2^32-1 blocks(e2fsprogs)
-Message-ID: <20060319024458.GB19607@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Takashi Sato <sho@tnes.nec.co.jp>, ext2-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <000401c6482d$880adfa0$4168010a@bsd.tnes.nec.co.jp>
+	Sat, 18 Mar 2006 22:10:54 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:39365 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750714AbWCSDKx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 22:10:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mzpe06WsO7iDXnUNEU8FBJUoVQ17hgxoV+XyPQ5H9VT+Uy0NIOgw+2BfHE3FM2sRWhB5N9AzhJzpQ37f1GoFIm5uwNGNo7pnymORCBpQC/KD/ZHv03OGMyoZCdg0Wo4FiY9x4HeFZW5ncjcxdjR0hC46hJOc/nh/46afR7NFJ0U=
+Message-ID: <9e4733910603181910p21117f3anc107673e31f6352b@mail.gmail.com>
+Date: Sat, 18 Mar 2006 22:10:43 -0500
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Wu Fengguang" <wfg@mail.ustc.edu.cn>
+Subject: Re: [PATCH 00/23] Adaptive read-ahead V11
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060319023413.305977000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <000401c6482d$880adfa0$4168010a@bsd.tnes.nec.co.jp>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+References: <20060319023413.305977000@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 15, 2006 at 09:39:41PM +0900, Takashi Sato wrote:
-> This makes it possible to make ext2/3 with 4G-1(2^32-1) blocks by mke2fs
-> in e2fsprogs-1.38.
-> 
-> Signed-off-by: Takashi Sato sho@tnes.nec.co.jp
+This is probably a readahead problem. The lighttpd people that are
+encountering this problem are not regular lkml readers.
 
-I've checked in all but the lib/bitops.c change.  I want to wait and
-confirm that it is really necessary before commiting it.
+http://bugzilla.kernel.org/show_bug.cgi?id=5949
 
-						- Ted
+--
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,60 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWCSTGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWCSTCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750725AbWCSTGy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 14:06:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWCSTGx
+	id S1751315AbWCSTCr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 14:02:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWCSTCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 14:06:53 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:46349 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1750725AbWCSTGx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 14:06:53 -0500
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch 5 of 8] Add the __stack_chk_fail() function
-References: <1142611850.3033.100.camel@laptopd505.fenrus.org>
-	<1142612087.3033.110.camel@laptopd505.fenrus.org>
-	<878xr62u70.fsf@hades.wkstn.nix> <441D9DA8.90807@linux.intel.com>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: freely redistributable; void where prohibited by law.
-Date: Sun, 19 Mar 2006 19:06:48 +0000
-In-Reply-To: <441D9DA8.90807@linux.intel.com> (Arjan van de Ven's message of
- "Sun, 19 Mar 2006 19:06:32 +0100")
-Message-ID: <87y7z61cfr.fsf@hades.wkstn.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Sun, 19 Mar 2006 14:02:47 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:54936 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751315AbWCSTCr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 14:02:47 -0500
+Date: Sun, 19 Mar 2006 11:02:32 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: kernel-stuff@comcast.net, linux-kernel@vger.kernel.org,
+       alex-kernel@digriz.org.uk, jun.nakajima@intel.com, davej@redhat.com
+Subject: Re: OOPS: 2.6.16-rc6 cpufreq_conservative
+In-Reply-To: <Pine.LNX.4.64.0603191034370.3826@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0603191050340.3826@g5.osdl.org>
+References: <200603181525.14127.kernel-stuff@comcast.net>
+ <Pine.LNX.4.64.0603181321310.3826@g5.osdl.org> <20060318165302.62851448.akpm@osdl.org>
+ <Pine.LNX.4.64.0603181827530.3826@g5.osdl.org> <Pine.LNX.4.64.0603191034370.3826@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Mar 2006, Arjan van de Ven yowled:
-> Nix wrote:
->> On 17 Mar 2006, Arjan van de Ven wrote:
->>> GCC emits a call to a __stack_chk_fail() function when the cookie is not matching the expected value. Since this is a bad
->>> security issue; lets panic
->>> the kernel
->> This turns even minor buffer overflows into complete denials of service.
+
+
+On Sun, 19 Mar 2006, Linus Torvalds wrote:
 > 
-> only those who otherwise would get to the return address. So it turns a "own the machine" into a panic.
-> Not a "no side effects" thing....
+> Actually, looking at it a bit more, I think we can do better even 
+> _without_ fixing the "calling convention".
 
-True. Also...
+Here's the "before and after" example of nr_context_switches() from 
+kernel/sched.c with this patch on x86-64 (selected because the whole 
+function is just basically one simple "loop over all possible CPU's and 
+return the sum of context switches").
 
-> maybe. The big question is if you can still trust the machine. That is highly questionable...
-> (and to kill the process you again need to trust bits of the stack, to get to current for example;
-> and you just found that the stack was compromised)
+I'll do the "after" first, because it's actually readable:
 
-... that's true, and furthermore it allows the attack vector of
-`compromise global state, then allow this process to die and allow
-the global compromise to take over the box'.
+	nr_context_switches:
+	        pushq   %rbp
+	        xorl    %esi, %esi
+	        xorl    %ecx, %ecx
+	        movq    %rsp, %rbp
+	.L210:
+	#APP
+	        btl %ecx,cpu_possible_map(%rip)
+	        sbbl %eax,%eax
+	#NO_APP
+	        testl   %eax, %eax
+	        je      .L211
+	        movq    _cpu_pda(,%rcx,8), %rdx
+	        movq    $per_cpu__runqueues, %rax
+	        addq    8(%rdx), %rax
+	        addq    40(%rax), %rsi
+	.L211:
+	        incq    %rcx
+	        cmpq    $8, %rcx
+	        jne     .L210
+	        leave
+	        movq    %rsi, %rax
+	        ret
 
-Possibly for UML images you can core dump the entire UML for later
-analysis. Can't do that with Xen, though, unless we can be sure that a
-compromised guest can't affect any other guests or the hypervisor (which
-we know to be untrue in the case of at least *one[ guest).
+ie the loop starts at .L210, end basically iterates %rcx from 0..7, and 
+you can read the assembly and it actually makes sense.
 
--- 
-`Come now, you should know that whenever you plan the duration of your
- unplanned downtime, you should add in padding for random management
- freakouts.'
+(Whether it _works_ is another matter: I haven't actually booted the 
+patched kernel ;)
+
+Compare that to the "before" state:
+
+	nr_context_switches:
+	        pushq   %rbp
+	        movl    $8, %eax
+	        movq    cpu_possible_map(%rip), %rdi
+	#APP
+	        bsfq %rdi,%rdx ; cmovz %rax,%rdx
+	#NO_APP
+	        cmpl    $9, %edx
+	        movq    %rdx, %rax
+	        movl    $8, %edx
+	        cmovge  %edx, %eax
+	        movq    %rsp, %rbp
+	        pushq   %rbx
+	        movslq  %eax,%rcx
+	        xorl    %r8d, %r8d
+	        jmp     .L261
+	.L262:
+	        movq    _cpu_pda(,%rcx,8), %rdx
+	        movl    $8, %esi
+	        movq    $per_cpu__runqueues, %rax
+	        movq    %rdi, %rbx
+	        movq    8(%rdx), %rdx
+	        addq    40(%rax,%rdx), %r8
+	        movl    %ecx, %edx
+	        movl    %esi, %eax
+	        leal    1(%rdx), %ecx
+	        subl    %edx, %eax
+	        decl    %eax
+	        shrq    %cl, %rbx
+	        cltq
+	        movq    %rbx, %rcx
+	#APP
+	        bsfq %rcx,%rbx ; cmovz %rax,%rbx
+	#NO_APP
+	        leal    1(%rdx,%rbx), %edx
+	        cmpl    $9, %edx
+	        cmovge  %esi, %edx
+	        movslq  %edx,%rcx
+	.L261:
+	        cmpq    $7, %rcx
+	        jbe     .L262
+	        popq    %rbx
+	        leave
+	        movq    %r8, %rax
+	        ret
+
+which is not only obviously bigger (40 instructions vs just 18), I also 
+dare anybody to actually read and understand the assembly.
+
+Now, the simple version will iterate 8 times over the loop, while the more 
+complex version will iterate just as many times as there are CPU's in the 
+actual system. So there's a trade-off. The "load the CPU mask first and 
+then shift it down by one every time" thing (that required different 
+syntax) would have been able to exit early. This one isn't. So the syntax 
+change would still help a lot (and would avoid the "btl").
+
+Of course, if people were to set CONFIG_NR_CPUS appropriately for their 
+system, the shorter version gets increasingly better (since it then won't 
+do any unnecessary work).
+
+			Linus

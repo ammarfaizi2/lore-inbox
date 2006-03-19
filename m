@@ -1,431 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751514AbWCSRCa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751518AbWCSReg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751514AbWCSRCa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 12:02:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751517AbWCSRCa
+	id S1751518AbWCSReg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 12:34:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751517AbWCSReg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 12:02:30 -0500
-Received: from hera.kernel.org ([140.211.167.34]:43931 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751514AbWCSRC3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 12:02:29 -0500
-Date: Sun, 19 Mar 2006 17:02:16 GMT
-From: Eric Van Hensbergen <ericvh@hera.kernel.org>
-Message-Id: <200603191702.k2JH2GDw001607@hera.kernel.org>
-To: akpm@osdl.org
-Subject: [PATCH] v9fs: update license boilerplate
-Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net,
-       ericvh@gmail.com
+	Sun, 19 Mar 2006 12:34:36 -0500
+Received: from woodchuck.digriz.org.uk ([217.147.82.209]:34216 "EHLO
+	woodchuck.digriz.org.uk") by vger.kernel.org with ESMTP
+	id S1751515AbWCSRef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 12:34:35 -0500
+Date: Sun, 19 Mar 2006 17:34:33 +0000
+From: Alexander Clouter <alex@digriz.org.uk>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, jun.nakajima@intel.com, davej@redhat.com
+Subject: Re: OOPS: 2.6.16-rc6 cpufreq_conservative
+Message-ID: <20060319173433.GB28207@inskipp.digriz.org.uk>
+References: <200603181525.14127.kernel-stuff@comcast.net> <200603190134.01833.kernel-stuff@comcast.net> <20060319120047.GA26018@inskipp.digriz.org.uk> <200603190906.25174.kernel-stuff@comcast.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GRPZ8SYKNexpdSJ7"
+Content-Disposition: inline
+In-Reply-To: <200603190906.25174.kernel-stuff@comcast.net>
+Organization: diGriz
+X-URL: http://www.digriz.org.uk/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: [PATCH] v9fs: update license boilerplate
 
-Update license boilerplate to specify GPLv2 and remove
-the (at your option clause).  This change was agreed to by
-all the copyright holders (approvals can be found on
-v9fs-developer mailing list).
+--GRPZ8SYKNexpdSJ7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
+Hi,
 
----
+Parag Warudkar <kernel-stuff@comcast.net> [20060319 09:06:25 -0500]:
+>
+> The codebase already seems identical to ondemand - Are your patches in=20
+> 2.6.16-rc6 or -mm? If they are - let me know which. If you posted them bu=
+t=20
+> they haven't yet made it into either -mm or mainline can you please post=
+=20
+> links to all your patches please? I can test them.
+>=20
+Well I submitted them back on 2006-02-24:
 
- fs/9p/9p.c         |    5 ++---
- fs/9p/9p.h         |    5 ++---
- fs/9p/conv.c       |    5 ++---
- fs/9p/conv.h       |    5 ++---
- fs/9p/debug.h      |    5 ++---
- fs/9p/error.c      |    5 ++---
- fs/9p/error.h      |    5 ++---
- fs/9p/fcprint.c    |    5 ++---
- fs/9p/fid.c        |    5 ++---
- fs/9p/fid.h        |    5 ++---
- fs/9p/mux.c        |    5 ++---
- fs/9p/mux.h        |    5 ++---
- fs/9p/trans_fd.c   |    6 ++----
- fs/9p/transport.h  |    5 ++---
- fs/9p/v9fs.c       |    5 ++---
- fs/9p/v9fs.h       |    5 ++---
- fs/9p/v9fs_vfs.h   |    5 ++---
- fs/9p/vfs_addr.c   |    5 ++---
- fs/9p/vfs_dentry.c |    5 ++---
- fs/9p/vfs_dir.c    |    5 ++---
- fs/9p/vfs_file.c   |    5 ++---
- fs/9p/vfs_inode.c  |    5 ++---
- fs/9p/vfs_super.c  |    5 ++---
- 23 files changed, 46 insertions(+), 70 deletions(-)
+http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D114079151404567&w=3D2
+http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D114079151425558&w=3D2
+http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D114079151417220&w=3D2
 
-8c9712b48e4f886b34eb8c6104ed879204d2868e
-diff --git a/fs/9p/9p.c b/fs/9p/9p.c
-index 7d97e9f..1d7ef3a 100644
---- a/fs/9p/9p.c
-+++ b/fs/9p/9p.c
-@@ -8,9 +8,8 @@
-  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/9p.h b/fs/9p/9p.h
-index 5286b24..82b076a 100644
---- a/fs/9p/9p.h
-+++ b/fs/9p/9p.h
-@@ -8,9 +8,8 @@
-  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/conv.c b/fs/9p/conv.c
-index 8ca3cc5..758dbcd 100644
---- a/fs/9p/conv.c
-+++ b/fs/9p/conv.c
-@@ -8,9 +8,8 @@
-  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/conv.h b/fs/9p/conv.h
-index dfb3912..8f5c230 100644
---- a/fs/9p/conv.h
-+++ b/fs/9p/conv.h
-@@ -8,9 +8,8 @@
-  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/debug.h b/fs/9p/debug.h
-index ff54a7b..4228c0b 100644
---- a/fs/9p/debug.h
-+++ b/fs/9p/debug.h
-@@ -5,9 +5,8 @@
-  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/error.c b/fs/9p/error.c
-index e4b6f8f..981fe8e 100644
---- a/fs/9p/error.c
-+++ b/fs/9p/error.c
-@@ -11,9 +11,8 @@
-  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/error.h b/fs/9p/error.h
-index a9794e8..5f3ca52 100644
---- a/fs/9p/error.h
-+++ b/fs/9p/error.h
-@@ -12,9 +12,8 @@
-  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/fcprint.c b/fs/9p/fcprint.c
-index fc8a984..583e827 100644
---- a/fs/9p/fcprint.c
-+++ b/fs/9p/fcprint.c
-@@ -6,9 +6,8 @@
-  *  Copyright (C) 2005 by Latchesar Ionkov <lucho@ionkov.net>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/fid.c b/fs/9p/fid.c
-index c4d13bf..b7608af 100644
---- a/fs/9p/fid.c
-+++ b/fs/9p/fid.c
-@@ -4,9 +4,8 @@
-  *  Copyright (C) 2005, 2006 by Eric Van Hensbergen <ericvh@gmail.com>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/fid.h b/fs/9p/fid.h
-index 1fc2dd0..aa974d6 100644
---- a/fs/9p/fid.h
-+++ b/fs/9p/fid.h
-@@ -4,9 +4,8 @@
-  *  Copyright (C) 2005 by Eric Van Hensbergen <ericvh@gmail.com>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/mux.c b/fs/9p/mux.c
-index d9a748e..d3785f8 100644
---- a/fs/9p/mux.c
-+++ b/fs/9p/mux.c
-@@ -7,9 +7,8 @@
-  *  Copyright (C) 2004-2005 by Latchesar Ionkov <lucho@ionkov.net>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/mux.h b/fs/9p/mux.h
-index 9473b84..6097a4e 100644
---- a/fs/9p/mux.h
-+++ b/fs/9p/mux.h
-@@ -7,9 +7,8 @@
-  *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/trans_fd.c b/fs/9p/trans_fd.c
-index 8029844..94e0a7f 100644
---- a/fs/9p/trans_fd.c
-+++ b/fs/9p/trans_fd.c
-@@ -7,12 +7,10 @@
-  *  Copyright (C) 2004-2005 by Latchesar Ionkov <lucho@ionkov.net>
-  *  Copyright (C) 2004-2005 by Eric Van Hensbergen <ericvh@gmail.com>
-  *  Copyright (C) 1997-2002 by Ron Minnich <rminnich@sarnoff.com>
-- *  Copyright (C) 1995, 1996 by Olaf Kirch <okir@monad.swb.de>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/transport.h b/fs/9p/transport.h
-index 91fcdb9..b38a4b8 100644
---- a/fs/9p/transport.h
-+++ b/fs/9p/transport.h
-@@ -7,9 +7,8 @@
-  *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/v9fs.c b/fs/9p/v9fs.c
-index 321989a..e49e7d1 100644
---- a/fs/9p/v9fs.c
-+++ b/fs/9p/v9fs.c
-@@ -7,9 +7,8 @@
-  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/v9fs.h b/fs/9p/v9fs.h
-index 9f63ab8..c134d10 100644
---- a/fs/9p/v9fs.h
-+++ b/fs/9p/v9fs.h
-@@ -5,9 +5,8 @@
-  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/v9fs_vfs.h b/fs/9p/v9fs_vfs.h
-index a759278..43c9f7d 100644
---- a/fs/9p/v9fs_vfs.h
-+++ b/fs/9p/v9fs_vfs.h
-@@ -5,9 +5,8 @@
-  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/vfs_addr.c b/fs/9p/vfs_addr.c
-index 8100fb5..efda46f 100644
---- a/fs/9p/vfs_addr.c
-+++ b/fs/9p/vfs_addr.c
-@@ -7,9 +7,8 @@
-  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/vfs_dentry.c b/fs/9p/vfs_dentry.c
-index 12c9cc9..2c42f75 100644
---- a/fs/9p/vfs_dentry.c
-+++ b/fs/9p/vfs_dentry.c
-@@ -7,9 +7,8 @@
-  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/vfs_dir.c b/fs/9p/vfs_dir.c
-index cd5eeb0..766f11f 100644
---- a/fs/9p/vfs_dir.c
-+++ b/fs/9p/vfs_dir.c
-@@ -7,9 +7,8 @@
-  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/vfs_file.c b/fs/9p/vfs_file.c
-index 1144d59..59e7441 100644
---- a/fs/9p/vfs_file.c
-+++ b/fs/9p/vfs_file.c
-@@ -7,9 +7,8 @@
-  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/vfs_inode.c b/fs/9p/vfs_inode.c
-index 588d0d2..d574d73 100644
---- a/fs/9p/vfs_inode.c
-+++ b/fs/9p/vfs_inode.c
-@@ -7,9 +7,8 @@
-  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-diff --git a/fs/9p/vfs_super.c b/fs/9p/vfs_super.c
-index d05318f..083ed5a 100644
---- a/fs/9p/vfs_super.c
-+++ b/fs/9p/vfs_super.c
-@@ -8,9 +8,8 @@
-  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-+ *  it under the terms of the GNU General Public License version 2
-+ *  as published by the Free Software Foundation.
-  *
-  *  This program is distributed in the hope that it will be useful,
-  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
--- 
-1.1.0
+It has been pointed out I did forget to CC the cpufreq folk, so thats=20
+completely my fault; I thought I had. :-/
+
+> Why do we even have conservative and ondemand as two separate modules giv=
+en=20
+> they share huge amount of code - perhaps make conservative an optional=20
+> behaviour of ondemand or alteast make a common lib which both use?
+>
+Originally the 'conservative' feature was just a sysfs flag that could be s=
+et=20
+however it was rejected for a number of reasons; one of them quite rightly,=
+=20
+we have a modular system that can take stacks of cpufreq governors so lets=
+=20
+use that :)
+
+Also, more importantly, bugs in my bits do not affect the original author.=
+=20
+It makes more sense to keep things this way as the internal code then does
+not need a bunch of if{}'s scattered around and also I have a number of ext=
+ra
+sysfs files to tweak which would either do nothing in 'ondemand' mode or ha=
+ve
+to be magically created and destroyed.
+
+Either way, its probably neater this way and its *my* duty to make sure
+anything changing for ondemand is considered for conservative.  If you look
+at a lot of the userland tools that have come out, it would be a pain to ha=
+ve
+them consider the exception class of handling the combined
+ondemand/conservative.
+
+Breaking out the thing into a library probably would be awkward as all the
+similar code is actually inline in functions, putting that in a seperate fi=
+le
+would be pointless.  Hopefully when you apply my patches and then do a diff
+between the ondemand and conservative governors you will see what I mean.
+
+Cheers
+
+Alex
+
+--=20
+ ________________________________________=20
+/ Fortune finishes the great quotations, \
+| #3                                     |
+|                                        |
+| Birds of a feather flock to a newly    |
+\ washed car.                            /
+ ----------------------------------------=20
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+--GRPZ8SYKNexpdSJ7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFEHZYoNv5Ugh/sRBYRAuztAKCEQorQFZv7oXlhIRbrR5Kov6n8bwCeOO9+
+NjnENpKn8pTERqHLx0VhIio=
+=hgwO
+-----END PGP SIGNATURE-----
+
+--GRPZ8SYKNexpdSJ7--

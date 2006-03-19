@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWCSWtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWCSWtk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbWCSWtp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 17:49:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWCSWtp
+	id S1751159AbWCSWtk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 17:49:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWCSWtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 17:49:45 -0500
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:10360 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S1751163AbWCSWto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 17:49:44 -0500
-X-IronPort-AV: i="4.03,109,1141624800"; 
-   d="scan'208"; a="396814938:sNHT29816248"
-Date: Sun, 19 Mar 2006 16:49:40 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: matthew.e.tolentino@intel.com, linux-kernel@vger.kernel.org,
-       mactel-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH] - make sure that EFI variable data size is always 64 bit
-Message-ID: <20060319224939.GA712@lists.us.dell.com>
-References: <20060319184325.GA7605@srcf.ucam.org> <20060319212901.GA30843@lists.us.dell.com> <20060319213259.GA8602@srcf.ucam.org>
+	Sun, 19 Mar 2006 17:49:40 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:23204 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751163AbWCSWtj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 17:49:39 -0500
+Date: Mon, 20 Mar 2006 09:49:12 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Claudio Martins <ctpm@ist.utl.pt>
+Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc6: known regressions (v2)
+Message-ID: <20060320094912.F569384@wobbly.melbourne.sgi.com>
+References: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org> <20060317143642.GJ3914@stusta.de> <200603182057.10171.ctpm@ist.utl.pt>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060319213259.GA8602@srcf.ucam.org>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200603182057.10171.ctpm@ist.utl.pt>; from ctpm@ist.utl.pt on Sat, Mar 18, 2006 at 08:57:09PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 19, 2006 at 09:33:01PM +0000, Matthew Garrett wrote:
-> On Sun, Mar 19, 2006 at 03:29:01PM -0600, Matt Domsch wrote:
+On Sat, Mar 18, 2006 at 08:57:09PM +0000, Claudio Martins wrote:
+>   Hi Adrian, Nathan and all,
 > 
-> > NAK.  efibootmgr, the main userspace consumer of this struct, also
-> > thinks this is an "unsigned long".
-> 
-> Hm. My copy of efibootmgr has:
-> 
-> typedef struct _efi_variable_t {
->         efi_char16_t  VariableName[1024/sizeof(efi_char16_t)];
->         efi_guid_t    VendorGuid;
->         uint64_t         DataSize;
->         uint8_t          Data[1024];
->         efi_status_t  Status;
->         uint32_t         Attributes;
-> } __attribute__((packed)) efi_variable_t;
-> 
-> which certainly makes it look like it's expecting a 64-bit value. But 
-> checking the spec does seem to suggest that datasize is a native value, 
-> so presumably it's an efibootmgr bug rather than a kernel one? In that 
-> case, this ought to be dropped.
+>  If think I might have hit this one! 
 
-Sorry, I did mean to post a link to the latest efibootmgr that has
-this fixed:
+OK - any hints that might lead us toward a test case?
 
-Home page: http://linux.dell.com/efibootmgr/
+> I managed to get an oops which showed xfs related functions on the backtrace. 
+> The process involved was "rm" and the specific stress test was some 32 
+> paralell kernel builds (each one with "make -j8") on a quad Opteron box with 
+> a 1 TB xfs filesystem. Preemption was disabled.
 
-For distros that care about 32-bit EFI, please upgrade to efibootmgr 0.5.3.
-http://linux.dell.com/efibootmgr/efibootmgr-0.5.3.tar.gz
-http://linux.dell.com/efibootmgr/efibootmgr-0.5.3.tar.gz.sign
-http://linux.dell.com/efibootmgr/ChangeLog
+>  After that the machine was still alive, but an fsck.xfs after a reboot showed 
+> corruption that I was able to repair with xfs_repair. This was also with an 
 
-Thanks,
-Matt
+Hmm, fsck.xfs wont report corruption - did you mean xfs_check?
+
+> almost empty filesystem, hence the similarity with the above bug report.
+
+Well, not sure its the same yet - what was your stack trace & did
+repair report inodes with nlink==0?
+
+> I didn't record the oops and output from xfs_repair. I'll update my git tree 
+
+Ah, doh.
+
+> tonight, rebuild and retest in hopes to find that oops again.
+
+Great, thanks!
+
+cheers.
 
 -- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+Nathan

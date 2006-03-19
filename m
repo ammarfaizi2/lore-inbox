@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWCSVgL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbWCSVrC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751025AbWCSVgL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 16:36:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWCSVgL
+	id S1751111AbWCSVrC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 16:47:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWCSVrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 16:36:11 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:11442 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1751025AbWCSVgK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 16:36:10 -0500
-Date: Sun, 19 Mar 2006 21:33:01 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: matthew.e.tolentino@intel.com, linux-kernel@vger.kernel.org,
-       mactel-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH] - make sure that EFI variable data size is always 64 bit
-Message-ID: <20060319213259.GA8602@srcf.ucam.org>
-References: <20060319184325.GA7605@srcf.ucam.org> <20060319212901.GA30843@lists.us.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060319212901.GA30843@lists.us.dell.com>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+	Sun, 19 Mar 2006 16:47:01 -0500
+Received: from femail.waymark.net ([206.176.148.84]:54678 "EHLO
+	femail.waymark.net") by vger.kernel.org with ESMTP id S1751111AbWCSVrA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 16:47:00 -0500
+Date: 19 Mar 2006 21:01:10 GMT
+From: Kenneth Parrish <Kenneth.Parrish@familynet-international.net>
+Subject: dnotify
+To: linux-kernel@vger.kernel.org
+Message-ID: <7039e4.737825@familynet-international.net>
+Organization: FamilyNet HQ
+X-Mailer: BBBS/NT v4.01 Flag-5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 19, 2006 at 03:29:01PM -0600, Matt Domsch wrote:
+        With kernel 2.6.16-rc6-git10 dnotify support active 'vmstat
+10' shows a constant 200+ context switches on an idle system when the
+midnight commander 'mc' file manager is opened in an rxvt, but only the
+usual few context switches with dnotify removed, inotify support present
+in both cases. I dont know if this is normal and expected behavior,
+and if not, when it may have changed, but it seems a bit high context
+switches rate, eh?
 
-> NAK.  efibootmgr, the main userspace consumer of this struct, also
-> thinks this is an "unsigned long".
+:6! ldd /usr/bin/mc
+        libglib-2.0.so.0 => /usr/lib/libglib-2.0.so.0 (0xb7ed9000)
+        libext2fs.so.2 => /lib/libext2fs.so.2 (0xb7ec1000)
+        libcom_err.so.2 => /lib/libcom_err.so.2 (0xb7ebe000)
+        libgpm.so.1 => /lib/libgpm.so.1 (0xb7eb8000)
+        libslang.so.1 => /usr/lib/libslang.so.1 (0xb7e47000)
+        libnsl.so.1 => /lib/libnsl.so.1 (0xb7e32000)
+        libc.so.6 => /lib/libc.so.6 (0xb7d03000)
+        libncurses.so.5 => /lib/libncurses.so.5 (0xb7cc4000)
+        libdl.so.2 => /lib/libdl.so.2 (0xb7cc1000)
+        libm.so.6 => /lib/libm.so.6 (0xb7c9f000)
+        /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0xb7f67000)
 
-Hm. My copy of efibootmgr has:
-
-typedef struct _efi_variable_t {
-        efi_char16_t  VariableName[1024/sizeof(efi_char16_t)];
-        efi_guid_t    VendorGuid;
-        uint64_t         DataSize;
-        uint8_t          Data[1024];
-        efi_status_t  Status;
-        uint32_t         Attributes;
-} __attribute__((packed)) efi_variable_t;
-
-which certainly makes it look like it's expecting a 64-bit value. But 
-checking the spec does seem to suggest that datasize is a native value, 
-so presumably it's an efibootmgr bug rather than a kernel one? In that 
-case, this ought to be dropped.
-
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+... Come home America.
+--- MultiMail/Linux v0.47

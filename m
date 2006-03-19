@@ -1,106 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbWCSMA4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751493AbWCSM7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751489AbWCSMA4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 07:00:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWCSMA4
+	id S1751493AbWCSM7E (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 07:59:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWCSM7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 07:00:56 -0500
-Received: from woodchuck.digriz.org.uk ([217.147.82.209]:34441 "EHLO
-	woodchuck.digriz.org.uk") by vger.kernel.org with ESMTP
-	id S1751489AbWCSMAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 07:00:55 -0500
-Date: Sun, 19 Mar 2006 12:00:47 +0000
-From: Alexander Clouter <alex@digriz.org.uk>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, jun.nakajima@intel.com, davej@redhat.com
-Subject: Re: OOPS: 2.6.16-rc6 cpufreq_conservative
-Message-ID: <20060319120047.GA26018@inskipp.digriz.org.uk>
-References: <200603181525.14127.kernel-stuff@comcast.net> <Pine.LNX.4.64.0603181321310.3826@g5.osdl.org> <20060318165302.62851448.akpm@osdl.org> <200603190134.01833.kernel-stuff@comcast.net>
+	Sun, 19 Mar 2006 07:59:03 -0500
+Received: from main.gmane.org ([80.91.229.2]:37251 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751493AbWCSM7D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 07:59:03 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: [PATCH 001/001] PCI: PCI quirk for Asus A8V and A8V Deluxe motherboards
+Date: Sun, 19 Mar 2006 12:58:50 +0000
+Message-ID: <yw1xd5gi381h.fsf@agrajag.inprovide.com>
+References: <20060305192709.GA3789@skyscraper.unix9.prv> <dve3j9$r50$1@sea.gmane.org> <20060317143303.GR20746@lug-owl.de> <dvehv7$j9r$1@sea.gmane.org> <20060317144920.GS20746@lug-owl.de> <dveugj$aob$1@sea.gmane.org> <yw1xmzfo98em.fsf@agrajag.inprovide.com> <dvh3rb$ui8$1@sea.gmane.org> <yw1x64mb7rwm.fsf@agrajag.inprovide.com> <dvh7aj$95v$1@sea.gmane.org> <yw1xoe0368yj.fsf@agrajag.inprovide.com> <dvjcb4$as2$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
-Content-Disposition: inline
-In-Reply-To: <200603190134.01833.kernel-stuff@comcast.net>
-Organization: diGriz
-X-URL: http://www.digriz.org.uk/
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 82.153.166.94
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (linux)
+Cancel-Lock: sha1:eaaglvc149Ut4WeMB38bzspZ84U=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andras Mantia <amantia@kde.org> writes:
 
---DocE+STaALJfprDB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-Parag Warudkar <kernel-stuff@comcast.net> [20060319 01:34:01 -0500]:
+> Måns Rullgård wrote:
+>> Hmm, mine crashed when I used the PCI card.  Using the onboard sound
+>> was fine.
 >
-> On Saturday 18 March 2006 19:53, Andrew Morton wrote:
-> > I might stick a once-off WARN_ON() in there so someone gets in
-> > and works out why we keep on having to graft mysterious null-pointer
-> > avoidances into cpufreq.
-> cpufreq_conservative should be marked broken on SMP - I have used it on U=
-P=20
-> boxes without trouble but I can't even safely modprobe it on SMP - it nea=
-rly=20
-> ate my filesystem. =20
->=20
-> And there seem to be multiple different problems with it - I get differen=
-t=20
-> oopses depending upon whether or not I have loaded it before or after the=
-=20
-> ondemand module.  Weird enough - cpufreq_conservative shares much of it's=
-=20
-> code with cpufreq_ondemand, which works without any problem.=20
->=20
-Well its drifted a bit, however I submitted a number of patches here about=
-=20
-two weeks ago to bring it back into line and hopefully make it HOTPLUG safe.
+> Now it doesn't crash. :-0 That hang was with kernel 2.6.15, but I switeched
+> back to 2.6.13 as that is what suse provides and I played some music on
+> both cards and tried Skype on the onboard card (there was the hang) and it
+> was OK.
 
-The new set of patches pretty much make conservative's codebase identical t=
-o=20
-ondemands....as no one has posted back having used these or anything what a=
-m=20
-I to do?!
+Just write it off to cosmic rays if it doesn't happen again.
 
-> Let me know if anyone has objection to marking cpufreq_conservative=20
-> depends !SMP - I am planning to submit  a patch soon.
->=20
-Doesn't bother me, what does is no one is trying to updates to conservative=
-=20
-before deciding to declare it borked?
+>>>>> Can you tell me how can I find the real device ID for my chipset? It
+>>>>> *should* be the same one as the original writer of the patch wrote (he
+>>>>> also had an ASUS A8V Deluxe as I understood), but the experience tells
+>>>>> it is not.
+>>>> 
+>>>> lspci -n will list the PCI IDs in hex.
+>>>
+>>> Thanks.
+>> 
+>> Care to post the output?
+>
+> Sure. I still don't know how to use those numbers in the quircks.c  (do I
+> need to create something like #define PCI_DEVICE_WHATEVER pciIDNumber ?).
 
-Hey ho....
+The device IDs are already #defined in <linux/pci_ids.h>.
 
-Alex
+> The result of lspci -vvvn is attached.
 
-> Parag
+> 00:11.0 Class 0601: 1106:3227
+> 	Subsystem: 1043:80ed
 
---=20
- _______________________________________=20
-/ Misfortunes arrive on wings and leave \
-\ on foot.                              /
- ---------------------------------------=20
-        \   ^__^
-         \  (oo)\_______
-            (__)\       )\/\
-                ||----w |
-                ||     ||
+This is the interesting bit.  Curiously enough, it is exactly the same
+as mine.  I can't see any reason why it shouldn't match on your board.
 
---DocE+STaALJfprDB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Try sticking some printk()s in there and find out what values are
+actually seen.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+-- 
+Måns Rullgård
+mru@inprovide.com
 
-iD8DBQFEHUfvNv5Ugh/sRBYRAgyUAKCDNkdz5aq2oaxvPnyEdNkO9xIrkQCfUGyD
-sJYQLGowT9uMCdxunDfv1Jk=
-=Vvsm
------END PGP SIGNATURE-----
-
---DocE+STaALJfprDB--

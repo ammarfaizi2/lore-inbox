@@ -1,231 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWCSUCA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWCSUC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750838AbWCSUCA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 15:02:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWCSUCA
+	id S1750831AbWCSUC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 15:02:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWCSUC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 15:02:00 -0500
-Received: from 213-239-205-134.clients.your-server.de ([213.239.205.134]:26091
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1750831AbWCSUB7
+	Sun, 19 Mar 2006 15:02:27 -0500
+Received: from 213-239-205-134.clients.your-server.de ([213.239.205.134]:27115
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1750831AbWCSUCB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 15:01:59 -0500
-Message-Id: <20060319102013.581398000@localhost.localdomain>
+	Sun, 19 Mar 2006 15:02:01 -0500
+Message-Id: <20060319102013.976854000@localhost.localdomain>
 References: <20060319102009.817820000@localhost.localdomain>
-Date: Sun, 19 Mar 2006 20:02:17 -0000
+Date: Sun, 19 Mar 2006 20:02:18 -0000
 From: Thomas Gleixner <tglx@linutronix.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        Tom Rini <trini@kernel.crashing.org>
-Subject: [patch 1/2] sys_alarm() unsigned signed conversion fixup
-Content-Disposition: inline; filename=alarm-fixup-unsigned-signed.patch
+Subject: [patch 2/2] Validate and sanitze itimer timeval from userspace
+Content-Disposition: inline; filename=itimer-validate-uservalue.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-alarm() calls the kernel with an unsigend int timeout in seconds.
-The value is stored in the tv_sec field of a struct timeval to
-setup the itimer. The tv_sec field of struct timeval is of type long,
-which causes the tv_sec value to be negative on 32 bit machines if
-seconds > INT_MAX.
+According to the specification the timevals must be validated and
+an errorcode -EINVAL returned in case the timevals are not in canonical
+form. This check was never done in Linux.
 
-Before the hrtimer merge (pre 2.6.16) such a negative value was
-converted to the maximum jiffies timeout by the timeval_to_jiffies
-conversion. It's not clear whether this was intended or just happened
-to be done by the timeval_to_jiffies code.
+The pre 2.6.16 code converted invalid timevals silently. Negative
+timeouts were converted by the timeval_to_jiffies conversion to
+the maximum timeout.
 
-hrtimers expect a timeval in canonical form and treat a negative 
-timeout as already expired. This breaks the legitimate usage of
-alarm() with a timeout value > INT_MAX seconds.
+hrtimers and the ktime_t operations expect timevals in canonical form.
+Otherwise random results might happen on 32 bits machines due to the
+optimized ktime_add/sub operations. Negative timeouts are treated
+as already expired. This might break applications which work on
+pre 2.6.16. 
 
-For 32 bit machines it is therefor necessary to limit the internal 
-seconds value to avoid API breakage. Instead of doing this in all
-implementations of sys_alarm the duplicated sys_alarm code is moved
-into a common function in itimer.c
+To prevent random behaviour and API breakage the timevals are checked
+and invalid timevals sanitized in a simliar way as the pre 2.6.16 code
+did.
+
+Invalid timevals are reported with a per boot limited number of kernel
+messages so applications which use this misfeature can be corrected.
+
+After a grace period of one year the sanitizing should be replaced by
+a correct validation check. This is also documented in
+Documentation/feature-removal-schedule.txt
+
+The validation and sanitizing is done inside do_setitimer so all
+callers (sys_setitimer, compat_sys_setitimer, osf_setitimer) are catched.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 
- arch/ia64/ia32/sys_ia32.c   |   14 +-------------
- arch/mips/kernel/sysirix.c  |   22 +---------------------
- arch/x86_64/ia32/sys_ia32.c |   16 ++--------------
- include/linux/time.h        |    1 +
- kernel/itimer.c             |   37 +++++++++++++++++++++++++++++++++++++
- kernel/timer.c              |   14 +-------------
- 6 files changed, 43 insertions(+), 61 deletions(-)
+ Documentation/feature-removal-schedule.txt |   12 +++++
+ kernel/itimer.c                            |   64 +++++++++++++++++++++++++++++
+ 2 files changed, 76 insertions(+)
 
 Index: linux-2.6.16-rc6-updates/kernel/itimer.c
 ===================================================================
 --- linux-2.6.16-rc6-updates.orig/kernel/itimer.c
 +++ linux-2.6.16-rc6-updates/kernel/itimer.c
-@@ -226,6 +226,43 @@ again:
- 	return 0;
+@@ -143,6 +143,58 @@ int it_real_fn(struct hrtimer *timer)
+ 	return HRTIMER_NORESTART;
  }
  
-+/**
-+ * alarm_setitimer - set alarm in seconds
++/*
++ * We do not care about correctness. We just sanitize the values so
++ * the ktime_t operations which expect normalized values do not
++ * break. This converts negative values to long timeouts similar to
++ * the code in kernel versions < 2.6.16
 + *
-+ * @seconds:	number of seconds until alarm
-+ *		0 disables the alarm
-+ *
-+ * Returns the remaining time in seconds of a pending timer or 0 when
-+ * the timer is not active.
-+ *
-+ * On 32 bit machines the seconds value is limited to (INT_MAX/2) to avoid
-+ * negative timeval settings which would cause immidiate expiry.
++ * Print a limited number of warning messages when an invalid timeval
++ * is detected.
 + */
-+unsigned int alarm_setitimer(unsigned int seconds)
++static void fixup_timeval(struct timeval *tv, int interval)
 +{
-+	struct itimerval it_new, it_old;
++	static int warnlimit = 10;
++	unsigned long tmp;
 +
-+#if BITS_PER_LONG < 64
-+	if (seconds > (INT_MAX >> 1))
-+		seconds = (INT_MAX >> 1);
-+#endif
-+	it_new.it_value.tv_sec = seconds;
-+	it_new.it_value.tv_usec = 0;
-+	it_new.it_interval.tv_sec = it_new.it_interval.tv_usec = 0;
++	if (warnlimit > 0) {
++		warnlimit--;
++		printk(KERN_WARNING
++		       "setitimer: %s (pid = %d) provided "
++		       "invalid timeval %s: tv_sec = %ld tv_usec = %ld\n",
++		       current->comm, current->pid,
++		       interval ? "it_interval" : "it_value",
++		       tv->tv_sec, (long) tv->tv_usec);
++	}
 +
-+	do_setitimer(ITIMER_REAL, &it_new, &it_old);
++	tmp = (unsigned long) tv->tv_usec;
++	if (tmp >= USEC_PER_SEC)
++		tv->tv_usec = USEC_PER_SEC - 1;
 +
-+	/*
-+	 * We can't return 0 if we have an alarm pending ...  And we'd
-+	 * better return too much than too little anyway
-+	 */
-+	if ((!it_old.it_value.tv_sec && it_old.it_value.tv_usec) ||
-+	      it_old.it_value.tv_usec >= 500000)
-+		it_old.it_value.tv_sec++;
-+
-+	return it_old.it_value.tv_sec;
++	tmp = (unsigned long) tv->tv_sec;
++	if (tmp > (LONG_MAX >> 1))
++		tv->tv_sec = (LONG_MAX >> 1);
 +}
 +
- asmlinkage long sys_setitimer(int which,
- 			      struct itimerval __user *value,
- 			      struct itimerval __user *ovalue)
-Index: linux-2.6.16-rc6-updates/arch/ia64/ia32/sys_ia32.c
-===================================================================
---- linux-2.6.16-rc6-updates.orig/arch/ia64/ia32/sys_ia32.c
-+++ linux-2.6.16-rc6-updates/arch/ia64/ia32/sys_ia32.c
-@@ -1166,19 +1166,7 @@ put_tv32 (struct compat_timeval __user *
- asmlinkage unsigned long
- sys32_alarm (unsigned int seconds)
++/*
++ * Returns true if the timeval is in canonical form
++ */
++#define timeval_valid(t) \
++	(((t)->tv_sec >= 0) && (((unsigned long) (t)->tv_usec) < USEC_PER_SEC))
++
++/*
++ * Check for invalid timevals, sanitize them and print a limited
++ * number of warnings.
++ */
++static void check_itimerval(struct itimerval *value) {
++
++	if (unlikely(!timeval_valid(&value->it_value)))
++		fixup_timeval(&value->it_value, 0);
++
++	if (unlikely(!timeval_valid(&value->it_interval)))
++		fixup_timeval(&value->it_interval, 1);
++}
++
+ int do_setitimer(int which, struct itimerval *value, struct itimerval *ovalue)
  {
--	struct itimerval it_new, it_old;
--	unsigned int oldalarm;
--
--	it_new.it_interval.tv_sec = it_new.it_interval.tv_usec = 0;
--	it_new.it_value.tv_sec = seconds;
--	it_new.it_value.tv_usec = 0;
--	do_setitimer(ITIMER_REAL, &it_new, &it_old);
--	oldalarm = it_old.it_value.tv_sec;
--	/* ehhh.. We can't return 0 if we have an alarm pending.. */
--	/* And we'd better return too much than too little anyway */
--	if (it_old.it_value.tv_usec)
--		oldalarm++;
--	return oldalarm;
-+	return alarm_setitimer(seconds);
- }
+ 	struct task_struct *tsk = current;
+@@ -150,6 +202,18 @@ int do_setitimer(int which, struct itime
+ 	ktime_t expires;
+ 	cputime_t cval, cinterval, nval, ninterval;
  
- /* Translations due to time_t size differences.  Which affects all
-Index: linux-2.6.16-rc6-updates/arch/mips/kernel/sysirix.c
++	/*
++	 * Validate the timevals in value.
++	 *
++	 * Note: Although the spec requires that invalid values shall
++	 * return -EINVAL, we just fixup the value and print a limited
++	 * number of warnings in order not to break users of this
++	 * historical misfeature.
++	 *
++	 * Scheduled for replacement in March 2007
++	 */
++	check_itimerval(value);
++
+ 	switch (which) {
+ 	case ITIMER_REAL:
+ again:
+Index: linux-2.6.16-rc6-updates/Documentation/feature-removal-schedule.txt
 ===================================================================
---- linux-2.6.16-rc6-updates.orig/arch/mips/kernel/sysirix.c
-+++ linux-2.6.16-rc6-updates/arch/mips/kernel/sysirix.c
-@@ -645,27 +645,7 @@ static inline void getitimer_real(struct
- 
- asmlinkage unsigned int irix_alarm(unsigned int seconds)
- {
--	struct itimerval it_new, it_old;
--	unsigned int oldalarm;
--
--	if (!seconds) {
--		getitimer_real(&it_old);
--		del_timer(&current->real_timer);
--	} else {
--		it_new.it_interval.tv_sec = it_new.it_interval.tv_usec = 0;
--		it_new.it_value.tv_sec = seconds;
--		it_new.it_value.tv_usec = 0;
--		do_setitimer(ITIMER_REAL, &it_new, &it_old);
--	}
--	oldalarm = it_old.it_value.tv_sec;
--	/*
--	 * ehhh.. We can't return 0 if we have an alarm pending ...
--	 * And we'd better return too much than too little anyway
--	 */
--	if (it_old.it_value.tv_usec)
--		oldalarm++;
--
--	return oldalarm;
-+	return alarm_setitimer(seconds);
- }
- 
- asmlinkage int irix_pause(void)
-Index: linux-2.6.16-rc6-updates/arch/x86_64/ia32/sys_ia32.c
-===================================================================
---- linux-2.6.16-rc6-updates.orig/arch/x86_64/ia32/sys_ia32.c
-+++ linux-2.6.16-rc6-updates/arch/x86_64/ia32/sys_ia32.c
-@@ -430,24 +430,12 @@ put_tv32(struct compat_timeval __user *o
- 	return err; 
- }
- 
--extern int do_setitimer(int which, struct itimerval *, struct itimerval *);
-+extern unsigned int alarm_setitimer(unsigned int seconds);
- 
- asmlinkage long
- sys32_alarm(unsigned int seconds)
- {
--	struct itimerval it_new, it_old;
--	unsigned int oldalarm;
--
--	it_new.it_interval.tv_sec = it_new.it_interval.tv_usec = 0;
--	it_new.it_value.tv_sec = seconds;
--	it_new.it_value.tv_usec = 0;
--	do_setitimer(ITIMER_REAL, &it_new, &it_old);
--	oldalarm = it_old.it_value.tv_sec;
--	/* ehhh.. We can't return 0 if we have an alarm pending.. */
--	/* And we'd better return too much than too little anyway */
--	if (it_old.it_value.tv_usec)
--		oldalarm++;
--	return oldalarm;
-+	return alarm_setitimer(seconds);
- }
- 
- /* Translations due to time_t size differences.  Which affects all
-Index: linux-2.6.16-rc6-updates/kernel/timer.c
-===================================================================
---- linux-2.6.16-rc6-updates.orig/kernel/timer.c
-+++ linux-2.6.16-rc6-updates/kernel/timer.c
-@@ -955,19 +955,7 @@ void do_timer(struct pt_regs *regs)
-  */
- asmlinkage unsigned long sys_alarm(unsigned int seconds)
- {
--	struct itimerval it_new, it_old;
--	unsigned int oldalarm;
--
--	it_new.it_interval.tv_sec = it_new.it_interval.tv_usec = 0;
--	it_new.it_value.tv_sec = seconds;
--	it_new.it_value.tv_usec = 0;
--	do_setitimer(ITIMER_REAL, &it_new, &it_old);
--	oldalarm = it_old.it_value.tv_sec;
--	/* ehhh.. We can't return 0 if we have an alarm pending.. */
--	/* And we'd better return too much than too little anyway */
--	if ((!oldalarm && it_old.it_value.tv_usec) || it_old.it_value.tv_usec >= 500000)
--		oldalarm++;
--	return oldalarm;
-+	return alarm_setitimer(seconds);
- }
- 
- #endif
-Index: linux-2.6.16-rc6-updates/include/linux/time.h
-===================================================================
---- linux-2.6.16-rc6-updates.orig/include/linux/time.h
-+++ linux-2.6.16-rc6-updates/include/linux/time.h
-@@ -95,6 +95,7 @@ extern long do_utimes(int dfd, char __us
- struct itimerval;
- extern int do_setitimer(int which, struct itimerval *value,
- 			struct itimerval *ovalue);
-+extern unsigned int alarm_setitimer(unsigned int seconds);
- extern int do_getitimer(int which, struct itimerval *value);
- extern void getnstimeofday(struct timespec *tv);
- 
+--- linux-2.6.16-rc6-updates.orig/Documentation/feature-removal-schedule.txt
++++ linux-2.6.16-rc6-updates/Documentation/feature-removal-schedule.txt
+@@ -189,3 +189,15 @@ Why:	Board specific code doesn't build a
+ 	users have complained indicating there is no more need for these
+ 	boards.  This should really be considered a last call.
+ Who:	Ralf Baechle <ralf@linux-mips.org>
++
++---------------------------
++
++What:	Usage of invalid timevals in setitimer
++When:	March 2007
++Why:	POSIX requires to validate timevals in the setitimer call. This
++	was never done by Linux. The invalid (e.g. negative timevals) were
++	silently converted to more or less random timeouts and intervals.
++	Until the removal a per boot limited number of warnings is printed
++	and the timevals are sanitized.
++
++Who:	Thomas Gleixner <tglx@linutronix.de>
 
 --
 

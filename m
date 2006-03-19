@@ -1,68 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWCSPLV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbWCSPFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWCSPLV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 10:11:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWCSPLV
+	id S1751083AbWCSPFs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 10:05:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751504AbWCSPFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 10:11:21 -0500
-Received: from main.gmane.org ([80.91.229.2]:34026 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932105AbWCSPLU (ORCPT
+	Sun, 19 Mar 2006 10:05:47 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:21391 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751083AbWCSPFr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 10:11:20 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andras Mantia <amantia@kde.org>
-Subject: Re: [PATCH 001/001] PCI: PCI quirk for Asus A8V and A8V Deluxe motherboards
-Date: Sun, 19 Mar 2006 17:11:13 +0200
-Message-ID: <dvjsa6$i92$1@sea.gmane.org>
-References: <20060305192709.GA3789@skyscraper.unix9.prv> <dve3j9$r50$1@sea.gmane.org> <20060317143303.GR20746@lug-owl.de> <dvehv7$j9r$1@sea.gmane.org> <20060317144920.GS20746@lug-owl.de> <dveugj$aob$1@sea.gmane.org> <yw1xmzfo98em.fsf@agrajag.inprovide.com> <dvh3rb$ui8$1@sea.gmane.org> <yw1x64mb7rwm.fsf@agrajag.inprovide.com> <dvh7aj$95v$1@sea.gmane.org> <yw1xoe0368yj.fsf@agrajag.inprovide.com> <dvjcb4$as2$1@sea.gmane.org> <yw1xd5gi381h.fsf@agrajag.inprovide.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 84.247.49.146
-User-Agent: KNode/0.10.1
+	Sun, 19 Mar 2006 10:05:47 -0500
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Simon.Derr@bull.net,
+       Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
+Date: Sun, 19 Mar 2006 07:05:38 -0800
+Message-Id: <20060319150538.16855.53670.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH] Cpuset: remove unnecessary NULL check comment fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
+From: Paul Jackson <pj@sgi.com>
 
-> This is the interesting bit.  Curiously enough, it is exactly the same
-> as mine.  I can't see any reason why it shouldn't match on your board.
-> 
-> Try sticking some printk()s in there and find out what values are
-> actually seen.
+Make the comments referring to the (ab)use of the top_cpuset
+during a tasks exit more explicit - hopefully clearer.
+This is now called "the_top_cpuset_hack", instead of the "Hack."
 
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
-I found why it didn't work on my PC before. I wrote that I not only enabled
-for every PCI id, but removed the following check:
+---
 
-      if (likely(!asus_hides_ac97))
-                return;
+Andrew - this goes right after "cpuset-remove-unnecessary-NULL-check".
 
-This was the bit which made it work. After putting some debugging
-information it turned out that asus_hides_ac97_lpc was called *before*
-asus_hides_ac97_device, so the asus_hides_ac97 remained 0 in that check.
+ kernel/cpuset.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
 
-As far as I know this problem appears on all VT8237 boards (I found in
-several forums), I suggest to completely drop the asus_hides_ac97_device
-function and the above if clause.
-
-See the debug outputs:
-
-Inside asus_hides_ac97_lpc
-asus_hides_ac97=0
-device: 0x3227
-PCI: enabled onboard AC97/MC97 devices
-Inside asus_hides_ac97_device
-vendor 0x1043
-device 0x3227
-
-Andras
-
+--- 2.6.16-rc6-mm2.orig/kernel/cpuset.c	2006-03-19 06:45:00.600257470 -0800
++++ 2.6.16-rc6-mm2/kernel/cpuset.c	2006-03-19 06:49:27.495730165 -0800
+@@ -2023,7 +2023,7 @@ void cpuset_fork(struct task_struct *chi
+  * because tsk is already marked PF_EXITING, so attach_task() won't
+  * mess with it, or task is a failed fork, never visible to attach_task.
+  *
+- * Hack:
++ * the_top_cpuset_hack:
+  *
+  *    Set the exiting tasks cpuset to the root cpuset (top_cpuset).
+  *
+@@ -2062,7 +2062,7 @@ void cpuset_exit(struct task_struct *tsk
+ 	struct cpuset *cs;
+ 
+ 	cs = tsk->cpuset;
+-	tsk->cpuset = &top_cpuset;	/* Hack - see comment above */
++	tsk->cpuset = &top_cpuset;	/* the_top_cpuset_hack - see above */
+ 
+ 	if (notify_on_release(cs)) {
+ 		char *pathbuf = NULL;
+@@ -2375,8 +2375,9 @@ void __cpuset_memory_pressure_bump(void)
+  *  - No need to task_lock(tsk) on this tsk->cpuset reference, as it
+  *    doesn't really matter if tsk->cpuset changes after we read it,
+  *    and we take manage_mutex, keeping attach_task() from changing it
+- *    anyway.  No need to check that tsk->cpuset != NULL, thanks to the
+- *    cpuset_exit() Hack.
++ *    anyway.  No need to check that tsk->cpuset != NULL, thanks to
++ *    the_top_cpuset_hack in cpuset_exit(), which sets an exiting tasks
++ *    cpuset to top_cpuset.
+  */
+ 
+ static int proc_cpuset_show(struct seq_file *m, void *v)
 
 -- 
-Quanta Plus developer - http://quanta.kdewebdev.org
-K Desktop Environment - http://www.kde.org
-
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

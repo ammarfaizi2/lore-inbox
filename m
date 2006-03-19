@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbWCSF2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWCSF23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751435AbWCSF2w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 00:28:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbWCSF2v
+	id S1751428AbWCSF23 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 00:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbWCSF23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 00:28:51 -0500
-Received: from bee.hiwaay.net ([216.180.54.11]:7206 "EHLO bee.hiwaay.net")
-	by vger.kernel.org with ESMTP id S1751439AbWCSF2v (ORCPT
+	Sun, 19 Mar 2006 00:28:29 -0500
+Received: from mx1.suse.de ([195.135.220.2]:25728 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751428AbWCSF23 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 00:28:51 -0500
-Date: Sat, 18 Mar 2006 23:28:47 -0600
-From: Chris Adams <cmadams@hiwaay.net>
+	Sun, 19 Mar 2006 00:28:29 -0500
+From: Neil Brown <neilb@suse.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: ext3_ordered_writepage() questions
-Message-ID: <20060319052847.GA1039471@hiwaay.net>
-References: <fa.Hkp0U4ooGgE4K2sa/5vVcaD5wTg@ifi.uio.no>
-Mime-Version: 1.0
+Date: Sun, 19 Mar 2006 16:27:04 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060319023610.GA4824@mail.shareable.org>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17436.60328.242450.249552@cse.unsw.edu.au>
+Subject: Who uses the 'nodev' flag in /proc/filesystems ???
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once upon a time, Jamie Lokier  <jamie@shareable.org> said:
->rsync is relevant only *after* the power cut, because it checks mtimes
->to see if files are modified.  The method by which rsync writes files
->isn't relevant to this scenario.
 
-To simplify: substitute "rsync" with "backup program".
 
-Any backup software that maintains some type of index of what has been
-backed up (for incremental type backups) or even just backs up files
-modified since a particular date (e.g. "dump") can miss files modified
-shortly before a crash/power cut/unexpected shutdown.  The data may get
-modified but since the mtime may not get updated, nothing can tell that
-the data has been modified.
+Hi, 
+ I just noticed that the FS_REQUIRES_DEV flag is used for just two
+ things in the kernel.
 
-rsync is actually a special case, in that you could always force it to
-compare contents between two copies.  Most backup software doesn't do
-that (especially tape backups).
+  1/ to place the text 'nodev' at the start of the line in
+       /proc/filesystems
+  2/ to tell nfsd that it is reasonably OK to use the s_dev field 
+     in the superblock as a stable, unique identifier for the
+     filesystem.
 
--- 
-Chris Adams <cmadams@hiwaay.net>
-Systems and Network Administrator - HiWAAY Internet Services
-I don't speak for anybody but myself - that's enough trouble.
+I have a filesystem I am playing with for which I am quite happy to
+lose the second aspect of FS_REQUIRES_DEV (it does use a device, but
+there could well be multiple devices, and the fs can migrate from one
+device to another so s_dev is even less stable than normal).  However
+I would like to understand the implications of losing the first aspect
+of FS_REQUIRES_DEV before deciding whether to provide the flag or not.
+
+Hence the question in the subject:
+
+  Who uses the 'nodev' flag in /proc/filesystems?
+
+Are there any known users of this flag?
+
+Thanks,
+NeilBrown
+

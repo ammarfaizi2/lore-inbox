@@ -1,372 +1,296 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWCSPcg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWCSPdX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbWCSPcg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 10:32:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWCSPcg
+	id S932138AbWCSPdX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 10:33:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWCSPdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 10:32:36 -0500
-Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:60078 "EHLO
-	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932131AbWCSPcf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 10:32:35 -0500
+	Sun, 19 Mar 2006 10:33:22 -0500
+Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:29600 "EHLO
+	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932138AbWCSPdV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 10:33:21 -0500
 From: Con Kolivas <kernel@kolivas.org>
 To: linux list <linux-kernel@vger.kernel.org>
-Date: Mon, 20 Mar 2006 02:31:49 +1100
+Date: Mon, 20 Mar 2006 02:32:40 +1100
 User-Agent: KMail/1.9.1
 Cc: ck list <ck@vds.kolivas.org>, Andrew Morton <akpm@osdl.org>,
        "Rafael Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@ucw.cz>,
        linux-mm@kvack.org
 MIME-Version: 1.0
 Content-Disposition: inline
-Subject: [PATCH][1/3] mm: swsusp shrink_all_memory tweaks
+X-Length: 746
+Subject: [PATCH][2/3] mm: swap prefetch aggressive mode
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200603200231.50666.kernel@kolivas.org>
+Message-Id: <200603200232.41473.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is a rewrite of the shrink_all_memory function used by swsusp
-prior to suspending to disk.
 
-The special hooks into balance_pgdat for shrink_all_memory have been removed
-thus simplifying that function significantly.
+Add an "aggressive" mode to swap prefetch that overrides most of the checks
+that prevent swap prefetch from doing any prefetching when the system is not
+idle. Make it a transient bit that can be set in the /proc tunable which
+makes it a use once setting - the most likely way such a mode will be useful.
 
-Some code will now be compiled out in the !CONFIG_PM case.
+Export the aggressive_swap_prefetch function to allow other code to set it
+if it is deemed suitable.
 
-shrink_all_memory now uses shrink_zone and shrink_slab directly with an extra
-entry in the struct scan_control suspend_pass. This is used to alter what
-lists will be shrunk by shrink_zone on successive passes. The aim of this is
-to alter the reclaim logic to choose the best pages to keep on resume, to
-free the minimum amount of memory required to suspend and free the memory
-faster.
+Such a mode would be useful, for example, immediately after resuming from
+suspend-to-disk.
 
 Signed-off-by: Con Kolivas <kernel@kolivas.org>
 
- kernel/power/swsusp.c |   10 ---
- mm/vmscan.c           |  165 ++++++++++++++++++++++++++++++--------------------
- 2 files changed, 105 insertions(+), 70 deletions(-)
+---
+ Documentation/sysctl/vm.txt   |   15 ++++
+ include/linux/swap-prefetch.h |    5 +
+ mm/swap_prefetch.c            |  130 +++++++++++++++++++++++++++++-------------
+ 3 files changed, 112 insertions(+), 38 deletions(-)
 
-Index: linux-2.6.16-rc6-mm2/mm/vmscan.c
+Index: linux-2.6.16-rc6-mm2/Documentation/sysctl/vm.txt
 ===================================================================
---- linux-2.6.16-rc6-mm2.orig/mm/vmscan.c	2006-03-19 15:40:41.000000000 +1100
-+++ linux-2.6.16-rc6-mm2/mm/vmscan.c	2006-03-20 02:17:01.000000000 +1100
-@@ -62,8 +62,33 @@ struct scan_control {
- 	 * In this context, it doesn't matter that we scan the
- 	 * whole list at once. */
- 	int swap_cluster_max;
-+
-+#ifdef CONFIG_PM
-+	/*
-+	 * If we're doing suspend to disk, what pass is this.
-+	 * We decrement to allow code to transparently do normal reclaim
-+	 * without explicitly setting it to 0.
-+	 *
-+	 * 4 = Reclaim from inactive_list only
-+	 * 3 = Reclaim from active list but don't reclaim mapped
-+	 * 2 = 2nd pass of type 2
-+	 * 1 = Reclaim mapped (normal reclaim)
-+	 * 0 = 2nd pass of type 1
-+	 */
-+	int suspend_pass;
-+#endif
- };
+--- linux-2.6.16-rc6-mm2.orig/Documentation/sysctl/vm.txt	2006-03-20 02:15:54.000000000 +1100
++++ linux-2.6.16-rc6-mm2/Documentation/sysctl/vm.txt	2006-03-20 02:20:34.000000000 +1100
+@@ -188,4 +188,19 @@ memory subsystem has been extremely idle
+ copying back pages from swap into the swapcache and keep a copy in swap. In
+ practice it can take many minutes before the vm is idle enough.
  
++This is value ORed together of
++1	= Normal background swap prefetching when load is light
++2	= Aggressively swap prefetch as much as possible
++
++ie Setting the value to 3 will prefetch aggressively then drop to 1. This
++is useful for doing aggressive prefetching for short periods in scripts
++such as after resuming from software suspend. Setting the value to 2 will
++prefetch aggressively as much as it can and then disable any further swap
++prefetching.
++
++Note that setting this to 0 disables even storing a list of swapped pages (to
++minimise overhead) which means that if significant swapping has occurred with
++swap_prefetch unset and then it is enabled, there is nothing that can be
++prefetched.
++
+ The default value is 1.
+Index: linux-2.6.16-rc6-mm2/mm/swap_prefetch.c
+===================================================================
+--- linux-2.6.16-rc6-mm2.orig/mm/swap_prefetch.c	2006-03-20 02:15:54.000000000 +1100
++++ linux-2.6.16-rc6-mm2/mm/swap_prefetch.c	2006-03-20 02:20:34.000000000 +1100
+@@ -27,8 +27,19 @@
+  */
+ #define PREFETCH_DELAY	(HZ * 5)
+ 
+-/* sysctl - enable/disable swap prefetching */
+-int swap_prefetch __read_mostly = 1;
++#define PREFETCH_NORMAL		(1 << 0)
++#define PREFETCH_AGGRESSIVE 	(1 << 1)
++
 +/*
-+ * When scanning for the swsusp function shrink_all_memory we only shrink
-+ * active lists on the 2nd pass.
++ * sysctl - enable/disable swap prefetching bits
++ * This is composed of the bitflags PREFETCH_NORMAL and PREFETCH_AGGRESSIVE.
++ * Once PREFETCH_AGGRESSIVE is set, swap prefetching will be peformed as much
++ * as possible irrespective of load conditions and then the
++ * PREFETCH_AGGRESSIVE bit will be unset.
 + */
-+#ifdef CONFIG_PM
-+#define suspend_scan_active(sc)	((sc)->suspend_pass < 4)
-+#else
-+#define suspend_scan_active(sc)	1
-+#endif
++int swap_prefetch __read_mostly = PREFETCH_NORMAL;
 +
- #define lru_to_page(_head) (list_entry((_head)->prev, struct page, lru))
++#define aggressive_prefetch	(unlikely(swap_prefetch & PREFETCH_AGGRESSIVE))
  
- #ifdef ARCH_HAS_PREFETCH
-@@ -840,7 +865,8 @@ static void shrink_active_list(unsigned 
+ struct swapped_root {
+ 	unsigned long		busy;		/* vm busy */
+@@ -291,43 +302,17 @@ static void examine_free_limits(void)
  }
  
  /*
-- * This is a basic per-zone page freer.  Used by both kswapd and direct reclaim.
-+ * This is a basic per-zone page freer.  Used by kswapd, direct reclaim and
-+ * the swsusp specific shrink_all_memory functions.
+- * We want to be absolutely certain it's ok to start prefetching.
++ * Have some hysteresis between where page reclaiming and prefetching
++ * will occur to prevent ping-ponging between them.
   */
- static unsigned long shrink_zone(int priority, struct zone *zone,
- 				struct scan_control *sc)
-@@ -858,7 +884,7 @@ static unsigned long shrink_zone(int pri
- 	 */
- 	zone->nr_scan_active += (zone->nr_active >> priority) + 1;
- 	nr_active = zone->nr_scan_active;
--	if (nr_active >= sc->swap_cluster_max)
-+	if (nr_active >= sc->swap_cluster_max && suspend_scan_active(sc))
- 		zone->nr_scan_active = 0;
- 	else
- 		nr_active = 0;
-@@ -935,7 +961,12 @@ static unsigned long shrink_zones(int pr
- 	}
- 	return nr_reclaimed;
- }
-- 
-+
-+#define for_each_priority_reverse(priority)	\
-+	for (priority = DEF_PRIORITY;		\
-+		priority >= 0;			\
-+		priority--)
-+
- /*
-  * This is the main entry point to direct page reclaim.
-  *
-@@ -979,7 +1010,7 @@ unsigned long try_to_free_pages(struct z
- 		lru_pages += zone->nr_active + zone->nr_inactive;
- 	}
- 
--	for (priority = DEF_PRIORITY; priority >= 0; priority--) {
-+	for_each_priority_reverse(priority) {
- 		sc.nr_mapped = read_page_state(nr_mapped);
- 		sc.nr_scanned = 0;
- 		if (!priority)
-@@ -1029,10 +1060,6 @@ out:
-  * For kswapd, balance_pgdat() will work across all this node's zones until
-  * they are all at pages_high.
-  *
-- * If `nr_pages' is non-zero then it is the number of pages which are to be
-- * reclaimed, regardless of the zone occupancies.  This is a software suspend
-- * special.
-- *
-  * Returns the number of pages which were actually freed.
-  *
-  * There is special handling here for zones which are full of pinned pages.
-@@ -1050,10 +1077,8 @@ out:
-  * the page allocator fallback scheme to ensure that aging of pages is balanced
-  * across the zones.
-  */
--static unsigned long balance_pgdat(pg_data_t *pgdat, unsigned long nr_pages,
--				int order)
-+static unsigned long balance_pgdat(pg_data_t *pgdat, int order)
+-static int prefetch_suitable(void)
++static void set_suitable_nodes(void)
  {
--	unsigned long to_free = nr_pages;
- 	int all_zones_ok;
- 	int priority;
- 	int i;
-@@ -1063,7 +1088,7 @@ static unsigned long balance_pgdat(pg_da
- 	struct scan_control sc = {
- 		.gfp_mask = GFP_KERNEL,
- 		.may_swap = 1,
--		.swap_cluster_max = nr_pages ? nr_pages : SWAP_CLUSTER_MAX,
-+		.swap_cluster_max = SWAP_CLUSTER_MAX,
- 	};
+-	unsigned long limit;
+ 	struct zone *z;
+-	int node, ret = 0, test_pagestate = 0;
  
- loop_again:
-@@ -1080,7 +1105,7 @@ loop_again:
- 		zone->temp_priority = DEF_PRIORITY;
- 	}
- 
--	for (priority = DEF_PRIORITY; priority >= 0; priority--) {
-+	for_each_priority_reverse(priority) {
- 		int end_zone = 0;	/* Inclusive.  0 = ZONE_DMA */
- 		unsigned long lru_pages = 0;
- 
-@@ -1090,31 +1115,27 @@ loop_again:
- 
- 		all_zones_ok = 1;
- 
--		if (nr_pages == 0) {
--			/*
--			 * Scan in the highmem->dma direction for the highest
--			 * zone which needs scanning
--			 */
--			for (i = pgdat->nr_zones - 1; i >= 0; i--) {
--				struct zone *zone = pgdat->node_zones + i;
-+		/*
-+		 * Scan in the highmem->dma direction for the highest
-+		 * zone which needs scanning
-+		 */
-+		for (i = pgdat->nr_zones - 1; i >= 0; i--) {
-+			struct zone *zone = pgdat->node_zones + i;
- 
--				if (!populated_zone(zone))
--					continue;
-+			if (!populated_zone(zone))
-+				continue;
- 
--				if (zone->all_unreclaimable &&
--						priority != DEF_PRIORITY)
--					continue;
-+			if (zone->all_unreclaimable &&
-+					priority != DEF_PRIORITY)
-+				continue;
- 
--				if (!zone_watermark_ok(zone, order,
--						zone->pages_high, 0, 0)) {
--					end_zone = i;
--					goto scan;
--				}
-+			if (!zone_watermark_ok(zone, order, zone->pages_high,
-+					       0, 0)) {
-+				end_zone = i;
-+				goto scan;
- 			}
+-	/* Purposefully racy */
+-	if (test_bit(0, &swapped.busy)) {
+-		__clear_bit(0, &swapped.busy);
+-		goto out;
+-	}
+-
+-	/*
+-	 * get_page_state and above_background_load are expensive so we only
+-	 * perform them every SWAP_CLUSTER_MAX prefetched_pages.
+-	 * We test to see if we're above_background_load as disk activity
+-	 * even at low priority can cause interrupt induced scheduling
+-	 * latencies.
+-	 */
+-	if (!(sp_stat.prefetched_pages % SWAP_CLUSTER_MAX)) {
+-		if (above_background_load())
 -			goto out;
--		} else {
--			end_zone = pgdat->nr_zones - 1;
- 		}
-+		goto out;
- scan:
- 		for (i = 0; i <= end_zone; i++) {
- 			struct zone *zone = pgdat->node_zones + i;
-@@ -1141,11 +1162,9 @@ scan:
- 			if (zone->all_unreclaimable && priority != DEF_PRIORITY)
- 				continue;
+-		test_pagestate = 1;
+-	}
+-
+-	clear_current_prefetch_free();
+-
+-	/*
+-	 * Have some hysteresis between where page reclaiming and prefetching
+-	 * will occur to prevent ping-ponging between them.
+-	 */
+ 	for_each_zone(z) {
+ 		struct node_stats *ns;
+ 		unsigned long free;
+-		int idx;
++		int node, idx;
  
--			if (nr_pages == 0) {	/* Not software suspend */
--				if (!zone_watermark_ok(zone, order,
--						zone->pages_high, end_zone, 0))
--					all_zones_ok = 0;
--			}
-+			if (!zone_watermark_ok(zone, order, zone->pages_high,
-+					       end_zone, 0))
-+				all_zones_ok = 0;
- 			zone->temp_priority = priority;
- 			if (zone->prev_priority > priority)
- 				zone->prev_priority = priority;
-@@ -1170,8 +1189,6 @@ scan:
- 			    total_scanned > nr_reclaimed + nr_reclaimed / 2)
- 				sc.may_writepage = 1;
+ 		if (!populated_zone(z))
+ 			continue;
+@@ -349,6 +334,45 @@ static int prefetch_suitable(void)
  		}
--		if (nr_pages && to_free > nr_reclaimed)
--			continue;	/* swsusp: need to do more work */
- 		if (all_zones_ok)
- 			break;		/* kswapd: all done */
- 		/*
-@@ -1187,7 +1204,7 @@ scan:
- 		 * matches the direct reclaim path behaviour in terms of impact
- 		 * on zone->*_priority.
- 		 */
--		if ((nr_reclaimed >= SWAP_CLUSTER_MAX) && !nr_pages)
-+		if (nr_reclaimed >= SWAP_CLUSTER_MAX)
+ 		ns->current_free += free;
+ 	}
++}
++
++/*
++ * We want to be absolutely certain it's ok to start prefetching.
++ */
++static int prefetch_suitable(void)
++{
++	unsigned long limit;
++	int node, ret = 0, test_pagestate = 0;
++
++	if (aggressive_prefetch) {
++		clear_current_prefetch_free();
++		set_suitable_nodes();
++		if (!nodes_empty(sp_stat.prefetch_nodes))
++			ret = 1;
++		goto out;
++	}
++
++	/* Purposefully racy */
++	if (test_bit(0, &swapped.busy)) {
++		__clear_bit(0, &swapped.busy);
++		goto out;
++	}
++
++	/*
++	 * get_page_state and above_background_load are expensive so we only
++	 * perform them every SWAP_CLUSTER_MAX prefetched_pages.
++	 * We test to see if we're above_background_load as disk activity
++	 * even at low priority can cause interrupt induced scheduling
++	 * latencies.
++	 */
++	if (!(sp_stat.prefetched_pages % SWAP_CLUSTER_MAX)) {
++		if (above_background_load())
++			goto out;
++		test_pagestate = 1;
++	}
++
++	clear_current_prefetch_free();
++	set_suitable_nodes();
+ 
+ 	/*
+ 	 * We iterate over each node testing to see if it is suitable for
+@@ -421,6 +445,17 @@ static inline struct swapped_entry *prev
+ 		struct swapped_entry, swapped_list);
+ }
+ 
++static unsigned long pages_prefetched(void)
++{
++	unsigned long pages = sp_stat.prefetched_pages;
++
++	if (pages) {
++		lru_add_drain();
++		sp_stat.prefetched_pages = 0;
++	}
++	return pages;
++}
++
+ /*
+  * trickle_swap is the main function that initiates the swap prefetching. It
+  * first checks to see if the busy flag is set, and does not prefetch if it
+@@ -438,7 +473,7 @@ static enum trickle_return trickle_swap(
+ 	 * If laptop_mode is enabled don't prefetch to avoid hard drives
+ 	 * doing unnecessary spin-ups
+ 	 */
+-	if (!swap_prefetch || laptop_mode)
++	if (!swap_prefetch || (laptop_mode && !aggressive_prefetch))
+ 		return ret;
+ 
+ 	examine_free_limits();
+@@ -474,6 +509,14 @@ static enum trickle_return trickle_swap(
+ 			 * delay attempting further prefetching.
+ 			 */
+ 			spin_unlock(&swapped.lock);
++			if (aggressive_prefetch) {
++				/*
++				 * If we're prefetching aggressively and
++				 * making progress then don't give up.
++				 */
++				if (pages_prefetched())
++					continue;
++			}
+ 			break;
+ 		}
+ 
+@@ -491,14 +534,15 @@ static enum trickle_return trickle_swap(
+ 		entry = prev_swapped_entry(entry);
+ 		spin_unlock(&swapped.lock);
+ 
+-		if (trickle_swap_cache_async(swp_entry, node) == TRICKLE_DELAY)
++		if (trickle_swap_cache_async(swp_entry, node) == TRICKLE_DELAY &&
++		    !aggressive_prefetch)
  			break;
  	}
- out:
-@@ -1269,7 +1286,7 @@ static int kswapd(void *p)
- 		}
- 		finish_wait(&pgdat->kswapd_wait, &wait);
  
--		balance_pgdat(pgdat, 0, order);
-+		balance_pgdat(pgdat, order);
- 	}
- 	return 0;
- }
-@@ -1299,36 +1316,58 @@ void wakeup_kswapd(struct zone *zone, in
- #ifdef CONFIG_PM
- /*
-  * Try to free `nr_pages' of memory, system-wide.  Returns the number of freed
-- * pages.
-+ * pages. It does this via shrink_zone in passes. Rather than trying to age
-+ * LRUs the aim is to preserve the overall LRU order by reclaiming
-+ * preferentially inactive > active > active referenced > active mapped
-  */
- unsigned long shrink_all_memory(unsigned long nr_pages)
- {
--	pg_data_t *pgdat;
--	unsigned long nr_to_free = nr_pages;
- 	unsigned long ret = 0;
--	unsigned retry = 2;
--	struct reclaim_state reclaim_state = {
--		.reclaimed_slab = 0,
-+	struct scan_control sc = {
-+		.gfp_mask = GFP_KERNEL,
-+		.may_swap = 1,
-+		.swap_cluster_max = nr_pages,
-+		.suspend_pass = 4,
-+		.may_writepage = 1,
- 	};
- 
- 	delay_swap_prefetch();
- 
--	current->reclaim_state = &reclaim_state;
--repeat:
--	for_each_online_pgdat(pgdat) {
--		unsigned long freed;
-+	do {
-+		int priority;
- 
--		freed = balance_pgdat(pgdat, nr_to_free, 0);
--		ret += freed;
--		nr_to_free -= freed;
--		if ((long)nr_to_free <= 0)
--			break;
+-	if (sp_stat.prefetched_pages) {
+-		lru_add_drain();
+-		sp_stat.prefetched_pages = 0;
 -	}
--	if (retry-- && ret < nr_pages) {
--		blk_congestion_wait(WRITE, HZ/5);
--		goto repeat;
--	}
--	current->reclaim_state = NULL;
-+		for_each_priority_reverse(priority) {
-+			struct zone *zone;
-+			unsigned long lru_pages = 0;
-+
-+			for_each_zone(zone) {
-+				unsigned long freed;
-+
-+				if (!populated_zone(zone))
-+					continue;
-+
-+				if (zone->all_unreclaimable &&
-+				    priority != DEF_PRIORITY)
-+					continue;
-+
-+				lru_pages += zone->nr_active +
-+					zone->nr_inactive;
-+				/*
-+				 * shrink_active_list needs this to reclaim
-+				 * mapped pages
-+				 */
-+				if (sc.suspend_pass < 2)
-+					zone->prev_priority = 0;
-+				freed = shrink_zone(priority, zone, &sc);
-+				ret += freed;
-+				if (ret > nr_pages)
-+					goto out;
-+			}
-+			shrink_slab(0, sc.gfp_mask, lru_pages);
-+		}
-+		blk_congestion_wait(WRITE, HZ / 5);
-+	} while (--sc.suspend_pass >= 0);
-+out:
++	/* Return value of pages_prefetched irrelevant here */
++	pages_prefetched();
++	if (aggressive_prefetch)
++		swap_prefetch &= ~PREFETCH_AGGRESSIVE;
  	return ret;
  }
- #endif
-Index: linux-2.6.16-rc6-mm2/kernel/power/swsusp.c
-===================================================================
---- linux-2.6.16-rc6-mm2.orig/kernel/power/swsusp.c	2006-03-19 15:40:42.000000000 +1100
-+++ linux-2.6.16-rc6-mm2/kernel/power/swsusp.c	2006-03-20 02:15:47.000000000 +1100
-@@ -173,9 +173,6 @@ void free_all_swap_pages(int swap, struc
-  *	Notice: all userland should be stopped before it is called, or
-  *	livelock is possible.
-  */
--
--#define SHRINK_BITE	10000
--
- int swsusp_shrink_memory(void)
+ 
+@@ -558,6 +602,16 @@ void __init prepare_swap_prefetch(void)
+ 	}
+ }
+ 
++/*
++ * This exported function sets the PREFETCH_AGGRESSIVE flag but only if there
++ * are entries to prefetch.
++ */
++void aggressive_swap_prefetch(void)
++{
++	if (swapped.count)
++		swap_prefetch |= PREFETCH_AGGRESSIVE;
++}
++
+ static int __init kprefetchd_init(void)
  {
- 	long size, tmp;
-@@ -194,14 +191,13 @@ int swsusp_shrink_memory(void)
- 		for_each_zone (zone)
- 			if (!is_highmem(zone))
- 				tmp -= zone->free_pages;
-+		if (tmp <= 0)
-+			tmp = size - image_size / PAGE_SIZE;
- 		if (tmp > 0) {
--			tmp = shrink_all_memory(SHRINK_BITE);
-+			tmp = shrink_all_memory(tmp);
- 			if (!tmp)
- 				return -ENOMEM;
- 			pages += tmp;
--		} else if (size > image_size / PAGE_SIZE) {
--			tmp = shrink_all_memory(SHRINK_BITE);
--			pages += tmp;
- 		}
- 		printk("\b%c", p[i++%4]);
- 	} while (tmp > 0);
+ 	kprefetchd_task = kthread_run(kprefetchd, NULL, "kprefetchd");
+Index: linux-2.6.16-rc6-mm2/include/linux/swap-prefetch.h
+===================================================================
+--- linux-2.6.16-rc6-mm2.orig/include/linux/swap-prefetch.h	2006-03-20 02:15:54.000000000 +1100
++++ linux-2.6.16-rc6-mm2/include/linux/swap-prefetch.h	2006-03-20 02:20:34.000000000 +1100
+@@ -33,6 +33,7 @@ extern void add_to_swapped_list(struct p
+ extern void remove_from_swapped_list(const unsigned long index);
+ extern void delay_swap_prefetch(void);
+ extern void prepare_swap_prefetch(void);
++extern void aggressive_swap_prefetch(void);
+ 
+ #else	/* CONFIG_SWAP_PREFETCH */
+ static inline void add_to_swapped_list(struct page *__unused)
+@@ -50,6 +51,10 @@ static inline void remove_from_swapped_l
+ static inline void delay_swap_prefetch(void)
+ {
+ }
++
++static inline void aggressive_swap_prefetch(void)
++{
++}
+ #endif	/* CONFIG_SWAP_PREFETCH */
+ 
+ #endif		/* SWAP_PREFETCH_H_INCLUDED */

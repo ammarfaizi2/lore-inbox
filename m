@@ -1,58 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWCSKlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWCSKrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751384AbWCSKlt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 05:41:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751473AbWCSKlt
+	id S1751483AbWCSKrv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 05:47:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWCSKrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 05:41:49 -0500
-Received: from smtp2.home.se ([212.78.199.22]:25027 "EHLO smtp2.home.se")
-	by vger.kernel.org with ESMTP id S1751384AbWCSKls (ORCPT
+	Sun, 19 Mar 2006 05:47:51 -0500
+Received: from [85.233.228.164] ([85.233.228.164]:4251 "EHLO botch.workgroup")
+	by vger.kernel.org with ESMTP id S1751483AbWCSKrv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 05:41:48 -0500
-Date: Sun, 19 Mar 2006 11:41:24 +0100
-From: Martin Samuelsson <sam@home.se>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org,
-       "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>
-Subject: saa7111.c patch
-Message-Id: <20060319114124.11d4fa9d.sam@home.se>
-X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Sun__19_Mar_2006_11_41_24_+0100_anPXxZ61JEkwRuDZ"
+	Sun, 19 Mar 2006 05:47:51 -0500
+Message-ID: <441D36DA.2000701@overtag.dk>
+Date: Sun, 19 Mar 2006 11:47:54 +0100
+From: Benjamin Bach <benjamin@overtag.dk>
+User-Agent: Mail/News 1.5 (X11/20060309)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Idea: Automatic binary driver compiling system
+References: <441AF93C.6040407@overtag.dk>	 <1142620509.25258.53.camel@mindpipe>  <441C213A.3000404@overtag.dk>	 <1142694655.2889.22.camel@laptopd505.fenrus.org>	 <441C2CF6.1050607@overtag.dk> <1142698292.2889.26.camel@laptopd505.fenrus.org>
+In-Reply-To: <1142698292.2889.26.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Wow, kudos to your work with the consequences of binary drivers. I 
+certainly do not wish to add any redundant remarks of trolling sentences 
+to this discussion. I've read +50 posts about binary drivers on this 
+mailing list and in conclusion to that, I'd like to only add the following:
 
---Multipart=_Sun__19_Mar_2006_11_41_24_+0100_anPXxZ61JEkwRuDZ
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+My idea was not to compromise the structure of the kernel. Nothing 
+should be changed here. I also see a very notable resistance to binary 
+drivers from distributions. Looking at the way ATI and NVidia drivers 
+are treated by Fedora, SUSE and Ubuntu, I actually think they too have 
+an agenda on this matter, and somehow it resembles their agenda on 
+av-codecs. It's a sneaky-sneaky thing - if the user doesn't know a 
+binary driver exists, we won't tell him. FC5 recently released made this 
+huge "oops... we banned non-GPL modules in the kernel".
 
-Hello.
-
-When grabbing composite video with Iomega Buz, the stock driver will prevent grabbing from the same input twice in a row, forcing the user to switch inputs before anything useful can be grabbed again. It is caused by some optimization code in the input selection parts, and triggered by the saa7111_command() executing cmd 0. The attached patch will remedy this by disabling cmd 0 altogether; a fix that has no found negative effects on the rest of the code. In fact, saa7110.c does the exact same thing.
-
-It would be nice to have this included in the kernel driver.
-
-I'd appreciate being kept in the recipient list in case of discussion.
-
-Regards,
-/Sam
+Anyways, I'm very happy with the combination of intelligence and 
+idealism on this list, and suddenly I feel more attracted to writing a 
+driver instead. For my Rio Karma mp3 player. It's a USB thing.. should 
+be do-able in 3 months even though I've never written a driver.
 
 
---Multipart=_Sun__19_Mar_2006_11_41_24_+0100_anPXxZ61JEkwRuDZ
-Content-Type: application/octet-stream;
- name="linux-2.6.15.6-buz.diff"
-Content-Disposition: attachment;
- filename="linux-2.6.15.6-buz.diff"
-Content-Transfer-Encoding: base64
+Cheers everybody, and thanks for sharing! =)
 
-LS0tIGxpbnV4LTIuNi4xNS42L2RyaXZlcnMvbWVkaWEvdmlkZW8vc2FhNzExMS5jCTIwMDYtMDMt
-MDUgMjA6MDc6NTQuMDAwMDAwMDAwICswMTAwCisrKyBsaW51eC0yLjYuMTUuNi1idXovZHJpdmVy
-cy9tZWRpYS92aWRlby9zYWE3MTExLmMJMjAwNi0wMy0xOSAwMjoxODoyNy4wMDAwMDAwMDAgKzAx
-MDAKQEAgLTIxMCw2ICsyMTAsNyBAQAogCXN3aXRjaCAoY21kKSB7CiAKIAljYXNlIDA6CisJICBi
-cmVhazsKIAljYXNlIERFQ09ERVJfSU5JVDoKIAl7CiAJCXN0cnVjdCB2aWRlb19kZWNvZGVyX2lu
-aXQgKmluaXQgPSBhcmc7Cg==
+/ Benjamin
 
---Multipart=_Sun__19_Mar_2006_11_41_24_+0100_anPXxZ61JEkwRuDZ--
+
+Arjan van de Ven wrote:
+> On Sat, 2006-03-18 at 16:53 +0100, Benjamin Bach wrote:
+>   
+>> Arjan van de Ven wrote:
+>>     
+>>> there are over a thousand open source drivers, and at most a handful
+>>> binary ones. Please go do your math.
+>>>   
+>>>       
+>> You're doing the wrong comparison. How many drivers are missing
+>>     
+>
+> not too many. This is largely because hardware interfaces are getting
+> increasingly standardized (it's cheaper for the hw vendors to not have
+> to create a new driver for Windows XP)
+>
+>   
+>>  or
+>> lacking in ability?
+>>     
+>
+> some. But the vast majority is "good enough" by any standard.
+>
+>   
+>>  And if you add to your handful of binary drivers
+>> those thousands that exist for xp...
+>>     
+>
+> then it's clear that linux is better off ;)
+> (and yes while XP has more drivers, in linux a driver would generally
+> drive the hardware that in the windows world uses 10 to 20  drivers)
+>
+>   
+>> well, numbers do change. Also, most open source drivers aren't made by
+>> the vendors themselves.
+>>     
+>
+> and? For standard interfaces... no big deal.
+> And for non-standard interfaces.. it's increasingly done with the vendor
+> help
+>
+>   
+>> We're doing subjective math here. It doesn't change the fact that Linux
+>> would be better off with improved hardware support, right?
+>>     
+>
+> yes. But "more binary drivers" is absolutely not "better off"; but
+> that's going towards the usual bimonthly troll topic so lets not go
+> there and stop here.
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>   
+

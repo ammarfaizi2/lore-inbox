@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030424AbWCUPGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751751AbWCUPNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030424AbWCUPGX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 10:06:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030427AbWCUPGW
+	id S1751751AbWCUPNN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 10:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751768AbWCUPNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 10:06:22 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:50143 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1030424AbWCUPGW (ORCPT
+	Tue, 21 Mar 2006 10:13:12 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:6415 "EHLO spitz.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751751AbWCUPNL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 10:06:22 -0500
-Message-ID: <44201672.8000501@cfl.rr.com>
-Date: Tue, 21 Mar 2006 10:06:26 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: Yaroslav Rastrigin <yarick@it-territory.ru>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: VFAT: Can't create file named 'aux.h'?
-References: <1142890822.5007.18.camel@localhost.localdomain> <Pine.LNX.4.61.0603202244370.11933@yvahk01.tjqt.qr> <200603210849.20224.yarick@it-territory.ru> <Pine.LNX.4.61.0603210644530.1898@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0603210644530.1898@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Mar 2006 15:06:29.0447 (UTC) FILETIME=[082E7D70:01C64CF9]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14337.000
-X-TM-AS-Result: No--2.500000-5.000000-31
+	Tue, 21 Mar 2006 10:13:11 -0500
+Date: Sun, 19 Mar 2006 16:32:50 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Phillip Lougher <phillip@lougher.org.uk>,
+       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [ANN] Squashfs 3.0 released
+Message-ID: <20060319163249.GA3856@ucw.cz>
+References: <B6C8687D-6543-42A1-9262-653C4D3C30B2@lougher.org.uk> <20060317104023.GA28927@wohnheim.fh-wedel.de> <C91BFAB7-C442-4EB7-8089-B55BB86EB148@lougher.org.uk> <20060317124310.GB28927@wohnheim.fh-wedel.de> <441ADD28.3090303@garzik.org> <0E3DADA8-1A1C-47C5-A3CF-F6A85FF5AFB8@lougher.org.uk> <441AF118.7000902@garzik.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <441AF118.7000902@garzik.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
+On Fri 17-03-06 12:25:44, Jeff Garzik wrote:
+> Phillip Lougher wrote:
+> >On 17 Mar 2006, at 16:00, Jeff Garzik wrote:
+> >>Jörn Engel wrote:
+> >>>>>The one still painfully missing is a
+> >>>>>fixed-endianness disk format.
 > 
-> Also, CON is a sensitive name on WIN/2000. This can hang the
-> browser. The "@#+^%!@#" devices still exist:
+> >>Fixed endian isn't necessarily a requirement.  
+> >>Detectable endian  is.  As long as (a) the filesystem 
+> >>mkfs notes the endian-ness and  (b) the kernel 
+> >>filesystem code properly handles both types of  endian, 
+> >>life is fine.
+> >>
+> >That's what is currently done.  There are two filesystem 
+> >formats, big  endian (donated by Squashfs magic of 
+> >'sqsh') and little endian  (denoted by Squashfs magic of 
+> >'hsqs').  The kernel code detects the  filesystem 
+> >endianness and swaps if necessary.
 > 
-> C:\> copy con xxx.xxx
+> Well, then, I don't see a need to change anything.  As I 
+> said, [consistent and] detectable endian is the real 
+> requirement.  For SquashFS's users, I would think they 
+> would prefer the current situation (selectable endian) to 
+> fixed endian, because many SquashFS users need to squeeze 
+> every ounce of performance out of severely 
+> resource-constrained devices.
 > 
-> .... from the shell will wait forever.
-> 
+> I have two routers, ADM5120-based Edimax and LinkSys 
+> WRT54G v5, both of which have a mere 2MB of flash, and 
+> both use SquashFS to maximize that space.  And both are 
+> el cheapo, slow embedded processors that run far slower 
+> than 300Mhz.  I look askance at anyone who wants to make 
+> an arbitrary filesystem design decision imposing tons of 
+> bytesex upon these lowly devices.
 
-Not quite.  This is the same as doing a cp /dev/stdin xxx.xxx on linux. 
-  It will read from stdin until it sees an EOF.  On windows, eof is 
-ctrl-z instead of ctrl-d; hit that and the copy command will finish.
+gzip is already pretty expensive, I'd say. Is not byteswap lost in
+noise?
 
-
-
+-- 
+Thanks, Sharp!

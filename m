@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWCSO4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWCSOwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbWCSO4a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 09:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751504AbWCSO4a
+	id S932099AbWCSOwP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 09:52:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751504AbWCSOwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 09:56:30 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:31211 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751083AbWCSO43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 09:56:29 -0500
-Date: Sun, 19 Mar 2006 06:56:14 -0800
-From: Paul Jackson <pj@sgi.com>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: akpm@osdl.org, Simon.Derr@bull.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Cpuset: remove unnecessary NULL check
-Message-Id: <20060319065614.371823f2.pj@sgi.com>
-In-Reply-To: <m1acbmzfw5.fsf@ebiederm.dsl.xmission.com>
-References: <20060319085743.18841.45970.sendpatchset@jackhammer.engr.sgi.com>
-	<m1acbmzfw5.fsf@ebiederm.dsl.xmission.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 19 Mar 2006 09:52:15 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48536 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751083AbWCSOwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 09:52:14 -0500
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       serue@us.ibm.com, frankeh@watson.ibm.com, clg@fr.ibm.com,
+       Herbert Poetzl <herbert@13thfloor.at>, Sam Vilain <sam@vilain.net>
+Subject: Re: [RFC][PATCH 1/6] prepare sysctls for containers
+References: <20060306235248.20842700@localhost.localdomain>
+	<20060306235249.880CB28A@localhost.localdomain>
+	<20060307012438.GL27946@ftp.linux.org.uk>
+	<1141696548.9274.48.camel@localhost.localdomain>
+	<20060307015741.GM27946@ftp.linux.org.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sun, 19 Mar 2006 07:50:42 -0700
+In-Reply-To: <20060307015741.GM27946@ftp.linux.org.uk> (Al Viro's message of
+ "Tue, 7 Mar 2006 01:57:41 +0000")
+Message-ID: <m13bhexzct.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric wrote:
-> Comments that refer to a nebulous hack ...
+Al Viro <viro@ftp.linux.org.uk> writes:
 
-Well, in this case, it wasn't so nebulous, to me anyway.
+> On Mon, Mar 06, 2006 at 05:55:48PM -0800, Dave Hansen wrote:
+>> On Tue, 2006-03-07 at 01:24 +0000, Al Viro wrote:
+>> > This is disgusting.  Please, don't pile more and more complexity into
+>> > sysctl_table - it's already choke-full of it and needs to be simplified,
+>> > not to grow more crap.
+>> 
+>> I don't completely disagree.  It certainly isn't the most elegant
+>> approach I've ever seen.
+>> 
+>> Any ideas on ways we could simplify it?  I was thinking that we could
+>> get rid of the .data member and allow access only via the mechanism I
+>> just introduced.  It would be pretty easy to make some macros to
+>> generate "simple" access functions for the existing global variables.
+>
+> I'll resurrect the sysctl-cleanups tree and drop it on kernel.org tonight.
 
-The "Hack" referred to has a big fat comment beginning:
+Has that happened yet?
 
- *
- * Hack:
- *
- *    Set the exiting tasks cpuset to the root cpuset (top_cpuset).
- *
- *    Don't leave a task unable to allocate memory, as ...
+I just looked and I didn't see anything up there.
 
-and is labeled at the scene of the Hack with:
-
-        tsk->cpuset = &top_cpuset;      /* Hack - see comment above */
-
-So "Hack" was intended as a proper noun, not a nebulous generic term.
-
-But, sure, hard to argue with anyone wanting improved comments.
-
-And while I'm at it, I will change the name of this Hack to something
-less generic ... say "the_top_cpuset_hack".
-
-Patch coming soon.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Eric

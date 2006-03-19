@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWCSWz2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWCSW7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWCSWz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 17:55:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWCSWz2
+	id S1751189AbWCSW7q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 17:59:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWCSW7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 17:55:28 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:20670 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751173AbWCSWz1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 17:55:27 -0500
-Date: Sun, 19 Mar 2006 14:55:08 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: viro@ftp.linux.org.uk, kernel-stuff@comcast.net,
-       linux-kernel@vger.kernel.org, alex-kernel@digriz.org.uk,
-       jun.nakajima@intel.com, davej@redhat.com
-Subject: Re: OOPS: 2.6.16-rc6 cpufreq_conservative
-In-Reply-To: <20060319143513.05f8ac94.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0603191453160.3826@g5.osdl.org>
-References: <200603181525.14127.kernel-stuff@comcast.net>
- <Pine.LNX.4.64.0603181321310.3826@g5.osdl.org> <20060318165302.62851448.akpm@osdl.org>
- <Pine.LNX.4.64.0603181827530.3826@g5.osdl.org> <Pine.LNX.4.64.0603191034370.3826@g5.osdl.org>
- <Pine.LNX.4.64.0603191050340.3826@g5.osdl.org> <Pine.LNX.4.64.0603191125220.3826@g5.osdl.org>
- <20060319194004.GZ27946@ftp.linux.org.uk> <Pine.LNX.4.64.0603191148160.3826@g5.osdl.org>
- <Pine.LNX.4.64.0603191217560.3826@g5.osdl.org> <20060319124701.41e16e7b.akpm@osdl.org>
- <Pine.LNX.4.64.0603191412270.3826@g5.osdl.org> <20060319143513.05f8ac94.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 19 Mar 2006 17:59:46 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:21428 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751178AbWCSW7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 17:59:45 -0500
+Subject: Re: Question regarding to store file system metadata in database
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <4ae3c140603182048k55d06d87ufc0b9f0548574090@mail.gmail.com>
+References: <4ae3c140603182048k55d06d87ufc0b9f0548574090@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sun, 19 Mar 2006 23:06:25 +0000
+Message-Id: <1142809585.14592.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sad, 2006-03-18 at 23:48 -0500, Xin Zhao wrote:
+> database system. I ran a test on a mysql database: I inserted about
+> 1.2 million such kind of records into an initially empty mysql
+> database. Average insertion rate is about 300 entries per second,
 
+Thats extremely slow for a file system. 
 
-On Sun, 19 Mar 2006, Andrew Morton wrote:
-> 
-> Also, optimise any_online_cpu() out of existence on CONFIG_SMP=n.
-> 
-> This function seems inefficient.  Can't we simply AND the two masks, then use
-> find_first_bit()?
+> Then I am a little curious why only few people use database to store
+> file system metadata, although I know WinFS plans to use database to
+> manage metadata. 
 
-Then you'd need to generate a temporary cpumask thing. Not a big deal as 
-long as it fits in an "unsigned long", but since the online-cpu thing is 
-likely dense in any relevant cpu-mask, I actually think "any_online_cpu()" 
-as it stands now is likely to be simpler/more efficient than generating a 
-temporary mask.
+The one well known example of a database as file system (or was well
+known) was the Pick OS (now defunct although the database system lives
+on). They did manage to build an OS which had a database as a file
+system.
 
-		Linus
+The thing is a database and a file system are the same thing anyway.
+You'll find the same structures like B trees used in some for example.
+They are just optimised for different kinds of queries. If you want to
+know whether a db as fs works , build a prototype and see - you've
+already taken the first step and with FUSE you can prototype the rest in
+user space.
+
+Alan
+

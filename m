@@ -1,122 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWCSSLo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWCSSSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbWCSSLo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 13:11:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWCSSLn
+	id S932155AbWCSSSn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 13:18:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWCSSSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 13:11:43 -0500
-Received: from pproxy.gmail.com ([64.233.166.183]:33718 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932154AbWCSSLm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 13:11:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rAPJb1TbqVKVQ1C+DJiMIRaQYKafze4d7UjgDBbHKiTK2FiedHQpOIxEV2Fm7hNGjeUTaJHrHqZXGv01Lq6i3GoQJwpnUIJX0O4KOp+NcCAzMXcoFZ5bGn2SqD39VO6Wq8dmRMX1yvkf/74jbIBntx1G9GTBP3FPPcZmuz42B1w=
-Message-ID: <4ae3c140603191011r7b68f4aale01238202656d122@mail.gmail.com>
-Date: Sun, 19 Mar 2006 13:11:41 -0500
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: mingz@ele.uri.edu
-Subject: Re: Question regarding to store file system metadata in database
-Cc: mikado4vn@gmail.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <1142791121.31358.21.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4ae3c140603182048k55d06d87ufc0b9f0548574090@mail.gmail.com>
-	 <441CE71E.5090503@gmail.com>
-	 <4ae3c140603190948s4fcd135er370a15003a0143a8@mail.gmail.com>
-	 <1142791121.31358.21.camel@localhost.localdomain>
+	Sun, 19 Mar 2006 13:18:42 -0500
+Received: from main.gmane.org ([80.91.229.2]:41451 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932155AbWCSSSm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 13:18:42 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andras Mantia <amantia@kde.org>
+Subject: Re: [PATCH 001/001] PCI: PCI quirk for Asus A8V and A8V Deluxe motherboards
+Date: Sun, 19 Mar 2006 20:18:41 +0200
+Message-ID: <dvk79k$hf4$1@sea.gmane.org>
+References: <20060305192709.GA3789@skyscraper.unix9.prv> <dve3j9$r50$1@sea.gmane.org> <20060317143303.GR20746@lug-owl.de> <dvehv7$j9r$1@sea.gmane.org> <20060317144920.GS20746@lug-owl.de> <dveugj$aob$1@sea.gmane.org> <yw1xmzfo98em.fsf@agrajag.inprovide.com> <dvh3rb$ui8$1@sea.gmane.org> <yw1x64mb7rwm.fsf@agrajag.inprovide.com> <dvh7aj$95v$1@sea.gmane.org> <yw1xoe0368yj.fsf@agrajag.inprovide.com> <dvjcb4$as2$1@sea.gmane.org> <yw1xd5gi381h.fsf@agrajag.inprovide.com> <dvjsa6$i92$1@sea.gmane.org> <yw1xslpez928.fsf@agrajag.inprovide.com> <dvk4tv$9j9$1@sea.gmane.org> <yw1xbqw2z50o.fsf@agrajag.inprovide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 84.247.49.226
+User-Agent: KNode/0.10.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do you have any statistics on how many metadata accesses are required
-for a heavy load file system?  I don't have on in hand, but
-intuitively I think 300 per second should be enough. If storing
-metadata in database will not hit the file system performance, plus
-database allows flexible file searching, the database-based file
-system might not be a bad idea. :)
+Måns Rullgård wrote:
 
-Xin
+> OK, I just used the simpler (and newer) of the two versions that were
+> posted, and modified as suggested by someone.  Does my version work on
+> your machine?
 
-On 3/19/06, Ming Zhang <mingz@ele.uri.edu> wrote:
-> database can reside on a raw block device.
->
-> but 300 metadata iops is not that fast. ;)
->
-> ming
->
-> On Sun, 2006-03-19 at 12:48 -0500, Xin Zhao wrote:
-> > well, the database could reside on another file system. So the
-> > database based file system could be a secondary file system but
-> > provide more features and  better performance. I am not saying that
-> > database-based file system must be the only filesystem on the system.
-> >
-> > On 3/19/06, Mikado <mikado4vn@gmail.com> wrote:
-> > > -----BEGIN PGP SIGNED MESSAGE-----
-> > > Hash: SHA1
-> > >
-> > > Where is that database located, on other filesystem or on database-based
-> > > filesystem?
-> > >
-> > > Xin Zhao wrote:
-> > > > I was wondering why only few file system uses database to store file
-> > > > system metadata. Here, metadata primarily refers to directory entries.
-> > > > For example, one can setup a database to store file pathname, its
-> > > > inode number, and some extended attribution. File pathname can be used
-> > > > as primary key. As such, we can achieve pathname to inode mapping as
-> > > > well as many other features such as fast search and extended file
-> > > > attribute management. In contrast, storing file system entries in
-> > > > directory files may result in slow dentry search. I guess that's why
-> > > > ReiserFS and some other file systems proposed to use B+ tree like
-> > > > strucutre to manage file entries. But why not simple use database to
-> > > > provide the same feature? DB has been heavily optimized to provide
-> > > > fast search and should be good at managing metadata.
-> > > >
-> > > >  I guess one concern about this idea is  performance impact caused by
-> > > > database system. I ran a test on a mysql database: I inserted about
-> > > > 1.2 million such kind of records into an initially empty mysql
-> > > > database. Average insertion rate is about 300 entries per second,
-> > > > which is fast enough to handle normal file system burden, I think.  I
-> > > > haven't try the query speed, but I believe it should be fast enough
-> > > > too (maybe I am wrong, if so, please point that out.).
-> > > >
-> > > > Then I am a little curious why only few people use database to store
-> > > > file system metadata, although I know WinFS plans to use database to
-> > > > manage metadata. I guess one reason is that it is difficult for kernel
-> > > > based file system driver to access database. But this could be
-> > > > addressed by using efficient kernel/user communication mechanism.
-> > > > Another reason could be the worry about database system. If database
-> > > > system crashes, file system will stop functioning too. However, the
-> > > > feature needed by file system is really a small part of database
-> > > > system, A reduced database system should be sufficient to provide this
-> > > > feature and be stable enough to support a file system.
-> > > >
-> > > > Can someone point out more issues that could become obstables to using
-> > > > database to manage metadata for a file system?
-> > > >
-> > > > Many thanks!
-> > > > Xin
-> > > > -
-> > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > > the body of a message to majordomo@vger.kernel.org
-> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > >
-> > > -----BEGIN PGP SIGNATURE-----
-> > > Version: GnuPG v1.4.2.1 (GNU/Linux)
-> > > Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-> > >
-> > > iD8DBQFEHOceNWc9T2Wr2JcRAsKKAJ9t1fRZ1xczAaeruDUqTNeLMcGuiwCfeTNt
-> > > 31pFUK79Q7BE1AptbmNqr9Q=
-> > > =LbiF
-> > > -----END PGP SIGNATURE-----
-> > >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->
+I did not try it, but because of the code and the outputs I got when I tried
+to find the problem I'm sure it would work.
+
+>> Anyway, my suggestion remains, that the
+>> +       if (dev->subsystem_vendor != PCI_VENDOR_ID_ASUSTEK)
+>> +               return;
+>> +       if (dev->device != PCI_DEVICE_ID_VIA_8237)
+>> +               return;
+>>
+>> might be not needed at all as it is not ASUS specific.
+> 
+> Doesn't it depend on the BIOS?  My BIOS lets me choose between
+> "automatic" and "disabled" for the onboard sound.
+
+I don't see how that setting could change the device ID or the vendor ID. As
+I understood the above code will simply not try to enable the sound device
+if:
+a) the vendor is not ASUSTEK
+b) the device is not ID is not PCI_DEVICE_ID_VIA_8237
+
+For a) it means that an MSI/Epox/whatever board with the same VIA chipset
+and the same problem will not be handled. For b) see my previous comment
+(and your concerns).
+
+Well, it would be nice if a kernel developer could comment on it, or simply
+include the right version in some upcoming release. ;-)
+
+Andras
+-- 
+Quanta Plus developer - http://quanta.kdewebdev.org
+K Desktop Environment - http://www.kde.org
+
+

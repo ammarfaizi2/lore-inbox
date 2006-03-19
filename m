@@ -1,40 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWCSUB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbWCSUC3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750792AbWCSUB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 15:01:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWCSUB7
+	id S1750793AbWCSUC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 15:02:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWCSUC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 15:01:59 -0500
-Received: from 213-239-205-134.clients.your-server.de ([213.239.205.134]:25323
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1750792AbWCSUB7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 15:01:59 -0500
-Message-Id: <20060319102009.817820000@localhost.localdomain>
-Date: Sun, 19 Mar 2006 20:02:15 -0000
-From: Thomas Gleixner <tglx@linutronix.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Tom Rini <trini@kernel.crashing.org>
-Subject: [patch 0/2] sys_setitimer and sys_alarm hotfixes (take #2)
+	Sun, 19 Mar 2006 15:02:29 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:51874 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750793AbWCSUCD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 15:02:03 -0500
+Date: Sun, 19 Mar 2006 12:01:13 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: Andrew Morton <akpm@osdl.org>, kernel-stuff@comcast.net,
+       linux-kernel@vger.kernel.org, alex-kernel@digriz.org.uk,
+       jun.nakajima@intel.com, davej@redhat.com
+Subject: Re: OOPS: 2.6.16-rc6 cpufreq_conservative
+In-Reply-To: <20060319194004.GZ27946@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0603191148160.3826@g5.osdl.org>
+References: <200603181525.14127.kernel-stuff@comcast.net>
+ <Pine.LNX.4.64.0603181321310.3826@g5.osdl.org> <20060318165302.62851448.akpm@osdl.org>
+ <Pine.LNX.4.64.0603181827530.3826@g5.osdl.org> <Pine.LNX.4.64.0603191034370.3826@g5.osdl.org>
+ <Pine.LNX.4.64.0603191050340.3826@g5.osdl.org> <Pine.LNX.4.64.0603191125220.3826@g5.osdl.org>
+ <20060319194004.GZ27946@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
 
-The hrtimer merge breaks sys_alarm() with a timeout value > INT_MAX
-due to a unsigned to signed conversion. Timeout values > INT_MAX are
-legitimate usage of alarm(), so this has to be corrected.
 
-Due to a missing validation check of the userspace itimer values non
-canonical timespecs can be provided to the setitimer code. While the
-pre 2.6.16 code converted negative timevals to a long timeout 
-(depending on HZ) the hrtimer code treats them as expired. Also on
-32 bit machines non normalized timevals might cause random behaviour
-of the optimized ktime_t operations. Due to the historical behaviour
-we can not suddenly return -EINVAL in such cases, but we have to
-fixup the values to avoid random behaviour.
+On Sun, 19 Mar 2006, Al Viro wrote:
+>
+> In the version of gcc you've tested.  With options and phase of moon
+> being what they had been.  IOW, you are awfully optimistic - it's not
+> just using gcc extension, it's using undocumented (in the best case)
+> behaviour outside the intended use of that extension.
 
-	tglx
+I admit that it's ugly, but it's not undocumented. It flows directly from 
+"statements as expression". Once you do that, you have to do flow control 
+with them.
 
---
+The end result may be _surprising_, the same way Duff's device is 
+surprising (and for the same reason). But a C compiler that doesn't 
+support Duff's device is not a C compiler. And this is really no 
+different: it may not bestandard C: but it _is_ standard and documented 
+GNU C.
 
+And btw, this is _not_ new behaviour for the kernel. We have used 
+non-local control behaviour in statement expressions before, just do a
+
+	git grep '({.*return' 
+
+to see at least ten cases of that (in fact, check out NFA_PUT(), which 
+does a goto for the failure case in networking). That grep misses all the 
+multi-line cases, so I assume there are more of them.
+
+So this definitely works, and is not new. 
+
+			Linus

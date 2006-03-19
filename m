@@ -1,61 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWCSPem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWCSPfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbWCSPem (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 10:34:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWCSPem
+	id S932140AbWCSPfv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 10:35:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWCSPfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 10:34:42 -0500
-Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:12268 "EHLO
-	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932129AbWCSPel (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 10:34:41 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: linux list <linux-kernel@vger.kernel.org>
-Date: Mon, 20 Mar 2006 02:34:00 +1100
-User-Agent: KMail/1.9.1
-Cc: ck list <ck@vds.kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       "Rafael Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@ucw.cz>,
-       linux-mm@kvack.org
-MIME-Version: 1.0
-Content-Disposition: inline
-X-Length: 746
-Subject: [PATCH][3/3] mm: swsusp post resume aggressive swap prefetch
-Content-Type: text/plain;
-  charset="utf-8"
+	Sun, 19 Mar 2006 10:35:51 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:7569 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932140AbWCSPfu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 10:35:50 -0500
+Date: Sun, 19 Mar 2006 07:35:46 -0800
+From: Paul Jackson <pj@sgi.com>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: akpm@osdl.org, Simon.Derr@bull.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Cpuset: remove unnecessary NULL check comment fix
+Message-Id: <20060319073546.6155b3f9.pj@sgi.com>
+In-Reply-To: <m1lkv6xy9l.fsf@ebiederm.dsl.xmission.com>
+References: <20060319150538.16855.53670.sendpatchset@jackhammer.engr.sgi.com>
+	<m1lkv6xy9l.fsf@ebiederm.dsl.xmission.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200603200234.01472.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric wrote:
+> Ok.  Incremental patch that fixes comments.  Thanks this looks less confusing
+> to me.
 
-Swsusp reclaims a lot of memory during the suspend cycle and can benefit
-from the aggressive_swap_prefetch mode immediately upon resuming.
+Good.  Thanks for the review.  Glad it helps.
 
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
-
----
- kernel/power/swsusp.c |    3 +++
- 1 files changed, 3 insertions(+)
-
-Index: linux-2.6.16-rc6-mm2/kernel/power/swsusp.c
-===================================================================
---- linux-2.6.16-rc6-mm2.orig/kernel/power/swsusp.c	2006-03-20 02:15:47.000000000 +1100
-+++ linux-2.6.16-rc6-mm2/kernel/power/swsusp.c	2006-03-20 02:20:35.000000000 +1100
-@@ -49,6 +49,7 @@
- #include <linux/bootmem.h>
- #include <linux/syscalls.h>
- #include <linux/highmem.h>
-+#include <linux/swap-prefetch.h>
- 
- #include "power.h"
- 
-@@ -239,6 +240,8 @@ Restore_highmem:
- 	device_power_up();
- Enable_irqs:
- 	local_irq_enable();
-+	if (!in_suspend)
-+		aggressive_swap_prefetch();
- 	return error;
- }
- 
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

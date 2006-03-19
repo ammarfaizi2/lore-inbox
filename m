@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWCSAqk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbWCSA4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751151AbWCSAqk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 19:46:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWCSAqk
+	id S1750941AbWCSA4n (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 19:56:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWCSA4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 19:46:40 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:25010 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751151AbWCSAqk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 19:46:40 -0500
-Date: Sun, 19 Mar 2006 00:46:39 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, becker@scyld.com
-Subject: Re: [PATCH] Fix a potential NULL pointer deref in znet
-Message-ID: <20060319004639.GY27946@ftp.linux.org.uk>
-References: <200603190112.31828.jesper.juhl@gmail.com>
+	Sat, 18 Mar 2006 19:56:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:17859 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750941AbWCSA4n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 19:56:43 -0500
+Date: Sat, 18 Mar 2006 16:53:02 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: kernel-stuff@comcast.net, linux-kernel@vger.kernel.org,
+       alex-kernel@digriz.org.uk, jun.nakajima@intel.com, davej@redhat.com
+Subject: Re: OOPS: 2.6.16-rc6 cpufreq_conservative
+Message-Id: <20060318165302.62851448.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0603181321310.3826@g5.osdl.org>
+References: <200603181525.14127.kernel-stuff@comcast.net>
+	<Pine.LNX.4.64.0603181321310.3826@g5.osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603190112.31828.jesper.juhl@gmail.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 19, 2006 at 01:12:31AM +0100, Jesper Juhl wrote:
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
+>  Gaah. Looking at the assembly code to try to figure out where the oops 
+>  happened, one thing is clear: "for_each_cpu_mask()" generates some truly 
+>  horrible code. C code that looks simple ends up being tons of complex 
+>  assembly language due to inline functions etc.
 > 
-> The coverity checker spotted that we dereference a pointer before we check it
-> for NULL in drivers/net/znet.c::znet_interrupt().
-> This fixes the issue.
+>  We've made it way too easy for people to write code that just absolutely 
+>  _sucks_.
 
-The hell it does.  Either interrupt really isn't shared, in which case
-this check should be simply removed, or it can be shared, in which case
-the code is still buggered.
+Yes, uninlining merely first_cpu() shrinks my usual vmlinux by 2.5k.  I'll
+fix it up.
 
-Please, stop pulling Bunk - _think_ before submitting "make <program> STFU"
-patches.
+Meanwhile, I suppose we need to check that pointer for NULL as Parag
+suggests.  I might stick a once-off WARN_ON() in there so someone gets in
+and works out why we keep on having to graft mysterious null-pointer
+avoidances into cpufreq.
+

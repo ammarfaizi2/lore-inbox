@@ -1,170 +1,325 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbWCSCkL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWCSCkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751358AbWCSCkL (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751378AbWCSCkL (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 18 Mar 2006 21:40:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWCSCfB
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWCSCez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 21:35:01 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:53442 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1751307AbWCSCen (ORCPT
+	Sat, 18 Mar 2006 21:34:55 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:1475 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1751329AbWCSCer (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 21:34:43 -0500
-Message-Id: <20060319023458.588543000@localhost.localdomain>
+	Sat, 18 Mar 2006 21:34:47 -0500
+Message-Id: <20060319023449.288540000@localhost.localdomain>
 References: <20060319023413.305977000@localhost.localdomain>
-Date: Sun, 19 Mar 2006 10:34:33 +0800
+Date: Sun, 19 Mar 2006 10:34:15 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>
-Subject: [PATCH 20/23] readahead: nfsd case
-Content-Disposition: inline; filename=readahead-nfsd-case.patch
+Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Christoph Lameter <clameter@sgi.com>,
+       Wu Fengguang <wfg@mail.ustc.edu.cn>
+Subject: [PATCH 02/23] radixtree: look-aside cache
+Content-Disposition: inline; filename=radixtree-lookaside-cache.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adaptive read-ahead for nfsd:
-1) disable nfsd raparms: the new logic do not rely on it
-2) disable look-ahead on start of file: leave it to the client
+Introduce a set of lookup functions to radix tree for the read-ahead logic.
+Other access patterns with high locality may also benefit from them.
 
-For the case of NFS service, the new read-ahead logic
-+ can handle disordered nfsd requests
-+ can handle concurrent sequential requests on large files
-  with the help of look-ahead
-- will have much ado about the concurrent ones on small files
+- radix_tree_lookup_node(root, index, level)
+	Perform partial lookup, return the @level'th parent of the slot at
+	@index.
 
---------------------------------
-Notes about the concurrent nfsd requests issue:
+- radix_tree_cache_xxx()
+	Init/Query the cache.
+- radix_tree_cache_lookup(root, cache, index)
+	Perform lookup with the aid of a look-aside cache.
+	For sequential scans, it has a time complexity of 64*O(1) + 1*O(logN).
 
-nfsd read requests can be out of order, concurrent and with no ra-state info.
-They are handled by the context based read-ahead method, which does the job
-in the following steps:
+	Typical usage:
 
-1. scan in page cache
-2. make read-ahead decisions
-3. alloc new pages
-4. insert new pages to page cache
+   void func() {
+  +       struct radix_tree_cache cache;
+  +
+  +       radix_tree_cache_init(&cache);
+          read_lock_irq(&mapping->tree_lock);
+          for(;;) {
+  -               page = radix_tree_lookup(&mapping->page_tree, index);
+  +               page = radix_tree_cache_lookup(&mapping->page_tree, &cache, index);
+          }
+          read_unlock_irq(&mapping->tree_lock);
+   }                                                                                                                       	
 
-A single read-ahead chunk in the client side will be dissembled and serviced
-by many concurrent nfsd in the server side. It is highly possible for two or
-more of these parallel nfsd instances to be in step 1/2/3 at the same time.
-Without knowing others working on the same file region, they will issue
-overlapped read-ahead requests, which lead to many conflicts at step 4.
-
-There's no much luck to eliminate the concurrent problem in general and
-efficient ways. But experiments show that mount with tcp,rsize=32768 can
-cut down the overhead a lot.
-
---------------------------------
-Here are the benchmark outputs. The test cases cover
-- small/big files
-- small/big rsize mount option
-- serialized/parallel nfsd processing
-
-`serialized' means running the following command to enforce serialized
-nfsd requests processing:
-
-# for pid in `pidof nfsd`; do taskset -p 1 $pid; done
-
-8 nfsd; local mount with tcp,rsize=8192
-=======================================
-
-SERIALIZED, SMALL FILES
-readahead_ratio = 0, ra_max = 128kb (old logic, the ra_max is not quite relevant)
-96.51s real  11.32s system  3.27s user  160334+2829 cs  diff -r $NFSDIR $NFSDIR2
-readahead_ratio = 70, ra_max = 1024kb (new read-ahead logic)
-94.88s real  11.53s system  3.20s user  152415+3777 cs  diff -r $NFSDIR $NFSDIR2
-
-SERIALIZED, BIG FILES
-readahead_ratio = 0, ra_max = 128kb
-56.52s real  3.38s system  1.23s user  47930+5256 cs  diff $NFSFILE $NFSFILE2
-readahead_ratio = 70, ra_max = 1024kb
-32.54s real  5.71s system  1.38s user  23851+17007 cs  diff $NFSFILE $NFSFILE2
-
-PARALLEL, SMALL FILES
-readahead_ratio = 0, ra_max = 128kb
-99.87s real  11.41s system  3.15s user  173945+9163 cs  diff -r $NFSDIR $NFSDIR2
-readahead_ratio = 70, ra_max = 1024kb
-100.14s real  12.06s system  3.16s user  170865+13406 cs  diff -r $NFSDIR $NFSDIR2
-
-PARALLEL, BIG FILES
-readahead_ratio = 0, ra_max = 128kb
-63.35s real  5.68s system  1.57s user  82594+48747 cs  diff $NFSFILE $NFSFILE2
-readahead_ratio = 70, ra_max = 1024kb
-33.87s real  10.17s system  1.55s user  72291+100079 cs  diff $NFSFILE $NFSFILE2
-
-8 nfsd; local mount with tcp,rsize=32768
-========================================
-Note that the normal data are now much better, and come close to that of the
-serialized ones.
-
-PARALLEL/NORMAL
-
-readahead_ratio = 8, ra_max = 1024kb (old logic)
-48.36s real  2.22s system  1.51s user  7209+4110 cs  diff $NFSFILE $NFSFILE2
-readahead_ratio = 70, ra_max = 1024kb (new logic)
-30.04s real  2.46s system  1.33s user  5420+2492 cs  diff $NFSFILE $NFSFILE2
-
-readahead_ratio = 8, ra_max = 1024kb
-92.99s real  10.32s system  3.23s user  145004+1826 cs  diff -r $NFSDIR $NFSDIR2 > /dev/null
-readahead_ratio = 70, ra_max = 1024kb
-90.96s real  10.68s system  3.22s user  144414+2520 cs  diff -r $NFSDIR $NFSDIR2 > /dev/null
-
-SERIALIZED
-
-readahead_ratio = 8, ra_max = 1024kb
-47.58s real  2.10s system  1.27s user  7933+1357 cs  diff $NFSFILE $NFSFILE2
-readahead_ratio = 70, ra_max = 1024kb
-29.46s real  2.41s system  1.38s user  5590+2613 cs  diff $NFSFILE $NFSFILE2
-
-readahead_ratio = 8, ra_max = 1024kb
-93.02s real  10.67s system  3.25s user  144850+2286 cs  diff -r $NFSDIR $NFSDIR2 > /dev/null
-readahead_ratio = 70, ra_max = 1024kb
-91.15s real  11.04s system  3.31s user  144432+2814 cs  diff -r $NFSDIR $NFSDIR2 > /dev/null
-
+Acked-by: Nick Piggin <nickpiggin@yahoo.com.au>
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
+ include/linux/radix-tree.h |   78 +++++++++++++++++++++++++++++++
+ lib/radix-tree.c           |  110 ++++++++++++++++++++++++++++++++-------------
+ 2 files changed, 156 insertions(+), 32 deletions(-)
 
-Greg Banks gives a valuable recommend on the test cases, which helps me to
-get the more complete picture. Thanks!
-
- fs/nfsd/vfs.c  |    6 +++++-
- mm/readahead.c |    9 +++++++--
- 2 files changed, 12 insertions(+), 3 deletions(-)
-
---- linux-2.6.16-rc6-mm2.orig/fs/nfsd/vfs.c
-+++ linux-2.6.16-rc6-mm2/fs/nfsd/vfs.c
-@@ -833,10 +833,14 @@ nfsd_vfs_read(struct svc_rqst *rqstp, st
- #endif
+--- linux-2.6.16-rc6-mm2.orig/include/linux/radix-tree.h
++++ linux-2.6.16-rc6-mm2/include/linux/radix-tree.h
+@@ -23,12 +23,24 @@
+ #include <linux/preempt.h>
+ #include <linux/types.h>
  
- 	/* Get readahead parameters */
--	ra = nfsd_get_raparms(inode->i_sb->s_dev, inode->i_ino);
-+	if (prefer_adaptive_readahead())
-+		ra = NULL;
++#define RADIX_TREE_MAP_SHIFT	6
++#define RADIX_TREE_MAP_SIZE	(1UL << RADIX_TREE_MAP_SHIFT)
++#define RADIX_TREE_MAP_MASK	(RADIX_TREE_MAP_SIZE-1)
++
+ struct radix_tree_root {
+ 	unsigned int		height;
+ 	gfp_t			gfp_mask;
+ 	struct radix_tree_node	*rnode;
+ };
+ 
++/*
++ * Lookaside cache to support access patterns with strong locality.
++ */
++struct radix_tree_cache {
++	unsigned long first_index;
++	struct radix_tree_node *tree_node;
++};
++
+ #define RADIX_TREE_INIT(mask)	{					\
+ 	.height = 0,							\
+ 	.gfp_mask = (mask),						\
+@@ -48,9 +60,14 @@ do {									\
+ #define RADIX_TREE_MAX_TAGS 2
+ 
+ int radix_tree_insert(struct radix_tree_root *, unsigned long, void *);
+-void *radix_tree_lookup(struct radix_tree_root *, unsigned long);
+-void **radix_tree_lookup_slot(struct radix_tree_root *, unsigned long);
++void *radix_tree_lookup_node(struct radix_tree_root *, unsigned long,
++							unsigned int);
++void **radix_tree_lookup_slot(struct radix_tree_root *root, unsigned long);
+ void *radix_tree_delete(struct radix_tree_root *, unsigned long);
++unsigned int radix_tree_cache_count(struct radix_tree_cache *cache);
++void *radix_tree_cache_lookup_node(struct radix_tree_root *root,
++				struct radix_tree_cache *cache,
++				unsigned long index, unsigned int level);
+ unsigned int
+ radix_tree_gang_lookup(struct radix_tree_root *root, void **results,
+ 			unsigned long first_index, unsigned int max_items);
+@@ -73,4 +90,61 @@ static inline void radix_tree_preload_en
+ 	preempt_enable();
+ }
+ 
++/**
++ *	radix_tree_lookup    -    perform lookup operation on a radix tree
++ *	@root:		radix tree root
++ *	@index:		index key
++ *
++ *	Lookup the item at the position @index in the radix tree @root.
++ */
++static inline void *radix_tree_lookup(struct radix_tree_root *root,
++							unsigned long index)
++{
++	return radix_tree_lookup_node(root, index, 0);
++}
++
++/**
++ *	radix_tree_cache_init    -    init a look-aside cache
++ *	@cache:		look-aside cache
++ *
++ *	Init the radix tree look-aside cache @cache.
++ */
++static inline void radix_tree_cache_init(struct radix_tree_cache *cache)
++{
++	cache->first_index = RADIX_TREE_MAP_MASK;
++	cache->tree_node = NULL;
++}
++
++/**
++ *	radix_tree_cache_lookup    -    cached lookup on a radix tree
++ *	@root:		radix tree root
++ *	@cache:		look-aside cache
++ *	@index:		index key
++ *
++ *	Lookup the item at the position @index in the radix tree @root,
++ *	and make use of @cache to speedup the lookup process.
++ */
++static inline void *radix_tree_cache_lookup(struct radix_tree_root *root,
++						struct radix_tree_cache *cache,
++						unsigned long index)
++{
++	return radix_tree_cache_lookup_node(root, cache, index, 0);
++}
++
++static inline unsigned int radix_tree_cache_size(struct radix_tree_cache *cache)
++{
++	return RADIX_TREE_MAP_SIZE;
++}
++
++static inline int radix_tree_cache_full(struct radix_tree_cache *cache)
++{
++	return radix_tree_cache_count(cache) == radix_tree_cache_size(cache);
++}
++
++static inline unsigned long
++radix_tree_cache_first_index(struct radix_tree_cache *cache)
++{
++	return cache->first_index;
++}
++
+ #endif /* _LINUX_RADIX_TREE_H */
+--- linux-2.6.16-rc6-mm2.orig/lib/radix-tree.c
++++ linux-2.6.16-rc6-mm2/lib/radix-tree.c
+@@ -32,15 +32,6 @@
+ #include <linux/bitops.h>
+ 
+ 
+-#ifdef __KERNEL__
+-#define RADIX_TREE_MAP_SHIFT	6
+-#else
+-#define RADIX_TREE_MAP_SHIFT	3	/* For more stressful testing */
+-#endif
+-
+-#define RADIX_TREE_MAP_SIZE	(1UL << RADIX_TREE_MAP_SHIFT)
+-#define RADIX_TREE_MAP_MASK	(RADIX_TREE_MAP_SIZE-1)
+-
+ #define RADIX_TREE_TAG_LONGS	\
+ 	((RADIX_TREE_MAP_SIZE + BITS_PER_LONG - 1) / BITS_PER_LONG)
+ 
+@@ -289,32 +280,89 @@ int radix_tree_insert(struct radix_tree_
+ }
+ EXPORT_SYMBOL(radix_tree_insert);
+ 
+-static inline void **__lookup_slot(struct radix_tree_root *root,
+-				   unsigned long index)
++/**
++ *	radix_tree_lookup_node    -    low level lookup routine
++ *	@root:		radix tree root
++ *	@index:		index key
++ *	@level:		stop at that many levels from the tree leaf
++ *
++ *	Lookup the item at the position @index in the radix tree @root.
++ *	The return value is:
++ *	@level == 0:      page at @index;
++ *	@level == 1:      the corresponding bottom level tree node;
++ *	@level < height:  (@level-1)th parent node of the bottom node
++ *			  that contains @index;
++ *	@level >= height: the root node.
++ */
++void *radix_tree_lookup_node(struct radix_tree_root *root,
++				unsigned long index, unsigned int level)
+ {
+ 	unsigned int height, shift;
+-	struct radix_tree_node **slot;
++	struct radix_tree_node *slot;
+ 
+ 	height = root->height;
+ 	if (index > radix_tree_maxindex(height))
+ 		return NULL;
+ 
+ 	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
+-	slot = &root->rnode;
++	slot = root->rnode;
+ 
+-	while (height > 0) {
+-		if (*slot == NULL)
++	while (height > level) {
++		if (slot == NULL)
+ 			return NULL;
+ 
+-		slot = (struct radix_tree_node **)
+-			((*slot)->slots +
+-				((index >> shift) & RADIX_TREE_MAP_MASK));
++		slot = slot->slots[(index >> shift) & RADIX_TREE_MAP_MASK];
+ 		shift -= RADIX_TREE_MAP_SHIFT;
+ 		height--;
+ 	}
+ 
+-	return (void **)slot;
++	return slot;
++}
++EXPORT_SYMBOL(radix_tree_lookup_node);
++
++/**
++ *	radix_tree_cache_lookup_node    -    cached lookup node
++ *	@root:		radix tree root
++ *	@cache:		look-aside cache
++ *	@index:		index key
++ *
++ *	Lookup the item at the position @index in the radix tree @root,
++ *	and return the node @level levels from the bottom in the search path.
++ *
++ *	@cache stores the last accessed upper level tree node by this
++ *	function, and is always checked first before searching in the tree.
++ *	It can improve speed for access patterns with strong locality.
++ *
++ *	NOTE:
++ *	- The cache becomes invalid on leaving the lock;
++ *	- Do not intermix calls with different @level.
++ */
++void *radix_tree_cache_lookup_node(struct radix_tree_root *root,
++				struct radix_tree_cache *cache,
++				unsigned long index, unsigned int level)
++{
++	struct radix_tree_node *node;
++        unsigned long i;
++        unsigned long mask;
++
++        if (level >= root->height)
++                return root->rnode;
++
++        i = ((index >> (level * RADIX_TREE_MAP_SHIFT)) & RADIX_TREE_MAP_MASK);
++        mask = ~((RADIX_TREE_MAP_SIZE << (level * RADIX_TREE_MAP_SHIFT)) - 1);
++
++	if ((index & mask) == cache->first_index)
++                return cache->tree_node->slots[i];
++
++	node = radix_tree_lookup_node(root, index, level + 1);
++	if (!node)
++		return 0;
++
++	cache->tree_node = node;
++	cache->first_index = (index & mask);
++        return node->slots[i];
+ }
++EXPORT_SYMBOL(radix_tree_cache_lookup_node);
+ 
+ /**
+  *	radix_tree_lookup_slot    -    lookup a slot in a radix tree
+@@ -326,25 +374,27 @@ static inline void **__lookup_slot(struc
+  */
+ void **radix_tree_lookup_slot(struct radix_tree_root *root, unsigned long index)
+ {
+-	return __lookup_slot(root, index);
++	struct radix_tree_node *node;
++
++	node = radix_tree_lookup_node(root, index, 1);
++	return node->slots + (index & RADIX_TREE_MAP_MASK);
+ }
+ EXPORT_SYMBOL(radix_tree_lookup_slot);
+ 
+ /**
+- *	radix_tree_lookup    -    perform lookup operation on a radix tree
+- *	@root:		radix tree root
+- *	@index:		index key
++ *	radix_tree_cache_count    -    items in the cached node
++ *	@cache:      radix tree look-aside cache
+  *
+- *	Lookup the item at the position @index in the radix tree @root.
++ *      Query the number of items contained in the cached node.
+  */
+-void *radix_tree_lookup(struct radix_tree_root *root, unsigned long index)
++unsigned int radix_tree_cache_count(struct radix_tree_cache *cache)
+ {
+-	void **slot;
+-
+-	slot = __lookup_slot(root, index);
+-	return slot != NULL ? *slot : NULL;
++	if (!(cache->first_index & RADIX_TREE_MAP_MASK))
++		return cache->tree_node->count;
 +	else
-+		ra = nfsd_get_raparms(inode->i_sb->s_dev, inode->i_ino);
++		return 0;
+ }
+-EXPORT_SYMBOL(radix_tree_lookup);
++EXPORT_SYMBOL(radix_tree_cache_count);
  
- 	if (ra && ra->p_set)
- 		file->f_ra = ra->p_ra;
-+	file->f_ra.flags |= RA_FLAG_NFSD;
- 
- 	if (file->f_op->sendfile) {
- 		svc_pushback_unused_pages(rqstp);
---- linux-2.6.16-rc6-mm2.orig/mm/readahead.c
-+++ linux-2.6.16-rc6-mm2/mm/readahead.c
-@@ -1736,8 +1736,13 @@ newfile_readahead(struct address_space *
- 	if (req_size > ra_min) /* larger value risks thrashing */
- 		req_size = ra_min;
- 
--	ra_size = 4 * req_size;
--	la_size = 2 * req_size;
-+	if (unlikely(ra->flags & RA_FLAG_NFSD)) {
-+		ra_size = MIN_NFSD_PAGES;
-+		la_size = 0;
-+	} else {
-+		ra_size = 4 * req_size;
-+		la_size = 2 * req_size;
-+	}
- 
- 	ra_set_class(ra, RA_CLASS_NEWFILE);
- 	ra_set_index(ra, 0, 0);
+ /**
+  *	radix_tree_tag_set - set a tag on a radix tree node
 
 --

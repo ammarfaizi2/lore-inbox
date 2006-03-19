@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWCSSpD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWCSSqX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbWCSSpD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 13:45:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWCSSpD
+	id S932163AbWCSSqX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 13:46:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWCSSqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 13:45:03 -0500
-Received: from main.gmane.org ([80.91.229.2]:26542 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932162AbWCSSpA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 13:45:00 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andras Mantia <amantia@kde.org>
-Subject: Re: [PATCH 001/001] PCI: PCI quirk for Asus A8V and A8V Deluxe motherboards
-Date: Sun, 19 Mar 2006 20:44:38 +0200
-Message-ID: <dvk8qa$l8o$1@sea.gmane.org>
-References: <20060305192709.GA3789@skyscraper.unix9.prv> <dve3j9$r50$1@sea.gmane.org> <20060317143303.GR20746@lug-owl.de> <dvehv7$j9r$1@sea.gmane.org> <20060317144920.GS20746@lug-owl.de> <dveugj$aob$1@sea.gmane.org> <yw1xmzfo98em.fsf@agrajag.inprovide.com> <dvh3rb$ui8$1@sea.gmane.org> <yw1x64mb7rwm.fsf@agrajag.inprovide.com> <dvh7aj$95v$1@sea.gmane.org> <yw1xoe0368yj.fsf@agrajag.inprovide.com> <dvjcb4$as2$1@sea.gmane.org> <yw1xd5gi381h.fsf@agrajag.inprovide.com> <dvjsa6$i92$1@sea.gmane.org> <yw1xslpez928.fsf@agrajag.inprovide.com> <dvk4tv$9j9$1@sea.gmane.org> <yw1xbqw2z50o.fsf@agrajag.inprovide.com> <dvk79k$hf4$1@sea.gmane.org> <yw1x3bhez3gu.fsf@agrajag.inprovide.com>
+	Sun, 19 Mar 2006 13:46:23 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:24758 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S932163AbWCSSqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 13:46:22 -0500
+Date: Sun, 19 Mar 2006 18:43:25 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Matt_Domsch@dell.com, matthew.e.tolentino@intel.com,
+       linux-kernel@vger.kernel.org, mactel-linux-devel@lists.sourceforge.net
+Subject: [PATCH] - make sure that EFI variable data size is always 64 bit
+Message-ID: <20060319184325.GA7605@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 84.247.49.226
-User-Agent: KNode/0.10.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
+The EFI spec states that the data size of an EFI variable is 64 bits. 
+"unsigned long", on the other hand, isn't on IA32.
 
-> It is the BIOS that disables the onboard sound if it detects a PCI
-> sound card.  Chances are other vendors use different BIOS
-> configurations that do not automatically disable things.  I don't know
-> if messing with those bits might do something bad on another board.
-> 
-
-Yes, this might be a case, but you never know if ASUS engineers realize that
-they can enable the board even if there is a PCI card and will include in
-the next bios (as I wrote, they say it is impossible, but you never know).
-So checking for ASUS will be wrong starting from that BIOS version.
-When I first saw this bug on my system I searched a lot to see if I made a
-wrong decision by buying ASUS and not another brand and everywhere on the
-forums the same issue was described for other brands as well.
-
->From the code I would say that 
-       pci_read_config_byte(dev, 0x50, &val);
-       if (val & 0xc0) {
-
-is the test if it's enabled by the bios or not, as after trying to enable
-with 
-pci_write_config_byte(dev, 0x50, val & (~0xc0));
-it reads again the same byte and checks if the correct bits are enabled.
-
-I see no harm here, but as I said I am not a hardware guy, just a desktop
-programmer. ;-)
-
-Andras
+diff --git a/drivers/firmware/efivars.c b/drivers/firmware/efivars.c
+index bda5bce..488c24c 100644
+--- a/drivers/firmware/efivars.c
++++ b/drivers/firmware/efivars.c
+@@ -110,7 +110,7 @@ static LIST_HEAD(efivar_list);
+ struct efi_variable {
+ 	efi_char16_t  VariableName[1024/sizeof(efi_char16_t)];
+ 	efi_guid_t    VendorGuid;
+-	unsigned long DataSize;
++	__u64	      DataSize;
+ 	__u8          Data[1024];
+ 	efi_status_t  Status;
+ 	__u32         Attributes;
+diff --git a/include/linux/efi.h b/include/linux/efi.h
+index 9e97bc2..3f0a179 100644
+--- a/include/linux/efi.h
++++ b/include/linux/efi.h
+@@ -163,7 +163,7 @@ typedef efi_status_t efi_get_wakeup_time
+ 					    efi_time_t *tm);
+ typedef efi_status_t efi_set_wakeup_time_t (efi_bool_t enabled, efi_time_t *tm);
+ typedef efi_status_t efi_get_variable_t (efi_char16_t *name, efi_guid_t *vendor, u32 *attr,
+-					 unsigned long *data_size, void *data);
++					 __u64 *data_size, void *data);
+ typedef efi_status_t efi_get_next_variable_t (unsigned long *name_size, efi_char16_t *name,
+ 					      efi_guid_t *vendor);
+ typedef efi_status_t efi_set_variable_t (efi_char16_t *name, efi_guid_t *vendor, 
 
 -- 
-Quanta Plus developer - http://quanta.kdewebdev.org
-K Desktop Environment - http://www.kde.org
-
-
+Matthew Garrett | mjg59@srcf.ucam.org

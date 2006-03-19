@@ -1,62 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWCSN3X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWCSOBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbWCSN3X (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 08:29:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWCSN3X
+	id S1751491AbWCSOBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 09:01:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWCSOBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 08:29:23 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:5314 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S932092AbWCSN3W convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 08:29:22 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH]use kzalloc in vfs where appropriate
-Date: Sun, 19 Mar 2006 14:29:21 +0100
-User-Agent: KMail/1.8
-Cc: Matthew Wilcox <matthew@wil.cx>, viro@zeniv.linux.org.uk,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0603172153160.30725@fachschaft.cup.uni-muenchen.de> <200603181144.10820.oliver@neukum.org> <1142679326.2889.20.camel@laptopd505.fenrus.org>
-In-Reply-To: <1142679326.2889.20.camel@laptopd505.fenrus.org>
+	Sun, 19 Mar 2006 09:01:16 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13720 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750700AbWCSOBP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 09:01:15 -0500
+To: Janak Desai <janak@us.ibm.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Michael Kerrisk <mtk-manpages@gmx.net>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk,
+       hch@lst.de, ak@muc.de, paulus@samba.org
+Subject: Re: [PATCH] unshare: Cleanup up the sys_unshare interface before we
+ are committed.
+References: <Pine.LNX.4.64.0603161555210.3618@g5.osdl.org>
+	<29085.1142557915@www064.gmx.net>
+	<Pine.LNX.4.64.0603162140190.3618@g5.osdl.org>
+	<m1r74zzjbg.fsf@ebiederm.dsl.xmission.com>
+	<441C6570.7040502@us.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sun, 19 Mar 2006 06:58:37 -0700
+In-Reply-To: <441C6570.7040502@us.ibm.com> (Janak Desai's message of "Sat,
+ 18 Mar 2006 14:54:24 -0500")
+Message-ID: <m1irqazgc2.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200603191429.21776.oliver@neukum.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 18. März 2006 11:55 schrieb Arjan van de Ven:
-> On Sat, 2006-03-18 at 11:44 +0100, Oliver Neukum wrote:
-> > Am Freitag, 17. März 2006 22:08 schrieb Matthew Wilcox:
-> > > On Fri, Mar 17, 2006 at 09:58:14PM +0100, Oliver Neukum wrote:
-> > > > --- a/fs/bio.c	2006-03-11 23:12:55.000000000 +0100
-> > > > +++ b/fs/bio.c	2006-03-17 16:44:49.000000000 +0100
-> > > > @@ -635,12 +635,10 @@
-> > > >  		return ERR_PTR(-ENOMEM);
-> > > >  
-> > > >  	ret = -ENOMEM;
-> > > > -	pages = kmalloc(nr_pages * sizeof(struct page *), GFP_KERNEL);
-> > > > +	pages = kzalloc(nr_pages * sizeof(struct page *), GFP_KERNEL);
-> > > 
-> > > Didn't we just discuss this one and conclude it needed to use kcalloc
-> > > instead?
-> > 
-> > I've found some discussion in the archive, but no conclusion. Could you
-> > elaborate?
-> 
-> kcalloc is the array allocator.
-> Here.. you're allocating an array of nr_pages worth of pointers.
-> kcalloc does extra checks because it KNOWS it's an array...
+Janak Desai <janak@us.ibm.com> writes:
 
-I see. A patch is coming.
-Shouldn't this check from slab.h:
+> Eric W. Biederman wrote:
+>
+>>Was there ever a good reason why we decided to flip the sense of
+>>the bits?
+>>
+>>I put a together a patch to see what the code would look like:
+>>
+>>- We actually can reuse between clone and unshare.
+>>- We don't need the confusing case of when to add additional resources
+>>  to unshare.
+>>- There is less total code.
+>>- We don't confuse users and developers about the inverted values of
+>>  the clone bits.
+>>
+>>
+> I guess confusion is subjective. With this patch if I want to unshare files and
+> leave the rest as is, I would have to call
+>
+> unshare(CLONE_VM | CLONE_FS | CLONE_SIGHAND | ...)
 
-	if (n != 0 && size > INT_MAX / n)
-		return NULL;
+Yes. In my patch unshare(0) unshares all resources that a fork won't
+share.
 
-carry an "unlikely"?
+Does anyone use unshare on threads?
 
-	Regards
-		Oliver
+My corresponding objection with the current interface is that it
+appears to be an implementation of "Do what I mean".  Whenever
+you do more than is asked for you run into trouble.
+
+> That is, to unshare one type of context, I have to remember and use flags
+> corresponding to all other contexts. If I forget to include one of them, I
+> might unwittingly unshare it. Unless I am reading the patch incorrectly,
+> this to me is more confusing than the current scheme.
+
+Not exactly.  unshare(CLONE_NEWNS) does not need any additional flags
+and I believe it is the primary case of interest.
+
+Beyond that for any version of unshare to be predictable you need
+to know what you have shared and what you don't.  Which means
+either another syscall or a /proc file that will give you that
+information.
+
+Personally I think being unthreaded is easier to work with
+than the existing rule of everything necessary to unshare the
+specified resources.  Especially since I can be explicit and
+tell it to leaves things the way they are.
+
+With a query interface mine becomes unshare(get_shared() & ~CLONE_FILES).
+Which is the normal paradigm for modifying something expressed as
+flags.
+
+With the current kernel implementation I can't see how calling
+unshare(CLONE_NEWNS) is any less surprising when called in a user
+space thread.  Without a deep understanding of the kernel I don't
+see how you can predict that will unshare your current filesystem
+root and cwd pointers.   
+
+My rule that you stop being a thread I think is a little easier
+to remember if not understand.  Who would suspect that in the current
+kernel unshare(CLONE_THREAD) does not completely unshare all of the
+resources that a thread shares?
+
+Anyway I think unshare needs to carry a big fat:
+WARNING dangerous when used with threads be very very careful!
+
+Unfortunately that isn't something I can think of a general
+test for right now.  Which makes using unshare in a library fairly
+dangerous.
+
+Eric

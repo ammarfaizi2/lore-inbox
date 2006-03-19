@@ -1,158 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751476AbWCSLzA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbWCSMA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751476AbWCSLzA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 06:55:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWCSLzA
+	id S1751489AbWCSMA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 07:00:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWCSMA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 06:55:00 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:50648 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751476AbWCSLy7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 06:54:59 -0500
-Date: Sun, 19 Mar 2006 17:24:59 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-kernel@vger.kernel.org, "'Andrew Morton'" <akpm@osdl.org>,
-       "'Zach Brown'" <zach.brown@oracle.com>, pbadari@gmail.com
-Subject: Re: [patch] bug fix in dio handling write error - v2
-Message-ID: <20060319115458.GA29422@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <200603190927.k2J9RSg11077@unix-os.sc.intel.com>
+	Sun, 19 Mar 2006 07:00:56 -0500
+Received: from woodchuck.digriz.org.uk ([217.147.82.209]:34441 "EHLO
+	woodchuck.digriz.org.uk") by vger.kernel.org with ESMTP
+	id S1751489AbWCSMAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 07:00:55 -0500
+Date: Sun, 19 Mar 2006 12:00:47 +0000
+From: Alexander Clouter <alex@digriz.org.uk>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, jun.nakajima@intel.com, davej@redhat.com
+Subject: Re: OOPS: 2.6.16-rc6 cpufreq_conservative
+Message-ID: <20060319120047.GA26018@inskipp.digriz.org.uk>
+References: <200603181525.14127.kernel-stuff@comcast.net> <Pine.LNX.4.64.0603181321310.3826@g5.osdl.org> <20060318165302.62851448.akpm@osdl.org> <200603190134.01833.kernel-stuff@comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
 Content-Disposition: inline
-In-Reply-To: <200603190927.k2J9RSg11077@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200603190134.01833.kernel-stuff@comcast.net>
+Organization: diGriz
+X-URL: http://www.digriz.org.uk/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 19, 2006 at 01:27:33AM -0800, Chen, Kenneth W wrote:
-> Referring to original posting:
-> http://marc.theaimsgroup.com/?t=113752710100001&r=1&w=2
-> 
-> Suparna pointed out that this fix has a potential race window.  I think
-> the race condition also exists on the READ side currently. The fundamental
-> problem is that dio->result is overloaded with dual use: an indicator of
-> fall back path for partial dio write, and an error indicator used in the
-> I/O completion path.  In the event of device error, the setting of -EIO
-> to dio->result clashes with value used to track partial write that activates
-> the fall back path.
-> 
-> One way to fix the race issue is to pull all the code that uses dio->result
-> up before I/O is submitted and then never look at dio->result once IO is
-> submitted.  Or alternatively another independent variable can be introduce
-> to track fall back state, note that to set the tracking logic, kernel still
-> have to look at dio->result before I/O is submitted.
-> 
-> The following patch implements the first option. I would appreciate some
-> reviews.  Thanks.
-> 
-> 
-> 
-> [patch] bug fix in dio handling write error
-> 
-> There is a bug in direct-io on propagating write error up to the
-> higher I/O layer.  When performing an async ODIRECT write to a
-> block device, if a device error occurred (like media error or disk
-> is pulled), the error code is only propagated from device driver
-> to the DIO layer.  The error code stops at finished_one_bio(). The
-> aysnc write, however, is supposedly have a corresponding AIO event
-> with appropriate return code (in this case -EIO).  Application
-> which waits on the async write event, will hang forever since such
-> AIO event is lost forever (if such app did not use the timeout
-> option in io_getevents call. Regardless, an AIO event is lost).
-> 
-> The discovery of above bug leads to another discovery of potential
-> race window with dio->result.  The fundamental problem is that
-> dio->result is overloaded with dual use: an indicator of fall back
-> path for partial dio write, and an error indicator used in the I/O
-> completion path.  In the event of device error, the setting of -EIO
-> to dio->result clashes with value used to track partial write that
-> activates the fall back path.
-> 
-> Propose to fix the race issue by pulling all the code that uses
-> dio->result up before I/O is submitted and then never look at
-> dio->result once IO is submitted.
-> 
-> Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
-> 
-> --- ./fs/direct-io.c.orig	2006-01-02 19:21:10.000000000 -0800
-> +++ ./fs/direct-io.c	2006-03-19 01:57:49.797391064 -0800
-> @@ -253,8 +253,7 @@ static void finished_one_bio(struct dio 
->  			dio_complete(dio, offset, transferred);
->  
->  			/* Complete AIO later if falling back to buffered i/o */
-> -			if (dio->result == dio->size ||
-> -				((dio->rw == READ) && dio->result)) {
-> +			if (!dio->waiter) {
->  				aio_complete(dio->iocb, transferred, 0);
->  				kfree(dio);
->  				return;
-> @@ -939,7 +938,7 @@ direct_io_worker(int rw, struct kiocb *i
->  	struct dio *dio)
->  {
->  	unsigned long user_addr; 
-> -	int seg;
-> +	int seg, should_wait = 0;
->  	ssize_t ret = 0;
->  	ssize_t ret2;
->  	size_t bytes;
-> @@ -1031,6 +1030,16 @@ direct_io_worker(int rw, struct kiocb *i
->  		}
->  	} /* end iovec loop */
->  
-> +	/*
-> +	 * We'll have to wait for a partial write to drain before falling back
-> +	 * to buffered.  We check this before submitting io so that completion
-> +	 * doesn't have a chance to overwrite dio->result with -EIO.
-> +	 */
-> +	if (dio->result < dio->size && dio->is_async && rw == WRITE) {
-> +		dio->waiter = current;
-> +		should_wait = 1;
-> +	}
-> +
 
-Isn't there a possibility that part of the IO for the overall request
-may already have been submitted at this point ? (i.e. within
-do_direct_IO->submit_page_section ->dio_send_cur_page->dio_bio_submit) 
-This is what I was referring to in my earlier response to Zach's patch.
+--DocE+STaALJfprDB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->  	if (ret == -ENOTBLK && rw == WRITE) {
->  		/*
->  		 * The remaining part of the request will be
-> @@ -1051,6 +1060,7 @@ direct_io_worker(int rw, struct kiocb *i
->  		page_cache_release(dio->cur_page);
->  		dio->cur_page = NULL;
->  	}
-> +	ret2 = dio->result;
->  	if (dio->bio)
->  		dio_bio_submit(dio);
->  
-> @@ -1073,14 +1083,8 @@ direct_io_worker(int rw, struct kiocb *i
->  	 * reflect the number of to-be-processed BIOs.
->  	 */
->  	if (dio->is_async) {
-> -		int should_wait = 0;
-> -
-> -		if (dio->result < dio->size && rw == WRITE) {
-> -			dio->waiter = current;
-> -			should_wait = 1;
-> -		}
->  		if (ret == 0)
-> -			ret = dio->result;
-> +			ret = ret2;
->  		finished_one_bio(dio);		/* This can free the dio */
->  		blk_run_address_space(inode->i_mapping);
->  		if (should_wait) {
-> 
-> 
-> 
+Hi,
 
-Regards
-Suparna
+Parag Warudkar <kernel-stuff@comcast.net> [20060319 01:34:01 -0500]:
+>
+> On Saturday 18 March 2006 19:53, Andrew Morton wrote:
+> > I might stick a once-off WARN_ON() in there so someone gets in
+> > and works out why we keep on having to graft mysterious null-pointer
+> > avoidances into cpufreq.
+> cpufreq_conservative should be marked broken on SMP - I have used it on U=
+P=20
+> boxes without trouble but I can't even safely modprobe it on SMP - it nea=
+rly=20
+> ate my filesystem. =20
+>=20
+> And there seem to be multiple different problems with it - I get differen=
+t=20
+> oopses depending upon whether or not I have loaded it before or after the=
+=20
+> ondemand module.  Weird enough - cpufreq_conservative shares much of it's=
+=20
+> code with cpufreq_ondemand, which works without any problem.=20
+>=20
+Well its drifted a bit, however I submitted a number of patches here about=
+=20
+two weeks ago to bring it back into line and hopefully make it HOTPLUG safe.
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+The new set of patches pretty much make conservative's codebase identical t=
+o=20
+ondemands....as no one has posted back having used these or anything what a=
+m=20
+I to do?!
 
+> Let me know if anyone has objection to marking cpufreq_conservative=20
+> depends !SMP - I am planning to submit  a patch soon.
+>=20
+Doesn't bother me, what does is no one is trying to updates to conservative=
+=20
+before deciding to declare it borked?
+
+Hey ho....
+
+Alex
+
+> Parag
+
+--=20
+ _______________________________________=20
+/ Misfortunes arrive on wings and leave \
+\ on foot.                              /
+ ---------------------------------------=20
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+--DocE+STaALJfprDB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFEHUfvNv5Ugh/sRBYRAgyUAKCDNkdz5aq2oaxvPnyEdNkO9xIrkQCfUGyD
+sJYQLGowT9uMCdxunDfv1Jk=
+=Vvsm
+-----END PGP SIGNATURE-----
+
+--DocE+STaALJfprDB--

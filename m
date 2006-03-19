@@ -1,59 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWCSSqX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbWCSSrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbWCSSqX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 13:46:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWCSSqX
+	id S932165AbWCSSrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 13:47:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWCSSrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 13:46:23 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:24758 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S932163AbWCSSqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 13:46:22 -0500
-Date: Sun, 19 Mar 2006 18:43:25 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Matt_Domsch@dell.com, matthew.e.tolentino@intel.com,
-       linux-kernel@vger.kernel.org, mactel-linux-devel@lists.sourceforge.net
-Subject: [PATCH] - make sure that EFI variable data size is always 64 bit
-Message-ID: <20060319184325.GA7605@srcf.ucam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+	Sun, 19 Mar 2006 13:47:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:64149 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932164AbWCSSrH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 13:47:07 -0500
+Date: Sun, 19 Mar 2006 10:46:05 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: kernel-stuff@comcast.net, linux-kernel@vger.kernel.org,
+       alex-kernel@digriz.org.uk, jun.nakajima@intel.com, davej@redhat.com
+Subject: Re: OOPS: 2.6.16-rc6 cpufreq_conservative
+In-Reply-To: <Pine.LNX.4.64.0603181827530.3826@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0603191034370.3826@g5.osdl.org>
+References: <200603181525.14127.kernel-stuff@comcast.net>
+ <Pine.LNX.4.64.0603181321310.3826@g5.osdl.org> <20060318165302.62851448.akpm@osdl.org>
+ <Pine.LNX.4.64.0603181827530.3826@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The EFI spec states that the data size of an EFI variable is 64 bits. 
-"unsigned long", on the other hand, isn't on IA32.
 
-diff --git a/drivers/firmware/efivars.c b/drivers/firmware/efivars.c
-index bda5bce..488c24c 100644
---- a/drivers/firmware/efivars.c
-+++ b/drivers/firmware/efivars.c
-@@ -110,7 +110,7 @@ static LIST_HEAD(efivar_list);
- struct efi_variable {
- 	efi_char16_t  VariableName[1024/sizeof(efi_char16_t)];
- 	efi_guid_t    VendorGuid;
--	unsigned long DataSize;
-+	__u64	      DataSize;
- 	__u8          Data[1024];
- 	efi_status_t  Status;
- 	__u32         Attributes;
-diff --git a/include/linux/efi.h b/include/linux/efi.h
-index 9e97bc2..3f0a179 100644
---- a/include/linux/efi.h
-+++ b/include/linux/efi.h
-@@ -163,7 +163,7 @@ typedef efi_status_t efi_get_wakeup_time
- 					    efi_time_t *tm);
- typedef efi_status_t efi_set_wakeup_time_t (efi_bool_t enabled, efi_time_t *tm);
- typedef efi_status_t efi_get_variable_t (efi_char16_t *name, efi_guid_t *vendor, u32 *attr,
--					 unsigned long *data_size, void *data);
-+					 __u64 *data_size, void *data);
- typedef efi_status_t efi_get_next_variable_t (unsigned long *name_size, efi_char16_t *name,
- 					      efi_guid_t *vendor);
- typedef efi_status_t efi_set_variable_t (efi_char16_t *name, efi_guid_t *vendor, 
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+On Sat, 18 Mar 2006, Linus Torvalds wrote:
+> 
+> The thing is, we could do _so_ much better if we just fixed the "calling 
+> convention" for that loop.
+
+Actually, looking at it a bit more, I think we can do better even 
+_without_ fixing the "calling convention".
+
+Namely like this.
+
+This should make the "NR_CPUS <= 16" case have a _much_ simpler loop. 
+
+I picked "16" at random. The loop is much faster and much simpler (it 
+doesn't use complex instructions like "find first bit", but the downside 
+is that if the CPU mask is very sparse, it will take more of those (very 
+simple) iterations to figure out that it's empty.
+
+I suspect the "16" could be raised to 32 (at which point it would cover 
+all the default vaules), but somebody should probably take a look at 
+how much this shrinks the kernel.
+
+I have to admit that it's a bit evil to leave a dangling "else" in a 
+macro, but it beautifully handles the "must be followed by exactly one C 
+statement" requirement of the old macro ;)
+
+So instead of calling it "evil", let's just say that it's "creative 
+macro-writing".
+
+(Btw, we could make this even cleaner by making the non-SMP case define 
+"cpu_isset()" to 1 - at that point the UP and the "low CPU count" #defines 
+could be merged into one).
+
+		Linus
+
+--
+diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
+index 60e56c6..a659f42 100644
+--- a/include/linux/cpumask.h
++++ b/include/linux/cpumask.h
+@@ -313,11 +313,17 @@ static inline void __cpus_remap(cpumask_
+ 	bitmap_remap(dstp->bits, srcp->bits, oldp->bits, newp->bits, nbits);
+ }
+ 
+-#if NR_CPUS > 1
++#if NR_CPUS > 16
+ #define for_each_cpu_mask(cpu, mask)		\
+ 	for ((cpu) = first_cpu(mask);		\
+ 		(cpu) < NR_CPUS;		\
+ 		(cpu) = next_cpu((cpu), (mask)))
++#elif NR_CPUS > 1
++#define for_each_cpu_mask(cpu, mask)		\
++	for ((cpu) = 0; (cpu) < NR_CPUS; (cpu)++) \
++		if (!cpu_isset(cpu, mask))	\
++			continue;		\
++		else
+ #else /* NR_CPUS == 1 */
+ #define for_each_cpu_mask(cpu, mask) for ((cpu) = 0; (cpu) < 1; (cpu)++)
+ #endif /* NR_CPUS */

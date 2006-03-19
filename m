@@ -1,99 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWCSCfB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWCSCfB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbWCSCfB (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751307AbWCSCfB (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 18 Mar 2006 21:35:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWCSCe5
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWCSCe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 21:34:57 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:64450 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1751321AbWCSCep (ORCPT
+	Sat, 18 Mar 2006 21:34:58 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:44738 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1751319AbWCSCeq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 21:34:45 -0500
-Message-Id: <20060319023451.291434000@localhost.localdomain>
+	Sat, 18 Mar 2006 21:34:46 -0500
+Message-Id: <20060319023454.369874000@localhost.localdomain>
 References: <20060319023413.305977000@localhost.localdomain>
-Date: Sun, 19 Mar 2006 10:34:19 +0800
+Date: Sun, 19 Mar 2006 10:34:25 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 06/23] readahead: refactor __do_page_cache_readahead()
-Content-Disposition: inline; filename=readahead-refactor-__do_page_cache_readahead.patch
+Subject: [PATCH 12/23] readahead: min/max sizes
+Content-Disposition: inline; filename=readahead-parameter-minmax-sizes.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add look-ahead support to __do_page_cache_readahead(), which is needed by
-the adaptive read-ahead logic.
+- Enlarge VM_MAX_READAHEAD to 1024 if new read-ahead code is compiled in.
+  This value is no longer tightly coupled with the thrashing problem,
+  therefore constrained by it. The adaptive read-ahead logic merely takes
+  it as an upper bound, and will not stick to it under memory pressure.
+
+- Slightly enlarge minimal/initial read-ahead size on big memory systems.
+  Memory bounty systems are less likely to suffer from thrashing on small
+  read-ahead sizes. A bigger initial value helps speed up the ra_size
+  growing progress.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- mm/readahead.c |   15 +++++++++------
- 1 files changed, 9 insertions(+), 6 deletions(-)
+ include/linux/mm.h |    4 ++++
+ mm/readahead.c     |   17 +++++++++++++++++
+ 2 files changed, 21 insertions(+)
 
+--- linux-2.6.16-rc6-mm2.orig/include/linux/mm.h
++++ linux-2.6.16-rc6-mm2/include/linux/mm.h
+@@ -998,7 +998,11 @@ extern int filemap_populate(struct vm_ar
+ int write_one_page(struct page *page, int wait);
+ 
+ /* readahead.c */
++#ifdef CONFIG_ADAPTIVE_READAHEAD
++#define VM_MAX_READAHEAD	1024	/* kbytes */
++#else
+ #define VM_MAX_READAHEAD	128	/* kbytes */
++#endif
+ #define VM_MIN_READAHEAD	16	/* kbytes (includes current page) */
+ #define VM_MAX_CACHE_HIT    	256	/* max pages in a row in cache before
+ 					 * turning readahead off */
 --- linux-2.6.16-rc6-mm2.orig/mm/readahead.c
 +++ linux-2.6.16-rc6-mm2/mm/readahead.c
-@@ -268,7 +268,8 @@ out:
-  */
- static int
- __do_page_cache_readahead(struct address_space *mapping, struct file *filp,
--			pgoff_t offset, unsigned long nr_to_read)
-+			pgoff_t offset, unsigned long nr_to_read,
-+			unsigned long lookahead_size)
- {
- 	struct inode *inode = mapping->host;
- 	struct page *page;
-@@ -281,7 +282,7 @@ __do_page_cache_readahead(struct address
- 	if (isize == 0)
- 		goto out;
- 
-- 	end_index = ((isize - 1) >> PAGE_CACHE_SHIFT);
-+	end_index = ((isize - 1) >> PAGE_CACHE_SHIFT);
- 
- 	/*
- 	 * Preallocate as many pages as we will need.
-@@ -304,6 +305,8 @@ __do_page_cache_readahead(struct address
- 			break;
- 		page->index = page_offset;
- 		list_add(&page->lru, &page_pool);
-+		if (page_idx == nr_to_read - lookahead_size)
-+			__SetPageReadahead(page);
- 		ret++;
- 	}
- 	read_unlock_irq(&mapping->tree_lock);
-@@ -340,7 +343,7 @@ int force_page_cache_readahead(struct ad
- 		if (this_chunk > nr_to_read)
- 			this_chunk = nr_to_read;
- 		err = __do_page_cache_readahead(mapping, filp,
--						offset, this_chunk);
-+						offset, this_chunk, 0);
- 		if (err < 0) {
- 			ret = err;
- 			break;
-@@ -387,7 +390,7 @@ int do_page_cache_readahead(struct addre
- 	if (bdi_read_congested(mapping->backing_dev_info))
- 		return -1;
- 
--	return __do_page_cache_readahead(mapping, filp, offset, nr_to_read);
-+	return __do_page_cache_readahead(mapping, filp, offset, nr_to_read, 0);
+@@ -1008,4 +1008,21 @@ out:
+ 	return nr_pages;
  }
  
- /*
-@@ -407,7 +410,7 @@ blockable_page_cache_readahead(struct ad
- 	if (!block && bdi_read_congested(mapping->backing_dev_info))
- 		return 0;
- 
--	actual = __do_page_cache_readahead(mapping, filp, offset, nr_to_read);
-+	actual = __do_page_cache_readahead(mapping, filp, offset, nr_to_read, 0);
- 
- 	return check_ra_success(ra, nr_to_read, actual);
- }
-@@ -452,7 +455,7 @@ static int make_ahead_window(struct addr
-  * @req_size: hint: total size of the read which the caller is performing in
-  *            PAGE_CACHE_SIZE units
-  *
-- * page_cache_readahead() is the main function.  If performs the adaptive
-+ * page_cache_readahead() is the main function.  It performs the adaptive
-  * readahead window size management and submits the readahead I/O.
-  *
-  * Note that @filp is purely used for passing on to the ->readpage[s]()
++/*
++ * ra_min is mainly determined by the size of cache memory.
++ * Table of concrete numbers for 4KB page size:
++ *   inactive + free (MB):    4   8   16   32   64  128  256  512 1024
++ *            ra_min (KB):   16  16   16   16   20   24   32   48   64
++ */
++static inline void get_readahead_bounds(struct file_ra_state *ra,
++					unsigned long *ra_min,
++					unsigned long *ra_max)
++{
++	unsigned long pages;
++
++	pages = max_sane_readahead(KB(1024*1024));
++	*ra_max = min(min(pages, 0xFFFFUL), ra->ra_pages);
++	*ra_min = min(min(MIN_RA_PAGES + (pages>>13), KB(128)), *ra_max/2);
++}
++
+ #endif /* CONFIG_ADAPTIVE_READAHEAD */
 
 --

@@ -1,175 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbWCSCec@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWCSCew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751274AbWCSCec (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 21:34:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWCSCec
+	id S1751337AbWCSCew (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 21:34:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWCSCew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 21:34:32 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:41154 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1751274AbWCSCeb (ORCPT
+	Sat, 18 Mar 2006 21:34:52 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:10435 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1751337AbWCSCet (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 21:34:31 -0500
-Message-Id: <20060319023453.352821000@localhost.localdomain>
+	Sat, 18 Mar 2006 21:34:49 -0500
+Message-Id: <20060319023454.869633000@localhost.localdomain>
 References: <20060319023413.305977000@localhost.localdomain>
-Date: Sun, 19 Mar 2006 10:34:23 +0800
+Date: Sun, 19 Mar 2006 10:34:26 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 10/23] readahead: support functions
-Content-Disposition: inline; filename=readahead-support-functions.patch
+Subject: [PATCH 13/23] readahead: page cache aging accounting
+Content-Disposition: inline; filename=readahead-aging-accounting.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Several support functions of adaptive read-ahead.
+Collect info about the global available memory and its consumption speed.
+The data are used by the stateful method to estimate the thrashing threshold.
+
+They are the decisive factor of the correctness/accuracy of the resulting
+read-ahead size.
+
+- The accountings are done on a per-node basis, for the current vm subsystem
+  allocates memory in a node affined manner.
+
+- The readahead_aging is mainly increased on first access of the read-ahead
+  pages, which makes it goes up constantly and smoothly, which helps improve
+  the accuracy on small/fast read-aheads.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- include/linux/mm.h |   11 +++++
- mm/readahead.c     |  116 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 127 insertions(+)
+ include/linux/mm.h |    9 +++++++++
+ mm/memory.c        |    1 +
+ mm/readahead.c     |   51 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ mm/swap.c          |    2 ++
+ mm/vmscan.c        |    3 +++
+ 5 files changed, 66 insertions(+)
 
 --- linux-2.6.16-rc6-mm2.orig/include/linux/mm.h
 +++ linux-2.6.16-rc6-mm2/include/linux/mm.h
-@@ -1016,6 +1016,17 @@ void handle_ra_miss(struct address_space
- 		    struct file_ra_state *ra, pgoff_t offset);
- unsigned long max_sane_readahead(unsigned long nr);
+@@ -1031,6 +1031,15 @@ static inline int prefer_adaptive_readah
+ 	return readahead_ratio >= 10;
+ }
  
-+#ifdef CONFIG_ADAPTIVE_READAHEAD
-+extern int readahead_ratio;
-+#else
-+#define readahead_ratio 1
-+#endif /* CONFIG_ADAPTIVE_READAHEAD */
-+
-+static inline int prefer_adaptive_readahead(void)
++DECLARE_PER_CPU(unsigned long, readahead_aging);
++static inline void inc_readahead_aging(void)
 +{
-+	return readahead_ratio >= 10;
++	if (prefer_adaptive_readahead()) {
++		per_cpu(readahead_aging, get_cpu())++;
++		put_cpu();
++	}
 +}
 +
  /* Do stack extension */
  extern int expand_stack(struct vm_area_struct *vma, unsigned long address);
  #ifdef CONFIG_IA64
+--- linux-2.6.16-rc6-mm2.orig/mm/memory.c
++++ linux-2.6.16-rc6-mm2/mm/memory.c
+@@ -1984,6 +1984,7 @@ static int do_anonymous_page(struct mm_s
+ 		page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
+ 		if (!pte_none(*page_table))
+ 			goto release;
++		inc_readahead_aging();
+ 		inc_mm_counter(mm, anon_rss);
+ 		lru_cache_add_active(page);
+ 		page_add_new_anon_rmap(page, vma, address);
+--- linux-2.6.16-rc6-mm2.orig/mm/vmscan.c
++++ linux-2.6.16-rc6-mm2/mm/vmscan.c
+@@ -440,6 +440,9 @@ static unsigned long shrink_page_list(st
+ 		if (PageWriteback(page))
+ 			goto keep_locked;
+ 
++		if (!PageReferenced(page))
++			inc_readahead_aging();
++
+ 		referenced = page_referenced(page, 1);
+ 		/* In active use or really unfreeable?  Activate it. */
+ 		if (referenced && page_mapping_inuse(page))
+--- linux-2.6.16-rc6-mm2.orig/mm/swap.c
++++ linux-2.6.16-rc6-mm2/mm/swap.c
+@@ -128,6 +128,8 @@ void fastcall mark_page_accessed(struct 
+ 		ClearPageReferenced(page);
+ 	} else if (!PageReferenced(page)) {
+ 		SetPageReferenced(page);
++		if (PageLRU(page))
++			inc_readahead_aging();
+ 	}
+ }
+ 
 --- linux-2.6.16-rc6-mm2.orig/mm/readahead.c
 +++ linux-2.6.16-rc6-mm2/mm/readahead.c
-@@ -875,3 +875,119 @@ unsigned long max_sane_readahead(unsigne
- 	__get_zone_counts(&active, &inactive, &free, NODE_DATA(numa_node_id()));
- 	return min(nr, (inactive + free) / 2);
+@@ -46,6 +46,13 @@ int readahead_hit_rate = 2;
+ EXPORT_SYMBOL(readahead_hit_rate);
+ 
+ /*
++ * Measures the aging process of cold pages.
++ * Mainly increased on fresh page references to make it smooth.
++ */
++DEFINE_PER_CPU(unsigned long, readahead_aging);
++EXPORT_PER_CPU_SYMBOL(readahead_aging);
++
++/*
+  * Detailed classification of read-ahead behaviors.
+  */
+ #define RA_CLASS_SHIFT 4
+@@ -1009,6 +1016,50 @@ out:
  }
-+
-+/*
-+ * Adaptive read-ahead.
+ 
+ /*
++ * State based calculation of read-ahead request.
 + *
-+ * Good read patterns are compact both in space and time. The read-ahead logic
-+ * tries to grant larger read-ahead size to better readers under the constraint
-+ * of system memory and load pressure.
++ * This figure shows the meaning of file_ra_state members:
 + *
-+ * It employs two methods to estimate the max thrashing safe read-ahead size:
-+ *   1. state based   - the default one
-+ *   2. context based - the failsafe one
-+ * The integration of the dual methods has the merit of being agile and robust.
-+ * It makes the overall design clean: special cases are handled in general by
-+ * the stateless method, leaving the stateful one simple and fast.
-+ *
-+ * To improve throughput and decrease read delay, the logic 'looks ahead'.
-+ * In most read-ahead chunks, one page will be selected and tagged with
-+ * PG_readahead. Later when the page with PG_readahead is read, the logic
-+ * will be notified to submit the next read-ahead chunk in advance.
-+ *
-+ *                 a read-ahead chunk
-+ *    +-----------------------------------------+
-+ *    |       # PG_readahead                    |
-+ *    +-----------------------------------------+
-+ *            ^ When this page is read, notify me for the next read-ahead.
-+ *
-+ *
-+ * Here are some variable names used frequently:
-+ *
-+ *                                   |<------- la_size ------>|
-+ *                  +-----------------------------------------+
-+ *                  |                #                        |
-+ *                  +-----------------------------------------+
-+ *      ra_index -->|<---------------- ra_size -------------->|
-+ *
++ *             chunk A                            chunk B
++ *  +---------------------------+-------------------------------------------+
++ *  |             #             |                   #                       |
++ *  +---------------------------+-------------------------------------------+
++ *                ^             ^                   ^                       ^
++ *              la_index      ra_index     lookahead_index         readahead_index
 + */
 +
-+#ifdef CONFIG_ADAPTIVE_READAHEAD
-+
 +/*
-+ * The nature of read-ahead allows false tests to occur occasionally.
-+ * Here we just do not bother to call get_page(), it's meaningless anyway.
++ * The node's effective length of inactive_list(s).
 + */
-+static inline struct page *__find_page(struct address_space *mapping,
-+							pgoff_t offset)
++static unsigned long node_free_and_cold_pages(void)
 +{
-+	return radix_tree_lookup(&mapping->page_tree, offset);
-+}
++	unsigned int i;
++	unsigned long sum = 0;
++	struct zone *zones = NODE_DATA(numa_node_id())->node_zones;
 +
-+static inline struct page *find_page(struct address_space *mapping,
-+							pgoff_t offset)
-+{
-+	struct page *page;
++	for (i = 0; i < MAX_NR_ZONES; i++)
++		sum += zones[i].nr_inactive +
++			zones[i].free_pages - zones[i].pages_low;
 +
-+	read_lock_irq(&mapping->tree_lock);
-+	page = __find_page(mapping, offset);
-+	read_unlock_irq(&mapping->tree_lock);
-+	return page;
++	return sum;
 +}
 +
 +/*
-+ * Move pages in danger (of thrashing) to the head of inactive_list.
-+ * Not expected to happen frequently.
++ * The node's accumulated aging activities.
 + */
-+static unsigned long rescue_pages(struct page *page, unsigned long nr_pages)
++static unsigned long node_readahead_aging(void)
 +{
-+	int pgrescue;
-+	pgoff_t index;
-+	struct zone *zone;
-+	struct address_space *mapping;
++	unsigned long cpu;
++	unsigned long sum = 0;
++	cpumask_t mask = node_to_cpumask(numa_node_id());
 +
-+	BUG_ON(!nr_pages || !page);
-+	pgrescue = 0;
-+	index = page_index(page);
-+	mapping = page_mapping(page);
++	for_each_cpu_mask(cpu, mask)
++		sum += per_cpu(readahead_aging, cpu);
 +
-+	dprintk("rescue_pages(ino=%lu, index=%lu nr=%lu)\n",
-+			mapping->host->i_ino, index, nr_pages);
-+
-+	for(;;) {
-+		zone = page_zone(page);
-+		spin_lock_irq(&zone->lru_lock);
-+
-+		if (!PageLRU(page))
-+			goto out_unlock;
-+
-+		while (page_mapping(page) == mapping &&
-+				page_index(page) == index) {
-+			struct page *the_page = page;
-+			page = next_page(page);
-+			if (!PageActive(the_page) &&
-+					!PageLocked(the_page) &&
-+					page_count(the_page) == 1) {
-+				list_move(&the_page->lru, &zone->inactive_list);
-+				pgrescue++;
-+			}
-+			index++;
-+			if (!--nr_pages)
-+				goto out_unlock;
-+		}
-+
-+		spin_unlock_irq(&zone->lru_lock);
-+
-+		cond_resched();
-+		page = find_page(mapping, index);
-+		if (!page)
-+			goto out;
-+	}
-+out_unlock:
-+	spin_unlock_irq(&zone->lru_lock);
-+out:
-+	ra_account(NULL, RA_EVENT_READAHEAD_RESCUE, pgrescue);
-+	return nr_pages;
++	return sum;
 +}
 +
-+#endif /* CONFIG_ADAPTIVE_READAHEAD */
++/*
+  * ra_min is mainly determined by the size of cache memory.
+  * Table of concrete numbers for 4KB page size:
+  *   inactive + free (MB):    4   8   16   32   64  128  256  512 1024
 
 --

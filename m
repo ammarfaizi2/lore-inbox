@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWCTMDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWCTMDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbWCTMDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 07:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWCTMDZ
+	id S932230AbWCTMDm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 07:03:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWCTMDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 07:03:25 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:23448 "EHLO mtlexch01.mtl.com")
-	by vger.kernel.org with ESMTP id S932090AbWCTMDY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 07:03:24 -0500
-Date: Mon, 20 Mar 2006 14:04:07 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Lennert Buytenhek <buytenh@wantstofly.org>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       "David S. Miller" <davem@davemloft.net>, rick.jones2@hp.com,
-       netdev@vger.kernel.org, rdreier@cisco.com, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: TSO and IPoIB performance degradation
-Message-ID: <20060320120407.GY29929@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20060320090629.GA11352@mellanox.co.il> <20060320.015500.72136710.davem@davemloft.net> <20060320102234.GV29929@mellanox.co.il> <20060320.023704.70907203.davem@davemloft.net> <20060320112753.GX29929@mellanox.co.il> <1142855223.3114.30.camel@laptopd505.fenrus.org> <20060320114933.GA3058@xi.wantstofly.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Mar 2006 07:03:41 -0500
+Received: from smtp008.mail.ukl.yahoo.com ([217.12.11.62]:37251 "HELO
+	smtp008.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932095AbWCTMDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 07:03:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Message-Id:Content-Type:Content-Transfer-Encoding;
+  b=0EcXnJ9hHcn3eB9k8kPWD2+b6NYVrCteSvFbCPs4LVYMDfM4y1dWvy9MqnPeb3aIapC6JEguLIfxZIYc8yD7fSviBHg2Ft3crgypwaR9WXZf75V4IFuucokHiypivIYQ7L8YCfq4QTgFEngNwbNieiVkvpYzdHVqwNaJHgqj8HU=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Proposed additions to the ptrace(2) manpage, take 2
+Date: Sun, 19 Mar 2006 20:41:34 +0100
+User-Agent: KMail/1.8.3
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Michael Kerrisk <mtk-manpages@gmx.net>,
+       Daniel Jacobowitz <dan@debian.org>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       "Charles P. Wright" <cwright@cs.sunysb.edu>
+References: <200603180714_MC3-1-BAEF-EBBE@compuserve.com>
+In-Reply-To: <200603180714_MC3-1-BAEF-EBBE@compuserve.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20060320114933.GA3058@xi.wantstofly.org>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 20 Mar 2006 12:06:03.0421 (UTC) FILETIME=[A8F444D0:01C64C16]
+Message-Id: <200603192041.34981.blaisorblade@yahoo.it>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Lennert Buytenhek <buytenh@wantstofly.org>:
-> > > > I disagree with Linux changing it's behavior.  It would be great to
-> > > > turn off congestion control completely over local gigabit networks,
-> > > > but that isn't determinable in any way, so we don't do that.
-> > > 
-> > > Interesting. Would it make sense to make it another tunable knob in
-> > > /proc, sysfs or sysctl then?
-> > 
-> > that's not the right level; since that is per interface. And you only
-> > know the actual interface waay too late (as per earlier posts).
-> > Per socket.. maybe
-> > But then again it's not impossible to have packets for one socket go out
-> > to multiple interfaces
-> > (think load balancing bonding over 2 interfaces, one IB another
-> > ethernet)
-> 
-> I read it as if he was proposing to have a sysctl knob to turn off
-> TCP congestion control completely (which has so many issues it's not
-> even funny.)
+On Saturday 18 March 2006 13:12, Chuck Ebbert wrote:
+> This is a revised set of updates to the ptrace(2) manpage.
+>
+> Comments?
 
-Not really, that was David :)
+For all I can comment about, this patch is correct, so:
 
-What started this thread was the fact that since 2.6.11 Linux
-does not stretch ACKs anymore. RFC 2581 does mention that it might be OK to
-stretch ACKs "after careful consideration", and we are seeing that it helps
-IP over InfiniBand, so recent Linux kernels perform worse in that respect.
+Acked-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-And since there does not seem to be a way to figure it out automagically when
-doing this is a good idea, I proposed adding some kind of knob that will let the
-user apply the consideration for us.
-
+Only note that SYSEMU and SYSEMU_SINGLESTEP are for now x86-only (not even 
+x86_64 yet).
 -- 
-Michael S. Tsirkin
-Staff Engineer, Mellanox Technologies
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+
+	
+
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

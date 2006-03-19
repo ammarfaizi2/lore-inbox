@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbWCSUC3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbWCSUG6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750793AbWCSUC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 15:02:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWCSUC3
+	id S1750872AbWCSUG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 15:06:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbWCSUG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 15:02:29 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:51874 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750793AbWCSUCD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 15:02:03 -0500
-Date: Sun, 19 Mar 2006 12:01:13 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: Andrew Morton <akpm@osdl.org>, kernel-stuff@comcast.net,
-       linux-kernel@vger.kernel.org, alex-kernel@digriz.org.uk,
-       jun.nakajima@intel.com, davej@redhat.com
-Subject: Re: OOPS: 2.6.16-rc6 cpufreq_conservative
-In-Reply-To: <20060319194004.GZ27946@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0603191148160.3826@g5.osdl.org>
-References: <200603181525.14127.kernel-stuff@comcast.net>
- <Pine.LNX.4.64.0603181321310.3826@g5.osdl.org> <20060318165302.62851448.akpm@osdl.org>
- <Pine.LNX.4.64.0603181827530.3826@g5.osdl.org> <Pine.LNX.4.64.0603191034370.3826@g5.osdl.org>
- <Pine.LNX.4.64.0603191050340.3826@g5.osdl.org> <Pine.LNX.4.64.0603191125220.3826@g5.osdl.org>
- <20060319194004.GZ27946@ftp.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 19 Mar 2006 15:06:58 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:37774 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750867AbWCSUG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 15:06:58 -0500
+Subject: Re: + stack-corruption-detector.patch added to -mm tree
+From: Arjan van de Ven <arjan@infradead.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060319182648.GE25452@waste.org>
+References: <200603082041.k28Kf7H1027435@shell0.pdx.osdl.net>
+	 <Pine.LNX.4.63.0603082215330.4484@cuia.boston.redhat.com>
+	 <20060319182648.GE25452@waste.org>
+Content-Type: text/plain
+Date: Sun, 19 Mar 2006 21:06:46 +0100
+Message-Id: <1142798807.3018.29.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2006-03-19 at 12:26 -0600, Matt Mackall wrote:
+> On Wed, Mar 08, 2006 at 10:16:50PM -0500, Rik van Riel wrote:
+> > On Wed, 8 Mar 2006, akpm@osdl.org wrote:
+> > 
+> > > -			memset(ret, 0, THREAD_SIZE);		\
+> > > +			memset(ret, 0x55, THREAD_SIZE);		\
+> > 
+> > Xen uses 0x55 as a poison pattern too.  I wonder if we should
+> > change this one (this one's newer ;)) to something else.
+> 
+> I think we should have a central poison.h file.
+
+sure
+
+but it's not like xen is anywhere near mergable, so xen should change if
+anything ;)
 
 
-On Sun, 19 Mar 2006, Al Viro wrote:
->
-> In the version of gcc you've tested.  With options and phase of moon
-> being what they had been.  IOW, you are awfully optimistic - it's not
-> just using gcc extension, it's using undocumented (in the best case)
-> behaviour outside the intended use of that extension.
-
-I admit that it's ugly, but it's not undocumented. It flows directly from 
-"statements as expression". Once you do that, you have to do flow control 
-with them.
-
-The end result may be _surprising_, the same way Duff's device is 
-surprising (and for the same reason). But a C compiler that doesn't 
-support Duff's device is not a C compiler. And this is really no 
-different: it may not bestandard C: but it _is_ standard and documented 
-GNU C.
-
-And btw, this is _not_ new behaviour for the kernel. We have used 
-non-local control behaviour in statement expressions before, just do a
-
-	git grep '({.*return' 
-
-to see at least ten cases of that (in fact, check out NFA_PUT(), which 
-does a goto for the failure case in networking). That grep misses all the 
-multi-line cases, so I assume there are more of them.
-
-So this definitely works, and is not new. 
-
-			Linus

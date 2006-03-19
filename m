@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751379AbWCSEMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbWCSEsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751379AbWCSEMe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 23:12:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWCSEMe
+	id S1751390AbWCSEsy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 23:48:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWCSEsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 23:12:34 -0500
-Received: from mga01.intel.com ([192.55.52.88]:53556 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751379AbWCSEMd convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 23:12:33 -0500
-X-IronPort-AV: i="4.03,107,1141632000"; 
-   d="scan'208"; a="14259447:sNHT29595573"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Sat, 18 Mar 2006 23:48:54 -0500
+Received: from zproxy.gmail.com ([64.233.162.206]:21905 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751390AbWCSEsx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 23:48:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=QYArSi9Mw9IN4SbtkvREDIze3q5YlSEQx0b0JORFrqtcqLeVu9IPNX3foTXUwAtsR0sTEMwZGlzyno52JZP6I2hUDTbim1gk/FPasTw37DziH86CsNey/6DJ21YUEIRc3kqYOSANENyFyibi9OYaJB04uur29D/sP6vgCoSNhK0=
+Message-ID: <4ae3c140603182048k55d06d87ufc0b9f0548574090@mail.gmail.com>
+Date: Sat, 18 Mar 2006 23:48:52 -0500
+From: "Xin Zhao" <uszhaoxin@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Question regarding to store file system metadata in database
+Cc: linux-fsdevel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Date: Sun, 19 Mar 2006 12:12:09 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F84041AC26C@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Thread-Index: AcZKyJseFIApotTBQ26vJ/8spHMO3QAPbwMQ
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       <michael@mihu.de>, <mchehab@infradead.org>,
-       "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
-       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
-       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-X-OriginalArrivalTime: 19 Mar 2006 04:12:11.0484 (UTC) FILETIME=[4BC939C0:01C64B0B]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Do you load processor driver?
->
->It's loads at boot.  When thermal loads, it pulls in processor:
->
->$ lsmod | grep thermal
->thermal                17224  0 
->processor              30080  1 thermal
->
+I was wondering why only few file system uses database to store file
+system metadata. Here, metadata primarily refers to directory entries.
+For example, one can setup a database to store file pathname, its
+inode number, and some extended attribution. File pathname can be used
+as primary key. As such, we can achieve pathname to inode mapping as
+well as many other features such as fast search and extended file
+attribute management. In contrast, storing file system entries in
+directory files may result in slow dentry search. I guess that's why
+ReiserFS and some other file systems proposed to use B+ tree like
+strucutre to manage file entries. But why not simple use database to
+provide the same feature? DB has been heavily optimized to provide
+fast search and should be good at managing metadata.
 
-Maybe I need to make a summary here for this issue:
-1. The s3 hang is in While-loop in SMPI that looks like
-waiting BIOS response.
-2. If THM2, THM6, THM7 disabled, disabling THM0._TMP
-fix the s3 hang.
+ I guess one concern about this idea is  performance impact caused by
+database system. I ran a test on a mysql database: I inserted about
+1.2 million such kind of records into an initially empty mysql
+database. Average insertion rate is about 300 entries per second,
+which is fast enough to handle normal file system burden, I think.  I
+haven't try the query speed, but I believe it should be fast enough
+too (maybe I am wrong, if so, please point that out.).
 
-I think you need to continue to find out which THMs, which methods
-cause s3 hang when THM0._TMP disabled.
-I assume the problem is:
-THM0._TMP && THMx._XXX && THMy._YYY..
+Then I am a little curious why only few people use database to store
+file system metadata, although I know WinFS plans to use database to
+manage metadata. I guess one reason is that it is difficult for kernel
+based file system driver to access database. But this could be
+addressed by using efficient kernel/user communication mechanism.
+Another reason could be the worry about database system. If database
+system crashes, file system will stop functioning too. However, the
+feature needed by file system is really a small part of database
+system, A reduced database system should be sufficient to provide this
+feature and be stable enough to support a file system.
 
-Thanks,
-Luming
+Can someone point out more issues that could become obstables to using
+database to manage metadata for a file system?
+
+Many thanks!
+Xin

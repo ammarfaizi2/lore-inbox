@@ -1,61 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWCSBBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWCSBFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751186AbWCSBBx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 20:01:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWCSBBx
+	id S1751162AbWCSBFh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 20:05:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbWCSBFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 20:01:53 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:27062 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751186AbWCSBBw convert rfc822-to-8bit
+	Sat, 18 Mar 2006 20:05:36 -0500
+Received: from orfeus.profiwh.com ([82.100.20.117]:41485 "EHLO
+	orfeus.profiwh.com") by vger.kernel.org with ESMTP id S1751162AbWCSBFg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 20:01:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UifWgT51maZE2LUubR8RHwVEkQ3Q6BPKVBVYvMXQ2PXLcMH0h1G2qe0fg7lz/eYWgxdyWARSU8tp34eBb7NLXAg37GfEggxqebc1NaQcKZL13ANe0d2nFXFx2Tk3ATfteYhfIM5iQCa4o6FaB5FkzK++WY7tXxu8sEkHYi4oJaw=
-Message-ID: <9a8748490603181701k7e63827bib0868611602e0db7@mail.gmail.com>
-Date: Sun, 19 Mar 2006 02:01:51 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Al Viro" <viro@ftp.linux.org.uk>
-Subject: Re: [PATCH] Fix a potential NULL pointer deref in znet
-Cc: linux-kernel@vger.kernel.org, becker@scyld.com
-In-Reply-To: <20060319004639.GY27946@ftp.linux.org.uk>
+	Sat, 18 Mar 2006 20:05:36 -0500
+Message-ID: <441CAE6F.8020401@liberouter.org>
+Date: Sun, 19 Mar 2006 02:05:28 +0059
+From: Jiri Slaby <slaby@liberouter.org>
+User-Agent: Thunderbird 1.5 (X11/20060210)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200603190112.31828.jesper.juhl@gmail.com>
-	 <20060319004639.GY27946@ftp.linux.org.uk>
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Ian Kent <raven@themaw.net>, Jiri Slaby <xslaby@fi.muni.cz>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: BUG: atomic counter underflow [Was: 2.6.16-rc6-mm1]
+References: <E1FIYLc-00080b-00@decibel.fi.muni.cz> <Pine.LNX.4.64.0603131330210.21830@eagle.themaw.net> <441AF62A.9090203@gmail.com>
+In-Reply-To: <441AF62A.9090203@gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-SpamReason: {}-{0,00}-{0,00}-{0,00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/19/06, Al Viro <viro@ftp.linux.org.uk> wrote:
-> On Sun, Mar 19, 2006 at 01:12:31AM +0100, Jesper Juhl wrote:
-> >
-> > The coverity checker spotted that we dereference a pointer before we check it
-> > for NULL in drivers/net/znet.c::znet_interrupt().
-> > This fixes the issue.
->
-> The hell it does.  Either interrupt really isn't shared, in which case
-> this check should be simply removed, or it can be shared, in which case
-> the code is still buggered.
->
-> Please, stop pulling Bunk - _think_ before submitting "make <program> STFU"
-> patches.
->
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Believe it or not,  but I actually do try to think about the patches I submit.
-I make mistakes sometimes and I don't know all the code in as much
-depth as I would like, but I do try to help out the best I can.
+Jiri Slaby napsal(a):
+> Ian Kent napsal(a):
+>>> On Sun, 12 Mar 2006, Jiri Slaby wrote:
+>>>
+>>>> Andrew Morton wrote:
+>>>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/
+>>>> [snip]
+>>>>> +remove-redundant-check-from-autofs4_put_super.patch
+>>>>> +autofs4-follow_link-missing-funtionality.patch
+>>>>>
+>>>>> Update autofs4 patches in -mm.
+>>>> Hello, 
+>>>>
+>>>> I caught this during ftp browsing autofs-bind-mounted directories. I don't know
+>>>> circumstancies and if the patches above are source of problem. I also don't know
+>>>> if -rc6-mm1 is the first one.
+>>> btw what do you mean autofs-bind-mounted ?
+> Hmm, I am unable to reproduce it :(.
+Yup, I've got it:
+while /bin/true; do cd /home/ftp/misc/.ftpaccess; done
+[nonexistent dir]
+kill it
+and
 
-I appreciate feedback on the work I do, and I try to improve based on
-it - this means I also value your feedback although I must say I
-dislike your tone.
+Mar 19 02:03:08 localhost automount[25680]: failed to mount
+/home/ftp/misc/.ftpaccess
+Mar 19 02:03:08 localhost automount[25682]: failed to mount
+/home/ftp/misc/.ftpaccess
+Mar 19 02:03:08 localhost kernel: BUG: atomic counter underflow at:
+Mar 19 02:03:08 localhost kernel:  [<c0104736>] show_trace+0x13/0x15
+Mar 19 02:03:08 localhost kernel:  [<c0104873>] dump_stack+0x1e/0x20
+Mar 19 02:03:08 localhost kernel:  [<c01d6c97>] autofs4_wait+0x751/0x93a
+Mar 19 02:03:08 localhost kernel:  [<c01d543b>] try_to_fill_dentry+0xca/0x11c
+Mar 19 02:03:08 localhost kernel:  [<c01d59b3>] autofs4_revalidate+0xe1/0x148
+Mar 19 02:03:08 localhost kernel:  [<c0171338>] do_lookup+0x40/0x157
+Mar 19 02:03:08 localhost kernel:  [<c0172ec4>] __link_path_walk+0x804/0xe8c
+Mar 19 02:03:08 localhost kernel:  [<c017359c>] link_path_walk+0x50/0xe8
+Mar 19 02:03:08 localhost kernel:  [<c01738b7>] do_path_lookup+0x10f/0x26d
+Mar 19 02:03:08 localhost kernel:  [<c017429c>] __user_walk_fd+0x33/0x50
+Mar 19 02:03:08 localhost kernel:  [<c0174412>] __user_walk+0x17/0x19
+Mar 19 02:03:08 localhost automount[25683]: failed to mount
+/home/ftp/misc/.ftpaccess
+Mar 19 02:03:08 localhost kernel:  [<c0162fb3>] sys_chdir+0x1a/0x77
+Mar 19 02:03:08 localhost kernel:  [<c0103127>] syscall_call+0x7/0xb
+Mar 19 02:03:08 localhost automount[25684]: failed to mount
+/home/ftp/misc/.ftpaccess
 
-I'll stare at the code some more and try to come up with a better
-patch after I've had some sleep.
+Now, I am going to test, if this dissapeared after your patch.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+regards,
+- --
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFEHK5vMsxVwznUen4RAnFzAJ40HZllS1ypu5aH3LOLlg3AvZlhYwCfQc72
+wL6CuAzQxu+IdR6+Da68vR8=
+=HvFQ
+-----END PGP SIGNATURE-----

@@ -1,61 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWCSFch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWCSGN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751439AbWCSFch (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 00:32:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWCSFch
+	id S1751048AbWCSGN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 01:13:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWCSGN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 00:32:37 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:39305 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1751439AbWCSFcg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 00:32:36 -0500
-Date: Sun, 19 Mar 2006 13:32:50 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH 07/23] readahead: insert cond_resched() calls
-Message-ID: <20060319053250.GB4313@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
-References: <20060319023413.305977000@localhost.localdomain> <20060319023451.808130000@localhost.localdomain> <1142740242.4532.1.camel@mindpipe>
-MIME-Version: 1.0
+	Sun, 19 Mar 2006 01:13:58 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:6295 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1750992AbWCSGN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 01:13:57 -0500
+Date: Sat, 18 Mar 2006 22:13:42 -0800
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       Len Brown <len.brown@intel.com>, linux-acpi@vger.kernel.org
+Subject: Re: 2.6.16-rc6-mm2 uninitialized online_policy_cpus.bits[0]
+Message-ID: <20060318221342.A9304@unix-os.sc.intel.com>
+References: <20060318044056.350a2931.akpm@osdl.org> <200603191209.54946.kernel@kolivas.org> <20060318173512.313a3453.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1142740242.4532.1.camel@mindpipe>
-User-Agent: Mutt/1.5.11+cvs20060126
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060318173512.313a3453.akpm@osdl.org>; from akpm@osdl.org on Sat, Mar 18, 2006 at 05:35:12PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 18, 2006 at 10:50:42PM -0500, Lee Revell wrote:
-> On Sun, 2006-03-19 at 10:34 +0800, Wu Fengguang wrote:
-> > plain text document attachment
-> > (readahead-insert-cond_resched-calls.patch)
-> > Since the VM_MAX_READAHEAD is greatly enlarged and the algorithm become more
-> > complex, it becomes necessary to insert some cond_resched() calls in the
-> > read-ahead path.
+On Sat, Mar 18, 2006 at 05:35:12PM -0800, Andrew Morton wrote:
+> Con Kolivas <kernel@kolivas.org> wrote:
+> >
+> > Wonder if this is related to rc6's oops?
+> >  gcc 4.0.3
 > > 
-> > If desktop users still feel audio jitters with the new read-ahead code,
-> > please try one of the following ways to get rid of it:
-> > 
-> > 1) compile kernel with CONFIG_PREEMPT_VOLUNTARY/CONFIG_PREEMPT
-> > 2) reduce the read-ahead request size by running
-> > 	blockdev --setra 256 /dev/hda # or whatever device you are using
+> >    CC [M]  arch/i386/kernel/cpu/cpufreq/speedstep-centrino.o
+> >  arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c: In function 
+> >  'centrino_target':
+> >  include/linux/bitmap.h:170: warning: 'online_policy_cpus.bits[0]' is used 
+> >  uninitialized in this function
+> >    CC [M]  arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.o
+> >  arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c: In function 
+> >  'acpi_cpufreq_target':
+> >  include/linux/bitmap.h:170: warning: 'online_policy_cpus.bits[0]' is used 
+> >  uninitialized in this function
 > 
-> Do you have any numbers on this (say, from Ingo's latency tracer)?  Have
-> you confirmed it's not a latency regression with the default settings?
+> Well conceivably.  That warning is a consequence of my quick hack to make
+> the ACPI tree compile on uniprocessor.
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm2/broken-out/git-acpi-up-fix.patch
+> 
+> My patch is, as the compiler points out, wrong.
+> 
+> I've sent that patch two or three times to the APCI maintainers, to the
+> ACPI mailing list and to the author of the original buggy patch.  The
+> response thus far has been dead silence.
+> 
+> IOW, despite my efforts, the ACPI tree has been in a non-compiling state on
+> uniprocessor since February 11.
+> 
+> This is pathetic.  People are trying to get things done here and ACPI is
+> getting in the way.  
 
-Sorry, I did the testing simply by playing mp3s while doing heavy I/O.
-The 128KB window size do not need these cond_resched()s, yet the
-1024KB window size do.  With this patch, I do not feel any latency
-issues with CONFIG_PREEMPT_NONE. 
 
-But I'm not sure it is the case for others, for there has been user
-reports of audio jitters(without further informations, hence still an
-open problem).
+Oops. Sorry. It is me who dropped the ball here. I somehow assumed that
+your original patch fixed the issue and didn't look at the actual code.
 
-Anyway, numbers will be collected soon ...
+Here is the patch against mm.
 
-Cheers,
-Wu
+Thanks,
+Venki
+
+
+
+Fix the UP build breakage in acpi-cpufreq and speedstep-centrino due to
+previous p-state software coordination patch.
+
+Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+
+diff -purN linux-2.6.15/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c linux-2.6.15-new/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
+--- linux-2.6.15/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c	2006-03-18 19:41:25.000000000 -0800
++++ linux-2.6.15-new/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c	2006-03-18 19:48:10.000000000 -0800
+@@ -225,9 +225,11 @@ acpi_cpufreq_target (
+ 	freqs.old = data->freq_table[cur_state].frequency;
+ 	freqs.new = data->freq_table[next_state].frequency;
+ 
+-#ifdef CONFIG_SMP
++#ifdef CONFIG_HOTPLUG_CPU
+ 	/* cpufreq holds the hotplug lock, so we are safe from here on */
+ 	cpus_and(online_policy_cpus, cpu_online_map, policy->cpus);
++#else
++	online_policy_cpus = policy->cpus;
+ #endif
+ 
+ 	for_each_cpu_mask(j, online_policy_cpus) {
+diff -purN linux-2.6.15/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c linux-2.6.15-new/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c
+--- linux-2.6.15/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c	2006-03-18 19:41:25.000000000 -0800
++++ linux-2.6.15-new/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c	2006-03-18 19:47:46.000000000 -0800
+@@ -652,9 +652,11 @@ static int centrino_target (struct cpufr
+ 		return -EINVAL;
+ 	}
+ 
+-#ifdef CONFIG_SMP
++#ifdef CONFIG_HOTPLUG_CPU
+ 	/* cpufreq holds the hotplug lock, so we are safe from here on */
+ 	cpus_and(online_policy_cpus, cpu_online_map, policy->cpus);
++#else
++	online_policy_cpus = policy->cpus;
+ #endif
+ 
+ 	saved_mask = current->cpus_allowed;

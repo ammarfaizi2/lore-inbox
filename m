@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWCSIzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWCSI6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751448AbWCSIzY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 03:55:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWCSIzY
+	id S1751466AbWCSI6r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 03:58:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751471AbWCSI6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 03:55:24 -0500
-Received: from smtpout.mac.com ([17.250.248.83]:6869 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751448AbWCSIzX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 03:55:23 -0500
-In-Reply-To: <441C943A.6090307@tremplin-utc.net>
-References: <20060318142827.419018000@localhost.localdomain> <20060318142830.607556000@localhost.localdomain> <20060318120728.63cbad54.akpm@osdl.org> <1142712975.17279.131.camel@localhost.localdomain> <20060318123102.7d8c048a.akpm@osdl.org> <9a8748490603181245v47b9f0a5v1ef252f91c30a7d2@mail.gmail.com> <441C943A.6090307@tremplin-utc.net>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
-Message-Id: <73D6FB08-EE04-4D7C-BD70-6C36CF5F3921@mac.com>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       tglx@linutronix.de, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       trini@kernel.crashing.org
-Content-Transfer-Encoding: 8BIT
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [patch 1/2] Validate itimer timeval from userspace
-Date: Sun, 19 Mar 2006 03:55:06 -0500
-To: Eric Piel <Eric.Piel@tremplin-utc.net>
-X-Mailer: Apple Mail (2.746.2)
+	Sun, 19 Mar 2006 03:58:22 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:14721 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751460AbWCSI6D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 03:58:03 -0500
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
+       Christoph Lameter <clameter@sgi.com>
+Date: Sun, 19 Mar 2006 00:58:01 -0800
+Message-Id: <20060319085801.18847.8908.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH] mm: hugetlb alloc_fresh_huge_page bogus node loop fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 18, 2006, at 18:14:02, Eric Piel wrote:
-> 18.03.2006 21:45, Jesper Juhl wrote/a écrit:
->> If the change only affects buggy apps (as Thomas says), then it seems
->> completely obvious to me that the change should be made.
->> 1. We'll be in compliance with the spec
->> 2. Buggy applications will actually be helped by this by getting a  
->> clear error instead of undefined behaviour silently hiding the  
->> fact that they are buggy.
->> 3. Correct applications are unaffected.
-> 4. Applications written for an OS which respects the spec (and  
-> using this particular rule) will finally work on Linux.
->
-> Well, I'd vote for just making Linux conform to the spec as soon as  
-> someone notices a non-compliance. However, as this rule doesn't  
-> play well with a stable ABI, a "trade-off" solution could consists in:
-> - Keeping the old behavior for now and generate a printk() each  
-> time this code path is entered;
-> - Add an entry to feature-removal-schedule.txt saying Linux will  
-> start conforming to the spec next year.
+From: Paul Jackson <pj@sgi.com>
 
-I think Eric brings up a good point.  Perhaps we should rename  
-feature-removal-schedule.txt to future-abi-changes.txt and start  
-including other kinds of predicted future ABI changes and  
-incompatibilities.  For example the sysfs class API changes which are  
-planned are not feature removals but API changes, and as such could  
-be usefully mentioned and tentatively assigned a date of  
-implementation.  Something like that wouldn't add a _lot_ of extra  
-work, but would help developers more carefully consider the extent of  
-all their ABI changes.
+Fix bogus node loop in hugetlb.c alloc_fresh_huge_page(),
+which was assuming that nodes are numbered contiguously
+from 0 to num_online_nodes().  Once the hotplug folks
+get this far, that will be false.
 
-Cheers,
-Kyle Moffett
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
+---
+
+ mm/hugetlb.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletion(-)
+
+--- 2.6.16-rc6-mm2.orig/mm/hugetlb.c	2006-03-18 17:29:46.645251774 -0800
++++ 2.6.16-rc6-mm2/mm/hugetlb.c	2006-03-18 21:43:05.101700297 -0800
+@@ -105,7 +105,9 @@ static int alloc_fresh_huge_page(void)
+ 	struct page *page;
+ 	page = alloc_pages_node(nid, GFP_HIGHUSER|__GFP_COMP|__GFP_NOWARN,
+ 					HUGETLB_PAGE_ORDER);
+-	nid = (nid + 1) % num_online_nodes();
++	nid = next_node(nid, node_online_map);
++	if (nid == MAX_NUMNODES)
++		nid = first_node(node_online_map);
+ 	if (page) {
+ 		page[1].lru.next = (void *)free_huge_page;	/* dtor */
+ 		spin_lock(&hugetlb_lock);
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

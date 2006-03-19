@@ -1,140 +1,262 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751543AbWCSS0i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751575AbWCSS3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751543AbWCSS0i (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 13:26:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751548AbWCSS0i
+	id S1751575AbWCSS3T (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 13:29:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751578AbWCSS3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 13:26:38 -0500
-Received: from orca.ele.uri.edu ([131.128.51.63]:12229 "EHLO orca.ele.uri.edu")
-	by vger.kernel.org with ESMTP id S1751527AbWCSS0h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 13:26:37 -0500
-Subject: Re: Question regarding to store file system metadata in database
-From: Ming Zhang <mingz@ele.uri.edu>
-Reply-To: mingz@ele.uri.edu
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: mikado4vn@gmail.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <4ae3c140603191011r7b68f4aale01238202656d122@mail.gmail.com>
-References: <4ae3c140603182048k55d06d87ufc0b9f0548574090@mail.gmail.com>
-	 <441CE71E.5090503@gmail.com>
-	 <4ae3c140603190948s4fcd135er370a15003a0143a8@mail.gmail.com>
-	 <1142791121.31358.21.camel@localhost.localdomain>
-	 <4ae3c140603191011r7b68f4aale01238202656d122@mail.gmail.com>
-Content-Type: text/plain
-Date: Sun, 19 Mar 2006 13:26:27 -0500
-Message-Id: <1142792787.31358.28.camel@localhost.localdomain>
+	Sun, 19 Mar 2006 13:29:19 -0500
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:35222 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1751569AbWCSS3T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 13:29:19 -0500
+Date: Sun, 19 Mar 2006 19:29:12 +0100
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: akpm@osdl.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] -mm: Small CFQ I/O sched optimization
+Message-ID: <20060319182912.GA28886@rhlx01.fht-esslingen.de>
+References: <20060315172422.GA25435@rhlx01.fht-esslingen.de> <20060315185240.GV3595@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.988
-X-Spam-Report: RCVD_IN_SORBS_DUL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060315185240.GV3595@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-no. i have no such statistics. also people always want it to be faster,
-so it is never enough.
+Hi,
 
-from another point of view, if such fs is used by a mail server, large #
-of file create/close/modify will be vital for it. 300/s is not enough
-for a busy mail server of course.
+[new patch below]
 
-database based file system will be useful for archiving. for heavy
-online use? not sure.
+On Wed, Mar 15, 2006 at 07:52:40PM +0100, Jens Axboe wrote:
+> On Wed, Mar 15 2006, Andreas Mohr wrote:
 
-also will a database based fs too be too complex while all benefits
-brought by db can be brought by add-on utilities? find and grep do not
-fit u bill?
-
-ming
-
-On Sun, 2006-03-19 at 13:11 -0500, Xin Zhao wrote:
-> Do you have any statistics on how many metadata accesses are required
-> for a heavy load file system?  I don't have on in hand, but
-> intuitively I think 300 per second should be enough. If storing
-> metadata in database will not hit the file system performance, plus
-> database allows flexible file searching, the database-based file
-> system might not be a bad idea. :)
+> > During some heavy testing on a single-HDD UP P3/700 my instrumentation showed
+> > that case 0 was the *only* thing occurring, no request wrapping ever inside
+> > this function.
+> > Is that expected behaviour??
 > 
-> Xin
-> 
-> On 3/19/06, Ming Zhang <mingz@ele.uri.edu> wrote:
-> > database can reside on a raw block device.
-> >
-> > but 300 metadata iops is not that fast. ;)
-> >
-> > ming
-> >
-> > On Sun, 2006-03-19 at 12:48 -0500, Xin Zhao wrote:
-> > > well, the database could reside on another file system. So the
-> > > database based file system could be a secondary file system but
-> > > provide more features and  better performance. I am not saying that
-> > > database-based file system must be the only filesystem on the system.
-> > >
-> > > On 3/19/06, Mikado <mikado4vn@gmail.com> wrote:
-> > > > -----BEGIN PGP SIGNED MESSAGE-----
-> > > > Hash: SHA1
-> > > >
-> > > > Where is that database located, on other filesystem or on database-based
-> > > > filesystem?
-> > > >
-> > > > Xin Zhao wrote:
-> > > > > I was wondering why only few file system uses database to store file
-> > > > > system metadata. Here, metadata primarily refers to directory entries.
-> > > > > For example, one can setup a database to store file pathname, its
-> > > > > inode number, and some extended attribution. File pathname can be used
-> > > > > as primary key. As such, we can achieve pathname to inode mapping as
-> > > > > well as many other features such as fast search and extended file
-> > > > > attribute management. In contrast, storing file system entries in
-> > > > > directory files may result in slow dentry search. I guess that's why
-> > > > > ReiserFS and some other file systems proposed to use B+ tree like
-> > > > > strucutre to manage file entries. But why not simple use database to
-> > > > > provide the same feature? DB has been heavily optimized to provide
-> > > > > fast search and should be good at managing metadata.
-> > > > >
-> > > > >  I guess one concern about this idea is  performance impact caused by
-> > > > > database system. I ran a test on a mysql database: I inserted about
-> > > > > 1.2 million such kind of records into an initially empty mysql
-> > > > > database. Average insertion rate is about 300 entries per second,
-> > > > > which is fast enough to handle normal file system burden, I think.  I
-> > > > > haven't try the query speed, but I believe it should be fast enough
-> > > > > too (maybe I am wrong, if so, please point that out.).
-> > > > >
-> > > > > Then I am a little curious why only few people use database to store
-> > > > > file system metadata, although I know WinFS plans to use database to
-> > > > > manage metadata. I guess one reason is that it is difficult for kernel
-> > > > > based file system driver to access database. But this could be
-> > > > > addressed by using efficient kernel/user communication mechanism.
-> > > > > Another reason could be the worry about database system. If database
-> > > > > system crashes, file system will stop functioning too. However, the
-> > > > > feature needed by file system is really a small part of database
-> > > > > system, A reduced database system should be sufficient to provide this
-> > > > > feature and be stable enough to support a file system.
-> > > > >
-> > > > > Can someone point out more issues that could become obstables to using
-> > > > > database to manage metadata for a file system?
-> > > > >
-> > > > > Many thanks!
-> > > > > Xin
-> > > > > -
-> > > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > > > the body of a message to majordomo@vger.kernel.org
-> > > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > > >
-> > > > -----BEGIN PGP SIGNATURE-----
-> > > > Version: GnuPG v1.4.2.1 (GNU/Linux)
-> > > > Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-> > > >
-> > > > iD8DBQFEHOceNWc9T2Wr2JcRAsKKAJ9t1fRZ1xczAaeruDUqTNeLMcGuiwCfeTNt
-> > > > 31pFUK79Q7BE1AptbmNqr9Q=
-> > > > =LbiF
-> > > > -----END PGP SIGNATURE-----
-> > > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >
-> >
+> Hmm that does sound a little strange - care to do the same
+> instrumentation for 'as' to see if this is just a 'cfq' anomaly?
 
+Indeed, this is CFQ-only, AS gets much less uniform data passed in.
+
+
+> > +#define CFQ_RQ1_WRAP	0x01 /* request 1 wraps */
+> > +#define CFQ_RQ2_WRAP	0x02 /* request 2 wraps */
+> 
+> Please put these near where they are used, it's a little confusing to
+> have to go look for them. They only make sense in cfq_choose_req().
+
+Done.
+
+> >   * Lifted from AS - choose which of crq1 and crq2 that is best served now.
+> > - * We choose the request that is closest to the head right now. Distance
+> > + * We choose the request that is closest to the head right now. Distances
+> >   * behind the head are penalized and only allowed to a certain extent.
+> 
+> I sort-of prefer 'distance' here, you may want to change that to an 'is'
+> though :-)
+
+Right, that's better.
+
+
+> > +     /* by doing switch() on the bit mask "wrap" we avoid having to
+> > +      * check two variables for all permutations: --> faster! */
+
+> Multiple line comments have /* and */ on a separate line.
+
+Oh, indeed, fixed.
+
+
+> Andrew will ask you to move that 'case' to be lined up with the
+> 'switch'.
+
+Done.
+
+Created new CFQ patch plus equivalent patch to AS (which additionally
+resolves the "shut up, gcc" part in a more elegant way as used in CFQ).
+Also now added a comment about the "both crqs wrapped" case.
+
+Thanks,
+
+Signed-off-by: Andreas Mohr <andi@lisas.de>
+
+
+--- linux-2.6.16-rc6-mm2/block/cfq-iosched.c.orig	2006-03-20 03:14:26.000000000 +0100
++++ linux-2.6.16-rc6-mm2/block/cfq-iosched.c	2006-03-20 00:00:24.000000000 +0100
+@@ -362,14 +362,16 @@
+ /*
+  * Lifted from AS - choose which of crq1 and crq2 that is best served now.
+  * We choose the request that is closest to the head right now. Distance
+- * behind the head are penalized and only allowed to a certain extent.
++ * behind the head is penalized and only allowed to a certain extent.
+  */
+ static struct cfq_rq *
+ cfq_choose_req(struct cfq_data *cfqd, struct cfq_rq *crq1, struct cfq_rq *crq2)
+ {
+ 	sector_t last, s1, s2, d1 = 0, d2 = 0;
+-	int r1_wrap = 0, r2_wrap = 0;	/* requests are behind the disk head */
+ 	unsigned long back_max;
++#define CFQ_RQ1_WRAP	0x01 /* request 1 wraps */
++#define CFQ_RQ2_WRAP	0x02 /* request 2 wraps */
++	unsigned wrap = 0; /* bit mask: requests behind the disk head? */
+ 
+ 	if (crq1 == NULL || crq1 == crq2)
+ 		return crq2;
+@@ -401,35 +403,47 @@
+ 	else if (s1 + back_max >= last)
+ 		d1 = (last - s1) * cfqd->cfq_back_penalty;
+ 	else
+-		r1_wrap = 1;
++		wrap |= CFQ_RQ1_WRAP;
+ 
+ 	if (s2 >= last)
+ 		d2 = s2 - last;
+ 	else if (s2 + back_max >= last)
+ 		d2 = (last - s2) * cfqd->cfq_back_penalty;
+ 	else
+-		r2_wrap = 1;
++		wrap |= CFQ_RQ2_WRAP;
+ 
+ 	/* Found required data */
+-	if (!r1_wrap && r2_wrap)
+-		return crq1;
+-	else if (!r2_wrap && r1_wrap)
+-		return crq2;
+-	else if (r1_wrap && r2_wrap) {
+-		/* both behind the head */
+-		if (s1 <= s2)
++
++	/*
++	 * By doing switch() on the bit mask "wrap" we avoid having to
++	 * check two variables for all permutations: --> faster!
++	 */
++	switch (wrap) {
++	case 0: /* common case for CFQ: crq1 and crq2 not wrapped */
++		if (d1 < d2)
+ 			return crq1;
+-		else
++		else if (d2 < d1)
+ 			return crq2;
+-	}
++		else {
++			if (s1 >= s2)
++				return crq1;
++			else
++				return crq2;
++		}
+ 
+-	/* Both requests in front of the head */
+-	if (d1 < d2)
++	case CFQ_RQ2_WRAP:
+ 		return crq1;
+-	else if (d2 < d1)
++	case CFQ_RQ1_WRAP:
+ 		return crq2;
+-	else {
+-		if (s1 >= s2)
++	case (CFQ_RQ1_WRAP|CFQ_RQ2_WRAP): /* both crqs wrapped */
++	default:
++		/*
++		 * Since both rqs are wrapped,
++		 * start with the one that's further behind head
++		 * (--> only *one* back seek required),
++		 * since back seek takes more time than forward.
++		 */
++		if (s1 <= s2)
+ 			return crq1;
+ 		else
+ 			return crq2;
+
+
+
+
+--- linux-2.6.16-rc6-mm2/block/as-iosched.c.orig	2006-03-20 03:14:21.000000000 +0100
++++ linux-2.6.16-rc6-mm2/block/as-iosched.c	2006-03-19 21:31:28.000000000 +0100
+@@ -460,8 +460,11 @@
+ as_choose_req(struct as_data *ad, struct as_rq *arq1, struct as_rq *arq2)
+ {
+ 	int data_dir;
+-	sector_t last, s1, s2, d1, d2;
+-	int r1_wrap=0, r2_wrap=0;	/* requests are behind the disk head */
++	sector_t last, s1, s2, d1 = 0, d2 = 0;
++#define AS_RQ1_WRAP   0x01 /* request 1 wraps */
++#define AS_RQ2_WRAP   0x02 /* request 2 wraps */
++	unsigned wrap = 0; /* bit mask: requests behind the disk head? */
++
+ 	const sector_t maxback = MAXBACK;
+ 
+ 	if (arq1 == NULL || arq1 == arq2)
+@@ -486,40 +489,48 @@
+ 		d1 = s1 - last;
+ 	else if (s1+maxback >= last)
+ 		d1 = (last - s1)*BACK_PENALTY;
+-	else {
+-		r1_wrap = 1;
+-		d1 = 0; /* shut up, gcc */
+-	}
++	else
++		wrap |= AS_RQ1_WRAP;
+ 
+ 	if (s2 >= last)
+ 		d2 = s2 - last;
+ 	else if (s2+maxback >= last)
+ 		d2 = (last - s2)*BACK_PENALTY;
+-	else {
+-		r2_wrap = 1;
+-		d2 = 0;
+-	}
++	else
++		wrap |= AS_RQ2_WRAP;
+ 
+ 	/* Found required data */
+-	if (!r1_wrap && r2_wrap)
+-		return arq1;
+-	else if (!r2_wrap && r1_wrap)
+-		return arq2;
+-	else if (r1_wrap && r2_wrap) {
+-		/* both behind the head */
+-		if (s1 <= s2)
++
++	/*
++	 * By doing switch() on the bit mask "wrap" we avoid having to
++	 * check two variables for all permutations: --> faster!
++	 */
++	switch (wrap) {
++	case 0: /* arq1 and arq2 not wrapped */
++		if (d1 < d2)
+ 			return arq1;
+-		else
++		else if (d2 < d1)
+ 			return arq2;
+-	}
++		else {
++			if (s1 >= s2)
++				return arq1;
++			else
++				return arq2;
++		}
+ 
+-	/* Both requests in front of the head */
+-	if (d1 < d2)
++	case AS_RQ2_WRAP:
+ 		return arq1;
+-	else if (d2 < d1)
++	case AS_RQ1_WRAP:
+ 		return arq2;
+-	else {
+-		if (s1 >= s2)
++	case (AS_RQ1_WRAP|AS_RQ2_WRAP): /* both arqs wrapped */
++	default:
++		/*
++		 * Since both rqs are wrapped,
++		 * start with the one that's further behind head
++		 * (--> only *one* back seek required),
++		 * since back seek takes more time than forward.
++		 */
++		if (s1 <= s2)
+ 			return arq1;
+ 		else
+ 			return arq2;

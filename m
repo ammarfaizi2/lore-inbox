@@ -1,94 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWCSBFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWCSBHl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751162AbWCSBFh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 20:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbWCSBFg
+	id S1751187AbWCSBHl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 20:07:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWCSBHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 20:05:36 -0500
-Received: from orfeus.profiwh.com ([82.100.20.117]:41485 "EHLO
-	orfeus.profiwh.com") by vger.kernel.org with ESMTP id S1751162AbWCSBFg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 20:05:36 -0500
-Message-ID: <441CAE6F.8020401@liberouter.org>
-Date: Sun, 19 Mar 2006 02:05:28 +0059
-From: Jiri Slaby <slaby@liberouter.org>
-User-Agent: Thunderbird 1.5 (X11/20060210)
+	Sat, 18 Mar 2006 20:07:41 -0500
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:46529 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751187AbWCSBHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 20:07:40 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: /dev/stderr gets unlinked 8]
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Denis Vlasenko <vda@ilport.com.ua>, Andreas Schwab <schwab@suse.de>,
+       Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org,
+       christiand59@web.de
+Reply-To: 7eggert@gmx.de
+Date: Sun, 19 Mar 2006 02:07:19 +0100
+References: <5QeND-31x-7@gated-at.bofh.it> <5QE55-6Td-9@gated-at.bofh.it> <5R778-8fs-29@gated-at.bofh.it> <5RgN2-5fi-3@gated-at.bofh.it> <5RohF-7Oe-3@gated-at.bofh.it> <5Rpnz-ZJ-39@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Ian Kent <raven@themaw.net>, Jiri Slaby <xslaby@fi.muni.cz>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: BUG: atomic counter underflow [Was: 2.6.16-rc6-mm1]
-References: <E1FIYLc-00080b-00@decibel.fi.muni.cz> <Pine.LNX.4.64.0603131330210.21830@eagle.themaw.net> <441AF62A.9090203@gmail.com>
-In-Reply-To: <441AF62A.9090203@gmail.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-SpamReason: {}-{0,00}-{0,00}-{0,00
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1FKmO8-000303-Ve@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
+> On Fri, 17 Mar 2006, Jan Engelhardt wrote:
 
-Jiri Slaby napsal(a):
-> Ian Kent napsal(a):
->>> On Sun, 12 Mar 2006, Jiri Slaby wrote:
->>>
->>>> Andrew Morton wrote:
->>>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/
->>>> [snip]
->>>>> +remove-redundant-check-from-autofs4_put_super.patch
->>>>> +autofs4-follow_link-missing-funtionality.patch
->>>>>
->>>>> Update autofs4 patches in -mm.
->>>> Hello, 
->>>>
->>>> I caught this during ftp browsing autofs-bind-mounted directories. I don't know
->>>> circumstancies and if the patches above are source of problem. I also don't know
->>>> if -rc6-mm1 is the first one.
->>> btw what do you mean autofs-bind-mounted ?
-> Hmm, I am unable to reproduce it :(.
-Yup, I've got it:
-while /bin/true; do cd /home/ftp/misc/.ftpaccess; done
-[nonexistent dir]
-kill it
-and
+>> If not, you could write an LSM that prohibits unlinking /dev/stderr.
 
-Mar 19 02:03:08 localhost automount[25680]: failed to mount
-/home/ftp/misc/.ftpaccess
-Mar 19 02:03:08 localhost automount[25682]: failed to mount
-/home/ftp/misc/.ftpaccess
-Mar 19 02:03:08 localhost kernel: BUG: atomic counter underflow at:
-Mar 19 02:03:08 localhost kernel:  [<c0104736>] show_trace+0x13/0x15
-Mar 19 02:03:08 localhost kernel:  [<c0104873>] dump_stack+0x1e/0x20
-Mar 19 02:03:08 localhost kernel:  [<c01d6c97>] autofs4_wait+0x751/0x93a
-Mar 19 02:03:08 localhost kernel:  [<c01d543b>] try_to_fill_dentry+0xca/0x11c
-Mar 19 02:03:08 localhost kernel:  [<c01d59b3>] autofs4_revalidate+0xe1/0x148
-Mar 19 02:03:08 localhost kernel:  [<c0171338>] do_lookup+0x40/0x157
-Mar 19 02:03:08 localhost kernel:  [<c0172ec4>] __link_path_walk+0x804/0xe8c
-Mar 19 02:03:08 localhost kernel:  [<c017359c>] link_path_walk+0x50/0xe8
-Mar 19 02:03:08 localhost kernel:  [<c01738b7>] do_path_lookup+0x10f/0x26d
-Mar 19 02:03:08 localhost kernel:  [<c017429c>] __user_walk_fd+0x33/0x50
-Mar 19 02:03:08 localhost kernel:  [<c0174412>] __user_walk+0x17/0x19
-Mar 19 02:03:08 localhost automount[25683]: failed to mount
-/home/ftp/misc/.ftpaccess
-Mar 19 02:03:08 localhost kernel:  [<c0162fb3>] sys_chdir+0x1a/0x77
-Mar 19 02:03:08 localhost kernel:  [<c0103127>] syscall_call+0x7/0xb
-Mar 19 02:03:08 localhost automount[25684]: failed to mount
-/home/ftp/misc/.ftpaccess
+> That symlink isn't even used -- at least by any sane program!
+> I don't have a clue why these things were created and what they
+> were for. The objects stdin, stdout, and stderr, are 'C' runtime
+> library pointers to opaque types associated with the file descriptors,
+> STDIN_FILENO, STDOUT_FILENO, and STDERR_FILENO. The presence of
+> these bogus sym-links in /dev represent some kind of obfuscation
+> and have no value except to confuse (or identify a RedHat distribution).
 
-Now, I am going to test, if this dissapeared after your patch.
-
-regards,
-- --
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFEHK5vMsxVwznUen4RAnFzAJ40HZllS1ypu5aH3LOLlg3AvZlhYwCfQc72
-wL6CuAzQxu+IdR6+Da68vR8=
-=HvFQ
------END PGP SIGNATURE-----
+Think about portable shell scripts. I remember /dev/std* longer than /proc.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

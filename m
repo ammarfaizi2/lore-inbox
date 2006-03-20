@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWCTH6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751603AbWCTIBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932198AbWCTH6M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 02:58:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWCTH6M
+	id S1751603AbWCTIBm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 03:01:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751600AbWCTIBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 02:58:12 -0500
-Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:43274 "EHLO
-	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
-	id S932198AbWCTH6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 02:58:11 -0500
-From: "Matt LaPlante" <laplam@rpi.edu>
-To: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: 2.6.16: Two AES Options
-Date: Mon, 20 Mar 2006 02:57:38 -0500
-Message-ID: <000001c64bf3$f5659850$fe04a8c0@cyberdogt42>
+	Mon, 20 Mar 2006 03:01:42 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:15573 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750733AbWCTIBm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 03:01:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=D+CxX/0RC8oY0dCKdHuhuwOKkvssjMRxWcDBooJLLCwU3OHGV7vdO4gQ89guwejNoZGu1rT9qZ2D1lFxfhEKcsgNYIuf/wdbrpa9YmE9UQRQpzNl8v/ypUerX9TZNVZJK0RcfCUWQWSaTnrSnE8kPa4C0XPvBbEDRsNVO4fhw+I=
+Message-ID: <9a8748490603200001m6fcfda52q9be3b8839d78fcd7@mail.gmail.com>
+Date: Mon, 20 Mar 2006 09:01:41 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH] fix potential null pointer deref in quota
+Cc: linux-kernel@vger.kernel.org, jack@suse.cz
+In-Reply-To: <20060319232327.005c91e4.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AcZL8/Uaba5OpUHgS9mijIgEEL2bHQ==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-X-Spam-Processed: mail.cyberdogtech.com, Mon, 20 Mar 2006 02:57:48 -0500
-	(not processed: message from trusted or authenticated source)
-X-Return-Path: laplam@rpi.edu
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-MDAV-Processed: mail.cyberdogtech.com, Mon, 20 Mar 2006 02:57:49 -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200603182308.05050.jesper.juhl@gmail.com>
+	 <20060319232327.005c91e4.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
- I just downloaded the new 2.6.16 (very exciting!), and noticed something
-odd in my menuconfig.  I was updating from a 2.4.15.4 config, when I noticed
-that under cryptographic options I now have two AES entries...  I double
-checked, and this occurs whether I use make oldconfig or make menuconfig on
-the .15 file:
+On 3/20/06, Andrew Morton <akpm@osdl.org> wrote:
+> Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> >
+> > The coverity checker noticed that we may pass a NULL super_block to
+> >  do_quotactl() that dereferences it.
+> >  Dereferencing NULL pointers is bad medicine, better check and fail
+> >  gracefully.
+> >
+[snip]
+>
+> I'd have thought that check_quotactl_valid() would be the appropriate place
+> for this check.  Jan, can you please sort out what we need to do here?
+>
 
-x x --- Cryptographic API
-x x
-...
-  x x < >   AES cipher algorithms
-x x
-  x x < >   AES cipher algorithms (i586)
-x x
-...
-  x x     Hardware crypto devices  --->       
+You may well be right. I openly admit that this is the first time I've
+ever stuck my head in the quota code. I picked the location I did
+simply because I thought making the function resistant to being passed
+invalid data was the sane thing to do, but there may well be a more
+logical place to fix it.
 
-Both entries have identical descriptions, yet one has the symbol
-CRYPTO_AES_586 and (the new one) is just CRYPTO_AES.  I have no way of
-knowing if this is intentional or a bug, but if it's the former it would
-seem it deserves a different help text so folks like me know which to
-choose.
-
--
-Matt LaPlante
-
-
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

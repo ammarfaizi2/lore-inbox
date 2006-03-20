@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWCTNMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWCTNNr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751106AbWCTNMk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 08:12:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWCTNMk
+	id S932175AbWCTNNr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 08:13:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWCTNNr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 08:12:40 -0500
-Received: from fachschaft.cup.uni-muenchen.de ([141.84.250.61]:60838 "EHLO
-	fachschaft.cup.uni-muenchen.de") by vger.kernel.org with ESMTP
-	id S1751124AbWCTNMj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 08:12:39 -0500
-Date: Mon, 20 Mar 2006 14:08:34 +0100 (CET)
-From: Oliver Neukum <neukum@fachschaft.cup.uni-muenchen.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]micro optimization of kcalloc
-Message-ID: <Pine.LNX.4.58.0603201404550.16767@fachschaft.cup.uni-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Mar 2006 08:13:47 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:45959 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932175AbWCTNNq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 08:13:46 -0500
+Subject: Re: DoS with POSIX file locks?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: matthew@wil.cx, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <E1FLJsF-0008A7-00@dorka.pomaz.szeredi.hu>
+References: <E1FLIlF-0007zR-00@dorka.pomaz.szeredi.hu>
+	 <20060320121107.GE8980@parisc-linux.org>
+	 <E1FLJLs-00085u-00@dorka.pomaz.szeredi.hu>
+	 <20060320123950.GF8980@parisc-linux.org>
+	 <E1FLJsF-0008A7-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Date: Mon, 20 Mar 2006 14:13:43 +0100
+Message-Id: <1142860423.3114.41.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2006-03-20 at 13:52 +0100, Miklos Szeredi wrote:
+> > Right.  Um.  I took it out back in March 2003 after enough people
+> > convinced me it wasn't worth trying to account for all the memory
+> > processes use, and the userbeans project would take care of it anyway.
+> > Haha.
+> > 
+> > It's hard to fix the accounting.  You have to deal with one thread
+> > allocating the lock, and then a different thread freeing it.  We never
+> > actually accounted for posix locks (which are the ones we really needed
+> > to!) and on occasion had current->locks go negative, with all kinds of
+> > associated badness.
+> 
+> Things look fairly straightforward if the accounting is done in
+> files_struct instead of task_struct. 
 
-this transforms the limit check of kcalloc() so that size becomes the
-divisor. This saves some kernel code, because size is always a constant,
-thus turning the check into a simple comparison saving a full division.
-This saved 18K in allyesconfig's kernel size.
+that's the wrong place; you can send fd's over unix sockets to other
+processes....
 
-	Regards
-		Oliver
 
-Signed-off-by: Oliver Neukum <oliver@neukum.name>
 
---- a/include/linux/slab.h	2006-03-11 23:12:55.000000000 +0100
-+++ b/include/linux/slab.h	2006-03-20 09:00:41.000000000 +0100
-@@ -118,7 +118,7 @@
-  */
- static inline void *kcalloc(size_t n, size_t size, gfp_t flags)
- {
--	if (n != 0 && size > INT_MAX / n)
-+	if (unlikely(n > INT_MAX / size ))
- 		return NULL;
- 	return kzalloc(n * size, flags);
- }
+the better solution is to account per user struct, and keep a pointer
+(and a refcount) of that user struct inside your lock data somehow.
+
+

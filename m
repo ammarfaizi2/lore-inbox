@@ -1,84 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWCTLpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWCTLqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbWCTLpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 06:45:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWCTLpJ
+	id S1750782AbWCTLqB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 06:46:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbWCTLqB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 06:45:09 -0500
-Received: from mail.axxeo.de ([82.100.226.146]:34688 "EHLO mail.axxeo.de")
-	by vger.kernel.org with ESMTP id S1750785AbWCTLpH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 06:45:07 -0500
-From: Ingo Oeser <netdev@axxeo.de>
-Organization: Axxeo GmbH
-To: Chris Wright <chrisw@osdl.org>
-Subject: Re: [PATCH] scm: fold __scm_send() into scm_send()
-Date: Mon, 20 Mar 2006 12:44:58 +0100
-User-Agent: KMail/1.7.2
-Cc: Ingo Oeser <ioe-lkml@rameria.de>, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-References: <200603130139.k2D1dpSQ021279@shell0.pdx.osdl.net> <200603132105.32794.ioe-lkml@rameria.de> <20060313173103.7681b49d.akpm@osdl.org>
-In-Reply-To: <20060313173103.7681b49d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603201244.58507.netdev@axxeo.de>
+	Mon, 20 Mar 2006 06:46:01 -0500
+Received: from mxout5.netvision.net.il ([194.90.9.29]:56113 "EHLO
+	mxout5.netvision.net.il") by vger.kernel.org with ESMTP
+	id S1750782AbWCTLqA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 06:46:00 -0500
+Date: Mon, 20 Mar 2006 13:45:59 +0300
+From: Maxim Kozover <maximkoz@netvision.net.il>
+Subject: Re: Re: Re[8]: problems with scsi_transport_fc and qla2xxx
+In-reply-to: <20060313231903.GK11755@andrew-vasquezs-powerbook-g4-15.local>
+To: Andrew Vasquez <andrew.vasquez@qlogic.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       Michael Reed <mdr@sgi.com>, James.Smart@Emulex.Com
+Reply-to: Maxim Kozover <maximkoz@netvision.net.il>
+Message-id: <1375487327.20060320134559@netvision.net.il>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Priority: 3 (Normal)
+References: <1229893529.20060307000953@netvision.net.il>
+ <20060306232831.GS6278@andrew-vasquezs-powerbook-g4-15.local>
+ <1219491790.20060307124035@netvision.net.il>
+ <20060307172227.GE6275@andrew-vasquezs-powerbook-g4-15.local>
+ <1343850424.20060307231141@netvision.net.il>
+ <20060308080050.GF9956@andrew-vasquezs-powerbook-g4-15.local>
+ <20060308154341.GA1779@andrew-vasquezs-powerbook-g4-15.local>
+ <1502511597.20060308213247@netvision.net.il>
+ <20060310231344.GB641@andrew-vasquezs-powerbook-g4-15.local>
+ <1699632492.20060312001014@netvision.net.il>
+ <20060313231903.GK11755@andrew-vasquezs-powerbook-g4-15.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chris,
+Hi Andrew!
+Unfortunately I see that scan-work patch is not included in
+2.6.16 and the usual lock appears:
+#001:             [ffff8100708a8080] {scsi_host_alloc}
+.. held by:         scsi_wq_4: 3912 [ffff810071edf870, 110]
+... acquired at:               scsi_scan_target+0x51/0x87 [scsi_mod]
 
-Andrew Morton wrote:
-> Ingo Oeser <ioe-lkml@rameria.de> wrote:
-> >
-> >  -int scm_send(struct socket *sock, struct msghdr *msg, struct scm_cookie *scm)
-> >  -{
-> >  -	struct task_struct *p = current;
-> >  -	scm->creds = (struct ucred) {
-> >  -		.uid = p->uid,
-> >  -		.gid = p->gid,
-> >  -		.pid = p->tgid
-> >  -	};
-> >  -	scm->fp = NULL;
-> >  -	scm->sid = security_sk_sid(sock->sk, NULL, 0);
-> >  -	scm->seq = 0;
-> >  -	if (msg->msg_controllen <= 0)
-> >  -		return 0;
-> >  -	return __scm_send(sock, msg, scm);
-> >  -}
-> 
-> It's worth noting that scm_send() will call security_sk_sid() even if
-> (msg->msg_controllen <= 0).
+Applying the patch you sent solves the problem, i.e. disks appear again after
+22 sec timeout (why?).
 
-Chris, do you know if this is needed in this case?
+Thanks,
 
-> If that test is likely to be true with any frequency then perhaps we can
-> optimise things...
+Maxim.
 
-That test seems to be the original intention for the splitup. 
+Tuesday, March 14, 2006, 2:19:03 AM, you wrote:
 
-The security modules just put their hooks here. Maybe we can
-fold these hooks into __scm_send() and have the old
-splitup again to get the old code paths back.
+AV> diff --git a/drivers/scsi/scsi_transport_fc.c
+AV> b/drivers/scsi/scsi_transport_fc.c
+AV> index 929032e..3d09920 100644
+AV> --- a/drivers/scsi/scsi_transport_fc.c
+AV> +++ b/drivers/scsi/scsi_transport_fc.c
+AV> @@ -1649,6 +1649,8 @@ fc_remote_port_delete(struct fc_rport  *
+AV>                 return;
+AV>         }
+AV>  
+AV> +       /* flush any scan work */ /* which can sleep */
+AV> +       scsi_flush_work(rport_to_shost(rport));
+AV>         scsi_target_block(&rport->dev);
+AV>  
+AV>         /* cap the length the devices can be blocked until they are deleted */
 
-It seems that the credential copy in af_unix.c 
 
-memcpy(UNIXCREDS(skb), &siocb->scm->creds, sizeof(struct ucred));
-if (siocb->scm->fp)
-            unix_attach_fds(siocb->scm, skb);
-
-doesn't depend on the "msg_controllen <= 0" test. If we can introduce this 
-dependency there, we can put credential setup into __scm_send().
-
-I would suggest we fold these two lines into a function and decide this later.
-
-Chris, would this suffice?
-
-Regards
-
-Ingo Oeser
-
-BTW: ioe-lkml@rameria.de is simply netdev@axxeo.de at work :-)

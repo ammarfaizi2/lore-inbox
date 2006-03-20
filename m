@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965596AbWCTPxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965047AbWCTPxp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965596AbWCTPxk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:53:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965593AbWCTPxD
+	id S965047AbWCTPxp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:53:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965053AbWCTPxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:53:03 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:49870 "EHLO
+	Mon, 20 Mar 2006 10:53:40 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:54478 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965233AbWCTPwm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:52:42 -0500
+	id S965594AbWCTPxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:53:06 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
 Cc: linux-dvb-maintainer@linuxtv.org,
        Hartmut Hackmann <hartmut.hackmann@t-online.de>,
        Hartmut Hackmann <hartmut.hackmann@t-online.de>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 123/141] V4L/DVB (3395): Fixed Pinnacle 300i DVB-T support
-Date: Mon, 20 Mar 2006 12:08:57 -0300
-Message-id: <20060320150857.PS581454000123@infradead.org>
+Subject: [PATCH 057/141] V4L/DVB (3303): TDA8290 update
+Date: Mon, 20 Mar 2006 12:08:46 -0300
+Message-id: <20060320150846.PS484551000057@infradead.org>
 In-Reply-To: <20060320150819.PS760228000000@infradead.org>
 References: <20060320150819.PS760228000000@infradead.org>
 Mime-Version: 1.0
@@ -30,108 +30,71 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Hartmut Hackmann <hartmut.hackmann@t-online.de>
-Date: 1141398566 -0300
+Date: 1139302149 -0200
 
-- fixed tda9886 port 2 setting
-- turned remote control receiver off via saa7134 GPIO to avoid i2c hangs
-- modified tda9886 client calls to direct i2c access to allow proper return
-  to analog mode
-- allow mode change to V4L2_TUNER_DIGITAL_TV in tuner VIDIOC_S_FREQUENCY
-  client call
+This patch
+- works around a bug in the I2C bridge that makes the initialization
+  of the TDA10046 fail on recent LifeView cards
+- puts the AGC output to tristate in sleep mode. This is necessary for
+  recent hybrid cards that switch the AGC via tristateing.
 
-Signed-off-by: Hartmut Hackmann <hartmut.hackmann@t-online.de>
+Signed-off-by: Hartmut Hackmann<hartmut.hackmann@t-online.de>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
-diff --git a/drivers/media/video/saa7134/saa7134-cards.c b/drivers/media/video/saa7134/saa7134-cards.c
-diff --git a/drivers/media/video/saa7134/saa7134-cards.c b/drivers/media/video/saa7134/saa7134-cards.c
-index ccf7231..722ebff 100644
---- a/drivers/media/video/saa7134/saa7134-cards.c
-+++ b/drivers/media/video/saa7134/saa7134-cards.c
-@@ -1003,7 +1003,7 @@ struct saa7134_board saa7134_boards[] = 
- 		.radio_type     = UNSET,
- 		.tuner_addr	= ADDR_UNSET,
- 		.radio_addr	= ADDR_UNSET,
--		.tda9887_conf   = TDA9887_PRESENT | TDA9887_INTERCARRIER | TDA9887_PORT2_ACTIVE,
-+		.tda9887_conf   = TDA9887_PRESENT | TDA9887_INTERCARRIER | TDA9887_PORT2_INACTIVE,
- 		.inputs         = {{
- 			.name = name_tv,
- 			.vmux = 3,
-@@ -1692,7 +1692,7 @@ struct saa7134_board saa7134_boards[] = 
- 		.radio_type     = UNSET,
- 		.tuner_addr	= ADDR_UNSET,
- 		.radio_addr	= ADDR_UNSET,
--		.tda9887_conf   = TDA9887_PRESENT | TDA9887_INTERCARRIER | TDA9887_PORT2_ACTIVE,
-+		.tda9887_conf   = TDA9887_PRESENT | TDA9887_INTERCARRIER | TDA9887_PORT2_INACTIVE,
- 		.mpeg           = SAA7134_MPEG_DVB,
- 		.inputs         = {{
- 			.name = name_tv,
-@@ -3375,6 +3375,11 @@ int saa7134_board_init1(struct saa7134_d
- 		/* power-up tuner chip */
- 		saa_andorl(SAA7134_GPIO_GPMODE0 >> 2,   0x00040000, 0x00040000);
- 		saa_andorl(SAA7134_GPIO_GPSTATUS0 >> 2, 0x00040000, 0x00000000);
-+	case SAA7134_BOARD_PINNACLE_300I_DVBT_PAL:
-+		/* this turns the remote control chip off to work around a bug in it */
-+		saa_writeb(SAA7134_GPIO_GPMODE1, 0x80);
-+		saa_writeb(SAA7134_GPIO_GPSTATUS1, 0x80);
-+		break;
- 	case SAA7134_BOARD_MONSTERTV_MOBILE:
- 		/* power-up tuner chip */
- 		saa_andorl(SAA7134_GPIO_GPMODE0 >> 2,   0x00040000, 0x00040000);
-diff --git a/drivers/media/video/saa7134/saa7134-dvb.c b/drivers/media/video/saa7134/saa7134-dvb.c
-diff --git a/drivers/media/video/saa7134/saa7134-dvb.c b/drivers/media/video/saa7134/saa7134-dvb.c
-index 7577962..5969481 100644
---- a/drivers/media/video/saa7134/saa7134-dvb.c
-+++ b/drivers/media/video/saa7134/saa7134-dvb.c
-@@ -110,6 +110,7 @@ static int mt352_pinnacle_init(struct dv
- 	mt352_write(fe, fsm_ctl_cfg,    sizeof(fsm_ctl_cfg));
- 	mt352_write(fe, scan_ctl_cfg,   sizeof(scan_ctl_cfg));
- 	mt352_write(fe, irq_cfg,        sizeof(irq_cfg));
-+
- 	return 0;
+diff --git a/drivers/media/video/tda8290.c b/drivers/media/video/tda8290.c
+diff --git a/drivers/media/video/tda8290.c b/drivers/media/video/tda8290.c
+index 7b4fb28..2b954b3 100644
+--- a/drivers/media/video/tda8290.c
++++ b/drivers/media/video/tda8290.c
+@@ -281,7 +281,7 @@ static void tda827xa_agcf(struct i2c_cli
+ static void tda8290_i2c_bridge(struct i2c_client *c, int close)
+ {
+ 	unsigned char  enable[2] = { 0x21, 0xC0 };
+-	unsigned char disable[2] = { 0x21, 0x80 };
++	unsigned char disable[2] = { 0x21, 0x00 };
+ 	unsigned char *msg;
+ 	if(close) {
+ 		msg = enable;
+@@ -302,6 +302,7 @@ static int tda8290_tune(struct i2c_clien
+ 	unsigned char soft_reset[]  = { 0x00, 0x00 };
+ 	unsigned char easy_mode[]   = { 0x01, t->tda8290_easy_mode };
+ 	unsigned char expert_mode[] = { 0x01, 0x80 };
++	unsigned char agc_out_on[]  = { 0x02, 0x00 };
+ 	unsigned char gainset_off[] = { 0x28, 0x14 };
+ 	unsigned char if_agc_spd[]  = { 0x0f, 0x88 };
+ 	unsigned char adc_head_6[]  = { 0x05, 0x04 };
+@@ -320,6 +321,7 @@ static int tda8290_tune(struct i2c_clien
+ 		      pll_stat;
+ 
+ 	i2c_master_send(c, easy_mode, 2);
++	i2c_master_send(c, agc_out_on, 2);
+ 	i2c_master_send(c, soft_reset, 2);
+ 	msleep(1);
+ 
+@@ -470,6 +472,7 @@ static void standby(struct i2c_client *c
+ 	struct tuner *t = i2c_get_clientdata(c);
+ 	unsigned char cb1[] = { 0x30, 0xD0 };
+ 	unsigned char tda8290_standby[] = { 0x00, 0x02 };
++	unsigned char tda8290_agc_tri[] = { 0x02, 0x20 };
+ 	struct i2c_msg msg = {.addr = t->tda827x_addr, .flags=0, .buf=cb1, .len = 2};
+ 
+ 	tda8290_i2c_bridge(c, 1);
+@@ -477,6 +480,7 @@ static void standby(struct i2c_client *c
+ 		cb1[1] = 0x90;
+ 	i2c_transfer(c->adapter, &msg, 1);
+ 	tda8290_i2c_bridge(c, 0);
++	i2c_master_send(c, tda8290_agc_tri, 2);
+ 	i2c_master_send(c, tda8290_standby, 2);
  }
  
-@@ -135,8 +136,10 @@ static int mt352_pinnacle_pll_set(struct
- 				  struct dvb_frontend_parameters* params,
- 				  u8* pllbuf)
- {
--	static int on  = TDA9887_PRESENT | TDA9887_PORT2_INACTIVE;
--	static int off = TDA9887_PRESENT | TDA9887_PORT2_ACTIVE;
-+	u8 off[] = { 0x00, 0xf1};
-+	u8 on[]  = { 0x00, 0x71};
-+	struct i2c_msg msg = {.addr=0x43, .flags=0, .buf=off, .len = sizeof(off)};
-+
- 	struct saa7134_dev *dev = fe->dvb->priv;
- 	struct v4l2_frequency f;
+@@ -565,7 +569,7 @@ int tda8290_init(struct i2c_client *c)
+ 		strlcpy(c->name, "tda8290+75a", sizeof(c->name));
+ 		t->tda827x_ver = 2;
+ 	}
+-	tuner_info("tuner: type set to %s\n", c->name);
++	tuner_info("type set to %s\n", c->name);
  
-@@ -144,9 +147,10 @@ static int mt352_pinnacle_pll_set(struct
- 	f.tuner     = 0;
- 	f.type      = V4L2_TUNER_DIGITAL_TV;
- 	f.frequency = params->frequency / 1000 * 16 / 1000;
--	saa7134_i2c_call_clients(dev,TDA9887_SET_CONFIG,&on);
-+	i2c_transfer(&dev->i2c_adap, &msg, 1);
- 	saa7134_i2c_call_clients(dev,VIDIOC_S_FREQUENCY,&f);
--	saa7134_i2c_call_clients(dev,TDA9887_SET_CONFIG,&off);
-+	msg.buf = on;
-+	i2c_transfer(&dev->i2c_adap, &msg, 1);
- 
- 	pinnacle_antenna_pwr(dev, antenna_pwr);
- 
-diff --git a/drivers/media/video/tuner-core.c b/drivers/media/video/tuner-core.c
-diff --git a/drivers/media/video/tuner-core.c b/drivers/media/video/tuner-core.c
-index 3964244..32e1849 100644
---- a/drivers/media/video/tuner-core.c
-+++ b/drivers/media/video/tuner-core.c
-@@ -713,8 +713,9 @@ static int tuner_command(struct i2c_clie
- 			struct v4l2_frequency *f = arg;
- 
- 			switch_v4l2();
--			if (V4L2_TUNER_RADIO == f->type &&
--			    V4L2_TUNER_RADIO != t->mode) {
-+			if ((V4L2_TUNER_RADIO == f->type && V4L2_TUNER_RADIO != t->mode)
-+				|| (V4L2_TUNER_DIGITAL_TV == f->type
-+					&& V4L2_TUNER_DIGITAL_TV != t->mode)) {
- 				if (set_mode (client, t, f->type, "VIDIOC_S_FREQUENCY")
- 					    == EINVAL)
- 					return 0;
+ 	t->set_tv_freq    = set_tv_freq;
+ 	t->set_radio_freq = set_radio_freq;
 

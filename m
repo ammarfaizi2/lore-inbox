@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWCTKPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWCTKVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750788AbWCTKPO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 05:15:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWCTKPO
+	id S1750746AbWCTKVz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 05:21:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWCTKVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 05:15:14 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:34465 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750788AbWCTKPN (ORCPT
+	Mon, 20 Mar 2006 05:21:54 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:36447 "EHLO mtlexch01.mtl.com")
+	by vger.kernel.org with ESMTP id S1750746AbWCTKVx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 05:15:13 -0500
-Date: Mon, 20 Mar 2006 11:13:07 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] latency-tracing-v2.6.16
-Message-ID: <20060320101307.GA15477@elte.hu>
+	Mon, 20 Mar 2006 05:21:53 -0500
+Date: Mon, 20 Mar 2006 12:22:34 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: rick.jones2@hp.com, netdev@vger.kernel.org, rdreier@cisco.com,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: TSO and IPoIB performance degradation
+Message-ID: <20060320102234.GV29929@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <4410C671.2050300@hp.com> <20060309.232301.77550306.davem@davemloft.net> <20060320090629.GA11352@mellanox.co.il> <20060320.015500.72136710.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060320.015500.72136710.davem@davemloft.net>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-OriginalArrivalTime: 20 Mar 2006 10:24:30.0531 (UTC) FILETIME=[794F0930:01C64C08]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i've released the latency-tracer patch for v2.6.16:
+Quoting r. David S. Miller <davem@davemloft.net>:
+> The path an SKB can take is opaque and unknown until the very last
+> moment it is actually given to the device transmit function.
 
-   http://redhat.com/~mingo/latency-tracing-patches/latency-tracing-v2.6.16.patch
+Why, I was proposing looking at dst cache. If that's NULL, well,
+we won't stretch ACKs. Worst case we apply the wrong optimization.
+Right?
 
-max scheduling latencies can be tracked via the enabling of 
-CONFIG_WAKEUP_TIMING. Tracking can be started via the resetting of the 
-max latency:
+> People need to get the "special case this topology" ideas out of their
+> heads. :-)
 
-	echo 0 > /proc/sys/kernel/preempt_max_latency
+Okay, I get that.
 
-if CONFIG_LATENCY_TRACE is enabled too then an execution trace will be 
-automatically generated as well, accessible via /proc/latency_trace.
+What I'd like to clarify, however: rfc2581 explicitly states that in some cases
+it might be OK to generate ACKs less frequently than every second full-sized
+segment. Given Matt's measurements, TCP on top of IP over InfiniBand on Linux
+seems to hit one of these cases.  Do you agree to that?
 
-if CONFIG_DEBUG_STACKOVERFLOW is enabled too then the function tracer 
-will also track the maximum stack-footprint observed in the system, on a 
-per-function-call basis. New maximums are reported to the syslog 
-immediately. (which can be quite verbose during bootup.)
-
-(the latency-tracer has numerous other features as well, such as 
-userspace-triggered kernel-tracing, irq-triggered tracing, max 
-preempt-off or irq-off tracing, trace-to-console-via-early-printk for 
-the debugging of early bootup crashes, print-trace-at-crash, and more.  
-See past postings and the code for details.)
-
-	Ingo
+-- 
+Michael S. Tsirkin
+Staff Engineer, Mellanox Technologies

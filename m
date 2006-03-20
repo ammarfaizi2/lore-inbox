@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965095AbWCTQ12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWCTQ23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965095AbWCTQ12 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 11:27:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbWCTQ10
+	id S1751158AbWCTQ23 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 11:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWCTQ23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 11:27:26 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:4281 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1751150AbWCTQ1X (ORCPT
+	Mon, 20 Mar 2006 11:28:29 -0500
+Received: from smtp10.wanadoo.fr ([193.252.22.21]:6713 "EHLO smtp10.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S1751219AbWCTQ21 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 11:27:23 -0500
-Message-ID: <441ED776.2000108@cfl.rr.com>
-Date: Mon, 20 Mar 2006 11:25:26 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] udf: fix uid/gid options and add uid/gid=ignore and forget
- options
-References: <441E142F.2030305@cfl.rr.com> <20060319200424.5a3647aa.akpm@osdl.org>
-In-Reply-To: <20060319200424.5a3647aa.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 20 Mar 2006 11:28:27 -0500
+X-ME-UUID: 20060320162825642.9CC3424001A3@mwinf1012.wanadoo.fr
+Subject: Re: Lindent and coding style
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Li Yang-r58472 <LeoLi@freescale.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <441ED656.7050005@gmail.com>
+References: <9FCDBA58F226D911B202000BDBAD4673054C311B@zch01exm40.ap.freescale.net>
+	 <1142865404.20050.29.camel@localhost.localdomain>
+	 <441EC157.2030103@gmail.com> <1142871150.22772.351.camel@capoeira>
+	 <441ED656.7050005@gmail.com>
+Content-Type: text/plain
+Message-Id: <1142872100.22772.355.camel@capoeira>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Mon, 20 Mar 2006 17:28:20 +0100
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Mar 2006 16:29:50.0619 (UTC) FILETIME=[82B306B0:01C64C3B]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14335.000
-X-TM-AS-Result: No--12.790000-5.000000-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> I didn't see that update, and I don't miss much.
+On Mon, 2006-03-20 at 17:21, Jiri Slaby wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
+> Xavier Bestel napsal(a):
+> > On Mon, 2006-03-20 at 15:51, Jiri Slaby wrote:
+> >>> It should produce suitable output. Do you have examples of where it
+> >>> produces space indentation and you expect tabs ?
+> >> As far as I know, it produces:
+> >> <tab>	if (very long condition &&
+> >> <tab>   ssss2nd condition)...
+> >> where ssss are four spaces. Maybe this is considered as well formed at all, but
+> >> I indent 3 tabs in this case.
+> > 
+> > Does that mean your tabs are 2-chars wide ? I think Linus stated that
+> > tabs should be 8-chars wide, that should be somewhere in the
+> > CodingStyle.
+> Nope, you maybe misunderstood me. Tab is 8 chars wide, but lindent do 4 spaces
+> on line after `if' if the condition continues on the next line. Then, I wrote I
+> do 2 tabs (16 chars) instead of 4-lindent spaces.
 
-See http://lkml.org/lkml/2006/3/5/171
+My  bad. I thought your 3 tabs were equivalent to 1 tab + 4 spaces.
 
-> Please provide a description of this change.  What problem is it fixing? 
-> How does it fix it?  What are the consequences of not making this change?
 
-In the initial patch I made a typo.  As Pekka Enberg pointed out, with 
-the if still following the else, you can still get a null uid written to 
-the disk if you specify a default uid= without uid=forget.  In other 
-words, if the desktop user is uid=1000 and the mount option uid=1000 is 
-given ( which is done on ubuntu automatically and probably other 
-distributions that use hal ), then if any other user besides uid 1000 
-owns a file then a 0 will be written to the media as the owning uid 
-instead.  This is exactly what the original patch was trying to prevent.
 

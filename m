@@ -1,45 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030541AbWCTWFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030557AbWCTWFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030541AbWCTWFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 17:05:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030555AbWCTWFG
+	id S1030557AbWCTWFE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 17:05:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030555AbWCTWEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 17:05:06 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:59314 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S1030541AbWCTWEr (ORCPT
+	Mon, 20 Mar 2006 17:04:31 -0500
+Received: from odyssey.analogic.com ([204.178.40.5]:7172 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1030541AbWCTWEV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 17:04:47 -0500
-Message-ID: <441F26FD.9090108@vc.cvut.cz>
-Date: Mon, 20 Mar 2006 23:04:45 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.7.12) Gecko/20060205 Debian/1.7.12-1.1
-X-Accept-Language: cs, en
+	Mon, 20 Mar 2006 17:04:21 -0500
 MIME-Version: 1.0
-To: Seth Goldberg <sethmeisterg@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: KBUILD_BASENAME hoses nvidia driver / vmware build processes
-References: <d1064edf0603201308v4dab8355qee1dcfc9f9b5a611@mail.gmail.com>
-In-Reply-To: <d1064edf0603201308v4dab8355qee1dcfc9f9b5a611@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+in-reply-to: <jed5ggx39x.fsf@sykes.suse.de>
+x-originalarrivaltime: 20 Mar 2006 22:04:13.0120 (UTC) FILETIME=[38E1BC00:01C64C6A]
+Content-class: urn:content-classes:message
+Subject: Re: lstat returns bogus values.
+Date: Mon, 20 Mar 2006 17:04:12 -0500
+Message-ID: <Pine.LNX.4.61.0603201655370.25162@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: lstat returns bogus values.
+Thread-Index: AcZMajjoub6QtNFATgurkU/9pNAy5A==
+References: <Pine.LNX.4.61.0603201312320.23345@chaos.analogic.com> <jed5ggx39x.fsf@sykes.suse.de>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Andreas Schwab" <schwab@suse.de>
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seth Goldberg wrote:
-> Hi,
-> 
->    Just an FYI -- I just grabbed 2.6.16 and installed it without a
-> problem.  However, when I went to rebuild the nvidia module and vmware
-> modules, I discovered that the lack of a definition for
-> KBUILD_BASENAME in linux/include/linux/spinlock.h cause these
-> components' builds to fail.  I added a stupid workaround and was able
-> to build and install these components, but I wanted to bring this to
-> your attention.
 
-For VMware either grab VMware Server beta (though I believe that it is broken 
-due to '(unsigned long)' added to PAGE_OFFSET; it will be fixed in next beta), 
-or grab updated modules from 
-http://platan.vc.cvut.cz/ftp/pub/vmware/vmware-any-any-update98.tar.gz.
-							Petr Vandrovec
+On Mon, 20 Mar 2006, Andreas Schwab wrote:
+
+> "linux-os (Dick Johnson)" <linux-os@analogic.com> writes:
+>
+>> The "kernelly-corrected" stuff should have been returned by lstat()
+>
+> What should lstat return for a cdrom device node that has no medium?
+> Should "ls -l /dev/cdrom" block until you have inserted a CD?
+>
+> Andreas.
+>
+
+`ls` only means something when there is a file-system so `ls`
+is not appropriate until you have a file-system. Currently
+`ls` on such a block device correctly returns the device type.
+
+I think lstat should return -1 and the appropriate error code
+should be in errno (perhaps ENOMEDIUM).
 
 
+> --
+> Andreas Schwab, SuSE Labs, schwab@suse.de
+> SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+> PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+> "And now for something completely different."
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.15.4 on an i686 machine (5589.48 BogoMips).
+Warning : 98.36% of all statistics are fiction, book release in April.
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWCTOun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWCTOuu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964826AbWCTOun (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 09:50:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964825AbWCTOun
+	id S964825AbWCTOuu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 09:50:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWCTOuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 09:50:43 -0500
-Received: from orfeus.profiwh.com ([82.100.20.117]:26386 "EHLO
-	orfeus.profiwh.com") by vger.kernel.org with ESMTP id S964826AbWCTOun
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 09:50:43 -0500
-Message-ID: <441EC157.2030103@gmail.com>
-Date: Mon, 20 Mar 2006 15:50:40 +0059
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20060210)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Li Yang-r58472 <LeoLi@freescale.com>, linux-kernel@vger.kernel.org
-Subject: Re: Lindent and coding style
-References: <9FCDBA58F226D911B202000BDBAD4673054C311B@zch01exm40.ap.freescale.net> <1142865404.20050.29.camel@localhost.localdomain>
-In-Reply-To: <1142865404.20050.29.camel@localhost.localdomain>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 7bit
-X-SpamReason: {}-{0,00}-{0,00}-{0,00
+	Mon, 20 Mar 2006 09:50:50 -0500
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:32442 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S964825AbWCTOut (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 09:50:49 -0500
+Date: Mon, 20 Mar 2006 15:50:48 +0100
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: bert hubert <bert.hubert@netherlabs.nl>, linux-kernel@vger.kernel.org,
+       george@mvista.com
+Subject: Re: gettimeofday order of magnitude slower with pmtimer, which is default
+Message-ID: <20060320145047.GA12332@rhlx01.fht-esslingen.de>
+References: <20060320122449.GA29718@outpost.ds9a.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060320122449.GA29718@outpost.ds9a.nl>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Alan Cox napsal(a):
-> On Llu, 2006-03-20 at 19:32 +0800, Li Yang-r58472 wrote:
->> There is a lindent script in linux kernel source.  It breaks long
->> lines, but uses space instead of tab as indentation.  However, the
->> codingstyle document also from the kernel source indicates no space is
->> allowed for indentation.  Is there a fix for this problem?  Or the
->> result from lindent(space indentation) is actually allowed in kernel
->> source?  Thanks.
->>
+On Mon, Mar 20, 2006 at 01:24:49PM +0100, bert hubert wrote:
+> Yesterday, together with Zwane, I discovered each gettimeofday call costs me
+> 4 usec on some boxes and almost nothing on others. We did a fruitless chase
+> for vsyscall/sysenter happening but the problem turned out to be
+> CONFIG_X86_PM_TIMER.
 > 
-> It should produce suitable output. Do you have examples of where it
-> produces space indentation and you expect tabs ?
-As far as I know, it produces:
-<tab>	if (very long condition &&
-<tab>   ssss2nd condition)...
-where ssss are four spaces. Maybe this is considered as well formed at all, but
-I indent 3 tabs in this case.
+> This problem has been discussed before
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0411.1/2135.html
+> 
+> Not only is the pm timer slow by design, it also needs to be read multiple
+> times to work around a bug in certain hardware.
+I've been realizing this, too, when looking at some oprofile logs.
+pmtmr reading uses almost 3% CPU time (e.g. P3/700) when idle, and it's
+similarly problematic when not idle.
 
-regards,
-- --
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+I think it's crazy to do a safe tripled readout (with *very* expensive I/O!)
+of the PM timer unconditionally on *all* systems when only a
+(albeit not that small) subset of systems is affected by buggy (un-latched)
+PM timers.
+I want to improve things there; I can see three ways to do it:
+a) maintain a blacklist (or probably better a whitelist) of systems that
+   are (not) affected
+b) detect long-time timer accuracy, then switch to fast readout if timer
+   is verified to be accurate (no white/blacklist needed this way)
+c) give up on PM timer completely
 
-iD8DBQFEHsFXMsxVwznUen4RAsGBAJ9wP+y7teZrFQNeNnBDIx0lSfBP+QCguLwx
-IAvBdGnkp8Y/Ft9yOH7m3js=
-=4zgg
------END PGP SIGNATURE-----
+Any comments on which way and how this could/should be done?
+
+> Would a patch removing the link to EMBEDDED and adding a warning that while
+> this timer is of high quality, it is slow, be welcome?
+I don't want to comment on the first part, but adding a note to the Kconfig
+text would be very useful, I think.
+
+Andreas Mohr

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965661AbWCTP6p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965066AbWCTQBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965661AbWCTP6p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:58:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965660AbWCTP6o
+	id S965066AbWCTQBG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 11:01:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965670AbWCTQAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:58:44 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:56216 "EHLO
+	Mon, 20 Mar 2006 11:00:23 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:49560 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965223AbWCTPSG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:18:06 -0500
+	id S965204AbWCTPRU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:17:20 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Manu Abraham <manu@linuxtv.org>,
+Cc: linux-dvb-maintainer@linuxtv.org,
+       Markus Rechberger <mrechberger@gmail.com>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 052/141] V4L/DVB (3294): Fix [Bug 5895] to correct snd_87x
-	autodetect
-Date: Mon, 20 Mar 2006 12:08:45 -0300
-Message-id: <20060320150845.PS652956000052@infradead.org>
+Subject: [PATCH 030/141] V4L/DVB (3432): Hauppauge HVR 900 Composite support
+Date: Mon, 20 Mar 2006 12:08:42 -0300
+Message-id: <20060320150842.PS015650000030@infradead.org>
 In-Reply-To: <20060320150819.PS760228000000@infradead.org>
 References: <20060320150819.PS760228000000@infradead.org>
 Mime-Version: 1.0
@@ -28,124 +28,143 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Manu Abraham <manu@linuxtv.org>
-Date: 1139301930 -0200
+From: Markus Rechberger <mrechberger@gmail.com>
+Date: 1138043470 -0200
 
-With DVB drivers enabled snd_87x (ALSA) don't detect.
+- Hauppauge HVR 900 Composite support
 
-
-Signed-off-by: Manu Abraham <manu@linuxtv.org>
+Signed-off-by: Markus Rechberger <mrechberger@gmail.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
-diff --git a/drivers/media/dvb/bt8xx/bt878.c b/drivers/media/dvb/bt8xx/bt878.c
-diff --git a/drivers/media/dvb/bt8xx/bt878.c b/drivers/media/dvb/bt8xx/bt878.c
-index a04bb61..34c3189 100644
---- a/drivers/media/dvb/bt8xx/bt878.c
-+++ b/drivers/media/dvb/bt8xx/bt878.c
-@@ -381,6 +381,23 @@ bt878_device_control(struct bt878 *bt, u
+diff --git a/drivers/media/video/em28xx/em28xx-cards.c b/drivers/media/video/em28xx/em28xx-cards.c
+diff --git a/drivers/media/video/em28xx/em28xx-cards.c b/drivers/media/video/em28xx/em28xx-cards.c
+index 58f7b41..ed428c5 100644
+--- a/drivers/media/video/em28xx/em28xx-cards.c
++++ b/drivers/media/video/em28xx/em28xx-cards.c
+@@ -136,6 +136,28 @@ struct em28xx_board em28xx_boards[] = {
+ 			.amux     = 1,
+ 		}},
+ 	},
++	[EM2880_BOARD_WINTV_HVR_900] = {
++		.name         = "WinTV HVR 900",
++		.vchannels    = 3,
++		.norm         = VIDEO_MODE_PAL,
++		.has_tuner    = 0,
++		.tda9887_conf = TDA9887_PRESENT,
++		.has_tuner    = 1,
++		.decoder      = EM28XX_TVP5150,
++		.input          = {{
++			.type     = EM28XX_VMUX_COMPOSITE1,
++			.vmux     = 2,
++			.amux     = 0,
++		},{
++			.type     = EM28XX_VMUX_TELEVISION,
++			.vmux     = 0,
++			.amux     = 1,
++		},{
++			.type     = EM28XX_VMUX_SVIDEO,
++			.vmux     = 9,
++			.amux     = 1,
++		}},
++	},
+ 	[EM2820_BOARD_MSI_VOX_USB_2] = {
+ 		.name		= "MSI VOX USB 2.0",
+ 		.vchannels	= 3,
+@@ -254,30 +276,47 @@ struct usb_device_id em28xx_id_table [] 
+ 	{ USB_DEVICE(0x2304, 0x0208), .driver_info = EM2820_BOARD_PINNACLE_USB_2 },
+ 	{ USB_DEVICE(0x2040, 0x4200), .driver_info = EM2820_BOARD_HAUPPAUGE_WINTV_USB_2 },
+ 	{ USB_DEVICE(0x2304, 0x0207), .driver_info = EM2820_BOARD_PINNACLE_DVC_90 },
++	{ USB_DEVICE(0x2040, 0x6500), .driver_info = EM2880_BOARD_WINTV_HVR_900 },
+ 	{ },
+ };
  
- EXPORT_SYMBOL(bt878_device_control);
- 
++void em28xx_pre_card_setup(struct em28xx *dev)
++{
++	/* request some modules */
++	switch(dev->model){
++		case EM2880_BOARD_WINTV_HVR_900:
++			{
++				em28xx_write_regs_req(dev, 0x00, 0x08, "\x7d", 1); // reset through GPIO?
++				break;
++			}
++	}
++}
 +
-+struct cards card_list[] __devinitdata = {
-+
-+	{ 0x01010071, BTTV_BOARD_NEBULA_DIGITV,			"Nebula Electronics DigiTV" },
-+	{ 0x07611461, BTTV_BOARD_AVDVBT_761,			"AverMedia AverTV DVB-T 761" },
-+	{ 0x001c11bd, BTTV_BOARD_PINNACLESAT,			"Pinnacle PCTV Sat" },
-+	{ 0x002611bd, BTTV_BOARD_TWINHAN_DST,			"Pinnacle PCTV SAT CI" },
-+	{ 0x00011822, BTTV_BOARD_TWINHAN_DST,			"Twinhan VisionPlus DVB" },
-+	{ 0xfc00270f, BTTV_BOARD_TWINHAN_DST,			"ChainTech digitop DST-1000 DVB-S" },
-+	{ 0x07711461, BTTV_BOARD_AVDVBT_771,			"AVermedia AverTV DVB-T 771" },
-+	{ 0xdb1018ac, BTTV_BOARD_DVICO_DVBT_LITE,		"DViCO FusionHDTV DVB-T Lite" },
-+	{ 0xd50018ac, BTTV_BOARD_DVICO_FUSIONHDTV_5_LITE,	"DViCO FusionHDTV 5 Lite" },
-+	{ 0x20007063, BTTV_BOARD_PC_HDTV,			"pcHDTV HD-2000 TV"},
-+	{ 0, -1, NULL }
-+};
-+
-+
- /***********************/
- /* PCI device handling */
- /***********************/
-@@ -388,18 +405,41 @@ EXPORT_SYMBOL(bt878_device_control);
- static int __devinit bt878_probe(struct pci_dev *dev,
- 				 const struct pci_device_id *pci_id)
+ void em28xx_card_setup(struct em28xx *dev)
  {
--	int result;
-+	int result = 0, has_dvb = 0, i;
- 	unsigned char lat;
- 	struct bt878 *bt;
- #if defined(__powerpc__)
- 	unsigned int cmd;
+ 	/* request some modules */
+-	if (dev->model == EM2820_BOARD_HAUPPAUGE_WINTV_USB_2) {
+-		struct tveeprom tv;
++	switch(dev->model){
++		case EM2820_BOARD_HAUPPAUGE_WINTV_USB_2:
++			{
++				struct tveeprom tv;
+ #ifdef CONFIG_MODULES
+-		request_module("tveeprom");
+-		request_module("ir-kbd-i2c");
+-		request_module("msp3400");
++				request_module("tveeprom");
++				request_module("ir-kbd-i2c");
++				request_module("msp3400");
  #endif
-+	unsigned int cardid;
-+	unsigned short id;
-+	struct cards *dvb_cards;
+-		/* Call first TVeeprom */
++				/* Call first TVeeprom */
  
- 	printk(KERN_INFO "bt878: Bt878 AUDIO function found (%d).\n",
- 	       bt878_num);
- 	if (pci_enable_device(dev))
- 		return -EIO;
+-		dev->i2c_client.addr = 0xa0 >> 1;
+-		tveeprom_hauppauge_analog(&dev->i2c_client, &tv, dev->eedata);
++				dev->i2c_client.addr = 0xa0 >> 1;
++				tveeprom_hauppauge_analog(&dev->i2c_client, &tv, dev->eedata);
  
-+	pci_read_config_word(dev, PCI_SUBSYSTEM_ID, &id);
-+	cardid = id << 16;
-+	pci_read_config_word(dev, PCI_SUBSYSTEM_VENDOR_ID, &id);
-+	cardid |= id;
-+
-+	for (i = 0, dvb_cards = card_list; i < ARRAY_SIZE(card_list); i++, dvb_cards++) {
-+		if (cardid == dvb_cards->pci_id) {
-+			printk("%s: card id=[0x%x],[ %s ] has DVB functions.\n",
-+				__func__, cardid, dvb_cards->name);
-+			has_dvb = 1;
-+		}
-+	}
-+
-+	if (!has_dvb) {
-+		printk("%s: card id=[0x%x], Unknown card.\nExiting..\n", __func__, cardid);
-+		result = -EINVAL;
-+
-+		goto fail0;
-+	}
-+
- 	bt = &bt878[bt878_num];
- 	bt->dev = dev;
- 	bt->nr = bt878_num;
-@@ -416,6 +456,8 @@ static int __devinit bt878_probe(struct 
+-		dev->tuner_type= tv.tuner_type;
+-		if (tv.audio_processor == AUDIO_CHIP_MSP34XX) {
+-			dev->i2s_speed=2048000;
+-			dev->has_msp34xx=1;
+-		} else
+-			dev->has_msp34xx=0;
++				dev->tuner_type= tv.tuner_type;
++				if (tv.audio_processor == AUDIO_CHIP_MSP34XX) {
++					dev->i2s_speed=2048000;
++					dev->has_msp34xx=1;
++				} else
++					dev->has_msp34xx=0;
++				break;
++			}
+ 	}
+ }
  
- 	pci_read_config_byte(dev, PCI_CLASS_REVISION, &bt->revision);
- 	pci_read_config_byte(dev, PCI_LATENCY_TIMER, &lat);
-+
-+
- 	printk(KERN_INFO "bt878(%d): Bt%x (rev %d) at %02x:%02x.%x, ",
- 	       bt878_num, bt->id, bt->revision, dev->bus->number,
- 	       PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
-diff --git a/drivers/media/dvb/bt8xx/bt878.h b/drivers/media/dvb/bt8xx/bt878.h
-diff --git a/drivers/media/dvb/bt8xx/bt878.h b/drivers/media/dvb/bt8xx/bt878.h
-index a73baf0..9faf937 100644
---- a/drivers/media/dvb/bt8xx/bt878.h
-+++ b/drivers/media/dvb/bt8xx/bt878.h
-@@ -88,6 +88,23 @@
+diff --git a/drivers/media/video/em28xx/em28xx-video.c b/drivers/media/video/em28xx/em28xx-video.c
+diff --git a/drivers/media/video/em28xx/em28xx-video.c b/drivers/media/video/em28xx/em28xx-video.c
+index 1b0e10d..1726b2c 100644
+--- a/drivers/media/video/em28xx/em28xx-video.c
++++ b/drivers/media/video/em28xx/em28xx-video.c
+@@ -1766,6 +1766,7 @@ static int em28xx_init_dev(struct em28xx
+ 	dev->vpic.depth = 16;
+ 	dev->vpic.palette = VIDEO_PALETTE_YUV422;
  
- #define BT878_RISC_SYNC_MASK	(1 << 15)
++	em28xx_pre_card_setup(dev);
+ #ifdef CONFIG_MODULES
+ 	/* request some modules */
+ 	if (dev->decoder == EM28XX_SAA7113 || dev->decoder == EM28XX_SAA7114)
+diff --git a/drivers/media/video/em28xx/em28xx.h b/drivers/media/video/em28xx/em28xx.h
+diff --git a/drivers/media/video/em28xx/em28xx.h b/drivers/media/video/em28xx/em28xx.h
+index 119fdbe..8269cca 100644
+--- a/drivers/media/video/em28xx/em28xx.h
++++ b/drivers/media/video/em28xx/em28xx.h
+@@ -41,6 +41,7 @@
+ #define EM2800_BOARD_LEADTEK_WINFAST_USBII      7
+ #define EM2800_BOARD_KWORLD_USB2800             8
+ #define EM2820_BOARD_PINNACLE_DVC_90		9
++#define EM2880_BOARD_WINTV_HVR_900              10
  
-+
-+#define BTTV_BOARD_UNKNOWN                 0x00
-+#define BTTV_BOARD_PINNACLESAT             0x5e
-+#define BTTV_BOARD_NEBULA_DIGITV           0x68
-+#define BTTV_BOARD_PC_HDTV                 0x70
-+#define BTTV_BOARD_TWINHAN_DST             0x71
-+#define BTTV_BOARD_AVDVBT_771              0x7b
-+#define BTTV_BOARD_AVDVBT_761              0x7c
-+#define BTTV_BOARD_DVICO_DVBT_LITE         0x80
-+#define BTTV_BOARD_DVICO_FUSIONHDTV_5_LITE 0x87
-+
-+struct cards {
-+	__u32 pci_id;
-+	__u16 card_id;
-+	char  *name;
-+};
-+
- extern int bt878_num;
+ #define UNSET -1
  
- struct bt878 {
+@@ -327,6 +328,7 @@ int em28xx_set_alternate(struct em28xx *
+ 
+ /* Provided by em28xx-cards.c */
+ extern int em2800_variant_detect(struct usb_device* udev,int model);
++extern void em28xx_pre_card_setup(struct em28xx *dev);
+ extern void em28xx_card_setup(struct em28xx *dev);
+ extern struct em28xx_board em28xx_boards[];
+ extern struct usb_device_id em28xx_id_table[];
 

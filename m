@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWCTP3f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965310AbWCTP2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965002AbWCTP3f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:29:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965318AbWCTP2y
+	id S965310AbWCTP2G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:28:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWCTP2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:28:54 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:55736 "EHLO
+	Mon, 20 Mar 2006 10:28:04 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:51128 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965321AbWCTP2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:28:25 -0500
+	id S965310AbWCTP1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:27:44 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Hans Verkuil <hverkuil@xs4all.nl>,
+Cc: linux-dvb-maintainer@linuxtv.org, Karsten Suehring <ksuehring@gmx.net>,
+       Michael Krufky <mkrufky@linuxtv.org>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 005/141] V4L/DVB (3402): Fix handling of VIDIOC_G_TUNER
-	audmode in msp3400
-Date: Mon, 20 Mar 2006 12:08:38 -0300
-Message-id: <20060320150837.PS920363000005@infradead.org>
+Subject: [PATCH 091/141] V4L/DVB (3347): Pinnacle PCTV 40i: add filtered
+	Composite2 input
+Date: Mon, 20 Mar 2006 12:08:52 -0300
+Message-id: <20060320150852.PS194973000091@infradead.org>
 In-Reply-To: <20060320150819.PS760228000000@infradead.org>
 References: <20060320150819.PS760228000000@infradead.org>
 Mime-Version: 1.0
@@ -28,191 +29,58 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Date: 1138016762 -0200
+From: Karsten Suehring <ksuehring@gmx.net>
+Date: 1141009688 -0300
 
-- Fix handling of VIDIOC_G_TUNER audmode in msp3400: audmode
-is only changed by the user with S_TUNER, never by the driver.
+This patch adds another composite input to the Pinnacle PCTV 100i
+definition which filters the chrominace signal from the luma input. This
+improves video quality for Composite signals on the S-Video connector of
+the card.
+In addition the name string of the card is changed to include PCTV 40i
+and 50i since these cards are identical.
 
-Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+Signed-off-by: Karsten Suehring <ksuehring@gmx.net>
+Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
-diff --git a/drivers/media/video/msp3400-driver.c b/drivers/media/video/msp3400-driver.c
-diff --git a/drivers/media/video/msp3400-driver.c b/drivers/media/video/msp3400-driver.c
-index 69ed369..994c340 100644
---- a/drivers/media/video/msp3400-driver.c
-+++ b/drivers/media/video/msp3400-driver.c
-@@ -653,7 +653,6 @@ static int msp_command(struct i2c_client
- 		}
- 		if (scart) {
- 			state->rxsubchans = V4L2_TUNER_SUB_STEREO;
--			state->audmode = V4L2_TUNER_MODE_STEREO;
- 			msp_set_scart(client, scart, 0);
- 			msp_write_dsp(client, 0x000d, 0x1900);
- 			if (state->opmode != OPMODE_AUTOSELECT)
-@@ -831,11 +830,8 @@ static int msp_command(struct i2c_client
- 			return -EINVAL;
- 		}
- 
--		msp_any_detect_stereo(client);
--		if (state->audmode == V4L2_TUNER_MODE_STEREO) {
--			a->capability = V4L2_AUDCAP_STEREO;
--		}
--
-+		a->capability = V4L2_AUDCAP_STEREO;
-+		a->mode = 0;  /* TODO: add support for AVL */
- 		break;
- 	}
- 
-@@ -865,15 +861,9 @@ static int msp_command(struct i2c_client
- 		}
- 		if (scart) {
- 			state->rxsubchans = V4L2_TUNER_SUB_STEREO;
--			state->audmode = V4L2_TUNER_MODE_STEREO;
- 			msp_set_scart(client, scart, 0);
- 			msp_write_dsp(client, 0x000d, 0x1900);
- 		}
--		if (sarg->capability == V4L2_AUDCAP_STEREO) {
--			state->audmode = V4L2_TUNER_MODE_STEREO;
--		} else {
--			state->audmode &= ~V4L2_TUNER_MODE_STEREO;
--		}
- 		msp_any_set_audmode(client, state->audmode);
- 		msp_wake_thread(client);
- 		break;
-@@ -898,11 +888,10 @@ static int msp_command(struct i2c_client
- 	{
- 		struct v4l2_tuner *vt = (struct v4l2_tuner *)arg;
- 
--		if (state->radio)
-+		if (state->radio)  /* TODO: add mono/stereo support for radio */
- 			break;
- 		/* only set audmode */
--		if (vt->audmode != -1 && vt->audmode != 0)
--			msp_any_set_audmode(client, vt->audmode);
-+		msp_any_set_audmode(client, vt->audmode);
- 		break;
- 	}
- 
-@@ -927,7 +916,6 @@ static int msp_command(struct i2c_client
- 			return -EINVAL;
- 		}
- 		break;
--
- 	}
- 
- 	case VIDIOC_S_AUDOUT:
-@@ -1094,6 +1082,7 @@ static int msp_attach(struct i2c_adapter
- 
- 	memset(state, 0, sizeof(*state));
- 	state->v4l2_std = V4L2_STD_NTSC;
-+	state->audmode = V4L2_TUNER_MODE_STEREO;
- 	state->volume = 58880;	/* 0db gain */
- 	state->balance = 32768;	/* 0db gain */
- 	state->bass = 32768;
-diff --git a/drivers/media/video/msp3400-kthreads.c b/drivers/media/video/msp3400-kthreads.c
-diff --git a/drivers/media/video/msp3400-kthreads.c b/drivers/media/video/msp3400-kthreads.c
-index 2072c3e..3235a15 100644
---- a/drivers/media/video/msp3400-kthreads.c
-+++ b/drivers/media/video/msp3400-kthreads.c
-@@ -170,7 +170,6 @@ void msp3400c_setmode(struct i2c_client 
- 
- 	v4l_dbg(1, msp_debug, client, "setmode: %d\n", type);
- 	state->mode       = type;
--	state->audmode    = V4L2_TUNER_MODE_MONO;
- 	state->rxsubchans = V4L2_TUNER_SUB_MONO;
- 
- 	msp_write_dem(client, 0x00bb, msp3400c_init_data[type].ad_cv);
-@@ -210,7 +209,7 @@ void msp3400c_setmode(struct i2c_client 
- }
- 
- /* turn on/off nicam + stereo */
--void msp3400c_setstereo(struct i2c_client *client, int mode)
-+void msp3400c_setstereo(struct i2c_client *client, int audmode)
- {
- 	static char *strmode[] = { "mono", "stereo", "lang2", "lang1" };
- 	struct msp_state *state = i2c_get_clientdata(client);
-@@ -222,16 +221,16 @@ void msp3400c_setstereo(struct i2c_clien
- 		 * it's never called
- 		 */
- 		v4l_dbg(1, msp_debug, client, "setstereo called with mode=%d instead of set_source (ignored)\n",
--		     mode);
-+		     audmode);
- 		return;
- 	}
- 
- 	/* switch demodulator */
- 	switch (state->mode) {
- 	case MSP_MODE_FM_TERRA:
--		v4l_dbg(1, msp_debug, client, "FM setstereo: %s\n", strmode[mode]);
-+		v4l_dbg(1, msp_debug, client, "FM setstereo: %s\n", strmode[audmode]);
- 		msp3400c_setcarrier(client, state->second, state->main);
--		switch (mode) {
-+		switch (audmode) {
- 		case V4L2_TUNER_MODE_STEREO:
- 			msp_write_dsp(client, 0x000e, 0x3001);
- 			break;
-@@ -243,8 +242,8 @@ void msp3400c_setstereo(struct i2c_clien
- 		}
- 		break;
- 	case MSP_MODE_FM_SAT:
--		v4l_dbg(1, msp_debug, client, "SAT setstereo: %s\n", strmode[mode]);
--		switch (mode) {
-+		v4l_dbg(1, msp_debug, client, "SAT setstereo: %s\n", strmode[audmode]);
-+		switch (audmode) {
- 		case V4L2_TUNER_MODE_MONO:
- 			msp3400c_setcarrier(client, MSP_CARRIER(6.5), MSP_CARRIER(6.5));
- 			break;
-@@ -262,21 +261,21 @@ void msp3400c_setstereo(struct i2c_clien
- 	case MSP_MODE_FM_NICAM1:
- 	case MSP_MODE_FM_NICAM2:
- 	case MSP_MODE_AM_NICAM:
--		v4l_dbg(1, msp_debug, client, "NICAM setstereo: %s\n",strmode[mode]);
-+		v4l_dbg(1, msp_debug, client, "NICAM setstereo: %s\n",strmode[audmode]);
- 		msp3400c_setcarrier(client,state->second,state->main);
- 		if (state->nicam_on)
- 			nicam=0x0100;
- 		break;
- 	case MSP_MODE_BTSC:
--		v4l_dbg(1, msp_debug, client, "BTSC setstereo: %s\n",strmode[mode]);
-+		v4l_dbg(1, msp_debug, client, "BTSC setstereo: %s\n",strmode[audmode]);
- 		nicam=0x0300;
- 		break;
- 	case MSP_MODE_EXTERN:
--		v4l_dbg(1, msp_debug, client, "extern setstereo: %s\n",strmode[mode]);
-+		v4l_dbg(1, msp_debug, client, "extern setstereo: %s\n",strmode[audmode]);
- 		nicam = 0x0200;
- 		break;
- 	case MSP_MODE_FM_RADIO:
--		v4l_dbg(1, msp_debug, client, "FM-Radio setstereo: %s\n",strmode[mode]);
-+		v4l_dbg(1, msp_debug, client, "FM-Radio setstereo: %s\n",strmode[audmode]);
- 		break;
- 	default:
- 		v4l_dbg(1, msp_debug, client, "mono setstereo\n");
-@@ -284,7 +283,7 @@ void msp3400c_setstereo(struct i2c_clien
- 	}
- 
- 	/* switch audio */
--	switch (mode) {
-+	switch (audmode) {
- 	case V4L2_TUNER_MODE_STEREO:
- 		src = 0x0020 | nicam;
- 		break;
-@@ -759,7 +758,6 @@ int msp3410d_thread(void *data)
- 		case 0x0040: /* FM radio */
- 			state->mode = MSP_MODE_FM_RADIO;
- 			state->rxsubchans = V4L2_TUNER_SUB_STEREO;
--			state->audmode = V4L2_TUNER_MODE_STEREO;
- 			state->nicam_on = 0;
- 			state->watch_stereo = 0;
- 			/* not needed in theory if we have radio, but
-@@ -779,7 +777,6 @@ int msp3410d_thread(void *data)
- 		case 0x0005:
- 			state->mode = MSP_MODE_FM_TERRA;
- 			state->rxsubchans = V4L2_TUNER_SUB_MONO;
--			state->audmode = V4L2_TUNER_MODE_MONO;
- 			state->nicam_on = 0;
- 			state->watch_stereo = 1;
- 			break;
+diff --git a/Documentation/video4linux/CARDLIST.saa7134 b/Documentation/video4linux/CARDLIST.saa7134
+diff --git a/Documentation/video4linux/CARDLIST.saa7134 b/Documentation/video4linux/CARDLIST.saa7134
+index 617c757..7d16376 100644
+--- a/Documentation/video4linux/CARDLIST.saa7134
++++ b/Documentation/video4linux/CARDLIST.saa7134
+@@ -75,7 +75,7 @@
+  74 -> LifeView FlyTV Platinum Mini2            [14c0:1212]
+  75 -> AVerMedia AVerTVHD MCE A180              [1461:1044]
+  76 -> SKNet MonsterTV Mobile                   [1131:4ee9]
+- 77 -> Pinnacle PCTV 110i (saa7133)             [11bd:002e]
++ 77 -> Pinnacle PCTV 40i/50i/110i (saa7133)     [11bd:002e]
+  78 -> ASUSTeK P7131 Dual                       [1043:4862]
+  79 -> Sedna/MuchTV PC TV Cardbus TV/Radio (ITO25 Rev:2B)
+  80 -> ASUS Digimatrix TV                       [1043:0210]
+diff --git a/drivers/media/video/saa7134/saa7134-cards.c b/drivers/media/video/saa7134/saa7134-cards.c
+diff --git a/drivers/media/video/saa7134/saa7134-cards.c b/drivers/media/video/saa7134/saa7134-cards.c
+index f5c7989..602c614 100644
+--- a/drivers/media/video/saa7134/saa7134-cards.c
++++ b/drivers/media/video/saa7134/saa7134-cards.c
+@@ -2418,7 +2418,7 @@ struct saa7134_board saa7134_boards[] = 
+ 		}},
+ 	},
+ 	[SAA7134_BOARD_PINNACLE_PCTV_110i] = {
+-		.name           = "Pinnacle PCTV 110i (saa7133)",
++	       .name           = "Pinnacle PCTV 40i/50i/110i (saa7133)",
+ 		.audio_clock    = 0x00187de7,
+ 		.tuner_type     = TUNER_PHILIPS_TDA8290,
+ 		.radio_type     = UNSET,
+@@ -2433,6 +2433,10 @@ struct saa7134_board saa7134_boards[] = 
+ 		},{
+ 			  .name = name_comp1,
+ 			  .vmux = 1,
++			 .amux = LINE2,
++	       },{
++			 .name = name_comp2,
++			 .vmux = 0,
+ 			  .amux = LINE2,
+ 		},{
+ 			  .name = name_svideo,
 

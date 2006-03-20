@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbWCTT5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbWCTT5o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964960AbWCTT5I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 14:57:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbWCTT5H
+	id S964969AbWCTT5o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 14:57:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWCTT5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 14:57:07 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:65463 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S964960AbWCTT5H (ORCPT
+	Mon, 20 Mar 2006 14:57:44 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:13012 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964963AbWCTT5m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 14:57:07 -0500
-Date: Mon, 20 Mar 2006 20:57:03 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Pavel Machek <pavel@ucw.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: SubmittingPatches typo
-In-Reply-To: <20060320125012.GA21545@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.61.0603202056100.14231@yvahk01.tjqt.qr>
-References: <20060320125012.GA21545@elf.ucw.cz>
+	Mon, 20 Mar 2006 14:57:42 -0500
+Message-ID: <441F0932.1080001@pobox.com>
+Date: Mon, 20 Mar 2006 14:57:38 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Gordon Atwood <gordon@cs.ualberta.ca>
+CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: sata_promise does not see hardware RAID arrays on Fasttrak TX4000
+References: <20060320194728.GA17279@cs.ualberta.ca>
+In-Reply-To: <20060320194728.GA17279@cs.ualberta.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -1.3 (-)
+X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
+	Content analysis details:   (-1.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi!
->
->I'm not 100% sure with my english, but this seems wrong...
->
->Signed-off-by: Pavel Machek <pavel@suse.cz>
-> 
->-Linus Torvald's mail on the canonical patch format:
->+Linus Torvalds' mail on the canonical patch format:
+Gordon Atwood wrote:
+> Ok, I've searched thru dozens of webpages and done the RTFM thing.  If its
+> really obvious, sorry, I still missed it.
 
-Neither. (It would have been correct in German, though.)
-Correct is - in English:
-	Linus Torvalds's mail on the canonical patch format:
+http://linux-ata.org/faq-sata-raid.html#tx2
+
+http://linux-ata.org/faq-sata-raid.html#dmraid
+
+	Jeff
 
 
-
-Jan Engelhardt
--- 
-| Software Engineer and Linux/Unix Network Administrator

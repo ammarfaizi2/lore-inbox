@@ -1,35 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbWCTVus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030451AbWCTVux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964995AbWCTVus (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 16:50:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbWCTVus
+	id S1030451AbWCTVux (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 16:50:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbWCTVux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 16:50:48 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:17282 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S964993AbWCTVur
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 16:50:47 -0500
-Date: Mon, 20 Mar 2006 13:50:36 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Dave Hansen <haveblue@us.ibm.com>,
-       linux-kernel@vger.kernel.org, serue@us.ibm.com, frankeh@watson.ibm.com,
-       clg@fr.ibm.com, Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam@vilain.net>
-Subject: Re: [RFC][PATCH 2/6] sysvmsg: containerize
-Message-ID: <20060320215036.GU15997@sorel.sous-sol.org>
-References: <20060306235248.20842700@localhost.localdomain> <20060306235250.35676515@localhost.localdomain> <20060307015745.GG27645@sorel.sous-sol.org> <1141697323.9274.64.camel@localhost.localdomain> <20060307023445.GI27645@sorel.sous-sol.org> <m1r74ywinp.fsf@ebiederm.dsl.xmission.com> <20060320193414.GQ15997@sorel.sous-sol.org> <m1d5ggvm8y.fsf@ebiederm.dsl.xmission.com>
+	Mon, 20 Mar 2006 16:50:53 -0500
+Received: from hera.kernel.org ([140.211.167.34]:21151 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S964993AbWCTVuw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 16:50:52 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: VFAT: Can't create file named 'aux.h'?
+Date: Mon, 20 Mar 2006 13:50:29 -0800 (PST)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <dvn835$lvo$1@terminus.zytor.com>
+References: <1142890822.5007.18.camel@localhost.localdomain> <20060320134533.febb0155.rdunlap@xenotime.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1d5ggvm8y.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1142891429 22521 127.0.0.1 (20 Mar 2006 21:50:29 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Mon, 20 Mar 2006 21:50:29 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Eric W. Biederman (ebiederm@xmission.com) wrote:
-> Agreed.  Getting the limit checking correct without imposing measurable
-> overhead is tricky.  My gut feel is that the limits should remain global
-> until we can agree on how to implement more fine grained limits.
+Followup to:  <20060320134533.febb0155.rdunlap@xenotime.net>
+By author:    "Randy.Dunlap" <rdunlap@xenotime.net>
+In newsgroup: linux.dev.kernel
+> 
+> "AUX" is (was) a reserved "filename" in DOS.  The Linux MS-DOS
+> filesystem preserves (protects) that.  The extension part does not
+> matter; it only checks the first 8 characters of the filename.
+> You'll need to use a different filesystem or filename...
+> 
 
-Sounds reasonable.
+But this is VFAT, not FAT.  It should probably take the reserved name
+and mangle it.
+
+> 
+> /* MS-DOS "device special files" */
+> static const unsigned char *reserved_names[] = {
+> 	"CON     ", "PRN     ", "NUL     ", "AUX     ",
+> 	"LPT1    ", "LPT2    ", "LPT3    ", "LPT4    ",
+> 	"COM1    ", "COM2    ", "COM3    ", "COM4    ",
+> 	NULL
+> };
+> 
+
+There should be more than that.  At the very least there is "CLOCK$"
+(arguably anything with $), "MSCD001" (and probably more than 001), as
+well as "COM5".."COM8".
+
+	-hpa

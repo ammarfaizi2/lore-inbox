@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWCTJzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWCTJ7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbWCTJzL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 04:55:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWCTJzL
+	id S932134AbWCTJ7A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 04:59:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWCTJ7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 04:55:11 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:49844
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750992AbWCTJzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 04:55:10 -0500
-Date: Mon, 20 Mar 2006 01:55:00 -0800 (PST)
-Message-Id: <20060320.015500.72136710.davem@davemloft.net>
-To: mst@mellanox.co.il
-Cc: rick.jones2@hp.com, netdev@vger.kernel.org, rdreier@cisco.com,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: TSO and IPoIB performance degradation
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060320090629.GA11352@mellanox.co.il>
-References: <4410C671.2050300@hp.com>
-	<20060309.232301.77550306.davem@davemloft.net>
-	<20060320090629.GA11352@mellanox.co.il>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 20 Mar 2006 04:59:00 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:18816 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751079AbWCTJ66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 04:58:58 -0500
+Date: Mon, 20 Mar 2006 18:57:39 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH: 017/017]Memory hotplug for new nodes v.4.(arch_register_node() for ia64)
+Cc: Andrew Morton <akpm@osdl.org>, "Luck, Tony" <tony.luck@intel.com>,
+       Andi Kleen <ak@suse.de>, Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, linux-mm <linux-mm@kvack.org>
+In-Reply-To: <1142618434.10906.99.camel@localhost.localdomain>
+References: <20060317163911.C659.Y-GOTO@jp.fujitsu.com> <1142618434.10906.99.camel@localhost.localdomain>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060320183634.7E9C.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Date: Mon, 20 Mar 2006 11:06:29 +0200
+> On Fri, 2006-03-17 at 17:23 +0900, Yasunori Goto wrote:
+> > +++ pgdat8/arch/ia64/kernel/topology.c	2006-03-16 16:06:27.000000000 +0900
+> > @@ -65,6 +65,21 @@ EXPORT_SYMBOL(arch_register_cpu);
+> >  EXPORT_SYMBOL(arch_unregister_cpu);
+> >  #endif /*CONFIG_HOTPLUG_CPU*/
+> >  
+> > +#ifdef CONFIG_NUMA
+> > +int arch_register_node(int num)
+> > +{
+> > +	if (sysfs_nodes[num].sysdev.id == num)
+> > +		return 0;
+> > +
+> > +	return register_node(&sysfs_nodes[num], num, 0);
+> > +}
+> > +
+> > +void arch_unregister_node(int num)
+> > +{
+> > +	unregister_node(&sysfs_nodes[num]);
+> > +	sysfs_nodes[num].sysdev.id = -1;
+> > +}
+> > +#endif
+> 
+> I don't have a real problem with you cluttering up ia64 code, but if
+> these are useful, why don't we put them in generic code?  They seem
+> quite arch-independent to me.
 
-> Is it the case then that this requirement is less essential on
-> networks such as IP over InfiniBand, which are very low latency
-> and essencially lossless (with explicit congestion contifications
-> in hardware)?
+I'm not sure they can be common code.
 
-You can never assume any attribute of the network whatsoever.
-Even if initially the outgoing device is IPoIB, something in
-the middle, like a traffic classification or netfilter rule,
-could rewrite the packet and make it go somewhere else.
+Current i386's code treats "parent node" in arch_register_node(). 
+But, IA64 doesn't need it.
 
-This even applies to loopback packets, because packets can
-get rewritten and redirected even once they are passed in
-via netif_receive_skb().
+Bye.
 
-> And as Matt Leininger's research appears to show, stretch ACKs
-> are good for performance in case of IP over InfiniBand.
->
-> Given all this, would it make sense to add a per-netdevice (or per-neighbour)
-> flag to re-enable the trick for these net devices (as was done before
-> 314324121f9b94b2ca657a494cf2b9cb0e4a28cc)?
-> IP over InfiniBand driver would then simply set this flag.
+-- 
+Yasunori Goto 
 
-See above, this is not feasible.
-
-The path an SKB can take is opaque and unknown until the very last
-moment it is actually given to the device transmit function.
-
-People need to get the "special case this topology" ideas out of their
-heads. :-)
 

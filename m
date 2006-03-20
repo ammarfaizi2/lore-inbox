@@ -1,78 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWCTIdQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751617AbWCTIl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWCTIdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 03:33:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbWCTIdQ
+	id S1751617AbWCTIl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 03:41:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbWCTIl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 03:33:16 -0500
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:39037 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S932220AbWCTIdP
+	Mon, 20 Mar 2006 03:41:57 -0500
+Received: from nproxy.gmail.com ([64.233.182.200]:13161 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751616AbWCTIl4 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 03:33:15 -0500
-Message-ID: <441E68C6.7030107@fr.ibm.com>
-Date: Mon, 20 Mar 2006 09:33:10 +0100
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: vamsi krishna <vamsi.krishnak@gmail.com>
-CC: linux-kernel@vger.kernel.org
+	Mon, 20 Mar 2006 03:41:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=I29+53ExGhg5NrzgcG8YwIYbhKjd4xe7R3Titwzajl29VlLwrbQYtRv2lZFDq9NL1YkQp4C6C0S7dgXqm/NThULF7MYS21t9EjktNOUIN8H0Xu56Wd2EohzMI9cAFiyzvpNs3mcRYJ+/+MS8bchDU//8nMusQMNcAhV4Mc0gMvM=
+Message-ID: <3faf05680603200041w49c5c59am46cf24bbb25cc013@mail.gmail.com>
+Date: Mon, 20 Mar 2006 14:11:52 +0530
+From: "vamsi krishna" <vamsi.krishnak@gmail.com>
+To: "Cedric Le Goater" <clg@fr.ibm.com>
 Subject: Re: Idea to create a elf executable from running program [process2executable]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <441E68C6.7030107@fr.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 References: <3faf05680603181422y7447fd7duc1032bd0e07b9c68@mail.gmail.com>
-In-Reply-To: <3faf05680603181422y7447fd7duc1032bd0e07b9c68@mail.gmail.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	 <441E68C6.7030107@fr.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vamsi krishna wrote:
-> Hello All,
-> 
-> I have been working on an idea of creating an executable from a
-> running process image.
-> 
-> MOTIVATION:
-> Process migration among the nodes in distributed computing,
-> checkpointing process state.
-> 
-> BASIS:
-> 
-> The basis of my idea would be update the existing executable with
-> extra PHDRS (Program Headers) with type PT_LOAD and each of these
-> headers corresponding the vaddr mapping from /proc/<pid>/maps.
-> 
-> I have done some basic study of kernels loders code in
-> 'fs/binfmt_elf.c' especially code in 'load_elf_binary' function, the
-> following is my understanding.
-> <------------------------------------------>
-> bss=0;
-> brk=0;
-> foreach (phdr in elf_header){
-> 
->    if(phdr->type == PT_LOAD){
->         if( phdr->filesize < phdr->memsize){
->            /* Segment with .bss, so update brk and bss*/
->         }
->        else {
->           /* Just map it*/
->        }
->     }
-> /*Update brk bss*/
-> }
-> <------------------------------------>
-> 
-> from the above the kernel is updating brk, thus creating the start of
-> sbrk(0) only when it sees a  PT_LOAD segment with filesize<memsize. So
-> if I create a elf executable with all PT_LOAD segments with out any
-> segments with filesize < memsize. The kernel will set brk base i.e
-> sbrk(0) to the value phdr->vaddr+phdr->memsize of the last PT_LOAD
-> segment its mapping? so do I need to reoder my PT_LOAD segments so
-> that the heap goes as the last PT_LOAD segment?
+> Why don't you let execve() finish its job before modifying the mapping ?
+>
+> Once execve returns, the segments are mapped and you are free to remap them
+> however you want and fill them in with a state previously saved on disk.
+>
 
-Why don't you let execve() finish its job before modifying the mapping ?
+I dont want to remap myself after execve() because considering the
+potential problem of ASLR (Address Space Layout Randomization), since
+the segments may contain sections merged into it especially the
+segments with permissions 'rw-p' has .dynamic, .got sections merged
+into it so if I do that after execve the .dynamic and .got are put
+back with the old contents which crashes.
 
-Once execve returns, the segments are mapped and you are free to remap them
-however you want and fill them in with a state previously saved on disk.
+So I want to write the all the virtual adress mappings as PT_LOAD
+segments and leave the mapping job to the elf loader itself.
 
-C.
+Thank you,
+Vamsi kundeti

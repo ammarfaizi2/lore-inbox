@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWCTD4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbWCTEHb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751364AbWCTD4R (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 22:56:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWCTD4R
+	id S1751370AbWCTEHb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 23:07:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWCTEHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 22:56:17 -0500
-Received: from bluesky.ret.me.uk ([82.71.120.246]:2577 "EHLO bluesky.ret.me.uk")
-	by vger.kernel.org with ESMTP id S1751364AbWCTD4Q (ORCPT
+	Sun, 19 Mar 2006 23:07:30 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:59018 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751370AbWCTEHa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 22:56:16 -0500
-Date: Mon, 20 Mar 2006 03:56:02 +0000
-From: Richard Thrippleton <ret28@cam.ac.uk>
-To: rubini@vision.unipv.it
+	Sun, 19 Mar 2006 23:07:30 -0500
+Date: Sun, 19 Mar 2006 20:04:24 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Phillip Susi <psusi@cfl.rr.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Defaults PS/2 mouse rate to 40 on the toshiba m300
-Message-ID: <20060320035602.GF28913@ret.me.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+Subject: Re: [PATCH] udf: fix uid/gid options and add uid/gid=ignore and
+ forget options
+Message-Id: <20060319200424.5a3647aa.akpm@osdl.org>
+In-Reply-To: <441E142F.2030305@cfl.rr.com>
+References: <441E142F.2030305@cfl.rr.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some models of Toshiba laptop have issues handling high rate data from an
-onboard synaptics PS/2 touchpad. There already exists a blacklist of models
-suffering from this problem which is used to cap the rate to 40pps. This patch
-adds the Toshiba Portege M300 to the blacklist, as it also suffers from the
-same problem.
+Phillip Susi <psusi@cfl.rr.com> wrote:
+>
+> This patch corrects the incorrect patch previously applied in
+> commit 4d6660eb3665f22d16aff466eb9d45df6102b254.  I had posted
+> the correction as a reply on lkml, but it seems that the earlier
+> and incorrect patch got merged into Linus's tree.
 
+I didn't see that update, and I don't miss much.
 
-Signed-off-by: Richard Thrippleton <ret28@cam.ac.uk>
+> --- a/fs/udf/inode.c
+> +++ b/fs/udf/inode.c
+> @@ -1341,13 +1341,11 @@ udf_update_inode(struct inode *inode, in
+> 
+> 	if (UDF_QUERY_FLAG(inode->i_sb, UDF_FLAG_UID_FORGET))
+> 		fe->uid = cpu_to_le32(-1);
+> -	else if (inode->i_uid != UDF_SB(inode->i_sb)->s_uid)
+> -		fe->uid = cpu_to_le32(inode->i_uid);
+> +	else fe->uid = cpu_to_le32(inode->i_uid);
+> 
+> 	if (UDF_QUERY_FLAG(inode->i_sb, UDF_FLAG_GID_FORGET))
+> 		fe->gid = cpu_to_le32(-1);
+> -	else if (inode->i_gid != UDF_SB(inode->i_sb)->s_gid)
+> -		fe->gid = cpu_to_le32(inode->i_gid);
+> +	else fe->gid = cpu_to_le32(inode->i_gid);
+> 
+> 	udfperms =	((inode->i_mode & S_IRWXO)     ) |
+> 			((inode->i_mode & S_IRWXG) << 2) |
 
----
+This is an unchangelogged alteration.
 
---- drivers/input/mouse/synaptics.c.orig        2006-03-20 03:36:05.000000000 +0
-000
-+++ drivers/input/mouse/synaptics.c     2006-03-20 03:37:17.000000000 +0000
-@@ -615,6 +615,13 @@ static struct dmi_system_id toshiba_dmi_
-                        DMI_MATCH(DMI_PRODUCT_NAME , "dynabook"),
-                },
-        },
-+       {
-+               .ident = "Toshiba Portege M300",
-+               .matches = {
-+                       DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
-+                       DMI_MATCH(DMI_PRODUCT_NAME , "PORTEGE M300"),
-+               },
-+       },
-        { }
- };
- #endif
+Please provide a description of this change.  What problem is it fixing? 
+How does it fix it?  What are the consequences of not making this change?
+
+Thanks.

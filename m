@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWCTKVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWCTKZD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWCTKVz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 05:21:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWCTKVy
+	id S1750735AbWCTKZD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 05:25:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWCTKZC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 05:21:54 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:36447 "EHLO mtlexch01.mtl.com")
-	by vger.kernel.org with ESMTP id S1750746AbWCTKVx (ORCPT
+	Mon, 20 Mar 2006 05:25:02 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:33243 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750735AbWCTKZA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 05:21:53 -0500
-Date: Mon, 20 Mar 2006 12:22:34 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: rick.jones2@hp.com, netdev@vger.kernel.org, rdreier@cisco.com,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: TSO and IPoIB performance degradation
-Message-ID: <20060320102234.GV29929@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <4410C671.2050300@hp.com> <20060309.232301.77550306.davem@davemloft.net> <20060320090629.GA11352@mellanox.co.il> <20060320.015500.72136710.davem@davemloft.net>
+	Mon, 20 Mar 2006 05:25:00 -0500
+Date: Mon, 20 Mar 2006 11:22:51 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mike Galbraith <efault@gmx.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Con Kolivas <kernel@kolivas.org>
+Subject: Re: interactive task starvation
+Message-ID: <20060320102251.GB21917@elte.hu>
+References: <200603081013.44678.kernel@kolivas.org> <20060307152636.1324a5b5.akpm@osdl.org> <cone.1141774323.5234.18683.501@kolivas.org> <200603090036.49915.kernel@kolivas.org> <20060317090653.GC13387@elte.hu> <1142592375.7895.43.camel@homer> <1142615721.7841.15.camel@homer> <1142838553.8441.13.camel@homer>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060320.015500.72136710.davem@davemloft.net>
+In-Reply-To: <1142838553.8441.13.camel@homer>
 User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 20 Mar 2006 10:24:30.0531 (UTC) FILETIME=[794F0930:01C64C08]
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.7 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. David S. Miller <davem@davemloft.net>:
-> The path an SKB can take is opaque and unknown until the very last
-> moment it is actually given to the device transmit function.
 
-Why, I was proposing looking at dst cache. If that's NULL, well,
-we won't stretch ACKs. Worst case we apply the wrong optimization.
-Right?
+* Mike Galbraith <efault@gmx.de> wrote:
 
-> People need to get the "special case this topology" ideas out of their
-> heads. :-)
+> <plug>
+> Even a desktop running with these settings is so interactive that I 
+> could play a game of Maelstrom (asteroids like thing) while doing a 
+> make -j30 in slow nfs mount and barely feel it.  In a local 
+> filesystem, I could't feel it at all, so I added a thud 3, irman2 and 
+> a bonnie -s 2047 for good measure.  Try that with stock :)
+> </plug>
 
-Okay, I get that.
+great! Please make sure all the patches make their way into -mm. We 
+definitely want to try this for v2.6.17. Increasing starvation 
+resistance _and_ interactivity via the same patchset is a rare feat ;-)
 
-What I'd like to clarify, however: rfc2581 explicitly states that in some cases
-it might be OK to generate ACKs less frequently than every second full-sized
-segment. Given Matt's measurements, TCP on top of IP over InfiniBand on Linux
-seems to hit one of these cases.  Do you agree to that?
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
--- 
-Michael S. Tsirkin
-Staff Engineer, Mellanox Technologies
+	Ingo

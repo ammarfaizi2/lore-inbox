@@ -1,284 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751511AbWCTEke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWCTEiU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751511AbWCTEke (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 23:40:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWCTEkc
+	id S1751359AbWCTEiU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 23:38:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWCTEiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 23:40:32 -0500
-Received: from sorrow.cyrius.com ([65.19.161.204]:53263 "EHLO
-	sorrow.cyrius.com") by vger.kernel.org with ESMTP id S1751497AbWCTEk0
+	Sun, 19 Mar 2006 23:38:20 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:44047 "EHLO
+	sorrow.cyrius.com") by vger.kernel.org with ESMTP id S1751359AbWCTEiT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 23:40:26 -0500
-Date: Mon, 20 Mar 2006 04:40:07 +0000
+	Sun, 19 Mar 2006 23:38:19 -0500
+Date: Mon, 20 Mar 2006 04:38:03 +0000
 From: Martin Michlmayr <tbm@cyrius.com>
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org,
-       netdev@vger.kernel.org
-Subject: [PATCH 6/12] [NET] Support the BCM1x55 and BCM1x80 chips
-Message-ID: <20060320044007.GF20416@deprecation.cyrius.com>
-References: <20060320043802.GA20389@deprecation.cyrius.com>
+Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
+Subject: Bring mainline in sync with the linux-mips tree
+Message-ID: <20060320043802.GA20389@deprecation.cyrius.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060320043802.GA20389@deprecation.cyrius.com>
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Broadcom Corporation
+The following is a series of twelve patches to bring mainline in
+sync with the linux-mips tree.  These are changes that have to be
+made in mainline.  Another series has already been posted to
+the linux-mips list to bring linux-mips in sync with Linus' tree
+where necessary.
 
-Add support for the BCM1x55 and BCM1x80 chips.  The BCM1x80 features
-four Ethernet devices.  This patch has been in the linux-mips tree
-for several months and has also been tested by Debian.
-
-Signed-off-by: Andy Isaacson <adi@broadcom.com>
-Signed-off-by: Mark E Mason <mark.e.mason@broadcom.com>
-Signed-off-by: Martin Michlmayr <tbm@cyrius.com>
-
-
---- linux-2.6/drivers/net/sb1250-mac.c	2006-03-05 19:35:04.000000000 +0000
-+++ mips.git/drivers/net/sb1250-mac.c	2006-03-05 18:51:16.000000000 +0000
-@@ -1,5 +1,5 @@
- /*
-- * Copyright (C) 2001,2002,2003 Broadcom Corporation
-+ * Copyright (C) 2001,2002,2003,2004 Broadcom Corporation
-  *
-  * This program is free software; you can redistribute it and/or
-  * modify it under the terms of the GNU General Public License
-@@ -43,6 +43,7 @@
- #define SBMAC_ETH0_HWADDR "40:00:00:00:01:00"
- #define SBMAC_ETH1_HWADDR "40:00:00:00:01:01"
- #define SBMAC_ETH2_HWADDR "40:00:00:00:01:02"
-+#define SBMAC_ETH3_HWADDR "40:00:00:00:01:03"
- #endif
- 
- 
-@@ -57,7 +58,7 @@
- 
- #define CONFIG_SBMAC_COALESCE
- 
--#define MAX_UNITS 3		/* More are supported, limit only on options */
-+#define MAX_UNITS 4		/* More are supported, limit only on options */
- 
- /* Time in jiffies before concluding the transmitter is hung. */
- #define TX_TIMEOUT  (2*HZ)
-@@ -85,11 +86,11 @@
-    The media type is usually passed in 'options[]'.
- */
- #ifdef MODULE
--static int options[MAX_UNITS] = {-1, -1, -1};
-+static int options[MAX_UNITS] = {-1, -1, -1, -1};
- module_param_array(options, int, NULL, S_IRUGO);
- MODULE_PARM_DESC(options, "1-" __MODULE_STRING(MAX_UNITS));
- 
--static int full_duplex[MAX_UNITS] = {-1, -1, -1};
-+static int full_duplex[MAX_UNITS] = {-1, -1, -1, -1};
- module_param_array(full_duplex, int, NULL, S_IRUGO);
- MODULE_PARM_DESC(full_duplex, "1-" __MODULE_STRING(MAX_UNITS));
- #endif
-@@ -105,13 +106,26 @@
- #endif
- 
- #include <asm/sibyte/sb1250.h>
--#include <asm/sibyte/sb1250_defs.h>
-+#if defined(CONFIG_SIBYTE_BCM1x55) || defined(CONFIG_SIBYTE_BCM1x80)
-+#include <asm/sibyte/bcm1480_regs.h>
-+#include <asm/sibyte/bcm1480_int.h>
-+#elif defined(CONFIG_SIBYTE_SB1250) || defined(CONFIG_SIBYTE_BCM112X)
- #include <asm/sibyte/sb1250_regs.h>
--#include <asm/sibyte/sb1250_mac.h>
--#include <asm/sibyte/sb1250_dma.h>
- #include <asm/sibyte/sb1250_int.h>
-+#else
-+#error invalid SiByte MAC configuation
-+#endif
- #include <asm/sibyte/sb1250_scd.h>
-+#include <asm/sibyte/sb1250_mac.h>
-+#include <asm/sibyte/sb1250_dma.h>
- 
-+#if defined(CONFIG_SIBYTE_BCM1x55) || defined(CONFIG_SIBYTE_BCM1x80)
-+#define UNIT_INT(n)		(K_BCM1480_INT_MAC_0 + ((n) * 2))
-+#elif defined(CONFIG_SIBYTE_SB1250) || defined(CONFIG_SIBYTE_BCM112X)
-+#define UNIT_INT(n)		(K_INT_MAC_0 + (n))
-+#else
-+#error invalid SiByte MAC configuation
-+#endif
- 
- /**********************************************************************
-  *  Simple types
-@@ -142,6 +156,10 @@
- 
- #define NUMCACHEBLKS(x) (((x)+SMP_CACHE_BYTES-1)/SMP_CACHE_BYTES)
- 
-+#define SBMAC_READCSR(t)	__raw_readq((unsigned long)t)
-+#define SBMAC_WRITECSR(t,v)	__raw_writeq(v, (unsigned long)t)
-+
-+
- #define SBMAC_MAX_TXDESCR	32
- #define SBMAC_MAX_RXDESCR	32
- 
-@@ -1476,10 +1494,10 @@
- 	 * and make sure that RD_THRSH + WR_THRSH <=128 for pass2 and above
- 	 * Use a larger RD_THRSH for gigabit
- 	 */
--	if (periph_rev >= 2)
--		th_value = 64;
--	else
-+	if (soc_type == K_SYS_SOC_TYPE_BCM1250 && periph_rev < 2)
- 		th_value = 28;
-+	else
-+		th_value = 64;
- 
- 	fifo = V_MAC_TX_WR_THRSH(4) |	/* Must be '4' or '8' */
- 		((s->sbm_speed == sbmac_speed_1000)
-@@ -1589,13 +1607,17 @@
- 	 * Turn on the rest of the bits in the enable register
- 	 */
- 
-+#if defined(CONFIG_SIBYTE_BCM1x55) || defined(CONFIG_SIBYTE_BCM1x80)
-+	__raw_writeq(M_MAC_RXDMA_EN0 |
-+		       M_MAC_TXDMA_EN0, s->sbm_macenable);
-+#elif defined(CONFIG_SIBYTE_SB1250) || defined(CONFIG_SIBYTE_BCM112X)
- 	__raw_writeq(M_MAC_RXDMA_EN0 |
- 		       M_MAC_TXDMA_EN0 |
- 		       M_MAC_RX_ENABLE |
- 		       M_MAC_TX_ENABLE, s->sbm_macenable);
--
--
--
-+#else
-+#error invalid SiByte MAC configuation
-+#endif
- 
- #ifdef CONFIG_SBMAC_COALESCE
- 	/*
-@@ -1786,11 +1808,12 @@
- 	reg &= ~M_MAC_IPHDR_OFFSET | V_MAC_IPHDR_OFFSET(15);
- 	__raw_writeq(reg, sc->sbm_rxfilter);
- 
--	/* read system identification to determine revision */
--	if (periph_rev >= 2) {
--		sc->rx_hw_checksum = ENABLE;
--	} else {
-+	/* BCM1250 pass1 didn't have hardware checksum.  Everything
-+	   later does.  */
-+	if (soc_type == K_SYS_SOC_TYPE_BCM1250 && periph_rev < 2) {
- 		sc->rx_hw_checksum = DISABLE;
-+	} else {
-+		sc->rx_hw_checksum = ENABLE;
- 	}
- }
- 
-@@ -2220,7 +2243,7 @@
- 
- 
- 
--#if defined(SBMAC_ETH0_HWADDR) || defined(SBMAC_ETH1_HWADDR) || defined(SBMAC_ETH2_HWADDR)
-+#if defined(SBMAC_ETH0_HWADDR) || defined(SBMAC_ETH1_HWADDR) || defined(SBMAC_ETH2_HWADDR) || defined(SBMAC_ETH3_HWADDR)
- /**********************************************************************
-  *  SBMAC_PARSE_XDIGIT(str)
-  *
-@@ -2397,6 +2420,11 @@
- 			sc->sbm_dev->name);
- 	}
- 
-+	if (periph_rev >= 2) {
-+		printk(KERN_INFO "%s: enabling TCP rcv checksum\n",
-+			sc->sbm_dev->name);
-+	}
-+
- 	/*
- 	 * Display Ethernet address (this is called during the config
- 	 * process so we need to finish off the config message that
-@@ -2792,7 +2820,7 @@
- 
- 
- 
--#if defined(SBMAC_ETH0_HWADDR) || defined(SBMAC_ETH1_HWADDR) || defined(SBMAC_ETH2_HWADDR)
-+#if defined(SBMAC_ETH0_HWADDR) || defined(SBMAC_ETH1_HWADDR) || defined(SBMAC_ETH2_HWADDR) || defined(SBMAC_ETH3_HWADDR)
- static void
- sbmac_setup_hwaddr(int chan,char *addr)
- {
-@@ -2818,25 +2846,7 @@
- 	unsigned long port;
- 	int chip_max_units;
- 
--	/*
--	 * For bringup when not using the firmware, we can pre-fill
--	 * the MAC addresses using the environment variables
--	 * specified in this file (or maybe from the config file?)
--	 */
--#ifdef SBMAC_ETH0_HWADDR
--	sbmac_setup_hwaddr(0,SBMAC_ETH0_HWADDR);
--#endif
--#ifdef SBMAC_ETH1_HWADDR
--	sbmac_setup_hwaddr(1,SBMAC_ETH1_HWADDR);
--#endif
--#ifdef SBMAC_ETH2_HWADDR
--	sbmac_setup_hwaddr(2,SBMAC_ETH2_HWADDR);
--#endif
--
--	/*
--	 * Walk through the Ethernet controllers and find
--	 * those who have their MAC addresses set.
--	 */
-+	/* Set the number of available units based on the SOC type.  */
- 	switch (soc_type) {
- 	case K_SYS_SOC_TYPE_BCM1250:
- 	case K_SYS_SOC_TYPE_BCM1250_ALT:
-@@ -2848,6 +2858,10 @@
- 	case K_SYS_SOC_TYPE_BCM1250_ALT2: /* Hybrid */
- 		chip_max_units = 2;
- 		break;
-+	case K_SYS_SOC_TYPE_BCM1x55:
-+	case K_SYS_SOC_TYPE_BCM1x80:
-+		chip_max_units = 4;
-+		break;
- 	default:
- 		chip_max_units = 0;
- 		break;
-@@ -2855,6 +2869,32 @@
- 	if (chip_max_units > MAX_UNITS)
- 		chip_max_units = MAX_UNITS;
- 
-+	/*
-+	 * For bringup when not using the firmware, we can pre-fill
-+	 * the MAC addresses using the environment variables
-+	 * specified in this file (or maybe from the config file?)
-+	 */
-+#ifdef SBMAC_ETH0_HWADDR
-+	if (chip_max_units > 0)
-+	  sbmac_setup_hwaddr(0,SBMAC_ETH0_HWADDR);
-+#endif
-+#ifdef SBMAC_ETH1_HWADDR
-+	if (chip_max_units > 1)
-+	  sbmac_setup_hwaddr(1,SBMAC_ETH1_HWADDR);
-+#endif
-+#ifdef SBMAC_ETH2_HWADDR
-+	if (chip_max_units > 2)
-+	  sbmac_setup_hwaddr(2,SBMAC_ETH2_HWADDR);
-+#endif
-+#ifdef SBMAC_ETH3_HWADDR
-+	if (chip_max_units > 3)
-+	  sbmac_setup_hwaddr(3,SBMAC_ETH3_HWADDR);
-+#endif
-+
-+	/*
-+	 * Walk through the Ethernet controllers and find
-+	 * those who have their MAC addresses set.
-+	 */
- 	for (idx = 0; idx < chip_max_units; idx++) {
- 
- 	        /*
-@@ -2886,7 +2926,7 @@
- 
- 		printk(KERN_DEBUG "sbmac: configuring MAC at %lx\n", port);
- 
--		dev->irq = K_INT_MAC_0 + idx;
-+		dev->irq = UNIT_INT(idx);
- 		dev->base_addr = port;
- 		dev->mem_end = 0;
- 		if (sbmac_init(dev, idx)) {
+[PATCH 1/12] [MIPS] Improve description of VR41xx based machines
+[PATCH 2/12] [MIPS] Cosmetic updates to sync with linux-mips
+[PATCH 3/12] [MIPS] Remove tb0287_defconfig
+[PATCH 4/12] [NET] Improve description of MV643XX_ETH
+[PATCH 5/12] [NET] Bring declance.c in sync with linux-mips tree
+[PATCH 6/12] [NET] Support the BCM1x55 and BCM1x80 chips
+[PATCH 7/12] [IDE] Set CFLAGS only for au1xxx-ide
+[PATCH 8/12] [MTD] Re-add module description for ms02-nv to Kconfig
+[PATCH 9/12] [MTD] Fix #else directive in the docprobe driver
+[PATCH 10/12] [MTD] LASAT depends on MTD_CFI
+[PATCH 11/12] [USB] Cosmetic changes to bring ohci-au1xxx.c in sync with linux-mips
+[PATCH 12/12] [SCSI] mem_start is a physical address already
 
 -- 
 Martin Michlmayr

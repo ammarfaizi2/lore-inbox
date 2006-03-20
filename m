@@ -1,70 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWCTSzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964770AbWCTSz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932144AbWCTSzc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 13:55:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbWCTSzb
+	id S964770AbWCTSz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 13:55:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbWCTSz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 13:55:31 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:26343 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932144AbWCTSza convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 13:55:30 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Peter Wainwright <prw@ceiriog.eclipse.co.uk>
-Subject: Re: Announcing crypto suspend
-Date: Mon, 20 Mar 2006 19:54:45 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
-References: <20060320080439.GA4653@elf.ucw.cz> <1142879707.9475.4.camel@localhost.localdomain>
-In-Reply-To: <1142879707.9475.4.camel@localhost.localdomain>
+	Mon, 20 Mar 2006 13:55:57 -0500
+Received: from pool-70-21-72-70.res.east.verizon.net ([70.21.72.70]:15301 "HELO
+	pool-70-21-72-70.res.east.verizon.net") by vger.kernel.org with SMTP
+	id S964770AbWCTSz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 13:55:56 -0500
+Message-ID: <843944140865.20060320135547@AndretteDuncanWright.myhome.westell.com>
+From: "Pedro Fox" <dfqpeutzylmukxr@andylau.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Superstar Stock Report 
+Date: Mon, 20 Mar 2006 13:55:47 -0700
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200603201954.45572.rjw@sisk.pl>
+	format=flowed;
+	charset="us-ascii";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-Mailer: AOL 7.0 for Windows US sub 118
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 March 2006 19:35, Peter Wainwright wrote:
-> On Mon, 2006-03-20 at 09:04 +0100, Pavel Machek wrote:
-> > Hi!
-> > 
-> > Thanks to Rafael's great work, we now have working encrypted suspend
-> > and resume. You'll need recent -mm kernel, and code from
-> > suspend.sf.net. Due to its use of RSA, you'll only need to enter
-> > password during resume.
-> > 
-> > [Code got some minimal review; if you are a crypto expert, and think
-> > you can poke a hole within it, please try to do so.]
-> > 								Pavel
-> Thats pretty interesting - we really need a featureful suspend
-> implementation
-> in mainline. But there doesn't seem to be much documentation for it.
-> suspend.sf.net takes me to the Suspend 2 site: www.suspend2.net (a
-> virtual
-> server?). Which code from this site is needed for the mainline suspend?
+DKDY Volume Jumps 878.9% after Xi'an Holiday Office reports $72.2 Million in 
+revenues
 
-cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/suspend co suspend
+Dark Dynamite Inc.
+Friday Close: $0.64
+Goal: $3 in 12 Months
 
-and please read the HOWTO.  Unfortunately the RSA-related part hasn't been
-documented yet, but it's pretty straightforward.
 
-First, you need to generate the RSA key pair using suspend-keygen and save
-the output file as /etc/suspend.key (or something else pointed to by
-the "RSA key file =" configuration parameter of suspend).  This file contains
-the public modulus (n), public exponent (e) and Blowfish-encrypted private
-exponent (d) of the RSA key pair.
+Investors,
 
-Then, the suspend utility will load the contents of this file,  generate a random
-session key (k) and initialization vector (i) for the image encryption and use
-(n, e) to encrypt these values with RSA.  The encrypted k, i as well as the
-contents of the RSA key file will be saved in the image header.
+DKDy is ready to blow.
 
-The resume utility will read n, e and (encrypted) d as well as (encrypted) k, i
-from the image header.  Then it will ask the user for a passphrase and will
-try to decrypt d using it.  Next, it will use (n, e, d) to decrypt k, i needed
-for decrypting the image.
 
-Greetings,
-Rafael
+With volume climbing like we saw Friday we expect to see a large climb in 
+price during the morning ours of trading on Monday. As the price began to 
+during after hours trading to $0.64
+
+Make sure you get in on the trading early before the price rises.
+
+Just read the release that started it all.
+
+
+DKDY Reports Increase of 8.5% on Number of Tourists During the Golden Week 
+Holiday, Indicating an Improved Tourism Year
+
+XI'AN, China, March 7 /Xinhua-PRNewswire/ Dark Dynamite Inc. (OTC Bulletin 
+Board: DKDY)(''DKDY'') announced today that the E-Pang Palace Theme Park 
+(the ''Theme Park'') has greatly benefited from the booming Xi'an Spring 
+Festival tourism market, receiving almost 10,000 tourists during the Spring 
+Festival period, an increase of 8.5% over the same period of 2005. The 
+prosperous Spring Festival tourism market also indicates an improved trend 
+of the Xi'an tourism market in 2006.
+
+According to the latest statistics from the Xi'an Holiday Office, Xi'an 
+received 1.2 million tourists during the Golden Tourism Week of the Spring 
+Festival vacation from January 29 to February 4, and created a total revenue 
+of RMB 585 million (equal to US$72.2 million), an increase of 8.9% compared 
+with that of the previous year. The historical scenic spots in Xi'an were 
+highly welcomed during the golden week. For instance, Emperor Qin's 
+Terracotta Museum and DaCiEn Temple received 33,435 and 18,163 tourists, an 
+increase of 3.41% and 5.5% respectively over the same period of 2005.
+
+The booming Spring Festival tourism market indicates an encouraging trend 
+for the Xi'an tourism market in 2006. DKDY scheduled the Qin Dynasty 
+Cultural Dinner Show program in September 2006, right before the Chinese 
+National Day holiday, the third golden tourism week in China. With reference 
+to the booming tourism market during the Golden Tourism Week of the Spring 
+Festival, the management of DKDY believes the Dinner Show will attract many 
+more visitors to the Theme Park. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030553AbWCTWBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbWCTWBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030553AbWCTWBc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 17:01:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030513AbWCTWBI
+	id S964993AbWCTWBE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 17:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbWCTWBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 17:01:08 -0500
-Received: from mail.kroah.org ([69.55.234.183]:48825 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965003AbWCTWBF (ORCPT
+	Mon, 20 Mar 2006 17:01:04 -0500
+Received: from mail.kroah.org ([69.55.234.183]:46265 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964993AbWCTWBD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 17:01:05 -0500
-Cc: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 20/23] kobject_add_dir
-In-Reply-To: <11428920392452-git-send-email-gregkh@suse.de>
+	Mon, 20 Mar 2006 17:01:03 -0500
+Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 21/23] get_cpu_sysdev() signedness fix
+In-Reply-To: <11428920393385-git-send-email-gregkh@suse.de>
 X-Mailer: git-send-email
 Date: Mon, 20 Mar 2006 14:00:39 -0800
-Message-Id: <11428920393385-git-send-email-gregkh@suse.de>
+Message-Id: <11428920391241-git-send-email-gregkh@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg Kroah-Hartman <gregkh@suse.de>
@@ -25,81 +24,44 @@ From: Greg Kroah-Hartman <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adding kobject_add_dir() function which creates a subdirectory
-for a given kobject.
+Doing (int < NR_CPUS) doesn't dtrt if it's negative..
 
-Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
 
- include/linux/kobject.h |    2 ++
- lib/kobject.c           |   38 ++++++++++++++++++++++++++++++++++++++
- 2 files changed, 40 insertions(+), 0 deletions(-)
+ drivers/base/cpu.c  |    2 +-
+ include/linux/cpu.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-7423172a50968de1905a61413c52bb070a62f5ce
-diff --git a/include/linux/kobject.h b/include/linux/kobject.h
-index 7ece63f..4cb1214 100644
---- a/include/linux/kobject.h
-+++ b/include/linux/kobject.h
-@@ -80,6 +80,8 @@ extern void kobject_unregister(struct ko
- extern struct kobject * kobject_get(struct kobject *);
- extern void kobject_put(struct kobject *);
- 
-+extern struct kobject *kobject_add_dir(struct kobject *, const char *);
-+
- extern char * kobject_get_path(struct kobject *, gfp_t);
- 
- struct kobj_type {
-diff --git a/lib/kobject.c b/lib/kobject.c
-index 36668c8..25204a4 100644
---- a/lib/kobject.c
-+++ b/lib/kobject.c
-@@ -385,6 +385,44 @@ void kobject_put(struct kobject * kobj)
+a29d642a4aa99c5234314ab2523281139226c231
+diff --git a/drivers/base/cpu.c b/drivers/base/cpu.c
+index 07a7f97..29f3d75 100644
+--- a/drivers/base/cpu.c
++++ b/drivers/base/cpu.c
+@@ -141,7 +141,7 @@ int __devinit register_cpu(struct cpu *c
+ 	return error;
  }
  
+-struct sys_device *get_cpu_sysdev(int cpu)
++struct sys_device *get_cpu_sysdev(unsigned cpu)
+ {
+ 	if (cpu < NR_CPUS)
+ 		return cpu_sys_devices[cpu];
+diff --git a/include/linux/cpu.h b/include/linux/cpu.h
+index 0ed1d48..d612b89 100644
+--- a/include/linux/cpu.h
++++ b/include/linux/cpu.h
+@@ -32,7 +32,7 @@ struct cpu {
+ };
  
-+static void dir_release(struct kobject *kobj)
-+{
-+	kfree(kobj);
-+}
-+
-+static struct kobj_type dir_ktype = {
-+	.release	= dir_release,
-+	.sysfs_ops	= NULL,
-+	.default_attrs	= NULL,
-+};
-+
-+/**
-+ *	kobject_add_dir - add sub directory of object.
-+ *	@parent:	object in which a directory is created.
-+ *	@name:	directory name.
-+ *
-+ *	Add a plain directory object as child of given object.
-+ */
-+struct kobject *kobject_add_dir(struct kobject *parent, const char *name)
-+{
-+	struct kobject *k;
-+
-+	if (!parent)
-+		return NULL;
-+
-+	k = kzalloc(sizeof(*k), GFP_KERNEL);
-+	if (!k)
-+		return NULL;
-+
-+	k->parent = parent;
-+	k->ktype = &dir_ktype;
-+	kobject_set_name(k, name);
-+	kobject_register(k);
-+
-+	return k;
-+}
-+EXPORT_SYMBOL_GPL(kobject_add_dir);
-+
- /**
-  *	kset_init - initialize a kset for use
-  *	@k:	kset 
+ extern int register_cpu(struct cpu *, int, struct node *);
+-extern struct sys_device *get_cpu_sysdev(int cpu);
++extern struct sys_device *get_cpu_sysdev(unsigned cpu);
+ #ifdef CONFIG_HOTPLUG_CPU
+ extern void unregister_cpu(struct cpu *, struct node *);
+ #endif
 -- 
 1.2.4
 

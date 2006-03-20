@@ -1,230 +1,265 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030564AbWCTWGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030555AbWCTWIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030564AbWCTWGu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 17:06:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030555AbWCTWGJ
+	id S1030555AbWCTWIO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 17:08:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030536AbWCTWBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 17:06:09 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:17165 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1030558AbWCTWFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 17:05:38 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C64C6A.1B56C5EF"
-Subject: RE: [RFC, PATCH 0/24] VMI i386 Linux virtualization interface proposal
-Date: Mon, 20 Mar 2006 14:03:23 -0800
-Message-ID: <E7152B8C330AD042B484826CB1A4122F04565F@PA-EXCH01.vmware.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC, PATCH 0/24] VMI i386 Linux virtualization interface proposal
-Thread-Index: AcZGx8rsEM1UmrRMRFCsTnPz1tA8rQFhapGQAAagfHA=
-From: "Anne Holler" <anne@vmware.com>
-To: "Anne Holler" <anne@vmware.com>, "Zach Amsden" <zach@vmware.com>,
-       "Linus Torvalds" <torvalds@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Virtualization Mailing List" <virtualization@lists.osdl.org>,
-       "Xen-devel" <xen-devel@lists.xensource.com>,
-       "Andrew Morton" <akpm@osdl.org>, "Zach Amsden" <zach@vmware.com>,
-       "Daniel Hecht" <dhecht@vmware.com>, "Daniel Arai" <arai@vmware.com>,
-       "Pratap Subrahmanyam" <pratap@vmware.com>,
-       "Christopher Li" <chrisl@vmware.com>,
-       "Joshua LeVasseur" <jtl@ira.uka.de>, "Chris Wright" <chrisw@osdl.org>,
-       "Rik Van Riel" <riel@redhat.com>, "Jyothy Reddy" <jreddy@vmware.com>,
-       "Jack Lo" <jlo@vmware.com>, "Kip Macy" <kmacy@fsmware.com>,
-       "Jan Beulich" <jbeulich@novell.com>,
-       "Ky Srinivasan" <ksrinivasan@novell.com>,
-       "Wim Coekaerts" <wim.coekaerts@oracle.com>,
-       "Leendert van Doorn" <leendert@watson.ibm.com>,
-       "Zach Amsden" <zach@vmware.com>
-X-OriginalArrivalTime: 20 Mar 2006 22:03:24.0501 (UTC) FILETIME=[1BE71050:01C64C6A]
+	Mon, 20 Mar 2006 17:01:46 -0500
+Received: from mail.kroah.org ([69.55.234.183]:58809 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030540AbWCTWBP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 17:01:15 -0500
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 12/23] fix module sysfs files reference counting
+In-Reply-To: <11428920383496-git-send-email-gregkh@suse.de>
+X-Mailer: git-send-email
+Date: Mon, 20 Mar 2006 14:00:38 -0800
+Message-Id: <1142892038657-git-send-email-gregkh@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg Kroah-Hartman <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg Kroah-Hartman <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+The module files, refcnt, version, and srcversion did not properly
+increment the owner's module reference count, allowing the modules to
+be removed while the files were open, causing oopses.
 
-------_=_NextPart_001_01C64C6A.1B56C5EF
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+This patch fixes this, and also fixes the problem that the version and
+srcversion files were not showing up, unless CONFIG_MODULE_UNLOAD was
+enabled, which is not correct.
 
-[Apologies for resend: earlier email with html attachments was
- rejected.  Resending with txt attachments.]
+Cc: Nathan Lynch <ntl@pobox.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
->From: Zachary Amsden [mailto:zach@vmware.com]
->Sent: Monday, March 13, 2006 9:58 AM
+---
 
->In OLS 2005, we described the work that we have been doing in VMware
->with respect a common interface for paravirtualization of Linux. We
->shared the general vision in Rik's virtualization BoF.
+ include/linux/module.h |    1 +
+ kernel/module.c        |   77 +++++++++++++++++++-----------------------------
+ kernel/params.c        |   10 ------
+ 3 files changed, 32 insertions(+), 56 deletions(-)
 
->This note is an update on our further work on the Virtual Machine
->Interface, VMI.  The patches provided have been tested on 2.6.16-rc6.
->We are currently recollecting performance information for the new -rc6
->kernel, but expect our numbers to match previous results, which showed
->no impact whatsoever on macro benchmarks, and nearly neglible impact
->on microbenchmarks.
+03e88ae1b13dfdc8bbaa59b8198e1ca53aad12ac
+diff --git a/include/linux/module.h b/include/linux/module.h
+index a25d5f6..70bd843 100644
+--- a/include/linux/module.h
++++ b/include/linux/module.h
+@@ -245,6 +245,7 @@ struct module
+ 	/* Sysfs stuff. */
+ 	struct module_kobject mkobj;
+ 	struct module_param_attrs *param_attrs;
++	struct module_attribute *modinfo_attrs;
+ 	const char *version;
+ 	const char *srcversion;
+ 
+diff --git a/kernel/module.c b/kernel/module.c
+index 5ca99fb..77764f2 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -429,7 +429,6 @@ static inline void percpu_modcopy(void *
+ }
+ #endif /* CONFIG_SMP */
+ 
+-#ifdef CONFIG_MODULE_UNLOAD
+ #define MODINFO_ATTR(field)	\
+ static void setup_modinfo_##field(struct module *mod, const char *s)  \
+ {                                                                     \
+@@ -461,12 +460,7 @@ static struct module_attribute modinfo_#
+ MODINFO_ATTR(version);
+ MODINFO_ATTR(srcversion);
+ 
+-static struct module_attribute *modinfo_attrs[] = {
+-	&modinfo_version,
+-	&modinfo_srcversion,
+-	NULL,
+-};
+-
++#ifdef CONFIG_MODULE_UNLOAD
+ /* Init the unload section of the module. */
+ static void module_unload_init(struct module *mod)
+ {
+@@ -781,6 +775,15 @@ static inline void module_unload_init(st
+ }
+ #endif /* CONFIG_MODULE_UNLOAD */
+ 
++static struct module_attribute *modinfo_attrs[] = {
++	&modinfo_version,
++	&modinfo_srcversion,
++#ifdef CONFIG_MODULE_UNLOAD
++	&refcnt,
++#endif
++	NULL,
++};
++
+ #ifdef CONFIG_OBSOLETE_MODPARM
+ /* Bounds checking done below */
+ static int obsparm_copy_string(const char *val, struct kernel_param *kp)
+@@ -1106,37 +1109,28 @@ static inline void remove_sect_attrs(str
+ }
+ #endif /* CONFIG_KALLSYMS */
+ 
+-
+-#ifdef CONFIG_MODULE_UNLOAD
+-static inline int module_add_refcnt_attr(struct module *mod)
+-{
+-	return sysfs_create_file(&mod->mkobj.kobj, &refcnt.attr);
+-}
+-static void module_remove_refcnt_attr(struct module *mod)
+-{
+-	return sysfs_remove_file(&mod->mkobj.kobj, &refcnt.attr);
+-}
+-#else
+-static inline int module_add_refcnt_attr(struct module *mod)
+-{
+-	return 0;
+-}
+-static void module_remove_refcnt_attr(struct module *mod)
+-{
+-}
+-#endif
+-
+-#ifdef CONFIG_MODULE_UNLOAD
+ static int module_add_modinfo_attrs(struct module *mod)
+ {
+ 	struct module_attribute *attr;
++	struct module_attribute *temp_attr;
+ 	int error = 0;
+ 	int i;
+ 
++	mod->modinfo_attrs = kzalloc((sizeof(struct module_attribute) *
++					(ARRAY_SIZE(modinfo_attrs) + 1)),
++					GFP_KERNEL);
++	if (!mod->modinfo_attrs)
++		return -ENOMEM;
++
++	temp_attr = mod->modinfo_attrs;
+ 	for (i = 0; (attr = modinfo_attrs[i]) && !error; i++) {
+ 		if (!attr->test ||
+-		    (attr->test && attr->test(mod)))
+-			error = sysfs_create_file(&mod->mkobj.kobj,&attr->attr);
++		    (attr->test && attr->test(mod))) {
++			memcpy(temp_attr, attr, sizeof(*temp_attr));
++			temp_attr->attr.owner = mod;
++			error = sysfs_create_file(&mod->mkobj.kobj,&temp_attr->attr);
++			++temp_attr;
++		}
+ 	}
+ 	return error;
+ }
+@@ -1146,12 +1140,16 @@ static void module_remove_modinfo_attrs(
+ 	struct module_attribute *attr;
+ 	int i;
+ 
+-	for (i = 0; (attr = modinfo_attrs[i]); i++) {
++	for (i = 0; (attr = &mod->modinfo_attrs[i]); i++) {
++		/* pick a field to test for end of list */
++		if (!attr->attr.name)
++			break;
+ 		sysfs_remove_file(&mod->mkobj.kobj,&attr->attr);
+-		attr->free(mod);
++		if (attr->free)
++			attr->free(mod);
+ 	}
++	kfree(mod->modinfo_attrs);
+ }
+-#endif
+ 
+ static int mod_sysfs_setup(struct module *mod,
+ 			   struct kernel_param *kparam,
+@@ -1169,19 +1167,13 @@ static int mod_sysfs_setup(struct module
+ 	if (err)
+ 		goto out;
+ 
+-	err = module_add_refcnt_attr(mod);
+-	if (err)
+-		goto out_unreg;
+-
+ 	err = module_param_sysfs_setup(mod, kparam, num_params);
+ 	if (err)
+ 		goto out_unreg;
+ 
+-#ifdef CONFIG_MODULE_UNLOAD
+ 	err = module_add_modinfo_attrs(mod);
+ 	if (err)
+ 		goto out_unreg;
+-#endif
+ 
+ 	return 0;
+ 
+@@ -1193,10 +1185,7 @@ out:
+ 
+ static void mod_kobject_remove(struct module *mod)
+ {
+-#ifdef CONFIG_MODULE_UNLOAD
+ 	module_remove_modinfo_attrs(mod);
+-#endif
+-	module_remove_refcnt_attr(mod);
+ 	module_param_sysfs_remove(mod);
+ 
+ 	kobject_unregister(&mod->mkobj.kobj);
+@@ -1474,7 +1463,6 @@ static char *get_modinfo(Elf_Shdr *sechd
+ 	return NULL;
+ }
+ 
+-#ifdef CONFIG_MODULE_UNLOAD
+ static void setup_modinfo(struct module *mod, Elf_Shdr *sechdrs,
+ 			  unsigned int infoindex)
+ {
+@@ -1489,7 +1477,6 @@ static void setup_modinfo(struct module 
+ 						attr->attr.name));
+ 	}
+ }
+-#endif
+ 
+ #ifdef CONFIG_KALLSYMS
+ int is_exported(const char *name, const struct module *mod)
+@@ -1803,10 +1790,8 @@ static struct module *load_module(void _
+ 	if (strcmp(mod->name, "driverloader") == 0)
+ 		add_taint(TAINT_PROPRIETARY_MODULE);
+ 
+-#ifdef CONFIG_MODULE_UNLOAD
+ 	/* Set up MODINFO_ATTR fields */
+ 	setup_modinfo(mod, sechdrs, infoindex);
+-#endif
+ 
+ 	/* Fix up syms, so that st_value is a pointer to location. */
+ 	err = simplify_symbols(sechdrs, symindex, strtab, versindex, pcpuindex,
+diff --git a/kernel/params.c b/kernel/params.c
+index c76ad25..a291505 100644
+--- a/kernel/params.c
++++ b/kernel/params.c
+@@ -638,13 +638,8 @@ static ssize_t module_attr_show(struct k
+ 	if (!attribute->show)
+ 		return -EIO;
+ 
+-	if (!try_module_get(mk->mod))
+-		return -ENODEV;
+-
+ 	ret = attribute->show(attribute, mk->mod, buf);
+ 
+-	module_put(mk->mod);
+-
+ 	return ret;
+ }
+ 
+@@ -662,13 +657,8 @@ static ssize_t module_attr_store(struct 
+ 	if (!attribute->store)
+ 		return -EIO;
+ 
+-	if (!try_module_get(mk->mod))
+-		return -ENODEV;
+-
+ 	ret = attribute->store(attribute, mk->mod, buf, len);
+ 
+-	module_put(mk->mod);
+-
+ 	return ret;
+ }
+ 
+-- 
+1.2.4
 
-Folks,
 
-I'm a member of the performance team at VMware & I recently did a
-round of testing measuring the performance of a set of benchmarks
-on the following 2 linux variants, both running natively:
- 1) 2.6.16-rc6 including VMI + 64MB hole
- 2) 2.6.16-rc6 not including VMI + no 64MB hole
-The intent was to measure the overhead of VMI calls on native runs.
-Data was collected on both p4 & opteron boxes.  The workloads used
-were dbench/1client, netperf/receive+send, UP+SMP kernel compile,
-lmbench, & some VMware in-house kernel microbenchmarks.  The CPU(s)
-were pegged for all workloads except netperf, for which I include
-CPU utilization measurements.
-
-Attached please find a text file presenting the benchmark results
-collected in terms of ratio of 1) to 2), along with the raw scores
-given in brackets.  System configurations & benchmark descriptions
-are given at the end of the page; more details are available on
-request.  Also attached for reference is a text file giving the
-width of the 95% confidence interval around the mean of the scores
-reported for each benchmark, expressed as a percentage of the mean.
-
-The VMI-Native & Native scores for almost all workloads match
-within the 95% confidence interval.  On the P4, only 4 workloads,
-all lmbench microbenchmarks (forkproc,shproc,mmap,pagefault) were
-outside the interval & the overheads (2%,1%,2%,1%, respectively)
-were low.  The opteron microbenchmark data was a little more
-ragged than the P4 in terms of variance, but it appears that only
-a few lmbench microbenchmarks (forkproc,execproc,shproc) were
-outside their confidence intervals and they show low overheads
-(4%,3%,2%, respectively); our in-house segv & divzero seemed to
-show measureable overheads as well (8%,9%).
-
--Regards, Anne Holler (anne@vmware.com)
-
-------_=_NextPart_001_01C64C6A.1B56C5EF
-Content-Type: text/plain;
-	name="score.2.6.16-rc6.txt"
-Content-Transfer-Encoding: base64
-Content-Description: score.2.6.16-rc6.txt
-Content-Disposition: attachment;
-	filename="score.2.6.16-rc6.txt"
-
-Mi42LjE2LXJjNiBUcmFuc3BhcmVudCBQYXJhdmlydHVhbGl6YXRpb24gUGVyZm9ybWFuY2UgU2Nv
-cmVib2FyZDIuNi4xNi1yYzYgVHJhbnNwYXJlbnQgUGFyYXZpcnR1YWxpemF0aW9uIFBlcmZvcm1h
-bmNlIFNjb3JlYm9hcmQNClVwZGF0ZWQ6IDAzLzIwLzIwMDYgKiBDb250YWN0OiBBbm5lIEhvbGxl
-ciAoYW5uZUB2bXdhcmUuY29tKQ0KDQpUaHJvdWdocHV0IGJlbmNobWFya3MgLT4gSElHSEVSIElT
-IEJFVFRFUiAtPiBIaWdoZXIgcmF0aW8gaXMgYmV0dGVyDQogICAgICAgICAgICAgICAgICAgICBQ
-NCAgICAgICAgICAgICAgICAgIE9wdGVyb24gDQogICAgICAgICAgICAgICAgICAgICBWTUktTmF0
-aXZlL05hdGl2ZSAgIFZNSS1OYXRpdmUvTmF0aXZlICAgQ29tbWVudHMNCiBEYmVuY2gNCiAgMWNs
-aWVudCAgICAgICAgICAgIDEuMDAgWzMxMi8zMTFdICAgICAgMS4wMCBbNDI1LzQyNV0NCiBOZXRw
-ZXJmDQogIFJlY2VpdmUgICAgICAgICAgICAxLjAwIFs5NDgvOTQ3XSAgICAgIDEuMDAgWzkzNy85
-MzddICAgICAgQ3B1VXRpbDpQNChWTUk6NDMlLE50djo0MiUpO09wdGVyb24oVk1JOjM2JSxOdHY6
-MzQlKQ0KICBTZW5kICAgICAgICAgICAgICAgMS4wMCBbOTM5LzkzOV0gICAgICAxLjAwIFs5Mzcv
-OTM2XSAgICAgIENwdVV0aWw6UDQoVk1JOjI1JSxOdHY6MjUlKTtPcHRlcm9uKFZNSTo2MiUsTnR2
-OjYwJSkNCg0KTGF0ZW5jeSBiZW5jaG1hcmtzIC0+IExPV0VSIElTIEJFVFRFUiAtPiBMb3dlciBy
-YXRpbyBpcyBiZXR0ZXINCiAgICAgICAgICAgICAgICAgICAgIFA0ICAgICAgICAgICAgICAgICAg
-T3B0ZXJvbiANCiAgICAgICAgICAgICAgICAgICAgIFZNSS1OYXRpdmUvTmF0aXZlICAgVk1JLU5h
-dGl2ZS9OYXRpdmUgICBDb21tZW50cw0KIEtlcm5lbCBjb21waWxlDQogIFVQICAgICAgICAgICAg
-ICAgICAxLjAwIFsyMjEvMjIwXSAgICAgIDEuMDAgWzEzMS8xMzFdDQogIFNNUC8yd2F5ICAgICAg
-ICAgICAxLjAwIFsxMTcvMTE3XSAgICAgIDEuMDAgWzY3LzY3XQ0KIExtYmVuY2ggcHJvY2VzcyB0
-aW1lIGxhdGVuY2llcw0KICBudWxsIGNhbGwgICAgICAgICAgMS4wMCBbMC4xNy8wLjE3XSAgICAx
-LjAwIFswLjA4LzAuMDhdDQogIG51bGwgaS9vICAgICAgICAgICAxLjAwIFswLjI5LzAuMjldICAg
-IDAuOTIgWzAuMjMvMC4yNV0gICAgb3B0ZXJvbjogd2lkZSBjb25maWRlbmNlIGludGVydmFsDQog
-IHN0YXQgICAgICAgICAgICAgICAwLjk5IFsyLjE0LzIuMTZdICAgIDAuOTQgWzIuMjUvMi4zOV0g
-ICAgb3B0ZXJvbjogb2RkLCAxJSBvdXRzaWRlIHdpZGUgY29uZmlkZW5jZSBpbnRlcnZhbA0KICBv
-cGVuIGNsb3MgICAgICAgICAgMS4wMSBbMy4wMC8yLjk2XSAgICAwLjk4IFszLjE2LzMuMjRdDQog
-IHNsY3QgVENQICAgICAgICAgICAxLjAwIFs4Ljg0LzguODNdICAgIDAuOTQgWzExLjgvMTIuNV0g
-ICAgb3B0ZXJvbjogd2lkZSBjb25maWRlbmNlIGludGVydmFsDQogIHNpZyBpbnN0ICAgICAgICAg
-ICAwLjk5IFswLjY4LzAuNjldICAgIDEuMDkgWzAuMzYvMC4zM10gICAgb3B0ZXJvbjogYmVzdCBp
-cyAxLjAzIFswLjM0LzAuMzNdDQogIHNpZyBobmRsICAgICAgICAgICAwLjk5IFsyLjE5LzIuMjFd
-ICAgIDEuMDUgWzEuMjAvMS4xNF0gICAgb3B0ZXJvbjogYmVzdCBpcyAxLjAyIFsxLjEzLzEuMTFd
-DQogIGZvcmsgcHJvYyAgICAgICAgICAxLjAyIFsxMzcvMTM0XSAgICAgIDEuMDQgWzEwMC85Nl0N
-CiAgZXhlYyBwcm9jICAgICAgICAgIDEuMDIgWzUzNi81MjVdICAgICAgMS4wMyBbMzA5LzMwMV0N
-CiAgc2ggcHJvYyAgICAgICAgICAgIDEuMDEgWzMyMDQvMzE2OV0gICAgMS4wMiBbMTU1MS8xNTI4
-XQ0KIExtYmVuY2ggY29udGV4dCBzd2l0Y2ggdGltZSBsYXRlbmNpZXMNCiAgMnAvMEsgICAgICAg
-ICAgICAgIDEuMDAgWzIuODQvMi44NF0gICAgMS4xNCBbMC43NC8wLjY1XSAgICBvcHRlcm9uOiB3
-aWRlIGNvbmZpZGVuY2UgaW50ZXJ2YWwNCiAgMnAvMTZLICAgICAgICAgICAgIDEuMDEgWzIuOTgv
-Mi45NV0gICAgMC45MyBbMC43NC8wLjgwXSAgICBvcHRlcm9uOiB3aWRlIGNvbmZpZGVuY2UgaW50
-ZXJ2YWwNCiAgMnAvNjRLICAgICAgICAgICAgIDEuMDIgWzMuMDYvMy4wMV0gICAgMS4wMCBbNC4x
-OS80LjE4XQ0KICA4cC8xNksgICAgICAgICAgICAgMS4wMiBbMy4zMS8zLjI2XSAgICAwLjk3IFsx
-Ljg2LzEuOTFdDQogIDhwLzY0SyAgICAgICAgICAgICAxLjAxIFszMC40LzMwLjBdICAgIDEuMDAg
-WzQuMzMvNC4zNF0NCiAgMTZwLzE2SyAgICAgICAgICAgIDAuOTYgWzcuNzYvOC4wNl0gICAgMC45
-NyBbMi4wMy8yLjEwXQ0KICAxNnAvNjRLICAgICAgICAgICAgMS4wMCBbNDEuNS80MS40XSAgICAx
-LjAwIFsxNS45LzE1LjldDQogTG1iZW5jaCBzeXN0ZW0gbGF0ZW5jaWVzDQogIE1tYXAgICAgICAg
-ICAgICAgICAxLjAyIFs2NjgxLzY1NDJdICAgIDEuMDAgWzM0NTIvMzQ0MV0NCiAgUHJvdCBGYXVs
-dCAgICAgICAgIDEuMDYgWzAuOTIwLzAuODcyXSAgMS4wNyBbMC4xOTcvMC4xODRdICBwNCtvcHRl
-cm9uOiB3aWRlIGNvbmZpZGVuY2UgaW50ZXJ2YWwNCiAgUGFnZSBGYXVsdCAgICAgICAgIDEuMDEg
-WzIuMDY1LzIuMDUwXSAgMS4wMCBbMS4xMC8xLjEwXQ0KIEtlcm5lbCBNaWNyb2JlbmNobWFya3MN
-CiAgZ2V0cHBpZCAgICAgICAgICAgIDEuMDAgWzEuNzAvMS43MF0gICAgMS4wMCBbMC44My8wLjgz
-XQ0KICBzZWd2ICAgICAgICAgICAgICAgMC45OSBbNy4wNS83LjA5XSAgICAxLjA4IFsyLjk1LzIu
-NzJdDQogIGZvcmt3YWl0biAgICAgICAgICAxLjAyIFszLjYwLzMuNTRdICAgIDEuMDUgWzIuNjEv
-Mi40OF0NCiAgZGl2emVybyAgICAgICAgICAgIDAuOTkgWzUuNjgvNS43M10gICAgMS4wOSBbMi43
-MS8yLjQ4XQ0KDQpTeXN0ZW0gQ29uZmlndXJhdGlvbnM6DQogUDQ6ICAgICAgQ1BVOiAyLjRHSHo7
-IE1FTTogMTAyNE1COyBESVNLOiAxMEsgU0NTSTsgU2VydmVyK0NsaWVudCBOSUNzOiBJbnRlbCBl
-MTAwMCBzZXJ2ZXIgYWRhcHRlcg0KIE9wdGVyb246IENQVTogMi4yR2h6OyBNRU06IDEwMjRNQjsg
-RElTSzogMTBLIFNDU0k7IFNlcnZlcitDbGllbnQgTklDczogQnJvYWRjb20gTmV0WHRyZW1lIEJD
-TTU3MDQNCiBVUCBrZXJuZWwgdXNlZCBmb3IgYWxsIHdvcmtsb2FkcyBleGNlcHQgU01QIGtlcm5l
-bCBjb21waWxlDQoNCkJlbmNobWFyayBEZXNjcmlwdGlvbnM6DQogRGJlbmNoOiByZXBlYXQgTiB0
-aW1lcyB1bnRpbCA5NSUgY29uZmlkZW5jZSBpbnRlcnZhbCA1JSBhcm91bmQgbWVhbjsgcmVwb3J0
-IG1lYW4NCiAgdmVyc2lvbiAyLjAgcnVuIGFzICJ0aW1lIC4vZGJlbmNoIC1jIGNsaWVudF9wbGFp
-bi50eHQgMSINCiBOZXRwZXJmOiBiZXN0IG9mIDUgcnVucw0KICBNZXNzYWdlU2l6ZTo4MTkyK1Nv
-Y2tldFNpemU6NjU1MzY7IG5ldHBlcmYgLUggY2xpZW50LWlwIC1sIDYwIC10IFRDUF9TVFJFQU0N
-CiBLZXJuZWwgY29tcGlsZTogYmVzdCBvZiAzIHJ1bnMNCiAgQnVpbGQgb2YgMi42LjExIGtlcm5l
-bCB3L2djYyA0LjAuMiB2aWEgInRpbWUgbWFrZSAtaiAxNiBiekltYWdlIg0KIExtYmVuY2g6IGF2
-ZXJhZ2Ugb2YgYmVzdCAxOCBvZiAzMCBydW5zDQogIHZlcnNpb24gMy4wLWE0OyBvYnRhaW5lZCBm
-cm9tIHNvdXJjZWZvcmdlDQogS2VybmVsIG1pY3JvYmVuY2htYXJrczogYXZlcmFnZSBvZiBiZXN0
-IDMgb2YgNSBydW5zDQogIGdldHBwaWQ6IGxvb3Agb2YgMTAgY2FsbHMgdG8gZ2V0cHBpZCwgcmVw
-ZWF0ZWQgMSwwMDAsMDAwIHRpbWVzDQogIHNlZ3Y6IHNpZ25hbCBvZiBTSUdTRUdWLCByZXBlYXRl
-ZCAzLDAwMCwwMDAgdGltZXMNCiAgZm9ya3dhaXRuOiBmb3JrL3dhaXQgZm9yIGNoaWxkIHRvIGV4
-aXQsIHJlcGVhdGVkIDQwLDAwMCB0aW1lcw0KICBkaXZ6ZXJvOiBkaXZpZGUgYnkgMCBmYXVsdCAz
-LDAwMCwwMDAgdGltZXMNCg==
-
-------_=_NextPart_001_01C64C6A.1B56C5EF
-Content-Type: text/plain;
-	name="confid.2.6.16-rc6.txt"
-Content-Transfer-Encoding: base64
-Content-Description: confid.2.6.16-rc6.txt
-Content-Disposition: attachment;
-	filename="confid.2.6.16-rc6.txt"
-
-Mi42LjE2LXJjNiBUcmFuc3BhcmVudCBQYXJhdmlydHVhbGl6YXRpb24gUGVyZm9ybWFuY2UgQ29u
-ZmlkZW5jZSBJbnRlcnZhbCBXaWR0aHMyLjYuMTYtcmM2IFRyYW5zcGFyZW50IFBhcmF2aXJ0dWFs
-aXphdGlvbiBQZXJmb3JtYW5jZSBDb25maWRlbmNlIEludGVydmFsIFdpZHRocw0KVXBkYXRlZDog
-MDMvMjAvMjAwNiAqIENvbnRhY3Q6IEFubmUgSG9sbGVyIChhbm5lQHZtd2FyZS5jb20pDQpWYWx1
-ZXMgYXJlIDk1JSBjb25maWRlbmNlIGludGVydmFsIHdpZHRoIGFyb3VuZCBtZWFuIGdpdmVuIGlu
-IHRlcm1zIG9mIHBlcmNlbnRhZ2Ugb2YgbWVhbg0KDQogICAgICAgICAgICAgICAgICAgUDQgICAg
-ICAgICAgICAgICAgICBPcHRlcm9uDQogICAgICAgICAgICAgICAgICAgTmF0aXZlIFZNSS1OYXRp
-dmUgICBOYXRpdmUgVk1JLU5hdGl2ZQ0KIERiZW5jaDIuMA0KICAxY2xpZW50ICAgICAgICAgICAg
-NS4wJSAgMS40JSAgICAgICAgICAwLjglICAzLjYlDQogTmV0cGVyZg0KICBSZWNlaXZlICAgICAg
-ICAgICAgMC4xJSAgMC4wJSAgICAgICAgICAwLjAlICAwLjAlDQogIFNlbmQgICAgICAgICAgICAg
-ICAwLjYlICAxLjglICAgICAgICAgIDAuMCUgIDAuMCUNCiBLZXJuZWwgY29tcGlsZQ0KICBVUCAg
-ICAgICAgICAgICAgICAgMy40JSAgMi42JSAgICAgICAgICAyLjIlICAwLjAlDQogIFNNUC8yd2F5
-ICAgICAgICAgICAyLjQlICA0LjklICAgICAgICAgIDQuMyUgIDQuMiUNCiBMbWJlbmNoIHByb2Nl
-c3MgdGltZSBsYXRlbmNpZXMNCiAgbnVsbCBjYWxsICAgICAgICAgIDAuMCUgIDAuMCUgICAgICAg
-ICAgMC4wJSAgMC4wJQ0KICBudWxsIGkvbyAgICAgICAgICAgMC4wJSAgMC4wJSAgICAgICAgICA1
-LjIlIDEwLjglDQogIHN0YXQgICAgICAgICAgICAgICAxLjAlICAxLjAlICAgICAgICAgIDEuNyUg
-IDMuMiUNCiAgb3BlbiBjbG9zICAgICAgICAgIDEuMyUgIDAuNyUgICAgICAgICAgMi40JSAgMy4w
-JQ0KICBzbGN0IFRDUCAgICAgICAgICAgMC4zJSAgMC4zJSAgICAgICAgIDE5LjklIDIwLjElDQog
-IHNpZyBpbnN0ICAgICAgICAgICAwLjMlICAwLjUlICAgICAgICAgIDAuMCUgIDUuNSUNCiAgc2ln
-IGhuZGwgICAgICAgICAgIDAuNCUgIDAuNCUgICAgICAgICAgMi4wJSAgMi4wJQ0KICBmb3JrIHBy
-b2MgICAgICAgICAgMC41JSAgMC45JSAgICAgICAgICAwLjglICAxLjAlDQogIGV4ZWMgcHJvYyAg
-ICAgICAgICAwLjglICAwLjklICAgICAgICAgIDEuMCUgIDAuNyUNCiAgc2ggcHJvYyAgICAgICAg
-ICAgIDAuMSUgIDAuMiUgICAgICAgICAgMC45JSAgMC40JQ0KIExtYmVuY2ggY29udGV4dCBzd2l0
-Y2ggdGltZSBsYXRlbmNpZXMNCiAgMnAvMEsgICAgICAgICAgICAgIDAuOCUgIDEuOCUgICAgICAg
-ICAxNi4xJSAgOS45JQ0KICAycC8xNksgICAgICAgICAgICAgMS41JSAgMS44JSAgICAgICAgIDEw
-LjUlIDEwLjElDQogIDJwLzY0SyAgICAgICAgICAgICAyLjQlICAzLjAlICAgICAgICAgIDEuOCUg
-IDEuNCUNCiAgOHAvMTZLICAgICAgICAgICAgIDQuNSUgIDQuMiUgICAgICAgICAgMi40JSAgNC4y
-JQ0KICA4cC82NEsgICAgICAgICAgICAgMy4wJSAgMi44JSAgICAgICAgICAxLjYlICAxLjUlDQog
-IDE2cC8xNksgICAgICAgICAgICAzLjElICA2LjclICAgICAgICAgIDIuNiUgIDMuMiUNCiAgMTZw
-LzY0SyAgICAgICAgICAgIDAuNSUgIDAuNSUgICAgICAgICAgMi45JSAgMi45JQ0KIExtYmVuY2gg
-c3lzdGVtIGxhdGVuY2llcw0KICBNbWFwICAgICAgICAgICAgICAgMC43JSAgMC4zJSAgICAgICAg
-ICAyLjIlIDIuNCUNCiAgUHJvdCBGYXVsdCAgICAgICAgIDcuNCUgIDcuNSUgICAgICAgICA0OS40
-JSAzOC43JQ0KICBQYWdlIEZhdWx0ICAgICAgICAgMC4yJSAgMC4yJSAgICAgICAgICAyLjQlICAy
-LjklDQogS2VybmVsIE1pY3JvYmVuY2htYXJrcw0KICBnZXRwcGlkICAgICAgICAgICAgMS43JSAg
-Mi45JSAgICAgICAgICAzLjUlICAzLjUlDQogIHNlZ3YgICAgICAgICAgICAgICAyLjMlICAwLjcl
-ICAgICAgICAgIDEuOCUgIDEuOSUNCiAgZm9ya3dhaXRuICAgICAgICAgIDAuOCUgIDAuOCUgICAg
-ICAgICAgNS4zJSAgMi4yJQ0KICBkaXZ6ZXJvICAgICAgICAgICAgMC45JSAgMS4zJSAgICAgICAg
-ICAxLjIlICAxLjElDQo=
-
-------_=_NextPart_001_01C64C6A.1B56C5EF--

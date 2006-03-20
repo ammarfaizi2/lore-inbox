@@ -1,44 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbWCTVPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbWCTVRe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030268AbWCTVPV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 16:15:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbWCTVPV
+	id S1030329AbWCTVRe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 16:17:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030346AbWCTVRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 16:15:21 -0500
-Received: from z2.cat.iki.fi ([212.16.98.133]:37251 "EHLO z2.cat.iki.fi")
-	by vger.kernel.org with ESMTP id S1030370AbWCTVPT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 16:15:19 -0500
-Date: Mon, 20 Mar 2006 23:15:18 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Seth Goldberg <sethmeisterg@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: KBUILD_BASENAME hoses nvidia driver / vmware build processes
-Message-ID: <20060320211518.GH3927@mea-ext.zmailer.org>
-References: <d1064edf0603201308v4dab8355qee1dcfc9f9b5a611@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d1064edf0603201308v4dab8355qee1dcfc9f9b5a611@mail.gmail.com>
+	Mon, 20 Mar 2006 16:17:34 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:24472 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1030329AbWCTVRd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 16:17:33 -0500
+Message-ID: <441F1BD9.9010008@zytor.com>
+Date: Mon, 20 Mar 2006 13:17:13 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: akpm@osdl.org, torvalds@osdl.org, klibc@zytor.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [klibc] Re: Merge strategy for klibc
+References: <441F0859.2010703@zytor.com> <20060320202224.GE27946@ftp.linux.org.uk>
+In-Reply-To: <20060320202224.GE27946@ftp.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 20, 2006 at 01:08:30PM -0800, Seth Goldberg wrote:
-> Hi,
+Al Viro wrote:
+> On Mon, Mar 20, 2006 at 11:54:01AM -0800, H. Peter Anvin wrote:
 > 
->    Just an FYI -- I just grabbed 2.6.16 and installed it without a
-> problem.  However, when I went to rebuild the nvidia module and vmware
-> modules, I discovered that the lack of a definition for
-> KBUILD_BASENAME in linux/include/linux/spinlock.h cause these
-> components' builds to fail.  I added a stupid workaround and was able
-> to build and install these components, but I wanted to bring this to
-> your attention.
+>>Okay, as of this point, I think klibc is in quite good shape; my
+>>testing so far is showing that it can be used as a drop-in replacement
+>>for the kernel root-mounting code.
+>>
+>>That being said, there is guaranteed to be breakage, for two reasons:
+>>
+>>a. There are several architectures which don't have klibc ports yet.
+>>   Since I don't have access to them, I can't really do them, either.
+>>   It's usually a matter of an afternoon or less to port klibc to a
+>>   new architecture, though, if you have a working development
+>>   environment for it.
+> 
+> Which ones?
+> 
 
-Do post the note to Nvidia -- they need small fix in  conftest.sh
-then things work mostly, but  I am not 100% sure that things do
-work with 2.6.16  (this issue was with  nvsound   module, I think.)
+This is the status of architectures in klibc, at least as far as I know.
 
->   Best wishes,
->   ---S
+Note that 64-bit architectures which have 32-bit fallback modes (e.g. 
+MIPS) can use the 32-bit klibc if applicable.
 
-/Matti Aarnio
+    alpha:        Working
+    arm-thumb:    Untested
+    arm:          Working
+    arm26:        Not yet ported
+    cris:         Working
+    h8300:        Not yet ported
+    i386:         Working
+    ia64:         Working
+    m32r:         Untested
+    m68k:         Not yet ported
+    mips:         Working
+    mips64:       Not yet ported
+    parisc:       Working
+    parisc64:     Not yet ported
+    ppc:          Working
+    ppc64:        Working
+    s390:         Working static, shared untested
+    s390x:        Working
+    sh:           Untested
+    sh64:         Not yet ported
+    sparc:        Working
+    sparc64:      Untested
+    v850:         Not yet ported
+    x86-64:       Working
+    xtensa:       Not yet ported
+
+	-hpa

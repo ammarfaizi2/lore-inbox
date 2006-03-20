@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030377AbWCTVYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030378AbWCTV2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030377AbWCTVYm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 16:24:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030378AbWCTVYl
+	id S1030378AbWCTV2j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 16:28:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030370AbWCTV2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 16:24:41 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:61368 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1030370AbWCTVYk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 16:24:40 -0500
-Message-ID: <441F1D90.4080201@zytor.com>
-Date: Mon, 20 Mar 2006 13:24:32 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
+	Mon, 20 Mar 2006 16:28:39 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:63939 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1030378AbWCTV2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 16:28:38 -0500
+Message-ID: <441F1E75.8050803@oracle.com>
+Date: Mon, 20 Mar 2006 13:28:21 -0800
+From: Zach Brown <zach.brown@oracle.com>
 User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, klibc@zytor.com,
-       torvalds@osdl.org, akpm@osdl.org
-Subject: Re: Merge strategy for klibc
-References: <441F0859.2010703@zytor.com> <20060320201905.GI20746@lug-owl.de>
-In-Reply-To: <20060320201905.GI20746@lug-owl.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+CC: suparna@in.ibm.com, linux-kernel@vger.kernel.org,
+       "'Andrew Morton'" <akpm@osdl.org>, pbadari@gmail.com
+Subject: Re: [patch] bug fix in dio handling write error - v2
+References: <200603192227.k2JMRNg30260@unix-os.sc.intel.com>
+In-Reply-To: <200603192227.k2JMRNg30260@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Benedict Glaw wrote:
-> 
-> I haven't yet looked at your code, but what actually needs to be done?
-> Defining syscall macros?
-> 
-> I'd probably give it a try for VAX.
-> 
 
-Each architecture needs an assembly stub generator for most syscalls, a 
-crt0.S, plus adjustments for which syscalls are "special" (as in special 
-ed) on that architecture.  There are also a couple of header files which 
-need per-architecture configuration information.  All in all it is 
-usually a few hours worth of work, no more.
+> Taking one of your earlier idea, how about the following patch: separating
+> out IO completion code from partial IO tracking?
 
-	-hpa
+I like that, and I think it closes the lost write error hole.  Could we
+call it something like io_errno, though?  "completion_code" to me sounds
+like -ve errno or +ve bytes read.
+
+I think there are still bugs dealing with errors, but I guess we can
+tackle them with seperate patches.
+
+- z

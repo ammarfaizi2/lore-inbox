@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWCTHVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWCTHZJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWCTHVU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 02:21:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWCTHVU
+	id S932183AbWCTHZJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 02:25:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWCTHZJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 02:21:20 -0500
-Received: from mail.clusterfs.com ([206.168.112.78]:41351 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932180AbWCTHVT
+	Mon, 20 Mar 2006 02:25:09 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:61049 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932183AbWCTHZH convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 02:21:19 -0500
-Date: Mon, 20 Mar 2006 00:20:37 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: sho@tnes.nec.co.jp
-Cc: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext2-devel] [PATCH 1/4] ext2/3: Extends the max file size(ext2 in kernel)
-Message-ID: <20060320072037.GD30801@schatzie.adilger.int>
-Mail-Followup-To: sho@tnes.nec.co.jp,
-	"ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20060318220130sho@rifu.tnes.nec.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Mar 2006 02:25:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QAWRIziitDJIJBC3oSadED6LDZwTO4P+A6xsqyDEwi+Z7fhyQIGNANaiBy6msiuaga6Pk6fJN87z123jWNOnAFEr9BFLbbSTGwtg3Lu8IXSu4fLcQ5gMGnaJnf8h0CtaH5puT12/2pK9XfinkVhcUJhNjFywQwY+YNqFM6XZKus=
+Message-ID: <84144f020603192325h54fd3212l1f4846fd40b9f074@mail.gmail.com>
+Date: Mon, 20 Mar 2006 09:25:06 +0200
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Oliver Neukum" <oliver@neukum.org>
+Subject: Re: [PATCH]use kzalloc in vfs where appropriate
+Cc: "Arjan van de Ven" <arjan@infradead.org>,
+       "Matthew Wilcox" <matthew@wil.cx>, viro@zeniv.linux.org.uk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200603192150.23444.oliver@neukum.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060318220130sho@rifu.tnes.nec.co.jp>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+References: <Pine.LNX.4.58.0603172153160.30725@fachschaft.cup.uni-muenchen.de>
+	 <200603191429.21776.oliver@neukum.org>
+	 <1142784566.3018.18.camel@laptopd505.fenrus.org>
+	 <200603192150.23444.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 18, 2006  22:01 +0900, sho@tnes.nec.co.jp wrote:
-> The unit of ext2/ext3_inode.i_blocks is sector(512B) and the variable
-> size is 4bytes, so it limits the max file size to 2TB.  
-> I found that i_blocks is always counted with rounding up to the file
-> system block size and does not have fractions.  So we can change the
-> unit of ext2/ext3_inode.i_blocks from sector to block size.
-> This change extends the maximum file size as below.
-> 
->   - Add new compatible flag "EXT2_FEATURE_INCOMPAT_LARGE_BLOCK".
->     It indicates that the file size is extended.
-> 
->   - If the flag is set in the super block, ext2_inode.i_blocks is
->     translated into the number of sectors and set to i_blocks of VFS
->     inode.  And, if not, ext2_inode.i_blocks is passed to i_blocks
->     of VFS inode as it is.
-> 
->   - If the flag is set, the limit of the max file size defined in
->     ext2_max_size() is set to block size * 2G-1(2^31-1).
+Hi Oliver,
 
-Instead of breaking all filesystems that need to create large files,
-the patch should instead set "i_flags | EXT2_LARGEBLK_FL" only on inodes
-that are larger than 2TB and use "blocksize" i_blocks on those files.
+On 3/19/06, Oliver Neukum <oliver@neukum.org> wrote:
+> Yes it is. The generated code is identical. But on second thought this is still
+> not optimal. A full division is generated:
+>
+>         xorl    %edx, %edx
+>         movl    $2147483647, %eax
+>         movq    $0, 40(%rsp)
+>         divq    %rcx
+>         movl    $8, %edx
+>         cmpq    %rax, %rdx
+>         ja      .L313
+>
+> Rewriting the test as:
+> n!=0 && n > INT_MAX / size
+> saves the division because size is much likelier to be a constant, and indeed
+> the code is better:
+>
+>         cmpq    $268435455, %rax
+>         movq    $0, 40(%rsp)
+>         ja      .L313
+>
+> Is there anything I am missing?
 
-This preserves compatibility with existing filesystems and doesn't
-impose any breakage opon an existing filesystem for anyone who wants
-to use this feature.
+Did you check allyesconfig vmlinux size before and after? If it helps,
+like it probably does, post a patch!
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
-
+                                   Pekka

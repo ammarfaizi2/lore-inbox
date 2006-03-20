@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWCTNYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWCTNY1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbWCTNYa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 08:24:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWCTNYa
+	id S932298AbWCTNY1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 08:24:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbWCTNY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 08:24:30 -0500
-Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:59339 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S932296AbWCTNY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 08:24:28 -0500
-To: arjan@infradead.org
-CC: matthew@wil.cx, linux-fsdevel@vger.kernel.org,
+	Mon, 20 Mar 2006 08:24:27 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:61142 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932298AbWCTNY0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 08:24:26 -0500
+Subject: Re: kernel cache mem bug(?)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: kernel@ministry.se
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, Valdis.Kletnieks@vt.edu,
        linux-kernel@vger.kernel.org
-In-reply-to: <1142860423.3114.41.camel@laptopd505.fenrus.org> (message from
-	Arjan van de Ven on Mon, 20 Mar 2006 14:13:43 +0100)
-Subject: Re: DoS with POSIX file locks?
-References: <E1FLIlF-0007zR-00@dorka.pomaz.szeredi.hu>
-	 <20060320121107.GE8980@parisc-linux.org>
-	 <E1FLJLs-00085u-00@dorka.pomaz.szeredi.hu>
-	 <20060320123950.GF8980@parisc-linux.org>
-	 <E1FLJsF-0008A7-00@dorka.pomaz.szeredi.hu> <1142860423.3114.41.camel@laptopd505.fenrus.org>
-Message-Id: <E1FLKMl-0008Gh-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 20 Mar 2006 14:24:11 +0100
+In-Reply-To: <Pine.GHP.4.44.0603200654330.18694-100000@celeborn.ministry.se>
+References: <Pine.GHP.4.44.0603200654330.18694-100000@celeborn.ministry.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 20 Mar 2006 13:31:18 +0000
+Message-Id: <1142861478.20050.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Right.  Um.  I took it out back in March 2003 after enough people
-> > > convinced me it wasn't worth trying to account for all the memory
-> > > processes use, and the userbeans project would take care of it anyway.
-> > > Haha.
-> > > 
-> > > It's hard to fix the accounting.  You have to deal with one thread
-> > > allocating the lock, and then a different thread freeing it.  We never
-> > > actually accounted for posix locks (which are the ones we really needed
-> > > to!) and on occasion had current->locks go negative, with all kinds of
-> > > associated badness.
-> > 
-> > Things look fairly straightforward if the accounting is done in
-> > files_struct instead of task_struct. 
+On Llu, 2006-03-20 at 09:09 +0100, kernel@ministry.se wrote:
+> The RAM is 100% OK, both according to the initial BIOS memory check and
+> memtest86 running for more than four (4) hours straight.
 > 
-> that's the wrong place; you can send fd's over unix sockets to other
-> processes....
+> One more thing that we just noticed: it seems the cache corruption (or
+> whatever it is)  only occurs when X is running.
 
-POSIX locks have no association with fd's.  Only the inode and the
-"owner" is relevant, where owner is derived from the files_struct
-pointer for local locks.
+X is special in a couple of ways - it accesses hardware directly and it
+uses AGP. See if setting the NoAccel X option makes any difference to
+the failures - it'll make your desktop slower but should help validate X
+is the problem. If that does help then try disabling DRI (3D) support if
+your box has it, and see what that does. If it works with noaccel and
+fails with DRI then finally try with no AGP support built into your
+kernel.  That should identify the problem as X, DRI, AGP or other.
 
-Miklos
+Alan
+

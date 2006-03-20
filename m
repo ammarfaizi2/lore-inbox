@@ -1,71 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWCTOST@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWCTOV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbWCTOST (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 09:18:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWCTOSS
+	id S964810AbWCTOV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 09:21:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964814AbWCTOV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 09:18:18 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:7565 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S964809AbWCTOSS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 09:18:18 -0500
-Date: Mon, 20 Mar 2006 22:24:10 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] latency-tracing-v2.6.16
-Message-ID: <20060320142409.GA5769@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-References: <20060320101307.GA15477@elte.hu>
-MIME-Version: 1.0
+	Mon, 20 Mar 2006 09:21:28 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:63926 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S964810AbWCTOV1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 09:21:27 -0500
+Date: Mon, 20 Mar 2006 16:21:22 +0200 (EET)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Eric Dumazet <dada1@cosmosbay.com>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] slab: introduce kmem_cache_zalloc allocator
+In-Reply-To: <441EB350.50609@cosmosbay.com>
+Message-ID: <Pine.LNX.4.58.0603201620370.23228@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.58.0603201506140.19005@sbz-30.cs.Helsinki.FI>
+ <441EB350.50609@cosmosbay.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060320101307.GA15477@elte.hu>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 20, 2006 at 11:13:07AM +0100, Ingo Molnar wrote:
-> i've released the latency-tracer patch for v2.6.16:
+On Mon, 20 Mar 2006, Eric Dumazet wrote:
+> Excellent.
 > 
->    http://redhat.com/~mingo/latency-tracing-patches/latency-tracing-v2.6.16.patch
+> Please change zalloc() so that a zalloc(constant_value) uses your
+> kmem_cache_zalloc on the appropriate cache.
+> 
+> This way we can really introduce zalloc() *everywhere* without paying the cost
+> of runtime lookup to find the right cache.
+
+Something like this? For some reason, the below increases kernel text.
+
+				Pekka
+
+diff --git a/include/linux/slab.h b/include/linux/slab.h
+index b595c09..db3b302 100644
+--- a/include/linux/slab.h
++++ b/include/linux/slab.h
+@@ -109,7 +109,30 @@ found:
+ 	return __kmalloc(size, flags);
+ }
  
-Thanks, it helps a lot :)
-
-> max scheduling latencies can be tracked via the enabling of 
-> CONFIG_WAKEUP_TIMING. Tracking can be started via the resetting of the 
-> max latency:
-> 
-> 	echo 0 > /proc/sys/kernel/preempt_max_latency
-> 
-> if CONFIG_LATENCY_TRACE is enabled too then an execution trace will be 
-> automatically generated as well, accessible via /proc/latency_trace.
-
-In fact that is not enough.
-In include/asm-i386/timex.h, get_cycles() is defined as
-
-        static inline cycles_t get_cycles (void)
-        {
-                unsigned long long ret=0;
-        
-        #ifndef CONFIG_X86_TSC
-                if (!cpu_has_tsc)
-                        return 0;
-        #endif
-        
-        #if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
-                rdtscll(ret);
-        #endif
-                return ret;
-        }
-
-If one (as I did at the first attempt) selects a CPU type of
-"586/K5/5x86/6x86/6x86MX", he will get nothing from /proc/latency_trace.
-
-So does it make sense to add dependency lines like the following one?
-
-        depends on (!X86_32 || X86_GENERIC || X86_TSC)
-
-Cheers,
-Wu
+-extern void *kzalloc(size_t, gfp_t);
++extern void *__kzalloc(size_t, gfp_t);
++
++static inline void *kzalloc(size_t size, gfp_t flags)
++{
++	if (__builtin_constant_p(size)) {
++		int i = 0;
++#define CACHE(x) \
++		if (size <= x) \
++			goto found; \
++		else \
++			i++;
++#include "kmalloc_sizes.h"
++#undef CACHE
++		{
++			extern void __you_cannot_kzalloc_that_much(void);
++			__you_cannot_kzalloc_that_much();
++		}
++found:
++		return kmem_cache_zalloc((flags & GFP_DMA) ?
++			malloc_sizes[i].cs_dmacachep :
++			malloc_sizes[i].cs_cachep, flags);
++	}
++	return __kzalloc(size, flags);
++}
+ 
+ /**
+  * kcalloc - allocate memory for an array. The memory is set to zero.
+@@ -160,14 +183,14 @@ void *kmem_cache_zalloc(struct kmem_cach
+ void kmem_cache_free(struct kmem_cache *c, void *b);
+ const char *kmem_cache_name(struct kmem_cache *);
+ void *kmalloc(size_t size, gfp_t flags);
+-void *kzalloc(size_t size, gfp_t flags);
++void *__kzalloc(size_t size, gfp_t flags);
+ void kfree(const void *m);
+ unsigned int ksize(const void *m);
+ unsigned int kmem_cache_size(struct kmem_cache *c);
+ 
+ static inline void *kcalloc(size_t n, size_t size, gfp_t flags)
+ {
+-	return kzalloc(n * size, flags);
++	return __kzalloc(n * size, flags);
+ }
+ 
+ #define kmem_cache_shrink(d) (0)
+@@ -175,6 +198,7 @@ static inline void *kcalloc(size_t n, si
+ #define kmem_ptr_validate(a, b) (0)
+ #define kmem_cache_alloc_node(c, f, n) kmem_cache_alloc(c, f)
+ #define kmalloc_node(s, f, n) kmalloc(s, f)
++#define kzalloc(s, f) __kzalloc(s, f)
+ 
+ #endif /* CONFIG_SLOB */
+ 
+diff --git a/mm/util.c b/mm/util.c
+index 5f4bb59..fd78ee4 100644
+--- a/mm/util.c
++++ b/mm/util.c
+@@ -3,18 +3,18 @@
+ #include <linux/module.h>
+ 
+ /**
+- * kzalloc - allocate memory. The memory is set to zero.
++ * __kzalloc - allocate memory. The memory is set to zero.
+  * @size: how many bytes of memory are required.
+  * @flags: the type of memory to allocate.
+  */
+-void *kzalloc(size_t size, gfp_t flags)
++void *__kzalloc(size_t size, gfp_t flags)
+ {
+ 	void *ret = kmalloc(size, flags);
+ 	if (ret)
+ 		memset(ret, 0, size);
+ 	return ret;
+ }
+-EXPORT_SYMBOL(kzalloc);
++EXPORT_SYMBOL(__kzalloc);
+ 
+ /*
+  * kstrdup - allocate space for and copy an existing string

@@ -1,37 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWCTNX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWCTNYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbWCTNX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 08:23:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWCTNX5
+	id S932296AbWCTNYa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 08:24:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWCTNYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 08:23:57 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:41652 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932297AbWCTNX4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 08:23:56 -0500
-Date: Mon, 20 Mar 2006 15:23:54 +0200 (EET)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Oliver Neukum <oliver@neukum.org>
-cc: Denis Vlasenko <vda@ilport.com.ua>, Arjan van de Ven <arjan@infradead.org>,
-       Matthew Wilcox <matthew@wil.cx>, viro@zeniv.linux.org.uk,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]use kzalloc in vfs where appropriate
-In-Reply-To: <200603201414.19998.oliver@neukum.org>
-Message-ID: <Pine.LNX.4.58.0603201521020.19782@sbz-30.cs.Helsinki.FI>
-References: <Pine.LNX.4.58.0603172153160.30725@fachschaft.cup.uni-muenchen.de>
- <84144f020603192325h54fd3212l1f4846fd40b9f074@mail.gmail.com>
- <200603201508.47960.vda@ilport.com.ua> <200603201414.19998.oliver@neukum.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Mar 2006 08:24:30 -0500
+Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:59339 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S932296AbWCTNY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 08:24:28 -0500
+To: arjan@infradead.org
+CC: matthew@wil.cx, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-reply-to: <1142860423.3114.41.camel@laptopd505.fenrus.org> (message from
+	Arjan van de Ven on Mon, 20 Mar 2006 14:13:43 +0100)
+Subject: Re: DoS with POSIX file locks?
+References: <E1FLIlF-0007zR-00@dorka.pomaz.szeredi.hu>
+	 <20060320121107.GE8980@parisc-linux.org>
+	 <E1FLJLs-00085u-00@dorka.pomaz.szeredi.hu>
+	 <20060320123950.GF8980@parisc-linux.org>
+	 <E1FLJsF-0008A7-00@dorka.pomaz.szeredi.hu> <1142860423.3114.41.camel@laptopd505.fenrus.org>
+Message-Id: <E1FLKMl-0008Gh-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 20 Mar 2006 14:24:11 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Mar 2006, Oliver Neukum wrote:
-> Why? size == 0 is a bug. We want to oops here.
+> > > Right.  Um.  I took it out back in March 2003 after enough people
+> > > convinced me it wasn't worth trying to account for all the memory
+> > > processes use, and the userbeans project would take care of it anyway.
+> > > Haha.
+> > > 
+> > > It's hard to fix the accounting.  You have to deal with one thread
+> > > allocating the lock, and then a different thread freeing it.  We never
+> > > actually accounted for posix locks (which are the ones we really needed
+> > > to!) and on occasion had current->locks go negative, with all kinds of
+> > > associated badness.
+> > 
+> > Things look fairly straightforward if the accounting is done in
+> > files_struct instead of task_struct. 
+> 
+> that's the wrong place; you can send fd's over unix sockets to other
+> processes....
 
-Why do you want to oops? The standard calloc() deals with zero so 
-kcalloc() should probably do that as well. In any case, if you want to 
-change the behavior, please audit kcalloc() callers before optimizing.
+POSIX locks have no association with fd's.  Only the inode and the
+"owner" is relevant, where owner is derived from the files_struct
+pointer for local locks.
 
-			Pekka
+Miklos

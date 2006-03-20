@@ -1,81 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWCTQLN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965083AbWCTQO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbWCTQLN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 11:11:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWCTQLJ
+	id S965083AbWCTQO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 11:14:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965087AbWCTQO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 11:11:09 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:19608 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S966278AbWCTPOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:14:17 -0500
-From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 038/141] V4L/DVB (3453a): Alters MAINTAINERS file to point
-	to newer v4l-dvb email
-Date: Mon, 20 Mar 2006 12:08:43 -0300
-Message-id: <20060320150843.PS345453000038@infradead.org>
-In-Reply-To: <20060320150819.PS760228000000@infradead.org>
-References: <20060320150819.PS760228000000@infradead.org>
+	Mon, 20 Mar 2006 11:14:27 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:4795 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S964990AbWCTQOZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 11:14:25 -0500
+Subject: Re: [PATCH] slab: introduce kmem_cache_zalloc allocator
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: balbir@in.ibm.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060320160500.GA25415@in.ibm.com>
+References: <Pine.LNX.4.58.0603201506140.19005@sbz-30.cs.Helsinki.FI>
+	 <20060320160500.GA25415@in.ibm.com>
+Date: Mon, 20 Mar 2006 18:14:23 +0200
+Message-Id: <1142871263.11694.4.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-3mdk 
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-Date: 1138386722 -0200
+On Mon, 2006-03-20 at 21:35 +0530, Balbir Singh wrote:
+> Could we please create a more generic variation of this patch -- may be a
+> function called kmem_cache_alloc_set(). The function would not only
+> memset the data to 0, but instead to any specified pattern passed as
+> an argument.
 
-- V4L/DVB Maintainers list changed. This patch alters the email to the
-  new address.
+No, no, no! I am introducing kmem_cache_zalloc() because there are
+existing users in the tree. I plan to kill the slab wrappers from XFS
+completely which is why I need this. We already have object constructors
+for what you're describing.
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
-# Acked-By: Johannes Stezenbach <js@linuxtv.org>
----
+On Mon, 2006-03-20 at 21:35 +0530, Balbir Singh wrote:
+> This could be used to poison allocated memory. Passing 0 would make
+> this equivalent to kmem_cache_zalloc(). Basically, instead of doing
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 3f8a90a..7374be0 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -540,7 +540,8 @@ S:	Supported
- 
- BTTV VIDEO4LINUX DRIVER
- P:	Mauro Carvalho Chehab
--M:	mchehab@brturbo.com.br
-+M:	mchehab@infradead.org
-+M:	v4l-dvb-maintainer@linuxtv.org
- L:	video4linux-list@redhat.com
- W:	http://linuxtv.org
- T:	git kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
-@@ -836,11 +837,12 @@ S:	Maintained
- 
- DVB SUBSYSTEM AND DRIVERS
- P:	LinuxTV.org Project
--M: 	linux-dvb-maintainer@linuxtv.org
-+M:	mchehab@infradead.org
-+M:	v4l-dvb-maintainer@linuxtv.org
- L: 	linux-dvb@linuxtv.org (subscription required)
- W:	http://linuxtv.org/
- T:	git kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
--S:	Supported
-+S:	Maintained
- 
- EATA-DMA SCSI DRIVER
- P:	Michael Neuffer
-@@ -2946,7 +2948,8 @@ S:      Maintained
- 
- VIDEO FOR LINUX
- P:	Mauro Carvalho Chehab
--M:	mchehab@brturbo.com.br
-+M:	mchehab@infradead.org
-+M:	v4l-dvb-maintainer@linuxtv.org
- L:	video4linux-list@redhat.com
- W:	http://linuxtv.org
- T:	git kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
+I am not sure I understand what you mean. We already have slab poisoning
+and that's in mm/slab.c. Why would you want to make the callers aware of
+that?
+
+				Pekka
 

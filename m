@@ -1,85 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWCTSGH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWCTSIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbWCTSGH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 13:06:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWCTSGH
+	id S1750742AbWCTSIM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 13:08:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWCTSIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 13:06:07 -0500
-Received: from pat.uio.no ([129.240.130.16]:14296 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1750816AbWCTSGF (ORCPT
+	Mon, 20 Mar 2006 13:08:12 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:4796 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1750742AbWCTSIK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 13:06:05 -0500
-Subject: Re: NFS superblock sharing implies mount flags bug
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Aurelien Degremont <aurelien.degremont@cea.fr>
-Cc: viro@zeniv.linux.org.uk, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net,
-       Jacques-Charles Lafoucriere <jc.lafoucriere@cea.fr>
-In-Reply-To: <441EAC05.7020903@cea.fr>
-References: <200603151038.LAA21392@styx.bruyeres.cea.fr>
-	 <441EAC05.7020903@cea.fr>
-Content-Type: text/plain
-Date: Mon, 20 Mar 2006 13:05:46 -0500
-Message-Id: <1142877946.7991.2.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Mon, 20 Mar 2006 13:08:10 -0500
+Message-ID: <441EEEC8.D4D9C40A@tv-sign.ru>
+Date: Mon, 20 Mar 2006 21:04:56 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: Christoph Lameter <clameter@engr.sgi.com>,
+       Shai Fultheim <shai@scalex86.org>, Nippun Goel <nippung@calsoftinc.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single 
+ threadedprocess at getrusage()
+References: <43AD8AF6.387B357A@tv-sign.ru> <Pine.LNX.4.62.0512271220380.27174@schroedinger.engr.sgi.com> <43B2874F.F41A9299@tv-sign.ru> <20051228183345.GA3755@localhost.localdomain> <20051228225752.GB3755@localhost.localdomain> <43B57515.967F53E3@tv-sign.ru> <20060104231600.GA3664@localhost.localdomain> <43BD70AD.21FC6862@tv-sign.ru> <20060106094627.GA4272@localhost.localdomain> <Pine.LNX.4.62.0601060921530.17444@schroedinger.engr.sgi.com> <20060106194623.GA4078@localhost.localdomain>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.848, required 12,
-	autolearn=disabled, AWL 1.15, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-20 at 14:20 +0100, Aurelien Degremont wrote:
-> Nobody is interested by this issue ?
-> It could be easily reproduced. All recent versions are concerned.
+Hello Ravikiran,
+
+Ravikiran G Thirumalai wrote:
 > 
-> Aurelien
-
-Check the linux-fsdevel and lkml archives.
-
-There has been plenty of work on this issue both by Herbert Poetzl and
-(more recently) by Christoph Hellwig.
-
-Cheers,
-  Trond
-
-
-
-> Aurelien Degremont wrote:
-> > Hello
-> > 
-> > I'm facing incorrect using of mount flags when dealing with NFS mounts 
-> > and I think it could be seen as a bug.
-> > 
-> > The error occurs when mounting the same NFS export many times, on the 
-> > same machine but *with different mount flags*, particularly concerning 
-> > RO/RW flags.
-> > 
-> > As the NFS client code re-uses superblocks when it detects that it is 
-> > the same export (same server/same port/same exported directory) and that 
-> > the read-only flag is managed as a per-superblock flag, if a NFS exports 
-> > is mounted a second time, the superblock of the first mount is re-used 
-> > and the specified mount flag is ignored.
-> > 
-> > # mount foo:/bar /bar_ro -o ro
-> > # mount foo:/bar /bar_rw -o rw
-> > $ touch /bar_rw/bar
-> > touch: cannot touch `/bar_rw/bar': Read-only file system
-> > 
-> > Ideally, the best solution to fix this is to move the RDONLY flag from 
-> > its per-superblock basis to a per-mountpoint (vfsmount) basis. I do not 
-> > know is there is a something that prevent that except that this implies 
-> > many changes as many codes do not use macros but access s_flags directly.
-> > 
-> > It seems quite clear that the superblock sharing couldn't be changed (to 
-> > avoid incoherency, inode aliasing and so on...) ?
-> > 
-> > Do you have a (better) solution ?
-> > I can help if needed.
-> > 
-> > 
-> > Cordially
-> > 
+> Following patch avoids taking the global tasklist_lock when possible,
+> if a process is single threaded during getrusage().  Any avoidance of
+> tasklist_lock is good for NUMA boxes (and possibly for large SMPs).
+>
+> ...
+>
+>  static void k_getrusage(struct task_struct *p, int who, struct rusage *r)
+> @@ -1681,14 +1697,22 @@ static void k_getrusage(struct task_stru
+>         struct task_struct *t;
+>         unsigned long flags;
+>         cputime_t utime, stime;
+> +       int need_lock = 0;
 > 
+>         memset((char *) r, 0, sizeof *r);
+> -
+> -       if (unlikely(!p->signal))
+> -               return;
+> -
+>         utime = stime = cputime_zero;
 > 
+> +       need_lock = (p != current || !thread_group_empty(p));
+> +       if (need_lock) {
+> +               read_lock(&tasklist_lock);
+> +               if (unlikely(!p->signal)) {
+> +                       read_unlock(&tasklist_lock);
+> +                       return;
+> +               }
+> +       } else
+> +               /* See locking comments above */
+> +               smp_rmb();
+> +
 
+I think now it is possible to improve this patch.
+
+Could you look at these patches?
+
+	[PATCH] introduce lock_task_sighand() helper
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=114028190927763
+
+	[PATCH 0/3] make threads traversal ->siglock safe
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=114064825626496
+
+I think we can forget about tasklist_lock in k_getrusage() completely
+and just use lock_task_sighand().
+
+What do you think?
+
+Oleg.

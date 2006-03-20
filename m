@@ -1,77 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbWCTTeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWCTTfA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964855AbWCTTeh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 14:34:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWCTTeg
+	id S964835AbWCTTfA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 14:35:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWCTTfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 14:34:36 -0500
-Received: from wg.technophil.ch ([213.189.149.230]:27340 "HELO
-	hydrogenium.schottelius.org") by vger.kernel.org with SMTP
-	id S964855AbWCTTeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 14:34:23 -0500
-Date: Mon, 20 Mar 2006 20:34:11 +0100
-From: Nico Schottelius <nico-kernel-20060320@schottelius.org>
-To: Arthur Othieno <apgo@patchbomb.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] doc: Updated Documentation/nfsroot.txt
-Message-ID: <20060320193411.GB16943@schottelius.org>
-Mail-Followup-To: Nico Schottelius <nico-kernel-20060320@schottelius.org>,
-	Arthur Othieno <apgo@patchbomb.org>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20060318110232.GB4336@schottelius.org> <20060318145548.GA2255@krypton>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QTprm0S8XgL7H0Dt"
+	Mon, 20 Mar 2006 14:35:00 -0500
+Received: from mail.clusterfs.com ([206.168.112.78]:4549 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S964835AbWCTTe6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 14:34:58 -0500
+Date: Mon, 20 Mar 2006 12:34:49 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Takashi Sato <sho@bsd.tnes.nec.co.jp>
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] [PATCH 1/4] ext2/3: Extends the max file size(ext2 in kernel)
+Message-ID: <20060320193449.GD6199@schatzie.adilger.int>
+Mail-Followup-To: Takashi Sato <sho@bsd.tnes.nec.co.jp>,
+	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+References: <20060318220130sho@rifu.tnes.nec.co.jp> <20060320072037.GD30801@schatzie.adilger.int> <07fa01c64c18$d3ac7a60$4168010a@bsd.tnes.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060318145548.GA2255@krypton>
-User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux 2.6.15.6
+In-Reply-To: <07fa01c64c18$d3ac7a60$4168010a@bsd.tnes.nec.co.jp>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mar 20, 2006  21:21 +0900, Takashi Sato wrote:
+> >Instead of breaking all filesystems that need to create large files,
+> >the patch should instead set "i_flags | EXT2_LARGEBLK_FL" only on inodes
+> >that are larger than 2TB and use "blocksize" i_blocks on those files.
+> 
+> Do you have any idea when the flag is set and cleared?
 
---QTprm0S8XgL7H0Dt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You would set this flag when the file grows over 2^32 sectors in size.
+You might optionally clear it if the file shrinks below 2^32 sectors.
+At that time you would take the old i_blocks value and (>> (blockbits - 9)).
 
-Arthur Othieno [Sat, Mar 18, 2006 at 09:55:48AM -0500]:
-> [...]=20
-> Setting From: address on your end is trivial. Having to jump through
-> hoops like these to provide any feedback is just a waste of peoples'
-> time, really.
+> >This preserves compatibility with existing filesystems and doesn't
+> >impose any breakage opon an existing filesystem for anyone who wants
+> >to use this feature.
+> 
+> I'm afraid that i_blocks of >2TB file would be corrupted if old kernel
+> or old e2fsprogs touches the file.
 
-Sorry, did not really see that is so annoying.=20
+I don't mean that we would remove the COMPAT flag (Ted and I arE just
+having a discussion in another thread whether i_blocks inaccuracy
+should be an ROCOMPAT or INCOMPAT feature)).  If a kernel understands
+the {RO,IN}COMPAT_LARGE_BLOCK flag, then they would also understand
+EXT2_LARGEBLK_FL on the inode to mean "i_blocks is in fs-blocksize units",
+so no corruption would take place.  If the kernel can't understand the
+COMPAT flag, it would not mount (INCOMPAT, which is inconvenient for the
+users) or mount read-only (ROCOMPAT, wouldn't allow file to be modified).
+The same is true for e2fsprogs.
 
-So now you can reply directly to me.
+The real goal is that setting ?COMPAT_LARGE_BLOCK doesn't immediately
+make all OTHER files in the filesystem have incorrect i_blocks values,
+which would be MUCH more of a problem than files > 2TB having inaccurate
+i_blocks counts.
 
-Nico
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 
---=20
-:x
-
---QTprm0S8XgL7H0Dt
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iQIVAwUBRB8Ds7OTBMvCUbrlAQKj7Q/+OzjLhhCWaC3ykF3Ip1IQioIMHbXja5+U
-xUvXvtuSOzGAORa8R1pRlA1Q4S+tgnUCrEweupNxcodBlHOdBC5RhvH/sVFgTRwR
-CQIgR6lRWTYksFIVOUo5K7f995YGcf4ABTMlcent+e0Ba9IFa7eykl4idbw+i+n6
-q4v5anXIHhAazmid3ZHMPwzUrGIRuC/KUz3zI8tMsGBw+MRcPZtBK5IaMwYoJKBi
-3koO6YVDwmHdlZq7WoNfJU1Iwa2ORROt5OUw+RNLI+sk1RkGkYXQ/t6d+YlDdwPn
-+5VupTjKqa8vcKPuPh1kz2sV2c23WTr6LmcD2Yn+cOBJVh3PfL7yS7xlPJeLzWpv
-+VWdAiT9B+Aoce0CV62Aj2skjs3Em6XYP9+jE6NPCW5EdGLW5Wrxlq3n1AMFHprQ
-Aq4zdo2dEdnGxmPZRC5VP+foh9A4XcYBG3sN3Kxx0e+ctk6wT1nK/UaT1eci4tCr
-v5yR7UQ+edWhgrLSAbqT5TliOcKZBRBzxkTQzo3EjOEJau/RoQD8ZqOQaIBr9Pme
-ZHFonJnd18FowuyKVO6R7XPqedM/b9ccnPcfu0sUXo5oRM74BBnXmWoePPf/3IHI
-frmdiNYY3DomBpfzGoWrn7yMvxYG6/pKR6a95vpCR9j8bASV0IhR8Jq5rx3BPt6c
-guhTDts9bKU=
-=9JyY
------END PGP SIGNATURE-----
-
---QTprm0S8XgL7H0Dt--

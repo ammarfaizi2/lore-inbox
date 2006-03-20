@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWCTRzk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWCTRzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964772AbWCTRzk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 12:55:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbWCTRzk
+	id S964828AbWCTRzi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 12:55:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964772AbWCTRzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 12:55:40 -0500
-Received: from [198.99.130.12] ([198.99.130.12]:26837 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S964772AbWCTRzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 12:55:39 -0500
-Date: Mon, 20 Mar 2006 12:56:33 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Matheus Izvekov <mizvekov@gmail.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Neil Brown <neilb@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Who uses the 'nodev' flag in /proc/filesystems ???
-Message-ID: <20060320175633.GA5797@ccure.user-mode-linux.org>
-References: <17436.60328.242450.249552@cse.unsw.edu.au> <Pine.LNX.4.61.0603191024420.1409@yvahk01.tjqt.qr> <17438.13214.307942.212773@cse.unsw.edu.au> <Pine.LNX.4.61.0603201659250.22395@yvahk01.tjqt.qr> <305c16960603200817u3c8e4023nf2621245fdb0ed65@mail.gmail.com>
+	Mon, 20 Mar 2006 12:55:38 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:5520 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964828AbWCTRzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 12:55:37 -0500
+Subject: Re: [PATCH 000/141] V4L/DVB updates part 1
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Linux and Kernel Video <video4linux-list@redhat.com>
+Cc: linux-dvb-maintainer@linuxtv.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <200603201751.k2KHpul2020452@turing-police.cc.vt.edu>
+References: <20060320150819.PS760228000000@infradead.org>
+	 <200603201751.k2KHpul2020452@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 20 Mar 2006 14:55:08 -0300
+Message-Id: <1142877308.4714.3.camel@praia>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <305c16960603200817u3c8e4023nf2621245fdb0ed65@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.4.2.1-3mdk 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 20, 2006 at 01:17:59PM -0300, Matheus Izvekov wrote:
-> If a filesystem is nodev, then what would you fsck? Am i missing something?
+Em Seg, 2006-03-20 às 12:51 -0500, Valdis.Kletnieks@vt.edu escreveu:
+> On Mon, 20 Mar 2006 12:08:19 -0300, mchehab@infradead.org said:
+> > This patch series is also available under v4l-dvb.git tree at:
+> >         kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
+> > 
+> > Linus, please pull these from master branch.
+> 
+> 141 patchbombs.  For part 1.
+> 
+> Can we please have a discussion of what happens for part 2?
+I broke into two parts to not scare too much... There are 62 patches
+remaining.
 
-There's a UML filesystem for which the nodev-implies-no-fsck behavior
-is inconvenient.  It stores its files as files on the host, where the
-file metadata is stored separately from the file data.  If the two
-fall out of sync after a crash, we need to fsck it.  In this case,
-fsck would do a hostfs mount of the data and metadata (where the files
-are available as they exist on the host) and fix things up.
+Maybe I can just send the first email and let people check the patches
+at -git.
+> 
+> --
+> video4linux-list mailing list
+> Unsubscribe mailto:video4linux-list-request@redhat.com?subject=unsubscribe
+> https://www.redhat.com/mailman/listinfo/video4linux-list
+Cheers, 
+Mauro.
 
-So, in this case, the thing being fscked is a directory hierarchy on
-the host.
-
-				Jeff

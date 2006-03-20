@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751658AbWCTG23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWCTG36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751658AbWCTG23 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 01:28:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWCTG23
+	id S932087AbWCTG36 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 01:29:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbWCTG36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 01:28:29 -0500
-Received: from nproxy.gmail.com ([64.233.182.202]:25351 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751658AbWCTG22 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 01:28:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=i9BZUSIfNjcHYTLNrVFG2iykBpDIlhy+uryE5wQbsvU99HOnyZd5MgWWHCRxUa1m3yXJrkFqBXKJna3cpxKGz05FypuoIeLBowRnmnky+kwFFaJ+LIG+8aUygPMQKBAKUmheJv7JnMxm0ewL13kSt/w+Xt4bRC5fB1WZcTcEYlw=
-Message-ID: <b681c62b0603192228h2724f947l90bc6737048b56e@mail.gmail.com>
-Date: Mon, 20 Mar 2006 11:58:26 +0530
-From: "yogeshwar sonawane" <yogyas@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: writing to a device through driver entrypoint or directly from user space after mapping it
+	Mon, 20 Mar 2006 01:29:58 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:4518 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932087AbWCTG35 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 01:29:57 -0500
+Date: Sun, 19 Mar 2006 22:26:30 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Willy Tarreau <willy@w.ods.org>
+cc: Andrew Morton <akpm@osdl.org>, kernel-stuff@comcast.net,
+       linux-kernel@vger.kernel.org, alex-kernel@digriz.org.uk,
+       jun.nakajima@intel.com, davej@redhat.com, viro@ftp.linux.org.uk
+Subject: Re: OOPS: 2.6.16-rc6 cpufreq_conservative
+In-Reply-To: <20060320061212.GG21493@w.ods.org>
+Message-ID: <Pine.LNX.4.64.0603192223530.3622@g5.osdl.org>
+References: <200603181525.14127.kernel-stuff@comcast.net>
+ <Pine.LNX.4.64.0603181321310.3826@g5.osdl.org> <20060318165302.62851448.akpm@osdl.org>
+ <Pine.LNX.4.64.0603181827530.3826@g5.osdl.org> <Pine.LNX.4.64.0603191034370.3826@g5.osdl.org>
+ <Pine.LNX.4.64.0603191050340.3826@g5.osdl.org> <Pine.LNX.4.64.0603191125220.3826@g5.osdl.org>
+ <20060320061212.GG21493@w.ods.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-If I want to write to a register of a PCI device which is in BAR
-region, there are two ways:-
-1) inside write() entrypoint of my driver, i can write to that
-particular register.
-2) if i have mapped my BAR region to user space, then writing to the
-required register directly from user space.
 
-So is there any difference in performance or time required to write to
-a device from write() entrypoint of a driver or mapping a BAR region
-to user space & then writing to it from user space?
+On Mon, 20 Mar 2006, Willy Tarreau wrote:
+> 
+> Now, does removing the macro completely change the output code ?
+> I think that if something written like this produces the same
+> code, it would be easier to read :
+> 
+> #define for_each_cpu_mask(cpu, mask)			\
+> 	for ((cpu) = 0; (cpu) < NR_CPUS; (cpu)++) {	\
+> 		unsigned long __bits = (mask).bits[0] >> (cpu); \
+> 		if (!__bits)				\
+> 			break;				\
+> 		if (!__bits & 1)			\
+> 			continue;			\
+> 		else
 
-are there any advantages / disadvantages ?
+Absolutely, but now it has a dangling "{" that didn't get closed. So the 
+above would definitely be more readable, it just doesn't actually work.
 
-If i am wrong, correct me please.
-Thanks in advance.
+Unless you'd do the "end_for_each_cpu" define (to close the statement), 
+and update the 300+ places that use this. Which might well be worth it.
+
+So the subtle "break from the middle of a statement expression" was just a 
+rather hacky way to avoid having to change all the users of this macro.
+
+			Linus

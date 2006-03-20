@@ -1,37 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWCTPwT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965551AbWCTPve@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbWCTPwT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:52:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965568AbWCTPvo
+	id S965551AbWCTPve (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:51:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965545AbWCTPvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:51:44 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:55395 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965562AbWCTPvl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:51:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Hz5VX+wZxKYEBJ/W+U+1SEwzz0d5vIL7Iqx9ptvIvnJMxtQeSdmexXBlImG3kyOsPDxs2A/MCMD4zosyF2gd2RANv6k/+sh0ORp6tfPAUoElo/watSAxYUeorrWP27tAkujWwFzCRd5hVfF6K6gYNz6GyOdLxVcJpsst8tdiVuA=
-Message-ID: <84144f020603200751o22103ce1je1b1d4b3885a75a@mail.gmail.com>
-Date: Mon, 20 Mar 2006 17:51:40 +0200
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Oliver Neukum" <neukum@fachschaft.cup.uni-muenchen.de>
-Subject: Re: [PATCH]micro optimization of kcalloc
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0603201542250.17461@fachschaft.cup.uni-muenchen.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.58.0603201542250.17461@fachschaft.cup.uni-muenchen.de>
+	Mon, 20 Mar 2006 10:51:32 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:31970 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S966699AbWCTPUC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:20:02 -0500
+From: mchehab@infradead.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-dvb-maintainer@linuxtv.org, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: [PATCH 128/141] V4L/DVB (3399a): cpia2/cpia2_v4l.c cleanups
+Date: Mon, 20 Mar 2006 12:08:58 -0300
+Message-id: <20060320150858.PS389640000128@infradead.org>
+In-Reply-To: <20060320150819.PS760228000000@infradead.org>
+References: <20060320150819.PS760228000000@infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1-3mdk 
+Content-Transfer-Encoding: 7bit
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/20/06, Oliver Neukum <neukum@fachschaft.cup.uni-muenchen.de> wrote:
-> this optimises away a division in kcalloc by letting the compiler
-> do it. It is redone to allow size==0.
+From: Adrian Bunk <bunk@stusta.de>
+Date: 1141112451 -0300
 
-Does this shrink kernel text and if yes, how much?
+- make 2 needlessly global functions static
 
-                                        Pekka
+- remove cpia2_setup(): the driver already allows setting parameters
+  through module_param(), and there's no reason for having two different
+  ways for setting the same parameters
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+---
+
+diff --git a/Documentation/video4linux/README.cpia2 b/Documentation/video4linux/README.cpia2
+diff --git a/Documentation/video4linux/README.cpia2 b/Documentation/video4linux/README.cpia2
+index f3bd343..ce8213d 100644
+--- a/Documentation/video4linux/README.cpia2
++++ b/Documentation/video4linux/README.cpia2
+@@ -70,7 +70,7 @@ line like this:
+ 
+ 	If the driver is compiled into the kernel, at boot time specify them
+ like this:
+-	cpia2=num_buffers:3,buffer_size:65535
++	cpia2.num_buffers=3 cpia2.buffer_size=65535
+ 
+ 	What buffer size should I use?
+ 	------------------------------
+diff --git a/drivers/media/video/cpia2/cpia2_v4l.c b/drivers/media/video/cpia2/cpia2_v4l.c
+diff --git a/drivers/media/video/cpia2/cpia2_v4l.c b/drivers/media/video/cpia2/cpia2_v4l.c
+index 3480a2c..589283d 100644
+--- a/drivers/media/video/cpia2/cpia2_v4l.c
++++ b/drivers/media/video/cpia2/cpia2_v4l.c
+@@ -2053,7 +2053,7 @@ static void __init check_parameters(void
+  * cpia2_init/module_init
+  *
+  *****************************************************************************/
+-int __init cpia2_init(void)
++static int __init cpia2_init(void)
+ {
+ 	LOG("%s v%d.%d.%d\n",
+ 	    ABOUT, CPIA2_MAJ_VER, CPIA2_MIN_VER, CPIA2_PATCH_VER);
+@@ -2068,37 +2068,12 @@ int __init cpia2_init(void)
+  * cpia2_exit/module_exit
+  *
+  *****************************************************************************/
+-void __exit cpia2_exit(void)
++static void __exit cpia2_exit(void)
+ {
+ 	cpia2_usb_cleanup();
+ 	schedule_timeout(2 * HZ);
+ }
+ 
+-
+-int __init cpia2_setup(char *str)
+-{
+-	while(str) {
+-		if(!strncmp(str, "buffer_size:", 12)) {
+-			buffer_size = simple_strtoul(str + 13, &str, 10);
+-		} else if(!strncmp(str, "num_buffers:", 12)) {
+-			num_buffers = simple_strtoul(str + 13, &str, 10);
+-		} else if(!strncmp(str, "alternate:", 10)) {
+-			alternate = simple_strtoul(str + 11, &str, 10);
+-		} else if(!strncmp(str, "video_nr:", 9)) {
+-			video_nr = simple_strtoul(str + 10, &str, 10);
+-		} else if(!strncmp(str, "flicker_freq:",13)) {
+-		   flicker_freq = simple_strtoul(str + 14, &str, 10);
+-		} else if(!strncmp(str, "flicker_mode:",13)) {
+-		   flicker_mode = simple_strtoul(str + 14, &str, 10);
+-		} else {
+-			++str;
+-		}
+-	}
+-	return 1;
+-}
+-
+-__setup("cpia2=", cpia2_setup);
+-
+ module_init(cpia2_init);
+ module_exit(cpia2_exit);
+ 
+

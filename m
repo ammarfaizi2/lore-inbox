@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965243AbWCTPqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965461AbWCTPro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965243AbWCTPqw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:46:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965431AbWCTPqv
+	id S965461AbWCTPro (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:47:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965262AbWCTPrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:46:51 -0500
-Received: from nproxy.gmail.com ([64.233.182.202]:6278 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965427AbWCTPqa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:46:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NxgtVfx9+NqShM+nQ/4+8qjlzh86b39y9XHuIJVSntlmxYGMEZXuYjZ1NR3aLTo6RhMihWbCHAk2PR5TELxWiABYA7JVELnJPehgbymrC8rplFYX4SgxgMdCsAvZluoHz3D2tD024LKRMbzHArCT+P8ZITCYHXswwGK7sI+KUJI=
-Message-ID: <b6c5339f0603200746k3e817e9bmdc278764fe488a8c@mail.gmail.com>
-Date: Mon, 20 Mar 2006 10:46:27 -0500
-From: "Bob Copeland" <me@bobcopeland.com>
-To: "Benjamin Bach" <benjamin@overtag.dk>
-Subject: Re: Idea: Automatic binary driver compiling system
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <441D82D8.7050106@overtag.dk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <441AF93C.6040407@overtag.dk> <1142620509.25258.53.camel@mindpipe>
-	 <441C213A.3000404@overtag.dk>
-	 <1142694655.2889.22.camel@laptopd505.fenrus.org>
-	 <441C2CF6.1050607@overtag.dk>
-	 <1142698292.2889.26.camel@laptopd505.fenrus.org>
-	 <441D36DA.2000701@overtag.dk>
-	 <b6c5339f0603190719u6e52ba3cwda15509de3ed947e@mail.gmail.com>
-	 <441D82D8.7050106@overtag.dk>
+	Mon, 20 Mar 2006 10:47:43 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:42978 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965261AbWCTPVH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:21:07 -0500
+From: mchehab@infradead.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-dvb-maintainer@linuxtv.org,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: [PATCH 104/141] V4L/DVB (3372): Fix a small bug when constructing
+	fps and line numbers
+Date: Mon, 20 Mar 2006 12:08:54 -0300
+Message-id: <20060320150854.PS323905000104@infradead.org>
+In-Reply-To: <20060320150819.PS760228000000@infradead.org>
+References: <20060320150819.PS760228000000@infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1-3mdk 
+Content-Transfer-Encoding: 7bit
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/19/06, Benjamin Bach <benjamin@overtag.dk> wrote:
-> Otherwise I'll probably dig up something. Just needs to be a small
-> kernel-whatever project.
->
-> Is there someone maintaining a list of non-implemented ideas for kernel
-> features/drivers?
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+Date: 1141009732 -0300
 
-Although neither of these are easy and you very well might not get
-anything done in three months, a couple of bits of hardware that I
-have for which there are incomplete/no drivers, and where the
-manufacturer refuses to give out specs are:
+Previously, only NTSC and PAL/M were associated to 30fps and
+525 lines, so, PAL/60 were not handled properly.
 
-- Ricoh MMC/SD controllers.  The project to figure those out is at:
-http://mmc.drzeus.cx/wiki/Controllers/Ricoh/Frontreport
+Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+---
 
-- 3D for NVidia.  I know many people would take an open but basic 3D
-driver over the fully featured binary one - many people already use
-the 2D 'nv' driver for that reason.  Rudolf Cornelissen has reverse
-engineered various bits of it (though it may apply only to the
-geforce-1 era cards) over here:
-http://web.inter.nl.net/users/be-hold/BeOS/NVdriver/3dnews.html
+diff --git a/drivers/media/video/v4l2-common.c b/drivers/media/video/v4l2-common.c
+diff --git a/drivers/media/video/v4l2-common.c b/drivers/media/video/v4l2-common.c
+index a241bf7..4908dab 100644
+--- a/drivers/media/video/v4l2-common.c
++++ b/drivers/media/video/v4l2-common.c
+@@ -97,7 +97,7 @@ int v4l2_video_std_construct(struct v4l2
+ 	memset(vs, 0, sizeof(struct v4l2_standard));
+ 	vs->index = index;
+ 	vs->id    = id;
+-	if (id & (V4L2_STD_NTSC | V4L2_STD_PAL_M)) {
++	if (id & V4L2_STD_525_60) {
+ 		vs->frameperiod.numerator = 1001;
+ 		vs->frameperiod.denominator = 30000;
+ 		vs->framelines = 525;
+@@ -110,7 +110,6 @@ int v4l2_video_std_construct(struct v4l2
+ 	return 0;
+ }
+ 
+-
+ /* ----------------------------------------------------------------- */
+ /* priority handling                                                 */
+ 
 
-You will find it's a whole lot easier to write drivers when you have
-specs though, and the resulting drivers will also be better.  But
-depending on the scope of your project, you could definitely learn
-something either way.
-
-Another thing that would be a lot easier to accomplish in 3 months
-would be to write a userspace filesystem using FUSE for something that
-isn't ordinarily accessed by filesystems; for example currently you
-can mount remote machines over ssh, cameras that can talk to gphoto,
-tar archives, gmail, etc.

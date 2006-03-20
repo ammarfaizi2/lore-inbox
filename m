@@ -1,75 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWCTNt0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWCTNvh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbWCTNt0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 08:49:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWCTNt0
+	id S964798AbWCTNvh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 08:51:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWCTNvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 08:49:26 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:22461 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932301AbWCTNtZ (ORCPT
+	Mon, 20 Mar 2006 08:51:37 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:2019 "EHLO gw1.cosmosbay.com")
+	by vger.kernel.org with ESMTP id S964798AbWCTNvg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 08:49:25 -0500
-Date: Mon, 20 Mar 2006 19:19:20 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: =?iso-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-Cc: "linux-aio@kvack.org" <linux-aio@kvack.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux POSIX AIO V0.8 released
-Message-ID: <20060320134920.GA619@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <1142861629.4668.8.camel@frecb000686>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+	Mon, 20 Mar 2006 08:51:36 -0500
+Message-ID: <441EB350.50609@cosmosbay.com>
+Date: Mon, 20 Mar 2006 14:51:12 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] slab: introduce kmem_cache_zalloc allocator
+References: <Pine.LNX.4.58.0603201506140.19005@sbz-30.cs.Helsinki.FI>
+In-Reply-To: <Pine.LNX.4.58.0603201506140.19005@sbz-30.cs.Helsinki.FI>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1142861629.4668.8.camel@frecb000686>
-User-Agent: Mutt/1.4.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Mon, 20 Mar 2006 14:51:18 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pekka J Enberg a écrit :
+> From: Pekka Enberg <penberg@cs.helsinki.fi>
+> 
+> This patch introduces a memory-zeroing variant of kmem_cache_alloc. The
+> allocator already exits in XFS and there are potential users for it so
+> this patch makes the allocator available for the general public.
+> 
 
-Just cc'ing lkml on your post as well.
+Excellent.
 
-Regards
-Suparna
+Please change zalloc() so that a zalloc(constant_value) uses your 
+kmem_cache_zalloc on the appropriate cache.
 
-On Mon, Mar 20, 2006 at 02:33:49PM +0100, Sébastien Dugué wrote:
-> The Linux POSIX AIO V0.8 library has been released:
-> 
->   it is available at http://www.bullopensource.org/posix.
-> 
->   Major changes are :
-> 
->   - x86_64 implementation fixed (needs some more testing)
->   - Fixed testcases use of volatile variables
-> 
->   Hopefully, the x86_64 fixes apply as well to the ia64 implementation.
-> Testers are welcome for this architecture.
-> 
->   As always, comments are welcome.
-> 
->   Sébastien.
-> 
-> -- 
-> -----------------------------------------------------
-> 
->   Sébastien Dugué                BULL/FREC:B1-247
->   phone: (+33) 476 29 77 70      Bullcom: 229-7770
-> 
->   mailto:sebastien.dugue@bull.net
-> 
->   Linux POSIX AIO: http://www.bullopensource.org/posix
->                    http://sourceforge.net/projects/paiol
-> 
-> -----------------------------------------------------
-> 
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-aio' in
-> the body to majordomo@kvack.org.  For more info on Linux AIO,
-> see: http://www.kvack.org/aio/
-> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
+This way we can really introduce zalloc() *everywhere* without paying the cost 
+of runtime lookup to find the right cache.
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
-
+Eric

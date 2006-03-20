@@ -1,78 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965023AbWCTTKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965056AbWCTTKg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965023AbWCTTKK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 14:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbWCTTKJ
+	id S965056AbWCTTKg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 14:10:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbWCTTKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 14:10:09 -0500
-Received: from mf00.sitadelle.com ([212.94.174.67]:53459 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S965038AbWCTTKG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 14:10:06 -0500
-Message-ID: <441EFE05.8040506@cosmosbay.com>
-Date: Mon, 20 Mar 2006 20:09:57 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 20 Mar 2006 14:10:35 -0500
+Received: from uproxy.gmail.com ([66.249.92.199]:16207 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965052AbWCTTKd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 14:10:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:disposition-notification-to:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=KePqKnOFt3ehr0zafO8MJUs/2y12F7d6pYgcWU+qn8Og1bw3UftKrmrMlrqaRCWbnKh0nIND0LRnbxH8RUdG6yfj82b/Yj2NGnIjlMdiUSaj+Yw5ocHUQT/idmgQhY07uQBXSp5jczYkNyT0TfAm1Usb4gZc1taBoTKIp43W7gU=
+Message-ID: <441EFE54.2090004@gmail.com>
+Date: Mon, 20 Mar 2006 21:11:16 +0200
+From: Alon Bar-Lev <alon.barlev@gmail.com>
+User-Agent: Mail/News 1.5 (X11/20060319)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Use unsigned int types for a faster bsearch
-References: <20060315054416.GF3205@localhost.localdomain>	<1142403500.26706.2.camel@sli10-desk.sh.intel.com> <20060314233138.009414b4.akpm@osdl.org> <4417E047.70907@cosmosbay.com>
-In-Reply-To: <4417E047.70907@cosmosbay.com>
-Content-Type: multipart/mixed;
- boundary="------------010009080708070501000602"
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+CC: Peter Wainwright <prw@ceiriog.eclipse.co.uk>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Announcing crypto suspend
+References: <20060320080439.GA4653@elf.ucw.cz> <1142879707.9475.4.camel@localhost.localdomain> <200603201954.45572.rjw@sisk.pl>
+In-Reply-To: <200603201954.45572.rjw@sisk.pl>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010009080708070501000602
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Rafael J. Wysocki wrote:
+> and please read the HOWTO.  Unfortunately the RSA-related part hasn't been
+> documented yet, but it's pretty straightforward.
 
-This patch avoids arithmetic on 'signed' types that are slower than 
-'unsigned'. This saves space and cpu cycles.
+Hello,
 
-size of kernel/sys.o before the patch (gcc-3.4.5)
+I don't understand why you are working so hard on this... If
+you want encryption, you should care about all of your data!
 
-    text    data     bss     dec     hex filename
-   10924     252       4   11180    2bac kernel/sys.o
+And if you encrypt all your data, you automatically get a
+suspend image encryption...
 
-size of kernel/sys.o after the patch
-    text    data     bss     dec     hex filename
-   10903     252       4   11159    2b97 kernel/sys.o
+Please have a look at
+http://wiki.suspend2.net/EncryptedSwapAndRoot
 
-I noticed that gcc-4.1.0 (from Fedora Core 5) even uses idiv instruction for 
-(a+b)/2 if a and b are signed.
+I use loop-aes in order to do the job... I know... I know...
+You don't like suspend2... But it should be basically the
+same with swsusp1/2/3/N.
 
-Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
-
-
---------------010009080708070501000602
-Content-Type: text/plain;
- name="groups_search.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="groups_search.patch"
-
---- a/kernel/sys.c	2006-03-20 18:42:41.000000000 +0100
-+++ b/kernel/sys.c	2006-03-20 19:00:43.000000000 +0100
-@@ -1375,7 +1375,7 @@
- /* a simple bsearch */
- int groups_search(struct group_info *group_info, gid_t grp)
- {
--	int left, right;
-+	unsigned int left, right;
- 
- 	if (!group_info)
- 		return 0;
-@@ -1383,7 +1383,7 @@
- 	left = 0;
- 	right = group_info->ngroups;
- 	while (left < right) {
--		int mid = (left+right)/2;
-+		unsigned int mid = (left+right)/2;
- 		int cmp = grp - GROUP_AT(group_info, mid);
- 		if (cmp > 0)
- 			left = mid + 1;
-
---------------010009080708070501000602--
+Best Regards,
+Alon Bar-Lev.

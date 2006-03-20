@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWCTG36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWCTGbg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbWCTG36 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 01:29:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbWCTG36
+	id S932091AbWCTGbg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 01:31:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWCTGbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 01:29:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:4518 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932087AbWCTG35 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 01:29:57 -0500
-Date: Sun, 19 Mar 2006 22:26:30 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Willy Tarreau <willy@w.ods.org>
-cc: Andrew Morton <akpm@osdl.org>, kernel-stuff@comcast.net,
-       linux-kernel@vger.kernel.org, alex-kernel@digriz.org.uk,
-       jun.nakajima@intel.com, davej@redhat.com, viro@ftp.linux.org.uk
-Subject: Re: OOPS: 2.6.16-rc6 cpufreq_conservative
-In-Reply-To: <20060320061212.GG21493@w.ods.org>
-Message-ID: <Pine.LNX.4.64.0603192223530.3622@g5.osdl.org>
-References: <200603181525.14127.kernel-stuff@comcast.net>
- <Pine.LNX.4.64.0603181321310.3826@g5.osdl.org> <20060318165302.62851448.akpm@osdl.org>
- <Pine.LNX.4.64.0603181827530.3826@g5.osdl.org> <Pine.LNX.4.64.0603191034370.3826@g5.osdl.org>
- <Pine.LNX.4.64.0603191050340.3826@g5.osdl.org> <Pine.LNX.4.64.0603191125220.3826@g5.osdl.org>
- <20060320061212.GG21493@w.ods.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Mar 2006 01:31:36 -0500
+Received: from mo00.po.2iij.net ([210.130.202.204]:40167 "EHLO
+	mo00.po.2iij.net") by vger.kernel.org with ESMTP id S932091AbWCTGbf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 01:31:35 -0500
+Date: Mon, 20 Mar 2006 15:31:27 +0900
+From: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
+To: Martin Michlmayr <tbm@cyrius.com>
+Cc: yoichi_yuasa@tripeaks.co.jp, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-mips@linux-mips.org
+Subject: Re: [PATCH 2/12] [MIPS] Cosmetic updates to sync with linux-mips
+Message-Id: <20060320153127.520a6a50.yoichi_yuasa@tripeaks.co.jp>
+In-Reply-To: <20060320043915.GB20416@deprecation.cyrius.com>
+References: <20060320043802.GA20389@deprecation.cyrius.com>
+	<20060320043915.GB20416@deprecation.cyrius.com>
+Organization: TriPeaks Corporation
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 20 Mar 2006 04:39:15 +0000
+Martin Michlmayr <tbm@cyrius.com> wrote:
 
-
-On Mon, 20 Mar 2006, Willy Tarreau wrote:
+> Make some cosmetic changes in order to bring mainline in sync
+> with the linux-mips tree.
 > 
-> Now, does removing the macro completely change the output code ?
-> I think that if something written like this produces the same
-> code, it would be easier to read :
+> Signed-off-by: Martin Michlmayr <tbm@cyrius.com>
 > 
-> #define for_each_cpu_mask(cpu, mask)			\
-> 	for ((cpu) = 0; (cpu) < NR_CPUS; (cpu)++) {	\
-> 		unsigned long __bits = (mask).bits[0] >> (cpu); \
-> 		if (!__bits)				\
-> 			break;				\
-> 		if (!__bits & 1)			\
-> 			continue;			\
-> 		else
+> 
+> --- linux-2.6/arch/mips/Makefile	2006-03-13 18:45:54.000000000 +0000
+> +++ mips.git/arch/mips/Makefile	2006-03-13 18:43:52.000000000 +0000
+> @@ -498,6 +499,7 @@
+>  cflags-$(CONFIG_PMC_YOSEMITE)	+= -Iinclude/asm-mips/mach-yosemite
+>  load-$(CONFIG_PMC_YOSEMITE)	+= 0xffffffff80100000
+>  
+> +#
+>  # Qemu simulating MIPS32 4Kc
+>  #
+>  core-$(CONFIG_QEMU)		+= arch/mips/qemu/
+> @@ -584,7 +586,7 @@
+>  load-$(CONFIG_CASIO_E55)	+= 0xffffffff80004000
+>  
+>  #
+> -# TANBAC VR4131 multichip module(TB0225) and TANBAC VR4131DIMM(TB0229) (VR4131)
+> +# TANBAC TB0225 VR4131 Multi-chip module/TB0229 VR4131DIMM (VR4131)
 
-Absolutely, but now it has a dangling "{" that didn't get closed. So the 
-above would definitely be more readable, it just doesn't actually work.
+The linux-mips tree is older than kernel.org about this line.
 
-Unless you'd do the "end_for_each_cpu" define (to close the statement), 
-and update the 300+ places that use this. Which might well be worth it.
-
-So the subtle "break from the middle of a statement expression" was just a 
-rather hacky way to avoid having to change all the users of this macro.
-
-			Linus
+Yoichi

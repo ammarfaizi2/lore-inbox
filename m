@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbWCTX3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbWCTXcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964974AbWCTX3r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 18:29:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbWCTX3r
+	id S964998AbWCTXcz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 18:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbWCTXcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 18:29:47 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:48098
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S964961AbWCTX3q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 18:29:46 -0500
-Date: Mon, 20 Mar 2006 15:28:38 -0800 (PST)
-Message-Id: <20060320.152838.68858441.davem@davemloft.net>
-To: chrisw@sous-sol.org
-Cc: cxzhang@watson.ibm.com, netdev@axxeo.de, ioe-lkml@rameria.de,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] scm: fold __scm_send() into scm_send()
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060320213636.GT15997@sorel.sous-sol.org>
-References: <200603201244.58507.netdev@axxeo.de>
-	<20060320201802.GS15997@sorel.sous-sol.org>
-	<20060320213636.GT15997@sorel.sous-sol.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 20 Mar 2006 18:32:55 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:13497 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964967AbWCTXcy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 18:32:54 -0500
+Date: Mon, 20 Mar 2006 23:32:48 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, mingz@ele.uri.edu, mikado4vn@gmail.com,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: Question regarding to store file system metadata in database
+Message-ID: <20060320233247.GF27946@ftp.linux.org.uk>
+References: <1142791121.31358.21.camel@localhost.localdomain> <4ae3c140603191011r7b68f4aale01238202656d122@mail.gmail.com> <1142792787.31358.28.camel@localhost.localdomain> <4ae3c140603191050k3bf7e960q9b35fe098e2fbe35@mail.gmail.com> <20060319194723.GA27946@ftp.linux.org.uk> <20060320130950.GA9334@thunk.org> <4ae3c140603200713m24a5af0agd891a709286deb47@mail.gmail.com> <4ae3c140603201136q7e61963dy635bb2c6047f0bc2@mail.gmail.com> <20060320195858.GD27946@ftp.linux.org.uk> <4ae3c140603201453p113c8c11h3029d1d55d209e27@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4ae3c140603201453p113c8c11h3029d1d55d209e27@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Chris Wright <chrisw@sous-sol.org>
-Date: Mon, 20 Mar 2006 13:36:36 -0800
+On Mon, Mar 20, 2006 at 05:53:08PM -0500, Xin Zhao wrote:
+> Apparently this comparison is not 100% fair. In my experiment, I
+> randomly pick pathname from 1.2 million path names to resolve the
+> inode number. But in your "cp -rl linux2.6 foo1" experiment, you
+> essentially did directory entry lookup sequentially, which maximize
+> the possible performance. If you do the same thing in a random
+> fashion, you will probably get much worse performance. As I said
+> before, I totally agree that 2000/sec is slow. But the point here is
+> whether 2000/sec is enough for most scenarios?
 
-> The point of Catherine's original patch was to make sure there's always
-> a security identifier associated with AF_UNIX messages.  So receiver
-> can always check it (same as having credentials even w/out sender
-> control message passing them).  Now we will have garbage for sid.
+It is not; e.g. unpacking a tarball or running make(1) on even a
+medium-sized tree is going to hurt that way.  Moreover, the same
+goes for a lot of scripts, etc.
 
-I'm seriously considering backing out Catherine's AF_UNIX patch from
-the net-2.6.17 tree before submitting it to Linus later today so that
-none of this crap goes in right now.
+And that's aside of the question of CPU load you are inflicting -
+it's not just 2000/sec, it's 2000/sec _and_ _nothing_ _else_ _gets_
+_done_.
 
-It appears that this needs a lot more sorting out, so for now that's
-probably the right thing to do.
+BTW, for real lookup speed, try find(1).  From hot cache.
+
+> I am not saying existing FS implementation is not efficient. I agreed
+> that file system has been fully optimized. What I want to say is to
+> support complex mapping in the system I described before, we might
+> need some extension on existing file systems. Question is what is the
+> best extension. Consider how to allow user a, b to share physical copy
+> f.1, while allowing user c to use private copy f.2? The virtual
+> pathname to physical pathname should be transparent to end users. That
+> is, all the users should be able to access right file copies using
+> virtual path "f". The file system should be able to tell the different
+> identity and return the data from the right physical copy. That's what
+> we want to do. But it is hard to achieve without some extension. :)
+
+So what happens upon rename()?

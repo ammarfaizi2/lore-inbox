@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964996AbWCTXdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWCTXoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964996AbWCTXdh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 18:33:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbWCTXdg
+	id S1750741AbWCTXoU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 18:44:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWCTXoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 18:33:36 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:32977 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964996AbWCTXdf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 18:33:35 -0500
-Message-ID: <441F3C2F.2060905@ce.jp.nec.com>
-Date: Mon, 20 Mar 2006 18:35:11 -0500
-From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg Kroah-Hartman <gregkh@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 02/23] kobject: fix build error if CONFIG_SYSFS=n
-References: <11428920371527-git-send-email-gregkh@suse.de>
-In-Reply-To: <11428920371527-git-send-email-gregkh@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Mar 2006 18:44:20 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:9857 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750709AbWCTXoT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 18:44:19 -0500
+Date: Mon, 20 Mar 2006 15:43:38 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: chrisw@sous-sol.org, cxzhang@watson.ibm.com, netdev@axxeo.de,
+       ioe-lkml@rameria.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] scm: fold __scm_send() into scm_send()
+Message-ID: <20060320234338.GW15997@sorel.sous-sol.org>
+References: <200603201244.58507.netdev@axxeo.de> <20060320201802.GS15997@sorel.sous-sol.org> <20060320213636.GT15997@sorel.sous-sol.org> <20060320.152838.68858441.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060320.152838.68858441.davem@davemloft.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+* David S. Miller (davem@davemloft.net) wrote:
+> From: Chris Wright <chrisw@sous-sol.org>
+> Date: Mon, 20 Mar 2006 13:36:36 -0800
+> 
+> > The point of Catherine's original patch was to make sure there's always
+> > a security identifier associated with AF_UNIX messages.  So receiver
+> > can always check it (same as having credentials even w/out sender
+> > control message passing them).  Now we will have garbage for sid.
+> 
+> I'm seriously considering backing out Catherine's AF_UNIX patch from
+> the net-2.6.17 tree before submitting it to Linus later today so that
+> none of this crap goes in right now.
+> 
+> It appears that this needs a lot more sorting out, so for now that's
+> probably the right thing to do.
 
-Moving them inside CONFIG_HOTPLUG && CONFIG_NET will break
-CONFIG_NET=n build, because kernel/ksysfs.c will use them
-#ifdef CONFIG_HOTPLUG.
+I won't object.  I checked your tree, it looks OK to me.  The actual
+broken patch appears in -mm, and the security_sid_to_context snafu
+is primarily cosmetic at this point (the exports, etc fixed the real
+compilation issues AFAICT).  But, again, if you want to drop that's fine
+w/ me.  I'm sure Catherine can cleanup and resend as needed.
 
-Greg Kroah-Hartman wrote:
-> Moving uevent_seqnum and uevent_helper to kobject_uevent.c
-> because they are used even if CONFIG_SYSFS=n
-> while kernel/ksysfs.c is built only if CONFIG_SYSFS=y,
-...
-> diff --git a/lib/kobject_uevent.c b/lib/kobject_uevent.c
-> index 086a0c6..982226d 100644
-> --- a/lib/kobject_uevent.c
-> +++ b/lib/kobject_uevent.c
-> @@ -26,6 +26,8 @@
->  #define NUM_ENVP	32	/* number of env pointers */
->  
->  #if defined(CONFIG_HOTPLUG) && defined(CONFIG_NET)
-> +u64 uevent_seqnum;
-> +char uevent_helper[UEVENT_HELPER_PATH_LEN] = "/sbin/hotplug";
->  static DEFINE_SPINLOCK(sequence_lock);
->  static struct sock *uevent_sock;
-
-Thanks,
--- 
-Jun'ichi Nomura, NEC Solutions (America), Inc.
+thanks,
+-chris

@@ -1,74 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030557AbWCTWFE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030559AbWCTWFN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030557AbWCTWFE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 17:05:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030555AbWCTWEb
+	id S1030559AbWCTWFN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 17:05:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030558AbWCTWFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 17:04:31 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:7172 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1030541AbWCTWEV convert rfc822-to-8bit (ORCPT
+	Mon, 20 Mar 2006 17:05:09 -0500
+Received: from uproxy.gmail.com ([66.249.92.199]:33741 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030554AbWCTWEa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 17:04:21 -0500
+	Mon, 20 Mar 2006 17:04:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:disposition-notification-to:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=o55yTS+/EqZ9ceEBnmMXuDbihL7S3wOxTXyRR+uvIPnq2E3Ao+Lqooe3hevU/scMlJHJlcEyxD0OMMuQDqMpO7C+2kqjjig/qCw32GZVBREmmW4lWwo3H35gy2tMF9oNxA1ktMms6Q0DxJdhiAXta6TzCKtPgnk1PcitzH6YQDg=
+Message-ID: <441F2727.6020407@gmail.com>
+Date: Tue, 21 Mar 2006 00:05:27 +0200
+From: Alon Bar-Lev <alon.barlev@gmail.com>
+User-Agent: Mail/News 1.5 (X11/20060319)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <jed5ggx39x.fsf@sykes.suse.de>
-x-originalarrivaltime: 20 Mar 2006 22:04:13.0120 (UTC) FILETIME=[38E1BC00:01C64C6A]
-Content-class: urn:content-classes:message
-Subject: Re: lstat returns bogus values.
-Date: Mon, 20 Mar 2006 17:04:12 -0500
-Message-ID: <Pine.LNX.4.61.0603201655370.25162@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: lstat returns bogus values.
-Thread-Index: AcZMajjoub6QtNFATgurkU/9pNAy5A==
-References: <Pine.LNX.4.61.0603201312320.23345@chaos.analogic.com> <jed5ggx39x.fsf@sykes.suse.de>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Andreas Schwab" <schwab@suse.de>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: Pavel Machek <pavel@suse.cz>
+CC: "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Peter Wainwright <prw@ceiriog.eclipse.co.uk>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Announcing crypto suspend
+References: <20060320080439.GA4653@elf.ucw.cz> <200603202126.23861.rjw@sisk.pl> <20060320203507.GF24523@elf.ucw.cz> <200603202222.14634.rjw@sisk.pl> <20060320213400.GI24523@elf.ucw.cz>
+In-Reply-To: <20060320213400.GI24523@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek wrote:
+ > Of course, agreed. Encrypting filesystem is stupid thing from
+> data-recovery standpoint; and I care about my data; it is also hard to
+> backup. For some uses it is of course neccessary, but it has lots of
+> disadvantages, too.
 
-On Mon, 20 Mar 2006, Andreas Schwab wrote:
+Pavel, you keep doing the same basic mistake...
+Understand your client!
 
-> "linux-os (Dick Johnson)" <linux-os@analogic.com> writes:
->
->> The "kernelly-corrected" stuff should have been returned by lstat()
->
-> What should lstat return for a cdrom device node that has no medium?
-> Should "ls -l /dev/cdrom" block until you have inserted a CD?
->
-> Andreas.
->
+Suspend is a feature that is most used by the mobile community.
+Disk encryption is also common for most of this community.
+Putting them to work together should be your interest...
+Calling your clients stupid is not wise!
 
-`ls` only means something when there is a file-system so `ls`
-is not appropriate until you have a file-system. Currently
-`ls` on such a block device correctly returns the device type.
+> Encrypted swsusp has basically no disadvantages.
+> 
+> [I believe we should encrypt swap with random key generated on boot by
+> default. That should be also very cheap, and has no real
+> disadvantages].
 
-I think lstat should return -1 and the appropriate error code
-should be in errno (perhaps ENOMEDIUM).
+Well... Good thinking... But how do you plan to encrypt the
+swap? There are about 1000 ways to do this...
 
+Jari Ruusu had written the loop-aes which was not merged...
+>From a similar reason suspend2 was rejected by you.
 
-> --
-> Andreas Schwab, SuSE Labs, schwab@suse.de
-> SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-> PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-> "And now for something completely different."
->
+I hope you don't think that file-system encryption should be
+implemented in user mode too...
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.48 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
+The dm-crypt is weak... So we left with specific encryption
+implementation of swsusp... And now you offer a specific
+encryption for swap as well... Why not realize that there
+should be one encryption solution for block devices in kernel?
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+As a result of this mess the mobile community uses external
+solutions.
 
-Thank you.
+Best Regards,
+Alon Bar-Lev.

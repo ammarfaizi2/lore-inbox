@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964990AbWCTVql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030426AbWCTVqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964990AbWCTVql (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 16:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbWCTVql
+	id S1030426AbWCTVqe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 16:46:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWCTVqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 16:46:41 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:29865 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964990AbWCTVqk (ORCPT
+	Mon, 20 Mar 2006 16:46:34 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:20382 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S964989AbWCTVqd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 16:46:40 -0500
-Date: Tue, 21 Mar 2006 08:46:19 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-xfs@oss.sgi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Parenthesize macros in xfs
-Message-ID: <20060321084619.E653275@wobbly.melbourne.sgi.com>
-References: <Pine.LNX.4.61.0603202207310.20060@yvahk01.tjqt.qr> <20060321082327.B653275@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0603202239110.11933@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.61.0603202239110.11933@yvahk01.tjqt.qr>; from jengelh@linux01.gwdg.de on Mon, Mar 20, 2006 at 10:39:45PM +0100
+	Mon, 20 Mar 2006 16:46:33 -0500
+Date: Mon, 20 Mar 2006 22:46:31 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Dirk Reiners <dreiners@iastate.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: VFAT: Can't create file named 'aux.h'?
+In-Reply-To: <1142890822.5007.18.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0603202244370.11933@yvahk01.tjqt.qr>
+References: <1142890822.5007.18.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jan,
+>	Hi everybody,
+>
+>while trying to back up a couple Linux directories to a FAT disk I ran
+>into a weird situation: I can't create a file called aux.h on the FAT
+>system! 
+>
+On DOS et al, there are a number of special filenames, such as
 
-On Mon, Mar 20, 2006 at 10:39:45PM +0100, Jan Engelhardt wrote:
-> >> while browsing through the xfs/linux source, I noticed that many macros do 
-> >> not do proper bracing. I have started to cook up a patch, but would like 
-> >> feedback first before I continue for nothing.
-> >> It goes like this:
-> >> ...
-> >
-> >That looks fine.  Please be sure to work on the -mm tree or on
-> >CVS on oss.sgi.com, so as to reduce your level of patch conflict.
-> >
-> 
-> Hm, would not it even be better to make them 'static inline' functions?
+	com1:
+	com2: (and so on)
+	lpt1:
+	lpt2: (and so on)
+	con:
+	aux
+	nul
 
-Probably, I guess I'd want to see how invasive the patch becomes...?
-I really dislike those _ACL macros (around that example you gave, that
-could do with a cleanup all of its own - switching to xfs_acl_ maybe).
-Also watch for macros that modify their parameters, I got burned by
-doing an inline conversion a few releases back on just such a beast..
+(Try `dir >nul`, it's equivalent to unix's `ls -l >/dev/null` --
+aux is the auxiliary port, whatever that is)
 
-cheers.
+It seems only fair to me to not allow creating these files under Linux 
+either, to avoid problems when booting back to Dos/Windows.
 
+
+Jan Engelhardt
 -- 
-Nathan
+| Software Engineer and Linux/Unix Network Administrator

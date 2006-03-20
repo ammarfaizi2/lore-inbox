@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWCTNY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWCTNYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbWCTNY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 08:24:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbWCTNY1
+	id S964778AbWCTNYz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 08:24:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbWCTNYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 08:24:27 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:61142 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932298AbWCTNY0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 08:24:26 -0500
-Subject: Re: kernel cache mem bug(?)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: kernel@ministry.se
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GHP.4.44.0603200654330.18694-100000@celeborn.ministry.se>
-References: <Pine.GHP.4.44.0603200654330.18694-100000@celeborn.ministry.se>
-Content-Type: text/plain
+	Mon, 20 Mar 2006 08:24:54 -0500
+Received: from rtr.ca ([64.26.128.89]:52865 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S964772AbWCTNYx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 08:24:53 -0500
+Message-ID: <441EAD18.8070300@rtr.ca>
+Date: Mon, 20 Mar 2006 08:24:40 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20060305 SeaMonkey/1.1a
+MIME-Version: 1.0
+To: Stefan Seyfried <seife@suse.de>
+Cc: Tom Marshall <tommy@home.tig-grr.com>, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [Suspend2-announce] Nigel's work and the future of Suspend2.
+References: <200603071005.56453.nigel@suspend2.net> <20060308122500.GB3274@elf.ucw.cz> <1141839915.5382.49.camel@marvin.se.eecs.uni-kassel.de> <200603082139.06259.rjw@sisk.pl> <20060318060846.GA11546@home.tig-grr.com> <20060320081312.GA26527@suse.de>
+In-Reply-To: <20060320081312.GA26527@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 20 Mar 2006 13:31:18 +0000
-Message-Id: <1142861478.20050.27.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-03-20 at 09:09 +0100, kernel@ministry.se wrote:
-> The RAM is 100% OK, both according to the initial BIOS memory check and
-> memtest86 running for more than four (4) hours straight.
-> 
-> One more thing that we just noticed: it seems the cache corruption (or
-> whatever it is)  only occurs when X is running.
+> On Fri, Mar 17, 2006 at 10:08:46PM -0800, Tom Marshall wrote:
+>  
+>> I have the opposite problem, more or less (S3 not swsusp):
+>>
+>> I have two identical (except for different model drives) Thinkpad T42
+>> laptops that exhibit the same behavior.  S3 mostly works but occasionally
+>> fails to resume, for values of occasionally that vary between 1-2 successful
+>> resumes before failure to several dozens.
+>  
+>> If anyone is willing to work with me on tracking down the issue in a vendor
+>> kernel (Ubuntu Dapper), I would be more than happy to apply debug patches
+>> and supply any debug info requested.
 
-X is special in a couple of ways - it accesses hardware directly and it
-uses AGP. See if setting the NoAccel X option makes any difference to
-the failures - it'll make your desktop slower but should help validate X
-is the problem. If that does help then try disabling DRI (3D) support if
-your box has it, and see what that does. If it works with noaccel and
-fails with DRI then finally try with no AGP support built into your
-kernel.  That should identify the problem as X, DRI, AGP or other.
+Try Randy Dunlop's libata-acpi patches -- they cured suspend/resume (RAM)
+on my (Dell) notebook, which previously suffered like your Thinkpad.
 
-Alan
-
+-ml

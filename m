@@ -1,124 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWCTPgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965303AbWCTPgt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbWCTPgA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965290AbWCTP0A
+	id S965303AbWCTPgt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:36:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbWCTPgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:26:00 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:29880 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965274AbWCTPZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:25:30 -0500
-From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org,
-       Markus Rechberger <mrechberger@gmail.com>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 060/141] V4L/DVB (3306): Fixed i2c return value, conversion
-	mdelay to msleep
-Date: Mon, 20 Mar 2006 12:08:47 -0300
-Message-id: <20060320150846.PS982706000060@infradead.org>
-In-Reply-To: <20060320150819.PS760228000000@infradead.org>
-References: <20060320150819.PS760228000000@infradead.org>
+	Mon, 20 Mar 2006 10:36:10 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:44985 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S964999AbWCTPgC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:36:02 -0500
+Subject: [PATCH] slab: optimize constant-size kzalloc calls
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: akpm@osdl.org
+Cc: Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org
+Date: Mon, 20 Mar 2006 17:35:57 +0200
+Message-Id: <1142868958.11159.0.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-3mdk 
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Markus Rechberger <mrechberger@gmail.com>
-Date: 1139302151 -0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-fixed i2c return value, conversion mdelay to msleep
+As suggested by Eric Dumazet, this patch optimizes kzalloc() calls
+that pass a compile-time constant size. Please note that the patch
+increases kernel text slightly (~200 bytes for defconfig on x86).
 
-Signed-off-by: Markus Rechberger <mrechberger@gmail.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+This patch requires the kmem_cache_zalloc() patches I sent earlier.
+
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+
 ---
 
-diff --git a/drivers/media/video/em28xx/em28xx-core.c b/drivers/media/video/em28xx/em28xx-core.c
-diff --git a/drivers/media/video/em28xx/em28xx-core.c b/drivers/media/video/em28xx/em28xx-core.c
-index 82f0c5f..e5ee8bc 100644
---- a/drivers/media/video/em28xx/em28xx-core.c
-+++ b/drivers/media/video/em28xx/em28xx-core.c
-@@ -139,6 +139,9 @@ int em28xx_read_reg_req_len(struct em28x
+ include/linux/slab.h |   30 +++++++++++++++++++++++++++---
+ mm/util.c            |    6 +++---
+ 2 files changed, 30 insertions(+), 6 deletions(-)
+
+diff --git a/include/linux/slab.h b/include/linux/slab.h
+index b595c09..db3b302 100644
+--- a/include/linux/slab.h
++++ b/include/linux/slab.h
+@@ -109,7 +109,30 @@ found:
+ 	return __kmalloc(size, flags);
+ }
+ 
+-extern void *kzalloc(size_t, gfp_t);
++extern void *__kzalloc(size_t, gfp_t);
++
++static inline void *kzalloc(size_t size, gfp_t flags)
++{
++	if (__builtin_constant_p(size)) {
++		int i = 0;
++#define CACHE(x) \
++		if (size <= x) \
++			goto found; \
++		else \
++			i++;
++#include "kmalloc_sizes.h"
++#undef CACHE
++		{
++			extern void __you_cannot_kzalloc_that_much(void);
++			__you_cannot_kzalloc_that_much();
++		}
++found:
++		return kmem_cache_zalloc((flags & GFP_DMA) ?
++			malloc_sizes[i].cs_dmacachep :
++			malloc_sizes[i].cs_cachep, flags);
++	}
++	return __kzalloc(size, flags);
++}
+ 
+ /**
+  * kcalloc - allocate memory for an array. The memory is set to zero.
+@@ -160,14 +183,14 @@ void *kmem_cache_zalloc(struct kmem_cach
+ void kmem_cache_free(struct kmem_cache *c, void *b);
+ const char *kmem_cache_name(struct kmem_cache *);
+ void *kmalloc(size_t size, gfp_t flags);
+-void *kzalloc(size_t size, gfp_t flags);
++void *__kzalloc(size_t size, gfp_t flags);
+ void kfree(const void *m);
+ unsigned int ksize(const void *m);
+ unsigned int kmem_cache_size(struct kmem_cache *c);
+ 
+ static inline void *kcalloc(size_t n, size_t size, gfp_t flags)
  {
- 	int ret, byte;
+-	return kzalloc(n * size, flags);
++	return __kzalloc(n * size, flags);
+ }
  
-+	if (dev->state & DEV_DISCONNECTED)
-+		return(-ENODEV);
-+
- 	em28xx_regdbg("req=%02x, reg=%02x ", req, reg);
+ #define kmem_cache_shrink(d) (0)
+@@ -175,6 +198,7 @@ static inline void *kcalloc(size_t n, si
+ #define kmem_ptr_validate(a, b) (0)
+ #define kmem_cache_alloc_node(c, f, n) kmem_cache_alloc(c, f)
+ #define kmalloc_node(s, f, n) kmalloc(s, f)
++#define kzalloc(s, f) __kzalloc(s, f)
  
- 	ret = usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0), req,
-@@ -165,6 +168,9 @@ int em28xx_read_reg_req(struct em28xx *d
- 	u8 val;
- 	int ret;
+ #endif /* CONFIG_SLOB */
  
-+	if (dev->state & DEV_DISCONNECTED)
-+		return(-ENODEV);
-+
- 	em28xx_regdbg("req=%02x, reg=%02x:", req, reg);
+diff --git a/mm/util.c b/mm/util.c
+index 5f4bb59..fd78ee4 100644
+--- a/mm/util.c
++++ b/mm/util.c
+@@ -3,18 +3,18 @@
+ #include <linux/module.h>
  
- 	ret = usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0), req,
-@@ -195,7 +201,12 @@ int em28xx_write_regs_req(struct em28xx 
- 	int ret;
- 
- 	/*usb_control_msg seems to expect a kmalloced buffer */
--	unsigned char *bufs = kmalloc(len, GFP_KERNEL);
-+	unsigned char *bufs;
-+
-+	if (dev->state & DEV_DISCONNECTED)
-+		return(-ENODEV);
-+
-+	bufs = kmalloc(len, GFP_KERNEL);
- 
- 	em28xx_regdbg("req=%02x reg=%02x:", req, reg);
- 
-@@ -212,7 +223,7 @@ int em28xx_write_regs_req(struct em28xx 
- 	ret = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0), req,
- 			      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 			      0x0000, reg, bufs, len, HZ);
--	mdelay(5);		/* FIXME: magic number */
-+	msleep(5);		/* FIXME: magic number */
- 	kfree(bufs);
+ /**
+- * kzalloc - allocate memory. The memory is set to zero.
++ * __kzalloc - allocate memory. The memory is set to zero.
+  * @size: how many bytes of memory are required.
+  * @flags: the type of memory to allocate.
+  */
+-void *kzalloc(size_t size, gfp_t flags)
++void *__kzalloc(size_t size, gfp_t flags)
+ {
+ 	void *ret = kmalloc(size, flags);
+ 	if (ret)
+ 		memset(ret, 0, size);
  	return ret;
  }
-diff --git a/drivers/media/video/em28xx/em28xx-i2c.c b/drivers/media/video/em28xx/em28xx-i2c.c
-diff --git a/drivers/media/video/em28xx/em28xx-i2c.c b/drivers/media/video/em28xx/em28xx-i2c.c
-index 0591a70..6ca8631 100644
---- a/drivers/media/video/em28xx/em28xx-i2c.c
-+++ b/drivers/media/video/em28xx/em28xx-i2c.c
-@@ -78,7 +78,7 @@ static int em2800_i2c_send_max4(struct e
- 		ret = dev->em28xx_read_reg(dev, 0x05);
- 		if (ret == 0x80 + len - 1)
- 			return len;
--		mdelay(5);
-+		msleep(5);
- 	}
- 	em28xx_warn("i2c write timed out\n");
- 	return -EIO;
-@@ -138,7 +138,7 @@ static int em2800_i2c_check_for_device(s
- 			return -ENODEV;
- 		else if (msg == 0x84)
- 			return 0;
--		mdelay(5);
-+		msleep(5);
- 	}
- 	return -ENODEV;
- }
-@@ -278,9 +278,9 @@ static int em28xx_i2c_xfer(struct i2c_ad
- 							   msgs[i].buf,
- 							   msgs[i].len,
- 							   i == num - 1);
--			if (rc < 0)
--				goto err;
- 		}
-+		if (rc < 0)
-+			goto err;
- 		if (i2c_debug>=2)
- 			printk("\n");
- 	}
+-EXPORT_SYMBOL(kzalloc);
++EXPORT_SYMBOL(__kzalloc);
+ 
+ /*
+  * kstrdup - allocate space for and copy an existing string
+
 

@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbWCTVO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbWCTVPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030326AbWCTVO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 16:14:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030565AbWCTVO1
+	id S1030268AbWCTVPV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 16:15:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbWCTVPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 16:14:27 -0500
-Received: from mx1.suse.de ([195.135.220.2]:11195 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030326AbWCTVO0 (ORCPT
+	Mon, 20 Mar 2006 16:15:21 -0500
+Received: from z2.cat.iki.fi ([212.16.98.133]:37251 "EHLO z2.cat.iki.fi")
+	by vger.kernel.org with ESMTP id S1030370AbWCTVPT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 16:14:26 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: Neil Brown <neilb@suse.de>
+	Mon, 20 Mar 2006 16:15:19 -0500
+Date: Mon, 20 Mar 2006 23:15:18 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Seth Goldberg <sethmeisterg@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Who uses the 'nodev' flag in /proc/filesystems ???
-References: <17436.60328.242450.249552@cse.unsw.edu.au>
-X-Yow: I just got my PRINCE bumper sticker..
- But now I can't remember WHO he is...
-Date: Mon, 20 Mar 2006 22:14:24 +0100
-In-Reply-To: <17436.60328.242450.249552@cse.unsw.edu.au> (Neil Brown's message
-	of "Sun, 19 Mar 2006 16:27:04 +1100")
-Message-ID: <jewteovmxb.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: Re: KBUILD_BASENAME hoses nvidia driver / vmware build processes
+Message-ID: <20060320211518.GH3927@mea-ext.zmailer.org>
+References: <d1064edf0603201308v4dab8355qee1dcfc9f9b5a611@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d1064edf0603201308v4dab8355qee1dcfc9f9b5a611@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown <neilb@suse.de> writes:
+On Mon, Mar 20, 2006 at 01:08:30PM -0800, Seth Goldberg wrote:
+> Hi,
+> 
+>    Just an FYI -- I just grabbed 2.6.16 and installed it without a
+> problem.  However, when I went to rebuild the nvidia module and vmware
+> modules, I discovered that the lack of a definition for
+> KBUILD_BASENAME in linux/include/linux/spinlock.h cause these
+> components' builds to fail.  I added a stupid workaround and was able
+> to build and install these components, but I wanted to bring this to
+> your attention.
 
-> Hence the question in the subject:
->
->   Who uses the 'nodev' flag in /proc/filesystems?
->
-> Are there any known users of this flag?
+Do post the note to Nvidia -- they need small fix in  conftest.sh
+then things work mostly, but  I am not 100% sure that things do
+work with 2.6.16  (this issue was with  nvsound   module, I think.)
 
-mount is using it, when no explicit type is specified.  When iterating
-over /proc/filesystems it ignores lines with the nodev flag.
+>   Best wishes,
+>   ---S
 
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+/Matti Aarnio

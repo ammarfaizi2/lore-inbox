@@ -1,67 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWCTIaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWCTIbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbWCTIaO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 03:30:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbWCTIaO
+	id S932218AbWCTIbO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 03:31:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbWCTIbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 03:30:14 -0500
-Received: from z2.cat.iki.fi ([212.16.98.133]:59812 "EHLO z2.cat.iki.fi")
-	by vger.kernel.org with ESMTP id S932216AbWCTIaM (ORCPT
+	Mon, 20 Mar 2006 03:31:14 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:44742 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932218AbWCTIbN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 03:30:12 -0500
-Date: Mon, 20 Mar 2006 10:30:06 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: mingz@ele.uri.edu, mikado4vn@gmail.com,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: Question regarding to store file system metadata in database
-Message-ID: <20060320083006.GC3927@mea-ext.zmailer.org>
-References: <4ae3c140603182048k55d06d87ufc0b9f0548574090@mail.gmail.com> <441CE71E.5090503@gmail.com> <4ae3c140603190948s4fcd135er370a15003a0143a8@mail.gmail.com> <1142791121.31358.21.camel@localhost.localdomain> <4ae3c140603191011r7b68f4aale01238202656d122@mail.gmail.com>
+	Mon, 20 Mar 2006 03:31:13 -0500
+Date: Mon, 20 Mar 2006 00:30:52 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Simon.Derr@bull.net, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       ak@suse.de, haveblue@us.ibm.com, mingo@elte.hu, clameter@sgi.com
+Subject: Re: [PATCH] Cpuset: alloc_pages_node overrides cpuset constraints
+Message-Id: <20060320003052.7ca3f261.pj@sgi.com>
+In-Reply-To: <20060319230712.5b15ee3e.akpm@osdl.org>
+References: <20060318204027.13217.34767.sendpatchset@sam.engr.sgi.com>
+	<20060319230712.5b15ee3e.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4ae3c140603191011r7b68f4aale01238202656d122@mail.gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 19, 2006 at 01:11:41PM -0500, Xin Zhao wrote:
-> Do you have any statistics on how many metadata accesses are required
-> for a heavy load file system?  I don't have on in hand, but
-> intuitively I think 300 per second should be enough. If storing
-> metadata in database will not hit the file system performance, plus
-> database allows flexible file searching, the database-based file
-> system might not be a bad idea. :)
+> You're kidding.  This adds more code to every page allocation on every
+> machine, cpusets or not.
 > 
-> Xin
+> I stuck this on top:
+> 
+>  ...
+> 
+> But it's a bit ugly.
 
-  Folks,  first of all,  DO NOT TOP POST!
-You are attempting to violate causality.  (At least it looks like such.)
 
-One thing to realize in UNIX filesystems is that they are OPTIMIZED
-for finding files (with huge majority - 3 to 5 nines worth).
-That means there are many cute caches to help lookups. 
+The code path we care about for this __GFP_NOCPUSET flag is for memory
+migration.  When it says it wants memory allocated on a certain node,
+it really wants it there.
 
-Cases where directory contents are modified (e.g. creat/rename/unlink)
-are considered extremely rare, and there the only really interesting
-thing is correctness.
+While I consider it a bug in the cpuset implementation that any kernel
+alloc_pages_node(), kmalloc_node() or vmalloc_node() call has the
+requested node ignored if it falls outside the current tasks cpuset,
+that's not a priority bug in my view.  It's been that way for a year
+(since cpusets went in), and no one has noticed.
 
-In some very odd cases a lot more files are created / destroyed in
-a system, than is average - such applications include: Squid and INN.
-For INN this particular detail has been known to be a bottle neck, and
-thus was born Cyclic News Filesystem - a way to use pre-allocated big
-files as storage space for news items.
+Christoph - I suspect that the following patch, instead of the one
+we sent, would meet with greater approval from Andrew.
 
-> On 3/19/06, Ming Zhang <mingz@ele.uri.edu> wrote:
-> > database can reside on a raw block device.
-> >
-> > but 300 metadata iops is not that fast. ;)
-> >
-> > ming
+The patch below just adds the __GFP_NOCPUSET flag on the memory
+migration code path, where we need it.  That code path is not
+performance critical.
 
-I should think that 300 IOPS is a lot from single PC hard-drive.
-Indeed they usually can't go that fast.
+We can deal with the long standing bug in cpusets, where it overrides
+all alloc_pages_node() calls, some other day.
 
-Again, that is where all these marvellous caches come to play.
+What think you of this, Christoph?  Should we send it to Andrew?
 
-/Matti Aarnio
+
+ include/linux/gfp.h |    1 +
+ kernel/cpuset.c     |    2 ++
+ mm/migrate.c        |    5 +++--
+ 3 files changed, 6 insertions(+), 2 deletions(-)
+
+--- 2.6.16-rc6-mm2.orig/include/linux/gfp.h	2006-03-18 13:07:51.000000000 -0800
++++ 2.6.16-rc6-mm2/include/linux/gfp.h	2006-03-19 23:55:19.000000000 -0800
+@@ -47,6 +47,7 @@ struct vm_area_struct;
+ #define __GFP_ZERO	((__force gfp_t)0x8000u)/* Return zeroed page on success */
+ #define __GFP_NOMEMALLOC ((__force gfp_t)0x10000u) /* Don't use emergency reserves */
+ #define __GFP_HARDWALL   ((__force gfp_t)0x20000u) /* Enforce hardwall cpuset memory allocs */
++#define __GFP_NOCPUSET	((__force gfp_t)0x40000u)/* Ignore cpuset constraints */
+ 
+ #define __GFP_BITS_SHIFT 20	/* Room for 20 __GFP_FOO bits */
+ #define __GFP_BITS_MASK ((__force gfp_t)((1 << __GFP_BITS_SHIFT) - 1))
+--- 2.6.16-rc6-mm2.orig/kernel/cpuset.c	2006-03-18 13:15:04.000000000 -0800
++++ 2.6.16-rc6-mm2/kernel/cpuset.c	2006-03-19 23:52:42.000000000 -0800
+@@ -2209,6 +2209,8 @@ int __cpuset_zone_allowed(struct zone *z
+ 	node = z->zone_pgdat->node_id;
+ 	if (node_isset(node, current->mems_allowed))
+ 		return 1;
++	if (gfp_mask & __GFP_NOCPUSET)
++		return 1;
+ 	if (gfp_mask & __GFP_HARDWALL)	/* If hardwall request, stop here */
+ 		return 0;
+ 
+--- 2.6.16-rc6-mm2.orig/mm/migrate.c	2006-03-18 13:12:53.000000000 -0800
++++ 2.6.16-rc6-mm2/mm/migrate.c	2006-03-20 00:24:36.000000000 -0800
+@@ -614,12 +614,13 @@ redo:
+ 			 * a certain old page is moved to so we cannot
+ 			 * specify the correct address.
+ 			 */
+-			page = alloc_page_vma(GFP_HIGHUSER, vma,
++			page = alloc_page_vma(GFP_HIGHUSER|__GFP_NOCPUSET, vma,
+ 					offset + vma->vm_start);
+ 			offset += PAGE_SIZE;
+ 		}
+ 		else
+-			page = alloc_pages_node(dest, GFP_HIGHUSER, 0);
++			page = alloc_pages_node(dest,
++					GFP_HIGHUSER|__GFP_NOCPUSET, 0);
+ 
+ 		if (!page) {
+ 			err = -ENOMEM;
+
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

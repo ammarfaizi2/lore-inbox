@@ -1,174 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWCTKqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWCTKrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932065AbWCTKqH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 05:46:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWCTKqH
+	id S932143AbWCTKrg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 05:47:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWCTKrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 05:46:07 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:48352 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751093AbWCTKqG (ORCPT
+	Mon, 20 Mar 2006 05:47:36 -0500
+Received: from mail.gmx.net ([213.165.64.20]:1723 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932143AbWCTKrf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 05:46:06 -0500
-Date: Mon, 20 Mar 2006 02:42:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: prasanna@in.ibm.com
-Cc: ak@suse.de, davem@davemloft.net, suparna@in.ibm.com,
-       richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [1/3 PATCH] Kprobes: User space probes support- base interface
-Message-Id: <20060320024248.426b97ec.akpm@osdl.org>
-In-Reply-To: <20060320060931.GD31091@in.ibm.com>
-References: <20060320060745.GC31091@in.ibm.com>
-	<20060320060931.GD31091@in.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 20 Mar 2006 05:47:35 -0500
+X-Authenticated: #2308221
+Date: Mon, 20 Mar 2006 11:48:40 +0100
+From: Christian Trefzer <ctrefzer@gmx.de>
+To: Alejandro Bonilla <abonilla@linuxwireless.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel hda errors on dmesg
+Message-ID: <20060320104839.GA20646@hermes.uziel.local>
+References: <20060318081134.M30026@linuxwireless.org> <17915ac50603180054l4c3c6646ifcdee47e8f76887c@mail.gmail.com> <20060319235255.M28695@linuxwireless.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="82I3+IH0IqGh5yIs"
+Content-Disposition: inline
+In-Reply-To: <20060319235255.M28695@linuxwireless.org>
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prasanna S Panchamukhi <prasanna@in.ibm.com> wrote:
+
+--82I3+IH0IqGh5yIs
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi Alejandro,
+
+
+On Sun, Mar 19, 2006 at 05:57:09PM -0600, Alejandro Bonilla wrote:
+> Why am I getting hda errors when I don't even have a hda drive? Mine is s=
+da.
+> The syslog says is the kernel itself, no other application is causing thi=
+s as
+> I have stopped most services and still happen.
+>=20
+> dmesg
+>=20
+> [4295643.338000] ide: failed opcode was: 0xef=20
+> [4295644.283000] hda: error code: 0x70  sense_key: 0x02   asc: 0x30  ascq=
+: 0x00=20
+> [4295644.295000] hda: error code: 0x70   sense_key: 0x02  asc: 0x30  ascq=
+: 0x00=20
+> [4295645.963000] hda: error code: 0x70  sense_key: 0x02   asc: 0x30  ascq=
+: 0x00=20
+> [4295645.966000] hda: drive_cmd: status=3D0x51 { DriveReady SeekComplete =
+Error }=20
+> [4295645.966000] hda: drive_cmd: error=3D0x04 { AbortedCommand }=20
+> [4295645.966000] ide: failed opcode was: 0xec=20
+> [4295646.000000] hda: error code: 0x70  sense_key: 0x02  asc: 0x30  ascq:=
+ 0x00=20
+> [4295646.003000] hda: drive_cmd: status=3D0x51 { DriveReady SeekComplete =
+Error }=20
+> [4295646.003000 ] hda: drive_cmd: error=3D0x04 { AbortedCommand }=20
+> [4295646.003000] ide: failed opcode was: 0xec=20
+> [4295646.345000] hda: error code: 0x70  sense_key: 0x02  asc: 0x30  ascq:=
+ 0x00=20
+> [4295646.357000] hda: error code: 0x70  sense_key: 0x02  asc: 0x30  ascq:=
+ 0x00=20
+> [4295648.408000] hda: error code: 0x70  sense_key: 0x02   asc: 0x30  ascq=
+: 0x00=20
+> [4295648.421000] hda: error code: 0x70   sense_key: 0x02  asc: 0x30  ascq=
+: 0x00=20
+> [4295650.471000] hda: error code: 0x70  sense_key: 0x02  asc: 0x30   ascq=
+: 0x00=20
+> [4295650.483000] hda: error code: 0x70  sense_key: 0x02   asc: 0x30  ascq=
+: 0x00=20
+> [4295652.534000] hda: error code: 0x70   sense_key: 0x02  asc: 0x30  ascq=
+: 0x00=20
+> [4295652.546000] hda: error code: 0x70  sense_key: 0x02  asc: 0x30   ascq=
+: 0x00=20
+> [4295654.601000] hda: error code: 0x70  sense_key: 0x02   asc: 0x30  ascq=
+: 0x00=20
+> [4295654.612000] hda: error code: 0x70   sense_key: 0x02  asc: 0x30  ascq=
+: 0x00
 >
-> This patch provides two interfaces to insert and remove
-> user space probes. Each probe is uniquely identified by
-> inode and offset within that executable/library file.
-> Insertion of a probe involves getting the code page for
-> a given offset, mapping it into the memory and then insert
-> the breakpoint at the given offset. Also the probe is added
-> to the uprobe_table hash list. A uprobe_module data strcture
-> is allocated for every probed application/library image on disk.
-> Removal of a probe involves getting the code page for a given
-> offset, mapping that page into the memory and then replacing
-> the breakpoint instruction with a the original opcode.
-> This patch also provides aggrigate probe handler feature,
-> where user can define multiple handlers per probe.
-> 
-> +/**
-> + * Finds a uprobe at the specified user-space address in the current task.
-> + * Points current_uprobe at that uprobe and returns the corresponding kprobe.
-> + */
-> +struct kprobe __kprobes *get_uprobe(void *addr)
-> +{
-> +	struct mm_struct *mm = current->mm;
-> +	struct vm_area_struct *vma;
-> +	struct inode *inode;
-> +	unsigned long offset;
-> +	struct kprobe *p, *kpr;
-> +	struct uprobe *uprobe;
-> +
-> +	vma = find_vma(mm, (unsigned long)addr);
-> +
-> +	BUG_ON(!vma);	/* this should not happen, not in our memory map */
-> +
-> +	offset = (unsigned long)addr - (vma->vm_start +
-> +						(vma->vm_pgoff << PAGE_SHIFT));
-> +	if (!vma->vm_file)
-> +		return NULL;
+> Any idea?
 
-All this appears to be happening without mmap_sem held?
+Just an idea, but this looks to me like problems reading a CD - if you
+use ide-cd and a normal parralel ATA / ATAPI CD-ROM drive, you might
+have /dev/hda and a symlink pointing to that node as well. In this case,
+you only care for e.g. /dev/cdrom, but in fact are using /dev/hda.
 
-> +/**
-> + * Wait for the page to be unlocked if someone else had locked it,
-> + * then map the page and insert or remove the breakpoint.
-> + */
-> +static int __kprobes map_uprobe_page(struct page *page, struct uprobe *uprobe,
-> +				     process_uprobe_func_t process_kprobe_user)
-> +{
-> +	int ret = 0;
-> +	kprobe_opcode_t *uprobe_address;
-> +
-> +	if (!page)
-> +		return -EINVAL; /* TODO: more suitable errno */
-> +
-> +	wait_on_page_locked(page);
-> +	/* could probably retry readpage here. */
-> +	if (!PageUptodate(page))
-> +		return -EINVAL; /* TODO: more suitable errno */
-> +
-> +	lock_page(page);
 
-That's a lot of fuss and might be racy with truncate.
+Regards,
+Chris
 
-Why not just run lock_page()?
+--82I3+IH0IqGh5yIs
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> +	uprobe_address = (kprobe_opcode_t *)kmap(page);
-> +	uprobe_address = (kprobe_opcode_t *)((unsigned long)uprobe_address +
-> +						(uprobe->offset & ~PAGE_MASK));
-> +	ret = (*process_kprobe_user)(uprobe, uprobe_address);
-> +	kunmap(page);
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-kmap_atomic() is preferred.
+iQIVAwUBRB6Ihl2m8MprmeOlAQLN0BAArMs0CqNmU2MSKphRSEvUBSi+oCcZcPU5
+JoJhul/GicUQPpieh+h2nsqorKsHrBEdIiW+p7rVrP1/8WMwj/3LLfw0grdZWDOx
+YaVqlVQUG1JG0gxhe4cPZWn8PFM4NDizVOGOH70TWSCn9V5zgoQ63QseLvdFYCV/
+B9ceGrDSxMqASzND6Zn6mihNFHXHWlHlBOhs4b0rJEL9NLtQEPL6VH4S7jtVrLVL
+YwwHCQ6OdLyUG62YKtnIf8eMVp/ZLBuweHAttQy7ZVVrFuY+V4v69ounj/ZUXCCA
+sq4oVTvrTlgVL6bUhyCdCk7muEONXGNz8M2gaxsv/o1xfPO3uIze/nz+22sk32+u
+pscYAkSl2nk4xh7/RxydBRJaj8xTaw0GexlUGi//VPTfMCQSiK4dIIoYxdxESG79
+55J6S3DoT/k1GMxuwruZDUICv+T28lCAWMsipNd8//UuW/V9pr6MOUaTXfk6bVjV
+bHGqfi5NDg+FIh+tiTUHXLP5Frok6P29Bojin2eWtg0b/C5zvXKwJOyyaJIk1q7N
+fmCZqivPeV8fz0/MckRGUth5Cx0oMDGuXUcBWyLg9zJCl38uZtDBlCj9y6Rmi+uW
+astkHCZwON8AuVhx7QTYX3ZawudyKJss/fdQ6ixPo7FOU5OtwWEBsW+xEO4Dg1u9
+ZBs1gwr1zXM=
+=nhtv
+-----END PGP SIGNATURE-----
 
-> +/**
-> + * Gets exclusive write access to the given inode to ensure that the file
-> + * on which probes are currently applied does not change. Use the function,
-> + * deny_write_access_to_inode() we added in fs/namei.c.
-> + */
-> +static inline int ex_write_lock(struct inode *inode)
-> +{
-> +	return deny_write_access_to_inode(inode);
-> +}
-
-hm, this code likes to poke around in VFS internals.  It would be nice to
-have an overall description of what it's trying to do, why and how.
-
-> +/**
-> + * unregister_uprobe: Disarms the probe, removes the uprobe
-> + * pointers from the hash list and unhooks readpage routines.
-> + */
-> +void __kprobes unregister_uprobe(struct uprobe *uprobe)
-> +{
-> +	struct address_space *mapping;
-> +	struct uprobe_module *umodule;
-> +	struct page *page;
-> +	unsigned long flags;
-> +	int ret = 0;
-> +
-> +	if (!uprobe->inode)
-> +		return;
-> +
-> +	mapping = uprobe->inode->i_mapping;
-> +
-> +	page = find_get_page(mapping, uprobe->offset >> PAGE_CACHE_SHIFT);
-> +
-> +	spin_lock_irqsave(&uprobe_lock, flags);
-> +	ret = remove_uprobe(uprobe);
-> +	spin_unlock_irqrestore(&uprobe_lock, flags);
-> +
-> +	mutex_lock(&uprobe_mutex);
-> +	if (!(umodule = get_module_by_inode(uprobe->inode)))
-> +		goto out;
-> +
-> +	hlist_del(&uprobe->ulist);
-> +	if (hlist_empty(&umodule->ulist_head)) {
-> +		list_del(&umodule->mlist);
-> +		ex_write_unlock(uprobe->inode);
-> +		path_release(&umodule->nd);
-> +		kfree(umodule);
-> +	}
-> +
-> +out:
-> +	mutex_unlock(&uprobe_mutex);
-> +	if (ret)
-> +		ret = map_uprobe_page(page, uprobe, remove_kprobe_user);
-> +
-> +	if (ret == -EINVAL)
-> +		return;
-> +	/*
-> +	 * TODO: unregister_uprobe should not fail, need to handle
-> +	 * if it fails.
-> +	 */
-> +	flush_vma(mapping, page, uprobe);
-> +
-> +	if (page)
-> +		page_cache_release(page);
-> +}
-
-That's some pretty awkward coding.  Buggy too.  It doesn't drop the
-refcount on the page if map_uprobe_page() returned -EINVAL because it's
-assuming that EINVAL meant "there was no page".  But there are multiple
-reasons for map_uprobe_page() to return -EINVAL.  If that page isn't
-uptodate, we leak a ref.
-
-This function should be doing the checking for a find_get_page() failure,
-not map_uprobe_page().
+--82I3+IH0IqGh5yIs--
 

@@ -1,58 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbWCTUxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030278AbWCTUzs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030256AbWCTUxq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 15:53:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbWCTUxp
+	id S1030278AbWCTUzs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 15:55:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbWCTUzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 15:53:45 -0500
-Received: from baldrick.bootc.net ([83.142.228.48]:35520 "EHLO
-	baldrick.bootc.net") by vger.kernel.org with ESMTP id S1030256AbWCTUxp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 15:53:45 -0500
-Message-ID: <441F1650.7070906@bootc.net>
-Date: Mon, 20 Mar 2006 20:53:36 +0000
-From: Chris Boot <bootc@bootc.net>
-User-Agent: Thunderbird 1.5 (X11/20060309)
+	Mon, 20 Mar 2006 15:55:47 -0500
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:17315 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1030278AbWCTUzr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 15:55:47 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Merge strategy for klibc
+Date: Mon, 20 Mar 2006 21:54:26 +0100
+User-Agent: KMail/1.9.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, klibc@zytor.com,
+       torvalds@osdl.org, akpm@osdl.org
+References: <441F0859.2010703@zytor.com>
+In-Reply-To: <441F0859.2010703@zytor.com>
 MIME-Version: 1.0
-To: Matheus Izvekov <mizvekov@gmail.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: SubmittingPatches typo
-References: <20060320125012.GA21545@elf.ucw.cz>	 <Pine.LNX.4.61.0603202056100.14231@yvahk01.tjqt.qr> <305c16960603201247p53718859ofa0e6d0355c9da1a@mail.gmail.com>
-In-Reply-To: <305c16960603201247p53718859ofa0e6d0355c9da1a@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart114319175.O9GfXWIWJB";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200603202154.36511.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matheus Izvekov wrote:
-> On 3/20/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
->>> Hi!
->>>
->>> I'm not 100% sure with my english, but this seems wrong...
->>>
->>> Signed-off-by: Pavel Machek <pavel@suse.cz>
->>>
->>> -Linus Torvald's mail on the canonical patch format:
->>> +Linus Torvalds' mail on the canonical patch format:
->> Neither. (It would have been correct in German, though.)
->> Correct is - in English:
->>         Linus Torvalds's mail on the canonical patch format:
->>
-> 
-> I agree with Pavel. i think its a rule in english that when the word
-> ends with s, you dont repeat another s after the '
+--nextPart114319175.O9GfXWIWJB
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-When a word ends with an 's' *because it is plural* (i.e. the s denotes 
-plurality) then you omit the second 's'. If the word ends with 's' in 
-singular form you do the whole whack: ..s's.
+Hi,
 
-I can't quote a source for this, but it's something I've known for years.
+first thanks for your good work on that!
 
-HTH,
-Chris
+On Monday, 20. March 2006 20:54, H. Peter Anvin wrote:
+> The current git tree includes a number of utilities, like dash (sh),=20
+> which aren't used by the default kinit configuration.
 
--- 
-Chris Boot
-bootc@bootc.net
-http://www.bootc.net/
+But its quite useful to be dropped into a shell, if anything goes wrong.
+e.g. ubuntu assumes an modular kernel, which I don't like to have
+and I got dropped into the shell quite often until all scripts worked as=20
+expected.
+
+> Additionally, =20
+> right now kinit is built monolitically, in other words there isn't a=20
+> CONFIG_ option to turn off nfsmount, for example.
+
+Yes, since after development of your init setup, you want to shrink it
+as much as possible :-)
+
+But all of this stuff is janitorial and can be done after merging the basic
+ideas and completing the setup code move to user space.
+
+Another idea is to still allow the current archive setups for initramfs,
+because a static /dev might be best for embedded stuff where
+you basically pre-compose a system image and download that to flash.
+
+> 3. Path: it probably would make sense to push this into -mm first?
+
+The usr/ part should go in ASAP, but please rip out the setup stuff=20
+only after a grace period announced in Documentation/feature-removal.txt
+or sth. like that.
+
+
+Regards
+
+Ingo Oeser
+
+--nextPart114319175.O9GfXWIWJB
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBEHxaMU56oYWuOrkARAomdAKCy5VZDhEAcBqQnV3kliCfHVizd2QCcCzEu
+Dls5/JuX+QLwgssn81nrKSU=
+=WKdJ
+-----END PGP SIGNATURE-----
+
+--nextPart114319175.O9GfXWIWJB--

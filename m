@@ -1,167 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966783AbWCTPU6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965243AbWCTPqw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966783AbWCTPU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:20:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbWCTPUx
+	id S965243AbWCTPqw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:46:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965431AbWCTPqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:20:53 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:39906 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S966758AbWCTPUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:20:46 -0500
-From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 021/141] V4L/DVB (3420): Added iocls to configure VBI on
-	tvp5150
-Date: Mon, 20 Mar 2006 12:08:40 -0300
-Message-id: <20060320150840.PS533114000021@infradead.org>
-In-Reply-To: <20060320150819.PS760228000000@infradead.org>
-References: <20060320150819.PS760228000000@infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-3mdk 
-Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 20 Mar 2006 10:46:51 -0500
+Received: from nproxy.gmail.com ([64.233.182.202]:6278 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965427AbWCTPqa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:46:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NxgtVfx9+NqShM+nQ/4+8qjlzh86b39y9XHuIJVSntlmxYGMEZXuYjZ1NR3aLTo6RhMihWbCHAk2PR5TELxWiABYA7JVELnJPehgbymrC8rplFYX4SgxgMdCsAvZluoHz3D2tD024LKRMbzHArCT+P8ZITCYHXswwGK7sI+KUJI=
+Message-ID: <b6c5339f0603200746k3e817e9bmdc278764fe488a8c@mail.gmail.com>
+Date: Mon, 20 Mar 2006 10:46:27 -0500
+From: "Bob Copeland" <me@bobcopeland.com>
+To: "Benjamin Bach" <benjamin@overtag.dk>
+Subject: Re: Idea: Automatic binary driver compiling system
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <441D82D8.7050106@overtag.dk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <441AF93C.6040407@overtag.dk> <1142620509.25258.53.camel@mindpipe>
+	 <441C213A.3000404@overtag.dk>
+	 <1142694655.2889.22.camel@laptopd505.fenrus.org>
+	 <441C2CF6.1050607@overtag.dk>
+	 <1142698292.2889.26.camel@laptopd505.fenrus.org>
+	 <441D36DA.2000701@overtag.dk>
+	 <b6c5339f0603190719u6e52ba3cwda15509de3ed947e@mail.gmail.com>
+	 <441D82D8.7050106@overtag.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-Date: 1138043468 -0200
+On 3/19/06, Benjamin Bach <benjamin@overtag.dk> wrote:
+> Otherwise I'll probably dig up something. Just needs to be a small
+> kernel-whatever project.
+>
+> Is there someone maintaining a list of non-implemented ideas for kernel
+> features/drivers?
 
-- Added iocls to configure VBI on tvp5150
+Although neither of these are easy and you very well might not get
+anything done in three months, a couple of bits of hardware that I
+have for which there are incomplete/no drivers, and where the
+manufacturer refuses to give out specs are:
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
+- Ricoh MMC/SD controllers.  The project to figure those out is at:
+http://mmc.drzeus.cx/wiki/Controllers/Ricoh/Frontreport
 
-diff --git a/drivers/media/video/tvp5150.c b/drivers/media/video/tvp5150.c
-diff --git a/drivers/media/video/tvp5150.c b/drivers/media/video/tvp5150.c
-index df7f304..20e6359 100644
---- a/drivers/media/video/tvp5150.c
-+++ b/drivers/media/video/tvp5150.c
-@@ -541,7 +541,7 @@ static struct i2c_vbi_ram_value vbi_ram_
- 		  0x69, 0x8c, 0x09, 0x00, 0x00, 0x00, 0x27, 0x00 }
- 	},
- 	{0x110, /* Wide Screen Signal, PAL/SECAM */
--		{V4L2_SLICED_WSS_625,20,21,1},
-+		{V4L2_SLICED_WSS_625,23,23,1},
- 		{ 0x5b, 0x55, 0xc5, 0xff, 0x00, 0x71, 0x6e, 0x42,
- 		  0xa6, 0xcd, 0x0f, 0x00, 0x00, 0x00, 0x3a, 0x00 }
- 	},
-@@ -649,7 +649,7 @@ static int tvp5150_set_vbi(struct i2c_cl
- 
- 	if (std == V4L2_STD_ALL) {
- 		tvp5150_err("VBI can't be configured without knowing number of lines\n");
--		return -EINVAL;
-+		return 0;
- 	} else if (std && V4L2_STD_625_50) {
- 		/* Don't follow NTSC Line number convension */
- 		line += 3;
-@@ -686,6 +686,37 @@ static int tvp5150_set_vbi(struct i2c_cl
- 	return type;
- }
- 
-+static int tvp5150_get_vbi(struct i2c_client *c,
-+			const struct i2c_vbi_ram_value *regs, int line)
-+{
-+	struct tvp5150 *decoder = i2c_get_clientdata(c);
-+	v4l2_std_id std=decoder->norm;
-+	u8 reg;
-+	int pos, type=0;
-+
-+	if (std == V4L2_STD_ALL) {
-+		tvp5150_err("VBI can't be configured without knowing number of lines\n");
-+		return 0;
-+	} else if (std && V4L2_STD_625_50) {
-+		/* Don't follow NTSC Line number convension */
-+		line += 3;
-+	}
-+
-+	if (line<6||line>27)
-+		return 0;
-+
-+	reg=((line-6)<<1)+TVP5150_LINE_MODE_INI;
-+
-+	pos=tvp5150_read(c, reg)&0x0f;
-+	if (pos<0x0f)
-+		type=regs[pos].type.vbi_type;
-+
-+	pos=tvp5150_read(c, reg+1)&0x0f;
-+	if (pos<0x0f)
-+		type|=regs[pos].type.vbi_type;
-+
-+	return type;
-+}
- static int tvp5150_set_std(struct i2c_client *c, v4l2_std_id std)
- {
- 	struct tvp5150 *decoder = i2c_get_clientdata(c);
-@@ -856,9 +887,43 @@ static int tvp5150_command(struct i2c_cl
- 					 vbi_ram_default,
- 					 svbi->service_lines[0][i],0xf0,i,3);
- 			}
-+			/* Enables FIFO */
-+			tvp5150_write(c, TVP5150_FIFO_OUT_CTRL,1);
-+		} else {
-+			/* Disables FIFO*/
-+			tvp5150_write(c, TVP5150_FIFO_OUT_CTRL,0);
-+
-+			/* Disable Full Field */
-+			tvp5150_write(c, TVP5150_FULL_FIELD_ENA, 0);
-+
-+			/* Disable Line modes */
-+			for (i=TVP5150_LINE_MODE_INI; i<=TVP5150_LINE_MODE_END; i++)
-+				tvp5150_write(c, i, 0xff);
-+		}
-+		break;
-+	}
-+	case VIDIOC_G_FMT:
-+	{
-+		struct v4l2_format *fmt;
-+		struct v4l2_sliced_vbi_format *svbi;
-+
-+		int i, mask=0;
-+
-+		fmt = arg;
-+		if (fmt->type != V4L2_BUF_TYPE_SLICED_VBI_CAPTURE)
-+			return -EINVAL;
-+		svbi = &fmt->fmt.sliced;
-+		memset(svbi, 0, sizeof(*svbi));
-+
-+		for (i = 0; i <= 23; i++) {
-+			svbi->service_lines[0][i]=tvp5150_get_vbi(c,
-+				vbi_ram_default,i);
-+			mask|=svbi->service_lines[0][i];
- 		}
-+		svbi->service_set=mask;
- 		break;
- 	}
-+
- #ifdef CONFIG_VIDEO_ADV_DEBUG
- 	case VIDIOC_INT_G_REGISTER:
- 	{
-@@ -883,6 +948,7 @@ static int tvp5150_command(struct i2c_cl
- 	}
- #endif
- 
-+	case VIDIOC_LOG_STATUS:
- 	case DECODER_DUMP:
- 		dump_reg(c);
- 		break;
-diff --git a/include/media/v4l2-common.h b/include/media/v4l2-common.h
-diff --git a/include/media/v4l2-common.h b/include/media/v4l2-common.h
-index d4030a7..11728da 100644
---- a/include/media/v4l2-common.h
-+++ b/include/media/v4l2-common.h
-@@ -160,7 +160,8 @@ struct msp_matrix {
- 
- /* Used to generate VBI signals on a video signal. v4l2_sliced_vbi_data is
-    filled with the data packets that should be output. Note that if you set
--   the line field to 0, then that VBI signal is disabled. */
-+   the line field to 0, then that VBI signal is disabled. If no
-+   valid VBI data was found, then the type field is set to 0 on return. */
- #define VIDIOC_INT_S_VBI_DATA 		_IOW ('d', 105, struct v4l2_sliced_vbi_data)
- 
- /* Used to obtain the sliced VBI packet from a readback register. Not all
+- 3D for NVidia.  I know many people would take an open but basic 3D
+driver over the fully featured binary one - many people already use
+the 2D 'nv' driver for that reason.  Rudolf Cornelissen has reverse
+engineered various bits of it (though it may apply only to the
+geforce-1 era cards) over here:
+http://web.inter.nl.net/users/be-hold/BeOS/NVdriver/3dnews.html
 
+You will find it's a whole lot easier to write drivers when you have
+specs though, and the resulting drivers will also be better.  But
+depending on the scope of your project, you could definitely learn
+something either way.
+
+Another thing that would be a lot easier to accomplish in 3 months
+would be to write a userspace filesystem using FUSE for something that
+isn't ordinarily accessed by filesystems; for example currently you
+can mount remote machines over ssh, cameras that can talk to gphoto,
+tar archives, gmail, etc.

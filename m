@@ -1,126 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWCTOV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbWCTOWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964810AbWCTOV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 09:21:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964814AbWCTOV2
+	id S964816AbWCTOWL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 09:22:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbWCTOWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 09:21:28 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:63926 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S964810AbWCTOV1
+	Mon, 20 Mar 2006 09:22:10 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:51618 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S964813AbWCTOWI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 09:21:27 -0500
-Date: Mon, 20 Mar 2006 16:21:22 +0200 (EET)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Eric Dumazet <dada1@cosmosbay.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] slab: introduce kmem_cache_zalloc allocator
-In-Reply-To: <441EB350.50609@cosmosbay.com>
-Message-ID: <Pine.LNX.4.58.0603201620370.23228@sbz-30.cs.Helsinki.FI>
-References: <Pine.LNX.4.58.0603201506140.19005@sbz-30.cs.Helsinki.FI>
- <441EB350.50609@cosmosbay.com>
+	Mon, 20 Mar 2006 09:22:08 -0500
+Date: Mon, 20 Mar 2006 07:22:07 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Dimitri Sivanich <sivanich@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       hch@infradead.org, clameter@sgi.com, jes@sgi.com
+Subject: Re: [PATCH] Add SA_PERCPU_IRQ flag support
+Message-ID: <20060320142207.GG8980@parisc-linux.org>
+References: <20060317003114.GA1735@sgi.com> <20060317152645.52112021.akpm@osdl.org> <20060318014900.65889f69.akpm@osdl.org> <20060320141747.GA27114@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060320141747.GA27114@sgi.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Mar 2006, Eric Dumazet wrote:
-> Excellent.
+On Mon, Mar 20, 2006 at 08:17:47AM -0600, Dimitri Sivanich wrote:
+> On Sat, Mar 18, 2006 at 01:49:00AM -0800, Andrew Morton wrote:
+> > Andrew Morton <akpm@osdl.org> wrote:
+> > >
+> > > +#ifdef ARCH_HAS_IRQ_PER_CPU
+> > >  +	if (new->flags & SA_PERCPU_IRQ)
+> > >  +		desc->status |= IRQ_PER_CPU;
+> > >  +#endif
+> > 
+> > OK, five architectures define ARCH_HAS_IRQ_PER_CPU but only one of them
+> > defines SA_PERCPU_IRQ.    Giving up.
 > 
-> Please change zalloc() so that a zalloc(constant_value) uses your
-> kmem_cache_zalloc on the appropriate cache.
+> Could we do the following (at least for now)?:
 > 
-> This way we can really introduce zalloc() *everywhere* without paying the cost
-> of runtime lookup to find the right cache.
+> +#if defined(ARCH_HAS_IRQ_PER_CPU) && defined(SA_PERCPU_IRQ)
+> +	if (new->flags & SA_PERCPU_IRQ)
+> +		desc->status |= IRQ_PER_CPU;
+> +#endif
 
-Something like this? For some reason, the below increases kernel text.
+Why not just
 
-				Pekka
-
-diff --git a/include/linux/slab.h b/include/linux/slab.h
-index b595c09..db3b302 100644
---- a/include/linux/slab.h
-+++ b/include/linux/slab.h
-@@ -109,7 +109,30 @@ found:
- 	return __kmalloc(size, flags);
- }
- 
--extern void *kzalloc(size_t, gfp_t);
-+extern void *__kzalloc(size_t, gfp_t);
-+
-+static inline void *kzalloc(size_t size, gfp_t flags)
-+{
-+	if (__builtin_constant_p(size)) {
-+		int i = 0;
-+#define CACHE(x) \
-+		if (size <= x) \
-+			goto found; \
-+		else \
-+			i++;
-+#include "kmalloc_sizes.h"
-+#undef CACHE
-+		{
-+			extern void __you_cannot_kzalloc_that_much(void);
-+			__you_cannot_kzalloc_that_much();
-+		}
-+found:
-+		return kmem_cache_zalloc((flags & GFP_DMA) ?
-+			malloc_sizes[i].cs_dmacachep :
-+			malloc_sizes[i].cs_cachep, flags);
-+	}
-+	return __kzalloc(size, flags);
-+}
- 
- /**
-  * kcalloc - allocate memory for an array. The memory is set to zero.
-@@ -160,14 +183,14 @@ void *kmem_cache_zalloc(struct kmem_cach
- void kmem_cache_free(struct kmem_cache *c, void *b);
- const char *kmem_cache_name(struct kmem_cache *);
- void *kmalloc(size_t size, gfp_t flags);
--void *kzalloc(size_t size, gfp_t flags);
-+void *__kzalloc(size_t size, gfp_t flags);
- void kfree(const void *m);
- unsigned int ksize(const void *m);
- unsigned int kmem_cache_size(struct kmem_cache *c);
- 
- static inline void *kcalloc(size_t n, size_t size, gfp_t flags)
- {
--	return kzalloc(n * size, flags);
-+	return __kzalloc(n * size, flags);
- }
- 
- #define kmem_cache_shrink(d) (0)
-@@ -175,6 +198,7 @@ static inline void *kcalloc(size_t n, si
- #define kmem_ptr_validate(a, b) (0)
- #define kmem_cache_alloc_node(c, f, n) kmem_cache_alloc(c, f)
- #define kmalloc_node(s, f, n) kmalloc(s, f)
-+#define kzalloc(s, f) __kzalloc(s, f)
- 
- #endif /* CONFIG_SLOB */
- 
-diff --git a/mm/util.c b/mm/util.c
-index 5f4bb59..fd78ee4 100644
---- a/mm/util.c
-+++ b/mm/util.c
-@@ -3,18 +3,18 @@
- #include <linux/module.h>
- 
- /**
-- * kzalloc - allocate memory. The memory is set to zero.
-+ * __kzalloc - allocate memory. The memory is set to zero.
-  * @size: how many bytes of memory are required.
-  * @flags: the type of memory to allocate.
-  */
--void *kzalloc(size_t size, gfp_t flags)
-+void *__kzalloc(size_t size, gfp_t flags)
- {
- 	void *ret = kmalloc(size, flags);
- 	if (ret)
- 		memset(ret, 0, size);
- 	return ret;
- }
--EXPORT_SYMBOL(kzalloc);
-+EXPORT_SYMBOL(__kzalloc);
- 
- /*
-  * kstrdup - allocate space for and copy an existing string
+#ifdef SA_PERCPU_IRQ
+	if (new->flags & SA_PERCPU_IRQ)
+		desc->status |= IRQ_PER_CPU;
+#endif

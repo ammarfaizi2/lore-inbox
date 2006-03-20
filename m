@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966835AbWCTPVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966799AbWCTPVF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966835AbWCTPVp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:21:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbWCTPVo
+	id S966799AbWCTPVF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:21:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966807AbWCTPVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:21:44 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:46050 "EHLO
+	Mon, 20 Mar 2006 10:21:05 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:41954 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S966836AbWCTPV3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:21:29 -0500
+	id S966798AbWCTPVC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:21:02 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Adrian Bunk <bunk@stusta.de>,
+Cc: linux-dvb-maintainer@linuxtv.org,
+       Markus Rechberger <mrechberger@gmail.com>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 141/141] V4L/DVB (3415): Msp3400-kthreads.c: make 3
-	functions static
-Date: Mon, 20 Mar 2006 12:09:00 -0300
-Message-id: <20060320150900.PS510733000141@infradead.org>
+Subject: [PATCH 027/141] V4L/DVB (3429): Missing break statement on
+	tuner-core
+Date: Mon, 20 Mar 2006 12:08:41 -0300
+Message-id: <20060320150841.PS527439000027@infradead.org>
 In-Reply-To: <20060320150819.PS760228000000@infradead.org>
 References: <20060320150819.PS760228000000@infradead.org>
 Mime-Version: 1.0
@@ -28,58 +29,27 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk <bunk@stusta.de>
-Date: 1141825807 -0300
+From: Markus Rechberger <mrechberger@gmail.com>
+Date: 1138043469 -0200
 
-This patch makes three needlessly global functions static.
+- default_tuner_init was called twice due to a missing break statement.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Markus Rechberger <mrechberger@gmail.com>
+Acked-by: Michael Krufky <mkrufky@m1k.net>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
-diff --git a/drivers/media/video/msp3400-kthreads.c b/drivers/media/video/msp3400-kthreads.c
-diff --git a/drivers/media/video/msp3400-kthreads.c b/drivers/media/video/msp3400-kthreads.c
-index c4668f4..852ab6a 100644
---- a/drivers/media/video/msp3400-kthreads.c
-+++ b/drivers/media/video/msp3400-kthreads.c
-@@ -154,7 +154,7 @@ const char *msp_standard_std_name(int st
- 	return "unknown";
- }
- 
--void msp_set_source(struct i2c_client *client, u16 src)
-+static void msp_set_source(struct i2c_client *client, u16 src)
- {
- 	struct msp_state *state = i2c_get_clientdata(client);
- 
-@@ -217,7 +217,7 @@ void msp3400c_set_mode(struct i2c_client
- 
- /* Set audio mode. Note that the pre-'G' models do not support BTSC+SAP,
-    nor do they support stereo BTSC. */
--void msp3400c_set_audmode(struct i2c_client *client)
-+static void msp3400c_set_audmode(struct i2c_client *client)
- {
- 	static char *strmode[] = { "mono", "stereo", "lang2", "lang1" };
- 	struct msp_state *state = i2c_get_clientdata(client);
-@@ -944,7 +944,7 @@ static void msp34xxg_detect_stereo(struc
- 		status, is_stereo, is_bilingual, state->rxsubchans);
- }
- 
--void msp34xxg_set_audmode(struct i2c_client *client)
-+static void msp34xxg_set_audmode(struct i2c_client *client)
- {
- 	struct msp_state *state = i2c_get_clientdata(client);
- 	int source;
-diff --git a/drivers/media/video/msp3400.h b/drivers/media/video/msp3400.h
-diff --git a/drivers/media/video/msp3400.h b/drivers/media/video/msp3400.h
-index 4182830..6fb5c8c 100644
---- a/drivers/media/video/msp3400.h
-+++ b/drivers/media/video/msp3400.h
-@@ -104,7 +104,6 @@ int msp_sleep(struct msp_state *state, i
- 
- /* msp3400-kthreads.c */
- const char *msp_standard_std_name(int std);
--void msp_set_source(struct i2c_client *client, u16 src);
- void msp_set_audmode(struct i2c_client *client);
- void msp_detect_stereo(struct i2c_client *client);
- int msp3400c_thread(void *data);
+diff --git a/drivers/media/video/tuner-core.c b/drivers/media/video/tuner-core.c
+diff --git a/drivers/media/video/tuner-core.c b/drivers/media/video/tuner-core.c
+index af3e7bb..cd2d5a7 100644
+--- a/drivers/media/video/tuner-core.c
++++ b/drivers/media/video/tuner-core.c
+@@ -216,6 +216,7 @@ static void set_type(struct i2c_client *
+ 		buffer[3] = 0xa4;
+ 		i2c_master_send(c,buffer,4);
+ 		default_tuner_init(c);
++		break;
+ 	default:
+ 		default_tuner_init(c);
+ 		break;
 

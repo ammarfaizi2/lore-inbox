@@ -1,70 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWCTLqB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbWCTLrV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbWCTLqB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 06:46:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbWCTLqB
+	id S1750893AbWCTLrV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 06:47:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbWCTLrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 06:46:01 -0500
-Received: from mxout5.netvision.net.il ([194.90.9.29]:56113 "EHLO
-	mxout5.netvision.net.il") by vger.kernel.org with ESMTP
-	id S1750782AbWCTLqA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 06:46:00 -0500
-Date: Mon, 20 Mar 2006 13:45:59 +0300
-From: Maxim Kozover <maximkoz@netvision.net.il>
-Subject: Re: Re: Re[8]: problems with scsi_transport_fc and qla2xxx
-In-reply-to: <20060313231903.GK11755@andrew-vasquezs-powerbook-g4-15.local>
-To: Andrew Vasquez <andrew.vasquez@qlogic.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       Michael Reed <mdr@sgi.com>, James.Smart@Emulex.Com
-Reply-to: Maxim Kozover <maximkoz@netvision.net.il>
-Message-id: <1375487327.20060320134559@netvision.net.il>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Priority: 3 (Normal)
-References: <1229893529.20060307000953@netvision.net.il>
- <20060306232831.GS6278@andrew-vasquezs-powerbook-g4-15.local>
- <1219491790.20060307124035@netvision.net.il>
- <20060307172227.GE6275@andrew-vasquezs-powerbook-g4-15.local>
- <1343850424.20060307231141@netvision.net.il>
- <20060308080050.GF9956@andrew-vasquezs-powerbook-g4-15.local>
- <20060308154341.GA1779@andrew-vasquezs-powerbook-g4-15.local>
- <1502511597.20060308213247@netvision.net.il>
- <20060310231344.GB641@andrew-vasquezs-powerbook-g4-15.local>
- <1699632492.20060312001014@netvision.net.il>
- <20060313231903.GK11755@andrew-vasquezs-powerbook-g4-15.local>
+	Mon, 20 Mar 2006 06:47:20 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:26780 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750893AbWCTLrU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 06:47:20 -0500
+Subject: Re: TSO and IPoIB performance degradation
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: "David S. Miller" <davem@davemloft.net>, rick.jones2@hp.com,
+       netdev@vger.kernel.org, rdreier@cisco.com, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <20060320112753.GX29929@mellanox.co.il>
+References: <20060320090629.GA11352@mellanox.co.il>
+	 <20060320.015500.72136710.davem@davemloft.net>
+	 <20060320102234.GV29929@mellanox.co.il>
+	 <20060320.023704.70907203.davem@davemloft.net>
+	 <20060320112753.GX29929@mellanox.co.il>
+Content-Type: text/plain
+Date: Mon, 20 Mar 2006 12:47:03 +0100
+Message-Id: <1142855223.3114.30.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew!
-Unfortunately I see that scan-work patch is not included in
-2.6.16 and the usual lock appears:
-#001:             [ffff8100708a8080] {scsi_host_alloc}
-.. held by:         scsi_wq_4: 3912 [ffff810071edf870, 110]
-... acquired at:               scsi_scan_target+0x51/0x87 [scsi_mod]
+On Mon, 2006-03-20 at 13:27 +0200, Michael S. Tsirkin wrote:
+> Quoting David S. Miller <davem@davemloft.net>:
+> > I disagree with Linux changing it's behavior.  It would be great to
+> > turn off congestion control completely over local gigabit networks,
+> > but that isn't determinable in any way, so we don't do that.
+> 
+> Interesting. Would it make sense to make it another tunable knob in
+> /proc, sysfs or sysctl then?
 
-Applying the patch you sent solves the problem, i.e. disks appear again after
-22 sec timeout (why?).
-
-Thanks,
-
-Maxim.
-
-Tuesday, March 14, 2006, 2:19:03 AM, you wrote:
-
-AV> diff --git a/drivers/scsi/scsi_transport_fc.c
-AV> b/drivers/scsi/scsi_transport_fc.c
-AV> index 929032e..3d09920 100644
-AV> --- a/drivers/scsi/scsi_transport_fc.c
-AV> +++ b/drivers/scsi/scsi_transport_fc.c
-AV> @@ -1649,6 +1649,8 @@ fc_remote_port_delete(struct fc_rport  *
-AV>                 return;
-AV>         }
-AV>  
-AV> +       /* flush any scan work */ /* which can sleep */
-AV> +       scsi_flush_work(rport_to_shost(rport));
-AV>         scsi_target_block(&rport->dev);
-AV>  
-AV>         /* cap the length the devices can be blocked until they are deleted */
+that's not the right level; since that is per interface. And you only
+know the actual interface waay too late (as per earlier posts).
+Per socket.. maybe
+But then again it's not impossible to have packets for one socket go out
+to multiple interfaces
+(think load balancing bonding over 2 interfaces, one IB another
+ethernet)
 
 

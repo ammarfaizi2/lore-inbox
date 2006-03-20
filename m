@@ -1,315 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWCTNsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWCTNtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964797AbWCTNsc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 08:48:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWCTNsb
+	id S932311AbWCTNtc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 08:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWCTNtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 08:48:31 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:39899 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932307AbWCTNsa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 08:48:30 -0500
-Date: Mon, 20 Mar 2006 19:18:54 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ak@suse.de, davem@davemloft.net, suparna@in.ibm.com,
-       richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [3/3 PATCH] Kprobes: User space probes support- single stepping out-of-line
-Message-ID: <20060320134854.GG8662@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-References: <20060320060745.GC31091@in.ibm.com> <20060320060931.GD31091@in.ibm.com> <20060320061014.GE31091@in.ibm.com> <20060320061123.GF31091@in.ibm.com> <20060320030922.4ea9445b.akpm@osdl.org>
-Mime-Version: 1.0
+	Mon, 20 Mar 2006 08:49:32 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:6849 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S932305AbWCTNta (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 08:49:30 -0500
+Date: Mon, 20 Mar 2006 21:54:41 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/23] Adaptive read-ahead V11
+Message-ID: <20060320135441.GA5360@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Jon Smirl <jonsmirl@gmail.com>, linux-kernel@vger.kernel.org
+References: <20060319023413.305977000@localhost.localdomain> <9e4733910603181910p21117f3anc107673e31f6352b@mail.gmail.com> <20060319034750.GA8732@mail.ustc.edu.cn> <9e4733910603182010p394c3233p81825b093fb693c@mail.gmail.com> <20060319050956.GA4313@mail.ustc.edu.cn> <9e4733910603190753y2d36845ay8e0b08f961ade71@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060320030922.4ea9445b.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <9e4733910603190753y2d36845ay8e0b08f961ade71@mail.gmail.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 20, 2006 at 03:09:22AM -0800, Andrew Morton wrote:
-> Prasanna S Panchamukhi <prasanna@in.ibm.com> wrote:
-> >
-> > This patch provides a mechanism for probe handling and
-> > executing the user-specified handlers.
-> > 
-> > Each userspace probe is uniquely identified by the combination of
-> > inode and offset, hence during registeration the inode and offset
-> > combination is added to uprobes hash table. Initially when
-> > breakpoint instruction is hit, the uprobes hash table is looked up
-> > for matching inode and offset. The pre_handlers are called in
-> > sequence if multiple probes are registered. Similar to kprobes,
-> > uprobes also adopts to single step out-of-line, so that probe miss in
-> > SMP environment can be avoided. But for userspace probes, instruction
-> > copied into kernel address space cannot be single stepped, hence the
-> > instruction must be copied to user address space. The solution is to
-> > find free space in the current process address space and then copy the
-> > original instruction and single step that instruction.
-> > 
-> > User processes use stack space to store local variables, agruments and
-> > return values. Normally the stack space either below or above the
-> > stack pointer indicates the free stack space.
-> > 
-> > The instruction to be single stepped can modify the stack space,
-> > hence before using the free stack space, sufficient stack space should
-> > be left. The instruction is copied to the bottom of the page and check
-> > is made such that the copied instruction does not cross the page
-> > boundry. The copied instruction is then single stepped. Several
-> > architectures does not allow the instruction to be executed from the
-> > stack location, since no-exec bit is set for the stack pages. In those
-> > architectures, the page table entry corresponding to the stack page is
-> > identified and the no-exec bit is unset making the instruction on that
-> > stack page to be executed.
-> > 
-> > There are situations where even the free stack space is not enough for
-> > the user instruction to be copied and single stepped. In such
-> > situations, the virtual memory area(vma) can be expanded beyond the
-> > current stack vma. This expaneded stack can be used to copy the
-> > original instruction and single step out-of-line.
-> > 
-> > Even if the vma cannot be extended then the instruction much be
-> > executed inline, by replacing the breakpoint instruction with original
-> > instruction.
-> > 
-> > ...
-> >
-> > +
-> > +/**
-> > + * This routines get the pte of the page containing the specified address.
-> > + */
-> > +static pte_t  __kprobes *get_uprobe_pte(unsigned long address)
-> > +{
-> > +	pgd_t *pgd;
-> > +	pud_t *pud;
-> > +	pmd_t *pmd;
-> > +	pte_t *pte = NULL;
-> > +
-> > +	pgd = pgd_offset(current->mm, address);
-> > +	if (!pgd)
-> > +		goto out;
-> > +
-> > +	pud = pud_offset(pgd, address);
-> > +	if (!pud)
-> > +		goto out;
-> > +
-> > +	pmd = pmd_offset(pud, address);
-> > +	if (!pmd)
-> > +		goto out;
-> > +
-> > +	pte = pte_alloc_map(current->mm, pmd, address);
-> > +
-> > +out:
-> > +	return pte;
-> > +}
-> 
-> That's familiar looking code..
-> 
-> I guess this should be given a more generic name then placed in
-> mm/memory.c, which is where we do pagetable walking.
+On Sun, Mar 19, 2006 at 10:53:46AM -0500, Jon Smirl wrote:
+> In another thread someone made a mention that this problem may have
+> something to do with the pools of memory being used for sendfile. The
+> readahead from sendfile is going into a moderately sized pool. When
+> you get 100 of them going at once the other threads flush the
+> readahead data out of the pool before it can be used and thus trigger
+> the thrashing seek storm. Is this true, that sendfile data is read
+> ahead into a fixed sized pool? If so, the readahead algorithms would
 
-Agreed, I will send out a separate patch for the helpers.
+The pages are kept in a cache pool which is made of all the free memory.
+E.g. the following command shows a system with 331M cache pool:
 
-> 
-> > +/**
-> > + *  This routine check for space in the current process's stack
-> > + *  address space. If enough address space is found, copy the original
-> > + *  instruction on that page for single stepping out-of-line.
-> > + */
-> > +static int __kprobes copy_insn_on_new_page(struct uprobe *uprobe ,
-> > +			struct pt_regs *regs, struct vm_area_struct *vma)
-> > +{
-> > +	unsigned long addr, stack_addr = regs->esp;
-> > +	int size = MAX_INSN_SIZE * sizeof(kprobe_opcode_t);
-> > +
-> > +	if (vma->vm_flags & VM_GROWSDOWN) {
-> > +		if (((stack_addr - sizeof(long long))) <
-> > +						(vma->vm_start + size))
-> > +			return -ENOMEM;
-> > +		addr = vma->vm_start;
-> > +	} else if (vma->vm_flags & VM_GROWSUP) {
-> > +		if ((vma->vm_end - size) < (stack_addr + sizeof(long long)))
-> > +			return -ENOMEM;
-> > +		addr = vma->vm_end - size;
-> > +	} else
-> > +		return -EFAULT;
-> > +
-> > +	vma->vm_flags |= VM_LOCKED;
-> > +
-> > +	if (__copy_to_user_inatomic((unsigned long *)addr,
-> > +				(unsigned long *)uprobe->kp.ainsn.insn, size))
-> > +		return -EFAULT;
-> > +
-> > +	regs->eip = addr;
-> > +
-> > +	return 0;
-> > +}
-> 
-> If we're going to use __copy_to_user_inatomic() then we'll need some nice
-> comments explaining why this is happening.
-> 
-> And we'll need to actually *be* in-atomic.  That means we need an
-> open-coded inc_preempt_count() and dec_preempt_count() in there and I don't
-> see them.
-> 
+% free -m
+             total       used       free     shared    buffers     cached
+Mem:           488        482          5          0          7        331
+-/+ buffers/cache:        142        345
+Swap:          127          0        127
 
-We come here, after probe is hit, through uporbe_handler() with
-interrupts disabled (since it is a interrupt gate). In uprobe_handler()
-preemption is disabled and remains disabled until original instruction
-is single stepped.
+That would be more than enough for the stock read-ahead to handle 100
+concurrent readers.
 
-I will add proper comments in next iteration.
+> need to reduce the sendfile window sizes to stop the pool from
+> thrashing.
 
-> > +/**
-> > + * This routine expands the stack beyond the present process address
-> > + * space and copies the instruction to that location, so that
-> > + * processor can single step out-of-line.
-> > + */
-> > +static int __kprobes copy_insn_onexpstack(struct uprobe *uprobe,
-> > +			struct pt_regs *regs, struct vm_area_struct *vma)
-> > +{
-> > +	unsigned long addr, vm_addr;
-> > +	int size = MAX_INSN_SIZE * sizeof(kprobe_opcode_t);
-> > +	struct vm_area_struct *new_vma;
-> > +	struct mm_struct *mm = current->mm;
-> > +
-> > +
-> > +	 if (!down_read_trylock(&current->mm->mmap_sem))
-> > +		 return -ENOMEM;
-> > +
-> > +	if (vma->vm_flags & VM_GROWSDOWN)
-> > +		vm_addr = vma->vm_start - size;
-> > +	else if (vma->vm_flags & VM_GROWSUP)
-> > +		vm_addr = vma->vm_end + size;
-> > +	else {
-> > +		up_read(&current->mm->mmap_sem);
-> > +		return -EFAULT;
-> > +	}
-> > +
-> > +	new_vma = find_extend_vma(mm, vm_addr);
-> > +	if (!new_vma) {
-> > +		up_read(&current->mm->mmap_sem);
-> > +		return -ENOMEM;
-> > +	}
-> > +
-> > +	if (new_vma->vm_flags & VM_GROWSDOWN)
-> > +		addr = new_vma->vm_start;
-> > +	else
-> > +		addr = new_vma->vm_end - size;
-> > +
-> > +	new_vma->vm_flags |= VM_LOCKED;
-> > +	up_read(&current->mm->mmap_sem);
-> > +
-> > +	if (__copy_to_user_inatomic((unsigned long *)addr,
-> > +				(unsigned long *)uprobe->kp.ainsn.insn, size))
-> > +		return -EFAULT;
-> > +
-> > +	regs->eip = addr;
-> > +
-> > +	return  0;
-> > +}
-> 
-> Why is VM_LOCKED being set? (It needs a comment).
-> 
-> Where does it get unset?
+Sure, it is the desired behavior. This patch provides exactly this feature :)
 
-As Arjan says, idea was to make copy_to_user_inatomic() succeed but
-there is some issue here, I have to look at it again.
-
-
-> > +
-> > +		if (__copy_to_user_inatomic((unsigned long *)page_addr,
-> > +								source, size))
-> > +		if (__copy_to_user_inatomic(
-> > +			(unsigned long *)(page_addr - size), source, size))
-> 
-> See above.
-> 
-> > +
-> > +/**
-> > + * This routines get the page containing the probe, maps it and
-> > + * replaced the instruction at the probed address with specified
-> > + * opcode.
-> > + */
-> > +void __kprobes replace_original_insn(struct uprobe *uprobe,
-> > +				struct pt_regs *regs, kprobe_opcode_t opcode)
-> > +{
-> > +	kprobe_opcode_t *addr;
-> > +	struct page *page;
-> > +
-> > +	page = find_get_page(uprobe->inode->i_mapping,
-> > +					uprobe->offset >> PAGE_CACHE_SHIFT);
-> > +	BUG_ON(!page);
-> > +
-> > +	__lock_page(page);
-> 
-> Whoa.  Why is __lock_page() being used here?  It looks like a bug is being
-> covered up.
-> 
-
-we come here with a spinlock held. I will add the comment.
-
-> > +	addr = (kprobe_opcode_t *)kmap_atomic(page, KM_USER1);
-> > +	addr = (kprobe_opcode_t *)((unsigned long)addr +
-> > +				 (unsigned long)(uprobe->offset & ~PAGE_MASK));
-> > +	*addr = opcode;
-> > +	/*TODO: flush vma ? */
-> 
-> flush_dcache_page() would be needed.
-> 
-> But then, what happens if the page is shared by other processes?  Do they
-> all start taking debug traps?
-
-Yes, you are right. I think single stepping inline was a bad idea, disarming
-the probe looks to be a better option
-
-
-> > +	kunmap_atomic(addr, KM_USER1);
-> > +
-> > +	unlock_page(page);
-> > +
-> > +	if (page)
-> > +		page_cache_release(page);
-> > +	regs->eip = (unsigned long)uprobe->kp.addr;
-> > +}
-> > +
-> > +/**
-> > + * This routine provides the functionality of single stepping
-> > + * out-of-line. If single stepping out-of-line cannot be achieved,
-> > + * it replaces with the original instruction allowing it to single
-> > + * step inline.
-> > + */
-> > +static inline int prepare_singlestep_uprobe(struct uprobe *uprobe,
-> > +				struct uprobe_ctlblk *ucb, struct pt_regs *regs)
-> > +{
-> > +	unsigned long stack_addr = regs->esp, flags;
-> > +	struct vm_area_struct *vma = NULL;
-> > +	int err = 0;
-> > +
-> > +	vma = find_vma(current->mm, (stack_addr & PAGE_MASK));
-> 
-> I don't think mmap_sem is held here?
-
-Yes, this will be taken care.
-> 
-> > +static inline int uprobe_fault_handler(struct pt_regs *regs, int trapnr)
-> 
-> If, for some reason, the compiler decides to not inline this function then
-> you have a hunk of code which isn't marked __kprobes, but it should be.
-> 
-> I'd suggest that you remove all inlining from this code and add the
-> appropriate section markers.
-> 
-> Or I guess you could use __always_inline, but I'm not sure that it's really
-> worth the fuss and obscurity of doing that.
-> 
-> All kprobes-related code should be audited for this problem.
-
-Yes, I will audit it and send out a patch if necessary.
-
-Thanks
-Prasanna
--- 
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Email: prasanna@in.ibm.com
-Ph: 91-80-51776329
+Cheers,
+Wu

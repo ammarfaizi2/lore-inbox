@@ -1,54 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965050AbWCTTYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWCTTZh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965050AbWCTTYa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 14:24:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965188AbWCTTYa
+	id S1751045AbWCTTZh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 14:25:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbWCTTZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 14:24:30 -0500
-Received: from main.gmane.org ([80.91.229.2]:1430 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S965187AbWCTTY2 (ORCPT
+	Mon, 20 Mar 2006 14:25:36 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:53141 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S964886AbWCTTZf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 14:24:28 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Wes Felter <wesley@felter.org>
-Subject: Re: Dual Core on Linux questions
-Date: Mon, 20 Mar 2006 13:23:32 -0600
-Message-ID: <dvmvge$v43$1@sea.gmane.org>
-References: <20060318082434.M33432@linuxwireless.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: pixpat.austin.ibm.com
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-In-Reply-To: <20060318082434.M33432@linuxwireless.org>
+	Mon, 20 Mar 2006 14:25:35 -0500
+Date: Mon, 20 Mar 2006 20:25:21 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jeff Garzik <jeff@garzik.org>
+cc: joe.korty@ccur.com, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.16
+In-Reply-To: <441EFCB0.6020007@garzik.org>
+Message-ID: <Pine.LNX.4.61.0603202022590.3457@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0603192216450.3622@g5.osdl.org>
+ <20060320171905.GA4228@tsunami.ccur.com> <441EFCB0.6020007@garzik.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alejandro Bonilla wrote:
-> Hi,
-> 
-> I have a few questions about the PM Dual Core and how could it really work
-> with Linux. Sorry if there are new patches on LKML about any of these things:
-> 
-> Could each processor or die, have it's own cpufreq scaling governor?
-> 
-> Is there a way to allow one die to be idle and let the other one normal?
-> 
-> So in other words, could we manage these processors speedstep, utilization and
-> workload individually?
+>
+> strace should be using sanitized versions of the kernel headers, not directly
+> including them verbatim...
+>
+Now, would not it be good for everyone if the in-kernel headers get
+every bit of sanitation? Especially those who are stuck with outdated 
+versions of sanitized headers (thinking of FC3 and FC4) often do the
+magic symlinking (/usr/include/linux -> /usr/src/linux/include/linux).
 
-This depends on your hardware. I was reading the Sossaman data sheet the 
-other day, and it says that the entire chip must run at the same 
-frequency. You can set each core to a different frequency, but the 
-hardware chooses the higher of the two. Likewise, the entire chip can 
-sleep, but individual cores can only go into C1. I imagine the Core Duo 
-is the same.
 
-IIRC, the dual-core Opterons behave a little differently but the two 
-cores still have to run at the same frequency.
-
-Wes Felter - wesley@felter.org
-
+Jan Engelhardt
+-- 

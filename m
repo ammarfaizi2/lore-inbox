@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWCTMY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWCTMjy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbWCTMY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 07:24:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWCTMY4
+	id S932267AbWCTMjy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 07:39:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWCTMjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 07:24:56 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:32658 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S932260AbWCTMY4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 07:24:56 -0500
-Date: Mon, 20 Mar 2006 13:24:49 +0100
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: linux-kernel@vger.kernel.org
-Cc: george@mvista.com
-Subject: gettimeofday order of magnitude slower with pmtimer, which is default
-Message-ID: <20060320122449.GA29718@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	linux-kernel@vger.kernel.org, george@mvista.com
+	Mon, 20 Mar 2006 07:39:54 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:14982 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S932261AbWCTMjx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 07:39:53 -0500
+Date: Mon, 20 Mar 2006 05:39:50 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: DoS with POSIX file locks?
+Message-ID: <20060320123950.GF8980@parisc-linux.org>
+References: <E1FLIlF-0007zR-00@dorka.pomaz.szeredi.hu> <20060320121107.GE8980@parisc-linux.org> <E1FLJLs-00085u-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <E1FLJLs-00085u-00@dorka.pomaz.szeredi.hu>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody,
+On Mon, Mar 20, 2006 at 01:19:12PM +0100, Miklos Szeredi wrote:
+> > > Unlike open files there doesn't seem to be any limit on the number of
+> > > locks being held either globally or by a single process.
+> > 
+> > RLIMIT_LOCKS
+> 
+> Which is not actually used anywhere.
 
-For my open source nameserver (http://www.powerdns.com) I need to do quite a
-number of gettimeofday calls. I've pared it down to almost the bare minimum
-of 1 gettimeofday per packet sent and received. With these calls, I can make
-stats like http://ds9a.nl/tmp/rrd/ which my users need so they can verify
-the proper performance of the nameserver.
+Right.  Um.  I took it out back in March 2003 after enough people
+convinced me it wasn't worth trying to account for all the memory
+processes use, and the userbeans project would take care of it anyway.
+Haha.
 
-Yesterday, together with Zwane, I discovered each gettimeofday call costs me
-4 usec on some boxes and almost nothing on others. We did a fruitless chase
-for vsyscall/sysenter happening but the problem turned out to be
-CONFIG_X86_PM_TIMER.
+It's hard to fix the accounting.  You have to deal with one thread
+allocating the lock, and then a different thread freeing it.  We never
+actually accounted for posix locks (which are the ones we really needed
+to!) and on occasion had current->locks go negative, with all kinds of
+associated badness.
 
-This problem has been discussed before
-http://www.ussg.iu.edu/hypermail/linux/kernel/0411.1/2135.html
-
-Not only is the pm timer slow by design, it also needs to be read multiple
-times to work around a bug in certain hardware.
-
-What is new is that this option is now dependent on CONFIG_EMBEDDED. Unless
-you select this option, the PM Timer will always be used.
-
-Would a patch removing the link to EMBEDDED and adding a warning that while
-this timer is of high quality, it is slow, be welcome?
-
-Thanks.
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+So you're welcome to try and fix it, but you may well go mad doing so.
+Fortunately, I'm no longer maintaining locks.c, but I'd be happy to
+answer questions.

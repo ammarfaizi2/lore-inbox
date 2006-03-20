@@ -1,93 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbWCTVhr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbWCTVhT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964985AbWCTVhr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 16:37:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbWCTVhX
+	id S964975AbWCTVhT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 16:37:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbWCTVhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 16:37:23 -0500
-Received: from mailhub-3.iastate.edu ([129.186.140.13]:231 "EHLO
-	mailhub-3.iastate.edu") by vger.kernel.org with ESMTP
-	id S964978AbWCTVhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 16:37:18 -0500
-Subject: VFAT: Can't create file named 'aux.h'?
-From: Dirk Reiners <dreiners@iastate.edu>
-Reply-To: dreiners@iastate.edu
-To: linux-kernel@vger.kernel.org
-Cc: Dirk Reiners <dreiners@iastate.edu>
-Content-Type: text/plain
-Organization: Iowa State University
-Date: Mon, 20 Mar 2006 15:40:22 -0600
-Message-Id: <1142890822.5007.18.camel@localhost.localdomain>
+	Mon, 20 Mar 2006 16:37:19 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:64212 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964975AbWCTVhR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 16:37:17 -0500
+Date: Mon, 20 Mar 2006 13:34:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Cc: matthew@wil.cx, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make sure nobody's leaking resources
+Message-Id: <20060320133407.1e75eafa.akpm@osdl.org>
+In-Reply-To: <20060320161007.GA25444@granada.merseine.nu>
+References: <20060320155304.GI8980@parisc-linux.org>
+	<20060320161007.GA25444@granada.merseine.nu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-16.3) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Muli Ben-Yehuda <mulix@mulix.org> wrote:
+>
+> On Mon, Mar 20, 2006 at 08:53:04AM -0700, Matthew Wilcox wrote:
+> > 
+> > Currently, releasing a resource also releases all of its children.  That
+> > made sense when request_resource was the main method of dividing up the
+> > memory map.  With the increased use of insert_resource, it seems to me
+> > that we should instead reparent the newly orphaned resources.  Before
+> > we do that, let's make sure that nobody's actually relying on the current
+> > semantics.
+> > 
+> > Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+> > 
+> > diff -urpNX dontdiff linus-2.6/kernel/resource.c parisc-2.6/kernel/resource.c
+> > --- linus-2.6/kernel/resource.c	2006-03-20 07:29:06.000000000 -0700
+> > +++ parisc-2.6/kernel/resource.c	2006-03-20 07:00:47.000000000 -0700
+> > @@ -181,6 +181,8 @@ static int __release_resource(struct res
+> >  {
+> >  	struct resource *tmp, **p;
+> >  
+> > +	BUG_ON(old->child);
+> > +
+> 
+> Is this expressely forbidden at this stage, or just "not recommended"?
+> if the latter, WARN_ON() might be more appropriate.
+> 
 
-	Hi everybody,
+Yes, there's no way we can make changes like this to either -mm or to
+mainline.  Making people's perfectly-working kernels go splat helps neither
+them nor us.
 
-while trying to back up a couple Linux directories to a FAT disk I ran
-into a weird situation: I can't create a file called aux.h on the FAT
-system! 
-
-Here's how to reproduce it:
-
-cd /tmp
-dd if=/dev/zero of=vfat_img bs=1M count=1
-/sbin/losetup /dev/loop7 vfat_img
-/sbin/mkfs.vfat /dev/loop7
-mkdir vfat_mnt
-mount -t vfat /dev/loop7 vfat_mnt
-touch vfat_mnt/auy.h
-touch vfat_mnt/aux.h
-
-auy.h is happily created, aux.h gives "touch: setting times of
-`vfat_mnt/aux.h': No such file or directory", and no file is created.
-This happened to me on the system described below, but I could reproduce
-the same behavior on a system booted from RHEL4 CDs, an old Knoppix
-(3.4), and friends could reproduce it on other systems, too, so it
-doesn't seem to be very related to a specific version.
-
-As a workaround I tar/bzipped my dirs, but that behavior seems very
-unusual and doesn't inspire a lot of confidence in vfat... What am I
-missing here?
-
-Thanks
-
-	Dirk
-
-
-Here's my system (RHEL4 with updated kernel):
-
-Linux dream.vrac 2.6.15.6 #1 SMP PREEMPT Tue Mar 14 10:41:05 CST 2006
-x86_64 x86_64 x86_64 GNU/Linux
-
-Gnu C                  3.4.3
-Gnu make               3.80
-binutils               2.15.92.0.2
-util-linux             2.12a
-mount                  2.12a
-module-init-tools      3.1-pre5
-e2fsprogs              1.35
-reiserfsprogs          line
-reiser4progs           line
-pcmcia-cs              3.2.7
-quota-tools            3.12.
-PPP                    2.4.2
-nfs-utils              1.0.6
-Linux C Library        2.3.4
-Dynamic linker (ldd)   2.3.4
-Procps                 3.2.3
-Net-tools              1.60
-Kbd                    1.12
-Sh-utils               5.2.1
-udev                   039
-Modules Loaded         loop vmnet vmmon parport_pc lp parport autofs4
-sunrpc ipt_REJECT ipt_state ip_conntrack iptable_filter ip_tables vfat
-fat dm_mod button battery ac nvidia ipv6 usb_storage ohci1394 ohci_hcd
-ehci_hcd i2c_nforce2 i2c_core snd_intel8x0 snd_ac97_codec snd_ac97_bus
-snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc
-forcedeth floppy raid0 sata_nv libata sd_mod scsi_mod
-
+A WARN_ON() which shuts itself up after one or three invokations would be
+appropriate here.
 

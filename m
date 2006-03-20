@@ -1,136 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964770AbWCTSz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWCTS5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964770AbWCTSz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 13:55:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbWCTSz5
+	id S964860AbWCTS5u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 13:57:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbWCTS5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 13:55:57 -0500
-Received: from pool-70-21-72-70.res.east.verizon.net ([70.21.72.70]:15301 "HELO
-	pool-70-21-72-70.res.east.verizon.net") by vger.kernel.org with SMTP
-	id S964770AbWCTSz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 13:55:56 -0500
-Message-ID: <843944140865.20060320135547@AndretteDuncanWright.myhome.westell.com>
-From: "Pedro Fox" <dfqpeutzylmukxr@andylau.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Superstar Stock Report 
-Date: Mon, 20 Mar 2006 13:55:47 -0700
+	Mon, 20 Mar 2006 13:57:49 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:29607 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S964860AbWCTS5s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 13:57:48 -0500
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] simplify/fix first_tid()
+References: <441DB045.87C4134C@tv-sign.ru>
+	<m1fyldvvvo.fsf@ebiederm.dsl.xmission.com>
+	<441EF4D7.AEC1AE8C@tv-sign.ru>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Mon, 20 Mar 2006 11:56:56 -0700
+In-Reply-To: <441EF4D7.AEC1AE8C@tv-sign.ru> (Oleg Nesterov's message of
+ "Mon, 20 Mar 2006 21:30:47 +0300")
+Message-ID: <m1y7z5uepz.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="us-ascii";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-Mailer: AOL 7.0 for Windows US sub 118
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DKDY Volume Jumps 878.9% after Xi'an Holiday Office reports $72.2 Million in 
-revenues
-
-Dark Dynamite Inc.
-Friday Close: $0.64
-Goal: $3 in 12 Months
-
-
-Investors,
-
-DKDy is ready to blow.
-
-
-With volume climbing like we saw Friday we expect to see a large climb in 
-price during the morning ours of trading on Monday. As the price began to 
-during after hours trading to $0.64
-
-Make sure you get in on the trading early before the price rises.
-
-Just read the release that started it all.
-
-
-DKDY Reports Increase of 8.5% on Number of Tourists During the Golden Week 
-Holiday, Indicating an Improved Tourism Year
-
-XI'AN, China, March 7 /Xinhua-PRNewswire/ Dark Dynamite Inc. (OTC Bulletin 
-Board: DKDY)(''DKDY'') announced today that the E-Pang Palace Theme Park 
-(the ''Theme Park'') has greatly benefited from the booming Xi'an Spring 
-Festival tourism market, receiving almost 10,000 tourists during the Spring 
-Festival period, an increase of 8.5% over the same period of 2005. The 
-prosperous Spring Festival tourism market also indicates an improved trend 
-of the Xi'an tourism market in 2006.
-
-According to the latest statistics from the Xi'an Holiday Office, Xi'an 
-received 1.2 million tourists during the Golden Tourism Week of the Spring 
-Festival vacation from January 29 to February 4, and created a total revenue 
-of RMB 585 million (equal to US$72.2 million), an increase of 8.9% compared 
-with that of the previous year. The historical scenic spots in Xi'an were 
-highly welcomed during the golden week. For instance, Emperor Qin's 
-Terracotta Museum and DaCiEn Temple received 33,435 and 18,163 tourists, an 
-increase of 3.41% and 5.5% respectively over the same period of 2005.
-
-The booming Spring Festival tourism market indicates an encouraging trend 
-for the Xi'an tourism market in 2006. DKDY scheduled the Qin Dynasty 
-Cultural Dinner Show program in September 2006, right before the Chinese 
-National Day holiday, the third golden tourism week in China. With reference 
-to the booming tourism market during the Golden Tourism Week of the Spring 
-Festival, the management of DKDY believes the Dinner Show will attract many 
-more visitors to the Theme Park. 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Oleg Nesterov <oleg@tv-sign.ru> writes:
+
+> "Eric W. Biederman" wrote:
+>> This is better however if I read this code correctly.  It modifies
+>> the code so the last time user space goes trough this loop
+>> with nr > nr_threads.  Then we will walk the entire threads
+>> list to achieve nothing.
+>
+> This can happen only if the thread we stopped at has exited, and
+> some other threads have exited too, so that nr >= ->signal->count.
+>
+> I think it's not worth optimizing this rare and anyway slow path.
+> However, you are the code author, I'll send a trivial patch which
+> restores this optimization if you don't change you mind.
+>
+>> So we really still need the nr_threads test in there so we don't
+>> traverse the list twice everytime through readdir.
+>
+> How so? We don't do it twice?
+
+In general user space does.  Because a read of 0 bytes signifies
+the end of a directory.
+
+So we have 2 trips through proc_task_readdir initiated by user
+space.
+
+Eric

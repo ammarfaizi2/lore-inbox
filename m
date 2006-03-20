@@ -1,22 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965314AbWCTP1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965317AbWCTP16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965314AbWCTP1P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:27:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965307AbWCTP0x
+	id S965317AbWCTP16 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:27:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbWCTP1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:26:53 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:39096 "EHLO
+	Mon, 20 Mar 2006 10:27:33 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:42680 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964837AbWCTP0h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:26:37 -0500
+	id S964837AbWCTP0y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:26:54 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Alexey Dobriyan <adobriyan@gmail.com>,
-       Oliver Endriss <o.endriss@gmx.de>,
+Cc: linux-dvb-maintainer@linuxtv.org,
+       Peter Hartshorn <p3r@users.sourceforge.net>,
+       Hartmut Hackmann <hartmut.hackmann@t-online.de>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 139/141] V4L/DVB (3413): Typos grab bag of the month
-Date: Mon, 20 Mar 2006 12:09:00 -0300
-Message-id: <20060320150900.PS182658000139@infradead.org>
+Subject: [PATCH 067/141] V4L/DVB (3315): Added support for the Tevion DVB-T
+	220RF card
+Date: Mon, 20 Mar 2006 12:08:48 -0300
+Message-id: <20060320150848.PS158640000067@infradead.org>
 In-Reply-To: <20060320150819.PS760228000000@infradead.org>
 References: <20060320150819.PS760228000000@infradead.org>
 Mime-Version: 1.0
@@ -28,155 +30,157 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Date: 1141780823 -0300
+From: Peter Hartshorn <p3r@users.sourceforge.net>
+Date: 1139302153 -0200
 
-Typos grab bag of the month.
-Eyeballed by jmc@ in OpenBSD.
+This is an analog / digital hybrid card.
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-Signed-off-by: Oliver Endriss <o.endriss@gmx.de>
+Signed-off-by: Peter Hartshorn <p3r@users.sourceforge.net>
+Signed-off-by: Hartmut Hackmann <hartmut.hackmann@t-online.de>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
-diff --git a/drivers/media/dvb/dvb-core/demux.h b/drivers/media/dvb/dvb-core/demux.h
-diff --git a/drivers/media/dvb/dvb-core/demux.h b/drivers/media/dvb/dvb-core/demux.h
-index 9f02582..0c1d87c 100644
---- a/drivers/media/dvb/dvb-core/demux.h
-+++ b/drivers/media/dvb/dvb-core/demux.h
-@@ -216,7 +216,7 @@ struct dmx_frontend {
- /*--------------------------------------------------------------------------*/
+diff --git a/Documentation/video4linux/CARDLIST.saa7134 b/Documentation/video4linux/CARDLIST.saa7134
+diff --git a/Documentation/video4linux/CARDLIST.saa7134 b/Documentation/video4linux/CARDLIST.saa7134
+index ee1618d..c10cfd2 100644
+--- a/Documentation/video4linux/CARDLIST.saa7134
++++ b/Documentation/video4linux/CARDLIST.saa7134
+@@ -86,3 +86,4 @@
+  85 -> AverTV DVB-T 777                         [1461:2c05]
+  86 -> LifeView FlyDVB-T                        [5168:0301]
+  87 -> ADS Instant TV Duo Cardbus PTV331        [0331:1421]
++ 88 -> Tevion DVB-T 220RF                       [17de:7201]
+diff --git a/drivers/media/video/saa7134/saa7134-cards.c b/drivers/media/video/saa7134/saa7134-cards.c
+diff --git a/drivers/media/video/saa7134/saa7134-cards.c b/drivers/media/video/saa7134/saa7134-cards.c
+index d65b9dd..3f41862 100644
+--- a/drivers/media/video/saa7134/saa7134-cards.c
++++ b/drivers/media/video/saa7134/saa7134-cards.c
+@@ -2674,6 +2674,33 @@ struct saa7134_board saa7134_boards[] = 
+ 			.gpio   = 0x00200000,
+ 		}},
+ 	},
++	[SAA7134_BOARD_TEVION_DVBT_220RF] = {
++		.name           = "Tevion DVB-T 220RF",
++		.audio_clock    = 0x00187de7,
++		.tuner_type     = TUNER_PHILIPS_TDA8290,
++		.radio_type     = UNSET,
++		.tuner_addr     = ADDR_UNSET,
++		.radio_addr     = ADDR_UNSET,
++		.mpeg           = SAA7134_MPEG_DVB,
++		.inputs = {{
++			.name   = name_tv,
++			.vmux   = 1,
++			.amux   = TV,
++			.tv     = 1,
++		},{
++			.name   = name_comp1,
++			.vmux   = 3,
++			.amux   = LINE1,
++		},{
++			.name   = name_svideo,
++			.vmux   = 0,
++			.amux   = LINE1,
++		}},
++		.radio = {
++			.name   = name_radio,
++			.amux   = LINE1,
++		},
++	},
+ };
  
- /*
-- * Flags OR'ed in the capabilites field of struct dmx_demux.
-+ * Flags OR'ed in the capabilities field of struct dmx_demux.
-  */
- 
- #define DMX_TS_FILTERING                        1
-diff --git a/drivers/media/dvb/dvb-usb/dvb-usb-init.c b/drivers/media/dvb/dvb-usb/dvb-usb-init.c
-diff --git a/drivers/media/dvb/dvb-usb/dvb-usb-init.c b/drivers/media/dvb/dvb-usb/dvb-usb-init.c
-index 4258a99..a1705ec 100644
---- a/drivers/media/dvb/dvb-usb/dvb-usb-init.c
-+++ b/drivers/media/dvb/dvb-usb/dvb-usb-init.c
-@@ -47,7 +47,7 @@ static int dvb_usb_init(struct dvb_usb_d
- 
- 	d->state = DVB_USB_STATE_INIT;
- 
--/* check the capabilites and set appropriate variables */
-+/* check the capabilities and set appropriate variables */
- 
- /* speed - when running at FULL speed we need a HW PID filter */
- 	if (d->udev->speed == USB_SPEED_FULL && !(d->props.caps & DVB_USB_HAS_PID_FILTER)) {
-diff --git a/drivers/media/dvb/dvb-usb/dvb-usb.h b/drivers/media/dvb/dvb-usb/dvb-usb.h
-diff --git a/drivers/media/dvb/dvb-usb/dvb-usb.h b/drivers/media/dvb/dvb-usb/dvb-usb.h
-index d2be37c..fead958 100644
---- a/drivers/media/dvb/dvb-usb/dvb-usb.h
-+++ b/drivers/media/dvb/dvb-usb/dvb-usb.h
-@@ -88,7 +88,7 @@ struct dvb_usb_device;
- 
- /**
-  * struct dvb_usb_properties - properties of a dvb-usb-device
-- * @caps: capabilites of the DVB USB device.
-+ * @caps: capabilities of the DVB USB device.
-  * @pid_filter_count: number of PID filter position in the optional hardware
-  *  PID-filter.
-  *
-diff --git a/drivers/media/dvb/ttpci/av7110.c b/drivers/media/dvb/ttpci/av7110.c
-diff --git a/drivers/media/dvb/ttpci/av7110.c b/drivers/media/dvb/ttpci/av7110.c
-index 914f2e3..aef4f58 100644
---- a/drivers/media/dvb/ttpci/av7110.c
-+++ b/drivers/media/dvb/ttpci/av7110.c
-@@ -1441,7 +1441,7 @@ static int check_firmware(struct av7110*
- 	len = ntohl(*(u32*) ptr);
- 	ptr += 4;
- 	if (len >= 512) {
--		printk("dvb-ttpci: dpram file is way to big.\n");
-+		printk("dvb-ttpci: dpram file is way too big.\n");
- 		return -EINVAL;
- 	}
- 	if (crc != crc32_le(0, ptr, len)) {
-diff --git a/drivers/media/video/cpia.c b/drivers/media/video/cpia.c
-diff --git a/drivers/media/video/cpia.c b/drivers/media/video/cpia.c
-index c240502..d93a561 100644
---- a/drivers/media/video/cpia.c
-+++ b/drivers/media/video/cpia.c
-@@ -3369,7 +3369,7 @@ static int cpia_do_ioctl(struct inode *i
- 	//DBG("cpia_ioctl: %u\n", ioctlnr);
- 
- 	switch (ioctlnr) {
--	/* query capabilites */
-+	/* query capabilities */
- 	case VIDIOCGCAP:
- 	{
- 		struct video_capability *b = arg;
-diff --git a/drivers/media/video/cpia2/cpia2_v4l.c b/drivers/media/video/cpia2/cpia2_v4l.c
-diff --git a/drivers/media/video/cpia2/cpia2_v4l.c b/drivers/media/video/cpia2/cpia2_v4l.c
-index 589283d..08f8be3 100644
---- a/drivers/media/video/cpia2/cpia2_v4l.c
-+++ b/drivers/media/video/cpia2/cpia2_v4l.c
-@@ -1628,7 +1628,7 @@ static int cpia2_do_ioctl(struct inode *
- 	}
- 
- 	switch (ioctl_nr) {
--	case VIDIOCGCAP:	/* query capabilites */
-+	case VIDIOCGCAP:	/* query capabilities */
- 		retval = ioctl_cap_query(arg, cam);
+ const unsigned int saa7134_bcount = ARRAY_SIZE(saa7134_boards);
+@@ -3163,6 +3190,12 @@ struct pci_device_id saa7134_pci_tbl[] =
+ 		.subdevice    = 0x1421,
+ 		.driver_data  = SAA7134_BOARD_ADS_DUO_CARDBUS_PTV331,
+ 	},{
++		.vendor       = PCI_VENDOR_ID_PHILIPS,
++		.device       = PCI_DEVICE_ID_PHILIPS_SAA7133,
++		.subvendor    = 0x17de,
++		.subdevice    = 0x7201,
++		.driver_data  = SAA7134_BOARD_TEVION_DVBT_220RF,
++	},{
+ 		/* --- boards without eeprom + subsystem ID --- */
+ 		.vendor       = PCI_VENDOR_ID_PHILIPS,
+ 		.device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
+@@ -3431,8 +3464,11 @@ int saa7134_board_init2(struct saa7134_d
+ 		}
  		break;
+ 	case SAA7134_BOARD_PHILIPS_TIGER:
++	case SAA7134_BOARD_TEVION_DVBT_220RF:
+ 	case SAA7134_BOARD_ASUSTeK_P7131_DUAL:
+-		/* this is a hybrid board, initialize to analog mode */
++		/* this is a hybrid board, initialize to analog mode
++		 * and configure firmware eeprom address
++		 */
+ 		{
+ 		u8 data[] = { 0x3c, 0x33, 0x68};
+ 		struct i2c_msg msg = {.addr=0x08, .flags=0, .buf=data, .len = sizeof(data)};
+diff --git a/drivers/media/video/saa7134/saa7134-dvb.c b/drivers/media/video/saa7134/saa7134-dvb.c
+diff --git a/drivers/media/video/saa7134/saa7134-dvb.c b/drivers/media/video/saa7134/saa7134-dvb.c
+index a0c8fa3..56ca3fa 100644
+--- a/drivers/media/video/saa7134/saa7134-dvb.c
++++ b/drivers/media/video/saa7134/saa7134-dvb.c
+@@ -885,6 +885,38 @@ static struct tda1004x_config ads_tech_d
+ 	.request_firmware = NULL,
+ };
  
-diff --git a/drivers/media/video/videocodec.h b/drivers/media/video/videocodec.h
-diff --git a/drivers/media/video/videocodec.h b/drivers/media/video/videocodec.h
-index 156ae57..b1239ac 100644
---- a/drivers/media/video/videocodec.h
-+++ b/drivers/media/video/videocodec.h
-@@ -56,7 +56,7 @@
-    the slave is bound to it). Otherwise it doesn't need this functions and
-    therfor they may not be initialized.
++/* ------------------------------------------------------------------ */
++
++static int tevion_dvb220rf_pll_set(struct dvb_frontend *fe, struct dvb_frontend_parameters *params)
++{
++	int ret;
++	ret = philips_tda827xa_pll_set(0x60, fe, params);
++	return ret;
++}
++
++static int tevion_dvb220rf_pll_init(struct dvb_frontend *fe)
++{
++	return 0;
++}
++
++static void tevion_dvb220rf_pll_sleep(struct dvb_frontend *fe)
++{
++	philips_tda827xa_pll_sleep( 0x61, fe);
++}
++
++static struct tda1004x_config tevion_dvbt220rf_config = {
++	.demod_address = 0x08,
++	.invert        = 1,
++	.invert_oclk   = 0,
++	.xtal_freq     = TDA10046_XTAL_16M,
++	.agc_config    = TDA10046_AGC_TDA827X,
++	.if_freq       = TDA10046_FREQ_045,
++	.pll_init      = tevion_dvb220rf_pll_init,
++	.pll_set       = tevion_dvb220rf_pll_set,
++	.pll_sleep     = tevion_dvb220rf_pll_sleep,
++	.request_firmware = NULL,
++};
++
+ #endif
  
--   The other fuctions are just for convenience, as they are for shure used by
-+   The other fuctions are just for convenience, as they are for sure used by
-    most/all of the codecs. The last ones may be ommited, too. 
+ /* ------------------------------------------------------------------ */
+@@ -971,6 +1003,10 @@ static int dvb_init(struct saa7134_dev *
+ 		dev->dvb.frontend = tda10046_attach(&ads_tech_duo_config,
+ 						    &dev->i2c_adap);
+ 		break;
++	case SAA7134_BOARD_TEVION_DVBT_220RF:
++		dev->dvb.frontend = tda10046_attach(&tevion_dvbt220rf_config,
++						    &dev->i2c_adap);
++		break;
+ #endif
+ #ifdef HAVE_NXT200X
+ 	case SAA7134_BOARD_AVERMEDIA_AVERTVHD_A180:
+diff --git a/drivers/media/video/saa7134/saa7134.h b/drivers/media/video/saa7134/saa7134.h
+diff --git a/drivers/media/video/saa7134/saa7134.h b/drivers/media/video/saa7134/saa7134.h
+index 4b49ee0..ff39a63 100644
+--- a/drivers/media/video/saa7134/saa7134.h
++++ b/drivers/media/video/saa7134/saa7134.h
+@@ -214,6 +214,7 @@ struct saa7134_format {
+ #define SAA7134_BOARD_AVERMEDIA_777 85
+ #define SAA7134_BOARD_FLYDVBT_LR301 86
+ #define SAA7134_BOARD_ADS_DUO_CARDBUS_PTV331 87
++#define SAA7134_BOARD_TEVION_DVBT_220RF 88
  
-    See the structure declaration below for more information and which data has
-diff --git a/drivers/media/video/zr36050.c b/drivers/media/video/zr36050.c
-diff --git a/drivers/media/video/zr36050.c b/drivers/media/video/zr36050.c
-index bd0cd28..6699725 100644
---- a/drivers/media/video/zr36050.c
-+++ b/drivers/media/video/zr36050.c
-@@ -159,7 +159,7 @@ zr36050_wait_end (struct zr36050 *ptr)
- 
- 	while (!(zr36050_read_status1(ptr) & 0x4)) {
- 		udelay(1);
--		if (i++ > 200000) {	// 200ms, there is for shure something wrong!!!
-+		if (i++ > 200000) {	// 200ms, there is for sure something wrong!!!
- 			dprintk(1,
- 				"%s: timout at wait_end (last status: 0x%02x)\n",
- 				ptr->name, ptr->status1);
-diff --git a/drivers/media/video/zr36060.c b/drivers/media/video/zr36060.c
-diff --git a/drivers/media/video/zr36060.c b/drivers/media/video/zr36060.c
-index 28fa31a..d8dd003 100644
---- a/drivers/media/video/zr36060.c
-+++ b/drivers/media/video/zr36060.c
-@@ -161,7 +161,7 @@ zr36060_wait_end (struct zr36060 *ptr)
- 
- 	while (zr36060_read_status(ptr) & ZR060_CFSR_Busy) {
- 		udelay(1);
--		if (i++ > 200000) {	// 200ms, there is for shure something wrong!!!
-+		if (i++ > 200000) {	// 200ms, there is for sure something wrong!!!
- 			dprintk(1,
- 				"%s: timout at wait_end (last status: 0x%02x)\n",
- 				ptr->name, ptr->status);
-diff --git a/drivers/media/video/zr36120_i2c.c b/drivers/media/video/zr36120_i2c.c
-diff --git a/drivers/media/video/zr36120_i2c.c b/drivers/media/video/zr36120_i2c.c
-index 6bfe84d..21fde43 100644
---- a/drivers/media/video/zr36120_i2c.c
-+++ b/drivers/media/video/zr36120_i2c.c
-@@ -65,7 +65,7 @@ void attach_inform(struct i2c_bus *bus, 
- 	 case I2C_DRIVERID_VIDEODECODER:
- 		DEBUG(printk(CARD_INFO "decoder attached\n",CARD));
- 
--		/* fetch the capabilites of the decoder */
-+		/* fetch the capabilities of the decoder */
- 		rv = i2c_control_device(&ztv->i2c, I2C_DRIVERID_VIDEODECODER, DECODER_GET_CAPABILITIES, &dc);
- 		if (rv) {
- 			DEBUG(printk(CARD_DEBUG "decoder is not V4L aware!\n",CARD));
+ #define SAA7134_MAXBOARDS 8
+ #define SAA7134_INPUT_MAX 8
 

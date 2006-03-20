@@ -1,72 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWCSX5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWCTAGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbWCSX5L (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 18:57:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWCSX5L
+	id S1751224AbWCTAGb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 19:06:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWCTAGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 18:57:11 -0500
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:44524
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S1751225AbWCSX5K (ORCPT
+	Sun, 19 Mar 2006 19:06:31 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:61608 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751224AbWCTAGb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 18:57:10 -0500
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: linux-kernel@vger.kernel.org
-Subject: kernel hda errors on dmesg
-Date: Sun, 19 Mar 2006 17:57:09 -0600
-Message-Id: <20060319235255.M28695@linuxwireless.org>
-In-Reply-To: <17915ac50603180054l4c3c6646ifcdee47e8f76887c@mail.gmail.com>
-References: <20060318081134.M30026@linuxwireless.org> <17915ac50603180054l4c3c6646ifcdee47e8f76887c@mail.gmail.com>
-X-Mailer: Open WebMail 2.40 20040816
-X-OriginatingIP: 200.91.133.131 (abonilla@linuxwireless.org)
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
+	Sun, 19 Mar 2006 19:06:31 -0500
+Date: Mon, 20 Mar 2006 11:05:54 +1100
+From: David Chinner <dgc@sgi.com>
+To: "Alexander Y. Fomichev" <gluk@php4.ru>
+Cc: linux-kernel@vger.kernel.org, admin@list.net.ru
+Subject: Re: xfs cluster rewrites is broken?
+Message-ID: <20060320000553.GY1173973@melbourne.sgi.com>
+References: <200603171532.04385.gluk@php4.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603171532.04385.gluk@php4.ru>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Alexander,
 
-I have an Compaq V2000 laptop with Ubuntu Dapper Drake, I'm getting flooded 
-with the messages below: 
-ON: Linux ubuntu 2.6.15-18-386 #1 PREEMPT Thu Mar 9 14:41:49 UTC 2006 i686 
-GNU/Linux 
-/dev/sda: FUJITSU MHV2060BH:
+On Fri, Mar 17, 2006 at 03:32:03PM +0300, Alexander Y. Fomichev wrote:
+> Hello,
+> 
+> Two days ago i've try 2.6.16-rc5 on 2-way dual-core Opteron server
+> and faced with a strange system behaviour. 
+.....
+>     [XFS] cluster rewrites      We can cluster mapped pages aswell, this 
+> improves
+>     performances on rewrites since we can reduce the number of allocator
+>     calls.
 
-Why am I getting hda errors when I don't even have a hda drive? Mine is sda.
-The syslog says is the kernel itself, no other application is causing this as
-I have stopped most services and still happen.
+FYI, prior to this mod, XFS never clustered rewrites, so it's not surprising
+that this particular issue has only recently come to light.
 
-I already wrote to the Ubuntu ML but had no luck. 
+> diff -urN a/fs/xfs/linux-2.6/xfs_aops.c b/fs/xfs/linux-2.6/xfs_aops.c
+> --- a/fs/xfs/linux-2.6/xfs_aops.c	2006-03-17 13:13:53.000000000 +0300
+> +++ b/fs/xfs/linux-2.6/xfs_aops.c	2006-03-17 15:12:12.000000000 +0300
+> @@ -616,8 +616,6 @@
+>  				acceptable = (type == IOMAP_UNWRITTEN);
+>  			else if (buffer_delay(bh))
+>  				acceptable = (type == IOMAP_DELAY);
+> -			else if (buffer_mapped(bh))
+> -				acceptable = (type == 0);
+>  			else
+>  				break;
+>  		} while ((bh = bh->b_this_page) != head);
 
-Any idea?
+Well, that switches off rewrite clustering altogether, so it's
+not surprising that it fixed your problem. It also points out the
+problem as well - we don't every check if the buffer is dirty before
+declaring that the page is acceptible for write clustering.
 
-dmesg
+The other cases checked here (buffer_unwritten() and buffer_delay())
+are, by defintition, dirty buffers and so they only ever cluster
+dirty pages. buffer_mapped(), OTOH, could be clean or dirty.....
 
-[4295643.338000] ide: failed opcode was: 0xef 
-[4295644.283000] hda: error code: 0x70  sense_key: 0x02   asc: 0x30  ascq: 0x00 
-[4295644.295000] hda: error code: 0x70   sense_key: 0x02  asc: 0x30  ascq: 0x00 
-[4295645.963000] hda: error code: 0x70  sense_key: 0x02   asc: 0x30  ascq: 0x00 
-[4295645.966000] hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error } 
-[4295645.966000] hda: drive_cmd: error=0x04 { AbortedCommand } 
-[4295645.966000] ide: failed opcode was: 0xec 
-[4295646.000000] hda: error code: 0x70  sense_key: 0x02  asc: 0x30  ascq: 0x00 
-[4295646.003000] hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error } 
-[4295646.003000 ] hda: drive_cmd: error=0x04 { AbortedCommand } 
-[4295646.003000] ide: failed opcode was: 0xec 
-[4295646.345000] hda: error code: 0x70  sense_key: 0x02  asc: 0x30  ascq: 0x00 
-[4295646.357000] hda: error code: 0x70  sense_key: 0x02  asc: 0x30  ascq: 0x00 
-[4295648.408000] hda: error code: 0x70  sense_key: 0x02   asc: 0x30  ascq: 0x00 
-[4295648.421000] hda: error code: 0x70   sense_key: 0x02  asc: 0x30  ascq: 0x00 
-[4295650.471000] hda: error code: 0x70  sense_key: 0x02  asc: 0x30   ascq: 0x00 
-[4295650.483000] hda: error code: 0x70  sense_key: 0x02   asc: 0x30  ascq: 0x00 
-[4295652.534000] hda: error code: 0x70   sense_key: 0x02  asc: 0x30  ascq: 0x00 
-[4295652.546000] hda: error code: 0x70  sense_key: 0x02  asc: 0x30   ascq: 0x00 
-[4295654.601000] hda: error code: 0x70  sense_key: 0x02   asc: 0x30  ascq: 0x00 
-[4295654.612000] hda: error code: 0x70   sense_key: 0x02  asc: 0x30  ascq: 0x00
+Can you try the patch below, and see if that fixes the problem
+you are seeing?
 
-Thanks,
+Cheers,
 
-.Alejandro
+Dave.
+-- 
+Dave Chinner
+R&D Software Enginner
+SGI Australian Software Group
 
 
+Index: 2.6.x-xfs-new/fs/xfs/linux-2.6/xfs_aops.c
+===================================================================
+--- 2.6.x-xfs-new.orig/fs/xfs/linux-2.6/xfs_aops.c	2006-03-17 13:16:13.000000000 +1100
++++ 2.6.x-xfs-new/fs/xfs/linux-2.6/xfs_aops.c	2006-03-20 10:51:36.906723758 +1100
+@@ -647,7 +647,7 @@ xfs_is_delayed_page(
+ 				acceptable = (type == IOMAP_UNWRITTEN);
+ 			else if (buffer_delay(bh))
+ 				acceptable = (type == IOMAP_DELAY);
+-			else if (buffer_mapped(bh))
++			else if (buffer_mapped(bh) && buffer_dirty(bh))
+ 				acceptable = (type == 0);
+ 			else
+ 				break;

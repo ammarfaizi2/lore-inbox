@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWCTNXB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWCTNX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932292AbWCTNXB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 08:23:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbWCTNXB
+	id S932302AbWCTNX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 08:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWCTNX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 08:23:01 -0500
-Received: from emulex.emulex.com ([138.239.112.1]:50052 "EHLO
-	emulex.emulex.com") by vger.kernel.org with ESMTP id S932292AbWCTNXA
+	Mon, 20 Mar 2006 08:23:57 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:41652 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932297AbWCTNX4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 08:23:00 -0500
-Message-ID: <441EAC86.2010806@emulex.com>
-Date: Mon, 20 Mar 2006 08:22:14 -0500
-From: James Smart <James.Smart@Emulex.Com>
-Reply-To: James.Smart@Emulex.Com
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: shogunx@sleekfreak.ath.cx
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Emulex IP over FC support.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 20 Mar 2006 08:23:56 -0500
+Date: Mon, 20 Mar 2006 15:23:54 +0200 (EET)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Oliver Neukum <oliver@neukum.org>
+cc: Denis Vlasenko <vda@ilport.com.ua>, Arjan van de Ven <arjan@infradead.org>,
+       Matthew Wilcox <matthew@wil.cx>, viro@zeniv.linux.org.uk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]use kzalloc in vfs where appropriate
+In-Reply-To: <200603201414.19998.oliver@neukum.org>
+Message-ID: <Pine.LNX.4.58.0603201521020.19782@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.58.0603172153160.30725@fachschaft.cup.uni-muenchen.de>
+ <84144f020603192325h54fd3212l1f4846fd40b9f074@mail.gmail.com>
+ <200603201508.47960.vda@ilport.com.ua> <200603201414.19998.oliver@neukum.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Mar 2006 13:22:17.0272 (UTC) FILETIME=[4F2E8B80:01C64C21]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not at this time....  It's on the futures list, though.
+On Mon, 20 Mar 2006, Oliver Neukum wrote:
+> Why? size == 0 is a bug. We want to oops here.
 
--- james s
+Why do you want to oops? The standard calloc() deals with zero so 
+kcalloc() should probably do that as well. In any case, if you want to 
+change the behavior, please audit kcalloc() callers before optimizing.
 
--------- Forwarded Message --------
-From: shogunx <shogunx@sleekfreak.ath.cx>
-To: linux-kernel@vger.kernel.org
-Subject: Emulex IP over FC support.
-Date: Sat, 18 Mar 2006 16:25:59 -0500 (EST)
-
-Hi all,
-
-Does the current crop of kernel drivers for Emulex HBA's support IP over
-FC?
-
-Thanx,
-Scott
-
-sleekfreak pirate broadcast
-http://sleekfreak.ath.cx:81/
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+			Pekka

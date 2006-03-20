@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030549AbWCTWKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030581AbWCTWJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030549AbWCTWKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 17:10:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030590AbWCTWKP
+	id S1030581AbWCTWJj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 17:09:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030549AbWCTWBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 17:10:15 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:55773 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030587AbWCTWKH (ORCPT
+	Mon, 20 Mar 2006 17:01:36 -0500
+Received: from mail.kroah.org ([69.55.234.183]:1978 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030550AbWCTWBV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 17:10:07 -0500
-Date: Mon, 20 Mar 2006 23:09:47 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, klibc@zytor.com,
-       torvalds@osdl.org, akpm@osdl.org
-Subject: Re: Merge strategy for klibc
-In-Reply-To: <441F0859.2010703@zytor.com>
-Message-ID: <Pine.LNX.4.64.0603202228441.17704@scrub.home>
-References: <441F0859.2010703@zytor.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Mar 2006 17:01:21 -0500
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 23/23] sysfs: fix a kobject leak in sysfs_add_link on the error path
+In-Reply-To: <11428920391737-git-send-email-gregkh@suse.de>
+X-Mailer: git-send-email
+Date: Mon, 20 Mar 2006 14:00:39 -0800
+Message-Id: <11428920393593-git-send-email-gregkh@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg Kroah-Hartman <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg Kroah-Hartman <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+As pointed out by Oliver Neukum.
 
-On Mon, 20 Mar 2006, H. Peter Anvin wrote:
+Cc: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Oliver Neukum <oliver@neukum.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-You forgot to provide any information (at least a summary) about what this 
-is and how this will work. Please don't assume everyone is familiar with 
-it.
+---
 
-There is one major question: how will this interface to distributions?
+ fs/sysfs/symlink.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-How can distributions add their own initializations and configurations or 
-are they going to put an initrd on top of the kernel initrd? If this will 
-have a kernel and a distribution part, it poses the question whether klibc 
-has to be distributed with the kernel at all (a libc has a standard API 
-after all) and the kernel just provides the kernel specific parts to 
-whatever the distribution provides.
+b3229087c5e08589cea4f5040dab56f7dc11332a
+diff --git a/fs/sysfs/symlink.c b/fs/sysfs/symlink.c
+index fe23f47..d2eac3c 100644
+--- a/fs/sysfs/symlink.c
++++ b/fs/sysfs/symlink.c
+@@ -66,6 +66,7 @@ static int sysfs_add_link(struct dentry 
+ 	if (!error)
+ 		return 0;
+ 
++	kobject_put(target);
+ 	kfree(sl->link_name);
+ exit2:
+ 	kfree(sl);
+-- 
+1.2.4
 
-bye, Roman
+

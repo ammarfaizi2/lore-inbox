@@ -1,66 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965785AbWCTQI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965781AbWCTQIc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965785AbWCTQI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 11:08:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965064AbWCTQI2
+	id S965781AbWCTQIc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 11:08:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965172AbWCTQIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 11:08:28 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:26776 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S966353AbWCTPPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:15:02 -0500
-From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Marcin Rudowski <mar_rud@poczta.onet.pl>,
-       Ricardo Cerqueira <v4l@cerqueira.org>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 040/141] V4L/DVB (3266): Fix NICAM buzz on analog sound
-Date: Mon, 20 Mar 2006 12:08:43 -0300
-Message-id: <20060320150843.PS675323000040@infradead.org>
-In-Reply-To: <20060320150819.PS760228000000@infradead.org>
-References: <20060320150819.PS760228000000@infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-3mdk 
+	Mon, 20 Mar 2006 11:08:31 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:53549 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S965781AbWCTQI3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 11:08:29 -0500
+In-Reply-To: <85D0E388-6E9A-4DCF-BA33-72B982782FAD@kernel.crashing.org>
+References: <Pine.LNX.4.44.0603100906020.29294-100000@gate.crashing.org> <20060310130416.04ecb543.rdunlap@xenotime.net> <85D0E388-6E9A-4DCF-BA33-72B982782FAD@kernel.crashing.org>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <10176D2A-5142-45CF-B519-CC324EFB5404@kernel.crashing.org>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
 Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH] PCI: Add pci_assign_resource_fixed -- allow fixed address assignments
+Date: Mon, 20 Mar 2006 10:09:13 -0600
+To: Greg KH <greg@kroah.com>
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Marcin Rudowski <mar_rud@poczta.onet.pl>
-Date: 1139224514 -0200
+Greg,
 
-Apparently, having the number of lines fixed at 4 reduces (or even kills)
-the buzz found in NICAM stereo with analog sound.
+Any comments on this?
 
-Signed-off-by: Marcin Rudowski <mar_rud@poczta.onet.pl>
-Signed-off-by: Ricardo Cerqueira <v4l@cerqueira.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
+- kumar
 
-diff --git a/drivers/media/video/cx88/cx88-core.c b/drivers/media/video/cx88/cx88-core.c
-diff --git a/drivers/media/video/cx88/cx88-core.c b/drivers/media/video/cx88/cx88-core.c
-index 8d6d6a6..3720f24 100644
---- a/drivers/media/video/cx88/cx88-core.c
-+++ b/drivers/media/video/cx88/cx88-core.c
-@@ -787,12 +787,14 @@ static int set_pll(struct cx88_core *cor
- 
- int cx88_start_audio_dma(struct cx88_core *core)
- {
-+	/* constant 128 made buzz in analog Nicam-stereo for bigger fifo_size */
-+	int bpl = cx88_sram_channels[SRAM_CH25].fifo_size/4;
- 	/* setup fifo + format */
--	cx88_sram_channel_setup(core, &cx88_sram_channels[SRAM_CH25], 128, 0);
--	cx88_sram_channel_setup(core, &cx88_sram_channels[SRAM_CH26], 128, 0);
-+	cx88_sram_channel_setup(core, &cx88_sram_channels[SRAM_CH25], bpl, 0);
-+	cx88_sram_channel_setup(core, &cx88_sram_channels[SRAM_CH26], bpl, 0);
- 
--	cx_write(MO_AUDD_LNGTH,    128); /* fifo bpl size */
--	cx_write(MO_AUDR_LNGTH,    128); /* fifo bpl size */
-+	cx_write(MO_AUDD_LNGTH, bpl); /* fifo bpl size */
-+	cx_write(MO_AUDR_LNGTH, bpl); /* fifo bpl size */
- 
- 	/* start dma */
- 	cx_write(MO_AUD_DMACNTRL, 0x0003); /* Up and Down fifo enable */
+On Mar 10, 2006, at 3:30 PM, Kumar Gala wrote:
+
+>
+> On Mar 10, 2006, at 3:04 PM, Randy.Dunlap wrote:
+>
+>> On Fri, 10 Mar 2006 09:06:32 -0600 (CST) Kumar Gala wrote:
+>>
+>>> On some embedded systems the PCI address for hotplug devices are  
+>>> not only
+>>> known a priori but are required to be at a given PCI address for  
+>>> other
+>>> master in the system to be able to access.
+>>>
+>>> An example of such a system would be an FPGA which is setup from  
+>>> user space
+>>> after the system has booted.  The FPGA may be access by DSPs in  
+>>> the system
+>>> and those DSPs expect the FPGA at a fixed PCI address.
+>>>
+>>> Added pci_assign_resource_fixed() as a way to allow assignment of  
+>>> the PCI
+>>> devices's BARs at fixed PCI addresses.
+>>>
+>>> Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+>>>
+>>> ---
+>>> commit 45d4a23317c459865ec740c80b6e2a2ad9f53fd3
+>>> tree 432b5e41ef5f231dd57eb1a98f103239c62d63a0
+>>> parent 8176dee014ec6ad1039b8c0075c9c1d02147c2c8
+>>> author Kumar Gala <galak@kernel.crashing.org> Thu, 09 Mar 2006  
+>>> 12:34:25 -0600
+>>> committer Kumar Gala <galak@kernel.crashing.org> Thu, 09 Mar 2006  
+>>> 12:34:25 -0600
+>>>
+>>>  drivers/pci/pci.c       |    1 +
+>>>  drivers/pci/setup-res.c |   35 +++++++++++++++++++++++++++++++++++
+>>>  include/linux/pci.h     |    1 +
+>>>  3 files changed, 37 insertions(+), 0 deletions(-)
+>>>
+>>> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+>>> index d2d1879..2557e86 100644
+>>> --- a/drivers/pci/pci.c
+>>> +++ b/drivers/pci/pci.c
+>>> @@ -935,6 +935,7 @@ EXPORT_SYMBOL_GPL(pci_intx);
+>>>  EXPORT_SYMBOL(pci_set_dma_mask);
+>>>  EXPORT_SYMBOL(pci_set_consistent_dma_mask);
+>>>  EXPORT_SYMBOL(pci_assign_resource);
+>>> +EXPORT_SYMBOL(pci_assign_resource_fixed);
+>>>  EXPORT_SYMBOL(pci_find_parent_resource);
+>>>
+>>>  EXPORT_SYMBOL(pci_set_power_state);
+>>> diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
+>>> index ea9277b..f485958 100644
+>>> --- a/drivers/pci/setup-res.c
+>>> +++ b/drivers/pci/setup-res.c
+>>> @@ -155,6 +155,41 @@ int pci_assign_resource(struct pci_dev *
+>>>  	return ret;
+>>>  }
+>>>
+>>> +int pci_assign_resource_fixed(struct pci_dev *dev, int resno)
+>>> +{
+>>> +	struct pci_bus *bus = dev->bus;
+>>> +	struct resource *res = dev->resource + resno;
+>>> +	unsigned int type_mask;
+>>> +	int i, ret = -EBUSY;
+>>> +
+>>> +	type_mask = IORESOURCE_IO | IORESOURCE_MEM | IORESOURCE_PREFETCH;
+>>
+>> If type_mask must match (as in comment below), should it be a
+>> parameter instead of hard-coded here?  Does this match your FPGA
+>> resource?  It may not match my <hypothetical> resource.
+>
+> I was trying to ensure an exact match between the bus and device  
+> resource types.  I figured if you were calling this API you should  
+> be able to ensure that the resource types match exactly.
+>
+>>> +	for (i = 0; i < PCI_BUS_NUM_RESOURCES; i++) {
+>>> +		struct resource *r = bus->resource[i];
+>>> +		if (!r)
+>>> +			continue;
+>>> +
+>>> +		/* type_mask must match */
+>>> +		if ((res->flags ^ r->flags) & type_mask)
+>>> +			continue;
+>>> +
+>>> +		ret = request_resource(r, res);
+>>> +
+>>> +		if (ret == 0)
+>>> +			break;
+>>> +	}
+>>> +
+>>> +	if (ret) {
+>>> +		printk(KERN_ERR "PCI: Failed to allocate %s resource #%d:%lx@% 
+>>> lx for %s\n",
+>>> +		       res->flags & IORESOURCE_IO ? "I/O" : "mem",
+>>> +		       resno, res->end - res->start + 1, res->start, pci_name 
+>>> (dev));
+>>> +	} else if (resno < PCI_BRIDGE_RESOURCES) {
+>>> +		pci_update_resource(dev, res, resno);
+>>> +	}
+>>
+>> braces not needed.
+>
+> Fair, need to go find where I stole this from and possibly fix  
+> extra braces there as well.
+>
+>>
+>>> +
+>>> +	return ret;
+>>> +}
+>>> +
+>>
+>>
+>> ---
+>> ~Randy
+>> Please use an email client that implements proper (compliant)  
+>> threading.
+>> (You know who you are.)
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux- 
+> kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

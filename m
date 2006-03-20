@@ -1,43 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbWCTTq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWCTTrS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964886AbWCTTq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 14:46:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbWCTTq7
+	id S964936AbWCTTrS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 14:47:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbWCTTrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 14:46:59 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:49096
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S964886AbWCTTq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 14:46:58 -0500
-Date: Mon, 20 Mar 2006 11:46:42 -0800
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] pci_ids.h: correct naming of 1022:7450 (AMD 8131 Bridge)
-Message-ID: <20060320194642.GA16935@suse.de>
-References: <20060320193351.GC15746@tuxdriver.com>
+	Mon, 20 Mar 2006 14:47:18 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:14550 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S964936AbWCTTrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 14:47:16 -0500
+Date: Mon, 20 Mar 2006 14:48:15 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Matheus Izvekov <mizvekov@gmail.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Neil Brown <neilb@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Who uses the 'nodev' flag in /proc/filesystems ???
+Message-ID: <20060320194815.GA6376@ccure.user-mode-linux.org>
+References: <17436.60328.242450.249552@cse.unsw.edu.au> <Pine.LNX.4.61.0603191024420.1409@yvahk01.tjqt.qr> <17438.13214.307942.212773@cse.unsw.edu.au> <Pine.LNX.4.61.0603201659250.22395@yvahk01.tjqt.qr> <305c16960603200817u3c8e4023nf2621245fdb0ed65@mail.gmail.com> <20060320175633.GA5797@ccure.user-mode-linux.org> <305c16960603201122t79dd93c1t484c83acf4ed191b@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060320193351.GC15746@tuxdriver.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <305c16960603201122t79dd93c1t484c83acf4ed191b@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 20, 2006 at 02:33:56PM -0500, John W. Linville wrote:
-> The naming of the constant defined for PCI ID 1022:7450 does not seem
-> to match the information at http://pciids.sourceforge.net/:
-> 
-> 	http://pci-ids.ucw.cz/iii/?i=1022
-> 
-> There 1022:7450 is listed as "AMD-8131 PCI-X Bridge" while 1022:7451
-> is listed as "AMD-8131 PCI-X IOAPIC".  Yet, the current definition for
-> 0x7450 is PCI_DEVICE_ID_AMD_8131_APIC.	It seems to me like that name
-> should map to 0x7451, while a name like PCI_DEVICE_ID_AMD_8131_BRIDGE
-> should map to 0x7450.
+On Mon, Mar 20, 2006 at 04:22:51PM -0300, Matheus Izvekov wrote:
+> I see, i didnt know about this. But then pam_mount would need to do
+> special treatment for this. I imagine it has been only coded to work
+> in the case where there is a device to pass to fsck as a parameter.
 
-Yes, that's what the latest pci ids file shows, so this patch looks
-correct, I'll add it to my queue.
+Yeah, I don't doubt it.  I was just commenting on the nodev aspect of this.
 
-thanks,
-
-greg k-h
+				Jeff

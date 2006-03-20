@@ -1,69 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWCTKrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWCTK43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751066AbWCTKrP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 05:47:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWCTKrP
+	id S932093AbWCTK43 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 05:56:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbWCTK43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 05:47:15 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37386 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751066AbWCTKrO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 05:47:14 -0500
-Date: Mon, 20 Mar 2006 11:47:08 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Parag Warudkar <kernel-stuff@comcast.net>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "S. Umar" <umar@compsci.cas.vanderbilt.edu>, perex@suse.cz,
-       alsa-devel@lists.sourceforge.net, Marcus Hartig <m.f.h@web.de>
-Subject: Re: 2.6.16-rc6: known regressions (v2)
-Message-ID: <20060320104708.GA22317@stusta.de>
-References: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org> <s5hmzfost2h.wl%tiwai@suse.de> <200603181427.14393.kernel-stuff@comcast.net> <200603181446.23034.kernel-stuff@comcast.net> <s5hacbl2z1h.wl%tiwai@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <s5hacbl2z1h.wl%tiwai@suse.de>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 20 Mar 2006 05:56:29 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:57059 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932093AbWCTK42 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 05:56:28 -0500
+Date: Mon, 20 Mar 2006 02:53:11 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: prasanna@in.ibm.com
+Cc: ak@suse.de, davem@davemloft.net, suparna@in.ibm.com,
+       richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [2/3 PATCH] Kprobes: User space probes support- readpage hooks
+Message-Id: <20060320025311.419a44e3.akpm@osdl.org>
+In-Reply-To: <20060320061014.GE31091@in.ibm.com>
+References: <20060320060745.GC31091@in.ibm.com>
+	<20060320060931.GD31091@in.ibm.com>
+	<20060320061014.GE31091@in.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 20, 2006 at 11:25:30AM +0100, Takashi Iwai wrote:
-> At Sat, 18 Mar 2006 14:46:22 -0500,
-> Parag Warudkar wrote:
-> > 
-> > On Saturday 18 March 2006 14:27, Parag Warudkar wrote:
-> > > On Friday 17 March 2006 15:40, Takashi Iwai wrote:
-> > > > The last patch seems incomplete.  Please try the patch below instead.
-> > > > (This time with a changelog :)
-> > > >
-> > > >
-> > > > Takashi
-> > 
-> > Additionally I get  azx_get_response timeout in dmesg with the new patch.
-> > Sound works ok despite of that though.
+Prasanna S Panchamukhi <prasanna@in.ibm.com> wrote:
+>
+> This patch provides the feature of inserting probes on pages that are
+> not present in the memory during registration.
 > 
-> That's why jack sensing doesn't work for you.  The jack sensing and
-> auto-muting requies unsolicited events.
+> To add readpage and readpages() hooks, two new elements are added to
+> the uprobe_module object:
+> 	struct address_space_operations *ori_a_ops;
+> 	struct address_space_operations user_a_ops;
 > 
-> It's likely a problem of ACPI or whatever related with irq routing.
+> User-space probes allows probes to be inserted even in pages that are
+> not present in the memory at the time of registration. This is done
+> by adding hooks to the readpage and readpages routines. During
+> registration, the address space operation object is modified by
+> substituting user-space probes's specific readpage and readpages
+> routines. When the pages are read into memory through the readpage and
+> readpages address space operations, any associated probes are
+> automatically inserted into those pages. These user-space probes
+> readpage and readpages routines internally call the original
+> readpage() and readpages() routines, and then check whether probes are
+> to be added to these pages, inserting probes as necessary. The
+> overhead of adding these hooks is limited to the application on which
+> the probes are inserted.
+> 
+> During unregistration, care should be taken to replace the readpage and
+> readpages hooks with the original routines if no probes remain on that
+> application.
+> 
 
-Both reporters said it worked in 2.6.15, so if the regression is related 
-to irq routing it should be visible in the dmesg.
+So...  The code's replacing the address_space's address_space_operations
+with a copy which has .readpage() and .readpages() modified, because it
+happens that filemap_nopage() uses those.
 
-Parag, Marcus, please send an email with both a dmesg of 2.6.15 and a 
-dmesg of 2.6.16-rc6 (or 2.6.16) attached.
+This is all rather hacky.
 
-> Takashi
+I think we need to step back and discuss what services this feature is
+trying to provide, and how it is to provide them.  Your covering
+description didn't describe that - it dives straigt into details without
+even describing what the patches are trying to achieve.
 
-cu
-Adrian
+So.  What are we trying to achieve here, and how are we trying to achieve
+it?  What problems were encountered in the development of the feature and
+how were they solved?  What alternative solutions were there?
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+I can mostly work all that out from background knowledge and looking at the
+code, but I'd rather hear it from the designers please.

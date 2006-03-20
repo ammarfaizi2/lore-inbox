@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWCTLRF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWCTLRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbWCTLRF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 06:17:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbWCTLRE
+	id S932181AbWCTLRw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 06:17:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWCTLRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 06:17:04 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:62138 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1750991AbWCTLRD (ORCPT
+	Mon, 20 Mar 2006 06:17:52 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:62394 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S932181AbWCTLRv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 06:17:03 -0500
-Date: Mon, 20 Mar 2006 06:16:58 -0500
+	Mon, 20 Mar 2006 06:17:51 -0500
+Date: Mon, 20 Mar 2006 06:17:48 -0500
 From: Jeff Garzik <jeff@garzik.org>
-To: linux-ide@vger.kernel.org
+To: netdev@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [git patches] libata updates
-Message-ID: <20060320111658.GA16172@havoc.gtf.org>
+Subject: [git patches] net driver updates
+Message-ID: <20060320111748.GA16210@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,156 +25,383 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 [just sent upstream; patch snipped due to size]
 
 Please pull from 'upstream-linus' branch of
-git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
 
 to receive the following updates:
 
- drivers/scsi/Makefile       |    2 
- drivers/scsi/ahci.c         |  197 +-
- drivers/scsi/ata_piix.c     |  392 +++--
- drivers/scsi/libata-bmdma.c |  703 ++++++++++
- drivers/scsi/libata-core.c  | 2984 +++++++++++++++++++++-----------------------
- drivers/scsi/libata-scsi.c  |  240 ++-
- drivers/scsi/libata.h       |    3 
- drivers/scsi/pdc_adma.c     |    6 
- drivers/scsi/sata_mv.c      |  279 +++-
- drivers/scsi/sata_nv.c      |    2 
- drivers/scsi/sata_promise.c |  129 +
- drivers/scsi/sata_qstor.c   |   10 
- drivers/scsi/sata_sil.c     |  128 -
- drivers/scsi/sata_sil24.c   |  102 -
- drivers/scsi/sata_sis.c     |    2 
- drivers/scsi/sata_svw.c     |    2 
- drivers/scsi/sata_sx4.c     |   25 
- drivers/scsi/sata_uli.c     |    2 
- drivers/scsi/sata_via.c     |    2 
- drivers/scsi/sata_vsc.c     |    2 
- drivers/scsi/scsi_error.c   |    7 
- include/linux/ata.h         |   22 
- include/linux/libata.h      |  180 ++
- include/scsi/scsi_eh.h      |    3 
- 24 files changed, 3312 insertions(+), 2112 deletions(-)
+ Documentation/DocBook/sis900.tmpl          |  585 ----------
+ Documentation/networking/sis900.txt        |  257 ----
+ Documentation/DocBook/Makefile             |    2 
+ Documentation/feature-removal-schedule.txt |    7 
+ Documentation/networking/00-INDEX          |    2 
+ Documentation/networking/README.ipw2100    |   12 
+ Documentation/networking/README.ipw2200    |   44 
+ arch/ppc/platforms/hdpu.c                  |    5 
+ drivers/net/3c509.c                        |   70 -
+ drivers/net/3c523.c                        |    9 
+ drivers/net/3c59x.c                        |    7 
+ drivers/net/7990.c                         |    2 
+ drivers/net/8139cp.c                       |    2 
+ drivers/net/8139too.c                      |    4 
+ drivers/net/82596.c                        |    2 
+ drivers/net/Kconfig                        |   29 
+ drivers/net/apne.c                         |    7 
+ drivers/net/arcnet/Kconfig                 |    4 
+ drivers/net/arcnet/arc-rawmode.c           |    2 
+ drivers/net/arcnet/arc-rimi.c              |   68 -
+ drivers/net/arcnet/arcnet.c                |   20 
+ drivers/net/arcnet/com90xx.c               |  132 +-
+ drivers/net/arcnet/rfc1051.c               |    2 
+ drivers/net/arcnet/rfc1201.c               |    2 
+ drivers/net/arm/etherh.c                   |    3 
+ drivers/net/bnx2.c                         |   10 
+ drivers/net/bnx2_fw.h                      |   84 -
+ drivers/net/bonding/bond_alb.c             |    2 
+ drivers/net/bonding/bond_main.c            |   45 
+ drivers/net/bonding/bond_sysfs.c           |    6 
+ drivers/net/bonding/bonding.h              |   33 
+ drivers/net/chelsio/espi.c                 |   14 
+ drivers/net/chelsio/subr.c                 |    2 
+ drivers/net/dgrs.c                         |    2 
+ drivers/net/dgrs_firmware.c                |    4 
+ drivers/net/dl2k.c                         |    4 
+ drivers/net/e100.c                         |    6 
+ drivers/net/e1000/e1000.h                  |   68 -
+ drivers/net/e1000/e1000_ethtool.c          |  110 --
+ drivers/net/e1000/e1000_hw.c               |  734 +++++++++++++
+ drivers/net/e1000/e1000_hw.h               |  319 +++++
+ drivers/net/e1000/e1000_main.c             |  609 ++++-------
+ drivers/net/e1000/e1000_param.c            |    2 
+ drivers/net/eepro100.c                     |    4 
+ drivers/net/epic100.c                      |    4 
+ drivers/net/eth16i.c                       |   11 
+ drivers/net/fealnx.c                       |    2 
+ drivers/net/forcedeth.c                    |  593 ++++++++++-
+ drivers/net/hamachi.c                      |    2 
+ drivers/net/hamradio/baycom_epp.c          |    2 
+ drivers/net/hp100.c                        |   35 
+ drivers/net/ibm_emac/ibm_emac_core.c       |   40 
+ drivers/net/ibm_emac/ibm_emac_core.h       |    2 
+ drivers/net/ibm_emac/ibm_emac_debug.c      |    2 
+ drivers/net/ibm_emac/ibm_emac_rgmii.h      |    2 
+ drivers/net/ibm_emac/ibm_emac_zmii.c       |    7 
+ drivers/net/ibm_emac/ibm_emac_zmii.h       |    2 
+ drivers/net/irda/Kconfig                   |    4 
+ drivers/net/macsonic.c                     |    2 
+ drivers/net/mv643xx_eth.c                  | 1560 ++++++++++-------------------
+ drivers/net/mv643xx_eth.h                  |  250 +---
+ drivers/net/natsemi.c                      |  192 ++-
+ drivers/net/ne-h8300.c                     |    5 
+ drivers/net/ne.c                           |    7 
+ drivers/net/ne2.c                          |    7 
+ drivers/net/ne2k-pci.c                     |    2 
+ drivers/net/ns83820.c                      |    7 
+ drivers/net/oaknet.c                       |    3 
+ drivers/net/pcmcia/3c574_cs.c              |    2 
+ drivers/net/pcmcia/3c589_cs.c              |    5 
+ drivers/net/pcmcia/fmvj18x_cs.c            |    2 
+ drivers/net/pcmcia/nmclan_cs.c             |    2 
+ drivers/net/pcmcia/pcnet_cs.c              |    3 
+ drivers/net/pcmcia/smc91c92_cs.c           |    4 
+ drivers/net/pcmcia/xirc2ps_cs.c            |    2 
+ drivers/net/pcnet32.c                      |    6 
+ drivers/net/phy/phy.c                      |    2 
+ drivers/net/plip.c                         |    4 
+ drivers/net/ppp_async.c                    |    3 
+ drivers/net/ppp_synctty.c                  |    2 
+ drivers/net/r8169.c                        |    4 
+ drivers/net/s2io.c                         |  617 ++++++++++-
+ drivers/net/s2io.h                         |   55 -
+ drivers/net/sb1000.c                       |    2 
+ drivers/net/sb1250-mac.c                   |  109 +-
+ drivers/net/seeq8005.c                     |    5 
+ drivers/net/sgiseeq.c                      |   17 
+ drivers/net/shaper.c                       |    3 
+ drivers/net/sis190.c                       |    2 
+ drivers/net/sis900.c                       |    8 
+ drivers/net/sk98lin/h/skaddr.h             |   48 
+ drivers/net/sk98lin/h/skcsum.h             |    6 
+ drivers/net/sk98lin/h/skgeinit.h           |   56 -
+ drivers/net/sk98lin/h/skgepnmi.h           |    4 
+ drivers/net/sk98lin/h/skgesirq.h           |    1 
+ drivers/net/sk98lin/h/ski2c.h              |    3 
+ drivers/net/sk98lin/h/skvpd.h              |   15 
+ drivers/net/sk98lin/skaddr.c               |   35 
+ drivers/net/sk98lin/skgeinit.c             |  148 --
+ drivers/net/sk98lin/skgemib.c              |    7 
+ drivers/net/sk98lin/skgepnmi.c             |  153 --
+ drivers/net/sk98lin/skgesirq.c             |   24 
+ drivers/net/sk98lin/ski2c.c                |    6 
+ drivers/net/sk98lin/sklm80.c               |   72 -
+ drivers/net/sk98lin/skrlmt.c               |    1 
+ drivers/net/sk98lin/skvpd.c                |  108 --
+ drivers/net/sk98lin/skxmac2.c              |  461 --------
+ drivers/net/skfp/fplustm.c                 |   14 
+ drivers/net/skfp/pcmplc.c                  |    4 
+ drivers/net/skfp/skfddi.c                  |    2 
+ drivers/net/starfire.c                     |   40 
+ drivers/net/sundance.c                     |   10 
+ drivers/net/sungem_phy.c                   |    2 
+ drivers/net/tg3.c                          |    4 
+ drivers/net/tokenring/lanstreamer.c        |    3 
+ drivers/net/tokenring/olympic.c            |    9 
+ drivers/net/tulip/de2104x.c                |   18 
+ drivers/net/tulip/pnic.c                   |    3 
+ drivers/net/tulip/winbond-840.c            |    2 
+ drivers/net/tulip/xircom_cb.c              |    9 
+ drivers/net/typhoon.c                      |    2 
+ drivers/net/wan/Kconfig                    |    2 
+ drivers/net/wan/hostess_sv11.c             |    1 
+ drivers/net/wan/sealevel.c                 |    1 
+ drivers/net/wireless/Kconfig               |   32 
+ drivers/net/wireless/airo.c                |  338 +++++-
+ drivers/net/wireless/atmel.c               |  110 --
+ drivers/net/wireless/ipw2100.c             |  266 +++-
+ drivers/net/wireless/ipw2100.h             |   17 
+ drivers/net/wireless/ipw2200.c             | 1239 +++++++++++------------
+ drivers/net/wireless/ipw2200.h             |  103 -
+ drivers/net/wireless/netwave_cs.c          |    2 
+ drivers/net/wireless/strip.c               |    4 
+ drivers/net/wireless/wavelan.p.h           |    6 
+ drivers/net/wireless/wavelan_cs.p.h        |    9 
+ drivers/net/yellowfin.c                    |    6 
+ drivers/net/zorro8390.c                    |    7 
+ include/linux/arcdevice.h                  |    9 
+ include/linux/if.h                         |    3 
+ include/linux/if_ether.h                   |    1 
+ include/linux/mv643xx.h                    |   27 
+ include/net/ieee80211.h                    |  177 +++
+ include/net/ieee80211_crypt.h              |    3 
+ net/Kconfig                                |    3 
+ net/core/Makefile                          |    2 
+ net/core/dev.c                             |   36 
+ net/ieee80211/ieee80211_crypt.c            |   11 
+ net/ieee80211/ieee80211_crypt_ccmp.c       |    8 
+ net/ieee80211/ieee80211_crypt_tkip.c       |   56 -
+ net/ieee80211/ieee80211_crypt_wep.c        |    5 
+ net/ieee80211/ieee80211_geo.c              |   48 
+ net/ieee80211/ieee80211_module.c           |   20 
+ net/ieee80211/ieee80211_rx.c               |  167 ++-
+ net/ieee80211/ieee80211_tx.c               |   30 
+ net/ieee80211/ieee80211_wx.c               |  152 ++
+ net/socket.c                               |    9 
+ 156 files changed, 5816 insertions(+), 5303 deletions(-)
 
-Albert Lee:
-      libata CHS: LBA28/LBA48 optimization (revise #6)
+Adrian Bunk:
+      drivers/net/sk98lin/: possible cleanups
+      drivers/net/arcnet/: possible cleanups
+      drivers/net/s2io.c: make code static
+      net/: fix the WIRELESS_EXT abuse
+      AIRO{,_CS} <-> CRYPTO fixes
+      drivers/net/wireless/ipw2100.c: make ipw2100_wpa_assoc_frame() static
+      drivers/net/wireless/ipw2200: possible cleanups
+      [netdrvr] schedule eepro100 for removal
+      remove obsolete sis900 documentation
+      CONFIG_FORCEDETH updates
+      chelsio/espi.c:tricn_init(): remove dead code
+      drivers/net/e1000/: proper prototypes
+      drivers/net/wireless/ipw2200.c: make ipw_qos_current_mode() static
+      drivers/net/wireless/ipw2200.c: fix an array overun
 
-Daniel Drake:
-      sata_promise: Support FastTrak TX4300/TX4310
+Al Viro:
+      arcnet probing cleanups and fixes
+      ibm_emac sparse annotations
+      appletalk/cops.h: missing const in struct ltfirmware
+      macsonic.c: missed s/driver_unregister/platform_driver_unregister/
+      missing include of asm/irq.h in drivers/net
+      bogus include of linux/irq.h in 7990.c
+      wrong ifdefs in 82596.c
+      dead code removed in hp100
 
-Jeff Garzik:
-      [libata ata_piix] Fix ICH6/7 map value interpretation
-      [libata sata_mv] add 6042 support, fix 60xx/50xx EDMA configuration
-      [libata scsi] build fix for ATA_FLAG_IN_EH change
-      [libata] Move PCI IDE BMDMA-related code to new file libata-bmdma.c.
-      libata: turn on ATAPI by default
+Andreas Happe:
+      ipw2200: add monitor and qos entries to Kconfig
 
-Luke Kosewski:
-      [libata sata_promise] add correct read/write of hotplug registers for SATAII devices
+Andrew Morton:
+      git-netdev-all: s2io fixes
+      s2io c99 warning fix
 
-Randy Dunlap:
-      
-      Various libata documentation updates.
+Arjan van de Ven:
+      Massive net driver const-ification.
 
-Tejun Heo:
-      libata: separate out ata_sata_print_link_status
-      ahci: separate out ahci_stop/start_engine
-      ahci: separate out ahci_dev_classify
-      ata_piix: fix MAP VALUE interpretation for for ICH6/7
-      libata: fold __ata_qc_complete() into ata_qc_free()
-      libata: make the owner of a qc responsible for freeing it
-      libata: fix ata_qc_issue() error handling
-      ahci: fix err_mask setting in ahci_host_intr
-      libata: add detailed AC_ERR_* flags
-      libata: return AC_ERR_* from issue functions
-      SCSI: export scsi_eh_finish_cmd() and scsi_eh_flush_done_q()
-      libata: implement and apply ata_eh_qc_complete/retry()
-      libata: create pio/atapi task queueing wrappers
-      ahci: stop engine during hard reset
-      ahci: add constants for SRST
-      libata: export ata_busy_sleep
-      libata: modify ata_dev_try_classify
-      libata: new ->probe_reset operation
-      libata: implement ata_drive_probe_reset()
-      libata: implement standard reset component operations and ->probe_reset
-      libata: implement ATA_FLAG_IN_EH port flag
-      libata: EH / pio tasks synchronization
-      libata: fix ata_std_probe_reset() SATA detection
-      libata: separate out sata_phy_resume() from sata_std_hardreset()
-      libata: add probeinit component operation to ata_drive_probe_reset()
-      libata: implement ata_std_probeinit()
-      libata: add ATA_QCFLAG_EH_SCHEDULED
-      libata: implement ata_scsi_timed_out()
-      libata: use ata_scsi_timed_out()
-      libata: kill NULL qc handling from ->eng_timeout callbacks
-      ahci: separate out ahci_fill_cmd_slot()
-      libata: make new reset act identical to ->phy_reset register-wise
-      libata: kill SError clearing in sata_std_hardreset().
-      sata_sil: convert to new reset mechanism
-      sata_sil24: convert to new reset mechanism
-      sata_sil24: add hardreset
-      libata: inline ata_qc_complete()
-      ahci: make ahci_fill_cmd_slot() take *pp instead of *ap
-      ahci: convert to new reset mechanism
-      libata: convert assert(X)'s in libata core layer to WARN_ON(!X)'s
-      libata: convert assert(xxx)'s in low-level drivers to WARN_ON(!xxx)'s
-      libata: kill assert() macro
-      libata: allow ->probe_reset to return ATA_DEV_UNKNOWN
-      ata_piix: kill spurious assignment in piix_sata_probe()
-      libata: implement ata_dev_id_c_string()
-      libata: use ata_dev_id_c_string()
-      libata: separate out ata_id_n_sectors()
-      libata: separate out ata_id_major_version()
-      libata: make ata_dump_id() take @id instead of @dev
-      libata: don't do EDD handling if ->probe_reset is used
-      libata: make ata_dev_knobble() per-device
-      libata: move cdb_len for host to device
-      libata: add per-device max_sectors
-      libata: kill sht->max_sectors
-      libata: rename ata_dev_id_[c_]string()
-      libata: update ata_dev_init_params()
-      libata: fix comment regarding setting cable type
-      ata_piix: convert pata to new reset mechanism
-      ata_piix: convert sata to new reset mechanism
-      libata: separate out ata_dev_read_id()
-      libata: kill ata_dev_reread_id()
-      sata_sil24: add a new PCI ID for SiI 3124
-      libata: kill illegal kfree(id)
-      sata_sil: remove unneeded ATA_FLAG_SRST from 3512 port info
-      libata: seperate out ata_class_present()
-      ata_piix: finer-grained port_info
-      ata_piix: add a couple of flags
-      ata_piix: implement proper port map
-      ata_piix: reimplement piix_sata_probe()
-      libata: convert dev->id to pointer
-      libata: separate out ata_dev_configure()
-      libata: fold ata_dev_config() into ata_dev_configure()
-      libata: reorganize ata_bus_probe()
-      ata_piix: rename PIIX_FLAG_IGN_PRESENT to PIIX_FLAG_IGNORE_PCS
-      sata_sil: replace sil_3112_m15w board id with sil_3112
-      sata_sil: use kzalloc
-      sata_sil: replace register address constants with sil_port[] entry
-      sata_sil: cosmetic flag/constant changes
-      libata: re-initialize parameters before configuring
-      libata: add @print_info argument to ata_dev_configure()
-      libata: implement ata_dev_revalidate()
-      libata: revalidate after transfer mode configuration
-      sata_sil24: fix mwdma_mask setting
-      libata: implement port_task
-      libata: convert pio_task and packet_task to port_task
-      libata: kill unused pio_task and packet_task
-      libata: rename ATA_FLAG_FLUSH_PIO_TASK to ATA_FLAG_FLUSH_PORT_TASK
-      libata: improve xfer mask constants and update ata_mode_string()
-      libata: add xfer_mask handling functions
-      libata: use ata_id_xfermask() in ata_dev_configure()
-      libata: use xfer_mask helpers in ata_dev_set_mode()
-      libata: reimplement ata_set_mode() using xfer_mask helpers
-      libata: kill unused xfer_mode functions
-      libata: fix missing classes[] initialization in ata_bus_probe()
-      sata_sil24: exit early from softreset if SStatus reports no device
-      sata_sil24: lengthen softreset timeout
-      ahci: enable prefetching for PACKET commands
-      libata: fix class handling in ata_bus_probe()
-      libata: check Word 88 validity in ata_id_xfer_mask()
-      libata: use local *id instead of dev->id in ata_dev_configure()
-      libata: move IDENTIFY info printing from ata_dev_read_id() to ata_dev_configure()
+Arnaldo Carvalho de Melo:
+      sundance: Really read addr 0
+
+Ayaz Abdulla:
+      forcedeth: Add vlan support
+      forcedeth: Add support for 64bit rings
+      forcedeth: Add support for MSI/MSIX
+
+Bill Moss:
+      ipw2200: Add signal level to iwlist scan output
+
+Cahill, Ben M:
+      ipw2200: Set a meaningful silence threshold value
+      ipw2200: Enables the "slow diversity" algorithm
+
+Catalin(ux aka Dino) BOIE:
+      Fix io ordering problems in e100
+
+Dale Farnsworth:
+      mv643xx_eth: Remove needless mp->port_mac_addr
+      mv643xx_eth: Merge unicast and multicast address filtering code
+      mv643xx_eth: Rename mp->tx_ring_skbs to mp->tx_desc_count
+      mv643xx_eth: Make port queue enable/disable code consistent
+      mv643xx_eth: Clean up platform_data configuration
+      mv643xx_eth: Remove duplicate includes of linux/in.h and linux/ip.h
+      mv643xx_eth: Fix misplaced parenthesis in mv643xx_eth_port_disable_rx
+      mv643xx_eth: Rename "channels" to "queues"
+      mv643xx_eth: Select CONFIG_MII on CONFIG_MV643XX_ETH
+      mv643xx_eth: Refactor tx command queuing code
+      mv643xx_eth: Refactor/clean up tx queue handling
+      mv643xx_eth: Move #defines of constants to mv643xx_eth.h
+      mv643xx_eth: Clean up interrupt handling
+      mv643xx_eth: Remove non-working feature: task level rx queue refill
+      mv643xx_eth: Remove BIT0-BIT31 #defines
+
+Dan Williams:
+      wireless/airo: add IWENCODEEXT and IWAUTH support
+      wireless/ipw2200: support WE-18 WPA enc_capa
+      wireless/atmel: convert constants to ieee80211 layer equivalents
+      wireless/airo: fix setting TX key index plus key in ENCODEEXT
+      wireless/airo: Remove 'Setting transmit key' info messages
+
+Denis Vlasenko:
+      WEP fields are incorrectly shown to be INSIDE snap in the doc
+      ieee80211: trivial fix for misplaced ()'s
+
+Eric Sesterhenn / snakebyte:
+      BUG_ON() Conversion in net/tulip/xircom_cb.c
+      BUG_ON() Conversion in net/tulip/de2104x.c
+      BUG_ON() Conversion in net/tulip/winbond-840.c
+
+Henrik Brix Andersen:
+      ipw2200: print geography code upon module load
+
+Ingo Molnar:
+      ipw2100: semaphore to mutexes conversion
+
+James Chapman:
+      mv643xx_eth: use MII library for PHY management
+      mv643xx_eth: use MII library for ethtool functions
+
+James Ketrenos:
+      ipw2200: stop netdev queue if h/w doesn't have space for new packets
+      ipw2200: switch to the new ipw2200-fw-3.0 image format
+      ieee80211: Don't update network statistics from off-channel packets.
+
+Jan Niehusmann:
+      let IPW2{1,2}00 select IEEE80211
+
+Jay Vosburgh:
+      bonding: suppress duplicate packets
+
+Jeff Kirsher:
+      e1000: Remove Multiqueue code until we have support for MSI-X in our hardware
+      e1000: Fix dead counters
+      e1000: Fix lock up while setting ring parameters
+      e1000: Fix unecessary delay for 82573 controllers
+      e1000: Fix AMT losing connectivity when switching VLAN in passive mode
+      e1000: Fix dhcp issue when the skb structure fields are not filled properly
+      e1000: Fix 82543 issue when reading eeprom
+      e1000: Fix RSS if enabled in mid-connection
+      e1000: Fix Quadport Wake on LAN
+      e1000: Fix network problems when forced at 100Mb/s and to fix TSO when forced at 100Mb/s
+      e1000: Fix filling skb descriptors while using packet split
+      e1000: Add 82573 controller support to TSO fix
+      e1000: Add enabled Jumbo frame support for 82573L
+      e1000: Add performance enahancement by balancing TX and RX
+      e1000: Add support for new hardware (ESB2)
+      e1000: Fixed the following issues with ESB2 (requires ESB2 support):
+      e1000: Add copybreak when using packet split
+      e1000: Added a performance enhancement - prefetch
+      e1000: Added driver comments and whitespace changes.  Modified long lines of code to ensure they would not wrap beyond 80 characters.
+      e1000: Fix mii-tool access to setting speed and duplex
+
+Johannes Berg:
+      ieee80211: fix sparse warning about missing "static"
+
+Jon Mason:
+      trivial: fix spelling errors in Kconfigs
+
+Komuro:
+      pcnet_cs: add new id (Logitec LPM-LN100TE)
+
+Larry Finger:
+      ieee80211: common wx auth code
+      Add two management functions to ieee80211_rx.c
+      Remove duplicated code from ipw2200.c
+
+Marcelo Feitoza Parisi:
+      drivers/net/*: use time_after() and friends
+
+Mark Brown:
+      natsemi: NAPI and a bugfix
+      natsemi: NAPI and a bugfix
+
+Olivier Hochreutiner:
+      ipw2200: wireless extension sensitivity threshold support
+
+Pekka Enberg:
+      3c509: use proper suspend/resume API
+
+Pete Zaitcev:
+      ieee80211_geo.c: remove frivolous BUG_ON's
+
+Ralf Baechle:
+      sb1250-mac: Add support for the BCM1480
+      Sparse: Cleanup sgiseeq sparse warnings.
+
+Ravinandan Arakali:
+      S2io: Large Receive Offload (LRO) feature(v2) for Neterion (s2io) 10GbE Xframe PCI-X and PCI-E NICs
+
+Stefan Rompf:
+      starfire: Implement suspend/resume
+      ipw2200: Fix WPA network selection problem
+      ipw2100: add radiotap headers to packtes captured in monitor mode
+
+Zhu Yi:
+      ieee80211: Log if netif_rx() drops the packet
+      ieee80211: Add LEAP authentication type
+      ieee80211: add flags for all geo channels
+      ieee80211: Add spectrum management information
+      ieee80211: kmalloc+memset -> kzalloc cleanups
+      ieee80211: TIM information element parsing
+      ieee80211: Add TKIP crypt->build_iv
+      ieee80211: Add 802.11h data type and structures
+      ieee80211: Add helpers for IBSS DFS handling
+      ieee80211: Add 802.11h information element parsing
+      ipw2100: Add LEAP authentication algorithm support
+      ipw2100: Make iwconfig txpower setting consistent with user input
+      ipw2100: Add generic geo information
+      ipw2100: remove white space and better format the code
+      increase ipw2100 driver version to git-1.1.4
+      ipw2200: Fix indirect SRAM/register 8/16-bit write routines
+      ipw2200: Mask out the WEP_KEY command dump from debug log for security reason
+      ipw2200: Add LEAP authentication algorithm support
+      ipw2200: Bluetooth coexistence support
+      ipw2200: use jiffies_to_msec() wherever possible
+      ipw2200: Make LED blinking frequency independent of HZ
+      ipw2200: add module parameter to enable/disable roaming
+      ipw2200: Scale firmware loading watchdog with the firmware size
+      ipw2200: stack reduction
+      ipw2200: Fix qos_cmd param switch bug
+      ipw2200: increase ipw2200 driver version
+      ipw2200: remove white space and better format the code
+      ipw2200: Semaphore to mutexes conversion
+      ipw2200: Disable hwcrypto by default
+      ieee80211: Use IWEVGENIE to set WPA IE
+      ipw2200: Fix software crypto shared WEP authentication problem
+      ipw2200: fix a potential NULL pointer dereference
+      ipw2200: use generic ieee80211_get_hdrlen() to get packet length
+      ipw2200: remove the WPA card associates to non-WPA AP checking
+      ipw2200: Fix rf_kill is activated after mode change with 'disable=1'
+      ipw2200: Fix ipw_sw_reset() implementation inconsistent with comment
+      ipw2200: Filter unsupported channels out in ad-hoc mode
+      ipw2200: Change debug level for firmware error logging
+      ipw2200: export `debug' module param only if CONFIG_IPW2200_DEBUG
+      ipw2200: Update ipw2200 version stamp to 1.1.1
+      ipw2x00: expend Copyright to 2006
+      ipw2100: Fix radiotap code gcc warning
+      ipw2100: move mutex.h include from ipw2100.c to ipw2100.h
+      ipw2100: Update version ipw2100 stamp to 1.2.2
 

@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWCTOaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbWCTO36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbWCTOaI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 09:30:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWCTOaI
+	id S964804AbWCTO36 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 09:29:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964814AbWCTO36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 09:30:08 -0500
-Received: from quechua.inka.de ([193.197.184.2]:23957 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S964814AbWCTOaG (ORCPT
+	Mon, 20 Mar 2006 09:29:58 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:50832 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S964804AbWCTO35 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 09:30:06 -0500
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-Subject: Re: Announcing crypto suspend
-To: linux-kernel@vger.kernel.org
-Date: Mon, 20 Mar 2006 15:13:33 +0100
-References: <20060320080439.GA4653@elf.ucw.cz>
-User-Agent: KNode/0.10.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20060320141244.80A55127677@dungeon.inka.de>
+	Mon, 20 Mar 2006 09:29:57 -0500
+Subject: Re: Lindent and coding style
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Li Yang-r58472 <LeoLi@freescale.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9FCDBA58F226D911B202000BDBAD4673054C311B@zch01exm40.ap.freescale.net>
+References: <9FCDBA58F226D911B202000BDBAD4673054C311B@zch01exm40.ap.freescale.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 20 Mar 2006 14:36:44 +0000
+Message-Id: <1142865404.20050.29.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Thanks to Rafael's great work, we now have working encrypted suspend
-> and resume. You'll need recent -mm kernel, and code from
-> suspend.sf.net. Due to its use of RSA, you'll only need to enter
-> password during resume.
+On Llu, 2006-03-20 at 19:32 +0800, Li Yang-r58472 wrote:
+> There is a lindent script in linux kernel source.  It breaks long
+> lines, but uses space instead of tab as indentation.  However, the
+> codingstyle document also from the kernel source indicates no space is
+> allowed for indentation.  Is there a fix for this problem?  Or the
+> result from lindent(space indentation) is actually allowed in kernel
+> source?  Thanks.
+> 
 
-so, how does it work? what is new? how is it different from alternative?
-with suspend2 and dm-crypt I have encrypted supend too:
- - one boot partition (plain), one root partition
- - root partition is on dm-crypt. initramfs has tools to set it up.
- - swap file on root parition
- - suspend to that swap file.
- - initramfs could first ask for the passphrase to an rsa key,
-   the key decrypts a binary file, the decrypted binary is the
-   dm-crypt key.
- - resume could be triggered once the new root was mounted and
-   in place. 
- - usb access etc. should work as well in the initramfs, so I
-   could move the rsa key to my smart card as well.
-
-haveing something similar in mainline would be a huge help.
-
-Andreas
-
+It should produce suitable output. Do you have examples of where it
+produces space indentation and you expect tabs ?

@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWCTMVi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWCTMY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbWCTMVi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 07:21:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWCTMVi
+	id S932260AbWCTMY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 07:24:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWCTMY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 07:21:38 -0500
-Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:29648 "EHLO
-	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S932248AbWCTMVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 07:21:37 -0500
-Message-ID: <07fa01c64c18$d3ac7a60$4168010a@bsd.tnes.nec.co.jp>
-From: "Takashi Sato" <sho@bsd.tnes.nec.co.jp>
-To: "Andreas Dilger" <adilger@clusterfs.com>
-Cc: <linux-kernel@vger.kernel.org>, <ext2-devel@lists.sourceforge.net>
-References: <20060318220130sho@rifu.tnes.nec.co.jp> <20060320072037.GD30801@schatzie.adilger.int>
-Subject: Re: [Ext2-devel] [PATCH 1/4] ext2/3: Extends the max file size(ext2 in kernel)
-Date: Mon, 20 Mar 2006 21:21:29 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Mon, 20 Mar 2006 07:24:56 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:32658 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S932260AbWCTMY4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 07:24:56 -0500
+Date: Mon, 20 Mar 2006 13:24:49 +0100
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: linux-kernel@vger.kernel.org
+Cc: george@mvista.com
+Subject: gettimeofday order of magnitude slower with pmtimer, which is default
+Message-ID: <20060320122449.GA29718@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	linux-kernel@vger.kernel.org, george@mvista.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andreas,
+Hi everybody,
 
-> Instead of breaking all filesystems that need to create large files,
-> the patch should instead set "i_flags | EXT2_LARGEBLK_FL" only on inodes
-> that are larger than 2TB and use "blocksize" i_blocks on those files.
+For my open source nameserver (http://www.powerdns.com) I need to do quite a
+number of gettimeofday calls. I've pared it down to almost the bare minimum
+of 1 gettimeofday per packet sent and received. With these calls, I can make
+stats like http://ds9a.nl/tmp/rrd/ which my users need so they can verify
+the proper performance of the nameserver.
 
-Do you have any idea when the flag is set and cleared?
- 
-> This preserves compatibility with existing filesystems and doesn't
-> impose any breakage opon an existing filesystem for anyone who wants
-> to use this feature.
+Yesterday, together with Zwane, I discovered each gettimeofday call costs me
+4 usec on some boxes and almost nothing on others. We did a fruitless chase
+for vsyscall/sysenter happening but the problem turned out to be
+CONFIG_X86_PM_TIMER.
 
-I'm afraid that i_blocks of >2TB file would be corrupted if old kernel
-or old e2fsprogs touches the file.
+This problem has been discussed before
+http://www.ussg.iu.edu/hypermail/linux/kernel/0411.1/2135.html
 
---
-Takashi Sato
+Not only is the pm timer slow by design, it also needs to be read multiple
+times to work around a bug in certain hardware.
+
+What is new is that this option is now dependent on CONFIG_EMBEDDED. Unless
+you select this option, the PM Timer will always be used.
+
+Would a patch removing the link to EMBEDDED and adding a warning that while
+this timer is of high quality, it is slow, be welcome?
+
+Thanks.
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

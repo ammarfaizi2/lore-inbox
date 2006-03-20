@@ -1,97 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965217AbWCTTWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965180AbWCTTWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965217AbWCTTWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 14:22:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965196AbWCTTWJ
+	id S965180AbWCTTWz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 14:22:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965181AbWCTTWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 14:22:09 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:2455 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965217AbWCTTWI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 14:22:08 -0500
-Date: Mon, 20 Mar 2006 19:21:55 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Subject: dm: bio split bvec fix
-Message-ID: <20060320192155.GU4724@agk.surrey.redhat.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Mar 2006 14:22:55 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:7633 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965180AbWCTTWy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 14:22:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AqBHCyGbGowkPDfoWz/Y9a7jhaPgkJ/wGWuwoEfrjpMEdB8rOKz9aayYon+hXrvGTtVgP8vwWx2paDguV5OhBI+V21XqtLCg26nTIm7QEDvhMIc4KfU+fp2vehPh/BPzdnXSY5RyW0kQaahRxHkSxdIiqZyfxssL46cmxuEVAlU=
+Message-ID: <305c16960603201122t79dd93c1t484c83acf4ed191b@mail.gmail.com>
+Date: Mon, 20 Mar 2006 16:22:51 -0300
+From: "Matheus Izvekov" <mizvekov@gmail.com>
+To: "Jeff Dike" <jdike@addtoit.com>
+Subject: Re: Who uses the 'nodev' flag in /proc/filesystems ???
+Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>, "Neil Brown" <neilb@suse.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060320175633.GA5797@ccure.user-mode-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+References: <17436.60328.242450.249552@cse.unsw.edu.au>
+	 <Pine.LNX.4.61.0603191024420.1409@yvahk01.tjqt.qr>
+	 <17438.13214.307942.212773@cse.unsw.edu.au>
+	 <Pine.LNX.4.61.0603201659250.22395@yvahk01.tjqt.qr>
+	 <305c16960603200817u3c8e4023nf2621245fdb0ed65@mail.gmail.com>
+	 <20060320175633.GA5797@ccure.user-mode-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The code that handles bios that span table target boundaries by breaking
-them up into smaller bios will not split an individual struct bio_vec
-into more than two pieces.  Sometimes more than that are required.
+On 3/20/06, Jeff Dike <jdike@addtoit.com> wrote:
+> On Mon, Mar 20, 2006 at 01:17:59PM -0300, Matheus Izvekov wrote:
+> > If a filesystem is nodev, then what would you fsck? Am i missing something?
+>
+> There's a UML filesystem for which the nodev-implies-no-fsck behavior
+> is inconvenient.  It stores its files as files on the host, where the
+> file metadata is stored separately from the file data.  If the two
+> fall out of sync after a crash, we need to fsck it.  In this case,
+> fsck would do a hostfs mount of the data and metadata (where the files
+> are available as they exist on the host) and fix things up.
+>
+> So, in this case, the thing being fscked is a directory hierarchy on
+> the host.
+>
+>                                 Jeff
+>
 
-This patch adds a loop to break the second piece up into as many
-pieces as are necessary.
-
-Cc: "Abhishek Gupta" <abhishekgupt@gmail.com>
-Cc: Dan Smith <danms@us.ibm.com>
-Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
-
-Index: linux-2.6.16-rc5/drivers/md/dm.c
-===================================================================
---- linux-2.6.16-rc5.orig/drivers/md/dm.c	2006-03-20 16:00:11.000000000 +0000
-+++ linux-2.6.16-rc5/drivers/md/dm.c	2006-03-20 18:38:19.000000000 +0000
-@@ -573,30 +573,35 @@ static void __clone_and_map(struct clone
- 
- 	} else {
- 		/*
--		 * Create two copy bios to deal with io that has
--		 * been split across a target.
-+		 * Handle a bvec that must be split between two or more targets.
- 		 */
- 		struct bio_vec *bv = bio->bi_io_vec + ci->idx;
-+		sector_t remaining = to_sector(bv->bv_len);
-+		unsigned int offset = 0;
- 
--		clone = split_bvec(bio, ci->sector, ci->idx,
--				   bv->bv_offset, max);
--		__map_bio(ti, clone, tio);
--
--		ci->sector += max;
--		ci->sector_count -= max;
--		ti = dm_table_find_target(ci->map, ci->sector);
--
--		len = to_sector(bv->bv_len) - max;
--		clone = split_bvec(bio, ci->sector, ci->idx,
--				   bv->bv_offset + to_bytes(max), len);
--		tio = alloc_tio(ci->md);
--		tio->io = ci->io;
--		tio->ti = ti;
--		memset(&tio->info, 0, sizeof(tio->info));
--		__map_bio(ti, clone, tio);
-+		do {
-+			if (offset) {
-+				ti = dm_table_find_target(ci->map, ci->sector);
-+				max = max_io_len(ci->md, ci->sector, ti);
-+
-+				tio = alloc_tio(ci->md);
-+				tio->io = ci->io;
-+				tio->ti = ti;
-+				memset(&tio->info, 0, sizeof(tio->info));
-+			}
-+
-+			len = (max > remaining) ? remaining : max;
-+
-+			clone = split_bvec(bio, ci->sector, ci->idx,
-+					   bv->bv_offset + offset, len);
-+
-+			__map_bio(ti, clone, tio);
-+
-+			ci->sector += len;
-+			ci->sector_count -= len;
-+			offset += to_bytes(len);
-+		} while (remaining -= len);
- 
--		ci->sector += len;
--		ci->sector_count -= len;
- 		ci->idx++;
- 	}
- }
+I see, i didnt know about this. But then pam_mount would need to do
+special treatment for this. I imagine it has been only coded to work
+in the case where there is a device to pass to fsck as a parameter.

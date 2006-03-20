@@ -1,77 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWCTQ1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965095AbWCTQ12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751130AbWCTQ1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 11:27:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWCTQ1Z
+	id S965095AbWCTQ12 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 11:27:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbWCTQ10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 11:27:25 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:56536 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751130AbWCTQ1W (ORCPT
+	Mon, 20 Mar 2006 11:27:26 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:4281 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1751150AbWCTQ1X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 11:27:22 -0500
-Subject: Re: ext3_ordered_writepage() questions
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Badari Pulavarty <pbadari@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, jack@suse.cz,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20060319023610.GA4824@mail.shareable.org>
-References: <20060308124726.GC4128@lst.de> <4410551D.5000303@us.ibm.com>
-	 <20060309153550.379516e1.akpm@osdl.org> <4410CA25.2090400@us.ibm.com>
-	 <20060316180904.GA29275@thunk.org>
-	 <20060317153213.GA20161@mail.shareable.org>
-	 <1142632221.3641.33.camel@orbit.scot.redhat.com>
-	 <20060317221103.GA17337@thunk.org>
-	 <20060317224439.GB14552@mail.shareable.org>
-	 <20060318234018.GK21232@thunk.org>
-	 <20060319023610.GA4824@mail.shareable.org>
-Content-Type: text/plain
-Date: Mon, 20 Mar 2006 11:26:25 -0500
-Message-Id: <1142871986.3414.14.camel@orbit.scot.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+	Mon, 20 Mar 2006 11:27:23 -0500
+Message-ID: <441ED776.2000108@cfl.rr.com>
+Date: Mon, 20 Mar 2006 11:25:26 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] udf: fix uid/gid options and add uid/gid=ignore and forget
+ options
+References: <441E142F.2030305@cfl.rr.com> <20060319200424.5a3647aa.akpm@osdl.org>
+In-Reply-To: <20060319200424.5a3647aa.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Mar 2006 16:29:50.0619 (UTC) FILETIME=[82B306B0:01C64C3B]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14335.000
+X-TM-AS-Result: No--12.790000-5.000000-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton wrote:
+> I didn't see that update, and I don't miss much.
+> 
 
-On Sun, 2006-03-19 at 02:36 +0000, Jamie Lokier wrote:
+See http://lkml.org/lkml/2006/3/5/171
 
-> Now, to be fair, most programs don't overwrite data blocks in place either.
+> Please provide a description of this change.  What problem is it fixing? 
+> How does it fix it?  What are the consequences of not making this change?
 
-Which is the point we're trying to make: "make" is almost always being
-used to create or fully replace whole files, not to update existing data
-inside a file, for example.
-
-> They usually open files with O_TRUNC to write with new contents.  How
-> does that work out with/without Badari's patch?  Is that safe in the
-> same way as creating new files and appending to them is?
-
-Yes, absolutely.  We have to be extremely careful about ordering when it
-comes to truncate, because we cannot allow the discarded data blocks to
-be reused until the truncate has committed (otherwise a crash which
-rolled back the truncate would potentially expose corruption in those
-data blocks.)  That's all done in the allocate logic, not in the
-writeback code, so it is unaffected by the writeback patches.
-
-So the O_TRUNC is still fully safe; and the allocation of new blocks
-after that is simply a special case of extend, so it is also unaffected
-by the patch.
-
-It is *only* the recovery semantics of update-in-place which are
-affected.
-
-> It's this: you edit a source file with your favourite editor, and save
-> it.  3 seconds later, there's a power cut.  The next day, power comes
-> back and you've forgotten that you edited this file.
-
-If your editor is really opening the existing file and modifying the
-contents in place, then you have got a fundamentally unsolvable problem
-because the crash you worry about might happen while the editor is still
-writing and the file is internally inconsistent.  That's not something I
-think is the filesystem's responsibility to fix!
-
---Stephen
+In the initial patch I made a typo.  As Pekka Enberg pointed out, with 
+the if still following the else, you can still get a null uid written to 
+the disk if you specify a default uid= without uid=forget.  In other 
+words, if the desktop user is uid=1000 and the mount option uid=1000 is 
+given ( which is done on ubuntu automatically and probably other 
+distributions that use hal ), then if any other user besides uid 1000 
+owns a file then a 0 will be written to the media as the owning uid 
+instead.  This is exactly what the original patch was trying to prevent.
 

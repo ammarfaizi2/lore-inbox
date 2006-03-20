@@ -1,87 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750979AbWCTNJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbWCTNI6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750979AbWCTNJb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 08:09:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750923AbWCTNJb
+	id S932285AbWCTNI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 08:08:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWCTNI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 08:09:31 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:61107 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1750920AbWCTNJa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 08:09:30 -0500
-Date: Mon, 20 Mar 2006 15:09:29 +0200 (EET)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] mm: use kmem_cache_zalloc
-Message-ID: <Pine.LNX.4.58.0603201507590.19005@sbz-30.cs.Helsinki.FI>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Mar 2006 08:08:58 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:12257 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S932285AbWCTNI5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 08:08:57 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "Pekka Enberg" <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH]use kzalloc in vfs where appropriate
+Date: Mon, 20 Mar 2006 15:08:47 +0200
+User-Agent: KMail/1.8.2
+Cc: "Oliver Neukum" <oliver@neukum.org>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Matthew Wilcox" <matthew@wil.cx>, viro@zeniv.linux.org.uk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0603172153160.30725@fachschaft.cup.uni-muenchen.de> <200603192150.23444.oliver@neukum.org> <84144f020603192325h54fd3212l1f4846fd40b9f074@mail.gmail.com>
+In-Reply-To: <84144f020603192325h54fd3212l1f4846fd40b9f074@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603201508.47960.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pekka Enberg <penberg@cs.helsinki.fi>
+On Monday 20 March 2006 09:25, Pekka Enberg wrote:
+> > Rewriting the test as:
+> > n!=0 && n > INT_MAX / size
+> > saves the division because size is much likelier to be a constant, and indeed
+> > the code is better:
+> >
+> >         cmpq    $268435455, %rax
+> >         movq    $0, 40(%rsp)
+> >         ja      .L313
+> >
+> > Is there anything I am missing?
 
-This patch converts mm/ to use the new kmem_cache_zalloc allocator.
+You may drop "n!=0" part, but you must check size!=0.
+Since if size is 0, kcalloc returns NULL, then
 
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+        if (!size || n > INT_MAX / size)
+                return NULL;
 
----
-
- mm/mmap.c |    6 ++----
- mm/slab.c |    3 +--
- 2 files changed, 3 insertions(+), 6 deletions(-)
-
-015a94e6deff683b6db8c4d917e1e117d0e0db5e
-diff --git a/mm/mmap.c b/mm/mmap.c
-index 47556d2..842dbc6 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1048,12 +1048,11 @@ munmap_back:
- 	 * specific mapper. the address has already been validated, but
- 	 * not unmapped, but the maps are removed from the list.
- 	 */
--	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
-+	vma = kmem_cache_zalloc(vm_area_cachep, GFP_KERNEL);
- 	if (!vma) {
- 		error = -ENOMEM;
- 		goto unacct_error;
- 	}
--	memset(vma, 0, sizeof(*vma));
- 
- 	vma->vm_mm = mm;
- 	vma->vm_start = addr;
-@@ -1904,12 +1903,11 @@ unsigned long do_brk(unsigned long addr,
- 	/*
- 	 * create a vma struct for an anonymous mapping
- 	 */
--	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
-+	vma = kmem_cache_zalloc(vm_area_cachep, GFP_KERNEL);
- 	if (!vma) {
- 		vm_unacct_memory(len >> PAGE_SHIFT);
- 		return -ENOMEM;
- 	}
--	memset(vma, 0, sizeof(*vma));
- 
- 	vma->vm_mm = mm;
- 	vma->vm_start = addr;
-diff --git a/mm/slab.c b/mm/slab.c
-index 5f3e14b..4b744ed 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -1899,10 +1899,9 @@ kmem_cache_create (const char *name, siz
- 	align = ralign;
- 
- 	/* Get cache's description obj. */
--	cachep = kmem_cache_alloc(&cache_cache, SLAB_KERNEL);
-+	cachep = kmem_cache_zalloc(&cache_cache, SLAB_KERNEL);
- 	if (!cachep)
- 		goto oops;
--	memset(cachep, 0, sizeof(struct kmem_cache));
- 
- #if DEBUG
- 	cachep->obj_size = size;
--- 
-1.2.3
-
+--
+vda

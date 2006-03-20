@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030544AbWCTWCN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030542AbWCTWCP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030544AbWCTWCN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 17:02:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030542AbWCTWBx
+	id S1030542AbWCTWCP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 17:02:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030543AbWCTWBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 17:01:53 -0500
-Received: from mail.kroah.org ([69.55.234.183]:62393 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030544AbWCTWBR (ORCPT
+	Mon, 20 Mar 2006 17:01:54 -0500
+Received: from mail.kroah.org ([69.55.234.183]:62905 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030545AbWCTWBS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 17:01:17 -0500
-Cc: Michael Ellerman <michael@ellerman.id.au>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 19/23] debugfs: Add debugfs_create_blob() helper for exporting binary data
-In-Reply-To: <11428920391787-git-send-email-gregkh@suse.de>
+	Mon, 20 Mar 2006 17:01:18 -0500
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 01/23] sysfs: sysfs_remove_dir() needs to invalidate the dentry
+In-Reply-To: <20060320215009.GA19665@kroah.com>
 X-Mailer: git-send-email
-Date: Mon, 20 Mar 2006 14:00:39 -0800
-Message-Id: <11428920392452-git-send-email-gregkh@suse.de>
+Date: Mon, 20 Mar 2006 14:00:37 -0800
+Message-Id: <11428920371618-git-send-email-gregkh@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg Kroah-Hartman <gregkh@suse.de>
@@ -25,114 +24,59 @@ From: Greg Kroah-Hartman <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wanted to export a binary blob via debugfs, and although it was pretty easy
-it seems like it'd be easier if there was a helper for it. It's a pity we need
-the wrapper struct but I can't see a cleaner way to do it.
+When calling sysfs_remove_dir() don't allow any further sysfs functions
+to work for this kobject anymore.  This fixes a nasty USB cdc-acm oops
+on disconnect.
 
-Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
+Many thanks to Bob Copeland and Paul Fulghum for taking the time to
+track this down.
+
+Cc: Bob Copeland <email@bobcopeland.com>
+Cc: Paul Fulghum <paulkf@microgate.com>
+Cc: Maneesh Soni <maneesh@in.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
 
- fs/debugfs/file.c       |   46 ++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/debugfs.h |   15 +++++++++++++++
- 2 files changed, 61 insertions(+), 0 deletions(-)
+ fs/sysfs/dir.c   |    1 +
+ fs/sysfs/inode.c |    6 +++++-
+ 2 files changed, 6 insertions(+), 1 deletions(-)
 
-dd308bc355a1aa4f202fe9a3133b6c676cb9606c
-diff --git a/fs/debugfs/file.c b/fs/debugfs/file.c
-index d575452..40c4fc9 100644
---- a/fs/debugfs/file.c
-+++ b/fs/debugfs/file.c
-@@ -251,3 +251,49 @@ struct dentry *debugfs_create_bool(const
- }
- EXPORT_SYMBOL_GPL(debugfs_create_bool);
- 
-+static ssize_t read_file_blob(struct file *file, char __user *user_buf,
-+			      size_t count, loff_t *ppos)
-+{
-+	struct debugfs_blob_wrapper *blob = file->private_data;
-+	return simple_read_from_buffer(user_buf, count, ppos, blob->data,
-+			blob->size);
-+}
-+
-+static struct file_operations fops_blob = {
-+	.read =		read_file_blob,
-+	.open =		default_open,
-+};
-+
-+/**
-+ * debugfs_create_blob - create a file in the debugfs filesystem that is
-+ * used to read and write a binary blob.
-+ *
-+ * @name: a pointer to a string containing the name of the file to create.
-+ * @mode: the permission that the file should have
-+ * @parent: a pointer to the parent dentry for this file.  This should be a
-+ *          directory dentry if set.  If this paramater is NULL, then the
-+ *          file will be created in the root of the debugfs filesystem.
-+ * @blob: a pointer to a struct debugfs_blob_wrapper which contains a pointer
-+ *        to the blob data and the size of the data.
-+ *
-+ * This function creates a file in debugfs with the given name that exports
-+ * @blob->data as a binary blob. If the @mode variable is so set it can be
-+ * read from. Writing is not supported.
-+ *
-+ * This function will return a pointer to a dentry if it succeeds.  This
-+ * pointer must be passed to the debugfs_remove() function when the file is
-+ * to be removed (no automatic cleanup happens if your module is unloaded,
-+ * you are responsible here.)  If an error occurs, NULL will be returned.
-+ *
-+ * If debugfs is not enabled in the kernel, the value -ENODEV will be
-+ * returned.  It is not wise to check for this value, but rather, check for
-+ * NULL or !NULL instead as to eliminate the need for #ifdef in the calling
-+ * code.
-+ */
-+struct dentry *debugfs_create_blob(const char *name, mode_t mode,
-+				   struct dentry *parent,
-+				   struct debugfs_blob_wrapper *blob)
-+{
-+	return debugfs_create_file(name, mode, parent, blob, &fops_blob);
-+}
-+EXPORT_SYMBOL_GPL(debugfs_create_blob);
-diff --git a/include/linux/debugfs.h b/include/linux/debugfs.h
-index a5fa6a6..4b0428e 100644
---- a/include/linux/debugfs.h
-+++ b/include/linux/debugfs.h
-@@ -21,6 +21,11 @@
- 
- struct file_operations;
- 
-+struct debugfs_blob_wrapper {
-+	void *data;
-+	unsigned long size;
-+};
-+
- #if defined(CONFIG_DEBUG_FS)
- struct dentry *debugfs_create_file(const char *name, mode_t mode,
- 				   struct dentry *parent, void *data,
-@@ -39,6 +44,9 @@ struct dentry *debugfs_create_u32(const 
- struct dentry *debugfs_create_bool(const char *name, mode_t mode,
- 				  struct dentry *parent, u32 *value);
- 
-+struct dentry *debugfs_create_blob(const char *name, mode_t mode,
-+				  struct dentry *parent,
-+				  struct debugfs_blob_wrapper *blob);
- #else
- 
- #include <linux/err.h>
-@@ -94,6 +102,13 @@ static inline struct dentry *debugfs_cre
- 	return ERR_PTR(-ENODEV);
+641e6f30a095f3752ed84fd9d279382f5d3ef4c1
+diff --git a/fs/sysfs/dir.c b/fs/sysfs/dir.c
+index 49bd219..cfd290d 100644
+--- a/fs/sysfs/dir.c
++++ b/fs/sysfs/dir.c
+@@ -302,6 +302,7 @@ void sysfs_remove_dir(struct kobject * k
+ 	 * Drop reference from dget() on entrance.
+ 	 */
+ 	dput(dentry);
++	kobj->dentry = NULL;
  }
  
-+static inline struct dentry *debugfs_create_blob(const char *name, mode_t mode,
-+				  struct dentry *parent,
-+				  struct debugfs_blob_wrapper *blob)
-+{
-+	return ERR_PTR(-ENODEV);
-+}
+ int sysfs_rename_dir(struct kobject * kobj, const char *new_name)
+diff --git a/fs/sysfs/inode.c b/fs/sysfs/inode.c
+index 689f7bc..6beee6f 100644
+--- a/fs/sysfs/inode.c
++++ b/fs/sysfs/inode.c
+@@ -227,12 +227,16 @@ void sysfs_drop_dentry(struct sysfs_dire
+ void sysfs_hash_and_remove(struct dentry * dir, const char * name)
+ {
+ 	struct sysfs_dirent * sd;
+-	struct sysfs_dirent * parent_sd = dir->d_fsdata;
++	struct sysfs_dirent * parent_sd;
 +
- #endif
++	if (!dir)
++		return;
  
- #endif
+ 	if (dir->d_inode == NULL)
+ 		/* no inode means this hasn't been made visible yet */
+ 		return;
+ 
++	parent_sd = dir->d_fsdata;
+ 	mutex_lock(&dir->d_inode->i_mutex);
+ 	list_for_each_entry(sd, &parent_sd->s_children, s_sibling) {
+ 		if (!sd->s_element)
 -- 
 1.2.4
 

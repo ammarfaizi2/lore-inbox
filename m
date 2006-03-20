@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWCTSpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWCTSpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbWCTSpf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 13:45:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWCTSpf
+	id S1751257AbWCTSpU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 13:45:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWCTSpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 13:45:35 -0500
-Received: from main.gmane.org ([80.91.229.2]:42654 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751255AbWCTSpe (ORCPT
+	Mon, 20 Mar 2006 13:45:20 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45218 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751257AbWCTSpT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 13:45:34 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthieu CASTET <castet.matthieu@free.fr>
-Subject: Re: Libata PATA for 2.6.16
-Date: Mon, 20 Mar 2006 19:44:03 +0100
-Message-ID: <pan.2006.03.20.18.44.01.910970@free.fr>
-References: <1142869095.20050.32.camel@localhost.localdomain>
+	Mon, 20 Mar 2006 13:45:19 -0500
+Date: Mon, 20 Mar 2006 19:44:59 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Peter Wainwright <prw@ceiriog.eclipse.co.uk>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Announcing crypto suspend
+Message-ID: <20060320184459.GB24523@elf.ucw.cz>
+References: <20060320080439.GA4653@elf.ucw.cz> <1142879707.9475.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1142879707.9475.4.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+Hi!
 
-Le Mon, 20 Mar 2006 15:38:15 +0000, Alan Cox a écrit :
+> > Thanks to Rafael's great work, we now have working encrypted suspend
+> > and resume. You'll need recent -mm kernel, and code from
+> > suspend.sf.net. Due to its use of RSA, you'll only need to enter
+> > password during resume.
+> > 
+> > [Code got some minimal review; if you are a crypto expert, and think
+> > you can poke a hole within it, please try to do so.]
+> > 								Pavel
+> Thats pretty interesting - we really need a featureful suspend
+> implementation
+> in mainline. But there doesn't seem to be much documentation for it.
+> suspend.sf.net takes me to the Suspend 2 site: www.suspend2.net (a
+> virtual
+> server?). Which code from this site is needed for the mainline suspend?
 
-> Can be found at the usual location
-> 
-> 	http://zeniv.linux.org.uk/~alan/IDE
-> 
-> Some further small changes and updates, in particular the use of
-> platform device class for VLB/ISA/legacy IDE ports and the removal of
-> the "no device" special cases from the core.
-> 
-I still got the same problems on via :
- - hardisk used at UDMA33 instead of UDMA100 (buggy cable select ??? for
-the primary CS value was 0xf1f1e6e6 and for the secondary 0x2727e6e6)
- - a cdrw drive lost interrupt when setting xfermode and make failed a
- port initialisation (if I comment the disable code, everythings seems to
- work)
+suspend.sf.net works for me , can you check again?
 
-Matthieu
+Anyway, all the code that is needed is here:
 
+cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/suspend co suspend
+
+Installation is little tricky, but there's HOWTO file in repository.
+
+								Pavel
+-- 
+Picture of sleeping (Linux) penguin wanted...

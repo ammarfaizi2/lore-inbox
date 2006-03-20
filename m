@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbWCTPoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965386AbWCTPnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965028AbWCTPoA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:44:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965395AbWCTPnU
+	id S965386AbWCTPnP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:43:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965287AbWCTPYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:43:20 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:15032 "EHLO
+	Mon, 20 Mar 2006 10:24:05 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:13496 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964879AbWCTPYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:24:10 -0500
+	id S965282AbWCTPX7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:23:59 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Michael Krufky <mkrufky@m1k.net>,
+Cc: linux-dvb-maintainer@linuxtv.org,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 037/141] V4L/DVB (3442): Allow tristate build for
-	cx88-vp3054-i2c
-Date: Mon, 20 Mar 2006 12:08:43 -0300
-Message-id: <20060320150843.PS181625000037@infradead.org>
+Subject: [PATCH 009/141] V4L/DVB (3406): Added credits for em28xx-video.c
+Date: Mon, 20 Mar 2006 12:08:38 -0300
+Message-id: <20060320150838.PS565965000009@infradead.org>
 In-Reply-To: <20060320150819.PS760228000000@infradead.org>
 References: <20060320150819.PS760228000000@infradead.org>
 Mime-Version: 1.0
@@ -28,29 +27,32 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael Krufky <mkrufky@m1k.net>
-Date: 1138257439 -0200
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+Date: 1138043454 -0200
 
-- allow tristate build for cx88-vp3054-i2c
+- Added credits for sn9c102 kernel module and his author as
+some parts of em28xx-video were based.
 
-Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+Acked-by: Luca Risolia <luca.risolia@studio.unibo.it>
+Acked-by: Markus Rechberger <mrechberger@gmail.com>
+Acked-by: Ludovico Cavedon <cavedon@sssup.it>
+Acked-by: Sascha Sommer <saschasommer@freenet.de>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
-diff --git a/drivers/media/video/cx88/Makefile b/drivers/media/video/cx88/Makefile
-diff --git a/drivers/media/video/cx88/Makefile b/drivers/media/video/cx88/Makefile
-index e78da88..2b90278 100644
---- a/drivers/media/video/cx88/Makefile
-+++ b/drivers/media/video/cx88/Makefile
-@@ -4,8 +4,9 @@ cx8800-objs	:= cx88-video.o cx88-vbi.o
- cx8802-objs	:= cx88-mpeg.o
+diff --git a/drivers/media/video/em28xx/em28xx-video.c b/drivers/media/video/em28xx/em28xx-video.c
+diff --git a/drivers/media/video/em28xx/em28xx-video.c b/drivers/media/video/em28xx/em28xx-video.c
+index eea304f..94a14a2 100644
+--- a/drivers/media/video/em28xx/em28xx-video.c
++++ b/drivers/media/video/em28xx/em28xx-video.c
+@@ -6,6 +6,9 @@
+ 		      Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+ 		      Sascha Sommer <saschasommer@freenet.de>
  
- obj-$(CONFIG_VIDEO_CX88) += cx88xx.o cx8800.o cx8802.o cx88-blackbird.o
--obj-$(CONFIG_VIDEO_CX88_DVB) += cx88-dvb.o cx88-vp3054-i2c.o
-+obj-$(CONFIG_VIDEO_CX88_DVB) += cx88-dvb.o
- obj-$(CONFIG_VIDEO_CX88_ALSA) += cx88-alsa.o
-+obj-$(CONFIG_VIDEO_CX88_VP3054) += cx88-vp3054-i2c.o
- 
- EXTRA_CFLAGS += -I$(src)/..
- EXTRA_CFLAGS += -I$(srctree)/drivers/media/dvb/dvb-core
++	Some parts based on SN9C10x PC Camera Controllers GPL driver made
++		by Luca Risolia <luca.risolia@studio.unibo.it>
++
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
 

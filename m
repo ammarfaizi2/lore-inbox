@@ -1,51 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWCTMxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWCTNCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbWCTMxm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 07:53:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWCTMxl
+	id S932278AbWCTNCf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 08:02:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWCTNCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 07:53:41 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:14291 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S932270AbWCTMxl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 07:53:41 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Subject: Re: [PATCH]use kzalloc in vfs where appropriate
-Date: Mon, 20 Mar 2006 13:52:52 +0100
-User-Agent: KMail/1.8
-Cc: "Arjan van de Ven" <arjan@infradead.org>,
-       "Matthew Wilcox" <matthew@wil.cx>, viro@zeniv.linux.org.uk,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0603172153160.30725@fachschaft.cup.uni-muenchen.de> <200603192150.23444.oliver@neukum.org> <84144f020603192325h54fd3212l1f4846fd40b9f074@mail.gmail.com>
-In-Reply-To: <84144f020603192325h54fd3212l1f4846fd40b9f074@mail.gmail.com>
+	Mon, 20 Mar 2006 08:02:35 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:36003 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S932275AbWCTNCe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 08:02:34 -0500
+Date: Mon, 20 Mar 2006 14:02:32 +0100
+From: Sander <sander@humilis.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, neilb@suse.de, linux-raid@vger.kernel.org
+Subject: RAID5 grow success  (was: Re: 2.6.16-rc6-mm2)
+Message-ID: <20060320130232.GA32762@favonius>
+Reply-To: sander@humilis.net
+References: <20060318044056.350a2931.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603201352.56288.oliver@neukum.org>
+In-Reply-To: <20060318044056.350a2931.akpm@osdl.org>
+X-Uptime: 13:39:17 up 17 days, 17:49, 33 users,  load average: 3.23, 3.41, 3.67
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote (ao):
+> - Lots of MD and DM updates
 
-> > Rewriting the test as:
-> > n!=0 && n > INT_MAX / size
-> > saves the division because size is much likelier to be a constant, and indeed
-> > the code is better:
-> >
-> >         cmpq    $268435455, %rax
-> >         movq    $0, 40(%rsp)
-> >         ja      .L313
-> >
-> > Is there anything I am missing?
-> 
-> Did you check allyesconfig vmlinux size before and after? If it helps,
-> like it probably does, post a patch!
+I would like to report that growing an online raid5 device works like a
+charm:
 
-Hi Pekka,
+mdadm --version
+mdadm - v2.4-pre1 - Not For Production Use - 20 March 2006
 
-it saves 18K of 232M. I am making a patch.
+mdadm -C -l5 -n3 /dev/md0 /dev/sda1 /dev/sdb1 /dev/sdc1
 
-	Regards
-		Oliver
+While performing:
+for i in `seq 4`
+do dd if=/dev/zero of=bigfile.$i bs=1024k count=10000
+done
+md5sum bigfile.*
+
+I do:
+mdadm /dev/md0 -a /dev/sdd1
+
+mdadm --grow /dev/md0 --raid-disks=4
+
+When the dd and md5sum finishes, I umount and:
+
+e2fsck -f /dev/md0
+resize2fs -p /dev/md0
+
+After mounting again the disk indeed is bigger, and the md5sum still
+matches.
+
+
+FWIW, I now try to add four more spares at once, and grow the raid5
+again. It seems to work:
+
+
+# mdadm /dev/md0 -a /dev/sde1 /dev/sdf1 /dev/sdg1 /dev/sdh1
+mdadm: added /dev/sde1
+mdadm: added /dev/sdf1
+mdadm: added /dev/sdg1
+mdadm: added /dev/sdh1
+# mdadm --grow /dev/md0 --raid-disks=8
+mdadm: Need to backup 448K of critical section..
+mdadm: ... critical section passed.
+#
+
+It is still reshapeing ATM.
+
+Thanks!
+
+	Sander
+
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

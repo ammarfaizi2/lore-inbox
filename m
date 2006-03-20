@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWCTJHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWCTJqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751026AbWCTJHU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 04:07:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751529AbWCTJHU
+	id S1750751AbWCTJqD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 04:46:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWCTJqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 04:07:20 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:27524 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751026AbWCTJHS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 04:07:18 -0500
-Date: Mon, 20 Mar 2006 10:05:12 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: tux-list@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] tux3-2.6.16-A0
-Message-ID: <20060320090512.GA1408@elte.hu>
+	Mon, 20 Mar 2006 04:46:03 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:13961 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1750751AbWCTJqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 04:46:02 -0500
+Date: Mon, 20 Mar 2006 10:46:01 +0100
+From: Jan Kara <jack@suse.cz>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] fix potential null pointer deref in quota
+Message-ID: <20060320094601.GA11037@atrey.karlin.mff.cuni.cz>
+References: <200603182308.05050.jesper.juhl@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.7 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <200603182308.05050.jesper.juhl@gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i've released the 2.6.16-A0 Tux patch:
+  Hello,
 
-   http://redhat.com/~mingo/TUX-patches/tux3-2.6.16-A0
+> The coverity checker noticed that we may pass a NULL super_block to
+> do_quotactl() that dereferences it.
+> Dereferencing NULL pointers is bad medicine, better check and fail 
+> gracefully.
+  Umm, when do you think we can dereference NULL pointer to a super_block?
+check_quotactl_valid() allows sb==NULL only in the case of Q_SYNC command.
+And that is handled in do_quotactl() correctly even if sb==NULL...
 
-this is a merge to v2.6.16, with small fixes. This is a maintainance 
-release, not a submission for upstream inclusion.
+								Honza
 
-	Ingo
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

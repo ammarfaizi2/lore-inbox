@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbWCTUgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbWCTUgD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030255AbWCTUgF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 15:36:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030244AbWCTUgF
+	id S1030253AbWCTUgD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 15:36:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030244AbWCTUgC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 15:36:05 -0500
-Received: from mail.suse.de ([195.135.220.2]:52404 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030255AbWCTUgB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 15:36:01 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: lstat returns bogus values.
-References: <Pine.LNX.4.61.0603201312320.23345@chaos.analogic.com>
-X-Yow: Of course, you UNDERSTAND about the PLAIDS in the SPIN CYCLE --
-Date: Mon, 20 Mar 2006 21:35:54 +0100
-In-Reply-To: <Pine.LNX.4.61.0603201312320.23345@chaos.analogic.com>
-	(linux-os@analogic.com's message of "Mon, 20 Mar 2006 13:35:54 -0500")
-Message-ID: <jed5ggx39x.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+	Mon, 20 Mar 2006 15:36:02 -0500
+Received: from mail.fieldses.org ([66.93.2.214]:50826 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP
+	id S1030253AbWCTUgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 15:36:00 -0500
+Date: Mon, 20 Mar 2006 15:35:56 -0500
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: matthew@wil.cx, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: DoS with POSIX file locks?
+Message-ID: <20060320203556.GC31512@fieldses.org>
+References: <E1FLIlF-0007zR-00@dorka.pomaz.szeredi.hu> <20060320121107.GE8980@parisc-linux.org> <E1FLJLs-00085u-00@dorka.pomaz.szeredi.hu> <20060320123950.GF8980@parisc-linux.org> <E1FLJsF-0008A7-00@dorka.pomaz.szeredi.hu> <20060320153202.GH8980@parisc-linux.org> <E1FLNRi-0000We-00@dorka.pomaz.szeredi.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1FLNRi-0000We-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.5.11+cvs20060126
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"linux-os (Dick Johnson)" <linux-os@analogic.com> writes:
+On Mon, Mar 20, 2006 at 05:41:30PM +0100, Miklos Szeredi wrote:
+> > > Things look fairly straightforward if the accounting is done in
+> > > files_struct instead of task_struct.  At least for POSIX locks.  I
+> > > haven't looked at flocks or leases yet.
+> > 
+> > I was thinking that would work, yes.  It might not be worth worrying
+> > about accounting for leases/flocks since each process can only have one
+> > of those per open file anyway.
+> 
+> Here's a minimally tested patch.  The only tricky part is when the
+> unlock splits an existing lock in two.
+> 
+> Also the limit checking is sloppy when the lock is split, and in that
+> case allows the counter to go one above the limit.
 
-> The "kernelly-corrected" stuff should have been returned by lstat()
+Do you need to handle blocks as well as applied locks?
 
-What should lstat return for a cdrom device node that has no medium?
-Should "ls -l /dev/cdrom" block until you have inserted a CD?
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+--b.

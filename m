@@ -1,45 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964966AbWCTTIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965023AbWCTTKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964966AbWCTTIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 14:08:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWCTTIQ
+	id S965023AbWCTTKK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 14:10:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbWCTTKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 14:08:16 -0500
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:43461 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S964966AbWCTTIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 14:08:14 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: [PATCH] slab: introduce kmem_cache_zalloc allocator
-To: balbir@in.ibm.com, Pekka Enberg <penberg@cs.helsinki.fi>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Mon, 20 Mar 2006 20:07:59 +0100
-References: <5Ssjj-314-69@gated-at.bofh.it> <5Sv7o-7l5-23@gated-at.bofh.it> <5Svh9-7xW-61@gated-at.bofh.it> <5SvK8-88q-41@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Mon, 20 Mar 2006 14:10:09 -0500
+Received: from mf00.sitadelle.com ([212.94.174.67]:53459 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S965038AbWCTTKG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 14:10:06 -0500
+Message-ID: <441EFE05.8040506@cosmosbay.com>
+Date: Mon, 20 Mar 2006 20:09:57 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1FLPjT-0000o9-Sy@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Use unsigned int types for a faster bsearch
+References: <20060315054416.GF3205@localhost.localdomain>	<1142403500.26706.2.camel@sli10-desk.sh.intel.com> <20060314233138.009414b4.akpm@osdl.org> <4417E047.70907@cosmosbay.com>
+In-Reply-To: <4417E047.70907@cosmosbay.com>
+Content-Type: multipart/mixed;
+ boundary="------------010009080708070501000602"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh <balbir@in.ibm.com> wrote:
+This is a multi-part message in MIME format.
+--------------010009080708070501000602
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
->> No, no, no! I am introducing kmem_cache_zalloc() because there are
->> existing users in the tree. I plan to kill the slab wrappers from XFS
->> completely which is why I need this. We already have object constructors
->> for what you're describing.
-> 
-> Ok, please keep the interface - build kmem_cache_zalloc() on top of
-> what I suggest.
+This patch avoids arithmetic on 'signed' types that are slower than 
+'unsigned'. This saves space and cpu cycles.
 
-The benefit of using *zalloc is the ability to skip the memset by using
-pre-zeroed memory or to use more efficient ways of zeroing a page.
-Having to check the value of a parameter wouldn't help.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+size of kernel/sys.o before the patch (gcc-3.4.5)
+
+    text    data     bss     dec     hex filename
+   10924     252       4   11180    2bac kernel/sys.o
+
+size of kernel/sys.o after the patch
+    text    data     bss     dec     hex filename
+   10903     252       4   11159    2b97 kernel/sys.o
+
+I noticed that gcc-4.1.0 (from Fedora Core 5) even uses idiv instruction for 
+(a+b)/2 if a and b are signed.
+
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+
+
+--------------010009080708070501000602
+Content-Type: text/plain;
+ name="groups_search.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="groups_search.patch"
+
+--- a/kernel/sys.c	2006-03-20 18:42:41.000000000 +0100
++++ b/kernel/sys.c	2006-03-20 19:00:43.000000000 +0100
+@@ -1375,7 +1375,7 @@
+ /* a simple bsearch */
+ int groups_search(struct group_info *group_info, gid_t grp)
+ {
+-	int left, right;
++	unsigned int left, right;
+ 
+ 	if (!group_info)
+ 		return 0;
+@@ -1383,7 +1383,7 @@
+ 	left = 0;
+ 	right = group_info->ngroups;
+ 	while (left < right) {
+-		int mid = (left+right)/2;
++		unsigned int mid = (left+right)/2;
+ 		int cmp = grp - GROUP_AT(group_info, mid);
+ 		if (cmp > 0)
+ 			left = mid + 1;
+
+--------------010009080708070501000602--

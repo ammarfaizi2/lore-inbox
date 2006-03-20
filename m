@@ -1,56 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWCTTeN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWCTTeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbWCTTeN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 14:34:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbWCTTeN
+	id S1751297AbWCTTeK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 14:34:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWCTTeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 14:34:13 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:37504 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S964845AbWCTTeL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 14:34:11 -0500
-Date: Mon, 20 Mar 2006 11:34:14 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Dave Hansen <haveblue@us.ibm.com>,
-       linux-kernel@vger.kernel.org, serue@us.ibm.com, frankeh@watson.ibm.com,
-       clg@fr.ibm.com, Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam@vilain.net>
-Subject: Re: [RFC][PATCH 2/6] sysvmsg: containerize
-Message-ID: <20060320193414.GQ15997@sorel.sous-sol.org>
-References: <20060306235248.20842700@localhost.localdomain> <20060306235250.35676515@localhost.localdomain> <20060307015745.GG27645@sorel.sous-sol.org> <1141697323.9274.64.camel@localhost.localdomain> <20060307023445.GI27645@sorel.sous-sol.org> <m1r74ywinp.fsf@ebiederm.dsl.xmission.com>
+	Mon, 20 Mar 2006 14:34:09 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:59652 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751297AbWCTTeI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 14:34:08 -0500
+Date: Mon, 20 Mar 2006 14:33:56 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org
+Cc: gregkh@suse.de
+Subject: [RFC] pci_ids.h: correct naming of 1022:7450 (AMD 8131 Bridge)
+Message-ID: <20060320193351.GC15746@tuxdriver.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, gregkh@suse.de
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1r74ywinp.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Eric W. Biederman (ebiederm@xmission.com) wrote:
-> Chris Wright <chrisw@sous-sol.org> writes:
-> > The /proc interface is registering with &context->ids of init_task.  So,
-> > all other contexts using that interface will be looking at the wrong
-> > info, AFAICT.
-> 
-> We need to make this per process in /proc to get it right.
-> So /proc/sysvipc becomes a symlink to /proc/<pid>/sysvipc.
+The naming of the constant defined for PCI ID 1022:7450 does not seem
+to match the information at http://pciids.sourceforge.net/:
 
-That, and any considerations for context access to protect against
-reading /proc/pid/sysvipc/* (assuming you can share pid namespace,
-while not sharing sysvipc context).
+	http://pci-ids.ucw.cz/iii/?i=1022
 
-> > As you can tell my concerns are in resource consumption.  If a user can
-> > create contexts which it can hide from sysadmin, and they aren't subject
-> > to sysadmin mandated resource limits, it's effectively a leak, esp. since
-> > these resources don't die with exit(2).
-> 
-> I haven't spotted it yet in Dave's series but this is something that should
-> happen when all of the tasks using the ipc_context in this case exit.
+There 1022:7450 is listed as "AMD-8131 PCI-X Bridge" while 1022:7451
+is listed as "AMD-8131 PCI-X IOAPIC".  Yet, the current definition for
+0x7450 is PCI_DEVICE_ID_AMD_8131_APIC.	It seems to me like that name
+should map to 0x7451, while a name like PCI_DEVICE_ID_AMD_8131_BRIDGE
+should map to 0x7450.
 
-Making it look like an 'init 0' from the P.O.V. of that ipc_context, WFM.
-Seems the context needs to have context limits so any privileged process
-in the context is still subject to the top-level administered limits.
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+There is a PCI quirk that matches 1022:7450.  Even though that is
+specifically related to the IOAPIC, I have to believe that it needs to
+continue pointing at that ID.  Does anyone have any better information?
 
-thanks,
--chris
+The reason I'm interested is because I have a tg3 patch that needs to
+reference 1022:7450.  I could use the existing pci_ids.h definition,
+but it just seems wrong.  So, it seems like it makes sense to fix
+it now?
+
+ drivers/pci/quirks.c    |    2 +-
+ include/linux/pci_ids.h |    3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index dda6099..eb4c95b 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -589,7 +589,7 @@ static void __init quirk_amd_8131_ioapic
+                 pci_write_config_byte( dev, AMD8131_MISC, tmp);
+         }
+ } 
+-DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8131_APIC,         quirk_amd_8131_ioapic ); 
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8131_BRIDGE, quirk_amd_8131_ioapic); 
+ 
+ static void __init quirk_svw_msi(struct pci_dev *dev)
+ {
+diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+index 751eea5..d2bdc25 100644
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -496,7 +496,8 @@
+ #define PCI_DEVICE_ID_AMD_8111_SMBUS	0x746b
+ #define PCI_DEVICE_ID_AMD_8111_AUDIO	0x746d
+ #define PCI_DEVICE_ID_AMD_8151_0	0x7454
+-#define PCI_DEVICE_ID_AMD_8131_APIC     0x7450
++#define PCI_DEVICE_ID_AMD_8131_BRIDGE	0x7450
++#define PCI_DEVICE_ID_AMD_8131_APIC	0x7451
+ #define PCI_DEVICE_ID_AMD_CS5536_ISA    0x2090
+ #define PCI_DEVICE_ID_AMD_CS5536_FLASH  0x2091
+ #define PCI_DEVICE_ID_AMD_CS5536_AUDIO  0x2093
+-- 
+John W. Linville
+linville@tuxdriver.com

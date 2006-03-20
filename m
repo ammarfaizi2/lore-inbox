@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbWCTPiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965000AbWCTPi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964885AbWCTPiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:38:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbWCTPiW
+	id S965000AbWCTPi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:38:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbWCTPiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:38:22 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:25784 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964885AbWCTPZM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:25:12 -0500
-From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, BoyZonder <boyzonder@spymac.com>,
-       Ricardo Cerqueira <v4l@cerqueira.org>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 093/141] V4L/DVB (3349): Remote control codes for
-	BTTV_BOARD_CONTVFMI
-Date: Mon, 20 Mar 2006 12:08:52 -0300
-Message-id: <20060320150852.PS525502000093@infradead.org>
-In-Reply-To: <20060320150819.PS760228000000@infradead.org>
-References: <20060320150819.PS760228000000@infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-3mdk 
-Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 20 Mar 2006 10:38:20 -0500
+Received: from zproxy.gmail.com ([64.233.162.192]:37682 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964904AbWCTPhs convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:37:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JKw2uXMtflZVJ5TX4YwXntxshI94LITFUrBr8O3lT4v+iHdoFhJg3Y1nnyHDD1uhCl+6KPelx9NVrHXYvC08+3PANniZahqYPq+lqmddoqLWIyW2r945hEqCXpI1wuJCa53UBOeu7xIqn7fFNjfcu7dAHm0L5bnnJntCEc8gsns=
+Message-ID: <84144f020603200737ra799407o29f902907e00cc2d@mail.gmail.com>
+Date: Mon, 20 Mar 2006 17:37:46 +0200
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Oliver Neukum" <neukum@fachschaft.cup.uni-muenchen.de>
+Subject: Re: [PATCH]micro optimization of kcalloc
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0603201542250.17461@fachschaft.cup.uni-muenchen.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.58.0603201542250.17461@fachschaft.cup.uni-muenchen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: BoyZonder <boyzonder@spymac.com>
-Date: 1141009695 -0300
+On 3/20/06, Oliver Neukum <neukum@fachschaft.cup.uni-muenchen.de> wrote:
+> --- linux-2.6.16-rc6-vanilla/include/linux/slab.h       2006-03-11 23:12:55.000000000 +0100
+> +++ linux-2.6.16-rc6/include/linux/slab.h       2006-03-20 14:39:36.000000000 +0100
+> @@ -118,7 +118,7 @@
+>   */
+>  static inline void *kcalloc(size_t n, size_t size, gfp_t flags)
+>  {
+> -       if (n != 0 && size > INT_MAX / n)
+> +       if (unlikely(size != 0 && n > INT_MAX / size ))
 
-The remote control interface for this board is the same as the one for 
-BTTV_BOARD_CONCEPTRONIC_CTVFMI2
+Please fix whitespace damage at the end.
 
-Signed-off-by: Ricardo Cerqueira <v4l@cerqueira.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
-
-diff --git a/drivers/media/video/bttv-input.c b/drivers/media/video/bttv-input.c
-diff --git a/drivers/media/video/bttv-input.c b/drivers/media/video/bttv-input.c
-index c637677..69efa0e 100644
---- a/drivers/media/video/bttv-input.c
-+++ b/drivers/media/video/bttv-input.c
-@@ -328,6 +328,7 @@ int bttv_input_init(struct bttv *btv)
- 		ir->polling      = 50; // ms
- 		break;
- 	case BTTV_BOARD_CONCEPTRONIC_CTVFMI2:
-+	case BTTV_BOARD_CONTVFMI:
- 		ir_codes         = ir_codes_pixelview;
- 		ir->mask_keycode = 0x001F00;
- 		ir->mask_keyup   = 0x006000;
-
+                                     Pekka

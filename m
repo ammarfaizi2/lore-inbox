@@ -1,69 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWCTTfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbWCTTfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbWCTTfA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 14:35:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWCTTfA
+	id S964864AbWCTTfl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 14:35:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbWCTTfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 14:35:00 -0500
-Received: from mail.clusterfs.com ([206.168.112.78]:4549 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S964835AbWCTTe6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 14:34:58 -0500
-Date: Mon, 20 Mar 2006 12:34:49 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Takashi Sato <sho@bsd.tnes.nec.co.jp>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] [PATCH 1/4] ext2/3: Extends the max file size(ext2 in kernel)
-Message-ID: <20060320193449.GD6199@schatzie.adilger.int>
-Mail-Followup-To: Takashi Sato <sho@bsd.tnes.nec.co.jp>,
-	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-References: <20060318220130sho@rifu.tnes.nec.co.jp> <20060320072037.GD30801@schatzie.adilger.int> <07fa01c64c18$d3ac7a60$4168010a@bsd.tnes.nec.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <07fa01c64c18$d3ac7a60$4168010a@bsd.tnes.nec.co.jp>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Mon, 20 Mar 2006 14:35:41 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:10954 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S964864AbWCTTfi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 14:35:38 -0500
+Message-ID: <441F0352.758F0321@tv-sign.ru>
+Date: Mon, 20 Mar 2006 22:32:34 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] simplify/fix first_tid()
+References: <441DB045.87C4134C@tv-sign.ru>
+		<m1fyldvvvo.fsf@ebiederm.dsl.xmission.com>
+		<441EF4D7.AEC1AE8C@tv-sign.ru> <m1y7z5uepz.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 20, 2006  21:21 +0900, Takashi Sato wrote:
-> >Instead of breaking all filesystems that need to create large files,
-> >the patch should instead set "i_flags | EXT2_LARGEBLK_FL" only on inodes
-> >that are larger than 2TB and use "blocksize" i_blocks on those files.
+"Eric W. Biederman" wrote:
 > 
-> Do you have any idea when the flag is set and cleared?
-
-You would set this flag when the file grows over 2^32 sectors in size.
-You might optionally clear it if the file shrinks below 2^32 sectors.
-At that time you would take the old i_blocks value and (>> (blockbits - 9)).
-
-> >This preserves compatibility with existing filesystems and doesn't
-> >impose any breakage opon an existing filesystem for anyone who wants
-> >to use this feature.
+> Oleg Nesterov <oleg@tv-sign.ru> writes:
 > 
-> I'm afraid that i_blocks of >2TB file would be corrupted if old kernel
-> or old e2fsprogs touches the file.
+> >> So we really still need the nr_threads test in there so we don't
+> >> traverse the list twice everytime through readdir.
+> >
+> > How so? We don't do it twice?
+> 
+> In general user space does.  Because a read of 0 bytes signifies
+> the end of a directory.
+> 
+> So we have 2 trips through proc_task_readdir initiated by user
+> space.
 
-I don't mean that we would remove the COMPAT flag (Ted and I arE just
-having a discussion in another thread whether i_blocks inaccuracy
-should be an ROCOMPAT or INCOMPAT feature)).  If a kernel understands
-the {RO,IN}COMPAT_LARGE_BLOCK flag, then they would also understand
-EXT2_LARGEBLK_FL on the inode to mean "i_blocks is in fs-blocksize units",
-so no corruption would take place.  If the kernel can't understand the
-COMPAT flag, it would not mount (INCOMPAT, which is inconvenient for the
-users) or mount read-only (ROCOMPAT, wouldn't allow file to be modified).
-The same is true for e2fsprogs.
+Oh, thanks, you are right.
 
-The real goal is that setting ?COMPAT_LARGE_BLOCK doesn't immediately
-make all OTHER files in the filesystem have incorrect i_blocks values,
-which would be MUCH more of a problem than files > 2TB having inaccurate
-i_blocks counts.
+[PATCH] simplify-fix-first_tid-fix
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+Restore a stupidly deleted optimization.
 
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- MM/fs/proc/base.c~	2006-03-21 01:08:10.000000000 +0300
++++ MM/fs/proc/base.c	2006-03-21 01:14:36.000000000 +0300
+@@ -2190,6 +2190,11 @@ static struct task_struct *first_tid(str
+ 			goto found;
+ 	}
+ 
++	/* If nr exceeds the number of threads there is nothing todo */
++	pos = NULL;
++	if (nr && nr >= get_nr_threads(leader))
++		goto out;
++
+ 	/* If we haven't found our starting place yet start
+ 	 * with the leader and walk nr threads forward.
+ 	 */

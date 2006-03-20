@@ -1,59 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbWCTT7H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030178AbWCTT64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030200AbWCTT7H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 14:59:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWCTT7G
+	id S1030178AbWCTT64 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 14:58:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030180AbWCTT64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 14:59:06 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:22155 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030180AbWCTT7E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 14:59:04 -0500
-Date: Mon, 20 Mar 2006 19:58:58 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, mingz@ele.uri.edu, mikado4vn@gmail.com,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: Question regarding to store file system metadata in database
-Message-ID: <20060320195858.GD27946@ftp.linux.org.uk>
-References: <441CE71E.5090503@gmail.com> <4ae3c140603190948s4fcd135er370a15003a0143a8@mail.gmail.com> <1142791121.31358.21.camel@localhost.localdomain> <4ae3c140603191011r7b68f4aale01238202656d122@mail.gmail.com> <1142792787.31358.28.camel@localhost.localdomain> <4ae3c140603191050k3bf7e960q9b35fe098e2fbe35@mail.gmail.com> <20060319194723.GA27946@ftp.linux.org.uk> <20060320130950.GA9334@thunk.org> <4ae3c140603200713m24a5af0agd891a709286deb47@mail.gmail.com> <4ae3c140603201136q7e61963dy635bb2c6047f0bc2@mail.gmail.com>
+	Mon, 20 Mar 2006 14:58:56 -0500
+Received: from mail.gmx.net ([213.165.64.20]:5306 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030178AbWCTT6y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 14:58:54 -0500
+X-Authenticated: #2308221
+Date: Mon, 20 Mar 2006 20:58:46 +0100
+From: Christian Trefzer <ctrefzer@gmx.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: What is this: "release_dev: driver.table[6] not tty for (tty7)" ?
+Message-ID: <20060320195846.GA3211@zeus.uziel.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
 Content-Disposition: inline
-In-Reply-To: <4ae3c140603201136q7e61963dy635bb2c6047f0bc2@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 20, 2006 at 02:36:51PM -0500, Xin Zhao wrote:
-> OK. Now I have more experimental results.
-> 
-> After excluding the cost of reading file list and do stat(), the
-> insertion rate becomes 587/sec, instead of 300/sec. The query rate is
-> 2137/sec. I am runing mysql 4.1.11. FC4, 2.8G CPU and 1G mem.
-> 
-> 2137/sec seems to be good enough to handle pathname to inode
-> resolving.  Anyone has some statistics how many file open in a busy
-> file system?
 
-This is still ridiculously slow.  From cold cache (i.e. with a lot of IO)
-cp -rl linux-2.6 foo1 gives 1.2s here.  That's at least about 50000
-operations.  On slower CPU, BTW, with half of the RAM you have.
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Moreover,
-al@duke:~/linux$ time mv foo1 foo2
+Hi folks,
 
-real    0m0.002s
-user    0m0.000s
-sys     0m0.001s
+does anyone have an idea where this could come from? I used the same wicked
+patchset as usual when building this 2.6.16-rc6 custom tree a few days ago,=
+ but
+the thing oopses on me all the time. The funny part is that a -rc5 built ex=
+actly
+the same way did not indulge in such inappropriate behaviour, so I figured =
+the
+gurus should have a chance of a look at this.
 
-Now, try _that_ on your setup.  If you are using entire pathname as key,
-you are FUBAR - updating key in 20-odd thousand of records is going to
-_hurt_.  If you are splitting the pathname into components, you've just
-reproduced fs directory structure and had shown that your fs layout
-is too fscking slow.  Not to mention the fun with symlink implementation,
-or handling mountpoints.
+I have to admit that I played with some more recent compiler flags that came
+with gcc-4.1, and am yet trying to narrow it down by cutting down the numbe=
+r of
+patches added to vanilla, leaving cflag mods out altogether for the time be=
+ing.
+But, as stated above, same insanity added to -rc5 was perfectly smooth, -rc=
+6 and
+release 2.6.16 (plus my wicked patches) screw up.
 
-You are at least an order of magnitude off by performance (more, actually)
-and I still don't see any reason for what you are trying to do.
+
+This is the log excerpt from the last time my laptop became unusable becaus=
+e of
+this, I merely switched from X to console and tried to login:
+
+-snip-
+login(pam_unix)[10265]: session opened for user ctrefzer by (uid=3D0)
+release_dev: driver.table[6] not tty for (tty7)
+Warning: dev (tty7) tty->count(1) !=3D #fd's(0) in do_tty_hangup
+Unable to handle kernel paging request at virtual address 0000e22e
+printing eip:
+c0197f99
+*pde =3D 07960067
+*pte =3D 00000000
+Oops: 0000 [#1]
+PREEMPT=20
+Modules linked in: parport_pc parport 8250_pnp 8250 serial_core floppy snd_=
+nm256 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd_page_alloc snd soun=
+dcore rtl8150 uhci_hcd pcmcia firmware_class yenta_socket rsrc_nonstatic pc=
+mcia_core intel_agp agpgart usbcore xfs exportfs ext2 sg sr_mod cdrom evdev=
+ psmouse i8k rtc tun reiser4 dm_mod ata_piix libata sd_mod scsi_mod unix
+CPU:    0
+EIP:    0060:[<c0197f99>]    Not tainted VLI
+EFLAGS: 00010202   (2.6.16 #1)=20
+EIP is at 0xc0197f99
+eax: c6775400   ebx: 0000e17a   ecx: c662aeec   edx: 00000000
+esi: c7f0b600   edi: c02b9460   ebp: 00000001   esp: c662aea0
+ds: 007b   es: 007b   ss: 0068
+Process X (pid: 10350, threadinfo=3Dc662a000 task=3Dc7b9d0b0)
+Stack: <0>c6e54ba0 c662aeec 00000000 c71bcd60 c662a000 c662af50 ffffffe9 c6=
+62af50=20
+c015c524 c6acc000 00000287 c7f0b600 c71bcd60 c02b9460 00000001 c019a908=20
+00400000 00000001 00000000 c01569b2 00000000 c71bcd60 c02b9460 00000000=20
+Call Trace:
+[<c0101135>] syscall_call+0x7/0xb
+Code: c0 89 c7 74 14 8b 53 20 85 d2 0f 84 f8 00 00 00 89 d8 ff d2 e9 ef 00 =
+00 00 8b 44 24 0c e8 76 f5 ff ff 89 d8 e8 6f f5 ff ff eb 47 <8b> 83 b4 00 0=
+0 00 84 c0 78 4a 81 7e 74 04 00 01 00 75 15 83 bb=20
+-snap-
+
+
+Any further info required I'll gladly provide. Thanks a bunch for your time!
+
+Chris
+
+--Qxx1br4bt0+wmkIi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iQIVAwUBRB8Jdl2m8MprmeOlAQJrzA/+M4jswPY0AaTZV3d/q97OF+7R1XzeIyRu
+2yUWVribwxhJbhjP8l+URfE4azIC1bpMCT8AxazbXxqSIZ+1sDWEJfKMZ4fmfumb
+N2/tSE7tfqWIFeFvPn+VRsUZTlbzF0OrEYHNzLH7bX2llSNMEZCr2fcmemAuamTp
+yVR31Y8Af50vn1DZks4iF//pkG5f5XhT+Uu+bA13QheQkNO1lDhcQ6Uo5lrHIFXO
+ggsm1f1l7ukocvroEKjznK3p45LJ4JE0ustKiFES4Jg/29J5EttwsbxRJynfJBIG
+jT68LUuVejUjX0dtvnULWPdnlt6SKwjikGvQ2NRLc1koRD96IcAZSa2Cs/wX620o
+4v5nC1NIsLUL0bfwH5Op9YdPjtE9tP6vsUgoriPJaAZvl33IIEHKOVif6NI7U533
+KSG8YPfPp7Km1Yr3nUhV+sBwMpExhz9T50oaJFKHIkr2z48vHWiEQXBYMz3nNalS
+ArCczGRYikSkOgY+nzALOiqWdGC3wLHk3GOg2yd0z7iR6TB9h8jrOjukuB2msumi
+4BK0IJy0kbEp1kCgwYsEnKndLsA0a44q0qHtIGidnG0c7mLwQSfahqI6dGY9ZsQ9
+ZalEnQ/Pl7kVy0I9X+mWs4oSSO7LhlICjEv/PhCuc/LeQ9NyeGt6vXxkgCZlza9w
+wYs8dxsbObo=
+=JXt+
+-----END PGP SIGNATURE-----
+
+--Qxx1br4bt0+wmkIi--
+

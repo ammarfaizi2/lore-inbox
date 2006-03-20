@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965908AbWCTQwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965246AbWCTQ4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965908AbWCTQwo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 11:52:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965914AbWCTQwo
+	id S965246AbWCTQ4T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 11:56:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965257AbWCTQ4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 11:52:44 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:52356 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S965908AbWCTQwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 11:52:43 -0500
-Subject: Re: [PATCHSET] block: fix PIO cache coherency bug
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: htejun@gmail.com, davem@redhat.com, axboe@suse.de, bzolnier@gmail.com,
-       james.steward@dynamicratings.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, mattjreimer@gmail.com,
-       rmk+lkml@arm.linux.org.uk
-In-Reply-To: <20060320085008.d13dd57e.rdunlap@xenotime.net>
-References: <11371658562541-git-send-email-htejun@gmail.com>
-	 <1137167419.3365.5.camel@mulgrave>
-	 <20060113182035.GC25849@flint.arm.linux.org.uk>
-	 <1137177324.3365.67.camel@mulgrave>
-	 <20060113190613.GD25849@flint.arm.linux.org.uk>
-	 <20060222082732.GA24320@htj.dyndns.org>
-	 <1142871172.3283.17.camel@mulgrave.il.steeleye.com>
-	 <20060320085008.d13dd57e.rdunlap@xenotime.net>
-Content-Type: text/plain
-Date: Mon, 20 Mar 2006 10:52:06 -0600
-Message-Id: <1142873526.3283.30.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Mar 2006 11:56:19 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:15014 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S965246AbWCTQ4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 11:56:18 -0500
+To: "Albert Cahalan" <acahalan@gmail.com>
+Cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
+       akpm@osdl.org, ebiederm@xmission.com, janak@us.ibm.com,
+       viro@ftp.linux.org.uk, hch@lst.de, ak@muc.de, paulus@samba.org,
+       mtk-manpages@gmx.net
+Subject: Re: [PATCH] unshare: Cleanup up the sys_unshare interface before we
+ are committed.
+References: <787b0d920603192045y76e99e32p4ddde31961f80bb9@mail.gmail.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Mon, 20 Mar 2006 09:52:58 -0700
+In-Reply-To: <787b0d920603192045y76e99e32p4ddde31961f80bb9@mail.gmail.com> (Albert
+ Cahalan's message of "Sun, 19 Mar 2006 23:45:52 -0500")
+Message-ID: <m1oe01vz11.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-20 at 08:50 -0800, Randy.Dunlap wrote:
-> > If everyone's happy with this approach, I'll take it over to
-> linux-arch.
-> 
-> why is that the right place for it?
+"Albert Cahalan" <acahalan@gmail.com> writes:
 
-Because the implementation details of flush_kernel_dcache_page() are
-arch specific, so linux-arch is the list to notify about it.
+> The unshare() syscall is in fact a clone() syscall minus one
+> CLONE_* flag that is normally implied: CLONE_TASK_STRUCT.
+> (conceptually -- it has no name because it is always implied)
+>
+> We already have one flag with inverted action: CLONE_NEWNS.
+> Adding another such flag (for the task struct) makes sense.
+> The new system call is thus not needed at all.
+>
+> Suggested names: CLONE_NO_TASK, CLONE_SAMETASK, CLONE_SHARETASK
 
-James
+The practical issue there is that even in the best case the implementations
+are enough different that it probably would not make a lot of sense.
 
+Eric
 

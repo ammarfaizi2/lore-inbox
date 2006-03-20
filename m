@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbWCTUW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWCTU1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030218AbWCTUW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 15:22:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030244AbWCTUW0
+	id S1030228AbWCTU1n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 15:27:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030221AbWCTU1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 15:22:26 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:2737 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030218AbWCTUWZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 15:22:25 -0500
-Date: Mon, 20 Mar 2006 20:22:24 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, klibc@zytor.com,
-       torvalds@osdl.org, akpm@osdl.org
-Subject: Re: Merge strategy for klibc
-Message-ID: <20060320202224.GE27946@ftp.linux.org.uk>
-References: <441F0859.2010703@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Mar 2006 15:27:43 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:12776 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1030228AbWCTU1m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 15:27:42 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+Subject: Re: Announcing crypto suspend
+Date: Mon, 20 Mar 2006 21:26:23 +0100
+User-Agent: KMail/1.9.1
+Cc: Peter Wainwright <prw@ceiriog.eclipse.co.uk>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>
+References: <20060320080439.GA4653@elf.ucw.cz> <200603201954.45572.rjw@sisk.pl> <441EFE54.2090004@gmail.com>
+In-Reply-To: <441EFE54.2090004@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <441F0859.2010703@zytor.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200603202126.23861.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 20, 2006 at 11:54:01AM -0800, H. Peter Anvin wrote:
-> Okay, as of this point, I think klibc is in quite good shape; my
-> testing so far is showing that it can be used as a drop-in replacement
-> for the kernel root-mounting code.
-> 
-> That being said, there is guaranteed to be breakage, for two reasons:
-> 
-> a. There are several architectures which don't have klibc ports yet.
->    Since I don't have access to them, I can't really do them, either.
->    It's usually a matter of an afternoon or less to port klibc to a
->    new architecture, though, if you have a working development
->    environment for it.
+Hi,
 
-Which ones?
+On Monday 20 March 2006 20:11, Alon Bar-Lev wrote:
+> Rafael J. Wysocki wrote:
+> > and please read the HOWTO.  Unfortunately the RSA-related part hasn't been
+> > documented yet, but it's pretty straightforward.
+> 
+> Hello,
+> 
+> I don't understand why you are working so hard on this... If
+> you want encryption, you should care about all of your data!
+
+I hope you realize there may be sensitive data in the suspend image
+that are not stored in filesystems (eg. crypto keys, passwords etc.).
+
+Greetings,
+Rafael

@@ -1,58 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbWCTWej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030558AbWCTWhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751316AbWCTWej (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 17:34:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWCTWej
+	id S1030558AbWCTWhW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 17:37:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030562AbWCTWhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 17:34:39 -0500
-Received: from bhhdoa.org.au ([65.98.99.88]:55560 "EHLO bhhdoa.org.au")
-	by vger.kernel.org with ESMTP id S1751316AbWCTWeh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 17:34:37 -0500
-Message-ID: <1142889937.441f1dd19e90f@vds.kolivas.org>
-Date: Tue, 21 Mar 2006 08:25:37 +1100
-From: kernel@kolivas.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       linux-mm@kvack.org
-Subject: Re: [PATCH][3/3] mm: swsusp post resume aggressive swap prefetch
-References: <200603200234.01472.kernel@kolivas.org> <200603202247.38576.rjw@sisk.pl>
-In-Reply-To: <200603202247.38576.rjw@sisk.pl>
+	Mon, 20 Mar 2006 17:37:22 -0500
+Received: from baldrick.bootc.net ([83.142.228.48]:53218 "EHLO
+	baldrick.bootc.net") by vger.kernel.org with ESMTP id S1030558AbWCTWhU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 17:37:20 -0500
+Message-ID: <441F2E9D.6000001@bootc.net>
+Date: Mon, 20 Mar 2006 22:37:17 +0000
+From: Chris Boot <bootc@bootc.net>
+User-Agent: Thunderbird 1.5 (X11/20060309)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
+To: Nick Warne <nick@linicks.net>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Matheus Izvekov <mizvekov@gmail.com>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: SubmittingPatches typo
+References: <20060320125012.GA21545@elf.ucw.cz>	 <Pine.LNX.4.61.0603202056100.14231@yvahk01.tjqt.qr>	 <305c16960603201247p53718859ofa0e6d0355c9da1a@mail.gmail.com>	 <441F1650.7070906@bootc.net>	 <Pine.LNX.4.61.0603202155160.23653@yvahk01.tjqt.qr>	 <Pine.LNX.4.61.0603202216390.15483@yvahk01.tjqt.qr> <7c3341450603201402k54b0cd6cy@mail.gmail.com>
+In-Reply-To: <7c3341450603201402k54b0cd6cy@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting "Rafael J. Wysocki" <rjw@sisk.pl>:
-
-> Hi,
+Nick Warne wrote:
+> Believe me, English Grammar is harder than trying to understand kernel code..
 > 
-> On Sunday 19 March 2006 16:34, Con Kolivas wrote:
-> > 
-> > Swsusp reclaims a lot of memory during the suspend cycle and can benefit
-> > from the aggressive_swap_prefetch mode immediately upon resuming.
+> I was taught that 'ownership' and 'owner' decide, depending on the tense.
 > 
-> It slows down the resume on my box way too much.  Last time it took 10x more
-> time than actually reading the image.
+> Fred's code (it's his - 'Fred has ['s] code')). - Here also "it's" is
+> short for "it is" (sucking eggs).
 > 
-> I think the problem is for the userland suspend (which I use) it's done too
-> early,
-> when the image pages are still in the swap, so they are taken into
-> consideration
-> by the aggressive prefetch.  If that really is the case, the solution would
-> be to
-> trigger the aggressive prefetch from the userland, if needed, after the
-> image
-> pages have been released.
+> Freds' code.  You are talking third party about Freds' (or should that
+> be Fred's?) code that he owns.
+> 
+> Names that end in 's' may not be plural... the Smiths family?  Or the
+> Smiths' Family?  What happens if you are talking about 10
+> Smiths'/Smith's families?  Smiths Families?
+> 
+> So, I think:
+> 
+> Torvald's code == Torvalds has code == Torvald's ['s == has]
+> 
+> Reference Torvalds' code = Torvalds[es]' code [owner]
+> 
+> This debate has been on this board been a few times... and with all
+> the English masters in there, it is still a little bit unresolved.
+> 
+> http://www.b2g2.com/boards/board.cgi?user=dharrison
 
-I assume this is unique to the userland resume as the in-kernel resume is not
-slowed down? If so, is there a way to differentiate the two so we only
-aggressively prefetch on kernel resume - is that what you meant by doing it in
-the other file?
+I think we'll all have to agree to disagree about this and nip it in the 
+bud before everything gets out of hand!
 
-Cheers,
-Con
+> Stick to coding kernels guys, it's easier.
 
+Agreed.
+
+> The fix?
+> 
+> +Here is the mail Linus Torvalds sent on the canonical patch format:
+
+Ah, so simple, so nice. This one gets my vote.
+
+> Nick
+
+Chris
+
+-- 
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/

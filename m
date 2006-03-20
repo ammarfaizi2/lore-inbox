@@ -1,54 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965178AbWCTTTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965217AbWCTTWJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965178AbWCTTTV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 14:19:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965185AbWCTTTU
+	id S965217AbWCTTWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 14:22:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965196AbWCTTWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 14:19:20 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:30140 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S965178AbWCTTTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 14:19:20 -0500
-Message-ID: <441EFFF2.7000301@ichips.intel.com>
-Date: Mon, 20 Mar 2006 11:18:10 -0800
-From: Sean Hefty <mshefty@ichips.intel.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Roland Dreier <rdreier@cisco.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, bunk@stusta.de
-Subject: Re: [openib-general] Re: 2.6.16-rc6-mm2: new RDMA CM EXPORT_SYMBOL's
-References: <20060318172507.GC14608@stusta.de>	<ORSMSX401FRaqbC8wSA00000004@orsmsx401.amr.corp.intel.com>	<20060318171926.7cb182fb.akpm@osdl.org> <ada64m9eywi.fsf@cisco.com>
-In-Reply-To: <ada64m9eywi.fsf@cisco.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Mar 2006 14:22:09 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:2455 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965217AbWCTTWI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 14:22:08 -0500
+Date: Mon, 20 Mar 2006 19:21:55 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, dm-devel@redhat.com
+Subject: dm: bio split bvec fix
+Message-ID: <20060320192155.GU4724@agk.surrey.redhat.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, dm-devel@redhat.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
-> Looking at this list of exports, I do see a couple of things that
-> could maybe be improved:
-> 
->     > +EXPORT_SYMBOL(rdma_wq);
->     > +EXPORT_SYMBOL(rdma_translate_ip);
->     > +EXPORT_SYMBOL(rdma_resolve_ip);
->     > +EXPORT_SYMBOL(rdma_addr_cancel);
-> 
-> First, rdma_wq seems like a strange internal thing to be exporting.
-> Sean, why does more than one module need to use the same workqueue?
+The code that handles bios that span table target boundaries by breaking
+them up into smaller bios will not split an individual struct bio_vec
+into more than two pieces.  Sometimes more than that are required.
 
-This is simply an attempt to reduce/combine work queues used by the Infiniband 
-code.  This keeps the threading a little simpler in the rdma_cm, since all 
-callbacks are invoked using the same work queue.  (I'm also using this with the 
-local SA/multicast code, but that's not ready for merging.)
+This patch adds a loop to break the second piece up into as many
+pieces as are necessary.
 
-> Second, the naming of rdma_addr_cancel() is not that symmetric with
-> the rdma_{translate,resolve}_ip() functions.  Unfortunately I'm just
-> clever enough to criticize, not clever enough to come up with a better
-> suggestion.
+Cc: "Abhishek Gupta" <abhishekgupt@gmail.com>
+Cc: Dan Smith <danms@us.ibm.com>
+Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
 
-rdma_resolve_ip() is the operation actually being canceled if that makes it 
-easier to come up with a better name.
-
-- Sean
+Index: linux-2.6.16-rc5/drivers/md/dm.c
+===================================================================
+--- linux-2.6.16-rc5.orig/drivers/md/dm.c	2006-03-20 16:00:11.000000000 +0000
++++ linux-2.6.16-rc5/drivers/md/dm.c	2006-03-20 18:38:19.000000000 +0000
+@@ -573,30 +573,35 @@ static void __clone_and_map(struct clone
+ 
+ 	} else {
+ 		/*
+-		 * Create two copy bios to deal with io that has
+-		 * been split across a target.
++		 * Handle a bvec that must be split between two or more targets.
+ 		 */
+ 		struct bio_vec *bv = bio->bi_io_vec + ci->idx;
++		sector_t remaining = to_sector(bv->bv_len);
++		unsigned int offset = 0;
+ 
+-		clone = split_bvec(bio, ci->sector, ci->idx,
+-				   bv->bv_offset, max);
+-		__map_bio(ti, clone, tio);
+-
+-		ci->sector += max;
+-		ci->sector_count -= max;
+-		ti = dm_table_find_target(ci->map, ci->sector);
+-
+-		len = to_sector(bv->bv_len) - max;
+-		clone = split_bvec(bio, ci->sector, ci->idx,
+-				   bv->bv_offset + to_bytes(max), len);
+-		tio = alloc_tio(ci->md);
+-		tio->io = ci->io;
+-		tio->ti = ti;
+-		memset(&tio->info, 0, sizeof(tio->info));
+-		__map_bio(ti, clone, tio);
++		do {
++			if (offset) {
++				ti = dm_table_find_target(ci->map, ci->sector);
++				max = max_io_len(ci->md, ci->sector, ti);
++
++				tio = alloc_tio(ci->md);
++				tio->io = ci->io;
++				tio->ti = ti;
++				memset(&tio->info, 0, sizeof(tio->info));
++			}
++
++			len = (max > remaining) ? remaining : max;
++
++			clone = split_bvec(bio, ci->sector, ci->idx,
++					   bv->bv_offset + offset, len);
++
++			__map_bio(ti, clone, tio);
++
++			ci->sector += len;
++			ci->sector_count -= len;
++			offset += to_bytes(len);
++		} while (remaining -= len);
+ 
+-		ci->sector += len;
+-		ci->sector_count -= len;
+ 		ci->idx++;
+ 	}
+ }

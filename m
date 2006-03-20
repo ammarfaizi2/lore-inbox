@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030546AbWCTWIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030536AbWCTWIP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030546AbWCTWIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 17:08:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030530AbWCTWBn
+	id S1030536AbWCTWIP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 17:08:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030546AbWCTWBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 17:01:43 -0500
-Received: from mail.kroah.org ([69.55.234.183]:56761 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030539AbWCTWBN (ORCPT
+	Mon, 20 Mar 2006 17:01:44 -0500
+Received: from mail.kroah.org ([69.55.234.183]:58553 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030536AbWCTWBO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 17:01:13 -0500
-Cc: David Vrabel <dvrabel@arcom.com>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 04/23] driver core: platform_get_irq*(): return -ENXIO on error
-In-Reply-To: <11428920373568-git-send-email-gregkh@suse.de>
+	Mon, 20 Mar 2006 17:01:14 -0500
+Cc: Sam Ravnborg <sam@ravnborg.org>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 08/23] Clean up module.c symbol searching logic
+In-Reply-To: <11428920383325-git-send-email-gregkh@suse.de>
 X-Mailer: git-send-email
 Date: Mon, 20 Mar 2006 14:00:38 -0800
-Message-Id: <11428920383013-git-send-email-gregkh@suse.de>
+Message-Id: <11428920381135-git-send-email-gregkh@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg Kroah-Hartman <gregkh@suse.de>
@@ -24,40 +24,126 @@ From: Greg Kroah-Hartman <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-platform_get_irq*() cannot return 0 on error as 0 is a valid IRQ on some
-platforms, return -ENXIO instead.
-
-Signed-off-by: David Vrabel <dvrabel@arcom.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
 
- drivers/base/platform.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ kernel/module.c |   73 +++++++++++++++++++++++++++++++------------------------
+ 1 files changed, 41 insertions(+), 32 deletions(-)
 
-305b3228f9ff4d59f49e6d34a7034d44ee8ce2f0
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 461554a..89b2683 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -61,7 +61,7 @@ int platform_get_irq(struct platform_dev
+3fd6805f4dfb02bcfb5634972eabad0e790f119a
+diff --git a/kernel/module.c b/kernel/module.c
+index 5aad477..2a892b2 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -135,6 +135,18 @@ extern const unsigned long __start___kcr
+ #define symversion(base, idx) ((base) ? ((base) + (idx)) : NULL)
+ #endif
+ 
++/* lookup symbol in given range of kernel_symbols */
++static const struct kernel_symbol *lookup_symbol(const char *name,
++	const struct kernel_symbol *start,
++	const struct kernel_symbol *stop)
++{
++	const struct kernel_symbol *ks = start;
++	for (; ks < stop; ks++)
++		if (strcmp(ks->name, name) == 0)
++			return ks;
++	return NULL;
++}
++
+ /* Find a symbol, return value, crc and module which owns it */
+ static unsigned long __find_symbol(const char *name,
+ 				   struct module **owner,
+@@ -142,39 +154,41 @@ static unsigned long __find_symbol(const
+ 				   int gplok)
  {
- 	struct resource *r = platform_get_resource(dev, IORESOURCE_IRQ, num);
+ 	struct module *mod;
+-	unsigned int i;
++	const struct kernel_symbol *ks;
  
--	return r ? r->start : 0;
-+	return r ? r->start : -ENXIO;
- }
- EXPORT_SYMBOL_GPL(platform_get_irq);
+ 	/* Core kernel first. */ 
+ 	*owner = NULL;
+-	for (i = 0; __start___ksymtab+i < __stop___ksymtab; i++) {
+-		if (strcmp(__start___ksymtab[i].name, name) == 0) {
+-			*crc = symversion(__start___kcrctab, i);
+-			return __start___ksymtab[i].value;
+-		}
++	ks = lookup_symbol(name, __start___ksymtab, __stop___ksymtab);
++	if (ks) {
++		*crc = symversion(__start___kcrctab, (ks - __start___ksymtab));
++		return ks->value;
+ 	}
+ 	if (gplok) {
+-		for (i = 0; __start___ksymtab_gpl+i<__stop___ksymtab_gpl; i++)
+-			if (strcmp(__start___ksymtab_gpl[i].name, name) == 0) {
+-				*crc = symversion(__start___kcrctab_gpl, i);
+-				return __start___ksymtab_gpl[i].value;
+-			}
++		ks = lookup_symbol(name, __start___ksymtab_gpl,
++					 __stop___ksymtab_gpl);
++		if (ks) {
++			*crc = symversion(__start___kcrctab_gpl,
++					  (ks - __start___ksymtab_gpl));
++			return ks->value;
++		}
+ 	}
  
-@@ -98,7 +98,7 @@ int platform_get_irq_byname(struct platf
+ 	/* Now try modules. */ 
+ 	list_for_each_entry(mod, &modules, list) {
+ 		*owner = mod;
+-		for (i = 0; i < mod->num_syms; i++)
+-			if (strcmp(mod->syms[i].name, name) == 0) {
+-				*crc = symversion(mod->crcs, i);
+-				return mod->syms[i].value;
+-			}
++		ks = lookup_symbol(name, mod->syms, mod->syms + mod->num_syms);
++		if (ks) {
++			*crc = symversion(mod->crcs, (ks - mod->syms));
++			return ks->value;
++		}
+ 
+ 		if (gplok) {
+-			for (i = 0; i < mod->num_gpl_syms; i++) {
+-				if (strcmp(mod->gpl_syms[i].name, name) == 0) {
+-					*crc = symversion(mod->gpl_crcs, i);
+-					return mod->gpl_syms[i].value;
+-				}
++			ks = lookup_symbol(name, mod->gpl_syms,
++					   mod->gpl_syms + mod->num_gpl_syms);
++			if (ks) {
++				*crc = symversion(mod->gpl_crcs,
++						  (ks - mod->gpl_syms));
++				return ks->value;
+ 			}
+ 		}
+ 	}
+@@ -1444,18 +1458,13 @@ static void setup_modinfo(struct module 
+ #ifdef CONFIG_KALLSYMS
+ int is_exported(const char *name, const struct module *mod)
  {
- 	struct resource *r = platform_get_resource_byname(dev, IORESOURCE_IRQ, name);
- 
--	return r ? r->start : 0;
-+	return r ? r->start : -ENXIO;
+-	unsigned int i;
+-
+-	if (!mod) {
+-		for (i = 0; __start___ksymtab+i < __stop___ksymtab; i++)
+-			if (strcmp(__start___ksymtab[i].name, name) == 0)
+-				return 1;
+-		return 0;
+-	}
+-	for (i = 0; i < mod->num_syms; i++)
+-		if (strcmp(mod->syms[i].name, name) == 0)
++	if (!mod && lookup_symbol(name, __start___ksymtab, __stop___ksymtab))
++		return 1;
++	else
++		if (lookup_symbol(name, mod->syms, mod->syms + mod->num_syms))
+ 			return 1;
+-	return 0;
++		else
++			return 0;
  }
- EXPORT_SYMBOL_GPL(platform_get_irq_byname);
  
+ /* As per nm */
 -- 
 1.2.4
 

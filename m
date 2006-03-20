@@ -1,24 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965299AbWCTP0Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbWCTPZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965299AbWCTP0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:26:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965304AbWCTP0Y
+	id S964959AbWCTPZx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:25:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965282AbWCTPZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:26:24 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:36280 "EHLO
+	Mon, 20 Mar 2006 10:25:20 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:17592 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965302AbWCTP0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:26:18 -0500
+	id S964875AbWCTPY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:24:28 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
 Cc: linux-dvb-maintainer@linuxtv.org,
-       Mattias Nordstrom <nordstrom@realnode.com>,
-       Michael Krufky <mkrufky@linuxtv.org>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 112/141] V4L/DVB (3382): Fix stv0297 for qam128 on tt c1500
-	(saa7146)
-Date: Mon, 20 Mar 2006 12:08:55 -0300
-Message-id: <20060320150855.PS676698000112@infradead.org>
+Subject: [PATCH 008/141] V4L/DVB (3405): Fixes tvp5150a/am1 detection.
+Date: Mon, 20 Mar 2006 12:08:38 -0300
+Message-id: <20060320150838.PS404835000008@infradead.org>
 In-Reply-To: <20060320150819.PS760228000000@infradead.org>
 References: <20060320150819.PS760228000000@infradead.org>
 Mime-Version: 1.0
@@ -30,33 +27,60 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mattias Nordstrom <nordstrom@realnode.com>
-Date: 1141009757 -0300
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+Date: 1138016914 -0200
 
-I have a TT C1500 card (saa7146, STV0297) which had problems tuning
-channels at QAM128 (like the ones in the Finnish HTV / Welho network).
-A fix which seems to work perfectly so far is to change the delay for
-QAM128 to the same values as for QAM256 in stv0297_set_frontend(),
+- Tvp5150 type were determined by a secondary register instead of
+  using ROM code.
+- tvp5150am1 have ROM=4.0, while tvp5150a have ROM=3.33 (decimal).
+  All other ROM versions are reported as unknown tvp5150.
+- Except for reporting, current code doesn't enable any special feature
+  for tvp5150am1 or tvp5150a. Code should work for both models (but were
+  tested only for tvp5150am1).
 
-Signed-off-by: Mattias Nordstrom <nordstrom@realnode.com>
-Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
-diff --git a/drivers/media/dvb/frontends/stv0297.c b/drivers/media/dvb/frontends/stv0297.c
-diff --git a/drivers/media/dvb/frontends/stv0297.c b/drivers/media/dvb/frontends/stv0297.c
-index 6122ba7..eb15676 100644
---- a/drivers/media/dvb/frontends/stv0297.c
-+++ b/drivers/media/dvb/frontends/stv0297.c
-@@ -393,10 +393,6 @@ static int stv0297_set_frontend(struct d
- 		break;
+diff --git a/drivers/media/video/tvp5150.c b/drivers/media/video/tvp5150.c
+diff --git a/drivers/media/video/tvp5150.c b/drivers/media/video/tvp5150.c
+index fad9ea0..a6330a3 100644
+--- a/drivers/media/video/tvp5150.c
++++ b/drivers/media/video/tvp5150.c
+@@ -746,24 +746,27 @@ static int tvp5150_set_std(struct i2c_cl
  
- 	case QAM_128:
--		delay = 150;
--		sweeprate = 1000;
--		break;
--
- 	case QAM_256:
- 		delay = 200;
- 		sweeprate = 500;
+ static inline void tvp5150_reset(struct i2c_client *c)
+ {
+-	u8 type, ver_656, msb_id, lsb_id, msb_rom, lsb_rom;
++	u8 msb_id, lsb_id, msb_rom, lsb_rom;
+ 	struct tvp5150 *decoder = i2c_get_clientdata(c);
+ 
+-	type=tvp5150_read(c,TVP5150_AUTOSW_MSK);
+ 	msb_id=tvp5150_read(c,TVP5150_MSB_DEV_ID);
+ 	lsb_id=tvp5150_read(c,TVP5150_LSB_DEV_ID);
+ 	msb_rom=tvp5150_read(c,TVP5150_ROM_MAJOR_VER);
+ 	lsb_rom=tvp5150_read(c,TVP5150_ROM_MINOR_VER);
+ 
+-	if (type==0xdc) {
+-		ver_656=tvp5150_read(c,TVP5150_REV_SELECT);
+-		tvp5150_info("tvp%02x%02xam1 detected 656 version is %d.\n",msb_id, lsb_id,ver_656);
+-	} else if (type==0xfc) {
+-		tvp5150_info("tvp%02x%02xa detected.\n",msb_id, lsb_id);
++	if ((msb_rom==4)&&(lsb_rom==0)) { /* Is TVP5150AM1 */
++		tvp5150_info("tvp%02x%02xam1 detected.\n",msb_id, lsb_id);
++
++		/* ITU-T BT.656.4 timing */
++		tvp5150_write(c,TVP5150_REV_SELECT,0);
+ 	} else {
+-		tvp5150_info("unknown tvp%02x%02x chip detected(%d).\n",msb_id,lsb_id,type);
++		if ((msb_rom==3)||(lsb_rom==0x21)) { /* Is TVP5150A */
++			tvp5150_info("tvp%02x%02xa detected.\n",msb_id, lsb_id);
++		} else {
++			tvp5150_info("*** unknown tvp%02x%02x chip detected.\n",msb_id,lsb_id);
++			tvp5150_info("*** Rom ver is %d.%d\n",msb_rom,lsb_rom);
++		}
+ 	}
+-	tvp5150_info("Rom ver is %d.%d\n",msb_rom,lsb_rom);
+ 
+ 	/* Initializes TVP5150 to its default values */
+ 	tvp5150_write_inittab(c, tvp5150_init_default);
 

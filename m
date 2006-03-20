@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWCTSpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWCTSsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbWCTSpU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 13:45:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWCTSpU
+	id S1751276AbWCTSsO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 13:48:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWCTSsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 13:45:20 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45218 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751257AbWCTSpT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 13:45:19 -0500
-Date: Mon, 20 Mar 2006 19:44:59 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Peter Wainwright <prw@ceiriog.eclipse.co.uk>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Announcing crypto suspend
-Message-ID: <20060320184459.GB24523@elf.ucw.cz>
-References: <20060320080439.GA4653@elf.ucw.cz> <1142879707.9475.4.camel@localhost.localdomain>
+	Mon, 20 Mar 2006 13:48:14 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:62673 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751276AbWCTSsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 13:48:11 -0500
+Subject: Re: [openib-general] Re: 2.6.16-rc6-mm2: new RDMA CM
+	EXPORT_SYMBOL's
+From: Arjan van de Ven <arjan@infradead.org>
+To: Sean Hefty <mshefty@ichips.intel.com>
+Cc: Matthew Frost <artusemrys@sbcglobal.net>, Andrew Morton <akpm@osdl.org>,
+       Sean Hefty <sean.hefty@intel.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, bunk@stusta.de
+In-Reply-To: <441EF553.2080803@ichips.intel.com>
+References: <20060319041153.38692.qmail@web81904.mail.mud.yahoo.com>
+	 <441EF553.2080803@ichips.intel.com>
+Content-Type: text/plain
+Date: Mon, 20 Mar 2006 19:47:53 +0100
+Message-Id: <1142880473.3114.81.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1142879707.9475.4.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Thanks to Rafael's great work, we now have working encrypted suspend
-> > and resume. You'll need recent -mm kernel, and code from
-> > suspend.sf.net. Due to its use of RSA, you'll only need to enter
-> > password during resume.
-> > 
-> > [Code got some minimal review; if you are a crypto expert, and think
-> > you can poke a hole within it, please try to do so.]
-> > 								Pavel
-> Thats pretty interesting - we really need a featureful suspend
-> implementation
-> in mainline. But there doesn't seem to be much documentation for it.
-> suspend.sf.net takes me to the Suspend 2 site: www.suspend2.net (a
-> virtual
-> server?). Which code from this site is needed for the mainline suspend?
+> >>Please explain the thinking behind the choice of a non-GPL export. 
+> >>(Yes, we discussed this when inifiniband was first merged, but it
+> >>doesn't hurt to reiterate).
+> 
+> The agreement made within the OpenIB community, from where this code originates, 
+> is that all source code be licensed under a dual license of BSD/GPL.  I am not a 
+> lawyer, so I don't know the implications of changing the exports to be GPL only, 
+> given the OpenIB license.  But my understanding is that makes using those 
+> functions less attractive.
 
-suspend.sf.net works for me , can you check again?
+no actually ;)
 
-Anyway, all the code that is needed is here:
+but I understood OpenIB to be "GPL when used in the linux kernel,
+optionally BSD when outside linux". Since EXPORT_SYMBOL is highly linux
+kernel specific... the _GPL should be just fine
 
-cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/suspend co suspend
+ 
 
-Installation is little tricky, but there's HOWTO file in repository.
-
-								Pavel
--- 
-Picture of sleeping (Linux) penguin wanted...

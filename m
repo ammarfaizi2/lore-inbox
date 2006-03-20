@@ -1,81 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWCTTeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbWCTTeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751297AbWCTTeK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 14:34:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWCTTeJ
+	id S964855AbWCTTeh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 14:34:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWCTTeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 14:34:09 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:59652 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751297AbWCTTeI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 14:34:08 -0500
-Date: Mon, 20 Mar 2006 14:33:56 -0500
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org
-Cc: gregkh@suse.de
-Subject: [RFC] pci_ids.h: correct naming of 1022:7450 (AMD 8131 Bridge)
-Message-ID: <20060320193351.GC15746@tuxdriver.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, gregkh@suse.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Mar 2006 14:34:36 -0500
+Received: from wg.technophil.ch ([213.189.149.230]:27340 "HELO
+	hydrogenium.schottelius.org") by vger.kernel.org with SMTP
+	id S964855AbWCTTeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 14:34:23 -0500
+Date: Mon, 20 Mar 2006 20:34:11 +0100
+From: Nico Schottelius <nico-kernel-20060320@schottelius.org>
+To: Arthur Othieno <apgo@patchbomb.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] doc: Updated Documentation/nfsroot.txt
+Message-ID: <20060320193411.GB16943@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel-20060320@schottelius.org>,
+	Arthur Othieno <apgo@patchbomb.org>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <20060318110232.GB4336@schottelius.org> <20060318145548.GA2255@krypton>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="QTprm0S8XgL7H0Dt"
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060318145548.GA2255@krypton>
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.15.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The naming of the constant defined for PCI ID 1022:7450 does not seem
-to match the information at http://pciids.sourceforge.net/:
 
-	http://pci-ids.ucw.cz/iii/?i=1022
+--QTprm0S8XgL7H0Dt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-There 1022:7450 is listed as "AMD-8131 PCI-X Bridge" while 1022:7451
-is listed as "AMD-8131 PCI-X IOAPIC".  Yet, the current definition for
-0x7450 is PCI_DEVICE_ID_AMD_8131_APIC.	It seems to me like that name
-should map to 0x7451, while a name like PCI_DEVICE_ID_AMD_8131_BRIDGE
-should map to 0x7450.
+Arthur Othieno [Sat, Mar 18, 2006 at 09:55:48AM -0500]:
+> [...]=20
+> Setting From: address on your end is trivial. Having to jump through
+> hoops like these to provide any feedback is just a waste of peoples'
+> time, really.
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
-There is a PCI quirk that matches 1022:7450.  Even though that is
-specifically related to the IOAPIC, I have to believe that it needs to
-continue pointing at that ID.  Does anyone have any better information?
+Sorry, did not really see that is so annoying.=20
 
-The reason I'm interested is because I have a tg3 patch that needs to
-reference 1022:7450.  I could use the existing pci_ids.h definition,
-but it just seems wrong.  So, it seems like it makes sense to fix
-it now?
+So now you can reply directly to me.
 
- drivers/pci/quirks.c    |    2 +-
- include/linux/pci_ids.h |    3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+Nico
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index dda6099..eb4c95b 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -589,7 +589,7 @@ static void __init quirk_amd_8131_ioapic
-                 pci_write_config_byte( dev, AMD8131_MISC, tmp);
-         }
- } 
--DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8131_APIC,         quirk_amd_8131_ioapic ); 
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8131_BRIDGE, quirk_amd_8131_ioapic); 
- 
- static void __init quirk_svw_msi(struct pci_dev *dev)
- {
-diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-index 751eea5..d2bdc25 100644
---- a/include/linux/pci_ids.h
-+++ b/include/linux/pci_ids.h
-@@ -496,7 +496,8 @@
- #define PCI_DEVICE_ID_AMD_8111_SMBUS	0x746b
- #define PCI_DEVICE_ID_AMD_8111_AUDIO	0x746d
- #define PCI_DEVICE_ID_AMD_8151_0	0x7454
--#define PCI_DEVICE_ID_AMD_8131_APIC     0x7450
-+#define PCI_DEVICE_ID_AMD_8131_BRIDGE	0x7450
-+#define PCI_DEVICE_ID_AMD_8131_APIC	0x7451
- #define PCI_DEVICE_ID_AMD_CS5536_ISA    0x2090
- #define PCI_DEVICE_ID_AMD_CS5536_FLASH  0x2091
- #define PCI_DEVICE_ID_AMD_CS5536_AUDIO  0x2093
--- 
-John W. Linville
-linville@tuxdriver.com
+--=20
+:x
+
+--QTprm0S8XgL7H0Dt
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iQIVAwUBRB8Ds7OTBMvCUbrlAQKj7Q/+OzjLhhCWaC3ykF3Ip1IQioIMHbXja5+U
+xUvXvtuSOzGAORa8R1pRlA1Q4S+tgnUCrEweupNxcodBlHOdBC5RhvH/sVFgTRwR
+CQIgR6lRWTYksFIVOUo5K7f995YGcf4ABTMlcent+e0Ba9IFa7eykl4idbw+i+n6
+q4v5anXIHhAazmid3ZHMPwzUrGIRuC/KUz3zI8tMsGBw+MRcPZtBK5IaMwYoJKBi
+3koO6YVDwmHdlZq7WoNfJU1Iwa2ORROt5OUw+RNLI+sk1RkGkYXQ/t6d+YlDdwPn
++5VupTjKqa8vcKPuPh1kz2sV2c23WTr6LmcD2Yn+cOBJVh3PfL7yS7xlPJeLzWpv
++VWdAiT9B+Aoce0CV62Aj2skjs3Em6XYP9+jE6NPCW5EdGLW5Wrxlq3n1AMFHprQ
+Aq4zdo2dEdnGxmPZRC5VP+foh9A4XcYBG3sN3Kxx0e+ctk6wT1nK/UaT1eci4tCr
+v5yR7UQ+edWhgrLSAbqT5TliOcKZBRBzxkTQzo3EjOEJau/RoQD8ZqOQaIBr9Pme
+ZHFonJnd18FowuyKVO6R7XPqedM/b9ccnPcfu0sUXo5oRM74BBnXmWoePPf/3IHI
+frmdiNYY3DomBpfzGoWrn7yMvxYG6/pKR6a95vpCR9j8bASV0IhR8Jq5rx3BPt6c
+guhTDts9bKU=
+=9JyY
+-----END PGP SIGNATURE-----
+
+--QTprm0S8XgL7H0Dt--

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030441AbWCTWCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030507AbWCTWCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030441AbWCTWCK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 17:02:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030507AbWCTWCE
+	id S1030507AbWCTWCL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 17:02:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030544AbWCTWBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 17:02:04 -0500
-Received: from mail.kroah.org ([69.55.234.183]:50361 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030441AbWCTWBG (ORCPT
+	Mon, 20 Mar 2006 17:01:55 -0500
+Received: from mail.kroah.org ([69.55.234.183]:52665 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030521AbWCTWBK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 17:01:06 -0500
-Cc: Eric Dumazet <dada1@cosmosbay.com>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 06/23] kref: avoid an atomic operation in kref_put()
-In-Reply-To: <11428920383977-git-send-email-gregkh@suse.de>
+	Mon, 20 Mar 2006 17:01:10 -0500
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 16/23] Kobject: provide better warning messages when people do stupid things
+In-Reply-To: <1142892038430-git-send-email-gregkh@suse.de>
 X-Mailer: git-send-email
 Date: Mon, 20 Mar 2006 14:00:38 -0800
-Message-Id: <11428920383213-git-send-email-gregkh@suse.de>
+Message-Id: <11428920383371-git-send-email-gregkh@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg Kroah-Hartman <gregkh@suse.de>
@@ -24,37 +24,62 @@ From: Greg Kroah-Hartman <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avoid an atomic operation in kref_put() when the last reference is
-dropped. On most platforms, atomic_read() is a plan read of the counter
-and involves no atomic at all.
+Now that kobject_add() is used more than kobject_register() the kernel
+wasn't always letting people know that they were doing something wrong.
+This change fixes this.
 
-Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
 
- lib/kref.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletions(-)
+ lib/kobject.c |   22 ++++++++++++++--------
+ 1 files changed, 14 insertions(+), 8 deletions(-)
 
-8b5536bbee53620f8d5f367987e5727ba36d886d
-diff --git a/lib/kref.c b/lib/kref.c
-index 0d07cc3..4a467fa 100644
---- a/lib/kref.c
-+++ b/lib/kref.c
-@@ -52,7 +52,12 @@ int kref_put(struct kref *kref, void (*r
- 	WARN_ON(release == NULL);
- 	WARN_ON(release == (void (*)(struct kref *))kfree);
- 
--	if (atomic_dec_and_test(&kref->refcount)) {
-+	/*
-+	 * if current count is one, we are the last user and can release object
-+	 * right now, avoiding an atomic operation on 'refcount'
-+	 */
-+	if ((atomic_read(&kref->refcount) == 1) ||
-+	    (atomic_dec_and_test(&kref->refcount))) {
- 		release(kref);
- 		return 1;
+dcd0da002122a70fe1c625c0ca9f58c95aa33ebe
+diff --git a/lib/kobject.c b/lib/kobject.c
+index efe67fa..36668c8 100644
+--- a/lib/kobject.c
++++ b/lib/kobject.c
+@@ -194,6 +194,17 @@ int kobject_add(struct kobject * kobj)
+ 		unlink(kobj);
+ 		if (parent)
+ 			kobject_put(parent);
++
++		/* be noisy on error issues */
++		if (error == -EEXIST)
++			printk("kobject_add failed for %s with -EEXIST, "
++			       "don't try to register things with the "
++			       "same name in the same directory.\n",
++			       kobject_name(kobj));
++		else
++			printk("kobject_add failed for %s (%d)\n",
++			       kobject_name(kobj), error);
++		dump_stack();
  	}
+ 
+ 	return error;
+@@ -207,18 +218,13 @@ int kobject_add(struct kobject * kobj)
+ 
+ int kobject_register(struct kobject * kobj)
+ {
+-	int error = 0;
++	int error = -EINVAL;
+ 	if (kobj) {
+ 		kobject_init(kobj);
+ 		error = kobject_add(kobj);
+-		if (error) {
+-			printk("kobject_register failed for %s (%d)\n",
+-			       kobject_name(kobj),error);
+-			dump_stack();
+-		} else
++		if (!error)
+ 			kobject_uevent(kobj, KOBJ_ADD);
+-	} else
+-		error = -EINVAL;
++	}
+ 	return error;
+ }
+ 
 -- 
 1.2.4
 

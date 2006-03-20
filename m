@@ -1,39 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751565AbWCTEpz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751583AbWCTErr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751565AbWCTEpz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Mar 2006 23:45:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751562AbWCTEpy
+	id S1751583AbWCTErr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Mar 2006 23:47:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751584AbWCTErr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Mar 2006 23:45:54 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:2071 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751557AbWCTEpx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Mar 2006 23:45:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=XNbab9vq+w7Rr9FTd/glyv29206G8ygZdajZ00+g9TrzMKTNiUZS+cmUnvlwIKIDiE7c5hA5vlosXLYc6GwjtNORdaVngTyEbBaJoGyCh2hDvr+8R2bN8DmXLkZqFibWl+BADrsqDb0rQxPL4+ZPVOrewa7dp76Crd9SgX7rvFg=
-Message-ID: <787b0d920603192045y76e99e32p4ddde31961f80bb9@mail.gmail.com>
-Date: Sun, 19 Mar 2006 23:45:52 -0500
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
-       akpm@osdl.org, ebiederm@xmission.com, janak@us.ibm.com,
-       viro@ftp.linux.org.uk, hch@lst.de, ak@muc.de, paulus@samba.org,
-       mtk-manpages@gmx.net
-Subject: Re: [PATCH] unshare: Cleanup up the sys_unshare interface before we are committed.
+	Sun, 19 Mar 2006 23:47:47 -0500
+Received: from mx2.suse.de ([195.135.220.15]:8903 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751562AbWCTErr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Mar 2006 23:47:47 -0500
+From: Neil Brown <neilb@suse.de>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Date: Mon, 20 Mar 2006 15:46:22 +1100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17438.13214.307942.212773@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Who uses the 'nodev' flag in /proc/filesystems ???
+In-Reply-To: message from Jan Engelhardt on Sunday March 19
+References: <17436.60328.242450.249552@cse.unsw.edu.au>
+	<Pine.LNX.4.61.0603191024420.1409@yvahk01.tjqt.qr>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The unshare() syscall is in fact a clone() syscall minus one
-CLONE_* flag that is normally implied: CLONE_TASK_STRUCT.
-(conceptually -- it has no name because it is always implied)
+On Sunday March 19, jengelh@linux01.gwdg.de wrote:
+> >
+> >Hence the question in the subject:
+> >
+> >  Who uses the 'nodev' flag in /proc/filesystems?
+> >
+> >Are there any known users of this flag?
+> >
+> 
+> pam_mount. If a specific filesystem is nodev, --bind or --move, fsck is 
+> skipped. If you want to change /proc/filesystems, you can do so as long as 
+> you provide an alternative ;) Does not need to be stable, as 
+> /proc/filesystems is only used when a volume is initially mounted in 
+> pam_mount.
 
-We already have one flag with inverted action: CLONE_NEWNS.
-Adding another such flag (for the task struct) makes sense.
-The new system call is thus not needed at all.
+Pam_mount .. (google...) you learn something new every day, don't you!
 
-Suggested names: CLONE_NO_TASK, CLONE_SAMETASK, CLONE_SHARETASK
+That sounds like a reasonable usage of 'nodev', though testing for
+/sbin/fsck.$FSTYPE might do as well...
+
+I guess in my case I could live without the auto-fsck, and as there
+isn't necessarily just one device to take part in the fsck, it might
+be awkward anyway.
+
+Thanks.
+
+I wonder if there are any others....
+
+NeilBrown

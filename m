@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbWCTPXU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965273AbWCTPWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964983AbWCTPXU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:23:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965275AbWCTPXG
+	id S965273AbWCTPWW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:22:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966834AbWCTPVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:23:06 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:58082 "EHLO
+	Mon, 20 Mar 2006 10:21:50 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:48098 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965278AbWCTPW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:22:58 -0500
+	id S966841AbWCTPVm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:21:42 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Michael Krufky <mkrufky@linuxtv.org>,
+Cc: linux-dvb-maintainer@linuxtv.org,
+       Markus Rechberger <mrechberger@gmail.com>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 068/141] V4L/DVB (3316): Add initial support for KWorld
-	HardwareMpegTV XPert
-Date: Mon, 20 Mar 2006 12:08:48 -0300
-Message-id: <20060320150848.PS327338000068@infradead.org>
+Subject: [PATCH 080/141] V4L/DVB (3293): Fixed amux hauppauge
+	hvr900/terratec hybrid xs
+Date: Mon, 20 Mar 2006 12:08:50 -0300
+Message-id: <20060320150850.PS380181000080@infradead.org>
 In-Reply-To: <20060320150819.PS760228000000@infradead.org>
 References: <20060320150819.PS760228000000@infradead.org>
 Mime-Version: 1.0
@@ -28,84 +29,91 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael Krufky <mkrufky@linuxtv.org>
-Date: 1139302154 -0200
+From: Markus Rechberger <mrechberger@gmail.com>
+Date: 1141009654 -0300
 
-- Add initial support for KWorld HardwareMpegTV XPert.
-- uses silicon tuner: tda8290 + tda8275
-- standard video using cx88 broadcast decoder is working.
-- blackbird mpeg encoder support (cx23416) not yet working.
-- FM radio untested.
-- audio is only working correctly in television mode,
-  all other modes disabled.
+Fixed amux hauppauge hvr900/terratec hybrid xs
 
-Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
+Signed-off-by: Markus Rechberger <mrechberger@gmail.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
-diff --git a/Documentation/video4linux/CARDLIST.cx88 b/Documentation/video4linux/CARDLIST.cx88
-diff --git a/Documentation/video4linux/CARDLIST.cx88 b/Documentation/video4linux/CARDLIST.cx88
-index 8bea3fb..d852ad4 100644
---- a/Documentation/video4linux/CARDLIST.cx88
-+++ b/Documentation/video4linux/CARDLIST.cx88
-@@ -43,3 +43,4 @@
-  42 -> digitalnow DNTV Live! DVB-T Pro                     [1822:0025]
-  43 -> KWorld/VStream XPert DVB-T with cx22702             [17de:08a1]
-  44 -> DViCO FusionHDTV DVB-T Dual Digital                 [18ac:db50,18ac:db54]
-+ 45 -> KWorld HardwareMpegTV XPert                         [17de:0840]
-diff --git a/drivers/media/video/cx88/cx88-cards.c b/drivers/media/video/cx88/cx88-cards.c
-diff --git a/drivers/media/video/cx88/cx88-cards.c b/drivers/media/video/cx88/cx88-cards.c
-index 1bc9992..f2ae047 100644
---- a/drivers/media/video/cx88/cx88-cards.c
-+++ b/drivers/media/video/cx88/cx88-cards.c
-@@ -1048,6 +1048,25 @@ struct cx88_board cx88_boards[] = {
- 		}},
- 		.dvb            = 1,
- 	},
-+	[CX88_BOARD_KWORLD_HARDWARE_MPEG_TV_XPERT] = {
-+		/* FIXME: This card is shipped without a windows tv app,
-+		 * so I haven't been able to use regspy to figure out the GPIO
-+		 * settings. Standard video using the cx88 broadcast decoder is
-+		 * working, but blackbird isn't working yet, audio is only
-+		 * working correctly for television mode. S-Video and Composite
-+		 * are working for video-only, so I have them disabled for now.
-+		 */
-+		.name           = "KWorld HardwareMpegTV XPert",
-+		.tuner_type     = TUNER_PHILIPS_TDA8290,
-+		.radio_type     = UNSET,
-+		.tuner_addr	= ADDR_UNSET,
-+		.radio_addr	= ADDR_UNSET,
-+		.input          = {{
-+			.type   = CX88_VMUX_TELEVISION,
-+			.vmux   = 0,
-+			.gpio0  = 0x07fa,
-+		}},
-+	},
+diff --git a/drivers/media/video/em28xx/em28xx-cards.c b/drivers/media/video/em28xx/em28xx-cards.c
+diff --git a/drivers/media/video/em28xx/em28xx-cards.c b/drivers/media/video/em28xx/em28xx-cards.c
+index fc58907..00665d6 100644
+--- a/drivers/media/video/em28xx/em28xx-cards.c
++++ b/drivers/media/video/em28xx/em28xx-cards.c
+@@ -101,7 +101,7 @@ struct em28xx_board em28xx_boards[] = {
+ 		.input          = {{
+ 			.type     = EM28XX_VMUX_TELEVISION,
+ 			.vmux     = 2,
+-			.amux     = 0,
++			.amux     = 1,
+ 		},{
+ 			.type     = EM28XX_VMUX_COMPOSITE1,
+ 			.vmux     = 0,
+@@ -165,11 +165,11 @@ struct em28xx_board em28xx_boards[] = {
+ 		.input          = {{
+ 			.type     = EM28XX_VMUX_COMPOSITE1,
+ 			.vmux     = 2,
+-			.amux     = 0,
++			.amux     = 1,
+ 		},{
+ 			.type     = EM28XX_VMUX_TELEVISION,
+ 			.vmux     = 0,
+-			.amux     = 1,
++			.amux     = 0,
+ 		},{
+ 			.type     = EM28XX_VMUX_SVIDEO,
+ 			.vmux     = 9,
+@@ -185,12 +185,12 @@ struct em28xx_board em28xx_boards[] = {
+ 		.tuner_type   = TUNER_XCEIVE_XC3028,
+ 		.decoder      = EM28XX_TVP5150,
+ 		.input          = {{
+-			.type     = EM28XX_VMUX_COMPOSITE1,
+-			.vmux     = 2,
+-			.amux     = 0,
+-		},{
+ 			.type     = EM28XX_VMUX_TELEVISION,
+ 			.vmux     = 0,
++			.amux     = 0,
++		},{
++			.type     = EM28XX_VMUX_COMPOSITE1,
++			.vmux     = 2,
+ 			.amux     = 1,
+ 		},{
+ 			.type     = EM28XX_VMUX_SVIDEO,
+diff --git a/drivers/media/video/em28xx/em28xx-video.c b/drivers/media/video/em28xx/em28xx-video.c
+diff --git a/drivers/media/video/em28xx/em28xx-video.c b/drivers/media/video/em28xx/em28xx-video.c
+index 671fc52..f56ae48 100644
+--- a/drivers/media/video/em28xx/em28xx-video.c
++++ b/drivers/media/video/em28xx/em28xx-video.c
+@@ -222,8 +222,8 @@ static int em28xx_config(struct em28xx *
  
- };
- const unsigned int cx88_bcount = ARRAY_SIZE(cx88_boards);
-@@ -1254,6 +1273,10 @@ struct cx88_subid cx88_subids[] = {
- 		.subdevice = 0xdb11,
- 		.card      = CX88_BOARD_DVICO_FUSIONHDTV_DVB_T_PLUS,
- 		/* Re-branded DViCO: UltraView DVB-T Plus */
-+	},{
-+		.subvendor = 0x17de,
-+		.subdevice = 0x0840,
-+		.card      = CX88_BOARD_KWORLD_HARDWARE_MPEG_TV_XPERT,
- 	},
- };
- const unsigned int cx88_idcount = ARRAY_SIZE(cx88_subids);
-diff --git a/drivers/media/video/cx88/cx88.h b/drivers/media/video/cx88/cx88.h
-diff --git a/drivers/media/video/cx88/cx88.h b/drivers/media/video/cx88/cx88.h
-index e9fd55b..31a688a 100644
---- a/drivers/media/video/cx88/cx88.h
-+++ b/drivers/media/video/cx88/cx88.h
-@@ -187,6 +187,7 @@ extern struct sram_channel cx88_sram_cha
- #define CX88_BOARD_DNTV_LIVE_DVB_T_PRO     42
- #define CX88_BOARD_KWORLD_DVB_T_CX22702    43
- #define CX88_BOARD_DVICO_FUSIONHDTV_DVB_T_DUAL 44
-+#define CX88_BOARD_KWORLD_HARDWARE_MPEG_TV_XPERT 45
+ 	/* enable vbi capturing */
  
- enum cx88_itype {
- 	CX88_VMUX_COMPOSITE1 = 1,
+-	em28xx_write_regs_req(dev,0x00,0x0e,"\xC0",1);
+-	em28xx_write_regs_req(dev,0x00,0x0f,"\x80",1);
++/*	em28xx_write_regs_req(dev,0x00,0x0e,"\xC0",1); audio register */
++/*	em28xx_write_regs_req(dev,0x00,0x0f,"\x80",1); clk register */
+ 	em28xx_write_regs_req(dev,0x00,0x11,"\x51",1);
+ 
+ 	em28xx_audio_usb_mute(dev, 1);
+@@ -313,11 +313,11 @@ static void video_mux(struct em28xx *dev
+ 		em28xx_audio_source(dev, ainput);
+ 	} else {
+ 		switch (dev->ctl_ainput) {
+-		case 0:
+-			ainput = EM28XX_AUDIO_SRC_TUNER;
+-			break;
+-		default:
+-			ainput = EM28XX_AUDIO_SRC_LINE;
++			case 0:
++				ainput = EM28XX_AUDIO_SRC_TUNER;
++				break;
++			default:
++				ainput = EM28XX_AUDIO_SRC_LINE;
+ 		}
+ 		em28xx_audio_source(dev, ainput);
+ 	}
 

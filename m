@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWCTMCb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWCTMDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbWCTMCb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 07:02:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWCTMCb
+	id S932090AbWCTMDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 07:03:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWCTMDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 07:02:31 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9483 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932068AbWCTMCa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 07:02:30 -0500
-Date: Mon, 20 Mar 2006 13:02:29 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.16.x will be a long-living kernel series
-Message-ID: <20060320120229.GB22317@stusta.de>
-References: <Pine.LNX.4.64.0603192216450.3622@g5.osdl.org>
-MIME-Version: 1.0
+	Mon, 20 Mar 2006 07:03:25 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:23448 "EHLO mtlexch01.mtl.com")
+	by vger.kernel.org with ESMTP id S932090AbWCTMDY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 07:03:24 -0500
+Date: Mon, 20 Mar 2006 14:04:07 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Lennert Buytenhek <buytenh@wantstofly.org>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       "David S. Miller" <davem@davemloft.net>, rick.jones2@hp.com,
+       netdev@vger.kernel.org, rdreier@cisco.com, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: TSO and IPoIB performance degradation
+Message-ID: <20060320120407.GY29929@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20060320090629.GA11352@mellanox.co.il> <20060320.015500.72136710.davem@davemloft.net> <20060320102234.GV29929@mellanox.co.il> <20060320.023704.70907203.davem@davemloft.net> <20060320112753.GX29929@mellanox.co.il> <1142855223.3114.30.camel@laptopd505.fenrus.org> <20060320114933.GA3058@xi.wantstofly.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0603192216450.3622@g5.osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060320114933.GA3058@xi.wantstofly.org>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 20 Mar 2006 12:06:03.0421 (UTC) FILETIME=[A8F444D0:01C64C16]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As proposed some time ago [1], I'll continue the 2.6.16.x series after 
-2.6.17 will be released.
+Quoting r. Lennert Buytenhek <buytenh@wantstofly.org>:
+> > > > I disagree with Linux changing it's behavior.  It would be great to
+> > > > turn off congestion control completely over local gigabit networks,
+> > > > but that isn't determinable in any way, so we don't do that.
+> > > 
+> > > Interesting. Would it make sense to make it another tunable knob in
+> > > /proc, sysfs or sysctl then?
+> > 
+> > that's not the right level; since that is per interface. And you only
+> > know the actual interface waay too late (as per earlier posts).
+> > Per socket.. maybe
+> > But then again it's not impossible to have packets for one socket go out
+> > to multiple interfaces
+> > (think load balancing bonding over 2 interfaces, one IB another
+> > ethernet)
+> 
+> I read it as if he was proposing to have a sysctl knob to turn off
+> TCP congestion control completely (which has so many issues it's not
+> even funny.)
 
-A short FAQ is below.
+Not really, that was David :)
 
-cu
-Adrian
+What started this thread was the fact that since 2.6.11 Linux
+does not stretch ACKs anymore. RFC 2581 does mention that it might be OK to
+stretch ACKs "after careful consideration", and we are seeing that it helps
+IP over InfiniBand, so recent Linux kernels perform worse in that respect.
 
-[1] http://lkml.org/lkml/2005/12/3/55
+And since there does not seem to be a way to figure it out automagically when
+doing this is a good idea, I proposed adding some kind of knob that will let the
+user apply the consideration for us.
 
-
-Q:
-What will be the rules for patch inclusion in the 2.6.16.x series?
-
-A:
-There will be more relaxed rules similar to the rules in kernel 2.4 
-after the release of kernel 2.6.0 (e.g. driver updates will be allowed).
-
-
-Q:
-Why not start with the more relaxed rules before the release of 2.6.17?
-
-A:
-After 2.6.16.y following the usual stable rules, the kernel should be 
-relatively stable and well-tested giving the best possible basis for a 
-long-living series.
-
-
-Q:
-How long will this 2.6.16 series be maintained?
-
-A:
-That depends on how long people use it and contribute patches.
-
-
-Q:
-Stable API/ABI for external modules?
-
-A:
-No.
-
+-- 
+Michael S. Tsirkin
+Staff Engineer, Mellanox Technologies

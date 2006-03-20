@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWCTOOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWCTOST@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964773AbWCTOOP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 09:14:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWCTOOP
+	id S964809AbWCTOST (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 09:18:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWCTOSS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 09:14:15 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:11441 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964773AbWCTOOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 09:14:14 -0500
-Subject: Re: [3/3 PATCH] Kprobes: User space probes support- single
-	stepping out-of-line
-From: Arjan van de Ven <arjan@infradead.org>
-To: prasanna@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, ak@suse.de, davem@davemloft.net,
-       suparna@in.ibm.com, richardj_moore@uk.ibm.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060320140503.GB18975@in.ibm.com>
-References: <20060320060745.GC31091@in.ibm.com>
-	 <20060320060931.GD31091@in.ibm.com> <20060320061014.GE31091@in.ibm.com>
-	 <20060320061123.GF31091@in.ibm.com> <20060320030922.4ea9445b.akpm@osdl.org>
-	 <1142853841.3114.27.camel@laptopd505.fenrus.org>
-	 <20060320140503.GB18975@in.ibm.com>
-Content-Type: text/plain
-Date: Mon, 20 Mar 2006 15:13:48 +0100
-Message-Id: <1142864028.3114.51.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 20 Mar 2006 09:18:18 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:7565 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S964809AbWCTOSS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 09:18:18 -0500
+Date: Mon, 20 Mar 2006 22:24:10 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] latency-tracing-v2.6.16
+Message-ID: <20060320142409.GA5769@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <20060320101307.GA15477@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060320101307.GA15477@elte.hu>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-20 at 19:35 +0530, Prasanna S Panchamukhi wrote:
-> On Mon, Mar 20, 2006 at 12:24:01PM +0100, Arjan van de Ven wrote:
-> > 
-> > Lines: 16
-> > 
-> > > And we'll need to actually *be* in-atomic.  That means we need an
-> > > open-coded inc_preempt_count() and dec_preempt_count() in there and I don't
-> > > see them.
-> > > 
-> > 
-> > ..
-> > 
-> > > Why is VM_LOCKED being set? (It needs a comment).
-> > > 
-> > > Where does it get unset?
-> > 
-> > 
-> > if this is an attempt to make the copy_in_atomic to be atomic, then it
-> > is a bug; the user can unset this bit after all via mprotect, even from
-> > another thread, and concurrently. U
+On Mon, Mar 20, 2006 at 11:13:07AM +0100, Ingo Molnar wrote:
+> i've released the latency-tracer patch for v2.6.16:
 > 
-> You are right, the purpose was to make copy_to_user_inatomic() to suceed. I
-> need to look at this issue again. Any suggestions?
+>    http://redhat.com/~mingo/latency-tracing-patches/latency-tracing-v2.6.16.patch
+ 
+Thanks, it helps a lot :)
 
-get_user_pages seems to be the only viable API for this..
+> max scheduling latencies can be tracked via the enabling of 
+> CONFIG_WAKEUP_TIMING. Tracking can be started via the resetting of the 
+> max latency:
+> 
+> 	echo 0 > /proc/sys/kernel/preempt_max_latency
+> 
+> if CONFIG_LATENCY_TRACE is enabled too then an execution trace will be 
+> automatically generated as well, accessible via /proc/latency_trace.
 
+In fact that is not enough.
+In include/asm-i386/timex.h, get_cycles() is defined as
 
+        static inline cycles_t get_cycles (void)
+        {
+                unsigned long long ret=0;
+        
+        #ifndef CONFIG_X86_TSC
+                if (!cpu_has_tsc)
+                        return 0;
+        #endif
+        
+        #if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
+                rdtscll(ret);
+        #endif
+                return ret;
+        }
+
+If one (as I did at the first attempt) selects a CPU type of
+"586/K5/5x86/6x86/6x86MX", he will get nothing from /proc/latency_trace.
+
+So does it make sense to add dependency lines like the following one?
+
+        depends on (!X86_32 || X86_GENERIC || X86_TSC)
+
+Cheers,
+Wu

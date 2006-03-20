@@ -1,23 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbWCTP2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965332AbWCTP31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965006AbWCTP2n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:28:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965324AbWCTP2m
+	id S965332AbWCTP31 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:29:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965328AbWCTP3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:28:42 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:57272 "EHLO
+	Mon, 20 Mar 2006 10:29:17 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:58808 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965323AbWCTP2g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:28:36 -0500
+	id S965316AbWCTP2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:28:44 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>,
+Cc: linux-dvb-maintainer@linuxtv.org, Jiri Slaby <xslaby@fi.muni.cz>,
+       Jiri Slaby <jirislaby@gmail.com>, Andrew Morton <akpm@osdl.org>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 071/141] V4L/DVB (3318c): fix saa7146 kobject register
-	failure
-Date: Mon, 20 Mar 2006 12:08:48 -0300
-Message-id: <20060320150848.PS870631000071@infradead.org>
+Subject: [PATCH 036/141] V4L/DVB (3439a): media video stradis memory fix
+Date: Mon, 20 Mar 2006 12:08:43 -0300
+Message-id: <20060320150843.PS016578000036@infradead.org>
 In-Reply-To: <20060320150819.PS760228000000@infradead.org>
 References: <20060320150819.PS760228000000@infradead.org>
 Mime-Version: 1.0
@@ -29,42 +28,69 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dave Jones <davej@redhat.com>
-Date: 1139302155 -0200
+From: Jiri Slaby <xslaby@fi.muni.cz>
+Date: 1138137306 -0800
 
-Whoops.
+memset clears once set structure, there is actually no need for memset,
+because configure function do it for us.  Next, vfree(NULL) is legal, so
+avoid useless labels.
 
-kobject_register failed for hexium HV-PCI6/Orion (-13)
-[<c01d3eb6>] kobject_register+0x31/0x47
-[<c023a996>] bus_add_driver+0x4a/0xfd
-[<c01de3c1>] __pci_register_driver+0x82/0xa4
-[<d083400a>] hexium_init_module+0xa/0x47 [hexium_orion]
-[<c013bdae>] sys_init_module+0x167b/0x1822
-[<c01633f7>] do_sync_read+0xb8/0xf3
-[<c0133fa3>] autoremove_wake_function+0x0/0x2d
-[<c0145390>] audit_syscall_entry+0x118/0x13f
-[<c0106ae2>] do_syscall_trace+0x104/0x14a
-[<c0103d21>] syscall_call+0x7/0xb
+Thanks Dave Jones for reporting this.
 
-slashes in kobject names aren't allowed.
-
-Signed-off-by: Dave Jones <davej@redhat.com>
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
-diff --git a/drivers/media/video/hexium_orion.c b/drivers/media/video/hexium_orion.c
-diff --git a/drivers/media/video/hexium_orion.c b/drivers/media/video/hexium_orion.c
-index 0b6c209..aad4a18 100644
---- a/drivers/media/video/hexium_orion.c
-+++ b/drivers/media/video/hexium_orion.c
-@@ -484,7 +484,7 @@ static struct saa7146_ext_vv vv_data = {
- };
+diff --git a/drivers/media/video/stradis.c b/drivers/media/video/stradis.c
+diff --git a/drivers/media/video/stradis.c b/drivers/media/video/stradis.c
+index 54fc330..9d76926 100644
+--- a/drivers/media/video/stradis.c
++++ b/drivers/media/video/stradis.c
+@@ -2012,7 +2012,6 @@ static int __devinit init_saa7146(struct
+ {
+ 	struct saa7146 *saa = pci_get_drvdata(pdev);
  
- static struct saa7146_extension extension = {
--	.name = "hexium HV-PCI6/Orion",
-+	.name = "hexium HV-PCI6 Orion",
- 	.flags = 0,		// SAA7146_USE_I2C_IRQ,
+-	memset(saa, 0, sizeof(*saa));
+ 	saa->user = 0;
+ 	/* reset the saa7146 */
+ 	saawrite(0xffff0000, SAA7146_MC1);
+@@ -2062,16 +2061,16 @@ static int __devinit init_saa7146(struct
+ 	}
+ 	if (saa->audbuf == NULL && (saa->audbuf = vmalloc(65536)) == NULL) {
+ 		dev_err(&pdev->dev, "%d: malloc failed\n", saa->nr);
+-		goto errvid;
++		goto errfree;
+ 	}
+ 	if (saa->osdbuf == NULL && (saa->osdbuf = vmalloc(131072)) == NULL) {
+ 		dev_err(&pdev->dev, "%d: malloc failed\n", saa->nr);
+-		goto erraud;
++		goto errfree;
+ 	}
+ 	/* allocate 81920 byte buffer for clipping */
+ 	if ((saa->dmavid2 = kzalloc(VIDEO_CLIPMAP_SIZE, GFP_KERNEL)) == NULL) {
+ 		dev_err(&pdev->dev, "%d: clip kmalloc failed\n", saa->nr);
+-		goto errosd;
++		goto errfree;
+ 	}
+ 	/* setup clipping registers */
+ 	saawrite(virt_to_bus(saa->dmavid2), SAA7146_BASE_EVEN2);
+@@ -2085,15 +2084,11 @@ static int __devinit init_saa7146(struct
+ 	I2CBusScan(saa);
  
- 	.pci_tbl = &pci_tbl[0],
+ 	return 0;
+-errosd:
++errfree:
+ 	vfree(saa->osdbuf);
+-	saa->osdbuf = NULL;
+-erraud:
+ 	vfree(saa->audbuf);
+-	saa->audbuf = NULL;
+-errvid:
+ 	vfree(saa->vidbuf);
+-	saa->vidbuf = NULL;
++	saa->audbuf = saa->osdbuf = saa->vidbuf = NULL;
+ err:
+ 	return -ENOMEM;
+ }
 

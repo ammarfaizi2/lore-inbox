@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbWCTP16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbWCTP2n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964875AbWCTP16 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:27:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWCTP1b
+	id S965006AbWCTP2n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:28:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965324AbWCTP2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:27:31 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:44472 "EHLO
+	Mon, 20 Mar 2006 10:28:42 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:57272 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964875AbWCTP07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:26:59 -0500
+	id S965323AbWCTP2g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:28:36 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Andreas Oberritter <obi@linuxtv.org>,
+Cc: linux-dvb-maintainer@linuxtv.org, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 107/141] V4L/DVB (3375): Add AUDIO_GET_PTS and
-	VIDEO_GET_PTS ioctls
-Date: Mon, 20 Mar 2006 12:08:54 -0300
-Message-id: <20060320150854.PS813737000107@infradead.org>
+Subject: [PATCH 071/141] V4L/DVB (3318c): fix saa7146 kobject register
+	failure
+Date: Mon, 20 Mar 2006 12:08:48 -0300
+Message-id: <20060320150848.PS870631000071@infradead.org>
 In-Reply-To: <20060320150819.PS760228000000@infradead.org>
 References: <20060320150819.PS760228000000@infradead.org>
 Mime-Version: 1.0
@@ -28,61 +29,42 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andreas Oberritter <obi@linuxtv.org>
-Date: 1141009740 -0300
+From: Dave Jones <davej@redhat.com>
+Date: 1139302155 -0200
 
-Add two new ioctls to read the 33 bit presentation time stamp from audio
-and video devices as defined in ITU T-REC-H.222.0 and ISO/IEC 13818-1.
-Acked-by: Johannes Stezenbach <js@linuxtv.org>
+Whoops.
 
-Signed-off-by: Andreas Oberritter <obi@linuxtv.org>
+kobject_register failed for hexium HV-PCI6/Orion (-13)
+[<c01d3eb6>] kobject_register+0x31/0x47
+[<c023a996>] bus_add_driver+0x4a/0xfd
+[<c01de3c1>] __pci_register_driver+0x82/0xa4
+[<d083400a>] hexium_init_module+0xa/0x47 [hexium_orion]
+[<c013bdae>] sys_init_module+0x167b/0x1822
+[<c01633f7>] do_sync_read+0xb8/0xf3
+[<c0133fa3>] autoremove_wake_function+0x0/0x2d
+[<c0145390>] audit_syscall_entry+0x118/0x13f
+[<c0106ae2>] do_syscall_trace+0x104/0x14a
+[<c0103d21>] syscall_call+0x7/0xb
+
+slashes in kobject names aren't allowed.
+
+Signed-off-by: Dave Jones <davej@redhat.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
-diff --git a/include/linux/dvb/audio.h b/include/linux/dvb/audio.h
-diff --git a/include/linux/dvb/audio.h b/include/linux/dvb/audio.h
-index 2b87970..0874a67 100644
---- a/include/linux/dvb/audio.h
-+++ b/include/linux/dvb/audio.h
-@@ -121,4 +121,17 @@ typedef uint16_t audio_attributes_t;
- #define AUDIO_SET_ATTRIBUTES       _IOW('o', 17, audio_attributes_t)
- #define AUDIO_SET_KARAOKE          _IOW('o', 18, audio_karaoke_t)
+diff --git a/drivers/media/video/hexium_orion.c b/drivers/media/video/hexium_orion.c
+diff --git a/drivers/media/video/hexium_orion.c b/drivers/media/video/hexium_orion.c
+index 0b6c209..aad4a18 100644
+--- a/drivers/media/video/hexium_orion.c
++++ b/drivers/media/video/hexium_orion.c
+@@ -484,7 +484,7 @@ static struct saa7146_ext_vv vv_data = {
+ };
  
-+/**
-+ * AUDIO_GET_PTS
-+ *
-+ * Read the 33 bit presentation time stamp as defined
-+ * in ITU T-REC-H.222.0 / ISO/IEC 13818-1.
-+ *
-+ * The PTS should belong to the currently played
-+ * frame if possible, but may also be a value close to it
-+ * like the PTS of the last decoded frame or the last PTS
-+ * extracted by the PES parser.
-+ */
-+#define AUDIO_GET_PTS              _IOR('o', 19, __u64)
-+
- #endif /* _DVBAUDIO_H_ */
-diff --git a/include/linux/dvb/video.h b/include/linux/dvb/video.h
-diff --git a/include/linux/dvb/video.h b/include/linux/dvb/video.h
-index b1999bf..1f7fa03 100644
---- a/include/linux/dvb/video.h
-+++ b/include/linux/dvb/video.h
-@@ -200,4 +200,17 @@ typedef uint16_t video_attributes_t;
- #define VIDEO_GET_SIZE             _IOR('o', 55, video_size_t)
- #define VIDEO_GET_FRAME_RATE       _IOR('o', 56, unsigned int)
+ static struct saa7146_extension extension = {
+-	.name = "hexium HV-PCI6/Orion",
++	.name = "hexium HV-PCI6 Orion",
+ 	.flags = 0,		// SAA7146_USE_I2C_IRQ,
  
-+/**
-+ * VIDEO_GET_PTS
-+ *
-+ * Read the 33 bit presentation time stamp as defined
-+ * in ITU T-REC-H.222.0 / ISO/IEC 13818-1.
-+ *
-+ * The PTS should belong to the currently played
-+ * frame if possible, but may also be a value close to it
-+ * like the PTS of the last decoded frame or the last PTS
-+ * extracted by the PES parser.
-+ */
-+#define VIDEO_GET_PTS              _IOR('o', 57, __u64)
-+
- #endif /*_DVBVIDEO_H_*/
+ 	.pci_tbl = &pci_tbl[0],
 

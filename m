@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965047AbWCTPxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965592AbWCTPw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965047AbWCTPxp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:53:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965053AbWCTPxk
+	id S965592AbWCTPw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965560AbWCTPw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:53:40 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:54478 "EHLO
+	Mon, 20 Mar 2006 10:52:58 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:50638 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965594AbWCTPxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:53:06 -0500
+	id S965046AbWCTPwr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:52:47 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
 Cc: linux-dvb-maintainer@linuxtv.org,
        Hartmut Hackmann <hartmut.hackmann@t-online.de>,
        Hartmut Hackmann <hartmut.hackmann@t-online.de>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 057/141] V4L/DVB (3303): TDA8290 update
-Date: Mon, 20 Mar 2006 12:08:46 -0300
-Message-id: <20060320150846.PS484551000057@infradead.org>
+Subject: [PATCH 046/141] V4L/DVB (3275): Allow SAA7134 to fall back to AM
+	sound when there is NICAM-L
+Date: Mon, 20 Mar 2006 12:08:44 -0300
+Message-id: <20060320150844.PS662155000046@infradead.org>
 In-Reply-To: <20060320150819.PS760228000000@infradead.org>
 References: <20060320150819.PS760228000000@infradead.org>
 Mime-Version: 1.0
@@ -30,71 +31,73 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Hartmut Hackmann <hartmut.hackmann@t-online.de>
-Date: 1139302149 -0200
+Date: 1139300737 -0200
 
-This patch
-- works around a bug in the I2C bridge that makes the initialization
-  of the TDA10046 fail on recent LifeView cards
-- puts the AGC output to tristate in sleep mode. This is necessary for
-  recent hybrid cards that switch the AGC via tristateing.
+This patch allows to select AM sound even if NICAM is detected.
+Proposed by Alain Frappin
 
-Signed-off-by: Hartmut Hackmann<hartmut.hackmann@t-online.de>
+Signed-off-by: Hartmut Hackmann <hartmut.hackmann@t-online.de>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
-diff --git a/drivers/media/video/tda8290.c b/drivers/media/video/tda8290.c
-diff --git a/drivers/media/video/tda8290.c b/drivers/media/video/tda8290.c
-index 7b4fb28..2b954b3 100644
---- a/drivers/media/video/tda8290.c
-+++ b/drivers/media/video/tda8290.c
-@@ -281,7 +281,7 @@ static void tda827xa_agcf(struct i2c_cli
- static void tda8290_i2c_bridge(struct i2c_client *c, int close)
- {
- 	unsigned char  enable[2] = { 0x21, 0xC0 };
--	unsigned char disable[2] = { 0x21, 0x80 };
-+	unsigned char disable[2] = { 0x21, 0x00 };
- 	unsigned char *msg;
- 	if(close) {
- 		msg = enable;
-@@ -302,6 +302,7 @@ static int tda8290_tune(struct i2c_clien
- 	unsigned char soft_reset[]  = { 0x00, 0x00 };
- 	unsigned char easy_mode[]   = { 0x01, t->tda8290_easy_mode };
- 	unsigned char expert_mode[] = { 0x01, 0x80 };
-+	unsigned char agc_out_on[]  = { 0x02, 0x00 };
- 	unsigned char gainset_off[] = { 0x28, 0x14 };
- 	unsigned char if_agc_spd[]  = { 0x0f, 0x88 };
- 	unsigned char adc_head_6[]  = { 0x05, 0x04 };
-@@ -320,6 +321,7 @@ static int tda8290_tune(struct i2c_clien
- 		      pll_stat;
+diff --git a/drivers/media/video/saa7134/saa7134-tvaudio.c b/drivers/media/video/saa7134/saa7134-tvaudio.c
+diff --git a/drivers/media/video/saa7134/saa7134-tvaudio.c b/drivers/media/video/saa7134/saa7134-tvaudio.c
+index afa4dcb..3043233 100644
+--- a/drivers/media/video/saa7134/saa7134-tvaudio.c
++++ b/drivers/media/video/saa7134/saa7134-tvaudio.c
+@@ -140,6 +140,12 @@ static struct saa7134_tvaudio tvaudio[] 
+ 		.carr2         = 5850,
+ 		.mode          = TVAUDIO_NICAM_AM,
+ 	},{
++		.name          = "SECAM-L MONO",
++		.std           = V4L2_STD_SECAM,
++		.carr1         = 6500,
++		.carr2         = -1,
++		.mode          = TVAUDIO_AM_MONO,
++	},{
+ 		.name          = "SECAM-D/K",
+ 		.std           = V4L2_STD_SECAM,
+ 		.carr1         = 6500,
+@@ -334,6 +340,12 @@ static void tvaudio_setmode(struct saa71
+ 		saa_writeb(SAA7134_STEREO_DAC_OUTPUT_SELECT,  0xa1);
+ 		saa_writeb(SAA7134_NICAM_CONFIG,              0x00);
+ 		break;
++	case TVAUDIO_AM_MONO:
++		saa_writeb(SAA7134_DEMODULATOR,               0x12);
++		saa_writeb(SAA7134_DCXO_IDENT_CTRL,           0x00);
++		saa_writeb(SAA7134_FM_DEEMPHASIS,             0x44);
++		saa_writeb(SAA7134_STEREO_DAC_OUTPUT_SELECT,  0xa0);
++		break;
+ 	case TVAUDIO_FM_SAT_STEREO:
+ 		/* not implemented (yet) */
+ 		break;
+@@ -414,6 +426,7 @@ static int tvaudio_getstereo(struct saa7
  
- 	i2c_master_send(c, easy_mode, 2);
-+	i2c_master_send(c, agc_out_on, 2);
- 	i2c_master_send(c, soft_reset, 2);
- 	msleep(1);
+ 	switch (audio->mode) {
+ 	case TVAUDIO_FM_MONO:
++	case TVAUDIO_AM_MONO:
+ 		return V4L2_TUNER_SUB_MONO;
+ 	case TVAUDIO_FM_K_STEREO:
+ 	case TVAUDIO_FM_BG_STEREO:
+@@ -480,6 +493,7 @@ static int tvaudio_setstereo(struct saa7
  
-@@ -470,6 +472,7 @@ static void standby(struct i2c_client *c
- 	struct tuner *t = i2c_get_clientdata(c);
- 	unsigned char cb1[] = { 0x30, 0xD0 };
- 	unsigned char tda8290_standby[] = { 0x00, 0x02 };
-+	unsigned char tda8290_agc_tri[] = { 0x02, 0x20 };
- 	struct i2c_msg msg = {.addr = t->tda827x_addr, .flags=0, .buf=cb1, .len = 2};
+ 	switch (audio->mode) {
+ 	case TVAUDIO_FM_MONO:
++	case TVAUDIO_AM_MONO:
+ 		/* nothing to do ... */
+ 		break;
+ 	case TVAUDIO_FM_K_STEREO:
+diff --git a/drivers/media/video/saa7134/saa7134.h b/drivers/media/video/saa7134/saa7134.h
+diff --git a/drivers/media/video/saa7134/saa7134.h b/drivers/media/video/saa7134/saa7134.h
+index 3b8f466..b638df9 100644
+--- a/drivers/media/video/saa7134/saa7134.h
++++ b/drivers/media/video/saa7134/saa7134.h
+@@ -60,6 +60,7 @@ enum saa7134_tvaudio_mode {
+ 	TVAUDIO_FM_K_STEREO   = 4,
+ 	TVAUDIO_NICAM_AM      = 5,
+ 	TVAUDIO_NICAM_FM      = 6,
++	TVAUDIO_AM_MONO	      = 7
+ };
  
- 	tda8290_i2c_bridge(c, 1);
-@@ -477,6 +480,7 @@ static void standby(struct i2c_client *c
- 		cb1[1] = 0x90;
- 	i2c_transfer(c->adapter, &msg, 1);
- 	tda8290_i2c_bridge(c, 0);
-+	i2c_master_send(c, tda8290_agc_tri, 2);
- 	i2c_master_send(c, tda8290_standby, 2);
- }
- 
-@@ -565,7 +569,7 @@ int tda8290_init(struct i2c_client *c)
- 		strlcpy(c->name, "tda8290+75a", sizeof(c->name));
- 		t->tda827x_ver = 2;
- 	}
--	tuner_info("tuner: type set to %s\n", c->name);
-+	tuner_info("type set to %s\n", c->name);
- 
- 	t->set_tv_freq    = set_tv_freq;
- 	t->set_radio_freq = set_radio_freq;
+ enum saa7134_audio_in {
 

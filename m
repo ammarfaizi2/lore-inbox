@@ -1,86 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030507AbWCTWCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030545AbWCTWDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030507AbWCTWCL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 17:02:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030544AbWCTWBz
+	id S1030545AbWCTWDm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 17:03:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030541AbWCTWDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 17:01:55 -0500
-Received: from mail.kroah.org ([69.55.234.183]:52665 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030521AbWCTWBK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 17:01:10 -0500
-Cc: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 16/23] Kobject: provide better warning messages when people do stupid things
-In-Reply-To: <1142892038430-git-send-email-gregkh@suse.de>
-X-Mailer: git-send-email
-Date: Mon, 20 Mar 2006 14:00:38 -0800
-Message-Id: <11428920383371-git-send-email-gregkh@suse.de>
+	Mon, 20 Mar 2006 17:03:25 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:33210
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1030545AbWCTWC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 17:02:58 -0500
+Date: Mon, 20 Mar 2006 14:02:43 -0800
+From: Greg KH <gregkh@suse.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.16
+Message-ID: <20060320220243.GA1760@suse.de>
+References: <20060320212338.GA11571@kroah.com> <20060320133230.ae739f58.rdunlap@xenotime.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg Kroah-Hartman <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg Kroah-Hartman <gregkh@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060320133230.ae739f58.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that kobject_add() is used more than kobject_register() the kernel
-wasn't always letting people know that they were doing something wrong.
-This change fixes this.
+On Mon, Mar 20, 2006 at 01:32:30PM -0800, Randy.Dunlap wrote:
+> More Documentation/ references to /devfs/i :
+> 
+> Changes
+> computone.txt
+> feature-removal-schedule.txt
+> initrd.txt
+> ioctl-number.txt
+> kernel-docs.txt
+> kernel-parameters.txt
+> README.DAC960
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Yes, some of the surrounding documentation might still need to be
+cleaned up.  I'll do that in a few days (after I push out my other
+trees...)
 
----
+thanks,
 
- lib/kobject.c |   22 ++++++++++++++--------
- 1 files changed, 14 insertions(+), 8 deletions(-)
-
-dcd0da002122a70fe1c625c0ca9f58c95aa33ebe
-diff --git a/lib/kobject.c b/lib/kobject.c
-index efe67fa..36668c8 100644
---- a/lib/kobject.c
-+++ b/lib/kobject.c
-@@ -194,6 +194,17 @@ int kobject_add(struct kobject * kobj)
- 		unlink(kobj);
- 		if (parent)
- 			kobject_put(parent);
-+
-+		/* be noisy on error issues */
-+		if (error == -EEXIST)
-+			printk("kobject_add failed for %s with -EEXIST, "
-+			       "don't try to register things with the "
-+			       "same name in the same directory.\n",
-+			       kobject_name(kobj));
-+		else
-+			printk("kobject_add failed for %s (%d)\n",
-+			       kobject_name(kobj), error);
-+		dump_stack();
- 	}
- 
- 	return error;
-@@ -207,18 +218,13 @@ int kobject_add(struct kobject * kobj)
- 
- int kobject_register(struct kobject * kobj)
- {
--	int error = 0;
-+	int error = -EINVAL;
- 	if (kobj) {
- 		kobject_init(kobj);
- 		error = kobject_add(kobj);
--		if (error) {
--			printk("kobject_register failed for %s (%d)\n",
--			       kobject_name(kobj),error);
--			dump_stack();
--		} else
-+		if (!error)
- 			kobject_uevent(kobj, KOBJ_ADD);
--	} else
--		error = -EINVAL;
-+	}
- 	return error;
- }
- 
--- 
-1.2.4
-
-
+greg k-h

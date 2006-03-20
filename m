@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbWCTVFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030286AbWCTVGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030275AbWCTVFI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 16:05:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbWCTVFI
+	id S1030286AbWCTVGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 16:06:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030294AbWCTVGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 16:05:08 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:40836 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1030275AbWCTVFG (ORCPT
+	Mon, 20 Mar 2006 16:06:08 -0500
+Received: from ns2.suse.de ([195.135.220.15]:63191 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030295AbWCTVGG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 16:05:06 -0500
-Date: Mon, 20 Mar 2006 22:04:46 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: DervishD <lkml@dervishd.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org, patrakov@ums.usu.ru
-Subject: Re: [PATCH] Fix console utf8 composing (F)
-In-Reply-To: <20060320200548.GB1627@DervishD>
-Message-ID: <Pine.LNX.4.61.0603202200030.23653@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0603202048350.14231@yvahk01.tjqt.qr>
- <20060320200548.GB1627@DervishD>
+	Mon, 20 Mar 2006 16:06:06 -0500
+From: Andreas Schwab <schwab@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Jeff Garzik <jeff@garzik.org>,
+       joe.korty@ccur.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.16
+References: <Pine.LNX.4.64.0603192216450.3622@g5.osdl.org>
+	<20060320171905.GA4228@tsunami.ccur.com> <441EFCB0.6020007@garzik.org>
+	<Pine.LNX.4.61.0603202022590.3457@yvahk01.tjqt.qr>
+	<Pine.LNX.4.64.0603201132070.3622@g5.osdl.org>
+X-Yow: I want to kill everyone here with a cute colorful Hydrogen Bomb!!
+Date: Mon, 20 Mar 2006 22:05:49 +0100
+In-Reply-To: <Pine.LNX.4.64.0603201132070.3622@g5.osdl.org> (Linus Torvalds's
+	message of "Mon, 20 Mar 2006 11:33:05 -0800 (PST)")
+Message-ID: <je1wwwx1w2.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> * Jan Engelhardt <jengelh@linux01.gwdg.de> dixit:
->> can we have the patch[2] from this[1] thread merged? I have not yet
->> heard back from Alexander since [3]. Plus we're lacking a
->> Signed-off-by so far for [2]. What to do?
->
->    Can it be backported to 2.4.x or does it use many 2.6.xisms? I'm
->very interested in the issue because otherwise I'm going to add a
->terminal emulator for virtual consoles to my vcinit project. I don't
->use X and I want to use utf8 in a virtual console...
->
+Linus Torvalds <torvalds@osdl.org> writes:
 
-Maybe. I just found that it does not apply cleanly anymore to 2.6.16 so I 
-am going to fix that first and submit a rediffed version.
-If I then feel like investing more time, maybe I can do it for 2.4.32 too, 
-but no promises. I am running out of gcc3 systems.
+> So the rigt answer is to do both: make sure that people don't use kernel 
+> headers, but also try to keep them reasonably clean.
 
+strace is kind of special, since it needs to operate very close to the
+kernel (interpreting syscall arguments below all libc wrappers).
 
-Jan Engelhardt
+Andreas.
+
 -- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWCTTdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWCTTeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbWCTTdS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 14:33:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWCTTdS
+	id S964845AbWCTTeN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 14:34:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbWCTTeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 14:33:18 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:47016 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751281AbWCTTdR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 14:33:17 -0500
-Date: Mon, 20 Mar 2006 11:33:05 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Jeff Garzik <jeff@garzik.org>, joe.korty@ccur.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.16
-In-Reply-To: <Pine.LNX.4.61.0603202022590.3457@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.64.0603201132070.3622@g5.osdl.org>
-References: <Pine.LNX.4.64.0603192216450.3622@g5.osdl.org>
- <20060320171905.GA4228@tsunami.ccur.com> <441EFCB0.6020007@garzik.org>
- <Pine.LNX.4.61.0603202022590.3457@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Mar 2006 14:34:13 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:37504 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S964845AbWCTTeL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 14:34:11 -0500
+Date: Mon, 20 Mar 2006 11:34:14 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, Dave Hansen <haveblue@us.ibm.com>,
+       linux-kernel@vger.kernel.org, serue@us.ibm.com, frankeh@watson.ibm.com,
+       clg@fr.ibm.com, Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam@vilain.net>
+Subject: Re: [RFC][PATCH 2/6] sysvmsg: containerize
+Message-ID: <20060320193414.GQ15997@sorel.sous-sol.org>
+References: <20060306235248.20842700@localhost.localdomain> <20060306235250.35676515@localhost.localdomain> <20060307015745.GG27645@sorel.sous-sol.org> <1141697323.9274.64.camel@localhost.localdomain> <20060307023445.GI27645@sorel.sous-sol.org> <m1r74ywinp.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1r74ywinp.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Eric W. Biederman (ebiederm@xmission.com) wrote:
+> Chris Wright <chrisw@sous-sol.org> writes:
+> > The /proc interface is registering with &context->ids of init_task.  So,
+> > all other contexts using that interface will be looking at the wrong
+> > info, AFAICT.
+> 
+> We need to make this per process in /proc to get it right.
+> So /proc/sysvipc becomes a symlink to /proc/<pid>/sysvipc.
 
+That, and any considerations for context access to protect against
+reading /proc/pid/sysvipc/* (assuming you can share pid namespace,
+while not sharing sysvipc context).
 
-On Mon, 20 Mar 2006, Jan Engelhardt wrote:
-> >
-> > strace should be using sanitized versions of the kernel headers, not directly
-> > including them verbatim...
-> >
-> Now, would not it be good for everyone if the in-kernel headers get
-> every bit of sanitation?
+> > As you can tell my concerns are in resource consumption.  If a user can
+> > create contexts which it can hide from sysadmin, and they aren't subject
+> > to sysadmin mandated resource limits, it's effectively a leak, esp. since
+> > these resources don't die with exit(2).
+> 
+> I haven't spotted it yet in Dave's series but this is something that should
+> happen when all of the tasks using the ipc_context in this case exit.
 
-Yes, we should strive for fairly sanitized headers. That said, Jeff is 
-also right - people really generally shouldn't use the kernel headers 
-directly.
+Making it look like an 'init 0' from the P.O.V. of that ipc_context, WFM.
+Seems the context needs to have context limits so any privileged process
+in the context is still subject to the top-level administered limits.
 
-So the rigt answer is to do both: make sure that people don't use kernel 
-headers, but also try to keep them reasonably clean.
-
-		Linus
+thanks,
+-chris

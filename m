@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030540AbWCTWDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030528AbWCTWCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030540AbWCTWDl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 17:03:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030545AbWCTWDa
+	id S1030528AbWCTWCN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 17:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030545AbWCTWCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 17:03:30 -0500
-Received: from zproxy.gmail.com ([64.233.162.203]:10275 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030540AbWCTWCy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 17:02:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EaP0cmdLX70QsxEBMLRJcXJ4Vlsymt6mr5ef/yvQB4eamdF5HYjPEbBZ+HdEMV/KQSqelHeN+ubMM71nLnEy6z4Nf6YuTNv41j+kGFp994ca0T+885S+IUk8jORu/oq2nIaeM/53vUuHVjDw5wXVa5zqrMkmOm8Srg3JEkqrc0k=
-Message-ID: <7c3341450603201402k54b0cd6cy@mail.gmail.com>
-Date: Mon, 20 Mar 2006 22:02:52 +0000
-From: "Nick Warne" <nick@linicks.net>
-Reply-To: "Nick Warne" <nick@linicks.net>
-To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
-Subject: Re: SubmittingPatches typo
-Cc: "Chris Boot" <bootc@bootc.net>, "Matheus Izvekov" <mizvekov@gmail.com>,
-       "Pavel Machek" <pavel@ucw.cz>,
-       "kernel list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0603202216390.15483@yvahk01.tjqt.qr>
-MIME-Version: 1.0
+	Mon, 20 Mar 2006 17:02:00 -0500
+Received: from mail.kroah.org ([69.55.234.183]:51129 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030507AbWCTWBH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 17:01:07 -0500
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 10/23] add EXPORT_SYMBOL_GPL_FUTURE() to RCU subsystem
+In-Reply-To: <11428920383496-git-send-email-gregkh@suse.de>
+X-Mailer: git-send-email
+Date: Mon, 20 Mar 2006 14:00:38 -0800
+Message-Id: <11428920381545-git-send-email-gregkh@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg Kroah-Hartman <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060320125012.GA21545@elf.ucw.cz>
-	 <Pine.LNX.4.61.0603202056100.14231@yvahk01.tjqt.qr>
-	 <305c16960603201247p53718859ofa0e6d0355c9da1a@mail.gmail.com>
-	 <441F1650.7070906@bootc.net>
-	 <Pine.LNX.4.61.0603202155160.23653@yvahk01.tjqt.qr>
-	 <Pine.LNX.4.61.0603202216390.15483@yvahk01.tjqt.qr>
+From: Greg Kroah-Hartman <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Believe me, English Grammar is harder than trying to understand kernel code.
+As the RCU symbols are going to be changed to GPL in the near future,
+lets warn users that this is going to happen.
 
-I was taught that 'ownership' and 'owner' decide, depending on the tense.
+Cc: Paul McKenney <paulmck@us.ibm.com>
+Acked-by: Dipankar Sarma <dipankar@in.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Fred's code (it's his - 'Fred has ['s] code')). - Here also "it's" is
-short for "it is" (sucking eggs).
+---
 
-Freds' code.  You are talking third party about Freds' (or should that
-be Fred's?) code that he owns.
+ kernel/rcupdate.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-Names that end in 's' may not be plural... the Smiths family?  Or the
-Smiths' Family?  What happens if you are talking about 10
-Smiths'/Smith's families?  Smiths Families?
+01ca70dca5c64cb774a8ac2f50bddff21d60169f
+diff --git a/kernel/rcupdate.c b/kernel/rcupdate.c
+index 8cf15a5..fedf5e3 100644
+--- a/kernel/rcupdate.c
++++ b/kernel/rcupdate.c
+@@ -609,7 +609,7 @@ module_param(qlowmark, int, 0);
+ module_param(rsinterval, int, 0);
+ #endif
+ EXPORT_SYMBOL_GPL(rcu_batches_completed);
+-EXPORT_SYMBOL(call_rcu);  /* WARNING: GPL-only in April 2006. */
+-EXPORT_SYMBOL(call_rcu_bh);  /* WARNING: GPL-only in April 2006. */
++EXPORT_SYMBOL_GPL_FUTURE(call_rcu);	/* WARNING: GPL-only in April 2006. */
++EXPORT_SYMBOL_GPL_FUTURE(call_rcu_bh);	/* WARNING: GPL-only in April 2006. */
+ EXPORT_SYMBOL_GPL(synchronize_rcu);
+-EXPORT_SYMBOL(synchronize_kernel);  /* WARNING: GPL-only in April 2006. */
++EXPORT_SYMBOL_GPL_FUTURE(synchronize_kernel); /* WARNING: GPL-only in April 2006. */
+-- 
+1.2.4
 
-So, I think:
 
-Torvald's code == Torvalds has code == Torvald's ['s == has]
-
-Reference Torvalds' code = Torvalds[es]' code [owner]
-
-This debate has been on this board been a few times... and with all
-the English masters in there, it is still a little bit unresolved.
-
-http://www.b2g2.com/boards/board.cgi?user=dharrison
-
-Stick to coding kernels guys, it's easier.
-
-The fix?
-
-+Here is the mail Linus Torvalds sent on the canonical patch format:
-
-Nick

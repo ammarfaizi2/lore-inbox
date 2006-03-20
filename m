@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965193AbWCTPPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966343AbWCTPOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965193AbWCTPPq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:15:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966418AbWCTPPp
+	id S966343AbWCTPOw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:14:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966325AbWCTPOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:15:45 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:34712 "EHLO
+	Mon, 20 Mar 2006 10:14:52 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:25240 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S966400AbWCTPPn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:15:43 -0500
+	id S966327AbWCTPOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:14:50 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org,
+Cc: linux-dvb-maintainer@linuxtv.org, Michael Krufky <mkrufky@m1k.net>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 106/141] V4L/DVB (3374): Adds debuging v4l2_memory enum
-Date: Mon, 20 Mar 2006 12:08:54 -0300
-Message-id: <20060320150854.PS650420000106@infradead.org>
+Subject: [PATCH 018/141] V4L/DVB (3417): make VP-3054 Secondary I2C Bus
+	Support a Kconfig option.
+Date: Mon, 20 Mar 2006 12:08:40 -0300
+Message-id: <20060320150840.PS042959000018@infradead.org>
 In-Reply-To: <20060320150819.PS760228000000@infradead.org>
 References: <20060320150819.PS760228000000@infradead.org>
 Mime-Version: 1.0
@@ -27,98 +28,56 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-Date: 1141009738 -0300
+From: Michael Krufky <mkrufky@m1k.net>
+Date: 1138043467 -0200
 
-Some cleanup on printing enum names.
-v4l2_memory now translated also to name.
+- make VP-3054 Secondary I2C Bus Support a Kconfig option.
 
+Signed-off-by: Michael Krufky <mkrufky@m1k.net>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
-diff --git a/drivers/media/video/v4l2-common.c b/drivers/media/video/v4l2-common.c
-diff --git a/drivers/media/video/v4l2-common.c b/drivers/media/video/v4l2-common.c
-index 9e41ab7..95a6e47 100644
---- a/drivers/media/video/v4l2-common.c
-+++ b/drivers/media/video/v4l2-common.c
-@@ -170,7 +170,7 @@ int v4l2_prio_check(struct v4l2_prio_sta
+diff --git a/drivers/media/video/cx88/Kconfig b/drivers/media/video/cx88/Kconfig
+diff --git a/drivers/media/video/cx88/Kconfig b/drivers/media/video/cx88/Kconfig
+index fdf45f7..e99dfbb 100644
+--- a/drivers/media/video/cx88/Kconfig
++++ b/drivers/media/video/cx88/Kconfig
+@@ -49,6 +49,7 @@ config VIDEO_CX88_DVB_ALL_FRONTENDS
+ 	default y
+ 	depends on VIDEO_CX88_DVB
+ 	select DVB_MT352
++	select VIDEO_CX88_VP3054
+ 	select DVB_OR51132
+ 	select DVB_CX22702
+ 	select DVB_LGDT330X
+@@ -70,6 +71,16 @@ config VIDEO_CX88_DVB_MT352
+ 	  This adds DVB-T support for cards based on the
+ 	  Connexant 2388x chip and the MT352 demodulator.
  
- 
- /* ----------------------------------------------------------------- */
--/* some arrays for pretty-printing debug messages                    */
-+/* some arrays for pretty-printing debug messages of enum types      */
- 
- char *v4l2_field_names[] = {
- 	[V4L2_FIELD_ANY]        = "any",
-@@ -191,6 +191,14 @@ char *v4l2_type_names[] = {
- 	[V4L2_BUF_TYPE_VBI_OUTPUT]    = "vbi-out",
- };
- 
-+static char *v4l2_memory_names[] = {
-+	[V4L2_MEMORY_MMAP]    = "mmap",
-+	[V4L2_MEMORY_USERPTR] = "userptr",
-+	[V4L2_MEMORY_OVERLAY] = "overlay",
-+};
++config VIDEO_CX88_VP3054
++	tristate "VP-3054 Secondary I2C Bus Support"
++	default m
++	depends on DVB_MT352
++	---help---
++	  This adds DVB-T support for cards based on the
++	  Connexant 2388x chip and the MT352 demodulator,
++	  which also require support for the VP-3054
++	  Secondary I2C bus, such at DNTV Live! DVB-T Pro.
 +
-+#define prt_names(a,arr) (((a)>=0)&&((a)<ARRAY_SIZE(arr)))?arr[a]:"unknown"
-+
- /* ------------------------------------------------------------------ */
- /* debug help functions                                               */
+ config VIDEO_CX88_DVB_OR51132
+ 	bool "OR51132 ATSC Support"
+ 	default y
+diff --git a/drivers/media/video/cx88/Makefile b/drivers/media/video/cx88/Makefile
+diff --git a/drivers/media/video/cx88/Makefile b/drivers/media/video/cx88/Makefile
+index 6e5eaa2..e78da88 100644
+--- a/drivers/media/video/cx88/Makefile
++++ b/drivers/media/video/cx88/Makefile
+@@ -18,6 +18,6 @@ extra-cflags-$(CONFIG_DVB_LGDT330X)  += 
+ extra-cflags-$(CONFIG_DVB_MT352)     += -DHAVE_MT352=1
+ extra-cflags-$(CONFIG_DVB_NXT200X)   += -DHAVE_NXT200X=1
+ extra-cflags-$(CONFIG_DVB_CX24123)   += -DHAVE_CX24123=1
+-extra-cflags-$(CONFIG_VIDEO_CX88_DVB)+= -DHAVE_VP3054_I2C=1
++extra-cflags-$(CONFIG_VIDEO_CX88_VP3054)+= -DHAVE_VP3054_I2C=1
  
-@@ -328,8 +336,7 @@ static void v4l_print_pix_fmt (char *s, 
- 	printk ("%s: width=%d, height=%d, format=%d, field=%s, "
- 		"bytesperline=%d sizeimage=%d, colorspace=%d\n", s,
- 		fmt->width,fmt->height,fmt->pixelformat,
--		((fmt->field>=0)&&(fmt->field<ARRAY_SIZE(v4l2_field_names)))?
--		v4l2_field_names[fmt->field]:"unknown",
-+		prt_names(fmt->field,v4l2_field_names),
- 		fmt->bytesperline,fmt->sizeimage,fmt->colorspace);
- };
- 
-@@ -461,17 +468,18 @@ void v4l_printk_ioctl_arg(char *s,unsign
- 		struct v4l2_timecode *tc=&p->timecode;
- 		printk ("%s: %02ld:%02d:%02d.%08ld index=%d, type=%s, "
- 			"bytesused=%d, flags=0x%08d, "
--			"field=%0d, sequence=%d, memory=%d, offset/userptr=0x%08lx\n",
-+			"field=%0d, sequence=%d, memory=%s, offset/userptr=0x%08lx\n",
- 				s,
- 				(p->timestamp.tv_sec/3600),
- 				(int)(p->timestamp.tv_sec/60)%60,
- 				(int)(p->timestamp.tv_sec%60),
- 				p->timestamp.tv_usec,
- 				p->index,
--				((p->type>=0)&&(p->type<ARRAY_SIZE(v4l2_type_names)))?
--				v4l2_type_names[p->type]:"unknown",
-+				prt_names(p->type,v4l2_type_names),
- 				p->bytesused,p->flags,
--				p->field,p->sequence,p->memory,p->m.userptr);
-+				p->field,p->sequence,
-+				prt_names(p->memory,v4l2_memory_names),
-+				p->m.userptr);
- 		printk ("%s: timecode= %02d:%02d:%02d type=%d, "
- 			"flags=0x%08d, frames=%d, userbits=0x%08x",
- 				s,tc->hours,tc->minutes,tc->seconds,
-@@ -536,8 +544,7 @@ void v4l_printk_ioctl_arg(char *s,unsign
- 	{
- 		struct v4l2_format *p=arg;
- 		printk ("%s: type=%s\n", s,
--				((p->type>=0)&&(p->type<ARRAY_SIZE(v4l2_type_names)))?
--				v4l2_type_names[p->type]:"unknown");
-+				prt_names(p->type,v4l2_type_names));
- 		switch (p->type) {
- 		case V4L2_BUF_TYPE_VIDEO_CAPTURE:
- 			v4l_print_pix_fmt (s, &p->fmt.pix);
-@@ -646,8 +653,10 @@ void v4l_printk_ioctl_arg(char *s,unsign
- 	case VIDIOC_REQBUFS:
- 	{
- 		struct v4l2_requestbuffers *p=arg;
--		printk ("%s: count=%d, type=%d, memory=%d\n", s,
--				p->count,p->type,p->memory);
-+		printk ("%s: count=%d, type=%s, memory=%s\n", s,
-+				p->count,
-+				prt_names(p->type,v4l2_type_names),
-+				prt_names(p->memory,v4l2_memory_names));
- 		break;
- 	}
- 	case VIDIOC_INT_S_AUDIO_ROUTING:
+ EXTRA_CFLAGS += $(extra-cflags-y) $(extra-cflags-m)
 

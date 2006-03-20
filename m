@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965230AbWCTPy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965049AbWCTPyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965230AbWCTPy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:54:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbWCTPy6
+	id S965049AbWCTPyS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:54:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965594AbWCTPxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:54:58 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:26850 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965230AbWCTPTb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:19:31 -0500
-From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 076/141] V4L/DVB (3300a): Removing personal email from DVB
-	maintainers
-Date: Mon, 20 Mar 2006 12:08:49 -0300
-Message-id: <20060320150849.PS712509000076@infradead.org>
-In-Reply-To: <20060320150819.PS760228000000@infradead.org>
-References: <20060320150819.PS760228000000@infradead.org>
+	Mon, 20 Mar 2006 10:53:45 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:54504 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S965233AbWCTPxF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:53:05 -0500
+Date: Mon, 20 Mar 2006 08:53:04 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Make sure nobody's leaking resources
+Message-ID: <20060320155304.GI8980@parisc-linux.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-3mdk 
-Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-Date: 1141009641 -0300
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
+Currently, releasing a resource also releases all of its children.  That
+made sense when request_resource was the main method of dividing up the
+memory map.  With the increased use of insert_resource, it seems to me
+that we should instead reparent the newly orphaned resources.  Before
+we do that, let's make sure that nobody's actually relying on the current
+semantics.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 7374be0..9f525ea 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -837,7 +837,6 @@ S:	Maintained
+Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+
+diff -urpNX dontdiff linus-2.6/kernel/resource.c parisc-2.6/kernel/resource.c
+--- linus-2.6/kernel/resource.c	2006-03-20 07:29:06.000000000 -0700
++++ parisc-2.6/kernel/resource.c	2006-03-20 07:00:47.000000000 -0700
+@@ -181,6 +181,8 @@ static int __release_resource(struct res
+ {
+ 	struct resource *tmp, **p;
  
- DVB SUBSYSTEM AND DRIVERS
- P:	LinuxTV.org Project
--M:	mchehab@infradead.org
- M:	v4l-dvb-maintainer@linuxtv.org
- L: 	linux-dvb@linuxtv.org (subscription required)
- W:	http://linuxtv.org/
-
++	BUG_ON(old->child);
++
+ 	p = &old->parent->child;
+ 	for (;;) {
+ 		tmp = *p;

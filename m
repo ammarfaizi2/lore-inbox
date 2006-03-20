@@ -1,78 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030561AbWCTWLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030509AbWCTWMb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030561AbWCTWLp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 17:11:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030566AbWCTWL3
+	id S1030509AbWCTWMb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 17:12:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030551AbWCTWBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 17:11:29 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:35729 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030565AbWCTWLX (ORCPT
+	Mon, 20 Mar 2006 17:01:32 -0500
+Received: from mail.kroah.org ([69.55.234.183]:65465 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030548AbWCTWBU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 17:11:23 -0500
-Date: Tue, 21 Mar 2006 03:39:56 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Jesper Dangaard Brouer <hawk@diku.dk>
-Cc: Robert Olsson <Robert.Olsson@data.slu.se>, jens.laas@data.slu.se,
-       hans.liss@its.uu.se, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernel panic: Route cache, RCU, possibly FIB trie.
-Message-ID: <20060320220956.GA24792@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <Pine.LNX.4.61.0603202234400.27140@ask.diku.dk>
+	Mon, 20 Mar 2006 17:01:20 -0500
+Cc: Tilman Schmidt <tilman@imap.cc>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 15/23] Driver core: add macros notice(), dev_notice()
+In-Reply-To: <11428920382138-git-send-email-gregkh@suse.de>
+X-Mailer: git-send-email
+Date: Mon, 20 Mar 2006 14:00:38 -0800
+Message-Id: <1142892038430-git-send-email-gregkh@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0603202234400.27140@ask.diku.dk>
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg Kroah-Hartman <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg Kroah-Hartman <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 20, 2006 at 10:44:21PM +0100, Jesper Dangaard Brouer wrote:
-> 
-> Kernel panic report.
-> 
-> Have experienced some kernel panic's on a production Linux box acting
-> as a router for a large number of customers.
-> 
-> I have tried to track down the problem, and I think I have narrowed it
-> a bit down.  My theory is that it is related to the route cache
-> (ip_dst_cache) or FIB, which cannot dealloacate route cache slab
-> elements (maybe RCU related).  (I have seen my route cache increase to
-> around 520k entries using rtstat, before dying).
-> 
-> I'm using the FIB trie system/algorithm (CONFIG_IP_FIB_TRIE). Think
-> that the error might be cause by the "fib_trie" code.  See the syslog,
-> output below.
-> 
-> Below are some kernel panic outputs from the console and some
-> interesting errors found in syslog.
-> 
-> Kernel panic#1
-> --------------
-> EIP is at _stext+0x3feffd68/0x49
->        c03f7380
-> Call Trace:
->  [<c0103cc7>] show_stack+0x80/0x96
->  [<c0103e60>] show_registers+0x161/0x1c5
->  [<c0104057>] die+0x107/0x186
->  [<c0116c5f>] do_page_fault+0x2c6/0x57d
->  [<c0103997>] error_code+0x4f/0x54
->  [<c012fe7b>] __rcu_process_callbacks+0xaa/0xd3
->  [<c012feff>] rcu_process_callbacks+0x5b/0x65
->  [<c0124578>] tasklet_action+0x77/0xc9
->  [<c01241f1>] __do_softirq+0xc1/0xd6
->  [<c0124251>] do_softirq+0x4b/0x4d
->  [<c012433b>] irq_exit+0x47/0x49
->  [<c010533b>] do_IRQ+0x2b/0x3b
->  [<c010383e>] common_interrupt+0x1a/0x20
-> Code:  Bad EIP value.
->  <0>Kernel panic - not syncing: Fatal exception in interrupt
+Both usb.h and device.h have collections of convenience macros for
+printk() with the KERN_ERR, KERN_WARNING, and KERN_NOTICE severity
+levels. This patch adds macros for the KERN_NOTICE level which was
+so far uncatered for.
 
-Bad eip in processing rcu callback often indicates that the object
-that embeds the rcu_head has already been freed. Can you enable
-slab debugging and see if this can be detected there in a different
-path ?
+These macros already exist privately in drivers/isdn/gigaset/gigaset.h
+(currently in the process of being submitted for the kernel tree)
+but they really belong with their brothers and sisters in
+include/linux/{device,usb}.h.
 
-Thanks
-Dipankar
+Signed-off-by: Tilman Schmidt <tilman@imap.cc>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+
+ include/linux/device.h |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+4f2928d0a439553f0288d9483faf417430629635
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 58df18d..5b595fd 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -424,6 +424,8 @@ extern void firmware_unregister(struct s
+ 	dev_printk(KERN_INFO , dev , format , ## arg)
+ #define dev_warn(dev, format, arg...)		\
+ 	dev_printk(KERN_WARNING , dev , format , ## arg)
++#define dev_notice(dev, format, arg...)		\
++	dev_printk(KERN_NOTICE , dev , format , ## arg)
+ 
+ /* Create alias, so I can be autoloaded. */
+ #define MODULE_ALIAS_CHARDEV(major,minor) \
+-- 
+1.2.4
+
 

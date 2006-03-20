@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965177AbWCTQHf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965815AbWCTQKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965177AbWCTQHf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 11:07:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965767AbWCTQHe
+	id S965815AbWCTQKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 11:10:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966272AbWCTPOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 11:07:34 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:28056 "EHLO
+	Mon, 20 Mar 2006 10:14:18 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:18840 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S966355AbWCTPPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:15:08 -0500
+	id S966287AbWCTPOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:14:12 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Michael Krufky <mkrufky@m1k.net>,
+Cc: linux-dvb-maintainer@linuxtv.org, Michael Krufky <mkrufky@linuxtv.org>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 029/141] V4L/DVB (3431): fixed spelling error, exectuted
-	--> executed.
-Date: Mon, 20 Mar 2006 12:08:41 -0300
-Message-id: <20060320150841.PS852556000029@infradead.org>
+Subject: [PATCH 099/141] V4L/DVB (3365): Kworld ATSC110: cleanups
+Date: Mon, 20 Mar 2006 12:08:53 -0300
+Message-id: <20060320150853.PS506811000099@infradead.org>
 In-Reply-To: <20060320150819.PS760228000000@infradead.org>
 References: <20060320150819.PS760228000000@infradead.org>
 Mime-Version: 1.0
@@ -28,27 +27,40 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael Krufky <mkrufky@m1k.net>
-Date: 1138043470 -0200
+From: Michael Krufky <mkrufky@linuxtv.org>
+Date: 1141009716 -0300
 
-- fixed spelling error, exectuted --> executed.
+- There is no radio with this tuner card...
+  Thanks-to: Dwaine Garden <DwaineGarden@rogers.com>
+- fixed capitalization in card name.
 
-Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
-diff --git a/drivers/media/video/em28xx/em28xx-core.c b/drivers/media/video/em28xx/em28xx-core.c
-diff --git a/drivers/media/video/em28xx/em28xx-core.c b/drivers/media/video/em28xx/em28xx-core.c
-index dff3893..82f0c5f 100644
---- a/drivers/media/video/em28xx/em28xx-core.c
-+++ b/drivers/media/video/em28xx/em28xx-core.c
-@@ -253,7 +253,7 @@ int em28xx_write_ac97(struct em28xx *dev
- 	if ((ret = em28xx_read_reg(dev, AC97BUSY_REG)) < 0)
- 		return ret;
- 	else if (((u8) ret) & 0x01) {
--		em28xx_warn ("AC97 command still being exectuted: not handled properly!\n");
-+		em28xx_warn ("AC97 command still being executed: not handled properly!\n");
- 	}
- 	return 0;
- }
+diff --git a/Documentation/video4linux/CARDLIST.saa7134 b/Documentation/video4linux/CARDLIST.saa7134
+diff --git a/Documentation/video4linux/CARDLIST.saa7134 b/Documentation/video4linux/CARDLIST.saa7134
+index f74d2f9..e1484df 100644
+--- a/Documentation/video4linux/CARDLIST.saa7134
++++ b/Documentation/video4linux/CARDLIST.saa7134
+@@ -88,4 +88,4 @@
+  87 -> ADS Instant TV Duo Cardbus PTV331        [0331:1421]
+  88 -> Tevion DVB-T 220RF                       [17de:7201]
+  89 -> ELSA EX-VISION 700TV                     [1131:7130]
+- 90 -> KWORLD ATSC110                           [17de:7350]
++ 90 -> Kworld ATSC110                           [17de:7350]
+diff --git a/drivers/media/video/saa7134/saa7134-cards.c b/drivers/media/video/saa7134/saa7134-cards.c
+diff --git a/drivers/media/video/saa7134/saa7134-cards.c b/drivers/media/video/saa7134/saa7134-cards.c
+index 0cc171e..99cefdd 100644
+--- a/drivers/media/video/saa7134/saa7134-cards.c
++++ b/drivers/media/video/saa7134/saa7134-cards.c
+@@ -2732,7 +2732,7 @@ struct saa7134_board saa7134_boards[] = 
+ 		},
+ 	},
+ 	[SAA7134_BOARD_KWORLD_ATSC110] = {
+-		.name           = "KWORLD ATSC110",
++		.name           = "Kworld ATSC110",
+ 		.audio_clock    = 0x00187de7,
+ 		.tuner_type     = TUNER_PHILIPS_TUV1236D,
+ 		.radio_type     = UNSET,
 

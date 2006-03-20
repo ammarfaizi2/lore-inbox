@@ -1,39 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWCTNmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWCTNoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964790AbWCTNmS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 08:42:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbWCTNmS
+	id S964793AbWCTNoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 08:44:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964794AbWCTNoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 08:42:18 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:14248 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964790AbWCTNmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 08:42:17 -0500
-Subject: Re: PATCH][1/8] 2.6.15 mlock: make_pages_wired/unwired
-From: Arjan van de Ven <arjan@infradead.org>
-To: Stone Wang <pwstone@gmail.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <bc56f2f0603200536scb87a8ck@mail.gmail.com>
-References: <bc56f2f0603200536scb87a8ck@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 20 Mar 2006 14:42:14 +0100
-Message-Id: <1142862134.3114.49.camel@laptopd505.fenrus.org>
+	Mon, 20 Mar 2006 08:44:09 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:158
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S964793AbWCTNoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 08:44:08 -0500
+Message-Id: <441EB1990200007800013DB9@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Mon, 20 Mar 2006 14:43:52 +0100
+From: "Jan Beulich" <jbeulich@novell.com>
+To: <cpufreq@lists.linux.org.uk>
+Cc: <mark.langsdorf@amd.com>, <davej@redhat.com>,
+       "Pavel Machek" <pavel@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] kernel crash in powernow-k8 after lost ticks detected
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-20 at 08:36 -0500, Stone Wang wrote:
-> 1. Add make_pages_unwired routine.
-> 2. Replace make_pages_present with make_pages_wired, support rollback.
-> 3. Pass 1 more param ("wire") to get_user_pages.
+Since powernowk8_cpu_init() gets called only for one of the two cores (the
+other one is in the same policy set and hence cpufreq_add_dev() prevents the
+call), calling other functions, namely powernowk8_get(), one CPUs that haven't
+been initialized will yield a NULL from the respective powernow_data[] slot. In
+the specific case, the problem occured after the system detected some lost
+ticks and called cpufreq_get() for all CPUs.
+While I can imagine more sophisticated fixes for this (it namely seems
+questionable whether calling the init routines not on all CPUs, or, if that's
+necessary, whether not properly setting up the data pointers for all affected
+CPUs in powernow-k8 is okay), below simple change seems to address the
+problem (the other hunk is to make a message more meaningful).
 
-hmm again "wire" is a meaningless name
-also.. get_user_pages ALWAYS pins the page ... so might as well make
-that automatic (with an unpin when the pinning is released)
+Signed-Off-By: Jan Beulich <jbeulich@novell.com>
 
+Index: head-2006-03-13/drivers/cpufreq/cpufreq.c
+===================================================================
+--- head-2006-03-13.orig/drivers/cpufreq/cpufreq.c      2006-03-13 10:21:56.000000000 +0100
++++ head-2006-03-13/drivers/cpufreq/cpufreq.c   2006-03-15 08:59:42.000000000 +0100
+@@ -689,7 +689,7 @@ static int cpufreq_add_dev (struct sys_d
+               if (!cpu_online(j))
+                       continue;
 
+-               dprintk("CPU already managed, adding link\n");
++               dprintk("CPU %u already managed, adding link\n", j);
+               cpufreq_cpu_get(cpu);
+               cpu_sys_dev = get_cpu_sysdev(j);
+               sysfs_create_link(&cpu_sys_dev->kobj, &policy->kobj,
+@@ -921,7 +921,7 @@ unsigned int cpufreq_get(unsigned int cp
 
+       mutex_lock(&policy->lock);
+
+-       ret = cpufreq_driver->get(cpu);
++       ret = cpufreq_driver->get(policy->cpu);
+
+       if (ret && policy->cur && !(cpufreq_driver->flags & CPUFREQ_CONST_LOOPS)) {
+               /* verify no discrepancy between actual and saved value exists */

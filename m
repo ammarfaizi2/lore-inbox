@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbWCTPY6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965341AbWCTPk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964965AbWCTPY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 10:24:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965292AbWCTPY4
+	id S965341AbWCTPk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 10:40:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965286AbWCTPZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 10:24:56 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:22968 "EHLO
+	Mon, 20 Mar 2006 10:25:11 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:20152 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965291AbWCTPYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 10:24:54 -0500
+	id S964885AbWCTPYi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 10:24:38 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org,
+Cc: linux-dvb-maintainer@linuxtv.org, Oliver Endriss <o.endriss@gmx.de>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 082/141] V4L/DVB (3334): Added ET61X251 fourcc type
-Date: Mon, 20 Mar 2006 12:08:50 -0300
-Message-id: <20060320150850.PS715687000082@infradead.org>
+Subject: [PATCH 061/141] V4L/DVB (3307): Support for Galaxis DVB-S rev1.3
+Date: Mon, 20 Mar 2006 12:08:47 -0300
+Message-id: <20060320150847.PS157684000061@infradead.org>
 In-Reply-To: <20060320150819.PS760228000000@infradead.org>
 References: <20060320150819.PS760228000000@infradead.org>
 Mime-Version: 1.0
@@ -27,23 +27,59 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-Date: 1141009660 -0300
+From: Oliver Endriss <o.endriss@gmx.de>
+Date: 1139302151 -0200
 
+support for Galaxis DVB-S rev1.3 (subsystem 13c2:0004)
+
+Signed-off-by: Oliver Endriss <o.endriss@gmx.de>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
-diff --git a/include/linux/videodev2.h b/include/linux/videodev2.h
-diff --git a/include/linux/videodev2.h b/include/linux/videodev2.h
-index 1dd8efe..3f15043 100644
---- a/include/linux/videodev2.h
-+++ b/include/linux/videodev2.h
-@@ -326,6 +326,7 @@ struct v4l2_pix_format
- #define V4L2_PIX_FMT_SN9C10X  v4l2_fourcc('S','9','1','0') /* SN9C10x compression */
- #define V4L2_PIX_FMT_PWC1     v4l2_fourcc('P','W','C','1') /* pwc older webcam */
- #define V4L2_PIX_FMT_PWC2     v4l2_fourcc('P','W','C','2') /* pwc newer webcam */
-+#define V4L2_PIX_FMT_ET61X251 v4l2_fourcc('E','6','2','5') /* ET61X251 compression */
+diff --git a/drivers/media/dvb/ttpci/av7110.c b/drivers/media/dvb/ttpci/av7110.c
+diff --git a/drivers/media/dvb/ttpci/av7110.c b/drivers/media/dvb/ttpci/av7110.c
+index 2749490..d36369e 100644
+--- a/drivers/media/dvb/ttpci/av7110.c
++++ b/drivers/media/dvb/ttpci/av7110.c
+@@ -2329,6 +2329,17 @@ static int frontend_init(struct av7110 *
+ 			av7110->fe = ves1820_attach(&alps_tdbe2_config, &av7110->i2c_adap, read_pwm(av7110));
+ 			break;
  
- /*
-  *	F O R M A T   E N U M E R A T I O N
++		case 0x0004: // Galaxis DVB-S rev1.3
++			/* ALPS BSRV2 */
++			av7110->fe = ves1x93_attach(&alps_bsrv2_config, &av7110->i2c_adap);
++			if (av7110->fe) {
++				av7110->fe->ops->diseqc_send_master_cmd = av7110_diseqc_send_master_cmd;
++				av7110->fe->ops->diseqc_send_burst = av7110_diseqc_send_burst;
++				av7110->fe->ops->set_tone = av7110_set_tone;
++				av7110->recover = dvb_s_recover;
++			}
++			break;
++
+ 		case 0x0006: /* Fujitsu-Siemens DVB-S rev 1.6 */
+ 			/* Grundig 29504-451 */
+ 			av7110->fe = tda8083_attach(&grundig_29504_451_config, &av7110->i2c_adap);
+@@ -2930,6 +2941,7 @@ MAKE_AV7110_INFO(tts_1_3se,  "Technotren
+ MAKE_AV7110_INFO(ttt,        "Technotrend/Hauppauge DVB-T");
+ MAKE_AV7110_INFO(fsc,        "Fujitsu Siemens DVB-C");
+ MAKE_AV7110_INFO(fss,        "Fujitsu Siemens DVB-S rev1.6");
++MAKE_AV7110_INFO(gxs_1_3,    "Galaxis DVB-S rev1.3");
+ 
+ static struct pci_device_id pci_tbl[] = {
+ 	MAKE_EXTENSION_PCI(fsc,         0x110a, 0x0000),
+@@ -2937,13 +2949,13 @@ static struct pci_device_id pci_tbl[] = 
+ 	MAKE_EXTENSION_PCI(ttt_1_X,     0x13c2, 0x0001),
+ 	MAKE_EXTENSION_PCI(ttc_2_X,     0x13c2, 0x0002),
+ 	MAKE_EXTENSION_PCI(tts_2_X,     0x13c2, 0x0003),
++	MAKE_EXTENSION_PCI(gxs_1_3,     0x13c2, 0x0004),
+ 	MAKE_EXTENSION_PCI(fss,         0x13c2, 0x0006),
+ 	MAKE_EXTENSION_PCI(ttt,         0x13c2, 0x0008),
+ 	MAKE_EXTENSION_PCI(ttc_1_X,     0x13c2, 0x000a),
+ 	MAKE_EXTENSION_PCI(tts_2_3,     0x13c2, 0x000e),
+ 	MAKE_EXTENSION_PCI(tts_1_3se,   0x13c2, 0x1002),
+ 
+-/*	MAKE_EXTENSION_PCI(???, 0x13c2, 0x0004), UNDEFINED CARD */ // Galaxis DVB PC-Sat-Carte
+ /*	MAKE_EXTENSION_PCI(???, 0x13c2, 0x0005), UNDEFINED CARD */ // Technisat SkyStar1
+ /*	MAKE_EXTENSION_PCI(???, 0x13c2, 0x0009), UNDEFINED CARD */ // TT/Hauppauge WinTV Nexus-CA v????
+ 
 

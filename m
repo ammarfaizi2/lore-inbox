@@ -1,179 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWCUQR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWCUQVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWCUQR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 11:17:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWCUQR1
+	id S932371AbWCUQVL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 11:21:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWCUQVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 11:17:27 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:15623 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1750848AbWCUQR1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 11:17:27 -0500
-Date: Tue, 21 Mar 2006 17:17:09 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Cc: Sam Ravnborg <sam@mars.ravnborg.org>
-Subject: [GIT PATCH] kbuild updates
-Message-ID: <20060321161709.GA8475@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Tue, 21 Mar 2006 11:21:10 -0500
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:13523 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S932371AbWCUQVJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 11:21:09 -0500
+In-Reply-To: <20060321121550.GA7009@infradead.org>
+Subject: Re: [2/3 PATCH] Kprobes: User space probes support- readpage hooks
+Sensitivity: 
+To: Christoph Hellwig <hch@infradead.org>
+Cc: ak@suse.de, Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       prasanna@in.ibm.com, suparna@in.ibm.com
+X-Mailer: Lotus Notes Release 6.5.1IBM February 19, 2004
+Message-ID: <OFBA270CB3.3C73C256-ON80257138.0058B7AE-80257138.00597F69@uk.ibm.com>
+From: Richard J Moore <richardj_moore@uk.ibm.com>
+Date: Tue, 21 Mar 2006 16:17:33 +0000
+X-MIMETrack: Serialize by Router on D06ML065/06/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 21/03/2006 16:21:30
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus.
 
-Here follows kbuild updates for 2.6.17.
-Most noteworthy changes:
-o Introduced section consistency checks during modpost.
-    This generates a number of warnings for an allmodconfig build but it
-    looks sane for most normal configs.
-    There may be false positives around but they are getting less.
-o Removed scripts/reference_* - they are replaced by the check for
-  inconsistent section usage
-o Introduced check for duplicated exported symbols
-o Make kbuild compatible with a future gnu make change
-o Improved support for external modules (depmod, exported symbols)
-o Lindent a few files (modpost.c, genksyms.c) addidng to size of diff.
 
-Almost all patches have been in -mm for a shorter or longer period.
-Shortlog contains more details.
-Patches (all 48) will follow as separate mails.
 
-Please pull from:
 
-  ssh://master.kernel.org/pub/scm/linux/kernel/git/sam/kbuild.git
+72
 
-	Sam
+Christoph Hellwig <hch@infradead.org> wrote on 21/03/2006 12:15:50:
 
-Diffstat:
+> > I think you'll find it happened the other way round. Sun openly
+references
+> > my white papers. They even stole the name of an ancestor to kprobes.
+But
+> > who cares, it not relevant or particularly interesting whether the
+chicken
+> > or the egg came first.
+>
+> I know your papers, too.  In fact dprobes' RPN program downloads are a
+far
+> better design than systemtap's generation of kernel code.  it's a pity
+that
+> you gave up on dprobes instead of applying the required work to it and
+> integrate it with other bits of a tracing framework.
 
- Documentation/DocBook/Makefile          |    8 
- Documentation/kbuild/makefiles.txt      |  173 +++--
- Documentation/kbuild/modules.txt        |   98 +++
- Documentation/smart-config.txt          |    4 
- Makefile                                |  234 +++-----
- arch/arm/Makefile                       |    5 
- arch/arm/boot/Makefile                  |    5 
- arch/arm/boot/bootp/Makefile            |    5 
- arch/arm26/Makefile                     |    7 
- arch/arm26/boot/Makefile                |    5 
- arch/i386/Makefile                      |    4 
- arch/i386/kernel/vmlinux.lds.S          |    4 
- arch/ia64/Makefile                      |    5 
- arch/m32r/Makefile                      |    5 
- arch/powerpc/Makefile                   |    2 
- arch/ppc/Makefile                       |    2 
- arch/ppc/boot/Makefile                  |    5 
- arch/ppc/boot/openfirmware/Makefile     |    7 
- arch/sh/Makefile                        |    2 
- arch/um/Makefile                        |    7 
- arch/x86_64/Makefile                    |    4 
- drivers/atm/.gitignore                  |    5 
- drivers/video/matrox/matroxfb_DAC1064.c |    1 
- drivers/video/matrox/matroxfb_DAC1064.h |    1 
- drivers/video/matrox/matroxfb_Ti3026.c  |    1 
- drivers/video/matrox/matroxfb_Ti3026.h  |    1 
- drivers/video/matrox/matroxfb_base.c    |    1 
- drivers/video/matrox/matroxfb_misc.c    |    1 
- init/Kconfig                            |   38 -
- scripts/Kbuild.include                  |   68 +-
- scripts/Makefile.build                  |   29 
- scripts/Makefile.clean                  |   10 
- scripts/Makefile.modinst                |   10 
- scripts/Makefile.modpost                |   19 
- scripts/basic/fixdep.c                  |   15 
- scripts/checkconfig.pl                  |   66 --
- scripts/genksyms/genksyms.c             |  935 ++++++++++++++------------------
- scripts/genksyms/genksyms.h             |   58 -
- scripts/kconfig/Makefile                |    7 
- scripts/kconfig/confdata.c              |    3 
- scripts/kconfig/lxdialog/Makefile       |    6 
- scripts/mkmakefile                      |    9 
- scripts/mod/file2alias.c                |   17 
- scripts/mod/mk_elfconfig.c              |    4 
- scripts/mod/modpost.c                   |  838 +++++++++++++++++++++-------
- scripts/mod/modpost.h                   |   27 
- scripts/mod/sumversion.c                |   34 -
- scripts/namespace.pl                    |    5 
- scripts/package/Makefile                |   30 -
- scripts/reference_discarded.pl          |  112 ---
- scripts/reference_init.pl               |  109 ---
- sound/oss/.gitignore                    |    5 
- 52 files changed, 1624 insertions(+), 1432 deletions(-)
-
-Shortlog:
-Aaron Brooks:
-      kbuild: make namespace.pl CROSS_COMPILE happy
-
-Adrian Bunk:
-      kbuild: remove a tab from an empty line
-      Kconfig: remove the CONFIG_CC_ALIGN_* options
-
-Andrew Morton:
-      kbuild: fix modpost compile with older gcc
-
-Brian Gerst:
-      kbuild: remove checkconfig.pl
-
-Chuck Ebbert:
-      kbuild: add -fverbose-asm to i386 Makefile
-
-Jan Beulich:
-      kbuild: consolidate command line escaping
-      kbuild: fix mkmakefile
-      kbuild: version.h should depend on .kernelrelease
-      kconfig: fix time ordering of writes to .kconfig.d and include/linux/autoconf.h
-
-Jesper Juhl:
-      kbuild: small update of allnoconfig description
-
-Luke Yang:
-      kbuild: Fix bug in crc symbol generating of kernel and modules
-
-Martin Michlmayr:
-      kbuild: Accept various mips sub-types in SUBARCH
-
-Mattia Dongili:
-      kbuild: fix a cscope bug (make cscope segfaults)
-
-Paul Smith:
-      kbuild: change kbuild to not rely on incorrect GNU make behavior
-
-Sam Ravnborg:
-      kbuild: support building individual files for external modules
-      kbuild: use warn()/fatal() consistent in modpost
-      kbuild: apply CodingStyle to modpost.c
-      kbuild: improved modversioning support for external modules
-      kbuild: warn about duplicate exported symbols
-      kbuild: avoid stale modules in $(MODVERDIR) for external modules
-      kbuild: run depmod when installing external modules
-      kbuild: check for section mismatch during modpost stage
-      kbuild: make cc-version available in kbuild files
-      kbuild: fix comment in Kbuild.include
-      kbuild: do not segfault in modpost if MODVERDIR is not defined
-      kbuild: fix segfault in modpost
-      kbuild: include symbol names in section mismatch warnings
-      kbuild: do not warn when unwind sections references .init/.exit sections
-      kbuild: Add copyright to modpost.c
-      kbuild: ignore all generated files for make allmodconfig (x86_64)
-      kbuild: whitelist false section mismatch warnings
-      kbuild: kill trailing whitespace in modpost & friends
-      kbuild: kill false positives from section mismatch warnings for powerpc
-      kbuild: fix section mismatch check for unwind on IA64
-      kbuild: in the section mismatch check try harder to find symbols
-      kbuild: fix make dir/file.xx when asm symlink is missing
-      kbuild: when warning symbols exported twice now tell user this is the problem
-      kbuild: replace PHONY with FORCE
-      kbuild: in makefile.txt note that Makefile is preferred name for kbuild files
-      kbuild: fix genksyms build error
-      kbuild: Lindent genksyms.c
-      kbuild: clean-up genksyms
-      kbuild: fix make help & make *pkg
-      kbuild: remove obsoleted scripts/reference_* files
-
-Zach Brown:
-      x86: align per-cpu section to configured cache bytes
+Fascinating, gave up on dprobes, not really! I thought the kernel community
+felt it was the wrong implementation. We did remove all the RPN stuff to a
+loadable kernel module and left behind a minimal API set - krpobes - which
+comprised the kernel probing mechanism, user-space probes extensions and
+watchpoint probes extension. The result was identical functionality to the
+original dprobes but with a minimal patch to the mainline kernel. But in
+addition it provided a very much more generalized interface that would
+allow other utilities to exploit the kernel interface, which they have. In
+this sense dprobes still exists and can be used on top of krpobes. What
+would you recommend be retained from  dprobes? And what further
+modifications?
 

@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423188AbWCUSeI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423086AbWCUSfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423188AbWCUSeI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 13:34:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423180AbWCUSeH
+	id S1423086AbWCUSfo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 13:35:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423088AbWCUSfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 13:34:07 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:39634 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423174AbWCUSeE (ORCPT
+	Tue, 21 Mar 2006 13:35:43 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:49580 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S1423086AbWCUSfl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 13:34:04 -0500
-Date: Tue, 21 Mar 2006 10:33:53 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Sander <sander@humilis.net>
-cc: Mark Lord <liml@rtr.ca>, Mark Lord <lkml@rtr.ca>,
-       Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.xx: sata_mv: another critical fix
-In-Reply-To: <20060321153708.GA11703@favonius>
-Message-ID: <Pine.LNX.4.64.0603211028380.3622@g5.osdl.org>
-References: <441F4F95.4070203@garzik.org> <200603210000.36552.lkml@rtr.ca>
- <20060321121354.GB24977@favonius> <442004E4.7010002@rtr.ca>
- <20060321153708.GA11703@favonius>
+	Tue, 21 Mar 2006 13:35:41 -0500
+Message-ID: <44204754.8070401@colorfullife.com>
+Date: Tue, 21 Mar 2006 19:35:00 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.12) Gecko/20060202 Fedora/1.7.12-1.5.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] slab: introduce kmem_cache_zalloc allocator
+References: <Pine.LNX.4.58.0603201506140.19005@sbz-30.cs.Helsinki.FI> <20060321023654.389dc572.akpm@osdl.org> <Pine.LNX.4.58.0603211250530.22577@sbz-30.cs.Helsinki.FI>
+In-Reply-To: <Pine.LNX.4.58.0603211250530.22577@sbz-30.cs.Helsinki.FI>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pekka J Enberg wrote:
 
+>On Tue, 21 Mar 2006, Andrew Morton wrote:
+>  
+>
+>>I've always felt that this was an odd design.  Because
+>>
+>>a) All that cache-warmth which we get from the constructor's zeroing can
+>>   be lost by the time we get around to using an individual object and
+>>
+>>b) The object may be cache-cold by the time we free it, and we'll take
+>>   cache misses just putting it back into a constructed state for
+>>   kmem_cache_free().  And we'll lose that cache warmth by the time we use
+>>   this object again.
+>>
+>>So from that POV I think (in my simple way) that this is a good patch.  But
+>>IIRC, Manfred has reasons why it might not be?
+>>    
+>>
+>
+>I assume the design comes from Bonwick's paper which states that the 
+>purpose of object constructor is to support one-time initialization of 
+>objects which we're _not_ doing in this case.
+>
+>  
+>
+I agree - memset just before use is the Right Thing (tm).
 
-On Tue, 21 Mar 2006, Sander wrote:
-> 
-> The system just freezes. Rock solid. No sysrq, no ctrl-alt-del, nothing.
+One minor point: There are two cache_alloc entry points: __cache_alloc, 
+which is a forced inline function, and kmem_cache_alloc, which is just a 
+wrapper for __cache_alloc. Is it really necessary to call __cache_alloc?
+The idea is that __cache_alloc is used just by the two high-performance 
+paths: kmem_cache_alloc and kmalloc. Noone else should use __cache_alloc 
+directly.
 
-Can you enable the NMI watchdog? It could be a PCI bus lockup (in which 
-case nothing will help), but if it's some interrupts-off busy loop 
-(whether due to a spinlock deadlock or due to the driver just spinning) 
-then nmi-watchdog should help.
-
-Of course, that requires that you have support for local/io-APIC (ie if 
-UP, please select CONFIG_X86_UP_.*APIC)
-
-		Linus
+--
+    Manfred

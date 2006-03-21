@@ -1,59 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWCUROk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbWCUROX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751301AbWCUROk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 12:14:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWCUROj
+	id S1751142AbWCUROX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 12:14:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWCUROX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 12:14:39 -0500
-Received: from pat.uio.no ([129.240.130.16]:43165 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751301AbWCUROi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 12:14:38 -0500
-Subject: VFS,fs/locks.c: cleanup locks_insert_block
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 21 Mar 2006 12:14:28 -0500
-Message-Id: <1142961269.7987.20.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Tue, 21 Mar 2006 12:14:23 -0500
+Received: from webapps.arcom.com ([194.200.159.168]:14609 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S1751142AbWCUROW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 12:14:22 -0500
+Message-ID: <44203468.9060806@cantab.net>
+Date: Tue, 21 Mar 2006 17:14:16 +0000
+From: David Vrabel <dvrabel@cantab.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Richard Moser <nigelenki@comcast.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Lifetime of flash memory
+References: <44203179.3090606@comcast.net>
+In-Reply-To: <44203179.3090606@comcast.net>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.763, required 12,
-	autolearn=disabled, AWL 1.24, UIO_MAIL_IS_INTERNAL -5.00)
+X-OriginalArrivalTime: 21 Mar 2006 17:14:20.0988 (UTC) FILETIME=[E4C6BFC0:01C64D0A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: J. Bruce Fields <bfields@fieldses.org>
+John Richard Moser wrote:
+> 
+> The question I have is, is this really significant?  I have heard quoted
+> that flash memory typically handles something like 3x10^18 writes;
 
-BUG instead of handling a case that should never happen.
+That's like, uh, 13 orders of magnitudes out...
 
-Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
----
-
- fs/locks.c |    7 +------
- 1 files changed, 1 insertions(+), 6 deletions(-)
-
-diff --git a/fs/locks.c b/fs/locks.c
-index 1b4b899..a2278bc 100644
---- a/fs/locks.c
-+++ b/fs/locks.c
-@@ -533,12 +533,7 @@ static void locks_delete_block(struct fi
- static void locks_insert_block(struct file_lock *blocker, 
- 			       struct file_lock *waiter)
- {
--	if (!list_empty(&waiter->fl_block)) {
--		printk(KERN_ERR "locks_insert_block: removing duplicated lock "
--			"(pid=%d %Ld-%Ld type=%d)\n", waiter->fl_pid,
--			waiter->fl_start, waiter->fl_end, waiter->fl_type);
--		__locks_delete_block(waiter);
--	}
-+	BUG_ON(!list_empty(&waiter->fl_block));
- 	list_add_tail(&waiter->fl_block, &blocker->fl_block);
- 	waiter->fl_next = blocker;
- 	if (IS_POSIX(blocker))
-
-
-
+David Vrabel

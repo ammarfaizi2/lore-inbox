@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965120AbWCUVEf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965126AbWCUVIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965120AbWCUVEf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 16:04:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWCUVEf
+	id S965126AbWCUVIj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 16:08:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965125AbWCUVIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 16:04:35 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:9402 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965120AbWCUVEe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 16:04:34 -0500
-Date: Tue, 21 Mar 2006 13:04:28 -0800
-From: Paul Jackson <pj@sgi.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: jengelh@linux01.gwdg.de, linux-kernel@vger.kernel.org
-Subject: Re: VFAT: Can't create file named 'aux.h'?
-Message-Id: <20060321130428.a221ed24.pj@sgi.com>
-In-Reply-To: <442050C8.1020200@zytor.com>
-References: <1142890822.5007.18.camel@localhost.localdomain>
-	<20060320134533.febb0155.rdunlap@xenotime.net>
-	<dvn835$lvo$1@terminus.zytor.com>
-	<Pine.LNX.4.61.0603211840020.21376@yvahk01.tjqt.qr>
-	<44203B86.5000003@zytor.com>
-	<Pine.LNX.4.61.0603211854150.21376@yvahk01.tjqt.qr>
-	<442040CB.2020201@zytor.com>
-	<Pine.LNX.4.61.0603211911090.2314@yvahk01.tjqt.qr>
-	<44204BD9.1090103@zytor.com>
-	<Pine.LNX.4.61.0603212005250.6840@yvahk01.tjqt.qr>
-	<442050C8.1020200@zytor.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 21 Mar 2006 16:08:38 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:34534 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S965123AbWCUVIh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 16:08:37 -0500
+Message-ID: <44206B53.8020701@ichips.intel.com>
+Date: Tue, 21 Mar 2006 13:08:35 -0800
+From: Sean Hefty <mshefty@ichips.intel.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roland Dreier <rdreier@cisco.com>
+CC: Sean Hefty <sean.hefty@intel.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH 4/6 v2] IB: address translation to
+ map	IP toIB addresses (GIDs)
+References: <ORSMSX401FRaqbC8wSA0000000d@orsmsx401.amr.corp.intel.com> <adabqvza53f.fsf@cisco.com>
+In-Reply-To: <adabqvza53f.fsf@cisco.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hpa wrote:
-> Probably it would be worth trying to create "aux.h" under XP and see 
-> what happens.  Unfortunately I don't have a 'doze system handy at the 
-> moment.
+Roland Dreier wrote:
+>  > +struct workqueue_struct *rdma_wq;
+>  > +EXPORT_SYMBOL(rdma_wq);
+> 
+> Sean, I don't think I saw an answer when I asked you this before.  Why
+> is ib_addr exporting a workqueue?  Is there some sort of ordering
+> constraint that is forcing other modules to go through the same
+> workqueue for things?
+> 
+> This seems like a very fragile internal thing to be exposing, and I'm
+> wondering if there's a better way to handle it.
 
-On my windows xp box, I just ran the following three experiments,
-all inside a window brought up by running Start->Run "cmd":
- 
- C:\ copy con foo
- blah blah blah
- ^Z
+I responded in a different thread, but here's what I wrote:
 
- C:\ copy con aux
- blah blah blah
+"This is simply an attempt to reduce/combine work queues used by the Infiniband 
+code.  This keeps the threading a little simpler in the rdma_cm, since all 
+callbacks are invoked using the same work queue.  (I'm also using this with the 
+local SA/multicast code, but that's not ready for merging.)"
 
- C:\ copy con aux.h
- blah blah blah
+There's no specific ordering constraint that's required.  We're just ending up 
+with several Infiniband modules creating their own work queues (ib_mad, ib_cm, 
+ib_addr, rdma_cm, plus a couple more in modules under development), and this is 
+an attempt to reduce that.  If having separate work queues would work better, 
+there shouldn't be anything that prevents this.
 
-The first experiment above created a file named 'foo',
-containing 'blah blah blah'
-
-The second and third experiments both returned to the
-command prompt when I pressed "Enter" at the end of the
-"blah blah blah", after first complaining:
-
-   The system cannot find the file specified.
-           0 file(s) copied.
-
-This is on a fairly vanilla and uptodate Windows XP SP2.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+- Sean

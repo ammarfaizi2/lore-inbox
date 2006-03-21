@@ -1,38 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWCUSyZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWCUSzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932389AbWCUSyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 13:54:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWCUSyZ
+	id S932437AbWCUSzL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 13:55:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWCUSzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 13:54:25 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:1459 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932389AbWCUSyX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 13:54:23 -0500
-Message-ID: <44204BD9.1090103@zytor.com>
-Date: Tue, 21 Mar 2006 10:54:17 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: VFAT: Can't create file named 'aux.h'?
-References: <1142890822.5007.18.camel@localhost.localdomain> <20060320134533.febb0155.rdunlap@xenotime.net> <dvn835$lvo$1@terminus.zytor.com> <Pine.LNX.4.61.0603211840020.21376@yvahk01.tjqt.qr> <44203B86.5000003@zytor.com> <Pine.LNX.4.61.0603211854150.21376@yvahk01.tjqt.qr> <442040CB.2020201@zytor.com> <Pine.LNX.4.61.0603211911090.2314@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0603211911090.2314@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 21 Mar 2006 13:55:11 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:921 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932448AbWCUSzI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 13:55:08 -0500
+Subject: Re: [RFC] [PATCH 1/7] Add process virtualisation umbrella
+	structure (vx_info)
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Sam Vilain <sam@vilain.net>
+Cc: linux-kernel@vger.kernel.org, Herbert Poetzl <herbert@13thfloor.at>,
+       "Eric W.Biederman" <ebiederm@xmission.com>,
+       OpenVZ developers list <dev@openvz.org>,
+       "Serge E.Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060321061333.27638.9112.stgit@localhost.localdomain>
+References: <20060321061333.27638.63963.stgit@localhost.localdomain>
+	 <20060321061333.27638.9112.stgit@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 21 Mar 2006 10:53:05 -0800
+Message-Id: <1142967185.10906.188.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>You're confusing characters which aren't legal *VFAT* names which those which
->>aren't legal *FAT* (8.3) names.
->>
-> 
-> Could you please name an illegal FAT name being legal VFAT name?
-> 
+On Tue, 2006-03-21 at 18:13 +1200, Sam Vilain wrote:
+> +static inline void release_vx_info(struct vx_info *vxi,
+> +       struct task_struct *task)
+> +{
+> +       might_sleep();
+> +
+> +       if (atomic_dec_and_test(&vxi->vx_tasks))
+> +               unhash_vx_info(vxi);
+> +} 
 
-"Green Furry Submarine"
+Are these better handled by krefs and their destructors?
 
-	-hpa
+-- Dave
+

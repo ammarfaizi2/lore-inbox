@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030338AbWCUFqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030340AbWCUFt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030338AbWCUFqx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 00:46:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbWCUFqx
+	id S1030340AbWCUFt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 00:49:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbWCUFtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 00:46:53 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:37815 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030338AbWCUFqw (ORCPT
+	Tue, 21 Mar 2006 00:49:25 -0500
+Received: from [81.222.97.19] ([81.222.97.19]:40419 "EHLO mail.terrhq.ru")
+	by vger.kernel.org with ESMTP id S1030340AbWCUFtZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 00:46:52 -0500
-Date: Tue, 21 Mar 2006 00:46:34 -0500
-From: Dave Jones <davej@redhat.com>
-To: tiwai@suse.de
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: unresolved emu10k1 synth symbols.
-Message-ID: <20060321054634.GA5122@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, tiwai@suse.de,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 21 Mar 2006 00:49:25 -0500
+From: Yaroslav Rastrigin <yarick@it-territory.ru>
+Organization: IT-Territory 
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: VFAT: Can't create file named 'aux.h'?
+Date: Tue, 21 Mar 2006 08:49:20 +0300
+User-Agent: KMail/1.9
+References: <1142890822.5007.18.camel@localhost.localdomain> <Pine.LNX.4.61.0603202244370.11933@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0603202244370.11933@yvahk01.tjqt.qr>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200603210849.20224.yarick@it-territory.ru>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just noticed this whilst booting 2.6.16 on a test box
-
-snd_emu10k1_synth: Unknown symbol snd_emu10k1_ptr_read
-snd_emu10k1_synth: Unknown symbol snd_emu10k1_synth_copy_from_user
-snd_emu10k1_synth: Unknown symbol snd_emu10k1_voice_free
-snd_emu10k1_synth: Unknown symbol snd_emu10k1_synth_free
-snd_emu10k1_synth: Unknown symbol snd_emu10k1_ptr_write
-snd_emu10k1_synth: Unknown symbol snd_emu10k1_synth_bzero
-snd_emu10k1_synth: Unknown symbol snd_emu10k1_voice_alloc
-snd_emu10k1_synth: Unknown symbol snd_emu10k1_memblk_map
-snd_emu10k1_synth: Unknown symbol snd_emu10k1_synth_alloc
-
-This kernel was configured with CONFIG_SND_EMU10K1=m
-and CONFIG_SND_SEQUENCER=m
-
-This looks like it can't possibly work, unless I change
-CONFIG_SND_EMU10K1 to =y.  Is exporting a symbol from one
-module to another actually supposed to work?
-I thought this was why we had the ill-fated intermodule_register() ?.
-
-		Dave
+Hi, 
+On 21 March 2006 00:46, you wrote:
+> >	Hi everybody,
+> >
+> >while trying to back up a couple Linux directories to a FAT disk I ran
+> >into a weird situation: I can't create a file called aux.h on the FAT
+> >system! 
+> >
+> On DOS et al, there are a number of special filenames, such as
+> 
+> 	com1:
+> 	com2: (and so on)
+> 	lpt1:
+> 	lpt2: (and so on)
+> 	con:
+> 	aux
+> 	nul
+> 
+> (Try `dir >nul`, it's equivalent to unix's `ls -l >/dev/null` --
+> aux is the auxiliary port, whatever that is)
+> 
+> It seems only fair to me to not allow creating these files under Linux 
+> either, to avoid problems when booting back to Dos/Windows.
+This is true. smbfs, OTOH, has no such checks, so creating aux.h on an smb share is one easy way to DoS 
+all WinXP machines using(browsing) this share. Explorer hangs on reading directory with this file.
+> 
+> 
+> Jan Engelhardt
 
 -- 
-http://www.codemonkey.org.uk
+Managing your Territory since the dawn of times ...

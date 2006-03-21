@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030435AbWCUQbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030434AbWCUQaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030435AbWCUQbI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 11:31:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030306AbWCUQaj
+	id S1030434AbWCUQaR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 11:30:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWCUQVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 11:30:39 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:28940 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1030295AbWCUQVN (ORCPT
+	Tue, 21 Mar 2006 11:21:12 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:25612 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932407AbWCUQVK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 11:21:13 -0500
+	Tue, 21 Mar 2006 11:21:10 -0500
 Cc: Sam Ravnborg <sam@mars.ravnborg.org>, Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH 32/46] kbuild: in the section mismatch check try harder to find symbols
-In-Reply-To: <11429580562973-git-send-email-sam@ravnborg.org>
+Subject: [PATCH 05/46] kbuild: warn about duplicate exported symbols
+In-Reply-To: <11429580542480-git-send-email-sam@ravnborg.org>
 X-Mailer: git-send-email
-Date: Tue, 21 Mar 2006 17:20:56 +0100
-Message-Id: <11429580562919-git-send-email-sam@ravnborg.org>
+Date: Tue, 21 Mar 2006 17:20:54 +0100
+Message-Id: <1142958054501-git-send-email-sam@ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Sam Ravnborg <sam@ravnborg.org>
@@ -24,61 +24,60 @@ From: Sam Ravnborg <sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When searching for symbols the only check performed was if
-offset equals st_value. Adding an additional check to see if st_name
-points t a valid name made us sort out a few more false positives and
-let us report more correct names in warnings.
+In modpost introduce a check for symbols exported twice.
+This check caught only one victim (inet_bind_bucket_create) for
+which a patch is already sent to netdev.
 
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- scripts/mod/modpost.c |   17 ++++++++++++++++-
- 1 files changed, 16 insertions(+), 1 deletions(-)
+ scripts/mod/modpost.c |   16 +++++++++++++---
+ 1 files changed, 13 insertions(+), 3 deletions(-)
 
-43c74d179596ba1f8eceb8c6a5c7e11afe233662
+8e70c45887a6bbe40393342ea5b426b0dd836dff
 diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-index 3b570b1..3648683 100644
+index 976adf1..d901095 100644
 --- a/scripts/mod/modpost.c
 +++ b/scripts/mod/modpost.c
-@@ -558,7 +558,10 @@ static Elf_Sym *find_elf_symbol(struct e
- }
+@@ -117,6 +117,7 @@ struct symbol {
+ 	unsigned int vmlinux:1;    /* 1 if symbol is defined in vmlinux */
+ 	unsigned int kernel:1;     /* 1 if symbol is from kernel
+ 				    *  (only for external modules) **/
++	unsigned int preloaded:1;  /* 1 if symbol from Module.symvers */
+ 	char name[0];
+ };
  
- /*
-- * Find symbols before or equal addr and after addr - in the section sec
-+ * Find symbols before or equal addr and after addr - in the section sec.
-+ * If we find two symbols with equal offset prefer one with a valid name.
-+ * The ELF format may have a better way to detect what type of symbol
-+ * it is, but this works for now.
-  **/
- static void find_symbols_between(struct elf_info *elf, Elf_Addr addr,
- 				 const char *sec,
-@@ -587,6 +590,12 @@ static void find_symbols_between(struct 
- 				beforediff = addr - sym->st_value;
- 				*before = sym;
- 			}
-+			else if ((addr - sym->st_value) == beforediff) {
-+				/* equal offset, valid name? */
-+				const char *name = elf->strtab + sym->st_name;
-+				if (name && strlen(name))
-+					*before = sym;
-+			}
+@@ -186,9 +187,17 @@ static struct symbol *sym_add_exported(c
+ {
+ 	struct symbol *s = find_symbol(name);
+ 
+-	if (!s)
++	if (!s) {
+ 		s = new_symbol(name, mod);
+-
++	} else {
++		if (!s->preloaded) {
++			warn("%s: duplicate symbol '%s' previous definition "
++			     "was in %s%s\n", mod->name, name,
++			     s->module->name,
++			     is_vmlinux(s->module->name) ?"":".ko");
++		}
++	}
++	s->preloaded = 0;
+ 	s->vmlinux   = is_vmlinux(mod->name);
+ 	s->kernel    = 0;
+ 	return s;
+@@ -706,7 +715,8 @@ static void read_dump(const char *fname,
+ 			mod->skip = 1;
  		}
- 		else
- 		{
-@@ -594,6 +603,12 @@ static void find_symbols_between(struct 
- 				afterdiff = sym->st_value - addr;
- 				*after = sym;
- 			}
-+			else if ((sym->st_value - addr) == afterdiff) {
-+				/* equal offset, valid name? */
-+				const char *name = elf->strtab + sym->st_name;
-+				if (name && strlen(name))
-+					*after = sym;
-+			}
- 		}
+ 		s = sym_add_exported(symname, mod);
+-		s->kernel = kernel;
++		s->kernel    = kernel;
++		s->preloaded = 1;
+ 		sym_update_crc(symname, mod, crc);
  	}
- }
+ 	return;
 -- 
 1.0.GIT
 

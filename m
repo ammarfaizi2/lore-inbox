@@ -1,75 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWCUWKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751809AbWCUWJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWCUWKX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 17:10:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWCUWKX
+	id S1751809AbWCUWJt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 17:09:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751807AbWCUWJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 17:10:23 -0500
-Received: from host245-95.pool217223.interbusiness.it ([217.223.95.245]:22759
-	"EHLO rc-vaio.rcdiostrouska.com") by vger.kernel.org with ESMTP
-	id S932261AbWCUWKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 17:10:22 -0500
-Subject: Re: p4-clockmod not working in 2.6.16
-From: Sasa Ostrouska <sasa.ostrouska@volja.net>
-Reply-To: sasa.ostrouska@volja.net
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060321220115.GA8583@redhat.com>
-References: <1142974528.3470.4.camel@localhost>
-	 <20060321210106.GA25370@redhat.com> <1142978230.3470.12.camel@localhost>
-	 <20060321220115.GA8583@redhat.com>
-Content-Type: text/plain
-Date: Tue, 21 Mar 2006 23:13:45 +0100
-Message-Id: <1142979226.3470.18.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 Dropline GNOME 
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Mar 2006 17:09:49 -0500
+Received: from smtpauth08.mail.atl.earthlink.net ([209.86.89.68]:33471 "EHLO
+	smtpauth08.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S1751802AbWCUWJs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 17:09:48 -0500
+To: "Yu, Luming" <luming.yu@intel.com>
+cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       michael@mihu.de, mchehab@infradead.org,
+       "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
+       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       jgarzik@pobox.com, "Duncan" <1i5t5.duncan@cox.net>,
+       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
+Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+In-Reply-To: Your message of "Tue, 21 Mar 2006 17:11:29 +0800."
+             <3ACA40606221794F80A5670F0AF15F840B417863@pdsmsx403> 
+X-Mailer: MH-E 7.91; nmh 1.1; GNU Emacs 21.4.1
+Date: Tue, 21 Mar 2006 17:09:25 -0500
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1FLp2b-00011l-Fz@approximate.corpus.cam.ac.uk>
+X-ELNK-Trace: dcd19350f30646cc26f3bd1b5f75c9f474bf435c0eb9d478d165aa9320335d718cc3f7e9008610e7ee90dc03c8257537350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 24.41.6.91
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-21 at 17:01 -0500, Dave Jones wrote:
-> On Tue, Mar 21, 2006 at 10:57:10PM +0100, Sasa Ostrouska wrote:
-> 
->  > Hi Dave, here it is, this is on a Sony Vaio PCG-GRT816S laptop:
->  > CPU0: Temperature above threshold
->  > CPU0: Running in modulated clock mode
->  > .. ad infinitum ..
-> 
-> *yowch*.  Are you running that CPU fanless or something?
-> 
-> Does the patch below help?
-> 
-> 		Dave
-> 
-> 
-> Fix the code to disable freqs less than 2GHz in N60 errata.
-> 
-> Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-> Signed-off-by: Dave Jones <davej@redhat.com>
-> 
-> Index: linux-2.6.15/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
-> ===================================================================
-> --- linux-2.6.15.orig/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
-> +++ linux-2.6.15/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
-> @@ -244,7 +244,7 @@ static int cpufreq_p4_cpu_init(struct cp
->  	for (i=1; (p4clockmod_table[i].frequency != CPUFREQ_TABLE_END); i++) {
->  		if ((i<2) && (has_N44_O17_errata[policy->cpu]))
->  			p4clockmod_table[i].frequency = CPUFREQ_ENTRY_INVALID;
-> -		else if (has_N60_errata[policy->cpu] && p4clockmod_table[i].frequency < 2000000)
-> +		else if (has_N60_errata[policy->cpu] && ((stock_freq * i)/8) < 2000000)
->  			p4clockmod_table[i].frequency = CPUFREQ_ENTRY_INVALID;
->  		else
->  			p4clockmod_table[i].frequency = (stock_freq * i)/8;
-> 
+Two more experiments:
 
-Patch failed :(
+  With a vanilla kernel, I faked EC0.UPDT() to just return 0x00, and the
+  system hung on the second sleep.
 
-root@rc-vaio:/usr/src/linux-2.6.16# patch -p1 < ../linux-2.6.16-p4-clockmod.diff
-patching file arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
-Hunk #1 FAILED at 244.
-1 out of 1 hunk FAILED -- saving rejects to file arch/i386/kernel/cpu/cpufreq/p4-clockmod.c.rej
-root@rc-vaio:/usr/src/linux-2.6.16#
+  Then, again in the DSDT, I also faked the 4 _TMP methods (one in each
+  thermal zone), and the system hung on the second sleep.
 
-rgds
-Sasa
+I think we've raced too far ahead by trying to debug many thermal zones
+at once.  Perhaps there are two bugs.  So let's find them one by one.
 
+One bug is quite repeatable and we know a lot about it. With all zones
+except THM0 commented out, the system hung.  With the EC0.UPDT line in
+THM0._TMP also commented out, the system didn't hang.  So there's a
+problem related to the EC, even with only THM0.  And finding that
+problem may giveideas for what else may be wrong.
+
+-Sanjoy
+
+`A society of sheep must in time beget a government of wolves.'
+   - Bertrand de Jouvenal

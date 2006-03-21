@@ -1,76 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030427AbWCUPUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751771AbWCUP2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030427AbWCUPUR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 10:20:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751771AbWCUPUR
+	id S1751771AbWCUP2x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 10:28:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751772AbWCUP2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 10:20:17 -0500
-Received: from uproxy.gmail.com ([66.249.92.199]:63781 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751770AbWCUPUQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 10:20:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bAh2DddvoLdA1eodIquFSLDiUBhXa2uCS44hTMF2qBhkjUdWCoTDYhCXQOjVtYK96l3/8NNYMFFsnLF1j6WdSxiqgqyRIYt6l5TcAACUbJhwuZG5VvydhYvMJHMTsuA7aWfwuihSJTG1Iqu4E19IIVCNjznhZGO3pJMpTTh7nzM=
-Message-ID: <bc56f2f0603210720q332b0fdbu@mail.gmail.com>
-Date: Tue, 21 Mar 2006 10:20:12 -0500
-From: "Stone Wang" <pwstone@gmail.com>
-To: "Christoph Lameter" <clameter@sgi.com>
-Subject: Re: [PATCH][0/8] (Targeting 2.6.17) Posix memory locking and balanced mlock-LRU semantic
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.64.0603200923560.24138@schroedinger.engr.sgi.com>
+	Tue, 21 Mar 2006 10:28:52 -0500
+Received: from mgw1.diku.dk ([130.225.96.91]:58532 "EHLO mgw1.diku.dk")
+	by vger.kernel.org with ESMTP id S1751771AbWCUP2v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 10:28:51 -0500
+Date: Tue, 21 Mar 2006 16:27:47 +0100 (CET)
+From: Jesper Dangaard Brouer <hawk@diku.dk>
+To: Robert Olsson <Robert.Olsson@data.slu.se>
+Cc: jens.laas@data.slu.se, hans.liss@its.uu.se, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel panic: Route cache, RCU, possibly FIB trie.
+In-Reply-To: <17439.65413.214470.194287@robur.slu.se>
+Message-ID: <Pine.LNX.4.61.0603211552590.28173@ask.diku.dk>
+References: <Pine.LNX.4.61.0603202234400.27140@ask.diku.dk>
+ <17439.65413.214470.194287@robur.slu.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <bc56f2f0603200535s2b801775m@mail.gmail.com>
-	 <Pine.LNX.4.64.0603200923560.24138@schroedinger.engr.sgi.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Checked, mlocked pages dont take part in swapping-writeback,
-unlike normal mmaped pages :
 
-linux-2.6.16/mm/rmap.c
+On Tue, 21 Mar 2006, Robert Olsson wrote:
 
-try_to_unmap_one()
-
-    603     if ((vma->vm_flags & VM_LOCKED) ||
-    604             (ptep_clear_flush_young(vma, address, pte)
-    605                 && !ignore_refs)) {
-    606         ret = SWAP_FAIL;
-    607         goto out_unmap;
-    608     }
-    609
-    610     /* Nuke the page table entry. */
-    611     flush_cache_page(vma, address, page_to_pfn(page));
-    612     pteval = ptep_clear_flush(vma, address, pte);
-    613
-    614     /* Move the dirty bit to the physical page now the pte is gone. */
-    615     if (pte_dirty(pteval))
-    616         set_page_dirty(page);
-
-For VM_LOCKED page, it goes back(line 607) without set_page_dirty(line 616).
-
-
-
-2006/3/20, Christoph Lameter <clameter@sgi.com>:
-> On Mon, 20 Mar 2006, Stone Wang wrote:
+> Jesper Dangaard Brouer writes:
 >
-> > 2. More consistent LRU semantics in Memory Management.
-> >    Mlocked pages is placed on a separate LRU list: Wired List.
-> >    The pages dont take part in LRU algorithms,for they could never be swapped,
-> >    until munlocked.
+> > I have tried to track down the problem, and I think I have narrowed it
+> > a bit down.  My theory is that it is related to the route cache
+> > (ip_dst_cache) or FIB, which cannot dealloacate route cache slab
+> > elements (maybe RCU related).  (I have seen my route cache increase to
+> > around 520k entries using rtstat, before dying).
+> >
+> > I'm using the FIB trie system/algorithm (CONFIG_IP_FIB_TRIE). Think
+> > that the error might be cause by the "fib_trie" code.  See the syslog,
+> > output below.
 >
-> This also implies that dirty bits of the pte for mlocked pages are never
-> checked.
+> > Syslog#1 (indicating a problem with the fib trie)
+> > --------
+> > Mar 20 18:00:04 hostname kernel: Debug: sleeping function called from invalid context at mm/slab.c:2472
+> > Mar 20 18:00:04 hostname kernel: in_atomic():1, irqs_disabled():0
+> > Mar 20 18:00:04 hostname kernel:  [<c0103d9f>] dump_stack+0x1e/0x22
+> > Mar 20 18:00:04 hostname kernel:  [<c011cbe1>] __might_sleep+0xa6/0xae
+> > Mar 20 18:00:04 hostname kernel:  [<c014f3e9>] __kmalloc+0xd9/0xf3
+> > Mar 20 18:00:04 hostname kernel:  [<c014f5a4>] kzalloc+0x23/0x50
+> > Mar 20 18:00:04 hostname kernel:  [<c030ecd1>] tnode_alloc+0x3c/0x82
+> > Mar 20 18:00:04 hostname kernel:  [<c030edf6>] tnode_new+0x26/0x91
+> > Mar 20 18:00:04 hostname kernel:  [<c030f757>] halve+0x43/0x31d
+> > Mar 20 18:00:04 hostname kernel:  [<c030f090>] resize+0x118/0x27e
 >
-> Currently light swapping (which is very common) will scan over all pages
-> and move the dirty bits from the pte into struct page. This may take
-> awhile but at least at some point we will write out dirtied pages.
+> Hello!
 >
-> The result of not scanning mlocked pages will be that mmapped files will
-> not be updated unless either the process terminates or msync() is called.
->
->
+> Out of memory?
+One of the crashed was caused by out of memory, but all the memory was 
+allocated through slab.  More specifically to ip_dst_cache.
+
+> Running BGP with full routing?
+No, running OSPF with around 760 subnets.
+
+> And large number of flows.
+Yes, very large number of flows.
+
+> Whats your normal number of entries route cache?
+On this machine, rigth now, between 14000 to 60000 entries in the route 
+cache.  On other machines, rigth now, I have a max of 151560 entries.
+
+> And how much memory do you have?
+On this machine 1Gb memory (and 4 others), most of the machines have 2Gb.
+
+
+> From your report problems seems to related to flushing either rt_cache_flush
+> or fib_flush (before there was dev_close()?) so all associated entries should
+> freed. All the entries are freed via RCU which due to the deferred delete
+> can give a very high transient memory pressure. If we believe it's memory problem
+> we can try something out...
+
+There is definitly high memory pressure on this machine!
+Slab memory usage, range from 39Mb to 205Mb (at the moment on the production servers).
+
+Hilsen
+   Jesper Brouer
+
+--
+-------------------------------------------------------------------
+Cand. scient datalog
+Dept. of Computer Science, University of Copenhagen
+-------------------------------------------------------------------

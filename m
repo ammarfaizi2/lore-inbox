@@ -1,86 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWCUH5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWCUID0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932208AbWCUH5X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 02:57:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbWCUH5W
+	id S932224AbWCUID0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 03:03:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbWCUID0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 02:57:22 -0500
-Received: from lug-owl.de ([195.71.106.12]:38090 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1751343AbWCUH5W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 02:57:22 -0500
-Date: Tue, 21 Mar 2006 08:57:18 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VFAT: Can't create file named 'aux.h'?
-Message-ID: <20060321075718.GK20746@lug-owl.de>
-Mail-Followup-To: "H. Peter Anvin" <hpa@zytor.com>,
-	linux-kernel@vger.kernel.org
-References: <1142890822.5007.18.camel@localhost.localdomain> <20060320134533.febb0155.rdunlap@xenotime.net> <dvn835$lvo$1@terminus.zytor.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Zz5hxuHUV8Fb7Aol"
+	Tue, 21 Mar 2006 03:03:26 -0500
+Received: from max.feld.cvut.cz ([147.32.192.36]:60365 "EHLO max.feld.cvut.cz")
+	by vger.kernel.org with ESMTP id S1751355AbWCUIDZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 03:03:25 -0500
+From: CIJOML <cijoml@volny.cz>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.16 - cpufreq doesn't find Celeron (Pentium4/XEON) processor
+Date: Tue, 21 Mar 2006 09:02:18 +0100
+User-Agent: KMail/1.8.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <dvn835$lvo$1@terminus.zytor.com>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+Message-Id: <200603210902.19335.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---Zz5hxuHUV8Fb7Aol
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+up to 2.6.15 my kernel worked to find my processor and frequency scalling was 
+possible via cpufreq. I have 
 
-On Mon, 2006-03-20 13:50:29 -0800, H. Peter Anvin <hpa@zytor.com> wrote:
-> > /* MS-DOS "device special files" */
-> > static const unsigned char *reserved_names[] =3D {
-> > 	"CON     ", "PRN     ", "NUL     ", "AUX     ",
-> > 	"LPT1    ", "LPT2    ", "LPT3    ", "LPT4    ",
-> > 	"COM1    ", "COM2    ", "COM3    ", "COM4    ",
-> > 	NULL
-> > };
-> >=20
->=20
-> There should be more than that.  At the very least there is "CLOCK$"
-> (arguably anything with $), "MSCD001" (and probably more than 001), as
-> well as "COM5".."COM8".
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Celeron(R) CPU 2.40GHz
+stepping        : 9
+cpu MHz         : 2398.803
+cache size      : 128 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
+cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
+bogomips        : 4801.41
 
-Please divide all the reservednames into two groups: those build-in
-into io.sys/msdos.sys/command.com and those that are added on the fly.
-For example, "mscd001" is runtime-registered trhough any atapi CD-ROM
-driver and this name is/was usually a user-configurable option. (Bad
-guys name it 'README'.)
+Now it is screwed up...
 
-MfG, JBG
+My config:
+  │ │ [*] CPU Frequency scaling                                                                                                        
+│ │
+  │ │ [ ]   Enable CPUfreq debugging                                                                                                   
+│ │
+  │ │ <*>   CPU frequency translation statistics                                                                                       
+│ │
+  │ │ [*]     CPU frequency translation statistics details                                                                             
+│ │
+  │ │       Default CPUFreq governor (userspace)  --->                                                                                 
+│ │
+  │ │ <*>   'performance' governor                                                                                                     
+│ │
+  │ │ <*>   'powersave' governor                                                                                                       
+│ │
+  │ │ ---   'userspace' governor for userspace frequency scaling                                                                       
+│ │
+  │ │ <*>   'ondemand' cpufreq policy governor                                                                                         
+│ │
+  │ │ <*>   'conservative' cpufreq governor                                                                                            
+│ │
+  │ │ ---   CPUFreq processor drivers                                                                                                  
+│ │
+  │ │ < >   ACPI Processor P-States driver                                                                                             
+│ │
+  │ │ < >   AMD Mobile K6-2/K6-3 PowerNow!                                                                                             
+│ │
+  │ │ < >   AMD Mobile Athlon/Duron PowerNow!                                                                                          
+│ │
+  │ │ < >   AMD Opteron/Athlon64 PowerNow!                                                                                             
+│ │
+  │ │ < >   Cyrix MediaGX/NatSemi Geode Suspend Modulation                                                                             
+│ │
+  │ │ < >   Intel Enhanced SpeedStep                                                                                                   
+│ │
+  │ │ < >   Intel Speedstep on ICH-M chipsets (ioport interface)                                                                       
+│ │
+  │ │ < >   Intel SpeedStep on 440BX/ZX/MX chipsets (SMI interface)                                                                    
+│ │
+  │ │ <*>   Intel Pentium 4 clock modulation                                                                                           
+│ │
+  │ │ < >   nVidia nForce2 FSB changing                                                                                                
+│ │
+  │ │ < >   Transmeta LongRun                                                                                                          
+│ │
+  │ │ < >   VIA Cyrix III Longhaul                                                                                                     
+│ │
+  │ │ ---   shared options                                                                                                             
+│ │
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
 
---Zz5hxuHUV8Fb7Aol
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Thanks for fixing
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFEH7HeHb1edYOZ4bsRAsHhAJ9HuAXDQBYIM0Gobc9JwJ7QYsEFWgCdFPlY
-u1M85UOOkO2J9gGqO6niL90=
-=+CyP
------END PGP SIGNATURE-----
-
---Zz5hxuHUV8Fb7Aol--
+Michal

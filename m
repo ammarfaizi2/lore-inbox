@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030382AbWCUNv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbWCUNyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030382AbWCUNv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 08:51:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030385AbWCUNv3
+	id S1030384AbWCUNyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 08:54:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030386AbWCUNyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 08:51:29 -0500
-Received: from rtr.ca ([64.26.128.89]:56749 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1030381AbWCUNv2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 08:51:28 -0500
-Message-ID: <442004E4.7010002@rtr.ca>
-Date: Tue, 21 Mar 2006 08:51:32 -0500
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20060305 SeaMonkey/1.1a
+	Tue, 21 Mar 2006 08:54:16 -0500
+Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:30950 "EHLO
+	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1030384AbWCUNyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 08:54:15 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: interactive task starvation
+Date: Wed, 22 Mar 2006 00:53:52 +1100
+User-Agent: KMail/1.9.1
+Cc: Willy Tarreau <willy@w.ods.org>, Ingo Molnar <mingo@elte.hu>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       bugsplatter@gmail.com
+References: <1142592375.7895.43.camel@homer> <20060321125900.GA25943@w.ods.org> <1142947456.7807.53.camel@homer>
+In-Reply-To: <1142947456.7807.53.camel@homer>
 MIME-Version: 1.0
-To: sander@humilis.net
-Cc: Mark Lord <lkml@rtr.ca>, Jeff Garzik <jeff@garzik.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.xx: sata_mv: another critical fix
-References: <441F4F95.4070203@garzik.org> <200603210000.36552.lkml@rtr.ca> <20060321121354.GB24977@favonius>
-In-Reply-To: <20060321121354.GB24977@favonius>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603220053.53595.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sander wrote:
-> Mark Lord wrote (ao):
->> This patch addresses a number of weird behaviours observed
->> for the sata_mv driver, by fixing an "off by one" bug in processing
->> of the EDMA response queue.
->>
->> Basically, sata_mv was looking in the wrong place for
->> command results, and this produced a lot of unpredictable behaviour.
-> 
-> 2.6.16 with this patch and your former patch applied, crashes during
-> stressing a raid5 connected to a MV88SX6081.
-> 
-> 2.6.16-rc6 crashes too.
-> 
-> 2.6.16-rc6-mm2 is rock solid wrt sata_mv.
-> 
-> I get no output of the crash on netconsole. Would it help if I get the
-> output of the crash (if any)? In that case I'll connect a screen and see
-> what it produces.
+On Wednesday 22 March 2006 00:24, Mike Galbraith wrote:
+> On Tue, 2006-03-21 at 13:59 +0100, Willy Tarreau wrote:
+> > That would suit me perfectly. I think I would set them both to zero.
+> > It's not clear to me what workload they can help, it seems that they
+> > try to allow a sometimes unfair scheduling.
+>
+> Correct.  Massively unfair scheduling is what interactivity requires.
 
-Yes, most helpful, please.
-Even a digital camera snapshot of the oops would be handy to see.
+To some degree, yes. Transient unfairness was all that it was supposed to do 
+and clearly it failed at being transient. 
 
-Thanks!
+I would argue that good interactivity is possible with fairness by changing 
+the design. I won't go there (to try and push it that is), though, as the 
+opposition to changing the whole scheduler in place or making it pluggable 
+has already been voiced numerous times over, and it would kill me to try and 
+promote such an alternative ever again. Especially since the number of people 
+willing to test interactive patches and report to lkml has dropped to 
+virtually nil. 
+
+The yardstick for changes is now the speed of 'ls' scrolling in the console. 
+Where exactly are those extra cycles going I wonder? Do you think the 
+scheduler somehow makes the cpu idle doing nothing in that timespace? Clearly 
+that's not true, and userspace is making something spin unnecessarily, but 
+we're gonna fix that by modifying the scheduler.... sigh
+
+Cheers,
+Con

@@ -1,47 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbWCUHFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWCUHEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932258AbWCUHFV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 02:05:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWCUHFV
+	id S932241AbWCUHEM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 02:04:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWCUHEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 02:05:21 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:61399 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932258AbWCUHFU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 02:05:20 -0500
-Date: Tue, 21 Mar 2006 09:05:14 +0200 (EET)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Nathan Scott <nathans@sgi.com>
-cc: xfs-masters@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] xfs: kill kmem_zone init
-In-Reply-To: <20060321082037.A653275@wobbly.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.58.0603210859450.14023@sbz-30.cs.Helsinki.FI>
-References: <Pine.LNX.4.58.0603201501540.18684@sbz-30.cs.Helsinki.FI>
- <20060321082037.A653275@wobbly.melbourne.sgi.com>
+	Tue, 21 Mar 2006 02:04:11 -0500
+Received: from xenotime.net ([66.160.160.81]:20674 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932241AbWCUHEL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 02:04:11 -0500
+Date: Mon, 20 Mar 2006 23:02:37 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH] doc: more serial-console info.
+Message-Id: <20060320230237.7dabf6bb.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Mar 2006, Nathan Scott wrote:
-> Sorry, but thats just silly.  Did you even look at the code
-> around what you're changing (it has to do more than just wrap
-> up slab calls)?  So, NACK on this patch - it leaves the code
-> very confused (half zoney, half slaby), and is just unhelpful
-> code churn at the end of the day.
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-You're already using kmem_cache_destroy() mixed with the zone stuff so I 
-don't see your point. I would really prefer to feed small bits at a time 
-so is there any way I can sweet-talk you into merging the patch?
+Add info on flow control for serial consoles.
+Refer to netconsole option also.
 
-On Tue, 21 Mar 2006, Nathan Scott wrote:
-> For your zalloc patch, you will need to duplicate the logic
-> in kmem_zone_alloc into kmem_zone_zalloc in order to use that
-> new zalloc interface you're introducing - which should be fine.
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ Documentation/kernel-parameters.txt |   15 ++++++++++-----
+ Documentation/serial-console.txt    |   11 ++++++++---
+ 2 files changed, 18 insertions(+), 8 deletions(-)
 
-I am planning to kill the slab wrappers completely. The logic you're 
-referring to looks awful lot like GFP_NOFAIL with limiter. Any 
-reason we can't just use GFP_NOFAIL for those cases?
+--- linux-2616-work.orig/Documentation/kernel-parameters.txt
++++ linux-2616-work/Documentation/kernel-parameters.txt
+@@ -366,12 +366,17 @@ running once the system is up.
+ 		tty<n>	Use the virtual console device <n>.
+ 
+ 		ttyS<n>[,options]
++		ttyUSB0[,options]
+ 			Use the specified serial port.  The options are of
+-			the form "bbbbpn", where "bbbb" is the baud rate,
+-			"p" is parity ("n", "o", or "e"), and "n" is bits.
+-			Default is "9600n8".
+-
+-			See also Documentation/serial-console.txt.
++			the form "bbbbpnf", where "bbbb" is the baud rate,
++			"p" is parity ("n", "o", or "e"), "n" is number of
++			bits, and "f" is flow control ("r" for RTS or
++			omit it).  Default is "9600n8".
++
++			See Documentation/serial-console.txt for more
++			information.  See
++			Documentation/networking/netconsole.txt for an
++			alternative.
+ 
+ 		uart,io,<addr>[,options]
+ 		uart,mmio,<addr>[,options]
+--- linux-2616-work.orig/Documentation/serial-console.txt
++++ linux-2616-work/Documentation/serial-console.txt
+@@ -17,11 +17,13 @@ The format of this option is:
+ 			ttyX for any other virtual console
+ 			ttySx for a serial port
+ 			lp0 for the first parallel port
++			ttyUSB0 for the first USB serial device
+ 
+ 	options:	depend on the driver. For the serial port this
+-			defines the baudrate/parity/bits of the port,
+-			in the format BBBBPN, where BBBB is the speed,
+-			P is parity (n/o/e), and N is bits. Default is
++			defines the baudrate/parity/bits/flow control of
++			the port, in the format BBBBPNF, where BBBB is the
++			speed, P is parity (n/o/e), N is number of bits,
++			and F is flow control ('r' for RTS). Default is
+ 			9600n8. The maximum baudrate is 115200.
+ 
+ You can specify multiple console= options on the kernel command line.
+@@ -45,6 +47,9 @@ become the console.
+ You will need to create a new device to use /dev/console. The official
+ /dev/console is now character device 5,1.
+ 
++(You can also use a network device as a console.  See
++Documentation/networking/netconsole.txt for information on that.)
++
+ Here's an example that will use /dev/ttyS1 (COM2) as the console.
+ Replace the sample values as needed.
+ 
 
-				Pekka 
+
+---

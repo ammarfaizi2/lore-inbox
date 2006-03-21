@@ -1,115 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWCUIvr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWCUIyA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751054AbWCUIvr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 03:51:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWCUIvr
+	id S1750890AbWCUIyA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 03:54:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWCUIyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 03:51:47 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:46807 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1750785AbWCUIvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 03:51:46 -0500
-Message-Id: <200603210851.k2L8pHg21393@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: <akpm@osdl.org>, <pbadari@us.ibm.com>, <suparna@in.ibm.com>,
-       <zach.brown@oracle.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [patch] direct-io: bug fix in dio handling write error
-Date: Tue, 21 Mar 2006 00:51:27 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZMxKOo2/0sOmfJTCGUkMPg2KnXqg==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Tue, 21 Mar 2006 03:54:00 -0500
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:6793 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1750890AbWCUIx7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 03:53:59 -0500
+Date: Tue, 21 Mar 2006 09:53:52 +0100
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       bert hubert <bert.hubert@netherlabs.nl>, linux-kernel@vger.kernel.org,
+       george@mvista.com
+Subject: Re: gettimeofday order of magnitude slower with pmtimer, which is default
+Message-ID: <20060321085352.GA17642@rhlx01.fht-esslingen.de>
+References: <20060320122449.GA29718@outpost.ds9a.nl> <1142901656.441f4b98472e5@vds.kolivas.org> <87acbk33la.fsf@duaron.myhome.or.jp> <200603211409.50331.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603211409.50331.kernel@kolivas.org>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Hi,
 
-There is a bug in direct-io on propagating write error up to the
-higher I/O layer.  When performing an async ODIRECT write to a
-block device, if a device error occurred (like media error or disk
-is pulled), the error code is only propagated from device driver
-to the DIO layer.  The error code stops at finished_one_bio(). The
-aysnc write, however, is supposedly have a corresponding AIO event
-with appropriate return code (in this case -EIO).  Application
-which waits on the async write event, will hang forever since such
-AIO event is lost forever (if such app did not use the timeout
-option in io_getevents call. Regardless, an AIO event is lost).
+On Tue, Mar 21, 2006 at 02:09:50PM +1100, Con Kolivas wrote:
+> On Tue, 21 Mar 2006 01:59 pm, OGAWA Hirofumi wrote:
+> > Yes. However, if machines uses buggy chip, I guessed TSC/PIT would be
+> > more proper as time source. 
+> 
+> Oh yes but there has been an epidemic of timer problems (fast/slow, lost ticks 
+> etc) lately meaning the pm timer is being relied upon more and more.
 
-The discovery of above bug leads to another discovery of potential
-race window with dio->result.  The fundamental problem is that
-dio->result is overloaded with dual use: an indicator of fall back
-path for partial dio write, and an error indicator used in the I/O
-completion path.  In the event of device error, the setting of -EIO
-to dio->result clashes with value used to track partial write that
-activates the fall back path.
-
-It was also pointed out that it is impossible to use dio->result to
-track partial write and at the same time to track error returned
-from device driver. Because direct_io_work can only determines whether
-it is a partial write at the end of io submission and in mid stream
-of those io submission, a return code could be coming back from the
-driver.  Thus messing up all the subsequent logic.
-
-Proposed fix is to separating out error code returned by the IO
-completion path from partial IO submit tracking.  A new variable is
-added to dio structure specifically to track io error returned in the
-completion path.
+I think it's reasonable to question whether to use unlikely or not,
+but IMHO omitting unlikely here will not reward well-behaving systems and
+not punish buggy systems, and this doesn't seem quite right from an
+evolutionary point of view (especially since I'd guess the number of buggy
+chipsets is much lower than the number of working chipsets possibly
+also from vendors other than Intel - famous last words...).
+OTOH by not using the likely/unlikely branch prediction skew we may gain
+higher combined (buggy systems *plus* good systems) performance.
+But since I/O access time (especially in tripled form!) is **MUCH** higher
+than any branching delay judging from my profiling experiments, I'd vote
+for keeping the unlikely anyway.
 
 
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
-Acked-by: Zach Brown <zach.brown@oracle.com>
-Acked-by: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>
----
+BTW, my original patch (not published) evaluated timer performance over e.g.
+10000 cycles and then (if positive) switched a *function pointer* over to the
+"good" function.
+So the buggy/non-buggy check inside the function could also be done via
+function pointers, but this seems much more costly since it wastes kernel
+image space for two functions with two stack frame setups etc. pp.
 
-Patch tested by pulling a scsi drive while running aiostress as well
-as running test code in http://developer.osdl.org/daniel/AIO/TESTS/
+Thanks go to OGAWA for actually writing the patch with a surprisingly easy
+buggy chipset check! (PCI revision etc.)
 
-Andrew - please merge this version.  Thank you.
+> > I'll remove unlikely(), and also will remove "Use other timer source"
+> > from warning.
+> 
+> Suggesting another timer source is ok in the warning I believe given massive 
+> amounts of wasted cpu.
 
+Yes, please keep the warning (and make sure there's a part mentioning
+"very costly for certain buggy Intel chipsets" or so).
 
---- ./fs/direct-io.c.orig	2006-01-02 19:21:10.000000000 -0800
-+++ ./fs/direct-io.c	2006-03-21 01:28:48.704475280 -0800
-@@ -129,6 +129,7 @@ struct dio {
- 	/* AIO related stuff */
- 	struct kiocb *iocb;		/* kiocb */
- 	int is_async;			/* is IO async ? */
-+	int io_error;			/* IO error in completion path */
- 	ssize_t result;                 /* IO result */
- };
- 
-@@ -250,6 +251,10 @@ static void finished_one_bio(struct dio 
- 			    ((offset + transferred) > dio->i_size))
- 				transferred = dio->i_size - offset;
- 
-+			/* check for error in completion path */
-+			if (dio->io_error)
-+				transferred = dio->io_error;
-+
- 			dio_complete(dio, offset, transferred);
- 
- 			/* Complete AIO later if falling back to buffered i/o */
-@@ -406,7 +411,7 @@ static int dio_bio_complete(struct dio *
- 	int page_no;
- 
- 	if (!uptodate)
--		dio->result = -EIO;
-+		dio->io_error = -EIO;
- 
- 	if (dio->is_async && dio->rw == READ) {
- 		bio_check_pages_dirty(bio);	/* transfers ownership */
-@@ -964,6 +969,7 @@ direct_io_worker(int rw, struct kiocb *i
- 	dio->next_block_for_io = -1;
- 
- 	dio->page_errors = 0;
-+	dio->io_error = 0;
- 	dio->result = 0;
- 	dio->iocb = iocb;
- 	dio->i_size = i_size_read(inode);
+> > BTW, this patch is still quick hack.
+> 
+> Understood. Perhaps having an indirect function call set to either 
+> good_pmtmr() or bad_pmtmr() after checking would be preferable to a variable 
+> that is checked on each function call despite never changing.
 
+Oh, there you even mention it ;) However due to my reasons given above
+(and the fact that invoking a function pointer should be similarly expensive
+to a conditional) I don't think it's useful.
 
+> > At least, we would need to check the ICH4 which says in comment.
+> > However, I couldn't find the PM-Timer Errata in ICH4 spec update.
+> >
+> > Do you/anyone know about a ICH4 error?
+> 
+> Not personally but my ICH4 pm timer seems to work very well whereas Andi's 
+> apparently similar chipset exhibits terrible problems.
 
+Are you referring to dynticks trouble with my P4HT ("ICH5/ICH5R"!!) here?
+I don't think there were any problems due to non-latchedness, jus the usual
+batch of slowness issues.
+
+00:00.0 Host bridge: Intel Corp. 82865G/PE/P DRAM Controller/Host-Hub Interface (rev 02)
+00:02.0 VGA compatible controller: Intel Corp. 82865G Integrated Graphics Device (rev 02)
+00:1d.0 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #1 (rev 02)
+00:1d.1 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #2 (rev 02)
+00:1d.2 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #3 (rev 02)
+00:1d.7 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB2 EHCI Controller (rev 02)
+00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev c2)
+00:1f.0 ISA bridge: Intel Corp. 82801EB/ER (ICH5/ICH5R) LPC Interface Bridge (rev 02)
+00:1f.1 IDE interface: Intel Corp. 82801EB/ER (ICH5/ICH5R) IDE Controller (rev 02)
+00:1f.2 IDE interface: Intel Corp. 82801EB (ICH5) SATA Controller (rev 02)
+00:1f.3 SMBus: Intel Corp. 82801EB/ER (ICH5/ICH5R) SMBus Controller (rev 02)
+00:1f.5 Multimedia audio controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) AC'97 Audio Controller (rev 02)
+
+Andreas Mohr
+
+-- 
+No programming skills!? Why not help translate many Linux applications! 
+https://launchpad.ubuntu.com/rosetta

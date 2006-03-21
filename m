@@ -1,82 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbWCULTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965042AbWCULTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965041AbWCULTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 06:19:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965044AbWCULTZ
+	id S965042AbWCULTE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 06:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbWCULTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 06:19:25 -0500
-Received: from hs-grafik.net ([80.237.205.72]:32267 "EHLO hs-grafik.net")
-	by vger.kernel.org with ESMTP id S965043AbWCULTY (ORCPT
+	Tue, 21 Mar 2006 06:19:03 -0500
+Received: from smtp5-g19.free.fr ([212.27.42.35]:46759 "EHLO smtp5-g19.free.fr")
+	by vger.kernel.org with ESMTP id S965042AbWCULTB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 06:19:24 -0500
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Bug on unmounting in 2.6.16-rc6-mm2
-Date: Tue, 21 Mar 2006 12:19:09 +0100
+	Tue, 21 Mar 2006 06:19:01 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: Edgar Toernig <froese@gmx.de>
+Subject: Re: [PATCH 117/141] V4L/DVB (3390): Fix module parameters
+Date: Tue, 21 Mar 2006 12:18:56 +0100
 User-Agent: KMail/1.9.1
-X-Face: ){635DT*1Z+Z}$~Bf[[i"X:f2i+:Za[:Q0<UzyJPoAm(;y"@=?utf-8?q?LwMhWM4=5D=60x1bDaQDpet=3B=3Be=0A=09N=5CBIb8o=5BF!fdHrI-=7E=24?=
- =?utf-8?q?ctS=3F!?=,U+0}](xD}_b]awZrK=>753Wk;RwhCU`Bt(I^/Jxl~5zIH<
- =?utf-8?q?=0A=09XplI=3A9GKEcr/JPqzW=3BR=5FqDQe*=23CE=7E70=3Bj=25Hg8CNh*4?=<
-Cc: linux-kernel@vger.kernel.org, reiserfs@namesys.com
+Cc: mchehab@infradead.org, linux-kernel@vger.kernel.org,
+       linux-dvb-maintainer@linuxtv.org, Manu Abraham <manu@linuxtv.org>
+References: <20060320150819.PS760228000000@infradead.org> <200603201656.16803.baldrick@free.fr> <20060320201056.33b47518.froese@gmx.de>
+In-Reply-To: <20060320201056.33b47518.froese@gmx.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3366424.ZRJJqBo9yM";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200603211219.14115@zodiac.zodiac.dnsalias.org>
+Content-Disposition: inline
+Message-Id: <200603211218.57621.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3366424.ZRJJqBo9yM
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+> > > -module_param(dvb_override_tune_delay, int, 0444);
+> > > +module_param(dvb_override_tune_delay, int, 0644);
+> > 
+> >                 if (dvb_override_tune_delay > 0)
+> >                         fepriv->min_delay = (dvb_override_tune_delay * HZ) / 1000;
+> > 
+> > I guess the value of dvb_override_tune_delay could change from non-zero
+> > to zero between testing the condition and setting min_delay.
+> 
+> This is within an ioctl and thus protected by the big kernel lock.
 
-Hi,
+You are right.
 
-when I shutdown (and umount) my system, I got a kernel bug:
-Screenshots:
-http://zodiac.dnsalias.org/misc/2.6.16-rc6-mm2/Foto_032106_001.jpg
-http://zodiac.dnsalias.org/misc/2.6.16-rc6-mm2/Foto_032106_002.jpg
-http://zodiac.dnsalias.org/misc/2.6.16-rc6-mm2/Foto_032106_003.jpg
-http://zodiac.dnsalias.org/misc/2.6.16-rc6-mm2/Foto_032106_004.jpg
-http://zodiac.dnsalias.org/misc/2.6.16-rc6-mm2/Foto_032106_005.jpg
-dmesg:
-http://zodiac.dnsalias.org/misc/2.6.16-rc6-mm2/dmesg
-config:
-http://zodiac.dnsalias.org/misc/2.6.16-rc6-mm2/config
-mount:
-moalex@t40:~$ mount
-/dev/hda6 on / type reiser4 (rw,noatime)
-proc on /proc type proc (rw)
-sysfs on /sys type sysfs (rw)
-usbfs on /proc/bus/usb type usbfs (rw)
-tmpfs on /dev/shm type tmpfs (rw)
-devpts on /dev/pts type devpts (rw,gid=3D5,mode=3D620)
-/dev/hda2 on /boot type ext3 (ro,noatime)
-/dev/hda4 on /home type reiser4 (rw,noatime)
-/dev/hda7 on /files type ext3 (rw,noatime,commit=3D600)
-tmpfs on /dev type tmpfs (rw,size=3D10M,mode=3D0755)
+Best wishes,
 
-Sorry for the inconvenience, but I've got no OCR at hand ;)
-
-regards
-Alex
-=2D-=20
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
-
---nextPart3366424.ZRJJqBo9yM
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQBEH+Ey/aHb+2190pERAtnQAJ94MXummb50asRXSVH/ll+r7I8pcACfQUl9
-NW4Dso2Z9dJNASEZ1UQCxRk=
-=gD9H
------END PGP SIGNATURE-----
-
---nextPart3366424.ZRJJqBo9yM--
+Duncan.

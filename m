@@ -1,80 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751783AbWCUPhN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751786AbWCUPhm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751783AbWCUPhN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 10:37:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751780AbWCUPhN
+	id S1751786AbWCUPhm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 10:37:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751787AbWCUPhl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 10:37:13 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:43143 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S1751778AbWCUPhK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 10:37:10 -0500
-Date: Tue, 21 Mar 2006 16:37:08 +0100
-From: Sander <sander@humilis.net>
-To: Mark Lord <liml@rtr.ca>
-Cc: sander@humilis.net, Mark Lord <lkml@rtr.ca>, Jeff Garzik <jeff@garzik.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.xx: sata_mv: another critical fix
-Message-ID: <20060321153708.GA11703@favonius>
-Reply-To: sander@humilis.net
-References: <441F4F95.4070203@garzik.org> <200603210000.36552.lkml@rtr.ca> <20060321121354.GB24977@favonius> <442004E4.7010002@rtr.ca>
+	Tue, 21 Mar 2006 10:37:41 -0500
+Received: from vidur.ministry.se ([62.95.69.217]:46016 "EHLO vidur.ministry.se")
+	by vger.kernel.org with ESMTP id S1751786AbWCUPhk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 10:37:40 -0500
+Date: Tue, 21 Mar 2006 16:21:57 +0100 (MET)
+From: kernel@ministry.se
+X-X-Sender: fwadmin@celeborn.ministry.se
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Jesper Juhl <jesper.juhl@gmail.com>, <Valdis.Kletnieks@vt.edu>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: kernel cache mem bug(?)
+In-Reply-To: <1142861478.20050.27.camel@localhost.localdomain>
+Message-ID: <Pine.GHP.4.44.0603211545470.18694-100000@celeborn.ministry.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <442004E4.7010002@rtr.ca>
-X-Uptime: 16:22:50 up 18 days, 20:33, 27 users,  load average: 4.06, 3.39, 2.83
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote (ao):
-> Sander wrote:
-> >2.6.16 with this patch and your former patch applied, crashes during
-> >stressing a raid5 connected to a MV88SX6081.
+> > The RAM is 100% OK, both according to the initial BIOS memory check and
+> > memtest86 running for more than four (4) hours straight.
 > >
-> >2.6.16-rc6 crashes too.
-> >
-> >2.6.16-rc6-mm2 is rock solid wrt sata_mv.
-> >
-> >I get no output of the crash on netconsole. Would it help if I get the
-> >output of the crash (if any)? In that case I'll connect a screen and see
-> >what it produces.
-> 
-> Yes, most helpful, please.
-> Even a digital camera snapshot of the oops would be handy to see.
+> > One more thing that we just noticed: it seems the cache corruption (or
+> > whatever it is)  only occurs when X is running.
+>
+> X is special in a couple of ways - it accesses hardware directly and it
+> uses AGP. See if setting the NoAccel X option makes any difference to
+> the failures - it'll make your desktop slower but should help validate X
+> is the problem. If that does help then try disabling DRI (3D) support if
+> your box has it, and see what that does. If it works with noaccel and
+> fails with DRI then finally try with no AGP support built into your
+> kernel.  That should identify the problem as X, DRI, AGP or other.
 
-Euh, it seems there is no output on the screen at all at during the
-crash..
+I gave it a try, running the same reboot & test script for every change:
 
-The system just freezes. Rock solid. No sysrq, no ctrl-alt-del, nothing.
+  X with "noaccel"         - no change (i.e. corruption still occur)
+  X w/o kernel fb support  - no change
+  X without "dri"          - no change
+  w/o AGP support in kernel  - no change
+  X without "fgl"          - no change
+  X without "glx"          - no change
+  X without "fglrx"        - no change (ATI:s driver, used vesa instead)
+  X without "dbe"          - no change
+  X with only 1 screen     - no change
+  X w/o Dev PCI:1...       - no change
+  X without "dri"          - no change
+  w/o kernel DRM support   - no change
+  w/PCI acess=direct       - no change
+  w/o kernel SMP HT support - no change
 
-I'm sorry.
+  and finally...
 
-Would setting some debug options help? I currently have:
+  w/o kernel SMP support   - 100% ok!
 
-CONFIG_PRINTK_TIME=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_LOG_BUF_SHIFT=17
-CONFIG_DETECT_SOFTLOCKUP=y
-# CONFIG_SCHEDSTATS is not set
-# CONFIG_DEBUG_SLAB is not set
-# CONFIG_DEBUG_MUTEXES is not set
-# CONFIG_DEBUG_SPINLOCK is not set
-# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-# CONFIG_DEBUG_KOBJECT is not set
-# CONFIG_DEBUG_INFO is not set
-# CONFIG_DEBUG_FS is not set
-# CONFIG_DEBUG_VM is not set
-# CONFIG_FRAME_POINTER is not set
-# CONFIG_FORCED_INLINING is not set
-# CONFIG_RCU_TORTURE_TEST is not set
-# CONFIG_DEBUG_RODATA is not set
-# CONFIG_IOMMU_DEBUG is not set
+  (No corruption at all after 12 x 100 x 35 x 20 megabyte writing and
+   reading to ram cache)
 
+I.e, the only thing that seem to fix this is by removing SMP (and by
+doing that also HT) support :(
 
--- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+The processor is an Intel P4 3.4GHz w/1MB L2 cache
+The graphics card is an ATI X800 using the PCI Express slot
+(see my first post for more detailed info).
+
+Perhaps worth noting: when doing repeated md5sum runs on the cached files
+and discrepancies are found, it is "always" different files. I.e., the
+same file will never show a bad checksum twice. A subsequent run will show
+a good checksum for a file which just seconds ago had a bad one.
+
+Of course no other programs were accessing the files during these tests.
+
+Even though disabling kernel SMP support entirely will make this problem
+go away, I seriously do not like that kind of workarounds...
+
+Please let me know if there is more system/hardware information I could
+provide to help sort this out.
+
+Regards,
+//D
+

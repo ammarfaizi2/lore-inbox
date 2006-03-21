@@ -1,83 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751649AbWCUNDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030367AbWCUNGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751649AbWCUNDi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 08:03:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751655AbWCUNDi
+	id S1030367AbWCUNGs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 08:06:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751664AbWCUNGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 08:03:38 -0500
-Received: from thing.hostingexpert.com ([67.15.235.34]:41187 "EHLO
-	thing.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1751646AbWCUNDh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 08:03:37 -0500
-Message-ID: <441FF9A2.30107@linuxtv.org>
-Date: Tue, 21 Mar 2006 08:03:30 -0500
-From: Michael Krufky <mkrufky@linuxtv.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Tue, 21 Mar 2006 08:06:48 -0500
+Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:39266 "HELO
+	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751655AbWCUNGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 08:06:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=gkbdbY60rRjDobPWFoGB/qn3zn4tYncdmCk7/l46aBRvawSpcq3kwCPgWhjWi0vDsbItKQk1R09c4MLHjEWc6IjYQrPIUk7QZ2kILzaXl0dLSEKLzoiaZyAR60MqOd0foPTQqPHjBxi4209tGPMHnF+ch8UxlK8kKLD+ZL8BGig=  ;
+Message-ID: <441FEFB4.6050700@yahoo.com.au>
+Date: Tue, 21 Mar 2006 23:21:08 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: stable@kernel.org
-CC: lkml <linux-kernel@vger.kernel.org>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [2.6.16 STABLE PATCH] Kconfig: VIDEO_DECODER must select FW_LOADER
-References: <441F7462.4040707@linuxtv.org>
-In-Reply-To: <441F7462.4040707@linuxtv.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Stone Wang <pwstone@gmail.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: PATCH][1/8] 2.6.15 mlock: make_pages_wired/unwired
+References: <bc56f2f0603200536scb87a8ck@mail.gmail.com>
+In-Reply-To: <bc56f2f0603200536scb87a8ck@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - linuxtv.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for queuing this for 2.6.16.1 ... I was just looking at the 
-2.6.15 sources, and I realized that this should also go to 2.6.15.y, if 
-there are any more yet to come.
+Stone Wang wrote:
+> 1. Add make_pages_unwired routine.
 
-Please also add this to the 2.6.15.y queue, if there are any more 
-releases planned.
+Unfortunately you forgot wire_page and unwire_page, so this patch will
+not even compile.
 
-Thank you,
+> 2. Replace make_pages_present with make_pages_wired, support rollback.
 
-Michael Krufky
+What does support rollback mean?
 
-Michael Krufky wrote:
-> This patch has been backported for 2.6.16.1 from the following patch,
-> which is queued for 2.6.17:
+> 3. Pass 1 more param ("wire") to get_user_pages.
 > 
-> V4L/DVB (3495): Kconfig: select VIDEO_CX25840 to build cx25840 a/v 
-> decoder module
-> http://www.kernel.org/git/?p=linux/kernel/git/mchehab/v4l-dvb.git;a=commitdiff;h=4f767be057d0173eae7ef116de32a3f4f12888a8 
-> 
-> 
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> From: Michael Krufky <mkrufky@linuxtv.org>
-> Date: Mon, 20 Mar 2006 22:17:00 +0000 (-0500)
-> Subject: Kconfig: VIDEO_DECODER must select FW_LOADER
-> 
-> The cx25840 module requires external firmware in order to function,
-> so it must select FW_LOADER, but saa7115 and saa7129 do not require it.
-> 
-> Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
-> Cc: Mauro Carvalho Chehab <mchehab@infradead.org>
-> ---
-> 
-> --- 
-> linux-2.6.16.orig/drivers/media/video/Kconfig
-> +++ linux-2.6.16/drivers/media/video/Kconfig
-> @@ -349,6 +349,7 @@
->  config VIDEO_DECODER
->  	tristate "Add support for additional video chipsets"
->  	depends on VIDEO_DEV && I2C && EXPERIMENTAL
-> +	select FW_LOADER
->  	---help---
->  	  Say Y here to compile drivers for SAA7115, SAA7127 and CX25840
->  	  video decoders.
 
+As others have pointed out, wire may be a BSD / other unix thing, but
+it does not feature in Linux memory management terminology. If you
+want to introduce it, you need to do a better job of specifying it.
+
+> Signed-off-by: Shaoping Wang <pwstone@gmail.com>
+> 
+
+> +void make_pages_unwired(struct mm_struct *mm,
+> +					unsigned long start,unsigned long end)
+> +{
+> +	struct vm_area_struct *vma;
+> +	struct page *page;
+> +	unsigned int foll_flags;
+> +
+> +	foll_flags =0;
+> +
+> +	vma=find_vma(mm,start);
+> +	if(!vma)
+> +		BUG();
+> +	if(is_vm_hugetlb_page(vma))
+> +		return;
+> +	
+> +	for(; start<end ; start+=PAGE_SIZE) {
+> +		page=follow_page(vma,start,foll_flags);
+> +		if(page)
+> +			unwire_page(page);
+> +	}
+> +}
+> +
+
+What happens when start goes past vma->vm_end?
+
+>  int get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
+> -		unsigned long start, int len, int write, int force,
+> +		unsigned long start, int len, int write,int force, int wire,
+>  		struct page **pages, struct vm_area_struct **vmas)
+>  {
+>  	int i;
+> @@ -973,6 +995,7 @@
+>  		if (!vma && in_gate_area(tsk, start)) {
+>  			unsigned long pg = start & PAGE_MASK;
+>  			struct vm_area_struct *gate_vma = get_gate_vma(tsk);
+> +			struct page *page;	
+>  			pgd_t *pgd;
+>  			pud_t *pud;
+>  			pmd_t *pmd;
+> @@ -994,6 +1017,7 @@
+>  				pte_unmap(pte);
+>  				return i ? : -EFAULT;
+>  			}
+> +			page = vm_normal_page(gate_vma, start, *pte);
+
+You wire gate_vma pages? But it doesn't look like you can unwire them with
+make_pages_unwired.
+
+>  			if (pages) {
+>  				struct page *page = vm_normal_page(gate_vma, start, *pte);
+
+This can go now?
+
+>  				pages[i] = page;
+> @@ -1003,9 +1027,12 @@
+>  			pte_unmap(pte);
+>  			if (vmas)
+>  				vmas[i] = gate_vma;
+> +			if(wire)
+> +				wire_page(page);
+>  			i++;
+>  			start += PAGE_SIZE;
+>  			len--;
+> +
+>  			continue;
+>  		}
+> 
+> @@ -1013,6 +1040,7 @@
+>  				|| !(vm_flags & vma->vm_flags))
+>  			return i ? : -EFAULT;
+> 
+> +		/* We dont account wired HugeTLB pages */
+
+You don't account wired HugeTLB pages? If you can wire them you should be able
+to unwire them as well shouldn't you?
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

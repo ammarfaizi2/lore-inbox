@@ -1,84 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751766AbWCUUIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751685AbWCUUHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751766AbWCUUIi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 15:08:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751750AbWCUUIi
+	id S1751685AbWCUUHz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 15:07:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751704AbWCUUHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 15:08:38 -0500
-Received: from zproxy.gmail.com ([64.233.162.199]:30880 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751759AbWCUUIh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 15:08:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:thread-index:x-mimeole;
-        b=P+kroTxsK+UFpnnflrhTMnBJ8OULvNk0EW7gxPosgXkxZZwUCAz1mROy+ddD185Dy1mnfJ3F8VgLki5njsRXDSxIyNBejGeiZyC7IEOT7/blSODo1Bql0bWpmoLLw/qMas8GXN2gDl21Wi+o+QneBCG0MlNv08HC/V6rgbNGw78=
-From: "Hua Zhong" <hzhong@gmail.com>
-To: "'Vadim Lobanov'" <vlobanov@speakeasy.net>,
-       "'H. Peter Anvin'" <hpa@zytor.com>
-Cc: "'Jan Engelhardt'" <jengelh@linux01.gwdg.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: VFAT: Can't create file named 'aux.h'?
-Date: Tue, 21 Mar 2006 12:05:55 -0800
-Message-ID: <000301c64d22$dd94ef70$853d010a@nuitysystems.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <Pine.LNX.4.58.0603211154530.31582@shell3.speakeasy.net>
-Thread-Index: AcZNIjDTe14LBprhQyq7qRCgxxzPVwAAJSOA
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Tue, 21 Mar 2006 15:07:55 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:40650 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751497AbWCUUHy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 15:07:54 -0500
+Date: Tue, 21 Mar 2006 20:07:50 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Phillip Lougher <phillip@lougher.demon.co.uk>
+Cc: Pavel Machek <pavel@ucw.cz>, Phillip Lougher <phillip@lougher.org.uk>,
+       "unlisted-recipients: no To-header on input <;, Jeff Garzik" 
+	<jeff@garzik.org>,
+       J?rn Engel <joern@wohnheim.fh-wedel.de>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [ANN] Squashfs 3.0 released
+Message-ID: <20060321200750.GH27946@ftp.linux.org.uk>
+References: <20060317124310.GB28927@wohnheim.fh-wedel.de> <441ADD28.3090303@garzik.org> <0E3DADA8-1A1C-47C5-A3CF-F6A85FF5AFB8@lougher.org.uk> <441AF118.7000902@garzik.org> <20060319163249.GA3856@ucw.cz> <4420236F.80608@lougher.demon.co.uk> <20060321161452.GG27946@ftp.linux.org.uk> <44204F25.4090403@lougher.org.uk> <20060321191144.GB3929@elf.ucw.cz> <44205C1A.4040408@lougher.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44205C1A.4040408@lougher.demon.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's more "treating aux.* the same way as aux". It doesn't fail per se. If
-you do "echo test >con.h", it will print to the screen.
+On Tue, Mar 21, 2006 at 08:03:38PM +0000, Phillip Lougher wrote:
+> Pavel Machek wrote:
+> >
+> >Al is right. Unconditional swap is probably faster than
+> >branch. Avoiding swaps is nice, but avoiding branches is probably more
+> >important.
+> 
+> Quite possible.
+> 
+> >
+> >Can you try to benchmark it? I believe it is going to be lost in
+> >noise, slow cpus or not.
+> 
+> Good idea, I'll try to benchmark it (on a slow CPU if I can find one :-) 
+> ).  It will probably make no difference.
+> 
+> I don't want the lack of a fixed endianness on disk to become a problem. 
+>   I personally don't think the use of, or lack of a fixed endianness to 
+> be that important, but I'd prefer not to change the current situation 
+> and adopt a fixed format.  I use big endian systems almost exclusively, 
+> and I don't like the way fixed formats always tend to be little-endian.
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
-> owner@vger.kernel.org] On Behalf Of Vadim Lobanov
-> Sent: Tuesday, March 21, 2006 11:55 AM
-> To: H. Peter Anvin
-> Cc: Jan Engelhardt; linux-kernel@vger.kernel.org
-> Subject: Re: VFAT: Can't create file named 'aux.h'?
-> 
-> On Tue, 21 Mar 2006, H. Peter Anvin wrote:
-> 
-> > Jan Engelhardt wrote:
-> > >>>>You're confusing characters which aren't legal *VFAT* names which
-> those
-> > >>>>which
-> > >>>>aren't legal *FAT* (8.3) names.
-> > >>>
-> > >>>Could you please name an illegal FAT name being legal VFAT name?
-> > >>
-> > >>"Green Furry Submarine"
-> > >>
-> > >
-> > > Ah well. But aux.h is also forbidden under VFAT, is not it? Or no,
-> because
-> > > it's "just" an 8.3 name?
-> > >
-> >
-> > It probably depends on how picky you want to be.  As far as I know, even
-> > NT will recognize a character device name without leaving \DEV\, even
-> > though \DEV\ has been the "official" device prefix since DOS 2.0.
-> >
-> > Probably it would be worth trying to create "aux.h" under XP and see
-> > what happens.  Unfortunately I don't have a 'doze system handy at the
-> > moment.
-> 
-> Fails silently.
-> 
-> > 	-hpa
-> >
-> > -
-> 
-> Vadim Lobanov
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+You mean, like IP?  Or NFS?  Or XFS?  Or any number of other big-endian
+data layouts?  Make it fixed to big-endian - no problem with that...

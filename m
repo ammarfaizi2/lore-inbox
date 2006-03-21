@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965149AbWCUXf3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965148AbWCUXkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965149AbWCUXf3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 18:35:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965150AbWCUXf3
+	id S965148AbWCUXkG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 18:40:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbWCUXkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 18:35:29 -0500
-Received: from elvira.its.uu.se ([130.238.164.5]:43242 "EHLO
-	elvira.ekonomikum.uu.se") by vger.kernel.org with ESMTP
-	id S965149AbWCUXf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 18:35:29 -0500
-From: "Alfred M. Szmidt" <ams@gnu.org>
-To: Olivier Galibert <galibert@pobox.com>
-CC: galibert@pobox.com, tytso@mit.edu, sct@redhat.com, adilger@clusterfs.com,
-       sho@bsd.tnes.nec.co.jp, cmm@us.ibm.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, Laurent.Vivier@bull.net,
-       cascardo@minaslivre.org
-In-reply-to: <20060321230516.GB45303@dspnet.fr.eu.org> (message from Olivier
-	Galibert on Wed, 22 Mar 2006 00:05:16 +0100)
-Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
-Reply-to: ams@gnu.org
-References: <02bc01c648f2$bd35e830$4168010a@bsd.tnes.nec.co.jp> <20060316183549.GK30801@schatzie.adilger.int> <20060316212632.GA21004@thunk.org> <20060316225913.GV30801@schatzie.adilger.int> <20060318170729.GI21232@thunk.org> <20060320063633.GC30801@schatzie.adilger.int> <1142894283.21593.59.camel@orbit.scot.redhat.com> <20060320234829.GJ6199@schatzie.adilger.int> <1142960722.3443.24.camel@orbit.scot.redhat.com> <20060321183822.GC11447@thunk.org> <20060321230516.GB45303@dspnet.fr.eu.org>
-Message-Id: <20060321233517.6211C44031@Psilocybe.Update.UU.SE>
-Date: Wed, 22 Mar 2006 00:35:17 +0100 (CET)
+	Tue, 21 Mar 2006 18:40:06 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:62149 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965148AbWCUXkF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 18:40:05 -0500
+Date: Tue, 21 Mar 2006 15:40:00 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc6-mm2: Why is CONFIG_MIGRATION available for everyone?
+In-Reply-To: <20060321225430.GJ3890@stusta.de>
+Message-ID: <Pine.LNX.4.64.0603211538260.14399@schroedinger.engr.sgi.com>
+References: <20060318044056.350a2931.akpm@osdl.org> <20060321225430.GJ3890@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   > Hurd is definitely using the translator field, and I only
-   > recently discovered they are using it to point at a disk block
-   > where the name of the translator program (I'm not 100% sure, but
-   > I think it's a generic, out-of-band, #! sort of functionality).
+On Tue, 21 Mar 2006, Adrian Bunk wrote:
 
-   Translators on directories are a combo of automount+userland
-   filesystem, with the addition on having them saved in the
-   mounted-on filesystem.  Rather nice actually.  Replacing /etc/fstab
-   with local-to-the-mountpoint information has some charm.  I'm not
-   sure if translator-on-files actually exist.
+> Can we express this explicitely?
 
-You can set a translator on a file or a directory, it doesn't matter.
-Anything that is accessed through the file-system is a translator.
-/dev/null is a translator, symbolic links can be[0] translators,
-/dev/hd0s1 (/dev/hda1 in GNU/Linux) is a translator, ...
+How about this fix?
 
-[0]: They are usually implemented directly into the file-system so you
-don't end up spawning a new processes for each symlink.  But if the
-file-system in question doesn't support symlinks you can always use
-the symlink translator to get symlinks.  This will work for all
-file-systems as long as you do not wish to have it persitant across
-reboots, then you need passive translator support (which is what those
-fields in ext2 are for among other things).
+Make page migration dependent on swap and NUMA. The page migration code 
+could function without NUMA but we currently have no users for the 
+non-NUMA case.
 
-Happy hacking.
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.16-rc6-mm2/mm/Kconfig
+===================================================================
+--- linux-2.6.16-rc6-mm2.orig/mm/Kconfig	2006-03-21 14:51:37.000000000 -0800
++++ linux-2.6.16-rc6-mm2/mm/Kconfig	2006-03-21 15:36:25.000000000 -0800
+@@ -138,8 +138,8 @@ config SPLIT_PTLOCK_CPUS
+ #
+ config MIGRATION
+ 	bool "Page migration"
+-	def_bool y if NUMA || SPARSEMEM || DISCONTIGMEM
+-	depends on SWAP
++	def_bool y if NUMA
++	depends on SWAP && NUMA
+ 	help
+ 	  Allows the migration of the physical location of pages of processes
+ 	  while the virtual addresses are not changed. This is useful for

@@ -1,93 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWCUJLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWCUJOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751227AbWCUJLu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 04:11:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWCUJLu
+	id S932209AbWCUJOO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 04:14:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWCUJOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 04:11:50 -0500
-Received: from mga02.intel.com ([134.134.136.20]:50441 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751227AbWCUJLs convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 04:11:48 -0500
-X-IronPort-AV: i="4.03,113,1141632000"; 
-   d="scan'208"; a="14270549:sNHT45378277"
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Date: Tue, 21 Mar 2006 17:11:29 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840B417863@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Thread-Index: AcZMxEo5N5/po3v4SQKdu12duTJuKAAAWAwQ
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       <michael@mihu.de>, <mchehab@infradead.org>,
-       "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
-       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
-       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-X-OriginalArrivalTime: 21 Mar 2006 09:11:31.0186 (UTC) FILETIME=[716DC520:01C64CC7]
+	Tue, 21 Mar 2006 04:14:14 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:35083 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751352AbWCUJON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 04:14:13 -0500
+Date: Tue, 21 Mar 2006 10:13:53 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Mike Galbraith <efault@gmx.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>
+Subject: Re: interactive task starvation
+Message-ID: <20060321091353.GA25248@w.ods.org>
+References: <200603081013.44678.kernel@kolivas.org> <20060307152636.1324a5b5.akpm@osdl.org> <cone.1141774323.5234.18683.501@kolivas.org> <200603090036.49915.kernel@kolivas.org> <20060317090653.GC13387@elte.hu> <1142592375.7895.43.camel@homer> <1142615721.7841.15.camel@homer> <1142838553.8441.13.camel@homer> <20060321064723.GH21493@w.ods.org> <1142927498.7667.34.camel@homer>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1142927498.7667.34.camel@homer>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->With _TMP faked in the kernel and one whole zone ignored, this 
->is what I
->get:
->
->Zone to ignore	|	Result
->---------------------------------------------------------------
->---------
->THM0			OK (10 cycles)
->THM2			"kernel panic! attempted to kill init"
 
-I guess, if you fake DSDT by completely removing THM2
-you won't see this.
-
->THM6			Hangs (4th cycle)
-Is it still hang at SMPI?
-
->THM7			OK (8 cycles)
->
->So THM6 seems healthy, but THM0 and THM7 (and maybe THM2) interact
->badly.  If I unload THM2, THM6, and THM7, then it's okay (previous
->experiments with faking _TMP but with only THM0 loaded).  But unloading
->THM6 is not enough.
-
-Please try to remove THM2 judge if it is JUST the 
-problem of THM0 && THM7.
-
->
->The kernel panic for the don't-load-THM2 kernel is very strange.  I had
->another kernel panic while doing another set of tests, which I also
->couldn't explain.  The only difference between the no-THM0 and the
->no-THM2 kernels is:
-
-Could you just printk device->pnp? it could be null point (due to 
-you hack?)
-
->
->diff -r b7ad6c906aba -r 213308f0ec31 drivers/acpi/thermal.c
->--- a/drivers/acpi/thermal.c	Tue Mar 21 02:23:30 2006 -0500
->+++ b/drivers/acpi/thermal.c	Tue Mar 21 02:36:42 2006 -0500
->@@ -1324,7 +1324,7 @@ static int acpi_thermal_add(struct acpi_
+On Tue, Mar 21, 2006 at 08:51:38AM +0100, Mike Galbraith wrote:
+> On Tue, 2006-03-21 at 07:47 +0100, Willy Tarreau wrote:
+> > Hi Mike,
 > 
-> 	if (!device)
-> 		return_VALUE(-EINVAL);
->-	if (strcmp("THM2", device->pnp.bus_id) == 0) {
->+	if (strcmp("THM0", device->pnp.bus_id) == 0) {
-> 	    printk(KERN_INFO PREFIX "thermal_add: ignoring %s\n",
-> 		   device->pnp.bus_id);
-> 	    return_VALUE(-EINVAL);
->
->
+> Greetings!
+
+Thanks for the details,
+I'll try to find some time to test your code quickly. If this fixes this
+long standing problem, we should definitely try to get it into 2.6.17 !
+
+Cheers,
+Willy
+

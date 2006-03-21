@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751831AbWCUXJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751817AbWCUXKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751831AbWCUXJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 18:09:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751832AbWCUXJQ
+	id S1751817AbWCUXKz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 18:10:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751836AbWCUXKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 18:09:16 -0500
-Received: from xenotime.net ([66.160.160.81]:12213 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751831AbWCUXJP (ORCPT
+	Tue, 21 Mar 2006 18:10:55 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:18875 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751817AbWCUXKy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 18:09:15 -0500
-Date: Tue, 21 Mar 2006 15:11:24 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: ranty@debian.org, akpm <akpm@osdl.org>
-Subject: [PATCH] Doc: fix example firmware source code
-Message-Id: <20060321151124.b68bbc45.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 21 Mar 2006 18:10:54 -0500
+Date: Tue, 21 Mar 2006 15:13:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: kenneth.w.chen@intel.com, suparna@in.ibm.com, zach.brown@oracle.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] direct-io: bug fix in dio handling write error
+Message-Id: <20060321151304.4c3be798.akpm@osdl.org>
+In-Reply-To: <1142974672.6086.15.camel@dyn9047017100.beaverton.ibm.com>
+References: <200603211903.k2LJ30g29071@unix-os.sc.intel.com>
+	<1142974672.6086.15.camel@dyn9047017100.beaverton.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+> If some one asks to do IO for 128K and if we get -EIO after say, 64K 
+> - we fail the whole IO  with -EIO ?
 
-Fix Documentation/firmware_class/ examples so that they will build.
+A multiple-block direct-IO can complete those blocks (actually the BIOs) in
+any order.  How do we communicate to userspace that segments 0, 1, 3 and 5
+completed OK, but segments 2 and 4 had errors?
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- Documentation/firmware_class/firmware_sample_driver.c         |    3 +--
- Documentation/firmware_class/firmware_sample_firmware_class.c |    1 -
- 2 files changed, 1 insertion(+), 3 deletions(-)
+The best we could do is to tell userspace that 0 and 1 completed and ignore
+everything after the first I/O error.
 
---- linux-2616-work.orig/Documentation/firmware_class/firmware_sample_driver.c
-+++ linux-2616-work/Documentation/firmware_class/firmware_sample_driver.c
-@@ -23,7 +23,6 @@ char __init inkernel_firmware[] = "let's
- #endif
- 
- static struct device ghost_device = {
--	.name      = "Ghost Device",
- 	.bus_id    = "ghost0",
- };
- 
-@@ -92,7 +91,7 @@ static void sample_probe_async(void)
- {
- 	/* Let's say that I can't sleep */
- 	int error;
--	error = request_firmware_nowait (THIS_MODULE,
-+	error = request_firmware_nowait (THIS_MODULE, FW_ACTION_NOHOTPLUG,
- 					 "sample_driver_fw", &ghost_device,
- 					 "my device pointer",
- 					 sample_probe_async_cont);
---- linux-2616-work.orig/Documentation/firmware_class/firmware_sample_firmware_class.c
-+++ linux-2616-work/Documentation/firmware_class/firmware_sample_firmware_class.c
-@@ -172,7 +172,6 @@ static void fw_remove_class_device(struc
- static struct class_device *class_dev;
- 
- static struct device my_device = {
--	.name      = "Sample Device",
- 	.bus_id    = "my_dev0",
- };
- 
+But I don't think it's worth the effort.  Simply returning EIO for the
+whole thing is probably good enough.  The only situation I can think of
+where someone would care down to that level of detail is a specialised
+recover-data-from-a-bad-disk application (for which direct-io would be a
+good tool).  Such an application should have the brains to go
+sector-at-a-time if larger I/O's throw errors.
 
-
----

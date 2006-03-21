@@ -1,47 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWCUUoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWCUUtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbWCUUoj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 15:44:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWCUUoj
+	id S932453AbWCUUtA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 15:49:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWCUUtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 15:44:39 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:59276 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S932367AbWCUUoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 15:44:38 -0500
-Date: Tue, 21 Mar 2006 21:44:35 +0100
-From: Sander <sander@humilis.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Sander <sander@humilis.net>, Mark Lord <liml@rtr.ca>,
-       Mark Lord <lkml@rtr.ca>, Jeff Garzik <jeff@garzik.org>,
-       Andrew Morton <akpm@osdl.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.xx: sata_mv: another critical fix
-Message-ID: <20060321204435.GE25066@favonius>
-Reply-To: sander@humilis.net
-References: <441F4F95.4070203@garzik.org> <200603210000.36552.lkml@rtr.ca> <20060321121354.GB24977@favonius> <442004E4.7010002@rtr.ca> <20060321153708.GA11703@favonius> <Pine.LNX.4.64.0603211028380.3622@g5.osdl.org> <20060321191547.GC20426@favonius> <Pine.LNX.4.64.0603211132340.3622@g5.osdl.org>
+	Tue, 21 Mar 2006 15:49:00 -0500
+Received: from relay03.roc.ny.frontiernet.net ([66.133.182.166]:21417 "EHLO
+	relay03.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S932446AbWCUUs7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 15:48:59 -0500
+From: Bryan Holty <lgeek@frontiernet.net>
+To: Mike Christie <michaelc@cs.wisc.edu>
+Subject: Re: [PATCH] scsi: properly count the number of pages in scsi_req_map_sg()
+Date: Tue, 21 Mar 2006 14:48:54 -0600
+User-Agent: KMail/1.9.1
+Cc: Dan Aloni <da-x@monatomic.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>, brking@us.ibm.com,
+       dror@xiv.co.il
+References: <20060321083830.GA2364@localdomain> <200603211205.46196.lgeek@frontiernet.net> <44205162.8000504@cs.wisc.edu>
+In-Reply-To: <44205162.8000504@cs.wisc.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0603211132340.3622@g5.osdl.org>
-X-Uptime: 21:33:22 up 19 days,  1:43, 31 users,  load average: 2.24, 2.82, 2.66
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200603211448.54620.lgeek@frontiernet.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote (ao):
-> > I was not able to let 2.6.16-rc6-mm2 crash yet.
-> > 
-> > I'll test 2.6.16-rc6-mm1 now.
-> 
-> Yup, narrowing down where exactly things go south is the way to do it.
+On Tuesday 21 March 2006 13:17, Mike Christie wrote:
+> Bryan Holty wrote:
+> > On Tuesday 21 March 2006 10:19, Dan Aloni wrote:
+> >>On Tue, Mar 21, 2006 at 09:54:54AM -0600, James Bottomley wrote:
+> >>>This is a good email to discuss on the scsi list:
+> >>>linux-scsi@vger.kernel.org; whom I've added to the cc list.
+> >>>
+> >>>On Tue, 2006-03-21 at 10:38 +0200, Dan Aloni wrote:
+> >>>>Improper calculation of the number of pages causes bio_alloc() to
+> >>>>be called with nr_iovecs=0, and slab corruption later.
+> >>>>
+> >>>>For example, a simple scatterlist that fails: {(3644,452), (0, 60)},
+> >>>>(offset, size). bufflen=512 => nr_pages=1 => breakage. The proper
+> >>>>page count for this example is 2.
+> >>>
+> >>>Such a scatterlist would likely violate the device's underlying
+> >>>boundaries and is not legal ... there's supposed to be special code
+> >>>checking the queue alignment and copying the bio to an aligned buffer if
+> >>>the limits are violated.  Where are you generating these scatterlists
+> >>>from?
+> >>
+> >>These scatterlists can be generated using the sg driver. Though I am
+> >>actually running a customized version of the sg driver, it seems the
+> >>conversion from a userspace array of sg_iovec_t to scatterlist stays
+> >>the same and also applies to the original driver (see
+> >>st_map_user_pages()).
+> >
+> > Hello,
+> >     I am seeing the same issue when using direct io with sg.  sg will
+> > perform direct io on any date that is aligned with the devices dma_align.
+> >  The default for drivers that do not specify is 512.  sg builds the
+> > scatter gather list from the user specified location, offsetting the
+> > first entry in the list if not page aligned.  This is the case that
+> > causes the improper allocation of "nr_iovec" in scsi_req_map_sgand the
+> > later slab corruption.
+> >
+> >     I don't think it is necessary to calculate nr_pages from the entire
+> > list. Only sgl[0] is allowed to have an offset, so we can calculate from
+> > that as follows.
+> > --- a/drivers/scsi/scsi_lib.c	2006-03-03 13:17:22.000000000 -0600
+> > +++ b/drivers/scsi/scsi_lib.c	2006-03-21 11:36:39.389763804 -0600
+> > @@ -368,12 +368,15 @@
+> >  			   int nsegs, unsigned bufflen, gfp_t gfp)
+> >  {
+> >  	struct request_queue *q = rq->q;
+> > -	int nr_pages = (bufflen + PAGE_SIZE - 1) >> PAGE_SHIFT;
+> > +	int nr_pages = 0;
+> >  	unsigned int data_len = 0, len, bytes, off;
+> >  	struct page *page;
+> >  	struct bio *bio = NULL;
+> >  	int i, err, nr_vecs = 0;
+> > -
+> > +
+> > +	if (nsegs)
+>
+> you can drop that test
+>
+> > + 		nr_pages = (bufflen + sgl[0].offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
+> > +
+>
+> I think we can do this without looping but I think this is broken. If we
+> had a slight variant of Dan's example but we have a page and some change
+> in the first entry {3644, 4548} and 0,60} in the last one, that would
+> would only calculate two pages but we want three.
+>
+> I think we can have to calculate the first and last entries but the
+> middle ones we can assume have no offset and lengths that are multiples
+> of a page.
 
-2.6.16-rc6-mm1 is as stable as 2.6.16-rc6-mm2 with my simple testcase.
+You are absolutely correct.  
+bufflen is not page masked and when added to the offset of the first entry, 
+will generate the correct nr_pages.
 
-Is there a quick patch to suspect, or should I narrow down some more per
-Andrew's instructions?
+    nr_pages = (bufflen + sgl[0].offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
+==
+    nr_pages = ((bufflen & PAGE_MASK) + (PAGE_SIZE-1) + sgl[0].offset + 
+sgl[nsegs-1].length) >> PAGE_SHIFT;
 
--- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+Either will calculate correctly.
+
+--
+ Bryan Holty

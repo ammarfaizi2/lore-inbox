@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbWCUKn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965022AbWCUKvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932412AbWCUKn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 05:43:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWCUKn6
+	id S965022AbWCUKvd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 05:51:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965024AbWCUKvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 05:43:58 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:28048 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932412AbWCUKn5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 05:43:57 -0500
-Message-ID: <441FD8F3.208@us.ibm.com>
-Date: Tue, 21 Mar 2006 05:44:03 -0500
-From: "Mike D. Day" <ncmike@us.ibm.com>
-User-Agent: Thunderbird 1.5 (Macintosh/20051201)
+	Tue, 21 Mar 2006 05:51:33 -0500
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:61391 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S965022AbWCUKvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 05:51:32 -0500
+Date: Tue, 21 Mar 2006 11:51:22 +0100 (CET)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Balbir Singh <balbir@in.ibm.com>
+cc: 7eggert@gmx.de, Pekka Enberg <penberg@cs.helsinki.fi>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] slab: introduce kmem_cache_zalloc allocator
+In-Reply-To: <20060321032520.GB8954@in.ibm.com>
+Message-ID: <Pine.LNX.4.58.0603211137170.3292@be1.lrz>
+References: <5Ssjj-314-69@gated-at.bofh.it> <5Sv7o-7l5-23@gated-at.bofh.it>
+ <5Svh9-7xW-61@gated-at.bofh.it> <5SvK8-88q-41@gated-at.bofh.it>
+ <E1FLPjT-0000o9-Sy@be1.lrz> <20060321032520.GB8954@in.ibm.com>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-Subject: Re: [PATCH 2.6.16-rc6-xen] export Xen Hypervisor attributes to	sysfs
-References: <200603202335.k2KNZEjo005673@mdday.raleigh.ibm.com> <1142925269.3077.10.camel@laptopd505.fenrus.org>
-In-Reply-To: <1142925269.3077.10.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+On Tue, 21 Mar 2006, Balbir Singh wrote:
 
->> +---properties
->> |   >---capabilities
->> |   >---changeset
+> > > Ok, please keep the interface - build kmem_cache_zalloc() on top of
+> > > what I suggest.
+> > 
+> > The benefit of using *zalloc is the ability to skip the memset by using
+> > pre-zeroed memory or to use more efficient ways of zeroing a page.
+> > Having to check the value of a parameter wouldn't help.
 > 
-> how is this a property and not part of version?
-Agree, changeset should be part of version
+> Hmm... the current patch directly does a memset(). Are you talking about
+> possible optimizations to kmem_cache_zalloc()?
 
-> again what is the justification of putting this in the kernel? I though
-> everyone here was agreed that since the management tools that need this
-> talk to the hypervisor ANYWAY, they might as well just ask this
-> information as well....
-
-I think we had a good discussion but short of agreement. Some tools want to 
-read a file from /sys/hypervisor/ rather than call a c lib. (In other words, 
-not all tools will talk to the hypervisor.) It is appropriate to view the 
-hypervisor as a hardware device so it is appropriate to have some information 
-in sysfs. 
-
-I appreciate the counter argument as well, but think this should be a 
-configurable option. 
-
-thanks, 
-
-Mike
+Yes. At least that's what I understand from the whole zalloc process.
+-- 
+Top 100 things you don't want the sysadmin to say:
+4. This won't affect what you're doing.

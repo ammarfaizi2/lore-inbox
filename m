@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbWCUJmg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWCUJoy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932364AbWCUJmg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 04:42:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWCUJmf
+	id S932373AbWCUJoy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 04:44:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWCUJoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 04:42:35 -0500
-Received: from [213.151.39.204] ([213.151.39.204]:36505 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S932364AbWCUJmf (ORCPT
+	Tue, 21 Mar 2006 04:44:54 -0500
+Received: from quechua.inka.de ([193.197.184.2]:45227 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S932370AbWCUJox (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 04:42:35 -0500
-Subject: Re: [PATCH] hci_usb: implement suspend/resume
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: maxk@qualcomm.com, linux-kernel@vger.kernel.org,
-       bluez-devel@lists.sourceforge.net
-In-Reply-To: <1137602323.4543.29.camel@localhost>
-References: <1137540084.4543.15.camel@localhost>
-	 <1137589998.27515.8.camel@localhost>  <1137602323.4543.29.camel@localhost>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ITYaJOE0i3RIvTmCxmPp"
-Date: Tue, 21 Mar 2006 10:42:10 +0100
-Message-Id: <1142934130.3964.14.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Tue, 21 Mar 2006 04:44:53 -0500
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+Subject: Re: Announcing crypto suspend
+To: linux-kernel@vger.kernel.org
+Date: Tue, 21 Mar 2006 10:45:40 +0100
+References: <20060320080439.GA4653@elf.ucw.cz> <1142879707.9475.4.camel@localhost.localdomain> <200603201954.45572.rjw@sisk.pl>
+User-Agent: KNode/0.10.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8Bit
+X-Ciphire-Security: plain
+Message-Id: <20060321094449.0760E12768C@dungeon.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rafael J. Wysocki wrote:
+> First, you need to generate the RSA key pair using suspend-keygen and save
+> the output file as /etc/suspend.key (or something else pointed to by
+> the "RSA key file =" configuration parameter of suspend).  This file
+> contains the public modulus (n), public exponent (e) and
+> Blowfish-encrypted private exponent (d) of the RSA key pair.
+> 
+> Then, the suspend utility will load the contents of this file,  generate a
+> random session key (k) and initialization vector (i) for the image
+> encryption and use (n, e) to encrypt these values with RSA.  The encrypted
+> k, i as well as the contents of the RSA key file will be saved in the
+> image header.
+> 
+> The resume utility will read n, e and (encrypted) d as well as (encrypted)
+> k, i from the image header.  Then it will ask the user for a passphrase
+> and will try to decrypt d using it.  Next, it will use (n, e, d) to
+> decrypt k, i needed for decrypting the image.
 
---=-ITYaJOE0i3RIvTmCxmPp
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+what interface will those tools use? can I replace them with my own
+code, e.g. that uses smart cards instead of an encrypted public key
+on a disk?
 
-On Wed, 2006-01-18 at 19:39 +0100, Johannes Berg wrote:
-> The attached patch implements suspend/resume for the hci_usb bluetooth
-> driver by simply killing all outstanding urbs on suspend, and re-issuing
-> them on resume.
->=20
-> This allows me to actually use the internal bluetooth "dongle" in my
-> powerbook after suspend-to-ram without taking down all userland programs
-> (sdpd, ...) and the hci device and reloading the module.
-
-Can someone push this patch for 2.6.17 now that 2.6.16 is out? Or is
-there still anything fundamentally wrong with it? I've been waiting for
-it forever now ;)
-
-johannes
-
---=-ITYaJOE0i3RIvTmCxmPp
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIVAwUARB/KbqVg1VMiehFYAQJCwBAAwU8c841r0DoSI8W92Xp8TwxfF1U9vISY
-9fFhZWCYu4YJmLZ3WKb7gEdZimXHojHb0xES8EoJaRzWDqG1e7MdExV4wCJdPh/t
-PrCkNcBwKbW7uZVsrLLsBDeR+M+we1t31KNxcnXkN8zaBAdRzfwIV/8AxUYdxQjy
-IWwoc26FSjcvS98jm+xErQgCTqQADAll0TkxMh/qHbrsRWHwFAkAODpZZQAiCK05
-qjI+EM4vN9FxFwlZeVpFxPwZdn20lku8NvlJdjQBXtM8nMwjy6lW1FSZsnchr6aZ
-OyLPnuwTbA2KsCQ+y43KIxv3R1WMSqYA+dyxgMf/TUxT19VAGI/imDyGCsvRfz2Q
-zwCTEugLZbmkEl6Eql6QcuwGKMvgcuMEvVlXmfs9ao3dsxF+NUAQwYR1irMgSFd/
-VuOz1Jk/0s7QKq0wa+tYbZgz7ZFX43zWx69P/ib5Lm2geEXgpY/1DUG+RUb+0CKD
-w9Phypv2h2/g3m0x2/z9u2UAfgQS6vLy63X+YLN7g7la1DEPvk24wB0JbUR6Wodb
-19u7fvqWt+4S1oHoUytcCPkmdEZpVnHgqs2hOsQWhc9f46yV1iwexcVao8FOsXI1
-PZ+ggdoJqUqdfak+iEQIPt8swceHgJItiD00qiNVPF4acBlGkOXYWexjHuRCHJQe
-4FExgR41cNI=
-=n6MQ
------END PGP SIGNATURE-----
-
---=-ITYaJOE0i3RIvTmCxmPp--
+Andreas
 

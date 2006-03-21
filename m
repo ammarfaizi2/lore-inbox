@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965039AbWCUTGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964956AbWCUTGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965039AbWCUTGe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 14:06:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965044AbWCUTGe
+	id S964956AbWCUTGM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 14:06:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWCUTGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 14:06:34 -0500
-Received: from pat.uio.no ([129.240.130.16]:38053 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S965039AbWCUTGd (ORCPT
+	Tue, 21 Mar 2006 14:06:12 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:40858 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S964956AbWCUTGK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 14:06:33 -0500
-Subject: Re: [NFS] [GIT] NFS client update for 2.6.16
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net, nfsv4@linux-nfs.org
-In-Reply-To: <20060321185734.GB19125@infradead.org>
-References: <1142961077.7987.14.camel@lade.trondhjem.org>
-	 <20060321174634.GA15827@infradead.org>
-	 <1142964532.7987.61.camel@lade.trondhjem.org>
-	 <20060321185734.GB19125@infradead.org>
-Content-Type: text/plain
-Date: Tue, 21 Mar 2006 14:06:20 -0500
-Message-Id: <1142967981.7987.92.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.658, required 12,
-	autolearn=disabled, AWL 1.34, UIO_MAIL_IS_INTERNAL -5.00)
+	Tue, 21 Mar 2006 14:06:10 -0500
+Date: Tue, 21 Mar 2006 20:06:07 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: VFAT: Can't create file named 'aux.h'?
+In-Reply-To: <44204BD9.1090103@zytor.com>
+Message-ID: <Pine.LNX.4.61.0603212005250.6840@yvahk01.tjqt.qr>
+References: <1142890822.5007.18.camel@localhost.localdomain>
+ <20060320134533.febb0155.rdunlap@xenotime.net> <dvn835$lvo$1@terminus.zytor.com>
+ <Pine.LNX.4.61.0603211840020.21376@yvahk01.tjqt.qr> <44203B86.5000003@zytor.com>
+ <Pine.LNX.4.61.0603211854150.21376@yvahk01.tjqt.qr> <442040CB.2020201@zytor.com>
+ <Pine.LNX.4.61.0603211911090.2314@yvahk01.tjqt.qr> <44204BD9.1090103@zytor.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-21 at 18:57 +0000, Christoph Hellwig wrote:
-> On Tue, Mar 21, 2006 at 01:08:52PM -0500, Trond Myklebust wrote:
-> > We never had support for multiple iovecs in O_DIRECT, but were passing
-> > around a single iovec entry deep into code that couldn't care less.
-> 
-> anthing that moves from iovecs back to plain buffers is counterproductive.
-> The plan is that every fullblown fs will only deal with iovecs, onlt drivers
-> and synthetic filesystems will implement the plain buffers.
+>> > You're confusing characters which aren't legal *VFAT* names which those
+>> > which
+>> > aren't legal *FAT* (8.3) names.
+>> 
+>> Could you please name an illegal FAT name being legal VFAT name?
+>
+> "Green Furry Submarine"
+>
+Ah well. But aux.h is also forbidden under VFAT, is not it? Or no, because 
+it's "just" an 8.3 name?
 
-You need to do more than just add an iovec argument to
-nfs_file_direct_read()/nfs_file_direct_write() if you want to achieve
-this. The new call interface actually just clarifies something that was
-implicit in the old one.
 
-As I said in my other posting, I believe Chuck's changes are relatively
-orthogonal to what you want to do: they neither make the low-level
-plumbing better or worse for readv()/writev().
-
-We'd be happy to work with you in the run-up to 2.6.18 to add
-multi-segment support for the existing patchsets. It makes more sense to
-me to append that functionality to the existing patchsets rather than
-trigger a complete rewrite (and thus have a sh_tload more code to
-retest).
-
-Cheers,
-    Trond
-
+Jan Engelhardt
+-- 
+| Software Engineer and Linux/Unix Network Administrator

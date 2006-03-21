@@ -1,86 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751653AbWCUQiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751652AbWCUQjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751653AbWCUQiq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 11:38:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751692AbWCUQip
+	id S1751652AbWCUQjr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 11:39:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751677AbWCUQjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 11:38:45 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:39642 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751652AbWCUQiL (ORCPT
+	Tue, 21 Mar 2006 11:39:46 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:2705 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751660AbWCUQjo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 11:38:11 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-Cc: Mark Maule <maule@sgi.com>, Tony Luck <tony.luck@intel.com>,
-       linux-ia64@vger.kernel.org, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 1/3] msi vector targeting abstractions
-References: <20060321143444.9913.48372.11324@lnx-maule.americas.sgi.com>
-	<20060321143449.9913.55794.57267@lnx-maule.americas.sgi.com>
-	<442029EA.9020900@ce.jp.nec.com>
-X-Yow: I have no actual hairline...
-Date: Tue, 21 Mar 2006 17:38:08 +0100
-In-Reply-To: <442029EA.9020900@ce.jp.nec.com> (Jun'ichi Nomura's message of
-	"Tue, 21 Mar 2006 11:29:30 -0500")
-Message-ID: <jebqvzhhxr.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+	Tue, 21 Mar 2006 11:39:44 -0500
+Message-ID: <44202C4A.8030508@pobox.com>
+Date: Tue, 21 Mar 2006 11:39:38 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Tejun Heo <htejun@gmail.com>
+CC: Sergey Vlasov <vsu@altlinux.ru>, Geoff Rivell <grivell@comcast.net>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] AHCI SATA vendor update from VIA
+References: <439CF812.8010107@pobox.com> <20060315191736.231a2894.vsu@altlinux.ru> <441F5C7D.2050600@pobox.com> <441FE146.3050406@gmail.com>
+In-Reply-To: <441FE146.3050406@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.4 (--)
+X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
+	Content analysis details:   (-2.4 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jun'ichi Nomura" <j-nomura@ce.jp.nec.com> writes:
+Tejun Heo wrote:
+> Hello,
+> 
+> Jeff Garzik wrote:
+> 
+>> Sergey Vlasov wrote:
+>>
+>>> What is needed to get the VT8251 support into the kernel tree?
+>>
+>>
+>> 1) Doing what you are doing:  asking questions like this.  :)
+>>
+>> 2) Watching Tejun Heo's reset work.  He already has an AHCI soft reset 
+>> patch, and the VIA AHCI work really depends on this.
+>>
+> 
+> BTW, what happened to AHCI softreset patch. It got acked[1], but it has 
+> not made into the tree yet. Do you want me to regenerate it against the 
+> current tree? Or is there anything holding it from going into the tree?
 
-> Hi Mark,
->
-> Mark Maule wrote:
->> Index: linux-2.6.16/include/asm-ia64/msi.h
->> ===================================================================
->> --- linux-2.6.16.orig/include/asm-ia64/msi.h	2006-03-19 23:53:29.000000000 -0600
->> +++ linux-2.6.16/include/asm-ia64/msi.h	2006-03-20 14:50:53.331368084 -0600
->> @@ -14,4 +14,16 @@
->>  #define ack_APIC_irq		ia64_eoi
->>  #define MSI_TARGET_CPU_SHIFT	4
->>  
->> +extern struct msi_ops msi_apic_ops;
->> +
->> +static inline int msi_arch_init(void)
->> +{
->> +	if (platform_msi_init)
->> +		return platform_msi_init();
->> +
->> +	/* default ops for most ia64 platforms */
->> +	msi_register(&msi_apic_ops);
->> +	return 0;
->> +}
->> +
->>  #endif /* ASM_MSI_H */
->
-> It turned out that the above code breaks configs other
-> than CONFIG_IA64_SN and CONFIG_IA64_GENERIC.
-> e.g. CONFIG_IA64_DIG.
->
-> In file included from /build/16.msi/drivers/pci/msi.h:71,
->                  from /build/16.msi/drivers/pci/msi.c:24:
-> include2/asm/msi.h: In function `msi_arch_init':
-> include2/asm/msi.h:22: error: called object is not a function
-> make[3]: *** [drivers/pci/msi.o] Error 1
->
-> Something like below might fix this problem:
->   if (platform_msi_init) {
->       ia64_mv_msi_init_t *fn = platform_msi_init;
->       return (*fn)();
->   }
+Please resend, the only pending patch I have from you is the ATA 
+transport class patch (thanks for doing that BTW), which is on hold 
+waiting for SCSI updates.
 
-platform_msi_init should have the right type in the first place,
-ie. defined to ((ia64_mv_msi_init_t*)NULL) instead of just NULL.
+	Jeff
 
-Andreas.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+

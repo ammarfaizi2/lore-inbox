@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWCUUVn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWCUU0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932429AbWCUUVn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 15:21:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbWCUUVn
+	id S932443AbWCUU0S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 15:26:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWCUU0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 15:21:43 -0500
-Received: from mxout.hispeed.ch ([62.2.95.247]:17357 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id S932429AbWCUUVm (ORCPT
+	Tue, 21 Mar 2006 15:26:18 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:56809 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932443AbWCUU0R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 15:21:42 -0500
-From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-To: "Lanslott Gish" <lanslott.gish@gmail.com>
-Subject: Re: [RFC][PATCH] USB touch screen driver, all-in-one
-Date: Tue, 21 Mar 2006 21:21:50 +0100
-User-Agent: KMail/1.7.2
-Cc: "Greg KH" <greg@kroah.com>, "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-usb <linux-usb-devel@lists.sourceforge.net>, tejohnson@yahoo.com,
-       hc@mivu.no, vojtech@suse.cz
-References: <38c09b90603100124l1aa8cbc6qaf71718e203f3768@mail.gmail.com> <38c09b90603161846n47b5d47fnc6b4d4b9ff2d078b@mail.gmail.com> <38c09b90603202239l66e1d4bds33c2023f85587299@mail.gmail.com>
-In-Reply-To: <38c09b90603202239l66e1d4bds33c2023f85587299@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Mar 2006 15:26:17 -0500
+Date: Tue, 21 Mar 2006 21:24:10 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rt1
+Message-ID: <20060321202410.GA22324@elte.hu>
+References: <20060320085137.GA29554@elte.hu> <200603211430.29466.Serge.Noiraud@bull.net> <20060321170149.GA27290@elte.hu> <6bffcb0e0603211036i7cce3776p@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603212121.52699.daniel.ritz-ml@swissonline.ch>
-X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-05.tornado.cablecom.ch 32701;
-	Body=8 Fuz1=8 Fuz2=8
+In-Reply-To: <6bffcb0e0603211036i7cce3776p@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.7 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 March 2006 07.39, Lanslott Gish wrote:
-> On 3/17/06, Lanslott Gish <lanslott.gish@gmail.com> wrote:
-> > On 3/16/06, Daniel Ritz <daniel.ritz-ml@swissonline.ch> wrote:
-> > that just can't be right. you probably mean
-> > +       *y = pkt[3] | ((pkt[4] & 0x0F) << 8);
-> >
-> > otherwise you mask out bits 4-7. but you want to limit it to 12 bits...
-> > (btw. no need for the & 0xFF mask since *pkt is char)
-> >
-> >
-> > you are right, sorry for my fault. the truely way is
-> >
-> > +       *x = (pkt[1] & 0xFF) | ((pkt[2] & 0x0F) << 8);
-> > +       *y = (pkt[3] & 0xFF) | ((pkt[4] & 0x0F) << 8);
-> >
-> > still need 12 bits( 0x0FFF) and the masks to avoid get negative.
-> >
 
-ok, ok, there is a bug. but the mask is still not needed. the
-real bug is that pkt is of type char instead of unsigned char.
-so a simple cast would be enough:
-	 +       *x = (unsigned char) pkt[1] | ((pkt[2] & 0x0F) << 8);
+* Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
 
-but i changed the whole thing to unsigned char all over the place.
-it's better anyway.
+> Hi Ingo,
+> 
+> On 21/03/06, Ingo Molnar <mingo@elte.hu> wrote:
+> >
+> > could you check -rt2?
+> >
+> 
+> Here is first oops http://www.stardust.webpages.pl/files/rt/2.6.16-rt2/b1.jpg
+> Here is second oops http://www.stardust.webpages.pl/files/rt/2.6.16-rt2/b2.jpg
+> 
+> Here is config http://www.stardust.webpages.pl/files/rt/2.6.16-rt2/rt-config
+> 
+> I can't boot that kernel, 2.6.16-rt1 was fine.
 
-rgds
--daniel
+ok, i broke irqs-off latency tracing in -rt2. Could you try -rt3 - it 
+should be fixed there.
+
+	Ingo

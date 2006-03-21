@@ -1,63 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWCUJGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWCUJLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbWCUJGf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 04:06:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWCUJGf
+	id S1751227AbWCUJLu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 04:11:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWCUJLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 04:06:35 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:24758 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751123AbWCUJGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 04:06:34 -0500
-Subject: Re: gettimeofday order of magnitude slower with pmtimer, which is
-	default
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       bert hubert <bert.hubert@netherlabs.nl>, linux-kernel@vger.kernel.org,
-       george@mvista.com
-In-Reply-To: <20060321085352.GA17642@rhlx01.fht-esslingen.de>
-References: <20060320122449.GA29718@outpost.ds9a.nl>
-	 <1142901656.441f4b98472e5@vds.kolivas.org>
-	 <87acbk33la.fsf@duaron.myhome.or.jp>
-	 <200603211409.50331.kernel@kolivas.org>
-	 <20060321085352.GA17642@rhlx01.fht-esslingen.de>
-Content-Type: text/plain
-Date: Tue, 21 Mar 2006 10:06:27 +0100
-Message-Id: <1142931987.3077.50.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 21 Mar 2006 04:11:50 -0500
+Received: from mga02.intel.com ([134.134.136.20]:50441 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751227AbWCUJLs convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 04:11:48 -0500
+X-IronPort-AV: i="4.03,113,1141632000"; 
+   d="scan'208"; a="14270549:sNHT45378277"
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Date: Tue, 21 Mar 2006 17:11:29 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F840B417863@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+Thread-Index: AcZMxEo5N5/po3v4SQKdu12duTJuKAAAWAwQ
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
+Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       <michael@mihu.de>, <mchehab@infradead.org>,
+       "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
+       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
+       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
+X-OriginalArrivalTime: 21 Mar 2006 09:11:31.0186 (UTC) FILETIME=[716DC520:01C64CC7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-21 at 09:53 +0100, Andreas Mohr wrote:
-> Hi,
+>With _TMP faked in the kernel and one whole zone ignored, this 
+>is what I
+>get:
+>
+>Zone to ignore	|	Result
+>---------------------------------------------------------------
+>---------
+>THM0			OK (10 cycles)
+>THM2			"kernel panic! attempted to kill init"
+
+I guess, if you fake DSDT by completely removing THM2
+you won't see this.
+
+>THM6			Hangs (4th cycle)
+Is it still hang at SMPI?
+
+>THM7			OK (8 cycles)
+>
+>So THM6 seems healthy, but THM0 and THM7 (and maybe THM2) interact
+>badly.  If I unload THM2, THM6, and THM7, then it's okay (previous
+>experiments with faking _TMP but with only THM0 loaded).  But unloading
+>THM6 is not enough.
+
+Please try to remove THM2 judge if it is JUST the 
+problem of THM0 && THM7.
+
+>
+>The kernel panic for the don't-load-THM2 kernel is very strange.  I had
+>another kernel panic while doing another set of tests, which I also
+>couldn't explain.  The only difference between the no-THM0 and the
+>no-THM2 kernels is:
+
+Could you just printk device->pnp? it could be null point (due to 
+you hack?)
+
+>
+>diff -r b7ad6c906aba -r 213308f0ec31 drivers/acpi/thermal.c
+>--- a/drivers/acpi/thermal.c	Tue Mar 21 02:23:30 2006 -0500
+>+++ b/drivers/acpi/thermal.c	Tue Mar 21 02:36:42 2006 -0500
+>@@ -1324,7 +1324,7 @@ static int acpi_thermal_add(struct acpi_
 > 
-> On Tue, Mar 21, 2006 at 02:09:50PM +1100, Con Kolivas wrote:
-> > On Tue, 21 Mar 2006 01:59 pm, OGAWA Hirofumi wrote:
-> > > Yes. However, if machines uses buggy chip, I guessed TSC/PIT would be
-> > > more proper as time source. 
-> > 
-> > Oh yes but there has been an epidemic of timer problems (fast/slow, lost ticks 
-> > etc) lately meaning the pm timer is being relied upon more and more.
-> 
-> I think it's reasonable to question whether to use unlikely or not,
-> but IMHO omitting unlikely here will not reward well-behaving systems and
-> not punish buggy systems, and this doesn't seem quite right from an
-> evolutionary point of view 
-
-rdtsc is not reliable for any SMP system or any system doing frequency
-scaling or C3 state power saving states.
-
-(exception is newest generation processors where that appears to be
-changing now)
-
-
-You can say "but it appears to work on my SMP system".. but are they
-still synced after 200 days of uptime? or are they skewed by then by too
-much. 
-
+> 	if (!device)
+> 		return_VALUE(-EINVAL);
+>-	if (strcmp("THM2", device->pnp.bus_id) == 0) {
+>+	if (strcmp("THM0", device->pnp.bus_id) == 0) {
+> 	    printk(KERN_INFO PREFIX "thermal_add: ignoring %s\n",
+> 		   device->pnp.bus_id);
+> 	    return_VALUE(-EINVAL);
+>
+>

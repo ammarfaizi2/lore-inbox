@@ -1,92 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWCURaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWCURbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbWCURaU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 12:30:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbWCURaT
+	id S932320AbWCURbP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 12:31:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWCURbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 12:30:19 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.192.81]:3022 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S932314AbWCURaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 12:30:16 -0500
-Message-ID: <442037D2.7060109@comcast.net>
-Date: Tue, 21 Mar 2006 12:28:50 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mail/News 1.5 (X11/20060309)
-MIME-Version: 1.0
-To: David Vrabel <dvrabel@cantab.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Lifetime of flash memory
-References: <44203179.3090606@comcast.net> <44203468.9060806@cantab.net>
-In-Reply-To: <44203468.9060806@cantab.net>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
+	Tue, 21 Mar 2006 12:31:15 -0500
+Received: from pat.uio.no ([129.240.130.16]:62407 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932320AbWCURbN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 12:31:13 -0500
+Subject: VFS,fs/locks.c,NFSD4: add race_free posix_lock_file_conf()
+	interface
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org,
+       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
+       Neil Brown <neilb@suse.de>
+In-Reply-To: <1142962174.7987.39.camel@lade.trondhjem.org>
+References: <1142961383.7987.23.camel@lade.trondhjem.org>
+	 <1142962174.7987.39.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Date: Tue, 21 Mar 2006 12:30:58 -0500
+Message-Id: <1142962259.7987.42.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.824, required 12,
+	autolearn=disabled, AWL 1.18, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+From: Andy Adamson <andros@citi.umich.edu>
+
+Lockd and the NFSv4 server both exercise a race condition where
+posix_test_lock() is called either before or after posix_lock_file()
+to deal with a denied lock request due to a conflicting lock. 
+
+Remove the race condition for the NFSv4 server by adding a new conflicting lock 
+parameter to __posix_lock_file() , changing the name to 
+__posix_lock_file_conf().
+
+Keep posix_lock_file() interface, add posix_lock_conf() interface, both 
+call __posix_lock_file_conf().
+
+Signed-off-by: Andy Adamson <andros@citi.umich.edu>
+Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
+Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+---
+
+ fs/locks.c         |   28 ++++++++++++++++++++++------
+ include/linux/fs.h |    1 +
+ 2 files changed, 23 insertions(+), 6 deletions(-)
+
+diff --git a/fs/locks.c b/fs/locks.c
+index 56f996e..1b4b899 100644
+--- a/fs/locks.c
++++ b/fs/locks.c
+@@ -798,8 +798,9 @@ out:
+ }
+ 
+ EXPORT_SYMBOL(posix_lock_file);
++EXPORT_SYMBOL(posix_lock_file_conf);
+ 
+-static int __posix_lock_file(struct inode *inode, struct file_lock *request)
++static int __posix_lock_file_conf(struct inode *inode, struct file_lock *request, struct file_lock *conflock)
+ {
+ 	struct file_lock *fl;
+ 	struct file_lock *new_fl, *new_fl2;
+@@ -823,6 +824,8 @@ static int __posix_lock_file(struct inod
+ 				continue;
+ 			if (!posix_locks_conflict(request, fl))
+ 				continue;
++			if (conflock)
++				locks_copy_lock(conflock, fl);
+ 			error = -EAGAIN;
+ 			if (!(request->fl_flags & FL_SLEEP))
+ 				goto out;
+@@ -992,7 +995,20 @@ static int __posix_lock_file(struct inod
+  */
+ int posix_lock_file(struct file *filp, struct file_lock *fl)
+ {
+-	return __posix_lock_file(filp->f_dentry->d_inode, fl);
++	return __posix_lock_file_conf(filp->f_dentry->d_inode, fl, NULL);
++}
++
++/**
++ * posix_lock_file_conf - Apply a POSIX-style lock to a file
++ * @filp: The file to apply the lock to
++ * @fl: The lock to be applied
++ * @conflock: Place to return a copy of the conflicting lock, if found.
++ *
++ * Except for the conflock parameter, acts just like posix_lock_file.
++ */
++int posix_lock_file_conf(struct file *filp, struct file_lock *fl, struct file_lock *conflock)
++{
++	return __posix_lock_file_conf(filp->f_dentry->d_inode, fl, conflock);
+ }
+ 
+ /**
+@@ -1009,7 +1025,7 @@ int posix_lock_file_wait(struct file *fi
+ 	int error;
+ 	might_sleep ();
+ 	for (;;) {
+-		error = __posix_lock_file(filp->f_dentry->d_inode, fl);
++		error = posix_lock_file(filp, fl);
+ 		if ((error != -EAGAIN) || !(fl->fl_flags & FL_SLEEP))
+ 			break;
+ 		error = wait_event_interruptible(fl->fl_wait, !fl->fl_next);
+@@ -1081,7 +1097,7 @@ int locks_mandatory_area(int read_write,
+ 	fl.fl_end = offset + count - 1;
+ 
+ 	for (;;) {
+-		error = __posix_lock_file(inode, &fl);
++		error = __posix_lock_file_conf(inode, &fl, NULL);
+ 		if (error != -EAGAIN)
+ 			break;
+ 		if (!(fl.fl_flags & FL_SLEEP))
+@@ -1694,7 +1710,7 @@ again:
+ 		error = filp->f_op->lock(filp, cmd, file_lock);
+ 	else {
+ 		for (;;) {
+-			error = __posix_lock_file(inode, file_lock);
++			error = posix_lock_file(filp, file_lock);
+ 			if ((error != -EAGAIN) || (cmd == F_SETLK))
+ 				break;
+ 			error = wait_event_interruptible(file_lock->fl_wait,
+@@ -1837,7 +1853,7 @@ again:
+ 		error = filp->f_op->lock(filp, cmd, file_lock);
+ 	else {
+ 		for (;;) {
+-			error = __posix_lock_file(inode, file_lock);
++			error = posix_lock_file(filp, file_lock);
+ 			if ((error != -EAGAIN) || (cmd == F_SETLK64))
+ 				break;
+ 			error = wait_event_interruptible(file_lock->fl_wait,
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 5dc0fa2..0824e6e 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -752,6 +752,7 @@ extern void locks_copy_lock(struct file_
+ extern void locks_remove_posix(struct file *, fl_owner_t);
+ extern void locks_remove_flock(struct file *);
+ extern int posix_test_lock(struct file *, struct file_lock *, struct file_lock *);
++extern int posix_lock_file_conf(struct file *, struct file_lock *, struct file_lock *);
+ extern int posix_lock_file(struct file *, struct file_lock *);
+ extern int posix_lock_file_wait(struct file *, struct file_lock *);
+ extern int posix_unblock_lock(struct file *, struct file_lock *);
 
 
 
-David Vrabel wrote:
-> John Richard Moser wrote:
->> The question I have is, is this really significant?  I have heard quoted
->> that flash memory typically handles something like 3x10^18 writes;
-> 
-> That's like, uh, 13 orders of magnitudes out...
-> 
-
-Yeah I did more searching, it looks like that was a mass overstatement.
- There was one company that did claim to have developed flash memory
-with that size (I think it was 3.8x10^18) but it looks like typical
-drives are 1.0x10^6 with an on-chip wear-leveling algorithm.  Assuming
-the drive is like 256 megs with 64k blocks, that's still 129 years at
-one write per second.
-
-Bigger drives of course level over larger area and lifetime increases
-linearly.  My 512M drive should last 260 years in that scheme; a 4 gig
-iPod Nano would last 2080 years; and a 30GiB flash-based hard disk in a
-Samsung laptop on a single control chip doing the wear leveling over
-multiple NAND chips would last 15600 years.
-
-In theory anyway.  And assuming one write on one block per one second on
-average for the duration.  (obviously the iPod nano sustains many times
-less than that and will last hundreds of thousands of years in normal
-usage).
-
-
-> David Vrabel
-> 
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
-
-    We will enslave their women, eat their children and rape their
-    cattle!
-                                     -- Evil alien overlord from Blasto
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRCA30As1xW0HCTEFAQIELQ//TjtHD2EIh+DphWoe10MyAwt/MsWjdJEL
-UWir35umv6gta6tnv4cI92PquSMAzyqeGcEe5l1Yhi9nGTe5jWqiiwxg8tVfaecq
-Lf04pt53N9nVYR+lGd7DxDEq3ZCYeQKcE1hY3pnP3IHEnayfEHGl6zb8rTWEeKxm
-o6miFUQoxVOXqcTHD8bLLJAJcTBsLn1IO6gAS9/WA4tvTYo4471E0m+ORY7WgFYK
-/3fpq5a+PgbKkcTjRJdODaxhAROIjElwkTCPtjr/3wpjelOl1BpuTRzl8HxpAmEN
-9Ybnophs6SnLeccE2WIW6PNC/cjgkyiZigOLE0EWBflJaM5ij9ZeW7Ju/FSxjhYK
-e2YB6SrREFJ4Gs4eXOvzPy658JE+kbr1OtO3TIfJFykGY2tTsBvtKPvWGdFx2IJt
-Znp+4vNcOtCO8Wd7uoMv+Sewk7AmqSpB5VPt64UZqGudM94Z3YDkdnUM7FjLkeng
-ank4DFmzjKln2etmDo+25orQbSbPxR8UNRuWJCjOS0NTNN57fiMyIsqsSFFcuqsO
-Ud8fwqvsrSLhXs1xzSxsWMvcZm/RsAgvOPAp+oajCjLVEvP2alRoLtu/yGmRgwEk
-e2+Sa1zrAh2qZv2az0JLVr3gWfjRoKcn39QkF9rmiNpmr3Rf6Jx8PYjF1jYN2UDt
-3j34unpH2gM=
-=sTVH
------END PGP SIGNATURE-----

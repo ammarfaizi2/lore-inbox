@@ -1,80 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWCUXCz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWCUXFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750897AbWCUXCz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 18:02:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751808AbWCUXCy
+	id S1751183AbWCUXFT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 18:05:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751813AbWCUXFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 18:02:54 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:21966 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750897AbWCUXCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 18:02:54 -0500
-Subject: Re: Idea: Automatic binary driver compiling system
-From: Lee Revell <rlrevell@joe-job.com>
-To: Bob Copeland <me@bobcopeland.com>
-Cc: Benjamin Bach <benjamin@overtag.dk>, linux-kernel@vger.kernel.org
-In-Reply-To: <b6c5339f0603200746k3e817e9bmdc278764fe488a8c@mail.gmail.com>
-References: <441AF93C.6040407@overtag.dk>
-	 <1142620509.25258.53.camel@mindpipe> <441C213A.3000404@overtag.dk>
-	 <1142694655.2889.22.camel@laptopd505.fenrus.org>
-	 <441C2CF6.1050607@overtag.dk>
-	 <1142698292.2889.26.camel@laptopd505.fenrus.org>
-	 <441D36DA.2000701@overtag.dk>
-	 <b6c5339f0603190719u6e52ba3cwda15509de3ed947e@mail.gmail.com>
-	 <441D82D8.7050106@overtag.dk>
-	 <b6c5339f0603200746k3e817e9bmdc278764fe488a8c@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 21 Mar 2006 18:02:50 -0500
-Message-Id: <1142982171.4532.183.camel@mindpipe>
+	Tue, 21 Mar 2006 18:05:19 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:40713 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1751811AbWCUXFS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 18:05:18 -0500
+Date: Wed, 22 Mar 2006 00:05:16 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: "Theodore Ts'o" <tytso@mit.edu>, "Stephen C. Tweedie" <sct@redhat.com>,
+       Andreas Dilger <adilger@clusterfs.com>,
+       Takashi Sato <sho@bsd.tnes.nec.co.jp>, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       Laurent Vivier <Laurent.Vivier@bull.net>, ams@gnu.org,
+       cascardo@minaslivre.org
+Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
+Message-ID: <20060321230516.GB45303@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Theodore Ts'o <tytso@mit.edu>,
+	"Stephen C. Tweedie" <sct@redhat.com>,
+	Andreas Dilger <adilger@clusterfs.com>,
+	Takashi Sato <sho@bsd.tnes.nec.co.jp>, cmm@us.ibm.com,
+	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+	Laurent Vivier <Laurent.Vivier@bull.net>, ams@gnu.org,
+	cascardo@minaslivre.org
+References: <02bc01c648f2$bd35e830$4168010a@bsd.tnes.nec.co.jp> <20060316183549.GK30801@schatzie.adilger.int> <20060316212632.GA21004@thunk.org> <20060316225913.GV30801@schatzie.adilger.int> <20060318170729.GI21232@thunk.org> <20060320063633.GC30801@schatzie.adilger.int> <1142894283.21593.59.camel@orbit.scot.redhat.com> <20060320234829.GJ6199@schatzie.adilger.int> <1142960722.3443.24.camel@orbit.scot.redhat.com> <20060321183822.GC11447@thunk.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060321183822.GC11447@thunk.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-20 at 10:46 -0500, Bob Copeland wrote:
-> On 3/19/06, Benjamin Bach <benjamin@overtag.dk> wrote:
-> > Otherwise I'll probably dig up something. Just needs to be a small
-> > kernel-whatever project.
-> >
-> > Is there someone maintaining a list of non-implemented ideas for kernel
-> > features/drivers?
-> 
-> Although neither of these are easy and you very well might not get
-> anything done in three months, a couple of bits of hardware that I
-> have for which there are incomplete/no drivers, and where the
-> manufacturer refuses to give out specs are:
-> 
-> - Ricoh MMC/SD controllers.  The project to figure those out is at:
-> http://mmc.drzeus.cx/wiki/Controllers/Ricoh/Frontreport
-> 
-> - 3D for NVidia.  I know many people would take an open but basic 3D
-> driver over the fully featured binary one - many people already use
-> the 2D 'nv' driver for that reason.  Rudolf Cornelissen has reverse
-> engineered various bits of it (though it may apply only to the
-> geforce-1 era cards) over here:
-> http://web.inter.nl.net/users/be-hold/BeOS/NVdriver/3dnews.html
-> 
+On Tue, Mar 21, 2006 at 01:38:22PM -0500, Theodore Ts'o wrote:
+> Hurd is definitely using the translator field, and I only recently
+> discovered they are using it to point at a disk block where the name
+> of the translator program (I'm not 100% sure, but I think it's a
+> generic, out-of-band, #! sort of functionality).
 
-Lots of people don't even need 3D but have to run nvidia's driver to get
-multihead support, it seems this would be much easier than full 3D
-implementation.
+Translators on directories are a combo of automount+userland
+filesystem, with the addition on having them saved in the mounted-on
+filesystem.  Rather nice actually.  Replacing /etc/fstab with
+local-to-the-mountpoint information has some charm.  I'm not sure if
+translator-on-files actually exist.
 
-> You will find it's a whole lot easier to write drivers when you have
-> specs though, and the resulting drivers will also be better.  But
-> depending on the scope of your project, you could definitely learn
-> something either way.
-> 
-> Another thing that would be a lot easier to accomplish in 3 months
-> would be to write a userspace filesystem using FUSE for something that
-> isn't ordinarily accessed by filesystems; for example currently you
-> can mount remote machines over ssh, cameras that can talk to gphoto,
-> tar archives, gmail, etc.
+Note that in hurd all filesystems are userland.  Whether it is a good
+thing is left as an exercise to the benchmarker and the deadlock
+chaser.
 
-Another easy project if you have old sound cards lying around is to port
-some of the old OSS drivers to ALSA (a list was posted on LKML a while
-back).  This probably will take from a weekend to a few weeks.
-
-Lee
-
+  OG.
 

@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965111AbWCUU51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965110AbWCUU7N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965111AbWCUU51 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 15:57:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965112AbWCUU51
+	id S965110AbWCUU7N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 15:59:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbWCUU7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 15:57:27 -0500
-Received: from test-iport-1.cisco.com ([171.71.176.117]:20853 "EHLO
-	test-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S965108AbWCUU50 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 15:57:26 -0500
-To: "Sean Hefty" <sean.hefty@intel.com>
-Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
-       <openib-general@openib.org>
-Subject: Re: [PATCH 4/6 v2] IB: address translation to map IP toIB addresses (GIDs)
-X-Message-Flag: Warning: May contain useful information
-References: <ORSMSX401FRaqbC8wSA0000000d@orsmsx401.amr.corp.intel.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 21 Mar 2006 12:57:24 -0800
-In-Reply-To: <ORSMSX401FRaqbC8wSA0000000d@orsmsx401.amr.corp.intel.com> (Sean Hefty's message of "Mon, 6 Mar 2006 15:31:58 -0800")
-Message-ID: <adabqvza53f.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Tue, 21 Mar 2006 15:59:13 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:55442 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965110AbWCUU7L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 15:59:11 -0500
+Date: Tue, 21 Mar 2006 12:59:02 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Sander <sander@humilis.net>
+cc: Mark Lord <liml@rtr.ca>, Mark Lord <lkml@rtr.ca>,
+       Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.6.xx: sata_mv: another critical fix
+In-Reply-To: <20060321204435.GE25066@favonius>
+Message-ID: <Pine.LNX.4.64.0603211249270.3622@g5.osdl.org>
+References: <441F4F95.4070203@garzik.org> <200603210000.36552.lkml@rtr.ca>
+ <20060321121354.GB24977@favonius> <442004E4.7010002@rtr.ca>
+ <20060321153708.GA11703@favonius> <Pine.LNX.4.64.0603211028380.3622@g5.osdl.org>
+ <20060321191547.GC20426@favonius> <Pine.LNX.4.64.0603211132340.3622@g5.osdl.org>
+ <20060321204435.GE25066@favonius>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 21 Mar 2006 20:57:25.0115 (UTC) FILETIME=[0E5674B0:01C64D2A]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > +struct workqueue_struct *rdma_wq;
- > +EXPORT_SYMBOL(rdma_wq);
 
-Sean, I don't think I saw an answer when I asked you this before.  Why
-is ib_addr exporting a workqueue?  Is there some sort of ordering
-constraint that is forcing other modules to go through the same
-workqueue for things?
 
-This seems like a very fragile internal thing to be exposing, and I'm
-wondering if there's a better way to handle it.
+On Tue, 21 Mar 2006, Sander wrote:
+> 
+> Is there a quick patch to suspect, or should I narrow down some more per
+> Andrew's instructions?
 
- - R.
+Well, the only thing that changes the sata_mv driver in the -mm1 patchset 
+is the "git-libata-all.patch" patch, so you might start out just applying 
+that one broken-out patch and verifying that it fixes things for you.
+
+That's git commit 2086a4aa2b41846801fad01f0fb1723134865ebb from Jeff's 
+libata tree.
+
+At that point, if that fixes it for you, you'd be best off bisecting it in 
+Jeff's libata tree using git, to figure out what it is that fixed things. 
+Jeff?
+
+		Linus

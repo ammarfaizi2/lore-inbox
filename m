@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWCUH3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbWCUHa7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbWCUH3F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 02:29:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWCUH3E
+	id S1751231AbWCUHa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 02:30:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWCUHa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 02:29:04 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:15574 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S932196AbWCUH3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 02:29:01 -0500
-Date: Tue, 21 Mar 2006 08:28:59 +0100
-From: Sander <sander@humilis.net>
-To: Mark Lord <liml@rtr.ca>
-Cc: Jeff Garzik <jgarzik@pobox.com>, sander@humilis.net,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, lkml@rtr.ca
-Subject: Re: Some sata_mv error messages
-Message-ID: <20060321072859.GB4089@favonius>
-Reply-To: sander@humilis.net
-References: <20060318044056.350a2931.akpm@osdl.org> <20060320133318.GB32762@favonius> <441F508E.1030008@pobox.com> <441F8599.7080703@rtr.ca>
+	Tue, 21 Mar 2006 02:30:58 -0500
+Received: from pproxy.gmail.com ([64.233.166.182]:9052 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751231AbWCUHa6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 02:30:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LP9+LCs5JxYM8YSt2JhEGczYKGCSOWn6dX1iWgIkPXLN+WQZtaRHThUagecRu6Tl3yGUMXobP2uDayJFiuGIQ7aa5yK5Dyxkay9vh89puCyMOrST2o3jI5KpWkaGJhLhKildCcCB4gT1Gta4Bxrzg8OK7htnvJbjmkr/DOPNcNo=
+Message-ID: <489ecd0c0603202330m647be15ap8df39c1e95ca8163@mail.gmail.com>
+Date: Tue, 21 Mar 2006 15:30:57 +0800
+From: "Luke Yang" <luke.adi@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2]Blackfin archtecture patche for 2.6.16
+In-Reply-To: <489ecd0c0603200200va747a68k187651930a3f0a51@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <441F8599.7080703@rtr.ca>
-X-Uptime: 08:11:49 up 18 days, 12:22, 33 users,  load average: 4.25, 3.61, 3.11
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <489ecd0c0603200200va747a68k187651930a3f0a51@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote (ao):
-> Jeff Garzik wrote:
-> >For now, the goal is a system that doesn't crash and doesn't corrupt 
-> >data. If its occasionally slow or spits out a few errors, but
-> >otherwise still works, that's pretty darned good :)
-> 
-> I'm currently working with the original authors of sata_mv, and have
-> taken over maintenance of it for now. It should progress from "highly
-> experimental" to "production quality" over the next month or so.
+Hi,
 
-Thanks a lot :-)
+   Anyone like to review this patch? Any comment or suggestion is
+appreciated. If you have questions, send me mails.
 
-> The (mucho) updated driver I'm using here now is already much improved
-> in many ways. At some point, I'll break it out into patches for Jeff.
-> 
-> But there's one MAJOR bugfix patch that I'll release here shortly, to
-> go with the interrupt handler fix already posted.
+   Thank you in advance!
 
-I've actually a patched kernel ready to test your patch. Only need to
-boot the server, so will do that this afternoon and report back.
+Regards,
+Luke Yang <luke.adi@gmail.com>
 
-	Sander
+On 3/20/06, Luke Yang <luke.adi@gmail.com> wrote:
+> Hi all,
+>
+>    This is the Blackfin archtecture patch for kernel 2.6.16.  This
+> patch include header files and arch files, which are hard to split.
+> Thus the patch size is big, I hope that is OK for a new architecture
+> patch. For the other driver patches, I'll send them one by one in
+> small size. Thanks!
+>
+>   Because of the big size, I put it here:
+> http://blackfin.uclinux.org/frs/download.php/810/blackfin-arch.patch.tar.bz2
+>
+> Signed off by: Luke Yang <luke.adi@gmail.com>
+>
+> --
+> Best regards,
+> Luke Yang
+> magic.yyang@gmail.com; luke.adi@gmail.com
+>
 
--- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+
+--
+Best regards,
+Luke Yang
+magic.yyang@gmail.com; luke.adi@gmail.com

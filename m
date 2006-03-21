@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965110AbWCUU7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbWCUVBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965110AbWCUU7N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 15:59:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbWCUU7N
+	id S965114AbWCUVBR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 16:01:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965119AbWCUVBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 15:59:13 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:55442 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965110AbWCUU7L (ORCPT
+	Tue, 21 Mar 2006 16:01:16 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:55218 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965114AbWCUVBP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 15:59:11 -0500
-Date: Tue, 21 Mar 2006 12:59:02 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Sander <sander@humilis.net>
-cc: Mark Lord <liml@rtr.ca>, Mark Lord <lkml@rtr.ca>,
-       Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.xx: sata_mv: another critical fix
-In-Reply-To: <20060321204435.GE25066@favonius>
-Message-ID: <Pine.LNX.4.64.0603211249270.3622@g5.osdl.org>
-References: <441F4F95.4070203@garzik.org> <200603210000.36552.lkml@rtr.ca>
- <20060321121354.GB24977@favonius> <442004E4.7010002@rtr.ca>
- <20060321153708.GA11703@favonius> <Pine.LNX.4.64.0603211028380.3622@g5.osdl.org>
- <20060321191547.GC20426@favonius> <Pine.LNX.4.64.0603211132340.3622@g5.osdl.org>
- <20060321204435.GE25066@favonius>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Mar 2006 16:01:15 -0500
+Date: Tue, 21 Mar 2006 16:01:06 -0500
+From: Dave Jones <davej@redhat.com>
+To: Sasa Ostrouska <sasa.ostrouska@volja.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: p4-clockmod not working in 2.6.16
+Message-ID: <20060321210106.GA25370@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Sasa Ostrouska <sasa.ostrouska@volja.net>,
+	linux-kernel@vger.kernel.org
+References: <1142974528.3470.4.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1142974528.3470.4.camel@localhost>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 21, 2006 at 09:55:28PM +0100, Sasa Ostrouska wrote:
+ > Hello people,
+ > 
+ > I would like to advise you that in kernel 2.6.16 the 
+ > p4-clockmod module cant recognise my P4 cpu anymore.
+ > 
+ > This worked perfectly in kernel 2.6.15. I get the following
+ > error when I modprobe it:
+ > 
+ > root@rc-vaio:/home/sasa# modprobe msr && modprobe cpuid && modprobe
+ > p4_clockmod && modprobe speedstep-lib && modprobe microcode && modprobe
+ > hwmon
+ > FATAL: Error inserting p4_clockmod
+ > (/lib/modules/2.6.16/kernel/arch/i386/kernel/cpu/cpufreq/p4-clockmod.ko): No such device
+ > 
+ > Can somebody explain what happened or how can I set it up ?
 
+Can you send /proc/cpuinfo and dmesg output please ?
+The only thing that recently changed in p4-clockmod is addition
+of an errata workaround that disables freqs <2GHz on certain CPUs.
 
-On Tue, 21 Mar 2006, Sander wrote:
-> 
-> Is there a quick patch to suspect, or should I narrow down some more per
-> Andrew's instructions?
+If the max freq is <2GHz this would disable it completely.
 
-Well, the only thing that changes the sata_mv driver in the -mm1 patchset 
-is the "git-libata-all.patch" patch, so you might start out just applying 
-that one broken-out patch and verifying that it fixes things for you.
+		Dave
 
-That's git commit 2086a4aa2b41846801fad01f0fb1723134865ebb from Jeff's 
-libata tree.
-
-At that point, if that fixes it for you, you'd be best off bisecting it in 
-Jeff's libata tree using git, to figure out what it is that fixed things. 
-Jeff?
-
-		Linus
+-- 
+http://www.codemonkey.org.uk

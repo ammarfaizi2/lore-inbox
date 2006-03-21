@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbWCUObE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030409AbWCUOck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751072AbWCUObE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 09:31:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751713AbWCUObE
+	id S1030409AbWCUOck (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 09:32:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030408AbWCUOck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 09:31:04 -0500
-Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:15847 "EHLO
-	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751072AbWCUObD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 09:31:03 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: interactive task starvation
-Date: Wed, 22 Mar 2006 01:30:33 +1100
-User-Agent: KMail/1.9.1
-Cc: Willy Tarreau <willy@w.ods.org>, Ingo Molnar <mingo@elte.hu>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       bugsplatter@gmail.com
-References: <1142592375.7895.43.camel@homer> <200603220119.50331.kernel@kolivas.org> <1142951339.7807.99.camel@homer>
-In-Reply-To: <1142951339.7807.99.camel@homer>
+	Tue, 21 Mar 2006 09:32:40 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:20363 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030409AbWCUOcj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 09:32:39 -0500
+Message-ID: <44200E84.8090805@garzik.org>
+Date: Tue, 21 Mar 2006 09:32:36 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Evgeny Stepanischev <bolk@hitv.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16/piix
+References: <506113975.20060321163650@hitv.ru>
+In-Reply-To: <506113975.20060321163650@hitv.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603220130.34424.kernel@kolivas.org>
+X-Spam-Score: -2.4 (--)
+X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
+	Content analysis details:   (-2.4 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 March 2006 01:28, Mike Galbraith wrote:
-> On Wed, 2006-03-22 at 01:19 +1100, Con Kolivas wrote:
-> > What you're fixing with unfairness is worth pursuing. The 'ls' issue just
-> > blows my mind though for reasons I've just said. Where are the magic
-> > cycles going when nothing else is running that make it take ten times
-> > longer?
->
-> What I was talking about when I mentioned scrolling was rendering.
+Evgeny Stepanischev wrote:
+> Can't run 2.6.16 kernel.
+> 
+> 
+> # make install
+> 
+> sh /usr/src/linux-2.6.16/arch/i386/boot/install.sh 2.6.16 arch/i386/boot/bzImage System.map "/boot"
+> WARNING: No module ata_piix found for kernel 2.6.16, continuing anyway
 
-I'm talking about the long standing report that 'ls' takes 10 times longer on 
-2.6 90% of the time you run it, and doing 'ls | cat' makes it run as fast as 
-2.4. This is what Willy has been fighting with.
+Your kernel config or something is screwed up, and module ata_piix 
+didn't get built...
 
-Cheers,
-Con
+> Than I reboot I see "can't find superblock: kernel panic"
+
+...thus no driver to read a superblock.
+
+	Jeff
+
+

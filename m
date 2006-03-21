@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWCUTdw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbWCUTeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbWCUTdw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 14:33:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWCUTdw
+	id S964848AbWCUTeq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 14:34:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964842AbWCUTeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 14:33:52 -0500
-Received: from customer-reverse-entry.64.151.106.180 ([64.151.106.180]:40658
-	"EHLO charlie.albator.org") by vger.kernel.org with ESMTP
-	id S932349AbWCUTdv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 14:33:51 -0500
-Message-ID: <44205513.8030109@poolshark.org>
-Date: Tue, 21 Mar 2006 11:33:39 -0800
-From: Denis Leroy <denis@poolshark.org>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Mark Lord <liml@rtr.ca>
-CC: Jeff Garzik <jgarzik@pobox.com>, sander@humilis.net,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, lkml@rtr.ca
-Subject: Re: Some sata_mv error messages
-References: <20060318044056.350a2931.akpm@osdl.org> <20060320133318.GB32762@favonius> <441F508E.1030008@pobox.com> <441F8599.7080703@rtr.ca>
-In-Reply-To: <441F8599.7080703@rtr.ca>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 21 Mar 2006 14:34:46 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:6875 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964851AbWCUTep (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 14:34:45 -0500
+Subject: Re: gettimeofday order of magnitude slower with pmtimer, which is
+	default
+From: john stultz <johnstul@us.ibm.com>
+To: bert hubert <bert.hubert@netherlabs.nl>
+Cc: linux-kernel@vger.kernel.org, george@mvista.com
+In-Reply-To: <20060320122449.GA29718@outpost.ds9a.nl>
+References: <20060320122449.GA29718@outpost.ds9a.nl>
+Content-Type: text/plain
+Date: Tue, 21 Mar 2006 11:34:42 -0800
+Message-Id: <1142969683.4281.14.camel@leatherman>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> Jeff Garzik wrote:
->>
->> Without answering your specific question, just remember that sata_mv
->> is considerly "highly experimental" right now, and still needs some
->> workarounds for hardware errata.
->>
->> For now, the goal is a system that doesn't crash and doesn't corrupt
->> data.  If its occasionally slow or spits out a few errors, but
->> otherwise still works, that's pretty darned good :)
+On Mon, 2006-03-20 at 13:24 +0100, bert hubert wrote:
+> Yesterday, together with Zwane, I discovered each gettimeofday call costs me
+> 4 usec on some boxes and almost nothing on others. We did a fruitless chase
+> for vsyscall/sysenter happening but the problem turned out to be
+> CONFIG_X86_PM_TIMER.
 > 
-> I'm currently working with the original authors of sata_mv, and have taken
-> over maintenance of it for now.  It should progress from "highly
-> experimental"
-> to "production quality" over the next month or so.
+> This problem has been discussed before
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0411.1/2135.html
 > 
-> The (mucho) updated driver I'm using here now is already much improved
-> in many ways.  At some point, I'll break it out into patches for Jeff.
+> Not only is the pm timer slow by design, it also needs to be read multiple
+> times to work around a bug in certain hardware.
 > 
-> But there's one MAJOR bugfix patch that I'll release here shortly,
-> to go with the interrupt handler fix already posted.
+> What is new is that this option is now dependent on CONFIG_EMBEDDED. Unless
+> you select this option, the PM Timer will always be used.
+> 
+> Would a patch removing the link to EMBEDDED and adding a warning that while
+> this timer is of high quality, it is slow, be welcome?
 
-This is great news. Is there any relationship between the development of
-this driver and the one maintained by Marvell that's available from
-their web site ? Their latest version (3.6.1) is released under the GPL,
-and is a very solid driver based our experience with it over the past
-few years, though it's targeted at older versions of the linux kernel
-and needs some porting to 2.6.16 (and contains redundant stuff like its
-own scsi-ata layer).
+I think Ogawa's patch is the right solution for dropping the triple
+read, which should help a good bit. 
 
-Denis Leroy
+If you *really* are sure the TSC is usable on your system, you can
+override it w/ clock=tsc. Warning users that the clock is slow without
+giving them a way to know if the TSC is usable will likely just cause
+more problem reports. And hey, its better then using the PIT :)
+
+thanks
+-john
+

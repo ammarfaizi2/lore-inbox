@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030437AbWCUQ13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030456AbWCUQ1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030437AbWCUQ13 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 11:27:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030444AbWCUQ12
+	id S1030456AbWCUQ1d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 11:27:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030410AbWCUQVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 11:27:28 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:56743 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030437AbWCUQ1A (ORCPT
+	Tue, 21 Mar 2006 11:21:20 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:29452 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932376AbWCUQVL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 11:27:00 -0500
-Date: Tue, 21 Mar 2006 08:26:40 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: mchehab@infradead.org
-cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
-       video4linux-list@redhat.com, akpm@osdl.org
-Subject: Re: [PATCH 000/141] V4L/DVB updates part 1
-In-Reply-To: <Pine.LNX.4.64.0603210741120.3622@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0603210748340.3622@g5.osdl.org>
-References: <20060320150819.PS760228000000@infradead.org>
- <Pine.LNX.4.64.0603210741120.3622@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Mar 2006 11:21:11 -0500
+Cc: Jan Beulich <jbeulich@novell.com>, Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH 13/46] kbuild: fix mkmakefile
+In-Reply-To: <1142958055873-git-send-email-sam@ravnborg.org>
+X-Mailer: git-send-email
+Date: Tue, 21 Mar 2006 17:20:55 +0100
+Message-Id: <11429580553691-git-send-email-sam@ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Sam Ravnborg <sam@ravnborg.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7BIT
+From: Sam Ravnborg <sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+With the current way of generating the Makefile in the output directory
+for builds outside of the source tree, specifying real targets (rather
+than phony ones) doesn't work in an already (partially) built tree, as
+the stub Makefile doesn't have any dependency information available.
+Thus, all targets where files may actually exist must be listed
+explicitly and, due to what I'd call a make misbehavior, directory
+targets must then also be special cased.
+
+Signed-Off-By: Jan Beulich <jbeulich@novell.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+
+---
+
+ scripts/mkmakefile |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
+
+96678281bfaa5f04752a98f9b93454041169fd3b
+diff --git a/scripts/mkmakefile b/scripts/mkmakefile
+index c4d621b..a22cbed 100644
+--- a/scripts/mkmakefile
++++ b/scripts/mkmakefile
+@@ -21,11 +21,13 @@ KERNELOUTPUT := $2
+ 
+ MAKEFLAGS += --no-print-directory
+ 
++.PHONY: all \$(MAKECMDGOALS)
++
+ all:
+ 	\$(MAKE) -C \$(KERNELSRC) O=\$(KERNELOUTPUT)
+ 
+-%::
+-	\$(MAKE) -C \$(KERNELSRC) O=\$(KERNELOUTPUT) \$@
++Makefile:;
+ 
++\$(filter-out all Makefile,\$(MAKECMDGOALS)) %/:
++	\$(MAKE) -C \$(KERNELSRC) O=\$(KERNELOUTPUT) \$@
+ EOF
+-
+-- 
+1.0.GIT
 
 
-On Tue, 21 Mar 2006, Linus Torvalds wrote:
-> 
-> In particular, commit e338b736f1aee59b757130ffdc778538b7db18d6 is crap, 
-> crap, CRAP.
-
-Looking closer, the commit after that is a _real_ merge, and it looks like 
-you did something strange when that at first conflicted in saa7134-dvb.c 
-or something. I just don't even see _how_ you created that bogus non-merge 
-commit. Are you using cogito? It has some problems with conflict 
-resolution, I think. Real git should not even have allowed you to commit 
-something that hadn't been resolved.
-
-Anyway, if you want to fix this up without re-doing _everything_, the way 
-to do so is to just start a new branch, and cherry-pick the non-crap 
-commits. So you can fix it up, largely automatedly, with git.
-
-I'm actually trying to do that right now, to see if I can re-create your 
-tree without the errors.
-
-		Linus

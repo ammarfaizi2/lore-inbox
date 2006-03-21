@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWCUHK5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbWCUHMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbWCUHK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 02:10:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWCUHK5
+	id S932280AbWCUHMO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 02:12:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbWCUHMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 02:10:57 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:8101 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932213AbWCUHK4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 02:10:56 -0500
-Subject: Re: [PATCH][0/8] (Targeting 2.6.17) Posix memory locking and
-	balanced mlock-LRU semantic
-From: Arjan van de Ven <arjan@infradead.org>
-To: Nate Diller <nate.diller@gmail.com>
-Cc: Stone Wang <pwstone@gmail.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <5c49b0ed0603201552j58150a18lbf4d0a9b0406d175@mail.gmail.com>
-References: <bc56f2f0603200535s2b801775m@mail.gmail.com>
-	 <1142862078.3114.47.camel@laptopd505.fenrus.org>
-	 <5c49b0ed0603201552j58150a18lbf4d0a9b0406d175@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 21 Mar 2006 08:10:52 +0100
-Message-Id: <1142925053.3077.6.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 21 Mar 2006 02:12:14 -0500
+Received: from mtaout2.012.net.il ([84.95.2.4]:9417 "EHLO mtaout2.012.net.il")
+	by vger.kernel.org with ESMTP id S932280AbWCUHMM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 02:12:12 -0500
+Date: Tue, 21 Mar 2006 09:11:41 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+Subject: Re: nommu_map_sg: overflow with ata_piix?
+In-reply-to: <adaoe00a3my.fsf@cisco.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <20060321071141.GB25444@granada.merseine.nu>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+References: <adawteoa9pc.fsf@cisco.com> <adaoe00a3my.fsf@cisco.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-20 at 15:52 -0800, Nate Diller wrote:
-> On 3/20/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> > > 1. Posix mlock/munlock/mlockall/munlockall.
-> > >    Get mlock/munlock/mlockall/munlockall to Posix definiton: transaction-like,
-> > >    just as described in the manpage(2) of mlock/munlock/mlockall/munlockall.
-> > >    Thus users of mlock system call series will always have an clear map of
-> > >    mlocked areas.
-> > > 2. More consistent LRU semantics in Memory Management.
-> > >    Mlocked pages is placed on a separate LRU list: Wired List.
-> >
-> > please give this a more logical name, such as mlocked list or pinned
-> > list
+On Mon, Mar 20, 2006 at 07:16:37PM -0800, Roland Dreier wrote:
+> > nommu_map_sg: overflow 11b8a9000+4096 of device mask ffffffff
 > 
-> Shaoping, thanks for doing this work, it is something I have been
-> thinking about for the past few weeks.  It's especially nice to be
-> able to see how many pages are pinned in this manner.
-> 
-> Might I suggest calling it the long_term_pinned list?  It also might
-> be worth putting ramdisk pages on this list, since they cannot be
-> written out in response to memory pressure.  This would eliminate the
-> need for AOP_WRITEPAGE_ACTIVATE.
+> Never mind, I'm (sort of) an idiot.  The kernel that complained like
+> that had CONFIG_GART_IOMMU=n -- I foolishly thought, "I have a Xeon,
+> which can't do GART IOMMU, so I don't need that option."  I didn't
+> realize that it also enables swiotlb.  Once I read the help text I was
+> OK.
 
-I like that idea
+In theory it should be possible to turn just swiotlb on, but at the
+moment it requires gart due to the way pci-dma is structured. If
+someone is looking for a little side project, this could be a good
+one.
 
-
+Cheers,
+Muli
+-- 
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
 

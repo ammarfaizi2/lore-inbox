@@ -1,149 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWCUQDI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbWCUQGt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750856AbWCUQDI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 11:03:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbWCUQDI
+	id S932173AbWCUQGt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 11:06:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWCUQGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 11:03:08 -0500
-Received: from uproxy.gmail.com ([66.249.92.194]:7318 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750856AbWCUQDG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 11:03:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=P4LnrqwmOws8d2Pq1N8EVZnMB2HPX5cBgJ62LaDwkgsCFqHM3yYt7CfZd8yYl4iihPXfQ88LDK/MJzdoL0Xfa2R4iovpyBxh+iXd0l5UC7xAk17Ab5KnJS82NY783UVok5ziTUlgRj2AMkUhH3KuC8pzf/FINBL5A6TH4+qwlNU=
-Message-ID: <bc56f2f0603210803l28145c7dj@mail.gmail.com>
-Date: Tue, 21 Mar 2006 11:03:05 -0500
-From: "Stone Wang" <pwstone@gmail.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>
-Subject: Re: PATCH][1/8] 2.6.15 mlock: make_pages_wired/unwired
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <441FEFB4.6050700@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <bc56f2f0603200536scb87a8ck@mail.gmail.com>
-	 <441FEFB4.6050700@yahoo.com.au>
+	Tue, 21 Mar 2006 11:06:49 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:16034 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750871AbWCUQGs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 11:06:48 -0500
+Subject: Re: Some sata_mv error messages
+From: Peter Jones <pjones@redhat.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Dave Jones <davej@redhat.com>, sander@humilis.net,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, lkml@rtr.ca
+In-Reply-To: <441F6684.609@pobox.com>
+References: <20060318044056.350a2931.akpm@osdl.org>
+	 <20060320133318.GB32762@favonius> <441F508E.1030008@pobox.com>
+	 <20060321022515.GI29589@redhat.com>  <441F6684.609@pobox.com>
+Content-Type: text/plain
+Organization: Red Hat, Inc.
+Date: Tue, 21 Mar 2006 11:06:31 -0500
+Message-Id: <1142957192.11485.0.camel@vroomfondel.internal.datastacks.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We dont account HugeTLB pages for:
+On Mon, 2006-03-20 at 21:35 -0500, Jeff Garzik wrote:
+> Dave Jones wrote:
 
-1. HugeTLB pages themselves are not reclaimable.
+> > This wasn't occasional, this was every few seconds, making the box
+> > pretty much unusable.
+> 
+> The entire box or just the console?
 
-2. If we count HugeTLB pages in "Wired",then we would have no mind
-   how many of the "Wired" are HugeTLB pages, and how many are
-normal-size pages.
-   Thus, hard to get a clear map of physical memory use,for example:
-     how many pages are reclaimable?
-   If we must count HugeTLB pages,more fields should be added to
-"/proc/meminfo",
-   for exmaple: "Wired HugeTLB:", "Wired Normal:".
+Just the console.
 
-Shaoping Wang
+-- 
+  Peter
 
-2006/3/21, Nick Piggin <nickpiggin@yahoo.com.au>:
-> Stone Wang wrote:
-> > 1. Add make_pages_unwired routine.
->
-> Unfortunately you forgot wire_page and unwire_page, so this patch will
-> not even compile.
->
-> > 2. Replace make_pages_present with make_pages_wired, support rollback.
->
-> What does support rollback mean?
->
-> > 3. Pass 1 more param ("wire") to get_user_pages.
-> >
->
-> As others have pointed out, wire may be a BSD / other unix thing, but
-> it does not feature in Linux memory management terminology. If you
-> want to introduce it, you need to do a better job of specifying it.
->
-> > Signed-off-by: Shaoping Wang <pwstone@gmail.com>
-> >
->
-> > +void make_pages_unwired(struct mm_struct *mm,
-> > +                                     unsigned long start,unsigned long end)
-> > +{
-> > +     struct vm_area_struct *vma;
-> > +     struct page *page;
-> > +     unsigned int foll_flags;
-> > +
-> > +     foll_flags =0;
-> > +
-> > +     vma=find_vma(mm,start);
-> > +     if(!vma)
-> > +             BUG();
-> > +     if(is_vm_hugetlb_page(vma))
-> > +             return;
-> > +
-> > +     for(; start<end ; start+=PAGE_SIZE) {
-> > +             page=follow_page(vma,start,foll_flags);
-> > +             if(page)
-> > +                     unwire_page(page);
-> > +     }
-> > +}
-> > +
->
-> What happens when start goes past vma->vm_end?
->
-> >  int get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
-> > -             unsigned long start, int len, int write, int force,
-> > +             unsigned long start, int len, int write,int force, int wire,
-> >               struct page **pages, struct vm_area_struct **vmas)
-> >  {
-> >       int i;
-> > @@ -973,6 +995,7 @@
-> >               if (!vma && in_gate_area(tsk, start)) {
-> >                       unsigned long pg = start & PAGE_MASK;
-> >                       struct vm_area_struct *gate_vma = get_gate_vma(tsk);
-> > +                     struct page *page;
-> >                       pgd_t *pgd;
-> >                       pud_t *pud;
-> >                       pmd_t *pmd;
-> > @@ -994,6 +1017,7 @@
-> >                               pte_unmap(pte);
-> >                               return i ? : -EFAULT;
-> >                       }
-> > +                     page = vm_normal_page(gate_vma, start, *pte);
->
-> You wire gate_vma pages? But it doesn't look like you can unwire them with
-> make_pages_unwired.
->
-> >                       if (pages) {
-> >                               struct page *page = vm_normal_page(gate_vma, start, *pte);
->
-> This can go now?
->
-> >                               pages[i] = page;
-> > @@ -1003,9 +1027,12 @@
-> >                       pte_unmap(pte);
-> >                       if (vmas)
-> >                               vmas[i] = gate_vma;
-> > +                     if(wire)
-> > +                             wire_page(page);
-> >                       i++;
-> >                       start += PAGE_SIZE;
-> >                       len--;
-> > +
-> >                       continue;
-> >               }
-> >
-> > @@ -1013,6 +1040,7 @@
-> >                               || !(vm_flags & vma->vm_flags))
-> >                       return i ? : -EFAULT;
-> >
-> > +             /* We dont account wired HugeTLB pages */
->
-> You don't account wired HugeTLB pages? If you can wire them you should be able
-> to unwire them as well shouldn't you?
->
-> --
-> SUSE Labs, Novell Inc.
->
-> Send instant messages to your online friends http://au.messenger.yahoo.com
->
->

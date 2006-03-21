@@ -1,60 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964858AbWCULJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965035AbWCULKx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964858AbWCULJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 06:09:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965034AbWCULJ7
+	id S965035AbWCULKx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 06:10:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWCULKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 06:09:59 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63658 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964858AbWCULJ6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 06:09:58 -0500
-Subject: Re: SubmittingPatches typo
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "J. Bruce Fields" <bfields@fieldses.org>
-Cc: Matheus Izvekov <mizvekov@gmail.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060320210209.GD31512@fieldses.org>
-References: <20060320125012.GA21545@elf.ucw.cz>
-	 <Pine.LNX.4.61.0603202056100.14231@yvahk01.tjqt.qr>
-	 <305c16960603201247p53718859ofa0e6d0355c9da1a@mail.gmail.com>
-	 <20060320210209.GD31512@fieldses.org>
+	Tue, 21 Mar 2006 06:10:53 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:44719 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965035AbWCULKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 06:10:52 -0500
+Subject: Re: [PATCH 2.6.16-rc6-xen] export Xen Hypervisor attributes
+	to	sysfs
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Mike D. Day" <ncmike@us.ibm.com>
+Cc: xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+In-Reply-To: <441FD8F3.208@us.ibm.com>
+References: <200603202335.k2KNZEjo005673@mdday.raleigh.ibm.com>
+	 <1142925269.3077.10.camel@laptopd505.fenrus.org>  <441FD8F3.208@us.ibm.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 21 Mar 2006 11:16:19 +0000
-Message-Id: <1142939779.21455.43.camel@localhost.localdomain>
+Date: Tue, 21 Mar 2006 12:10:44 +0100
+Message-Id: <1142939444.3077.55.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Nope.  It's actually one of the amusing places where there *is* no rule.
-> Plurals that end in s always get just the apostrophe.  But for singular
-> nouns that end in s, while I tend to think of "'s" as the default, some
-> people like to drop the final s if the result ("Sophocles's") would
-> otherwise sound awkward spoken aloud.
+On Tue, 2006-03-21 at 05:44 -0500, Mike D. Day wrote:
+> Arjan van de Ven wrote:
+> 
+> >> +---properties
+> >> |   >---capabilities
+> >> |   >---changeset
+> > 
+> > how is this a property and not part of version?
+> Agree, changeset should be part of version
+> 
+> > again what is the justification of putting this in the kernel? I though
+> > everyone here was agreed that since the management tools that need this
+> > talk to the hypervisor ANYWAY, they might as well just ask this
+> > information as well....
+> 
+> I think we had a good discussion but short of agreement. Some tools want to 
+> read a file from /sys/hypervisor/ rather than call a c lib. (In other words, 
+> not all tools will talk to the hypervisor.) It is appropriate to view the 
+> hypervisor as a hardware device so it is appropriate to have some information 
+> in sysfs. 
 
-The definitive references have this to say
-
-US English: Strunk and White says it should be "Torvalds's" and that the
-apostrophe alone is used only for ancient particularly biblical names
-ending in -es/is  (eg Moses' laws)
-
-UK English: The Oxford Guide To Style says
-
-"Use 's after non-classical or non-classicizing personal names ending
-with an s or z sound). It also says that Torvalds' would be acceptable.
+then make a simple tool that gives the info to stdout
 
 
-So both agree that
+> I appreciate the counter argument as well, but think this should be a 
+> configurable option. 
 
-	Torvalds's
+"a config option" is a cop-out. By proposing a config option you even
+admit it's not essential for userspace. The last thing this should be is
+a config option; it either is needed and important, and should be there
+always, or it's redundant and should be done in userspace. "A config
+option" is just admitting that it is the later, but that you need to
+justify the time you spent on the kernel patch somewhere ;-)
 
-is correct and that would appear to be the right choice to keep everyone
-both sides of the pond happy.
 
-Jan: Care to submit an updated patch as the original is indeed wrong ?
-
-Alan
 

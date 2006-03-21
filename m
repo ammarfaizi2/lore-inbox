@@ -1,78 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965074AbWCUTQT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965079AbWCUTSZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965074AbWCUTQT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 14:16:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965079AbWCUTQS
+	id S965079AbWCUTSZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 14:18:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965078AbWCUTSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 14:16:18 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:36480 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S965073AbWCUTQL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 14:16:11 -0500
-Date: Tue, 21 Mar 2006 11:16:05 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: trond.myklebust@fys.uio.no, chrisw@sous-sol.org, matthew@wil.cx,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: DoS with POSIX file locks?
-Message-ID: <20060321191605.GB15997@sorel.sous-sol.org>
-References: <E1FLIlF-0007zR-00@dorka.pomaz.szeredi.hu> <20060320121107.GE8980@parisc-linux.org> <E1FLJLs-00085u-00@dorka.pomaz.szeredi.hu> <20060320123950.GF8980@parisc-linux.org> <E1FLJsF-0008A7-00@dorka.pomaz.szeredi.hu> <20060320153202.GH8980@parisc-linux.org> <1142878975.7991.13.camel@lade.trondhjem.org> <E1FLdPd-00020d-00@dorka.pomaz.szeredi.hu> <1142962083.7987.37.camel@lade.trondhjem.org> <E1FLl7L-0002u9-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1FLl7L-0002u9-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 21 Mar 2006 14:18:25 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:21197 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965069AbWCUTSY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 14:18:24 -0500
+Message-ID: <44205162.8000504@cs.wisc.edu>
+Date: Tue, 21 Mar 2006 13:17:54 -0600
+From: Mike Christie <michaelc@cs.wisc.edu>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bryan Holty <lgeek@frontiernet.net>
+CC: Dan Aloni <da-x@monatomic.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>, brking@us.ibm.com,
+       dror@xiv.co.il
+Subject: Re: [PATCH] scsi: properly count the number of pages in scsi_req_map_sg()
+References: <20060321083830.GA2364@localdomain> <1142956494.4377.12.camel@mulgrave.il.steeleye.com> <20060321161912.GA32051@localdomain> <200603211205.46196.lgeek@frontiernet.net>
+In-Reply-To: <200603211205.46196.lgeek@frontiernet.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Miklos Szeredi (miklos@szeredi.hu) wrote:
-> > > Apps using LinuxThreads seem to be candidates:
-> > > 
-> > >      According to POSIX 1003.1c, a successful `exec*' in one of the
-> > >      threads should automatically terminate all other threads in the
-> > >      program.  This behavior is not yet implemented in LinuxThreads.
-> > >      Calling `pthread_kill_other_threads_np' before `exec*' achieves
-> > >      much of the same behavior, except that if `exec*' ultimately
-> > >      fails, then all other threads are already killed.
-> > > 
-> > > steal_locks() was probably added as a workaround for this case, no?
-> > 
-> > Possibly, but LinuxThreads were never really POSIX thread compliant
-> > anyway. Anyhow, the problem isn't really LinuxThreads, it is rather that
-> > the existence of the standalone CLONE_FILES flag allows you to do a lot
-> > of weird inheritance crap with 'posix locks' that the POSIX standards
-> > committees never even had to consider.
+Bryan Holty wrote:
+> On Tuesday 21 March 2006 10:19, Dan Aloni wrote:
 > 
-> Yes.  The execve-with-multiple-threads/posix-locks interaction is not
-> documented for LinuxThreads but removing steal_locks() makes that
-> implementation slighly differently incompatible to POSIX.  Some
-> application _might_ be relying on the current behavior.
+>>On Tue, Mar 21, 2006 at 09:54:54AM -0600, James Bottomley wrote:
+>>
+>>>This is a good email to discuss on the scsi list:
+>>>linux-scsi@vger.kernel.org; whom I've added to the cc list.
+>>>
+>>>On Tue, 2006-03-21 at 10:38 +0200, Dan Aloni wrote:
+>>>
+>>>>Improper calculation of the number of pages causes bio_alloc() to
+>>>>be called with nr_iovecs=0, and slab corruption later.
+>>>>
+>>>>For example, a simple scatterlist that fails: {(3644,452), (0, 60)},
+>>>>(offset, size). bufflen=512 => nr_pages=1 => breakage. The proper
+>>>>page count for this example is 2.
+>>>
+>>>Such a scatterlist would likely violate the device's underlying
+>>>boundaries and is not legal ... there's supposed to be special code
+>>>checking the queue alignment and copying the bio to an aligned buffer if
+>>>the limits are violated.  Where are you generating these scatterlists
+>>>from?
+>>
+>>These scatterlists can be generated using the sg driver. Though I am
+>>actually running a customized version of the sg driver, it seems the
+>>conversion from a userspace array of sg_iovec_t to scatterlist stays
+>>the same and also applies to the original driver (see
+>>st_map_user_pages()).
 > 
-> It's just a question of how much confidence do we have, that no app
-> will break if steal_locks() is removed.  This function was added by
-> Chris Wright on 2003-12-29 (Cset 1.1371.111.3):
 > 
->   Add steal_locks helper for use in conjunction with unshare_files to
->   make sure POSIX file lock semantics aren't broken due to
->   unshare_files.
+> Hello,
+>     I am seeing the same issue when using direct io with sg.  sg will perform 
+> direct io on any date that is aligned with the devices dma_align.  The 
+> default for drivers that do not specify is 512.  sg builds the scatter gather 
+> list from the user specified location, offsetting the first entry in the list 
+> if not page aligned.  This is the case that causes the improper allocation of 
+> "nr_iovec" in scsi_req_map_sgand the later slab corruption.  
 > 
-> Chris, do you remember if this was due to some concrete breakage or
-> just a preemtive measure?
+>     I don't think it is necessary to calculate nr_pages from the entire list.  
+> Only sgl[0] is allowed to have an offset, so we can calculate from that as 
+> follows.
+> --- a/drivers/scsi/scsi_lib.c	2006-03-03 13:17:22.000000000 -0600
+> +++ b/drivers/scsi/scsi_lib.c	2006-03-21 11:36:39.389763804 -0600
+> @@ -368,12 +368,15 @@
+>  			   int nsegs, unsigned bufflen, gfp_t gfp)
+>  {
+>  	struct request_queue *q = rq->q;
+> -	int nr_pages = (bufflen + PAGE_SIZE - 1) >> PAGE_SHIFT;
+> +	int nr_pages = 0;
+>  	unsigned int data_len = 0, len, bytes, off;
+>  	struct page *page;
+>  	struct bio *bio = NULL;
+>  	int i, err, nr_vecs = 0;
+> -
+> +	
+> +	if (nsegs)
 
-Concrete breakage.  Something like:
+you can drop that test
 
-clone(CLONE_FILES)
-  /* in child */
-  lock
-  execve
-  lock
+> + 		nr_pages = (bufflen + sgl[0].offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
+> +	
 
-w/out the kludge[1], the lock fails.  I should have a test program about
-that I wrote to test this, although it was originally triggered via some
-LTP or LSB type of test (don't recall which).
+I think we can do this without looping but I think this is broken. If we 
+had a slight variant of Dan's example but we have a page and some change 
+in the first entry {3644, 4548} and 0,60} in the last one, that would 
+would only calculate two pages but we want three.
 
-thanks,
--chris
-
-[1] happy to see it go.  i concur with Trond, there's no sane way to get
-rid of it w/out formalizing CLONE_FILES and locks on exec
+I think we can have to calculate the first and last entries but the 
+middle ones we can assume have no offset and lengths that are multiples 
+of a page.

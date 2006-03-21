@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030324AbWCUFdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030334AbWCUFp5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030324AbWCUFdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 00:33:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030328AbWCUFdJ
+	id S1030334AbWCUFp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 00:45:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030338AbWCUFp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 00:33:09 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:62670 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030324AbWCUFdI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 00:33:08 -0500
+	Tue, 21 Mar 2006 00:45:57 -0500
+Received: from web8712.mail.in.yahoo.com ([203.84.221.133]:62086 "HELO
+	web8712.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S1030334AbWCUFp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 00:45:56 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=PfsIk4tAiQE8pSyuR2fHRjWC3mm9u4Br3y3Q2FakUBd29hT4rs/f3W9Q3cj4m29zfw9O2GyUelRVh/U0DLKG4lpxlxbvPyWQZT+wIwckGGbQXJnmyWSyIZ4E3qQi4t0IiQISUNhurZr/EfxNOyUEUx3vyffaLR6yXpjeePNE3KM=
-Message-ID: <787b0d920603202133i123b51deif114a75b0d9c9d29@mail.gmail.com>
-Date: Tue, 21 Mar 2006 00:33:07 -0500
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: bert.hubert@netherlabs.nl, linux-kernel@vger.kernel.org, george@mvista.com,
-       andi@rhlx01.fht-esslingen.de, hirofumi@mail.parknet.co.jp,
-       kernel@kolivas.org
-Subject: Re: gettimeofday order of magnitude slower with pmtimer, which is default
+  s=s1024; d=yahoo.co.in;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=b2dzosrZ6bfeTQ07JD6eOMlkIu1qkqxW/nrB5Ld/bTxJ9KT2zBS1RcDvel1NUADKoGxy3ws5b0Y4Xxk9qw4y7UUh1gG73tgg0ItYRCGh35Ygo3badLrCOmGakOEiB7BJ+BWRV0x3swpUY2VRY+MVThQ3ZWTTHooBcW28hedFp+Q=  ;
+Message-ID: <20060321054552.64884.qmail@web8712.mail.in.yahoo.com>
+Date: Tue, 21 Mar 2006 05:45:52 +0000 (GMT)
+From: Amit Luniya <amit_31_08@yahoo.co.in>
+Subject: Help for problem related to hibernation in linux kernel 2.6.14.5 kernel 
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert writes:
+Hello sir ,
+    I am a final year student of computer enggineering
+from pune university.
+I am working on project of hibernation in network
+environment that means client image is saved onto
+server
+and when required get it from server.We are utilising
+the 
+code of hibernation that is written in swsusp.c and
+disk.c files in linux kernel 2.6.14.5. 
+  Problem is that existing code of hibernation does
+not support ping or any network related services after
+resume from suspending.So due to this problem we cant
+communicate with server and can not  get image back
+from server. So what we should do to overcome from
+this problem?
+Please help us to find out solution from this problem.
+CC at := amit_31_08@yahoo.co.in
+         amit_31_08_99@yahoo.co.in 
 
-> Not only is the pm timer slow by design, it also needs to be read
-> multiple times to work around a bug in certain hardware.
->
-> What is new is that this option is now dependent on CONFIG_EMBEDDED.
-> Unless you select this option, the PM Timer will always be used.
 
-Good. Fast but horribly buggy is NOT acceptable as a default.
-Go ahead and tweak the settings on YOUR system. Run Gentoo.
-
-I wasted a lot of time trying to figure out why my clock ran
-about 1.414 (yes, square root of two) times faster than proper.
-It turns out that a normal dual-core AMD box has TSCs that run
-at randomly varying and fully independant rates. Before I found
-a post to linux-kernel by an AMD employee explaining this, my
-thought was that I was probably missing clock ticks from the
-BIOS going into SMM mode. That was the problem the previous time
-I had clock problems. (so I reduced HZ to 100, etc.)
-
-I'm sure lots of people would never figure out why their clock
-is running 41.4% faster than normal. They'd live with it, using
-a physical clock mounted on the wall, or switch to a different OS.
+		
+__________________________________________________________ 
+Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com

@@ -1,64 +1,185 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWCUQVL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030389AbWCUQVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbWCUQVL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 11:21:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWCUQVK
+	id S1030389AbWCUQVO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 11:21:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030313AbWCUQVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 21 Mar 2006 11:21:14 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:24844 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932334AbWCUQVK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 21 Mar 2006 11:21:10 -0500
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:13523 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S932371AbWCUQVJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 11:21:09 -0500
-In-Reply-To: <20060321121550.GA7009@infradead.org>
-Subject: Re: [2/3 PATCH] Kprobes: User space probes support- readpage hooks
-Sensitivity: 
-To: Christoph Hellwig <hch@infradead.org>
-Cc: ak@suse.de, Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       prasanna@in.ibm.com, suparna@in.ibm.com
-X-Mailer: Lotus Notes Release 6.5.1IBM February 19, 2004
-Message-ID: <OFBA270CB3.3C73C256-ON80257138.0058B7AE-80257138.00597F69@uk.ibm.com>
-From: Richard J Moore <richardj_moore@uk.ibm.com>
-Date: Tue, 21 Mar 2006 16:17:33 +0000
-X-MIMETrack: Serialize by Router on D06ML065/06/M/IBM(Release 6.53HF247 | January 6, 2005) at
- 21/03/2006 16:21:30
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Cc: Sam Ravnborg <sam@mars.ravnborg.org>, Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH 01/46] kbuild: support building individual files for external modules
+In-Reply-To: <20060321161709.GA8475@mars.ravnborg.org>
+X-Mailer: git-send-email
+Date: Tue, 21 Mar 2006 17:20:54 +0100
+Message-Id: <1142958054202-git-send-email-sam@ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Sam Ravnborg <sam@ravnborg.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7BIT
+From: Sam Ravnborg <sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Support building individual files when dealing with separate modules.
+So say you have a module named "foo" which consist of two .o files bar.o
+and fun.o.
 
+You can then do:
+make -C $KERNELSRC M=`pwd` bar.o
+make -C $KERNELSRC M=`pwd` bar.lst
+make -C $KERNELSRC M=`pwd` bar.i
+make -C $KERNELSRC M=`pwd` /            <= will build all .o files
+                                           and link foo.o
+make -C $KERNELSRC M=`pwd` foo.ko       <= will build the module
+                                           and do the modpost step
+					   to create foo.ko
 
+The above will also work if the external module is placed in a
+subdirectory using a hirachy of kbuild files.
+Thanks to Andreas Gruenbacher <agruen@suse.de> for initial feature
+request / bug report.
 
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
-72
+---
 
-Christoph Hellwig <hch@infradead.org> wrote on 21/03/2006 12:15:50:
+ Documentation/kbuild/modules.txt |   11 ++++++
+ Makefile                         |   66 +++++++++++++++++++++++++-------------
+ 2 files changed, 55 insertions(+), 22 deletions(-)
 
-> > I think you'll find it happened the other way round. Sun openly
-references
-> > my white papers. They even stole the name of an ancestor to kprobes.
-But
-> > who cares, it not relevant or particularly interesting whether the
-chicken
-> > or the egg came first.
->
-> I know your papers, too.  In fact dprobes' RPN program downloads are a
-far
-> better design than systemtap's generation of kernel code.  it's a pity
-that
-> you gave up on dprobes instead of applying the required work to it and
-> integrate it with other bits of a tracing framework.
+06300b21f4c79fd1578f4b7ca4b314fbab61a383
+diff --git a/Documentation/kbuild/modules.txt b/Documentation/kbuild/modules.txt
+index 7e77f93..87d858d 100644
+--- a/Documentation/kbuild/modules.txt
++++ b/Documentation/kbuild/modules.txt
+@@ -13,6 +13,7 @@ In this document you will find informati
+ 	   --- 2.2 Available targets
+ 	   --- 2.3 Available options
+ 	   --- 2.4 Preparing the kernel tree for module build
++	   --- 2.5 Building separate files for a module
+ 	=== 3. Example commands
+ 	=== 4. Creating a kbuild file for an external module
+ 	=== 5. Include files
+@@ -131,6 +132,16 @@ when building an external module.
+ 	      Therefore a full kernel build needs to be executed to make
+ 	      module versioning work.
+ 
++--- 2.5 Building separate files for a module
++	It is possible to build single files which is part of a module.
++	This works equal for the kernel, a module and even for external
++	modules.
++	Examples (module foo.ko, consist of bar.o, baz.o):
++		make -C $KDIR M=`pwd` bar.lst
++		make -C $KDIR M=`pwd` bar.o
++		make -C $KDIR M=`pwd` foo.ko
++		make -C $KDIR M=`pwd` /
++	
+ 
+ === 3. Example commands
+ 
+diff --git a/Makefile b/Makefile
+index 77a448c..639d8a4 100644
+--- a/Makefile
++++ b/Makefile
+@@ -137,7 +137,7 @@ objtree		:= $(CURDIR)
+ src		:= $(srctree)
+ obj		:= $(objtree)
+ 
+-VPATH		:= $(srctree)
++VPATH		:= $(srctree):$(KBUILD_EXTMOD)
+ 
+ export srctree objtree VPATH TOPDIR
+ 
+@@ -849,27 +849,6 @@ prepare prepare-all: prepare0
+ 
+ export CPPFLAGS_vmlinux.lds += -P -C -U$(ARCH)
+ 
+-# Single targets
+-# ---------------------------------------------------------------------------
+-
+-%.s: %.c scripts FORCE
+-	$(Q)$(MAKE) $(build)=$(@D) $@
+-%.i: %.c scripts FORCE
+-	$(Q)$(MAKE) $(build)=$(@D) $@
+-%.o: %.c scripts FORCE
+-	$(Q)$(MAKE) $(build)=$(@D) $@
+-%.ko: scripts FORCE
+-	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1) $(build)=$(@D) $(@:.ko=.o)
+-	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.modpost
+-%/:      scripts prepare FORCE
+-	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1) $(build)=$(@D)
+-%.lst: %.c scripts FORCE
+-	$(Q)$(MAKE) $(build)=$(@D) $@
+-%.s: %.S scripts FORCE
+-	$(Q)$(MAKE) $(build)=$(@D) $@
+-%.o: %.S scripts FORCE
+-	$(Q)$(MAKE) $(build)=$(@D) $@
+-
+ # 	FIXME: The asm symlink changes when $(ARCH) changes. That's
+ #	hard to detect, but I suppose "make mrproper" is a good idea
+ #	before switching between archs anyway.
+@@ -1192,6 +1171,11 @@ help:
+ 	@echo  '  modules_install - install the module'
+ 	@echo  '  clean           - remove generated files in module directory only'
+ 	@echo  ''
++
++# Dummies...
++.PHONY: prepare scripts
++prepare: ;
++scripts: ;
+ endif # KBUILD_EXTMOD
+ 
+ # Generate tags for editors
+@@ -1313,6 +1297,44 @@ kernelrelease:
+ kernelversion:
+ 	@echo $(KERNELVERSION)
+ 
++# Single targets
++# ---------------------------------------------------------------------------
++# The directory part is taken from first prerequisite, so this
++# works even with external modules
++%.s: %.c scripts FORCE
++	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
++%.i: %.c scripts FORCE
++	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
++%.o: %.c scripts FORCE
++	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
++%.lst: %.c scripts FORCE
++	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
++%.s: %.S scripts FORCE
++	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
++%.o: %.S scripts FORCE
++	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
++
++# For external modules we shall include any directory of the target,
++# but usual case there is no directory part.
++# make M=`pwd` module.o     => $(dir $@)=./
++# make M=`pwd` foo/module.o => $(dir $@)=foo/
++# make M=`pwd` /            => $(dir $@)=/
++ 
++ifeq ($(KBUILD_EXTMOD),)
++        target-dir = $(@D)
++else
++        zap-slash=$(filter-out .,$(patsubst %/,%,$(dir $@)))
++        target-dir = $(KBUILD_EXTMOD)$(if $(zap-slash),/$(zap-slash))
++endif
++
++/ %/:      scripts prepare FORCE
++	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1) \
++	$(build)=$(target-dir)
++%.ko: scripts FORCE
++	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1)   \
++	$(build)=$(target-dir) $(@:.ko=.o)
++	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.modpost
++
+ # FIXME Should go into a make.lib or something 
+ # ===========================================================================
+ 
+-- 
+1.0.GIT
 
-Fascinating, gave up on dprobes, not really! I thought the kernel community
-felt it was the wrong implementation. We did remove all the RPN stuff to a
-loadable kernel module and left behind a minimal API set - krpobes - which
-comprised the kernel probing mechanism, user-space probes extensions and
-watchpoint probes extension. The result was identical functionality to the
-original dprobes but with a minimal patch to the mainline kernel. But in
-addition it provided a very much more generalized interface that would
-allow other utilities to exploit the kernel interface, which they have. In
-this sense dprobes still exists and can be used on top of krpobes. What
-would you recommend be retained from  dprobes? And what further
-modifications?
 

@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030334AbWCUFp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030338AbWCUFqx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030334AbWCUFp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 00:45:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030338AbWCUFp5
+	id S1030338AbWCUFqx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 00:46:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbWCUFqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 00:45:57 -0500
-Received: from web8712.mail.in.yahoo.com ([203.84.221.133]:62086 "HELO
-	web8712.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S1030334AbWCUFp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 00:45:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=b2dzosrZ6bfeTQ07JD6eOMlkIu1qkqxW/nrB5Ld/bTxJ9KT2zBS1RcDvel1NUADKoGxy3ws5b0Y4Xxk9qw4y7UUh1gG73tgg0ItYRCGh35Ygo3badLrCOmGakOEiB7BJ+BWRV0x3swpUY2VRY+MVThQ3ZWTTHooBcW28hedFp+Q=  ;
-Message-ID: <20060321054552.64884.qmail@web8712.mail.in.yahoo.com>
-Date: Tue, 21 Mar 2006 05:45:52 +0000 (GMT)
-From: Amit Luniya <amit_31_08@yahoo.co.in>
-Subject: Help for problem related to hibernation in linux kernel 2.6.14.5 kernel 
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 21 Mar 2006 00:46:53 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:37815 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030338AbWCUFqw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 00:46:52 -0500
+Date: Tue, 21 Mar 2006 00:46:34 -0500
+From: Dave Jones <davej@redhat.com>
+To: tiwai@suse.de
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: unresolved emu10k1 synth symbols.
+Message-ID: <20060321054634.GA5122@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, tiwai@suse.de,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello sir ,
-    I am a final year student of computer enggineering
-from pune university.
-I am working on project of hibernation in network
-environment that means client image is saved onto
-server
-and when required get it from server.We are utilising
-the 
-code of hibernation that is written in swsusp.c and
-disk.c files in linux kernel 2.6.14.5. 
-  Problem is that existing code of hibernation does
-not support ping or any network related services after
-resume from suspending.So due to this problem we cant
-communicate with server and can not  get image back
-from server. So what we should do to overcome from
-this problem?
-Please help us to find out solution from this problem.
-CC at := amit_31_08@yahoo.co.in
-         amit_31_08_99@yahoo.co.in 
+I just noticed this whilst booting 2.6.16 on a test box
 
+snd_emu10k1_synth: Unknown symbol snd_emu10k1_ptr_read
+snd_emu10k1_synth: Unknown symbol snd_emu10k1_synth_copy_from_user
+snd_emu10k1_synth: Unknown symbol snd_emu10k1_voice_free
+snd_emu10k1_synth: Unknown symbol snd_emu10k1_synth_free
+snd_emu10k1_synth: Unknown symbol snd_emu10k1_ptr_write
+snd_emu10k1_synth: Unknown symbol snd_emu10k1_synth_bzero
+snd_emu10k1_synth: Unknown symbol snd_emu10k1_voice_alloc
+snd_emu10k1_synth: Unknown symbol snd_emu10k1_memblk_map
+snd_emu10k1_synth: Unknown symbol snd_emu10k1_synth_alloc
 
-		
-__________________________________________________________ 
-Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com
+This kernel was configured with CONFIG_SND_EMU10K1=m
+and CONFIG_SND_SEQUENCER=m
+
+This looks like it can't possibly work, unless I change
+CONFIG_SND_EMU10K1 to =y.  Is exporting a symbol from one
+module to another actually supposed to work?
+I thought this was why we had the ill-fated intermodule_register() ?.
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

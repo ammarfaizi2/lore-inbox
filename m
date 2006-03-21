@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWCUMIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751510AbWCUML0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751498AbWCUMIy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 07:08:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWCUMIy
+	id S1751510AbWCUML0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 07:11:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWCUML0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 07:08:54 -0500
-Received: from mail17.syd.optusnet.com.au ([211.29.132.198]:19408 "EHLO
-	mail17.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751498AbWCUMIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 07:08:53 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: gettimeofday order of magnitude slower with pmtimer, which is default
-Date: Tue, 21 Mar 2006 23:07:59 +1100
-User-Agent: KMail/1.9.1
-Cc: Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       bert hubert <bert.hubert@netherlabs.nl>, linux-kernel@vger.kernel.org,
-       george@mvista.com
-References: <20060320122449.GA29718@outpost.ds9a.nl> <200603212258.46265.kernel@kolivas.org> <1142942684.3077.66.camel@laptopd505.fenrus.org>
-In-Reply-To: <1142942684.3077.66.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 21 Mar 2006 07:11:26 -0500
+Received: from mail.gmx.de ([213.165.64.20]:2020 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751510AbWCUMLZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 07:11:25 -0500
+X-Authenticated: #14349625
+Subject: Re: interactive task starvation
+From: Mike Galbraith <efault@gmx.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Willy Tarreau <willy@w.ods.org>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
+       bugsplatter@gmail.com
+In-Reply-To: <20060321111850.GA2776@elte.hu>
+References: <200603090036.49915.kernel@kolivas.org>
+	 <20060317090653.GC13387@elte.hu> <1142592375.7895.43.camel@homer>
+	 <1142615721.7841.15.camel@homer> <1142838553.8441.13.camel@homer>
+	 <20060321064723.GH21493@w.ods.org> <1142927498.7667.34.camel@homer>
+	 <20060321091353.GA25248@w.ods.org> <20060321091422.GA9207@elte.hu>
+	 <20060321111552.GA25651@w.ods.org>  <20060321111850.GA2776@elte.hu>
+Content-Type: text/plain
+Date: Tue, 21 Mar 2006 13:07:58 +0100
+Message-Id: <1142942878.7807.9.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603212308.00645.kernel@kolivas.org>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 March 2006 23:04, Arjan van de Ven wrote:
-> On Tue, 2006-03-21 at 22:58 +1100, Con Kolivas wrote:
-> > On Tuesday 21 March 2006 19:53, Andreas Mohr wrote:
-> > > (and the fact that invoking a function pointer should be similarly
-> > > expensive to a conditional) I don't think it's useful.
-> >
-> > Is
-> >
-> > *blah();
-> >
-> > as expensive as
-> >
-> > if (conditional)
-> > 	blah();
-> >
-> > I don't know the answer. I just know cmp is expensive. Comments?
->
-> function pointer is usually MORE expensive.
-> for if() the processor has a change to predict the branch right, while
-> call <register> (which is what function pointer calls end up being) are
-> basically always mispredicted unless you have a really really fancy
-> branch predictor...
+On Tue, 2006-03-21 at 12:18 +0100, Ingo Molnar wrote:
 
-Thanks! That's something I've been trying to find good info on.
+> great work by Mike! One detail: i'd like there to be just one default 
+> throttling value, i.e. no grace_g tunables [so that we have just one 
+> default scheduler behavior]. Is the default grace_g[12] setting good 
+> enough for your workload?
 
-Cheers,
-Con
+I can make the knobs compile time so we don't see random behavior
+reports, but I don't think they can be totally eliminated.  Would that
+be sufficient?
+
+If so, the numbers as delivered should be fine for desktop boxen I
+think.  People who are building custom kernels can bend to fit as
+always.
+
+	-Mike
+

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030313AbWCUQdl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbWCUQdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030313AbWCUQdl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 11:33:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030277AbWCUQaX
+	id S1030308AbWCUQdd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 11:33:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030313AbWCUQa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 11:30:23 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:30988 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1030310AbWCUQVN (ORCPT
+	Tue, 21 Mar 2006 11:30:26 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:29708 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1030305AbWCUQVN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 21 Mar 2006 11:21:13 -0500
 Cc: Sam Ravnborg <sam@mars.ravnborg.org>, Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH 38/46] kbuild: in makefile.txt note that Makefile is preferred name for kbuild files
-In-Reply-To: <1142958057287-git-send-email-sam@ravnborg.org>
+Subject: [PATCH 33/46] kbuild: fix make dir/file.xx when asm symlink is missing
+In-Reply-To: <11429580562919-git-send-email-sam@ravnborg.org>
 X-Mailer: git-send-email
-Date: Tue, 21 Mar 2006 17:20:57 +0100
-Message-Id: <11429580572017-git-send-email-sam@ravnborg.org>
+Date: Tue, 21 Mar 2006 17:20:56 +0100
+Message-Id: <1142958056929-git-send-email-sam@ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Sam Ravnborg <sam@ravnborg.org>
@@ -24,35 +24,48 @@ From: Sam Ravnborg <sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As noted by Roland Dreier <rdreier@cisco.com> makefiles.txt told
-one to use the name 'Kbuild' as preferred name for kbuild files.
-This is not yet true so let makefiles.txt reflect reality.
+Added a dependency so we do full preparation before trying to build single
+file targets. This fixes a case where Andrew Morton did:
+	make kernel/sched.o
+        rm include/asm
+	make kernel/sched.o     -> splat
 
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- Documentation/kbuild/makefiles.txt |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ Makefile |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
-172c3ae3e686f548a0eba950405e5cc321460005
-diff --git a/Documentation/kbuild/makefiles.txt b/Documentation/kbuild/makefiles.txt
-index 99d51a5..a9c00fa 100644
---- a/Documentation/kbuild/makefiles.txt
-+++ b/Documentation/kbuild/makefiles.txt
-@@ -106,9 +106,9 @@ This document is aimed towards normal de
- Most Makefiles within the kernel are kbuild Makefiles that use the
- kbuild infrastructure. This chapter introduce the syntax used in the
- kbuild makefiles.
--The preferred name for the kbuild files is 'Kbuild' but 'Makefile' will
--continue to be supported. All new developmen is expected to use the
--Kbuild filename.
-+The preferred name for the kbuild files are 'Makefile' but 'Kbuild' can
-+be used and if both a 'Makefile' and a 'Kbuild' file exists then the 'Kbuild'
-+file will be used.
+f6ecebd6592ea70e9450ec70efb24220dd961ebc
+diff --git a/Makefile b/Makefile
+index ce2bfbd..12c8d71 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1289,17 +1289,17 @@ kernelversion:
+ # ---------------------------------------------------------------------------
+ # The directory part is taken from first prerequisite, so this
+ # works even with external modules
+-%.s: %.c scripts FORCE
++%.s: %.c prepare scripts FORCE
+ 	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
+-%.i: %.c scripts FORCE
++%.i: %.c prepare scripts FORCE
+ 	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
+-%.o: %.c scripts FORCE
++%.o: %.c prepare scripts FORCE
+ 	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
+-%.lst: %.c scripts FORCE
++%.lst: %.c prepare scripts FORCE
+ 	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
+-%.s: %.S scripts FORCE
++%.s: %.S prepare scripts FORCE
+ 	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
+-%.o: %.S scripts FORCE
++%.o: %.S prepare scripts FORCE
+ 	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
  
- Section 3.1 "Goal definitions" is a quick intro, further chapters provide
- more details, with real examples.
+ # For external modules we shall include any directory of the target,
 -- 
 1.0.GIT
 

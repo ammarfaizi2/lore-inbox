@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030285AbWCUE2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030309AbWCUEs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030285AbWCUE2t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 23:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030287AbWCUE2s
+	id S1030309AbWCUEs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 23:48:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030302AbWCUEs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 23:28:48 -0500
-Received: from ms-smtp-02-smtplb.tampabay.rr.com ([65.32.5.132]:44779 "EHLO
-	ms-smtp-02.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S1030285AbWCUE2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 23:28:48 -0500
-Message-ID: <441F80E3.6090308@cfl.rr.com>
-Date: Mon, 20 Mar 2006 23:28:19 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Mail/News 1.5 (X11/20060309)
+	Mon, 20 Mar 2006 23:48:27 -0500
+Received: from rtr.ca ([64.26.128.89]:58083 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1030294AbWCUEs0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 23:48:26 -0500
+Message-ID: <441F8599.7080703@rtr.ca>
+Date: Mon, 20 Mar 2006 23:48:25 -0500
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20060305 SeaMonkey/1.1a
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: dreiners@iastate.edu, linux-kernel@vger.kernel.org
-Subject: Re: VFAT: Can't create file named 'aux.h'?
-References: <1142890822.5007.18.camel@localhost.localdomain> <20060320134533.febb0155.rdunlap@xenotime.net>
-In-Reply-To: <20060320134533.febb0155.rdunlap@xenotime.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: sander@humilis.net, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, lkml@rtr.ca
+Subject: Re: Some sata_mv error messages
+References: <20060318044056.350a2931.akpm@osdl.org> <20060320133318.GB32762@favonius> <441F508E.1030008@pobox.com>
+In-Reply-To: <441F508E.1030008@pobox.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why on earth does linux enforce this restriction?  I'm not sure about dos ( it has been 10+ years since I used it ), but NT will happily create files with those names on either fat or ntfs, provided that you refer to them with an absolute path name.  Seeing as how it wasn't really a restriction on the filesystem itself, but rather the fact that those names were predefined by io.sys, I see no reason why linux should prevent you from using them.  
+Jeff Garzik wrote:
+>
+> Without answering your specific question, just remember that sata_mv is 
+> considerly "highly experimental" right now, and still needs some 
+> workarounds for hardware errata.
+> 
+> For now, the goal is a system that doesn't crash and doesn't corrupt 
+> data.  If its occasionally slow or spits out a few errors, but otherwise 
+> still works, that's pretty darned good :)
 
-Randy.Dunlap wrote:
-> "AUX" is (was) a reserved "filename" in DOS.  The Linux MS-DOS
-> filesystem preserves (protects) that.  The extension part does not
-> matter; it only checks the first 8 characters of the filename.
-> You'll need to use a different filesystem or filename...
-> 
-> 
-> fs/msdos/namei.c:
-> 
-> 		for (reserved = reserved_names; *reserved; reserved++)
-> 			if (!strncmp(res, *reserved, 8))
-> 				return -EINVAL;
-> 
-> /* MS-DOS "device special files" */
-> static const unsigned char *reserved_names[] = {
-> 	"CON     ", "PRN     ", "NUL     ", "AUX     ",
-> 	"LPT1    ", "LPT2    ", "LPT3    ", "LPT4    ",
-> 	"COM1    ", "COM2    ", "COM3    ", "COM4    ",
-> 	NULL
-> };
-> 
-> 
+I'm currently working with the original authors of sata_mv, and have taken
+over maintenance of it for now.  It should progress from "highly experimental"
+to "production quality" over the next month or so.
 
+The (mucho) updated driver I'm using here now is already much improved
+in many ways.  At some point, I'll break it out into patches for Jeff.
+
+But there's one MAJOR bugfix patch that I'll release here shortly,
+to go with the interrupt handler fix already posted.
+
+Cheers
+
+Mark

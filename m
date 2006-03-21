@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751776AbWCUPdl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751779AbWCUPd6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751776AbWCUPdl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 10:33:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751777AbWCUPdl
+	id S1751779AbWCUPd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 10:33:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751777AbWCUPd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 10:33:41 -0500
-Received: from uproxy.gmail.com ([66.249.92.207]:64023 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751776AbWCUPdk convert rfc822-to-8bit
+	Tue, 21 Mar 2006 10:33:58 -0500
+Received: from ltcasot2.astro.unipd.it ([147.162.107.228]:17547 "EHLO
+	kurtz.scarico") by vger.kernel.org with ESMTP id S1751779AbWCUPd4 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 10:33:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eLf38g9e+4wjDTXzMnZBh37i5BaFrvvfY08kKqt2lcHD2UnWMLiG2cp+FtuMaqZiRosDftXp/blfrrhFYisR6R0TuNWAEPFog68ci+WV01uyxsq0/VQoYvtzED48Qj/wtUP9eo338JeeiygkM2Z0mAtQ0l1xkcr1bWZETgC53yU=
-Message-ID: <bc56f2f0603210733vc3ce132p@mail.gmail.com>
-Date: Tue, 21 Mar 2006 10:33:36 -0500
-From: "Stone Wang" <pwstone@gmail.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH][5/8] proc: export mlocked pages info through "/proc/meminfo: Wired"
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <441FEFC7.5030109@yahoo.com.au>
+	Tue, 21 Mar 2006 10:33:56 -0500
+From: Francesco Biscani <biscani@pd.astro.it>
+To: Phillip Lougher <phillip@lougher.org.uk>
+Subject: Re: [ANN] Squashfs 3.0 released
+Date: Tue, 21 Mar 2006 16:33:23 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <B6C8687D-6543-42A1-9262-653C4D3C30B2@lougher.org.uk> <20060317203904.GE21493@w.ods.org> <1D707D43-5AAF-4265-891A-04EFDA060E53@lougher.org.uk>
+In-Reply-To: <1D707D43-5AAF-4265-891A-04EFDA060E53@lougher.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-References: <bc56f2f0603200537i7b2492a6p@mail.gmail.com>
-	 <441FEFC7.5030109@yahoo.com.au>
+Message-Id: <200603211633.23467.biscani@pd.astro.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The list potentially could have more wider use.
+Hi Phillip,
 
-For example, kernel-space locked/pinned pages could be placed on the list too
-(while mlocked pages are locked/pinned by system calls from user-space).
+is there a way to use squashfs regularly as an ordinary user? I would love to 
+use it as a replacement for tar archives, but as long as one needs to be root 
+in order to mount the squashed fs it is quite impractical. Maybe a FUSE 
+gateway would be a feasible solution?
 
-2006/3/21, Nick Piggin <nickpiggin@yahoo.com.au>:
-> Stone Wang wrote:
-> > Export mlock(wired) info through file /proc/meminfo.
-> >
->
-> If wired is solely for mlock pages... why not just call it
-> mlock/mlocked?
->
-> --
-> SUSE Labs, Novell Inc.
->
-> Send instant messages to your online friends http://au.messenger.yahoo.com
->
->
+BTW, shoot me in the face if this is a faq and has already been answered 
+somewhere :)
+
+  Francesco
+
+-- 
+Dr. Francesco Biscani
+Dipartimento di Astronomia
+Università di Padova
+biscani@pd.astro.it

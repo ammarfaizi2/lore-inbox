@@ -1,83 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964963AbWCUIhp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965016AbWCUImo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964963AbWCUIhp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 03:37:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbWCUIho
+	id S965016AbWCUImo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 03:42:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965020AbWCUImo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 03:37:44 -0500
-Received: from noname.neutralserver.com ([70.84.186.210]:65110 "EHLO
-	noname.neutralserver.com") by vger.kernel.org with ESMTP
-	id S964963AbWCUIho (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 03:37:44 -0500
-Date: Tue, 21 Mar 2006 10:38:30 +0200
-From: Dan Aloni <da-x@monatomic.org>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: brking@us.ibm.com, James Bottomley <James.Bottomley@steeleye.com>,
-       dror@xiv.co.il
-Subject: [PATCH] scsi: properly count the number of pages in scsi_req_map_sg()
-Message-ID: <20060321083830.GA2364@localdomain>
+	Tue, 21 Mar 2006 03:42:44 -0500
+Received: from drugphish.ch ([69.55.226.176]:13800 "EHLO www.drugphish.ch")
+	by vger.kernel.org with ESMTP id S965016AbWCUImn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 03:42:43 -0500
+Message-ID: <441FBCCF.1030303@drugphish.ch>
+Date: Tue, 21 Mar 2006 09:43:59 +0100
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - noname.neutralserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - monatomic.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+To: vamsi krishna <vamsi.krishnak@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Idea to create a elf executable from running program [process2executable]
+References: <3faf05680603181422y7447fd7duc1032bd0e07b9c68@mail.gmail.com>
+In-Reply-To: <3faf05680603181422y7447fd7duc1032bd0e07b9c68@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Improper calculation of the number of pages causes bio_alloc() to
-be called with nr_iovecs=0, and slab corruption later.
+> I have been working on an idea of creating an executable from a
+> running process image.
 
-For example, a simple scatterlist that fails: {(3644,452), (0, 60)},
-(offset, size). bufflen=512 => nr_pages=1 => breakage. The proper
-page count for this example is 2.
+This has been done before.
 
-Signed-off-by: Dan Aloni <da-x@monatomic.org>
+> [PS: I dont know if some one has already implemented this idea??]
 
----
-commit 8faa94b01e6fd4518b760ce39a2db0ede9444ded
-tree c2e3c6ee5f59a4c1e166e4798ddc6e938f448de2
-parent c4a1745aa09fc110afdefea0e5d025043e348bae
-author Dan Aloni <da-x@monatomic.org> Tue, 21 Mar 2006 10:19:11 +0200
-committer Dan Aloni <da-x@monatomic.org> Tue, 21 Mar 2006 10:19:11 +0200
+This may suit your needs:
 
- drivers/scsi/scsi_lib.c |    9 ++++++++-
- 1 files changed, 8 insertions(+), 1 deletions(-)
+http://www.phrack.org/phrack/63/p63-0x0c_Process_Dump_and_Binary_Reconstruction.txt
 
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index 701a328..a42f3aa 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -368,13 +368,20 @@ static int scsi_req_map_sg(struct reques
- 			   int nsegs, unsigned bufflen, gfp_t gfp)
- {
- 	struct request_queue *q = rq->q;
--	int nr_pages = (bufflen + PAGE_SIZE - 1) >> PAGE_SHIFT;
-+	int nr_pages = 0;
- 	unsigned int data_len = 0, len, bytes, off;
- 	struct page *page;
- 	struct bio *bio = NULL;
- 	int i, err, nr_vecs = 0;
- 
- 	for (i = 0; i < nsegs; i++) {
-+		off = sgl[i].offset;
-+		len = sgl[i].length;
-+
-+		nr_pages += ((off + len + PAGE_SIZE - 1) >> PAGE_SHIFT) - (off >> PAGE_SHIFT);
-+	}
-+
-+	for (i = 0; i < nsegs; i++) {
- 		page = sgl[i].page;
- 		off = sgl[i].offset;
- 		len = sgl[i].length;
+IIRC, Silvio Cesare was the first one a couple of years ago that wrote a 
+proof of concept tool which dumped the memory space of a process to an 
+ELF executable, somewhere around 1999:
 
+http://www.transient-iss.com/pit/elf.txt
 
+Best regards,
+Roberto Nibali, ratz
 -- 
-Dan Aloni
-da-x@monatomic.org, da-x@colinux.org, da-x@gmx.net, dan@xiv.co.il
+echo 
+'[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq' | dc

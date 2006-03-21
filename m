@@ -1,28 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751704AbWCUUK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWCUUR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751704AbWCUUK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 15:10:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWCUUK1
+	id S932442AbWCUUR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 15:17:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWCUUR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 15:10:27 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:65180 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751704AbWCUUK0 (ORCPT
+	Tue, 21 Mar 2006 15:17:28 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40425 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932440AbWCUUR0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 15:10:26 -0500
-Date: Tue, 21 Mar 2006 21:05:13 +0100
+	Tue, 21 Mar 2006 15:17:26 -0500
+Date: Tue, 21 Mar 2006 21:15:41 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Al Viro <viro@ftp.linux.org.uk>,
-       mingz@ele.uri.edu, mikado4vn@gmail.com,
-       linux-kernel <linux-kernel@vger.kernel.org>,
+To: Phillip Lougher <phillip@lougher.demon.co.uk>
+Cc: Phillip Lougher <phillip@lougher.org.uk>, Al Viro <viro@ftp.linux.org.uk>,
+       "unlisted-recipients: no To-header on input <;, Jeff Garzik" 
+	<jeff@garzik.org>,
+       J?rn Engel <joern@wohnheim.fh-wedel.de>, linux-kernel@vger.kernel.org,
        linux-fsdevel@vger.kernel.org
-Subject: Re: Question regarding to store file system metadata in database
-Message-ID: <20060321200513.GC3931@elf.ucw.cz>
-References: <4ae3c140603182048k55d06d87ufc0b9f0548574090@mail.gmail.com> <441CE71E.5090503@gmail.com> <4ae3c140603190948s4fcd135er370a15003a0143a8@mail.gmail.com> <1142791121.31358.21.camel@localhost.localdomain> <4ae3c140603191011r7b68f4aale01238202656d122@mail.gmail.com> <1142792787.31358.28.camel@localhost.localdomain> <4ae3c140603191050k3bf7e960q9b35fe098e2fbe35@mail.gmail.com> <20060319194723.GA27946@ftp.linux.org.uk> <20060320130950.GA9334@thunk.org> <4ae3c140603200713m24a5af0agd891a709286deb47@mail.gmail.com>
+Subject: Re: [ANN] Squashfs 3.0 released
+Message-ID: <20060321201541.GF3929@elf.ucw.cz>
+References: <20060317124310.GB28927@wohnheim.fh-wedel.de> <441ADD28.3090303@garzik.org> <0E3DADA8-1A1C-47C5-A3CF-F6A85FF5AFB8@lougher.org.uk> <441AF118.7000902@garzik.org> <20060319163249.GA3856@ucw.cz> <4420236F.80608@lougher.demon.co.uk> <20060321161452.GG27946@ftp.linux.org.uk> <44204F25.4090403@lougher.org.uk> <20060321191144.GB3929@elf.ucw.cz> <44205C1A.4040408@lougher.demon.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4ae3c140603200713m24a5af0agd891a709286deb47@mail.gmail.com>
+In-Reply-To: <44205C1A.4040408@lougher.demon.co.uk>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -30,32 +31,24 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Second, I might want to give the background on which we are
-> considering the possibility of storing metadata in database. We are
-> currently developing a file system that allows multiple virtual
-> machines to share base software environment. With our current design,
-> a new VM can be deployed in several seconds by inheriting the file
-> system of an existing VM. If a VM is to modify a shared file, the file
-> system will do copy-on-write to gernerate a private copy for this VM.
-> Thus, there could be multiple physical copies for a virtual pathname.
-> Even more complicated, a physical copy could be shared by arbitrary
-> subset of VMs.  Now let's consider how to support this using regular
-> file system. You  can treat VMs as clients or users of a standard
-> linux.  Consider the following scenario: VM2 inherit VM1's file
-> system. The physical copy for virtual file F is F.1. Then, it modified
-> file F and get its private copy F.2. Now VM3 inherit VM2's file
-> system. The inherit graph is as follow:
-> VM1-->VM2-->VM3
+> >Can you try to benchmark it? I believe it is going to be lost in
+> >noise, slow cpus or not.
 > 
-> Now VM3 wants to access virtual file F. It has to determine the right 
-> physical copy. The right answer is F.2. But in the file system, we
-> have F.1 and F.2. So some mapping mechanism must be devised. No matter
-> how we manipulate the pathname of physical copies, several disk
-> accesses seem to be required for a mapping operation. That is the
-> reason we are considering database to store metadata.
+> Good idea, I'll try to benchmark it (on a slow CPU if I can find one :-) 
+> ).  It will probably make no difference.
+> 
+> I don't want the lack of a fixed endianness on disk to become a problem. 
+>   I personally don't think the use of, or lack of a fixed endianness to 
+> be that important, but I'd prefer not to change the current situation 
+> and adopt a fixed format.  I use big endian systems almost exclusively, 
+> and I don't like the way fixed formats always tend to be little-endian.
 
-Hardlinks? ext3cow (google it)?
+Fix it to big-endian, then. Network protocols are big-endian, anyway,
+and PCs tend to be so fast that byteswap will be lost in cache misses,
+anyway.
+
+[Funny, it looks like all the big-endian machines are slow :-)))]
+
 								Pavel
-
 -- 
 Picture of sleeping (Linux) penguin wanted...

@@ -1,64 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422641AbWCUSVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422870AbWCUSZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422641AbWCUSVF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 13:21:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422640AbWCUSVE
+	id S1422870AbWCUSZU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 13:25:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422794AbWCUSZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 13:21:04 -0500
-Received: from smtp.uaf.edu ([137.229.34.30]:54026 "EHLO smtp.uaf.edu")
-	by vger.kernel.org with ESMTP id S1422641AbWCUSVB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 13:21:01 -0500
-From: Joshua Kugler <joshua.kugler@uaf.edu>
-Organization: UAF Center for Distance Education - IT
-To: linux-kernel@vger.kernel.org
-Subject: Re: Lifetime of flash memory
-Date: Tue, 21 Mar 2006 09:20:53 -0900
-User-Agent: KMail/1.7.2
-Cc: John Richard Moser <nigelenki@comcast.net>
-References: <44203179.3090606@comcast.net>
-In-Reply-To: <44203179.3090606@comcast.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Tue, 21 Mar 2006 13:25:18 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:17810 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1422861AbWCUSZQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 13:25:16 -0500
+Subject: Re: [PATCH 000/141] V4L/DVB updates part 1
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
+       video4linux-list@redhat.com, akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.64.0603210946040.3622@g5.osdl.org>
+References: <20060320150819.PS760228000000@infradead.org>
+	 <Pine.LNX.4.64.0603210741120.3622@g5.osdl.org>
+	 <Pine.LNX.4.64.0603210748340.3622@g5.osdl.org>
+	 <1142962995.4749.39.camel@praia>
+	 <Pine.LNX.4.64.0603210946040.3622@g5.osdl.org>
+Content-Type: text/plain
+Date: Tue, 21 Mar 2006 15:24:38 -0300
+Message-Id: <1142965478.4749.58.camel@praia>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1-3mdk 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603210920.53549.joshua.kugler@uaf.edu>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 March 2006 08:01, John Richard Moser wrote:
-> I have a kind of dumb question.  I keep hearing that "USB Flash Memory"
-> or "Compact Flash Cards" and family have "a limited number of writes"
-> and will eventually wear out.  Recommendations like "DO NOT PUT A SWAP
-> FILE ON USB MEMORY" have come out of this.  In fact, quoting
-> Documentation/laptop-mode.txt:
->
->   * If you're worried about your data, you might want to consider using
->     a USB memory stick or something like that as a "working area". (Be
->     aware though that flash memory can only handle a limited number of
->     writes, and overuse may wear out your memory stick pretty quickly.
->     Do _not_ use journalling filesystems on flash memory sticks.)
->
-> The question I have is, is this really significant?  I have heard quoted
-> that flash memory typically handles something like 3x10^18 writes; and
-> that compact flash cards, USB drives, SD cards, and family typically
-> have integrated control chipsets that include wear-leveling algorithms
-> (built-in flash like in an iPaq does not; hence jffs2).  Should we
-> really care that in about 95 billion years the thing will wear out
-> (assuming we write its entire capacity once a second)?
->
-> I call FUD.
 
-Search for a thread on LKML having to do with enabling "sync" on removable 
-media, especially VFAT media.  If you are copying a large file, and the FAT 
-on the device is being updated with every block, you can literally fry your 
-device in a matter of minutes, because the FAT is always in the same spot, 
-thus it is always overwriting the same spot.
+> Hmm. I don't know if it's stgit per se. Maybe the breakage came from a 
+> mercurial merge that got exported to git as a patch, rather than as a 
+> merge.
+We can't discard any cause, but, at mercurial, I just export the
+patches, removing all version-dependent code. After doing, I do a diff
+between Mercurial and git trees. Only after that, I proceed.
+> 
+> If that's the case, then I'm afraid that the problem is the mercurial 
+> part, or at least the hg->git conversion. I have no idea how hg does 
+> merges, and maybe the broken merge was done in the hg tree. 
+Patch generation seems to be ok, since I have the habit to check all
+patches before commiting. Also, diffstat I sent were generated by
+looking at the stg exported patches. I dunno if this is common, but
+running git-fsck-objects after working for a while with stgit generates
+lots of 
+> 
+> The really sad part about this is that it means I have to be much more 
+> careful with dvb merges, since I can't trust the tree any more, when it 
+> apparently has something strange going on.
+I'll rebuild the entire tree from the beginning, and I'll also update
+both git and stg version to latest ones.
+>  If things like this keep on happening, I'll have to ask you guys to change your work habits.
+> 
+> That said, I _tried_ to check for similar cases in the past history, and I 
+> couldn't find any. So hopefully this was a one-off occurrence.
+I hope this won't happen again.
 
-j----- k-----
+What is sad is that I can't determinate the root cause of this breakage,
+but it seemed to be associated with merging handling at stg or git.
 
--- 
-Joshua Kugler                 PGP Key: http://pgp.mit.edu/
-CDE System Administrator             ID 0xDB26D7CE
-http://distance.uaf.edu/
+One possibility is that stg pick doesn't seem to be preserving commit
+date, so that patches are compared with the wrong versions.
+
+The first 141 patches were committed in the past, starting from the end
+of 2.6.15 window and were already committed at stgit. I just did a git
+pull . prev to retrieve they.
+
+The newer 49, however, were not committed yesterday, but also in the
+past. Yesterday, I just picked them from work branch. However, stgit
+marked commit timestamp as if they were just committed. This might have
+generated some troubles at resolution conflict code on git.
+> 
+> 			Linus
+Cheers, 
+Mauro.
+

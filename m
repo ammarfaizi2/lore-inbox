@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWCUJpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbWCUJwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbWCUJpH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 04:45:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWCUJpG
+	id S932380AbWCUJwo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 04:52:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbWCUJwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 04:45:06 -0500
-Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:45030 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S932370AbWCUJpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 04:45:05 -0500
-To: trond.myklebust@fys.uio.no
-CC: matthew@wil.cx, miklos@szeredi.hu, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-reply-to: <1142878975.7991.13.camel@lade.trondhjem.org> (message from Trond
-	Myklebust on Mon, 20 Mar 2006 13:22:55 -0500)
-Subject: Re: DoS with POSIX file locks?
-References: <E1FLIlF-0007zR-00@dorka.pomaz.szeredi.hu>
-	 <20060320121107.GE8980@parisc-linux.org>
-	 <E1FLJLs-00085u-00@dorka.pomaz.szeredi.hu>
-	 <20060320123950.GF8980@parisc-linux.org>
-	 <E1FLJsF-0008A7-00@dorka.pomaz.szeredi.hu>
-	 <20060320153202.GH8980@parisc-linux.org> <1142878975.7991.13.camel@lade.trondhjem.org>
-Message-Id: <E1FLdPd-00020d-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 21 Mar 2006 10:44:25 +0100
+	Tue, 21 Mar 2006 04:52:44 -0500
+Received: from coyote.holtmann.net ([217.160.111.169]:2177 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S932380AbWCUJwo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 04:52:44 -0500
+Subject: Re: [PATCH] hci_usb: implement suspend/resume
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: maxk@qualcomm.com, linux-kernel@vger.kernel.org,
+       bluez-devel@lists.sourceforge.net
+In-Reply-To: <1142934130.3964.14.camel@localhost>
+References: <1137540084.4543.15.camel@localhost>
+	 <1137589998.27515.8.camel@localhost>  <1137602323.4543.29.camel@localhost>
+	 <1142934130.3964.14.camel@localhost>
+Content-Type: text/plain
+Date: Tue, 21 Mar 2006 10:52:35 +0100
+Message-Id: <1142934755.4104.2.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The _only_ sane way to solve it is to decree that you lose your locks if
-> you clone(CLONE_FILES) and then call exec(). If there are any
-> applications out there that rely on the current behaviour,
+Hi Johannes,
 
-Apps using LinuxThreads seem to be candidates:
+> > The attached patch implements suspend/resume for the hci_usb bluetooth
+> > driver by simply killing all outstanding urbs on suspend, and re-issuing
+> > them on resume.
+> > 
+> > This allows me to actually use the internal bluetooth "dongle" in my
+> > powerbook after suspend-to-ram without taking down all userland programs
+> > (sdpd, ...) and the hci device and reloading the module.
+> 
+> Can someone push this patch for 2.6.17 now that 2.6.16 is out? Or is
+> there still anything fundamentally wrong with it? I've been waiting for
+> it forever now ;)
 
-     According to POSIX 1003.1c, a successful `exec*' in one of the
-     threads should automatically terminate all other threads in the
-     program.  This behavior is not yet implemented in LinuxThreads.
-     Calling `pthread_kill_other_threads_np' before `exec*' achieves
-     much of the same behavior, except that if `exec*' ultimately
-     fails, then all other threads are already killed.
+I will push it with some other small changes in the next few days.
 
-steal_locks() was probably added as a workaround for this case, no?
+Regards
 
-I wonder how many installations still run LinuxThreads with 2.6 kernels.
+Marcel
 
-Miklos
+

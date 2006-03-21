@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751698AbWCUNdT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751699AbWCUNdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751698AbWCUNdT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 08:33:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751696AbWCUNdS
+	id S1751699AbWCUNdc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 08:33:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751701AbWCUNdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 08:33:18 -0500
-Received: from mail.gmx.de ([213.165.64.20]:2539 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751695AbWCUNdS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 08:33:18 -0500
-X-Authenticated: #14349625
-Subject: Re: interactive task starvation
-From: Mike Galbraith <efault@gmx.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Willy Tarreau <willy@w.ods.org>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       bugsplatter@gmail.com
-In-Reply-To: <200603220013.15870.kernel@kolivas.org>
-References: <200603090036.49915.kernel@kolivas.org>
-	 <200603212253.03637.kernel@kolivas.org> <1142946610.7807.43.camel@homer>
-	 <200603220013.15870.kernel@kolivas.org>
+	Tue, 21 Mar 2006 08:33:32 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:24535 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751696AbWCUNda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 08:33:30 -0500
+Subject: [patch] [trivial] remove needless check in nfs_opendir()
+From: Carsten Otte <cotte@de.ibm.com>
+Reply-To: cotte@freenet.de
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Tue, 21 Mar 2006 14:33:20 +0100
-Message-Id: <1142948000.7807.63.camel@homer>
+Organization: IBM Deutschland Entwicklung
+Date: Tue, 21 Mar 2006 14:33:52 +0100
+Message-Id: <1142948032.6243.17.camel@cotte.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-22 at 00:13 +1100, Con Kolivas wrote:
-> On Wednesday 22 March 2006 00:10, Mike Galbraith wrote:
-> > How long should Willy be able to scroll without feeling the background,
-> > and how long should Apache be able to starve his shell.  They are one
-> > and the same, and I can't say, because I'm not Willy.  I don't know how
-> > to get there from here without tunables.  Picking defaults is one thing,
-> > but I don't know how to make it one-size-fits-all.  For the general
-> > case, the values delivered will work fine.  For the apache case, they
-> > absolutely 100% guaranteed will not.
-> 
-> So how do you propose we tune such a beast then? Apache users will use off, 
-> everyone else will have no idea but to use the defaults.
+local variable res was initialized to 0 - no check needed here.
 
-Set for desktop, which is intended to mostly emulate what we have right
-now, which most people are quite happy with.  The throttle will still
-nail most of the corner cases, and the other adjustments nail the
-majority of what's left.  That leaves the hefty server type loads as
-what certainly will require tuning.  They always need tuning.
+signed-off-by: Carsten Otte <cotte@de.ibm.com>
+--
+diff -ruN linux-2.6.16/fs/nfs/dir.c linux-2.6.16-fix/fs/nfs/dir.c
+--- linux-2.6.16/fs/nfs/dir.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6.16-fix/fs/nfs/dir.c	2006-03-21 14:01:41.000000000 +0100
+@@ -131,8 +131,7 @@
+ 
+ 	lock_kernel();
+ 	/* Call generic open code in order to cache credentials */
+-	if (!res)
+-		res = nfs_open(inode, filp);
++	res = nfs_open(inode, filp);
+ 	unlock_kernel();
+ 	return res;
+ }
 
-	-Mike
 

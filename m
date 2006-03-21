@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWCUJRQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWCUJdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbWCUJRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 04:17:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWCUJRQ
+	id S932360AbWCUJdW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 04:33:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbWCUJdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 04:17:16 -0500
-Received: from max.feld.cvut.cz ([147.32.192.36]:31202 "EHLO max.feld.cvut.cz")
-	by vger.kernel.org with ESMTP id S1750760AbWCUJRO convert rfc822-to-8bit
+	Tue, 21 Mar 2006 04:33:22 -0500
+Received: from webapps.arcom.com ([194.200.159.168]:24844 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S932360AbWCUJdW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 04:17:14 -0500
-From: CIJOML <cijoml@volny.cz>
-To: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16 - cpufreq doesn't find Celeron (Pentium4/XEON) processor
-Date: Tue, 21 Mar 2006 10:16:49 +0100
-User-Agent: KMail/1.8.3
-References: <200603210902.19335.cijoml@volny.cz> <1142931856.3077.47.camel@laptopd505.fenrus.org>
-In-Reply-To: <1142931856.3077.47.camel@laptopd505.fenrus.org>
+	Tue, 21 Mar 2006 04:33:22 -0500
+Message-ID: <441FC856.90602@arcom.com>
+Date: Tue, 21 Mar 2006 09:33:10 +0000
+From: David Vrabel <dvrabel@arcom.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200603211016.49307.cijoml@volny.cz>
+To: Olivier Galibert <galibert@pobox.com>
+CC: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 04/23] driver core: platform_get_irq*(): return -ENXIO
+ on error
+References: <11428920373568-git-send-email-gregkh@suse.de> <11428920383013-git-send-email-gregkh@suse.de> <20060321001336.GB84147@dspnet.fr.eu.org>
+In-Reply-To: <20060321001336.GB84147@dspnet.fr.eu.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Mar 2006 09:33:14.0910 (UTC) FILETIME=[7A8243E0:01C64CCA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Olivier Galibert wrote:
+> On Mon, Mar 20, 2006 at 02:00:38PM -0800, Greg Kroah-Hartman wrote:
+> 
+>>platform_get_irq*() cannot return 0 on error as 0 is a valid IRQ on some
+>>platforms, return -ENXIO instead.
+> 
+> 
+> 0 is NO_IRQ, and can not be a valid IRQ number, ever.  A
+> platform_get_irq*() returning 0 as a valid irq is buggy.
+> 
+> Check http://lkml.org/lkml/2005/11/21/211
 
-I am totally sure. It was cpufreq via normal P4/XEON - trottling doesn't work 
-for me:
+Regardless, it does make sense to make these functions to return a -ve
+error code as is standard.
 
-notas:/usr/src/linux-2.6.16# cat /proc/acpi/processor/CPU0/throttling
-<not supported>
+David Vrabel
+-- 
+David Vrabel, Design Engineer
 
-
-Michal
-
-Dne út 21. bøezna 2006 10:04 jste napsal(a):
-> On Tue, 2006-03-21 at 09:02 +0100, CIJOML wrote:
-> > Hi,
-> >
-> > up to 2.6.15 my kernel worked to find my processor and frequency scalling
-> > was possible via cpufreq. I have
->
-> are you sure it was frequency scaling and not throttling? I thought real
-> frequency scaling was only available on non-Celeron processors.....
-> (and throttling isn't all that great for power save)
+Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
+Cambridge CB1 7EA, UK         Web: http://www.arcom.com/

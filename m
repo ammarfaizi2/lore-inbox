@@ -1,40 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWCUANn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWCUAbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751381AbWCUANn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 19:13:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWCUANn
+	id S932225AbWCUAbY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 19:31:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWCUAbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 19:13:43 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:11022 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1751381AbWCUANm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 19:13:42 -0500
-Date: Tue, 21 Mar 2006 01:13:36 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, David Vrabel <dvrabel@arcom.com>
-Subject: Re: [PATCH 04/23] driver core: platform_get_irq*(): return -ENXIO on error
-Message-ID: <20060321001336.GB84147@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-	David Vrabel <dvrabel@arcom.com>
-References: <11428920373568-git-send-email-gregkh@suse.de> <11428920383013-git-send-email-gregkh@suse.de>
+	Mon, 20 Mar 2006 19:31:24 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:32216 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S932225AbWCUAbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 19:31:23 -0500
+Date: Mon, 20 Mar 2006 19:32:05 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Matheus Izvekov <mizvekov@gmail.com>, Neil Brown <neilb@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Who uses the 'nodev' flag in /proc/filesystems ???
+Message-ID: <20060321003205.GA7860@ccure.user-mode-linux.org>
+References: <17436.60328.242450.249552@cse.unsw.edu.au> <Pine.LNX.4.61.0603191024420.1409@yvahk01.tjqt.qr> <17438.13214.307942.212773@cse.unsw.edu.au> <Pine.LNX.4.61.0603201659250.22395@yvahk01.tjqt.qr> <305c16960603200817u3c8e4023nf2621245fdb0ed65@mail.gmail.com> <20060320175633.GA5797@ccure.user-mode-linux.org> <305c16960603201122t79dd93c1t484c83acf4ed191b@mail.gmail.com> <20060320194815.GA6376@ccure.user-mode-linux.org> <Pine.LNX.4.61.0603202057420.14231@yvahk01.tjqt.qr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <11428920383013-git-send-email-gregkh@suse.de>
+In-Reply-To: <Pine.LNX.4.61.0603202057420.14231@yvahk01.tjqt.qr>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 20, 2006 at 02:00:38PM -0800, Greg Kroah-Hartman wrote:
-> platform_get_irq*() cannot return 0 on error as 0 is a valid IRQ on some
-> platforms, return -ENXIO instead.
+On Mon, Mar 20, 2006 at 08:58:58PM +0100, Jan Engelhardt wrote:
+> But hey, when hostfs is nodev-but-fsckable, then looking for /sbin/fsck.XYZ 
+> is even better than reading /proc/filesystems...
 
-0 is NO_IRQ, and can not be a valid IRQ number, ever.  A
-platform_get_irq*() returning 0 as a valid irq is buggy.
+It's humfs, BTW (hostfs consistency is maintained by the host), but yes.
 
-Check http://lkml.org/lkml/2005/11/21/211
-
-  OG.
-
+				Jeff

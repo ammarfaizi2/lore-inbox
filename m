@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751675AbWCUNNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751672AbWCUNSh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751675AbWCUNNm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 08:13:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751676AbWCUNNm
+	id S1751672AbWCUNSh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 08:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751673AbWCUNSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 08:13:42 -0500
-Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:52657 "EHLO
-	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751672AbWCUNNl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 08:13:41 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: interactive task starvation
-Date: Wed, 22 Mar 2006 00:13:15 +1100
-User-Agent: KMail/1.9.1
-Cc: Ingo Molnar <mingo@elte.hu>, Willy Tarreau <willy@w.ods.org>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       bugsplatter@gmail.com
-References: <200603090036.49915.kernel@kolivas.org> <200603212253.03637.kernel@kolivas.org> <1142946610.7807.43.camel@homer>
-In-Reply-To: <1142946610.7807.43.camel@homer>
+	Tue, 21 Mar 2006 08:18:37 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:46486 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S1751671AbWCUNSg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 08:18:36 -0500
+Message-ID: <441FFB28.5050609@t-online.de>
+Date: Tue, 21 Mar 2006 14:10:00 +0100
+From: Knut Petersen <Knut_Petersen@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.10) Gecko/20050726
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: [BUG] wrong bogomips  values with kernel 2.6.16
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603220013.15870.kernel@kolivas.org>
+X-ID: EG+EF6ZaYeetyU4ObEEq6BKumvr2q9jSUE401MXs4CR9lFSpoRTlYz@t-dialin.net
+X-TOI-MSGID: 191b9653-5350-4bac-b9fb-9bc17a7b397c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 March 2006 00:10, Mike Galbraith wrote:
-> On Tue, 2006-03-21 at 22:53 +1100, Con Kolivas wrote:
-> > On Tuesday 21 March 2006 22:18, Ingo Molnar wrote:
-> > > great work by Mike! One detail: i'd like there to be just one default
-> > > throttling value, i.e. no grace_g tunables [so that we have just one
-> > > default scheduler behavior]. Is the default grace_g[12] setting good
-> > > enough for your workload?
-> >
-> > I agree. If anything is required, a simple on/off tunable makes much more
-> > sense. Much like I suggested ages ago with an "interactive" switch which
-> > was rather unpopular when I first suggested it.
->
-> Let me try to explain why on/off is not sufficient.
->
-> You notice how Willy said that his notebook is more responsive with
-> tunables set to 0,0?  That's important, because it's absolutely true...
-> depending what you're doing.  Setting tunables to 0,0 cuts off the idle
-> sleep logic, and the sleep_avg divisor - both of which were put there
-> specifically for interactivity - and returns the scheduler to more or
-> less original O(1) scheduler.  You and I both know that these are most
-> definitely needed in a Desktop environment.  For instance, if Willy
-> starts editing code in X, and scrolls while something is running in the
-> background, he'll suddenly say hey, maybe this _ain't_ more responsive,
-> because all of a sudden the starvation added with the interactivity
-> logic will be sorely missed as my throttle wrings X's neck.
->
-> How long should Willy be able to scroll without feeling the background,
-> and how long should Apache be able to starve his shell.  They are one
-> and the same, and I can't say, because I'm not Willy.  I don't know how
-> to get there from here without tunables.  Picking defaults is one thing,
-> but I don't know how to make it one-size-fits-all.  For the general
-> case, the values delivered will work fine.  For the apache case, they
-> absolutely 100% guaranteed will not.
+Hi everybody!
 
-So how do you propose we tune such a beast then? Apache users will use off, 
-everyone else will have no idea but to use the defaults.
+System: AOpen i915GMm-HFS motherboard, kernel 2.6.16
+CPU: Intel(R) Pentium(R) M processor 1.86GHz stepping 08
 
-Cheers,
-Con
+During startup a BogoMips value  of 3730.21 is calculated. That
+should be the correct value for the cpu running at full speed. But:
+
+"cat /proc/cpuinfo" on the idle system displays the correct cpu speed, but
+a wrong bogomips value:
+
+    cpu MHz         : 800.000
+    bogomips        : 3730.21
+
+"cat /proc/cpuinfo" on the busy system displays the correct cpu speed 
+too, but
+again a wrong bogomips value:
+
+    cpu MHz         : 1867.000
+    bogomips        : 8705.38
+
+The relevant snippets from .config:
+
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMM=y
+
+CONFIG_CPU_FREQ=y
+CONFIG_CPU_FREQ_TABLE=y
+CONFIG_CPU_FREQ_DEBUG=y
+CONFIG_CPU_FREQ_STAT=y
+CONFIG_CPU_FREQ_STAT_DETAILS=y
+CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_POWERSAVE=y
+CONFIG_CPU_FREQ_GOV_USERSPACE=y
+CONFIG_CPU_FREQ_GOV_ONDEMAND=y
+CONFIG_CPU_FREQ_GOV_CONSERVATIVE=y
+
+CONFIG_X86_ACPI_CPUFREQ=y
+CONFIG_X86_SPEEDSTEP_CENTRINO=y
+CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI=y
+
+cu,
+ knut
+

@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423086AbWCUSfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423190AbWCUSgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423086AbWCUSfo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 13:35:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423088AbWCUSfn
+	id S1423190AbWCUSgi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 13:36:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423249AbWCUSgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 13:35:43 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:49580 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S1423086AbWCUSfl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 13:35:41 -0500
-Message-ID: <44204754.8070401@colorfullife.com>
-Date: Tue, 21 Mar 2006 19:35:00 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.12) Gecko/20060202 Fedora/1.7.12-1.5.2
-X-Accept-Language: en-us, en
+	Tue, 21 Mar 2006 13:36:37 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:55681 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1423195AbWCUSge convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 13:36:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HMifhNC7LMotSODOPN3zCxW9McJz+TEFqecUK8obxWLCBtfxuvt7haUu98QxBQB/pLhYJtdudIoenWJu3ZDWdMtcLp89jb9BxoRreHZEfuO1y6TV1wU1Km8NczFBDcfWFf+mLeRYU6vRJmTyQt1L5IeKE01Jr91K1fKBJvN+zAU=
+Message-ID: <6bffcb0e0603211036i7cce3776p@mail.gmail.com>
+Date: Tue, 21 Mar 2006 19:36:32 +0100
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Subject: Re: 2.6.16-rt1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060321170149.GA27290@elte.hu>
 MIME-Version: 1.0
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] slab: introduce kmem_cache_zalloc allocator
-References: <Pine.LNX.4.58.0603201506140.19005@sbz-30.cs.Helsinki.FI> <20060321023654.389dc572.akpm@osdl.org> <Pine.LNX.4.58.0603211250530.22577@sbz-30.cs.Helsinki.FI>
-In-Reply-To: <Pine.LNX.4.58.0603211250530.22577@sbz-30.cs.Helsinki.FI>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060320085137.GA29554@elte.hu>
+	 <200603211430.29466.Serge.Noiraud@bull.net>
+	 <20060321170149.GA27290@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka J Enberg wrote:
+Hi Ingo,
 
->On Tue, 21 Mar 2006, Andrew Morton wrote:
->  
+On 21/03/06, Ingo Molnar <mingo@elte.hu> wrote:
 >
->>I've always felt that this was an odd design.  Because
->>
->>a) All that cache-warmth which we get from the constructor's zeroing can
->>   be lost by the time we get around to using an individual object and
->>
->>b) The object may be cache-cold by the time we free it, and we'll take
->>   cache misses just putting it back into a constructed state for
->>   kmem_cache_free().  And we'll lose that cache warmth by the time we use
->>   this object again.
->>
->>So from that POV I think (in my simple way) that this is a good patch.  But
->>IIRC, Manfred has reasons why it might not be?
->>    
->>
+> could you check -rt2?
 >
->I assume the design comes from Bonwick's paper which states that the 
->purpose of object constructor is to support one-time initialization of 
->objects which we're _not_ doing in this case.
->
->  
->
-I agree - memset just before use is the Right Thing (tm).
 
-One minor point: There are two cache_alloc entry points: __cache_alloc, 
-which is a forced inline function, and kmem_cache_alloc, which is just a 
-wrapper for __cache_alloc. Is it really necessary to call __cache_alloc?
-The idea is that __cache_alloc is used just by the two high-performance 
-paths: kmem_cache_alloc and kmalloc. Noone else should use __cache_alloc 
-directly.
+Here is first oops http://www.stardust.webpages.pl/files/rt/2.6.16-rt2/b1.jpg
+Here is second oops http://www.stardust.webpages.pl/files/rt/2.6.16-rt2/b2.jpg
+
+Here is config http://www.stardust.webpages.pl/files/rt/2.6.16-rt2/rt-config
+
+I can't boot that kernel, 2.6.16-rt1 was fine.
+
+Regards,
+Michal
 
 --
-    Manfred
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

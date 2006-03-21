@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbWCUMsG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751610AbWCUMsB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932383AbWCUMsG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 07:48:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751613AbWCUMsG
+	id S1751610AbWCUMsB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 07:48:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751611AbWCUMsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 07:48:06 -0500
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:40587 "EHLO
-	mail1.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S1751609AbWCUMsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 07:48:04 -0500
-Date: Tue, 21 Mar 2006 07:48:03 -0500
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: [PATCH][INCOMPLETE] sata_nv: merge ADMA support
-Message-ID: <20060321124802.GA12228@ti64.telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
-	"linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-References: <20060317232339.GA5674@ti64.telemetry-investments.com> <441B5AD5.5020809@garzik.org> <20060318080618.GA19929@ti64.telemetry-investments.com> <441BCB3C.6060202@garzik.org> <20060319232317.GA25578@ti64.telemetry-investments.com> <441F56AD.8020001@garzik.org>
+	Tue, 21 Mar 2006 07:48:01 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:55820 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1751609AbWCUMsA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 07:48:00 -0500
+Date: Tue, 21 Mar 2006 13:47:55 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Greg KH <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       davej@redhat.com
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.16
+Message-ID: <20060321124755.GA83095@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Arjan van de Ven <arjan@infradead.org>, Greg KH <gregkh@suse.de>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, davej@redhat.com
+References: <20060320212338.GA11571@kroah.com> <20060320235846.GA84147@dspnet.fr.eu.org> <1142925322.3077.12.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <441F56AD.8020001@garzik.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1142925322.3077.12.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 20, 2006 at 08:28:13PM -0500, Jeff Garzik wrote:
-> Thanks a lot for testing.
+On Tue, Mar 21, 2006 at 08:15:22AM +0100, Arjan van de Ven wrote:
+> On Tue, 2006-03-21 at 00:58 +0100, Olivier Galibert wrote:
+> > On Mon, Mar 20, 2006 at 01:23:38PM -0800, Greg KH wrote:
+> > > They are the same "delete devfs" patches that I submitted for 2.6.12 and
+> > > 2.6.13 and 2.6.14 and 2.6.15.  It rips out all of devfs from the kernel
+> > > and ends up saving a lot of space.  Since 2.6.13 came out, I have seen
+> > > no complaints about the fact that devfs was not able to be enabled
+> > > anymore, and in fact, a lot of different subsystems have already been
+> > > deleting devfs support for a while now, with apparently no complaints
+> > > (due to the lack of users.)
+> > 
+> > I'm an occasional user.  I'm just able to add a config entry by hand.
+> > 
+> > Devfs for block devices is required for the fedora core 3 install
+> > kernel.  
 > 
-> I've stored the sata_nv updates I sent you in the 'nv-adma' branch of
-> git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
- 
-OK, I'll pull from there for further testing.
- 
-> Dumb question, to be certain that I understood your first paragraph: 
-> you do indeed see at least -some- success talking to devices on port 1, 
-> 2, 3... ?  i.e. not just port 0 works?
- 
-I can start up the RAID1's on ports 2 and 3, activate the VG on top
-of /dev/md5, mount the filesystems, and use them.  I was able to
-cp -a the mounted root filesystem from /dev/md2 to a subdir on /dev/sda1.
+> that is not true; Fedora Core 3 does not even have devfs enabled, and
+> neither RHL nor FC has shipped devfsd like forever
+> 
+> FC3 uses udev
 
-It was only when I started up a few copies of "tar cf /dev/zero ... &"
-that the timeouts began.
+The _install_ kernel does not use udev.  It uses a mix of static /dev
+and whatever it is which creates the block devices, but after checking
+is not devfs after all, sorry about the mistake.
 
-> Weird.  Well, now that we appear to have narrowed the non-ADMA case down 
-> to inb(), I'm going to punt this one as not-my-problem ;-)
- 
-Roger.  I'll stare at it a bit longer, but I probably need to order three
-SATA adapters.  Any recommendations?  These Tyan 2895 machines all have
-2-4 74GB WD Raptors in them.  I don't really need expensive 3ware or
-Areca cards for these workstations, just reasonable latencies.
+  OG.
 
-Thanks.
-
-	-Bill

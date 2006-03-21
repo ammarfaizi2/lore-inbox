@@ -1,114 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWCUURH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbWCUUVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932169AbWCUURH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 15:17:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWCUURH
+	id S932438AbWCUUVp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 15:21:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbWCUUVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 15:17:07 -0500
-Received: from colibri.its.uu.se ([130.238.4.154]:55522 "EHLO
-	colibri.its.uu.se") by vger.kernel.org with ESMTP id S932169AbWCUURG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 15:17:06 -0500
-From: "Alfred M. Szmidt" <ams@gnu.org>
-To: "Theodore Ts'o" <tytso@mit.edu>
-CC: tytso@mit.edu, sct@redhat.com, adilger@clusterfs.com,
-       sho@bsd.tnes.nec.co.jp, cmm@us.ibm.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, Laurent.Vivier@bull.net,
-       cascardo@minaslivre.org, roland@frob.com
-In-reply-to: <20060321183822.GC11447@thunk.org> (tytso@mit.edu)
-Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
-Reply-to: ams@gnu.org
-References: <1142475556.3764.133.camel@dyn9047017067.beaverton.ibm.com> <02bc01c648f2$bd35e830$4168010a@bsd.tnes.nec.co.jp> <20060316183549.GK30801@schatzie.adilger.int> <20060316212632.GA21004@thunk.org> <20060316225913.GV30801@schatzie.adilger.int> <20060318170729.GI21232@thunk.org> <20060320063633.GC30801@schatzie.adilger.int> <1142894283.21593.59.camel@orbit.scot.redhat.com> <20060320234829.GJ6199@schatzie.adilger.int> <1142960722.3443.24.camel@orbit.scot.redhat.com> <20060321183822.GC11447@thunk.org>
-Message-Id: <20060321201654.7D6FA44031@Psilocybe.Update.UU.SE>
-Date: Tue, 21 Mar 2006 21:16:54 +0100 (CET)
+	Tue, 21 Mar 2006 15:21:45 -0500
+Received: from mxout.hispeed.ch ([62.2.95.247]:936 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S932438AbWCUUVo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 15:21:44 -0500
+From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+To: "Lanslott Gish" <lanslott.gish@gmail.com>
+Subject: Re: [RFC][PATCH] USB touch screen driver, all-in-one
+Date: Tue, 21 Mar 2006 21:22:02 +0100
+User-Agent: KMail/1.7.2
+Cc: "Greg KH" <greg@kroah.com>, "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-usb <linux-usb-devel@lists.sourceforge.net>, tejohnson@yahoo.com,
+       hc@mivu.no, vojtech@suse.cz
+References: <38c09b90603100124l1aa8cbc6qaf71718e203f3768@mail.gmail.com> <200603172250.16667.daniel.ritz-ml@swissonline.ch> <38c09b90603202023s6c495cceu683db19c68fcc5e0@mail.gmail.com>
+In-Reply-To: <38c09b90603202023s6c495cceu683db19c68fcc5e0@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603212122.03398.daniel.ritz-ml@swissonline.ch>
+X-DCC-spamcheck-01.tornado.cablecom.ch-Metrics: smtp-03.tornado.cablecom.ch 32700;
+	Body=8 Fuz1=8 Fuz2=8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adding Roland McGrath to the CC.
+On Tuesday 21 March 2006 05.23, Lanslott Gish wrote:
+> On 3/18/06, Daniel Ritz <daniel.ritz-ml@swissonline.ch> wrote:
+> > On Friday 17 March 2006 03.46, Lanslott Gish wrote:
+> > >
+> > > BTW, may i also suggest add more module_param to max_x, max_y, min_x, min_y  ?
+> > > i think these options is useful, too.
+> >
+> > no chance. (and if i remember correctly it's possible via evdev ioctl)
+> >
+> 
+> 
+> i could use my device in X without evtouch.o or any X-module or any
+> xorg.conf modified, but wrong positions to cursor.
+> 
+> and consider using touchscreens in console(framebuffer) mode, or
+> without evtouch in X, or devices do not provide several functions.
+> 
+> suppose we can something in /etc/rc.d/rc.local or some files:
+> 
+> /sbin/modprobe usbtouchscreen swap_xy=1,min_x=123,max_y=456,....
+> 
+> we don't need any calibrate tool or guest several functions from
+> devices, and complete this module.
+> 
+> 
+> 
+> Anyway, just some suggestions. thx :)
 
-   > > It would also be good to understand what HURD is actually doing
-   > > with those other fields (if anything, does it even exist
-   > > anymore?), since it is literally holding TB of space unusable
-   > > on Linux ext3 filesystems that could better be put to use.
-   > > There are i_translator, i_mode_high, and i_author held hostage
-   > > by HURD, and I certainly have never seen or heard of any good
-   > > description of what they do or if Linux would/could ever use
-   > > them, or if HURD could live without them.
+well, all nice and good, but...it doesn't belong into the driver.
+it would belong into the input subsystem or evdev. there are other
+absolute devices not handled by this driver that need the same
+calibration...
+but i still think it should be in userspace...
 
-   Hurd is definitely using the translator field, and I only recently
-   discovered they are using it to point at a disk block where the
-   name of the translator program (I'm not 100% sure, but I think it's
-   a generic, out-of-band, #! sort of functionality).  I don't know
-   about the other fields, but I can find out.
+still, it might be worth discussing it with the input hackers.
 
-Something like that.  The author field is akin to gid/uid.  I don't
-recall the exact usage of i_mode_high, but it has something to do with
-translators.
+> 
+> regards,
+> 
+> Lanslott Gish
+> 
 
-   > If they really are 100% necessary for hurd, it might be that we
-   > could relegate them to an xattr.  There's the slight problem of
-   > testing, though; does anyone on ext2-devel actually run hurd,
-   > ever?
-
-   Relegating them to an xatter would break compatibility with
-   existing hurd filesystems.  We could take the arrogant "Linux is
-   the only thing that matters", and just screw them, and the net
-   result will probably be that Hurd will never implement some of the
-   advanced features we've been talking about.  They might not
-   anyways, though.  A real problem is that as far as I know, the hurd
-   ext2 developers aren't on the ext2-devel mailing list.
-
-   I've cc'ed two people that sent me a request to add some additional
-   debugfs functionality to support hurd; maybe they can help by
-   telling us whether or not hurd is using i_mode_high and i_author,
-   and whether or not hurd has any likelihood of tracking new ext3
-   features that we might add in the future or not.
-
-Both i_mode_high and i_author are used in the Hurd.  But they are only
-used if and only if creator of the file-system is the Hurd, same for
-the translator fields.
-
-   > > I'm fully in the "the chance of any real problem is vanishingly
-   > > small" camp, even though Lustre is one of the few users of
-   > > large inodes.  The presence of the COMPAT field would not
-   > > really be any different than just changing ext3_new_inode() to
-   > > make i_extra_isize 16 by default, except to cause breakage
-   > > against the older e2fsprogs.
-   > 
-   > Setting i_extra_isize will break older e2fsprogs anyway, won't
-   > it?  e2fsck needs to have full knowledge of all fs fields in
-   > order to maintain consistency; if it doesn't know about some of
-   > the fields whose presence is implied by i_extra_isize, then
-   > doesn't it have to abort?
-
-   E2fsprogs previous to e2fsprogs 1.37 ignored i_extra_isize and
-   didn't check whether or not the EA's in the inode were valid.
-   Starting in e2fsprogs 1.37, e2fsck understands i_extra_size and in
-   fact does validate the EA's in the inode.  If we add new i_extra
-   fields, then currently e2fsprogs will ignore them, and that's OK
-   for things like the high precision time fields.  But if they are
-   fields where e2fsck does need to know about them, then obviously we
-   would need a COMPAT feature flag to signal that fact (since e2fsck
-   will refuse to operate on a filesystem if ther is a COMPAT feature
-   that it doesn't understand.)
-
-   > So for future-proofing, we do need some distinction between the
-   > fields actually *used* in i_extra_isize, and those simply
-   > reserved there.  And that has to be per-inode, if we want to
-   > allow easy dynamic migration to newer fields.
-   >
-   > So a per-superblock field guaranteeing that there's at least $N
-   > bytes of usable *potential* i_extra_isize in each inode, and a
-   > per-inode i_extra_isize which shows which fields are *actively*
-   > used, gives us both pieces of information that we need.
-
-   The easiest way to do future-proofing is to state that they must be
-   initialized to zero.  That's how we handle unusued fields in the
-   superblock, after all, and it means that it's relatively easy to
-   add new superblock fields without needing to cause compatibility
-   problems..  If you absolutely, positively need e2fsck to abort if
-   it doesn't understand a particular field, that's what a COMPAT
-   feature flag is for.  Otherwise, new kernels can simply check to
-   see if the field is non-zero, and if so, honor it, and old-kernels
-   will simply ignore the new information.  In many cases, that's more
-   than sufficient.
+rgds
+-daniel

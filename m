@@ -1,72 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbWCUIsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWCUIvr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751372AbWCUIsb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 03:48:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWCUIsb
+	id S1751054AbWCUIvr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 03:51:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWCUIvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 03:48:31 -0500
-Received: from elasmtp-kukur.atl.sa.earthlink.net ([209.86.89.65]:6086 "EHLO
-	elasmtp-kukur.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S1750910AbWCUIsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 03:48:30 -0500
-To: "Yu, Luming" <luming.yu@intel.com>
-cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       michael@mihu.de, mchehab@infradead.org,
-       "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
-       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       jgarzik@pobox.com, "Duncan" <1i5t5.duncan@cox.net>,
-       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-In-Reply-To: Your message of "Tue, 21 Mar 2006 09:38:42 +0800."
-             <3ACA40606221794F80A5670F0AF15F840B417262@pdsmsx403> 
-X-Mailer: MH-E 7.91; nmh 1.1; GNU Emacs 21.4.1
-Date: Tue, 21 Mar 2006 03:47:45 -0500
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1FLcWn-0001DM-Af@approximate.corpus.cam.ac.uk>
-X-ELNK-Trace: dcd19350f30646cc26f3bd1b5f75c9f474bf435c0eb9d478d165aa9320335d71c0cec0ff8fad3700f77ca0dbd638c082350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 24.41.6.91
+	Tue, 21 Mar 2006 03:51:47 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:46807 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1750785AbWCUIvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 03:51:46 -0500
+Message-Id: <200603210851.k2L8pHg21393@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: <akpm@osdl.org>, <pbadari@us.ibm.com>, <suparna@in.ibm.com>,
+       <zach.brown@oracle.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [patch] direct-io: bug fix in dio handling write error
+Date: Tue, 21 Mar 2006 00:51:27 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcZMxKOo2/0sOmfJTCGUkMPg2KnXqg==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With _TMP faked in the kernel and one whole zone ignored, this is what I
-get:
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
 
-Zone to ignore	|	Result
-------------------------------------------------------------------------
-THM0			OK (10 cycles)
-THM2			"kernel panic! attempted to kill init"
-THM6			Hangs (4th cycle)
-THM7			OK (8 cycles)
+There is a bug in direct-io on propagating write error up to the
+higher I/O layer.  When performing an async ODIRECT write to a
+block device, if a device error occurred (like media error or disk
+is pulled), the error code is only propagated from device driver
+to the DIO layer.  The error code stops at finished_one_bio(). The
+aysnc write, however, is supposedly have a corresponding AIO event
+with appropriate return code (in this case -EIO).  Application
+which waits on the async write event, will hang forever since such
+AIO event is lost forever (if such app did not use the timeout
+option in io_getevents call. Regardless, an AIO event is lost).
 
-So THM6 seems healthy, but THM0 and THM7 (and maybe THM2) interact
-badly.  If I unload THM2, THM6, and THM7, then it's okay (previous
-experiments with faking _TMP but with only THM0 loaded).  But unloading
-THM6 is not enough.
+The discovery of above bug leads to another discovery of potential
+race window with dio->result.  The fundamental problem is that
+dio->result is overloaded with dual use: an indicator of fall back
+path for partial dio write, and an error indicator used in the I/O
+completion path.  In the event of device error, the setting of -EIO
+to dio->result clashes with value used to track partial write that
+activates the fall back path.
 
-The kernel panic for the don't-load-THM2 kernel is very strange.  I had
-another kernel panic while doing another set of tests, which I also
-couldn't explain.  The only difference between the no-THM0 and the
-no-THM2 kernels is:
+It was also pointed out that it is impossible to use dio->result to
+track partial write and at the same time to track error returned
+from device driver. Because direct_io_work can only determines whether
+it is a partial write at the end of io submission and in mid stream
+of those io submission, a return code could be coming back from the
+driver.  Thus messing up all the subsequent logic.
 
-diff -r b7ad6c906aba -r 213308f0ec31 drivers/acpi/thermal.c
---- a/drivers/acpi/thermal.c	Tue Mar 21 02:23:30 2006 -0500
-+++ b/drivers/acpi/thermal.c	Tue Mar 21 02:36:42 2006 -0500
-@@ -1324,7 +1324,7 @@ static int acpi_thermal_add(struct acpi_
+Proposed fix is to separating out error code returned by the IO
+completion path from partial IO submit tracking.  A new variable is
+added to dio structure specifically to track io error returned in the
+completion path.
+
+
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+Acked-by: Zach Brown <zach.brown@oracle.com>
+Acked-by: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>
+---
+
+Patch tested by pulling a scsi drive while running aiostress as well
+as running test code in http://developer.osdl.org/daniel/AIO/TESTS/
+
+Andrew - please merge this version.  Thank you.
+
+
+--- ./fs/direct-io.c.orig	2006-01-02 19:21:10.000000000 -0800
++++ ./fs/direct-io.c	2006-03-21 01:28:48.704475280 -0800
+@@ -129,6 +129,7 @@ struct dio {
+ 	/* AIO related stuff */
+ 	struct kiocb *iocb;		/* kiocb */
+ 	int is_async;			/* is IO async ? */
++	int io_error;			/* IO error in completion path */
+ 	ssize_t result;                 /* IO result */
+ };
  
- 	if (!device)
- 		return_VALUE(-EINVAL);
--	if (strcmp("THM2", device->pnp.bus_id) == 0) {
-+	if (strcmp("THM0", device->pnp.bus_id) == 0) {
- 	    printk(KERN_INFO PREFIX "thermal_add: ignoring %s\n",
- 		   device->pnp.bus_id);
- 	    return_VALUE(-EINVAL);
+@@ -250,6 +251,10 @@ static void finished_one_bio(struct dio 
+ 			    ((offset + transferred) > dio->i_size))
+ 				transferred = dio->i_size - offset;
+ 
++			/* check for error in completion path */
++			if (dio->io_error)
++				transferred = dio->io_error;
++
+ 			dio_complete(dio, offset, transferred);
+ 
+ 			/* Complete AIO later if falling back to buffered i/o */
+@@ -406,7 +411,7 @@ static int dio_bio_complete(struct dio *
+ 	int page_no;
+ 
+ 	if (!uptodate)
+-		dio->result = -EIO;
++		dio->io_error = -EIO;
+ 
+ 	if (dio->is_async && dio->rw == READ) {
+ 		bio_check_pages_dirty(bio);	/* transfers ownership */
+@@ -964,6 +969,7 @@ direct_io_worker(int rw, struct kiocb *i
+ 	dio->next_block_for_io = -1;
+ 
+ 	dio->page_errors = 0;
++	dio->io_error = 0;
+ 	dio->result = 0;
+ 	dio->iocb = iocb;
+ 	dio->i_size = i_size_read(inode);
 
 
--Sanjoy
 
-`A society of sheep must in time beget a government of wolves.'
-   - Bertrand de Jouvenal

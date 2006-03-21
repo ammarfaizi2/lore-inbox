@@ -1,63 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751768AbWCUPSq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751770AbWCUPU3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751768AbWCUPSq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 10:18:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751770AbWCUPSq
+	id S1751770AbWCUPU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 10:20:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030431AbWCUPU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 10:18:46 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:28896 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1751768AbWCUPSq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 10:18:46 -0500
-Message-ID: <4420195B.10707@cfl.rr.com>
-Date: Tue, 21 Mar 2006 10:18:51 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 21 Mar 2006 10:20:29 -0500
+Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:48820 "EHLO
+	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751770AbWCUPU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 10:20:28 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: interactive task starvation
+Date: Wed, 22 Mar 2006 02:20:10 +1100
+User-Agent: KMail/1.9.1
+Cc: Willy Tarreau <willy@w.ods.org>, Ingo Molnar <mingo@elte.hu>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       bugsplatter@gmail.com
+References: <200603090036.49915.kernel@kolivas.org> <1142949690.7807.80.camel@homer> <200603220117.54822.kernel@kolivas.org>
+In-Reply-To: <200603220117.54822.kernel@kolivas.org>
 MIME-Version: 1.0
-To: Yaroslav Rastrigin <yarick@it-territory.ru>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: VFAT: Can't create file named 'aux.h'?
-References: <1142890822.5007.18.camel@localhost.localdomain> <Pine.LNX.4.61.0603202244370.11933@yvahk01.tjqt.qr> <200603210849.20224.yarick@it-territory.ru>
-In-Reply-To: <200603210849.20224.yarick@it-territory.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Mar 2006 15:18:54.0248 (UTC) FILETIME=[C41E1A80:01C64CFA]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14337.000
-X-TM-AS-Result: No--12.300000-5.000000-31
+Content-Disposition: inline
+Message-Id: <200603220220.11368.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I disagree with this philosophy seeing as how it is possible to create 
-these files from within windows itself:
+On Wednesday 22 March 2006 01:17, Con Kolivas wrote:
+> I actually believe the same effect can be had by a tiny 
+> modification to enable/disable the estimator anyway.
 
-echo foo > \\?\c:\aux.h
-dir *.h
-  Volume in drive C has no label.
-  Volume Serial Number is F064-30D6
+Just for argument's sake it would look something like this.
 
-  Directory of C:\
+Cheers,
+Con
+---
+Add sysctl to enable/disable cpu scheduer interactivity estimator
 
-03/21/2006  10:07a                   6 aux.h
-                1 File(s)              6 bytes
-                0 Dir(s)   4,584,951,808 bytes free
+Signed-off-by: Con Kolivas <kernel@kolivas.org>
 
-Creates a file named aux.h in c:\ just fine.  Under win2k at least, 
-explorer only hangs when I try to click on the file.  Explorer has 
-always done really stupid things like this though.  I remember when 95 
-first came out we could create files with high ascii names on the server 
-like ascii 255, and explorer would happily render it as an underscore 
-(_), but could not open it or delete it because it was actually trying 
-to access a directory named "_" rather than ascii 255.
+---
+ include/linux/sched.h  |    1 +
+ include/linux/sysctl.h |    1 +
+ kernel/sched.c         |   14 +++++++++++---
+ kernel/sysctl.c        |    8 ++++++++
+ 4 files changed, 21 insertions(+), 3 deletions(-)
 
-Just because explorer/the win32 api is stupid doesn't mean linux should 
-be too.
-
-Yaroslav Rastrigin wrote:
->> It seems only fair to me to not allow creating these files under Linux 
->> either, to avoid problems when booting back to Dos/Windows.
-> This is true. smbfs, OTOH, has no such checks, so creating aux.h on an smb share is one easy way to DoS 
-> all WinXP machines using(browsing) this share. Explorer hangs on reading directory with this file.
->>
->> Jan Engelhardt
-> 
-
+Index: linux-2.6.16-rc6-mm2/include/linux/sched.h
+===================================================================
+--- linux-2.6.16-rc6-mm2.orig/include/linux/sched.h	2006-03-19 11:15:27.000000000 +1100
++++ linux-2.6.16-rc6-mm2/include/linux/sched.h	2006-03-22 02:13:55.000000000 +1100
+@@ -104,6 +104,7 @@ extern unsigned long nr_uninterruptible(
+ extern unsigned long nr_active(void);
+ extern unsigned long nr_iowait(void);
+ extern unsigned long weighted_cpuload(const int cpu);
++extern int sched_interactive;
+ 
+ #include <linux/time.h>
+ #include <linux/param.h>
+Index: linux-2.6.16-rc6-mm2/include/linux/sysctl.h
+===================================================================
+--- linux-2.6.16-rc6-mm2.orig/include/linux/sysctl.h	2006-03-19 11:15:27.000000000 +1100
++++ linux-2.6.16-rc6-mm2/include/linux/sysctl.h	2006-03-22 02:14:43.000000000 +1100
+@@ -148,6 +148,7 @@ enum
+ 	KERN_SPIN_RETRY=70,	/* int: number of spinlock retries */
+ 	KERN_ACPI_VIDEO_FLAGS=71, /* int: flags for setting up video after ACPI sleep */
+ 	KERN_IA64_UNALIGNED=72, /* int: ia64 unaligned userland trap enable */
++	KERN_INTERACTIVE=73,	/* int: enable/disable interactivity estimator */
+ };
+ 
+ 
+Index: linux-2.6.16-rc6-mm2/kernel/sched.c
+===================================================================
+--- linux-2.6.16-rc6-mm2.orig/kernel/sched.c	2006-03-19 15:41:08.000000000 +1100
++++ linux-2.6.16-rc6-mm2/kernel/sched.c	2006-03-22 02:13:56.000000000 +1100
+@@ -128,6 +128,9 @@
+  * too hard.
+  */
+ 
++/* Sysctl enable/disable interactive estimator */
++int sched_interactive __read_mostly = 1;
++
+ #define CURRENT_BONUS(p) \
+ 	(NS_TO_JIFFIES((p)->sleep_avg) * MAX_BONUS / \
+ 		MAX_SLEEP_AVG)
+@@ -151,7 +154,8 @@
+ 		INTERACTIVE_DELTA)
+ 
+ #define TASK_INTERACTIVE(p) \
+-	((p)->prio <= (p)->static_prio - DELTA(p))
++	((p)->prio <= (p)->static_prio - DELTA(p) && \
++		sched_interactive)
+ 
+ #define INTERACTIVE_SLEEP(p) \
+ 	(JIFFIES_TO_NS(MAX_SLEEP_AVG * \
+@@ -662,9 +666,13 @@ static int effective_prio(task_t *p)
+ 	if (rt_task(p))
+ 		return p->prio;
+ 
+-	bonus = CURRENT_BONUS(p) - MAX_BONUS / 2;
++	prio = p->static_prio;
++
++	if (sched_interactive) {
++		bonus = CURRENT_BONUS(p) - MAX_BONUS / 2;
+ 
+-	prio = p->static_prio - bonus;
++		prio -= bonus;
++	}
+ 	if (prio < MAX_RT_PRIO)
+ 		prio = MAX_RT_PRIO;
+ 	if (prio > MAX_PRIO-1)
+Index: linux-2.6.16-rc6-mm2/kernel/sysctl.c
+===================================================================
+--- linux-2.6.16-rc6-mm2.orig/kernel/sysctl.c	2006-03-19 11:15:27.000000000 +1100
++++ linux-2.6.16-rc6-mm2/kernel/sysctl.c	2006-03-22 02:15:23.000000000 +1100
+@@ -684,6 +684,14 @@ static ctl_table kern_table[] = {
+ 		.proc_handler	= &proc_dointvec,
+ 	},
+ #endif
++	{
++		.ctl_name	= KERN_SCHED_INTERACTIVE,
++		.procname	= "interactive",
++		.data		= &sched_interactive,
++		.maxlen		= sizeof (int),
++	 	.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
+ 	{ .ctl_name = 0 }
+ };
+ 

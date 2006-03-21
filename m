@@ -1,117 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423147AbWCUSis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423172AbWCUSk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423147AbWCUSis (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 13:38:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423008AbWCUSio
+	id S1423172AbWCUSk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 13:40:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423203AbWCUSkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 13:38:44 -0500
-Received: from thunk.org ([69.25.196.29]:25063 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1423260AbWCUSil (ORCPT
+	Tue, 21 Mar 2006 13:40:25 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:31618 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1423172AbWCUSkX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 13:38:41 -0500
-Date: Tue, 21 Mar 2006 13:38:22 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Andreas Dilger <adilger@clusterfs.com>,
-       Takashi Sato <sho@bsd.tnes.nec.co.jp>, cmm@us.ibm.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       Laurent Vivier <Laurent.Vivier@bull.net>, ams@gnu.org,
-       cascardo@minaslivre.org
-Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
-Message-ID: <20060321183822.GC11447@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	"Stephen C. Tweedie" <sct@redhat.com>,
-	Andreas Dilger <adilger@clusterfs.com>,
-	Takashi Sato <sho@bsd.tnes.nec.co.jp>, cmm@us.ibm.com,
-	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-	Laurent Vivier <Laurent.Vivier@bull.net>, ams@gnu.org,
-	cascardo@minaslivre.org
-References: <1142475556.3764.133.camel@dyn9047017067.beaverton.ibm.com> <02bc01c648f2$bd35e830$4168010a@bsd.tnes.nec.co.jp> <20060316183549.GK30801@schatzie.adilger.int> <20060316212632.GA21004@thunk.org> <20060316225913.GV30801@schatzie.adilger.int> <20060318170729.GI21232@thunk.org> <20060320063633.GC30801@schatzie.adilger.int> <1142894283.21593.59.camel@orbit.scot.redhat.com> <20060320234829.GJ6199@schatzie.adilger.int> <1142960722.3443.24.camel@orbit.scot.redhat.com>
+	Tue, 21 Mar 2006 13:40:23 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Willy Tarreau <willy@w.ods.org>
+Subject: Re: interactive task starvation
+Date: Tue, 21 Mar 2006 19:39:11 +0100
+User-Agent: KMail/1.9.1
+Cc: Con Kolivas <kernel@kolivas.org>, Mike Galbraith <efault@gmx.de>,
+       Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, bugsplatter@gmail.com
+References: <1142592375.7895.43.camel@homer> <200603220119.50331.kernel@kolivas.org> <20060321143941.GD26171@w.ods.org>
+In-Reply-To: <20060321143941.GD26171@w.ods.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1142960722.3443.24.camel@orbit.scot.redhat.com>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+Message-Id: <200603211939.12749.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 21, 2006 at 12:05:22PM -0500, Stephen C. Tweedie wrote:
-> > It would also be good to understand what HURD is actually doing with
-> > those other fields (if anything, does it even exist anymore?), since
-> > it is literally holding TB of space unusable on Linux ext3 filesystems
-> > that could better be put to use.  There are i_translator, i_mode_high,
-> > and i_author held hostage by HURD, and I certainly have never seen or
-> > heard of any good description of what they do or if Linux would/could
-> > ever use them, or if HURD could live without them.
-
-Hurd is definitely using the translator field, and I only recently
-discovered they are using it to point at a disk block where the name
-of the translator program (I'm not 100% sure, but I think it's a
-generic, out-of-band, #! sort of functionality).  I don't know about
-the other fields, but I can find out.
-
-> If they really are 100% necessary for hurd, it might be that we could
-> relegate them to an xattr.  There's the slight problem of testing,
-> though; does anyone on ext2-devel actually run hurd, ever?
-
-Relegating them to an xatter would break compatibility with existing
-hurd filesystems.  We could take the arrogant "Linux is the only thing
-that matters", and just screw them, and the net result will probably
-be that Hurd will never implement some of the advanced features we've
-been talking about.  They might not anyways, though.  A real problem
-is that as far as I know, the hurd ext2 developers aren't on the
-ext2-devel mailing list.
-
-I've cc'ed two people that sent me a request to add some additional
-debugfs functionality to support hurd; maybe they can help by telling
-us whether or not hurd is using i_mode_high and i_author, and whether
-or not hurd has any likelihood of tracking new ext3 features that we
-might add in the future or not.
-
-> > I'm fully in the "the chance of any real problem is vanishingly small"
-> > camp, even though Lustre is one of the few users of large inodes.  The
-> > presence of the COMPAT field would not really be any different than just
-> > changing ext3_new_inode() to make i_extra_isize 16 by default, except to
-> > cause breakage against the older e2fsprogs.
+On Tuesday 21 March 2006 15:39, Willy Tarreau wrote:
+> On Wed, Mar 22, 2006 at 01:19:49AM +1100, Con Kolivas wrote:
+> > On Wednesday 22 March 2006 01:17, Mike Galbraith wrote:
+> > > On Wed, 2006-03-22 at 00:53 +1100, Con Kolivas wrote:
+> > > > The yardstick for changes is now the speed of 'ls' scrolling in the
+> > > > console. Where exactly are those extra cycles going I wonder? Do you
+> > > > think the scheduler somehow makes the cpu idle doing nothing in that
+> > > > timespace? Clearly that's not true, and userspace is making something
+> > > > spin unnecessarily, but we're gonna fix that by modifying the
+> > > > scheduler.... sigh
+> > >
+> > > *Blink*
+> > >
+> > > Are you having a bad hair day??
+> > 
+> > My hair is approximately 3mm long so it's kinda hard for that to happen. 
+> > 
+> > What you're fixing with unfairness is worth pursuing. The 'ls' issue just 
+> > blows my mind though for reasons I've just said. Where are the magic cycles 
+> > going when nothing else is running that make it take ten times longer?
 > 
-> Setting i_extra_isize will break older e2fsprogs anyway, won't it?
-> e2fsck needs to have full knowledge of all fs fields in order to
-> maintain consistency; if it doesn't know about some of the fields whose
-> presence is implied by i_extra_isize, then doesn't it have to abort?
+> Con, those cycles are not "magic", if you look at the numbers, the time is
+> not spent in the process itself. From what has been observed since the
+> beginning, it is spent :
+>   - in other processes which are starvating the CPU (eg: X11 when xterm
+>     scrolls)
+>   - in context switches when you have a pipe somewhere and the CPU is
+>     bouncing between tasks.
+> 
+> Concerning your angriness about me being OK with (0,0) and still
+> asking for tunables, it's precisely because I know that *my* workload
+> is not everyone else's, and I don't want to conclude too quickly that
+> there are only two types of workloads.
 
-E2fsprogs previous to e2fsprogs 1.37 ignored i_extra_isize and didn't
-check whether or not the EA's in the inode were valid.  Starting in
-e2fsprogs 1.37, e2fsck understands i_extra_size and in fact does
-validate the EA's in the inode.  If we add new i_extra fields, then
-currently e2fsprogs will ignore them, and that's OK for things like
-the high precision time fields.  But if they are fields where e2fsck
-does need to know about them, then obviously we would need a COMPAT
-feature flag to signal that fact (since e2fsck will refuse to operate
-on a filesystem if ther is a COMPAT feature that it doesn't
-understand.)
+Well, perhaps we can assume there are only two types of workloads and
+wait for a test case that will show the assumption is wrong?
 
-> So for future-proofing, we do need some distinction between the fields
-> actually *used* in i_extra_isize, and those simply reserved there.  And
-> that has to be per-inode, if we want to allow easy dynamic migration to
-> newer fields.
->
-> So a per-superblock field guaranteeing that there's at least $N bytes of
-> usable *potential* i_extra_isize in each inode, and a per-inode
-> i_extra_isize which shows which fields are *actively* used, gives us
-> both pieces of information that we need.
+> Maybe you're right, maybe you're wrong. At least you're right for as long
+> as no other workload has been identified. But thinking like this is like
+> some time ago when we thought that "if it runs XMMS without skipping,
+> it'll be OK for everyone".
 
-The easiest way to do future-proofing is to state that they must be
-initialized to zero.  That's how we handle unusued fields in the
-superblock, after all, and it means that it's relatively easy to add
-new superblock fields without needing to cause compatibility
-problems..  If you absolutely, positively need e2fsck to abort if it
-doesn't understand a particular field, that's what a COMPAT feature
-flag is for.  Otherwise, new kernels can simply check to see if the
-field is non-zero, and if so, honor it, and old-kernels will simply
-ignore the new information.  In many cases, that's more than
-sufficient.
+However, we should not try to anticipate every possible kind of workload
+IMHO.
 
-						- Ted
+Greetings,
+Rafael

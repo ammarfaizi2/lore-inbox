@@ -1,92 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751673AbWCUSBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWCUSBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751673AbWCUSBh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 13:01:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751766AbWCUSBh
+	id S932356AbWCUSBY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 13:01:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWCUSBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 13:01:37 -0500
-Received: from smtpout10-04.prod.mesa1.secureserver.net ([64.202.165.238]:20450
-	"HELO smtpout10-04.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S1751772AbWCUSBf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 13:01:35 -0500
-From: hackmiester / Hunter Fuller <hackmiester@hackmiester.com>
-Reply-To: hackmiester@hackmiester.com
-Organization: hackmiester.com, Ltd.
-To: David Vrabel <dvrabel@cantab.net>, linux-kernel@vger.kernel.org
-Subject: Re: Lifetime of flash memory
-Date: Tue, 21 Mar 2006 12:00:50 -0600
-User-Agent: KMail/1.8
-References: <44203179.3090606@comcast.net> <44203468.9060806@cantab.net>
-In-Reply-To: <44203468.9060806@cantab.net>
-X-Face: #pm4uI.4%U/S1i<i'(UPkahbf^inZ;WOH{EKM,<n/P;R5m8#`2&`HN`hB;ht_>=?utf-8?q?oJYRGD3o=0A=09?=)AM
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5477824.xhrqpPHmg3";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200603211200.52735.hackmiester@hackmiester.com>
+	Tue, 21 Mar 2006 13:01:24 -0500
+Received: from sunkay.cs.ualberta.ca ([129.128.4.11]:6096 "EHLO
+	sunkay.cs.ualberta.ca") by vger.kernel.org with ESMTP
+	id S1751762AbWCUSBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 13:01:23 -0500
+Date: Tue, 21 Mar 2006 11:01:18 -0700
+From: Gordon Atwood <gordon@cs.ualberta.ca>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: sata_promise does not see hardware RAID arrays on Fasttrak TX4000
+Message-ID: <20060321180118.GK17279@cs.ualberta.ca>
+References: <20060320194728.GA17279@cs.ualberta.ca> <441F0932.1080001@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <441F0932.1080001@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart5477824.xhrqpPHmg3
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Mon, Mar 20, 2006 at 02:57:38PM -0500, Jeff Garzik wrote:
+> Gordon Atwood wrote:
+> >Ok, I've searched thru dozens of webpages and done the RTFM thing.  If its
+> >really obvious, sorry, I still missed it.
+> 
+> http://linux-ata.org/faq-sata-raid.html#tx2
+> 
+> http://linux-ata.org/faq-sata-raid.html#dmraid
 
-On Tuesday 21 March 2006 11:14, David Vrabel  wrote:
-> John Richard Moser wrote:
-> > The question I have is, is this really significant?  I have heard quoted
-> > that flash memory typically handles something like 3x10^18 writes;
->
-> That's like, uh, 13 orders of magnitudes out...
-=46lash drives are cheap anyway. I saw a 256mB one for $10 at Circuit City.=
- A=20
-PNY one. After rebates... but still, you can't beat that.
->
-> David Vrabel
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Hmm...  Ok, so a TX4000 is equivalent to a TX4.  Nothing I read suggested that
+so I missed this.  And this is a fake raid card.  Figures.  Should probably
+just chuck it.
 
-=2D-=20
-=2D-hackmiester
-Walk a mile in my shoes and you will be a mile away in a new pair of shoes.
+Unfortunately, although dmraid 'sees' sda-sdd it only recognizes the striped
+array on sdc-sdd.  It totally ignores the striped array on sda-sdb.
 
-=2D----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Even if it did see them, I don't see how I'm any further ahead.
 
-iD8DBQFD/yYl3ApzN91C7BcRAoVVAJ97uhjh30nQ4hd9bQ90gJqiwsLEfgCeKSrg
-bVfqEeJ09WhO6Y51WHEHb6o=3D
-=3DVTUd
-=2D----END PGP SIGNATURE-----
+Why should I bother with dmraid when I should just go be able to go directly
+to sda-d, format them and then layer software RAID or LVM on top of that.
+I can set up the four disks as individual single-disk arrays in the Promise
+BIOS and away we go.
 
-=2D----BEGIN GEEK CODE BLOCK-----
-Version: Geek Code v3.1 (PHP)
-GCS/CM/E/IT d-@ s: a- C++$ UBLS*++++$ P+ L+++$ E- W++$ !N-- !o+ K-- !w-- !O-
-M++$ V-- PS@ PE@ Y--? PGP++ !t--- 5--? !X-- !R-- tv-- b+ DI++ D++ G+ e++++
-h---- r+++ z++++
-=2D-----END GEEK CODE BLOCK------
+If the Promise card has overhead for processing I/O it will be there
+regardless of whether I go thru dmraid or mdadm or LVM.  At least in the
+latter configuration, I can always go out and get a real 4 port ide
+card and just hook up the disks to it.  Then this card can go in the
+trash.
 
-Quick contact info:
-Work: hfuller@stpaulsmobile.net
-Personal: hackmiester@hackmiester.com
-Large files/spam: hackmiester@gmail.com
-GTalk:hackmiester/AIM:hackmiester1337/Y!:hackm1ester/IRC:irc.7sinz.net/7sinz
+Thanks much for the pointer.  Interesting how no matter how hard you search,
+there is always a direct thread to the info that you want that you'll
+completely miss :-)
 
---nextPart5477824.xhrqpPHmg3
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD4DBQBEID9U3ApzN91C7BcRAonGAJj8Bql29YGUSS/Ik4BgrflJkRy3AKCrGo8d
-pLBZzzyuvA5Ynvc1zxFe6A==
-=8KPR
------END PGP SIGNATURE-----
-
---nextPart5477824.xhrqpPHmg3--
+G.H.A.

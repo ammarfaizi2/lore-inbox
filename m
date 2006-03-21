@@ -1,106 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWCUID0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWCUIdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbWCUID0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 03:03:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbWCUID0
+	id S932340AbWCUIdA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 03:33:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWCUIdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 03:03:26 -0500
-Received: from max.feld.cvut.cz ([147.32.192.36]:60365 "EHLO max.feld.cvut.cz")
-	by vger.kernel.org with ESMTP id S1751355AbWCUIDZ convert rfc822-to-8bit
+	Tue, 21 Mar 2006 03:33:00 -0500
+Received: from xproxy.gmail.com ([66.249.82.203]:25977 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932340AbWCUIdA convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 03:03:25 -0500
-From: CIJOML <cijoml@volny.cz>
+	Tue, 21 Mar 2006 03:33:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mfS5ctsC9eKQNBq6FmwA7rcvHimA+FxYnzD9Q+fqDoD8dlIBLF+B0OChHosaL522KbhhxkKR/obH4Dg7j18AS/CqZVdK54as7t6yGYc1UXGEVgFGnEAkMfaNktBIGugd69jF3IPJjsxo4Xoqsj+XmkUZp4RgAwFXH8aRrgXpsUE=
+Message-ID: <9597aec10603210032q273f9015wc9ad5cf70ee1be6b@mail.gmail.com>
+Date: Tue, 21 Mar 2006 03:32:38 -0500
+From: "ragin shah" <shahragin1@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.16 - cpufreq doesn't find Celeron (Pentium4/XEON) processor
-Date: Tue, 21 Mar 2006 09:02:18 +0100
-User-Agent: KMail/1.8.3
+Subject: Re: "Low-latecny patch for ARM"
+In-Reply-To: <9597aec10603200258k59b08f7ex2b8b307d4d000c2f@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200603210902.19335.cijoml@volny.cz>
+References: <9597aec10603200258k59b08f7ex2b8b307d4d000c2f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi !
+I m student.
+I want to apply low-latency patch to kernel 2.4.26  for ARM processor.
+I applied Andrew Morton's low latency patch of 2.4.25kernel to 2.4.26
+kernel. I made some changes for '.config' section  to apply it
+correctly to ARM. Can anybody tell me whether i m right or wrong ? It
+is not giving any error while applying patch.
+Second thing,
+Can anybody please tell me how to measure scheduler latency for kernel
+on ARM after applying low-latency patch to measure kernel's
+responsiveness?
+Thanks in advance!
 
-up to 2.6.15 my kernel worked to find my processor and frequency scalling was 
-possible via cpufreq. I have 
-
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Celeron(R) CPU 2.40GHz
-stepping        : 9
-cpu MHz         : 2398.803
-cache size      : 128 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
-cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
-bogomips        : 4801.41
-
-Now it is screwed up...
-
-My config:
-  │ │ [*] CPU Frequency scaling                                                                                                        
-│ │
-  │ │ [ ]   Enable CPUfreq debugging                                                                                                   
-│ │
-  │ │ <*>   CPU frequency translation statistics                                                                                       
-│ │
-  │ │ [*]     CPU frequency translation statistics details                                                                             
-│ │
-  │ │       Default CPUFreq governor (userspace)  --->                                                                                 
-│ │
-  │ │ <*>   'performance' governor                                                                                                     
-│ │
-  │ │ <*>   'powersave' governor                                                                                                       
-│ │
-  │ │ ---   'userspace' governor for userspace frequency scaling                                                                       
-│ │
-  │ │ <*>   'ondemand' cpufreq policy governor                                                                                         
-│ │
-  │ │ <*>   'conservative' cpufreq governor                                                                                            
-│ │
-  │ │ ---   CPUFreq processor drivers                                                                                                  
-│ │
-  │ │ < >   ACPI Processor P-States driver                                                                                             
-│ │
-  │ │ < >   AMD Mobile K6-2/K6-3 PowerNow!                                                                                             
-│ │
-  │ │ < >   AMD Mobile Athlon/Duron PowerNow!                                                                                          
-│ │
-  │ │ < >   AMD Opteron/Athlon64 PowerNow!                                                                                             
-│ │
-  │ │ < >   Cyrix MediaGX/NatSemi Geode Suspend Modulation                                                                             
-│ │
-  │ │ < >   Intel Enhanced SpeedStep                                                                                                   
-│ │
-  │ │ < >   Intel Speedstep on ICH-M chipsets (ioport interface)                                                                       
-│ │
-  │ │ < >   Intel SpeedStep on 440BX/ZX/MX chipsets (SMI interface)                                                                    
-│ │
-  │ │ <*>   Intel Pentium 4 clock modulation                                                                                           
-│ │
-  │ │ < >   nVidia nForce2 FSB changing                                                                                                
-│ │
-  │ │ < >   Transmeta LongRun                                                                                                          
-│ │
-  │ │ < >   VIA Cyrix III Longhaul                                                                                                     
-│ │
-  │ │ ---   shared options                                                                                                             
-│ │
-
-
-Thanks for fixing
-
-Michal
+On 3/20/06, ragin shah <shahragin1@gmail.com> wrote:
+> Hi !
+> I m student.
+> I want to apply low-latency patch to kernel 2.4.26  for ARM processor.
+> I applied Andrew Morton's low latency patch of 2.4.25kernel to 2.4.26
+> kernel. I made some changes for '.config' section  to apply it
+> correctly to ARM. Can anybody tell me whether i m right or wrong ? It
+> is not giving any error while applying patch.
+> Second thing,
+> Can anybody please tell me how to measure scheduler latency for kernel
+> on ARM after applying low-latency patch to measure kernel's
+> responsiveness?
+> Thanks in advance!
+>

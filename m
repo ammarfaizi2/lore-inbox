@@ -1,87 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030418AbWCUOfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030412AbWCUOfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030418AbWCUOfR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 09:35:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030420AbWCUOfQ
+	id S1030412AbWCUOfM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 09:35:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030419AbWCUOfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 09:35:16 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:36539 "EHLO
+	Tue, 21 Mar 2006 09:35:12 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:37819 "EHLO
 	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030414AbWCUOfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1030412AbWCUOfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 21 Mar 2006 09:35:08 -0500
-Date: Tue, 21 Mar 2006 08:34:44 -0600 (CST)
+Date: Tue, 21 Mar 2006 08:34:54 -0600 (CST)
 From: Mark Maule <maule@sgi.com>
 To: linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz,
        linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: j-nomura@ce.jp.nec.com, Tony Luck <tony.luck@intel.com>, gregkh@suse.de,
        Mark Maule <maule@sgi.com>
-Message-Id: <20060321143444.9913.48372.11324@lnx-maule.americas.sgi.com>
-Subject: [PATCH 0/3] msi abstractions and support for altix
+Message-Id: <20060321143454.9913.84757.48922@lnx-maule.americas.sgi.com>
+In-Reply-To: <20060321143444.9913.48372.11324@lnx-maule.americas.sgi.com>
+References: <20060321143444.9913.48372.11324@lnx-maule.americas.sgi.com>
+Subject: [PATCH 2/3] per-platform IA64_{FIRST,LAST}_DEVICE_VECTOR definitions
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resend #6:  resubmit against 2.6.16 base
+Abstract IA64_FIRST_DEVICE_VECTOR/IA64_LAST_DEVICE_VECTOR since SN platforms
+use a subset of the IA64 range.  Implement this by making the above macros
+global variables which the platform can override in it setup code.
 
-Patch set to abstract portions of the MSI core so that it can be used on
-architectures which don't use standard interrupt controllers.
+Also add a reserve_irq_vector() routine used by SN to mark a vector's as
+in-use when that weren't allocated through assign_irq_vector().
 
-Changes from Resend #5
+Signed-off-by: Mark Maule <maule@sgi.com>
 
-+ Move altix msi ops down into drivers/pci/msi-altix.c
-+ Simplify ia64 platform_msi_init machvec
-
-Changes from Resend #4
-
-+ Fix an x86_64 build problem
-+ Fix an ia64 CONFIG_IA64_GENERIC build problem
-+ Fix a bug in the new ia64 reserve_irq_vector()
-+ Restore dev->irq if msi_ops->setup fails
-+ Redo msi-altix.patch so it applies on 2.6.16-rc1
-
-Changes from Resend #3 
-
-+ Move external declarations of msi_apic_ops out of routines, and up earlier
-  in the respective .h files.
-+ Add comments to the msi_ops structure declaration
-
-Changes from Resend #2
-
-+ Cleanup the ia64 platform_msi_init macro so it works on non-altix ia64
-
-Changes from initial version
-
-+ Change uintXX_t to uXX
-+ Change _callouts to _ops
-+ Renamed the _generic routines to _apic and moved them to a new file
-  msi-apic.c
-+ Have each msi_arch_init() routine call msi_register() with the desired
-  msi ops for that platform.
-+ Moved msi_address, msi_data, and related defs out of msi.h and into
-  msi-apic.c, replaced by shifts/masks.
-+ Rolled msi-arch-init.patch and msi-callouts.patch into a single msi-ops.patch
-
-Mark
-
-1/3 msi-ops.patch
-	Add an msi_arch_init() hook which can be used to perform platform
-	specific setup prior to msi use.
-
-	Define a set of msi ops to implement the platform-specific tasks:
-
-	    setup - set up plumbing to get a vector directed at a default
-		cpu, and return the corresponding MSI bus address and data.
-	    teardown - inverse of msi_setup
-	    target - retarget a vector to a given cpu
-
-	Define the routine msi_register() called from msi_arch_init()
-	to set the desired ops.
-
-	Move a bunch of apic-specific code out of the msi core .h/.c and
-	into a new msi-apic.c file.
-
-2/3 ia64-per-platform-device-vector.patch
-	For the ia64 arch, allow per-platform definitions of
-	IA64_FIRST_DEVICE_VECTOR and IA64_LAST_DEVICE_VECTOR.
-	
-3/3 msi-altix.patch 
-	Altix specific callouts to implement MSI.
+Index: linux-2.6.16/arch/ia64/kernel/irq_ia64.c
+===================================================================
+--- linux-2.6.16.orig/arch/ia64/kernel/irq_ia64.c	2006-03-20 15:06:59.260807181 -0600
++++ linux-2.6.16/arch/ia64/kernel/irq_ia64.c	2006-03-20 22:06:24.719085314 -0600
+@@ -46,6 +46,10 @@
+ 
+ #define IRQ_DEBUG	0
+ 
++/* These can be overridden in platform_irq_init */
++int ia64_first_device_vector = IA64_DEF_FIRST_DEVICE_VECTOR;
++int ia64_last_device_vector = IA64_DEF_LAST_DEVICE_VECTOR;
++
+ /* default base addr of IPI table */
+ void __iomem *ipi_base_addr = ((void __iomem *)
+ 			       (__IA64_UNCACHED_OFFSET | IA64_IPI_DEFAULT_BASE_ADDR));
+@@ -60,7 +64,7 @@
+ };
+ EXPORT_SYMBOL(isa_irq_to_vector_map);
+ 
+-static unsigned long ia64_vector_mask[BITS_TO_LONGS(IA64_NUM_DEVICE_VECTORS)];
++static unsigned long ia64_vector_mask[BITS_TO_LONGS(IA64_MAX_DEVICE_VECTORS)];
+ 
+ int
+ assign_irq_vector (int irq)
+@@ -89,6 +93,19 @@
+ 		printk(KERN_WARNING "%s: double free!\n", __FUNCTION__);
+ }
+ 
++int
++reserve_irq_vector (int vector)
++{
++	int pos;
++
++	if (vector < IA64_FIRST_DEVICE_VECTOR ||
++	    vector > IA64_LAST_DEVICE_VECTOR)
++		return -EINVAL;
++
++	pos = vector - IA64_FIRST_DEVICE_VECTOR;
++	return test_and_set_bit(pos, ia64_vector_mask);
++}
++
+ #ifdef CONFIG_SMP
+ #	define IS_RESCHEDULE(vec)	(vec == IA64_IPI_RESCHEDULE)
+ #else
+Index: linux-2.6.16/arch/ia64/sn/kernel/irq.c
+===================================================================
+--- linux-2.6.16.orig/arch/ia64/sn/kernel/irq.c	2006-03-20 15:06:59.260807181 -0600
++++ linux-2.6.16/arch/ia64/sn/kernel/irq.c	2006-03-21 07:17:34.074494614 -0600
+@@ -202,6 +202,9 @@
+ 	int i;
+ 	irq_desc_t *base_desc = irq_desc;
+ 
++	ia64_first_device_vector = IA64_SN2_FIRST_DEVICE_VECTOR;
++	ia64_last_device_vector = IA64_SN2_LAST_DEVICE_VECTOR;
++
+ 	for (i = 0; i < NR_IRQS; i++) {
+ 		if (base_desc[i].handler == &no_irq_type) {
+ 			base_desc[i].handler = &irq_type_sn;
+@@ -285,6 +288,7 @@
+ 	/* link it into the sn_irq[irq] list */
+ 	spin_lock(&sn_irq_info_lock);
+ 	list_add_rcu(&sn_irq_info->list, sn_irq_lh[sn_irq_info->irq_irq]);
++	reserve_irq_vector(sn_irq_info->irq_irq);
+ 	spin_unlock(&sn_irq_info_lock);
+ 
+ 	register_intr_pda(sn_irq_info);
+@@ -310,8 +314,11 @@
+ 	spin_lock(&sn_irq_info_lock);
+ 	list_del_rcu(&sn_irq_info->list);
+ 	spin_unlock(&sn_irq_info_lock);
++	if (list_empty(sn_irq_lh[sn_irq_info->irq_irq]))
++		free_irq_vector(sn_irq_info->irq_irq);
+ 	call_rcu(&sn_irq_info->rcu, sn_irq_info_free);
+ 	pci_dev_put(pci_dev);
++
+ }
+ 
+ static inline void
+Index: linux-2.6.16/include/asm-ia64/hw_irq.h
+===================================================================
+--- linux-2.6.16.orig/include/asm-ia64/hw_irq.h	2006-03-20 15:06:59.260807181 -0600
++++ linux-2.6.16/include/asm-ia64/hw_irq.h	2006-03-20 22:06:25.161425498 -0600
+@@ -47,9 +47,19 @@
+ #define IA64_CMC_VECTOR			0x1f	/* corrected machine-check interrupt vector */
+ /*
+  * Vectors 0x20-0x2f are reserved for legacy ISA IRQs.
++ * Use vectors 0x30-0xe7 as the default device vector range for ia64.
++ * Platforms may choose to reduce this range in platform_irq_setup, but the
++ * platform range must fall within
++ *	[IA64_DEF_FIRST_DEVICE_VECTOR..IA64_DEF_LAST_DEVICE_VECTOR]
+  */
+-#define IA64_FIRST_DEVICE_VECTOR	0x30
+-#define IA64_LAST_DEVICE_VECTOR		0xe7
++extern int ia64_first_device_vector;
++extern int ia64_last_device_vector;
++
++#define IA64_DEF_FIRST_DEVICE_VECTOR	0x30
++#define IA64_DEF_LAST_DEVICE_VECTOR	0xe7
++#define IA64_FIRST_DEVICE_VECTOR	ia64_first_device_vector
++#define IA64_LAST_DEVICE_VECTOR		ia64_last_device_vector
++#define IA64_MAX_DEVICE_VECTORS		(IA64_DEF_LAST_DEVICE_VECTOR - IA64_DEF_FIRST_DEVICE_VECTOR + 1)
+ #define IA64_NUM_DEVICE_VECTORS		(IA64_LAST_DEVICE_VECTOR - IA64_FIRST_DEVICE_VECTOR + 1)
+ 
+ #define IA64_MCA_RENDEZ_VECTOR		0xe8	/* MCA rendez interrupt */
+@@ -83,6 +93,7 @@
+ 
+ extern int assign_irq_vector (int irq);	/* allocate a free vector */
+ extern void free_irq_vector (int vector);
++extern int reserve_irq_vector (int vector);
+ extern void ia64_send_ipi (int cpu, int vector, int delivery_mode, int redirect);
+ extern void register_percpu_irq (ia64_vector vec, struct irqaction *action);
+ 
+Index: linux-2.6.16/drivers/pci/msi.c
+===================================================================
+--- linux-2.6.16.orig/drivers/pci/msi.c	2006-03-20 22:01:01.802923681 -0600
++++ linux-2.6.16/drivers/pci/msi.c	2006-03-20 22:06:25.218060665 -0600
+@@ -35,7 +35,7 @@
+ 
+ #ifndef CONFIG_X86_IO_APIC
+ int vector_irq[NR_VECTORS] = { [0 ... NR_VECTORS - 1] = -1};
+-u8 irq_vector[NR_IRQ_VECTORS] = { FIRST_DEVICE_VECTOR , 0 };
++u8 irq_vector[NR_IRQ_VECTORS];
+ #endif
+ 
+ static struct msi_ops *msi_ops;
+@@ -379,6 +379,11 @@
+ 		printk(KERN_WARNING "PCI: MSI cache init failed\n");
+ 		return status;
+ 	}
++
++#ifndef CONFIG_X86_IO_APIC
++	irq_vector[0] = FIRST_DEVICE_VECTOR;
++#endif
++
+ 	last_alloc_vector = assign_irq_vector(AUTO_ASSIGN);
+ 	if (last_alloc_vector < 0) {
+ 		pci_msi_enable = 0;

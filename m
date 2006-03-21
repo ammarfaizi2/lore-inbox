@@ -1,36 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbWCUROX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWCURQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751142AbWCUROX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 12:14:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWCUROX
+	id S1751258AbWCURQY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 12:16:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWCURQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 12:14:23 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:14609 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S1751142AbWCUROW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 12:14:22 -0500
-Message-ID: <44203468.9060806@cantab.net>
-Date: Tue, 21 Mar 2006 17:14:16 +0000
-From: David Vrabel <dvrabel@cantab.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Richard Moser <nigelenki@comcast.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Lifetime of flash memory
-References: <44203179.3090606@comcast.net>
-In-Reply-To: <44203179.3090606@comcast.net>
-Content-Type: text/plain; charset=UTF-8
+	Tue, 21 Mar 2006 12:16:23 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57216 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750908AbWCURQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 12:16:22 -0500
+Subject: Re: [git patches] libata updates
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <44202C91.30601@garzik.org>
+References: <20060320111658.GA16172@havoc.gtf.org>
+	 <1142872556.21455.7.camel@localhost.localdomain>
+	 <441F52F7.8030309@garzik.org>
+	 <1142936420.21455.26.camel@localhost.localdomain>
+	 <44202C91.30601@garzik.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Mar 2006 17:14:20.0988 (UTC) FILETIME=[E4C6BFC0:01C64D0A]
+Date: Tue, 21 Mar 2006 17:23:11 +0000
+Message-Id: <1142961792.28840.37.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Richard Moser wrote:
-> 
-> The question I have is, is this really significant?  I have heard quoted
-> that flash memory typically handles something like 3x10^18 writes;
+On Maw, 2006-03-21 at 11:40 -0500, Jeff Garzik wrote:
+> Alan Cox wrote:
+> To be specific, are the patches against libata-dev.git 'upstream' branch?
 
-That's like, uh, 13 orders of magnitudes out...
+Yes
 
-David Vrabel

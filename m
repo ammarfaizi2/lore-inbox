@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWCUDe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbWCUDfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932269AbWCUDe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 22:34:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWCUDe4
+	id S965014AbWCUDfF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 22:35:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbWCUDfD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 22:34:56 -0500
-Received: from thing.hostingexpert.com ([67.15.235.34]:26054 "EHLO
+	Mon, 20 Mar 2006 22:35:03 -0500
+Received: from thing.hostingexpert.com ([67.15.235.34]:27590 "EHLO
 	thing.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S932269AbWCUDez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 22:34:55 -0500
-Message-ID: <441F745E.1080202@linuxtv.org>
-Date: Mon, 20 Mar 2006 22:34:54 -0500
+	id S965014AbWCUDe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 22:34:59 -0500
+Message-ID: <441F7462.4040707@linuxtv.org>
+Date: Mon, 20 Mar 2006 22:34:58 -0500
 From: Michael Krufky <mkrufky@linuxtv.org>
 User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
 X-Accept-Language: en-us, en
@@ -18,12 +18,10 @@ MIME-Version: 1.0
 To: stable@kernel.org
 CC: lkml <linux-kernel@vger.kernel.org>,
        Mauro Carvalho Chehab <mchehab@infradead.org>,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
-       Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [2.6.16 STABLE PATCH] V4L/DVB (3324): Fix Samsung tuner frequency
- ranges
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
+Subject: [2.6.16 STABLE PATCH] Kconfig: VIDEO_DECODER must select FW_LOADER
 Content-Type: multipart/mixed;
- boundary="------------080609040007060809000801"
+ boundary="------------070904070804000608030500"
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -36,47 +34,47 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------080609040007060809000801
+--------------070904070804000608030500
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-This is a critical patch that didn't get pulled in time for 2.6.16
-Please apply this to 2.6.16.1
+This patch has been backported for 2.6.16.1 from the following patch,
+which is queued for 2.6.17:
+
+V4L/DVB (3495): Kconfig: select VIDEO_CX25840 to build cx25840 a/v 
+decoder module
+http://www.kernel.org/git/?p=linux/kernel/git/mchehab/v4l-dvb.git;a=commitdiff;h=4f767be057d0173eae7ef116de32a3f4f12888a8
 
 
---------------080609040007060809000801
+
+--------------070904070804000608030500
 Content-Type: text/x-patch;
- name="Fix_Samsung_tuner_frequency_ranges.patch"
+ name="cx25840_must_select_fw_loader.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="Fix_Samsung_tuner_frequency_ranges.patch"
+ filename="cx25840_must_select_fw_loader.patch"
 
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Date: Mon, 6 Feb 2006 21:52:24 +0000 (+0200)
-Subject: V4L/DVB (3324): Fix Samsung tuner frequency ranges
-X-Git-Url: http://www.kernel.org/git/?p=linux/kernel/git/mchehab/v4l-dvb.git;a=commitdiff;h=df821f758c37dce41fbef0d20932909332619f04
+From: Michael Krufky <mkrufky@linuxtv.org>
+Date: Mon, 20 Mar 2006 22:17:00 +0000 (-0500)
+Subject: Kconfig: VIDEO_DECODER must select FW_LOADER
 
-V4L/DVB (3324): Fix Samsung tuner frequency ranges
+The cx25840 module requires external firmware in order to function,
+so it must select FW_LOADER, but saa7115 and saa7129 do not require it.
 
-Forgot to take the NTSC frequency offset into account.
-
-Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
+Cc: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
---- linux-2.6.16.orig/drivers/media/video/tuner-types.c
-+++ linux-2.6.16/drivers/media/video/tuner-types.c
-@@ -1087,8 +1087,8 @@
- /* ------------ TUNER_SAMSUNG_TCPN_2121P30A - Samsung NTSC ------------ */
- 
- static struct tuner_range tuner_samsung_tcpn_2121p30a_ntsc_ranges[] = {
--	{ 16 * 175.75 /*MHz*/, 0x01, },
--	{ 16 * 410.25 /*MHz*/, 0x02, },
-+	{ 16 * 130.00 /*MHz*/, 0x01, },
-+	{ 16 * 364.50 /*MHz*/, 0x02, },
- 	{ 16 * 999.99        , 0x08, },
- };
- 
+--- 
+linux-2.6.16.orig/drivers/media/video/Kconfig
++++ linux-2.6.16/drivers/media/video/Kconfig
+@@ -349,6 +349,7 @@
+ config VIDEO_DECODER
+ 	tristate "Add support for additional video chipsets"
+ 	depends on VIDEO_DEV && I2C && EXPERIMENTAL
++	select FW_LOADER
+ 	---help---
+ 	  Say Y here to compile drivers for SAA7115, SAA7127 and CX25840
+ 	  video decoders.
 
---------------080609040007060809000801--
+--------------070904070804000608030500--

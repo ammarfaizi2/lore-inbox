@@ -1,95 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWCUWoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWCUWsI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964865AbWCUWoE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 17:44:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWCUWoD
+	id S964867AbWCUWsI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 17:48:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWCUWsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 17:44:03 -0500
-Received: from xenotime.net ([66.160.160.81]:62624 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964865AbWCUWoB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 17:44:01 -0500
-Date: Tue, 21 Mar 2006 14:46:07 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: clemens@ladisch.de, akpm <akpm@osdl.org>
-Subject: [PATCH] hpet header sanitization
-Message-Id: <20060321144607.153d1943.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Mar 2006 17:48:08 -0500
+Received: from web60714.mail.yahoo.com ([209.73.178.217]:687 "HELO
+	web60714.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S964867AbWCUWsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 17:48:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
+  b=kmXGXyixmDLVIG4cWl2V3fr8fSyt8JCgYiovVFfiyWtMX6d5gR18qpeybo1qSiD4sDACL67htxslWpHnP/z4LKAJ6yt9GCdF1tM1hYSNRBNbU2f2VyGcFSdo12DJDIk0VKyW8xzq+ia7VaX204X28Y9okxTRCAmFK84mZeqg4Rw=  ;
+Message-ID: <20060321224804.21790.qmail@web60714.mail.yahoo.com>
+Date: Tue, 21 Mar 2006 14:48:04 -0800 (PST)
+From: "Todd E. Johnson" <tejohnson@yahoo.com>
+Reply-To: "Todd E. Johnson" <tejohnson@yahoo.com>
+Subject: Re: [RFC][PATCH] USB touch screen driver, all-in-one
+To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>,
+       Lanslott Gish <lanslott.gish@gmail.com>
+Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-usb <linux-usb-devel@lists.sourceforge.net>, hc@mivu.no,
+       vojtech@suse.cz
+In-Reply-To: <200603212122.03398.daniel.ritz-ml@swissonline.ch>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
-
-Add __KERNEL__ block.
-Use __KERNEL__ to allow ioctl interface to be usable.
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- include/linux/hpet.h |   36 ++++++++++++++++++++----------------
- 1 files changed, 20 insertions(+), 16 deletions(-)
-
---- linux-2616-work.orig/include/linux/hpet.h
-+++ linux-2616-work/include/linux/hpet.h
-@@ -3,6 +3,8 @@
+Howdy,
  
- #include <linux/compiler.h>
+This has always been a bit of a fuzzy area to me since the 3M / Microtouch controllers support  calibration within the device.  (i.e.:  send raw output, or the devices internally calculated - calibrated - output.).  After asking this question long ago, I decided to document it and move on...  Is there a userland calibration mechanism for anything in the userspace besides something like QT Embedded?
+
  
-+#ifdef __KERNEL__
-+
- /*
-  * Offsets into HPET Registers
-  */
-@@ -85,22 +87,6 @@ struct hpet {
- #define	Tn_FSB_INT_ADDR_SHIFT		(32UL)
- #define	Tn_FSB_INT_VAL_MASK		(0x00000000ffffffffULL)
+Regards, 
  
--struct hpet_info {
--	unsigned long hi_ireqfreq;	/* Hz */
--	unsigned long hi_flags;	/* information */
--	unsigned short hi_hpet;
--	unsigned short hi_timer;
--};
--
--#define	HPET_INFO_PERIODIC	0x0001	/* timer is periodic */
--
--#define	HPET_IE_ON	_IO('h', 0x01)	/* interrupt on */
--#define	HPET_IE_OFF	_IO('h', 0x02)	/* interrupt off */
--#define	HPET_INFO	_IOR('h', 0x03, struct hpet_info)
--#define	HPET_EPI	_IO('h', 0x04)	/* enable periodic */
--#define	HPET_DPI	_IO('h', 0x05)	/* disable periodic */
--#define	HPET_IRQFREQ	_IOW('h', 0x6, unsigned long)	/* IRQFREQ usec */
--
- /*
-  * exported interfaces
-  */
-@@ -133,4 +119,22 @@ int hpet_register(struct hpet_task *, in
- int hpet_unregister(struct hpet_task *);
- int hpet_control(struct hpet_task *, unsigned int, unsigned long);
- 
-+#endif /* __KERNEL__ */
-+
-+struct hpet_info {
-+	unsigned long hi_ireqfreq;	/* Hz */
-+	unsigned long hi_flags;	/* information */
-+	unsigned short hi_hpet;
-+	unsigned short hi_timer;
-+};
-+
-+#define	HPET_INFO_PERIODIC	0x0001	/* timer is periodic */
-+
-+#define	HPET_IE_ON	_IO('h', 0x01)	/* interrupt on */
-+#define	HPET_IE_OFF	_IO('h', 0x02)	/* interrupt off */
-+#define	HPET_INFO	_IOR('h', 0x03, struct hpet_info)
-+#define	HPET_EPI	_IO('h', 0x04)	/* enable periodic */
-+#define	HPET_DPI	_IO('h', 0x05)	/* disable periodic */
-+#define	HPET_IRQFREQ	_IOW('h', 0x6, unsigned long)	/* IRQFREQ usec */
-+
- #endif				/* !__HPET__ */
+Todd E. Johnson 
 
 
----
+----- Original Message ----
+From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+To: Lanslott Gish <lanslott.gish@gmail.com>
+Cc: Greg KH <greg@kroah.com>; Dmitry Torokhov <dmitry.torokhov@gmail.com>; linux-kernel <linux-kernel@vger.kernel.org>; linux-usb <linux-usb-devel@lists.sourceforge.net>; tejohnson@yahoo.com; hc@mivu.no; vojtech@suse.cz
+Sent: Tuesday, March 21, 2006 3:22:02 PM
+Subject: Re: [RFC][PATCH] USB touch screen driver, all-in-one
+
+
+On Tuesday 21 March 2006 05.23, Lanslott Gish wrote:
+> On 3/18/06, Daniel Ritz <daniel.ritz-ml@swissonline.ch> wrote:
+> > On Friday 17 March 2006 03.46, Lanslott Gish wrote:
+> > >
+> > > BTW, may i also suggest add more module_param to max_x, max_y, min_x, min_y  ?
+> > > i think these options is useful, too.
+> >
+> > no chance. (and if i remember correctly it's possible via evdev ioctl)
+> >
+> 
+> 
+> i could use my device in X without evtouch.o or any X-module or any
+> xorg.conf modified, but wrong positions to cursor.
+> 
+> and consider using touchscreens in console(framebuffer) mode, or
+> without evtouch in X, or devices do not provide several functions.
+> 
+> suppose we can something in /etc/rc.d/rc.local or some files:
+> 
+> /sbin/modprobe usbtouchscreen swap_xy=1,min_x=123,max_y=456,....
+> 
+> we don't need any calibrate tool or guest several functions from
+> devices, and complete this module.
+> 
+> 
+> 
+> Anyway, just some suggestions. thx :)
+
+well, all nice and good, but...it doesn't belong into the driver.
+it would belong into the input subsystem or evdev. there are other
+absolute devices not handled by this driver that need the same
+calibration...
+but i still think it should be in userspace...
+
+still, it might be worth discussing it with the input hackers.
+
+> 
+> regards,
+> 
+> Lanslott Gish
+> 
+
+rgds
+-daniel

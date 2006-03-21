@@ -1,34 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWCUAbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWCUAh5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbWCUAbY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 19:31:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWCUAbY
+	id S1751388AbWCUAh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 19:37:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWCUAh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 19:31:24 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:32216 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932225AbWCUAbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 19:31:23 -0500
-Date: Mon, 20 Mar 2006 19:32:05 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Matheus Izvekov <mizvekov@gmail.com>, Neil Brown <neilb@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Who uses the 'nodev' flag in /proc/filesystems ???
-Message-ID: <20060321003205.GA7860@ccure.user-mode-linux.org>
-References: <17436.60328.242450.249552@cse.unsw.edu.au> <Pine.LNX.4.61.0603191024420.1409@yvahk01.tjqt.qr> <17438.13214.307942.212773@cse.unsw.edu.au> <Pine.LNX.4.61.0603201659250.22395@yvahk01.tjqt.qr> <305c16960603200817u3c8e4023nf2621245fdb0ed65@mail.gmail.com> <20060320175633.GA5797@ccure.user-mode-linux.org> <305c16960603201122t79dd93c1t484c83acf4ed191b@mail.gmail.com> <20060320194815.GA6376@ccure.user-mode-linux.org> <Pine.LNX.4.61.0603202057420.14231@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0603202057420.14231@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 20 Mar 2006 19:37:57 -0500
+Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:31619 "EHLO
+	mail4.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751383AbWCUAh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 19:37:56 -0500
+Date: Mon, 20 Mar 2006 19:37:51 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@excalibur.intercode
+To: "David S. Miller" <davem@davemloft.net>
+cc: chrisw@sous-sol.org, cxzhang@watson.ibm.com, netdev@axxeo.de,
+       ioe-lkml@rameria.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] scm: fold __scm_send() into scm_send()
+In-Reply-To: <20060320.152838.68858441.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.64.0603201936030.6749@excalibur.intercode>
+References: <200603201244.58507.netdev@axxeo.de> <20060320201802.GS15997@sorel.sous-sol.org>
+ <20060320213636.GT15997@sorel.sous-sol.org> <20060320.152838.68858441.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 20, 2006 at 08:58:58PM +0100, Jan Engelhardt wrote:
-> But hey, when hostfs is nodev-but-fsckable, then looking for /sbin/fsck.XYZ 
-> is even better than reading /proc/filesystems...
+On Mon, 20 Mar 2006, David S. Miller wrote:
 
-It's humfs, BTW (hostfs consistency is maintained by the host), but yes.
+> I'm seriously considering backing out Catherine's AF_UNIX patch from
+> the net-2.6.17 tree before submitting it to Linus later today so that
+> none of this crap goes in right now.
 
-				Jeff
+I believe Catherine is away this week, so it's probably best to drop the 
+code and wait till she gets back and we can get it 100% right.
+
+Sorry, this is my fault, I should have caught this problem.
+
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>

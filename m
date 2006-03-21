@@ -1,69 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWCWQQT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161002AbWCWQVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932463AbWCWQQT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 11:16:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030260AbWCWQQT
+	id S1161002AbWCWQVE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 11:21:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161004AbWCWQVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 11:16:19 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:45247 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S932120AbWCWQQS
+	Thu, 23 Mar 2006 11:21:04 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24584 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1161002AbWCWQVC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 11:16:18 -0500
-Message-ID: <4422C9BC.3090400@cosmosbay.com>
-Date: Thu, 23 Mar 2006 17:15:56 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Jesper Dangaard Brouer <hawk@diku.dk>
-CC: "David S. Miller" <davem@davemloft.net>, dipankar@in.ibm.com,
-       Robert Olsson <Robert.Olsson@data.slu.se>, jens.laas@data.slu.se,
-       hans.liss@its.uu.se, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, mike.stroyan@hp.com,
-       Suresh Bhogavilli <sbhogavilli@verisign.com>
-Subject: Re: Kernel panic: Route cache, RCU, possibly FIB trie.
-References: <Pine.LNX.4.61.0603211113550.15500@ask.diku.dk> <20060321.023705.26111240.davem@davemloft.net> <Pine.LNX.4.61.0603211538280.28173@ask.diku.dk> <20060321.132514.24407022.davem@davemloft.net> <Pine.LNX.4.61.0603231536180.29788@ask.diku.dk> <Pine.LNX.4.61.0603231637360.29788@ask.diku.dk>
-In-Reply-To: <Pine.LNX.4.61.0603231637360.29788@ask.diku.dk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 23 Mar 2006 17:15:58 +0100 (CET)
+	Thu, 23 Mar 2006 11:21:02 -0500
+Date: Tue, 21 Mar 2006 15:31:57 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: tglx@linutronix.de, jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, trini@kernel.crashing.org
+Subject: Re: [patch 1/2] Validate itimer timeval from userspace
+Message-ID: <20060321153157.GA2500@ucw.cz>
+References: <20060318142827.419018000@localhost.localdomain> <20060318142830.607556000@localhost.localdomain> <20060318120728.63cbad54.akpm@osdl.org> <9a8748490603181223i32391d96nf794e93aa734f785@mail.gmail.com> <1142713820.17279.140.camel@localhost.localdomain> <20060318130446.18f4ae40.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060318130446.18f4ae40.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Dangaard Brouer a écrit :
+Hi!
 
->> grep . /proc/sys/net/ipv4/route/*
->> /proc/sys/net/ipv4/route/error_burst:5000
->> /proc/sys/net/ipv4/route/error_cost:1000
->> grep: /proc/sys/net/ipv4/route/flush: Operation not permitted
->> /proc/sys/net/ipv4/route/gc_elasticity:8
->> /proc/sys/net/ipv4/route/gc_interval:60
->> /proc/sys/net/ipv4/route/gc_min_interval:0
->> /proc/sys/net/ipv4/route/gc_min_interval_ms:500
->> /proc/sys/net/ipv4/route/gc_thresh:65536
->> /proc/sys/net/ipv4/route/gc_timeout:300
->> /proc/sys/net/ipv4/route/max_delay:10
->> /proc/sys/net/ipv4/route/max_size:1048576
->> /proc/sys/net/ipv4/route/min_adv_mss:256
->> /proc/sys/net/ipv4/route/min_delay:2
->> /proc/sys/net/ipv4/route/min_pmtu:552
->> /proc/sys/net/ipv4/route/mtu_expires:600
->> /proc/sys/net/ipv4/route/redirect_load:20
->> /proc/sys/net/ipv4/route/redirect_number:9
->> /proc/sys/net/ipv4/route/redirect_silence:20480
->> /proc/sys/net/ipv4/route/secret_interval:600
+> >  > I don't like potential userspace breakage any more than the next guy,
+> >  > but if the breakage only affects buggy applications then I think it's
+> >  > more acceptable.
+> > 
+> >  Yes, it only breaks buggy applications.
+> 
+> But we live in the real world.  There could be four-year-old applications
+> which passed all their Linux QA and which work perfectly well.
+> 
+> Then the kernel guys make some correctness change and that application
+> totally fails on new kernels.  Your choice is a) don't use new kernels or
+> b) hold off the new kernel until your provider (if the company or internal
+> group still exists) has put out a new version of the application and then
+> you wear the (considerable) cost of upgrading what was a perfectly-running
+> application.
+> 
+> And whose fault was it?  Ours.  Because older kernels had the wrong
+> checking (thus causing that app's QA to pass) and because later kernels
+> changed the rules.
 
-I would say : Change the settings :)
+Can we do printk now and fix it after a while in feature-removal?
+Or maybe we shoul create new bug-removal file :-).
+						Pavel
 
-echo 2 > /proc/sys/net/ipv4/route/gc_elasticity
-echo 1 > /proc/sys/net/ipv4/route/gc_interval
-echo 131072 > /proc/sys/net/ipv4/route/gc_thresh
-
-and watch the output of :
-
-rtstat -c 100 -i 1
-
-(you might have to recompile lnstat/rtstat from iproute2 package from
-
-http://developer.osdl.org/dev/iproute2/download/
-
-Eric
+-- 
+Thanks, Sharp!

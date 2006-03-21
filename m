@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbWCUDeq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWCUDe4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbWCUDeq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 22:34:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWCUDeq
+	id S932269AbWCUDe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 22:34:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWCUDe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 22:34:46 -0500
-Received: from thing.hostingexpert.com ([67.15.235.34]:22726 "EHLO
+	Mon, 20 Mar 2006 22:34:56 -0500
+Received: from thing.hostingexpert.com ([67.15.235.34]:26054 "EHLO
 	thing.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S932160AbWCUDep (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 22:34:45 -0500
-Message-ID: <441F7448.2080602@m1k.net>
-Date: Mon, 20 Mar 2006 22:34:32 -0500
-From: Michael Krufky <mkrufky@m1k.net>
+	id S932269AbWCUDez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 22:34:55 -0500
+Message-ID: <441F745E.1080202@linuxtv.org>
+Date: Mon, 20 Mar 2006 22:34:54 -0500
+From: Michael Krufky <mkrufky@linuxtv.org>
 User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
@@ -23,12 +23,12 @@ CC: lkml <linux-kernel@vger.kernel.org>,
 Subject: [2.6.16 STABLE PATCH] V4L/DVB (3324): Fix Samsung tuner frequency
  ranges
 Content-Type: multipart/mixed;
- boundary="------------050803000908080306040106"
+ boundary="------------080609040007060809000801"
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
 X-AntiAbuse: Original Domain - vger.kernel.org
 X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
+X-AntiAbuse: Sender Address Domain - linuxtv.org
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
@@ -36,7 +36,7 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------050803000908080306040106
+--------------080609040007060809000801
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
@@ -44,7 +44,7 @@ This is a critical patch that didn't get pulled in time for 2.6.16
 Please apply this to 2.6.16.1
 
 
---------------050803000908080306040106
+--------------080609040007060809000801
 Content-Type: text/x-patch;
  name="Fix_Samsung_tuner_frequency_ranges.patch"
 Content-Transfer-Encoding: 7bit
@@ -79,4 +79,4 @@ Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
  };
  
 
---------------050803000908080306040106--
+--------------080609040007060809000801--

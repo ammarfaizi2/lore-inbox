@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbWCUDQn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965008AbWCUDZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964997AbWCUDQn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 22:16:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWCUDQn
+	id S965008AbWCUDZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 22:25:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWCUDZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 22:16:43 -0500
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:45392 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S1751471AbWCUDQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 22:16:42 -0500
-X-IronPort-AV: i="4.03,112,1141632000"; 
-   d="scan'208"; a="1786711061:sNHT27283302"
-To: linux-kernel@vger.kernel.org
-Subject: Re: nommu_map_sg: overflow with ata_piix?
-X-Message-Flag: Warning: May contain useful information
-References: <adawteoa9pc.fsf@cisco.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 20 Mar 2006 19:16:37 -0800
-In-Reply-To: <adawteoa9pc.fsf@cisco.com> (Roland Dreier's message of "Mon, 20 Mar 2006 17:05:35 -0800")
-Message-ID: <adaoe00a3my.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
+	Mon, 20 Mar 2006 22:25:58 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:26573 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751480AbWCUDZ5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 22:25:57 -0500
+Date: Tue, 21 Mar 2006 08:55:20 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+To: 7eggert@gmx.de
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] slab: introduce kmem_cache_zalloc allocator
+Message-ID: <20060321032520.GB8954@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+References: <5Ssjj-314-69@gated-at.bofh.it> <5Sv7o-7l5-23@gated-at.bofh.it> <5Svh9-7xW-61@gated-at.bofh.it> <5SvK8-88q-41@gated-at.bofh.it> <E1FLPjT-0000o9-Sy@be1.lrz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 21 Mar 2006 03:16:38.0248 (UTC) FILETIME=[DDD94680:01C64C95]
+Content-Disposition: inline
+In-Reply-To: <E1FLPjT-0000o9-Sy@be1.lrz>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> nommu_map_sg: overflow 11b8a9000+4096 of device mask ffffffff
+> > Ok, please keep the interface - build kmem_cache_zalloc() on top of
+> > what I suggest.
+> 
+> The benefit of using *zalloc is the ability to skip the memset by using
+> pre-zeroed memory or to use more efficient ways of zeroing a page.
+> Having to check the value of a parameter wouldn't help.
 
-Never mind, I'm (sort of) an idiot.  The kernel that complained like
-that had CONFIG_GART_IOMMU=n -- I foolishly thought, "I have a Xeon,
-which can't do GART IOMMU, so I don't need that option."  I didn't
-realize that it also enables swiotlb.  Once I read the help text I was
-OK.
+Hmm... the current patch directly does a memset(). Are you talking about
+possible optimizations to kmem_cache_zalloc()?
 
- - R.
+Balbir

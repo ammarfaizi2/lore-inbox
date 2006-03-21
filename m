@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965104AbWCUT5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965101AbWCUUCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965104AbWCUT5a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 14:57:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbWCUT5a
+	id S965101AbWCUUCK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 15:02:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbWCUUCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 14:57:30 -0500
-Received: from mxsf41.cluster1.charter.net ([209.225.28.173]:10427 "EHLO
-	mxsf41.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S965104AbWCUT53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 14:57:29 -0500
+	Tue, 21 Mar 2006 15:02:09 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:8458 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S965101AbWCUUCI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 15:02:08 -0500
+Message-ID: <44205BC5.9040200@cfl.rr.com>
+Date: Tue, 21 Mar 2006 15:02:13 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17440.23205.489606.464029@smtp.charter.net>
-Date: Tue, 21 Mar 2006 14:57:25 -0500
-From: "John Stoffel" <john@stoffel.org>
 To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
 Subject: Re: VFAT: Can't create file named 'aux.h'?
+References: <1142890822.5007.18.camel@localhost.localdomain> <20060320134533.febb0155.rdunlap@xenotime.net> <dvn835$lvo$1@terminus.zytor.com> <Pine.LNX.4.61.0603211840020.21376@yvahk01.tjqt.qr> <44203B86.5000003@zytor.com> <Pine.LNX.4.61.0603211854150.21376@yvahk01. <442050C8.1020200@zytor.com>
 In-Reply-To: <442050C8.1020200@zytor.com>
-References: <1142890822.5007.18.camel@localhost.localdomain>
-	<20060320134533.febb0155.rdunlap@xenotime.net>
-	<dvn835$lvo$1@terminus.zytor.com>
-	<Pine.LNX.4.61.0603211840020.21376@yvahk01.tjqt.qr>
-	<44203B86.5000003@zytor.com>
-	<Pine.LNX.4.61.0603211854150.21376@yvahk01.tjqt.qr>
-	<442040CB.2020201@zytor.com>
-	<Pine.LNX.4.61.0603211911090.2314@yvahk01.tjqt.qr>
-	<44204BD9.1090103@zytor.com>
-	<Pine.LNX.4.61.0603212005250.6840@yvahk01.tjqt.qr>
-	<442050C8.1020200@zytor.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Mar 2006 20:02:20.0732 (UTC) FILETIME=[5CC59FC0:01C64D22]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14337.000
+X-TM-AS-Result: No--7.300000-5.000000-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "H" == H Peter Anvin <hpa@zytor.com> writes:
+H. Peter Anvin wrote:
+> Probably it would be worth trying to create "aux.h" under XP and see 
+> what happens.  Unfortunately I don't have a 'doze system handy at the 
+> moment.
 
-H> It probably depends on how picky you want to be.  As far as I know,
-H> even NT will recognize a character device name without leaving
-H> \DEV\, even though \DEV\ has been the "official" device prefix
-H> since DOS 2.0.
+kernel32.dll's CreateFile() and other apis normally perform translation 
+which includes special handling for dos device names including AUX.  You 
+can bypass this by prefixing the absolute file name with the string 
+"\\?\" and this will allow you to create a file named AUX.  It also 
+allows you to reference file names with absolute paths greater than 255 
+characters.
 
-H> Probably it would be worth trying to create "aux.h" under XP and
-H> see what happens.  Unfortunately I don't have a 'doze system handy
-H> at the moment.
 
-Unfortunately I do.  The desktop won't let me create a file named
-'aux' or 'aux.h' at all.  I tried fooling it with 'auxx' and then
-renaming it it 'aux' but it won't let me using the mouse stuff.
-
-Still wouldn't let me create that name from the 'cmd' shell either.  
-
-John

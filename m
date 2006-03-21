@@ -1,79 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965072AbWCUTPx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965048AbWCUTPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965072AbWCUTPx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 14:15:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965071AbWCUTPx
+	id S965048AbWCUTPr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 14:15:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965067AbWCUTPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 14:15:53 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:7611 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S965067AbWCUTPv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 14:15:51 -0500
-Date: Tue, 21 Mar 2006 20:15:47 +0100
-From: Sander <sander@humilis.net>
+	Tue, 21 Mar 2006 14:15:47 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:26339 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965072AbWCUTPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 14:15:45 -0500
+Subject: Re: [PATCH 000/141] V4L/DVB updates part 1
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Sander <sander@humilis.net>, Mark Lord <liml@rtr.ca>,
-       Mark Lord <lkml@rtr.ca>, Jeff Garzik <jeff@garzik.org>,
-       Andrew Morton <akpm@osdl.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.xx: sata_mv: another critical fix
-Message-ID: <20060321191547.GC20426@favonius>
-Reply-To: sander@humilis.net
-References: <441F4F95.4070203@garzik.org> <200603210000.36552.lkml@rtr.ca> <20060321121354.GB24977@favonius> <442004E4.7010002@rtr.ca> <20060321153708.GA11703@favonius> <Pine.LNX.4.64.0603211028380.3622@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0603211028380.3622@g5.osdl.org>
-X-Uptime: 19:36:20 up 18 days, 23:46, 34 users,  load average: 1.49, 2.29, 2.47
-User-Agent: Mutt/1.5.11+cvs20060126
+Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
+       video4linux-list@redhat.com, akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.64.0603211035390.3622@g5.osdl.org>
+References: <20060320150819.PS760228000000@infradead.org>
+	 <Pine.LNX.4.64.0603210741120.3622@g5.osdl.org>
+	 <Pine.LNX.4.64.0603210748340.3622@g5.osdl.org>
+	 <1142962995.4749.39.camel@praia>
+	 <Pine.LNX.4.64.0603210946040.3622@g5.osdl.org>
+	 <1142965478.4749.58.camel@praia>
+	 <Pine.LNX.4.64.0603211035390.3622@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Tue, 21 Mar 2006 16:15:37 -0300
+Message-Id: <1142968537.4749.96.camel@praia>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1-3mdk 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote (ao):
-> On Tue, 21 Mar 2006, Sander wrote:
-> > The system just freezes. Rock solid. No sysrq, no ctrl-alt-del, nothing.
+Linus,
+
+Em Ter, 2006-03-21 às 10:42 -0800, Linus Torvalds escreveu:
 > 
-> Can you enable the NMI watchdog? It could be a PCI bus lockup (in which 
-> case nothing will help), but if it's some interrupts-off busy loop 
-> (whether due to a spinlock deadlock or due to the driver just spinning) 
-> then nmi-watchdog should help.
+> On Tue, 21 Mar 2006, Mauro Carvalho Chehab wrote:
+> > 
+> > What is sad is that I can't determinate the root cause of this breakage,
+> > but it seemed to be associated with merging handling at stg or git.
 > 
-> Of course, that requires that you have support for local/io-APIC (ie if 
-> UP, please select CONFIG_X86_UP_.*APIC)
+> Note that the bad commit has a totally different commit message from any 
+> of your other merges. It was this one:
+> 
+> 	diff-tree e338b736f1aee59b757130ffdc778538b7db18d6 (from cb31c70cdf1ac7034bed5f83d543f4888c39888a)
+> 	Author:     Mauro Carvalho Chehab <mchehab@infradead.org>
+> 	AuthorDate: Fri Mar 10 01:30:04 2006 -0300
+> 	Commit:     Mauro Carvalho Chehab <mchehab@infradead.org>
+> 	CommitDate: Fri Mar 10 01:30:04 2006 -0300
+> 
+> 	    Merging Linus tree
+> 
+> 	:100644 100644 be5ae600f5337dbb14daa8d4cace110486e14f79 81bc51369f59a413108fd8b150c3090541ba49f8 M      Documentation/feature-removal-schedule.txt
+> 	:100644 100644 75205391b335f85c9b8a599d0d3b4c0dd1a8b41b fc99075e0af47f0b73a2ae2dfb7d19920c604dea M      Documentation/kernel-parameters.txt
+> 	:100644 100644 9006063e73691da7b68449955a135f7c9317e2cd da677f829f7689966bf09aeda6d89fc4b6a876d1 M      arch/alpha/kernel/irq.c
+> 	...
+> 
+> ie it does _not_ fit the pattern of your other merges.
 
-The kernel is compiled for x86-64 and SMP (dual core opteron), so if I
-understand the NMI watchdog documentation correctly, it is automagically
-enabled.
+Weird, I can't see all those stuff here. It shows something like
+(running from master copy at kernel.org):
 
-# dmesg | grep -i nmi
-[    0.000000] ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
-[    0.000000] ACPI: LAPIC_NMI (acpi_id[0x01] high edge lint[0x1])
-[   75.280604] testing NMI watchdog ... OK.
+$ git-show e338b736f1aee59b757130ffdc778538b7db18d6
+diff-tree e338b736f1aee59b757130ffdc778538b7db18d6 (from
+cb31c70cdf1ac7034bed5f83d543f4888c39888a)
+Author: Mauro Carvalho Chehab <mchehab@infradead.org>
+Date:   Fri Mar 10 01:30:04 2006 -0300
 
-# grep -i nmi /proc/interrupts 
-NMI:         52         43 
+    Merging Linus tree
 
-(seems to increment _very_ slowly).
+diff --git a/Documentation/feature-removal-schedule.txt
+b/Documentation/feature-removal-schedule.txt
+...
 
-Is there anything else I can do to see some crash info?
+So, after the merging message, I have a normal diff with:
 
-Btw, it always seems to crash during the md5sum of this test:
+ 179 files changed, 1274 insertions(+), 785 deletions(-)
 
-for i in `seq 4`
-do dd if=/dev/zero of=bigfile.$i bs=1024k count=10000
-dd if=bigfile.$i of=/dev/null bs=1024k count=10000
-done
-time md5sum bigfile.*
-time rm bigfile.*
+Seeming all perfect from my knowledge about git.
 
-One time during many tests I needed to run this twice before it went
-bellyup.
+I don't want to bother you more with this subject. If you don't mind,
+I'll make a brief from what we've discussed here, and I'll open a thread
+at git mailing list c/c you. 
 
-I was not able to let 2.6.16-rc6-mm2 crash yet.
+>From my part, I'm not comfortable with a weird situation that generated
+such bad merging, so, I'm very concerned about it. I'm here to
+contribute, not to disturb with bad patches or bad merges. If this issue
+is not addressed, it may generate troubles in the future. 
 
-I'll test 2.6.16-rc6-mm1 now.
+> 		Linus
+Cheers, 
+Mauro.
 
--- 
-Humilis IT Services and Solutions
-http://www.humilis.net

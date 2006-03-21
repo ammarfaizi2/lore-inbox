@@ -1,47 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030375AbWCUNsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030374AbWCUNs0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030375AbWCUNsK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 08:48:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbWCUNsK
+	id S1030374AbWCUNs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 08:48:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbWCUNsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 08:48:10 -0500
-Received: from mail.gmx.de ([213.165.64.20]:40652 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030375AbWCUNsJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 08:48:09 -0500
-X-Authenticated: #14349625
-Subject: Re: interactive task starvation
-From: Mike Galbraith <efault@gmx.de>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       bugsplatter@gmail.com
-In-Reply-To: <20060321133842.GB26171@w.ods.org>
-References: <200603090036.49915.kernel@kolivas.org>
-	 <200603212253.03637.kernel@kolivas.org> <1142946610.7807.43.camel@homer>
-	 <200603220013.15870.kernel@kolivas.org>  <20060321133842.GB26171@w.ods.org>
-Content-Type: text/plain
-Date: Tue, 21 Mar 2006 14:48:14 +0100
-Message-Id: <1142948894.7807.69.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Tue, 21 Mar 2006 08:48:25 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:8622 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S1030374AbWCUNsY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 08:48:24 -0500
+Message-ID: <44200223.4020404@t-online.de>
+Date: Tue, 21 Mar 2006 14:39:47 +0100
+From: Knut Petersen <Knut_Petersen@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.10) Gecko/20050726
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>
+Subject: [BUG] compiler warning, kernel 2.6.16
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+X-ID: X7-U88ZOZe+sO0psPtyoR0gbMitChVOkpZLFzgl6FafMpoGfOI5UsJ@t-dialin.net
+X-TOI-MSGID: 46c233a0-6e68-4df6-991e-021d3ef65a1a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-21 at 14:38 +0100, Willy Tarreau wrote:
-> What you describe is exactly a case for a tunable. Different people with
-> different workloads want different values. Seems fair enough. After all,
-> we already have /proc/sys/vm/swappiness, and things like that for the same
-> reason : the default value should suit most users, and the ones with
-> knowledge and different needs can tune their system. Maybe grace_{g1,g2}
-> should be renamed to be more explicit, may be we can automatically tune
-> one from the other and let only one tunable. But if both have a useful
-> effect, I don't see a reason for hiding them.
+If CONFIG_SWAP is _not_ set, gcc complains:
 
-I'm wide open to suggestions.  I tried to make it functional, flexible,
-and above all, dirt simple.  Adding 'acceptable' would be cool :)
+/src/linux-2.6.16-tfix/mm/vmscan.c: In function `remove_mapping':
+/src/linux-2.6.16-tfix/mm/vmscan.c:398: warning: unused variable `swap'
 
-	-Mike
-
+cu,
+ knut

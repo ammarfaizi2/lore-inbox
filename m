@@ -1,45 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751699AbWCUNdc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751690AbWCUNhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751699AbWCUNdc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 08:33:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751701AbWCUNdc
+	id S1751690AbWCUNhS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 08:37:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751702AbWCUNhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 08:33:32 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:24535 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751696AbWCUNda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 08:33:30 -0500
-Subject: [patch] [trivial] remove needless check in nfs_opendir()
-From: Carsten Otte <cotte@de.ibm.com>
-Reply-To: cotte@freenet.de
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: IBM Deutschland Entwicklung
-Date: Tue, 21 Mar 2006 14:33:52 +0100
-Message-Id: <1142948032.6243.17.camel@cotte.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Tue, 21 Mar 2006 08:37:18 -0500
+Received: from smtp-14.masterhost.ru ([83.222.24.114]:42306 "HELO
+	smtp-14.masterhost.ru") by vger.kernel.org with SMTP
+	id S1751690AbWCUNhQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 08:37:16 -0500
+Date: Tue, 21 Mar 2006 16:36:50 +0300
+From: Evgeny Stepanischev <bolk@hitv.ru>
+X-Priority: 3 (Normal)
+Message-ID: <506113975.20060321163650@hitv.ru>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.16/piix
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-local variable res was initialized to 0 - no check needed here.
 
-signed-off-by: Carsten Otte <cotte@de.ibm.com>
---
-diff -ruN linux-2.6.16/fs/nfs/dir.c linux-2.6.16-fix/fs/nfs/dir.c
---- linux-2.6.16/fs/nfs/dir.c	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6.16-fix/fs/nfs/dir.c	2006-03-21 14:01:41.000000000 +0100
-@@ -131,8 +131,7 @@
- 
- 	lock_kernel();
- 	/* Call generic open code in order to cache credentials */
--	if (!res)
--		res = nfs_open(inode, filp);
-+	res = nfs_open(inode, filp);
- 	unlock_kernel();
- 	return res;
- }
+Can't run 2.6.16 kernel.
 
+
+# make install
+
+sh /usr/src/linux-2.6.16/arch/i386/boot/install.sh 2.6.16 arch/i386/boot/bzImage System.map "/boot"
+WARNING: No module ata_piix found for kernel 2.6.16, continuing anyway
+
+Than I reboot I see "can't find superblock: kernel panic"
 

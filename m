@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbWCURSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbWCUR2S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932333AbWCURSl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 12:18:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWCURSl
+	id S1751418AbWCUR2S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 12:28:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWCUR2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 12:18:41 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17336 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932321AbWCURSj (ORCPT
+	Tue, 21 Mar 2006 12:28:18 -0500
+Received: from pat.uio.no ([129.240.130.16]:24256 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751418AbWCUR2Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 12:18:39 -0500
-Date: Tue, 21 Mar 2006 09:18:10 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: mchehab@infradead.org
-cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
-       video4linux-list@redhat.com, akpm@osdl.org
-Subject: Re: [PATCH 00/49] V4L/DVB updates part 2
-In-Reply-To: <20060320192044.PS58609000000@infradead.org>
-Message-ID: <Pine.LNX.4.64.0603210905480.3622@g5.osdl.org>
-References: <20060320192044.PS58609000000@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Mar 2006 12:28:16 -0500
+Subject: Re: DoS with POSIX file locks?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: matthew@wil.cx, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <E1FLdPd-00020d-00@dorka.pomaz.szeredi.hu>
+References: <E1FLIlF-0007zR-00@dorka.pomaz.szeredi.hu>
+	 <20060320121107.GE8980@parisc-linux.org>
+	 <E1FLJLs-00085u-00@dorka.pomaz.szeredi.hu>
+	 <20060320123950.GF8980@parisc-linux.org>
+	 <E1FLJsF-0008A7-00@dorka.pomaz.szeredi.hu>
+	 <20060320153202.GH8980@parisc-linux.org>
+	 <1142878975.7991.13.camel@lade.trondhjem.org>
+	 <E1FLdPd-00020d-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Date: Tue, 21 Mar 2006 12:28:03 -0500
+Message-Id: <1142962083.7987.37.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-4, required 12,
+	autolearn=disabled, AWL 1.00, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-03-21 at 10:44 +0100, Miklos Szeredi wrote:
+> > The _only_ sane way to solve it is to decree that you lose your locks if
+> > you clone(CLONE_FILES) and then call exec(). If there are any
+> > applications out there that rely on the current behaviour,
+> 
+> Apps using LinuxThreads seem to be candidates:
+> 
+>      According to POSIX 1003.1c, a successful `exec*' in one of the
+>      threads should automatically terminate all other threads in the
+>      program.  This behavior is not yet implemented in LinuxThreads.
+>      Calling `pthread_kill_other_threads_np' before `exec*' achieves
+>      much of the same behavior, except that if `exec*' ultimately
+>      fails, then all other threads are already killed.
+> 
+> steal_locks() was probably added as a workaround for this case, no?
 
+Possibly, but LinuxThreads were never really POSIX thread compliant
+anyway. Anyhow, the problem isn't really LinuxThreads, it is rather that
+the existence of the standalone CLONE_FILES flag allows you to do a lot
+of weird inheritance crap with 'posix locks' that the POSIX standards
+committees never even had to consider.
 
-On Mon, 20 Mar 2006, mchehab@infradead.org wrote:
->
-> This patch series is available under v4l-dvb.git tree at:
->         kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git.
+The fact remains, though, that steal_locks() is not a solution: it is
+inherently broken for several of the most common filesystems that are
+out there.
 
-Mauro,
- because this tree contained a really ugly failed merge that was 
-incorrectly done as a commit that was just a diff, I re-wrote the tree by 
-re-doing the merge properly (as far as I can tell) and then cherry-picking 
-the commits that followed it.
+Cheers,
+   Trond
 
-This means that what I just pushed out has the same _contents_ as your 
-tree had, but because it has a fixed-up history, it's really a different 
-tree.
-
-I'm hoping that you can just discard your broken tree, and replace it with 
-mine. So _instead_ of doing a "git pull" on my tree (which will succeed 
-fine, but which will leave you with your old broken history _and_ the new 
-fixed up one), you should just reset your state to mine.
-
-If you have some additional commits on top of your broken history, you can 
-cherry-pick them onto the fixed one. Ok?
-
-I'd suggest you double-check that my result is sensible, but I was pretty 
-careful. It should be all good (the end result matches your end result 
-exactly), but also, the history should be identical apart from the merge 
-mess being cleaned up.
-
-(If it's not clear how to reset to my state, just do something like
-
-    git fetch origin		# get my new updated tree
-    git branch oldbranch	# save your old state in "oldbranch"
-    git reset --hard origin	# switch your master branch over to "origin"
-
-which will reset your state to mine, and leave your old state in the 
-"oldbranch" branch - after that, you can look at both "oldbranch" and the 
-current state, and perhaps move any commits on "oldbranch" over to the new 
-state with "git cherry-pick <cmit-id>").
-
-Holler if you have any issues..
-
-(Oh: when next you push to master.kernel.org, you'll need to use the "-f" 
-flag to _force_ the push, since your new tree will no longer be a superset 
-of your old broken tree with the broken merge).
-
-		Linus

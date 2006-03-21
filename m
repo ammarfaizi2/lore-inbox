@@ -1,95 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWCUUk5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWCUUoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932318AbWCUUk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 15:40:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWCUUk5
+	id S932449AbWCUUoj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 15:44:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWCUUoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 15:40:57 -0500
-Received: from mail.clusterfs.com ([206.168.112.78]:64897 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932318AbWCUUk4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 15:40:56 -0500
-Date: Tue, 21 Mar 2006 13:40:50 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Takashi Sato <sho@bsd.tnes.nec.co.jp>,
-       cmm@us.ibm.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net,
-       Laurent Vivier <Laurent.Vivier@bull.net>, ams@gnu.org,
-       cascardo@minaslivre.org
-Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
-Message-ID: <20060321204050.GU6199@schatzie.adilger.int>
-Mail-Followup-To: "Stephen C. Tweedie" <sct@redhat.com>,
-	Theodore Ts'o <tytso@mit.edu>, Takashi Sato <sho@bsd.tnes.nec.co.jp>,
-	cmm@us.ibm.com, linux-kernel@vger.kernel.org,
-	ext2-devel@lists.sourceforge.net,
-	Laurent Vivier <Laurent.Vivier@bull.net>, ams@gnu.org,
-	cascardo@minaslivre.org
-References: <20060316183549.GK30801@schatzie.adilger.int> <20060316212632.GA21004@thunk.org> <20060316225913.GV30801@schatzie.adilger.int> <20060318170729.GI21232@thunk.org> <20060320063633.GC30801@schatzie.adilger.int> <1142894283.21593.59.camel@orbit.scot.redhat.com> <20060320234829.GJ6199@schatzie.adilger.int> <1142960722.3443.24.camel@orbit.scot.redhat.com> <20060321183822.GC11447@thunk.org> <1142970467.3443.50.camel@orbit.scot.redhat.com>
-Mime-Version: 1.0
+	Tue, 21 Mar 2006 15:44:39 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:59276 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S932367AbWCUUoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 15:44:38 -0500
+Date: Tue, 21 Mar 2006 21:44:35 +0100
+From: Sander <sander@humilis.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Sander <sander@humilis.net>, Mark Lord <liml@rtr.ca>,
+       Mark Lord <lkml@rtr.ca>, Jeff Garzik <jeff@garzik.org>,
+       Andrew Morton <akpm@osdl.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.6.xx: sata_mv: another critical fix
+Message-ID: <20060321204435.GE25066@favonius>
+Reply-To: sander@humilis.net
+References: <441F4F95.4070203@garzik.org> <200603210000.36552.lkml@rtr.ca> <20060321121354.GB24977@favonius> <442004E4.7010002@rtr.ca> <20060321153708.GA11703@favonius> <Pine.LNX.4.64.0603211028380.3622@g5.osdl.org> <20060321191547.GC20426@favonius> <Pine.LNX.4.64.0603211132340.3622@g5.osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1142970467.3443.50.camel@orbit.scot.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <Pine.LNX.4.64.0603211132340.3622@g5.osdl.org>
+X-Uptime: 21:33:22 up 19 days,  1:43, 31 users,  load average: 2.24, 2.82, 2.66
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 21, 2006  14:47 -0500, Stephen C. Tweedie wrote:
-> On Tue, 2006-03-21 at 13:38 -0500, Theodore Ts'o wrote:
-> > Hurd is definitely using the translator field, and I only recently
-> > discovered they are using it to point at a disk block where the name
-> > of the translator program (I'm not 100% sure, but I think it's a
-> > generic, out-of-band, #! sort of functionality).  
+Linus Torvalds wrote (ao):
+> > I was not able to let 2.6.16-rc6-mm2 crash yet.
+> > 
+> > I'll test 2.6.16-rc6-mm1 now.
+> 
+> Yup, narrowing down where exactly things go south is the way to do it.
 
-Argh, sounds fragile in any case.
+2.6.16-rc6-mm1 is as stable as 2.6.16-rc6-mm2 with my simple testcase.
 
-> I'm not proposing breaking any compatibility.  The idea was simply that
-> if we wanted to add new fields to that space in the inode struct, it
-> would be an incompat change on *all* platforms, not just hurd; and that
-> on hurd, an extra side-effect of that incompat flag would be that we now
-> look for translation etc. in an xattr.
+Is there a quick patch to suspect, or should I narrow down some more per
+Andrew's instructions?
 
-I would rather propose that we maintain as much compatibility as possible,
-given that we don't even know what those extra fields might be, and would
-likely need to have yet another compatibility flag on the feature itself.
-Remember that large inodes themselves are incompatible with older kernels
-(maybe predating 2.6.9) so we don't need to worry about 2.4 kernels at all.
-
-> The timestamps are about the only things I can think of that would be
-> safe to ignore.  Everything else --- i_nlinks, i_blocks, checksums,
-> highwatermarking --- has consistency implications and e2fsck would need
-> to be aware of it.
-
-Which would get their own superblock flags if needed.
-
-> Hmm, that should work.  It certainly works nicely for overflow fields.
-> It might complicate things like highwatermarking: a simple HWM
-> implementation would record the amount of the file that is actually
-> initialised in the HWM field, so "0" would actually be an unusual,
-> important special case.
-
-The HWM feature would fall under an INCOMPAT flag then, and possibly
-also set a flag in the inode to indicate validity (similar to my
-proposal for the i_blocks change).
-
-> And "0" would be a potentially valid checksum if we use CRC32, too.
-
-Hmm, is that true?  I thought that 0 was impossible for CRC32, since
-even for a zero-length file the initial value should be 0xffffffff,
-though I'm not 100% sure of that.  
-
-> Using the per-sb field for reserved space, and
-> the in-inode one to determine which fields are actively in use, would
-> avoid such ambiguous cases.
-
-But, doesn't help if i_hwm comes before some other field that is put into
-use, so it has to be handled anyways.
-
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
-
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

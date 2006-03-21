@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbWCUSJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbWCUSKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932357AbWCUSJE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 13:09:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWCUSJE
+	id S932394AbWCUSKI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 13:10:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWCUSKI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 13:09:04 -0500
-Received: from pat.uio.no ([129.240.130.16]:35227 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932357AbWCUSJD (ORCPT
+	Tue, 21 Mar 2006 13:10:08 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:49817 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932394AbWCUSKG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 13:09:03 -0500
-Subject: Re: [NFS] [GIT] NFS client update for 2.6.16
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net, nfsv4@linux-nfs.org
-In-Reply-To: <20060321174634.GA15827@infradead.org>
-References: <1142961077.7987.14.camel@lade.trondhjem.org>
-	 <20060321174634.GA15827@infradead.org>
-Content-Type: text/plain
-Date: Tue, 21 Mar 2006 13:08:52 -0500
-Message-Id: <1142964532.7987.61.camel@lade.trondhjem.org>
+	Tue, 21 Mar 2006 13:10:06 -0500
+Date: Tue, 21 Mar 2006 13:09:57 -0500
+From: Dave Jones <davej@redhat.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: unresolved emu10k1 synth symbols.
+Message-ID: <20060321180957.GB5323@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Takashi Iwai <tiwai@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060321054634.GA5122@redhat.com> <s5hoe0083ek.wl%tiwai@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.826, required 12,
-	autolearn=disabled, AWL 1.17, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hoe0083ek.wl%tiwai@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-21 at 17:46 +0000, Christoph Hellwig wrote:
-> > commit 47989d7454398827500d0e73766270986a3b488f
-> > Author: Chuck Lever <cel@netapp.com>
-> > Date:   Mon Mar 20 13:44:32 2006 -0500
-> > 
-> >     NFS: remove support for multi-segment iovs in the direct write path
-> >     
-> >     Eliminate the persistent use of automatic storage in all parts of the
-> >     NFS client's direct write path to pave the way for introducing support
-> >     for aio against files opened with the O_DIRECT flag.
-> 
-> NACK.  We have patches pending that consolidate ->aio_read/write and
-> ->read/writev into one operation.  this change is completely counterproductive
-> towards that goal which has been discussed on -fsdevel for a while.
+On Tue, Mar 21, 2006 at 12:04:35PM +0100, Takashi Iwai wrote:
 
-How so? The interface is _exactly_ the same as before.
+ > Weird.  By modprobe, snd-emu10k1 module should be loaded in prior to 
+ > snd-emu10k1-synth because of the dependency of above symbols.
+ > 
+ > How is snd-emu10k1-synth module loaded?
 
-We never had support for multiple iovecs in O_DIRECT, but were passing
-around a single iovec entry deep into code that couldn't care less.
+with the following modprobe.conf fragment
 
-Cheers,
-  Trond
+install snd-emu10k1 /sbin/modprobe --ignore-install snd-emu10k1 && /sbin/modprobe snd-emu10k1-synth
 
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

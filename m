@@ -1,78 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751797AbWCUQjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWCUQky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751797AbWCUQjE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 11:39:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751781AbWCUQjD
+	id S1750950AbWCUQky (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 11:40:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWCUQkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 11:39:03 -0500
-Received: from waste.org ([64.81.244.121]:25779 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1751759AbWCUQi7 (ORCPT
+	Tue, 21 Mar 2006 11:40:53 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:11409 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750818AbWCUQkv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 11:38:59 -0500
-Date: Tue, 21 Mar 2006 10:38:52 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/14] RTC: Remove RTC UIP synchronization on x86
-Message-ID: <20060321163852.GM31656@waste.org>
-References: <2.132654658@selenic.com> <20060319181335.GA2389@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060319181335.GA2389@ucw.cz>
-User-Agent: Mutt/1.5.9i
+	Tue, 21 Mar 2006 11:40:51 -0500
+Message-ID: <44202C91.30601@garzik.org>
+Date: Tue, 21 Mar 2006 11:40:49 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [git patches] libata updates
+References: <20060320111658.GA16172@havoc.gtf.org>	 <1142872556.21455.7.camel@localhost.localdomain>	 <441F52F7.8030309@garzik.org> <1142936420.21455.26.camel@localhost.localdomain>
+In-Reply-To: <1142936420.21455.26.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.4 (--)
+X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
+	Content analysis details:   (-2.4 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 19, 2006 at 06:13:36PM +0000, Pavel Machek wrote:
-> Hi!
+Alan Cox wrote:
+> On Llu, 2006-03-20 at 20:12 -0500, Jeff Garzik wrote:
 > 
-> > Remove RTC UIP synchronization on x86
-> > 
-> > Reading the CMOS clock on x86 and some other arches currently takes up
-> > to one second because it synchronizes with the CMOS second tick-over.
-> > This delay shows up at boot time as well a resume time.
-> > 
-> > This is the currently the most substantial boot time delay for
-> > machines that are working towards instant-on capability. Also, a quick
-> > back of the envelope calculation (.5sec * 2M users * 1 boot a day * 10 years)
-> > suggests it has cost Linux users in the neighborhood of a million
-> > man-hours.
+>>In my [no doubt warped] brain, I equate the SFF-8038 interface to "PCI 
+>>IDE BMDMA", and from there, view most hardware as a subset of PCI IDE 
+>>BMDMA.  It might not do DMA, might not be PCI, might not do irqs, but 
+>>most PATA hardware seems able to be driven by a "bmdma driver".  Thus, 
+>>the name :)
 > 
-> Heh, nice manipulation attempt. Note you are also introduced timing
-> error of about 114 years total.
-
-I'm sure you'll find the average RTC is off by significantly more than
-a second anyway. _Or_ is regularly synced over network.
- 
-> > In my view, there are basically four cases to consider:
-> > 
-> > 1) networked, need precise walltime: use NTP
-> > 2) networked, don't need precise walltime: use NTP anyway
-> > 3) not networked, don't need sub-second precision walltime: don't care
-> > 4) not networked, need sub-second precision walltime:
-> >    get a network or a radio time source because RTC isn't good enough anyway
 > 
-> Eh, very nice, so I should get radio time source for my notebook?
-
-Depends. Do you need sub-second precision on your wall time? If you're
-currently depending on your RTC (not to mention the rest of the kernel
-timekeeping system) to give you time of day that matches actual time
-to fractions of a second without regular synchronization, you're
-kidding yourself. 
-
-All my machines seem to grow out of sync by about a minute per week if
-ntpd stops running. That's almost a half second per hour.
- 
-> > So this patch series simply removes the synchronization in favor of a
-> > simple seqlock-like approach using the seconds value.
+> Most of that file is ST-506 type register interfaces, only a tiny bit is
+> SFF PCI IDE with DMA.
 > 
-> What about polling RTC from timer interrupt or something like that, so
-> that you get error in range of 5 msec instead of 500 msec? You can do
-> the calibration in parallel, then...
+> Expect some patches soon. I've got my tree merged against the git tree
+> now, just needs some testing.
 
-I considered that and decided it wasn't worth the effort. People who
-care (which ought to be the empty set) can run /sbin/hwclock.
+To be specific, are the patches against libata-dev.git 'upstream' branch?
 
--- 
-Mathematics is the supreme nostalgia of our time.
+(most should apply to Linus-vanilla branch, so regardless of the 
+definition of "the git tree" it should be OK)
+
+	Jeff
+
+
+

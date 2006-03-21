@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWCUXFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751831AbWCUXJQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbWCUXFT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 18:05:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751813AbWCUXFT
+	id S1751831AbWCUXJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 18:09:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751832AbWCUXJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 18:05:19 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:40713 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1751811AbWCUXFS (ORCPT
+	Tue, 21 Mar 2006 18:09:16 -0500
+Received: from xenotime.net ([66.160.160.81]:12213 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751831AbWCUXJP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 18:05:18 -0500
-Date: Wed, 22 Mar 2006 00:05:16 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, "Stephen C. Tweedie" <sct@redhat.com>,
-       Andreas Dilger <adilger@clusterfs.com>,
-       Takashi Sato <sho@bsd.tnes.nec.co.jp>, cmm@us.ibm.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       Laurent Vivier <Laurent.Vivier@bull.net>, ams@gnu.org,
-       cascardo@minaslivre.org
-Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
-Message-ID: <20060321230516.GB45303@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Theodore Ts'o <tytso@mit.edu>,
-	"Stephen C. Tweedie" <sct@redhat.com>,
-	Andreas Dilger <adilger@clusterfs.com>,
-	Takashi Sato <sho@bsd.tnes.nec.co.jp>, cmm@us.ibm.com,
-	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-	Laurent Vivier <Laurent.Vivier@bull.net>, ams@gnu.org,
-	cascardo@minaslivre.org
-References: <02bc01c648f2$bd35e830$4168010a@bsd.tnes.nec.co.jp> <20060316183549.GK30801@schatzie.adilger.int> <20060316212632.GA21004@thunk.org> <20060316225913.GV30801@schatzie.adilger.int> <20060318170729.GI21232@thunk.org> <20060320063633.GC30801@schatzie.adilger.int> <1142894283.21593.59.camel@orbit.scot.redhat.com> <20060320234829.GJ6199@schatzie.adilger.int> <1142960722.3443.24.camel@orbit.scot.redhat.com> <20060321183822.GC11447@thunk.org>
+	Tue, 21 Mar 2006 18:09:15 -0500
+Date: Tue, 21 Mar 2006 15:11:24 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: ranty@debian.org, akpm <akpm@osdl.org>
+Subject: [PATCH] Doc: fix example firmware source code
+Message-Id: <20060321151124.b68bbc45.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060321183822.GC11447@thunk.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 21, 2006 at 01:38:22PM -0500, Theodore Ts'o wrote:
-> Hurd is definitely using the translator field, and I only recently
-> discovered they are using it to point at a disk block where the name
-> of the translator program (I'm not 100% sure, but I think it's a
-> generic, out-of-band, #! sort of functionality).
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Translators on directories are a combo of automount+userland
-filesystem, with the addition on having them saved in the mounted-on
-filesystem.  Rather nice actually.  Replacing /etc/fstab with
-local-to-the-mountpoint information has some charm.  I'm not sure if
-translator-on-files actually exist.
+Fix Documentation/firmware_class/ examples so that they will build.
 
-Note that in hurd all filesystems are userland.  Whether it is a good
-thing is left as an exercise to the benchmarker and the deadlock
-chaser.
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ Documentation/firmware_class/firmware_sample_driver.c         |    3 +--
+ Documentation/firmware_class/firmware_sample_firmware_class.c |    1 -
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
-  OG.
+--- linux-2616-work.orig/Documentation/firmware_class/firmware_sample_driver.c
++++ linux-2616-work/Documentation/firmware_class/firmware_sample_driver.c
+@@ -23,7 +23,6 @@ char __init inkernel_firmware[] = "let's
+ #endif
+ 
+ static struct device ghost_device = {
+-	.name      = "Ghost Device",
+ 	.bus_id    = "ghost0",
+ };
+ 
+@@ -92,7 +91,7 @@ static void sample_probe_async(void)
+ {
+ 	/* Let's say that I can't sleep */
+ 	int error;
+-	error = request_firmware_nowait (THIS_MODULE,
++	error = request_firmware_nowait (THIS_MODULE, FW_ACTION_NOHOTPLUG,
+ 					 "sample_driver_fw", &ghost_device,
+ 					 "my device pointer",
+ 					 sample_probe_async_cont);
+--- linux-2616-work.orig/Documentation/firmware_class/firmware_sample_firmware_class.c
++++ linux-2616-work/Documentation/firmware_class/firmware_sample_firmware_class.c
+@@ -172,7 +172,6 @@ static void fw_remove_class_device(struc
+ static struct class_device *class_dev;
+ 
+ static struct device my_device = {
+-	.name      = "Sample Device",
+ 	.bus_id    = "my_dev0",
+ };
+ 
 
+
+---

@@ -1,51 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWCUHOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWCUHOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbWCUHOE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 02:14:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWCUHOE
+	id S932284AbWCUHOj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 02:14:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWCUHOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 02:14:04 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:20696 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932283AbWCUHOC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 02:14:02 -0500
-Date: Tue, 21 Mar 2006 09:13:49 +0200 (EET)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Balbir Singh <balbir@in.ibm.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] slab: introduce kmem_cache_zalloc allocator
-In-Reply-To: <661de9470603200845r6c06ae46tc49be9559c5bfc77@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0603210912250.14023@sbz-30.cs.Helsinki.FI>
-References: <Pine.LNX.4.58.0603201506140.19005@sbz-30.cs.Helsinki.FI> 
- <20060320160500.GA25415@in.ibm.com>  <1142871263.11694.4.camel@localhost>
- <661de9470603200845r6c06ae46tc49be9559c5bfc77@mail.gmail.com>
+	Tue, 21 Mar 2006 02:14:38 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:12500 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932284AbWCUHOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 02:14:37 -0500
+Subject: Re: [PATCH 2.6.16-rc6-xen] export Xen Hypervisor attributes to
+	sysfs
+From: Arjan van de Ven <arjan@infradead.org>
+To: ncmike@us.ibm.com
+Cc: xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+In-Reply-To: <200603202335.k2KNZEjo005673@mdday.raleigh.ibm.com>
+References: <200603202335.k2KNZEjo005673@mdday.raleigh.ibm.com>
+Content-Type: text/plain
+Date: Tue, 21 Mar 2006 08:14:29 +0100
+Message-Id: <1142925269.3077.10.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Mar 2006, Balbir Singh wrote:
-> When I allocate the structure - I would like to do
+On Mon, 2006-03-20 at 18:35 -0500, Mike D. Day wrote:
+> Creates a module that exports Xen Hypervisor attributes to sysfs. The
+> module has a tri-state configuration so it can be a loadable module.
 > 
-> kmem_cache_alloc_set(&resp, GFP_XXXXX, 0xEE)
+> Views the hypervisor as hardware device, uses sysfs as  a scripting
+> interface for user space tools that need these attributes.
 > 
-> The device should ideally fill all fields of resp. Fields that look
-> 0xEE after receiving the response -- would indicate that they were not
-> filled by the device. This would be extremely useful in debugging.
-> With kmem_cache_zalloc() - 0 is usually almost always a valid value.
-> It is useful in some cases and no so much in other cases.
+> Some user space apps, particularly for systems management, need to
+> know if their kernel is running in a virtual machine and if so in
+> what type of virtual machine. This property is contained in the
+> file /sys/hypervisor/type.
 > 
-> I could easily achieve the same thing by doing a
+> The file hypervisor_sysfs.c creates a generic  hypervisor subsystem
+> that can be linked to by any hypervisor. The file xen_sysfs.c exports
+> the xen-specific attributes.
 > 
-> memset(&resp, 0xEE, size)
+> signed-off-by: Mike D. Day <ncmike@us.ibm.com>
 > 
-> after the kmem_cache_alloc(). But since there is an API to zero out
-> allocated memory, I thought we could make it more generic and more
-> useful.
+> ---
+> Initial directory = /sys/hypervisor
+> +---compilation
+> |   >---compile_date
+> |   >---compiled_by
+> |   >---compiler
+> +---properties
+> |   >---capabilities
+> |   >---changeset
 
-Yeah, but if it's a debugging thing, I don't see much point in adding yet 
-another API call. The main point in introducing kmem_cache_zalloc() is to 
-move existing API into slab proper.
+how is this a property and not part of version?
 
-				Pekka
+> |   >---virtual_start
+> |   >---writable_pt
+> >---type
+> +---version
+> |   >---extra
+> |   >---major
+> |   >---minor
+> 
+
+
+again what is the justification of putting this in the kernel? I though
+everyone here was agreed that since the management tools that need this
+talk to the hypervisor ANYWAY, they might as well just ask this
+information as well....
+
+
+

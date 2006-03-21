@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751707AbWCUNh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751710AbWCUNiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751707AbWCUNh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 08:37:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751703AbWCUNh1
+	id S1751710AbWCUNiS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 08:38:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751711AbWCUNiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 08:37:27 -0500
-Received: from zombie.ncsc.mil ([144.51.88.131]:24514 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1751696AbWCUNh0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 08:37:26 -0500
-Subject: Re: [PATCH] scm: fold __scm_send() into scm_send()
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Reply-To: sds@tycho.nsa.gov
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: James Morris <jmorris@namei.org>, Andrew Morton <akpm@osdl.org>,
-       cxzhang@watson.ibm.com, netdev@axxeo.de, ioe-lkml@rameria.de,
-       davem@davemloft.net, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <1142947952.28120.29.camel@moss-spartans.epoch.ncsc.mil>
-References: <200603130139.k2D1dpSQ021279@shell0.pdx.osdl.net>
-	 <200603132105.32794.ioe-lkml@rameria.de>
-	 <20060313173103.7681b49d.akpm@osdl.org>
-	 <200603201244.58507.netdev@axxeo.de>
-	 <20060320201802.GS15997@sorel.sous-sol.org>
-	 <20060320213636.GT15997@sorel.sous-sol.org>
-	 <20060320143103.31b7d933.akpm@osdl.org>
-	 <20060320231508.GV15997@sorel.sous-sol.org>
-	 <1142947952.28120.29.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Tue, 21 Mar 2006 08:42:08 -0500
-Message-Id: <1142948528.28120.34.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 21 Mar 2006 08:38:18 -0500
+Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:55452 "EHLO
+	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751709AbWCUNiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 08:38:17 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: interactive task starvation
+Date: Wed, 22 Mar 2006 00:37:51 +1100
+User-Agent: KMail/1.9.1
+Cc: Ingo Molnar <mingo@elte.hu>, Willy Tarreau <willy@w.ods.org>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       bugsplatter@gmail.com
+References: <200603090036.49915.kernel@kolivas.org> <200603220013.15870.kernel@kolivas.org> <1142948000.7807.63.camel@homer>
+In-Reply-To: <1142948000.7807.63.camel@homer>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603220037.52258.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-21 at 08:32 -0500, Stephen Smalley wrote:
-> > I don't expect security_sk_sid() to be terribly expensive.  It's not
-> > an AVC check, it's just propagating a label.  But I've not done any
-> > benchmarking on that.
-> 
-> No permission check there, but it looks like it does read lock
-> sk_callback_lock.  Not sure if that is truly justified here.
+On Wednesday 22 March 2006 00:33, Mike Galbraith wrote:
+> On Wed, 2006-03-22 at 00:13 +1100, Con Kolivas wrote:
+> > On Wednesday 22 March 2006 00:10, Mike Galbraith wrote:
+> > > How long should Willy be able to scroll without feeling the background,
+> > > and how long should Apache be able to starve his shell.  They are one
+> > > and the same, and I can't say, because I'm not Willy.  I don't know how
+> > > to get there from here without tunables.  Picking defaults is one
+> > > thing, but I don't know how to make it one-size-fits-all.  For the
+> > > general case, the values delivered will work fine.  For the apache
+> > > case, they absolutely 100% guaranteed will not.
+> >
+> > So how do you propose we tune such a beast then? Apache users will use
+> > off, everyone else will have no idea but to use the defaults.
+>
+> Set for desktop, which is intended to mostly emulate what we have right
+> now, which most people are quite happy with.  The throttle will still
+> nail most of the corner cases, and the other adjustments nail the
+> majority of what's left.  That leaves the hefty server type loads as
+> what certainly will require tuning.  They always need tuning.
 
-Ah, that is because it is also called from the xfrm code, introduced by
-Trent's patches.  But that locking shouldn't be necessary from scm_send,
-right?  So she likely wants a separate hook for it to avoid that
-overhead, or even just a direct SELinux interface?
-  
--- 
-Stephen Smalley
-National Security Agency
+That still sounds like just on/off to me. Default for desktop and 0,0 for 
+server. Am I missing something?
 
+Cheers,
+Con

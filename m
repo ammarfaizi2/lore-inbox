@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbWCURwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030295AbWCURyG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030297AbWCURwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 12:52:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbWCURwJ
+	id S1030295AbWCURyG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 12:54:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030277AbWCURyG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 12:52:09 -0500
-Received: from mail.gmx.net ([213.165.64.20]:52145 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030297AbWCURwI (ORCPT
+	Tue, 21 Mar 2006 12:54:06 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:56073 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1030295AbWCURyF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 12:52:08 -0500
-X-Authenticated: #14349625
-Subject: Re: interactive task starvation
-From: Mike Galbraith <efault@gmx.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Willy Tarreau <willy@w.ods.org>, Ingo Molnar <mingo@elte.hu>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       bugsplatter@gmail.com
-In-Reply-To: <200603220220.11368.kernel@kolivas.org>
-References: <200603090036.49915.kernel@kolivas.org>
-	 <1142949690.7807.80.camel@homer> <200603220117.54822.kernel@kolivas.org>
-	 <200603220220.11368.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Tue, 21 Mar 2006 18:51:59 +0100
-Message-Id: <1142963519.10569.27.camel@homer>
+	Tue, 21 Mar 2006 12:54:05 -0500
+Date: Tue, 21 Mar 2006 18:53:46 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: lkml <linux-kernel@vger.kernel.org>, Paul Smith <psmith@gnu.org>
+Subject: Re: [PATCH 35/46] kbuild: change kbuild to not rely on incorrect GNU make behavior
+Message-ID: <20060321175346.GA10388@mars.ravnborg.org>
+References: <1142958057218-git-send-email-sam@ravnborg.org> <11429580571656-git-send-email-sam@ravnborg.org> <20060321172820.GQ20746@lug-owl.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060321172820.GQ20746@lug-owl.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-22 at 02:20 +1100, Con Kolivas wrote:
-> On Wednesday 22 March 2006 01:17, Con Kolivas wrote:
-> > I actually believe the same effect can be had by a tiny 
-> > modification to enable/disable the estimator anyway.
+On Tue, Mar 21, 2006 at 06:28:20PM +0100, Jan-Benedict Glaw wrote:
+> On Tue, 2006-03-21 17:20:57 +0100, Sam Ravnborg <sam@ravnborg.org> wrote:
+> > diff --git a/scripts/package/Makefile b/scripts/package/Makefile
+> > index c201ef0..d3038b7 100644
+> > --- a/scripts/package/Makefile
+> > +++ b/scripts/package/Makefile
+> > @@ -82,7 +82,7 @@ clean-dirs += $(objtree)/debian/
+> >  
+> >  # tarball targets
+> >  # ---------------------------------------------------------------------------
+> > -.PHONY: tar%pkg
+> > +PHONY += tar%pkg
+> >  tar%pkg:
+> >  	$(MAKE) KBUILD_SRC=
+> >  	$(CONFIG_SHELL) $(srctree)/scripts/package/buildtar $@
 > 
-> Just for argument's sake it would look something like this.
+> This part is wrong. $(PHONY) isn't subject to pattern matching, so all
+> targets that match 'tar%pkg' must be listed here. Fortunately, that's
+> only three:
+> 
+> PHONY += tar-pkg targz-pkg tarbz2-pkg
 
-That won't have the same effect.  What you disabled isn't only about
-interactivity.   It's also about preemption, throughput and fairness.
+Correct. It is fixed in a later patch were I kill the use of PHONY in
+this file.
+I got replaced by specifying FORCE as a prerequsite.
 
-	-Mike
-
-(we now interrupt this thread for an evening of real life;)
-
+	Sam

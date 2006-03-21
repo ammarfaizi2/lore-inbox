@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWCUSBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWCUSCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932356AbWCUSBY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 13:01:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWCUSBY
+	id S932361AbWCUSCG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 13:02:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbWCUSCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 13:01:24 -0500
-Received: from sunkay.cs.ualberta.ca ([129.128.4.11]:6096 "EHLO
-	sunkay.cs.ualberta.ca") by vger.kernel.org with ESMTP
-	id S1751762AbWCUSBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 13:01:23 -0500
-Date: Tue, 21 Mar 2006 11:01:18 -0700
-From: Gordon Atwood <gordon@cs.ualberta.ca>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: sata_promise does not see hardware RAID arrays on Fasttrak TX4000
-Message-ID: <20060321180118.GK17279@cs.ualberta.ca>
-References: <20060320194728.GA17279@cs.ualberta.ca> <441F0932.1080001@pobox.com>
+	Tue, 21 Mar 2006 13:02:06 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:45961 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932370AbWCUSCC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 13:02:02 -0500
+Subject: Re: [PATCH: 002/017]Memory hotplug for new nodes v.4.(change name
+	old add_memory() to arch_add_memory())
+From: Dave Hansen <haveblue@us.ibm.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: y-goto@jp.fujitsu.com, akpm@osdl.org, tony.luck@intel.com, ak@suse.de,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       linux-mm@kvack.org
+In-Reply-To: <20060318102653.57c6a2af.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060317162757.C63B.Y-GOTO@jp.fujitsu.com>
+	 <1142615538.10906.67.camel@localhost.localdomain>
+	 <20060318102653.57c6a2af.kamezawa.hiroyu@jp.fujitsu.com>
+Content-Type: text/plain
+Date: Tue, 21 Mar 2006 10:00:12 -0800
+Message-Id: <1142964013.10906.158.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <441F0932.1080001@pobox.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 20, 2006 at 02:57:38PM -0500, Jeff Garzik wrote:
-> Gordon Atwood wrote:
-> >Ok, I've searched thru dozens of webpages and done the RTFM thing.  If its
-> >really obvious, sorry, I still missed it.
-> 
-> http://linux-ata.org/faq-sata-raid.html#tx2
-> 
-> http://linux-ata.org/faq-sata-raid.html#dmraid
+On Sat, 2006-03-18 at 10:26 +0900, KAMEZAWA Hiroyuki wrote:
+> If *determine node* function is moved to arch specific parts,
+> memory hot add need more and more codes to determine  paddr -> nid in arch
+> specific codes. Then, we have to add new paddr->nid function even if new nid is
+> passed by firmware. We *lose* useful information of nid from firmware if 
+> add_memory() has just 2 args, (start, end).  
 
-Hmm...  Ok, so a TX4000 is equivalent to a TX4.  Nothing I read suggested that
-so I missed this.  And this is a fake raid card.  Figures.  Should probably
-just chuck it.
+What I'm saying is that I'd like add_memory() to be just that, for
+adding memory.
 
-Unfortunately, although dmraid 'sees' sda-sdd it only recognizes the striped
-array on sdc-sdd.  It totally ignores the striped array on sda-sdb.
+At some point in the process, you need to export the NUMA node layout to
+the rest of the system, to say which pages go in which node.  I'm just
+saying that you should do that _before_ add_memory().
 
-Even if it did see them, I don't see how I'm any further ahead.
+add_memory() should support adding memory to more than one node.  If any
+hypervisor or hardware happens to have memory added in one contiguous
+chunk, it can not simply call add_memory().  _That_ firmware would be
+forced to do the NUMA parsing and figure out how many times to call
+add_memory().  
 
-Why should I bother with dmraid when I should just go be able to go directly
-to sda-d, format them and then layer software RAID or LVM on top of that.
-I can set up the four disks as individual single-disk arrays in the Promise
-BIOS and away we go.
+Let me reiterate: the process of telling the system which pages are in
+which node should be separate from telling the system that there *are*
+currently pages there now.
 
-If the Promise card has overhead for processing I/O it will be there
-regardless of whether I go thru dmraid or mdadm or LVM.  At least in the
-latter configuration, I can always go out and get a real 4 port ide
-card and just hook up the disks to it.  Then this card can go in the
-trash.
+-- Dave
 
-Thanks much for the pointer.  Interesting how no matter how hard you search,
-there is always a direct thread to the info that you want that you'll
-completely miss :-)
-
-G.H.A.

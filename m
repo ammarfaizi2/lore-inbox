@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030429AbWCUQ3d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030444AbWCUQ1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030429AbWCUQ3d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 11:29:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030277AbWCUQ2w
+	id S1030444AbWCUQ1d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 11:27:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030416AbWCUQVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 11:28:52 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:39436 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1030404AbWCUQVQ (ORCPT
+	Tue, 21 Mar 2006 11:21:19 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:25100 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932395AbWCUQVK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 11:21:16 -0500
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH 43/46] Kconfig: remove the CONFIG_CC_ALIGN_* options
-In-Reply-To: <11429580574142-git-send-email-sam@ravnborg.org>
+	Tue, 21 Mar 2006 11:21:10 -0500
+Cc: Sam Ravnborg <sam@mars.ravnborg.org>, Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH 02/46] kbuild: use warn()/fatal() consistent in modpost
+In-Reply-To: <1142958054202-git-send-email-sam@ravnborg.org>
 X-Mailer: git-send-email
-Date: Tue, 21 Mar 2006 17:20:57 +0100
-Message-Id: <11429580571198-git-send-email-sam@ravnborg.org>
+Date: Tue, 21 Mar 2006 17:20:54 +0100
+Message-Id: <11429580542142-git-send-email-sam@ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Sam Ravnborg <sam@ravnborg.org>
@@ -25,94 +24,216 @@ From: Sam Ravnborg <sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't see any use case for the CONFIG_CC_ALIGN_* options:
-- they are only available if EMBEDDED
-- people using EMBEDDED will most likely also enable
-  CC_OPTIMIZE_FOR_SIZE
-- the default for -Os is to disable alignment
+modpost.c provides warn() and fatal() - so use them all over the place.
 
-In case someone is doing performance comparisons and discovers that the
-default settings gcc chooses aren't good, the only sane thing is to discuss
-whether it makes sense to change this, not through offering options to change
-this locally.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- Makefile     |    7 -------
- init/Kconfig |   37 -------------------------------------
- 2 files changed, 0 insertions(+), 44 deletions(-)
+ scripts/mod/file2alias.c |   13 ++++++-------
+ scripts/mod/modpost.c    |   16 ++++++----------
+ scripts/mod/modpost.h    |    7 ++++++-
+ scripts/mod/sumversion.c |   23 +++++++++--------------
+ 4 files changed, 27 insertions(+), 32 deletions(-)
 
-8cab77a2f851363e35089b9720373b964f64550e
-diff --git a/Makefile b/Makefile
-index eca667b..3dbaac6 100644
---- a/Makefile
-+++ b/Makefile
-@@ -472,13 +472,6 @@ else
- CFLAGS		+= -O2
- endif
+cb80514d9c517cc1d101ef304529a0e9b76b4468
+diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
+index be97caf..1346223 100644
+--- a/scripts/mod/file2alias.c
++++ b/scripts/mod/file2alias.c
+@@ -153,8 +153,8 @@ static void do_usb_table(void *symval, u
+ 	const unsigned long id_size = sizeof(struct usb_device_id);
  
--#Add align options if CONFIG_CC_* is not equal to 0
--add-align = $(if $(filter-out 0,$($(1))),$(cc-option-align)$(2)=$($(1)))
--CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_FUNCTIONS,-functions)
--CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_LABELS,-labels)
--CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_LOOPS,-loops)
--CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_JUMPS,-jumps)
--
- ifdef CONFIG_FRAME_POINTER
- CFLAGS		+= -fno-omit-frame-pointer $(call cc-option,-fno-optimize-sibling-calls,)
- else
-diff --git a/init/Kconfig b/init/Kconfig
-index 38416a1..411600c 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -354,43 +354,6 @@ config SHMEM
- 	  option replaces shmem and tmpfs with the much simpler ramfs code,
- 	  which may be appropriate on small systems without swap.
+ 	if (size % id_size || size < id_size) {
+-		fprintf(stderr, "*** Warning: %s ids %lu bad size "
+-			"(each on %lu)\n", mod->name, size, id_size);
++		warn("%s ids %lu bad size "
++		     "(each on %lu)\n", mod->name, size, id_size);
+ 	}
+ 	/* Leave last one: it's the terminator. */
+ 	size -= id_size;
+@@ -217,9 +217,8 @@ static int do_pci_entry(const char *file
+ 	if ((baseclass_mask != 0 && baseclass_mask != 0xFF)
+ 	    || (subclass_mask != 0 && subclass_mask != 0xFF)
+ 	    || (interface_mask != 0 && interface_mask != 0xFF)) {
+-		fprintf(stderr,
+-			"*** Warning: Can't handle masks in %s:%04X\n",
+-			filename, id->class_mask);
++		warn("Can't handle masks in %s:%04X\n",
++		     filename, id->class_mask);
+ 		return 0;
+ 	}
  
--config CC_ALIGN_FUNCTIONS
--	int "Function alignment" if EMBEDDED
--	default 0
--	help
--	  Align the start of functions to the next power-of-two greater than n,
--	  skipping up to n bytes.  For instance, 32 aligns functions
--	  to the next 32-byte boundary, but 24 would align to the next
--	  32-byte boundary only if this can be done by skipping 23 bytes or less.
--	  Zero means use compiler's default.
+@@ -445,8 +444,8 @@ static void do_table(void *symval, unsig
+ 	int (*do_entry)(const char *, void *entry, char *alias) = function;
+ 
+ 	if (size % id_size || size < id_size) {
+-		fprintf(stderr, "*** Warning: %s ids %lu bad size "
+-			"(each on %lu)\n", mod->name, size, id_size);
++		warn("%s ids %lu bad size "
++		     "(each on %lu)\n", mod->name, size, id_size);
+ 	}
+ 	/* Leave last one: it's the terminator. */
+ 	size -= id_size;
+diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+index f70ff13..a3c57ec 100644
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -303,8 +303,7 @@ parse_elf(struct elf_info *info, const c
+ 			             sechdrs[sechdrs[i].sh_link].sh_offset;
+ 	}
+ 	if (!info->symtab_start) {
+-		fprintf(stderr, "modpost: %s no symtab?\n", filename);
+-		abort();
++		fatal("%s has no symtab?\n", filename);
+ 	}
+ 	/* Fix endianness in symbols */
+ 	for (sym = info->symtab_start; sym < info->symtab_stop; sym++) {
+@@ -316,8 +315,7 @@ parse_elf(struct elf_info *info, const c
+ 	return;
+ 
+  truncated:
+-	fprintf(stderr, "modpost: %s is truncated.\n", filename);
+-	abort();
++	fatal("%s is truncated.\n", filename);
+ }
+ 
+ void
+@@ -337,8 +335,7 @@ handle_modversions(struct module *mod, s
+ 
+ 	switch (sym->st_shndx) {
+ 	case SHN_COMMON:
+-		fprintf(stderr, "*** Warning: \"%s\" [%s] is COMMON symbol\n",
+-			symname, mod->name);
++		warn("\"%s\" [%s] is COMMON symbol\n", symname, mod->name);
+ 		break;
+ 	case SHN_ABS:
+ 		/* CRC'd symbol */
+@@ -562,8 +559,8 @@ add_versions(struct buffer *b, struct mo
+ 		exp = find_symbol(s->name);
+ 		if (!exp || exp->module == mod) {
+ 			if (have_vmlinux && !s->weak)
+-				fprintf(stderr, "*** Warning: \"%s\" [%s.ko] "
+-				"undefined!\n",	s->name, mod->name);
++				warn("\"%s\" [%s.ko] undefined!\n",
++				     s->name, mod->name);
+ 			continue;
+ 		}
+ 		s->module = exp->module;
+@@ -584,8 +581,7 @@ add_versions(struct buffer *b, struct mo
+ 			continue;
+ 		}
+ 		if (!s->crc_valid) {
+-			fprintf(stderr, "*** Warning: \"%s\" [%s.ko] "
+-				"has no CRC!\n",
++			warn("\"%s\" [%s.ko] has no CRC!\n",
+ 				s->name, mod->name);
+ 			continue;
+ 		}
+diff --git a/scripts/mod/modpost.h b/scripts/mod/modpost.h
+index 7334d83..c0de7b9 100644
+--- a/scripts/mod/modpost.h
++++ b/scripts/mod/modpost.h
+@@ -91,17 +91,22 @@ struct elf_info {
+ 	unsigned int modinfo_len;
+ };
+ 
++/* file2alias.c */
+ void handle_moddevtable(struct module *mod, struct elf_info *info,
+ 			Elf_Sym *sym, const char *symname);
 -
--config CC_ALIGN_LABELS
--	int "Label alignment" if EMBEDDED
--	default 0
--	help
--	  Align all branch targets to a power-of-two boundary, skipping
--	  up to n bytes like ALIGN_FUNCTIONS.  This option can easily
--	  make code slower, because it must insert dummy operations for
--	  when the branch target is reached in the usual flow of the code.
--	  Zero means use compiler's default.
--
--config CC_ALIGN_LOOPS
--	int "Loop alignment" if EMBEDDED
--	default 0
--	help
--	  Align loops to a power-of-two boundary, skipping up to n bytes.
--	  Zero means use compiler's default.
--
--config CC_ALIGN_JUMPS
--	int "Jump alignment" if EMBEDDED
--	default 0
--	help
--	  Align branch targets to a power-of-two boundary, for branch
--	  targets where the targets can only be reached by jumping,
--	  skipping up to n bytes like ALIGN_FUNCTIONS.  In this case,
--	  no dummy operations need be executed.
--	  Zero means use compiler's default.
--
- config SLAB
- 	default y
- 	bool "Use full SLAB allocator" if EMBEDDED
+ void add_moddevtable(struct buffer *buf, struct module *mod);
+ 
++/* sumversion.c */
+ void maybe_frob_rcs_version(const char *modfilename,
+ 			    char *version,
+ 			    void *modinfo,
+ 			    unsigned long modinfo_offset);
+ void get_src_version(const char *modname, char sum[], unsigned sumlen);
+ 
++/* from modpost.c */
+ void *grab_file(const char *filename, unsigned long *size);
+ char* get_next_line(unsigned long *pos, void *file, unsigned long size);
+ void release_file(void *file, unsigned long size);
++
++void fatal(const char *fmt, ...);
++void warn(const char *fmt, ...);
+diff --git a/scripts/mod/sumversion.c b/scripts/mod/sumversion.c
+index 43271a1..5c07545 100644
+--- a/scripts/mod/sumversion.c
++++ b/scripts/mod/sumversion.c
+@@ -316,8 +316,7 @@ static int parse_source_files(const char
+ 
+ 	file = grab_file(cmd, &flen);
+ 	if (!file) {
+-		fprintf(stderr, "Warning: could not find %s for %s\n",
+-			cmd, objfile);
++		warn("could not find %s for %s\n", cmd, objfile);
+ 		goto out;
+ 	}
+ 
+@@ -355,9 +354,8 @@ static int parse_source_files(const char
+ 		/* Check if this file is in same dir as objfile */
+ 		if ((strstr(line, dir)+strlen(dir)-1) == strrchr(line, '/')) {
+ 			if (!parse_file(line, md)) {
+-				fprintf(stderr,
+-					"Warning: could not open %s: %s\n",
+-					line, strerror(errno));
++				warn("could not open %s: %s\n",
++				     line, strerror(errno));
+ 				goto out_file;
+ 			}
+ 
+@@ -397,23 +395,20 @@ void get_src_version(const char *modname
+ 
+ 	file = grab_file(filelist, &len);
+ 	if (!file) {
+-		fprintf(stderr, "Warning: could not find versions for %s\n",
+-			filelist);
++		warn("could not find versions for %s\n", filelist);
+ 		return;
+ 	}
+ 
+ 	sources = strchr(file, '\n');
+ 	if (!sources) {
+-		fprintf(stderr, "Warning: malformed versions file for %s\n",
+-			modname);
++		warn("malformed versions file for %s\n", modname);
+ 		goto release;
+ 	}
+ 
+ 	sources++;
+ 	end = strchr(sources, '\n');
+ 	if (!end) {
+-		fprintf(stderr, "Warning: bad ending versions file for %s\n",
+-			modname);
++		warn("bad ending versions file for %s\n", modname);
+ 		goto release;
+ 	}
+ 	*end = '\0';
+@@ -438,19 +433,19 @@ static void write_version(const char *fi
+ 
+ 	fd = open(filename, O_RDWR);
+ 	if (fd < 0) {
+-		fprintf(stderr, "Warning: changing sum in %s failed: %s\n",
++		warn("changing sum in %s failed: %s\n",
+ 			filename, strerror(errno));
+ 		return;
+ 	}
+ 
+ 	if (lseek(fd, offset, SEEK_SET) == (off_t)-1) {
+-		fprintf(stderr, "Warning: changing sum in %s:%lu failed: %s\n",
++		warn("changing sum in %s:%lu failed: %s\n",
+ 			filename, offset, strerror(errno));
+ 		goto out;
+ 	}
+ 
+ 	if (write(fd, sum, strlen(sum)+1) != strlen(sum)+1) {
+-		fprintf(stderr, "Warning: writing sum in %s failed: %s\n",
++		warn("writing sum in %s failed: %s\n",
+ 			filename, strerror(errno));
+ 		goto out;
+ 	}
 -- 
 1.0.GIT
 

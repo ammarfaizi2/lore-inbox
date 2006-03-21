@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWCUUsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965105AbWCUUvT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932452AbWCUUsz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 15:48:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWCUUsz
+	id S965105AbWCUUvT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 15:51:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965103AbWCUUvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 15:48:55 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:44762 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932446AbWCUUsy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 15:48:54 -0500
-Date: Tue, 21 Mar 2006 14:48:45 -0600
-From: Dimitri Sivanich <sivanich@sgi.com>
-To: Jack Steiner <steiner@sgi.com>
-Cc: Jack Steiner <steiner@sgi.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [RFC] - Move call to calc_load()
-Message-ID: <20060321204845.GB26124@sgi.com>
-References: <20060321203249.GA16182@sgi.com> <20060321203647.GA26135@elte.hu>
+	Tue, 21 Mar 2006 15:51:18 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47761 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S965105AbWCUUvS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 15:51:18 -0500
+Date: Tue, 21 Mar 2006 21:50:55 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andreas Jellinghaus <aj@dungeon.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Announcing crypto suspend
+Message-ID: <20060321205055.GA4327@elf.ucw.cz>
+References: <20060320080439.GA4653@elf.ucw.cz> <1142879707.9475.4.camel@localhost.localdomain> <200603201954.45572.rjw@sisk.pl> <20060321094449.0760E12768C@dungeon.inka.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060321203647.GA26135@elte.hu>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060321094449.0760E12768C@dungeon.inka.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, Mar 21, 2006 at 09:36:47PM +0100, Ingo Molnar wrote:
-> * Jack Steiner <steiner@sgi.com> wrote:
-> 
-> > Here is the patch that I am proposing. This patch is incomplete 
-> > because it addresses only the IA64 architecture. If this approach is 
-> > acceptible, I'll update the patch to cover all architectures.
+On Út 21-03-06 10:45:40, Andreas Jellinghaus wrote:
+> Rafael J. Wysocki wrote:
+> > First, you need to generate the RSA key pair using suspend-keygen and save
+> > the output file as /etc/suspend.key (or something else pointed to by
+> > the "RSA key file =" configuration parameter of suspend).  This file
+> > contains the public modulus (n), public exponent (e) and
+> > Blowfish-encrypted private exponent (d) of the RSA key pair.
 > > 
-> > 	Signed-off-by: Jack Steiner <steiner@sgi.com>
+> > Then, the suspend utility will load the contents of this file,  generate a
+> > random session key (k) and initialization vector (i) for the image
+> > encryption and use (n, e) to encrypt these values with RSA.  The encrypted
+> > k, i as well as the contents of the RSA key file will be saved in the
+> > image header.
+> > 
+> > The resume utility will read n, e and (encrypted) d as well as (encrypted)
+> > k, i from the image header.  Then it will ask the user for a passphrase
+> > and will try to decrypt d using it.  Next, it will use (n, e, d) to
+> > decrypt k, i needed for decrypting the image.
 > 
-> i agree with your analysis - there is no reason calc_load() should be 
-> under xtime_lock. I guess no-one noticed this so far because calc_load() 
-> iterating over hundreds of CPUs isnt too common.
+> what interface will those tools use? can I replace them with my own
+> code, e.g. that uses smart cards instead of an encrypted public key
+> on a disk?
 
-I tested this patch and it works well for eliminating latencies due to
-contention for the xtime_lock.  Without the patch the latencies are
-quite substantial at higher cpu counts.
+It is userspace, so yes, you can use smart cards if you hack code at
+suspend.sf.net a bit.
+								Pavel
+-- 
+Picture of sleeping (Linux) penguin wanted...

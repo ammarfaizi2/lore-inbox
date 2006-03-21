@@ -1,37 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbWCULY0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbWCUL0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030296AbWCULY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 06:24:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030299AbWCULYZ
+	id S1030300AbWCUL0q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 06:26:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbWCUL0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 06:24:25 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:53955 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030296AbWCULYZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 06:24:25 -0500
-Date: Tue, 21 Mar 2006 03:21:01 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: dada1@cosmosbay.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] slab: optimize constant-size kzalloc calls
-Message-Id: <20060321032101.3a4014fe.akpm@osdl.org>
-In-Reply-To: <1142868958.11159.0.camel@localhost>
-References: <1142868958.11159.0.camel@localhost>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 21 Mar 2006 06:26:46 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19722 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030300AbWCUL0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 06:26:45 -0500
+Date: Tue, 21 Mar 2006 07:54:25 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Luke Yang <luke.adi@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] Blackfin serial driver for kernel 2.6.16
+Message-ID: <20060321075425.GB21287@flint.arm.linux.org.uk>
+Mail-Followup-To: Luke Yang <luke.adi@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <489ecd0c0603200207i33958c66kce8f54704302e79e@mail.gmail.com> <20060320102449.GA6787@flint.arm.linux.org.uk> <489ecd0c0603202345x1e12ea64y248baabc939965e6@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <489ecd0c0603202345x1e12ea64y248baabc939965e6@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg <penberg@cs.helsinki.fi> wrote:
->
-> As suggested by Eric Dumazet, this patch optimizes kzalloc() calls
->  that pass a compile-time constant size.
+On Tue, Mar 21, 2006 at 03:45:57PM +0800, Luke Yang wrote:
+> On 3/20/06, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> > On Mon, Mar 20, 2006 at 06:07:44PM +0800, Luke Yang wrote:
+> > > Index: git/linux-2.6/drivers/serial/bfin_serial_5xx.c
+> > > ===================================================================
+> > > --- /dev/null
+> > > +++ linux-2.6/drivers/serial/bfin_serial_5xx.c
+> >
+> > Please convert this driver to use the serial_core infrastructure.  Thanks.
+>    Thank you! This is a driver based on the 68328 serial driver. Do
+> you mean every serial driver must follow the serial core framework? If
+> so, we'll change it ASAP.  For now, my previous blackfin architecture
+> patch needs this driver to get compiled.
 
-Logical.
+It is preferable since it massively reduces code duplication, and fixes
+various minor issues found in the original serial driver.
 
-> Please note that the patch
->  increases kernel text slightly (~200 bytes for defconfig on x86)
+As a result, it improves code maintainability since a fix to the semantics
+of the serial layer will fix all drivers, instead of having to apply the
+same fix to multiple serial drivers (which just doesn't happen.)
 
-Why?
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

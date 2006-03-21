@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751499AbWCUR6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160995AbWCUR6y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751499AbWCUR6N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 12:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWCUR6N
+	id S1160995AbWCUR6y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 12:58:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161000AbWCUR6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 12:58:13 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:52873 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751499AbWCUR6M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 12:58:12 -0500
-Date: Tue, 21 Mar 2006 18:58:10 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: VFAT: Can't create file named 'aux.h'?
-In-Reply-To: <44203B86.5000003@zytor.com>
-Message-ID: <Pine.LNX.4.61.0603211854150.21376@yvahk01.tjqt.qr>
-References: <1142890822.5007.18.camel@localhost.localdomain>
- <20060320134533.febb0155.rdunlap@xenotime.net> <dvn835$lvo$1@terminus.zytor.com>
- <Pine.LNX.4.61.0603211840020.21376@yvahk01.tjqt.qr> <44203B86.5000003@zytor.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Mar 2006 12:58:54 -0500
+Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:34527 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1160995AbWCUR6x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 12:58:53 -0500
+To: trond.myklebust@fys.uio.no
+CC: chrisw@osdl.org, matthew@wil.cx, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-reply-to: <1142962083.7987.37.camel@lade.trondhjem.org> (message from Trond
+	Myklebust on Tue, 21 Mar 2006 12:28:03 -0500)
+Subject: Re: DoS with POSIX file locks?
+References: <E1FLIlF-0007zR-00@dorka.pomaz.szeredi.hu>
+	 <20060320121107.GE8980@parisc-linux.org>
+	 <E1FLJLs-00085u-00@dorka.pomaz.szeredi.hu>
+	 <20060320123950.GF8980@parisc-linux.org>
+	 <E1FLJsF-0008A7-00@dorka.pomaz.szeredi.hu>
+	 <20060320153202.GH8980@parisc-linux.org>
+	 <1142878975.7991.13.camel@lade.trondhjem.org>
+	 <E1FLdPd-00020d-00@dorka.pomaz.szeredi.hu> <1142962083.7987.37.camel@lade.trondhjem.org>
+Message-Id: <E1FLl7L-0002u9-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 21 Mar 2006 18:58:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> NAK. How much more names will you be going to mangle because of FAT
->> character restrictions? (< and > are one of the chars not allowed in FAT.)
->
-> Uhm... that's what VFAT *does*...
->
-Hm. How do I check? Under a DOS shell,
+> > Apps using LinuxThreads seem to be candidates:
+> > 
+> >      According to POSIX 1003.1c, a successful `exec*' in one of the
+> >      threads should automatically terminate all other threads in the
+> >      program.  This behavior is not yet implemented in LinuxThreads.
+> >      Calling `pthread_kill_other_threads_np' before `exec*' achieves
+> >      much of the same behavior, except that if `exec*' ultimately
+> >      fails, then all other threads are already killed.
+> > 
+> > steal_locks() was probably added as a workaround for this case, no?
+> 
+> Possibly, but LinuxThreads were never really POSIX thread compliant
+> anyway. Anyhow, the problem isn't really LinuxThreads, it is rather that
+> the existence of the standalone CLONE_FILES flag allows you to do a lot
+> of weird inheritance crap with 'posix locks' that the POSIX standards
+> committees never even had to consider.
 
-	echo bla >"illegal>name"
+Yes.  The execve-with-multiple-threads/posix-locks interaction is not
+documented for LinuxThreads but removing steal_locks() makes that
+implementation slighly differently incompatible to POSIX.  Some
+application _might_ be relying on the current behavior.
 
-won't work, and creating a new empty dummy text file within Windows 
-Explorer with this illegal>name won't work either.
-(http://jengelh.hopto.org/f/illegal_filename.jpg)
-Did I miss some magic WINAPI function that does allow it implicitly
-by mangling the name?
+It's just a question of how much confidence do we have, that no app
+will break if steal_locks() is removed.  This function was added by
+Chris Wright on 2003-12-29 (Cset 1.1371.111.3):
 
+  Add steal_locks helper for use in conjunction with unshare_files to
+  make sure POSIX file lock semantics aren't broken due to
+  unshare_files.
 
-Jan Engelhardt
--- 
-| Software Engineer and Linux/Unix Network Administrator
+Chris, do you remember if this was due to some concrete breakage or
+just a preemtive measure?
+
+Miklos

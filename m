@@ -1,80 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbWCUGrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWCUGwH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750920AbWCUGrk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 01:47:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWCUGrk
+	id S1751325AbWCUGwH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 01:52:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWCUGwH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 01:47:40 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:25611 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1750920AbWCUGrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 01:47:40 -0500
-Date: Tue, 21 Mar 2006 07:47:23 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Mike Galbraith <efault@gmx.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>
-Subject: Re: interactive task starvation
-Message-ID: <20060321064723.GH21493@w.ods.org>
-References: <200603081013.44678.kernel@kolivas.org> <20060307152636.1324a5b5.akpm@osdl.org> <cone.1141774323.5234.18683.501@kolivas.org> <200603090036.49915.kernel@kolivas.org> <20060317090653.GC13387@elte.hu> <1142592375.7895.43.camel@homer> <1142615721.7841.15.camel@homer> <1142838553.8441.13.camel@homer>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1142838553.8441.13.camel@homer>
-User-Agent: Mutt/1.5.10i
+	Tue, 21 Mar 2006 01:52:07 -0500
+Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:3495 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1751178AbWCUGwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 01:52:05 -0500
+To: tytso@mit.edu
+CC: uszhaoxin@gmail.com, viro@ftp.linux.org.uk, mingz@ele.uri.edu,
+       mikado4vn@gmail.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-reply-to: <20060320221911.GB11447@thunk.org> (message from Theodore Ts'o on
+	Mon, 20 Mar 2006 17:19:11 -0500)
+Subject: Re: Question regarding to store file system metadata in database
+References: <4ae3c140603182048k55d06d87ufc0b9f0548574090@mail.gmail.com> <441CE71E.5090503@gmail.com> <4ae3c140603190948s4fcd135er370a15003a0143a8@mail.gmail.com> <1142791121.31358.21.camel@localhost.localdomain> <4ae3c140603191011r7b68f4aale01238202656d122@mail.gmail.com> <1142792787.31358.28.camel@localhost.localdomain> <4ae3c140603191050k3bf7e960q9b35fe098e2fbe35@mail.gmail.com> <20060319194723.GA27946@ftp.linux.org.uk> <20060320130950.GA9334@thunk.org> <4ae3c140603200713m24a5af0agd891a709286deb47@mail.gmail.com> <20060320221911.GB11447@thunk.org>
+Message-Id: <E1FLai2-0001jF-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 21 Mar 2006 07:51:14 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mike,
+> Why not use a DB?  Because most databases's are big and bloated and
+> not something you want to have in the kernel (not even Hans Reiser was
+> crazy enough to propose stuffing an SQL interpreter into the kernel :-)
+> --- and if you put the generic database (complete with SQL interpreter
+> and all the rest) in userspace, doing upcalls into userspace, and then
+> having to have the database interpret the SQL query, etc., takes time.
+> 
+> If you don't care about performance, by all means, try using FUSE and
+> implementing a user-space filesystem.  It will be slow as all get-out,
+> but maybe it won't matter for your application.
 
-On Mon, Mar 20, 2006 at 08:09:13AM +0100, Mike Galbraith wrote:
-(...) 
-> For those interested in these kind of things, here are the numbers for
-> 2.6.16-rc6-mm2 with my [tarball] throttle patches applied...
-> 
-> [root]:# time netstat|grep :81|wc -l
->    1681
-> 
-> real    0m1.525s
-> user    0m0.141s
-> sys     0m0.136s
-> [root]:# time netstat|grep :81|wc -l
->    1491
-> 
-> real    0m0.356s
-> user    0m0.130s
-> sys     0m0.114s
-> [root]:# time netstat|grep :81|wc -l
->    1527
-> 
-> real    0m0.343s
-> user    0m0.129s
-> sys     0m0.114s
-> [root]:# time netstat|grep :81|wc -l
->    1568
-> 
-> real    0m0.512s
-> user    0m0.112s
-> sys     0m0.138s
-> 
-> ...while running with the same apache loadavg of over 10, and tunables
-> set to server mode (0,0).
-> 
-> <plug>
-> Even a desktop running with these settings is so interactive that I
-> could play a game of Maelstrom (asteroids like thing) while doing a make
-> -j30 in slow nfs mount and barely feel it.  In a local filesystem, I
-> could't feel it at all, so I added a thud 3, irman2 and a bonnie -s 2047
-> for good measure.  Try that with stock :)
-> </plug>
+Something like this has already been done:
 
-Very good job !
-I told Grant in a private email that I felt confident the problem would
-quickly be solved now that someone familiar with the scheduler could
-reliably reproduce it. Your numbers look excellent, I'm willing to test.
-Could you remind us what kernel and what patches we need to apply to
-try the same, please ?
+  http://www.noofs.org/
 
-Cheers,
-Willy
-
+Miklos

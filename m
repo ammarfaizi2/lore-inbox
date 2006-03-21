@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030352AbWCULmP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbWCULmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030352AbWCULmP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 06:42:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030358AbWCULmP
+	id S1030358AbWCULmV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 06:42:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030360AbWCULmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 06:42:15 -0500
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:11609 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1030352AbWCULmO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 06:42:14 -0500
-In-Reply-To: <20060321111452.GA5460@infradead.org>
-Subject: Re: [2/3 PATCH] Kprobes: User space probes support- readpage hooks
-Sensitivity: 
-To: Christoph Hellwig <hch@infradead.org>
-Cc: ak@suse.de, Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, prasanna@in.ibm.com, suparna@in.ibm.com
-X-Mailer: Lotus Notes Release 6.5.1IBM February 19, 2004
-Message-ID: <OF6E2AF906.7E4772F3-ON80257138.003FB875-80257138.003FEBEA@uk.ibm.com>
-From: Richard J Moore <richardj_moore@uk.ibm.com>
-Date: Tue, 21 Mar 2006 11:38:11 +0000
-X-MIMETrack: Serialize by Router on D06ML065/06/M/IBM(Release 6.53HF247 | January 6, 2005) at
- 21/03/2006 11:42:34
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Tue, 21 Mar 2006 06:42:21 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:52703 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030358AbWCULmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 06:42:20 -0500
+Subject: Re: Makefile problem
+From: Arjan van de Ven <arjan@infradead.org>
+To: cranium2003 <cranium2003@yahoo.com>
+Cc: kernel newbies <kernelnewbies@nl.linux.org>,
+       kernerl mail <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060321112132.36531.qmail@web38002.mail.mud.yahoo.com>
+References: <20060321112132.36531.qmail@web38002.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Tue, 21 Mar 2006 12:42:08 +0100
+Message-Id: <1142941329.3077.61.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-03-21 at 03:21 -0800, cranium2003 wrote:
+> Hi,
+>    I have some Makefile questions
+> 1)Why a kernel module in 2.6 kernel cannot be compiled
+> with single gcc command? Why it requires Makefile in
+> current directory so that i can use Makefile?
+> 
+> 2) why following command used to compile 2.4 kernel
+> module fails on 2.6 kernel
+> gcc  -D__KERNEL__ -DMODULE -DLINUX -O2 -Wall
+> -Wstrict-prototypes -I/lib/modules/`uname
+> -r`/build/include -c -o example.ko example.c
 
+because it's broken and isn't using the same CFLAGS as the kernel is.
+Read Documentation/kbuild/*
 
+You *HAVE* to use the same CFLAGS as the rest of the kernel.
 
-
-
-Christoph Hellwig <hch@infradead.org> wrote on 21/03/2006 11:14:52:
-
-> > A real life example of where this capability would have been very
-useful is
-> > with a performance problem I am currently investigating. It involves a
-GPFS
-> > + SAMBA + TCPIP +  RDAC
->
-> this pobablt tells more about the crappy code quality of your propritary
-> code than a real need for this.   please argue without reference to huge
-> blobs of junk.
->
-
-Damn! I knew there was an obvious answer. Thanks Christoph, I'll code a fix
-over lunch. Your insight is as always most refreshing.
-
-Richard
 

@@ -1,73 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbWCUNqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030375AbWCUNsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030372AbWCUNqT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 08:46:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbWCUNqT
+	id S1030375AbWCUNsK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 08:48:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbWCUNsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 08:46:19 -0500
-Received: from mail03.syd.optusnet.com.au ([211.29.132.184]:38063 "EHLO
-	mail03.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1030372AbWCUNqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 08:46:17 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Willy Tarreau <willy@w.ods.org>
+	Tue, 21 Mar 2006 08:48:10 -0500
+Received: from mail.gmx.de ([213.165.64.20]:40652 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030375AbWCUNsJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 08:48:09 -0500
+X-Authenticated: #14349625
 Subject: Re: interactive task starvation
-Date: Wed, 22 Mar 2006 00:45:54 +1100
-User-Agent: KMail/1.9.1
-Cc: Mike Galbraith <efault@gmx.de>, Ingo Molnar <mingo@elte.hu>,
+From: Mike Galbraith <efault@gmx.de>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
        lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
        bugsplatter@gmail.com
-References: <200603090036.49915.kernel@kolivas.org> <200603220037.52258.kernel@kolivas.org> <20060321134418.GC26171@w.ods.org>
-In-Reply-To: <20060321134418.GC26171@w.ods.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+In-Reply-To: <20060321133842.GB26171@w.ods.org>
+References: <200603090036.49915.kernel@kolivas.org>
+	 <200603212253.03637.kernel@kolivas.org> <1142946610.7807.43.camel@homer>
+	 <200603220013.15870.kernel@kolivas.org>  <20060321133842.GB26171@w.ods.org>
+Content-Type: text/plain
+Date: Tue, 21 Mar 2006 14:48:14 +0100
+Message-Id: <1142948894.7807.69.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603220045.54736.kernel@kolivas.org>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 March 2006 00:44, Willy Tarreau wrote:
-> On Wed, Mar 22, 2006 at 12:37:51AM +1100, Con Kolivas wrote:
-> > On Wednesday 22 March 2006 00:33, Mike Galbraith wrote:
-> > > On Wed, 2006-03-22 at 00:13 +1100, Con Kolivas wrote:
-> > > > On Wednesday 22 March 2006 00:10, Mike Galbraith wrote:
-> > > > > How long should Willy be able to scroll without feeling the
-> > > > > background, and how long should Apache be able to starve his shell.
-> > > > >  They are one and the same, and I can't say, because I'm not Willy.
-> > > > >  I don't know how to get there from here without tunables.  Picking
-> > > > > defaults is one thing, but I don't know how to make it
-> > > > > one-size-fits-all.  For the general case, the values delivered will
-> > > > > work fine.  For the apache case, they absolutely 100% guaranteed
-> > > > > will not.
-> > > >
-> > > > So how do you propose we tune such a beast then? Apache users will
-> > > > use off, everyone else will have no idea but to use the defaults.
-> > >
-> > > Set for desktop, which is intended to mostly emulate what we have right
-> > > now, which most people are quite happy with.  The throttle will still
-> > > nail most of the corner cases, and the other adjustments nail the
-> > > majority of what's left.  That leaves the hefty server type loads as
-> > > what certainly will require tuning.  They always need tuning.
-> >
-> > That still sounds like just on/off to me. Default for desktop and 0,0 for
-> > server. Am I missing something?
->
-> Believe it or not, there *are* people running their servers with full
-> graphical environments. At the place we first encountered the interactivity
-> problem with my load-balancer, they first installed in on a full FC2 with
-> the OpenGL screen saver... No need to say they had scaling difficulties and
-> trouble to log in !
->
-> Although that's a stupid thing to do, what I want to show is that even on
-> servers, you can't easily predict the workload. Maybe a server which often
-> forks processes for dedicated tasks (eg: monitoring) would prefer running
-> between "desktop" and "server" mode.
+On Tue, 2006-03-21 at 14:38 +0100, Willy Tarreau wrote:
+> What you describe is exactly a case for a tunable. Different people with
+> different workloads want different values. Seems fair enough. After all,
+> we already have /proc/sys/vm/swappiness, and things like that for the same
+> reason : the default value should suit most users, and the ones with
+> knowledge and different needs can tune their system. Maybe grace_{g1,g2}
+> should be renamed to be more explicit, may be we can automatically tune
+> one from the other and let only one tunable. But if both have a useful
+> effect, I don't see a reason for hiding them.
 
-I give up. Add as many tunables as you like in as many places as possible that 
-even less people will understand. You've already told me you'll be running 
-0,0.
+I'm wide open to suggestions.  I tried to make it functional, flexible,
+and above all, dirt simple.  Adding 'acceptable' would be cool :)
 
-Cheers,
-Con
+	-Mike
+

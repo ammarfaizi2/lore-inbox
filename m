@@ -1,102 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbWCUV2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWCUV36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932456AbWCUV2N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 16:28:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbWCUV2N
+	id S964808AbWCUV36 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 16:29:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbWCUV35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 16:28:13 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:46341 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S932456AbWCUV2M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 16:28:12 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: linux-kernel@vger.kernel.org
-Subject: PM-Timer Bug test program
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Wed, 22 Mar 2006 06:28:07 +0900
-Message-ID: <871wwvxzbs.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	Tue, 21 Mar 2006 16:29:57 -0500
+Received: from mail.clusterfs.com ([206.168.112.78]:34177 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932459AbWCUV34
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 16:29:56 -0500
+Date: Tue, 21 Mar 2006 14:28:53 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Phillip Lougher <phillip@lougher.demon.co.uk>
+Cc: Pavel Machek <pavel@ucw.cz>, Phillip Lougher <phillip@lougher.org.uk>,
+       Al Viro <viro@ftp.linux.org.uk>,
+       "unlisted-recipients: no To-header on input <;, Jeff Garzik" 
+	<jeff@garzik.org>,
+       J?rn Engel <joern@wohnheim.fh-wedel.de>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [ANN] Squashfs 3.0 released
+Message-ID: <20060321212853.GV6199@schatzie.adilger.int>
+Mail-Followup-To: Phillip Lougher <phillip@lougher.demon.co.uk>,
+	Pavel Machek <pavel@ucw.cz>,
+	Phillip Lougher <phillip@lougher.org.uk>,
+	Al Viro <viro@ftp.linux.org.uk>,
+	"unlisted-recipients: no To-header on input <;, Jeff Garzik" <jeff@garzik.org>,
+	J?rn Engel <joern@wohnheim.fh-wedel.de>,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+References: <20060317124310.GB28927@wohnheim.fh-wedel.de> <441ADD28.3090303@garzik.org> <0E3DADA8-1A1C-47C5-A3CF-F6A85FF5AFB8@lougher.org.uk> <441AF118.7000902@garzik.org> <20060319163249.GA3856@ucw.cz> <4420236F.80608@lougher.demon.co.uk> <20060321161452.GG27946@ftp.linux.org.uk> <44204F25.4090403@lougher.org.uk> <20060321191144.GB3929@elf.ucw.cz> <44205C1A.4040408@lougher.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44205C1A.4040408@lougher.demon.co.uk>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Mar 21, 2006  20:03 +0000, Phillip Lougher wrote:
+> I don't want the lack of a fixed endianness on disk to become a problem. 
+>   I personally don't think the use of, or lack of a fixed endianness to 
+> be that important, but I'd prefer not to change the current situation 
+> and adopt a fixed format.  I use big endian systems almost exclusively, 
+> and I don't like the way fixed formats always tend to be little-endian.
 
+If you want to squeak every last ounce of performance out of the filesystem,
+just have it declare two filesystem types - one for the little-endian, and
+one for the bit endian.  Generate one of them via "sed" from the other, to
+rename the functions, exports, etc, so they don't conflict.  Then, depending
+on the superblock magic it will mount the right filesystem, depending on
+endianness.  Since they are separate filesystems, normally only one module
+or the other need to be loaded at a time, and there is no runtime overhead.
 
-  # dmesg | grep PM
-  ACPI: PM-Timer IO Port: 0x808
-  # ./pmtmr_test 0x808                  # run as root
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 
-
-  ./pmtmr_test: Detect PM-Timer Bug
-
-If it detected a bug, it will show the above message.
-
-Thanks.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-
-
---=-=-=
-Content-Type: text/x-csrc
-Content-Disposition: inline; filename=pmtmr_test.c
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <error.h>
-#include <sys/io.h>
-
-typedef unsigned int	u32;
-static unsigned short pmtmr_ioport;
-static int cnt;
-
-#define ACPI_PM_MASK 0xFFFFFF /* limit it to 24 bits */
-
-static u32 read_pmtmr(void)
-{
-	u32 v1=0,v2=0,v3=0;
-	/* It has been reported that because of various broken
-	 * chipsets (ICH4, PIIX4 and PIIX4E) where the ACPI PM time
-	 * source is not latched, so you must read it multiple
-	 * times to insure a safe value is read.
-	 */
-	cnt = 0;
-	do {
-		v1 = inl(pmtmr_ioport);
-		v2 = inl(pmtmr_ioport);
-		v3 = inl(pmtmr_ioport);
-		cnt++;
-	} while ((v1 > v2 && v1 < v3) || (v2 > v3 && v2 < v1)
-			|| (v3 > v1 && v3 < v2));
-
-	/* mask the output to 24 bits */
-	return v2 & ACPI_PM_MASK;
-}
-
-int main(int argc, char *argv[])
-{
-	int i;
-
-	if (argc < 2)
-		error(1, 0, "Usage: %s pmtmr_port\n", argv[0]);
-
-	pmtmr_ioport = strtoul(argv[1], NULL, 0);
-	if ((pmtmr_ioport & 0xff) != 0x08)
-		error(1, 0, "Invalid port address: 0x%x\n", pmtmr_ioport);
-
-	if (iopl(3) < 0)
-		error(1, errno, "iopl");
-
-	for (i = 0; i < 10000000; i++) {
-		read_pmtmr();
-		if (cnt > 1)
-			error(1, 0, "Detect PM-Timer Bug\n");
-		if ((i % 100000) == 0)
-			printf("%d\n", i);
-	}
-	return 0;
-}
-
---=-=-=--

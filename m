@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030386AbWCUQZV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030307AbWCUQVg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030386AbWCUQZV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 11:25:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030433AbWCUQV1
+	id S1030307AbWCUQVg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 11:21:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbWCUQVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 11:21:27 -0500
+	Tue, 21 Mar 2006 11:21:31 -0500
 Received: from pasmtp.tele.dk ([193.162.159.95]:29964 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1030277AbWCUQVM (ORCPT
+	by vger.kernel.org with ESMTP id S1030307AbWCUQVN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 11:21:12 -0500
+	Tue, 21 Mar 2006 11:21:13 -0500
 Cc: Sam Ravnborg <sam@mars.ravnborg.org>, Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH 30/46] kbuild: kill false positives from section mismatch warnings for powerpc
-In-Reply-To: <11429580563392-git-send-email-sam@ravnborg.org>
+Subject: [PATCH 37/46] kbuild: replace PHONY with FORCE
+In-Reply-To: <11429580571509-git-send-email-sam@ravnborg.org>
 X-Mailer: git-send-email
-Date: Tue, 21 Mar 2006 17:20:56 +0100
-Message-Id: <11429580562637-git-send-email-sam@ravnborg.org>
+Date: Tue, 21 Mar 2006 17:20:57 +0100
+Message-Id: <1142958057287-git-send-email-sam@ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Sam Ravnborg <sam@ravnborg.org>
@@ -24,81 +24,94 @@ From: Sam Ravnborg <sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Building an allmodconfig kernel for ppc64 revealed a number of false
-positives - originally reported by Andrew Morton.
-This patch removes most if not all false positives for ppc64:
-
-Section .opd
-The .opd section contains function descriptors at least for ppc64.
-So ignore it for .init.text (was ignored for .exit.text).
-See description of function descriptors here:
-http://www.linuxbase.org/spec/ELF/ppc64/PPC-elf64abi-1.7.html
-
-Section .toc1
-ppc64 places some static variables in .toc1 - ignore the.
-
-Section __bug_tabe
-BUG() and friends uses __bug_table. Ignore warnings from that section.
-
-Module parameters are placed in .data.rel for ppc64, for adjust pattern to
-match on section named .data*
-
-Tested with gcc: 3.4.0 and binutils 2.15.90.0.3
+.PHONY: does not take patterns so use FORCE to achive same effect.
+Thanks to "Paul D. Smith" <psmith@gnu.org> for noticing this.
 
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- scripts/mod/modpost.c |    9 +++++++--
- 1 files changed, 7 insertions(+), 2 deletions(-)
+ Makefile                 |    2 --
+ scripts/package/Makefile |   18 +++++++-----------
+ 2 files changed, 7 insertions(+), 13 deletions(-)
 
-9209aed0726c77ad13b8d83e73a3cf9f59a8c2b2
-diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-index 5de3c63..c4dc1d7 100644
---- a/scripts/mod/modpost.c
-+++ b/scripts/mod/modpost.c
-@@ -483,7 +483,7 @@ static int strrcmp(const char *s, const 
-  *   this pattern.
-  *   The pattern is identified by:
-  *   tosec   = .init.data
-- *   fromsec = .data
-+ *   fromsec = .data*
-  *   atsym   =__param*
-  *
-  * Pattern 2:
-@@ -512,7 +512,7 @@ static int secref_whitelist(const char *
- 	/* Check for pattern 1 */
- 	if (strcmp(tosec, ".init.data") != 0)
- 		f1 = 0;
--	if (strcmp(fromsec, ".data") != 0)
-+	if (strncmp(fromsec, ".data", strlen(".data")) != 0)
- 		f1 = 0;
- 	if (strncmp(atsym, "__param", strlen("__param")) != 0)
- 		f1 = 0;
-@@ -743,9 +743,12 @@ static int init_section_ref_ok(const cha
- 	/* Absolute section names */
- 	const char *namelist1[] = {
- 		".init",
-+		".opd",   /* see comment [OPD] at exit_section_ref_ok() */
-+		".toc1",  /* used by ppc64 */
- 		".stab",
- 		".rodata",
- 		".text.lock",
-+		"__bug_table", /* used by powerpc for BUG() */
- 		".pci_fixup_header",
- 		".pci_fixup_final",
- 		".pdr",
-@@ -812,8 +815,10 @@ static int exit_section_ref_ok(const cha
- 		".exit.data",
- 		".init.text",
- 		".opd", /* See comment [OPD] */
-+		".toc1",  /* used by ppc64 */
- 		".altinstructions",
- 		".pdr",
-+		"__bug_table", /* used by powerpc for BUG() */
- 		".exitcall.exit",
- 		".eh_frame",
- 		".stab",
+0131705d589e2341dbc5e8946a60f83d8c1773dc
+diff --git a/Makefile b/Makefile
+index a59c1e2..eca667b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1000,8 +1000,6 @@ distclean: mrproper
+ # rpm target kept for backward compatibility
+ package-dir	:= $(srctree)/scripts/package
+ 
+-PHONY += %-pkg rpm
+-
+ %pkg: FORCE
+ 	$(Q)$(MAKE) -f $(package-dir)/Makefile $@
+ rpm: FORCE
+diff --git a/scripts/package/Makefile b/scripts/package/Makefile
+index d3038b7..7c434e0 100644
+--- a/scripts/package/Makefile
++++ b/scripts/package/Makefile
+@@ -32,12 +32,11 @@ MKSPEC     := $(srctree)/scripts/package
+ PREV       := set -e; cd ..;
+ 
+ # rpm-pkg
+-PHONY += rpm-pkg rpm
+-
++# ---------------------------------------------------------------------------
+ $(objtree)/kernel.spec: $(MKSPEC) $(srctree)/Makefile
+ 	$(CONFIG_SHELL) $(MKSPEC) > $@
+ 
+-rpm-pkg rpm: $(objtree)/kernel.spec
++rpm-pkg rpm: $(objtree)/kernel.spec FORCE
+ 	$(MAKE) clean
+ 	$(PREV) ln -sf $(srctree) $(KERNELPATH)
+ 	$(PREV) tar -cz $(RCS_TAR_IGNORE) -f $(KERNELPATH).tar.gz $(KERNELPATH)/.
+@@ -54,11 +53,11 @@ rpm-pkg rpm: $(objtree)/kernel.spec
+ clean-files := $(objtree)/kernel.spec
+ 
+ # binrpm-pkg
+-PHONY += binrpm-pkg
++# ---------------------------------------------------------------------------
+ $(objtree)/binkernel.spec: $(MKSPEC) $(srctree)/Makefile
+ 	$(CONFIG_SHELL) $(MKSPEC) prebuilt > $@
+ 
+-binrpm-pkg: $(objtree)/binkernel.spec
++binrpm-pkg: $(objtree)/binkernel.spec FORCE
+ 	$(MAKE) KBUILD_SRC=
+ 	set -e; \
+ 	$(CONFIG_SHELL) $(srctree)/scripts/mkversion > $(objtree)/.tmp_version
+@@ -71,9 +70,7 @@ clean-files += $(objtree)/binkernel.spec
+ 
+ # Deb target
+ # ---------------------------------------------------------------------------
+-#
+-PHONY += deb-pkg
+-deb-pkg:
++deb-pkg: FORCE
+ 	$(MAKE) KBUILD_SRC=
+ 	$(CONFIG_SHELL) $(srctree)/scripts/package/builddeb
+ 
+@@ -82,8 +79,7 @@ clean-dirs += $(objtree)/debian/
+ 
+ # tarball targets
+ # ---------------------------------------------------------------------------
+-PHONY += tar%pkg
+-tar%pkg:
++tar%pkg: FORCE
+ 	$(MAKE) KBUILD_SRC=
+ 	$(CONFIG_SHELL) $(srctree)/scripts/package/buildtar $@
+ 
+@@ -92,7 +88,7 @@ clean-dirs += $(objtree)/tar-install/
+ 
+ # Help text displayed when executing 'make help'
+ # ---------------------------------------------------------------------------
+-help:
++help: FORCE
+ 	@echo '  rpm-pkg         - Build the kernel as an RPM package'
+ 	@echo '  binrpm-pkg      - Build an rpm package containing the compiled kernel'
+ 	@echo '                    and modules'
 -- 
 1.0.GIT
 

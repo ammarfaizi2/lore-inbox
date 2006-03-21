@@ -1,73 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbWCUBCN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWCUBFk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbWCUBCN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Mar 2006 20:02:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbWCUBCM
+	id S932245AbWCUBFk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Mar 2006 20:05:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWCUBFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Mar 2006 20:02:12 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:54500 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751377AbWCUBCL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Mar 2006 20:02:11 -0500
-Message-ID: <441F508E.1030008@pobox.com>
-Date: Mon, 20 Mar 2006 20:02:06 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 20 Mar 2006 20:05:39 -0500
+Received: from test-iport-1.cisco.com ([171.71.176.117]:51576 "EHLO
+	test-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S932245AbWCUBFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Mar 2006 20:05:38 -0500
+To: linux-kernel@vger.kernel.org
+Subject: nommu_map_sg: overflow with ata_piix?
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 20 Mar 2006 17:05:35 -0800
+Message-ID: <adawteoa9pc.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-To: sander@humilis.net
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, lkml@rtr.ca
-Subject: Re: Some sata_mv error messages 
-References: <20060318044056.350a2931.akpm@osdl.org> <20060320133318.GB32762@favonius>
-In-Reply-To: <20060320133318.GB32762@favonius>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.0 (--)
-X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
-	Content analysis details:   (-2.0 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 21 Mar 2006 01:05:36.0815 (UTC) FILETIME=[9011CBF0:01C64C83]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sander wrote:
-> Hi all,
-> 
-> While sata_mv in 2.6.16-rc6-mm2 seems stable (yah!) compared to
-> 2.6.16-rc6 (no crashes, no data corruption), I still get these messages:
-> 
-> [ 3962.139906] ata5: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> [ 3962.139959] ata5: status=0xd0 { Busy }
-> 
-> [ 6105.948045] ata6: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> [ 6105.948097] ata6: status=0xd0 { Busy }
-> 
-> [ 7981.164936] ata5: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> [ 7981.164991] ata5: status=0xd0 { Busy }
-> 
-> [ 8273.951019] ata7: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> [ 8273.951072] ata7: status=0xd0 { Busy }
-> 
-> [ 9903.032350] ata8: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> [ 9903.032402] ata8: status=0xd0 { Busy }
-> 
-> 
-> I'm not entirely sure this is only happens on sata_mv (Marvell
-> MV88SX6081) as out of eight disks only one is connected to the onboard
-> sata_nv (nVidia) and the error doesn't happen very often. But I'll keep
-> an eye on it.
-> 
-> Are these messages somehow dangerous or otherwise indicating a
-> potentional serious problem? A google search came up with a few links,
-> but none of them helped me understand the messages.
+I just got a new dual Xeon system with 4 GB of RAM and SATA drives.
+It boots fine with Debian's 2.6.15 kernel, but I just tried building a
+kernel from an up-to-date Linus tree, and I get the following on boot:
 
-Without answering your specific question, just remember that sata_mv is 
-considerly "highly experimental" right now, and still needs some 
-workarounds for hardware errata.
+scsi0 : ata_piix
+ATA: abnormal status 0x7F on port 0x405F
+scsi1 : ata_piix
+  Vendor: ATA       Model: Maxtor 6L080M0    Rev: BACE
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
+sda: Write Protect is off
+SCSI device sda: drive cache: write through
+SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
+sda: Write Protect is off
+SCSI device sda: drive cache: write through
+ sda:<3>nommu_map_sg: overflow 11b8a9000+4096 of device mask ffffffff
+nommu_map_sg: overflow 11b8a9000+4096 of device mask ffffffff
+nommu_map_sg: overflow 11b8a9000+4096 of device mask ffffffff
+nommu_map_sg: overflow 11b8a9000+4096 of device mask ffffffff
+nommu_map_sg: overflow 11b8a9000+4096 of device mask ffffffff
+nommu_map_sg: overflow 11b8a9000+4096 of device mask ffffffff
+sd 0:0:0:0: SCSI error: return code = 0x70000
 
-For now, the goal is a system that doesn't crash and doesn't corrupt 
-data.  If its occasionally slow or spits out a few errors, but otherwise 
-still works, that's pretty darned good :)
+and then of course it panics because it can't find the root partition.
 
-	Jeff
+Some RAM is being remapped above 4 GB:
 
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 00000000dfff3000 (usable)
+ BIOS-e820: 00000000dfff3000 - 00000000dfffb000 (ACPI data)
+ BIOS-e820: 00000000dfffb000 - 00000000e0000000 (reserved)
+ BIOS-e820: 00000000fec00000 - 00000000fed00000 (reserved)
+ BIOS-e820: 00000000fee00000 - 00000000fee10000 (reserved)
+ BIOS-e820: 00000000ffc00000 - 0000000100000000 (reserved)
+ BIOS-e820: 0000000100000000 - 000000011bfff000 (usable)
 
+Any suggestions?  I can provide more debugging info if required.
+
+Thanks,
+  Roland

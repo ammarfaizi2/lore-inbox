@@ -1,54 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWCUUR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWCUURH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbWCUUR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 15:17:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWCUUR2
+	id S932169AbWCUURH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 15:17:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWCUURH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 15:17:28 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40425 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932440AbWCUUR0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 15:17:26 -0500
-Date: Tue, 21 Mar 2006 21:15:41 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Phillip Lougher <phillip@lougher.demon.co.uk>
-Cc: Phillip Lougher <phillip@lougher.org.uk>, Al Viro <viro@ftp.linux.org.uk>,
-       "unlisted-recipients: no To-header on input <;, Jeff Garzik" 
-	<jeff@garzik.org>,
-       J?rn Engel <joern@wohnheim.fh-wedel.de>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [ANN] Squashfs 3.0 released
-Message-ID: <20060321201541.GF3929@elf.ucw.cz>
-References: <20060317124310.GB28927@wohnheim.fh-wedel.de> <441ADD28.3090303@garzik.org> <0E3DADA8-1A1C-47C5-A3CF-F6A85FF5AFB8@lougher.org.uk> <441AF118.7000902@garzik.org> <20060319163249.GA3856@ucw.cz> <4420236F.80608@lougher.demon.co.uk> <20060321161452.GG27946@ftp.linux.org.uk> <44204F25.4090403@lougher.org.uk> <20060321191144.GB3929@elf.ucw.cz> <44205C1A.4040408@lougher.demon.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44205C1A.4040408@lougher.demon.co.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Tue, 21 Mar 2006 15:17:07 -0500
+Received: from colibri.its.uu.se ([130.238.4.154]:55522 "EHLO
+	colibri.its.uu.se") by vger.kernel.org with ESMTP id S932169AbWCUURG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 15:17:06 -0500
+From: "Alfred M. Szmidt" <ams@gnu.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+CC: tytso@mit.edu, sct@redhat.com, adilger@clusterfs.com,
+       sho@bsd.tnes.nec.co.jp, cmm@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, Laurent.Vivier@bull.net,
+       cascardo@minaslivre.org, roland@frob.com
+In-reply-to: <20060321183822.GC11447@thunk.org> (tytso@mit.edu)
+Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
+Reply-to: ams@gnu.org
+References: <1142475556.3764.133.camel@dyn9047017067.beaverton.ibm.com> <02bc01c648f2$bd35e830$4168010a@bsd.tnes.nec.co.jp> <20060316183549.GK30801@schatzie.adilger.int> <20060316212632.GA21004@thunk.org> <20060316225913.GV30801@schatzie.adilger.int> <20060318170729.GI21232@thunk.org> <20060320063633.GC30801@schatzie.adilger.int> <1142894283.21593.59.camel@orbit.scot.redhat.com> <20060320234829.GJ6199@schatzie.adilger.int> <1142960722.3443.24.camel@orbit.scot.redhat.com> <20060321183822.GC11447@thunk.org>
+Message-Id: <20060321201654.7D6FA44031@Psilocybe.Update.UU.SE>
+Date: Tue, 21 Mar 2006 21:16:54 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Adding Roland McGrath to the CC.
 
-> >Can you try to benchmark it? I believe it is going to be lost in
-> >noise, slow cpus or not.
-> 
-> Good idea, I'll try to benchmark it (on a slow CPU if I can find one :-) 
-> ).  It will probably make no difference.
-> 
-> I don't want the lack of a fixed endianness on disk to become a problem. 
->   I personally don't think the use of, or lack of a fixed endianness to 
-> be that important, but I'd prefer not to change the current situation 
-> and adopt a fixed format.  I use big endian systems almost exclusively, 
-> and I don't like the way fixed formats always tend to be little-endian.
+   > > It would also be good to understand what HURD is actually doing
+   > > with those other fields (if anything, does it even exist
+   > > anymore?), since it is literally holding TB of space unusable
+   > > on Linux ext3 filesystems that could better be put to use.
+   > > There are i_translator, i_mode_high, and i_author held hostage
+   > > by HURD, and I certainly have never seen or heard of any good
+   > > description of what they do or if Linux would/could ever use
+   > > them, or if HURD could live without them.
 
-Fix it to big-endian, then. Network protocols are big-endian, anyway,
-and PCs tend to be so fast that byteswap will be lost in cache misses,
-anyway.
+   Hurd is definitely using the translator field, and I only recently
+   discovered they are using it to point at a disk block where the
+   name of the translator program (I'm not 100% sure, but I think it's
+   a generic, out-of-band, #! sort of functionality).  I don't know
+   about the other fields, but I can find out.
 
-[Funny, it looks like all the big-endian machines are slow :-)))]
+Something like that.  The author field is akin to gid/uid.  I don't
+recall the exact usage of i_mode_high, but it has something to do with
+translators.
 
-								Pavel
--- 
-Picture of sleeping (Linux) penguin wanted...
+   > If they really are 100% necessary for hurd, it might be that we
+   > could relegate them to an xattr.  There's the slight problem of
+   > testing, though; does anyone on ext2-devel actually run hurd,
+   > ever?
+
+   Relegating them to an xatter would break compatibility with
+   existing hurd filesystems.  We could take the arrogant "Linux is
+   the only thing that matters", and just screw them, and the net
+   result will probably be that Hurd will never implement some of the
+   advanced features we've been talking about.  They might not
+   anyways, though.  A real problem is that as far as I know, the hurd
+   ext2 developers aren't on the ext2-devel mailing list.
+
+   I've cc'ed two people that sent me a request to add some additional
+   debugfs functionality to support hurd; maybe they can help by
+   telling us whether or not hurd is using i_mode_high and i_author,
+   and whether or not hurd has any likelihood of tracking new ext3
+   features that we might add in the future or not.
+
+Both i_mode_high and i_author are used in the Hurd.  But they are only
+used if and only if creator of the file-system is the Hurd, same for
+the translator fields.
+
+   > > I'm fully in the "the chance of any real problem is vanishingly
+   > > small" camp, even though Lustre is one of the few users of
+   > > large inodes.  The presence of the COMPAT field would not
+   > > really be any different than just changing ext3_new_inode() to
+   > > make i_extra_isize 16 by default, except to cause breakage
+   > > against the older e2fsprogs.
+   > 
+   > Setting i_extra_isize will break older e2fsprogs anyway, won't
+   > it?  e2fsck needs to have full knowledge of all fs fields in
+   > order to maintain consistency; if it doesn't know about some of
+   > the fields whose presence is implied by i_extra_isize, then
+   > doesn't it have to abort?
+
+   E2fsprogs previous to e2fsprogs 1.37 ignored i_extra_isize and
+   didn't check whether or not the EA's in the inode were valid.
+   Starting in e2fsprogs 1.37, e2fsck understands i_extra_size and in
+   fact does validate the EA's in the inode.  If we add new i_extra
+   fields, then currently e2fsprogs will ignore them, and that's OK
+   for things like the high precision time fields.  But if they are
+   fields where e2fsck does need to know about them, then obviously we
+   would need a COMPAT feature flag to signal that fact (since e2fsck
+   will refuse to operate on a filesystem if ther is a COMPAT feature
+   that it doesn't understand.)
+
+   > So for future-proofing, we do need some distinction between the
+   > fields actually *used* in i_extra_isize, and those simply
+   > reserved there.  And that has to be per-inode, if we want to
+   > allow easy dynamic migration to newer fields.
+   >
+   > So a per-superblock field guaranteeing that there's at least $N
+   > bytes of usable *potential* i_extra_isize in each inode, and a
+   > per-inode i_extra_isize which shows which fields are *actively*
+   > used, gives us both pieces of information that we need.
+
+   The easiest way to do future-proofing is to state that they must be
+   initialized to zero.  That's how we handle unusued fields in the
+   superblock, after all, and it means that it's relatively easy to
+   add new superblock fields without needing to cause compatibility
+   problems..  If you absolutely, positively need e2fsck to abort if
+   it doesn't understand a particular field, that's what a COMPAT
+   feature flag is for.  Otherwise, new kernels can simply check to
+   see if the field is non-zero, and if so, honor it, and old-kernels
+   will simply ignore the new information.  In many cases, that's more
+   than sufficient.

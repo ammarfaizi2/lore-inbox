@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965076AbWCUTmJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWCUTnK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965076AbWCUTmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 14:42:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbWCUTmJ
+	id S1751331AbWCUTnK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 14:43:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWCUTnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 14:42:09 -0500
-Received: from rtr.ca ([64.26.128.89]:46300 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S965076AbWCUTmI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 14:42:08 -0500
-Message-ID: <4420570B.5060304@rtr.ca>
-Date: Tue, 21 Mar 2006 14:42:03 -0500
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20060305 SeaMonkey/1.1a
-MIME-Version: 1.0
-To: Denis Leroy <denis@poolshark.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, sander@humilis.net,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, lkml@rtr.ca
-Subject: Re: Some sata_mv error messages
-References: <20060318044056.350a2931.akpm@osdl.org> <20060320133318.GB32762@favonius> <441F508E.1030008@pobox.com> <441F8599.7080703@rtr.ca> <44205513.8030109@poolshark.org>
-In-Reply-To: <44205513.8030109@poolshark.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 21 Mar 2006 14:43:09 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:21451 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965092AbWCUTnG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 14:43:06 -0500
+Subject: Re: [PATCH][5/8] proc: export mlocked pages info through
+	"/proc/meminfo: Wired"
+From: Arjan van de Ven <arjan@infradead.org>
+To: Stone Wang <pwstone@gmail.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <bc56f2f0603210733vc3ce132p@mail.gmail.com>
+References: <bc56f2f0603200537i7b2492a6p@mail.gmail.com>
+	 <441FEFC7.5030109@yahoo.com.au> <bc56f2f0603210733vc3ce132p@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 21 Mar 2006 20:43:00 +0100
+Message-Id: <1142970181.3077.103.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Leroy wrote:
->
-> This is great news. Is there any relationship between the development of
-> this driver and the one maintained by Marvell that's available from
-> their web site ? Their latest version (3.6.1) is released under the GPL,
->
+On Tue, 2006-03-21 at 10:33 -0500, Stone Wang wrote:
+> The list potentially could have more wider use.
+> 
+> For example, kernel-space locked/pinned pages could be placed on the list too
+> (while mlocked pages are locked/pinned by system calls from user-space).
 
-No relationship, other than that I plan to look through their driver
-for more clues to how they handle certain errata and stuff.
+then please call it pinned_list or locked_down_list or so ;)
 
-My employer for this project has fairly detailed information
-from Marvell as well.
 
-Cheers

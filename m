@@ -1,102 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWCURR4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbWCURSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbWCURR4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 12:17:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWCURRz
+	id S932333AbWCURSl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 12:18:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWCURSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 12:17:55 -0500
-Received: from pat.uio.no ([129.240.130.16]:8870 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932261AbWCURRy (ORCPT
+	Tue, 21 Mar 2006 12:18:41 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:17336 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932321AbWCURSj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 12:17:54 -0500
-Subject: NFSD4: return conflict lock without races
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       Neil Brown <neilb@suse.de>
-Content-Type: text/plain
-Date: Tue, 21 Mar 2006 12:17:47 -0500
-Message-Id: <1142961468.7987.26.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-4.005, required 12,
-	autolearn=disabled, AWL 0.99, UIO_MAIL_IS_INTERNAL -5.00)
+	Tue, 21 Mar 2006 12:18:39 -0500
+Date: Tue, 21 Mar 2006 09:18:10 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: mchehab@infradead.org
+cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
+       video4linux-list@redhat.com, akpm@osdl.org
+Subject: Re: [PATCH 00/49] V4L/DVB updates part 2
+In-Reply-To: <20060320192044.PS58609000000@infradead.org>
+Message-ID: <Pine.LNX.4.64.0603210905480.3622@g5.osdl.org>
+References: <20060320192044.PS58609000000@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andy Adamson <andros@citi.umich.edu>
-
-Update the NFSv4 server to use the new posix_lock_file_conf() interface. Remove
-unnecessary (and race-prone) posix_test_file() calls.
-
-Signed-off-by: Andy Adamson <andros@citi.umich.edu>
-Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
----
-
- fs/nfsd/nfs4state.c |   38 ++++++++++++++++----------------------
- 1 files changed, 16 insertions(+), 22 deletions(-)
-
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index f6ab762..b2f8b69 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -2749,37 +2749,31 @@ nfsd4_lock(struct svc_rqst *rqstp, struc
- 	* Note: locks.c uses the BKL to protect the inode's lock list.
- 	*/
- 
--	status = posix_lock_file(filp, &file_lock);
--	dprintk("NFSD: nfsd4_lock: posix_lock_file status %d\n",status);
-+	/* XXX?: Just to divert the locks_release_private at the start of
-+	 * locks_copy_lock: */
-+	conflock.fl_ops = NULL;
-+	conflock.fl_lmops = NULL;
-+	status = posix_lock_file_conf(filp, &file_lock, &conflock);
-+	dprintk("NFSD: nfsd4_lock: posix_lock_file_conf status %d\n",status);
- 	switch (-status) {
- 	case 0: /* success! */
- 		update_stateid(&lock_stp->st_stateid);
- 		memcpy(&lock->lk_resp_stateid, &lock_stp->st_stateid, 
- 				sizeof(stateid_t));
--		goto out;
--	case (EAGAIN):
--		goto conflicting_lock;
-+		break;
-+	case (EAGAIN):		/* conflock holds conflicting lock */
-+		status = nfserr_denied;
-+		dprintk("NFSD: nfsd4_lock: conflicting lock found!\n");
-+		nfs4_set_lock_denied(&conflock, &lock->lk_denied);
-+		break;
- 	case (EDEADLK):
- 		status = nfserr_deadlock;
--		dprintk("NFSD: nfsd4_lock: posix_lock_file() failed! status %d\n",status);
--		goto out;
-+		break;
- 	default:        
--		status = nfserrno(status);
--		dprintk("NFSD: nfsd4_lock: posix_lock_file() failed! status %d\n",status);
--		goto out;
--	}
--
--conflicting_lock:
--	dprintk("NFSD: nfsd4_lock: conflicting lock found!\n");
--	status = nfserr_denied;
--	/* XXX There is a race here. Future patch needed to provide 
--	 * an atomic posix_lock_and_test_file
--	 */
--	if (!posix_test_lock(filp, &file_lock, &conflock)) {
--		status = nfserr_serverfault;
--		goto out;
-+		dprintk("NFSD: nfsd4_lock: posix_lock_file_conf() failed! status %d\n",status);
-+		status = nfserr_resource;
-+		break;
- 	}
--	nfs4_set_lock_denied(&conflock, &lock->lk_denied);
- out:
- 	if (status && lock->lk_is_new && lock_sop)
- 		release_stateowner(lock_sop);
 
 
+On Mon, 20 Mar 2006, mchehab@infradead.org wrote:
+>
+> This patch series is available under v4l-dvb.git tree at:
+>         kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git.
 
+Mauro,
+ because this tree contained a really ugly failed merge that was 
+incorrectly done as a commit that was just a diff, I re-wrote the tree by 
+re-doing the merge properly (as far as I can tell) and then cherry-picking 
+the commits that followed it.
+
+This means that what I just pushed out has the same _contents_ as your 
+tree had, but because it has a fixed-up history, it's really a different 
+tree.
+
+I'm hoping that you can just discard your broken tree, and replace it with 
+mine. So _instead_ of doing a "git pull" on my tree (which will succeed 
+fine, but which will leave you with your old broken history _and_ the new 
+fixed up one), you should just reset your state to mine.
+
+If you have some additional commits on top of your broken history, you can 
+cherry-pick them onto the fixed one. Ok?
+
+I'd suggest you double-check that my result is sensible, but I was pretty 
+careful. It should be all good (the end result matches your end result 
+exactly), but also, the history should be identical apart from the merge 
+mess being cleaned up.
+
+(If it's not clear how to reset to my state, just do something like
+
+    git fetch origin		# get my new updated tree
+    git branch oldbranch	# save your old state in "oldbranch"
+    git reset --hard origin	# switch your master branch over to "origin"
+
+which will reset your state to mine, and leave your old state in the 
+"oldbranch" branch - after that, you can look at both "oldbranch" and the 
+current state, and perhaps move any commits on "oldbranch" over to the new 
+state with "git cherry-pick <cmit-id>").
+
+Holler if you have any issues..
+
+(Oh: when next you push to master.kernel.org, you'll need to use the "-f" 
+flag to _force_ the push, since your new tree will no longer be a superset 
+of your old broken tree with the broken merge).
+
+		Linus

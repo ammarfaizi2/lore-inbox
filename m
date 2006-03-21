@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWCUKRo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWCUK0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbWCUKRo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 05:17:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWCUKRo
+	id S932398AbWCUK0z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 05:26:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWCUK0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 05:17:44 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:42932 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932388AbWCUKRn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 05:17:43 -0500
-Date: Tue, 21 Mar 2006 02:14:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "bibo,mao" <bibo.mao@intel.com>
-Cc: linux-kernel@vger.kernel.org, ananth@in.ibm.com,
-       anil.s.keshavamurthy@intel.com, prasanna@in.ibm.com,
-       hiramatu@sdl.hitachi.co.jp
-Subject: Re: [PATCH] kretprobe spinlock recursive remove
-Message-Id: <20060321021418.19e01b30.akpm@osdl.org>
-In-Reply-To: <441FCCF8.1060300@intel.com>
-References: <441FCCF8.1060300@intel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 21 Mar 2006 05:26:55 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15373 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932398AbWCUK0v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 05:26:51 -0500
+Date: Tue, 21 Mar 2006 08:07:09 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Olivier Galibert <galibert@pobox.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, David Vrabel <dvrabel@arcom.com>
+Subject: Re: [PATCH 04/23] driver core: platform_get_irq*(): return -ENXIO on error
+Message-ID: <20060321080709.GD21287@flint.arm.linux.org.uk>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+	David Vrabel <dvrabel@arcom.com>
+References: <11428920373568-git-send-email-gregkh@suse.de> <11428920383013-git-send-email-gregkh@suse.de> <20060321001336.GB84147@dspnet.fr.eu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060321001336.GB84147@dspnet.fr.eu.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"bibo,mao" <bibo.mao@intel.com> wrote:
->
-> In recent linux kernel version, kretprobe in IA32 is implemented in 
-> kretprobe_trampoline. And break trap code is removed from 
-> retprobe_trampoline, instead trampoline_handler is called directly. 
-> Currently if kretprobe hander hit one trap which causes another 
-> kretprobe, there will be SPINLOCK recursive bug. This patch fixes this, 
-> and will skip trap during kretprobe handler execution. This patch is 
-> based on 2.6.16-rc6-mm2.
-
-What is "recent linux kernel"?  2.6.16?  This patch does apply to 2.6.16 so
-I assume that's what you were referring to?
-
-If you're referring to the kretprobes patches in -mm then which one
-introduced the problem?
-
-If you're referring to 2.6.16 then is this problem sufficiently serious to
-warrant inclusion of this patch in 2.6.16.1?
-
-Please remember to include Signed-off-by: tags.
-
-> --- arch/i386/kernel/kprobes.c.bak	2006-03-21 10:35:34.000000000 +0800
-> +++ arch/i386/kernel/kprobes.c	2006-03-21 10:37:44.000000000 +0800
-
-Please prepare patches in `patch -p1' form.
-
-> @@ -390,8 +390,11 @@ fastcall void *__kprobes trampoline_hand
->   			/* another task is sharing our hash bucket */
->                           continue;
+On Tue, Mar 21, 2006 at 01:13:36AM +0100, Olivier Galibert wrote:
+> On Mon, Mar 20, 2006 at 02:00:38PM -0800, Greg Kroah-Hartman wrote:
+> > platform_get_irq*() cannot return 0 on error as 0 is a valid IRQ on some
+> > platforms, return -ENXIO instead.
 > 
-> -		if (ri->rp && ri->rp->handler)
-> +		if (ri->rp && ri->rp->handler){
-> +			__get_cpu_var(current_kprobe) = &ri->rp->kp;
->   			ri->rp->handler(ri, regs);
-> +			__get_cpu_var(current_kprobe) = NULL;
-> +		}
+> 0 is NO_IRQ, and can not be a valid IRQ number, ever.  A
+> platform_get_irq*() returning 0 as a valid irq is buggy.
 > 
->   		orig_ret_address = (unsigned long)ri->ret_addr;
->   		recycle_rp_inst(ri);
+> Check http://lkml.org/lkml/2005/11/21/211
 
-Your email client appears to be altering the patches in some manner.  It
-required `patch -l' to make this apply.
+No.  That's Linus' _opinion_, which is not applicable to systems without
+the obviously broken PCI or ISA busses.  On such systems, IRQ0 has no
+special meaning what so ever.
 
+Greg - please continue sending this patch.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWCUVTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWCUVS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932451AbWCUVTY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 16:19:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWCUVTX
+	id S1750818AbWCUVS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 16:18:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWCUVS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 16:19:23 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:2713 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751156AbWCUVTW (ORCPT
+	Tue, 21 Mar 2006 16:18:59 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:63957 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750818AbWCUVS6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 16:19:22 -0500
-Date: Tue, 21 Mar 2006 13:19:13 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-cc: Sander <sander@humilis.net>, Mark Lord <liml@rtr.ca>,
-       Mark Lord <lkml@rtr.ca>, Andrew Morton <akpm@osdl.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.xx: sata_mv: another critical fix
-In-Reply-To: <44206B81.1030309@garzik.org>
-Message-ID: <Pine.LNX.4.64.0603211316580.3622@g5.osdl.org>
-References: <441F4F95.4070203@garzik.org> <200603210000.36552.lkml@rtr.ca>
- <20060321121354.GB24977@favonius> <442004E4.7010002@rtr.ca>
- <20060321153708.GA11703@favonius> <Pine.LNX.4.64.0603211028380.3622@g5.osdl.org>
- <20060321191547.GC20426@favonius> <Pine.LNX.4.64.0603211132340.3622@g5.osdl.org>
- <20060321204435.GE25066@favonius> <Pine.LNX.4.64.0603211249270.3622@g5.osdl.org>
- <44206B81.1030309@garzik.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Mar 2006 16:18:58 -0500
+Date: Tue, 21 Mar 2006 22:16:53 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rt1
+Message-ID: <20060321211653.GA3090@elte.hu>
+References: <20060320085137.GA29554@elte.hu> <441F8017.4040302@cybsft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <441F8017.4040302@cybsft.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.7 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+* K.R. Foley <kr@cybsft.com> wrote:
 
-On Tue, 21 Mar 2006, Jeff Garzik wrote:
-> 
-> There were a bunch of sata_mv fixes in git-libata-all, all of which are
-> actually now in your linux-2.6.git tree.
+> I haven't had a chance to look into it yet but this combination brings 
+> with it a significant latency regression, at least as measured by the 
+> rtc histogram stuff.
 
-Ok. I wasn't sure that the latest libata merge had merged everything that 
-was in -mm1, but if you think the relevant parts are there, then..
+can you also measure it via rtc_wakeup, a'ka:
 
-> In any case, one could be lazy, and simply bisect the main tree (and/or simply
-> verify that the problem is gone in 2.6.16-git<today>).
+ chrt -f -p 98 `pidof 'IRQ 8'`
+ ./rtc_wakeup -f 8192 -t 100000
 
-Yes, just testing the current git tree (and if you're not a git user, just 
-waiting for the next nightly snapshot) sounds like the appropriate thing 
-to do.
+? I have just tried it, and -rt4 looks pretty good on the latency front 
+(with all debugging disabled).
 
-Maybe back-porting any critical sata_mv fixes to 2.6.16.x is appropriate, 
-considering that I don't think RH or SuSE will necessarily want to pull 
-the whole thing.
-
-		Linus
+	Ingo

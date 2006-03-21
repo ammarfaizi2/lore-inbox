@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWCUSHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbWCUSJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbWCUSHR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 13:07:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWCUSHQ
+	id S932357AbWCUSJE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 13:09:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWCUSJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 13:07:16 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:4283 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932357AbWCUSHP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 13:07:15 -0500
-Message-ID: <442040CB.2020201@zytor.com>
-Date: Tue, 21 Mar 2006 10:07:07 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: VFAT: Can't create file named 'aux.h'?
-References: <1142890822.5007.18.camel@localhost.localdomain> <20060320134533.febb0155.rdunlap@xenotime.net> <dvn835$lvo$1@terminus.zytor.com> <Pine.LNX.4.61.0603211840020.21376@yvahk01.tjqt.qr> <44203B86.5000003@zytor.com> <Pine.LNX.4.61.0603211854150.21376@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0603211854150.21376@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 21 Mar 2006 13:09:04 -0500
+Received: from pat.uio.no ([129.240.130.16]:35227 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932357AbWCUSJD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 13:09:03 -0500
+Subject: Re: [NFS] [GIT] NFS client update for 2.6.16
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net, nfsv4@linux-nfs.org
+In-Reply-To: <20060321174634.GA15827@infradead.org>
+References: <1142961077.7987.14.camel@lade.trondhjem.org>
+	 <20060321174634.GA15827@infradead.org>
+Content-Type: text/plain
+Date: Tue, 21 Mar 2006 13:08:52 -0500
+Message-Id: <1142964532.7987.61.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.826, required 12,
+	autolearn=disabled, AWL 1.17, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>>NAK. How much more names will you be going to mangle because of FAT
->>>character restrictions? (< and > are one of the chars not allowed in FAT.)
->>
->>Uhm... that's what VFAT *does*...
->>
+On Tue, 2006-03-21 at 17:46 +0000, Christoph Hellwig wrote:
+> > commit 47989d7454398827500d0e73766270986a3b488f
+> > Author: Chuck Lever <cel@netapp.com>
+> > Date:   Mon Mar 20 13:44:32 2006 -0500
+> > 
+> >     NFS: remove support for multi-segment iovs in the direct write path
+> >     
+> >     Eliminate the persistent use of automatic storage in all parts of the
+> >     NFS client's direct write path to pave the way for introducing support
+> >     for aio against files opened with the O_DIRECT flag.
 > 
-> Hm. How do I check? Under a DOS shell,
-> 
-> 	echo bla >"illegal>name"
-> 
-> won't work, and creating a new empty dummy text file within Windows 
-> Explorer with this illegal>name won't work either.
-> (http://jengelh.hopto.org/f/illegal_filename.jpg)
-> Did I miss some magic WINAPI function that does allow it implicitly
-> by mangling the name?
+> NACK.  We have patches pending that consolidate ->aio_read/write and
+> ->read/writev into one operation.  this change is completely counterproductive
+> towards that goal which has been discussed on -fsdevel for a while.
 
-You're confusing characters which aren't legal *VFAT* names which those 
-which aren't legal *FAT* (8.3) names.
+How so? The interface is _exactly_ the same as before.
 
- > is illegal in VFAT as well.
+We never had support for multiple iovecs in O_DIRECT, but were passing
+around a single iovec entry deep into code that couldn't care less.
 
-	-hpa
+Cheers,
+  Trond
+

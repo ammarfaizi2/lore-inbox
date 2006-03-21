@@ -1,49 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWCUXBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWCUXCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964863AbWCUXBp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 18:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWCUXBp
+	id S1750897AbWCUXCz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 18:02:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751808AbWCUXCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 18:01:45 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:17074 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932342AbWCUXBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 18:01:44 -0500
-Subject: Re: Question: where should the SCSI driver place MODE_SENSE data ?
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
-Cc: linux-scsi <linux-scsi@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <9738BCBE884FDB42801FAD8A7769C265142114@NAMAIL1.ad.lsil.com>
-References: <9738BCBE884FDB42801FAD8A7769C265142114@NAMAIL1.ad.lsil.com>
+	Tue, 21 Mar 2006 18:02:54 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:21966 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750897AbWCUXCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 18:02:54 -0500
+Subject: Re: Idea: Automatic binary driver compiling system
+From: Lee Revell <rlrevell@joe-job.com>
+To: Bob Copeland <me@bobcopeland.com>
+Cc: Benjamin Bach <benjamin@overtag.dk>, linux-kernel@vger.kernel.org
+In-Reply-To: <b6c5339f0603200746k3e817e9bmdc278764fe488a8c@mail.gmail.com>
+References: <441AF93C.6040407@overtag.dk>
+	 <1142620509.25258.53.camel@mindpipe> <441C213A.3000404@overtag.dk>
+	 <1142694655.2889.22.camel@laptopd505.fenrus.org>
+	 <441C2CF6.1050607@overtag.dk>
+	 <1142698292.2889.26.camel@laptopd505.fenrus.org>
+	 <441D36DA.2000701@overtag.dk>
+	 <b6c5339f0603190719u6e52ba3cwda15509de3ed947e@mail.gmail.com>
+	 <441D82D8.7050106@overtag.dk>
+	 <b6c5339f0603200746k3e817e9bmdc278764fe488a8c@mail.gmail.com>
 Content-Type: text/plain
-Date: Tue, 21 Mar 2006 17:01:39 -0600
-Message-Id: <1142982099.3428.37.camel@mulgrave.il.steeleye.com>
+Date: Tue, 21 Mar 2006 18:02:50 -0500
+Message-Id: <1142982171.4532.183.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-21 at 09:44 -0700, Ju, Seokmann wrote:
-> In the 2.6 (2.6.9 and scsi-misc in git) kernel, MODE_SENSE SCSI command
-> packet (scsi_cmnd) carries following entries with unexpectedly small in
-> size.
-> - request_bufflen
-> - bufflen
+On Mon, 2006-03-20 at 10:46 -0500, Bob Copeland wrote:
+> On 3/19/06, Benjamin Bach <benjamin@overtag.dk> wrote:
+> > Otherwise I'll probably dig up something. Just needs to be a small
+> > kernel-whatever project.
+> >
+> > Is there someone maintaining a list of non-implemented ideas for kernel
+> > features/drivers?
 > 
-> Especially for MODE SENSE with page code 8 (caching page), driver has
-> minumum 12 Bytes MODE_SENSE data to deliver besides 'mode parameter
-> header' and 'block descriptors'.
-> When I dump those entries, they both are 4 Bytes in size.
-> To me, it seems like that SCSI mid layer allocated 512 Bytes for
-> MODE_SENSE data buffer, but the buffer length passed down to LLD
-> incorrectly.
+> Although neither of these are easy and you very well might not get
+> anything done in three months, a couple of bits of hardware that I
+> have for which there are incomplete/no drivers, and where the
+> manufacturer refuses to give out specs are:
+> 
+> - Ricoh MMC/SD controllers.  The project to figure those out is at:
+> http://mmc.drzeus.cx/wiki/Controllers/Ricoh/Frontreport
+> 
+> - 3D for NVidia.  I know many people would take an open but basic 3D
+> driver over the fully featured binary one - many people already use
+> the 2D 'nv' driver for that reason.  Rudolf Cornelissen has reverse
+> engineered various bits of it (though it may apply only to the
+> geforce-1 era cards) over here:
+> http://web.inter.nl.net/users/be-hold/BeOS/NVdriver/3dnews.html
+> 
 
-I don't understand the question.  Are you asking why
-sd_read_write_protect_flag and sd_read_cache_type operate in the way
-they do?  i.e. header first then actual data.
+Lots of people don't even need 3D but have to run nvidia's driver to get
+multihead support, it seems this would be much easier than full 3D
+implementation.
 
-James
+> You will find it's a whole lot easier to write drivers when you have
+> specs though, and the resulting drivers will also be better.  But
+> depending on the scope of your project, you could definitely learn
+> something either way.
+> 
+> Another thing that would be a lot easier to accomplish in 3 months
+> would be to write a userspace filesystem using FUSE for something that
+> isn't ordinarily accessed by filesystems; for example currently you
+> can mount remote machines over ssh, cameras that can talk to gphoto,
+> tar archives, gmail, etc.
+
+Another easy project if you have old sound cards lying around is to port
+some of the old OSS drivers to ALSA (a list was posted on LKML a while
+back).  This probably will take from a weekend to a few weeks.
+
+Lee
 
 

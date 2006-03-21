@@ -1,65 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160995AbWCUR6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751673AbWCUSBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160995AbWCUR6y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 12:58:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161000AbWCUR6y
+	id S1751673AbWCUSBh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 13:01:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751766AbWCUSBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 12:58:54 -0500
-Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:34527 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1160995AbWCUR6x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 12:58:53 -0500
-To: trond.myklebust@fys.uio.no
-CC: chrisw@osdl.org, matthew@wil.cx, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-reply-to: <1142962083.7987.37.camel@lade.trondhjem.org> (message from Trond
-	Myklebust on Tue, 21 Mar 2006 12:28:03 -0500)
-Subject: Re: DoS with POSIX file locks?
-References: <E1FLIlF-0007zR-00@dorka.pomaz.szeredi.hu>
-	 <20060320121107.GE8980@parisc-linux.org>
-	 <E1FLJLs-00085u-00@dorka.pomaz.szeredi.hu>
-	 <20060320123950.GF8980@parisc-linux.org>
-	 <E1FLJsF-0008A7-00@dorka.pomaz.szeredi.hu>
-	 <20060320153202.GH8980@parisc-linux.org>
-	 <1142878975.7991.13.camel@lade.trondhjem.org>
-	 <E1FLdPd-00020d-00@dorka.pomaz.szeredi.hu> <1142962083.7987.37.camel@lade.trondhjem.org>
-Message-Id: <E1FLl7L-0002u9-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 21 Mar 2006 18:58:03 +0100
+	Tue, 21 Mar 2006 13:01:37 -0500
+Received: from smtpout10-04.prod.mesa1.secureserver.net ([64.202.165.238]:20450
+	"HELO smtpout10-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S1751772AbWCUSBf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 13:01:35 -0500
+From: hackmiester / Hunter Fuller <hackmiester@hackmiester.com>
+Reply-To: hackmiester@hackmiester.com
+Organization: hackmiester.com, Ltd.
+To: David Vrabel <dvrabel@cantab.net>, linux-kernel@vger.kernel.org
+Subject: Re: Lifetime of flash memory
+Date: Tue, 21 Mar 2006 12:00:50 -0600
+User-Agent: KMail/1.8
+References: <44203179.3090606@comcast.net> <44203468.9060806@cantab.net>
+In-Reply-To: <44203468.9060806@cantab.net>
+X-Face: #pm4uI.4%U/S1i<i'(UPkahbf^inZ;WOH{EKM,<n/P;R5m8#`2&`HN`hB;ht_>=?utf-8?q?oJYRGD3o=0A=09?=)AM
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart5477824.xhrqpPHmg3";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200603211200.52735.hackmiester@hackmiester.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Apps using LinuxThreads seem to be candidates:
-> > 
-> >      According to POSIX 1003.1c, a successful `exec*' in one of the
-> >      threads should automatically terminate all other threads in the
-> >      program.  This behavior is not yet implemented in LinuxThreads.
-> >      Calling `pthread_kill_other_threads_np' before `exec*' achieves
-> >      much of the same behavior, except that if `exec*' ultimately
-> >      fails, then all other threads are already killed.
-> > 
-> > steal_locks() was probably added as a workaround for this case, no?
-> 
-> Possibly, but LinuxThreads were never really POSIX thread compliant
-> anyway. Anyhow, the problem isn't really LinuxThreads, it is rather that
-> the existence of the standalone CLONE_FILES flag allows you to do a lot
-> of weird inheritance crap with 'posix locks' that the POSIX standards
-> committees never even had to consider.
+--nextPart5477824.xhrqpPHmg3
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Yes.  The execve-with-multiple-threads/posix-locks interaction is not
-documented for LinuxThreads but removing steal_locks() makes that
-implementation slighly differently incompatible to POSIX.  Some
-application _might_ be relying on the current behavior.
+On Tuesday 21 March 2006 11:14, David Vrabel  wrote:
+> John Richard Moser wrote:
+> > The question I have is, is this really significant?  I have heard quoted
+> > that flash memory typically handles something like 3x10^18 writes;
+>
+> That's like, uh, 13 orders of magnitudes out...
+=46lash drives are cheap anyway. I saw a 256mB one for $10 at Circuit City.=
+ A=20
+PNY one. After rebates... but still, you can't beat that.
+>
+> David Vrabel
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-It's just a question of how much confidence do we have, that no app
-will break if steal_locks() is removed.  This function was added by
-Chris Wright on 2003-12-29 (Cset 1.1371.111.3):
+=2D-=20
+=2D-hackmiester
+Walk a mile in my shoes and you will be a mile away in a new pair of shoes.
 
-  Add steal_locks helper for use in conjunction with unshare_files to
-  make sure POSIX file lock semantics aren't broken due to
-  unshare_files.
+=2D----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-Chris, do you remember if this was due to some concrete breakage or
-just a preemtive measure?
+iD8DBQFD/yYl3ApzN91C7BcRAoVVAJ97uhjh30nQ4hd9bQ90gJqiwsLEfgCeKSrg
+bVfqEeJ09WhO6Y51WHEHb6o=3D
+=3DVTUd
+=2D----END PGP SIGNATURE-----
 
-Miklos
+=2D----BEGIN GEEK CODE BLOCK-----
+Version: Geek Code v3.1 (PHP)
+GCS/CM/E/IT d-@ s: a- C++$ UBLS*++++$ P+ L+++$ E- W++$ !N-- !o+ K-- !w-- !O-
+M++$ V-- PS@ PE@ Y--? PGP++ !t--- 5--? !X-- !R-- tv-- b+ DI++ D++ G+ e++++
+h---- r+++ z++++
+=2D-----END GEEK CODE BLOCK------
+
+Quick contact info:
+Work: hfuller@stpaulsmobile.net
+Personal: hackmiester@hackmiester.com
+Large files/spam: hackmiester@gmail.com
+GTalk:hackmiester/AIM:hackmiester1337/Y!:hackm1ester/IRC:irc.7sinz.net/7sinz
+
+--nextPart5477824.xhrqpPHmg3
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD4DBQBEID9U3ApzN91C7BcRAonGAJj8Bql29YGUSS/Ik4BgrflJkRy3AKCrGo8d
+pLBZzzyuvA5Ynvc1zxFe6A==
+=8KPR
+-----END PGP SIGNATURE-----
+
+--nextPart5477824.xhrqpPHmg3--

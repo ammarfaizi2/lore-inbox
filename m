@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbWCUTYF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWCUTcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965061AbWCUTYF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 14:24:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965078AbWCUTYF
+	id S932415AbWCUTcb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 14:32:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWCUTcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 14:24:05 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:62161 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965082AbWCUTYD (ORCPT
+	Tue, 21 Mar 2006 14:32:31 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:64484 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932429AbWCUTca (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 14:24:03 -0500
-Message-ID: <442052C0.8050304@ce.jp.nec.com>
-Date: Tue, 21 Mar 2006 14:23:44 -0500
-From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Tue, 21 Mar 2006 14:32:30 -0500
+Date: Tue, 21 Mar 2006 11:32:10 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
+       video4linux-list@redhat.com, akpm@osdl.org
+Subject: Re: [PATCH 000/141] V4L/DVB updates part 1
+In-Reply-To: <1142968537.4749.96.camel@praia>
+Message-ID: <Pine.LNX.4.64.0603211126290.3622@g5.osdl.org>
+References: <20060320150819.PS760228000000@infradead.org> 
+ <Pine.LNX.4.64.0603210741120.3622@g5.osdl.org>  <Pine.LNX.4.64.0603210748340.3622@g5.osdl.org>
+  <1142962995.4749.39.camel@praia>  <Pine.LNX.4.64.0603210946040.3622@g5.osdl.org>
+  <1142965478.4749.58.camel@praia>  <Pine.LNX.4.64.0603211035390.3622@g5.osdl.org>
+ <1142968537.4749.96.camel@praia>
 MIME-Version: 1.0
-To: Mark Maule <maule@sgi.com>
-CC: Andreas Schwab <schwab@suse.de>, Tony Luck <tony.luck@intel.com>,
-       linux-ia64@vger.kernel.org, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 1/3] msi vector targeting abstractions
-References: <20060321143444.9913.48372.11324@lnx-maule.americas.sgi.com> <20060321143449.9913.55794.57267@lnx-maule.americas.sgi.com> <442029EA.9020900@ce.jp.nec.com> <jebqvzhhxr.fsf@sykes.suse.de> <20060321191414.GE22524@sgi.com>
-In-Reply-To: <20060321191414.GE22524@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Mark Maule wrote:
-> @@ -386,5 +390,8 @@
->  #ifndef platform_readq_relaxed
->  # define platform_readq_relaxed	__ia64_readq_relaxed
->  #endif
-> +#ifndef platform_msi_init
-> +# define platform_msi_init	((ia64_mv_msi_init_t*)NULL)
-> +#endif
 
-You may also need to change the sn specific header below.
+On Tue, 21 Mar 2006, Mauro Carvalho Chehab wrote:
+> 
+> Weird, I can't see all those stuff here. It shows something like
+> (running from master copy at kernel.org):
 
-> @@ -115,6 +116,11 @@
->  #define platform_dma_sync_sg_for_device	sn_dma_sync_sg_for_device
->  #define platform_dma_mapping_error		sn_dma_mapping_error
->  #define platform_dma_supported		sn_dma_supported
-> +#ifdef CONFIG_PCI_MSI
-> +#define platform_msi_init		sn_msi_init
-> +#else
-> +#define platform_msi_init		NULL
-> +#endif
+I just did the raw output, so my output was from
 
-Thanks,
--- 
-Jun'ichi Nomura, NEC Solutions (America), Inc.
+	git show --pretty=fuller -r e338b7
+
+which isn't the default, but it's useful if you want to see both committer 
+and author information (and the raw format is just because I wasn't 
+interested in the diff itself, just looking at how many files where 
+changed).
+
+> So, after the merging message, I have a normal diff with:
+> 
+>  179 files changed, 1274 insertions(+), 785 deletions(-)
+
+Yeah, we're talking about the same commit.
+
+> Seeming all perfect from my knowledge about git.
+
+It's a perfectly good commit. BUT IT IS NOT A MERGE, AND IT IS NOT A DIFF 
+THAT I WANT TO SEE COMING IN FROM AN OUTSIDE TREE!
+
+Basically, in the DVB tree you have absolutely _no_ business in "merging" 
+work from my tree as a patch, especially when the patch you merge has 
+absolutely zero to do with DVB. You just applied a 5000-line patch to the 
+tree, with no merge message other than "Merge from Linus tree", and no 
+attribution about what the f*ck was merged, and why.
+
+THAT is the part I'm unhappy with. The git tree is not "corrupt" from a 
+technical standpoint (it passes fsck). It's "corrupt" because it contains 
+a patch that shouldn't be there, that is mis-attributed, and that 
+incorrectly claims to be a merge when it isn't - it's just a random patch 
+generated against my tree.
+
+		Linus

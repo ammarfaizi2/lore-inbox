@@ -1,75 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWCUH0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWCUH22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbWCUH0G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 02:26:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWCUH0G
+	id S932158AbWCUH22 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 02:28:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWCUH22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 02:26:06 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:59882 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S932289AbWCUH0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 02:26:05 -0500
-Date: Tue, 21 Mar 2006 08:26:03 +0100
-From: Sander <sander@humilis.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: sander@humilis.net, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, lkml@rtr.ca
-Subject: Re: Some sata_mv error messages
-Message-ID: <20060321072603.GA4089@favonius>
-Reply-To: sander@humilis.net
-References: <20060318044056.350a2931.akpm@osdl.org> <20060320133318.GB32762@favonius> <441F508E.1030008@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <441F508E.1030008@pobox.com>
-X-Uptime: 08:11:49 up 18 days, 12:22, 33 users,  load average: 4.25, 3.61, 3.11
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 21 Mar 2006 02:28:28 -0500
+Received: from smtpauth08.mail.atl.earthlink.net ([209.86.89.68]:9926 "EHLO
+	smtpauth08.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S932158AbWCUH21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 02:28:27 -0500
+To: "Yu, Luming" <luming.yu@intel.com>
+cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       michael@mihu.de, mchehab@infradead.org,
+       "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
+       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       jgarzik@pobox.com, "Duncan" <1i5t5.duncan@cox.net>,
+       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
+Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+In-Reply-To: Your message of "Tue, 21 Mar 2006 09:38:42 +0800."
+             <3ACA40606221794F80A5670F0AF15F840B417262@pdsmsx403> 
+X-Mailer: MH-E 7.91; nmh 1.1; GNU Emacs 21.4.1
+Date: Tue, 21 Mar 2006 02:27:43 -0500
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1FLbHL-0001hi-Cn@approximate.corpus.cam.ac.uk>
+X-ELNK-Trace: dcd19350f30646cc26f3bd1b5f75c9f474bf435c0eb9d478d165aa9320335d71d5bc33a77d89db29846c6eea46606956350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 24.41.6.91
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote (ao):
-> Sander wrote:
-> >While sata_mv in 2.6.16-rc6-mm2 seems stable (yah!) compared to
-> >2.6.16-rc6 (no crashes, no data corruption), I still get these messages:
-> >
-> >[ 3962.139906] ata5: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 
-> >0xb/47/00
-> >[ 3962.139959] ata5: status=0xd0 { Busy }
+> From pervious experience, we know _THM0._TMP causes problem.  If you
+> fake _TMP for all THM, what could happen?
 
-> >I'm not entirely sure this is only happens on sata_mv (Marvell
-> >MV88SX6081) as out of eight disks only one is connected to the onboard
-> >sata_nv (nVidia) and the error doesn't happen very often. But I'll keep
-> >an eye on it.
-> >
-> >Are these messages somehow dangerous or otherwise indicating a
-> >potentional serious problem? A google search came up with a few links,
-> >but none of them helped me understand the messages.
-> 
-> Without answering your specific question, just remember that sata_mv is 
-> considerly "highly experimental" right now, and still needs some 
-> workarounds for hardware errata.
-> 
-> For now, the goal is a system that doesn't crash and doesn't corrupt 
-> data. If its occasionally slow or spits out a few errors, but
-> otherwise still works, that's pretty darned good :)
+It still hangs on the second sleep.  I faked them in the kernel instead
+of the DSDT, by faking them in acpi_evaluate_integer() like so:
 
-I fully agree!
+diff -r ac486e270597 -r 959c4fa10a36 drivers/acpi/utils.c
+--- a/drivers/acpi/utils.c	Sat Mar 18 08:35:34 2006 -0500
++++ b/drivers/acpi/utils.c	Mon Mar 20 20:52:01 2006 -0500
+@@ -270,7 +270,15 @@ acpi_evaluate_integer(acpi_handle handle
+ 	memset(element, 0, sizeof(union acpi_object));
+ 	buffer.length = sizeof(union acpi_object);
+ 	buffer.pointer = element;
+-	status = acpi_evaluate_object(handle, pathname, arguments, &buffer);
++	if (strcmp(pathname, "_TMP") != 0)
++	  status = acpi_evaluate_object(handle, pathname, arguments, &buffer);
++	else {
++	  printk(KERN_INFO PREFIX "acpi_evaluate_integer: Faking _TMP\n");
++	  status = AE_OK;
++	  element->type = ACPI_TYPE_INTEGER;
++	  element->integer.value = 3000; /* 27 C, in deciKelvins */
++	}
++
+ 	if (ACPI_FAILURE(status)) {
+ 		acpi_util_eval_error(handle, pathname, status);
+ 		return_ACPI_STATUS(status);
 
-I am aware that sata_mv is early beta, and kernel 2.6.16-rc6-mm2 is
-actually the first kernel which lets me really use my Marvell
-controller (users should give feedback on that right ;-). Kudos to you
-all!  (I don't know what happened between -rc6 and -rc6-mm2).
 
-I know quite some people have their Marvell controller on a shelf
-because they could not get it to work reliably. Now they can give it
-another try..
+Each thermal zone loaded with produced printk's like "Faking _TMP", etc,
+so the patch was working.  It shouldn't change the result if instead I
+make all the _TMP methods in the DSDT return 0xBB8 (or whatever the
+magic number was).
 
-Btw, without the hardware errata workarounds implemented yet, will it
-eventually corrupt data for a fact? Are there any tests which will
-trigger bugs, other than my simple dd-over-raid5?
+So my plan, which I'm trying now, is to keep _TMP faked for all zones,
+and take away one zone at a time until the hang goes away.  If I take
+away all of THM[267], then it won't hang (since THM0 by itself hangs but
+THM0 without _TMP does not hang).  But I hope that an earlier
+combination in the search will not hang.
 
-	Sander
+-Sanjoy
 
--- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+`A society of sheep must in time beget a government of wolves.'
+   - Bertrand de Jouvenal

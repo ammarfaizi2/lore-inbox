@@ -1,88 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWCUQy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWCURDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWCUQy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 11:54:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWCUQy6
+	id S932334AbWCURDO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 12:03:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWCURDO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 11:54:58 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:3799 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932133AbWCUQy5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 11:54:57 -0500
-Subject: Re: [patch] direct-io: bug fix in dio handling write error
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: akpm@osdl.org, suparna@in.ibm.com, Zach Brown <zach.brown@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200603210851.k2L8pHg21393@unix-os.sc.intel.com>
-References: <200603210851.k2L8pHg21393@unix-os.sc.intel.com>
-Content-Type: text/plain
-Date: Tue, 21 Mar 2006 08:56:43 -0800
-Message-Id: <1142960203.6086.4.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Tue, 21 Mar 2006 12:03:14 -0500
+Received: from rwcrmhc12.comcast.net ([204.127.192.82]:23714 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751331AbWCURDN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 12:03:13 -0500
+Message-ID: <44203179.3090606@comcast.net>
+Date: Tue, 21 Mar 2006 12:01:45 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mail/News 1.5 (X11/20060309)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Lifetime of flash memory
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-21 at 00:51 -0800, Chen, Kenneth W wrote:
-....
-> 
-> Andrew - please merge this version.  Thank you.
-> 
-> 
-> --- ./fs/direct-io.c.orig	2006-01-02 19:21:10.000000000 -0800
-> +++ ./fs/direct-io.c	2006-03-21 01:28:48.704475280 -0800
-> @@ -129,6 +129,7 @@ struct dio {
->  	/* AIO related stuff */
->  	struct kiocb *iocb;		/* kiocb */
->  	int is_async;			/* is IO async ? */
-> +	int io_error;			/* IO error in completion path */
->  	ssize_t result;                 /* IO result */
->  };
->  
-> @@ -250,6 +251,10 @@ static void finished_one_bio(struct dio 
->  			    ((offset + transferred) > dio->i_size))
->  				transferred = dio->i_size - offset;
->  
-> +			/* check for error in completion path */
-> +			if (dio->io_error)
-> +				transferred = dio->io_error;
-> +
->  			dio_complete(dio, offset, transferred);
->  
->  			/* Complete AIO later if falling back to buffered i/o */
-> @@ -406,7 +411,7 @@ static int dio_bio_complete(struct dio *
->  	int page_no;
->  
->  	if (!uptodate)
-> -		dio->result = -EIO;
-> +		dio->io_error = -EIO;
->  
->  	if (dio->is_async && dio->rw == READ) {
->  		bio_check_pages_dirty(bio);	/* transfers ownership */
-> @@ -964,6 +969,7 @@ direct_io_worker(int rw, struct kiocb *i
->  	dio->next_block_for_io = -1;
->  
->  	dio->page_errors = 0;
-> +	dio->io_error = 0;
->  	dio->result = 0;
->  	dio->iocb = iocb;
->  	dio->i_size = i_size_read(inode);
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Ken,
+I have a kind of dumb question.  I keep hearing that "USB Flash Memory"
+or "Compact Flash Cards" and family have "a limited number of writes"
+and will eventually wear out.  Recommendations like "DO NOT PUT A SWAP
+FILE ON USB MEMORY" have come out of this.  In fact, quoting
+Documentation/laptop-mode.txt:
 
-I hate to do this you - but your patch breaks error handling on
-synchronous DIO requests.
+  * If you're worried about your data, you might want to consider using
+    a USB memory stick or something like that as a "working area". (Be
+    aware though that flash memory can only handle a limited number of
+    writes, and overuse may wear out your memory stick pretty quickly.
+    Do _not_ use journalling filesystems on flash memory sticks.)
 
-Since you are using "dio->io_error" instead of "dio->result" to
-represent an error - you need to make sure to check that (also ?)
-instead of dio->result in direct_io_worker() before calling 
-dio_complete().
+The question I have is, is this really significant?  I have heard quoted
+that flash memory typically handles something like 3x10^18 writes; and
+that compact flash cards, USB drives, SD cards, and family typically
+have integrated control chipsets that include wear-leveling algorithms
+(built-in flash like in an iPaq does not; hence jffs2).  Should we
+really care that in about 95 billion years the thing will wear out
+(assuming we write its entire capacity once a second)?
 
-Isn't it ? Am I missing something ?
+I call FUD.
 
-Thanks,
-Badari
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
 
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+
+    We will enslave their women, eat their children and rape their
+    cattle!
+                                     -- Evil alien overlord from Blasto
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iQIVAwUBRCAxdws1xW0HCTEFAQJd6w//auD2v3RJYxTbUePJwXFriCTO2d35+uo1
+xU80/Brd7Hkdn82hfk/Rozoj6zsZFYYpYqqDhvo0aOKUW/cxZhTymXlEUgNXx0k+
+s2hkVM4+nXoJhQhFuLk3/bPXBQlu20xA1tt6pHMscIfavijPSn7aV7gPx+L+SpDD
+VqGdsmynt68IRk09b9su0gsfuM0OxYrjVAXPN5l+cjzlEk+fyHGIALu26UwiL+31
+Gs86zviWaX1MwK5G0IZQ0ITySG/wNGoMNcbSdbm/45r0JnLhHPQjX2WGwIh7t5Y2
+UeoYLRZJ5gRF9PT0yP5tMy0XXhKpj0aEtl8ccB/aeOCPsUKAC+2K2SFCfZLZCj8x
+GOGeJKsutim+H+Qec/lnOng1LYoA9fJaisGzAUEOHYhFuYOioPVvGBKiRQlX6mMf
+ofCAIOwtzWgxTa4kJrhU3oF0DYhLtP7Je/LCQW0RqmnMrXcR23/AwBa5fHTzhW1C
+Mb6eL1TtYPYoyoBcKKYgKMmXLXu4d2klgxM4RRpcCrVfrupsHXr5VSzt+XYf7twX
+TnY6DhmVVqp1YIVbWPXbNHplQuOU7ywdu+Y7q75jywqFBxGqeo+mPoL8ItW3IthZ
+/zaoJVUH+n0FyydC+FYJ3SWx7AkPx46hZmO2UQmVlOAq2Fuc8I3haaOIQmADt0Ar
+pwGzS3E92J0=
+=48mD
+-----END PGP SIGNATURE-----

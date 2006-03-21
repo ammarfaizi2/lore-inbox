@@ -1,25 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWCUHOj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWCUHPf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbWCUHOj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 02:14:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWCUHOi
+	id S932293AbWCUHPf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 02:15:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWCUHPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 02:14:38 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:12500 "EHLO
+	Tue, 21 Mar 2006 02:15:35 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:14804 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932284AbWCUHOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 02:14:37 -0500
-Subject: Re: [PATCH 2.6.16-rc6-xen] export Xen Hypervisor attributes to
-	sysfs
+	id S932287AbWCUHPe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 02:15:34 -0500
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.16
 From: Arjan van de Ven <arjan@infradead.org>
-To: ncmike@us.ibm.com
-Cc: xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-In-Reply-To: <200603202335.k2KNZEjo005673@mdday.raleigh.ibm.com>
-References: <200603202335.k2KNZEjo005673@mdday.raleigh.ibm.com>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: Greg KH <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       davej@redhat.com
+In-Reply-To: <20060320235846.GA84147@dspnet.fr.eu.org>
+References: <20060320212338.GA11571@kroah.com>
+	 <20060320235846.GA84147@dspnet.fr.eu.org>
 Content-Type: text/plain
-Date: Tue, 21 Mar 2006 08:14:29 +0100
-Message-Id: <1142925269.3077.10.camel@laptopd505.fenrus.org>
+Date: Tue, 21 Mar 2006 08:15:22 +0100
+Message-Id: <1142925322.3077.12.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -28,50 +29,24 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-20 at 18:35 -0500, Mike D. Day wrote:
-> Creates a module that exports Xen Hypervisor attributes to sysfs. The
-> module has a tri-state configuration so it can be a loadable module.
+On Tue, 2006-03-21 at 00:58 +0100, Olivier Galibert wrote:
+> On Mon, Mar 20, 2006 at 01:23:38PM -0800, Greg KH wrote:
+> > They are the same "delete devfs" patches that I submitted for 2.6.12 and
+> > 2.6.13 and 2.6.14 and 2.6.15.  It rips out all of devfs from the kernel
+> > and ends up saving a lot of space.  Since 2.6.13 came out, I have seen
+> > no complaints about the fact that devfs was not able to be enabled
+> > anymore, and in fact, a lot of different subsystems have already been
+> > deleting devfs support for a while now, with apparently no complaints
+> > (due to the lack of users.)
 > 
-> Views the hypervisor as hardware device, uses sysfs as  a scripting
-> interface for user space tools that need these attributes.
+> I'm an occasional user.  I'm just able to add a config entry by hand.
 > 
-> Some user space apps, particularly for systems management, need to
-> know if their kernel is running in a virtual machine and if so in
-> what type of virtual machine. This property is contained in the
-> file /sys/hypervisor/type.
-> 
-> The file hypervisor_sysfs.c creates a generic  hypervisor subsystem
-> that can be linked to by any hypervisor. The file xen_sysfs.c exports
-> the xen-specific attributes.
-> 
-> signed-off-by: Mike D. Day <ncmike@us.ibm.com>
-> 
-> ---
-> Initial directory = /sys/hypervisor
-> +---compilation
-> |   >---compile_date
-> |   >---compiled_by
-> |   >---compiler
-> +---properties
-> |   >---capabilities
-> |   >---changeset
+> Devfs for block devices is required for the fedora core 3 install
+> kernel.  
 
-how is this a property and not part of version?
+that is not true; Fedora Core 3 does not even have devfs enabled, and
+neither RHL nor FC has shipped devfsd like forever
 
-> |   >---virtual_start
-> |   >---writable_pt
-> >---type
-> +---version
-> |   >---extra
-> |   >---major
-> |   >---minor
-> 
-
-
-again what is the justification of putting this in the kernel? I though
-everyone here was agreed that since the management tools that need this
-talk to the hypervisor ANYWAY, they might as well just ask this
-information as well....
-
+FC3 uses udev
 
 

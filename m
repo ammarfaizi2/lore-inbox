@@ -1,54 +1,219 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWCUHp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWCUHvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbWCUHp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 02:45:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWCUHp7
+	id S932196AbWCUHvj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 02:51:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWCUHvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 02:45:59 -0500
-Received: from zproxy.gmail.com ([64.233.162.200]:55025 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751248AbWCUHp6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 02:45:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TvNdgIrwB08FWNLR1z0q4IvPtiKGZfVOkpf7cI2Rd7w7FEpQIBKZRplmNIz8HfAbuQmrhe+V1kgCAEUAgxPshZ/aG7gXOGxerQ9Mnyc1RVjquihonY0lfOwX8XZtuNYaLEuoiauFHgXBcFdr8VOdaEfeUSsr1hcCYAL52PHjo4c=
-Message-ID: <489ecd0c0603202345x1e12ea64y248baabc939965e6@mail.gmail.com>
-Date: Tue, 21 Mar 2006 15:45:57 +0800
-From: "Luke Yang" <luke.adi@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] Blackfin serial driver for kernel 2.6.16
-In-Reply-To: <20060320102449.GA6787@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <489ecd0c0603200207i33958c66kce8f54704302e79e@mail.gmail.com>
-	 <20060320102449.GA6787@flint.arm.linux.org.uk>
+	Tue, 21 Mar 2006 02:51:39 -0500
+Received: from mail.gmx.de ([213.165.64.20]:40370 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751343AbWCUHvi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 02:51:38 -0500
+X-Authenticated: #14349625
+Subject: Re: interactive task starvation
+From: Mike Galbraith <efault@gmx.de>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>
+In-Reply-To: <20060321064723.GH21493@w.ods.org>
+References: <200603081013.44678.kernel@kolivas.org>
+	 <20060307152636.1324a5b5.akpm@osdl.org>
+	 <cone.1141774323.5234.18683.501@kolivas.org>
+	 <200603090036.49915.kernel@kolivas.org> <20060317090653.GC13387@elte.hu>
+	 <1142592375.7895.43.camel@homer> <1142615721.7841.15.camel@homer>
+	 <1142838553.8441.13.camel@homer>  <20060321064723.GH21493@w.ods.org>
+Content-Type: multipart/mixed; boundary="=-M4JE7QPNEIwBilC6zNgw"
+Date: Tue, 21 Mar 2006 08:51:38 +0100
+Message-Id: <1142927498.7667.34.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/20/06, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> On Mon, Mar 20, 2006 at 06:07:44PM +0800, Luke Yang wrote:
-> > Index: git/linux-2.6/drivers/serial/bfin_serial_5xx.c
-> > ===================================================================
-> > --- /dev/null
-> > +++ linux-2.6/drivers/serial/bfin_serial_5xx.c
->
-> Please convert this driver to use the serial_core infrastructure.  Thanks.
-   Thank you! This is a driver based on the 68328 serial driver. Do
-you mean every serial driver must follow the serial core framework? If
-so, we'll change it ASAP.  For now, my previous blackfin architecture
-patch needs this driver to get compiled.
->
-> --
-> Russell King
->  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
->  maintainer of:  2.6 Serial core
->
+
+--=-M4JE7QPNEIwBilC6zNgw
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Tue, 2006-03-21 at 07:47 +0100, Willy Tarreau wrote:
+> Hi Mike,
+
+Greetings!
+
+> On Mon, Mar 20, 2006 at 08:09:13AM +0100, Mike Galbraith wrote:
+> > real    0m0.512s
+> > user    0m0.112s
+> > sys     0m0.138s
+> > 
+> > ...while running with the same apache loadavg of over 10, and tunables
+> > set to server mode (0,0).
+...
+
+> Very good job !
+> I told Grant in a private email that I felt confident the problem would
+> quickly be solved now that someone familiar with the scheduler could
+> reliably reproduce it. Your numbers look excellent, I'm willing to test.
+> Could you remind us what kernel and what patches we need to apply to
+> try the same, please ?
+
+You bet.  I'm most happy to have someone try it other than me :)
+
+Apply the patches from the attached tarball in the obvious order to
+2.6.16-rc6-mm2.  As delivered, it's knobs are set up for a desktop box.
+For a server, you'll probably want maximum starvation resistance, so
+echo 0 > /proc/sys/kernel/grace_g1 and grace_g2.  This will set the time
+a task can exceed expected cpu (based upon sleep_avg) to zero seconds,
+ie immediate throttling upon detection.  It will also disable some
+interactivity specific code in the scheduler.
+
+If you want to fiddle with the knobs, grace_g1 is the number of CPU
+seconds a new task is authorized to run completely free of any
+intervention... startup in a desktop environment.  grace_g2 is the
+amount of CPU seconds a well behaved task can store for later usage.
+With the throttling patch, an interactive task must earn the right to
+exceed expected cpu by performing within expectations.  The longer the
+task behaves, the more 'good carma' it earns.  This allows interactive
+tasks to do a burst of activity, but the user determines how long that
+burst==starvation is authorized.  Tasks with just use as much cpu as
+they can get run headlong into the throttle.
+
+	-Mike
+
+--=-M4JE7QPNEIwBilC6zNgw
+Content-Disposition: attachment; filename=throttle-V23-2.6.16-rc6-mm2.tar.gz
+Content-Type: application/x-compressed-tar; name=throttle-V23-2.6.16-rc6-mm2.tar.gz
+Content-Transfer-Encoding: base64
+
+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
+Q4YMGTJkyJChV6a/ldJ4rAB4AAA=
 
 
---
-Best regards,
-Luke Yang
-magic.yyang@gmail.com; luke.adi@gmail.com
+--=-M4JE7QPNEIwBilC6zNgw--
+

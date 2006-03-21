@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030417AbWCUQ2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030394AbWCUQVP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030417AbWCUQ2I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 11:28:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030449AbWCUQ2H
+	id S1030394AbWCUQVP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 11:21:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030313AbWCUQVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 11:28:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:17589 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030442AbWCUQ2B (ORCPT
+	Tue, 21 Mar 2006 11:21:14 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:26636 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932415AbWCUQVK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 11:28:01 -0500
-Message-ID: <442029EA.9020900@ce.jp.nec.com>
-Date: Tue, 21 Mar 2006 11:29:30 -0500
-From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Maule <maule@sgi.com>
-CC: linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Tony Luck <tony.luck@intel.com>, gregkh@suse.de
-Subject: Re: [PATCH 1/3] msi vector targeting abstractions
-References: <20060321143444.9913.48372.11324@lnx-maule.americas.sgi.com> <20060321143449.9913.55794.57267@lnx-maule.americas.sgi.com>
-In-Reply-To: <20060321143449.9913.55794.57267@lnx-maule.americas.sgi.com>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Mar 2006 11:21:10 -0500
+Cc: Zach Brown <zach.brown@oracle.com>, Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH 06/46] x86: align per-cpu section to configured cache bytes
+In-Reply-To: <1142958054501-git-send-email-sam@ravnborg.org>
+X-Mailer: git-send-email
+Date: Tue, 21 Mar 2006 17:20:54 +0100
+Message-Id: <114295805457-git-send-email-sam@ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Sam Ravnborg <sam@ravnborg.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7BIT
+From: Sam Ravnborg <sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mark,
+This matches the fix for a bug seen on x86-64.  Test booted on old hardware
+that had 32 byte cachelines to begin with.
 
-Mark Maule wrote:
-> Index: linux-2.6.16/include/asm-ia64/msi.h
-> ===================================================================
-> --- linux-2.6.16.orig/include/asm-ia64/msi.h	2006-03-19 23:53:29.000000000 -0600
-> +++ linux-2.6.16/include/asm-ia64/msi.h	2006-03-20 14:50:53.331368084 -0600
-> @@ -14,4 +14,16 @@
->  #define ack_APIC_irq		ia64_eoi
->  #define MSI_TARGET_CPU_SHIFT	4
->  
-> +extern struct msi_ops msi_apic_ops;
-> +
-> +static inline int msi_arch_init(void)
-> +{
-> +	if (platform_msi_init)
-> +		return platform_msi_init();
-> +
-> +	/* default ops for most ia64 platforms */
-> +	msi_register(&msi_apic_ops);
-> +	return 0;
-> +}
-> +
->  #endif /* ASM_MSI_H */
+Signed-off-by: Zach Brown <zach.brown@oracle.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
-It turned out that the above code breaks configs other
-than CONFIG_IA64_SN and CONFIG_IA64_GENERIC.
-e.g. CONFIG_IA64_DIG.
+---
 
-In file included from /build/16.msi/drivers/pci/msi.h:71,
-                 from /build/16.msi/drivers/pci/msi.c:24:
-include2/asm/msi.h: In function `msi_arch_init':
-include2/asm/msi.h:22: error: called object is not a function
-make[3]: *** [drivers/pci/msi.o] Error 1
+ arch/i386/kernel/vmlinux.lds.S |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-Something like below might fix this problem:
-  if (platform_msi_init) {
-      ia64_mv_msi_init_t *fn = platform_msi_init;
-      return (*fn)();
-  }
-
-Thanks,
+379b5441aeb895fe55b877a8a9c187e8728f774c
+diff --git a/arch/i386/kernel/vmlinux.lds.S b/arch/i386/kernel/vmlinux.lds.S
+index 4710195..18f99cc 100644
+--- a/arch/i386/kernel/vmlinux.lds.S
++++ b/arch/i386/kernel/vmlinux.lds.S
+@@ -7,6 +7,7 @@
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/thread_info.h>
+ #include <asm/page.h>
++#include <asm/cache.h>
+ 
+ OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
+ OUTPUT_ARCH(i386)
+@@ -115,7 +116,7 @@ SECTIONS
+   __initramfs_start = .;
+   .init.ramfs : AT(ADDR(.init.ramfs) - LOAD_OFFSET) { *(.init.ramfs) }
+   __initramfs_end = .;
+-  . = ALIGN(32);
++  . = ALIGN(L1_CACHE_BYTES);
+   __per_cpu_start = .;
+   .data.percpu  : AT(ADDR(.data.percpu) - LOAD_OFFSET) { *(.data.percpu) }
+   __per_cpu_end = .;
 -- 
-Jun'ichi Nomura, NEC Solutions (America), Inc.
+1.0.GIT
+
+

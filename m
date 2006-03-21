@@ -1,91 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbWCURf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWCURhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932346AbWCURf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 12:35:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWCURf5
+	id S932341AbWCURhY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 12:37:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWCURhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 12:35:57 -0500
-Received: from wproxy.gmail.com ([64.233.184.201]:33371 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932346AbWCURf4 convert rfc822-to-8bit
+	Tue, 21 Mar 2006 12:37:23 -0500
+Received: from zcars04f.nortel.com ([47.129.242.57]:30707 "EHLO
+	zcars04f.nortel.com") by vger.kernel.org with ESMTP id S932341AbWCURhW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 12:35:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=tPjmV10QYPF8y4k7WLpQnRzATbXs2ck/H2ePMZji1c4cVpyOLm8HOZ4uD+Ol/cLCHCF/hiY6ifZxzxoiOUpU2caDeSBaQK1Ztan8845VVi/EL1SfAVfgiMGZBj5LOrVfaYEASbUHfyw2dH+R2MdSrqSDcSUNW/sAgXizYT6a3bs=
-Message-ID: <632b79000603210935r4d376519n16c4f57d66618aa9@mail.gmail.com>
-Date: Tue, 21 Mar 2006 11:35:55 -0600
-From: "Don Dupuis" <dondster@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: oops in bio_clone with 2.6.16-rc6
+	Tue, 21 Mar 2006 12:37:22 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17440.14792.56779.898230@lemming.engeast.baynetworks.com>
+Date: Tue, 21 Mar 2006 12:37:12 -0500
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Cc: Sam Ravnborg <sam@ravnborg.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 35/46] kbuild: change kbuild to not rely on incorrect GNU make behavior
+In-Reply-To: <20060321172820.GQ20746@lug-owl.de>
+References: <1142958057218-git-send-email-sam@ravnborg.org>
+	<11429580571656-git-send-email-sam@ravnborg.org>
+	<20060321172820.GQ20746@lug-owl.de>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+From: "Paul D. Smith" <psmith@gnu.org>
+Reply-To: "Paul D. Smith" <psmith@gnu.org>
+Organization: GNU's Not Unix!
+X-OriginalArrivalTime: 21 Mar 2006 17:37:16.0300 (UTC) FILETIME=[1886B4C0:01C64D0E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I will get this oops during reboots. It doesn't happen everytime, but
-It happens on this system at least 1 to 2 out of 10 reboots. The
-machine is a Dell Powervault 745n. Here is the oops output:
+%% Jan-Benedict Glaw <jbglaw@lug-owl.de> writes:
 
-Mar 20 22:27:49 (none) kernel: EXT3-fs: mounted filesystem with
-journal data mode.
-Mar 20 22:27:49 (none) kernel: Unable to handle kernel paging request
-at virtual address f8000000
-Mar 20 22:27:49 (none) kernel:  printing eip:
-Mar 20 22:27:49 (none) kernel: c0156db1
-Mar 20 22:27:49 (none) kernel: *pde = 00000000
-Mar 20 22:27:49 (none) kernel: Oops: 0000 [#1]
-Mar 20 22:27:49 (none) kernel: SMP
-Mar 20 22:27:49 (none) kernel: Modules linked in:
-Mar 20 22:27:49 (none) kernel: CPU:    0
-Mar 20 22:27:50 (none) kernel: EIP:    0060:[<c0156db1>]    Not tainted VLI
-Mar 20 22:27:50 (none) kernel: EFLAGS: 00010206   (2.6.16-rc6 #3)
-Mar 20 22:27:50 (none) kernel: EIP is at __bio_clone+0x29/0x9b
-Mar 20 22:27:50 (none) kernel: eax: 00000300   ebx: f68f3700   ecx:
-00000002   edx: f7fffc80
-Mar 20 22:27:50 (none) kernel: esi: f8000000   edi: f7f3d378   ebp:
-f7c44b98   esp: f7c44b84
-Mar 20 22:27:50 (none) kernel: ds: 007b   es: 007b   ss: 0068
-Mar 20 22:27:50 (none) kernel: Process ldconfig (pid: 581,
-threadinfo=f7c44000 task=f7db9070)
-Mar 20 22:27:50 (none) kernel: Stack: <0>f7d3b458 f68f3700 f68f3700
-f7fffc80 f65b4640 f7c44ba8 c0156e4e f7d4c664
-Mar 20 22:27:50 (none) kernel:        00000010 f7c44bf4 c02c8346
-00000080 00000000 00000e00 c0154b1b 00000000
-Mar 20 22:27:50 (none) kernel:        0000007f 00000080 f7fffc80
-f7d4a740 f7d44400 f7fffc80 f7d3b458 c01579c3
-Mar 20 22:27:50 (none) kernel: Call Trace:
-Mar 20 22:27:50 (none) kernel:  [<c0104260>] show_stack_log_lvl+0xa8/0xb0
-Mar 20 22:27:50 (none) kernel:  [<c0104397>] show_registers+0x109/0x171
-Mar 20 22:27:50 (none) kernel:  [<c010456e>] die+0xfb/0x16f
-Mar 20 22:27:50 (none) kernel:  [<c0114750>] do_page_fault+0x359/0x48b
-Mar 20 22:27:50 (none) kernel:  [<c0103f0b>] error_code+0x4f/0x54
-Mar 20 22:27:50 (none) kernel:  [<c0156e4e>] bio_clone+0x2b/0x31
-Mar 20 22:27:50 (none) kernel:  [<c02c8346>] make_request+0x208/0x3d4
-Mar 20 22:27:50 (none) kernel:  [<c02c8211>] make_request+0xd3/0x3d4
-Mar 20 22:27:50 (none) kernel:  [<c01d3b68>] generic_make_request+0xf5/0x105
-Mar 20 22:27:50 (none) kernel:  [<c01d3c19>] submit_bio+0xa1/0xa9
-Mar 20 22:27:50 (none) kernel:  [<c0170453>] mpage_bio_submit+0x1c/0x21
-Mar 20 22:27:50 (none) kernel:  [<c017085c>] do_mpage_readpage+0x30b/0x44d
-Mar 20 22:27:50 (none) kernel:  [<c0170a2b>] mpage_readpages+0x8d/0xf1
-Mar 20 22:27:50 (none) kernel:  [<c01a7ee7>] ext3_readpages+0x14/0x16
-Mar 20 22:27:50 (none) kernel:  [<c013e92f>] read_pages+0x26/0xc6
-Mar 20 22:27:50 (none) kernel:  [<c013eae8>]
-__do_page_cache_readahead+0x119/0x135
-Mar 20 22:27:50 (none) kernel:  [<c013ebac>] do_page_cache_readahead+0x3d/0x49
-Mar 20 22:27:50 (none) kernel:  [<c0139c92>] filemap_nopage+0x149/0x2c9
-Mar 20 22:27:50 (none) kernel:  [<c01445ce>] do_no_page+0x82/0x245
-Mar 20 22:27:50 (none) kernel:  [<c01448fb>] __handle_mm_fault+0xf4/0x1ba
-Mar 20 22:27:50 (none) kernel:  [<c011456b>] do_page_fault+0x174/0x48b
-Mar 20 22:27:50 (none) kernel:  [<c0103f0b>] error_code+0x4f/0x54
-Mar 20 22:27:50 (none) kernel: Code: 5d c3 55 89 e5 57 56 53 51 51 89
-45 f0 8b 42 0c 8b 4d f0 8b 40 58 8b 40 34 89 45 ec 6b 42 2c 0c 8b 79
-30 8b 72 30 89 c1 c1 e9 02 <f3> a5 89 c1 83 e1 03 74 02 f3 a4 8b 45 f0
-8b 0a 8b 5a 04 89 58
+  jg> On Tue, 2006-03-21 17:20:57 +0100, Sam Ravnborg <sam@ravnborg.org> wrote:
+
+  >> -.PHONY: tar%pkg
+  >> +PHONY += tar%pkg
+
+  jg> This part is wrong. $(PHONY) isn't subject to pattern matching,
+
+You're correct that it won't do what the author apparently expected,
+however it WILL do exactly what the previous versions of kbuild used
+to do.
+
+I wrote:
+
+> To: Sam Ravnborg <sam@ravnborg.org>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] change kbuild to not rely on incorrect GNU make behavior
+> From: "Paul D. Smith" <psmith@gnu.org>
+> Date: Sun, 5 Mar 2006 19:41:07 -0500
+    ...
+> Note that this won't do what you expect.  tar%pkg is a pattern rule,
+> but .PHONY doesn't take patterns so you're declaring the actual file
+> named literally 'tar%pkg' to be phony.
+
+  jg> so all targets that match 'tar%pkg' must be listed
+  jg> here. Fortunately, that's only three:
+
+  jg> PHONY += tar-pkg targz-pkg tarbz2-pkg
+
+This would be more correct, indeed; but note this change is orthogonal
+to the purpose and requirements of the patch provided.
+
+Of course, that doesn't mean they shouldn't be combined if that's
+acceptable to the patch-masters! :-).
 
 
-Thanks
+Cheers!
 
-Don Dupuis
+-- 
+-------------------------------------------------------------------------------
+ Paul D. Smith <psmith@gnu.org>          Find some GNU make tips at:
+ http://www.gnu.org                      http://make.paulandlesley.org
+ "Please remain calm...I may be mad, but I am a professional." --Mad Scientist

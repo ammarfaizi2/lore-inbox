@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030387AbWCUN7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbWCUOC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030387AbWCUN7R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 08:59:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030390AbWCUN7R
+	id S1030393AbWCUOC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 09:02:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030394AbWCUOC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 08:59:17 -0500
-Received: from www.osadl.org ([213.239.205.134]:22937 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1030387AbWCUN7R (ORCPT
+	Tue, 21 Mar 2006 09:02:27 -0500
+Received: from mail.gmx.de ([213.165.64.20]:31901 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030393AbWCUOC0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 08:59:17 -0500
-Message-ID: <442006AE.8030706@tglx.de>
-Date: Tue, 21 Mar 2006 14:59:10 +0100
-From: Jan Altenberg <tb10alj@tglx.de>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Serge Noiraud <serge.noiraud@bull.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rt1
-References: <20060320085137.GA29554@elte.hu> <200603211430.29466.Serge.Noiraud@bull.net>
-In-Reply-To: <200603211430.29466.Serge.Noiraud@bull.net>
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 21 Mar 2006 09:02:26 -0500
+X-Authenticated: #14349625
+Subject: Re: interactive task starvation
+From: Mike Galbraith <efault@gmx.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Willy Tarreau <willy@w.ods.org>, Ingo Molnar <mingo@elte.hu>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       bugsplatter@gmail.com
+In-Reply-To: <200603220045.54736.kernel@kolivas.org>
+References: <200603090036.49915.kernel@kolivas.org>
+	 <200603220037.52258.kernel@kolivas.org> <20060321134418.GC26171@w.ods.org>
+	 <200603220045.54736.kernel@kolivas.org>
+Content-Type: text/plain
+Date: Tue, 21 Mar 2006 15:01:30 +0100
+Message-Id: <1142949690.7807.80.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IIRC, I've seen this error already in a post for 2.6.16-rc6-rt1
+On Wed, 2006-03-22 at 00:45 +1100, Con Kolivas wrote:
 
-> *** Warning: "mutex_destroy" [fs/xfs/xfs.ko] undefined!
+> I give up. Add as many tunables as you like in as many places as possible that 
+> even less people will understand. You've already told me you'll be running 
+> 0,0.
 
-mutex_destroy isn't defined for CONFIG_PREEMPT_RT.
+Instead of giving up, how about look at the code and make a suggestion
+for improvement?  It's not an easy problem, as you're well aware.
 
-In the past mutex_destroy was defined in fs/xfs/linux_26/mutex.h, but
-this has been moved. Have a look at: include/linux/mutex-debug.h,
-kernel/mutex-debug.c, include/linux/mutex.h
+I really don't see why you're (seemingly) getting irate.  Tunables for
+this are no different that tunables like CHILD_PENALTY etc etc etc.  How
+many casual users know those exist, much less understand them?
 
+	-Mike
 
-JAN

@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbWCUXYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965150AbWCUXfd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932359AbWCUXYo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 18:24:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751844AbWCUXYo
+	id S965150AbWCUXfd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 18:35:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbWCUXfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 18:24:44 -0500
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:51423 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1751099AbWCUXYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 18:24:43 -0500
-Date: Wed, 22 Mar 2006 00:24:12 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Phillip Lougher <phillip@lougher.demon.co.uk>, Pavel Machek <pavel@ucw.cz>,
-       Phillip Lougher <phillip@lougher.org.uk>,
-       Al Viro <viro@ftp.linux.org.uk>, Jeff Garzik <jeff@garzik.org>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [ANN] Squashfs 3.0 released
-Message-ID: <20060321232412.GA9044@wohnheim.fh-wedel.de>
-References: <441ADD28.3090303@garzik.org> <0E3DADA8-1A1C-47C5-A3CF-F6A85FF5AFB8@lougher.org.uk> <441AF118.7000902@garzik.org> <20060319163249.GA3856@ucw.cz> <4420236F.80608@lougher.demon.co.uk> <20060321161452.GG27946@ftp.linux.org.uk> <44204F25.4090403@lougher.org.uk> <20060321191144.GB3929@elf.ucw.cz> <44205C1A.4040408@lougher.demon.co.uk> <20060321212853.GV6199@schatzie.adilger.int>
+	Tue, 21 Mar 2006 18:35:33 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:8643 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965150AbWCUXfc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 18:35:32 -0500
+Date: Tue, 21 Mar 2006 15:37:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dimitri Sivanich <sivanich@sgi.com>
+Cc: linux-kernel@vger.kernel.org, hch@infradead.org, clameter@sgi.com,
+       jes@sgi.com
+Subject: Re: [PATCH] Add SA_PERCPU_IRQ flag support
+Message-Id: <20060321153747.79f18016.akpm@osdl.org>
+In-Reply-To: <20060321213803.GC26124@sgi.com>
+References: <20060321213803.GC26124@sgi.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060321212853.GV6199@schatzie.adilger.int>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 March 2006 14:28:53 -0700, Andreas Dilger wrote:
-> On Mar 21, 2006  20:03 +0000, Phillip Lougher wrote:
-> > I don't want the lack of a fixed endianness on disk to become a problem. 
-> >   I personally don't think the use of, or lack of a fixed endianness to 
-> > be that important, but I'd prefer not to change the current situation 
-> > and adopt a fixed format.  I use big endian systems almost exclusively, 
-> > and I don't like the way fixed formats always tend to be little-endian.
+Dimitri Sivanich <sivanich@sgi.com> wrote:
+>
+> The generic request_irq/setup_irq code should support the SA_PERCPU_IRQ flag.
 > 
-> If you want to squeak every last ounce of performance out of the filesystem,
-> just have it declare two filesystem types - one for the little-endian, and
-> one for the bit endian.  Generate one of them via "sed" from the other, to
-> rename the functions, exports, etc, so they don't conflict.  Then, depending
-> on the superblock magic it will mount the right filesystem, depending on
-> endianness.  Since they are separate filesystems, normally only one module
-> or the other need to be loaded at a time, and there is no runtime overhead.
+> This patch was posted previously, but this one should build on all arch's.
+> 
+> Signed-off-by: Dimitri Sivanich <sivanich@sgi.com>
+> 
+> Index: linux-2.6.15/kernel/irq/manage.c
+> ===================================================================
+> --- linux-2.6.15.orig/kernel/irq/manage.c	2006-03-20 13:11:01.766522017 -0600
+> +++ linux-2.6.15/kernel/irq/manage.c	2006-03-21 15:26:12.305876769 -0600
+> @@ -206,6 +206,10 @@ int setup_irq(unsigned int irq, struct i
+>  	 * The following block of code has to be executed atomically
+>  	 */
+>  	spin_lock_irqsave(&desc->lock,flags);
+> +#if defined(ARCH_HAS_IRQ_PER_CPU) && defined(SA_PERCPU_IRQ)
+> +	if (new->flags & SA_PERCPU_IRQ)
+> +		desc->status |= IRQ_PER_CPU;
+> +#endif
+>  	p = &desc->action;
+>  	if ((old = *p) != NULL) {
+>  		/* Can't share interrupts unless both agree to */
 
-That would be an interesting idea for quite another purpose:
-measurement.
-
-So far, there has been a lack of numbers in this thread.  Al mentioned
-that conditional branches can be more expensive and I usually trust
-his words, but actual cold hard numbers would help more.
-
-> 	"unlisted-recipients: no To-header on input <;, Jeff Garzik" <jeff@garzik.org>,
-
-I fixed this up.  No idea what garbled the header.
-
-Jörn
-
--- 
-My second remark is that our intellectual powers are rather geared to
-master static relations and that our powers to visualize processes
-evolving in time are relatively poorly developed.
--- Edsger W. Dijkstra
+hm.  Last time around I pointed out that we should be checking that all
+handlers for this IRQ agree about the percpuness.  What happened to
+that?

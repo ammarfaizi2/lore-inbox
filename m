@@ -1,83 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbWCUVsw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751450AbWCUVws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751445AbWCUVsw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 16:48:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWCUVsw
+	id S1751450AbWCUVws (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 16:52:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWCUVws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 16:48:52 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:57731 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751445AbWCUVsv (ORCPT
+	Tue, 21 Mar 2006 16:52:48 -0500
+Received: from watts.utsl.gen.nz ([202.78.240.73]:31619 "EHLO mail.utsl.gen.nz")
+	by vger.kernel.org with ESMTP id S1751450AbWCUVwr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 16:48:51 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Willy Tarreau <willy@w.ods.org>
-Subject: Re: interactive task starvation
-Date: Tue, 21 Mar 2006 22:47:30 +0100
-User-Agent: KMail/1.9.1
-Cc: Con Kolivas <kernel@kolivas.org>, Mike Galbraith <efault@gmx.de>,
-       Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, bugsplatter@gmail.com
-References: <1142592375.7895.43.camel@homer> <200603211939.12749.rjw@sisk.pl> <20060321193216.GA27753@w.ods.org>
-In-Reply-To: <20060321193216.GA27753@w.ods.org>
+	Tue, 21 Mar 2006 16:52:47 -0500
+Message-ID: <442075A1.8020508@vilain.net>
+Date: Wed, 22 Mar 2006 09:52:33 +1200
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Herbert Poetzl <herbert@13thfloor.at>,
+       "Eric W.Biederman" <ebiederm@xmission.com>,
+       OpenVZ developers list <dev@openvz.org>,
+       "Serge E.Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC] [PATCH 1/7] Add process virtualisation umbrella	structure
+ (vx_info)
+References: <20060321061333.27638.63963.stgit@localhost.localdomain>	 <20060321061333.27638.9112.stgit@localhost.localdomain> <1142967185.10906.188.camel@localhost.localdomain>
+In-Reply-To: <1142967185.10906.188.camel@localhost.localdomain>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603212247.31360.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 March 2006 20:32, Willy Tarreau wrote:
-> On Tue, Mar 21, 2006 at 07:39:11PM +0100, Rafael J. Wysocki wrote:
-> > On Tuesday 21 March 2006 15:39, Willy Tarreau wrote:
-> > > On Wed, Mar 22, 2006 at 01:19:49AM +1100, Con Kolivas wrote:
-> > > > On Wednesday 22 March 2006 01:17, Mike Galbraith wrote:
-> > > > > On Wed, 2006-03-22 at 00:53 +1100, Con Kolivas wrote:
-> > > > > > The yardstick for changes is now the speed of 'ls' scrolling in the
-> > > > > > console. Where exactly are those extra cycles going I wonder? Do you
-> > > > > > think the scheduler somehow makes the cpu idle doing nothing in that
-> > > > > > timespace? Clearly that's not true, and userspace is making something
-> > > > > > spin unnecessarily, but we're gonna fix that by modifying the
-> > > > > > scheduler.... sigh
-> > > > >
-> > > > > *Blink*
-> > > > >
-> > > > > Are you having a bad hair day??
-> > > > 
-> > > > My hair is approximately 3mm long so it's kinda hard for that to happen. 
-> > > > 
-> > > > What you're fixing with unfairness is worth pursuing. The 'ls' issue just 
-> > > > blows my mind though for reasons I've just said. Where are the magic cycles 
-> > > > going when nothing else is running that make it take ten times longer?
-> > > 
-> > > Con, those cycles are not "magic", if you look at the numbers, the time is
-> > > not spent in the process itself. From what has been observed since the
-> > > beginning, it is spent :
-> > >   - in other processes which are starvating the CPU (eg: X11 when xterm
-> > >     scrolls)
-> > >   - in context switches when you have a pipe somewhere and the CPU is
-> > >     bouncing between tasks.
-> > > 
-> > > Concerning your angriness about me being OK with (0,0) and still
-> > > asking for tunables, it's precisely because I know that *my* workload
-> > > is not everyone else's, and I don't want to conclude too quickly that
-> > > there are only two types of workloads.
-> > 
-> > Well, perhaps we can assume there are only two types of workloads and
-> > wait for a test case that will show the assumption is wrong?
-> 
-> It would certainly fit most usages, but as soon as we find another group
-> of users complaining, we will add another sysctl just for them ? Perhaps
-> we could just resume the two current sysctls into one called
-> "interactivity_boost" with a value between 0 and 100, with the ability
-> for any user to increase or decrease it easily ? Mainline would be
-> pre-configured with something reasonable, like what Mike proposed as
-> default values for example, and server admins would only set it to
-> zero while desktop-intensive users could increase it a bit if they like
-> to.
+Dave Hansen wrote:
 
-Sounds reasonable to me.
+>On Tue, 2006-03-21 at 18:13 +1200, Sam Vilain wrote:
+>  
+>
+>>+static inline void release_vx_info(struct vx_info *vxi,
+>>+       struct task_struct *task)
+>>+{
+>>+       might_sleep();
+>>+
+>>+       if (atomic_dec_and_test(&vxi->vx_tasks))
+>>+               unhash_vx_info(vxi);
+>>+} 
+>>    
+>>
+>
+>Are these better handled by krefs and their destructors?
+>  
+>
 
-Greetings,
-Rafael
+It does seem a little clumsy, doesn't it.  I've found
+Documentation/kref.txt and will rewrite those functions to use this API.
+
+Sam.

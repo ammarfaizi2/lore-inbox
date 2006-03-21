@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030389AbWCUQVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030439AbWCUQVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030389AbWCUQVO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 11:21:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030313AbWCUQVO
+	id S1030439AbWCUQVf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 11:21:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbWCUQVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 11:21:14 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:24844 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932334AbWCUQVK (ORCPT
+	Tue, 21 Mar 2006 11:21:32 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:31244 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1030311AbWCUQVN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 11:21:10 -0500
+	Tue, 21 Mar 2006 11:21:13 -0500
 Cc: Sam Ravnborg <sam@mars.ravnborg.org>, Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH 01/46] kbuild: support building individual files for external modules
-In-Reply-To: <20060321161709.GA8475@mars.ravnborg.org>
+Subject: [PATCH 39/46] kbuild: fix genksyms build error
+In-Reply-To: <11429580572017-git-send-email-sam@ravnborg.org>
 X-Mailer: git-send-email
-Date: Tue, 21 Mar 2006 17:20:54 +0100
-Message-Id: <1142958054202-git-send-email-sam@ravnborg.org>
+Date: Tue, 21 Mar 2006 17:20:57 +0100
+Message-Id: <1142958057756-git-send-email-sam@ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Sam Ravnborg <sam@ravnborg.org>
@@ -24,161 +24,103 @@ From: Sam Ravnborg <sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Support building individual files when dealing with separate modules.
-So say you have a module named "foo" which consist of two .o files bar.o
-and fun.o.
-
-You can then do:
-make -C $KERNELSRC M=`pwd` bar.o
-make -C $KERNELSRC M=`pwd` bar.lst
-make -C $KERNELSRC M=`pwd` bar.i
-make -C $KERNELSRC M=`pwd` /            <= will build all .o files
-                                           and link foo.o
-make -C $KERNELSRC M=`pwd` foo.ko       <= will build the module
-                                           and do the modpost step
-					   to create foo.ko
-
-The above will also work if the external module is placed in a
-subdirectory using a hirachy of kbuild files.
-Thanks to Andreas Gruenbacher <agruen@suse.de> for initial feature
-request / bug report.
+genksyms needs to know when a symbol must have a "_" prefex as is
+true for a few architectures.
+Pass $(ARCH) as commandline argument and hardcode what architectures that
+needs this info.
+Previous attemt to take it from elfconfig.h was br0ken since elfconfig.h
+is a generated file.
 
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- Documentation/kbuild/modules.txt |   11 ++++++
- Makefile                         |   66 +++++++++++++++++++++++++-------------
- 2 files changed, 55 insertions(+), 22 deletions(-)
+ scripts/Makefile.build      |    2 +-
+ scripts/genksyms/genksyms.c |   17 ++++++++++++-----
+ 2 files changed, 13 insertions(+), 6 deletions(-)
 
-06300b21f4c79fd1578f4b7ca4b314fbab61a383
-diff --git a/Documentation/kbuild/modules.txt b/Documentation/kbuild/modules.txt
-index 7e77f93..87d858d 100644
---- a/Documentation/kbuild/modules.txt
-+++ b/Documentation/kbuild/modules.txt
-@@ -13,6 +13,7 @@ In this document you will find informati
- 	   --- 2.2 Available targets
- 	   --- 2.3 Available options
- 	   --- 2.4 Preparing the kernel tree for module build
-+	   --- 2.5 Building separate files for a module
- 	=== 3. Example commands
- 	=== 4. Creating a kbuild file for an external module
- 	=== 5. Include files
-@@ -131,6 +132,16 @@ when building an external module.
- 	      Therefore a full kernel build needs to be executed to make
- 	      module versioning work.
+c79c7b0923ff353d12194e83628bcca5a8606564
+diff --git a/scripts/Makefile.build b/scripts/Makefile.build
+index 7afe3e7..19ef2bc 100644
+--- a/scripts/Makefile.build
++++ b/scripts/Makefile.build
+@@ -166,7 +166,7 @@ cmd_cc_o_c = $(CC) $(c_flags) -c -o $(@D
+ cmd_modversions =							\
+ 	if $(OBJDUMP) -h $(@D)/.tmp_$(@F) | grep -q __ksymtab; then	\
+ 		$(CPP) -D__GENKSYMS__ $(c_flags) $<			\
+-		| $(GENKSYMS)						\
++		| $(GENKSYMS) -a $(ARCH)				\
+ 		> $(@D)/.tmp_$(@F:.o=.ver);				\
+ 									\
+ 		$(LD) $(LDFLAGS) -r -o $@ $(@D)/.tmp_$(@F) 		\
+diff --git a/scripts/genksyms/genksyms.c b/scripts/genksyms/genksyms.c
+index ef8822e..da8ff4f 100644
+--- a/scripts/genksyms/genksyms.c
++++ b/scripts/genksyms/genksyms.c
+@@ -32,7 +32,6 @@
+ #endif /* __GNU_LIBRARY__ */
  
-+--- 2.5 Building separate files for a module
-+	It is possible to build single files which is part of a module.
-+	This works equal for the kernel, a module and even for external
-+	modules.
-+	Examples (module foo.ko, consist of bar.o, baz.o):
-+		make -C $KDIR M=`pwd` bar.lst
-+		make -C $KDIR M=`pwd` bar.o
-+		make -C $KDIR M=`pwd` foo.ko
-+		make -C $KDIR M=`pwd` /
-+	
+ #include "genksyms.h"
+-#include "../mod/elfconfig.h"
+ /*----------------------------------------------------------------------*/
  
- === 3. Example commands
+ #define HASH_BUCKETS  4096
+@@ -44,6 +43,8 @@ int cur_line = 1;
+ char *cur_filename, *output_directory;
  
-diff --git a/Makefile b/Makefile
-index 77a448c..639d8a4 100644
---- a/Makefile
-+++ b/Makefile
-@@ -137,7 +137,7 @@ objtree		:= $(CURDIR)
- src		:= $(srctree)
- obj		:= $(objtree)
+ int flag_debug, flag_dump_defs, flag_warnings;
++const char *arch = "";
++const char *mod_prefix = "";
  
--VPATH		:= $(srctree)
-+VPATH		:= $(srctree):$(KBUILD_EXTMOD)
+ static int errors;
+ static int nsyms;
+@@ -458,7 +459,7 @@ export_symbol(const char *name)
+ 	fputs(">\n", debugfile);
  
- export srctree objtree VPATH TOPDIR
+       /* Used as a linker script. */
+-      printf("%s__crc_%s = 0x%08lx ;\n", MODULE_SYMBOL_PREFIX, name, crc);
++      printf("%s__crc_%s = 0x%08lx ;\n", mod_prefix, name, crc);
+     }
+ }
  
-@@ -849,27 +849,6 @@ prepare prepare-all: prepare0
+@@ -529,6 +530,7 @@ main(int argc, char **argv)
  
- export CPPFLAGS_vmlinux.lds += -P -C -U$(ARCH)
+ #ifdef __GNU_LIBRARY__
+   struct option long_opts[] = {
++    {"arch", 1, 0, 'a'},
+     {"debug", 0, 0, 'd'},
+     {"warnings", 0, 0, 'w'},
+     {"quiet", 0, 0, 'q'},
+@@ -538,13 +540,16 @@ main(int argc, char **argv)
+     {0, 0, 0, 0}
+   };
  
--# Single targets
--# ---------------------------------------------------------------------------
+-  while ((o = getopt_long(argc, argv, "dwqVDk:p:",
++  while ((o = getopt_long(argc, argv, "a:dwqVDk:p:",
+ 			  &long_opts[0], NULL)) != EOF)
+ #else  /* __GNU_LIBRARY__ */
+-  while ((o = getopt(argc, argv, "dwqVDk:p:")) != EOF)
++  while ((o = getopt(argc, argv, "a:dwqVDk:p:")) != EOF)
+ #endif /* __GNU_LIBRARY__ */
+     switch (o)
+       {
++      case 'a':
++	arch = optarg;
++	break;
+       case 'd':
+ 	flag_debug++;
+ 	break;
+@@ -567,7 +572,9 @@ main(int argc, char **argv)
+ 	genksyms_usage();
+ 	return 1;
+       }
 -
--%.s: %.c scripts FORCE
--	$(Q)$(MAKE) $(build)=$(@D) $@
--%.i: %.c scripts FORCE
--	$(Q)$(MAKE) $(build)=$(@D) $@
--%.o: %.c scripts FORCE
--	$(Q)$(MAKE) $(build)=$(@D) $@
--%.ko: scripts FORCE
--	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1) $(build)=$(@D) $(@:.ko=.o)
--	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.modpost
--%/:      scripts prepare FORCE
--	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1) $(build)=$(@D)
--%.lst: %.c scripts FORCE
--	$(Q)$(MAKE) $(build)=$(@D) $@
--%.s: %.S scripts FORCE
--	$(Q)$(MAKE) $(build)=$(@D) $@
--%.o: %.S scripts FORCE
--	$(Q)$(MAKE) $(build)=$(@D) $@
--
- # 	FIXME: The asm symlink changes when $(ARCH) changes. That's
- #	hard to detect, but I suppose "make mrproper" is a good idea
- #	before switching between archs anyway.
-@@ -1192,6 +1171,11 @@ help:
- 	@echo  '  modules_install - install the module'
- 	@echo  '  clean           - remove generated files in module directory only'
- 	@echo  ''
-+
-+# Dummies...
-+.PHONY: prepare scripts
-+prepare: ;
-+scripts: ;
- endif # KBUILD_EXTMOD
- 
- # Generate tags for editors
-@@ -1313,6 +1297,44 @@ kernelrelease:
- kernelversion:
- 	@echo $(KERNELVERSION)
- 
-+# Single targets
-+# ---------------------------------------------------------------------------
-+# The directory part is taken from first prerequisite, so this
-+# works even with external modules
-+%.s: %.c scripts FORCE
-+	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
-+%.i: %.c scripts FORCE
-+	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
-+%.o: %.c scripts FORCE
-+	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
-+%.lst: %.c scripts FORCE
-+	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
-+%.s: %.S scripts FORCE
-+	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
-+%.o: %.S scripts FORCE
-+	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
-+
-+# For external modules we shall include any directory of the target,
-+# but usual case there is no directory part.
-+# make M=`pwd` module.o     => $(dir $@)=./
-+# make M=`pwd` foo/module.o => $(dir $@)=foo/
-+# make M=`pwd` /            => $(dir $@)=/
-+ 
-+ifeq ($(KBUILD_EXTMOD),)
-+        target-dir = $(@D)
-+else
-+        zap-slash=$(filter-out .,$(patsubst %/,%,$(dir $@)))
-+        target-dir = $(KBUILD_EXTMOD)$(if $(zap-slash),/$(zap-slash))
-+endif
-+
-+/ %/:      scripts prepare FORCE
-+	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1) \
-+	$(build)=$(target-dir)
-+%.ko: scripts FORCE
-+	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1)   \
-+	$(build)=$(target-dir) $(@:.ko=.o)
-+	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.modpost
-+
- # FIXME Should go into a make.lib or something 
- # ===========================================================================
- 
++    if ((strcmp(arch, "v850") == 0) ||
++        (strcmp(arch, "h8300") == 0))
++      mod_prefix = "_";
+     {
+       extern int yydebug;
+       extern int yy_flex_debug;
 -- 
 1.0.GIT
 

@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965097AbWCUTvR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbWCUTz1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965097AbWCUTvR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 14:51:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965100AbWCUTvR
+	id S965100AbWCUTz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 14:55:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbWCUTz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 14:51:17 -0500
-Received: from uproxy.gmail.com ([66.249.92.207]:47574 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965097AbWCUTvP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 14:51:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=oD9dj56UaOfe8wK/Mml2EvVT8THW++Bcow6Jrvb+1r8PfukCKGu7FBG0LtN9yNzyQXoRd4yWf83uKgsutKyx2LzY4iDTPVD/cotfyUMKdQnQiZkjwCSFYDMxdmxZ7Z0N6FLywR6Fe++jx44e9spo7nLRJYt11L9PGo1k96Q6GJ4=
-Message-ID: <2c0942db0603211151l5db29201p181aac20bb0cf523@mail.gmail.com>
-Date: Tue, 21 Mar 2006 11:51:14 -0800
-From: "Ray Lee" <madrabbit@gmail.com>
-Reply-To: ray-gmail@madrabbit.org
-To: "Andreas Mohr" <andi@rhlx01.fht-esslingen.de>
-Subject: Re: ring buffer indices: way too much modulo (division!) fiddling
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060321182806.GA2691@rhlx01.fht-esslingen.de>
+	Tue, 21 Mar 2006 14:55:27 -0500
+Received: from mail7.sea5.speakeasy.net ([69.17.117.9]:50855 "EHLO
+	mail7.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S965100AbWCUTz0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 14:55:26 -0500
+Date: Tue, 21 Mar 2006 11:55:23 -0800 (PST)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+Subject: Re: VFAT: Can't create file named 'aux.h'?
+In-Reply-To: <442050C8.1020200@zytor.com>
+Message-ID: <Pine.LNX.4.58.0603211154530.31582@shell3.speakeasy.net>
+References: <1142890822.5007.18.camel@localhost.localdomain>
+ <20060320134533.febb0155.rdunlap@xenotime.net> <dvn835$lvo$1@terminus.zytor.com>
+ <Pine.LNX.4.61.0603211840020.21376@yvahk01.tjqt.qr> <44203B86.5000003@zytor.com>
+ <Pine.LNX.4.61.0603211854150.21376@yvahk01.tjqt.qr> <442040CB.2020201@zytor.com>
+ <Pine.LNX.4.61.0603211911090.2314@yvahk01.tjqt.qr> <44204BD9.1090103@zytor.com>
+ <Pine.LNX.4.61.0603212005250.6840@yvahk01.tjqt.qr> <442050C8.1020200@zytor.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060321182806.GA2691@rhlx01.fht-esslingen.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/21/06, Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
-> "Just One" shocking example (2.6.16 arch/i386/kernel/apm.c):
+On Tue, 21 Mar 2006, H. Peter Anvin wrote:
+
+> Jan Engelhardt wrote:
+> >>>>You're confusing characters which aren't legal *VFAT* names which those
+> >>>>which
+> >>>>aren't legal *FAT* (8.3) names.
+> >>>
+> >>>Could you please name an illegal FAT name being legal VFAT name?
+> >>
+> >>"Green Furry Submarine"
+> >>
+> >
+> > Ah well. But aux.h is also forbidden under VFAT, is not it? Or no, because
+> > it's "just" an 8.3 name?
+> >
 >
-> static apm_event_t get_queued_event(struct apm_user *as)
-> {
->         as->event_tail = (as->event_tail + 1) % APM_MAX_EVENTS;
->         return as->events[as->event_tail];
-> }
-[...]
->      7d7:       83 f9 14                cmp    $0x14,%ecx
+> It probably depends on how picky you want to be.  As far as I know, even
+> NT will recognize a character device name without leaving \DEV\, even
+> though \DEV\ has been the "official" device prefix since DOS 2.0.
+>
+> Probably it would be worth trying to create "aux.h" under XP and see
+> what happens.  Unfortunately I don't have a 'doze system handy at the
+> moment.
 
-APM_MAX_EVENTS appears to be 20, not a power of 2. GCC does the
-obvious transform of modulo to an ANDL when the modulus is a sane
-value. Rewrite the above as a four line function and run it through
-gcc -S to see to difference bewteen APM_MAX_EVENTS=20 and =32.
+Fails silently.
 
-> Any problems with such a change that I'm missing here?
+> 	-hpa
+>
+> -
 
-<shrug> It's probably not a wide-spread problem. How many places in
-the kernel use ringbuffers that aren't sized to a power of 2?
-
-> ringbuf_advance_idx(my_idx_var, MY_BUF_SIZE)
-> (any more generic name? It's not always about ring buffers...)
-
-modulo_add? But it's probably unneccessary, unless this really is
-widespread. Even then, just correcting those already in place would be
-better than adding yet another abstraction of a simple operation to
-the kernel.
-
-> This kind of unnecessary modulo operation happens in lots of places (mostly
-> network drivers).
-
-Check to see if those are power of 2 sized buffers. gcc really will do
-those correctly.
-
-Ray
+Vadim Lobanov

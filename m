@@ -1,88 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbWCUR2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWCUR2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932322AbWCUR2h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 12:28:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWCUR2g
+	id S932235AbWCUR2L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 12:28:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbWCUR2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 12:28:36 -0500
-Received: from lug-owl.de ([195.71.106.12]:54763 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S932314AbWCUR2W (ORCPT
+	Tue, 21 Mar 2006 12:28:10 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:35286 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751418AbWCUR2J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 12:28:22 -0500
-Date: Tue, 21 Mar 2006 18:28:20 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Paul Smith <psmith@gnu.org>
-Subject: Re: [PATCH 35/46] kbuild: change kbuild to not rely on incorrect GNU make behavior
-Message-ID: <20060321172820.GQ20746@lug-owl.de>
-Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
-	lkml <linux-kernel@vger.kernel.org>, Paul Smith <psmith@gnu.org>
-References: <1142958057218-git-send-email-sam@ravnborg.org> <11429580571656-git-send-email-sam@ravnborg.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="L/iKGr82HRlWSTal"
-Content-Disposition: inline
-In-Reply-To: <11429580571656-git-send-email-sam@ravnborg.org>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+	Tue, 21 Mar 2006 12:28:09 -0500
+Date: Tue, 21 Mar 2006 18:28:04 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix console utf8 composing (F)
+In-Reply-To: <20060321001940.098331ad@werewolf.auna.net>
+Message-ID: <Pine.LNX.4.61.0603211823120.21376@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0603202048350.14231@yvahk01.tjqt.qr>
+ <20060321001940.098331ad@werewolf.auna.net>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-1042484623-1142962084=:21376"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
---L/iKGr82HRlWSTal
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+--1283855629-1042484623-1142962084=:21376
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 
-On Tue, 2006-03-21 17:20:57 +0100, Sam Ravnborg <sam@ravnborg.org> wrote:
-> diff --git a/scripts/package/Makefile b/scripts/package/Makefile
-> index c201ef0..d3038b7 100644
-> --- a/scripts/package/Makefile
-> +++ b/scripts/package/Makefile
-> @@ -82,7 +82,7 @@ clean-dirs +=3D $(objtree)/debian/
-> =20
->  # tarball targets
->  # ----------------------------------------------------------------------=
------
-> -.PHONY: tar%pkg
-> +PHONY +=3D tar%pkg
->  tar%pkg:
->  	$(MAKE) KBUILD_SRC=3D
->  	$(CONFIG_SHELL) $(srctree)/scripts/package/buildtar $@
+>+1
+>Whith this I can type accented chars in console.
 
-This part is wrong. $(PHONY) isn't subject to pattern matching, so all
-targets that match 'tar%pkg' must be listed here. Fortunately, that's
-only three:
+>Just a note. Is this also needed ?
+>http://marc.theaimsgroup.com/?l=linux-kernel&m=114104232611272&w=2
 
-PHONY +=3D tar-pkg targz-pkg tarbz2-pkg
+Note that our (my and Alexander's try) at the utf8 patch only affects 
+composing. If you have a "native" umlaut key or whatever, it will work 
+without the patch.
 
-MfG, JBG
+I am not sure if you need Adam Tlałka's patch too.
+At least you do not need it for composing, and I have not found any 
+annoyance in my regular day that would require me to assume another bug
+in the utf8 code.
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
 
---L/iKGr82HRlWSTal
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFEIDe0Hb1edYOZ4bsRAhzBAJ49pVhIVycsL1ezJnegi6TClDUYSACfWbkx
-evXzNe060pajN+kSxl9j7So=
-=Z0og
------END PGP SIGNATURE-----
-
---L/iKGr82HRlWSTal--
+Jan Engelhardt
+-- 
+| Software Engineer and Linux/Unix Network Administrator
+--1283855629-1042484623-1142962084=:21376--

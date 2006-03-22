@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWCVTHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWCVTH4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932344AbWCVTHe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 14:07:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWCVTHe
+	id S932355AbWCVTH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 14:07:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbWCVTHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 14:07:34 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:9515 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932344AbWCVTHd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 14:07:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=hdN74NsNe36cXhq6j1xhzenfEYGHWsBGb7WKGbyKea2egnH7zAxCc/46aBC95VipWR3QCy+yupUJkevQymMYTpUZgzQJc5g3L/AC0IxJlJYVYBILbYElyI/yMnbMZgUo1XQSU83C4MyLzwQkSzf1sSNBJsytJRIYzU0lCSPqVWo=
-Subject: Re: [Ext2-devel] [RFC] [PATCH] Reducing average ext2 fsck time
-	through fs-wide dirty bit]
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Valerie Henson <val_henson@linux.intel.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       ext2-devel <Ext2-devel@lists.sourceforge.net>,
-       Arjan van de Ven <arjan@linux.intel.com>,
-       "Theodore Ts'o" <tytso@mit.edu>, Zach Brown <zach.brown@oracle.com>
-In-Reply-To: <20060322011034.GP12571@goober>
-References: <20060322011034.GP12571@goober>
-Content-Type: text/plain
-Date: Wed, 22 Mar 2006 11:09:18 -0800
-Message-Id: <1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com>
+	Wed, 22 Mar 2006 14:07:55 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.158]:55036 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S932355AbWCVTHy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 14:07:54 -0500
+Date: Wed, 22 Mar 2006 12:08:28 -0700
+From: "Mark A. Greer" <mgreer@mvista.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Stephane@artesyncp.com, rmk+serial@arm.linux.org.uk
+Subject: [PATCH 2.6.16-rc6-mm2] serial: mpsc driver has definition of SUPPORT_SYSRQ below include of serial_core.h
+Message-ID: <20060322190828.GA22208@mag.az.mvista.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-21 at 17:10 -0800, Valerie Henson wrote:
-> Hi all,
-> 
-> I am working on reducing the average time spent on fscking ext2 file
-> systems.  My initial take on the problem is to avoid fscking when the
-> file system is not being modified.  If we're not actively modifying
-> the file system when we crash, it seems intuitive that we could avoid
-> fsck on next mount.  The obvious way to implement this is to add a
-> clean/dirty bit to the superblock, check every so often to see if the
-> file system is not being written, sync out all outstanding writes, and
-> mark the file system clean.  On boot, fsck should check for the clean
-> bit and mark the file system as valid, thereby avoiding a full fsck.
-> I call this the fs-wide dirty bit solution.
-..
+The definition of SUPPORT_SYSRQ must come before #include of serial_core.h.
+This patch moves the definition of SUPPORT_SYSRQ to be just after the
+#include of config.h to make it consistent with 8250.c.
 
-Just curious, why are you teaching ext2 same tricks that are in ext3 ?
-Is there a reason behind improving ext2 ? Are there any benefits
-of not using ext3 instead ?
+Reported-by: Stephane Chazelas <Stephane@artesyncp.com>
+Signed-off-by: Mark A. Greer <mgreer@mvista.com>
+---
 
-Thanks,
-Badari
+ mpsc.h |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
+---
 
+diff -Nurp linux-2.6.16-rc6-mm2-mpsc_namefix/drivers/serial/mpsc.h linux-2.6.16-rc6-mm2-mpsc_sysrq/drivers/serial/mpsc.h
+--- linux-2.6.16-rc6-mm2-mpsc_namefix/drivers/serial/mpsc.h	2006-03-11 15:12:55.000000000 -0700
++++ linux-2.6.16-rc6-mm2-mpsc_sysrq/drivers/serial/mpsc.h	2006-03-22 11:50:28.000000000 -0700
+@@ -13,6 +13,11 @@
+ #define	__MPSC_H__
+ 
+ #include <linux/config.h>
++
++#if defined(CONFIG_SERIAL_MPSC_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
++#define SUPPORT_SYSRQ
++#endif
++
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/tty.h>
+@@ -31,10 +36,6 @@
+ #include <asm/io.h>
+ #include <asm/irq.h>
+ 
+-#if defined(CONFIG_SERIAL_MPSC_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
+-#define SUPPORT_SYSRQ
+-#endif
+-
+ #define	MPSC_NUM_CTLRS		2
+ 
+ /*

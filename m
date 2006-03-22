@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbWCVPQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWCVPRV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751279AbWCVPQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 10:16:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbWCVPQ0
+	id S1751293AbWCVPRV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 10:17:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWCVPRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 10:16:26 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:40833 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751279AbWCVPQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 10:16:24 -0500
-Date: Wed, 22 Mar 2006 16:16:51 +0100
+	Wed, 22 Mar 2006 10:17:21 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:63195 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751299AbWCVPRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 10:17:19 -0500
+Date: Wed, 22 Mar 2006 16:17:46 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch 6/24] s390: BUG() warnings.
-Message-ID: <20060322151651.GF5801@skybase.boeblingen.de.ibm.com>
+Subject: [patch 8/24] s390: connector support.
+Message-ID: <20060322151746.GH5801@skybase.boeblingen.de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,30 +23,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-[patch 6/24] s390: BUG() warnings.
+[patch 8/24] s390: connector support.
 
-Use __builtin_trap instead of an inline assembly in the BUG() macro.
-That way the compiler knows that BUG() won't return.
+Include connector config in the s390 arch Kconfig to get support
+for connectors.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- include/asm-s390/bug.h |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+ arch/s390/Kconfig |    2 ++
+ 1 files changed, 2 insertions(+)
 
-diff -urpN linux-2.6/include/asm-s390/bug.h linux-2.6-patched/include/asm-s390/bug.h
---- linux-2.6/include/asm-s390/bug.h	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6-patched/include/asm-s390/bug.h	2006-03-22 14:36:15.000000000 +0100
-@@ -4,9 +4,10 @@
- #include <linux/kernel.h>
+diff -urpN linux-2.6/arch/s390/Kconfig linux-2.6-patched/arch/s390/Kconfig
+--- linux-2.6/arch/s390/Kconfig	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/arch/s390/Kconfig	2006-03-22 14:36:16.000000000 +0100
+@@ -460,6 +460,8 @@ config PCMCIA
  
- #ifdef CONFIG_BUG
+ source "drivers/base/Kconfig"
+ 
++source "drivers/connector/Kconfig"
 +
- #define BUG() do { \
--        printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
--        __asm__ __volatile__(".long 0"); \
-+	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
-+	__builtin_trap(); \
- } while (0)
+ source "drivers/scsi/Kconfig"
  
- #define HAVE_ARCH_BUG
+ source "drivers/s390/Kconfig"

@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751866AbWCVAYY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751870AbWCVA0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751866AbWCVAYY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 19:24:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751867AbWCVAYY
+	id S1751870AbWCVA0F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 19:26:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751871AbWCVA0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 19:24:24 -0500
-Received: from xenotime.net ([66.160.160.81]:50570 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751866AbWCVAYX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 19:24:23 -0500
-Date: Tue, 21 Mar 2006 16:26:30 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, clemens@ladisch.de
-Subject: Re: [PATCH] hpet header sanitization
-Message-Id: <20060321162630.d995c63c.rdunlap@xenotime.net>
-In-Reply-To: <20060321161303.53c2895f.akpm@osdl.org>
-References: <20060321144607.153d1943.rdunlap@xenotime.net>
-	<20060321161303.53c2895f.akpm@osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 21 Mar 2006 19:26:05 -0500
+Received: from rwcrmhc14.comcast.net ([204.127.192.84]:61686 "EHLO
+	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S1751870AbWCVA0E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 19:26:04 -0500
+Message-ID: <44209997.9010708@comcast.net>
+Date: Tue, 21 Mar 2006 19:25:59 -0500
+From: Ed Sweetman <safemode@comcast.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: 2.6.16-rc6-ide1 irq trap, io hang problem solved?
+References: <442089CB.1000008@comcast.net> <1142985995.4532.195.camel@mindpipe>
+In-Reply-To: <1142985995.4532.195.camel@mindpipe>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Mar 2006 16:13:03 -0800 Andrew Morton wrote:
+Lee Revell wrote:
 
-> "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
-> >
-> > From: Randy Dunlap <rdunlap@xenotime.net>
-> > 
-> > Add __KERNEL__ block.
-> > Use __KERNEL__ to allow ioctl interface to be usable.
-> 
-> hm, why?
+>On Tue, 2006-03-21 at 18:18 -0500, Ed Sweetman wrote:
+>  
+>
+>>I've seen some traffic here to suggest that the problem was tracked 
+>>down, but I saw nothing about it being solved completely.  Currently my 
+>>system hangs whenever an irq trap message appears, usually after some 
+>>sort of disk io on SATA drives. Is it fixed in the GIT patchset recently 
+>>posted or is this still open?  
+>>    
+>>
+>
+>Are you referring to the "Losing ticks" bug?  What is the exact error
+>message that you get?  Does the system hang momentarily or have to be
+>rebooted?
+>
+>Lee
+>
+>
+>  
+>
+No not the ticks bug.
 
-because there is a test/example source file in (inside)
-Documentation/hpet.txt that won't build otherwise.
-And because hpet.h contains _userspace_ ioctl interface struct
-and macros...
+ata3: irq trap
+ata3: command 0x25 timeout, stat 0x50 host_stat 0x60
+ata4: irq trap
+ata4: command 0x25 timeout, stat 0x50 host_stat 0x20
+ata4: irq trap
+ata4: command 0x35 timeout, stat 0x50 host_stat 0x20
+ata3: irq trap
+ata3: command 0x35 timeout, stat 0x50 host_stat 0x60
 
 
-> My general approach to __KERNEL__ fixes is to not support new includers of
-> kernel headers but to accept patches which fix up existing applications of
-> __KERNEL__.
-> 
-> It's basically a compromise between the
-> dont-include-kernel-headers-from-userspace fundamentalists and the
-> but-i-want-my-stuff-to-work pragmatists ;)
-> 
-> But hpet.h never had __KERNEL__, so there's no regression here.
-> 
-> That being said, it looks like a sensible change - let's see if we can
-> sneak it in without the fundies noticing.
+Over and over in random orientations.   System hangs on io momentarily, 
+usually a few seconds. No fs errors, no other errors given.   System 
+also seems to have been kicked out of DMA mode at least for disks. 
 
----
-~Randy
+

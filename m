@@ -1,70 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932610AbWCVXg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932608AbWCVXgu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932610AbWCVXg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 18:36:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbWCVXg4
+	id S932608AbWCVXgu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 18:36:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932610AbWCVXgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 18:36:56 -0500
-Received: from mail.gmx.net ([213.165.64.20]:63117 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932610AbWCVXgz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 18:36:55 -0500
-X-Authenticated: #704063
-Subject: Re: [Patch] Possible NULL pointer dereference in fs/configfs/dir.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060322232709.GD7844@ca-server1.us.oracle.com>
-References: <1143068729.27276.1.camel@alice>
-	 <20060322232709.GD7844@ca-server1.us.oracle.com>
-Content-Type: text/plain
-Date: Thu, 23 Mar 2006 00:36:54 +0100
-Message-Id: <1143070614.27446.4.camel@alice>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Wed, 22 Mar 2006 18:36:50 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:45064 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932608AbWCVXgt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 18:36:49 -0500
+Message-ID: <4421DF62.8020903@vmware.com>
+Date: Wed, 22 Mar 2006 15:36:02 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 5/24] i386 Vmi code patching
+References: <200603131802.k2DI2nv8005665@zach-dev.vmware.com> <200603222115.46926.ak@suse.de> <20060322214025.GJ15997@sorel.sous-sol.org> <4421CCA8.4080702@vmware.com> <20060322225117.GM15997@sorel.sous-sol.org>
+In-Reply-To: <20060322225117.GM15997@sorel.sous-sol.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Chris Wright wrote:
+> You could compile all platform layers you want to support with the kernel.
+>   
 
-On Wed, 2006-03-22 at 15:27 -0800, Joel Becker wrote:
-> On Thu, Mar 23, 2006 at 12:05:29AM +0100, Eric Sesterhenn wrote:
-> > this fixes coverity bug #845, if group is NULL,
-> > we dereference it when setting up dentry.
-> 
-> 	Is the converity checker merly looking at in-function patterns?
+But the entire point is that you don't know what platform layers you 
+want to support.  The platform layers can change.  Xen has changed the 
+platform layer and re-optimized kernel / hypervisor transitions how many 
+times?  The platform layer provides exactly the flexibility to do that, 
+so that a kernel you compile today against a generic platform can work 
+with the platform layer provided by Xen 4.0 tomorrow.
 
-afaik it also looks what the functions which get called do. If you call
-a function that might free a pointer you pass, it warns if you use
-it afterwards.
+Compiling the platform layer with the kernel for "source compatibility" 
+is exactly what prevents you from doing this.  And you get stuck having 
+the same stable and inflexible ABI to the hypervisor, rather than a 
+carefully architected ABI just before it.  The most important design 
+decision in creating the VMI layer was disallowing data dependence 
+between the compiled kernel and the hypervisor ABI.
 
-> Where can I access the bug report (sorry for the question).
+I have seen, and will continue to see, every single shared data block 
+layout change to meet the demands of new features.  Eventually, you get 
+to a point where it is growing antlers and having new hooves grafted 
+onto it, yet still requires all of the original cruft you used to do.  
+It is either a maintenance nightmare, or a compatibility nightmare.  If 
+you want compatibility, you really can't break that interface all the 
+time, and the real world demands of customers using virtualization 
+solutions really do want that compatibility.  You simply can't certify a 
+complex platform if you have to recompile your kernel for every new 
+release of your chosen hypervisor.  Bugs do get introduced this way, the 
+older kernels fall out of maintenance, and eventually you are forcing 
+them to upgrade to the latest kernels, which even worse, may have 
+changed the userspace interface, dropped legacy feature support, and 
+broken your key application that was the entire point of running in a VM 
+to begin with.  People throw things in VMs and then expect those VMs to 
+keep running for years, and you really can't break that.
 
-I would guess scan-admin@coverity.com 
+So instead, you impose a giant maintenance burden on the hypervisor, 
+forcing them to go to all efforts to avoid breaking this hypervisor 
+ABI.  That leads directly to crufty, unstable, and poor performing code.
 
-> 	group cannot be null here, we aren't called any other way.  So
-> while you are correct that the code below is needed in the presence of a
-> NULL group, really the "if (group" isn't necessary, just the "if
-> (group->default_groups)".  I could even BUG_ON() if you'd like.
+So the VMI layer is all about defining an ABI at a slightly higher 
+level.  A level which has many benefits you simply can't get from source 
+compatibility.  It is about the future, about preparing for the unknown, 
+about giving a powerful abstraction to the platform layer to do whatever 
+it chooses to do.
 
-I would then propose the following patch, so the check can be
-removed for people who like small kernels. I dont think gcc notices
-that all callers use non-NULL values and optimizes it away.
+If Intel announces a new chip tomorrow, with a feature bit that allows 
+selective privileged instructions to operate in non-zero supervisor 
+CPLs, you're really going to regret the fact that you can't issue page 
+invalidations and TLB flushes directly in the kernel because you 
+unwisely decided to compile these in as direct int $0x81 hypercalls.  
+You can change the platform layer and let new versions pick that up, and 
+try to encourage people to move to newer kernels.  And you have to make 
+this change for every single operating system you support, leading to 
+greater risk for introducing bugs in addition to any unwanted side 
+effects of a kernel upgrade.  Even worse, you may find a bug that 
+_requires_ changing the platform layer.  It might be a wide, gaping 
+security hole.  We had a few in the course of development (kernel CS 
+entry value stored in shared area..).  Now you have to break the 
+hypervisor ABI, all your customers think you suck, and they have to 
+upgrade all their systems.  Perhaps they have been happily running the 
+2.4.26 kernel up to now.  What do they do?
 
---- linux-2.6.16/fs/configfs/dir.c.orig	2006-03-23 00:31:16.000000000 +0100
-+++ linux-2.6.16/fs/configfs/dir.c	2006-03-23 00:32:07.000000000 +0100
-@@ -504,7 +504,9 @@ static int populate_groups(struct config
- 	int ret = 0;
- 	int i;
- 
--	if (group && group->default_groups) {
-+	BUG_ON(!group);		/* group == NULL is not allowed */
-+	
-+	if (group->default_groups) {
- 		/* FYI, we're faking mkdir here
- 		 * I'm not sure we need this semaphore, as we're called
- 		 * from our parent's mkdir.  That holds our parent's
+Why do you want to bind yourself to source compatibility, when it does 
+not bring you features at all, it only hurts you in terms of deployment 
+flexibility?
 
-
+Zach

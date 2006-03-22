@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932717AbWCVUwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932718AbWCVUxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932717AbWCVUwU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 15:52:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932718AbWCVUwU
+	id S932718AbWCVUxM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 15:53:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932719AbWCVUxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 15:52:20 -0500
-Received: from mxsf31.cluster1.charter.net ([209.225.28.130]:15234 "EHLO
-	mxsf31.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S932717AbWCVUwU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 15:52:20 -0500
-X-IronPort-AV: i="4.03,119,1141621200"; 
-   d="scan'208"; a="920937217:sNHT18515074"
-Message-ID: <4421B8EA.3020505@cybsft.com>
-Date: Wed, 22 Mar 2006 14:51:54 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Daniel Walker <dwalker@mvista.com>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rt1
-References: <20060320085137.GA29554@elte.hu> <441F8017.4040302@cybsft.com>	 <20060321211653.GA3090@elte.hu> <4420B5F0.6000201@cybsft.com>	 <20060322062932.GA17166@elte.hu> <44215CCB.1080005@cybsft.com>	 <442176EB.1050403@cybsft.com> <1143048688.9127.2.camel@localhost.localdomain>
-In-Reply-To: <1143048688.9127.2.camel@localhost.localdomain>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 22 Mar 2006 15:53:12 -0500
+Received: from mga03.intel.com ([143.182.124.21]:46232 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S932718AbWCVUxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 15:53:10 -0500
+X-IronPort-AV: i="4.03,119,1141632000"; 
+   d="scan'208"; a="14366237:sNHT581205730"
+Subject: Re: [patch] add private data to notifier_block
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44L0.0603221402070.7453-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0603221402070.7453-100000@iolanthe.rowland.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 22 Mar 2006 13:00:11 -0800
+Message-Id: <1143061212.8924.10.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-OriginalArrivalTime: 22 Mar 2006 20:53:04.0438 (UTC) FILETIME=[9D600D60:01C64DF2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Walker wrote:
-> On Wed, 2006-03-22 at 10:10 -0600, K.R. Foley wrote:
+On Wed, 2006-03-22 at 14:04 -0500, Alan Stern wrote:
+> On Tue, 21 Mar 2006, Kristen Accardi wrote:
 > 
->> Found something interesting. Having Wakeup latency timing turned on
->> makes a HUGE difference. I turned it off and recompiled and now I am
->> seeing numbers back in line with what I expected from 2.6.16-rt4. Sorry,
->> but I had no idea it would make that much difference. I don't have a
->> complete run yet, but I have seen enough to know that I am not seeing
->> tons of missed interrupts and the highest reported latency thus far is
->> 61 usec.
+> > While most current uses of notifier_block use a global struct, I would
+> > like to be able to use it on a per device basis for drivers which have
+> > multiple device instances.  I would also like to be able to have a
+> > private data struct associated with the notifier block so that per
+> > device data can be easily accessed.  This patch will modify the
+> > notifier_block struct to add a void *, and will require no modifications
+> > to any other users of the notifier_block.
+> > 
+> > Signed-off-by:  Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+> > 
+> > ---
+> >  include/linux/notifier.h |    1 +
+> >  1 files changed, 1 insertion(+)
+> > 
+> > --- 2.6-git-kca.orig/include/linux/notifier.h
+> > +++ 2.6-git-kca/include/linux/notifier.h
+> > @@ -15,6 +15,7 @@ struct notifier_block
+> >  {
+> >  	int (*notifier_call)(struct notifier_block *self, unsigned long, void *);
+> >  	struct notifier_block *next;
+> > +	void *data;
+> >  	int priority;
+> >  };
 > 
-> Just Wakeup latency timing , and not latency tracing ?
-> 
-> Daniel
-> 
+> I still think this isn't really needed.  The same effect can be 
+> accomplished by embedding a notifier_block struct within a larger 
+> structure that also contains the data pointer.
 > 
 
-Unfortunately I can't say for sure because I don't remember turning it
-off, but looking at the log it appears as though latency tracing was
-turned on
+I thought of this, but felt it would make for less easy to read code.
+But, that's just my personal style.  
 
--- 
-   kr
+> On the other hand this isn't a terribly big change, so I don't actually 
+> object to it.
+> 
+
+Thanks.
+
+> Alan Stern

@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWCVSAo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWCVSA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932266AbWCVSAo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 13:00:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWCVSAo
+	id S932197AbWCVSA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 13:00:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWCVSA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 13:00:44 -0500
-Received: from tetsuo.zabbo.net ([207.173.201.20]:23519 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S932266AbWCVSAm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 13:00:42 -0500
-Message-ID: <442190C2.6040001@oracle.com>
-Date: Wed, 22 Mar 2006 10:00:34 -0800
-From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kristen Accardi <kristen.c.accardi@intel.com>
-Cc: linux-kernel@vger.kernel.org, stern@rowland.harvard.edu
-Subject: Re: [patch] add private data to notifier_block
-References: <1142970154.31210.10.camel@whizzy>
-In-Reply-To: <1142970154.31210.10.camel@whizzy>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 22 Mar 2006 13:00:27 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:37070 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932197AbWCVSA0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 13:00:26 -0500
+Date: Wed, 22 Mar 2006 19:01:46 +0100
+From: Frank Pavlic <fpavlic@de.ibm.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: "Martin Schwidefsky" <schwidefsky@googlemail.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/6] s390: minor claw driver fix
+Message-ID: <20060322190146.115a7a01@localhost.localdomain>
+In-Reply-To: <6e0cfd1d0603220742m80e553x461362297bf38e53@mail.gmail.com>
+References: <20060322162821.6ebd9af6@localhost.localdomain>
+	<6e0cfd1d0603220742m80e553x461362297bf38e53@mail.gmail.com>
+Organization: IBM
+X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kristen Accardi wrote:
+On Wed, 22 Mar 2006 16:42:14 +0100
+"Martin Schwidefsky" <schwidefsky@googlemail.com> wrote:
 
-> device data can be easily accessed.  This patch will modify the
-> notifier_block struct to add a void *, and will require no modifications
-> to any other users of the notifier_block.
+> On 3/22/06, Frank Pavlic <fpavlic@de.ibm.com> wrote:
+> > [patch 1/6] s390: minor claw driver fix
+> >
+> > From: Frank Pavlic <fpavlic@de.ibm.com>
+> >
+> >         use CONFIG_ARCH_S390X instead of CONFIG_64BIT in function dumpit .
+> 
+> Nack. CONFIG_ARCH_S390X doesn't exists anymore. It has been replaced
+> by CONFIG_64BIT in 2.6.16.
+> 
+> --
+> blue skies,
+>   Martin
 
->  {
->  	int (*notifier_call)(struct notifier_block *self, unsigned long, void *);
->  	struct notifier_block *next;
-> +	void *data;
->  	int priority;
->  };
+oh boy , you are absolutely right , did take the wrong kernel level for making this patch .
+it was just before you did the upgrade to 2.6.16 :-(..
 
-Well, it might introduce warnings in users who weren't using named
-initializers -- their bare priority initialization might now shift to
-trying to initialize a pointer.
+Jeff please don't apply this one ...the rest [2/6] - [6/6] is ok ...
 
-Though, that's probably a good thing as it gives an opportunity to
-convert them.  We also don't want to create a padded structure by
-putting the void * after the int.
-
-- z
+Frank

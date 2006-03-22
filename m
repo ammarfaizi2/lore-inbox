@@ -1,72 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWCVI7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWCVI7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbWCVI7g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 03:59:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbWCVI7g
+	id S1751125AbWCVI7O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 03:59:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbWCVI7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 03:59:36 -0500
-Received: from uproxy.gmail.com ([66.249.92.194]:1270 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751126AbWCVI7f convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 03:59:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GnX/MQaC130+7EduMMImS+Ypq8p+ifepFeBW/pWtD5BMgVMVY3wRwvKlbIJBnVMo2S7gPan90+FcWuDkK2n+a1cevZjO1fgUybPhPhOXsSBRO6CBFSw9OdqX/C65NFYOYSrJ39yWWyGvgD8tZn64NKAe0fT3CG1SidbWILU20Rc=
-Message-ID: <bc56f2f0603220059x6b2a30b8h@mail.gmail.com>
-Date: Wed, 22 Mar 2006 03:59:33 -0500
-From: "Stone Wang" <pwstone@gmail.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>
-Subject: Re: PATCH][1/8] 2.6.15 mlock: make_pages_wired/unwired
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <44209A26.3040102@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <bc56f2f0603200536scb87a8ck@mail.gmail.com>
-	 <441FEFB4.6050700@yahoo.com.au>
-	 <bc56f2f0603210803l28145c7dj@mail.gmail.com>
-	 <44209A26.3040102@yahoo.com.au>
+	Wed, 22 Mar 2006 03:59:14 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:33430 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751125AbWCVI7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 03:59:14 -0500
+Subject: Re: [RFC PATCH 34/35] Add the Xen virtual network device driver.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com,
+       virtualization@lists.osdl.org, Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+In-Reply-To: <20060322063808.464342000@sorel.sous-sol.org>
+References: <20060322063040.960068000@sorel.sous-sol.org>
+	 <20060322063808.464342000@sorel.sous-sol.org>
+Content-Type: text/plain
+Date: Wed, 22 Mar 2006 09:59:09 +0100
+Message-Id: <1143017949.2955.40.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/3/21, Nick Piggin <nickpiggin@yahoo.com.au>:
-> Stone Wang wrote:
-> > We dont account HugeTLB pages for:
-> >
-> > 1. HugeTLB pages themselves are not reclaimable.
-> >
-> > 2. If we count HugeTLB pages in "Wired",then we would have no mind
-> >    how many of the "Wired" are HugeTLB pages, and how many are
-> > normal-size pages.
-> >    Thus, hard to get a clear map of physical memory use,for example:
-> >      how many pages are reclaimable?
-> >    If we must count HugeTLB pages,more fields should be added to
-> > "/proc/meminfo",
-> >    for exmaple: "Wired HugeTLB:", "Wired Normal:".
-> >
->
-> Then why do you wire them at all? Your unwire function does not appear
-> to be able to unwire them.
 
-We didnt wire them.
+> +#ifdef CONFIG_XEN_BALLOON
+> +#include <xen/balloon.h>
+> +#endif
 
-Check get_user_pages():
+such ifdefs are butt-ugly and should be inside the header at least
 
-        /* We dont account wired HugeTLB pages */
-        if (is_vm_hugetlb_page(vma)) {
-            i = follow_hugetlb_page(mm, vma, pages, vmas,
-                        &start, &len, i);
-            continue;
-        }
+> +#ifndef __GFP_NOWARN
+> +#define __GFP_NOWARN 0
+> +#endif
+
+eehhh why?
 
 
-Shaoping Wang
+> +#define alloc_xen_skb(_l) __dev_alloc_skb((_l), GFP_ATOMIC|__GFP_NOWARN)
 
->
-> --
-> SUSE Labs, Novell Inc.
-> Send instant messages to your online friends http://au.messenger.yahoo.com
->
->
+why does xen need it's own alloc_skb variant?
+
+> +static unsigned long rx_pfn_array[NET_RX_RING_SIZE];
+> +static struct multicall_entry rx_mcl[NET_RX_RING_SIZE+1];
+> +static struct mmu_update rx_mmu[NET_RX_RING_SIZE];
+
+does this mean you can only have 1 network interface? that sounds silly
+
+
+> +
+> +/* Access macros for acquiring freeing slots in {tx,rx}_skbs[]. */
+> +#define ADD_ID_TO_FREELIST(_list, _id)			\
+> +	(_list)[(_id)] = (_list)[0];			\
+> +	(_list)[0]     = (void *)(unsigned long)(_id);
+> +#define GET_ID_FROM_FREELIST(_list)				\
+> +	({ unsigned long _id = (unsigned long)(_list)[0];	\
+> +	   (_list)[0]  = (_list)[_id];				\
+> +	   (unsigned short)_id; })
+
+these should be inlines at leas
+
+> +
+> +/** Send a packet on a net device to encourage switches to learn the
+> + * MAC. We send a fake ARP request.
+
+why is this inside a driver?????
+
+> +	if (unlikely((((unsigned long)skb->data & ~PAGE_MASK) + skb->len) >=
+> +		     PAGE_SIZE)) {
+> +		struct sk_buff *nskb;
+> +		if (unlikely((nskb = alloc_xen_skb(skb->len)) == NULL))
+> +			goto drop;
+> +		skb_put(nskb, skb->len);
+> +		memcpy(nskb->data, skb->data, skb->len);
+> +		nskb->dev = skb->dev;
+> +		dev_kfree_skb(skb);
+> +		skb = nskb;
+> +	}
+
+hmm this smells fishy
+
+> +
+> +static int xennet_proc_read(
+
+
+why is this device driver adding new own /proc crud ?
+
+

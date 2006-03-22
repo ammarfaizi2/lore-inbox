@@ -1,43 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWCVXWl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWCVXWv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbWCVXWl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 18:22:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbWCVXWl
+	id S932491AbWCVXWv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 18:22:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWCVXWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 18:22:41 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:23448 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932431AbWCVXWk (ORCPT
+	Wed, 22 Mar 2006 18:22:51 -0500
+Received: from uproxy.gmail.com ([66.249.92.203]:21877 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932487AbWCVXWt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 18:22:40 -0500
-Message-ID: <4421DC39.2090204@garzik.org>
-Date: Wed, 22 Mar 2006 18:22:33 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rob Landley <rob@landley.net>, hpa@zytor.com
-CC: Michael Neuling <mikey@neuling.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       klibc@zytor.com, Al Viro <viro@ftp.linux.org.uk>, miltonm@bga.com
-Subject: Re: [PATCH] initramfs: CPIO unpacking fix
-References: <20060216183745.50cc2bf6.mikey@neuling.org> <20060322061220.8414067A70@ozlabs.org> <4420F93C.1050705@garzik.org> <200603221723.29279.rob@landley.net>
-In-Reply-To: <200603221723.29279.rob@landley.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.5 (--)
-X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
-	Content analysis details:   (-2.5 points, 5.0 required)
+	Wed, 22 Mar 2006 18:22:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=nBz0LwM54KBN/2MXv0cJAuN8hYhS61gnugerTi/rD/d4KT8DjVnHEagHHUEXgKgLrpIKQ97q90fHxB0C3IewXg3KTp/MgVNBenJ4+AMg0VzI4RfwUYgIgLDE1wzPtMOPIC0OUOwXjJe5pKo5rfjBwoN546I5RUpx/GaIinRlelw=
+Date: Thu, 23 Mar 2006 02:22:47 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Eric Sesterhenn <snakebyte@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Pointer dereference in net/irda/ircomm/ircomm_tty.c
+Message-ID: <20060322232247.GD7790@mipter.zuzino.mipt.ru>
+References: <1143067566.26895.8.camel@alice>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1143067566.26895.8.camel@alice>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
-> First initramfs.cpio.gz built into the kernel, second initramfs.cpio.gz 
-> supplied as an external file via the initrd mechanism.  Both get extracted 
-> into the same rootfs, and I believe external one will overwrite the internal 
-> one if files conflict.
+On Wed, Mar 22, 2006 at 11:46:05PM +0100, Eric Sesterhenn wrote:
+> this fixes coverity bugs #855 and #854. In both cases tty
+> is dereferenced before getting checked for NULL.
 
-Based on this and HPA's response, I definitely stand corrected.
+Before Al will flame you,
 
-	Jeff
+IMO, what should be done is removing asserts checking for "self",
+because ->driver_data is filled in ircomm_tty_open() with valid pointer.
 
+> --- linux-2.6.16/net/irda/ircomm/ircomm_tty.c.orig
+> +++ linux-2.6.16/net/irda/ircomm/ircomm_tty.c
+> @@ -493,7 +493,7 @@ static int ircomm_tty_open(struct tty_st
+>   */
+>  static void ircomm_tty_close(struct tty_struct *tty, struct file *filp)
+>  {
+> -	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) tty->driver_data;
+> +	struct ircomm_tty_cb *self;
+>  	unsigned long flags;
+>
+>  	IRDA_DEBUG(0, "%s()\n", __FUNCTION__ );
+> @@ -501,6 +501,8 @@ static void ircomm_tty_close(struct tty_
+>  	if (!tty)
+>  		return;
+>
+> +	self = (struct ircomm_tty_cb *) tty->driver_data;
+> +
+>  	IRDA_ASSERT(self != NULL, return;);
+>  	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+>
+> @@ -1006,17 +1008,19 @@ static void ircomm_tty_shutdown(struct i
+>   */
+>  static void ircomm_tty_hangup(struct tty_struct *tty)
+>  {
+> -	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) tty->driver_data;
+> +	struct ircomm_tty_cb *self;
+>  	unsigned long	flags;
+>
+>  	IRDA_DEBUG(0, "%s()\n", __FUNCTION__ );
+>
+> -	IRDA_ASSERT(self != NULL, return;);
+> -	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+> -
+>  	if (!tty)
+>  		return;
+>
+> +	self = (struct ircomm_tty_cb *) tty->driver_data;
+> +
+> +	IRDA_ASSERT(self != NULL, return;);
+> +	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+> +
+>  	/* ircomm_tty_flush_buffer(tty); */
+>  	ircomm_tty_shutdown(self);
 

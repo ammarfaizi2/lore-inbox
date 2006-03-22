@@ -1,68 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWCVDhV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWCVDpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWCVDhV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 22:37:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWCVDhV
+	id S1750720AbWCVDpw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 22:45:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWCVDpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 22:37:21 -0500
-Received: from z2.cat.iki.fi ([212.16.98.133]:6305 "EHLO z2.cat.iki.fi")
-	by vger.kernel.org with ESMTP id S1750715AbWCVDhU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 22:37:20 -0500
-Date: Wed, 22 Mar 2006 05:37:18 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Chris Caputo <ccaputo@alt.net>
-Cc: Dax Kelson <dax@gurulabs.com>, linux-kernel@vger.kernel.org,
-       erich@areca.com.tw
-Subject: Re: New Areca driver in 2.6.16-rc6-mm2
-Message-ID: <20060322033718.GA21614@mea-ext.zmailer.org>
-References: <20060318044056.350a2931.akpm@osdl.org> <Pine.LNX.4.64.0603192016110.32337@mooru.gurulabs.com> <Pine.LNX.4.64.0603212345460.20655@nacho.alt.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 21 Mar 2006 22:45:52 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:23838 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750720AbWCVDpv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 22:45:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PRAVDIV8H3+xw6VaOQJJloLtKK7krjvHjFbhAqn9/Yf1JK9ZD+KiBvYFxo256Qb14MjKMNIcNO44WLwbSjDVnpkAQzLDHEzMaHfs6uo+Oq8cDVCa0DJhN6YCCElrheSz/xrqVEOTxfxiPkHMq2boBcbYZbj/dJbRliy45s2B3h8=
+Message-ID: <489ecd0c0603211945m14e9656bm5daf1e62eeca56a@mail.gmail.com>
+Date: Wed, 22 Mar 2006 11:45:49 +0800
+From: "Luke Yang" <luke.adi@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH 1/2]Blackfin archtecture patche for 2.6.16
+Cc: linux-kernel@vger.kernel.org, Robin.getz@analog.com
+In-Reply-To: <20060321031457.69fa0892.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0603212345460.20655@nacho.alt.net>
+References: <489ecd0c0603200200va747a68k187651930a3f0a51@mail.gmail.com>
+	 <20060321031457.69fa0892.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 21, 2006 at 11:49:32PM +0000, Chris Caputo wrote:
-> On Sun, 19 Mar 2006, Dax Kelson wrote:
-> > On Sat, 18 Mar 2006, Andrew Morton wrote:
-> > > SCSI fixes
-> > >
-> > > +areca-raid-linux-scsi-driver-update4.patch
-> > >
-> > > Update areca-raid-linux-scsi-driver.patch
-> > 
-> > Has anyone had a chance to review this new update to see if it now passes
-> > muster for mainline inclusion?
-> 
-> Unfortunately when the new driver is applied to 2.6.15.6 a bonnie++ test 
-> results in the following endless spew:
+  Thanks for your reply. See below.
 
-Curious...   I didn't encounter this phenomena, but then, my 0.75 TB
-raid5 volume is practically empty...
+On 3/21/06, Andrew Morton <akpm@osdl.org> wrote:
+> "Luke Yang" <luke.adi@gmail.com> wrote:
+> >
+> >    This is the Blackfin archtecture patch for kernel 2.6.16.
+> >
+>
+> There are few practical issues we need to be concerned about with new
+> architectures.
+>
+> - We don't want to be putting 44000 lines of new code in the kernel and
+>   then have it rot.  Who will support this in the long-term?  What
+>   resources are behind it?  IOW: what can you say to convince us that it
+>   won't rot?
+>
+>   The lack of a MAINTAINERS entry doesn't inspire confidence..
+   As Bernd said, Analog Device has a group maintaining linux for
+Blackfin. Now I am the one who in charge of committing patches into
+mainline, other developers may do the same thing later.  By
+MAINTAINERS entry do you mean the linux-2.6/MAINTAINER? Or shall I
+list maintainers name in the patch mail?
+>
+> - How widespread/popular is the blackfin?  Are many devices using it?
+>   How old/mature is it?  Is it a new thing or is it near end-of-life?
+  As a DSP, Blackfin has been there for years and is somewhat popular.
+But as a CPU which can run Linux, we are trying to make it popular.
+Anyway a 5$ chip runs Linux and can do audio/video codec is a good toy
+to play with.
+>
+>   It's a cost/benefit thing.  It costs us to add code to the kenrel.  How
+>   many people would benefit from us doing that?
+   As multimedia is becoming popular in embedded world, I believe many
+people would benefit from a DSP running Linux.
+>
+> - Are easy-to-install x86 cross-build packages available?  If not, are
+>   there straightforward instructions anywhere to guide people in generating
+>   a cross-build setup?
+http://docs.blackfin.uclinux.org/ is a good place to find documents.
+In my opinion, not many CPU has such good documents site. Even a
+beginner will find it as a good linux and embedded training place.
+>
+>   <looks>
+>
+>   OK, blackfin.uclinux.org seems to have that.  Does binutils support
+>   blackfin?
+>
+> - A lot of this code appears to come from Analog Devices, but you don't ;)
+  Actually I am. Just perfer gmail than outlook web (I don't use
+window$, so don't have outlook to access company mailbox).
+>   We'd need to see some sort of authorisation from the original authors
+>   for the inclusion of their code.  Preferably in the form of
+>   Signed-off-by:s.
+  For this patch it is Luke Yang, then for other drivers or patches,
+it would be the maintainer. All our work(software or even hardware) is
+opened, our group don't do any un-GPLed software now.
+>
+> >  http://blackfin.uclinux.org/frs/download.php/810/blackfin-arch.patch.tar.bz2
+>
+> As I said, 44kloc ;)
+  Sorry for the size, again :) But I really don't want to split it,
+doesn't make much sense.
+>
+> - Do you really need to support old_mmap()?
+>
+> - It would be preferable to use the generic IRQ infrastructure in kernel/irq/
+  Task added. I'll make it happen.
+>
+> - Too much use of open-coded `volatile'.  The objective should be to have
+>   zero occurrences in .c files.  And volatile sometimes creates suspicion
+>   even when it's used in .h files.
+  volatile is not evil :) The only and correct usage is variables that
+may be modified by hardware (such as MMR) or in a irq/signal handler.
+I have checked my code.  Yes some kind of warpper may look better, we
+have plan to change it, I'll send you patch for this.
+>
+> - bug: coreb_ioctl() does copy_from_user() and down() inside spinlock.
+>
+> - err, coreb_ioctl() does down(&file->f_dentry->d_inode->i_sem); but
+>   that's a mutex now, so I assume that's actually dead code?
+    Thanks. Bug reported.  Actually that's part of the reasons we want
+to get into mainline: As we keep up to latest kernel, we can get rid
+of the obsolete code in time.
+>
+>
+>
 
-For the development phase it would be most useful, if  the driver
-would be available in similar "this will compile for your currently
-running kernel, or some other you care to name and have its config.h
-files at hand"  as e.g. Nvidia drivers are (except that arcmsr is
-in "all source form", whereas NV has this magic object blob..)
-
-Such would allow (at least for me) to have a wee bit faster cycle 
-with "pick vendor kernel, add this and that custom module"
-
-I was apalled to learn that full cycle kernel compilation takes
-_hours_ these days (Pentium-4 HT, 2.4 GHz, 2 GB memory -- and it
-is about as slow as my first kernel compilation experience with
-a 386/33MHz way back in ...)
-
->   ...
->   attempt to access beyond end of device
->   sdb1: rw=0, want=134744080, limit=128002016
->   ...
-> 
-> I have emailed the details to Erich.
-> 
-> Chris
-
-/Matti Aarnio
+--
+Best regards,
+Luke Yang
+magic.yyang@gmail.com; luke.adi@gmail.com

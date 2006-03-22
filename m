@@ -1,58 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWCVGWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbWCVGXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750813AbWCVGWV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 01:22:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWCVGWV
+	id S1750814AbWCVGXj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 01:23:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbWCVGXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 01:22:21 -0500
-Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:37351 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1750813AbWCVGWU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 01:22:20 -0500
-To: chrisw@sous-sol.org
-CC: trond.myklebust@fys.uio.no, matthew@wil.cx, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-reply-to: <20060321191605.GB15997@sorel.sous-sol.org> (message from Chris
-	Wright on Tue, 21 Mar 2006 11:16:05 -0800)
-Subject: Re: DoS with POSIX file locks?
-References: <E1FLIlF-0007zR-00@dorka.pomaz.szeredi.hu> <20060320121107.GE8980@parisc-linux.org> <E1FLJLs-00085u-00@dorka.pomaz.szeredi.hu> <20060320123950.GF8980@parisc-linux.org> <E1FLJsF-0008A7-00@dorka.pomaz.szeredi.hu> <20060320153202.GH8980@parisc-linux.org> <1142878975.7991.13.camel@lade.trondhjem.org> <E1FLdPd-00020d-00@dorka.pomaz.szeredi.hu> <1142962083.7987.37.camel@lade.trondhjem.org> <E1FLl7L-0002u9-00@dorka.pomaz.szeredi.hu> <20060321191605.GB15997@sorel.sous-sol.org>
-Message-Id: <E1FLwjC-0000kJ-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 22 Mar 2006 07:21:54 +0100
+	Wed, 22 Mar 2006 01:23:39 -0500
+Received: from mf01.sitadelle.com ([212.94.174.68]:15708 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1750814AbWCVGXi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 01:23:38 -0500
+Message-ID: <4420ED66.5060703@cosmosbay.com>
+Date: Wed, 22 Mar 2006 07:23:34 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC, PATCH] avoid some atomics in open()/close() for monothreaded
+ processes
+References: <20060315054416.GF3205@localhost.localdomain>	<1142403500.26706.2.camel@sli10-desk.sh.intel.com> <20060314233138.009414b4.akpm@osdl.org> <4417E047.70907@cosmosbay.com> <441EFE05.8040506@cosmosbay.com> <4420DB55.60803@cosmosbay.com>
+In-Reply-To: <4420DB55.60803@cosmosbay.com>
+Content-Type: multipart/mixed;
+ boundary="------------010403060600040001060000"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Concrete breakage.  Something like:
-> 
-> clone(CLONE_FILES)
->   /* in child */
->   lock
->   execve
->   lock
-> 
-> w/out the kludge[1], the lock fails.  I should have a test program about
-> that I wrote to test this, although it was originally triggered via some
-> LTP or LSB type of test (don't recall which).
-> 
-> thanks,
-> -chris
-> 
-> [1] happy to see it go.
+This is a multi-part message in MIME format.
+--------------010403060600040001060000
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-We all agree on this then.
+Goal : Avoid some locking/unlocking 'struct files_struct'->file_lock for mono 
+threaded processes.
 
-I'm just little paranoid about a real-world app (LTP/LSB don't matter)
-relying on the current semantics.
+We define files_multithreaded() function .
 
-But maybe there's no other way to find out, than to remove
-steal_locks() and see if anybody complains.
+static inline int files_multithreaded(const struct files_struct *files)
+{
+        return sizeof(files->file_lock) > 0 && atomic_read(&files->count) > 1;
+}
 
-> i concur with Trond, there's no sane way to get rid of it w/out
-> formalizing CLONE_FILES and locks on exec
+On plain UP kernel (not preemptable nor spinlock debug), this function is a 
+const 0, so that gcc can wipe out some code.
 
-Probably there is.  It would involve allocating a separate
-lock-owner-ID stored in files_struct but separate from it.  But it's
-more complicated than simply not propagating locks on exec in the
-CLONE_FILES case.
+On preemptible or SMP, or spinlock debug kernels, the result is true only if 
+the ref count is greater than 1 (multi threaded process or /proc/{pid}/fd is 
+under investigation by another task)
 
-Miklos
+This patch increases kernel size but pros are worth the cons, as said Linus 
+himself, we should increase performance of mono-threaded tasks....
+
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+
+--------------010403060600040001060000
+Content-Type: text/plain;
+ name="files_multithreaded.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="files_multithreaded.patch"
+
+--- a/include/linux/file.h	2006-03-22 06:23:02.000000000 +0100
++++ b/include/linux/file.h	2006-03-22 07:11:08.000000000 +0100
+@@ -42,6 +42,11 @@
+ 	spinlock_t file_lock;     /* Protects concurrent writers.  Nests inside tsk->alloc_lock */
+ };
+ 
++static inline int files_multithreaded(const struct files_struct *files)
++{
++	return sizeof(files->file_lock) > 0 && atomic_read(&files->count) > 1;
++}
++
+ #define files_fdtable(files) (rcu_dereference((files)->fdt))
+ 
+ extern void FASTCALL(__fput(struct file *));
+--- a/fs/open.c.orig	2006-03-22 06:24:34.000000000 +0100
++++ b/fs/open.c	2006-03-22 06:30:54.000000000 +0100
+@@ -1050,11 +1050,17 @@
+ {
+ 	struct files_struct *files = current->files;
+ 	struct fdtable *fdt;
+-	spin_lock(&files->file_lock);
++	int fl_locked = 0;
++
++	if (files_multithreaded(files)) {
++		spin_lock(&files->file_lock);
++		fl_locked = 1;
++	}
+ 	fdt = files_fdtable(files);
+ 	BUG_ON(fdt->fd[fd] != NULL);
+ 	rcu_assign_pointer(fdt->fd[fd], file);
+-	spin_unlock(&files->file_lock);
++	if (fl_locked)
++		spin_unlock(&files->file_lock);
+ }
+ 
+ EXPORT_SYMBOL(fd_install);
+@@ -1147,8 +1153,12 @@
+ 	struct file * filp;
+ 	struct files_struct *files = current->files;
+ 	struct fdtable *fdt;
++	int fl_locked = 0;
+ 
+-	spin_lock(&files->file_lock);
++	if (files_multithreaded(files)) {
++		spin_lock(&files->file_lock);
++		fl_locked = 1;
++	}
+ 	fdt = files_fdtable(files);
+ 	if (fd >= fdt->max_fds)
+ 		goto out_unlock;
+@@ -1158,11 +1168,13 @@
+ 	rcu_assign_pointer(fdt->fd[fd], NULL);
+ 	FD_CLR(fd, fdt->close_on_exec);
+ 	__put_unused_fd(files, fd);
+-	spin_unlock(&files->file_lock);
++	if (fl_locked)
++		spin_unlock(&files->file_lock);
+ 	return filp_close(filp, files);
+ 
+ out_unlock:
+-	spin_unlock(&files->file_lock);
++	if (fl_locked)
++		spin_unlock(&files->file_lock);
+ 	return -EBADF;
+ }
+ 
+
+--------------010403060600040001060000--

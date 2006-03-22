@@ -1,57 +1,185 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWCVPFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWCVPPh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751275AbWCVPFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 10:05:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbWCVPD5
+	id S1751277AbWCVPPh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 10:15:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWCVPPh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 10:03:57 -0500
-Received: from mx2.suse.de ([195.135.220.15]:16257 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751275AbWCVPDb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 10:03:31 -0500
-From: Andi Kleen <ak@suse.de>
-To: virtualization@lists.osdl.org
-Subject: Re: [RFC PATCH 18/35] Support gdt/idt/ldt handling on Xen.
-Date: Wed, 22 Mar 2006 15:30:51 +0100
-User-Agent: KMail/1.9.1
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>
-References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063753.556397000@sorel.sous-sol.org>
-In-Reply-To: <20060322063753.556397000@sorel.sous-sol.org>
+	Wed, 22 Mar 2006 10:15:37 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:11393 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751277AbWCVPPf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 10:15:35 -0500
+Date: Wed, 22 Mar 2006 16:16:02 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: [patch 4/24] s390: early parameter parsing.
+Message-ID: <20060322151602.GD5801@skybase.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603221530.51644.ak@suse.de>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 March 2006 07:30, Chris Wright wrote:
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
->  
-> -#define load_TR_desc() __asm__ __volatile__("ltr %w0"::"q" (GDT_ENTRY_TSS*8))
-> -#define load_LDT_desc() __asm__ __volatile__("lldt %w0"::"q" (GDT_ENTRY_LDT*8))
-> -
-> -#define load_gdt(dtr) __asm__ __volatile("lgdt %0"::"m" (*dtr))
-> -#define load_idt(dtr) __asm__ __volatile("lidt %0"::"m" (*dtr))
-> -#define load_tr(tr) __asm__ __volatile("ltr %0"::"mr" (tr))
-> -#define load_ldt(ldt) __asm__ __volatile("lldt %0"::"mr" (ldt))
-> -
-> -#define store_gdt(dtr) __asm__ ("sgdt %0":"=m" (*dtr))
-> -#define store_idt(dtr) __asm__ ("sidt %0":"=m" (*dtr))
-> -#define store_tr(tr) __asm__ ("str %0":"=mr" (tr))
-> -#define store_ldt(ldt) __asm__ ("sldt %0":"=mr" (ldt))
+[patch 4/24] s390: early parameter parsing.
 
+Use common code parser for early parameters instead of our own.
 
-These are all very infrequent except perhaps LLDT. I suspect trapping would 
-work too. But ok.
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
 
-> -#define _set_tssldt_desc(n,addr,limit,type) \
+ arch/s390/kernel/setup.c |  108 +++++++++++++++++++----------------------------
+ 1 files changed, 45 insertions(+), 63 deletions(-)
 
-[...]
-
-Why are you moving these? Xen should just be parsing the same structures
-as the hardware, shouldn't it?
-
--Andi
+diff -urpN linux-2.6/arch/s390/kernel/setup.c linux-2.6-patched/arch/s390/kernel/setup.c
+--- linux-2.6/arch/s390/kernel/setup.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/arch/s390/kernel/setup.c	2006-03-22 14:36:12.000000000 +0100
+@@ -78,8 +78,6 @@ extern int _text,_etext, _edata, _end;
+ 
+ #include <asm/setup.h>
+ 
+-static char command_line[COMMAND_LINE_SIZE] = { 0, };
+-
+ static struct resource code_resource = {
+ 	.name  = "Kernel code",
+ 	.start = (unsigned long) &_text,
+@@ -335,63 +333,38 @@ add_memory_hole(unsigned long start, uns
+ 	}
+ }
+ 
+-static void __init
+-parse_cmdline_early(char **cmdline_p)
++static int __init early_parse_mem(char *p)
++{
++	memory_end = memparse(p, &p);
++	return 0;
++}
++early_param("mem", early_parse_mem);
++
++/*
++ * "ipldelay=XXX[sm]" sets ipl delay in seconds or minutes
++ */
++static int __init early_parse_ipldelay(char *p)
+ {
+-	char c = ' ', cn, *to = command_line, *from = COMMAND_LINE;
+ 	unsigned long delay = 0;
+ 
+-	/* Save unparsed command line copy for /proc/cmdline */
+-	memcpy(saved_command_line, COMMAND_LINE, COMMAND_LINE_SIZE);
+-	saved_command_line[COMMAND_LINE_SIZE-1] = '\0';
++	delay = simple_strtoul(p, &p, 0);
+ 
+-	for (;;) {
+-		/*
+-		 * "mem=XXX[kKmM]" sets memsize
+-		 */
+-		if (c == ' ' && strncmp(from, "mem=", 4) == 0) {
+-			memory_end = simple_strtoul(from+4, &from, 0);
+-			if ( *from == 'K' || *from == 'k' ) {
+-				memory_end = memory_end << 10;
+-				from++;
+-			} else if ( *from == 'M' || *from == 'm' ) {
+-				memory_end = memory_end << 20;
+-				from++;
+-			}
+-		}
+-		/*
+-		 * "ipldelay=XXX[sm]" sets ipl delay in seconds or minutes
+-		 */
+-		if (c == ' ' && strncmp(from, "ipldelay=", 9) == 0) {
+-			delay = simple_strtoul(from+9, &from, 0);
+-			if (*from == 's' || *from == 'S') {
+-				delay = delay*1000000;
+-				from++;
+-			} else if (*from == 'm' || *from == 'M') {
+-				delay = delay*60*1000000;
+-				from++;
+-			}
+-			/* now wait for the requested amount of time */
+-			udelay(delay);
+-		}
+-		cn = *(from++);
+-		if (!cn)
+-			break;
+-		if (cn == '\n')
+-			cn = ' ';  /* replace newlines with space */
+-		if (cn == 0x0d)
+-			cn = ' ';  /* replace 0x0d with space */
+-		if (cn == ' ' && c == ' ')
+-			continue;  /* remove additional spaces */
+-		c = cn;
+-		if (to - command_line >= COMMAND_LINE_SIZE)
+-			break;
+-		*(to++) = c;
++	switch (*p) {
++	case 's':
++	case 'S':
++		delay *= 1000000;
++		break;
++	case 'm':
++	case 'M':
++		delay *= 60 * 1000000;
+ 	}
+-	if (c == ' ' && to > command_line) to--;
+-	*to = '\0';
+-	*cmdline_p = command_line;
++
++	/* now wait for the requested amount of time */
++	udelay(delay);
++
++	return 0;
+ }
++early_param("ipldelay", early_parse_ipldelay);
+ 
+ static void __init
+ setup_lowcore(void)
+@@ -580,9 +553,26 @@ setup_arch(char **cmdline_p)
+ 	       "We are running native (64 bit mode)\n");
+ #endif /* CONFIG_64BIT */
+ 
++	/* Save unparsed command line copy for /proc/cmdline */
++	strlcpy(saved_command_line, COMMAND_LINE, COMMAND_LINE_SIZE);
++
++	*cmdline_p = COMMAND_LINE;
++	*(*cmdline_p + COMMAND_LINE_SIZE - 1) = '\0';
++
+         ROOT_DEV = Root_RAM0;
++
++	init_mm.start_code = PAGE_OFFSET;
++	init_mm.end_code = (unsigned long) &_etext;
++	init_mm.end_data = (unsigned long) &_edata;
++	init_mm.brk = (unsigned long) &_end;
++
++	memory_end = memory_size;
++
++	parse_early_param();
++
+ #ifndef CONFIG_64BIT
+-	memory_end = memory_size & ~0x400000UL;  /* align memory end to 4MB */
++	memory_end &= ~0x400000UL;
++
+         /*
+          * We need some free virtual space to be able to do vmalloc.
+          * On a machine with 2GB memory we make sure that we have at
+@@ -591,17 +581,9 @@ setup_arch(char **cmdline_p)
+         if (memory_end > 1920*1024*1024)
+                 memory_end = 1920*1024*1024;
+ #else /* CONFIG_64BIT */
+-	memory_end = memory_size & ~0x200000UL;  /* detected in head.s */
++	memory_end &= ~0x200000UL;
+ #endif /* CONFIG_64BIT */
+ 
+-	init_mm.start_code = PAGE_OFFSET;
+-	init_mm.end_code = (unsigned long) &_etext;
+-	init_mm.end_data = (unsigned long) &_edata;
+-	init_mm.brk = (unsigned long) &_end;
+-
+-	parse_cmdline_early(cmdline_p);
+-	parse_early_param();
+-
+ 	setup_memory();
+ 	setup_resources();
+ 	setup_lowcore();

@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751945AbWCVBk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751946AbWCVBtn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751945AbWCVBk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 20:40:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751946AbWCVBk5
+	id S1751946AbWCVBtn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 20:49:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751968AbWCVBtn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 20:40:57 -0500
-Received: from test-iport-1.cisco.com ([171.71.176.117]:31337 "EHLO
-	test-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1751945AbWCVBk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 20:40:56 -0500
-To: "Sean Hefty" <sean.hefty@intel.com>
-Cc: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <openib-general@openib.org>
-Subject: Re: [PATCH 6/6 v2] IB: userspace support for RDMA connection manager
-X-Message-Flag: Warning: May contain useful information
-References: <ORSMSX4011XvpFVjCRG0000000f@orsmsx401.amr.corp.intel.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 21 Mar 2006 17:40:54 -0800
-In-Reply-To: <ORSMSX4011XvpFVjCRG0000000f@orsmsx401.amr.corp.intel.com> (Sean Hefty's message of "Mon, 6 Mar 2006 15:41:14 -0800")
-Message-ID: <adawten6yu1.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 22 Mar 2006 01:40:56.0052 (UTC) FILETIME=[A9A57340:01C64D51]
+	Tue, 21 Mar 2006 20:49:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:51175 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751946AbWCVBtm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 20:49:42 -0500
+Date: Tue, 21 Mar 2006 17:46:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: jesper.juhl@gmail.com, penberg@cs.helsinki.fi,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix memory leak in mm/slab.c::alloc_kmemlist()  (try
+ #3)
+Message-Id: <20060321174623.2f92331b.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0603211732420.14503@schroedinger.engr.sgi.com>
+References: <200603182137.08521.jesper.juhl@gmail.com>
+	<84144f020603191040h9b07b10w418b6cdd73f8b114@mail.gmail.com>
+	<9a8748490603200055p7be38dc8lac2e78f4798e6def@mail.gmail.com>
+	<200603220154.16266.jesper.juhl@gmail.com>
+	<Pine.LNX.4.64.0603211732420.14503@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I added this patch to the rdma_cm branch in my git tree.  When I was
-doing that, I noticed that it builds rdma_ucm.ko unconditionally.  It
-seems that we want this to depend on CONFIG_INFINIBAND_USER_ACCESS,
-since that controls ib_uverbs.ko and ib_ucm.ko.
+Christoph Lameter <clameter@sgi.com> wrote:
+>
+> On Wed, 22 Mar 2006, Jesper Juhl wrote:
+> 
+> > Fix memory leak in mm/slab.c::alloc_kmemlist().
+> > If one allocation fails we have to roll-back all allocations made up to the 
+> > point of failure.
+> 
+> Sorry but you cannot roll back. alloc_kmemlist() could have been used for
+> tuning the cpucache while accesses to the slab continue. "Rolling back" 
+> would partially destroy the slab for some nodes and likely cause the 
+> system to crash. We can only roll back if this is actually an initial 
+> allocation and we are assured that the whole thing is not yet in use.
 
-To do this I rejiggered the Kconfig and Makefile changes I made
-before.  I made CONFIG_INFINIBAND_ADDR_TRANS into a bool (instead of a
-tristate), so that it's 'y' if INFINIBAND and INET are on, and made
-the top of the Makefile look like:
+Well that's a big pickle.  How about allocating everything first, saving it
+locally then, if that all worked out, install it?
 
-infiniband-$(CONFIG_INFINIBAND_ADDR_TRANS)	:= ib_addr.o rdma_cm.o
-user_access-$(CONFIG_INFINIBAND_ADDR_TRANS)	:= rdma_ucm.o
-
-obj-$(CONFIG_INFINIBAND) +=		ib_core.o ib_mad.o ib_sa.o \
-					ib_cm.o $(infiniband-y)
-obj-$(CONFIG_INFINIBAND_USER_MAD) +=	ib_umad.o
-obj-$(CONFIG_INFINIBAND_USER_ACCESS) +=	ib_uverbs.o ib_ucm.o $(user_access-y)
-
-I'm pretty sure this does exactly what we want.
-
- - R.

@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbWCVLMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWCVLNH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750833AbWCVLMY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 06:12:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWCVLMY
+	id S1750733AbWCVLNH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 06:13:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWCVLNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 06:12:24 -0500
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:16227 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750735AbWCVLMV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 06:12:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=vu2QOb7ySCVWN1Nv5c+48ztz1UNs3k/jO3k0weultOY6XysPzzYV6ldHAIKq6rmRyu9v05SWGuixoXjk+J3+W4HogMHfXzeCU83oxeVq45ObaGMzeV5/OPeMdyO413lhBtKr57Uoae4FSMNr7vuGWz0g4VQoZqwiECysbKN3P4w=  ;
-Message-ID: <44212338.3050309@yahoo.com.au>
-Date: Wed, 22 Mar 2006 21:13:12 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-CC: "Li, Shaohua" <shaohua.li@intel.com>,
-       "'lkml'" <linux-kernel@vger.kernel.org>,
-       "'Andrew Morton'" <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH] less tlb flush in unmap_vmas
-References: <200603220744.k2M7iBg05206@unix-os.sc.intel.com>
-In-Reply-To: <200603220744.k2M7iBg05206@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 22 Mar 2006 06:13:06 -0500
+Received: from pat.uio.no ([129.240.130.16]:57853 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1750733AbWCVLNE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 06:13:04 -0500
+Subject: Re: DoS with POSIX file locks?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: chrisw@sous-sol.org, matthew@wil.cx, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <E1FLwjC-0000kJ-00@dorka.pomaz.szeredi.hu>
+References: <E1FLIlF-0007zR-00@dorka.pomaz.szeredi.hu>
+	 <20060320121107.GE8980@parisc-linux.org>
+	 <E1FLJLs-00085u-00@dorka.pomaz.szeredi.hu>
+	 <20060320123950.GF8980@parisc-linux.org>
+	 <E1FLJsF-0008A7-00@dorka.pomaz.szeredi.hu>
+	 <20060320153202.GH8980@parisc-linux.org>
+	 <1142878975.7991.13.camel@lade.trondhjem.org>
+	 <E1FLdPd-00020d-00@dorka.pomaz.szeredi.hu>
+	 <1142962083.7987.37.camel@lade.trondhjem.org>
+	 <E1FLl7L-0002u9-00@dorka.pomaz.szeredi.hu>
+	 <20060321191605.GB15997@sorel.sous-sol.org>
+	 <E1FLwjC-0000kJ-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Date: Wed, 22 Mar 2006 06:12:47 -0500
+Message-Id: <1143025967.12871.9.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-5, required 12,
+	autolearn=disabled, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chen, Kenneth W wrote:
-> Nick Piggin wrote on Tuesday, March 21, 2006 11:30 PM
+On Wed, 2006-03-22 at 07:21 +0100, Miklos Szeredi wrote:
+> > i concur with Trond, there's no sane way to get rid of it w/out
+> > formalizing CLONE_FILES and locks on exec
 > 
+> Probably there is.  It would involve allocating a separate
+> lock-owner-ID stored in files_struct but separate from it.  But it's
+> more complicated than simply not propagating locks on exec in the
+> CLONE_FILES case.
 
->>Well mmu_gather uses a per-cpu data structure and is non preemptible,
->>which I guess is one of the main reasons why we have this preemption
->>here.
->>
->>You're right that another good reason would be ptl lock contention,
->>however I don't think that alleviating that problem alone would allow
->>longer mmu_gather scheduling latencies, because the longest latency
->>is still the mmu_gather <--> mmu_finish span.
-> 
-> 
-> OK, I think it would be beneficial to take a latency measurement again,
-> just to see how it perform now a day.  The dynamics might changed.
-> 
+That doesn't solve the fundamental problem.
 
-Well I wouldn't argue against further investigation or fine tuning
-the present code, however also remember that the way of unconditionally
-finishing the mmu_gather that the patch is aimed to prevent never
-actually lowered ptl hold times itself.
+You would still have to be able to tell a remote server that some locks
+which previously belonged to one owner are being reallocated to several
+owners. That is not something that NFS, CIFS, AFS,... support, and I'd
+be surprised if any of the clustered filesystems support it either.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Cheers,
+  Trond
+

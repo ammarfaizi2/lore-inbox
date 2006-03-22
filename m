@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWCVRY6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWCVR0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751016AbWCVRY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 12:24:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWCVRY6
+	id S1751035AbWCVR0z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 12:26:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWCVR0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 12:24:58 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:9481 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751015AbWCVRY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 12:24:57 -0500
-Message-ID: <44218861.8030203@vmware.com>
-Date: Wed, 22 Mar 2006 09:24:49 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
-       Ian Pratt <ian.pratt@xensource.com>, xen-devel@lists.xensource.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Xen-devel] Re: [RFC PATCH 11/35] Add support for Xen to entry.S.
-References: <20060322063040.960068000@sorel.sous-sol.org>	<20060322063749.275209000@sorel.sous-sol.org> <200603221455.48365.ak@suse.de>
-In-Reply-To: <200603221455.48365.ak@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Mar 2006 12:26:55 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:34176 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751035AbWCVR0y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 12:26:54 -0500
+Date: Wed, 22 Mar 2006 09:27:11 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com
+Subject: Re: [RFC PATCH 00/35] Xen i386 paravirtualization support
+Message-ID: <20060322172711.GW15997@sorel.sous-sol.org>
+References: <20060322063040.960068000@sorel.sous-sol.org> <4421863C.4070403@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4421863C.4070403@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->   
->> +	jnz restore_all_enable_events	#     != 0 => reenable event delivery
->> +#endif
->>  	RESTORE_REGS
->>  	addl $4, %esp
->>  1:	iret
->>  .section .fixup,"ax"
->>  iret_exc:
->> -	sti
->> +#ifndef CONFIG_XEN
->> +	ENABLE_INTERRUPTS
->> +#endif
->>  	pushl $0			# no error code
->>  	pushl $do_iret_error
->>  	jmp error_code
->> @@ -269,6 +317,7 @@ iret_exc:
->>  	.long 1b,iret_exc
->>  .previous
->>  
->> +#ifndef CONFIG_XEN
->>  ldt_ss:
->>     
->
-> So are you sure that problem this ugly piece of code tries to work around
-> isn't in Xen kernels too? Or do you just not care? If yes add a comment.
->   
+* Anthony Liguori (aliguori@us.ibm.com) wrote:
+> Chris Wright wrote:
+> >Xen also provides support for running directly on native hardware.
+> 
+> Can someone elaborate on this?  Does this mean a Xen guest can run on 
+> bare metal?
 
-This code would otherwise be broken.  ENABLE_INTERRUPTS in Xen requires 
-access to the data segment, and the data segment is not available at 
-this point.  Plus, it corrupts the %esi register.  Hint - use %ebp.
+Yes.  See the Xen code for running the kernel in ring0 with Xen
+(supervisor_mode_kenel).  The hypercall_page is conditionally filled
+with hypercall traps or direct calls basically.
 
-The LDT SS code is broken as well because the iret onto a 16-bit stack 
-is a pretty crippling blow to transparency in this code.  Then, you 
-don't have data or even stack segments that are reliable for calling out 
-to hypervisor assist code.  We never really fixed this code either in 
-our implementation, although we did consider several approaches.  
-Leaving it out does break userspace applications.
+> Is there code available to make this work (it doesn't seem contained in 
+> this patchset)?  Has any performance analysis been done?
 
-Zach
+I don't have any numbers.
+
+> The numbers that have been posted with the VMI patches suggest that some 
+> rather tricky stuff is required to achieve native performance when 
+> running a guest on bare metal.  If this is not the case, it would be 
+> very interesting to know because it seems to be the hairiest part of the 
+> VMI patches.
+
+It is a hairy part of VMI.  They've done a nice job of handling the
+native case, and have interseting plans for improving the non-native
+case (inline where possible).  One of the differences is things that
+don't actually require hypercalls are already inline w/ Xen.  So it's
+conceivable that the performance hit is smaller than what VMI found
+without carefully inlining native code.
+
+> Otherwise, if we want to support Xen guests on bare metal, it seems we 
+> would have to change things in the subarch code a bit to do something 
+> similar to VMI.
+
+It's a different approach.
+
+thanks,
+-chris

@@ -1,54 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWCVL7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWCVMBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750799AbWCVL7t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 06:59:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWCVL7t
+	id S1750830AbWCVMBn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 07:01:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWCVMBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 06:59:49 -0500
-Received: from uproxy.gmail.com ([66.249.92.202]:18754 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750799AbWCVL7s convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 06:59:48 -0500
+	Wed, 22 Mar 2006 07:01:42 -0500
+Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:23739 "HELO
+	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750830AbWCVMBm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 07:01:42 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CsM7e7n5Y8EGxeFWEOlDE8dRlD9DsoIN49JKNFzukjrd/eJK05kHSDzNWj0J6lBx9OwbZB5HVCw6Pjd2JWrw25a6EaRZ7Ma3G6tJARQSADCccXPwhKjUCVfKd2ZpHEtxAC77kLtYAmDBD1ihfRHNJX61Q4z6PUR4Q/lxe95SqmU=
-Message-ID: <bc56f2f0603220359p6a583535x@mail.gmail.com>
-Date: Wed, 22 Mar 2006 06:59:47 -0500
-From: "Stone Wang" <pwstone@gmail.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>
-Subject: Re: PATCH][1/8] 2.6.15 mlock: make_pages_wired/unwired
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <44212353.7000408@yahoo.com.au>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=gA+S5NeayQxSGyNC1pA6zFn2w5H0WW681Cku3kTz3dEFRBCuteP8hQRhYkMVDAG4XC5HZ578HpqxVw8tiAOYXsSA6H6zmepdpvyGY6rXqiXo7FQvTPfcmLns7tsDglArvq0PT/imSltciqZ3Rpc7A0gmn82+MxobbngtoXg1F64=  ;
+Message-ID: <44213333.6030404@yahoo.com.au>
+Date: Wed, 22 Mar 2006 22:21:23 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <bc56f2f0603200536scb87a8ck@mail.gmail.com>
-	 <441FEFB4.6050700@yahoo.com.au>
-	 <bc56f2f0603210803l28145c7dj@mail.gmail.com>
-	 <44209A26.3040102@yahoo.com.au>
-	 <bc56f2f0603220059x6b2a30b8h@mail.gmail.com>
-	 <44212353.7000408@yahoo.com.au>
+To: Chris Wright <chrisw@sous-sol.org>
+CC: linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com,
+       virtualization@lists.osdl.org, Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Subject: Re: [RFC PATCH 30/35] Add generic_page_range() function
+References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063805.741915000@sorel.sous-sol.org>
+In-Reply-To: <20060322063805.741915000@sorel.sous-sol.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Right, it made confusions.
+Chris Wright wrote:
+> Add a new mm function generic_page_range() which applies a given
+> function to every pte in a given virtual address range in a given mm
+> structure. This is a generic alternative to cut-and-pasting the Linux
+> idiomatic pagetable walking code in every place that a sequence of
+> PTEs must be accessed.
+> 
+> Although this interface is intended to be useful in a wide range of
+> situations, it is currently used specifically by several Xen
+> subsystems, for example: to ensure that pagetables have been allocated
+> for a virtual address range, and to construct batched special
+> pagetable update requests to map I/O memory (in ioremap()).
+> 
 
-I will correct it.
+I raised the idea when we were tossing around ideas for the page
+table walking crapectomy. Of course it was rejected due to use of
+the indirect function, however I gues it makes sense for code
+outside mm/
 
-2006/3/22, Nick Piggin <nickpiggin@yahoo.com.au>:
-> Stone Wang wrote:
-> > 2006/3/21, Nick Piggin <nickpiggin@yahoo.com.au>:
->
-> >
-> > We didnt wire them.
-> >
->
-> But your comment said they were wired.
->
-> --
-> SUSE Labs, Novell Inc.
-> Send instant messages to your online friends http://au.messenger.yahoo.com
->
->
+Couple of issues with the current code though:
+
+firstly, the name.
+
+secondly, I think you confuse our (confusing) terminology: the page
+that holds pte_ts is not the pte_page, the pte_page is the page that
+a pte points to
+
+lastly, you don't allow any control over the type of pages that are
+walked: this could well be unusably slow for some cases. At least
+you should proably design the interface so we can iterate over
+present, not present, all, etc so it becomes widely usable. Normally
+I'd say to wait until users come up but in this case the function
+isn't a speed demon anyway, and you also don't want to give people
+any excuses not to use it.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

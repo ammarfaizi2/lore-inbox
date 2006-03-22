@@ -1,75 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWCVQPR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWCVQT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbWCVQPR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 11:15:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWCVQPQ
+	id S1751348AbWCVQT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 11:19:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWCVQT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 11:15:16 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:38046 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751222AbWCVQPO (ORCPT
+	Wed, 22 Mar 2006 11:19:56 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:22412 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751348AbWCVQTz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 11:15:14 -0500
-Message-ID: <442177FE.4030300@us.ibm.com>
-Date: Wed, 22 Mar 2006 10:14:54 -0600
-From: Anthony Liguori <aliguori@us.ibm.com>
-User-Agent: Mail/News 1.5 (X11/20060309)
+	Wed, 22 Mar 2006 11:19:55 -0500
+Date: Wed, 22 Mar 2006 08:19:24 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       rdreier@cisco.com, hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
+ driver
+In-Reply-To: <1143043088.17406.17.camel@serpentine.pathscale.com>
+Message-ID: <Pine.LNX.4.64.0603220810170.26286@g5.osdl.org>
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain> 
+ <ada4q27fban.fsf@cisco.com>  <1141948516.10693.55.camel@serpentine.pathscale.com>
+  <ada1wxbdv7a.fsf@cisco.com>  <1141949262.10693.69.camel@serpentine.pathscale.com>
+  <20060309163740.0b589ea4.akpm@osdl.org>  <1142470579.6994.78.camel@localhost.localdomain>
+  <ada3bhjuph2.fsf@cisco.com>  <1142475069.6994.114.camel@localhost.localdomain>
+  <adaslpjt8rg.fsf@cisco.com>  <1142477579.6994.124.camel@localhost.localdomain>
+  <20060315192813.71a5d31a.akpm@osdl.org>  <1142485103.25297.13.camel@camp4.serpentine.com>
+  <20060315213813.747b5967.akpm@osdl.org>  <Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com>
+  <1142523201.25297.56.camel@camp4.serpentine.com> 
+ <Pine.LNX.4.61.0603161629150.23220@goblin.wat.veritas.com> 
+ <1142538765.10950.16.camel@serpentine.pathscale.com> 
+ <Pine.LNX.4.61.0603162003140.25033@goblin.wat.veritas.com> 
+ <1142974347.29199.87.camel@serpentine.pathscale.com> 
+ <Pine.LNX.4.61.0603212316001.16342@goblin.wat.veritas.com>
+ <1143043088.17406.17.camel@serpentine.pathscale.com>
 MIME-Version: 1.0
-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-CC: virtualization@lists.osdl.org, Ian Pratt <ian.pratt@xensource.com>,
-       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [RFC PATCH 29/35] Add the Xen virtual console driver.
-References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063804.956561000@sorel.sous-sol.org> <442174B9.4050309@us.ibm.com> <048b633179d2ecffd95c58eada4313fc@cl.cam.ac.uk>
-In-Reply-To: <048b633179d2ecffd95c58eada4313fc@cl.cam.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keir Fraser wrote:
->
-> On 22 Mar 2006, at 16:00, Anthony Liguori wrote:
->
->> This has always seemed a bit wrong to me and makes a number of things 
->> kind of awkward (like a virtual video driver).
->>
->> It would seem better me to treat this driver as what it really is, a 
->> virtual serial device.  It adds a little bit of additional work to 
->> the userspace tools (they just have to make sure to pass 
->> console=ttyS0) but it seems worth it.
->
-> That already works pretty much (userspace tools have to pass 
-> xencons=ttyS as well as console=ttyS0).
->> We could also solve the tty[0-9] problem by implementing a proper 
->> console driver that could use multiple virtual serial devices if we 
->> wanted to go that route.
->
-> Yes, that could live alongside this driver.
 
-This is going to come up in the next release if we try to merge the 
-framebuffer stuff.
 
->> Another option would be to just emulate a serial driver.  The console 
->> driver isn't really performance critical.  It seems to me that it's a 
->> bit unnecessary to even bother paravirtualizing the console device 
->> when it's so easy to emulate.
->
-> Easy except that Xen can't implement the 'console backend', or at 
-> least not easily. The console bits need to end up in management 
-> virtual machine's user space. We'd have to do something skanky like 
-> the current HVM qemu model.
+On Wed, 22 Mar 2006, Bryan O'Sullivan wrote:
+> 
+> Under 2.6.15, what seems to be actually happening is that vmops->nopage
+> is being called on each page of a 32K compound page, driving the page
+> count from 1 (prior to any nopage calls) to 9.  By the time I get to my
+> cleanup code, the page count has gone from 9 to 8 (whereas under 2.6.16,
+> the page count has gone from 9 back to 1, where it belongs).  From this,
+> it seems fairly clear that the kernel isn't decrementing the use counts
+> correctly on compound pages in 2.6.15.
 
-We could make an exception for console devices and just have a small 
-buffer in the hypervisor for console input/output (similar to the 
-emergency console).  The biggest advantage to doing this IMHO is that it 
-makes guest OS's a bit easier to port.  The console already is treated 
-as an exception since it is setup in start_info (instead of through 
-XenBus) so this is not that awful I think.
+Ahh. Isn't this the same problem that the fairly recent "mm: compound 
+release fix" by Nick should fix?
 
-Regards,
+Git commit ID 8519fb30e438f8088b71a94a7d5a660a814d3872, to be exact:
 
-Anthony Liguori
+Author: Nick Piggin <npiggin@suse.de>
+Date:   Tue Feb 7 12:58:52 2006 -0800
 
->  -- Keir
->
+    [PATCH] mm: compound release fix
+    
+    Compound pages on SMP systems can now often be freed from pagetables via
+    the release_pages path.  This uses put_page_testzero which does not handle
+    compound pages at all.  Releasing constituent pages from process mappings
+    decrements their count to a large negative number and leaks the reference
+    at the head page - net result is a memory leak.
+    
+    The problem was hidden because the debug check in put_page_testzero itself
+    actually did take compound pages into consideration.
+    
+    Fix the bug and the debug check.
+    
+    Signed-off-by: Nick Piggin <npiggin@suse.de>
+    Acked-by: Hugh Dickins <hugh@veritas.com>
+    Signed-off-by: Andrew Morton <akpm@osdl.org>
+    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
+But anything based on 2.6.16-rc6 should be fine (The bug was fixed by 
+2.6.16-rc3, methinks). You said:
+
+   "First of all, it turns out that the BUG I mentioned was reported 
+    against the SLES10 2.6.16-rc6 kernel.  I haven't had a chance to chase 
+    it down yet, but I'm going to have to, because..."
+
+but if that _really_ is 2.6.16-rc6-based, this problem should have been 
+fixed already.
+
+Maybe SLES is based on 2.6._15_-rc6?
+
+		Linus

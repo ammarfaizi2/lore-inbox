@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWCVPUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWCVPUe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbWCVPUI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 10:20:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWCVPUI
+	id S1750776AbWCVPUe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 10:20:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWCVPUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 10:20:08 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:37597 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750745AbWCVPUG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 10:20:06 -0500
-Date: Wed, 22 Mar 2006 16:20:32 +0100
+	Wed, 22 Mar 2006 10:20:33 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:12932 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750776AbWCVPUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 10:20:31 -0500
+Date: Wed, 22 Mar 2006 16:20:58 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, hch@lst.de, linux-kernel@vger.kernel.org
-Subject: [patch 11/24] s390: merge cmb into dasd.c.
-Message-ID: <20060322152032.GK5801@skybase.boeblingen.de.ibm.com>
+Subject: [patch 12/24] s390: remove dynamic dasd ioctls.
+Message-ID: <20060322152058.GL5801@skybase.boeblingen.de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,228 +23,141 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Christoph Hellwig <hch@lst.de>
 
-[patch 11/24] s390: merge cmb into dasd.c.
+[patch 12/24] s390: remove dynamic dasd ioctls.
 
-dasd_cmd just implements three ioctls which are wrappers around
-functionality in the core kernel or other modules.  When merging those
-into dasd_mod they just add 22 lines of code which is far less than the
-amount of code removed in the last two patches, and which doesn't spill
-into another 4k pages when build modular, while removing a 128lines
-module.
+Now that there are no more users of the awkward dynamic ioctl hack we
+can remove the code to support it.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/block/Kconfig      |   10 ---
- drivers/s390/block/Makefile     |    1 
- drivers/s390/block/dasd_cmb.c   |  128 ----------------------------------------
- drivers/s390/block/dasd_ioctl.c |   22 ++++++
- 4 files changed, 22 insertions(+), 139 deletions(-)
+ drivers/s390/block/dasd_int.h   |   11 ------
+ drivers/s390/block/dasd_ioctl.c |   69 ----------------------------------------
+ 2 files changed, 80 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/block/dasd_cmb.c linux-2.6-patched/drivers/s390/block/dasd_cmb.c
---- linux-2.6/drivers/s390/block/dasd_cmb.c	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/block/dasd_cmb.c	1970-01-01 01:00:00.000000000 +0100
-@@ -1,128 +0,0 @@
--/*
-- * Linux on zSeries Channel Measurement Facility support
-- *  (dasd device driver interface)
-- *
-- * Copyright 2000,2003 IBM Corporation
-- *
-- * Author: Arnd Bergmann <arndb@de.ibm.com>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2, or (at your option)
-- * any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-- */
--#include <linux/init.h>
--#include <linux/module.h>
--#include <asm/ccwdev.h>
--#include <asm/cmb.h>
+diff -urpN linux-2.6/drivers/s390/block/dasd_int.h linux-2.6-patched/drivers/s390/block/dasd_int.h
+--- linux-2.6/drivers/s390/block/dasd_int.h	2006-03-22 14:36:21.000000000 +0100
++++ linux-2.6-patched/drivers/s390/block/dasd_int.h	2006-03-22 14:36:23.000000000 +0100
+@@ -69,15 +69,6 @@
+  */
+ struct dasd_device;
+ 
+-typedef int (*dasd_ioctl_fn_t) (struct block_device *bdev, int no, long args);
 -
--#include "dasd_int.h"
+-struct dasd_ioctl {
+-	struct list_head list;
+-	struct module *owner;
+-	int no;
+-	dasd_ioctl_fn_t handler;
+-};
 -
--static int
--dasd_ioctl_cmf_enable(struct block_device *bdev, int no, long args)
--{
--	struct dasd_device *device;
--
--	device = bdev->bd_disk->private_data;
--	if (!device)
--		return -EINVAL;
--
--	return enable_cmf(device->cdev);
--}
--
--static int
--dasd_ioctl_cmf_disable(struct block_device *bdev, int no, long args)
--{
--	struct dasd_device *device;
--
--	device = bdev->bd_disk->private_data;
--	if (!device)
--		return -EINVAL;
--
--	return disable_cmf(device->cdev);
--}
--
--static int
--dasd_ioctl_readall_cmb(struct block_device *bdev, int no, long args)
--{
--	struct dasd_device *device;
--	struct cmbdata __user *udata;
--	struct cmbdata data;
--	size_t size;
--	int ret;
--
--	device = bdev->bd_disk->private_data;
--	if (!device)
--		return -EINVAL;
--	udata = (void __user *) args;
--	size = _IOC_SIZE(no);
--
--	if (!access_ok(VERIFY_WRITE, udata, size))
--		return -EFAULT;
--	ret = cmf_readall(device->cdev, &data);
--	if (ret)
--		return ret;
--	if (copy_to_user(udata, &data, min(size, sizeof(*udata))))
--		return -EFAULT;
--	return 0;
--}
--
--/* module initialization below here. dasd already provides a mechanism
-- * to dynamically register ioctl functions, so we simply use this. */
--static inline int
--ioctl_reg(unsigned int no, dasd_ioctl_fn_t handler)
--{
--	return dasd_ioctl_no_register(THIS_MODULE, no, handler);
--}
--
--static inline void
--ioctl_unreg(unsigned int no, dasd_ioctl_fn_t handler)
--{
--	dasd_ioctl_no_unregister(THIS_MODULE, no, handler);
--}
--
--static void
--dasd_cmf_exit(void)
--{
--	ioctl_unreg(BIODASDCMFENABLE,  dasd_ioctl_cmf_enable);
--	ioctl_unreg(BIODASDCMFDISABLE, dasd_ioctl_cmf_disable);
--	ioctl_unreg(BIODASDREADALLCMB, dasd_ioctl_readall_cmb);
--}
--
--static int __init
--dasd_cmf_init(void)
--{
--	int ret;
--	ret = ioctl_reg (BIODASDCMFENABLE, dasd_ioctl_cmf_enable);
--	if (ret)
--		goto err;
--	ret = ioctl_reg (BIODASDCMFDISABLE, dasd_ioctl_cmf_disable);
--	if (ret)
--		goto err;
--	ret = ioctl_reg (BIODASDREADALLCMB, dasd_ioctl_readall_cmb);
--	if (ret)
--		goto err;
--
--	return 0;
--err:
--	dasd_cmf_exit();
--
--	return ret;
--}
--
--module_init(dasd_cmf_init);
--module_exit(dasd_cmf_exit);
--
--MODULE_AUTHOR("Arnd Bergmann <arndb@de.ibm.com>");
--MODULE_LICENSE("GPL");
--MODULE_DESCRIPTION("channel measurement facility interface for dasd\n"
--		   "Copyright 2003 IBM Corporation\n");
+ typedef enum {
+ 	dasd_era_fatal = -1,	/* no chance to recover		     */
+ 	dasd_era_none = 0,	/* don't recover, everything alright */
+@@ -524,8 +515,6 @@ int dasd_scan_partitions(struct dasd_dev
+ void dasd_destroy_partitions(struct dasd_device *);
+ 
+ /* externals in dasd_ioctl.c */
+-int  dasd_ioctl_no_register(struct module *, int, dasd_ioctl_fn_t);
+-int  dasd_ioctl_no_unregister(struct module *, int, dasd_ioctl_fn_t);
+ int  dasd_ioctl(struct inode *, struct file *, unsigned int, unsigned long);
+ long dasd_compat_ioctl(struct file *, unsigned int, unsigned long);
+ 
 diff -urpN linux-2.6/drivers/s390/block/dasd_ioctl.c linux-2.6-patched/drivers/s390/block/dasd_ioctl.c
---- linux-2.6/drivers/s390/block/dasd_ioctl.c	2006-03-22 14:36:21.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/block/dasd_ioctl.c	2006-03-22 14:36:21.000000000 +0100
-@@ -16,6 +16,7 @@
- #include <linux/blkpg.h>
+--- linux-2.6/drivers/s390/block/dasd_ioctl.c	2006-03-22 14:36:23.000000000 +0100
++++ linux-2.6-patched/drivers/s390/block/dasd_ioctl.c	2006-03-22 14:36:23.000000000 +0100
+@@ -24,59 +24,6 @@
  
- #include <asm/ccwdev.h>
-+#include <asm/cmb.h>
- #include <asm/uaccess.h>
+ #include "dasd_int.h"
  
- /* This is ugly... */
-@@ -406,6 +407,21 @@ dasd_ioctl_set_ro(struct block_device *b
- 	return dasd_set_feature(device->cdev, DASD_FEATURE_READONLY, intval);
- }
- 
-+static int
-+dasd_ioctl_readall_cmb(struct dasd_device *device, unsigned int cmd,
-+		unsigned long arg)
-+{
-+	struct cmbdata __user *argp = (void __user *) arg;
-+	size_t size = _IOC_SIZE(cmd);
-+	struct cmbdata data;
-+	int ret;
-+
-+	ret = cmf_readall(device->cdev, &data);
-+	if (!ret && copy_to_user(argp, &data, min(size, sizeof(*argp))))
-+		return -EFAULT;
-+	return ret;
-+}
-+
- int
- dasd_ioctl(struct inode *inode, struct file *file,
- 	   unsigned int cmd, unsigned long arg)
-@@ -447,6 +463,12 @@ dasd_ioctl(struct inode *inode, struct f
- 		return dasd_ioctl_set_ro(bdev, argp);
- 	case DASDAPIVER:
- 		return dasd_ioctl_api_version(argp);
-+	case BIODASDCMFENABLE:
-+		return enable_cmf(device->cdev);
-+	case BIODASDCMFDISABLE:
-+		return disable_cmf(device->cdev);
-+	case BIODASDREADALLCMB:
-+		return dasd_ioctl_readall_cmb(device, cmd, arg);
- 	default:
- 		/* if the discipline has an ioctl method try it. */
- 		if (device->discipline->ioctl) {
-diff -urpN linux-2.6/drivers/s390/block/Kconfig linux-2.6-patched/drivers/s390/block/Kconfig
---- linux-2.6/drivers/s390/block/Kconfig	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/block/Kconfig	2006-03-22 14:36:21.000000000 +0100
-@@ -55,14 +55,4 @@ config DASD_DIAG
- 	  Disks under VM.  If you are not running under VM or unsure what it is,
- 	  say "N".
- 
--config DASD_CMB
--	tristate "Compatibility interface for DASD channel measurement blocks"
--	depends on DASD
--	help
--	  This driver provides an additional interface to the channel measurement
--	  facility, which is normally accessed though sysfs, with a set of
--	  ioctl functions specific to the dasd driver.
--	  This is only needed if you want to use applications written for
--	  linux-2.4 dasd channel measurement facility interface.
+-/*
+- * SECTION: ioctl functions.
+- */
+-static struct list_head dasd_ioctl_list = LIST_HEAD_INIT(dasd_ioctl_list);
 -
- endif
-diff -urpN linux-2.6/drivers/s390/block/Makefile linux-2.6-patched/drivers/s390/block/Makefile
---- linux-2.6/drivers/s390/block/Makefile	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/block/Makefile	2006-03-22 14:36:21.000000000 +0100
-@@ -12,6 +12,5 @@ obj-$(CONFIG_DASD) += dasd_mod.o
- obj-$(CONFIG_DASD_DIAG) += dasd_diag_mod.o
- obj-$(CONFIG_DASD_ECKD) += dasd_eckd_mod.o
- obj-$(CONFIG_DASD_FBA)  += dasd_fba_mod.o
--obj-$(CONFIG_DASD_CMB)  += dasd_cmb.o
- obj-$(CONFIG_BLK_DEV_XPRAM) += xpram.o
- obj-$(CONFIG_DCSSBLK) += dcssblk.o
+-/*
+- * Find the ioctl with number no.
+- */
+-static struct dasd_ioctl *
+-dasd_find_ioctl(int no)
+-{
+-	struct dasd_ioctl *ioctl;
+-
+-	list_for_each_entry (ioctl, &dasd_ioctl_list, list)
+-		if (ioctl->no == no)
+-			return ioctl;
+-	return NULL;
+-}
+-
+-/*
+- * Register ioctl with number no.
+- */
+-int
+-dasd_ioctl_no_register(struct module *owner, int no, dasd_ioctl_fn_t handler)
+-{
+-	struct dasd_ioctl *new;
+-	if (dasd_find_ioctl(no))
+-		return -EBUSY;
+-	new = kmalloc(sizeof (struct dasd_ioctl), GFP_KERNEL);
+-	if (new == NULL)
+-		return -ENOMEM;
+-	new->owner = owner;
+-	new->no = no;
+-	new->handler = handler;
+-	list_add(&new->list, &dasd_ioctl_list);
+-	return 0;
+-}
+-
+-/*
+- * Deregister ioctl with number no.
+- */
+-int
+-dasd_ioctl_no_unregister(struct module *owner, int no, dasd_ioctl_fn_t handler)
+-{
+-	struct dasd_ioctl *old = dasd_find_ioctl(no);
+-	if (old == NULL)
+-		return -ENOENT;
+-	if (old->no != no || old->handler != handler || owner != old->owner)
+-		return -EINVAL;
+-	list_del(&old->list);
+-	kfree(old);
+-	return 0;
+-}
+ 
+ static int
+ dasd_ioctl_api_version(void __user *argp)
+@@ -429,8 +376,6 @@ dasd_ioctl(struct inode *inode, struct f
+ 	struct block_device *bdev = inode->i_bdev;
+ 	struct dasd_device *device = bdev->bd_disk->private_data;
+ 	void __user *argp = (void __user *)arg;
+-	struct dasd_ioctl *ioctl;
+-	int rc;
+ 
+ 	if (!device)
+                 return -ENODEV;
+@@ -477,17 +422,6 @@ dasd_ioctl(struct inode *inode, struct f
+ 				return rval;
+ 		}
+ 
+-		/* else resort to the deprecated dynamic ioctl list */
+-		list_for_each_entry(ioctl, &dasd_ioctl_list, list) {
+-			if (ioctl->no == cmd) {
+-				/* Found a matching ioctl. Call it. */
+-				if (!try_module_get(ioctl->owner))
+-					continue;
+-				rc = ioctl->handler(bdev, cmd, arg);
+-				module_put(ioctl->owner);
+-				return rc;
+-			}
+-		}
+ 		return -EINVAL;
+ 	}
+ }
+@@ -503,6 +437,3 @@ dasd_compat_ioctl(struct file *filp, uns
+ 
+ 	return (rval == -EINVAL) ? -ENOIOCTLCMD : rval;
+ }
+-
+-EXPORT_SYMBOL(dasd_ioctl_no_register);
+-EXPORT_SYMBOL(dasd_ioctl_no_unregister);

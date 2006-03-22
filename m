@@ -1,118 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWCVEll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWCVErT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbWCVEll (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 23:41:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWCVEll
+	id S1750757AbWCVErT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 23:47:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbWCVErT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 23:41:41 -0500
-Received: from 220-130-178-143.HINET-IP.hinet.net ([220.130.178.143]:34298
-	"EHLO areca.com.tw") by vger.kernel.org with ESMTP id S1750753AbWCVElk
+	Tue, 21 Mar 2006 23:47:19 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:17314 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750757AbWCVErS convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 23:41:40 -0500
-Message-ID: <003001c64d6a$e6d26ca0$b100a8c0@erich2003>
-From: "erich" <erich@areca.com.tw>
-To: "Matti Aarnio" <matti.aarnio@zmailer.org>
-Cc: "Dax Kelson" <dax@gurulabs.com>, <linux-kernel@vger.kernel.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Al Viro" <viro@ftp.linux.org.uk>
-References: <20060318044056.350a2931.akpm@osdl.org> <Pine.LNX.4.64.0603192016110.32337@mooru.gurulabs.com> <Pine.LNX.4.64.0603212345460.20655@nacho.alt.net> <20060322033718.GA21614@mea-ext.zmailer.org>
-Subject: Re: New Areca driver in 2.6.16-rc6-mm2
-Date: Wed, 22 Mar 2006 12:41:33 +0800
+	Tue, 21 Mar 2006 23:47:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GHHBFRiTRxVXv4Cm77hKJxYcE9A/RLWXtxv7Hjim0S2I8ekAj8wsdnJlzjRfNAWQvy+BRaqxl88f9AlrL1lFC1PD++ST6ZreNyKZMFvLJ11kYc3rPryFk1HajcvKxfcSAcJG5gNGSZ+FdlwljajXTqmeDZxKEcaugLW+chamdyo=
+Message-ID: <489ecd0c0603212047q6236d940m7f5ec7e2e334ec61@mail.gmail.com>
+Date: Wed, 22 Mar 2006 12:47:17 +0800
+From: "Luke Yang" <luke.adi@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH 1/2]Blackfin archtecture patche for 2.6.16
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060321194848.4d041ab5.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.3790.1830
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
-X-OriginalArrivalTime: 22 Mar 2006 04:36:58.0859 (UTC) FILETIME=[4191E3B0:01C64D6A]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <489ecd0c0603200200va747a68k187651930a3f0a51@mail.gmail.com>
+	 <20060321031457.69fa0892.akpm@osdl.org>
+	 <489ecd0c0603211945m14e9656bm5daf1e62eeca56a@mail.gmail.com>
+	 <20060321194848.4d041ab5.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All,
+Hi,
 
-I had met this problem at my Fab before.
-But this problem seem not came from the issue of driver version change.
-I had test it with my older version of areca driver and it cause same
-problem.
-I did this testing with EXT2 file system and I got dump messages as
-following message.
-But When I used EXT3 file system and run same testing, it worked fine.
+   This is the patch of MAINTAINERS entry. As more Blackfin drivers
+added in, I'll add more maintainers list.
 
- attempt to access beyond end of device
-  sdb1: rw=0, want=134744080, limit=128002016
-  attempt to access beyond end of device
-  sdb1: rw=0, want=134744080, limit=128002016
-  attempt to access beyond end of device
-  sdb1: rw=0, want=134744080, limit=128002016
-  attempt to access beyond end of device
-  sdb1: rw=0, want=134744080, limit=128002016
-  attempt to access beyond end of device
-  sdb1: rw=0, want=134744080, limit=128002016
-  attempt to access beyond end of device
-  sdb1: rw=0, want=134744080, limit=128002016
-  attempt to access beyond end of device
-  sdb1: rw=0, want=134744080, limit=128002016
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 8db5c33..649cb01 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -425,6 +425,36 @@ M: tigran@veritas.com
+ L:     linux-kernel@vger.kernel.org
+ S:     Maintained
 
-Now I have time to research this problem.
-Hope that I can give you more information about it.
++BLACKFIN ARCHITECTURE
++P:     Luke Yang
++M:     luke.adi@gmail.com
++P:     Aubery Li
++M:     aubery.li@analog.com
++P:     Bernd Schmidt
++M:     bernd.schmidt@analog.com
++P:     Robin Getz
++M:     robin.retz@analog.com
++P:     Michael Hennerich
++M:     michael.hennerich@analog.com
++P:     Jie Zhang
++M:     jie.zhang@analog.com
++P:     Michael Kang
++M:     michael.kang@analog.com
++P:     Roy Huang
++M:     roy.huang@analog.com
++P:     Sonic Zhang
++M:     sonic.zhang@analog.com
++L:     linux-kernel@vger.kernel.org
++W:     http://blackfin.uclinux.org
++S:     Supported
++
++BLACKFIN SERIAL DRIVER
++P:     Sonic Zhang
++M:     sonic.zhang@analog.com
++L:     linux-kernel@vger.kernel.org
++W:     http://blackfin.uclinux.org
++S:     Supported
++
+ BLOCK LAYER
+ P:     Jens Axboe
+ M:     axboe@suse.de
 
-Best Regards
-Erich Chen
+signed-off-by: Luke Yang <luke.adi@gmail.com>
 
------ Original Message ----- 
-From: "Matti Aarnio" <matti.aarnio@zmailer.org>
-To: "Chris Caputo" <ccaputo@alt.net>
-Cc: "Dax Kelson" <dax@gurulabs.com>; <linux-kernel@vger.kernel.org>; 
-<erich@areca.com.tw>
-Sent: Wednesday, March 22, 2006 11:37 AM
-Subject: Re: New Areca driver in 2.6.16-rc6-mm2
+Regards,
+Luke Yang
 
-
-> On Tue, Mar 21, 2006 at 11:49:32PM +0000, Chris Caputo wrote:
->> On Sun, 19 Mar 2006, Dax Kelson wrote:
->> > On Sat, 18 Mar 2006, Andrew Morton wrote:
->> > > SCSI fixes
->> > >
->> > > +areca-raid-linux-scsi-driver-update4.patch
->> > >
->> > > Update areca-raid-linux-scsi-driver.patch
->> >
->> > Has anyone had a chance to review this new update to see if it now 
->> > passes
->> > muster for mainline inclusion?
->>
->> Unfortunately when the new driver is applied to 2.6.15.6 a bonnie++ test
->> results in the following endless spew:
+On 3/22/06, Andrew Morton <akpm@osdl.org> wrote:
+> "Luke Yang" <luke.adi@gmail.com> wrote:
+> >
+> >  >   The lack of a MAINTAINERS entry doesn't inspire confidence..
+> >     As Bernd said, Analog Device has a group maintaining linux for
+> >  Blackfin. Now I am the one who in charge of committing patches into
+> >  mainline, other developers may do the same thing later.  By
+> >  MAINTAINERS entry do you mean the linux-2.6/MAINTAINER? Or shall I
+> >  list maintainers name in the patch mail?
 >
-> Curious...   I didn't encounter this phenomena, but then, my 0.75 TB
-> raid5 volume is practically empty...
+> I was referring to an update to the MAINTAINERS file.
 >
-> For the development phase it would be most useful, if  the driver
-> would be available in similar "this will compile for your currently
-> running kernel, or some other you care to name and have its config.h
-> files at hand"  as e.g. Nvidia drivers are (except that arcmsr is
-> in "all source form", whereas NV has this magic object blob..)
->
-> Such would allow (at least for me) to have a wee bit faster cycle
-> with "pick vendor kernel, add this and that custom module"
->
-> I was apalled to learn that full cycle kernel compilation takes
-> _hours_ these days (Pentium-4 HT, 2.4 GHz, 2 GB memory -- and it
-> is about as slow as my first kernel compilation experience with
-> a 386/33MHz way back in ...)
->
->>   ...
->>   attempt to access beyond end of device
->>   sdb1: rw=0, want=134744080, limit=128002016
->>   ...
->>
->> I have emailed the details to Erich.
->>
->> Chris
->
-> /Matti Aarnio 
 
+
+--
+Best regards,
+Luke Yang
+magic.yyang@gmail.com; luke.adi@gmail.com

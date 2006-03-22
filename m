@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWCVIpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWCVIwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbWCVIpT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 03:45:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWCVIpT
+	id S1751119AbWCVIwE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 03:52:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWCVIwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 03:45:19 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:36270 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751113AbWCVIpR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 03:45:17 -0500
-Subject: Re: [RFC PATCH 31/35] Add Xen grant table support
-From: Arjan van de Ven <arjan@infradead.org>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com,
-       virtualization@lists.osdl.org, Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-In-Reply-To: <20060322063806.220039000@sorel.sous-sol.org>
-References: <20060322063040.960068000@sorel.sous-sol.org>
-	 <20060322063806.220039000@sorel.sous-sol.org>
-Content-Type: text/plain
-Date: Wed, 22 Mar 2006 09:45:14 +0100
-Message-Id: <1143017114.2955.27.camel@laptopd505.fenrus.org>
+	Wed, 22 Mar 2006 03:52:03 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:25835 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751119AbWCVIwB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 03:52:01 -0500
+Date: Wed, 22 Mar 2006 00:48:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc6-mm2
+Message-Id: <20060322004843.4c6036e8.akpm@osdl.org>
+In-Reply-To: <20060322094136.47b12335@werewolf.auna.net>
+References: <20060318044056.350a2931.akpm@osdl.org>
+	<20060322094136.47b12335@werewolf.auna.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"J.A. Magallon" <jamagallon@able.es> wrote:
+>
+> On Sat, 18 Mar 2006 04:40:56 -0800, Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm2/
+> > 
+> > 
+> > - John's time rework patches were dropped - they're being reworked.
+> > 
+> > - Lots of MD and DM updates
+> > 
+> 
+> Mmmm, somthing strange is in this kernel. Is hangs the box in the middle
+> of the night, it looks like it got stuck on the scsi disk on an AHC
+> controller...I get no info on syslog.
+> 
+> Are there any changes in aic drivers ? It also has a raid array, perhaps
+> some change in md code is borking when cron jobs are run in the night...
 
-> + * This file may be distributed separately from the Linux kernel, or
-> + * incorporated into other software packages, subject to the following license:
+diffstat will tell.
 
-please again fix the license
+ b/drivers/scsi/aic7xxx/aic79xx_core.c      |   33 
+ b/drivers/scsi/aic7xxx/aic79xx_osm.c       |  559 
+ b/drivers/scsi/aic7xxx/aic79xx_osm.h       |    7 
+ b/drivers/scsi/aic7xxx/aic7xxx_core.c      |   24 
+ b/drivers/scsi/aic7xxx/aic7xxx_osm.c       |   45 
+ b/drivers/scsi/aic7xxx/aic7xxx_osm.h       |    5 
 
+There are large numbers of changes to scsi core as well.  And MD.  And
+everything else.
 
+Can no info be obtained from sysrq-P or sysrq-T?
 
-> +EXPORT_SYMBOL(gnttab_grant_foreign_access);
-> +EXPORT_SYMBOL(gnttab_end_foreign_access_ref);
-> +EXPORT_SYMBOL(gnttab_end_foreign_access);
-> +EXPORT_SYMBOL(gnttab_query_foreign_access);
-> +EXPORT_SYMBOL(gnttab_grant_foreign_transfer);
-> +EXPORT_SYMBOL(gnttab_end_foreign_transfer_ref);
-> +EXPORT_SYMBOL(gnttab_end_foreign_transfer);
-> +EXPORT_SYMBOL(gnttab_alloc_grant_references);
-> +EXPORT_SYMBOL(gnttab_free_grant_references);
-> +EXPORT_SYMBOL(gnttab_free_grant_reference);
-> +EXPORT_SYMBOL(gnttab_claim_grant_reference);
-> +EXPORT_SYMBOL(gnttab_release_grant_reference);
-> +EXPORT_SYMBOL(gnttab_request_free_callback);
-> +EXPORT_SYMBOL(gnttab_grant_foreign_access_ref);
-> +EXPORT_SYMBOL(gnttab_grant_foreign_transfer_ref);
-
-and consider these as _GPL exports
-
-
-> +#ifndef __ia64__
-> +static int map_pte_fn(pte_t *pte, struct page *pte_page,
-> +		      unsigned long addr, void *data)
-> +{
-> +	unsigned long **frames = (unsigned long **)data;
-> +
-> +	set_pte_at(&init_mm, addr, pte, pfn_pte((*frames)[0], PAGE_KERNEL));
-> +	(*frames)++;
-> +	return 0;
-> +}
-
-looks to me the wrong ifdef for a file in arch/i386... please fix
-
-
-
+If it's running X then I'd suggest you quit from X overnight, see if
+anything pops up on the screen, and to simplify using sysrq.

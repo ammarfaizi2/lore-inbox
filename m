@@ -1,119 +1,201 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWCVGnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbWCVGnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750951AbWCVGnj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 01:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbWCVGiG
+	id S1750879AbWCVGnk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 01:43:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbWCVGiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 01:38:06 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:42371 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750905AbWCVGhv
+	Wed, 22 Mar 2006 01:38:04 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:11905 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750877AbWCVGhh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 01:37:51 -0500
-Message-Id: <20060322063803.621530000@sorel.sous-sol.org>
+	Wed, 22 Mar 2006 01:37:37 -0500
+Message-Id: <20060322063751.830556000@sorel.sous-sol.org>
 References: <20060322063040.960068000@sorel.sous-sol.org>
-Date: Tue, 21 Mar 2006 22:31:08 -0800
+Date: Tue, 21 Mar 2006 22:30:55 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
 Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org,
        Ian Pratt <ian.pratt@xensource.com>,
        Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: [RFC PATCH 28/35] add support for Xen feature queries
-Content-Disposition: inline; filename=27-xen-features
+Subject: [RFC PATCH 15/35] subarch support for controlling interrupt delivery
+Content-Disposition: inline; filename=14-i386-interrupt-control
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for parsing and interpreting hypervisor feature
-flags. These allow the kernel to determine what features are provided
-by the underlying hypervisor. For example, whether page tables need to
-be write protected explicitly by the kernel, and whether the kernel
-(appears to) run in ring 0 rather than ring 1. This information allows
-the kernel to improve performance by avoiding unnecessary actions.
+Abstract the code that controls interrupt delivery, and add a separate
+subarch implementation for Xen that manipulates a shared-memory event
+delivery mask.
 
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- arch/i386/mach-xen/Makefile                 |    2 -
- arch/i386/mach-xen/features.c               |   29 ++++++++++++++++++++++++++++
- include/asm-i386/mach-xen/setup_arch_post.h |    2 +
- include/xen/features.h                      |   20 +++++++++++++++++++
- 4 files changed, 52 insertions(+), 1 deletion(-)
+ include/asm-i386/mach-default/mach_system.h |   24 ++++++
+ include/asm-i386/mach-xen/mach_system.h     |  103 ++++++++++++++++++++++++++++
+ include/asm-i386/system.h                   |   20 -----
+ 3 files changed, 128 insertions(+), 19 deletions(-)
 
---- xen-subarch-2.6.orig/arch/i386/mach-xen/Makefile
-+++ xen-subarch-2.6/arch/i386/mach-xen/Makefile
-@@ -4,6 +4,6 @@
+--- xen-subarch-2.6.orig/include/asm-i386/system.h
++++ xen-subarch-2.6/include/asm-i386/system.h
+@@ -551,25 +551,7 @@ struct alt_instr { 
  
- extra-y				:= head.o
+ #define set_wmb(var, value) do { var = value; wmb(); } while (0)
  
--obj-y				:= setup.o
-+obj-y				:= setup.o features.o
-  
- setup-y				:= ../mach-default/setup.o
---- xen-subarch-2.6.orig/include/asm-i386/mach-xen/setup_arch_post.h
-+++ xen-subarch-2.6/include/asm-i386/mach-xen/setup_arch_post.h
-@@ -40,6 +40,8 @@ static void __init machine_specific_arch
- {
- 	struct physdev_op op;
+-/* interrupt control.. */
+-#define local_save_flags(x)	do { typecheck(unsigned long,x); __asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */); } while (0)
+-#define local_irq_restore(x) 	do { typecheck(unsigned long,x); __asm__ __volatile__("pushl %0 ; popfl": /* no output */ :"g" (x):"memory", "cc"); } while (0)
+-#define local_irq_disable() 	__asm__ __volatile__("cli": : :"memory")
+-#define local_irq_enable()	__asm__ __volatile__("sti": : :"memory")
+-/* used in the idle loop; sti takes one instruction cycle to complete */
+-#define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
+-/* used when interrupts are already enabled or to shutdown the processor */
+-#define halt()			__asm__ __volatile__("hlt": : :"memory")
+-
+-#define irqs_disabled()			\
+-({					\
+-	unsigned long flags;		\
+-	local_save_flags(flags);	\
+-	!(flags & (1<<9));		\
+-})
+-
+-/* For spinlocks etc */
+-#define local_irq_save(x)	__asm__ __volatile__("pushfl ; popl %0 ; cli":"=g" (x): /* no input */ :"memory")
++#include <mach_system.h>
  
-+	setup_xen_features();
-+
- 	HYPERVISOR_shared_info =
- 		(struct shared_info *)__va(xen_start_info->shared_info);
- 	memset(empty_zero_page, 0, sizeof(empty_zero_page));
+ /*
+  * disable hlt during certain critical i/o operations
 --- /dev/null
-+++ xen-subarch-2.6/arch/i386/mach-xen/features.c
-@@ -0,0 +1,29 @@
-+/******************************************************************************
-+ * features.c
-+ *
-+ * Xen feature flags.
-+ *
-+ * Copyright (c) 2006, Ian Campbell, XenSource Inc.
-+ */
-+#include <linux/types.h>
-+#include <linux/cache.h>
-+#include <linux/module.h>
++++ xen-subarch-2.6/include/asm-i386/mach-default/mach_system.h
+@@ -0,0 +1,24 @@
++#ifndef __ASM_MACH_SYSTEM_H
++#define __ASM_MACH_SYSTEM_H
++
++/* interrupt control.. */
++#define local_save_flags(x)	do { typecheck(unsigned long,x); __asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */); } while (0)
++#define local_irq_restore(x) 	do { typecheck(unsigned long,x); __asm__ __volatile__("pushl %0 ; popfl": /* no output */ :"g" (x):"memory", "cc"); } while (0)
++#define local_irq_disable() 	__asm__ __volatile__("cli": : :"memory")
++#define local_irq_enable()	__asm__ __volatile__("sti": : :"memory")
++/* used in the idle loop; sti takes one instruction cycle to complete */
++#define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
++/* used when interrupts are already enabled or to shutdown the processor */
++#define halt()			__asm__ __volatile__("hlt": : :"memory")
++
++#define irqs_disabled()			\
++({					\
++	unsigned long flags;		\
++	local_save_flags(flags);	\
++	!(flags & (1<<9));		\
++})
++
++/* For spinlocks etc */
++#define local_irq_save(x)	__asm__ __volatile__("pushfl ; popl %0 ; cli":"=g" (x): /* no input */ :"memory")
++
++#endif /* __ASM_MACH_SYSTEM_H */
+--- /dev/null
++++ xen-subarch-2.6/include/asm-i386/mach-xen/mach_system.h
+@@ -0,0 +1,103 @@
++#ifndef __ASM_MACH_SYSTEM_H
++#define __ASM_MACH_SYSTEM_H
++
++#ifdef __KERNEL__
++
 +#include <asm/hypervisor.h>
-+#include <xen/features.h>
 +
-+u8 xen_features[XENFEAT_NR_SUBMAPS * 32] __read_mostly;
-+EXPORT_SYMBOL(xen_features);
++#ifdef CONFIG_SMP
++#define __vcpu_id smp_processor_id()
++#else
++#define __vcpu_id 0
++#endif
 +
-+void setup_xen_features(void)
-+{
-+	struct xen_feature_info fi;
-+	int i, j;
++/* interrupt control.. */
 +
-+	for (i = 0; i < XENFEAT_NR_SUBMAPS; i++) {
-+		fi.submap_idx = i;
-+		if (HYPERVISOR_xen_version(XENVER_get_features, &fi) < 0)
-+			break;
-+		for (j=0; j<32; j++)
-+			xen_features[i*32+j] = !!(fi.submap & 1<<j);
-+	}
-+}
---- /dev/null
-+++ xen-subarch-2.6/include/xen/features.h
-@@ -0,0 +1,20 @@
-+/******************************************************************************
-+ * features.h
-+ *
-+ * Query the features reported by Xen.
-+ *
-+ * Copyright (c) 2006, Ian Campbell
++/*
++ * The use of 'barrier' in the following reflects their use as local-lock
++ * operations. Reentrancy must be prevented (e.g., __cli()) /before/ following
++ * critical operations are executed. All critical operations must complete
++ * /before/ reentrancy is permitted (e.g., __sti()). Alpha architecture also
++ * includes these barriers, for example.
 + */
 +
-+#ifndef __ASM_XEN_FEATURES_H__
-+#define __ASM_XEN_FEATURES_H__
++#define __cli()								\
++do {									\
++	struct vcpu_info *_vcpu;					\
++	preempt_disable();						\
++	_vcpu = &HYPERVISOR_shared_info->vcpu_info[__vcpu_id];		\
++	_vcpu->evtchn_upcall_mask = 1;					\
++	preempt_enable_no_resched();					\
++	barrier();							\
++} while (0)
 +
-+#include <xen/interface/version.h>
++#define __sti()								\
++do {									\
++	struct vcpu_info *_vcpu;					\
++	barrier();							\
++	preempt_disable();						\
++	_vcpu = &HYPERVISOR_shared_info->vcpu_info[__vcpu_id];		\
++	_vcpu->evtchn_upcall_mask = 0;					\
++	barrier(); /* unmask then check (avoid races) */		\
++	if (unlikely(_vcpu->evtchn_upcall_pending))			\
++		force_evtchn_callback();				\
++	preempt_enable();						\
++} while (0)
 +
-+extern void setup_xen_features(void);
++#define __save_flags(x)							\
++do {									\
++	struct vcpu_info *_vcpu;					\
++	preempt_disable();						\
++	_vcpu = &HYPERVISOR_shared_info->vcpu_info[__vcpu_id];		\
++	(x) = _vcpu->evtchn_upcall_mask;				\
++	preempt_enable();						\
++} while (0)
 +
-+extern u8 xen_features[XENFEAT_NR_SUBMAPS * 32];
++#define __restore_flags(x)						\
++do {									\
++	struct vcpu_info *_vcpu;					\
++	barrier();							\
++	preempt_disable();						\
++	_vcpu = &HYPERVISOR_shared_info->vcpu_info[__vcpu_id];		\
++	if ((_vcpu->evtchn_upcall_mask = (x)) == 0) {			\
++		barrier(); /* unmask then check (avoid races) */	\
++		if (unlikely(_vcpu->evtchn_upcall_pending))		\
++			force_evtchn_callback();			\
++		preempt_enable();					\
++	} else								\
++		preempt_enable_no_resched();				\
++} while (0)
 +
-+#define xen_feature(flag)	(xen_features[flag])
++#define safe_halt()		((void)0)
++#define halt()			((void)0)
 +
-+#endif /* __ASM_XEN_FEATURES_H__ */
++#define __save_and_cli(x)						\
++do {									\
++	struct vcpu_info *_vcpu;					\
++	preempt_disable();						\
++	_vcpu = &HYPERVISOR_shared_info->vcpu_info[__vcpu_id];		\
++	(x) = _vcpu->evtchn_upcall_mask;				\
++	_vcpu->evtchn_upcall_mask = 1;					\
++	preempt_enable_no_resched();					\
++	barrier();							\
++} while (0)
++
++#define local_irq_save(x)	__save_and_cli(x)
++#define local_irq_restore(x)	__restore_flags(x)
++#define local_save_flags(x)	__save_flags(x)
++#define local_irq_disable()	__cli()
++#define local_irq_enable()	__sti()
++
++/* Cannot use preempt_enable() here as we would recurse in preempt_sched(). */
++#define irqs_disabled()							\
++({	int ___x;							\
++	struct vcpu_info *_vcpu;					\
++	preempt_disable();						\
++	_vcpu = &HYPERVISOR_shared_info->vcpu_info[__vcpu_id];		\
++	___x = (_vcpu->evtchn_upcall_mask != 0);			\
++	preempt_enable_no_resched();					\
++	___x; })
++
++#endif /* __KERNEL__ */
++
++#endif /* __ASM_MACH_SYSTEM_H */
 
 --

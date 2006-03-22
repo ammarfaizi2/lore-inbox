@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751853AbWCVAGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751852AbWCVAKw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751853AbWCVAGj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 19:06:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751855AbWCVAGj
+	id S1751852AbWCVAKw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 19:10:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751855AbWCVAKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 19:06:39 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:11991 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751853AbWCVAGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 19:06:38 -0500
-Subject: Re: 2.6.16-rc6-ide1 irq trap, io hang problem solved?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ed Sweetman <safemode@comcast.net>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <442089CB.1000008@comcast.net>
-References: <442089CB.1000008@comcast.net>
-Content-Type: text/plain
-Date: Tue, 21 Mar 2006 19:06:35 -0500
-Message-Id: <1142985995.4532.195.camel@mindpipe>
+	Tue, 21 Mar 2006 19:10:52 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:24523 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751852AbWCVAKv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 19:10:51 -0500
+Date: Tue, 21 Mar 2006 16:13:03 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org, clemens@ladisch.de
+Subject: Re: [PATCH] hpet header sanitization
+Message-Id: <20060321161303.53c2895f.akpm@osdl.org>
+In-Reply-To: <20060321144607.153d1943.rdunlap@xenotime.net>
+References: <20060321144607.153d1943.rdunlap@xenotime.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-21 at 18:18 -0500, Ed Sweetman wrote:
-> I've seen some traffic here to suggest that the problem was tracked 
-> down, but I saw nothing about it being solved completely.  Currently my 
-> system hangs whenever an irq trap message appears, usually after some 
-> sort of disk io on SATA drives. Is it fixed in the GIT patchset recently 
-> posted or is this still open?  
+"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+>
+> From: Randy Dunlap <rdunlap@xenotime.net>
+> 
+> Add __KERNEL__ block.
+> Use __KERNEL__ to allow ioctl interface to be usable.
 
-Are you referring to the "Losing ticks" bug?  What is the exact error
-message that you get?  Does the system hang momentarily or have to be
-rebooted?
+hm, why?
 
-Lee
+My general approach to __KERNEL__ fixes is to not support new includers of
+kernel headers but to accept patches which fix up existing applications of
+__KERNEL__.
+
+It's basically a compromise between the
+dont-include-kernel-headers-from-userspace fundamentalists and the
+but-i-want-my-stuff-to-work pragmatists ;)
+
+But hpet.h never had __KERNEL__, so there's no regression here.
+
+That being said, it looks like a sensible change - let's see if we can
+sneak it in without the fundies noticing.
+
+oops.
 

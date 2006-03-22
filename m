@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWCVL1l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWCVL3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbWCVL1l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 06:27:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWCVL1l
+	id S1750731AbWCVL3x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 06:29:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWCVL3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 06:27:41 -0500
-Received: from smtp5.libero.it ([193.70.192.55]:27830 "EHLO smtp5.libero.it")
-	by vger.kernel.org with ESMTP id S1750710AbWCVL1k (ORCPT
+	Wed, 22 Mar 2006 06:29:53 -0500
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:51161 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S1750731AbWCVL3x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 06:27:40 -0500
-From: <mtassinari@libero.it>
-To: "'Samuel Masham'" <samuel.masham@gmail.com>
-Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
-       <mtassinari@cmanet.it>
-Subject: R: libata/sata errors on ich[?]/maxtor
-Date: Wed, 22 Mar 2006 12:27:31 +0100
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAcm3p+dGrIEuKvCi2uAOJU8KAAAAQAAAA9t1sKjAsk0SX1D4Cs3T+sAEAAAAA@libero.it>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 22 Mar 2006 06:29:53 -0500
+In-Reply-To: <1143016607.2955.14.camel@laptopd505.fenrus.org>
+References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063758.453555000@sorel.sous-sol.org> <1143016607.2955.14.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <280dfa6948b4c3321e4630d75fa9f5b5@cl.cam.ac.uk>
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-In-Reply-To: <93564eb70603220159wd03a48du@mail.gmail.com>
-X-Scanned: with antispam and antivirus automated system at libero.it
+Cc: virtualization@lists.osdl.org, Ian Pratt <ian.pratt@xensource.com>,
+       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@sous-sol.org>
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Subject: Re: [RFC PATCH 23/35] Add support for Xen event channels.
+Date: Wed, 22 Mar 2006 11:30:09 +0000
+To: Arjan van de Ven <arjan@infradead.org>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Samuel, All,
 
-> > >
-> > > Eventually the drive will be offlined.
-> >
-> > really? I can test that easily enough if nothing else :)
+On 22 Mar 2006, at 08:36, Arjan van de Ven wrote:
+
+>> +#include <linux/interrupt.h>
+>> +#include <linux/sched.h>
+>> +#include <linux/kernel_stat.h>
+>> +#include <linux/version.h>
 >
-> When is it (should it) going to offline the drive? its been spitting out
-these messages (about set per min?) for 4 hours at the moment with > no
-change bar the sector number increasing by 2 each time...
+> this highly looks that it's not possible to be used outside the linux
+> kernel so the license is odd
+
+It can't be used directly, but other OS ports steal fairly directly 
+from this file (and others). For example OpenSolaris and the BSDs.
+
+>> +static int find_unbound_irq(void)
+>> +{
+>> +	int irq;
+>> +
+>> +	for (irq = 0; irq < NR_IRQS; irq++)
+>> +		if (irq_bindcount[irq] == 0)
+>> +			break;
+>> +
+>> +	if (irq == NR_IRQS) {
+>> +		printk(KERN_ERR "No available IRQ to bind to: increase 
+>> NR_IRQS!\n");
 >
+> there is no way to share interrupts? A shame
 
+256 allocatable IRQs seems plenty to be getting on with. Shared IRQs 
+can certainly be added later -- there are no hidden gotchas I'm pretty 
+sure.
 
-confirm. tryed with cables about 4 inches long,
-to no success. The process doing the i/o hangs and cannot be killed, so no 
-proper sync or shutdown other than reset is possible.
-2.6.16 release shows no improvement.
-2.6.16-rc6-mm2 does not even recognise the maxtor at boot...
-btw, a couple of WD drives went flawless.
-
-
-
-Mauro
+  -- Keir
 

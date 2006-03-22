@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWCVSJC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWCVSMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbWCVSJC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 13:09:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWCVSJB
+	id S932300AbWCVSMV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 13:12:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWCVSMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 13:09:01 -0500
-Received: from ns1.suse.de ([195.135.220.2]:53692 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932268AbWCVSJB (ORCPT
+	Wed, 22 Mar 2006 13:12:20 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:34956 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932300AbWCVSMU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 13:09:01 -0500
-From: Andi Kleen <ak@suse.de>
-To: Zachary Amsden <zach@vmware.com>
-Subject: Re: [Xen-devel] Re: [RFC PATCH 18/35] Support gdt/idt/ldt handling =?utf-8?q?on=09Xen=2E?=
-Date: Wed, 22 Mar 2006 18:36:23 +0100
+	Wed, 22 Mar 2006 13:12:20 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Ashok Raj <ashok.raj@intel.com>
+Subject: Re: Linux v2.6.16
+Date: Wed, 22 Mar 2006 19:11:05 +0100
 User-Agent: KMail/1.9.1
-Cc: virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
-       Ian Pratt <ian.pratt@xensource.com>, xen-devel@lists.xensource.com,
-       linux-kernel@vger.kernel.org
-References: <20060322063040.960068000@sorel.sous-sol.org> <200603221530.51644.ak@suse.de> <44218E9C.3060102@vmware.com>
-In-Reply-To: <44218E9C.3060102@vmware.com>
+Cc: akpm@osdl.org, Peter Williams <pwil3058@bigpond.net.au>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>
+References: <Pine.LNX.4.64.0603192216450.3622@g5.osdl.org> <200603221839.41867.rjw@sisk.pl> <20060322095457.A12334@unix-os.sc.intel.com>
+In-Reply-To: <20060322095457.A12334@unix-os.sc.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200603221836.24295.ak@suse.de>
+Message-Id: <200603221911.06576.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 March 2006 18:51, Zachary Amsden wrote:
+Hi,
 
+On Wednesday 22 March 2006 18:54, Ashok Raj wrote:
+> On Wed, Mar 22, 2006 at 06:39:41PM +0100, Rafael J. Wysocki wrote:
+> > > 
+> > > Please consider for inclusion... resending with changelog per Andrew.
+> > 
+> > Please don't apply this patch.
+> > 
+> > CPU hotplug is used by swsusp for disabling the nonboot CPUs.  Software
+> > suspend won't work on SMP without CPU hotplugging.
+> > 
 > 
-> Yes, trapping works fine.  Even LLDT is infrequent. 
+> Hi Rafael,
+> 
+> what part of this is not suitable for swsusp? All we do is just use flat physical mode
+> for IPI processing. The only difference is moving from logical flat mode to using
+> flat physical mode.
+> 
+> Have you tested swsusp with CONFIG_GENERICARCH and CONFIG_HOTPLUG_CPU=y ?
+> 
+> It might help to explain why this would break your swsusp with SMP work?
 
-Not when you use old style LinuxThreads which use the LDT for TLS.
+On SMP systems swsusp (suspend in general, AFAICT) uses the disable_nonboot_cpus()
+function defined in kernel/power/smp.c, which calls cpu_down() that is only
+defined if CONFIG_HOTPLUG_CPU is set.  We can't suspend and resume SMP systems
+reliably without it.
 
-> No.  First, you have to create a special #GP handler for the general 
-> protection fault.  
-
-[... etc ...]
-
-Sure but Xen already has the infrastructure for all of this and last
-time I checked it was approaching and exceeding the size of the main
-core kernel so a bit more of instruction emulation probably wouldn't 
-do too much harm. 
-
-In general I think any x86 hypervisor that attempts to work 
-on current platforms needs instruction emulation because it is 
-the only way to virtualize IO devices.
-
-If this was supposed to be a interface for lots of hypervisors then maybe,
-but so far it seems to only cover Xen and possibly some other bloatware 
-ones.
-
-That said I don't feel very strongly about emulating these instructions
-or not as long as they can do that without too much code duplication.
-The current patch are still a bit too excessive on the duplication front.
-
--Andi
+Greetings,
+Rafael

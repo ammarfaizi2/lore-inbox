@@ -1,79 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932868AbWCVWqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWCVWt1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932868AbWCVWqq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 17:46:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWCVWq0
+	id S1751049AbWCVWt1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 17:49:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWCVWt1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 17:46:26 -0500
-Received: from mail.gmx.de ([213.165.64.20]:44928 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964834AbWCVWqH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 17:46:07 -0500
-X-Authenticated: #704063
-Subject: [Patch] Pointer dereference in net/irda/ircomm/ircomm_tty.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 22 Mar 2006 23:46:05 +0100
-Message-Id: <1143067566.26895.8.camel@alice>
+	Wed, 22 Mar 2006 17:49:27 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:15286 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751049AbWCVWtZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 17:49:25 -0500
+Date: Wed, 22 Mar 2006 14:48:45 -0800
+From: Valerie Henson <val_henson@linux.intel.com>
+To: Badari Pulavarty <pbadari@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       ext2-devel <Ext2-devel@lists.sourceforge.net>,
+       Arjan van de Ven <arjan@linux.intel.com>,
+       "Theodore Ts'o" <tytso@mit.edu>, Zach Brown <zach.brown@oracle.com>
+Subject: Re: [Ext2-devel] [RFC] [PATCH] Reducing average ext2 fsck time through fs-wide dirty bit]
+Message-ID: <20060322224844.GU12571@goober>
+References: <20060322011034.GP12571@goober> <1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Wed, Mar 22, 2006 at 11:09:18AM -0800, Badari Pulavarty wrote:
+> On Tue, 2006-03-21 at 17:10 -0800, Valerie Henson wrote:
+> > Hi all,
+> > 
+> > I am working on reducing the average time spent on fscking ext2 file
+> > systems.  My initial take on the problem is to avoid fscking when the
+> 
+> Just curious, why are you teaching ext2 same tricks that are in ext3 ?
+> Is there a reason behind improving ext2 ? Are there any benefits
+> of not using ext3 instead ?
 
-this fixes coverity bugs #855 and #854. In both cases tty
-is dereferenced before getting checked for NULL.
-Compile tested only.
+ext2 is simpler and faster than ext3 in many cases.  This is sort of
+cheating; ext2 is simpler and faster because it makes no effort to
+maintain on-disk consistency and can skip annoying things like, oh,
+reserving space in the journal.  I am looking for ways to make ext2
+cheat even more.
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-
---- linux-2.6.16/net/irda/ircomm/ircomm_tty.c.orig	2006-03-22 23:40:50.000000000 +0100
-+++ linux-2.6.16/net/irda/ircomm/ircomm_tty.c	2006-03-22 23:42:40.000000000 +0100
-@@ -493,7 +493,7 @@ static int ircomm_tty_open(struct tty_st
-  */
- static void ircomm_tty_close(struct tty_struct *tty, struct file *filp)
- {
--	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) tty->driver_data;
-+	struct ircomm_tty_cb *self;
- 	unsigned long flags;
- 
- 	IRDA_DEBUG(0, "%s()\n", __FUNCTION__ );
-@@ -501,6 +501,8 @@ static void ircomm_tty_close(struct tty_
- 	if (!tty)
- 		return;
- 
-+	self = (struct ircomm_tty_cb *) tty->driver_data;
-+	
- 	IRDA_ASSERT(self != NULL, return;);
- 	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
- 
-@@ -1006,17 +1008,19 @@ static void ircomm_tty_shutdown(struct i
-  */
- static void ircomm_tty_hangup(struct tty_struct *tty)
- {
--	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) tty->driver_data;
-+	struct ircomm_tty_cb *self;
- 	unsigned long	flags;
- 
- 	IRDA_DEBUG(0, "%s()\n", __FUNCTION__ );
- 
--	IRDA_ASSERT(self != NULL, return;);
--	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
--
- 	if (!tty)
- 		return;
- 
-+	self = (struct ircomm_tty_cb *) tty->driver_data;
-+
-+	IRDA_ASSERT(self != NULL, return;);
-+	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
-+
- 	/* ircomm_tty_flush_buffer(tty); */
- 	ircomm_tty_shutdown(self);
- 
-
-
+-VAL

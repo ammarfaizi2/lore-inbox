@@ -1,86 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWCVJdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbWCVJiT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbWCVJdU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 04:33:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWCVJdU
+	id S1751165AbWCVJiT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 04:38:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWCVJiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 04:33:20 -0500
-Received: from fc-cn.com ([218.25.172.144]:55826 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S1751164AbWCVJdT (ORCPT
+	Wed, 22 Mar 2006 04:38:19 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10898 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751165AbWCVJiT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 04:33:19 -0500
-Message-ID: <442119CA.6020305@fc-cn.com>
-Date: Wed, 22 Mar 2006 17:32:58 +0800
-From: =?ISO-2022-JP?B?GyRCNzdNJhsoQg==?= <qiyong@fc-cn.com>
-Organization: FCD
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ja-JP; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "J. Bruce Fields" <bfields@fieldses.org>,
-       Matheus Izvekov <mizvekov@gmail.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: SubmittingPatches typo
-References: <20060320125012.GA21545@elf.ucw.cz>	 <Pine.LNX.4.61.0603202056100.14231@yvahk01.tjqt.qr>	 <305c16960603201247p53718859ofa0e6d0355c9da1a@mail.gmail.com>	 <20060320210209.GD31512@fieldses.org> <1142939779.21455.43.camel@localhost.localdomain>
-In-Reply-To: <1142939779.21455.43.camel@localhost.localdomain>
+	Wed, 22 Mar 2006 04:38:19 -0500
+Date: Wed, 22 Mar 2006 10:37:52 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Richard Purdie <rpurdie@rpsys.net>,
+       kernel list <linux-kernel@vger.kernel.org>, lenz@cs.wisc.edu
+Subject: Re: [rfc] separate sharpsl_pm initialization from sysfs code
+Message-ID: <20060322093752.GG14075@elf.ucw.cz>
+References: <20060309124237.GA3794@elf.ucw.cz> <1141911202.10107.54.camel@localhost.localdomain> <20060310180719.GD8018@elf.ucw.cz> <20060313000231.GA6555@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060313000231.GA6555@flint.arm.linux.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Hi!
 
->>Nope.  It's actually one of the amusing places where there *is* no rule.
->>Plurals that end in s always get just the apostrophe.  But for singular
->>nouns that end in s, while I tend to think of "'s" as the default, some
->>people like to drop the final s if the result ("Sophocles's") would
->>otherwise sound awkward spoken aloud.
->>    
->>
->
->The definitive references have this to say
->
->US English: Strunk and White says it should be "Torvalds's" and that the
->apostrophe alone is used only for ancient particularly biblical names
->ending in -es/is  (eg Moses' laws)
->  
->
+> > 	/* Register interrupt handler. */
+> > 	if ((err = request_irq(COLLIE_IRQ_GPIO_AC_IN, sharpsl_ac_isr, SA_INTERRUPT,
+> > 			       "ACIN", sharpsl_ac_isr))) {
+> > 		printk("Could not get irq %d.\n", COLLIE_IRQ_GPIO_AC_IN);
+> > 		return;
+> > 	}
+> > 	if ((err = request_irq(COLLIE_IRQ_GPIO_CO, sharpsl_chrg_full_isr, SA_INTERRUPT,
+> > 			       "CO", sharpsl_chrg_full_isr))) {
+> > 		free_irq(COLLIE_IRQ_GPIO_AC_IN, sharpsl_ac_isr);
+> > 		printk("Could not get irq %d.\n", COLLIE_IRQ_GPIO_CO);
+> > 		return;
+> > 	}
+> 
+> Shouldn't these be ucb1x00_hook_irq()'s?
+> 
+> Shouldn't you only enable the ADC when you need to use it?
 
-akpm is already saying "Linus's" in his *mm-commits*:
+Yes, I should.
 
-This patch was probably dropped from -mm because
-it has already been merged into a subsystem tree
-or into Linus's tree
+> This driver makes no calls to ucb1x00_enable() and ucb1x00_disable().
+> They're part of power management, and if your driver doesn't appear to
+> require them to work, that means some other code is buggy (or you're
+> keeping the ADC always enabled.)
 
+Keeping ADC always enabled, which interferes with touchscreen,
+badly. This fixes it, and allows touchscreen and battery to coexist.
 
-(btw, when Americans made mistakes, their English became American English.)
+(I'll clean it up and properly submit).
+							Pavel
 
+Enable/disable adc as needed. Now battery and touchscreen code seems
+to cooperate.
 
->UK English: The Oxford Guide To Style says
->
->"Use 's after non-classical or non-classicizing personal names ending
->with an s or z sound). It also says that Torvalds' would be acceptable.
->
->
->So both agree that
->
->	Torvalds's
->
->is correct and that would appear to be the right choice to keep everyone
->both sides of the pond happy.
->
->Jan: Care to submit an updated patch as the original is indeed wrong ?
->
->Alan
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
+---
+commit 4907317f98c84569eb6c3d9c24b5b177fe60981b
+tree 2998b0eebdd138b56740575d98f02e1cecaf4c34
+parent e89a9fd829a3cd639f93ec0291251f6a99916226
+author <pavel@amd.ucw.cz> Wed, 22 Mar 2006 10:22:10 +0100
+committer <pavel@amd.ucw.cz> Wed, 22 Mar 2006 10:22:10 +0100
 
+ arch/arm/mach-sa1100/collie_pm.c |    8 +++++++-
+ drivers/mfd/ucb1x00-ts.c         |    4 +++-
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-sa1100/collie_pm.c b/arch/arm/mach-sa1100/collie_pm.c
+index 1618ade..6a9f833 100644
+--- a/arch/arm/mach-sa1100/collie_pm.c
++++ b/arch/arm/mach-sa1100/collie_pm.c
+@@ -70,7 +70,6 @@ static void collie_charger_init(void)
+ 	ucb1x00_enable_irq(ucb, COLLIE_GPIO_AC_IN, UCB_RISING);
+ 	ucb1x00_enable_irq(ucb, COLLIE_GPIO_CO, UCB_RISING);
+ 
+-	ucb1x00_adc_enable(ucb);
+ 	ucb1x00_io_set_dir(ucb, 0, COLLIE_TC35143_GPIO_MBAT_ON |  COLLIE_TC35143_GPIO_TMP_ON |
+ 			           COLLIE_TC35143_GPIO_BBAT_ON);
+ 	return;
+@@ -139,11 +138,14 @@ int collie_read_backup_battery(void)
+ {
+ 	int voltage;
+ 
++	ucb1x00_adc_enable(ucb);
++
+ 	/* Gives 75..130 */
+ 	ucb1x00_io_write(ucb, COLLIE_TC35143_GPIO_BBAT_ON, 0);
+ 	voltage = ucb1x00_adc_read(ucb, UCB_ADC_INP_AD1, UCB_SYNC);
+ 
+ 	ucb1x00_io_write(ucb, 0, COLLIE_TC35143_GPIO_BBAT_ON);
++	ucb1x00_adc_disable(ucb);
+ 
+ 	printk("Backup battery = %d(%d)\n", ADCtoPower(voltage), voltage);
+ 
+@@ -158,6 +160,7 @@ int collie_read_main_battery(void)
+ 	collie_read_temp();
+ 	collie_read_backup_battery();
+ #endif
++	ucb1x00_adc_enable(ucb);
+ 	ucb1x00_io_write(ucb, 0, COLLIE_TC35143_GPIO_BBAT_ON);
+ 	ucb1x00_io_write(ucb, COLLIE_TC35143_GPIO_MBAT_ON, 0);
+ 	voltage = ucb1x00_adc_read(ucb, UCB_ADC_INP_AD1, UCB_SYNC);
+@@ -170,6 +173,7 @@ int collie_read_main_battery(void)
+ 
+ 	   On battery, it goes as low as 80.
+ 	*/
++	ucb1x00_adc_disable(ucb);
+ 
+ 	voltage_rev = voltage + ((ad_revise * voltage) / 652);
+ 	voltage_volts = ADCtoPower(voltage_rev);
+@@ -190,9 +194,11 @@ int collie_read_temp(void)
+ 	/* temp must be > 973, main battery must be < 465 */
+ 	/* FIXME sharpsl_pm.c has both conditions negated? */
+ 
++	ucb1x00_adc_enable(ucb);
+ 	ucb1x00_io_write(ucb, COLLIE_TC35143_GPIO_TMP_ON, 0);
+ 	voltage = ucb1x00_adc_read(ucb, UCB_ADC_INP_AD0, UCB_SYNC);
+ 	ucb1x00_io_write(ucb, 0, COLLIE_TC35143_GPIO_TMP_ON);
++	ucb1x00_adc_disable(ucb);
+ 
+ 	/* >1010 = battery removed.
+ 	   460 = 22C ?
+
+-- 
+Picture of sleeping (Linux) penguin wanted...

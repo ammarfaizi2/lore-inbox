@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWCVPUe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWCVPU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbWCVPUe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 10:20:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWCVPUd
+	id S1750797AbWCVPU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 10:20:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWCVPU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 10:20:33 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:12932 "EHLO
+	Wed, 22 Mar 2006 10:20:57 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:27524 "EHLO
 	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750776AbWCVPUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 10:20:31 -0500
-Date: Wed, 22 Mar 2006 16:20:58 +0100
+	id S1750797AbWCVPU4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 10:20:56 -0500
+Date: Wed, 22 Mar 2006 16:21:23 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, hch@lst.de, linux-kernel@vger.kernel.org
-Subject: [patch 12/24] s390: remove dynamic dasd ioctls.
-Message-ID: <20060322152058.GL5801@skybase.boeblingen.de.ibm.com>
+To: akpm@osdl.org, horst.hummel@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: [patch 13/24] s390: Remove old history/whitespave from partition code.
+Message-ID: <20060322152123.GM5801@skybase.boeblingen.de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,143 +21,110 @@ User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Horst Hummel <horst.hummel@de.ibm.com>
 
-[patch 12/24] s390: remove dynamic dasd ioctls.
+[patch 13/24] s390: Remove old history/whitespave from partition code.
 
-Now that there are no more users of the awkward dynamic ioctl hack we
-can remove the code to support it.
+Remove obsolete history and trailing whitespace.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Horst Hummel <horst.hummel@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/block/dasd_int.h   |   11 ------
- drivers/s390/block/dasd_ioctl.c |   69 ----------------------------------------
- 2 files changed, 80 deletions(-)
+ fs/partitions/ibm.c |   29 +++++++++++------------------
+ 1 files changed, 11 insertions(+), 18 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/block/dasd_int.h linux-2.6-patched/drivers/s390/block/dasd_int.h
---- linux-2.6/drivers/s390/block/dasd_int.h	2006-03-22 14:36:21.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/block/dasd_int.h	2006-03-22 14:36:23.000000000 +0100
-@@ -69,15 +69,6 @@
+diff -urpN linux-2.6/fs/partitions/ibm.c linux-2.6-patched/fs/partitions/ibm.c
+--- linux-2.6/fs/partitions/ibm.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/fs/partitions/ibm.c	2006-03-22 14:36:24.000000000 +0100
+@@ -1,15 +1,9 @@
+ /*
+- * File...........: linux/fs/partitions/ibm.c      
++ * File...........: linux/fs/partitions/ibm.c
+  * Author(s)......: Holger Smolinski <Holger.Smolinski@de.ibm.com>
+  *                  Volker Sameske <sameske@de.ibm.com>
+  * Bugreports.to..: <Linux390@de.ibm.com>
+  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999,2000
+-
+- * History of changes (starts July 2000)
+- * 07/10/00 Fixed detection of CMS formatted disks     
+- * 02/13/00 VTOC partition support added
+- * 12/27/01 fixed PL030593 (CMS reserved minidisk not detected on 64 bit)
+- * 07/24/03 no longer using contents of freed page for CMS label recognition (BZ3611)
   */
- struct dasd_device;
  
--typedef int (*dasd_ioctl_fn_t) (struct block_device *bdev, int no, long args);
+ #include <linux/config.h>
+@@ -25,7 +19,7 @@
+ #include "ibm.h"
+ 
+ /*
+- * compute the block number from a 
++ * compute the block number from a
+  * cyl-cyl-head-head structure
+  */
+ static inline int
+@@ -34,9 +28,8 @@ cchh2blk (struct vtoc_cchh *ptr, struct 
+ 	       ptr->hh * geo->sectors;
+ }
+ 
 -
--struct dasd_ioctl {
--	struct list_head list;
--	struct module *owner;
--	int no;
--	dasd_ioctl_fn_t handler;
--};
--
- typedef enum {
- 	dasd_era_fatal = -1,	/* no chance to recover		     */
- 	dasd_era_none = 0,	/* don't recover, everything alright */
-@@ -524,8 +515,6 @@ int dasd_scan_partitions(struct dasd_dev
- void dasd_destroy_partitions(struct dasd_device *);
+ /*
+- * compute the block number from a 
++ * compute the block number from a
+  * cyl-cyl-head-head-block structure
+  */
+ static inline int
+@@ -48,7 +41,7 @@ cchhb2blk (struct vtoc_cchhb *ptr, struc
  
- /* externals in dasd_ioctl.c */
--int  dasd_ioctl_no_register(struct module *, int, dasd_ioctl_fn_t);
--int  dasd_ioctl_no_unregister(struct module *, int, dasd_ioctl_fn_t);
- int  dasd_ioctl(struct inode *, struct file *, unsigned int, unsigned long);
- long dasd_compat_ioctl(struct file *, unsigned int, unsigned long);
+ /*
+  */
+-int 
++int
+ ibm_partition(struct parsed_partitions *state, struct block_device *bdev)
+ {
+ 	int blocksize, offset, size;
+@@ -77,7 +70,7 @@ ibm_partition(struct parsed_partitions *
+ 		goto out_nogeo;
+ 	if ((label = kmalloc(sizeof(union label_t), GFP_KERNEL)) == NULL)
+ 		goto out_nolab;
+-	
++
+ 	if (ioctl_by_bdev(bdev, BIODASDINFO, (unsigned long)info) != 0 ||
+ 	    ioctl_by_bdev(bdev, HDIO_GETGEO, (unsigned long)geo) != 0)
+ 		goto out_noioctl;
+@@ -154,13 +147,13 @@ ibm_partition(struct parsed_partitions *
  
-diff -urpN linux-2.6/drivers/s390/block/dasd_ioctl.c linux-2.6-patched/drivers/s390/block/dasd_ioctl.c
---- linux-2.6/drivers/s390/block/dasd_ioctl.c	2006-03-22 14:36:23.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/block/dasd_ioctl.c	2006-03-22 14:36:23.000000000 +0100
-@@ -24,59 +24,6 @@
- 
- #include "dasd_int.h"
- 
--/*
-- * SECTION: ioctl functions.
-- */
--static struct list_head dasd_ioctl_list = LIST_HEAD_INIT(dasd_ioctl_list);
--
--/*
-- * Find the ioctl with number no.
-- */
--static struct dasd_ioctl *
--dasd_find_ioctl(int no)
--{
--	struct dasd_ioctl *ioctl;
--
--	list_for_each_entry (ioctl, &dasd_ioctl_list, list)
--		if (ioctl->no == no)
--			return ioctl;
--	return NULL;
--}
--
--/*
-- * Register ioctl with number no.
-- */
--int
--dasd_ioctl_no_register(struct module *owner, int no, dasd_ioctl_fn_t handler)
--{
--	struct dasd_ioctl *new;
--	if (dasd_find_ioctl(no))
--		return -EBUSY;
--	new = kmalloc(sizeof (struct dasd_ioctl), GFP_KERNEL);
--	if (new == NULL)
--		return -ENOMEM;
--	new->owner = owner;
--	new->no = no;
--	new->handler = handler;
--	list_add(&new->list, &dasd_ioctl_list);
--	return 0;
--}
--
--/*
-- * Deregister ioctl with number no.
-- */
--int
--dasd_ioctl_no_unregister(struct module *owner, int no, dasd_ioctl_fn_t handler)
--{
--	struct dasd_ioctl *old = dasd_find_ioctl(no);
--	if (old == NULL)
--		return -ENOENT;
--	if (old->no != no || old->handler != handler || owner != old->owner)
--		return -EINVAL;
--	list_del(&old->list);
--	kfree(old);
--	return 0;
--}
- 
- static int
- dasd_ioctl_api_version(void __user *argp)
-@@ -429,8 +376,6 @@ dasd_ioctl(struct inode *inode, struct f
- 	struct block_device *bdev = inode->i_bdev;
- 	struct dasd_device *device = bdev->bd_disk->private_data;
- 	void __user *argp = (void __user *)arg;
--	struct dasd_ioctl *ioctl;
--	int rc;
- 
- 	if (!device)
-                 return -ENODEV;
-@@ -477,17 +422,6 @@ dasd_ioctl(struct inode *inode, struct f
- 				return rval;
+ 			/* OK, we got valid partition data */
+ 		        offset = cchh2blk(&f1.DS1EXT1.llimit, geo);
+-			size  = cchh2blk(&f1.DS1EXT1.ulimit, geo) - 
++			size  = cchh2blk(&f1.DS1EXT1.ulimit, geo) -
+ 				offset + geo->sectors;
+ 			if (counter >= state->limit)
+ 				break;
+-			put_partition(state, counter + 1, 
+-					 offset * (blocksize >> 9),
+-					 size * (blocksize >> 9));
++			put_partition(state, counter + 1,
++				      offset * (blocksize >> 9),
++				      size * (blocksize >> 9));
+ 			counter++;
+ 			blk++;
  		}
- 
--		/* else resort to the deprecated dynamic ioctl list */
--		list_for_each_entry(ioctl, &dasd_ioctl_list, list) {
--			if (ioctl->no == cmd) {
--				/* Found a matching ioctl. Call it. */
--				if (!try_module_get(ioctl->owner))
--					continue;
--				rc = ioctl->handler(bdev, cmd, arg);
--				module_put(ioctl->owner);
--				return rc;
--			}
--		}
- 		return -EINVAL;
+@@ -175,7 +168,7 @@ ibm_partition(struct parsed_partitions *
+ 		offset = (info->label_block + 1);
+ 		size = i_size >> 9;
+ 		put_partition(state, 1, offset*(blocksize >> 9),
+-				 size-offset*(blocksize >> 9));
++			      size-offset*(blocksize >> 9));
  	}
- }
-@@ -503,6 +437,3 @@ dasd_compat_ioctl(struct file *filp, uns
  
- 	return (rval == -EINVAL) ? -ENOIOCTLCMD : rval;
- }
--
--EXPORT_SYMBOL(dasd_ioctl_no_register);
--EXPORT_SYMBOL(dasd_ioctl_no_unregister);
+ 	printk("\n");
+@@ -183,7 +176,7 @@ ibm_partition(struct parsed_partitions *
+ 	kfree(geo);
+ 	kfree(info);
+ 	return 1;
+-	
++
+ out_readerr:
+ out_noioctl:
+ 	kfree(label);

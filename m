@@ -1,50 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932790AbWCVVaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932793AbWCVVb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932790AbWCVVaj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 16:30:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932795AbWCVVai
+	id S932793AbWCVVb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 16:31:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932795AbWCVVb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 16:30:38 -0500
-Received: from mail.gmx.net ([213.165.64.20]:50620 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932790AbWCVVah (ORCPT
+	Wed, 22 Mar 2006 16:31:59 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:47503 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932793AbWCVVb6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 16:30:37 -0500
-X-Authenticated: #704063
-Subject: [Patch] Use after free in net/tulip/de2104x.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: jgarzik@pobox.com
-Content-Type: text/plain
-Date: Wed, 22 Mar 2006 22:30:34 +0100
-Message-Id: <1143063034.26499.2.camel@alice>
+	Wed, 22 Mar 2006 16:31:58 -0500
+Date: Wed, 22 Mar 2006 13:28:34 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: shbader@de.ibm.com, holzheu@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 20/24] s390: 3590 tape driver
+Message-Id: <20060322132834.051a3dc4.akpm@osdl.org>
+In-Reply-To: <20060322152547.GT5801@skybase.boeblingen.de.ibm.com>
+References: <20060322152547.GT5801@skybase.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
+>
+> From: Stefan Bader <shbader@de.ibm.com>
+> From: Michael Holzheu <holzheu@de.ibm.com>
+> From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> 
+> [patch 20/24] s390: 3590 tape driver
+>
+> ...
+>
+> +static void
+> +tape_3590_work_handler(void *data)
+> +{
+> +	struct {
+> +		struct tape_device *device;
+> +		enum tape_op op;
+> +		struct work_struct work;
+> +	} *p = data;
+> +
+> +	switch (p->op) {
+> +	case TO_MSEN:
+> +		tape_3590_sense_medium(p->device);
+> +		break;
+> +	case TO_READ_ATTMSG:
+> +		tape_3590_read_attmsg(p->device);
+> +		break;
+> +	default:
+> +		DBF_EVENT(3, "T3590: work handler undefined for "
+> +			  "operation 0x%02x\n", p->op);
+> +	}
+> +	tape_put_device(p->device);
+> +	kfree(p);
+> +}
+> +
+> +static int
+> +tape_3590_schedule_work(struct tape_device *device, enum tape_op op)
+> +{
+> +	struct {
+> +		struct tape_device *device;
+> +		enum tape_op op;
+> +		struct work_struct work;
+> +	} *p;
+> +
+> +	if ((p = kzalloc(sizeof(*p), GFP_ATOMIC)) == NULL)
+> +		return -ENOMEM;
+> +
+> +	INIT_WORK(&p->work, tape_3590_work_handler, p);
+> +
+> +	p->device = tape_get_device_reference(device);
+> +	p->op = op;
+> +
+> +	schedule_work(&p->work);
+> +	return 0;
+> +}
 
-this fixes coverity bug #912, where skb is freed first,
-and dereferenced a few lines later with skb->len.
+That duplicated struct definition is pretty poor form, IMO.  Best to have a
+single definition.
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+What happens to this driver if the GFP_ATOMIC allocation fails?
 
---- linux-2.6.16/drivers/net/tulip/de2104x.c.orig	2006-03-22 22:21:53.000000000 +0100
-+++ linux-2.6.16/drivers/net/tulip/de2104x.c	2006-03-22 22:25:31.000000000 +0100
-@@ -1332,11 +1332,11 @@ static void de_clean_rings (struct de_pr
- 		struct sk_buff *skb = de->tx_skb[i].skb;
- 		if ((skb) && (skb != DE_DUMMY_SKB)) {
- 			if (skb != DE_SETUP_SKB) {
--				dev_kfree_skb(skb);
- 				de->net_stats.tx_dropped++;
- 				pci_unmap_single(de->pdev,
- 					de->tx_skb[i].mapping,
- 					skb->len, PCI_DMA_TODEVICE);
-+				dev_kfree_skb(skb);
- 			} else {
- 				pci_unmap_single(de->pdev,
- 					de->tx_skb[i].mapping,
+I don't see a flush_scheduled_work() in this driver.  Is it not possible
+that there's still work pending at shutdown or rmmod time?
 
+
+> +#ifdef CONFIG_S390_TAPE_BLOCK
+> +/*
+> + * Tape Block READ
+> + */
+> +static struct tape_request *
+> +tape_3590_bread(struct tape_device *device, struct request *req)
+> +{
+> +	struct tape_request *request;
+> +	struct ccw1 *ccw;
+> +	int count = 0, start_block, i;
+> +	unsigned off;
+> +	char *dst;
+> +	struct bio_vec *bv;
+> +	struct bio *bio;
+> +
+> +	DBF_EVENT(6, "xBREDid:");
+> +	start_block = req->sector >> TAPEBLOCK_HSEC_S2B;
+> +	DBF_EVENT(6, "start_block = %i\n", start_block);
+> +
+> +	rq_for_each_bio(bio, req) {
+> +		bio_for_each_segment(bv, bio, i) {
+> +			count += bv->bv_len >> (TAPEBLOCK_HSEC_S2B + 9);
+> +		}
+> +	}
+> +	request = tape_alloc_request(2 + count + 1, 4);
+> +	if (IS_ERR(request))
+> +		return request;
+> +	request->op = TO_BLOCK;
+> +	*(__u32 *) request->cpdata = start_block;
+> +	ccw = request->cpaddr;
+> +	ccw = tape_ccw_cc(ccw, MODE_SET_DB, 1, device->modeset_byte);
+> +
+> +	/*
+> +	 * We always setup a nop after the mode set ccw. This slot is
+> +	 * used in tape_std_check_locate to insert a locate ccw if the
+> +	 * current tape position doesn't match the start block to be read.
+> +	 */
+> +	ccw = tape_ccw_cc(ccw, NOP, 0, NULL);
+> +
+> +	rq_for_each_bio(bio, req) {
+> +		bio_for_each_segment(bv, bio, i) {
+> +			dst = kmap(bv->bv_page) + bv->bv_offset;
+> +			for (off = 0; off < bv->bv_len;
+> +			     off += TAPEBLOCK_HSEC_SIZE) {
+> +				ccw->flags = CCW_FLAG_CC;
+> +				ccw->cmd_code = READ_FORWARD;
+> +				ccw->count = TAPEBLOCK_HSEC_SIZE;
+> +				set_normalized_cda(ccw, (void *) __pa(dst));
+> +				ccw++;
+> +				dst += TAPEBLOCK_HSEC_SIZE;
+> +			}
+> +			if (off > bv->bv_len)
+> +				BUG();
+> +		}
+> +	}
+
+We seem to be missing a kunmap().
 

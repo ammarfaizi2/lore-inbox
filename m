@@ -1,72 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751934AbWCVBfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751931AbWCVBfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751934AbWCVBfF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 20:35:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751933AbWCVBfF
+	id S1751931AbWCVBfi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 20:35:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751933AbWCVBfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 20:35:05 -0500
-Received: from mga01.intel.com ([192.55.52.88]:58651 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751929AbWCVBfC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 20:35:02 -0500
-X-IronPort-AV: i="4.03,116,1141632000"; 
-   d="scan'208"; a="14930484:sNHT237976823"
-Content-class: urn:content-classes:message
+	Tue, 21 Mar 2006 20:35:38 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:13952 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751931AbWCVBfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 20:35:36 -0500
+Date: Tue, 21 Mar 2006 17:35:25 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Pekka Enberg <penberg@cs.helsinki.fi>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix memory leak in mm/slab.c::alloc_kmemlist()  (try
+ #3)
+In-Reply-To: <200603220154.16266.jesper.juhl@gmail.com>
+Message-ID: <Pine.LNX.4.64.0603211732420.14503@schroedinger.engr.sgi.com>
+References: <200603182137.08521.jesper.juhl@gmail.com>
+ <84144f020603191040h9b07b10w418b6cdd73f8b114@mail.gmail.com>
+ <9a8748490603200055p7be38dc8lac2e78f4798e6def@mail.gmail.com>
+ <200603220154.16266.jesper.juhl@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Date: Wed, 22 Mar 2006 09:34:53 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840B417BB4@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Thread-Index: AcZNNEtursw8IGHlRYyNMvpyDLBvlAAGbnrAAACTWPA=
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Yu, Luming" <luming.yu@intel.com>,
-       "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       <michael@mihu.de>, <mchehab@infradead.org>,
-       "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
-       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
-       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-X-OriginalArrivalTime: 22 Mar 2006 01:34:46.0316 (UTC) FILETIME=[CD4436C0:01C64D50]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Hmm, you seems to prefer depth-first search algorithm?
->I like it too. :-)
->
->
->>
->>One bug is quite repeatable and we know a lot about it. With all zones
->>except THM0 commented out, the system hung.  With the EC0.UPDT line in
->>THM0._TMP also commented out, the system didn't hang.  So there's a
->>problem related to the EC, even with only THM0.  And finding that
->>problem may giveideas for what else may be wrong.
->
->We can do bisection in EC0.UPDT to find out which statement cause hang?
->Hmm, we are going to fix BIOS. :-)
+On Wed, 22 Mar 2006, Jesper Juhl wrote:
 
-You can insert debug statements in EC0.UPDT to help debug:
+> Fix memory leak in mm/slab.c::alloc_kmemlist().
+> If one allocation fails we have to roll-back all allocations made up to the 
+> point of failure.
 
-Store (IGNR, Debug)
-Store (" before relase I2CM", Debug)
-Store (HBS7, TMP7)	
-....
+Sorry but you cannot roll back. alloc_kmemlist() could have been used for
+tuning the cpucache while accesses to the slab continue. "Rolling back" 
+would partially destroy the slab for some nodes and likely cause the 
+system to crash. We can only roll back if this is actually an initial 
+allocation and we are assured that the whole thing is not yet in use.
 
->
->My assumption is that since Windows works well, then these BIOS code
->should have been tested ok. The only possible excuse for BIOS is that
->Linux is using unnecessary/untested code path for Suspend/resume.
->So, Eventually, we need to disable unnecessary BIOS call for 
->suspend/resume

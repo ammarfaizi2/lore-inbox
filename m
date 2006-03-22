@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932806AbWCVVpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWCVVpk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932806AbWCVVpF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 16:45:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932804AbWCVVpF
+	id S1751271AbWCVVpk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 16:45:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932804AbWCVVpk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 16:45:05 -0500
-Received: from xenotime.net ([66.160.160.81]:19659 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751232AbWCVVpC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 16:45:02 -0500
-Date: Wed, 22 Mar 2006 13:47:10 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: [PATCH] SCSI: link scsi_debug later (updated)
-Message-Id: <20060322134710.2de9e19d.rdunlap@xenotime.net>
-In-Reply-To: <1143055627.3629.1.camel@mulgrave.il.steeleye.com>
-References: <1142956795.4377.19.camel@mulgrave.il.steeleye.com>
-	<20060322083647.cc0ccdd4.rdunlap@xenotime.net>
-	<Pine.LNX.4.64.0603221048210.26286@g5.osdl.org>
-	<1143055627.3629.1.camel@mulgrave.il.steeleye.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Wed, 22 Mar 2006 16:45:40 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:63874 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751271AbWCVVpj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 16:45:39 -0500
+Date: Wed, 22 Mar 2006 13:45:56 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       xen-devel@lists.xensource.com, virtualization@lists.osdl.org,
+       Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Subject: Re: [RFC PATCH 19/35] subarch support for control register accesses
+Message-ID: <20060322214556.GK15997@sorel.sous-sol.org>
+References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063754.391952000@sorel.sous-sol.org> <442110F0.9090805@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <442110F0.9090805@vmware.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+* Zachary Amsden (zach@vmware.com) wrote:
+> Chris Wright wrote:
+> >+#define read_cr4_safe() ({			      \
+> >+	unsigned int __dummy;			      \
+> >+	/* This could fault if %cr4 does not exist */ \
+> >+	__asm__("1: movl %%cr4, %0		\n"   \
+> >+		"2:				\n"   \
+> >+		".section __ex_table,\"a\"	\n"   \
+> >+		".long 1b,2b			\n"   \
+> >+		".previous			\n"   \
+> >+		: "=r" (__dummy): "0" (0));	      \
+> >+	__dummy;				      \
+> >+})
+> 
+> I think you'll find trap and emulate quite sufficient for this one.
 
-Changing CONFIG_SCSI_DEBUG from =n or =m to =y can cause the enumeration
-of the SATA devices to change.
+Heh ;-)
 
-Fix that by linking the scsi_debug driver after the SATA drivers.
-Leave scsi_debug at the bottom of the list of low-level drivers so
-that this problem doesn't happen again.
+> >+#define stts() write_cr0(8 | read_cr0())
+> >  
+> 
+> Nit: You shouldn't need to redefine stts() in the subarch.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-Signed-off-by: Douglas Gilbert <dougg@torque.net>
----
- drivers/scsi/Makefile |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2616-rc6.orig/drivers/scsi/Makefile
-+++ linux-2616-rc6/drivers/scsi/Makefile
-@@ -117,7 +117,6 @@ obj-$(CONFIG_SCSI_PPA)		+= ppa.o
- obj-$(CONFIG_SCSI_IMM)		+= imm.o
- obj-$(CONFIG_JAZZ_ESP)		+= NCR53C9x.o	jazz_esp.o
- obj-$(CONFIG_SUN3X_ESP)		+= NCR53C9x.o	sun3x_esp.o
--obj-$(CONFIG_SCSI_DEBUG)	+= scsi_debug.o
- obj-$(CONFIG_SCSI_FCAL)		+= fcal.o
- obj-$(CONFIG_SCSI_LASI700)	+= 53c700.o lasi700.o
- obj-$(CONFIG_SCSI_NSP32)	+= nsp32.o
-@@ -140,6 +139,7 @@ obj-$(CONFIG_SCSI_SATA_MV)	+= libata.o s
- obj-$(CONFIG_SCSI_PDC_ADMA)	+= libata.o pdc_adma.o
- 
- obj-$(CONFIG_ARM)		+= arm/
-+obj-$(CONFIG_SCSI_DEBUG)	+= scsi_debug.o
- 
- obj-$(CONFIG_CHR_DEV_ST)	+= st.o
- obj-$(CONFIG_CHR_DEV_OSST)	+= osst.o
-
-
-
----
+Yes, you're right, better to keep things consolidated.

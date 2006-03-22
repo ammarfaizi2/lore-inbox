@@ -1,118 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWCVFOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWCVFPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750766AbWCVFOE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 00:14:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWCVFOE
+	id S1750767AbWCVFPu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 00:15:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWCVFPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 00:14:04 -0500
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:16554 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1750766AbWCVFOC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 00:14:02 -0500
-To: "Yu, Luming" <luming.yu@intel.com>
-cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       michael@mihu.de, mchehab@infradead.org,
-       "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
-       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       jgarzik@pobox.com, "Duncan" <1i5t5.duncan@cox.net>,
-       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-In-Reply-To: Your message of "Wed, 22 Mar 2006 12:58:36 +0800."
-             <3ACA40606221794F80A5670F0AF15F840B417DFC@pdsmsx403> 
-Date: Wed, 22 Mar 2006 05:13:54 +0000
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1FLvfO-00014M-00@skye.ra.phy.cam.ac.uk>
+	Wed, 22 Mar 2006 00:15:50 -0500
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:22107 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750767AbWCVFPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 00:15:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=aWieTUf1u8HELLwUd1Eq/0wNutCIPCvbEQpjaG34lSKVRPzrnHf2YZq/qxnGbv/GCLv2dLKS7MBUOu3hRIol+4ibFVdLNTebQdgOr6v+p+pK/vmaVNRuIuoEsaWLxBhJZfJJBy0URlmrWeJdXeXMy6kMzsQW0u4cVw6F7T90S0s=  ;
+Message-ID: <4420DD59.6070407@yahoo.com.au>
+Date: Wed, 22 Mar 2006 16:15:05 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Eric Dumazet <dada1@cosmosbay.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use __read_mostly on some hot fs variables
+References: <20060315054416.GF3205@localhost.localdomain>	<1142403500.26706.2.camel@sli10-desk.sh.intel.com> <20060314233138.009414b4.akpm@osdl.org> <4417E047.70907@cosmosbay.com> <441EFE05.8040506@cosmosbay.com> <4420DB55.60803@cosmosbay.com>
+In-Reply-To: <4420DB55.60803@cosmosbay.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Please don't give up . :-)
+Eric Dumazet wrote:
 
-I haven't!
+>
+> Before someone asks, it is valid to declare a pointer as 'read 
+> mostly', even if the data pointed by the pointer is heavily modified. 
+> hash table pointers and kmem_cache pointers are setup at boot time, so 
+> they are perfect candidates  to 'read_mostly' section. Same apply for 
+> 'struct vfsmount *'
+>
 
-> I need to know which statement in EC0.UPDT that could trigger the
-> problem.  That is very important to understand the problem
-> correctly.
+Yes... why wouldn't it be if the variable is only written to once? This
+is _exactly_ what __read_mostly section is for, isn't it?
 
-> This is still my assumption that some AML code needed to be avoided
-> in suspend/resume, I need data support. So, we need to dig more in
-> EC0.UPDT.
+Patch looks good though.
 
-You've convinced me!
-
-> If we cannot find out that statement , then, I will dout the testing
-> results that guiding us to here.
-
-Yes, the testing is often frustrating and unreliable because the bug
-is not 100% reproducible, which is why I think it's more than 1 bug
-(one reliable bug, related to THM0, and one or more flakey ones).
-
->> However, we do have one more piece of data.  When it hangs, it hangs in
->> \_SI._SST, because I see that line on successful sleeps (as the last
-
-> I don't know this. I always assume the hang is at _PTS.SMPI
-
-Oh, I think you're right.  Robert Moore's comment at the bugzilla
-entry agrees with what you say.  I was (I don't know why) assuming
-that the ACPI system printed "Execute Method ..." after it finished
-executing the method.  In which case, seeing the PTS but not the SST
-made me think that PTS worked but SST failed.  However, what you say
-is consistent with ACPI printing "Execute Method" as it begins a
-method -- in which case seeing the PTS but not the SST means it fails
-in PTS (and in PTS.SMPI).
-
--Sanjoy
-
-`Never underestimate the evil of which men of power are capable.'
-         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.
-
-
-http://bugzilla.kernel.org/show_bug.cgi?id=5989
-
-
-
-
-
-------- Additional Comments From Robert.Moore@intel.com  2006-02-06 14:46 
-
-You are stuck in the loop in the method below. I would guess that the
-code is 
-waiting for a response from the SMI bios and it never happens.
-
-    Method (SMPI, 1, NotSerialized)
-    {
-        Store (S_AX, Local0)
-        Store (0x81, APMD)
-        While (LEqual (S_AH, 0xA6))
-        {
-            Sleep (0x64)
-            Store (Local0, S_AX)
-            Store (0x81, APMD)
-        }
-    }
-
-    OperationRegion (MNVS, SystemMemory, 0x23FDF000, 0x1000)
-    Field (MNVS, DWordAcc, NoLock, Preserve)
-    {
-        Offset (0xFC0), 
-        S_AX,   16, 
-
-    OperationRegion (APMC, SystemIO, 0xB2, 0x01)
-    Field (APMC, ByteAcc, NoLock, Preserve)
-    {
-        APMD,   8
-
-
-Store (Local0, S_AX)
-
-exregion-0182 [29] ex_system_memory_space: system_memory 0 (32 width) 
-Address=0000000023FDFFC0
-
-
-Store (0x81, APMD)
-
-exregion-0287 [30] ex_system_io_space_han: system_iO 1 (8 width) 
-Address=00000000000000B2
+Nick
+---
+Send instant messages to your online friends http://au.messenger.yahoo.com 

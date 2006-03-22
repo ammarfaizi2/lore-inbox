@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWCVRlE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWCVRma@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932228AbWCVRlE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 12:41:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWCVRk6
+	id S932240AbWCVRma (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 12:42:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWCVRm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 12:40:58 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:7820 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932228AbWCVRkz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 12:40:55 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Ashok Raj <ashok.raj@intel.com>
-Subject: Re: Linux v2.6.16
-Date: Wed, 22 Mar 2006 18:39:41 +0100
-User-Agent: KMail/1.9.1
-Cc: akpm@osdl.org, Peter Williams <pwil3058@bigpond.net.au>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>
-References: <Pine.LNX.4.64.0603192216450.3622@g5.osdl.org> <20060321223120.A4003@unix-os.sc.intel.com> <20060322050837.A9452@unix-os.sc.intel.com>
-In-Reply-To: <20060322050837.A9452@unix-os.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 22 Mar 2006 12:42:27 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:52765 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932212AbWCVRjm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 12:39:42 -0500
+Date: Wed, 22 Mar 2006 16:28:40 +0100
+From: Frank Pavlic <fpavlic@de.ibm.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [patch 4/6] s390: qeth :allow setting of attribute "route6" to
+ "no_router".
+Message-ID: <20060322162840.2703789e@localhost.localdomain>
+Organization: IBM
+X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603221839.41867.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 March 2006 14:08, Ashok Raj wrote:
-> On Tue, Mar 21, 2006 at 10:31:20PM -0800, Ashok Raj wrote:
-> > On Tue, Mar 21, 2006 at 09:22:41PM -0800, Peter Williams wrote:
-> > > 
-> > >    I/O APICs
-> > >    Mar 22 16:10:31 heathwren kernel: More than 8 CPUs detected and
-> > >    CONFIG_X86_PC cannot handle it.
-> > > 
-> > >    ###  No more CPUs seen but something in there thinks there's more than
-> > >    8
-> > >    of them.
-> > > 
-> > >    Mar 22 16:10:31 heathwren kernel: Use CONFIG_X86_GENERICARCH or
-> > >    CONFIG_X86_BIGSMP.
-> > > 
-> > 
-> > 
-> 
-> Hi Andrew
-> 
-> Please consider for inclusion... resending with changelog per Andrew.
+[patch 4/6] s390: qeth :allow setting of attribute "route6" to "no_router". 
 
-Please don't apply this patch.
+From: Ursula Braun <braunu@de.ibm.com>
+	when setting route6 attribute back to no_router qeth does not
+	issue an IP ASSIST command to reset router value to no_router.
+	Once primary_router is set device stays in this mode.
+	Issue an IP ASSIST command when no_router is set in route6.
+	Device will be reset and thus will not longer run as a primary
+	router.
+			    
+Signed-off-by: Frank Pavlic <fpavlic@de.ibm.com>
 
-CPU hotplug is used by swsusp for disabling the nonboot CPUs.  Software
-suspend won't work on SMP without CPU hotplugging.
+diffstat:
+ qeth_main.c |    5 -----
+ 1 files changed, 5 deletions(-)
 
-Greetings,
-Rafael
+diff --git a/drivers/s390/net/qeth_main.c b/drivers/s390/net/qeth_main.c
+index 69329ea..021cd5d 100644
+--- a/drivers/s390/net/qeth_main.c
++++ b/drivers/s390/net/qeth_main.c
+@@ -7339,11 +7339,6 @@ qeth_setrouting_v6(struct qeth_card *car
+ 	qeth_correct_routing_type(card, &card->options.route6.type,
+ 				  QETH_PROT_IPV6);
+ 
+-	if ((card->options.route6.type == NO_ROUTER) ||
+-	    ((card->info.type == QETH_CARD_TYPE_OSAE) &&
+-	     (card->options.route6.type == MULTICAST_ROUTER) &&
+-	     !qeth_is_supported6(card,IPA_OSA_MC_ROUTER)))
+-		return 0;
+ 	rc = qeth_send_setrouting(card, card->options.route6.type,
+ 				  QETH_PROT_IPV6);
+ 	if (rc) {

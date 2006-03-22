@@ -1,45 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWCVHw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWCVIJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751082AbWCVHw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 02:52:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWCVHw7
+	id S1751087AbWCVIJT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 03:09:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWCVIJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 02:52:59 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:1757 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751082AbWCVHw6 (ORCPT
+	Wed, 22 Mar 2006 03:09:18 -0500
+Received: from muan.mtu.ru ([195.34.34.229]:44048 "EHLO muan.mtu.ru")
+	by vger.kernel.org with ESMTP id S1751087AbWCVIJS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 02:52:58 -0500
-Date: Tue, 21 Mar 2006 23:49:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Luke Yang" <luke.adi@gmail.com>
-Cc: rgetz@blackfin.uclinux.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2]Blackfin archtecture patche for 2.6.16
-Message-Id: <20060321234935.1d006a13.akpm@osdl.org>
-In-Reply-To: <489ecd0c0603212342w4124dddfy1bb50c02984c0e8f@mail.gmail.com>
-References: <6.1.1.1.0.20060321224917.01ec6970@ptg1.spd.analog.com>
-	<20060321223652.25bf07f7.akpm@osdl.org>
-	<489ecd0c0603212342w4124dddfy1bb50c02984c0e8f@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 22 Mar 2006 03:09:18 -0500
+Subject: Re: 2.6.16-rc6-mm2: reiser4 BUG when unmounting fs
+From: "Vladimir V. Saveliev" <vs@namesys.com>
+To: Laurent Riffard <laurent.riffard@free.fr>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       reiserfs-list@namesys.com
+In-Reply-To: <44206428.1080005@free.fr>
+References: <20060318044056.350a2931.akpm@osdl.org>
+	 <442061C0.4020702@free.fr>  <44206428.1080005@free.fr>
+Content-Type: multipart/mixed; boundary="=-bqzNI1rISivNjNdoJGf+"
+Date: Wed, 22 Mar 2006 10:43:26 +0300
+Message-Id: <1143013406.6245.46.camel@tribesman.namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Luke Yang" <luke.adi@gmail.com> wrote:
->
->  > More things might come out once people start paying more attention, but if
->  > that's the extent of things, I'd be OK with a merge when you're ready.
->    Does this merge has to be within 1 week after the release, so we
->  have to wait for 2.6.17? Or this can be done on mm-tree?
 
-The whole patch affects just one line in one Kconfig file outside
-arch/bluefin, so I don't see a reason why this needs to be tied into the
-two-week-window thing.  I figure that if we can get it into -mm within a
-few weeks we'll be OK for 2.6.17.
+--=-bqzNI1rISivNjNdoJGf+
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 
-But that depends upon review comments.  My ten-minute-peek was not
-sufficient.  But given this discussion and its probably appearance in -mm,
-I'd expect a few more people will get in there and help.
+Hello
 
-We'll see how it goes.
+On Tue, 2006-03-21 at 21:38 +0100, Laurent Riffard wrote:
+> Le 21.03.2006 21:27, Laurent Riffard a écrit :
+> > Le 18.03.2006 13:40, Andrew Morton a écrit :
+> > 
+> >>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm2/
+> > 
+> >  
+> > Hello, 
+> > 
+> > This BUG is 100% reproducible. Simply boot to runlevel 1 and then 
+> > unmount a reiser4 fs:
+> 
+
+The attached patch fixes the problem.
+
+--=-bqzNI1rISivNjNdoJGf+
+Content-Disposition: attachment; filename=reiser4-cleanup_init_fake_inode.patch
+Content-Type: text/x-patch; name=reiser4-cleanup_init_fake_inode.patch; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+ fs/reiser4/page_cache.c |    4 ----
+ 1 files changed, 4 deletions(-)
+
+diff -puN fs/reiser4/page_cache.c~reiser4-fix-bd_inode fs/reiser4/page_cache.c
+--- linux-2.6.16-rc6-mm2/fs/reiser4/page_cache.c~reiser4-fix-bd_inode	2006-03-21 06:42:42.000000000 +0300
++++ linux-2.6.16-rc6-mm2-vs/fs/reiser4/page_cache.c	2006-03-21 07:21:54.000000000 +0300
+@@ -198,10 +198,6 @@ init_fake_inode(struct super_block *supe
+ {
+ 	assert("nikita-2168", fake->i_state & I_NEW);
+ 	fake->i_mapping->a_ops = &formatted_fake_as_ops;
+-	fake->i_blkbits = super->s_blocksize_bits;
+-	fake->i_size = ~0ull;
+-	fake->i_rdev = super->s_bdev->bd_dev;
+-	fake->i_bdev = super->s_bdev;
+ 	*pfake = fake;
+ 	/* NOTE-NIKITA something else? */
+ 	unlock_new_inode(fake);
+
+_
+
+--=-bqzNI1rISivNjNdoJGf+--
+

@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932616AbWCVUPB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932696AbWCVUUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932616AbWCVUPB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 15:15:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932617AbWCVUPA
+	id S932696AbWCVUUs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 15:20:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932697AbWCVUUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 15:15:00 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:8392 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932616AbWCVUO6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 15:14:58 -0500
-Date: Wed, 22 Mar 2006 14:14:32 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Yi Yang <yang.y.yi@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6.16 PATCH] Connector: Filesystem Events Connector
-Message-ID: <20060322201432.GA17653@sergelap.austin.ibm.com>
-References: <44216612.3060406@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44216612.3060406@gmail.com>
-User-Agent: Mutt/1.5.11
+	Wed, 22 Mar 2006 15:20:48 -0500
+Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:34541 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S932696AbWCVUUU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 15:20:20 -0500
+To: trond.myklebust@fys.uio.no
+CC: chrisw@sous-sol.org, matthew@wil.cx, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-reply-to: <1143058078.8929.21.camel@lade.trondhjem.org> (message from Trond
+	Myklebust on Wed, 22 Mar 2006 15:07:57 -0500)
+Subject: Re: DoS with POSIX file locks?
+References: <E1FLIlF-0007zR-00@dorka.pomaz.szeredi.hu>
+	 <20060320121107.GE8980@parisc-linux.org>
+	 <E1FLJLs-00085u-00@dorka.pomaz.szeredi.hu>
+	 <20060320123950.GF8980@parisc-linux.org>
+	 <E1FLJsF-0008A7-00@dorka.pomaz.szeredi.hu>
+	 <20060320153202.GH8980@parisc-linux.org>
+	 <1142878975.7991.13.camel@lade.trondhjem.org>
+	 <E1FLdPd-00020d-00@dorka.pomaz.szeredi.hu>
+	 <1142962083.7987.37.camel@lade.trondhjem.org>
+	 <E1FLl7L-0002u9-00@dorka.pomaz.szeredi.hu>
+	 <20060321191605.GB15997@sorel.sous-sol.org>
+	 <E1FLwjC-0000kJ-00@dorka.pomaz.szeredi.hu>
+	 <1143025967.12871.9.camel@lade.trondhjem.org>
+	 <E1FM2Gi-0001LF-00@dorka.pomaz.szeredi.hu>
+	 <1143042976.12871.34.camel@lade.trondhjem.org>
+	 <E1FM6Hd-0001l9-00@dorka.pomaz.szeredi.hu> <1143058078.8929.21.camel@lade.trondhjem.org>
+Message-Id: <E1FM9nw-00029f-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 22 Mar 2006 21:19:40 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Yi Yang (yang.y.yi@gmail.com):
-> +#ifdef __KERNEL__
-> +#ifdef CONFIG_FS_EVENTS
-> +extern void raise_fsevent(struct dentry * dentryp, u32 mask);
-> +extern void raise_fsevent_move(struct inode * olddir, const char * oldname, 
-> +		struct inode * newdir, const char * newname, u32 mask);
-> +extern void raise_fsevent_create(struct inode * inode, 
-> +		const char * name, u32 mask);
-> +#else
-> +static void raise_fsevent(struct dentry * dentryp,  u32 mask);
-> +{}
+> You'd have to ensure that none of the threads involved are able to grab
+> new posix locks in the period between the unsharing of current->files to
+> the moment when current->files->owner is swapped.
+> 
+> If not, one thread could in theory open a new file and grab a lock that
+> can never be unlocked because its lockowner gets stolen away from it by
+> another execing thread.
 
-Hmm, this compiles, if !CONFIG_FS_EVENTS?
+This race is already there.  Header comment on steal_locks() documents
+it.
 
+The patch does open this race window much wider, because pending locks
+are also transfered to the task doing the exec.  The original
+steal_locks() only stole already held locks.  But I don't think this
+fundamentaly changes things.  It just shows more clearly how ugly the
+current semantics are.
 
--serge
+Miklos

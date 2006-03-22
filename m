@@ -1,169 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932895AbWCVWmq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932890AbWCVWn5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932895AbWCVWmq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 17:42:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932896AbWCVWmn
+	id S932890AbWCVWn5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 17:43:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932907AbWCVWnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 17:42:43 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:44268 "EHLO
-	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932895AbWCVWem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 17:34:42 -0500
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Cc: Bob Picco <bob.picco@hp.com>, Andrew Morton <akpm@osdl.org>,
-       IWAMOTO Toshihiro <iwamoto@valinux.co.jp>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Christoph Lameter <christoph@lameter.com>,
-       Wu Fengguang <wfg@mail.ustc.edu.cn>, Nick Piggin <npiggin@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>, Rik van Riel <riel@redhat.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Message-Id: <20060322223408.12658.49441.sendpatchset@twins.localnet>
-In-Reply-To: <20060322223107.12658.14997.sendpatchset@twins.localnet>
-References: <20060322223107.12658.14997.sendpatchset@twins.localnet>
-Subject: [PATCH 18/34] mm: page-replace-counts.patch
-Date: Wed, 22 Mar 2006 23:34:40 +0100
+	Wed, 22 Mar 2006 17:43:33 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:772 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932910AbWCVWnN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 17:43:13 -0500
+Message-ID: <4421D2FC.7000903@vmware.com>
+Date: Wed, 22 Mar 2006 14:43:08 -0800
+From: Daniel Arai <arai@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+Cc: virtualization@lists.osdl.org, Zachary Amsden <zach@vmware.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Anne Holler <anne@vmware.com>, Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 1/24] i386 Vmi documentation II
+References: <200603131759.k2DHxeep005627@zach-dev.vmware.com> <200603222105.58912.ak@suse.de> <200603222239.46604.ak@suse.de>
+In-Reply-To: <200603222239.46604.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen wrote:
+>>There was one other point I wanted to make but I forgot it now @)
+> 
+> 
+> Ah yes the point was that since most of the implementations of the hypercalls
+> likely need fast access to some per CPU state. How would you plan
+> to implement that? Should it be covered in the specification?
 
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+I can explain how it works, but it's deliberately not part of the specification.
 
-Abstract the various page counts used to drive the scanner.
+The whole point of the ROM layer is that it abstracts away the actual hypercall 
+mechanism for the guest, and the hypervisor can implement whatever is 
+appropriate for it.  This layer allows a VMI guest to run on VMware's 
+hypervisor, as well as on top of Xen.
 
-API:
+We reserve the top 64MB of linear address space for the hypervisor.
 
-give the 'active', 'inactive' and free count for the selected pgdat.
-(free interpretation of '' words)
+Part of this reserved space contains data structures that are shared by the VMI 
+ROM layer and the hypervisor.  Simple VMI interface calls like "read CR 2" are 
+implemented by reading or writing data from this shared data structure, and 
+don't require a privilege level change.  Things like page table updates go into 
+a queue in the shared area, so they can easily be batched and processed with 
+only one actual call into the hypervisor.
 
-    void __page_replace_counts(unsigned long *, unsigned long *,
-			    unsigned long *, struct pglist_data *);
+Because the guest can manipulate this data page directly, the hypervisor has to 
+treat any information in it as untrusted.  This is similar to how the kernel has 
+to treat syscall arguments.  Guest user code can't touch the shared area, so it 
+doesn't introduce any new kernel security holes.  The guest kernel could 
+deliberately mess up the shared area contents, but guest kernel code could 
+corrupt any arbitrary (virtual) machine state anyway.
 
-total number of pages in the policies care
+Because this level of interface is hidden from the guest, we can (and do) make 
+changes to it without changing VMI itself, or needing to recompile the guest. 
+We deliberately do not document it.  A guest that adheres to the VMI interface 
+can move to new versions of the ROM/hypervisor interface (that implement the 
+same VMI interface) without changes.
 
-    unsigned long __page_replace_nr_pages(struct zone *);
-
-number of pages to base the scan speed on
-
-    unsigned long __page_replace_nr_scan(struct zone *);
-
-
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Signed-off-by: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-
----
-
- include/linux/mm_page_replace.h    |    3 +++
- include/linux/mm_use_once_policy.h |    5 +++++
- mm/page_alloc.c                    |   12 +-----------
- mm/useonce.c                       |   16 ++++++++++++++++
- mm/vmscan.c                        |    6 +++---
- 5 files changed, 28 insertions(+), 14 deletions(-)
-
-Index: linux-2.6-git/include/linux/mm_page_replace.h
-===================================================================
---- linux-2.6-git.orig/include/linux/mm_page_replace.h
-+++ linux-2.6-git/include/linux/mm_page_replace.h
-@@ -95,6 +95,9 @@ extern void page_replace_shrink(struct z
- /* void __page_replace_rotate_reclaimable(struct zone *, struct page *); */
- extern void page_replace_show(struct zone *);
- extern void page_replace_zoneinfo(struct zone *, struct seq_file *);
-+extern void __page_replace_counts(unsigned long *, unsigned long *,
-+				  unsigned long *, struct pglist_data *);
-+/* unsigned long __page_replace_nr_pages(struct zone *); */
- 
- #ifdef CONFIG_MIGRATION
- extern int page_replace_isolate(struct page *p);
-Index: linux-2.6-git/mm/useonce.c
-===================================================================
---- linux-2.6-git.orig/mm/useonce.c
-+++ linux-2.6-git/mm/useonce.c
-@@ -478,3 +478,19 @@ void page_replace_zoneinfo(struct zone *
- 		   zone->spanned_pages,
- 		   zone->present_pages);
- }
-+
-+void __page_replace_counts(unsigned long *active, unsigned long *inactive,
-+			   unsigned long *free, struct pglist_data *pgdat)
-+{
-+	struct zone *zones = pgdat->node_zones;
-+	int i;
-+
-+	*active = 0;
-+	*inactive = 0;
-+	*free = 0;
-+	for (i = 0; i < MAX_NR_ZONES; i++) {
-+		*active += zones[i].nr_active;
-+		*inactive += zones[i].nr_inactive;
-+		*free += zones[i].free_pages;
-+	}
-+}
-Index: linux-2.6-git/mm/page_alloc.c
-===================================================================
---- linux-2.6-git.orig/mm/page_alloc.c
-+++ linux-2.6-git/mm/page_alloc.c
-@@ -1307,17 +1307,7 @@ EXPORT_SYMBOL(mod_page_state_offset);
- void __get_zone_counts(unsigned long *active, unsigned long *inactive,
- 			unsigned long *free, struct pglist_data *pgdat)
- {
--	struct zone *zones = pgdat->node_zones;
--	int i;
--
--	*active = 0;
--	*inactive = 0;
--	*free = 0;
--	for (i = 0; i < MAX_NR_ZONES; i++) {
--		*active += zones[i].nr_active;
--		*inactive += zones[i].nr_inactive;
--		*free += zones[i].free_pages;
--	}
-+	__page_replace_counts(active, inactive, free, pgdat);
- }
- 
- void get_zone_counts(unsigned long *active,
-Index: linux-2.6-git/include/linux/mm_use_once_policy.h
-===================================================================
---- linux-2.6-git.orig/include/linux/mm_use_once_policy.h
-+++ linux-2.6-git/include/linux/mm_use_once_policy.h
-@@ -135,5 +135,10 @@ static inline void __page_replace_rotate
- 	}
- }
- 
-+static inline unsigned long __page_replace_nr_pages(struct zone *zone)
-+{
-+	return zone->nr_active + zone->nr_inactive;
-+}
-+
- #endif /* __KERNEL__ */
- #endif /* _LINUX_MM_USEONCE_POLICY_H */
-Index: linux-2.6-git/mm/vmscan.c
-===================================================================
---- linux-2.6-git.orig/mm/vmscan.c
-+++ linux-2.6-git/mm/vmscan.c
-@@ -1033,7 +1033,7 @@ int try_to_free_pages(struct zone **zone
- 			continue;
- 
- 		zone->temp_priority = DEF_PRIORITY;
--		lru_pages += zone->nr_active + zone->nr_inactive;
-+		lru_pages += __page_replace_nr_pages(zone);
- 	}
- 
- 	for (priority = DEF_PRIORITY; priority >= 0; priority--) {
-@@ -1175,7 +1175,7 @@ scan:
- 		for (i = 0; i <= end_zone; i++) {
- 			struct zone *zone = pgdat->node_zones + i;
- 
--			lru_pages += zone->nr_active + zone->nr_inactive;
-+			lru_pages += __page_replace_nr_pages(zone);
- 		}
- 
- 		/*
-@@ -1219,7 +1219,7 @@ scan:
- 			if (zone->all_unreclaimable)
- 				continue;
- 			if (nr_slab == 0 && zone->pages_scanned >=
--				    (zone->nr_active + zone->nr_inactive) * 4)
-+				    __page_replace_nr_pages(zone) * 4)
- 				zone->all_unreclaimable = 1;
- 			/*
- 			 * If we've done a decent amount of scanning and
+Dan.

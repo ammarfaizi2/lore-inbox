@@ -1,396 +1,219 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWCVWPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWCVWSI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbWCVWPj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 17:15:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWCVWOh
+	id S932098AbWCVWSI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 17:18:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWCVWSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 17:14:37 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:44504 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750743AbWCVWOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 17:14:17 -0500
-Date: Wed, 22 Mar 2006 16:14:12 -0600 (CST)
-From: Pat Gefre <pfg@americas.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6 Altix : rs422 support for ioc4 serial driver
-In-Reply-To: <20060317181305.2d007447.akpm@osdl.org>
-Message-ID: <Pine.SGI.3.96.1060322160909.25095A-100000@fsgi900.americas.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 22 Mar 2006 17:18:08 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:63974 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S932107AbWCVWSB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 17:18:01 -0500
+Date: Wed, 22 Mar 2006 14:18:44 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Christoph Lameter <clameter@engr.sgi.com>,
+       Shai Fultheim <shai@scalex86.org>, Nippun Goel <nippung@calsoftinc.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single threadedprocess at getrusage()
+Message-ID: <20060322221844.GA3300@localhost.localdomain>
+References: <43B2874F.F41A9299@tv-sign.ru> <20051228183345.GA3755@localhost.localdomain> <20051228225752.GB3755@localhost.localdomain> <43B57515.967F53E3@tv-sign.ru> <20060104231600.GA3664@localhost.localdomain> <43BD70AD.21FC6862@tv-sign.ru> <20060106094627.GA4272@localhost.localdomain> <Pine.LNX.4.62.0601060921530.17444@schroedinger.engr.sgi.com> <20060106194623.GA4078@localhost.localdomain> <441EEEC8.D4D9C40A@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <441EEEC8.D4D9C40A@tv-sign.ru>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 20, 2006 at 09:04:56PM +0300, Oleg Nesterov wrote:
+> Hello Ravikiran,
 
-At the bottom of the email is the 'fix-up' patch to address these points.
+Hi Oleg, sorry for the late response..
 
-I also threw in a few more things that needed improving (better local
-names, unneeded void *'ing)..
+> 
+> Ravikiran G Thirumalai wrote:
+> > 
+> > Following patch avoids taking the global tasklist_lock when possible,
+> > if a process is single threaded during getrusage().  Any avoidance of
+> > tasklist_lock is good for NUMA boxes (and possibly for large SMPs).
+> >
+> > ...
+> >
+> >  static void k_getrusage(struct task_struct *p, int who, struct rusage *r)
+> > @@ -1681,14 +1697,22 @@ static void k_getrusage(struct task_stru
+> >         struct task_struct *t;
+> >         unsigned long flags;
+> >         cputime_t utime, stime;
+> > +       int need_lock = 0;
+> > 
+> >         memset((char *) r, 0, sizeof *r);
+> > -
+> > -       if (unlikely(!p->signal))
+> > -               return;
+> > -
+> >         utime = stime = cputime_zero;
+> > 
+> > +       need_lock = (p != current || !thread_group_empty(p));
+> > +       if (need_lock) {
+> > +               read_lock(&tasklist_lock);
+> > +               if (unlikely(!p->signal)) {
+> > +                       read_unlock(&tasklist_lock);
+> > +                       return;
+> > +               }
+> > +       } else
+> > +               /* See locking comments above */
+> > +               smp_rmb();
+> > +
+> 
+> I think now it is possible to improve this patch.
+> 
+> Could you look at these patches?
+> 
+> 	[PATCH] introduce lock_task_sighand() helper
+> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=114028190927763
+> 
+> 	[PATCH 0/3] make threads traversal ->siglock safe
+> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=114064825626496
+> 
+> I think we can forget about tasklist_lock in k_getrusage() completely
+> and just use lock_task_sighand().
+> 
+> What do you think?
 
+Great!! Nice patches to avoid tasklist lock on thread traversal.
 
+However, I was trying to comprehend the tasklist locking changes in 
+2.6.16-rc6mm2 and hit upon:
 
-On Fri, 17 Mar 2006, Andrew Morton wrote:
+__exit_signal
+	cleanup_sighand(tsk);
+		kmem_cache_free(sighand)
+	spin_unlock(sighand->lock)
 
-+ Pat Gefre <pfg@sgi.com> wrote:
-+ >
-+ > This patch adds rs422 support to the Altix ioc4 serial driver.
-+ > 
-+ > +
-+ > +#define PORT_IS_ACTIVE(_x, _y)	((_x->ip_flags & PORT_ACTIVE) \
-+ > +					&& (_x->ip_port == _y))
-+ > +
-+ 
-+ - Forgets to parenthesise macro args
-+ 
-+ - Evaluates args multiple times
-+ 
-+ - ugleeeee
-+ 
-+ 
-+ This:
-+ 
-+ /*
-+  * Nice comment goes here
-+  */
-+ static inline int port_is_active(struct ioc4_port *current_port,
-+ 				struct ioc4_port *my_port)
-+ {
-+ 	...
-+ }
-+ 
-+ Is more pleasing, no?
-+ 
-+ > +	if (port && PORT_IS_ACTIVE(port, the_port)) {
-+ 
-+ And in every case the test for port==NULL can be folded into port_is_active().
-+ 
-+ > +int ioc4_serial_remove_one(struct ioc4_driver_data *idd)
-+ 
-+ Should have static scope.
-+ 
-+ > +{
-+ > +	int ii, jj;
-+ > +	struct ioc4_control *control;
-+ > +	struct uart_port *the_port;
-+ > +	struct ioc4_port *port;
-+ > +	struct ioc4_soft *soft;
-+ > +
-+ > +	control = idd->idd_serial_data;
-+ > +
-+ > +	for (ii = 0; ii < IOC4_NUM_SERIAL_PORTS; ii++) {
-+ > +		for (jj = UART_PORT_MIN; jj < UART_PORT_COUNT; jj++) {
-+ > +			the_port = &control->ic_port[ii].icp_uart_port[jj];
-+ > +			if (the_port) {
-+ > +				switch (jj) {
-+ > +				case UART_PORT_RS422:
-+ > +					uart_remove_one_port(&ioc4_uart_rs422,
-+ > +							the_port);
-+ > +					break;
-+ > +				default:
-+ > +				case UART_PORT_RS232:
-+ > +					uart_remove_one_port(&ioc4_uart_rs232,
-+ > +							the_port);
-+ > +					break;
-+ > +				}
-+ > +			}
-+ > +		}
-+ > +		port = control->ic_port[ii].icp_port;
-+ > +		if (!(ii & 1) && port) {
-+ > +			pci_free_consistent(port->ip_pdev,
-+ > +					TOTAL_RING_BUF_SIZE,
-+ > +					(void *)port->ip_cpu_ringbuf,
-+ > +					port->ip_dma_ringbuf);
-+ > +			kfree(port);
-+ > +		}
-+ > +	}
-+ 
-+ Choosing more meaningful identifiers than `ii' and `jj' would help
-+ understandability here.
-+ 
-+ > +		free_irq(control->ic_irq, (void *)soft);
-+ 
-+ The typecast is unneeded.
-+ 
+It looked suspicious to me until I realised sighand cache now had 
+SLAB_DESTROY_BY_RCU. Can we please add comments (at cleanup_sighand or 
+__exit_signal) to make it a bit clearer for people like me :)
+
+How is the following patch to avoid tasklist lock completely at getrusage?
+(Andrew, I can remake the patch against a reverted 
+avoid-taking-global-tasklist_lock-for-single-threadedprocess-at-getrusage
+if you prefer it that way)
+
+Thanks,
+Kiran
 
 
+Change avoid-taking-global-tasklist_lock-for-single-threadedprocess-at-getrusage
+patch to not take the global tasklist lock at all. We don't need to take
+the tasklist lock for thread traversal of a process since Oleg's
+do-__unhash_process-under-siglock.patch and related work.
 
+Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
 
- ioc4_serial.c |  108 +++++++++++++++++++++++++++++++++++-----------------------
- 1 files changed, 66 insertions(+), 42 deletions(-)
-
-
-Signed-off-by: Patrick Gefre <pfg@sgi.com>
-
-
-Index: linux-2.6/drivers/serial/ioc4_serial.c
+Index: linux-2.6.16-rc6mm2/kernel/sys.c
 ===================================================================
---- linux-2.6.orig/drivers/serial/ioc4_serial.c	2006-03-17 08:47:48.000000000 -0600
-+++ linux-2.6/drivers/serial/ioc4_serial.c	2006-03-22 14:18:15.946119707 -0600
-@@ -514,9 +514,6 @@
- #define PORT_ACTIVE	0x10
- #define PORT_INACTIVE	0	/* This is the value when "off" */
- 
--#define PORT_IS_ACTIVE(_x, _y)	((_x->ip_flags & PORT_ACTIVE) \
--					&& (_x->ip_port == _y))
--
- 
- /* Since each port has different register offsets and bitmasks
-  * for everything, we'll store those that we need in tables so we
-@@ -638,6 +635,23 @@
- static void receive_chars(struct uart_port *);
- static void handle_intr(void *arg, uint32_t sio_ir);
- 
-+/*
-+ * port_is_active - determines if this port is currently active
-+ * @port: ptr to soft struct for this port
-+ * @uart_port: uart port to test for
-+ */
-+static inline int port_is_active(struct ioc4_port *port,
-+		struct uart_port *uart_port)
-+{
-+	if (port) {
-+		if ((port->ip_flags & PORT_ACTIVE)
-+					&& (port->ip_port == uart_port))
-+			return 1;
-+	}
-+	return 0;
-+}
-+
-+
- /**
-  * write_ireg - write the interrupt regs
-  * @ioc4_soft: ptr to soft struct for this port
-@@ -730,19 +744,22 @@
- 	struct ioc4_driver_data *idd = dev_get_drvdata(the_port->dev);
- 	struct ioc4_control *control = idd->idd_serial_data;
- 	struct ioc4_port *port;
--	int ii, jj;
-+	int port_num, port_type;
- 
- 	if (control) {
--		for ( ii = 0; ii < IOC4_NUM_SERIAL_PORTS; ii++ ) {
--			port = control->ic_port[ii].icp_port;
-+		for ( port_num = 0; port_num < IOC4_NUM_SERIAL_PORTS;
-+							port_num++ ) {
-+			port = control->ic_port[port_num].icp_port;
- 			if (!port)
- 				continue;
--			for (jj = UART_PORT_MIN; jj < UART_PORT_COUNT; jj++) {
--				if (the_port == port->ip_all_ports[jj]) {
-+			for (port_type = UART_PORT_MIN;
-+						port_type < UART_PORT_COUNT;
-+						port_type++) {
-+				if (the_port == port->ip_all_ports
-+							[port_type]) {
- 					/* set local copy */
- 					if (set) {
--						port->ip_port
--						      = port->ip_all_ports[jj];
-+						port->ip_port = the_port;
- 					}
- 					return port;
- 				}
-@@ -980,7 +997,7 @@
- 	int xx, num_intrs = 0;
- 	int intr_type;
- 	int handled = 0;
--	struct ioc4_intr_info *ii;
-+	struct ioc4_intr_info *intr_info;
- 
- 	soft = arg;
- 	for (intr_type = 0; intr_type < IOC4_NUM_INTR_TYPES; intr_type++) {
-@@ -993,13 +1010,13 @@
- 		 * which interrupt bits are set.
- 		 */
- 		for (xx = 0; xx < num_intrs; xx++) {
--			ii = &soft->is_intr_type[intr_type].is_intr_info[xx];
--			if ((this_mir = this_ir & ii->sd_bits)) {
-+			intr_info = &soft->is_intr_type[intr_type].is_intr_info[xx];
-+			if ((this_mir = this_ir & intr_info->sd_bits)) {
- 				/* Disable owned interrupts, call handler */
- 				handled++;
--				write_ireg(soft, ii->sd_bits, IOC4_W_IEC,
-+				write_ireg(soft, intr_info->sd_bits, IOC4_W_IEC,
- 								intr_type);
--				ii->sd_intr(ii->sd_info, this_mir);
-+				intr_info->sd_intr(intr_info->sd_info, this_mir);
- 				this_ir &= ~this_mir;
- 			}
- 		}
-@@ -2376,7 +2393,7 @@
- 	struct ioc4_port *port = get_ioc4_port(the_port, 0);
- 	unsigned int ret = 0;
- 
--	if (port && PORT_IS_ACTIVE(port, the_port)) {
-+	if (port_is_active(port, the_port)) {
- 		if (readl(&port->ip_serial_regs->shadow) & IOC4_SHADOW_TEMT)
- 			ret = TIOCSER_TEMT;
- 	}
-@@ -2392,7 +2409,7 @@
- {
- 	struct ioc4_port *port = get_ioc4_port(the_port, 0);
- 
--	if (port && PORT_IS_ACTIVE(port, the_port))
-+	if (port_is_active(port, the_port))
- 		set_notification(port, N_OUTPUT_LOWAT, 0);
- }
- 
-@@ -2446,7 +2463,7 @@
- 	struct ioc4_port *port;
- 
- 	port = get_ioc4_port(the_port, 0);
--	if (!port || !PORT_IS_ACTIVE(port, the_port))
-+	if (!port_is_active(port, the_port))
- 		return;
- 
- 	if (mctrl & TIOCM_RTS)
-@@ -2474,7 +2491,7 @@
- 	uint32_t shadow;
- 	unsigned int ret = 0;
- 
--	if (!port || !PORT_IS_ACTIVE(port, the_port))
-+	if (!port_is_active(port, the_port))
- 		return 0;
- 
- 	shadow = readl(&port->ip_serial_regs->shadow);
-@@ -2496,7 +2513,7 @@
- {
- 	struct ioc4_port *port = get_ioc4_port(the_port, 0);
- 
--	if (port && PORT_IS_ACTIVE(port, the_port)) {
-+	if (port_is_active(port, the_port)) {
- 		set_notification(port, N_OUTPUT_LOWAT, 1);
- 		enable_intrs(port, port->ip_hooks->intr_tx_mt);
- 	}
-@@ -2621,9 +2638,9 @@
-  * @idd: IOC4 master module data for this IOC4
+--- linux-2.6.16-rc6mm2.orig/kernel/sys.c	2006-03-21 17:04:09.000000000 -0800
++++ linux-2.6.16-rc6mm2/kernel/sys.c	2006-03-22 12:46:03.000000000 -0800
+@@ -1860,23 +1860,20 @@ out:
+  * fields when reaping, so a sample either gets all the additions of a
+  * given child after it's reaped, or none so this sample is before reaping.
+  *
+- * tasklist_lock locking optimisation:
+- * If we are current and single threaded, we do not need to take the tasklist
+- * lock or the siglock.  No one else can take our signal_struct away,
+- * no one else can reap the children to update signal->c* counters, and
+- * no one else can race with the signal-> fields.
+- * If we do not take the tasklist_lock, the signal-> fields could be read
+- * out of order while another thread was just exiting. So we place a
+- * read memory barrier when we avoid the lock.  On the writer side,
+- * write memory barrier is implied in  __exit_signal as __exit_signal releases
+- * the siglock spinlock after updating the signal-> fields.
+- *
+- * We don't really need the siglock when we access the non c* fields
+- * of the signal_struct (for RUSAGE_SELF) even in multithreaded
+- * case, since we take the tasklist lock for read and the non c* signal->
+- * fields are updated only in __exit_signal, which is called with
+- * tasklist_lock taken for write, hence these two threads cannot execute
+- * concurrently.
++ * Locking:
++ * We need to take the siglock for CHILDEREN, SELF and BOTH 
++ * for  the cases current multithreaded, non-current single threaded
++ * non-current multithreaded.  Thread traversal is now safe with 
++ * the siglock held. 
++ * Strictly speaking, we donot need to take the siglock if we are current and 
++ * single threaded,  as no one else can take our signal_struct away, no one 
++ * else can  reap the  children to update signal->c* counters, and no one else 
++ * can race with the signal-> fields. If we do not take any lock, the 
++ * signal-> fields could be read out of order while another thread was just 
++ * exiting. So we should  place a read memory barrier when we avoid the lock.  
++ * On the writer side,  write memory barrier is implied in  __exit_signal 
++ * as __exit_signal releases  the siglock spinlock after updating the signal-> 
++ * fields. But we don't do this yet to keep things simple.
+  *
   */
  
--int ioc4_serial_remove_one(struct ioc4_driver_data *idd)
-+static int ioc4_serial_remove_one(struct ioc4_driver_data *idd)
- {
--	int ii, jj;
-+	int port_num, port_type;
- 	struct ioc4_control *control;
- 	struct uart_port *the_port;
- 	struct ioc4_port *port;
-@@ -2631,11 +2648,14 @@
+@@ -1885,35 +1882,25 @@ static void k_getrusage(struct task_stru
+ 	struct task_struct *t;
+ 	unsigned long flags;
+ 	cputime_t utime, stime;
+-	int need_lock = 0;
  
- 	control = idd->idd_serial_data;
+ 	memset((char *) r, 0, sizeof *r);
+ 	utime = stime = cputime_zero;
  
--	for (ii = 0; ii < IOC4_NUM_SERIAL_PORTS; ii++) {
--		for (jj = UART_PORT_MIN; jj < UART_PORT_COUNT; jj++) {
--			the_port = &control->ic_port[ii].icp_uart_port[jj];
-+	for (port_num = 0; port_num < IOC4_NUM_SERIAL_PORTS; port_num++) {
-+		for (port_type = UART_PORT_MIN;
-+					port_type < UART_PORT_COUNT;
-+					port_type++) {
-+			the_port = &control->ic_port[port_num].icp_uart_port
-+							[port_type];
- 			if (the_port) {
--				switch (jj) {
-+				switch (port_type) {
- 				case UART_PORT_RS422:
- 					uart_remove_one_port(&ioc4_uart_rs422,
- 							the_port);
-@@ -2648,18 +2668,19 @@
- 				}
- 			}
- 		}
--		port = control->ic_port[ii].icp_port;
--		if (!(ii & 1) && port) {
-+		port = control->ic_port[port_num].icp_port;
-+		/* we allocate in pairs */
-+		if (!(port_num & 1) && port) {
- 			pci_free_consistent(port->ip_pdev,
- 					TOTAL_RING_BUF_SIZE,
--					(void *)port->ip_cpu_ringbuf,
-+					port->ip_cpu_ringbuf,
- 					port->ip_dma_ringbuf);
- 			kfree(port);
- 		}
+-	if (p != current || !thread_group_empty(p))
+-		need_lock = 1;
+-
+-	if (need_lock) {
+-		read_lock(&tasklist_lock);
+-		if (unlikely(!p->signal)) {
+-			read_unlock(&tasklist_lock);
+-			return;
+-		}
+-	} else
+-		/* See locking comments above */
+-		smp_rmb();
++	rcu_read_lock();
++	if (!lock_task_sighand(p, &flags)) {
++		rcu_read_unlock();
++		return;
++	}	
+ 
+ 	switch (who) {
+ 		case RUSAGE_BOTH:
+ 		case RUSAGE_CHILDREN:
+-			spin_lock_irqsave(&p->sighand->siglock, flags);
+ 			utime = p->signal->cutime;
+ 			stime = p->signal->cstime;
+ 			r->ru_nvcsw = p->signal->cnvcsw;
+ 			r->ru_nivcsw = p->signal->cnivcsw;
+ 			r->ru_minflt = p->signal->cmin_flt;
+ 			r->ru_majflt = p->signal->cmaj_flt;
+-			spin_unlock_irqrestore(&p->sighand->siglock, flags);
+ 
+ 			if (who == RUSAGE_CHILDREN)
+ 				break;
+@@ -1940,9 +1927,10 @@ static void k_getrusage(struct task_stru
+ 		default:
+ 			BUG();
  	}
- 	soft = control->ic_soft;
- 	if (soft) {
--		free_irq(control->ic_irq, (void *)soft);
-+		free_irq(control->ic_irq, soft);
- 		if (soft->is_ioc4_serial_addr) {
- 			release_region((unsigned long)
- 			     soft->is_ioc4_serial_addr,
-@@ -2686,8 +2707,8 @@
- 	struct uart_port *the_port;
- 	struct ioc4_driver_data *idd = pci_get_drvdata(pdev);
- 	struct ioc4_control *control = idd->idd_serial_data;
--	int ii;
--	int port_index;
-+	int port_num;
-+	int port_type_idx;
- 	struct uart_driver *u_driver;
- 
- 
-@@ -2697,17 +2718,18 @@
- 	if (!control)
- 		return -ENODEV;
- 
--	port_index = (port_type == PROTO_RS232) ? UART_PORT_RS232
-+	port_type_idx = (port_type == PROTO_RS232) ? UART_PORT_RS232
- 						: UART_PORT_RS422;
- 
- 	u_driver = (port_type == PROTO_RS232)	? &ioc4_uart_rs232
- 						: &ioc4_uart_rs422;
- 
- 	/* once around for each port on this card */
--	for (ii = 0; ii < IOC4_NUM_SERIAL_PORTS; ii++) {
--		the_port = &control->ic_port[ii].icp_uart_port[port_index];
--		port = control->ic_port[ii].icp_port;
--		port->ip_all_ports[port_index] = the_port;
-+	for (port_num = 0; port_num < IOC4_NUM_SERIAL_PORTS; port_num++) {
-+		the_port = &control->ic_port[port_num].icp_uart_port
-+							[port_type_idx];
-+		port = control->ic_port[port_num].icp_port;
-+		port->ip_all_ports[port_type_idx] = the_port;
- 
- 		DPRINT_CONFIG(("%s: attach the_port 0x%p / port 0x%p : type %s\n",
- 				__FUNCTION__, (void *)the_port,
-@@ -2716,8 +2738,8 @@
- 
- 		/* membase, iobase and mapbase just need to be non-0 */
- 		the_port->membase = (unsigned char __iomem *)1;
--		the_port->iobase = (pdev->bus->number << 16) |  ii;
--		the_port->line = (Num_of_ioc4_cards << 2) | ii;
-+		the_port->iobase = (pdev->bus->number << 16) |  port_num;
-+		the_port->line = (Num_of_ioc4_cards << 2) | port_num;
- 		the_port->mapbase = port_type;
- 		the_port->type = PORT_16550A;
- 		the_port->fifosize = IOC4_FIFO_CHARS;
-@@ -2753,7 +2775,8 @@
- 	int ret = 0;
- 
- 
--	DPRINT_CONFIG(("%s (0x%p, 0x%p)\n", __FUNCTION__, idd->idd_pdev, idd->idd_pci_id));
-+	DPRINT_CONFIG(("%s (0x%p, 0x%p)\n", __FUNCTION__, idd->idd_pdev,
-+							idd->idd_pci_id));
- 
- 	/* request serial registers */
- 	tmp_addr1 = idd->idd_bar0 + IOC4_SERIAL_OFFSET;
-@@ -2775,7 +2798,8 @@
- 		goto out2;
- 	}
- 	DPRINT_CONFIG(("%s : mem 0x%p, serial 0x%p\n",
--				__FUNCTION__, (void *)idd->idd_misc_regs, (void *)serial));
-+				__FUNCTION__, (void *)idd->idd_misc_regs,
-+				(void *)serial));
- 
- 	/* Get memory for the new card */
- 	control = kmalloc(sizeof(struct ioc4_control), GFP_KERNEL);
-@@ -2823,7 +2847,7 @@
- 
- 	/* Hook up interrupt handler */
- 	if (!request_irq(idd->idd_pdev->irq, ioc4_intr, SA_SHIRQ,
--				"sgi-ioc4serial", (void *)soft)) {
-+				"sgi-ioc4serial", soft)) {
- 		control->ic_irq = idd->idd_pdev->irq;
- 	} else {
- 		printk(KERN_WARNING
-
+-
+-	if (need_lock)
+-		read_unlock(&tasklist_lock);
++	
++	unlock_task_sighand(p, &flags);
++	rcu_read_unlock();
++	
+ 	cputime_to_timeval(utime, &r->ru_utime);
+ 	cputime_to_timeval(stime, &r->ru_stime);
+ }
 

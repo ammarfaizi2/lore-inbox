@@ -1,71 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932718AbWCVUxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWCVUwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932718AbWCVUxM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 15:53:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932719AbWCVUxM
+	id S932265AbWCVUwz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 15:52:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932718AbWCVUwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 15:53:12 -0500
-Received: from mga03.intel.com ([143.182.124.21]:46232 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S932718AbWCVUxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 15:53:10 -0500
-X-IronPort-AV: i="4.03,119,1141632000"; 
-   d="scan'208"; a="14366237:sNHT581205730"
-Subject: Re: [patch] add private data to notifier_block
-From: Kristen Accardi <kristen.c.accardi@intel.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44L0.0603221402070.7453-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.0603221402070.7453-100000@iolanthe.rowland.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 22 Mar 2006 13:00:11 -0800
-Message-Id: <1143061212.8924.10.camel@whizzy>
+	Wed, 22 Mar 2006 15:52:55 -0500
+Received: from xenotime.net ([66.160.160.81]:27009 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932265AbWCVUwy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 15:52:54 -0500
+Date: Wed, 22 Mar 2006 12:55:03 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, clemens@ladisch.de
+Subject: Re: [PATCH] hpet header sanitization
+Message-Id: <20060322125503.4281238e.rdunlap@xenotime.net>
+In-Reply-To: <1143058082.2955.68.camel@laptopd505.fenrus.org>
+References: <20060321144607.153d1943.rdunlap@xenotime.net>
+	<20060321161303.53c2895f.akpm@osdl.org>
+	<20060321162630.d995c63c.rdunlap@xenotime.net>
+	<1143018140.2955.45.camel@laptopd505.fenrus.org>
+	<20060322092649.d967c47a.rdunlap@xenotime.net>
+	<1143058082.2955.68.camel@laptopd505.fenrus.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-X-OriginalArrivalTime: 22 Mar 2006 20:53:04.0438 (UTC) FILETIME=[9D600D60:01C64DF2]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-22 at 14:04 -0500, Alan Stern wrote:
-> On Tue, 21 Mar 2006, Kristen Accardi wrote:
-> 
-> > While most current uses of notifier_block use a global struct, I would
-> > like to be able to use it on a per device basis for drivers which have
-> > multiple device instances.  I would also like to be able to have a
-> > private data struct associated with the notifier block so that per
-> > device data can be easily accessed.  This patch will modify the
-> > notifier_block struct to add a void *, and will require no modifications
-> > to any other users of the notifier_block.
+On Wed, 22 Mar 2006 21:08:02 +0100 Arjan van de Ven wrote:
+
+> On Wed, 2006-03-22 at 09:26 -0800, Randy.Dunlap wrote:
+> > On Wed, 22 Mar 2006 10:02:19 +0100 Arjan van de Ven wrote:
 > > 
-> > Signed-off-by:  Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+> > > On Tue, 2006-03-21 at 16:26 -0800, Randy.Dunlap wrote:
+> > > > On Tue, 21 Mar 2006 16:13:03 -0800 Andrew Morton wrote:
+> > > > 
+> > > > > "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+> > > > > >
+> > > > > > From: Randy Dunlap <rdunlap@xenotime.net>
+> > > > > > 
+> > > > > > Add __KERNEL__ block.
+> > > > > > Use __KERNEL__ to allow ioctl interface to be usable.
+> > > > > 
+> > > > > hm, why?
+> > > > 
+> > > > because there is a test/example source file in (inside)
+> > > > Documentation/hpet.txt that won't build otherwise.
+> > > > And because hpet.h contains _userspace_ ioctl interface struct
+> > > > and macros...
+> > > 
+> > > 
+> > > then please split the header in 2 parts; one for the kernel
+> > > and one for userspace
 > > 
-> > ---
-> >  include/linux/notifier.h |    1 +
-> >  1 files changed, 1 insertion(+)
-> > 
-> > --- 2.6-git-kca.orig/include/linux/notifier.h
-> > +++ 2.6-git-kca/include/linux/notifier.h
-> > @@ -15,6 +15,7 @@ struct notifier_block
-> >  {
-> >  	int (*notifier_call)(struct notifier_block *self, unsigned long, void *);
-> >  	struct notifier_block *next;
-> > +	void *data;
-> >  	int priority;
-> >  };
+> > so would you tell me what the purpose (use) of __KERNEL__
+> > is meant to be, please?
 > 
-> I still think this isn't really needed.  The same effect can be 
-> accomplished by embedding a notifier_block struct within a larger 
-> structure that also contains the data pointer.
-> 
+> for legacy headers.. the same ;)
 
-I thought of this, but felt it would make for less easy to read code.
-But, that's just my personal style.  
+"the same" as what?  I'm not understanding these partial sentences.
 
-> On the other hand this isn't a terribly big change, so I don't actually 
-> object to it.
-> 
+> Thats no reason to fix up new cases... things should get better not just
+> get a small rubber bandaid...
 
-Thanks.
+Yes, I'm not disagreeing with the no-bandaids part.  I just haven't
+read that __KERNEL__ is legacy only.
 
-> Alan Stern
+
+---
+~Randy

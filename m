@@ -1,54 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWCVExt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWCVE6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbWCVExt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 23:53:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWCVExt
+	id S1750765AbWCVE6r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 23:58:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbWCVE6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 23:53:49 -0500
-Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:32933 "HELO
-	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750763AbWCVExs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 23:53:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=Ody2BFxNeb0CMv1ZQMUTThNd2JeaJUXttvZZ9vrZ9VS/+91nukiLeLYvqS7sKvNSe85H+syuGY7zVIacdulBlGPMs+e2533cF1+xKLoSa/bPcvsqIqZwp6Ddwpsm9BrjOBVv2IOwUUCe3GokfCLx9gFYNH+gcmwYcZGjn00t1wU=  ;
-Message-ID: <4420D82B.6080504@yahoo.com.au>
-Date: Wed, 22 Mar 2006 15:52:59 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
-X-Accept-Language: en
+	Tue, 21 Mar 2006 23:58:47 -0500
+Received: from mga03.intel.com ([143.182.124.21]:21855 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1750759AbWCVE6q convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 23:58:46 -0500
+X-IronPort-AV: i="4.03,116,1141632000"; 
+   d="scan'208"; a="14143582:sNHT27222062"
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Shaohua Li <shaohua.li@intel.com>
-CC: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] less tlb flush in unmap_vmas
-References: <1142995088.11430.34.camel@sli10-desk.sh.intel.com>
-In-Reply-To: <1142995088.11430.34.camel@sli10-desk.sh.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+Date: Wed, 22 Mar 2006 12:58:36 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F840B417DFC@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+Thread-Index: AcZNaimxgVqfvdClQQiJmikiyaHRZwAAQ63w
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
+Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       <michael@mihu.de>, <mchehab@infradead.org>,
+       "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
+       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
+       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
+X-OriginalArrivalTime: 22 Mar 2006 04:58:38.0122 (UTC) FILETIME=[47FDB0A0:01C64D6D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shaohua Li wrote:
-
->In unmaping region, if current task doesn't need reschedule, don't do a
->tlb_finish_mmu. This can reduce some tlb flushes.
+>> We can do bisection in EC0.UPDT to find out which statement cause
+>> hang?
 >
->In the lmbench tests, this patch gives 2.1% improvement on exec proc
->item and 4.2% on sh proc item.
+>Yes, though see below for why I don't think it'll help no 
+>matter what we
+>find there.
+
+Please don't give up . :-)
+
+I need to know which statement  in EC0.UPDT that could trigger the
+problem.
+That is very important to understand the problem correctly.
+If we cannot find out that statement , then, I will dout the testing
+results that guiding us to here.
+
 >
+>> My assumption is that since Windows works well, then these BIOS code
+>> should have been tested ok. The only possible excuse for BIOS is that
+>> Linux is using unnecessary/untested code path for 
+>Suspend/resume.  So,
+>> Eventually, we need to disable unnecessary BIOS call for
+>> suspend/resume
 >
+>Maybe we're not collecting the right data in that case.  We know that
+>commenting out the call to UPDT in THM0.TMP fixes the hang.  
+>But it does
+>not follow that the osl suspend code should avoid running UPDT.
 
-The problem with this is that by the time we _do_ determine that a
-reschedule is needed, we might have built up a huge amount of work
-to do (which can probably be as much if not more exensive per-page
-as the unmapping), so scheduling latency can still be unacceptable
-so I'm afraid I don't think we can include this patch.
+This is still my assumption that some AML code needed to be avoided
+in suspend/resume, I need data support. So, we need to dig more in 
+EC0.UPDT.
 
-One option I've been looking into is my "mmu gather in-place" that
-never needs extra tlb flushes and is always preemptible... so that
-may be a way forward.
 
----
+>
+>The hang may work like this: Between boot and sleep, calling 
+>UPDT messes
+>up something in the ec [which is why it takes >1 sleep to 
+>cause a hang].
+>When the system tries to sleep, that something triggers and the ec
+>hangs.  But it may hang somewhere else than UPDT, and avoiding UPDT
+>during sleep will not fix it.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+If BIOS behaviors NOT correctly , then everything can happen.
+
+>
+>However, we do have one more piece of data.  When it hangs, it hangs in
+>\_SI._SST, because I see that line on successful sleeps (as the last
+
+I don't know this. I always assume the hang is at _PTS.SMPI
+
+>method before the beep) but not when it hangs (and then I also don't
+>hear a beep).  There are lots of calls to EC0.XXX, including to
+>EC0.BEEP, within _SST, which isn't surprising if the EC is the problem.
+
+It could be. But there should have something that trigger it.
+
+>So perhaps I should bisect in _SST and put in the debug lines there?
+>
+>Here's another idea, which is a terrible hack.  But there are lots of
+>lines in the DSDT like
+>   If (LOr (SPS, WNTF))
+>which I imagine is saying "If something or if WinNT".  So, 
+>what if Linux
+>pretends to be WinNT (or W98F -- which is another common 
+>test), at least
+>for the 600x?  Maybe those code paths are known to work.
+>
+Yes, you can try that.
+
+Thanks,
+Luming

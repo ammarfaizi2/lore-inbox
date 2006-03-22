@@ -1,75 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWCVSi4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWCVSjx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751025AbWCVSi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 13:38:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbWCVSi4
+	id S1751026AbWCVSjx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 13:39:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWCVSjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 13:38:56 -0500
-Received: from smtp2-g19.free.fr ([212.27.42.28]:10369 "EHLO smtp2-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1751025AbWCVSiz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 13:38:55 -0500
-Message-ID: <442199BD.8080005@free.fr>
-Date: Wed, 22 Mar 2006 19:38:53 +0100
-From: Laurent Riffard <laurent.riffard@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.12) Gecko/20050920
-X-Accept-Language: fr-fr, fr, en
-MIME-Version: 1.0
-To: "Vladimir V. Saveliev" <vs@namesys.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       reiserfs-list@namesys.com
-Subject: Re: 2.6.16-rc6-mm2: reiser4 BUG when unmounting fs
-References: <20060318044056.350a2931.akpm@osdl.org>	 <442061C0.4020702@free.fr>  <44206428.1080005@free.fr> <1143013406.6245.46.camel@tribesman.namesys.com>
-In-Reply-To: <1143013406.6245.46.camel@tribesman.namesys.com>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Wed, 22 Mar 2006 13:39:53 -0500
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:704 "EHLO
+	mail1.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S1751026AbWCVSjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 13:39:52 -0500
+Date: Wed, 22 Mar 2006 13:39:43 -0500
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       Lee Revell <rlrevell@joe-job.com>, Jeff Garzik <jeff@garzik.org>,
+       Jason Baron <jbaron@redhat.com>, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: libata/sata_nv latency on NVIDIA CK804 [was Re: AMD64 X2 lost ticks on PM timer]
+Message-ID: <20060322183943.GA30492@ti64.telemetry-investments.com>
+Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+	Jeff Garzik <jeff@garzik.org>, Jason Baron <jbaron@redhat.com>,
+	linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
+References: <200602280022.40769.darkray@ic3man.com> <1142522019.13318.27.camel@localhost.localdomain> <20060316165737.GA23248@ti64.telemetry-investments.com> <200603221709.09846.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603221709.09846.ak@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Le 22.03.2006 08:43, Vladimir V. Saveliev a écrit :
-> Hello
-> On Tue, 2006-03-21 at 21:38 +0100, Laurent Riffard wrote:
->>Le 21.03.2006 21:27, Laurent Riffard a écrit :
->>
->>>Le 18.03.2006 13:40, Andrew Morton a écrit :
->>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm2/
->>>
->>>Hello, 
->>>
->>>This BUG is 100% reproducible. Simply boot to runlevel 1 and then 
->>>unmount a reiser4 fs:
->>
+On Wed, Mar 22, 2006 at 05:09:08PM +0100, Andi Kleen wrote:
+> perfctr0 is already programmed. You can just use rdpmc on it
 > 
-> The attached patch fixes the problem.
-
-Ok, it works fine now.
-
-Thanks.
-
-> ------------------------------------------------------------------------
+> Also my latest patchkit has a debugging patch for lost tries
 > 
->  fs/reiser4/page_cache.c |    4 ----
->  1 files changed, 4 deletions(-)
-> 
-> diff -puN fs/reiser4/page_cache.c~reiser4-fix-bd_inode fs/reiser4/page_cache.c
-> --- linux-2.6.16-rc6-mm2/fs/reiser4/page_cache.c~reiser4-fix-bd_inode	2006-03-21 06:42:42.000000000 +0300
-> +++ linux-2.6.16-rc6-mm2-vs/fs/reiser4/page_cache.c	2006-03-21 07:21:54.000000000 +0300
-> @@ -198,10 +198,6 @@ init_fake_inode(struct super_block *supe
->  {
->  	assert("nikita-2168", fake->i_state & I_NEW);
->  	fake->i_mapping->a_ops = &formatted_fake_as_ops;
-> -	fake->i_blkbits = super->s_blocksize_bits;
-> -	fake->i_size = ~0ull;
-> -	fake->i_rdev = super->s_bdev->bd_dev;
-> -	fake->i_bdev = super->s_bdev;
->  	*pfake = fake;
->  	/* NOTE-NIKITA something else? */
->  	unlock_new_inode(fake);
-> 
-> _
+> ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/patches/lost-cli-debug
 
--- 
-laurent
+Excellent.
+
+> Can you test it with this patch? 
+ 
+I'll give it a try this evening; the test box is an
+FC5 upgrade guinea pig at the moment, and only half-migrated.
+
+> I'm still not quite convinced you're barking at the right tree
+> with these latency traces because it doesn't match the symptoms.
+
+Yes, I agree that that the latency issue is not due to the inb(),
+as I get lost ticks almost continuously at 1 KHZ, and the inb()-related
+latency occurs with much lower frequency.
+
+However, a 17ms inb() latency is rather dismal, and I need to
+address that hardware issue, perhaps by purchasing a 4-port card.
+
+I have not been chasing the other issue because the test box appears to
+keep perfect time with the -rt patch (on SMP) and NTP doesn't complain at
+all; I haven't yet had the chance to determine whether that is entirely
+due to John Stultz's new code, or if the preemption is responsible.
+
+	-Bill
+

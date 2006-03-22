@@ -1,20 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWCVPZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWCVP0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbWCVPZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 10:25:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWCVPZZ
+	id S1751322AbWCVP0y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 10:26:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWCVP0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 10:25:25 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:25478 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751310AbWCVPZU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 10:25:20 -0500
-Date: Wed, 22 Mar 2006 16:25:47 +0100
+	Wed, 22 Mar 2006 10:26:53 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:22964 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751322AbWCVP0v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 10:26:51 -0500
+Date: Wed, 22 Mar 2006 16:27:17 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, shbader@de.ibm.com, holzheu@de.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: [patch 20/24] s390: 3590 tape driver
-Message-ID: <20060322152547.GT5801@skybase.boeblingen.de.ibm.com>
+To: akpm@osdl.org, snakebyte@gmx.de, linux-kernel@vger.kernel.org
+Subject: [patch 24/24] s390: kzalloc() conversion in drivers/s390.
+Message-ID: <20060322152717.GX5801@skybase.boeblingen.de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,1534 +21,912 @@ User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Stefan Bader <shbader@de.ibm.com>
-From: Michael Holzheu <holzheu@de.ibm.com>
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Eric Sesterhenn <snakebyte@gmx.de>
 
-[patch 20/24] s390: 3590 tape driver
+[patch 24/24] s390: kzalloc() conversion in drivers/s390.
 
-Signed-off-by: Stefan Bader <shbader@de.ibm.com>
-Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
+Convert all kmalloc + memset sequences in drivers/s390 to kzalloc usage.
+
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/Kconfig          |    8 
- drivers/s390/char/Makefile    |    1 
- drivers/s390/char/tape_34xx.c |    8 
- drivers/s390/char/tape_3590.c | 1301 ++++++++++++++++++++++++++++++++++++++++++
- drivers/s390/char/tape_3590.h |  124 ++++
- drivers/s390/char/tape_std.h  |   12 
- 6 files changed, 1443 insertions(+), 11 deletions(-)
+ drivers/s390/block/dasd.c      |   12 ++++--------
+ drivers/s390/block/dcssblk.c   |    3 +--
+ drivers/s390/char/fs3270.c     |    3 +--
+ drivers/s390/char/keyboard.c   |   12 ++++--------
+ drivers/s390/char/monreader.c  |    6 ++----
+ drivers/s390/char/raw3270.c    |    3 +--
+ drivers/s390/char/tape_class.c |    3 +--
+ drivers/s390/char/tape_core.c  |   16 +++++-----------
+ drivers/s390/char/tty3270.c    |    9 +++------
+ drivers/s390/char/vmlogrdr.c   |    3 +--
+ drivers/s390/cio/ccwgroup.c    |    3 +--
+ drivers/s390/cio/chsc.c        |    3 +--
+ drivers/s390/cio/css.c         |    3 +--
+ drivers/s390/cio/device.c      |    6 ++----
+ drivers/s390/cio/device_ops.c  |    9 +++------
+ drivers/s390/cio/qdio.c        |   20 +++++++-------------
+ drivers/s390/crypto/z90main.c  |   10 +++-------
+ drivers/s390/net/claw.c        |    3 +--
+ drivers/s390/net/fsm.c         |   10 +++-------
+ drivers/s390/net/iucv.c        |   11 ++++-------
+ drivers/s390/net/lcs.c         |   11 ++++-------
+ drivers/s390/net/netiucv.c     |    7 ++-----
+ drivers/s390/net/qeth_eddp.c   |   13 ++++---------
+ drivers/s390/net/qeth_main.c   |   20 ++++++--------------
+ drivers/s390/net/qeth_sys.c    |    3 +--
+ drivers/s390/s390_rdev.c       |    3 +--
+ 26 files changed, 67 insertions(+), 138 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/char/Makefile linux-2.6-patched/drivers/s390/char/Makefile
---- linux-2.6/drivers/s390/char/Makefile	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/char/Makefile	2006-03-22 14:36:36.000000000 +0100
-@@ -26,4 +26,5 @@ tape-$(CONFIG_PROC_FS) += tape_proc.o
- tape-objs := tape_core.o tape_std.o tape_char.o $(tape-y)
- obj-$(CONFIG_S390_TAPE) += tape.o tape_class.o
- obj-$(CONFIG_S390_TAPE_34XX) += tape_34xx.o
-+obj-$(CONFIG_S390_TAPE_3590) += tape_3590.o
- obj-$(CONFIG_MONREADER) += monreader.o
-diff -urpN linux-2.6/drivers/s390/char/tape_34xx.c linux-2.6-patched/drivers/s390/char/tape_34xx.c
---- linux-2.6/drivers/s390/char/tape_34xx.c	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/char/tape_34xx.c	2006-03-22 14:36:36.000000000 +0100
-@@ -2,8 +2,7 @@
-  *  drivers/s390/char/tape_34xx.c
-  *    tape device discipline for 3480/3490 tapes.
-  *
-- *  S390 and zSeries version
-- *    Copyright (C) 2001,2002 IBM Deutschland Entwicklung GmbH, IBM Corporation
-+ *    Copyright (C) IBM Corp. 2001,2006
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *		 Tuan Ngo-Anh <ngoanh@de.ibm.com>
-  *		 Martin Schwidefsky <schwidefsky@de.ibm.com>
-@@ -28,11 +27,6 @@
- debug_info_t *TAPE_DBF_AREA = NULL;
- EXPORT_SYMBOL(TAPE_DBF_AREA);
+diff -urpN linux-2.6/drivers/s390/block/dasd.c linux-2.6-patched/drivers/s390/block/dasd.c
+--- linux-2.6/drivers/s390/block/dasd.c	2006-03-22 14:36:30.000000000 +0100
++++ linux-2.6-patched/drivers/s390/block/dasd.c	2006-03-22 14:36:43.000000000 +0100
+@@ -71,10 +71,9 @@ dasd_alloc_device(void)
+ {
+ 	struct dasd_device *device;
  
--enum tape_34xx_type {
--	tape_3480,
--	tape_3490,
--};
+-	device = kmalloc(sizeof (struct dasd_device), GFP_ATOMIC);
++	device = kzalloc(sizeof (struct dasd_device), GFP_ATOMIC);
+ 	if (device == NULL)
+ 		return ERR_PTR(-ENOMEM);
+-	memset(device, 0, sizeof (struct dasd_device));
+ 	/* open_count = 0 means device online but not in use */
+ 	atomic_set(&device->open_count, -1);
+ 
+@@ -547,29 +546,26 @@ dasd_kmalloc_request(char *magic, int cp
+ 	     (cplength*sizeof(struct ccw1)) > PAGE_SIZE)
+ 		BUG();
+ 
+-	cqr = kmalloc(sizeof(struct dasd_ccw_req), GFP_ATOMIC);
++	cqr = kzalloc(sizeof(struct dasd_ccw_req), GFP_ATOMIC);
+ 	if (cqr == NULL)
+ 		return ERR_PTR(-ENOMEM);
+-	memset(cqr, 0, sizeof(struct dasd_ccw_req));
+ 	cqr->cpaddr = NULL;
+ 	if (cplength > 0) {
+-		cqr->cpaddr = kmalloc(cplength*sizeof(struct ccw1),
++		cqr->cpaddr = kcalloc(cplength, sizeof(struct ccw1),
+ 				      GFP_ATOMIC | GFP_DMA);
+ 		if (cqr->cpaddr == NULL) {
+ 			kfree(cqr);
+ 			return ERR_PTR(-ENOMEM);
+ 		}
+-		memset(cqr->cpaddr, 0, cplength*sizeof(struct ccw1));
+ 	}
+ 	cqr->data = NULL;
+ 	if (datasize > 0) {
+-		cqr->data = kmalloc(datasize, GFP_ATOMIC | GFP_DMA);
++		cqr->data = kzalloc(datasize, GFP_ATOMIC | GFP_DMA);
+ 		if (cqr->data == NULL) {
+ 			kfree(cqr->cpaddr);
+ 			kfree(cqr);
+ 			return ERR_PTR(-ENOMEM);
+ 		}
+-		memset(cqr->data, 0, datasize);
+ 	}
+ 	strncpy((char *) &cqr->magic, magic, 4);
+ 	ASCEBC((char *) &cqr->magic, 4);
+diff -urpN linux-2.6/drivers/s390/block/dcssblk.c linux-2.6-patched/drivers/s390/block/dcssblk.c
+--- linux-2.6/drivers/s390/block/dcssblk.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/block/dcssblk.c	2006-03-22 14:36:43.000000000 +0100
+@@ -388,12 +388,11 @@ dcssblk_add_store(struct device *dev, st
+ 	/*
+ 	 * get a struct dcssblk_dev_info
+ 	 */
+-	dev_info = kmalloc(sizeof(struct dcssblk_dev_info), GFP_KERNEL);
++	dev_info = kzalloc(sizeof(struct dcssblk_dev_info), GFP_KERNEL);
+ 	if (dev_info == NULL) {
+ 		rc = -ENOMEM;
+ 		goto out;
+ 	}
+-	memset(dev_info, 0, sizeof(struct dcssblk_dev_info));
+ 
+ 	strcpy(dev_info->segment_name, local_buf);
+ 	strlcpy(dev_info->dev.bus_id, local_buf, BUS_ID_SIZE);
+diff -urpN linux-2.6/drivers/s390/char/fs3270.c linux-2.6-patched/drivers/s390/char/fs3270.c
+--- linux-2.6/drivers/s390/char/fs3270.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/fs3270.c	2006-03-22 14:36:43.000000000 +0100
+@@ -368,10 +368,9 @@ fs3270_alloc_view(void)
+ {
+ 	struct fs3270 *fp;
+ 
+-	fp = (struct fs3270 *) kmalloc(sizeof(struct fs3270),GFP_KERNEL);
++	fp = kzalloc(sizeof(struct fs3270),GFP_KERNEL);
+ 	if (!fp)
+ 		return ERR_PTR(-ENOMEM);
+-	memset(fp, 0, sizeof(struct fs3270));
+ 	fp->init = raw3270_request_alloc(0);
+ 	if (IS_ERR(fp->init)) {
+ 		kfree(fp);
+diff -urpN linux-2.6/drivers/s390/char/keyboard.c linux-2.6-patched/drivers/s390/char/keyboard.c
+--- linux-2.6/drivers/s390/char/keyboard.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/keyboard.c	2006-03-22 14:36:43.000000000 +0100
+@@ -50,14 +50,12 @@ kbd_alloc(void) {
+ 	struct kbd_data *kbd;
+ 	int i, len;
+ 
+-	kbd = kmalloc(sizeof(struct kbd_data), GFP_KERNEL);
++	kbd = kzalloc(sizeof(struct kbd_data), GFP_KERNEL);
+ 	if (!kbd)
+ 		goto out;
+-	memset(kbd, 0, sizeof(struct kbd_data));
+-	kbd->key_maps = kmalloc(sizeof(key_maps), GFP_KERNEL);
++	kbd->key_maps = kzalloc(sizeof(key_maps), GFP_KERNEL);
+ 	if (!key_maps)
+ 		goto out_kbd;
+-	memset(kbd->key_maps, 0, sizeof(key_maps));
+ 	for (i = 0; i < ARRAY_SIZE(key_maps); i++) {
+ 		if (key_maps[i]) {
+ 			kbd->key_maps[i] =
+@@ -68,10 +66,9 @@ kbd_alloc(void) {
+ 			       sizeof(u_short)*NR_KEYS);
+ 		}
+ 	}
+-	kbd->func_table = kmalloc(sizeof(func_table), GFP_KERNEL);
++	kbd->func_table = kzalloc(sizeof(func_table), GFP_KERNEL);
+ 	if (!kbd->func_table)
+ 		goto out_maps;
+-	memset(kbd->func_table, 0, sizeof(func_table));
+ 	for (i = 0; i < ARRAY_SIZE(func_table); i++) {
+ 		if (func_table[i]) {
+ 			len = strlen(func_table[i]) + 1;
+@@ -82,10 +79,9 @@ kbd_alloc(void) {
+ 		}
+ 	}
+ 	kbd->fn_handler =
+-		kmalloc(sizeof(fn_handler_fn *) * NR_FN_HANDLER, GFP_KERNEL);
++		kzalloc(sizeof(fn_handler_fn *) * NR_FN_HANDLER, GFP_KERNEL);
+ 	if (!kbd->fn_handler)
+ 		goto out_func;
+-	memset(kbd->fn_handler, 0, sizeof(fn_handler_fn *) * NR_FN_HANDLER);
+ 	kbd->accent_table =
+ 		kmalloc(sizeof(struct kbdiacr)*MAX_DIACR, GFP_KERNEL);
+ 	if (!kbd->accent_table)
+diff -urpN linux-2.6/drivers/s390/char/monreader.c linux-2.6-patched/drivers/s390/char/monreader.c
+--- linux-2.6/drivers/s390/char/monreader.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/monreader.c	2006-03-22 14:36:43.000000000 +0100
+@@ -257,14 +257,13 @@ mon_alloc_mem(void)
+ 	int i,j;
+ 	struct mon_private *monpriv;
+ 
+-	monpriv = kmalloc(sizeof(struct mon_private), GFP_KERNEL);
++	monpriv = kzalloc(sizeof(struct mon_private), GFP_KERNEL);
+ 	if (!monpriv) {
+ 		P_ERROR("no memory for monpriv\n");
+ 		return NULL;
+ 	}
+-	memset(monpriv, 0, sizeof(struct mon_private));
+ 	for (i = 0; i < MON_MSGLIM; i++) {
+-		monpriv->msg_array[i] = kmalloc(sizeof(struct mon_msg),
++		monpriv->msg_array[i] = kzalloc(sizeof(struct mon_msg),
+ 						    GFP_KERNEL);
+ 		if (!monpriv->msg_array[i]) {
+ 			P_ERROR("open, no memory for msg_array\n");
+@@ -272,7 +271,6 @@ mon_alloc_mem(void)
+ 				kfree(monpriv->msg_array[j]);
+ 			return NULL;
+ 		}
+-		memset(monpriv->msg_array[i], 0, sizeof(struct mon_msg));
+ 	}
+ 	return monpriv;
+ }
+diff -urpN linux-2.6/drivers/s390/char/raw3270.c linux-2.6-patched/drivers/s390/char/raw3270.c
+--- linux-2.6/drivers/s390/char/raw3270.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/raw3270.c	2006-03-22 14:36:43.000000000 +0100
+@@ -115,10 +115,9 @@ raw3270_request_alloc(size_t size)
+ 	struct raw3270_request *rq;
+ 
+ 	/* Allocate request structure */
+-	rq = kmalloc(sizeof(struct raw3270_request), GFP_KERNEL | GFP_DMA);
++	rq = kzalloc(sizeof(struct raw3270_request), GFP_KERNEL | GFP_DMA);
+ 	if (!rq)
+ 		return ERR_PTR(-ENOMEM);
+-	memset(rq, 0, sizeof(struct raw3270_request));
+ 
+ 	/* alloc output buffer. */
+ 	if (size > 0) {
+diff -urpN linux-2.6/drivers/s390/char/tape_class.c linux-2.6-patched/drivers/s390/char/tape_class.c
+--- linux-2.6/drivers/s390/char/tape_class.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/tape_class.c	2006-03-22 14:36:43.000000000 +0100
+@@ -44,11 +44,10 @@ struct tape_class_device *register_tape_
+ 	int		rc;
+ 	char *		s;
+ 
+-	tcd = kmalloc(sizeof(struct tape_class_device), GFP_KERNEL);
++	tcd = kzalloc(sizeof(struct tape_class_device), GFP_KERNEL);
+ 	if (!tcd)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	memset(tcd, 0, sizeof(struct tape_class_device));
+ 	strncpy(tcd->device_name, device_name, TAPECLASS_NAME_LEN);
+ 	for (s = strchr(tcd->device_name, '/'); s; s = strchr(s, '/'))
+ 		*s = '!';
+diff -urpN linux-2.6/drivers/s390/char/tape_core.c linux-2.6-patched/drivers/s390/char/tape_core.c
+--- linux-2.6/drivers/s390/char/tape_core.c	2006-03-22 14:36:36.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/tape_core.c	2006-03-22 14:36:43.000000000 +0100
+@@ -453,16 +453,14 @@ tape_alloc_device(void)
+ {
+ 	struct tape_device *device;
+ 
+-	device = (struct tape_device *)
+-		kmalloc(sizeof(struct tape_device), GFP_KERNEL);
++	device = kzalloc(sizeof(struct tape_device), GFP_KERNEL);
+ 	if (device == NULL) {
+ 		DBF_EXCEPTION(2, "ti:no mem\n");
+ 		PRINT_INFO ("can't allocate memory for "
+ 			    "tape info structure\n");
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+-	memset(device, 0, sizeof(struct tape_device));
+-	device->modeset_byte = (char *) kmalloc(1, GFP_KERNEL | GFP_DMA);
++	device->modeset_byte = kmalloc(1, GFP_KERNEL | GFP_DMA);
+ 	if (device->modeset_byte == NULL) {
+ 		DBF_EXCEPTION(2, "ti:no mem\n");
+ 		PRINT_INFO("can't allocate memory for modeset byte\n");
+@@ -659,34 +657,30 @@ tape_alloc_request(int cplength, int dat
+ 
+ 	DBF_LH(6, "tape_alloc_request(%d, %d)\n", cplength, datasize);
+ 
+-	request = (struct tape_request *) kmalloc(sizeof(struct tape_request),
+-						  GFP_KERNEL);
++	request = kzalloc(sizeof(struct tape_request), GFP_KERNEL);
+ 	if (request == NULL) {
+ 		DBF_EXCEPTION(1, "cqra nomem\n");
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+-	memset(request, 0, sizeof(struct tape_request));
+ 	/* allocate channel program */
+ 	if (cplength > 0) {
+-		request->cpaddr = kmalloc(cplength*sizeof(struct ccw1),
++		request->cpaddr = kcalloc(cplength, sizeof(struct ccw1),
+ 					  GFP_ATOMIC | GFP_DMA);
+ 		if (request->cpaddr == NULL) {
+ 			DBF_EXCEPTION(1, "cqra nomem\n");
+ 			kfree(request);
+ 			return ERR_PTR(-ENOMEM);
+ 		}
+-		memset(request->cpaddr, 0, cplength*sizeof(struct ccw1));
+ 	}
+ 	/* alloc small kernel buffer */
+ 	if (datasize > 0) {
+-		request->cpdata = kmalloc(datasize, GFP_KERNEL | GFP_DMA);
++		request->cpdata = kzalloc(datasize, GFP_KERNEL | GFP_DMA);
+ 		if (request->cpdata == NULL) {
+ 			DBF_EXCEPTION(1, "cqra nomem\n");
+ 			kfree(request->cpaddr);
+ 			kfree(request);
+ 			return ERR_PTR(-ENOMEM);
+ 		}
+-		memset(request->cpdata, 0, datasize);
+ 	}
+ 	DBF_LH(6, "New request %p(%p/%p)\n", request, request->cpaddr,
+ 		request->cpdata);
+diff -urpN linux-2.6/drivers/s390/char/tty3270.c linux-2.6-patched/drivers/s390/char/tty3270.c
+--- linux-2.6/drivers/s390/char/tty3270.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/tty3270.c	2006-03-22 14:36:43.000000000 +0100
+@@ -691,10 +691,9 @@ tty3270_alloc_view(void)
+ 	struct tty3270 *tp;
+ 	int pages;
+ 
+-	tp = kmalloc(sizeof(struct tty3270),GFP_KERNEL);
++	tp = kzalloc(sizeof(struct tty3270), GFP_KERNEL);
+ 	if (!tp)
+ 		goto out_err;
+-	memset(tp, 0, sizeof(struct tty3270));
+ 	tp->freemem_pages =
+ 		kmalloc(sizeof(void *) * TTY3270_STRING_PAGES, GFP_KERNEL);
+ 	if (!tp->freemem_pages)
+@@ -767,16 +766,14 @@ tty3270_alloc_screen(struct tty3270 *tp)
+ 	int lines;
+ 
+ 	size = sizeof(struct tty3270_line) * (tp->view.rows - 2);
+-	tp->screen = kmalloc(size, GFP_KERNEL);
++	tp->screen = kzalloc(size, GFP_KERNEL);
+ 	if (!tp->screen)
+ 		goto out_err;
+-	memset(tp->screen, 0, size);
+ 	for (lines = 0; lines < tp->view.rows - 2; lines++) {
+ 		size = sizeof(struct tty3270_cell) * tp->view.cols;
+-		tp->screen[lines].cells = kmalloc(size, GFP_KERNEL);
++		tp->screen[lines].cells = kzalloc(size, GFP_KERNEL);
+ 		if (!tp->screen[lines].cells)
+ 			goto out_screen;
+-		memset(tp->screen[lines].cells, 0, size);
+ 	}
+ 	return 0;
+ out_screen:
+diff -urpN linux-2.6/drivers/s390/char/vmlogrdr.c linux-2.6-patched/drivers/s390/char/vmlogrdr.c
+--- linux-2.6/drivers/s390/char/vmlogrdr.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/vmlogrdr.c	2006-03-22 14:36:43.000000000 +0100
+@@ -759,9 +759,8 @@ vmlogrdr_register_device(struct vmlogrdr
+ 	struct device *dev;
+ 	int ret;
+ 
+-	dev = kmalloc(sizeof(struct device), GFP_KERNEL);
++	dev = kzalloc(sizeof(struct device), GFP_KERNEL);
+ 	if (dev) {
+-		memset(dev, 0, sizeof(struct device));
+ 		snprintf(dev->bus_id, BUS_ID_SIZE, "%s",
+ 			 priv->internal_name);
+ 		dev->bus = &iucv_bus;
+diff -urpN linux-2.6/drivers/s390/cio/ccwgroup.c linux-2.6-patched/drivers/s390/cio/ccwgroup.c
+--- linux-2.6/drivers/s390/cio/ccwgroup.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/cio/ccwgroup.c	2006-03-22 14:36:43.000000000 +0100
+@@ -157,11 +157,10 @@ ccwgroup_create(struct device *root,
+ 	if (argc > 256) /* disallow dumb users */
+ 		return -EINVAL;
+ 
+-	gdev = kmalloc(sizeof(*gdev) + argc*sizeof(gdev->cdev[0]), GFP_KERNEL);
++	gdev = kzalloc(sizeof(*gdev) + argc*sizeof(gdev->cdev[0]), GFP_KERNEL);
+ 	if (!gdev)
+ 		return -ENOMEM;
+ 
+-	memset(gdev, 0, sizeof(*gdev) + argc*sizeof(gdev->cdev[0]));
+ 	atomic_set(&gdev->onoff, 0);
+ 
+ 	del_drvdata = 0;
+diff -urpN linux-2.6/drivers/s390/cio/chsc.c linux-2.6-patched/drivers/s390/cio/chsc.c
+--- linux-2.6/drivers/s390/cio/chsc.c	2006-03-22 14:36:12.000000000 +0100
++++ linux-2.6-patched/drivers/s390/cio/chsc.c	2006-03-22 14:36:43.000000000 +0100
+@@ -1413,10 +1413,9 @@ new_channel_path(int chpid)
+ 	struct channel_path *chp;
+ 	int ret;
+ 
+-	chp = kmalloc(sizeof(struct channel_path), GFP_KERNEL);
++	chp = kzalloc(sizeof(struct channel_path), GFP_KERNEL);
+ 	if (!chp)
+ 		return -ENOMEM;
+-	memset(chp, 0, sizeof(struct channel_path));
+ 
+ 	/* fill in status, etc. */
+ 	chp->id = chpid;
+diff -urpN linux-2.6/drivers/s390/cio/css.c linux-2.6-patched/drivers/s390/cio/css.c
+--- linux-2.6/drivers/s390/cio/css.c	2006-03-22 14:36:12.000000000 +0100
++++ linux-2.6-patched/drivers/s390/cio/css.c	2006-03-22 14:36:43.000000000 +0100
+@@ -630,10 +630,9 @@ css_enqueue_subchannel_slow(struct subch
+ 	struct slow_subchannel *new_slow_sch;
+ 	unsigned long flags;
+ 
+-	new_slow_sch = kmalloc(sizeof(struct slow_subchannel), GFP_ATOMIC);
++	new_slow_sch = kzalloc(sizeof(struct slow_subchannel), GFP_ATOMIC);
+ 	if (!new_slow_sch)
+ 		return -ENOMEM;
+-	memset(new_slow_sch, 0, sizeof(struct slow_subchannel));
+ 	new_slow_sch->schid = schid;
+ 	spin_lock_irqsave(&slow_subchannel_lock, flags);
+ 	list_add_tail(&new_slow_sch->slow_list, &slow_subchannels_head);
+diff -urpN linux-2.6/drivers/s390/cio/device.c linux-2.6-patched/drivers/s390/cio/device.c
+--- linux-2.6/drivers/s390/cio/device.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/cio/device.c	2006-03-22 14:36:43.000000000 +0100
+@@ -826,17 +826,15 @@ io_subchannel_probe (struct subchannel *
+ 			get_device(&cdev->dev);
+ 		return 0;
+ 	}
+-	cdev  = kmalloc (sizeof(*cdev), GFP_KERNEL);
++	cdev = kzalloc (sizeof(*cdev), GFP_KERNEL);
+ 	if (!cdev)
+ 		return -ENOMEM;
+-	memset(cdev, 0, sizeof(struct ccw_device));
+-	cdev->private = kmalloc(sizeof(struct ccw_device_private), 
++	cdev->private = kzalloc(sizeof(struct ccw_device_private),
+ 				GFP_KERNEL | GFP_DMA);
+ 	if (!cdev->private) {
+ 		kfree(cdev);
+ 		return -ENOMEM;
+ 	}
+-	memset(cdev->private, 0, sizeof(struct ccw_device_private));
+ 	atomic_set(&cdev->private->onoff, 0);
+ 	cdev->dev = (struct device) {
+ 		.parent = &sch->dev,
+diff -urpN linux-2.6/drivers/s390/cio/device_ops.c linux-2.6-patched/drivers/s390/cio/device_ops.c
+--- linux-2.6/drivers/s390/cio/device_ops.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/cio/device_ops.c	2006-03-22 14:36:43.000000000 +0100
+@@ -359,10 +359,9 @@ read_dev_chars (struct ccw_device *cdev,
+ 	CIO_TRACE_EVENT (4, "rddevch");
+ 	CIO_TRACE_EVENT (4, sch->dev.bus_id);
+ 
+-	rdc_ccw = kmalloc(sizeof(struct ccw1), GFP_KERNEL | GFP_DMA);
++	rdc_ccw = kzalloc(sizeof(struct ccw1), GFP_KERNEL | GFP_DMA);
+ 	if (!rdc_ccw)
+ 		return -ENOMEM;
+-	memset(rdc_ccw, 0, sizeof(struct ccw1));
+ 	rdc_ccw->cmd_code = CCW_CMD_RDC;
+ 	rdc_ccw->count = length;
+ 	rdc_ccw->flags = CCW_FLAG_SLI;
+@@ -426,16 +425,14 @@ read_conf_data_lpm (struct ccw_device *c
+ 	if (!ciw || ciw->cmd == 0)
+ 		return -EOPNOTSUPP;
+ 
+-	rcd_ccw = kmalloc(sizeof(struct ccw1), GFP_KERNEL | GFP_DMA);
++	rcd_ccw = kzalloc(sizeof(struct ccw1), GFP_KERNEL | GFP_DMA);
+ 	if (!rcd_ccw)
+ 		return -ENOMEM;
+-	memset(rcd_ccw, 0, sizeof(struct ccw1));
+-	rcd_buf = kmalloc(ciw->count, GFP_KERNEL | GFP_DMA);
++	rcd_buf = kzalloc(ciw->count, GFP_KERNEL | GFP_DMA);
+  	if (!rcd_buf) {
+ 		kfree(rcd_ccw);
+ 		return -ENOMEM;
+ 	}
+- 	memset (rcd_buf, 0, ciw->count);
+ 	rcd_ccw->cmd_code = ciw->cmd;
+ 	rcd_ccw->cda = (__u32) __pa (rcd_buf);
+ 	rcd_ccw->count = ciw->count;
+diff -urpN linux-2.6/drivers/s390/cio/qdio.c linux-2.6-patched/drivers/s390/cio/qdio.c
+--- linux-2.6/drivers/s390/cio/qdio.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/cio/qdio.c	2006-03-22 14:36:43.000000000 +0100
+@@ -1686,16 +1686,14 @@ qdio_alloc_qs(struct qdio_irq *irq_ptr,
+ 	int result=-ENOMEM;
+ 
+ 	for (i=0;i<no_input_qs;i++) {
+-		q=kmalloc(sizeof(struct qdio_q),GFP_KERNEL);
++		q = kzalloc(sizeof(struct qdio_q), GFP_KERNEL);
+ 
+ 		if (!q) {
+ 			QDIO_PRINT_ERR("kmalloc of q failed!\n");
+ 			goto out;
+ 		}
+ 
+-		memset(q,0,sizeof(struct qdio_q));
 -
- #define TAPE34XX_FMT_3480	0
- #define TAPE34XX_FMT_3480_2_XF	1
- #define TAPE34XX_FMT_3480_XF	2
-diff -urpN linux-2.6/drivers/s390/char/tape_3590.c linux-2.6-patched/drivers/s390/char/tape_3590.c
---- linux-2.6/drivers/s390/char/tape_3590.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/char/tape_3590.c	2006-03-22 14:36:36.000000000 +0100
-@@ -0,0 +1,1301 @@
-+/*
-+ *  drivers/s390/char/tape_3590.c
-+ *    tape device discipline for 3590 tapes.
-+ *
-+ *    Copyright (C) IBM Corp. 2001,2006
-+ *    Author(s): Stefan Bader <shbader@de.ibm.com>
-+ *		 Michael Holzheu <holzheu@de.ibm.com>
-+ *		 Martin Schwidefsky <schwidefsky@de.ibm.com>
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/bio.h>
-+
-+#define TAPE_DBF_AREA	tape_3590_dbf
-+
-+#include "tape.h"
-+#include "tape_std.h"
-+#include "tape_3590.h"
-+
-+/*
-+ * Pointer to debug area.
-+ */
-+debug_info_t *TAPE_DBF_AREA = NULL;
-+EXPORT_SYMBOL(TAPE_DBF_AREA);
-+
-+/*******************************************************************
-+ * Error Recovery fuctions:
-+ * - Read Opposite:		 implemented
-+ * - Read Device (buffered) log: BRA
-+ * - Read Library log:		 BRA
-+ * - Swap Devices:		 BRA
-+ * - Long Busy:			 BRA
-+ * - Special Intercept:		 BRA
-+ * - Read Alternate:		 implemented
-+ *******************************************************************/
-+
-+#define PRINTK_HEADER "TAPE_3590: "
-+
-+static const char *tape_3590_msg[TAPE_3590_MAX_MSG] = {
-+	[0x00] = "",
-+	[0x10] = "Lost Sense",
-+	[0x11] = "Assigned Elsewhere",
-+	[0x12] = "Allegiance Reset",
-+	[0x13] = "Shared Access Violation",
-+	[0x20] = "Command Reject",
-+	[0x21] = "Configuration Error",
-+	[0x22] = "Protection Exception",
-+	[0x23] = "Write Protect",
-+	[0x24] = "Write Length",
-+	[0x25] = "Read-Only Format",
-+	[0x31] = "Beginning of Partition",
-+	[0x33] = "End of Partition",
-+	[0x34] = "End of Data",
-+	[0x35] = "Block not found",
-+	[0x40] = "Device Intervention",
-+	[0x41] = "Loader Intervention",
-+	[0x42] = "Library Intervention",
-+	[0x50] = "Write Error",
-+	[0x51] = "Erase Error",
-+	[0x52] = "Formatting Error",
-+	[0x53] = "Read Error",
-+	[0x54] = "Unsupported Format",
-+	[0x55] = "No Formatting",
-+	[0x56] = "Positioning lost",
-+	[0x57] = "Read Length",
-+	[0x60] = "Unsupported Medium",
-+	[0x61] = "Medium Length Error",
-+	[0x62] = "Medium removed",
-+	[0x64] = "Load Check",
-+	[0x65] = "Unload Check",
-+	[0x70] = "Equipment Check",
-+	[0x71] = "Bus out Check",
-+	[0x72] = "Protocol Error",
-+	[0x73] = "Interface Error",
-+	[0x74] = "Overrun",
-+	[0x75] = "Halt Signal",
-+	[0x90] = "Device fenced",
-+	[0x91] = "Device Path fenced",
-+	[0xa0] = "Volume misplaced",
-+	[0xa1] = "Volume inaccessible",
-+	[0xa2] = "Volume in input",
-+	[0xa3] = "Volume ejected",
-+	[0xa4] = "All categories reserved",
-+	[0xa5] = "Duplicate Volume",
-+	[0xa6] = "Library Manager Offline",
-+	[0xa7] = "Library Output Station full",
-+	[0xa8] = "Vision System non-operational",
-+	[0xa9] = "Library Manager Equipment Check",
-+	[0xaa] = "Library Equipment Check",
-+	[0xab] = "All Library Cells full",
-+	[0xac] = "No Cleaner Volumes in Library",
-+	[0xad] = "I/O Station door open",
-+	[0xae] = "Subsystem environmental alert",
-+};
-+
-+/*
-+ * 3590 IOCTL Overload
-+ */
-+static int
-+tape_3590_ioctl(struct tape_device *device, unsigned int cmd, unsigned long arg)
-+{
-+	switch (cmd) {
-+	case TAPE390_DISPLAY: {
-+		struct display_struct disp;
-+
-+		if (copy_from_user(&disp, (char __user *) arg, sizeof(disp)))
-+			return -EFAULT;
-+
-+		return tape_std_display(device, &disp);
-+	}
-+	default:
-+		return -EINVAL;	/* no additional ioctls */
-+	}
-+}
-+
-+/*
-+ * SENSE Medium: Get Sense data about medium state
-+ */
-+static int
-+tape_3590_sense_medium(struct tape_device *device)
-+{
-+	struct tape_request *request;
-+
-+	request = tape_alloc_request(1, 128);
-+	if (IS_ERR(request))
-+		return PTR_ERR(request);
-+	request->op = TO_MSEN;
-+	tape_ccw_end(request->cpaddr, MEDIUM_SENSE, 128, request->cpdata);
-+	return tape_do_io_free(device, request);
-+}
-+
-+/*
-+ * MTTELL: Tell block. Return the number of block relative to current file.
-+ */
-+static int
-+tape_3590_mttell(struct tape_device *device, int mt_count)
-+{
-+	__u64 block_id;
-+	int rc;
-+
-+	rc = tape_std_read_block_id(device, &block_id);
-+	if (rc)
-+		return rc;
-+	return block_id >> 32;
-+}
-+
-+/*
-+ * MTSEEK: seek to the specified block.
-+ */
-+static int
-+tape_3590_mtseek(struct tape_device *device, int count)
-+{
-+	struct tape_request *request;
-+
-+	DBF_EVENT(6, "xsee id: %x\n", count);
-+	request = tape_alloc_request(3, 4);
-+	if (IS_ERR(request))
-+		return PTR_ERR(request);
-+	request->op = TO_LBL;
-+	tape_ccw_cc(request->cpaddr, MODE_SET_DB, 1, device->modeset_byte);
-+	*(__u32 *) request->cpdata = count;
-+	tape_ccw_cc(request->cpaddr + 1, LOCATE, 4, request->cpdata);
-+	tape_ccw_end(request->cpaddr + 2, NOP, 0, NULL);
-+	return tape_do_io_free(device, request);
-+}
-+
-+/*
-+ * Read Opposite Error Recovery Function:
-+ * Used, when Read Forward does not work
-+ */
-+static void
-+tape_3590_read_opposite(struct tape_device *device,
-+			struct tape_request *request)
-+{
-+	struct tape_3590_disc_data *data;
-+
-+	/*
-+	 * We have allocated 4 ccws in tape_std_read, so we can now
-+	 * transform the request to a read backward, followed by a
-+	 * forward space block.
-+	 */
-+	request->op = TO_RBA;
-+	tape_ccw_cc(request->cpaddr, MODE_SET_DB, 1, device->modeset_byte);
-+	data = device->discdata;
-+	tape_ccw_cc_idal(request->cpaddr + 1, data->read_back_op,
-+			 device->char_data.idal_buf);
-+	tape_ccw_cc(request->cpaddr + 2, FORSPACEBLOCK, 0, NULL);
-+	tape_ccw_end(request->cpaddr + 3, NOP, 0, NULL);
-+	DBF_EVENT(6, "xrop ccwg\n");
-+}
-+
-+/*
-+ * Read Attention Msg
-+ * This should be done after an interrupt with attention bit (0x80)
-+ * in device state.
-+ *
-+ * After a "read attention message" request there are two possible
-+ * results:
-+ *
-+ * 1. A unit check is presented, when attention sense is present (e.g. when
-+ * a medium has been unloaded). The attention sense comes then
-+ * together with the unit check. The recovery action is either "retry"
-+ * (in case there is an attention message pending) or "permanent error".
-+ *
-+ * 2. The attention msg is written to the "read subsystem data" buffer.
-+ * In this case we probably should print it to the console.
-+ */
-+static int
-+tape_3590_read_attmsg(struct tape_device *device)
-+{
-+	struct tape_request *request;
-+	char *buf;
-+
-+	request = tape_alloc_request(3, 4096);
-+	if (IS_ERR(request))
-+		return PTR_ERR(request);
-+	request->op = TO_READ_ATTMSG;
-+	buf = request->cpdata;
-+	buf[0] = PREP_RD_SS_DATA;
-+	buf[6] = RD_ATTMSG;	/* read att msg */
-+	tape_ccw_cc(request->cpaddr, PERFORM_SS_FUNC, 12, buf);
-+	tape_ccw_cc(request->cpaddr + 1, READ_SS_DATA, 4096 - 12, buf + 12);
-+	tape_ccw_end(request->cpaddr + 2, NOP, 0, NULL);
-+	return tape_do_io_free(device, request);
-+}
-+
-+/*
-+ * These functions are used to schedule follow-up actions from within an
-+ * interrupt context (like unsolicited interrupts).
-+ */
-+static void
-+tape_3590_work_handler(void *data)
-+{
-+	struct {
-+		struct tape_device *device;
-+		enum tape_op op;
-+		struct work_struct work;
-+	} *p = data;
-+
-+	switch (p->op) {
-+	case TO_MSEN:
-+		tape_3590_sense_medium(p->device);
-+		break;
-+	case TO_READ_ATTMSG:
-+		tape_3590_read_attmsg(p->device);
-+		break;
-+	default:
-+		DBF_EVENT(3, "T3590: work handler undefined for "
-+			  "operation 0x%02x\n", p->op);
-+	}
-+	tape_put_device(p->device);
-+	kfree(p);
-+}
-+
-+static int
-+tape_3590_schedule_work(struct tape_device *device, enum tape_op op)
-+{
-+	struct {
-+		struct tape_device *device;
-+		enum tape_op op;
-+		struct work_struct work;
-+	} *p;
-+
-+	if ((p = kzalloc(sizeof(*p), GFP_ATOMIC)) == NULL)
-+		return -ENOMEM;
-+
-+	INIT_WORK(&p->work, tape_3590_work_handler, p);
-+
-+	p->device = tape_get_device_reference(device);
-+	p->op = op;
-+
-+	schedule_work(&p->work);
-+	return 0;
-+}
-+
-+#ifdef CONFIG_S390_TAPE_BLOCK
-+/*
-+ * Tape Block READ
-+ */
-+static struct tape_request *
-+tape_3590_bread(struct tape_device *device, struct request *req)
-+{
-+	struct tape_request *request;
-+	struct ccw1 *ccw;
-+	int count = 0, start_block, i;
-+	unsigned off;
-+	char *dst;
-+	struct bio_vec *bv;
-+	struct bio *bio;
-+
-+	DBF_EVENT(6, "xBREDid:");
-+	start_block = req->sector >> TAPEBLOCK_HSEC_S2B;
-+	DBF_EVENT(6, "start_block = %i\n", start_block);
-+
-+	rq_for_each_bio(bio, req) {
-+		bio_for_each_segment(bv, bio, i) {
-+			count += bv->bv_len >> (TAPEBLOCK_HSEC_S2B + 9);
-+		}
-+	}
-+	request = tape_alloc_request(2 + count + 1, 4);
-+	if (IS_ERR(request))
-+		return request;
-+	request->op = TO_BLOCK;
-+	*(__u32 *) request->cpdata = start_block;
-+	ccw = request->cpaddr;
-+	ccw = tape_ccw_cc(ccw, MODE_SET_DB, 1, device->modeset_byte);
-+
-+	/*
-+	 * We always setup a nop after the mode set ccw. This slot is
-+	 * used in tape_std_check_locate to insert a locate ccw if the
-+	 * current tape position doesn't match the start block to be read.
-+	 */
-+	ccw = tape_ccw_cc(ccw, NOP, 0, NULL);
-+
-+	rq_for_each_bio(bio, req) {
-+		bio_for_each_segment(bv, bio, i) {
-+			dst = kmap(bv->bv_page) + bv->bv_offset;
-+			for (off = 0; off < bv->bv_len;
-+			     off += TAPEBLOCK_HSEC_SIZE) {
-+				ccw->flags = CCW_FLAG_CC;
-+				ccw->cmd_code = READ_FORWARD;
-+				ccw->count = TAPEBLOCK_HSEC_SIZE;
-+				set_normalized_cda(ccw, (void *) __pa(dst));
-+				ccw++;
-+				dst += TAPEBLOCK_HSEC_SIZE;
-+			}
-+			if (off > bv->bv_len)
-+				BUG();
-+		}
-+	}
-+	ccw = tape_ccw_end(ccw, NOP, 0, NULL);
-+	DBF_EVENT(6, "xBREDccwg\n");
-+	return request;
-+}
-+
-+static void
-+tape_3590_free_bread(struct tape_request *request)
-+{
-+	struct ccw1 *ccw;
-+
-+	/* Last ccw is a nop and doesn't need clear_normalized_cda */
-+	for (ccw = request->cpaddr; ccw->flags & CCW_FLAG_CC; ccw++)
-+		if (ccw->cmd_code == READ_FORWARD)
-+			clear_normalized_cda(ccw);
-+	tape_free_request(request);
-+}
-+
-+/*
-+ * check_locate is called just before the tape request is passed to
-+ * the common io layer for execution. It has to check the current
-+ * tape position and insert a locate ccw if it doesn't match the
-+ * start block for the request.
-+ */
-+static void
-+tape_3590_check_locate(struct tape_device *device, struct tape_request *request)
-+{
-+	__u32 *start_block;
-+
-+	start_block = (__u32 *) request->cpdata;
-+	if (*start_block != device->blk_data.block_position) {
-+		/* Add the start offset of the file to get the real block. */
-+		*start_block += device->bof;
-+		tape_ccw_cc(request->cpaddr + 1, LOCATE, 4, request->cpdata);
-+	}
-+}
-+#endif
-+
-+/*
-+ * The done handler is called at device/channel end and wakes up the sleeping
-+ * process
-+ */
-+static int
-+tape_3590_done(struct tape_device *device, struct tape_request *request)
-+{
-+	struct tape_3590_med_sense *sense;
-+
-+	DBF_EVENT(6, "%s done\n", tape_op_verbose[request->op]);
-+
-+	switch (request->op) {
-+	case TO_BSB:
-+	case TO_BSF:
-+	case TO_DSE:
-+	case TO_FSB:
-+	case TO_FSF:
-+	case TO_LBL:
-+	case TO_RFO:
-+	case TO_RBA:
-+	case TO_REW:
-+	case TO_WRI:
-+	case TO_WTM:
-+	case TO_BLOCK:
-+	case TO_LOAD:
-+		tape_med_state_set(device, MS_LOADED);
-+		break;
-+	case TO_RUN:
-+		tape_med_state_set(device, MS_UNLOADED);
-+		break;
-+	case TO_MSEN:
-+		sense = (struct tape_3590_med_sense *) request->cpdata;
-+		if (sense->masst == MSENSE_UNASSOCIATED)
-+			tape_med_state_set(device, MS_UNLOADED);
-+		if (sense->masst == MSENSE_ASSOCIATED_MOUNT)
-+			tape_med_state_set(device, MS_LOADED);
-+		break;
-+	case TO_RBI:	/* RBI seems to succeed even without medium loaded. */
-+	case TO_NOP:	/* Same to NOP. */
-+	case TO_READ_CONFIG:
-+	case TO_READ_ATTMSG:
-+	case TO_DIS:
-+	case TO_ASSIGN:
-+	case TO_UNASSIGN:
-+		break;
-+	case TO_SIZE:
-+		break;
-+	}
-+	return TAPE_IO_SUCCESS;
-+}
-+
-+/*
-+ * This fuction is called, when error recovery was successfull
-+ */
-+static inline int
-+tape_3590_erp_succeded(struct tape_device *device, struct tape_request *request)
-+{
-+	DBF_EVENT(3, "Error Recovery successfull for %s\n",
-+		  tape_op_verbose[request->op]);
-+	return tape_3590_done(device, request);
-+}
-+
-+/*
-+ * This fuction is called, when error recovery was not successfull
-+ */
-+static inline int
-+tape_3590_erp_failed(struct tape_device *device, struct tape_request *request,
-+		     struct irb *irb, int rc)
-+{
-+	DBF_EVENT(3, "Error Recovery failed for %s\n",
-+		  tape_op_verbose[request->op]);
-+	tape_dump_sense_dbf(device, request, irb);
-+	return rc;
-+}
-+
-+/*
-+ * Error Recovery do retry
-+ */
-+static inline int
-+tape_3590_erp_retry(struct tape_device *device, struct tape_request *request,
-+		    struct irb *irb)
-+{
-+	DBF_EVENT(2, "Retry: %s\n", tape_op_verbose[request->op]);
-+	tape_dump_sense_dbf(device, request, irb);
-+	return TAPE_IO_RETRY;
-+}
-+
-+/*
-+ * Handle unsolicited interrupts
-+ */
-+static int
-+tape_3590_unsolicited_irq(struct tape_device *device, struct irb *irb)
-+{
-+	if (irb->scsw.dstat == DEV_STAT_CHN_END)
-+		/* Probably result of halt ssch */
-+		return TAPE_IO_PENDING;
-+	else if (irb->scsw.dstat == 0x85)
-+		/* Device Ready -> check medium state */
-+		tape_3590_schedule_work(device, TO_MSEN);
-+	else if (irb->scsw.dstat & DEV_STAT_ATTENTION)
-+		tape_3590_schedule_work(device, TO_READ_ATTMSG);
-+	else {
-+		DBF_EVENT(3, "unsol.irq! dev end: %08x\n", device->cdev_id);
-+		PRINT_WARN("Unsolicited IRQ (Device End) caught.\n");
-+		tape_dump_sense(device, NULL, irb);
-+	}
-+	return TAPE_IO_SUCCESS;
-+}
-+
-+/*
-+ * Basic Recovery routine
-+ */
-+static int
-+tape_3590_erp_basic(struct tape_device *device, struct tape_request *request,
-+		    struct irb *irb, int rc)
-+{
-+	struct tape_3590_sense *sense;
-+
-+	sense = (struct tape_3590_sense *) irb->ecw;
-+
-+	switch (sense->bra) {
-+	case SENSE_BRA_PER:
-+		return tape_3590_erp_failed(device, request, irb, rc);
-+	case SENSE_BRA_CONT:
-+		return tape_3590_erp_succeded(device, request);
-+	case SENSE_BRA_RE:
-+		return tape_3590_erp_retry(device, request, irb);
-+	case SENSE_BRA_DRE:
-+		return tape_3590_erp_failed(device, request, irb, rc);
-+	default:
-+		PRINT_ERR("Unknown BRA %x - This should not happen!\n",
-+			  sense->bra);
-+		BUG();
-+		return TAPE_IO_STOP;
-+	}
-+}
-+
-+/*
-+ *  RDL: Read Device (buffered) log
-+ */
-+static int
-+tape_3590_erp_read_buf_log(struct tape_device *device,
-+			   struct tape_request *request, struct irb *irb)
-+{
-+	/*
-+	 * We just do the basic error recovery at the moment (retry).
-+	 * Perhaps in the future, we read the log and dump it somewhere...
-+	 */
-+	return tape_3590_erp_basic(device, request, irb, -EIO);
-+}
-+
-+/*
-+ *  SWAP: Swap Devices
-+ */
-+static int
-+tape_3590_erp_swap(struct tape_device *device, struct tape_request *request,
-+		   struct irb *irb)
-+{
-+	/*
-+	 * This error recovery should swap the tapes
-+	 * if the original has a problem. The operation
-+	 * should proceed with the new tape... this
-+	 * should probably be done in user space!
-+	 */
-+	PRINT_WARN("(%s): Swap Tape Device!\n", device->cdev->dev.bus_id);
-+	return tape_3590_erp_basic(device, request, irb, -EIO);
-+}
-+
-+/*
-+ *  LBY: Long Busy
-+ */
-+static int
-+tape_3590_erp_long_busy(struct tape_device *device,
-+			struct tape_request *request, struct irb *irb)
-+{
-+	/* FIXME: how about WAITING for a minute ? */
-+	PRINT_WARN("(%s): Device is busy! Please wait a minute!\n",
-+		   device->cdev->dev.bus_id);
-+	return tape_3590_erp_basic(device, request, irb, -EBUSY);
-+}
-+
-+/*
-+ *  SPI: Special Intercept
-+ */
-+static int
-+tape_3590_erp_special_interrupt(struct tape_device *device,
-+				struct tape_request *request, struct irb *irb)
-+{
-+	return tape_3590_erp_basic(device, request, irb, -EIO);
-+}
-+
-+/*
-+ *  RDA: Read Alternate
-+ */
-+static int
-+tape_3590_erp_read_alternate(struct tape_device *device,
-+			     struct tape_request *request, struct irb *irb)
-+{
-+	struct tape_3590_disc_data *data;
-+
-+	/*
-+	 * The issued Read Backward or Read Previous command is not
-+	 * supported by the device
-+	 * The recovery action should be to issue another command:
-+	 * Read Revious: if Read Backward is not supported
-+	 * Read Backward: if Read Previous is not supported
-+	 */
-+	data = device->discdata;
-+	if (data->read_back_op == READ_PREVIOUS) {
-+		DBF_EVENT(2, "(%08x): No support for READ_PREVIOUS command\n",
-+			  device->cdev_id);
-+		data->read_back_op = READ_BACKWARD;
-+	} else {
-+		DBF_EVENT(2, "(%08x): No support for READ_BACKWARD command\n",
-+			  device->cdev_id);
-+		data->read_back_op = READ_PREVIOUS;
-+	}
-+	tape_3590_read_opposite(device, request);
-+	return tape_3590_erp_retry(device, request, irb);
-+}
-+
-+/*
-+ * Error Recovery read opposite
-+ */
-+static int
-+tape_3590_erp_read_opposite(struct tape_device *device,
-+			    struct tape_request *request, struct irb *irb)
-+{
-+	switch (request->op) {
-+	case TO_RFO:
-+		/*
-+		 * We did read forward, but the data could not be read.
-+		 * We will read backward and then skip forward again.
-+		 */
-+		tape_3590_read_opposite(device, request);
-+		return tape_3590_erp_retry(device, request, irb);
-+	case TO_RBA:
-+		/* We tried to read forward and backward, but hat no success */
-+		return tape_3590_erp_failed(device, request, irb, -EIO);
-+		break;
-+	default:
-+		PRINT_WARN("read_opposite_recovery_called_with_op: %s\n",
-+			   tape_op_verbose[request->op]);
-+		return tape_3590_erp_failed(device, request, irb, -EIO);
-+	}
-+}
-+
-+/*
-+ * Print an MIM (Media Information  Message) (message code f0)
-+ */
-+static void
-+tape_3590_print_mim_msg_f0(struct tape_device *device, struct irb *irb)
-+{
-+	struct tape_3590_sense *sense;
-+
-+	sense = (struct tape_3590_sense *) irb->ecw;
-+	/* Exception Message */
-+	switch (sense->fmt.f70.emc) {
-+	case 0x02:
-+		PRINT_WARN("(%s): Data degraded\n", device->cdev->dev.bus_id);
-+		break;
-+	case 0x03:
-+		PRINT_WARN("(%s): Data degraded in partion %i\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f70.mp);
-+		break;
-+	case 0x04:
-+		PRINT_WARN("(%s): Medium degraded\n", device->cdev->dev.bus_id);
-+		break;
-+	case 0x05:
-+		PRINT_WARN("(%s): Medium degraded in partition %i\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f70.mp);
-+		break;
-+	case 0x06:
-+		PRINT_WARN("(%s): Block 0 Error\n", device->cdev->dev.bus_id);
-+		break;
-+	case 0x07:
-+		PRINT_WARN("(%s): Medium Exception 0x%02x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f70.md);
-+		break;
-+	default:
-+		PRINT_WARN("(%s): MIM ExMsg: 0x%02x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f70.emc);
-+		break;
-+	}
-+	/* Service Message */
-+	switch (sense->fmt.f70.smc) {
-+	case 0x02:
-+		PRINT_WARN("(%s): Reference Media maintenance procedure %i\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f70.md);
-+		break;
-+	default:
-+		PRINT_WARN("(%s): MIM ServiceMsg: 0x%02x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f70.smc);
-+		break;
-+	}
-+}
-+
-+/*
-+ * Print an I/O Subsystem Service Information Message (message code f1)
-+ */
-+static void
-+tape_3590_print_io_sim_msg_f1(struct tape_device *device, struct irb *irb)
-+{
-+	struct tape_3590_sense *sense;
-+
-+	sense = (struct tape_3590_sense *) irb->ecw;
-+	/* Exception Message */
-+	switch (sense->fmt.f71.emc) {
-+	case 0x01:
-+		PRINT_WARN("(%s): Effect of failure is unknown\n",
-+			   device->cdev->dev.bus_id);
-+		break;
-+	case 0x02:
-+		PRINT_WARN("(%s): CU Exception - no performance impact\n",
-+			   device->cdev->dev.bus_id);
-+		break;
-+	case 0x03:
-+		PRINT_WARN("(%s): CU Exception on channel interface 0x%02x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f71.md[0]);
-+		break;
-+	case 0x04:
-+		PRINT_WARN("(%s): CU Exception on device path 0x%02x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f71.md[0]);
-+		break;
-+	case 0x05:
-+		PRINT_WARN("(%s): CU Exception on library path 0x%02x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f71.md[0]);
-+		break;
-+	case 0x06:
-+		PRINT_WARN("(%s): CU Exception on node 0x%02x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f71.md[0]);
-+		break;
-+	case 0x07:
-+		PRINT_WARN("(%s): CU Exception on partition 0x%02x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f71.md[0]);
-+		break;
-+	default:
-+		PRINT_WARN("(%s): SIM ExMsg: 0x%02x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f71.emc);
-+	}
-+	/* Service Message */
-+	switch (sense->fmt.f71.smc) {
-+	case 0x01:
-+		PRINT_WARN("(%s): Repair impact is unknown\n",
-+			   device->cdev->dev.bus_id);
-+		break;
-+	case 0x02:
-+		PRINT_WARN("(%s): Repair will not impact cu performance\n",
-+			   device->cdev->dev.bus_id);
-+		break;
-+	case 0x03:
-+		if (sense->fmt.f71.mdf == 0)
-+			PRINT_WARN("(%s): Repair will disable node "
-+				   "0x%x on CU\n",
-+				   device->cdev->dev.bus_id,
-+				   sense->fmt.f71.md[1]);
-+		else
-+			PRINT_WARN("(%s): Repair will disable nodes "
-+				   "(0x%x-0x%x) on CU\n",
-+				   device->cdev->dev.bus_id,
-+				   sense->fmt.f71.md[1], sense->fmt.f71.md[2]);
-+		break;
-+	case 0x04:
-+		if (sense->fmt.f71.mdf == 0)
-+			PRINT_WARN("(%s): Repair will disable cannel path "
-+				   "0x%x on CU\n",
-+				   device->cdev->dev.bus_id,
-+				   sense->fmt.f71.md[1]);
-+		else
-+			PRINT_WARN("(%s): Repair will disable cannel paths "
-+				   "(0x%x-0x%x) on CU\n",
-+				   device->cdev->dev.bus_id,
-+				   sense->fmt.f71.md[1], sense->fmt.f71.md[2]);
-+		break;
-+	case 0x05:
-+		if (sense->fmt.f71.mdf == 0)
-+			PRINT_WARN("(%s): Repair will disable device path "
-+				   "0x%x on CU\n",
-+				   device->cdev->dev.bus_id,
-+				   sense->fmt.f71.md[1]);
-+		else
-+			PRINT_WARN("(%s): Repair will disable device paths "
-+				   "(0x%x-0x%x) on CU\n",
-+				   device->cdev->dev.bus_id,
-+				   sense->fmt.f71.md[1], sense->fmt.f71.md[2]);
-+		break;
-+	case 0x06:
-+		if (sense->fmt.f71.mdf == 0)
-+			PRINT_WARN("(%s): Repair will disable library path "
-+				   "0x%x on CU\n",
-+				   device->cdev->dev.bus_id,
-+				   sense->fmt.f71.md[1]);
-+		else
-+			PRINT_WARN("(%s): Repair will disable library paths "
-+				   "(0x%x-0x%x) on CU\n",
-+				   device->cdev->dev.bus_id,
-+				   sense->fmt.f71.md[1], sense->fmt.f71.md[2]);
-+		break;
-+	case 0x07:
-+		PRINT_WARN("(%s): Repair will disable access to CU\n",
-+			   device->cdev->dev.bus_id);
-+		break;
-+	default:
-+		PRINT_WARN("(%s): SIM ServiceMsg: 0x%02x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f71.smc);
-+	}
-+}
-+
-+/*
-+ * Print an Device Subsystem Service Information Message (message code f2)
-+ */
-+static void
-+tape_3590_print_dev_sim_msg_f2(struct tape_device *device, struct irb *irb)
-+{
-+	struct tape_3590_sense *sense;
-+
-+	sense = (struct tape_3590_sense *) irb->ecw;
-+	/* Exception Message */
-+	switch (sense->fmt.f71.emc) {
-+	case 0x01:
-+		PRINT_WARN("(%s): Effect of failure is unknown\n",
-+			   device->cdev->dev.bus_id);
-+		break;
-+	case 0x02:
-+		PRINT_WARN("(%s): DV Exception - no performance impact\n",
-+			   device->cdev->dev.bus_id);
-+		break;
-+	case 0x03:
-+		PRINT_WARN("(%s): DV Exception on channel interface 0x%02x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f71.md[0]);
-+		break;
-+	case 0x04:
-+		PRINT_WARN("(%s): DV Exception on loader 0x%02x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f71.md[0]);
-+		break;
-+	case 0x05:
-+		PRINT_WARN("(%s): DV Exception on message display 0x%02x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f71.md[0]);
-+		break;
-+	case 0x06:
-+		PRINT_WARN("(%s): DV Exception in tape path\n",
-+			   device->cdev->dev.bus_id);
-+		break;
-+	case 0x07:
-+		PRINT_WARN("(%s): DV Exception in drive\n",
-+			   device->cdev->dev.bus_id);
-+		break;
-+	default:
-+		PRINT_WARN("(%s): DSIM ExMsg: 0x%02x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f71.emc);
-+	}
-+	/* Service Message */
-+	switch (sense->fmt.f71.smc) {
-+	case 0x01:
-+		PRINT_WARN("(%s): Repair impact is unknown\n",
-+			   device->cdev->dev.bus_id);
-+		break;
-+	case 0x02:
-+		PRINT_WARN("(%s): Repair will not impact device performance\n",
-+			   device->cdev->dev.bus_id);
-+		break;
-+	case 0x03:
-+		if (sense->fmt.f71.mdf == 0)
-+			PRINT_WARN("(%s): Repair will disable channel path "
-+				   "0x%x on DV\n",
-+				   device->cdev->dev.bus_id,
-+				   sense->fmt.f71.md[1]);
-+		else
-+			PRINT_WARN("(%s): Repair will disable channel path "
-+				   "(0x%x-0x%x) on DV\n",
-+				   device->cdev->dev.bus_id,
-+				   sense->fmt.f71.md[1], sense->fmt.f71.md[2]);
-+		break;
-+	case 0x04:
-+		if (sense->fmt.f71.mdf == 0)
-+			PRINT_WARN("(%s): Repair will disable interface 0x%x "
-+				   "on DV\n",
-+				   device->cdev->dev.bus_id,
-+				   sense->fmt.f71.md[1]);
-+		else
-+			PRINT_WARN("(%s): Repair will disable interfaces "
-+				   "(0x%x-0x%x) on DV\n",
-+				   device->cdev->dev.bus_id,
-+				   sense->fmt.f71.md[1], sense->fmt.f71.md[2]);
-+		break;
-+	case 0x05:
-+		if (sense->fmt.f71.mdf == 0)
-+			PRINT_WARN("(%s): Repair will disable loader 0x%x "
-+				   "on DV\n",
-+				   device->cdev->dev.bus_id,
-+				   sense->fmt.f71.md[1]);
-+		else
-+			PRINT_WARN("(%s): Repair will disable loader "
-+				   "(0x%x-0x%x) on DV\n",
-+				   device->cdev->dev.bus_id,
-+				   sense->fmt.f71.md[1], sense->fmt.f71.md[2]);
-+		break;
-+	case 0x07:
-+		PRINT_WARN("(%s): Repair will disable access to DV\n",
-+			   device->cdev->dev.bus_id);
-+		break;
-+	case 0x08:
-+		if (sense->fmt.f71.mdf == 0)
-+			PRINT_WARN("(%s): Repair will disable message "
-+				   "display 0x%x on DV\n",
-+				   device->cdev->dev.bus_id,
-+				   sense->fmt.f71.md[1]);
-+		else
-+			PRINT_WARN("(%s): Repair will disable message "
-+				   "displays (0x%x-0x%x) on DV\n",
-+				   device->cdev->dev.bus_id,
-+				   sense->fmt.f71.md[1], sense->fmt.f71.md[2]);
-+		break;
-+	case 0x09:
-+		PRINT_WARN("(%s): Clean DV\n", device->cdev->dev.bus_id);
-+		break;
-+	default:
-+		PRINT_WARN("(%s): DSIM ServiceMsg: 0x%02x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f71.smc);
-+	}
-+}
-+
-+/*
-+ * Print standard ERA Message
-+ */
-+static void
-+tape_3590_print_era_msg(struct tape_device *device, struct irb *irb)
-+{
-+	struct tape_3590_sense *sense;
-+
-+	sense = (struct tape_3590_sense *) irb->ecw;
-+	if (sense->mc == 0)
-+		return;
-+	if ((sense->mc > 0) && (sense->mc < TAPE_3590_MAX_MSG)) {
-+		if (tape_3590_msg[sense->mc] != NULL)
-+			PRINT_WARN("(%s): %s\n", device->cdev->dev.bus_id,
-+				   tape_3590_msg[sense->mc]);
-+		else {
-+			PRINT_WARN("(%s): Message Code 0x%x\n",
-+				   device->cdev->dev.bus_id, sense->mc);
-+		}
-+		return;
-+	}
-+	if (sense->mc == 0xf0) {
-+		/* Standard Media Information Message */
-+		PRINT_WARN("(%s): MIM SEV=%i, MC=%02x, ES=%x/%x, "
-+			   "RC=%02x-%04x-%02x\n", device->cdev->dev.bus_id,
-+			   sense->fmt.f70.sev, sense->mc,
-+			   sense->fmt.f70.emc, sense->fmt.f70.smc,
-+			   sense->fmt.f70.refcode, sense->fmt.f70.mid,
-+			   sense->fmt.f70.fid);
-+		tape_3590_print_mim_msg_f0(device, irb);
-+		return;
-+	}
-+	if (sense->mc == 0xf1) {
-+		/* Standard I/O Subsystem Service Information Message */
-+		PRINT_WARN("(%s): IOSIM SEV=%i, DEVTYPE=3590/%02x, "
-+			   "MC=%02x, ES=%x/%x, REF=0x%04x-0x%04x-0x%04x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f71.sev,
-+			   device->cdev->id.dev_model,
-+			   sense->mc, sense->fmt.f71.emc,
-+			   sense->fmt.f71.smc, sense->fmt.f71.refcode1,
-+			   sense->fmt.f71.refcode2, sense->fmt.f71.refcode3);
-+		tape_3590_print_io_sim_msg_f1(device, irb);
-+		return;
-+	}
-+	if (sense->mc == 0xf2) {
-+		/* Standard Device Service Information Message */
-+		PRINT_WARN("(%s): DEVSIM SEV=%i, DEVTYPE=3590/%02x, "
-+			   "MC=%02x, ES=%x/%x, REF=0x%04x-0x%04x-0x%04x\n",
-+			   device->cdev->dev.bus_id, sense->fmt.f71.sev,
-+			   device->cdev->id.dev_model,
-+			   sense->mc, sense->fmt.f71.emc,
-+			   sense->fmt.f71.smc, sense->fmt.f71.refcode1,
-+			   sense->fmt.f71.refcode2, sense->fmt.f71.refcode3);
-+		tape_3590_print_dev_sim_msg_f2(device, irb);
-+		return;
-+	}
-+	if (sense->mc == 0xf3) {
-+		/* Standard Library Service Information Message */
-+		return;
-+	}
-+	PRINT_WARN("(%s): Device Message(%x)\n",
-+		   device->cdev->dev.bus_id, sense->mc);
-+}
-+
-+/*
-+ *  3590 error Recovery routine:
-+ *  If possible, it tries to recover from the error. If this is not possible,
-+ *  inform the user about the problem.
-+ */
-+static int
-+tape_3590_unit_check(struct tape_device *device, struct tape_request *request,
-+		     struct irb *irb)
-+{
-+	struct tape_3590_sense *sense;
-+	int rc;
-+
-+#ifdef CONFIG_S390_TAPE_BLOCK
-+	if (request->op == TO_BLOCK) {
-+		/*
-+		 * Recovery for block device requests. Set the block_position
-+		 * to something invalid and retry.
-+		 */
-+		device->blk_data.block_position = -1;
-+		if (request->retries-- <= 0)
-+			return tape_3590_erp_failed(device, request, irb, -EIO);
-+		else
-+			return tape_3590_erp_retry(device, request, irb);
-+	}
-+#endif
-+
-+	sense = (struct tape_3590_sense *) irb->ecw;
-+
-+	/*
-+	 * First check all RC-QRCs where we want to do something special
-+	 *   - "break":     basic error recovery is done
-+	 *   - "goto out:": just print error message if available
-+	 */
-+	rc = -EIO;
-+	switch (sense->rc_rqc) {
-+
-+	case 0x1110:
-+		tape_3590_print_era_msg(device, irb);
-+		return tape_3590_erp_read_buf_log(device, request, irb);
-+
-+	case 0x2011:
-+		tape_3590_print_era_msg(device, irb);
-+		return tape_3590_erp_read_alternate(device, request, irb);
-+
-+	case 0x2230:
-+	case 0x2231:
-+		tape_3590_print_era_msg(device, irb);
-+		return tape_3590_erp_special_interrupt(device, request, irb);
-+
-+	case 0x3010:
-+		DBF_EVENT(2, "(%08x): Backward at Beginning of Partition\n",
-+			  device->cdev_id);
-+		return tape_3590_erp_basic(device, request, irb, -ENOSPC);
-+	case 0x3012:
-+		DBF_EVENT(2, "(%08x): Forward at End of Partition\n",
-+			  device->cdev_id);
-+		return tape_3590_erp_basic(device, request, irb, -ENOSPC);
-+	case 0x3020:
-+		DBF_EVENT(2, "(%08x): End of Data Mark\n", device->cdev_id);
-+		return tape_3590_erp_basic(device, request, irb, -ENOSPC);
-+
-+	case 0x3122:
-+		DBF_EVENT(2, "(%08x): Rewind Unload initiated\n",
-+			  device->cdev_id);
-+		return tape_3590_erp_basic(device, request, irb, -EIO);
-+	case 0x3123:
-+		DBF_EVENT(2, "(%08x): Rewind Unload complete\n",
-+			  device->cdev_id);
-+		tape_med_state_set(device, MS_UNLOADED);
-+		return tape_3590_erp_basic(device, request, irb, 0);
-+
-+	case 0x4010:
-+		/*
-+		 * print additional msg since default msg
-+		 * "device intervention" is not very meaningfull
-+		 */
-+		PRINT_WARN("(%s): Tape operation when medium not loaded\n",
-+			   device->cdev->dev.bus_id);
-+		tape_med_state_set(device, MS_UNLOADED);
-+		return tape_3590_erp_basic(device, request, irb, -ENOMEDIUM);
-+	case 0x4012:		/* Device Long Busy */
-+		tape_3590_print_era_msg(device, irb);
-+		return tape_3590_erp_long_busy(device, request, irb);
-+
-+	case 0x5010:
-+		if (sense->rac == 0xd0) {
-+			/* Swap */
-+			tape_3590_print_era_msg(device, irb);
-+			return tape_3590_erp_swap(device, request, irb);
-+		}
-+		if (sense->rac == 0x26) {
-+			/* Read Opposite */
-+			tape_3590_print_era_msg(device, irb);
-+			return tape_3590_erp_read_opposite(device, request,
-+							   irb);
-+		}
-+		return tape_3590_erp_basic(device, request, irb, -EIO);
-+	case 0x5020:
-+	case 0x5021:
-+	case 0x5022:
-+	case 0x5040:
-+	case 0x5041:
-+	case 0x5042:
-+		tape_3590_print_era_msg(device, irb);
-+		return tape_3590_erp_swap(device, request, irb);
-+
-+	case 0x5110:
-+	case 0x5111:
-+		return tape_3590_erp_basic(device, request, irb, -EMEDIUMTYPE);
-+
-+	case 0x5120:
-+	case 0x1120:
-+		tape_med_state_set(device, MS_UNLOADED);
-+		return tape_3590_erp_basic(device, request, irb, -ENOMEDIUM);
-+
-+	case 0x6020:
-+		PRINT_WARN("(%s): Cartridge of wrong type ?\n",
-+			   device->cdev->dev.bus_id);
-+		return tape_3590_erp_basic(device, request, irb, -EMEDIUMTYPE);
-+
-+	case 0x8011:
-+		PRINT_WARN("(%s): Another host has reserved the tape device\n",
-+			   device->cdev->dev.bus_id);
-+		return tape_3590_erp_basic(device, request, irb, -EPERM);
-+	case 0x8013:
-+		PRINT_WARN("(%s): Another host has priviliged access to the "
-+			   "tape device\n", device->cdev->dev.bus_id);
-+		PRINT_WARN("(%s): To solve the problem unload the current "
-+			   "cartridge!\n", device->cdev->dev.bus_id);
-+		return tape_3590_erp_basic(device, request, irb, -EPERM);
-+	default:
-+		return tape_3590_erp_basic(device, request, irb, -EIO);
-+	}
-+}
-+
-+/*
-+ * 3590 interrupt handler:
-+ */
-+static int
-+tape_3590_irq(struct tape_device *device, struct tape_request *request,
-+	      struct irb *irb)
-+{
-+	if (request == NULL)
-+		return tape_3590_unsolicited_irq(device, irb);
-+
-+	if ((irb->scsw.dstat & DEV_STAT_UNIT_EXCEP) &&
-+	    (irb->scsw.dstat & DEV_STAT_DEV_END) && (request->op == TO_WRI)) {
-+		/* Write at end of volume */
-+		DBF_EVENT(2, "End of volume\n");
-+		return tape_3590_erp_failed(device, request, irb, -ENOSPC);
-+	}
-+
-+	if (irb->scsw.dstat & DEV_STAT_UNIT_CHECK)
-+		return tape_3590_unit_check(device, request, irb);
-+
-+	if (irb->scsw.dstat & DEV_STAT_DEV_END) {
-+		if (irb->scsw.dstat == DEV_STAT_UNIT_EXCEP) {
-+			if (request->op == TO_FSB || request->op == TO_BSB)
-+				request->rescnt++;
-+			else
-+				DBF_EVENT(5, "Unit Exception!\n");
-+		}
-+
-+		return tape_3590_done(device, request);
-+	}
-+
-+	if (irb->scsw.dstat & DEV_STAT_CHN_END) {
-+		DBF_EVENT(2, "cannel end\n");
-+		return TAPE_IO_PENDING;
-+	}
-+
-+	if (irb->scsw.dstat & DEV_STAT_ATTENTION) {
-+		DBF_EVENT(2, "Unit Attention when busy..\n");
-+		return TAPE_IO_PENDING;
-+	}
-+
-+	DBF_EVENT(6, "xunknownirq\n");
-+	PRINT_ERR("Unexpected interrupt.\n");
-+	PRINT_ERR("Current op is: %s", tape_op_verbose[request->op]);
-+	tape_dump_sense(device, request, irb);
-+	return TAPE_IO_STOP;
-+}
-+
-+/*
-+ * Setup device function
-+ */
-+static int
-+tape_3590_setup_device(struct tape_device *device)
-+{
-+	int rc;
-+	struct tape_3590_disc_data *data;
-+
-+	DBF_EVENT(6, "3590 device setup\n");
-+	data = kmalloc(sizeof(struct tape_3590_disc_data),
-+		       GFP_KERNEL | GFP_DMA);
-+	if (data == NULL)
-+		return -ENOMEM;
-+	data->read_back_op = READ_PREVIOUS;
-+	device->discdata = data;
-+
-+	if ((rc = tape_std_assign(device)) == 0) {
-+		/* Try to find out if medium is loaded */
-+		if ((rc = tape_3590_sense_medium(device)) != 0)
-+			DBF_LH(3, "3590 medium sense returned %d\n", rc);
-+	}
-+
-+	return rc;
-+}
-+
-+/*
-+ * Cleanup device function
-+ */
-+static void
-+tape_3590_cleanup_device(struct tape_device *device)
-+{
-+	tape_std_unassign(device);
-+
-+	kfree(device->discdata);
-+	device->discdata = NULL;
-+}
-+
-+/*
-+ * List of 3590 magnetic tape commands.
-+ */
-+static tape_mtop_fn tape_3590_mtop[TAPE_NR_MTOPS] = {
-+	[MTRESET]	 = tape_std_mtreset,
-+	[MTFSF]		 = tape_std_mtfsf,
-+	[MTBSF]		 = tape_std_mtbsf,
-+	[MTFSR]		 = tape_std_mtfsr,
-+	[MTBSR]		 = tape_std_mtbsr,
-+	[MTWEOF]	 = tape_std_mtweof,
-+	[MTREW]		 = tape_std_mtrew,
-+	[MTOFFL]	 = tape_std_mtoffl,
-+	[MTNOP]		 = tape_std_mtnop,
-+	[MTRETEN]	 = tape_std_mtreten,
-+	[MTBSFM]	 = tape_std_mtbsfm,
-+	[MTFSFM]	 = tape_std_mtfsfm,
-+	[MTEOM]		 = tape_std_mteom,
-+	[MTERASE]	 = tape_std_mterase,
-+	[MTRAS1]	 = NULL,
-+	[MTRAS2]	 = NULL,
-+	[MTRAS3]	 = NULL,
-+	[MTSETBLK]	 = tape_std_mtsetblk,
-+	[MTSETDENSITY]	 = NULL,
-+	[MTSEEK]	 = tape_3590_mtseek,
-+	[MTTELL]	 = tape_3590_mttell,
-+	[MTSETDRVBUFFER] = NULL,
-+	[MTFSS]		 = NULL,
-+	[MTBSS]		 = NULL,
-+	[MTWSM]		 = NULL,
-+	[MTLOCK]	 = NULL,
-+	[MTUNLOCK]	 = NULL,
-+	[MTLOAD]	 = tape_std_mtload,
-+	[MTUNLOAD]	 = tape_std_mtunload,
-+	[MTCOMPRESSION]	 = tape_std_mtcompression,
-+	[MTSETPART]	 = NULL,
-+	[MTMKPART]	 = NULL
-+};
-+
-+/*
-+ * Tape discipline structure for 3590.
-+ */
-+static struct tape_discipline tape_discipline_3590 = {
-+	.owner = THIS_MODULE,
-+	.setup_device = tape_3590_setup_device,
-+	.cleanup_device = tape_3590_cleanup_device,
-+	.process_eov = tape_std_process_eov,
-+	.irq = tape_3590_irq,
-+	.read_block = tape_std_read_block,
-+	.write_block = tape_std_write_block,
-+#ifdef CONFIG_S390_TAPE_BLOCK
-+	.bread = tape_3590_bread,
-+	.free_bread = tape_3590_free_bread,
-+	.check_locate = tape_3590_check_locate,
-+#endif
-+	.ioctl_fn = tape_3590_ioctl,
-+	.mtop_array = tape_3590_mtop
-+};
-+
-+static struct ccw_device_id tape_3590_ids[] = {
-+	{CCW_DEVICE_DEVTYPE(0x3590, 0, 0x3590, 0), .driver_info = tape_3590},
-+	{ /* end of list */ }
-+};
-+
-+static int
-+tape_3590_online(struct ccw_device *cdev)
-+{
-+	return tape_generic_online(cdev->dev.driver_data,
-+				   &tape_discipline_3590);
-+}
-+
-+static int
-+tape_3590_offline(struct ccw_device *cdev)
-+{
-+	return tape_generic_offline(cdev->dev.driver_data);
-+}
-+
-+static struct ccw_driver tape_3590_driver = {
-+	.name = "tape_3590",
-+	.owner = THIS_MODULE,
-+	.ids = tape_3590_ids,
-+	.probe = tape_generic_probe,
-+	.remove = tape_generic_remove,
-+	.set_offline = tape_3590_offline,
-+	.set_online = tape_3590_online,
-+};
-+
-+/*
-+ * Setup discipline structure.
-+ */
-+static int
-+tape_3590_init(void)
-+{
-+	int rc;
-+
-+	TAPE_DBF_AREA = debug_register("tape_3590", 2, 2, 4 * sizeof(long));
-+	debug_register_view(TAPE_DBF_AREA, &debug_sprintf_view);
-+#ifdef DBF_LIKE_HELL
-+	debug_set_level(TAPE_DBF_AREA, 6);
-+#endif
-+
-+	DBF_EVENT(3, "3590 init\n");
-+	/* Register driver for 3590 tapes. */
-+	rc = ccw_driver_register(&tape_3590_driver);
-+	if (rc)
-+		DBF_EVENT(3, "3590 init failed\n");
-+	else
-+		DBF_EVENT(3, "3590 registered\n");
-+	return rc;
-+}
-+
-+static void
-+tape_3590_exit(void)
-+{
-+	ccw_driver_unregister(&tape_3590_driver);
-+
-+	debug_unregister(TAPE_DBF_AREA);
-+}
-+
-+MODULE_DEVICE_TABLE(ccw, tape_3590_ids);
-+MODULE_AUTHOR("(C) 2001,2006 IBM Corporation");
-+MODULE_DESCRIPTION("Linux on zSeries channel attached 3590 tape device driver");
-+MODULE_LICENSE("GPL");
-+
-+module_init(tape_3590_init);
-+module_exit(tape_3590_exit);
-diff -urpN linux-2.6/drivers/s390/char/tape_3590.h linux-2.6-patched/drivers/s390/char/tape_3590.h
---- linux-2.6/drivers/s390/char/tape_3590.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/char/tape_3590.h	2006-03-22 14:36:36.000000000 +0100
-@@ -0,0 +1,124 @@
-+/*
-+ *  drivers/s390/char/tape_3590.h
-+ *    tape device discipline for 3590 tapes.
-+ *
-+ *    Copyright (C) IBM Corp. 2001,2006
-+ *    Author(s): Stefan Bader <shbader@de.ibm.com>
-+ *		 Michael Holzheu <holzheu@de.ibm.com>
-+ *		 Martin Schwidefsky <schwidefsky@de.ibm.com>
-+ */
-+
-+#ifndef _TAPE_3590_H
-+#define _TAPE_3590_H
-+
-+#define MEDIUM_SENSE	0xc2
-+#define READ_PREVIOUS	0x0a
-+#define MODE_SENSE	0xcf
-+#define PERFORM_SS_FUNC 0x77
-+#define READ_SS_DATA	0x3e
-+
-+#define PREP_RD_SS_DATA 0x18
-+#define RD_ATTMSG	0x3
-+
-+#define SENSE_BRA_PER  0
-+#define SENSE_BRA_CONT 1
-+#define SENSE_BRA_RE   2
-+#define SENSE_BRA_DRE  3
-+
-+#define SENSE_FMT_LIBRARY	0x23
-+#define SENSE_FMT_UNSOLICITED	0x40
-+#define SENSE_FMT_COMMAND_REJ	0x41
-+#define SENSE_FMT_COMMAND_EXEC0 0x50
-+#define SENSE_FMT_COMMAND_EXEC1 0x51
-+#define SENSE_FMT_EVENT0	0x60
-+#define SENSE_FMT_EVENT1	0x61
-+#define SENSE_FMT_MIM		0x70
-+#define SENSE_FMT_SIM		0x71
-+
-+#define MSENSE_UNASSOCIATED	 0x00
-+#define MSENSE_ASSOCIATED_MOUNT	 0x01
-+#define MSENSE_ASSOCIATED_UMOUNT 0x02
-+
-+#define TAPE_3590_MAX_MSG	 0xb0
-+
-+/* Datatypes */
-+
-+struct tape_3590_disc_data {
-+	unsigned char modeset_byte;
-+	int read_back_op;
-+};
-+
-+struct tape_3590_sense {
-+
-+	unsigned int command_rej:1;
-+	unsigned int interv_req:1;
-+	unsigned int bus_out_check:1;
-+	unsigned int eq_check:1;
-+	unsigned int data_check:1;
-+	unsigned int overrun:1;
-+	unsigned int def_unit_check:1;
-+	unsigned int assgnd_elsew:1;
-+
-+	unsigned int locate_fail:1;
-+	unsigned int inst_online:1;
-+	unsigned int reserved:1;
-+	unsigned int blk_seq_err:1;
-+	unsigned int begin_part:1;
-+	unsigned int wr_mode:1;
-+	unsigned int wr_prot:1;
-+	unsigned int not_cap:1;
-+
-+	unsigned int bra:2;
-+	unsigned int lc:3;
-+	unsigned int vlf_active:1;
-+	unsigned int stm:1;
-+	unsigned int med_pos:1;
-+
-+	unsigned int rac:8;
-+
-+	unsigned int rc_rqc:16;
-+
-+	unsigned int mc:8;
-+
-+	unsigned int sense_fmt:8;
-+
-+	union {
-+		struct {
-+			unsigned int emc:4;
-+			unsigned int smc:4;
-+			unsigned int sev:2;
-+			unsigned int reserved:6;
-+			unsigned int md:8;
-+			unsigned int refcode:8;
-+			unsigned int mid:16;
-+			unsigned int mp:16;
-+			unsigned char volid[6];
-+			unsigned int fid:8;
-+		} f70;
-+		struct {
-+			unsigned int emc:4;
-+			unsigned int smc:4;
-+			unsigned int sev:2;
-+			unsigned int reserved1:5;
-+			unsigned int mdf:1;
-+			unsigned char md[3];
-+			unsigned int simid:8;
-+			unsigned int uid:16;
-+			unsigned int refcode1:16;
-+			unsigned int refcode2:16;
-+			unsigned int refcode3:16;
-+			unsigned int reserved2:8;
-+		} f71;
-+		unsigned char data[14];
-+	} fmt;
-+	unsigned char pad[10];
-+
-+} __attribute__ ((packed));
-+
-+struct tape_3590_med_sense {
-+	unsigned int macst:4;
-+	unsigned int masst:4;
-+	char pad[127];
-+} __attribute__ ((packed));
-+
-+#endif /* _TAPE_3590_H */
-diff -urpN linux-2.6/drivers/s390/char/tape_std.h linux-2.6-patched/drivers/s390/char/tape_std.h
---- linux-2.6/drivers/s390/char/tape_std.h	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/char/tape_std.h	2006-03-22 14:36:36.000000000 +0100
-@@ -1,9 +1,8 @@
- /*
-- *  drivers/s390/char/tape_34xx.h
-+ *  drivers/s390/char/tape_std.h
-  *    standard tape device functions for ibm tapes.
-  *
-- *  S390 and zSeries version
-- *    Copyright (C) 2001,2002 IBM Deutschland Entwicklung GmbH, IBM Corporation
-+ *    Copyright (C) IBM Corp. 2001,2006
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  *		 Tuan Ngo-Anh <ngoanh@de.ibm.com>
-  *		 Martin Schwidefsky <schwidefsky@de.ibm.com>
-@@ -149,4 +148,11 @@ void tape_std_error_recovery_do_retry(st
- void tape_std_error_recovery_read_opposite(struct tape_device *);
- void tape_std_error_recovery_HWBUG(struct tape_device *, int condno);
+-		q->slib=kmalloc(PAGE_SIZE,GFP_KERNEL);
++		q->slib = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 		if (!q->slib) {
+ 			QDIO_PRINT_ERR("kmalloc of slib failed!\n");
+ 			goto out;
+@@ -1705,14 +1703,12 @@ qdio_alloc_qs(struct qdio_irq *irq_ptr,
+ 	}
  
-+/* S390 tape types */
-+enum s390_tape_type {
-+        tape_3480,
-+        tape_3490,
-+        tape_3590,
-+};
-+
- #endif // _TAPE_STD_H
-diff -urpN linux-2.6/drivers/s390/Kconfig linux-2.6-patched/drivers/s390/Kconfig
---- linux-2.6/drivers/s390/Kconfig	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/Kconfig	2006-03-22 14:36:36.000000000 +0100
-@@ -183,7 +183,13 @@ config S390_TAPE_34XX
- 	  tape subsystems and 100% compatibles.
- 	  It is safe to say "Y" here.
+ 	for (i=0;i<no_output_qs;i++) {
+-		q=kmalloc(sizeof(struct qdio_q),GFP_KERNEL);
++		q = kzalloc(sizeof(struct qdio_q), GFP_KERNEL);
  
+ 		if (!q) {
+ 			goto out;
+ 		}
+ 
+-		memset(q,0,sizeof(struct qdio_q));
 -
-+config S390_TAPE_3590
-+	tristate "Support for 3590 tape hardware"
-+	depends on S390_TAPE
-+	help
-+	  Select this option if you want to access IBM 3590 magnetic
-+	  tape subsystems and 100% compatibles.
-+	  It is safe to say "Y" here.
+ 		q->slib=kmalloc(PAGE_SIZE,GFP_KERNEL);
+ 		if (!q->slib) {
+ 			QDIO_PRINT_ERR("kmalloc of slib failed!\n");
+@@ -2984,7 +2980,7 @@ qdio_allocate(struct qdio_initialize *in
+ 	qdio_allocate_do_dbf(init_data);
  
- config VMLOGRDR
- 	tristate "Support for the z/VM recording system services (VM only)"
+ 	/* create irq */
+-	irq_ptr=kmalloc(sizeof(struct qdio_irq), GFP_KERNEL | GFP_DMA);
++	irq_ptr = kzalloc(sizeof(struct qdio_irq), GFP_KERNEL | GFP_DMA);
+ 
+ 	QDIO_DBF_TEXT0(0,setup,"irq_ptr:");
+ 	QDIO_DBF_HEX0(0,setup,&irq_ptr,sizeof(void*));
+@@ -2994,8 +2990,6 @@ qdio_allocate(struct qdio_initialize *in
+ 		return -ENOMEM;
+ 	}
+ 
+-	memset(irq_ptr,0,sizeof(struct qdio_irq));
+-
+ 	init_MUTEX(&irq_ptr->setting_up_sema);
+ 
+ 	/* QDR must be in DMA area since CCW data address is only 32 bit */
+@@ -3686,10 +3680,10 @@ qdio_get_qdio_memory(void)
+ 
+ 	for (i=1;i<INDICATORS_PER_CACHELINE;i++)
+ 		indicator_used[i]=0;
+-	indicators=(__u32*)kmalloc(sizeof(__u32)*(INDICATORS_PER_CACHELINE),
++	indicators = kzalloc(sizeof(__u32)*(INDICATORS_PER_CACHELINE),
+ 				   GFP_KERNEL);
+-       	if (!indicators) return -ENOMEM;
+-	memset(indicators,0,sizeof(__u32)*(INDICATORS_PER_CACHELINE));
++       	if (!indicators)
++		return -ENOMEM;
+ 	return 0;
+ }
+ 
+diff -urpN linux-2.6/drivers/s390/crypto/z90main.c linux-2.6-patched/drivers/s390/crypto/z90main.c
+--- linux-2.6/drivers/s390/crypto/z90main.c	2006-03-22 14:36:41.000000000 +0100
++++ linux-2.6-patched/drivers/s390/crypto/z90main.c	2006-03-22 14:36:43.000000000 +0100
+@@ -707,13 +707,12 @@ z90crypt_open(struct inode *inode, struc
+ 	if (quiesce_z90crypt)
+ 		return -EQUIESCE;
+ 
+-	private_data_p = kmalloc(sizeof(struct priv_data), GFP_KERNEL);
++	private_data_p = kzalloc(sizeof(struct priv_data), GFP_KERNEL);
+ 	if (!private_data_p) {
+ 		PRINTK("Memory allocate failed\n");
+ 		return -ENOMEM;
+ 	}
+ 
+-	memset((void *)private_data_p, 0, sizeof(struct priv_data));
+ 	private_data_p->status = STAT_OPEN;
+ 	private_data_p->opener_pid = PID();
+ 	filp->private_data = private_data_p;
+@@ -2737,13 +2736,11 @@ create_z90crypt(int *cdx_p)
+ 	z90crypt.max_count = Z90CRYPT_NUM_DEVS;
+ 	z90crypt.cdx = *cdx_p;
+ 
+-	hdware_blk_p = (struct hdware_block *)
+-		kmalloc(sizeof(struct hdware_block), GFP_ATOMIC);
++	hdware_blk_p = kzalloc(sizeof(struct hdware_block), GFP_ATOMIC);
+ 	if (!hdware_blk_p) {
+ 		PDEBUG("kmalloc for hardware block failed\n");
+ 		return ENOMEM;
+ 	}
+-	memset(hdware_blk_p, 0x00, sizeof(struct hdware_block));
+ 	z90crypt.hdware_info = hdware_blk_p;
+ 
+ 	return 0;
+@@ -2978,12 +2975,11 @@ create_crypto_device(int index)
+ 		total_size = sizeof(struct device) +
+ 			     z90crypt.q_depth_array[index] * sizeof(int);
+ 
+-		dev_ptr = (struct device *) kmalloc(total_size, GFP_ATOMIC);
++		dev_ptr = kzalloc(total_size, GFP_ATOMIC);
+ 		if (!dev_ptr) {
+ 			PRINTK("kmalloc device %d failed\n", index);
+ 			return ENOMEM;
+ 		}
+-		memset(dev_ptr, 0, total_size);
+ 		dev_ptr->dev_resp_p = kmalloc(MAX_RESPONSE_SIZE, GFP_ATOMIC);
+ 		if (!dev_ptr->dev_resp_p) {
+ 			kfree(dev_ptr);
+diff -urpN linux-2.6/drivers/s390/net/claw.c linux-2.6-patched/drivers/s390/net/claw.c
+--- linux-2.6/drivers/s390/net/claw.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/claw.c	2006-03-22 14:36:43.000000000 +0100
+@@ -310,7 +310,7 @@ claw_probe(struct ccwgroup_device *cgdev
+         printk(KERN_INFO "claw: variable cgdev =\n");
+         dumpit((char *)cgdev, sizeof(struct ccwgroup_device));
+ #endif
+-	privptr = kmalloc(sizeof(struct claw_privbk), GFP_KERNEL);
++	privptr = kzalloc(sizeof(struct claw_privbk), GFP_KERNEL);
+ 	if (privptr == NULL) {
+ 		probe_error(cgdev);
+ 		put_device(&cgdev->dev);
+@@ -319,7 +319,6 @@ claw_probe(struct ccwgroup_device *cgdev
+ 		CLAW_DBF_TEXT_(2,setup,"probex%d",-ENOMEM);
+ 		return -ENOMEM;
+ 	}
+-	memset(privptr,0x00,sizeof(struct claw_privbk));
+ 	privptr->p_mtc_envelope= kmalloc( MAX_ENVELOPE_SIZE, GFP_KERNEL);
+ 	privptr->p_env = kmalloc(sizeof(struct claw_env), GFP_KERNEL);
+         if ((privptr->p_mtc_envelope==NULL) || (privptr->p_env==NULL)) {
+diff -urpN linux-2.6/drivers/s390/net/fsm.c linux-2.6-patched/drivers/s390/net/fsm.c
+--- linux-2.6/drivers/s390/net/fsm.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/fsm.c	2006-03-22 14:36:43.000000000 +0100
+@@ -21,38 +21,34 @@ init_fsm(char *name, const char **state_
+ 	fsm_function_t *m;
+ 	fsm *f;
+ 
+-	this = (fsm_instance *)kmalloc(sizeof(fsm_instance), order);
++	this = kzalloc(sizeof(fsm_instance), order);
+ 	if (this == NULL) {
+ 		printk(KERN_WARNING
+ 			"fsm(%s): init_fsm: Couldn't alloc instance\n", name);
+ 		return NULL;
+ 	}
+-	memset(this, 0, sizeof(fsm_instance));
+ 	strlcpy(this->name, name, sizeof(this->name));
+ 
+-	f = (fsm *)kmalloc(sizeof(fsm), order);
++	f = kzalloc(sizeof(fsm), order);
+ 	if (f == NULL) {
+ 		printk(KERN_WARNING
+ 			"fsm(%s): init_fsm: Couldn't alloc fsm\n", name);
+ 		kfree_fsm(this);
+ 		return NULL;
+ 	}
+-	memset(f, 0, sizeof(fsm));
+ 	f->nr_events = nr_events;
+ 	f->nr_states = nr_states;
+ 	f->event_names = event_names;
+ 	f->state_names = state_names;
+ 	this->f = f;
+ 
+-	m = (fsm_function_t *)kmalloc(
+-			sizeof(fsm_function_t) * nr_states * nr_events, order);
++	m = kcalloc(nr_states*nr_events, sizeof(fsm_function_t), order);
+ 	if (m == NULL) {
+ 		printk(KERN_WARNING
+ 			"fsm(%s): init_fsm: Couldn't alloc jumptable\n", name);
+ 		kfree_fsm(this);
+ 		return NULL;
+ 	}
+-	memset(m, 0, sizeof(fsm_function_t) * f->nr_states * f->nr_events);
+ 	f->jumpmatrix = m;
+ 
+ 	for (i = 0; i < tmpl_len; i++) {
+diff -urpN linux-2.6/drivers/s390/net/iucv.c linux-2.6-patched/drivers/s390/net/iucv.c
+--- linux-2.6/drivers/s390/net/iucv.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/iucv.c	2006-03-22 14:36:43.000000000 +0100
+@@ -386,7 +386,7 @@ iucv_init(void)
+ 	}
+ 
+ 	/* Note: GFP_DMA used used to get memory below 2G */
+-	iucv_external_int_buffer = kmalloc(sizeof(iucv_GeneralInterrupt),
++	iucv_external_int_buffer = kzalloc(sizeof(iucv_GeneralInterrupt),
+ 					   GFP_KERNEL|GFP_DMA);
+ 	if (!iucv_external_int_buffer) {
+ 		printk(KERN_WARNING
+@@ -396,10 +396,9 @@ iucv_init(void)
+ 		bus_unregister(&iucv_bus);
+ 		return -ENOMEM;
+ 	}
+-	memset(iucv_external_int_buffer, 0, sizeof(iucv_GeneralInterrupt));
+ 
+ 	/* Initialize parameter pool */
+-	iucv_param_pool = kmalloc(sizeof(iucv_param) * PARAM_POOL_SIZE,
++	iucv_param_pool = kzalloc(sizeof(iucv_param) * PARAM_POOL_SIZE,
+ 				  GFP_KERNEL|GFP_DMA);
+ 	if (!iucv_param_pool) {
+ 		printk(KERN_WARNING "%s: Could not allocate param pool\n",
+@@ -410,7 +409,6 @@ iucv_init(void)
+ 		bus_unregister(&iucv_bus);
+ 		return -ENOMEM;
+ 	}
+-	memset(iucv_param_pool, 0, sizeof(iucv_param) * PARAM_POOL_SIZE);
+ 
+ 	/* Initialize irq queue */
+ 	INIT_LIST_HEAD(&iucv_irq_queue);
+@@ -793,15 +791,14 @@ iucv_register_program (__u8 pgmname[16],
+ 		}
+ 
+ 		max_connections = iucv_query_maxconn();
+-		iucv_pathid_table = kmalloc(max_connections * sizeof(handler *),
+-				       GFP_ATOMIC);
++		iucv_pathid_table = kcalloc(max_connections, sizeof(handler *),
++					GFP_ATOMIC);
+ 		if (iucv_pathid_table == NULL) {
+ 			printk(KERN_WARNING "%s: iucv_pathid_table storage "
+ 			       "allocation failed\n", __FUNCTION__);
+ 			kfree(new_handler);
+ 			return NULL;
+ 		}
+-		memset (iucv_pathid_table, 0, max_connections * sizeof(handler *));
+ 	}
+ 	memset(new_handler, 0, sizeof (handler));
+ 	memcpy(new_handler->id.user_data, pgmname,
+diff -urpN linux-2.6/drivers/s390/net/lcs.c linux-2.6-patched/drivers/s390/net/lcs.c
+--- linux-2.6/drivers/s390/net/lcs.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/lcs.c	2006-03-22 14:36:43.000000000 +0100
+@@ -115,11 +115,10 @@ lcs_alloc_channel(struct lcs_channel *ch
+ 	LCS_DBF_TEXT(2, setup, "ichalloc");
+ 	for (cnt = 0; cnt < LCS_NUM_BUFFS; cnt++) {
+ 		/* alloc memory fo iobuffer */
+-		channel->iob[cnt].data = (void *)
+-			kmalloc(LCS_IOBUFFERSIZE, GFP_DMA | GFP_KERNEL);
++		channel->iob[cnt].data =
++			kzalloc(LCS_IOBUFFERSIZE, GFP_DMA | GFP_KERNEL);
+ 		if (channel->iob[cnt].data == NULL)
+ 			break;
+-		memset(channel->iob[cnt].data, 0, LCS_IOBUFFERSIZE);
+ 		channel->iob[cnt].state = BUF_STATE_EMPTY;
+ 	}
+ 	if (cnt < LCS_NUM_BUFFS) {
+@@ -182,10 +181,9 @@ lcs_alloc_card(void)
+ 
+ 	LCS_DBF_TEXT(2, setup, "alloclcs");
+ 
+-	card = kmalloc(sizeof(struct lcs_card), GFP_KERNEL | GFP_DMA);
++	card = kzalloc(sizeof(struct lcs_card), GFP_KERNEL | GFP_DMA);
+ 	if (card == NULL)
+ 		return NULL;
+-	memset(card, 0, sizeof(struct lcs_card));
+ 	card->lan_type = LCS_FRAME_TYPE_AUTO;
+ 	card->pkt_seq = 0;
+ 	card->lancmd_timeout = LCS_LANCMD_TIMEOUT_DEFAULT;
+@@ -793,10 +791,9 @@ lcs_alloc_reply(struct lcs_cmd *cmd)
+ 
+ 	LCS_DBF_TEXT(4, trace, "getreply");
+ 
+-	reply = kmalloc(sizeof(struct lcs_reply), GFP_ATOMIC);
++	reply = kzalloc(sizeof(struct lcs_reply), GFP_ATOMIC);
+ 	if (!reply)
+ 		return NULL;
+-	memset(reply,0,sizeof(struct lcs_reply));
+ 	atomic_set(&reply->refcnt,1);
+ 	reply->sequence_no = cmd->sequence_no;
+ 	reply->received = 0;
+diff -urpN linux-2.6/drivers/s390/net/netiucv.c linux-2.6-patched/drivers/s390/net/netiucv.c
+--- linux-2.6/drivers/s390/net/netiucv.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/netiucv.c	2006-03-22 14:36:43.000000000 +0100
+@@ -1728,14 +1728,13 @@ static int
+ netiucv_register_device(struct net_device *ndev)
+ {
+ 	struct netiucv_priv *priv = ndev->priv;
+-	struct device *dev = kmalloc(sizeof(struct device), GFP_KERNEL);
++	struct device *dev = kzalloc(sizeof(struct device), GFP_KERNEL);
+ 	int ret;
+ 
+ 
+ 	IUCV_DBF_TEXT(trace, 3, __FUNCTION__);
+ 
+ 	if (dev) {
+-		memset(dev, 0, sizeof(struct device));
+ 		snprintf(dev->bus_id, BUS_ID_SIZE, "net%s", ndev->name);
+ 		dev->bus = &iucv_bus;
+ 		dev->parent = iucv_root;
+@@ -1784,11 +1783,9 @@ netiucv_new_connection(struct net_device
+ {
+ 	struct iucv_connection **clist = &iucv_connections;
+ 	struct iucv_connection *conn =
+-		(struct iucv_connection *)
+-		kmalloc(sizeof(struct iucv_connection), GFP_KERNEL);
++		kzalloc(sizeof(struct iucv_connection), GFP_KERNEL);
+ 
+ 	if (conn) {
+-		memset(conn, 0, sizeof(struct iucv_connection));
+ 		skb_queue_head_init(&conn->collect_queue);
+ 		skb_queue_head_init(&conn->commit_queue);
+ 		conn->max_buffsize = NETIUCV_BUFSIZE_DEFAULT;
+diff -urpN linux-2.6/drivers/s390/net/qeth_eddp.c linux-2.6-patched/drivers/s390/net/qeth_eddp.c
+--- linux-2.6/drivers/s390/net/qeth_eddp.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_eddp.c	2006-03-22 14:36:43.000000000 +0100
+@@ -389,9 +389,8 @@ qeth_eddp_create_eddp_data(struct qeth_h
+ 	struct qeth_eddp_data *eddp;
+ 
+ 	QETH_DBF_TEXT(trace, 5, "eddpcrda");
+-	eddp = kmalloc(sizeof(struct qeth_eddp_data), GFP_ATOMIC);
++	eddp = kzalloc(sizeof(struct qeth_eddp_data), GFP_ATOMIC);
+ 	if (eddp){
+-		memset(eddp, 0, sizeof(struct qeth_eddp_data));
+ 		eddp->nhl = nhl;
+ 		eddp->thl = thl;
+ 		memcpy(&eddp->qh, qh, sizeof(struct qeth_hdr));
+@@ -542,12 +541,11 @@ qeth_eddp_create_context_generic(struct 
+ 
+ 	QETH_DBF_TEXT(trace, 5, "creddpcg");
+ 	/* create the context and allocate pages */
+-	ctx = kmalloc(sizeof(struct qeth_eddp_context), GFP_ATOMIC);
++	ctx = kzalloc(sizeof(struct qeth_eddp_context), GFP_ATOMIC);
+ 	if (ctx == NULL){
+ 		QETH_DBF_TEXT(trace, 2, "ceddpcn1");
+ 		return NULL;
+ 	}
+-	memset(ctx, 0, sizeof(struct qeth_eddp_context));
+ 	ctx->type = QETH_LARGE_SEND_EDDP;
+ 	qeth_eddp_calc_num_pages(ctx, skb, hdr_len);
+ 	if (ctx->elements_per_skb > QETH_MAX_BUFFER_ELEMENTS(card)){
+@@ -555,13 +553,12 @@ qeth_eddp_create_context_generic(struct 
+ 		kfree(ctx);
+ 		return NULL;
+ 	}
+-	ctx->pages = kmalloc(ctx->num_pages * sizeof(u8 *), GFP_ATOMIC);
++	ctx->pages = kcalloc(ctx->num_pages, sizeof(u8 *), GFP_ATOMIC);
+ 	if (ctx->pages == NULL){
+ 		QETH_DBF_TEXT(trace, 2, "ceddpcn2");
+ 		kfree(ctx);
+ 		return NULL;
+ 	}
+-	memset(ctx->pages, 0, ctx->num_pages * sizeof(u8 *));
+ 	for (i = 0; i < ctx->num_pages; ++i){
+ 		addr = (u8 *)__get_free_page(GFP_ATOMIC);
+ 		if (addr == NULL){
+@@ -573,15 +570,13 @@ qeth_eddp_create_context_generic(struct 
+ 		memset(addr, 0, PAGE_SIZE);
+ 		ctx->pages[i] = addr;
+ 	}
+-	ctx->elements = kmalloc(ctx->num_elements *
++	ctx->elements = kcalloc(ctx->num_elements,
+ 				sizeof(struct qeth_eddp_element), GFP_ATOMIC);
+ 	if (ctx->elements == NULL){
+ 		QETH_DBF_TEXT(trace, 2, "ceddpcn4");
+ 		qeth_eddp_free_context(ctx);
+ 		return NULL;
+ 	}
+-	memset(ctx->elements, 0,
+-	       ctx->num_elements * sizeof(struct qeth_eddp_element));
+ 	/* reset num_elements; will be incremented again in fill_buffer to
+ 	 * reflect number of actually used elements */
+ 	ctx->num_elements = 0;
+diff -urpN linux-2.6/drivers/s390/net/qeth_main.c linux-2.6-patched/drivers/s390/net/qeth_main.c
+--- linux-2.6/drivers/s390/net/qeth_main.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_main.c	2006-03-22 14:36:43.000000000 +0100
+@@ -297,12 +297,10 @@ qeth_alloc_card(void)
+ 	struct qeth_card *card;
+ 
+ 	QETH_DBF_TEXT(setup, 2, "alloccrd");
+-	card = (struct qeth_card *) kmalloc(sizeof(struct qeth_card),
+-					    GFP_DMA|GFP_KERNEL);
++	card = kzalloc(sizeof(struct qeth_card), GFP_DMA|GFP_KERNEL);
+ 	if (!card)
+ 		return NULL;
+ 	QETH_DBF_HEX(setup, 2, &card, sizeof(void *));
+-	memset(card, 0, sizeof(struct qeth_card));
+ 	if (qeth_setup_channel(&card->read)) {
+ 		kfree(card);
+ 		return NULL;
+@@ -1632,9 +1630,8 @@ qeth_alloc_reply(struct qeth_card *card)
+ {
+ 	struct qeth_reply *reply;
+ 
+-	reply = kmalloc(sizeof(struct qeth_reply), GFP_ATOMIC);
++	reply = kzalloc(sizeof(struct qeth_reply), GFP_ATOMIC);
+ 	if (reply){
+-		memset(reply, 0, sizeof(struct qeth_reply));
+ 		atomic_set(&reply->refcnt, 1);
+ 		reply->card = card;
+ 	};
+@@ -3348,13 +3345,11 @@ qeth_qdio_establish(struct qeth_card *ca
+ 
+ 	QETH_DBF_TEXT(setup, 2, "qdioest");
+ 
+-	qib_param_field = kmalloc(QDIO_MAX_BUFFERS_PER_Q * sizeof(char),
++	qib_param_field = kzalloc(QDIO_MAX_BUFFERS_PER_Q * sizeof(char),
+ 			      GFP_KERNEL);
+  	if (!qib_param_field)
+ 		return -ENOMEM;
+ 
+- 	memset(qib_param_field, 0, QDIO_MAX_BUFFERS_PER_Q * sizeof(char));
+-
+ 	qeth_create_qib_param_field(card, qib_param_field);
+ 	qeth_create_qib_param_field_blkt(card, qib_param_field);
+ 
+@@ -4844,9 +4839,8 @@ qeth_arp_query(struct qeth_card *card, c
+ 	/* get size of userspace buffer and mask_bits -> 6 bytes */
+ 	if (copy_from_user(&qinfo, udata, 6))
+ 		return -EFAULT;
+-	if (!(qinfo.udata = kmalloc(qinfo.udata_len, GFP_KERNEL)))
++	if (!(qinfo.udata = kzalloc(qinfo.udata_len, GFP_KERNEL)))
+ 		return -ENOMEM;
+-	memset(qinfo.udata, 0, qinfo.udata_len);
+ 	qinfo.udata_offset = QETH_QARP_ENTRIES_OFFSET;
+ 	iob = qeth_get_setassparms_cmd(card, IPA_ARP_PROCESSING,
+ 				       IPA_CMD_ASS_ARP_QUERY_INFO,
+@@ -4994,11 +4988,10 @@ qeth_snmp_command(struct qeth_card *card
+ 		return -EFAULT;
+ 	}
+ 	qinfo.udata_len = ureq->hdr.data_len;
+-	if (!(qinfo.udata = kmalloc(qinfo.udata_len, GFP_KERNEL))){
++	if (!(qinfo.udata = kzalloc(qinfo.udata_len, GFP_KERNEL))){
+ 		kfree(ureq);
+ 		return -ENOMEM;
+ 	}
+-	memset(qinfo.udata, 0, qinfo.udata_len);
+ 	qinfo.udata_offset = sizeof(struct qeth_snmp_ureq_hdr);
+ 
+ 	iob = qeth_get_adapter_cmd(card, IPA_SETADP_SET_SNMP_CONTROL,
+@@ -5604,12 +5597,11 @@ qeth_get_addr_buffer(enum qeth_prot_vers
+ {
+ 	struct qeth_ipaddr *addr;
+ 
+-	addr = kmalloc(sizeof(struct qeth_ipaddr), GFP_ATOMIC);
++	addr = kzalloc(sizeof(struct qeth_ipaddr), GFP_ATOMIC);
+ 	if (addr == NULL) {
+ 		PRINT_WARN("Not enough memory to add address\n");
+ 		return NULL;
+ 	}
+-	memset(addr,0,sizeof(struct qeth_ipaddr));
+ 	addr->type = QETH_IP_TYPE_NORMAL;
+ 	addr->proto = prot;
+ 	return addr;
+diff -urpN linux-2.6/drivers/s390/net/qeth_sys.c linux-2.6-patched/drivers/s390/net/qeth_sys.c
+--- linux-2.6/drivers/s390/net/qeth_sys.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_sys.c	2006-03-22 14:36:43.000000000 +0100
+@@ -1145,11 +1145,10 @@ qeth_dev_ipato_add_store(const char *buf
+ 	if ((rc = qeth_parse_ipatoe(buf, proto, addr, &mask_bits)))
+ 		return rc;
+ 
+-	if (!(ipatoe = kmalloc(sizeof(struct qeth_ipato_entry), GFP_KERNEL))){
++	if (!(ipatoe = kzalloc(sizeof(struct qeth_ipato_entry), GFP_KERNEL))){
+ 		PRINT_WARN("No memory to allocate ipato entry\n");
+ 		return -ENOMEM;
+ 	}
+-	memset(ipatoe, 0, sizeof(struct qeth_ipato_entry));
+ 	ipatoe->proto = proto;
+ 	memcpy(ipatoe->addr, addr, (proto == QETH_PROT_IPV4)? 4:16);
+ 	ipatoe->mask_bits = mask_bits;
+diff -urpN linux-2.6/drivers/s390/s390_rdev.c linux-2.6-patched/drivers/s390/s390_rdev.c
+--- linux-2.6/drivers/s390/s390_rdev.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/s390_rdev.c	2006-03-22 14:36:43.000000000 +0100
+@@ -27,10 +27,9 @@ s390_root_dev_register(const char *name)
+ 
+ 	if (!strlen(name))
+ 		return ERR_PTR(-EINVAL);
+-	dev = kmalloc(sizeof(struct device), GFP_KERNEL);
++	dev = kzalloc(sizeof(struct device), GFP_KERNEL);
+ 	if (!dev)
+ 		return ERR_PTR(-ENOMEM);
+-	memset(dev, 0, sizeof(struct device));
+ 	strncpy(dev->bus_id, name, min(strlen(name), (size_t)BUS_ID_SIZE));
+ 	dev->release = s390_root_dev_release;
+ 	ret = device_register(dev);

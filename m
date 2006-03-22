@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbWCVHX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbWCVH3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751040AbWCVHX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 02:23:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWCVHX1
+	id S1751060AbWCVH3V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 02:29:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWCVH3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 02:23:27 -0500
-Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:31638 "HELO
-	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751039AbWCVHX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 02:23:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=b5iMIvePv+s6UTvWSILMqGd0EXBRxlsIRJX++2XI/pIw75Tk0kaXGPDG4b84LRnAQl3wwPzQEVnsp4zrmkgv7QpOxFfrZxMxTOam199VHTE8HDaYPggCNK52ObCK3uMh6bdzBhVfWt8ggappk6qAkEm2+QdlBbayJ1qNl6MPg3k=  ;
-Message-ID: <4420FB66.3090206@yahoo.com.au>
-Date: Wed, 22 Mar 2006 18:23:18 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 22 Mar 2006 02:29:20 -0500
+Received: from mga02.intel.com ([134.134.136.20]:52521 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751055AbWCVH3T convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 02:29:19 -0500
+X-IronPort-AV: i="4.03,117,1141632000"; 
+   d="scan'208"; a="14561145:sNHT22073366"
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Stone Wang <pwstone@gmail.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH][5/8] proc: export mlocked pages info through "/proc/meminfo:
- Wired"
-References: <bc56f2f0603200537i7b2492a6p@mail.gmail.com>	 <441FEFC7.5030109@yahoo.com.au>	 <bc56f2f0603210733vc3ce132p@mail.gmail.com>	 <442098B6.5000607@yahoo.com.au> <bc56f2f0603212137s727ff0edu@mail.gmail.com>
-In-Reply-To: <bc56f2f0603212137s727ff0edu@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+Date: Wed, 22 Mar 2006 15:28:44 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F840B418018@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+Thread-Index: AcZNgIhE+rsWpxqaQXKJBMR4Y8gZkAAAJyWw
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
+Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       <michael@mihu.de>, <mchehab@infradead.org>,
+       "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
+       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
+       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
+X-OriginalArrivalTime: 22 Mar 2006 07:28:45.0970 (UTC) FILETIME=[41163720:01C64D82]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stone Wang wrote:
-> The name "Wired" could be changed to which one most kids think better
-> fits the job.
-> 
-> I choosed "Wired" for:
-> "Locked" will conflict with PG_locked bit of a pags.
-> "Pinned" indicates a short-term lock,so not fits the job too.
-> 
+>Since I don't think Fatal() isn't being called, I guess the problem is
+>in I2RB.  But all those magic numbers in I2RB make me recultant to take
+>out lines, unless you tell me which changes won't harm the hardware.
+>
 
-Err we're going around in circles here. This tangent started because
-I suggested that you could call them "mlock" or "mlocked".
+How about this. The side effect of this change is that _BIF, _BST could
+NOT
+work. But I think it's just ok.
 
-But don't get too hung up on the naming. I pointed out quite a lot
-of much more fundamental problems.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+                    Method (I2RB, 3, NotSerialized)
+                    {
+                        Store (Arg0, HCSL)
+                        Store (ShiftLeft (Arg1, 0x01), HMAD)
+                        Store (Arg2, HMCM)
+                        Store (0x0B, HMPR)
+          /*              Return (CHKS ())*/
+                    }

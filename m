@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWCVW5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWCVXAT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751421AbWCVW5z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 17:57:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWCVW5z
+	id S1751138AbWCVXAT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 18:00:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750969AbWCVXAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 17:57:55 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:4371 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751421AbWCVW5y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 17:57:54 -0500
-Message-ID: <4421D64F.6040907@vmware.com>
-Date: Wed, 22 Mar 2006 14:57:19 -0800
-From: Dan Hecht <dhecht@vmware.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Wed, 22 Mar 2006 18:00:19 -0500
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:40669 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S1751138AbWCVXAR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 18:00:17 -0500
+From: Francesco Biscani <biscani@pd.astro.it>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: ACPI error in 2.6.16
+Date: Wed, 22 Mar 2006 23:59:55 +0100
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com,
-       virtualization@lists.osdl.org, Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: Re: [RFC PATCH 07/35] Make LOAD_OFFSET defined by subarch
-References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063746.389133000@sorel.sous-sol.org>
-In-Reply-To: <20060322063746.389133000@sorel.sous-sol.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Mar 2006 22:57:19.0241 (UTC) FILETIME=[F8C8B790:01C64E03]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200603222359.55631.biscani@pd.astro.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-> Change LOAD_OFFSET so that the kernel has virtual addresses in the elf header fields.
-> 
-> Unlike bare metal kernels, Xen kernels start with virtual address
-> management turned on and thus the addresses to load to should be
-> virtual addresses.
-> 
+Hello,
 
-Rather than changing LOAD_OFFSET in Linux, why not leave this alone and 
-change the Xen domain builder to properly interpret the ELF program 
-header fields?
+sometimes at boot I get the following from the logs:
 
-i.e. with this change, we'd have
+ACPI: write EC, IB not empty
+ACPI Exception (evregion-0409): AE_TIME, Returned by Handler for 
+[EmbeddedControl] [20060127]
+ACPI Error (psparse-0517): Method parse/execution failed 
+[\_SB_.PCI0.ISA_.EC0_.SMRD] (Node c13ecd40), AE_TIME
+ACPI Error (psparse-0517): Method parse/execution failed [\_SB_.BAT1.UPBI] 
+(Node dbf42720), AE_TIME
+ACPI Error (psparse-0517): Method parse/execution failed [\_SB_.BAT1.CHBP] 
+(Node dbf42660), AE_TIME
+ACPI Error (psparse-0517): Method parse/execution failed 
+[\_SB_.PCI0.ISA_.EC0_.SMSL] (Node c13ecce0), AE_TIME
+ACPI Error (psparse-0517): Method parse/execution failed 
+[\_SB_.PCI0.ISA_.EC0_._Q09] (Node c13ecc40), AE_TIME
 
-p_paddr = __PAGE_OFFSET + segment_offset
-p_vaddr = __PAGE_OFFSET + segment_offset
-VIRT_BASE = __PAGE_OFFSET
+And after that the battery is reported as absent (even if it is physically 
+present). I get the impression that this happens when rebooting, not 
+from "cold powerons".
 
-where, the VA mapping p_paddr -> (p_paddr-VIRT_BASE) is established by 
-the domain builder.
+This did not happen in 2.6.15, it appeared somewhere in 2.6.16-rc series.
 
-Instead, why not drop this patch, and the VIRT_BASE portion of the 
-__xen_guest section, and instead change Xen's domain builder to treat 
-p_paddr and p_vaddr in a more standard way?  Since Xen starts the domain 
-with virtual address management enabled, it makes sense for it to use 
-p_vaddr to determine the virtual address to load the kernel to.  Then, 
-p_paddr could be used to determine which pseudo-physical pages back that 
-virtual address range.
+Regards,
 
-i.e. use, just like vanilla linux:
+  Francesco
 
-p_paddr = segment_offset
-p_vaddr = __PAGE_OFFSET + segment_offset
-
-so these two fields directly indicate the same mapping as before, but 
-now in terms of p_vaddr -> p_paddr, which makes sense, and no need for 
-the extra VIRT_BASE attribute in the __xen_guest section.
-
-Dan
+-- 
+Dr. Francesco Biscani
+Dipartimento di Astronomia
+Università di Padova
+biscani@pd.astro.it

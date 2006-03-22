@@ -1,69 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWCVGh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWCVGht@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbWCVGh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 01:37:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbWCVGh1
+	id S1750904AbWCVGht (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 01:37:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbWCVGht
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 01:37:27 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:45442 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750867AbWCVGh0
+	Wed, 22 Mar 2006 01:37:49 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:10371 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750891AbWCVGhr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 01:37:26 -0500
-Message-Id: <20060322063742.985223000@sorel.sous-sol.org>
+	Wed, 22 Mar 2006 01:37:47 -0500
+Message-Id: <20060322063802.797884000@sorel.sous-sol.org>
 References: <20060322063040.960068000@sorel.sous-sol.org>
-Date: Tue, 21 Mar 2006 22:30:42 -0800
+Date: Tue, 21 Mar 2006 22:31:07 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
 Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org,
        Ian Pratt <ian.pratt@xensource.com>,
        Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: [RFC PATCH 02/35] Makefile support to build Xen subarch
-Content-Disposition: inline; filename=01-i386-mach-xen
+Subject: [RFC PATCH 27/35] Add nosegneg capability to the vsyscall page notes
+Content-Disposition: inline; filename=26-i386-vsyscall-note
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use arch/i386/mach-xen when building Xen subarch. The separate
-subarchitecture allows us to hide details of interfacing with the
-hypervisor from i386 common code.
+Add the "nosegneg" fake capabilty to the vsyscall page notes. This is
+used by the runtime linker to select a glibc version which then
+disables negative-offset accesses to the thread-local segment via
+%gs. These accesses require emulation in Xen (because segments are
+truncated to protect the hypervisor address space) and avoiding them
+provides a measurable performance boost.
 
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- arch/i386/Makefile          |    5 +++++
- arch/i386/mach-xen/Makefile |    7 +++++++
- 2 files changed, 12 insertions(+)
+ arch/i386/kernel/vsyscall-note.S |   29 +++++++++++++++++++++++++++++
+ 1 files changed, 29 insertions(+)
 
---- xen-subarch-2.6.orig/arch/i386/Makefile
-+++ xen-subarch-2.6/arch/i386/Makefile
-@@ -68,6 +68,10 @@ mcore-$(CONFIG_X86_BIGSMP)	:= mach-defau
- mflags-$(CONFIG_X86_SUMMIT) := -Iinclude/asm-i386/mach-summit
- mcore-$(CONFIG_X86_SUMMIT)  := mach-default
+--- xen-subarch-2.6.orig/arch/i386/kernel/vsyscall-note.S
++++ xen-subarch-2.6/arch/i386/kernel/vsyscall-note.S
+@@ -3,6 +3,7 @@
+  * Here we can supply some information useful to userland.
+  */
  
-+# Xen subarch support
-+mflags-$(CONFIG_X86_XEN)	:= -Iinclude/asm-i386/mach-xen
-+mcore-$(CONFIG_X86_XEN)		:= mach-xen
++#include <linux/config.h>
+ #include <linux/uts.h>
+ #include <linux/version.h>
+ 
+@@ -23,3 +24,31 @@
+ 	ASM_ELF_NOTE_BEGIN(".note.kernel-version", "a", UTS_SYSNAME, 0)
+ 	.long LINUX_VERSION_CODE
+ 	ASM_ELF_NOTE_END
 +
- # generic subarchitecture
- mflags-$(CONFIG_X86_GENERICARCH) := -Iinclude/asm-i386/mach-generic
- mcore-$(CONFIG_X86_GENERICARCH) := mach-default
-@@ -96,6 +100,7 @@ drivers-$(CONFIG_PM)			+= arch/i386/powe
- 
- CFLAGS += $(mflags-y)
- AFLAGS += $(mflags-y)
-+CPPFLAGS += $(mflags-y)
- 
- boot := arch/i386/boot
- 
---- /dev/null
-+++ xen-subarch-2.6/arch/i386/mach-xen/Makefile
-@@ -0,0 +1,7 @@
-+#
-+# Makefile for the linux kernel.
-+#
++#ifdef CONFIG_XEN
++/*
++ * Add a special note telling glibc's dynamic linker a fake hardware
++ * flavor that it will use to choose the search path for libraries in the
++ * same way it uses real hardware capabilities like "mmx".
++ * We supply "nosegneg" as the fake capability, to indicate that we
++ * do not like negative offsets in instructions using segment overrides,
++ * since we implement those inefficiently.  This makes it possible to
++ * install libraries optimized to avoid those access patterns in someplace
++ * like /lib/i686/tls/nosegneg.  Note that an /etc/ld.so.conf.d/file
++ * corresponding to the bits here is needed to make ldconfig work right.
++ * It should contain:
++ *	hwcap 0 nosegneg
++ * to match the mapping of bit to name that we give here.
++ */
++#define NOTE_KERNELCAP_BEGIN(ncaps, mask) \
++	ASM_ELF_NOTE_BEGIN(".note.kernelcap", "a", "GNU", 2) \
++	.long ncaps, mask
++#define NOTE_KERNELCAP(bit, name) \
++	.byte bit; .asciz name
++#define NOTE_KERNELCAP_END ASM_ELF_NOTE_END
 +
-+obj-y				:= setup.o
-+ 
-+setup-y				:= ../mach-default/setup.o
++NOTE_KERNELCAP_BEGIN(1, 1)
++NOTE_KERNELCAP(1, "nosegneg")
++NOTE_KERNELCAP_END
++#endif
++
 
 --

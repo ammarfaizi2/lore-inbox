@@ -1,70 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWCVFoD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWCVFsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbWCVFoD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 00:44:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWCVFoD
+	id S1750788AbWCVFsY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 00:48:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbWCVFsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 00:44:03 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:37797 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750779AbWCVFoC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 00:44:02 -0500
-Message-Id: <200603220540.k2M5ej65018396@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: David Lang <dlang@digitalinsight.com>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Benjamin LaHaise <bcrl@kvack.org>,
-       Oliver Neukum <neukum@fachschaft.cup.uni-muenchen.de>,
-       linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
-Subject: Re: [PATCH]micro optimization of kcalloc 
-In-Reply-To: Your message of "Mon, 20 Mar 2006 10:44:00 PST."
-             <Pine.LNX.4.62.0603201043060.17740@qynat.qvtvafvgr.pbz> 
-From: Valdis.Kletnieks@vt.edu
-References: <20060320151433.GE16108@kvack.org> <84144f020603200815o66cb689cv239cbe190f9e6f30@mail.gmail.com>
-            <Pine.LNX.4.62.0603201043060.17740@qynat.qvtvafvgr.pbz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1143006045_5111P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 22 Mar 2006 00:40:45 -0500
+	Wed, 22 Mar 2006 00:48:24 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:42429 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S1750784AbWCVFsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 00:48:23 -0500
+Date: Wed, 22 Mar 2006 06:48:20 +0100
+From: Sander <sander@humilis.net>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Sander <sander@humilis.net>,
+       Mark Lord <liml@rtr.ca>, Mark Lord <lkml@rtr.ca>,
+       Andrew Morton <akpm@osdl.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.6.xx: sata_mv: another critical fix
+Message-ID: <20060322054820.GA5081@favonius>
+Reply-To: sander@humilis.net
+References: <442004E4.7010002@rtr.ca> <20060321153708.GA11703@favonius> <Pine.LNX.4.64.0603211028380.3622@g5.osdl.org> <20060321191547.GC20426@favonius> <Pine.LNX.4.64.0603211132340.3622@g5.osdl.org> <20060321204435.GE25066@favonius> <Pine.LNX.4.64.0603211249270.3622@g5.osdl.org> <44206B81.1030309@garzik.org> <Pine.LNX.4.64.0603211316580.3622@g5.osdl.org> <44207210.9080903@garzik.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44207210.9080903@garzik.org>
+X-Uptime: 06:35:35 up 19 days, 10:45, 29 users,  load average: 3.61, 2.57, 2.30
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1143006045_5111P
-Content-Type: text/plain; charset=us-ascii
+Jeff Garzik wrote (ao):
+> Linus Torvalds wrote:
+> >Maybe back-porting any critical sata_mv fixes to 2.6.16.x is appropriate, 
+> >considering that I don't think RH or SuSE will necessarily want to pull 
+> >the whole thing.
 
-On Mon, 20 Mar 2006 10:44:00 PST, David Lang said:
-> On Mon, 20 Mar 2006, Pekka Enberg wrote:
+I'll try the 2.6.16-git3 snapshot.
 
-> > On Mon, Mar 20, 2006 at 03:45:23PM +0100, Oliver Neukum wrote:
-> >>>  static inline void *kcalloc(size_t n, size_t size, gfp_t flags)
-
-> > On 3/20/06, Benjamin LaHaise <bcrl@kvack.org> wrote:
-> >> This function shouldn't be inlined.  We have no need to optimize the
-> >> unlikely case like this.
-> >
-> > IIRC, I made it static inline in the first place because that actually
-> > reduced kernel text size. (And I think it was Adrian who made me do it
-> > :-).
+> Agreed -- in theory -- but I'll let Mark Lord or somebody else do that, 
+> if they are motivated. sata_mv is labelled "HIGHLY EXPERIMENTAL" for a 
+> reason :)  Its a known bug report generator, with bugs far outpacing 
+> fixes at present.
 > 
-> I wonder if this is still needed with the new inline changes that were 
-> made to allow GCC to make the decision (for recent GCC's)
+> Key patches to backport or test, in priority order, would be:
+> 
+> [libata sata_mv] do not enable PCI MSI by default
 
-One non-obvious reason to inline it (at least in -mm kernels) is because the
-slab leak detector stuff wants to find where it was called from - and if you
-don't inline kcalloc(), you end up with the kzalloc() call it makes showing
-kcalloc() as the caller.  If you inline it, you end up showing the caller
-of kcalloc() instead, which is far more useful.....
+Is this in -rc6-mm2 already? Because just for fun I enabled
+CONFIG_PCI_MSI=y in my -rc6-mm2 .config and it still is rock stable.
 
---==_Exmh_1143006045_5111P
-Content-Type: application/pgp-signature
+> After that, you're at the mercy of not-yet-worked-around hardware bugs, 
+> and (as Mark Lord appears to be finding) some driver bugs as well.
+> 
+> sata_mv development slowed to a trickle for a long time, after the 
+> original developer disappeared, and I didn't have time to dig deep into 
+> the hardware details. Mark Lord recently started picking up the pieces, 
+> so things are looking much better already. I have another patch from 
+> Mark to forward to you and 2.6.16.x (stable@), coming to you today.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Things indeed look much, much better. I'll try and find some more
+serious fs tests and hit -rc6-mm2.
 
-iD8DBQFEIONdcC3lWbTT17ARAmO9AKCGmH02nimVlmNYbnOE0qtDPDsGIACgnITi
-YNk2sZBMeSVXaAsfAGotFjU=
-=xGgC
------END PGP SIGNATURE-----
+Thank you all for your work on this driver! I'll order two more of these
+fine controllers.
 
---==_Exmh_1143006045_5111P--
+	Sander
+
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

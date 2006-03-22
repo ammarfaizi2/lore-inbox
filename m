@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932882AbWCVWgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932881AbWCVWfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932882AbWCVWgO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 17:36:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932894AbWCVWfh
+	id S932881AbWCVWfN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 17:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932882AbWCVWfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 17:35:37 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:6858 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932882AbWCVWfP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 17:35:15 -0500
+	Wed, 22 Mar 2006 17:35:11 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:32296 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932884AbWCVWfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 17:35:05 -0500
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Cc: Bob Picco <bob.picco@hp.com>, Andrew Morton <akpm@osdl.org>,
@@ -18,178 +18,221 @@ Cc: Bob Picco <bob.picco@hp.com>, Andrew Morton <akpm@osdl.org>,
        Wu Fengguang <wfg@mail.ustc.edu.cn>, Nick Piggin <npiggin@suse.de>,
        Linus Torvalds <torvalds@osdl.org>, Rik van Riel <riel@redhat.com>,
        Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Message-Id: <20060322223441.12658.17738.sendpatchset@twins.localnet>
+Message-Id: <20060322223430.12658.69558.sendpatchset@twins.localnet>
 In-Reply-To: <20060322223107.12658.14997.sendpatchset@twins.localnet>
 References: <20060322223107.12658.14997.sendpatchset@twins.localnet>
-Subject: [PATCH 21/34] mm: page-replace-nonresident.patch
-Date: Wed, 22 Mar 2006 23:35:13 +0100
+Subject: [PATCH 20/34] mm: page-replace-pg_flags.patch
+Date: Wed, 22 Mar 2006 23:35:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-Add hooks for nonresident page tracking.
-The policy has to define MM_POLICY_HAS_NONRESIDENT when it makes
-use of these.
+Abstract the replacement policy specific pageflags.
 
 API:
-	void page_replace_remember(struct zone *, struct page *);
 
-Remeber a page - insert it into the nonresident page tracking.
+Copy the policy specific page flags
 
-	void page_replace_forget(struct address_space *, unsigned long);
+	void page_replace_copy_state(struct page *, struct page *);
 
-Forget about a page - remove it from the nonresident page tracking.
+Clear the policy specific page flags
+
+	void page_replace_clear_state(struct page *);
+
+Account the page as active
+
+	int page_replace_is_active(struct page *);
 
 Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
 Signed-off-by: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 
 ---
 
- include/linux/mm_page_replace.h    |    2 ++
- include/linux/mm_use_once_policy.h |    3 +++
- mm/memory.c                        |   28 ++++++++++++++++++++++++++++
- mm/swapfile.c                      |   13 +++++++++++--
- mm/vmscan.c                        |    2 ++
- 5 files changed, 46 insertions(+), 2 deletions(-)
+ include/linux/mm_page_replace.h    |    3 +++
+ include/linux/mm_use_once_policy.h |   26 ++++++++++++++++++++++++++
+ include/linux/page-flags.h         |    8 +-------
+ mm/hugetlb.c                       |    2 +-
+ mm/mempolicy.c                     |    2 +-
+ mm/page_alloc.c                    |    6 +++---
+ mm/vmscan.c                        |    6 +++---
+ 7 files changed, 38 insertions(+), 15 deletions(-)
 
 Index: linux-2.6-git/include/linux/mm_use_once_policy.h
 ===================================================================
 --- linux-2.6-git.orig/include/linux/mm_use_once_policy.h
 +++ linux-2.6-git/include/linux/mm_use_once_policy.h
-@@ -161,6 +161,9 @@ static inline int page_replace_is_active
- 	return PageActive(page);
+@@ -5,6 +5,15 @@
+ 
+ #include <linux/fs.h>
+ #include <linux/rmap.h>
++#include <linux/page-flags.h>
++
++#define PG_active	PG_reclaim1
++
++#define PageActive(page)	test_bit(PG_active, &(page)->flags)
++#define SetPageActive(page)	set_bit(PG_active, &(page)->flags)
++#define ClearPageActive(page)	clear_bit(PG_active, &(page)->flags)
++#define TestClearPageActive(page) test_and_clear_bit(PG_active, &(page)->flags)
++#define TestSetPageActive(page) test_and_set_bit(PG_active, &(page)->flags)
+ 
+ static inline void page_replace_hint_active(struct page *page)
+ {
+@@ -135,6 +144,23 @@ static inline void __page_replace_rotate
+ 	}
  }
  
-+#define page_replace_remember(z, p) do { } while (0)
-+#define page_replace_forget(m, i) do { } while (0)
++static inline void page_replace_copy_state(struct page *dpage, struct page *spage)
++{
++	if (PageActive(spage))
++		SetPageActive(dpage);
++}
++
++static inline void page_replace_clear_state(struct page *page)
++{
++	if (PageActive(page))
++		ClearPageActive(page);
++}
++
++static inline int page_replace_is_active(struct page *page)
++{
++	return PageActive(page);
++}
 +
  static inline unsigned long __page_replace_nr_pages(struct zone *zone)
  {
  	return zone->policy.nr_active + zone->policy.nr_inactive;
+Index: linux-2.6-git/include/linux/page-flags.h
+===================================================================
+--- linux-2.6-git.orig/include/linux/page-flags.h
++++ linux-2.6-git/include/linux/page-flags.h
+@@ -58,7 +58,7 @@
+ 
+ #define PG_dirty	 	 4
+ #define PG_lru			 5
+-#define PG_active		 6
++#define PG_reclaim1		 6	/* reserved by the mm reclaim code */
+ #define PG_slab			 7	/* slab debug (Suparna wants this) */
+ 
+ #define PG_checked		 8	/* kill me in 2.5.<early>. */
+@@ -244,12 +244,6 @@ extern void __mod_page_state_offset(unsi
+ #define TestSetPageLRU(page)	test_and_set_bit(PG_lru, &(page)->flags)
+ #define TestClearPageLRU(page)	test_and_clear_bit(PG_lru, &(page)->flags)
+ 
+-#define PageActive(page)	test_bit(PG_active, &(page)->flags)
+-#define SetPageActive(page)	set_bit(PG_active, &(page)->flags)
+-#define ClearPageActive(page)	clear_bit(PG_active, &(page)->flags)
+-#define TestClearPageActive(page) test_and_clear_bit(PG_active, &(page)->flags)
+-#define TestSetPageActive(page) test_and_set_bit(PG_active, &(page)->flags)
+-
+ #define PageSlab(page)		test_bit(PG_slab, &(page)->flags)
+ #define SetPageSlab(page)	set_bit(PG_slab, &(page)->flags)
+ #define ClearPageSlab(page)	clear_bit(PG_slab, &(page)->flags)
+Index: linux-2.6-git/mm/page_alloc.c
+===================================================================
+--- linux-2.6-git.orig/mm/page_alloc.c
++++ linux-2.6-git/mm/page_alloc.c
+@@ -149,7 +149,7 @@ static void bad_page(struct page *page)
+ 	page->flags &= ~(1 << PG_lru	|
+ 			1 << PG_private |
+ 			1 << PG_locked	|
+-			1 << PG_active	|
++			1 << PG_reclaim1 |
+ 			1 << PG_dirty	|
+ 			1 << PG_reclaim |
+ 			1 << PG_slab    |
+@@ -360,7 +360,7 @@ static inline int free_pages_check(struc
+ 			1 << PG_lru	|
+ 			1 << PG_private |
+ 			1 << PG_locked	|
+-			1 << PG_active	|
++			1 << PG_reclaim1 |
+ 			1 << PG_reclaim	|
+ 			1 << PG_slab	|
+ 			1 << PG_swapcache |
+@@ -517,7 +517,7 @@ static int prep_new_page(struct page *pa
+ 			1 << PG_lru	|
+ 			1 << PG_private	|
+ 			1 << PG_locked	|
+-			1 << PG_active	|
++			1 << PG_reclaim1 |
+ 			1 << PG_dirty	|
+ 			1 << PG_reclaim	|
+ 			1 << PG_slab    |
+Index: linux-2.6-git/mm/hugetlb.c
+===================================================================
+--- linux-2.6-git.orig/mm/hugetlb.c
++++ linux-2.6-git/mm/hugetlb.c
+@@ -152,7 +152,7 @@ static void update_and_free_page(struct 
+ 	nr_huge_pages_node[page_zone(page)->zone_pgdat->node_id]--;
+ 	for (i = 0; i < (HPAGE_SIZE / PAGE_SIZE); i++) {
+ 		page[i].flags &= ~(1 << PG_locked | 1 << PG_error | 1 << PG_referenced |
+-				1 << PG_dirty | 1 << PG_active | 1 << PG_reserved |
++				1 << PG_dirty | 1 << PG_reclaim1 | 1 << PG_reserved |
+ 				1 << PG_private | 1<< PG_writeback);
+ 		set_page_count(&page[i], 0);
+ 	}
 Index: linux-2.6-git/include/linux/mm_page_replace.h
 ===================================================================
 --- linux-2.6-git.orig/include/linux/mm_page_replace.h
 +++ linux-2.6-git/include/linux/mm_page_replace.h
-@@ -96,6 +96,8 @@ extern void page_replace_shrink(struct z
- /* void page_replace_copy_state(struct page *, struct page *); */
- /* void page_replace_clear_state(struct page *); */
- /* int page_replace_is_active(struct page *); */
-+/* void page_replace_remember(struct zone *, struct page*); */
-+/* void page_replace_forget(struct address_space *, unsigned long); */
+@@ -93,6 +93,9 @@ extern void page_replace_shrink(struct z
+ /* void page_replace_mark_accessed(struct page *); */
+ /* void page_replace_remove(struct zone *, struct page *); */
+ /* void __page_replace_rotate_reclaimable(struct zone *, struct page *); */
++/* void page_replace_copy_state(struct page *, struct page *); */
++/* void page_replace_clear_state(struct page *); */
++/* int page_replace_is_active(struct page *); */
  extern void page_replace_show(struct zone *);
  extern void page_replace_zoneinfo(struct zone *, struct seq_file *);
  extern void __page_replace_counts(unsigned long *, unsigned long *,
-Index: linux-2.6-git/mm/memory.c
-===================================================================
---- linux-2.6-git.orig/mm/memory.c
-+++ linux-2.6-git/mm/memory.c
-@@ -606,6 +606,31 @@ int copy_page_range(struct mm_struct *ds
- 	return 0;
- }
- 
-+#if defined MM_POLICY_HAS_NONRESIDENT
-+static void free_file(struct vm_area_struct *vma,
-+				unsigned long offset)
-+{
-+	struct address_space *mapping;
-+	struct page *page;
-+
-+	if (!vma ||
-+	    !vma->vm_file ||
-+	    !vma->vm_file->f_mapping)
-+		return;
-+
-+	mapping = vma->vm_file->f_mapping;
-+	page = find_get_page(mapping, offset);
-+	if (page) {
-+		page_cache_release(page);
-+		return;
-+	}
-+
-+	page_replace_forget(mapping, offset);
-+}
-+#else
-+#define free_file(a,b) do { } while (0)
-+#endif
-+
- static unsigned long zap_pte_range(struct mmu_gather *tlb,
- 				struct vm_area_struct *vma, pmd_t *pmd,
- 				unsigned long addr, unsigned long end,
-@@ -621,6 +646,7 @@ static unsigned long zap_pte_range(struc
- 	do {
- 		pte_t ptent = *pte;
- 		if (pte_none(ptent)) {
-+			free_file(vma, pte_to_pgoff(ptent));
- 			(*zap_work)--;
- 			continue;
- 		}
-@@ -679,6 +705,8 @@ static unsigned long zap_pte_range(struc
- 			continue;
- 		if (!pte_file(ptent))
- 			free_swap_and_cache(pte_to_swp_entry(ptent));
-+		else
-+			free_file(vma, pte_to_pgoff(ptent));
- 		pte_clear_full(mm, addr, pte, tlb->fullmm);
- 	} while (pte++, addr += PAGE_SIZE, (addr != end && *zap_work > 0));
- 
-Index: linux-2.6-git/mm/swapfile.c
-===================================================================
---- linux-2.6-git.orig/mm/swapfile.c
-+++ linux-2.6-git/mm/swapfile.c
-@@ -28,6 +28,7 @@
- #include <linux/mutex.h>
- #include <linux/capability.h>
- #include <linux/syscalls.h>
-+#include <linux/mm_page_replace.h>
- 
- #include <asm/pgtable.h>
- #include <asm/tlbflush.h>
-@@ -300,7 +301,8 @@ void swap_free(swp_entry_t entry)
- 
- 	p = swap_info_get(entry);
- 	if (p) {
--		swap_entry_free(p, swp_offset(entry));
-+		if (!swap_entry_free(p, swp_offset(entry)))
-+			page_replace_forget(&swapper_space, entry.val);
- 		spin_unlock(&swap_lock);
- 	}
- }
-@@ -397,8 +399,15 @@ void free_swap_and_cache(swp_entry_t ent
- 
- 	p = swap_info_get(entry);
- 	if (p) {
--		if (swap_entry_free(p, swp_offset(entry)) == 1)
-+		switch (swap_entry_free(p, swp_offset(entry))) {
-+		case 1:
- 			page = find_trylock_page(&swapper_space, entry.val);
-+			break;
-+
-+		case 0:
-+			page_replace_forget(&swapper_space, entry.val);
-+			break;
-+		}
- 		spin_unlock(&swap_lock);
- 	}
- 	if (page) {
 Index: linux-2.6-git/mm/vmscan.c
 ===================================================================
 --- linux-2.6-git.orig/mm/vmscan.c
 +++ linux-2.6-git/mm/vmscan.c
-@@ -315,6 +315,7 @@ static int remove_mapping(struct address
+@@ -484,6 +484,7 @@ int shrink_list(struct list_head *page_l
+ 			goto keep_locked;
  
- 	if (PageSwapCache(page)) {
- 		swp_entry_t swap = { .val = page_private(page) };
-+		page_replace_remember(page_zone(page), page);
- 		__delete_from_swap_cache(page);
- 		write_unlock_irq(&mapping->tree_lock);
- 		swap_free(swap);
-@@ -322,6 +323,7 @@ static int remove_mapping(struct address
- 		return 1;
- 	}
+ free_it:
++		page_replace_clear_state(page);
+ 		unlock_page(page);
+ 		reclaimed++;
+ 		if (!pagevec_add(&freed_pvec, page))
+@@ -668,12 +669,11 @@ void migrate_page_copy(struct page *newp
+ 		SetPageReferenced(newpage);
+ 	if (PageUptodate(page))
+ 		SetPageUptodate(newpage);
+-	if (PageActive(page))
+-		SetPageActive(newpage);
+ 	if (PageChecked(page))
+ 		SetPageChecked(newpage);
+ 	if (PageMappedToDisk(page))
+ 		SetPageMappedToDisk(newpage);
++	page_replace_copy_state(newpage, page);
  
-+	page_replace_remember(page_zone(page), page);
- 	__remove_from_page_cache(page);
- 	write_unlock_irq(&mapping->tree_lock);
- 	__put_page(page);
+ 	if (PageDirty(page)) {
+ 		clear_page_dirty_for_io(page);
+@@ -681,8 +681,8 @@ void migrate_page_copy(struct page *newp
+  	}
+ 
+ 	ClearPageSwapCache(page);
+-	ClearPageActive(page);
+ 	ClearPagePrivate(page);
++	page_replace_clear_state(page);
+ 	set_page_private(page, 0);
+ 	page->mapping = NULL;
+ 
+Index: linux-2.6-git/mm/mempolicy.c
+===================================================================
+--- linux-2.6-git.orig/mm/mempolicy.c
++++ linux-2.6-git/mm/mempolicy.c
+@@ -1774,7 +1774,7 @@ static void gather_stats(struct page *pa
+ 	if (PageSwapCache(page))
+ 		md->swapcache++;
+ 
+-	if (PageActive(page))
++	if (page_replace_is_active(page))
+ 		md->active++;
+ 
+ 	if (PageWriteback(page))

@@ -1,90 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWCVFWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWCVF1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbWCVFWp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 00:22:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWCVFWo
+	id S1750773AbWCVF1z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 00:27:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWCVF1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 00:22:44 -0500
-Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:52414 "EHLO
-	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750772AbWCVFWo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 00:22:44 -0500
-Message-ID: <4420DF21.8060700@bigpond.net.au>
-Date: Wed, 22 Mar 2006 16:22:41 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 22 Mar 2006 00:27:55 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:6119 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S1750773AbWCVF1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 00:27:54 -0500
+Message-ID: <4420DE54.1020004@t-online.de>
+Date: Wed, 22 Mar 2006 06:19:16 +0100
+From: Knut Petersen <Knut_Petersen@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.10) Gecko/20050726
+X-Accept-Language: de, en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.16
-References: <Pine.LNX.4.64.0603192216450.3622@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0603192216450.3622@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 22 Mar 2006 05:22:41 +0000
+CC: Dave Jones <davej@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [BUG] wrong bogomips  values with kernel 2.6.16
+References: <441FFB28.5050609@t-online.de> <Pine.LNX.4.64.0603211004250.3622@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0603211004250.3622@g5.osdl.org>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ID: Xdfi34ZlweIz3Ctfpx1LPRbJjdq4VpfTIlLuWm3muIMp7a9L3mr0g-@t-dialin.net
+X-TOI-MSGID: 62f6d9d0-f58b-4942-8d02-9d0cc57c3ae6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Ok, it's being mirrored out right now, the git tree should already be all 
-> there, the tar-file and patches are still uploading.
-> 
-> Not a lot of changes since -rc6, but there's various random one-liners 
-> here and there (a number of Coverity bugs found, for example), and there 
-> are small MIPS and PowerPC updates.
-> 
-> Appended is the shortlog from 2.6.16-rc6, the full log (from 2.6.15) is on 
-> the web/ftp-sites. 
-> 
-> It looks like both Fedora and SuSE end up using a kernel that is pretty 
-> close to this 2.6.16 release, so let's all hope it's good. Give it a good 
-> testing, please,
+Linus Torvalds schrieb:
 
-I've just noticed some strange error messages that were printed during 
-boot but don't seem to have any adverse effects when running.
+>That sounds correct. On x86, BogoMips these days is just a measure of how 
+>fast the timestamp counter goes (multiplied by two for totally bogus 
+>reasons), and a Pentium-M should have a fixed-frequency TSC that ticks at 
+>the highest possible frequency of the CPU, regardless of what the real 
+>frequency is.
+>
+>  
+>
+Pentium 4 and Xeon model 3 and above increment the time stamp counter
+at a constant rate independent of the current cpu frequency.
 
-Mar 22 16:10:31 heathwren kernel: ACPI: PM-Timer IO Port: 0x1008
-Mar 22 16:10:31 heathwren kernel: ACPI: LAPIC (acpi_id[0x00] 
-lapic_id[0x00] enabled)
-Mar 22 16:10:31 heathwren kernel: Processor #0 15:3 APIC version 20
+All Pentium M, Xeon up to model 2 and the P6 family increment with every
+internal processor cycle.
 
-### First CPU seen.
+This behaviour is documented in chapter 18.8 of IA-32 Intel® Architecture
+Software Developer’s Manual, Volume 3B: System Programming Guide,
+Part 2, Order Number: 253669-018, January 2006.
 
-Mar 22 16:10:31 heathwren kernel: ACPI: LAPIC (acpi_id[0x01] 
-lapic_id[0x01] enabled)
-Mar 22 16:10:31 heathwren kernel: Processor #1 15:3 APIC version 20
+Because of your false assumption of a fixed-frequency TSC, your
+conclusions are false too. Scaling of the bogomips values should
+really happen, but the start value is wrong. For 800 MHz there
+should be a bogomips value of about 1598, for 1867 MHz a value
+of about 3730.
 
-### Second CPU seen.
+You asked for a full /proc/cpuinfo, here it is ...
 
-Mar 22 16:10:31 heathwren kernel: ACPI: LAPIC_NMI (acpi_id[0x00] dfl dfl 
-lint[0x1])
-Mar 22 16:10:31 heathwren kernel: ACPI: LAPIC_NMI (acpi_id[0x01] dfl dfl 
-lint[0x1])
-Mar 22 16:10:31 heathwren kernel: ACPI: IOAPIC (id[0x02] 
-address[0xfec00000] gsi_base[0])
-Mar 22 16:10:31 heathwren kernel: IOAPIC[0]: apic_id 2, version 20, 
-address 0xfec00000, GSI 0-23
-Mar 22 16:10:31 heathwren kernel: ACPI: INT_SRC_OVR (bus 0 bus_irq 0 
-global_irq 2 dfl dfl)
-Mar 22 16:10:31 heathwren kernel: ACPI: INT_SRC_OVR (bus 0 bus_irq 9 
-global_irq 9 dfl dfl)
-Mar 22 16:10:31 heathwren kernel: Enabling APIC mode:  Flat.  Using 1 
-I/O APICs
-Mar 22 16:10:31 heathwren kernel: More than 8 CPUs detected and 
-CONFIG_X86_PC cannot handle it.
 
-### No more CPUs seen but something in there thinks there's more than 8 
-of them.
+processor : 0
+vendor_id : GenuineIntel
+cpu family : 6
+model : 13
+model name : Intel(R) Pentium(R) M processor 1.86GHz
+stepping : 8
+cpu MHz : 800.000
+cache size : 2048 KB
+fdiv_bug : no
+hlt_bug : no
+f00f_bug : no
+coma_bug : no
+fpu : yes
+fpu_exception : yes
+cpuid level : 2
+wp : yes
+flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov 
+pat clflush dts acpi mmx fxsr sse sse2 ss tmpbe nx est tm2
+bogomips : 3730.27
 
-Mar 22 16:10:31 heathwren kernel: Use CONFIG_X86_GENERICARCH or 
-CONFIG_X86_BIGSMP.
-Mar 22 16:10:31 heathwren kernel: Using ACPI (MADT) for SMP 
-configuration information
+cu,
+Knut
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

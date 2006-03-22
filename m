@@ -1,88 +1,207 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWCWUgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbWCWUkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751491AbWCWUgv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 15:36:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWCWUgv
+	id S1751504AbWCWUkV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 15:40:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbWCWUkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 15:36:51 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:43144 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751491AbWCWUgt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 15:36:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NQx3Y0FU6ShZRfpZkqYBTIXkfWMtKXIdej2YNFU9D3q1VkLWPoPu+nWaH7vO/Y4ZYzaSPkHKXqhVB2GnyoGtxAV0BTIt/e06TcGJdMt/9p9AS+U6tARu1qe78HUZ3dyv3JV+KrB/BCUuNcRvKanQWiehd1a3uML7PAkvsLcyrcg=
-Message-ID: <d120d5000603231236n1294b492x93a107ce3971de5f@mail.gmail.com>
-Date: Thu, 23 Mar 2006 15:36:48 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Stas Sergeev" <stsp@aknet.ru>
-Subject: Re: [patch 1/1] pc-speaker: add SND_SILENT
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-In-Reply-To: <4422F85E.7000200@aknet.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200603220652.k2M6qZgi020656@shell0.pdx.osdl.net>
-	 <d120d5000603221332n6a6f9208x5651dc9ec993f4bf@mail.gmail.com>
-	 <4422318C.407@aknet.ru>
-	 <d120d5000603230651p6b43aad9ocad1aa3c2b51b388@mail.gmail.com>
-	 <4422E2DA.7050305@aknet.ru>
-	 <d120d5000603231012h1c0f5s8ecde64e67641317@mail.gmail.com>
-	 <4422E968.1050506@aknet.ru>
-	 <d120d5000603231047q6e777243nb4031b701dbdc494@mail.gmail.com>
-	 <4422F85E.7000200@aknet.ru>
+	Thu, 23 Mar 2006 15:40:21 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:24821 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751493AbWCWUkU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 15:40:20 -0500
+Message-Id: <20060323203521.100452000@dyn-9-152-242-103.boeblingen.de.ibm.com>
+References: <20060323203423.620978000@dyn-9-152-242-103.boeblingen.de.ibm.com>
+User-Agent: quilt/0.44-1
+Date: Thu, 23 Mar 2006 00:00:02 +0100
+From: Arnd Bergmann <abergman@de.ibm.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Subject: [patch 02/13] powerpc: add hvc backend for rtas
+Content-Disposition: inline; filename=hvc-console-rtas-3.diff
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/23/06, Stas Sergeev <stsp@aknet.ru> wrote:
-> Hi.
->
-> Dmitry Torokhov wrote:
-> > So what you actually need is a mediator module controlling concurrent
-> > access to the speaker hardware from both pcspkr and snd_pcsp and
-> > making sure that one does not disrupt the other. This is completely
-> > outside of the scope of the input subsystem tough.
-> Strictly speaking - yes. But, to make my life easier, I am trying
-> to approach it from the other sides as well:
-> Why not to have a SYN_CONFIG option to disable the terminal beeps
-> with *any* speaker driver (sparkspkr, m68kspkr etc)?
+Current Cell hardware is using the console through a set
+of rtas calls. This driver is needed to get console
+output on those boards.
 
-Because what happens when ther is a third party involved. As you know
-the good design account for either "zero", "one" or "many"
-clients/accessors. Code in anticipation of having only 2 possible
-users is not a good practice.
+Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
 
-> Or, why not to have the grabbing capability in the input layer, so
-> that the driver can request an exclusive handling of some events?
-
-That can be explored, although does not answer how you do about
-allowing concurrent access to the hardware.
-
-> Both the above options look usefull in general, and I can get the
-> use of either one. Do you think both of the above options are bad
-> in general? (you may disagree with the way I am going to use them,
-> but that doesn't make them bad in general, I think)
->
-> > You are right, I misunderstood the purpose of snd_pcsp. Still the best
-> > solution would be to allow beeps to come through if user keeps them
-> > enabled.
-> But they really kill the snd_pcsp if they occur. They reprogram the
-> PIT channel 2 to a different mode, and the sound doesn't resume
-> after the beep, there is just some crackling remains. And it is
-> not even under the user's control - Mozilla mailer beeps me when
-> receives the mail for example.
-
-Doesn't it go through XBell (xkbbell to disable)?
-
-> So not disabling pcspkr will make
-> the snd_pcsp very unreliable.
->
-
-I understand that the beeps kill music currently; they should not if
-you have lower level module controlling access.
+Index: linus-2.6/drivers/char/hvc_rtas.c
+===================================================================
+--- /dev/null
++++ linus-2.6/drivers/char/hvc_rtas.c
+@@ -0,0 +1,138 @@
++/*
++ * IBM RTAS driver interface to hvc_console.c
++ *
++ * (C) Copyright IBM Corporation 2001-2005
++ * (C) Copyright Red Hat, Inc. 2005
++ *
++ * Author(s): Maximino Augilar <IBM STI Design Center>
++ *	    : Ryan S. Arnold <rsa@us.ibm.com>
++ *	    : Utz Bacher <utz.bacher@de.ibm.com>
++ *	    : David Woodhouse <dwmw2@infradead.org>
++ *
++ *    inspired by drivers/char/hvc_console.c
++ *    written by Anton Blanchard and Paul Mackerras
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
++ */
++
++#include <linux/console.h>
++#include <linux/delay.h>
++#include <linux/err.h>
++#include <linux/init.h>
++#include <linux/moduleparam.h>
++#include <linux/types.h>
++
++#include <asm/irq.h>
++#include <asm/rtas.h>
++#include "hvc_console.h"
++
++#define hvc_rtas_cookie 0x67781e15
++struct hvc_struct *hvc_rtas_dev;
++
++#define RTASCONS_PUT_ATTEMPTS  16
++
++static int rtascons_put_char_token = RTAS_UNKNOWN_SERVICE;
++static int rtascons_get_char_token = RTAS_UNKNOWN_SERVICE;
++static int rtascons_put_delay = 100;
++module_param_named(put_delay, rtascons_put_delay, int, 0644);
++
++static inline int hvc_rtas_write_console(uint32_t vtermno, const char *buf, int count)
++{
++	int done;
++
++	/* if there is more than one character to be displayed, wait a bit */
++	for (done = 0; done < count; done++) {
++		int result;
++		result = rtas_call(rtascons_put_char_token, 1, 1, NULL, buf[done]);
++		if (result)
++			break;
++	}
++	/* the calling routine expects to receive the number of bytes sent */
++	return done;
++}
++
++static int hvc_rtas_read_console(uint32_t vtermno, char *buf, int count)
++{
++	int i;
++
++	for (i = 0; i < count; i++) {
++		int c, err;
++
++		err = rtas_call(rtascons_get_char_token, 0, 2, &c);
++		if (err)
++			break;
++
++		buf[i] = c;
++	}
++
++	return i;
++}
++
++static struct hv_ops hvc_rtas_get_put_ops = {
++	.get_chars = hvc_rtas_read_console,
++	.put_chars = hvc_rtas_write_console,
++};
++
++static int hvc_rtas_init(void)
++{
++	struct hvc_struct *hp;
++
++	if (rtascons_put_char_token == RTAS_UNKNOWN_SERVICE)
++		rtascons_put_char_token = rtas_token("put-term-char");
++	if (rtascons_put_char_token == RTAS_UNKNOWN_SERVICE)
++		return -EIO;
++
++	if (rtascons_get_char_token == RTAS_UNKNOWN_SERVICE)
++		rtascons_get_char_token = rtas_token("get-term-char");
++	if (rtascons_get_char_token == RTAS_UNKNOWN_SERVICE)
++		return -EIO;
++
++	BUG_ON(hvc_rtas_dev);
++
++	/* Allocate an hvc_struct for the console device we instantiated
++	 * earlier.  Save off hp so that we can return it on exit */
++	hp = hvc_alloc(hvc_rtas_cookie, NO_IRQ, &hvc_rtas_get_put_ops);
++	if (IS_ERR(hp))
++		return PTR_ERR(hp);
++	hvc_rtas_dev = hp;
++	return 0;
++}
++module_init(hvc_rtas_init);
++
++/* This will tear down the tty portion of the driver */
++static void __exit hvc_rtas_exit(void)
++{
++	/* Really the fun isn't over until the worker thread breaks down and the
++	 * tty cleans up */
++	if (hvc_rtas_dev)
++		hvc_remove(hvc_rtas_dev);
++}
++module_exit(hvc_rtas_exit); /* before drivers/char/hvc_console.c */
++
++/* This will happen prior to module init.  There is no tty at this time? */
++static int hvc_rtas_console_init(void)
++{
++	rtascons_put_char_token = rtas_token("put-term-char");
++	if (rtascons_put_char_token == RTAS_UNKNOWN_SERVICE)
++		return -EIO;
++	rtascons_get_char_token = rtas_token("get-term-char");
++	if (rtascons_get_char_token == RTAS_UNKNOWN_SERVICE)
++		return -EIO;
++
++	hvc_instantiate(hvc_rtas_cookie, 0, &hvc_rtas_get_put_ops );
++	add_preferred_console("hvc", 0, NULL);
++	return 0;
++}
++console_initcall(hvc_rtas_console_init);
+Index: linus-2.6/drivers/char/Makefile
+===================================================================
+--- linus-2.6.orig/drivers/char/Makefile
++++ linus-2.6/drivers/char/Makefile
+@@ -43,6 +43,7 @@ obj-$(CONFIG_SX)		+= sx.o generic_serial
+ obj-$(CONFIG_RIO)		+= rio/ generic_serial.o
+ obj-$(CONFIG_HVC_DRIVER)	+= hvc_console.o
+ obj-$(CONFIG_HVC_CONSOLE)	+= hvc_vio.o hvsi.o
++obj-$(CONFIG_HVC_RTAS)		+= hvc_rtas.o
+ obj-$(CONFIG_RAW_DRIVER)	+= raw.o
+ obj-$(CONFIG_SGI_SNSC)		+= snsc.o snsc_event.o
+ obj-$(CONFIG_MMTIMER)		+= mmtimer.o
+Index: linus-2.6/drivers/char/Kconfig
+===================================================================
+--- linus-2.6.orig/drivers/char/Kconfig
++++ linus-2.6/drivers/char/Kconfig
+@@ -578,6 +578,13 @@ config HVC_CONSOLE
+ 	  console. This driver allows each pSeries partition to have a console
+ 	  which is accessed via the HMC.
+ 
++config HVC_RTAS
++	bool "IBM RTAS Console support"
++	depends on PPC_RTAS
++	select HVC_DRIVER
++	help
++	  IBM Console device driver which makes use of RTAS
++
+ config HVCS
+ 	tristate "IBM Hypervisor Virtual Console Server support"
+ 	depends on PPC_PSERIES
 
 --
-Dmitry
+

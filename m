@@ -1,44 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751890AbWCVCfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751892AbWCVCjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751890AbWCVCfF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 21:35:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751891AbWCVCfF
+	id S1751892AbWCVCjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 21:39:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751893AbWCVCjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 21:35:05 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.192.81]:15563 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1751890AbWCVCfE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 21:35:04 -0500
-Message-ID: <4420B7D6.4020706@comcast.net>
-Date: Tue, 21 Mar 2006 21:35:02 -0500
-From: Ed Sweetman <safemode@comcast.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: libata ignores non-dma disks?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 21 Mar 2006 21:39:25 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:63981 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751892AbWCVCjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 21:39:25 -0500
+Subject: [PATCH] less tlb flush in unmap_vmas
+From: Shaohua Li <shaohua.li@intel.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 22 Mar 2006 10:38:08 +0800
+Message-Id: <1142995088.11430.34.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using 2.6.16-rc6-ide1 (alan's patchset) and using the sata_nv and
-pata_amd drivers.  I have all UDMA drives except a CF disk -> IDE
-interface, which should be running in PIO mode4.   Libata detects the
-device, but spits out a message about "no dma" and then says it's not
-supported and is ignoring it.   Is this device not supported because
-it's not using dma or for some other reason?
-It's the only device on it's channel (secondary pata)
+In unmaping region, if current task doesn't need reschedule, don't do a
+tlb_finish_mmu. This can reduce some tlb flushes.
 
-ata6: PATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 15
-ata6: dev 0 cfg 49:0e00 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000
-88:0000
-ata6: no dma
-ata6: dev 0 not supported, ignoring
-scsi5 : pata_amd
+In the lmbench tests, this patch gives 2.1% improvement on exec proc
+item and 4.2% on sh proc item.
 
+Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+---
 
-I'd really like to get this up and running so if anyone has any
-suggestions, I'm all ears.
+ linux-2.6.16-rc5-root/mm/memory.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
+
+diff -puN mm/memory.c~less_flush mm/memory.c
+--- linux-2.6.16-rc5/mm/memory.c~less_flush	2006-03-21 07:22:47.000000000 +0800
++++ linux-2.6.16-rc5-root/mm/memory.c	2006-03-21 07:26:51.000000000 +0800
+@@ -837,19 +837,18 @@ unsigned long unmap_vmas(struct mmu_gath
+ 				break;
+ 			}
+ 
+-			tlb_finish_mmu(*tlbp, tlb_start, start);
+-
+ 			if (need_resched() ||
+ 				(i_mmap_lock && need_lockbreak(i_mmap_lock))) {
++				tlb_finish_mmu(*tlbp, tlb_start, start);
+ 				if (i_mmap_lock) {
+ 					*tlbp = NULL;
+ 					goto out;
+ 				}
+ 				cond_resched();
++				tlb_start_valid = 0;
++				*tlbp = tlb_gather_mmu(vma->vm_mm, fullmm);
+ 			}
+ 
+-			*tlbp = tlb_gather_mmu(vma->vm_mm, fullmm);
+-			tlb_start_valid = 0;
+ 			zap_work = ZAP_BLOCK_SIZE;
+ 		}
+ 	}
+_
 
 

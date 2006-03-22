@@ -1,79 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbWCVHPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWCVHPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751010AbWCVHPl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 02:15:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751011AbWCVHPl
+	id S1750972AbWCVHPM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 02:15:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbWCVHPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 02:15:41 -0500
-Received: from smtpauth08.mail.atl.earthlink.net ([209.86.89.68]:33412 "EHLO
-	smtpauth08.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
-	id S1750998AbWCVHPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 02:15:30 -0500
-To: "Yu, Luming" <luming.yu@intel.com>
-cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       michael@mihu.de, mchehab@infradead.org,
-       "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
-       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       jgarzik@pobox.com, "Duncan" <1i5t5.duncan@cox.net>,
-       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-In-Reply-To: Your message of "Wed, 22 Mar 2006 09:30:04 +0800."
-             <3ACA40606221794F80A5670F0AF15F840B417B9D@pdsmsx403> 
-X-Mailer: MH-E 7.91; nmh 1.1; GNU Emacs 21.4.1
-Date: Wed, 22 Mar 2006 02:15:09 -0500
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1FLxYj-00011i-Px@approximate.corpus.cam.ac.uk>
-X-ELNK-Trace: dcd19350f30646cc26f3bd1b5f75c9f474bf435c0eb9d478a122c03f3aaf2a20d7e8541fd6a15496d16eadd309c7c8a3350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 24.41.6.91
+	Wed, 22 Mar 2006 02:15:12 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:58513 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750972AbWCVHPL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 02:15:11 -0500
+Message-Id: <200603220715.k2M7F1g04936@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "Li, Shaohua" <shaohua.li@intel.com>
+Cc: "'lkml'" <linux-kernel@vger.kernel.org>, "'Andrew Morton'" <akpm@osdl.org>
+Subject: RE: [PATCH] less tlb flush in unmap_vmas
+Date: Tue, 21 Mar 2006 23:15:13 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcZNbLkagc2f+RjATrGi5s3lL62s1AAEcTNw
+In-Reply-To: <4420D82B.6080504@yahoo.com.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So the kernel with this UPDT() hung at the 2nd sleep:
+Nick Piggin wrote on Tuesday, March 21, 2006 8:53 PM
+> Shaohua Li wrote:
+> >In unmaping region, if current task doesn't need reschedule, don't do a
+> >tlb_finish_mmu. This can reduce some tlb flushes.
+> >
+> >In the lmbench tests, this patch gives 2.1% improvement on exec proc
+> >item and 4.2% on sh proc item.
+> 
+> The problem with this is that by the time we _do_ determine that a
+> reschedule is needed, we might have built up a huge amount of work
+> to do (which can probably be as much if not more exensive per-page
+> as the unmapping), so scheduling latency can still be unacceptable
+> so I'm afraid I don't think we can include this patch.
 
-                    Method (UPDT, 0, NotSerialized)
-                    {
-                        If (IGNR)
-                        {
-                            Decrement (IGNR)
-                        }
-                        Else
-                        {
-                            If (H8DR)
-                            {
-                                If (Acquire (I2CM, 0x0064)) {}
-                                Else
-                                {
-                                    Store (I2RB (Zero, 0x01, 0x04), Local7)
-                                    If (Local7)
-                                    {
-                                        Fatal (0x01, 0x80000003, Local7)
-                                    }
+Interesting. In the old day, since mm->page_table_lock is held for the
+entire unmap_vmas function, it was beneficial to introduce periodic
+reschedule point and to drop the spin lock under pressure. Now that the
+page table lock is fine-grained and is pushed into zap_pte_range(), I
+would think scheduling latency would improve from lock contention
+avoidance point of view.  It is not the case?
 
-                                    Release (I2CM)
-                                }
-                            }
-                        }
-                    }
+- Ken
 
-Relative to a working kernel (well, a kernel that I could get to hang
-only once, and then all reboots afterwards it never would hang), these
-are the extra lines:
-
-                                    Store (I2RB (Zero, 0x01, 0x04), Local7)
-                                    If (Local7)
-                                    {
-                                        Fatal (0x01, 0x80000003, Local7)
-                                    }
-
-Since I don't think Fatal() isn't being called, I guess the problem is
-in I2RB.  But all those magic numbers in I2RB make me recultant to take
-out lines, unless you tell me which changes won't harm the hardware.
-
--Sanjoy
-
-`A society of sheep must in time beget a government of wolves.'
-   - Bertrand de Jouvenal

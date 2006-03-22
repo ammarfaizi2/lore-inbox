@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWCVXAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbWCVXCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbWCVXAT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 18:00:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750969AbWCVXAT
+	id S1750969AbWCVXCe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 18:02:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbWCVXCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 18:00:19 -0500
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:40669 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S1751138AbWCVXAR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 18:00:17 -0500
-From: Francesco Biscani <biscani@pd.astro.it>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: ACPI error in 2.6.16
-Date: Wed, 22 Mar 2006 23:59:55 +0100
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Wed, 22 Mar 2006 18:02:34 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:4483 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750969AbWCVXCc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 18:02:32 -0500
+Date: Wed, 22 Mar 2006 15:02:17 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Daniel Arai <arai@vmware.com>
+Cc: Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@sous-sol.org>,
+       Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Anne Holler <anne@vmware.com>, Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Rik Van Riel <riel@redhat.com>, Jyothy Reddy <jreddy@vmware.com>,
+       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
+       Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 5/24] i386 Vmi code patching
+Message-ID: <20060322230217.GN15997@sorel.sous-sol.org>
+References: <200603131802.k2DI2nv8005665@zach-dev.vmware.com> <200603222115.46926.ak@suse.de> <20060322214025.GJ15997@sorel.sous-sol.org> <4421CCA8.4080702@vmware.com> <4421D0C9.6080603@vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603222359.55631.biscani@pd.astro.it>
+In-Reply-To: <4421D0C9.6080603@vmware.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+* Daniel Arai (arai@vmware.com) wrote:
+> To elaborate a bit more, the "ROM" layer is "published" by the hypervisor.  
+> This layer of abstraction will let you take a VMI-compiled kernel and run 
+> it efficiently on any hypervisor that exports a VMI interface - even one 
+> that you didn't know about (or didn't exist) when you compiled your kernel.
+> 
+> If the ROM part is compiled into the code, then you have to compile in 
+> support for the specific hypervisor(s) you want to run on.  It might be 
+> reasonable for this code to be in a lodable kernel module, rather than a 
+> device ROM per se, but you still want that kernel module to be provided by 
+> the hypervisor.
 
-sometimes at boot I get the following from the logs:
+I don't agree.  That module may know how to get interface info from a
+vdso analog (just like a driver knows the hardware details of the device
+it's interacting with, but the core kernel api is unaware), but placing
+the binary compatibility on the kernel proper is wrong IMO.
 
-ACPI: write EC, IB not empty
-ACPI Exception (evregion-0409): AE_TIME, Returned by Handler for 
-[EmbeddedControl] [20060127]
-ACPI Error (psparse-0517): Method parse/execution failed 
-[\_SB_.PCI0.ISA_.EC0_.SMRD] (Node c13ecd40), AE_TIME
-ACPI Error (psparse-0517): Method parse/execution failed [\_SB_.BAT1.UPBI] 
-(Node dbf42720), AE_TIME
-ACPI Error (psparse-0517): Method parse/execution failed [\_SB_.BAT1.CHBP] 
-(Node dbf42660), AE_TIME
-ACPI Error (psparse-0517): Method parse/execution failed 
-[\_SB_.PCI0.ISA_.EC0_.SMSL] (Node c13ecce0), AE_TIME
-ACPI Error (psparse-0517): Method parse/execution failed 
-[\_SB_.PCI0.ISA_.EC0_._Q09] (Node c13ecc40), AE_TIME
-
-And after that the battery is reported as absent (even if it is physically 
-present). I get the impression that this happens when rebooting, not 
-from "cold powerons".
-
-This did not happen in 2.6.15, it appeared somewhere in 2.6.16-rc series.
-
-Regards,
-
-  Francesco
-
--- 
-Dr. Francesco Biscani
-Dipartimento di Astronomia
-Università di Padova
-biscani@pd.astro.it
+thanks,
+-chris

@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWCVPa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWCVPfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751337AbWCVPa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 10:30:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWCVPaZ
+	id S1751289AbWCVPfl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 10:35:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWCVPfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 10:30:25 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:56039 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751339AbWCVPaX (ORCPT
+	Wed, 22 Mar 2006 10:35:41 -0500
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:11145 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S1751289AbWCVPfk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 10:30:23 -0500
-Date: Wed, 22 Mar 2006 07:30:06 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Knut Petersen <Knut_Petersen@t-online.de>
-cc: Dave Jones <davej@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [BUG] wrong bogomips  values with kernel 2.6.16
-In-Reply-To: <4420DE54.1020004@t-online.de>
-Message-ID: <Pine.LNX.4.64.0603220717270.26286@g5.osdl.org>
-References: <441FFB28.5050609@t-online.de> <Pine.LNX.4.64.0603211004250.3622@g5.osdl.org>
- <4420DE54.1020004@t-online.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 22 Mar 2006 10:35:40 -0500
+In-Reply-To: <79fcd3fd1d13741c5d1cd3c6f5b326b9@cl.cam.ac.uk>
+References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063805.741915000@sorel.sous-sol.org> <44213333.6030404@yahoo.com.au> <79fcd3fd1d13741c5d1cd3c6f5b326b9@cl.cam.ac.uk>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <503082446ce33efbf163ad2af63bb0e1@cl.cam.ac.uk>
+Content-Transfer-Encoding: 7bit
+Cc: virtualization@lists.osdl.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
+       Ian Pratt <ian.pratt@xensource.com>, Chris Wright <chrisw@sous-sol.org>
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Subject: Re: [RFC PATCH 30/35] Add generic_page_range() function
+Date: Wed, 22 Mar 2006 15:35:09 +0000
+To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On 22 Mar 2006, at 14:33, Keir Fraser wrote:
 
-On Wed, 22 Mar 2006, Knut Petersen wrote:
-> 
-> All Pentium M, Xeon up to model 2 and the P6 family increment with every
-> internal processor cycle.
+> Okay, can you suggest a better one? That's the best I could come up 
+> with that wasn't long winded.
 
-Just to humor me. Try the bogomips loop in user space with something like 
-the appended (make sure the frequency is fixed to the lowest frequency).
+How about apply_to_page_range()?
 
-		Linus
----
-#include <stdio.h>
-#include <sys/time.h>
+>
+>> secondly, I think you confuse our (confusing) terminology: the page
+>> that holds pte_ts is not the pte_page, the pte_page is the page that
+>> a pte points to
+>
+> What should we call it? Essentially we want to be able to get the 
+> physical address of a PTE in some cases, and passing struct page 
+> pointer seemed the best way to be able to derive that. I can rename it 
+> to something else vaguely plausible if the only problem is the 
+> semantic clash with Linux's idiomatic use of pte_page.
 
-#define read_tsc(r) asm volatile("rdtsc":"=A" (r))
+Looks like pmd_page is correct?
 
-int main(int argc, char **argv)
-{
-	struct timeval a;
-	unsigned long start, end;
-	unsigned long mhz, low;
+  -- Keir
 
-	gettimeofday(&a, NULL);
-	read_tsc(start);
-	for (;;) {
-		unsigned long usec;
-		struct timeval b;
-		gettimeofday(&b, NULL);
-		usec = (b.tv_sec - a.tv_sec)*1000000;
-		usec += b.tv_usec - a.tv_usec;
-		if (usec >= 1000000)
-			break;
-	}
-	read_tsc(end);
-	end -= start;
-	mhz = end / 1000000;
-	low = end % 1000000;
-	printf("TSC: %lu.%06lu MHz\n", mhz, low);
-	return 0;
-}

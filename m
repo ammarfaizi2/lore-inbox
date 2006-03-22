@@ -1,39 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWCVTTy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbWCVTW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbWCVTTy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 14:19:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWCVTTy
+	id S932392AbWCVTW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 14:22:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWCVTW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 14:19:54 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:2947 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932378AbWCVTTx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 14:19:53 -0500
-Date: Wed, 22 Mar 2006 11:20:08 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
-       linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com,
-       Ian Pratt <ian.pratt@xensource.com>
-Subject: Re: [RFC PATCH 13/35] Support loading an initrd when running on Xen
-Message-ID: <20060322192008.GA15997@sorel.sous-sol.org>
-References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063750.631016000@sorel.sous-sol.org> <200603221522.54661.ak@suse.de>
+	Wed, 22 Mar 2006 14:22:27 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:14353 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S932392AbWCVTW0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 14:22:26 -0500
+Date: Wed, 22 Mar 2006 14:22:14 -0500
+From: Neil Horman <nhorman@tuxdriver.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, joe.korty@ccur.com
+Subject: Re: [PATCH] proc: fix duplicate line in /proc/devices
+Message-ID: <20060322192214.GC29565@hmsreliant.homelinux.net>
+References: <20060322132558.GB29565@hmsreliant.homelinux.net> <20060322111231.779efd38.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200603221522.54661.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060322111231.779efd38.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andi Kleen (ak@suse.de) wrote:
-> On Wednesday 22 March 2006 07:30, Chris Wright wrote:
-> > Due to the initial physical memory layout when booting on Xen, the initrd
-> > image ends up below min_low_pfn (as registered with the bootstrap memory
-> > allocator). Add an i386 build option to allow this scenario by setting
-> > the initrd_below_start_ok flag.
+On Wed, Mar 22, 2006 at 11:12:31AM -0800, Andrew Morton wrote:
+> Neil Horman <nhorman@tuxdriver.com> wrote:
+> >
+> > Patch to fix a potential duplicate block device line printed after the "Block
+> > device" header in /proc/devices.  Tested and confirmed working by the reporter.
+> > 
 > 
-> Better would be to just handle that by default without any CONFIGs.
+> <looks>
+> 
+> Block devices:
+>   1 ramdisk
+>   1 ramdisk
+>   2 fd
+>   8 sd
+> 
+> > 
+> > diff --git a/fs/proc/proc_misc.c b/fs/proc/proc_misc.c
+> > index 1d24fea..b097958 100644
+> > --- a/fs/proc/proc_misc.c
+> > +++ b/fs/proc/proc_misc.c
+> > @@ -312,7 +312,6 @@ static void *devinfo_next(struct seq_fil
+> >  		case BLK_HDR:
+> >  			info->state = BLK_LIST;
+> >  			(*pos)++;
+> > -			break;
+> >  		case BLK_LIST:
+> >  			if (get_blkdev_info(info->blkdev,&idummy,&ndummy)) {
+> >  				/*
+> 
+> OK, so that's the same as CHR_HDR and lines up with the fallthroughs in
+> devinfo_show().  A somewhat strange way of implementing a state machine,
+> but I guess it saves a few cycles...
+> 
+> I'll copy the stable-kernel guys - this is 2.6.16.1 material, thanks.
+Fantastic.  Thanks Andrew.
+Neil
 
-Indeed, thanks.
--chris
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
+ ***************************************************/

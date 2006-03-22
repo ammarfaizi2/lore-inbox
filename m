@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWCVWMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWCVWMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbWCVWMU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 17:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWCVWMU
+	id S932099AbWCVWMf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 17:12:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWCVWMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 17:12:20 -0500
-Received: from atlrel6.hp.com ([156.153.255.205]:36558 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S932092AbWCVWMT (ORCPT
+	Wed, 22 Mar 2006 17:12:35 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:38805 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S932099AbWCVWMc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 17:12:19 -0500
+	Wed, 22 Mar 2006 17:12:32 -0500
 From: Bjorn Helgaas <bjorn.helgaas@hp.com>
 To: Adam Belay <ambx1@neo.rr.com>
-Subject: [PATCH  2/12] PNP: adjust pnp_register_card_driver() signature
-Date: Wed, 22 Mar 2006 15:12:14 -0700
+Subject: [PATCH  4/12] PNP: adjust pnp_register_card_driver() signature
+Date: Wed, 22 Mar 2006 15:12:28 -0700
 User-Agent: KMail/1.8.3
 Cc: linux-kernel@vger.kernel.org, Jaroslav Kysela <perex@suse.cz>,
        Matthieu Castet <castet.matthieu@free.fr>,
        Li Shaohua <shaohua.li@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Massimo Piccioni <dafastidio@libero.it>, Takashi Iwai <tiwai@suse.de>
+       George Talusan <gstalusan@uwaterloo.ca>, Takashi Iwai <tiwai@suse.de>
 References: <200603221455.26230.bjorn.helgaas@hp.com>
 In-Reply-To: <200603221455.26230.bjorn.helgaas@hp.com>
 MIME-Version: 1.0
@@ -25,59 +25,81 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200603221512.14335.bjorn.helgaas@hp.com>
+Message-Id: <200603221512.28528.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Remove the assumption that pnp_register_card_driver() returns the
-number of devices claimed.  And fix a __init/__devinit issue.
+number of devices claimed.  And fix some __init/__devinit issues.
 
 Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-Index: work-mm6/sound/isa/als100.c
+Index: work-mm6/sound/isa/cmi8330.c
 ===================================================================
---- work-mm6.orig/sound/isa/als100.c	2006-03-22 11:24:42.000000000 -0700
-+++ work-mm6/sound/isa/als100.c	2006-03-22 11:48:33.000000000 -0700
-@@ -199,7 +199,7 @@
- 	return 0;
+--- work-mm6.orig/sound/isa/cmi8330.c	2006-03-22 11:24:42.000000000 -0700
++++ work-mm6/sound/isa/cmi8330.c	2006-03-22 12:01:20.000000000 -0700
+@@ -175,7 +175,7 @@
+ #endif
+ 
+ 
+-static struct ad1848_mix_elem snd_cmi8330_controls[] __initdata = {
++static struct ad1848_mix_elem snd_cmi8330_controls[] __devinitdata = {
+ AD1848_DOUBLE("Master Playback Volume", 0, CMI8330_MASTVOL, CMI8330_MASTVOL, 4, 0, 15, 0),
+ AD1848_SINGLE("Loud Playback Switch", 0, CMI8330_MUTEMUX, 6, 1, 1),
+ AD1848_DOUBLE("PCM Playback Switch", 0, AD1848_LEFT_OUTPUT, AD1848_RIGHT_OUTPUT, 7, 7, 1, 1),
+@@ -204,7 +204,7 @@
+ };
+ 
+ #ifdef ENABLE_SB_MIXER
+-static struct sbmix_elem cmi8330_sb_mixers[] __initdata = {
++static struct sbmix_elem cmi8330_sb_mixers[] __devinitdata = {
+ SB_DOUBLE("SB Master Playback Volume", SB_DSP4_MASTER_DEV, (SB_DSP4_MASTER_DEV + 1), 3, 3, 31),
+ SB_DOUBLE("Tone Control - Bass", SB_DSP4_BASS_DEV, (SB_DSP4_BASS_DEV + 1), 4, 4, 15),
+ SB_DOUBLE("Tone Control - Treble", SB_DSP4_TREBLE_DEV, (SB_DSP4_TREBLE_DEV + 1), 4, 4, 15),
+@@ -222,7 +222,7 @@
+ SB_SINGLE("SB Mic Auto Gain", SB_DSP4_MIC_AGC, 0, 1),
+ };
+ 
+-static unsigned char cmi8330_sb_init_values[][2] __initdata = {
++static unsigned char cmi8330_sb_init_values[][2] __devinitdata = {
+ 	{ SB_DSP4_MASTER_DEV + 0, 0 },
+ 	{ SB_DSP4_MASTER_DEV + 1, 0 },
+ 	{ SB_DSP4_PCM_DEV + 0, 0 },
+@@ -545,7 +545,7 @@
+ 	return snd_card_register(card);
  }
  
--static int __init snd_card_als100_probe(int dev,
-+static int __devinit snd_card_als100_probe(int dev,
- 					struct pnp_card_link *pcard,
- 					const struct pnp_card_device_id *pid)
+-static int __init snd_cmi8330_nonpnp_probe(struct platform_device *pdev)
++static int __devinit snd_cmi8330_nonpnp_probe(struct platform_device *pdev)
  {
-@@ -281,6 +281,8 @@
- 	return 0;
- }
+ 	struct snd_card *card;
+ 	int err;
+@@ -607,6 +607,8 @@
  
-+static unsigned int __devinitdata als100_devices;
+ 
+ #ifdef CONFIG_PNP
++static unsigned int __devinitdata cmi8330_pnp_devices;
 +
- static int __devinit snd_als100_pnp_detect(struct pnp_card_link *card,
- 					   const struct pnp_card_device_id *id)
+ static int __devinit snd_cmi8330_pnp_detect(struct pnp_card_link *pcard,
+ 					    const struct pnp_card_device_id *pid)
  {
-@@ -294,6 +296,7 @@
- 		if (res < 0)
- 			return res;
- 		dev++;
-+		als100_devices++;
- 		return 0;
+@@ -636,6 +638,7 @@
  	}
- 	return -ENODEV;
-@@ -345,10 +348,13 @@
+ 	pnp_set_card_drvdata(pcard, card);
+ 	dev++;
++	cmi8330_pnp_devices++;
+ 	return 0;
+ }
  
- static int __init alsa_card_als100_init(void)
- {
--	int cards;
-+	int err;
-+
-+	err = pnp_register_card_driver(&als100_pnpc_driver);
-+	if (err)
-+		return err;
+@@ -706,9 +709,9 @@
  
--	cards = pnp_register_card_driver(&als100_pnpc_driver);
--	if (cards <= 0) {
-+	if (!als100_devices) {
- 		pnp_unregister_card_driver(&als100_pnpc_driver);
- #ifdef MODULE
- 		snd_printk(KERN_ERR "no ALS100 based soundcards found\n");
+ #ifdef CONFIG_PNP
+ 	err = pnp_register_card_driver(&cmi8330_pnpc_driver);
+-	if (err >= 0) {
++	if (!err) {
+ 		pnp_registered = 1;
+-		cards += err;
++		cards += cmi8330_pnp_devices;
+ 	}
+ #endif
+ 

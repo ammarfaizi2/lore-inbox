@@ -1,66 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751870AbWCVA0F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751871AbWCVA1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751870AbWCVA0F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 19:26:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751871AbWCVA0F
+	id S1751871AbWCVA1c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 19:27:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751872AbWCVA1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 19:26:05 -0500
-Received: from rwcrmhc14.comcast.net ([204.127.192.84]:61686 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1751870AbWCVA0E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 19:26:04 -0500
-Message-ID: <44209997.9010708@comcast.net>
-Date: Tue, 21 Mar 2006 19:25:59 -0500
-From: Ed Sweetman <safemode@comcast.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: 2.6.16-rc6-ide1 irq trap, io hang problem solved?
-References: <442089CB.1000008@comcast.net> <1142985995.4532.195.camel@mindpipe>
-In-Reply-To: <1142985995.4532.195.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Mar 2006 19:27:32 -0500
+Received: from hera.kernel.org ([140.211.167.34]:3794 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751871AbWCVA1b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 19:27:31 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Merge strategy for klibc
+Date: Tue, 21 Mar 2006 16:27:02 -0800 (PST)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <dvq5km$o0g$1@terminus.zytor.com>
+References: <441F0859.2010703@zytor.com> <Pine.LNX.4.64.0603202228441.17704@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1142987222 24593 127.0.0.1 (22 Mar 2006 00:27:02 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Wed, 22 Mar 2006 00:27:02 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+Followup to:  <Pine.LNX.4.64.0603202228441.17704@scrub.home>
+By author:    Roman Zippel <zippel@linux-m68k.org>
+In newsgroup: linux.dev.kernel
+> 
+> You forgot to provide any information (at least a summary) about what this 
+> is and how this will work. Please don't assume everyone is familiar with 
+> it.
+> 
+> There is one major question: how will this interface to distributions?
+> 
+> How can distributions add their own initializations and configurations or 
+> are they going to put an initrd on top of the kernel initrd? If this will 
+> have a kernel and a distribution part, it poses the question whether klibc 
+> has to be distributed with the kernel at all (a libc has a standard API 
+> after all) and the kernel just provides the kernel specific parts to 
+> whatever the distribution provides.
+> 
 
->On Tue, 2006-03-21 at 18:18 -0500, Ed Sweetman wrote:
->  
->
->>I've seen some traffic here to suggest that the problem was tracked 
->>down, but I saw nothing about it being solved completely.  Currently my 
->>system hangs whenever an irq trap message appears, usually after some 
->>sort of disk io on SATA drives. Is it fixed in the GIT patchset recently 
->>posted or is this still open?  
->>    
->>
->
->Are you referring to the "Losing ticks" bug?  What is the exact error
->message that you get?  Does the system hang momentarily or have to be
->rebooted?
->
->Lee
->
->
->  
->
-No not the ticks bug.
+Okay... quick summary (again)...
 
-ata3: irq trap
-ata3: command 0x25 timeout, stat 0x50 host_stat 0x60
-ata4: irq trap
-ata4: command 0x25 timeout, stat 0x50 host_stat 0x20
-ata4: irq trap
-ata4: command 0x35 timeout, stat 0x50 host_stat 0x20
-ata3: irq trap
-ata3: command 0x35 timeout, stat 0x50 host_stat 0x60
+klibc is a small libc, small enough that it provides negible (or even
+negative) overhead to bundle it inside the kernel binary.
 
+The kernel tree part is there so that we can rip out in-kernel code
+without breaking compatibility, or requiring a distribution-provided
+initramfs.  In the future, we could consider retaining certain
+binaries in the rootfs and have "on-demand userspace" by the kernel,
+e.g. to do partition enumeration in userspace in a
+backwards-compatible manner.
 
-Over and over in random orientations.   System hangs on io momentarily, 
-usually a few seconds. No fs errors, no other errors given.   System 
-also seems to have been kicked out of DMA mode at least for disks. 
+The default build provides a single binary called kinit, which is
+(modulo any bugs) equivalent to the in-kernel root-mounting code, with
+all its variants (initrd, nfsroot, load ramdisk from floppy, yadda
+yadda.)  The existence of kinit allows the in-kernel code to be
+removed without actually removing a feature.  Hence, the reason to put
+this in the kernel tree is to make sure there is zero impact on
+distributions.
 
+If the distribution uses initramfs directly, kinit goes unused.  The
+klibc code is also available as a standalone distribution, which at
+least Ubuntu is currently using to build a custom initramfs.  Because
+the kinit code is still userspace, it can share considerable amounts
+of code with the standalone klibc utilities collection; in fact most
+of the kinit pieces are available as standalone binaries which can be
+weaved together by scripts or other C code.
 
+The advantages of moving this code to userspace, thus is:
+
+ - Simpler programming model (harder to screw up)
+ - Easier to share code with distribution-customized setups
+ - Code can be tested as standalone userspace binaries at runtime
+
+A lot of the benefit is lost if, like now, there is a piece of code
+which has to be written for kernel-mode programming, separate from
+anything else and not testable except through a tedious kernel boot
+cycle.
+
+	-hpa

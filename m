@@ -1,63 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWCVI2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWCVI3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbWCVI2F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 03:28:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWCVI2E
+	id S1751096AbWCVI3b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 03:29:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbWCVI3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 03:28:04 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:13442 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751092AbWCVI2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 03:28:04 -0500
-Subject: Re: [RFC PATCH 04/35] Hypervisor interface header files.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com,
-       virtualization@lists.osdl.org, Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-In-Reply-To: <20060322063744.407582000@sorel.sous-sol.org>
-References: <20060322063040.960068000@sorel.sous-sol.org>
-	 <20060322063744.407582000@sorel.sous-sol.org>
-Content-Type: text/plain
-Date: Wed, 22 Mar 2006 09:28:00 +0100
-Message-Id: <1143016080.2955.7.camel@laptopd505.fenrus.org>
+	Wed, 22 Mar 2006 03:29:30 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:5428 "EHLO mtlexch01.mtl.com")
+	by vger.kernel.org with ESMTP id S1751096AbWCVI33 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 03:29:29 -0500
+Date: Wed, 22 Mar 2006 10:30:09 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Sean Hefty <sean.hefty@intel.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH 6/6 v2] IB: userspace support for RDMA connection manager
+Message-ID: <20060322083009.GF1802@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <ORSMSX4011XvpFVjCRG0000000f@orsmsx401.amr.corp.intel.com> <adawten6yu1.fsf@cisco.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <adawten6yu1.fsf@cisco.com>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 22 Mar 2006 08:32:03.0484 (UTC) FILETIME=[1894DDC0:01C64D8B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-21 at 22:30 -0800, Chris Wright wrote:
-> plain text document attachment (03-i386-hypervisor-interface)
-> Define macros and inline functions for doing hypercalls into the
-> hypervisor.
+Quoting r. Roland Dreier <rdreier@cisco.com>:
+> Subject: Re: [PATCH 6/6 v2] IB: userspace support for RDMA connection manager
 > 
-> Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
-> Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> ---
->  include/asm-i386/hypercall.h  |  306 ++++++++++++++++++++++++++++++++++++++++++
->  include/asm-i386/hypervisor.h |   67 +++++++++
->  2 files changed, 373 insertions(+)
-> 
-> --- /dev/null
-> +++ xen-subarch-2.6/include/asm-i386/hypercall.h
-> @@ -0,0 +1,306 @@
-> +/******************************************************************************
-> + * hypercall.h
-> + *
-> + * Linux-specific hypervisor handling.
-> + *
-> + * Copyright (c) 2002-2004, K A Fraser
-> + *
-> + * This file may be distributed separately from the Linux kernel, or
-> + * incorporated into other software packages, subject to the following license:
-> + *
+> I added this patch to the rdma_cm branch in my git tree.
 
-and what, if any, is the license when distributed with the kernel, as
-you propose? Right now there doesn't seem to be any at all, and thus it
-would be undistributable.
+BTW, is there some way to see your git tree e.g. with gitweb?
 
-
+-- 
+Michael S. Tsirkin
+Staff Engineer, Mellanox Technologies

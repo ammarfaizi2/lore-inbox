@@ -1,133 +1,196 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWCVJ7X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWCVJ7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751181AbWCVJ7X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 04:59:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWCVJ7X
+	id S1751180AbWCVJ7O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 04:59:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWCVJ7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 04:59:23 -0500
-Received: from zproxy.gmail.com ([64.233.162.199]:17172 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751181AbWCVJ7W convert rfc822-to-8bit
+	Wed, 22 Mar 2006 04:59:14 -0500
+Received: from mrelay2.soas.ac.uk ([212.219.139.201]:20890 "EHLO
+	mrelay2.soas.ac.uk") by vger.kernel.org with ESMTP id S1751180AbWCVJ7O
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 04:59:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bXioZ5DTEnA406fSr1WgHLeWkYd9JDz813OxHWZ3KbsacP4WZ7maa7wDCenscVMQgsvKA/6w2JN7K+V1bv5N8+Un1DRv4DQ+FbSw2V3m8Wh25Aq5x2i79Z85pP8MxRA8Ll0Wi0/6x7Bx1JoTpFI48nzteyHpoJBlS4F90ZwbMUk=
-Message-ID: <93564eb70603220159wd03a48du@mail.gmail.com>
-Date: Wed, 22 Mar 2006 18:59:21 +0900
-From: "Samuel Masham" <samuel.masham@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: libata/sata errors on ich[?]/maxtor
-Cc: "Mauro Tassinari" <mtassinari@cmanet.it>, lkml@societasilluminati.org
-In-Reply-To: <93564eb70603170635s4d3c8c3o@mail.gmail.com>
+	Wed, 22 Mar 2006 04:59:14 -0500
+Date: Wed, 22 Mar 2006 09:59:16 +0000
+From: Alexander Clouter <alex@digriz.org.uk>
+To: cpufreq@lists.linux.org.uk, linux-kernel@vger.kernel.org
+Cc: venkatesh.pallipadi@intel.com, linux@dominikbrodowski.de, akpm@osdl.org
+Subject: [patch 3/4 MKII] cpufreq_conservative: make for_each_cpu() safe
+Message-ID: <20060322095916.GC3378@inskipp.digriz.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/mixed; boundary="jousvV0MzM2p6OtC"
 Content-Disposition: inline
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA//gP36uv0hG9NQDAJogAp8KAAAAQAAAAoSG5sanwXkG4qxYkj76rcgEAAAAA@cmanet.it>
-	 <93564eb70603162037g1856b7eey@mail.gmail.com>
-	 <1142595294.28614.3.camel@localhost.localdomain>
-	 <93564eb70603170635s4d3c8c3o@mail.gmail.com>
+Organization: diGriz
+X-URL: http://www.digriz.org.uk/
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Again All, Alan,
 
-On 17/03/06, Samuel Masham <samuel.masham@gmail.com> wrote:
-> Hi Alan,
->
-> On 17/03/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > On Gwe, 2006-03-17 at 13:37 +0900, Samuel Masham wrote:
-> > > As you can see from the printk's here this error continues and the for
-> > > every access (write?) to the drive you just have to wait for a
-> > > timeout.
-> >
-> > Eventually the drive will be offlined.
->
-> really? I can test that easily enough if nothing else :)
+--jousvV0MzM2p6OtC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-When is it (should it) going to offline the drive? its been spitting
-out these messages (about set per min?) for 4 hours at the moment with
-no change bar the sector number increasing by 2 each time...
+All these changes should make cpufreq_conservative safe in regards to the x86
+for_each_cpu cpumask.h changes and whatnot.
 
-> > > ata1: command 0x35 timeout, stat 0xd1 host_stat 0x61
-> > > ata1: translated ATA stat/err 0xd1/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> > > ata1: status=0xd1 { Busy }
-> > > SCSI disk error : host 0 channel 0 id 1 lun 0 return code = 8000002
-> > > Current sd08:12: sense key Aborted Command
-> > > Additional sense indicates Scsi parity error
-> >
-> > It thinks there is a communication (eg cable problem), at least that is
-> > how it has mapped the error report. Not something I'd expect to see in
-> > the SATA case on several machines so it could be some kind of setup
-> > error or timing incompatibility in the driver.
->
-> Well Its cheep enough to get another cable and test that.
+Whilst making it safe a number of pointless for loops related to the cpu 
+mask's were removed.  I was never comfortable with all those for loops,
+especially as the iteration is over the same data again and again for each
+CPU you had in a single poll, an O(n^2) outcome to frequency scaling.
 
-Done. The new short cable showed no difference in behavior.
+The approach I use is to assume by default no CPU's exist and it sets the 
+requested_freq to zero as a kind of flag, the reasoning is in the source ;) 
+If the CPU is queried and requested_freq is zero then it initialises the 
+variable to current_freq and then continues as if nothing happened which 
+should be the same net effect as before?
 
-So left with the timing/setup error... Anyone with any ideas?
+Signed-off-by: Alexander Clouter <alex-kernel@digriz.org.uk>
 
-> > What is attached to that controller (SATA and PATA items)
 
-as I said before there are two hardisks
+--jousvV0MzM2p6OtC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="03_cpufreq-percpu.diff"
 
-> Ata Maxtor 6Y080M0  SCSI  sda 0
-> Ata Maxtor 6V250F0   SCSI  sdb 0
+--- linux-2.6.16/drivers/cpufreq/cpufreq_conservative.c.orig	2006-03-21 21:27:58.333834500 +0000
++++ linux-2.6.16/drivers/cpufreq/cpufreq_conservative.c	2006-03-21 21:28:53.969311500 +0000
+@@ -294,31 +294,40 @@
+ static void dbs_check_cpu(int cpu)
+ {
+ 	unsigned int idle_ticks, up_idle_ticks, down_idle_ticks;
++	unsigned int tmp_idle_ticks, total_idle_ticks;
+ 	unsigned int freq_step;
+ 	unsigned int freq_down_sampling_rate;
+-	static int down_skip[NR_CPUS];
+-	static int requested_freq[NR_CPUS];
+-	static unsigned short init_flag = 0;
+-	struct cpu_dbs_info_s *this_dbs_info;
+-	struct cpu_dbs_info_s *dbs_info;
+-
++	static unsigned short down_skip[NR_CPUS];
++	static unsigned int requested_freq[NR_CPUS];
++	static unsigned int init_flag = NR_CPUS;
++	struct cpu_dbs_info_s *this_dbs_info = &per_cpu(cpu_dbs_info, cpu);
+ 	struct cpufreq_policy *policy;
+-	unsigned int j;
+ 
+-	this_dbs_info = &per_cpu(cpu_dbs_info, cpu);
+ 	if (!this_dbs_info->enable)
+ 		return;
+ 
+-	policy = this_dbs_info->cur_policy;
+-
+-	if ( init_flag == 0 ) {
+-		for_each_online_cpu(j) {
+-			dbs_info = &per_cpu(cpu_dbs_info, j);
+-			requested_freq[j] = dbs_info->cur_policy->cur;
++	if ( init_flag != 0 ) {
++		for_each_cpu(init_flag) {
++			down_skip[init_flag] = 0;
++			/* I doubt a CPU exists with a freq of 0hz :) */
++			requested_freq[init_flag] = 0;
+ 		}
+-		init_flag = 1;
++		init_flag = 0;
+ 	}
+ 	
++	/*
++	 * If its a freshly initialised cpu we setup requested_freq.  This
++	 * check could be avoided if we did not care about a first time
++	 * stunted increase in CPU speed when there is a load.  I feel we
++	 * should be initialising this to something.  The removal of a CPU
++	 * is not a problem, after a short time the CPU should settle down
++	 * to a 'natural' frequency.
++	 */
++	if (requested_freq[cpu] == 0)
++		requested_freq[cpu] = this_dbs_info->cur_policy->cur;
++
++	policy = this_dbs_info->cur_policy;
++
+ 	/* 
+ 	 * The default safe range is 20% to 80% 
+ 	 * Every sampling_rate, we check
+@@ -335,20 +344,15 @@
+ 
+ 	/* Check for frequency increase */
+ 	idle_ticks = UINT_MAX;
+-	for_each_cpu_mask(j, policy->cpus) {
+-		unsigned int tmp_idle_ticks, total_idle_ticks;
+-		struct cpu_dbs_info_s *j_dbs_info;
+-
+-		j_dbs_info = &per_cpu(cpu_dbs_info, j);
+-		/* Check for frequency increase */
+-		total_idle_ticks = get_cpu_idle_time(j);
+-		tmp_idle_ticks = total_idle_ticks -
+-			j_dbs_info->prev_cpu_idle_up;
+-		j_dbs_info->prev_cpu_idle_up = total_idle_ticks;
++		
++	/* Check for frequency increase */
++	total_idle_ticks = get_cpu_idle_time(cpu);
++	tmp_idle_ticks = total_idle_ticks -
++		this_dbs_info->prev_cpu_idle_up;
++	this_dbs_info->prev_cpu_idle_up = total_idle_ticks;
+ 
+-		if (tmp_idle_ticks < idle_ticks)
+-			idle_ticks = tmp_idle_ticks;
+-	}
++	if (tmp_idle_ticks < idle_ticks)
++		idle_ticks = tmp_idle_ticks;
+ 
+ 	/* Scale idle ticks by 100 and compare with up and down ticks */
+ 	idle_ticks *= 100;
+@@ -357,13 +361,9 @@
+ 
+ 	if (idle_ticks < up_idle_ticks) {
+ 		down_skip[cpu] = 0;
+-		for_each_cpu_mask(j, policy->cpus) {
+-			struct cpu_dbs_info_s *j_dbs_info;
+-
+-			j_dbs_info = &per_cpu(cpu_dbs_info, j);
+-			j_dbs_info->prev_cpu_idle_down = 
+-					j_dbs_info->prev_cpu_idle_up;
+-		}
++		this_dbs_info->prev_cpu_idle_down = 
++			this_dbs_info->prev_cpu_idle_up;
++		
+ 		/* if we are already at full speed then break out early */
+ 		if (requested_freq[cpu] == policy->max)
+ 			return;
+@@ -388,21 +388,14 @@
+ 	if (down_skip[cpu] < dbs_tuners_ins.sampling_down_factor)
+ 		return;
+ 
+-	idle_ticks = UINT_MAX;
+-	for_each_cpu_mask(j, policy->cpus) {
+-		unsigned int tmp_idle_ticks, total_idle_ticks;
+-		struct cpu_dbs_info_s *j_dbs_info;
+-
+-		j_dbs_info = &per_cpu(cpu_dbs_info, j);
+-		/* Check for frequency decrease */
+-		total_idle_ticks = j_dbs_info->prev_cpu_idle_up;
+-		tmp_idle_ticks = total_idle_ticks -
+-			j_dbs_info->prev_cpu_idle_down;
+-		j_dbs_info->prev_cpu_idle_down = total_idle_ticks;
++	/* Check for frequency decrease */
++	total_idle_ticks = this_dbs_info->prev_cpu_idle_up;
++	tmp_idle_ticks = total_idle_ticks -
++		this_dbs_info->prev_cpu_idle_down;
++	this_dbs_info->prev_cpu_idle_down = total_idle_ticks;
+ 
+-		if (tmp_idle_ticks < idle_ticks)
+-			idle_ticks = tmp_idle_ticks;
+-	}
++	if (tmp_idle_ticks < idle_ticks)
++		idle_ticks = tmp_idle_ticks;
+ 
+ 	/* Scale idle ticks by 100 and compare with up and down ticks */
+ 	idle_ticks *= 100;
+@@ -491,7 +484,7 @@
+ 			j_dbs_info = &per_cpu(cpu_dbs_info, j);
+ 			j_dbs_info->cur_policy = policy;
+ 		
+-			j_dbs_info->prev_cpu_idle_up = get_cpu_idle_time(j);
++			j_dbs_info->prev_cpu_idle_up = get_cpu_idle_time(cpu);
+ 			j_dbs_info->prev_cpu_idle_down
+ 				= j_dbs_info->prev_cpu_idle_up;
+ 		}
 
-(Remember the problem is ONLY with the second drive... and according
-to others any in the 6Vxxx series shows this same issue?)
-
-  ...and there is a cdrom drive attached via pata
-
-(I think its on the same controller... the 6300ESB seems to do just
-about everything...)
-
-hdparm -I /dev/hda
-
-/dev/hda:
-
-ATAPI CD-ROM, with removable media
-        Model Number:       SAMSUNG CD-ROM SN-124
-        Serial Number:
-        Firmware Revision:  N103
-Standards:
-        Likely used CD-ROM ATAPI-1
-Configuration:
-        DRQ response: 50us.
-        Packet size: 12 bytes
-Capabilities:
-        LBA, IORDY(can be disabled)
-        DMA: sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 udma0 udma1 *udma2
-             Cycle time: min=120ns recommended=120ns
-        PIO: pio0 pio1 pio2 pio3 pio4
-             Cycle time: no flow control=120ns  IORDY flow control=120ns
-
-As Ian mentioned maxtor have release a new version of the drive
-firmware ... but... The 6V250F0 drive that shows this lockup IS
-running the latest drive firmware  which I discovered after a rather
-long exchange with Maxtor...
-
-I have had a bit of a look at the sata spec and would just like to
-confirm that the drive is configured to disable the NCQ (as the Maxtor
-support seemed to stress this point). From what i can see this is done
-in the Device Configuration Overlay...
-
->From the spec
-
-  4.8. Device Configuration Overlay
-    4.8.1. Definition
-
-WORD 8: Serial ATA command / feature sets supported
-       This word enables configuration of command sets and feature sets.
-       Bit 0 indicates whether native command queuing shall be
-supported by the device. When
-       set to one, the drive shall support native command queuing.
-When cleared to zero, drive
-       support for native command queuing shall be disabled ....
-
-So anyone got any ideas how to read this?
-
-Or anything else to check / try...
-
-Samuel
+--jousvV0MzM2p6OtC--

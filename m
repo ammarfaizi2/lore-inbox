@@ -1,39 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbWCVQ2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWCVQew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751358AbWCVQ2N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 11:28:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWCVQ2N
+	id S1751362AbWCVQew (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 11:34:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWCVQew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 11:28:13 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:9396 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751353AbWCVQ2M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 11:28:12 -0500
-Date: Wed, 22 Mar 2006 16:28:03 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Frank Pavlic <fpavlic@de.ibm.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org,
+	Wed, 22 Mar 2006 11:34:52 -0500
+Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:7318 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1751361AbWCVQev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 11:34:51 -0500
+To: trond.myklebust@fys.uio.no
+CC: chrisw@sous-sol.org, matthew@wil.cx, linux-fsdevel@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/6] s390: minor claw driver fix
-Message-ID: <20060322162803.GA15580@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Frank Pavlic <fpavlic@de.ibm.com>, Jeff Garzik <jgarzik@pobox.com>,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20060322160336.1becec81@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060322160336.1becec81@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-reply-to: <1143042976.12871.34.camel@lade.trondhjem.org> (message from
+	Trond Myklebust on Wed, 22 Mar 2006 10:56:16 -0500)
+Subject: Re: DoS with POSIX file locks?
+References: <E1FLIlF-0007zR-00@dorka.pomaz.szeredi.hu>
+	 <20060320121107.GE8980@parisc-linux.org>
+	 <E1FLJLs-00085u-00@dorka.pomaz.szeredi.hu>
+	 <20060320123950.GF8980@parisc-linux.org>
+	 <E1FLJsF-0008A7-00@dorka.pomaz.szeredi.hu>
+	 <20060320153202.GH8980@parisc-linux.org>
+	 <1142878975.7991.13.camel@lade.trondhjem.org>
+	 <E1FLdPd-00020d-00@dorka.pomaz.szeredi.hu>
+	 <1142962083.7987.37.camel@lade.trondhjem.org>
+	 <E1FLl7L-0002u9-00@dorka.pomaz.szeredi.hu>
+	 <20060321191605.GB15997@sorel.sous-sol.org>
+	 <E1FLwjC-0000kJ-00@dorka.pomaz.szeredi.hu>
+	 <1143025967.12871.9.camel@lade.trondhjem.org>
+	 <E1FM2Gi-0001LF-00@dorka.pomaz.szeredi.hu> <1143042976.12871.34.camel@lade.trondhjem.org>
+Message-Id: <E1FM6Hd-0001l9-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 22 Mar 2006 17:34:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 22, 2006 at 04:03:36PM +0100, Frank Pavlic wrote:
-> Hi ,
-> following 6 patches are for s390 network drivers claw, qeth and ctc.
-> tty support will be removed from the ctc network device driver
+> > > > > i concur with Trond, there's no sane way to get rid of it w/out
+> > > > > formalizing CLONE_FILES and locks on exec
+> > > > 
+> > > > Probably there is.  It would involve allocating a separate
+> > > > lock-owner-ID stored in files_struct but separate from it.  But it's
+> > > > more complicated than simply not propagating locks on exec in the
+> > > > CLONE_FILES case.
+> > > 
+> > > That doesn't solve the fundamental problem.
+> > > 
+> > > You would still have to be able to tell a remote server that some locks
+> > > which previously belonged to one owner are being reallocated to several
+> > > owners.
+> > 
+> > No changing of lock owner is involved, that's the whole point.
+> 
+> You still don't get it.
 
-Why?
+No!  You don't get it! ;)
+
+> For NFS/CIFS/... the locks on the server _also_ have a lock
+> owner. The local lockowner is completely and utterly irrelevant.
+
+You mean the "local lockowner being stable" is irrelevant.
+
+Yes that is true, but the patch not only makes the local lockowner
+stable, it makes the "owner" stable.  And that is the important part
+for NFS, etc.
+
+The remote lockowner has to be derived from the owner, which used to
+be current->files, but is changed to current->file->owner.
+
+The fact that current->file->owner will remain stable across the exec
+will mean that locking will behave consistently for local _and_ remote
+filesystems.
+
+Now I'm not saying I want to keep this weird semantics of always
+inheriting locks on exec.  All I'm saying that it's _possible_.
+
+Miklos
 

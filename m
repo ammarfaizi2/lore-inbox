@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932908AbWCVWhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932911AbWCVWjw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932908AbWCVWhH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 17:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932906AbWCVWhG
+	id S932911AbWCVWjw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 17:39:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932899AbWCVWgV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 17:37:06 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:3301 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932886AbWCVWg0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 17:36:26 -0500
+	Wed, 22 Mar 2006 17:36:21 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:63537 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932888AbWCVWfp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 17:35:45 -0500
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Cc: Bob Picco <bob.picco@hp.com>, Andrew Morton <akpm@osdl.org>,
@@ -18,82 +18,40 @@ Cc: Bob Picco <bob.picco@hp.com>, Andrew Morton <akpm@osdl.org>,
        Wu Fengguang <wfg@mail.ustc.edu.cn>, Nick Piggin <npiggin@suse.de>,
        Linus Torvalds <torvalds@osdl.org>, Rik van Riel <riel@redhat.com>,
        Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Message-Id: <20060322223552.12658.16852.sendpatchset@twins.localnet>
+Message-Id: <20060322223511.12658.80845.sendpatchset@twins.localnet>
 In-Reply-To: <20060322223107.12658.14997.sendpatchset@twins.localnet>
 References: <20060322223107.12658.14997.sendpatchset@twins.localnet>
-Subject: [PATCH 28/34] mm: clockpro-PG_reclaim2.patch
-Date: Wed, 22 Mar 2006 23:36:24 +0100
+Subject: [PATCH 24/34] mm: sum_cpu_var.patch
+Date: Wed, 22 Mar 2006 23:35:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-Add a second PG_flag to the page reclaim framework.
+Much used per_cpu op by the additional policies.
 
 Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
 Signed-off-by: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 
 ---
 
- include/linux/page-flags.h |    2 ++
- mm/hugetlb.c               |    4 ++--
- mm/page_alloc.c            |    3 +++
- 3 files changed, 7 insertions(+), 2 deletions(-)
+ include/linux/percpu.h |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-Index: linux-2.6/include/linux/page-flags.h
+Index: linux-2.6/include/linux/percpu.h
 ===================================================================
---- linux-2.6.orig/include/linux/page-flags.h	2006-03-13 20:38:26.000000000 +0100
-+++ linux-2.6/include/linux/page-flags.h	2006-03-13 20:45:31.000000000 +0100
-@@ -76,6 +76,8 @@
- #define PG_nosave_free		18	/* Free, should not be written */
- #define PG_uncached		19	/* Page has been mapped as uncached */
+--- linux-2.6.orig/include/linux/percpu.h	2006-03-13 20:38:20.000000000 +0100
++++ linux-2.6/include/linux/percpu.h	2006-03-13 20:45:24.000000000 +0100
+@@ -15,6 +15,11 @@
+ #define get_cpu_var(var) (*({ preempt_disable(); &__get_cpu_var(var); }))
+ #define put_cpu_var(var) preempt_enable()
  
-+#define PG_reclaim2		20	/* reserved by the mm reclaim code */
++#define __sum_cpu_var(type, var) ({ __typeof__(type) sum = 0; \
++                                 int cpu; \
++                                 for_each_cpu(cpu) sum += per_cpu(var, cpu); \
++                                 sum; })
 +
- /*
-  * Global page accounting.  One instance per CPU.  Only unsigned longs are
-  * allowed.
-Index: linux-2.6/mm/page_alloc.c
-===================================================================
---- linux-2.6.orig/mm/page_alloc.c	2006-03-13 20:38:26.000000000 +0100
-+++ linux-2.6/mm/page_alloc.c	2006-03-13 20:45:31.000000000 +0100
-@@ -150,6 +150,7 @@ static void bad_page(struct page *page)
- 			1 << PG_private |
- 			1 << PG_locked	|
- 			1 << PG_reclaim1 |
-+			1 << PG_reclaim2 |
- 			1 << PG_dirty	|
- 			1 << PG_reclaim |
- 			1 << PG_slab    |
-@@ -361,6 +362,7 @@ static inline int free_pages_check(struc
- 			1 << PG_private |
- 			1 << PG_locked	|
- 			1 << PG_reclaim1 |
-+			1 << PG_reclaim2 |
- 			1 << PG_reclaim	|
- 			1 << PG_slab	|
- 			1 << PG_swapcache |
-@@ -518,6 +520,7 @@ static int prep_new_page(struct page *pa
- 			1 << PG_private	|
- 			1 << PG_locked	|
- 			1 << PG_reclaim1 |
-+			1 << PG_reclaim2 |
- 			1 << PG_dirty	|
- 			1 << PG_reclaim	|
- 			1 << PG_slab    |
-Index: linux-2.6/mm/hugetlb.c
-===================================================================
---- linux-2.6.orig/mm/hugetlb.c	2006-03-13 20:38:26.000000000 +0100
-+++ linux-2.6/mm/hugetlb.c	2006-03-13 20:45:31.000000000 +0100
-@@ -152,8 +152,8 @@ static void update_and_free_page(struct 
- 	nr_huge_pages_node[page_zone(page)->zone_pgdat->node_id]--;
- 	for (i = 0; i < (HPAGE_SIZE / PAGE_SIZE); i++) {
- 		page[i].flags &= ~(1 << PG_locked | 1 << PG_error | 1 << PG_referenced |
--				1 << PG_dirty | 1 << PG_reclaim1 | 1 << PG_reserved |
--				1 << PG_private | 1<< PG_writeback);
-+				1 << PG_dirty | 1 << PG_reclaim1 | 1 << PG_reclaim2 |
-+				1 << PG_reserved | 1 << PG_private | 1<< PG_writeback);
- 		set_page_count(&page[i], 0);
- 	}
- 	set_page_count(page, 1);
+ #ifdef CONFIG_SMP
+ 
+ struct percpu_data {

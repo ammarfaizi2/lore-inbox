@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWCVSSt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWCVSZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932312AbWCVSSt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 13:18:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWCVSSt
+	id S1751052AbWCVSZq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 13:25:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWCVSZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 13:18:49 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:42402 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932312AbWCVSSs
+	Wed, 22 Mar 2006 13:25:46 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:59602 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S1751044AbWCVSZp convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 13:18:48 -0500
-Subject: Re: [Ext2-devel] Re: [RFC] [PATCH] Reducing average ext2 fsck time
-	through fs-wide dirty bit]
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Valerie Henson <val_henson@linux.intel.com>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net,
-       Arjan van de Ven <arjan@linux.intel.com>,
-       "Theodore Ts'o" <tytso@mit.edu>, Zach Brown <zach.brown@oracle.com>
-In-Reply-To: <1143032930.3584.5.camel@localhost.localdomain>
-References: <20060322011034.GP12571@goober>
-	 <1143032930.3584.5.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Wed, 22 Mar 2006 10:18:45 -0800
-Message-Id: <1143051525.3884.16.camel@dyn9047017067.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Mar 2006 13:25:45 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFC PATCH 31/35] Add Xen grant table support
+Date: Wed, 22 Mar 2006 10:25:42 -0800
+Message-ID: <516F50407E01324991DD6D07B0531AD5A64C58@cacexc12.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC PATCH 31/35] Add Xen grant table support
+Thread-Index: AcZNjeOyN+awk9XAS5mvABbfh6SptAAT3Sfw
+From: "Magenheimer, Dan (HP Labs Fort Collins)" <dan.magenheimer@hp.com>
+To: "Arjan van de Ven" <arjan@infradead.org>,
+       "Chris Wright" <chrisw@sous-sol.org>
+Cc: <virtualization@lists.osdl.org>, <xen-devel@lists.xensource.com>,
+       <linux-kernel@vger.kernel.org>, "Ian Pratt" <ian.pratt@xensource.com>
+X-OriginalArrivalTime: 22 Mar 2006 18:25:41.0055 (UTC) FILETIME=[064EE4F0:01C64DDE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-22 at 13:08 +0000, Alan Cox wrote:
-> On Maw, 2006-03-21 at 17:10 -0800, Valerie Henson wrote:
-> > The combination of the orphan inode and preallocation blocks problem
-> > led me to another idea: create in-memory-only allocation bitmaps for
-> > both inodes and blocks.  
+> > +#ifndef __ia64__
+> > +static int map_pte_fn(pte_t *pte, struct page *pte_page,
+> > +		      unsigned long addr, void *data)
+> > +{
+> > +	unsigned long **frames = (unsigned long **)data;
+> > +
+> > +	set_pte_at(&init_mm, addr, pte, pfn_pte((*frames)[0], 
+> PAGE_KERNEL));
+> > +	(*frames)++;
+> > +	return 0;
+> > +}
 > 
-> This was actually done by Interactive Unix long ago to get sane
-> performance of System 5 file systems which didnt directly use bitmaps.
-> 
-> I suspect you don't need a complete in memory bitmap list however, you
-> just need an exceptions table of extents that are preallocated.
-> Furthermore you can bound this by either releasing oldest preallocations
-> or refusing new ones when you hit some kind of resource bound.
-> 
+> looks to me the wrong ifdef for a file in arch/i386... please fix
 
-This is pretty much what ext3 block reservation does, every inode has a
-range of disk blocks(or call it extent) that are reserved (or call it
-preallocated). 
+FYI, the grant table support is also used by non-x86 Xen architectures
+(currently ia64 and soon ppc) so grant table files (along with event
+channel files and some others) will eventually need to move out
+of mach-xen.  The files are currently in drivers/xen/core in the Xen
+tree, which is not really a good place either.  Suggestions?
 
-> Similarly for inodes, except that you actually have the in memory
-> exception list in the ext2 inodes in memory already (no inode is orphan
-> unless open) so you may only need another list pointer to walk the
-> orphans
-> 
-> Alan
-> 
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by xPML, a groundbreaking scripting language
-> that extends applications into web and mobile media. Attend the live webcast
-> and join the prime developer group breaking into this new coding territory!
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=110944&bid=241720&dat=121642
-> _______________________________________________
-> Ext2-devel mailing list
-> Ext2-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/ext2-devel
+Dan
 

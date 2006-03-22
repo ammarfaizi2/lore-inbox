@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWCVD4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWCVD4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbWCVD4J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 22:56:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbWCVD4J
+	id S1750725AbWCVD4N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 22:56:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWCVD4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 22:56:09 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:62142 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750722AbWCVD4G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 22:56:06 -0500
-Message-ID: <4420CAD4.60700@garzik.org>
-Date: Tue, 21 Mar 2006 22:56:04 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ed Sweetman <safemode@comcast.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: libata ignores non-dma disks?
-References: <4420B7D6.4020706@comcast.net>
-In-Reply-To: <4420B7D6.4020706@comcast.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.5 (--)
-X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
-	Content analysis details:   (-2.5 points, 5.0 required)
+	Tue, 21 Mar 2006 22:56:12 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:29601 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750725AbWCVD4M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 22:56:12 -0500
+Date: Wed, 22 Mar 2006 03:56:04 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>, ccaputo@alt.net, dax@gurulabs.com,
+       linux-kernel@vger.kernel.org, erich@areca.com.tw
+Subject: Re: New Areca driver in 2.6.16-rc6-mm2
+Message-ID: <20060322035604.GK27946@ftp.linux.org.uk>
+References: <20060318044056.350a2931.akpm@osdl.org> <Pine.LNX.4.64.0603192016110.32337@mooru.gurulabs.com> <Pine.LNX.4.64.0603212345460.20655@nacho.alt.net> <20060322033718.GA21614@mea-ext.zmailer.org> <20060321195626.80d3fc02.rdunlap@xenotime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060321195626.80d3fc02.rdunlap@xenotime.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Sweetman wrote:
-> I'm using 2.6.16-rc6-ide1 (alan's patchset) and using the sata_nv and
-> pata_amd drivers.  I have all UDMA drives except a CF disk -> IDE
-> interface, which should be running in PIO mode4.   Libata detects the
-> device, but spits out a message about "no dma" and then says it's not
-> supported and is ignoring it.   Is this device not supported because
-> it's not using dma or for some other reason?
-> It's the only device on it's channel (secondary pata)
+On Tue, Mar 21, 2006 at 07:56:26PM -0800, Randy.Dunlap wrote:
+> On Wed, 22 Mar 2006 05:37:18 +0200 Matti Aarnio wrote:
 > 
-> ata6: PATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 15
-> ata6: dev 0 cfg 49:0e00 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000
-> 88:0000
-> ata6: no dma
-> ata6: dev 0 not supported, ignoring
-> scsi5 : pata_amd
+> 
+> > 
+> > I was apalled to learn that full cycle kernel compilation takes
+> > _hours_ these days (Pentium-4 HT, 2.4 GHz, 2 GB memory -- and it
+> > is about as slow as my first kernel compilation experience with
+> > a 386/33MHz way back in ...)
+> 
+> You mean allmodconfig or allyesconfig, right?
+> Yes, it does take a  l o n g  time.
 
-Delete the "no dma" check, and debug from there...  PIO support is in 
-there, just needs a few final fixes.
-
-	Jeff
-
-
-
+Kill CONFIG_DEBUG_INFO and it'll go much faster...

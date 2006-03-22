@@ -1,95 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWCVAaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751872AbWCVAbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbWCVAaO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 19:30:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWCVAaN
+	id S1751872AbWCVAbO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 19:31:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWCVAbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 19:30:13 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:53969 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751253AbWCVAaL (ORCPT
+	Tue, 21 Mar 2006 19:31:13 -0500
+Received: from xenotime.net ([66.160.160.81]:3472 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751872AbWCVAbM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 19:30:11 -0500
-Date: Tue, 21 Mar 2006 16:32:28 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Bernd Schmidt <bernds_cb1@t-online.de>
-Cc: luke.adi@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2]Blackfin archtecture patche for 2.6.16
-Message-Id: <20060321163228.34bf21ad.akpm@osdl.org>
-In-Reply-To: <44209009.1010405@t-online.de>
-References: <489ecd0c0603200200va747a68k187651930a3f0a51@mail.gmail.com>
-	<20060321031457.69fa0892.akpm@osdl.org>
-	<44209009.1010405@t-online.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 21 Mar 2006 19:31:12 -0500
+Date: Tue, 21 Mar 2006 16:33:21 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH/RFC] expose Doc/ source files
+Message-Id: <20060321163321.34ccda19.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Schmidt <bernds_cb1@t-online.de> wrote:
->
-> Luke is probably still asleep at this time of night, so I'll try to 
-> answer what I can...
-> 
-> Andrew Morton wrote:
-> > "Luke Yang" <luke.adi@gmail.com> wrote:
-> >>    This is the Blackfin archtecture patch for kernel 2.6.16.
-> > 
-> > - We don't want to be putting 44000 lines of new code in the kernel and
-> >   then have it rot.  Who will support this in the long-term?  What
-> >   resources are behind it?  IOW: what can you say to convince us that it
-> >   won't rot?
-> 
-> We're a team inside Analog Devices who are maintaining a GNU toolchain, 
-> uClinux kernel, and user space apps for the Blackfin.  All of this is 
-> available on our blackfin.uclinux.org site.  We do not expect to go away 
-> anytime soon.
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-OK.  Thanks for the contributions.
+I propose that we expose example and tool source files in the
+Documentation/ directory in their own files instead of being
+buried (almost hidden) in readme/txt or shar files.
 
-> ...
-> >   We'd need to see some sort of authorisation from the original authors
-> >   for the inclusion of their code.  Preferably in the form of
-> >   Signed-off-by:s.  
-> 
-> I'll pass that along to the right people.  Would a "Signed-off-by: 
-> Analog Devices" (similar to our FSF copyright assignments) be ok or does 
-> it have to be individuals?  I believe the port actually predates the 
-> involvement of most of the people working on it now.
+This will make them more visible/usable to users who may need
+to use them, to developers who may need to test with them, and
+to janitors who would update them if they were more visible.
 
-I think names of individuals would be preferred - the Signed-off-by: is
-often used when hunting down maintainers/developers to bug about problems. 
-Although as it's a single megapatch, that's less useful in this case.
+Also, if any of these possibly should not be in the kernel tree at
+all, it will be clearer that they are here and we can discuss if
+they should be removed.
 
-If we go with the single signed-off-by: I guess it would be best if that
-was a person within AD who is in a position to authorise the merge.  If you
-say that person is yourself or Luke then fine.
 
-> > - Do you really need to support old_mmap()?
-> 
->  From what I can tell, no we don't, although we'll have to make a small 
-> change to our uClibc.  (A lot of this code got copied from the m68k port 
-> initially... that may explain a few things).
-> 
-> > - Too much use of open-coded `volatile'.  The objective should be to have
-> >   zero occurrences in .c files.  And volatile sometimes creates suspicion
-> >   even when it's used in .h files.
-> 
-> Are you referring to the ones in 
-> include/asm-blackfin/mach-bf533/cdefBF532.h?  These are memory-mapped 
-> hardware registers (MMRs); do you have any better suggestions how to 
-> access these?  That file actually comes from our in-house Visual DSP 
-> compiler, and while there may be better ways of accessing the register 
-> than those macros, there is something to be said for being able to drop 
-> in a replacement if future chips have different addresses for these 
-> registers.
-> 
-> The Blackfin has a lot of peripherals sitting on the same die as the 
-> core, and they're all accessed through MMRs.
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ Documentation/block/ionice.c                       |  110 
+ Documentation/block/ioprio.txt                     |  118 
+ Documentation/dnotify.txt                          |   38 
+ Documentation/dnotify_example.c                    |   34 
+ Documentation/dslm.c                               |  165 +
+ Documentation/hpet.txt                             |  272 -
+ Documentation/hpet_example.c                       |  267 +
+ Documentation/java.txt                             |  201 -
+ Documentation/javaclassname.c                      |  194 +
+ Documentation/jprobe-example.c                     |   56 
+ Documentation/kprobe_example.c                     |   65 
+ Documentation/kprobes.txt                          |  180 -
+ Documentation/kretprobe-example.c                  |   53 
+ Documentation/laptop-mode.txt                      |  168 -
+ Documentation/mtrr-add.c                           |   96 
+ Documentation/mtrr-show.c                          |   83 
+ Documentation/mtrr.txt                             |  183 -
+ Documentation/pcmcia/crc32hash.c                   |   32 
+ Documentation/pcmcia/devicetable.txt               |   34 
+ Documentation/rtc-test.c                           |  213 +
+ Documentation/rtc.txt                              |  216 -
+ Documentation/s390/Debugging390.txt                |   63 
+ Documentation/s390/hex2ascii.c                     |   58 
+ Documentation/sharedsubtree.txt                    |   79 
+ Documentation/smount.c                             |   72 
+ Documentation/sound/oss/MultiSound                 | 1509 ++---------
+ Documentation/sound/oss/MultiSound.d/Makefile      |    8 
+ Documentation/sound/oss/MultiSound.d/conv.l        |    8 
+ Documentation/sound/oss/MultiSound.d/msndreset.c   |   55 
+ Documentation/sound/oss/MultiSound.d/pinnaclecfg.c |  432 +++
+ Documentation/sound/oss/MultiSound.d/setdigital.c  |   78 
+ Documentation/sound/oss/rme96xx                    |  736 -----
+ Documentation/sound/oss/rmectrl.c                  |  255 +
+ Documentation/sound/oss/xrmectrl                   |  469 +++
+ Documentation/video4linux/CQcam.txt                |  204 -
+ Documentation/video4linux/v4lgrab.c                |  192 +
+ Documentation/vm/hugepage-mmap.c                   |   74 
+ Documentation/vm/hugepage-shm.c                    |   71 
+ Documentation/vm/hugetlbpage.txt                   |  150 -
+ Documentation/watchdog/pcwd-watchdog.txt           |   73 
+ Documentation/watchdog/watchdog-api.txt            |   14 
+ Documentation/watchdog/watchdog-simple.c           |   19 
+ Documentation/watchdog/watchdog-test.c             |   68 
+ Documentation/watchdog/watchdog.txt                |   23 
+ 44 files changed, 3634 insertions(+), 3854 deletions(-)
+---
 
-readl/writel and friends would be the preferred way of accessing
-memory-mapped registers.  If that doesn't work then at least you should
-wrap the volatile cast into a single inlined function somewhere so it's not
-splattered everywhere.  That way the code is more pleasing to read and we
-eliminate the risk that someone forgets to add the cast.
+patch file (234 KB) is at:
+http://www.xenotime.net/linux/patches/linux-2616-doc-sources.patch
 
+Note:  Several source files in Documentation/ have build errors.
+I have patches for those also, but I'll wait on sending those.
+---

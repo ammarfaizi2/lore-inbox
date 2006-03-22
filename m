@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWCVPfl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbWCVPgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751289AbWCVPfl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 10:35:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWCVPfl
+	id S1751332AbWCVPgX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 10:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWCVPgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 10:35:41 -0500
-Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:11145 "EHLO mta2.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S1751289AbWCVPfk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 10:35:40 -0500
-In-Reply-To: <79fcd3fd1d13741c5d1cd3c6f5b326b9@cl.cam.ac.uk>
-References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063805.741915000@sorel.sous-sol.org> <44213333.6030404@yahoo.com.au> <79fcd3fd1d13741c5d1cd3c6f5b326b9@cl.cam.ac.uk>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <503082446ce33efbf163ad2af63bb0e1@cl.cam.ac.uk>
-Content-Transfer-Encoding: 7bit
-Cc: virtualization@lists.osdl.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
-       Ian Pratt <ian.pratt@xensource.com>, Chris Wright <chrisw@sous-sol.org>
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Subject: Re: [RFC PATCH 30/35] Add generic_page_range() function
-Date: Wed, 22 Mar 2006 15:35:09 +0000
-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-X-Mailer: Apple Mail (2.623)
+	Wed, 22 Mar 2006 10:36:23 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:16362 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751332AbWCVPgW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 10:36:22 -0500
+Date: Wed, 22 Mar 2006 10:37:14 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Mikado <mikado4vn@gmail.com>
+Cc: stefano.melchior@openlabs.it, user-mode-linux-user@lists.sourceforge.net,
+       user-mode-linux-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] Cannot debug UML
+Message-ID: <20060322153714.GA3975@ccure.user-mode-linux.org>
+References: <44215200.8020708@gmail.com> <20060322135015.GC8115@SteX> <44215B8F.6060400@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44215B8F.6060400@gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 22, 2006 at 09:13:35PM +0700, Mikado wrote:
+> Debugging UML requires running it under TT mode. 
 
-On 22 Mar 2006, at 14:33, Keir Fraser wrote:
+No, it doesn't.  Never has.
 
-> Okay, can you suggest a better one? That's the best I could come up 
-> with that wasn't long winded.
+> Normally I run UML
+> under SKAS mode, everything is OK. I cannot get into GDB under SKAS mode
+> whenever I use 'debug' option.
 
-How about apply_to_page_range()?
+Because it's not needed.  In skas mode, you just gdb the thing, just like
+anything else.
 
->
->> secondly, I think you confuse our (confusing) terminology: the page
->> that holds pte_ts is not the pte_page, the pte_page is the page that
->> a pte points to
->
-> What should we call it? Essentially we want to be able to get the 
-> physical address of a PTE in some cases, and passing struct page 
-> pointer seemed the best way to be able to derive that. I can rename it 
-> to something else vaguely plausible if the only problem is the 
-> semantic clash with Linux's idiomatic use of pte_page.
-
-Looks like pmd_page is correct?
-
-  -- Keir
-
+				Jeff

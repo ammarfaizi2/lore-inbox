@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWCVJ4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWCVJ4W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751174AbWCVJ4N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 04:56:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbWCVJ4N
+	id S1751175AbWCVJ4W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 04:56:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWCVJ4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 04:56:13 -0500
-Received: from mailgw3.ericsson.se ([193.180.251.60]:2497 "EHLO
-	mailgw3.ericsson.se") by vger.kernel.org with ESMTP
-	id S1751174AbWCVJ4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 04:56:12 -0500
-Date: Wed, 22 Mar 2006 10:56:06 +0100 (CET)
-From: Per Liden <per.liden@ericsson.com>
-X-X-Sender: eperlid@ulinpc219.uab.ericsson.se
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cleanup for net/tipc/name_distr.c::tipc_named_node_up()
-In-Reply-To: <200603190045.24176.jesper.juhl@gmail.com>
-Message-ID: <Pine.LNX.4.64.0603221049140.6949@ulinpc219.uab.ericsson.se>
-References: <200603190045.24176.jesper.juhl@gmail.com>
+	Wed, 22 Mar 2006 04:56:22 -0500
+Received: from mrelay2.soas.ac.uk ([212.219.139.201]:61849 "EHLO
+	mrelay2.soas.ac.uk") by vger.kernel.org with ESMTP id S1751175AbWCVJ4V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 04:56:21 -0500
+Date: Wed, 22 Mar 2006 09:56:23 +0000
+From: Alexander Clouter <alex@digriz.org.uk>
+To: cpufreq@lists.linux.org.uk, linux-kernel@vger.kernel.org
+Cc: venkatesh.pallipadi@intel.com, linux@dominikbrodowski.de, akpm@osdl.org
+Subject: [patch 2/4 MKII] cpufreq_conservative: alter default responsiveness
+Message-ID: <20060322095623.GB3378@inskipp.digriz.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 22 Mar 2006 09:56:08.0600 (UTC) FILETIME=[D7B47980:01C64D96]
-X-Brightmail-Tracker: AAAAAA==
+Content-Type: multipart/mixed; boundary="rJwd6BRFiFCcLxzm"
+Content-Disposition: inline
+Organization: diGriz
+X-URL: http://www.digriz.org.uk/
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Mar 2006, Jesper Juhl wrote:
 
-> Small cleanup patch for net/tipc/name_distr.c::tipc_named_node_up()
+--rJwd6BRFiFCcLxzm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Not sure if you followed the discussion on the tipc mailinglist, so here's 
-a short summary.
+The sensible approach to making conservative less responsive than ondemand :) 
+As mentioned in patch [1/4].  We do not want conservative to shoot through 
+all the frequencies, its point (by default) is to slowly move through them.
 
-> Patch does the following:
-> 
->  - Change a few pointer assignments from 0 to NULL (makes sparse happy).
+By default its ten times less responsive.
 
-Ok.
+Signed-off-by: Alexander Clouter <alex-kernel@digriz.org.uk>
 
->  - Move a few variable assignment outside the tipc_nametbl_lock lock.
 
-Ok.
 
->  - Make sure to free the allocated buffer before returning so we don't leak.
 
-The additional kfree_skb() looks incorrect. If a buffer if allocated it 
-will later be released by tipc_link_send().
 
-/Per
+--rJwd6BRFiFCcLxzm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="02_cpufreq-samplingrate.diff"
+
+--- linux-2.6.16/drivers/cpufreq/cpufreq_conservative.c.orig	2006-03-21 21:26:18.631603500 +0000
++++ linux-2.6.16/drivers/cpufreq/cpufreq_conservative.c	2006-03-21 21:27:58.333834500 +0000
+@@ -509,7 +509,7 @@
+ 			if (latency == 0)
+ 				latency = 1;
+ 
+-			def_sampling_rate = latency *
++			def_sampling_rate = 10 * latency *
+ 					DEF_SAMPLING_RATE_LATENCY_MULTIPLIER;
+ 
+ 			if (def_sampling_rate < MIN_STAT_SAMPLING_RATE)
+
+--rJwd6BRFiFCcLxzm--

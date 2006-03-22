@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbWCVXc5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932610AbWCVXg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932436AbWCVXc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 18:32:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbWCVXc5
+	id S932610AbWCVXg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 18:36:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbWCVXg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 18:32:57 -0500
-Received: from smtpout.mac.com ([17.250.248.45]:51963 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932436AbWCVXc4 (ORCPT
+	Wed, 22 Mar 2006 18:36:56 -0500
+Received: from mail.gmx.net ([213.165.64.20]:63117 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932610AbWCVXgz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 18:32:56 -0500
-Mime-Version: 1.0 (Apple Message framework v746.3)
-In-Reply-To: <20060322.141300.62168729.davem@davemloft.net>
-References: <BE2452EA-2566-4C2A-B07D-BD63404A42C1@mac.com> <20060322.141300.62168729.davem@davemloft.net>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <EE85F1AA-A258-4D4F-A46F-34253AEE280E@mac.com>
+	Wed, 22 Mar 2006 18:36:55 -0500
+X-Authenticated: #704063
+Subject: Re: [Patch] Possible NULL pointer dereference in fs/configfs/dir.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060322232709.GD7844@ca-server1.us.oracle.com>
+References: <1143068729.27276.1.camel@alice>
+	 <20060322232709.GD7844@ca-server1.us.oracle.com>
+Content-Type: text/plain
+Date: Thu, 23 Mar 2006 00:36:54 +0100
+Message-Id: <1143070614.27446.4.camel@alice>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
-From: Mark Rustad <mrustad@mac.com>
-Subject: Re: 2.6.16 hugetlbfs problem
-Date: Wed, 22 Mar 2006 17:32:57 -0600
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Mailer: Apple Mail (2.746.3)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 22, 2006, at 4:13 PM, David S. Miller wrote:
+hi,
 
-> From: Mark Rustad <mrustad@mac.com>
-> Date: Wed, 22 Mar 2006 16:10:33 -0600
->
->> I seem to be having trouble using hugetlbfs with kernel 2.6.16. I
->> have a small test program that worked with 2.6.16-rc5, but fails with
->> 2.6.16-rc6 or the release. The program is below. Given a path to a
->> file on a hugetlbfs, it opens/creates the file, mmaps it and tries to
->> access the first word. On 2.6.16-rc5, it works. On 2.6.16, it hangs
->> page-faulting until it is killed.
->
-> On what platform?  Things like hugetlb and address space layout
-> (you're requesting a specific mmap() address I noticed) are very
-> platform specific.
+On Wed, 2006-03-22 at 15:27 -0800, Joel Becker wrote:
+> On Thu, Mar 23, 2006 at 12:05:29AM +0100, Eric Sesterhenn wrote:
+> > this fixes coverity bug #845, if group is NULL,
+> > we dereference it when setting up dentry.
+> 
+> 	Is the converity checker merly looking at in-function patterns?
 
-This is on a Xeon, without PAE with the 1GB no-highmem memory map, in  
-all three cases. This is a 32-bit kernel running on a Nacona CPU. I  
-also had an unmap call over the range to be mmap-ed, but the failure/ 
-success cases were the same, so I removed it to reduce the test  
-program further.
+afaik it also looks what the functions which get called do. If you call
+a function that might free a pointer you pass, it warns if you use
+it afterwards.
 
--- 
-Mark Rustad, MRustad@mac.com
+> Where can I access the bug report (sorry for the question).
+
+I would guess scan-admin@coverity.com 
+
+> 	group cannot be null here, we aren't called any other way.  So
+> while you are correct that the code below is needed in the presence of a
+> NULL group, really the "if (group" isn't necessary, just the "if
+> (group->default_groups)".  I could even BUG_ON() if you'd like.
+
+I would then propose the following patch, so the check can be
+removed for people who like small kernels. I dont think gcc notices
+that all callers use non-NULL values and optimizes it away.
+
+--- linux-2.6.16/fs/configfs/dir.c.orig	2006-03-23 00:31:16.000000000 +0100
++++ linux-2.6.16/fs/configfs/dir.c	2006-03-23 00:32:07.000000000 +0100
+@@ -504,7 +504,9 @@ static int populate_groups(struct config
+ 	int ret = 0;
+ 	int i;
+ 
+-	if (group && group->default_groups) {
++	BUG_ON(!group);		/* group == NULL is not allowed */
++	
++	if (group->default_groups) {
+ 		/* FYI, we're faking mkdir here
+ 		 * I'm not sure we need this semaphore, as we're called
+ 		 * from our parent's mkdir.  That holds our parent's
+
 

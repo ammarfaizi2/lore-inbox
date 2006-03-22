@@ -1,47 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWCVWt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbWCVWv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751049AbWCVWt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 17:49:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWCVWt1
+	id S1751414AbWCVWv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 17:51:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750969AbWCVWv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 17:49:27 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:15286 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751049AbWCVWtZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 17:49:25 -0500
-Date: Wed, 22 Mar 2006 14:48:45 -0800
-From: Valerie Henson <val_henson@linux.intel.com>
-To: Badari Pulavarty <pbadari@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       ext2-devel <Ext2-devel@lists.sourceforge.net>,
-       Arjan van de Ven <arjan@linux.intel.com>,
-       "Theodore Ts'o" <tytso@mit.edu>, Zach Brown <zach.brown@oracle.com>
-Subject: Re: [Ext2-devel] [RFC] [PATCH] Reducing average ext2 fsck time through fs-wide dirty bit]
-Message-ID: <20060322224844.GU12571@goober>
-References: <20060322011034.GP12571@goober> <1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com>
+	Wed, 22 Mar 2006 17:51:26 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:24194 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751410AbWCVWvY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 17:51:24 -0500
+Date: Wed, 22 Mar 2006 14:51:17 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@suse.de>,
+       virtualization@lists.osdl.org, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 5/24] i386 Vmi code patching
+Message-ID: <20060322225117.GM15997@sorel.sous-sol.org>
+References: <200603131802.k2DI2nv8005665@zach-dev.vmware.com> <200603222115.46926.ak@suse.de> <20060322214025.GJ15997@sorel.sous-sol.org> <4421CCA8.4080702@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <4421CCA8.4080702@vmware.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 22, 2006 at 11:09:18AM -0800, Badari Pulavarty wrote:
-> On Tue, 2006-03-21 at 17:10 -0800, Valerie Henson wrote:
-> > Hi all,
-> > 
-> > I am working on reducing the average time spent on fscking ext2 file
-> > systems.  My initial take on the problem is to avoid fscking when the
+* Zachary Amsden (zach@vmware.com) wrote:
+> Chris Wright wrote:
+> >Strongly agreed.  The strict ABI requirements put forth here are not
+> >in-line with Linux, IMO.  I think source compatibility is the limit of
+> >reasonable, and any ROM code be in-tree if something like this were to
+> >be viable upstream.
 > 
-> Just curious, why are you teaching ext2 same tricks that are in ext3 ?
-> Is there a reason behind improving ext2 ? Are there any benefits
-> of not using ext3 instead ?
+> Strongly disagree.  Without an ABI, you don't have binary 
+> compatibility.  Without binary compatibility, you have no way to inline 
+> any hypervisor code into the kernel.  And this is key for performance.  
+> The ROM code is being phased out.
 
-ext2 is simpler and faster than ext3 in many cases.  This is sort of
-cheating; ext2 is simpler and faster because it makes no effort to
-maintain on-disk consistency and can skip annoying things like, oh,
-reserving space in the journal.  I am looking for ways to make ext2
-cheat even more.
+With source compatibility you get the ABI at compile time.  This is how
+Linux handles internal interfaces.  This is about an internal interface
+between kernel and a platform layer.  The raw hypervisor interface is
+hidden (translations done in the platform layer), and the hypervisor
+needs to provide stable ABI.
 
--VAL
+> Is it the strictness of the ABI that is the problem?  I don't like 
+> constraining the native register values any much either, but it was the 
+> expedient thing to do.  The ABI can be relaxed quite a bit, but it has 
+> to be there.
+
+It's the very notion of creating such a large internal binary compatible
+interface.
+
+> The idea of in-tree ROM code doesn't make sense.  The entire point of 
+> this layer of code is that it is modular, and specific to the 
+> hypervisor, not the kernel.  Once you lift the shroud and combine the 
+> two layers, you have lost all of the benefit that it was supposed to 
+> provide.
+
+You could compile all platform layers you want to support with the kernel.
+
+thanks,
+-chris

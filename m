@@ -1,86 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751871AbWCVA1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751869AbWCVA21@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751871AbWCVA1c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 19:27:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751872AbWCVA1c
+	id S1751869AbWCVA21 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 19:28:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751872AbWCVA20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 19:27:32 -0500
-Received: from hera.kernel.org ([140.211.167.34]:3794 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751871AbWCVA1b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 19:27:31 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Merge strategy for klibc
-Date: Tue, 21 Mar 2006 16:27:02 -0800 (PST)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <dvq5km$o0g$1@terminus.zytor.com>
-References: <441F0859.2010703@zytor.com> <Pine.LNX.4.64.0603202228441.17704@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1142987222 24593 127.0.0.1 (22 Mar 2006 00:27:02 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Wed, 22 Mar 2006 00:27:02 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Tue, 21 Mar 2006 19:28:26 -0500
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:19575 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751869AbWCVA20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 19:28:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=HmUOT9hJkJxIPgd8h5zquevBWyqB/f3iHQ8E29JBlx8ZLvoGPFVYM03KDvRApgJCIMjazF4GAh3aEXOD0Y7e1HaQbIAlm1dA4s5F+zf86RF2GWn78TozZMaS2mbhrf1NWKQQmCIerjhyZ4PpaafqAqWQ2l9hDP07SI6nA0Q/egU=  ;
+Message-ID: <44209A26.3040102@yahoo.com.au>
+Date: Wed, 22 Mar 2006 11:28:22 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stone Wang <pwstone@gmail.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: PATCH][1/8] 2.6.15 mlock: make_pages_wired/unwired
+References: <bc56f2f0603200536scb87a8ck@mail.gmail.com>	 <441FEFB4.6050700@yahoo.com.au> <bc56f2f0603210803l28145c7dj@mail.gmail.com>
+In-Reply-To: <bc56f2f0603210803l28145c7dj@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.64.0603202228441.17704@scrub.home>
-By author:    Roman Zippel <zippel@linux-m68k.org>
-In newsgroup: linux.dev.kernel
+Stone Wang wrote:
+> We dont account HugeTLB pages for:
 > 
-> You forgot to provide any information (at least a summary) about what this 
-> is and how this will work. Please don't assume everyone is familiar with 
-> it.
+> 1. HugeTLB pages themselves are not reclaimable.
 > 
-> There is one major question: how will this interface to distributions?
-> 
-> How can distributions add their own initializations and configurations or 
-> are they going to put an initrd on top of the kernel initrd? If this will 
-> have a kernel and a distribution part, it poses the question whether klibc 
-> has to be distributed with the kernel at all (a libc has a standard API 
-> after all) and the kernel just provides the kernel specific parts to 
-> whatever the distribution provides.
+> 2. If we count HugeTLB pages in "Wired",then we would have no mind
+>    how many of the "Wired" are HugeTLB pages, and how many are
+> normal-size pages.
+>    Thus, hard to get a clear map of physical memory use,for example:
+>      how many pages are reclaimable?
+>    If we must count HugeTLB pages,more fields should be added to
+> "/proc/meminfo",
+>    for exmaple: "Wired HugeTLB:", "Wired Normal:".
 > 
 
-Okay... quick summary (again)...
+Then why do you wire them at all? Your unwire function does not appear
+to be able to unwire them.
 
-klibc is a small libc, small enough that it provides negible (or even
-negative) overhead to bundle it inside the kernel binary.
-
-The kernel tree part is there so that we can rip out in-kernel code
-without breaking compatibility, or requiring a distribution-provided
-initramfs.  In the future, we could consider retaining certain
-binaries in the rootfs and have "on-demand userspace" by the kernel,
-e.g. to do partition enumeration in userspace in a
-backwards-compatible manner.
-
-The default build provides a single binary called kinit, which is
-(modulo any bugs) equivalent to the in-kernel root-mounting code, with
-all its variants (initrd, nfsroot, load ramdisk from floppy, yadda
-yadda.)  The existence of kinit allows the in-kernel code to be
-removed without actually removing a feature.  Hence, the reason to put
-this in the kernel tree is to make sure there is zero impact on
-distributions.
-
-If the distribution uses initramfs directly, kinit goes unused.  The
-klibc code is also available as a standalone distribution, which at
-least Ubuntu is currently using to build a custom initramfs.  Because
-the kinit code is still userspace, it can share considerable amounts
-of code with the standalone klibc utilities collection; in fact most
-of the kinit pieces are available as standalone binaries which can be
-weaved together by scripts or other C code.
-
-The advantages of moving this code to userspace, thus is:
-
- - Simpler programming model (harder to screw up)
- - Easier to share code with distribution-customized setups
- - Code can be tested as standalone userspace binaries at runtime
-
-A lot of the benefit is lost if, like now, there is a piece of code
-which has to be written for kernel-mode programming, separate from
-anything else and not testable except through a tedious kernel boot
-cycle.
-
-	-hpa
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

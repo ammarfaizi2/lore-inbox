@@ -1,218 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWCVRoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWCVRp1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbWCVRoj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 12:44:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWCVRoj
+	id S932221AbWCVRp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 12:45:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWCVRp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 12:44:39 -0500
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:2757 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S932212AbWCVRoh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 12:44:37 -0500
-Message-ID: <44218AF2.90003@t-online.de>
-Date: Wed, 22 Mar 2006 18:35:46 +0100
-From: Knut Petersen <Knut_Petersen@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.10) Gecko/20050726
-X-Accept-Language: de, en
+	Wed, 22 Mar 2006 12:45:27 -0500
+Received: from silver.veritas.com ([143.127.12.111]:59258 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932221AbWCVRpZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 12:45:25 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.03,119,1141632000"; 
+   d="scan'208"; a="36270745:sNHT26497280"
+Date: Wed, 22 Mar 2006 17:46:21 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+cc: Andrew Morton <akpm@osdl.org>, rdreier@cisco.com, torvalds@osdl.org,
+       hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
+ driver
+In-Reply-To: <1143043088.17406.17.camel@serpentine.pathscale.com>
+Message-ID: <Pine.LNX.4.61.0603221729300.8148@goblin.wat.veritas.com>
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain> 
+ <ada4q27fban.fsf@cisco.com>  <1141948516.10693.55.camel@serpentine.pathscale.com>
+  <ada1wxbdv7a.fsf@cisco.com>  <1141949262.10693.69.camel@serpentine.pathscale.com>
+  <20060309163740.0b589ea4.akpm@osdl.org>  <1142470579.6994.78.camel@localhost.localdomain>
+  <ada3bhjuph2.fsf@cisco.com>  <1142475069.6994.114.camel@localhost.localdomain>
+  <adaslpjt8rg.fsf@cisco.com>  <1142477579.6994.124.camel@localhost.localdomain>
+  <20060315192813.71a5d31a.akpm@osdl.org>  <1142485103.25297.13.camel@camp4.serpentine.com>
+  <20060315213813.747b5967.akpm@osdl.org>  <Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com>
+  <1142523201.25297.56.camel@camp4.serpentine.com> 
+ <Pine.LNX.4.61.0603161629150.23220@goblin.wat.veritas.com> 
+ <1142538765.10950.16.camel@serpentine.pathscale.com> 
+ <Pine.LNX.4.61.0603162003140.25033@goblin.wat.veritas.com> 
+ <1142974347.29199.87.camel@serpentine.pathscale.com> 
+ <Pine.LNX.4.61.0603212316001.16342@goblin.wat.veritas.com>
+ <1143043088.17406.17.camel@serpentine.pathscale.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Dave Jones <davej@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [BUG] wrong bogomips  values with kernel 2.6.16
-References: <441FFB28.5050609@t-online.de> <Pine.LNX.4.64.0603211004250.3622@g5.osdl.org> <4420DE54.1020004@t-online.de> <Pine.LNX.4.64.0603220717270.26286@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0603220717270.26286@g5.osdl.org>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ID: Xdfi8GZCoeVNn99f8E0F+PPf394IUpMUv9PV0VaM+17EMf0NO3hvZU@t-dialin.net
-X-TOI-MSGID: 485365b4-1b1c-4d2f-931e-0c5482a0e52f
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 22 Mar 2006 17:45:24.0640 (UTC) FILETIME=[66033A00:01C64DD8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Wed, 22 Mar 2006, Bryan O'Sullivan wrote:
+> 
+> ...the driver actually works just fine under 2.6.16-final.  No memory
+> leaks, no funnies with page counting being wrong.
 
->On Wed, 22 Mar 2006, Knut Petersen wrote:
->  
->
->>All Pentium M, Xeon up to model 2 and the P6 family increment with every
->>internal processor cycle.
->>    
->>
->
->Just to humor me. Try the bogomips loop in user space with something like 
->the appended (make sure the frequency is fixed to the lowest frequency).
->
->		Linus
->  
->
-No problem ...
+Ah, great, then I needn't look through your code, phew (no offence)!
 
-linux:~ # cat 
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
-1867000 1600000 1333000 1067000 800000
+> Under 2.6.15, what seems to be actually happening is that vmops->nopage
+> is being called on each page of a 32K compound page, driving the page
+> count from 1 (prior to any nopage calls) to 9.  By the time I get to my
+> cleanup code, the page count has gone from 9 to 8 (whereas under 2.6.16,
+> the page count has gone from 9 back to 1, where it belongs).  From this,
+> it seems fairly clear that the kernel isn't decrementing the use counts
+> correctly on compound pages in 2.6.15.
 
-linux:~ # echo 800000 > 
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed;cat 
-/proc/cpuinfo;./test
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 13
-model name      : Intel(R) Pentium(R) M processor 1.86GHz
-stepping        : 8
-cpu MHz         : 800.000
-cache size      : 2048 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat clflush dts acpi mmx fxsr sse sse2 ss tmpbe nx est tm2
-bogomips        : 3730.27
+I'm sure Linus is right about that.  I remembered put_page_testzero
+checking the wrong part of the compound page in its BUG_ON, but I'd
+forgotten that release_pages ended up not freeing the compound page
+at all.  Yes, 2.6.15 and its relatives do indeed leak there.
 
-TSC: 798.307872 MHz
+> I think my next step, rather than boring you to tears with an
+> interminable slog through unfamiliar source code, is to try Linus's
+> suggestion from last week of just shooting nopage in the head, and
+> instead use remap_pfn_range in fops->mmap.  If the stars are aligned,
+> perhaps this will give me something that works on a wide variety of
+> kernels.
 
+That may well be a good plan (given the doubts Nick raised about
+whether dma_alcohol_rent gives the right kind of struct page non-slab
+memory on all arches).  But one way in which the stars will be slightly
+misaligned: for 2.6.14 and earlier you'll need to SetPageReserved on
+each constituent of the >0-page, to get remap_pfn_range to map it (and
+ClearPageReserved before freeing the >0-page); that won't do any harm
+on 2.6.15 and 2.6.16 (apart from enlarging the code unnecessarily);
+but we might one day remove those macros, from driver use anyway.
 
-
-
-linux:~ # echo 1067000 > 
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed;cat 
-/proc/cpuinfo;./test
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 13
-model name      : Intel(R) Pentium(R) M processor 1.86GHz
-stepping        : 8
-cpu MHz         : 1067.000
-cache size      : 2048 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat clflush dts acpi mmx fxsr sse sse2 ss tmpbe nx est tm2
-bogomips        : 4975.25
-
-TSC: 1064.407897 MHz
-
-
-
-linux:~ # echo 1333000 > 
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed;cat 
-/proc/cpuinfo;./test
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 13
-model name      : Intel(R) Pentium(R) M processor 1.86GHz
-stepping        : 8
-cpu MHz         : 1333.000
-cache size      : 2048 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat clflush dts acpi mmx fxsr sse sse2 ss tmpbe nx est tm2
-bogomips        : 6215.57
-
-TSC: 1330.511688 MHz
-
-
-linux:~ # echo 1600000 > 
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed;cat 
-/proc/cpuinfo;./test
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 13
-model name      : Intel(R) Pentium(R) M processor 1.86GHz
-stepping        : 8
-cpu MHz         : 1600.000
-cache size      : 2048 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat clflush dts acpi mmx fxsr sse sse2 ss tmpbe nx est tm2
-bogomips        : 7460.55
-
-TSC: 1596.612533 MHz
-
-
-linux:~ # echo 1867000 > 
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed;cat 
-/proc/cpuinfo;./test
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 13
-model name      : Intel(R) Pentium(R) M processor 1.86GHz
-stepping        : 8
-cpu MHz         : 1867.000
-cache size      : 2048 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat clflush dts acpi mmx fxsr sse sse2 ss tmpbe nx est tm2
-bogomips        : 8705.53
-
-TSC: 1862.715048 MHz
-
-
-I tried kernel _2.6.15_ too - it´s even more broken:
-
-linux:~ # cat /proc/cpuinfo;./test
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 13
-model name      : Intel(R) Pentium(R) M processor 1.86GHz
-stepping        : 8
-cpu MHz         : 4347.853
-cache size      : 2048 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat clflush dts acpi mmx fxsr sse sse2 ss tmpbe nx est tm2
-bogomips        : 8702.35
-
-TSC: 1863.086854 MHz
-
-Isn´t that nice? I´m able to overclock my 1.86 MHz cpu to stable 4.35 MHz
-with just a passive heatsink ;-)))
-
-cu,
- Knut
+Hugh

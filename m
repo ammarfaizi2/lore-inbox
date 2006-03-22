@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWCVHxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWCVHw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbWCVHxU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 02:53:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWCVHxT
+	id S1751082AbWCVHw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 02:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWCVHw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 02:53:19 -0500
-Received: from mo01.po.2iij.net ([210.130.202.205]:43715 "EHLO
-	mo01.po.2iij.net") by vger.kernel.org with ESMTP id S1751091AbWCVHxR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 02:53:17 -0500
-Date: Wed, 22 Mar 2006 16:53:05 +0900
-From: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
-To: Martin Michlmayr <tbm@cyrius.com>
-Cc: yoichi_yuasa@tripeaks.co.jp, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-mips@linux-mips.org
-Subject: Re: [PATCH 1/12] [MIPS] Improve description of VR41xx based
- machines
-Message-Id: <20060322165305.172ea9ec.yoichi_yuasa@tripeaks.co.jp>
-In-Reply-To: <20060321021826.GU12676@deprecation.cyrius.com>
-References: <20060320043802.GA20389@deprecation.cyrius.com>
-	<20060320043902.GA20416@deprecation.cyrius.com>
-	<20060320152646.1c5690e3.yoichi_yuasa@tripeaks.co.jp>
-	<20060320131053.GA29434@deprecation.cyrius.com>
-	<20060321005940.35ce09f9.yoichi_yuasa@tripeaks.co.jp>
-	<20060320162919.GP29434@deprecation.cyrius.com>
-	<20060321111034.16ffa0bc.yoichi_yuasa@tripeaks.co.jp>
-	<20060321021826.GU12676@deprecation.cyrius.com>
-Organization: TriPeaks Corporation
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Wed, 22 Mar 2006 02:52:59 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:1757 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751082AbWCVHw6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 02:52:58 -0500
+Date: Tue, 21 Mar 2006 23:49:35 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Luke Yang" <luke.adi@gmail.com>
+Cc: rgetz@blackfin.uclinux.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2]Blackfin archtecture patche for 2.6.16
+Message-Id: <20060321234935.1d006a13.akpm@osdl.org>
+In-Reply-To: <489ecd0c0603212342w4124dddfy1bb50c02984c0e8f@mail.gmail.com>
+References: <6.1.1.1.0.20060321224917.01ec6970@ptg1.spd.analog.com>
+	<20060321223652.25bf07f7.akpm@osdl.org>
+	<489ecd0c0603212342w4124dddfy1bb50c02984c0e8f@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Mar 2006 02:18:26 +0000
-Martin Michlmayr <tbm@cyrius.com> wrote:
+"Luke Yang" <luke.adi@gmail.com> wrote:
+>
+>  > More things might come out once people start paying more attention, but if
+>  > that's the extent of things, I'd be OK with a merge when you're ready.
+>    Does this merge has to be within 1 week after the release, so we
+>  have to wait for 2.6.17? Or this can be done on mm-tree?
 
-> * Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp> [2006-03-21 11:10]:
-> > > > VR4131 and VR4133, .... are included in NEC VR4100 series.
-> > > > These entry have no problem.
-> > > 
-> > > Right, so your're taking the NACK of this patch back?
-> > 
-> > Yes, NACK.
-> > These entries are right.
-> 
-> s/NACK/ACK/ surely ;-)
+The whole patch affects just one line in one Kconfig file outside
+arch/bluefin, so I don't see a reason why this needs to be tied into the
+two-week-window thing.  I figure that if we can get it into -mm within a
+few weeks we'll be OK for 2.6.17.
 
-Sorry, what meaning is it?
+But that depends upon review comments.  My ten-minute-peek was not
+sufficient.  But given this discussion and its probably appearance in -mm,
+I'd expect a few more people will get in there and help.
 
-I think that "VR4100 series" is better than "VR41XX",
-because NECEL is writing "VR4100 series".
-
-Yoichi
+We'll see how it goes.

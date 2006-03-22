@@ -1,120 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422689AbWCWUoF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422676AbWCWUoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422689AbWCWUoF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 15:44:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422690AbWCWUoB
+	id S1422676AbWCWUoq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 15:44:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422685AbWCWUoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 15:44:01 -0500
-Received: from [65.200.49.156] ([65.200.49.156]:29188 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S1422685AbWCWUnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 15:43:46 -0500
-Message-ID: <4423084B.1070701@mvista.com>
-Date: Thu, 23 Mar 2006 13:42:51 -0700
-From: Randy Vinson <rvinson@mvista.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jean Delvare <khali@linux-fr.org>
-CC: LKML <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       "Mark A.Greer" <mgreer@mvista.com>
-Subject: Re: [PATCH, RFC] Stop using tasklet in ds1374 RTC driver
-References: <20060323201030.ccded642.khali@linux-fr.org>
-In-Reply-To: <20060323201030.ccded642.khali@linux-fr.org>
-Content-Type: multipart/mixed;
- boundary="------------020601070206020202020901"
+	Thu, 23 Mar 2006 15:44:08 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:37621 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751493AbWCWUkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 15:40:22 -0500
+Message-Id: <20060323203523.069903000@dyn-9-152-242-103.boeblingen.de.ibm.com>
+References: <20060323203423.620978000@dyn-9-152-242-103.boeblingen.de.ibm.com>
+User-Agent: quilt/0.44-1
+Date: Thu, 23 Mar 2006 00:00:13 +0100
+From: Arnd Bergmann <abergman@de.ibm.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Subject: [patch 13/13] spufs: initialize context correctly
+Content-Disposition: inline; filename=init_mfc.diff
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020601070206020202020901
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+the mfc member of a new context was not initialized to zero,
+which potentially leads to wild memory accesses.
 
-Jean Delvare wrote:
-> Hi all,
-> 
-> I have the following patch, which addresses a might-sleep-in-tasklet
-> issue in the ds1374 driver. I'm not too sure if the new code is right
-> or not, as I have never been using workqueues before, and I also don't
-> have a DS1374 chip to test my changes on.
-> 
-> Can anyone comment on the patch and tell me if anything is wrong?
-> 
-> Can anyone with a DS1374 chip please test it?
+From: Dirk Herrendoerfer <herrendo@de.ibm.com>
+Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
 
-I've attached a similar patch that has been tested using the DS1374 on the Freescale MPC8349MDS reference system. It is patterned after a similar change made to the m41t00 driver. The changes work, but I am also unfamiliar with workqueues, so my patch may not be any better.
-
-> 
-> I want this to be fixed now, because in -mm the ds1374 driver also uses
-> the new mutex implementation, which is not allowed in tasklets, but is
-> OK in workqueues.
-> 
-> Thanks.
-> 
-
-
---------------020601070206020202020901
-Content-Type: text/plain;
- name="ds1374_workqueue.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ds1374_workqueue.patch"
-
-This patch changes the DS1374 driver to use workqueues (taken from a
-similar change to the m41t00.c driver.) This patch has been tested on the
-Freescale MPC8349MDS.
-
-Signed-off-by: Randy Vinson <rvinson@mvista.com>
-Index: linux-2.6.10_wrk/drivers/i2c/chips/ds1374.c
+Index: linux-2.6.16-rc/arch/powerpc/platforms/cell/spufs/context.c
 ===================================================================
---- linux-2.6.10_wrk.orig/drivers/i2c/chips/ds1374.c
-+++ linux-2.6.10_wrk/drivers/i2c/chips/ds1374.c
-@@ -26,6 +26,7 @@
- #include <linux/i2c.h>
- #include <linux/rtc.h>
- #include <linux/bcd.h>
-+#include <linux/workqueue.h>
- 
- #include <asm/time.h>
- 
-@@ -51,6 +52,8 @@ static struct i2c_client *save_client;
- static unsigned short ignore[] = { I2C_CLIENT_END };
- static unsigned short normal_addr[] = { 0x68, I2C_CLIENT_END };
- 
-+static struct work_struct set_rtc_time_task;
-+
- static struct i2c_client_address_data addr_data = {
- 	.normal_i2c = normal_addr,
- 	.normal_i2c_range = ignore,
-@@ -180,7 +183,7 @@ int ds1374_set_rtc_time(ulong nowtime)
- 	new_time = nowtime;
- 
- 	if (in_interrupt())
--		tasklet_schedule(&ds1374_tasklet);
-+		schedule_work(&set_rtc_time_task);
- 	else
- 		ds1374_set_tlet((ulong) & new_time);
- 
-@@ -215,6 +218,9 @@ static int ds1374_probe(struct i2c_adapt
- 		return rc;
- 	}
- 
-+	INIT_WORK(&set_rtc_time_task,
-+			(void (*)(void *))&ds1374_set_tlet, &new_time);
-+
- 	save_client = client;
- 
- 	ds1374_check_rtc_status();
-@@ -233,7 +239,7 @@ static int ds1374_detach(struct i2c_clie
- 
- 	if ((rc = i2c_detach_client(client)) == 0) {
- 		kfree(i2c_get_clientdata(client));
--		tasklet_kill(&ds1374_tasklet);
-+		flush_scheduled_work();
- 	}
- 	return rc;
- }
+--- linux-2.6.16-rc.orig/arch/powerpc/platforms/cell/spufs/context.c
++++ linux-2.6.16-rc/arch/powerpc/platforms/cell/spufs/context.c
+@@ -51,6 +51,7 @@ struct spu_context *alloc_spu_context(vo
+ 	ctx->ibox_fasync = NULL;
+ 	ctx->wbox_fasync = NULL;
+ 	ctx->mfc_fasync = NULL;
++	ctx->mfc = NULL;
+ 	ctx->tagwait = 0;
+ 	ctx->state = SPU_STATE_SAVED;
+ 	ctx->local_store = NULL;
 
---------------020601070206020202020901--
+--
+

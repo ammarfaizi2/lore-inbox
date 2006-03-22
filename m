@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751912AbWCVBKI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751914AbWCVBK6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751912AbWCVBKI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 20:10:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751913AbWCVBKI
+	id S1751914AbWCVBK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 20:10:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751913AbWCVBK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 20:10:08 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:7052 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751912AbWCVBKG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 20:10:06 -0500
-Subject: Re: [PATCH: 002/017]Memory hotplug for new nodes v.4.(change name
-	old add_memory() to arch_add_memory())
-From: Dave Hansen <haveblue@us.ibm.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: y-goto@jp.fujitsu.com, akpm@osdl.org, tony.luck@intel.com, ak@suse.de,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <20060322090514.6d6826fc.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20060317162757.C63B.Y-GOTO@jp.fujitsu.com>
-	 <1142615538.10906.67.camel@localhost.localdomain>
-	 <20060318102653.57c6a2af.kamezawa.hiroyu@jp.fujitsu.com>
-	 <1142964013.10906.158.camel@localhost.localdomain>
-	 <20060322090514.6d6826fc.kamezawa.hiroyu@jp.fujitsu.com>
-Content-Type: text/plain
-Date: Tue, 21 Mar 2006 17:08:18 -0800
-Message-Id: <1142989698.10906.224.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Mar 2006 20:10:57 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:7661 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751914AbWCVBK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 20:10:57 -0500
+Date: Tue, 21 Mar 2006 17:10:51 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Pekka Enberg <penberg@cs.helsinki.fi>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix memory leak in mm/slab.c::alloc_kmemlist()  (try
+ #3)
+In-Reply-To: <200603220154.16266.jesper.juhl@gmail.com>
+Message-ID: <Pine.LNX.4.64.0603211706560.14503@schroedinger.engr.sgi.com>
+References: <200603182137.08521.jesper.juhl@gmail.com>
+ <84144f020603191040h9b07b10w418b6cdd73f8b114@mail.gmail.com>
+ <9a8748490603200055p7be38dc8lac2e78f4798e6def@mail.gmail.com>
+ <200603220154.16266.jesper.juhl@gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-22 at 09:05 +0900, KAMEZAWA Hiroyuki wrote:
-> On Tue, 21 Mar 2006 10:00:12 -0800
-> Dave Hansen <haveblue@us.ibm.com> wrote:
-> > At some point in the process, you need to export the NUMA node layout to
-> > the rest of the system, to say which pages go in which node.  I'm just
-> > saying that you should do that _before_ add_memory().
-> > 
-> To do so, we have to maintain new pfn_to_nid() function.
-> We have to maintain a new table/list and have to consider name of it :).
+On Wed, 22 Mar 2006, Jesper Juhl wrote:
 
-I completely spaced out, and forgot that we use sparsemem and 'struct
-pages' for pfn_to_nid() now.  I've been buried too deep in the i386
-discontigmem physnode_map[].  Sorry.
+> --- linux-2.6.16-rc6-mm2-orig/mm/slab.c	2006-03-18 16:55:55.000000000 +0100
+> +++ linux-2.6.16-rc6-mm2/mm/slab.c	2006-03-21 22:33:45.000000000 +0100
+> @@ -3399,12 +3399,17 @@ EXPORT_SYMBOL_GPL(kmem_cache_name);
+>  static int alloc_kmemlist(struct kmem_cache *cachep)
+>  {
+>  	int node;
+> +	int count = -1;
 
-If I missed it before, please refresh my memory.  But, if we're
-providing arch_nid_probe(addr), then why don't we just call it inside of
-add_memory() on the start address, instead of in the generic code?
+Count? One could simply go backwards on the node and undo all 
+allocations for present nodes. That may be much simpler.
 
-I'm also getting a bit confused in your patches whether add_memory() is
-the _original_ add_memory(), or the new one.  It tends to get lost in 17
-patches. :(
+while (node >= 0 && node_isset(node, node_online_map) {
 
-I don't really like the arch_nid_probe() name.  We need to make it very
-apparent that it is to be used _only_ for memory hotplug operations.  It
-has no meaning for anything else.
+....
 
-	hotplug_physaddr_to_nid()?
+	node--;
+}
 
-Maybe with a "memory_" in front.  Maybe even
-memory_add_physaddr_to_nid()?
+>  	struct kmem_list3 *l3;
+> -	int err = 0;
 
-It was probably to keep from changing as little code as possible, but
-please convert the u64 values to pfns as soon as possible.  I noticed
-that hotadd_new_pgdat() still deals with them, and does the shift as
-well.  Is that really necessary.
+Ok. err is removed sinc we never set it to a nonzero value.
 
-The u64s should not be kept for more than one level of calls.  That
-level of calls should be the firmware.  So, let the firmware call into
-the VM code with u64s, then have all of the plain VM code deal in pfns.
+> +	struct array_cache *new;
+> +	struct array_cache **new_alien;
 
--- Dave
-
+Ok. Also not checked.

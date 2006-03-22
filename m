@@ -1,63 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932738AbWCVVSD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932747AbWCVVWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932738AbWCVVSD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 16:18:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932739AbWCVVSD
+	id S932747AbWCVVWf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 16:22:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932748AbWCVVWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 16:18:03 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:35369 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932738AbWCVVSC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 16:18:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Bf8a5AUzY6WguTWf4zjQo4Yti54N63lAPvMdFWwPGhFutFXMy4l2Fqb6QnVvyG/CeVMHX/a2dupGp3mn5iTBuWyqLJS/gKD49apOgZgH/UXnitvw3H+OnulNdJhRHyMcktpQD99ObSyhSi5pfUC/1fcPABysJXokB7JQRLliqmM=
-Message-ID: <d120d5000603221318n7b4d664eh3cafc9260f6e12e@mail.gmail.com>
-Date: Wed, 22 Mar 2006 16:18:01 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Greg KH" <greg@kroah.com>
-Subject: Re: [PATCH] Try 2, Fix release function in IPMI device model
-Cc: "Corey Minyard" <minyard@acm.org>,
-       "Russell King" <rmk+lkml@arm.linux.org.uk>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Yani Ioannou" <yani.ioannou@gmail.com>
-In-Reply-To: <20060322210820.GA12518@kroah.com>
+	Wed, 22 Mar 2006 16:22:35 -0500
+Received: from sccrmhc11.comcast.net ([63.240.77.81]:62609 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S932747AbWCVVWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 16:22:34 -0500
+Message-ID: <4421C018.80005@comcast.net>
+Date: Wed, 22 Mar 2006 16:22:32 -0500
+From: Ed Sweetman <safemode@comcast.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060322204501.GA21213@i2.minyard.local>
-	 <20060322210820.GA12518@kroah.com>
+To: Jeff Garzik <jeff@garzik.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: libata ignores non-dma disks?
+References: <4420B7D6.4020706@comcast.net> <4420CAD4.60700@garzik.org>
+In-Reply-To: <4420CAD4.60700@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/22/06, Greg KH <greg@kroah.com> wrote:
-> On Wed, Mar 22, 2006 at 02:45:01PM -0600, Corey Minyard wrote:
-> > Ok, one more try.  Russell, I assume you mean to use
-> > platform_device_alloc(), which seems to do what you suggested.
-> > And I assume the driver_data is the way to store whatever you
-> > need, instead of using the container_of() macro.
-> >
-> > Arjun, Russell, thanks for the info.
-> >
-> > Now the patch...
-> >
-> > Arjun van de Ven pointed out that the changeover to the driver model
-> > in the IPMI driver had some bugs in it dealing with the release
-> > function and cleanup.  Then Russell King pointed out that you can't
-> > put release functions in the same module as the unregistering code.
->
-> Yes you can, you just have to properly set up the module attribute
-> owners and it will work just fine.
->
+Jeff Garzik wrote:
 
-No, not really. You can only do that if _all_ sysfs attributes for the
-object are handled in your driver which is rarely the case (dev,
-/power/* attributes, etc).
+> Ed Sweetman wrote:
+>
+>> I'm using 2.6.16-rc6-ide1 (alan's patchset) and using the sata_nv and
+>> pata_amd drivers.  I have all UDMA drives except a CF disk -> IDE
+>> interface, which should be running in PIO mode4.   Libata detects the
+>> device, but spits out a message about "no dma" and then says it's not
+>> supported and is ignoring it.   Is this device not supported because
+>> it's not using dma or for some other reason?
+>> It's the only device on it's channel (secondary pata)
+>>
+>> ata6: PATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 15
+>> ata6: dev 0 cfg 49:0e00 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000
+>> 88:0000
+>> ata6: no dma
+>> ata6: dev 0 not supported, ignoring
+>> scsi5 : pata_amd
+>
+>
+> Delete the "no dma" check, and debug from there...  PIO support is in 
+> there, just needs a few final fixes.
+>
+>     Jeff
 
---
-Dmitry
+
+Works perfectly now.   Thanks.   What isn't finished about it? 
+
+anyways, here's an hdparm readout, for those that care.
+
+CompactFlash ATA device, with removable media
+        Model Number:       TOSHIBA THNCF512MPG
+        Serial Number:      TSBC512M05928B66857C
+        Firmware Revision:  1.00
+Standards:
+        Likely used: 4
+Configuration:
+        Logical         max     current
+        cylinders       993     993
+        heads           16      16
+        sectors/track   63      63
+        --
+        bytes/track: 33264      bytes/sector: 528
+        CHS current addressable sectors:    1000944
+        LBA    user addressable sectors:    1000944
+        device size with M = 1024*1024:         488 MBytes
+        device size with M = 1000*1000:         512 MBytes
+Capabilities:
+        LBA, IORDY(can be disabled)
+        Buffer size: 2.0kB      bytes avail on r/w long: 4      Queue 
+depth: 1
+        Standby timer values: spec'd by Vendor
+        R/W multiple sector transfer: Max = 1   Current = 1
+        DMA: not supported
+        PIO: pio0 pio1 pio2 pio3 pio4
+             Cycle time: no flow control=120ns  IORDY flow control=120ns
+

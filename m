@@ -1,54 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbWCVWwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWCVWzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751410AbWCVWwx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 17:52:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWCVWwx
+	id S1751143AbWCVWzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 17:55:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWCVWzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 17:52:53 -0500
-Received: from omta05sl.mx.bigpond.com ([144.140.93.195]:8026 "EHLO
-	omta05sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750969AbWCVWww (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 17:52:52 -0500
-Message-ID: <4421D541.6090103@bigpond.net.au>
-Date: Thu, 23 Mar 2006 09:52:49 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, mingo@elte.hu, akpm@osdl.org
-Subject: Re: [PATCH] possible scheduler deadlock in 2.6.16
-References: <20060322104143.GC30422@krispykreme> <4421307F.8020300@yahoo.com.au>
-In-Reply-To: <4421307F.8020300@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 22 Mar 2006 17:55:24 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:28850 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751143AbWCVWzX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 17:55:23 -0500
+Date: Wed, 22 Mar 2006 14:51:32 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, bob.picco@hp.com,
+       iwamoto@valinux.co.jp, a.p.zijlstra@chello.nl, christoph@lameter.com,
+       wfg@mail.ustc.edu.cn, npiggin@suse.de, torvalds@osdl.org,
+       riel@redhat.com, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 00/34] mm: Page Replacement Policy Framework
+Message-Id: <20060322145132.0886f742.akpm@osdl.org>
+In-Reply-To: <20060322223107.12658.14997.sendpatchset@twins.localnet>
+References: <20060322223107.12658.14997.sendpatchset@twins.localnet>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 22 Mar 2006 22:52:49 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Anton Blanchard wrote:
+Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+>
 > 
->> One way to solve this is to always take runqueues in cpu id order. To do
->> this we add a cpu variable to the runqueue and check it in the
->> double runqueue locking functions.
->>
->> Thoughts?
->>
+> This patch-set introduces a page replacement policy framework and 4 new 
+> experimental policies.
+
+Holy cow.
+
+> The page replacement algorithm determines which pages to swap out.
+> The current algorithm has some problems that are increasingly noticable, even
+> on desktop workloads.
+
+Rather than replacing the whole lot four times I'd really prefer to see
+precise descriptions of these problems, see if we can improve the situation
+incrementally rather than wholesale slash-n-burn...
+
+Once we've done that work to the best of our ability, *then* we're in a
+position to evaluate the performance benefits of this new work.  Because
+there's not much point in comparing known-to-have-unaddressed-problems old
+code with fancy new code.
+
+> Measurements:
 > 
-> You're right. I can't think of a better fix, although we've been trying
-> to avoid adding cpu to the runqueue structure.
+> (Walltime, so lower is better)
+> 
+> cyclic-anon ; Cyclic access pattern with anonymous memory.
+>               (http://programming.kicks-ass.net/benchmarks/cyclic-anon.c)
+> 
+> 2.6.16-rc6              14:28
+> 2.6.16-rc6-useonce      15:11
+> 2.6.16-rc6-clockpro     10:51
+> 2.6.16-rc6-cart          8:55
+> 2.6.16-rc6-random     1:09:50
+> 
+> cyclic-file ; Cyclic access pattern with file backed memory.
+>               (http://programming.kicks-ass.net/benchmarks/cyclic-file.c)
+> 
+> 2.6.16-rc6              11:24
+> 2.6.16-rc6-clockpro      8:14
+> 2.6.16-rc6-cart          8:09
+> 
+> webtrace ; Replay of an IO trace from the Umass trace repository
+>            (http://programming.kicks-ass.net/benchmarks/spc/)
+> 
+> 2.6.16-rc6               8:27
+> 2.6.16-rc6-useonce       8:24
+> 2.6.16-rc6-clockpro     10:23
+> 2.6.16-rc6-cart         15:30
+> 2.6.16-rc6-random       15:52
+> 
+> mdb-bench ; Low frequency benchmark.
+>             (http://linux-mm.org/PageReplacementTesting)
+> 
+> 2.6.16-rc6            4:20:44
+> 2.6.16-rc6 (mlock)    3:52:15
+> 2.6.16-rc6-useonce    4:20:59
+> 2.6.16-rc6-clockpro   3:56:17
+> 2.6.16-rc6-cart       4:11:54
+> 2.6.16-rc6-random     5:21:30
 
-But now that it's there it will enable further optimizations in parts of
-sched.c, wouldn't it?  E.g. there's a number of functions that get
-passed both the run queue and the CPI id as arguments and these could be
-simplified.
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
-
+2.6.16-rc6 seems to do OK.  I assume the cyclic patterns exploit the lru
+worst case thing?  Has consideration been given to tweaking the existing
+code, detect the situation and work avoid the problem?

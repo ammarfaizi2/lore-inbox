@@ -1,78 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWCVSgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWCVShP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751066AbWCVSgb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 13:36:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWCVSgb
+	id S1751110AbWCVShP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 13:37:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWCVShP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 13:36:31 -0500
-Received: from av2.karneval.cz ([81.27.192.108]:15291 "EHLO av2.karneval.cz")
-	by vger.kernel.org with ESMTP id S1751066AbWCVSga (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 13:36:30 -0500
-Message-ID: <44219917.90806@gmail.com>
-Date: Wed, 22 Mar 2006 19:36:07 +0100
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Yi Yang <yang.y.yi@gmail.com>
-CC: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6.16 PATCH] some tail whitespace clean under subdirectory
- kernel
-References: <44216EFF.6050503@gmail.com>
-In-Reply-To: <44216EFF.6050503@gmail.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Mar 2006 13:37:15 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.158]:31449 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751110AbWCVShN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 13:37:13 -0500
+Date: Wed, 22 Mar 2006 11:37:47 -0700
+From: "Mark A. Greer" <mgreer@mvista.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Stephane@artesyncp.com, rmk+serial@arm.linux.org.uk
+Subject: [PATCH 2.6.16-rc6-mm2] serial: mpsc driver passes bad devname to request_irq()
+Message-ID: <20060322183747.GA13014@mag.az.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+The devname passed to request_irq() contained a '/' which is wrong.  At
+a minimum, the '/' prevented the devname from showing up in
+/proc/irq/<irq>/<devname>.  This patch replaces the '/' with a '-' to
+fixes that problem.
 
-Yi Yang napsal(a):
-> This patch cleans some tail whitespaces under subdirectory kernel.
-> 
-> 
-> diffstat
->  capability.c |   20 ++++++++++----------
->  fork.c       |   12 ++++++------
->  signal.c     |   14 +++++++-------
->  sys.c        |   38 +++++++++++++++++++-------------------
->  timer.c      |   18 +++++++++---------
->  5 files changed, 51 insertions(+), 51 deletions(-)
-> 
-> Signed-off-by: Yi Yang <yang.y.yi@gmail.com>
-> 
-> --- a/kernel/capability.c.orig	2006-03-22 23:04:30.000000000 +0800
-> +++ b/kernel/capability.c	2006-03-22 23:07:06.000000000 +0800
-> @@ -5,7 +5,7 @@
->   *
->   * Integrated into 2.1.97+,  Andrew G. Morgan <morgan@transmeta.com>
->   * 30 May 2002:	Cleanup, Robert M. Love <rml@tech9.net>
-> - */ 
-> + */
->  
->  #include <linux/capability.h>
->  #include <linux/mm.h>
-> @@ -54,18 +54,18 @@ asmlinkage long sys_capget(cap_user_head
->  
->       if (version != _LINUX_CAPABILITY_VERSION) {
->  	     if (put_user(_LINUX_CAPABILITY_VERSION, &header->version))
-> -		     return -EFAULT; 
-> +		     return -EFAULT;
-I think, it wants Lindent or something, not only delete tail whispaces, but also
-space indentation.
+Reported-by: Stephane Chazelas <Stephane@artesyncp.com>
+Signed-off-by: Mark A. Greer <mgreer@mvista.com>
+---
 
-regards,
-- --
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-B67499670407CE62ACC8 22A032CC55C339D47A7E
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+ mpsc.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+---
 
-iD8DBQFEIZkXMsxVwznUen4RAgXfAKCUZKR72rZajvm4FExJt/WsXJKYMwCglKH1
-sUu3C59ZI/r27ZmsZlFfAvM=
-=rGzw
------END PGP SIGNATURE-----
+diff -Nurp linux-2.6.16-rc6-mm2/drivers/serial/mpsc.c linux-2.6.16-rc6-mm2-mpsc_namefix/drivers/serial/mpsc.c
+--- linux-2.6.16-rc6-mm2/drivers/serial/mpsc.c	2006-03-11 15:12:55.000000000 -0700
++++ linux-2.6.16-rc6-mm2-mpsc_namefix/drivers/serial/mpsc.c	2006-03-22 10:42:42.000000000 -0700
+@@ -1165,7 +1165,7 @@ mpsc_startup(struct uart_port *port)
+ 			flag = SA_SHIRQ;
+ 
+ 		if (request_irq(pi->port.irq, mpsc_sdma_intr, flag,
+-				"mpsc/sdma", pi))
++				"mpsc-sdma", pi))
+ 			printk(KERN_ERR "MPSC: Can't get SDMA IRQ %d\n",
+ 			       pi->port.irq);
+ 

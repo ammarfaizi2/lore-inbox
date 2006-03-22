@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWCVGLv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWCVGMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750807AbWCVGLv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 01:11:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWCVGLv
+	id S1750808AbWCVGMW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 01:12:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWCVGMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 01:11:51 -0500
-Received: from mail27.syd.optusnet.com.au ([211.29.133.168]:36067 "EHLO
-	mail27.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750807AbWCVGLv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 01:11:51 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH][3/3] mm: swsusp post resume aggressive swap prefetch
-Date: Wed, 22 Mar 2006 17:11:58 +1100
-User-Agent: KMail/1.8.3
-Cc: linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       linux-mm@kvack.org
-References: <200603200234.01472.kernel@kolivas.org> <1142901862.441f4c66c748e@vds.kolivas.org> <200603211911.01829.rjw@sisk.pl>
-In-Reply-To: <200603211911.01829.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 22 Mar 2006 01:12:22 -0500
+Received: from ozlabs.org ([203.10.76.45]:44468 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750808AbWCVGMV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 01:12:21 -0500
+From: Michael Neuling <mikey@neuling.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, klibc@zytor.com
+Cc: Al Viro <viro@ftp.linux.org.uk>, hpa@zytor.com, miltonm@bga.com
+Subject: [PATCH] initramfs: CPIO unpacking fix
+In-Reply-To: <20060217160621.99b0ffd4.mikey@neuling.org>
+References: <20060216183745.50cc2bf6.mikey@neuling.org>
+	<20060217160621.99b0ffd4.mikey@neuling.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603221711.58390.kernel@kolivas.org>
+X-Mailer: MH-E 7.82; nmh 1.1; GNU Emacs 21.4.1
+Date: Wed, 22 Mar 2006 17:12:18 +1100
+Message-Id: <20060322061220.8414067A70@ozlabs.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Mar 2006 05:11 am, Rafael J. Wysocki wrote:
-> On Tuesday 21 March 2006 01:44, kernel@kolivas.org wrote:
-> > Are you looking at swap still in use? Swap prefetch keeps a copy of
-> > prefetched pages on backing store as well as in ram so the swap space
-> > will not be freed on prefetching.
->
-> It looks like I have to debug it a bit more.  Unfortunately I've been
-> having a lot of work to do recently, so it'll take some time.
 
-No rush whatsoever! I'd just like to help on this.
+Unlink files, symlinks, FIFOs, devices etc. (except directories) before
+writing them when extracting CPIOs.  This stops weird behaviour like:
+ 1) writing through symlinks created in earlier CPIOs. eg foo->bar in
+    the first CPIO.  Having foo as a non-link in a subsequent CPIO,
+    results in bar being written and foo remaining as a symlink.  
+ 2) if the first version of file foo is larger than foo in a
+    subsequent CPIO, we end up with a mix of the two.  ie. neither
+    the first or second version of /foo.
+ 3) special files like devices, fifo etc. can't be overwritten in
+    subsequent CPIOS.
 
-> > I don't understand what you mean by it won't matter?
->
-> Well, sorry.  Of course it will matter.  What I wanted to say is that in
-> this case tbe built-in swsusp would be affected as well as the userland
-> suspend, because the hook was in a function used by both.
+With this, the kernel will more closely replicate
+  for i in *.cpio; do cpio --extract --unconditional < $i ; done
 
-Understood. So I'll modify it to hook into only built-in swsusp restore when I 
-get a chance.
+This is a change but it's regarded as fixing broken functionality.
 
-Cheers,
-Con
+Signed-off-by: Michael Neuling <mikey@neuling.org>
+---
+This is a retransmission.
+
+ init/initramfs.c |    3 +++
+ 1 files changed, 3 insertions(+)
+
+Index: linux-2.6.15/init/initramfs.c
+===================================================================
+--- linux-2.6.15.orig/init/initramfs.c
++++ linux-2.6.15/init/initramfs.c
+@@ -249,6 +249,7 @@ static int __init do_name(void)
+ 	if (dry_run)
+ 		return 0;
+ 	if (S_ISREG(mode)) {
++		sys_unlink(collected);
+ 		if (maybe_link() >= 0) {
+ 			wfd = sys_open(collected, O_WRONLY|O_CREAT, mode);
+ 			if (wfd >= 0) {
+@@ -263,6 +264,7 @@ static int __init do_name(void)
+ 		sys_chmod(collected, mode);
+ 	} else if (S_ISBLK(mode) || S_ISCHR(mode) ||
+ 		   S_ISFIFO(mode) || S_ISSOCK(mode)) {
++		sys_unlink(collected);
+ 		if (maybe_link() == 0) {
+ 			sys_mknod(collected, mode, rdev);
+ 			sys_chown(collected, uid, gid);
+@@ -291,6 +293,7 @@ static int __init do_copy(void)
+ static int __init do_symlink(void)
+ {
+ 	collected[N_ALIGN(name_len) + body_len] = '\0';
++	sys_unlink(collected);
+ 	sys_symlink(collected + N_ALIGN(name_len), collected);
+ 	sys_lchown(collected, uid, gid);
+ 	state = SkipIt;
+
+

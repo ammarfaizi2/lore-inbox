@@ -1,70 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWCVRxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWCVRxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbWCVRxL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 12:53:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWCVRxK
+	id S932250AbWCVRxl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 12:53:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWCVRxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 12:53:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:33412 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932238AbWCVRxJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 12:53:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mkVQ5jzEW11UfAW+669C/Oo4oevsWNQoeoDvJNJNzPCV2rka6eD5W7eyuZU5a/xkgcHJ490j+BLxnTu3J31LxvSPs8ZEEZuHwgTFF4y+3VlAoBX2e181+syb740FXvGSEvIY4Rm8ajaYaHNnXBHr77ycIwpIIbc7LttmjFDAdYY=
-Message-ID: <311601c90603220953t291fdb85w9f6d0fb299a00ab2@mail.gmail.com>
-Date: Wed, 22 Mar 2006 10:53:07 -0700
-From: "Eric D. Mudama" <edmudama@gmail.com>
-To: sander@humilis.net
-Subject: Re: [PATCH] 2.6.xx: sata_mv: another critical fix
-Cc: "Mark Lord" <lkml@rtr.ca>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Jeff Garzik" <jeff@garzik.org>, "Mark Lord" <liml@rtr.ca>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060322170959.GA3222@favonius>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060321121354.GB24977@favonius>
-	 <Pine.LNX.4.64.0603211316580.3622@g5.osdl.org>
-	 <20060322090006.GA8462@favonius> <200603220950.11922.lkml@rtr.ca>
-	 <20060322170959.GA3222@favonius>
+	Wed, 22 Mar 2006 12:53:41 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:18353 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932250AbWCVRxj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 12:53:39 -0500
+Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
+	driver
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, rdreier@cisco.com, torvalds@osdl.org,
+       hch@infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0603221729300.8148@goblin.wat.veritas.com>
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
+	 <ada4q27fban.fsf@cisco.com>
+	 <1141948516.10693.55.camel@serpentine.pathscale.com>
+	 <ada1wxbdv7a.fsf@cisco.com>
+	 <1141949262.10693.69.camel@serpentine.pathscale.com>
+	 <20060309163740.0b589ea4.akpm@osdl.org>
+	 <1142470579.6994.78.camel@localhost.localdomain>
+	 <ada3bhjuph2.fsf@cisco.com>
+	 <1142475069.6994.114.camel@localhost.localdomain>
+	 <adaslpjt8rg.fsf@cisco.com>
+	 <1142477579.6994.124.camel@localhost.localdomain>
+	 <20060315192813.71a5d31a.akpm@osdl.org>
+	 <1142485103.25297.13.camel@camp4.serpentine.com>
+	 <20060315213813.747b5967.akpm@osdl.org>
+	 <Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com>
+	 <1142523201.25297.56.camel@camp4.serpentine.com>
+	 <Pine.LNX.4.61.0603161629150.23220@goblin.wat.veritas.com>
+	 <1142538765.10950.16.camel@serpentine.pathscale.com>
+	 <Pine.LNX.4.61.0603162003140.25033@goblin.wat.veritas.com>
+	 <1142974347.29199.87.camel@serpentine.pathscale.com>
+	 <Pine.LNX.4.61.0603212316001.16342@goblin.wat.veritas.com>
+	 <1143043088.17406.17.camel@serpentine.pathscale.com>
+	 <Pine.LNX.4.61.0603221729300.8148@goblin.wat.veritas.com>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Wed, 22 Mar 2006 09:53:39 -0800
+Message-Id: <1143050019.17406.52.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/22/06, Sander <sander@humilis.net> wrote:
-> I've applied the patch against 2.6.16-git4. I'm sorry to say the
-> messages are still there:
->
-> [ 1038.536894] kjournald starting.  Commit interval 5 seconds
-> [ 1038.555040] EXT3 FS on md0, internal journal
-> [ 1038.555072] EXT3-fs: mounted filesystem with writeback data mode.
-> [ 1418.639290] ata11: status=0x50 { DriveReady SeekComplete }
-> [ 1418.639356] ata11: error=0x50 { UncorrectableError SectorIdNotFound }
-> [ 1418.639418] sdh: Current: sense key=0x0
-> [ 1418.639448]     ASC=0x0 ASCQ=0x0
-> [ 1418.639481] Info fld=0x505050
-> [ 1684.727367] ata9: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> [ 1684.727420] ata9: status=0xd0 { Busy }
-> [ 2223.664107] ata6: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> [ 2223.664162] ata6: status=0xd0 { Busy }
-> [ 2381.589354] ata11: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> [ 2381.589416] ata11: status=0xd0 { Busy }
-> [ 2511.238690] ata9: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> [ 2511.238753] ata9: status=0xd0 { Busy }
-> [ 2990.792908] ata7: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> [ 2990.792960] ata7: status=0xd0 { Busy }
-> [ 4672.691569] ata8: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> [ 4672.691623] ata8: status=0xd0 { Busy }
-> [ 4988.884663] ata6: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> [ 4988.884717] ata6: status=0xd0 { Busy }
->
->
-> Could the ata11/sdh message be bogus? I re-create the raid5 and fs every
-> reboot.
+On Wed, 2006-03-22 at 17:46 +0000, Hugh Dickins wrote:
 
-What, exactly, is timing out?  How long is the timeout period?  The
-ata11 seems bogus, 50/50/50 doesn't seem right.
+> Ah, great, then I needn't look through your code, phew (no offence)!
+
+Indeed :-)
+
+> That may well be a good plan (given the doubts Nick raised about
+> whether dma_alcohol_rent gives the right kind of struct page non-slab
+> memory on all arches).
+
+Well, it Works For Me (TM) right now.  Thank goodness.  And the driver
+is about 200 lines shorter without the nopage handler and consequent
+mucking about.
+
+> But one way in which the stars will be slightly
+> misaligned: for 2.6.14 and earlier you'll need to SetPageReserved on
+> each constituent of the >0-page, to get remap_pfn_range to map it (and
+> ClearPageReserved before freeing the >0-page); that won't do any harm
+> on 2.6.15 and 2.6.16 (apart from enlarging the code unnecessarily);
+> but we might one day remove those macros, from driver use anyway.
+
+Yes, we're already doing this.  So far, I've tested on 2.6.12, 2.6.15,
+and 2.6.16 using remap_pfn_range, and everything appears to be
+cromulent.
+
+	<b
+

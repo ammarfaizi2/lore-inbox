@@ -1,52 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751869AbWCVA21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWCVAaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751869AbWCVA21 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 19:28:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751872AbWCVA20
+	id S1751253AbWCVAaO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 19:30:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWCVAaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 19:28:26 -0500
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:19575 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751869AbWCVA20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 19:28:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=HmUOT9hJkJxIPgd8h5zquevBWyqB/f3iHQ8E29JBlx8ZLvoGPFVYM03KDvRApgJCIMjazF4GAh3aEXOD0Y7e1HaQbIAlm1dA4s5F+zf86RF2GWn78TozZMaS2mbhrf1NWKQQmCIerjhyZ4PpaafqAqWQ2l9hDP07SI6nA0Q/egU=  ;
-Message-ID: <44209A26.3040102@yahoo.com.au>
-Date: Wed, 22 Mar 2006 11:28:22 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Stone Wang <pwstone@gmail.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: PATCH][1/8] 2.6.15 mlock: make_pages_wired/unwired
-References: <bc56f2f0603200536scb87a8ck@mail.gmail.com>	 <441FEFB4.6050700@yahoo.com.au> <bc56f2f0603210803l28145c7dj@mail.gmail.com>
-In-Reply-To: <bc56f2f0603210803l28145c7dj@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 21 Mar 2006 19:30:13 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:53969 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751253AbWCVAaL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 19:30:11 -0500
+Date: Tue, 21 Mar 2006 16:32:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Bernd Schmidt <bernds_cb1@t-online.de>
+Cc: luke.adi@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2]Blackfin archtecture patche for 2.6.16
+Message-Id: <20060321163228.34bf21ad.akpm@osdl.org>
+In-Reply-To: <44209009.1010405@t-online.de>
+References: <489ecd0c0603200200va747a68k187651930a3f0a51@mail.gmail.com>
+	<20060321031457.69fa0892.akpm@osdl.org>
+	<44209009.1010405@t-online.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stone Wang wrote:
-> We dont account HugeTLB pages for:
+Bernd Schmidt <bernds_cb1@t-online.de> wrote:
+>
+> Luke is probably still asleep at this time of night, so I'll try to 
+> answer what I can...
 > 
-> 1. HugeTLB pages themselves are not reclaimable.
+> Andrew Morton wrote:
+> > "Luke Yang" <luke.adi@gmail.com> wrote:
+> >>    This is the Blackfin archtecture patch for kernel 2.6.16.
+> > 
+> > - We don't want to be putting 44000 lines of new code in the kernel and
+> >   then have it rot.  Who will support this in the long-term?  What
+> >   resources are behind it?  IOW: what can you say to convince us that it
+> >   won't rot?
 > 
-> 2. If we count HugeTLB pages in "Wired",then we would have no mind
->    how many of the "Wired" are HugeTLB pages, and how many are
-> normal-size pages.
->    Thus, hard to get a clear map of physical memory use,for example:
->      how many pages are reclaimable?
->    If we must count HugeTLB pages,more fields should be added to
-> "/proc/meminfo",
->    for exmaple: "Wired HugeTLB:", "Wired Normal:".
-> 
+> We're a team inside Analog Devices who are maintaining a GNU toolchain, 
+> uClinux kernel, and user space apps for the Blackfin.  All of this is 
+> available on our blackfin.uclinux.org site.  We do not expect to go away 
+> anytime soon.
 
-Then why do you wire them at all? Your unwire function does not appear
-to be able to unwire them.
+OK.  Thanks for the contributions.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> ...
+> >   We'd need to see some sort of authorisation from the original authors
+> >   for the inclusion of their code.  Preferably in the form of
+> >   Signed-off-by:s.  
+> 
+> I'll pass that along to the right people.  Would a "Signed-off-by: 
+> Analog Devices" (similar to our FSF copyright assignments) be ok or does 
+> it have to be individuals?  I believe the port actually predates the 
+> involvement of most of the people working on it now.
+
+I think names of individuals would be preferred - the Signed-off-by: is
+often used when hunting down maintainers/developers to bug about problems. 
+Although as it's a single megapatch, that's less useful in this case.
+
+If we go with the single signed-off-by: I guess it would be best if that
+was a person within AD who is in a position to authorise the merge.  If you
+say that person is yourself or Luke then fine.
+
+> > - Do you really need to support old_mmap()?
+> 
+>  From what I can tell, no we don't, although we'll have to make a small 
+> change to our uClibc.  (A lot of this code got copied from the m68k port 
+> initially... that may explain a few things).
+> 
+> > - Too much use of open-coded `volatile'.  The objective should be to have
+> >   zero occurrences in .c files.  And volatile sometimes creates suspicion
+> >   even when it's used in .h files.
+> 
+> Are you referring to the ones in 
+> include/asm-blackfin/mach-bf533/cdefBF532.h?  These are memory-mapped 
+> hardware registers (MMRs); do you have any better suggestions how to 
+> access these?  That file actually comes from our in-house Visual DSP 
+> compiler, and while there may be better ways of accessing the register 
+> than those macros, there is something to be said for being able to drop 
+> in a replacement if future chips have different addresses for these 
+> registers.
+> 
+> The Blackfin has a lot of peripherals sitting on the same die as the 
+> core, and they're all accessed through MMRs.
+
+readl/writel and friends would be the preferred way of accessing
+memory-mapped registers.  If that doesn't work then at least you should
+wrap the volatile cast into a single inlined function somewhere so it's not
+splattered everywhere.  That way the code is more pleasing to read and we
+eliminate the risk that someone forgets to add the cast.
+

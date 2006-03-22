@@ -1,35 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWCVKIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWCVKSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbWCVKIo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 05:08:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWCVKIo
+	id S1751189AbWCVKSv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 05:18:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbWCVKSv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 05:08:44 -0500
-Received: from sorrow.cyrius.com ([65.19.161.204]:50702 "EHLO
-	sorrow.cyrius.com") by vger.kernel.org with ESMTP id S1751182AbWCVKIn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 05:08:43 -0500
-Date: Wed, 22 Mar 2006 10:07:53 +0000
-From: Martin Michlmayr <tbm@cyrius.com>
-To: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
-Subject: Re: [PATCH 1/12] [MIPS] Improve description of VR41xx based machines
-Message-ID: <20060322100753.GI1310@deprecation.cyrius.com>
-References: <20060320043802.GA20389@deprecation.cyrius.com> <20060320043902.GA20416@deprecation.cyrius.com> <20060320152646.1c5690e3.yoichi_yuasa@tripeaks.co.jp> <20060320131053.GA29434@deprecation.cyrius.com> <20060321005940.35ce09f9.yoichi_yuasa@tripeaks.co.jp> <20060320162919.GP29434@deprecation.cyrius.com> <20060321111034.16ffa0bc.yoichi_yuasa@tripeaks.co.jp> <20060321021826.GU12676@deprecation.cyrius.com> <20060322165305.172ea9ec.yoichi_yuasa@tripeaks.co.jp>
+	Wed, 22 Mar 2006 05:18:51 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:9914 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751189AbWCVKSu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 05:18:50 -0500
+From: Arnd Bergmann <abergman@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [PATCH] hpet header sanitization
+Date: Wed, 22 Mar 2006 11:18:43 +0100
+User-Agent: KMail/1.9.1
+Cc: lkml <linux-kernel@vger.kernel.org>, clemens@ladisch.de,
+       akpm <akpm@osdl.org>
+References: <20060321144607.153d1943.rdunlap@xenotime.net>
+In-Reply-To: <20060321144607.153d1943.rdunlap@xenotime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <20060322165305.172ea9ec.yoichi_yuasa@tripeaks.co.jp>
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200603221118.43853.abergman@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp> [2006-03-22 16:53]:
-> I think that "VR4100 series" is better than "VR41XX",
-> because NECEL is writing "VR4100 series".
+On Tuesday 21 March 2006 23:46, Randy.Dunlap wrote:
+> +#define        HPET_IE_ON      _IO('h', 0x01)  /* interrupt on */
+> +#define        HPET_IE_OFF     _IO('h', 0x02)  /* interrupt off */
+> +#define        HPET_INFO       _IOR('h', 0x03, struct hpet_info)
+> +#define        HPET_EPI        _IO('h', 0x04)  /* enable periodic */
+> +#define        HPET_DPI        _IO('h', 0x05)  /* disable periodic */
+> +#define        HPET_IRQFREQ    _IOW('h', 0x6, unsigned long)   /* IRQFREQ usec */
 
-Oh, I understand now.  Ok, let's get this changed in the linu-mips
-tree then.
--- 
-Martin Michlmayr
-http://www.cyrius.com/
+By the way, HPET_INFO and HPET_IRQFREQ don't work for 32 bit user space,
+the driver needs a compat_ioctl() method to handle those.
+
+	Arnd <><

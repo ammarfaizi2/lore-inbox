@@ -1,41 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWCVD4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWCVD7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750725AbWCVD4N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 22:56:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWCVD4M
+	id S1750723AbWCVD7q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 22:59:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWCVD7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 22:56:12 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:29601 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750725AbWCVD4M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 22:56:12 -0500
-Date: Wed, 22 Mar 2006 03:56:04 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>, ccaputo@alt.net, dax@gurulabs.com,
-       linux-kernel@vger.kernel.org, erich@areca.com.tw
-Subject: Re: New Areca driver in 2.6.16-rc6-mm2
-Message-ID: <20060322035604.GK27946@ftp.linux.org.uk>
-References: <20060318044056.350a2931.akpm@osdl.org> <Pine.LNX.4.64.0603192016110.32337@mooru.gurulabs.com> <Pine.LNX.4.64.0603212345460.20655@nacho.alt.net> <20060322033718.GA21614@mea-ext.zmailer.org> <20060321195626.80d3fc02.rdunlap@xenotime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060321195626.80d3fc02.rdunlap@xenotime.net>
-User-Agent: Mutt/1.4.1i
+	Tue, 21 Mar 2006 22:59:46 -0500
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:24400 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750723AbWCVD7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 22:59:45 -0500
+Message-ID: <4420CBAD.8030002@bigpond.net.au>
+Date: Wed, 22 Mar 2006 14:59:41 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mike Galbraith <efault@gmx.de>
+CC: Willy Tarreau <willy@w.ods.org>, Ingo Molnar <mingo@elte.hu>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Con Kolivas <kernel@kolivas.org>, bugsplatter@gmail.com
+Subject: Re: interactive task starvation
+References: <1142592375.7895.43.camel@homer>	 <1142615721.7841.15.camel@homer> <1142838553.8441.13.camel@homer>	 <20060321064723.GH21493@w.ods.org> <1142927498.7667.34.camel@homer>	 <20060321091353.GA25248@w.ods.org> <20060321091422.GA9207@elte.hu>	 <20060321111552.GA25651@w.ods.org> <20060321111850.GA2776@elte.hu>	 <1142942878.7807.9.camel@homer>  <20060321125900.GA25943@w.ods.org>	 <1142947456.7807.53.camel@homer>  <44208355.1080200@bigpond.net.au> <1142999382.11047.34.camel@homer>
+In-Reply-To: <1142999382.11047.34.camel@homer>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 22 Mar 2006 03:59:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 21, 2006 at 07:56:26PM -0800, Randy.Dunlap wrote:
-> On Wed, 22 Mar 2006 05:37:18 +0200 Matti Aarnio wrote:
+Mike Galbraith wrote:
+> On Wed, 2006-03-22 at 09:51 +1100, Peter Williams wrote:
+> 
+>>Mike Galbraith wrote:
+>>
+>>>On Tue, 2006-03-21 at 13:59 +0100, Willy Tarreau wrote:
+>>>
+>>>>That would suit me perfectly. I think I would set them both to zero.
+>>>>It's not clear to me what workload they can help, it seems that they
+>>>>try to allow a sometimes unfair scheduling.
+>>>
+>>>
+>>>Correct.  Massively unfair scheduling is what interactivity requires.
+>>>
+>>
+>>Selective unfairness not massive unfairness is what's required.  The 
+>>hard part is automating the selectiveness especially when there are 
+>>three quite different types of task that need special treatment: 1) the 
+>>X server, 2) normal interactive tasks and 3) media streamers; each of 
+>>which has different behavioural characteristics.  A single mechanism 
+>>that classifies all of these as "interactive" will unfortunately catch a 
+>>lot of tasks that don't belong to any one of these types.
 > 
 > 
-> > 
-> > I was apalled to learn that full cycle kernel compilation takes
-> > _hours_ these days (Pentium-4 HT, 2.4 GHz, 2 GB memory -- and it
-> > is about as slow as my first kernel compilation experience with
-> > a 386/33MHz way back in ...)
-> 
-> You mean allmodconfig or allyesconfig, right?
-> Yes, it does take a  l o n g  time.
+> Yes, selective would be nice, but it's still massively unfair that is
+> required.  There is no criteria available for discrimination, so my
+> patches don't even try to classify, they only enforce the rules.  I
+> don't classify X as interactive, I merely provide a mechanism which
+> enables X to accumulate the cycles an interactive task needs to be able
+> to perform by actually _being_ interactive, by conforming to the
+> definition of sleep_avg.
 
-Kill CONFIG_DEBUG_INFO and it'll go much faster...
+That's what I mean by classification :-)
+
+>  Fortunately, it uses that mechanism.  I do
+> nothing more than trade stout rope for good behavior.  I anchor one end
+> to a boulder, the other to a task's neck.  The mechanism is agnostic.
+> The task determines whether it gets hung or not, and the user determines
+> how long the rope is.
+
+I view that as a modification (hopefully an improvement) of the 
+classification rules :-).  In particular, a variation in the persistence 
+of a classification and the criteria for losing/downgrading it.
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

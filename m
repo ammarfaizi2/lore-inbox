@@ -1,39 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWCVWOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWCVWOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbWCVWOp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 17:14:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWCVWOj
+	id S1751315AbWCVWOh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 17:14:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbWCVWNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 17:14:39 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:17901
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751302AbWCVWOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 17:14:14 -0500
-Date: Wed, 22 Mar 2006 14:13:00 -0800 (PST)
-Message-Id: <20060322.141300.62168729.davem@davemloft.net>
-To: mrustad@mac.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16 hugetlbfs problem
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <BE2452EA-2566-4C2A-B07D-BD63404A42C1@mac.com>
-References: <BE2452EA-2566-4C2A-B07D-BD63404A42C1@mac.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 22 Mar 2006 17:13:06 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:17814 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S932103AbWCVWNB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 17:13:01 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Adam Belay <ambx1@neo.rr.com>
+Subject: [PATCH  9/12] PNP: adjust pnp_register_card_driver() signature
+Date: Wed, 22 Mar 2006 15:12:57 -0700
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org, Jaroslav Kysela <perex@suse.cz>,
+       Matthieu Castet <castet.matthieu@free.fr>,
+       Li Shaohua <shaohua.li@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Takashi Iwai <tiwai@suse.de>
+References: <200603221455.26230.bjorn.helgaas@hp.com>
+In-Reply-To: <200603221455.26230.bjorn.helgaas@hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603221512.57680.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mark Rustad <mrustad@mac.com>
-Date: Wed, 22 Mar 2006 16:10:33 -0600
+Remove the assumption that pnp_register_card_driver() returns the
+number of devices claimed.  And fix some __init/__devinit issues.
 
-> I seem to be having trouble using hugetlbfs with kernel 2.6.16. I  
-> have a small test program that worked with 2.6.16-rc5, but fails with  
-> 2.6.16-rc6 or the release. The program is below. Given a path to a  
-> file on a hugetlbfs, it opens/creates the file, mmaps it and tries to  
-> access the first word. On 2.6.16-rc5, it works. On 2.6.16, it hangs  
-> page-faulting until it is killed.
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-On what platform?  Things like hugetlb and address space layout
-(you're requesting a specific mmap() address I noticed) are very
-platform specific.
+Index: work-mm6/sound/isa/sb/sb16.c
+===================================================================
+--- work-mm6.orig/sound/isa/sb/sb16.c	2006-03-22 11:24:41.000000000 -0700
++++ work-mm6/sound/isa/sb/sb16.c	2006-03-22 12:12:20.000000000 -0700
+@@ -369,7 +369,7 @@
+ 	return card;
+ }
+ 
+-static int __init snd_sb16_probe(struct snd_card *card, int dev)
++static int __devinit snd_sb16_probe(struct snd_card *card, int dev)
+ {
+ 	int xirq, xdma8, xdma16;
+ 	struct snd_sb *chip;
+@@ -518,7 +518,7 @@
+ }
+ #endif
+ 
+-static int __init snd_sb16_nonpnp_probe1(int dev, struct platform_device *devptr)
++static int __devinit snd_sb16_nonpnp_probe1(int dev, struct platform_device *devptr)
+ {
+ 	struct snd_card_sb16 *acard;
+ 	struct snd_card *card;
+@@ -548,7 +548,7 @@
+ }
+ 
+ 
+-static int __init snd_sb16_nonpnp_probe(struct platform_device *pdev)
++static int __devinit snd_sb16_nonpnp_probe(struct platform_device *pdev)
+ {
+ 	int dev = pdev->id;
+ 	int err;
+@@ -629,6 +629,7 @@
+ 
+ 
+ #ifdef CONFIG_PNP
++static unsigned int __devinitdata sb16_pnp_devices;
+ 
+ static int __devinit snd_sb16_pnp_detect(struct pnp_card_link *pcard,
+ 					 const struct pnp_card_device_id *pid)
+@@ -651,6 +652,7 @@
+ 		}
+ 		pnp_set_card_drvdata(pcard, card);
+ 		dev++;
++		sb16_pnp_devices++;
+ 		return 0;
+ 	}
+ 
+@@ -727,10 +729,10 @@
+ 	}
+ #ifdef CONFIG_PNP
+ 	/* PnP cards at last */
+-	i = pnp_register_card_driver(&sb16_pnpc_driver);
+-	if (i >= 0) {
++	err = pnp_register_card_driver(&sb16_pnpc_driver);
++	if (!err) {
+ 		pnp_registered = 1;
+-		cards += i;
++		cards += sb16_pnp_devices;
+ 	}
+ #endif
+ 

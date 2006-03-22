@@ -1,54 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbWCVMcY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbWCVMfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750859AbWCVMcY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 07:32:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWCVMcY
+	id S1751001AbWCVMfo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 07:35:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWCVMfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 07:32:24 -0500
-Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:56581 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1750855AbWCVMcY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 07:32:24 -0500
-Date: Wed, 22 Mar 2006 13:32:49 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: "Mark M. Hoffman" <mhoffman@lightlink.com>
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
-       Etienne Lorrain <etienne_lorrain@yahoo.fr>
-Subject: Re: [PATCH 2.6.16-rc6] i2c: require type parameter for i2c-parport
- and i2c-parport-light
-Message-Id: <20060322133249.7cca1de4.khali@linux-fr.org>
-In-Reply-To: <20060317035856.GB3446@jupiter.solarsys.private>
-References: <20060316035916.GA10675@jupiter.solarsys.private>
-	<3ZH07HE0.1142498811.4526410.khali@localhost>
-	<20060317035616.GA3446@jupiter.solarsys.private>
-	<20060317035856.GB3446@jupiter.solarsys.private>
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 22 Mar 2006 07:35:44 -0500
+Received: from relay04.roc.ny.frontiernet.net ([66.133.182.167]:32391 "EHLO
+	relay04.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S1750863AbWCVMfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 07:35:43 -0500
+From: Bryan Holty <lgeek@frontiernet.net>
+To: Mike Christie <michaelc@cs.wisc.edu>
+Subject: Re: [PATCH] scsi: properly count the number of pages in scsi_req_map_sg()
+Date: Wed, 22 Mar 2006 06:35:39 -0600
+User-Agent: KMail/1.9.1
+Cc: Dan Aloni <da-x@monatomic.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>, brking@us.ibm.com,
+       dror@xiv.co.il
+References: <20060321083830.GA2364@localdomain> <44205162.8000504@cs.wisc.edu> <200603211448.54620.lgeek@frontiernet.net>
+In-Reply-To: <200603211448.54620.lgeek@frontiernet.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603220635.40251.lgeek@frontiernet.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mark,
+On Tuesday 21 March 2006 14:48, Bryan Holty wrote:
+> On Tuesday 21 March 2006 13:17, Mike Christie wrote:
+> > Bryan Holty wrote:
+> > > On Tuesday 21 March 2006 10:19, Dan Aloni wrote:
+> > >>On Tue, Mar 21, 2006 at 09:54:54AM -0600, James Bottomley wrote:
+> > >>>This is a good email to discuss on the scsi list:
+> > >>>linux-scsi@vger.kernel.org; whom I've added to the cc list.
+> > >>>
+> > >>>On Tue, 2006-03-21 at 10:38 +0200, Dan Aloni wrote:
+> > >>>>Improper calculation of the number of pages causes bio_alloc() to
+> > >>>>be called with nr_iovecs=0, and slab corruption later.
+> > >>>>
+> > >>>>For example, a simple scatterlist that fails: {(3644,452), (0, 60)},
+> > >>>>(offset, size). bufflen=512 => nr_pages=1 => breakage. The proper
+> > >>>>page count for this example is 2.
+> > >>>
+> > >>>Such a scatterlist would likely violate the device's underlying
+> > >>>boundaries and is not legal ... there's supposed to be special code
+> > >>>checking the queue alignment and copying the bio to an aligned buffer
+> > >>> if the limits are violated.  Where are you generating these
+> > >>> scatterlists from?
+> > >>
+> > >>These scatterlists can be generated using the sg driver. Though I am
+> > >>actually running a customized version of the sg driver, it seems the
+> > >>conversion from a userspace array of sg_iovec_t to scatterlist stays
+> > >>the same and also applies to the original driver (see
+> > >>st_map_user_pages()).
+> > >
+> > > Hello,
+> > >     I am seeing the same issue when using direct io with sg.  sg will
+> > > perform direct io on any date that is aligned with the devices
+> > > dma_align. The default for drivers that do not specify is 512.  sg
+> > > builds the scatter gather list from the user specified location,
+> > > offsetting the first entry in the list if not page aligned.  This is
+> > > the case that causes the improper allocation of "nr_iovec" in
+> > > scsi_req_map_sgand the later slab corruption.
+> > >
+> > >     I don't think it is necessary to calculate nr_pages from the entire
+> > > list. Only sgl[0] is allowed to have an offset, so we can calculate
+> > > from that as follows.
+> > > --- a/drivers/scsi/scsi_lib.c	2006-03-03 13:17:22.000000000 -0600
+> > > +++ b/drivers/scsi/scsi_lib.c	2006-03-21 11:36:39.389763804 -0600
+> > > @@ -368,12 +368,15 @@
+> > >  			   int nsegs, unsigned bufflen, gfp_t gfp)
+> > >  {
+> > >  	struct request_queue *q = rq->q;
+> > > -	int nr_pages = (bufflen + PAGE_SIZE - 1) >> PAGE_SHIFT;
+> > > +	int nr_pages = 0;
+> > >  	unsigned int data_len = 0, len, bytes, off;
+> > >  	struct page *page;
+> > >  	struct bio *bio = NULL;
+> > >  	int i, err, nr_vecs = 0;
+> > > -
+> > > +
+> > > +	if (nsegs)
+> >
+> > you can drop that test
+> >
+> > > + 		nr_pages = (bufflen + sgl[0].offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
+> > > +
+> >
+> > I think we can do this without looping but I think this is broken. If we
+> > had a slight variant of Dan's example but we have a page and some change
+> > in the first entry {3644, 4548} and 0,60} in the last one, that would
+> > would only calculate two pages but we want three.
+> >
+> > I think we can have to calculate the first and last entries but the
+> > middle ones we can assume have no offset and lengths that are multiples
+> > of a page.
+>
+> You are absolutely correct.
+> bufflen is not page masked and when added to the offset of the first entry,
+> will generate the correct nr_pages.
+>
+>     nr_pages = (bufflen + sgl[0].offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
+> ==
+>     nr_pages = ((bufflen & PAGE_MASK) + (PAGE_SIZE-1) + sgl[0].offset +
+> sgl[nsegs-1].length) >> PAGE_SHIFT;
+>
+> Either will calculate correctly.
+>
+> --
+>  Bryan Holty
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-> This patch forces the user to specify what type of adapter is present when
-> loading i2c-parport or i2c-parport-light.  If none is specified, the driver
-> init simply fails - instead of assuming adapter type 0.
-> 
-> This alleviates the sometimes lengthy boot time delays which can be caused
-> by accidentally building one of these into a kernel along with several i2c
-> slave drivers that have lengthy probe routines (e.g. hwmon drivers).
-> 
-> Kconfig and documentation updated accordingly.
+Based on above, I think the most intuitive fix would be the offset addition of 
+the first entry to the initialization of nr_pages.  
 
-Good patch, thanks, I've applied it. The only change I made is:
+Without this change, for instance, with 4K io's every sg io that is 
+dma_aligned for direct io, but not page aligned will cause slab corruption 
+and an oops
 
-> + * (type=5) Analog Devices evaluation boards: ADM1025, ADM103[01]
+I am able to run a number of tests with sg that cause the boundary to be 
+crossed, and with this fix there is no slab corruption or data corruption.
 
-I expanded it to "ADM1025, ADM1030, ADM1031", because I think it's
-important to be able to just grep chip names in the documentation files
-(or source code, for that matter.)
+Thanks Dan, I had been hunting for this for a couple of days!!
 
-Thanks,
--- 
-Jean Delvare
+Thoughts??
+
+Signed-off-by: Bryan Holty <lgeek@frontiernet.net>
+
+ --- a/drivers/scsi/scsi_lib.c	2006-03-03 13:17:22.000000000 -0600
++++ b/drivers/scsi/scsi_lib.c	2006-03-22 06:09:09.669599539 -0600
+@@ -368,7 +368,7 @@
+ 			   int nsegs, unsigned bufflen, gfp_t gfp)
+ {
+ 	struct request_queue *q = rq->q;
+-	int nr_pages = (bufflen + PAGE_SIZE - 1) >> PAGE_SHIFT;
++	int nr_pages = (bufflen + sgl[0].offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
+ 	unsigned int data_len = 0, len, bytes, off;
+ 	struct page *page;
+ 	struct bio *bio = NULL;
+--
+ Bryan Holty

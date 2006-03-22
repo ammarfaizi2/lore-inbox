@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932755AbWCVV0P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932754AbWCVV0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932755AbWCVV0P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 16:26:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932756AbWCVV0P
+	id S932754AbWCVV0V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 16:26:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932756AbWCVV0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 16:26:15 -0500
-Received: from zombie.ncsc.mil ([144.51.88.131]:47013 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S932755AbWCVV0P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 16:26:15 -0500
-Subject: [PATCH] driver core: driver_bind attribute returns incorrect value
-From: Ryan <hap9@epoch.ncsc.mil>
-To: gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 22 Mar 2006 16:26:25 -0500
-Message-Id: <1143062785.22254.15.camel@moss-tarheels.epoch.ncsc.mil>
+	Wed, 22 Mar 2006 16:26:21 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:27545 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932754AbWCVV0U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 16:26:20 -0500
+Date: Wed, 22 Mar 2006 20:59:10 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, minyard@acm.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Yani Ioannou <yani.ioannou@gmail.com>
+Subject: Re: [PATCH 2/2] Add full sysfs support to the IPMI driver
+Message-ID: <20060322205910.GL27946@ftp.linux.org.uk>
+References: <20060321221328.GB27436@i2.minyard.local> <1143018069.2955.43.camel@laptopd505.fenrus.org> <20060322204751.GC12335@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060322204751.GC12335@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The manual driver <-> device binding attribute in sysfs doesn't return
-the correct value on failure or success of driver_probe_device.
-driver_probe_device returns 1 on success (the driver accepted the
-device) or 0 on probe failure (when the driver didn't accept the
-device but no real error occured). However, the attribute can't just
-return 0 or 1, it must return the number of bytes consumed from buf
-or an error value. Returning 0 indicates to userspace that nothing
-was written (even though the kernel has tried to do the bind/probe and
-failed). Returning 1 indicates that only one character was accepted in
-which case userspace will re-try the write with a partial string.
+On Wed, Mar 22, 2006 at 12:47:51PM -0800, Greg KH wrote:
+> Of course that's not ok.
+> 
+> Come on people, does everyone think I just put that warning message in
+> the kernel for fun to force you to create an empty release function?
+> Why do people ignore the helpful hints that the kernel provides?
+> 
+> I can take that check out and watch people get their code wrong even
+> more, as it sure doesn't seem like it is helping anyone out these
+> days...
 
-A more correct version of driver_bind would return count (to indicate
-the entire string was consumed) when driver_probe_device returns 1
-and -ENODEV when driver_probe_device returns 0. This patch makes that
-change.
-
-Signed-off-by: Ryan Wilson <hap9@epoch.ncsc.mil>
-
----
-
- drivers/base/bus.c |    5 +++++
- 1 files changed, 5 insertions(+)
-
---- linux-2.6.16-rc5/drivers/base/bus.c	2006-03-16 10:50:20.000000000 -0500
-+++ linux-2.6.16-rc5/drivers/base/bus.c	2006-03-16 11:02:08.000000000 -0500
-@@ -188,6 +188,11 @@ static ssize_t driver_bind(struct device
- 		up(&dev->sem);
- 		if (dev->parent)
- 			up(&dev->parent->sem);
-+
-+		if (err > 0) 		/* success */
-+			err = count;
-+		else if (err == 0)	/* driver didn't accept device */
-+			err = -ENODEV;
- 	}
- 	put_device(dev);
- 	put_bus(bus);
-
+Put a description on sufficiently stable site and make that
+	printk(KERN_ERR "Read The Fucking Manual, wanker: %s\n", URL);
 

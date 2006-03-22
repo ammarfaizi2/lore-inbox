@@ -1,92 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWCVWzZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWCVW5z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751143AbWCVWzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 17:55:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWCVWzY
+	id S1751421AbWCVW5z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 17:57:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWCVW5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 17:55:24 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:28850 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751143AbWCVWzX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 17:55:23 -0500
-Date: Wed, 22 Mar 2006 14:51:32 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, bob.picco@hp.com,
-       iwamoto@valinux.co.jp, a.p.zijlstra@chello.nl, christoph@lameter.com,
-       wfg@mail.ustc.edu.cn, npiggin@suse.de, torvalds@osdl.org,
-       riel@redhat.com, marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH 00/34] mm: Page Replacement Policy Framework
-Message-Id: <20060322145132.0886f742.akpm@osdl.org>
-In-Reply-To: <20060322223107.12658.14997.sendpatchset@twins.localnet>
-References: <20060322223107.12658.14997.sendpatchset@twins.localnet>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 22 Mar 2006 17:57:55 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:4371 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751421AbWCVW5y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 17:57:54 -0500
+Message-ID: <4421D64F.6040907@vmware.com>
+Date: Wed, 22 Mar 2006 14:57:19 -0800
+From: Dan Hecht <dhecht@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com,
+       virtualization@lists.osdl.org, Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Subject: Re: [RFC PATCH 07/35] Make LOAD_OFFSET defined by subarch
+References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063746.389133000@sorel.sous-sol.org>
+In-Reply-To: <20060322063746.389133000@sorel.sous-sol.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Mar 2006 22:57:19.0241 (UTC) FILETIME=[F8C8B790:01C64E03]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
->
+Chris Wright wrote:
+> Change LOAD_OFFSET so that the kernel has virtual addresses in the elf header fields.
 > 
-> This patch-set introduces a page replacement policy framework and 4 new 
-> experimental policies.
+> Unlike bare metal kernels, Xen kernels start with virtual address
+> management turned on and thus the addresses to load to should be
+> virtual addresses.
+> 
 
-Holy cow.
+Rather than changing LOAD_OFFSET in Linux, why not leave this alone and 
+change the Xen domain builder to properly interpret the ELF program 
+header fields?
 
-> The page replacement algorithm determines which pages to swap out.
-> The current algorithm has some problems that are increasingly noticable, even
-> on desktop workloads.
+i.e. with this change, we'd have
 
-Rather than replacing the whole lot four times I'd really prefer to see
-precise descriptions of these problems, see if we can improve the situation
-incrementally rather than wholesale slash-n-burn...
+p_paddr = __PAGE_OFFSET + segment_offset
+p_vaddr = __PAGE_OFFSET + segment_offset
+VIRT_BASE = __PAGE_OFFSET
 
-Once we've done that work to the best of our ability, *then* we're in a
-position to evaluate the performance benefits of this new work.  Because
-there's not much point in comparing known-to-have-unaddressed-problems old
-code with fancy new code.
+where, the VA mapping p_paddr -> (p_paddr-VIRT_BASE) is established by 
+the domain builder.
 
-> Measurements:
-> 
-> (Walltime, so lower is better)
-> 
-> cyclic-anon ; Cyclic access pattern with anonymous memory.
->               (http://programming.kicks-ass.net/benchmarks/cyclic-anon.c)
-> 
-> 2.6.16-rc6              14:28
-> 2.6.16-rc6-useonce      15:11
-> 2.6.16-rc6-clockpro     10:51
-> 2.6.16-rc6-cart          8:55
-> 2.6.16-rc6-random     1:09:50
-> 
-> cyclic-file ; Cyclic access pattern with file backed memory.
->               (http://programming.kicks-ass.net/benchmarks/cyclic-file.c)
-> 
-> 2.6.16-rc6              11:24
-> 2.6.16-rc6-clockpro      8:14
-> 2.6.16-rc6-cart          8:09
-> 
-> webtrace ; Replay of an IO trace from the Umass trace repository
->            (http://programming.kicks-ass.net/benchmarks/spc/)
-> 
-> 2.6.16-rc6               8:27
-> 2.6.16-rc6-useonce       8:24
-> 2.6.16-rc6-clockpro     10:23
-> 2.6.16-rc6-cart         15:30
-> 2.6.16-rc6-random       15:52
-> 
-> mdb-bench ; Low frequency benchmark.
->             (http://linux-mm.org/PageReplacementTesting)
-> 
-> 2.6.16-rc6            4:20:44
-> 2.6.16-rc6 (mlock)    3:52:15
-> 2.6.16-rc6-useonce    4:20:59
-> 2.6.16-rc6-clockpro   3:56:17
-> 2.6.16-rc6-cart       4:11:54
-> 2.6.16-rc6-random     5:21:30
+Instead, why not drop this patch, and the VIRT_BASE portion of the 
+__xen_guest section, and instead change Xen's domain builder to treat 
+p_paddr and p_vaddr in a more standard way?  Since Xen starts the domain 
+with virtual address management enabled, it makes sense for it to use 
+p_vaddr to determine the virtual address to load the kernel to.  Then, 
+p_paddr could be used to determine which pseudo-physical pages back that 
+virtual address range.
 
-2.6.16-rc6 seems to do OK.  I assume the cyclic patterns exploit the lru
-worst case thing?  Has consideration been given to tweaking the existing
-code, detect the situation and work avoid the problem?
+i.e. use, just like vanilla linux:
+
+p_paddr = segment_offset
+p_vaddr = __PAGE_OFFSET + segment_offset
+
+so these two fields directly indicate the same mapping as before, but 
+now in terms of p_vaddr -> p_paddr, which makes sense, and no need for 
+the extra VIRT_BASE attribute in the __xen_guest section.
+
+Dan

@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932786AbWCVVaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932790AbWCVVaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932786AbWCVVaU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 16:30:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932790AbWCVVaU
+	id S932790AbWCVVaj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 16:30:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932795AbWCVVai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 16:30:20 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:63886 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932786AbWCVVaS (ORCPT
+	Wed, 22 Mar 2006 16:30:38 -0500
+Received: from mail.gmx.net ([213.165.64.20]:50620 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932790AbWCVVah (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 16:30:18 -0500
-Date: Wed, 22 Mar 2006 13:26:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: cornelia.huck@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/24] s390: channel path measurements.
-Message-Id: <20060322132655.79d85b61.akpm@osdl.org>
-In-Reply-To: <20060322151539.GC5801@skybase.boeblingen.de.ibm.com>
-References: <20060322151539.GC5801@skybase.boeblingen.de.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 22 Mar 2006 16:30:37 -0500
+X-Authenticated: #704063
+Subject: [Patch] Use after free in net/tulip/de2104x.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: jgarzik@pobox.com
+Content-Type: text/plain
+Date: Wed, 22 Mar 2006 22:30:34 +0100
+Message-Id: <1143063034.26499.2.camel@alice>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
->
-> From: Cornelia Huck <cornelia.huck@de.ibm.com>
-> 
-> [patch 3/24] s390: channel path measurements.
-> 
-> Gather extended measurements for channel paths from the channel subsystem
-> and expose them to userspace via a sysfs attribute.
-> 
-> ...
->
-> +static void
-> +chsc_remove_cmg_attr(struct channel_subsystem *css)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i <= __MAX_CHPID; i++) {
+hi,
 
-hm, it's somewhat unusual for MAX_FOO to be inclusive.  Usually it means
-"greatest possible+1".
+this fixes coverity bug #912, where skb is freed first,
+and dereferenced a few lines later with skb->len.
 
-you have
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
-	struct channel_subsystem {
-	 	struct channel_path *chps[__MAX_CHPID + 1];
+--- linux-2.6.16/drivers/net/tulip/de2104x.c.orig	2006-03-22 22:21:53.000000000 +0100
++++ linux-2.6.16/drivers/net/tulip/de2104x.c	2006-03-22 22:25:31.000000000 +0100
+@@ -1332,11 +1332,11 @@ static void de_clean_rings (struct de_pr
+ 		struct sk_buff *skb = de->tx_skb[i].skb;
+ 		if ((skb) && (skb != DE_DUMMY_SKB)) {
+ 			if (skb != DE_SETUP_SKB) {
+-				dev_kfree_skb(skb);
+ 				de->net_stats.tx_dropped++;
+ 				pci_unmap_single(de->pdev,
+ 					de->tx_skb[i].mapping,
+ 					skb->len, PCI_DMA_TODEVICE);
++				dev_kfree_skb(skb);
+ 			} else {
+ 				pci_unmap_single(de->pdev,
+ 					de->tx_skb[i].mapping,
 
-so I guess it all works..
-
-> +static inline int
-> +__chsc_do_secm(struct channel_subsystem *css, int enable, void *page)
-
-This has two callsites.  inlining it probably deoptimises things.
-
-> +	secm_area->request = (struct chsc_header) {
-> +		.length = 0x0050,
-> +		.code   = 0x0016,
-> +	};
-
-gcc tends to generate poor code for this construct.
 

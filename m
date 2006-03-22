@@ -1,44 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWCVGbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWCVGh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbWCVGbg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 01:31:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWCVGbg
+	id S1750870AbWCVGh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 01:37:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbWCVGh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 01:31:36 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:36229 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750827AbWCVGbf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 01:31:35 -0500
-Date: Wed, 22 Mar 2006 07:29:32 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rt1
-Message-ID: <20060322062932.GA17166@elte.hu>
-References: <20060320085137.GA29554@elte.hu> <441F8017.4040302@cybsft.com> <20060321211653.GA3090@elte.hu> <4420B5F0.6000201@cybsft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4420B5F0.6000201@cybsft.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 22 Mar 2006 01:37:27 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:45442 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750867AbWCVGh0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 01:37:26 -0500
+Message-Id: <20060322063742.985223000@sorel.sous-sol.org>
+References: <20060322063040.960068000@sorel.sous-sol.org>
+Date: Tue, 21 Mar 2006 22:30:42 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org
+Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org,
+       Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Subject: [RFC PATCH 02/35] Makefile support to build Xen subarch
+Content-Disposition: inline; filename=01-i386-mach-xen
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Use arch/i386/mach-xen when building Xen subarch. The separate
+subarchitecture allows us to hide details of interfacing with the
+hypervisor from i386 common code.
 
-* K.R. Foley <kr@cybsft.com> wrote:
+Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
+Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+---
+ arch/i386/Makefile          |    5 +++++
+ arch/i386/mach-xen/Makefile |    7 +++++++
+ 2 files changed, 12 insertions(+)
 
-> Sorry I have been onsite and completely buried today. Am running an 
-> initial test on both UP and SMP now with 2.6.16-rt1. UP doesn't look 
-> bad at all. SMP on the other hand doesn't look so good. I will give 
-> -rt4 a spin when these are done.
+--- xen-subarch-2.6.orig/arch/i386/Makefile
++++ xen-subarch-2.6/arch/i386/Makefile
+@@ -68,6 +68,10 @@ mcore-$(CONFIG_X86_BIGSMP)	:= mach-defau
+ mflags-$(CONFIG_X86_SUMMIT) := -Iinclude/asm-i386/mach-summit
+ mcore-$(CONFIG_X86_SUMMIT)  := mach-default
+ 
++# Xen subarch support
++mflags-$(CONFIG_X86_XEN)	:= -Iinclude/asm-i386/mach-xen
++mcore-$(CONFIG_X86_XEN)		:= mach-xen
++
+ # generic subarchitecture
+ mflags-$(CONFIG_X86_GENERICARCH) := -Iinclude/asm-i386/mach-generic
+ mcore-$(CONFIG_X86_GENERICARCH) := mach-default
+@@ -96,6 +100,7 @@ drivers-$(CONFIG_PM)			+= arch/i386/powe
+ 
+ CFLAGS += $(mflags-y)
+ AFLAGS += $(mflags-y)
++CPPFLAGS += $(mflags-y)
+ 
+ boot := arch/i386/boot
+ 
+--- /dev/null
++++ xen-subarch-2.6/arch/i386/mach-xen/Makefile
+@@ -0,0 +1,7 @@
++#
++# Makefile for the linux kernel.
++#
++
++obj-y				:= setup.o
++ 
++setup-y				:= ../mach-default/setup.o
 
-thanks for the testing - i'll check SMP too.
-
-	Ingo
+--

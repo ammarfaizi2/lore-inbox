@@ -1,85 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWCVPXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWCVPYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751291AbWCVPXh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 10:23:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWCVPXh
+	id S1751313AbWCVPYu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 10:24:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWCVPYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 10:23:37 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:53980 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S1751291AbWCVPXf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 10:23:35 -0500
-Message-ID: <44216C0F.1070306@dgreaves.com>
-Date: Wed, 22 Mar 2006 15:23:59 +0000
-From: David Greaves <david@dgreaves.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Wed, 22 Mar 2006 10:24:49 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:45279 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751310AbWCVPYr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 10:24:47 -0500
+Date: Wed, 22 Mar 2006 16:25:15 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, holzheu@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: [patch 19/24] s390: fix endless retry loop in tape driver.
+Message-ID: <20060322152515.GS5801@skybase.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-To: Mark Lord <liml@rtr.ca>
-Cc: Justin Piszcz <jpiszcz@lucidpixels.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       albertcc@tw.ibm.com, axboe@suse.de, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: LibPATA code issues / 2.6.15.4
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com> <4403CEA9.4080603@rtr.ca> <44042863.2050703@dgreaves.com> <44046CE6.60803@rtr.ca> <44046D86.7050809@pobox.com> <4405DCAF.6030500@dgreaves.com> <4405DDEA.7020309@rtr.ca> <4405E42B.9040804@dgreaves.com> <4405E83D.9000906@rtr.ca> <4405EC94.2030202@dgreaves.com> <4405FAAE.3080705@dgreaves.com> <Pine.LNX.4.64.0603031437370.9331@p34> <4408C729.50401@dgreaves.com> <4409A369.1040607@rtr.ca> <440BD31C.9090801@dgreaves.com> <442041EF.7030107@dgreaves.com>
-In-Reply-To: <442041EF.7030107@dgreaves.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Greaves wrote:
+From: Michael Holzheu <holzheu@de.ibm.com>
 
->I've upgraded to 2.6.16 and applied your verbosity patches.
->
->I've persuaded my array to re-assemble and during the resync I got these
->messages
->
->dmesg:
->ata1: translated op=0x28 cmd=0x25 ATA stat/err 0x51/04 to SCSI
->SK/ASC/ASCQ 0xb/00/00
->ata1: status=0x51 { DriveReady SeekComplete Error }
->ata1: error=0x04 { DriveStatusError }
->...(18mins later)
->ata1: no sense translation for op=0x28 cmd=0x25 status: 0x51
->ata1: translated op=0x28 cmd=0x25 ATA stat/err 0x51/00 to SCSI
->SK/ASC/ASCQ 0x3/11/04
->ata1: status=0x51 { DriveReady SeekComplete Error }
->
->smartd is not running
->This did not cause the raid subsystem to boot the disk (thank goodness!)
->  
->
-Just providing a little more followon information...
+[patch 19/24] s390: fix endless retry loop in tape driver.
 
-I have had a further 52 of these messages over the last day. No obvious
-cause.
-Mar 22 13:14:55 haze kernel: ata2: no sense translation for op=0x28
-cmd=0x25 status: 0x51
-Mar 22 13:14:55 haze kernel: ata2: status=0x51 { DriveReady SeekComplete
-Error }
+If a tape device is assigned to another host, the interrupt for
+the assign operation comes back with deferred condition code 1.
+Under some conditions this can lead to an endless loop of retries.
+Check if the current request is still in IO in deferred condition
+code handling and prevent retries when the request has already
+been cancelled.
 
-Most recently this happened:
+Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
 
-Mar 22 13:47:09 haze kernel: ata2: no sense translation for op=0x28
-cmd=0x25 status: 0x51
-Mar 22 13:47:09 haze kernel: ata2: status=0x51 { DriveReady SeekComplete
-Error }
-Mar 22 13:47:09 haze kernel: sd 1:0:0:0: SCSI error: return code = 0x8000002
-Mar 22 13:47:09 haze kernel: sdb: Current: sense key: Medium Error
-Mar 22 13:47:09 haze kernel:     Additional sense: Unrecovered read
-error - auto reallocate failed
-Mar 22 13:47:09 haze kernel: end_request: I/O error, dev sdb, sector
-396518289
+ drivers/s390/char/tape.h      |    1 +
+ drivers/s390/char/tape_core.c |   32 +++++++++++++++++++++++++++-----
+ drivers/s390/char/tape_std.c  |   15 +++++++--------
+ 3 files changed, 35 insertions(+), 13 deletions(-)
 
-with dmesg piping up with:
-raid1: sdb2: rescheduling sector 5801424
-raid1: sdd2: redirecting sector 5801424 to another mirror
-
-no drives were kicked from the array.
-
-David
-
--- 
-
+diff -urpN linux-2.6/drivers/s390/char/tape_core.c linux-2.6-patched/drivers/s390/char/tape_core.c
+--- linux-2.6/drivers/s390/char/tape_core.c	2006-03-22 14:36:34.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/tape_core.c	2006-03-22 14:36:34.000000000 +0100
+@@ -761,6 +761,13 @@ __tape_start_next_request(struct tape_de
+ 		 */
+ 		if (request->status == TAPE_REQUEST_IN_IO)
+ 			return;
++		/*
++		 * Request has already been stopped. We have to wait until
++		 * the request is removed from the queue in the interrupt
++		 * handling.
++		 */
++		if (request->status == TAPE_REQUEST_DONE)
++			return;
+ 
+ 		/*
+ 		 * We wanted to cancel the request but the common I/O layer
+@@ -1024,6 +1031,20 @@ tape_do_io_interruptible(struct tape_dev
+ }
+ 
+ /*
++ * Stop running ccw.
++ */
++int
++tape_cancel_io(struct tape_device *device, struct tape_request *request)
++{
++	int rc;
++
++	spin_lock_irq(get_ccwdev_lock(device->cdev));
++	rc = __tape_cancel_io(device, request);
++	spin_unlock_irq(get_ccwdev_lock(device->cdev));
++	return rc;
++}
++
++/*
+  * Tape interrupt routine, called from the ccw_device layer
+  */
+ static void
+@@ -1068,12 +1089,12 @@ __tape_do_irq (struct ccw_device *cdev, 
+ 	 * error might still apply. So we just schedule the request to be
+ 	 * started later.
+ 	 */
+-	if (irb->scsw.cc != 0 && (irb->scsw.fctl & SCSW_FCTL_START_FUNC)) {
+-		PRINT_WARN("(%s): deferred cc=%i. restaring\n",
+-			cdev->dev.bus_id,
+-			irb->scsw.cc);
++	if (irb->scsw.cc != 0 && (irb->scsw.fctl & SCSW_FCTL_START_FUNC) &&
++	    (request->status == TAPE_REQUEST_IN_IO)) {
++		DBF_EVENT(3,"(%08x): deferred cc=%i, fctl=%i. restarting\n",
++			device->cdev_id, irb->scsw.cc, irb->scsw.fctl);
+ 		request->status = TAPE_REQUEST_QUEUED;
+-		schedule_work(&device->tape_dnr);
++		schedule_delayed_work(&device->tape_dnr, HZ);
+ 		return;
+ 	}
+ 
+@@ -1287,4 +1308,5 @@ EXPORT_SYMBOL(tape_dump_sense_dbf);
+ EXPORT_SYMBOL(tape_do_io);
+ EXPORT_SYMBOL(tape_do_io_async);
+ EXPORT_SYMBOL(tape_do_io_interruptible);
++EXPORT_SYMBOL(tape_cancel_io);
+ EXPORT_SYMBOL(tape_mtop);
+diff -urpN linux-2.6/drivers/s390/char/tape.h linux-2.6-patched/drivers/s390/char/tape.h
+--- linux-2.6/drivers/s390/char/tape.h	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/tape.h	2006-03-22 14:36:34.000000000 +0100
+@@ -250,6 +250,7 @@ extern void tape_free_request(struct tap
+ extern int tape_do_io(struct tape_device *, struct tape_request *);
+ extern int tape_do_io_async(struct tape_device *, struct tape_request *);
+ extern int tape_do_io_interruptible(struct tape_device *, struct tape_request *);
++extern int tape_cancel_io(struct tape_device *, struct tape_request *);
+ void tape_hotplug_event(struct tape_device *, int major, int action);
+ 
+ static inline int
+diff -urpN linux-2.6/drivers/s390/char/tape_std.c linux-2.6-patched/drivers/s390/char/tape_std.c
+--- linux-2.6/drivers/s390/char/tape_std.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/tape_std.c	2006-03-22 14:36:34.000000000 +0100
+@@ -37,20 +37,19 @@ tape_std_assign_timeout(unsigned long da
+ {
+ 	struct tape_request *	request;
+ 	struct tape_device *	device;
++	int rc;
+ 
+ 	request = (struct tape_request *) data;
+ 	if ((device = request->device) == NULL)
+ 		BUG();
+ 
+-	spin_lock_irq(get_ccwdev_lock(device->cdev));
+-	if (request->callback != NULL) {
+-		DBF_EVENT(3, "%08x: Assignment timeout. Device busy.\n",
++	DBF_EVENT(3, "%08x: Assignment timeout. Device busy.\n",
+ 			device->cdev_id);
+-		PRINT_ERR("%s: Assignment timeout. Device busy.\n",
+-			device->cdev->dev.bus_id);
+-		ccw_device_clear(device->cdev, (long) request);
+-	}
+-	spin_unlock_irq(get_ccwdev_lock(device->cdev));
++	rc = tape_cancel_io(device, request);
++	if(rc)
++		PRINT_ERR("(%s): Assign timeout: Cancel failed with rc = %i\n",
++			device->cdev->dev.bus_id, rc);
++
+ }
+ 
+ int

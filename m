@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751852AbWCVAKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751858AbWCVATR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751852AbWCVAKw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 19:10:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751855AbWCVAKw
+	id S1751858AbWCVATR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 19:19:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751860AbWCVATQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 19:10:52 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:24523 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751852AbWCVAKv (ORCPT
+	Tue, 21 Mar 2006 19:19:16 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:30413 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751858AbWCVATP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 19:10:51 -0500
-Date: Tue, 21 Mar 2006 16:13:03 -0800
+	Tue, 21 Mar 2006 19:19:15 -0500
+Date: Tue, 21 Mar 2006 16:21:24 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org, clemens@ladisch.de
-Subject: Re: [PATCH] hpet header sanitization
-Message-Id: <20060321161303.53c2895f.akpm@osdl.org>
-In-Reply-To: <20060321144607.153d1943.rdunlap@xenotime.net>
-References: <20060321144607.153d1943.rdunlap@xenotime.net>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, kiran@scalex86.org, alokk@calsoftinc.com,
+       penberg@cs.helsinki.fi
+Subject: Re: slab: Add transfer_objects() function
+Message-Id: <20060321162124.07361de2.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0603211509180.14245@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0603211509180.14245@schroedinger.engr.sgi.com>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,27 +25,12 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+Christoph Lameter <clameter@sgi.com> wrote:
 >
-> From: Randy Dunlap <rdunlap@xenotime.net>
-> 
-> Add __KERNEL__ block.
-> Use __KERNEL__ to allow ioctl interface to be usable.
+> +static int transfer_objects(struct array_cache *to,
+> +		struct array_cache *from, int max)
 
-hm, why?
+Does this ever get called if !CONFIG_NUMA?
 
-My general approach to __KERNEL__ fixes is to not support new includers of
-kernel headers but to accept patches which fix up existing applications of
-__KERNEL__.
-
-It's basically a compromise between the
-dont-include-kernel-headers-from-userspace fundamentalists and the
-but-i-want-my-stuff-to-work pragmatists ;)
-
-But hpet.h never had __KERNEL__, so there's no regression here.
-
-That being said, it looks like a sensible change - let's see if we can
-sneak it in without the fundies noticing.
-
-oops.
-
+If not, can we provide a non-numa version which just goes BUG and saves
+some text?

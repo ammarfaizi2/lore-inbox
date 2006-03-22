@@ -1,234 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbWCVGmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWCVGmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750941AbWCVGmE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 01:42:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbWCVGii
+	id S1750943AbWCVGmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 01:42:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbWCVGig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 01:38:38 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:13185 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750905AbWCVGiR
+	Wed, 22 Mar 2006 01:38:36 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:5505 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750906AbWCVGiT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 01:38:17 -0500
-Message-Id: <20060322063754.391952000@sorel.sous-sol.org>
+	Wed, 22 Mar 2006 01:38:19 -0500
+Message-Id: <20060322063747.062098000@sorel.sous-sol.org>
 References: <20060322063040.960068000@sorel.sous-sol.org>
-Date: Tue, 21 Mar 2006 22:30:59 -0800
+Date: Tue, 21 Mar 2006 22:30:48 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
 Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org,
        Ian Pratt <ian.pratt@xensource.com>,
        Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: [RFC PATCH 19/35] subarch support for control register accesses
-Content-Disposition: inline; filename=18-i386-processor
+Subject: [RFC PATCH 08/35] Add Xen-specific memory management definitions
+Content-Disposition: inline; filename=07-i386-xen-mm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Abstract the code that accesses control register, and
-add a separate subarch implementation for Xen.
+Add extra memory management definitions used by Xen-specific
+code. These allow conversion between 'pseudophysical' memory
+addresses, which provide the illusion of a physically contiguous
+memory map, and underlying real machine addresses. This conversion is
+neceesary when interpreting and updating PTEs. Also support write
+protection of page mappings, which is needed to allow successful
+validation of page tables.
+
+The current definitions are incomplete and only a stub implementation,
+allowing us to re-use existing code (drivers) which references these
+memory management code changes.
 
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- include/asm-i386/mach-default/mach_system.h |   58 ++++++++++++++++++++++++++++
- include/asm-i386/mach-xen/mach_system.h     |   53 +++++++++++++++++++++++++
- include/asm-i386/system.h                   |   58 ----------------------------
- 3 files changed, 111 insertions(+), 58 deletions(-)
+ include/asm-i386/hypervisor.h             |    3 
+ include/asm-i386/mach-default/mach_page.h |    4 +
+ include/asm-i386/mach-xen/mach_page.h     |   99 ++++++++++++++++++++++++++++++
+ include/asm-i386/page.h                   |    2 
+ 4 files changed, 108 insertions(+)
 
---- xen-subarch-2.6.orig/include/asm-i386/mach-default/mach_system.h
-+++ xen-subarch-2.6/include/asm-i386/mach-default/mach_system.h
-@@ -3,6 +3,64 @@
+--- xen-subarch-2.6.orig/include/asm-i386/hypervisor.h
++++ xen-subarch-2.6/include/asm-i386/hypervisor.h
+@@ -64,4 +64,7 @@ u64 jiffies_to_st(unsigned long jiffies)
  
- #define clearsegment(seg)
+ #define xen_init()	(0)
  
-+/*
-+ * Clear and set 'TS' bit respectively
-+ */
-+#define clts() __asm__ __volatile__ ("clts")
-+#define read_cr0() ({ \
-+	unsigned int __dummy; \
-+	__asm__ __volatile__( \
-+		"movl %%cr0,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+#define write_cr0(x) \
-+	__asm__ __volatile__("movl %0,%%cr0": :"r" (x));
++#include <xen/interface/version.h>
++#include <xen/features.h>
 +
-+#define read_cr2() ({ \
-+	unsigned int __dummy; \
-+	__asm__ __volatile__( \
-+		"movl %%cr2,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+#define write_cr2(x) \
-+	__asm__ __volatile__("movl %0,%%cr2": :"r" (x));
-+
-+#define read_cr3() ({ \
-+	unsigned int __dummy; \
-+	__asm__ ( \
-+		"movl %%cr3,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+#define write_cr3(x) \
-+	__asm__ __volatile__("movl %0,%%cr3": :"r" (x));
-+
-+#define read_cr4() ({ \
-+	unsigned int __dummy; \
-+	__asm__( \
-+		"movl %%cr4,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+
-+#define read_cr4_safe() ({			      \
-+	unsigned int __dummy;			      \
-+	/* This could fault if %cr4 does not exist */ \
-+	__asm__("1: movl %%cr4, %0		\n"   \
-+		"2:				\n"   \
-+		".section __ex_table,\"a\"	\n"   \
-+		".long 1b,2b			\n"   \
-+		".previous			\n"   \
-+		: "=r" (__dummy): "0" (0));	      \
-+	__dummy;				      \
-+})
-+
-+#define write_cr4(x) \
-+	__asm__ __volatile__("movl %0,%%cr4": :"r" (x));
-+#define stts() write_cr0(8 | read_cr0())
-+
- /* interrupt control.. */
- #define local_save_flags(x)	do { typecheck(unsigned long,x); __asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */); } while (0)
- #define local_irq_restore(x) 	do { typecheck(unsigned long,x); __asm__ __volatile__("pushl %0 ; popfl": /* no output */ :"g" (x):"memory", "cc"); } while (0)
---- xen-subarch-2.6.orig/include/asm-i386/mach-xen/mach_system.h
-+++ xen-subarch-2.6/include/asm-i386/mach-xen/mach_system.h
-@@ -13,6 +13,59 @@
- #define __vcpu_id 0
- #endif
+ #endif /* __HYPERVISOR_H__ */
+--- xen-subarch-2.6.orig/include/asm-i386/page.h
++++ xen-subarch-2.6/include/asm-i386/page.h
+@@ -82,6 +82,8 @@ typedef struct { unsigned long pgprot; }
+ /* to align the pointer to the (next) page boundary */
+ #define PAGE_ALIGN(addr)	(((addr)+PAGE_SIZE-1)&PAGE_MASK)
  
-+/*
-+ * Clear and set 'TS' bit respectively
-+ */
-+#define clts() __asm__ __volatile__ ("clts")
-+#define read_cr0() ({ \
-+	unsigned int __dummy; \
-+	__asm__ __volatile__( \
-+		"movl %%cr0,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+#define write_cr0(x) \
-+	__asm__ __volatile__("movl %0,%%cr0": :"r" (x));
++#include <mach_page.h>
 +
-+#define read_cr2() \
-+	(HYPERVISOR_shared_info->vcpu_info[smp_processor_id()].arch.cr2)
-+#define write_cr2(x) \
-+	__asm__ __volatile__("movl %0,%%cr2": :"r" (x));
-+
-+#define read_cr3() ({ \
-+	unsigned int __dummy; \
-+	__asm__ ( \
-+		"movl %%cr3,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+#define write_cr3(x) \
-+	__asm__ __volatile__("movl %0,%%cr3": :"r" (x));
-+
-+#define read_cr4() ({ \
-+	unsigned int __dummy; \
-+	__asm__( \
-+		"movl %%cr4,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+
-+#define read_cr4_safe() ({			      \
-+	unsigned int __dummy;			      \
-+	/* This could fault if %cr4 does not exist */ \
-+	__asm__("1: movl %%cr4, %0		\n"   \
-+		"2:				\n"   \
-+		".section __ex_table,\"a\"	\n"   \
-+		".long 1b,2b			\n"   \
-+		".previous			\n"   \
-+		: "=r" (__dummy): "0" (0));	      \
-+	__dummy;				      \
-+})
-+
-+#define write_cr4(x) \
-+	__asm__ __volatile__("movl %0,%%cr4": :"r" (x));
-+#define stts() write_cr0(8 | read_cr0())
-+
- /* interrupt control.. */
- 
  /*
---- xen-subarch-2.6.orig/include/asm-i386/system.h
-+++ xen-subarch-2.6/include/asm-i386/system.h
-@@ -83,64 +83,6 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
- #define savesegment(seg, value) \
- 	asm volatile("mov %%" #seg ",%0":"=rm" (value))
- 
--/*
-- * Clear and set 'TS' bit respectively
-- */
--#define clts() __asm__ __volatile__ ("clts")
--#define read_cr0() ({ \
--	unsigned int __dummy; \
--	__asm__ __volatile__( \
--		"movl %%cr0,%0\n\t" \
--		:"=r" (__dummy)); \
--	__dummy; \
--})
--#define write_cr0(x) \
--	__asm__ __volatile__("movl %0,%%cr0": :"r" (x));
--
--#define read_cr2() ({ \
--	unsigned int __dummy; \
--	__asm__ __volatile__( \
--		"movl %%cr2,%0\n\t" \
--		:"=r" (__dummy)); \
--	__dummy; \
--})
--#define write_cr2(x) \
--	__asm__ __volatile__("movl %0,%%cr2": :"r" (x));
--
--#define read_cr3() ({ \
--	unsigned int __dummy; \
--	__asm__ ( \
--		"movl %%cr3,%0\n\t" \
--		:"=r" (__dummy)); \
--	__dummy; \
--})
--#define write_cr3(x) \
--	__asm__ __volatile__("movl %0,%%cr3": :"r" (x));
--
--#define read_cr4() ({ \
--	unsigned int __dummy; \
--	__asm__( \
--		"movl %%cr4,%0\n\t" \
--		:"=r" (__dummy)); \
--	__dummy; \
--})
--
--#define read_cr4_safe() ({			      \
--	unsigned int __dummy;			      \
--	/* This could fault if %cr4 does not exist */ \
--	__asm__("1: movl %%cr4, %0		\n"   \
--		"2:				\n"   \
--		".section __ex_table,\"a\"	\n"   \
--		".long 1b,2b			\n"   \
--		".previous			\n"   \
--		: "=r" (__dummy): "0" (0));	      \
--	__dummy;				      \
--})
--
--#define write_cr4(x) \
--	__asm__ __volatile__("movl %0,%%cr4": :"r" (x));
--#define stts() write_cr0(8 | read_cr0())
--
- #endif	/* __KERNEL__ */
- 
- #define wbinvd() \
+  * This handles the memory map.. We could make this a config
+  * option, but too many people screw it up, and too few need
+--- /dev/null
++++ xen-subarch-2.6/include/asm-i386/mach-default/mach_page.h
+@@ -0,0 +1,4 @@
++#ifndef __ASM_MACH_PAGE_H
++#define __ASM_MACH_PAGE_H
++
++#endif /* __ASM_MACH_PAGE_H */
+--- /dev/null
++++ xen-subarch-2.6/include/asm-i386/mach-xen/mach_page.h
+@@ -0,0 +1,99 @@
++#ifndef __ASM_MACH_PAGE_H
++#define __ASM_MACH_PAGE_H
++
++#ifndef __ASSEMBLY__
++
++/**** MACHINE <-> PHYSICAL CONVERSION MACROS ****/
++#define INVALID_P2M_ENTRY	(~0UL)
++
++static inline unsigned long pfn_to_mfn(unsigned long pfn)
++{
++#ifndef CONFIG_XEN_SHADOW_MODE
++	if (xen_feature(XENFEAT_auto_translated_physmap))
++		return pfn;
++	return phys_to_machine_mapping[(unsigned int)(pfn)] &
++		~FOREIGN_FRAME_BIT;
++#else
++	return pfn;
++#endif
++}
++
++static inline unsigned long mfn_to_pfn(unsigned long mfn)
++{
++#ifndef CONFIG_XEN_SHADOW_MODE
++	unsigned long pfn;
++
++	if (xen_feature(XENFEAT_auto_translated_physmap))
++		return mfn;
++
++	/*
++	 * The array access can fail (e.g., device space beyond end of RAM).
++	 * In such cases it doesn't matter what we return (we return garbage),
++	 * but we must handle the fault without crashing!
++	 */
++	asm (
++		"1:	movl %1,%0\n"
++		"2:\n"
++		".section __ex_table,\"a\"\n"
++		"	.align 4\n"
++		"	.long 1b,2b\n"
++		".previous"
++		: "=r" (pfn) : "m" (machine_to_phys_mapping[mfn]) );
++
++	return pfn;
++#else
++	return mfn;
++#endif
++}
++
++/* VIRT <-> MACHINE conversion */
++#define virt_to_machine(v)	(__pa(v))
++#define virt_to_mfn(v)		(pfn_to_mfn(__pa(v) >> PAGE_SHIFT))
++#define mfn_to_virt(m)		(__va(mfn_to_pfn(m) << PAGE_SHIFT))
++
++/* Definitions for machine and pseudophysical addresses. */
++#ifdef CONFIG_X86_PAE
++typedef unsigned long long paddr_t;
++typedef unsigned long long maddr_t;
++#else
++typedef unsigned long paddr_t;
++typedef unsigned long maddr_t;
++#endif
++
++#ifndef CONFIG_X86_PAE
++#define pte_mfn(_pte) ((_pte).pte_low >> PAGE_SHIFT)
++#else
++#define pte_mfn(_pte) (((_pte).pte_low >> PAGE_SHIFT) |\
++                       (((_pte).pte_high & 0xfff) << (32-PAGE_SHIFT)))
++#endif
++
++#define virt_to_ptep(__va)						\
++({									\
++	pgd_t *__pgd = pgd_offset_k((unsigned long)(__va));		\
++	pud_t *__pud = pud_offset(__pgd, (unsigned long)(__va));	\
++	pmd_t *__pmd = pmd_offset(__pud, (unsigned long)(__va));	\
++	pte_offset_kernel(__pmd, (unsigned long)(__va));		\
++})
++
++#define arbitrary_virt_to_machine(__va)					\
++({									\
++	maddr_t m = (maddr_t)pte_mfn(*virt_to_ptep(__va)) << PAGE_SHIFT;\
++	m | ((unsigned long)(__va) & (PAGE_SIZE-1));			\
++})
++
++#define make_lowmem_page_readonly(va, feature) do {		\
++	pte_t *pte;						\
++	int rc;							\
++								\
++	if (xen_feature(feature))				\
++		return;						\
++								\
++	pte = virt_to_ptep(va);					\
++	rc = HYPERVISOR_update_va_mapping(			\
++		(unsigned long)va, pte_wrprotect(*pte), 0);	\
++	BUG_ON(rc);						\
++} while (0)
++
++#endif /* !__ASSEMBLY__ */
++
++#endif /* __ASM_MACH_PAGE_H */
 
 --

@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751047AbWCVSZW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWCVS1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751047AbWCVSZW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 13:25:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbWCVSZW
+	id S1750891AbWCVS1w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 13:27:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWCVS1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 13:25:22 -0500
-Received: from waste.org ([64.81.244.121]:21208 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1751042AbWCVSZV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 13:25:21 -0500
-Date: Wed, 22 Mar 2006 12:25:04 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: akpm@osdl.org
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: + serial-mystery-kbuild-fix.patch added to -mm tree
-Message-ID: <20060322182504.GL31656@waste.org>
-References: <200603211203.k2LC3cm1005618@shell0.pdx.osdl.net>
+	Wed, 22 Mar 2006 13:27:52 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:33715 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750739AbWCVS1v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 13:27:51 -0500
+Date: Wed, 22 Mar 2006 10:27:17 -0800
+From: Ashok Raj <ashok.raj@intel.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Ashok Raj <ashok.raj@intel.com>, akpm@osdl.org,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>
+Subject: Re: Linux v2.6.16
+Message-ID: <20060322102717.A12901@unix-os.sc.intel.com>
+References: <Pine.LNX.4.64.0603192216450.3622@g5.osdl.org> <200603221839.41867.rjw@sisk.pl> <20060322095457.A12334@unix-os.sc.intel.com> <200603221911.06576.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200603211203.k2LC3cm1005618@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200603221911.06576.rjw@sisk.pl>; from rjw@sisk.pl on Wed, Mar 22, 2006 at 07:11:05PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 21, 2006 at 04:00:29AM -0800, akpm@osdl.org wrote:
+On Wed, Mar 22, 2006 at 07:11:05PM +0100, Rafael J. Wysocki wrote:
+> > It might help to explain why this would break your swsusp with SMP work?
 > 
-> My kingdom for a changelog!
+> On SMP systems swsusp (suspend in general, AFAICT) uses the disable_nonboot_cpus()
+> function defined in kernel/power/smp.c, which calls cpu_down() that is only
+> defined if CONFIG_HOTPLUG_CPU is set.  We can't suspend and resume SMP systems
+> reliably without it.
+> 
+I understand the needs of swsusp, but no one took away CONFIG_HOTPLUG_CPU away... 
+just that you need to also enable CONFIG_GENERICARCH to get it to work reliably, and
+not see that printk... nothing else..
 
-Still wanting one? I think it should be:
+Iam still confused why you think swsusp wont work...
 
-Allow disabling serial PCI and PNP support for embedded systems.
+with that patch, try
 
-> +config SERIAL_8250_PCI
-> +	tristate "8250/16550 PCI device support" if EMBEDDED
-> +	depends on SERIAL_8250 && PCI
-> +	default y
-> +	help
-> +	  This builds standard PCI serial support. You may be able to
-> +	  disable this feature if you only need legacy serial support.
-> +	  Saves about 9K.
-> +
-> +config SERIAL_8250_PNP
-> +	tristate "8250/16550 PNP device support" if EMBEDDED
-> +	depends on SERIAL_8250 && PNP
-> +	default y
+CONFIG_X86_PC=n
+CONFIG_GENERICARCH=y
+CONFIG_HOTPLUG_CPU=y
+...
 
-This wants some help text. Like:
+<whatever swssusp needs>=y
 
-    This builds standard PNP serial support. You may be able to
-    disable this feature if you only need legacy serial support.
+and see if thinks work out for you?
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Cheers,
+Ashok Raj
+- Open Source Technology Center

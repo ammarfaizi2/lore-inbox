@@ -1,109 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWCVSGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWCVSJC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932251AbWCVSGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 13:06:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWCVSGQ
+	id S932268AbWCVSJC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 13:09:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWCVSJB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 13:06:16 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:38084 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932251AbWCVSGP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 13:06:15 -0500
-Date: Wed, 22 Mar 2006 10:05:56 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       nickpiggin@yahoo.com.au, haveblue@us.ibm.com, mingo@elte.hu,
-       clameter@sgi.com
-Subject: Re: [PATCH] Cpuset: alloc_pages_node overrides cpuset constraints
-Message-Id: <20060322100556.8e2010a6.pj@sgi.com>
-In-Reply-To: <200603221733.51726.ak@suse.de>
-References: <20060318204027.13217.34767.sendpatchset@sam.engr.sgi.com>
-	<200603221733.51726.ak@suse.de>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 22 Mar 2006 13:09:01 -0500
+Received: from ns1.suse.de ([195.135.220.2]:53692 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932268AbWCVSJB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 13:09:01 -0500
+From: Andi Kleen <ak@suse.de>
+To: Zachary Amsden <zach@vmware.com>
+Subject: Re: [Xen-devel] Re: [RFC PATCH 18/35] Support gdt/idt/ldt handling =?utf-8?q?on=09Xen=2E?=
+Date: Wed, 22 Mar 2006 18:36:23 +0100
+User-Agent: KMail/1.9.1
+Cc: virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
+       Ian Pratt <ian.pratt@xensource.com>, xen-devel@lists.xensource.com,
+       linux-kernel@vger.kernel.org
+References: <20060322063040.960068000@sorel.sous-sol.org> <200603221530.51644.ak@suse.de> <44218E9C.3060102@vmware.com>
+In-Reply-To: <44218E9C.3060102@vmware.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603221836.24295.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi wrote:
-> Faster would be if (gfp_mask & (__GFP_NOCPUSET|__GFP_HARDWALL)) { /* sort them out */ } 
+On Wednesday 22 March 2006 18:51, Zachary Amsden wrote:
 
-Yup - good point.  However ...
+> 
+> Yes, trapping works fine.  Even LLDT is infrequent. 
 
-Note that I am already off the fast path here, having peeled off the
-interrupt and node inside cpuset cases above.  After these checks for
-__GFP_NOCPUSET or __GFP_HARDWALL, only the rare case of having to
-look outside a cpuset with no free memory for essential kernel memory
-remains.
+Not when you use old style LinuxThreads which use the LDT for TLS.
 
-Look at this entire routine:
+> No.  First, you have to create a special #GP handler for the general 
+> protection fault.  
 
-int __cpuset_zone_allowed(struct zone *z, gfp_t gfp_mask)
-{
-        int node;                       /* node that zone z is on */
-        const struct cpuset *cs;        /* current cpuset ancestors */
-        int allowed;	                /* is allocation in zone z allowed? */
+[... etc ...]
 
-        if (in_interrupt())
-                return 1;
-        node = z->zone_pgdat->node_id;
-        if (node_isset(node, current->mems_allowed))
-                return 1;
-        if (gfp_mask & __GFP_NOCPUSET)
-                return 1;
-        if (gfp_mask & __GFP_HARDWALL)  /* If hardwall request, stop here */
-                return 0;
+Sure but Xen already has the infrastructure for all of this and last
+time I checked it was approaching and exceeding the size of the main
+core kernel so a bit more of instruction emulation probably wouldn't 
+do too much harm. 
 
-        if (current->flags & PF_EXITING) /* Let dying task have memory */
-                return 1;
+In general I think any x86 hypervisor that attempts to work 
+on current platforms needs instruction emulation because it is 
+the only way to virtualize IO devices.
 
-        /* Not hardwall and node outside mems_allowed: scan up cpusets */
-        mutex_lock(&callback_mutex);
+If this was supposed to be a interface for lots of hypervisors then maybe,
+but so far it seems to only cover Xen and possibly some other bloatware 
+ones.
 
-        task_lock(current);
-        cs = nearest_exclusive_ancestor(current->cpuset);
-        task_unlock(current);
+That said I don't feel very strongly about emulating these instructions
+or not as long as they can do that without too much code duplication.
+The current patch are still a bit too excessive on the duplication front.
 
-        allowed = node_isset(node, cs->mems_allowed);
-        mutex_unlock(&callback_mutex);
-        return allowed;
-}
-
-Notice that if neither of the __GFP_NOCPUSET or __GFP_HARDWALL flag
-tests fire, then the code hits a mutex, spinlock and subroutine call.
-
-Also notice that the __GFP_NOCPUSET case is the most important case of
-those at or below that check.  Any alloc_pages_node, zmalloc_node or
-kmalloc_node call that requires a node outside the cpuset hits that
-case.  Only tasks that have used up all the available memory in their
-cpuset commonly get past here, to the __GFP_HARDWALL case, which is not
-a case worth optimizing at the expense of more important code paths.
-
-So ... actually ... I suspect that doing:
-
-        if (gfp_mask & __GFP_NOCPUSET)
-                return 1;
-        if (gfp_mask & __GFP_HARDWALL)
-                return 0;
-
-is faster than doing:
-
-	if (gfp_mask & (__GFP_NOCPUSET|__GFP_HARDWALL)) {
-		if (gfp_mask & __GFP_NOCPUSET)
-			return 1;
-		if (gfp_mask & __GFP_HARDWALL)
-			return 0;
-	}
-
-because the first of these two gets to the relatively more important
-case of __GFP_NOCPUSET faster.
-
-Too bad the patch didn't show a little more context.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+-Andi

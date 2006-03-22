@@ -1,81 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932496AbWCVX1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbWCVXc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932496AbWCVX1P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 18:27:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbWCVX1O
+	id S932436AbWCVXc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 18:32:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbWCVXc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 18:27:14 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:11735 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S932496AbWCVX1M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 18:27:12 -0500
-Date: Wed, 22 Mar 2006 15:27:09 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Eric Sesterhenn <snakebyte@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Possible NULL pointer dereference in fs/configfs/dir.c
-Message-ID: <20060322232709.GD7844@ca-server1.us.oracle.com>
-Mail-Followup-To: Eric Sesterhenn <snakebyte@gmx.de>,
-	linux-kernel@vger.kernel.org
-References: <1143068729.27276.1.camel@alice>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1143068729.27276.1.camel@alice>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+	Wed, 22 Mar 2006 18:32:57 -0500
+Received: from smtpout.mac.com ([17.250.248.45]:51963 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932436AbWCVXc4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 18:32:56 -0500
+Mime-Version: 1.0 (Apple Message framework v746.3)
+In-Reply-To: <20060322.141300.62168729.davem@davemloft.net>
+References: <BE2452EA-2566-4C2A-B07D-BD63404A42C1@mac.com> <20060322.141300.62168729.davem@davemloft.net>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <EE85F1AA-A258-4D4F-A46F-34253AEE280E@mac.com>
+Content-Transfer-Encoding: 7bit
+From: Mark Rustad <mrustad@mac.com>
+Subject: Re: 2.6.16 hugetlbfs problem
+Date: Wed, 22 Mar 2006 17:32:57 -0600
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 12:05:29AM +0100, Eric Sesterhenn wrote:
-> this fixes coverity bug #845, if group is NULL,
-> we dereference it when setting up dentry.
+On Mar 22, 2006, at 4:13 PM, David S. Miller wrote:
 
-	Is the converity checker merly looking at in-function patterns?
-Where can I access the bug report (sorry for the question).
-	group cannot be null here, we aren't called any other way.  So
-while you are correct that the code below is needed in the presence of a
-NULL group, really the "if (group" isn't necessary, just the "if
-(group->default_groups)".  I could even BUG_ON() if you'd like.
+> From: Mark Rustad <mrustad@mac.com>
+> Date: Wed, 22 Mar 2006 16:10:33 -0600
+>
+>> I seem to be having trouble using hugetlbfs with kernel 2.6.16. I
+>> have a small test program that worked with 2.6.16-rc5, but fails with
+>> 2.6.16-rc6 or the release. The program is below. Given a path to a
+>> file on a hugetlbfs, it opens/creates the file, mmaps it and tries to
+>> access the first word. On 2.6.16-rc5, it works. On 2.6.16, it hangs
+>> page-faulting until it is killed.
+>
+> On what platform?  Things like hugetlb and address space layout
+> (you're requesting a specific mmap() address I noticed) are very
+> platform specific.
 
-Joel
-
-> 
-> Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-> 
-> --- linux-2.6.16/fs/configfs/dir.c.orig	2006-03-23 00:02:23.000000000 +0100
-> +++ linux-2.6.16/fs/configfs/dir.c	2006-03-23 00:03:49.000000000 +0100
-> @@ -500,7 +500,7 @@ static int create_default_group(struct c
->  static int populate_groups(struct config_group *group)
->  {
->  	struct config_group *new_group;
-> -	struct dentry *dentry = group->cg_item.ci_dentry;
-> +	struct dentry *dentry;
->  	int ret = 0;
->  	int i;
->  
-> @@ -512,6 +512,8 @@ static int populate_groups(struct config
->  		 * parent to find us, let alone mess with our tree.
->  		 * That said, taking our i_mutex is closer to mkdir
->  		 * emulation, and shouldn't hurt. */
-> +		dentry = group->cg_item.ci_dentry;
-> +
->  		mutex_lock(&dentry->d_inode->i_mutex);
->  
->  		for (i = 0; group->default_groups[i]; i++) {
-> 
-> 
+This is on a Xeon, without PAE with the 1GB no-highmem memory map, in  
+all three cases. This is a 32-bit kernel running on a Nacona CPU. I  
+also had an unmap call over the range to be mmap-ed, but the failure/ 
+success cases were the same, so I removed it to reduce the test  
+program further.
 
 -- 
+Mark Rustad, MRustad@mac.com
 
-"Win95 file and print sharing are for relatively friendly nets."
-	- Paul Leach, Microsoft
-
-Joel Becker
-Principal Software Developer
-Oracle
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

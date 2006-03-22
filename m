@@ -1,37 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWCVVzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWCVV5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932242AbWCVVzb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 16:55:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932818AbWCVVza
+	id S932080AbWCVV5m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 16:57:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbWCVV5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 16:55:30 -0500
-Received: from atlrel6.hp.com ([156.153.255.205]:21126 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S932242AbWCVVza (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 16:55:30 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Adam Belay <ambx1@neo.rr.com>
-Subject: [PATCH  0/12] PNP: adjust pnp_register_card_driver() signature
-Date: Wed, 22 Mar 2006 14:55:26 -0700
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, Jaroslav Kysela <perex@suse.cz>,
-       Matthieu Castet <castet.matthieu@free.fr>,
-       Li Shaohua <shaohua.li@intel.com>, Andrew Morton <akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Mar 2006 16:57:42 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:47490 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932080AbWCVV5l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 16:57:41 -0500
+Date: Wed, 22 Mar 2006 13:57:32 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org,
+       Zachary Amsden <zach@vmware.com>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 1/24] i386 Vmi documentation
+Message-ID: <20060322215732.GL15997@sorel.sous-sol.org>
+References: <200603131759.k2DHxeep005627@zach-dev.vmware.com> <200603222105.58912.ak@suse.de> <20060322213435.GI15997@sorel.sous-sol.org> <200603222213.45910.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603221455.26230.bjorn.helgaas@hp.com>
+In-Reply-To: <200603222213.45910.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove the assumption that pnp_register_card_driver() returns the
-number of devices claimed.  I recently changed the interface along
-with pnp_register_driver(), but forgot to update the callers of
-pnp_register_card_driver().
+* Andi Kleen (ak@suse.de) wrote:
+> Even then it's useless for many flags because any user program can (and will) 
+> call CPUID directly. 
 
-Several of these patches also fix unrelated __init/__devinit issues
-found by "make buildcheck".  Most of these are for .probe() methods,
-so they shouldn't have caused any problems because I doubt there are
-any hot-pluggable PNP sound cards.
+Yes, doesn't handle userspace at all.  It's useful only to get coherent
+view of flags in kernel.  Right now, for example, Xen goes in and
+basically masks off flags retroactively which is not that nice either.
+
+thanks,
+-chris

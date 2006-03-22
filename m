@@ -1,62 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932642AbWCVXh3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932645AbWCVXle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932642AbWCVXh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 18:37:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbWCVXh2
+	id S932645AbWCVXle (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 18:41:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932646AbWCVXle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 18:37:28 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:63677 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S932622AbWCVXh0 (ORCPT
+	Wed, 22 Mar 2006 18:41:34 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:52872 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932645AbWCVXld (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 18:37:26 -0500
-Date: Wed, 22 Mar 2006 15:32:53 -0800
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: perfmon@napali.hpl.hp.com, linux-ia64@vger.kernel.org
-Subject: perfmon2 context: thread_struct vs. task_struct?
-Message-ID: <20060322233253.GB26602@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+	Wed, 22 Mar 2006 18:41:33 -0500
+Subject: RE: [RFC, PATCH 5/24] i386 Vmi code patching
+Date: Wed, 22 Mar 2006 18:41:06 -0500
+MIME-Version: 1.0
+To: arai@vmware.com, zach@vmware.com
+Cc: xen-devel@lists.xensource.com, wim.coekaerts@oracle.com, chrisw@osdl.org,
+       chrisl@vmware.com, jbeulich@novell.com, chrisw@sous-sol.org,
+       virtualization@lists.osdl.org, torvalds@osdl.org, anne@vmware.com,
+       jreddy@vmware.com, kmacy@fsmware.com, ksrinivasan@novell.com,
+       leendert@watson.ibm.com, linux-kernel@vger.kernel.org
+From: Volkmar Uhlig <vuhlig@us.ibm.com>
+X-Mailer: Microsoft Outlook v 11.00.8000, MSOC v 2.00.4007.00
+Message-ID: <OF6C9205F6.79606CB4-ON05257139.0080D734@us.ibm.com>
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0.1HF18 | February 28, 2006) at
+ 03/22/2006 18:41:10,
+	Serialize complete at 03/22/2006 18:41:10
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> -----Original Message-----
+> From: arai@vmware.com
+> Sent: Wednesday, March 22, 2006 5:34 PM
+>
+> > The idea of in-tree ROM code doesn't make sense.  The entire point
+> > of this layer of code is that it is modular, and specific to the
+> > hypervisor, not the kernel.  Once you lift the shroud and combine
+> > the two layers, you have lost all of the benefit that it was
+> > supposed to provide.
+> 
+> To elaborate a bit more, the "ROM" layer is "published" by 
+> the hypervisor.  This layer of abstraction will let you take 
+> a VMI-compiled kernel and run it efficiently on any 
+> hypervisor that exports a VMI interface - even one that you 
+> didn't know about (or didn't exist) when you compiled your kernel.
+> 
+> [...]
+> 
+> Going forward, having the ROM layer published by the 
+> hypervisor gives the hypervisor more flexibility than having 
+> the code statically compiled into the kernel.  Consider when 
+> hardware virtualization becomes more prevalent.  Perhaps 
+> there are places where today hypercalls make sense, but with 
+> hardware virtualization, you'd rather have the hardware just 
+> take care of it.  CPUID is the only example I can come up 
+> with at the moment, but there are certainly others.  VMI lets 
+> the hypervisor decide that it doesn't actually need to 
+> replace the CPUID instruction with a hypercall.  The 
+> important factor here is that only the hypervisor, not the 
+> kernel, knows about these performance tradeoffs.  
 
-The perfmon2 subsystem maintains a structure per-thread
-that contains the save-area for the performance counters
-and related software state. The save area is used on
-context-switch. There can only be one context per thread.
-The context is dynamically allocated as such it does not
-consume memory in each thread. It is dyanmically attached
-to the thread to monitor.
+Very obvious other candidates are the shadowed system state registers
+(cli, sti, CRx) provided by VT and the shadow page-table support as
+defined by Pacifica.  In particular since these features are dependent on
+the specific processor revision a hard-coded binary interface doesn't do
+any good.  The ROM pretty much resembles Linux' system call interface as
+provided today optimizing for the specific HW architecture.
 
-In the current implementation, the context (pfm_context)
-pointer is implemented in the thread_struct on the basis
-that this is somewhat related to machine state.
-
-Historically, the perfmon subsystem only existed on IA-64
-which made the thread_struct (an arch-specific structure)
-the obvious place to put this.
-
-Nowadays, perfmon2 supports most major architectures. It
-may make sense to move the void *pfm_context pointer from 
-the thread_struct into the task_struct. This would save
-some indirections, make it readily available to other
-archiectures when it is ported.
-
-I admit I am not quite clear as to what goes where between
-thread_struct and task_struct.
-
-Would it make sense  to move the pointer to the perfmon2
-context into the task_struct?
-
-Thanks.
-
--- 
--Stephane
+- Volkmar

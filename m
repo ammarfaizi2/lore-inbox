@@ -1,84 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751874AbWCVAxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751912AbWCVBKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751874AbWCVAxH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 19:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751889AbWCVAxH
+	id S1751912AbWCVBKI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 20:10:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751913AbWCVBKI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 19:53:07 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:13036 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751874AbWCVAxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 19:53:06 -0500
-Date: Tue, 21 Mar 2006 18:52:54 -0600
-From: Dimitri Sivanich <sivanich@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, hch@infradead.org, clameter@sgi.com,
-       jes@sgi.com
-Subject: Re: [PATCH] Add SA_PERCPU_IRQ flag support
-Message-ID: <20060322005254.GA32379@sgi.com>
-References: <20060321213803.GC26124@sgi.com> <20060321153747.79f18016.akpm@osdl.org>
+	Tue, 21 Mar 2006 20:10:08 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:7052 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751912AbWCVBKG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 20:10:06 -0500
+Subject: Re: [PATCH: 002/017]Memory hotplug for new nodes v.4.(change name
+	old add_memory() to arch_add_memory())
+From: Dave Hansen <haveblue@us.ibm.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: y-goto@jp.fujitsu.com, akpm@osdl.org, tony.luck@intel.com, ak@suse.de,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       linux-mm@kvack.org
+In-Reply-To: <20060322090514.6d6826fc.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060317162757.C63B.Y-GOTO@jp.fujitsu.com>
+	 <1142615538.10906.67.camel@localhost.localdomain>
+	 <20060318102653.57c6a2af.kamezawa.hiroyu@jp.fujitsu.com>
+	 <1142964013.10906.158.camel@localhost.localdomain>
+	 <20060322090514.6d6826fc.kamezawa.hiroyu@jp.fujitsu.com>
+Content-Type: text/plain
+Date: Tue, 21 Mar 2006 17:08:18 -0800
+Message-Id: <1142989698.10906.224.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060321153747.79f18016.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 21, 2006 at 03:37:47PM -0800, Andrew Morton wrote:
-> hm.  Last time around I pointed out that we should be checking that all
-> handlers for this IRQ agree about the percpuness.  What happened to
-> that?
+On Wed, 2006-03-22 at 09:05 +0900, KAMEZAWA Hiroyuki wrote:
+> On Tue, 21 Mar 2006 10:00:12 -0800
+> Dave Hansen <haveblue@us.ibm.com> wrote:
+> > At some point in the process, you need to export the NUMA node layout to
+> > the rest of the system, to say which pages go in which node.  I'm just
+> > saying that you should do that _before_ add_memory().
+> > 
+> To do so, we have to maintain new pfn_to_nid() function.
+> We have to maintain a new table/list and have to consider name of it :).
 
-I believe this version has what you are looking for.
+I completely spaced out, and forgot that we use sparsemem and 'struct
+pages' for pfn_to_nid() now.  I've been buried too deep in the i386
+discontigmem physnode_map[].  Sorry.
 
-Signed-off-by: Dimitri Sivanich <sivanich@sgi.com>
+If I missed it before, please refresh my memory.  But, if we're
+providing arch_nid_probe(addr), then why don't we just call it inside of
+add_memory() on the start address, instead of in the generic code?
 
-Index: linux-2.6.15/kernel/irq/manage.c
-===================================================================
---- linux-2.6.15.orig/kernel/irq/manage.c	2006-03-20 13:11:01.766522017 -0600
-+++ linux-2.6.15/kernel/irq/manage.c	2006-03-21 18:44:52.297990979 -0600
-@@ -209,10 +209,14 @@ int setup_irq(unsigned int irq, struct i
- 	p = &desc->action;
- 	if ((old = *p) != NULL) {
- 		/* Can't share interrupts unless both agree to */
--		if (!(old->flags & new->flags & SA_SHIRQ)) {
--			spin_unlock_irqrestore(&desc->lock,flags);
--			return -EBUSY;
--		}
-+		if (!(old->flags & new->flags & SA_SHIRQ))
-+			goto mismatch;
-+
-+#if defined(ARCH_HAS_IRQ_PER_CPU) && defined(SA_PERCPU_IRQ)
-+		/* All handlers must agree on per-cpuness */
-+		if ((old->flags & IRQ_PER_CPU) != (new->flags & IRQ_PER_CPU))
-+			goto mismatch;
-+#endif
- 
- 		/* add new interrupt at end of irq queue */
- 		do {
-@@ -223,7 +227,10 @@ int setup_irq(unsigned int irq, struct i
- 	}
- 
- 	*p = new;
--
-+#if defined(ARCH_HAS_IRQ_PER_CPU) && defined(SA_PERCPU_IRQ)
-+	if (new->flags & SA_PERCPU_IRQ)
-+		desc->status |= IRQ_PER_CPU;
-+#endif
- 	if (!shared) {
- 		desc->depth = 0;
- 		desc->status &= ~(IRQ_DISABLED | IRQ_AUTODETECT |
-@@ -241,6 +248,12 @@ int setup_irq(unsigned int irq, struct i
- 	register_handler_proc(irq, new);
- 
- 	return 0;
-+
-+mismatch:
-+	spin_unlock_irqrestore(&desc->lock, flags);
-+	printk(KERN_ERR "%s: irq handler mismatch\n", __FUNCTION__);
-+	dump_stack();
-+	return -EBUSY;
- }
- 
- /*
+I'm also getting a bit confused in your patches whether add_memory() is
+the _original_ add_memory(), or the new one.  It tends to get lost in 17
+patches. :(
+
+I don't really like the arch_nid_probe() name.  We need to make it very
+apparent that it is to be used _only_ for memory hotplug operations.  It
+has no meaning for anything else.
+
+	hotplug_physaddr_to_nid()?
+
+Maybe with a "memory_" in front.  Maybe even
+memory_add_physaddr_to_nid()?
+
+It was probably to keep from changing as little code as possible, but
+please convert the u64 values to pfns as soon as possible.  I noticed
+that hotadd_new_pgdat() still deals with them, and does the shift as
+well.  Is that really necessary.
+
+The u64s should not be kept for more than one level of calls.  That
+level of calls should be the firmware.  So, let the firmware call into
+the VM code with u64s, then have all of the plain VM code deal in pfns.
+
+-- Dave
+

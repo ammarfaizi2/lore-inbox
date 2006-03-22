@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWCVPWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWCVPVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751307AbWCVPWm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 10:22:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWCVPWl
+	id S1751305AbWCVPVu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 10:21:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWCVPVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 10:22:41 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:20146 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751307AbWCVPWk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 10:22:40 -0500
-Date: Wed, 22 Mar 2006 16:23:07 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, horst.hummel@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: [patch 15/24] s390: random values in result of BIODASDINFO2.
-Message-ID: <20060322152307.GO5801@skybase.boeblingen.de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 22 Mar 2006 10:21:50 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:4260 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1751305AbWCVPVr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 10:21:47 -0500
+Subject: Re: ucb1x00 audio & zaurus touchscreen
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Pavel Machek <pavel@suse.cz>, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Liam Girdwood <liam.girdwood@wolfsonmicro.com>
+In-Reply-To: <20060322135337.GA26357@flint.arm.linux.org.uk>
+References: <20060322122052.GN14075@elf.ucw.cz>
+	 <20060322135337.GA26357@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Wed, 22 Mar 2006 15:21:17 +0000
+Message-Id: <1143040877.6593.39.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Horst Hummel <horst.hummel@de.ibm.com>
+On Wed, 2006-03-22 at 13:53 +0000, Russell King wrote:
+> On Wed, Mar 22, 2006 at 01:20:53PM +0100, Pavel Machek wrote:
+> > First, I'd like to ask: what is status of ucb1x00 audio in 2.6? I do
+> > have .c file here, but do not have corresponding header files...
+> 
+> I never included the ucb1x00 audio patch into mainline because it
+> depended on some obsolete SA11x0 OSS audio support, and I haven't had
+> time to:
+> 
+> (a) finish my SA11x0 ALSA audio support (the stuff which is in mainline
+>     is under the guise of being generic, but is actually completely ipaq
+>     specific.)
+> (b) convert the ucb1x00 stuff to use this generic ALSA support.
+> 
+> Plus there's issues surrounding where it should live (as ever).  It
+> would be stretched between drivers/mfd and sound/arm and would be very
+> ARM specific.
 
-[patch 15/24] s390: random values in result of BIODASDINFO2.
+I'd like to bring people's attention to the work done on ALSA ASoC.
 
-Use kzalloc to get a zeroed buffer for the structure returned to
-user space by the BIODASDINFO2 ioctl. Not all fields are set up,
-e.g. the read_devno is missing.
+Some information is available at:
+http://www.rpsys.net/openzaurus/patches/alsa/info.html
+(I think there are more supported codecs now.)
 
-Signed-off-by: Horst Hummel <horst.hummel@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+Patches are at:
+http://www.rpsys.net/openzaurus/patches/alsa/
 
- drivers/s390/block/dasd_ioctl.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+I've cc'd Liam in on this.
 
-diff -urpN linux-2.6/drivers/s390/block/dasd_ioctl.c linux-2.6-patched/drivers/s390/block/dasd_ioctl.c
---- linux-2.6/drivers/s390/block/dasd_ioctl.c	2006-03-22 14:36:24.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/block/dasd_ioctl.c	2006-03-22 14:36:27.000000000 +0100
-@@ -260,7 +260,7 @@ dasd_ioctl_information(struct dasd_devic
- 	if (!device->discipline->fill_info)
- 		return -EINVAL;
- 
--	dasd_info = kmalloc(sizeof(struct dasd_information2_t), GFP_KERNEL);
-+	dasd_info = kzalloc(sizeof(struct dasd_information2_t), GFP_KERNEL);
- 	if (dasd_info == NULL)
- 		return -ENOMEM;
- 
-@@ -303,8 +303,7 @@ dasd_ioctl_information(struct dasd_devic
- 		memcpy(dasd_info->type, device->discipline->name, 4);
- 	else
- 		memcpy(dasd_info->type, "none", 4);
--	dasd_info->req_queue_len = 0;
--	dasd_info->chanq_len = 0;
-+
- 	if (device->request_queue->request_fn) {
- 		struct list_head *l;
- #ifdef DASD_EXTENDED_PROFILING
+The PXA Zaurus machines are going down this route for audio support and
+its proving extremely functional and stable. Mainline inclusion is
+likely and there has been discussion about ASoC on the ALSA mailing
+lists.
+
+Richard
+

@@ -1,62 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWCVWIv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWCVWKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbWCVWIv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 17:08:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWCVWIv
+	id S932085AbWCVWKd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 17:10:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWCVWKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 17:08:51 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:19082
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932079AbWCVWIu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 17:08:50 -0500
-Date: Wed, 22 Mar 2006 14:08:17 -0800
-From: Greg KH <gregkh@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Andy Whitcroft <apw@shadowen.org>, Dave Hansen <haveblue@us.ibm.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] i386: run BIOS PCI detection before direct
-Message-ID: <20060322220817.GA13453@suse.de>
-References: <20060317000303.13252107@localhost.localdomain> <441A91A5.3020607@shadowen.org> <200603221410.47505.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603221410.47505.ak@suse.de>
-User-Agent: Mutt/1.5.11
+	Wed, 22 Mar 2006 17:10:33 -0500
+Received: from smtpout.mac.com ([17.250.248.86]:63469 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932085AbWCVWKc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 17:10:32 -0500
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Transfer-Encoding: 7bit
+Message-Id: <BE2452EA-2566-4C2A-B07D-BD63404A42C1@mac.com>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Mark Rustad <mrustad@mac.com>
+Subject: 2.6.16 hugetlbfs problem
+Date: Wed, 22 Mar 2006 16:10:33 -0600
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 22, 2006 at 02:10:47PM +0100, Andi Kleen wrote:
-> On Friday 17 March 2006 11:38, Andy Whitcroft wrote:
-> > Dave Hansen wrote:
-> > > from 2.6.16-rc3-mm1 through at least 2.6.16-rc6-mm1 a patch from
-> > > Andi Kleen, titled
-> > > 
-> > >         x86_64-i386-pci-ordering.patch
-> > > 
-> > > which is now called:
-> > > 
-> > > 	gregkh-pci-pci-give-pci-config-access-initialization-a-defined-ordering.patch
-> > > 
-> > > has caused a 4-way PIII Xeon (non-NUMA) to stop detecting its SCSI
-> > > card.  I believe this is also the issue keeping -mm from booting
-> > > on "elm3b67" from http://test.kernel.org/. 
-> > > 
-> > > The following patch reverts the ordering of the PCI detection code
-> > > to always run the BIOS initialization, first.  As far as I can
-> > > tell, this was the original behavior, and it makes my machine boot
-> > > again.
-> > > 
-> > > Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
-> > 
-> > Ran this through the nightly regression suite on the affected machine
-> > and it boots fine with this patch applied.
-> 
-> I fixed this up my copy of the patch.
-> 
-> Also fixed the warning with CONFIG_ACPI=n
+Folks,
 
-Care to send me that copy of the patch so I can forward it on?
+I seem to be having trouble using hugetlbfs with kernel 2.6.16. I  
+have a small test program that worked with 2.6.16-rc5, but fails with  
+2.6.16-rc6 or the release. The program is below. Given a path to a  
+file on a hugetlbfs, it opens/creates the file, mmaps it and tries to  
+access the first word. On 2.6.16-rc5, it works. On 2.6.16, it hangs  
+page-faulting until it is killed.
 
-thanks,
+#include <stdint.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 
-greg k-h
+
+int main(int argc, char *argv[])
+{
+	unsigned	len = 4 * 1024 * 1024;
+	void	*vaddr = (void *)0x48000000;
+	int	hfd;
+	void	*p;
+	int	*ip;
+
+	if (!argc || !argv[1] || !argv[1][0]) {
+		fprintf(stderr, "Missing argument\n");
+		return 1;
+	}
+	hfd = open(argv[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+	if (hfd < 0) {
+		perror("open");
+		return 1;
+	}
+	p = mmap(vaddr, len, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED,
+		hfd, 0);
+	if (p == MAP_FAILED) {
+		perror("mmap");
+		fprintf(stderr, "mmap failed at %p\n", vaddr);
+		return 1;
+	}
+	ip = p;
+	*ip = 0;	// This loops on page faults
+	close(hfd);
+	printf("Size %d in file %s\n", len, argv[1]);
+
+	return 0;
+}
+
+Any ideas?
+
+-- 
+Mark Rustad, MRustad@mac.com
+

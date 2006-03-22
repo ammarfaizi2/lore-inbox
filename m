@@ -1,64 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbWCVUFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWCVUIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750984AbWCVUFi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 15:05:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750969AbWCVUFi
+	id S1751034AbWCVUIM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 15:08:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWCVUIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 15:05:38 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:39603 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750834AbWCVUFi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 15:05:38 -0500
-Subject: Re: gettimeofday order of magnitude slower with pmtimer, which is
-	default
-From: john stultz <johnstul@us.ibm.com>
-To: Avi Kivity <avi@argo.co.il>
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Con Kolivas <kernel@kolivas.org>,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-       bert hubert <bert.hubert@netherlabs.nl>, linux-kernel@vger.kernel.org,
-       george@mvista.com
-In-Reply-To: <4421A18F.4040600@argo.co.il>
-References: <20060320122449.GA29718@outpost.ds9a.nl>
-	 <20060320145047.GA12332@rhlx01.fht-esslingen.de>
-	 <200603210224.23540.kernel@kolivas.org>
-	 <87wteo37vr.fsf@duaron.myhome.or.jp>	<1142968999.4281.4.camel@leatherman>
-	 <8764m7xzqg.fsf@duaron.myhome.or.jp>  <4421A18F.4040600@argo.co.il>
+	Wed, 22 Mar 2006 15:08:12 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:62147 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751011AbWCVUIL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 15:08:11 -0500
+Subject: Re: [PATCH] hpet header sanitization
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, clemens@ladisch.de
+In-Reply-To: <20060322092649.d967c47a.rdunlap@xenotime.net>
+References: <20060321144607.153d1943.rdunlap@xenotime.net>
+	 <20060321161303.53c2895f.akpm@osdl.org>
+	 <20060321162630.d995c63c.rdunlap@xenotime.net>
+	 <1143018140.2955.45.camel@laptopd505.fenrus.org>
+	 <20060322092649.d967c47a.rdunlap@xenotime.net>
 Content-Type: text/plain
-Date: Wed, 22 Mar 2006 12:05:30 -0800
-Message-Id: <1143057931.13152.2.camel@cog.beaverton.ibm.com>
+Date: Wed, 22 Mar 2006 21:08:02 +0100
+Message-Id: <1143058082.2955.68.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-22 at 21:12 +0200, Avi Kivity wrote:
-> OGAWA Hirofumi wrote:
-> > john stultz <johnstul@us.ibm.com> writes:
-> >
-> >   
-> >> In my TOD rework I've dropped the triple read, figuring if a problem
-> >> arose we could blacklist the specific box. This patch covers that, so it
-> >> looks like a good idea to me.
-> >>
-> >> I've not tested it myself, but if you feel good about it, please send it
-> >> to Andrew.
-> >>     
-> >
-> > Current patch is the following. If I'm missing something, or you have
-> > some comment, please tell me. (Since I don't have ICH4, ICH4 detection
-> > is untested)
-> >   
-> Doesn't it make sense to mark the port as user accessible in the I/O 
-> permissions bitmap and export it as a vsyscall? that would save the 
-> syscall overhead.
+On Wed, 2006-03-22 at 09:26 -0800, Randy.Dunlap wrote:
+> On Wed, 22 Mar 2006 10:02:19 +0100 Arjan van de Ven wrote:
+> 
+> > On Tue, 2006-03-21 at 16:26 -0800, Randy.Dunlap wrote:
+> > > On Tue, 21 Mar 2006 16:13:03 -0800 Andrew Morton wrote:
+> > > 
+> > > > "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+> > > > >
+> > > > > From: Randy Dunlap <rdunlap@xenotime.net>
+> > > > > 
+> > > > > Add __KERNEL__ block.
+> > > > > Use __KERNEL__ to allow ioctl interface to be usable.
+> > > > 
+> > > > hm, why?
+> > > 
+> > > because there is a test/example source file in (inside)
+> > > Documentation/hpet.txt that won't build otherwise.
+> > > And because hpet.h contains _userspace_ ioctl interface struct
+> > > and macros...
+> > 
+> > 
+> > then please split the header in 2 parts; one for the kernel
+> > and one for userspace
+> 
+> so would you tell me what the purpose (use) of __KERNEL__
+> is meant to be, please?
 
-i386 doesn't yet have a vsyscall gtod. I had some code around earlier
-for it, but it still needed a good bit of work before it would be ready
-for mainline. If you're interested in working on this, I'd be happy to
-send them to you.
+for legacy headers.. the same ;)
+Thats no reason to fix up new cases... things should get better not just
+get a small rubber bandaid...
 
-thanks
--john
 

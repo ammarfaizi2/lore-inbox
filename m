@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWCVD0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWCVDhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWCVD0I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 22:26:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWCVD0I
+	id S1750715AbWCVDhV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 22:37:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWCVDhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 22:26:08 -0500
-Received: from rwcrmhc12.comcast.net ([204.127.192.82]:54165 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1750707AbWCVD0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 22:26:05 -0500
-Message-ID: <4420C3CA.6090206@comcast.net>
-Date: Tue, 21 Mar 2006 22:26:02 -0500
-From: Ed Sweetman <safemode@comcast.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ed Sweetman <safemode@comcast.net>
-CC: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: 2.6.16-rc6-ide1 irq trap, io hang problem solved?
-References: <442089CB.1000008@comcast.net> <1142985995.4532.195.camel@mindpipe> <44209997.9010708@comcast.net>
-In-Reply-To: <44209997.9010708@comcast.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Mar 2006 22:37:21 -0500
+Received: from z2.cat.iki.fi ([212.16.98.133]:6305 "EHLO z2.cat.iki.fi")
+	by vger.kernel.org with ESMTP id S1750715AbWCVDhU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 22:37:20 -0500
+Date: Wed, 22 Mar 2006 05:37:18 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Chris Caputo <ccaputo@alt.net>
+Cc: Dax Kelson <dax@gurulabs.com>, linux-kernel@vger.kernel.org,
+       erich@areca.com.tw
+Subject: Re: New Areca driver in 2.6.16-rc6-mm2
+Message-ID: <20060322033718.GA21614@mea-ext.zmailer.org>
+References: <20060318044056.350a2931.akpm@osdl.org> <Pine.LNX.4.64.0603192016110.32337@mooru.gurulabs.com> <Pine.LNX.4.64.0603212345460.20655@nacho.alt.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0603212345460.20655@nacho.alt.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Sweetman wrote:
+On Tue, Mar 21, 2006 at 11:49:32PM +0000, Chris Caputo wrote:
+> On Sun, 19 Mar 2006, Dax Kelson wrote:
+> > On Sat, 18 Mar 2006, Andrew Morton wrote:
+> > > SCSI fixes
+> > >
+> > > +areca-raid-linux-scsi-driver-update4.patch
+> > >
+> > > Update areca-raid-linux-scsi-driver.patch
+> > 
+> > Has anyone had a chance to review this new update to see if it now passes
+> > muster for mainline inclusion?
+> 
+> Unfortunately when the new driver is applied to 2.6.15.6 a bonnie++ test 
+> results in the following endless spew:
 
-> Lee Revell wrote:
->
->> On Tue, 2006-03-21 at 18:18 -0500, Ed Sweetman wrote:
->>  
->>
->>> I've seen some traffic here to suggest that the problem was tracked 
->>> down, but I saw nothing about it being solved completely.  Currently 
->>> my system hangs whenever an irq trap message appears, usually after 
->>> some sort of disk io on SATA drives. Is it fixed in the GIT patchset 
->>> recently posted or is this still open?    
->>
->>
->> Are you referring to the "Losing ticks" bug?  What is the exact error
->> message that you get?  Does the system hang momentarily or have to be
->> rebooted?
->>
->> Lee
->>
->>
->>  
->>
-> No not the ticks bug.
->
-> ata3: irq trap
-> ata3: command 0x25 timeout, stat 0x50 host_stat 0x60
-> ata4: irq trap
-> ata4: command 0x25 timeout, stat 0x50 host_stat 0x20
-> ata4: irq trap
-> ata4: command 0x35 timeout, stat 0x50 host_stat 0x20
-> ata3: irq trap
-> ata3: command 0x35 timeout, stat 0x50 host_stat 0x60
->
->
-> Over and over in random orientations.   System hangs on io 
-> momentarily, usually a few seconds. No fs errors, no other errors 
-> given.   System also seems to have been kicked out of DMA mode at 
-> least for disks.
+Curious...   I didn't encounter this phenomena, but then, my 0.75 TB
+raid5 volume is practically empty...
 
+For the development phase it would be most useful, if  the driver
+would be available in similar "this will compile for your currently
+running kernel, or some other you care to name and have its config.h
+files at hand"  as e.g. Nvidia drivers are (except that arcmsr is
+in "all source form", whereas NV has this magic object blob..)
 
+Such would allow (at least for me) to have a wee bit faster cycle 
+with "pick vendor kernel, add this and that custom module"
 
+I was apalled to learn that full cycle kernel compilation takes
+_hours_ these days (Pentium-4 HT, 2.4 GHz, 2 GB memory -- and it
+is about as slow as my first kernel compilation experience with
+a 386/33MHz way back in ...)
 
-This has been fixed in the actual release of 2.6.16-ide1 which i've just 
-booted into.  DMA seems active (as you'd expect since non-dma isn't 
-supported) and no irq trap delays.   Everything is working good again,   
-Now if there was a way to get the CF disk (doesn't do dma) working in 
-pata, I'd be set.
+>   ...
+>   attempt to access beyond end of device
+>   sdb1: rw=0, want=134744080, limit=128002016
+>   ...
+> 
+> I have emailed the details to Erich.
+> 
+> Chris
 
-ps.  Thanks for the help, I wasn't aware of the ide1 patch to 2.6.16 
-before.
+/Matti Aarnio

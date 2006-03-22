@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWCVNZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWCVN0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbWCVNZL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 08:25:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWCVNZK
+	id S1751229AbWCVN0M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 08:26:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbWCVN0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 08:25:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:54505 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751221AbWCVNZJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 08:25:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=G3MLYCLXo67wKYfdTzsvsBZcBLgtRQ/qO764G6BW4A2Fyz+lBLWpoC4h/I9dC1SP/iwcBzWF+eCScaeLfEIS5RLVj1KE2/eAtELkl60F01OuPO9fc2AW97v1wC6w8svx8nMm3MP7bQn/ajcmj1ca5AgxzumCuo/w0B2OFGZxVKQ=
-Message-ID: <6bffcb0e0603220525o1b573e44t@mail.gmail.com>
-Date: Wed, 22 Mar 2006 14:25:08 +0100
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Ashok Raj" <ashok.raj@intel.com>
-Subject: Re: Linux v2.6.16
-Cc: akpm@osdl.org, "Peter Williams" <pwil3058@bigpond.net.au>,
-       "Linus Torvalds" <torvalds@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060322050837.A9452@unix-os.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 22 Mar 2006 08:26:11 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:16651 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751229AbWCVN0K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 08:26:10 -0500
+Date: Wed, 22 Mar 2006 08:25:58 -0500
+From: Neil Horman <nhorman@tuxdriver.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, joe.korty@ccur.com
+Subject: [PATCH] proc: fix duplicate line in /proc/devices
+Message-ID: <20060322132558.GB29565@hmsreliant.homelinux.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0603192216450.3622@g5.osdl.org>
-	 <4420DF21.8060700@bigpond.net.au>
-	 <20060321223120.A4003@unix-os.sc.intel.com>
-	 <20060322050837.A9452@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Patch to fix a potential duplicate block device line printed after the "Block
+device" header in /proc/devices.  Tested and confirmed working by the reporter.
 
-On 22/03/06, Ashok Raj <ashok.raj@intel.com> wrote:
-> On Tue, Mar 21, 2006 at 10:31:20PM -0800, Ashok Raj wrote:
-> > On Tue, Mar 21, 2006 at 09:22:41PM -0800, Peter Williams wrote:
-> > >
-> > >    I/O APICs
-> > >    Mar 22 16:10:31 heathwren kernel: More than 8 CPUs detected and
-> > >    CONFIG_X86_PC cannot handle it.
-> > >
-> > >    ###  No more CPUs seen but something in there thinks there's more than
-> > >    8
-> > >    of them.
-> > >
-> > >    Mar 22 16:10:31 heathwren kernel: Use CONFIG_X86_GENERICARCH or
-> > >    CONFIG_X86_BIGSMP.
-> > >
-> >
-> >
->
-> Hi Andrew
->
-> Please consider for inclusion... resending with changelog per Andrew.
->
+Regards
+Neil
 
-SOFTWARE_SUSPEND depends on HOTPLUG_CPU.
+Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
 
-It maybe useful for modern laptops, dual core desktops etc.
 
-Regards,
-Michal
+ proc_misc.c |    1 -
+ 1 files changed, 1 deletion(-)
 
---
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+
+diff --git a/fs/proc/proc_misc.c b/fs/proc/proc_misc.c
+index 1d24fea..b097958 100644
+--- a/fs/proc/proc_misc.c
++++ b/fs/proc/proc_misc.c
+@@ -312,7 +312,6 @@ static void *devinfo_next(struct seq_fil
+ 		case BLK_HDR:
+ 			info->state = BLK_LIST;
+ 			(*pos)++;
+-			break;
+ 		case BLK_LIST:
+ 			if (get_blkdev_info(info->blkdev,&idummy,&ndummy)) {
+ 				/*
+-- 
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
+ ***************************************************/

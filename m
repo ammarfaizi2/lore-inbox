@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWCVKwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWCVKxp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWCVKwA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 05:52:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbWCVKwA
+	id S1750851AbWCVKxp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 05:53:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWCVKxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 05:52:00 -0500
-Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:43476 "EHLO mta2.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S1750761AbWCVKv7 (ORCPT
+	Wed, 22 Mar 2006 05:53:44 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:5280 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750761AbWCVKxo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 05:51:59 -0500
-In-Reply-To: <1143023981.2955.54.camel@laptopd505.fenrus.org>
-References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063801.949835000@sorel.sous-sol.org> <1143016837.2955.20.camel@laptopd505.fenrus.org> <1992b724e8540f8e532806076d07eb9e@cl.cam.ac.uk> <1143023981.2955.54.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <a70f33dcf9a53dc75b44452132eb81d8@cl.cam.ac.uk>
+	Wed, 22 Mar 2006 05:53:44 -0500
+Date: Wed, 22 Mar 2006 02:50:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: VFS: Convert abuses of sector_t
+Message-Id: <20060322025025.662999e9.akpm@osdl.org>
+In-Reply-To: <1142961196.7987.17.camel@lade.trondhjem.org>
+References: <1142961196.7987.17.camel@lade.trondhjem.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: virtualization@lists.osdl.org, Ian Pratt <ian.pratt@xensource.com>,
-       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@sous-sol.org>
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Subject: Re: [RFC PATCH 26/35] Add Xen subarch reboot support
-Date: Wed, 22 Mar 2006 10:52:17 +0000
-To: Arjan van de Ven <arjan@infradead.org>
-X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 22 Mar 2006, at 10:39, Arjan van de Ven wrote:
-
->> The intent is to allow remote management tools to trigger a clean
->> shutdown of the virtual machine. That requires us to notify to
->> userspace, and this function does that by exec'ing one of the standard
->> userspace programs. Given the trigger is received by the kernel in the
->> first instance I don't know a better way of doing this. And if this is
->> the best way, I don't think there is generic code in the kernel which
->> does the same thing.
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 >
->
-> well this isn't really different from the normal ctrl-alt-delete right?
-> I would strongly suggest to follow the normal ctrl-alt-del path.. that
-> follows the normal convention sysadmins are used to.
-> It's not "/sbin/poweroff" fwiw... at least not hardcoded. Following the
-> normal ctrl-alt-del codepath gets all the policy out of this kind of
-> thing as well..
+> From: Trond Myklebust <Trond.Myklebust@netapp.com>
+> 
+> The type "sector_t" is heavily tied in to the block layer interface as an
+> offset/handle to a block, and is subject to a supposedly block-specific
+> configuration option: CONFIG_LBD. Despite this, it is used in struct
+> kstatfs to save a couple of bytes on the stack whenever we call the
+> filesystems' ->statfs().
+> 
+> One consequence is that networked filesystems may break if CONFIG_LBD is
+> not set, since it is quite common to have multi-TB remote filesystems.
+> 
+> The following patch just converts struct kstatfs to use the standard type u64.
+> 
+> Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+> ---
+> 
+>  include/linux/statfs.h |   10 +++++-----
+>  1 files changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/include/linux/statfs.h b/include/linux/statfs.h
+> index ad83a2b..b34cc82 100644
+> --- a/include/linux/statfs.h
+> +++ b/include/linux/statfs.h
+> @@ -8,11 +8,11 @@
+>  struct kstatfs {
+>  	long f_type;
+>  	long f_bsize;
+> -	sector_t f_blocks;
+> -	sector_t f_bfree;
+> -	sector_t f_bavail;
+> -	sector_t f_files;
+> -	sector_t f_ffree;
+> +	u64 f_blocks;
+> +	u64 f_bfree;
+> +	u64 f_bavail;
+> +	u64 f_files;
+> +	u64 f_ffree;
+>  	__kernel_fsid_t f_fsid;
+>  	long f_namelen;
+>  	long f_frsize;
 
-Hmm... that will work okay for reboot, where SIGINT to init is probably 
-a better strategy than what we do now. But we'd still need something 
-special for halt/shutdown. We followed the same principle for this as 
-sparc64/kernel/power.c.
-
-  -- Keir
-
+This change also appears (for different reasons) in
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm2/broken-out/2tb-files-change-type-of-kstatfs-entries.patch,
+so we should be OK.

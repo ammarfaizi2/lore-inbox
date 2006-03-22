@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751892AbWCVCjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWCVDI6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751892AbWCVCjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 21:39:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751893AbWCVCjZ
+	id S1750708AbWCVDI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 22:08:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWCVDI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 21:39:25 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:63981 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751892AbWCVCjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 21:39:25 -0500
-Subject: [PATCH] less tlb flush in unmap_vmas
-From: Shaohua Li <shaohua.li@intel.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 22 Mar 2006 10:38:08 +0800
-Message-Id: <1142995088.11430.34.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Tue, 21 Mar 2006 22:08:58 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:65469 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750705AbWCVDI5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 22:08:57 -0500
+Message-ID: <4420BFBC.7080804@pobox.com>
+Date: Tue, 21 Mar 2006 22:08:44 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dan Williams <dan.j.williams@gmail.com>
+CC: Adrian Bunk <bunk@stusta.de>, Dan Williams <dan.j.williams@intel.com>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: drivers/scsi/sata_vsc.c: inconsistent NULL checking
+References: <20060309110207.GA4006@stusta.de>	 <e9c3a7c20603091144sb078d92tcc232db66492e6c9@mail.gmail.com> <e9c3a7c20603091241y571e552p82c5c8091095c421@mail.gmail.com>
+In-Reply-To: <e9c3a7c20603091241y571e552p82c5c8091095c421@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.5 (--)
+X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
+	Content analysis details:   (-2.5 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In unmaping region, if current task doesn't need reschedule, don't do a
-tlb_finish_mmu. This can reduce some tlb flushes.
+Dan Williams wrote:
+>>The attached patch cleans up the code, and adds GD31244 to the driver
+>>description in drivers/scsi/Kconfig.
 
-In the lmbench tests, this patch gives 2.1% improvement on exec proc
-item and 4.2% on sh proc item.
+> Joe Perches suggested some coding style changes.  Here is version 2.
 
-Signed-off-by: Shaohua Li <shaohua.li@intel.com>
----
+Applied.  When resending patches, please continue to follow the standard 
+patch submission format, particularly #2, #5 and #6:
+	http://linux.yyz.us/patch-format.html
 
- linux-2.6.16-rc5-root/mm/memory.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+Regards,
 
-diff -puN mm/memory.c~less_flush mm/memory.c
---- linux-2.6.16-rc5/mm/memory.c~less_flush	2006-03-21 07:22:47.000000000 +0800
-+++ linux-2.6.16-rc5-root/mm/memory.c	2006-03-21 07:26:51.000000000 +0800
-@@ -837,19 +837,18 @@ unsigned long unmap_vmas(struct mmu_gath
- 				break;
- 			}
- 
--			tlb_finish_mmu(*tlbp, tlb_start, start);
--
- 			if (need_resched() ||
- 				(i_mmap_lock && need_lockbreak(i_mmap_lock))) {
-+				tlb_finish_mmu(*tlbp, tlb_start, start);
- 				if (i_mmap_lock) {
- 					*tlbp = NULL;
- 					goto out;
- 				}
- 				cond_resched();
-+				tlb_start_valid = 0;
-+				*tlbp = tlb_gather_mmu(vma->vm_mm, fullmm);
- 			}
- 
--			*tlbp = tlb_gather_mmu(vma->vm_mm, fullmm);
--			tlb_start_valid = 0;
- 			zap_work = ZAP_BLOCK_SIZE;
- 		}
- 	}
-_
+	Jeff
 
 

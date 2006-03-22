@@ -1,62 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWCVL3x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWCVLcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbWCVL3x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 06:29:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWCVL3x
+	id S1750780AbWCVLcz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 06:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWCVLcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 06:29:53 -0500
-Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:51161 "EHLO mta2.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S1750731AbWCVL3x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 06:29:53 -0500
-In-Reply-To: <1143016607.2955.14.camel@laptopd505.fenrus.org>
-References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063758.453555000@sorel.sous-sol.org> <1143016607.2955.14.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <280dfa6948b4c3321e4630d75fa9f5b5@cl.cam.ac.uk>
+	Wed, 22 Mar 2006 06:32:55 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:51974 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1750780AbWCVLcy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 06:32:54 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Cc: <virtualization@lists.osdl.org>, "Ian Pratt" <ian.pratt@xensource.com>,
+       <xen-devel@lists.xensource.com>, <linux-kernel@vger.kernel.org>,
+       "Chris Wright" <chrisw@sous-sol.org>
+Subject: RE: [RFC PATCH 04/35] Hypervisor interface header files.
+Date: Wed, 22 Mar 2006 03:32:39 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKOECJKOAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Cc: virtualization@lists.osdl.org, Ian Pratt <ian.pratt@xensource.com>,
-       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@sous-sol.org>
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Subject: Re: [RFC PATCH 23/35] Add support for Xen event channels.
-Date: Wed, 22 Mar 2006 11:30:09 +0000
-To: Arjan van de Ven <arjan@infradead.org>
-X-Mailer: Apple Mail (2.623)
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+In-Reply-To: <0ffa39bba1c9a708536286f4bb80d605@cl.cam.ac.uk>
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Wed, 22 Mar 2006 03:29:01 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Wed, 22 Mar 2006 03:29:02 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 22 Mar 2006, at 08:36, Arjan van de Ven wrote:
-
->> +#include <linux/interrupt.h>
->> +#include <linux/sched.h>
->> +#include <linux/kernel_stat.h>
->> +#include <linux/version.h>
+> On 22 Mar 2006, at 08:28, Arjan van de Ven wrote:
 >
-> this highly looks that it's not possible to be used outside the linux
-> kernel so the license is odd
+> >> + * This file may be distributed separately from the Linux kernel, or
+> >> + * incorporated into other software packages, subject to the
+> >> following license:
+> >> + *
 
-It can't be used directly, but other OS ports steal fairly directly 
-from this file (and others). For example OpenSolaris and the BSDs.
+> > and what, if any, is the license when distributed with the kernel, as
+> > you propose? Right now there doesn't seem to be any at all, and thus it
+> > would be undistributable.
 
->> +static int find_unbound_irq(void)
->> +{
->> +	int irq;
->> +
->> +	for (irq = 0; irq < NR_IRQS; irq++)
->> +		if (irq_bindcount[irq] == 0)
->> +			break;
->> +
->> +	if (irq == NR_IRQS) {
->> +		printk(KERN_ERR "No available IRQ to bind to: increase 
->> NR_IRQS!\n");
->
-> there is no way to share interrupts? A shame
+> I thought GPLv2 would be implicit. I'll add the short GPL stanza to
+> each of the offending source files.
 
-256 allocatable IRQs seems plenty to be getting on with. Shared IRQs 
-can certainly be added later -- there are no hidden gotchas I'm pretty 
-sure.
+	It seems rather illogical to me to add a GPL stanza. The GPL adds new
+rights and imposes requirements on you only if you could get those rights no
+other way. Since there is another way, the alternative license, the GPL
+requirements would never kick in. Although, as far as I can tell, it doesn't
+change or harm anything.
 
-  -- Keir
+	To be precise, it's like saying "you may use this any way you please, or at
+your option, you may use it subject to certain restrictions".
+
+	It would make a difference, however, if your notice was excisable, allowing
+someone to change the license to GPL only. However, your notice is not
+excisable, so the license (for this file and any future modifications to it)
+will perpetually be less restrictive than the GPL and the GPL requirements
+can never kick in.
+
+	The license is clearly GPL-compatible so I see no need to change it.
+
+	The only thing I can think of is that someone is concerned about the
+hypothetical case where someone modifies this file, compiles it, distributes
+the result, and refuses to distribute the source code to this module under
+the reasoning that he opted for the license that had no such requirement.
+But that fails the giggle test, since he needs the GPL to distribute the
+GPL'd portions of the binary and the GPL requires all source to be
+distributed. (If I could do that, I could *certainly* add my own code to the
+kernel and refuse to deliver the source to it, since my own code is under
+any license I want it to be under. And I can't do that.)
+
+	DS
+
 

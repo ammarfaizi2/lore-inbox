@@ -1,112 +1,914 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWCVGp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbWCVGpp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750959AbWCVGp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 01:45:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbWCVGo6
+	id S1750955AbWCVGpp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 01:45:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbWCVGpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 01:44:58 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:52864 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750881AbWCVGh6
+	Wed, 22 Mar 2006 01:45:35 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:22915 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750912AbWCVGh4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 01:37:58 -0500
-Message-Id: <20060322063804.956561000@sorel.sous-sol.org>
+	Wed, 22 Mar 2006 01:37:56 -0500
+Message-Id: <20060322063809.005748000@sorel.sous-sol.org>
 References: <20060322063040.960068000@sorel.sous-sol.org>
-Date: Tue, 21 Mar 2006 22:31:09 -0800
+Date: Tue, 21 Mar 2006 22:31:15 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
 Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org,
        Ian Pratt <ian.pratt@xensource.com>,
        Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: [RFC PATCH 29/35] Add the Xen virtual console driver.
-Content-Disposition: inline; filename=28-xen-console
+Subject: [RFC PATCH 35/35] Add Xen virtual block device driver.
+Content-Disposition: inline; filename=34-blkfront
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This provides a bootstrap and ongoing emergency console which is
-intended to be available from very early during boot and at all times
-thereafter, in contrast with alternatives such as UDP-based syslogd,
-or logging in via ssh. The protocol is based on a simple shared-memory
-ring buffer.
+The block device frontend driver allows the kernel to access block
+devices exported exported by a virtual machine containing a physical
+block device driver.
 
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- drivers/Makefile                   |    1 
- drivers/char/tty_io.c              |    7 
- drivers/xen/Makefile               |    2 
- drivers/xen/console/Makefile       |    2 
- drivers/xen/console/console.c      |  633 +++++++++++++++++++++++++++++++++++++
- drivers/xen/console/xencons_ring.c |  115 ++++++
- include/xen/xencons.h              |   14 
- 7 files changed, 773 insertions(+), 1 deletion(-)
+ drivers/block/Kconfig           |    2 
+ drivers/xen/Kconfig.blk         |   14 
+ drivers/xen/Makefile            |    1 
+ drivers/xen/blkfront/Makefile   |    5 
+ drivers/xen/blkfront/blkfront.c |  812 ++++++++++++++++++++++++++++++++++++++++
+ drivers/xen/blkfront/block.h    |  152 +++++++
+ drivers/xen/blkfront/vbd.c      |  316 +++++++++++++++
+ 7 files changed, 1302 insertions(+)
 
---- xen-subarch-2.6.orig/drivers/Makefile
-+++ xen-subarch-2.6/drivers/Makefile
-@@ -34,6 +34,7 @@ obj-y				+= base/ block/ misc/ mfd/ net/
- obj-$(CONFIG_NUBUS)		+= nubus/
- obj-$(CONFIG_ATM)		+= atm/
- obj-$(CONFIG_PPC_PMAC)		+= macintosh/
-+obj-$(CONFIG_XEN)		+= xen/
- obj-$(CONFIG_IDE)		+= ide/
- obj-$(CONFIG_FC4)		+= fc4/
- obj-$(CONFIG_SCSI)		+= scsi/
---- xen-subarch-2.6.orig/drivers/char/tty_io.c
-+++ xen-subarch-2.6/drivers/char/tty_io.c
-@@ -132,6 +132,8 @@ LIST_HEAD(tty_drivers);			/* linked list
-    vt.c for deeply disgusting hack reasons */
- DECLARE_MUTEX(tty_sem);
+--- xen-subarch-2.6.orig/drivers/block/Kconfig
++++ xen-subarch-2.6/drivers/block/Kconfig
+@@ -450,6 +450,8 @@ config CDROM_PKTCDVD_WCACHE
  
-+int console_use_vt = 1;
+ source "drivers/s390/block/Kconfig"
+ 
++source "drivers/xen/Kconfig.blk"
 +
- #ifdef CONFIG_UNIX98_PTYS
- extern struct tty_driver *ptm_driver;	/* Unix98 pty masters; for /dev/ptmx */
- extern int pty_limit;		/* Config limit on Unix98 ptys */
-@@ -2054,7 +2056,7 @@ retry_open:
- 		goto got_driver;
- 	}
- #ifdef CONFIG_VT
--	if (device == MKDEV(TTY_MAJOR,0)) {
-+	if (console_use_vt && (device == MKDEV(TTY_MAJOR,0))) {
- 		extern struct tty_driver *console_driver;
- 		driver = console_driver;
- 		index = fg_console;
-@@ -3237,6 +3239,8 @@ static int __init tty_init(void)
- #endif
- 
- #ifdef CONFIG_VT
-+	if (!console_use_vt)
-+		goto out_vt;
- 	cdev_init(&vc0_cdev, &console_fops);
- 	if (cdev_add(&vc0_cdev, MKDEV(TTY_MAJOR, 0), 1) ||
- 	    register_chrdev_region(MKDEV(TTY_MAJOR, 0), 1, "/dev/vc/0") < 0)
-@@ -3245,6 +3249,7 @@ static int __init tty_init(void)
- 	class_device_create(tty_class, NULL, MKDEV(TTY_MAJOR, 0), NULL, "tty0");
- 
- 	vty_init();
-+ out_vt:
- #endif
- 	return 0;
- }
---- /dev/null
+ config ATA_OVER_ETH
+ 	tristate "ATA over Ethernet support"
+ 	depends on NET
+--- xen-subarch-2.6.orig/drivers/xen/Makefile
 +++ xen-subarch-2.6/drivers/xen/Makefile
-@@ -0,0 +1,2 @@
-+
-+obj-y	+= console/
+@@ -5,4 +5,5 @@ obj-y	+= util.o
+ obj-y	+= console/
+ obj-y	+= xenbus/
+ 
++obj-$(CONFIG_XEN_BLKDEV_FRONTEND)	+= blkfront/
+ obj-$(CONFIG_XEN_NETDEV_FRONTEND)	+= netfront/
 --- /dev/null
-+++ xen-subarch-2.6/drivers/xen/console/Makefile
-@@ -0,0 +1,2 @@
++++ xen-subarch-2.6/drivers/xen/Kconfig.blk
+@@ -0,0 +1,14 @@
++menu "Xen block device drivers"
++        depends on XEN
 +
-+obj-y	:= console.o xencons_ring.o
++config XEN_BLKDEV_FRONTEND
++	tristate "Block device frontend driver"
++	depends on XEN
++	default y
++	help
++	  The block device frontend driver allows the kernel to access block
++	  devices exported from a device driver virtual machine. Unless you
++	  are building a dedicated device driver virtual machine, then you
++	  almost certainly want to say Y here.
++
++endmenu
 --- /dev/null
-+++ xen-subarch-2.6/drivers/xen/console/console.c
-@@ -0,0 +1,633 @@
++++ xen-subarch-2.6/drivers/xen/blkfront/Makefile
+@@ -0,0 +1,5 @@
++
++obj-$(CONFIG_XEN_BLKDEV_FRONTEND)	:= xenblk.o
++
++xenblk-objs := blkfront.o vbd.o
++
+--- /dev/null
++++ xen-subarch-2.6/drivers/xen/blkfront/blkfront.c
+@@ -0,0 +1,812 @@
 +/******************************************************************************
-+ * console.c
++ * blkfront.c
 + * 
-+ * Virtual console driver.
++ * XenLinux virtual block device driver.
 + * 
-+ * Copyright (c) 2002-2004, K A Fraser.
++ * Copyright (c) 2003-2004, Keir Fraser & Steve Hand
++ * Modifications by Mark A. Williamson are (c) Intel Research Cambridge
++ * Copyright (c) 2004, Christian Limpach
++ * Copyright (c) 2004, Andrew Warfield
++ * Copyright (c) 2005, Christopher Clark
++ * Copyright (c) 2005, XenSource Ltd
++ * 
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2
++ * as published by the Free Software Foundation; or, when distributed
++ * separately from the Linux kernel or incorporated into other
++ * software packages, subject to the following license:
++ * 
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modify,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ * 
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ * 
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
++
++#include <linux/version.h>
++#include "block.h"
++#include <linux/cdrom.h>
++#include <linux/sched.h>
++#include <linux/interrupt.h>
++#include <scsi/scsi.h>
++#include <xen/evtchn.h>
++#include <xen/xenbus.h>
++#include <xen/interface/grant_table.h>
++#include <xen/gnttab.h>
++#include <asm/hypervisor.h>
++
++#define BLKIF_STATE_DISCONNECTED 0
++#define BLKIF_STATE_CONNECTED    1
++#define BLKIF_STATE_SUSPENDED    2
++
++#define MAXIMUM_OUTSTANDING_BLOCK_REQS \
++    (BLKIF_MAX_SEGMENTS_PER_REQUEST * BLK_RING_SIZE)
++#define GRANT_INVALID_REF	0
++
++static void connect(struct blkfront_info *);
++static void blkfront_closing(struct xenbus_device *);
++static int blkfront_remove(struct xenbus_device *);
++static int talk_to_backend(struct xenbus_device *, struct blkfront_info *);
++static int setup_blkring(struct xenbus_device *, struct blkfront_info *);
++
++static void kick_pending_request_queues(struct blkfront_info *);
++
++static irqreturn_t blkif_int(int irq, void *dev_id, struct pt_regs *ptregs);
++static void blkif_restart_queue(void *arg);
++static void blkif_recover(struct blkfront_info *);
++static void blkif_completion(struct blk_shadow *);
++static void blkif_free(struct blkfront_info *, int);
++
++
++/**
++ * Entry point to this code when a new device is created.  Allocate the basic
++ * structures and the ring buffer for communication with the backend, and
++ * inform the backend of the appropriate details for those.  Switch to
++ * Initialised state.
++ */
++static int blkfront_probe(struct xenbus_device *dev,
++			  const struct xenbus_device_id *id)
++{
++	int err, vdevice, i;
++	struct blkfront_info *info;
++
++	/* FIXME: Use dynamic device id if this is not set. */
++	err = xenbus_scanf(XBT_NULL, dev->nodename,
++			   "virtual-device", "%i", &vdevice);
++	if (err != 1) {
++		xenbus_dev_fatal(dev, err, "reading virtual-device");
++		return err;
++	}
++
++	info = kmalloc(sizeof(*info), GFP_KERNEL);
++	if (!info) {
++		xenbus_dev_fatal(dev, -ENOMEM, "allocating info structure");
++		return -ENOMEM;
++	}
++
++	memset(info, 0, sizeof(*info));
++	info->xbdev = dev;
++	info->vdevice = vdevice;
++	info->connected = BLKIF_STATE_DISCONNECTED;
++	INIT_WORK(&info->work, blkif_restart_queue, (void *)info);
++
++	for (i = 0; i < BLK_RING_SIZE; i++)
++		info->shadow[i].req.id = i+1;
++	info->shadow[BLK_RING_SIZE-1].req.id = 0x0fffffff;
++
++	/* Front end dir is a number, which is used as the id. */
++	info->handle = simple_strtoul(strrchr(dev->nodename,'/')+1, NULL, 0);
++	dev->data = info;
++
++	err = talk_to_backend(dev, info);
++	if (err) {
++		kfree(info);
++		dev->data = NULL;
++		return err;
++	}
++
++	return 0;
++}
++
++
++/**
++ * We are reconnecting to the backend, due to a suspend/resume, or a backend
++ * driver restart.  We tear down our blkif structure and recreate it, but
++ * leave the device-layer structures intact so that this is transparent to the
++ * rest of the kernel.
++ */
++static int blkfront_resume(struct xenbus_device *dev)
++{
++	struct blkfront_info *info = dev->data;
++	int err;
++
++	DPRINTK("blkfront_resume: %s\n", dev->nodename);
++
++	blkif_free(info, 1);
++
++	err = talk_to_backend(dev, info);
++	if (!err)
++		blkif_recover(info);
++
++	return err;
++}
++
++
++/* Common code used when first setting up, and when resuming. */
++static int talk_to_backend(struct xenbus_device *dev,
++			   struct blkfront_info *info)
++{
++	const char *message = NULL;
++	xenbus_transaction_t xbt;
++	int err;
++
++	/* Create shared ring, alloc event channel. */
++	err = setup_blkring(dev, info);
++	if (err)
++		goto out;
++
++again:
++	err = xenbus_transaction_start(&xbt);
++	if (err) {
++		xenbus_dev_fatal(dev, err, "starting transaction");
++		goto destroy_blkring;
++	}
++
++	err = xenbus_printf(xbt, dev->nodename,
++			    "ring-ref","%u", info->ring_ref);
++	if (err) {
++		message = "writing ring-ref";
++		goto abort_transaction;
++	}
++	err = xenbus_printf(xbt, dev->nodename,
++			    "event-channel", "%u", info->evtchn);
++	if (err) {
++		message = "writing event-channel";
++		goto abort_transaction;
++	}
++
++	err = xenbus_switch_state(dev, xbt, XenbusStateInitialised);
++	if (err)
++		goto abort_transaction;
++
++	err = xenbus_transaction_end(xbt, 0);
++	if (err) {
++		if (err == -EAGAIN)
++			goto again;
++		xenbus_dev_fatal(dev, err, "completing transaction");
++		goto destroy_blkring;
++	}
++
++	return 0;
++
++ abort_transaction:
++	xenbus_transaction_end(xbt, 1);
++	if (message)
++		xenbus_dev_fatal(dev, err, "%s", message);
++ destroy_blkring:
++	blkif_free(info, 0);
++ out:
++	return err;
++}
++
++
++static int setup_blkring(struct xenbus_device *dev,
++			 struct blkfront_info *info)
++{
++	struct blkif_sring *sring;
++	int err;
++
++	info->ring_ref = GRANT_INVALID_REF;
++
++	sring = (struct blkif_sring *)__get_free_page(GFP_KERNEL);
++	if (!sring) {
++		xenbus_dev_fatal(dev, -ENOMEM, "allocating shared ring");
++		return -ENOMEM;
++	}
++	SHARED_RING_INIT(sring);
++	FRONT_RING_INIT(&info->ring, sring, PAGE_SIZE);
++
++	err = xenbus_grant_ring(dev, virt_to_mfn(info->ring.sring));
++	if (err < 0) {
++		free_page((unsigned long)sring);
++		info->ring.sring = NULL;
++		goto fail;
++	}
++	info->ring_ref = err;
++
++	err = xenbus_alloc_evtchn(dev, &info->evtchn);
++	if (err)
++		goto fail;
++
++	err = bind_evtchn_to_irqhandler(
++		info->evtchn, blkif_int, SA_SAMPLE_RANDOM, "blkif", info);
++	if (err <= 0) {
++		xenbus_dev_fatal(dev, err,
++				 "bind_evtchn_to_irqhandler failed");
++		goto fail;
++	}
++	info->irq = err;
++
++	return 0;
++fail:
++	blkif_free(info, 0);
++	return err;
++}
++
++
++/**
++ * Callback received when the backend's state changes.
++ */
++static void backend_changed(struct xenbus_device *dev,
++			    XenbusState backend_state)
++{
++	struct blkfront_info *info = dev->data;
++	struct block_device *bd;
++
++	DPRINTK("blkfront:backend_changed.\n");
++
++	switch (backend_state) {
++	case XenbusStateUnknown:
++	case XenbusStateInitialising:
++	case XenbusStateInitWait:
++	case XenbusStateInitialised:
++	case XenbusStateClosed:
++		break;
++
++	case XenbusStateConnected:
++		connect(info);
++		break;
++
++	case XenbusStateClosing:
++		bd = bdget(info->dev);
++		if (bd == NULL)
++			xenbus_dev_fatal(dev, -ENODEV, "bdget failed");
++
++		down(&bd->bd_sem);
++		if (info->users > 0)
++			xenbus_dev_error(dev, -EBUSY,
++					 "Device in use; refusing to close");
++		else
++			blkfront_closing(dev);
++		up(&bd->bd_sem);
++		bdput(bd);
++		break;
++	}
++}
++
++
++/* ** Connection ** */
++
++
++/*
++ * Invoked when the backend is finally 'ready' (and has told produced
++ * the details about the physical device - #sectors, size, etc).
++ */
++static void connect(struct blkfront_info *info)
++{
++	unsigned long sectors, sector_size;
++	unsigned int binfo;
++	int err;
++
++	if ((info->connected == BLKIF_STATE_CONNECTED) ||
++	    (info->connected == BLKIF_STATE_SUSPENDED) )
++		return;
++
++	DPRINTK("blkfront.c:connect:%s.\n", info->xbdev->otherend);
++
++	err = xenbus_gather(XBT_NULL, info->xbdev->otherend,
++			    "sectors", "%lu", &sectors,
++			    "info", "%u", &binfo,
++			    "sector-size", "%lu", &sector_size,
++			    NULL);
++	if (err) {
++		xenbus_dev_fatal(info->xbdev, err,
++				 "reading backend fields at %s",
++				 info->xbdev->otherend);
++		return;
++	}
++
++	err = xlvbd_add(sectors, info->vdevice, binfo, sector_size, info);
++	if (err) {
++		xenbus_dev_fatal(info->xbdev, err, "xlvbd_add at %s",
++		                 info->xbdev->otherend);
++		return;
++	}
++
++	(void)xenbus_switch_state(info->xbdev, XBT_NULL, XenbusStateConnected);
++
++	/* Kick pending requests. */
++	spin_lock_irq(&blkif_io_lock);
++	info->connected = BLKIF_STATE_CONNECTED;
++	kick_pending_request_queues(info);
++	spin_unlock_irq(&blkif_io_lock);
++
++	add_disk(info->gd);
++}
++
++/**
++ * Handle the change of state of the backend to Closing.  We must delete our
++ * device-layer structures now, to ensure that writes are flushed through to
++ * the backend.  Once is this done, we can switch to Closed in
++ * acknowledgement.
++ */
++static void blkfront_closing(struct xenbus_device *dev)
++{
++	struct blkfront_info *info = dev->data;
++
++	DPRINTK("blkfront_closing: %s removed\n", dev->nodename);
++
++	xlvbd_del(info);
++
++	xenbus_switch_state(dev, XBT_NULL, XenbusStateClosed);
++}
++
++
++static int blkfront_remove(struct xenbus_device *dev)
++{
++	struct blkfront_info *info = dev->data;
++
++	DPRINTK("blkfront_remove: %s removed\n", dev->nodename);
++
++	blkif_free(info, 0);
++
++	kfree(info);
++
++	return 0;
++}
++
++
++static inline int GET_ID_FROM_FREELIST(
++	struct blkfront_info *info)
++{
++	unsigned long free = info->shadow_free;
++	BUG_ON(free > BLK_RING_SIZE);
++	info->shadow_free = info->shadow[free].req.id;
++	info->shadow[free].req.id = 0x0fffffee; /* debug */
++	return free;
++}
++
++static inline void ADD_ID_TO_FREELIST(
++	struct blkfront_info *info, unsigned long id)
++{
++	info->shadow[id].req.id  = info->shadow_free;
++	info->shadow[id].request = 0;
++	info->shadow_free = id;
++}
++
++static inline void flush_requests(struct blkfront_info *info)
++{
++	int notify;
++
++	RING_PUSH_REQUESTS_AND_CHECK_NOTIFY(&info->ring, notify);
++
++	if (notify)
++		notify_remote_via_irq(info->irq);
++}
++
++static void kick_pending_request_queues(struct blkfront_info *info)
++{
++	if (!RING_FULL(&info->ring)) {
++		/* Re-enable calldowns. */
++		blk_start_queue(info->rq);
++		/* Kick things off immediately. */
++		do_blkif_request(info->rq);
++	}
++}
++
++static void blkif_restart_queue(void *arg)
++{
++	struct blkfront_info *info = (struct blkfront_info *)arg;
++	spin_lock_irq(&blkif_io_lock);
++	kick_pending_request_queues(info);
++	spin_unlock_irq(&blkif_io_lock);
++}
++
++static void blkif_restart_queue_callback(void *arg)
++{
++	struct blkfront_info *info = (struct blkfront_info *)arg;
++	schedule_work(&info->work);
++}
++
++int blkif_open(struct inode *inode, struct file *filep)
++{
++	struct blkfront_info *info = inode->i_bdev->bd_disk->private_data;
++	info->users++;
++	return 0;
++}
++
++
++int blkif_release(struct inode *inode, struct file *filep)
++{
++	struct blkfront_info *info = inode->i_bdev->bd_disk->private_data;
++	info->users--;
++	if (info->users == 0) {
++		/* Check whether we have been instructed to close.  We will
++		   have ignored this request initially, as the device was
++		   still mounted. */
++		struct xenbus_device * dev = info->xbdev;
++		XenbusState state = xenbus_read_driver_state(dev->otherend);
++
++		if (state == XenbusStateClosing)
++			blkfront_closing(dev);
++	}
++	return 0;
++}
++
++
++int blkif_ioctl(struct inode *inode, struct file *filep,
++                unsigned command, unsigned long argument)
++{
++	int i;
++
++	DPRINTK_IOCTL("command: 0x%x, argument: 0x%lx, dev: 0x%04x\n",
++		      command, (long)argument, inode->i_rdev);
++
++	switch (command) {
++	case HDIO_GETGEO:
++		/* return ENOSYS to use defaults */
++		return -ENOSYS;
++
++	case CDROMMULTISESSION:
++		DPRINTK("FIXME: support multisession CDs later\n");
++		for (i = 0; i < sizeof(struct cdrom_multisession); i++)
++			if (put_user(0, (char __user *)(argument + i)))
++				return -EFAULT;
++		return 0;
++
++	default:
++		/*printk(KERN_ALERT "ioctl %08x not supported by Xen blkdev\n",
++		  command);*/
++		return -EINVAL; /* same return as native Linux */
++	}
++
++	return 0;
++}
++
++
++/*
++ * blkif_queue_request
++ *
++ * request block io
++ *
++ * id: for guest use only.
++ * operation: BLKIF_OP_{READ,WRITE,PROBE}
++ * buffer: buffer to read/write into. this should be a
++ *   virtual address in the guest os.
++ */
++static int blkif_queue_request(struct request *req)
++{
++	struct blkfront_info *info = req->rq_disk->private_data;
++	unsigned long buffer_mfn;
++	struct blkif_request *ring_req;
++	struct bio *bio;
++	struct bio_vec *bvec;
++	int idx;
++	unsigned long id;
++	unsigned int fsect, lsect;
++	int ref;
++	grant_ref_t gref_head;
++
++	if (unlikely(info->connected != BLKIF_STATE_CONNECTED))
++		return 1;
++
++	if (gnttab_alloc_grant_references(
++		BLKIF_MAX_SEGMENTS_PER_REQUEST, &gref_head) < 0) {
++		gnttab_request_free_callback(
++			&info->callback,
++			blkif_restart_queue_callback,
++			info,
++			BLKIF_MAX_SEGMENTS_PER_REQUEST);
++		return 1;
++	}
++
++	/* Fill out a communications ring structure. */
++	ring_req = RING_GET_REQUEST(&info->ring, info->ring.req_prod_pvt);
++	id = GET_ID_FROM_FREELIST(info);
++	info->shadow[id].request = (unsigned long)req;
++
++	ring_req->id = id;
++	ring_req->operation = rq_data_dir(req) ?
++		BLKIF_OP_WRITE : BLKIF_OP_READ;
++	ring_req->sector_number = (blkif_sector_t)req->sector;
++	ring_req->handle = info->handle;
++
++	ring_req->nr_segments = 0;
++	rq_for_each_bio (bio, req) {
++		bio_for_each_segment (bvec, bio, idx) {
++			BUG_ON(ring_req->nr_segments
++			       == BLKIF_MAX_SEGMENTS_PER_REQUEST);
++			buffer_mfn = page_to_phys(bvec->bv_page) >> PAGE_SHIFT;
++			fsect = bvec->bv_offset >> 9;
++			lsect = fsect + (bvec->bv_len >> 9) - 1;
++			/* install a grant reference. */
++			ref = gnttab_claim_grant_reference(&gref_head);
++			BUG_ON(ref == -ENOSPC);
++
++			gnttab_grant_foreign_access_ref(
++				ref,
++				info->xbdev->otherend_id,
++				buffer_mfn,
++				rq_data_dir(req) );
++
++			info->shadow[id].frame[ring_req->nr_segments] =
++				mfn_to_pfn(buffer_mfn);
++
++			ring_req->seg[ring_req->nr_segments] =
++				(struct blkif_request_segment) {
++					.gref       = ref,
++					.first_sect = fsect,
++					.last_sect  = lsect };
++
++			ring_req->nr_segments++;
++		}
++	}
++
++	info->ring.req_prod_pvt++;
++
++	/* Keep a private copy so we can reissue requests when recovering. */
++	info->shadow[id].req = *ring_req;
++
++	gnttab_free_grant_references(gref_head);
++
++	return 0;
++}
++
++/*
++ * do_blkif_request
++ *  read a block; request is in a request queue
++ */
++void do_blkif_request(request_queue_t *rq)
++{
++	struct blkfront_info *info = NULL;
++	struct request *req;
++	int queued;
++
++	DPRINTK("Entered do_blkif_request\n");
++
++	queued = 0;
++
++	while ((req = elv_next_request(rq)) != NULL) {
++		info = req->rq_disk->private_data;
++		if (!blk_fs_request(req)) {
++			end_request(req, 0);
++			continue;
++		}
++
++		if (RING_FULL(&info->ring))
++			goto wait;
++
++		DPRINTK("do_blk_req %p: cmd %p, sec %lx, "
++			"(%u/%li) buffer:%p [%s]\n",
++			req, req->cmd, req->sector, req->current_nr_sectors,
++			req->nr_sectors, req->buffer,
++			rq_data_dir(req) ? "write" : "read");
++
++
++		blkdev_dequeue_request(req);
++		if (blkif_queue_request(req)) {
++			blk_requeue_request(rq, req);
++		wait:
++			/* Avoid pointless unplugs. */
++			blk_stop_queue(rq);
++			break;
++		}
++
++		queued++;
++	}
++
++	if (queued != 0)
++		flush_requests(info);
++}
++
++
++static irqreturn_t blkif_int(int irq, void *dev_id, struct pt_regs *ptregs)
++{
++	struct request *req;
++	struct blkif_response *bret;
++	RING_IDX i, rp;
++	unsigned long flags;
++	struct blkfront_info *info = (struct blkfront_info *)dev_id;
++
++	spin_lock_irqsave(&blkif_io_lock, flags);
++
++	if (unlikely(info->connected != BLKIF_STATE_CONNECTED)) {
++		spin_unlock_irqrestore(&blkif_io_lock, flags);
++		return IRQ_HANDLED;
++	}
++
++ again:
++	rp = info->ring.sring->rsp_prod;
++	rmb(); /* Ensure we see queued responses up to 'rp'. */
++
++	for (i = info->ring.rsp_cons; i != rp; i++) {
++		unsigned long id;
++		int ret;
++
++		bret = RING_GET_RESPONSE(&info->ring, i);
++		id   = bret->id;
++		req  = (struct request *)info->shadow[id].request;
++
++		blkif_completion(&info->shadow[id]);
++
++		ADD_ID_TO_FREELIST(info, id);
++
++		switch (bret->operation) {
++		case BLKIF_OP_READ:
++		case BLKIF_OP_WRITE:
++			if (unlikely(bret->status != BLKIF_RSP_OKAY))
++				DPRINTK("Bad return from blkdev data "
++					"request: %x\n", bret->status);
++
++			ret = end_that_request_first(
++				req, (bret->status == BLKIF_RSP_OKAY),
++				req->hard_nr_sectors);
++			BUG_ON(ret);
++			end_that_request_last(
++				req, (bret->status == BLKIF_RSP_OKAY));
++			break;
++		default:
++			BUG();
++		}
++	}
++
++	info->ring.rsp_cons = i;
++
++	if (i != info->ring.req_prod_pvt) {
++		int more_to_do;
++		RING_FINAL_CHECK_FOR_RESPONSES(&info->ring, more_to_do);
++		if (more_to_do)
++			goto again;
++	} else
++		info->ring.sring->rsp_event = i + 1;
++
++	kick_pending_request_queues(info);
++
++	spin_unlock_irqrestore(&blkif_io_lock, flags);
++
++	return IRQ_HANDLED;
++}
++
++static void blkif_free(struct blkfront_info *info, int suspend)
++{
++	/* Prevent new requests being issued until we fix things up. */
++	spin_lock_irq(&blkif_io_lock);
++	info->connected = suspend ?
++		BLKIF_STATE_SUSPENDED : BLKIF_STATE_DISCONNECTED;
++	spin_unlock_irq(&blkif_io_lock);
++
++	/* Free resources associated with old device channel. */
++	if (info->ring_ref != GRANT_INVALID_REF) {
++		gnttab_end_foreign_access(info->ring_ref, 0,
++					  (unsigned long)info->ring.sring);
++		info->ring_ref = GRANT_INVALID_REF;
++		info->ring.sring = NULL;
++	}
++	if (info->irq)
++		unbind_from_irqhandler(info->irq, info);
++	info->evtchn = info->irq = 0;
++
++}
++
++static void blkif_completion(struct blk_shadow *s)
++{
++	int i;
++	for (i = 0; i < s->req.nr_segments; i++)
++		gnttab_end_foreign_access(s->req.seg[i].gref, 0, 0UL);
++}
++
++static void blkif_recover(struct blkfront_info *info)
++{
++	int i;
++	struct blkif_request *req;
++	struct blk_shadow *copy;
++	int j;
++
++	/* Stage 1: Make a safe copy of the shadow state. */
++	copy = kmalloc(sizeof(info->shadow), GFP_KERNEL | __GFP_NOFAIL);
++	memcpy(copy, info->shadow, sizeof(info->shadow));
++
++	/* Stage 2: Set up free list. */
++	memset(&info->shadow, 0, sizeof(info->shadow));
++	for (i = 0; i < BLK_RING_SIZE; i++)
++		info->shadow[i].req.id = i+1;
++	info->shadow_free = info->ring.req_prod_pvt;
++	info->shadow[BLK_RING_SIZE-1].req.id = 0x0fffffff;
++
++	/* Stage 3: Find pending requests and requeue them. */
++	for (i = 0; i < BLK_RING_SIZE; i++) {
++		/* Not in use? */
++		if (copy[i].request == 0)
++			continue;
++
++		/* Grab a request slot and copy shadow state into it. */
++		req = RING_GET_REQUEST(
++			&info->ring, info->ring.req_prod_pvt);
++		*req = copy[i].req;
++
++		/* We get a new request id, and must reset the shadow state. */
++		req->id = GET_ID_FROM_FREELIST(info);
++		memcpy(&info->shadow[req->id], &copy[i], sizeof(copy[i]));
++
++		/* Rewrite any grant references invalidated by susp/resume. */
++		for (j = 0; j < req->nr_segments; j++)
++			gnttab_grant_foreign_access_ref(
++				req->seg[j].gref,
++				info->xbdev->otherend_id,
++				pfn_to_mfn(info->shadow[req->id].frame[j]),
++				rq_data_dir(
++					(struct request *)
++					info->shadow[req->id].request));
++		info->shadow[req->id].req = *req;
++
++		info->ring.req_prod_pvt++;
++	}
++
++	kfree(copy);
++
++	(void)xenbus_switch_state(info->xbdev, XBT_NULL, XenbusStateConnected);
++
++	/* Now safe for us to use the shared ring */
++	spin_lock_irq(&blkif_io_lock);
++	info->connected = BLKIF_STATE_CONNECTED;
++	spin_unlock_irq(&blkif_io_lock);
++
++	/* Send off requeued requests */
++	flush_requests(info);
++
++	/* Kick any other new requests queued since we resumed */
++	spin_lock_irq(&blkif_io_lock);
++	kick_pending_request_queues(info);
++	spin_unlock_irq(&blkif_io_lock);
++}
++
++
++/* ** Driver Registration ** */
++
++
++static struct xenbus_device_id blkfront_ids[] = {
++	{ "vbd" },
++	{ "" }
++};
++
++
++static struct xenbus_driver blkfront = {
++	.name = "vbd",
++	.owner = THIS_MODULE,
++	.ids = blkfront_ids,
++	.probe = blkfront_probe,
++	.remove = blkfront_remove,
++	.resume = blkfront_resume,
++	.otherend_changed = backend_changed,
++};
++
++
++static int __init xlblk_init(void)
++{
++	if (xen_init() < 0)
++		return -ENODEV;
++
++	return xenbus_register_frontend(&blkfront);
++}
++module_init(xlblk_init);
++
++
++static void xlblk_exit(void)
++{
++	return xenbus_unregister_driver(&blkfront);
++}
++module_exit(xlblk_exit);
++
++MODULE_LICENSE("Dual BSD/GPL");
+--- /dev/null
++++ xen-subarch-2.6/drivers/xen/blkfront/block.h
+@@ -0,0 +1,152 @@
++/******************************************************************************
++ * block.h
++ * 
++ * Shared definitions between all levels of XenLinux Virtual block devices.
++ * 
++ * Copyright (c) 2003-2004, Keir Fraser & Steve Hand
++ * Modifications by Mark A. Williamson are (c) Intel Research Cambridge
++ * Copyright (c) 2004-2005, Christian Limpach
 + * 
 + * This file may be distributed separately from the Linux kernel, or
 + * incorporated into other software packages, subject to the following license:
@@ -130,744 +932,445 @@ Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 + * IN THE SOFTWARE.
 + */
 +
++#ifndef __XEN_DRIVERS_BLOCK_H__
++#define __XEN_DRIVERS_BLOCK_H__
++
 +#include <linux/config.h>
 +#include <linux/version.h>
 +#include <linux/module.h>
-+#include <linux/errno.h>
-+#include <linux/signal.h>
++#include <linux/kernel.h>
 +#include <linux/sched.h>
-+#include <linux/interrupt.h>
-+#include <linux/tty.h>
-+#include <linux/tty_flip.h>
-+#include <linux/serial.h>
-+#include <linux/major.h>
-+#include <linux/ptrace.h>
-+#include <linux/ioport.h>
-+#include <linux/mm.h>
 +#include <linux/slab.h>
-+#include <linux/init.h>
-+#include <linux/console.h>
-+#include <linux/bootmem.h>
-+#include <linux/sysrq.h>
-+#include <asm/io.h>
-+#include <asm/irq.h>
-+#include <asm/uaccess.h>
-+#include <xen/interface/xen.h>
-+#include <xen/interface/event_channel.h>
++#include <linux/string.h>
++#include <linux/errno.h>
++#include <linux/fs.h>
++#include <linux/hdreg.h>
++#include <linux/blkdev.h>
++#include <linux/major.h>
++#include <linux/devfs_fs_kernel.h>
 +#include <asm/hypervisor.h>
-+#include <xen/evtchn.h>
-+#include <xen/xencons.h>
++#include <xen/xenbus.h>
++#include <xen/gnttab.h>
++#include <xen/interface/xen.h>
++#include <xen/interface/io/blkif.h>
++#include <xen/interface/io/ring.h>
++#include <asm/io.h>
++#include <asm/atomic.h>
++#include <asm/uaccess.h>
++
++#if 1
++#define IPRINTK(fmt, args...) \
++    printk(KERN_INFO "xen_blk: " fmt, ##args)
++#else
++#define IPRINTK(fmt, args...) ((void)0)
++#endif
++
++#if 1
++#define WPRINTK(fmt, args...) \
++    printk(KERN_WARNING "xen_blk: " fmt, ##args)
++#else
++#define WPRINTK(fmt, args...) ((void)0)
++#endif
++
++#define DPRINTK(_f, _a...) pr_debug(_f, ## _a)
++
++#if 0
++#define DPRINTK_IOCTL(_f, _a...) printk(KERN_ALERT _f, ## _a)
++#else
++#define DPRINTK_IOCTL(_f, _a...) ((void)0)
++#endif
++
++struct xlbd_type_info
++{
++	int partn_shift;
++	int disks_per_major;
++	char *devname;
++	char *diskname;
++};
++
++struct xlbd_major_info
++{
++	int major;
++	int index;
++	int usage;
++	struct xlbd_type_info *type;
++};
++
++struct blk_shadow {
++	struct blkif_request req;
++	unsigned long request;
++	unsigned long frame[BLKIF_MAX_SEGMENTS_PER_REQUEST];
++};
++
++#define BLK_RING_SIZE __RING_SIZE((struct blkif_sring *)0, PAGE_SIZE)
 +
 +/*
-+ * Modes:
-+ *  'xencons=off'  [XC_OFF]:     Console is disabled.
-+ *  'xencons=tty'  [XC_TTY]:     Console attached to '/dev/tty[0-9]+'.
-+ *  'xencons=ttyS' [XC_SERIAL]:  Console attached to '/dev/ttyS[0-9]+'.
-+ *                 [XC_DEFAULT]: DOM0 -> XC_SERIAL ; all others -> XC_TTY.
-+ * 
-+ * NB. In mode XC_TTY, we create dummy consoles for tty2-63. This suppresses
-+ * warnings from standard distro startup scripts.
++ * We have one of these per vbd, whether ide, scsi or 'other'.  They
++ * hang in private_data off the gendisk structure. We may end up
++ * putting all kinds of interesting stuff here :-)
 + */
-+static enum { XC_OFF, XC_DEFAULT, XC_TTY, XC_SERIAL } xc_mode = XC_DEFAULT;
-+static int xc_num = -1;
-+
-+#ifdef CONFIG_MAGIC_SYSRQ
-+static unsigned long sysrq_requested;
-+extern int sysrq_enabled;
-+#endif
-+
-+static int __init xencons_setup(char *str)
++struct blkfront_info
 +{
-+	char *q;
-+	int n;
++	struct xenbus_device *xbdev;
++	dev_t dev;
++ 	struct gendisk *gd;
++	int vdevice;
++	blkif_vdev_t handle;
++	int connected;
++	int ring_ref;
++	struct blkif_front_ring ring;
++	unsigned int evtchn, irq;
++	struct xlbd_major_info *mi;
++	request_queue_t *rq;
++	struct work_struct work;
++	struct gnttab_free_callback callback;
++	struct blk_shadow shadow[BLK_RING_SIZE];
++	unsigned long shadow_free;
 +
-+	if (!strncmp(str, "ttyS", 4))
-+		xc_mode = XC_SERIAL;
-+	else if (!strncmp(str, "tty", 3))
-+		xc_mode = XC_TTY;
-+	else if (!strncmp(str, "off", 3))
-+		xc_mode = XC_OFF;
-+
-+	switch (xc_mode) {
-+	case XC_SERIAL:
-+		n = simple_strtol(str+4, &q, 10);
-+		if (q > (str + 4))
-+			xc_num = n;
-+		break;
-+	case XC_TTY:
-+		n = simple_strtol(str+3, &q, 10);
-+		if (q > (str + 3))
-+			xc_num = n;
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return 1;
-+}
-+__setup("xencons=", xencons_setup);
-+
-+/* The kernel and user-land drivers share a common transmit buffer. */
-+static unsigned int wbuf_size = 4096;
-+#define WBUF_MASK(_i) ((_i)&(wbuf_size-1))
-+static char *wbuf;
-+static unsigned int wc, wp; /* write_cons, write_prod */
-+
-+static int __init xencons_bufsz_setup(char *str)
-+{
-+	unsigned int goal;
-+	goal = simple_strtoul(str, NULL, 0);
-+	while (wbuf_size < goal)
-+		wbuf_size <<= 1;
-+	return 1;
-+}
-+__setup("xencons_bufsz=", xencons_bufsz_setup);
-+
-+/* This lock protects accesses to the common transmit buffer. */
-+static spinlock_t xencons_lock = SPIN_LOCK_UNLOCKED;
-+
-+/* Common transmit-kick routine. */
-+static void __xencons_tx_flush(void);
-+
-+static struct tty_driver *xencons_driver;
-+
-+/******************** Kernel console driver ********************************/
-+
-+static void kcons_write(
-+	struct console *c, const char *s, unsigned int count)
-+{
-+	int           i = 0;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+
-+	while (i < count) {
-+		for (; i < count; i++) {
-+			if ((wp - wc) >= (wbuf_size - 1))
-+				break;
-+			if ((wbuf[WBUF_MASK(wp++)] = s[i]) == '\n')
-+				wbuf[WBUF_MASK(wp++)] = '\r';
-+		}
-+
-+		__xencons_tx_flush();
-+	}
-+
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+}
-+
-+static void kcons_write_dom0(
-+	struct console *c, const char *s, unsigned int count)
-+{
-+	int rc;
-+
-+	while ((count > 0) &&
-+	       ((rc = HYPERVISOR_console_io(
-+			CONSOLEIO_write, count, (char *)s)) > 0)) {
-+		count -= rc;
-+		s += rc;
-+	}
-+}
-+
-+static struct tty_driver *kcons_device(struct console *c, int *index)
-+{
-+	*index = 0;
-+	return xencons_driver;
-+}
-+
-+static struct console kcons_info = {
-+	.device	= kcons_device,
-+	.flags	= CON_PRINTBUFFER,
-+	.index	= -1,
++	/**
++	 * The number of people holding this device open.  We won't allow a
++	 * hot-unplug unless this is 0.
++	 */
++	int users;
 +};
 +
-+#define __RETCODE 0
-+static int __init xen_console_init(void)
++extern spinlock_t blkif_io_lock;
++
++extern int blkif_open(struct inode *inode, struct file *filep);
++extern int blkif_release(struct inode *inode, struct file *filep);
++extern int blkif_ioctl(struct inode *inode, struct file *filep,
++                       unsigned command, unsigned long argument);
++extern int blkif_check(dev_t dev);
++extern int blkif_revalidate(dev_t dev);
++extern void do_blkif_request (request_queue_t *rq);
++
++/* Virtual block device subsystem. */
++/* Note that xlvbd_add doesn't call add_disk for you: you're expected
++   to call add_disk on info->gd once the disk is properly connected
++   up. */
++int xlvbd_add(blkif_sector_t capacity, int device,
++	      u16 vdisk_info, u16 sector_size, struct blkfront_info *info);
++void xlvbd_del(struct blkfront_info *info);
++
++#endif /* __XEN_DRIVERS_BLOCK_H__ */
+--- /dev/null
++++ xen-subarch-2.6/drivers/xen/blkfront/vbd.c
+@@ -0,0 +1,316 @@
++/******************************************************************************
++ * vbd.c
++ * 
++ * XenLinux virtual block device driver (xvd).
++ * 
++ * Copyright (c) 2003-2004, Keir Fraser & Steve Hand
++ * Modifications by Mark A. Williamson are (c) Intel Research Cambridge
++ * Copyright (c) 2004-2005, Christian Limpach
++ * 
++ * This file may be distributed separately from the Linux kernel, or
++ * incorporated into other software packages, subject to the following license:
++ * 
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this source file (the "Software"), to deal in the Software without
++ * restriction, including without limitation the rights to use, copy, modify,
++ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
++ * and to permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ * 
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ * 
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
++ * IN THE SOFTWARE.
++ */
++
++#include "block.h"
++#include <linux/blkdev.h>
++#include <linux/list.h>
++
++#define BLKIF_MAJOR(dev) ((dev)>>8)
++#define BLKIF_MINOR(dev) ((dev) & 0xff)
++
++/*
++ * For convenience we distinguish between ide, scsi and 'other' (i.e.,
++ * potentially combinations of the two) in the naming scheme and in a few other
++ * places.
++ */
++
++#define NUM_IDE_MAJORS 10
++#define NUM_SCSI_MAJORS 9
++#define NUM_VBD_MAJORS 1
++
++static struct xlbd_type_info xlbd_ide_type = {
++	.partn_shift = 6,
++	.disks_per_major = 2,
++	.devname = "ide",
++	.diskname = "hd",
++};
++
++static struct xlbd_type_info xlbd_scsi_type = {
++	.partn_shift = 4,
++	.disks_per_major = 16,
++	.devname = "sd",
++	.diskname = "sd",
++};
++
++static struct xlbd_type_info xlbd_vbd_type = {
++	.partn_shift = 4,
++	.disks_per_major = 16,
++	.devname = "xvd",
++	.diskname = "xvd",
++};
++
++static struct xlbd_major_info *major_info[NUM_IDE_MAJORS + NUM_SCSI_MAJORS +
++					 NUM_VBD_MAJORS];
++
++#define XLBD_MAJOR_IDE_START	0
++#define XLBD_MAJOR_SCSI_START	(NUM_IDE_MAJORS)
++#define XLBD_MAJOR_VBD_START	(NUM_IDE_MAJORS + NUM_SCSI_MAJORS)
++
++#define XLBD_MAJOR_IDE_RANGE	XLBD_MAJOR_IDE_START ... XLBD_MAJOR_SCSI_START - 1
++#define XLBD_MAJOR_SCSI_RANGE	XLBD_MAJOR_SCSI_START ... XLBD_MAJOR_VBD_START - 1
++#define XLBD_MAJOR_VBD_RANGE	XLBD_MAJOR_VBD_START ... XLBD_MAJOR_VBD_START + NUM_VBD_MAJORS - 1
++
++/* Information about our VBDs. */
++#define MAX_VBDS 64
++static LIST_HEAD(vbds_list);
++
++static struct block_device_operations xlvbd_block_fops =
 +{
-+	if (xen_init() < 0)
-+		return __RETCODE;
++	.owner = THIS_MODULE,
++	.open = blkif_open,
++	.release = blkif_release,
++	.ioctl  = blkif_ioctl,
++};
 +
-+	if (xen_start_info->flags & SIF_INITDOMAIN) {
-+		if (xc_mode == XC_DEFAULT)
-+			xc_mode = XC_SERIAL;
-+		kcons_info.write = kcons_write_dom0;
-+		if (xc_mode == XC_SERIAL)
-+			kcons_info.flags |= CON_ENABLED;
-+	} else {
-+		if (xc_mode == XC_DEFAULT)
-+			xc_mode = XC_TTY;
-+		kcons_info.write = kcons_write;
++spinlock_t blkif_io_lock = SPIN_LOCK_UNLOCKED;
++
++static struct xlbd_major_info *
++xlbd_alloc_major_info(int major, int minor, int index)
++{
++	struct xlbd_major_info *ptr;
++
++	ptr = kmalloc(sizeof(struct xlbd_major_info), GFP_KERNEL);
++	if (ptr == NULL)
++		return NULL;
++
++	memset(ptr, 0, sizeof(struct xlbd_major_info));
++
++	ptr->major = major;
++
++	switch (index) {
++	case XLBD_MAJOR_IDE_RANGE:
++		ptr->type = &xlbd_ide_type;
++		ptr->index = index - XLBD_MAJOR_IDE_START;
++		break;
++	case XLBD_MAJOR_SCSI_RANGE:
++		ptr->type = &xlbd_scsi_type;
++		ptr->index = index - XLBD_MAJOR_SCSI_START;
++		break;
++	case XLBD_MAJOR_VBD_RANGE:
++		ptr->type = &xlbd_vbd_type;
++		ptr->index = index - XLBD_MAJOR_VBD_START;
++		break;
 +	}
 +
-+	switch (xc_mode) {
-+	case XC_SERIAL:
-+		strcpy(kcons_info.name, "ttyS");
-+		if (xc_num == -1)
-+			xc_num = 0;
-+		break;
-+
-+	case XC_TTY:
-+		strcpy(kcons_info.name, "tty");
-+		if (xc_num == -1)
-+			xc_num = 1;
-+		break;
-+
-+	default:
-+		return __RETCODE;
++	printk("Registering block device major %i\n", ptr->major);
++	if (register_blkdev(ptr->major, ptr->type->devname)) {
++		WPRINTK("can't get major %d with name %s\n",
++			ptr->major, ptr->type->devname);
++		kfree(ptr);
++		return NULL;
 +	}
 +
-+	wbuf = alloc_bootmem(wbuf_size);
-+
-+	register_console(&kcons_info);
-+
-+	return __RETCODE;
++	devfs_mk_dir(ptr->type->devname);
++	major_info[index] = ptr;
++	return ptr;
 +}
-+console_initcall(xen_console_init);
 +
-+/*** Useful function for console debugging -- goes straight to Xen. ***/
-+asmlinkage int xprintk(const char *fmt, ...)
++static struct xlbd_major_info *
++xlbd_get_major_info(int vdevice)
 +{
-+	va_list args;
-+	int printk_len;
-+	static char printk_buf[1024];
++	struct xlbd_major_info *mi;
++	int major, minor, index;
 +
-+	/* Emit the output into the temporary buffer */
-+	va_start(args, fmt);
-+	printk_len = vsnprintf(printk_buf, sizeof(printk_buf), fmt, args);
-+	va_end(args);
++	major = BLKIF_MAJOR(vdevice);
++	minor = BLKIF_MINOR(vdevice);
 +
-+	/* Send the processed output directly to Xen. */
-+	kcons_write_dom0(NULL, printk_buf, printk_len);
++	switch (major) {
++	case IDE0_MAJOR: index = 0; break;
++	case IDE1_MAJOR: index = 1; break;
++	case IDE2_MAJOR: index = 2; break;
++	case IDE3_MAJOR: index = 3; break;
++	case IDE4_MAJOR: index = 4; break;
++	case IDE5_MAJOR: index = 5; break;
++	case IDE6_MAJOR: index = 6; break;
++	case IDE7_MAJOR: index = 7; break;
++	case IDE8_MAJOR: index = 8; break;
++	case IDE9_MAJOR: index = 9; break;
++	case SCSI_DISK0_MAJOR: index = 10; break;
++	case SCSI_DISK1_MAJOR ... SCSI_DISK7_MAJOR:
++		index = 11 + major - SCSI_DISK1_MAJOR;
++		break;
++	case SCSI_CDROM_MAJOR: index = 18; break;
++	default: index = 19; break;
++	}
++
++	mi = ((major_info[index] != NULL) ? major_info[index] :
++	      xlbd_alloc_major_info(major, minor, index));
++	if (mi)
++		mi->usage++;
++	return mi;
++}
++
++static void
++xlbd_put_major_info(struct xlbd_major_info *mi)
++{
++	mi->usage--;
++	/* XXX: release major if 0 */
++}
++
++static int
++xlvbd_init_blk_queue(struct gendisk *gd, u16 sector_size)
++{
++	request_queue_t *rq;
++
++	rq = blk_init_queue(do_blkif_request, &blkif_io_lock);
++	if (rq == NULL)
++		return -1;
++
++	elevator_init(rq, "noop");
++
++	/* Hard sector size and max sectors impersonate the equiv. hardware. */
++	blk_queue_hardsect_size(rq, sector_size);
++	blk_queue_max_sectors(rq, 512);
++
++	/* Each segment in a request is up to an aligned page in size. */
++	blk_queue_segment_boundary(rq, PAGE_SIZE - 1);
++	blk_queue_max_segment_size(rq, PAGE_SIZE);
++
++	/* Ensure a merged request will fit in a single I/O ring slot. */
++	blk_queue_max_phys_segments(rq, BLKIF_MAX_SEGMENTS_PER_REQUEST);
++	blk_queue_max_hw_segments(rq, BLKIF_MAX_SEGMENTS_PER_REQUEST);
++
++	/* Make sure buffer addresses are sector-aligned. */
++	blk_queue_dma_alignment(rq, 511);
++
++	gd->queue = rq;
 +
 +	return 0;
 +}
 +
-+/*** Forcibly flush console data before dying. ***/
-+void xencons_force_flush(void)
++static int
++xlvbd_alloc_gendisk(int minor, blkif_sector_t capacity, int vdevice,
++		    u16 vdisk_info, u16 sector_size,
++		    struct blkfront_info *info)
 +{
-+	int sz;
++	struct gendisk *gd;
++	struct xlbd_major_info *mi;
++	int nr_minors = 1;
++	int err = -ENODEV;
 +
-+	/* Emergency console is synchronous, so there's nothing to flush. */
-+	if (xen_start_info->flags & SIF_INITDOMAIN)
-+		return;
++	BUG_ON(info->gd != NULL);
++	BUG_ON(info->mi != NULL);
++	BUG_ON(info->rq != NULL);
 +
-+	/* Spin until console data is flushed through to the daemon. */
-+	while (wc != wp) {
-+		int sent = 0;
-+		if ((sz = wp - wc) == 0)
-+			continue;
-+		sent = xencons_ring_send(&wbuf[WBUF_MASK(wc)], sz);
-+		if (sent > 0)
-+			wc += sent;
-+	}
-+}
++	mi = xlbd_get_major_info(vdevice);
++	if (mi == NULL)
++		goto out;
++	info->mi = mi;
 +
++	if ((minor & ((1 << mi->type->partn_shift) - 1)) == 0)
++		nr_minors = 1 << mi->type->partn_shift;
 +
-+/******************** User-space console driver (/dev/console) ************/
-+
-+#define DRV(_d)         (_d)
-+#define TTY_INDEX(_tty) ((_tty)->index)
-+
-+static struct termios *xencons_termios[MAX_NR_CONSOLES];
-+static struct termios *xencons_termios_locked[MAX_NR_CONSOLES];
-+static struct tty_struct *xencons_tty;
-+static int xencons_priv_irq;
-+static char x_char;
-+
-+void xencons_rx(char *buf, unsigned len, struct pt_regs *regs)
-+{
-+	int           i;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	if (xencons_tty == NULL)
++	gd = alloc_disk(nr_minors);
++	if (gd == NULL)
 +		goto out;
 +
-+	for (i = 0; i < len; i++) {
-+#ifdef CONFIG_MAGIC_SYSRQ
-+		if (sysrq_enabled) {
-+			if (buf[i] == '\x0f') { /* ^O */
-+				sysrq_requested = jiffies;
-+				continue; /* don't print the sysrq key */
-+			} else if (sysrq_requested) {
-+				unsigned long sysrq_timeout =
-+					sysrq_requested + HZ*2;
-+				sysrq_requested = 0;
-+				if (time_before(jiffies, sysrq_timeout)) {
-+					spin_unlock_irqrestore(
-+						&xencons_lock, flags);
-+					handle_sysrq(
-+						buf[i], regs, xencons_tty);
-+					spin_lock_irqsave(
-+						&xencons_lock, flags);
-+					continue;
-+				}
-+			}
-+		}
-+#endif
-+		tty_insert_flip_char(xencons_tty, buf[i], 0);
++	if (nr_minors > 1)
++		sprintf(gd->disk_name, "%s%c", mi->type->diskname,
++			'a' + mi->index * mi->type->disks_per_major +
++			(minor >> mi->type->partn_shift));
++	else
++		sprintf(gd->disk_name, "%s%c%d", mi->type->diskname,
++			'a' + mi->index * mi->type->disks_per_major +
++			(minor >> mi->type->partn_shift),
++			minor & ((1 << mi->type->partn_shift) - 1));
++
++	gd->major = mi->major;
++	gd->first_minor = minor;
++	gd->fops = &xlvbd_block_fops;
++	gd->private_data = info;
++	gd->driverfs_dev = &(info->xbdev->dev);
++	set_capacity(gd, capacity);
++
++	if (xlvbd_init_blk_queue(gd, sector_size)) {
++		del_gendisk(gd);
++		goto out;
 +	}
-+	tty_flip_buffer_push(xencons_tty);
++
++	info->rq = gd->queue;
++
++	if (vdisk_info & VDISK_READONLY)
++		set_disk_ro(gd, 1);
++
++	if (vdisk_info & VDISK_REMOVABLE)
++		gd->flags |= GENHD_FL_REMOVABLE;
++
++	if (vdisk_info & VDISK_CDROM)
++		gd->flags |= GENHD_FL_CD;
++
++	info->gd = gd;
++
++	return 0;
 +
 + out:
-+	spin_unlock_irqrestore(&xencons_lock, flags);
++	if (mi)
++		xlbd_put_major_info(mi);
++	info->mi = NULL;
++	return err;
 +}
 +
-+static void __xencons_tx_flush(void)
++int
++xlvbd_add(blkif_sector_t capacity, int vdevice, u16 vdisk_info,
++	  u16 sector_size, struct blkfront_info *info)
 +{
-+	int sent, sz, work_done = 0;
++	struct block_device *bd;
++	int err = 0;
 +
-+	if (x_char) {
-+		if (xen_start_info->flags & SIF_INITDOMAIN)
-+			kcons_write_dom0(NULL, &x_char, 1);
-+		else
-+			while (x_char)
-+				if (xencons_ring_send(&x_char, 1) == 1)
-+					break;
-+		x_char = 0;
-+		work_done = 1;
-+	}
++	info->dev = MKDEV(BLKIF_MAJOR(vdevice), BLKIF_MINOR(vdevice));
 +
-+	while (wc != wp) {
-+		sz = wp - wc;
-+		if (sz > (wbuf_size - WBUF_MASK(wc)))
-+			sz = wbuf_size - WBUF_MASK(wc);
-+		if (xen_start_info->flags & SIF_INITDOMAIN) {
-+			kcons_write_dom0(NULL, &wbuf[WBUF_MASK(wc)], sz);
-+			wc += sz;
-+		} else {
-+			sent = xencons_ring_send(&wbuf[WBUF_MASK(wc)], sz);
-+			if (sent == 0)
-+				break;
-+			wc += sent;
-+		}
-+		work_done = 1;
-+	}
-+
-+	if (work_done && (xencons_tty != NULL)) {
-+		wake_up_interruptible(&xencons_tty->write_wait);
-+		if ((xencons_tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) &&
-+		    (xencons_tty->ldisc.write_wakeup != NULL))
-+			(xencons_tty->ldisc.write_wakeup)(xencons_tty);
-+	}
-+}
-+
-+void xencons_tx(void)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	__xencons_tx_flush();
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+}
-+
-+/* Privileged receive callback and transmit kicker. */
-+static irqreturn_t xencons_priv_interrupt(int irq, void *dev_id,
-+                                          struct pt_regs *regs)
-+{
-+	static char rbuf[16];
-+	int         l;
-+
-+	while ((l = HYPERVISOR_console_io(CONSOLEIO_read, 16, rbuf)) > 0)
-+		xencons_rx(rbuf, l, regs);
-+
-+	xencons_tx();
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int xencons_write_room(struct tty_struct *tty)
-+{
-+	return wbuf_size - (wp - wc);
-+}
-+
-+static int xencons_chars_in_buffer(struct tty_struct *tty)
-+{
-+	return wp - wc;
-+}
-+
-+static void xencons_send_xchar(struct tty_struct *tty, char ch)
-+{
-+	unsigned long flags;
-+
-+	if (TTY_INDEX(tty) != 0)
-+		return;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	x_char = ch;
-+	__xencons_tx_flush();
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+}
-+
-+static void xencons_throttle(struct tty_struct *tty)
-+{
-+	if (TTY_INDEX(tty) != 0)
-+		return;
-+
-+	if (I_IXOFF(tty))
-+		xencons_send_xchar(tty, STOP_CHAR(tty));
-+}
-+
-+static void xencons_unthrottle(struct tty_struct *tty)
-+{
-+	if (TTY_INDEX(tty) != 0)
-+		return;
-+
-+	if (I_IXOFF(tty)) {
-+		if (x_char != 0)
-+			x_char = 0;
-+		else
-+			xencons_send_xchar(tty, START_CHAR(tty));
-+	}
-+}
-+
-+static void xencons_flush_buffer(struct tty_struct *tty)
-+{
-+	unsigned long flags;
-+
-+	if (TTY_INDEX(tty) != 0)
-+		return;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	wc = wp = 0;
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+}
-+
-+static inline int __xencons_put_char(int ch)
-+{
-+	char _ch = (char)ch;
-+	if ((wp - wc) == wbuf_size)
-+		return 0;
-+	wbuf[WBUF_MASK(wp++)] = _ch;
-+	return 1;
-+}
-+
-+static int xencons_write(
-+	struct tty_struct *tty,
-+	const unsigned char *buf,
-+	int count)
-+{
-+	int i;
-+	unsigned long flags;
-+
-+	if (TTY_INDEX(tty) != 0)
-+		return count;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+
-+	for (i = 0; i < count; i++)
-+		if (!__xencons_put_char(buf[i]))
-+			break;
-+
-+	if (i != 0)
-+		__xencons_tx_flush();
-+
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+
-+	return i;
-+}
-+
-+static void xencons_put_char(struct tty_struct *tty, u_char ch)
-+{
-+	unsigned long flags;
-+
-+	if (TTY_INDEX(tty) != 0)
-+		return;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	(void)__xencons_put_char(ch);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+}
-+
-+static void xencons_flush_chars(struct tty_struct *tty)
-+{
-+	unsigned long flags;
-+
-+	if (TTY_INDEX(tty) != 0)
-+		return;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	__xencons_tx_flush();
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+}
-+
-+static void xencons_wait_until_sent(struct tty_struct *tty, int timeout)
-+{
-+	unsigned long orig_jiffies = jiffies;
-+
-+	if (TTY_INDEX(tty) != 0)
-+		return;
-+
-+	while (DRV(tty->driver)->chars_in_buffer(tty)) {
-+		set_current_state(TASK_INTERRUPTIBLE);
-+		schedule_timeout(1);
-+		if (signal_pending(current))
-+			break;
-+		if (timeout && time_after(jiffies, orig_jiffies + timeout))
-+			break;
-+	}
-+
-+	set_current_state(TASK_RUNNING);
-+}
-+
-+static int xencons_open(struct tty_struct *tty, struct file *filp)
-+{
-+	unsigned long flags;
-+
-+	if (TTY_INDEX(tty) != 0)
-+		return 0;
-+
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	tty->driver_data = NULL;
-+	if (xencons_tty == NULL)
-+		xencons_tty = tty;
-+	__xencons_tx_flush();
-+	spin_unlock_irqrestore(&xencons_lock, flags);
-+
-+	return 0;
-+}
-+
-+static void xencons_close(struct tty_struct *tty, struct file *filp)
-+{
-+	unsigned long flags;
-+
-+	if (TTY_INDEX(tty) != 0)
-+		return;
-+
-+	if (tty->count == 1) {
-+		tty->closing = 1;
-+		tty_wait_until_sent(tty, 0);
-+		if (DRV(tty->driver)->flush_buffer != NULL)
-+			DRV(tty->driver)->flush_buffer(tty);
-+		if (tty->ldisc.flush_buffer != NULL)
-+			tty->ldisc.flush_buffer(tty);
-+		tty->closing = 0;
-+		spin_lock_irqsave(&xencons_lock, flags);
-+		xencons_tty = NULL;
-+		spin_unlock_irqrestore(&xencons_lock, flags);
-+	}
-+}
-+
-+static struct tty_operations xencons_ops = {
-+	.open = xencons_open,
-+	.close = xencons_close,
-+	.write = xencons_write,
-+	.write_room = xencons_write_room,
-+	.put_char = xencons_put_char,
-+	.flush_chars = xencons_flush_chars,
-+	.chars_in_buffer = xencons_chars_in_buffer,
-+	.send_xchar = xencons_send_xchar,
-+	.flush_buffer = xencons_flush_buffer,
-+	.throttle = xencons_throttle,
-+	.unthrottle = xencons_unthrottle,
-+	.wait_until_sent = xencons_wait_until_sent,
-+};
-+
-+static int __init xencons_init(void)
-+{
-+	int rc;
-+
-+	if (xen_init() < 0)
++	bd = bdget(info->dev);
++	if (bd == NULL)
 +		return -ENODEV;
 +
-+	if (xc_mode == XC_OFF)
-+		return 0;
++	err = xlvbd_alloc_gendisk(BLKIF_MINOR(vdevice), capacity, vdevice,
++				  vdisk_info, sector_size, info);
 +
-+	xencons_ring_init();
-+
-+	xencons_driver = alloc_tty_driver((xc_mode == XC_SERIAL) ?
-+					  1 : MAX_NR_CONSOLES);
-+	if (xencons_driver == NULL)
-+		return -ENOMEM;
-+
-+	DRV(xencons_driver)->name            = "xencons";
-+	DRV(xencons_driver)->major           = TTY_MAJOR;
-+	DRV(xencons_driver)->type            = TTY_DRIVER_TYPE_SERIAL;
-+	DRV(xencons_driver)->subtype         = SERIAL_TYPE_NORMAL;
-+	DRV(xencons_driver)->init_termios    = tty_std_termios;
-+	DRV(xencons_driver)->flags           =
-+		TTY_DRIVER_REAL_RAW |
-+		TTY_DRIVER_RESET_TERMIOS |
-+		TTY_DRIVER_NO_DEVFS;
-+	DRV(xencons_driver)->termios         = xencons_termios;
-+	DRV(xencons_driver)->termios_locked  = xencons_termios_locked;
-+
-+	if (xc_mode == XC_SERIAL) {
-+		DRV(xencons_driver)->name        = "ttyS";
-+		DRV(xencons_driver)->minor_start = 64 + xc_num;
-+		DRV(xencons_driver)->name_base   = 0 + xc_num;
-+	} else {
-+		DRV(xencons_driver)->name        = "tty";
-+		DRV(xencons_driver)->minor_start = xc_num;
-+		DRV(xencons_driver)->name_base   = xc_num;
-+	}
-+
-+	tty_set_operations(xencons_driver, &xencons_ops);
-+
-+	if ((rc = tty_register_driver(DRV(xencons_driver))) != 0) {
-+		printk("WARNING: Failed to register Xen virtual "
-+		       "console driver as '%s%d'\n",
-+		       DRV(xencons_driver)->name,
-+		       DRV(xencons_driver)->name_base);
-+		put_tty_driver(xencons_driver);
-+		xencons_driver = NULL;
-+		return rc;
-+	}
-+
-+	tty_register_device(xencons_driver, 0, NULL);
-+
-+	if (xen_start_info->flags & SIF_INITDOMAIN) {
-+		xencons_priv_irq = bind_virq_to_irqhandler(
-+			VIRQ_CONSOLE,
-+			0,
-+			xencons_priv_interrupt,
-+			0,
-+			"console",
-+			NULL);
-+		BUG_ON(xencons_priv_irq < 0);
-+	}
-+
-+	printk("Xen virtual console successfully installed as %s%d\n",
-+	       DRV(xencons_driver)->name,
-+	       DRV(xencons_driver)->name_base );
-+
-+	return 0;
++	bdput(bd);
++	return err;
 +}
 +
-+module_init(xencons_init);
---- /dev/null
-+++ xen-subarch-2.6/drivers/xen/console/xencons_ring.c
-@@ -0,0 +1,115 @@
-+#include <linux/version.h>
-+#include <linux/module.h>
-+#include <linux/errno.h>
-+#include <linux/signal.h>
-+#include <linux/sched.h>
-+#include <linux/interrupt.h>
-+#include <linux/tty.h>
-+#include <linux/tty_flip.h>
-+#include <linux/serial.h>
-+#include <linux/major.h>
-+#include <linux/ptrace.h>
-+#include <linux/ioport.h>
-+#include <linux/mm.h>
-+#include <linux/slab.h>
-+
-+#include <asm/hypervisor.h>
-+#include <xen/evtchn.h>
-+#include <xen/xencons.h>
-+#include <linux/wait.h>
-+#include <linux/interrupt.h>
-+#include <linux/sched.h>
-+#include <linux/err.h>
-+#include <xen/interface/io/console.h>
-+
-+static int xencons_irq;
-+
-+static inline struct xencons_interface *xencons_interface(void)
++void
++xlvbd_del(struct blkfront_info *info)
 +{
-+	return mfn_to_virt(xen_start_info->console_mfn);
++	if (info->mi == NULL)
++		return;
++
++	BUG_ON(info->gd == NULL);
++	del_gendisk(info->gd);
++	put_disk(info->gd);
++	info->gd = NULL;
++
++	xlbd_put_major_info(info->mi);
++	info->mi = NULL;
++
++	BUG_ON(info->rq == NULL);
++	blk_cleanup_queue(info->rq);
++	info->rq = NULL;
 +}
-+
-+static inline void notify_daemon(void)
-+{
-+	/* Use evtchn: this is called early, before irq is set up. */
-+	notify_remote_via_evtchn(xen_start_info->console_evtchn);
-+}
-+
-+int xencons_ring_send(const char *data, unsigned len)
-+{
-+	int sent = 0;
-+	struct xencons_interface *intf = xencons_interface();
-+	XENCONS_RING_IDX cons, prod;
-+
-+	cons = intf->out_cons;
-+	prod = intf->out_prod;
-+	mb();
-+	BUG_ON((prod - cons) > sizeof(intf->out));
-+
-+	while ((sent < len) && ((prod - cons) < sizeof(intf->out)))
-+		intf->out[MASK_XENCONS_IDX(prod++, intf->out)] = data[sent++];
-+
-+	wmb();
-+	intf->out_prod = prod;
-+
-+	notify_daemon();
-+
-+	return sent;
-+}
-+
-+static irqreturn_t handle_input(int irq, void *unused, struct pt_regs *regs)
-+{
-+	struct xencons_interface *intf = xencons_interface();
-+	XENCONS_RING_IDX cons, prod;
-+
-+	cons = intf->in_cons;
-+	prod = intf->in_prod;
-+	mb();
-+	BUG_ON((prod - cons) > sizeof(intf->in));
-+
-+	while (cons != prod) {
-+		xencons_rx(intf->in+MASK_XENCONS_IDX(cons,intf->in), 1, regs);
-+		cons++;
-+	}
-+
-+	mb();
-+	intf->in_cons = cons;
-+
-+	notify_daemon();
-+
-+	xencons_tx();
-+
-+	return IRQ_HANDLED;
-+}
-+
-+int xencons_ring_init(void)
-+{
-+	int err;
-+
-+	if (xencons_irq)
-+		unbind_from_irqhandler(xencons_irq, NULL);
-+	xencons_irq = 0;
-+
-+	if (!xen_start_info->console_evtchn)
-+		return 0;
-+
-+	err = bind_evtchn_to_irqhandler(
-+		xen_start_info->console_evtchn,
-+		handle_input, 0, "xencons", NULL);
-+	if (err <= 0) {
-+		printk(KERN_ERR "XEN console request irq failed %i\n", err);
-+		return err;
-+	}
-+
-+	xencons_irq = err;
-+
-+	/* In case we have in-flight data after save/restore... */
-+	notify_daemon();
-+
-+	return 0;
-+}
-+
-+void xencons_resume(void)
-+{
-+	(void)xencons_ring_init();
-+}
---- /dev/null
-+++ xen-subarch-2.6/include/xen/xencons.h
-@@ -0,0 +1,14 @@
-+#ifndef __ASM_XENCONS_H__
-+#define __ASM_XENCONS_H__
-+
-+void xencons_force_flush(void);
-+void xencons_resume(void);
-+
-+/* Interrupt work hooks. Receive data, or kick data out. */
-+void xencons_rx(char *buf, unsigned len, struct pt_regs *regs);
-+void xencons_tx(void);
-+
-+int xencons_ring_init(void);
-+int xencons_ring_send(const char *data, unsigned len);
-+
-+#endif /* __ASM_XENCONS_H__ */
 
 --

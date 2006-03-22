@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWCVUIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWCVUIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751034AbWCVUIM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 15:08:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWCVUIM
+	id S1751037AbWCVUIW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 15:08:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWCVUIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 15:08:12 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:62147 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751011AbWCVUIL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 15:08:11 -0500
-Subject: Re: [PATCH] hpet header sanitization
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, clemens@ladisch.de
-In-Reply-To: <20060322092649.d967c47a.rdunlap@xenotime.net>
-References: <20060321144607.153d1943.rdunlap@xenotime.net>
-	 <20060321161303.53c2895f.akpm@osdl.org>
-	 <20060321162630.d995c63c.rdunlap@xenotime.net>
-	 <1143018140.2955.45.camel@laptopd505.fenrus.org>
-	 <20060322092649.d967c47a.rdunlap@xenotime.net>
+	Wed, 22 Mar 2006 15:08:21 -0500
+Received: from pat.uio.no ([129.240.130.16]:19383 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1750969AbWCVUIT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 15:08:19 -0500
+Subject: Re: DoS with POSIX file locks?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: chrisw@sous-sol.org, matthew@wil.cx, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <E1FM6Hd-0001l9-00@dorka.pomaz.szeredi.hu>
+References: <E1FLIlF-0007zR-00@dorka.pomaz.szeredi.hu>
+	 <20060320121107.GE8980@parisc-linux.org>
+	 <E1FLJLs-00085u-00@dorka.pomaz.szeredi.hu>
+	 <20060320123950.GF8980@parisc-linux.org>
+	 <E1FLJsF-0008A7-00@dorka.pomaz.szeredi.hu>
+	 <20060320153202.GH8980@parisc-linux.org>
+	 <1142878975.7991.13.camel@lade.trondhjem.org>
+	 <E1FLdPd-00020d-00@dorka.pomaz.szeredi.hu>
+	 <1142962083.7987.37.camel@lade.trondhjem.org>
+	 <E1FLl7L-0002u9-00@dorka.pomaz.szeredi.hu>
+	 <20060321191605.GB15997@sorel.sous-sol.org>
+	 <E1FLwjC-0000kJ-00@dorka.pomaz.szeredi.hu>
+	 <1143025967.12871.9.camel@lade.trondhjem.org>
+	 <E1FM2Gi-0001LF-00@dorka.pomaz.szeredi.hu>
+	 <1143042976.12871.34.camel@lade.trondhjem.org>
+	 <E1FM6Hd-0001l9-00@dorka.pomaz.szeredi.hu>
 Content-Type: text/plain
-Date: Wed, 22 Mar 2006 21:08:02 +0100
-Message-Id: <1143058082.2955.68.camel@laptopd505.fenrus.org>
+Date: Wed, 22 Mar 2006 15:07:57 -0500
+Message-Id: <1143058078.8929.21.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-UiO-Spam-info: not spam, SpamAssassin (score=-4.913, required 12,
+	autolearn=disabled, HELO_DYNAMIC_DHCP 0.09,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-22 at 09:26 -0800, Randy.Dunlap wrote:
-> On Wed, 22 Mar 2006 10:02:19 +0100 Arjan van de Ven wrote:
-> 
-> > On Tue, 2006-03-21 at 16:26 -0800, Randy.Dunlap wrote:
-> > > On Tue, 21 Mar 2006 16:13:03 -0800 Andrew Morton wrote:
-> > > 
-> > > > "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
-> > > > >
-> > > > > From: Randy Dunlap <rdunlap@xenotime.net>
-> > > > > 
-> > > > > Add __KERNEL__ block.
-> > > > > Use __KERNEL__ to allow ioctl interface to be usable.
-> > > > 
-> > > > hm, why?
-> > > 
-> > > because there is a test/example source file in (inside)
-> > > Documentation/hpet.txt that won't build otherwise.
-> > > And because hpet.h contains _userspace_ ioctl interface struct
-> > > and macros...
-> > 
-> > 
-> > then please split the header in 2 parts; one for the kernel
-> > and one for userspace
-> 
-> so would you tell me what the purpose (use) of __KERNEL__
-> is meant to be, please?
+On Wed, 2006-03-22 at 17:34 +0100, Miklos Szeredi wrote:
 
-for legacy headers.. the same ;)
-Thats no reason to fix up new cases... things should get better not just
-get a small rubber bandaid...
+> You mean the "local lockowner being stable" is irrelevant.
+> 
+> Yes that is true, but the patch not only makes the local lockowner
+> stable, it makes the "owner" stable.  And that is the important part
+> for NFS, etc.
+> 
+> The remote lockowner has to be derived from the owner, which used to
+> be current->files, but is changed to current->file->owner.
+> 
+> The fact that current->file->owner will remain stable across the exec
+> will mean that locking will behave consistently for local _and_ remote
+> filesystems.
+> 
+> Now I'm not saying I want to keep this weird semantics of always
+> inheriting locks on exec.  All I'm saying that it's _possible_.
 
+You'd have to ensure that none of the threads involved are able to grab
+new posix locks in the period between the unsharing of current->files to
+the moment when current->files->owner is swapped.
+
+If not, one thread could in theory open a new file and grab a lock that
+can never be unlocked because its lockowner gets stolen away from it by
+another execing thread.
+
+Cheers,
+  Trond
 

@@ -1,37 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWCVRT3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbWCVRYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750857AbWCVRT3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 12:19:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbWCVRT3
+	id S1751014AbWCVRYl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 12:24:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbWCVRYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 12:19:29 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:61645 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1750987AbWCVRT2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 12:19:28 -0500
-Subject: Re: [GIT PATCH] pending SCSI updates for post 2.6.16
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <20060322083647.cc0ccdd4.rdunlap@xenotime.net>
-References: <1142956795.4377.19.camel@mulgrave.il.steeleye.com>
-	 <20060322083647.cc0ccdd4.rdunlap@xenotime.net>
-Content-Type: text/plain
-Date: Wed, 22 Mar 2006 11:19:18 -0600
-Message-Id: <1143047958.3633.17.camel@mulgrave.il.steeleye.com>
+	Wed, 22 Mar 2006 12:24:41 -0500
+Received: from xenotime.net ([66.160.160.81]:29608 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750991AbWCVRYk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 12:24:40 -0500
+Date: Wed, 22 Mar 2006 09:26:49 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, clemens@ladisch.de
+Subject: Re: [PATCH] hpet header sanitization
+Message-Id: <20060322092649.d967c47a.rdunlap@xenotime.net>
+In-Reply-To: <1143018140.2955.45.camel@laptopd505.fenrus.org>
+References: <20060321144607.153d1943.rdunlap@xenotime.net>
+	<20060321161303.53c2895f.akpm@osdl.org>
+	<20060321162630.d995c63c.rdunlap@xenotime.net>
+	<1143018140.2955.45.camel@laptopd505.fenrus.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-22 at 08:36 -0800, Randy.Dunlap wrote:
-> Can we get a SCSI_DEBUG link order change (or force it to not
-> built-in)?
+On Wed, 22 Mar 2006 10:02:19 +0100 Arjan van de Ven wrote:
 
-Yes ... but we need the maintainer to decide which option first.
+> On Tue, 2006-03-21 at 16:26 -0800, Randy.Dunlap wrote:
+> > On Tue, 21 Mar 2006 16:13:03 -0800 Andrew Morton wrote:
+> > 
+> > > "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+> > > >
+> > > > From: Randy Dunlap <rdunlap@xenotime.net>
+> > > > 
+> > > > Add __KERNEL__ block.
+> > > > Use __KERNEL__ to allow ioctl interface to be usable.
+> > > 
+> > > hm, why?
+> > 
+> > because there is a test/example source file in (inside)
+> > Documentation/hpet.txt that won't build otherwise.
+> > And because hpet.h contains _userspace_ ioctl interface struct
+> > and macros...
+> 
+> 
+> then please split the header in 2 parts; one for the kernel
+> and one for userspace
 
-James
+so would you tell me what the purpose (use) of __KERNEL__
+is meant to be, please?
+
+Fortunately there are only about 165 header files in include/
+that use both __KERNEL__ and _IO() macros (out of 5425 header
+files).
 
 
+> either put both here, or move the kernel one to the directory where the
+> source code is
+
+
+---
+~Randy

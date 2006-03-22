@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWCVLPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWCVL1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbWCVLPu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 06:15:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWCVLPu
+	id S1750710AbWCVL1l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 06:27:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWCVL1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 06:15:50 -0500
-Received: from mailgate2.urz.uni-halle.de ([141.48.3.8]:20878 "EHLO
-	mailgate2.urz.uni-halle.de") by vger.kernel.org with ESMTP
-	id S1750737AbWCVLPt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 06:15:49 -0500
-Date: Wed, 22 Mar 2006 12:14:46 +0100
-From: Clemens Ladisch <clemens@ladisch.de>
-Subject: Re: [PATCH] hpet header sanitization
-In-reply-to: <200603221118.43853.abergman@de.ibm.com>
-To: Arnd Bergmann <abergman@de.ibm.com>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, lkml <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>
-Message-id: <20060322111446.GA7675@turing.informatik.uni-halle.de>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: Mutt/1.4i
-References: <20060321144607.153d1943.rdunlap@xenotime.net>
- <200603221118.43853.abergman@de.ibm.com>
-X-Scan-Signature: d2c9cb8541c06091084f66af647eabf0
+	Wed, 22 Mar 2006 06:27:41 -0500
+Received: from smtp5.libero.it ([193.70.192.55]:27830 "EHLO smtp5.libero.it")
+	by vger.kernel.org with ESMTP id S1750710AbWCVL1k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 06:27:40 -0500
+From: <mtassinari@libero.it>
+To: "'Samuel Masham'" <samuel.masham@gmail.com>
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
+       <mtassinari@cmanet.it>
+Subject: R: libata/sata errors on ich[?]/maxtor
+Date: Wed, 22 Mar 2006 12:27:31 +0100
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAcm3p+dGrIEuKvCi2uAOJU8KAAAAQAAAA9t1sKjAsk0SX1D4Cs3T+sAEAAAAA@libero.it>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+In-Reply-To: <93564eb70603220159wd03a48du@mail.gmail.com>
+X-Scanned: with antispam and antivirus automated system at libero.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
-> On Tuesday 21 March 2006 23:46, Randy.Dunlap wrote:
-> > +#define        HPET_IE_ON      _IO('h', 0x01)  /* interrupt on */
-> > +#define        HPET_IE_OFF     _IO('h', 0x02)  /* interrupt off */
-> > +#define        HPET_INFO       _IOR('h', 0x03, struct hpet_info)
-> > +#define        HPET_EPI        _IO('h', 0x04)  /* enable periodic */
-> > +#define        HPET_DPI        _IO('h', 0x05)  /* disable periodic */
-> > +#define        HPET_IRQFREQ    _IOW('h', 0x6, unsigned long)   /* IRQFREQ usec */
-> 
-> By the way, HPET_INFO and HPET_IRQFREQ don't work for 32 bit user space,
-> the driver needs a compat_ioctl() method to handle those.
+Hi Samuel, All,
 
-There isn't any program (except the example in the docs) that uses any
-of these ioctls, and I'm writing patches to make this device available
-through portable timer APIs like hrtimer/POSIX clocks/ALSA that are much
-easier to use besides, so I think it would be a good idea to just
-schedule these ioctls for removal.
+> > >
+> > > Eventually the drive will be offlined.
+> >
+> > really? I can test that easily enough if nothing else :)
+>
+> When is it (should it) going to offline the drive? its been spitting out
+these messages (about set per min?) for 4 hours at the moment with > no
+change bar the sector number increasing by 2 each time...
+>
 
 
-Clemens
+confirm. tryed with cables about 4 inches long,
+to no success. The process doing the i/o hangs and cannot be killed, so no 
+proper sync or shutdown other than reset is possible.
+2.6.16 release shows no improvement.
+2.6.16-rc6-mm2 does not even recognise the maxtor at boot...
+btw, a couple of WD drives went flawless.
+
+
+
+Mauro
+

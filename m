@@ -1,83 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWCVXWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932496AbWCVX1P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbWCVXWv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 18:22:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWCVXWv
+	id S932496AbWCVX1P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 18:27:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbWCVX1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 18:22:51 -0500
-Received: from uproxy.gmail.com ([66.249.92.203]:21877 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932487AbWCVXWt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 18:22:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=nBz0LwM54KBN/2MXv0cJAuN8hYhS61gnugerTi/rD/d4KT8DjVnHEagHHUEXgKgLrpIKQ97q90fHxB0C3IewXg3KTp/MgVNBenJ4+AMg0VzI4RfwUYgIgLDE1wzPtMOPIC0OUOwXjJe5pKo5rfjBwoN546I5RUpx/GaIinRlelw=
-Date: Thu, 23 Mar 2006 02:22:47 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
+	Wed, 22 Mar 2006 18:27:14 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:11735 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S932496AbWCVX1M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 18:27:12 -0500
+Date: Wed, 22 Mar 2006 15:27:09 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
 To: Eric Sesterhenn <snakebyte@gmx.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Pointer dereference in net/irda/ircomm/ircomm_tty.c
-Message-ID: <20060322232247.GD7790@mipter.zuzino.mipt.ru>
-References: <1143067566.26895.8.camel@alice>
-Mime-Version: 1.0
+Subject: Re: [Patch] Possible NULL pointer dereference in fs/configfs/dir.c
+Message-ID: <20060322232709.GD7844@ca-server1.us.oracle.com>
+Mail-Followup-To: Eric Sesterhenn <snakebyte@gmx.de>,
+	linux-kernel@vger.kernel.org
+References: <1143068729.27276.1.camel@alice>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1143067566.26895.8.camel@alice>
+In-Reply-To: <1143068729.27276.1.camel@alice>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
 User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 22, 2006 at 11:46:05PM +0100, Eric Sesterhenn wrote:
-> this fixes coverity bugs #855 and #854. In both cases tty
-> is dereferenced before getting checked for NULL.
+On Thu, Mar 23, 2006 at 12:05:29AM +0100, Eric Sesterhenn wrote:
+> this fixes coverity bug #845, if group is NULL,
+> we dereference it when setting up dentry.
 
-Before Al will flame you,
+	Is the converity checker merly looking at in-function patterns?
+Where can I access the bug report (sorry for the question).
+	group cannot be null here, we aren't called any other way.  So
+while you are correct that the code below is needed in the presence of a
+NULL group, really the "if (group" isn't necessary, just the "if
+(group->default_groups)".  I could even BUG_ON() if you'd like.
 
-IMO, what should be done is removing asserts checking for "self",
-because ->driver_data is filled in ircomm_tty_open() with valid pointer.
+Joel
 
-> --- linux-2.6.16/net/irda/ircomm/ircomm_tty.c.orig
-> +++ linux-2.6.16/net/irda/ircomm/ircomm_tty.c
-> @@ -493,7 +493,7 @@ static int ircomm_tty_open(struct tty_st
->   */
->  static void ircomm_tty_close(struct tty_struct *tty, struct file *filp)
+> 
+> Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+> 
+> --- linux-2.6.16/fs/configfs/dir.c.orig	2006-03-23 00:02:23.000000000 +0100
+> +++ linux-2.6.16/fs/configfs/dir.c	2006-03-23 00:03:49.000000000 +0100
+> @@ -500,7 +500,7 @@ static int create_default_group(struct c
+>  static int populate_groups(struct config_group *group)
 >  {
-> -	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) tty->driver_data;
-> +	struct ircomm_tty_cb *self;
->  	unsigned long flags;
->
->  	IRDA_DEBUG(0, "%s()\n", __FUNCTION__ );
-> @@ -501,6 +501,8 @@ static void ircomm_tty_close(struct tty_
->  	if (!tty)
->  		return;
->
-> +	self = (struct ircomm_tty_cb *) tty->driver_data;
+>  	struct config_group *new_group;
+> -	struct dentry *dentry = group->cg_item.ci_dentry;
+> +	struct dentry *dentry;
+>  	int ret = 0;
+>  	int i;
+>  
+> @@ -512,6 +512,8 @@ static int populate_groups(struct config
+>  		 * parent to find us, let alone mess with our tree.
+>  		 * That said, taking our i_mutex is closer to mkdir
+>  		 * emulation, and shouldn't hurt. */
+> +		dentry = group->cg_item.ci_dentry;
 > +
->  	IRDA_ASSERT(self != NULL, return;);
->  	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
->
-> @@ -1006,17 +1008,19 @@ static void ircomm_tty_shutdown(struct i
->   */
->  static void ircomm_tty_hangup(struct tty_struct *tty)
->  {
-> -	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) tty->driver_data;
-> +	struct ircomm_tty_cb *self;
->  	unsigned long	flags;
->
->  	IRDA_DEBUG(0, "%s()\n", __FUNCTION__ );
->
-> -	IRDA_ASSERT(self != NULL, return;);
-> -	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
-> -
->  	if (!tty)
->  		return;
->
-> +	self = (struct ircomm_tty_cb *) tty->driver_data;
-> +
-> +	IRDA_ASSERT(self != NULL, return;);
-> +	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
-> +
->  	/* ircomm_tty_flush_buffer(tty); */
->  	ircomm_tty_shutdown(self);
+>  		mutex_lock(&dentry->d_inode->i_mutex);
+>  
+>  		for (i = 0; group->default_groups[i]; i++) {
+> 
+> 
 
+-- 
+
+"Win95 file and print sharing are for relatively friendly nets."
+	- Paul Leach, Microsoft
+
+Joel Becker
+Principal Software Developer
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

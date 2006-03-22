@@ -1,47 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbWCVWqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964824AbWCVWrE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964823AbWCVWqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 17:46:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbWCVWqH
+	id S964824AbWCVWrE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 17:47:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932875AbWCVWdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 17:46:07 -0500
-Received: from moutng.kundenserver.de ([212.227.126.186]:45767 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S964823AbWCVWqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 17:46:01 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Clemens Ladisch <clemens@ladisch.de>
-Subject: Re: [PATCH] hpet header sanitization
-Date: Wed, 22 Mar 2006 23:45:44 +0100
-User-Agent: KMail/1.9.1
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, lkml <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>
-References: <20060321144607.153d1943.rdunlap@xenotime.net> <200603221118.43853.abergman@de.ibm.com> <20060322111446.GA7675@turing.informatik.uni-halle.de>
-In-Reply-To: <20060322111446.GA7675@turing.informatik.uni-halle.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200603222345.45718.arnd@arndb.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+	Wed, 22 Mar 2006 17:33:06 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:30230 "EHLO
+	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932871AbWCVWcw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 17:32:52 -0500
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Cc: Bob Picco <bob.picco@hp.com>, Andrew Morton <akpm@osdl.org>,
+       IWAMOTO Toshihiro <iwamoto@valinux.co.jp>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Christoph Lameter <christoph@lameter.com>,
+       Wu Fengguang <wfg@mail.ustc.edu.cn>, Nick Piggin <npiggin@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>, Rik van Riel <riel@redhat.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Message-Id: <20060322223218.12658.40531.sendpatchset@twins.localnet>
+In-Reply-To: <20060322223107.12658.14997.sendpatchset@twins.localnet>
+References: <20060322223107.12658.14997.sendpatchset@twins.localnet>
+Subject: [PATCH 07/34] mm: page-replace-move-macros.patch
+Date: Wed, 22 Mar 2006 23:32:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 March 2006 12:14, Clemens Ladisch wrote:
-> There isn't any program (except the example in the docs) that uses any
-> of these ioctls, and I'm writing patches to make this device available
-> through portable timer APIs like hrtimer/POSIX clocks/ALSA that are much
-> easier to use besides, so I think it would be a good idea to just
-> schedule these ioctls for removal.
 
-Ok, in that case I guess all of the header file should be wrapped inside
-#ifdef __KERNEL__. Until now it was not possible to include that header
-file in order to get the ioctl definition. It would be somewhat
-counterproductive to schedule the user interface for removal while at
-the same time making it easier to use it.
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-Also, I don't see any user of the ioctl function in the kernel, although
-it's exported. Are there any out-of-tree users?
+move macro's out of vmscan into the generic page replace header so the
+rest of the world can use them too.
 
-	Arnd <><
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Signed-off-by: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+
+---
+
+ include/linux/mm_page_replace.h |   30 ++++++++++++++++++++++++++++++
+ mm/vmscan.c                     |   30 ------------------------------
+ 2 files changed, 30 insertions(+), 30 deletions(-)
+
+Index: linux-2.6-git/include/linux/mm_page_replace.h
+===================================================================
+--- linux-2.6-git.orig/include/linux/mm_page_replace.h
++++ linux-2.6-git/include/linux/mm_page_replace.h
+@@ -8,6 +8,36 @@
+ #include <linux/pagevec.h>
+ #include <linux/mm_inline.h>
+ 
++#define lru_to_page(_head) (list_entry((_head)->prev, struct page, lru))
++
++#ifdef ARCH_HAS_PREFETCH
++#define prefetch_prev_lru_page(_page, _base, _field)			\
++	do {								\
++		if ((_page)->lru.prev != _base) {			\
++			struct page *prev;				\
++									\
++			prev = lru_to_page(&(_page->lru));		\
++			prefetch(&prev->_field);			\
++		}							\
++	} while (0)
++#else
++#define prefetch_prev_lru_page(_page, _base, _field) do { } while (0)
++#endif
++
++#ifdef ARCH_HAS_PREFETCHW
++#define prefetchw_prev_lru_page(_page, _base, _field)			\
++	do {								\
++		if ((_page)->lru.prev != _base) {			\
++			struct page *prev;				\
++									\
++			prev = lru_to_page(&(_page->lru));		\
++			prefetchw(&prev->_field);			\
++		}							\
++	} while (0)
++#else
++#define prefetchw_prev_lru_page(_page, _base, _field) do { } while (0)
++#endif
++
+ /* void page_replace_hint_active(struct page *); */
+ /* void page_replace_hint_use_once(struct page *); */
+ extern void fastcall page_replace_add(struct page *);
+Index: linux-2.6-git/mm/vmscan.c
+===================================================================
+--- linux-2.6-git.orig/mm/vmscan.c
++++ linux-2.6-git/mm/vmscan.c
+@@ -93,36 +93,6 @@ struct shrinker {
+ 	long			nr;	/* objs pending delete */
+ };
+ 
+-#define lru_to_page(_head) (list_entry((_head)->prev, struct page, lru))
+-
+-#ifdef ARCH_HAS_PREFETCH
+-#define prefetch_prev_lru_page(_page, _base, _field)			\
+-	do {								\
+-		if ((_page)->lru.prev != _base) {			\
+-			struct page *prev;				\
+-									\
+-			prev = lru_to_page(&(_page->lru));		\
+-			prefetch(&prev->_field);			\
+-		}							\
+-	} while (0)
+-#else
+-#define prefetch_prev_lru_page(_page, _base, _field) do { } while (0)
+-#endif
+-
+-#ifdef ARCH_HAS_PREFETCHW
+-#define prefetchw_prev_lru_page(_page, _base, _field)			\
+-	do {								\
+-		if ((_page)->lru.prev != _base) {			\
+-			struct page *prev;				\
+-									\
+-			prev = lru_to_page(&(_page->lru));		\
+-			prefetchw(&prev->_field);			\
+-		}							\
+-	} while (0)
+-#else
+-#define prefetchw_prev_lru_page(_page, _base, _field) do { } while (0)
+-#endif
+-
+ /*
+  * From 0 .. 100.  Higher means more swappy.
+  */

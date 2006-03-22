@@ -1,78 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWCVWKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWCVWMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbWCVWKd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 17:10:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWCVWKd
+	id S932092AbWCVWMU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 17:12:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWCVWMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 17:10:33 -0500
-Received: from smtpout.mac.com ([17.250.248.86]:63469 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932085AbWCVWKc (ORCPT
+	Wed, 22 Mar 2006 17:12:20 -0500
+Received: from atlrel6.hp.com ([156.153.255.205]:36558 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S932092AbWCVWMT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 17:10:32 -0500
-Mime-Version: 1.0 (Apple Message framework v746.3)
+	Wed, 22 Mar 2006 17:12:19 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Adam Belay <ambx1@neo.rr.com>
+Subject: [PATCH  2/12] PNP: adjust pnp_register_card_driver() signature
+Date: Wed, 22 Mar 2006 15:12:14 -0700
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org, Jaroslav Kysela <perex@suse.cz>,
+       Matthieu Castet <castet.matthieu@free.fr>,
+       Li Shaohua <shaohua.li@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Massimo Piccioni <dafastidio@libero.it>, Takashi Iwai <tiwai@suse.de>
+References: <200603221455.26230.bjorn.helgaas@hp.com>
+In-Reply-To: <200603221455.26230.bjorn.helgaas@hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <BE2452EA-2566-4C2A-B07D-BD63404A42C1@mac.com>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: Mark Rustad <mrustad@mac.com>
-Subject: 2.6.16 hugetlbfs problem
-Date: Wed, 22 Mar 2006 16:10:33 -0600
-X-Mailer: Apple Mail (2.746.3)
+Content-Disposition: inline
+Message-Id: <200603221512.14335.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
+Remove the assumption that pnp_register_card_driver() returns the
+number of devices claimed.  And fix a __init/__devinit issue.
 
-I seem to be having trouble using hugetlbfs with kernel 2.6.16. I  
-have a small test program that worked with 2.6.16-rc5, but fails with  
-2.6.16-rc6 or the release. The program is below. Given a path to a  
-file on a hugetlbfs, it opens/creates the file, mmaps it and tries to  
-access the first word. On 2.6.16-rc5, it works. On 2.6.16, it hangs  
-page-faulting until it is killed.
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-#include <stdint.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-
-
-int main(int argc, char *argv[])
-{
-	unsigned	len = 4 * 1024 * 1024;
-	void	*vaddr = (void *)0x48000000;
-	int	hfd;
-	void	*p;
-	int	*ip;
-
-	if (!argc || !argv[1] || !argv[1][0]) {
-		fprintf(stderr, "Missing argument\n");
-		return 1;
-	}
-	hfd = open(argv[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-	if (hfd < 0) {
-		perror("open");
-		return 1;
-	}
-	p = mmap(vaddr, len, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED,
-		hfd, 0);
-	if (p == MAP_FAILED) {
-		perror("mmap");
-		fprintf(stderr, "mmap failed at %p\n", vaddr);
-		return 1;
-	}
-	ip = p;
-	*ip = 0;	// This loops on page faults
-	close(hfd);
-	printf("Size %d in file %s\n", len, argv[1]);
-
-	return 0;
-}
-
-Any ideas?
-
--- 
-Mark Rustad, MRustad@mac.com
-
+Index: work-mm6/sound/isa/als100.c
+===================================================================
+--- work-mm6.orig/sound/isa/als100.c	2006-03-22 11:24:42.000000000 -0700
++++ work-mm6/sound/isa/als100.c	2006-03-22 11:48:33.000000000 -0700
+@@ -199,7 +199,7 @@
+ 	return 0;
+ }
+ 
+-static int __init snd_card_als100_probe(int dev,
++static int __devinit snd_card_als100_probe(int dev,
+ 					struct pnp_card_link *pcard,
+ 					const struct pnp_card_device_id *pid)
+ {
+@@ -281,6 +281,8 @@
+ 	return 0;
+ }
+ 
++static unsigned int __devinitdata als100_devices;
++
+ static int __devinit snd_als100_pnp_detect(struct pnp_card_link *card,
+ 					   const struct pnp_card_device_id *id)
+ {
+@@ -294,6 +296,7 @@
+ 		if (res < 0)
+ 			return res;
+ 		dev++;
++		als100_devices++;
+ 		return 0;
+ 	}
+ 	return -ENODEV;
+@@ -345,10 +348,13 @@
+ 
+ static int __init alsa_card_als100_init(void)
+ {
+-	int cards;
++	int err;
++
++	err = pnp_register_card_driver(&als100_pnpc_driver);
++	if (err)
++		return err;
+ 
+-	cards = pnp_register_card_driver(&als100_pnpc_driver);
+-	if (cards <= 0) {
++	if (!als100_devices) {
+ 		pnp_unregister_card_driver(&als100_pnpc_driver);
+ #ifdef MODULE
+ 		snd_printk(KERN_ERR "no ALS100 based soundcards found\n");

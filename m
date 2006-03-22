@@ -1,78 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWCVWWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWCVWYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbWCVWWn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 17:22:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbWCVWWn
+	id S1751401AbWCVWYN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 17:24:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWCVWYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 17:22:43 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:36875 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932162AbWCVWWl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 17:22:41 -0500
+	Wed, 22 Mar 2006 17:24:12 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:19895
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S932176AbWCVWYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 17:24:10 -0500
+From: Rob Landley <rob@landley.net>
+To: Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH] initramfs: CPIO unpacking fix
+Date: Wed, 22 Mar 2006 17:23:28 -0500
+User-Agent: KMail/1.8.3
+Cc: Michael Neuling <mikey@neuling.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       klibc@zytor.com, Al Viro <viro@ftp.linux.org.uk>, hpa@zytor.com,
+       miltonm@bga.com
+References: <20060216183745.50cc2bf6.mikey@neuling.org> <20060322061220.8414067A70@ozlabs.org> <4420F93C.1050705@garzik.org>
+In-Reply-To: <4420F93C.1050705@garzik.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <4421C8C9.10007@cfl.rr.com>
-x-originalarrivaltime: 22 Mar 2006 22:22:36.0459 (UTC) FILETIME=[1F5967B0:01C64DFF]
-Content-class: urn:content-classes:message
-Subject: Re: VFAT: Can't create file named 'aux.h'?
-Date: Wed, 22 Mar 2006 17:22:36 -0500
-Message-ID: <Pine.LNX.4.61.0603221705510.1531@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: VFAT: Can't create file named 'aux.h'?
-Thread-Index: AcZN/x9gGgvhx6J9RZW0Owoai75mag==
-References: <1142890822.5007.18.camel@localhost.localdomain> <20060320134533.febb0155.rdunlap@xenotime.net> <dvn835$lvo$1@terminus.zytor.com> <Pine.LNX.4.61.0603211840020.21376@yvahk01.tjqt.qr> <44203B86.5000003@zytor.com> <Pine.LNX.4.61.0603211854150.21376@yvahk01. <87y7z2l159.fsf@duaron.myhome.or.jp> <4421C8C9.10007@cfl.rr.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Phillip Susi" <psusi@cfl.rr.com>
-Cc: "OGAWA Hirofumi" <hirofumi@mail.parknet.co.jp>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603221723.29279.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 22 Mar 2006, Phillip Susi wrote:
-
-> It appears to simply be stored as "aux" under windows.  The filesystem
-> itself has no reserved names.  The handling of AUX and CON and friends
-> is just special case handling done at the win32 api level.
+On Wednesday 22 March 2006 2:14 am, Jeff Garzik wrote:
+> Michael Neuling wrote:
+> > Unlink files, symlinks, FIFOs, devices etc. (except directories) before
+> > writing them when extracting CPIOs.  This stops weird behaviour like:
+> >  1) writing through symlinks created in earlier CPIOs. eg foo->bar in
+> >     the first CPIO.  Having foo as a non-link in a subsequent CPIO,
+> >     results in bar being written and foo remaining as a symlink.
+> >  2) if the first version of file foo is larger than foo in a
+> >     subsequent CPIO, we end up with a mix of the two.  ie. neither
+> >     the first or second version of /foo.
+> >  3) special files like devices, fifo etc. can't be overwritten in
+> >     subsequent CPIOS.
+> >
+> > With this, the kernel will more closely replicate
+> >   for i in *.cpio; do cpio --extract --unconditional < $i ; done
+> >
+> > This is a change but it's regarded as fixing broken functionality.
+> >
+> > Signed-off-by: Michael Neuling <mikey@neuling.org>
 >
-> OGAWA Hirofumi wrote:
->> Could you/anyone check what shortname is used for "AUX" if it is created
->> in cmd.exe?
->>
->> Windows may be storing it as shortname, because it seems to be using
->> completely separated namespace for devices (I guessed from result of
->> google).
->>
->> Thanks.
->
+> For the kernel, I would regard that as needless code...  Coding for a
+> chain of CPIO archives overwriting each other seems like overengineering.
 
-Under win/2000 "aux" can't be created either by using C/C++ or
-any of the usual utilities like `ftp`. The returned error-code
-is "Permission denied", even from an administrator account.
+There's an obvious use case:
 
-I have a dual-boot lap-top so I tried to create a file called
-"AUX" using `echo "">AUX`, under Linux-2.4.26. The error-code
-was "Invalid argument". This is a "vfat" file-system. I was
-able to create the device-name "CLOCK$", which is reserved in
-DOS. I'm now rebooting the laptop, it should be interesting
-to see if it still works! .... Yep. It's not a reserved name
-in Win/2000.
+First initramfs.cpio.gz built into the kernel, second initramfs.cpio.gz 
+supplied as an external file via the initrd mechanism.  Both get extracted 
+into the same rootfs, and I believe external one will overwrite the internal 
+one if files conflict.
 
+And yes, there are people out there who want to deploy the same binary kernel 
+image across a product line (or at least put each new one through 3 months of 
+testing).  And others who want to be able to twiddle the rootfs contents 
+without rebuilding the kernel from source each time.  (And of course anybody 
+who needs to supply binary firmware to a statically linked device driver like 
+ipw2200 is probably pretty happy about the ability to keep it in a separate 
+file from the kernel, for license reasons.  Or should be, anyway.)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.48 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
+I'm actually fiddling with a script to let people do this for 
+vmlinux->bzImage.  Objcopy with a new init.ramfs section and then go through 
+the song and dance to make a bzImage.  Replacing the initramfs _in_ a 
+bzimage?  Not fun.  Turning vmlinux into each of the other binary packaging 
+types for other platforms?  Also not fun.  (I don't even have a complete list 
+of what they all _are_ yet.  Working on it...)
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+> 	Jeff
 
-Thank you.
+Rob
+-- 
+Never bet against the cheap plastic solution.

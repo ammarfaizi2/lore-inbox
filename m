@@ -1,89 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbWCVS6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbWCVTEF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932339AbWCVS6W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 13:58:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWCVS6W
+	id S932338AbWCVTEF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 14:04:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWCVTEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 13:58:22 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:45952 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932339AbWCVS6W
+	Wed, 22 Mar 2006 14:04:05 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:9171 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932338AbWCVTEE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 13:58:22 -0500
-Date: Wed, 22 Mar 2006 10:58:36 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
-       linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com,
-       Ian Pratt <ian.pratt@xensource.com>
-Subject: Re: [RFC PATCH 10/35] Add a new head.S start-of-day file for booting on Xen.
-Message-ID: <20060322185836.GZ15997@sorel.sous-sol.org>
-References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063748.490176000@sorel.sous-sol.org> <200603221443.54119.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603221443.54119.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 22 Mar 2006 14:04:04 -0500
+Date: Wed, 22 Mar 2006 14:04:03 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Kristen Accardi <kristen.c.accardi@intel.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] add private data to notifier_block
+In-Reply-To: <1142970154.31210.10.camel@whizzy>
+Message-ID: <Pine.LNX.4.44L0.0603221402070.7453-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andi Kleen (ak@suse.de) wrote:
-> > +	/* get vendor info */
-> > +	xorl %eax,%eax			# call CPUID with 0 -> return vendor ID
-> > +	cpuid
-> > +	movl %eax,X86_CPUID		# save CPUID level
-> > +	movl %ebx,X86_VENDOR_ID		# lo 4 chars
-> > +	movl %edx,X86_VENDOR_ID+4	# next 4 chars
-> > +	movl %ecx,X86_VENDOR_ID+8	# last 4 chars
-> > +
-> > +	movl $1,%eax		# Use the CPUID instruction to get CPU type
-> > +	cpuid
-> > +	movb %al,%cl		# save reg for future use
-> > +	andb $0x0f,%ah		# mask processor family
-> > +	movb %ah,X86
-> > +	andb $0xf0,%al		# mask model
-> > +	shrb $4,%al
-> > +	movb %al,X86_MODEL
-> > +	andb $0x0f,%cl		# mask mask revision
-> > +	movb %cl,X86_MASK
-> > +	movl %edx,X86_CAPABILITY
+On Tue, 21 Mar 2006, Kristen Accardi wrote:
+
+> While most current uses of notifier_block use a global struct, I would
+> like to be able to use it on a per device basis for drivers which have
+> multiple device instances.  I would also like to be able to have a
+> private data struct associated with the notifier block so that per
+> device data can be easily accessed.  This patch will modify the
+> notifier_block struct to add a void *, and will require no modifications
+> to any other users of the notifier_block.
 > 
-> Can you make the CPU detection a common subfunction with the normal head.S ?
-
-I don't see why not, prefer to share as much as possible.
-
-> > +/*
-> > + * BSS section
-> > + */
-> > +.section ".bss.page_aligned","w"
-> > +ENTRY(swapper_pg_dir)
-> > +	.fill 1024,4,0
-> > +ENTRY(empty_zero_page)
-> > +	.fill 4096,1,0
-> > +
-> > +/*
-> > + * This starts the data section.
-> > + */
-> > +.data
-> > +
-> > +	ALIGN
-> > +	.word 0				# 32 bit align gdt_desc.address
-> > +	.globl cpu_gdt_descr
-> > +cpu_gdt_descr:
-> > +	.word GDT_SIZE
-> > +	.long cpu_gdt_table
-> > +
-> > +	.fill NR_CPUS-1,8,0		# space for the other GDT descriptors
-> > +
-> > +/*
-> > + * The Global Descriptor Table contains 28 quadwords, per-CPU.
-> > + */
-> > +	.align PAGE_SIZE_asm
-> > +ENTRY(cpu_gdt_table)
+> Signed-off-by:  Kristen Carlson Accardi <kristen.c.accardi@intel.com>
 > 
-> GDT and empty_zero_page should be shared (they're identical right?) Put them into a 
-> new separate common file.
+> ---
+>  include/linux/notifier.h |    1 +
+>  1 files changed, 1 insertion(+)
+> 
+> --- 2.6-git-kca.orig/include/linux/notifier.h
+> +++ 2.6-git-kca/include/linux/notifier.h
+> @@ -15,6 +15,7 @@ struct notifier_block
+>  {
+>  	int (*notifier_call)(struct notifier_block *self, unsigned long, void *);
+>  	struct notifier_block *next;
+> +	void *data;
+>  	int priority;
+>  };
 
-There's still kernel/user cs/ds in gdt, so it's not all zero.
+I still think this isn't really needed.  The same effect can be 
+accomplished by embedding a notifier_block struct within a larger 
+structure that also contains the data pointer.
 
-thanks,
--chris
+On the other hand this isn't a terribly big change, so I don't actually 
+object to it.
+
+Alan Stern
+

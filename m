@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbWCVKps@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWCVKwA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750900AbWCVKps (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 05:45:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750851AbWCVKps
+	id S1750751AbWCVKwA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 05:52:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbWCVKwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 05:45:48 -0500
-Received: from wproxy.gmail.com ([64.233.184.207]:12344 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750828AbWCVKpr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 05:45:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HlLQpeQFrZ64JORhjw0DoWI3u1ekW/8t9+xql5W8ZXm+zEgrXHrc6gltvk1AwBXUL461jBvXQ+EJnF4Vp3mY7GsYxsTC2HnHt1Eg3fOJljv7Nl29OV6OZEtPdYQ2aacARc52GMccOWJ9a7tt1BY6KkS/ApwptWWwt04oWPcg8+A=
-Message-ID: <4fec73ca0603220245y72e66279jeaf93a944334a879@mail.gmail.com>
-Date: Wed, 22 Mar 2006 11:45:43 +0100
-From: "=?ISO-8859-1?Q?Guillermo_L=F3pez_Alejos?=" <glalejos@gmail.com>
-To: "Sam Vilain" <sam@vilain.net>
-Subject: Re: Introducting LXD
-Cc: "Linux Kernel mailing list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <44208914.9020604@vilain.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4fec73ca0603210212m5b351a14t678ee6dc918a5eb2@mail.gmail.com>
-	 <44208914.9020604@vilain.net>
+	Wed, 22 Mar 2006 05:52:00 -0500
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:43476 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S1750761AbWCVKv7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 05:51:59 -0500
+In-Reply-To: <1143023981.2955.54.camel@laptopd505.fenrus.org>
+References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063801.949835000@sorel.sous-sol.org> <1143016837.2955.20.camel@laptopd505.fenrus.org> <1992b724e8540f8e532806076d07eb9e@cl.cam.ac.uk> <1143023981.2955.54.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <a70f33dcf9a53dc75b44452132eb81d8@cl.cam.ac.uk>
+Content-Transfer-Encoding: 7bit
+Cc: virtualization@lists.osdl.org, Ian Pratt <ian.pratt@xensource.com>,
+       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@sous-sol.org>
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Subject: Re: [RFC PATCH 26/35] Add Xen subarch reboot support
+Date: Wed, 22 Mar 2006 10:52:17 +0000
+To: Arjan van de Ven <arjan@infradead.org>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes, I could follow the link, but there was nothing really there in your
-> post to make me want to bite.
 
-O.K., I'll try to show some of the interesting aspects of LXD.
+On 22 Mar 2006, at 10:39, Arjan van de Ven wrote:
 
-LXD intends to be a documentation system for large open source
-projects. Its main objective is to gather high level information that
-cannot be extracted from the source files.
+>> The intent is to allow remote management tools to trigger a clean
+>> shutdown of the virtual machine. That requires us to notify to
+>> userspace, and this function does that by exec'ing one of the standard
+>> userspace programs. Given the trigger is received by the kernel in the
+>> first instance I don't know a better way of doing this. And if this is
+>> the best way, I don't think there is generic code in the kernel which
+>> does the same thing.
+>
+>
+> well this isn't really different from the normal ctrl-alt-delete right?
+> I would strongly suggest to follow the normal ctrl-alt-del path.. that
+> follows the normal convention sysadmins are used to.
+> It's not "/sbin/poweroff" fwiw... at least not hardcoded. Following the
+> normal ctrl-alt-del codepath gets all the policy out of this kind of
+> thing as well..
 
-The main strengths of LXD are:
-    * Documentation is separated from source files:
-        - High level information usually does not fit in a unique
-source file (e.g.
-          subsystem description).
-        - Source code is more readable without big blocks of comments.
+Hmm... that will work okay for reboot, where SIGINT to init is probably 
+a better strategy than what we do now. But we'd still need something 
+special for halt/shutdown. We followed the same principle for this as 
+sparc64/kernel/power.c.
 
-    * Documentation files have a well defined XML structure.
-        - Provides developers a clear view of what has to be documented and how.
-        - Documentation can be edited using standard XML editors.
-        - It can be obtained lots of human readable documentation
-formats (LaTeX, HTML, ...)
-          from XML documents.
-        - Documentation can be independent from programming language.
+  -- Keir
 
-My initial idea of LXD is a system composed by the XML documents
-definitions and a set of tools to ease the management of XML
-documentation. To simplify the problem, the first approach will be
-focused on projects written in C language. As I said in my previous
-post, there is a presentation of the project at
-http://lxd.sourceforge.net/.
-
-The main aspects that I expect to discuss for user requirements
-analysis are the XML documents definitions and also useful tools for
-this system.
-
-Best regards,
-
---
-Guillermo

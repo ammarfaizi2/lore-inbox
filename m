@@ -1,69 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbWCVXKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbWCVXLd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751425AbWCVXKG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 18:10:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWCVXKG
+	id S1751436AbWCVXLd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 18:11:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWCVXLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 18:10:06 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:52887 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751425AbWCVXKE (ORCPT
+	Wed, 22 Mar 2006 18:11:33 -0500
+Received: from ns2.suse.de ([195.135.220.15]:14270 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751436AbWCVXLc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 18:10:04 -0500
-Message-ID: <4421D943.1090804@garzik.org>
-Date: Wed, 22 Mar 2006 18:09:55 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 22 Mar 2006 18:11:32 -0500
+From: Andi Kleen <ak@suse.de>
+To: Zachary Amsden <zach@vmware.com>
+Subject: Re: [RFC, PATCH 1/24] i386 Vmi documentation II
+Date: Wed, 22 Mar 2006 23:38:42 +0100
+User-Agent: KMail/1.9.1
+Cc: virtualization@lists.osdl.org, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+References: <200603131759.k2DHxeep005627@zach-dev.vmware.com> <200603222239.46604.ak@suse.de> <4421D379.3090405@vmware.com>
+In-Reply-To: <4421D379.3090405@vmware.com>
 MIME-Version: 1.0
-To: Ian Pratt <m+Ian.Pratt@cl.cam.ac.uk>
-CC: Anthony Liguori <aliguori@us.ibm.com>, Chris Wright <chrisw@sous-sol.org>,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       linux-kernel@vger.kernel.org, Ian Pratt <ian.pratt@xensource.com>,
-       ian.pratt@cl.cam.ac.uk, SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [RFC PATCH 35/35] Add Xen virtual block device driver.
-References: <A95E2296287EAD4EB592B5DEEFCE0E9D4B9E8A@liverpoolst.ad.cl.cam.ac.uk>
-In-Reply-To: <A95E2296287EAD4EB592B5DEEFCE0E9D4B9E8A@liverpoolst.ad.cl.cam.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Message-Id: <200603222338.44919.ak@suse.de>
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.5 (--)
-X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
-	Content analysis details:   (-2.5 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Pratt wrote:
->>This is another thing that has always put me off.  The 
->>virtual block device driver has the ability to masquerade as 
->>other types of block devices.  It actually claims to be an 
->>IDE or SCSI device allocating the appropriate major/minor numbers.
->>
->>This seems to be pretty evil and creating interesting failure 
->>conditions for users who load IDE or SCSI modules.  I've seen 
->>it trip up a number of people in the past.  I think we should 
->>only ever use the major number that was actually allocated to us.
-> 
-> 
-> We certainly should be pushing everyone toward using the 'xdX' etc
-> devices that are allocated to us. However, the installers of certain
-> older distros and other user space tools won't except anything other
-> than hdX/sdX, so its useful from a compatibility POV even if it never
-> goes into mainline, which I agree it probably shouldn't. 
+On Wednesday 22 March 2006 23:45, Zachary Amsden wrote:
 
-Yes, this is true.  Red Hat installer guys grumbled at me when I wrote 
-the 'sx8' block driver:  since it wasn't hda/sda, they had to write 
-special code for it, as they apparently must do for any new block driver 
-"class".  SuSE and other distros are probably similar, since each block 
-driver provides its own special behaviors and feature exports.
+> I propose an entirely different approach - use segmentation. 
 
-I should have spoken up a long time ago about this, but anyway:
+That would require a lot of changes to save/restore the segmentation
+register at kernel entry/exit since there is no swapgs on i386. 
+And will be likely slower there too and also even slow down the 
+VMI-kernel-no-hypervisor.
 
-An IBM hypervisor on ppc64 communicates uses SCSI RPC messages.  I think 
-this would be quite nice for Xen, because SCSI (a) is a message-based 
-model, and (b) implementing block using SCSI has a very high Just 
-Works(tm) value which cannot be ignored.  And perhaps (c) SCSI target 
-code already exists, so implementing the server side doesn't require 
-starting from scratch, but rather simply connecting the Legos.
+Still might be the best option.
 
-	Jeff
+How did that rumoured Xenolinux-over-VMI implementation solve that problem?
 
-
+-Andi

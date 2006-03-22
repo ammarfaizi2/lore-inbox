@@ -1,73 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWCVKxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWCVLLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750851AbWCVKxp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 05:53:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWCVKxo
+	id S1750703AbWCVLLs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 06:11:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWCVLLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 05:53:44 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:5280 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750761AbWCVKxo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 05:53:44 -0500
-Date: Wed, 22 Mar 2006 02:50:25 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: VFS: Convert abuses of sector_t
-Message-Id: <20060322025025.662999e9.akpm@osdl.org>
-In-Reply-To: <1142961196.7987.17.camel@lade.trondhjem.org>
-References: <1142961196.7987.17.camel@lade.trondhjem.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 22 Mar 2006 06:11:47 -0500
+Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:27216 "HELO
+	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750703AbWCVLLr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 06:11:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=c1qda96D8naUqngXpfwxfbG0yKkBfsHzOimhWtkLtoM9D24BLBCr38OaxoBXV9FLRwpzIHh6mcPoW+e+lx+hU20TwIBbSx5sox5h90xB2XJq+X56O26QOcu+sASWDxg3bOb8yFNVC3L6R+O1qjcuEvfmaqTPPBicIhBK/e+uZO4=  ;
+Message-ID: <44212353.7000408@yahoo.com.au>
+Date: Wed, 22 Mar 2006 21:13:39 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stone Wang <pwstone@gmail.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: PATCH][1/8] 2.6.15 mlock: make_pages_wired/unwired
+References: <bc56f2f0603200536scb87a8ck@mail.gmail.com>	 <441FEFB4.6050700@yahoo.com.au>	 <bc56f2f0603210803l28145c7dj@mail.gmail.com>	 <44209A26.3040102@yahoo.com.au> <bc56f2f0603220059x6b2a30b8h@mail.gmail.com>
+In-Reply-To: <bc56f2f0603220059x6b2a30b8h@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
->
-> From: Trond Myklebust <Trond.Myklebust@netapp.com>
-> 
-> The type "sector_t" is heavily tied in to the block layer interface as an
-> offset/handle to a block, and is subject to a supposedly block-specific
-> configuration option: CONFIG_LBD. Despite this, it is used in struct
-> kstatfs to save a couple of bytes on the stack whenever we call the
-> filesystems' ->statfs().
-> 
-> One consequence is that networked filesystems may break if CONFIG_LBD is
-> not set, since it is quite common to have multi-TB remote filesystems.
-> 
-> The following patch just converts struct kstatfs to use the standard type u64.
-> 
-> Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
-> ---
-> 
->  include/linux/statfs.h |   10 +++++-----
->  1 files changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/include/linux/statfs.h b/include/linux/statfs.h
-> index ad83a2b..b34cc82 100644
-> --- a/include/linux/statfs.h
-> +++ b/include/linux/statfs.h
-> @@ -8,11 +8,11 @@
->  struct kstatfs {
->  	long f_type;
->  	long f_bsize;
-> -	sector_t f_blocks;
-> -	sector_t f_bfree;
-> -	sector_t f_bavail;
-> -	sector_t f_files;
-> -	sector_t f_ffree;
-> +	u64 f_blocks;
-> +	u64 f_bfree;
-> +	u64 f_bavail;
-> +	u64 f_files;
-> +	u64 f_ffree;
->  	__kernel_fsid_t f_fsid;
->  	long f_namelen;
->  	long f_frsize;
+Stone Wang wrote:
+> 2006/3/21, Nick Piggin <nickpiggin@yahoo.com.au>:
 
-This change also appears (for different reasons) in
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm2/broken-out/2tb-files-change-type-of-kstatfs-entries.patch,
-so we should be OK.
+> 
+> We didnt wire them.
+> 
+
+But your comment said they were wired.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

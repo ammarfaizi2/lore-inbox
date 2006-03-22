@@ -1,75 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWCVERy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWCVEfd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWCVERy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 23:17:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWCVERy
+	id S1750755AbWCVEfd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 23:35:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWCVEfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 23:17:54 -0500
-Received: from mail.gmx.net ([213.165.64.20]:1933 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750747AbWCVERy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 23:17:54 -0500
-X-Authenticated: #14349625
-Subject: Re: interactive task starvation
-From: Mike Galbraith <efault@gmx.de>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       bugsplatter@gmail.com
-In-Reply-To: <20060321175004.GA27303@w.ods.org>
-References: <200603090036.49915.kernel@kolivas.org>
-	 <1142949690.7807.80.camel@homer> <200603220117.54822.kernel@kolivas.org>
-	 <200603220220.11368.kernel@kolivas.org>  <20060321175004.GA27303@w.ods.org>
-Content-Type: text/plain
-Date: Wed, 22 Mar 2006 05:18:01 +0100
-Message-Id: <1143001081.11047.61.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Tue, 21 Mar 2006 23:35:33 -0500
+Received: from smtpauth04.mail.atl.earthlink.net ([209.86.89.64]:63377 "EHLO
+	smtpauth04.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S1750751AbWCVEfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 23:35:32 -0500
+To: "Yu, Luming" <luming.yu@intel.com>
+cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       michael@mihu.de, mchehab@infradead.org,
+       "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
+       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       jgarzik@pobox.com, "Duncan" <1i5t5.duncan@cox.net>,
+       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
+Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+In-Reply-To: Your message of "Wed, 22 Mar 2006 09:30:04 +0800."
+             <3ACA40606221794F80A5670F0AF15F840B417B9D@pdsmsx403> 
+X-Mailer: MH-E 7.91; nmh 1.1; GNU Emacs 21.4.1
+Date: Tue, 21 Mar 2006 23:35:07 -0500
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1FLv3r-00040D-3t@approximate.corpus.cam.ac.uk>
+X-ELNK-Trace: dcd19350f30646cc26f3bd1b5f75c9f474bf435c0eb9d478a122c03f3aaf2a200fd305fe6d1cdec3c63b0d0c15212565350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 24.41.6.91
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-21 at 18:50 +0100, Willy Tarreau wrote:
-> On Wed, Mar 22, 2006 at 02:20:10AM +1100, Con Kolivas wrote:
-> > On Wednesday 22 March 2006 01:17, Con Kolivas wrote:
-> > > I actually believe the same effect can be had by a tiny 
-> > > modification to enable/disable the estimator anyway.
-> > 
-> > Just for argument's sake it would look something like this.
-> > 
-> > Cheers,
-> > Con
-> > ---
-> > Add sysctl to enable/disable cpu scheduer interactivity estimator
-> 
-> At least, in May 2005, the equivalent of this patch I tested on
-> 2.6.11.7 considerably improved responsiveness, but there was still
-> this very annoying slowdown when the load increased. vmstat delays
-> increased by one second every 10 processes. I retried again around
-> 2.6.14 a few months ago, and it was the same. Perhaps Mike's code
-> and other changes in 2.6-mm really fix the initial problem (array
-> switching ?) and then only the interactivity boost is causing the
-> remaining trouble ?
+> We can do bisection in EC0.UPDT to find out which statement cause
+> hang?
 
-The slowdown you see is because a timeslice is 100ms, and that patch
-turned the scheduler into a non-preempting pure round-robin slug.
+Yes, though see below for why I don't think it'll help no matter what we
+find there.
 
-Array switching is only one aspect, and one I hadn't thought of as I was
-tinkering with my patches, I discovered that aspect by accident.
+> My assumption is that since Windows works well, then these BIOS code
+> should have been tested ok. The only possible excuse for BIOS is that
+> Linux is using unnecessary/untested code path for Suspend/resume.  So,
+> Eventually, we need to disable unnecessary BIOS call for
+> suspend/resume
 
-My code does a few things, and all of them are part of the picture.  One
-of them is to deal with excessive interactive boost.  Another is to
-tighten timeslice enforcement, and another is to close the fundamental
-hole in the concept sleep_avg.  That hole is causing the majority of the
-problems that crop up, the interactivity bits only make it worse.  The
-hole is this.  If priority is based solely upon % sleep time, even if
-there is no interactive boost, even if accumulation vs consumption is
-1:1, if you sleep 51% of the time, you will inevitably rise to max
-priority, and be able to use 49% of the CPU at max priority forever.
-The current heuristics make that very close to but not quite 95%.
+Maybe we're not collecting the right data in that case.  We know that
+commenting out the call to UPDT in THM0.TMP fixes the hang.  But it does
+not follow that the osl suspend code should avoid running UPDT.
 
-The fact that we don't have _horrendous_ problems shows that the basic
-concept of sleep_avg is pretty darn good.  Close the hole in any way you
-can think of (mine is one), and it's excellent.
+The hang may work like this: Between boot and sleep, calling UPDT messes
+up something in the ec [which is why it takes >1 sleep to cause a hang].
+When the system tries to sleep, that something triggers and the ec
+hangs.  But it may hang somewhere else than UPDT, and avoiding UPDT
+during sleep will not fix it.
 
+However, we do have one more piece of data.  When it hangs, it hangs in
+\_SI._SST, because I see that line on successful sleeps (as the last
+method before the beep) but not when it hangs (and then I also don't
+hear a beep).  There are lots of calls to EC0.XXX, including to
+EC0.BEEP, within _SST, which isn't surprising if the EC is the problem.
+So perhaps I should bisect in _SST and put in the debug lines there?
+
+Here's another idea, which is a terrible hack.  But there are lots of
+lines in the DSDT like
+   If (LOr (SPS, WNTF))
+which I imagine is saying "If something or if WinNT".  So, what if Linux
+pretends to be WinNT (or W98F -- which is another common test), at least
+for the 600x?  Maybe those code paths are known to work.
+
+-Sanjoy
+
+`A society of sheep must in time beget a government of wolves.'
+   - Bertrand de Jouvenal

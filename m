@@ -1,92 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbWCVGn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWCVGnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750895AbWCVGn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 01:43:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWCVGnk
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S1750948AbWCVGnk (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 22 Mar 2006 01:43:40 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:21177 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750938AbWCVGnW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 01:43:22 -0500
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       OpenVZ developers list <dev@openvz.org>,
-       "Serge E.Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] [PATCH 0/7] Some basic vserver infrastructure
-References: <20060321061333.27638.63963.stgit@localhost.localdomain>
-	<1142967011.10906.185.camel@localhost.localdomain>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 21 Mar 2006 23:41:49 -0700
-In-Reply-To: <1142967011.10906.185.camel@localhost.localdomain> (Dave
- Hansen's message of "Tue, 21 Mar 2006 10:50:11 -0800")
-Message-ID: <m1k6anq8uq.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbWCVGiB
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 22 Mar 2006 01:38:01 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:7040 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750878AbWCVGhi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 01:37:38 -0500
+Message-Id: <20060322063752.437169000@sorel.sous-sol.org>
+References: <20060322063040.960068000@sorel.sous-sol.org>
+Date: Tue, 21 Mar 2006 22:30:56 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org
+Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org,
+       Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Subject: [RFC PATCH 16/35] subarch support for interrupt and exception gates
+Content-Disposition: inline; filename=15-i386-idt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> writes:
+Abstract the code that sets up interrupt and exception gates, and
+add a separate subarch implementation for Xen.
 
-> On Tue, 2006-03-21 at 18:13 +1200, Sam Vilain wrote:
->> Here is a work in progress of trying to extract some the core vserver
->> architecture and present it as an incremental set of patches.
->
-> Hi Sam,
->
-> These patches are certainly getting better and better broken out all the
-> time.  Nice work.
->
-> But, I worry that they just aren't generic enough yet.  I don't see any
-> response from any of the other "container/namespace/vps" people.  I fear
-> that this means that they don't look broadly useful enough, yet.
+Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
+Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+---
+ arch/i386/kernel/traps.c                   |   49 ---------------------------
+ include/asm-i386/mach-default/mach_idt.h   |   52 +++++++++++++++++++++++++++++
+ include/asm-i386/mach-xen/mach_idt.h       |   50 +++++++++++++++++++++++++++
+ include/asm-i386/mach-xen/setup_arch_pre.h |    2 +
+ 4 files changed, 105 insertions(+), 48 deletions(-)
 
-Not broadly useful is certainly my impression.
-It feels to me like these patches are simply doing too much.
+--- xen-subarch-2.6.orig/arch/i386/kernel/traps.c
++++ xen-subarch-2.6/arch/i386/kernel/traps.c
+@@ -1043,54 +1043,7 @@ void __init trap_init_f00f_bug(void)
+ }
+ #endif
+ 
+-#define _set_gate(gate_addr,type,dpl,addr,seg) \
+-do { \
+-  int __d0, __d1; \
+-  __asm__ __volatile__ ("movw %%dx,%%ax\n\t" \
+-	"movw %4,%%dx\n\t" \
+-	"movl %%eax,%0\n\t" \
+-	"movl %%edx,%1" \
+-	:"=m" (*((long *) (gate_addr))), \
+-	 "=m" (*(1+(long *) (gate_addr))), "=&a" (__d0), "=&d" (__d1) \
+-	:"i" ((short) (0x8000+(dpl<<13)+(type<<8))), \
+-	 "3" ((char *) (addr)),"2" ((seg) << 16)); \
+-} while (0)
+-
+-
+-/*
+- * This needs to use 'idt_table' rather than 'idt', and
+- * thus use the _nonmapped_ version of the IDT, as the
+- * Pentium F0 0F bugfix can have resulted in the mapped
+- * IDT being write-protected.
+- */
+-void set_intr_gate(unsigned int n, void *addr)
+-{
+-	_set_gate(idt_table+n,14,0,addr,__KERNEL_CS);
+-}
+-
+-/*
+- * This routine sets up an interrupt gate at directory privilege level 3.
+- */
+-static inline void set_system_intr_gate(unsigned int n, void *addr)
+-{
+-	_set_gate(idt_table+n, 14, 3, addr, __KERNEL_CS);
+-}
+-
+-static void __init set_trap_gate(unsigned int n, void *addr)
+-{
+-	_set_gate(idt_table+n,15,0,addr,__KERNEL_CS);
+-}
+-
+-static void __init set_system_gate(unsigned int n, void *addr)
+-{
+-	_set_gate(idt_table+n,15,3,addr,__KERNEL_CS);
+-}
+-
+-static void __init set_task_gate(unsigned int n, unsigned int gdt_entry)
+-{
+-	_set_gate(idt_table+n,5,0,0,(gdt_entry<<3));
+-}
+-
++#include <mach_idt.h>
+ 
+ void __init trap_init(void)
+ {
+--- xen-subarch-2.6.orig/include/asm-i386/mach-xen/setup_arch_pre.h
++++ xen-subarch-2.6/include/asm-i386/mach-xen/setup_arch_pre.h
+@@ -6,6 +6,8 @@
+ struct start_info *xen_start_info;
+ EXPORT_SYMBOL(xen_start_info);
+ 
++struct trap_info xen_trap_table[257];
++
+ /*
+  * Point at the empty zero page to start with. We map the real shared_info
+  * page as soon as fixmap is up and running.
+--- /dev/null
++++ xen-subarch-2.6/include/asm-i386/mach-default/mach_idt.h
+@@ -0,0 +1,52 @@
++#ifndef __ASM_MACH_IDT_H
++#define __ASM_MACH_IDT_H
++
++#define _set_gate(gate_addr,type,dpl,addr,seg) \
++do { \
++  int __d0, __d1; \
++  __asm__ __volatile__ ("movw %%dx,%%ax\n\t" \
++	"movw %4,%%dx\n\t" \
++	"movl %%eax,%0\n\t" \
++	"movl %%edx,%1" \
++	:"=m" (*((long *) (gate_addr))), \
++	 "=m" (*(1+(long *) (gate_addr))), "=&a" (__d0), "=&d" (__d1) \
++	:"i" ((short) (0x8000+(dpl<<13)+(type<<8))), \
++	 "3" ((char *) (addr)),"2" ((seg) << 16)); \
++} while (0)
++
++
++/*
++ * This needs to use 'idt_table' rather than 'idt', and
++ * thus use the _nonmapped_ version of the IDT, as the
++ * Pentium F0 0F bugfix can have resulted in the mapped
++ * IDT being write-protected.
++ */
++void set_intr_gate(unsigned int n, void *addr)
++{
++	_set_gate(idt_table+n,14,0,addr,__KERNEL_CS);
++}
++
++/*
++ * This routine sets up an interrupt gate at directory privilege level 3.
++ */
++static inline void set_system_intr_gate(unsigned int n, void *addr)
++{
++	_set_gate(idt_table+n, 14, 3, addr, __KERNEL_CS);
++}
++
++static void __init set_trap_gate(unsigned int n, void *addr)
++{
++	_set_gate(idt_table+n,15,0,addr,__KERNEL_CS);
++}
++
++static void __init set_system_gate(unsigned int n, void *addr)
++{
++	_set_gate(idt_table+n,15,3,addr,__KERNEL_CS);
++}
++
++static void __init set_task_gate(unsigned int n, unsigned int gdt_entry)
++{
++	_set_gate(idt_table+n,5,0,0,(gdt_entry<<3));
++}
++
++#endif /* __ASM_MACH_IDT_H */
+--- /dev/null
++++ xen-subarch-2.6/include/asm-i386/mach-xen/mach_idt.h
+@@ -0,0 +1,50 @@
++#ifndef __ASM_MACH_IDT_H
++#define __ASM_MACH_IDT_H
++
++static inline void _set_gate(unsigned int vector, uint8_t type, uint8_t dpl,
++			     void *addr, uint16_t seg)
++{
++	struct trap_info *t = xen_trap_table;
++
++	BUG_ON(vector > 256);
++
++	while (t->address && t->vector != vector)
++		t++;
++
++	t->vector = vector;
++	t->cs = seg;
++	TI_SET_DPL(t, dpl);
++	if (type == 14 || vector == 7)
++		TI_SET_IF(t, 1);
++	t->address = (unsigned long)addr;
++}
++
++void set_intr_gate(unsigned int n, void *addr)
++{
++	_set_gate(n, 14, 0, addr, __KERNEL_CS);
++}
++
++/*
++ * This routine sets up an interrupt gate at directory privilege level 3.
++ */
++static inline void set_system_intr_gate(unsigned int n, void *addr)
++{
++	_set_gate(n, 14, 3, addr, __KERNEL_CS);
++}
++
++static void __init set_trap_gate(unsigned int n, void *addr)
++{
++	_set_gate(n, 15, 0, addr, __KERNEL_CS);
++}
++
++static void __init set_system_gate(unsigned int n, void *addr)
++{
++	_set_gate(n, 15, 3, addr, __KERNEL_CS);
++}
++
++static void __init set_task_gate(unsigned int n, unsigned int gdt_entry)
++{
++	/* _set_gate(n, 5, 0, 0, (gdt_entry<<3)); */
++}
++
++#endif /* __ASM_MACH_IDT_H */
 
-> That said, at this point, I'd just about rather have _anything_ merged
-> than the nothing we have at this point.  As we throw patches back and
-> forth, we can't seem to agree on even some very small points.  
->
-> I also have a sinking feeling that everybody has gone back off and
-> continues to develop their own out-of-tree functionality, deepening the
-> patch divide.
-
-I certainly have not.  I do feel that developing this just from the
-top down is the wrong way to do this.  In some of the preliminary
-patches we have found several pieces of code that we will have to
-touch that is currently in need of a cleanup.  That is why I have
-been cleaning up /proc.  sysctl is in need of similar treatment
-but is in less bad shape.
-
-Part of it is that I have stopped to look more closely at what
-other people are doing and to look at alternative implementations.
-
-One interesting thing I have manged to do is by using ptrace I
-have implemented enter for the existing filesystem namespaces 
-without having to modify the kernel.  This at least says
-that enter and debugging are two faces of the same coin.
-
-> Is there anything we could merge that we _all_ don't like?  I'm pretty
-> convinced that no single solution will support Eric's, OpenVZ's, and
-> VServer's _existing_ usage models.  Somebody is going to have to bend,
-> or nothing will ever get merged.  Any volunteers? ;)
-
-I don't think that is the case on the fundamentals.  I think with pids
-I am an inch away from implementing a pid namespace that is both
-recursive, efficient, and can map all of the pids into another pid
-space if that is desirable.  Plus I can merge most of it incrementally
-in the existing kernel, before I even allow for multiple pid spaces.
-
-Which should reduce the patch for multiple pid namespaces to something
-reasonable to talk about.
-
-> What about going back to the very simple "struct container" on which to
-> build?
-
-I guess my problem there is that isn't something on which to build
-that is something to hang things off of. 
-
-Eric
+--

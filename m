@@ -1,112 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751933AbWCVBgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751937AbWCVBig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751933AbWCVBgj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Mar 2006 20:36:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751935AbWCVBgj
+	id S1751937AbWCVBig (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Mar 2006 20:38:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751938AbWCVBif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 20:36:39 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:40523 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751933AbWCVBgi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 20:36:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PfmJP5BBynz07BaHX9ZjBC2QZH51EYiuhn54LrK7Z/DL8qdDsa3jTFRA7RU/Q7fJSA4D7yu6Y705idozU/HF8/nhWFamUA1nCv4+Muw3xbTxezv3u/QE8syq6cbvzlWlKW3hzaACBaVto8ZdgLmK5JedQuiLmQBlrPvss+7uO4k=
-Message-ID: <1458d9610603211736m1bdaacebn9bc958ad4763f3d1@mail.gmail.com>
-Date: Wed, 22 Mar 2006 09:36:37 +0800
-From: "Sumit Narayan" <talk2sumit@gmail.com>
-To: "Anand SVR" <anand.svr@gmail.com>
-Subject: Re: Accessing kernel information from a module
-Cc: "Arjan van de Ven" <arjan@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <48a4d13c0603210809n681c3594mcdb41b7578a36dbd@mail.gmail.com>
-MIME-Version: 1.0
+	Tue, 21 Mar 2006 20:38:35 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:26849 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751937AbWCVBie (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Mar 2006 20:38:34 -0500
+Date: Wed, 22 Mar 2006 10:38:39 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: y-goto@jp.fujitsu.com, akpm@osdl.org, tony.luck@intel.com, ak@suse.de,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH: 002/017]Memory hotplug for new nodes v.4.(change name
+ old add_memory() to arch_add_memory())
+Message-Id: <20060322103839.3b3d2a66.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <1142989698.10906.224.camel@localhost.localdomain>
+References: <20060317162757.C63B.Y-GOTO@jp.fujitsu.com>
+	<1142615538.10906.67.camel@localhost.localdomain>
+	<20060318102653.57c6a2af.kamezawa.hiroyu@jp.fujitsu.com>
+	<1142964013.10906.158.camel@localhost.localdomain>
+	<20060322090514.6d6826fc.kamezawa.hiroyu@jp.fujitsu.com>
+	<1142989698.10906.224.camel@localhost.localdomain>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <48a4d13c0603210302h3eb23f12v1bdf3c51c8f9b711@mail.gmail.com>
-	 <1142939529.3077.57.camel@laptopd505.fenrus.org>
-	 <48a4d13c0603210338s4cd1f120k80e1bbe6ac70669c@mail.gmail.com>
-	 <48a4d13c0603210809n681c3594mcdb41b7578a36dbd@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can use kernel probes (kprobe & jprobe) for accessing any
-variables in the kernel. But ofcourse, this would be running-kernel
-specific.
+On Tue, 21 Mar 2006 17:08:18 -0800
+Dave Hansen <haveblue@us.ibm.com> wrote:
+> If I missed it before, please refresh my memory.  But, if we're
+> providing arch_nid_probe(addr), then why don't we just call it inside of
+> add_memory() on the start address, instead of in the generic code?
+> 
+I think just *probe* needs it. The firmware which supports memory-hotplug, ACPI, 
+i386/x86_64/ia64, can tell node number as pxm.(proximity domain)
 
-Link http://www.redhat.com/magazine/005mar05/features/kprobes/
+add_memory() can pass address of paddr as args, but can't pass *pxm*. 
 
-Changing the kernel parameters is gonna be a very dangerous act,
-unless you are sure of what you are doing.
+We already maintain pxm <-> nid map. But paddr <-> nid map isn't now.
+If add_memory() doesn't has nid as args, we have to maintain
+(1) pxm <-> nid map.
+(2) paddr <-> nid map.
+Becasue pfn_to_nid() is maintained by SPARSEMEM itself now, *new* paddr<->nid map
+is redundant, I think. And I think the firmware already has the map before calling
+add_memory(). 
 
--- Sumit
+> I'm also getting a bit confused in your patches whether add_memory() is
+> the _original_ add_memory(), or the new one.  It tends to get lost in 17
+> patches. :(
+> 
+maybe a big patch :(, We (I and Goto-san) are discussing to split them to
+a bit small chunks. 
 
+> I don't really like the arch_nid_probe() name.  We need to make it very
+> apparent that it is to be used _only_ for memory hotplug operations.  It
+> has no meaning for anything else.
+> 
+> 	hotplug_physaddr_to_nid()?
+> 
+> Maybe with a "memory_" in front.  Maybe even
+> memory_add_physaddr_to_nid()?
+> 
+Okay, we'll rename it.
 
+> It was probably to keep from changing as little code as possible, but
+> please convert the u64 values to pfns as soon as possible.  I noticed
+> that hotadd_new_pgdat() still deals with them, and does the shift as
+> well.  Is that really necessary.
+> 
+> The u64s should not be kept for more than one level of calls.  That
+> level of calls should be the firmware.  So, let the firmware call into
+> the VM code with u64s, then have all of the plain VM code deal in pfns.
+> 
+Okay.
 
-On 3/22/06, Anand SVR <anand.svr@gmail.com> wrote:
-> Hi,
->
-> I forgot to mention one more context. In the embedded environment where
-> one is memory constrained, the lightweight and low memory foot-print
-> module  I am referring to becomes relevant. In addition, since it is
-> highly reliable, and remotely manageable as listed below I feel it is
-> worth pursuing.
->
-> Thanks for your time.
->
-> Regards
-> Anand
-> On 3/21/06, Anand SVR <anand.svr@gmail.com> wrote:
-> > Hi,
-> >
-> > The code is not yet ready :) I have a basic version that gives part of
-> > memory statistics.
-> >
-> > Why I want to do it in kernel ? Following are the reasons.
-> >
-> > - Not all the information is available to the user space. There may be
-> > situations where kernel developers, carrier grade server mainatainers,
-> > and the like might want to access some internal run-time information
-> > for debugging, fine-tuning and so on.
-> >
-> > - Keep it light weight, and least intrusive to the run-time behavior
-> > of the system. No need for  tcp/udp socket communication.
-> >
-> > - There could be impending catastrophic situations where in kernel
-> > cannot schedule user level processes, perhaps due to lack of memory or
-> > whatever.
-> >
-> > - Ability for the remote node to change/control certain kernel
-> > parameters by interacting with the module. This paves way for both
-> > diagnosing and controlling kernel.
-> >
-> > Regards
-> > Anand
-> >
-> > On 3/21/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> > > On Tue, 2006-03-21 at 16:32 +0530, Anand SVR wrote:
-> > > > Hi,
-> > > >
-> > > > I am in the process of writing a module that collects kernel
-> > > > information of various kernel subsytems and pass this on to a remote
-> > > > monitoring/management node. The information could be statistical data
-> > > > maintained in data structures of memory, process, network and so on.
-> > > > Or it could be any kernel variables that are of interest.
-> > >
-> > > you forgot to attach your source code ;)
-> > >
-> > > > Is there a way of accessing proc information from the module ?
-> > >
-> > > eh why on earth is your code in the kernel then? Shouldn't your code be
-> > > in userspace if you want to send such information to a remote system???
-> > >
-> > >
-> > >
-> >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-- Kame
+

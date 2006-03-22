@@ -1,110 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWCVR2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWCVRbb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751046AbWCVR2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 12:28:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbWCVR2P
+	id S1751029AbWCVRbb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 12:31:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWCVRbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 12:28:15 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:15312 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751043AbWCVR2P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 12:28:15 -0500
-Message-ID: <44218916.3030607@us.ibm.com>
-Date: Wed, 22 Mar 2006 11:27:50 -0600
-From: Anthony Liguori <aliguori@us.ibm.com>
-User-Agent: Mail/News 1.5 (X11/20060309)
-MIME-Version: 1.0
-To: Chris Wright <chrisw@sous-sol.org>
-CC: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>
-Subject: Re: [RFC PATCH 09/35] Change __FIXADDR_TOP to leave room for the
- hypervisor.
-References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063747.636585000@sorel.sous-sol.org>
-In-Reply-To: <20060322063747.636585000@sorel.sous-sol.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 22 Mar 2006 12:31:31 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.158]:14718 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751027AbWCVRba
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 12:31:30 -0500
+Subject: Re: 2.6.16-rt1
+From: Daniel Walker <dwalker@mvista.com>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <442176EB.1050403@cybsft.com>
+References: <20060320085137.GA29554@elte.hu> <441F8017.4040302@cybsft.com>
+	 <20060321211653.GA3090@elte.hu> <4420B5F0.6000201@cybsft.com>
+	 <20060322062932.GA17166@elte.hu> <44215CCB.1080005@cybsft.com>
+	 <442176EB.1050403@cybsft.com>
+Content-Type: text/plain
+Date: Wed, 22 Mar 2006 09:31:28 -0800
+Message-Id: <1143048688.9127.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-> Move the definition of __FIXADDR_TOP into a subarch include file so
-> that it can be overridden for subarch xen -- the hypervisor needs
-> about 64MB at the top of the address space.
->   
+On Wed, 2006-03-22 at 10:10 -0600, K.R. Foley wrote:
 
-I think this is more generally useful if it's actually a CONFIG option 
-(as it was in the VMI patches) instead of subarch specific.  Qemu has 
-had a "fast" patch for a while that pretty much just increases the size 
-of the memory hole and changes ___PAGE_OFFSET to be lower in memory.   
-There are a number of interesting things one can do once there's an 
-adequately sized hole too (assuming you're doing full-virtualization).
+> Found something interesting. Having Wakeup latency timing turned on
+> makes a HUGE difference. I turned it off and recompiled and now I am
+> seeing numbers back in line with what I expected from 2.6.16-rt4. Sorry,
+> but I had no idea it would make that much difference. I don't have a
+> complete run yet, but I have seen enough to know that I am not seeing
+> tons of missed interrupts and the highest reported latency thus far is
+> 61 usec.
 
-Regards,
+Just Wakeup latency timing , and not latency tracing ?
 
-Anthony Liguori
-
-> Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
-> Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> ---
->  include/asm-i386/fixmap.h                   |    8 +-------
->  include/asm-i386/mach-default/mach_fixmap.h |   11 +++++++++++
->  include/asm-i386/mach-xen/mach_fixmap.h     |   11 +++++++++++
->  3 files changed, 23 insertions(+), 7 deletions(-)
->
-> --- xen-subarch-2.6.orig/include/asm-i386/fixmap.h
-> +++ xen-subarch-2.6/include/asm-i386/fixmap.h
-> @@ -14,13 +14,7 @@
->  #define _ASM_FIXMAP_H
->  
->  #include <linux/config.h>
-> -
-> -/* used by vmalloc.c, vsyscall.lds.S.
-> - *
-> - * Leave one empty page between vmalloc'ed areas and
-> - * the start of the fixmap.
-> - */
-> -#define __FIXADDR_TOP	0xfffff000
-> +#include <mach_fixmap.h>
->  
->  #ifndef __ASSEMBLY__
->  #include <linux/kernel.h>
-> --- /dev/null
-> +++ xen-subarch-2.6/include/asm-i386/mach-default/mach_fixmap.h
-> @@ -0,0 +1,11 @@
-> +#ifndef __ASM_MACH_FIXMAP_H
-> +#define __ASM_MACH_FIXMAP_H
-> +
-> +/* used by vmalloc.c, vsyscall.lds.S.
-> + *
-> + * Leave one empty page between vmalloc'ed areas and
-> + * the start of the fixmap.
-> + */
-> +#define __FIXADDR_TOP	0xfffff000
-> +
-> +#endif /* __ASM_MACH_FIXMAP_H */
-> --- /dev/null
-> +++ xen-subarch-2.6/include/asm-i386/mach-xen/mach_fixmap.h
-> @@ -0,0 +1,11 @@
-> +#ifndef __ASM_MACH_FIXMAP_H
-> +#define __ASM_MACH_FIXMAP_H
-> +
-> +/* used by vmalloc.c, vsyscall.lds.S.
-> + *
-> + * Leave one empty page between vmalloc'ed areas and
-> + * the start of the fixmap.
-> + */
-> +#define __FIXADDR_TOP	(HYPERVISOR_VIRT_START - 2 * PAGE_SIZE)
-> +
-> +#endif /* __ASM_MACH_FIXMAP_H */
->
-> --
->   
-> ------------------------------------------------------------------------
->
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.osdl.org
-> https://lists.osdl.org/mailman/listinfo/virtualization
->   
+Daniel
 

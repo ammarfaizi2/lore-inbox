@@ -1,82 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWCVGht@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWCVGh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750904AbWCVGht (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 01:37:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbWCVGht
+	id S1750868AbWCVGh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 01:37:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWCVGh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 01:37:49 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:10371 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750891AbWCVGhr
+	Wed, 22 Mar 2006 01:37:26 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:8066 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750865AbWCVGh0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 01:37:47 -0500
-Message-Id: <20060322063802.797884000@sorel.sous-sol.org>
-References: <20060322063040.960068000@sorel.sous-sol.org>
-Date: Tue, 21 Mar 2006 22:31:07 -0800
+	Wed, 22 Mar 2006 01:37:26 -0500
+Message-Id: <20060322063040.960068000@sorel.sous-sol.org>
+Date: Tue, 21 Mar 2006 22:30:40 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
-Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: [RFC PATCH 27/35] Add nosegneg capability to the vsyscall page notes
-Content-Disposition: inline; filename=26-i386-vsyscall-note
+Cc: xen-devel@lists.xensource.com, virtualization@lists.osdl.org
+Subject: [RFC PATCH 00/35] Xen i386 paravirtualization support
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add the "nosegneg" fake capabilty to the vsyscall page notes. This is
-used by the runtime linker to select a glibc version which then
-disables negative-offset accesses to the thread-local segment via
-%gs. These accesses require emulation in Xen (because segments are
-truncated to protect the hypervisor address space) and avoiding them
-provides a measurable performance boost.
+Unlike full virtualization in which the virtual machine provides 
+the same platform interface as running natively on the hardware,
+paravirtualization requires modification to the guest operating system
+to work with the platform interface provided by the hypervisor.
 
-Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
-Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
----
- arch/i386/kernel/vsyscall-note.S |   29 +++++++++++++++++++++++++++++
- 1 files changed, 29 insertions(+)
+Xen was designed with performance in mind.  Calls to the hypervisor
+are minimized, batched if necessary, and non-critical codepaths are left
+unmodified in the case where the privileged instruction can be trapped and
+emulated by the hypervisor.  The Xen API is designed to be OS agnostic and
+has had Linux, NetBSD, FreeBSD, Solaris, Plan9 and Netware ported to it.
+Xen also provides support for running directly on native hardware.
 
---- xen-subarch-2.6.orig/arch/i386/kernel/vsyscall-note.S
-+++ xen-subarch-2.6/arch/i386/kernel/vsyscall-note.S
-@@ -3,6 +3,7 @@
-  * Here we can supply some information useful to userland.
-  */
- 
-+#include <linux/config.h>
- #include <linux/uts.h>
- #include <linux/version.h>
- 
-@@ -23,3 +24,31 @@
- 	ASM_ELF_NOTE_BEGIN(".note.kernel-version", "a", UTS_SYSNAME, 0)
- 	.long LINUX_VERSION_CODE
- 	ASM_ELF_NOTE_END
-+
-+#ifdef CONFIG_XEN
-+/*
-+ * Add a special note telling glibc's dynamic linker a fake hardware
-+ * flavor that it will use to choose the search path for libraries in the
-+ * same way it uses real hardware capabilities like "mmx".
-+ * We supply "nosegneg" as the fake capability, to indicate that we
-+ * do not like negative offsets in instructions using segment overrides,
-+ * since we implement those inefficiently.  This makes it possible to
-+ * install libraries optimized to avoid those access patterns in someplace
-+ * like /lib/i686/tls/nosegneg.  Note that an /etc/ld.so.conf.d/file
-+ * corresponding to the bits here is needed to make ldconfig work right.
-+ * It should contain:
-+ *	hwcap 0 nosegneg
-+ * to match the mapping of bit to name that we give here.
-+ */
-+#define NOTE_KERNELCAP_BEGIN(ncaps, mask) \
-+	ASM_ELF_NOTE_BEGIN(".note.kernelcap", "a", "GNU", 2) \
-+	.long ncaps, mask
-+#define NOTE_KERNELCAP(bit, name) \
-+	.byte bit; .asciz name
-+#define NOTE_KERNELCAP_END ASM_ELF_NOTE_END
-+
-+NOTE_KERNELCAP_BEGIN(1, 1)
-+NOTE_KERNELCAP(1, "nosegneg")
-+NOTE_KERNELCAP_END
-+#endif
-+
+The following patch series provides the minimal support required to
+launch Xen paravirtual guests on standard x86 hardware running the Xen
+hypervisor.  These patches effectively port the Linux kernel to run on the
+platform interface provided by Xen.  This port is done as an i386 subarch.
 
---
+With these patches you will be able to launch an unprivileged guest
+running the modified Linux kernel and unmodified userspace.  This guest
+is x86, UP only, runs in shadow translated mode, and has no direct access
+to hardware.  This simplifies the patchset to the minimum functionality
+needed to support a paravirtualized guest.  It's worth noting that
+a fair amount of this patchset deals with paravirtualizing I/O, not
+just CPU-only.  The additional missing functionality is primarily about
+full SMP support, optimizations such as direct writable page tables,
+and the management interface.  Those refinements will be posted later.
+
+At a high-level, the patches provide the following:
+
+- Kconfig and Makefile changes required to support Xen
+- subarch changes to allow more platform functionality to be
+  implemented by an i386 subarch
+- Xen subarch implementation
+- start of day code for running in the hypervisor provided environment (paging
+  enabled)
+- basic Xen drivers to provide a fully functional guest
+
+The Xen platform API encapsulates the following types of requirements:
+
+- idt, gdt, ldt (descriptor table handling)
+- cr2, fpu_taskswitch, debug registers (privileged register handling)
+- mmu (page table, tlb, and cache handling)
+- memory reservations
+- time and timer
+- vcpu (init, up/down vcpu)
+- schedule (processor yield, shutdown, etc)
+- event channel (generalized virtual interrupt handling)
+- grant table (shared memory interface for high speed interdomain communication)
+- block device I/O
+- network device I/O
+- console device I/O
+- Xen feature map
+- Xen version info
+
+Thanks to those who provided early feedback to this patchset: Andi Kleen,
+Gerd Hoffmann, Jan Beulich, Rik van Riel, Stephen Tweedie, and the Xen team.
+And thanks to the Xen community: AMD, HP, IBM, Intel, Novell, Red Hat,
+Virtual Iron, XenSource -- see Xen changelog for full details.
+
+Known issues:
+
+	CodingStyle conformance is still in progress
+	/proc interface needs to be replaced with something more appropriate
+	entry.S cleanups are possible
+

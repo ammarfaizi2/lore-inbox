@@ -1,331 +1,373 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422684AbWCWUl7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422682AbWCWUmL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422684AbWCWUl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 15:41:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbWCWUkv
+	id S1422682AbWCWUmL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 15:42:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422678AbWCWUmB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 15:40:51 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:17125 "EHLO
+	Thu, 23 Mar 2006 15:42:01 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:2259 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932592AbWCWUk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 15:40:27 -0500
-Message-Id: <20060323203521.613000000@dyn-9-152-242-103.boeblingen.de.ibm.com>
+	id S932523AbWCWUku (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 15:40:50 -0500
+Message-Id: <20060323203521.862355000@dyn-9-152-242-103.boeblingen.de.ibm.com>
 References: <20060323203423.620978000@dyn-9-152-242-103.boeblingen.de.ibm.com>
 User-Agent: quilt/0.44-1
-Date: Thu, 23 Mar 2006 00:00:05 +0100
+Date: Thu, 23 Mar 2006 00:00:06 +0100
 From: Arnd Bergmann <abergman@de.ibm.com>
 To: Paul Mackerras <paulus@samba.org>
 Cc: cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Subject: [patch 05/13] powerpc: update cell defconfig
-Content-Disposition: inline; filename=cell-defconfigs-11.diff
+       linuxppc-dev@ozlabs.org, hpenner@de.ibm.com, stk@de.ibm.com,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       Milton Miller <miltonm@bga.com>, benh@kernel.crashing.org,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Subject: [patch 06/13] powerpc: cell interrupt controller updates
+Content-Disposition: inline; filename=cell-pic-updates-3.diff
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The default configuration in mainline got a little out of
-sync with what we use internally.
+The current interrupt controller setup on Cell is done
+in a rather ad-hoc way with device tree properties
+that are not standardized at all.
 
+In an attempt to do something that follows the OF standard
+(or at least the IBM extensions to it) more closely,
+we have now come up with this patch. It still provides
+a fallback to the old behaviour when we find older firmware,
+that hack can not be removed until the existing customer
+installations have upgraded.
+
+Cc: hpenner@de.ibm.com
+Cc: stk@de.ibm.com
+Cc: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Milton Miller <miltonm@bga.com>
+Cc: benh@kernel.crashing.org
+From: Jens Osterkamp <Jens.Osterkamp@de.ibm.com>
 Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
 
-Index: linus-2.6/arch/powerpc/configs/cell_defconfig
+Index: linus-2.6/arch/powerpc/platforms/cell/spider-pic.c
 ===================================================================
---- linus-2.6.orig/arch/powerpc/configs/cell_defconfig
-+++ linus-2.6/arch/powerpc/configs/cell_defconfig
-@@ -1,7 +1,7 @@
- #
- # Automatically generated make config: don't edit
--# Linux kernel version: 2.6.16-rc6
--# Wed Mar 15 16:19:48 2006
-+# Linux kernel version: 2.6.16
-+# Thu Mar 23 20:48:09 2006
- #
- CONFIG_PPC64=y
- CONFIG_64BIT=y
-@@ -30,6 +30,7 @@ CONFIG_POWER4=y
- CONFIG_PPC_FPU=y
- CONFIG_ALTIVEC=y
- CONFIG_PPC_STD_MMU=y
-+CONFIG_VIRT_CPU_ACCOUNTING=y
- CONFIG_SMP=y
- CONFIG_NR_CPUS=4
+--- linus-2.6.orig/arch/powerpc/platforms/cell/spider-pic.c
++++ linus-2.6/arch/powerpc/platforms/cell/spider-pic.c
+@@ -84,10 +84,11 @@ static void __iomem *spider_get_irq_conf
  
-@@ -51,7 +52,8 @@ CONFIG_SYSVIPC=y
- # CONFIG_BSD_PROCESS_ACCT is not set
- CONFIG_SYSCTL=y
- # CONFIG_AUDIT is not set
--# CONFIG_IKCONFIG is not set
-+CONFIG_IKCONFIG=y
-+CONFIG_IKCONFIG_PROC=y
- # CONFIG_CPUSETS is not set
- CONFIG_INITRAMFS_SOURCE=""
- CONFIG_CC_OPTIMIZE_FOR_SIZE=y
-@@ -85,7 +87,7 @@ CONFIG_MODULE_UNLOAD=y
- CONFIG_OBSOLETE_MODPARM=y
- # CONFIG_MODVERSIONS is not set
- # CONFIG_MODULE_SRCVERSION_ALL is not set
--# CONFIG_KMOD is not set
-+CONFIG_KMOD=y
- CONFIG_STOP_MACHINE=y
+ static void spider_enable_irq(unsigned int irq)
+ {
++	int nodeid = (irq / IIC_NODE_STRIDE) * 0x10;
+ 	void __iomem *cfg = spider_get_irq_config(irq);
+ 	irq = spider_get_nr(irq);
  
- #
-@@ -130,7 +132,8 @@ CONFIG_CELL_IIC=y
- #
- # Cell Broadband Engine options
- #
--CONFIG_SPU_FS=y
-+CONFIG_SPU_FS=m
-+CONFIG_SPUFS_MMAP=y
+-	out_be32(cfg, in_be32(cfg) | 0x3107000eu);
++	out_be32(cfg, in_be32(cfg) | 0x3107000eu | nodeid);
+ 	out_be32(cfg + 4, in_be32(cfg + 4) | 0x00020000u | irq);
+ }
  
- #
- # Kernel options
-@@ -144,7 +147,7 @@ CONFIG_PREEMPT_NONE=y
- # CONFIG_PREEMPT is not set
- CONFIG_PREEMPT_BKL=y
- CONFIG_BINFMT_ELF=y
--# CONFIG_BINFMT_MISC is not set
-+CONFIG_BINFMT_MISC=m
- CONFIG_FORCE_MAX_ZONEORDER=13
- # CONFIG_IOMMU_VMERGE is not set
- CONFIG_KEXEC=y
-@@ -155,13 +158,16 @@ CONFIG_ARCH_SELECT_MEMORY_MODEL=y
- CONFIG_ARCH_FLATMEM_ENABLE=y
- CONFIG_ARCH_SPARSEMEM_ENABLE=y
- CONFIG_SELECT_MEMORY_MODEL=y
--CONFIG_FLATMEM_MANUAL=y
-+# CONFIG_FLATMEM_MANUAL is not set
- # CONFIG_DISCONTIGMEM_MANUAL is not set
--# CONFIG_SPARSEMEM_MANUAL is not set
--CONFIG_FLATMEM=y
--CONFIG_FLAT_NODE_MEM_MAP=y
-+CONFIG_SPARSEMEM_MANUAL=y
-+CONFIG_SPARSEMEM=y
-+CONFIG_HAVE_MEMORY_PRESENT=y
- # CONFIG_SPARSEMEM_STATIC is not set
-+CONFIG_SPARSEMEM_EXTREME=y
-+# CONFIG_MEMORY_HOTPLUG is not set
- CONFIG_SPLIT_PTLOCK_CPUS=4
-+CONFIG_MIGRATION=y
- # CONFIG_PPC_64K_PAGES is not set
- CONFIG_SCHED_SMT=y
- CONFIG_PROC_DEVICETREE=y
-@@ -232,6 +238,7 @@ CONFIG_TCP_CONG_BIC=y
- # CONFIG_IP_VS is not set
- CONFIG_IPV6=y
- # CONFIG_IPV6_PRIVACY is not set
-+# CONFIG_IPV6_ROUTER_PREF is not set
- CONFIG_INET6_AH=m
- CONFIG_INET6_ESP=m
- CONFIG_INET6_IPCOMP=m
-@@ -244,25 +251,7 @@ CONFIG_NETFILTER=y
- # Core Netfilter Configuration
- #
- # CONFIG_NETFILTER_NETLINK is not set
--CONFIG_NETFILTER_XTABLES=m
--CONFIG_NETFILTER_XT_TARGET_CLASSIFY=m
--CONFIG_NETFILTER_XT_TARGET_MARK=m
--CONFIG_NETFILTER_XT_TARGET_NFQUEUE=m
--CONFIG_NETFILTER_XT_TARGET_NOTRACK=m
--CONFIG_NETFILTER_XT_MATCH_COMMENT=m
--CONFIG_NETFILTER_XT_MATCH_CONNTRACK=m
--# CONFIG_NETFILTER_XT_MATCH_DCCP is not set
--CONFIG_NETFILTER_XT_MATCH_HELPER=m
--CONFIG_NETFILTER_XT_MATCH_LENGTH=m
--CONFIG_NETFILTER_XT_MATCH_LIMIT=m
--CONFIG_NETFILTER_XT_MATCH_MAC=m
--CONFIG_NETFILTER_XT_MATCH_MARK=m
--CONFIG_NETFILTER_XT_MATCH_PKTTYPE=m
--CONFIG_NETFILTER_XT_MATCH_REALM=m
--CONFIG_NETFILTER_XT_MATCH_SCTP=m
--CONFIG_NETFILTER_XT_MATCH_STATE=m
--CONFIG_NETFILTER_XT_MATCH_STRING=m
--CONFIG_NETFILTER_XT_MATCH_TCPMSS=m
-+# CONFIG_NETFILTER_XTABLES is not set
+@@ -131,61 +132,108 @@ static struct hw_interrupt_type spider_p
+ 	.end = spider_end_irq,
+ };
  
- #
- # IP: Netfilter Configuration
-@@ -278,51 +267,13 @@ CONFIG_IP_NF_IRC=m
- CONFIG_IP_NF_TFTP=m
- CONFIG_IP_NF_AMANDA=m
- # CONFIG_IP_NF_PPTP is not set
-+# CONFIG_IP_NF_H323 is not set
- CONFIG_IP_NF_QUEUE=m
--CONFIG_IP_NF_IPTABLES=m
--CONFIG_IP_NF_MATCH_IPRANGE=m
--CONFIG_IP_NF_MATCH_MULTIPORT=m
--CONFIG_IP_NF_MATCH_TOS=m
--CONFIG_IP_NF_MATCH_RECENT=m
--CONFIG_IP_NF_MATCH_ECN=m
--CONFIG_IP_NF_MATCH_DSCP=m
--CONFIG_IP_NF_MATCH_AH_ESP=m
--CONFIG_IP_NF_MATCH_TTL=m
--CONFIG_IP_NF_MATCH_OWNER=m
--CONFIG_IP_NF_MATCH_ADDRTYPE=m
--CONFIG_IP_NF_MATCH_HASHLIMIT=m
--CONFIG_IP_NF_MATCH_POLICY=m
--CONFIG_IP_NF_FILTER=m
--CONFIG_IP_NF_TARGET_REJECT=m
--CONFIG_IP_NF_TARGET_LOG=m
--CONFIG_IP_NF_TARGET_ULOG=m
--CONFIG_IP_NF_TARGET_TCPMSS=m
--CONFIG_IP_NF_NAT=m
--CONFIG_IP_NF_NAT_NEEDED=y
--CONFIG_IP_NF_TARGET_MASQUERADE=m
--CONFIG_IP_NF_TARGET_REDIRECT=m
--CONFIG_IP_NF_TARGET_NETMAP=m
--CONFIG_IP_NF_TARGET_SAME=m
--CONFIG_IP_NF_NAT_SNMP_BASIC=m
--CONFIG_IP_NF_NAT_IRC=m
--CONFIG_IP_NF_NAT_FTP=m
--CONFIG_IP_NF_NAT_TFTP=m
--CONFIG_IP_NF_NAT_AMANDA=m
--CONFIG_IP_NF_MANGLE=m
--CONFIG_IP_NF_TARGET_TOS=m
--CONFIG_IP_NF_TARGET_ECN=m
--CONFIG_IP_NF_TARGET_DSCP=m
--CONFIG_IP_NF_TARGET_TTL=m
--CONFIG_IP_NF_RAW=m
--CONFIG_IP_NF_ARPTABLES=m
--CONFIG_IP_NF_ARPFILTER=m
--CONFIG_IP_NF_ARP_MANGLE=m
+-
+-int spider_get_irq(unsigned long int_pending)
++int spider_get_irq(int node)
+ {
+-	void __iomem *regs = spider_get_pic(int_pending);
+ 	unsigned long cs;
+-	int irq;
+-
+-	cs = in_be32(regs + TIR_CS);
++	void __iomem *regs = spider_pics[node];
  
- #
- # IPv6: Netfilter Configuration (EXPERIMENTAL)
- #
- # CONFIG_IP6_NF_QUEUE is not set
--# CONFIG_IP6_NF_IPTABLES is not set
+-	irq = cs >> 24;
+-	if (irq != 63)
+-		return irq;
++	cs = in_be32(regs + TIR_CS) >> 24;
  
- #
- # DCCP Configuration (EXPERIMENTAL)
-@@ -355,7 +306,6 @@ CONFIG_IP_NF_ARP_MANGLE=m
- # QoS and/or fair queueing
- #
- # CONFIG_NET_SCHED is not set
--CONFIG_NET_CLS_ROUTE=y
+-	return -1;
++	if (cs == 63)
++		return -1;
++	else
++		return cs;
+ }
+- 
+-void spider_init_IRQ(void)
++
++/* hardcoded part to be compatible with older firmware */
++
++void spider_init_IRQ_hardcoded(void)
+ {
+ 	int node;
+-	struct device_node *dn;
+-	unsigned int *property;
+ 	long spiderpic;
++	long pics[] = { 0x24000008000, 0x34000008000 };
+ 	int n;
  
- #
- # Network testing
-@@ -408,7 +358,7 @@ CONFIG_FW_LOADER=y
- # CONFIG_BLK_DEV_COW_COMMON is not set
- CONFIG_BLK_DEV_LOOP=y
- # CONFIG_BLK_DEV_CRYPTOLOOP is not set
--CONFIG_BLK_DEV_NBD=y
-+# CONFIG_BLK_DEV_NBD is not set
- # CONFIG_BLK_DEV_SX8 is not set
- CONFIG_BLK_DEV_RAM=y
- CONFIG_BLK_DEV_RAM_COUNT=16
-@@ -484,7 +434,23 @@ CONFIG_IDEDMA_AUTO=y
- #
- # Multi-device support (RAID and LVM)
- #
--# CONFIG_MD is not set
-+CONFIG_MD=y
-+CONFIG_BLK_DEV_MD=m
-+CONFIG_MD_LINEAR=m
-+CONFIG_MD_RAID0=m
-+CONFIG_MD_RAID1=m
-+# CONFIG_MD_RAID10 is not set
-+# CONFIG_MD_RAID5 is not set
-+# CONFIG_MD_RAID6 is not set
-+# CONFIG_MD_MULTIPATH is not set
-+# CONFIG_MD_FAULTY is not set
-+CONFIG_BLK_DEV_DM=m
-+CONFIG_DM_CRYPT=m
-+CONFIG_DM_SNAPSHOT=m
-+CONFIG_DM_MIRROR=m
-+CONFIG_DM_ZERO=m
-+CONFIG_DM_MULTIPATH=m
-+# CONFIG_DM_MULTIPATH_EMC is not set
+-/* FIXME: detect multiple PICs as soon as the device tree has them */
+-	for (node = 0; node < 1; node++) {
+-		dn = of_find_node_by_path("/");
+-		n = prom_n_addr_cells(dn);
+-		property = (unsigned int *) get_property(dn,
+-				"platform-spider-pic", NULL);
++	pr_debug("%s(%d): Using hardcoded defaults\n", __FUNCTION__, __LINE__);
  
- #
- # Fusion MPT device support
-@@ -548,7 +514,7 @@ CONFIG_MII=y
- # CONFIG_ACENIC is not set
- # CONFIG_DL2K is not set
- CONFIG_E1000=m
--# CONFIG_E1000_NAPI is not set
-+CONFIG_E1000_NAPI=y
- # CONFIG_E1000_DISABLE_PACKET_SPLIT is not set
- # CONFIG_NS83820 is not set
- # CONFIG_HAMACHI is not set
-@@ -560,7 +526,7 @@ CONFIG_SKGE=m
- # CONFIG_SK98LIN is not set
- # CONFIG_TIGON3 is not set
- # CONFIG_BNX2 is not set
--CONFIG_SPIDER_NET=y
-+CONFIG_SPIDER_NET=m
- # CONFIG_MV643XX_ETH is not set
+-		if (!property)
+-			continue;
+-		for (spiderpic = 0; n > 0; --n)
+-			spiderpic = (spiderpic << 32) + *property++;
++	for (node = 0; node < num_present_cpus()/2; node++) {
++		spiderpic = pics[node];
+ 		printk(KERN_DEBUG "SPIDER addr: %lx\n", spiderpic);
+ 		spider_pics[node] = __ioremap(spiderpic, 0x800, _PAGE_NO_CACHE);
+ 		for (n = 0; n < IIC_NUM_EXT; n++) {
+ 			int irq = n + IIC_EXT_OFFSET + node * IIC_NODE_STRIDE;
+ 			get_irq_desc(irq)->handler = &spider_pic;
++		}
  
- #
-@@ -678,6 +644,8 @@ CONFIG_SERIAL_CORE_CONSOLE=y
- # CONFIG_SERIAL_JSM is not set
- CONFIG_UNIX98_PTYS=y
- # CONFIG_LEGACY_PTYS is not set
-+CONFIG_HVC_DRIVER=y
-+CONFIG_HVC_RTAS=y
+  		/* do not mask any interrupts because of level */
+  		out_be32(spider_pics[node] + TIR_MSK, 0x0);
+- 		
++
+  		/* disable edge detection clear */
+  		/* out_be32(spider_pics[node] + TIR_EDC, 0x0); */
+- 		
++
+  		/* enable interrupt packets to be output */
+  		out_be32(spider_pics[node] + TIR_PIEN,
+ 			in_be32(spider_pics[node] + TIR_PIEN) | 0x1);
+- 		
++
+  		/* Enable the interrupt detection enable bit. Do this last! */
+  		out_be32(spider_pics[node] + TIR_DEN,
+-			in_be32(spider_pics[node] +TIR_DEN) | 0x1);
++			in_be32(spider_pics[node] + TIR_DEN) | 0x1);
++	}
++}
++
++void spider_init_IRQ(void)
++{
++	long spider_reg;
++	struct device_node *dn;
++	char *compatible;
++	int n, node = 0;
++
++	for (dn = NULL; (dn = of_find_node_by_name(dn, "interrupt-controller"));) {
++		compatible = (char *)get_property(dn, "compatible", NULL);
  
- #
- # IPMI
-@@ -694,14 +662,13 @@ CONFIG_WATCHDOG=y
- # Watchdog Device Drivers
- #
- # CONFIG_SOFT_WATCHDOG is not set
--# CONFIG_WATCHDOG_RTAS is not set
-+CONFIG_WATCHDOG_RTAS=y
++		if (!compatible)
++			continue;
++
++		if (strstr(compatible, "CBEA,platform-spider-pic"))
++			spider_reg = *(long *)get_property(dn,"reg", NULL);
++		else if (strstr(compatible, "sti,platform-spider-pic")) {
++			spider_init_IRQ_hardcoded();
++			return;
++		} else
++			continue;
++
++		if (!spider_reg)
++			printk("interrupt controller does not have reg property !\n");
++
++		n = prom_n_addr_cells(dn);
++
++		if ( n != 2)
++			printk("reg property with invalid number of elements \n");
++
++		spider_pics[node] = __ioremap(spider_reg, 0x800, _PAGE_NO_CACHE);
++
++		printk("SPIDER addr: %lx with %i addr_cells mapped to %p\n",
++		       spider_reg, n, spider_pics[node]);
++
++		for (n = 0; n < IIC_NUM_EXT; n++) {
++			int irq = n + IIC_EXT_OFFSET + node * IIC_NODE_STRIDE;
++			get_irq_desc(irq)->handler = &spider_pic;
+ 		}
++
++		/* do not mask any interrupts because of level */
++		out_be32(spider_pics[node] + TIR_MSK, 0x0);
++
++		/* disable edge detection clear */
++		/* out_be32(spider_pics[node] + TIR_EDC, 0x0); */
++
++		/* enable interrupt packets to be output */
++		out_be32(spider_pics[node] + TIR_PIEN,
++			in_be32(spider_pics[node] + TIR_PIEN) | 0x1);
++
++		/* Enable the interrupt detection enable bit. Do this last! */
++		out_be32(spider_pics[node] + TIR_DEN,
++			in_be32(spider_pics[node] + TIR_DEN) | 0x1);
++
++		node++;
+ 	}
+ }
+Index: linus-2.6/arch/powerpc/platforms/cell/interrupt.c
+===================================================================
+--- linus-2.6.orig/arch/powerpc/platforms/cell/interrupt.c
++++ linus-2.6/arch/powerpc/platforms/cell/interrupt.c
+@@ -123,7 +123,7 @@ static int iic_external_get_irq(struct i
+ 		    pending.class != 2)
+ 			break;
+ 		irq = IIC_EXT_OFFSET
+-			+ spider_get_irq(pending.prio + node * IIC_NODE_STRIDE)
++			+ spider_get_irq(node)
+ 			+ node * IIC_NODE_STRIDE;
+ 		break;
+ 	case 0x01 ... 0x04:
+@@ -174,40 +174,104 @@ int iic_get_irq(struct pt_regs *regs)
+ 	return irq;
+ }
  
- #
- # PCI-based Watchdog Cards
- #
- # CONFIG_PCIPCWATCHDOG is not set
- # CONFIG_WDTPCI is not set
--# CONFIG_RTC is not set
- CONFIG_GEN_RTC=y
- # CONFIG_GEN_RTC_X is not set
- # CONFIG_DTLK is not set
-@@ -833,6 +800,7 @@ CONFIG_DUMMY_CONSOLE=y
- #
- CONFIG_USB_ARCH_HAS_HCD=y
- CONFIG_USB_ARCH_HAS_OHCI=y
-+CONFIG_USB_ARCH_HAS_EHCI=y
- # CONFIG_USB is not set
+-static int setup_iic(int cpu, struct iic *iic)
++/* hardcoded part to be compatible with older firmware */
++
++static int setup_iic_hardcoded(void)
+ {
+ 	struct device_node *np;
+-	int nodeid = cpu / 2;
++	int nodeid, cpu;
+ 	unsigned long regs;
++	struct iic *iic;
  
- #
-@@ -852,7 +820,14 @@ CONFIG_USB_ARCH_HAS_OHCI=y
- #
- # InfiniBand support
- #
--# CONFIG_INFINIBAND is not set
-+CONFIG_INFINIBAND=y
-+CONFIG_INFINIBAND_USER_MAD=m
-+CONFIG_INFINIBAND_USER_ACCESS=m
-+CONFIG_INFINIBAND_MTHCA=m
-+CONFIG_INFINIBAND_MTHCA_DEBUG=y
-+CONFIG_INFINIBAND_IPOIB=m
-+CONFIG_INFINIBAND_IPOIB_DEBUG=y
-+CONFIG_INFINIBAND_IPOIB_DEBUG_DATA=y
+-	for (np = of_find_node_by_type(NULL, "cpu");
+-	     np;
+-	     np = of_find_node_by_type(np, "cpu")) {
+-		if (nodeid == *(int *)get_property(np, "node-id", NULL))
+-			break;
+-	}
++	for_each_cpu(cpu) {
++		iic = &per_cpu(iic, cpu);
++		nodeid = cpu/2;
  
- #
- # EDAC - error detection and reporting (RAS) (EXPERIMENTAL)
-@@ -1037,10 +1012,6 @@ CONFIG_CRC32=y
- # CONFIG_LIBCRC32C is not set
- CONFIG_ZLIB_INFLATE=m
- CONFIG_ZLIB_DEFLATE=m
--CONFIG_TEXTSEARCH=y
--CONFIG_TEXTSEARCH_KMP=m
--CONFIG_TEXTSEARCH_BM=m
--CONFIG_TEXTSEARCH_FSM=m
+-	if (!np) {
+-		printk(KERN_WARNING "IIC: CPU %d not found\n", cpu);
+-		iic->regs = NULL;
+-		iic->target_id = 0xff;
+-		return -ENODEV;
+-	}
++		for (np = of_find_node_by_type(NULL, "cpu");
++		     np;
++		     np = of_find_node_by_type(np, "cpu")) {
++			if (nodeid == *(int *)get_property(np, "node-id", NULL))
++				break;
++			}
++
++		if (!np) {
++			printk(KERN_WARNING "IIC: CPU %d not found\n", cpu);
++			iic->regs = NULL;
++			iic->target_id = 0xff;
++			return -ENODEV;
++			}
++
++		regs = *(long *)get_property(np, "iic", NULL);
++
++		/* hack until we have decided on the devtree info */
++		regs += 0x400;
++		if (cpu & 1)
++			regs += 0x20;
++
++		printk(KERN_INFO "IIC for CPU %d at %lx\n", cpu, regs);
++		iic->regs = __ioremap(regs, sizeof(struct iic_regs),
++				      _PAGE_NO_CACHE);
  
- #
- # Instrumentation Support
-@@ -1058,7 +1029,7 @@ CONFIG_LOG_BUF_SHIFT=15
- CONFIG_DETECT_SOFTLOCKUP=y
- # CONFIG_SCHEDSTATS is not set
- # CONFIG_DEBUG_SLAB is not set
--# CONFIG_DEBUG_MUTEXES is not set
-+CONFIG_DEBUG_MUTEXES=y
- # CONFIG_DEBUG_SPINLOCK is not set
- CONFIG_DEBUG_SPINLOCK_SLEEP=y
- # CONFIG_DEBUG_KOBJECT is not set
+-	regs = *(long *)get_property(np, "iic", NULL);
++		iic->target_id = (nodeid << 4) + ((cpu & 1) ? 0xf : 0xe);
++	}
+ 
+-	/* hack until we have decided on the devtree info */
+-	regs += 0x400;
+-	if (cpu & 1)
+-		regs += 0x20;
+-
+-	printk(KERN_DEBUG "IIC for CPU %d at %lx\n", cpu, regs);
+-	iic->regs = __ioremap(regs, sizeof(struct iic_regs),
+-					 _PAGE_NO_CACHE);
+-	iic->target_id = (nodeid << 4) + ((cpu & 1) ? 0xf : 0xe);
+ 	return 0;
+ }
+ 
++static int setup_iic(void)
++{
++	struct device_node *dn;
++	unsigned long *regs;
++	char *compatible;
++ 	unsigned *np, found = 0;
++	struct iic *iic = NULL;
++
++	for (dn = NULL; (dn = of_find_node_by_name(dn, "interrupt-controller"));) {
++		compatible = (char *)get_property(dn, "compatible", NULL);
++
++		if (!compatible) {
++			printk(KERN_WARNING "no compatible property found !\n");
++			continue;
++		}
++
++ 		if (strstr(compatible, "IBM,CBEA-Internal-Interrupt-Controller"))
++ 			regs = (unsigned long *)get_property(dn,"reg", NULL);
++ 		else
++			continue;
++
++ 		if (!regs)
++ 			printk(KERN_WARNING "IIC: no reg property\n");
++
++ 		np = (unsigned int *)get_property(dn, "ibm,interrupt-server-ranges", NULL);
++
++ 		if (!np) {
++			printk(KERN_WARNING "IIC: CPU association not found\n");
++			iic->regs = NULL;
++			iic->target_id = 0xff;
++			return -ENODEV;
++		}
++
++ 		iic = &per_cpu(iic, np[0]);
++ 		iic->regs = __ioremap(regs[0], sizeof(struct iic_regs),
++ 				      _PAGE_NO_CACHE);
++		iic->target_id = ((np[0] & 2) << 3) + ((np[0] & 1) ? 0xf : 0xe);
++ 		printk("IIC for CPU %d at %lx mapped to %p\n", np[0], regs[0], iic->regs);
++
++ 		iic = &per_cpu(iic, np[1]);
++ 		iic->regs = __ioremap(regs[2], sizeof(struct iic_regs),
++ 				      _PAGE_NO_CACHE);
++		iic->target_id = ((np[1] & 2) << 3) + ((np[1] & 1) ? 0xf : 0xe);
++ 		printk("IIC for CPU %d at %lx mapped to %p\n", np[1], regs[2], iic->regs);
++
++		found++;
++  	}
++
++	if (found)
++		return 0;
++	else
++		return -ENODEV;
++}
++
+ #ifdef CONFIG_SMP
+ 
+ /* Use the highest interrupt priorities for IPI */
+@@ -283,10 +347,12 @@ void iic_init_IRQ(void)
+ 	int cpu, irq_offset;
+ 	struct iic *iic;
+ 
++	if (setup_iic() < 0)
++		setup_iic_hardcoded();
++
+ 	irq_offset = 0;
+ 	for_each_cpu(cpu) {
+ 		iic = &per_cpu(iic, cpu);
+-		setup_iic(cpu, iic);
+ 		if (iic->regs)
+ 			out_be64(&iic->regs->prio, 0xff);
+ 	}
+Index: linus-2.6/arch/powerpc/platforms/cell/interrupt.h
+===================================================================
+--- linus-2.6.orig/arch/powerpc/platforms/cell/interrupt.h
++++ linus-2.6/arch/powerpc/platforms/cell/interrupt.h
+@@ -57,7 +57,7 @@ extern void iic_local_disable(void);
+ extern u8 iic_get_target_id(int cpu);
+ 
+ extern void spider_init_IRQ(void);
+-extern int spider_get_irq(unsigned long int_pending);
++extern int spider_get_irq(int node);
+ 
+ #endif
+ #endif /* ASM_CELL_PIC_H */
 
 --
 

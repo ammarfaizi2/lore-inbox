@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751422AbWCVXEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbWCVXFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751422AbWCVXEF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 18:04:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWCVXEF
+	id S1751429AbWCVXFc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 18:05:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWCVXFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 18:04:05 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:31895 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751422AbWCVXEC (ORCPT
+	Wed, 22 Mar 2006 18:05:32 -0500
+Received: from mail.gmx.de ([213.165.64.20]:47017 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751426AbWCVXFb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 18:04:02 -0500
-Message-ID: <4421D7D5.6010809@garzik.org>
-Date: Wed, 22 Mar 2006 18:03:49 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Bob Picco <bob.picco@hp.com>, Andrew Morton <akpm@osdl.org>,
-       IWAMOTO Toshihiro <iwamoto@valinux.co.jp>,
-       Christoph Lameter <christoph@lameter.com>,
-       Wu Fengguang <wfg@mail.ustc.edu.cn>, Nick Piggin <npiggin@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>, Rik van Riel <riel@redhat.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: [PATCH 02/34] mm: page-replace-kconfig-makefile.patch
-References: <20060322223107.12658.14997.sendpatchset@twins.localnet> <20060322223128.12658.81399.sendpatchset@twins.localnet>
-In-Reply-To: <20060322223128.12658.81399.sendpatchset@twins.localnet>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 22 Mar 2006 18:05:31 -0500
+X-Authenticated: #704063
+Subject: [Patch] Possible NULL pointer dereference in fs/configfs/dir.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: joel.becker@oracle.com
+Content-Type: text/plain
+Date: Thu, 23 Mar 2006 00:05:29 +0100
+Message-Id: <1143068729.27276.1.camel@alice>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.5 (--)
-X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
-	Content analysis details:   (-2.5 points, 5.0 required)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zijlstra wrote:
-> From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> 
-> Introduce the configuration option, and modify the Makefile.
-> 
-> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> Signed-off-by: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+hi,
 
-For future patch posting, -please- use a sane email subject.
+this fixes coverity bug #845, if group is NULL,
+we dereference it when setting up dentry.
 
-The email subject is used as a one-line summary for each changeset. 
-While "page-replace-kconfig-makefile.patch" certainly communicates 
-information, its much less easy to read than normal.  It also makes the 
-git changelog summary (git log $branch..$branch2 | git shortlog) that 
-Linus posts much uglier:
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
-Peter Zijlstra:
-	[PATCH] mm: kill-page-activate.patch
-	[PATCH] mm: page-replace-kconfig-makefile.patch
-	[PATCH] mm: page-replace-insert.patch
-	[PATCH] mm: page-replace-use_once.patch
-
-See http://linux.yyz.us/patch-format.html for more info.
-
-Regards,
-
-	Jeff
+--- linux-2.6.16/fs/configfs/dir.c.orig	2006-03-23 00:02:23.000000000 +0100
++++ linux-2.6.16/fs/configfs/dir.c	2006-03-23 00:03:49.000000000 +0100
+@@ -500,7 +500,7 @@ static int create_default_group(struct c
+ static int populate_groups(struct config_group *group)
+ {
+ 	struct config_group *new_group;
+-	struct dentry *dentry = group->cg_item.ci_dentry;
++	struct dentry *dentry;
+ 	int ret = 0;
+ 	int i;
+ 
+@@ -512,6 +512,8 @@ static int populate_groups(struct config
+ 		 * parent to find us, let alone mess with our tree.
+ 		 * That said, taking our i_mutex is closer to mkdir
+ 		 * emulation, and shouldn't hurt. */
++		dentry = group->cg_item.ci_dentry;
++
+ 		mutex_lock(&dentry->d_inode->i_mutex);
+ 
+ 		for (i = 0; group->default_groups[i]; i++) {
 
 

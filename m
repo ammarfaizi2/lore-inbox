@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWCVRbb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWCVRcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751029AbWCVRbb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 12:31:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWCVRbb
+	id S1751027AbWCVRcM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 12:32:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbWCVRcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 12:31:31 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:14718 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751027AbWCVRba
+	Wed, 22 Mar 2006 12:32:12 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:50818 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751027AbWCVRcK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 12:31:30 -0500
-Subject: Re: 2.6.16-rt1
-From: Daniel Walker <dwalker@mvista.com>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <442176EB.1050403@cybsft.com>
-References: <20060320085137.GA29554@elte.hu> <441F8017.4040302@cybsft.com>
-	 <20060321211653.GA3090@elte.hu> <4420B5F0.6000201@cybsft.com>
-	 <20060322062932.GA17166@elte.hu> <44215CCB.1080005@cybsft.com>
-	 <442176EB.1050403@cybsft.com>
-Content-Type: text/plain
-Date: Wed, 22 Mar 2006 09:31:28 -0800
-Message-Id: <1143048688.9127.2.camel@localhost.localdomain>
+	Wed, 22 Mar 2006 12:32:10 -0500
+Date: Wed, 22 Mar 2006 09:32:28 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       Ian Pratt <ian.pratt@xensource.com>
+Subject: Re: [RFC PATCH 09/35] Change __FIXADDR_TOP to leave room for the hypervisor.
+Message-ID: <20060322173228.GX15997@sorel.sous-sol.org>
+References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063747.636585000@sorel.sous-sol.org> <44218916.3030607@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44218916.3030607@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-22 at 10:10 -0600, K.R. Foley wrote:
+* Anthony Liguori (aliguori@us.ibm.com) wrote:
+> I think this is more generally useful if it's actually a CONFIG option 
+> (as it was in the VMI patches) instead of subarch specific.  Qemu has 
+> had a "fast" patch for a while that pretty much just increases the size 
+> of the memory hole and changes ___PAGE_OFFSET to be lower in memory.   
+> There are a number of interesting things one can do once there's an 
+> adequately sized hole too (assuming you're doing full-virtualization).
 
-> Found something interesting. Having Wakeup latency timing turned on
-> makes a HUGE difference. I turned it off and recompiled and now I am
-> seeing numbers back in line with what I expected from 2.6.16-rt4. Sorry,
-> but I had no idea it would make that much difference. I don't have a
-> complete run yet, but I have seen enough to know that I am not seeing
-> tons of missed interrupts and the highest reported latency thus far is
-> 61 usec.
+Good point, easy to change.  Although I think dynamic may be the better
+approach.
 
-Just Wakeup latency timing , and not latency tracing ?
-
-Daniel
-
+thanks,
+-chris

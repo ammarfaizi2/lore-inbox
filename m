@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932748AbWCVVXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932755AbWCVV0P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932748AbWCVVXL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 16:23:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932750AbWCVVXL
+	id S932755AbWCVV0P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 16:26:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932756AbWCVV0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 16:23:11 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:56743 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932748AbWCVVXJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 16:23:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kLwah+DZYpFkFk6hX0H5Y4ipzWEWvBHfm5XoanyVPR0XCWYjz8gSoUCDPzZvWjiDmcs/FmMJvXqKXX9YHOgH+BAg1shR1NP5+keaYb1aP83FWEVJf0hirk4dzMQyPQSTBaoGi0Q1YUCQTMufXX8SIwHc2d6/lEa4/sCjfRmJltI=
-Message-ID: <d120d5000603221323t7c67b06epa02ed3269d3365b0@mail.gmail.com>
-Date: Wed, 22 Mar 2006 16:23:08 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: minyard@acm.org
-Subject: Re: [PATCH] Try 2, Fix release function in IPMI device model
-Cc: "Russell King" <rmk+lkml@arm.linux.org.uk>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Yani Ioannou" <yani.ioannou@gmail.com>, greg@kroah.com
-In-Reply-To: <20060322204501.GA21213@i2.minyard.local>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060322204501.GA21213@i2.minyard.local>
+	Wed, 22 Mar 2006 16:26:15 -0500
+Received: from zombie.ncsc.mil ([144.51.88.131]:47013 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S932755AbWCVV0P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 16:26:15 -0500
+Subject: [PATCH] driver core: driver_bind attribute returns incorrect value
+From: Ryan <hap9@epoch.ncsc.mil>
+To: gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 22 Mar 2006 16:26:25 -0500
+Message-Id: <1143062785.22254.15.camel@moss-tarheels.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/22/06, Corey Minyard <minyard@acm.org> wrote:
->
->  struct bmc_device
->  {
-> -       struct platform_device dev;
-> +       struct platform_device *dev;
->        struct ipmi_device_id  id;
->        unsigned char          guid[16];
->        int                    guid_set;
-> -       int                    interfaces;
-> +
-> +       struct kref            refcount;
->
+The manual driver <-> device binding attribute in sysfs doesn't return
+the correct value on failure or success of driver_probe_device.
+driver_probe_device returns 1 on success (the driver accepted the
+device) or 0 on probe failure (when the driver didn't accept the
+device but no real error occured). However, the attribute can't just
+return 0 or 1, it must return the number of bytes consumed from buf
+or an error value. Returning 0 indicates to userspace that nothing
+was written (even though the kernel has tried to do the bind/probe and
+failed). Returning 1 indicates that only one character was accepted in
+which case userspace will re-try the write with a partial string.
 
-Hi,
+A more correct version of driver_bind would return count (to indicate
+the entire string was consumed) when driver_probe_device returns 1
+and -ENODEV when driver_probe_device returns 0. This patch makes that
+change.
 
-I am confused as to why you need kref here. Just unregister/kfree
-memory occupied by your device structure after doing
-platform_device_unregister and that's it. platform code won't
-reference your memory and your attribute code should not be called
-from module exit code so everything shoudl be fine.
+Signed-off-by: Ryan Wilson <hap9@epoch.ncsc.mil>
 
---
-Dmitry
+---
+
+ drivers/base/bus.c |    5 +++++
+ 1 files changed, 5 insertions(+)
+
+--- linux-2.6.16-rc5/drivers/base/bus.c	2006-03-16 10:50:20.000000000 -0500
++++ linux-2.6.16-rc5/drivers/base/bus.c	2006-03-16 11:02:08.000000000 -0500
+@@ -188,6 +188,11 @@ static ssize_t driver_bind(struct device
+ 		up(&dev->sem);
+ 		if (dev->parent)
+ 			up(&dev->parent->sem);
++
++		if (err > 0) 		/* success */
++			err = count;
++		else if (err == 0)	/* driver didn't accept device */
++			err = -ENODEV;
+ 	}
+ 	put_device(dev);
+ 	put_bus(bus);
+
+

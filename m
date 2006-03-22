@@ -1,33 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWCVRyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWCVRyf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbWCVRyv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 12:54:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWCVRyv
+	id S932252AbWCVRyf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 12:54:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWCVRyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 12:54:51 -0500
-Received: from 124-63-89.adsl.terra.cl ([200.89.63.124]:59662 "EHLO
-	124-63-89.adsl.terra.cl") by vger.kernel.org with ESMTP
-	id S932256AbWCVRyt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 12:54:49 -0500
-Message-ID: <007301c64dd9$b2d23380$e623000a@124-63-89.adsl.terra.cl>
-From: "Galechka" <goriatchev@aaanet.ru>
-To: "linux-kernel-owner" <linux-kernel-owner@vger.kernel.org>
-Subject: Re[3]:Hello from Galinochka
-Date: Wed, 22 Mar 2006 19:54:56 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="windows-1251"
-Content-Transfer-Encoding: 8bit
+	Wed, 22 Mar 2006 12:54:35 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:5775 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932252AbWCVRyd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 12:54:33 -0500
+Date: Wed, 22 Mar 2006 12:54:26 -0500
+From: Dave Jones <davej@redhat.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: unresolved emu10k1 synth symbols.
+Message-ID: <20060322175426.GA1188@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Takashi Iwai <tiwai@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060321054634.GA5122@redhat.com> <s5hoe0083ek.wl%tiwai@suse.de> <20060321180957.GB5323@redhat.com> <s5hd5geh8ds.wl%tiwai@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hd5geh8ds.wl%tiwai@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !	
+On Wed, Mar 22, 2006 at 03:16:47PM +0100, Takashi Iwai wrote:
+ > At Tue, 21 Mar 2006 13:09:57 -0500,
+ > Dave Jones wrote:
+ > > 
+ > > On Tue, Mar 21, 2006 at 12:04:35PM +0100, Takashi Iwai wrote:
+ > > 
+ > >  > Weird.  By modprobe, snd-emu10k1 module should be loaded in prior to 
+ > >  > snd-emu10k1-synth because of the dependency of above symbols.
+ > >  > 
+ > >  > How is snd-emu10k1-synth module loaded?
+ > > 
+ > > with the following modprobe.conf fragment
+ > > 
+ > > install snd-emu10k1 /sbin/modprobe --ignore-install snd-emu10k1 && /sbin/modprobe snd-emu10k1-synth
+ > 
+ > Does the manual modprobe snd-emu10k1-synth after loading snd-emu10k1
+ > work?
 
-By the way, I forgot to tell you that you can easily find me
-http://kSHvXCuAix27R.my-new-profile.com/
+Yes, it does.
 
-a rivederci
+		Dave
 
-Galechka
-
-
+-- 
+http://www.codemonkey.org.uk

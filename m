@@ -1,43 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932672AbWCWR6R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422640AbWCWR7M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932672AbWCWR6R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 12:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932674AbWCWR6R
+	id S1422640AbWCWR7M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 12:59:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWCWR7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 12:58:17 -0500
-Received: from build.arklinux.osuosl.org ([140.211.166.26]:8412 "EHLO
-	mail.arklinux.org") by vger.kernel.org with ESMTP id S932536AbWCWR6Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 12:58:16 -0500
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] Add quirks required to make a Shuttle PN-31 remote control work
-Date: Thu, 23 Mar 2006 18:51:23 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-usb-devel@lists.sourceforge.net, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <200603202359.25558.bero@arklinux.org> <20060321071635.GC7523@suse.cz>
-In-Reply-To: <20060321071635.GC7523@suse.cz>
+	Thu, 23 Mar 2006 12:59:11 -0500
+Received: from smtp1.wanadoo.fr ([193.252.22.30]:20368 "EHLO smtp1.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S964920AbWCWR7I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 12:59:08 -0500
+X-ME-UUID: 20060323175854999.F3F481C0023E@mwinf0101.wanadoo.fr
+Message-ID: <4422E171.1040909@worldonline.fr>
+Date: Thu, 23 Mar 2006 18:57:05 +0100
+From: Sylvain Meyer <sylvain.meyer@worldonline.fr>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; fr-FR; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: fr-fr, en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603231851.24029.bero@arklinux.org>
+To: linux-fbdev-devel@lists.sourceforge.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [Linux-fbdev-devel] [PATCH] [git tree] Intel i9xx support for
+ intelfb
+References: <21d7e9970603221820p5c89e46fgbd9878a3c60eac0a@mail.gmail.com>	 <b00ca3bd0603222159t63ea0f4j38e085ecff5b93c8@mail.gmail.com> <21d7e9970603222209r45beeb99nccc6435b99b79154@mail.gmail.com>
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 21. March 2006 08:16, Vojtech Pavlik wrote:
-> On Mon, Mar 20, 2006 at 11:59:24PM +0100, Bernhard Rosenkraenzer wrote:
-> > Add some quirks to make a Shuttle PN-31 remote control work.
+        Sorry for my very long silence.
+
+For i2c support. I've done it to have a workable tv-out on my hardware. 
+It was the main reason  why i ported the driver to kernels 2.6 as i use 
+my computer as a set-top-box only connected to a tv. I've it on my own 
+tree (very old).
+I can send you the code. I did it in a way not accepted by kernel 
+reviewers as my tv driver (for chrontel ch7011 chipset) is all in kernel 
+space. But it can be a base for a better scheme.
+
+Regards
+Sylvain
+
+Dave Airlie a écrit:
+
+>>>This code isn't perfect but I've got no documentation so I cannot
+>>>answer some questions on what exactly is going on just yet...
+>>>      
+>>>
+>>Better than nothing, and if it works for digital displays, then that
+>>would be great.
+>>    
+>>
 >
-> Can you send me the #define DEBUG output from hid-core and hid-input?
-> I'm quite curious how much broken the device is and if it weren't easier
-> to implement a way how to replace the HID Report descriptor inside
-> hid-core instead of adding more quirks.
+>It doesn't support LVDS or DVI yet but I'm hoping to make it go in
+>that direction, I've no LVDS h/w, and some chipsets have it integrated
+>and some don't, but this is a better basis for future work, and I'll
+>have no problems keeping it updated with fixes as they come from the
+>X.org driver... I'd like to get at least LVDS support working for
+>laptop users with these chipsets, getting DVI working is a bit more
+>work as there are external chips that need to be driven over i2c, so
+>I'll need to at least add i2c support to the i8xx driver. (I noticed
+>Sylvain has done some of this work before)..... I'd like to expose i2c
+>buses to userspace anyways....
+>
+>  
+>
+>>There's no git tree for the framebuffer layer, I just send updates
+>>directly to akpm. Andrew?
+>>
+>>    
+>>
+>
+>I'd like to keep the git history if possible, so maybe we can pull
+>this tree into -mm and I can get it pulled by Linus later.
+>
+>Regards,
+>Dave
+>
+>
+>-------------------------------------------------------
+>This SF.Net email is sponsored by xPML, a groundbreaking scripting language
+>that extends applications into web and mobile media. Attend the live webcast
+>and join the prime developer group breaking into this new coding territory!
+>http://sel.as-us.falkag.net/sel?cmd=k&kid0944&bid$1720&dat1642
+>_______________________________________________
+>Linux-fbdev-devel mailing list
+>Linux-fbdev-devel@lists.sourceforge.net
+>https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel
+>
+>  
+>
 
-Unfortunately not ATM, I don't have the hardware anymore (it was part of the 
-"If you get any new hardware, give it to me for a day before selling it, to 
-make sure it supports Linux" deal I have with a local computer shop).
 
-I'll gather the debug output if/when he sells another one.
+

@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWCWQv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWCWQwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751351AbWCWQv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 11:51:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWCWQv6
+	id S1751192AbWCWQwT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 11:52:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWCWQwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 11:51:58 -0500
-Received: from relay04.roc.ny.frontiernet.net ([66.133.182.167]:18644 "EHLO
-	relay04.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S1751351AbWCWQv4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 11:51:56 -0500
-From: Bryan Holty <lgeek@frontiernet.net>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] scsi: properly count the number of pages in scsi_req_map_sg()
-Date: Thu, 23 Mar 2006 10:51:51 -0600
-User-Agent: KMail/1.9.1
-Cc: Dan Aloni <da-x@monatomic.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-scsi <linux-scsi@vger.kernel.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>, brking@us.ibm.com,
-       dror@xiv.co.il
-References: <20060321083830.GA2364@localdomain> <20060321161912.GA32051@localdomain> <20060323145203.GA13637@infradead.org>
-In-Reply-To: <20060323145203.GA13637@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 23 Mar 2006 11:52:18 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:8359 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751192AbWCWQwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 11:52:16 -0500
+Subject: Re: 2.6.16-git6: build failure: ne2k-pci: footbridge_defconfig
+From: Arjan van de Ven <arjan@infradead.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <20060323164109.GD25849@flint.arm.linux.org.uk>
+References: <20060323164109.GD25849@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Thu, 23 Mar 2006 17:52:12 +0100
+Message-Id: <1143132732.3147.33.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603231051.51519.lgeek@frontiernet.net>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 March 2006 08:52, Christoph Hellwig wrote:
-> On Tue, Mar 21, 2006 at 06:19:12PM +0200, Dan Aloni wrote:
-> > These scatterlists can be generated using the sg driver. Though I am
-> > actually running a customized version of the sg driver, it seems the
-> > conversion from a userspace array of sg_iovec_t to scatterlist stays
-> > the same and also applies to the original driver (see
-> > st_map_user_pages()).
->
-> What kernel version did you reproduce this with?  Since 2.6.16 sg should
-> obey all request size/alingment limitations.  If not that's a bug in
-> scsi_execute_async and it's helpers and should be fixed there.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Thu, 2006-03-23 at 16:41 +0000, Russell King wrote:
+> Building the ARM footbridge_defconfig provokes this build error:
+> 
+>   CC      drivers/net/ne2k-pci.o
+> drivers/net/ne2k-pci.c:123: error: pci_clone_list causes a section type conflict
+> make[2]: *** [drivers/net/ne2k-pci.o] Error 1
+> make[1]: *** [drivers/net] Error 2
+> make: *** [drivers] Error 2
+> make: Leaving directory `/var/tmp/kernel-orig'
+> 
+> static const struct {
+>         char *name;
+>         int flags;
+> } pci_clone_list[] __devinitdata = {
+> 
+> const data can't be __devinitdata.
 
-I am able to reproduce this with 2.6.16-rc5 - 2.6.16.  There is a problem in 
-scsi_req_map_sg which is called by scsi_execute_async.
 
-Currently, scsi_req_map_sg assumes every sgl entry is page aligned.  It will 
-cause later slab corruption by under-allocating the number of bio entries if 
-sgl[0].offset + sgl[last].length > PAGE_SIZE.
+that's a gcc bug; probably arm specific even?
 
-Dan pointed this out, and I have submitted a patch that I believe correctly 
-fixes the issue.  Just waiting for some feedback.
-
---
- Bryan Holty

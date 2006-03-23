@@ -1,37 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751482AbWCWR5k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbWCWR6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751482AbWCWR5k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 12:57:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbWCWR5k
+	id S964917AbWCWR6g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 12:58:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWCWR6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 12:57:40 -0500
-Received: from stout.engsoc.carleton.ca ([134.117.69.22]:19652 "EHLO
-	stout.engsoc.carleton.ca") by vger.kernel.org with ESMTP
-	id S1751476AbWCWR5i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 12:57:38 -0500
-Date: Thu, 23 Mar 2006 09:21:14 -0500
-From: Kyle McMartin <kyle@mcmartin.ca>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/2] create struct compat_timex and use it everywhere
-Message-ID: <20060323142114.GA612@quicksilver.road.mcmartin.ca>
-References: <20060323164623.699f569e.sfr@canb.auug.org.au>
-MIME-Version: 1.0
+	Thu, 23 Mar 2006 12:58:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48850 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964917AbWCWR6e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 12:58:34 -0500
+Date: Thu, 23 Mar 2006 12:58:22 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-mm1
+Message-ID: <20060323175822.GA7816@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060323014046.2ca1d9df.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060323164623.699f569e.sfr@canb.auug.org.au>
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060323014046.2ca1d9df.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 04:46:23PM +1100, Stephen Rothwell wrote:
-> We had a copy of the compatibility version of struct timex in each 64 bit
-> architecture.  This patch just creates a global one and replaces all the
-> usages of the old ones.
-> 
-> Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
->
+On Thu, Mar 23, 2006 at 01:40:46AM -0800, Andrew Morton wrote:
 
-Looks good.
+ > - Be aware that someone-who-doesn't-know-about-allmodconfig has screwed up
+ >   AGP on x86_64: if your link fails with various missing AGP symbols you'll
+ >   need to set the various CONFIG_AGP* symbols to `y' rather than `m'.  Then
+ >   work out which other Kconfig rule keeps on flipping them back to `m' again,
+ >   then fix that too.
 
-Acked-by: Kyle McMartin <kyle@parisc-linux.org>  
+I haven't merged anything into agpgart-git for a week or two, so it's
+more than likely..
+
+ > +x86_64-mm-via-agp.patch
+ > +x86_64-mm-sis-agp.patch
+ > 
+ >  x86_64 tree updates
+
+
+whatever these are.
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

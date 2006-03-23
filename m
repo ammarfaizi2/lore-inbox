@@ -1,73 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965163AbWCWDrY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965154AbWCWDsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965163AbWCWDrY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 22:47:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbWCWDrY
+	id S965154AbWCWDsG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 22:48:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbWCWDsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 22:47:24 -0500
-Received: from mga03.intel.com ([143.182.124.21]:62769 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S965123AbWCWDrW convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 22:47:22 -0500
-X-IronPort-AV: i="4.03,120,1141632000"; 
-   d="scan'208"; a="14460091:sNHT179352964"
-Content-class: urn:content-classes:message
+	Wed, 22 Mar 2006 22:48:05 -0500
+Received: from adsl-71-140-189-62.dsl.pltn13.pacbell.net ([71.140.189.62]:8406
+	"EHLO aexorsyst.com") by vger.kernel.org with ESMTP id S965154AbWCWDsD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 22:48:03 -0500
+From: "John Z. Bohach" <jzb@aexorsyst.com>
+Reply-To: jzb@aexorsyst.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: BIOS causes (exposes?) modprobe (load_module) kernel oops
+Date: Wed, 22 Mar 2006 19:48:00 -0800
+User-Agent: KMail/1.5.2
+References: <200603212005.58274.jzb@aexorsyst.com> <1143018365.2955.49.camel@laptopd505.fenrus.org>
+In-Reply-To: <1143018365.2955.49.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: ACPI error in 2.6.16 (AE_TIME, Returned by Handler for EmbeddedControl)
-Date: Thu, 23 Mar 2006 11:46:31 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840B468EFD@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ACPI error in 2.6.16 (AE_TIME, Returned by Handler for EmbeddedControl)
-Thread-Index: AcZOJjiFe6gjhUkFRIyrQp+uCySakwABcWLw
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Francesco Biscani" <biscani@pd.astro.it>,
-       "Brown, Len" <len.brown@intel.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <linux-acpi@vger.kernel.org>, "Jiri Slaby" <slaby@liberouter.org>
-X-OriginalArrivalTime: 23 Mar 2006 03:46:33.0151 (UTC) FILETIME=[60853CF0:01C64E2C]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603221948.00568.jzb@aexorsyst.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Thursday 23 March 2006 02:45, Brown, Len wrote:
->> does this go away if you boot with "ec_intr=0"?
+On Wednesday 22 March 2006 01:06, Arjan van de Ven wrote:
+> On Tue, 2006-03-21 at 20:05 -0800, John Z. Bohach wrote:
+> > Linux 2.6.14.2, yeah, I know, and sorry if this has been fixed...but read
+> > on, please, this is a new take...
 >
->So far it seems like that option solves the problem. But since 
->the bug appears 
->very erratically I think it's better to wait for a few more reboots.
+> at least enable CONFIG_KALLSYMS to get us a readable backtrace
 >
->BTW, when I was testing _without_ ec_intr=0 I got this in the 
->log (this 
->happened the first reboot after the one mentioned in my previous mail):
->
->Mar 23 03:48:50 kurtz ACPI: read EC, IB not empty
->Mar 23 03:48:50 kurtz ACPI: read EC, OB not full
->Mar 23 03:48:50 kurtz ACPI Exception (evregion-0409): AE_TIME, 
->Returned by 
->Handler for [EmbeddedControl] [20060127]
->Mar 23 03:48:50 kurtz ACPI Exception (dswexec-0458): AE_TIME, 
->While resolving 
->operands for [AE_NOT_CONFIGURED] [20060127]
->Mar 23 03:48:50 kurtz ACPI Error (psparse-0517): Method 
->parse/execution failed 
->[\_SB_.PCI0.ISA_.EC0_._Q20] (Node c13ecbc0), AE_TIME
->
->This is an hp pavilion ze5616ea laptop, FYI.
->
->Thanks and best regards,
->
->  Francesco
 
-Please file this bug on bugzilla.kernel.org
-We need to find out why ?
-Could you post dmesg for ec_intr=0 , ec_intr=1 on bugzilla.
+I'll do you one better:  here's the failing line from module.c:
 
+	/* Determine total sizes, and put offsets in sh_entsize.  For now
+	   this is done generically; there doesn't appear to be any
+	   special cases for the architectures. */
+	layout_sections(mod, hdr, sechdrs, secstrings);
 
-Thanks,
-Luming
+	/* Do the allocs. */
+	ptr = module_alloc(mod->core_size);
+	if (!ptr) {
+		err = -ENOMEM;
+		goto free_percpu;
+	}
+!!! --->	memset(ptr, 0, mod->core_size);
+	mod->module_core = ptr;
+
+The !!!---> memset() line is the one that fails.  In assembly, its:
+
+c0127ae5:       f3 ab                   repz stos %eax,%es:(%edi)
+
+eax is 0, and es is 0x7b with edi at 0xe0806000.  Everything looks fine.
+
+Interestingly, and expectedly, I might add, these values are identical in both the
+failing case and the succeeding case.  Here's the rest of the story:
+
+I'm testing a different boot loader in the failing case.  The failing case loads
+
+arch/i386/boot/compressed/vmlinux
+
+ while the successful case loads
+
+arch/i386/boot/bzImage.
+
+Sorry I wasn't complete before, I was hoping not to
+have to get this deep.  As far as I can tell, the bootloader (a very minimal one,
+that uses no BIOS calls, sets up the linux params. area, as well as the MP table
+and E820 table (in the cmdline area...).  Linux is happy with both, without
+displaying any visible differences with either bootloader on either BIOS.
+
+/proc/meminfo looks identical in both failing/succeeding cases...
+
+However, in the failing case, the 16-bit setup.o stuff of the kernel never got run.
+My bootloader takes care of the the useful work, and sets things up appropriately
+without needing any BIOS calls (32-bit protected mode, initial GDT, etc.).
+I've looked through setup.S, and can't see any major
+differences between 2.4 and 2.6, but I'm starting to wonder....  I'm thinking that by
+skipping the setup.S stuff,  some initialization related to paging and/or virtual
+memory gets skipped?  Does anyone know if this is true?
+
+I have a feeling that its some pre-kernel initialization (or lack thereof) that has some subtle
+side-effect regarding paging and is triggered by the first modload.  Does the fact the the virtual
+address is at 0xe0806000 have any significance?  Does the 0xexxxxxxx range only
+get used for modules?  I'm trying to figure out what triggers this failed paging request...
 

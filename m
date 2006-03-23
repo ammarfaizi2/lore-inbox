@@ -1,110 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWCWDbt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWCWDgu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWCWDbt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 22:31:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbWCWDbs
+	id S1751399AbWCWDgu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 22:36:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWCWDgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 22:31:48 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:2964 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932066AbWCWDbr (ORCPT
+	Wed, 22 Mar 2006 22:36:49 -0500
+Received: from mga02.intel.com ([134.134.136.20]:60186 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751399AbWCWDgt convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 22:31:47 -0500
-Date: Wed, 22 Mar 2006 19:31:17 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Junio C Hamano <junkio@cox.net>
-cc: Daniel Barkalow <barkalow@iabervon.org>, linux-dvb-maintainer@linuxtv.org,
-       akpm@osdl.org, video4linux-list@redhat.com,
-       linux-kernel@vger.kernel.org,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [PATCH 000/141] V4L/DVB updates part 1
-In-Reply-To: <7vmzfi6u7x.fsf@assigned-by-dhcp.cox.net>
-Message-ID: <Pine.LNX.4.64.0603221909420.26286@g5.osdl.org>
-References: <20060320150819.PS760228000000@infradead.org>
- <Pine.LNX.4.64.0603210741120.3622@g5.osdl.org> <Pine.LNX.4.64.0603210748340.3622@g5.osdl.org>
- <1142962995.4749.39.camel@praia> <Pine.LNX.4.64.0603210946040.3622@g5.osdl.org>
- <1142965478.4749.58.camel@praia> <Pine.LNX.4.64.0603211035390.3622@g5.osdl.org>
- <1142968537.4749.96.camel@praia> <Pine.LNX.4.64.0603211126290.3622@g5.osdl.org>
- <Pine.LNX.4.64.0603211829430.6773@iabervon.org> <Pine.LNX.4.64.0603211630140.3622@g5.osdl.org>
- <7vmzfi6u7x.fsf@assigned-by-dhcp.cox.net>
+	Wed, 22 Mar 2006 22:36:49 -0500
+X-IronPort-AV: i="4.03,120,1141632000"; 
+   d="scan'208"; a="14836981:sNHT98175560"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Dual Core on Linux questions
+Date: Wed, 22 Mar 2006 19:36:42 -0800
+Message-ID: <88056F38E9E48644A0F562A38C64FB6007A24C46@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Dual Core on Linux questions
+Thread-Index: AcZKecaULK6yPmo7QhCEEri/a1CylQDr9qaA
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Mattia Dongili" <malattia@linux.it>,
+       "Alejandro Bonilla" <abonilla@linuxwireless.org>
+Cc: "Jeff Garzik" <jeff@garzik.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 23 Mar 2006 03:36:44.0705 (UTC) FILETIME=[01C78110:01C64E2B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
 
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Mattia Dongili
+>Sent: Saturday, March 18, 2006 2:49 AM
+>To: Alejandro Bonilla
+>Cc: Jeff Garzik; linux-kernel@vger.kernel.org
+>Subject: Re: Dual Core on Linux questions
+>
+>On Sat, Mar 18, 2006 at 03:03:40AM -0600, Alejandro Bonilla wrote:
+>> On Sat, 18 Mar 2006 03:58:22 -0500, Jeff Garzik wrote
+>> > Alejandro Bonilla wrote:
+>> > > Hi,
+>> > > 
+>> > > I have a few questions about the PM Dual Core and how 
+>could it really work
+>> > > with Linux. Sorry if there are new patches on LKML about 
+>any of these things:
+>> > > 
+>> > > Could each processor or die, have it's own cpufreq 
+>scaling governor?
+>> > 
+>> > Sure.  On a laptop, if you don't need dual core power, it makes 
+>> > sense to turn off the unused core, even.
+>> > 
+>> > 	Jeff
+>> 
+>> Jeff,
+>> 
+>> For some reason, while I was writing this email, I knew you 
+>would be the first
+>> to reply. LOL. Anyway. Does this need new patches sent to 
+>LKML or nice
+>> commands to make this work or any idea if stock cpufreqd 
+>should manage the
+>> cores separatelly? I haven't got that to work on 2.6.15 so 
+>far. How flexible
+>
+>no, currently cpufreqd applies the governor and limits to all available
+>cpus. Is it really possible to run the 2 cores at different speeds?
+>I definitely need to upgrade my hardware and get one of those dual core
+>babies to play with.
+>Oh, and BTW patches to cpufreqd are welcome in the meantime :)
+>
 
-On Wed, 22 Mar 2006, Junio C Hamano wrote:
-> 
-> I am curious how you found it initially.  After you pulled but
-> before you did further work on top of the updated HEAD, I am
-> suspecting that there is some sanity check done by you to detect
-> that you pulled a faulty tree and decide to discard the merge.
+>From cpufreq perspective multiple things are possible in the way
+processor will support the multi-core frequency changing. and most of
+the things are handled at cpufreq inside kernel. I think there should be
+minima changes required in cpufreqd if any.
+Options:
+1) Multiple core can manage frequency independently: In this case,
+cpufreq exports separate interfaces for each cpu in
+/sys/devices/system/cpu/cpuX. So, cpufreqd should work as it would work
+on an SMP system (Assuming that cpufreqd works fine on an SMP system
+today ;-))
 
-I tend to have a two-level safety check. The first is that I just check 
-the diffstat of the result of the pull (I realize that people hate the 
-fact that the diffstat is often the most expensive part of a pull, but to 
-me it's one of the more important things). 
+2) Multiple cores can be at a single frequency, but hardware will
+coordinate between two cores internally (pick the highest frequency
+request from two cores and run both of them at that frequency). This
+will be very much similar to 1, in the way in which cpufreq and kernel
+handles it.
 
-So I check the diffstat not only for sanity (if somebody asks me to pull a 
-tree that is ARM-specific, the diffstat should only show ARM files 
-changing), but also tend to match it up against what the "please pull" 
-email _claimed_ the diffstat should look like
+3) Multiple cores can be at a single frequency and hardware depends on
+OS to do the coordination, pick the maximum of all the requests from the
+cores and set the frequency using appropriate hardware interface. This
+is the case, where cpufreqd may need a change. In this case, say CPU 0
+and 1 are two different cores on same package and they share frequency
+and OS has to coordinate the freq request from these two CPUs. In this
+case, /sys/devices/system/cpu/cpu1/cpufreq will be kind of a symbolic
+link to /sys/devices/system/cpu/cpu0/cpufreq. Cpufreq tells that these
+two are dependent by using "affected_cpus" in the same sysfs directory
+(in this case "0 1"). Now, if cpufreqd does a set_speed on cpu0 and
+cpu1, both CPUs will be affected. Cpufreqd should be aware that these
+CPUs are dependent and change freq based on maximum utilization of these
+two CPUs.
 
-This is why I ask people to include the diffstat and shortlog in their 
-"please pull" messages: not only does it mean that I get a high-level idea 
-of what the pull is going to do even before I do it, it also means that if 
-my end result is different from the claimed one, it's likely some 
-confusion with the tree (or I pulled the wrong branch because I didn't 
-notice that it wasn't the main one).
-
-This first-level safety check generally catches any serious mistakes, and 
-it's helped me catch cases where the other end did something really stupid 
-by mistake. 
-
-However, in this case, the diffstat didn't actually show anything strange, 
-because the problem was a bogus merge from my own tree, which obviously 
-thus merged perfectly and caused no actual _data_ changes as far as the 
-end result was concerned. 
-
-So this one was caught by the fact that I'm just fairly anal about the 
-history being sensible (as the ACPI people may remember ;), so I usually 
-also do
-
-	gitk ORIG_HEAD..
-
-after pulling. That gives me a nice overview of what the heck the history 
-looks like, and is what caught this one. I don't _always_ do it, and 
-especially with people who have been merging with me since BK days I 
-sometimes don't bother with this thing, but I do it most of the time.
-
-Finally, I do a "git-fsck-cache" after pretty much every "git pull" 
-sequence just because I'm anal.
-
-Basically, if the history looks sane, and the diffstat doesn't raise any 
-red flags, I'm then usually happy. Of course, since I only really pull 
-from people that I trust _anyway_, none of this is about really trying to 
-find "bad stuff" - it's more about
-
- (a) stupid mistakes. Especially early on, this (and some extra checks, 
-     like doing "git-whatchanged ORIG_HEAD.." - which is just a much 
-     easier way to scan the commits in more detail without actually seeing 
-     the full patches than gitk) caught a number of cases where the other 
-     end had simply done a mistake. We had a number of those. Happily, 
-     people have clearly gotten more used to git, and I also think that 
-     git simply doesn't allow some of those mistakes any more.
-
- (b) keeping the history clean. I _hate_ having an unreadable history. The 
-     "whole project" history inevitably gets very complex after a while, 
-     but I'm personally convinced that as long as the history makes sense 
-     in the "small picture" (ie the "gitk ORIG_HEAD.." kind of thing), it 
-     just helps the big picture.
-
-So for _me_, I don't worry so much about the actual patch itself. I seldom 
-have the time to look closely and the actual changed lines, although the 
-merges with Andrew I tend to actually check those (partly because they 
-aren't git merges and so I actually have to check the emails one by one 
-_anyway_, but partly because unlike the git merges, Andrew's stuff tends 
-to be all over the place and often to very core stuff, so I need to be 
-more aware of them).
-
-			Linus
+Thanks,
+Venki

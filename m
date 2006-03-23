@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422687AbWCWVlW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422701AbWCWVpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422687AbWCWVlW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 16:41:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422702AbWCWVlW
+	id S1422701AbWCWVpM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 16:45:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422702AbWCWVpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 16:41:22 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:23268 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422687AbWCWVlV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 16:41:21 -0500
-Date: Thu, 23 Mar 2006 13:37:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: 2.6.16-mm1
-Message-Id: <20060323133741.21a72249.akpm@osdl.org>
-In-Reply-To: <20060323175822.GA7816@redhat.com>
-References: <20060323014046.2ca1d9df.akpm@osdl.org>
-	<20060323175822.GA7816@redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 23 Mar 2006 16:45:12 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:5989 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1422701AbWCWVpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 16:45:10 -0500
+Date: Thu, 23 Mar 2006 23:45:07 +0200
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Muli Ben-Yehuda <mulix@mulix.org>, Jon Mason <jdmason@us.ibm.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/3] x86-64: Calgary IOMMU - Calgary specific bits
+Message-ID: <20060323214507.GE25830@rhun.haifa.ibm.com>
+References: <20060320084848.GA21729@granada.merseine.nu> <200603231731.34097.ak@suse.de> <20060323175345.GB2598@granada.merseine.nu> <200603231902.04043.ak@suse.de> <20060323190334.GD25830@rhun.haifa.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060323190334.GD25830@rhun.haifa.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> wrote:
->
-> On Thu, Mar 23, 2006 at 01:40:46AM -0800, Andrew Morton wrote:
-> 
->  > - Be aware that someone-who-doesn't-know-about-allmodconfig has screwed up
->  >   AGP on x86_64: if your link fails with various missing AGP symbols you'll
->  >   need to set the various CONFIG_AGP* symbols to `y' rather than `m'.  Then
->  >   work out which other Kconfig rule keeps on flipping them back to `m' again,
->  >   then fix that too.
-> 
-> I haven't merged anything into agpgart-git for a week or two, so it's
-> more than likely..
-> 
->  > +x86_64-mm-via-agp.patch
->  > +x86_64-mm-sis-agp.patch
->  > 
->  >  x86_64 tree updates
-> 
-> 
-> whatever these are.
-> 
+On Thu, Mar 23, 2006 at 09:03:34PM +0200, Muli Ben-Yehuda wrote:
 
-THose patches come from someone who is pretending to be davej@redhat.com ;)
+> > > X works :-) 
+> > 
+> > So it's behind a bridge that doesn't have an IOMMU?
+> 
+> No, it's behind a bridge that does have an IOMMU and is running with
+> translation enabled (it's on PHB 0 on this machine). I guess you are
+> concerned with userspace access to the graphics controller directly,
+> without a kernel driver having set up mapping previously? I will look
+> into it but emprirically X works so either userspace is not triggering
+> DMAs or the mappings have been set up by a driver.
 
-We suspect the culprit is git-intelfb, which does
+Turns out that X does work on my machine (SLES 9SP2) but dies with a
+bad translation error on Jon's machine, which is otherwise identical
+except it runs gentoo. We are thinking how to best address this (add
+IOMMU aware drivers to X? *shudder*), but will disable translation by
+default on PHB 0 in the mean time for a friendlier user
+experience.
 
- config FB_INTEL
- 	tristate "Intel 830M/845G/852GM/855GM/865G support (EXPERIMENTAL)"
--	depends on FB && EXPERIMENTAL && PCI && X86_32
-+	depends on FB && EXPERIMENTAL && PCI && X86
- 	select AGP
- 	select AGP_INTEL
- 	select FB_MODE_HELPERS
-
-It's rather nasty that this can break the build.
-
-It also seems plain wrong to me that a "select AGP" can force CONFIG_AGP=y
-into CONFIG_AGP=m.  There's no sense in that.
-
+Thanks,
+Muli

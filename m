@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWCWQ4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWCWQ6D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932479AbWCWQ4p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 11:56:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWCWQ4p
+	id S932122AbWCWQ6D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 11:58:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbWCWQ6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 11:56:45 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:16116 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932174AbWCWQ4o convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 11:56:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AQlUsqmviGNv80lNNg4A1l51NFyUlTLqY29Kw7HVCPjRITC8xH5bPUZo4r+t8qGBy9OgVXSpN9PLDaORBT3KSr3rlltVt5StVclqTc2rQ0HEo+oWHmT7FFl3bco6X17b4v4OKNj0Y2kiERLi4POyGlE5iShz24Uact5lHzdHHAA=
-Message-ID: <728201270603230855l11faeb6ah33ee88568843068f@mail.gmail.com>
-Date: Thu, 23 Mar 2006 10:55:30 -0600
-From: "Ram Gupta" <ram.gupta5@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: RSS Limit implementation issue
-Cc: "linux mailing-list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1139526447.6692.7.camel@localhost.localdomain>
+	Thu, 23 Mar 2006 11:58:03 -0500
+Received: from fw5.argo.co.il ([194.90.79.130]:9234 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S932174AbWCWQ6B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 11:58:01 -0500
+Message-ID: <4422D395.6090008@argo.co.il>
+Date: Thu, 23 Mar 2006 18:57:57 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <728201270602091310r67a3f2dcq4788199f26a69528@mail.gmail.com>
-	 <1139526447.6692.7.camel@localhost.localdomain>
+To: Arjan van de Ven <arjan@infradead.org>
+CC: William D Waddington <william.waddington@beezmo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFCLUE2] 64 bit driver 32 bit app ioctl
+References: <4422B95D.9070900@beezmo.com> <1143132597.3147.31.camel@laptopd505.fenrus.org>
+In-Reply-To: <1143132597.3147.31.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Mar 2006 16:57:59.0485 (UTC) FILETIME=[F094C6D0:01C64E9A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/9/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Iau, 2006-02-09 at 15:10 -0600, Ram Gupta wrote:
-> > I am working to implement enforcing RSS limits of a process. I am
-> > planning to make a check for rss limit when setting up pte. If the
-> > limit is crossed I see couple of  different ways of handling .
-> >
-> > 1. Kill the process . In this case there is no swapping problem.
+Arjan van de Ven wrote:
+> On Thu, 2006-03-23 at 07:06 -0800, William D Waddington wrote:
+>   
+> [...]
+> you forgot to attach you code btw or post the url to it..
 >
-> Not good as the process isn't responsible for the RSS size so it would
-> be rather random.
->
+>   
+is that your new .signature?
 
-I doubt I am missing some point here. I dont understand why the
-process isn't responsible for RSS size. This limit is process specific
-& the count of rss increases when the process maps some page in its
-page table.
+ :)
 
-Thanks
-Ram Gupta
+-- 
+error compiling committee.c: too many arguments to function
+

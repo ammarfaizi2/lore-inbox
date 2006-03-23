@@ -1,64 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422703AbWCWVyU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWCWWEb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422703AbWCWVyU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 16:54:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422704AbWCWVyU
+	id S932185AbWCWWEb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 17:04:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWCWWEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 16:54:20 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:43417 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1422703AbWCWVyT (ORCPT
+	Thu, 23 Mar 2006 17:04:31 -0500
+Received: from mail.gmx.net ([213.165.64.20]:61834 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932185AbWCWWEa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 16:54:19 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Subject: Re: [PATCH] swsusp: separate swap-writing/reading code
-Date: Thu, 23 Mar 2006 22:53:00 +0100
-User-Agent: KMail/1.9.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>
-References: <200603231702.k2NH2OSC006774@hera.kernel.org> <200603240713.41566.ncunningham@cyclades.com>
-In-Reply-To: <200603240713.41566.ncunningham@cyclades.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603232253.01025.rjw@sisk.pl>
+	Thu, 23 Mar 2006 17:04:30 -0500
+X-Authenticated: #704063
+Subject: [Patch] Fix compilation for sound/oss/vwsnd.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 23 Mar 2006 23:04:28 +0100
+Message-Id: <1143151469.13816.1.camel@alice>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+hi,
 
-On Thursday 23 March 2006 22:13, Nigel Cunningham wrote:
-> On Friday 24 March 2006 03:02, Linux Kernel Mailing List wrote:
-> > commit 61159a314bca6408320c3173c1282c64f5cdaa76
-> > tree 8e1b7627443da0fd52b2fac66366dde9f7871f1e
-> > parent f577eb30afdc68233f25d4d82b04102129262365
-> > author Rafael J. Wysocki <rjw@sisk.pl> Thu, 23 Mar 2006 19:00:00 -0800
-> > committer Linus Torvalds <torvalds@g5.osdl.org> Thu, 23 Mar 2006 23:38:07
-> > -0800
-> >
-> > [PATCH] swsusp: separate swap-writing/reading code
-> >
-> > Move the swap-writing/reading code of swsusp to a separate file.
-> >
-> > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-> > Acked-by: Pavel Machek <pavel@ucw.cz>
-> > Signed-off-by: Andrew Morton <akpm@osdl.org>
-> > Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-> 
-> I guess I missed this one somehow. Using a bitmap for allocated swap is really 
-> inefficient because the values are usually not fragmented much. Extents would 
-> have been a far better choice.
+this patch fixes compilation for sound/oss/vwsnd.o, by moving
+li_destroy() above li_create()
 
-I agree it probably may be improved.  Still it seems to be good enough.  Further,
-it's more efficient than the previous solution, so I consider it as an improvement.
-Also this code has been tested for quite some time in -mm and appears to
-behave properly, at least we haven't got any bug reports related to it so far.
+sound/oss/vwsnd.c:275: warning: conflicting types for ‘li_destroy’
+sound/oss/vwsnd.c:275: error: static declaration of ‘li_destroy’ follows non-static declaration
+sound/oss/vwsnd.c:264: error: previous implicit declaration of ‘li_destroy’ was here
 
-Currently I'm not working on any better solution.  If you can provide any
-patches to implement one, please submit them, but I think they'll have to be
-tested for as long as this code, in -mm.
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
-Greetings,
-Rafael
+--- linux-2.6.16-git6/sound/oss/vwsnd.c	2006-03-23 22:57:54.000000000 +0100
++++ linux-2.6.16-git6.new/sound/oss/vwsnd.c	2006-03-23 22:58:30.000000000 +0100
+@@ -247,6 +247,26 @@ typedef struct lithium {
+ } lithium_t;
+ 
+ /*
++ * li_destroy destroys the lithium_t structure and vm mappings.
++ */
++
++static void li_destroy(lithium_t *lith)
++{
++	if (lith->page0) {
++		iounmap(lith->page0);
++		lith->page0 = NULL;
++	}
++	if (lith->page1) {
++		iounmap(lith->page1);
++		lith->page1 = NULL;
++	}
++	if (lith->page2) {
++		iounmap(lith->page2);
++		lith->page2 = NULL;
++	}
++}
++
++/*
+  * li_create initializes the lithium_t structure and sets up vm mappings
+  * to access the registers.
+  * Returns 0 on success, -errno on failure.
+@@ -268,26 +288,6 @@ static int __init li_create(lithium_t *l
+ }
+ 
+ /*
+- * li_destroy destroys the lithium_t structure and vm mappings.
+- */
+-
+-static void li_destroy(lithium_t *lith)
+-{
+-	if (lith->page0) {
+-		iounmap(lith->page0);
+-		lith->page0 = NULL;
+-	}
+-	if (lith->page1) {
+-		iounmap(lith->page1);
+-		lith->page1 = NULL;
+-	}
+-	if (lith->page2) {
+-		iounmap(lith->page2);
+-		lith->page2 = NULL;
+-	}
+-}
+-
+-/*
+  * basic register accessors - read/write long/byte
+  */
+ 
+
+

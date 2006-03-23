@@ -1,92 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWCWFzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWCWF7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751121AbWCWFzF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 00:55:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbWCWFzF
+	id S1751127AbWCWF7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 00:59:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWCWF7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 00:55:05 -0500
-Received: from mail.kroah.org ([69.55.234.183]:14570 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751121AbWCWFzC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 00:55:02 -0500
-Date: Wed, 22 Mar 2006 21:49:05 -0800
-From: Greg KH <greg@kroah.com>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: linux-kernel@vger.kernel.org, rdreier@cisco.com, openib-general@openib.org
-Subject: Re: [PATCH 8 of 18] ipath - sysfs and ipathfs support for core driver
-Message-ID: <20060323054905.GB20672@kroah.com>
-References: <patchbomb.1143072293@eng-12.pathscale.com> <03375633b9c13068de17.1143072301@eng-12.pathscale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 23 Mar 2006 00:59:16 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:31465 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751127AbWCWF7P convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 00:59:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nWOA4Ie2BnE+l/pHk4B+jIQsWi/KXngprG3wOkBe8gSxw2kRMTiOV86HGnVRTWFAah6LKcIaWdXqPMqczajPsyInNpmqJH7VS3ZJfI9qkl4znDyKucmqoGnhTf/CazHZKyGFe0ij11O8TcUIf75MQ1wWgh+CedMLJZdXmu6rpC8=
+Message-ID: <b00ca3bd0603222159t63ea0f4j38e085ecff5b93c8@mail.gmail.com>
+Date: Thu, 23 Mar 2006 13:59:14 +0800
+From: "Antonino Daplas" <adaplas@gmail.com>
+To: linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [Linux-fbdev-devel] [PATCH] [git tree] Intel i9xx support for intelfb
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       sylvain.meyer@worldonline.fr, akpm@osdl.org
+In-Reply-To: <21d7e9970603221820p5c89e46fgbd9878a3c60eac0a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <03375633b9c13068de17.1143072301@eng-12.pathscale.com>
-User-Agent: Mutt/1.5.11
+References: <21d7e9970603221820p5c89e46fgbd9878a3c60eac0a@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 22, 2006 at 04:05:01PM -0800, Bryan O'Sullivan wrote:
-> +int ipath_driver_create_group(struct device_driver *drv)
-> +{
-> +	int ret;
-> +
-> +	if (!drv->kobj.dentry) {
-> +		ret = -ENODEV;
-> +		goto bail;
-> +	}
-> +
-> +	ret = sysfs_create_group(&drv->kobj, &driver_attr_group);
-> +	if (ret)
-> +		goto bail;
-> +
-> +	ret = sysfs_create_group(&drv->kobj, &driver_stat_attr_group);
-> +	if (ret)
-> +		sysfs_remove_group(&drv->kobj, &driver_attr_group);
-> +
-> +bail:
-> +	return ret;
-> +}
-> +
-> +void ipath_driver_remove_group(struct device_driver *drv)
-> +{
-> +	if (drv->kobj.dentry) {
-> +		sysfs_remove_group(&drv->kobj, &driver_stat_attr_group);
-> +		sysfs_remove_group(&drv->kobj, &driver_attr_group);
-> +	}
-> +}
+On 3/23/06, Dave Airlie <airlied@gmail.com> wrote:
+> This patch adds support for i915G, i915GM and i945G to the intelfb
+> driver in the kernel.
+>
+> It comes from work done by me on an X.org driver to support some
+> non-VBE modesetting.
+>
+> This code isn't perfect but I've got no documentation so I cannot
+> answer some questions on what exactly is going on just yet...
 
-Why are you testing kobj.dentry in these functions?  That test would not
-have been valid in the mainline kernel until a day or so ago, so you
-couldn't have ever hit that path (dentry being NULL that is.)
+Better than nothing, and if it works for digital displays, then that
+would be great.
 
-Or did you do that because of something odd you saw in sysfs?
+>
+> The code is also available in the i915fb branch or
+> git://git.kernel.org/pub/scm/linux/kernel/git/airlied/intelfb-2.6
+>
+> It may need more testing on the i945G, and I think adding i945GM
+> support might only be a few lines of code...
+>
+> Is there a framebuffer git tree this could go in?
 
-Unless you did, I don't think you need these tests.
+There's no git tree for the framebuffer layer, I just send updates
+directly to akpm. Andrew?
 
-Oh, and I like your new filesystem, but where do you propose that it be
-mounted?
-
-> +int ipath_device_create_group(struct device *dev, struct ipath_devdata *dd)
-> +{
-> +	int ret;
-> +	char unit[5];
-> +
-> +	ret = sysfs_create_group(&dev->kobj, &dev_attr_group);
-> +	if (ret)
-> +		goto bail;
-> +
-> +	ret = sysfs_create_group(&dev->kobj, &dev_counter_attr_group);
-> +	if (ret)
-> +		goto bail;
-> +
-> +	snprintf(unit, sizeof(unit), "%02d", dd->ipath_unit);
-> +	ret = sysfs_create_link(&dev->driver->kobj, &dev->kobj, unit);
-> +bail:
-> +	return ret;
-> +}
-
-You leak a group if the second call to sysfs_create_group() fails for
-some reason.
-
-thanks,
-
-greg k-h
+Tony

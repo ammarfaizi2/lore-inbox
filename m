@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422718AbWCWWeN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932519AbWCWWfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422718AbWCWWeN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 17:34:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422720AbWCWWeM
+	id S932519AbWCWWfv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 17:35:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbWCWWfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 17:34:12 -0500
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:22980 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S1422718AbWCWWeK convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 17:34:10 -0500
-From: Francesco Biscani <biscani@pd.astro.it>
-To: "Yu, Luming" <luming.yu@intel.com>
-Subject: Re: ACPI error in 2.6.16 (AE_TIME, Returned by Handler for EmbeddedControl)
-Date: Thu, 23 Mar 2006 23:34:03 +0100
-User-Agent: KMail/1.9.1
-Cc: "Brown, Len" <len.brown@intel.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org
-References: <3ACA40606221794F80A5670F0AF15F840B468EFD@pdsmsx403>
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F840B468EFD@pdsmsx403>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200603232334.04717.biscani@pd.astro.it>
+	Thu, 23 Mar 2006 17:35:51 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:29573
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932519AbWCWWfu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 17:35:50 -0500
+Date: Thu, 23 Mar 2006 14:35:47 -0800 (PST)
+Message-Id: <20060323.143547.77042819.davem@davemloft.net>
+To: jamagallon@able.es
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make __get_cpu_var use raw_smp_processor_id()
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060323221125.0aacd6c4@werewolf.auna.net>
+References: <20060323014046.2ca1d9df.akpm@osdl.org>
+	<20060323220711.28fcb82f@werewolf.auna.net>
+	<20060323221125.0aacd6c4@werewolf.auna.net>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 March 2006 04:46, Yu, Luming wrote:
-> Please file this bug on bugzilla.kernel.org
-> We need to find out why ?
-> Could you post dmesg for ec_intr=0 , ec_intr=1 on bugzilla.
+From: "J.A. Magallon" <jamagallon@able.es>
+Date: Thu, 23 Mar 2006 22:11:25 +0100
 
-Done:
+> --- linux-2.6.15-rc5/include/asm-generic/percpu.h.orig	2005-12-21 15:13:27.000000000 -0600
+> +++ linux-2.6.15-rc5/include/asm-generic/percpu.h	2005-12-21 15:13:43.000000000 -0600
+> @@ -13,7 +13,7 @@ extern unsigned long __per_cpu_offset[NR
+>  
+>  /* var is in discarded region: offset to particular copy we want */
+>  #define per_cpu(var, cpu) (*RELOC_HIDE(&per_cpu__##var, __per_cpu_offset[cpu]))
+> -#define __get_cpu_var(var) per_cpu(var, smp_processor_id())
+> +#define __get_cpu_var(var) per_cpu(var, raw_smp_processor_id())
 
-http://bugzilla.kernel.org/show_bug.cgi?id=6278
+I'm skeptical because this has caught real bugs in the past.
 
-Thanks,
-
-  Francesco
-
-
--- 
-Dr. Francesco Biscani
-Dipartimento di Astronomia
-Università di Padova
-biscani@pd.astro.it
+Unfortunately other platforms that hard-code the per-cpu
+area into a cpu register, and thus implement __get_cpu_var()
+without a smp_processor_id() call, don't get the debugging
+check.

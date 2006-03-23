@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbWCWRyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751482AbWCWR5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751477AbWCWRyq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 12:54:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWCWRyq
+	id S1751482AbWCWR5k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 12:57:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbWCWR5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 12:54:46 -0500
-Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:61676 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1751476AbWCWRyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 12:54:45 -0500
-To: akpm@osdl.org
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] locks: don't panic
-Message-Id: <E1FMU10-00064F-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 23 Mar 2006 18:54:30 +0100
+	Thu, 23 Mar 2006 12:57:40 -0500
+Received: from stout.engsoc.carleton.ca ([134.117.69.22]:19652 "EHLO
+	stout.engsoc.carleton.ca") by vger.kernel.org with ESMTP
+	id S1751476AbWCWR5i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 12:57:38 -0500
+Date: Thu, 23 Mar 2006 09:21:14 -0500
+From: Kyle McMartin <kyle@mcmartin.ca>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/2] create struct compat_timex and use it everywhere
+Message-ID: <20060323142114.GA612@quicksilver.road.mcmartin.ca>
+References: <20060323164623.699f569e.sfr@canb.auug.org.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060323164623.699f569e.sfr@canb.auug.org.au>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't panic!  Just BUG_ON().
+On Thu, Mar 23, 2006 at 04:46:23PM +1100, Stephen Rothwell wrote:
+> We had a copy of the compatibility version of struct timex in each 64 bit
+> architecture.  This patch just creates a global one and replaces all the
+> usages of the old ones.
+> 
+> Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+>
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+Looks good.
 
-Index: linux/fs/locks.c
-===================================================================
---- linux.orig/fs/locks.c	2006-03-22 16:09:10.000000000 +0100
-+++ linux/fs/locks.c	2006-03-22 16:10:23.000000000 +0100
-@@ -156,18 +156,9 @@ static struct file_lock *locks_alloc_loc
- /* Free a lock which is not in use. */
- static void locks_free_lock(struct file_lock *fl)
- {
--	if (fl == NULL) {
--		BUG();
--		return;
--	}
--	if (waitqueue_active(&fl->fl_wait))
--		panic("Attempting to free lock with active wait queue");
--
--	if (!list_empty(&fl->fl_block))
--		panic("Attempting to free lock with active block list");
--
--	if (!list_empty(&fl->fl_link))
--		panic("Attempting to free lock on active lock list");
-+	BUG_ON(waitqueue_active(&fl->fl_wait));
-+	BUG_ON(!list_empty(&fl->fl_block));
-+	BUG_ON(!list_empty(&fl->fl_link));
- 
- 	if (fl->fl_ops) {
- 		if (fl->fl_ops->fl_release_private)
+Acked-by: Kyle McMartin <kyle@parisc-linux.org>  

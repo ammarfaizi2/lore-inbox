@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbWCWISG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030209AbWCWITt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030202AbWCWISG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 03:18:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbWCWISG
+	id S1030209AbWCWITt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 03:19:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030210AbWCWITt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 03:18:06 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:36818
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030202AbWCWISE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 03:18:04 -0500
-Date: Thu, 23 Mar 2006 00:17:25 -0800 (PST)
-Message-Id: <20060323.001725.98089946.davem@davemloft.net>
-To: sfr@canb.auug.org.au
-Cc: miles@gnu.org, miles.bader@necel.com, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/2] create struct compat_timex and use it everywhere
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060323174719.6d4387ff.sfr@canb.auug.org.au>
-References: <20060323164623.699f569e.sfr@canb.auug.org.au>
-	<buofyl9llau.fsf@dhapc248.dev.necel.com>
-	<20060323174719.6d4387ff.sfr@canb.auug.org.au>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 23 Mar 2006 03:19:49 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:151 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030209AbWCWITs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 03:19:48 -0500
+Date: Thu, 23 Mar 2006 09:17:08 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Subject: 2.6.16-rt5
+Message-ID: <20060323081707.GA5280@elte.hu>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-Date: Thu, 23 Mar 2006 17:47:19 +1100
+i have released the 2.6.16-rt5 tree, which can be downloaded from the 
+usual place:
 
-> On Thu, 23 Mar 2006 15:36:25 +0900 Miles Bader <miles.bader@necel.com> wrote:
-> >
-> > BTW, why not keep use the parisc version of the structure for the common
-> > version, as it has comments for each field (not world breaking, but a
-> > nice little thing)?
-> 
-> I figured if you wanted to understand the structure, you could look at the
-> real struct timex.
+   http://redhat.com/~mingo/realtime-preempt/
 
-Agreed.
+there's been quite some churn since -rt1:
 
-I'm fine with these timex compat patches.
+ 244 files changed, 1806 insertions(+), 1588 deletions(-)
+
+this was mostly due to the simplification of IRQ-flag handling: 
+local_irq_*() now defaults to using the raw IRQ flags. The 'soft 
+irq-flag' code only had a debugging purpose, but that purpose is equally 
+well suited by dont-schedule-while-in-atomic-section checks. This 
+cleanup resulted in a nice 10% reduction of the -rt patch's size, and 
+should make porting to architectures simpler.
+
+another bigger change is the continued rework of the PI code by Thomas 
+Gleixner: it should now be Bug Free (tm) - in particular the SMP locking 
+deadlock noticed by Esben Nielsen should be fixed. There are also lots 
+of updates to the PI-futex code too, by Thomas.
+
+there are also lots of smaller fixes for regressions in -rt1.
+
+to build a 2.6.16-rt5 tree, the following patches should be applied:
+
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.16.tar.bz2
+  http://redhat.com/~mingo/realtime-preempt/patch-2.6.16-rt5
+
+	Ingo

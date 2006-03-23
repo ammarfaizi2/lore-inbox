@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422694AbWCWU5J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422696AbWCWVAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422694AbWCWU5J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 15:57:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422696AbWCWU5J
+	id S1422696AbWCWVAU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 16:00:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422698AbWCWVAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 15:57:09 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:60833 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1422694AbWCWU5I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 15:57:08 -0500
-Subject: Re: [RFC][PATCH 1/10] 64 bit resources core changes
-From: Arjan van de Ven <arjan@infradead.org>
+	Thu, 23 Mar 2006 16:00:20 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:10369 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422696AbWCWVAS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 16:00:18 -0500
+Date: Thu, 23 Mar 2006 15:59:39 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cuia.boston.redhat.com
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: vgoyal@in.ibm.com,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Morton Andrew Morton <akpm@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, galak@kernel.crashing.org,
-       gregkh@suse.de, bcrl@kvack.org, Dave Jiang <dave.jiang@gmail.com>,
-       Maneesh Soni <maneesh@in.ibm.com>, Murali <muralim@in.ibm.com>
-In-Reply-To: <Pine.LNX.4.64.0603231250410.26286@g5.osdl.org>
-References: <20060323195752.GD7175@in.ibm.com>
-	 <20060323195944.GE7175@in.ibm.com>
-	 <1143145335.3147.52.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0603231250410.26286@g5.osdl.org>
-Content-Type: text/plain
-Date: Thu, 23 Mar 2006 21:56:59 +0100
-Message-Id: <1143147419.3147.54.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org, bob.picco@hp.com,
+       iwamoto@valinux.co.jp, christoph@lameter.com, wfg@mail.ustc.edu.cn,
+       npiggin@suse.de
+Subject: Re: [PATCH 00/34] mm: Page Replacement Policy Framework
+In-Reply-To: <Pine.LNX.4.64.0603231243160.26286@g5.osdl.org>
+Message-ID: <Pine.LNX.4.63.0603231554220.23558@cuia.boston.redhat.com>
+References: <20060322223107.12658.14997.sendpatchset@twins.localnet>
+ <20060322145132.0886f742.akpm@osdl.org> <20060323205324.GA11676@dmt.cnet>
+ <Pine.LNX.4.64.0603231003390.26286@g5.osdl.org> <20060323223057.GA12895@dmt.cnet>
+ <Pine.LNX.4.64.0603231243160.26286@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-23 at 12:52 -0800, Linus Torvalds wrote:
+On Thu, 23 Mar 2006, Linus Torvalds wrote:
+
+> > LRU's worst case scenarios were well known before I was born.
 > 
-> On Thu, 23 Mar 2006, Arjan van de Ven wrote:
+> The kernel doesn't actually use LRU, so the fact that LRU isn't good seems 
+> a non-argument.
+
+Agreed.  The current algorithm in the kernel is close to 2Q, 
+just without the corrections that 2Q gets from non-resident
+history and the further tuning that is done by clock-pro.
+
+> > - "Every time I wake up in the morning updatedb has thrown my applications
+> >    out of memory".
 > > 
-> > hmmmm are there any platforms where unsigned long long is > 64 bits?
-> > (and yes it would be nice if there was a u64 printf flag ;)
+> > - "Linux is awful every time I untar something larger than memory to disk".
 > 
-> Adding a new printf flag is technically _trivial_.
+> People seem to think that the fact that there are bad behaviours means 
+> that there are somehow "magic" algorithms that don't have bad behaviours.
 > 
-> The problem is getting gcc not to warn about it every time it sees it 
-> (while not losing the gcc format string checking entirely). Do newer gcc's 
-> allow some way of saying "this flag takes this type" for extended format 
-> definitions?
+> I'd really suggest somebody show better real-life numbers with a new 
+> algorithm _before_ we do anything like this.
 
-afaics there is none... even if there was a "just don't warn about this
-one" would be nice.. but I don't see that either.
+Remember that it's not necessarily about "making a VM that
+handles the common case better", but rather about "making
+the VM behave well more of the time".
 
+Furthermore, all VM benchmarks are corner cases.  After all,
+most systems have enough memory most of the time, and will
+not be evicting much at all.  This makes interpreting VM
+benchmark results harder than the interpretation of many
+other benchmarks...
 
+-- 
+All Rights Reversed

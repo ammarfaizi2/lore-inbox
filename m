@@ -1,42 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965141AbWCWDos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965163AbWCWDrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965141AbWCWDos (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 22:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbWCWDos
+	id S965163AbWCWDrY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 22:47:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbWCWDrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 22:44:48 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:14755 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965141AbWCWDoq (ORCPT
+	Wed, 22 Mar 2006 22:47:24 -0500
+Received: from mga03.intel.com ([143.182.124.21]:62769 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S965123AbWCWDrW convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 22:44:46 -0500
-Message-ID: <442219A4.3080801@garzik.org>
-Date: Wed, 22 Mar 2006 22:44:36 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 22 Mar 2006 22:47:22 -0500
+X-IronPort-AV: i="4.03,120,1141632000"; 
+   d="scan'208"; a="14460091:sNHT179352964"
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-CC: Mattia Dongili <malattia@linux.it>,
-       Alejandro Bonilla <abonilla@linuxwireless.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Dual Core on Linux questions
-References: <88056F38E9E48644A0F562A38C64FB6007A24C46@scsmsx403.amr.corp.intel.com>
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB6007A24C46@scsmsx403.amr.corp.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.5 (--)
-X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
-	Content analysis details:   (-2.5 points, 5.0 required)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: ACPI error in 2.6.16 (AE_TIME, Returned by Handler for EmbeddedControl)
+Date: Thu, 23 Mar 2006 11:46:31 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F840B468EFD@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ACPI error in 2.6.16 (AE_TIME, Returned by Handler for EmbeddedControl)
+Thread-Index: AcZOJjiFe6gjhUkFRIyrQp+uCySakwABcWLw
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Francesco Biscani" <biscani@pd.astro.it>,
+       "Brown, Len" <len.brown@intel.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       <linux-acpi@vger.kernel.org>, "Jiri Slaby" <slaby@liberouter.org>
+X-OriginalArrivalTime: 23 Mar 2006 03:46:33.0151 (UTC) FILETIME=[60853CF0:01C64E2C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pallipadi, Venkatesh wrote:
->>From cpufreq perspective multiple things are possible in the way
-> processor will support the multi-core frequency changing. and most of
-> the things are handled at cpufreq inside kernel. I think there should be
-> minima changes required in cpufreqd if any.
-> Options:
+>On Thursday 23 March 2006 02:45, Brown, Len wrote:
+>> does this go away if you boot with "ec_intr=0"?
+>
+>So far it seems like that option solves the problem. But since 
+>the bug appears 
+>very erratically I think it's better to wait for a few more reboots.
+>
+>BTW, when I was testing _without_ ec_intr=0 I got this in the 
+>log (this 
+>happened the first reboot after the one mentioned in my previous mail):
+>
+>Mar 23 03:48:50 kurtz ACPI: read EC, IB not empty
+>Mar 23 03:48:50 kurtz ACPI: read EC, OB not full
+>Mar 23 03:48:50 kurtz ACPI Exception (evregion-0409): AE_TIME, 
+>Returned by 
+>Handler for [EmbeddedControl] [20060127]
+>Mar 23 03:48:50 kurtz ACPI Exception (dswexec-0458): AE_TIME, 
+>While resolving 
+>operands for [AE_NOT_CONFIGURED] [20060127]
+>Mar 23 03:48:50 kurtz ACPI Error (psparse-0517): Method 
+>parse/execution failed 
+>[\_SB_.PCI0.ISA_.EC0_._Q20] (Node c13ecbc0), AE_TIME
+>
+>This is an hp pavilion ze5616ea laptop, FYI.
+>
+>Thanks and best regards,
+>
+>  Francesco
+
+Please file this bug on bugzilla.kernel.org
+We need to find out why ?
+Could you post dmesg for ec_intr=0 , ec_intr=1 on bugzilla.
 
 
-4) we power down a core.
+Thanks,
+Luming
 

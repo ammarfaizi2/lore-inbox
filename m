@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbWCWR6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932672AbWCWR6R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964917AbWCWR6g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 12:58:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWCWR6g
+	id S932672AbWCWR6R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 12:58:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932674AbWCWR6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 12:58:36 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48850 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964917AbWCWR6e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 12:58:34 -0500
-Date: Thu, 23 Mar 2006 12:58:22 -0500
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-mm1
-Message-ID: <20060323175822.GA7816@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060323014046.2ca1d9df.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 23 Mar 2006 12:58:17 -0500
+Received: from build.arklinux.osuosl.org ([140.211.166.26]:8412 "EHLO
+	mail.arklinux.org") by vger.kernel.org with ESMTP id S932536AbWCWR6Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 12:58:16 -0500
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] Add quirks required to make a Shuttle PN-31 remote control work
+Date: Thu, 23 Mar 2006 18:51:23 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-usb-devel@lists.sourceforge.net, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <200603202359.25558.bero@arklinux.org> <20060321071635.GC7523@suse.cz>
+In-Reply-To: <20060321071635.GC7523@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060323014046.2ca1d9df.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200603231851.24029.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 01:40:46AM -0800, Andrew Morton wrote:
+On Tuesday, 21. March 2006 08:16, Vojtech Pavlik wrote:
+> On Mon, Mar 20, 2006 at 11:59:24PM +0100, Bernhard Rosenkraenzer wrote:
+> > Add some quirks to make a Shuttle PN-31 remote control work.
+>
+> Can you send me the #define DEBUG output from hid-core and hid-input?
+> I'm quite curious how much broken the device is and if it weren't easier
+> to implement a way how to replace the HID Report descriptor inside
+> hid-core instead of adding more quirks.
 
- > - Be aware that someone-who-doesn't-know-about-allmodconfig has screwed up
- >   AGP on x86_64: if your link fails with various missing AGP symbols you'll
- >   need to set the various CONFIG_AGP* symbols to `y' rather than `m'.  Then
- >   work out which other Kconfig rule keeps on flipping them back to `m' again,
- >   then fix that too.
+Unfortunately not ATM, I don't have the hardware anymore (it was part of the 
+"If you get any new hardware, give it to me for a day before selling it, to 
+make sure it supports Linux" deal I have with a local computer shop).
 
-I haven't merged anything into agpgart-git for a week or two, so it's
-more than likely..
-
- > +x86_64-mm-via-agp.patch
- > +x86_64-mm-sis-agp.patch
- > 
- >  x86_64 tree updates
-
-
-whatever these are.
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+I'll gather the debug output if/when he sells another one.

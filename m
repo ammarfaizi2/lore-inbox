@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932517AbWCWWdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422718AbWCWWeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932517AbWCWWdG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 17:33:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbWCWWdF
+	id S1422718AbWCWWeN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 17:34:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422720AbWCWWeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 17:33:05 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:38599 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932518AbWCWWdE (ORCPT
+	Thu, 23 Mar 2006 17:34:12 -0500
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:22980 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S1422718AbWCWWeK convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 17:33:04 -0500
-Message-ID: <4423221D.6020109@garzik.org>
-Date: Thu, 23 Mar 2006 17:33:01 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Thu, 23 Mar 2006 17:34:10 -0500
+From: Francesco Biscani <biscani@pd.astro.it>
+To: "Yu, Luming" <luming.yu@intel.com>
+Subject: Re: ACPI error in 2.6.16 (AE_TIME, Returned by Handler for EmbeddedControl)
+Date: Thu, 23 Mar 2006 23:34:03 +0100
+User-Agent: KMail/1.9.1
+Cc: "Brown, Len" <len.brown@intel.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org
+References: <3ACA40606221794F80A5670F0AF15F840B468EFD@pdsmsx403>
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F840B468EFD@pdsmsx403>
 MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-CC: "Linux-Kernel, " <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Lower e100 latency
-References: <20060323014046.2ca1d9df.akpm@osdl.org>	<20060323220711.28fcb82f@werewolf.auna.net> <20060323221342.2352789d@werewolf.auna.net>
-In-Reply-To: <20060323221342.2352789d@werewolf.auna.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.5 (--)
-X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
-	Content analysis details:   (-2.5 points, 5.0 required)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200603232334.04717.biscani@pd.astro.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon wrote:
->  	if (unlikely(!i)) {
-> -		printk("e100.mdio_ctrl(%s) won't go Ready\n",
-> +		DPRINTK(PROBE, ERR, "e100.mdio_ctrl(%s) won't go Ready\n",
->  			nic->netdev->name );
+On Thursday 23 March 2006 04:46, Yu, Luming wrote:
+> Please file this bug on bugzilla.kernel.org
+> We need to find out why ?
+> Could you post dmesg for ec_intr=0 , ec_intr=1 on bugzilla.
 
-NAK.  Its already unlikely, and if this fails, you SHOULD print 
-something out.  The rest seems mostly OK.
+Done:
 
-	Jeff
+http://bugzilla.kernel.org/show_bug.cgi?id=6278
+
+Thanks,
+
+  Francesco
 
 
+-- 
+Dr. Francesco Biscani
+Dipartimento di Astronomia
+Università di Padova
+biscani@pd.astro.it

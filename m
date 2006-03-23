@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWCWJvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWCWKGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751442AbWCWJvF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 04:51:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbWCWJvF
+	id S1751020AbWCWKGU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 05:06:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbWCWKGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 04:51:05 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:44689 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751442AbWCWJvE (ORCPT
+	Thu, 23 Mar 2006 05:06:20 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:57023 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S1751018AbWCWKGT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 04:51:04 -0500
-Subject: Re: [PATCH 9 of 18] ipath - char devices for diagnostics and
-	lightweight subnet management
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: linux-kernel@vger.kernel.org, rdreier@cisco.com, greg@kroah.com,
-       openib-general@openib.org
-In-Reply-To: <20060323093713.GB1802@mellanox.co.il>
-References: <patchbomb.1143072293@eng-12.pathscale.com>
-	 <dffa0687112e4fdcf7d0.1143072302@eng-12.pathscale.com>
-	 <20060323064113.GC9841@mellanox.co.il>
-	 <1143103701.6411.21.camel@camp4.serpentine.com>
-	 <20060323093713.GB1802@mellanox.co.il>
-Content-Type: text/plain
-Date: Thu, 23 Mar 2006 01:51:03 -0800
-Message-Id: <1143107463.6411.54.camel@camp4.serpentine.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Mar 2006 05:06:19 -0500
+To: Kristen Accardi <kristen.c.accardi@intel.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] add private data to notifier_block
+References: <Pine.LNX.4.44L0.0603221402070.7453-100000@iolanthe.rowland.org>
+	<1143061212.8924.10.camel@whizzy>
+From: Jes Sorensen <jes@sgi.com>
+Date: 23 Mar 2006 05:06:17 -0500
+In-Reply-To: <1143061212.8924.10.camel@whizzy>
+Message-ID: <yq0u09ptqzq.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-23 at 11:37 +0200, Michael S. Tsirkin wrote:
+>>>>> "Kristen" == Kristen Accardi <kristen.c.accardi@intel.com> writes:
 
-> I understand they do, but they could just use the parts of IB stack and never
-> notice.
+Kristen> On Wed, 2006-03-22 at 14:04 -0500, Alan Stern wrote:
+>> I still think this isn't really needed.  The same effect can be
+>> accomplished by embedding a notifier_block struct within a larger
+>> structure that also contains the data pointer.
 
-No, in some cases they want there to not be an IB stack present, which
-is not the same thing at all as not caring if it's there.
+Kristen> I thought of this, but felt it would make for less easy to
+Kristen> read code.  But, that's just my personal style.
 
-> I think IB stack is modest, as core modules go.
+I'd have to vote for Alan's side here. Thats why we have the
+containerof() stuff. It also means you can embed more than just a
+pointer with the notifier block and it will generate more efficient
+code when doing so.
 
-I don't understand why you persist on this point.  We have a need for an
-SMA that is not tied to the IB stack.  The kernel code to support it is
-about 500 lines long, about 2% of the driver.
-
-> And I don't believe you can save much since as a solution you seem to have
-> re-implemented the full IB stack in your low level driver:
-
-No, we haven't.  The IB protocols are implemented in the ib_ipath
-module, not the core driver.
-
-	<b
-
+Cheers,
+Jes

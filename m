@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422716AbWCWWb6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932517AbWCWWdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422716AbWCWWb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 17:31:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWCWWb5
+	id S932517AbWCWWdG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 17:33:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbWCWWdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 17:31:57 -0500
-Received: from defout.telus.net ([204.209.205.55]:32680 "EHLO
-	priv-edmwes26.telusplanet.net") by vger.kernel.org with ESMTP
-	id S964938AbWCWWb4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 17:31:56 -0500
-Date: Thu, 23 Mar 2006 17:31:38 -0500
-From: Stephen Hassard <steve@hassard.net>
-To: Edouard Gomez <ed.gomez@free.fr>
-Cc: ck@vds.kolivas.org, linux-kernel@vger.kernel.org
-Subject: Re: [ck] 2.6.16-ck1
-Message-ID: <20060323223138.GA9305@hassard.net>
-References: <200603202145.31464.kernel@kolivas.org> <20060323113118.GA9329@spherenet.spherevision.org> <dvv0ob$nql$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <dvv0ob$nql$1@sea.gmane.org>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 23 Mar 2006 17:33:05 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:38599 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932518AbWCWWdE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 17:33:04 -0500
+Message-ID: <4423221D.6020109@garzik.org>
+Date: Thu, 23 Mar 2006 17:33:01 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: "J.A. Magallon" <jamagallon@able.es>
+CC: "Linux-Kernel, " <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Lower e100 latency
+References: <20060323014046.2ca1d9df.akpm@osdl.org>	<20060323220711.28fcb82f@werewolf.auna.net> <20060323221342.2352789d@werewolf.auna.net>
+In-Reply-To: <20060323221342.2352789d@werewolf.auna.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.5 (--)
+X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
+	Content analysis details:   (-2.5 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 09:34:19PM +0100, Edouard Gomez wrote:
-> Rodney Gordon II wrote:
-> >The new Yukon2 "sky2" driver: This one really pissed me off. It had me
-> >thinking apache2 AND my linksys router we're on the brink. For some
-> I never had the chance to make the sk98lin one working on my box, so I 
-> backported sky2 to 2.6.15 quite a few times from netdev-2.6 git tree. 
+J.A. Magallon wrote:
+>  	if (unlikely(!i)) {
+> -		printk("e100.mdio_ctrl(%s) won't go Ready\n",
+> +		DPRINTK(PROBE, ERR, "e100.mdio_ctrl(%s) won't go Ready\n",
+>  			nic->netdev->name );
 
-It might be worth replacing the sky2 driver with the newest bleeding 
-edge one over here:
+NAK.  Its already unlikely, and if this fails, you SHOULD print 
+something out.  The rest seems mostly OK.
 
-http://developer.osdl.org/shemminger/prototypes/sky2-1.0msi.tar.gz
+	Jeff
 
-You might also want to check the developer's blog entry:
-http://developer.osdl.org/shemminger/blog/?p=25
 
----
-sky2 1.0?
-
-Looks like a found the root cause of the sky2 hangs on pci-express. I 
-copied some code from the SysKonnect driver that reconfigured the 
-pci-express max request size. This probably caused receive dma engine to 
-fail in face of contention. That will teach me to stop copy/pasting in 
-bugs.
----
-
-It might fix some of you issues ..
-
-later,
-Steve Hassard

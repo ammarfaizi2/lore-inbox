@@ -1,22 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWCWKjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbWCWKqw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbWCWKjl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 05:39:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWCWKjl
+	id S932295AbWCWKqw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 05:46:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWCWKqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 05:39:41 -0500
-Received: from cantor.suse.de ([195.135.220.2]:35014 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932207AbWCWKjk (ORCPT
+	Thu, 23 Mar 2006 05:46:52 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:13452 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932295AbWCWKqv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 05:39:40 -0500
-Date: Thu, 23 Mar 2006 11:39:39 +0100
-Message-ID: <s5h8xr1jvh0.wl%tiwai@suse.de>
+	Thu, 23 Mar 2006 05:46:51 -0500
+Date: Thu, 23 Mar 2006 11:46:50 +0100
+Message-ID: <s5h4q1pjv51.wl%tiwai@suse.de>
 From: Takashi Iwai <tiwai@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: -mm merge plans
-In-Reply-To: <20060322205305.0604f49b.akpm@osdl.org>
-References: <20060322205305.0604f49b.akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: unresolved emu10k1 synth symbols.
+In-Reply-To: <20060322175426.GA1188@redhat.com>
+References: <20060321054634.GA5122@redhat.com>
+	<s5hoe0083ek.wl%tiwai@suse.de>
+	<20060321180957.GB5323@redhat.com>
+	<s5hd5geh8ds.wl%tiwai@suse.de>
+	<20060322175426.GA1188@redhat.com>
 User-Agent: Wanderlust/2.12.0 (Your Wildest Dreams) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.7 (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 MULE XEmacs/21.5 (beta25)
  (eggplant) (i386-suse-linux)
@@ -25,27 +29,30 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Wed, 22 Mar 2006 20:53:05 -0800,
-Andrew Morton wrote:
+At Wed, 22 Mar 2006 12:54:26 -0500,
+Dave Jones wrote:
 > 
-> pnp-adjust-pnp_register_card_driver-signature-ad1816a.patch
-> pnp-adjust-pnp_register_card_driver-signature-als100.patch
-> pnp-adjust-pnp_register_card_driver-signature-azt2320.patch
-> pnp-adjust-pnp_register_card_driver-signature-cmi8330.patch
-> pnp-adjust-pnp_register_card_driver-signature-dt019x.patch
-> pnp-adjust-pnp_register_card_driver-signature-es18xx.patch
-> pnp-adjust-pnp_register_card_driver-signature-es968.patch
-> pnp-adjust-pnp_register_card_driver-signature-interwave.patch
-> pnp-adjust-pnp_register_card_driver-signature-sb16.patch
-> pnp-adjust-pnp_register_card_driver-signature-sb_card.patch
-> pnp-adjust-pnp_register_card_driver-signature-sscape.patch
-> pnp-adjust-pnp_register_card_driver-signature-wavefront.patch
+> On Wed, Mar 22, 2006 at 03:16:47PM +0100, Takashi Iwai wrote:
+>  > At Tue, 21 Mar 2006 13:09:57 -0500,
+>  > Dave Jones wrote:
+>  > > 
+>  > > On Tue, Mar 21, 2006 at 12:04:35PM +0100, Takashi Iwai wrote:
+>  > > 
+>  > >  > Weird.  By modprobe, snd-emu10k1 module should be loaded in prior to 
+>  > >  > snd-emu10k1-synth because of the dependency of above symbols.
+>  > >  > 
+>  > >  > How is snd-emu10k1-synth module loaded?
+>  > > 
+>  > > with the following modprobe.conf fragment
+>  > > 
+>  > > install snd-emu10k1 /sbin/modprobe --ignore-install snd-emu10k1 && /sbin/modprobe snd-emu10k1-synth
+>  > 
+>  > Does the manual modprobe snd-emu10k1-synth after loading snd-emu10k1
+>  > work?
 > 
->   Will send to the ALSA team.
+> Yes, it does.
 
-These pnp-adjust-* patches make sense only together with
-pnp-pnp-adjust-pnp_register_driver-signature.patch.
-So, it'd be better to commit them at once...
+Hm, then I have no more ideas... :<
 
 
 Takashi

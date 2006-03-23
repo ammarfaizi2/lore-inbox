@@ -1,37 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWCWVVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWCWVVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750922AbWCWVVv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 16:21:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWCWVVv
+	id S1750860AbWCWVVn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 16:21:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWCWVVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 16:21:51 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:16814 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750922AbWCWVVu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 16:21:50 -0500
-Date: Thu, 23 Mar 2006 21:21:44 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, vgoyal@in.ibm.com,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Morton Andrew Morton <akpm@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, galak@kernel.crashing.org,
-       gregkh@suse.de, bcrl@kvack.org, Dave Jiang <dave.jiang@gmail.com>,
-       Maneesh Soni <maneesh@in.ibm.com>, Murali <muralim@in.ibm.com>
-Subject: Re: [RFC][PATCH 1/10] 64 bit resources core changes
-Message-ID: <20060323212144.GR27946@ftp.linux.org.uk>
-References: <20060323195752.GD7175@in.ibm.com> <20060323195944.GE7175@in.ibm.com> <1143145335.3147.52.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0603231250410.26286@g5.osdl.org> <1143147419.3147.54.camel@laptopd505.fenrus.org> <20060323210208.GQ27946@ftp.linux.org.uk> <1143148039.3147.56.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1143148039.3147.56.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 23 Mar 2006 16:21:43 -0500
+Received: from quark.didntduck.org ([69.55.226.66]:25495 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id S1750860AbWCWVVm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 16:21:42 -0500
+Message-ID: <44231179.100@didntduck.org>
+Date: Thu, 23 Mar 2006 16:22:01 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "J.A. Magallon" <jamagallon@able.es>
+CC: "Linux-Kernel, " <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Dont build altivec raid on x86
+References: <20060323014046.2ca1d9df.akpm@osdl.org>	<20060323220711.28fcb82f@werewolf.auna.net> <20060323221525.52346ef7@werewolf.auna.net>
+In-Reply-To: <20060323221525.52346ef7@werewolf.auna.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 10:07:19PM +0100, Arjan van de Ven wrote:
+J.A. Magallon wrote:
+> On Thu, 23 Mar 2006 22:07:11 +0100, "J.A. Magallon" <jamagallon@able.es> wrote:
+> 
+> 
+>>On Thu, 23 Mar 2006 01:40:46 -0800, Andrew Morton <akpm@osdl.org> wrote:
+>>
+>>
+>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.16-mm1/
+>>>
+>>
+> 
+> gcc just compiles files emptied with #ifdefs, but it looks incorrect
+> anyways
+> 
+> --- linux/drivers/md/Makefile.orig	2005-11-13 23:14:48.000000000 +0100
+> +++ linux/drivers/md/Makefile	2005-11-13 23:28:05.000000000 +0100
+> @@ -8,12 +8,21 @@
+>  dm-snapshot-objs := dm-snap.o dm-exception-store.o
+>  dm-mirror-objs	:= dm-log.o dm-raid1.o
+>  md-mod-objs     := md.o bitmap.o
+> +
+> +
+> +ifeq ($(CONFIG_ALTIVEC),y)
+> +raid6-vec-objs := \
+> +		   raid6altivec1.o raid6altivec2.o \
+> +		   raid6altivec4.o raid6altivec8.o
+> +endif
+> +ifeq ($(CONFIG_X86),y)
+> +raid6-vec-objs := \
+> +		   raid6mmx.o raid6sse1.o raid6sse2.o
+> +endif
+>  raid6-objs	:= raid6main.o raid6algos.o raid6recov.o raid6tables.o \
+>  		   raid6int1.o raid6int2.o raid6int4.o \
+>  		   raid6int8.o raid6int16.o raid6int32.o \
+> -		   raid6altivec1.o raid6altivec2.o raid6altivec4.o \
+> -		   raid6altivec8.o \
+> -		   raid6mmx.o raid6sse1.o raid6sse2.o
+> +		   $(raid6-vec-objs)
+>  hostprogs-y	:= mktables
+>  
+>  # Note: link order is important.  All raid personalities
+> 
 
-> sure it's all or nothing. not "all but the u64 one"
+Use raid6-$(CONFIG_FOO) instead.
 
-It's "bugger off and leave them to sparse; it'll do better job" ;-)
+--
+				Brian Gerst

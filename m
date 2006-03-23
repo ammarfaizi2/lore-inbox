@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932577AbWCWI6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932580AbWCWI6L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932577AbWCWI6H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 03:58:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932580AbWCWI6H
+	id S932580AbWCWI6L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 03:58:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbWCWI6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 03:58:07 -0500
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:23442 "HELO
-	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932577AbWCWI6F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 03:58:05 -0500
+	Thu, 23 Mar 2006 03:58:11 -0500
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:30083 "HELO
+	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932580AbWCWI6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 03:58:09 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=xXxK5k3hnrFWyecBbcBHbdyOopHEu3+ihgSVx1E0MvLI/dbA4T0wGuhVUtYXxYTSt7tvbyig09n8zK2MFoL+CdwXABCmdcYjLOFrenBF19JEe/wnVc2EjmxeSIb2uMVSXEHoOGoUT0uwzHZOQ3+glYjaHe9KgqezoAX7f7sVzaI=  ;
-Message-ID: <44225BBF.2040604@yahoo.com.au>
-Date: Thu, 23 Mar 2006 19:26:39 +1100
+  b=vNsz5Qs19+ZKOUYtfU7fWi91GgBS+DUCKw1KJ6LBCkThtwQnPSzp5Cw7S1326UEcjTnVN/IqNMG9HLbhQUyzauKYdevLrZ8Xes3tJ7tvAJbJ+LMH/SSroUVtWh81i3thiu9Bh6QhIQHI2c2y/D7YxZpBTDIray9AikRV2ONbg4E=  ;
+Message-ID: <44225AB4.4080503@yahoo.com.au>
+Date: Thu, 23 Mar 2006 19:22:12 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "Hemmann, Volker Armin" <volker.armin.hemmann@tu-clausthal.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: swap prefetching merge plans
-References: <200603230856.24091.volker.armin.hemmann@tu-clausthal.de>
-In-Reply-To: <200603230856.24091.volker.armin.hemmann@tu-clausthal.de>
+To: jos poortvliet <jos@mijnkamer.nl>
+CC: ck@vds.kolivas.org, Con Kolivas <kernel@kolivas.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [ck] swap prefetching merge plans
+References: <20060322205305.0604f49b.akpm@osdl.org> <200603231804.36334.kernel@kolivas.org> <200603230901.57052.jos@mijnkamer.nl>
+In-Reply-To: <200603230901.57052.jos@mijnkamer.nl>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hemmann, Volker Armin wrote:
-> Hi,
+jos poortvliet wrote:
+> Op donderdag 23 maart 2006 08:04, schreef Con Kolivas:
 > 
-> I am just a user, but I would love to see this feature.
+>>On Thu, 23 Mar 2006 03:53 pm, Andrew Morton wrote:
+>>
+>>>A look at the -mm lineup for 2.6.17:
+>>>
+>>>mm-implement-swap-prefetching.patch
+>>>mm-implement-swap-prefetching-fix.patch
+>>>mm-implement-swap-prefetching-tweaks.patch
+>>>
+>>>  Still don't have a compelling argument for this, IMO.
 > 
-> After compiling stuff, I have usually some kb in swap (300kb, 360 kb), and 
-> lots of free ram. But even this few kb make my KDE desktop extremly sluggish. 
-> It feels, like every byte is fetched individually and always the wrong stuff 
-> ends in swap.
 > 
-
-I'm almost positive this wouldn't be the cause of your problems (even a
-slow disk could read all these blocks in, randomly, in under 2 seconds,
-assuming they're spread from one end of the platters to the other).
-
-The problem is simply the more general one of parts your working set
-being paged out (in this case, cached files). Which is something swap
-prefetch will not help with.
-
-> The only 'workaround' so far is to do a 'swapoff -a&& swapon -a' which not 
-> only clears swap, but make my box blazzingly fast again (thank you guys, 
-> besides this little swap annoyance you all do a great job). 
-> 
-> So everything that makes the situation better (swap in of data faster) is 
-> highly welcome. The CPU is bored most of the time anyway and as I wrote 
-> above, usually lots of ram are free. So why not use the free ram and free CPU 
-> cycles?
-> 
-> The compelling argument is: swap is extremly slow. It is so slow that you can 
-> go out, plant a tree, build a house and father a son while I am waiting for 
-> some few kb to get fetched from it. Everything that reduces swap access when 
-> the data is needed, is IMHO a good thing. Oh, and the harddisk is not slow. 
-> Only swap is.
+> well, the reason i use it is my computer is much more reactive in the morning. 
+> linux uses to get very slow after a night of not-doing-much except some 
+> 'sleep 5h && blabla' and cron stuff. in the morning it takes a few HOURS to 
+> get up and running smoothly. with swap prefetch, it actually feels faster 
+> compared to a fresh boot. now you can force swap prefetch to start working, i 
+> use it now and then after some heavy taskts which pulled everything to swap.
 > 
 
-I'd be stumped if swapoff helps you. Maybe you aren't exaggerating about
-the speed of your swap.
+I have two issues with this argument (not that I'm trying to say it
+couldn't make a difference in your case).
+
+Firstly, swap prefetch actually doesn't handle the midnight updatedb pageout
+problem nicely. It doesn't do any prefetching when the pagecache/vfs cache
+fills memory (which is what would have to happen for updatedb to push stuff
+into swap).
+
+Secondly, with or without swap prefetch, I think we can do a better job of
+handling these use-once patterns to begin with.
 
 -- 
 SUSE Labs, Novell Inc.

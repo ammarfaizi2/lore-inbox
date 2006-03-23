@@ -1,32 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWCWBXm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbWCWBah@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750932AbWCWBXm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 20:23:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWCWBXm
+	id S932472AbWCWBah (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 20:30:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWCWBah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 20:23:42 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:27411 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1750932AbWCWBXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 20:23:41 -0500
-Message-ID: <4421F89A.2070406@vmware.com>
-Date: Wed, 22 Mar 2006 17:23:38 -0800
-From: Kalyan Rajasekharuni <kalyan@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+	Wed, 22 Mar 2006 20:30:37 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:6045 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932470AbWCWBag (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 20:30:36 -0500
+Message-ID: <4421FA37.4050703@pobox.com>
+Date: Wed, 22 Mar 2006 20:30:31 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Triggering Machine Check Exceptions on x86
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Frank Pavlic <fpavlic@de.ibm.com>
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [patch 2/6] s390: qeth driver statistics fixes
+References: <20060322160339.4e6cf34e@localhost.localdomain>
+In-Reply-To: <20060322160339.4e6cf34e@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Mar 2006 01:23:39.0319 (UTC) FILETIME=[6A1E4C70:01C64E18]
+X-Spam-Score: -2.6 (--)
+X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
+	Content analysis details:   (-2.6 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to trigger a Machine Check Exception soley by a 
-'software mechanism' on my x86 box. The idea is to test my 
-machine check exception handler thoroughly. I want a reliable 
-way which will generate this exception every time when I run 
-the software code snippet. 
+Frank Pavlic wrote:
+> [patch 2/6] s390: qeth driver statistics fixes 
+> 
+> From: Ursula Braun <braunu@de.ibm.com>
+> 	- display "unsigned int" values in /proc/qeth_perf with %u instead of %i
+> 	- omit qdio header length when increasing card->stats.tx_bytes
+> 
+> Signed-off-by: Frank Pavlic <fpavlic@de.ibm.com>
+
+applied 2-4
+
+I am OK with removing tty from network driver (patches 5-6), but they 
+didn't apply
 
 

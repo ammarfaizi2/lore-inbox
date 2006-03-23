@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751449AbWCWQ4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWCWQ4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751449AbWCWQ4M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 11:56:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbWCWQ4M
+	id S932479AbWCWQ4p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 11:56:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWCWQ4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 11:56:12 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11282 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751449AbWCWQ4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 11:56:11 -0500
-Date: Thu, 23 Mar 2006 16:55:58 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.16-git6: build failure: ne2k-pci: footbridge_defconfig
-Message-ID: <20060323165558.GE25849@flint.arm.linux.org.uk>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-References: <20060323164109.GD25849@flint.arm.linux.org.uk> <1143132732.3147.33.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 23 Mar 2006 11:56:45 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:16116 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932174AbWCWQ4o convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 11:56:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AQlUsqmviGNv80lNNg4A1l51NFyUlTLqY29Kw7HVCPjRITC8xH5bPUZo4r+t8qGBy9OgVXSpN9PLDaORBT3KSr3rlltVt5StVclqTc2rQ0HEo+oWHmT7FFl3bco6X17b4v4OKNj0Y2kiERLi4POyGlE5iShz24Uact5lHzdHHAA=
+Message-ID: <728201270603230855l11faeb6ah33ee88568843068f@mail.gmail.com>
+Date: Thu, 23 Mar 2006 10:55:30 -0600
+From: "Ram Gupta" <ram.gupta5@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: RSS Limit implementation issue
+Cc: "linux mailing-list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1139526447.6692.7.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1143132732.3147.33.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
+References: <728201270602091310r67a3f2dcq4788199f26a69528@mail.gmail.com>
+	 <1139526447.6692.7.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 05:52:12PM +0100, Arjan van de Ven wrote:
-> On Thu, 2006-03-23 at 16:41 +0000, Russell King wrote:
-> > Building the ARM footbridge_defconfig provokes this build error:
-> > 
-> >   CC      drivers/net/ne2k-pci.o
-> > drivers/net/ne2k-pci.c:123: error: pci_clone_list causes a section type conflict
-> > make[2]: *** [drivers/net/ne2k-pci.o] Error 1
-> > make[1]: *** [drivers/net] Error 2
-> > make: *** [drivers] Error 2
-> > make: Leaving directory `/var/tmp/kernel-orig'
-> > 
-> > static const struct {
-> >         char *name;
-> >         int flags;
-> > } pci_clone_list[] __devinitdata = {
-> > 
-> > const data can't be __devinitdata.
-> 
-> 
-> that's a gcc bug; probably arm specific even?
+On 2/9/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Iau, 2006-02-09 at 15:10 -0600, Ram Gupta wrote:
+> > I am working to implement enforcing RSS limits of a process. I am
+> > planning to make a check for rss limit when setting up pte. If the
+> > limit is crossed I see couple of  different ways of handling .
+> >
+> > 1. Kill the process . In this case there is no swapping problem.
+>
+> Not good as the process isn't responsible for the RSS size so it would
+> be rather random.
+>
 
-It's gcc 4.01... the kautobuild folk are going to try gcc 4.04 instead.
+I doubt I am missing some point here. I dont understand why the
+process isn't responsible for RSS size. This limit is process specific
+& the count of rss increases when the process maps some page in its
+page table.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Thanks
+Ram Gupta

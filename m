@@ -1,103 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWCWSNu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422642AbWCWSOo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbWCWSNu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 13:13:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932677AbWCWSNu
+	id S1422642AbWCWSOo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 13:14:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422646AbWCWSOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 13:13:50 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:25569 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S932087AbWCWSNt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 13:13:49 -0500
-Date: Thu, 23 Mar 2006 15:13:40 -0600
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org, bob.picco@hp.com,
-       iwamoto@valinux.co.jp, christoph@lameter.com, wfg@mail.ustc.edu.cn,
-       npiggin@suse.de, torvalds@osdl.org, riel@redhat.com
-Subject: Re: [PATCH 00/34] mm: Page Replacement Policy Framework
-Message-ID: <20060323211340.GB11676@dmt.cnet>
-References: <20060322223107.12658.14997.sendpatchset@twins.localnet> <20060322145132.0886f742.akpm@osdl.org> <44220614.1090101@yahoo.com.au>
+	Thu, 23 Mar 2006 13:14:44 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:32748 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422642AbWCWSOn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 13:14:43 -0500
+Subject: Re: [Ext2-devel] [PATCH 2/2] ext2/3: Support
+	2^32-1blocks(e2fsprogs)
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Takashi Sato <sho@bsd.tnes.nec.co.jp>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       ext2-devel <Ext2-devel@lists.sourceforge.net>
+In-Reply-To: <1143071143.6086.70.camel@dyn9047017100.beaverton.ibm.com>
+References: <000401c6482d$880adfa0$4168010a@bsd.tnes.nec.co.jp>
+	 <1142630359.15257.30.camel@dyn9047017100.beaverton.ibm.com>
+	 <00e801c64a50$e4c82980$4168010a@bsd.tnes.nec.co.jp>
+	 <1143071143.6086.70.camel@dyn9047017100.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Thu, 23 Mar 2006 10:16:28 -0800
+Message-Id: <1143137788.6086.97.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44220614.1090101@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nick,
-
-On Thu, Mar 23, 2006 at 01:21:08PM +1100, Nick Piggin wrote:
-> Andrew Morton wrote:
-> >Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-> >
-> >>
-> >>This patch-set introduces a page replacement policy framework and 4 new 
-> >>experimental policies.
-> >
-> >
-> >Holy cow.
-> >
-> >
-> >>The page replacement algorithm determines which pages to swap out.
-> >>The current algorithm has some problems that are increasingly noticable, 
-> >>even
-> >>on desktop workloads.
-> >
-> >
-> >Rather than replacing the whole lot four times I'd really prefer to see
-> >precise descriptions of these problems, see if we can improve the situation
-> >incrementally rather than wholesale slash-n-burn...
-> >
+On Wed, 2006-03-22 at 15:45 -0800, Badari Pulavarty wrote:
+> On Sat, 2006-03-18 at 14:57 +0900, Takashi Sato wrote:
+> > Hi,
+> > 
+> > > Hi,
+> > > 
+> > > Few comments on the patches:
+> > > 
+> > > 1) Both kernel patch and e2fsprogs doesn't seem to apply cleanly for
+> > > the versions you mentioned. I had to fix few rejects.
+> > 
+> > Sorry. My patches were corrupted because my poor mailer had
+> > removed spaces in the patch.
+> > I will take care of it when I update this patch.
+> > 
+> > > 2) I am still not able to make filesystem bigger than 8TB with your
+> > > patch. I get following message.
+> > > 
+> > > # fdisk -l /dev/md0
+> > > 
+> > > Disk /dev/md0: 10479.7 GB, 10479753756672 bytes
+> > > 2 heads, 4 sectors/track, -1736433664 cylinders
+> > > Units = cylinders of 8 * 512 = 4096 bytes
+> > > 
+> > > 
+> > > elm3b29:~/e2fsprogs-1.38/misc # ./mke2fs /dev/md0
+> > > mke2fs 1.38 (30-Jun-2005)
+> > > mke2fs: Filesystem too large.  No more than 2**31-1 blocks
+> > >         (8TB using a blocksize of 4k) are currently supported.
+> > > 
+> > > When I try to create "ext3":
+> > 
+> > As I said in my previous mail, You should specify -F option to
+> > create ext2/3 which has more than 2**31-1 blocks.
+> > It is because of the compatibility.
+> > 
+> > > elm3b29:~/e2fsprogs-1.38/misc # ./mke2fs -t ext3 /dev/md0
+> > > mke2fs 1.38 (30-Jun-2005)
+> > > mke2fs: invalid blocks count - /dev/md0
+> > > 
+> > > Were you able to test these changes ?
+> > 
+> > You should specify -j option to create ext3 as below.
+> > 
+> > # ./mke2fs -j /dev/md0
 > 
-> The other thing is that a lot of the "policy" stuff you've abstracted
-> out is actually low-level "mechanism" stuff that has implications beyond
-> page reclaim. Taking a refcount on lru pages, for example.
+> Okay. I tested your patches and mkfs changes.
+> 
+> I am able to create a >8TB filesystem and was able to
+> mount it :)
+> 
+> elm3b29:~ # df
+> Filesystem           1K-blocks      Used Available Use% Mounted on
+> /dev/hda2             79366980  76545536   2821444  97% /
+> tmpfs                  3574032         8   3574024   1% /dev/shm
+> /dev/md0             9833697924    131228 9677640816   1% /mnt
+> 
+> I run single "fsx" tests and quickly ran into issues. fsx complained
+> about data mismatch :(
+> 
+> Here is the "dmesg" output:
+> 
+> EXT3 FS on md0, internal journal
+> EXT3-fs: mounted filesystem with ordered data mode.
+> EXT3-fs error (device md0): ext3_new_block: Allocating block in system
+> zone - block = 131072
+> Aborting journal on device md0.
+> ext3_abort called.
+> EXT3-fs error (device md0): ext3_journal_start_sb: Detected aborted
+> journal
+> Remounting filesystem read-only
+> fsx-linux[15668]: segfault at fffffffffffffffb rip 00002b33b3eddda0 rsp
+> 00007fffffef1e38 error 4
+> fsx-linux[15667]: segfault at fffffffffffffffb rip 00002b7736f5dda0 rsp
+> 00007fffffb70da8 error 4
+> ext3_new_block: block was unexpectedly set in b_committed_data
+> EXT3-fs error (device md0) in ext3_reserve_inode_write: Journal has
+> aborted
+> fsx-linux[15666]: segfault at fffffffffffffffb rip 00002b0582de6da0 rsp
+> 00007fffffd24f18 error 4
+> fsx-linux[15669]: segfault at 00000000ffffffff rip 00002ad94d283da0 rsp
+> 00007fffff95aa28 error 4
+> __journal_remove_journal_head: freeing b_committed_data
+> __journal_remove_journal_head: freeing b_committed_data
+> __journal_remove_journal_head: freeing b_committed_data
 
-On "cache pages" you mean :) 
+More information. I ran the test with "-onoreservation" thinking that
+the patch didn't address "reservation code" issues and I still ran
+into block allocation problems. Hope this helps.
 
-Yes, some low-level mechanisms have also been abstracted away... I think
-a nice way to avoid explicit knowledge of page reference acquision at
-the moment of candidate selection hasnt been found.
+EXT3 FS on md0, internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+EXT3-fs error (device md0): ext3_new_block: block(3304604584) >= blocks
+count(2497616320) - block_group = 4, es == ffff8101dee44400
+Aborting journal on device md0.
+ext3_abort called.
+EXT3-fs error (device md0): ext3_journal_start_sb: Detected aborted
+journal
+Remounting filesystem read-only
+fsx-linux[18270]: segfault at fffffffffffffffb rip 00002b9eae932da0 rsp
+00007fffffbf73d8 error 4
+fsx-linux[18271]: segfault at fffffffffffffffb rip 00002aafb6ebada0 rsp
+00007fffffaf0e58 error 4
+fsx-linux[18272]: segfault at fffffffffffffffb rip 00002abcc19b7da0 rsp
+00007fffffde6348 error 4
+EXT3-fs error (device md0) in ext3_prepare_write: IO failure
+__journal_remove_journal_head: freeing b_committed_data
+journal commit I/O error
+fsx-linux[18273]: segfault at fffffffffffffffb rip 00002b6b16724da0 rsp
+00007ffffff8f5e8 error 4
 
-Do you have any suggestions?
 
-> you should be submitting them (eg. patch 25, or patch 1) rather than
-> sitting on them and sending them in a huge patchset where they don't
-> really belong.
-
-I guess Peter and myself expected folks to criticise and help shape the
-API to something acceptable.
-
-BTW, patches 1 and 25 are not crucial improvements for mainline (there's
-not much point in having them in mainline), and I don't see any others?
-
-> Some of the API names aren't very nice either. It's great that you want
-> to keep the namespace consistent, but it shouldn't be at the expense of
-> more descriptive names, and having the page_replace_ prefix itself makes
-> many functions read like crap. I'd suggest something like a pgrep_
-> prefix and try to make the rest of the name make sense.
-
-"pgrep_" looks more pleasant to me.
-
-> Aside from all that, I'm with Andrew in that problems need to be
-> identified first and foremost. 
-
-See my previous message.
-
-> But also I don't like the chances of this
-> whole framework flying at all -- Linus vetoed a similar framework for
-> sched.c that was actually a reasonable API, with little or no
-> consequences outside sched.c. With good reason.
-
-Aren't we talking about very different things here? IMHO there is a lot
-of point in allowing pluggable page replacement instead of trying to
-make one policy fit all needs (which is obviously impossible).
-
-> Nice work, though :)
-
-Indeed - Peter has done a very nice job.
-
+Thanks,
+Badari
 

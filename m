@@ -1,97 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbWCWVNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbWCWVPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964943AbWCWVNq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 16:13:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbWCWVNp
+	id S964954AbWCWVPU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 16:15:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbWCWVPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 16:13:45 -0500
-Received: from smtp06.auna.com ([62.81.186.16]:37563 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S964943AbWCWVNp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 16:13:45 -0500
-Date: Thu, 23 Mar 2006 22:13:42 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: "Linux-Kernel, " <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Lower e100 latency
-Message-ID: <20060323221342.2352789d@werewolf.auna.net>
-In-Reply-To: <20060323220711.28fcb82f@werewolf.auna.net>
-References: <20060323014046.2ca1d9df.akpm@osdl.org>
-	<20060323220711.28fcb82f@werewolf.auna.net>
-X-Mailer: Sylpheed-Claws 2.0.0cvs160 (GTK+ 2.8.16; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_t2mwv/VF8B3/71JEaglewTm";
- protocol="application/pgp-signature"; micalg=PGP-SHA1
-X-Auth-Info: Auth:LOGIN IP:[83.138.210.119] Login:jamagallon@able.es Fecha:Thu, 23 Mar 2006 22:13:43 +0100
+	Thu, 23 Mar 2006 16:15:20 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:63377 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S964954AbWCWVPS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 16:15:18 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] swsusp: separate swap-writing/reading code
+Date: Fri, 24 Mar 2006 07:13:36 +1000
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@suse.cz>, Rafael Wysoki <rjw@sisk.pl>,
+       Andrew Morton <akpm@osdl.org>
+References: <200603231702.k2NH2OSC006774@hera.kernel.org>
+In-Reply-To: <200603231702.k2NH2OSC006774@hera.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2054868.jyMiMfY8MF";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200603240713.41566.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Sig_t2mwv/VF8B3/71JEaglewTm
-Content-Type: text/plain; charset=US-ASCII
+--nextPart2054868.jyMiMfY8MF
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Thu, 23 Mar 2006 22:07:11 +0100, "J.A. Magallon" <jamagallon@able.es> wr=
-ote:
+Hi.
 
-> On Thu, 23 Mar 2006 01:40:46 -0800, Andrew Morton <akpm@osdl.org> wrote:
->=20
-> >=20
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.=
-6.16-mm1/
-> >=20
->=20
+On Friday 24 March 2006 03:02, Linux Kernel Mailing List wrote:
+> commit 61159a314bca6408320c3173c1282c64f5cdaa76
+> tree 8e1b7627443da0fd52b2fac66366dde9f7871f1e
+> parent f577eb30afdc68233f25d4d82b04102129262365
+> author Rafael J. Wysocki <rjw@sisk.pl> Thu, 23 Mar 2006 19:00:00 -0800
+> committer Linus Torvalds <torvalds@g5.osdl.org> Thu, 23 Mar 2006 23:38:07
+> -0800
+>
+> [PATCH] swsusp: separate swap-writing/reading code
+>
+> Move the swap-writing/reading code of swsusp to a separate file.
+>
+> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+> Acked-by: Pavel Machek <pavel@ucw.cz>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
---- linux/drivers/net/e100.c.orig	2006-01-24 09:20:44.000000000 +0100
-+++ linux/drivers/net/e100.c	2006-01-24 09:21:55.000000000 +0100
-@@ -884,23 +884,23 @@
- 	 * procedure it should be done under lock.
- 	 */
- 	spin_lock_irqsave(&nic->mdio_lock, flags);
--	for (i =3D 100; i; --i) {
-+	for (i =3D 1000; i; --i) {
- 		if (readl(&nic->csr->mdi_ctrl) & mdi_ready)
- 			break;
--		udelay(20);
-+		udelay(2);
- 	}
- 	if (unlikely(!i)) {
--		printk("e100.mdio_ctrl(%s) won't go Ready\n",
-+		DPRINTK(PROBE, ERR, "e100.mdio_ctrl(%s) won't go Ready\n",
- 			nic->netdev->name );
- 		spin_unlock_irqrestore(&nic->mdio_lock, flags);
- 		return 0;		/* No way to indicate timeout error */
- 	}
- 	writel((reg << 16) | (addr << 21) | dir | data, &nic->csr->mdi_ctrl);
-=20
--	for (i =3D 0; i < 100; i++) {
--		udelay(20);
-+	for (i =3D 0; i < 1000; i++) {
- 		if ((data_out =3D readl(&nic->csr->mdi_ctrl)) & mdi_ready)
- 			break;
-+		udelay(2);
- 	}
- 	spin_unlock_irqrestore(&nic->mdio_lock, flags);
- 	DPRINTK(HW, DEBUG,
+I guess I missed this one somehow. Using a bitmap for allocated swap is rea=
+lly=20
+inefficient because the values are usually not fragmented much. Extents wou=
+ld=20
+have been a far better choice.
 
+Regards,
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandriva Linux release 2006.1 (Cooker) for i586
-Linux 2.6.15-jam20 (gcc 4.0.3 (4.0.3-1mdk for Mandriva Linux release 2006.1=
-))
+Nigel
 
---Sig_t2mwv/VF8B3/71JEaglewTm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
+--nextPart2054868.jyMiMfY8MF
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFEIw+GRlIHNEGnKMMRAlTYAJ0VYi09UOhDCPGfQ7Kctl+uvRD7wACfUHCZ
-wNwA44KupcpAM7UQS+lM0GM=
-=3/bQ
+iD8DBQBEIw+FN0y+n1M3mo0RAjZmAKDk2gZteobRt2z81w3OL0RHJCHmTgCgt96I
+i+fYOZdVLxD0nXCaS/dlT7k=
+=UqLs
 -----END PGP SIGNATURE-----
 
---Sig_t2mwv/VF8B3/71JEaglewTm--
+--nextPart2054868.jyMiMfY8MF--

@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWCWP6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWCWQLO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbWCWP6j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 10:58:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWCWP6j
+	id S932159AbWCWQLO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 11:11:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWCWQLO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 10:58:39 -0500
-Received: from mailer2.psc.edu ([128.182.66.106]:21959 "EHLO mailer2.psc.edu")
-	by vger.kernel.org with ESMTP id S932100AbWCWP6i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 10:58:38 -0500
-From: John Heffner <jheffner@psc.edu>
-Organization: PSC
-To: Dan Aloni <da-x@monatomic.org>
-Subject: Re: [TCP]: rcvbuf lock when tcp_moderate_rcvbuf enabled
-Date: Thu, 23 Mar 2006 10:58:18 -0500
-User-Agent: KMail/1.9.1
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>, dror@xiv.co.il
-References: <20060323090441.GA8502@localdomain>
-In-Reply-To: <20060323090441.GA8502@localdomain>
+	Thu, 23 Mar 2006 11:11:14 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:19955 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932159AbWCWQLN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 11:11:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Xkmrwue5CdEsRlSkWZpPVblKXkzq7p9Ba3jzEX7RR+5haNONnE98im+68UVHxKVuk4n6R6uSKTnCaPPpjGZLjuFs/FiyUTpwLMec/2bAb5bBIWBI5wcDnZH0Y0KdQmGIynQxxkYmda8OyUSkJRoGrz6LxZzabQn2qmKArflpMpA=
+Message-ID: <6bffcb0e0603230811w4b7d03fex@mail.gmail.com>
+Date: Thu, 23 Mar 2006 17:11:12 +0100
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>,
+       "Roman Zippel" <zippel@linux-m68k.org>, "Andrew Morton" <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
+Subject: Re: 2.6.16-mm1
+In-Reply-To: <20060323144922.GA25849@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200603231058.18719.jheffner@psc.edu>
+References: <20060323014046.2ca1d9df.akpm@osdl.org>
+	 <6bffcb0e0603230631r5e6cc3d3p@mail.gmail.com>
+	 <20060323144922.GA25849@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 March 2006 04:04, Dan Aloni wrote:
-> Hello,
->
-> Below, I've forwarded change from 2.6.16 which I think may causes
-> problems for applications that use setsockopt with SO_RCVBUF. We are
-> using an implementation of an iSCSI target and according to network
-> sniffs it seems that during data transfer the receive window
-> unjustifyingly shrinks to a very low size (180 bytes). I can guess
-> that the code below indirectly affects the receive window size, but
-> I'm not sure how it the logic works here, a clarification could be
-> helpful.
->
-> It's worth to mention that we have sysctl_tcp_moderate_rcvbuf=1, but
-> I don't think it should interfere with applications that request to
-> have a fixed receive buffer by the means of setsockopt(). I can also
-> tell by experiment that reverting the change below makes the problem
-> go away.
+Hi Russell,
 
-It shouldn't, but it used to.  That's exactly what this patch changes (making 
-tcp_moderate_rcvbuf *not* override the application's requested buffer size).  
-Is it possible the application isn't asking for enough buffer space, and that 
-the kernel was just automatically helping it before this patch went in?
+On 23/03/06, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> CONFIG_SERIAL_8250=m
+> CONFIG_SERIAL_8250_PCI=y
+> CONFIG_SERIAL_8250_PNP=y
+>
+> That's an illegal configuration.
+>
+[snip]
+>
+> So it would seem to be a Kconfig bug.
 
-  -John
+Thanks for explanation of the problem
+
+Everything is ok, when I state CONFIG_SERIAL_8250=y in kernel config.
+
+Regards,
+Michal
+
+--
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

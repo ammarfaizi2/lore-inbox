@@ -1,24 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWCWNl4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbWCWNnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbWCWNl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 08:41:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWCWNl4
+	id S1751473AbWCWNnP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 08:43:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWCWNnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 08:41:56 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:50391 "EHLO
+	Thu, 23 Mar 2006 08:43:14 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:28121 "EHLO
 	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751201AbWCWNlz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 08:41:55 -0500
-Date: Thu, 23 Mar 2006 22:41:05 +0900
+	id S1751449AbWCWNnM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 08:43:12 -0500
+Date: Thu, 23 Mar 2006 22:42:47 +0900
 From: Yasunori Goto <y-goto@jp.fujitsu.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH: 000/002] Catch notification of memory add event of ACPI via container driver.
-Cc: Yasunori Goto <y-goto@jp.fujitsu.com>,
-       ACPI-ML <linux-acpi@vger.kernel.org>,
+Subject: [PATCH: 001/002] Catch notification of memory add event of ACPI via container driver. (register start func for memory device)
+Cc: ACPI-ML <linux-acpi@vger.kernel.org>,
        Linux Kernel ML <linux-kernel@vger.kernel.org>,
        "Brown, Len" <len.brown@intel.com>
+In-Reply-To: <20060323221810.8A0B.Y-GOTO@jp.fujitsu.com>
+References: <20060323221810.8A0B.Y-GOTO@jp.fujitsu.com>
 X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060323221810.8A0B.Y-GOTO@jp.fujitsu.com>
+Message-Id: <20060323224116.8A0D.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
@@ -27,40 +28,78 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi.
+This is a patch to call add_memroy() when notify reaches for 
+new node's add event.
 
-These 2 patches are to catch notification of new node's hot-add event via ACPI.
+When new node is added, notify of ACPI reaches container device
+which means the node.
+Container device driver calls acpi_bus_scan() to find and add
+belonging devices (which means cpu, memory and so on).
+Its function calls add and start function of belonging 
+devices's driver.
 
-They were members of v4 of new node hot-add patches.
-However, I would like to merge them at first before other patch.
-Because, if these 2 patches are merged into mainline, all new node's memory
-can be added to node 0. If not, no memory is added even if other patches are
-merged. In addition, there is no opposition to these patches.
+Howevever, current memory hotplug driver just register add function to
+create sysfs file for its memory. But, acpi_memory_enable_device()
+is not called because it is considered just the case that notify reaches
+memory device directly. So, if notify reaches container device 
+nothing can call add_memory().
 
-To tell the truth, I've posted similer patches a few times to ACPI-ML.
-But, unfortunately, there was no response.
+This is a patch to create start function which calls add_memory().
+add_memory() can be called by this when notify reaches container device.
 
-So, could you apply these patches to -mm tree? 
 
-This patch is for 2.6.16-mm1.
-I tested on my ia64 Tiger4 box with my node emulation. 
-In addition, our firmware team provided us new firmware which can allow hot-add.
-These patches worked well on it. :-)
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
-Bye.
+ drivers/acpi/acpi_memhotplug.c |   22 ++++++++++++++++++++++
+ 1 files changed, 22 insertions(+)
 
-------------------------------------------
-
-These 2 patches are to catch notification of new node's hot-add event
-via ACPI.
-If a new node is added, notification of ACPI reaches container device
-which means node, and container driver scans belonging devices.
-To call memory device's driver, start function of acpi memory device is
-necessary. First patch is to register its function.
-
-In addition, the scanning of memory devices and call add_memory() works 
-even if memory is registered at boottime. 
-Second patch is to avoid redundant call of add_memory().
+Index: pgdat9/drivers/acpi/acpi_memhotplug.c
+===================================================================
+--- pgdat9.orig/drivers/acpi/acpi_memhotplug.c	2006-03-23 19:58:48.000000000 +0900
++++ pgdat9/drivers/acpi/acpi_memhotplug.c	2006-03-23 20:20:17.000000000 +0900
+@@ -57,6 +57,7 @@ MODULE_LICENSE("GPL");
+ 
+ static int acpi_memory_device_add(struct acpi_device *device);
+ static int acpi_memory_device_remove(struct acpi_device *device, int type);
++static int acpi_memory_device_start (struct acpi_device *device);
+ 
+ static struct acpi_driver acpi_memory_device_driver = {
+ 	.name = ACPI_MEMORY_DEVICE_DRIVER_NAME,
+@@ -65,6 +66,7 @@ static struct acpi_driver acpi_memory_de
+ 	.ops = {
+ 		.add = acpi_memory_device_add,
+ 		.remove = acpi_memory_device_remove,
++		.start = acpi_memory_device_start,
+ 		},
+ };
+ 
+@@ -429,6 +431,26 @@ static int acpi_memory_device_remove(str
+ 	return_VALUE(0);
+ }
+ 
++static int
++acpi_memory_device_start (struct acpi_device *device)
++{
++	struct acpi_memory_device *mem_device;
++	int result = 0;
++
++	ACPI_FUNCTION_TRACE("acpi_memory_device_start");
++
++	mem_device = (struct acpi_memory_device *) acpi_driver_data(device);
++
++	if (!acpi_memory_check_device(mem_device)){
++		/* call add_memory func */
++		result = acpi_memory_enable_device(mem_device);
++		if (result)
++			ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
++			"Error in acpi_memory_enable_device\n"));
++	}
++	return_VALUE(result);
++}
++
+ /*
+  * Helper function to check for memory device
+  */
 
 -- 
 Yasunori Goto 

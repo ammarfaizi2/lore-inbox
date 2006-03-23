@@ -1,41 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbWCWTC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWCWTBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932570AbWCWTC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 14:02:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWCWTC2
+	id S1030222AbWCWTBn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 14:01:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWCWTBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 14:02:28 -0500
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:14734 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S932563AbWCWTC1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 14:02:27 -0500
-Subject: Re: [patch] Ignore MCFG if the mmconfig area isn't reserved in the
-	e820 table
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <200603231856.12227.ak@suse.de>
-References: <1143138170.3147.43.camel@laptopd505.fenrus.org>
-	 <200603231856.12227.ak@suse.de>
+	Thu, 23 Mar 2006 14:01:43 -0500
+Received: from mail.gmx.de ([213.165.64.20]:28332 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030222AbWCWTBm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 14:01:42 -0500
+X-Authenticated: #704063
+Subject: Re: [Patch] Pointer dereference in net/irda/ircomm/ircomm_tty.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060322232247.GD7790@mipter.zuzino.mipt.ru>
+References: <1143067566.26895.8.camel@alice>
+	 <20060322232247.GD7790@mipter.zuzino.mipt.ru>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 23 Mar 2006 20:02:18 +0100
-Message-Id: <1143140539.3147.44.camel@laptopd505.fenrus.org>
+Date: Thu, 23 Mar 2006 20:01:39 +0100
+Message-Id: <1143140499.17843.7.camel@alice>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi,
 
-> That is e820_mapped(address, address+size, E820_RESERVED)
+On Thu, 2006-03-23 at 02:22 +0300, Alexey Dobriyan wrote:
+> On Wed, Mar 22, 2006 at 11:46:05PM +0100, Eric Sesterhenn wrote:
+> > this fixes coverity bugs #855 and #854. In both cases tty
+> > is dereferenced before getting checked for NULL.
 > 
-> And not having a size is definitely wrong on i386 too.
+> Before Al will flame you,
 
-s/wrong/not selective enough/
+I know you prefer doing it yourself :)
 
-and e820_mapped doesn't check this either anyway, at least not the way
-you imply it does.
+> IMO, what should be done is removing asserts checking for "self",
+> because ->driver_data is filled in ircomm_tty_open() with valid pointer.
 
-I'll do a new patch using this for x86_64 though, no need to make a
-second function like this.
+Updated patch below.
+
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+
+--- linux-2.6.16-git6/net/irda/ircomm/ircomm_tty.c.orig	2006-03-23 19:58:50.000000000 +0100
++++ linux-2.6.16-git6/net/irda/ircomm/ircomm_tty.c	2006-03-23 19:59:31.000000000 +0100
+@@ -501,7 +501,6 @@ static void ircomm_tty_close(struct tty_
+ 	if (!tty)
+ 		return;
+ 
+-	IRDA_ASSERT(self != NULL, return;);
+ 	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+ 
+ 	spin_lock_irqsave(&self->spinlock, flags);
+@@ -1011,7 +1010,6 @@ static void ircomm_tty_hangup(struct tty
+ 
+ 	IRDA_DEBUG(0, "%s()\n", __FUNCTION__ );
+ 
+-	IRDA_ASSERT(self != NULL, return;);
+ 	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+ 
+ 	if (!tty)
+
 

@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422734AbWCWX4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422738AbWCWX51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422734AbWCWX4r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 18:56:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422735AbWCWX4r
+	id S1422738AbWCWX51 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 18:57:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422737AbWCWX50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 18:56:47 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:61849 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422734AbWCWX4q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 18:56:46 -0500
-Date: Thu, 23 Mar 2006 15:58:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: ncunningham@cyclades.com, linux-kernel@vger.kernel.org, pavel@suse.cz
-Subject: Re: [PATCH] swsusp: separate swap-writing/reading code
-Message-Id: <20060323155850.23f69591.akpm@osdl.org>
-In-Reply-To: <200603232253.01025.rjw@sisk.pl>
-References: <200603231702.k2NH2OSC006774@hera.kernel.org>
-	<200603240713.41566.ncunningham@cyclades.com>
-	<200603232253.01025.rjw@sisk.pl>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Mar 2006 18:57:26 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:55568 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1422736AbWCWX5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 18:57:25 -0500
+Date: Fri, 24 Mar 2006 00:57:24 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, airlied@linux.ie
+Cc: linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+Subject: [-mm patch] drivers/video/intelfb/intelfbhw.c: make struct plls static
+Message-ID: <20060323235724.GI22727@stusta.de>
+References: <20060323014046.2ca1d9df.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060323014046.2ca1d9df.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
->
-> > I guess I missed this one somehow. Using a bitmap for allocated swap is really 
-> > inefficient because the values are usually not fragmented much. Extents would 
-> > have been a far better choice.
-> 
-> I agree it probably may be improved.  Still it seems to be good enough.  Further,
-> it's more efficient than the previous solution, so I consider it as an improvement.
-> Also this code has been tested for quite some time in -mm and appears to
-> behave properly, at least we haven't got any bug reports related to it so far.
+On Thu, Mar 23, 2006 at 01:40:46AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.16-rc6-mm2:
+>...
+>  git-intelfb.patch
+>...
+>  git trees.
+>...
 
-I think that temporarily allocating 1/32768th of total memory here is
-reasonable, especially as it's not all allocated in a contiguous hunk.
+This patch makes a needlessly global struct static.
 
-> Currently I'm not working on any better solution.  If you can provide any
-> patches to implement one, please submit them, but I think they'll have to be
-> tested for as long as this code, in -mm.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I was a little saddened by the open-coded approach.  I'd expect that both
-radix-trees and idr-trees could be used in this application.  Probably the
-former.  (Radix-trees should have been designed from day one to store
-`unsigned long's, not void*'s, so unless we change that, this application
-will need to use typecasts when converting between void*'s and the stored
-BITS_PER_LONG bitmaps).
+--- linux-2.6.16-mm1-full/drivers/video/intelfb/intelfbhw.c.old	2006-03-23 23:12:20.000000000 +0100
++++ linux-2.6.16-mm1-full/drivers/video/intelfb/intelfbhw.c	2006-03-23 23:12:30.000000000 +0100
+@@ -56,7 +56,7 @@
+ #define PLLS_I9xx 1
+ #define PLLS_MAX 2
+ 
+-struct pll_min_max plls[PLLS_MAX] = {
++static struct pll_min_max plls[PLLS_MAX] = {
+ 	{ 108, 140, 18, 26, 6, 16, 3, 16, 4, 128, 0, 31, 930000, 1400000, 165000, 4, 22 }, //I8xx
+ 	{  75, 120, 10, 20, 5, 9, 4,  7, 5, 80, 1, 8, 930000, 2800000, 200000, 10, 5 }  //I9xx
+ };
 

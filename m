@@ -1,97 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWCWO43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbWCWPGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbWCWO43 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 09:56:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbWCWO43
+	id S1751440AbWCWPGO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 10:06:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWCWPGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 09:56:29 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:49672 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S964841AbWCWO42 (ORCPT
+	Thu, 23 Mar 2006 10:06:14 -0500
+Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:49615 "EHLO
+	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
+	id S1751440AbWCWPGN convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 09:56:28 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: =?iso-8859-1?Q?Ren=E9?= Scharfe <rene.scharfe@lsrfire.ath.cx>
-Cc: Phillip Susi <psusi@cfl.rr.com>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: VFAT: Can't create file named 'aux.h'?
-References: <1142890822.5007.18.camel@localhost.localdomain>
-	<20060320134533.febb0155.rdunlap@xenotime.net>
-	<dvn835$lvo$1@terminus.zytor.com>
-	<Pine.LNX.4.61.0603211840020.21376@yvahk01.tjqt.qr>
-	<44203B86.5000003@zytor.com>
-	<Pine.LNX.4.61.0603211854150.21376@yvahk01. <442050C8.1020200@zytor.com>
-	<44205BC5.9040200@cfl.rr.com> <44206E1C.6090808@zytor.com>
-	<87y7z2l159.fsf@duaron.myhome.or.jp> <442286CD.6070200@lsrfire.ath.cx>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Thu, 23 Mar 2006 23:56:20 +0900
-In-Reply-To: <442286CD.6070200@lsrfire.ath.cx> (=?iso-8859-1?Q?Ren=E9?=
- Scharfe's message of "Thu, 23 Mar 2006 12:30:21 +0100")
-Message-ID: <87d5gdky5n.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Thu, 23 Mar 2006 10:06:13 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] performance issues for cciss driver.
+Date: Thu, 23 Mar 2006 09:06:12 -0600
+Message-ID: <B8857D46D8618E48B51E0199BB9C26F31A3878@cceexcsp04.americas.cpqcorp.net>
+In-Reply-To: <20060323085711.GA1281@poupinou.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] performance issues for cciss driver.
+Thread-Index: AcZOV8iQdoJay1TySTW2fuvXX0cLPAAMxi0A
+From: "Brace, Don" <dab@hp.com>
+To: "Bruno Ducrot" <ducrot@poupinou.org>,
+       "ISS StorageDev" <iss_storagedev@hp.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 23 Mar 2006 15:06:12.0867 (UTC) FILETIME=[53201530:01C64E8B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-René Scharfe <rene.scharfe@lsrfire.ath.cx> writes:
+I am currently working on a correction to this problem.
 
-> OGAWA Hirofumi schrieb:
->> Looks like we get a good reason to kill strange reserved names in vfat
->> (and msdos too?).
->> 
->> Could you/anyone check what shortname is used for "AUX" if it is created
->> in cmd.exe?
->
-> on Windows XP Home SP2 I did:
->
->    mkdir d:\test
->    cd /d d:\test
->    echo 1 > \\?\d:\test\aux
->    echo 2 > \\?\d:\test\nul
->    echo 3 > \\?\d:\test\nul.x
->    echo 4 > \\?\d:\test\nul.longext
->    echo 5 > \\?\d:\test\...
->    echo 6 > "\\?\d:\test\[];,+="
->    echo 7 > "\\?\d:\test\   "
->    dir /x > a.txt
->
-> And here's the contents of a.txt:
->
-> --- snip! ---
->  Datenträger in Laufwerk D: ist 53_00_00
->  Volumeseriennummer: 1002-884F
->
->  Verzeichnis von D:\test
->
-> 23.03.2006  12:21    <DIR>                       .
-> 23.03.2006  12:21    <DIR>                       ..
-> 23.03.2006  12:21                 4 0103~1
-> 23.03.2006  12:21                 4 7154~1       ...
-> 23.03.2006  12:21                 0              a.txt
-> 23.03.2006  12:21                 4              aux
-> 23.03.2006  12:21                 4              nul
-> 23.03.2006  12:21                 4 NUL~1.LON    nul.longext
-> 23.03.2006  12:21                 4              nul.x
-> 23.03.2006  12:21                 4 ______~1     [];,+=
->                8 Datei(en)             28 Bytes
->                2 Verzeichnis(se), 31.506.370.560 Bytes frei
-> --- snip! ---
->
-> So, no shortname is created for aux on my machine.
+We are currently working on the best value for the read-ahead setting.
+This includes no read-ahead.
 
-Thanks, Phillip and Rene.
+The next release should be better.
 
-It seems the shortname. Because "a.txt" is using same form, and
-"no shortname" is meaning a "broken directory entry" in fat spec.
+Thanks for the information and the test cases,
+Don 
 
-> Of course that doesn't prevent us from creating one in vfat, right?
+-----Original Message-----
+From: Bruno Ducrot [mailto:ducrot@poupinou.org] 
+Sent: Thursday, March 23, 2006 2:57 AM
+To: ISS StorageDev
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] performance issues for cciss driver.
 
-Yes. We would not need special case for devices.
+Hi,
 
-I'll remove reserved names from vfat/msdos, because many OSes/commands
-(even Windows) creates it.
+The cciss driver set a too high default value for the number of read
+ahead pages.  When a lot of read operation happens, then we enter into a
+trash-like vm situation.
 
-Thanks.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Below is what happens into such a situation:
+
+The system is a HP Proliant 385, with a Debian sarge amd64 distribution.
+It collect snmp values and stored into RRD files and therefore perform a
+lot of small read and write operations.
+
+# cat /sys/block/cciss\!c0d0/queue/read_ahead_kb
+4096
+# dstat 1
+----total-cpu-usage---- -disk/total -net/total- ---paging-- ---system--
+usr sys idl wai hiq siq|_read write|_recv _send|__in_ _out_|_int_ _csw_
+  0   0  97   2   0   0|   0     0 |   0     0 |   0     0 |   0     0
+  0   2  50  47   0   0|75.1M 4096B|1226B 4056B|   0     0 |1005   451
+  0   1  48  50   0   0|32.6M 1766k|  70B  326B|   0     0 | 951   373
+  0   2  49  49   0   0|57.8M   20k|  70B  326B|   0     0 | 873   487
+  0   2  50  48   0   0|56.7M   24k| 184B  440B|   0     0 | 882   537
+  0   2  48  50   0   0|55.1M   64k|  70B  326B|   0     0 | 877   532
+  0   2  50  48   0   0|53.6M   20k|  70B  326B|   0     0 | 860   521
+  0   0  50  50   0   0|31.1M 1464k|  70B  326B|   0     0 | 892   457
+ 18   3  31  48   0   0|45.7M   64k|  70B  326B|   0     0 |1075   594
+
+...
+# echo 128 > /sys/block/cciss\!c0d0/queue/read_ahead_kb
+
+(wait 5 to 10 minutes)
+
+# dstat 1
+----total-cpu-usage---- -disk/total -net/total- ---paging-- ---system--
+usr sys idl wai hiq siq|_read write|_recv _send|__in_ _out_|_int_ _csw_
+  0   0  97   2   0   0|   0     0 |   0     0 |   0     0 |   0     0
+  0   0 100   0   0   0|   0    12k| 140B 1004B|   0     0 | 258    16 
+  0   0 100   0   0   0|   0  3072B| 204B  716B|   0     0 | 257    28 
+  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 255    10 
+  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 255    14 
+  0   0  99   1   0   0|   0  1948k| 140B  652B|   0     0 | 742    86 
+  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 255    14 
+  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 255    30 
+  2   1  98   0   0   0|   0     0 | 140B  652B|   0     0 | 255    30 
+  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 255    10 
+  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 255    25 
+ 14   0  86   0   0   0|   0     0 | 254B  766B|   0     0 | 436    49 
+ 12  12  77   0   0   0|   0   165k|32.4k 33.4k|   0     0 | 339  1773 
+ 10   6  84   1   0   0| 196k    0 | 140B  652B|   0     0 | 262    31 
+  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 255    14 
+  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 255    13 
+  2   1  97   0   0   0|   0    20k| 576B 1898B|   0     0 | 269    40 
+  0   0 100   0   0   0|   0   140k| 140B  652B|   0     0 | 264    39 
+  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 257    17 
+ 10   4  86   0   0   0|   0     0 | 204B  716B|   0     0 | 255    25 
+
+
+I think we should in fact totally kill the whole ra_pages stuff under
+the cciss driver IMHO.
+
+Signed-off-by: Bruno Ducrot <ducrot@poupinou.org>
+
+ linux-2.6.16/drivers/block/cciss.c |    3 ---
+ 1 files changed, 3 deletions(-)
+
+--- linux-2.6.16/drivers/block/cciss.c	2006/03/22 12:06:30	1.1
++++ linux-2.6.16/drivers/block/cciss.c	2006/03/23 08:29:57
+@@ -137,7 +137,6 @@ static struct board_type products[] = {  /*define
+how many times we will try a command because of bus resets */  #define
+MAX_CMD_RETRIES 3
+ 
+-#define READ_AHEAD 	 1024
+ #define NR_CMDS		 384 /* #commands that can be
+outstanding */
+ #define MAX_CTLR	32
+ 
+@@ -1238,7 +1237,6 @@ static void cciss_update_drive_info(int 
+ 		disk->queue = blk_init_queue(do_cciss_request,
+&h->lock);
+ 
+ 		/* Set up queue information */
+-		disk->queue->backing_dev_info.ra_pages = READ_AHEAD;
+ 		blk_queue_bounce_limit(disk->queue,
+hba[ctlr]->pdev->dma_mask);
+ 
+ 		/* This is a hardware imposed limit. */ @@ -3217,7
++3215,6 @@ static int __devinit cciss_init_one(stru
+ 		}
+ 		drv->queue = q;
+ 
+-		q->backing_dev_info.ra_pages = READ_AHEAD;
+ 		blk_queue_bounce_limit(q, hba[i]->pdev->dma_mask);
+ 
+ 		/* This is a hardware imposed limit. */
+
+--
+Bruno Ducrot
+
+--  Which is worse:  ignorance or apathy?
+--  Don't know.  Don't care.

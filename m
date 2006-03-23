@@ -1,54 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWCWBQI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWCWBQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWCWBQI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 20:16:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWCWBQI
+	id S1751114AbWCWBQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 20:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWCWBQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 20:16:08 -0500
-Received: from ms-smtp-03-smtplb.tampabay.rr.com ([65.32.5.133]:41690 "EHLO
-	ms-smtp-03.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S932222AbWCWBQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 20:16:06 -0500
-Message-ID: <4421F6AB.5030207@cfl.rr.com>
-Date: Wed, 22 Mar 2006 20:15:23 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Mail/News 1.5 (X11/20060309)
+	Wed, 22 Mar 2006 20:16:53 -0500
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:53758 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932219AbWCWBQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 20:16:52 -0500
+Message-ID: <4421F702.5040609@bigpond.net.au>
+Date: Thu, 23 Mar 2006 12:16:50 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: VFAT: Can't create file named 'aux.h'?
-References: <1142890822.5007.18.camel@localhost.localdomain> <20060320134533.febb0155.rdunlap@xenotime.net> <dvn835$lvo$1@terminus.zytor.com> <Pine.LNX.4.61.0603211840020.21376@yvahk01.tjqt.qr> <44203B86.5000003@zytor.com> <Pine.LNX.4.61.0603211854150.21376@yvahk01. <Pine.LNX.4.61.0603221705510.1531@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0603221705510.1531@chaos.analogic.com>
+To: Andrew Morton <akpm@osdl.org>
+CC: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Con Kolivas <kernel@kolivas.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: cpu scheduler merge plans
+References: <20060322155122.2745649f.akpm@osdl.org>
+In-Reply-To: <20060322155122.2745649f.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 23 Mar 2006 01:16:50 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> Under win/2000 "aux" can't be created either by using C/C++ or
-> any of the usual utilities like `ftp`. The returned error-code
-> is "Permission denied", even from an administrator account.
+Andrew Morton wrote:
+> So it's that time again.  We need to decide which of the queued sched
+> patches should be merged into 2.6.17.
 > 
-
-For the third time this thread, yes, you can, you just have to escape 
-the path name to prevent the win32 api from translating the name to the 
-non existent AUX device.  From a command line you can do:
-
-echo foo > \\?\c:\aux
-
-And it will work just fine.  The only place the name "AUX" has any 
-meaning is in the win32 api layers that translate certain device names 
-to the real kernel path.  The kernel and filesystem will store whatever 
-name you choose for compatibility with the posix subsystem.
-
-> I have a dual-boot lap-top so I tried to create a file called
-> "AUX" using `echo "">AUX`, under Linux-2.4.26. The error-code
-> was "Invalid argument". This is a "vfat" file-system. I was
-> able to create the device-name "CLOCK$", which is reserved in
-> DOS. I'm now rebooting the laptop, it should be interesting
-> to see if it still works! .... Yep. It's not a reserved name
-> in Win/2000.
+> I have:
 > 
+> sched-fix-task-interactivity-calculation.patch
+> small-schedule-microoptimization.patch
+> #
+> sched-implement-smpnice.patch
+> sched-smpnice-apply-review-suggestions.patch
+> sched-smpnice-fix-average-load-per-run-queue-calculations.patch
+> sched-store-weighted-load-on-up.patch
+> sched-add-discrete-weighted-cpu-load-function.patch
+> sched-add-above-background-load-function.patch
+> # Suresh had problems
+> # con:
+> sched-cleanup_task_activated.patch
+> sched-make_task_noninteractive_use_sleep_type.patch
+> sched-dont_decrease_idle_sleep_avg.patch
+> sched-include_noninteractive_sleep_in_idle_detect.patch
+> sched-remove-on-runqueue-requeueing.patch
+> sched-activate-sched-batch-expired.patch
+> sched-reduce-overhead-of-calc_load.patch
+> #
+> sched-fix-interactive-task-starvation.patch
+> #
+> # "strange load balancing problems": pwil3058@bigpond.net.au
+> sched-new-sched-domain-for-representing-multi-core.patch
+> sched-fix-group-power-for-allnodes_domains.patch
+> x86-dont-use-cpuid2-to-determine-cache-info-if-cpuid4-is-supported.patch
+> 
+> 
+> I'm not sure what the "Suresh had problems" comment refers to - perhaps a
+> now-removed patch.
+> 
+> afaik, the load balancing problem which Peter observed remains unresolved.
+
+I have not seen this problem on recent -mm kernels (-rc6-mm1 and
+-rc6-mm2 even with SCHED_MC configured in) so it would appear that it's
+fixed.  The only worrying thing is that we don't know what fixed it.
+
+> 
+> Has smpnice had appropriate testing for regressions?
+
+There've been no reported problems for quite a while so my (biased)
+answer would be "yes".
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce
+
 

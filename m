@@ -1,149 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbWCWMQ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWCWMRJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751390AbWCWMQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 07:16:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWCWMQ6
+	id S1751467AbWCWMRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 07:17:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWCWMRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 07:16:58 -0500
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:3199 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1751390AbWCWMQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 07:16:57 -0500
-Subject: [PATCH] Implement /proc/pid/exedir
-From: Mike Hearn <mike@plan99.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Thu, 23 Mar 2006 12:17:07 +0000
-Message-Id: <1143116227.3616.2.camel@linux.site>
+	Thu, 23 Mar 2006 07:17:09 -0500
+Received: from theblackmoor.net ([64.191.130.90]:17593 "EHLO
+	cygnus.theblackmoor.net") by vger.kernel.org with ESMTP
+	id S1751467AbWCWMRI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 07:17:08 -0500
+Date: Thu, 23 Mar 2006 08:16:59 -0400
+From: Spike <spike@spykes.net>
+To: ck@vds.kolivas.org
+Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ck] swap prefetching merge plans
+Message-ID: <20060323081659.3947d436@buffy>
+In-Reply-To: <20060323075756.70eced5a@buffy>
+References: <20060322205305.0604f49b.akpm@osdl.org>
+	<200603231804.36334.kernel@kolivas.org>
+	<20060323075756.70eced5a@buffy>
+X-Mailer: Sylpheed-Claws 2.0.0cvs113 (GTK+ 2.8.16; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does exactly what it says on the tin.
+On Thu, 23 Mar 2006 07:57:56 -0400
+Spike <spike@spykes.net> wrote:
 
-Briefly, this is useful for making relocatable software, that is,
-software which can be run from any prefix. It's more convenient for
-applications because you can just do
+> On Thu, 23 Mar 2006 18:04:36 +1100
+> Con Kolivas <kernel@kolivas.org> wrote:
+> 
+> > On Thu, 23 Mar 2006 03:53 pm, Andrew Morton wrote:
+> > > A look at the -mm lineup for 2.6.17:
+> > 
+> > > mm-implement-swap-prefetching.patch
+> > > mm-implement-swap-prefetching-fix.patch
+> > > mm-implement-swap-prefetching-tweaks.patch
+> > 
+> > >   Still don't have a compelling argument for this, IMO.
+> > 
+> > For those users who feel they do have a compelling argument for it, please 
+> > speak now or I'll end up maintaining this in -ck only forever.  I've come to 
+> > depend on it with my workloads now so I'm never dropping it. There's no point 
+> > me explaining how it is useful yet again, though, because I just end up 
+> > looking like I'm handwaving. It seems a shame for it not to be available to 
+> > all linux users.
+> > 
+> > Cheers,
+> > Con
+> > _______________________________________________
+> > http://ck.kolivas.org/faqs/replying-to-mailing-list.txt
+> > ck mailing list - mailto: ck@vds.kolivas.org
+> > http://vds.kolivas.org/mailman/listinfo/ck
+> 
+> 
+> As a gamer it really makes wonders. That's really all I can say because
+> swap prefetching is such a simple logical thing that one does not need
+> to go into details as its been said so many times over and over again
+> before. Having something like this is beneficial to desktop users.
+> 
+> I suppose support for 1000 some odd CPU's in the kernel is really useful
+> as well for most people....
+> 
+> One can go on and on with the examples, as I seen over the years it
+> seems to just depend on what the few major maintainers want and not
+> what the public finds actually useful.
+> 
+> Bren
+> _______________________________________________
+> http://ck.kolivas.org/faqs/replying-to-mailing-list.txt
+> ck mailing list - mailto: ck@vds.kolivas.org
+> http://vds.kolivas.org/mailman/listinfo/ck
 
-   open_the_file("/proc/self/exedir/../share/my-program/datafile")
+There has been compelling arguments against dropping swap prefetching
+from day one, yet nobody with authority seems to ever take notice.
 
-and there's no error-prone string handling. You can also do
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113473793117511&w=2
 
-   ./configure --prefix=/proc/self/exedir/../
+I really loved reading the comment about 2gb of ram when testing and
+finding no benefits.
 
-to make most UNIX programs relocatable. That was tested on Gaim 2 and
-works fine. It's handy if you want to run software off USB keys, network
-mounts, install to your home directory etc.
-
-This is my first kernel patch, please be gentle ;)
-
-Signed-off-by: Mike Hearn <mike@plan99.net>
-
-
-
---- fs/proc/base.c~	2006-03-22 21:39:04.000000000 +0000
-+++ fs/proc/base.c	2006-03-22 09:42:28.000000000 +0000
-@@ -95,6 +95,7 @@
- 	PROC_TGID_CWD,
- 	PROC_TGID_ROOT,
- 	PROC_TGID_EXE,
-+	PROC_TGID_EXEDIR,
- 	PROC_TGID_FD,
- 	PROC_TGID_ENVIRON,
- 	PROC_TGID_AUXV,
-@@ -135,6 +136,7 @@
- 	PROC_TID_CWD,
- 	PROC_TID_ROOT,
- 	PROC_TID_EXE,
-+	PROC_TID_EXEDIR,
- 	PROC_TID_FD,
- 	PROC_TID_ENVIRON,
- 	PROC_TID_AUXV,
-@@ -200,6 +202,7 @@
- 	E(PROC_TGID_CWD,       "cwd",     S_IFLNK|S_IRWXUGO),
- 	E(PROC_TGID_ROOT,      "root",    S_IFLNK|S_IRWXUGO),
- 	E(PROC_TGID_EXE,       "exe",     S_IFLNK|S_IRWXUGO),
-+	E(PROC_TGID_EXEDIR,    "exedir",  S_IFLNK|S_IRWXUGO),
- 	E(PROC_TGID_MOUNTS,    "mounts",  S_IFREG|S_IRUGO),
- #ifdef CONFIG_MMU
- 	E(PROC_TGID_SMAPS,     "smaps",   S_IFREG|S_IRUGO),
-@@ -242,6 +245,7 @@
- 	E(PROC_TID_CWD,        "cwd",     S_IFLNK|S_IRWXUGO),
- 	E(PROC_TID_ROOT,       "root",    S_IFLNK|S_IRWXUGO),
- 	E(PROC_TID_EXE,        "exe",     S_IFLNK|S_IRWXUGO),
-+	E(PROC_TID_EXEDIR,     "exedir",  S_IFLNK|S_IRWXUGO),
- 	E(PROC_TID_MOUNTS,     "mounts",  S_IFREG|S_IRUGO),
- #ifdef CONFIG_MMU
- 	E(PROC_TID_SMAPS,      "smaps",   S_IFREG|S_IRUGO),
-@@ -1656,6 +1660,11 @@
- 			inode->i_op = &proc_pid_link_inode_operations;
- 			ei->op.proc_get_link = proc_exe_link;
- 			break;
-+		case PROC_TID_EXEDIR:
-+		case PROC_TGID_EXEDIR:
-+			inode->i_op = &proc_pid_link_inode_operations;
-+			ei->op.proc_get_link = proc_exedir_link;
-+			break;
- 		case PROC_TID_CWD:
- 		case PROC_TGID_CWD:
- 			inode->i_op = &proc_pid_link_inode_operations;
---- fs/proc/internal.h~	2006-03-13 23:40:39.000000000 +0000
-+++ fs/proc/internal.h	2006-03-22 09:46:08.000000000 +0000
-@@ -32,6 +32,7 @@
- 
- extern void create_seq_entry(char *name, mode_t mode, struct file_operations *f);
- extern int proc_exe_link(struct inode *, struct dentry **, struct vfsmount **);
-+extern int proc_exedir_link(struct inode *inode, struct dentry **dentry, struct vfsmount **mnt);
- extern int proc_tid_stat(struct task_struct *,  char *);
- extern int proc_tgid_stat(struct task_struct *, char *);
- extern int proc_pid_status(struct task_struct *, char *);
---- fs/proc/task_mmu.c~	2006-03-22 21:43:37.000000000 +0000
-+++ fs/proc/task_mmu.c	2006-03-22 10:26:37.000000000 +0000
-@@ -101,6 +101,20 @@
- 	return result;
- }
- 
-+int proc_exedir_link(struct inode *inode, struct dentry **dentry, struct vfsmount **mnt)
-+{
-+	struct dentry *exe;
-+	int result = proc_exe_link(inode, &exe, mnt);
-+
-+	if (result < 0)
-+		return result;
-+
-+	*dentry = dget_parent(exe);
-+	dput(exe);
-+
-+	return result;
-+}
-+
- static void pad_len_spaces(struct seq_file *m, int len)
- {
- 	len = 25 + sizeof(void*) * 6 - len;
---- fs/proc/task_nommu.c~	2006-03-22 21:45:24.000000000 +0000
-+++ fs/proc/task_nommu.c	2006-03-22 10:20:26.000000000 +0000
-@@ -137,6 +137,20 @@
- 	return result;
- }
- 
-+int proc_exedir_link(struct inode *inode, struct dentry **dentry, struct vfsmount **mnt)
-+{
-+	struct dentry *exe;
-+	int result = proc_exe_link(inode, &exe, mnt);
-+	
-+	if (result < 0)
-+		return result;
-+
-+	*dentry = dget_parent(exe);
-+	dput(exe);
-+
-+       return result;
-+}
-+
- /*
-  * Albert D. Cahalan suggested to fake entries for the traditional
-  * sections here.  This might be worth investigating.
+So I assume everyone out there has 2gb of ram or more in this so
+perfect world.
 
 
+Bren

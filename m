@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWCWBhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932497AbWCWBgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932511AbWCWBhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 20:37:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWCWBhJ
+	id S932497AbWCWBgw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 20:36:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbWCWBgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 20:37:09 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:165 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932502AbWCWBhH (ORCPT
+	Wed, 22 Mar 2006 20:36:52 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:24477 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932497AbWCWBgv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 20:37:07 -0500
-Date: Thu, 23 Mar 2006 12:36:31 +1100
-From: David Chinner <dgc@sgi.com>
-To: xfs-masters@oss.sgi.com
-Cc: Nathan Scott <nathans@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [xfs-masters] Re: [PATCH] xfs: kill kmem_zone init
-Message-ID: <20060323013631.GF1173973@melbourne.sgi.com>
-References: <Pine.LNX.4.58.0603201501540.18684@sbz-30.cs.Helsinki.FI> <20060321082037.A653275@wobbly.melbourne.sgi.com> <Pine.LNX.4.58.0603210859450.14023@sbz-30.cs.Helsinki.FI> <20060322085520.A664708@wobbly.melbourne.sgi.com> <Pine.LNX.4.58.0603220932230.27326@sbz-30.cs.Helsinki.FI>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0603220932230.27326@sbz-30.cs.Helsinki.FI>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 22 Mar 2006 20:36:51 -0500
+Message-ID: <4421FBAE.9040909@garzik.org>
+Date: Wed, 22 Mar 2006 20:36:46 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [git patches] libata updates
+References: <20060323011557.GA16563@havoc.gtf.org>
+In-Reply-To: <20060323011557.GA16563@havoc.gtf.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.5 (--)
+X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
+	Content analysis details:   (-2.5 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 22, 2006 at 09:37:33AM +0200, Pekka J Enberg wrote:
-> Would 
-> you accept patches to convert code under PF_FSTRANS to use KM_NOFS so we 
-> can kill the check in kmem_flags_convert()?
+Jeff Garzik wrote:
+> Please pull from 'upstream-linus' branch of
+> master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
-No.
+In case it isn't obvious from the git history, this includes merging 
+with James B's SCSI pull (2152f8536668a957ea3214735b4761e7b22ef7d8) and 
+testing the result.
 
-XFS is full of code that can be called under both PF_FSTRANS and
-!PF_FSTRANS contexts and hence recursion during allocation is
-context dependent. Rather than pollute >20 call sites throughout XFS
-with this check it got put in common code. Makes sense, yes?
+	Jeff
 
-Cheers,
 
-Dave.
--- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group

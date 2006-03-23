@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWCWKMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWCWKSw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWCWKMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 05:12:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWCWKMZ
+	id S932179AbWCWKSw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 05:18:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWCWKSw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 05:12:25 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:64670 "EHLO mtlexch01.mtl.com")
-	by vger.kernel.org with ESMTP id S1750990AbWCWKMY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 05:12:24 -0500
-Date: Thu, 23 Mar 2006 12:13:15 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: linux-kernel@vger.kernel.org, rdreier@cisco.com, greg@kroah.com,
-       openib-general@openib.org
-Subject: Re: [PATCH 9 of 18] ipath - char devices for diagnostics and lightweight subnet management
-Message-ID: <20060323101315.GE1802@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <patchbomb.1143072293@eng-12.pathscale.com> <dffa0687112e4fdcf7d0.1143072302@eng-12.pathscale.com> <20060323064113.GC9841@mellanox.co.il> <1143103701.6411.21.camel@camp4.serpentine.com> <20060323093713.GB1802@mellanox.co.il> <1143107463.6411.54.camel@camp4.serpentine.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1143107463.6411.54.camel@camp4.serpentine.com>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 23 Mar 2006 10:15:08.0437 (UTC) FILETIME=[A9838C50:01C64E62]
+	Thu, 23 Mar 2006 05:18:52 -0500
+Received: from webmailv3.ispgateway.de ([80.67.16.113]:64919 "EHLO
+	webmailv3.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932179AbWCWKSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 05:18:51 -0500
+Message-ID: <1143109112.442275f83c95e@www.domainfactory-webmail.de>
+Date: Thu, 23 Mar 2006 11:18:32 +0100
+From: Clemens Ladisch <clemens@ladisch.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: abergman@de.ibm.com, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] hpet header sanitization
+References: <20060321144607.153d1943.rdunlap@xenotime.net> <200603221118.43853.abergman@de.ibm.com> <20060322111446.GA7675@turing.informatik.uni-halle.de> <20060322090125.8fc13711.rdunlap@xenotime.net>
+In-Reply-To: <20060322090125.8fc13711.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.8
+X-Originating-IP: 213.238.46.206
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Bryan O'Sullivan <bos@pathscale.com>:
-> > I understand they do, but they could just use the parts of IB stack and
-> > never notice.
-> 
-> No, in some cases they want there to not be an IB stack present, which
-> is not the same thing at all as not caring if it's there.
+Randy.Dunlap wrote:
+> On Wed, 22 Mar 2006 12:14:46 +0100 Clemens Ladisch wrote:
+> > There isn't any program (except the example in the docs) that
+> > uses any of these ioctls, and I'm writing patches to make this
+> > device available through portable timer APIs like hrtimer/POSIX
+> > clocks/ALSA that are much easier to use besides, so I think it
+> > would be a good idea to just schedule these ioctls for removal.
+>
+> How do you (or can you) know that there are no programs that use
+> that ioctl?
 
-OK. I gather that much. But why? I'm just trying to figure out the motivation.
-Might this be interesting for our drivers too?
+Because most parts of hpet.c were orignially written on an emulator
+and were so buggy as to be effectively unusable until recently.
 
--- 
-Michael S. Tsirkin
-Staff Engineer, Mellanox Technologies
+Additionally, there aren't many BIOSes out there that manage to
+initialize the third HPET timer (the one used by these ioctls)
+correctly, or that bother to enable the HPET device at all.  (This
+seems to be changing due to the Windows Vista logo requirements.)
+
+
+Regards,
+Clemens
+

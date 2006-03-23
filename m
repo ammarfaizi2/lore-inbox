@@ -1,38 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWCWTfn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbWCWTkx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751485AbWCWTfn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 14:35:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWCWTfn
+	id S1751405AbWCWTkx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 14:40:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWCWTkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 14:35:43 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:6079 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S1751485AbWCWTfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 14:35:43 -0500
-Message-Id: <5.1.0.14.2.20060323203051.025cd200@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 23 Mar 2006 20:36:03 +0100
-To: linux-kernel@vger.kernel.org
-From: Margit Schubert-While <margitsw@t-online.de>
-Subject: Re: unresolved emu10k1 synth symbols.
-Cc: davej@redhat.com
+	Thu, 23 Mar 2006 14:40:53 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:10411 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751405AbWCWTkx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 14:40:53 -0500
+Subject: Re: [PATCHSET 0/10] Time: Generic Timekeeping (v.C1)
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, george@wildturkeyranch.net,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Ingo Molnar <mingo@elte.hu>, Paul Mackerras <paulus@samba.org>
+In-Reply-To: <Pine.LNX.4.64.0603231209380.17704@scrub.home>
+References: <20060323030547.19338.95102.sendpatchset@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.64.0603231209380.17704@scrub.home>
+Content-Type: text/plain
+Date: Thu, 23 Mar 2006 11:40:34 -0800
+Message-Id: <1143142835.2661.7.camel@leatherman>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-ID: Xdf7CEZ68eCZAAtSQQllQxgyuNIENSOUCHX9VBxvGT4MvywZwok7gk
-X-TOI-MSGID: cc172ba7-f35a-4860-b193-9f72befcd729
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >> with the following modprobe.conf fragment
- >> install snd-emu10k1 /sbin/modprobe --ignore-install snd-emu10k1 && 
-/sbin/modprobe snd-emu10k1-synth
+On Thu, 2006-03-23 at 13:48 +0100, Roman Zippel wrote:
+> Hi,
+> 
+> On Wed, 22 Mar 2006, john stultz wrote:
+> 
+> > Andrew, All,
+> > 	Here is an updated version of the smaller, reworked and 
+> > improved patchset I mailed out monday. Please consider for inclusion 
+> > into your tree.
+> 
+> It looks pretty good already. :)
 
-Isn't that command wrong ?
-You are telling it to ignore the install for snd-emu10k1.
-How about :
-install snd-emu10k1-synth /sbin/modprobe snd-emu10k1 && /sbin/modprobe 
---ignore-install snd-emu10k1-synth
+</me rubs his eyes and reads that again>
 
-Margit
+> Give me a bit of time to rework the middle part a bit and if we can agree 
+> to make the new gettimeofday functions optional for an arch, IMO it would 
+> be ok for 2.6.17. 
 
+? The new gettimeofday functions are optional. Don't enable
+CONFIG_GENERIC_TIME and you're good to go. Could you clarify what you
+mean?
+
+> I think the important part is to get the generic clock 
+> infrastructure merged, so it can be used by other kernel parts, the 
+> unification of performance sensitive parts can still be done on top of it 
+> a bit later.
+
+Ok, I'm still not sure how you intend to you the clocksource bits
+outside of timekeeping, but I'm interested in hearing about it.
+
+thanks
+-john
 

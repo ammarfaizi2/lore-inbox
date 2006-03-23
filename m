@@ -1,107 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWCWVdE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWCWVc7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbWCWVdE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 16:33:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWCWVdE
+	id S932101AbWCWVc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 16:32:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWCWVc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 16:33:04 -0500
-Received: from mx1.slu.se ([130.238.96.70]:40355 "EHLO mx1.slu.se")
-	by vger.kernel.org with ESMTP id S932146AbWCWVdB (ORCPT
+	Thu, 23 Mar 2006 16:32:59 -0500
+Received: from lixom.net ([66.141.50.11]:38611 "EHLO mail.lixom.net")
+	by vger.kernel.org with ESMTP id S932101AbWCWVc7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 16:33:01 -0500
-From: Robert Olsson <Robert.Olsson@data.slu.se>
+	Thu, 23 Mar 2006 16:32:59 -0500
+Date: Thu, 23 Mar 2006 15:32:17 -0600
+To: Arnd Bergmann <abergman@de.ibm.com>
+Cc: Paul Mackerras <paulus@samba.org>, cbe-oss-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Subject: Re: [patch 02/13] powerpc: add hvc backend for rtas
+Message-ID: <20060323213217.GB5538@pb15.lixom.net>
+References: <20060323203423.620978000@dyn-9-152-242-103.boeblingen.de.ibm.com> <20060323203521.100452000@dyn-9-152-242-103.boeblingen.de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17443.5126.813111.61346@robur.slu.se>
-Date: Thu, 23 Mar 2006 22:32:54 +0100
-To: Jesper Dangaard Brouer <hawk@diku.dk>
-Cc: "David S. Miller" <davem@davemloft.net>, dipankar@in.ibm.com,
-       Robert Olsson <Robert.Olsson@data.slu.se>, jens.laas@data.slu.se,
-       hans.liss@its.uu.se, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Eric Dumazet <dada1@cosmosbay.com>,
-       mike.stroyan@hp.com, Suresh Bhogavilli <sbhogavilli@verisign.com>
-Subject: Re: Kernel panic: Route cache, RCU, possibly FIB trie.
-In-Reply-To: <Pine.LNX.4.61.0603231536180.29788@ask.diku.dk>
-References: <Pine.LNX.4.61.0603211113550.15500@ask.diku.dk>
-	<20060321.023705.26111240.davem@davemloft.net>
-	<Pine.LNX.4.61.0603211538280.28173@ask.diku.dk>
-	<20060321.132514.24407022.davem@davemloft.net>
-	<Pine.LNX.4.61.0603231536180.29788@ask.diku.dk>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+In-Reply-To: <20060323203521.100452000@dyn-9-152-242-103.boeblingen.de.ibm.com>
+User-Agent: Mutt/1.5.11
+From: Olof Johansson <olof@lixom.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Jesper Dangaard Brouer writes:
+I have a couple of nitpicks below, nothing major.
 
- > > It is almost certainly the cause of your crashes, that code
- > > is still extremely raw and that's why it is listed as "EXPERIMENTAL".
- > 
- > It seems your are right :-) (and I'll take more care of using experimental 
- > code on production again). The machine, has now been running for 34 hours 
- > without crashing.  The strange thing is that I'm running the same kernel 
- > on 30 other (similar) machines, which have not crashed.  (I do suspect the 
- > specific traffic load pattern to influence this)
-
-  Sounds good... seems like Dave did the the correct analysis.
-
- > BUT, I do think I have noticed another problem in the garbage collection 
- > code (route.c), that causes the garbage collector (almost) never to 
- > garbage collect.
-
-  We're trying to avoid most/all periodic GC in hi-flow systems and just to 
-  do GC as new entries are created. We use the patch below to create et another 
-  (unfortunately) /proc entry to better control this. ip_rt_gc_max_chain_length 
-  it also decreases the threshhold for this from 8 to 4 for this.
-
- Cheers.
-						--ro
-
- 
---- linux-2.6.14.5/net/ipv4/route.c.orig	2006-01-02 14:24:00.000000000 +0100
-+++ linux-2.6.14.5/net/ipv4/route.c	2006-01-02 15:26:29.000000000 +0100
-@@ -126,6 +126,7 @@
- static int ip_rt_error_cost		= HZ;
- static int ip_rt_error_burst		= 5 * HZ;
- static int ip_rt_gc_elasticity		= 8;
-+static int ip_rt_gc_max_chain_length	= 4;
- static int ip_rt_mtu_expires		= 10 * 60 * HZ;
- static int ip_rt_min_pmtu		= 512 + 20 + 20;
- static int ip_rt_min_advmss		= 256;
-@@ -977,7 +978,7 @@
- 		 * The second limit is less certain. At the moment it allows
- 		 * only 2 entries per bucket. We will see.
- 		 */
--		if (chain_length > ip_rt_gc_elasticity) {
-+		if (chain_length > ip_rt_gc_max_chain_length) {
- 			*candp = cand->u.rt_next;
- 			rt_free(cand);
- 		}
-@@ -3017,6 +3018,14 @@
- 		.proc_handler	= &proc_dointvec,
- 	},
- 	{
-+		.ctl_name	= NET_IPV4_ROUTE_GC_MAX_CHAIN_LENGTH,
-+		.procname	= "gc_max_chain_length",
-+		.data		= &ip_rt_gc_max_chain_length,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
-+	{
- 		.ctl_name	= NET_IPV4_ROUTE_MTU_EXPIRES,
- 		.procname	= "mtu_expires",
- 		.data		= &ip_rt_mtu_expires,
---- linux-2.6.14.5/include/linux/sysctl.h.orig	2006-01-02 14:46:55.000000000 +0100
-+++ linux-2.6.14.5/include/linux/sysctl.h	2006-01-02 14:47:01.000000000 +0100
-@@ -375,6 +375,7 @@
- 	NET_IPV4_ROUTE_MIN_ADVMSS=17,
- 	NET_IPV4_ROUTE_SECRET_INTERVAL=18,
- 	NET_IPV4_ROUTE_GC_MIN_INTERVAL_MS=19,
-+	NET_IPV4_ROUTE_GC_MAX_CHAIN_LENGTH=20,
- };
- 
- enum
+Since it's such a simple driver, it's easy to use as a base for similar
+ones, and as such it'd be nice to have it as clean as possible to avoid
+others to inherit strangeness.
 
 
+-Olof
+
+On Thu, Mar 23, 2006 at 12:00:02AM +0100, Arnd Bergmann wrote:
+
+> +static inline int hvc_rtas_write_console(uint32_t vtermno, const char *buf, int count)
+> +{
+> +	int done;
+> +
+> +	/* if there is more than one character to be displayed, wait a bit */
+> +	for (done = 0; done < count; done++) {
+> +		int result;
+> +		result = rtas_call(rtascons_put_char_token, 1, 1, NULL, buf[done]);
+> +		if (result)
+> +			break;
+
+Why introduce a scope-local variable just to check it?
+		if(rtas_call(...))   would be cleaner.
+
+> +	}
+> +	/* the calling routine expects to receive the number of bytes sent */
+> +	return done;
+> +}
+> +
+> +static int hvc_rtas_read_console(uint32_t vtermno, char *buf, int count)
+> +{
+> +	int i;
+> +
+> +	for (i = 0; i < count; i++) {
+> +		int c, err;
+> +
+> +		err = rtas_call(rtascons_get_char_token, 0, 2, &c);
+> +		if (err)
+> +			break;
+
+Same here
+
+> +
+> +		buf[i] = c;
+> +	}
+> +
+> +	return i;
+> +}
+> +
+> +static struct hv_ops hvc_rtas_get_put_ops = {
+> +	.get_chars = hvc_rtas_read_console,
+> +	.put_chars = hvc_rtas_write_console,
+> +};
+> +
+> +static int hvc_rtas_init(void)
+> +{
+> +	struct hvc_struct *hp;
+> +
+> +	if (rtascons_put_char_token == RTAS_UNKNOWN_SERVICE)
+> +		rtascons_put_char_token = rtas_token("put-term-char");
+> +	if (rtascons_put_char_token == RTAS_UNKNOWN_SERVICE)
+> +		return -EIO;
+> +
+> +	if (rtascons_get_char_token == RTAS_UNKNOWN_SERVICE)
+> +		rtascons_get_char_token = rtas_token("get-term-char");
+> +	if (rtascons_get_char_token == RTAS_UNKNOWN_SERVICE)
+> +		return -EIO;
+> +
+> +	BUG_ON(hvc_rtas_dev);
+> +
+> +	/* Allocate an hvc_struct for the console device we instantiated
+> +	 * earlier.  Save off hp so that we can return it on exit */
+> +	hp = hvc_alloc(hvc_rtas_cookie, NO_IRQ, &hvc_rtas_get_put_ops);
+> +	if (IS_ERR(hp))
+> +		return PTR_ERR(hp);
+> +	hvc_rtas_dev = hp;
+> +	return 0;
+> +}
+> +module_init(hvc_rtas_init);
+> +
+> +/* This will tear down the tty portion of the driver */
+> +static void __exit hvc_rtas_exit(void)
+> +{
+> +	/* Really the fun isn't over until the worker thread breaks down and the
+> +	 * tty cleans up */
+> +	if (hvc_rtas_dev)
+> +		hvc_remove(hvc_rtas_dev);
+> +}
+> +module_exit(hvc_rtas_exit); /* before drivers/char/hvc_console.c */
+
+Cryptic comment? 
+
+> +/* This will happen prior to module init.  There is no tty at this time? */
+> +static int hvc_rtas_console_init(void)
+> +{
+> +	rtascons_put_char_token = rtas_token("put-term-char");
+> +	if (rtascons_put_char_token == RTAS_UNKNOWN_SERVICE)
+> +		return -EIO;
+> +	rtascons_get_char_token = rtas_token("get-term-char");
+> +	if (rtascons_get_char_token == RTAS_UNKNOWN_SERVICE)
+> +		return -EIO;
+> +
+> +	hvc_instantiate(hvc_rtas_cookie, 0, &hvc_rtas_get_put_ops );
+> +	add_preferred_console("hvc", 0, NULL);
+> +	return 0;
+> +}
+> +console_initcall(hvc_rtas_console_init);
+> Index: linus-2.6/drivers/char/Makefile
+> ===================================================================
+> --- linus-2.6.orig/drivers/char/Makefile
+> +++ linus-2.6/drivers/char/Makefile
+> @@ -43,6 +43,7 @@ obj-$(CONFIG_SX)		+= sx.o generic_serial
+>  obj-$(CONFIG_RIO)		+= rio/ generic_serial.o
+>  obj-$(CONFIG_HVC_DRIVER)	+= hvc_console.o
+>  obj-$(CONFIG_HVC_CONSOLE)	+= hvc_vio.o hvsi.o
+> +obj-$(CONFIG_HVC_RTAS)		+= hvc_rtas.o
+>  obj-$(CONFIG_RAW_DRIVER)	+= raw.o
+>  obj-$(CONFIG_SGI_SNSC)		+= snsc.o snsc_event.o
+>  obj-$(CONFIG_MMTIMER)		+= mmtimer.o
+> Index: linus-2.6/drivers/char/Kconfig
+> ===================================================================
+> --- linus-2.6.orig/drivers/char/Kconfig
+> +++ linus-2.6/drivers/char/Kconfig
+> @@ -578,6 +578,13 @@ config HVC_CONSOLE
+>  	  console. This driver allows each pSeries partition to have a console
+>  	  which is accessed via the HMC.
+>  
+> +config HVC_RTAS
+> +	bool "IBM RTAS Console support"
+> +	depends on PPC_RTAS
+> +	select HVC_DRIVER
+> +	help
+> +	  IBM Console device driver which makes use of RTAS
+> +
+>  config HVCS
+>  	tristate "IBM Hypervisor Virtual Console Server support"
+>  	depends on PPC_PSERIES
+> 
+> --
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

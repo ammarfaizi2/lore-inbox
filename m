@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932556AbWCWFQ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWCWFW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932556AbWCWFQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 00:16:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWCWFQ7
+	id S932125AbWCWFW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 00:22:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWCWFW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 00:16:59 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:35500 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932556AbWCWFQ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 00:16:58 -0500
-Date: Wed, 22 Mar 2006 21:13:25 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nickpiggin@yahoo.com.au, kernel@kolivas.org, pwil3058@bigpond.net.au,
-       suresh.b.siddha@intel.com, kenneth.w.chen@intel.com, efault@gmx.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: cpu scheduler merge plans
-Message-Id: <20060322211325.4fe484b8.akpm@osdl.org>
-In-Reply-To: <20060323050305.GA28128@elte.hu>
-References: <20060322155122.2745649f.akpm@osdl.org>
-	<20060323050305.GA28128@elte.hu>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 23 Mar 2006 00:22:26 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:10713 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932125AbWCWFWZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 00:22:25 -0500
+Subject: [trival patch]disable warning in cpu_init for cpu hotplug
+From: Shaohua Li <shaohua.li@intel.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 23 Mar 2006 13:21:08 +0800
+Message-Id: <1143091268.11430.49.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
->
->  it's all green again
->
+The patch seems missed.
+GFP_KERNEL isn't ok for runtime (cpu hotplug).
 
-OK...
+Signed-off-by: Shaohua Li<shaohua.li@intel.com>
+---
 
-It'll take as long as a week to get that far into the -mm queue anyway
-(sched is staged 70% of the way through).  So unless we hear differently
-between now and then, off it all goes.  Thanks.
+ linux-2.6.15-root/arch/i386/kernel/cpu/common.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN arch/i386/kernel/cpu/common.c~cpuhp arch/i386/kernel/cpu/common.c
+--- linux-2.6.15/arch/i386/kernel/cpu/common.c~cpuhp	2006-03-14 12:13:43.000000000 +0800
++++ linux-2.6.15-root/arch/i386/kernel/cpu/common.c	2006-03-14 12:14:12.000000000 +0800
+@@ -605,7 +605,7 @@ void __devinit cpu_init(void)
+ 		/* alloc_bootmem_pages panics on failure, so no check */
+ 		memset(gdt, 0, PAGE_SIZE);
+ 	} else {
+-		gdt = (struct desc_struct *)get_zeroed_page(GFP_KERNEL);
++		gdt = (struct desc_struct *)get_zeroed_page(GFP_ATOMIC);
+ 		if (unlikely(!gdt)) {
+ 			printk(KERN_CRIT "CPU%d failed to allocate GDT\n", cpu);
+ 			for (;;)
+_
+
 

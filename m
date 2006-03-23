@@ -1,151 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbWCWPGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWCWPGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751440AbWCWPGO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 10:06:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWCWPGO
+	id S964898AbWCWPGS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 10:06:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWCWPGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 10:06:14 -0500
-Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:49615 "EHLO
-	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
-	id S1751440AbWCWPGN convert rfc822-to-8bit (ORCPT
+	Thu, 23 Mar 2006 10:06:18 -0500
+Received: from zipcon.net ([209.221.136.5]:1980 "HELO zipcon.net")
+	by vger.kernel.org with SMTP id S932290AbWCWPGR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 10:06:13 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 23 Mar 2006 10:06:17 -0500
+Message-ID: <4422B95D.9070900@beezmo.com>
+Date: Thu, 23 Mar 2006 07:06:05 -0800
+From: William D Waddington <william.waddington@beezmo.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] performance issues for cciss driver.
-Date: Thu, 23 Mar 2006 09:06:12 -0600
-Message-ID: <B8857D46D8618E48B51E0199BB9C26F31A3878@cceexcsp04.americas.cpqcorp.net>
-In-Reply-To: <20060323085711.GA1281@poupinou.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] performance issues for cciss driver.
-Thread-Index: AcZOV8iQdoJay1TySTW2fuvXX0cLPAAMxi0A
-From: "Brace, Don" <dab@hp.com>
-To: "Bruno Ducrot" <ducrot@poupinou.org>,
-       "ISS StorageDev" <iss_storagedev@hp.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 23 Mar 2006 15:06:12.0867 (UTC) FILETIME=[53201530:01C64E8B]
+To: linux-kernel@vger.kernel.org
+Subject: [RFCLUE2] 64 bit driver 32 bit app ioctl
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am currently working on a correction to this problem.
+Apologies for dashing this off without the proper homework.  My
+customer is out of country doing an installation, and didn't test
+this configuration first :(
 
-We are currently working on the best value for the read-ahead setting.
-This includes no read-ahead.
+Customer is running RHEL3 on a 64 bit PC.  Running the 64 bit kernel
+and my 64 bit driver.  They are calling the driver from their 32 bit
+app.  The driver supports a whole mess of ioctls.
 
-The next release should be better.
+It seems that the kernel is trapping the 32-bit ioctl call and returning
+an error to the app w/out calling the driver.  It looks like
+register_ioctl32_conversion() can convice the kernel that the driver can
+handle 32-bit calls, but it has to be called for each ioctl cmd (??)
 
-Thanks for the information and the test cases,
-Don 
+Putting aside (please) discussion of whether the kernel should presume
+to hijack private ioctls, and whether I should be using the ioctl
+interface at all (compatibility with app interface going back to 2.0
+and SunOS) is there some way to make _one_ register call to indicate
+that all my cmds are safe, or maybe an alternate ioctl entry point
+that the  kernel won't trap?
 
------Original Message-----
-From: Bruno Ducrot [mailto:ducrot@poupinou.org] 
-Sent: Thursday, March 23, 2006 2:57 AM
-To: ISS StorageDev
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] performance issues for cciss driver.
+Yours in desperation,
+Bill
 
-Hi,
+-- 
+--------------------------------------------
+William D Waddington
+Bainbridge Island, WA, USA
+william.waddington@beezmo.com
+--------------------------------------------
+"Even bugs...are unexpected signposts on
+the long road of creativity..." - Ken Burtch
 
-The cciss driver set a too high default value for the number of read
-ahead pages.  When a lot of read operation happens, then we enter into a
-trash-like vm situation.
-
-Below is what happens into such a situation:
-
-The system is a HP Proliant 385, with a Debian sarge amd64 distribution.
-It collect snmp values and stored into RRD files and therefore perform a
-lot of small read and write operations.
-
-# cat /sys/block/cciss\!c0d0/queue/read_ahead_kb
-4096
-# dstat 1
-----total-cpu-usage---- -disk/total -net/total- ---paging-- ---system--
-usr sys idl wai hiq siq|_read write|_recv _send|__in_ _out_|_int_ _csw_
-  0   0  97   2   0   0|   0     0 |   0     0 |   0     0 |   0     0
-  0   2  50  47   0   0|75.1M 4096B|1226B 4056B|   0     0 |1005   451
-  0   1  48  50   0   0|32.6M 1766k|  70B  326B|   0     0 | 951   373
-  0   2  49  49   0   0|57.8M   20k|  70B  326B|   0     0 | 873   487
-  0   2  50  48   0   0|56.7M   24k| 184B  440B|   0     0 | 882   537
-  0   2  48  50   0   0|55.1M   64k|  70B  326B|   0     0 | 877   532
-  0   2  50  48   0   0|53.6M   20k|  70B  326B|   0     0 | 860   521
-  0   0  50  50   0   0|31.1M 1464k|  70B  326B|   0     0 | 892   457
- 18   3  31  48   0   0|45.7M   64k|  70B  326B|   0     0 |1075   594
-
-...
-# echo 128 > /sys/block/cciss\!c0d0/queue/read_ahead_kb
-
-(wait 5 to 10 minutes)
-
-# dstat 1
-----total-cpu-usage---- -disk/total -net/total- ---paging-- ---system--
-usr sys idl wai hiq siq|_read write|_recv _send|__in_ _out_|_int_ _csw_
-  0   0  97   2   0   0|   0     0 |   0     0 |   0     0 |   0     0
-  0   0 100   0   0   0|   0    12k| 140B 1004B|   0     0 | 258    16 
-  0   0 100   0   0   0|   0  3072B| 204B  716B|   0     0 | 257    28 
-  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 255    10 
-  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 255    14 
-  0   0  99   1   0   0|   0  1948k| 140B  652B|   0     0 | 742    86 
-  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 255    14 
-  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 255    30 
-  2   1  98   0   0   0|   0     0 | 140B  652B|   0     0 | 255    30 
-  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 255    10 
-  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 255    25 
- 14   0  86   0   0   0|   0     0 | 254B  766B|   0     0 | 436    49 
- 12  12  77   0   0   0|   0   165k|32.4k 33.4k|   0     0 | 339  1773 
- 10   6  84   1   0   0| 196k    0 | 140B  652B|   0     0 | 262    31 
-  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 255    14 
-  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 255    13 
-  2   1  97   0   0   0|   0    20k| 576B 1898B|   0     0 | 269    40 
-  0   0 100   0   0   0|   0   140k| 140B  652B|   0     0 | 264    39 
-  0   0 100   0   0   0|   0     0 | 140B  652B|   0     0 | 257    17 
- 10   4  86   0   0   0|   0     0 | 204B  716B|   0     0 | 255    25 
-
-
-I think we should in fact totally kill the whole ra_pages stuff under
-the cciss driver IMHO.
-
-Signed-off-by: Bruno Ducrot <ducrot@poupinou.org>
-
- linux-2.6.16/drivers/block/cciss.c |    3 ---
- 1 files changed, 3 deletions(-)
-
---- linux-2.6.16/drivers/block/cciss.c	2006/03/22 12:06:30	1.1
-+++ linux-2.6.16/drivers/block/cciss.c	2006/03/23 08:29:57
-@@ -137,7 +137,6 @@ static struct board_type products[] = {  /*define
-how many times we will try a command because of bus resets */  #define
-MAX_CMD_RETRIES 3
- 
--#define READ_AHEAD 	 1024
- #define NR_CMDS		 384 /* #commands that can be
-outstanding */
- #define MAX_CTLR	32
- 
-@@ -1238,7 +1237,6 @@ static void cciss_update_drive_info(int 
- 		disk->queue = blk_init_queue(do_cciss_request,
-&h->lock);
- 
- 		/* Set up queue information */
--		disk->queue->backing_dev_info.ra_pages = READ_AHEAD;
- 		blk_queue_bounce_limit(disk->queue,
-hba[ctlr]->pdev->dma_mask);
- 
- 		/* This is a hardware imposed limit. */ @@ -3217,7
-+3215,6 @@ static int __devinit cciss_init_one(stru
- 		}
- 		drv->queue = q;
- 
--		q->backing_dev_info.ra_pages = READ_AHEAD;
- 		blk_queue_bounce_limit(q, hba[i]->pdev->dma_mask);
- 
- 		/* This is a hardware imposed limit. */
-
---
-Bruno Ducrot
-
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.

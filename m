@@ -1,60 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWCWPre@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbWCWPv3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932290AbWCWPre (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 10:47:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWCWPre
+	id S932468AbWCWPv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 10:51:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWCWPv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 10:47:34 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:59657 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S932290AbWCWPrd (ORCPT
+	Thu, 23 Mar 2006 10:51:29 -0500
+Received: from mgw1.diku.dk ([130.225.96.91]:28081 "EHLO mgw1.diku.dk")
+	by vger.kernel.org with ESMTP id S932446AbWCWPv2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 10:47:33 -0500
-Message-ID: <4422C316.5070305@cfl.rr.com>
-Date: Thu, 23 Mar 2006 10:47:34 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 23 Mar 2006 10:51:28 -0500
+Date: Thu, 23 Mar 2006 16:44:56 +0100 (CET)
+From: Jesper Dangaard Brouer <hawk@diku.dk>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: dipankar@in.ibm.com, Robert Olsson <Robert.Olsson@data.slu.se>,
+       jens.laas@data.slu.se, hans.liss@its.uu.se, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Eric Dumazet <dada1@cosmosbay.com>,
+       mike.stroyan@hp.com, Suresh Bhogavilli <sbhogavilli@verisign.com>
+Subject: Re: Kernel panic: Route cache, RCU, possibly FIB trie.
+In-Reply-To: <Pine.LNX.4.61.0603231536180.29788@ask.diku.dk>
+Message-ID: <Pine.LNX.4.61.0603231637360.29788@ask.diku.dk>
+References: <Pine.LNX.4.61.0603211113550.15500@ask.diku.dk>
+ <20060321.023705.26111240.davem@davemloft.net> <Pine.LNX.4.61.0603211538280.28173@ask.diku.dk>
+ <20060321.132514.24407022.davem@davemloft.net> <Pine.LNX.4.61.0603231536180.29788@ask.diku.dk>
 MIME-Version: 1.0
-To: Yogesh Pahilwan <pahilwan.yogesh@spsoftindia.com>
-CC: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: raw I/O support for Fedora Core 4
-References: <WM57DB3DF98115400697C908A54A80DEE9@spsoftindia.com>
-In-Reply-To: <WM57DB3DF98115400697C908A54A80DEE9@spsoftindia.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Mar 2006 15:47:34.0516 (UTC) FILETIME=[1A4DAB40:01C64E91]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14341.000
-X-TM-AS-Result: No--12.400000-5.000000-31
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The raw device driver is obsolete because it has been superseded by the 
-O_DIRECT open flag.  If you want to have dd perform unbuffered IO then 
-pass the iflag=direct option for input, or oflag=direct option for 
-output, and it will use O_DIRECT to bypass the buffer cache.
 
-This of course assumes that you mean "bypass the buffer cache" when you 
-say "raw io".
+On Thu, 23 Mar 2006, Jesper Dangaard Brouer wrote:
 
-Yogesh Pahilwan wrote:
-> Hi All,
-> 
-> I want to do raw I/O on MD RAID and LVM for fedora core 4(kernel 2.6.15.6).
-> 
-> After doing googling I came to know that "raw" command does the raw
-> operation by linking 
-> MD device and LVM volume to the raw device as 
-> 
-> # raw /dev/raw/raw1 /dev/md0.
-> 
-> But when I search on this I came to know that there is no raw (/dev/rawctl)
-> device support available with 2.6 kernel.
-> I have also tried recompile the kernel sources with raw device support it is
-> not getting compiled as it is obsolete in 2.6. 
-> If I want to include raw device support in my kernel what should I will have
-> to do, so that I 
-> Will be able to do raw I/O on MD device and LVM volumes.
-> 
-> Thanks and Regards,
-> Yogesh
-> 
+> On Tue, 21 Mar 2006, David S. Miller wrote:
+>
+>> From: Jesper Dangaard Brouer <hawk@diku.dk>
+>> Date: Tue, 21 Mar 2006 15:51:34 +0100 (CET)
+>> 
+>>> You guessed right... I did enable IP_ROUTE_MULTIPATH_CACHED, I have
+>>> now disabled it and equal multi path routing in general
+>>> (CONFIG_IP_ROUTE_MULTIPATH).
+>> 
+>> It is almost certainly the cause of your crashes, that code
+>> is still extremely raw and that's why it is listed as "EXPERIMENTAL".
+>
+> It seems your are right :-) (and I'll take more care of using experimental 
+> code on production again). The machine, has now been running for 34 hours 
+> without crashing.  The strange thing is that I'm running the same kernel on 
+> 30 other (similar) machines, which have not crashed.  (I do suspect the 
+> specific traffic load pattern to influence this)
 
+Argh!! -- nemesis!!! The machine, just died again...
+The machine did not crash it just ran out of memory, and killed too many 
+important processes.  I had to power recycle it... :-((( Could ping it...
+
+I can see that, the traffic pattern have changed and the route cache is 
+growing rapitly...
+
+
+> BUT, I do think I have noticed another problem in the garbage collection code 
+> (route.c), that causes the garbage collector (almost) never to garbage 
+> collect.
+>
+> This is caused by the value "ip_rt_max_size" 
+> (/proc/sys/net/ipv4/route/max_size)
+> being set too large.  It is set to 16 times the gc_thresh value (this size 
+> dependend on the memory size).  In the garbage collection function 
+> (rt_garbage_collect) garbage collecting entries are ignored (gc_ignored) if 
+> the number of entries are below "ip_rt_max_size".
+>
+> With 1Gb memory, gc_thresh=65536 times 16 is 1048576. Which means that we 
+> only start to garbage collect when there is more than 1 million entries. This 
+> seems wrong... (the reason it does not grow this large is the 600 second 
+> periodic flushes).
+>
+>
+> Hilsen
+> Jesper Brouer
+>
+> --
+> -------------------------------------------------------------------
+> Cand. scient datalog
+> Dept. of Computer Science, University of Copenhagen
+> -------------------------------------------------------------------
+>
+>
+> grep . /proc/sys/net/ipv4/route/*
+> /proc/sys/net/ipv4/route/error_burst:5000
+> /proc/sys/net/ipv4/route/error_cost:1000
+> grep: /proc/sys/net/ipv4/route/flush: Operation not permitted
+> /proc/sys/net/ipv4/route/gc_elasticity:8
+> /proc/sys/net/ipv4/route/gc_interval:60
+> /proc/sys/net/ipv4/route/gc_min_interval:0
+> /proc/sys/net/ipv4/route/gc_min_interval_ms:500
+> /proc/sys/net/ipv4/route/gc_thresh:65536
+> /proc/sys/net/ipv4/route/gc_timeout:300
+> /proc/sys/net/ipv4/route/max_delay:10
+> /proc/sys/net/ipv4/route/max_size:1048576
+> /proc/sys/net/ipv4/route/min_adv_mss:256
+> /proc/sys/net/ipv4/route/min_delay:2
+> /proc/sys/net/ipv4/route/min_pmtu:552
+> /proc/sys/net/ipv4/route/mtu_expires:600
+> /proc/sys/net/ipv4/route/redirect_load:20
+> /proc/sys/net/ipv4/route/redirect_number:9
+> /proc/sys/net/ipv4/route/redirect_silence:20480
+> /proc/sys/net/ipv4/route/secret_interval:600
+>
+>
+
+Hilsen
+   Jesper Brouer
+
+--
+-------------------------------------------------------------------
+Cand. scient datalog
+Dept. of Computer Science, University of Copenhagen
+-------------------------------------------------------------------

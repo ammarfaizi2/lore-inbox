@@ -1,75 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWCWCGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWCWCVS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbWCWCGN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 21:06:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWCWCGN
+	id S932068AbWCWCVS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 21:21:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWCWCVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 21:06:13 -0500
-Received: from lemon.ken.nicta.com.au ([203.143.174.44]:40141 "EHLO
-	lemon.gelato.unsw.edu.au") by vger.kernel.org with ESMTP
-	id S932376AbWCWCGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 21:06:12 -0500
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-Message-ID: <17442.650.874609.271109@berry.ken.nicta.com.au>
-Date: Thu, 23 Mar 2006 13:06:02 +1100
+	Wed, 22 Mar 2006 21:21:18 -0500
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:26215 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932068AbWCWCVR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 21:21:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=uBC6OmjCCi8JiAE65lFiZNBS8YIIMl98WqeZ67aeeZ383kLA/ZewTSjxWjg/2bXDCk/kgy+i1W+TzdUOv2rT4+Ynd9x/Ycbj82d8pdWgC+LozfXFjKL7MN7JV63twFnp+eFP2cJ4Hg+wK9R2HioskePH83kqgJpe0I/zmHmDR7I=  ;
+Message-ID: <44220614.1090101@yahoo.com.au>
+Date: Thu, 23 Mar 2006 13:21:08 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="y4keh+U5fs"
+To: Andrew Morton <akpm@osdl.org>
+CC: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, bob.picco@hp.com, iwamoto@valinux.co.jp,
+       christoph@lameter.com, wfg@mail.ustc.edu.cn, npiggin@suse.de,
+       torvalds@osdl.org, riel@redhat.com, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 00/34] mm: Page Replacement Policy Framework
+References: <20060322223107.12658.14997.sendpatchset@twins.localnet> <20060322145132.0886f742.akpm@osdl.org>
+In-Reply-To: <20060322145132.0886f742.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-To: shemminger@osdl.org
-CC: linux-kernel@vger.kernel.org
-X-Mailer: VM 7.19 under 21.4 (patch 19) "Constant Variable" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
-X-SA-Exim-Connect-IP: 203.143.160.117
-X-SA-Exim-Mail-From: peterc@gelato.unsw.edu.au
-Subject: [PATCH] Unaligned accesses in the ethernet bridge
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:39:27 +0000)
-X-SA-Exim-Scanned: Yes (on lemon.gelato.unsw.edu.au)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+> 
+>>
+>>This patch-set introduces a page replacement policy framework and 4 new 
+>>experimental policies.
+> 
+> 
+> Holy cow.
+> 
+> 
+>>The page replacement algorithm determines which pages to swap out.
+>>The current algorithm has some problems that are increasingly noticable, even
+>>on desktop workloads.
+> 
+> 
+> Rather than replacing the whole lot four times I'd really prefer to see
+> precise descriptions of these problems, see if we can improve the situation
+> incrementally rather than wholesale slash-n-burn...
+> 
 
-I see lots of
-	kernel unaligned access to 0xa0000001009dbb6f, ip=0xa000000100811591
-	kernel unaligned access to 0xa0000001009dbb6b, ip=0xa0000001008115c1
-	kernel unaligned access to 0xa0000001009dbb6d, ip=0xa0000001008115f1
-messages in my logs on IA64 when using the ethernet bridge with 2.6.16.
+The other thing is that a lot of the "policy" stuff you've abstracted
+out is actually low-level "mechanism" stuff that has implications beyond
+page reclaim. Taking a refcount on lru pages, for example.
 
+Also, as you work and find incremental improvements to the current code,
+you should be submitting them (eg. patch 25, or patch 1) rather than
+sitting on them and sending them in a huge patchset where they don't
+really belong.
 
-Appended is a patch to fix them.
+Some of the API names aren't very nice either. It's great that you want
+to keep the namespace consistent, but it shouldn't be at the expense of
+more descriptive names, and having the page_replace_ prefix itself makes
+many functions read like crap. I'd suggest something like a pgrep_
+prefix and try to make the rest of the name make sense.
 
-Signed-off-by: Peter Chubb <peterc@gelato.unsw.edu.au>
+Aside from all that, I'm with Andrew in that problems need to be
+identified first and foremost. But also I don't like the chances of this
+whole framework flying at all -- Linus vetoed a similar framework for
+sched.c that was actually a reasonable API, with little or no
+consequences outside sched.c. With good reason.
 
+Nice work, though :)
 
- net/bridge/br_stp_bpdu.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-Index: linux-2.6-import/net/bridge/br_stp_bpdu.c
-===================================================================
---- linux-2.6-import.orig/net/bridge/br_stp_bpdu.c	2006-03-22 09:11:01.349886375 +1100
-+++ linux-2.6-import/net/bridge/br_stp_bpdu.c	2006-03-23 12:52:13.719239205 +1100
-@@ -19,6 +19,7 @@
- #include <linux/llc.h>
- #include <net/llc.h>
- #include <net/llc_pdu.h>
-+#include <asm/unaligned.h>
- 
- #include "br_private.h"
- #include "br_private_stp.h"
-@@ -59,12 +60,12 @@ static inline void br_set_ticks(unsigned
- {
- 	unsigned long ticks = (STP_HZ * j)/ HZ;
- 
--	*((__be16 *) dest) = htons(ticks);
-+	put_unaligned(htons(ticks), (__be16 *)dest);
- }
- 
- static inline int br_get_ticks(const unsigned char *src)
- {
--	unsigned long ticks = ntohs(*(__be16 *)src);
-+	unsigned long ticks = ntohs(get_unaligned((__be16 *)src));
- 
- 	return (ticks * HZ + STP_HZ - 1) / STP_HZ;
- }
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

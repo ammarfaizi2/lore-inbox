@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWCWMtN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWCWNG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbWCWMtN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 07:49:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbWCWMtN
+	id S1751144AbWCWNG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 08:06:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWCWNG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 07:49:13 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:41351 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932533AbWCWMtM (ORCPT
+	Thu, 23 Mar 2006 08:06:59 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:8400 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1751144AbWCWNG6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 07:49:12 -0500
-Date: Thu, 23 Mar 2006 13:48:35 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: john stultz <johnstul@us.ibm.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, george@wildturkeyranch.net,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Ingo Molnar <mingo@elte.hu>, Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCHSET 0/10] Time: Generic Timekeeping (v.C1)
-In-Reply-To: <20060323030547.19338.95102.sendpatchset@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.64.0603231209380.17704@scrub.home>
-References: <20060323030547.19338.95102.sendpatchset@cog.beaverton.ibm.com>
+	Thu, 23 Mar 2006 08:06:58 -0500
+Date: Thu, 23 Mar 2006 21:14:39 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Con Kolivas <kernel@kolivas.org>,
+       linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>
+Subject: Re: [ck] 2.6.16-ck1
+Message-ID: <20060323131439.GA4700@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Con Kolivas <kernel@kolivas.org>,
+	linux list <linux-kernel@vger.kernel.org>,
+	ck list <ck@vds.kolivas.org>
+References: <200603202145.31464.kernel@kolivas.org> <20060323113118.GA9329@spherenet.spherevision.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060323113118.GA9329@spherenet.spherevision.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Rodney,
 
-On Wed, 22 Mar 2006, john stultz wrote:
+Thanks for your testing :)
 
-> Andrew, All,
-> 	Here is an updated version of the smaller, reworked and 
-> improved patchset I mailed out monday. Please consider for inclusion 
-> into your tree.
+On Thu, Mar 23, 2006 at 05:31:18AM -0600, Rodney Gordon II wrote:
+> Adaptive readahead: I had probs with this before, and I still do.. On
+> a desktop if you have odd problems (nothing responding for SECONDS,
+> very slow disk I/O during heavy I/O, etc..) disable it.
 
-It looks pretty good already. :)
-Give me a bit of time to rework the middle part a bit and if we can agree 
-to make the new gettimeofday functions optional for an arch, IMO it would 
-be ok for 2.6.17. I think the important part is to get the generic clock 
-infrastructure merged, so it can be used by other kernel parts, the 
-unification of performance sensitive parts can still be done on top of it 
-a bit later.
+Your problem on I/O latency with ara can be tracked down with the help
+of Ingo's latency tracing patch. It goes like this:
 
-One general comment: Currently clock relevant source is scattered in 
-kernel/time/, drivers/clocksource and arch/... IMO it would be better to 
-keep at least the first two parts a bit closer, although I'm not sure how 
-to organize it better. I don't know if we can be so bold to add a toplevel 
-time/ (similiar to sound/) or maybe we organize a bit like drivers/ide/. 
-Anyway, maybe someone has a good idea to keep everything a bit closer 
-together.
+1) download
+http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.16.tar.bz2
+http://www.vanheusden.com/ara/adaptive-readahead-11-2.6.16-rc6.patch.gz
+http://people.redhat.com/mingo/latency-tracing-patches/latency-tracing-v2.6.16.patch
 
-bye, Roman
+2)
+tar jxf linux-2.6.16.tar.bz2
+gunzip adaptive-readahead-11-2.6.16-rc6.patch.gz
+cd linux-2.6.16
+patch -p1 < ../adaptive-readahead-11-2.6.16-rc6.patch
+patch -p1 < ../latency-tracing-v2.6.16.patch
+
+3) compile kernel with Adaptive readahead support
+4) boot with the new kernel, and run
+echo 0 > /proc/sys/kernel/preempt_max_latency
+5) feel some latency problems
+6) report the content of /proc/latency_trace
+
+Thanks,
+Wu

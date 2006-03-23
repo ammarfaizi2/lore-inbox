@@ -1,248 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWCWOIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWCWOb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932155AbWCWOIE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 09:08:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWCWOIE
+	id S932279AbWCWOb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 09:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWCWOb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 09:08:04 -0500
-Received: from mx03.cybersurf.com ([209.197.145.106]:48306 "EHLO
-	mx03.cybersurf.com") by vger.kernel.org with ESMTP id S932155AbWCWOIA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 09:08:00 -0500
-Subject: Re: [RFC][UPDATED PATCH 2.6.16] [Patch 9/9] Generic netlink
-	interface for delay accounting
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: balbir@in.ibm.com
-Cc: Matt Helsley <matthltc@us.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       netdev <netdev@vger.kernel.org>
-In-Reply-To: <20060322074922.GA1164@in.ibm.com>
-References: <1142296834.5858.3.camel@elinux04.optonline.net>
-	 <1142297791.5858.31.camel@elinux04.optonline.net>
-	 <1142303607.24621.63.camel@stark> <1142304506.5219.34.camel@jzny2>
-	 <20060322074922.GA1164@in.ibm.com>
-Content-Type: text/plain
-Organization: unknown
-Date: Thu, 23 Mar 2006 09:04:46 -0500
-Message-Id: <1143122686.5186.27.camel@jzny2>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Mar 2006 09:31:57 -0500
+Received: from thunk.org ([69.25.196.29]:32180 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932181AbWCWOb4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 09:31:56 -0500
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+cc: linux-fsdevel@vger.kernel.org
+Subject: [PATCH] vfs: MS_VERBOSE should be MS_SILENT
+From: "Theodore Ts'o" <tytso@mit.edu>
+Phone: (781) 391-3464
+Message-Id: <E1FMQqv-0000qx-Cw@think.thunk.org>
+Date: Thu, 23 Mar 2006 09:31:53 -0500
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The meaning of MS_VERBOSE is backwards; if the bit is set, it really
+means, "don't be verbose".  This is confusing and counter-intuitive.
 
-Hi Balbir,
+In addition, there is also no way to set the MS_VERBOSE flag in mount,
+but interesting, the mount(8) program in util-linux, does define
+expect the existence of an MS_SILENT, which unfortunately we don't
+define:
 
-Looking good.
-This is a quick scan, so i didnt look at little details.
-Some comments embedded.
+#ifdef MS_SILENT
+  { "quiet",    0, 0, MS_SILENT    },   /* be quiet  */
+  { "loud",     0, 1, MS_SILENT    },   /* print out messages. */
+#endif
 
-On Wed, 2006-22-03 at 13:19 +0530, Balbir Singh wrote:
+So the obvious fix here is to deprecate the use of MS_VERBOSE and
+replace it with MS_SILENT.
 
+Signed-off-by: "Theodore Ts'o" <tytso@mit.edu>
 
-
-
->  
-
-> diff -puN /dev/null include/linux/taskstats.h
-
-> + * The struct is versioned. Newer versions should only add fields to
-> + * the bottom of the struct to maintain backward compatibility.
-> + *
-> + * To create the next version, bump up the taskstats_version variable
-> + * and delineate the start of newly added fields with a comment indicating
-> + * the version number.
-> + */
-> +
-
-
-
-> +enum {
-> +	TASKSTATS_MSG_UNICAST,		/* send data only to requester */
-> +	TASKSTATS_MSG_MULTICAST,	/* send data to a group */
-> +};
-> +
-
-Above will never be used outside of the kernel.
-Should it go under the ifdef kernel below?
-
-
-> +#ifdef __KERNEL__
-> +
-
-Note: some people will argue that you should probably have
-two header files. One for all kernel things and includes another
-which contains all the stuff above ifdef __KERNEL__
-
-> +
-> +#endif /* __KERNEL__ */
-> +#endif /* _LINUX_TASKSTATS_H */
-
-
-
-
-> diff -puN kernel/Makefile~delayacct-genetlink kernel/Makefile
-> --- linux-2.6.16/kernel/Makefile~delayacct-genetlink	2006-03-22 11:56:03.000000000 +0530
-> +++ linux-2.6.16-balbir/kernel/Makefile	2006-03-22 11:56:03.000000000 +0530
-
-> +
-> +const int taskstats_version = TASKSTATS_VERSION;
-> +static DEFINE_PER_CPU(__u32, taskstats_seqnum) = { 0 };
-> +static int family_registered = 0;
-> +
-> +static struct genl_family family = {
-> +	.id             = GENL_ID_GENERATE,
-> +	.name           = TASKSTATS_GENL_NAME,
-> +	.version        = TASKSTATS_GENL_VERSION,
-> +	.hdrsize        = 0,
-
-Do you need to specify hdrsize of 0?
-
-
-> +static int prepare_reply(struct genl_info *info, u8 cmd, struct sk_buff **skbp,
-> +			 void **replyp)
-> +{
-> +	struct sk_buff *skb;
-> +	void *reply;
-> +
-> +	skb = nlmsg_new(NLMSG_GOODSIZE);
-
-Ok,  getting a size of NLMSG_GOODSIZE is not a good idea. 
-The max size youll ever get it seems to me is 2*32-bit-data TLVs +
-sizeof struct stats. Why dont you allocate that size?
-
-> +	if (!skb)
-> +		return -ENOMEM;
-> +
-> +	if (!info) {
-> +		int seq = get_cpu_var(taskstats_seqnum)++;
-> +		put_cpu_var(taskstats_seqnum);
-> +
-> +		reply = genlmsg_put(skb, 0, seq,
-> +				    family.id, 0, NLM_F_REQUEST,
-> +				    cmd, family.version);
-
-Double check if you need NLM_F_REQUEST
-
-> +	} else
-> +		reply = genlmsg_put(skb, info->snd_pid, info->snd_seq,
-> +				    family.id, 0, info->nlhdr->nlmsg_flags,
-> +				    info->genlhdr->cmd, family.version);
-
-A Response to a GET is a NEW. So i dont think info->genlhdr->cmd is the
-right thing?
-
-
-
-
-
-> +static int taskstats_send_stats(struct sk_buff *skb, struct genl_info *info)
-> +{
-> +	int rc;
-> +	struct sk_buff *rep_skb;
-> +	struct taskstats stats;
-> +	void *reply;
-> +
-> +	memset(&stats, 0, sizeof(stats));
-> +	rc = prepare_reply(info, info->genlhdr->cmd, &rep_skb, &reply);
-
-Same comment as before: a response to a GET is a NEW; so
-info->genlhdr->cmd doesnt seem right.
-
-> +	if (rc < 0)
-> +		return rc;
-> +
-> +	if (info->attrs[TASKSTATS_CMD_ATTR_PID]) {
-> +		u32 pid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_PID]);
-> +		NLA_PUT_U32(rep_skb, TASKSTATS_TYPE_PID, pid);
-> +		rc = fill_pid((pid_t)pid, NULL, &stats);
-> +		if (rc < 0)
-> +			return rc;
-> +	}
-> +
-> +	if (info->attrs[TASKSTATS_CMD_ATTR_TGID]) {
-> +		u32 tgid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_TGID]);
-> +		NLA_PUT_U32(rep_skb, TASKSTATS_TYPE_TGID, tgid);
-> +		rc = fill_tgid((pid_t)tgid, NULL, &stats);
-> +		if (rc < 0)
-> +			return rc;
-> +	}
-> +
-
-Should there be at least either a pid or tgid? If yes, you need to
-validate here...
-
-> +	NLA_PUT_TYPE(rep_skb, struct taskstats, TASKSTATS_TYPE_STATS, stats);
-> +	return send_reply(rep_skb, info->snd_pid, TASKSTATS_MSG_UNICAST);
-> +
-> +nla_put_failure:
-> +	return genlmsg_cancel(rep_skb, reply);
-> +
-
-As a general comment double check your logic for errors; if you already
-have stashed something in the skb, you need to remove it etc.
-
-> +}
-> +
-> +
-> +/* Send pid data out on exit */
-> +void taskstats_exit_pid(struct task_struct *tsk)
-> +{
-> +	int rc;
-> +	struct sk_buff *rep_skb;
-> +	void *reply;
-> +	struct taskstats stats;
-> +
-> +	/*
-> +	 * tasks can start to exit very early. Ensure that the family
-> +	 * is registered before notifications are sent out
-> +	 */
-> +	if (!family_registered)
-> +		return;
-> +
-> +	memset(&stats, 0, sizeof(stats));
-> +	rc = prepare_reply(NULL, TASKSTATS_CMD_NEW, &rep_skb, &reply);
-> +	if (rc < 0)
-> +		return;
-> +
-> +	NLA_PUT_U32(rep_skb, TASKSTATS_TYPE_PID, (u32)tsk->pid);
-> +	rc = fill_pid(tsk->pid, tsk, &stats);
-> +	if (rc < 0)
-> +		return;
-> +
-> +	NLA_PUT_TYPE(rep_skb, struct taskstats, TASKSTATS_TYPE_STATS, stats);
-> +	rc = send_reply(rep_skb, 0, TASKSTATS_MSG_MULTICAST);
-> +
-> +	if (rc || thread_group_empty(tsk))
-> +		return;
-> +
-> +	/* Send tgid data too */
-> +	rc = prepare_reply(NULL, TASKSTATS_CMD_NEW, &rep_skb, &reply);
-> +	if (rc < 0)
-> +		return;
-> +
-
-A single message with PID+TGID sounds reasonable. Why two messages with
-two stats? all you will need to do is get rid of the prepare_reply()
-above and NLA_PUT_U32() below (just like you do in a response to a GET.
-
-> +	NLA_PUT_U32(rep_skb, TASKSTATS_TYPE_TGID, (u32)tsk->tgid);
-> +	rc = fill_tgid(tsk->tgid, tsk, &stats);
-> +	if (rc < 0)
-> +		return;
-> +
-> +	NLA_PUT_TYPE(rep_skb, struct taskstats, TASKSTATS_TYPE_STATS, stats);
-> +	send_reply(rep_skb, 0, TASKSTATS_MSG_MULTICAST);
-> +
-> +nla_put_failure:
-> +	genlmsg_cancel(rep_skb, reply);
-> +}
-
-
-Other than the above comments - I believe you have it right.
-
-cheers,
-jamal
-
+Index: 2.6.16-rc5/include/linux/fs.h
+===================================================================
+--- 2.6.16-rc5.orig/include/linux/fs.h	2006-03-14 07:31:33.000000000 -0500
++++ 2.6.16-rc5/include/linux/fs.h	2006-03-14 07:32:10.000000000 -0500
+@@ -102,7 +102,9 @@ extern int dir_notify_enable;
+ #define MS_BIND		4096
+ #define MS_MOVE		8192
+ #define MS_REC		16384
+-#define MS_VERBOSE	32768
++#define MS_VERBOSE	32768	/* War is peace. Verbosity is silence.
++				   MS_VERBOSE is deprecated. */
++#define MS_SILENT	32768
+ #define MS_POSIXACL	(1<<16)	/* VFS does not apply the umask */
+ #define MS_UNBINDABLE	(1<<17)	/* change to unbindable */
+ #define MS_PRIVATE	(1<<18)	/* change to private */
+Index: 2.6.16-rc5/fs/super.c
+===================================================================
+--- 2.6.16-rc5.orig/fs/super.c	2006-03-14 07:31:33.000000000 -0500
++++ 2.6.16-rc5/fs/super.c	2006-03-14 07:54:38.000000000 -0500
+@@ -712,7 +712,7 @@ struct super_block *get_sb_bdev(struct f
+ 		s->s_flags = flags;
+ 		strlcpy(s->s_id, bdevname(bdev, b), sizeof(s->s_id));
+ 		sb_set_blocksize(s, block_size(bdev));
+-		error = fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
++		error = fill_super(s, data, flags & MS_SILENT ? 1 : 0);
+ 		if (error) {
+ 			up_write(&s->s_umount);
+ 			deactivate_super(s);
+@@ -756,7 +756,7 @@ struct super_block *get_sb_nodev(struct 
+ 
+ 	s->s_flags = flags;
+ 
+-	error = fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
++	error = fill_super(s, data, flags & MS_SILENT ? 1 : 0);
+ 	if (error) {
+ 		up_write(&s->s_umount);
+ 		deactivate_super(s);
+@@ -785,7 +785,7 @@ struct super_block *get_sb_single(struct
+ 		return s;
+ 	if (!s->s_root) {
+ 		s->s_flags = flags;
+-		error = fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
++		error = fill_super(s, data, flags & MS_SILENT ? 1 : 0);
+ 		if (error) {
+ 			up_write(&s->s_umount);
+ 			deactivate_super(s);
+Index: 2.6.16-rc5/fs/afs/super.c
+===================================================================
+--- 2.6.16-rc5.orig/fs/afs/super.c	2006-03-14 07:31:33.000000000 -0500
++++ 2.6.16-rc5/fs/afs/super.c	2006-03-14 07:32:10.000000000 -0500
+@@ -341,7 +341,7 @@ static struct super_block *afs_get_sb(st
+ 
+ 	sb->s_flags = flags;
+ 
+-	ret = afs_fill_super(sb, &params, flags & MS_VERBOSE ? 1 : 0);
++	ret = afs_fill_super(sb, &params, flags & MS_SILENT ? 1 : 0);
+ 	if (ret < 0) {
+ 		up_write(&sb->s_umount);
+ 		deactivate_super(sb);
+Index: 2.6.16-rc5/fs/cifs/cifsfs.c
+===================================================================
+--- 2.6.16-rc5.orig/fs/cifs/cifsfs.c	2006-03-14 07:31:33.000000000 -0500
++++ 2.6.16-rc5/fs/cifs/cifsfs.c	2006-03-14 07:32:10.000000000 -0500
+@@ -479,7 +479,7 @@ cifs_get_sb(struct file_system_type *fs_
+ 
+ 	sb->s_flags = flags;
+ 
+-	rc = cifs_read_super(sb, data, dev_name, flags & MS_VERBOSE ? 1 : 0);
++	rc = cifs_read_super(sb, data, dev_name, flags & MS_SILENT ? 1 : 0);
+ 	if (rc) {
+ 		up_write(&sb->s_umount);
+ 		deactivate_super(sb);
+Index: 2.6.16-rc5/fs/jffs2/super.c
+===================================================================
+--- 2.6.16-rc5.orig/fs/jffs2/super.c	2006-03-14 07:31:33.000000000 -0500
++++ 2.6.16-rc5/fs/jffs2/super.c	2006-03-14 07:54:08.000000000 -0500
+@@ -152,7 +152,7 @@ static struct super_block *jffs2_get_sb_
+ 	sb->s_op = &jffs2_super_operations;
+ 	sb->s_flags = flags | MS_NOATIME;
+ 
+-	ret = jffs2_do_fill_super(sb, data, (flags&MS_VERBOSE)?1:0);
++	ret = jffs2_do_fill_super(sb, data, flags & MS_SILENT ? 1 : 0);
+ 
+ 	if (ret) {
+ 		/* Failure case... */
+@@ -257,7 +257,7 @@ static struct super_block *jffs2_get_sb(
+ 	}
+ 
+ 	if (imajor(nd.dentry->d_inode) != MTD_BLOCK_MAJOR) {
+-		if (!(flags & MS_VERBOSE)) /* Yes I mean this. Strangely */
++		if (!(flags & MS_SILENT))
+ 			printk(KERN_NOTICE "Attempt to mount non-MTD device \"%s\" as JFFS2\n",
+ 			       dev_name);
+ 		goto out;
+Index: 2.6.16-rc5/fs/nfs/inode.c
+===================================================================
+--- 2.6.16-rc5.orig/fs/nfs/inode.c	2006-03-14 07:31:33.000000000 -0500
++++ 2.6.16-rc5/fs/nfs/inode.c	2006-03-14 07:53:28.000000000 -0500
+@@ -1679,7 +1679,7 @@ static struct super_block *nfs_get_sb(st
+ 
+ 	s->s_flags = flags;
+ 
+-	error = nfs_fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
++	error = nfs_fill_super(s, data, flags & MS_SILENT ? 1 : 0);
+ 	if (error) {
+ 		up_write(&s->s_umount);
+ 		deactivate_super(s);
+@@ -1996,7 +1996,7 @@ static struct super_block *nfs4_get_sb(s
+ 
+ 	s->s_flags = flags;
+ 
+-	error = nfs4_fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
++	error = nfs4_fill_super(s, data, flags & MS_SILENT ? 1 : 0);
+ 	if (error) {
+ 		up_write(&s->s_umount);
+ 		deactivate_super(s);
+Index: 2.6.16-rc5/init/do_mounts.c
+===================================================================
+--- 2.6.16-rc5.orig/init/do_mounts.c	2006-03-11 22:17:00.000000000 -0500
++++ 2.6.16-rc5/init/do_mounts.c	2006-03-14 07:56:49.000000000 -0500
+@@ -19,7 +19,7 @@ extern int get_filesystem_list(char * bu
+ 
+ int __initdata rd_doload;	/* 1 = load RAM disk, 0 = don't load */
+ 
+-int root_mountflags = MS_RDONLY | MS_VERBOSE;
++int root_mountflags = MS_RDONLY | MS_SILENT;
+ char * __initdata root_device_name;
+ static char __initdata saved_root_name[64];
+ 

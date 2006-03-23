@@ -1,74 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbWCWWNz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWCWWQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932487AbWCWWNz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 17:13:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWCWWNz
+	id S932482AbWCWWQT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 17:16:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbWCWWQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 17:13:55 -0500
-Received: from c-24-127-65-6.hsd1.ca.comcast.net ([24.127.65.6]:42766 "EHLO
-	localhost") by vger.kernel.org with ESMTP id S932486AbWCWWNy (ORCPT
+	Thu, 23 Mar 2006 17:16:19 -0500
+Received: from gate.crashing.org ([63.228.1.57]:14284 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932482AbWCWWQT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 17:13:54 -0500
-Message-ID: <000401c64e9b$ffc0f150$9400a8c0@XMEN.local>
-From: "Uk Web Design" <UK-web-design-services@email.com>
-To: linux-kernel@vger.kernel.org
-Subject: Do you have your own websites? Please Read This Email
-Date: Thu, 23 Mar 2006 16:03:43 -0000
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 23 Mar 2006 17:16:19 -0500
+Subject: Re: [patch 06/13] powerpc: cell interrupt controller updates
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Arnd Bergmann <abergman@de.ibm.com>
+Cc: Paul Mackerras <paulus@samba.org>, cbe-oss-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       hpenner@de.ibm.com, stk@de.ibm.com,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       Milton Miller <miltonm@bga.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>
+In-Reply-To: <20060323203521.862355000@dyn-9-152-242-103.boeblingen.de.ibm.com>
+References: <20060323203423.620978000@dyn-9-152-242-103.boeblingen.de.ibm.com>
+	 <20060323203521.862355000@dyn-9-152-242-103.boeblingen.de.ibm.com>
+Content-Type: text/plain
+Date: Fri, 24 Mar 2006 09:15:52 +1100
+Message-Id: <1143152153.4257.28.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2670
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please reply to the email links below only
+On Thu, 2006-03-23 at 00:00 +0100, Arnd Bergmann wrote:
+> plain text document attachment (cell-pic-updates-3.diff)
+> The current interrupt controller setup on Cell is done
+> in a rather ad-hoc way with device tree properties
+> that are not standardized at all.
+> 
+> In an attempt to do something that follows the OF standard
+> (or at least the IBM extensions to it) more closely,
+> we have now come up with this patch. It still provides
+> a fallback to the old behaviour when we find older firmware,
+> that hack can not be removed until the existing customer
+> installations have upgraded.
 
-Does your website present a professional image?
-Is your website better than your competitors?
-Is your website giving visitors an experience they'll remember?
-Are you satisfied with your website results?
-Do you keep your site content up to date?
-Are you happy with the service of your current website company?
+BTW... You still use __ioremap(...,PAGE_NO_CACHE); which I think won't
+give you guarded... I wouldn'd do that if I were you... The accessors
+should have barriers but still...
 
-Located in the UK, we can help you to say yes to all of the above and even
-with all of our expertise, our prices are still very competitive for the
-quality of our work.
-
-Our many years of experience has allowed us to help hundreds of businesses
-around the world to achieve their goals with their websites. Would you like
-us to help you as well?
-
-Email us now at new_website4_you@lycos.com to see examples of our work
-and we'll also send you a simple form that you can use to list out your
-requirements and contact details for us to give you an estimate.
-
-We can use creative graphic designers to develop the visual impact your
-website needs together with skilled programming that can integrate all of
-your required online sales and marketing functionality into this new visual
-experience to make your website deliver the results that you require.
-
-Our Search Engine specialists can even help with marketing and even teach
-you all that you need to know to really explode your internet business.
-
-So, whether you want to advertise your business more effectively, reach a
-larger catchment area or sell in the global market; WE have the BEST
-solution for you.
-
-Email us now at new_website4_you@lycos.com to see examples of our work
-and we'll also send you a simple form that you can use to list out your
-requirements and contact details for us to give you an estimate.
-
-You are receiving this message because your email address was used on one of
-our web sites. If your email address was used without your permission or you
-no longer want to receive email from us, we apologise for any inconvenience
-caused and ask that you simply email new_website4_you@lycos.com putting
-remove as the subject. If you are sending from another email address, please
-include the email address that you want removed.
-
-
+Ben.
 
 

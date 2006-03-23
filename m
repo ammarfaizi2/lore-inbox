@@ -1,92 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWCWRbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932470AbWCWRbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbWCWRbA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 12:31:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbWCWRbA
+	id S932470AbWCWRbl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 12:31:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbWCWRbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 12:31:00 -0500
-Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:63167 "EHLO
-	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S932470AbWCWRa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 12:30:59 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Thu, 23 Mar 2006 17:30:56 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH 14/14] NTFS: 2.1.27 - Various bug fixes and cleanups.
-In-Reply-To: <Pine.LNX.4.64.0603231729160.18984@hermes-2.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.64.0603231730150.18984@hermes-2.csi.cam.ac.uk>
-References: <Pine.LNX.4.64.0603231713430.18984@hermes-2.csi.cam.ac.uk>
- <Pine.LNX.4.64.0603231717460.18984@hermes-2.csi.cam.ac.uk>
- <Pine.LNX.4.64.0603231720130.18984@hermes-2.csi.cam.ac.uk>
- <Pine.LNX.4.64.0603231721240.18984@hermes-2.csi.cam.ac.uk>
- <Pine.LNX.4.64.0603231722330.18984@hermes-2.csi.cam.ac.uk>
- <Pine.LNX.4.64.0603231723320.18984@hermes-2.csi.cam.ac.uk>
- <Pine.LNX.4.64.0603231724200.18984@hermes-2.csi.cam.ac.uk>
- <Pine.LNX.4.64.0603231724570.18984@hermes-2.csi.cam.ac.uk>
- <Pine.LNX.4.64.0603231725420.18984@hermes-2.csi.cam.ac.uk>
- <Pine.LNX.4.64.0603231726250.18984@hermes-2.csi.cam.ac.uk>
- <Pine.LNX.4.64.0603231727040.18984@hermes-2.csi.cam.ac.uk>
- <Pine.LNX.4.64.0603231727450.18984@hermes-2.csi.cam.ac.uk>
- <Pine.LNX.4.64.0603231728310.18984@hermes-2.csi.cam.ac.uk>
- <Pine.LNX.4.64.0603231729160.18984@hermes-2.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 23 Mar 2006 12:31:40 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:49132 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932674AbWCWRbj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 12:31:39 -0500
+Date: Thu, 23 Mar 2006 11:30:48 -0600
+From: Jon Mason <jdmason@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Muli Ben-Yehuda <mulix@mulix.org>, Jon Mason <jdmason@us.ibm.com>,
+       Muli Ben-Yehuda <muli@il.ibm.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 3/3] x86-64: Calgary IOMMU - hook it in
+Message-ID: <20060323173047.GA30099@us.ibm.com>
+References: <20060320084848.GA21729@granada.merseine.nu> <20060320085416.GB21729@granada.merseine.nu> <20060320085641.GC21729@granada.merseine.nu> <200603231736.44223.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603231736.44223.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NTFS: 2.1.27 - Various bug fixes and cleanups.
+On Thu, Mar 23, 2006 at 05:36:43PM +0100, Andi Kleen wrote:
+> On Monday 20 March 2006 09:56, Muli Ben-Yehuda wrote:
+> > This patch hooks Calgary into the build and the x86-64 IOMMU
+> > initialization paths.
+> 
+> Needs more description
+> 
+> > diff -Naurp --exclude-from /home/muli/w/dontdiff iommu_detected/arch/x86_64/Kconfig linux/arch/x86_64/Kconfig
+> > --- iommu_detected/arch/x86_64/Kconfig	2006-03-20 09:12:23.000000000 +0200
+> > +++ linux/arch/x86_64/Kconfig	2006-03-20 09:30:10.000000000 +0200
+> > @@ -372,6 +372,19 @@ config GART_IOMMU
+> >  	  and a software emulation used on other systems.
+> >  	  If unsure, say Y.
+> >  
+> > +config CALGARY_IOMMU
+> > +	bool "IBM x366 server IOMMU"
+> > +	default y
+> > +	depends on PCI && MPSC && EXPERIMENTAL
+> 
+> && MPSC is wrong. First most kernels are GENERIC and then even a K8 optimized
+> kernel should support all hardware. Just drop it.
 
-Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+We have a recent modification to this chunk which does both generic and
+em64t.  Since IBM only ships this chip on em64t systems, have the option
+on amd64 seems wrong.
 
----
+> > +	help
+> > +	  Support for hardware IOMMUs in IBM's xSeries x366 and x460
+> > +	  systems. Needed to run systems with more than 3GB of memory
+> > +	  properly with 32-bit PCI devices that do not support DAC
+> > +	  (Double Address Cycle).  The IOMMU can be turned off at
+> > +	  boot time with the iommu=off parameter.  Normally the kernel
+> > +	  will make the right choice by iteself.
+> > +	  If unsure, say Y.
+> 
+> If it does isolation then it has much more advantages than that
+> by protecting against buggy devices and drivers and is also useful
+> for debugging. You should mention that.
 
-Best regards,
+Will do.
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+> > +static int __init pci_iommu_init(void)
+> > +{
+> > +	int rc = 0;
+> > +
+> > +#ifdef CONFIG_GART_IOMMU
+> > +	rc = gart_iommu_init();
+> > +	if (!rc) /* success? */
+> > +		return 0;
+> > +#endif
+> > +#ifdef CONFIG_CALGARY_IOMMU
+> > +	rc = calgary_iommu_init();
+> > +#endif
+> 
+> This is weird. Normally I would expect you to detect the calgary thing first
+> and only then run the gart_iommu detection if not found. Why this order?
+> 
+> 
+> Fixing that would also not require adding the additional hacks to gart iommu
+> you added.
 
- Documentation/filesystems/ntfs.txt |    5 +++++
- fs/ntfs/super.c                    |    2 +-
- 2 files changed, 6 insertions(+), 1 deletions(-)
+I'll look into this.
 
-e750d1c7cc314b9ba1934b0b474b7d39f906f865
-diff --git a/Documentation/filesystems/ntfs.txt b/Documentation/filesystems/ntfs.txt
-index 2511685..638cbd3 100644
---- a/Documentation/filesystems/ntfs.txt
-+++ b/Documentation/filesystems/ntfs.txt
-@@ -457,6 +457,11 @@ ChangeLog
- 
- Note, a technical ChangeLog aimed at kernel hackers is in fs/ntfs/ChangeLog.
- 
-+2.1.27:
-+	- Implement page migration support so the kernel can move memory used
-+	  by NTFS files and directories around for management purposes.
-+	- Add support for writing to sparse files created with Windows XP SP2.
-+	- Many minor improvements and bug fixes.
- 2.1.26:
- 	- Implement support for sector sizes above 512 bytes (up to the maximum
- 	  supported by NTFS which is 4096 bytes).
-diff --git a/fs/ntfs/super.c b/fs/ntfs/super.c
-index 6816eda..7646b50 100644
---- a/fs/ntfs/super.c
-+++ b/fs/ntfs/super.c
-@@ -3090,7 +3090,7 @@ static void ntfs_big_inode_init_once(voi
- struct kmem_cache *ntfs_attr_ctx_cache;
- struct kmem_cache *ntfs_index_ctx_cache;
- 
--/* Driver wide semaphore. */
-+/* Driver wide mutex. */
- DEFINE_MUTEX(ntfs_lock);
- 
- static struct super_block *ntfs_get_sb(struct file_system_type *fs_type,
--- 
-1.2.3.g9821
+> 
+> > -/* Must execute after PCI subsystem */
+> > -fs_initcall(pci_iommu_init);
+> 
+> So where is it called now?
 
+It is called in arch/x86_64/kernel/pci-dma.c
+
+> 
+> > +#ifdef CONFIG_CALGARY_IOMMU 
+> > +		if (!memcmp(from,"calgary=",8)) { 
+> > +			calgary_parse_options(from+8);
+> > +		}
+> > +#endif
+> 
+> Why does this need to be an early option? 
+
+Because we need to know the size of the translation tables early, so
+that we can alloc them from bootmem.
+
+Thanks,
+Jon
+> 
+> 
+> -Andi

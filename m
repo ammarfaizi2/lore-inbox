@@ -1,59 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWCWGKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWCWGU6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751162AbWCWGKA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 01:10:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWCWGJ7
+	id S1751204AbWCWGU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 01:20:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWCWGU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 01:09:59 -0500
-Received: from nproxy.gmail.com ([64.233.182.198]:18107 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751162AbWCWGJ6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 01:09:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tt2r4L9VTB/6pxv736fSAaNI+fSSmKArSGZjLSDXIc21fzPYSobvwA1ZeFqyoTVEHB0TxCMpz0vSz3ns0w8UwcMXRNft9NCDohlRpmAj1sPqHnPC6Q8J5EUCgDlQufWJOF+WVFeLQmRFEj6E+4XyHLhtT/gI3rTQlkkPhzL1PR4=
-Message-ID: <21d7e9970603222209r45beeb99nccc6435b99b79154@mail.gmail.com>
-Date: Thu, 23 Mar 2006 17:09:56 +1100
-From: "Dave Airlie" <airlied@gmail.com>
-To: linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [Linux-fbdev-devel] [PATCH] [git tree] Intel i9xx support for intelfb
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       sylvain.meyer@worldonline.fr, akpm@osdl.org
-In-Reply-To: <b00ca3bd0603222159t63ea0f4j38e085ecff5b93c8@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <21d7e9970603221820p5c89e46fgbd9878a3c60eac0a@mail.gmail.com>
-	 <b00ca3bd0603222159t63ea0f4j38e085ecff5b93c8@mail.gmail.com>
+	Thu, 23 Mar 2006 01:20:58 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:18141 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751204AbWCWGU5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 01:20:57 -0500
+Subject: Re: [trival patch]disable warning in cpu_init for cpu hotplug
+From: Shaohua Li <shaohua.li@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060322213240.6ab28346.akpm@osdl.org>
+References: <1143091268.11430.49.camel@sli10-desk.sh.intel.com>
+	 <20060322213240.6ab28346.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 23 Mar 2006 14:19:39 +0800
+Message-Id: <1143094779.11430.55.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-03-22 at 21:32 -0800, Andrew Morton wrote:
+> Shaohua Li <shaohua.li@intel.com> wrote:
 > >
-> > This code isn't perfect but I've got no documentation so I cannot
-> > answer some questions on what exactly is going on just yet...
->
-> Better than nothing, and if it works for digital displays, then that
-> would be great.
+> > The patch seems missed.
+> >  GFP_KERNEL isn't ok for runtime (cpu hotplug).
+> > 
+> >  Signed-off-by: Shaohua Li<shaohua.li@intel.com>
+> >  ---
+> > 
+> >   linux-2.6.15-root/arch/i386/kernel/cpu/common.c |    2 +-
+> >   1 files changed, 1 insertion(+), 1 deletion(-)
+> > 
+> >  diff -puN arch/i386/kernel/cpu/common.c~cpuhp arch/i386/kernel/cpu/common.c
+> >  --- linux-2.6.15/arch/i386/kernel/cpu/common.c~cpuhp	2006-03-14 12:13:43.000000000 +0800
+> >  +++ linux-2.6.15-root/arch/i386/kernel/cpu/common.c	2006-03-14 12:14:12.000000000 +0800
+> >  @@ -605,7 +605,7 @@ void __devinit cpu_init(void)
+> >   		/* alloc_bootmem_pages panics on failure, so no check */
+> >   		memset(gdt, 0, PAGE_SIZE);
+> >   	} else {
+> >  -		gdt = (struct desc_struct *)get_zeroed_page(GFP_KERNEL);
+> >  +		gdt = (struct desc_struct *)get_zeroed_page(GFP_ATOMIC);
+> >   		if (unlikely(!gdt)) {
+> >   			printk(KERN_CRIT "CPU%d failed to allocate GDT\n", cpu);
+> >   			for (;;)
+> 
+> 
+> This isn't good.  GFP_ATOMIC can fail, and if it does, we'll lose this CPU
+> and probably the entire machine.  It's OK to do this during initial boot,
+> but not so OK to do it during CPU hotplug.
+> 
+> So can we please fix it better?
+> 
+> You don't describe _why_ the CPU is running atomically here - I wish you had.
+> 
+> One approach would be to allocate the page earlier, before we enter the
+> atomic region, and to pass that page down to cpu_init(), or to save a
+> pointer to it in an array of page*'s somewhere.
+Thanks for the suggestion. Here is the updated patch.
+The patch fixes two issues:
+1. cpu_init is called with interrupt disabled. Allocating gdt table
+there isn't good at runtime.
+2. gdt table page cause memory leak in CPU hotplug case.
 
-It doesn't support LVDS or DVI yet but I'm hoping to make it go in
-that direction, I've no LVDS h/w, and some chipsets have it integrated
-and some don't, but this is a better basis for future work, and I'll
-have no problems keeping it updated with fixes as they come from the
-X.org driver... I'd like to get at least LVDS support working for
-laptop users with these chipsets, getting DVI working is a bit more
-work as there are external chips that need to be driven over i2c, so
-I'll need to at least add i2c support to the i8xx driver. (I noticed
-Sylvain has done some of this work before)..... I'd like to expose i2c
-buses to userspace anyways....
+Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+---
 
-> There's no git tree for the framebuffer layer, I just send updates
-> directly to akpm. Andrew?
->
+ linux-2.6.16-root/arch/i386/kernel/cpu/common.c |    8 +++++++-
+ linux-2.6.16-root/arch/i386/kernel/smpboot.c    |   13 +++++++++++++
+ 2 files changed, 20 insertions(+), 1 deletion(-)
 
-I'd like to keep the git history if possible, so maybe we can pull
-this tree into -mm and I can get it pulled by Linus later.
+diff -puN arch/i386/kernel/cpu/common.c~gdt_table arch/i386/kernel/cpu/common.c
+--- linux-2.6.16/arch/i386/kernel/cpu/common.c~gdt_table	2006-03-22 11:57:56.000000000 +0800
++++ linux-2.6.16-root/arch/i386/kernel/cpu/common.c	2006-03-22 12:10:04.000000000 +0800
+@@ -594,6 +594,12 @@ void __devinit cpu_init(void)
+ 		set_in_cr4(X86_CR4_TSD);
+ 	}
+ 
++	/* The CPU hotplug case */
++	if (cpu_gdt_descr->address) {
++		gdt = (struct desc_struct *)cpu_gdt_descr->address;
++		memset(gdt, 0, PAGE_SIZE);
++		goto old_gdt;
++	}
+ 	/*
+ 	 * This is a horrible hack to allocate the GDT.  The problem
+ 	 * is that cpu_init() is called really early for the boot CPU
+@@ -612,7 +618,7 @@ void __devinit cpu_init(void)
+ 				local_irq_enable();
+ 		}
+ 	}
+-
++old_gdt:
+ 	/*
+ 	 * Initialize the per-CPU GDT with the boot GDT,
+ 	 * and set up the GDT descriptor:
+diff -puN arch/i386/kernel/smpboot.c~gdt_table arch/i386/kernel/smpboot.c
+--- linux-2.6.16/arch/i386/kernel/smpboot.c~gdt_table	2006-03-22 12:01:41.000000000 +0800
++++ linux-2.6.16-root/arch/i386/kernel/smpboot.c	2006-03-22 12:18:28.000000000 +0800
+@@ -1027,6 +1027,7 @@ int __devinit smp_prepare_cpu(int cpu)
+ 	struct warm_boot_cpu_info info;
+ 	struct work_struct task;
+ 	int	apicid, ret;
++	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, cpu);
+ 
+ 	lock_cpu_hotplug();
+ 
+@@ -1045,6 +1046,18 @@ int __devinit smp_prepare_cpu(int cpu)
+ 		goto exit;
+ 	}
+ 
++	/*
++	 * the CPU isn't initialized at boot time, allocate gdt table here.
++	 * cpu_init will initialize it
++	 */
++	if (!cpu_gdt_descr->address) {
++		cpu_gdt_descr->address = get_zeroed_page(GFP_KERNEL);
++		if (!cpu_gdt_descr->address)
++			printk(KERN_CRIT "CPU%d failed to allocate GDT\n", cpu);
++			ret = -ENOMEM;
++			goto exit;
++	}
++
+ 	info.complete = &done;
+ 	info.apicid = apicid;
+ 	info.cpu = cpu;
+_
 
-Regards,
-Dave
+
+

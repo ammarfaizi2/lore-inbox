@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422638AbWCWSL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751478AbWCWSMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422638AbWCWSL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 13:11:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWCWSL3
+	id S1751478AbWCWSMI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 13:12:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWCWSMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 13:11:29 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:16571 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751398AbWCWSL2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 13:11:28 -0500
-Subject: Re: 2.6.16-git6: build failure: ne2k-pci: footbridge_defconfig
-From: Arjan van de Ven <arjan@infradead.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060323174014.GF25849@flint.arm.linux.org.uk>
-References: <20060323164109.GD25849@flint.arm.linux.org.uk>
-	 <1143132732.3147.33.camel@laptopd505.fenrus.org>
-	 <20060323165558.GE25849@flint.arm.linux.org.uk>
-	 <20060323174014.GF25849@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Thu, 23 Mar 2006 19:11:24 +0100
-Message-Id: <1143137484.3147.38.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 23 Mar 2006 13:12:07 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:7000 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1422639AbWCWSMG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 13:12:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=j7c/jKn9B1XCzkwK7cDQTA1rhsgXP6jYIYBxig2DGLJBv4YxRkFTBRmtedwtdKSdv+bUid2m4Rn8DXMmrwK21pRv8+a+RluRn2fx05wqubqQVfGNuJSKiQ8VTrKkoApde3cqBaCIwCqzQv8oRtPS+iXHfh7HnZ5X9YFwyFeLDeA=
+Message-ID: <d120d5000603231012h1c0f5s8ecde64e67641317@mail.gmail.com>
+Date: Thu, 23 Mar 2006 13:12:05 -0500
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "Stas Sergeev" <stsp@aknet.ru>
+Subject: Re: [patch 1/1] pc-speaker: add SND_SILENT
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+In-Reply-To: <4422E2DA.7050305@aknet.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200603220652.k2M6qZgi020656@shell0.pdx.osdl.net>
+	 <d120d5000603221332n6a6f9208x5651dc9ec993f4bf@mail.gmail.com>
+	 <4422318C.407@aknet.ru>
+	 <d120d5000603230651p6b43aad9ocad1aa3c2b51b388@mail.gmail.com>
+	 <4422E2DA.7050305@aknet.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-23 at 17:40 +0000, Russell King wrote:
-> On Thu, Mar 23, 2006 at 04:55:58PM +0000, Russell King wrote:
-> > On Thu, Mar 23, 2006 at 05:52:12PM +0100, Arjan van de Ven wrote:
-> > > On Thu, 2006-03-23 at 16:41 +0000, Russell King wrote:
-> > > > Building the ARM footbridge_defconfig provokes this build error:
-> > > > 
-> > > >   CC      drivers/net/ne2k-pci.o
-> > > > drivers/net/ne2k-pci.c:123: error: pci_clone_list causes a section type conflict
-> > > > make[2]: *** [drivers/net/ne2k-pci.o] Error 1
-> > > > make[1]: *** [drivers/net] Error 2
-> > > > make: *** [drivers] Error 2
-> > > > make: Leaving directory `/var/tmp/kernel-orig'
-> > > > 
-> > > > static const struct {
-> > > >         char *name;
-> > > >         int flags;
-> > > > } pci_clone_list[] __devinitdata = {
-> > > > 
-> > > > const data can't be __devinitdata.
-> > > 
-> > > 
-> > > that's a gcc bug; probably arm specific even?
-> > 
-> > It's gcc 4.01... the kautobuild folk are going to try gcc 4.04 instead.
-> 
-> Actually, given that it also appears with gcc 3.3, I'd like to request
-> that the change (along with all the other const __devinitdata's) are
-> backed out.
+On 3/23/06, Stas Sergeev <stsp@aknet.ru> wrote:
+>
+> > Because
+> > next time you want to disable for example a framebuffer driver because
+> > you have written better one and you are back to square 1.
+> The difference is that the snd-pcsp and pcspkr drivers are doing the
+> completely different tasks. snd-pcsp doesn't absolete pcspkr - being
+> an ALSA driver it only plays sound, but doesn't do the console beeps,
+> thats the problem. Somehow I have to make sure they both can peacefully
+> co-exist. Making them mutually exclusive is bad, and making them
+> dependant (by calling into each other directly) is also rather bad.
+>
 
-ok that's entirely reasonable and I'm perfectly ok with that.
+OK, you need to tell me again what snd_pcsp and what exactly it
+functions are, because I am confised at the moment. If it is just for
+playing sounds/music through PC speaker then I don't understand why
+you want to disable pcspkr driver - if people don't like terminal
+beeps they can disable it.
 
-
+--
+Dmitry

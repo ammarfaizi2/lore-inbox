@@ -1,50 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWCWKSw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWCWKUA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbWCWKSw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 05:18:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWCWKSw
+	id S932232AbWCWKUA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 05:20:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWCWKUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 05:18:52 -0500
-Received: from webmailv3.ispgateway.de ([80.67.16.113]:64919 "EHLO
-	webmailv3.ispgateway.de") by vger.kernel.org with ESMTP
-	id S932179AbWCWKSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 05:18:51 -0500
-Message-ID: <1143109112.442275f83c95e@www.domainfactory-webmail.de>
-Date: Thu, 23 Mar 2006 11:18:32 +0100
-From: Clemens Ladisch <clemens@ladisch.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: abergman@de.ibm.com, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] hpet header sanitization
-References: <20060321144607.153d1943.rdunlap@xenotime.net> <200603221118.43853.abergman@de.ibm.com> <20060322111446.GA7675@turing.informatik.uni-halle.de> <20060322090125.8fc13711.rdunlap@xenotime.net>
-In-Reply-To: <20060322090125.8fc13711.rdunlap@xenotime.net>
-MIME-Version: 1.0
+	Thu, 23 Mar 2006 05:20:00 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:63699 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932267AbWCWKT7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 05:19:59 -0500
+Date: Thu, 23 Mar 2006 11:19:57 +0100
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org
+Subject: [patch] s390: channel path measurements fixups.
+Message-ID: <20060323111957.1bbeedb6@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <20060323104722.4183efbb@gondolin.boeblingen.de.ibm.com>
+References: <20060322151539.GC5801@skybase.boeblingen.de.ibm.com>
+	<20060322132655.79d85b61.akpm@osdl.org>
+	<20060323104722.4183efbb@gondolin.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.13; i486-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.8
-X-Originating-IP: 213.238.46.206
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> On Wed, 22 Mar 2006 12:14:46 +0100 Clemens Ladisch wrote:
-> > There isn't any program (except the example in the docs) that
-> > uses any of these ioctls, and I'm writing patches to make this
-> > device available through portable timer APIs like hrtimer/POSIX
-> > clocks/ALSA that are much easier to use besides, so I think it
-> > would be a good idea to just schedule these ioctls for removal.
->
-> How do you (or can you) know that there are no programs that use
-> that ioctl?
+[patch] s390: channel path measurements fixups.
 
-Because most parts of hpet.c were orignially written on an emulator
-and were so buggy as to be effectively unusable until recently.
+- Don't inline __chsc_do_secm().
+- Use direct initialization instead of struct initializers for
+  chsc_header. gcc generates better code that way.
 
-Additionally, there aren't many BIOSes out there that manage to
-initialize the third HPET timer (the one used by these ioctls)
-correctly, or that bother to enable the HPET device at all.  (This
-seems to be changing due to the Windows Vista logo requirements.)
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+CC: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
+ chsc.c |   44 +++++++++++++++-----------------------------
+ 1 file changed, 15 insertions(+), 29 deletions(-)
 
-Regards,
-Clemens
-
+diff -Naurp linux-2.6.16-mm1/drivers/s390/cio/chsc.c linux-2.6.16-mm1+CH/drivers/s390/cio/chsc.c
+--- linux-2.6.16-mm1/drivers/s390/cio/chsc.c	2006-03-23 11:01:03.000000000 +0100
++++ linux-2.6.16-mm1+CH/drivers/s390/cio/chsc.c	2006-03-23 11:01:37.000000000 +0100
+@@ -98,10 +98,8 @@ chsc_get_sch_desc_irq(struct subchannel 
+ 
+ 	ssd_area = page;
+ 
+-	ssd_area->request = (struct chsc_header) {
+-		.length = 0x0010,
+-		.code   = 0x0004,
+-	};
++	ssd_area->request.length = 0x0010;
++	ssd_area->request.code = 0x0004;
+ 
+ 	ssd_area->ssid = sch->schid.ssid;
+ 	ssd_area->f_sch = sch->schid.sch_no;
+@@ -517,10 +515,8 @@ chsc_process_crw(void)
+ 		struct device *dev;
+ 		memset(sei_area, 0, sizeof(*sei_area));
+ 		memset(&res_data, 0, sizeof(struct res_acc_data));
+-		sei_area->request = (struct chsc_header) {
+-			.length = 0x0010,
+-			.code   = 0x000e,
+-		};
++		sei_area->request.length = 0x0010;
++		sei_area->request.code = 0x000e;
+ 
+ 		ccode = chsc(sei_area);
+ 		if (ccode > 0)
+@@ -1018,7 +1014,7 @@ cleanup:
+ }
+ 
+ 
+-static inline int
++static int
+ __chsc_do_secm(struct channel_subsystem *css, int enable, void *page)
+ {
+ 	struct {
+@@ -1041,10 +1037,8 @@ __chsc_do_secm(struct channel_subsystem 
+ 	int ret, ccode;
+ 
+ 	secm_area = page;
+-	secm_area->request = (struct chsc_header) {
+-		.length = 0x0050,
+-		.code   = 0x0016,
+-	};
++	secm_area->request.length = 0x0050;
++	secm_area->request.code = 0x0016;
+ 
+ 	secm_area->key = PAGE_DEFAULT_KEY;
+ 	secm_area->cub_addr1 = (u64)(unsigned long)css->cub_addr1;
+@@ -1256,10 +1250,8 @@ chsc_determine_channel_path_description(
+ 	if (!scpd_area)
+ 		return -ENOMEM;
+ 
+-	scpd_area->request = (struct chsc_header) {
+-		.length = 0x0010,
+-		.code   = 0x0002,
+-	};
++	scpd_area->request.length = 0x0010;
++	scpd_area->request.code = 0x0002;
+ 
+ 	scpd_area->first_chpid = chpid;
+ 	scpd_area->last_chpid = chpid;
+@@ -1355,10 +1347,8 @@ chsc_get_channel_measurement_chars(struc
+ 	if (!scmc_area)
+ 		return -ENOMEM;
+ 
+-	scmc_area->request = (struct chsc_header) {
+-		.length = 0x0010,
+-		.code   = 0x0022,
+-	};
++	scmc_area->request.length = 0x0010;
++	scmc_area->request.code = 0x0022;
+ 
+ 	scmc_area->first_chpid = chp->id;
+ 	scmc_area->last_chpid = chp->id;
+@@ -1526,10 +1516,8 @@ chsc_enable_facility(int operation_code)
+ 	sda_area = (void *)get_zeroed_page(GFP_KERNEL|GFP_DMA);
+ 	if (!sda_area)
+ 		return -ENOMEM;
+-	sda_area->request = (struct chsc_header) {
+-		.length = 0x0400,
+-		.code = 0x0031,
+-	};
++	sda_area->request.length = 0x0400;
++	sda_area->request.code = 0x0031;
+ 	sda_area->operation_code = operation_code;
+ 
+ 	ret = chsc(sda_area);
+@@ -1584,10 +1572,8 @@ chsc_determine_css_characteristics(void)
+ 		return -ENOMEM;
+ 	}
+ 
+-	scsc_area->request = (struct chsc_header) {
+-		.length = 0x0010,
+-		.code   = 0x0010,
+-	};
++	scsc_area->request.length = 0x0010;
++	scsc_area->request.code = 0x0010;
+ 
+ 	result = chsc(scsc_area);
+ 	if (result) {

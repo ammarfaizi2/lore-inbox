@@ -1,55 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWCWFx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWCWFzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbWCWFx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 00:53:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWCWFx3
+	id S1751121AbWCWFzF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 00:55:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbWCWFzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 00:53:29 -0500
-Received: from mail.gmx.net ([213.165.64.20]:55507 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750782AbWCWFx2 (ORCPT
+	Thu, 23 Mar 2006 00:55:05 -0500
+Received: from mail.kroah.org ([69.55.234.183]:14570 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751121AbWCWFzC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 00:53:28 -0500
-X-Authenticated: #14349625
-Subject: Re: [interbench numbers] Re: interactive task starvation
-From: Mike Galbraith <efault@gmx.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Willy Tarreau <willy@w.ods.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       bugsplatter@gmail.com, Peter Williams <pwil3058@bigpond.net.au>
-In-Reply-To: <200603231643.36093.kernel@kolivas.org>
-References: <1142592375.7895.43.camel@homer>
-	 <200603230727.51235.kernel@kolivas.org> <1143084178.7665.6.camel@homer>
-	 <200603231643.36093.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Thu, 23 Mar 2006 06:53:49 +0100
-Message-Id: <1143093229.9303.1.camel@homer>
+	Thu, 23 Mar 2006 00:55:02 -0500
+Date: Wed, 22 Mar 2006 21:49:05 -0800
+From: Greg KH <greg@kroah.com>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: linux-kernel@vger.kernel.org, rdreier@cisco.com, openib-general@openib.org
+Subject: Re: [PATCH 8 of 18] ipath - sysfs and ipathfs support for core driver
+Message-ID: <20060323054905.GB20672@kroah.com>
+References: <patchbomb.1143072293@eng-12.pathscale.com> <03375633b9c13068de17.1143072301@eng-12.pathscale.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <03375633b9c13068de17.1143072301@eng-12.pathscale.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-23 at 16:43 +1100, Con Kolivas wrote:
-> On Thu, 23 Mar 2006 02:22 pm, Mike Galbraith wrote:
-> > On Thu, 2006-03-23 at 07:27 +1100, Con Kolivas wrote:
-> > > I wonder why the results are affected even without any throttling
-> > > settings but just patched in? Specifically I'm talking about deadlines
-> > > met with video being sensitive to this. Were there any other config
-> > > differences between the tests? Changing HZ would invalidate the results
-> > > for example. Comments?
-> >
-> > I wondered the same.  The only difference then is the lower idle sleep
-> > prio, tighter timeslice enforcement, and the SMP buglet fix for now <
-> > p->timestamp due to SMP rounding.  Configs are identical.
-> 
-> Ok well if we're going to run with this set of changes then we need to assess 
-> the affect of each change and splitting them up into separate patches would 
-> be appropriate normally anyway. That will allow us to track down which 
-> particular patch causes it. That won't mean we will turn down the change 
-> based on that one result, though, it will just help us understand it better.
+On Wed, Mar 22, 2006 at 04:05:01PM -0800, Bryan O'Sullivan wrote:
+> +int ipath_driver_create_group(struct device_driver *drv)
+> +{
+> +	int ret;
+> +
+> +	if (!drv->kobj.dentry) {
+> +		ret = -ENODEV;
+> +		goto bail;
+> +	}
+> +
+> +	ret = sysfs_create_group(&drv->kobj, &driver_attr_group);
+> +	if (ret)
+> +		goto bail;
+> +
+> +	ret = sysfs_create_group(&drv->kobj, &driver_stat_attr_group);
+> +	if (ret)
+> +		sysfs_remove_group(&drv->kobj, &driver_attr_group);
+> +
+> +bail:
+> +	return ret;
+> +}
+> +
+> +void ipath_driver_remove_group(struct device_driver *drv)
+> +{
+> +	if (drv->kobj.dentry) {
+> +		sysfs_remove_group(&drv->kobj, &driver_stat_attr_group);
+> +		sysfs_remove_group(&drv->kobj, &driver_attr_group);
+> +	}
+> +}
 
-I'm investigating now.
+Why are you testing kobj.dentry in these functions?  That test would not
+have been valid in the mainline kernel until a day or so ago, so you
+couldn't have ever hit that path (dentry being NULL that is.)
 
-	-Mike
+Or did you do that because of something odd you saw in sysfs?
 
+Unless you did, I don't think you need these tests.
+
+Oh, and I like your new filesystem, but where do you propose that it be
+mounted?
+
+> +int ipath_device_create_group(struct device *dev, struct ipath_devdata *dd)
+> +{
+> +	int ret;
+> +	char unit[5];
+> +
+> +	ret = sysfs_create_group(&dev->kobj, &dev_attr_group);
+> +	if (ret)
+> +		goto bail;
+> +
+> +	ret = sysfs_create_group(&dev->kobj, &dev_counter_attr_group);
+> +	if (ret)
+> +		goto bail;
+> +
+> +	snprintf(unit, sizeof(unit), "%02d", dd->ipath_unit);
+> +	ret = sysfs_create_link(&dev->driver->kobj, &dev->kobj, unit);
+> +bail:
+> +	return ret;
+> +}
+
+You leak a group if the second call to sysfs_create_group() fails for
+some reason.
+
+thanks,
+
+greg k-h

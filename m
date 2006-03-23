@@ -1,45 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWCWQlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbWCWQmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWCWQlS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 11:41:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbWCWQlR
+	id S932471AbWCWQmb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 11:42:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWCWQmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 11:41:17 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51976 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932106AbWCWQlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 11:41:17 -0500
-Date: Thu, 23 Mar 2006 16:41:09 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: 2.6.16-git6: build failure: ne2k-pci: footbridge_defconfig
-Message-ID: <20060323164109.GD25849@flint.arm.linux.org.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Jeff Garzik <jgarzik@pobox.com>
-Mime-Version: 1.0
+	Thu, 23 Mar 2006 11:42:31 -0500
+Received: from thunk.org ([69.25.196.29]:32439 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932471AbWCWQma (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 11:42:30 -0500
+Date: Thu, 23 Mar 2006 11:42:27 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Cc: linux-fsdevel@vger.kernel.org
+Subject: [UPDATED PATCH] vfs: MS_VERBOSE should be MS_SILENT
+Message-ID: <20060323164227.GH4983@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+References: <E1FMQqv-0000qx-Cw@think.thunk.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <E1FMQqv-0000qx-Cw@think.thunk.org>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Building the ARM footbridge_defconfig provokes this build error:
+[I sent out the wrong version of the patch which didn't have my final
+updates to the descriptive text, sorry.]
 
-  CC      drivers/net/ne2k-pci.o
-drivers/net/ne2k-pci.c:123: error: pci_clone_list causes a section type conflict
-make[2]: *** [drivers/net/ne2k-pci.o] Error 1
-make[1]: *** [drivers/net] Error 2
-make: *** [drivers] Error 2
-make: Leaving directory `/var/tmp/kernel-orig'
+The meaning of MS_VERBOSE is backwards; if the bit is set, it really
+means, "don't be verbose".  This is confusing and counter-intuitive.
 
-static const struct {
-        char *name;
-        int flags;
-} pci_clone_list[] __devinitdata = {
+In addition, there is also no way to set the MS_VERBOSE flag in the
+mount(8) program in util-linux, but interesting, it does define
+options which would do the right thing if MS_SILENT were defined,
+which unfortunately we do not:
 
-const data can't be __devinitdata.
+#ifdef MS_SILENT
+  { "quiet",    0, 0, MS_SILENT    },   /* be quiet  */
+  { "loud",     0, 1, MS_SILENT    },   /* print out messages. */
+#endif
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+So the obvious fix is to deprecate the use of MS_VERBOSE and replace
+it with MS_SILENT.
+
+Signed-off-by: "Theodore Ts'o" <tytso@mit.edu>
+
+Index: 2.6.16-rc5/include/linux/fs.h
+===================================================================
+--- 2.6.16-rc5.orig/include/linux/fs.h	2006-03-14 07:31:33.000000000 -0500
++++ 2.6.16-rc5/include/linux/fs.h	2006-03-14 07:32:10.000000000 -0500
+@@ -102,7 +102,9 @@ extern int dir_notify_enable;
+ #define MS_BIND		4096
+ #define MS_MOVE		8192
+ #define MS_REC		16384
+-#define MS_VERBOSE	32768
++#define MS_VERBOSE	32768	/* War is peace. Verbosity is silence.
++				   MS_VERBOSE is deprecated. */
++#define MS_SILENT	32768
+ #define MS_POSIXACL	(1<<16)	/* VFS does not apply the umask */
+ #define MS_UNBINDABLE	(1<<17)	/* change to unbindable */
+ #define MS_PRIVATE	(1<<18)	/* change to private */
+Index: 2.6.16-rc5/fs/super.c
+===================================================================
+--- 2.6.16-rc5.orig/fs/super.c	2006-03-14 07:31:33.000000000 -0500
++++ 2.6.16-rc5/fs/super.c	2006-03-14 07:54:38.000000000 -0500
+@@ -712,7 +712,7 @@ struct super_block *get_sb_bdev(struct f
+ 		s->s_flags = flags;
+ 		strlcpy(s->s_id, bdevname(bdev, b), sizeof(s->s_id));
+ 		sb_set_blocksize(s, block_size(bdev));
+-		error = fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
++		error = fill_super(s, data, flags & MS_SILENT ? 1 : 0);
+ 		if (error) {
+ 			up_write(&s->s_umount);
+ 			deactivate_super(s);
+@@ -756,7 +756,7 @@ struct super_block *get_sb_nodev(struct 
+ 
+ 	s->s_flags = flags;
+ 
+-	error = fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
++	error = fill_super(s, data, flags & MS_SILENT ? 1 : 0);
+ 	if (error) {
+ 		up_write(&s->s_umount);
+ 		deactivate_super(s);
+@@ -785,7 +785,7 @@ struct super_block *get_sb_single(struct
+ 		return s;
+ 	if (!s->s_root) {
+ 		s->s_flags = flags;
+-		error = fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
++		error = fill_super(s, data, flags & MS_SILENT ? 1 : 0);
+ 		if (error) {
+ 			up_write(&s->s_umount);
+ 			deactivate_super(s);
+Index: 2.6.16-rc5/fs/afs/super.c
+===================================================================
+--- 2.6.16-rc5.orig/fs/afs/super.c	2006-03-14 07:31:33.000000000 -0500
++++ 2.6.16-rc5/fs/afs/super.c	2006-03-14 07:32:10.000000000 -0500
+@@ -341,7 +341,7 @@ static struct super_block *afs_get_sb(st
+ 
+ 	sb->s_flags = flags;
+ 
+-	ret = afs_fill_super(sb, &params, flags & MS_VERBOSE ? 1 : 0);
++	ret = afs_fill_super(sb, &params, flags & MS_SILENT ? 1 : 0);
+ 	if (ret < 0) {
+ 		up_write(&sb->s_umount);
+ 		deactivate_super(sb);
+Index: 2.6.16-rc5/fs/cifs/cifsfs.c
+===================================================================
+--- 2.6.16-rc5.orig/fs/cifs/cifsfs.c	2006-03-14 07:31:33.000000000 -0500
++++ 2.6.16-rc5/fs/cifs/cifsfs.c	2006-03-14 07:32:10.000000000 -0500
+@@ -479,7 +479,7 @@ cifs_get_sb(struct file_system_type *fs_
+ 
+ 	sb->s_flags = flags;
+ 
+-	rc = cifs_read_super(sb, data, dev_name, flags & MS_VERBOSE ? 1 : 0);
++	rc = cifs_read_super(sb, data, dev_name, flags & MS_SILENT ? 1 : 0);
+ 	if (rc) {
+ 		up_write(&sb->s_umount);
+ 		deactivate_super(sb);
+Index: 2.6.16-rc5/fs/jffs2/super.c
+===================================================================
+--- 2.6.16-rc5.orig/fs/jffs2/super.c	2006-03-14 07:31:33.000000000 -0500
++++ 2.6.16-rc5/fs/jffs2/super.c	2006-03-14 07:54:08.000000000 -0500
+@@ -152,7 +152,7 @@ static struct super_block *jffs2_get_sb_
+ 	sb->s_op = &jffs2_super_operations;
+ 	sb->s_flags = flags | MS_NOATIME;
+ 
+-	ret = jffs2_do_fill_super(sb, data, (flags&MS_VERBOSE)?1:0);
++	ret = jffs2_do_fill_super(sb, data, flags & MS_SILENT ? 1 : 0);
+ 
+ 	if (ret) {
+ 		/* Failure case... */
+@@ -257,7 +257,7 @@ static struct super_block *jffs2_get_sb(
+ 	}
+ 
+ 	if (imajor(nd.dentry->d_inode) != MTD_BLOCK_MAJOR) {
+-		if (!(flags & MS_VERBOSE)) /* Yes I mean this. Strangely */
++		if (!(flags & MS_SILENT))
+ 			printk(KERN_NOTICE "Attempt to mount non-MTD device \"%s\" as JFFS2\n",
+ 			       dev_name);
+ 		goto out;
+Index: 2.6.16-rc5/fs/nfs/inode.c
+===================================================================
+--- 2.6.16-rc5.orig/fs/nfs/inode.c	2006-03-14 07:31:33.000000000 -0500
++++ 2.6.16-rc5/fs/nfs/inode.c	2006-03-14 07:53:28.000000000 -0500
+@@ -1679,7 +1679,7 @@ static struct super_block *nfs_get_sb(st
+ 
+ 	s->s_flags = flags;
+ 
+-	error = nfs_fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
++	error = nfs_fill_super(s, data, flags & MS_SILENT ? 1 : 0);
+ 	if (error) {
+ 		up_write(&s->s_umount);
+ 		deactivate_super(s);
+@@ -1996,7 +1996,7 @@ static struct super_block *nfs4_get_sb(s
+ 
+ 	s->s_flags = flags;
+ 
+-	error = nfs4_fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
++	error = nfs4_fill_super(s, data, flags & MS_SILENT ? 1 : 0);
+ 	if (error) {
+ 		up_write(&s->s_umount);
+ 		deactivate_super(s);
+Index: 2.6.16-rc5/init/do_mounts.c
+===================================================================
+--- 2.6.16-rc5.orig/init/do_mounts.c	2006-03-11 22:17:00.000000000 -0500
++++ 2.6.16-rc5/init/do_mounts.c	2006-03-14 07:56:49.000000000 -0500
+@@ -19,7 +19,7 @@ extern int get_filesystem_list(char * bu
+ 
+ int __initdata rd_doload;	/* 1 = load RAM disk, 0 = don't load */
+ 
+-int root_mountflags = MS_RDONLY | MS_VERBOSE;
++int root_mountflags = MS_RDONLY | MS_SILENT;
+ char * __initdata root_device_name;
+ static char __initdata saved_root_name[64];
+ 
+
+

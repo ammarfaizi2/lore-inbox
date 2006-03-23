@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWCWDWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWCWD2a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbWCWDWp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 22:22:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWCWDWp
+	id S932183AbWCWD2a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 22:28:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWCWD2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 22:22:45 -0500
-Received: from mail.gmx.net ([213.165.64.20]:13703 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932154AbWCWDWo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 22:22:44 -0500
-X-Authenticated: #14349625
-Subject: Re: [interbench numbers] Re: interactive task starvation
-From: Mike Galbraith <efault@gmx.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Willy Tarreau <willy@w.ods.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       bugsplatter@gmail.com, Peter Williams <pwil3058@bigpond.net.au>
-In-Reply-To: <200603230727.51235.kernel@kolivas.org>
-References: <1142592375.7895.43.camel@homer>
-	 <1142999382.11047.34.camel@homer> <1143029650.8298.18.camel@homer>
-	 <200603230727.51235.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Thu, 23 Mar 2006 04:22:58 +0100
-Message-Id: <1143084178.7665.6.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Wed, 22 Mar 2006 22:28:30 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:56844 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932183AbWCWD23
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 22:28:29 -0500
+Message-ID: <442214A0.2000004@vmware.com>
+Date: Wed, 22 Mar 2006 19:23:12 -0800
+From: Eli Collins <ecollins@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>
+Subject: Re: [Xen-devel] [RFC PATCH 25/35] Add Xen time abstractions
+References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063800.241815000@sorel.sous-sol.org>
+In-Reply-To: <20060322063800.241815000@sorel.sous-sol.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+X-OriginalArrivalTime: 23 Mar 2006 03:23:12.0656 (UTC) FILETIME=[1DC2A900:01C64E29]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-23 at 07:27 +1100, Con Kolivas wrote:
-> On Wednesday 22 March 2006 23:14, Mike Galbraith wrote:
-> > Greetings,
-> >
-> > I was asked to do some interbench runs, with various throttle settings,
-> > see below.  I'll not attempt to interpret results, only present raw data
-> > for others to examine.
-> >
-> > Tested throttling patches version is V24, because while I was compiling
-> > 2.6.16-rc6-mm2 in preparation for comparison, I found I'd introduced an
-> > SMP buglet in V23.  Something good came from the added testing whether
-> > the results are informative or not :)
-> 
-> Thanks!
-> 
-> I wonder why the results are affected even without any throttling settings but 
-> just patched in? Specifically I'm talking about deadlines met with video 
-> being sensitive to this. Were there any other config differences between the 
-> tests? Changing HZ would invalidate the results for example. Comments?
+> --- xen-subarch-2.6.orig/arch/i386/kernel/Makefile
+> +++ xen-subarch-2.6/arch/i386/kernel/Makefile
+> @@ -9,8 +9,11 @@ obj-y	:= process.o semaphore.o signal.o 
+>  		pci-dma.o i386_ksyms.o i387.o dmi_scan.o bootflag.o \
+>  		quirks.o i8237.o topology.o
+>  
+> +timers-y			:= timers/
+> +timers-$(CONFIG_XEN)		:=
+> +
 
-I wondered the same.  The only difference then is the lower idle sleep
-prio, tighter timeslice enforcement, and the SMP buglet fix for now <
-p->timestamp due to SMP rounding.  Configs are identical.
+You need to disable CONFIG_HPET_TIMER for CONFIG_XEN, otherwise 
+select_timer is undefined since you don't include timers here.
 
-	-Mike
-
+Eli

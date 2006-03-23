@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbWCWITn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbWCWId2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030207AbWCWITn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 03:19:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWCWITn
+	id S1030213AbWCWId2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 03:33:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030216AbWCWId2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 03:19:43 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:1411 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030207AbWCWITm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 03:19:42 -0500
-Subject: RE: [RFC PATCH 35/35] Add Xen virtual block device driver.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Ian Pratt <m+Ian.Pratt@cl.cam.ac.uk>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, Chris Wright <chrisw@sous-sol.org>,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       linux-kernel@vger.kernel.org, Ian Pratt <ian.pratt@xensource.com>,
-       ian.pratt@cl.cam.ac.uk
-In-Reply-To: <A95E2296287EAD4EB592B5DEEFCE0E9D4B9E8A@liverpoolst.ad.cl.cam.ac.uk>
-References: <A95E2296287EAD4EB592B5DEEFCE0E9D4B9E8A@liverpoolst.ad.cl.cam.ac.uk>
-Content-Type: text/plain
-Date: Thu, 23 Mar 2006 09:19:31 +0100
-Message-Id: <1143101972.3147.11.camel@laptopd505.fenrus.org>
+	Thu, 23 Mar 2006 03:33:28 -0500
+Received: from mail.gmx.de ([213.165.64.20]:45549 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030213AbWCWId1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 03:33:27 -0500
+X-Authenticated: #19452082
+Date: Thu, 23 Mar 2006 09:33:30 +0100
+From: Thomas Kuther <gimpel@sonnenkinder.org>
+To: ck@vds.kolivas.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ck] swap prefetching merge plans
+Message-ID: <20060323093330.488162c9@SiRiUS.home>
+In-Reply-To: <200603230901.57052.jos@mijnkamer.nl>
+References: <20060322205305.0604f49b.akpm@osdl.org>
+	<200603231804.36334.kernel@kolivas.org>
+	<200603230901.57052.jos@mijnkamer.nl>
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.16; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-22 at 16:52 +0000, Ian Pratt wrote:
-> > This is another thing that has always put me off.  The 
-> > virtual block device driver has the ability to masquerade as 
-> > other types of block devices.  It actually claims to be an 
-> > IDE or SCSI device allocating the appropriate major/minor numbers.
-> > 
-> > This seems to be pretty evil and creating interesting failure 
-> > conditions for users who load IDE or SCSI modules.  I've seen 
-> > it trip up a number of people in the past.  I think we should 
-> > only ever use the major number that was actually allocated to us.
+On Thu, 23 Mar 2006 09:01:53 +0100
+jos poortvliet <jos@mijnkamer.nl> wrote:
+
+> Op donderdag 23 maart 2006 08:04, schreef Con Kolivas:
+> > On Thu, 23 Mar 2006 03:53 pm, Andrew Morton wrote:
+> > > A look at the -mm lineup for 2.6.17:
+> > >
+> > > mm-implement-swap-prefetching.patch
+> > > mm-implement-swap-prefetching-fix.patch
+> > > mm-implement-swap-prefetching-tweaks.patch
+> > >
+> > >   Still don't have a compelling argument for this, IMO.
 > 
-> We certainly should be pushing everyone toward using the 'xdX' etc
-> devices that are allocated to us.
+> well, the reason i use it is my computer is much more reactive in the
+> morning. linux uses to get very slow after a night of not-doing-much
+> except some 'sleep 5h && blabla' and cron stuff. in the morning it
+> takes a few HOURS to get up and running smoothly. with swap prefetch,
+> it actually feels faster compared to a fresh boot. now you can force
+> swap prefetch to start working, i use it now and then after some
+> heavy taskts which pulled everything to swap.
 
-yes but you are faking something stupid ;)
-You aren't ide, you don't take the IDE ioctls. So please just nuke this
-bit..
-
-
+I absolutely second that! It was really annoying to have the box
+unresponsive in the morning - like waiting 3-4 minutes till sylpheed
+started up. This effect is almost totally gone with sp.   

@@ -1,88 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbWCWSDF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932536AbWCWSJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964922AbWCWSDF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 13:03:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964932AbWCWSDE
+	id S932536AbWCWSJO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 13:09:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWCWSJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 13:03:04 -0500
-Received: from mail.aknet.ru ([82.179.72.26]:64778 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S964922AbWCWSDB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 13:03:01 -0500
-Message-ID: <4422E2DA.7050305@aknet.ru>
-Date: Thu, 23 Mar 2006 21:03:06 +0300
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: dtor_core@ameritech.net
-Cc: Linux kernel <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: [patch 1/1] pc-speaker: add SND_SILENT
-References: <200603220652.k2M6qZgi020656@shell0.pdx.osdl.net>	 <d120d5000603221332n6a6f9208x5651dc9ec993f4bf@mail.gmail.com>	 <4422318C.407@aknet.ru> <d120d5000603230651p6b43aad9ocad1aa3c2b51b388@mail.gmail.com>
-In-Reply-To: <d120d5000603230651p6b43aad9ocad1aa3c2b51b388@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 23 Mar 2006 13:09:14 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:13243 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751398AbWCWSJO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 13:09:14 -0500
+Message-Id: <20060323150607.PS67776100000@infradead.org>
+Date: Thu, 23 Mar 2006 12:06:07 -0300
+From: mchehab@infradead.org
+To: torvalds@osdl.org
+Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 00/11] V4L/DVB updates
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1-3mdk 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Linus, please pull these from master branch.
 
-[ adding LKML to CC and removing akpm as this went into a
-discussion phase apparently ]
+It contains the following stuff:
 
-Dmitry Torokhov wrote:
-> Yes, I remember. And after re-reading all of it now I still see that
-> he wasn't really happy with the solution.
-Yes, neither did I, but there always should be some
-compromiss if the better solution is not found. :)
+   - saa7114: Fix i2c block write
+   - saa7111: Prevent array overrun
+   - zoran: Init cleanups
+   - saa7111.c fix
+   - bt856: Spare memory
+   - saa7110: Fix array overrun
+   - sem2mutex: zoran
+   - cpia: correct email address
+   - adv7175: Drop unused register cache
+   - adv7175: Drop unused encoder dump command
+   - zoran: Use i2c_master_send when possible
 
->> Well, the main reason behind that change, is that there is a PC-Speaker
->> PCM driver/emulator, snd-pcsp, pending in an ALSA CVS. I can't get it
->> included in kernel before there is a way to disable the pcspkr driver.
-> Why can't you? We have ALSA and OSS together in the kernel just fine.
-But the pcspkr driver is not an OSS, it is an "input" driver.
+This time, I've updated my procedure in a way that it won't generate other bad 
+patches like it was sent before.
 
-> If you are concerned about both modules baing active at the same time
-> do not let user compile pcspkr if snd_pcsp is selected for now.
-The problem is that the snd-pcsp doesn't replace pcspkr. And if I do
-what you say, whoever opted to use snd-pcsp, will no longer be able
-to hear the console beeps, and that I find a disadvantage.
-I myself do not like the console beeps, but some people will really
-complain. So I'd like to find another solution if possible, and the
-input solution looked quite what I needed.
+$git cherry origin
 
->> only to disable it. OTOH, if someone loads pcspkr while snd-pcsp is
->> running, the input subsystem notifies snd-pcsp so that it can immediately
->> disable pcspkr, to not let it to harm even in that case.
-> Does it? How does it do it? There is no "new driver" event in the
-> input subsystem...
-But I register an input handler, and whenever the pcspkr driver is
-loaded, my "connect" handler is invoked, and from there I send an
-SND_SILENT.
++ 6254312352dfd1c996245cb3bc74be901dc165cc V4L/DVB (3568a): saa7114: Fix i2c block write
++ 6eb5d9ca9f1496108cb86f2d9bfc2db5d9c796fe V4L/DVB (3568b): saa7111: Prevent array overrun
++ daf72f408c66aee4ac939f614293a78841aa7717 V4L/DVB (3568c): zoran: Init cleanups
++ 58a0b84c92e62c2cc42036259a4b51e0bcaf8fa5 V4L/DVB (3568d): saa7111.c fix
++ f49a5eaea6d7b3ed3d01ca9388eac9e7e5bf6025 V4L/DVB (3568e): bt856: Spare memory
++ 6201573cc9bfe1e0bdec229bed8e95b0dc88a587 V4L/DVB (3568f): saa7110: Fix array overrun
++ 384c36893f94e0e2145832cf2f20684ae372aee5 V4L/DVB (3568g): sem2mutex: zoran
++ 2f8de1a10697efe7bee08e51b587208706b44e97 V4L/DVB (3568h): cpia: correct email address
++ 2467a670ee24631b05e91971286730e71f6a6af0 V4L/DVB (3568i): adv7175: Drop unused register cache
++ 5a313c59bcc5062fc56088d5ff9289828c4b6626 V4L/DVB (3568j): adv7175: Drop unused encoder dump command
++ 9aa45e34d2948f360f8c0e63d10f49015ca51edd V4L/DVB (3568k): zoran: Use i2c_master_send when possible
 
-> No, I don't want SND_SPKR_STARTED either.
-OK, how about something under a SYN_CONFIG then?
 
-> What you need is a way to
-> disable a certain driver somehow and I think it is a task that belongs
-> to driver core, not input or any other individual subsystem.
-But what if I just want to grab SND_BELL so that it is delivered
-exclusively to my driver? Intuitively, I'd use the input subsystem
-for that, but unfortunately it simply doesn't have that grabbing
-capability (I asked Vojtech to be sure - he confirmed that there
-is none). Be there such a capability, that would be excellent, no
-hacks will be needed. But if I modify the pcspkr driver to disable
-it directly via some function call, then snd-pcsp will always load
-pcspkr, which is highly undesireable. I am not sure what did you
-mean about the driver core though.
+Cheers,
+Mauro.
 
-> Because
-> next time you want to disable for example a framebuffer driver because
-> you have written better one and you are back to square 1.
-The difference is that the snd-pcsp and pcspkr drivers are doing the
-completely different tasks. snd-pcsp doesn't absolete pcspkr - being
-an ALSA driver it only plays sound, but doesn't do the console beeps,
-thats the problem. Somehow I have to make sure they both can peacefully
-co-exist. Making them mutually exclusive is bad, and making them
-dependant (by calling into each other directly) is also rather bad.
+V4L/DVB development is hosted at http://linuxtv.org
+Development Mercurial trees are available at http://linuxtv.org/hg
+---
 
+ drivers/media/video/adv7170.c      |   17 --
+ drivers/media/video/adv7175.c      |   53 +-----
+ drivers/media/video/bt819.c        |   17 --
+ drivers/media/video/bt856.c        |   13 -
+ drivers/media/video/cpia.c         |    2 
+ drivers/media/video/saa7110.c      |   19 --
+ drivers/media/video/saa7111.c      |   26 +--
+ drivers/media/video/saa7114.c      |   25 +--
+ drivers/media/video/saa7185.c      |   17 --
+ drivers/media/video/zoran.h        |    2 
+ drivers/media/video/zoran_card.c   |   49 ++----
+ drivers/media/video/zoran_driver.c |  227 ++++++++++++++---------------
+ 12 files changed, 202 insertions(+), 265 deletions(-)

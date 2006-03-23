@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWCWNVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWCWNUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbWCWNVw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 08:21:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbWCWNVw
+	id S1751364AbWCWNUn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 08:20:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbWCWNUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 08:21:52 -0500
-Received: from rune.pobox.com ([208.210.124.79]:35236 "EHLO rune.pobox.com")
-	by vger.kernel.org with ESMTP id S1751395AbWCWNVv (ORCPT
+	Thu, 23 Mar 2006 08:20:43 -0500
+Received: from www.osadl.org ([213.239.205.134]:64186 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751364AbWCWNUm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 08:21:51 -0500
-Date: Thu, 23 Mar 2006 07:21:41 -0600
-From: Rodney Gordon II <meff@pobox.com>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>, Con Kolivas <kernel@kolivas.org>,
-       linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>
-Subject: Re: [ck] 2.6.16-ck1
-Message-ID: <20060323132141.GA12508@spherenet.spherevision.org>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Con Kolivas <kernel@kolivas.org>,
-	linux list <linux-kernel@vger.kernel.org>,
-	ck list <ck@vds.kolivas.org>
-References: <200603202145.31464.kernel@kolivas.org> <20060323113118.GA9329@spherenet.spherevision.org> <20060323131439.GA4700@mail.ustc.edu.cn>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060323131439.GA4700@mail.ustc.edu.cn>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 23 Mar 2006 08:20:42 -0500
+Subject: Re: [PATCHSET 0/10] Time: Generic Timekeeping (v.C1)
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: john stultz <johnstul@us.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, george@wildturkeyranch.net,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Ingo Molnar <mingo@elte.hu>, Paul Mackerras <paulus@samba.org>
+In-Reply-To: <Pine.LNX.4.64.0603231209380.17704@scrub.home>
+References: <20060323030547.19338.95102.sendpatchset@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.64.0603231209380.17704@scrub.home>
+Content-Type: text/plain
+Date: Thu, 23 Mar 2006 14:20:58 +0000
+Message-Id: <1143123658.28099.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.5 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 09:14:39PM +0800, Wu Fengguang wrote:
-> Hi Rodney,
-> 
-> Thanks for your testing :)
-> 
-> On Thu, Mar 23, 2006 at 05:31:18AM -0600, Rodney Gordon II wrote:
-> > Adaptive readahead: I had probs with this before, and I still do.. On
-> > a desktop if you have odd problems (nothing responding for SECONDS,
-> > very slow disk I/O during heavy I/O, etc..) disable it.
-> 
-> Your problem on I/O latency with ara can be tracked down with the help
-> of Ingo's latency tracing patch. It goes like this:
-> 
-> 1) download
-> http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.16.tar.bz2
-> http://www.vanheusden.com/ara/adaptive-readahead-11-2.6.16-rc6.patch.gz
-> http://people.redhat.com/mingo/latency-tracing-patches/latency-tracing-v2.6.16.patch
-> 
-> 2)
-> tar jxf linux-2.6.16.tar.bz2
-> gunzip adaptive-readahead-11-2.6.16-rc6.patch.gz
-> cd linux-2.6.16
-> patch -p1 < ../adaptive-readahead-11-2.6.16-rc6.patch
-> patch -p1 < ../latency-tracing-v2.6.16.patch
-> 
-> 3) compile kernel with Adaptive readahead support
-> 4) boot with the new kernel, and run
-> echo 0 > /proc/sys/kernel/preempt_max_latency
-> 5) feel some latency problems
-> 6) report the content of /proc/latency_trace
-> 
-> Thanks,
-> Wu
+On Thu, 2006-03-23 at 13:48 +0100, Roman Zippel wrote:
+> One general comment: Currently clock relevant source is scattered in 
+> kernel/time/, drivers/clocksource and arch/... IMO it would be better to 
+> keep at least the first two parts a bit closer, although I'm not sure how 
+> to organize it better. I don't know if we can be so bold to add a toplevel 
+> time/ (similiar to sound/) or maybe we organize a bit like drivers/ide/. 
+> Anyway, maybe someone has a good idea to keep everything a bit closer 
+> together.
 
-Will try this as soon as I can get some net drivers working under
-2.6.16 ...
+IMO it makes completely sense to move the time/timer/clocks related
+generic code into kernel/time.
 
--r
--- 
-Rodney "meff" Gordon II               -*-              meff@pobox.com
-Systems Administrator / Coder Geek    -*-       Open yourself to OpenSource
+drivers/clocksource holds drivers which can be shared between
+architectures.
+
+The other drivers really should stay in the architecture specific files
+as they are often deeply embedded in the SoC or chipset support code.
+
+	tglx
+
+

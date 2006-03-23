@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbWCWSdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422651AbWCWSed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932427AbWCWSdm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 13:33:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbWCWSdm
+	id S1422651AbWCWSed (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 13:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422647AbWCWSec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 13:33:42 -0500
-Received: from w3.zipcon.net ([209.221.136.4]:61099 "HELO w3.zipcon.net")
-	by vger.kernel.org with SMTP id S932427AbWCWSdl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 13:33:41 -0500
-Message-ID: <4422E9FC.8060303@beezmo.com>
-Date: Thu, 23 Mar 2006 10:33:32 -0800
-From: William D Waddington <william.waddington@beezmo.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Thu, 23 Mar 2006 13:34:32 -0500
+Received: from 213-140-2-69.ip.fastwebnet.it ([213.140.2.69]:13712 "EHLO
+	aa002msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1422649AbWCWSeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 13:34:31 -0500
+Date: Thu, 23 Mar 2006 19:35:28 +0100
+From: Mattia Dongili <malattia@linux.it>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ck@vds.kolivas.org
+Subject: Re: swap prefetching merge plans
+Message-ID: <20060323183528.GB4386@inferi.kami.home>
+Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	ck@vds.kolivas.org
+References: <20060322205305.0604f49b.akpm@osdl.org> <200603231804.36334.kernel@kolivas.org>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFCLUE2] 64 bit driver 32 bit app ioctl
-References: <4422B95D.9070900@beezmo.com> <1143132597.3147.31.camel@laptopd505.fenrus.org>
-In-Reply-To: <1143132597.3147.31.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603231804.36334.kernel@kolivas.org>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.16-rc6-mm1-1 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Thu, 2006-03-23 at 07:06 -0800, William D Waddington wrote:
+Hello,
+
+On Thu, Mar 23, 2006 at 06:04:36PM +1100, Con Kolivas wrote:
+> On Thu, 23 Mar 2006 03:53 pm, Andrew Morton wrote:
+> > A look at the -mm lineup for 2.6.17:
 > 
->>Apologies for dashing this off without the proper homework.  My
->>customer is out of country doing an installation, and didn't test
->>this configuration first :(
->>
->>Customer is running RHEL3 on a 64 bit PC.  Running the 64 bit kernel
->>and my 64 bit driver.  They are calling the driver from their 32 bit
->>app.  The driver supports a whole mess of ioctls.
->>
->>It seems that the kernel is trapping the 32-bit ioctl call and returning
->>an error to the app w/out calling the driver.  It looks like
->>register_ioctl32_conversion() can convice the kernel that the driver can
->>handle 32-bit calls, but it has to be called for each ioctl cmd (??)
+> > mm-implement-swap-prefetching.patch
+> > mm-implement-swap-prefetching-fix.patch
+> > mm-implement-swap-prefetching-tweaks.patch
 > 
+> >   Still don't have a compelling argument for this, IMO.
 > 
-> you forgot to attach you code btw or post the url to it..
+> For those users who feel they do have a compelling argument for it, please 
+> speak now or I'll end up maintaining this in -ck only forever.  I've come to 
 
-No I didn't :) It's just too ugly for public view.  And I notice it
-needs some other fix-ups like fixed width data types in the ioctl
-routine...
+I have just 256MB on this laptop and I know its limits.
+IME swap prefetch helps expecially when I need to open some memory
+demanding application for just a few mintues (OO.org, gimp on large
+images, pretty large builds, any 3D app) and then go back to my usual
+<high number> of xterms.
 
-Thanks to all for the info.  I've got some typing to do.
+I did definitely noticed the difference when Andrew dropped the patch
+the first time. As already said, it seems so natural the idea of
+swapping-in when some room is available that I immediately got used to
+having this functionality and I support its inclusion.
 
-Bill
-
+Thanks
+-- 
+mattia
+:wq!

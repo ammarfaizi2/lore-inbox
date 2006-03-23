@@ -1,74 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbWCWH4c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbWCWH7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030191AbWCWH4c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 02:56:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbWCWH4c
+	id S1030188AbWCWH7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 02:59:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbWCWH7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 02:56:32 -0500
-Received: from alpha.polcom.net ([83.143.162.52]:23499 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S1030188AbWCWH4b (ORCPT
+	Thu, 23 Mar 2006 02:59:25 -0500
+Received: from main.gmane.org ([80.91.229.2]:21475 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1030188AbWCWH7Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 02:56:31 -0500
-Date: Thu, 23 Mar 2006 08:56:24 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Andrew Morton <akpm@osdl.org>, ck@vds.kolivas.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ck] swap prefetching merge plans
-In-Reply-To: <200603231804.36334.kernel@kolivas.org>
-Message-ID: <Pine.LNX.4.63.0603230837500.14361@alpha.polcom.net>
-References: <20060322205305.0604f49b.akpm@osdl.org> <200603231804.36334.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 23 Mar 2006 02:59:24 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Ryan M." <kubisuro@att.net>
+Subject: Re: -mm merge plans
+Date: Thu, 23 Mar 2006 16:59:09 +0900
+Message-ID: <4422554D.6000602@att.net>
+References: <20060322205305.0604f49b.akpm@osdl.org>
+Reply-To: kubisuro@att.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 210.120.111.10
+User-Agent: Thunderbird 1.5 (X11/20051201)
+In-Reply-To: <20060322205305.0604f49b.akpm@osdl.org>
+Cc: ck@vds.kolivas.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Mar 2006, Con Kolivas wrote:
-> On Thu, 23 Mar 2006 03:53 pm, Andrew Morton wrote:
->> A look at the -mm lineup for 2.6.17:
->
->> mm-implement-swap-prefetching.patch
->> mm-implement-swap-prefetching-fix.patch
->> mm-implement-swap-prefetching-tweaks.patch
->
->>   Still don't have a compelling argument for this, IMO.
->
-> For those users who feel they do have a compelling argument for it, please
-> speak now or I'll end up maintaining this in -ck only forever.
+Hello,
 
-Well, it works for me rather good. After I close some memory demanding 
-aplication (like game or qemu) that caused huge portion of the memory to 
-be swapped out to disk, the time needed to swith back to firefox or 
-eclipse is really really shorter. Also the GUI is more responsive (because 
-there are nearly none disk accesses needed when I am entering some dialog 
-box or menu).
+Andrew Morton wrote:
+ > A look at the -mm lineup for 2.6.17:
+ >
 
-Without the patch system is taking up to several seconds to come back and 
-even after that is feels jerky because it still must get some page from 
-disk while I do some work.
+ >
+ > mm-implement-swap-prefetching.patch
+ > mm-implement-swap-prefetching-fix.patch
+ > mm-implement-swap-prefetching-tweaks.patch
+ >
+ >   Still don't have a compelling argument for this, IMO.
 
-Also I would really be glad to see the second part of the idea: mirroring 
-some pages from memory to disk while system is relatively idle. This could 
-make swapout nearly a no-op and this could really help some workloads if 
-you are short on RAM. And software engeneerers and programmers are really 
-working hard to eat all your RAM even if you think that "now you have 
-really much".
+I hate to make a comparison based on the little information there is, 
+but Windows Vista will have something like prefetch, albeit, 
+exponentially more intrusive (read MS' explanation on their website). 
+However, when I see that such technology is being embraced by the 
+competitor to help improve the desktop (and it follows, the server 
+space) and I see this better, non-invasive solution nearly rejected, I 
+can't help but feel rather disappointed.
 
-I have Athlon XP 3000+ system with 1GB of RAM and 4GB of swap. It works 
-pretty well on that configuration. I have so much swap because I am 
-compiling I my packages (Gentoo) on tmpfs. So during (or after) some big 
-compilation (like qt, gcc or something) swap prefetching is really helpful 
-in getting my desktop apps back. (Also Con's scheduler is helpfull 
-in allowing me to compile things in the background without nearly any 
-problems and bad interaction with eclipse, openoffice and firefox.
-It does not work excelent in all cases but it usually works very well.)
+To prefetch applications from swap to physical memory when there is 
+little activity seems so obvious that I can't believe it hasn't been 
+implemented before.
 
-So, not that I have any vote here, I would really glad to have it merged. 
-More people will be able to read the code and maybe it will become even 
-better.
+I play World of Warcraft which saps away 1gb of physical memory in a 
+heart-beat.  During that period of time I run gobs of other networking 
+applications as any desktop users might.  They sometimes swap.  I leave 
+World of Warcraft and I can  see them prefetched back to physical memory 
+while not being removed from swap.  To do something useful, particularly 
+when it helps interactivity, when idle is a very smart use of resources. 
+  It is even smarter to save future swapping of those same applications 
+because they're likely not to be removed from swap unless swap space is 
+becoming limited.  It is practically free and for long running desktop 
+systems that seems a necessity.
 
+I don't have quantitative evidence, but I think the objective of swap 
+prefetch speaks volumes itself.  I can imagine it being useful in 
+server-space, because having had anything swapped out in the past and it 
+not having to be swapped again after prefetched could seriously help 
+reduce disk accesses -- extremely important during heavy i/o loads.
 
-Thanks for your work,
+I hope others join me in explaining the very usefulness of swap prefetch 
+  -- it'd be great for someone with the time and abilities  to provide 
+quantitative reasons for this existing in mainline.
 
-Grzegorz Kulewski
+best,
+Ryan M.
 

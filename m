@@ -1,91 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWCWDO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWCWDOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751406AbWCWDO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 22:14:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWCWDO0
+	id S1751367AbWCWDOH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 22:14:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWCWDOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 22:14:26 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:2958 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751399AbWCWDOX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 22:14:23 -0500
-Date: Wed, 22 Mar 2006 19:10:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Alessandro Suardi" <alessandro.suardi@gmail.com>
-Cc: linux-kernel@vger.kernel.org, "Zhu, Yi" <yi.zhu@intel.com>,
-       James Ketrenos <jketreno@linux.intel.com>, netdev@vger.kernel.org
-Subject: Re: [2.6.16-gitX] heavy performance regression in ipw2200 wireless
- driver
-Message-Id: <20060322191057.304962a4.akpm@osdl.org>
-In-Reply-To: <5a4c581d0603221724m391f5466l8a2af3ae7f0aacae@mail.gmail.com>
-References: <5a4c581d0603221724m391f5466l8a2af3ae7f0aacae@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 22 Mar 2006 22:14:07 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:19109 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751036AbWCWDOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 22:14:03 -0500
+Subject: Re: 2.6.16-rt1
+From: Steven Rostedt <rostedt@goodmis.org>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <442176EB.1050403@cybsft.com>
+References: <20060320085137.GA29554@elte.hu> <441F8017.4040302@cybsft.com>
+	 <20060321211653.GA3090@elte.hu> <4420B5F0.6000201@cybsft.com>
+	 <20060322062932.GA17166@elte.hu> <44215CCB.1080005@cybsft.com>
+	 <442176EB.1050403@cybsft.com>
+Content-Type: text/plain
+Date: Wed, 22 Mar 2006 22:13:53 -0500
+Message-Id: <1143083633.32192.27.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Alessandro Suardi" <alessandro.suardi@gmail.com> wrote:
->
+On Wed, 2006-03-22 at 10:10 -0600, K.R. Foley wrote:
+> K.R. Foley wrote:
+> > Ingo Molnar wrote:
+> >> * K.R. Foley <kr@cybsft.com> wrote:
+> >>
+> >>> Sorry I have been onsite and completely buried today. Am running an 
+> >>> initial test on both UP and SMP now with 2.6.16-rt1. UP doesn't look 
+> >>> bad at all. SMP on the other hand doesn't look so good. I will give 
+> >>> -rt4 a spin when these are done.
+> >> thanks for the testing - i'll check SMP too.
+> >>
+> >> 	Ingo
+> >>
+> > OK. On my dual 933 under heavy load I get the following with 2.6.16-rt4
+> > and I get tons of missed interrupts. Running 2.6.15-rc16 I get a max of
+> > 88usec with most falling under 30usec. On my UP AthlonXP 1700 I get a
+> > max of 19usec with 2.6.16-rt4 under load. What sort of results do you
+> > see on SMP?
+> > 
+> 
+> Found something interesting. Having Wakeup latency timing turned on
+> makes a HUGE difference. I turned it off and recompiled and now I am
+> seeing numbers back in line with what I expected from 2.6.16-rt4. Sorry,
+> but I had no idea it would make that much difference. I don't have a
+> complete run yet, but I have seen enough to know that I am not seeing
+> tons of missed interrupts and the highest reported latency thus far is
+> 61 usec.
 
-Pleeeeze try to cc the right people.
+Hmm, high wake up latency on SMP and not on UP...
 
-> Driver - or firmware ? Don't know - since the new git snapshots run
->  1.1.1 which requires newer firmware from http://ipw2200.sourceforge.net.
-> 
-> Symptom -> my new FC5 partition with 2.6.16-git kernels connects via
->  VNC viewer to my bittorrent box over wireless (ipw2200 to a D-Link
->  G604T router/AP); Dell D610 runs FC5, BT box is a K7-800 running
->  FC3 with a 2.6.16-rc5-git8 kernel (15+ days uptime...).
-> 
-> I also run Firefox on the bittorrent box; noticed today (2.6.16-git5) that
->  the screen refresh of pages with images was from time to time very
->  slow (close to unusable).
-> 
-> Rebooted into my FC4 partition with a 2.6.16 kernel, everything much
->  snappier. So I ran a scp test from my BT server to the laptop, three
->  times in a row the same file - a 38MB .flac with the laptop in the same
->  physical position (ie, no signal variation). Results...
-> 
-> FC5 - 2.6.16-git3:
-> 
-> [asuardi@donkey melua_2004-09-23_Berlin]$ scp KM_9-23-04_17_The\
-> Closest\ Thing\ to\ Crazy.flac 192.168.1.8:/tmp
-> asuardi@192.168.1.8's password:
-> KM_9-23-04_17_The Closest Thing to Crazy.flac 100%   38MB 971.3KB/s   00:40
-> [asuardi@donkey melua_2004-09-23_Berlin]$ scp KM_9-23-04_17_The\
-> Closest\ Thing\ to\ Crazy.flac 192.168.1.8:/tmp
-> asuardi@192.168.1.8's password:
-> KM_9-23-04_17_The Closest Thing to Crazy.flac 100%   38MB   1.3MB/s   00:29
-> [asuardi@donkey melua_2004-09-23_Berlin]$ scp KM_9-23-04_17_The\
-> Closest\ Thing\ to\ Crazy.flac 192.168.1.8:/tmp
-> asuardi@192.168.1.8's password:
-> KM_9-23-04_17_The Closest Thing to Crazy.flac 100%   38MB 626.7KB/s   01:02
-> 
-> 
-> FC4 - 2.6.16:
-> 
-> [asuardi@donkey melua_2004-09-23_Berlin]$ scp KM_9-23-04_17_The\
-> Closest\ Thing\ to\ Crazy.flac 192.168.1.8:/tmp
-> asuardi@192.168.1.8's password:
-> KM_9-23-04_17_The Closest Thing to Crazy.flac 100%   38MB   1.5MB/s   00:25
-> [asuardi@donkey melua_2004-09-23_Berlin]$ scp KM_9-23-04_17_The\
-> Closest\ Thing\ to\ Crazy.flac 192.168.1.8:/tmp
-> asuardi@192.168.1.8's password:
-> KM_9-23-04_17_The Closest Thing to Crazy.flac 100%   38MB   1.7MB/s   00:23
-> [asuardi@donkey melua_2004-09-23_Berlin]$ scp KM_9-23-04_17_The\
-> Closest\ Thing\ to\ Crazy.flac 192.168.1.8:/tmp
-> asuardi@192.168.1.8's password:
-> KM_9-23-04_17_The Closest Thing to Crazy.flac 100%   38MB   1.7MB/s   00:22
-> 
-> Bottom line - old driver has better performance than the new one,
->  but most noticeably delivers consistent performance.
-> 
-> I will be available for testing starting Thursday 30th as I'll be on
->  the road since then. Of course if the problem is identified and
->  fixed earlier, I won't cry ;)
+Ingo, could this be due to the migrate task latency?  This was where I
+saw the problem with the 50ms latency running hack bench.  I remember
+there was a bug in the older latency tool that didn't catch this latency
+before.
 
-Well.  It's not a huge regression.  It's a 50%ish regression.  We've done
-worse ;)
+I'm just getting back to looking at the latest stuff.  I had some
+customer deliveries lately and haven't had time to look at the new
+goodies.
+
+-- Steve
+
 

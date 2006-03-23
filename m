@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWCWGrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbWCWGru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbWCWGrg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 01:47:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWCWGrg
+	id S932445AbWCWGru (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 01:47:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbWCWGru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 01:47:36 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:26752 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932163AbWCWGrf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 01:47:35 -0500
-Date: Wed, 22 Mar 2006 22:47:50 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Eli Collins <ecollins@vmware.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>
-Subject: Re: [Xen-devel] [RFC PATCH 25/35] Add Xen time abstractions
-Message-ID: <20060323064750.GV15997@sorel.sous-sol.org>
-References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063800.241815000@sorel.sous-sol.org> <442214A0.2000004@vmware.com>
+	Thu, 23 Mar 2006 01:47:50 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:21425 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S932368AbWCWGrr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 01:47:47 -0500
+Date: Thu, 23 Mar 2006 17:47:19 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Miles Bader <miles@gnu.org>
+Cc: miles.bader@necel.com, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/2] create struct compat_timex and use it everywhere
+Message-Id: <20060323174719.6d4387ff.sfr@canb.auug.org.au>
+In-Reply-To: <buofyl9llau.fsf@dhapc248.dev.necel.com>
+References: <20060323164623.699f569e.sfr@canb.auug.org.au>
+	<buofyl9llau.fsf@dhapc248.dev.necel.com>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <442214A0.2000004@vmware.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Thu__23_Mar_2006_17_47_19_+1100_B19FhjzL4/7qH+P+"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Eli Collins (ecollins@vmware.com) wrote:
-> >--- xen-subarch-2.6.orig/arch/i386/kernel/Makefile
-> >+++ xen-subarch-2.6/arch/i386/kernel/Makefile
-> >@@ -9,8 +9,11 @@ obj-y	:= process.o semaphore.o signal.o 
-> > 		pci-dma.o i386_ksyms.o i387.o dmi_scan.o bootflag.o \
-> > 		quirks.o i8237.o topology.o
-> > 
-> >+timers-y			:= timers/
-> >+timers-$(CONFIG_XEN)		:=
-> >+
-> 
-> You need to disable CONFIG_HPET_TIMER for CONFIG_XEN, otherwise 
-> select_timer is undefined since you don't include timers here.
+--Signature=_Thu__23_Mar_2006_17_47_19_+1100_B19FhjzL4/7qH+P+
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks, you're right.  It's done the main Xen tree, didn't make it into
-this patchset, fixed.
+On Thu, 23 Mar 2006 15:36:25 +0900 Miles Bader <miles.bader@necel.com> wrot=
+e:
+>
+> BTW, why not keep use the parisc version of the structure for the common
+> version, as it has comments for each field (not world breaking, but a
+> nice little thing)?
 
-thanks,
--chris
+I figured if you wanted to understand the structure, you could look at the
+real struct timex.
+
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+--Signature=_Thu__23_Mar_2006_17_47_19_+1100_B19FhjzL4/7qH+P+
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFEIkR8FdBgD/zoJvwRAhTVAJ9GUbyaG41Q2R9hd1s4+VOv/GmS8gCfffcx
+NTZewrVybgslsynMYYKZ3nw=
+=IdTO
+-----END PGP SIGNATURE-----
+
+--Signature=_Thu__23_Mar_2006_17_47_19_+1100_B19FhjzL4/7qH+P+--

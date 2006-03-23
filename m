@@ -1,63 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030231AbWCWL6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030235AbWCWMAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030231AbWCWL6j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 06:58:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbWCWL6j
+	id S1030235AbWCWMAX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 07:00:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbWCWMAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 06:58:39 -0500
-Received: from tristate.vision.ee ([194.204.30.144]:11994 "HELO mail.city.ee")
-	by vger.kernel.org with SMTP id S1030231AbWCWL6i (ORCPT
+	Thu, 23 Mar 2006 07:00:22 -0500
+Received: from rune.pobox.com ([208.210.124.79]:38561 "EHLO rune.pobox.com")
+	by vger.kernel.org with ESMTP id S1030235AbWCWMAW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 06:58:38 -0500
-Message-ID: <44228D6D.4060405@vision.ee>
-Date: Thu, 23 Mar 2006 13:58:37 +0200
-From: =?UTF-8?B?TGVuYXIgTMO1aG11cw==?= <lenar@vision.ee>
-User-Agent: Mail/News 1.5 (X11/20060309)
-MIME-Version: 1.0
+	Thu, 23 Mar 2006 07:00:22 -0500
+Date: Thu, 23 Mar 2006 06:00:18 -0600
+From: Rodney Gordon II <meff@pobox.com>
 To: Con Kolivas <kernel@kolivas.org>
-CC: Andrew Morton <akpm@osdl.org>, ck@vds.kolivas.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ck] swap prefetching merge plans
-References: <20060322205305.0604f49b.akpm@osdl.org> <200603231804.36334.kernel@kolivas.org>
-In-Reply-To: <200603231804.36334.kernel@kolivas.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: ck list <ck@vds.kolivas.org>, linux list <linux-kernel@vger.kernel.org>
+Subject: Re: [ck] 2.6.16-ck1
+Message-ID: <20060323120018.GA10050@spherenet.spherevision.org>
+Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
+	ck list <ck@vds.kolivas.org>,
+	linux list <linux-kernel@vger.kernel.org>
+References: <200603202145.31464.kernel@kolivas.org> <20060323113118.GA9329@spherenet.spherevision.org> <cone.1143114017.303805.31285.501@kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cone.1143114017.303805.31285.501@kolivas.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> On Thu, 23 Mar 2006 03:53 pm, Andrew Morton wrote:
->   
->>   Still don't have a compelling argument for this, IMO.
->>     
-I bet there are tons and tons of very big iron server related stuff
-merged daily for which ordinary Linux desktop users can't find
-any compelling reasons why are those merged.
+On Thu, Mar 23, 2006 at 10:40:17PM +1100, Con Kolivas wrote:
+> Rodney Gordon II writes:
+> 
+> >Good job Con, on your patches.. As far as the kernel in general, I'd
+> >like to post some warnings:
+> 
+> Thanks.
+> 
+> >Adaptive readahead: I had probs with this before, and I still do.. On
+> >a desktop if you have odd problems (nothing responding for SECONDS,
+> >very slow disk I/O during heavy I/O, etc..) disable it.
+> 
+> I was concerned about that myself which is why the only reason I included 
+> it was because it came in a configurable form where you could choose to 
+> enable it, and the default was off, and the config option even said 
+> suitable to _servers_, not desktops.
 
-That luckily doesn't mean they are not useful. At least for some
-groups for some corner cases. It's the same with this patch.
-There are users who really find this patch useful. It's showing
-real benefit which many can feel right away. It's not like getting a percent
-more of speed out of some micro-benchmark. I really do not like
-vanilla kernel in the mornings when everything slowly crawls
-back (and sometimes it seems for hours). With this patch it feels
-like there were no night in between.
+Yea, just thought I would try it again sighting the improvements in
+the ? docs in menuconfig, was just disappointed again.
 
-We, Linux desktop users really like this. Why not merge this? It's not
-like it's very intrusive patch.
+> >The new Yukon2 "sky2" driver: This one really pissed me off. It had me
+> >thinking apache2 AND my linksys router we're on the brink. For some
+> >unknown reason at least for me, in FF it would only half-load some
+> >pages, including ones on localhost AND my router (10.1.1.1) ... I
+> >dunno what the hell is up with this one. I have to stay with the
+> >syskonnect.com sk98lin patch, which.. doesn't work with 2.6.16 so I am
+> >back to 2.6.15 at the moment.
+> >
+> >nVidia drivers: Broken. I posted a ftbfs bug on the debian bts, here
+> >is a current patch that works against the current release:
+> >http://bugs.debian.org/cgi-bin/bugreport.cgi/nvidia-kernel-source_1.0.8178-2.diff?bug=357992;msg=15;att=1
+> 
+> Luckily none of these are my fault.
 
-It's the only reason why I compile my own kernels for my Ubuntu. And I
-actually would like to spend that time one something more useful. And
-when Con says it might consider dropping this wonderful patch all together
-when mainline doesn't want it - I'm kind of shocked. No, I do not blame 
-Con,
-he really has tried very hard to get this included and all he gets is 
-brick wall.
-He doesn't deserve this I think.
+Yep, just warnings in general.
 
-But anyway I would be very sorry to see this patch sent to oblivion.
+> >All in all, my experience sucked for the first time on this kernel.
+> 
+> /me does the "not my fault" look. 
 
-This is all I wanted to say and I hope it made difference a bit,
+LOL, I know, just warnings in general like I have said.
 
-Lenar
+> >Good luck with this new one..
+> 
+> Heh. No new one in the works just yet, but I'm actually not planning on 
+> changing anything. Turn adaptive readahead off, and you're left with out of 
+> kernel tree, or worse, binary driver problems. 
 
+Turned it off, disk probs are gone.
+
+Meant to say "Good luck with this new mainline one.."
+
+Your patches are great.. Thus, why I started this post with "Good
+job Con, on your patches.." ;)
+
+-r
+
+
+-- 
+Rodney "meff" Gordon II               -*-              meff@pobox.com
+Systems Administrator / Coder Geek    -*-       Open yourself to OpenSource

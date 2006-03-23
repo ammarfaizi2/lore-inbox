@@ -1,184 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWCWRvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWCWRxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751439AbWCWRvd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 12:51:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWCWRvd
+	id S1751419AbWCWRxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 12:53:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbWCWRxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 12:51:33 -0500
-Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:20628 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1751361AbWCWRvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 12:51:32 -0500
-To: akpm@osdl.org
-CC: trond.myklebust@fys.uio.no, chrisw@sous-sol.org, matthew@wil.cx,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] remove steal_locks()
-Message-Id: <E1FMTxP-00063O-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 23 Mar 2006 18:50:47 +0100
+	Thu, 23 Mar 2006 12:53:25 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:17887 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1751419AbWCWRxY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 12:53:24 -0500
+Date: Thu, 23 Mar 2006 14:53:24 -0600
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, bob.picco@hp.com, iwamoto@valinux.co.jp,
+       christoph@lameter.com, wfg@mail.ustc.edu.cn, npiggin@suse.de,
+       torvalds@osdl.org, riel@redhat.com
+Subject: Re: [PATCH 00/34] mm: Page Replacement Policy Framework
+Message-ID: <20060323205324.GA11676@dmt.cnet>
+References: <20060322223107.12658.14997.sendpatchset@twins.localnet> <20060322145132.0886f742.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060322145132.0886f742.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the steal_locks() function.
 
-steal_locks() doesn't work correctly with any filesystem that does
-it's own lock management, including NFS, CIFS, etc.
+On Wed, Mar 22, 2006 at 02:51:32PM -0800, Andrew Morton wrote:
+> Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+> >
+> > 
+> > This patch-set introduces a page replacement policy framework and 4 new 
+> > experimental policies.
+> 
+> Holy cow.
+> 
+> > The page replacement algorithm determines which pages to swap out.
+> > The current algorithm has some problems that are increasingly noticable, even
+> > on desktop workloads.
+> 
+> Rather than replacing the whole lot four times I'd really prefer to see
+> precise descriptions of these problems, see if we can improve the situation
+> incrementally rather than wholesale slash-n-burn... 
+>
+> Once we've done that work to the best of our ability, *then* we're in a
+> position to evaluate the performance benefits of this new work.  Because
+> there's not much point in comparing known-to-have-unaddressed-problems old
+> code with fancy new code.
 
-In addition it has weird semantics on local filesystems in case tasks
-sharing file-descriptor tables are doing POSIX locking operations in
-parallel to execve().
+IMHO the page replacement framework intent is wider than fixing the     
+currently known performance problems.
 
-The steal_locks() function has an effect on applications doing:
+It allows easier implementation of new algorithms, which are being
+invented/adapted over time as necessity appears. At the moment Linux is
+stuck with a single policy - and if you think for a moment about the
+wide range of scenarios where Linux is being used its easy to conclude
+that one policy can't fit all.
 
-clone(CLONE_FILES)
-  /* in child */
-  lock
-  execve
-  lock
+It would be great to provide an interface for easier development of
+such ideas - keep in mind that page replacement is an area of active
+research.
 
-POSIX locks acquired before execve (by "child", "parent" or any
-further task sharing files_struct) will after the execve be owned
-exclusively by "child".
+One example (which I mentioned several times) is power saving:
 
-According to Chris Wright some LSB/LTP kind of suite triggers without
-the stealing behavior, but there's no known real-world application
-that would also fail.
+PB-LRU: A Self-Tuning Power Aware Storage Cache Replacement Algorithm
+for Conserving Disk Energy.
 
-Apps using NPTL are not affected, since all other threads are killed
-before execve.
+> 2.6.16-rc6 seems to do OK.  I assume the cyclic patterns exploit the lru
+> worst case thing?  Has consideration been given to tweaking the existing
+> code, detect the situation and work avoid the problem?
 
-Apps using LinuxThreads are only affected if they
+Use-once fixes the cyclic access pattern case - but at the moment we don't 
+have use-once for memory mapped pages.
 
-  - have multiple threads during exec (LinuxThreads doesn't kill other
-    threads, the app may do it with pthread_kill_other_threads_np())
-  - rely on POSIX locks being inherited across exec
+http://marc.theaimsgroup.com/?l=linux-mm&m=113721453502138&w=2
 
-Both conditions are documented, but not their interaction.
+Nick mentions:
 
-Apps using clone() natively are affected if they
+"Yes, I found that also doing use-once on mapped pages caused fairly
+huge slowdowns in some cases. File IO could much more easily cause X and
+its applications to get swapped out."
 
-  - use clone(CLONE_FILES)
-  - rely on POSIX locks being inherited across exec
+Anyway, thats not the only problem with LRU, but one of them. The most
+fundamental one is the lack of page access frequency book keeping:
 
-The above scenarios are unlikely, but possible.
+http://www.linux-mm.org/PageReplacementTesting
 
-If the patch is vetoed, there's a plan B, that involves mostly keeping
-the weird stealing semantics, but changing the way lock ownership is
-handled so that network and local filesystems work consistently.
+Frequency
 
-That would add more complexity though, so this solution seems to be
-preferred by most people.
+The most significant issue with LRU is that it uses too little
+information to base the replacement decision: recency alone. It does not
+take frequency of page accesses into account.
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+Here is one example from the LRU-K paper.
 
-Index: linux/fs/binfmt_elf.c
-===================================================================
---- linux.orig/fs/binfmt_elf.c	2006-03-22 16:09:10.000000000 +0100
-+++ linux/fs/binfmt_elf.c	2006-03-22 16:11:13.000000000 +0100
-@@ -754,7 +754,6 @@ static int load_elf_binary(struct linux_
- 
- 	/* Discard our unneeded old files struct */
- 	if (files) {
--		steal_locks(files);
- 		put_files_struct(files);
- 		files = NULL;
- 	}
-Index: linux/fs/binfmt_misc.c
-===================================================================
---- linux.orig/fs/binfmt_misc.c	2006-03-22 16:09:10.000000000 +0100
-+++ linux/fs/binfmt_misc.c	2006-03-22 16:11:13.000000000 +0100
-@@ -203,7 +203,6 @@ static int load_misc_binary(struct linux
- 		goto _error;
- 
- 	if (files) {
--		steal_locks(files);
- 		put_files_struct(files);
- 		files = NULL;
- 	}
-Index: linux/fs/exec.c
-===================================================================
---- linux.orig/fs/exec.c	2006-03-22 16:09:10.000000000 +0100
-+++ linux/fs/exec.c	2006-03-22 16:11:13.000000000 +0100
-@@ -859,7 +859,6 @@ int flush_old_exec(struct linux_binprm *
- 	bprm->mm = NULL;		/* We're using it now */
- 
- 	/* This is the point of no return */
--	steal_locks(files);
- 	put_files_struct(files);
- 
- 	current->sas_ss_sp = current->sas_ss_size = 0;
-Index: linux/fs/locks.c
-===================================================================
---- linux.orig/fs/locks.c	2006-03-22 16:10:23.000000000 +0100
-+++ linux/fs/locks.c	2006-03-22 16:11:13.000000000 +0100
-@@ -2174,58 +2174,6 @@ int lock_may_write(struct inode *inode, 
- 
- EXPORT_SYMBOL(lock_may_write);
- 
--static inline void __steal_locks(struct file *file, fl_owner_t from)
--{
--	struct inode *inode = file->f_dentry->d_inode;
--	struct file_lock *fl = inode->i_flock;
--
--	while (fl) {
--		if (fl->fl_file == file && fl->fl_owner == from)
--			fl->fl_owner = current->files;
--		fl = fl->fl_next;
--	}
--}
--
--/* When getting ready for executing a binary, we make sure that current
-- * has a files_struct on its own. Before dropping the old files_struct,
-- * we take over ownership of all locks for all file descriptors we own.
-- * Note that we may accidentally steal a lock for a file that a sibling
-- * has created since the unshare_files() call.
-- */
--void steal_locks(fl_owner_t from)
--{
--	struct files_struct *files = current->files;
--	int i, j;
--	struct fdtable *fdt;
--
--	if (from == files)
--		return;
--
--	lock_kernel();
--	j = 0;
--	rcu_read_lock();
--	fdt = files_fdtable(files);
--	for (;;) {
--		unsigned long set;
--		i = j * __NFDBITS;
--		if (i >= fdt->max_fdset || i >= fdt->max_fds)
--			break;
--		set = fdt->open_fds->fds_bits[j++];
--		while (set) {
--			if (set & 1) {
--				struct file *file = fdt->fd[i];
--				if (file)
--					__steal_locks(file, from);
--			}
--			i++;
--			set >>= 1;
--		}
--	}
--	rcu_read_unlock();
--	unlock_kernel();
--}
--EXPORT_SYMBOL(steal_locks);
--
- static int __init filelock_init(void)
- {
- 	filelock_cache = kmem_cache_create("file_lock_cache",
-Index: linux/include/linux/fs.h
-===================================================================
---- linux.orig/include/linux/fs.h	2006-03-22 16:09:10.000000000 +0100
-+++ linux/include/linux/fs.h	2006-03-22 16:11:13.000000000 +0100
-@@ -767,7 +767,6 @@ extern int setlease(struct file *, long,
- extern int lease_modify(struct file_lock **, int);
- extern int lock_may_read(struct inode *, loff_t start, unsigned long count);
- extern int lock_may_write(struct inode *, loff_t start, unsigned long count);
--extern void steal_locks(fl_owner_t from);
- 
- struct fasync_struct {
- 	int	magic;
+"The LRU-K Page-Replacement Algorithm for Database Disk Buffering":
+
+"Consider a multi-user database application, which references randomly
+chosen customer records through a clustered B-tree indexed key, CUST-ID,
+to retrieve desired information. Assume simplistically that 20,000
+customers exist, that a customer reeord is 2000 bytes in length, and
+that space needed for the B-tree index at the leaf level, free space
+included, is 20 bytes for each key entry. Then if disk pages contain
+4000 bytes of usable space and ean be packed full, we require 100 pages
+to hold the leaf level nodes of the B-tree index (there is a sin- gle
+B-tree root node), and 10,000 pages to hold the reeords. The pattern of
+reference to these pages (ignoring the B-tree root node) is clearly:
+11, Rl, 12, R2, 13, R3, ... alternate references to random index leaf
+pages and record pages. If we can only afford to buffer 101 pages
+in memory for this application, the B-tree root node is automatic;
+we should buffer all the B-tree leaf pages, since each of them is
+referenced with a probability of .005 (once in each 200 general *page*
+references), while it is clearly wasteful to displace one of these leaf
+pages with a data *page*, since data pages have only .00005 probability
+of reference (once in each 20,000 general *page* references). Using the
+LRU *algorithm*, however, the pages held in memory buffers will be the
+hundred most recently referenced ones. To a first approximation, this
+means 50 B-tree leaf pages and 50 record pages. Given that a *page* gets
+no extra credit for being referenced twice in the recent past and that
+this is more likely to happen with B-tree leaf pages, there will even
+be slightly more data pages present in memory than leaf pages. This
+is clearly inappropriate behavior for a very common paradigm of disk
+accesses."
+
+To me it appears natural that page replacement should be pluggable and
+not hard coded in the operating system.
+
+

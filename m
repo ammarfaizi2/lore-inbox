@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWCWTBn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422663AbWCWTD2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030222AbWCWTBn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 14:01:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWCWTBn
+	id S1422663AbWCWTD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 14:03:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422664AbWCWTD2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 14:01:43 -0500
-Received: from mail.gmx.de ([213.165.64.20]:28332 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030222AbWCWTBm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 14:01:42 -0500
-X-Authenticated: #704063
-Subject: Re: [Patch] Pointer dereference in net/irda/ircomm/ircomm_tty.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: Alexey Dobriyan <adobriyan@gmail.com>
+	Thu, 23 Mar 2006 14:03:28 -0500
+Received: from baldrick.bootc.net ([83.142.228.48]:48802 "EHLO
+	baldrick.bootc.net") by vger.kernel.org with ESMTP id S1422663AbWCWTD1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 14:03:27 -0500
+Message-ID: <4422F10B.9080608@bootc.net>
+Date: Thu, 23 Mar 2006 19:03:39 +0000
+From: Chris Boot <bootc@bootc.net>
+User-Agent: Thunderbird 1.5 (X11/20060309)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060322232247.GD7790@mipter.zuzino.mipt.ru>
-References: <1143067566.26895.8.camel@alice>
-	 <20060322232247.GD7790@mipter.zuzino.mipt.ru>
-Content-Type: text/plain
-Date: Thu, 23 Mar 2006 20:01:39 +0100
-Message-Id: <1143140499.17843.7.camel@alice>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+Subject: Re: Libata PATA for 2.6.16
+References: <1142869095.20050.32.camel@localhost.localdomain>
+In-Reply-To: <1142869095.20050.32.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Hi Alan,
 
-On Thu, 2006-03-23 at 02:22 +0300, Alexey Dobriyan wrote:
-> On Wed, Mar 22, 2006 at 11:46:05PM +0100, Eric Sesterhenn wrote:
-> > this fixes coverity bugs #855 and #854. In both cases tty
-> > is dereferenced before getting checked for NULL.
+Alan Cox wrote:
+> Can be found at the usual location
 > 
-> Before Al will flame you,
+> 	http://zeniv.linux.org.uk/~alan/IDE
+> 
+> Some further small changes and updates, in particular the use of
+> platform device class for VLB/ISA/legacy IDE ports and the removal of
+> the "no device" special cases from the core.
+> 
+> Alan
 
-I know you prefer doing it yourself :)
+If you're still looking for success reports, I just burned a DVD on 
+2.6.16-ide1 just fine. At the final stages of burning I got a few 
+messages about the burner not being ready but it kept trying and 
+eventually succeeded writing the lead-out. DVD works fine.
 
-> IMO, what should be done is removing asserts checking for "self",
-> because ->driver_data is filled in ircomm_tty_open() with valid pointer.
+Still not tried the pesky tape drive, those tapes I ordered weeks ago 
+are still on back order! It is detected properly and claimed by 'st' 
+through.
 
-Updated patch below.
+HTH,
+Chris
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-
---- linux-2.6.16-git6/net/irda/ircomm/ircomm_tty.c.orig	2006-03-23 19:58:50.000000000 +0100
-+++ linux-2.6.16-git6/net/irda/ircomm/ircomm_tty.c	2006-03-23 19:59:31.000000000 +0100
-@@ -501,7 +501,6 @@ static void ircomm_tty_close(struct tty_
- 	if (!tty)
- 		return;
- 
--	IRDA_ASSERT(self != NULL, return;);
- 	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
- 
- 	spin_lock_irqsave(&self->spinlock, flags);
-@@ -1011,7 +1010,6 @@ static void ircomm_tty_hangup(struct tty
- 
- 	IRDA_DEBUG(0, "%s()\n", __FUNCTION__ );
- 
--	IRDA_ASSERT(self != NULL, return;);
- 	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
- 
- 	if (!tty)
-
-
+-- 
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/

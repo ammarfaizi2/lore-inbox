@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965162AbWCWDta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965167AbWCWDv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965162AbWCWDta (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 22:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965167AbWCWDta
+	id S965167AbWCWDv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 22:51:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbWCWDv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 22:49:30 -0500
-Received: from smtp111.sbc.mail.re2.yahoo.com ([68.142.229.94]:24938 "HELO
-	smtp111.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S965162AbWCWDt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 22:49:29 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Greg KH <gregkh@suse.de>
-Subject: Re: [RFC][PATCH] warn when statically-allocated kobjects are used
-Date: Wed, 22 Mar 2006 22:49:22 -0500
-User-Agent: KMail/1.9.1
-Cc: Arjan van de Ven <arjan@infradead.org>, Dave Hansen <haveblue@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-References: <20060317013016.5C643E69@localhost.localdomain> <1142611444.3033.94.camel@laptopd505.fenrus.org> <20060317174352.GA2840@suse.de>
-In-Reply-To: <20060317174352.GA2840@suse.de>
+	Wed, 22 Mar 2006 22:51:57 -0500
+Received: from mga03.intel.com ([143.182.124.21]:22171 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S965167AbWCWDv4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 22:51:56 -0500
+X-IronPort-AV: i="4.03,120,1141632000"; 
+   d="scan'208"; a="14460894:sNHT650410621"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603222249.22620.dtor_core@ameritech.net>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Dual Core on Linux questions
+Date: Wed, 22 Mar 2006 19:51:50 -0800
+Message-ID: <88056F38E9E48644A0F562A38C64FB6007A24C57@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Dual Core on Linux questions
+Thread-Index: AcZOLCDdu+CVxm+dQRWuKghS3+5RnQAAGsWw
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Jeff Garzik" <jeff@garzik.org>
+Cc: "Mattia Dongili" <malattia@linux.it>,
+       "Alejandro Bonilla" <abonilla@linuxwireless.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 23 Mar 2006 03:51:51.0690 (UTC) FILETIME=[1E626EA0:01C64E2D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 March 2006 12:43, Greg KH wrote:
-> On Fri, Mar 17, 2006 at 05:04:03PM +0100, Arjan van de Ven wrote:
-> > 
-> > > +warn:
-> > > +	printk("---- begin silly warning ----\n");
-> > > +	printk("This is a janitorial warning, not a kernel bug.\n");
-> > 
-> > technically it IS a kernel bug ;)
-> 
-> Until we fix up all of the struct bus and decl_subsys() usages in the
-> kernel, this should show a lot of false positives...
-> 
+ 
 
-Plus IIRC ARM creates bunch of platform devices which are statically
-allocated. But because they never get unregistered everything works
-just fine.
+>-----Original Message-----
+>From: Jeff Garzik [mailto:jeff@garzik.org] 
+>Sent: Wednesday, March 22, 2006 7:45 PM
+>To: Pallipadi, Venkatesh
+>Cc: Mattia Dongili; Alejandro Bonilla; linux-kernel@vger.kernel.org
+>Subject: Re: Dual Core on Linux questions
+>
+>Pallipadi, Venkatesh wrote:
+>>>From cpufreq perspective multiple things are possible in the way
+>> processor will support the multi-core frequency changing. and most of
+>> the things are handled at cpufreq inside kernel. I think 
+>there should be
+>> minima changes required in cpufreqd if any.
+>> Options:
+>
+>
+>4) we power down a core.
+>
 
--- 
-Dmitry
+That is more of a logical hotplug issue than cpufreq. But, it is better
+to keep the CPU on and scheduler do the best use of it. If CPU has
+nothing to run, it will go to deepest C-state possible and idle in that
+state anyway. 
+
+Thanks,
+Venki

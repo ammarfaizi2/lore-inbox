@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751024AbWCWRR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWCWRTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751024AbWCWRR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 12:17:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbWCWRR2
+	id S1751028AbWCWRTk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 12:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbWCWRTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 12:17:28 -0500
-Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:42981 "EHLO
-	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1750787AbWCWRR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 12:17:27 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Thu, 23 Mar 2006 17:17:17 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: [2.6-git] NTFS: Release 2.1.27
-Message-ID: <Pine.LNX.4.64.0603231713430.18984@hermes-2.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 23 Mar 2006 12:19:40 -0500
+Received: from poup.poupinou.org ([195.101.94.96]:23358 "EHLO
+	poup.poupinou.org") by vger.kernel.org with ESMTP id S1751023AbWCWRTj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 12:19:39 -0500
+Date: Thu, 23 Mar 2006 18:19:36 +0100
+To: "Brace, Don" <dab@hp.com>
+Cc: ISS StorageDev <iss_storagedev@hp.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] performance issues for cciss driver.
+Message-ID: <20060323171936.GA3144@poupinou.org>
+References: <20060323085711.GA1281@poupinou.org> <B8857D46D8618E48B51E0199BB9C26F31A3878@cceexcsp04.americas.cpqcorp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <B8857D46D8618E48B51E0199BB9C26F31A3878@cceexcsp04.americas.cpqcorp.net>
+User-Agent: Mutt/1.5.9i
+From: Bruno Ducrot <ducrot@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, please pull from
+On Thu, Mar 23, 2006 at 09:06:12AM -0600, Brace, Don wrote:
+> I am currently working on a correction to this problem.
+> 
+> We are currently working on the best value for the read-ahead setting.
+> This includes no read-ahead.
+> 
+> The next release should be better.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/aia21/ntfs-2.6.git
+Thanks.  I've actually setup an rc script for some of our servers
+where this kind of problem happens in the meantime.
 
-This is the next NTFS update containing various bugfixes and cleanups. 
+BTW I can test on another server any patch you please.
 
-Please apply.  Thanks!
+Cheers,
 
-Diffstat:
-
- Documentation/filesystems/ntfs.txt |    5 +
- fs/ntfs/ChangeLog                  |   32 +++++++++-
- fs/ntfs/Makefile                   |    2
- fs/ntfs/aops.c                     |   15 +++-
- fs/ntfs/attrib.c                   |   36 ++++++-----
- fs/ntfs/compress.c                 |    4 -
- fs/ntfs/dir.c                      |    2
- fs/ntfs/file.c                     |   17 -----
- fs/ntfs/inode.c                    |  114 +++++++++++++++++++++----------------
- fs/ntfs/inode.h                    |   13 ++--
- fs/ntfs/layout.h                   |   46 +++++++-------
- fs/ntfs/mft.c                      |   69 ++++++++++------------
- fs/ntfs/mft.h                      |    6 -
- fs/ntfs/namei.c                    |   10 +--
- fs/ntfs/ntfs.h                     |    2
- fs/ntfs/runlist.c                  |   12 ++-
- fs/ntfs/super.c                    |   88 +++++++++++++++-------------
- fs/ntfs/unistr.c                   |   52 ++++++++++------
- 18 files changed, 296 insertions(+), 229 deletions(-)
-
-I am sending the changesets as actual patches generated using git
-format-patch for non-git users in follow up emails (in reply to this one).
-
-Best regards,
-
-	Anton
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Bruno Ducrot
+
+--  Which is worse:  ignorance or apathy?
+--  Don't know.  Don't care.

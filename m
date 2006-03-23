@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbWCWCua@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbWCWDCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964916AbWCWCua (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 21:50:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbWCWCua
+	id S932531AbWCWDCK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 22:02:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWCWDCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 21:50:30 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:60552 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964910AbWCWCu3 (ORCPT
+	Wed, 22 Mar 2006 22:02:09 -0500
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:56966 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S932526AbWCWDCI convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 21:50:29 -0500
-Date: Wed, 22 Mar 2006 18:37:36 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: eranian@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org, perfmon@napali.hpl.hp.com,
-       linux-ia64@vger.kernel.org
-Subject: Re: perfmon2 context: thread_struct vs. task_struct?
-Message-Id: <20060322183736.4a3bb1c2.akpm@osdl.org>
-In-Reply-To: <20060322233253.GB26602@frankl.hpl.hp.com>
-References: <20060322233253.GB26602@frankl.hpl.hp.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Mar 2006 22:02:08 -0500
+From: Francesco Biscani <biscani@pd.astro.it>
+To: "Brown, Len" <len.brown@intel.com>
+Subject: Re: ACPI error in 2.6.16 (AE_TIME, Returned by Handler for EmbeddedControl)
+Date: Thu, 23 Mar 2006 04:01:58 +0100
+User-Agent: KMail/1.9.1
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org, "Yu, Luming" <luming.yu@intel.com>,
+       Jiri Slaby <slaby@liberouter.org>
+References: <F7DC2337C7631D4386A2DF6E8FB22B30067BF1BC@hdsmsx401.amr.corp.intel.com>
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30067BF1BC@hdsmsx401.amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200603230401.58507.biscani@pd.astro.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephane Eranian <eranian@hpl.hp.com> wrote:
->
-> Hello,
-> 
-> The perfmon2 subsystem maintains a structure per-thread
-> that contains the save-area for the performance counters
-> and related software state. The save area is used on
-> context-switch. There can only be one context per thread.
-> The context is dynamically allocated as such it does not
-> consume memory in each thread. It is dyanmically attached
-> to the thread to monitor.
-> 
-> In the current implementation, the context (pfm_context)
-> pointer is implemented in the thread_struct on the basis
-> that this is somewhat related to machine state.
-> 
-> Historically, the perfmon subsystem only existed on IA-64
-> which made the thread_struct (an arch-specific structure)
-> the obvious place to put this.
-> 
-> Nowadays, perfmon2 supports most major architectures. It
-> may make sense to move the void *pfm_context pointer from 
-> the thread_struct into the task_struct. This would save
-> some indirections, make it readily available to other
-> archiectures when it is ported.
-> 
-> I admit I am not quite clear as to what goes where between
-> thread_struct and task_struct.
-> 
-> Would it make sense  to move the pointer to the perfmon2
-> context into the task_struct?
+On Thursday 23 March 2006 02:45, Brown, Len wrote:
+> does this go away if you boot with "ec_intr=0"?
 
-I'd say so, yes.  Especialy if the struct is the same on all architectures,
-is referred to from non-arch-specific code and is absent if
-CONFIG_PERFMON=n.
+So far it seems like that option solves the problem. But since the bug appears 
+very erratically I think it's better to wait for a few more reboots.
 
+BTW, when I was testing _without_ ec_intr=0 I got this in the log (this 
+happened the first reboot after the one mentioned in my previous mail):
+
+Mar 23 03:48:50 kurtz ACPI: read EC, IB not empty
+Mar 23 03:48:50 kurtz ACPI: read EC, OB not full
+Mar 23 03:48:50 kurtz ACPI Exception (evregion-0409): AE_TIME, Returned by 
+Handler for [EmbeddedControl] [20060127]
+Mar 23 03:48:50 kurtz ACPI Exception (dswexec-0458): AE_TIME, While resolving 
+operands for [AE_NOT_CONFIGURED] [20060127]
+Mar 23 03:48:50 kurtz ACPI Error (psparse-0517): Method parse/execution failed 
+[\_SB_.PCI0.ISA_.EC0_._Q20] (Node c13ecbc0), AE_TIME
+
+This is an hp pavilion ze5616ea laptop, FYI.
+
+Thanks and best regards,
+
+  Francesco
+
+-- 
+Dr. Francesco Biscani
+Dipartimento di Astronomia
+Università di Padova
+biscani@pd.astro.it

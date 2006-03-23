@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932618AbWCWR1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbWCWR1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932618AbWCWR1r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 12:27:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWCWR1r
+	id S932460AbWCWR1b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 12:27:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWCWR1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 12:27:47 -0500
-Received: from ppsw-7.csi.cam.ac.uk ([131.111.8.137]:63940 "EHLO
+	Thu, 23 Mar 2006 12:27:31 -0500
+Received: from ppsw-7.csi.cam.ac.uk ([131.111.8.137]:42692 "EHLO
 	ppsw-7.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S932170AbWCWR1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 12:27:44 -0500
+	id S932170AbWCWR1a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 12:27:30 -0500
 X-Cam-SpamDetails: Not scanned
 X-Cam-AntiVirus: No virus found
 X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Thu, 23 Mar 2006 17:24:54 +0000 (GMT)
+Date: Thu, 23 Mar 2006 17:27:01 +0000 (GMT)
 From: Anton Altaparmakov <aia21@cam.ac.uk>
 To: Linus Torvalds <torvalds@osdl.org>
 cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH 06/14] NTFS: Add support for sparse files which have a
- compression unit of 0.
-In-Reply-To: <Pine.LNX.4.64.0603231723320.18984@hermes-2.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.64.0603231724200.18984@hermes-2.csi.cam.ac.uk>
+Subject: [PATCH 09/14] NTFS: Improve comments on file attribute flags in
+ fs/ntfs/layout.h.
+In-Reply-To: <Pine.LNX.4.64.0603231725420.18984@hermes-2.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.64.0603231726250.18984@hermes-2.csi.cam.ac.uk>
 References: <Pine.LNX.4.64.0603231713430.18984@hermes-2.csi.cam.ac.uk>
  <Pine.LNX.4.64.0603231717460.18984@hermes-2.csi.cam.ac.uk>
  <Pine.LNX.4.64.0603231720130.18984@hermes-2.csi.cam.ac.uk>
  <Pine.LNX.4.64.0603231721240.18984@hermes-2.csi.cam.ac.uk>
  <Pine.LNX.4.64.0603231722330.18984@hermes-2.csi.cam.ac.uk>
  <Pine.LNX.4.64.0603231723320.18984@hermes-2.csi.cam.ac.uk>
+ <Pine.LNX.4.64.0603231724200.18984@hermes-2.csi.cam.ac.uk>
+ <Pine.LNX.4.64.0603231724570.18984@hermes-2.csi.cam.ac.uk>
+ <Pine.LNX.4.64.0603231725420.18984@hermes-2.csi.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NTFS: Add support for sparse files which have a compression unit of 0.
+NTFS: Improve comments on file attribute flags in fs/ntfs/layout.h.
 
 Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
@@ -47,225 +50,79 @@ Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
 WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 
  fs/ntfs/ChangeLog |    1 +
- fs/ntfs/attrib.c  |   25 +++++++++++++------
- fs/ntfs/inode.c   |   68 +++++++++++++++++++++++++++++++++++------------------
- fs/ntfs/layout.h  |   19 +++++++++------
- 4 files changed, 75 insertions(+), 38 deletions(-)
+ fs/ntfs/layout.h  |   25 ++++++++++++-------------
+ 2 files changed, 13 insertions(+), 13 deletions(-)
 
-a0646a1f04f1ec4c7514e5b00496b54e054a2c99
+2c2c8c1c211c75d0cc9d7642a569ceac1aecd96d
 diff --git a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
-index 548d905..b577423 100644
+index 41d0381..a3a9d4b 100644
 --- a/fs/ntfs/ChangeLog
 +++ b/fs/ntfs/ChangeLog
-@@ -31,6 +31,7 @@ ToDo/Notes:
- 	- Fix comparison of $MFT and $MFTMirr to not bail out when there are
- 	  unused, invalid mft records which are the same in both $MFT and
- 	  $MFTMirr.
-+	- Add support for sparse files which have a compression unit of 0.
+@@ -37,6 +37,7 @@ ToDo/Notes:
+ 	- Limit name length in fs/ntfs/unistr.c::ntfs_nlstoucs() to maximum
+ 	  allowed by NTFS, i.e. 255 Unicode characters, not including the
+ 	  terminating NULL (which is not stored on disk).
++	- Improve comments on file attribute flags in fs/ntfs/layout.h.
  
  2.1.26 - Minor bug fixes and updates.
  
-diff --git a/fs/ntfs/attrib.c b/fs/ntfs/attrib.c
-index a92b9e9..7a568eb 100644
---- a/fs/ntfs/attrib.c
-+++ b/fs/ntfs/attrib.c
-@@ -1695,7 +1695,9 @@ int ntfs_attr_make_non_resident(ntfs_ino
- 			a->data.non_resident.initialized_size =
- 			cpu_to_sle64(attr_size);
- 	if (NInoSparse(ni) || NInoCompressed(ni)) {
--		a->data.non_resident.compression_unit = 4;
-+		a->data.non_resident.compression_unit = 0;
-+		if (NInoCompressed(ni) || vol->major_ver < 3)
-+			a->data.non_resident.compression_unit = 4;
- 		a->data.non_resident.compressed_size =
- 				a->data.non_resident.allocated_size;
- 	} else
-@@ -1714,13 +1716,20 @@ int ntfs_attr_make_non_resident(ntfs_ino
- 	ni->allocated_size = new_size;
- 	if (NInoSparse(ni) || NInoCompressed(ni)) {
- 		ni->itype.compressed.size = ni->allocated_size;
--		ni->itype.compressed.block_size = 1U <<
--				(a->data.non_resident.compression_unit +
--				vol->cluster_size_bits);
--		ni->itype.compressed.block_size_bits =
--				ffs(ni->itype.compressed.block_size) - 1;
--		ni->itype.compressed.block_clusters = 1U <<
--				a->data.non_resident.compression_unit;
-+		if (a->data.non_resident.compression_unit) {
-+			ni->itype.compressed.block_size = 1U << (a->data.
-+					non_resident.compression_unit +
-+					vol->cluster_size_bits);
-+			ni->itype.compressed.block_size_bits =
-+					ffs(ni->itype.compressed.block_size) -
-+					1;
-+			ni->itype.compressed.block_clusters = 1U <<
-+					a->data.non_resident.compression_unit;
-+		} else {
-+			ni->itype.compressed.block_size = 0;
-+			ni->itype.compressed.block_size_bits = 0;
-+			ni->itype.compressed.block_clusters = 0;
-+		}
- 		vi->i_blocks = ni->itype.compressed.size >> 9;
- 	} else
- 		vi->i_blocks = ni->allocated_size >> 9;
-diff --git a/fs/ntfs/inode.c b/fs/ntfs/inode.c
-index 55263b7..ae34192 100644
---- a/fs/ntfs/inode.c
-+++ b/fs/ntfs/inode.c
-@@ -1,7 +1,7 @@
- /**
-  * inode.c - NTFS kernel inode handling. Part of the Linux-NTFS project.
-  *
-- * Copyright (c) 2001-2005 Anton Altaparmakov
-+ * Copyright (c) 2001-2006 Anton Altaparmakov
-  *
-  * This program/include file is free software; you can redistribute it and/or
-  * modify it under the terms of the GNU General Public License as published
-@@ -24,8 +24,10 @@
- #include <linux/smp_lock.h>
- #include <linux/quotaops.h>
- #include <linux/mount.h>
-+#include <linux/mutex.h>
- 
- #include "aops.h"
-+#include "attrib.h"
- #include "dir.h"
- #include "debug.h"
- #include "inode.h"
-@@ -1064,10 +1066,10 @@ skip_large_dir_stuff:
- 		if (a->non_resident) {
- 			NInoSetNonResident(ni);
- 			if (NInoCompressed(ni) || NInoSparse(ni)) {
--				if (a->data.non_resident.compression_unit !=
--						4) {
-+				if (NInoCompressed(ni) && a->data.non_resident.
-+						compression_unit != 4) {
- 					ntfs_error(vi->i_sb, "Found "
--							"nonstandard "
-+							"non-standard "
- 							"compression unit (%u "
- 							"instead of 4).  "
- 							"Cannot handle this.",
-@@ -1076,16 +1078,26 @@ skip_large_dir_stuff:
- 					err = -EOPNOTSUPP;
- 					goto unm_err_out;
- 				}
--				ni->itype.compressed.block_clusters = 1U <<
--						a->data.non_resident.
--						compression_unit;
--				ni->itype.compressed.block_size = 1U << (
--						a->data.non_resident.
--						compression_unit +
--						vol->cluster_size_bits);
--				ni->itype.compressed.block_size_bits = ffs(
--						ni->itype.compressed.
--						block_size) - 1;
-+				if (a->data.non_resident.compression_unit) {
-+					ni->itype.compressed.block_size = 1U <<
-+							(a->data.non_resident.
-+							compression_unit +
-+							vol->cluster_size_bits);
-+					ni->itype.compressed.block_size_bits =
-+							ffs(ni->itype.
-+							compressed.
-+							block_size) - 1;
-+					ni->itype.compressed.block_clusters =
-+							1U << a->data.
-+							non_resident.
-+							compression_unit;
-+				} else {
-+					ni->itype.compressed.block_size = 0;
-+					ni->itype.compressed.block_size_bits =
-+							0;
-+					ni->itype.compressed.block_clusters =
-+							0;
-+				}
- 				ni->itype.compressed.size = sle64_to_cpu(
- 						a->data.non_resident.
- 						compressed_size);
-@@ -1338,8 +1350,9 @@ static int ntfs_read_locked_attr_inode(s
- 			goto unm_err_out;
- 		}
- 		if (NInoCompressed(ni) || NInoSparse(ni)) {
--			if (a->data.non_resident.compression_unit != 4) {
--				ntfs_error(vi->i_sb, "Found nonstandard "
-+			if (NInoCompressed(ni) && a->data.non_resident.
-+					compression_unit != 4) {
-+				ntfs_error(vi->i_sb, "Found non-standard "
- 						"compression unit (%u instead "
- 						"of 4).  Cannot handle this.",
- 						a->data.non_resident.
-@@ -1347,13 +1360,22 @@ static int ntfs_read_locked_attr_inode(s
- 				err = -EOPNOTSUPP;
- 				goto unm_err_out;
- 			}
--			ni->itype.compressed.block_clusters = 1U <<
--					a->data.non_resident.compression_unit;
--			ni->itype.compressed.block_size = 1U << (
--					a->data.non_resident.compression_unit +
--					vol->cluster_size_bits);
--			ni->itype.compressed.block_size_bits = ffs(
--					ni->itype.compressed.block_size) - 1;
-+			if (a->data.non_resident.compression_unit) {
-+				ni->itype.compressed.block_size = 1U <<
-+						(a->data.non_resident.
-+						compression_unit +
-+						vol->cluster_size_bits);
-+				ni->itype.compressed.block_size_bits =
-+						ffs(ni->itype.compressed.
-+						block_size) - 1;
-+				ni->itype.compressed.block_clusters = 1U <<
-+						a->data.non_resident.
-+						compression_unit;
-+			} else {
-+				ni->itype.compressed.block_size = 0;
-+				ni->itype.compressed.block_size_bits = 0;
-+				ni->itype.compressed.block_clusters = 0;
-+			}
- 			ni->itype.compressed.size = sle64_to_cpu(
- 					a->data.non_resident.compressed_size);
- 		}
 diff --git a/fs/ntfs/layout.h b/fs/ntfs/layout.h
-index bb408d4..f4283e1 100644
+index f4283e1..d34b93c 100644
 --- a/fs/ntfs/layout.h
 +++ b/fs/ntfs/layout.h
-@@ -769,7 +769,7 @@ typedef struct {
- 				compressed.  (This effectively limits the
- 				compression unit size to be a power of two
- 				clusters.)  WinNT4 only uses a value of 4.
--				Sparse files also have this set to 4. */
-+				Sparse files have this set to 0 on XPSP2. */
- /* 35*/			u8 reserved[5];		/* Align to 8-byte boundary. */
- /* The sizes below are only used when lowest_vcn is zero, as otherwise it would
-    be difficult to keep them up-to-date.*/
-@@ -1076,16 +1076,21 @@ typedef struct {
- /* 20*/	sle64 last_access_time;		/* Time this mft record was last
- 					   accessed. */
- /* 28*/	sle64 allocated_size;		/* Byte size of on-disk allocated space
--					   for the data attribute.  So for
--					   normal $DATA, this is the
-+					   for the unnamed data attribute.  So
-+					   for normal $DATA, this is the
- 					   allocated_size from the unnamed
- 					   $DATA attribute and for compressed
- 					   and/or sparse $DATA, this is the
- 					   compressed_size from the unnamed
--					   $DATA attribute.  NOTE: This is a
--					   multiple of the cluster size. */
--/* 30*/	sle64 data_size;		/* Byte size of actual data in data
--					   attribute. */
-+					   $DATA attribute.  For a directory or
-+					   other inode without an unnamed $DATA
-+					   attribute, this is always 0.  NOTE:
-+					   This is a multiple of the cluster
-+					   size. */
-+/* 30*/	sle64 data_size;		/* Byte size of actual data in unnamed
-+					   data attribute.  For a directory or
-+					   other inode without an unnamed $DATA
-+					   attribute, this is always 0. */
- /* 38*/	FILE_ATTR_FLAGS file_attributes;	/* Flags describing the file. */
- /* 3c*/	union {
- 	/* 3c*/	struct {
+@@ -801,13 +801,16 @@ typedef struct {
+ typedef ATTR_RECORD ATTR_REC;
+ 
+ /*
+- * File attribute flags (32-bit).
++ * File attribute flags (32-bit) appearing in the file_attributes fields of the
++ * STANDARD_INFORMATION attribute of MFT_RECORDs and the FILENAME_ATTR
++ * attributes of MFT_RECORDs and directory index entries.
++ *
++ * All of the below flags appear in the directory index entries but only some
++ * appear in the STANDARD_INFORMATION attribute whilst only some others appear
++ * in the FILENAME_ATTR attribute of MFT_RECORDs.  Unless otherwise stated the
++ * flags appear in all of the above.
+  */
+ enum {
+-	/*
+-	 * The following flags are only present in the STANDARD_INFORMATION
+-	 * attribute (in the field file_attributes).
+-	 */
+ 	FILE_ATTR_READONLY		= const_cpu_to_le32(0x00000001),
+ 	FILE_ATTR_HIDDEN		= const_cpu_to_le32(0x00000002),
+ 	FILE_ATTR_SYSTEM		= const_cpu_to_le32(0x00000004),
+@@ -839,18 +842,14 @@ enum {
+ 	   F_A_COMPRESSED, and F_A_ENCRYPTED and preserves the rest.  This mask
+ 	   is used to to obtain all flags that are valid for setting. */
+ 	/*
+-	 * The following flag is only present in the FILE_NAME attribute (in
+-	 * the field file_attributes).
++	 * The flag FILE_ATTR_DUP_FILENAME_INDEX_PRESENT is present in all
++	 * FILENAME_ATTR attributes but not in the STANDARD_INFORMATION
++	 * attribute of an mft record.
+ 	 */
+ 	FILE_ATTR_DUP_FILE_NAME_INDEX_PRESENT	= const_cpu_to_le32(0x10000000),
+ 	/* Note, this is a copy of the corresponding bit from the mft record,
+ 	   telling us whether this is a directory or not, i.e. whether it has
+ 	   an index root attribute or not. */
+-	/*
+-	 * The following flag is present both in the STANDARD_INFORMATION
+-	 * attribute and in the FILE_NAME attribute (in the field
+-	 * file_attributes).
+-	 */
+ 	FILE_ATTR_DUP_VIEW_INDEX_PRESENT	= const_cpu_to_le32(0x20000000),
+ 	/* Note, this is a copy of the corresponding bit from the mft record,
+ 	   telling us whether this file has a view index present (eg. object id
+@@ -891,7 +890,7 @@ typedef struct {
+ 					   Windows this is only updated when
+ 					   accessed if some time delta has
+ 					   passed since the last update. Also,
+-					   last access times updates can be
++					   last access time updates can be
+ 					   disabled altogether for speed. */
+ /* 32*/	FILE_ATTR_FLAGS file_attributes; /* Flags describing the file. */
+ /* 36*/	union {
 -- 
 1.2.3.g9821
 

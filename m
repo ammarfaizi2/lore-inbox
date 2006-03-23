@@ -1,24 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422636AbWCWR2q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422637AbWCWR31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422636AbWCWR2q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 12:28:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422637AbWCWR2q
+	id S1422637AbWCWR31 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 12:29:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422638AbWCWR30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 12:28:46 -0500
-Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:33929 "EHLO
-	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1422636AbWCWR2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 12:28:44 -0500
+	Thu, 23 Mar 2006 12:29:26 -0500
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:40865 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1422637AbWCWR3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 12:29:25 -0500
 X-Cam-SpamDetails: Not scanned
 X-Cam-AntiVirus: No virus found
 X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Thu, 23 Mar 2006 17:28:28 +0000 (GMT)
+Date: Thu, 23 Mar 2006 17:29:12 +0000 (GMT)
 From: Anton Altaparmakov <aia21@cam.ac.uk>
 To: Linus Torvalds <torvalds@osdl.org>
 cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH 11/14] NTFS: Add a missing call to flush_dcache_mft_record_page()
-In-Reply-To: <Pine.LNX.4.64.0603231727040.18984@hermes-2.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.64.0603231727450.18984@hermes-2.csi.cam.ac.uk>
+Subject: [PATCH 12/14] NTFS: Handle the recently introduced -ENAMETOOLONG
+ return value
+In-Reply-To: <Pine.LNX.4.64.0603231727450.18984@hermes-2.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.64.0603231728310.18984@hermes-2.csi.cam.ac.uk>
 References: <Pine.LNX.4.64.0603231713430.18984@hermes-2.csi.cam.ac.uk>
  <Pine.LNX.4.64.0603231717460.18984@hermes-2.csi.cam.ac.uk>
  <Pine.LNX.4.64.0603231720130.18984@hermes-2.csi.cam.ac.uk>
@@ -30,13 +31,14 @@ References: <Pine.LNX.4.64.0603231713430.18984@hermes-2.csi.cam.ac.uk>
  <Pine.LNX.4.64.0603231725420.18984@hermes-2.csi.cam.ac.uk>
  <Pine.LNX.4.64.0603231726250.18984@hermes-2.csi.cam.ac.uk>
  <Pine.LNX.4.64.0603231727040.18984@hermes-2.csi.cam.ac.uk>
+ <Pine.LNX.4.64.0603231727450.18984@hermes-2.csi.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NTFS: Add a missing call to flush_dcache_mft_record_page() in
-      fs/ntfs/inode.c::ntfs_write_inode().
+NTFS: Handle the recently introduced -ENAMETOOLONG return value from
+      fs/ntfs/unistr.c::ntfs_nlstoucs() in fs/ntfs/namei.c::ntfs_lookup().
 
 Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
@@ -51,44 +53,65 @@ Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
 Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
 WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 
- fs/ntfs/ChangeLog |    2 ++
- fs/ntfs/inode.c   |    9 ++++++---
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ fs/ntfs/ChangeLog |    4 ++--
+ fs/ntfs/namei.c   |    7 ++++---
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-20fdcf1d543b1285ef8b1c1993a9221f2eda52dc
+834ba600cefe6847acaebe5e8e984476dfeebf55
 diff --git a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
-index 5fb74e6..d200315 100644
+index d200315..9fb08ef 100644
 --- a/fs/ntfs/ChangeLog
 +++ b/fs/ntfs/ChangeLog
-@@ -41,6 +41,8 @@ ToDo/Notes:
- 	- Fix a bug in fs/ntfs/inode.c::ntfs_read_locked_index_inode() where we
- 	  forgot to update a temporary variable so loading index inodes which
+@@ -16,8 +16,6 @@ ToDo/Notes:
+ 	  inode having been discarded already.  Whether this can actually ever
+ 	  happen is unclear however so it is worth waiting until someone hits
+ 	  the problem.
+-	- Enable the code for setting the NT4 compatibility flag when we start
+-	  making NTFS 1.2 specific modifications.
+ 
+ 2.1.27 - Various bug fixes and cleanups.
+ 
+@@ -43,6 +41,8 @@ ToDo/Notes:
  	  have an index allocation attribute failed.
-+	- Add a missing call to flush_dcache_mft_record_page() in
-+	  fs/ntfs/inode.c::ntfs_write_inode().
+ 	- Add a missing call to flush_dcache_mft_record_page() in
+ 	  fs/ntfs/inode.c::ntfs_write_inode().
++	- Handle the recently introduced -ENAMETOOLONG return value from
++	  fs/ntfs/unistr.c::ntfs_nlstoucs() in fs/ntfs/namei.c::ntfs_lookup().
  
  2.1.26 - Minor bug fixes and updates.
  
-diff --git a/fs/ntfs/inode.c b/fs/ntfs/inode.c
-index 5f4b23d..73791b2 100644
---- a/fs/ntfs/inode.c
-+++ b/fs/ntfs/inode.c
-@@ -3064,9 +3064,12 @@ int ntfs_write_inode(struct inode *vi, i
- 	 * record will be cleaned and written out to disk below, i.e. before
- 	 * this function returns.
- 	 */
--	if (modified && !NInoTestSetDirty(ctx->ntfs_ino))
--		mark_ntfs_record_dirty(ctx->ntfs_ino->page,
--				ctx->ntfs_ino->page_ofs);
-+	if (modified) {
-+		flush_dcache_mft_record_page(ctx->ntfs_ino);
-+		if (!NInoTestSetDirty(ctx->ntfs_ino)) {
-+			mark_ntfs_record_dirty(ctx->ntfs_ino->page,
-+					ctx->ntfs_ino->page_ofs);
-+	}
- 	ntfs_attr_put_search_ctx(ctx);
- 	/* Now the access times are updated, write the base mft record. */
- 	if (NInoDirty(ni))
+diff --git a/fs/ntfs/namei.c b/fs/ntfs/namei.c
+index 78e0cf7..eddb224 100644
+--- a/fs/ntfs/namei.c
++++ b/fs/ntfs/namei.c
+@@ -115,7 +115,9 @@ static struct dentry *ntfs_lookup(struct
+ 	uname_len = ntfs_nlstoucs(vol, dent->d_name.name, dent->d_name.len,
+ 			&uname);
+ 	if (uname_len < 0) {
+-		ntfs_error(vol->sb, "Failed to convert name to Unicode.");
++		if (uname_len != -ENAMETOOLONG)
++			ntfs_error(vol->sb, "Failed to convert name to "
++					"Unicode.");
+ 		return ERR_PTR(uname_len);
+ 	}
+ 	mref = ntfs_lookup_inode_by_name(NTFS_I(dir_ino), uname, uname_len,
+@@ -157,7 +159,7 @@ static struct dentry *ntfs_lookup(struct
+ 		/* Return the error code. */
+ 		return (struct dentry *)dent_inode;
+ 	}
+-	/* It is guaranteed that name is no longer allocated at this point. */
++	/* It is guaranteed that @name is no longer allocated at this point. */
+ 	if (MREF_ERR(mref) == -ENOENT) {
+ 		ntfs_debug("Entry was not found, adding negative dentry.");
+ 		/* The dcache will handle negative entries. */
+@@ -168,7 +170,6 @@ static struct dentry *ntfs_lookup(struct
+ 	ntfs_error(vol->sb, "ntfs_lookup_ino_by_name() failed with error "
+ 			"code %i.", -MREF_ERR(mref));
+ 	return ERR_PTR(MREF_ERR(mref));
+-
+ 	// TODO: Consider moving this lot to a separate function! (AIA)
+ handle_name:
+    {
 -- 
 1.2.3.g9821
 

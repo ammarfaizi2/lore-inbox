@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422631AbWCWQi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWCWQlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422631AbWCWQi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 11:38:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422632AbWCWQi7
+	id S932106AbWCWQlS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 11:41:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbWCWQlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 11:38:59 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50952 "EHLO
+	Thu, 23 Mar 2006 11:41:17 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51976 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1422631AbWCWQi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 11:38:58 -0500
-Date: Thu, 23 Mar 2006 16:38:52 +0000
+	id S932106AbWCWQlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 11:41:17 -0500
+Date: Thu, 23 Mar 2006 16:41:09 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: 2.6.16-git6: build failure: ksysfs.c (h7201_defconfig)
-Message-ID: <20060323163852.GC25849@flint.arm.linux.org.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: 2.6.16-git6: build failure: ne2k-pci: footbridge_defconfig
+Message-ID: <20060323164109.GD25849@flint.arm.linux.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Jeff Garzik <jgarzik@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,18 +23,21 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Building h7201_defconfig on ARM provokes these build errors:
+Building the ARM footbridge_defconfig provokes this build error:
 
-  LD      .tmp_vmlinux1
-kernel/built-in.o: In function `uevent_seqnum_show':
-ksysfs.c:(.text+0x1f258): undefined reference to `uevent_seqnum'
-kernel/built-in.o: In function `uevent_helper_show':
-ksysfs.c:(.text+0x1f280): undefined reference to `uevent_helper'
-kernel/built-in.o: In function `uevent_helper_store':
-ksysfs.c:(.text+0x1f2e0): undefined reference to `uevent_helper'
-kernel/built-in.o:(.data+0xd1c): undefined reference to `uevent_helper'
-make: *** [.tmp_vmlinux1] Error 1
+  CC      drivers/net/ne2k-pci.o
+drivers/net/ne2k-pci.c:123: error: pci_clone_list causes a section type conflict
+make[2]: *** [drivers/net/ne2k-pci.o] Error 1
+make[1]: *** [drivers/net] Error 2
+make: *** [drivers] Error 2
 make: Leaving directory `/var/tmp/kernel-orig'
+
+static const struct {
+        char *name;
+        int flags;
+} pci_clone_list[] __devinitdata = {
+
+const data can't be __devinitdata.
 
 -- 
 Russell King

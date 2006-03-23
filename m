@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWCWJIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWCWJJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbWCWJIj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 04:08:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWCWJIj
+	id S1751353AbWCWJJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 04:09:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWCWJJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 04:08:39 -0500
-Received: from dtp.xs4all.nl ([80.126.206.180]:18994 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1751353AbWCWJIi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 04:08:38 -0500
-Date: Thu, 23 Mar 2006 10:08:34 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Pramod P K <pra.engr@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: passing command line args to the kernel
-Message-ID: <20060323090834.GB23717@harddisk-recovery.com>
-References: <417f1b740603222143v26d67009hb16f19aa6c45c128@mail.gmail.com>
+	Thu, 23 Mar 2006 04:09:58 -0500
+Received: from mail11.syd.optusnet.com.au ([211.29.132.192]:62599 "EHLO
+	mail11.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751353AbWCWJJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 04:09:57 -0500
+References: <20060322205305.0604f49b.akpm@osdl.org> <200603231804.36334.kernel@kolivas.org> <200603230901.57052.jos@mijnkamer.nl> <44225AB4.4080503@yahoo.com.au>
+Message-ID: <cone.1143104983.983347.31285.501@kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: jos poortvliet <jos@mijnkamer.nl>, ck@vds.kolivas.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [ck] swap prefetching merge plans
+Date: Thu, 23 Mar 2006 20:09:43 +1100
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <417f1b740603222143v26d67009hb16f19aa6c45c128@mail.gmail.com>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+Content-Type: multipart/signed;
+    boundary="=_mimegpg-kolivas.org-31285-1143104983-0002";
+    micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 11:13:50AM +0530, Pramod P K wrote:
-> Please tell me how does the Universal bootloader(UBoot) will pass the
-> command line arguments to the Kernel?
+This is a MIME GnuPG-signed message.  If you see this text, it means that
+your E-mail or Usenet software does not support MIME signed messages.
 
-Look at the uboot source.
+--=_mimegpg-kolivas.org-31285-1143104983-0002
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-> How Kernel accesses it ? If
-> possible, with an example, please explain.
+Nick Piggin writes:
 
-Depends on the architecture. See for example Documentation/arm/Booting
-how it's done on ARM.
+> Secondly, with or without swap prefetch, I think we can do a better job of
+> handling these use-once patterns to begin with.
+
+Absolutely! But there will always be workloads that cause appropriate 
+use-once swapping. Qemu, games, big print jobs, big open documents, big 
+graphic edits and so on.
+
+Cheers,
+Con
 
 
-Erik
+--=_mimegpg-kolivas.org-31285-1143104983-0002
+Content-Type: application/pgp-signature
+Content-Transfer-Encoding: 7bit
 
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBEImXYZUg7+tp6mRURAh9aAKCQa4j5oBqYukFolM+USSPlAfyOIgCgiC3d
+c3aCl4Z6KNkQQ9ujAhIKz+M=
+=z08J
+-----END PGP SIGNATURE-----
+
+--=_mimegpg-kolivas.org-31285-1143104983-0002--

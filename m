@@ -1,94 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWCWLnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWCWLpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbWCWLnW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 06:43:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWCWLnW
+	id S1751336AbWCWLpR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 06:45:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWCWLpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 06:43:22 -0500
-Received: from iramx2.ira.uni-karlsruhe.de ([141.3.10.81]:63680 "EHLO
-	iramx2.ira.uni-karlsruhe.de") by vger.kernel.org with ESMTP
-	id S1751239AbWCWLnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 06:43:21 -0500
-In-Reply-To: <20060323010627.GS15997@sorel.sous-sol.org>
-References: <200603131802.k2DI2nv8005665@zach-dev.vmware.com> <200603222115.46926.ak@suse.de> <20060322214025.GJ15997@sorel.sous-sol.org> <4421CCA8.4080702@vmware.com> <20060322225117.GM15997@sorel.sous-sol.org> <4421DF62.8020903@vmware.com> <20060323004136.GR15997@sorel.sous-sol.org> <4421F1AD.1070108@vmware.com> <20060323010627.GS15997@sorel.sous-sol.org>
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <2117FCDD-A0FC-4786-92F2-76E7598BC962@ira.uka.de>
-Cc: Zachary Amsden <zach@vmware.com>, Andi Kleen <ak@suse.de>,
-       virtualization@lists.osdl.org, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Content-Transfer-Encoding: 7bit
-From: Joshua LeVasseur <jtl@ira.uka.de>
-Subject: Re: [RFC, PATCH 5/24] i386 Vmi code patching
-Date: Thu, 23 Mar 2006 12:42:45 +0100
-To: Chris Wright <chrisw@sous-sol.org>
-X-Mailer: Apple Mail (2.749.3)
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: -1.8 ALL_TRUSTED            Passed through trusted hosts only via SMTP
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
-	0.1 AWL                    AWL: From: address is in the auto white-list
+	Thu, 23 Mar 2006 06:45:17 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:12051 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S1751336AbWCWLpQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 06:45:16 -0500
+Date: Thu, 23 Mar 2006 19:44:31 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Jiri Slaby <jirislaby@gmail.com>
+cc: Jiri Slaby <xslaby@fi.muni.cz>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BUG: atomic counter underflow [Was: 2.6.16-rc6-mm1]
+In-Reply-To: <441CB176.8020103@gmail.com>
+Message-ID: <Pine.LNX.4.64.0603231943220.6390@eagle.themaw.net>
+References: <E1FIYLc-00080b-00@decibel.fi.muni.cz>
+ <Pine.LNX.4.64.0603131330210.21830@eagle.themaw.net> <441CB176.8020103@gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-themaw-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-1.896,
+	required 5, autolearn=not spam, BAYES_00 -2.60,
+	DATE_IN_PAST_12_24 0.70)
+X-themaw-MailScanner-From: raven@themaw.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 19 Mar 2006, Jiri Slaby wrote:
 
-On Mar 23, 2006, at 02:06 , Chris Wright wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Ian Kent napsal(a):
+> > On Sun, 12 Mar 2006, Jiri Slaby wrote:
+> > 
+> >> Andrew Morton wrote:
+> >>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/
+> >> [snip]
+> >>> +remove-redundant-check-from-autofs4_put_super.patch
+> >>> +autofs4-follow_link-missing-funtionality.patch
+> >>>
+> >>> Update autofs4 patches in -mm.
+> >> Hello, 
+> >>
+> >> I caught this during ftp browsing autofs-bind-mounted directories. I don't know
+> >> circumstancies and if the patches above are source of problem. I also don't know
+> >> if -rc6-mm1 is the first one.
+> > 
+> > btw what do you mean autofs-bind-mounted ?
+> > 
+> >> BUG: atomic counter underflow at:
+> >>  [<c0104736>] show_trace+0x13/0x15
+> >>  [<c0104873>] dump_stack+0x1e/0x20
+> >>  [<c01d6c97>] autofs4_wait+0x751/0x93a
+> >>  [<c01d543b>] try_to_fill_dentry+0xca/0x11c
+> >>  [<c01d59b3>] autofs4_revalidate+0xe1/0x148
+> >>  [<c0171338>] do_lookup+0x40/0x157
+> >>  [<c0172ec4>] __link_path_walk+0x804/0xe8c
+> >>  [<c017359c>] link_path_walk+0x50/0xe8
+> >>  [<c01738b7>] do_path_lookup+0x10f/0x26d
+> >>  [<c017429c>] __user_walk_fd+0x33/0x50
+> >>  [<c016d226>] vfs_stat_fd+0x1e/0x50
+> >>  [<c016d30d>] vfs_stat+0x20/0x22
+> >>  [<c016d328>] sys_stat64+0x19/0x2d
+> >>  [<c0103127>] syscall_call+0x7/0xb
+> >>
+> > 
+> > There's some suspicious code in waitq.c.
+> > Could you try the following patch for me please?
+> Yes, the patch below does solve the problem, can go upstream, good work!
 
-> * Zachary Amsden (zach@vmware.com) wrote:
->> No, you don't need to dream up all the possible interface bits  
->> ahead of
->> time.  With a la carte interfaces, you can take what you need now,  
->> and
->> add features later.  You don't need an ABI for features.  You need it
->> for compatibility.  You will need to update the hypervisor ABI.   
->> And you
->> can't force people to upgrade their kernels.
->
-> How do you support an interface that's not already a part of the ABI
-> w/out changing the kernel?
+Sorry to take so long to get back, I've been busy.
 
+Thanks for that.
+I'll submit the patch.
 
-Since the base ABI primarily consists of the x86's privileged  
-instruction set (actually, the virtualization-sensitive instructions,  
-and padded with NOP instructions), any ROM can work from there, and  
-you don't have to worry about updating Linux to use a new ABI.  If  
-you use a new ROM+ABI with an old kernel+ABI, they can fall back to  
-the base ABI.  Note that this base ABI isn't arbitrary; it wasn't  
-pulled out of thin air; it is mostly the x86 system ISA.
-
-If an updated hypervisor offers new features that didn't exist when a  
-particular Linux kernel was written and compiled, a new ROM has a  
-very good chance of activating those new features, even if only using  
-the base ABI of the older Linux kernel.  The ROM is very versatile  
-because it maps the low-level instructions to high-level hypervisor  
-concepts.  And it is very successful: I have built a Linux 2.6.9  
-binary and executed it on Xen 2.0.2, Xen 2.0.7, and Xen 3.0.1; I have  
-also built a Linux 2.6.12.6 binary and executed it on Xen 2.0.2, Xen  
-2.0.7, and Xen 3.0.1.  This is significant because XenoLinux 2.6.9  
-shipped with Xen 2.0.2 and it doesn't work on Xen 3.0.1 due to many  
-interface updates; likewise XenoLinux 2.6.12.6 shipped with Xen 3.0.1  
-and it doesn't work on the older Xen 2 hypervisors; but the ROM hid  
-the interface updates from Xen 2 series to the Xen 3 series, and it  
-takes advantage of the new Xen 3 interfaces (it must since Xen 3  
-doesn't have a Xen 2 compatibility layer that I'm aware of).
-
-The ROM's interface mapping solves two problems: it converts the x86  
-low-level instructions into high-performance hypervisor operations,  
-and it maps the low-level instructions into the hypervisor's evolving  
-interface.  The ROM gives great independence for hypervisor  
-developers, or in other words, permits proliferation of hypervisors,  
-and freedom to experiment with interfaces (e.g., real time, or formal  
-verification).
-
-Joshua
+Ian
 

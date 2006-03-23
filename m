@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWCWQuB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWCWQvZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbWCWQuB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 11:50:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWCWQuB
+	id S1751132AbWCWQvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 11:51:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbWCWQvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 11:50:01 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:4263 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750832AbWCWQuA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 11:50:00 -0500
-Subject: Re: [RFCLUE2] 64 bit driver 32 bit app ioctl
-From: Arjan van de Ven <arjan@infradead.org>
-To: William D Waddington <william.waddington@beezmo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4422B95D.9070900@beezmo.com>
-References: <4422B95D.9070900@beezmo.com>
-Content-Type: text/plain
-Date: Thu, 23 Mar 2006 17:49:57 +0100
-Message-Id: <1143132597.3147.31.camel@laptopd505.fenrus.org>
+	Thu, 23 Mar 2006 11:51:25 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:7123 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S1751132AbWCWQvY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 11:51:24 -0500
+Date: Thu, 23 Mar 2006 08:51:08 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-git6: build failure: ksysfs.c (h7201_defconfig)
+Message-ID: <20060323165108.GA16474@kroah.com>
+References: <20060323163852.GC25849@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060323163852.GC25849@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-23 at 07:06 -0800, William D Waddington wrote:
-> Apologies for dashing this off without the proper homework.  My
-> customer is out of country doing an installation, and didn't test
-> this configuration first :(
+On Thu, Mar 23, 2006 at 04:38:52PM +0000, Russell King wrote:
+> Building h7201_defconfig on ARM provokes these build errors:
 > 
-> Customer is running RHEL3 on a 64 bit PC.  Running the 64 bit kernel
-> and my 64 bit driver.  They are calling the driver from their 32 bit
-> app.  The driver supports a whole mess of ioctls.
-> 
-> It seems that the kernel is trapping the 32-bit ioctl call and returning
-> an error to the app w/out calling the driver.  It looks like
-> register_ioctl32_conversion() can convice the kernel that the driver can
-> handle 32-bit calls, but it has to be called for each ioctl cmd (??)
+>   LD      .tmp_vmlinux1
+> kernel/built-in.o: In function `uevent_seqnum_show':
+> ksysfs.c:(.text+0x1f258): undefined reference to `uevent_seqnum'
+> kernel/built-in.o: In function `uevent_helper_show':
+> ksysfs.c:(.text+0x1f280): undefined reference to `uevent_helper'
+> kernel/built-in.o: In function `uevent_helper_store':
+> ksysfs.c:(.text+0x1f2e0): undefined reference to `uevent_helper'
+> kernel/built-in.o:(.data+0xd1c): undefined reference to `uevent_helper'
+> make: *** [.tmp_vmlinux1] Error 1
+> make: Leaving directory `/var/tmp/kernel-orig'
 
-you forgot to attach you code btw or post the url to it..
+Ugh, CONFIG_NET is not set, yet CONFIG_HOTPLUG is.  I was wrong with my
+assumption that no one would ever need that :)
 
+I have a patch in my queue from Andrew that fixes it up, I'll send it on
+to Linus later today to fix this.  Thanks for letting me know.
 
+greg k-h

@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbWCWAbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbWCWAbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964903AbWCWAbM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 19:31:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932690AbWCWAbM
+	id S964909AbWCWAbs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 19:31:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWCWAbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 19:31:12 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:51158 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932686AbWCWAbK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 19:31:10 -0500
-Message-ID: <4421EC44.7010500@us.ibm.com>
-Date: Wed, 22 Mar 2006 18:31:00 -0600
-From: Anthony Liguori <aliguori@us.ibm.com>
-User-Agent: Mail/News 1.5 (X11/20060309)
+	Wed, 22 Mar 2006 19:31:47 -0500
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:52910 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964909AbWCWAbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 19:31:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=MssXrtp74o+jxDLbBE0Yx9S0lq0GMNfXwm8RLTiO58EYSptkxt/j6937sRoXVbZo7VAACe+fpafD2JafZzUYR4/ctBgv5PIe+DSV2a/Law45eAxJaD6DdeatvFVJ8FMCaE2dcnIxPo4H1b2LyC7yVLTMflJpY2kw7Q1X2anVle0=  ;
+Message-ID: <4421EC6B.5070603@yahoo.com.au>
+Date: Thu, 23 Mar 2006 11:31:39 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Chris Wright <chrisw@sous-sol.org>
-CC: Andi Kleen <ak@suse.de>, Xen-devel <xen-devel@lists.xensource.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Chris Wright <chrisw@osdl.org>, Christopher Li <chrisl@vmware.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       virtualization@lists.osdl.org, Linus Torvalds <torvalds@osdl.org>,
-       Anne Holler <anne@vmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Kip Macy <kmacy@fsmware.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 5/24] i386 Vmi code patching
-References: <200603131802.k2DI2nv8005665@zach-dev.vmware.com>	<200603222115.46926.ak@suse.de> <20060322214025.GJ15997@sorel.sous-sol.org>
-In-Reply-To: <20060322214025.GJ15997@sorel.sous-sol.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: Ingo Molnar <mingo@elte.hu>, Con Kolivas <kernel@kolivas.org>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: cpu scheduler merge plans
+References: <20060322155122.2745649f.akpm@osdl.org>
+In-Reply-To: <20060322155122.2745649f.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-> * Andi Kleen (ak@suse.de) wrote:
->   
->> The disassembly stuff indeed doesn't look like something
->> that belongs in the kernel.
->>     
->
-> Strongly agreed.  The strict ABI requirements put forth here are not
-> in-line with Linux, IMO.  I think source compatibility is the limit of
-> reasonable, and any ROM code be in-tree if something like this were to
-> be viable upstream.
->   
+Andrew Morton wrote:
+> So it's that time again.  We need to decide which of the queued sched
+> patches should be merged into 2.6.17.
+> 
+> I have:
+> 
+> sched-fix-task-interactivity-calculation.patch
+> small-schedule-microoptimization.patch
+> #
+> sched-implement-smpnice.patch
+> sched-smpnice-apply-review-suggestions.patch
+> sched-smpnice-fix-average-load-per-run-queue-calculations.patch
+> sched-store-weighted-load-on-up.patch
+> sched-add-discrete-weighted-cpu-load-function.patch
+> sched-add-above-background-load-function.patch
+> # Suresh had problems
 
-Hi Chris,
+I really need to review smpnice. I'll try to get on to that soon.
+I don't have any problems with the non-multiprocessor stuff
+(Con's and Mike's patches).
 
-Would you have less trouble if the "ROM" were actually more like a 
-module?  Specifically, if it had a proper elf header and symbol table, 
-used symbols as entry points, and was a GPL interface (so that ROM's had 
-to be GPL)?  Then it's just a kernel module that's hidden in the option 
-ROM space and has a C interface.
-
-I know you end up losing the ability to do crazy inlining of the ROM 
-code but I think it becomes a much less hairy interface that way.
-
-Regards,
-
-Anthony Liguori
-
-> thanks,
-> -chris
->   
-> ------------------------------------------------------------------------
->
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.osdl.org
-> https://lists.osdl.org/mailman/listinfo/virtualization
->   
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,56 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932589AbWCWTJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932583AbWCWTJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932589AbWCWTJa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 14:09:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbWCWTJa
+	id S932583AbWCWTJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 14:09:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932588AbWCWTJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 14:09:30 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:52870 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932569AbWCWTJ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 14:09:28 -0500
-Date: Thu, 23 Mar 2006 11:09:22 -0800
-From: "Luck, Tony" <tony.luck@intel.com>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/2] create struct compat_timex and use it everywhere
-Message-ID: <20060323190922.GA13695@agluck-lia64.sc.intel.com>
-References: <20060323164623.699f569e.sfr@canb.auug.org.au> <20060323185234.GA13486@agluck-lia64.sc.intel.com>
+	Thu, 23 Mar 2006 14:09:59 -0500
+Received: from smtp-104-thursday.nerim.net ([62.4.16.104]:37135 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S932583AbWCWTJ6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 14:09:58 -0500
+Date: Thu, 23 Mar 2006 20:10:30 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       "Mark A.Greer" <mgreer@mvista.com>, Randy Vinson <rvinson@mvista.com>
+Subject: [PATCH, RFC] Stop using tasklet in ds1374 RTC driver
+Message-Id: <20060323201030.ccded642.khali@linux-fr.org>
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060323185234.GA13486@agluck-lia64.sc.intel.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 10:52:34AM -0800, Luck, Tony wrote:
-> Applied this and patch #2 ... builds cleanly on ia64.  I don't have
-> a handy test case to confirm that adjtimex works (but since the old
-> version was inside "#ifdef NOTYET", it's probably safe to assume that
-> this patch is a step forward).
+Hi all,
 
-Oh ... but since we didn't have adjtimex implemented, it wasn't
-hooked into the syscall table.  This additional patch does that.
-I'm in two minds whether it would be useful to add (nobody has
-complained about the lack of 32-bit adjtimex support so far, so
-this may be all risk, with no benefit).
+I have the following patch, which addresses a might-sleep-in-tasklet
+issue in the ds1374 driver. I'm not too sure if the new code is right
+or not, as I have never been using workqueues before, and I also don't
+have a DS1374 chip to test my changes on.
 
-Add it if you like.
+Can anyone comment on the patch and tell me if anything is wrong?
 
-Signed-off-by: Tony Luck <tony.luck@intel.com>
+Can anyone with a DS1374 chip please test it?
 
+I want this to be fixed now, because in -mm the ds1374 driver also uses
+the new mutex implementation, which is not allowed in tasklets, but is
+OK in workqueues.
 
-diff --git a/arch/ia64/ia32/ia32_entry.S b/arch/ia64/ia32/ia32_entry.S
-index 95fe044..9cb61a3 100644
---- a/arch/ia64/ia32/ia32_entry.S
-+++ b/arch/ia64/ia32/ia32_entry.S
-@@ -334,7 +334,7 @@ ia32_syscall_table:
- 	data8 sys_setdomainname
- 	data8 sys32_newuname
- 	data8 sys32_modify_ldt
--	data8 sys_ni_syscall	/* adjtimex */
-+	data8 sys32_adjtimex
- 	data8 sys32_mprotect	  /* 125 */
- 	data8 compat_sys_sigprocmask
- 	data8 sys_ni_syscall	/* create_module */
+Thanks.
+
+* * * * *
+
+A tasklet is not suitable for what the ds1374 driver does: neither sleeping
+nor mutex operations are allowed in tasklets, and ds1374_set_tlet may do
+both.
+
+We can use a workqueue instead, where both sleeping and mutex operations
+are allowed.
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+---
+ drivers/i2c/chips/ds1374.c |   19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
+
+--- linux-2.6.16-git.orig/drivers/i2c/chips/ds1374.c	2006-03-23 10:21:48.000000000 +0100
++++ linux-2.6.16-git/drivers/i2c/chips/ds1374.c	2006-03-23 19:37:25.000000000 +0100
+@@ -27,6 +27,7 @@
+ #include <linux/rtc.h>
+ #include <linux/bcd.h>
+ #include <linux/mutex.h>
++#include <linux/workqueue.h>
+ 
+ #define DS1374_REG_TOD0		0x00
+ #define DS1374_REG_TOD1		0x01
+@@ -139,7 +140,7 @@
+ 	return t1;
+ }
+ 
+-static void ds1374_set_tlet(ulong arg)
++static void ds1374_set_work(void *arg)
+ {
+ 	ulong t1, t2;
+ 	int limit = 10;		/* arbitrary retry limit */
+@@ -168,19 +169,15 @@
+ 
+ static ulong new_time;
+ 
+-static DECLARE_TASKLET_DISABLED(ds1374_tasklet, ds1374_set_tlet,
+-				(ulong) & new_time);
++static struct workqueue_struct *ds1374_workqueue;
++
++static DECLARE_WORK(ds1374_work, ds1374_set_work, &new_time);
+ 
+ int ds1374_set_rtc_time(ulong nowtime)
+ {
+ 	new_time = nowtime;
+ 
+-	if (in_interrupt())
+-		tasklet_schedule(&ds1374_tasklet);
+-	else
+-		ds1374_set_tlet((ulong) & new_time);
+-
+-	return 0;
++	return queue_work(ds1374_workqueue, &ds1374_work);
+ }
+ 
+ /*
+@@ -204,6 +201,8 @@
+ 	client->adapter = adap;
+ 	client->driver = &ds1374_driver;
+ 
++	ds1374_workqueue = create_singlethread_workqueue("ds1374");
++
+ 	if ((rc = i2c_attach_client(client)) != 0) {
+ 		kfree(client);
+ 		return rc;
+@@ -227,7 +226,7 @@
+ 
+ 	if ((rc = i2c_detach_client(client)) == 0) {
+ 		kfree(i2c_get_clientdata(client));
+-		tasklet_kill(&ds1374_tasklet);
++		destroy_workqueue(ds1374_workqueue);
+ 	}
+ 	return rc;
+ }
+
+-- 
+Jean Delvare

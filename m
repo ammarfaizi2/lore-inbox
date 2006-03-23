@@ -1,117 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932470AbWCWRbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbWCWRcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932470AbWCWRbl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 12:31:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbWCWRbk
+	id S1751349AbWCWRcd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 12:32:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWCWRcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 12:31:40 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:49132 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932674AbWCWRbj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 12:31:39 -0500
-Date: Thu, 23 Mar 2006 11:30:48 -0600
-From: Jon Mason <jdmason@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Muli Ben-Yehuda <mulix@mulix.org>, Jon Mason <jdmason@us.ibm.com>,
-       Muli Ben-Yehuda <muli@il.ibm.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 3/3] x86-64: Calgary IOMMU - hook it in
-Message-ID: <20060323173047.GA30099@us.ibm.com>
-References: <20060320084848.GA21729@granada.merseine.nu> <20060320085416.GB21729@granada.merseine.nu> <20060320085641.GC21729@granada.merseine.nu> <200603231736.44223.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603231736.44223.ak@suse.de>
-User-Agent: Mutt/1.5.11
+	Thu, 23 Mar 2006 12:32:33 -0500
+Received: from hs-grafik.net ([80.237.205.72]:49158 "EHLO hs-grafik.net")
+	by vger.kernel.org with ESMTP id S1751349AbWCWRcc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 12:32:32 -0500
+From: Alexander Gran <alex@zodiac.dnsalias.org>
+To: "Vladimir V. Saveliev" <vs@namesys.com>
+Subject: Re: 2.6.16-rc6-mm2: reiser4 BUG when unmounting fs
+Date: Thu, 23 Mar 2006 18:32:14 +0100
+User-Agent: KMail/1.9.1
+Cc: Laurent Riffard <laurent.riffard@free.fr>, Andrew Morton <akpm@osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       reiserfs-list@namesys.com
+References: <20060318044056.350a2931.akpm@osdl.org> <44206428.1080005@free.fr> <1143013406.6245.46.camel@tribesman.namesys.com>
+In-Reply-To: <1143013406.6245.46.camel@tribesman.namesys.com>
+X-Face: ){635DT*1Z+Z}$~Bf[[i"X:f2i+:Za[:Q0<UzyJPoAm(;y"@=?utf-8?q?LwMhWM4=5D=60x1bDaQDpet=3B=3Be=0A=09N=5CBIb8o=5BF!fdHrI-=7E=24?=
+ =?utf-8?q?ctS=3F!?=,U+0}](xD}_b]awZrK=>753Wk;RwhCU`Bt(I^/Jxl~5zIH<
+ =?utf-8?q?=0A=09XplI=3A9GKEcr/JPqzW=3BR=5FqDQe*=23CE=7E70=3Bj=25Hg8CNh*4?=<
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart5040566.CfzM4MkytI";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200603231832.21706@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 05:36:43PM +0100, Andi Kleen wrote:
-> On Monday 20 March 2006 09:56, Muli Ben-Yehuda wrote:
-> > This patch hooks Calgary into the build and the x86-64 IOMMU
-> > initialization paths.
-> 
-> Needs more description
-> 
-> > diff -Naurp --exclude-from /home/muli/w/dontdiff iommu_detected/arch/x86_64/Kconfig linux/arch/x86_64/Kconfig
-> > --- iommu_detected/arch/x86_64/Kconfig	2006-03-20 09:12:23.000000000 +0200
-> > +++ linux/arch/x86_64/Kconfig	2006-03-20 09:30:10.000000000 +0200
-> > @@ -372,6 +372,19 @@ config GART_IOMMU
-> >  	  and a software emulation used on other systems.
-> >  	  If unsure, say Y.
-> >  
-> > +config CALGARY_IOMMU
-> > +	bool "IBM x366 server IOMMU"
-> > +	default y
-> > +	depends on PCI && MPSC && EXPERIMENTAL
-> 
-> && MPSC is wrong. First most kernels are GENERIC and then even a K8 optimized
-> kernel should support all hardware. Just drop it.
+--nextPart5040566.CfzM4MkytI
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-We have a recent modification to this chunk which does both generic and
-em64t.  Since IBM only ships this chip on em64t systems, have the option
-on amd64 seems wrong.
+Am Mittwoch, 22. M=E4rz 2006 08:43 schrieb Vladimir V. Saveliev:
+> The attached patch fixes the problem.
 
-> > +	help
-> > +	  Support for hardware IOMMUs in IBM's xSeries x366 and x460
-> > +	  systems. Needed to run systems with more than 3GB of memory
-> > +	  properly with 32-bit PCI devices that do not support DAC
-> > +	  (Double Address Cycle).  The IOMMU can be turned off at
-> > +	  boot time with the iommu=off parameter.  Normally the kernel
-> > +	  will make the right choice by iteself.
-> > +	  If unsure, say Y.
-> 
-> If it does isolation then it has much more advantages than that
-> by protecting against buggy devices and drivers and is also useful
-> for debugging. You should mention that.
+confirmed, works in 2.6.16-mm1.
 
-Will do.
+regards
+Alex
 
-> > +static int __init pci_iommu_init(void)
-> > +{
-> > +	int rc = 0;
-> > +
-> > +#ifdef CONFIG_GART_IOMMU
-> > +	rc = gart_iommu_init();
-> > +	if (!rc) /* success? */
-> > +		return 0;
-> > +#endif
-> > +#ifdef CONFIG_CALGARY_IOMMU
-> > +	rc = calgary_iommu_init();
-> > +#endif
-> 
-> This is weird. Normally I would expect you to detect the calgary thing first
-> and only then run the gart_iommu detection if not found. Why this order?
-> 
-> 
-> Fixing that would also not require adding the additional hacks to gart iommu
-> you added.
+=2D-=20
+Encrypted Mails welcome.
+PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
 
-I'll look into this.
+--nextPart5040566.CfzM4MkytI
+Content-Type: application/pgp-signature
 
-> 
-> > -/* Must execute after PCI subsystem */
-> > -fs_initcall(pci_iommu_init);
-> 
-> So where is it called now?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-It is called in arch/x86_64/kernel/pci-dma.c
+iD8DBQBEItul/aHb+2190pERAsVnAJ495P2/pmSqdqsemDJSDOMvJ9optQCfdQze
+2j8Strj/UpKrbU/r3nbNqeo=
+=PGPy
+-----END PGP SIGNATURE-----
 
-> 
-> > +#ifdef CONFIG_CALGARY_IOMMU 
-> > +		if (!memcmp(from,"calgary=",8)) { 
-> > +			calgary_parse_options(from+8);
-> > +		}
-> > +#endif
-> 
-> Why does this need to be an early option? 
-
-Because we need to know the size of the translation tables early, so
-that we can alloc them from bootmem.
-
-Thanks,
-Jon
-> 
-> 
-> -Andi
+--nextPart5040566.CfzM4MkytI--

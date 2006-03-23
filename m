@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422656AbWCWSsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422659AbWCWSvB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422656AbWCWSsv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 13:48:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422655AbWCWSsv
+	id S1422659AbWCWSvB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 13:51:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422658AbWCWSvB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 13:48:51 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:9159 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422656AbWCWSsu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 13:48:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=ugf61KaItvMvuQvgU7bSoCrAGCxuxbdOdWAPUsNuRCWFgT8OM00azLPJ+SV1mWKlvUQH/kw3VKCgVRos0T9UXkx//4YTi99KhIR+izYvRcbUHkem5d+gRtC8YzSWKTC6XQdvqZCYrrhvamwztw4/qarqN7OleE+6EbiQN0Rd1rI=
-Date: Thu, 23 Mar 2006 19:48:32 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: marcelo.tosatti@cyclades.com, akpm@osdl.org, a.p.zijlstra@chello.nl,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org, bob.picco@hp.com,
-       iwamoto@valinux.co.jp, christoph@lameter.com, wfg@mail.ustc.edu.cn,
-       npiggin@suse.de, riel@redhat.com
-Subject: Re: [PATCH 00/34] mm: Page Replacement Policy Framework
-Message-Id: <20060323194832.d9f153a3.diegocg@gmail.com>
-In-Reply-To: <Pine.LNX.4.64.0603231003390.26286@g5.osdl.org>
-References: <20060322223107.12658.14997.sendpatchset@twins.localnet>
-	<20060322145132.0886f742.akpm@osdl.org>
-	<20060323205324.GA11676@dmt.cnet>
-	<Pine.LNX.4.64.0603231003390.26286@g5.osdl.org>
-X-Mailer: Sylpheed version 2.2.1 (GTK+ 2.8.13; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Thu, 23 Mar 2006 13:51:01 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:47630 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1422659AbWCWSvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 13:51:00 -0500
+Message-ID: <4422EE12.7060908@vmware.com>
+Date: Thu, 23 Mar 2006 10:50:58 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Cc: Chris Wright <chrisw@sous-sol.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Christopher Li <chrisl@vmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       virtualization@lists.osdl.org, Linus Torvalds <torvalds@osdl.org>,
+       Kip Macy <kmacy@fsmware.com>, Jyothy Reddy <jreddy@vmware.com>,
+       Anne Holler <anne@vmware.com>, Ky Srinivasan <ksrinivasan@novell.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [Xen-devel] Re: [RFC, PATCH 5/24] i386 Vmi code patching
+References: <200603131802.k2DI2nv8005665@zach-dev.vmware.com>	<200603222115.46926.ak@suse.de>	<20060322214025.GJ15997@sorel.sous-sol.org>	<4421EC44.7010500@us.ibm.com>	<20060323004006.GQ15997@sorel.sous-sol.org> <caf37c433827769063ccb0269adbaa09@cl.cam.ac.uk>
+In-Reply-To: <caf37c433827769063ccb0269adbaa09@cl.cam.ac.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 23 Mar 2006 10:15:47 -0800 (PST),
-Linus Torvalds <torvalds@osdl.org> escribió:
+Keir Fraser wrote:
+>>
+>> Yeah, point is the interface is normal C API, and has the similar free
+>> form that normal kernel API's have.
+>
+> i think this sounds very sane, and an OS-specific interface shim gets 
+> around problems such as finding CPU-specific state -- we can get at 
+> smp_processor_id() just the same as the rest of the kernel, for 
+> example. We could extend the concept of the interface shim we already 
+> have -- a set of OS-specific high performance shims, plus a fallback 
+> OS-agnostic shim.
 
-> IOW, just under half a _gigabyte_ of RAM is apparently considered to be 
-> low end, and this is when talking about low-end (modern) hardware!
+Getting at smp_processor_id() is exactly the type of thing you _don't_ 
+want to do.  You really can't have callbacks into the guest in the 
+hypervisor platform layer.  It really is not efficient, and you cause 
+yourself more trouble than it is worth.
 
-If it's considered "low-end" it's because people actually uses that
-memory for something and the system starts swapping, not because it's
-trendy.
+And where exactly is smp_processor_id() exported to modules?  It's not.  
+You've just locked your module into the current kernel's idea of how to 
+get at smp_processor_id().  It changes based on compilation options of 
+the kernel - for example, it is different with 4K stacks.  It has 
+changed from a number of other different options in the past.
 
-The "powerful machines who never swaps" are always a minority. Being geeks
-as we are we try to have the greatest machine possible, but the vast majority
-of real users are "underpowered" I'm not talking of pentium 1 stuff, I can bet
-there're far more pentium 4 machines with 256 MB out there than with 1 GB.
+The fact that XenoLinux needs smp_processor_id() at all is quite 
+ludicrous.  To disable interrupts, which is used fairly commonly to 
+disable pre-emption as well, what does XenoLinux have to do?
 
-I know you don't hit those problems because you use expensive machines
-with lots of ram ;) But in the _real_ world, lots of the machines are
-already wasting most of its ram by running the desktop environment alone.
+It has to disable pre-emption to call smp_processor_id() so that it can 
+disable interrupts, the re-enable preemption so that it can disable 
+pre-emption.
 
-Diego Calleja (A user with 1 GB of RAM who usually gets his system
-into swapping easily by using desktop apps and could benefit from
-better page replacement policies)
+That is truly convoluted, and is exactly why you should never get into 
+these types of situations to begin with.
+
+Zach

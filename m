@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030209AbWCWITt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbWCWITn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030209AbWCWITt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 03:19:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030210AbWCWITt
+	id S1030207AbWCWITn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 03:19:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWCWITn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 03:19:49 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:151 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030209AbWCWITs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 03:19:48 -0500
-Date: Thu, 23 Mar 2006 09:17:08 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Subject: 2.6.16-rt5
-Message-ID: <20060323081707.GA5280@elte.hu>
+	Thu, 23 Mar 2006 03:19:43 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:1411 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030207AbWCWITm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 03:19:42 -0500
+Subject: RE: [RFC PATCH 35/35] Add Xen virtual block device driver.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Ian Pratt <m+Ian.Pratt@cl.cam.ac.uk>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, Chris Wright <chrisw@sous-sol.org>,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       linux-kernel@vger.kernel.org, Ian Pratt <ian.pratt@xensource.com>,
+       ian.pratt@cl.cam.ac.uk
+In-Reply-To: <A95E2296287EAD4EB592B5DEEFCE0E9D4B9E8A@liverpoolst.ad.cl.cam.ac.uk>
+References: <A95E2296287EAD4EB592B5DEEFCE0E9D4B9E8A@liverpoolst.ad.cl.cam.ac.uk>
+Content-Type: text/plain
+Date: Thu, 23 Mar 2006 09:19:31 +0100
+Message-Id: <1143101972.3147.11.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i have released the 2.6.16-rt5 tree, which can be downloaded from the 
-usual place:
+On Wed, 2006-03-22 at 16:52 +0000, Ian Pratt wrote:
+> > This is another thing that has always put me off.  The 
+> > virtual block device driver has the ability to masquerade as 
+> > other types of block devices.  It actually claims to be an 
+> > IDE or SCSI device allocating the appropriate major/minor numbers.
+> > 
+> > This seems to be pretty evil and creating interesting failure 
+> > conditions for users who load IDE or SCSI modules.  I've seen 
+> > it trip up a number of people in the past.  I think we should 
+> > only ever use the major number that was actually allocated to us.
+> 
+> We certainly should be pushing everyone toward using the 'xdX' etc
+> devices that are allocated to us.
 
-   http://redhat.com/~mingo/realtime-preempt/
+yes but you are faking something stupid ;)
+You aren't ide, you don't take the IDE ioctls. So please just nuke this
+bit..
 
-there's been quite some churn since -rt1:
 
- 244 files changed, 1806 insertions(+), 1588 deletions(-)
-
-this was mostly due to the simplification of IRQ-flag handling: 
-local_irq_*() now defaults to using the raw IRQ flags. The 'soft 
-irq-flag' code only had a debugging purpose, but that purpose is equally 
-well suited by dont-schedule-while-in-atomic-section checks. This 
-cleanup resulted in a nice 10% reduction of the -rt patch's size, and 
-should make porting to architectures simpler.
-
-another bigger change is the continued rework of the PI code by Thomas 
-Gleixner: it should now be Bug Free (tm) - in particular the SMP locking 
-deadlock noticed by Esben Nielsen should be fixed. There are also lots 
-of updates to the PI-futex code too, by Thomas.
-
-there are also lots of smaller fixes for regressions in -rt1.
-
-to build a 2.6.16-rt5 tree, the following patches should be applied:
-
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.16.tar.bz2
-  http://redhat.com/~mingo/realtime-preempt/patch-2.6.16-rt5
-
-	Ingo

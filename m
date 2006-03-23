@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWCWKUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWCWKWO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbWCWKUK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 05:20:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbWCWKUJ
+	id S932337AbWCWKWO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 05:22:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWCWKWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 05:20:09 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:52883 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932205AbWCWKUI (ORCPT
+	Thu, 23 Mar 2006 05:22:14 -0500
+Received: from main.gmane.org ([80.91.229.2]:8356 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932337AbWCWKWN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 05:20:08 -0500
-Subject: Re: [PATCH 9 of 18] ipath - char devices for diagnostics and
-	lightweight subnet management
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: linux-kernel@vger.kernel.org, rdreier@cisco.com, greg@kroah.com,
-       openib-general@openib.org
-In-Reply-To: <20060323101315.GE1802@mellanox.co.il>
-References: <patchbomb.1143072293@eng-12.pathscale.com>
-	 <dffa0687112e4fdcf7d0.1143072302@eng-12.pathscale.com>
-	 <20060323064113.GC9841@mellanox.co.il>
-	 <1143103701.6411.21.camel@camp4.serpentine.com>
-	 <20060323093713.GB1802@mellanox.co.il>
-	 <1143107463.6411.54.camel@camp4.serpentine.com>
-	 <20060323101315.GE1802@mellanox.co.il>
-Content-Type: text/plain
-Date: Thu, 23 Mar 2006 02:19:59 -0800
-Message-Id: <1143109199.6411.73.camel@camp4.serpentine.com>
+	Thu, 23 Mar 2006 05:22:13 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Philippe Gerum <rpm@xenomai.org>
+Subject: Re: [PATCH 1/2]Blackfin archtecture patche for 2.6.16
+Date: Thu, 23 Mar 2006 10:21:46 +0000 (UTC)
+Message-ID: <loom.20060323T104520-617@post.gmane.org>
+References: <489ecd0c0603200200va747a68k187651930a3f0a51@mail.gmail.com> <20060321031457.69fa0892.akpm@osdl.org> <489ecd0c0603211945m14e9656bm5daf1e62eeca56a@mail.gmail.com> <200603230043.39436.ioe-lkml@rameria.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 82.224.74.121 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050911 Firefox/1.0.6 (Debian package 1.0.6-5))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-23 at 12:13 +0200, Michael S. Tsirkin wrote:
+Ingo Oeser <ioe-lkml <at> rameria.de> writes:
 
-> OK. I gather that much. But why? I'm just trying to figure out the motivation.
+<snip>
 
-I don't know for sure, but it's repeated at me in vehement terms when I
-ask, so someone cares :-)  I'll try to find an actual compelling answer
-when my coworkers are awake.
+> Yes, its awesome! And I would like to thank Analog Devices for doing 
+> and sponsoring this work. I also like to thank them for providing useful
+> test devices for reasonable prices. Hope you guys will make it.
 
-	<b
+<snip>
+
+> And yes I'm a bit biased[2], as you'll find out, if you google a bit 
+>
+
+I'm likely terminally biased, but FWIW, ADI has been really supportive of our
+effort in porting Adeos and the Xenomai real-time sub-system over their
+architecture. Their tireless effort in improving the Blackfin kernel port and
+also the toolchain, while providing information in total openness, made this
+possible.
+
+--
+Philippe
+
+
+
 

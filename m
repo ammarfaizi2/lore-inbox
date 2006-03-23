@@ -1,85 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbWCWS0B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932674AbWCWS0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932324AbWCWS0B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 13:26:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932674AbWCWS0B
+	id S932674AbWCWS0u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 13:26:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932677AbWCWS0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 13:26:01 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:12183 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932324AbWCWS0A (ORCPT
+	Thu, 23 Mar 2006 13:26:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42217 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932674AbWCWS0t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 13:26:00 -0500
-Message-ID: <4422E786.D56DD978@tv-sign.ru>
-Date: Thu, 23 Mar 2006 21:23:02 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Thu, 23 Mar 2006 13:26:49 -0500
+Date: Thu, 23 Mar 2006 13:26:16 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cuia.boston.redhat.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org, bob.picco@hp.com,
+       iwamoto@valinux.co.jp, christoph@lameter.com, wfg@mail.ustc.edu.cn,
+       npiggin@suse.de
+Subject: Re: [PATCH 00/34] mm: Page Replacement Policy Framework
+In-Reply-To: <Pine.LNX.4.64.0603231003390.26286@g5.osdl.org>
+Message-ID: <Pine.LNX.4.63.0603231318100.23558@cuia.boston.redhat.com>
+References: <20060322223107.12658.14997.sendpatchset@twins.localnet>
+ <20060322145132.0886f742.akpm@osdl.org> <20060323205324.GA11676@dmt.cnet>
+ <Pine.LNX.4.64.0603231003390.26286@g5.osdl.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Suzanne Wood <suzannew@cs.pdx.edu>,
-       Ravikiran G Thirumalai <kiran@scalex86.org>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.16-mm1] cleanup __exit_signal->cleanup_sighand path
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch moves 'tsk->sighand = NULL' from cleanup_sighand() to
-__exit_signal(). This makes the exit path more understandable and
-allows us to do cleanup_sighand() outside of ->siglock protected
-section.
+On Thu, 23 Mar 2006, Linus Torvalds wrote:
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+>  a) the current one actually seems to have beaten the on-comers (except 
+>     for loads that were actually made up to try to defeat LRU)
 
---- MM/include/linux/sched.h~1_ESCS	2006-03-23 22:48:10.000000000 +0300
-+++ MM/include/linux/sched.h	2006-03-23 23:00:02.000000000 +0300
-@@ -1184,7 +1184,7 @@ extern void exit_thread(void);
- 
- extern void exit_files(struct task_struct *);
- extern void __cleanup_signal(struct signal_struct *);
--extern void cleanup_sighand(struct task_struct *);
-+extern void __cleanup_sighand(struct sighand_struct *);
- extern void exit_itimers(struct signal_struct *);
- 
- extern NORET_TYPE void do_group_exit(int);
---- MM/kernel/fork.c~1_ESCS	2006-03-23 22:48:10.000000000 +0300
-+++ MM/kernel/fork.c	2006-03-23 22:59:33.000000000 +0300
-@@ -808,12 +808,8 @@ static inline int copy_sighand(unsigned 
- 	return 0;
- }
- 
--void cleanup_sighand(struct task_struct *tsk)
-+void __cleanup_sighand(struct sighand_struct *sighand)
- {
--	struct sighand_struct * sighand = tsk->sighand;
--
--	/* Ok, we're done with the signal handlers */
--	tsk->sighand = NULL;
- 	if (atomic_dec_and_test(&sighand->count))
- 		kmem_cache_free(sighand_cachep, sighand);
- }
-@@ -1232,7 +1228,7 @@ bad_fork_cleanup_mm:
- bad_fork_cleanup_signal:
- 	cleanup_signal(p);
- bad_fork_cleanup_sighand:
--	cleanup_sighand(p);
-+	__cleanup_sighand(p->sighand);
- bad_fork_cleanup_fs:
- 	exit_fs(p); /* blocking */
- bad_fork_cleanup_files:
---- MM/kernel/exit.c~1_ESCS	2006-03-23 22:48:10.000000000 +0300
-+++ MM/kernel/exit.c	2006-03-23 23:02:53.000000000 +0300
-@@ -114,10 +114,11 @@ static void __exit_signal(struct task_st
- 	__unhash_process(tsk);
- 
- 	tsk->signal = NULL;
--	cleanup_sighand(tsk);
-+	tsk->sighand = NULL;
- 	spin_unlock(&sighand->siglock);
- 	rcu_read_unlock();
- 
-+	__cleanup_sighand(sighand);
- 	clear_tsk_thread_flag(tsk,TIF_SIGPENDING);
- 	flush_sigqueue(&tsk->pending);
- 	if (sig) {
+A valid concern.  I am of the opinion that we should try to
+introduce change in small increments, whereever possible.
+
+>  b) is page replacement actually a huge issue?
+
+Being involved in RHEL support occasionally:  YES!
+
+Page replacement may be doing the right thing in 99% of the
+cases, but the misbehaviour in "corner cases" can be very
+significant.  I put "corner cases" in quotes because they
+are not cornercases to the users - these loads tend to be
+the main workload on some systems!
+
+IMHO, improving performance for most workloads is nowhere 
+near as important as increasing the coverage of the VM,
+ie. the number of workloads that it handles well.
+
+
+-- 
+All Rights Reversed

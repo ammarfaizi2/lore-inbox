@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWCWWQT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbWCWW0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932482AbWCWWQT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 17:16:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbWCWWQT
+	id S932502AbWCWW0u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 17:26:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWCWW0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 17:16:19 -0500
-Received: from gate.crashing.org ([63.228.1.57]:14284 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932482AbWCWWQT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 17:16:19 -0500
-Subject: Re: [patch 06/13] powerpc: cell interrupt controller updates
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Arnd Bergmann <abergman@de.ibm.com>
-Cc: Paul Mackerras <paulus@samba.org>, cbe-oss-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       hpenner@de.ibm.com, stk@de.ibm.com,
-       Segher Boessenkool <segher@kernel.crashing.org>,
-       Milton Miller <miltonm@bga.com>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>
-In-Reply-To: <20060323203521.862355000@dyn-9-152-242-103.boeblingen.de.ibm.com>
-References: <20060323203423.620978000@dyn-9-152-242-103.boeblingen.de.ibm.com>
-	 <20060323203521.862355000@dyn-9-152-242-103.boeblingen.de.ibm.com>
-Content-Type: text/plain
-Date: Fri, 24 Mar 2006 09:15:52 +1100
-Message-Id: <1143152153.4257.28.camel@localhost.localdomain>
+	Thu, 23 Mar 2006 17:26:50 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.158]:40324 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S932502AbWCWW0t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 17:26:49 -0500
+Date: Thu, 23 Mar 2006 15:27:23 -0700
+From: "Mark A. Greer" <mgreer@mvista.com>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: "Mark A.Greer" <mgreer@mvista.com>, Randy Vinson <rvinson@mvista.com>,
+       Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH, RFC] Stop using tasklet in ds1374 RTC driver
+Message-ID: <20060323222723.GA3379@mag.az.mvista.com>
+References: <20060323201030.ccded642.khali@linux-fr.org> <4423084B.1070701@mvista.com> <20060323214028.GB21477@mag.az.mvista.com> <C6071445-B39C-4230-92FA-E8EE5717FD05@kernel.crashing.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <C6071445-B39C-4230-92FA-E8EE5717FD05@kernel.crashing.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-23 at 00:00 +0100, Arnd Bergmann wrote:
-> plain text document attachment (cell-pic-updates-3.diff)
-> The current interrupt controller setup on Cell is done
-> in a rather ad-hoc way with device tree properties
-> that are not standardized at all.
+On Thu, Mar 23, 2006 at 03:52:16PM -0600, Kumar Gala wrote:
 > 
-> In an attempt to do something that follows the OF standard
-> (or at least the IBM extensions to it) more closely,
-> we have now come up with this patch. It still provides
-> a fallback to the old behaviour when we find older firmware,
-> that hack can not be removed until the existing customer
-> installations have upgraded.
+> On Mar 23, 2006, at 3:40 PM, Mark A. Greer wrote:
+> >I'm no expert in workqueues either; however, after reading
+> >http://lwn.net/Articles/23634/, I believe that its unnecessary for an
+> >rtc driver to have its own workqueue since rtc writes aren't  
+> >particularly
+> >time-critical.  If I am correct, then Randy's patch uses the proper  
+> >wq calls.
+> >
+> >Agree?
+> 
+> How does this change with the RTC subsystem that's about to be added?  
+> (could be irrelevant, just wanted to put that out there)
 
-BTW... You still use __ioremap(...,PAGE_NO_CACHE); which I think won't
-give you guarded... I wouldn'd do that if I were you... The accessors
-should have barriers but still...
+Dunno, but its broken where it is now so we need to fix it ASAP.
+Once that's done, we can do whatever needs to be done to get it into
+drivers/rtc.
 
-Ben.
-
-
+Mark

@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932505AbWCWBiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbWCWBpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932505AbWCWBiW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 20:38:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWCWBiW
+	id S932513AbWCWBpa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 20:45:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWCWBpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 20:38:22 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:61595 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932505AbWCWBiV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 20:38:21 -0500
-Date: Wed, 22 Mar 2006 17:37:54 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: kernel@kolivas.org
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: cpu scheduler merge plans
-Message-ID: <20060322173754.A19085@unix-os.sc.intel.com>
-References: <20060322155122.2745649f.akpm@osdl.org> <1143068226.4421d6424ecf1@vds.kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1143068226.4421d6424ecf1@vds.kolivas.org>; from kernel@kolivas.org on Thu, Mar 23, 2006 at 09:57:06AM +1100
+	Wed, 22 Mar 2006 20:45:30 -0500
+Received: from mga03.intel.com ([143.182.124.21]:23208 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S932367AbWCWBp3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 20:45:29 -0500
+X-IronPort-AV: i="4.03,120,1141632000"; 
+   d="scan'208"; a="14438460:sNHT39900945"
+x-mimeole: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: ACPI error in 2.6.16 (AE_TIME, Returned by Handler for EmbeddedControl)
+Date: Wed, 22 Mar 2006 20:45:17 -0500
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30067BF1BC@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ACPI error in 2.6.16 (AE_TIME, Returned by Handler for EmbeddedControl)
+Thread-Index: AcZOBYulYVSXWqsaRaOBuxpCehkEAwAFYWFQ
+From: "Brown, Len" <len.brown@intel.com>
+To: "Francesco Biscani" <biscani@pd.astro.it>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Cc: <linux-acpi@vger.kernel.org>, "Yu, Luming" <luming.yu@intel.com>
+X-OriginalArrivalTime: 23 Mar 2006 01:45:20.0116 (UTC) FILETIME=[71742B40:01C64E1B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 09:57:06AM +1100, kernel@kolivas.org wrote:
-> Quoting Andrew Morton <akpm@osdl.org>:
-> > #
-> > # "strange load balancing problems": pwil3058@bigpond.net.au
-> > sched-new-sched-domain-for-representing-multi-core.patch
-> > sched-fix-group-power-for-allnodes_domains.patch
-> > x86-dont-use-cpuid2-to-determine-cache-info-if-cpuid4-is-supported.patch
 
-I'd like to see the three above patches in 2.6.17. Peters "strange load
-balancing problems" seems to be a false alarm(this patch will have
-minimal impact on a single core cpu because of domain degeneration..) and
-doesn't happen on recent -mm kernels..
+>sometimes at boot I get the following from the logs:
+>
+>ACPI: write EC, IB not empty
+>ACPI Exception (evregion-0409): AE_TIME, Returned by Handler for 
+>[EmbeddedControl] [20060127]
+>ACPI Error (psparse-0517): Method parse/execution failed 
+>[\_SB_.PCI0.ISA_.EC0_.SMRD] (Node c13ecd40), AE_TIME
+>ACPI Error (psparse-0517): Method parse/execution failed 
+>[\_SB_.BAT1.UPBI] 
+>(Node dbf42720), AE_TIME
+>ACPI Error (psparse-0517): Method parse/execution failed 
+>[\_SB_.BAT1.CHBP] 
+>(Node dbf42660), AE_TIME
+>ACPI Error (psparse-0517): Method parse/execution failed 
+>[\_SB_.PCI0.ISA_.EC0_.SMSL] (Node c13ecce0), AE_TIME
+>ACPI Error (psparse-0517): Method parse/execution failed 
+>[\_SB_.PCI0.ISA_.EC0_._Q09] (Node c13ecc40), AE_TIME
+>
+>And after that the battery is reported as absent (even if it 
+>is physically 
+>present). I get the impression that this happens when rebooting, not 
+>from "cold powerons".
+>
+>This did not happen in 2.6.15, it appeared somewhere in 
+>2.6.16-rc series.
 
-> > 
-> > 
-> > I'm not sure what the "Suresh had problems" comment refers to - perhaps a
-> > now-removed patch.
-> 
-> On previous versions of smp nice Suresh found some throughput issues. Peter has
-> addressed these as far as I'm aware, but we really need Suresh to check all
-> those again.
+does this go away if you boot with "ec_intr=0"?
 
-I am just back from vacation. I will soon review and provide feedback.
-
-> > 
-> > afaik, the load balancing problem which Peter observed remains unresolved.
-> 
-> That was a multicore enabled balancing problem which he reported went away on a
-> later -mm.
-
-thanks,
-suresh
+-Len

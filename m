@@ -1,88 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWCWFkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWCWFnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbWCWFkq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 00:40:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWCWFkq
+	id S932226AbWCWFnE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 00:43:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWCWFnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 00:40:46 -0500
-Received: from xenotime.net ([66.160.160.81]:59621 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932188AbWCWFkq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 00:40:46 -0500
-Date: Wed, 22 Mar 2006 21:42:57 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: jzb@aexorsyst.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BIOS causes (exposes?) modprobe (load_module) kernel oops
-Message-Id: <20060322214257.1ef798e5.rdunlap@xenotime.net>
-In-Reply-To: <200603222126.56720.jzb@aexorsyst.com>
-References: <200603212005.58274.jzb@aexorsyst.com>
-	<1143018365.2955.49.camel@laptopd505.fenrus.org>
-	<200603221948.00568.jzb@aexorsyst.com>
-	<200603222126.56720.jzb@aexorsyst.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 23 Mar 2006 00:43:04 -0500
+Received: from mail14.syd.optusnet.com.au ([211.29.132.195]:53710 "EHLO
+	mail14.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932226AbWCWFnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 00:43:03 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: [interbench numbers] Re: interactive task starvation
+Date: Thu, 23 Mar 2006 16:43:35 +1100
+User-Agent: KMail/1.8.3
+Cc: lkml <linux-kernel@vger.kernel.org>, Willy Tarreau <willy@w.ods.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       bugsplatter@gmail.com, Peter Williams <pwil3058@bigpond.net.au>
+References: <1142592375.7895.43.camel@homer> <200603230727.51235.kernel@kolivas.org> <1143084178.7665.6.camel@homer>
+In-Reply-To: <1143084178.7665.6.camel@homer>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603231643.36093.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Mar 2006 21:26:56 -0800 John Z. Bohach wrote:
+On Thu, 23 Mar 2006 02:22 pm, Mike Galbraith wrote:
+> On Thu, 2006-03-23 at 07:27 +1100, Con Kolivas wrote:
+> > I wonder why the results are affected even without any throttling
+> > settings but just patched in? Specifically I'm talking about deadlines
+> > met with video being sensitive to this. Were there any other config
+> > differences between the tests? Changing HZ would invalidate the results
+> > for example. Comments?
+>
+> I wondered the same.  The only difference then is the lower idle sleep
+> prio, tighter timeslice enforcement, and the SMP buglet fix for now <
+> p->timestamp due to SMP rounding.  Configs are identical.
 
-> On Wednesday 22 March 2006 19:48, John Z. Bohach wrote:
-> > On Wednesday 22 March 2006 01:06, Arjan van de Ven wrote:
-> > > On Tue, 2006-03-21 at 20:05 -0800, John Z. Bohach wrote:
-> > > > Linux 2.6.14.2, yeah, I know, and sorry if this has been fixed...but
-> > > > read on, please, this is a new take...
-> > >
-> > > at least enable CONFIG_KALLSYMS to get us a readable backtrace
-> >
-> > I'll do you one better:  here's the failing line from module.c:
-> >
-> > 	/* Determine total sizes, and put offsets in sh_entsize.  For now
-> > 	   this is done generically; there doesn't appear to be any
-> > 	   special cases for the architectures. */
-> > 	layout_sections(mod, hdr, sechdrs, secstrings);
-> >
-> > 	/* Do the allocs. */
-> > 	ptr = module_alloc(mod->core_size);
-> > 	if (!ptr) {
-> > 		err = -ENOMEM;
-> > 		goto free_percpu;
-> > 	}
-> > !!! --->	memset(ptr, 0, mod->core_size);
-> > 	mod->module_core = ptr;
-> >
-> 
-> Let me summarize this a little better:
-> 
-> ptr = module_alloc(mod->core_size);
-> 
-> is fine, but when a few lines later, memset() tries to operate on that same
-> ptr to zero it out with
-> 
-> memset(ptr, 0, mod->core_size);
-> 
-> I get:
-> 
-> Unable to handle kernel paging request at virtual address f8806000
-> (f8806000 is (in this case) the value of ptr returned by module_alloc()).
-> 
-> I've validated the parameters, they all look okay.  I think the page fault for ptr
-> is normal(?), and the page fault handler is suppossed to set up this page???
-> but fails...
-> 
-> Yet it succeeds with a different BIOS and bootloader, is what I'm trying to say.
-> 
-> So it seems that the page fault handler is somehow affected by something that the
-> BIOS has/has not done, long after the system has booted and been running, with
-> many page faults under its belt...now I've seen it all...or not.
+Ok well if we're going to run with this set of changes then we need to assess 
+the affect of each change and splitting them up into separate patches would 
+be appropriate normally anyway. That will allow us to track down which 
+particular patch causes it. That won't mean we will turn down the change 
+based on that one result, though, it will just help us understand it better.
 
-Sounds like we need to see complete boot logs from both BIOSen boots.
-Can you do that?
-
-I'm just guessing that the memory maps are different, but who knows.
-
----
-~Randy
+Cheers,
+Con

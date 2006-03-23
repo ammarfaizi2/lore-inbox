@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161005AbWCWVCq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbWCWVHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161005AbWCWVCq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 16:02:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161003AbWCWVCp
+	id S964907AbWCWVHY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 16:07:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbWCWVHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 16:02:45 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:39856 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1161005AbWCWVCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 16:02:44 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH] Make libata not powerdown drivers on PM_EVENT_FREEZE.
-Date: Fri, 24 Mar 2006 07:01:02 +1000
-User-Agent: KMail/1.9.1
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-References: <200603232151.47346.ncunningham@cyclades.com> <200603232322.23852.ncunningham@cyclades.com> <4422A823.1020409@garzik.org>
-In-Reply-To: <4422A823.1020409@garzik.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1987406.tYgic12oXG";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200603240701.06739.ncunningham@cyclades.com>
+	Thu, 23 Mar 2006 16:07:24 -0500
+Received: from smtp04.auna.com ([62.81.186.14]:6584 "EHLO smtp04.retemail.es")
+	by vger.kernel.org with ESMTP id S964907AbWCWVHX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 16:07:23 -0500
+Date: Thu, 23 Mar 2006 22:07:11 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: "Linux-Kernel, " <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16-mm1
+Message-ID: <20060323220711.28fcb82f@werewolf.auna.net>
+In-Reply-To: <20060323014046.2ca1d9df.akpm@osdl.org>
+References: <20060323014046.2ca1d9df.akpm@osdl.org>
+X-Mailer: Sylpheed-Claws 2.0.0cvs160 (GTK+ 2.8.16; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary=Sig_i75SjV2f+e0+m+PXtALZMlS;
+ protocol="application/pgp-signature"; micalg=PGP-SHA1
+X-Auth-Info: Auth:LOGIN IP:[83.138.210.119] Login:jamagallon@able.es Fecha:Thu, 23 Mar 2006 22:07:11 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1987406.tYgic12oXG
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+--Sig_i75SjV2f+e0+m+PXtALZMlS
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Hi.
+On Thu, 23 Mar 2006 01:40:46 -0800, Andrew Morton <akpm@osdl.org> wrote:
 
-On Thursday 23 March 2006 23:52, Jeff Garzik wrote:
-> Nigel Cunningham wrote:
-> > Hi.
-> >
-> > At the moment libata doesn't pass pm_message_t down ata_device_suspend.
-> > This causes drives to be powered down when we just want a freeze,
-> > causing unnecessary wear and tear. This patch gets pm_message_t passed
-> > down so that it can be used to determine whether to power down the
-> > drive.
-> >
-> > Prepared against git at the time of writing. Please apply.
-> >
-> > Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
->
-> I'll put this into the queue for review.
->
-> As the top of each source file requests, please CC
-> linux-ide@vger.kernel.org and myself on libata changes.
+>=20
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.=
+16-mm1/
+>=20
 
-Ok. Thanks.
+I have some patches against -mm I use and don't seem to hurt, since long
+time ago. I will try to track its origin, but I'm not sure I can :(.
+Anyways I will post them here, to see if someone can tell anything.
 
-Nigel
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandriva Linux release 2006.1 (Cooker) for i586
+Linux 2.6.15-jam20 (gcc 4.0.3 (4.0.3-1mdk for Mandriva Linux release 2006.1=
+))
 
---nextPart1987406.tYgic12oXG
-Content-Type: application/pgp-signature
+--Sig_i75SjV2f+e0+m+PXtALZMlS
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-iD8DBQBEIwySN0y+n1M3mo0RAmUDAJ90pXB9Hun2vmJRYa7sAxqtMd8JuwCgnLnF
-bJpAZobR15ZQT5TpY46oOOQ=
-=Rd0R
+iD8DBQFEIw3/RlIHNEGnKMMRAqjoAJ92z5Q0YuWxhygoZK9SNMSnLWH9zACfTXti
+F3f7PNDXPDo4p/jmI+EXax0=
+=qjzq
 -----END PGP SIGNATURE-----
 
---nextPart1987406.tYgic12oXG--
+--Sig_i75SjV2f+e0+m+PXtALZMlS--

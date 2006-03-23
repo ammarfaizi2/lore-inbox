@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932558AbWCWXdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWCWXhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932558AbWCWXdR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 18:33:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbWCWXdR
+	id S964834AbWCWXhW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 18:37:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932571AbWCWXhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 18:33:17 -0500
-Received: from mail.kroah.org ([69.55.234.183]:51595 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932558AbWCWXdQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 18:33:16 -0500
-Date: Thu, 23 Mar 2006 15:25:51 -0800
-From: Greg KH <greg@kroah.com>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: linux-kernel@vger.kernel.org, rdreier@cisco.com, openib-general@openib.org
-Subject: Re: [PATCH 8 of 18] ipath - sysfs and ipathfs support for core driver
-Message-ID: <20060323232551.GA31490@kroah.com>
-References: <patchbomb.1143072293@eng-12.pathscale.com> <03375633b9c13068de17.1143072301@eng-12.pathscale.com> <20060323054905.GB20672@kroah.com> <1143103485.6411.14.camel@camp4.serpentine.com>
+	Thu, 23 Mar 2006 18:37:22 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:10154 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932567AbWCWXhV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 18:37:21 -0500
+Date: Fri, 24 Mar 2006 08:38:00 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Yasunori Goto <y-goto@jp.fujitsu.com>
+Cc: akpm@osdl.org, y-goto@jp.fujitsu.com, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, len.brown@intel.com
+Subject: Re: [PATCH: 000/002] Catch notification of memory add event of ACPI
+ via container driver.
+Message-Id: <20060324083800.d1bb156f.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060323221810.8A0B.Y-GOTO@jp.fujitsu.com>
+References: <20060323221810.8A0B.Y-GOTO@jp.fujitsu.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1143103485.6411.14.camel@camp4.serpentine.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 12:44:45AM -0800, Bryan O'Sullivan wrote:
-> On Wed, 2006-03-22 at 21:49 -0800, Greg KH wrote:
-> > Oh, and I like your new filesystem, but where do you propose that it be
-> > mounted?
-> 
-> I don't have any good candidates in mind.  In our development
-> environment, we're mounting it in /ipath, but that doesn't seem like a
-> good long-term name.  Do you have any suggestions?
+On Thu, 23 Mar 2006 22:41:05 +0900
+Yasunori Goto <y-goto@jp.fujitsu.com> wrote:
 
-Nope, sorry.  At least /ipath is LSB compliant :)
+>These 2 patches are to catch notification of new node's hot-add event via ACPI.
 
-thanks,
 
-greg k-h
+
+One more thing, this patch works for the case that memory device "PNP0C80" appears
+in container device"ACPI0004,PNP0A05,PNP0A06". In this case, ACPI's notify just comes
+to container device (not to memory device in it). This patch is necessary to deal with it.
+
+I heared  that some of firmwares (will?) use this kind of design, memory in a container,
+even if it's not NUMA.
+
+-- Kame.
+

@@ -1,91 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWCWBLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWCWBQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbWCWBLw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 20:11:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWCWBLw
+	id S932220AbWCWBQI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 20:16:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWCWBQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 20:11:52 -0500
-Received: from pproxy.gmail.com ([64.233.166.181]:27445 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932171AbWCWBLv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 20:11:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=HiX0Yw9XgEBnsXSVjA44laxa09a95S1VHHNhb7+8oxKpOWU1wEoAGVaSSk08BXu06Jna8Kxvnyx/lPOB39a0Xs8Jci+YldvdEBuebR/z1Pj8Af5bSUX//weBhNWKIG61XXaTb6gJ/fpR7LeRFdVAHvdufzr29utjZ/cYhxgg/7g=
-Message-ID: <4421F471.3030505@gmail.com>
-Date: Thu, 23 Mar 2006 09:05:53 +0800
-From: Yi Yang <yang.y.yi@gmail.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Wed, 22 Mar 2006 20:16:08 -0500
+Received: from ms-smtp-03-smtplb.tampabay.rr.com ([65.32.5.133]:41690 "EHLO
+	ms-smtp-03.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S932222AbWCWBQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 20:16:06 -0500
+Message-ID: <4421F6AB.5030207@cfl.rr.com>
+Date: Wed, 22 Mar 2006 20:15:23 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Mail/News 1.5 (X11/20060309)
 MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6.16 PATCH] some tail whitespace clean under subdirectory
- kernel
-References: <44216EFF.6050503@gmail.com> <44219917.90806@gmail.com>
-In-Reply-To: <44219917.90806@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+Subject: Re: VFAT: Can't create file named 'aux.h'?
+References: <1142890822.5007.18.camel@localhost.localdomain> <20060320134533.febb0155.rdunlap@xenotime.net> <dvn835$lvo$1@terminus.zytor.com> <Pine.LNX.4.61.0603211840020.21376@yvahk01.tjqt.qr> <44203B86.5000003@zytor.com> <Pine.LNX.4.61.0603211854150.21376@yvahk01. <Pine.LNX.4.61.0603221705510.1531@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0603221705510.1531@chaos.analogic.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Yi Yang napsal(a):
->   
->> This patch cleans some tail whitespaces under subdirectory kernel.
->>
->>
->> diffstat
->>  capability.c |   20 ++++++++++----------
->>  fork.c       |   12 ++++++------
->>  signal.c     |   14 +++++++-------
->>  sys.c        |   38 +++++++++++++++++++-------------------
->>  timer.c      |   18 +++++++++---------
->>  5 files changed, 51 insertions(+), 51 deletions(-)
->>
->> Signed-off-by: Yi Yang <yang.y.yi@gmail.com>
->>
->> --- a/kernel/capability.c.orig	2006-03-22 23:04:30.000000000 +0800
->> +++ b/kernel/capability.c	2006-03-22 23:07:06.000000000 +0800
->> @@ -5,7 +5,7 @@
->>   *
->>   * Integrated into 2.1.97+,  Andrew G. Morgan <morgan@transmeta.com>
->>   * 30 May 2002:	Cleanup, Robert M. Love <rml@tech9.net>
->> - */ 
->> + */
->>  
->>  #include <linux/capability.h>
->>  #include <linux/mm.h>
->> @@ -54,18 +54,18 @@ asmlinkage long sys_capget(cap_user_head
->>  
->>       if (version != _LINUX_CAPABILITY_VERSION) {
->>  	     if (put_user(_LINUX_CAPABILITY_VERSION, &header->version))
->> -		     return -EFAULT; 
->> +		     return -EFAULT;
->>     
-> I think, it wants Lindent or something, not only delete tail whispaces, but also
-> space indentation.
->
->   
-Yes, there are too many such issues in kernel source tree, I don't know 
-whether Linus uses
-Lindent to reformat all the source code before release?
-> regards,
-> - --
-> Jiri Slaby         www.fi.muni.cz/~xslaby
-> ~\-/~      jirislaby@gmail.com      ~\-/~
-> B67499670407CE62ACC8 22A032CC55C339D47A7E
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.2.2 (GNU/Linux)
-> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
->
-> iD8DBQFEIZkXMsxVwznUen4RAgXfAKCUZKR72rZajvm4FExJt/WsXJKYMwCglKH1
-> sUu3C59ZI/r27ZmsZlFfAvM=
-> =rGzw
-> -----END PGP SIGNATURE-----
->
->   
+linux-os (Dick Johnson) wrote:
+> Under win/2000 "aux" can't be created either by using C/C++ or
+> any of the usual utilities like `ftp`. The returned error-code
+> is "Permission denied", even from an administrator account.
+> 
+
+For the third time this thread, yes, you can, you just have to escape 
+the path name to prevent the win32 api from translating the name to the 
+non existent AUX device.  From a command line you can do:
+
+echo foo > \\?\c:\aux
+
+And it will work just fine.  The only place the name "AUX" has any 
+meaning is in the win32 api layers that translate certain device names 
+to the real kernel path.  The kernel and filesystem will store whatever 
+name you choose for compatibility with the posix subsystem.
+
+> I have a dual-boot lap-top so I tried to create a file called
+> "AUX" using `echo "">AUX`, under Linux-2.4.26. The error-code
+> was "Invalid argument". This is a "vfat" file-system. I was
+> able to create the device-name "CLOCK$", which is reserved in
+> DOS. I'm now rebooting the laptop, it should be interesting
+> to see if it still works! .... Yep. It's not a reserved name
+> in Win/2000.
+> 
 

@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWCWJjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWCWJlX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbWCWJjg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 04:39:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932507AbWCWJjg
+	id S1751186AbWCWJlX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 04:41:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWCWJlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 04:39:36 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:17040 "EHLO mtlexch01.mtl.com")
-	by vger.kernel.org with ESMTP id S932435AbWCWJjf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 04:39:35 -0500
-Date: Thu, 23 Mar 2006 11:40:26 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: linux-kernel@vger.kernel.org, rdreier@cisco.com, greg@kroah.com,
-       openib-general@openib.org
-Subject: Re: [PATCH 8 of 18] ipath - sysfs and ipathfs support for core driver
-Message-ID: <20060323094026.GC1802@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <patchbomb.1143072293@eng-12.pathscale.com> <03375633b9c13068de17.1143072301@eng-12.pathscale.com> <20060323063049.GB9841@mellanox.co.il> <1143103569.6411.18.camel@camp4.serpentine.com>
+	Thu, 23 Mar 2006 04:41:23 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:16520 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751186AbWCWJlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 04:41:23 -0500
+Subject: Re: [RFC PATCH 35/35] Add Xen virtual block device driver.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Cc: virtualization@lists.osdl.org, Ian Pratt <ian.pratt@xensource.com>,
+       xen-devel@lists.xensource.com, ian.pratt@cl.cam.ac.uk,
+       linux-kernel@vger.kernel.org, Ian Pratt <m+Ian.Pratt@cl.cam.ac.uk>,
+       Chris Wright <chrisw@sous-sol.org>
+In-Reply-To: <a15cee148267ad7406a077c28c0c97ac@cl.cam.ac.uk>
+References: <A95E2296287EAD4EB592B5DEEFCE0E9D4B9E8A@liverpoolst.ad.cl.cam.ac.uk>
+	 <1143101972.3147.11.camel@laptopd505.fenrus.org>
+	 <a15cee148267ad7406a077c28c0c97ac@cl.cam.ac.uk>
+Content-Type: text/plain
+Date: Thu, 23 Mar 2006 10:41:12 +0100
+Message-Id: <1143106872.3147.17.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1143103569.6411.18.camel@camp4.serpentine.com>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 23 Mar 2006 09:42:19.0468 (UTC) FILETIME=[13EAB8C0:01C64E5E]
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Bryan O'Sullivan <bos@pathscale.com>:
-> > InfiniBand core already exposes these attributes to userspace, see
-> > drivers/infiniband/core/sysfs.c
-> 
-> This is needed for cases where the Infiniband stack isn't present.
 
-But re-implementing same thing with a different kernel-user interface and
-pushing it into a low-level driver does not strike me like a sane solution.
+> Well, that's plausible. We probably don't need IDE *and* SCSI faking. 
+> We'd like to at least keep SCSI faking,
 
--- 
-Michael S. Tsirkin
-Staff Engineer, Mellanox Technologies
+that's still unacceptable. Unless you start using the scsi layer and
+really ARE scsi. 
+but faking to be something you're not is not how you do things in linux.
+Putting junk in the kernel because otherwise an open source installer
+needs 3 extra lines... No Thanks(tm)
+
+I would also recommend against going the full scsi-over-the-virtual-wire
+mode. Xen is Xen *because* you don't need to go to a hardware level and
+back on the other side. That's one of the reasons it's faster than full
+virtualization. Don't throw away your advantages because you think it's
+hard to add 3 lines to an open source project.
+
+And the other consideration is this: SCSI is a complex spec. Doing a
+half-emulation of that is actually worse than doing something fully on
+your own. But if you want to go all the way.. that's imo way too much
+overhead. You are not scsi. 
+
+(And if someone really wants scsi in Xen, they already can use iSCSI as
+protocol, no need to reinvent that wheel)
+
+

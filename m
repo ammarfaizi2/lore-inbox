@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWCWFnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWCWFqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932423AbWCWFnx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 00:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbWCWFnx
+	id S932454AbWCWFqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 00:46:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWCWFqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 00:43:53 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:15760 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932423AbWCWFnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 00:43:52 -0500
-Message-Id: <200603230543.k2N5hhg22185@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Mark Rustad'" <mrustad@mac.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: 2.6.16 hugetlbfs problem
-Date: Wed, 22 Mar 2006 21:43:58 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZOCT391SUPh0fiSe2TKLfPK0dItwAJLzWA
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <EE85F1AA-A258-4D4F-A46F-34253AEE280E@mac.com>
+	Thu, 23 Mar 2006 00:46:25 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:52892 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S932428AbWCWFqX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 00:46:23 -0500
+Date: Wed, 22 Mar 2006 21:41:50 -0800
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, perfmon@napali.hpl.hp.com,
+       linux-ia64@vger.kernel.org
+Subject: Re: perfmon2 context: thread_struct vs. task_struct?
+Message-ID: <20060323054150.GC26848@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <20060322233253.GB26602@frankl.hpl.hp.com> <20060322183736.4a3bb1c2.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060322183736.4a3bb1c2.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Rustad wrote on Wednesday, March 22, 2006 3:33 PM
-> >> I seem to be having trouble using hugetlbfs with kernel 2.6.16. I
-> >> have a small test program that worked with 2.6.16-rc5, but fails with
-> >> 2.6.16-rc6 or the release. The program is below. Given a path to a
-> >> file on a hugetlbfs, it opens/creates the file, mmaps it and tries to
-> >> access the first word. On 2.6.16-rc5, it works. On 2.6.16, it hangs
-> >> page-faulting until it is killed.
-> >
-> > On what platform?  Things like hugetlb and address space layout
-> > (you're requesting a specific mmap() address I noticed) are very
-> > platform specific.
+Andrew,
+
+On Wed, Mar 22, 2006 at 06:37:36PM -0800, Andrew Morton wrote:
+> > Would it make sense  to move the pointer to the perfmon2
+> > context into the task_struct?
 > 
-> This is on a Xeon, without PAE with the 1GB no-highmem memory map, in  
-> all three cases. This is a 32-bit kernel running on a Nacona CPU. I  
-> also had an unmap call over the range to be mmap-ed, but the failure/ 
-> success cases were the same, so I removed it to reduce the test  
-> program further.
+> I'd say so, yes.  Especialy if the struct is the same on all architectures,
+> is referred to from non-arch-specific code and is absent if
+> CONFIG_PERFMON=n.
+> 
+Yes the structure is the same for all architectures. It looks like
+task_struct already has #ifdefs in it. So I could do:
 
-It might be something else happening in your environment. I ran your test
-code on a similar system. It ran just fine.
+struct task_struct {
+	....
+#ifdef CONFIG_PERFMON
+	struct pfm_context *pfm_context;
+#endif
+	...
+};
 
-- Ken
-
+-- 
+-Stephane

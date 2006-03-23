@@ -1,101 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbWCWPpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWCWPre@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030252AbWCWPpF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 10:45:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbWCWPpE
+	id S932290AbWCWPre (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 10:47:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWCWPre
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 10:45:04 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34576 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1030252AbWCWPpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 10:45:03 -0500
-Date: Thu, 23 Mar 2006 15:44:56 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: David Vrabel <dvrabel@cantab.net>
-Cc: Pavel Machek <pavel@suse.cz>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ucb1x00 audio & zaurus touchscreen
-Message-ID: <20060323154456.GB25849@flint.arm.linux.org.uk>
-Mail-Followup-To: David Vrabel <dvrabel@cantab.net>,
-	Pavel Machek <pavel@suse.cz>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20060322122052.GN14075@elf.ucw.cz> <4422B370.8010606@cantab.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4422B370.8010606@cantab.net>
-User-Agent: Mutt/1.4.1i
+	Thu, 23 Mar 2006 10:47:34 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:59657 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S932290AbWCWPrd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 10:47:33 -0500
+Message-ID: <4422C316.5070305@cfl.rr.com>
+Date: Thu, 23 Mar 2006 10:47:34 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Yogesh Pahilwan <pahilwan.yogesh@spsoftindia.com>
+CC: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: raw I/O support for Fedora Core 4
+References: <WM57DB3DF98115400697C908A54A80DEE9@spsoftindia.com>
+In-Reply-To: <WM57DB3DF98115400697C908A54A80DEE9@spsoftindia.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Mar 2006 15:47:34.0516 (UTC) FILETIME=[1A4DAB40:01C64E91]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14341.000
+X-TM-AS-Result: No--12.400000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 02:40:48PM +0000, David Vrabel wrote:
-> @@ -58,9 +65,9 @@
->  	spin_lock_irqsave(&ucb->io_lock, flags);
->  	ucb->io_dir |= out;
->  	ucb->io_dir &= ~in;
-> +	spin_unlock_irqrestore(&ucb->io_lock, flags);
->  
->  	ucb1x00_reg_write(ucb, UCB_IO_DIR, ucb->io_dir);
-> -	spin_unlock_irqrestore(&ucb->io_lock, flags);
+The raw device driver is obsolete because it has been superseded by the 
+O_DIRECT open flag.  If you want to have dd perform unbuffered IO then 
+pass the iflag=direct option for input, or oflag=direct option for 
+output, and it will use O_DIRECT to bypass the buffer cache.
 
-Racy.
+This of course assumes that you mean "bypass the buffer cache" when you 
+say "raw io".
 
-> @@ -86,9 +93,9 @@
->  	spin_lock_irqsave(&ucb->io_lock, flags);
->  	ucb->io_out |= set;
->  	ucb->io_out &= ~clear;
-> +	spin_unlock_irqrestore(&ucb->io_lock, flags);
->  
->  	ucb1x00_reg_write(ucb, UCB_IO_DATA, ucb->io_out);
-> -	spin_unlock_irqrestore(&ucb->io_lock, flags);
+Yogesh Pahilwan wrote:
+> Hi All,
+> 
+> I want to do raw I/O on MD RAID and LVM for fedora core 4(kernel 2.6.15.6).
+> 
+> After doing googling I came to know that "raw" command does the raw
+> operation by linking 
+> MD device and LVM volume to the raw device as 
+> 
+> # raw /dev/raw/raw1 /dev/md0.
+> 
+> But when I search on this I came to know that there is no raw (/dev/rawctl)
+> device support available with 2.6 kernel.
+> I have also tried recompile the kernel sources with raw device support it is
+> not getting compiled as it is obsolete in 2.6. 
+> If I want to include raw device support in my kernel what should I will have
+> to do, so that I 
+> Will be able to do raw I/O on MD device and LVM volumes.
+> 
+> Thanks and Regards,
+> Yogesh
+> 
 
-Racy.
-
-> @@ -301,22 +305,23 @@
->   */
->  void ucb1x00_disable_irq(struct ucb1x00 *ucb, unsigned int idx, int edges)
->  {
-> -	unsigned long flags;
-> -
->  	if (idx < 16) {
-> -		spin_lock_irqsave(&ucb->lock, flags);
-> -
-> -		ucb1x00_enable(ucb);
-> -		if (edges & UCB_RISING) {
-> +		down(&ucb->lock);
-> +		/* This can't be right. Can it? */
-> +		if (edges & UCB_RISING)
-> +			ucb->irq_ris_enbl |= 1 << idx;
-> +		if (edges & UCB_FALLING)
-> +			ucb->irq_fal_enbl |= 1 << idx;
-> +		if (edges & UCB_RISING)
->  			ucb->irq_ris_enbl &= ~(1 << idx);
-> -			ucb1x00_reg_write(ucb, UCB_IE_RIS, ucb->irq_ris_enbl);
-> -		}
-> -		if (edges & UCB_FALLING) {
-> +		if (edges & UCB_FALLING)
->  			ucb->irq_fal_enbl &= ~(1 << idx);
-> -			ucb1x00_reg_write(ucb, UCB_IE_FAL, ucb->irq_fal_enbl);
-> -		}
-> +		up(&ucb->lock);
-> +
-> +		ucb1x00_enable(ucb);
-> +		ucb1x00_reg_write(ucb, UCB_IE_RIS, ucb->irq_ris_enbl);
-> +		ucb1x00_reg_write(ucb, UCB_IE_FAL, ucb->irq_fal_enbl);
-
-Racy.
-
-I'm very much of the opinion that while UCB1400 may appear to be vaguely
-register compatible with the UCB1200 and UCB1300 devices, it has
-sufficiently different requirements which make any attempt at merging
-drivers for both devices either racy or hard to read with additional
-unnecessary complexity for the 1200 and 1300 devices.
-
-Hence why I've been very reluctant to consider putting the UCB1400
-stuff in - because it changes the existing UCB1x00 code in ways I just
-don't like.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

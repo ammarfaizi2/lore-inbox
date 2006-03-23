@@ -1,91 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbWCWPjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbWCWPlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030251AbWCWPjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 10:39:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030252AbWCWPjQ
+	id S1030264AbWCWPlj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 10:41:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbWCWPlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 10:39:16 -0500
-Received: from mx1.mm.pl ([217.172.224.151]:47754 "EHLO mx1.mm.pl")
-	by vger.kernel.org with ESMTP id S1030251AbWCWPjP (ORCPT
+	Thu, 23 Mar 2006 10:41:39 -0500
+Received: from mgw1.diku.dk ([130.225.96.91]:33924 "EHLO mgw1.diku.dk")
+	by vger.kernel.org with ESMTP id S1030262AbWCWPlh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 10:39:15 -0500
-From: Radoslaw Szkodzinski <astralstorm@gorzow.mm.pl>
-To: ck@vds.kolivas.org
-Subject: Re: [ck] swap prefetching merge plans
-Date: Thu, 23 Mar 2006 16:34:44 +0100
-User-Agent: KMail/1.9.1
-Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20060322205305.0604f49b.akpm@osdl.org> <200603231804.36334.kernel@kolivas.org>
-In-Reply-To: <200603231804.36334.kernel@kolivas.org>
+	Thu, 23 Mar 2006 10:41:37 -0500
+Date: Thu, 23 Mar 2006 16:35:59 +0100 (CET)
+From: Jesper Dangaard Brouer <hawk@diku.dk>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: dipankar@in.ibm.com, Robert Olsson <Robert.Olsson@data.slu.se>,
+       jens.laas@data.slu.se, hans.liss@its.uu.se, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Eric Dumazet <dada1@cosmosbay.com>,
+       mike.stroyan@hp.com, Suresh Bhogavilli <sbhogavilli@verisign.com>
+Subject: Re: Kernel panic: Route cache, RCU, possibly FIB trie.
+In-Reply-To: <20060321.132514.24407022.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.61.0603231536180.29788@ask.diku.dk>
+References: <Pine.LNX.4.61.0603211113550.15500@ask.diku.dk>
+ <20060321.023705.26111240.davem@davemloft.net> <Pine.LNX.4.61.0603211538280.28173@ask.diku.dk>
+ <20060321.132514.24407022.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1226761.OkYWkOkD0d";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200603231634.53067.astralstorm@gorzow.mm.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1226761.OkYWkOkD0d
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-On Thursday 23 March 2006 08:04, Con Kolivas wrote yet:
-> On Thu, 23 Mar 2006 03:53 pm, Andrew Morton wrote:
-> > A look at the -mm lineup for 2.6.17:
-> >
-> > mm-implement-swap-prefetching.patch
-> > mm-implement-swap-prefetching-fix.patch
-> > mm-implement-swap-prefetching-tweaks.patch
-> >
-> >   Still don't have a compelling argument for this, IMO.
+On Tue, 21 Mar 2006, David S. Miller wrote:
+
+> From: Jesper Dangaard Brouer <hawk@diku.dk>
+> Date: Tue, 21 Mar 2006 15:51:34 +0100 (CET)
 >
-> For those users who feel they do have a compelling argument for it, please
-> speak now or I'll end up maintaining this in -ck only forever.  I've come
-> to depend on it with my workloads now so I'm never dropping it. There's no
-> point me explaining how it is useful yet again, though, because I just end
-> up looking like I'm handwaving. It seems a shame for it not to be availab=
-le
-> to all linux users.
+>> You guessed right... I did enable IP_ROUTE_MULTIPATH_CACHED, I have
+>> now disabled it and equal multi path routing in general
+>> (CONFIG_IP_ROUTE_MULTIPATH).
 >
+> It is almost certainly the cause of your crashes, that code
+> is still extremely raw and that's why it is listed as "EXPERIMENTAL".
 
-A compelling argument? Launch UT2004 and some applications in the backgroun=
-d.
-They'll get swapped out. Shock horror when you wait x seconds before system=
-=20
-gets responsive and applications are swapped in. (especially the new manual=
-=20
-option helps)
+It seems your are right :-) (and I'll take more care of using experimental 
+code on production again). The machine, has now been running for 34 hours 
+without crashing.  The strange thing is that I'm running the same kernel 
+on 30 other (similar) machines, which have not crashed.  (I do suspect the 
+specific traffic load pattern to influence this)
 
-Same applies to any large compile. (KDE with --enable-final springs to mind=
-,=20
-but Firefox should also be large enough)
-Even 0,5G of memory is not enough for those and a few apps.
 
-Another boon is retaining swapped-out data.
-Saves a lot of time when I keep large applications in background and only u=
-se=20
-them sporadically. (OpenOffice springs to mind)
+BUT, I do think I have noticed another problem in the garbage collection 
+code (route.c), that causes the garbage collector (almost) never to 
+garbage collect.
 
-=2D-=20
-GPG Key id:  0xD1F10BA2
-=46ingerprint: 96E2 304A B9C4 949A 10A0  9105 9543 0453 D1F1 0BA2
+This is caused by the value "ip_rt_max_size" (/proc/sys/net/ipv4/route/max_size)
+being set too large.  It is set to 16 times the gc_thresh value (this 
+size dependend on the memory size).  In the garbage collection function 
+(rt_garbage_collect) garbage collecting entries are ignored (gc_ignored) 
+if the number of entries are below "ip_rt_max_size".
 
-AstralStorm
+With 1Gb memory, gc_thresh=65536 times 16 is 1048576. Which means that we 
+only start to garbage collect when there is more than 1 million entries. 
+This seems wrong... (the reason it does not grow this large is the 600 
+second periodic flushes).
 
---nextPart1226761.OkYWkOkD0d
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
+Hilsen
+   Jesper Brouer
 
-iD8DBQBEIsAdlUMEU9HxC6IRAqHeAKCH2eAtFRS4LEzpHJNhETxcPjlYLACdF3x0
-L9l5vs0jFT61/71ma/M/IMQ=
-=aHj/
------END PGP SIGNATURE-----
+--
+-------------------------------------------------------------------
+Cand. scient datalog
+Dept. of Computer Science, University of Copenhagen
+-------------------------------------------------------------------
 
---nextPart1226761.OkYWkOkD0d--
+
+grep . /proc/sys/net/ipv4/route/*
+/proc/sys/net/ipv4/route/error_burst:5000
+/proc/sys/net/ipv4/route/error_cost:1000
+grep: /proc/sys/net/ipv4/route/flush: Operation not permitted
+/proc/sys/net/ipv4/route/gc_elasticity:8
+/proc/sys/net/ipv4/route/gc_interval:60
+/proc/sys/net/ipv4/route/gc_min_interval:0
+/proc/sys/net/ipv4/route/gc_min_interval_ms:500
+/proc/sys/net/ipv4/route/gc_thresh:65536
+/proc/sys/net/ipv4/route/gc_timeout:300
+/proc/sys/net/ipv4/route/max_delay:10
+/proc/sys/net/ipv4/route/max_size:1048576
+/proc/sys/net/ipv4/route/min_adv_mss:256
+/proc/sys/net/ipv4/route/min_delay:2
+/proc/sys/net/ipv4/route/min_pmtu:552
+/proc/sys/net/ipv4/route/mtu_expires:600
+/proc/sys/net/ipv4/route/redirect_load:20
+/proc/sys/net/ipv4/route/redirect_number:9
+/proc/sys/net/ipv4/route/redirect_silence:20480
+/proc/sys/net/ipv4/route/secret_interval:600
+

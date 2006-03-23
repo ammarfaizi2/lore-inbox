@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbWCWTkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWCWTzl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751405AbWCWTkx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 14:40:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWCWTkx
+	id S1750730AbWCWTzl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 14:55:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWCWTzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 14:40:53 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:10411 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751405AbWCWTkx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 14:40:53 -0500
-Subject: Re: [PATCHSET 0/10] Time: Generic Timekeeping (v.C1)
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, george@wildturkeyranch.net,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Ingo Molnar <mingo@elte.hu>, Paul Mackerras <paulus@samba.org>
-In-Reply-To: <Pine.LNX.4.64.0603231209380.17704@scrub.home>
-References: <20060323030547.19338.95102.sendpatchset@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.64.0603231209380.17704@scrub.home>
-Content-Type: text/plain
-Date: Thu, 23 Mar 2006 11:40:34 -0800
-Message-Id: <1143142835.2661.7.camel@leatherman>
+	Thu, 23 Mar 2006 14:55:41 -0500
+Received: from smtp-104-thursday.nerim.net ([62.4.16.104]:1544 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1750730AbWCWTzk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 14:55:40 -0500
+Date: Thu, 23 Mar 2006 20:56:17 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Christopher Hoover <ch@murgatroid.com>
+Cc: lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org,
+       kernel-janitors@lists.osdl.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Clean up magic numbers in i2c_parport.h
+Message-Id: <20060323205617.38e02afe.khali@linux-fr.org>
+In-Reply-To: <20060323081231.D794B1EC019@garage.murgatroid.com>
+References: <20060323081231.D794B1EC019@garage.murgatroid.com>
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-23 at 13:48 +0100, Roman Zippel wrote:
-> Hi,
+Hi Christopher,
+
+> This small patch gets rid of some magic numbers in the i2c parport
+> drivers, specifically wrt the control and status handling, using the
+> symbols already defined in parport.h
 > 
-> On Wed, 22 Mar 2006, john stultz wrote:
-> 
-> > Andrew, All,
-> > 	Here is an updated version of the smaller, reworked and 
-> > improved patchset I mailed out monday. Please consider for inclusion 
-> > into your tree.
-> 
-> It looks pretty good already. :)
+> The patch produces the same binary objects for i2c-parport.c and
+> i2c-parport-simple.c as before.
 
-</me rubs his eyes and reads that again>
+> --- linux-2.6.16/drivers/i2c/busses/i2c-parport.h	2006-03-19 21:53:29.000000000 -0800
+> +++ linux-2.6.16.i2c/drivers/i2c/busses/i2c-parport.h	2006-03-22 23:51:08.000000000 -0800
+> (...)
+> +#define LINEOP_DATA(val_, inverted_) \
+> +   { .val=(val_), .port = DATA, .inverted=(inverted_) }
+> +
+> +#define LINEOP_STATUS(val_, inverted_) \
+> +   { .val=(val_), .port = STAT, .inverted=(inverted_) }
+> +
+> +#define LINEOP_CONTROL(val_, inverted_) \
+> +   { .val=(val_), .port = CTRL, .inverted=(inverted_) }
+> +
 
-> Give me a bit of time to rework the middle part a bit and if we can agree 
-> to make the new gettimeofday functions optional for an arch, IMO it would 
-> be ok for 2.6.17. 
+Beeuh. These macros don't really help. They actually make the lines
+longer! I'm not taking this change, sorry.
 
-? The new gettimeofday functions are optional. Don't enable
-CONFIG_GENERIC_TIME and you're good to go. Could you clarify what you
-mean?
+Other than that, I am fine with your patch. Not that I really see the
+benefit, but it others do, why not. Can you please respin the patch
+without the additional macros?
 
-> I think the important part is to get the generic clock 
-> infrastructure merged, so it can be used by other kernel parts, the 
-> unification of performance sensitive parts can still be done on top of it 
-> a bit later.
-
-Ok, I'm still not sure how you intend to you the clocksource bits
-outside of timekeeping, but I'm interested in hearing about it.
-
-thanks
--john
-
+Thanks,
+-- 
+Jean Delvare

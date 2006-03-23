@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWCWWE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422713AbWCWWGL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbWCWWE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 17:04:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWCWWE6
+	id S1422713AbWCWWGL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 17:06:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422711AbWCWWGL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 17:04:58 -0500
-Received: from pproxy.gmail.com ([64.233.166.180]:52507 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932190AbWCWWE5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 17:04:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=TcMuSt6IN6KoS1oqfLb9s3GYoh8n6mBEsUrGY5A58ai+LM8QnTtuhNtVIB4O2UUTAQbz+PWuw4a8bkuQnWeqxSH7Tz5jm9UZ8sWZ+T4ar+b5jc9hAodak0Cc+H+lCoDFdNEO0Gd1lPPDms7remNzYiDbqKWhCkNL5sX7U9Flea4=
-Message-ID: <4421F384.7080500@gmail.com>
-Date: Thu, 23 Mar 2006 09:01:56 +0800
-From: Yi Yang <yang.y.yi@gmail.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 23 Mar 2006 17:06:11 -0500
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:52399 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932391AbWCWWGJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 17:06:09 -0500
+Message-ID: <44231BCE.4030006@bigpond.net.au>
+Date: Fri, 24 Mar 2006 09:06:06 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6.16 PATCH] Connector: Filesystem Events Connector
-References: <44216612.3060406@gmail.com> <20060322201432.GA17653@sergelap.austin.ibm.com>
-In-Reply-To: <20060322201432.GA17653@sergelap.austin.ibm.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+CC: kernel@kolivas.org, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: cpu scheduler merge plans
+References: <20060322155122.2745649f.akpm@osdl.org> <1143068226.4421d6424ecf1@vds.kolivas.org> <20060322173754.A19085@unix-os.sc.intel.com>
+In-Reply-To: <20060322173754.A19085@unix-os.sc.intel.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 23 Mar 2006 22:06:07 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge E. Hallyn wrote:
-> Quoting Yi Yang (yang.y.yi@gmail.com):
->   
->> +#ifdef __KERNEL__
->> +#ifdef CONFIG_FS_EVENTS
->> +extern void raise_fsevent(struct dentry * dentryp, u32 mask);
->> +extern void raise_fsevent_move(struct inode * olddir, const char * oldname, 
->> +		struct inode * newdir, const char * newname, u32 mask);
->> +extern void raise_fsevent_create(struct inode * inode, 
->> +		const char * name, u32 mask);
->> +#else
->> +static void raise_fsevent(struct dentry * dentryp,  u32 mask);
->> +{}
->>     
->
-> Hmm, this compiles, if !CONFIG_FS_EVENTS?
->   
-Sorry for my mistake, thank for your care, I'll resend it to correct it, 
-thanks again.
->
-> -serge
->
->   
+Siddha, Suresh B wrote:
+> On Thu, Mar 23, 2006 at 09:57:06AM +1100, kernel@kolivas.org wrote:
+> 
+>>Quoting Andrew Morton <akpm@osdl.org>:
+>>
+>>>#
+>>># "strange load balancing problems": pwil3058@bigpond.net.au
+>>>sched-new-sched-domain-for-representing-multi-core.patch
+>>>sched-fix-group-power-for-allnodes_domains.patch
+>>>x86-dont-use-cpuid2-to-determine-cache-info-if-cpuid4-is-supported.patch
+> 
+> 
+> I'd like to see the three above patches in 2.6.17. Peters "strange load
+> balancing problems" seems to be a false alarm(this patch will have
+> minimal impact on a single core cpu because of domain degeneration..) and
+> doesn't happen on recent -mm kernels..
 
+I agree.  This is no longer a problem and certainly shouldn't prevent 
+the above patches going in to 2.6.17.
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

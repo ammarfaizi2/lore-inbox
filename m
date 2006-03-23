@@ -1,23 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932602AbWCWMt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWCWMtN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932602AbWCWMt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 07:49:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932604AbWCWMt5
+	id S932533AbWCWMtN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 07:49:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbWCWMtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 07:49:57 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:44679 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932602AbWCWMt5 (ORCPT
+	Thu, 23 Mar 2006 07:49:13 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:41351 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932533AbWCWMtM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 07:49:57 -0500
-Date: Thu, 23 Mar 2006 13:49:27 +0100 (CET)
+	Thu, 23 Mar 2006 07:49:12 -0500
+Date: Thu, 23 Mar 2006 13:48:35 +0100 (CET)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
-Subject: [PATCH] remove pps support
-In-Reply-To: <20060322205305.0604f49b.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0603231336520.17704@scrub.home>
-References: <20060322205305.0604f49b.akpm@osdl.org>
+To: john stultz <johnstul@us.ibm.com>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org, george@wildturkeyranch.net,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Ingo Molnar <mingo@elte.hu>, Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCHSET 0/10] Time: Generic Timekeeping (v.C1)
+In-Reply-To: <20060323030547.19338.95102.sendpatchset@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.64.0603231209380.17704@scrub.home>
+References: <20060323030547.19338.95102.sendpatchset@cog.beaverton.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,227 +29,27 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Wed, 22 Mar 2006, Andrew Morton wrote:
+On Wed, 22 Mar 2006, john stultz wrote:
 
-> kernel-timec-remove-unused-pps_-variables.patch
+> Andrew, All,
+> 	Here is an updated version of the smaller, reworked and 
+> improved patchset I mailed out monday. Please consider for inclusion 
+> into your tree.
 
-This patch does only half the job. Below is the complete patch.
+It looks pretty good already. :)
+Give me a bit of time to rework the middle part a bit and if we can agree 
+to make the new gettimeofday functions optional for an arch, IMO it would 
+be ok for 2.6.17. I think the important part is to get the generic clock 
+infrastructure merged, so it can be used by other kernel parts, the 
+unification of performance sensitive parts can still be done on top of it 
+a bit later.
+
+One general comment: Currently clock relevant source is scattered in 
+kernel/time/, drivers/clocksource and arch/... IMO it would be better to 
+keep at least the first two parts a bit closer, although I'm not sure how 
+to organize it better. I don't know if we can be so bold to add a toplevel 
+time/ (similiar to sound/) or maybe we organize a bit like drivers/ide/. 
+Anyway, maybe someone has a good idea to keep everything a bit closer 
+together.
 
 bye, Roman
-
-
-This removes the support for pps. It's completely unused within the kernel 
-and is basically in the way for further cleanups. It should be easier to 
-readd proper support for it after the rest has been converted to NTP4
-(where the pps mechanisms are quite different from NTP3 anyway).
-
-Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
-
-
----
-
- include/linux/timex.h |   41 ----------------------------------
- kernel/time.c         |   59 +++++++++++++-------------------------------------
- kernel/timer.c        |   13 +----------
- 3 files changed, 18 insertions(+), 95 deletions(-)
-
-Index: linux-2.6-git/include/linux/timex.h
-===================================================================
---- linux-2.6-git.orig/include/linux/timex.h	2006-03-16 23:04:09.000000000 +0100
-+++ linux-2.6-git/include/linux/timex.h	2006-03-16 23:04:14.000000000 +0100
-@@ -97,38 +97,11 @@
- 
- #define MAXPHASE 512000L        /* max phase error (us) */
- #define MAXFREQ (512L << SHIFT_USEC)  /* max frequency error (ppm) */
--#define MAXTIME (200L << PPS_AVG) /* max PPS error (jitter) (200 us) */
- #define MINSEC 16L              /* min interval between updates (s) */
- #define MAXSEC 1200L            /* max interval between updates (s) */
- #define	NTP_PHASE_LIMIT	(MAXPHASE << 5)	/* beyond max. dispersion */
- 
- /*
-- * The following defines are used only if a pulse-per-second (PPS)
-- * signal is available and connected via a modem control lead, such as
-- * produced by the optional ppsclock feature incorporated in the Sun
-- * asynch driver. They establish the design parameters of the frequency-
-- * lock loop used to discipline the CPU clock oscillator to the PPS
-- * signal.
-- *
-- * PPS_AVG is the averaging factor for the frequency loop, as well as
-- * the time and frequency dispersion.
-- *
-- * PPS_SHIFT and PPS_SHIFTMAX specify the minimum and maximum
-- * calibration intervals, respectively, in seconds as a power of two.
-- *
-- * PPS_VALID is the maximum interval before the PPS signal is considered
-- * invalid and protocol updates used directly instead.
-- *
-- * MAXGLITCH is the maximum interval before a time offset of more than
-- * MAXTIME is believed.
-- */
--#define PPS_AVG 2		/* pps averaging constant (shift) */
--#define PPS_SHIFT 2		/* min interval duration (s) (shift) */
--#define PPS_SHIFTMAX 8		/* max interval duration (s) (shift) */
--#define PPS_VALID 120		/* pps signal watchdog max (s) */
--#define MAXGLITCH 30		/* pps signal glitch max (s) */
--
--/*
-  * syscall interface - used (mainly by NTP daemon)
-  * to discipline kernel clock oscillator
-  */
-@@ -246,20 +219,6 @@ extern long time_reftime;	/* time at las
- extern long time_adjust;	/* The amount of adjtime left */
- extern long time_next_adjust;	/* Value for time_adjust at next tick */
- 
--/* interface variables pps->timer interrupt */
--extern long pps_offset;		/* pps time offset (us) */
--extern long pps_jitter;		/* time dispersion (jitter) (us) */
--extern long pps_freq;		/* frequency offset (scaled ppm) */
--extern long pps_stabil;		/* frequency dispersion (scaled ppm) */
--extern long pps_valid;		/* pps signal watchdog counter */
--
--/* interface variables pps->adjtimex */
--extern int pps_shift;		/* interval duration (s) (shift) */
--extern long pps_jitcnt;		/* jitter limit exceeded */
--extern long pps_calcnt;		/* calibration intervals */
--extern long pps_errcnt;		/* calibration errors */
--extern long pps_stbcnt;		/* stability limit exceeded */
--
- /**
-  * ntp_clear - Clears the NTP state variables
-  *
-Index: linux-2.6-git/kernel/time.c
-===================================================================
---- linux-2.6-git.orig/kernel/time.c	2006-03-16 23:04:09.000000000 +0100
-+++ linux-2.6-git/kernel/time.c	2006-03-16 23:04:14.000000000 +0100
-@@ -202,24 +202,6 @@ asmlinkage long sys_settimeofday(struct 
- 	return do_sys_settimeofday(tv ? &new_ts : NULL, tz ? &new_tz : NULL);
- }
- 
--long pps_offset;		/* pps time offset (us) */
--long pps_jitter = MAXTIME;	/* time dispersion (jitter) (us) */
--
--long pps_freq;			/* frequency offset (scaled ppm) */
--long pps_stabil = MAXFREQ;	/* frequency dispersion (scaled ppm) */
--
--long pps_valid = PPS_VALID;	/* pps signal watchdog counter */
--
--int pps_shift = PPS_SHIFT;	/* interval duration (s) (shift) */
--
--long pps_jitcnt;		/* jitter limit exceeded */
--long pps_calcnt;		/* calibration intervals */
--long pps_errcnt;		/* calibration errors */
--long pps_stbcnt;		/* stability limit exceeded */
--
--/* hook for a loadable hardpps kernel module */
--void (*hardpps_ptr)(struct timeval *);
--
- /* we call this to notify the arch when the clock is being
-  * controlled.  If no such arch routine, do nothing.
-  */
-@@ -279,7 +261,7 @@ int do_adjtimex(struct timex *txc)
- 		    result = -EINVAL;
- 		    goto leave;
- 		}
--		time_freq = txc->freq - pps_freq;
-+		time_freq = txc->freq;
- 	    }
- 
- 	    if (txc->modes & ADJ_MAXERROR) {
-@@ -312,10 +294,8 @@ int do_adjtimex(struct timex *txc)
- 		    if ((time_next_adjust = txc->offset) == 0)
- 			 time_adjust = 0;
- 		}
--		else if ( time_status & (STA_PLL | STA_PPSTIME) ) {
--		    ltemp = (time_status & (STA_PPSTIME | STA_PPSSIGNAL)) ==
--		            (STA_PPSTIME | STA_PPSSIGNAL) ?
--		            pps_offset : txc->offset;
-+		else if (time_status & STA_PLL) {
-+		    ltemp = txc->offset;
- 
- 		    /*
- 		     * Scale the phase adjustment and
-@@ -356,23 +336,14 @@ int do_adjtimex(struct timex *txc)
- 		    }
- 		    time_freq = min(time_freq, time_tolerance);
- 		    time_freq = max(time_freq, -time_tolerance);
--		} /* STA_PLL || STA_PPSTIME */
-+		} /* STA_PLL */
- 	    } /* txc->modes & ADJ_OFFSET */
- 	    if (txc->modes & ADJ_TICK) {
- 		tick_usec = txc->tick;
- 		tick_nsec = TICK_USEC_TO_NSEC(tick_usec);
- 	    }
- 	} /* txc->modes */
--leave:	if ((time_status & (STA_UNSYNC|STA_CLOCKERR)) != 0
--	    || ((time_status & (STA_PPSFREQ|STA_PPSTIME)) != 0
--		&& (time_status & STA_PPSSIGNAL) == 0)
--	    /* p. 24, (b) */
--	    || ((time_status & (STA_PPSTIME|STA_PPSJITTER))
--		== (STA_PPSTIME|STA_PPSJITTER))
--	    /* p. 24, (c) */
--	    || ((time_status & STA_PPSFREQ) != 0
--		&& (time_status & (STA_PPSWANDER|STA_PPSERROR)) != 0))
--	    /* p. 24, (d) */
-+leave:	if ((time_status & (STA_UNSYNC|STA_CLOCKERR)) != 0)
- 		result = TIME_ERROR;
- 	
- 	if ((txc->modes & ADJ_OFFSET_SINGLESHOT) == ADJ_OFFSET_SINGLESHOT)
-@@ -380,7 +351,7 @@ leave:	if ((time_status & (STA_UNSYNC|ST
- 	else {
- 	    txc->offset = shift_right(time_offset, SHIFT_UPDATE);
- 	}
--	txc->freq	   = time_freq + pps_freq;
-+	txc->freq	   = time_freq;
- 	txc->maxerror	   = time_maxerror;
- 	txc->esterror	   = time_esterror;
- 	txc->status	   = time_status;
-@@ -388,14 +359,16 @@ leave:	if ((time_status & (STA_UNSYNC|ST
- 	txc->precision	   = time_precision;
- 	txc->tolerance	   = time_tolerance;
- 	txc->tick	   = tick_usec;
--	txc->ppsfreq	   = pps_freq;
--	txc->jitter	   = pps_jitter >> PPS_AVG;
--	txc->shift	   = pps_shift;
--	txc->stabil	   = pps_stabil;
--	txc->jitcnt	   = pps_jitcnt;
--	txc->calcnt	   = pps_calcnt;
--	txc->errcnt	   = pps_errcnt;
--	txc->stbcnt	   = pps_stbcnt;
-+
-+	/* PPS is not implemented, so these are zero */
-+	txc->ppsfreq	   = 0;
-+	txc->jitter	   = 0;
-+	txc->shift	   = 0;
-+	txc->stabil	   = 0;
-+	txc->jitcnt	   = 0;
-+	txc->calcnt	   = 0;
-+	txc->errcnt	   = 0;
-+	txc->stbcnt	   = 0;
- 	write_sequnlock_irq(&xtime_lock);
- 	do_gettimeofday(&txc->time);
- 	notify_arch_cmos_timer();
-Index: linux-2.6-git/kernel/timer.c
-===================================================================
---- linux-2.6-git.orig/kernel/timer.c	2006-03-16 23:04:09.000000000 +0100
-+++ linux-2.6-git/kernel/timer.c	2006-03-16 23:04:14.000000000 +0100
-@@ -696,18 +696,9 @@ static void second_overflow(void)
- 
- 	/*
- 	 * Compute the frequency estimate and additional phase adjustment due
--	 * to frequency error for the next second. When the PPS signal is
--	 * engaged, gnaw on the watchdog counter and update the frequency
--	 * computed by the pll and the PPS signal.
-+	 * to frequency error for the next second.
- 	 */
--	pps_valid++;
--	if (pps_valid == PPS_VALID) {	/* PPS signal lost */
--		pps_jitter = MAXTIME;
--		pps_stabil = MAXFREQ;
--		time_status &= ~(STA_PPSSIGNAL | STA_PPSJITTER |
--				STA_PPSWANDER | STA_PPSERROR);
--	}
--	ltemp = time_freq + pps_freq;
-+	ltemp = time_freq;
- 	time_adj += shift_right(ltemp,(SHIFT_USEC + SHIFT_HZ - SHIFT_SCALE));
- 
- #if HZ == 100

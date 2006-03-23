@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbWCWW0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWCWWZb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932502AbWCWW0u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 17:26:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWCWW0u
+	id S932391AbWCWWZb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 17:25:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWCWWZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 17:26:50 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:40324 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S932502AbWCWW0t
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 17:26:49 -0500
-Date: Thu, 23 Mar 2006 15:27:23 -0700
-From: "Mark A. Greer" <mgreer@mvista.com>
-To: Kumar Gala <galak@kernel.crashing.org>
-Cc: "Mark A.Greer" <mgreer@mvista.com>, Randy Vinson <rvinson@mvista.com>,
-       Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH, RFC] Stop using tasklet in ds1374 RTC driver
-Message-ID: <20060323222723.GA3379@mag.az.mvista.com>
-References: <20060323201030.ccded642.khali@linux-fr.org> <4423084B.1070701@mvista.com> <20060323214028.GB21477@mag.az.mvista.com> <C6071445-B39C-4230-92FA-E8EE5717FD05@kernel.crashing.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <C6071445-B39C-4230-92FA-E8EE5717FD05@kernel.crashing.org>
-User-Agent: Mutt/1.5.9i
+	Thu, 23 Mar 2006 17:25:31 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:30336 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S932391AbWCWWZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 17:25:30 -0500
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <25E2BA7D-378B-45B0-995C-201A68432D5C@kernel.crashing.org>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       LKML mailing list <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: compile error when building multiple EHCI host controllers as modules
+Date: Thu, 23 Mar 2006 16:26:25 -0600
+To: Greg KH <gregkh@suse.de>, dbrownell@users.sourceforge.net
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 03:52:16PM -0600, Kumar Gala wrote:
-> 
-> On Mar 23, 2006, at 3:40 PM, Mark A. Greer wrote:
-> >I'm no expert in workqueues either; however, after reading
-> >http://lwn.net/Articles/23634/, I believe that its unnecessary for an
-> >rtc driver to have its own workqueue since rtc writes aren't  
-> >particularly
-> >time-critical.  If I am correct, then Randy's patch uses the proper  
-> >wq calls.
-> >
-> >Agree?
-> 
-> How does this change with the RTC subsystem that's about to be added?  
-> (could be irrelevant, just wanted to put that out there)
+I was trying to build the USB EHCI host controller support as modules  
+for a PowerPC 834x which also has an embedded EHCI (and PCI enabled).
 
-Dunno, but its broken where it is now so we need to fix it ASAP.
-Once that's done, we can do whatever needs to be done to get it into
-drivers/rtc.
+I get the following build error:
 
-Mark
+In file included from drivers/usb/host/ehci-hcd.c:895:
+drivers/usb/host/ehci-fsl.c:365: error: redefinition of '__inittest'
+drivers/usb/host/ehci-pci.c:363: error: previous definition of  
+'__inittest' was here
+drivers/usb/host/ehci-fsl.c:365: error: redefinition of 'init_module'
+drivers/usb/host/ehci-pci.c:363: error: previous definition of  
+'init_module' was here
+drivers/usb/host/ehci-fsl.c:365: error: redefinition of 'init_module'
+drivers/usb/host/ehci-pci.c:363: error: previous definition of  
+'init_module' was here
+drivers/usb/host/ehci-fsl.c:366: error: redefinition of '__exittest'
+drivers/usb/host/ehci-pci.c:369: error: previous definition of  
+'__exittest' was here
+drivers/usb/host/ehci-fsl.c:366: error: redefinition of 'cleanup_module'
+drivers/usb/host/ehci-pci.c:369: error: previous definition of  
+'cleanup_module' was here
+drivers/usb/host/ehci-fsl.c:366: error: redefinition of 'cleanup_module'
+drivers/usb/host/ehci-pci.c:369: error: previous definition of  
+'cleanup_module' was here
+
+Which makes sense based on how ehci-hcd.c includes "ehci-fsl.c" and  
+"ehci-pci.c".  I was wondering if there were an thoughts on how to  
+address this so I can build as a module.
+
+- kumar

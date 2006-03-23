@@ -1,66 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWCWMDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWCWMKS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030240AbWCWMDn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 07:03:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbWCWMDn
+	id S1750754AbWCWMKS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 07:10:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWCWMKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 07:03:43 -0500
-Received: from theblackmoor.net ([64.191.130.90]:8889 "EHLO
-	cygnus.theblackmoor.net") by vger.kernel.org with ESMTP
-	id S1030240AbWCWMDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 07:03:42 -0500
-Date: Thu, 23 Mar 2006 08:03:33 -0400
-From: Spike <spike@spykes.net>
-To: Spike <spike@spykes.net>
-Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       ck@vds.kolivas.org, linux-kernel@vger.kernel.org
-Subject: Re: [ck] swap prefetching merge plans
-Message-ID: <20060323080333.48d39108@buffy>
-In-Reply-To: <20060323075756.70eced5a@buffy>
-References: <20060322205305.0604f49b.akpm@osdl.org>
-	<200603231804.36334.kernel@kolivas.org>
-	<20060323075756.70eced5a@buffy>
-X-Mailer: Sylpheed-Claws 2.0.0cvs113 (GTK+ 2.8.16; i686-pc-linux-gnu)
+	Thu, 23 Mar 2006 07:10:18 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:55457 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750754AbWCWMKQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 07:10:16 -0500
+Date: Thu, 23 Mar 2006 04:06:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH] Make libata not powerdown drivers on PM_EVENT_FREEZE.
+Message-Id: <20060323040649.3a6c96f1.akpm@osdl.org>
+In-Reply-To: <200603232151.47346.ncunningham@cyclades.com>
+References: <200603232151.47346.ncunningham@cyclades.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Mar 2006 07:57:56 -0400
-Spike <spike@spykes.net> wrote:
+Nigel Cunningham <ncunningham@cyclades.com> wrote:
+>
+> At the moment libata doesn't pass pm_message_t down ata_device_suspend.
+>  This causes drives to be powered down when we just want a freeze,
+>  causing unnecessary wear and tear. This patch gets pm_message_t passed
+>  down so that it can be used to determine whether to power down the
+>  drive.
 
-> On Thu, 23 Mar 2006 18:04:36 +1100
-> Con Kolivas <kernel@kolivas.org> wrote:
-> 
-> > On Thu, 23 Mar 2006 03:53 pm, Andrew Morton wrote:
-> > > A look at the -mm lineup for 2.6.17:
-> > 
-> > > mm-implement-swap-prefetching.patch
-> > > mm-implement-swap-prefetching-fix.patch
-> > > mm-implement-swap-prefetching-tweaks.patch
-> > 
-> > >   Still don't have a compelling argument for this, IMO.
-> > 
-> > For those users who feel they do have a compelling argument for it, please 
-> > speak now or I'll end up maintaining this in -ck only forever.  I've come to 
-> > depend on it with my workloads now so I'm never dropping it. There's no point 
-> > me explaining how it is useful yet again, though, because I just end up 
-> > looking like I'm handwaving. It seems a shame for it not to be available to 
-> > all linux users.
-> > 
-> > Cheers,
-> > Con
-> > _______________________________________________
-> > http://ck.kolivas.org/faqs/replying-to-mailing-list.txt
-> > ck mailing list - mailto: ck@vds.kolivas.org
-> > http://vds.kolivas.org/mailman/listinfo/ck
-> 
+Does this explain http://bugzilla.kernel.org/show_bug.cgi?id=6264 ?
 
-I must add that if it gets merged you'd probably see every desktop
-oriented Linux distro under the sun enable it in their default kernels.
-
-Most people don't ever see the value of something until it becomes
-mainline.
-
-Bren
+This might be 2.6.16.1 material - how irritating is it?

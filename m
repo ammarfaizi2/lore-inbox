@@ -1,50 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422701AbWCWVpM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWCWVrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422701AbWCWVpM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 16:45:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422702AbWCWVpM
+	id S932237AbWCWVrg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 16:47:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWCWVrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 16:45:12 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:5989 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1422701AbWCWVpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 16:45:10 -0500
-Date: Thu, 23 Mar 2006 23:45:07 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Muli Ben-Yehuda <mulix@mulix.org>, Jon Mason <jdmason@us.ibm.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/3] x86-64: Calgary IOMMU - Calgary specific bits
-Message-ID: <20060323214507.GE25830@rhun.haifa.ibm.com>
-References: <20060320084848.GA21729@granada.merseine.nu> <200603231731.34097.ak@suse.de> <20060323175345.GB2598@granada.merseine.nu> <200603231902.04043.ak@suse.de> <20060323190334.GD25830@rhun.haifa.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060323190334.GD25830@rhun.haifa.ibm.com>
-User-Agent: Mutt/1.5.11
+	Thu, 23 Mar 2006 16:47:36 -0500
+Received: from mgw1.diku.dk ([130.225.96.91]:49846 "EHLO mgw1.diku.dk")
+	by vger.kernel.org with ESMTP id S932153AbWCWVre (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 16:47:34 -0500
+Date: Thu, 23 Mar 2006 22:37:26 +0100 (CET)
+From: Jesper Dangaard Brouer <hawk@diku.dk>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+       Robert Olsson <Robert.Olsson@data.slu.se>, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel panic: Route cache, RCU, possibly FIB trie.
+In-Reply-To: <4422C9BC.3090400@cosmosbay.com>
+Message-ID: <Pine.LNX.4.61.0603232128400.3500@ask.diku.dk>
+References: <Pine.LNX.4.61.0603211113550.15500@ask.diku.dk>
+ <20060321.023705.26111240.davem@davemloft.net> <Pine.LNX.4.61.0603211538280.28173@ask.diku.dk>
+ <20060321.132514.24407022.davem@davemloft.net> <Pine.LNX.4.61.0603231536180.29788@ask.diku.dk>
+ <Pine.LNX.4.61.0603231637360.29788@ask.diku.dk> <4422C9BC.3090400@cosmosbay.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-511516320-661058261-1143149846=:3500"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 09:03:34PM +0200, Muli Ben-Yehuda wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> > > X works :-) 
-> > 
-> > So it's behind a bridge that doesn't have an IOMMU?
-> 
-> No, it's behind a bridge that does have an IOMMU and is running with
-> translation enabled (it's on PHB 0 on this machine). I guess you are
-> concerned with userspace access to the graphics controller directly,
-> without a kernel driver having set up mapping previously? I will look
-> into it but emprirically X works so either userspace is not triggering
-> DMAs or the mappings have been set up by a driver.
+---511516320-661058261-1143149846=:3500
+Content-Type: TEXT/PLAIN; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 
-Turns out that X does work on my machine (SLES 9SP2) but dies with a
-bad translation error on Jon's machine, which is otherwise identical
-except it runs gentoo. We are thinking how to best address this (add
-IOMMU aware drivers to X? *shudder*), but will disable translation by
-default on PHB 0 in the mean time for a friendlier user
-experience.
 
-Thanks,
-Muli
+On Thu, 23 Mar 2006, Eric Dumazet wrote:
+
+> Jesper Dangaard Brouer a écrit :
+>
+>>> grep . /proc/sys/net/ipv4/route/*
+>>> /proc/sys/net/ipv4/route/error_burst:5000
+>>> /proc/sys/net/ipv4/route/error_cost:1000
+>>> grep: /proc/sys/net/ipv4/route/flush: Operation not permitted
+>>> /proc/sys/net/ipv4/route/gc_elasticity:8
+>>> /proc/sys/net/ipv4/route/gc_interval:60
+>>> /proc/sys/net/ipv4/route/gc_min_interval:0
+>>> /proc/sys/net/ipv4/route/gc_min_interval_ms:500
+>>> /proc/sys/net/ipv4/route/gc_thresh:65536
+>>> /proc/sys/net/ipv4/route/gc_timeout:300
+>>> /proc/sys/net/ipv4/route/max_delay:10
+>>> /proc/sys/net/ipv4/route/max_size:1048576
+>>> /proc/sys/net/ipv4/route/min_adv_mss:256
+>>> /proc/sys/net/ipv4/route/min_delay:2
+>>> /proc/sys/net/ipv4/route/min_pmtu:552
+>>> /proc/sys/net/ipv4/route/mtu_expires:600
+>>> /proc/sys/net/ipv4/route/redirect_load:20
+>>> /proc/sys/net/ipv4/route/redirect_number:9
+>>> /proc/sys/net/ipv4/route/redirect_silence:20480
+>>> /proc/sys/net/ipv4/route/secret_interval:600
+>
+> I would say : Change the settings :)
+>
+> echo 2 > /proc/sys/net/ipv4/route/gc_elasticity
+> echo 1 > /proc/sys/net/ipv4/route/gc_interval
+> echo 131072 > /proc/sys/net/ipv4/route/gc_thresh
+
+These parameters do not solve the problem. I think you missed my previous 
+point.  The parameter that needs adjustment is:
+
+  /proc/sys/net/ipv4/route/max_size
+
+The garbage collector will not be activated before the number of 
+entries are above "max_size" (see: function rt_garbage_collect).
+
+I have set:
+  /proc/sys/net/ipv4/route/gc_thresh:30000
+  /proc/sys/net/ipv4/route/max_size:30000
+
+Which solves the problem of the route cache growing too large too fast.
+
+
+I have read the route.c code again, to see if I missed something. Are you 
+trying to make the function "rt_check_expire" to do the cleanup?
+
+I have tried your parameters, and it does not have the desired effect.
+
+
+> and watch the output of :
+>
+> rtstat -c 100 -i 1
+> (you might have to recompile lnstat/rtstat from iproute2 package from
+> http://developer.osdl.org/dev/iproute2/download/
+
+I prefer to use Robert's version of rtstat ;-)
+
+Hilsen
+   Jesper Brouer
+
+--
+-------------------------------------------------------------------
+Cand. scient datalog
+Dept. of Computer Science, University of Copenhagen
+-------------------------------------------------------------------
+---511516320-661058261-1143149846=:3500--

@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWCWJHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWCWJIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751147AbWCWJHt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 04:07:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWCWJHt
+	id S932074AbWCWJIj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 04:08:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWCWJIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 04:07:49 -0500
-Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:51666 "EHLO
-	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751147AbWCWJHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 04:07:49 -0500
-References: <20060322205305.0604f49b.akpm@osdl.org> <4422554D.6000602@att.net> <20060323080925.GP4285@suse.de>
-Message-ID: <cone.1143104848.990946.31285.501@kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Ryan =?ISO-8859-1?B?TS4=?= <kubisuro@att.net>, ck@vds.kolivas.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: -mm merge plans
-Date: Thu, 23 Mar 2006 20:07:28 +1100
+	Thu, 23 Mar 2006 04:08:39 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:18994 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751353AbWCWJIi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 04:08:38 -0500
+Date: Thu, 23 Mar 2006 10:08:34 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Pramod P K <pra.engr@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: passing command line args to the kernel
+Message-ID: <20060323090834.GB23717@harddisk-recovery.com>
+References: <417f1b740603222143v26d67009hb16f19aa6c45c128@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-kolivas.org-31285-1143104848-0001";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417f1b740603222143v26d67009hb16f19aa6c45c128@mail.gmail.com>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
+On Thu, Mar 23, 2006 at 11:13:50AM +0530, Pramod P K wrote:
+> Please tell me how does the Universal bootloader(UBoot) will pass the
+> command line arguments to the Kernel?
 
---=_mimegpg-kolivas.org-31285-1143104848-0001
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Look at the uboot source.
 
-Jens Axboe writes:
+> How Kernel accesses it ? If
+> possible, with an example, please explain.
 
-> It's a heuristic, and sometimes that will work well and sometimes it
-> will not. What if during this period of inactivity, you start bringing
-> everything in from swap again, only to page it right out because the
-> next memory hog starts running? From a logical standpoint, swap prefetch
-> and the vm must work closely together to avoid paging in things which
-> really aren't needed.
-
-If the system is idle it doesn't cost anything to bring those pages in 
-(laptop mode disables any prefetching if you're thinking about power 
-consumption on laptops). And if the system wants the ram that has been 
-filled with prefetched pages wrongly, the prefetched pages are at the tail 
-end of the inactive LRU list with a copy on backing store so if they're not 
-accessed they'll be the first thing dropped in preference to anything 
-else, without any I/O.
-
-Cheers,
-Con
+Depends on the architecture. See for example Documentation/arm/Booting
+how it's done on ARM.
 
 
---=_mimegpg-kolivas.org-31285-1143104848-0001
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
+Erik
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBEImVRZUg7+tp6mRURAokDAJ0TH2IR35l4i++FZFU/ZxppD+tvLACgjwQz
-1ATen9CQAuK1n+vq6ei464c=
-=ykOA
------END PGP SIGNATURE-----
-
---=_mimegpg-kolivas.org-31285-1143104848-0001--
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

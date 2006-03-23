@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbWCWBpa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWCWB6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932513AbWCWBpa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 20:45:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWCWBpa
+	id S932342AbWCWB6m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 20:58:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWCWB6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 20:45:30 -0500
-Received: from mga03.intel.com ([143.182.124.21]:23208 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S932367AbWCWBp3 convert rfc822-to-8bit (ORCPT
+	Wed, 22 Mar 2006 20:58:42 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:24041 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932342AbWCWB6l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 20:45:29 -0500
-X-IronPort-AV: i="4.03,120,1141632000"; 
-   d="scan'208"; a="14438460:sNHT39900945"
-x-mimeole: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Wed, 22 Mar 2006 20:58:41 -0500
+Date: Wed, 22 Mar 2006 17:55:03 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Valerie Henson <val_henson@linux.intel.com>
+Cc: pbadari@gmail.com, linux-kernel@vger.kernel.org,
+       Ext2-devel@lists.sourceforge.net, arjan@linux.intel.com, tytso@mit.edu,
+       zach.brown@oracle.com
+Subject: Re: [Ext2-devel] [RFC] [PATCH] Reducing average ext2 fsck time
+ through fs-wide dirty bit]
+Message-Id: <20060322175503.3b678ab5.akpm@osdl.org>
+In-Reply-To: <20060322224844.GU12571@goober>
+References: <20060322011034.GP12571@goober>
+	<1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com>
+	<20060322224844.GU12571@goober>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: ACPI error in 2.6.16 (AE_TIME, Returned by Handler for EmbeddedControl)
-Date: Wed, 22 Mar 2006 20:45:17 -0500
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30067BF1BC@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ACPI error in 2.6.16 (AE_TIME, Returned by Handler for EmbeddedControl)
-Thread-Index: AcZOBYulYVSXWqsaRaOBuxpCehkEAwAFYWFQ
-From: "Brown, Len" <len.brown@intel.com>
-To: "Francesco Biscani" <biscani@pd.astro.it>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Cc: <linux-acpi@vger.kernel.org>, "Yu, Luming" <luming.yu@intel.com>
-X-OriginalArrivalTime: 23 Mar 2006 01:45:20.0116 (UTC) FILETIME=[71742B40:01C64E1B]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->sometimes at boot I get the following from the logs:
+Valerie Henson <val_henson@linux.intel.com> wrote:
 >
->ACPI: write EC, IB not empty
->ACPI Exception (evregion-0409): AE_TIME, Returned by Handler for 
->[EmbeddedControl] [20060127]
->ACPI Error (psparse-0517): Method parse/execution failed 
->[\_SB_.PCI0.ISA_.EC0_.SMRD] (Node c13ecd40), AE_TIME
->ACPI Error (psparse-0517): Method parse/execution failed 
->[\_SB_.BAT1.UPBI] 
->(Node dbf42720), AE_TIME
->ACPI Error (psparse-0517): Method parse/execution failed 
->[\_SB_.BAT1.CHBP] 
->(Node dbf42660), AE_TIME
->ACPI Error (psparse-0517): Method parse/execution failed 
->[\_SB_.PCI0.ISA_.EC0_.SMSL] (Node c13ecce0), AE_TIME
->ACPI Error (psparse-0517): Method parse/execution failed 
->[\_SB_.PCI0.ISA_.EC0_._Q09] (Node c13ecc40), AE_TIME
->
->And after that the battery is reported as absent (even if it 
->is physically 
->present). I get the impression that this happens when rebooting, not 
->from "cold powerons".
->
->This did not happen in 2.6.15, it appeared somewhere in 
->2.6.16-rc series.
+> On Wed, Mar 22, 2006 at 11:09:18AM -0800, Badari Pulavarty wrote:
+> > On Tue, 2006-03-21 at 17:10 -0800, Valerie Henson wrote:
+> > > Hi all,
+> > > 
+> > > I am working on reducing the average time spent on fscking ext2 file
+> > > systems.  My initial take on the problem is to avoid fscking when the
+> > 
+> > Just curious, why are you teaching ext2 same tricks that are in ext3 ?
+> > Is there a reason behind improving ext2 ? Are there any benefits
+> > of not using ext3 instead ?
+> 
+> ext2 is simpler and faster than ext3 in many cases.  This is sort of
+> cheating; ext2 is simpler and faster because it makes no effort to
+> maintain on-disk consistency and can skip annoying things like, oh,
+> reserving space in the journal.  I am looking for ways to make ext2
+> cheat even more.
+> 
 
-does this go away if you boot with "ec_intr=0"?
+But it might be feasible to knock up an ext3-- in which all the journal
+operations are stubbed out.
 
--Len

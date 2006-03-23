@@ -1,116 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbWCWPv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWCWP6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932468AbWCWPv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 10:51:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWCWPv3
+	id S932100AbWCWP6j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 10:58:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWCWP6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 10:51:29 -0500
-Received: from mgw1.diku.dk ([130.225.96.91]:28081 "EHLO mgw1.diku.dk")
-	by vger.kernel.org with ESMTP id S932446AbWCWPv2 (ORCPT
+	Thu, 23 Mar 2006 10:58:39 -0500
+Received: from mailer2.psc.edu ([128.182.66.106]:21959 "EHLO mailer2.psc.edu")
+	by vger.kernel.org with ESMTP id S932100AbWCWP6i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 10:51:28 -0500
-Date: Thu, 23 Mar 2006 16:44:56 +0100 (CET)
-From: Jesper Dangaard Brouer <hawk@diku.dk>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: dipankar@in.ibm.com, Robert Olsson <Robert.Olsson@data.slu.se>,
-       jens.laas@data.slu.se, hans.liss@its.uu.se, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Eric Dumazet <dada1@cosmosbay.com>,
-       mike.stroyan@hp.com, Suresh Bhogavilli <sbhogavilli@verisign.com>
-Subject: Re: Kernel panic: Route cache, RCU, possibly FIB trie.
-In-Reply-To: <Pine.LNX.4.61.0603231536180.29788@ask.diku.dk>
-Message-ID: <Pine.LNX.4.61.0603231637360.29788@ask.diku.dk>
-References: <Pine.LNX.4.61.0603211113550.15500@ask.diku.dk>
- <20060321.023705.26111240.davem@davemloft.net> <Pine.LNX.4.61.0603211538280.28173@ask.diku.dk>
- <20060321.132514.24407022.davem@davemloft.net> <Pine.LNX.4.61.0603231536180.29788@ask.diku.dk>
+	Thu, 23 Mar 2006 10:58:38 -0500
+From: John Heffner <jheffner@psc.edu>
+Organization: PSC
+To: Dan Aloni <da-x@monatomic.org>
+Subject: Re: [TCP]: rcvbuf lock when tcp_moderate_rcvbuf enabled
+Date: Thu, 23 Mar 2006 10:58:18 -0500
+User-Agent: KMail/1.9.1
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>, dror@xiv.co.il
+References: <20060323090441.GA8502@localdomain>
+In-Reply-To: <20060323090441.GA8502@localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603231058.18719.jheffner@psc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 23 March 2006 04:04, Dan Aloni wrote:
+> Hello,
+>
+> Below, I've forwarded change from 2.6.16 which I think may causes
+> problems for applications that use setsockopt with SO_RCVBUF. We are
+> using an implementation of an iSCSI target and according to network
+> sniffs it seems that during data transfer the receive window
+> unjustifyingly shrinks to a very low size (180 bytes). I can guess
+> that the code below indirectly affects the receive window size, but
+> I'm not sure how it the logic works here, a clarification could be
+> helpful.
+>
+> It's worth to mention that we have sysctl_tcp_moderate_rcvbuf=1, but
+> I don't think it should interfere with applications that request to
+> have a fixed receive buffer by the means of setsockopt(). I can also
+> tell by experiment that reverting the change below makes the problem
+> go away.
 
-On Thu, 23 Mar 2006, Jesper Dangaard Brouer wrote:
+It shouldn't, but it used to.  That's exactly what this patch changes (making 
+tcp_moderate_rcvbuf *not* override the application's requested buffer size).  
+Is it possible the application isn't asking for enough buffer space, and that 
+the kernel was just automatically helping it before this patch went in?
 
-> On Tue, 21 Mar 2006, David S. Miller wrote:
->
->> From: Jesper Dangaard Brouer <hawk@diku.dk>
->> Date: Tue, 21 Mar 2006 15:51:34 +0100 (CET)
->> 
->>> You guessed right... I did enable IP_ROUTE_MULTIPATH_CACHED, I have
->>> now disabled it and equal multi path routing in general
->>> (CONFIG_IP_ROUTE_MULTIPATH).
->> 
->> It is almost certainly the cause of your crashes, that code
->> is still extremely raw and that's why it is listed as "EXPERIMENTAL".
->
-> It seems your are right :-) (and I'll take more care of using experimental 
-> code on production again). The machine, has now been running for 34 hours 
-> without crashing.  The strange thing is that I'm running the same kernel on 
-> 30 other (similar) machines, which have not crashed.  (I do suspect the 
-> specific traffic load pattern to influence this)
-
-Argh!! -- nemesis!!! The machine, just died again...
-The machine did not crash it just ran out of memory, and killed too many 
-important processes.  I had to power recycle it... :-((( Could ping it...
-
-I can see that, the traffic pattern have changed and the route cache is 
-growing rapitly...
-
-
-> BUT, I do think I have noticed another problem in the garbage collection code 
-> (route.c), that causes the garbage collector (almost) never to garbage 
-> collect.
->
-> This is caused by the value "ip_rt_max_size" 
-> (/proc/sys/net/ipv4/route/max_size)
-> being set too large.  It is set to 16 times the gc_thresh value (this size 
-> dependend on the memory size).  In the garbage collection function 
-> (rt_garbage_collect) garbage collecting entries are ignored (gc_ignored) if 
-> the number of entries are below "ip_rt_max_size".
->
-> With 1Gb memory, gc_thresh=65536 times 16 is 1048576. Which means that we 
-> only start to garbage collect when there is more than 1 million entries. This 
-> seems wrong... (the reason it does not grow this large is the 600 second 
-> periodic flushes).
->
->
-> Hilsen
-> Jesper Brouer
->
-> --
-> -------------------------------------------------------------------
-> Cand. scient datalog
-> Dept. of Computer Science, University of Copenhagen
-> -------------------------------------------------------------------
->
->
-> grep . /proc/sys/net/ipv4/route/*
-> /proc/sys/net/ipv4/route/error_burst:5000
-> /proc/sys/net/ipv4/route/error_cost:1000
-> grep: /proc/sys/net/ipv4/route/flush: Operation not permitted
-> /proc/sys/net/ipv4/route/gc_elasticity:8
-> /proc/sys/net/ipv4/route/gc_interval:60
-> /proc/sys/net/ipv4/route/gc_min_interval:0
-> /proc/sys/net/ipv4/route/gc_min_interval_ms:500
-> /proc/sys/net/ipv4/route/gc_thresh:65536
-> /proc/sys/net/ipv4/route/gc_timeout:300
-> /proc/sys/net/ipv4/route/max_delay:10
-> /proc/sys/net/ipv4/route/max_size:1048576
-> /proc/sys/net/ipv4/route/min_adv_mss:256
-> /proc/sys/net/ipv4/route/min_delay:2
-> /proc/sys/net/ipv4/route/min_pmtu:552
-> /proc/sys/net/ipv4/route/mtu_expires:600
-> /proc/sys/net/ipv4/route/redirect_load:20
-> /proc/sys/net/ipv4/route/redirect_number:9
-> /proc/sys/net/ipv4/route/redirect_silence:20480
-> /proc/sys/net/ipv4/route/secret_interval:600
->
->
-
-Hilsen
-   Jesper Brouer
-
---
--------------------------------------------------------------------
-Cand. scient datalog
-Dept. of Computer Science, University of Copenhagen
--------------------------------------------------------------------
+  -John

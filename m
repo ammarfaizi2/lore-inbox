@@ -1,46 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWCWRTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWCWRUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751028AbWCWRTk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 12:19:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbWCWRTk
+	id S1751397AbWCWRUz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 12:20:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWCWRUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 12:19:40 -0500
-Received: from poup.poupinou.org ([195.101.94.96]:23358 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP id S1751023AbWCWRTj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 12:19:39 -0500
-Date: Thu, 23 Mar 2006 18:19:36 +0100
-To: "Brace, Don" <dab@hp.com>
-Cc: ISS StorageDev <iss_storagedev@hp.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] performance issues for cciss driver.
-Message-ID: <20060323171936.GA3144@poupinou.org>
-References: <20060323085711.GA1281@poupinou.org> <B8857D46D8618E48B51E0199BB9C26F31A3878@cceexcsp04.americas.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B8857D46D8618E48B51E0199BB9C26F31A3878@cceexcsp04.americas.cpqcorp.net>
-User-Agent: Mutt/1.5.9i
-From: Bruno Ducrot <ducrot@poupinou.org>
+	Thu, 23 Mar 2006 12:20:55 -0500
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:14256 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751397AbWCWRUx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 12:20:53 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Thu, 23 Mar 2006 17:20:08 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: [PATCH 01/14] NTFS: Fix two compiler warnings on Alpha.
+In-Reply-To: <Pine.LNX.4.64.0603231713430.18984@hermes-2.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.64.0603231717460.18984@hermes-2.csi.cam.ac.uk>
+References: <Pine.LNX.4.64.0603231713430.18984@hermes-2.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 09:06:12AM -0600, Brace, Don wrote:
-> I am currently working on a correction to this problem.
-> 
-> We are currently working on the best value for the read-ahead setting.
-> This includes no read-ahead.
-> 
-> The next release should be better.
+NTFS: Fix two compiler warnings on Alpha.  Thanks to Andrew Morton for
+      reporting them.
 
-Thanks.  I've actually setup an rc script for some of our servers
-where this kind of problem happens in the meantime.
+Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
-BTW I can test on another server any patch you please.
+---
 
-Cheers,
+Best regards,
 
+	Anton
 -- 
-Bruno Ducrot
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.
+ fs/ntfs/dir.c  |    2 +-
+ fs/ntfs/file.c |    3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+bb8047d3540affd6b8c2adac3fe792e07143be0f
+diff --git a/fs/ntfs/dir.c b/fs/ntfs/dir.c
+index b0690d4..9d9ed3f 100644
+--- a/fs/ntfs/dir.c
++++ b/fs/ntfs/dir.c
+@@ -1136,7 +1136,7 @@ static int ntfs_readdir(struct file *fil
+ 	if (fpos == 1) {
+ 		ntfs_debug("Calling filldir for .. with len 2, fpos 0x1, "
+ 				"inode 0x%lx, DT_DIR.",
+-				parent_ino(filp->f_dentry));
++				(unsigned long)parent_ino(filp->f_dentry));
+ 		rc = filldir(dirent, "..", 2, fpos,
+ 				parent_ino(filp->f_dentry), DT_DIR);
+ 		if (rc)
+diff --git a/fs/ntfs/file.c b/fs/ntfs/file.c
+index 5027d3d..2e5ba0c 100644
+--- a/fs/ntfs/file.c
++++ b/fs/ntfs/file.c
+@@ -943,7 +943,8 @@ rl_not_mapped_enoent:
+ 		}
+ 		ni->runlist.rl = rl;
+ 		status.runlist_merged = 1;
+-		ntfs_debug("Allocated cluster, lcn 0x%llx.", lcn);
++		ntfs_debug("Allocated cluster, lcn 0x%llx.",
++				(unsigned long long)lcn);
+ 		/* Map and lock the mft record and get the attribute record. */
+ 		if (!NInoAttr(ni))
+ 			base_ni = ni;
+-- 
+1.2.3.g9821

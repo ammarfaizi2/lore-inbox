@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965167AbWCWDv5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965171AbWCWECN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965167AbWCWDv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 22:51:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbWCWDv5
+	id S965171AbWCWECN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 23:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965174AbWCWECM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 22:51:57 -0500
-Received: from mga03.intel.com ([143.182.124.21]:22171 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S965167AbWCWDv4 convert rfc822-to-8bit (ORCPT
+	Wed, 22 Mar 2006 23:02:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:9376 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965171AbWCWECM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 22:51:56 -0500
-X-IronPort-AV: i="4.03,120,1141632000"; 
-   d="scan'208"; a="14460894:sNHT650410621"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Wed, 22 Mar 2006 23:02:12 -0500
+Date: Wed, 22 Mar 2006 23:01:38 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cuia.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, bob.picco@hp.com, iwamoto@valinux.co.jp,
+       christoph@lameter.com, wfg@mail.ustc.edu.cn, npiggin@suse.de,
+       torvalds@osdl.org, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 00/34] mm: Page Replacement Policy Framework
+In-Reply-To: <20060322145132.0886f742.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.63.0603222300320.6212@cuia.boston.redhat.com>
+References: <20060322223107.12658.14997.sendpatchset@twins.localnet>
+ <20060322145132.0886f742.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Dual Core on Linux questions
-Date: Wed, 22 Mar 2006 19:51:50 -0800
-Message-ID: <88056F38E9E48644A0F562A38C64FB6007A24C57@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Dual Core on Linux questions
-Thread-Index: AcZOLCDdu+CVxm+dQRWuKghS3+5RnQAAGsWw
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Jeff Garzik" <jeff@garzik.org>
-Cc: "Mattia Dongili" <malattia@linux.it>,
-       "Alejandro Bonilla" <abonilla@linuxwireless.org>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 23 Mar 2006 03:51:51.0690 (UTC) FILETIME=[1E626EA0:01C64E2D]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+On Wed, 22 Mar 2006, Andrew Morton wrote:
 
->-----Original Message-----
->From: Jeff Garzik [mailto:jeff@garzik.org] 
->Sent: Wednesday, March 22, 2006 7:45 PM
->To: Pallipadi, Venkatesh
->Cc: Mattia Dongili; Alejandro Bonilla; linux-kernel@vger.kernel.org
->Subject: Re: Dual Core on Linux questions
->
->Pallipadi, Venkatesh wrote:
->>>From cpufreq perspective multiple things are possible in the way
->> processor will support the multi-core frequency changing. and most of
->> the things are handled at cpufreq inside kernel. I think 
->there should be
->> minima changes required in cpufreqd if any.
->> Options:
->
->
->4) we power down a core.
->
+> 2.6.16-rc6 seems to do OK.  I assume the cyclic patterns exploit the lru 
+> worst case thing?  Has consideration been given to tweaking the existing 
+> code, detect the situation and work avoid the problem?
 
-That is more of a logical hotplug issue than cpufreq. But, it is better
-to keep the CPU on and scheduler do the best use of it. If CPU has
-nothing to run, it will go to deepest C-state possible and idle in that
-state anyway. 
+This can certainly be done.  Rate-based clock-pro isn't that
+far away mechanically from the current 2.6 code and can be
+introduced in small steps.
 
-Thanks,
-Venki
+I'll just have to make it work again ;)
+
+-- 
+All Rights Reversed

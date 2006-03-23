@@ -1,71 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWCWDF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964949AbWCWDKH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWCWDF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 22:05:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbWCWDF7
+	id S964949AbWCWDKH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 22:10:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWCWDKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 22:05:59 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:23212 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932117AbWCWDF6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 22:05:58 -0500
-Date: Wed, 22 Mar 2006 20:05:47 -0700
-From: john stultz <johnstul@us.ibm.com>
-To: akpm@osdl.org
-Cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org,
-       george@wildturkeyranch.net, Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Roman Zippel <zippel@linux-m68k.org>, Ingo Molnar <mingo@elte.hu>,
-       Paul Mackerras <paulus@samba.org>
-Message-Id: <20060323030547.19338.95102.sendpatchset@cog.beaverton.ibm.com>
-Subject: [PATCHSET 0/10] Time: Generic Timekeeping (v.C1)
+	Wed, 22 Mar 2006 22:10:06 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:62348 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964949AbWCWDKD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 22:10:03 -0500
+Date: Wed, 22 Mar 2006 19:06:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: linux-kernel@vger.kernel.org, rdreier@cisco.com, greg@kroah.com,
+       openib-general@openib.org
+Subject: Re: [PATCH 10 of 18] ipath - support for userspace apps using core
+ driver
+Message-Id: <20060322190636.667d43c0.akpm@osdl.org>
+In-Reply-To: <35c1d2f22ae1e2de483c.1143072303@eng-12.pathscale.com>
+References: <patchbomb.1143072293@eng-12.pathscale.com>
+	<35c1d2f22ae1e2de483c.1143072303@eng-12.pathscale.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, All,
-	Here is an updated version of the smaller, reworked and 
-improved patchset I mailed out monday. Please consider for inclusion 
-into your tree.
+"Bryan O'Sullivan" <bos@pathscale.com> wrote:
+>
+>  +	/*
+>  +	 * This code is present to allow a knowledgeable person to
+>  +	 * specify the layout of processes to processors before opening
+>  +	 * this driver, and then we'll assign the process to the "closest"
+>  +	 * HT-400 to that processor (we assume reasonable connectivity,
+>  +	 * for now).  This code assumes that if affinity has been set
+>  +	 * before this point, that at most one cpu is set; for now this
+>  +	 * is reasonable.  I check for both cpus_empty() and cpus_full(),
+>  +	 * in case some kernel variant sets none of the bits when no
+>  +	 * affinity is set.  2.6.11 and 12 kernels have all present
+>  +	 * cpus set.  Some day we'll have to fix it up further to handle
+>  +	 * a cpu subset.  This algorithm fails for two HT-400's connected
+>  +	 * in tunnel fashion.  Eventually this needs real topology
+>  +	 * information.  There may be some issues with dual core numbering
+>  +	 * as well.  This needs more work prior to release.
+>  +	 */
+>  +	if (!cpus_empty(current->cpus_allowed) &&
+>  +	    !cpus_full(current->cpus_allowed)) {
+>  +		int ncpus = num_online_cpus(), curcpu = -1;
+>  +		for (i = 0; i < ncpus; i++)
+>  +			if (cpu_isset(i, current->cpus_allowed)) {
+>  +				ipath_cdbg(PROC, "%s[%u] affinity set for "
+>  +					   "cpu %d\n", current->comm,
+>  +					   current->pid, i);
+>  +				curcpu = i;
+>  +			}
+>  +		if (curcpu != -1) {
+>  +			if (npresent) {
+>  +				prefunit = curcpu / (ncpus / npresent);
+>  +				ipath_dbg("%s[%u] %d chips, %d cpus, "
+>  +					  "%d cpus/chip, select unit %d\n",
+>  +					  current->comm, current->pid,
+>  +					  npresent, ncpus, ncpus / npresent,
+>  +					  prefunit);
+>  +			}
+>  +		}
+>  +	}
 
-Again, the majority of this new incremental design should be credited 
-to Roman Zippel, but it is my implementation, so he gets the credit and 
-I get the blame. :)
+CPU topology is available in sysfs - it shouild be possible to push policy
+decisions like this up to userspace.  If the topology info is insufficient,
+we can add to it.
 
-Summary:
-	This patchset provides a generic timekeeping infrastructure 
-that are independent of the timer interrupt. This allows for robust and 
-correct behavior in cases of late or lost ticks, avoids interpolation 
-errors, reduces duplication in arch specific code, and allows or 
-assists future changes such as high-res timers, dynamic ticks, or 
-realtime preemption. Additionally, it provides finer nanosecond 
-resolution values to the clock_gettime functions. The patchset also 
-converts the i386 arch to use this new infrastructure.
-
-Changes since the C0 release:
-o Cut out functions that are no longer used
-o Re-arranged patch chunks so each patch makes more sense.
-o Few small fixes.
-o Improved comments.
-
-On my TODO list:
-o More attention on x86-64 and powerpc
-o Re-add bits needed for inclusion into HRT and RT
-o Try to restore cleanups via small patches
-
-The patchset applies against the current 2.6.16-git.
-
-The complete patchset can be found here:
-	http://sr71.net/~jstultz/tod/
-
-I'd like to thank the following people who have contributed ideas, 
-criticism, testing and code that has helped shape this work: 
-	George Anzinger, Nish Aravamudan, Max Asbock, Serge Belyshev, 
-Dominik Brodowski, Adrian Bunk, Thomas Gleixner, Darren Hart, Christoph 
-Lameter, Matt Mackal, Keith Mannthey, Ingo Molnar, Andrew Morton, Paul 
-Munt, Martin Schwidefsky, Frank Sorenson, Ulrich Windl, Jonathan 
-Woithe, Darrick Wong, Roman Zippel and any others whom I've 
-accidentally left off this list.
-
-thanks
--john

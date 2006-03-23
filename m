@@ -1,96 +1,292 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbWCWPlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbWCWPlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030264AbWCWPlj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 10:41:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbWCWPlj
+	id S1030254AbWCWPlW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 10:41:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbWCWPlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 10:41:39 -0500
-Received: from mgw1.diku.dk ([130.225.96.91]:33924 "EHLO mgw1.diku.dk")
-	by vger.kernel.org with ESMTP id S1030262AbWCWPlh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 10:41:37 -0500
-Date: Thu, 23 Mar 2006 16:35:59 +0100 (CET)
-From: Jesper Dangaard Brouer <hawk@diku.dk>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: dipankar@in.ibm.com, Robert Olsson <Robert.Olsson@data.slu.se>,
-       jens.laas@data.slu.se, hans.liss@its.uu.se, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Eric Dumazet <dada1@cosmosbay.com>,
-       mike.stroyan@hp.com, Suresh Bhogavilli <sbhogavilli@verisign.com>
-Subject: Re: Kernel panic: Route cache, RCU, possibly FIB trie.
-In-Reply-To: <20060321.132514.24407022.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.61.0603231536180.29788@ask.diku.dk>
-References: <Pine.LNX.4.61.0603211113550.15500@ask.diku.dk>
- <20060321.023705.26111240.davem@davemloft.net> <Pine.LNX.4.61.0603211538280.28173@ask.diku.dk>
- <20060321.132514.24407022.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 23 Mar 2006 10:41:22 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:35463 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030254AbWCWPlU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 10:41:20 -0500
+Date: Thu, 23 Mar 2006 21:11:06 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+To: jamal <hadi@cyberus.ca>
+Cc: Matt Helsley <matthltc@us.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       netdev <netdev@vger.kernel.org>
+Subject: Re: [RFC][UPDATED PATCH 2.6.16] [Patch 9/9] Generic netlink interface for delay accounting
+Message-ID: <20060323154106.GA13159@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+References: <1142296834.5858.3.camel@elinux04.optonline.net> <1142297791.5858.31.camel@elinux04.optonline.net> <1142303607.24621.63.camel@stark> <1142304506.5219.34.camel@jzny2> <20060322074922.GA1164@in.ibm.com> <1143122686.5186.27.camel@jzny2>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1143122686.5186.27.camel@jzny2>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 23, 2006 at 09:04:46AM -0500, jamal wrote:
+> 
+> Hi Balbir,
+> 
+> Looking good.
+> This is a quick scan, so i didnt look at little details.
 
-On Tue, 21 Mar 2006, David S. Miller wrote:
+Thanks for your detailed feedback. Please find my response interspersed
+along with your comments.
 
-> From: Jesper Dangaard Brouer <hawk@diku.dk>
-> Date: Tue, 21 Mar 2006 15:51:34 +0100 (CET)
+> Some comments embedded.
+> 
+> On Wed, 2006-22-03 at 13:19 +0530, Balbir Singh wrote:
+> 
+> 
+> 
+> 
+> >  
+> 
+> > diff -puN /dev/null include/linux/taskstats.h
+> 
+> > + * The struct is versioned. Newer versions should only add fields to
+> > + * the bottom of the struct to maintain backward compatibility.
+> > + *
+> > + * To create the next version, bump up the taskstats_version variable
+> > + * and delineate the start of newly added fields with a comment indicating
+> > + * the version number.
+> > + */
+> > +
+> 
+> 
+> 
+> > +enum {
+> > +	TASKSTATS_MSG_UNICAST,		/* send data only to requester */
+> > +	TASKSTATS_MSG_MULTICAST,	/* send data to a group */
+> > +};
+> > +
+> 
+> Above will never be used outside of the kernel.
+> Should it go under the ifdef kernel below?
 >
->> You guessed right... I did enable IP_ROUTE_MULTIPATH_CACHED, I have
->> now disabled it and equal multi path routing in general
->> (CONFIG_IP_ROUTE_MULTIPATH).
+
+Will do
+ 
+> 
+> > +#ifdef __KERNEL__
+> > +
+> 
+> Note: some people will argue that you should probably have
+> two header files. One for all kernel things and includes another
+> which contains all the stuff above ifdef __KERNEL__
+> 
+> > +
+> > +#endif /* __KERNEL__ */
+> > +#endif /* _LINUX_TASKSTATS_H */
+> 
+> 
+> 
+> 
+> > diff -puN kernel/Makefile~delayacct-genetlink kernel/Makefile
+> > --- linux-2.6.16/kernel/Makefile~delayacct-genetlink	2006-03-22 11:56:03.000000000 +0530
+> > +++ linux-2.6.16-balbir/kernel/Makefile	2006-03-22 11:56:03.000000000 +0530
+> 
+> > +
+> > +const int taskstats_version = TASKSTATS_VERSION;
+> > +static DEFINE_PER_CPU(__u32, taskstats_seqnum) = { 0 };
+> > +static int family_registered = 0;
+> > +
+> > +static struct genl_family family = {
+> > +	.id             = GENL_ID_GENERATE,
+> > +	.name           = TASKSTATS_GENL_NAME,
+> > +	.version        = TASKSTATS_GENL_VERSION,
+> > +	.hdrsize        = 0,
+> 
+> Do you need to specify hdrsize of 0?
+
+I will remove it
+
+> 
+> 
+> > +static int prepare_reply(struct genl_info *info, u8 cmd, struct sk_buff **skbp,
+> > +			 void **replyp)
+> > +{
+> > +	struct sk_buff *skb;
+> > +	void *reply;
+> > +
+> > +	skb = nlmsg_new(NLMSG_GOODSIZE);
+> 
+> Ok,  getting a size of NLMSG_GOODSIZE is not a good idea. 
+> The max size youll ever get it seems to me is 2*32-bit-data TLVs +
+> sizeof struct stats. Why dont you allocate that size?
+> 
+
+Will do
+
+> > +	if (!skb)
+> > +		return -ENOMEM;
+> > +
+> > +	if (!info) {
+> > +		int seq = get_cpu_var(taskstats_seqnum)++;
+> > +		put_cpu_var(taskstats_seqnum);
+> > +
+> > +		reply = genlmsg_put(skb, 0, seq,
+> > +				    family.id, 0, NLM_F_REQUEST,
+> > +				    cmd, family.version);
+> 
+> Double check if you need NLM_F_REQUEST
+> 
+
+It is not required, I will remove it
+
+> > +	} else
+> > +		reply = genlmsg_put(skb, info->snd_pid, info->snd_seq,
+> > +				    family.id, 0, info->nlhdr->nlmsg_flags,
+> > +				    info->genlhdr->cmd, family.version);
+> 
+> A Response to a GET is a NEW. So i dont think info->genlhdr->cmd is the
+> right thing?
+> 
+> 
+
+I will change it
+
+> 
+> 
+> 
+> > +static int taskstats_send_stats(struct sk_buff *skb, struct genl_info *info)
+> > +{
+> > +	int rc;
+> > +	struct sk_buff *rep_skb;
+> > +	struct taskstats stats;
+> > +	void *reply;
+> > +
+> > +	memset(&stats, 0, sizeof(stats));
+> > +	rc = prepare_reply(info, info->genlhdr->cmd, &rep_skb, &reply);
+> 
+> Same comment as before: a response to a GET is a NEW; so
+> info->genlhdr->cmd doesnt seem right.
+> 
+
+I will change it
+
+> > +	if (rc < 0)
+> > +		return rc;
+> > +
+> > +	if (info->attrs[TASKSTATS_CMD_ATTR_PID]) {
+> > +		u32 pid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_PID]);
+> > +		NLA_PUT_U32(rep_skb, TASKSTATS_TYPE_PID, pid);
+> > +		rc = fill_pid((pid_t)pid, NULL, &stats);
+> > +		if (rc < 0)
+> > +			return rc;
+> > +	}
+> > +
+> > +	if (info->attrs[TASKSTATS_CMD_ATTR_TGID]) {
+> > +		u32 tgid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_TGID]);
+> > +		NLA_PUT_U32(rep_skb, TASKSTATS_TYPE_TGID, tgid);
+> > +		rc = fill_tgid((pid_t)tgid, NULL, &stats);
+> > +		if (rc < 0)
+> > +			return rc;
+> > +	}
+> > +
+> 
+> Should there be at least either a pid or tgid? If yes, you need to
+> validate here...
 >
-> It is almost certainly the cause of your crashes, that code
-> is still extremely raw and that's why it is listed as "EXPERIMENTAL".
 
-It seems your are right :-) (and I'll take more care of using experimental 
-code on production again). The machine, has now been running for 34 hours 
-without crashing.  The strange thing is that I'm running the same kernel 
-on 30 other (similar) machines, which have not crashed.  (I do suspect the 
-specific traffic load pattern to influence this)
+Yes, you are correct. One of my test cases caught it too.. But I did
+not want to untidy the code with if-else's which will keep growing if
+the attributes change in the future. I just followed the controller
+example. I will change it and validate it. Currently if the attribute
+is not valid, a stat of all zero's is returned back.
+ 
+> > +	NLA_PUT_TYPE(rep_skb, struct taskstats, TASKSTATS_TYPE_STATS, stats);
+> > +	return send_reply(rep_skb, info->snd_pid, TASKSTATS_MSG_UNICAST);
+> > +
+> > +nla_put_failure:
+> > +	return genlmsg_cancel(rep_skb, reply);
+> > +
+> 
+> As a general comment double check your logic for errors; if you already
+> have stashed something in the skb, you need to remove it etc.
+> 
 
-
-BUT, I do think I have noticed another problem in the garbage collection 
-code (route.c), that causes the garbage collector (almost) never to 
-garbage collect.
-
-This is caused by the value "ip_rt_max_size" (/proc/sys/net/ipv4/route/max_size)
-being set too large.  It is set to 16 times the gc_thresh value (this 
-size dependend on the memory size).  In the garbage collection function 
-(rt_garbage_collect) garbage collecting entries are ignored (gc_ignored) 
-if the number of entries are below "ip_rt_max_size".
-
-With 1Gb memory, gc_thresh=65536 times 16 is 1048576. Which means that we 
-only start to garbage collect when there is more than 1 million entries. 
-This seems wrong... (the reason it does not grow this large is the 600 
-second periodic flushes).
+Wouldn't genlmsg_cancel() take care of cleaning all attributes?
 
 
-Hilsen
-   Jesper Brouer
+> > +}
+> > +
+> > +
+> > +/* Send pid data out on exit */
+> > +void taskstats_exit_pid(struct task_struct *tsk)
+> > +{
+> > +	int rc;
+> > +	struct sk_buff *rep_skb;
+> > +	void *reply;
+> > +	struct taskstats stats;
+> > +
+> > +	/*
+> > +	 * tasks can start to exit very early. Ensure that the family
+> > +	 * is registered before notifications are sent out
+> > +	 */
+> > +	if (!family_registered)
+> > +		return;
+> > +
+> > +	memset(&stats, 0, sizeof(stats));
+> > +	rc = prepare_reply(NULL, TASKSTATS_CMD_NEW, &rep_skb, &reply);
+> > +	if (rc < 0)
+> > +		return;
+> > +
+> > +	NLA_PUT_U32(rep_skb, TASKSTATS_TYPE_PID, (u32)tsk->pid);
+> > +	rc = fill_pid(tsk->pid, tsk, &stats);
+> > +	if (rc < 0)
+> > +		return;
+> > +
+> > +	NLA_PUT_TYPE(rep_skb, struct taskstats, TASKSTATS_TYPE_STATS, stats);
+> > +	rc = send_reply(rep_skb, 0, TASKSTATS_MSG_MULTICAST);
+> > +
+> > +	if (rc || thread_group_empty(tsk))
+> > +		return;
+> > +
+> > +	/* Send tgid data too */
+> > +	rc = prepare_reply(NULL, TASKSTATS_CMD_NEW, &rep_skb, &reply);
+> > +	if (rc < 0)
+> > +		return;
+> > +
+> 
+> A single message with PID+TGID sounds reasonable. Why two messages with
+> two stats? all you will need to do is get rid of the prepare_reply()
+> above and NLA_PUT_U32() below (just like you do in a response to a GET.
+> 
 
---
--------------------------------------------------------------------
-Cand. scient datalog
-Dept. of Computer Science, University of Copenhagen
--------------------------------------------------------------------
+The reason for two stats is that for TGID, we return accumulated values
+(of all threads in the group) and for PID we return the value just
+for that pid. The return value is
 
+pid
+<stats for pid>
+tgid
+<accumulated stats for tgid>
 
-grep . /proc/sys/net/ipv4/route/*
-/proc/sys/net/ipv4/route/error_burst:5000
-/proc/sys/net/ipv4/route/error_cost:1000
-grep: /proc/sys/net/ipv4/route/flush: Operation not permitted
-/proc/sys/net/ipv4/route/gc_elasticity:8
-/proc/sys/net/ipv4/route/gc_interval:60
-/proc/sys/net/ipv4/route/gc_min_interval:0
-/proc/sys/net/ipv4/route/gc_min_interval_ms:500
-/proc/sys/net/ipv4/route/gc_thresh:65536
-/proc/sys/net/ipv4/route/gc_timeout:300
-/proc/sys/net/ipv4/route/max_delay:10
-/proc/sys/net/ipv4/route/max_size:1048576
-/proc/sys/net/ipv4/route/min_adv_mss:256
-/proc/sys/net/ipv4/route/min_delay:2
-/proc/sys/net/ipv4/route/min_pmtu:552
-/proc/sys/net/ipv4/route/mtu_expires:600
-/proc/sys/net/ipv4/route/redirect_load:20
-/proc/sys/net/ipv4/route/redirect_number:9
-/proc/sys/net/ipv4/route/redirect_silence:20480
-/proc/sys/net/ipv4/route/secret_interval:600
+> > +	NLA_PUT_U32(rep_skb, TASKSTATS_TYPE_TGID, (u32)tsk->tgid);
+> > +	rc = fill_tgid(tsk->tgid, tsk, &stats);
+> > +	if (rc < 0)
+> > +		return;
+> > +
+> > +	NLA_PUT_TYPE(rep_skb, struct taskstats, TASKSTATS_TYPE_STATS, stats);
+> > +	send_reply(rep_skb, 0, TASKSTATS_MSG_MULTICAST);
+> > +
+> > +nla_put_failure:
+> > +	genlmsg_cancel(rep_skb, reply);
+> > +}
+> 
+> 
+> Other than the above comments - I believe you have it right.
+> 
 
+Thanks, I will get back to you with the updated patch soon.
+
+> cheers,
+> jamal
+
+Thanks,
+Balbir

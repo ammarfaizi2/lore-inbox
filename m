@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbWCWDCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbWCWDEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932531AbWCWDCK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Mar 2006 22:02:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWCWDCJ
+	id S964921AbWCWDEv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Mar 2006 22:04:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbWCWDEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Mar 2006 22:02:09 -0500
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:56966 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S932526AbWCWDCI convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Mar 2006 22:02:08 -0500
-From: Francesco Biscani <biscani@pd.astro.it>
-To: "Brown, Len" <len.brown@intel.com>
-Subject: Re: ACPI error in 2.6.16 (AE_TIME, Returned by Handler for EmbeddedControl)
-Date: Thu, 23 Mar 2006 04:01:58 +0100
-User-Agent: KMail/1.9.1
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org, "Yu, Luming" <luming.yu@intel.com>,
-       Jiri Slaby <slaby@liberouter.org>
-References: <F7DC2337C7631D4386A2DF6E8FB22B30067BF1BC@hdsmsx401.amr.corp.intel.com>
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30067BF1BC@hdsmsx401.amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200603230401.58507.biscani@pd.astro.it>
+	Wed, 22 Mar 2006 22:04:51 -0500
+Received: from sccrmhc11.comcast.net ([204.127.200.81]:39073 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S964921AbWCWDEu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Mar 2006 22:04:50 -0500
+Subject: Re: [PATCH] Unaligned accesses in the ethernet bridge
+From: Nicholas Miell <nmiell@comcast.net>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, shemminger@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060322185036.6353d49c.rdunlap@xenotime.net>
+References: <17442.650.874609.271109@berry.ken.nicta.com.au>
+	 <20060322185036.6353d49c.rdunlap@xenotime.net>
+Content-Type: text/plain
+Date: Wed, 22 Mar 2006 19:04:46 -0800
+Message-Id: <1143083086.12954.5.camel@entropy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 (2.6.0-1.0.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 March 2006 02:45, Brown, Len wrote:
-> does this go away if you boot with "ec_intr=0"?
+On Wed, 2006-03-22 at 18:50 -0800, Randy.Dunlap wrote:
+> On Thu, 23 Mar 2006 13:06:02 +1100 Peter Chubb wrote:
+> 
+> That's all that I see unless I look at the raw email file with
+> a text editor.  Neither sylpheed nor thunderbird care for it...
+> 
+> What's up with this email message?
 
-So far it seems like that option solves the problem. But since the bug appears 
-very erratically I think it's better to wait for a few more reboots.
+The message body is in multipart/mixed format, but it contains nothing
+besides a preamble, which MIME conformant MUAs ignore. 
 
-BTW, when I was testing _without_ ec_intr=0 I got this in the log (this 
-happened the first reboot after the one mentioned in my previous mail):
-
-Mar 23 03:48:50 kurtz ACPI: read EC, IB not empty
-Mar 23 03:48:50 kurtz ACPI: read EC, OB not full
-Mar 23 03:48:50 kurtz ACPI Exception (evregion-0409): AE_TIME, Returned by 
-Handler for [EmbeddedControl] [20060127]
-Mar 23 03:48:50 kurtz ACPI Exception (dswexec-0458): AE_TIME, While resolving 
-operands for [AE_NOT_CONFIGURED] [20060127]
-Mar 23 03:48:50 kurtz ACPI Error (psparse-0517): Method parse/execution failed 
-[\_SB_.PCI0.ISA_.EC0_._Q20] (Node c13ecbc0), AE_TIME
-
-This is an hp pavilion ze5616ea laptop, FYI.
-
-Thanks and best regards,
-
-  Francesco
+Typically, the preamble is just "This is a multipart MIME formatted
+message.", but Peter's mailer seems to have decided to stick his entire
+message body there.
 
 -- 
-Dr. Francesco Biscani
-Dipartimento di Astronomia
-Università di Padova
-biscani@pd.astro.it
+Nicholas Miell <nmiell@comcast.net>
+

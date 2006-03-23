@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964961AbWCWVwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422703AbWCWVyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964961AbWCWVwL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 16:52:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWCWVwL
+	id S1422703AbWCWVyU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 16:54:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422704AbWCWVyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 16:52:11 -0500
-Received: from ns2.suse.de ([195.135.220.15]:18908 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964961AbWCWVwK (ORCPT
+	Thu, 23 Mar 2006 16:54:20 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:43417 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1422703AbWCWVyT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 16:52:10 -0500
-From: Andi Kleen <ak@suse.de>
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-Subject: Re: [PATCH 2/3] x86-64: Calgary IOMMU - Calgary specific bits
-Date: Thu, 23 Mar 2006 22:52:01 +0100
+	Thu, 23 Mar 2006 16:54:19 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Subject: Re: [PATCH] swsusp: separate swap-writing/reading code
+Date: Thu, 23 Mar 2006 22:53:00 +0100
 User-Agent: KMail/1.9.1
-Cc: Muli Ben-Yehuda <mulix@mulix.org>, Jon Mason <jdmason@us.ibm.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
-       Andrew Morton <akpm@osdl.org>
-References: <20060320084848.GA21729@granada.merseine.nu> <20060323190334.GD25830@rhun.haifa.ibm.com> <20060323214507.GE25830@rhun.haifa.ibm.com>
-In-Reply-To: <20060323214507.GE25830@rhun.haifa.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>
+References: <200603231702.k2NH2OSC006774@hera.kernel.org> <200603240713.41566.ncunningham@cyclades.com>
+In-Reply-To: <200603240713.41566.ncunningham@cyclades.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200603232252.02014.ak@suse.de>
+Message-Id: <200603232253.01025.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 March 2006 22:45, Muli Ben-Yehuda wrote:
-> On Thu, Mar 23, 2006 at 09:03:34PM +0200, Muli Ben-Yehuda wrote:
+Hi,
+
+On Thursday 23 March 2006 22:13, Nigel Cunningham wrote:
+> On Friday 24 March 2006 03:02, Linux Kernel Mailing List wrote:
+> > commit 61159a314bca6408320c3173c1282c64f5cdaa76
+> > tree 8e1b7627443da0fd52b2fac66366dde9f7871f1e
+> > parent f577eb30afdc68233f25d4d82b04102129262365
+> > author Rafael J. Wysocki <rjw@sisk.pl> Thu, 23 Mar 2006 19:00:00 -0800
+> > committer Linus Torvalds <torvalds@g5.osdl.org> Thu, 23 Mar 2006 23:38:07
+> > -0800
+> >
+> > [PATCH] swsusp: separate swap-writing/reading code
+> >
+> > Move the swap-writing/reading code of swsusp to a separate file.
+> >
+> > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+> > Acked-by: Pavel Machek <pavel@ucw.cz>
+> > Signed-off-by: Andrew Morton <akpm@osdl.org>
+> > Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 > 
-> > > > X works :-) 
-> > > 
-> > > So it's behind a bridge that doesn't have an IOMMU?
-> > 
-> > No, it's behind a bridge that does have an IOMMU and is running with
-> > translation enabled (it's on PHB 0 on this machine). I guess you are
-> > concerned with userspace access to the graphics controller directly,
-> > without a kernel driver having set up mapping previously? I will look
-> > into it but emprirically X works so either userspace is not triggering
-> > DMAs or the mappings have been set up by a driver.
-> 
-> Turns out that X does work on my machine (SLES 9SP2) but dies with a
-> bad translation error on Jon's machine, which is otherwise identical
-> except it runs gentoo. We are thinking how to best address this (add
-> IOMMU aware drivers to X? *shudder*), but will disable translation by
-> default on PHB 0 in the mean time for a friendlier user
-> experience.
+> I guess I missed this one somehow. Using a bitmap for allocated swap is really 
+> inefficient because the values are usually not fragmented much. Extents would 
+> have been a far better choice.
 
-You could just enable it for mmaps on /dev/mem. 
+I agree it probably may be improved.  Still it seems to be good enough.  Further,
+it's more efficient than the previous solution, so I consider it as an improvement.
+Also this code has been tested for quite some time in -mm and appears to
+behave properly, at least we haven't got any bug reports related to it so far.
 
--Andi
+Currently I'm not working on any better solution.  If you can provide any
+patches to implement one, please submit them, but I think they'll have to be
+tested for as long as this code, in -mm.
 
+Greetings,
+Rafael

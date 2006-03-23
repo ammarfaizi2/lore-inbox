@@ -1,50 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWCWJeR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWCWJgZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751407AbWCWJeR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 04:34:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWCWJeR
+	id S932425AbWCWJgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 04:36:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbWCWJgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 04:34:17 -0500
-Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:42467 "EHLO mta2.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S1751407AbWCWJeQ (ORCPT
+	Thu, 23 Mar 2006 04:36:25 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:40846 "EHLO mtlexch01.mtl.com")
+	by vger.kernel.org with ESMTP id S932425AbWCWJgY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 04:34:16 -0500
-In-Reply-To: <1143101972.3147.11.camel@laptopd505.fenrus.org>
-References: <A95E2296287EAD4EB592B5DEEFCE0E9D4B9E8A@liverpoolst.ad.cl.cam.ac.uk> <1143101972.3147.11.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <a15cee148267ad7406a077c28c0c97ac@cl.cam.ac.uk>
-Content-Transfer-Encoding: 7bit
-Cc: virtualization@lists.osdl.org, Ian Pratt <ian.pratt@xensource.com>,
-       xen-devel@lists.xensource.com, ian.pratt@cl.cam.ac.uk,
-       linux-kernel@vger.kernel.org, Ian Pratt <m+Ian.Pratt@cl.cam.ac.uk>,
-       Chris Wright <chrisw@sous-sol.org>
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Subject: Re: [RFC PATCH 35/35] Add Xen virtual block device driver.
-Date: Thu, 23 Mar 2006 09:34:34 +0000
-To: Arjan van de Ven <arjan@infradead.org>
-X-Mailer: Apple Mail (2.623)
+	Thu, 23 Mar 2006 04:36:24 -0500
+Date: Thu, 23 Mar 2006 11:37:13 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: linux-kernel@vger.kernel.org, rdreier@cisco.com, greg@kroah.com,
+       openib-general@openib.org
+Subject: Re: [PATCH 9 of 18] ipath - char devices for diagnostics and lightweight subnet management
+Message-ID: <20060323093713.GB1802@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <patchbomb.1143072293@eng-12.pathscale.com> <dffa0687112e4fdcf7d0.1143072302@eng-12.pathscale.com> <20060323064113.GC9841@mellanox.co.il> <1143103701.6411.21.camel@camp4.serpentine.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1143103701.6411.21.camel@camp4.serpentine.com>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 23 Mar 2006 09:39:05.0625 (UTC) FILETIME=[A060A090:01C64E5D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting r. Bryan O'Sullivan <bos@pathscale.com>:
+> > Could you please explain why is this useful? Users could not care less -
+> > they never have to touch an SMA.
+> 
+> We have customers who use our driver who do not want a full IB stack
+> present, for example in embedded environments.
 
-On 23 Mar 2006, at 08:19, Arjan van de Ven wrote:
+I understand they do, but they could just use the parts of IB stack and never
+notice.  In my experience, embedded systems are typically diskless - why is a
+userspace SMA better than kernel-level one for them? The advantage would be
+everyone using a single kernel/user interface, common utilities for
+management, diagnostics ... I could go on.
 
->> We certainly should be pushing everyone toward using the 'xdX' etc
->> devices that are allocated to us.
->
-> yes but you are faking something stupid ;)
-> You aren't ide, you don't take the IDE ioctls. So please just nuke this
-> bit..
+So what's your point? Memory usage? Let's take a look:
 
-Well, that's plausible. We probably don't need IDE *and* SCSI faking. 
-We'd like to at least keep SCSI faking, perhaps making it more 
-attractive by going to some effort to take at least the essential SCSI 
-ioctls. We've talked about reving our block protocol to encapsulate 
-SCSI anyway -- this would be another step on that path.
+ib_mad is the IB stack module that includes between other things the
+kernel-level SMA (BTW, if necessary, you should be able to split it out so that
+it is only loaded on demand):
 
-If we stick to just our own major then we break distro init scripts and 
-surprise users.
+I think IB stack is modest, as core modules go.
+Here's how a loaded IB stack looks like on my system:
 
-  -- Keir
+Module                  Size  Used by
+ib_mad                 36260  2 ib_ipath,ib_mthca
+ib_core                46080  3 ib_ipath,ib_mthca,ib_mad
 
+So there are *maximum* 82K code to save.  This is a 64-bit system, I think
+embedded systems are usually 32 bit so there'll be just 41K.
+
+And I don't believe you can save much since as a solution you seem to have
+re-implemented the full IB stack in your low level driver:
+
+Module                  Size  Used by
+ib_ipath               79256  0
+ipath_core            159764  1 ib_ipath
+
+By contrast, a low-level which doesn't reimplement IB core is just a bit
+above 100K.
+
+-- 
+Michael S. Tsirkin
+Staff Engineer, Mellanox Technologies

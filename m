@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422994AbWCXCkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbWCXCpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422994AbWCXCkx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 21:40:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422993AbWCXCkx
+	id S1030206AbWCXCpm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 21:45:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbWCXCpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 21:40:53 -0500
-Received: from bay109-dav14.bay109.hotmail.com ([64.4.19.86]:3755 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1422981AbWCXCkw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 21:40:52 -0500
-Message-ID: <BAY109-DAV145F135DA57D0E819D208AB3DF0@phx.gbl>
-X-Originating-IP: [72.60.172.10]
-X-Originating-Email: [zhaojingmin@hotmail.com]
-From: "Jing Min Zhao" <zhaojingmin@hotmail.com>
-To: "Patrick McHardy" <kaber@trash.net>, "Adrian Bunk" <bunk@stusta.de>
-Cc: <netdev@vger.kernel.org>, <zhaojingmin@users.sourceforge.net>,
-       <netfilter-devel@lists.netfilter.org>,
-       "Jing Min Zhao" <zhaojignmin@hotmail.com>,
-       <linux-kernel@vger.kernel.org>
-References: <20060324001307.GO22727@stusta.de> <44235324.3080607@trash.net>
-Subject: Re: Two comments on the H.323 conntrack/NAT helper
-Date: Thu, 23 Mar 2006 21:40:42 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-OriginalArrivalTime: 24 Mar 2006 02:40:51.0117 (UTC) FILETIME=[5D4C55D0:01C64EEC]
+	Thu, 23 Mar 2006 21:45:42 -0500
+Received: from node-4024215a.mdw.onnet.us.uu.net ([64.36.33.90]:61430 "EHLO
+	found.lostlogicx.com") by vger.kernel.org with ESMTP
+	id S964910AbWCXCpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 21:45:41 -0500
+Date: Thu, 23 Mar 2006 20:45:40 -0600
+From: Brandon Low <lostlogic@lostlogicx.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-mm1
+Message-ID: <20060324024540.GM27559@lostlogicx.com>
+References: <20060323014046.2ca1d9df.akpm@osdl.org> <20060324021729.GL27559@lostlogicx.com> <20060323182411.7f80b4a6.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060323182411.7f80b4a6.akpm@osdl.org>
+X-Operating-System: Linux found 2.6.16-rc5-mm3
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 03/23/06 at 18:24:11 -0800, Andrew Morton wrote:
+> Brandon Low <lostlogic@lostlogicx.com> wrote:
+> >
+> > I'm getting a repeatable oops regardless of io scheduler (it looks like
+> > it's in cfq code so I first tried changing schedulers) on USB
+> > disconnect.
+> > 
+> OK, thanks.  There have been some recent changes affecting iosched context
+> lifetime management, which might be causing this.
+> 
+> If you have time, it'd be useful if you could retest with
+> ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.16-git6.gz -
+> that'll tell us whether it's that code or if it's something which is only
+> in -mm.
 
------ Original Message ----- 
-From: "Patrick McHardy" <kaber@trash.net>
-To: "Adrian Bunk" <bunk@stusta.de>
-Cc: <netdev@vger.kernel.org>; <zhaojingmin@users.sourceforge.net>; 
-<netfilter-devel@lists.netfilter.org>; "Jing Min Zhao" 
-<zhaojignmin@hotmail.com>; <linux-kernel@vger.kernel.org>
-Sent: Thursday, March 23, 2006 9:02 PM
-Subject: Re: Two comments on the H.323 conntrack/NAT helper
+Unable to reproduce with identical steps on git6.  Thanks for the
+amazingly quick response!
 
-
-> [The hotmail address of the author doesn't work, CCed sourceforge-address]
->
-> Adrian Bunk wrote:
->> Two comments on the H.323 conntrack/NAT helper:
->> - the function prototypes in ip_nat_helper_h323.c are _ugly_,
->>   please move them to a header file
->
-> Their ugliness is because of the current API, which cleaned up
-> quite a lot of the surrounding code, but requires this ugliness
-> from each helper. I would like to keep them visible as a reminder
-> that a cleaner solution is wanted, but moving them to header
-> files certainly sound like a good idea to eliminate the risk
-> of prototype conflicts. But please do this for all helpers
-> at once.
->
->> - is there a reason for not using EXPORT_SYMBOL_GPL?
->
-> I would prefer that too.
->
->
-
-Sure, I'll do that.
-
-Thanks
-
-Jing Min Zhao 
+Brandon

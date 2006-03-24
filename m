@@ -1,40 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWCXLj1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422695AbWCXLnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbWCXLj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 06:39:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWCXLj0
+	id S1422695AbWCXLnI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 06:43:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422702AbWCXLnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 06:39:26 -0500
-Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:6801 "EHLO
-	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932082AbWCXLj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 06:39:26 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: [2.6.16-mm1 patch] throttling tree patches
-Date: Fri, 24 Mar 2006 22:38:57 +1100
-User-Agent: KMail/1.9.1
-Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Peter Williams <pwil3058@bigpond.net.au>
-References: <1143198208.7741.8.camel@homer> <1143198459.7741.14.camel@homer>
-In-Reply-To: <1143198459.7741.14.camel@homer>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 24 Mar 2006 06:43:07 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:55513 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422714AbWCXLnF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 06:43:05 -0500
+Date: Fri, 24 Mar 2006 03:39:34 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Brandon Low <lostlogic@lostlogicx.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-mm1
+Message-Id: <20060324033934.161302c1.akpm@osdl.org>
+In-Reply-To: <20060324032126.GN27559@lostlogicx.com>
+References: <20060323014046.2ca1d9df.akpm@osdl.org>
+	<20060324021729.GL27559@lostlogicx.com>
+	<20060323182411.7f80b4a6.akpm@osdl.org>
+	<20060324024540.GM27559@lostlogicx.com>
+	<20060323185810.3bf2a4ce.akpm@osdl.org>
+	<20060324032126.GN27559@lostlogicx.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603242238.57830.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 March 2006 22:07, Mike Galbraith wrote:
-> patch 2/6
+Brandon Low <lostlogic@lostlogicx.com> wrote:
 >
-> This patch just fixes a bug waiting for a place to happen.  If anyone
-> ever decides to use TASK_NONINTERACTIVE along with TASK_UNINTERRUPTIBLE,
-> bad things will happen.
+>  I hadn't noticed immediately in the ooops, but it is something to do
+>  with the Hardware Abstraction Layer Daemon from http://freedesktop.org/Software/hal
+>  I can't reproduce it without that daemon loaded either.  I wonder if the
+>  last accessed sysfs file mentioned in the oops (sda/size) is relevent
+>  also.
+> 
+>  My exact steps (with hald loaded) are:
+>  plug in ipod
+>  mount /mnt/ipod
+>  unzip -d /mnt/ipod rockbox.zip
+>  eject /dev/sda
+>  unplug ipod
+>  immediately here, the oops prints.
 
-> Signed-off-by: Mike Galbraith <efault@gmx.de>
+Still no joy, alas.
 
-Acked-by: Con Kolivas <kernel@kolivas.org>
+git-cfq.patch plays with the elevator exit code for all IO schedulers. 
+Would you be able to do
+
+wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.16-mm1/broken-out/git-cfq.patch
+patch -p1 -R < git-cfq.patch
+
+and retest?
+
+Thanks.

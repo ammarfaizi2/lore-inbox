@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422816AbWCXNlO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbWCXNta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422816AbWCXNlO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 08:41:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422810AbWCXNlO
+	id S932325AbWCXNta (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 08:49:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbWCXNta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 08:41:14 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:27342 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1422787AbWCXNlN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 08:41:13 -0500
-Subject: Re: [RFC PATCH 35/35] Add Xen virtual block device driver.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ian Pratt <m+Ian.Pratt@cl.cam.ac.uk>,
-       Anthony Liguori <aliguori@us.ibm.com>,
-       Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
-       Ian Pratt <ian.pratt@xensource.com>, ian.pratt@cl.cam.ac.uk,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <4423F60B.6020805@garzik.org>
-References: <A95E2296287EAD4EB592B5DEEFCE0E9D4B9E8A@liverpoolst.ad.cl.cam.ac.uk>
-	 <4421D943.1090804@garzik.org>
-	 <1143202673.18986.5.camel@localhost.localdomain>
-	 <4423E853.1040707@garzik.org>  <4423F60B.6020805@garzik.org>
-Content-Type: text/plain
-Date: Fri, 24 Mar 2006 14:40:56 +0100
-Message-Id: <1143207657.2882.65.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 24 Mar 2006 08:49:30 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:40080 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932325AbWCXNta (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 08:49:30 -0500
+Date: Fri, 24 Mar 2006 14:49:17 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andi Kleen <ak@suse.de>
+cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] use select for GART_IOMMU to enable AGP
+In-Reply-To: <200603241351.29195.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0603241413590.16802@scrub.home>
+References: <20060323014046.2ca1d9df.akpm@osdl.org> <p73odzw59ct.fsf@verdi.suse.de>
+ <Pine.LNX.4.64.0603241335140.16802@scrub.home> <200603241351.29195.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-24 at 08:37 -0500, Jeff Garzik wrote:
-> Jeff Garzik wrote:
-> > In fact, SCSI should make a few things easier, because the notion of 
-> > host+bus topology is already present, and notion of messaging is already 
-> > present, so you don't have to recreate that in a Xen block device 
-> > infrastructure.
+Hi,
+
+On Fri, 24 Mar 2006, Andi Kleen wrote:
+
+> > I don't see how this is/was possible, if GART_IOMMU was enabled so was AGP 
+> > (and AGP_AMD64). That hasn't changed with the patch.
 > 
-> Another benefit of SCSI:  when an IBM hypervisor in the Linux kernel 
-> switched to SCSI, that allowed them to replace several drivers (virt 
-> disk, virt cdrom, virt floppy?) with a single virt-SCSI driver.
+> That was/is a bug that was originally introduced in the 2.4->2.6 Kconfig conversion.
+> The code was designed to handle it and did in 2.4.
 
-but there's a generic one for that: iSCSI
-so in theory you only need to provide a network driver then ;)
+It's debatable whether it's really a bug in the conversion.
 
+2.4 does this:
 
+if [ "$CONFIG_GART_IOMMU" = "y" ]; then
+   bool '/dev/agpgart (AGP Support)' CONFIG_AGP
+else
+   tristate '/dev/agpgart (AGP Support)' CONFIG_AGP
+fi
 
+Dynamically changing the symbol type isn't supported anymore and it works 
+in 2.4 only by accident (e.g. it breaks the old xconfig).
+
+If we really want to do something like this we had to introduce two 
+different symbols. Something like:
+
+config GART_IOMMU
+	....
+
+config AGP_BOOL
+	bool "builtin AGP support"
+	depends on GART_IOMMU
+	select AGP
+	select AGP_AMD64
+	help
+	  Our IOMMU code sucks. :-)
+
+We could also just remove the select/default and add a comment after 
+AGP_AMD64 depending on "AGP && GART_IOMMU && AGP_AMD64=m" saying that this 
+configuration disables IOMMU support for it and be done with it.
+Another alternative is to fix the code to reinitialize the iommu stuff 
+when agp module is loaded.
+
+bye, Roman

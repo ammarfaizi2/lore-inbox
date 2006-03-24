@@ -1,56 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422658AbWCXIPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWCXIQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422658AbWCXIPI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 03:15:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422801AbWCXIPH
+	id S932375AbWCXIQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 03:16:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWCXIQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 03:15:07 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:55177 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1422658AbWCXIPG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 03:15:06 -0500
-Subject: Re: [2.6.16 PATCH] Connector: Filesystem Events Connector v3
-From: Arjan van de Ven <arjan@infradead.org>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
-       yang.y.yi@gmail.com, linux-kernel@vger.kernel.org, matthltc@us.ibm.com
-In-Reply-To: <20060324080839.GB5426@2ka.mipt.ru>
-References: <4423673C.7000008@gmail.com>
-	 <1143183541.2882.7.camel@laptopd505.fenrus.org>
-	 <20060323.230649.11516073.davem@davemloft.net>
-	 <20060323232345.1ca16f3f.akpm@osdl.org> <20060324080839.GB5426@2ka.mipt.ru>
-Content-Type: text/plain
-Date: Fri, 24 Mar 2006 09:14:53 +0100
-Message-Id: <1143188094.2882.22.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 24 Mar 2006 03:16:26 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:59284 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932375AbWCXIQZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 03:16:25 -0500
+Message-ID: <4423AAC7.2050007@aitel.hist.no>
+Date: Fri, 24 Mar 2006 09:16:07 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Hemmann, Volker Armin" <volker.armin.hemmann@tu-clausthal.de>
+CC: Jan Knutar <jk-lkml@sci.fi>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: swap prefetching merge plans
+References: <200603230856.24091.volker.armin.hemmann@tu-clausthal.de> <44225BBF.2040604@yahoo.com.au> <200603231347.51219.jk-lkml@sci.fi> <200603231450.02479.volker.armin.hemmann@tu-clausthal.de>
+In-Reply-To: <200603231450.02479.volker.armin.hemmann@tu-clausthal.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-24 at 11:08 +0300, Evgeniy Polyakov wrote:
-> On Thu, Mar 23, 2006 at 11:23:45PM -0800, Andrew Morton (akpm@osdl.org) wrote:
-> > "David S. Miller" <davem@davemloft.net> wrote:
-> > >
-> > > From: Arjan van de Ven <arjan@infradead.org>
-> > >  Date: Fri, 24 Mar 2006 07:59:01 +0100
-> > > 
-> > >  > then make the syslog part optional.. if it's not already!
-> > > 
-> > >  Regardless I still think the filesystem events connector is a useful
-> > >  facility.
-> > 
-> > Why's that?
-> > 
-> > (I'd viewed it as a fun thing, but I haven't really seen much pull for it,
-> > and the scalability issues in there aren't trivial).
-> 
-> This module uses ratelimiting of event generation, so it will not hurt
-> performance, but probably this should be somehow tuned from userspace.
+Hemmann, Volker Armin wrote:
 
+>On Thursday 23 March 2006 12:47, you wrote:
+>  
+>
+>>On Thursday 23 March 2006 10:26, Nick Piggin wrote:
+>>    
+>>
+>>>Hemmann, Volker Armin wrote:
+>>>      
+>>>
+>>>>Hi,
+>>>>
+>>>>I am just a user, but I would love to see this feature.
+>>>>
+>>>>After compiling stuff, I have usually some kb in swap (300kb, 360 kb),
+>>>>and lots of free ram. But even this few kb make my KDE desktop extremly
+>>>>sluggish. It feels, like every byte is fetched individually and always
+>>>>the wrong stuff ends in swap.
+>>>>        
+>>>>
+>>>I'm almost positive this wouldn't be the cause of your problems (even a
+>>>slow disk could read all these blocks in, randomly, in under 2 seconds,
+>>>assuming they're spread from one end of the platters to the other).
+>>>      
+>>>
+>>Maybe he meant 300 megabytes.
+>>    
+>>
+>
+>no, I meant kilobytes.
+>
+>And swapoff really helps.
+>
+>Some moments of disk activity, and bang, computer is as fast as always again.
+>
+>But having stuff in swap? konqueror is slow, kmail is slow, opening a konsole 
+>session, slow. Everything crawls with lots of disk access. 
+>
+>next time the computer is slow, I could gather some data - if you tell me, 
+>what is interessting for you, I'll save it.
+>  
+>
+Strange indeed.  300k in swap is nothing - I often enough
+have 50M in swap without a slowdown - but then, I don't
+run kde. 
 
-.. so it has become unreliable for any kind of real use that depends on
-getting complete events. Such as virus scanning or updatedb etc 
+Be aware that the 300k in swap doesn't account for all that
+is removed from memory.  Linux don't put executable code
+in swap - such stuff is simply dropped because it can
+be reloaded from the executable files anytime.
+I don't think swapoff+swapon helps with that though.
+
+Helge Hafting
 

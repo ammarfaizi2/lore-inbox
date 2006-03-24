@@ -1,38 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbWCXQeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWCXQ4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932459AbWCXQeW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 11:34:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbWCXQeW
+	id S1751140AbWCXQ4b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 11:56:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbWCXQ4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 11:34:22 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:41346 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932459AbWCXQeV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 11:34:21 -0500
-Date: Fri, 24 Mar 2006 11:34:11 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Stone Wang <pwstone@gmail.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH][5/8] proc: export mlocked pages info through "/proc/meminfo:
- Wired"
-In-Reply-To: <442098B6.5000607@yahoo.com.au>
-Message-ID: <Pine.LNX.4.63.0603241133550.30426@cuia.boston.redhat.com>
-References: <bc56f2f0603200537i7b2492a6p@mail.gmail.com>  <441FEFC7.5030109@yahoo.com.au>
- <bc56f2f0603210733vc3ce132p@mail.gmail.com> <442098B6.5000607@yahoo.com.au>
+	Fri, 24 Mar 2006 11:56:30 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:44807 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751142AbWCXQ4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 11:56:21 -0500
+Date: Fri, 24 Mar 2006 17:56:19 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>, linville@tuxdriver.com
+Cc: LKML <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+Subject: [2.6 patch] PCMCIA_SPECTRUM must select FW_LOADER
+Message-ID: <20060324165619.GG22727@stusta.de>
+References: <44241FF9.9070904@ums.usu.ru>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44241FF9.9070904@ums.usu.ru>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Mar 2006, Nick Piggin wrote:
+On Fri, Mar 24, 2006 at 09:36:09PM +0500, Alexander E. Patrakov wrote:
+> In linux-2.6.16, it is possible to compile spectrum_cs.ko without enabling 
+> firmware loader. Result:
+> 
+> WARNING: /lib/modules/2.6.16/kernel/drivers/net/wireless/spectrum_cs.ko 
+> needs unknown symbol request_firmware
 
-> Why would you want to ever do something like that though? I don't think 
-> you should use this name "just in case", unless you have some really 
-> good potential usage in mind.
+Thanks for your report, a fix is below.
 
-ramfs
+> Alexander E. Patrakov
 
--- 
-All Rights Reversed
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+PCMCIA_SPECTRUM must select FW_LOADER.
+
+Reported by "Alexander E. Patrakov" <patrakov@ums.usu.ru>.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.16-mm1-full/drivers/net/wireless/Kconfig.old	2006-03-24 17:45:05.000000000 +0100
++++ linux-2.6.16-mm1-full/drivers/net/wireless/Kconfig	2006-03-24 17:45:38.000000000 +0100
+@@ -397,6 +397,7 @@
+ config PCMCIA_SPECTRUM
+ 	tristate "Symbol Spectrum24 Trilogy PCMCIA card support"
+ 	depends on NET_RADIO && PCMCIA && HERMES
++	select FW_LOADER
+ 	---help---
+ 
+ 	  This is a driver for 802.11b cards using RAM-loadable Symbol
+

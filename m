@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423133AbWCXFDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWCXFEc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423133AbWCXFDG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 00:03:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423134AbWCXFDF
+	id S932096AbWCXFEc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 00:04:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWCXFEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 00:03:05 -0500
-Received: from ishtar.tlinx.org ([64.81.245.74]:26758 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S1423133AbWCXFDE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 00:03:04 -0500
-Message-ID: <44237D87.70300@tlinx.org>
-Date: Thu, 23 Mar 2006 21:03:03 -0800
-From: Linda Walsh <lkml@tlinx.org>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Fri, 24 Mar 2006 00:04:31 -0500
+Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:45792 "EHLO
+	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932096AbWCXFEb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 00:04:31 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: [interbench numbers] Re: interactive task starvation
+Date: Fri, 24 Mar 2006 16:04:06 +1100
+User-Agent: KMail/1.9.1
+Cc: lkml <linux-kernel@vger.kernel.org>, Willy Tarreau <willy@w.ods.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       bugsplatter@gmail.com, Peter Williams <pwil3058@bigpond.net.au>
+References: <1142592375.7895.43.camel@homer> <200603241121.02868.kernel@kolivas.org> <1143176550.7713.23.camel@homer>
+In-Reply-To: <1143176550.7713.23.camel@homer>
 MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Security downgrade? CONFIG_HOTPLUG required in 2.6.16? 
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603241604.07321.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had this config'ed out in 2.6.15 for machine that didn't have
-any hotpluggable devices.  It is also configured with all the
-modules it needs and has kernel-module loading disabled.
+On Friday 24 March 2006 16:02, Mike Galbraith wrote:
+> I've separated the buglet fix parts from the rest, so there are four
+> patches instead of two.  I've also hidden the knobs, though for the
+> testing phase at least, I personally think it would be better to leave
+> the knobs there for people to twiddle.  Something Willy said indicated
+> to me that 'credit' would be more palatable than 'grace', so I've
+> renamed and updated comments to match.  I think it might look better,
+> but can't know since 'grace' was perfectly fine for my taste buds ;-)
+>
+> I'll post as soon as I do some more cleanup pondering and verification.
 
-What has changed in 2.6.16 that my "static" machine now
-needs hotplugging?  As I understand it, hotplugging requires 
-application-level support code (in /etc/) and a special
-application level "demon" to run in order to support these
-requests.
+Great. I suggest making the base patch have the values hard coded as #defines 
+and then have a patch on top that turns those into userspace tunables we can 
+hand tune while in -mm which can then be dropped if/when merged upstream.
 
-I'd prefer my kernel not to be dependent on a run-time demon
-to load "arbitrary" (user defined) segments of code that could
-come from any source -- usually outside the vanilla kernel tree.
-
-If I don't want a specific kernel or machine to be dynamically
-reconfigurable after boot, why do I need to build in a mechanism for
-runtime loading of modules?
-
-Linda
-
+Cheers,
+Con

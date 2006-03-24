@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422808AbWCXJjF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbWCXJj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422808AbWCXJjF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 04:39:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422807AbWCXJjF
+	id S965025AbWCXJj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 04:39:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965030AbWCXJj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 04:39:05 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:54963 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S1422804AbWCXJjE (ORCPT
+	Fri, 24 Mar 2006 04:39:59 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:20151 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965025AbWCXJj6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 04:39:04 -0500
-Date: Fri, 24 Mar 2006 01:34:27 -0800
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: linux-ia64@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, nigel.croxon@hp.com
-Subject: gnu-efi-3.0c is available
-Message-ID: <20060324093427.GC28939@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
+	Fri, 24 Mar 2006 04:39:58 -0500
+Date: Fri, 24 Mar 2006 01:36:26 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Cc: greg@kroah.com, kaneshige.kenji@jp.fujitsu.com,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 2.6.16-mm1 1/4] PCI legacy I/O port free driver (take 6)
+ - Changes to generic PCI code
+Message-Id: <20060324013626.4e15082d.akpm@osdl.org>
+In-Reply-To: <44238424.3080500@jp.fujitsu.com>
+References: <442382F1.2050300@jp.fujitsu.com>
+	<44238424.3080500@jp.fujitsu.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com> wrote:
+>
+> +/*
+>  + * This helper routine makes bar mask from the type of resource.
+>  + */
+>  +static inline int pci_select_bars(struct pci_dev *dev, unsigned long flags)
+>  +{
+>  +	int i, bars = 0;
+>  +	for (i = 0; i < PCI_NUM_RESOURCES; i++)
+>  +		if (pci_resource_flags(dev, i) & flags)
+>  +			bars |= (1 << i);
+>  +	return bars;
+>  +}
 
-I have released a new version of the GNU-EFI package.
-This package is used to build EFI applications on Linux
-for both IA-32 and IA-64 architectures.
-
-This is a maintenance release with no new features just
-updates to support the latest GNU compilers:
-
-	- updated linker scripts to support latest gcc sections.
-	  Provided by H.J. Lu from Intel. Special thanks to Jim Wilson
-	  for his help.
-
-	- updated library to compile cleanly with gcc4.1.
-	  Provided by Raymund Will from SuSE
-
-I have tested the package on Linux/ia64 with Debian gcc-4.0.3
-and binutils 2.16.91. With this, you can build a working elilo3.6.
-
-It compiles on Debian/i386 with gcc 4.0.3 and binutils 2.6.91.
-I dot have the setup to test i386 efi
-binaries.
-
-You can grab the package at:
-	ftp://ftp.hpl.hp.com/pub/linux-ia64/gnu-efi-3.0c.tar.gz
-	MD5SUM: 823e5f04d1c0a7b88831f91fbf12d470
-
-This is the last gnu-efi release that I manage. I am handing over
-the maintenance of the package to Nigel Croxon from HP. Please forward
-any new questions to him from now on. He is copied on this announcement.
-
-Thanks.
-
--- 
--Stephane
+Can we please uninline this?

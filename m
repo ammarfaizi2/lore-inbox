@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWCXTb3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbWCXTba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964787AbWCXTb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 14:31:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWCXTb3
+	id S964802AbWCXTba (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 14:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWCXTba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 24 Mar 2006 14:31:30 -0500
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:44891 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964802AbWCXTb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 24 Mar 2006 14:31:29 -0500
-Received: from mail.clusterfs.com ([206.168.112.78]:59832 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S964801AbWCXTb1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 14:31:27 -0500
-Date: Fri, 24 Mar 2006 12:31:25 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Valerie Henson <val_henson@linux.intel.com>,
-       pbadari@gmail.com, linux-kernel@vger.kernel.org,
-       Ext2-devel@lists.sourceforge.net, arjan@linux.intel.com, tytso@mit.edu,
-       zach.brown@oracle.com
-Subject: Re: [Ext2-devel] [RFC] [PATCH] Reducing average ext2 fsck time through fs-wide dirty bit]
-Message-ID: <20060324193125.GL14852@schatzie.adilger.int>
-Mail-Followup-To: Mingming Cao <cmm@us.ibm.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Valerie Henson <val_henson@linux.intel.com>, pbadari@gmail.com,
-	linux-kernel@vger.kernel.org, Ext2-devel@lists.sourceforge.net,
-	arjan@linux.intel.com, tytso@mit.edu, zach.brown@oracle.com
-References: <20060322011034.GP12571@goober> <1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com> <20060322224844.GU12571@goober> <20060322175503.3b678ab5.akpm@osdl.org> <20060324143239.GB14508@goober> <20060324104818.0016c2f2.akpm@osdl.org> <1143227599.4561.139.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1143227599.4561.139.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=OCW1VKxB/vld3ZJvWJ8DYtwtwY/gKBO507K9vhRv4bxvHi0JZ6B9vruE96ttoKv+vFw0OB0xCiLq4hatzhCHSsGOTLnchOCoaKDf2+NoNznhUsn/3LIryC5PLs/2NJpPL/c8EdcM57uHdSK2Ev9ecQtT5oCtI0wBCfEO+3B+cnM=  ;
+Message-ID: <4424398F.2040300@yahoo.com.au>
+Date: Sat, 25 Mar 2006 05:25:19 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@redhat.com>
+CC: Stone Wang <pwstone@gmail.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH][5/8] proc: export mlocked pages info through "/proc/meminfo:
+ Wired"
+References: <bc56f2f0603200537i7b2492a6p@mail.gmail.com>  <441FEFC7.5030109@yahoo.com.au> <bc56f2f0603210733vc3ce132p@mail.gmail.com> <442098B6.5000607@yahoo.com.au> <Pine.LNX.4.63.0603241133550.30426@cuia.boston.redhat.com> <442420A2.80807@yahoo.com.au> <Pine.LNX.4.63.0603241319130.30426@cuia.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.63.0603241319130.30426@cuia.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 24, 2006  11:13 -0800, Mingming Cao wrote:
-> There are reasons for zeroing indirect blocks on truncate: 
+Rik van Riel wrote:
+> On Sat, 25 Mar 2006, Nick Piggin wrote:
 > 
->       * There are limits to the size of a single journal transaction
->         (1/4 of the journal size). When truncating a large fragmented
->         file, it may require modifying so many block bitmaps and group
->         descriptors that it forces a journal transaction to close out,
->         stalling the unlink operation.
->       * Because of this per-transaction limit, truncate needs to zero
->         the [dt]indirect blocks starting from the end of the file, in
->         case it needs to start a new transaction in the middle of the
->         truncate (ext3 guarantees that a partially-completed truncate
->         will be consistent/completed after a crash).
->       * The read/write of the file's [dt]indirect blocks from the end of
->         the file to the beginning can take a lot of time, as it does
->         this in single-block chunks and the blocks are not contiguous.
+>>Rik van Riel wrote:
+>>
+>>>On Wed, 22 Mar 2006, Nick Piggin wrote:
+>>>
+>>>
+>>>>Why would you want to ever do something like that though? I don't think
+>>>>you should use this name "just in case", unless you have some really good
+>>>>potential usage in mind.
+>>>
+>>>ramfs
+>>
+>>Why would ramfs want its pages in this wired list? (I'm not so
+>>familiar with it but I can't think of a reason).
+> 
+> 
+> Because ramfs pages cannot be paged out, which makes them locked
+> into memory the same way mlocked pages are.
+> 
 
-See my recent post on how this performance problem could be fixed.
+I don't understand why they need to be on any list though,
+that isn't an internal ramfs specific structure (ie. not
+the just-in-case wired list).
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

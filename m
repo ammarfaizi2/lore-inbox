@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422920AbWCXANK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422733AbWCXARl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422920AbWCXANK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 19:13:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422924AbWCXANK
+	id S1422733AbWCXARl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 19:17:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422926AbWCXARk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 19:13:10 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2065 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1422908AbWCXANI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 19:13:08 -0500
-Date: Fri, 24 Mar 2006 01:13:07 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jing Min Zhao <zhaojignmin@hotmail.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org
-Subject: Two comments on the H.323 conntrack/NAT helper
-Message-ID: <20060324001307.GO22727@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 23 Mar 2006 19:17:40 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:12944
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1422923AbWCXARj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 19:17:39 -0500
+Date: Thu, 23 Mar 2006 16:13:14 -0800 (PST)
+Message-Id: <20060323.161314.59991770.davem@davemloft.net>
+To: bunk@stusta.de
+Cc: zhaojignmin@hotmail.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, netfilter-devel@lists.netfilter.org
+Subject: Re: [2.6 patch] ip_conntrack_helper_h323.c: EXPORT_SYMBOL'ed
+ functions shouldn't be static
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060324000801.GM22727@stusta.de>
+References: <20060324000801.GM22727@stusta.de>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Two comments on the H.323 conntrack/NAT helper:
-- the function prototypes in ip_nat_helper_h323.c are _ugly_,
-  please move them to a header file
-- is there a reason for not using EXPORT_SYMBOL_GPL?
+From: Adrian Bunk <bunk@stusta.de>
+Date: Fri, 24 Mar 2006 01:08:01 +0100
 
-cu
-Adrian
+> EXPORT_SYMBOL'ed functions shouldn't be static.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
+Fixed in Linus's tree as of yesterday.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+I actually have a patch from Patrick McHardy that will make
+this kind of error a build time failure instead of silently
+working in the modular case.  I just need to test it out
+a bit before pushing.
 

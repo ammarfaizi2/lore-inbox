@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932611AbWCXMvf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbWCXM6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932611AbWCXMvf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 07:51:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbWCXMve
+	id S1751176AbWCXM6T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 07:58:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWCXM6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 07:51:34 -0500
-Received: from mx1.suse.de ([195.135.220.2]:19626 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932611AbWCXMve (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 07:51:34 -0500
-From: Andi Kleen <ak@suse.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [PATCH] use select for GART_IOMMU to enable AGP
-Date: Fri, 24 Mar 2006 13:51:28 +0100
-User-Agent: KMail/1.9.1
-Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <20060323014046.2ca1d9df.akpm@osdl.org> <p73odzw59ct.fsf@verdi.suse.de> <Pine.LNX.4.64.0603241335140.16802@scrub.home>
-In-Reply-To: <Pine.LNX.4.64.0603241335140.16802@scrub.home>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Mar 2006 07:58:19 -0500
+Received: from node-4024215a.mdw.onnet.us.uu.net ([64.36.33.90]:27384 "EHLO
+	found.lostlogicx.com") by vger.kernel.org with ESMTP
+	id S1751176AbWCXM6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 07:58:19 -0500
+Date: Fri, 24 Mar 2006 06:58:17 -0600
+From: Brandon Low <lostlogic@lostlogicx.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-mm1
+Message-ID: <20060324125817.GB3381@lostlogicx.com>
+References: <20060323014046.2ca1d9df.akpm@osdl.org> <20060324021729.GL27559@lostlogicx.com> <20060323182411.7f80b4a6.akpm@osdl.org> <20060324024540.GM27559@lostlogicx.com> <20060323185810.3bf2a4ce.akpm@osdl.org> <20060324032126.GN27559@lostlogicx.com> <20060324033934.161302c1.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603241351.29195.ak@suse.de>
+In-Reply-To: <20060324033934.161302c1.akpm@osdl.org>
+X-Operating-System: Linux found 2.6.16-rc5-mm3
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 March 2006 13:45, Roman Zippel wrote:
-> Hi,
-> 
-> On Fri, 24 Mar 2006, Andi Kleen wrote:
-> 
-> > > The easiest solution is to simply remove the default and let GART_IOMMU 
-> > > select AGP too.
+On Fri, 03/24/06 at 03:39:34 -0800, Andrew Morton wrote:
+> Brandon Low <lostlogic@lostlogicx.com> wrote:
+> >
+> >  I hadn't noticed immediately in the ooops, but it is something to do
+> >  with the Hardware Abstraction Layer Daemon from http://freedesktop.org/Software/hal
+> >  I can't reproduce it without that daemon loaded either.  I wonder if the
+> >  last accessed sysfs file mentioned in the oops (sda/size) is relevent
+> >  also.
 > > 
-> > GART_IOMMU works without AGP driver too. It just has the requirement
-> > that the AMD64 AGP driver is either builtin or not enabled at all.
+> >  My exact steps (with hald loaded) are:
+> >  plug in ipod
+> >  mount /mnt/ipod
+> >  unzip -d /mnt/ipod rockbox.zip
+> >  eject /dev/sda
+> >  unplug ipod
+> >  immediately here, the oops prints.
 > 
-> I don't see how this is/was possible, if GART_IOMMU was enabled so was AGP 
-> (and AGP_AMD64). That hasn't changed with the patch.
+> Still no joy, alas.
+> 
+> git-cfq.patch plays with the elevator exit code for all IO schedulers. 
+> Would you be able to do
+> 
+> wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.16-mm1/broken-out/git-cfq.patch
+> patch -p1 -R < git-cfq.patch
+> 
+> and retest?
+> 
+> Thanks.
 
-That was/is a bug that was originally introduced in the 2.4->2.6 Kconfig conversion.
-The code was designed to handle it and did in 2.4.
+It is definitely this patch.  Identical steps (also used an untainted
+kernel for both tests) on -mm1 with and without that patch, and when the
+patch is reversed, I cannot cause the oops.  I booted into single user
+mode (to dodge tainting and any other weirdness), started the dbus
+system message daemon and hald (which depends on dbus), then performed
+the steps mentioned above.
 
--Andi
+Thanks!

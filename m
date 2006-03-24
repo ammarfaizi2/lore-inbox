@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423208AbWCXG7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751552AbWCXHH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423208AbWCXG7I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 01:59:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423206AbWCXG7I
+	id S1751552AbWCXHH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 02:07:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751551AbWCXHH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 01:59:08 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:13228 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1423205AbWCXG7G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 01:59:06 -0500
+	Fri, 24 Mar 2006 02:07:56 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:64437
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751350AbWCXHH4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 02:07:56 -0500
+Date: Thu, 23 Mar 2006 23:06:49 -0800 (PST)
+Message-Id: <20060323.230649.11516073.davem@davemloft.net>
+To: arjan@infradead.org
+Cc: yang.y.yi@gmail.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       johnpol@2ka.mipt.ru, matthltc@us.ibm.com
 Subject: Re: [2.6.16 PATCH] Connector: Filesystem Events Connector v3
-From: Arjan van de Ven <arjan@infradead.org>
-To: Yi Yang <yang.y.yi@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Matt Helsley <matthltc@us.ibm.com>
-In-Reply-To: <4423673C.7000008@gmail.com>
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <1143183541.2882.7.camel@laptopd505.fenrus.org>
 References: <4423673C.7000008@gmail.com>
-Content-Type: text/plain
-Date: Fri, 24 Mar 2006 07:59:01 +0100
-Message-Id: <1143183541.2882.7.camel@laptopd505.fenrus.org>
+	<1143183541.2882.7.camel@laptopd505.fenrus.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Arjan van de Ven <arjan@infradead.org>
+Date: Fri, 24 Mar 2006 07:59:01 +0100
 
-> It is also never redundant functionality of audit subsystem, if enable 
-> audit option, audit subsystem will audit all the syscalls, so it adds 
-> big overhead for the whole system, 
+> then make the syslog part optional.. if it's not already!
 
-this is not true
+Regardless I still think the filesystem events connector is a useful
+facility.
 
-> but Filesystem Event Connector just
->  concerns those operations related to the filesystem, so it has little
->  overhead, moreover, audit subsystem is a complicated function block, 
-> it not only sends audit results to netlink interface, but also send 
-> them to klog or syslog, so it will add big overhead. you can look File
->  Event Connector as subset of audit subsystem, but File Event Connector
->  is a very very lightweight subsystem.
-
-then make the syslog part optional.. if it's not already!
-
-
+Audit just has way too much crap in it, and it's so much nicer to have
+tiny modules that are optimized for specific areas of activity over
+something like audit that tries to do everything.

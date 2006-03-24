@@ -1,56 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423174AbWCXGMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423173AbWCXGNE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423174AbWCXGMS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 01:12:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423173AbWCXGMO
+	id S1423173AbWCXGNE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 01:13:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423179AbWCXGMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 01:12:14 -0500
-Received: from mail.kroah.org ([69.55.234.183]:37594 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161012AbWCXGLp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 01:11:45 -0500
-Cc: "Ed L. Cashin" <ecashin@coraid.com>, "Ed L. Cashin" <ecashin@coraid.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 04/12] aoe [4/8]: use less confusing driver name
-In-Reply-To: <11431806532147-git-send-email-gregkh@suse.de>
-X-Mailer: git-send-email
-Date: Thu, 23 Mar 2006 22:10:53 -0800
-Message-Id: <11431806533029-git-send-email-gregkh@suse.de>
+	Fri, 24 Mar 2006 01:12:47 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:45011
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1423173AbWCXGMT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 01:12:19 -0500
+Date: Thu, 23 Mar 2006 22:08:57 -0800 (PST)
+Message-Id: <20060323.220857.24982378.davem@davemloft.net>
+To: kaber@trash.net
+Cc: bunk@stusta.de, zhaojignmin@hotmail.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, netfilter-devel@lists.netfilter.org
+Subject: Re: [2.6 patch] ip_conntrack_helper_h323.c: EXPORT_SYMBOL'ed
+ functions shouldn't be static
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <44234B10.5040802@trash.net>
+References: <20060324000801.GM22727@stusta.de>
+	<20060323.161314.59991770.davem@davemloft.net>
+	<44234B10.5040802@trash.net>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Users were confused by the driver being called "aoe-2.6-$version".
-This form looks less like a Linux kernel version number.
+From: Patrick McHardy <kaber@trash.net>
+Date: Fri, 24 Mar 2006 02:27:44 +0100
 
-Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> I guess I should send it to lkml anyway. It boots fine, I couldn't
+> figure out how to compare checksums, since the time of compilation
+> and a couple other dynamically generated strings end up in the binary.
 
----
-
- drivers/block/aoe/aoemain.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-c42b24cae5c9fe1ae1f9bb9dea020e1a788fab4d
-diff --git a/drivers/block/aoe/aoemain.c b/drivers/block/aoe/aoemain.c
-index 387588a..f39d5ba 100644
---- a/drivers/block/aoe/aoemain.c
-+++ b/drivers/block/aoe/aoemain.c
-@@ -89,7 +89,7 @@ aoe_init(void)
- 	}
- 
- 	printk(KERN_INFO
--	       "aoe: aoe_init: AoE v2.6-%s initialised.\n",
-+	       "aoe: aoe_init: AoE v%s initialised.\n",
- 	       VERSION);
- 	discover_timer(TINIT);
- 	return 0;
--- 
-1.2.4
-
-
+This looks fine, I'll push it in during my next round of networking
+updates.

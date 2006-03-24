@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWCXPIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWCXPRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbWCXPIi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 10:08:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWCXPIi
+	id S1750736AbWCXPRY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 10:17:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWCXPRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 10:08:38 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:54534 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750901AbWCXPIh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 10:08:37 -0500
-Date: Fri, 24 Mar 2006 16:08:35 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Tilman Schmidt <tilman@imap.cc>
-Cc: "Antonino A. Daplas" <adaplas@pol.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: i810 framebuffer - BUG: sleeping function called from invalid context
-Message-ID: <20060324150835.GD22727@stusta.de>
-References: <44186D30.4040603@imap.cc> <20060317031410.2479d8e1.akpm@osdl.org> <441ACCD5.6070404@pol.net> <441BEF7D.4000605@imap.cc>
+	Fri, 24 Mar 2006 10:17:23 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:2720 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750736AbWCXPRX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 10:17:23 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH] mm: swsusp shrink_all_memory tweaks
+Date: Fri, 24 Mar 2006 16:16:05 +0100
+User-Agent: KMail/1.9.1
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>,
+       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       linux-mm@kvack.org
+References: <200603200231.50666.kernel@kolivas.org> <200603201946.32681.rjw@sisk.pl> <200603241807.41175.kernel@kolivas.org>
+In-Reply-To: <200603241807.41175.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <441BEF7D.4000605@imap.cc>
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200603241616.06687.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 18, 2006 at 12:31:09PM +0100, Tilman Schmidt wrote:
-> On 17.03.2006 15:51, Antonino A. Daplas wrote:
-> > The console cursor can be called in atomic context.  Change memory
-> > allocation to use the GFP_ATOMIC flag in i810fb_cursor().
+On Friday 24 March 2006 08:07, Con Kolivas wrote:
+> On Tuesday 21 March 2006 05:46, Rafael J. Wysocki wrote:
+> > swsusp_shrink_memory() is still wrong, because it will always fail for
+> > image_size = 0.  My bad, sorry.
+> >
+> > The appended patch (on top of yours) should fix that (hope I did it right
+> > this time).
 > 
-> Thanks, that fixed it.
+> Well I discovered that if all the necessary memory is freed in one call to
+>  shrink_all_memory we don't get the nice updating printout from
+>  swsusp_shrink_memory telling us we're making progress. So instead of
+>  modifying the function to call shrink_all_memory with the full amount (and
+>  since we've botched swsusp_shrink_memory a few times between us), we should
+>  limit it to a max of SHRINK_BITEs instead.
+> 
+>  This patch is fine standalone.
+> 
+>  Rafael, Pavel what do you think of this one? 
 
-Tony, this seems to be 2.6.16.1 material?
-If yes, can you submit it for -stable?
+In principle it looks good to me, but when I tested the previous one I noticed
+shrink_all_memory() tended to return 0 prematurely (ie. when it was possible
+to free some more pages).  It only happened if more than 50% of memory was
+occupied by application data.
 
-TIA
-Adrian
+Unfortunately I couldn't find the reason.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Greetings,
+Rafael

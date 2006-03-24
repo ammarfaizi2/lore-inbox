@@ -1,109 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbWCXWRS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751475AbWCXWQ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751492AbWCXWRS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 17:17:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbWCXWRR
+	id S1751475AbWCXWQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 17:16:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbWCXWQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 17:17:17 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:60855 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751480AbWCXWRQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 17:17:16 -0500
-Date: Fri, 24 Mar 2006 14:19:29 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] synclink_gt add gpio feature
-Message-Id: <20060324141929.1fff0c15.akpm@osdl.org>
-In-Reply-To: <1143216251.8513.3.camel@amdx2.microgate.com>
-References: <1143216251.8513.3.camel@amdx2.microgate.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 24 Mar 2006 17:16:59 -0500
+Received: from mail.clusterfs.com ([206.168.112.78]:53130 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1751475AbWCXWQ6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 17:16:58 -0500
+Date: Fri, 24 Mar 2006 15:16:56 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: "Theodore Ts'o" <tytso@mit.edu>,
+       Valerie Henson <val_henson@linux.intel.com>,
+       Andrew Morton <akpm@osdl.org>, pbadari@gmail.com,
+       linux-kernel@vger.kernel.org, Ext2-devel@lists.sourceforge.net,
+       arjan@linux.intel.com, zach.brown@oracle.com
+Subject: Re: [Ext2-devel] [RFC] [PATCH] Reducing average ext2 fsck time through fs-wide dirty bit]
+Message-ID: <20060324221656.GW14852@schatzie.adilger.int>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Valerie Henson <val_henson@linux.intel.com>,
+	Andrew Morton <akpm@osdl.org>, pbadari@gmail.com,
+	linux-kernel@vger.kernel.org, Ext2-devel@lists.sourceforge.net,
+	arjan@linux.intel.com, zach.brown@oracle.com
+References: <20060322011034.GP12571@goober> <1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com> <20060322224844.GU12571@goober> <20060322175503.3b678ab5.akpm@osdl.org> <20060324143239.GB14508@goober> <20060324192802.GK14852@schatzie.adilger.int> <20060324200131.GE18020@thunk.org> <20060324210033.GQ14852@schatzie.adilger.int> <20060324213905.GG18020@thunk.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060324213905.GG18020@thunk.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Fulghum <paulkf@microgate.com> wrote:
->
-> Add driver support for general purpose I/O feature
-> of the Synclink GT adapters.
+On Mar 24, 2006  16:39 -0500, Theodore Ts'o wrote:
+> On Fri, Mar 24, 2006 at 02:00:33PM -0700, Andreas Dilger wrote:
+> > Are you saying to make a filesystem test harness in userspace, or to
+> > add hooks into the kernel to trigger specific cases in the running
+> > kernel?
 > 
->  
-> ...
->
->  /*
-> + * conditional wait facility
-> + */
-> +struct cond_wait {
-> +	struct cond_wait *next;
-> +	wait_queue_head_t q;
-> +	wait_queue_t wait;
-> +	unsigned int data;
-> +};
-> +static void init_cond_wait(struct cond_wait *w, unsigned int data);
-> +static void add_cond_wait(struct cond_wait **head, struct cond_wait *w);
-> +static void remove_cond_wait(struct cond_wait **head, struct cond_wait *w);
-> +static void flush_cond_wait(struct cond_wait **head);
+> The former: a filesystem test harness in userspace, possibly with some
+> kernel code changes to make it easier to integrate it with the
+> userspace test harness.  It's very similar to what the Netfilter folks
+> did, and it has the advantage that we can do testing much more
+> quickly, especially in cases where we want to simulate crashes at
+> certain specific test points to make sure the journal recovery happens
+> correctly.
 
-Adding new generic-looking infrastructure into a driver is a worry.  Either
-we're missing some facility, or the driver is doing something unnecessary
-or the driver's requirements are unique.
+I seem to recall that the Stanford Metacompilation group (Dawson Engler)
+already wrote such a tool.  Not sure what sort of access there is for the
+tool, whether public funding would grant access to the public, or if they
+are at least willing to make an online interface available (the group has
+spun out into "Coverity", and it seems unlikely it will be completely OSS).
 
-Tell use more about conditional waits?
-
-> ...
-> +static int wait_gpio(struct slgt_info *info, struct gpio_desc __user *user_gpio)
-> +{
-> + 	unsigned long flags;
-> +	int rc = 0;
-> +	struct gpio_desc gpio;
-> +	struct cond_wait wait;
-> +	u32 state;
-> +
-> +	if (!info->gpio_present)
-> +		return -EINVAL;
-> +	if (copy_from_user(&gpio, user_gpio, sizeof(gpio)))
-> +		return -EFAULT;
-> +	DBGINFO(("%s wait_gpio() state=%08x smask=%08x\n",
-> +		 info->device_name, gpio.state, gpio.smask));
-> +	/* ignore output pins identified by set IODR bit */
-> +	if ((gpio.smask &= ~rd_reg32(info, IODR)) == 0)
-> +		return -EINVAL;
-> +	init_cond_wait(&wait, gpio.smask);
-> +
-> +	spin_lock_irqsave(&info->lock, flags);
-> +	/* enable interrupts for watched pins */
-> +	wr_reg32(info, IOER, rd_reg32(info, IOER) | gpio.smask);
-> +	/* get current pin states */
-> +	state = rd_reg32(info, IOVR);
-> +
-> +	if (gpio.smask & ~(state ^ gpio.state)) {
-> +		/* already in target state */
-> +		gpio.state = state;
-> +	} else {
-> +		/* wait for target state */
-> +		add_cond_wait(&info->gpio_wait_q, &wait);
-> +		spin_unlock_irqrestore(&info->lock, flags);
-> +		schedule();
-> +		if (signal_pending(current))
-> +			rc = -ERESTARTSYS;
-> +		else
-> +			gpio.state = wait.data;
-> +		spin_lock_irqsave(&info->lock, flags);
-> +		remove_cond_wait(&info->gpio_wait_q, &wait);
-> +	}
-> +
-> +	/* disable all GPIO interrupts if no waiting processes */
-> +	if (info->gpio_wait_q == NULL)
-> +		wr_reg32(info, IOER, 0);
-
-Should we be dong that write if rc!=0?  I guess so..
-
-> +	spin_unlock_irqrestore(&info->lock,flags);
-> +
-> +	if ((rc == 0) && copy_to_user(user_gpio, &gpio, sizeof(gpio)))
-> +		rc = -EFAULT;
-> +	return rc;
-> +}
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 

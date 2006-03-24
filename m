@@ -1,91 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751510AbWCXWdj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751522AbWCXWnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751510AbWCXWdj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 17:33:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbWCXWdj
+	id S1751522AbWCXWnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 17:43:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751531AbWCXWnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 17:33:39 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:63439 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751510AbWCXWdi (ORCPT
+	Fri, 24 Mar 2006 17:43:25 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:29631 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751522AbWCXWnY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 17:33:38 -0500
-Subject: Re: [openib-general] Re: [PATCH 0 of 18] ipath driver - for
-	inclusion in 2.6.17
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: akpm@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <adaveu3pml7.fsf@cisco.com>
-References: <patchbomb.1143175292@eng-12.pathscale.com>
-	 <ada4q1nr7pu.fsf@cisco.com>
-	 <1143227515.30626.43.camel@serpentine.pathscale.com>
-	 <adaveu3pml7.fsf@cisco.com>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Fri, 24 Mar 2006 14:33:37 -0800
-Message-Id: <1143239617.30626.83.camel@serpentine.pathscale.com>
+	Fri, 24 Mar 2006 17:43:24 -0500
+Date: Fri, 24 Mar 2006 14:45:35 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PATCH 12/16] UML - Memory hotplug
+Message-Id: <20060324144535.37b3daf7.akpm@osdl.org>
+In-Reply-To: <200603241814.k2OIExNn005555@ccure.user-mode-linux.org>
+References: <200603241814.k2OIExNn005555@ccure.user-mode-linux.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-24 at 13:19 -0800, Roland Dreier wrote:
-
-> Having #ifdef CONFIG_NET all over is definitely suboptimal.
-> Unfortunately it looks kind of hard to untangle your skb use from the
-> rest of the driver, so putting a dependency on NET might be the best bet.
-
-I don't think it will be that bad, actually.  I'll see how it works to
-just move skb-based code into a single source file and build it iff
-CONFIG_NET.
-
-> How are you building on powerpc?
-
-I have a hack that lets me compile-test, which I used to make sure I was
-getting sparse annotations and header inclusions into decent shape.
-
-> Anyway building an ia64 cross toolchain is easy with http://kegel.com/crosstool
-
-I'll take a look.
-
-> I would just get rid of your atomic_clear_mask() and atomic_set_mask()
-> calls.  They're bogus because you're not even operating on an
-> atomic_t, and not many architectures implement them.
-
-They're not obviously defined to operate on atomic_t objects, but what
-you say makes sense.  I guess that's a peril of using macros for that
-stuff.
-
->     Bryan> I've been building with C=1 for months.  I'll see if I can
->     Bryan> figure out why you're getting such different results.
+Jeff Dike <jdike@addtoit.com> wrote:
+>
+> This adds hotplug memory support to UML.  The mconsole syntax is
+> 	config mem=[+-]n[KMG]
+> In other words, add or subtract some number of kilobytes, megabytes, or
+> gigabytes.
+>  
+> Unplugged pages are allocated and then madvise(MADV_REMOVE), which is
+> a currently experimental madvise extension.  These pages are tracked so
+> they can be plugged back in later if the admin decides to give them back.
+> The first page to be unplugged is used to keep track of about 4M of other
+> pages.  A list_head is the first thing on this page.  The rest is filled
+> with addresses of other unplugged pages.  This first page is not madvised,
+> obviously.
+> When this page is filled, the next page is used in a similar way and linked
+> onto a list with the first page.  Etc.
+> This whole process reverses when pages are plugged back in.  When a tracking
+> page no longer tracks any unplugged pages, then it is next in line for
+> plugging, which is done by freeing pages back to the kernel.
 > 
-> It's probably because I use CF=-D__CHECK_ENDIAN__ too.
+> This patch also removes checking for /dev/anon on the host, which is obsoleted
+> by MADVISE_REMOVE.
+> 
+> ...
+>
+> +static unsigned long long unplugged_pages_count = 0;
 
-Ah.
+The `= 0;' causes this to consume space in vmlinux's .data.  If we put it
+in bss and let crt0.o take care of zeroing it, we save a little disk space.
 
-> The whole duplicated SMA / ipath_verbs doesn't work without ib_mad loaded.
 
-There is no duplicated SMA code.  There are two routines in ipathfs that
-handle nodeinfo and portinfo structures, but they're for passing them to
-userspace; they don't even really resemble the code in ipath_mad.c.
+> +			page = alloc_page(GFP_ATOMIC);
 
-Regarding "ipath_verbs doesn't work without ib_mad loaded", I don't know
-that there's a problem there any more.  We took out the use of
-ib_register_mad_agent to create an automatic dependency that depmod
-would find, and we're just recommending mangling modprobe.conf instead
-for now.
+That's potentially quite a few atomically-allocated pages.  I guess UML is
+more resistant to oom than normal kernels (?) but it'd be nice to be able to
+run page reclaim here.
 
->  - Andrew raised some questions about the special "pick a device for
->    me" that I'm not sure we satisfied him on.
+> +	char buf[sizeof("18446744073709551615\0")];
 
-That's possible.  Andrew, what's your opinion on that?
+rofl.  We really ought to have a #define for "this architecture's maximum
+length of an asciified int/long/s32/s64".  Generally people do
+guess-and-giggle-plus-20%, or they just get it wrong.
 
-> It looks like ipath_copy.c is completely unused now that you're not
-> including the ipath_ether driver.
+> +#ifndef MADV_REMOVE
+> +#define MADV_REMOVE	0x5		/* remove these pages & resources */
+> +#endif
+> +
+> +int os_drop_memory(void *addr, int length)
+> +{
+> +	int err;
+> +
+> +	err = madvise(addr, length, MADV_REMOVE);
+> +	if(err < 0)
+> +		err = -errno;
+> +	return 0;
+> +}
 
-That's true; sorry about that.  Do you want me to send you a patch that
-drops it and pulls it out of headers and kbuild stuff?
+ * NOTE: Currently, only shmfs/tmpfs is supported for this operation.
+ * Other filesystems return -ENOSYS.
 
-	<b
+Are you expecting that this memory is backed by tmpfs?
 

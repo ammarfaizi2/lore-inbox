@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422719AbWCXGJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423153AbWCXGLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422719AbWCXGJd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 01:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423162AbWCXGJc
+	id S1423153AbWCXGLh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 01:11:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161010AbWCXGLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 01:09:32 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:23688
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1422719AbWCXGJc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 01:09:32 -0500
-Date: Thu, 23 Mar 2006 22:09:05 -0800
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, ecashin@coraid.com
-Subject: [GIT PATCH] AOE patches for 2.6.16
-Message-ID: <20060324060905.GA20310@kroah.com>
+	Fri, 24 Mar 2006 01:11:37 -0500
+Received: from mail.kroah.org ([69.55.234.183]:33498 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161007AbWCXGLh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 01:11:37 -0500
+Cc: "Ed L. Cashin" <ecashin@coraid.com>, "Ed L. Cashin" <ecashin@coraid.com>
+Subject: [PATCH 11/12] aoe [2/3]: don't request ATA device ID on ATA error
+In-Reply-To: <1143180654720-git-send-email-gregkh@suse.de>
+X-Mailer: git-send-email
+Date: Thu, 23 Mar 2006 22:10:54 -0800
+Message-Id: <11431806542227-git-send-email-gregkh@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some ATA over Ethernet patches against your current git tree.
-They all have been in the -mm tree for a few months.
+On an ATA error response, take the device down instead of
+sending another ATA device identify command.
 
-Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/aoe-2.6.git/
-or from:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/aoe-2.6.git/
-if it isn't synced up yet.
+Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
 
-The full patch series will sent to the linux-kernel mailing list, if
-anyone wants to see them.
+---
 
-thanks,
+ drivers/block/aoe/aoecmd.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-greg k-h
+9d41965b783474dba9fcf3eb02e5eb60540e6ff6
+diff --git a/drivers/block/aoe/aoecmd.c b/drivers/block/aoe/aoecmd.c
+index 207aabc..39da28d 100644
+--- a/drivers/block/aoe/aoecmd.c
++++ b/drivers/block/aoe/aoecmd.c
+@@ -517,6 +517,8 @@ aoecmd_ata_rsp(struct sk_buff *skb)
+ 	ahout = (struct aoe_atahdr *) (f->data + sizeof(struct aoe_hdr));
+ 	buf = f->buf;
+ 
++	if (ahout->cmdstat == WIN_IDENTIFY)
++		d->flags &= ~DEVFL_PAUSE;
+ 	if (ahin->cmdstat & 0xa9) {	/* these bits cleared on success */
+ 		printk(KERN_CRIT "aoe: aoecmd_ata_rsp: ata error cmd=%2.2Xh "
+ 			"stat=%2.2Xh from e%ld.%ld\n", 
+@@ -549,7 +551,6 @@ aoecmd_ata_rsp(struct sk_buff *skb)
+ 				return;
+ 			}
+ 			ataid_complete(d, (char *) (ahin+1));
+-			d->flags &= ~DEVFL_PAUSE;
+ 			break;
+ 		default:
+ 			printk(KERN_INFO "aoe: aoecmd_ata_rsp: unrecognized "
+-- 
+1.2.4
 
-
- Documentation/aoe/mkdevs.sh |    2 
- Documentation/aoe/udev.txt  |    1 
- drivers/block/aoe/aoe.h     |   14 +--
- drivers/block/aoe/aoeblk.c  |   22 ++---
- drivers/block/aoe/aoechr.c  |   37 ++++++++
- drivers/block/aoe/aoecmd.c  |  187 +++++++++++++++++++++++++++++---------------
- drivers/block/aoe/aoedev.c  |   69 +++++++++++-----
- drivers/block/aoe/aoemain.c |    4 
- drivers/block/aoe/aoenet.c  |   22 +----
- 9 files changed, 238 insertions(+), 120 deletions(-)
-
----------------
-
-Ed L Cashin:
-      aoe [1/8]: zero packet data after skb allocation
-      aoe [2/8]: support dynamic resizing of AoE devices
-      aoe [3/8]: increase allowed outstanding packets
-      aoe [4/8]: use less confusing driver name
-      aoe [5/8]: allow network interface migration on packet retransmit
-      aoe [6/8]: update device information on last close
-      aoe [7/8]: update driver compatibility string
-      aoe [8/8]: update driver version number
-      aoe: do not stop retransmit timer when device goes down
-      aoe [1/3]: support multiple AoE listeners
-      aoe [2/3]: don't request ATA device ID on ATA error
-      aoe [3/3]: update version to 22
 

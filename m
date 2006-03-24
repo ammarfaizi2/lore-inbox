@@ -1,89 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWCXSOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWCXSOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbWCXSOh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 13:14:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbWCXSOH
+	id S1751364AbWCXSOg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 13:14:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWCXSOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 13:14:07 -0500
-Received: from [198.99.130.12] ([198.99.130.12]:44438 "EHLO
+	Fri, 24 Mar 2006 13:14:10 -0500
+Received: from [198.99.130.12] ([198.99.130.12]:44182 "EHLO
 	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751364AbWCXSNg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751202AbWCXSNg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 24 Mar 2006 13:13:36 -0500
-Message-Id: <200603241814.k2OIEr00005545@ccure.user-mode-linux.org>
+Message-Id: <200603241814.k2OIElnT005535@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
 To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 10/16] UML - OS header cleanups
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Subject: [PATCH 8/16] UML - More carefully test whether we are in a system call
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 24 Mar 2006 13:14:53 -0500
+Date: Fri, 24 Mar 2006 13:14:47 -0500
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This rearranges the OS declarations by moving some declarations into os.h.
+From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+ 
+For security reasons, UML in is_syscall() needs to have access to code
+in vsyscall-page. The current implementation grants this access by
+explicitly allowing access to vsyscall in access_ok_skas(). With this
+change, copy_from_user() may be used to read the code.
+Ptrace access to vsyscall-page for debugging already was implemented
+in get_user_pages() by mainline.
+In i386, copy_from_user can't access vsyscall-page, but returns EFAULT.
+ 
+To make UML behave as i386 does, I changed is_syscall to use
+access_process_vm(current) to read the code from vsyscall-page.
+This doesn't hurt security, but simplifies the code and prepares
+implementation of stub-vmas.
 
+Signed-off-by: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
 Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Index: linux-2.6.16/arch/um/include/os.h
+Index: linux-2.6.15/arch/um/sys-i386/ptrace.c
 ===================================================================
---- linux-2.6.16.orig/arch/um/include/os.h	2006-03-23 17:35:34.000000000 -0500
-+++ linux-2.6.16/arch/um/include/os.h	2006-03-23 17:35:56.000000000 -0500
-@@ -122,6 +122,7 @@ static inline struct openflags of_cloexe
- 	return(flags); 
+--- linux-2.6.15.orig/arch/um/sys-i386/ptrace.c	2005-08-28 19:41:01.000000000 -0400
++++ linux-2.6.15/arch/um/sys-i386/ptrace.c	2006-03-23 12:17:52.000000000 -0500
+@@ -6,6 +6,7 @@
+ #include <linux/config.h>
+ #include <linux/compiler.h>
+ #include "linux/sched.h"
++#include "linux/mm.h"
+ #include "asm/elf.h"
+ #include "asm/ptrace.h"
+ #include "asm/uaccess.h"
+@@ -26,9 +27,17 @@ int is_syscall(unsigned long addr)
+ 
+ 	n = copy_from_user(&instr, (void __user *) addr, sizeof(instr));
+ 	if(n){
+-		printk("is_syscall : failed to read instruction from 0x%lx\n",
+-		       addr);
+-		return(0);
++		/* access_process_vm() grants access to vsyscall and stub,
++		 * while copy_from_user doesn't. Maybe access_process_vm is
++		 * slow, but that doesn't matter, since it will be called only
++		 * in case of singlestepping, if copy_from_user failed.
++		 */
++		n = access_process_vm(current, addr, &instr, sizeof(instr), 0);
++		if(n != sizeof(instr)) {
++			printk("is_syscall : failed to read instruction from "
++			       "0x%lx\n", addr);
++			return(1);
++		}
+ 	}
+ 	/* int 0x80 or sysenter */
+ 	return((instr == 0x80cd) || (instr == 0x340f));
+Index: linux-2.6.15/arch/um/sys-x86_64/ptrace.c
+===================================================================
+--- linux-2.6.15.orig/arch/um/sys-x86_64/ptrace.c	2006-03-23 12:50:15.000000000 -0500
++++ linux-2.6.15/arch/um/sys-x86_64/ptrace.c	2006-03-23 12:50:23.000000000 -0500
+@@ -8,6 +8,7 @@
+ #include <asm/ptrace.h>
+ #include <linux/sched.h>
+ #include <linux/errno.h>
++#include <linux/mm.h>
+ #include <asm/uaccess.h>
+ #include <asm/elf.h>
+ 
+@@ -136,9 +137,28 @@ void arch_switch(void)
+ */
  }
-   
-+/* file.c */
- extern int os_stat_file(const char *file_name, struct uml_stat *buf);
- extern int os_stat_fd(const int fd, struct uml_stat *buf);
- extern int os_access(const char *file, int mode);
-@@ -157,6 +158,15 @@ extern int os_connect_socket(char *name)
- extern int os_file_type(char *file);
- extern int os_file_mode(char *file, struct openflags *mode_out);
- extern int os_lock_file(int fd, int excl);
-+extern void os_flush_stdout(void);
-+extern int os_stat_filesystem(char *path, long *bsize_out,
-+			      long long *blocks_out, long long *bfree_out,
-+			      long long *bavail_out, long long *files_out,
-+			      long long *ffree_out, void *fsid_out,
-+			      int fsid_size, long *namelen_out,
-+			      long *spare_out);
-+extern int os_change_dir(char *dir);
-+extern int os_fchange_dir(int fd);
  
- /* start_up.c */
- extern void os_early_checks(void);
-@@ -316,4 +326,8 @@ extern void write_sigio_workaround(void)
- extern int add_sigio_fd(int fd, int read);
- extern int ignore_sigio_fd(int fd);
- 
-+/* skas/trap */
-+extern void sig_handler_common_skas(int sig, void *sc_ptr);
-+extern void user_signal(int sig, union uml_pt_regs *regs, int pid);
++/* XXX Mostly copied from sys-i386 */
+ int is_syscall(unsigned long addr)
+ {
+-	panic("is_syscall");
++	unsigned short instr;
++	int n;
 +
- #endif
-Index: linux-2.6.16/arch/um/include/skas/mode-skas.h
-===================================================================
---- linux-2.6.16.orig/arch/um/include/skas/mode-skas.h	2006-03-23 17:35:34.000000000 -0500
-+++ linux-2.6.16/arch/um/include/skas/mode-skas.h	2006-03-23 17:35:49.000000000 -0500
-@@ -13,7 +13,6 @@ extern unsigned long exec_fp_regs[];
- extern unsigned long exec_fpx_regs[];
- extern int have_fpx_regs;
++	n = copy_from_user(&instr, (void __user *) addr, sizeof(instr));
++	if(n){
++		/* access_process_vm() grants access to vsyscall and stub,
++		 * while copy_from_user doesn't. Maybe access_process_vm is
++		 * slow, but that doesn't matter, since it will be called only
++		 * in case of singlestepping, if copy_from_user failed.
++		 */
++		n = access_process_vm(current, addr, &instr, sizeof(instr), 0);
++		if(n != sizeof(instr)) {
++			printk("is_syscall : failed to read instruction from "
++			       "0x%lx\n", addr);
++			return(1);
++		}
++	}
++	/* sysenter */
++	return(instr == 0x050f);
+ }
  
--extern void sig_handler_common_skas(int sig, void *sc_ptr);
- extern void kill_off_processes_skas(void);
- 
- #endif
-Index: linux-2.6.16/arch/um/include/skas/skas.h
-===================================================================
---- linux-2.6.16.orig/arch/um/include/skas/skas.h	2006-03-23 17:35:34.000000000 -0500
-+++ linux-2.6.16/arch/um/include/skas/skas.h	2006-03-23 17:35:49.000000000 -0500
-@@ -17,7 +17,6 @@ extern int user_thread(unsigned long sta
- extern void new_thread_proc(void *stack, void (*handler)(int sig));
- extern void new_thread_handler(int sig);
- extern void handle_syscall(union uml_pt_regs *regs);
--extern void user_signal(int sig, union uml_pt_regs *regs, int pid);
- extern int new_mm(unsigned long stack);
- extern void get_skas_faultinfo(int pid, struct faultinfo * fi);
- extern long execute_syscall_skas(void *r);
+ int dump_fpu(struct pt_regs *regs, elf_fpregset_t *fpu )
 

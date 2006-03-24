@@ -1,76 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbWCXVTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbWCXVXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751435AbWCXVTu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 16:19:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWCXVTu
+	id S1751433AbWCXVXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 16:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWCXVXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 16:19:50 -0500
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:58017 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S1751435AbWCXVTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 16:19:49 -0500
-X-IronPort-AV: i="4.03,126,1141632000"; 
-   d="scan'208"; a="1788149178:sNHT2647658980"
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: akpm@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH 0 of 18] ipath driver - for inclusion in 2.6.17
-X-Message-Flag: Warning: May contain useful information
-References: <patchbomb.1143175292@eng-12.pathscale.com>
-	<ada4q1nr7pu.fsf@cisco.com>
-	<1143227515.30626.43.camel@serpentine.pathscale.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Fri, 24 Mar 2006 13:19:32 -0800
-In-Reply-To: <1143227515.30626.43.camel@serpentine.pathscale.com> (Bryan O'Sullivan's message of "Fri, 24 Mar 2006 11:11:55 -0800")
-Message-ID: <adaveu3pml7.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
+	Fri, 24 Mar 2006 16:23:16 -0500
+Received: from mail.clusterfs.com ([206.168.112.78]:48799 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1751433AbWCXVXP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 16:23:15 -0500
+Date: Fri, 24 Mar 2006 14:23:12 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Valerie Henson <val_henson@linux.intel.com>, Andrew Morton <akpm@osdl.org>,
+       pbadari@gmail.com, linux-kernel@vger.kernel.org,
+       Ext2-devel@lists.sourceforge.net, arjan@linux.intel.com, tytso@mit.edu,
+       zach.brown@oracle.com
+Subject: Re: [Ext2-devel] [RFC] [PATCH] Reducing average ext2 fsck time through fs-wide dirty bit]
+Message-ID: <20060324212312.GR14852@schatzie.adilger.int>
+Mail-Followup-To: Matthew Wilcox <matthew@wil.cx>,
+	Valerie Henson <val_henson@linux.intel.com>,
+	Andrew Morton <akpm@osdl.org>, pbadari@gmail.com,
+	linux-kernel@vger.kernel.org, Ext2-devel@lists.sourceforge.net,
+	arjan@linux.intel.com, tytso@mit.edu, zach.brown@oracle.com
+References: <20060322011034.GP12571@goober> <1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com> <20060322224844.GU12571@goober> <20060322175503.3b678ab5.akpm@osdl.org> <20060324143239.GB14508@goober> <20060324192802.GK14852@schatzie.adilger.int> <20060324205229.GD11703@parisc-linux.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 24 Mar 2006 21:19:33.0772 (UTC) FILETIME=[A584ACC0:01C64F88]
+Content-Disposition: inline
+In-Reply-To: <20060324205229.GD11703@parisc-linux.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Bryan> Would your preference be to slap #ifdefs around those, or
-    Bryan> to just require CONFIG_NET in Kconfig?  The core driver
-    Bryan> should work fine without any kernel-level networking
-    Bryan> support, so I suppose the former makes more sense.
+On Mar 24, 2006  13:52 -0700, Matthew Wilcox wrote:
+> On Fri, Mar 24, 2006 at 12:28:02PM -0700, Andreas Dilger wrote:
+> > Fix for this problem (inode is locked already):
+> > - create a modified ext3_free_branches() to do tree walking and call a
+> >   method instead of always calling ext3_free_data->ext3_clear_blocks
+> > - walk inode {d,t,}indirect blocks in forward direction, count bitmaps and
+> >   groups that will be modified (essentially NULL ext3_free_branches method)
+> > - try to start a journal handle for this many blocks + 1 (inode) +
+> >   1 (super) + quota + EXT3_RESERVE_TRANS_BLOCKS
+> >   - if journal handle is too large (journal_start() returns -ENOSPC) fall
+> >     back to old zero-in-steps method (vast majority of cases will be OK
+> >     because number of modified blocks is much fewer)
+> 
+> Could we try a different fallback in this case?  For example, attempt to
+> truncate only half as much?  Is this even allowed?
 
-Having #ifdef CONFIG_NET all over is definitely suboptimal.
-Unfortunately it looks kind of hard to untangle your skb use from the
-rest of the driver, so putting a dependency on NET might be the best bet.
+What you suggest IS essentially the fallback.  The current code will start
+truncating at the end and grow the truncation until it can't any longer.
+In order to make this operation correct w.r.t. recovery, it HAS to
+zero out the already-truncated blocks, because the first transaction
+may complete and commit, while the second may not.  The proposed new
+behaviour is only acceptable because it ensures that the whole truncate
+can be completed in a single transaction.
 
-    Bryan> That's going to be interesting to test, because I don't
-    Bryan> have any ia64 hardware to even compile on.  I have tested
-    Bryan> on x86_64 and powerpc, so this seems like an arch-level
-    Bryan> header deficiency.  Any idea what to do about it?
 
-How are you building on powerpc?  I don't see any way to turn on
-CONFIG_PCI_MSI except on i386/x86_64 and ia64.
+For a rough estimate of the allowable size of a "new" truncate
+transaction, worst case truncate dirties every group in the filesystem.
+A 2TB filesystem has 16384 groups, maximum transaction size:
 
-Anyway building an ia64 cross toolchain is easy with http://kegel.com/crosstool
+  (16384 bitmaps + (16384 / 128) group desc + inode + super + quota)
+  = 16518
 
-I would just get rid of your atomic_clear_mask() and atomic_set_mask()
-calls.  They're bogus because you're not even operating on an
-atomic_t, and not many architectures implement them.  Just take a lock
-if you need to modify the bitmap atomically.  A spinlock is cheaper
-than two atomic operations (although I guess for a slow path, it hurts
-in .text size).
+requiring a journal size of 4x that is about 260MB (default journal
+size is 128MB these days for large filesystems).  For the worst case 1
+block/group this works out to a 64MB file, but in the vast majority of
+cases we will have more than a single block per group, and could have
+a full file truncate (up to 2TB file size) in the same (or smaller)
+transaction size.  Best case is about 125MB/group (i.e. per 4kB of journal
+transaction size).
 
-    Bryan> I've been building with C=1 for months.  I'll see if I can
-    Bryan> figure out why you're getting such different results.
+With the absolute minimum journal size we could always truncate files
+up to 1MB w/o fallback, and rougly up to 16GB (at 1/2 group chunks per
+"extent") without fallback.
 
-It's probably because I use CF=-D__CHECK_ENDIAN__ too.
+The current code needs ~33 4kB blocks per 128MB of file size.
 
-There are a few other things I don't think we've really closed on:
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 
- - The whole duplicated SMA / ipath_verbs doesn't work without ib_mad loaded.
-
- - Andrew raised some questions about the special "pick a device for
-   me" that I'm not sure we satisfied him on.  I don't find the
-   /dev/ptmx argument that convincing, since I don't think /dev/ptmx
-   is considered the best example of interface design.
-
- - It looks like ipath_copy.c is completely unused now that you're not
-   including the ipath_ether driver.
-
- - R.

@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422971AbWCXBbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422977AbWCXBbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422971AbWCXBbN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 20:31:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422973AbWCXBbM
+	id S1422977AbWCXBbm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 20:31:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422984AbWCXBbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 20:31:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:36036 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1422971AbWCXBbJ (ORCPT
+	Thu, 23 Mar 2006 20:31:40 -0500
+Received: from mail.kroah.org ([69.55.234.183]:41412 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1422978AbWCXBbO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 20:31:09 -0500
-Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 7/8] W1: u64 is not long long
-In-Reply-To: <11431638372371-git-send-email-gregkh@suse.de>
+	Thu, 23 Mar 2006 20:31:14 -0500
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 4/8] w1: misc cleanups
+In-Reply-To: <11431638371744-git-send-email-gregkh@suse.de>
 X-Mailer: git-send-email
-Date: Thu, 23 Mar 2006 17:30:38 -0800
-Message-Id: <11431638383855-git-send-email-gregkh@suse.de>
+Date: Thu, 23 Mar 2006 17:30:37 -0800
+Message-Id: <11431638371389-git-send-email-gregkh@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg KH <gregkh@suse.de>
@@ -24,38 +25,145 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You don't know what type a u64 is, hence you cannot print it without a cast.
+This patch contains the following cleanups:
+- make needlessly global code static
+- declarations for global code belong into header files
+- w1.c: #if 0 the unused struct w1_slave_device
 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Acked-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
 
- drivers/w1/w1.c |    7 +++++--
- 1 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/w1/w1.c        |    6 ++++--
+ drivers/w1/w1.h        |   10 ++++++++++
+ drivers/w1/w1_family.c |    2 +-
+ drivers/w1/w1_int.c    |   13 ++-----------
+ drivers/w1/w1_io.c     |    2 +-
+ 5 files changed, 18 insertions(+), 15 deletions(-)
 
-f73b5e7949945486a649e40821cd351e2f60bf02
+a9fb1c7b950bed4afe208c9d67e20f086bb6abbb
 diff --git a/drivers/w1/w1.c b/drivers/w1/w1.c
-index 5def7fb..d640c1e 100644
+index f0b47fe..5def7fb 100644
 --- a/drivers/w1/w1.c
 +++ b/drivers/w1/w1.c
-@@ -388,11 +388,14 @@ static int w1_uevent(struct device *dev,
- 	if (dev->driver != &w1_slave_driver || !sl)
- 		return 0;
+@@ -164,11 +164,12 @@ struct device w1_master_device = {
+ 	.release = &w1_master_release
+ };
  
--	err = add_uevent_var(envp, num_envp, &cur_index, buffer, buffer_size, &cur_len, "W1_FID=%02X", sl->reg_num.family);
-+	err = add_uevent_var(envp, num_envp, &cur_index, buffer, buffer_size,
-+			&cur_len, "W1_FID=%02X", sl->reg_num.family);
- 	if (err)
- 		return err;
+-struct device_driver w1_slave_driver = {
++static struct device_driver w1_slave_driver = {
+ 	.name = "w1_slave_driver",
+ 	.bus = &w1_bus_type,
+ };
  
--	err = add_uevent_var(envp, num_envp, &cur_index, buffer, buffer_size, &cur_len, "W1_SLAVE_ID=%024LX", (u64)sl->reg_num.id);
-+	err = add_uevent_var(envp, num_envp, &cur_index, buffer, buffer_size,
-+			&cur_len, "W1_SLAVE_ID=%024LX",
-+			(unsigned long long)sl->reg_num.id);
- 	if (err)
- 		return err;
++#if 0
+ struct device w1_slave_device = {
+ 	.parent = NULL,
+ 	.bus = &w1_bus_type,
+@@ -176,6 +177,7 @@ struct device w1_slave_device = {
+ 	.driver = &w1_slave_driver,
+ 	.release = &w1_slave_release
+ };
++#endif  /*  0  */
  
+ static ssize_t w1_master_attribute_show_name(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+@@ -355,7 +357,7 @@ int w1_create_master_attributes(struct w
+ 	return sysfs_create_group(&master->dev.kobj, &w1_master_defattr_group);
+ }
+ 
+-void w1_destroy_master_attributes(struct w1_master *master)
++static void w1_destroy_master_attributes(struct w1_master *master)
+ {
+ 	sysfs_remove_group(&master->dev.kobj, &w1_master_defattr_group);
+ }
+diff --git a/drivers/w1/w1.h b/drivers/w1/w1.h
+index b62e771..5f09213 100644
+--- a/drivers/w1/w1.h
++++ b/drivers/w1/w1.h
+@@ -203,6 +203,16 @@ static inline struct w1_master* dev_to_w
+ 	return container_of(dev, struct w1_master, dev);
+ }
+ 
++extern int w1_max_slave_count;
++extern int w1_max_slave_ttl;
++extern spinlock_t w1_mlock;
++extern struct list_head w1_masters;
++extern struct device_driver w1_master_driver;
++extern struct device w1_master_device;
++
++int w1_process(void *data);
++void w1_reconnect_slaves(struct w1_family *f);
++
+ #endif /* __KERNEL__ */
+ 
+ #endif /* __W1_H */
+diff --git a/drivers/w1/w1_family.c b/drivers/w1/w1_family.c
+index 9e293e1..0e32c11 100644
+--- a/drivers/w1/w1_family.c
++++ b/drivers/w1/w1_family.c
+@@ -25,10 +25,10 @@
+ #include <linux/delay.h>
+ 
+ #include "w1_family.h"
++#include "w1.h"
+ 
+ DEFINE_SPINLOCK(w1_flock);
+ static LIST_HEAD(w1_families);
+-extern void w1_reconnect_slaves(struct w1_family *f);
+ 
+ int w1_register_family(struct w1_family *newf)
+ {
+diff --git a/drivers/w1/w1_int.c b/drivers/w1/w1_int.c
+index c3f67ea..4724693 100644
+--- a/drivers/w1/w1_int.c
++++ b/drivers/w1/w1_int.c
+@@ -26,19 +26,10 @@
+ #include "w1.h"
+ #include "w1_log.h"
+ #include "w1_netlink.h"
++#include "w1_int.h"
+ 
+ static u32 w1_ids = 1;
+ 
+-extern struct device_driver w1_master_driver;
+-extern struct bus_type w1_bus_type;
+-extern struct device w1_master_device;
+-extern int w1_max_slave_count;
+-extern int w1_max_slave_ttl;
+-extern struct list_head w1_masters;
+-extern spinlock_t w1_mlock;
+-
+-extern int w1_process(void *);
+-
+ static struct w1_master * w1_alloc_dev(u32 id, int slave_count, int slave_ttl,
+ 				       struct device_driver *driver,
+ 				       struct device *device)
+@@ -103,7 +94,7 @@ static struct w1_master * w1_alloc_dev(u
+ 	return dev;
+ }
+ 
+-void w1_free_dev(struct w1_master *dev)
++static void w1_free_dev(struct w1_master *dev)
+ {
+ 	device_unregister(&dev->dev);
+ }
+diff --git a/drivers/w1/w1_io.c b/drivers/w1/w1_io.c
+index e2a0433..f7f7e8b 100644
+--- a/drivers/w1/w1_io.c
++++ b/drivers/w1/w1_io.c
+@@ -28,7 +28,7 @@
+ #include "w1_log.h"
+ #include "w1_io.h"
+ 
+-int w1_delay_parm = 1;
++static int w1_delay_parm = 1;
+ module_param_named(delay_coef, w1_delay_parm, int, 0);
+ 
+ static u8 w1_crc8_table[] = {
 -- 
 1.2.4
 

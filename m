@@ -1,65 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbWCXPaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750864AbWCXPfT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750848AbWCXPaw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 10:30:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbWCXPaw
+	id S1750864AbWCXPfT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 10:35:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750882AbWCXPfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 10:30:52 -0500
-Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:10947 "EHLO
-	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750818AbWCXPav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 10:30:51 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH] mm: swsusp shrink_all_memory tweaks
-Date: Sat, 25 Mar 2006 02:30:07 +1100
-User-Agent: KMail/1.9.1
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       linux-mm@kvack.org
-References: <200603200231.50666.kernel@kolivas.org> <200603241807.41175.kernel@kolivas.org> <200603241616.06687.rjw@sisk.pl>
-In-Reply-To: <200603241616.06687.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 24 Mar 2006 10:35:19 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:12164 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750864AbWCXPfS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 10:35:18 -0500
+Subject: Re: [Ext2-devel] [RFC] [PATCH] Reducing average ext2 fsck time
+	through fs-wide dirty bit]
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Valerie Henson <val_henson@linux.intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, pbadari@gmail.com,
+       linux-kernel@vger.kernel.org, Ext2-devel@lists.sourceforge.net,
+       arjan@linux.intel.com, tytso@mit.edu, zach.brown@oracle.com
+In-Reply-To: <20060324143239.GB14508@goober>
+References: <20060322011034.GP12571@goober>
+	 <1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060322224844.GU12571@goober> <20060322175503.3b678ab5.akpm@osdl.org>
+	 <20060324143239.GB14508@goober>
+Content-Type: text/plain
+Date: Fri, 24 Mar 2006 09:35:15 -0600
+Message-Id: <1143214515.10413.18.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603250230.08140.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 25 March 2006 02:16, Rafael J. Wysocki wrote:
-> On Friday 24 March 2006 08:07, Con Kolivas wrote:
-> > On Tuesday 21 March 2006 05:46, Rafael J. Wysocki wrote:
-> > > swsusp_shrink_memory() is still wrong, because it will always fail for
-> > > image_size = 0.  My bad, sorry.
-> > >
-> > > The appended patch (on top of yours) should fix that (hope I did it
-> > > right this time).
-> >
-> > Well I discovered that if all the necessary memory is freed in one call
-> > to shrink_all_memory we don't get the nice updating printout from
-> >  swsusp_shrink_memory telling us we're making progress. So instead of
-> >  modifying the function to call shrink_all_memory with the full amount
-> > (and since we've botched swsusp_shrink_memory a few times between us), we
-> > should limit it to a max of SHRINK_BITEs instead.
-> >
-> >  This patch is fine standalone.
-> >
-> >  Rafael, Pavel what do you think of this one?
->
-> In principle it looks good to me, but when I tested the previous one I
-> noticed shrink_all_memory() tended to return 0 prematurely (ie. when it was
-> possible to free some more pages).  It only happened if more than 50% of
-> memory was occupied by application data.
->
-> Unfortunately I couldn't find the reason.
+On Fri, 2006-03-24 at 06:32 -0800, Valerie Henson wrote:
+> On Wed, Mar 22, 2006 at 05:55:03PM -0800, Andrew Morton wrote:
+> > Valerie Henson <val_henson@linux.intel.com> wrote:
+> > > 
+> > > ext2 is simpler and faster than ext3 in many cases.  This is sort of
+> > > cheating; ext2 is simpler and faster because it makes no effort to
+> > > maintain on-disk consistency and can skip annoying things like, oh,
+> > > reserving space in the journal.  I am looking for ways to make ext2
+> > > cheat even more.
+> > > 
+> > 
+> > But it might be feasible to knock up an ext3-- in which all the journal
+> > operations are stubbed out.
+> 
+> Hmm... Could we get the mark_buffer_dirty/mark_inode_dirty logic
+> right?  Probably create a list in the stubbed journal functions and
+> then mark them dirty in the journal close?  However, half the reason
+> I'm working on ext2 is the simplicity of the code - stubbing it out
+> would solve the performance problem but not the complexity problem.
 
-Perhaps it was just trying to free up too much in one go. There are a number 
-of steps a mapped page needs to go through before being finally swapped and 
-there are a limited number of iterations over it. Limiting it to SHRINK_BITEs 
-at a time will probably improve that.
+I don't know the ext3 journaling code at all, so this may or may not be
+useful, but jfs has a nointegrity mode that disables writing to the
+journal.  To keep it simple, I execute all of the journaling code as
+normal except that when it is time to actually submit I/O to the
+journal, I call the end_io routine directly.  (I first set bio->bi_size
+= 0 to make it look like the I/O was successful.)  There is a bit more
+cpu overhead than if we stubbed out all the journaling code, but it's a
+lot safer not to have to worry about different paths of execution.
 
-Cheers,
-Con
+> Note that ext3's habit of clearing indirect blocks on truncate would
+> break some things I want to do in the future. (Insert secret plans
+> here.)
+
+I can't comment on that.  :-)
+-- 
+David Kleikamp
+IBM Linux Technology Center
+

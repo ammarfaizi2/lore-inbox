@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWCXGO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161010AbWCXGO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161008AbWCXGO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 01:14:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423169AbWCXGMK
+	id S1161010AbWCXGO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 01:14:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423165AbWCXGMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 01:12:10 -0500
-Received: from mail.kroah.org ([69.55.234.183]:39642 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161014AbWCXGLs (ORCPT
+	Fri, 24 Mar 2006 01:12:07 -0500
+Received: from mail.kroah.org ([69.55.234.183]:41178 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161016AbWCXGLw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 01:11:48 -0500
-Cc: "Ed L. Cashin" <ecashin@coraid.com>, "Ed L. Cashin" <ecashin@coraid.com>
-Subject: [PATCH 05/12] aoe [5/8]: allow network interface migration on packet retransmit
-In-Reply-To: <11431806533029-git-send-email-gregkh@suse.de>
+	Fri, 24 Mar 2006 01:11:52 -0500
+Cc: "Ed L. Cashin" <ecashin@coraid.com>, "Ed L. Cashin" <ecashin@coraid.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 09/12] aoe: do not stop retransmit timer when device goes down
+In-Reply-To: <1143180654383-git-send-email-gregkh@suse.de>
 X-Mailer: git-send-email
-Date: Thu, 23 Mar 2006 22:10:53 -0800
-Message-Id: <11431806531102-git-send-email-gregkh@suse.de>
+Date: Thu, 23 Mar 2006 22:10:54 -0800
+Message-Id: <1143180654198-git-send-email-gregkh@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg KH <gregkh@suse.de>
@@ -24,29 +25,40 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Retransmit to the current network interface for an AoE device.
+This patch is a bugfix that follows and depends on the
+eight aoe driver patches sent January 19th.
 
 Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
 
- drivers/block/aoe/aoecmd.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ drivers/block/aoe/aoecmd.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-2dd5e42269b6f71db8ca519e401ef1e6615b3705
+1c6f3fcac03a16c901ee5acd58100bff963add6d
 diff --git a/drivers/block/aoe/aoecmd.c b/drivers/block/aoe/aoecmd.c
-index 34b8c8c..22bebf8 100644
+index 22bebf8..207aabc 100644
 --- a/drivers/block/aoe/aoecmd.c
 +++ b/drivers/block/aoe/aoecmd.c
-@@ -286,6 +286,8 @@ rexmit(struct aoedev *d, struct frame *f
- 	h = (struct aoe_hdr *) f->data;
- 	f->tag = n;
- 	h->tag = cpu_to_be32(n);
-+	memcpy(h->dst, d->addr, sizeof h->dst);
-+	memcpy(h->src, d->ifp->dev_addr, sizeof h->src);
+@@ -331,7 +331,7 @@ rexmit_timer(ulong vp)
+ 	spin_lock_irqsave(&d->lock, flags);
  
- 	skb = skb_prepare(d, f);
- 	if (skb) {
+ 	if (d->flags & DEVFL_TKILL) {
+-tdie:		spin_unlock_irqrestore(&d->lock, flags);
++		spin_unlock_irqrestore(&d->lock, flags);
+ 		return;
+ 	}
+ 	f = d->frames;
+@@ -342,7 +342,7 @@ tdie:		spin_unlock_irqrestore(&d->lock, 
+ 			n /= HZ;
+ 			if (n > MAXWAIT) { /* waited too long.  device failure. */
+ 				aoedev_downdev(d);
+-				goto tdie;
++				break;
+ 			}
+ 			rexmit(d, f);
+ 		}
 -- 
 1.2.4
 

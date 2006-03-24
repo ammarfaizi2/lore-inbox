@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWCXST6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWCXSSC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbWCXST6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 13:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWCXST6
+	id S932102AbWCXSSC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 13:18:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWCXSNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 13:19:58 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:34760 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932108AbWCXST4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 13:19:56 -0500
-Date: Fri, 24 Mar 2006 13:19:39 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Stone Wang <pwstone@gmail.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH][5/8] proc: export mlocked pages info through "/proc/meminfo:
- Wired"
-In-Reply-To: <442420A2.80807@yahoo.com.au>
-Message-ID: <Pine.LNX.4.63.0603241319130.30426@cuia.boston.redhat.com>
-References: <bc56f2f0603200537i7b2492a6p@mail.gmail.com>  <441FEFC7.5030109@yahoo.com.au>
- <bc56f2f0603210733vc3ce132p@mail.gmail.com> <442098B6.5000607@yahoo.com.au>
- <Pine.LNX.4.63.0603241133550.30426@cuia.boston.redhat.com> <442420A2.80807@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 24 Mar 2006 13:13:34 -0500
+Received: from [198.99.130.12] ([198.99.130.12]:37782 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751144AbWCXSNa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 13:13:30 -0500
+Message-Id: <200603241814.k2OIEaZw005510@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH 3/16] UML - Fix some printf formats
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 24 Mar 2006 13:14:36 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Mar 2006, Nick Piggin wrote:
-> Rik van Riel wrote:
-> > On Wed, 22 Mar 2006, Nick Piggin wrote:
-> > 
-> > > Why would you want to ever do something like that though? I don't think
-> > > you should use this name "just in case", unless you have some really good
-> > > potential usage in mind.
-> > 
-> > ramfs
-> 
-> Why would ramfs want its pages in this wired list? (I'm not so
-> familiar with it but I can't think of a reason).
+Some printf formats are incorrect for large memory sizes.
 
-Because ramfs pages cannot be paged out, which makes them locked
-into memory the same way mlocked pages are.
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
--- 
-All Rights Reversed
+Index: linux-2.6.15-mm/arch/um/kernel/um_arch.c
+===================================================================
+--- linux-2.6.15-mm.orig/arch/um/kernel/um_arch.c	2006-02-21 17:40:12.000000000 -0500
++++ linux-2.6.15-mm/arch/um/kernel/um_arch.c	2006-02-21 17:59:39.000000000 -0500
+@@ -421,7 +421,7 @@ int linux_main(int argc, char **argv)
+ #ifndef CONFIG_HIGHMEM
+ 		highmem = 0;
+ 		printf("CONFIG_HIGHMEM not enabled - physical memory shrunk "
+-		       "to %lu bytes\n", physmem_size);
++		       "to %Lu bytes\n", physmem_size);
+ #endif
+ 	}
+ 
+@@ -433,8 +433,8 @@ int linux_main(int argc, char **argv)
+ 
+ 	setup_physmem(uml_physmem, uml_reserved, physmem_size, highmem);
+ 	if(init_maps(physmem_size, iomem_size, highmem)){
+-		printf("Failed to allocate mem_map for %lu bytes of physical "
+-		       "memory and %lu bytes of highmem\n", physmem_size,
++		printf("Failed to allocate mem_map for %Lu bytes of physical "
++		       "memory and %Lu bytes of highmem\n", physmem_size,
+ 		       highmem);
+ 		exit(1);
+ 	}
+

@@ -1,134 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWCXVTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbWCXVTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751423AbWCXVTU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 16:19:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWCXVTU
+	id S1751435AbWCXVTu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 16:19:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWCXVTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 16:19:20 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:9692 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1751423AbWCXVTT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 16:19:19 -0500
-Date: Fri, 24 Mar 2006 22:19:17 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, devel@openvz.org, serue@us.ibm.com,
-       akpm@osdl.org, sam@vilain.net, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Pavel Emelianov <xemul@sw.ru>, Stanislav Protassov <st@sw.ru>
-Subject: Re: [RFC] Virtualization steps
-Message-ID: <20060324211917.GB22308@MAIL.13thfloor.at>
-Mail-Followup-To: Kirill Korotaev <dev@sw.ru>,
-	"Eric W. Biederman" <ebiederm@xmission.com>, haveblue@us.ibm.com,
-	linux-kernel@vger.kernel.org, devel@openvz.org, serue@us.ibm.com,
-	akpm@osdl.org, sam@vilain.net,
-	Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-	Pavel Emelianov <xemul@sw.ru>, Stanislav Protassov <st@sw.ru>
-References: <44242A3F.1010307@sw.ru>
-Mime-Version: 1.0
+	Fri, 24 Mar 2006 16:19:50 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:58017 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1751435AbWCXVTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 16:19:49 -0500
+X-IronPort-AV: i="4.03,126,1141632000"; 
+   d="scan'208"; a="1788149178:sNHT2647658980"
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: akpm@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH 0 of 18] ipath driver - for inclusion in 2.6.17
+X-Message-Flag: Warning: May contain useful information
+References: <patchbomb.1143175292@eng-12.pathscale.com>
+	<ada4q1nr7pu.fsf@cisco.com>
+	<1143227515.30626.43.camel@serpentine.pathscale.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Fri, 24 Mar 2006 13:19:32 -0800
+In-Reply-To: <1143227515.30626.43.camel@serpentine.pathscale.com> (Bryan O'Sullivan's message of "Fri, 24 Mar 2006 11:11:55 -0800")
+Message-ID: <adaveu3pml7.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44242A3F.1010307@sw.ru>
-User-Agent: Mutt/1.5.6i
+X-OriginalArrivalTime: 24 Mar 2006 21:19:33.0772 (UTC) FILETIME=[A584ACC0:01C64F88]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 24, 2006 at 08:19:59PM +0300, Kirill Korotaev wrote:
-> Eric, Herbert,
-> 
-> I think it is quite clear, that without some agreement on all these
-> virtualization issues, we won't be able to commit anything good to
-> mainstream. My idea is to gather our efforts to get consensus on most
-> clean parts of code first and commit them one by one.
->
-> The proposal is quite simple. We have 4 parties in this conversation
-> (maybe more?): IBM guys, OpenVZ, VServer and Eric Biederman. We
-> discuss the areas which should be considered step by step. Send
-> patches for each area, discuss, come to some agreement and all 4
-> parties Sign-Off the patch. After that it goes to Andrew/Linus. 
-> Worth trying?
+    Bryan> Would your preference be to slap #ifdefs around those, or
+    Bryan> to just require CONFIG_NET in Kconfig?  The core driver
+    Bryan> should work fine without any kernel-level networking
+    Bryan> support, so I suppose the former makes more sense.
 
-sounds good to me, as long as we do not consider
-the patches 'final' atm .. because I think we should
-try to test them with _all_ currently existing solutions
-first ... we do not need to bother Andrew with stuff
-which doesn't work for the existing and future 'users'.
+Having #ifdef CONFIG_NET all over is definitely suboptimal.
+Unfortunately it looks kind of hard to untangle your skb use from the
+rest of the driver, so putting a dependency on NET might be the best bet.
 
-so IMHO, we should make a kernel branch (Eric or Sam
-are probably willing to maintain that), which we keep
-in-sync with mainline (not necessarily git, but at 
-least snapshot wise), where we put all the patches
-we agree on, and each party should then adjust the
-existing solution to this kernel, so we get some deep
-testing in the process, and everybody can see if it
-'works' for him or not ...
+    Bryan> That's going to be interesting to test, because I don't
+    Bryan> have any ia64 hardware to even compile on.  I have tested
+    Bryan> on x86_64 and powerpc, so this seems like an arch-level
+    Bryan> header deficiency.  Any idea what to do about it?
 
-things where we agree that it 'just works' for everyone
-can always be handed upstream, and would probably make
-perfect patches for Andrew ...
+How are you building on powerpc?  I don't see any way to turn on
+CONFIG_PCI_MSI except on i386/x86_64 and ia64.
 
-> So far, (correct me if I'm wrong) we concluded that some people don't 
-> want containers as a whole, but want some subsystem namespaces. I 
-> suppose for people who care about containers only it doesn't matter, so 
-> we can proceed with namespaces, yeah?
+Anyway building an ia64 cross toolchain is easy with http://kegel.com/crosstool
 
-yes, the emphasis here should be on lightweight and
-modular, so that those folks interested in full featured
-containers can just 'assemble' the pieces, while those
-desiring service/space isolation pick their subsystems
-one by one ...
+I would just get rid of your atomic_clear_mask() and atomic_set_mask()
+calls.  They're bogus because you're not even operating on an
+atomic_t, and not many architectures implement them.  Just take a lock
+if you need to modify the bitmap atomically.  A spinlock is cheaper
+than two atomic operations (although I guess for a slow path, it hurts
+in .text size).
 
-> So the most easy namespaces to discuss I see:
-> - utsname
+    Bryan> I've been building with C=1 for months.  I'll see if I can
+    Bryan> figure out why you're getting such different results.
 
-yes, that's definitely one we can start with, as it seems
-that we already have _very_ similar implementations
+It's probably because I use CF=-D__CHECK_ENDIAN__ too.
 
-> - sys IPC
+There are a few other things I don't think we've really closed on:
 
-this is something which is also related to limits and
-should get special attention with resource sharing,
-isolation and control in mind
+ - The whole duplicated SMA / ipath_verbs doesn't work without ib_mad loaded.
 
-> - network virtualization
+ - Andrew raised some questions about the special "pick a device for
+   me" that I'm not sure we satisfied him on.  I don't find the
+   /dev/ptmx argument that convincing, since I don't think /dev/ptmx
+   is considered the best example of interface design.
 
-here I see many issues, as for example Linux-VServer
-does not necessarily aim for full virtualization, when
-simple and performant isolation is sufficient.
+ - It looks like ipath_copy.c is completely unused now that you're not
+   including the ipath_ether driver.
 
-don't get me wrong, we are _not_ against network 
-virtualization per se, but we isolation is just so
-much simpler to administrate and often much more
-performant, so that it is very interesting for service
-separation as well as security applications
-
-just consider the 'typical' service isolation aspect
-where you want to have two apaches, separated on two
-IPs, but communicating with a single sql database
-
-> - netfilter virtualization
-
-same as for network virtualization, but not really
-an issue if it can be 'disabled'
-
-of course, the ideal solution would be some kind
-of hybrid, where you can have virtual interfaces as
-well as isolated IPs, side-by-side ...
-
-> all these were discussed already somehow and looks like there is no
-> fundamental differencies in our approaches (at least OpenVZ and Eric,
-> for sure).
->
-> Right now, I suggest to concentrate on first 2 namespaces - utsname
-> and sysvipc. They are small enough and easy. Lets consider them
-> without sysctl/proc issues, as those can be resolved later. I sent the
-> patches for these 2 namespaces to all of you. I really hope for some
-> _good_ critics, so we could work it out quickly.
-
-will look into them soon ...
-
-best,
-Herbert
-
-> Thanks,
-> Kirill
+ - R.

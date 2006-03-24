@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWCXQQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWCXQVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932437AbWCXQQH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 11:16:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbWCXQQH
+	id S932452AbWCXQVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 11:21:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWCXQVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 11:16:07 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:47776 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932443AbWCXQQF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 11:16:05 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH] mm: swsusp shrink_all_memory tweaks
-Date: Fri, 24 Mar 2006 17:14:48 +0100
-User-Agent: KMail/1.9.1
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       linux-mm@kvack.org
-References: <200603200231.50666.kernel@kolivas.org> <200603241616.06687.rjw@sisk.pl> <200603250230.08140.kernel@kolivas.org>
-In-Reply-To: <200603250230.08140.kernel@kolivas.org>
+	Fri, 24 Mar 2006 11:21:09 -0500
+Received: from web37710.mail.mud.yahoo.com ([209.191.87.108]:2437 "HELO
+	web37710.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932412AbWCXQVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 11:21:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=kQDHghEvuqY3wMRG65HLaVqQ08dX6BdgUmrF/qRwNyqRO201t6qzjGOHcsApaWp1mSFxdOkzo3sOY1zod5bxBz2hVjyzCdnF+fgrrFj6Djb3u4BDsYyM+ZAJ20daZRogXDRA6pHA5xY3sXmWN657vGmA7JuQucezMlIz9XlJack=  ;
+Message-ID: <20060324162107.50804.qmail@web37710.mail.mud.yahoo.com>
+Date: Fri, 24 Mar 2006 08:21:07 -0800 (PST)
+From: Edward Chernenko <edwardspec@yahoo.com>
+Subject: [PATCH 2.6.15] Adding kernel-level identd dispatcher
+To: linux-kernel@vger.kernel.org
+Cc: edwardspec@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603241714.48909.rjw@sisk.pl>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 March 2006 16:30, Con Kolivas wrote:
-> On Saturday 25 March 2006 02:16, Rafael J. Wysocki wrote:
-> > On Friday 24 March 2006 08:07, Con Kolivas wrote:
-> > > On Tuesday 21 March 2006 05:46, Rafael J. Wysocki wrote:
-> > > > swsusp_shrink_memory() is still wrong, because it will always fail for
-> > > > image_size = 0.  My bad, sorry.
-> > > >
-> > > > The appended patch (on top of yours) should fix that (hope I did it
-> > > > right this time).
-> > >
-> > > Well I discovered that if all the necessary memory is freed in one call
-> > > to shrink_all_memory we don't get the nice updating printout from
-> > >  swsusp_shrink_memory telling us we're making progress. So instead of
-> > >  modifying the function to call shrink_all_memory with the full amount
-> > > (and since we've botched swsusp_shrink_memory a few times between us), we
-> > > should limit it to a max of SHRINK_BITEs instead.
-> > >
-> > >  This patch is fine standalone.
-> > >
-> > >  Rafael, Pavel what do you think of this one?
-> >
-> > In principle it looks good to me, but when I tested the previous one I
-> > noticed shrink_all_memory() tended to return 0 prematurely (ie. when it was
-> > possible to free some more pages).  It only happened if more than 50% of
-> > memory was occupied by application data.
-> >
-> > Unfortunately I couldn't find the reason.
-> 
-> Perhaps it was just trying to free up too much in one go. There are a number 
-> of steps a mapped page needs to go through before being finally swapped and 
-> there are a limited number of iterations over it. Limiting it to SHRINK_BITEs 
-> at a time will probably improve that.
+This patch adds ident daemon to net/gnuidentd/
+directory.
+Apply to: 2.6.15.1.
+Patch is here:
+http://unwd.sourceforge.net/gnuidentd-2.6.15.patch
 
-OK [I'll be testing it for the next couple of days.]
+I used two threads: one for connections handling and
+another for tracking /etc/passwd changes through
+inotify.
+Additionally, root can set users hiding rules using
+file in /proc. 
 
-Greetings,
-Rafael
+I'm awaiting your notes/tips.
+Please CC me to <edwardspec@gmail.com>
+
+Signed-Off-by: Edward Chernenko <edwardspec@gmail.com>
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

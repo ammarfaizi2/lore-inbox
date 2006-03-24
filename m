@@ -1,36 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423202AbWCXG5O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423201AbWCXG4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423202AbWCXG5O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 01:57:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423203AbWCXG5O
+	id S1423201AbWCXG4a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 01:56:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423202AbWCXG4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 01:57:14 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:16778 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1423202AbWCXG5N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 01:57:13 -0500
-Subject: Re: Read /dev/kmem error in RHEL3
-From: Arjan van de Ven <arjan@infradead.org>
-To: openbsd shen <openbsd.shen@gmail.com>
-Cc: kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <6ff3e7140603232243x460b9722n@mail.gmail.com>
-References: <6ff3e7140603232203q6a5ddab8u@mail.gmail.com>
-	 <6ff3e7140603232243x460b9722n@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 24 Mar 2006 07:57:11 +0100
-Message-Id: <1143183431.2882.5.camel@laptopd505.fenrus.org>
+	Fri, 24 Mar 2006 01:56:30 -0500
+Received: from h139-142-50-161.gtconnect.net ([139.142.50.161]:15521 "EHLO
+	quartz.orcorp.ca") by vger.kernel.org with ESMTP id S1423201AbWCXG43
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 01:56:29 -0500
+Date: Thu, 23 Mar 2006 23:56:19 -0700
+From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix typo causing bad mode of /initrd.image
+Message-ID: <20060324065619.GA24390@obsidianresearch.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-24 at 14:43 +0800, openbsd shen wrote:
-> In another RHEL3, it said:
-> Operation not permitted.
+I noticed that after boot with an initrd in 2.6.16 the rootfs had:
 
-yes and? 
+--w-r-xr-T    1 root     root      6241141 Jan  1  1970 initrd.image
 
+Which is caused by a small typo:
 
+diff --git a/init/initramfs.c b/init/initramfs.c
+index 637344b..f6fcc60 100644
+--- a/init/initramfs.c
++++ b/init/initramfs.c
+@@ -518,7 +518,7 @@ void __init populate_rootfs(void)
+ 			return;
+ 		}
+ 		printk("it isn't (%s); looks like an initrd\n", err);
+-		fd = sys_open("/initrd.image", O_WRONLY|O_CREAT, 700);
++		fd = sys_open("/initrd.image", O_WRONLY|O_CREAT, 0700);
+ 		if (fd >= 0) {
+ 			sys_write(fd, (char *)initrd_start,
+ 					initrd_end - initrd_start);

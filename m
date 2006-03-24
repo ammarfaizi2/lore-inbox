@@ -1,133 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751578AbWCXHrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751582AbWCXHtV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751578AbWCXHrg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 02:47:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751581AbWCXHrg
+	id S1751582AbWCXHtV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 02:49:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751586AbWCXHtV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 02:47:36 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:51107 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751580AbWCXHrf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 02:47:35 -0500
-Subject: Re: [2.6.16 PATCH] Connector: Filesystem Events Connector
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Yi Yang <yang.y.yi@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Michael Kerrisk <michael.kerrisk@gmx.net>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-In-Reply-To: <442349A3.9060907@gmail.com>
-References: <44216612.3060406@gmail.com> <1143099809.29668.89.camel@stark>
-	 <442349A3.9060907@gmail.com>
-Content-Type: text/plain
-Date: Thu, 23 Mar 2006 23:35:50 -0800
-Message-Id: <1143185750.29668.224.camel@stark>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Fri, 24 Mar 2006 02:49:21 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:45206 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751581AbWCXHtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 02:49:19 -0500
+Message-ID: <4423A40D.3080906@jp.fujitsu.com>
+Date: Fri, 24 Mar 2006 16:47:25 +0900
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [PATCH 1/6] PCIERR : interfaces for synchronous I/O error detection
+ on driver
+References: <44210D1B.7010806@jp.fujitsu.com> <20060322210157.GH12335@kroah.com>
+In-Reply-To: <20060322210157.GH12335@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-24 at 09:21 +0800, Yi Yang wrote:
-> Matt Helsley wrote:
-> 
-> Thanks for Matt's careful review. I'll follow your advices to modify it 
-> and new version will be released soon.
-> > On Wed, 2006-03-22 at 22:58 +0800, Yi Yang wrote:
-> >   
+There are 6 patches:
+  1: New interface's proposal, generic code in pci.h.
+  2: [1/4]IA64 specific implementation. (config)
+  3: [2/4]IA64 specific implementation. (base)
+  4: [3/4]IA64 specific implementation. (mcadrv)
+  5: [4/4]IA64 specific implementation. (poison)
+  6: Sample driver (Fusion MPT)
 
-<snip>
+Following is abstract and 1st patch:
 
-> >> +int __raise_fsevent(const char * oldname, const char * newname, u32 mask)
-> >>     
-> >
-> > The return value of this function does not appear to be used.
-> >   
-> If some modules want to use it to transfer file system events reliably,  
-> the return value will be very valuble,
-> because the caller can retry the transfer until it successes.
+This patch proposes new interfaces, that known by few as iochk_*,
+for synchronous I/O error detection on PCI drivers.
 
-Fair enough, though I hope you'll return -EFOO rather than -1, -2,...
+At 2.6.16-rc1, Linux kernel accepts and provides "PCI-bus error event
+callbacks" that enable RAS-aware drivers to notice errors asynchronously,
+and to join following kernel-initiated PCI-bus error recovery.
+This callbacks work well on PPC64 where it was designed to fit.
 
-<snip>
+However, some difficulty still remains to cover all possible error
+situations even if we use callbacks. It will not help keeping data
+integrity, passing no broken data to drivers and user lands, preventing
+applications from going crazy or sudden death.
 
-> >> +	int namelen = 0;
-> >> +	static unsigned long last = 0;
-> >> +	static int fsevent_sum = 0;
-> >>     
-> >
-> > Yuck, static local variables. IMHO these should be globals. It would
-> > make the fact they aren't protected from concurrent access more obvious
-> > (see below).
-> >   
-> Yes, they should be global.
-> >   
-> >> +	if (atomic_read(&cn_fs_event_listeners) < 1)
-> >> +		return 0;
-> >> +
-> >> +	if (jiffies - last <= fsevent_ratelimit) {
-> >> +		if (fsevent_sum > fsevent_burst_limit) {
-> >> +			return -1;
-> >>     
-> >
-> > OK, so you're rate limiting the events. Shouldn't you still boost the
-> > sequence number so that userspace knows some events got dropped? Also
-> > perhaps you can find an appropriate error to return instead of -1.
-> >   
-> Good idea.
-> >   
-> >> +		}
-> >>     
-> >
-> > remove unecessary braces
-> >
-> >   
-> >> +		fsevent_sum++;
-> >>     
-> >
-> > Looks racy to me -- what's protecting fsevent_sum from access by
-> > multiple cpus?
-> >   
-> This just is used to limit event rate when the user space application 
-> leads to an unlimited events loop.
-> so it mustn't be precise, I used spinlock originally, but Andrew thinks 
-> lock overhead is big, inotify has led to
-> some frustrating lock overhead, so I decide to remove it, in fact 
-> fsevent_sum just is the number used to limit rate,
->  some race conditions don't effect the rate limit.
+I suppose that proposed interfaces will solve most of remaining issues.
+It would be FAQ that what is the difference between this interfaces and
+the callback. Following list would help you:
 
-OK, I can see why you would want to avoid a spinlock. However spinlocks
-are not your only option. For instance you could use the per-cpu idioms
-to limit the rate.
+** Feature 1: Asynchronous error event callbacks:
+  - written by Linas Vepstas
+  - patch was already accepted (2.6.16-rc1)
+  - designed for "Error Recovery":
+    Interface for asynchronous error recovery (such as bus reset)
+    on other context after an serious error occurrences.
+    This will be effective if system needs complex taking-time recovery,
+    ex. re-enabling erroneous PCI-bus.
+  - It will be useful if the arch supports bus-isolating and can continue
+    running after such isolation, limiting a part of its services.
+  - i.e. this feature improves Serviceability.
+  - drivers can use this feature by constructing struct pci_error_handlers
+    with its callbacks and register it in struct pci_driver of itself.
 
-I would argue preemption should be disabled around the if-block at the
-very least. Suppose your rate limit is 10k calls/sec and you have 4
-procs. Each proc has a sequence of three instructions:
+** Feature 2: Synchronous error detect interfaces:
+  - written by Hidetoshi Seto
+  - patch is not accepted yet.
+  - designed for "Error Detection":
+    Interface for synchronous error detection on same context
+    and prevent system from data pollution on any error occurrences.
+    This will be effective if system doesn't require complex recovery,
+    ex. retrying I/O after trivial soft error, or re-issuing I/O if it
+    gets poisoned data (forwarded error from PCI-Express).
+  - It will be useful if arch chooses panic on bus errors not to pass
+    any broken data to un-reliable drivers.
+  - i.e. this feature improves Availability by keeping data integrity.
+  - drivers can use this feature by clipping its I/O by *_clear/read call
+    and checking the return value after all.
 
-load fsevent_sum into register rx (rx <= 1000)
-rx++ (rx <= 1001)
-store contents of register rx in fsevent_sum (fsevent_sum <= 1001)
+Following patch adds definition of interfaces described as Feature 2.
+(They were renamed from iochk_* to pcierr_*, and located in pci.h.)
+There are no more patch for generic part. The core implementation is
+architecture dependent. You will get proper error status only on arch
+where supports and implements this feature. Or you will get always 0,
+means "no errors".
+
+Thanks,
+H.Seto
+
+Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+
+-----
+  include/linux/pci.h |   15 +++++++++++++++
+  1 files changed, 15 insertions(+)
+
+Index: linux-2.6.16_WORK/include/linux/pci.h
+===================================================================
+--- linux-2.6.16_WORK.orig/include/linux/pci.h
++++ linux-2.6.16_WORK/include/linux/pci.h
+@@ -696,6 +696,21 @@
+  #endif /* HAVE_ARCH_PCI_RESOURCE_TO_USER */
 
 
-Now consider the following sequence of steps:
-
-load fsevent_sum into rx (rx <= 1000)
-<preempted>
-<3 other processors each manage to increment the sum by 3333 bringing us
-to 9999>
-<resumed>
-rx++ (rx <= 1001)
-store contents of rx in fsevent_sum (fsevent_sum <= 1001)
-
-So every processor now thinks it won't exceed the rate limit by
-generating more events when in fact we've just exceeded the limit. So,
-unless my example is flawed, I think you need to disable preemption
-here.
-
-Also, even if you simply disable preemption couldn't this cause the
-cache line containing the sum to bounce frequently on large SMP systems?
-
-<snip>
-
-Cheers,
-	-Matt Helsley
++/* PCIERR_CHECK provides additional interfaces for drivers to detect
++ * some IO errors, to support drivers can handle errors properly.
++ * Some archs requiring high-reliability would implement these.
++ */
++#ifdef HAVE_ARCH_PCIERR_CHECK
++/* type of iocookie is arch dependent */
++extern void pcierr_clear(iocookie *cookie, struct pci_dev *dev);
++extern int pcierr_read(iocookie *cookie);
++#else
++typedef int iocookie;
++static inline void pcierr_clear(iocookie *cookie, struct pci_dev *dev) {}
++static inline int pcierr_read(iocookie *cookie) { return 0; }
++#endif
++
++
+  /*
+   *  The world is not perfect and supplies us with broken PCI devices.
+   *  For at least a part of these bugs we need a work-around, so both
 

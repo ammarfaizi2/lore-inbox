@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932650AbWCXO2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422860AbWCXO2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932650AbWCXO2A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 09:28:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbWCXO2A
+	id S1422860AbWCXO2q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 09:28:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbWCXO2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 09:28:00 -0500
-Received: from vscan01.westnet.com.au ([203.10.1.131]:61326 "EHLO
-	vscan01.westnet.com.au") by vger.kernel.org with ESMTP
-	id S932650AbWCXO17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 09:27:59 -0500
-Message-ID: <4424027E.7080103@snapgear.com>
-Date: Sat, 25 Mar 2006 00:30:22 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.6.16-uc0 (MMU-less support)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 24 Mar 2006 09:28:46 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:8354 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932656AbWCXO2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 09:28:45 -0500
+Subject: Re: Connector: Filesystem Events Connector v3
+From: Arjan van de Ven <arjan@infradead.org>
+To: yang.y.yi@gmail.com
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       Matt Helsley <matthltc@us.ibm.com>
+In-Reply-To: <4c4443230603240624g132b8d37t1a271a8303b810bf@mail.gmail.com>
+References: <4423673C.7000008@gmail.com>
+	 <1143183541.2882.7.camel@laptopd505.fenrus.org>
+	 <4c4443230603240624g132b8d37t1a271a8303b810bf@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 24 Mar 2006 15:28:43 +0100
+Message-Id: <1143210523.2882.74.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-03-24 at 22:24 +0800, yang.y.yi@gmail.com wrote:
+> On 3/24/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> >
+> > > It is also never redundant functionality of audit subsystem, if enable
+> > > audit option, audit subsystem will audit all the syscalls, so it adds
+> > > big overhead for the whole system,
+> >
+> > this is not true
+> Hmm, Why?
 
-Hi All,
-
-An update of the uClinux (MMU-less) fixups against 2.6.16.
-There really isn't much in this at all. Just a couple of
-recent minor bug fixes, everything else has been merged.
-
-http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.16-uc0.patch.gz
-
-Change log:
-
-. import of 2.6.16                                 Greg Ungerer
-. remove use of cli/sti in fec.c                   Roucaries Bastien
-. reorder interrupt setup code in fec.c            Greg Ungerer
-. switch to PER_LINUX_32BIT in binfmt_flat loader  Malcolm Parsons
-. set physical memory base for M5208EVB            Greg Ungerer
-
-Regards
-Greg
+audit only audits those syscalls (or rather, operations) you enable it
+to audit basically.
 
 
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
-SnapGear -- a division of Secure Computing  PHONE:       +61 7 3435 2888
-825 Stanley St,                             FAX:         +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com

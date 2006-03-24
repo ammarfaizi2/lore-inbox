@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422767AbWCXMi5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422762AbWCXMpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422767AbWCXMi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 07:38:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422762AbWCXMi5
+	id S1422762AbWCXMpP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 07:45:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422765AbWCXMpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 07:38:57 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:29669 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1422741AbWCXMi4 (ORCPT
+	Fri, 24 Mar 2006 07:45:15 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:22672 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1422762AbWCXMpN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 07:38:56 -0500
-Message-ID: <4423E853.1040707@garzik.org>
-Date: Fri, 24 Mar 2006 07:38:43 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Fri, 24 Mar 2006 07:45:13 -0500
+Date: Fri, 24 Mar 2006 13:45:00 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andi Kleen <ak@suse.de>
+cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] use select for GART_IOMMU to enable AGP
+In-Reply-To: <p73odzw59ct.fsf@verdi.suse.de>
+Message-ID: <Pine.LNX.4.64.0603241335140.16802@scrub.home>
+References: <20060323014046.2ca1d9df.akpm@osdl.org> <20060323175822.GA7816@redhat.com>
+ <20060323133741.21a72249.akpm@osdl.org> <Pine.LNX.4.64.0603241233530.16802@scrub.home>
+ <p73odzw59ct.fsf@verdi.suse.de>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Ian Pratt <m+Ian.Pratt@cl.cam.ac.uk>,
-       Anthony Liguori <aliguori@us.ibm.com>,
-       Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
-       Ian Pratt <ian.pratt@xensource.com>, ian.pratt@cl.cam.ac.uk,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [RFC PATCH 35/35] Add Xen virtual block device driver.
-References: <A95E2296287EAD4EB592B5DEEFCE0E9D4B9E8A@liverpoolst.ad.cl.cam.ac.uk>	 <4421D943.1090804@garzik.org> <1143202673.18986.5.camel@localhost.localdomain>
-In-Reply-To: <1143202673.18986.5.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.5 (--)
-X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
-	Content analysis details:   (-2.5 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Mer, 2006-03-22 at 18:09 -0500, Jeff Garzik wrote:
->> An IBM hypervisor on ppc64 communicates uses SCSI RPC messages.  I think 
->> this would be quite nice for Xen, because SCSI (a) is a message-based 
->> model, and (b) implementing block using SCSI has a very high Just 
->> Works(tm) value which cannot be ignored.  And perhaps (c) SCSI target 
->> code already exists, so implementing the server side doesn't require 
->> starting from scratch, but rather simply connecting the Legos.
+Hi,
+
+On Fri, 24 Mar 2006, Andi Kleen wrote:
+
+> > The easiest solution is to simply remove the default and let GART_IOMMU 
+> > select AGP too.
 > 
-> A pure SCSI abstraction doesn't allow for shared head scheduling which
-> you will need to scale Xen sanely on typical PC boxes.
+> GART_IOMMU works without AGP driver too. It just has the requirement
+> that the AMD64 AGP driver is either builtin or not enabled at all.
 
-Not true at all.  If you can do it with a block device, you can do it 
-with a SCSI block device.
+I don't see how this is/was possible, if GART_IOMMU was enabled so was AGP 
+(and AGP_AMD64). That hasn't changed with the patch.
 
-In fact, SCSI should make a few things easier, because the notion of 
-host+bus topology is already present, and notion of messaging is already 
-present, so you don't have to recreate that in a Xen block device 
-infrastructure.
-
-
-> SCSI emulations
-> are also always full of bits people got wrong, often critical bits like
-> tagged queues and error sequences - things that break your journalled
-> file system.
-
-This I'll grant you.
-
-	Jeff
-
-
-
+bye, Roman

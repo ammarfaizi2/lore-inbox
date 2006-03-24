@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbWCXStt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932591AbWCXSwL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932507AbWCXStt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 13:49:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932591AbWCXStt
+	id S932591AbWCXSwL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 13:52:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbWCXSwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 13:49:49 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:19690 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932507AbWCXSts (ORCPT
+	Fri, 24 Mar 2006 13:52:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:62950 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932591AbWCXSwK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 13:49:48 -0500
-From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Organization: IBM Deutschland Entwicklung GmbH
-To: linuxppc-dev@ozlabs.org
-Subject: [PATCH] spufs: Fix endless protection fault on LS writes by SPE.
-Date: Fri, 24 Mar 2006 19:49:27 +0100
-User-Agent: KMail/1.9.1
-Cc: Arnd Bergmann <abergman@de.ibm.com>, Paul Mackerras <paulus@samba.org>,
-       cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org
-References: <20060323203423.620978000@dyn-9-152-242-103.boeblingen.de.ibm.com>
-In-Reply-To: <20060323203423.620978000@dyn-9-152-242-103.boeblingen.de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 24 Mar 2006 13:52:10 -0500
+Date: Fri, 24 Mar 2006 10:48:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Valerie Henson <val_henson@linux.intel.com>
+Cc: pbadari@gmail.com, linux-kernel@vger.kernel.org,
+       Ext2-devel@lists.sourceforge.net, arjan@linux.intel.com, tytso@mit.edu,
+       zach.brown@oracle.com
+Subject: Re: [Ext2-devel] [RFC] [PATCH] Reducing average ext2 fsck time
+ through fs-wide dirty bit]
+Message-Id: <20060324104818.0016c2f2.akpm@osdl.org>
+In-Reply-To: <20060324143239.GB14508@goober>
+References: <20060322011034.GP12571@goober>
+	<1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com>
+	<20060322224844.GU12571@goober>
+	<20060322175503.3b678ab5.akpm@osdl.org>
+	<20060324143239.GB14508@goober>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603241949.28218.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If an SPE attempts a DMA put to a local store after already doing
-a get, the kernel must update the HW PTE to allow the write access.
-This case was not being handled correctly.
+Valerie Henson <val_henson@linux.intel.com> wrote:
+>
+> On Wed, Mar 22, 2006 at 05:55:03PM -0800, Andrew Morton wrote:
+> > Valerie Henson <val_henson@linux.intel.com> wrote:
+> > > 
+> > > ext2 is simpler and faster than ext3 in many cases.  This is sort of
+> > > cheating; ext2 is simpler and faster because it makes no effort to
+> > > maintain on-disk consistency and can skip annoying things like, oh,
+> > > reserving space in the journal.  I am looking for ways to make ext2
+> > > cheat even more.
+> > > 
+> > 
+> > But it might be feasible to knock up an ext3-- in which all the journal
+> > operations are stubbed out.
+> 
+> Hmm... Could we get the mark_buffer_dirty/mark_inode_dirty logic
+> right?
 
-From: Mike Kistler <mkistler@us.ibm.com>
-Signed-off-by: Mike Kistler <mkistler@us.ibm.com>
-Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+All things are possible ;) One might add a new
+ext3_minus_minus_mark_buffer_dirty(), for example, put that in all the
+right places.
 
----
-diff -ur linux-2.6.15/arch/powerpc/platforms/cell/spu_base.c linux-2.6.15.fixed/arch/powerpc/platforms/cell/spu_base.c
---- linux-2.6.15/arch/powerpc/platforms/cell/spu_base.c	2006-03-22 12:30:07.000000000 -0600
-+++ linux-2.6.15.fixed/arch/powerpc/platforms/cell/spu_base.c	2006-03-22 10:21:26.000000000 -0600
-@@ -486,14 +486,13 @@
- 
- 	ea = spu->dar;
- 	dsisr = spu->dsisr;
--	if (dsisr & MFC_DSISR_PTE_NOT_FOUND) {
-+	if (dsisr & (MFC_DSISR_PTE_NOT_FOUND | MFC_DSISR_ACCESS_DENIED)) {
- 		access = (_PAGE_PRESENT | _PAGE_USER);
- 		access |= (dsisr & MFC_DSISR_ACCESS_PUT) ? _PAGE_RW : 0UL;
- 		if (hash_page(ea, access, 0x300) != 0)
- 			error |= CLASS1_ENABLE_STORAGE_FAULT_INTR;
- 	}
--	if ((error & CLASS1_ENABLE_STORAGE_FAULT_INTR) ||
--	    (dsisr & MFC_DSISR_ACCESS_DENIED)) {
-+	if (error & CLASS1_ENABLE_STORAGE_FAULT_INTR) {
- 		if ((ret = spu_handle_mm_fault(spu)) != 0)
- 			error |= CLASS1_ENABLE_STORAGE_FAULT_INTR;
- 		else
+>  Probably create a list in the stubbed journal functions and
+> then mark them dirty in the journal close?  However, half the reason
+> I'm working on ext2 is the simplicity of the code - stubbing it out
+> would solve the performance problem but not the complexity problem.
+
+Well ext3-- won't do anything to simplify the ext3 codebase.  It was just a
+thought..
+
+> Note that ext3's habit of clearing indirect blocks on truncate would
+> break some things I want to do in the future. (Insert secret plans
+> here.)
+
+Ah.  I guess one would need to port the ext2 truncate code.

@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751529AbWCXDBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751533AbWCXC7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751529AbWCXDBi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 22:01:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751530AbWCXDBi
+	id S1751533AbWCXC7q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 21:59:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751529AbWCXC7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 22:01:38 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:59847 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751529AbWCXDBi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 22:01:38 -0500
-Date: Thu, 23 Mar 2006 18:58:10 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Brandon Low <lostlogic@lostlogicx.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-mm1
-Message-Id: <20060323185810.3bf2a4ce.akpm@osdl.org>
-In-Reply-To: <20060324024540.GM27559@lostlogicx.com>
-References: <20060323014046.2ca1d9df.akpm@osdl.org>
-	<20060324021729.GL27559@lostlogicx.com>
-	<20060323182411.7f80b4a6.akpm@osdl.org>
-	<20060324024540.GM27559@lostlogicx.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 23 Mar 2006 21:59:46 -0500
+Received: from lame.durables.org ([64.81.244.120]:17601 "EHLO
+	calliope.durables.org") by vger.kernel.org with ESMTP
+	id S1751530AbWCXC7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 21:59:45 -0500
+Subject: Re: [openib-general] Re: [PATCH 9 of 18] ipath - char devices for
+	diagnostics and lightweight subnet management
+From: Robert Walsh <rjwalsh@pathscale.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: "Bryan O'Sullivan" <bos@pathscale.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, greg@kroah.com
+In-Reply-To: <adaodzwvdi1.fsf@cisco.com>
+References: <patchbomb.1143072293@eng-12.pathscale.com>
+	 <dffa0687112e4fdcf7d0.1143072302@eng-12.pathscale.com>
+	 <20060323064113.GC9841@mellanox.co.il>
+	 <1143103701.6411.21.camel@camp4.serpentine.com> <adaacbhvujm.fsf@cisco.com>
+	 <1143158332.11449.33.camel@serpentine.pathscale.com>
+	 <adaodzwvdi1.fsf@cisco.com>
+Content-Type: text/plain
+Date: Thu, 23 Mar 2006 18:59:34 -0800
+Message-Id: <1143169174.29062.16.camel@phosphene.durables.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brandon Low <lostlogic@lostlogicx.com> wrote:
->
-> On Thu, 03/23/06 at 18:24:11 -0800, Andrew Morton wrote:
->  > Brandon Low <lostlogic@lostlogicx.com> wrote:
->  > >
->  > > I'm getting a repeatable oops regardless of io scheduler (it looks like
->  > > it's in cfq code so I first tried changing schedulers) on USB
->  > > disconnect.
->  > > 
->  > OK, thanks.  There have been some recent changes affecting iosched context
->  > lifetime management, which might be causing this.
->  > 
->  > If you have time, it'd be useful if you could retest with
->  > ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.16-git6.gz -
->  > that'll tell us whether it's that code or if it's something which is only
->  > in -mm.
+> I'm
+> talking about all the kernel code like the following (and similar
+> stuff for guidinfo, nodedescription, portinfo, pkeytable).
 > 
->  Unable to reproduce with identical steps on git6.
+> You must have nearly identical code in your userspace SMA, since it
+> also has to respond to the same SM queries, right?
+> 
+> I'm trying to understand why you can't get down to one implementation
+> of these functions.
 
-ok..
+Why does that make a difference?  The way I see it, we handle MAD
+packets by either diverting them somewhere or passing them through the
+normal ib_mad channel.  We divert them somewhere because we find it
+convenient to do so: it allows us to provide an SMA to our customers
+without them having to have the full IB stack running.  The SMA we
+provide for these circumstances runs in userspace.  It doesn't make use
+of the existing ipath_mad.c code because that's tailored to: 1) run in
+the kernel; and 2) deal with the IB stack.  Even if we ripped out the
+guts of ipath_mad.c and had it pass the requests to the userspace SMA,
+we'd still have to have the diversion path in there for cases where the
+IB stack isn't around.
 
-I tried various combinations of plugging, mounting, unmounting and
-unplugging a USB memory stick.  No problems.
+-- 
+Robert Walsh                                 Email: rjwalsh@pathscale.com
+PathScale, Inc.                              Phone: +1 650 934 8117
+2071 Stierlin Court, Suite 200                 Fax: +1 650 428 1969
+Mountain View, CA 94043.
 
-Can you prepare a step-by-step guide to making this happen?
 
-Thanks.

@@ -1,295 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbWCXRbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbWCXRgO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932498AbWCXRbq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 12:31:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWCXRbq
+	id S932509AbWCXRgO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 12:36:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWCXRgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 12:31:46 -0500
-Received: from mail.sw-soft.com ([69.64.46.34]:38067 "EHLO mail.sw-soft.com")
-	by vger.kernel.org with ESMTP id S1751280AbWCXRbp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 12:31:45 -0500
-Message-ID: <44242CE7.3030905@sw.ru>
-Date: Fri, 24 Mar 2006 20:31:19 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Fri, 24 Mar 2006 12:36:14 -0500
+Received: from adsl-71-140-189-62.dsl.pltn13.pacbell.net ([71.140.189.62]:9434
+	"EHLO aexorsyst.com") by vger.kernel.org with ESMTP
+	id S1751280AbWCXRgN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 12:36:13 -0500
+From: "John Z. Bohach" <jzb@aexorsyst.com>
+Reply-To: jzb@aexorsyst.com
+To: linux-kernel@vger.kernel.org
+Subject: mem= causes oops (was Re: BIOS causes (exposes?) modprobe (load_module) kernel oops)
+Date: Fri, 24 Mar 2006 09:36:13 -0800
+User-Agent: KMail/1.5.2
+References: <200603212005.58274.jzb@aexorsyst.com> <200603222126.56720.jzb@aexorsyst.com> <20060322214257.1ef798e5.rdunlap@xenotime.net>
+In-Reply-To: <20060322214257.1ef798e5.rdunlap@xenotime.net>
 MIME-Version: 1.0
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       xemul@sw.ru, ebiederm@xmission.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, herbert@13thfloor.at, devel@openvz.org,
-       serue@us.ibm.com, sam@vilain.net
-Subject: [RFC][PATCH 1/2] Virtualization of UTS
-References: <44242B1B.1080909@sw.ru>
-In-Reply-To: <44242B1B.1080909@sw.ru>
-Content-Type: multipart/mixed;
- boundary="------------040000090404070001080309"
-X-SA-Do-Not-Rej: Toldya
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603240936.13178.jzb@aexorsyst.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040000090404070001080309
-Content-Type: text/plain; charset=windows-1251; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wednesday 22 March 2006 21:42, Randy.Dunlap wrote:
+> > So it seems that the page fault handler is somehow affected by something
+> > that the BIOS has/has not done, long after the system has booted and been
+> > running, with many page faults under its belt...now I've seen it all...or
+> > not.
+>
+> Sounds like we need to see complete boot logs from both BIOSen boots.
+> Can you do that?
+>
+> I'm just guessing that the memory maps are different, but who knows.
 
-This patch introduces utsname namespace in system, which allows to have 
-different utsnames on the host.
-Introduces config option CONFIG_UTS_NS and uts_namespace structure for this.
+I got something...
 
-http://git.openvz.org/?p=linux-2.6-openvz-ms;a=commitdiff;h=216bb5e42c7eef7f1ed361244a60b1496e8bdf63
+Here's the symbolic dump.  I've gotten it to break on the BIOS it
+did work on, by adding 512 MB RAM and bringing the total RAM to 1GB.
+In fact, it now breaks during boot-up, and doesn't even give me a chance
+to modprobe anything.  However, the cmdline is what makes it break/work:
 
-Signed-Off-By: Pavel Emelianov <xemul@openvz.org>
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+Here it is:
 
-Kirill
+fails with cmdline:
 
---------------040000090404070001080309
-Content-Type: text/plain;
- name="diff-ms-utsname-namespace"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-ms-utsname-namespace"
+Kernel command line: ro root=/dev/sda1 rootdelay=10 mem=0x200M console=ttyS0,115200n8
 
---- a/include/linux/init_task.h
-+++ b/include/linux/init_task.h
-@@ -3,6 +3,7 @@
- 
- #include <linux/file.h>
- #include <linux/rcupdate.h>
-+#include <linux/utsname.h>
- 
- #define INIT_FDTABLE \
- {							\
-@@ -72,6 +73,12 @@
- 
- extern struct group_info init_groups;
- 
-+#ifdef CONFIG_UTS_NS
-+#define INIT_UTS_NS	.uts_ns = &init_uts_ns,
-+#else
-+#define INIT_UTS_NS
-+#endif
-+
- /*
-  *  INIT_TASK is used to set up the first task table, touch at
-  * your own risk!. Base=0, limit=0x1fffff (=2MB)
-@@ -121,6 +128,7 @@ extern struct group_info init_groups;
- 	.journal_info	= NULL,						\
- 	.cpu_timers	= INIT_CPU_TIMERS(tsk.cpu_timers),		\
- 	.fs_excl	= ATOMIC_INIT(0),				\
-+	INIT_UTS_NS							\
- }
- 
- 
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -688,6 +688,7 @@ static inline void prefetch_stack(struct
- 
- struct audit_context;		/* See audit.c */
- struct mempolicy;
-+struct uts_namespace;
- 
- struct task_struct {
- 	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
-@@ -802,6 +803,9 @@ struct task_struct {
- 	struct files_struct *files;
- /* namespace */
- 	struct namespace *namespace;
-+#ifdef CONFIG_UTS_NS
-+	struct uts_namespace *uts_ns;
-+#endif
- /* signal handlers */
- 	struct signal_struct *signal;
- 	struct sighand_struct *sighand;
---- a/include/linux/utsname.h
-+++ b/include/linux/utsname.h
-@@ -30,7 +30,36 @@ struct new_utsname {
- 	char domainname[65];
- };
- 
-+#ifdef CONFIG_UTS_NS
-+#include <asm/atomic.h>
-+
-+struct uts_namespace {
-+	atomic_t cnt;
-+	struct new_utsname name;
-+};
-+
-+extern struct uts_namespace *create_uts_ns(void);
-+extern struct uts_namespace *clone_uts_ns(void);
-+extern void free_uts_ns(struct uts_namespace *ns);
-+
-+static inline void get_uts_ns(struct uts_namespace *ns)
-+{
-+	atomic_inc(&ns->cnt);
-+}
-+
-+static inline void put_uts_ns(struct uts_namespace *ns)
-+{
-+	if (atomic_dec_and_test(&ns->cnt))
-+		free_uts_ns(ns);
-+}
-+
-+#define system_utsname	(current->uts_ns->name)
-+extern struct uts_namespace init_uts_ns;
-+#else
-+#define get_uts_ns(ns)	do { } while (0)
-+#define put_uts_ns(ns)	do { } while (0)
- extern struct new_utsname system_utsname;
-+#endif
- 
- extern struct rw_semaphore uts_sem;
- #endif
---- a/init/version.c
-+++ b/init/version.c
-@@ -17,6 +17,51 @@
- 
- int version_string(LINUX_VERSION_CODE);
- 
-+#ifdef CONFIG_UTS_NS
-+struct uts_namespace init_uts_ns = {
-+	.cnt = ATOMIC_INIT(1),
-+	.name = {
-+		.sysname	= UTS_SYSNAME,
-+		.nodename	= UTS_NODENAME,
-+		.release	= UTS_RELEASE,
-+		.version	= UTS_VERSION,
-+		.machine	= UTS_MACHINE,
-+		.domainname	= UTS_DOMAINNAME,
-+	},
-+};
-+
-+struct uts_namespace *create_uts_ns(void)
-+{
-+	struct uts_namespace *ns;
-+
-+	ns = kmalloc(sizeof(struct uts_namespace), GFP_KERNEL);
-+	if (ns == NULL)
-+		return NULL;
-+
-+	memset(&ns->name, 0, sizeof(ns->name));
-+	atomic_set(&ns->cnt, 1);
-+	return ns;
-+}
-+
-+struct uts_namespace *clone_uts_ns(void)
-+{
-+	struct uts_namespace *ns, *cur;
-+
-+	ns = kmalloc(sizeof(struct uts_namespace), GFP_KERNEL);
-+	if (ns == NULL)
-+		return NULL;
-+
-+	cur = current->uts_ns;
-+	memcpy(&ns->name, &cur->name, sizeof(cur->name));
-+	atomic_set(&ns->cnt, 1);
-+	return ns;
-+}
-+
-+void free_uts_ns(struct uts_namespace *ns)
-+{
-+	kfree(ns);
-+}
-+#else
- struct new_utsname system_utsname = {
- 	.sysname	= UTS_SYSNAME,
- 	.nodename	= UTS_NODENAME,
-@@ -27,6 +72,7 @@ struct new_utsname system_utsname = {
- };
- 
- EXPORT_SYMBOL(system_utsname);
-+#endif
- 
- const char linux_banner[] =
- 	"Linux version " UTS_RELEASE " (" LINUX_COMPILE_BY "@"
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -107,6 +107,7 @@ repeat: 
- 	spin_unlock(&p->proc_lock);
- 	proc_pid_flush(proc_dentry);
- 	release_thread(p);
-+	put_uts_ns(p->uts_ns);
- 	put_task_struct(p);
- 
- 	p = leader;
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1192,6 +1192,7 @@ static task_t *copy_process(unsigned lon
- 	}
- 	attach_pid(p, PIDTYPE_TGID, p->tgid);
- 	attach_pid(p, PIDTYPE_PID, p->pid);
-+	get_uts_ns(p->uts_ns);
- 
- 	nr_threads++;
- 	total_forks++;
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -229,12 +229,18 @@ static ctl_table root_table[] = {
- 	{ .ctl_name = 0 }
- };
- 
-+#ifdef CONFIG_UTS_NS
-+#define sysctl_system_utsname	(init_uts_ns.name)
-+#else
-+#define sysctl_system_utsname	(system_utsname)
-+#endif
-+
- static ctl_table kern_table[] = {
- 	{
- 		.ctl_name	= KERN_OSTYPE,
- 		.procname	= "ostype",
--		.data		= system_utsname.sysname,
--		.maxlen		= sizeof(system_utsname.sysname),
-+		.data		= sysctl_system_utsname.sysname,
-+		.maxlen		= sizeof(sysctl_system_utsname.sysname),
- 		.mode		= 0444,
- 		.proc_handler	= &proc_doutsstring,
- 		.strategy	= &sysctl_string,
-@@ -242,8 +248,8 @@ static ctl_table kern_table[] = {
- 	{
- 		.ctl_name	= KERN_OSRELEASE,
- 		.procname	= "osrelease",
--		.data		= system_utsname.release,
--		.maxlen		= sizeof(system_utsname.release),
-+		.data		= sysctl_system_utsname.release,
-+		.maxlen		= sizeof(sysctl_system_utsname.release),
- 		.mode		= 0444,
- 		.proc_handler	= &proc_doutsstring,
- 		.strategy	= &sysctl_string,
-@@ -251,8 +257,8 @@ static ctl_table kern_table[] = {
- 	{
- 		.ctl_name	= KERN_VERSION,
- 		.procname	= "version",
--		.data		= system_utsname.version,
--		.maxlen		= sizeof(system_utsname.version),
-+		.data		= sysctl_system_utsname.version,
-+		.maxlen		= sizeof(sysctl_system_utsname.version),
- 		.mode		= 0444,
- 		.proc_handler	= &proc_doutsstring,
- 		.strategy	= &sysctl_string,
-@@ -260,8 +266,8 @@ static ctl_table kern_table[] = {
- 	{
- 		.ctl_name	= KERN_NODENAME,
- 		.procname	= "hostname",
--		.data		= system_utsname.nodename,
--		.maxlen		= sizeof(system_utsname.nodename),
-+		.data		= sysctl_system_utsname.nodename,
-+		.maxlen		= sizeof(sysctl_system_utsname.nodename),
- 		.mode		= 0644,
- 		.proc_handler	= &proc_doutsstring,
- 		.strategy	= &sysctl_string,
-@@ -269,8 +275,8 @@ static ctl_table kern_table[] = {
- 	{
- 		.ctl_name	= KERN_DOMAINNAME,
- 		.procname	= "domainname",
--		.data		= system_utsname.domainname,
--		.maxlen		= sizeof(system_utsname.domainname),
-+		.data		= sysctl_system_utsname.domainname,
-+		.maxlen		= sizeof(sysctl_system_utsname.domainname),
- 		.mode		= 0644,
- 		.proc_handler	= &proc_doutsstring,
- 		.strategy	= &sysctl_string,
+works with:
 
---------------040000090404070001080309--
+Kernel command line: ro root=/dev/sda1 rootdelay=10 console=ttyS0,115200n8
+
+Note the "mem=" being the differentiator!
+
+So I guess BIOS is off the hook.  Here's a more interesting dump of the new failing
+case (with 1 GB RAM, and mem=0x200M on command line).  BTW, note that
+mem=0x200M works fine as long as there's only 512 MB in the system.
+
+(And also note that the kernel was built without ACPI (or APM) support).
+
+INIT: version 2.85 booting
+INIT: Entering runlevel: 3
+Starting system log daemon...
+[   39.333210] Unable to handle kernel paging request at virtual address b7c4e000
+[   39.340642]  printing eip:
+[   39.343414] c013213c
+[   39.345653] *pde = 017eb067
+[   39.348516] *pte = 00000000
+[   39.351379] Oops: 0002 [#1]
+[   39.354239] SMP DEBUG_PAGEALLOC
+[   39.357476] Modules linked in:
+[   39.360615] CPU:    0
+[   39.360616] EIP:    0060:[<c013213c>]    Not tainted VLI
+[   39.360618] EFLAGS: 00010006   (2.6.14.2) 
+[   39.373302] EIP is at free_block+0x41/0xbc
+[   39.377501] eax: c1508d40   ebx: dffb6000   ecx: dffb6b80   edx: b7c4e000
+[   39.384458] esi: c1508d40   edi: 00000000   ebp: c1505280   esp: c1567ef4
+[   39.391413] ds: 007b   es: 007b   ss: 0068
+[   39.395622] Process events/0 (pid: 4, threadinfo=c1566000 task=c151fa30)
+[   39.402309] Stack: c150aa14 00000003 c150aa00 c1505280 c0132963 c1505280 c150aa14 00000003 
+[   39.410930]        00000000 00000000 c1508368 c1508d10 c1508d40 c1505280 c0132a0d c1505280 
+[   39.419568]        c150aa00 00000000 00000000 00000002 c15052dc 00000246 c14063e0 c14063e4 
+[   39.428186] Call Trace:
+[   39.430878]  [<c0132963>] drain_array_locked+0x61/0x8c
+[   39.436161]  [<c0132a0d>] cache_reap+0x7f/0x18f
+[   39.440823]  [<c011f86a>] worker_thread+0x16f/0x1dd
+[   39.445843]  [<c013298e>] cache_reap+0x0/0x18f
+[   39.450420]  [<c0110299>] default_wake_function+0x0/0x12
+[   39.455879]  [<c0110299>] default_wake_function+0x0/0x12
+[   39.461338]  [<c011f6fb>] worker_thread+0x0/0x1dd
+[   39.466173]  [<c0122d23>] kthread+0x7c/0xa6
+[   39.470472]  [<c0122ca7>] kthread+0x0/0xa6
+[   39.474681]  [<c0100ea5>] kernel_thread_helper+0x5/0xb
+[   39.479967] Code: 24 18 8b 15 50 ec 31 c0 8b 0c b8 8d 81 00 00 00 40 c1 e8 0c c1 e0 05 8b 5c 02 1c 8b 44 24 20 8b 53  
+[   39.499780]  
+
+[42949372.960000] Linux version 2.6.14.2 (root@zeus) (gcc version 3.3.4) #1 SMP Fri Mar 24 08:27:33 PST 2006
+[42949372.960000] BIOS-provided physical RAM map:
+[42949372.960000]  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+[42949372.960000]  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+[42949372.960000]  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+[42949372.960000]  BIOS-e820: 0000000000100000 - 000000003fe30000 (usable)
+[42949372.960000]  BIOS-e820: 000000003fe30000 - 000000003fe40000 (ACPI data)
+[42949372.960000]  BIOS-e820: 000000003fe40000 - 000000003ff00000 (ACPI NVS)
+[42949372.960000]  BIOS-e820: 000000003ff00000 - 0000000040000000 (reserved)
+[42949372.960000]  BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
+[42949372.960000]  BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+[42949372.960000] user-defined physical RAM map:
+[42949372.960000]  user: 0000000000000000 - 000000000009fc00 (usable)
+[42949372.960000]  user: 000000000009fc00 - 00000000000a0000 (reserved)
+[42949372.960000]  user: 00000000000e0000 - 0000000000100000 (reserved)
+[42949372.960000]  user: 0000000000100000 - 0000000020000000 (usable)
+[42949372.960000] 512MB LOWMEM available.
+[42949372.960000] found SMP MP-table at 000ff780
+...
+
+Thanks for taking a look...
+

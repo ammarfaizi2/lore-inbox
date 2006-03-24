@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWCXXn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWCXXqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbWCXXn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 18:43:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbWCXXn3
+	id S932282AbWCXXqf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 18:46:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWCXXqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 18:43:29 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:51596 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932269AbWCXXn2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 18:43:28 -0500
-Date: Fri, 24 Mar 2006 17:43:06 -0600
-To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Cc: Greg KH <greg@kroah.com>, Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 1/6] PCIERR : interfaces for synchronous I/O error detection on driver
-Message-ID: <20060324234306.GC21895@austin.ibm.com>
-References: <44210D1B.7010806@jp.fujitsu.com> <20060322210157.GH12335@kroah.com> <4423A40D.3080906@jp.fujitsu.com>
+	Fri, 24 Mar 2006 18:46:35 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:54984 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932282AbWCXXqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 18:46:34 -0500
+Date: Fri, 24 Mar 2006 15:45:59 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
+Subject: more smpnice patch issues
+Message-ID: <20060324154558.A20018@unix-os.sc.intel.com>
+References: <20060322155122.2745649f.akpm@osdl.org> <4421F702.5040609@bigpond.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4423A40D.3080906@jp.fujitsu.com>
-User-Agent: Mutt/1.5.9i
-From: linas@austin.ibm.com (Linas Vepstas)
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4421F702.5040609@bigpond.net.au>; from pwil3058@bigpond.net.au on Wed, Mar 22, 2006 at 05:16:50PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 24, 2006 at 04:47:25PM +0900, Hidetoshi Seto wrote:
-> 
-> At 2.6.16-rc1, Linux kernel accepts and provides "PCI-bus error event
-> callbacks" that enable RAS-aware drivers to notice errors asynchronously,
-> and to join following kernel-initiated PCI-bus error recovery.
-> This callbacks work well on PPC64 where it was designed to fit.
-> 
-> However, some difficulty still remains to cover all possible error
-> situations even if we use callbacks. It will not help keeping data
-> integrity, passing no broken data to drivers and user lands, preventing
-> applications from going crazy or sudden death.
+more issues with smpnice patch...
 
-This is not true.  Although there are some subtle issues, (which
-I invite you to describe), the goal of the current design is to 
-insure data integrity, and make sure that neither the driver nor 
-the userland gets corrupted data. There shouldn't be any "crazy
-or sudden death" if the device drivers are any good.
+a) consider a 4-way system (simple SMP system with no HT and cores) scenario
+where a high priority task (nice -20) is running on P0 and two normal
+priority tasks running on P1. load balance with smp nice code
+will never be able to detect an imbalance and hence will never move one of 
+the normal priority tasks on P1 to idle cpus P2 or P3.
 
-Of course, this depends on the hardware implementation. If
-your PCI bus sends corrupt data up to the driver ... all bets 
-are off. The design is predicated on the assumption that the
-hardware sends either good data or no data, ad that the latter
-is associated with a bus state indicating an error has ocurred.
+b) smpnice seems to break this patch..
 
->  - It will be useful if arch chooses panic on bus errors not to pass
->    any broken data to un-reliable drivers.
+[PATCH] sched: allow the load to grow upto its cpu_power
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=0c117f1b4d14380baeed9c883f765ee023da8761
 
-I assume you meant "if arch chooses NOT to panic on bus errors ..."
+example scenario for this case: consider a numa system with two nodes, each
+node containing four processors. if there are two processes in node-0 and with
+node-1 being completely idle, your patch will move one of those processes to
+node-1 whereas the previous behavior will retain those two processes in node-0..
+(in this case, in your code max_load will be less than busiest_load_per_task)
 
-I'll review the rest of the patch via sepaate email
+smpnice patch has complicated the load balance code... Very difficult
+to comprehend the side effects of this patch in the presence of different 
+priority tasks...
 
---linas
+thanks,
+suresh

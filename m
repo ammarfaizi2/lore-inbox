@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWCXIZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932588AbWCXIrf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932390AbWCXIZr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 03:25:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932557AbWCXIZr
+	id S932588AbWCXIrf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 03:47:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbWCXIrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 03:25:47 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:64641 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932390AbWCXIZr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 03:25:47 -0500
-Date: Fri, 24 Mar 2006 11:25:22 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: yang.y.yi@gmail.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       matthltc@us.ibm.com, arjan@infradead.org
-Subject: Re: [2.6.16 PATCH] Connector: Filesystem Events Connector v3
-Message-ID: <20060324082522.GE5426@2ka.mipt.ru>
-References: <4423673C.7000008@gmail.com> <20060324080542.GA5426@2ka.mipt.ru> <20060324.002019.57110478.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 24 Mar 2006 03:47:35 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:46553 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932572AbWCXIrf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 03:47:35 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH] powerpc: Kill machine numbers
+Date: Fri, 24 Mar 2006 09:46:50 +0100
+User-Agent: KMail/1.9.1
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Olof Johansson <olof@lixom.net>, Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       cbe-oss-dev@ozlabs.org
+References: <1143178947.4257.78.camel@localhost.localdomain> <20060324062624.GA16815@pb15.lixom.net> <1143187298.3710.3.camel@localhost.localdomain>
+In-Reply-To: <1143187298.3710.3.camel@localhost.localdomain>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20060324.002019.57110478.davem@davemloft.net>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 24 Mar 2006 11:25:23 +0300 (MSK)
+Message-Id: <200603240946.51793.arnd@arndb.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 24, 2006 at 12:20:19AM -0800, David S. Miller (davem@davemloft.net) wrote:
-> From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-> Date: Fri, 24 Mar 2006 11:05:42 +0300
+On Friday 24 March 2006 09:01, Benjamin Herrenschmidt wrote:
+> > > -struct machdep_calls __initdata cell_md = {
+> > > +define_machine(cell) {
+> > >     .probe                  = cell_probe,
+> > >     .setup_arch             = cell_setup_arch,
+> > >     .init_early             = cell_init_early,
+> > 
+> > You forgot to add a .name value here.
 > 
->  ...
-> > Ack.
->  ...
-> 
-> Is it really necessary to quote the entire patch just to say "ACK"?
-> 
-> This wastes a lot of unnecessary mailing list bandwidth, please do not
-> do this.  Poor vger.kernel.org is overworked enough as it is :-)
-> 
-> Thank you.
+> Yup, thanks. I think this should become cpb instead of cell, other cell
+> based boards would then have different ppc_md's though they could share
+> various routines.
 
-:) my fault, sorry.
-But doesn't it have enough processors to show us this nice module again?
+The cpb name come from an outdated code name for what we currently
+call the cell blade. My current understanding is that we try to keep
+a common machine description for at least those machines that are
+running without a hypervisor underneath them but based on rtas,
+while then adding new machine descriptions for others.
 
--- 
-	Evgeniy Polyakov
+However I really want to avoid having to add a new machine description
+every time a company comes up with a new board design. As long
+as they get everything right in the device tree, it should just
+work (as long as all device drivers are there).
+
+One thing I have been wondering about is what should be the right way
+to check whether we're running on something based on the
+Cell Broadband Engine Architecture, if that is needed somewhere.
+My original idea was to make this the platform number, but this
+seems impractical now.
+
+	Arnd <><

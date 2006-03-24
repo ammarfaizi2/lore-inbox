@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbWCXNgk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422755AbWCXNha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030183AbWCXNgk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 08:36:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbWCXNgk
+	id S1422755AbWCXNha (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 08:37:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWCXNh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 08:36:40 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:10121 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932585AbWCXNgj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 08:36:39 -0500
-Message-ID: <4423F5D5.4070103@linux.intel.com>
-Date: Fri, 24 Mar 2006 14:36:21 +0100
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Fri, 24 Mar 2006 08:37:29 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:40167 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932585AbWCXNh3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 08:37:29 -0500
+Message-ID: <4423F60B.6020805@garzik.org>
+Date: Fri, 24 Mar 2006 08:37:15 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [patch] Ignore MCFG if the mmconfig area isn't reserved in the
- e820 table
-References: <1143138170.3147.43.camel@laptopd505.fenrus.org>	<200603231856.12227.ak@suse.de>	<1143140539.3147.44.camel@laptopd505.fenrus.org>	<1143141320.3147.47.camel@laptopd505.fenrus.org> <p73k6ak593d.fsf@verdi.suse.de>
-In-Reply-To: <p73k6ak593d.fsf@verdi.suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Ian Pratt <m+Ian.Pratt@cl.cam.ac.uk>,
+       Anthony Liguori <aliguori@us.ibm.com>,
+       Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
+       Ian Pratt <ian.pratt@xensource.com>, ian.pratt@cl.cam.ac.uk,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [RFC PATCH 35/35] Add Xen virtual block device driver.
+References: <A95E2296287EAD4EB592B5DEEFCE0E9D4B9E8A@liverpoolst.ad.cl.cam.ac.uk>	 <4421D943.1090804@garzik.org> <1143202673.18986.5.camel@localhost.localdomain> <4423E853.1040707@garzik.org>
+In-Reply-To: <4423E853.1040707@garzik.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.5 (--)
+X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
+	Content analysis details:   (-2.5 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> I added the patch to my patchkit now.
+Jeff Garzik wrote:
+> In fact, SCSI should make a few things easier, because the notion of 
+> host+bus topology is already present, and notion of messaging is already 
+> present, so you don't have to recreate that in a Xen block device 
+> infrastructure.
 
-thanks
+Another benefit of SCSI:  when an IBM hypervisor in the Linux kernel 
+switched to SCSI, that allowed them to replace several drivers (virt 
+disk, virt cdrom, virt floppy?) with a single virt-SCSI driver.
 
-> I also have an older patch (needs a bit
-> more cleanup) that checks for all busses if they are reachable using MCFG
-> Still needs some more work and interaction check with PCI hotplug though.
->
+	Jeff
 
-yes more advanced tests are going to be useful; at least this one was simple and catches
-a large portion of the problem cases.
+

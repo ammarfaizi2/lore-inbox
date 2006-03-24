@@ -1,62 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751533AbWCXC7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422997AbWCXDOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751533AbWCXC7q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 21:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751529AbWCXC7q
+	id S1422997AbWCXDOY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 22:14:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422998AbWCXDOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 21:59:46 -0500
-Received: from lame.durables.org ([64.81.244.120]:17601 "EHLO
-	calliope.durables.org") by vger.kernel.org with ESMTP
-	id S1751530AbWCXC7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 21:59:45 -0500
-Subject: Re: [openib-general] Re: [PATCH 9 of 18] ipath - char devices for
-	diagnostics and lightweight subnet management
-From: Robert Walsh <rjwalsh@pathscale.com>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: "Bryan O'Sullivan" <bos@pathscale.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, greg@kroah.com
-In-Reply-To: <adaodzwvdi1.fsf@cisco.com>
-References: <patchbomb.1143072293@eng-12.pathscale.com>
-	 <dffa0687112e4fdcf7d0.1143072302@eng-12.pathscale.com>
-	 <20060323064113.GC9841@mellanox.co.il>
-	 <1143103701.6411.21.camel@camp4.serpentine.com> <adaacbhvujm.fsf@cisco.com>
-	 <1143158332.11449.33.camel@serpentine.pathscale.com>
-	 <adaodzwvdi1.fsf@cisco.com>
-Content-Type: text/plain
-Date: Thu, 23 Mar 2006 18:59:34 -0800
-Message-Id: <1143169174.29062.16.camel@phosphene.durables.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 23 Mar 2006 22:14:24 -0500
+Received: from host29-249.pool870.interbusiness.it ([87.0.249.29]:54788 "HELO
+	host29-249.pool870.interbusiness.it") by vger.kernel.org with SMTP
+	id S1422997AbWCXDOX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 22:14:23 -0500
+From: "bracha cherakee" <tariffs@cockos.com>
+To: "yameenayka osiris" <linux-kernel@vger.kernel.org>
+Subject: Re[7]: To love and be loved is to feel the sun from both sides   
+Date: Fri, 24 Mar 2006 03:18:08 +0000
+Message-ID: <249601c64ef1$175ce0dd$1df90057@host29-249.pool870.interbusiness.it>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="us-ascii";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2527
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm
-> talking about all the kernel code like the following (and similar
-> stuff for guidinfo, nodedescription, portinfo, pkeytable).
-> 
-> You must have nearly identical code in your userspace SMA, since it
-> also has to respond to the same SM queries, right?
-> 
-> I'm trying to understand why you can't get down to one implementation
-> of these functions.
+Aloha!
 
-Why does that make a difference?  The way I see it, we handle MAD
-packets by either diverting them somewhere or passing them through the
-normal ib_mad channel.  We divert them somewhere because we find it
-convenient to do so: it allows us to provide an SMA to our customers
-without them having to have the full IB stack running.  The SMA we
-provide for these circumstances runs in userspace.  It doesn't make use
-of the existing ipath_mad.c code because that's tailored to: 1) run in
-the kernel; and 2) deal with the IB stack.  Even if we ripped out the
-guts of ipath_mad.c and had it pass the requests to the userspace SMA,
-we'd still have to have the diversion path in there for cases where the
-IB stack isn't around.
+Just one bottle will change your life!
+Gain MASSIVE Sexual Chemistry on Demand!
 
--- 
-Robert Walsh                                 Email: rjwalsh@pathscale.com
-PathScale, Inc.                              Phone: +1 650 934 8117
-2071 Stierlin Court, Suite 200                 Fax: +1 650 428 1969
-Mountain View, CA 94043.
+Instantly Arouse, Attract, Excite, Intrigue and Seduce
+Gorgeous Women Whenever You Want, Wherever You Want,
+As Often As You Want ... Any Time YOU Are In the Mood.
 
+Increase your self-confidence and masculinity big-time.
+then this may be the most important news you will read all year.
+Here's why ...
+
+If YOU have ever experienced even one of those frustrating 
+"What did I do wrong?" moments, trying to meet and seduce good-looking 
+women, it's time for you to stop wondering and fumbling, ever again.
+
+But the fact of the matter is, for most guys, this "chemistry" is rare.
+Way more often you have awkward silences, embarrassing miscues,
+wrong turns and dead ends .
+
+You know what I mean? It hurts. Well, just suppose for a moment .
+Suppose you could have total control. Suppose you could turn on the
+chemistry whenever and with whoever YOU want?
+Suppose you knew you could turn ON this magical attraction with
+as many women as you want, whenever YOU want it?
+
+"Now You Can!!!" 
+
+More information you will get on our weebsiiiitttteee: yournewpower[DOT]info (replace "[DOT]" to ".") 
+
+
+------------
+hate that man!" she thought.  Seeing his hat on the rack, she
+shuddered with aversion.  She did not consider that his telegram
+was an answer to her telegram and that he had not yet received
+her note.  She pictured him to herself as talking calmly to his
+mother and Princess Sorokina and rejoicing at her sufferings.
+"Yes, I must go quickly," she said, not knowing yet where she was
+going.  She longed to get away as quickly as possible from the
+feelings she had gone through in that awful house.  The servants,
+the walls, the things in that house--all aroused repulsion and
+hatred in her and lay like a weight upon her.
+"Yes, I must go to the railway station, and if he's not there,
+then go there and catch him."  Anna looked at the railway
+timetable in the newspapers.  An evening train went at two
+minutes past eight.  "Yes, I shall be in time."  She gave orders
 

@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932648AbWCXTq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932657AbWCXTxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932648AbWCXTq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 14:46:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932652AbWCXTq5
+	id S932657AbWCXTxa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 14:53:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932659AbWCXTxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 14:46:57 -0500
-Received: from keetweej.vanheusden.com ([213.84.46.114]:28545 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S932648AbWCXTq5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 14:46:57 -0500
-Date: Fri, 24 Mar 2006 20:46:55 +0100
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: info@papouch.com, linux-kernel@vger.kernel.org, bryder@sgi.com
-Subject: Papouch USB thermometer support
-Message-ID: <20060324194655.GY4124@vanheusden.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Reply-By: Fri Mar 24 09:46:53 CET 2006
-X-Message-Flag: www.unixexpert.nl
-User-Agent: Mutt/1.5.10i
+	Fri, 24 Mar 2006 14:53:30 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48600 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932657AbWCXTx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 14:53:29 -0500
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       xemul@sw.ru, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
+       herbert@13thfloor.at, devel@openvz.org, serue@us.ibm.com,
+       sam@vilain.net
+Subject: Re: [RFC][PATCH 1/2] Virtualization of UTS
+References: <44242B1B.1080909@sw.ru> <44242CE7.3030905@sw.ru>
+	<m18xqzk6cy.fsf@ebiederm.dsl.xmission.com> <442449F8.4050808@sw.ru>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 24 Mar 2006 12:50:36 -0700
+In-Reply-To: <442449F8.4050808@sw.ru> (Kirill Korotaev's message of "Fri, 24
+ Mar 2006 22:35:20 +0300")
+Message-ID: <m1acbfipv7.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Kirill Korotaev <dev@sw.ru> writes:
 
-The following patch against 2.6.15 adds support for the www.Papouch.com
-USB thermometer by adding the appropriate vendor and product id.
+>>> This patch introduces utsname namespace in system, which allows to have
+>>> different utsnames on the host.
+>>> Introduces config option CONFIG_UTS_NS and uts_namespace structure for this.
+>> Ok.  It looks like we need to resolve the sysctl issues before we merge
+>> either patch, into the stable kernel.
+> I disagree with you. Right now we can have sysctl and proc for init namespaces
+> only.
+> And when sysctl and proc are virtualized somehow, we can fix all these.
+> I simply don't expect /proc and sysctl to be done quickly. As we have very
+> different approaches. And there is no any consensus. Why not to commit
+> working/agreed parts then?
 
+So getting this code into Andrews development tree (as long as he is willing
+to accept it) looks very reasonable.  We can't change the interface
+once we get into the stable kernel because that becomes part of the
+ABI.
 
-Signed off: Folkert van Heusden <folkert@vanheusden.com
+So all I am saying is that this code is clearly not yet ready for
+the stable branch, because we plan to change the sysctl interface.
 
-diff -uNrbBd old/ftdi_sio.c new/ftdi_sio.c
---- old/ftdi_sio.c      2006-03-24 20:36:19.000000000 +0100
-+++ new/ftdi_sio.c      2006-03-24 20:33:20.000000000 +0100
-@@ -307,6 +307,7 @@
+>> We also need to discuss the system call interface, as without one
+>> the functionality is unusable :)
+> I also don't see why it can be separated. There is an API in namespaces, and how
+> it is mapped into syscalls is another question. At least it doesn't prevent us
+> from commiting virtualization itself, agree?
 
+Separating the patches makes a lot of sense.  Putting something into
+the kernel without any in tree users is a problem.
 
- static struct usb_device_id id_table_combined [] = {
-+       { USB_DEVICE(PAPOUCHE_VENDOR, PAPOUCHE_THEM_PROD) },
-        { USB_DEVICE(FTDI_VID, FTDI_IRTRANS_PID) },
-        { USB_DEVICE(FTDI_VID, FTDI_SIO_PID) },
-        { USB_DEVICE(FTDI_VID, FTDI_8U232AM_PID) },
-diff -uNrbBd old/ftdi_sio.h new/ftdi_sio.h
---- old/ftdi_sio.h      2006-03-24 20:36:19.000000000 +0100
-+++ new/ftdi_sio.h      2006-03-24 20:37:35.000000000 +0100
-@@ -20,8 +20,13 @@
-  * Philipp Gühring - pg@futureware.at - added the Device ID of the USB relais
-  * from Rudolf Gugler
-  *
-+ * Folkert van Heusden - folkert@vanheusden.com - added the device id of the
-+ * temperature sensor from www.papouch.com
-  */
-
-+#define PAPOUCHE_VENDOR 0x5050
-+#define PAPOUCHE_THEM_PROD 0x0400
-+
- #define FTDI_VID       0x0403  /* Vendor Id */
- #define FTDI_SIO_PID   0x8372  /* Product Id SIO application of 8U100AX  */
- #define FTDI_8U232AM_PID 0x6001 /* Similar device to SIO above */
-
-
-Folkert van Heusden
-
--- 
-www.vanheusden.com/multitail - multitail is tail on steroids. multiple
-               windows, filtering, coloring, anything you can think of
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+Eric

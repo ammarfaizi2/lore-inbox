@@ -1,96 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWCXSfc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWCXSgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932244AbWCXSfc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 13:35:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWCXSfb
+	id S932122AbWCXSgh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 13:36:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWCXSgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 13:35:31 -0500
-Received: from iron.cat.pdx.edu ([131.252.208.92]:52188 "EHLO iron.cat.pdx.edu")
-	by vger.kernel.org with ESMTP id S1751144AbWCXSfb (ORCPT
+	Fri, 24 Mar 2006 13:36:37 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:56034 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932122AbWCXSgg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 13:35:31 -0500
-Date: Fri, 24 Mar 2006 10:34:53 -0800 (PST)
-From: Suzanne Wood <suzannew@cs.pdx.edu>
-Message-Id: <200603241834.k2OIYrB3006877@baham.cs.pdx.edu>
-To: akpm@osdl.org, oleg@tv-sign.ru
-Cc: kiran@scalex86.org, linux-kernel@vger.kernel.org, paulmck@us.ibm.com,
-       suzannew@cs.pdx.edu
-Subject: Re: [PATCH 2.6.16-mm1] cleanup __exit_signal->cleanup_sighand path
+	Fri, 24 Mar 2006 13:36:36 -0500
+Date: Fri, 24 Mar 2006 10:33:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Brandon Low <lostlogic@lostlogicx.com>
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: 2.6.16-mm1
+Message-Id: <20060324103301.4e6c5a4b.akpm@osdl.org>
+In-Reply-To: <20060324125817.GB3381@lostlogicx.com>
+References: <20060323014046.2ca1d9df.akpm@osdl.org>
+	<20060324021729.GL27559@lostlogicx.com>
+	<20060323182411.7f80b4a6.akpm@osdl.org>
+	<20060324024540.GM27559@lostlogicx.com>
+	<20060323185810.3bf2a4ce.akpm@osdl.org>
+	<20060324032126.GN27559@lostlogicx.com>
+	<20060324033934.161302c1.akpm@osdl.org>
+	<20060324125817.GB3381@lostlogicx.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you.  This looks good.  It clarifies the setting of tsk->sighand to NULL 
-before releasing siglock as you suggested earlier on LKML.
+Brandon Low <lostlogic@lostlogicx.com> wrote:
+>
+> On Fri, 03/24/06 at 03:39:34 -0800, Andrew Morton wrote:
+> > Brandon Low <lostlogic@lostlogicx.com> wrote:
+> > >
+> > >  I hadn't noticed immediately in the ooops, but it is something to do
+> > >  with the Hardware Abstraction Layer Daemon from http://freedesktop.org/Software/hal
+> > >  I can't reproduce it without that daemon loaded either.  I wonder if the
+> > >  last accessed sysfs file mentioned in the oops (sda/size) is relevent
+> > >  also.
+> > > 
+> > >  My exact steps (with hald loaded) are:
+> > >  plug in ipod
+> > >  mount /mnt/ipod
+> > >  unzip -d /mnt/ipod rockbox.zip
+> > >  eject /dev/sda
+> > >  unplug ipod
+> > >  immediately here, the oops prints.
+> > 
+> > Still no joy, alas.
+> > 
+> > git-cfq.patch plays with the elevator exit code for all IO schedulers. 
+> > Would you be able to do
+> > 
+> > wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.16-mm1/broken-out/git-cfq.patch
+> > patch -p1 -R < git-cfq.patch
+> > 
+> > and retest?
+> > 
+> > Thanks.
+> 
+> It is definitely this patch.  Identical steps (also used an untainted
+> kernel for both tests) on -mm1 with and without that patch, and when the
+> patch is reversed, I cannot cause the oops.  I booted into single user
+> mode (to dodge tainting and any other weirdness), started the dbus
+> system message daemon and hald (which depends on dbus), then performed
+> the steps mentioned above.
+> 
 
-And it addresses all the occurrences in the mm-kernel of cleanup_sighand() to 
-become __cleanup_sighand() with the different argument -- paralleling the 
-__cleanup_signal().
-
-The patch draws attention to __exit_signal() of fork.c and when the decremented 
-sig->count doesn't go to zero, the 'else' branch of the conditional, after 
-incrementing several counter fields of sig, sets sig to NULL to morph it 
-into a flag -- interesting.
-Thanks.
-Suzanne
-
-  > From Oleg Nesterov Thu Mar 23 10:59:36 2006
-
-  > This patch moves 'tsk->sighand = NULL' from cleanup_sighand() to
-  > __exit_signal(). This makes the exit path more understandable and
-  > allows us to do cleanup_sighand() outside of ->siglock protected
-  > section.
-
-  > Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
-  > --- MM/include/linux/sched.h~1_ESCS	2006-03-23 22:48:10.000000000 +0300
-  > +++ MM/include/linux/sched.h	2006-03-23 23:00:02.000000000 +0300
-  > @@ -1184,7 +1184,7 @@ extern void exit_thread(void);
-  >  
-  >  extern void exit_files(struct task_struct *);
-  >  extern void __cleanup_signal(struct signal_struct *);
-  > -extern void cleanup_sighand(struct task_struct *);
-  > +extern void __cleanup_sighand(struct sighand_struct *);
-  >  extern void exit_itimers(struct signal_struct *);
-  >  
-  >  extern NORET_TYPE void do_group_exit(int);
-  > --- MM/kernel/fork.c~1_ESCS	2006-03-23 22:48:10.000000000 +0300
-  > +++ MM/kernel/fork.c	2006-03-23 22:59:33.000000000 +0300
-  > @@ -808,12 +808,8 @@ static inline int copy_sighand(unsigned 
-  >  	return 0;
-  >  }
-  >  
-  > -void cleanup_sighand(struct task_struct *tsk)
-  > +void __cleanup_sighand(struct sighand_struct *sighand)
-  >  {
-  > -	struct sighand_struct * sighand = tsk->sighand;
-  > -
-  > -	/* Ok, we're done with the signal handlers */
-  > -	tsk->sighand = NULL;
-  >  	if (atomic_dec_and_test(&sighand->count))
-  >  		kmem_cache_free(sighand_cachep, sighand);
-  >  }
-  > @@ -1232,7 +1228,7 @@ bad_fork_cleanup_mm:
-  >  bad_fork_cleanup_signal:
-  >  	cleanup_signal(p);
-  >  bad_fork_cleanup_sighand:
-  > -	cleanup_sighand(p);
-  > +	__cleanup_sighand(p->sighand);
-  >  bad_fork_cleanup_fs:
-  >  	exit_fs(p); /* blocking */
-  >  bad_fork_cleanup_files:
-  > --- MM/kernel/exit.c~1_ESCS	2006-03-23 22:48:10.000000000 +0300
-  > +++ MM/kernel/exit.c	2006-03-23 23:02:53.000000000 +0300
-  > @@ -114,10 +114,11 @@ static void __exit_signal(struct task_st
-  >  	__unhash_process(tsk);
-  >  
-  >  	tsk->signal = NULL;
-  > -	cleanup_sighand(tsk);
-  > +	tsk->sighand = NULL;
-  >  	spin_unlock(&sighand->siglock);
-  >  	rcu_read_unlock();
-  >  
-  > +	__cleanup_sighand(sighand);
-  >  	clear_tsk_thread_flag(tsk,TIF_SIGPENDING);
-  >  	flush_sigqueue(&tsk->pending);
-  >  	if (sig) {
-
+Great.  Thanks for working that out.  It's time to add the dreaded Cc.

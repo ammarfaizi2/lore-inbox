@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932604AbWCXL4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422714AbWCXL4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932604AbWCXL4I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 06:56:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932609AbWCXL4I
+	id S1422714AbWCXL4a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 06:56:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422708AbWCXL4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 06:56:08 -0500
-Received: from mail.gmx.net ([213.165.64.20]:43174 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932604AbWCXL4G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 06:56:06 -0500
-X-Authenticated: #14349625
-Subject: 2.6.16-mm1 grub oddness
-From: Mike Galbraith <efault@gmx.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060323014046.2ca1d9df.akpm@osdl.org>
-References: <20060323014046.2ca1d9df.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 24 Mar 2006 12:56:53 +0100
-Message-Id: <1143201413.7741.53.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Fri, 24 Mar 2006 06:56:30 -0500
+Received: from mail08.syd.optusnet.com.au ([211.29.132.189]:51388 "EHLO
+	mail08.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1422714AbWCXL42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 06:56:28 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: [2.6.16-mm1 patch] throttling tree patches
+Date: Fri, 24 Mar 2006 22:56:06 +1100
+User-Agent: KMail/1.9.1
+Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Peter Williams <pwil3058@bigpond.net.au>
+References: <1143198208.7741.8.camel@homer> <1143199493.7741.32.camel@homer> <1143199728.7741.37.camel@homer>
+In-Reply-To: <1143199728.7741.37.camel@homer>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+Message-Id: <200603242256.07541.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+On Friday 24 March 2006 22:28, Mike Galbraith wrote:
+> patch 6/6
+>
+> This patch exports throttling tuning knobs to userland.  Should be
+> useful for testing, and in easily discarded should my throttling stuff
+> make it into mm, and survive the experience.
+>
+> Signed-off-by: Mike Galbraith <efauklt@gmx.de>
 
-I'm seeing strange things with grub with this kernel.  After my box has
-been up for a while, and I reboot, selecting a kernel to restart, upon
-reboot, I sometimes (fairly often) get a blank screen staring at me
-though I see grub doing it's thing.  Poking the power button results in
-an immediate poweroff, not as if the kernel had panicked or whatnot very
-early in boot.  Very odd, and never before seen.
+Ok.
 
-(I was worried that my scheduler stuff was causing weird interactions,
-but after testing, it's not me, it's there in virgin source.)
-
-	-Mike
-
+Cheers,
+Con

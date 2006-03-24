@@ -1,151 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWCXUMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932630AbWCXULf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932463AbWCXUMk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 15:12:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWCXUMk
+	id S932630AbWCXULf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 15:11:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWCXULe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 15:12:40 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:65170 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1751378AbWCXUMj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 15:12:39 -0500
-Date: Fri, 24 Mar 2006 17:12:31 -0300
-From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [PATCH] USB serial: Converts port semaphore to mutexes.
-Message-Id: <20060324171231.6b45576a.lcapitulino@mandriva.com.br>
-Organization: Mandriva
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i586-mandriva-linux-gnu)
+	Fri, 24 Mar 2006 15:11:34 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:26563 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751388AbWCXULe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 15:11:34 -0500
+Subject: [RFC] [PATCH] Move drivers/usb/media to drivers/media/video
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Greg KH <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
+       Linux and Kernel Video <video4linux-list@redhat.com>
+Content-Type: text/plain
+Date: Fri, 24 Mar 2006 17:11:26 -0300
+Message-Id: <1143231086.4961.24.camel@praia>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.2.1-3mdk 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Because of historic reasons, there are two separate directories with
+V4L stuff. Most drivers are located at driver/media/video. However, some
+code for USB Webcams were inserted under drivers/usb/media.
 
- The usbserial's port semaphore used to synchronize serial_open()
-and serial_close() are strict mutexes, convert them to the mutex
-implementation.
+This makes difficult for module authors to know were things should be.
+Also, makes Kconfig menu confusing for normal users.
 
-Signed-off-by: Luiz Capitulino <lcapitulino@mandriva.com.br>
+This patch moves all V4L content under drivers/usb/media to
+drivers/media/video, and fixes Kconfig/Makefile entries.
+
+Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+
+The patch is at: http://www.linuxtv.org/~mchehab/usb/
 
 ---
 
- drivers/usb/serial/usb-serial.c |   16 ++++++++--------
- drivers/usb/serial/usb-serial.h |    6 +++---
- 2 files changed, 11 insertions(+), 11 deletions(-)
+ drivers/media/Kconfig                              |   14 
+ drivers/media/video/Kconfig                        |  232 +
+ drivers/media/video/Makefile                       |   19 
+ drivers/media/video/dabfirmware.h                  | 1408 +++++
+ drivers/media/video/dabusb.c                       |  874 +++
+ drivers/media/video/dabusb.h                       |   85 
+ drivers/media/video/dsbr100.c                      |  429 +
+ drivers/media/video/et61x251/Makefile              |    4 
+ drivers/media/video/et61x251/et61x251.h            |  234 +
+ drivers/media/video/et61x251/et61x251_core.c       | 2630 +++++++++
+ drivers/media/video/et61x251/et61x251_sensor.h     |  116 
+ drivers/media/video/et61x251/et61x251_tas5130d1b.c |  141 
+ drivers/media/video/ov511.c                        | 5932 ++++++++++++++++++++
+ drivers/media/video/ov511.h                        |  568 ++
+ drivers/media/video/pwc/Makefile                   |   20 
+ drivers/media/video/pwc/philips.txt                |  236 +
+ drivers/media/video/pwc/pwc-ctrl.c                 | 1541 +++++
+ drivers/media/video/pwc/pwc-if.c                   | 2205 +++++++
+ drivers/media/video/pwc/pwc-ioctl.h                |  292 +
+ drivers/media/video/pwc/pwc-kiara.c                |  318 +
+ drivers/media/video/pwc/pwc-kiara.h                |   45 
+ drivers/media/video/pwc/pwc-misc.c                 |  140 
+ drivers/media/video/pwc/pwc-nala.h                 |   66 
+ drivers/media/video/pwc/pwc-timon.c                |  316 +
+ drivers/media/video/pwc/pwc-timon.h                |   61 
+ drivers/media/video/pwc/pwc-uncompress.c           |  146 
+ drivers/media/video/pwc/pwc-uncompress.h           |   41 
+ drivers/media/video/pwc/pwc.h                      |  272 +
+ drivers/media/video/se401.c                        | 1435 +++++
+ drivers/media/video/se401.h                        |  234 +
+ drivers/media/video/sn9c102/Makefile               |    7 
+ drivers/media/video/sn9c102/sn9c102.h              |  218 +
+ drivers/media/video/sn9c102/sn9c102_core.c         | 2919 ++++++++++
+ drivers/media/video/sn9c102/sn9c102_hv7131d.c      |  271 +
+ drivers/media/video/sn9c102/sn9c102_mi0343.c       |  363 +
+ drivers/media/video/sn9c102/sn9c102_ov7630.c       |  401 +
+ drivers/media/video/sn9c102/sn9c102_pas106b.c      |  307 +
+ drivers/media/video/sn9c102/sn9c102_pas202bca.c    |  238 +
+ drivers/media/video/sn9c102/sn9c102_pas202bcb.c    |  293 +
+ drivers/media/video/sn9c102/sn9c102_sensor.h       |  389 +
+ drivers/media/video/sn9c102/sn9c102_tas5110c1b.c   |  159 +
+ drivers/media/video/sn9c102/sn9c102_tas5130d1b.c   |  169 +
+ drivers/media/video/stv680.c                       | 1508 +++++
+ drivers/media/video/stv680.h                       |  227 +
+ drivers/media/video/usbvideo/Makefile              |    4 
+ drivers/media/video/usbvideo/ibmcam.c              | 3932 +++++++++++++
+ drivers/media/video/usbvideo/konicawc.c            |  978 +++
+ drivers/media/video/usbvideo/ultracam.c            |  679 ++
+ drivers/media/video/usbvideo/usbvideo.c            | 2190 +++++++
+ drivers/media/video/usbvideo/usbvideo.h            |  394 +
+ drivers/media/video/usbvideo/vicam.c               | 1411 +++++
+ drivers/media/video/w9968cf.c                      | 3691 ++++++++++++
+ drivers/media/video/w9968cf.h                      |  330 +
+ drivers/media/video/w9968cf_decoder.h              |   86 
+ drivers/media/video/w9968cf_vpp.h                  |   40 
+ drivers/media/video/zc0301/Makefile                |    3 
+ drivers/media/video/zc0301/zc0301.h                |  192 +
+ drivers/media/video/zc0301/zc0301_core.c           | 2055 +++++++
+ drivers/media/video/zc0301/zc0301_pas202bcb.c      |  361 +
+ drivers/media/video/zc0301/zc0301_sensor.h         |  103 
+ drivers/usb/Kconfig                                |    2 
+ drivers/usb/Makefile                               |   14 
+ drivers/usb/media/Kconfig                          |  241 -
+ drivers/usb/media/Makefile                         |   24 
+ drivers/usb/media/dabfirmware.h                    | 1408 -----
+ drivers/usb/media/dabusb.c                         |  874 ---
+ drivers/usb/media/dabusb.h                         |   85 
+ drivers/usb/media/dsbr100.c                        |  429 -
+ drivers/usb/media/et61x251.h                       |  234 -
+ drivers/usb/media/et61x251_core.c                  | 2630 ---------
+ drivers/usb/media/et61x251_sensor.h                |  116 
+ drivers/usb/media/et61x251_tas5130d1b.c            |  141 
+ drivers/usb/media/ibmcam.c                         | 3932 -------------
+ drivers/usb/media/konicawc.c                       |  978 ---
+ drivers/usb/media/ov511.c                          | 5932 --------------------
+ drivers/usb/media/ov511.h                          |  568 --
+ drivers/usb/media/pwc/Makefile                     |   20 
+ drivers/usb/media/pwc/philips.txt                  |  236 -
+ drivers/usb/media/pwc/pwc-ctrl.c                   | 1541 -----
+ drivers/usb/media/pwc/pwc-if.c                     | 2205 -------
+ drivers/usb/media/pwc/pwc-ioctl.h                  |  292 -
+ drivers/usb/media/pwc/pwc-kiara.c                  |  318 -
+ drivers/usb/media/pwc/pwc-kiara.h                  |   45 
+ drivers/usb/media/pwc/pwc-misc.c                   |  140 
+ drivers/usb/media/pwc/pwc-nala.h                   |   66 
+ drivers/usb/media/pwc/pwc-timon.c                  |  316 -
+ drivers/usb/media/pwc/pwc-timon.h                  |   61 
+ drivers/usb/media/pwc/pwc-uncompress.c             |  146 
+ drivers/usb/media/pwc/pwc-uncompress.h             |   41 
+ drivers/usb/media/pwc/pwc.h                        |  272 -
+ drivers/usb/media/se401.c                          | 1435 -----
+ drivers/usb/media/se401.h                          |  234 -
+ drivers/usb/media/sn9c102.h                        |  218 -
+ drivers/usb/media/sn9c102_core.c                   | 2919 ----------
+ drivers/usb/media/sn9c102_hv7131d.c                |  271 -
+ drivers/usb/media/sn9c102_mi0343.c                 |  363 -
+ drivers/usb/media/sn9c102_ov7630.c                 |  401 -
+ drivers/usb/media/sn9c102_pas106b.c                |  307 -
+ drivers/usb/media/sn9c102_pas202bca.c              |  238 -
+ drivers/usb/media/sn9c102_pas202bcb.c              |  293 -
+ drivers/usb/media/sn9c102_sensor.h                 |  389 -
+ drivers/usb/media/sn9c102_tas5110c1b.c             |  159 -
+ drivers/usb/media/sn9c102_tas5130d1b.c             |  169 -
+ drivers/usb/media/stv680.c                         | 1508 -----
+ drivers/usb/media/stv680.h                         |  227 -
+ drivers/usb/media/ultracam.c                       |  679 --
+ drivers/usb/media/usbvideo.c                       | 2190 -------
+ drivers/usb/media/usbvideo.h                       |  394 -
+ drivers/usb/media/vicam.c                          | 1411 -----
+ drivers/usb/media/w9968cf.c                        | 3691 ------------
+ drivers/usb/media/w9968cf.h                        |  330 -
+ drivers/usb/media/w9968cf_decoder.h                |   86 
+ drivers/usb/media/w9968cf_vpp.h                    |   40 
+ drivers/usb/media/zc0301.h                         |  192 -
+ drivers/usb/media/zc0301_core.c                    | 2055 -------
+ drivers/usb/media/zc0301_pas202bcb.c               |  361 -
+ drivers/usb/media/zc0301_sensor.h                  |  103 
+ 117 files changed, 43970 insertions(+), 43972 deletions(-)
 
-56a513093e0de2e058d1ddecb4c36ff05c1c4f1a
-diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
-index 097f4e8..071f86a 100644
---- a/drivers/usb/serial/usb-serial.c
-+++ b/drivers/usb/serial/usb-serial.c
-@@ -27,10 +27,10 @@
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/spinlock.h>
-+#include <linux/mutex.h>
- #include <linux/list.h>
- #include <linux/smp_lock.h>
- #include <asm/uaccess.h>
--#include <asm/semaphore.h>
- #include <linux/usb.h>
- #include "usb-serial.h"
- #include "pl2303.h"
-@@ -192,7 +192,7 @@ static int serial_open (struct tty_struc
- 	if (!port)
- 		return -ENODEV;
- 
--	if (down_interruptible(&port->sem))
-+	if (mutex_lock_interruptible(&port->mutex))
- 		return -ERESTARTSYS;
- 	 
- 	++port->open_count;
-@@ -219,7 +219,7 @@ static int serial_open (struct tty_struc
- 			goto bailout_module_put;
- 	}
- 
--	up(&port->sem);
-+	mutex_unlock(&port->mutex);
- 	return 0;
- 
- bailout_module_put:
-@@ -227,7 +227,7 @@ bailout_module_put:
- bailout_kref_put:
- 	kref_put(&serial->kref, destroy_serial);
- 	port->open_count = 0;
--	up(&port->sem);
-+	mutex_unlock(&port->mutex);
- 	return retval;
- }
- 
-@@ -240,10 +240,10 @@ static void serial_close(struct tty_stru
- 
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
--	down(&port->sem);
-+	mutex_lock(&port->mutex);
- 
- 	if (port->open_count == 0) {
--		up(&port->sem);
-+		mutex_unlock(&port->mutex);
- 		return;
- 	}
- 
-@@ -262,7 +262,7 @@ static void serial_close(struct tty_stru
- 		module_put(port->serial->type->driver.owner);
- 	}
- 
--	up(&port->sem);
-+	mutex_unlock(&port->mutex);
- 	kref_put(&port->serial->kref, destroy_serial);
- }
- 
-@@ -783,7 +783,7 @@ int usb_serial_probe(struct usb_interfac
- 		port->number = i + serial->minor;
- 		port->serial = serial;
- 		spin_lock_init(&port->lock);
--		sema_init(&port->sem, 1);
-+		mutex_init(&port->mutex);
- 		INIT_WORK(&port->work, usb_serial_port_softint, port);
- 		serial->port[i] = port;
- 	}
-diff --git a/drivers/usb/serial/usb-serial.h b/drivers/usb/serial/usb-serial.h
-index d7d27c3..dc89d87 100644
---- a/drivers/usb/serial/usb-serial.h
-+++ b/drivers/usb/serial/usb-serial.h
-@@ -16,7 +16,7 @@
- 
- #include <linux/config.h>
- #include <linux/kref.h>
--#include <asm/semaphore.h>
-+#include <linux/mutex.h>
- 
- #define SERIAL_TTY_MAJOR	188	/* Nice legal number now */
- #define SERIAL_TTY_MINORS	255	/* loads of devices :) */
-@@ -31,7 +31,7 @@
-  * @serial: pointer back to the struct usb_serial owner of this port.
-  * @tty: pointer to the corresponding tty for this port.
-  * @lock: spinlock to grab when updating portions of this structure.
-- * @sem: semaphore used to synchronize serial_open() and serial_close()
-+ * @mutex: mutex used to synchronize serial_open() and serial_close()
-  *	access for this port.
-  * @number: the number of the port (the minor number).
-  * @interrupt_in_buffer: pointer to the interrupt in buffer for this port.
-@@ -63,7 +63,7 @@ struct usb_serial_port {
- 	struct usb_serial *	serial;
- 	struct tty_struct *	tty;
- 	spinlock_t		lock;
--	struct semaphore        sem;
-+	struct mutex            mutex;
- 	unsigned char		number;
- 
- 	unsigned char *		interrupt_in_buffer;
--- 
-1.2.4
 
-
-
--- 
-Luiz Fernando N. Capitulino

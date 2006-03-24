@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWCXUwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWCXUwc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbWCXUwc (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751269AbWCXUwc (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 24 Mar 2006 15:52:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWCXUwc
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWCXUwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Fri, 24 Mar 2006 15:52:32 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:12942 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1750742AbWCXUwb
+Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:22791 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751269AbWCXUwc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 15:52:31 -0500
-Date: Fri, 24 Mar 2006 13:52:29 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Valerie Henson <val_henson@linux.intel.com>, Andrew Morton <akpm@osdl.org>,
-       pbadari@gmail.com, linux-kernel@vger.kernel.org,
-       Ext2-devel@lists.sourceforge.net, arjan@linux.intel.com, tytso@mit.edu,
-       zach.brown@oracle.com
-Subject: Re: [Ext2-devel] [RFC] [PATCH] Reducing average ext2 fsck time through fs-wide dirty bit]
-Message-ID: <20060324205229.GD11703@parisc-linux.org>
-References: <20060322011034.GP12571@goober> <1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com> <20060322224844.GU12571@goober> <20060322175503.3b678ab5.akpm@osdl.org> <20060324143239.GB14508@goober> <20060324192802.GK14852@schatzie.adilger.int>
+	Fri, 24 Mar 2006 15:52:32 -0500
+Date: Fri, 24 Mar 2006 21:53:11 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: "Mark A. Greer" <mgreer@mvista.com>
+Cc: Randy Vinson <rvinson@mvista.com>, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH, RFC] Stop using tasklet in ds1374 RTC driver
+Message-Id: <20060324215311.8ea42d20.khali@linux-fr.org>
+In-Reply-To: <20060323214028.GB21477@mag.az.mvista.com>
+References: <20060323201030.ccded642.khali@linux-fr.org>
+	<4423084B.1070701@mvista.com>
+	<20060323214028.GB21477@mag.az.mvista.com>
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060324192802.GK14852@schatzie.adilger.int>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 24, 2006 at 12:28:02PM -0700, Andreas Dilger wrote:
-> Fix for this problem (inode is locked already):
-> - create a modified ext3_free_branches() to do tree walking and call a
->   method instead of always calling ext3_free_data->ext3_clear_blocks
-> - walk inode {d,t,}indirect blocks in forward direction, count bitmaps and
->   groups that will be modified (essentially NULL ext3_free_branches method)
-> - try to start a journal handle for this many blocks + 1 (inode) +
->   1 (super) + quota + EXT3_RESERVE_TRANS_BLOCKS
->   - if journal handle is too large (journal_start() returns -ENOSPC) fall
->     back to old zero-in-steps method (vast majority of cases will be OK
->     because number of modified blocks is much fewer)
+Hi Mark,
 
-Could we try a different fallback in this case?  For example, attempt to
-truncate only half as much?  Is this even allowed?
+> > I've attached a similar patch that has been tested using the DS1374 on the 
+> > Freescale MPC8349MDS reference system. It is patterned after a similar 
+> > change made to the m41t00 driver. The changes work, but I am also 
+> > unfamiliar with workqueues, so my patch may not be any better.
+> 
+> I'm no expert in workqueues either; however, after reading
+> http://lwn.net/Articles/23634/, I believe that its unnecessary for an
+> rtc driver to have its own workqueue since rtc writes aren't particularly
+> time-critical.  If I am correct, then Randy's patch uses the proper wq calls.  
+> 
+> Agree?
 
-> - walk inode {d,t,}indirect blocks again deleting blocks via
->   ext3_free_blocks_sb() (updates group descriptor, bitmaps, quota), but
->   not journaling or modifying the indirect blocks
-> - update i_size/i_disksize/i_blocks to new value, like ext2
-> - close transaction
+I'm not sure. My first try was mostly similar to Randy's, using the
+shared workqueue. However, LDD3 (and, for that matter, the article you
+pointed to) says to be cautious when using the shared workqueue, not
+only because of by what others can do to you, but also because of what
+your can do to others.
 
+ds1374_set_tlet triggers many i2c transfers, which may delay or sleep
+depending on the underlying i2c implementation, and definitely will
+take some time (at least 224 I2C clock cycles if I'm counting properly,
+that is 14 ms at 16 kHz.)
+
+So I came to the conclusion that it wouldn't be fair to other users if
+ds1374 was using the shared workqueue. Now, I really don't know for
+sure, so I'll let workqueue experts decide what should be done here.
+
+Thanks,
+-- 
+Jean Delvare

@@ -1,79 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWCXTAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbWCXTCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbWCXTAs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 14:00:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbWCXTAs
+	id S932550AbWCXTCh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 14:02:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932599AbWCXTCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 14:00:48 -0500
-Received: from zipcon.net ([209.221.136.5]:8159 "HELO zipcon.net")
-	by vger.kernel.org with SMTP id S964778AbWCXTAr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 14:00:47 -0500
-Message-ID: <442441D9.6000507@beezmo.com>
-Date: Fri, 24 Mar 2006 11:00:41 -0800
-From: William D Waddington <william.waddington@beezmo.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Fri, 24 Mar 2006 14:02:37 -0500
+Received: from bay0-omc2-s22.bay0.hotmail.com ([65.54.246.158]:10290 "EHLO
+	bay0-omc2-s22.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S932550AbWCXTCg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 14:02:36 -0500
+Message-ID: <BAY109-DAV2BB627B948B4A363C4436B3DF0@phx.gbl>
+X-Originating-IP: [209.167.177.36]
+X-Originating-Email: [zhaojingmin@hotmail.com]
+From: "Jing Min Zhao" <zhaojingmin@hotmail.com>
+To: "Patrick McHardy" <kaber@trash.net>, "Adrian Bunk" <bunk@stusta.de>
+Cc: <netdev@vger.kernel.org>, <zhaojingmin@users.sourceforge.net>,
+       <netfilter-devel@lists.netfilter.org>, <linux-kernel@vger.kernel.org>
+References: <20060324001307.GO22727@stusta.de> <44235324.3080607@trash.net>
+Subject: Re: Two comments on the H.323 conntrack/NAT helper
+Date: Fri, 24 Mar 2006 14:02:03 -0500
 MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@csd.uu.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFCLUE2] 64 bit driver 32 bit app ioctl
-References: <4422B95D.9070900@beezmo.com> <17442.53257.711022.424119@alkaid.it.uu.se>
-In-Reply-To: <17442.53257.711022.424119@alkaid.it.uu.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	format=flowed;
+	charset="ISO-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-OriginalArrivalTime: 24 Mar 2006 19:02:35.0597 (UTC) FILETIME=[831AAFD0:01C64F75]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+----- Original Message ----- 
+From: "Patrick McHardy" <kaber@trash.net>
+To: "Adrian Bunk" <bunk@stusta.de>
+Cc: <netdev@vger.kernel.org>; <zhaojingmin@users.sourceforge.net>; <netfilter-devel@lists.netfilter.org>; "Jing Min Zhao" 
+<zhaojignmin@hotmail.com>; <linux-kernel@vger.kernel.org>
+Sent: Thursday, March 23, 2006 9:02 PM
+Subject: Re: Two comments on the H.323 conntrack/NAT helper
 
-Mikael Pettersson wrote:
-> William D Waddington writes:
->  > Apologies for dashing this off without the proper homework.  My
->  > customer is out of country doing an installation, and didn't test
->  > this configuration first :(
->  > 
->  > Customer is running RHEL3 on a 64 bit PC.  Running the 64 bit kernel
->  > and my 64 bit driver.  They are calling the driver from their 32 bit
->  > app.  The driver supports a whole mess of ioctls.
->  > 
->  > It seems that the kernel is trapping the 32-bit ioctl call and returning
->  > an error to the app w/out calling the driver.  It looks like
->  > register_ioctl32_conversion() can convice the kernel that the driver can
->  > handle 32-bit calls, but it has to be called for each ioctl cmd (??)
-> 
-> In these old pre-compat_ioctl kernels you have to register each
-> ioctl command individually. Yes that sucks. Live with it.
-> 
->  > Putting aside (please) discussion of whether the kernel should presume
->  > to hijack private ioctls, and whether I should be using the ioctl
->  > interface at all (compatibility with app interface going back to 2.0
->  > and SunOS) is there some way to make _one_ register call to indicate
->  > that all my cmds are safe, or maybe an alternate ioctl entry point
->  > that the  kernel won't trap?
-> 
-> Not as long as you're stuck with old 2.4 kernels. 2.6 kernels since
-> 2.6.11-rc2 allow you to set up a single ->compat_ioctl() method,
-> but not even RHEL4 has that yet.
 
-Thanks,
+> [The hotmail address of the author doesn't work, CCed sourceforge-address]
+>
+> Adrian Bunk wrote:
+>> Two comments on the H.323 conntrack/NAT helper:
+>> - the function prototypes in ip_nat_helper_h323.c are _ugly_,
+>>   please move them to a header file
+>
+> Their ugliness is because of the current API, which cleaned up
+> quite a lot of the surrounding code, but requires this ugliness
+> from each helper. I would like to keep them visible as a reminder
+> that a cleaner solution is wanted, but moving them to header
+> files certainly sound like a good idea to eliminate the risk
+> of prototype conflicts. But please do this for all helpers
+> at once.
+>
+>> - is there a reason for not using EXPORT_SYMBOL_GPL?
+>
+> I would prefer that too.
+>
+>
 
-It's working OK in my test cases: FC1/64 and the customer's RHEL3.  I
-just #include <asm/ioctl32.h> and register all my ioctls.  Ugh.
+I've moved those prototypes. But the move involves moving of two header files:
+ip_conntrack_helper_h323_asn1.h and ip_conntrack_helper_h323_types.h.
+This is because ip_conntrack_h323.h now has to include
+ip_conntrack_helper_h323_asn1.h and thus ip_conntrack_helper_h323_types.h,
+so they are moved from net/ipv4/netfilter/ to include/linux/netfilter_ipv4/ to
+make sure other header files like ip_conntrack_h323.h and ip_conntrack.h
+be able to find them.
 
-The location of ioctl32.h seems to move from 2.4 kernel to kernel (and
-distro to distro??).  Any suggestion how to include in a universal way
-and how to detect all the appropriate 64 bit configs for conditional
-inclusion w/a 2.4 kernel?  I detest #ifdef'd code but I guess I have to
-do that too, or just keep one version around for this specific case :(
+Is this ok or you have a better idea?
 
-Thanks again,
-Bill
---------------------------------------------
-William D Waddington
-Bainbridge Island, WA, USA
-william.waddington@beezmo.com
---------------------------------------------
-"Even bugs...are unexpected signposts on
-the long road of creativity..." - Ken Burtch
+Thanks a lot!
 
+Jing Min Zhao

@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbWCXXMv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWCXXTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964816AbWCXXMv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 18:12:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbWCXXMu
+	id S932213AbWCXXTf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 18:19:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWCXXTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 18:12:50 -0500
-Received: from mail7.sea5.speakeasy.net ([69.17.117.9]:52364 "EHLO
-	mail7.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S964814AbWCXXMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 18:12:49 -0500
-Date: Fri, 24 Mar 2006 18:12:46 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@excalibur.intercode
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, phillip@hellewell.homeip.net,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       viro@ftp.linux.org.uk, mike@halcrow.us, mcthomps@us.ibm.com,
-       yoder1@us.ibm.com, toml@us.ibm.com, emilyr@us.ibm.com,
-       daw@cs.berkeley.edu
-Subject: Re: eCryptfs Design Document
-In-Reply-To: <20060324222517.GA13688@us.ibm.com>
-Message-ID: <Pine.LNX.4.64.0603241757090.27964@excalibur.intercode>
-References: <20060324222517.GA13688@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 24 Mar 2006 18:19:35 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:31875 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932213AbWCXXTe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 18:19:34 -0500
+Subject: Re: [PATCH]
+From: john stultz <johnstul@us.ibm.com>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <200603242307.k2ON7TK0007932@dhcp153.mvista.com>
+References: <200603242307.k2ON7TK0007932@dhcp153.mvista.com>
+Content-Type: text/plain
+Date: Fri, 24 Mar 2006 15:19:32 -0800
+Message-Id: <1143242372.26994.13.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Mar 2006, Michael Halcrow wrote:
+On Fri, 2006-03-24 at 15:07 -0800, Daniel Walker wrote:
+> Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+> 
+> Index: linux-2.6.16/kernel/time/timeofday.c
+> ===================================================================
+> --- linux-2.6.16.orig/kernel/time/timeofday.c
+> +++ linux-2.6.16/kernel/time/timeofday.c
+> @@ -644,7 +644,7 @@ static void timeofday_periodic_hook(unsi
+>  
+>  	int something_changed = 0;
+>   	int clocksource_changed = 0;
+> -	struct clocksource old_clock;
+> +	struct clocksource old_clock = { .mult = 1, .shift = 0 };
+>  	static s64 second_check;
+>  
+>  	write_seqlock_irqsave(&system_time_lock, flags);
 
-> initialization vector by taking the MD5 sum of the file encryption
-> key; the root IV is the first N bytes of that MD5 sum, where N is the
-> number of bytes constituting an initialization vector for the cipher
-> being used for the file (it is worth noting that known plaintext
-> attacks against the MD5 hash algorithm do not affect the security of
-> eCryptfs, since eCryptfs only hashes secret values).
+I assume this is a fix for the GCC "may be used uninitialized" warning?
 
-What about other attacks on MD5?  Hard coding it into the system makes me 
-nervous, what about making this selectable?
+thanks
+-john
 
-> By default, eCryptfs selects AES-128. Later versions of eCryptfs will 
-> allow the user to select the cipher and key length.
-
-Also, what about making the encryption mode selectable, to at least allow 
-for like LRW support in addition to CBC?
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>

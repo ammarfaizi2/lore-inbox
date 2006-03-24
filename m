@@ -1,34 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbWCXXk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWCXXkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932264AbWCXXk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 18:40:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWCXXk0
+	id S932263AbWCXXkz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 18:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWCXXkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 18:40:26 -0500
-Received: from omr2.networksolutionsemail.com ([205.178.146.52]:36524 "EHLO
-	ns-omrbm2.netsolmail.com") by vger.kernel.org with ESMTP
-	id S932264AbWCXXkZ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 18:40:25 -0500
-From: evt@texelsoft.com
-To: linux-kernel@vger.kernel.org
-Importance: Normal
-Sensitivity: Normal
-Message-ID: <W433413418255631143243608@webmail13>
-X-Mailer: Mintersoft EdgeDesk, Build 4.03.0105
-X-Originating-IP: [69.163.37.1]
-X-Forwarded-For: [(null)]
-Date: Fri, 24 Mar 2006 23:40:08 +0000
-Subject: what's the right way to do this in 2.6?
-Reply-to: evt@texelsoft.com
+	Fri, 24 Mar 2006 18:40:55 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:40057 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S932263AbWCXXky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 18:40:54 -0500
+Date: Fri, 24 Mar 2006 15:40:40 -0800
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: ocfs2-devel@oss.oracle.com, linux-kernel@vger.kernel.org
+Subject: [git patches] ocfs2 updates
+Message-ID: <20060324234040.GK25194@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have two modules that need to share a common utility library. What I'd like to do is make the library into a .a and link each module to it. 'Twould be also nice if the modules had a dependency so the library got built automatically. Thanks for any advice.
+Please pull from 'upstream-linus' branch of
+git://oss.oracle.com/home/sourcebo/git/ocfs2.git
 
-- Eric van Tassell
+to receive the following updates:
 
+ fs/ocfs2/alloc.c             |   88 ++++++++--------
+ fs/ocfs2/aops.c              |   18 +--
+ fs/ocfs2/buffer_head_io.c    |   11 +-
+ fs/ocfs2/cluster/heartbeat.c |   38 +++----
+ fs/ocfs2/cluster/masklog.h   |   10 -
+ fs/ocfs2/dcache.c            |    9 -
+ fs/ocfs2/dir.c               |   42 +++----
+ fs/ocfs2/dlm/dlmast.c        |   22 ++--
+ fs/ocfs2/dlm/dlmcommon.h     |   21 +++
+ fs/ocfs2/dlm/dlmconvert.c    |   11 +-
+ fs/ocfs2/dlm/dlmdebug.c      |   18 ++-
+ fs/ocfs2/dlm/dlmlock.c       |   14 ++
+ fs/ocfs2/dlm/dlmmaster.c     |  227 ++++++++++++++++++++++++++++++++++++-------
+ fs/ocfs2/dlm/dlmrecovery.c   |   50 +++++----
+ fs/ocfs2/dlm/dlmunlock.c     |   11 +-
+ fs/ocfs2/dlmglue.c           |  101 +++++++++----------
+ fs/ocfs2/export.c            |   24 ++--
+ fs/ocfs2/extent_map.c        |   34 +++---
+ fs/ocfs2/file.c              |   42 ++++---
+ fs/ocfs2/inode.c             |  116 +++++++++++----------
+ fs/ocfs2/journal.c           |   27 ++---
+ fs/ocfs2/localalloc.c        |   17 +--
+ fs/ocfs2/namei.c             |   79 +++++++-------
+ fs/ocfs2/ocfs2.h             |   12 +-
+ fs/ocfs2/suballoc.c          |   72 +++++++------
+ fs/ocfs2/super.c             |   14 +-
+ fs/ocfs2/super.h             |    8 +
+ fs/ocfs2/uptodate.c          |   40 ++++---
+ fs/ocfs2/vote.c              |   63 ++++++-----
+ 29 files changed, 749 insertions(+), 490 deletions(-)
 
+Kurt Hackel:
+      ocfs2: fix hang in dlm lock resource mastery
+      ocfs2: dlm recovery fixes
+      ocfs2: don't use MLF* in dlm/ files
+
+Mark Fasheh:
+      ocfs2: use __attribute__ format
+      ocfs2: don't use MLF* in cluster/ files
+      ocfs2: don't use MLF* in the file system
+      ocfs2: finally remove MLF* macros
+
+A patch file for the changes can also be found at:
+
+http://oss.oracle.com/~mfasheh/ocfs2-update.patch
+
+It wasn't posted in e-mail because the MLF* updates drove the patch size
+past the lkml mail size limit.
+	--Mark
+
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com

@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422784AbWCXHzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422783AbWCXHzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422784AbWCXHzn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 02:55:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422785AbWCXHzm
+	id S1422783AbWCXHzP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 02:55:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422786AbWCXHzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 02:55:42 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:670 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1422784AbWCXHzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 02:55:41 -0500
-Subject: Re: [2.6.16 PATCH] Connector: Filesystem Events Connector v3
-From: Arjan van de Ven <arjan@infradead.org>
-To: CaT <cat@zip.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
-       yang.y.yi@gmail.com, linux-kernel@vger.kernel.org, johnpol@2ka.mipt.ru,
-       matthltc@us.ibm.com
-In-Reply-To: <20060324075245.GY2057@zip.com.au>
-References: <1143183541.2882.7.camel@laptopd505.fenrus.org>
-	 <20060323.230649.11516073.davem@davemloft.net>
-	 <20060323232345.1ca16f3f.akpm@osdl.org>
-	 <20060323.232903.34304885.davem@davemloft.net>
-	 <20060323234200.19e7eb54.akpm@osdl.org>  <20060324075245.GY2057@zip.com.au>
-Content-Type: text/plain
-Date: Fri, 24 Mar 2006 08:55:31 +0100
-Message-Id: <1143186931.2882.16.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 24 Mar 2006 02:55:15 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:12819 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1422778AbWCXHzN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 02:55:13 -0500
+Date: Fri, 24 Mar 2006 08:55:11 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jing Min Zhao <zhaojingmin@hotmail.com>
+Cc: Jing Min Zhao <zhaojignmin@hotmail.com>, netdev@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 patch] ip_conntrack_helper_h323.c: make get_h245_addr()static
+Message-ID: <20060324075511.GV22727@stusta.de>
+References: <20060324000916.GN22727@stusta.de> <BAY109-DAV122F44146DB217251703AEB3DF0@phx.gbl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BAY109-DAV122F44146DB217251703AEB3DF0@phx.gbl>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-24 at 18:52 +1100, CaT wrote:
-> On Thu, Mar 23, 2006 at 11:42:00PM -0800, Andrew Morton wrote:
-> > You explained why it was better than grafting audit onto this application. 
-> > 
-> > But do you see some special value in the actual services which this patch
-> > provides - monitoring filesystem events?
+On Thu, Mar 23, 2006 at 09:37:15PM -0500, Jing Min Zhao wrote:
 > 
-> Is there something around atm that would, for example, allow a virus
-> scanner to scan files when they are created, etc? Or to add files to
-> an index for quick searches?
+> I'd like to keep it global. In the future we may need it.
 
-audit, inotify
+The point is:
+There have been many occasions where people have said "I will need this 
+soon" in many different places in the kernel, and one year later it was 
+still unused.
 
+If it will be needed at some point in the future, reverting my patch
+will be trivial.
 
-> There are probably other potential uses but I'm too tired and those two
-> come to mind right now.
+> Thanks
+> 
+> Jing Min Zhao
 
-but this mechanism doesn't actually cover the virus scanner need at
-least; audit is a bit more complex in code because it's a security tool
-and needs to be accurate for security-related events. Now guess what...
-a virus scanner needs this same level of scrutiny... (well unless you
-don't care about that it's easy to bypass your scanner and that you
-support linux only for marketing reasons ;)
+cu
+Adrian
 
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWCXIYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWCXIYr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932097AbWCXIYA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 03:24:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWCXIX7
+	id S932367AbWCXIYr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 03:24:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbWCXIYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 03:23:59 -0500
-Received: from ns1.suse.de ([195.135.220.2]:41357 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932097AbWCXIX7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 03:23:59 -0500
-Date: Fri, 24 Mar 2006 09:23:25 +0100
-From: Stefan Seyfried <seife@suse.de>
-To: CIJOML <cijoml@volny.cz>
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.16 - cpufreq doesn't find Celeron (Pentium4/XEON) processor
-Message-ID: <20060324082325.GA7645@suse.de>
-References: <200603210902.19335.cijoml@volny.cz> <1142931856.3077.47.camel@laptopd505.fenrus.org> <200603211034.38393.cijoml@volny.cz>
-Mime-Version: 1.0
+	Fri, 24 Mar 2006 03:24:47 -0500
+Received: from web25812.mail.ukl.yahoo.com ([217.146.176.245]:38068 "HELO
+	web25812.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932367AbWCXIYq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 03:24:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=zUeRBt8nkFsy4La45B8Zu0dCJt309bnm04I/fnyLhs2abZ3jcztOn+wrAwBxn9CZxvRaiLozuCV9POc4kKJ6gWsTO/Nn4hCB421n5K5B0BITOd3kWlaj3roIkNSIufcLPENa5I7ZyP2U+Gdd441TlPjxI2P2WjonPQJly8ljGfw=  ;
+Message-ID: <20060324082444.69962.qmail@web25812.mail.ukl.yahoo.com>
+Date: Fri, 24 Mar 2006 09:24:44 +0100 (CET)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: How to test vanilla kernel
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <200603211034.38393.cijoml@volny.cz>
-X-Operating-System: SUSE Linux Enterprise Desktop 10 (i586) Beta8, Kernel 2.6.16-2-default
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 21, 2006 at 10:34:38AM +0100, CIJOML wrote:
+I'm wondering how you folks, install and run the latest vanilla kernel. I guess
+that people install their prefered distrib as a start point and then download
+the kernel sources. But each distrib patch and update the kernel, is it safe to
+forget them ?
 
-> http://www.freewebs.com/duckzland/t240.html
+BTW, is there a 'best' distrib to achieve that ?
 
-...is using p4-clockmod which is basically useless for power saving
-It does the same as throttling IIUC.
--- 
-Stefan Seyfried                  \ "I didn't want to write for pay. I
-QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
-SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen
+Francis
+
+
+	
+
+	
+		
+___________________________________________________________________________ 
+Nouveau : téléphonez moins cher avec Yahoo! Messenger ! Découvez les tarifs exceptionnels pour appeler la France et l'international.
+Téléchargez sur http://fr.messenger.yahoo.com

@@ -1,84 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWCXPFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWCXPGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWCXPFN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 10:05:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbWCXPFN
+	id S1750861AbWCXPGx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 10:06:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbWCXPGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 10:05:13 -0500
-Received: from uproxy.gmail.com ([66.249.92.197]:50718 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751177AbWCXPFL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 10:05:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fM3pacw1Hn2jfAbu63cbIzhxkgNpjVE9uf9vk3SUmo3XoL3cmSAZ2w/yl9Q4gaPY4LrpDUPr49vLM+Bl1XyNsZ5ac4gQYxNSi3HG4Z7Jhb1eGG4wNztnZbw6zS42fyV7JQQQ5I4W1/PpAFyJl0Xi+fbx1Rywa+Uy07cUdcY+epc=
-Message-ID: <bc56f2f0603240705y3b4abe3ej@mail.gmail.com>
-Date: Fri, 24 Mar 2006 10:05:09 -0500
-From: "Stone Wang" <pwstone@gmail.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH][0/8] (Targeting 2.6.17) Posix memory locking and balanced mlock-LRU semantic
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <441FEF8D.7090905@yahoo.com.au>
+	Fri, 24 Mar 2006 10:06:52 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:56223 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750861AbWCXPGv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 10:06:51 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH] swswsup: return correct load_image error
+Date: Fri, 24 Mar 2006 16:05:33 +0100
+User-Agent: KMail/1.9.1
+Cc: linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>,
+       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       linux-mm@kvack.org
+References: <200603200234.01472.kernel@kolivas.org> <200603241600.56144.kernel@kolivas.org> <200603241617.24434.kernel@kolivas.org>
+In-Reply-To: <200603241617.24434.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <bc56f2f0603200535s2b801775m@mail.gmail.com>
-	 <441FEF8D.7090905@yahoo.com.au>
+Message-Id: <200603241605.34706.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/3/21, Nick Piggin <nickpiggin@yahoo.com.au>:
-> Stone Wang wrote:
-> > Both one of my friends(who is working on a DBMS oriented from
-> > PostgreSQL) and i had encountered unexpected OOMs with mlock/mlockall.
-> >
->
-> I'm not sure this is a great idea. There are more conditions than just
-> mlock that prevent pages being reclaimed. Running out of swap, for
-> example, no swap, page temporarily pinned (in other words -- any duration
-> from fleeting to permanent). I think something _much_ simpler could be
-> done for a more general approach just to teach the VM to tolerate these
-> pages a bit better.
->
-> Also, supposing we do want this, I think there is a fairly significant
-> queue of mm stuff you need to line up behind... it is probably asking
-> too much to target 2.6.17 for such a significant change in any case.
->
-> But despite all that I looked though and have a few comments ;)
-> Kudos for jumping in and getting your hands dirty! It can be tricky code.
->
-> > The patch brings Linux with:
-> > 1. Posix mlock/munlock/mlockall/munlockall.
-> >    Get mlock/munlock/mlockall/munlockall to Posix definiton: transaction-like,
-> >    just as described in the manpage(2) of mlock/munlock/mlockall/munlockall.
-> >    Thus users of mlock system call series will always have an clear map of
-> >    mlocked areas.
->
-> In what way are we not now posix compliant now?
+On Friday 24 March 2006 06:17, Con Kolivas wrote:
+> > On Tuesday 21 March 2006 10:22, Rafael J. Wysocki wrote:
+> > > Basically, yes.  swsusp.c and snapshot.c contain common functions,
+> > > disk.c and swap.c contain the code used by the built-in swsusp only,
+> > > and user.c contains the userland interface.  If you want something to
+> > > be run by the built-in swsusp only, place it in disk.c.
+> 
+> Would this patch suffice?
 
-Currently, Linux's mlock for example, may fail with  only part of its
-task finished.
+I'd change one thing (please see below).
 
-While accroding to POSIX definition:
+> ---
+> Swsusp reclaims a lot of memory during the suspend cycle and can benefit
+> from the aggressive_swap_prefetch mode immediately upon resuming.
+> 
+> Signed-off-by: Con Kolivas <kernel@kolivas.org>
+> ---
+>  kernel/power/disk.c |    5 ++++-
+>  1 files changed, 4 insertions(+), 1 deletion(-)
+> 
+> Index: linux-2.6.16-mm1/kernel/power/disk.c
+> ===================================================================
+> --- linux-2.6.16-mm1.orig/kernel/power/disk.c	2006-03-24 15:48:14.000000000 +1100
+> +++ linux-2.6.16-mm1/kernel/power/disk.c	2006-03-24 16:15:05.000000000 +1100
+> @@ -19,6 +19,7 @@
+>  #include <linux/fs.h>
+>  #include <linux/mount.h>
+>  #include <linux/pm.h>
+> +#include <linux/swap-prefetch.h>
+>  
+>  #include "power.h"
+>  
+> @@ -138,8 +139,10 @@ int pm_suspend_disk(void)
+>  			unprepare_processes();
+>  			return error;
+>  		}
+> -	} else
+> +	} else {
+>  		pr_debug("PM: Image restored successfully.\n");
+> +		aggressive_swap_prefetch();
+> +	}
+>  
+>  	swsusp_free();
 
-man mlock(2)
+I'd put aggressive_swap_prefetch() here.  Before swsusp_free() there may be no
+room for the prefetched pages.  [I should have noticed it earlier.  _This_ must
+have been the problem last time I tested it.]
 
-"
-RETURN VALUE
-       On success, mlock returns zero.  On error, -1 is returned, errno is set
-       appropriately, and no changes are made to  any  locks  in  the  address
-       space of the process.
-"
+>   Done:
+> 
+> 
 
-Shaoping Wang
-
->
-> --
-> SUSE Labs, Novell Inc.
->
->
-> Send instant messages to your online friends http://au.messenger.yahoo.com
->
->
+Greetings,
+Rafael

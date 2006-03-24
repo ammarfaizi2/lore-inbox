@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422695AbWCXLnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932530AbWCXLnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422695AbWCXLnI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 06:43:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422702AbWCXLnH
+	id S932530AbWCXLnD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 06:43:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWCXLnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 06:43:07 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:55513 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422714AbWCXLnF (ORCPT
+	Fri, 24 Mar 2006 06:43:03 -0500
+Received: from mail.suse.de ([195.135.220.2]:35746 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932555AbWCXLnB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 06:43:05 -0500
-Date: Fri, 24 Mar 2006 03:39:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Brandon Low <lostlogic@lostlogicx.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-mm1
-Message-Id: <20060324033934.161302c1.akpm@osdl.org>
-In-Reply-To: <20060324032126.GN27559@lostlogicx.com>
-References: <20060323014046.2ca1d9df.akpm@osdl.org>
-	<20060324021729.GL27559@lostlogicx.com>
-	<20060323182411.7f80b4a6.akpm@osdl.org>
-	<20060324024540.GM27559@lostlogicx.com>
-	<20060323185810.3bf2a4ce.akpm@osdl.org>
-	<20060324032126.GN27559@lostlogicx.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Mar 2006 06:43:01 -0500
+From: Andi Kleen <ak@suse.de>
+To: Jean Delvare <khali@linux-fr.org>
+Subject: Re: 92c05fc1a32e5ccef5e0e8201f32dcdab041524c breaks x86_64 compile.
+Date: Fri, 24 Mar 2006 12:36:20 +0100
+User-Agent: KMail/1.9.1
+Cc: Nigel Cunningham <ncunningham@cyclades.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <200603241529.28811.ncunningham@cyclades.com> <20060324121418.c4c03e1d.khali@linux-fr.org>
+In-Reply-To: <20060324121418.c4c03e1d.khali@linux-fr.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200603241236.20990.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brandon Low <lostlogic@lostlogicx.com> wrote:
->
->  I hadn't noticed immediately in the ooops, but it is something to do
->  with the Hardware Abstraction Layer Daemon from http://freedesktop.org/Software/hal
->  I can't reproduce it without that daemon loaded either.  I wonder if the
->  last accessed sysfs file mentioned in the oops (sda/size) is relevent
->  also.
+On Friday 24 March 2006 12:14, Jean Delvare wrote:
+> Hi Nigel, Andi, all,
 > 
->  My exact steps (with hald loaded) are:
->  plug in ipod
->  mount /mnt/ipod
->  unzip -d /mnt/ipod rockbox.zip
->  eject /dev/sda
->  unplug ipod
->  immediately here, the oops prints.
+> > It looks to me like the above commit from Andi causes a compilation failure on 
+> > x86_64, because it makes pci_mmcfg_init non static:
+> > 
+> > arch/x86_64/pci/mmconfig.c:152: error: conflicting types for ‘pci_mmcfg_init’
+> > arch/i386/pci/pci.h:85: error: previous declaration of ‘pci_mmcfg_init’ was 
+> > here
+> > make[1]: *** [arch/x86_64/pci/mmconfig.o] Error 1
+> > make: *** [arch/x86_64/pci] Error 2
+> 
+> I just hit the same compilation failure. Here's a fix which works for
+> me.
 
-Still no joy, alas.
-
-git-cfq.patch plays with the elevator exit code for all IO schedulers. 
-Would you be able to do
-
-wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.16-mm1/broken-out/git-cfq.patch
-patch -p1 -R < git-cfq.patch
-
-and retest?
+This was my mistake. I fixed the problem in the wrong patch. And then
+Greg submitted only the one patch. I think Andrew fixed it up by 
+submitting the other (unrelated) patch which fixes this too.
 
 Thanks.
+-Andi
+

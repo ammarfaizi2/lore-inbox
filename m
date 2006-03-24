@@ -1,129 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWCXQOB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbWCXQQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbWCXQOB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 11:14:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWCXQOA
+	id S932450AbWCXQQv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 11:16:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWCXQQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 11:14:00 -0500
-Received: from colo.lackof.org ([198.49.126.79]:8682 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S932415AbWCXQOA (ORCPT
+	Fri, 24 Mar 2006 11:16:51 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:60841 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932412AbWCXQQt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 11:14:00 -0500
-Date: Fri, 24 Mar 2006 09:24:58 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 2.6.16-mm1 2/4] PCI legacy I/O port free driver (take 6) - Update Documentation/pci.txt
-Message-ID: <20060324162458.GA4206@colo.lackof.org>
-References: <442382F1.2050300@jp.fujitsu.com> <44238469.8080009@jp.fujitsu.com>
-Mime-Version: 1.0
+	Fri, 24 Mar 2006 11:16:49 -0500
+Message-ID: <44241ABF.FC55B76C@tv-sign.ru>
+Date: Fri, 24 Mar 2006 19:13:51 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Roland McGrath <roland@redhat.com>
+Subject: [PATCH 2.6.16-mm1 3/3] do_notify_parent_cldstop: remove 'to_self' param
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44238469.8080009@jp.fujitsu.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 24, 2006 at 02:32:25PM +0900, Kenji Kaneshige wrote:
-> This patch adds the description about legacy I/O port free driver into
-> Documentation/pci.txt.
+The previous patch has changed callsites of do_notify_parent_cldstop()
+so that to_self == (->ptrace & PT_PTRACED) always (as it should be). We
+can remove this parameter now.
 
-I very much appreciate Kenji has pursued this.
-I edited much of the original text and wrote some parts
-of the "MMIO Write Posting" chapter.  Errors in those
-bits are most likely mine.
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-Please add my S-o-B line to the commit log in case the
-language needs further editing. I already see one typo
-("to CPU continue" -> "the CPU to continue") and will
-submit a patch if anyone has more.
-
-thanks,
-grant
-
-Signed-off-by: Grant Grundler <grundler@parisc-linux.org>
-
-
-> Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-> 
->  Documentation/pci.txt |   67 ++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 67 insertions(+)
-> 
-> Index: linux-2.6.16-mm1/Documentation/pci.txt
-> ===================================================================
-> --- linux-2.6.16-mm1.orig/Documentation/pci.txt	2006-03-23 20:04:06.000000000 +0900
-> +++ linux-2.6.16-mm1/Documentation/pci.txt	2006-03-23 20:04:12.000000000 +0900
-> @@ -269,3 +269,70 @@
->  pci_find_device()		Superseded by pci_get_device()
->  pci_find_subsys()		Superseded by pci_get_subsys()
->  pci_find_slot()			Superseded by pci_get_slot()
-> +
-> +
-> +9. Legacy I/O port free driver
-> +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> +Large servers may not be able to provide I/O port resources to all PCI
-> +devices. I/O Port space is only 64KB on Intel Architecture[1] and is
-> +likely also fragmented since the I/O base register of PCI-to-PCI
-> +bridge will usually be aligned to a 4KB boundary[2]. On such systems,
-> +pci_enable_device() and pci_request_regions() will fail when
-> +attempting to enable I/O Port regions that don't have I/O Port
-> +resources assigned.
-> +
-> +Fortunately, many PCI devices which request I/O Port resources also
-> +provide access to the same registers via MMIO BARs. These devices can
-> +be handled without using I/O port space and the drivers typically
-> +offer a CONFIG_ option to only use MMIO regions
-> +(e.g. CONFIG_TULIP_MMIO). PCI devices typically provide I/O port
-> +interface for legacy OSs and will work when I/O port resources are not
-> +assigned. The "PCI Local Bus Specification Revision 3.0" discusses
-> +this on p.44, "IMPLEMENTATION NOTE".
-> +
-> +If your PCI device driver doesn't need I/O port resources assigned to
-> +I/O Port BARs, you should use pci_enable_device_bars() instead of
-> +pci_enable_device() in order not to enable I/O port regions for the
-> +corresponding devices.
-> +
-> +[1] Some systems support 64KB I/O port space per PCI segment.
-> +[2] Some PCI-to-PCI bridges support optional 1KB aligned I/O base.
-> +
-> +
-> +10. MMIO Space and "Write Posting"
-> +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> +Converting a driver from using I/O Port space to using MMIO space
-> +often requires some additional changes. Specifically, "write posting"
-> +needs to be handled. Most drivers (e.g. tg3, acenic, sym53c8xx_2)
-> +already do. I/O Port space guarantees write transactions reach the PCI
-> +device before the CPU can continue. Writes to MMIO space allow to CPU
-> +continue before the transaction reaches the PCI device. HW weenies
-> +call this "Write Posting" because the write completion is "posted" to
-> +the CPU before the transaction has reached it's destination.
-> +
-> +Thus, timing sensitive code should add readl() where the CPU is
-> +expected to wait before doing other work.  The classic "bit banging"
-> +sequence works fine for I/O Port space:
-> +
-> +	for (i=8; --i; val >>= 1) {
-> +		outb(val & 1, ioport_reg);	/* write bit */
-> +		udelay(10);
-> +	}
-> +
-> +The same sequence for MMIO space should be:
-> +
-> +	for (i=8; --i; val >>= 1) {
-> +		writeb(val & 1, mmio_reg);	/* write bit */
-> +		readb(safe_mmio_reg);		/* flush posted write */
-> +		udelay(10);
-> +	}
-> +
-> +It is important that "safe_mmio_reg" not have any side effects that
-> +interferes with the correct operation of the device.
-> +
-> +Another case to watch out for is when resetting a PCI device. Use PCI
-> +Configuration space reads to flush the writel(). This will gracefully
-> +handle the PCI master abort on all platforms if the PCI device is
-> +expected to not respond to a readl().  Most x86 platforms will allow
-> +MMIO reads to master abort (aka "Soft Fail") and return garbage
-> +(e.g. ~0). But many RISC platforms will crash (aka "Hard Fail").
+--- MM/kernel/signal.c~4_DNPS	2006-03-24 20:48:12.000000000 +0300
++++ MM/kernel/signal.c	2006-03-24 21:24:33.000000000 +0300
+@@ -591,9 +591,7 @@ static int check_kill_permission(int sig
+ }
+ 
+ /* forward decl */
+-static void do_notify_parent_cldstop(struct task_struct *tsk,
+-				     int to_self,
+-				     int why);
++static void do_notify_parent_cldstop(struct task_struct *tsk, int why);
+ 
+ /*
+  * Handle magic process-wide effects of stop/continue signals.
+@@ -643,7 +641,7 @@ static void handle_stop_signal(int sig, 
+ 			p->signal->group_stop_count = 0;
+ 			p->signal->flags = SIGNAL_STOP_CONTINUED;
+ 			spin_unlock(&p->sighand->siglock);
+-			do_notify_parent_cldstop(p, (p->ptrace & PT_PTRACED), CLD_STOPPED);
++			do_notify_parent_cldstop(p, CLD_STOPPED);
+ 			spin_lock(&p->sighand->siglock);
+ 		}
+ 		rm_from_queue(SIG_KERNEL_STOP_MASK, &p->signal->shared_pending);
+@@ -684,7 +682,7 @@ static void handle_stop_signal(int sig, 
+ 			p->signal->flags = SIGNAL_STOP_CONTINUED;
+ 			p->signal->group_exit_code = 0;
+ 			spin_unlock(&p->sighand->siglock);
+-			do_notify_parent_cldstop(p, (p->ptrace & PT_PTRACED), CLD_CONTINUED);
++			do_notify_parent_cldstop(p, CLD_CONTINUED);
+ 			spin_lock(&p->sighand->siglock);
+ 		} else {
+ 			/*
+@@ -1519,14 +1517,14 @@ void do_notify_parent(struct task_struct
+ 	spin_unlock_irqrestore(&psig->siglock, flags);
+ }
+ 
+-static void do_notify_parent_cldstop(struct task_struct *tsk, int to_self, int why)
++static void do_notify_parent_cldstop(struct task_struct *tsk, int why)
+ {
+ 	struct siginfo info;
+ 	unsigned long flags;
+ 	struct task_struct *parent;
+ 	struct sighand_struct *sighand;
+ 
+-	if (to_self)
++	if (tsk->ptrace & PT_PTRACED)
+ 		parent = tsk->parent;
+ 	else {
+ 		tsk = tsk->group_leader;
+@@ -1601,7 +1599,7 @@ static void ptrace_stop(int exit_code, i
+ 		   !(current->ptrace & PT_ATTACHED)) &&
+ 	    (likely(current->parent->signal != current->signal) ||
+ 	     !unlikely(current->signal->flags & SIGNAL_GROUP_EXIT))) {
+-		do_notify_parent_cldstop(current, 1, CLD_TRAPPED);
++		do_notify_parent_cldstop(current, CLD_TRAPPED);
+ 		read_unlock(&tasklist_lock);
+ 		schedule();
+ 	} else {
+@@ -1650,25 +1648,17 @@ void ptrace_notify(int exit_code)
+ static void
+ finish_stop(int stop_count)
+ {
+-	int to_self;
+-
+ 	/*
+ 	 * If there are no other threads in the group, or if there is
+ 	 * a group stop in progress and we are the last to stop,
+ 	 * report to the parent.  When ptraced, every thread reports itself.
+ 	 */
+-	if (current->ptrace & PT_PTRACED)
+-		to_self = 1;
+-	else if (stop_count == 0)
+-		to_self = 0;
+-	else
+-		goto out;
+-
+-	read_lock(&tasklist_lock);
+-	do_notify_parent_cldstop(current, to_self, CLD_STOPPED);
+-	read_unlock(&tasklist_lock);
++	if (stop_count == 0 || (current->ptrace & PT_PTRACED)) {
++		read_lock(&tasklist_lock);
++		do_notify_parent_cldstop(current, CLD_STOPPED);
++		read_unlock(&tasklist_lock);
++	}
+ 
+-out:
+ 	schedule();
+ 	/*
+ 	 * Now we don't run again until continued.

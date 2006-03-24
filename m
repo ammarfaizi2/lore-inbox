@@ -1,71 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWCXT4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWCXT73@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbWCXT4P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 14:56:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWCXT4P
+	id S1751377AbWCXT73 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 14:59:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWCXT72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 14:56:15 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52184 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750790AbWCXT4O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 14:56:14 -0500
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Kirill Korotaev <dev@sw.ru>,
-       linux-kernel@vger.kernel.org, herbert@13thfloor.at, devel@openvz.org,
-       serue@us.ibm.com, akpm@osdl.org, sam@vilain.net,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Pavel Emelianov <xemul@sw.ru>,
-       Stanislav Protassov <st@sw.ru>
-Subject: Re: [RFC] Virtualization steps
-References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>
-	<1143228339.19152.91.camel@localhost.localdomain>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 24 Mar 2006 12:53:55 -0700
-In-Reply-To: <1143228339.19152.91.camel@localhost.localdomain> (Dave
- Hansen's message of "Fri, 24 Mar 2006 11:25:39 -0800")
-Message-ID: <m18xqzippo.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 24 Mar 2006 14:59:28 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60425 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751377AbWCXT72 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 14:59:28 -0500
+Date: Fri, 24 Mar 2006 19:59:18 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-serial@vger.kernel.org
+Subject: Re: 2.6.16-mm1
+Message-ID: <20060324195917.GA32098@flint.arm.linux.org.uk>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-serial@vger.kernel.org
+References: <20060323014046.2ca1d9df.akpm@osdl.org> <6bffcb0e0603230631r5e6cc3d3p@mail.gmail.com> <20060323144922.GA25849@flint.arm.linux.org.uk> <Pine.LNX.4.64.0603241140350.16802@scrub.home>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0603241140350.16802@scrub.home>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> writes:
+On Fri, Mar 24, 2006 at 12:28:27PM +0100, Roman Zippel wrote:
+> Hi,
+> 
+> On Thu, 23 Mar 2006, Russell King wrote:
+> 
+> > Okay, so the default is now 'm', but the legal values are still only 'n'
+> > and 'm'.  I can only select 'm' or 'n', and this is what I end up with in
+> > the config file.  Now, if I remove the prompt text:
+> > 
+> > config SYM_D
+> >         tristate
+> >         depends on SYM_M && SYM_Y
+> >         default y
+> > 
+> > and hey presto, suddenly 'y' becomes a legal value.
+> > 
+> > CONFIG_SYM_Y=y
+> > CONFIG_SYM_M=m
+> > CONFIG_SYM_D=y
+> > 
+> > So it would seem to be a Kconfig bug.
+> 
+> No, it's not a bug, that's really the correct behaviour. It has its roots 
+> in the cml1 converter, where statements like this:
+> 
+> if [ "$CONFIG_FOO" = "y" ]; then
+>   define_tristate CONFIG_BAR y
+> fi
+> 
+> would become:
+> 
+> config BAR
+> 	default y
+> 	depends on FOO=y
 
-> On Sat, 2006-03-25 at 04:33 +1100, Nick Piggin wrote:
->> Oh, after you come to an agreement and start posting patches, can you
->> also outline why we want this in the kernel (what it does that low
->> level virtualization doesn't, etc, etc) 
->
-> Can you wait for an OLS paper? ;)
->
-> I'll summarize it this way: low-level virtualization uses resource
-> inefficiently.
->
-> With this higher-level stuff, you get to share all of the Linux caching,
-> and can do things like sharing libraries pretty naturally.
+Okay, so going to the exact problem case, the behaviour we require is:
 
-Also it is a major enabler for things such as process migration,
-between kernels.
+SERIAL_8250	PCI	EMBEDDED	gives SERIAL_8250_PCI
+	n	X	X		n
+	X	n	X		n
+	m	y	n		m
+	y	y	n		y
+	m	y	y		user selects 'm' or 'n'
+	y	y	y		user selects 'y', 'm' or 'n'
 
-> They are also much lighter-weight to create and destroy than full
-> virtual machines.  We were planning on doing some performance
-> comparisons versus some hypervisors like Xen and the ppc64 one to show
-> scaling with the number of virtualized instances.  Creating 100 of these
-> Linux containers is as easy as a couple of shell scripts, but we still
-> can't find anybody crazy enough to go create 100 Xen VMs.
+the correct way to tell Kconfig to give us that is:
 
-One of my favorite test cases is to kill about 100 of them
-simultaneously :)
++config SERIAL_8250_PCI
++       tristate "8250/16550 PCI device support" if EMBEDDED
++       depends on SERIAL_8250 && PCI
++       default SERIAL_8250
++       help
++         This builds standard PCI serial support. You may be able to
++         disable this feature if you only need legacy serial support.
++         Saves about 9K.
 
-I think on a reasonably beefy dual processor machine I should be able
-to get about 1000 of them running all at once.
+?
 
-> Anyway, those are the things that came to my mind first.  I'm sure the
-> others involved have their own motivations.
-
-The practical aspect is that several groups have found the arguments
-compelling enough that they have already done complete
-implementations.  At which point getting us all to agree on a common
-implementation is important. :)
-
-Eric
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,76 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWCXRv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbWCXSFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbWCXRv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 12:51:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWCXRv4
+	id S932484AbWCXSFK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 13:05:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWCXSFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 12:51:56 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:20141 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751318AbWCXRvz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 12:51:55 -0500
-Date: Fri, 24 Mar 2006 11:51:36 -0600
-From: Dimitri Sivanich <sivanich@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@elte.hu,
-       roe@sgi.com, steiner@sgi.com, Christoph Lameter <clameter@sgi.com>
-Subject: [PATCH] Call get_time() only when necessary in run_hrtimer_queue
-Message-ID: <20060324175136.GA10186@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 24 Mar 2006 13:05:10 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:32141 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751293AbWCXSFI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 13:05:08 -0500
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: Milton Miller <miltonm@bga.com>
+Subject: Re: [patch 06/13] powerpc: cell interrupt controller updates
+Date: Fri, 24 Mar 2006 19:05:03 +0100
+User-Agent: KMail/1.9.1
+Cc: Arnd Bergmann <abergman@de.ibm.com>, hpenner@de.ibm.com,
+       Paul Mackerras <paulus@samba.org>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, stk@de.ibm.com,
+       benh@kernel.crashing.org, cbe-oss-dev@ozlabs.org
+References: <20060323203423.620978000@dyn-9-152-242-103.boeblingen.de.ibm.com> <20060323203521.862355000@dyn-9-152-242-103.boeblingen.de.ibm.com> <32140afe2349e8f1726d188eb85c780c@bga.com>
+In-Reply-To: <32140afe2349e8f1726d188eb85c780c@bga.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Message-Id: <200603241905.04356.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that run_hrtimer_queue() is calling get_time() much more often
-than it needs to.
+On Friday 24 March 2006 18:43, Milton Miller wrote:
+> On Mar 22, 2006, at 5:00 PM, Arnd Bergmann wrote:
+> >  static void spider_enable_irq(unsigned int irq)
+> >  {
+> > +     int nodeid = (irq / IIC_NODE_STRIDE) * 0x10;
+> >       void __iomem *cfg = spider_get_irq_config(irq);
+> >       irq = spider_get_nr(irq);
+> >
+> > -     out_be32(cfg, in_be32(cfg) | 0x3107000eu);
+> > +     out_be32(cfg, in_be32(cfg) | 0x3107000eu | nodeid);
+> >       out_be32(cfg + 4, in_be32(cfg + 4) | 0x00020000u | irq);
+> >  }
+> >
+> 
+> I just did a quick read of the code, but my first thought is what if 
+> some other node id was previously set?  Perhaps you should mask off 
+> some bits before or'ing in the node id?
 
-With this patch, it only calls get_time() if there's a pending timer.
+Good point. The firmware always sets nodeid zero (or the same one that
+we set), but I can't see any reason why we should take that for granted.
 
-Following is from a profile done without the patch:
-kernel ticks:           30841           1.02 %
-      13572       44.01    44.01      time_interpolator_get_offset
-        155        0.50    96.91      hrtimer_run_queues
+Thanks,
 
-And with the patch:
-	kernel ticks:           18334           0.58 %
-         74        0.40    97.81      hrtimer_run_queues
-         43        0.23    98.63      time_interpolator_get_offset
-
-
-Signed-off-by: Dimitri Sivanich <sivanich@sgi.com>
-
-Index: linux-2.6.15/kernel/hrtimer.c
-===================================================================
---- linux-2.6.15.orig/kernel/hrtimer.c	2006-03-23 14:37:49.032686221 -0600
-+++ linux-2.6.15/kernel/hrtimer.c	2006-03-23 14:39:10.655542086 -0600
-@@ -586,12 +586,17 @@ int hrtimer_get_res(const clockid_t whic
-  */
- static inline void run_hrtimer_queue(struct hrtimer_base *base)
- {
--	ktime_t now = base->get_time();
--	struct rb_node *node;
-+	ktime_t now;
-+	struct rb_node *node = base->first;
-+
-+	if (!node)
-+		return;
-+
-+	now = base->get_time();
- 
- 	spin_lock_irq(&base->lock);
- 
--	while ((node = base->first)) {
-+	while (node) {
- 		struct hrtimer *timer;
- 		int (*fn)(void *);
- 		int restart;
-@@ -620,6 +625,7 @@ static inline void run_hrtimer_queue(str
- 
- 		spin_lock_irq(&base->lock);
- 
-+		node = base->first;
- 		/* Another CPU has added back the timer */
- 		if (timer->state != HRTIMER_RUNNING)
- 			continue;
+	Arnd <><

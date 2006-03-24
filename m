@@ -1,96 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932636AbWCXBYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422967AbWCXB0G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932636AbWCXBYe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 20:24:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932637AbWCXBYe
+	id S1422967AbWCXB0G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 20:26:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422969AbWCXB0G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 20:24:34 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:52890 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932636AbWCXBYd (ORCPT
+	Thu, 23 Mar 2006 20:26:06 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:63920 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422967AbWCXB0E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 20:24:33 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Thu, 23 Mar 2006 20:26:04 -0500
+Date: Thu, 23 Mar 2006 17:28:05 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: john stultz <johnstul@us.ibm.com>
+Cc: ak@muc.de, Rafal.Wysocki@fuw.edu.pl, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.16-mm1
-Date: Fri, 24 Mar 2006 02:23:15 +0100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       linux-kernel@vger.kernel.org
-References: <20060323014046.2ca1d9df.akpm@osdl.org> <200603240204.43294.rjw@sisk.pl> <1143162763.2299.50.camel@leatherman>
-In-Reply-To: <1143162763.2299.50.camel@leatherman>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Message-Id: <20060323172805.00926c13.akpm@osdl.org>
+In-Reply-To: <1143161390.2299.36.camel@leatherman>
+References: <20060323014046.2ca1d9df.akpm@osdl.org>
+	<200603232317.50245.Rafal.Wysocki@fuw.edu.pl>
+	<20060323160426.153fbea9.akpm@osdl.org>
+	<1143161390.2299.36.camel@leatherman>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603240223.16547.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 March 2006 02:12, john stultz wrote:
-> On Fri, 2006-03-24 at 02:04 +0100, Rafael J. Wysocki wrote:
-> > On Friday 24 March 2006 01:49, john stultz wrote:
-> > > On Thu, 2006-03-23 at 16:04 -0800, Andrew Morton wrote:
-> > > > "R. J. Wysocki" <Rafal.Wysocki@fuw.edu.pl> wrote:
-> > > > >
-> > > > > On Thursday 23 March 2006 10:40, Andrew Morton wrote:
-> > > > > > 
-> > > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.16-mm1/
-> > > > > 
-> > > > > On a uniprocessor AMD64 w/ CONFIG_SMP unset (2.6.16-rc6-mm2 works on this box
-> > > > > just fine, .config attached):
+john stultz <johnstul@us.ibm.com> wrote:
+>
+> On Thu, 2006-03-23 at 16:04 -0800, Andrew Morton wrote:
+> > "R. J. Wysocki" <Rafal.Wysocki@fuw.edu.pl> wrote:
+> > >
+> > > On Thursday 23 March 2006 10:40, Andrew Morton wrote:
 > > > > 
-> > > > hm, uniproc x86_64 seems to cause problems sometimes.  I should test it more.
-> > > > 
-> > > > > }-- snip --{
-> > > > > PID hash table entries: 4096 (order: 12, 32768 bytes)
-> > > > > time.c: Using 3.579545 MHz WALL PM GTOD PIT/TSC timer.
-> > > > > time.c: Detected 1795.400 MHz processor.
-> > > > > disabling early console
-> > > > > Console: colour dummy device 80x25
-> > > > > time.c: Lost 103 timer tick(s)! rip 10:start_kernel+0x121/0x220
-> > > > > last cli 0x0
-> > > > > last cli caller 0x0
-> > > > > time.c: Lost 3 timer tick(s)! rip 10:__do_softirq+0x44/0xc0
-> > > > > last cli 0x0
-> > > > > last cli caller 0x0
-> > > > > time.c: Lost 3 timer tick(s)! rip 10:__do_softirq+0x44/0xc0
+> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.16-mm1/
 > > > 
-> > > It seems report_lost_ticks has been set to one w/ 2.6.16-mm1, thus these
-> > > debug messages will be shown.
-> > > 
-> > > Rafael: To properly compare, could you boot 2.6.16-rc6-mm2 w/ the
-> > > "report_lost_ticks" boot option and see if the same sort of messages do
-> > > not appear?
+> > > On a uniprocessor AMD64 w/ CONFIG_SMP unset (2.6.16-rc6-mm2 works on this box
+> > > just fine, .config attached):
 > > 
-> > It looks similar but not the same:
+> > hm, uniproc x86_64 seems to cause problems sometimes.  I should test it more.
+> > 
+> > > }-- snip --{
+> > > PID hash table entries: 4096 (order: 12, 32768 bytes)
+> > > time.c: Using 3.579545 MHz WALL PM GTOD PIT/TSC timer.
+> > > time.c: Detected 1795.400 MHz processor.
+> > > disabling early console
+> > > Console: colour dummy device 80x25
+> > > time.c: Lost 103 timer tick(s)! rip 10:start_kernel+0x121/0x220
+> > > last cli 0x0
+> > > last cli caller 0x0
+> > > time.c: Lost 3 timer tick(s)! rip 10:__do_softirq+0x44/0xc0
+> > > last cli 0x0
+> > > last cli caller 0x0
+> > > time.c: Lost 3 timer tick(s)! rip 10:__do_softirq+0x44/0xc0
 > 
-> Yea, I think thats due to some new code from Andi.
+> It seems report_lost_ticks has been set to one w/ 2.6.16-mm1, thus these
+> debug messages will be shown.
 > 
-> The lost tick issue should be looked into (might be hardware SMIs), but
-> it seems this is not caused by my patches.
+> Rafael: To properly compare, could you boot 2.6.16-rc6-mm2 w/ the
+> "report_lost_ticks" boot option and see if the same sort of messages do
+> not appear?
 
-You are right.  All of this is caused by report_lost_ticks set to 1.
-The appended patch helps.
+<looks>
 
-Thanks,
-Rafael
+OK, we have an andi-easter-egg:
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.16-mm1/broken-out/x86_64-mm-lost-cli-debug.patch.
 
----
- arch/x86_64/kernel/time.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+So you're right, it's not the time patches.  I just blame you whenever anything
+time-related goes wrong - who else is there? ;)
 
-Index: linux-2.6.16-mm1/arch/x86_64/kernel/time.c
-===================================================================
---- linux-2.6.16-mm1.orig/arch/x86_64/kernel/time.c
-+++ linux-2.6.16-mm1/arch/x86_64/kernel/time.c
-@@ -63,7 +63,7 @@ static unsigned long hpet_period;			/* f
- unsigned long hpet_tick;				/* HPET clocks / interrupt */
- int hpet_use_timer;				/* Use counter of hpet for time keeping, otherwise PIT */
- unsigned long vxtime_hz = PIT_TICK_RATE;
--int report_lost_ticks = 1;			/* command line option */
-+int report_lost_ticks;				/* command line option */
- unsigned long long monotonic_base;
- 
- struct vxtime_data __vxtime __section_vxtime;	/* for vsyscalls */
+The above patch records the most-recent caller of local_irq_disable() in a
+global variable, then prints that out in the lost-ticks handler.  But how
+do we know that the global didn't get overwritten between the most-recent
+local_irq_enable() and the call to handle_lost_ticks()?
+
+I guess the code assumes that the local_irq_enable() will result in
+insta-entry into the timer IRQ handler.  Which is probably good enough, as
+interrupts from other sources won't be pending most times.
+
+So why did we lose three ticks after __do_sortirq()'s local_irq_disable()? 
+Dunno.
+
+I think a better debugging patch would be:
+
+u64 timestamp[NR_CPUS];
+
+local_irq_disable()
+{
+	cli;
+	timestamp[me] = rdtslcc();
+}
+
+local_irq_enable()
+{
+	if (rdtscll() - timestamp[me] > enough)
+		whine();
+	sti;
+}
+
+(Is there any point in do_softirq() doing local_irq_save() instead of
+local_irq_disable()?  __do_softirq() will unconditionally enable anyway..)
+
 

@@ -1,70 +1,295 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932486AbWCXRXt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbWCXRbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932486AbWCXRXt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 12:23:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWCXRXt
+	id S932498AbWCXRbq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 12:31:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWCXRbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 12:23:49 -0500
-Received: from mail.sw-soft.com ([69.64.46.34]:53426 "EHLO mail.sw-soft.com")
-	by vger.kernel.org with ESMTP id S932486AbWCXRXs (ORCPT
+	Fri, 24 Mar 2006 12:31:46 -0500
+Received: from mail.sw-soft.com ([69.64.46.34]:38067 "EHLO mail.sw-soft.com")
+	by vger.kernel.org with ESMTP id S1751280AbWCXRbp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 12:23:48 -0500
-Message-ID: <44242B1B.1080909@sw.ru>
-Date: Fri, 24 Mar 2006 20:23:39 +0300
+	Fri, 24 Mar 2006 12:31:45 -0500
+Message-ID: <44242CE7.3030905@sw.ru>
+Date: Fri, 24 Mar 2006 20:31:19 +0300
 From: Kirill Korotaev <dev@sw.ru>
 User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        xemul@sw.ru, ebiederm@xmission.com, haveblue@us.ibm.com,
        linux-kernel@vger.kernel.org, herbert@13thfloor.at, devel@openvz.org,
        serue@us.ibm.com, sam@vilain.net
-Subject: [RFC] Virtualization patches for IPC/UTS. 2nd step
-Content-Type: text/plain; charset=windows-1251; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [RFC][PATCH 1/2] Virtualization of UTS
+References: <44242B1B.1080909@sw.ru>
+In-Reply-To: <44242B1B.1080909@sw.ru>
+Content-Type: multipart/mixed;
+ boundary="------------040000090404070001080309"
 X-SA-Do-Not-Rej: Toldya
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I propose to consider these patches for utsname and sysv IPC 
-virtualization once more.
+This is a multi-part message in MIME format.
+--------------040000090404070001080309
+Content-Type: text/plain; charset=windows-1251; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The main change from the previous version is an introduction of separate 
-namespaces for each subsytem as suggested by Eric Biederman. People who 
-work on containers don't care actually, so I splitted a container into 
-namespaces.
+This patch introduces utsname namespace in system, which allows to have 
+different utsnames on the host.
+Introduces config option CONFIG_UTS_NS and uts_namespace structure for this.
 
-The naming conventions used in these patches are (as example for IPC):
+http://git.openvz.org/?p=linux-2.6-openvz-ms;a=commitdiff;h=216bb5e42c7eef7f1ed361244a60b1496e8bdf63
 
-CONFIG_IPC_NS		- per namespace config option
-struct ipc_namespace	- structure describing namepsace
-ipc_ns			- names of var pointers, in task_struct etc.
-init_ipc_ns		- default host namespace
+Signed-Off-By: Pavel Emelianov <xemul@openvz.org>
+Signed-Off-By: Kirill Korotaev <dev@openvz.org>
 
-interfaces:
-get_ipc_ns		- refcountig interface
-put_ipc_ns		- refcountig interface
-create_ipc_ns		- create _empty_ namespace
-clone_ipc_ns		- clone current namespace, if applicable
-free_ipc_ns		- destroy namespace when refs are 0
-
-Please, note, these patches do not introduce CONFIG_XXX_NS option in any 
-of Kconfigs, as it is questionable whether to have them scattered all 
-around or place in some menu "Virtual namespaces". But patches compile 
-and work fine both w/o and with it.
-
-Also, please, note, that these patches do not virtualize corresponding 
-sysctls or proc parts of uts/ipc. I suppose this must be postponed as we 
-have no any consensus on /proc.
-
-Some other minor differences from Eric/Dave patches:
-- these patches heavily use current namespace context instead of
-   bypassing additional argument to all functions where required.
-- these patches compile to the old good kernel when namespaces are off.
-
-Both patches are also available in GIT repo at:
-http://git.openvz.org/pub/linux-2.6-openvz-ms/
-
-Thanks,
 Kirill
 
+--------------040000090404070001080309
+Content-Type: text/plain;
+ name="diff-ms-utsname-namespace"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-ms-utsname-namespace"
+
+--- a/include/linux/init_task.h
++++ b/include/linux/init_task.h
+@@ -3,6 +3,7 @@
+ 
+ #include <linux/file.h>
+ #include <linux/rcupdate.h>
++#include <linux/utsname.h>
+ 
+ #define INIT_FDTABLE \
+ {							\
+@@ -72,6 +73,12 @@
+ 
+ extern struct group_info init_groups;
+ 
++#ifdef CONFIG_UTS_NS
++#define INIT_UTS_NS	.uts_ns = &init_uts_ns,
++#else
++#define INIT_UTS_NS
++#endif
++
+ /*
+  *  INIT_TASK is used to set up the first task table, touch at
+  * your own risk!. Base=0, limit=0x1fffff (=2MB)
+@@ -121,6 +128,7 @@ extern struct group_info init_groups;
+ 	.journal_info	= NULL,						\
+ 	.cpu_timers	= INIT_CPU_TIMERS(tsk.cpu_timers),		\
+ 	.fs_excl	= ATOMIC_INIT(0),				\
++	INIT_UTS_NS							\
+ }
+ 
+ 
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -688,6 +688,7 @@ static inline void prefetch_stack(struct
+ 
+ struct audit_context;		/* See audit.c */
+ struct mempolicy;
++struct uts_namespace;
+ 
+ struct task_struct {
+ 	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
+@@ -802,6 +803,9 @@ struct task_struct {
+ 	struct files_struct *files;
+ /* namespace */
+ 	struct namespace *namespace;
++#ifdef CONFIG_UTS_NS
++	struct uts_namespace *uts_ns;
++#endif
+ /* signal handlers */
+ 	struct signal_struct *signal;
+ 	struct sighand_struct *sighand;
+--- a/include/linux/utsname.h
++++ b/include/linux/utsname.h
+@@ -30,7 +30,36 @@ struct new_utsname {
+ 	char domainname[65];
+ };
+ 
++#ifdef CONFIG_UTS_NS
++#include <asm/atomic.h>
++
++struct uts_namespace {
++	atomic_t cnt;
++	struct new_utsname name;
++};
++
++extern struct uts_namespace *create_uts_ns(void);
++extern struct uts_namespace *clone_uts_ns(void);
++extern void free_uts_ns(struct uts_namespace *ns);
++
++static inline void get_uts_ns(struct uts_namespace *ns)
++{
++	atomic_inc(&ns->cnt);
++}
++
++static inline void put_uts_ns(struct uts_namespace *ns)
++{
++	if (atomic_dec_and_test(&ns->cnt))
++		free_uts_ns(ns);
++}
++
++#define system_utsname	(current->uts_ns->name)
++extern struct uts_namespace init_uts_ns;
++#else
++#define get_uts_ns(ns)	do { } while (0)
++#define put_uts_ns(ns)	do { } while (0)
+ extern struct new_utsname system_utsname;
++#endif
+ 
+ extern struct rw_semaphore uts_sem;
+ #endif
+--- a/init/version.c
++++ b/init/version.c
+@@ -17,6 +17,51 @@
+ 
+ int version_string(LINUX_VERSION_CODE);
+ 
++#ifdef CONFIG_UTS_NS
++struct uts_namespace init_uts_ns = {
++	.cnt = ATOMIC_INIT(1),
++	.name = {
++		.sysname	= UTS_SYSNAME,
++		.nodename	= UTS_NODENAME,
++		.release	= UTS_RELEASE,
++		.version	= UTS_VERSION,
++		.machine	= UTS_MACHINE,
++		.domainname	= UTS_DOMAINNAME,
++	},
++};
++
++struct uts_namespace *create_uts_ns(void)
++{
++	struct uts_namespace *ns;
++
++	ns = kmalloc(sizeof(struct uts_namespace), GFP_KERNEL);
++	if (ns == NULL)
++		return NULL;
++
++	memset(&ns->name, 0, sizeof(ns->name));
++	atomic_set(&ns->cnt, 1);
++	return ns;
++}
++
++struct uts_namespace *clone_uts_ns(void)
++{
++	struct uts_namespace *ns, *cur;
++
++	ns = kmalloc(sizeof(struct uts_namespace), GFP_KERNEL);
++	if (ns == NULL)
++		return NULL;
++
++	cur = current->uts_ns;
++	memcpy(&ns->name, &cur->name, sizeof(cur->name));
++	atomic_set(&ns->cnt, 1);
++	return ns;
++}
++
++void free_uts_ns(struct uts_namespace *ns)
++{
++	kfree(ns);
++}
++#else
+ struct new_utsname system_utsname = {
+ 	.sysname	= UTS_SYSNAME,
+ 	.nodename	= UTS_NODENAME,
+@@ -27,6 +72,7 @@ struct new_utsname system_utsname = {
+ };
+ 
+ EXPORT_SYMBOL(system_utsname);
++#endif
+ 
+ const char linux_banner[] =
+ 	"Linux version " UTS_RELEASE " (" LINUX_COMPILE_BY "@"
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -107,6 +107,7 @@ repeat: 
+ 	spin_unlock(&p->proc_lock);
+ 	proc_pid_flush(proc_dentry);
+ 	release_thread(p);
++	put_uts_ns(p->uts_ns);
+ 	put_task_struct(p);
+ 
+ 	p = leader;
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1192,6 +1192,7 @@ static task_t *copy_process(unsigned lon
+ 	}
+ 	attach_pid(p, PIDTYPE_TGID, p->tgid);
+ 	attach_pid(p, PIDTYPE_PID, p->pid);
++	get_uts_ns(p->uts_ns);
+ 
+ 	nr_threads++;
+ 	total_forks++;
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -229,12 +229,18 @@ static ctl_table root_table[] = {
+ 	{ .ctl_name = 0 }
+ };
+ 
++#ifdef CONFIG_UTS_NS
++#define sysctl_system_utsname	(init_uts_ns.name)
++#else
++#define sysctl_system_utsname	(system_utsname)
++#endif
++
+ static ctl_table kern_table[] = {
+ 	{
+ 		.ctl_name	= KERN_OSTYPE,
+ 		.procname	= "ostype",
+-		.data		= system_utsname.sysname,
+-		.maxlen		= sizeof(system_utsname.sysname),
++		.data		= sysctl_system_utsname.sysname,
++		.maxlen		= sizeof(sysctl_system_utsname.sysname),
+ 		.mode		= 0444,
+ 		.proc_handler	= &proc_doutsstring,
+ 		.strategy	= &sysctl_string,
+@@ -242,8 +248,8 @@ static ctl_table kern_table[] = {
+ 	{
+ 		.ctl_name	= KERN_OSRELEASE,
+ 		.procname	= "osrelease",
+-		.data		= system_utsname.release,
+-		.maxlen		= sizeof(system_utsname.release),
++		.data		= sysctl_system_utsname.release,
++		.maxlen		= sizeof(sysctl_system_utsname.release),
+ 		.mode		= 0444,
+ 		.proc_handler	= &proc_doutsstring,
+ 		.strategy	= &sysctl_string,
+@@ -251,8 +257,8 @@ static ctl_table kern_table[] = {
+ 	{
+ 		.ctl_name	= KERN_VERSION,
+ 		.procname	= "version",
+-		.data		= system_utsname.version,
+-		.maxlen		= sizeof(system_utsname.version),
++		.data		= sysctl_system_utsname.version,
++		.maxlen		= sizeof(sysctl_system_utsname.version),
+ 		.mode		= 0444,
+ 		.proc_handler	= &proc_doutsstring,
+ 		.strategy	= &sysctl_string,
+@@ -260,8 +266,8 @@ static ctl_table kern_table[] = {
+ 	{
+ 		.ctl_name	= KERN_NODENAME,
+ 		.procname	= "hostname",
+-		.data		= system_utsname.nodename,
+-		.maxlen		= sizeof(system_utsname.nodename),
++		.data		= sysctl_system_utsname.nodename,
++		.maxlen		= sizeof(sysctl_system_utsname.nodename),
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_doutsstring,
+ 		.strategy	= &sysctl_string,
+@@ -269,8 +275,8 @@ static ctl_table kern_table[] = {
+ 	{
+ 		.ctl_name	= KERN_DOMAINNAME,
+ 		.procname	= "domainname",
+-		.data		= system_utsname.domainname,
+-		.maxlen		= sizeof(system_utsname.domainname),
++		.data		= sysctl_system_utsname.domainname,
++		.maxlen		= sizeof(sysctl_system_utsname.domainname),
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_doutsstring,
+ 		.strategy	= &sysctl_string,
+
+--------------040000090404070001080309--

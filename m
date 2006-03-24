@@ -1,88 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751522AbWCXWnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWCXWof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751522AbWCXWnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 17:43:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751531AbWCXWnZ
+	id S932172AbWCXWof (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 17:44:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWCXWof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 17:43:25 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:29631 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751522AbWCXWnY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 17:43:24 -0500
-Date: Fri, 24 Mar 2006 14:45:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH 12/16] UML - Memory hotplug
-Message-Id: <20060324144535.37b3daf7.akpm@osdl.org>
-In-Reply-To: <200603241814.k2OIExNn005555@ccure.user-mode-linux.org>
-References: <200603241814.k2OIExNn005555@ccure.user-mode-linux.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Mar 2006 17:44:35 -0500
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:50365 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932172AbWCXWoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 17:44:34 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: [patch 1/1] pc-speaker: add SND_SILENT
+To: Stas Sergeev <stsp@aknet.ru>, dtor_core@ameritech.net,
+       Linux kernel <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+Reply-To: 7eggert@gmx.de
+Date: Fri, 24 Mar 2006 23:43:48 +0100
+References: <5TCqf-E6-49@gated-at.bofh.it> <5TCqf-E6-51@gated-at.bofh.it> <5TCqf-E6-53@gated-at.bofh.it> <5TCqg-E6-55@gated-at.bofh.it> <5TCqf-E6-47@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1FMv1A-0000fN-Lp@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike <jdike@addtoit.com> wrote:
->
-> This adds hotplug memory support to UML.  The mconsole syntax is
-> 	config mem=[+-]n[KMG]
-> In other words, add or subtract some number of kilobytes, megabytes, or
-> gigabytes.
->  
-> Unplugged pages are allocated and then madvise(MADV_REMOVE), which is
-> a currently experimental madvise extension.  These pages are tracked so
-> they can be plugged back in later if the admin decides to give them back.
-> The first page to be unplugged is used to keep track of about 4M of other
-> pages.  A list_head is the first thing on this page.  The rest is filled
-> with addresses of other unplugged pages.  This first page is not madvised,
-> obviously.
-> When this page is filled, the next page is used in a similar way and linked
-> onto a list with the first page.  Etc.
-> This whole process reverses when pages are plugged back in.  When a tracking
-> page no longer tracks any unplugged pages, then it is next in line for
-> plugging, which is done by freeing pages back to the kernel.
+Stas Sergeev <stsp@aknet.ru> wrote:
+
+> [ adding LKML to CC and removing akpm as this went into a
+> discussion phase apparently ]
 > 
-> This patch also removes checking for /dev/anon on the host, which is obsoleted
-> by MADVISE_REMOVE.
+> Dmitry Torokhov wrote:
+
+>>> Well, the main reason behind that change, is that there is a PC-Speaker
+>>> PCM driver/emulator, snd-pcsp, pending in an ALSA CVS. I can't get it
+>>> included in kernel before there is a way to disable the pcspkr driver.
+>> Why can't you? We have ALSA and OSS together in the kernel just fine.
+> But the pcspkr driver is not an OSS, it is an "input" driver.
 > 
-> ...
->
-> +static unsigned long long unplugged_pages_count = 0;
+>> If you are concerned about both modules baing active at the same time
+>> do not let user compile pcspkr if snd_pcsp is selected for now.
+> The problem is that the snd-pcsp doesn't replace pcspkr.
 
-The `= 0;' causes this to consume space in vmlinux's .data.  If we put it
-in bss and let crt0.o take care of zeroing it, we save a little disk space.
+If that's the problem, create a minimal input driver that will signal the
+snd-pcsp to beep, and change the original pcspkr to include "(Non-ALSA)".
+Obviously both drivers will exclude each other, but that should be fine,
+and users who prefer "music" over beeps will be fine, too.
 
+And as a bonus, you might upload a custom PC beep ... but if you do, a
+userspace notifyer combined with a beep-daemon might be preferable
+(uinput? I know it exists ...).
 
-> +			page = alloc_page(GFP_ATOMIC);
-
-That's potentially quite a few atomically-allocated pages.  I guess UML is
-more resistant to oom than normal kernels (?) but it'd be nice to be able to
-run page reclaim here.
-
-> +	char buf[sizeof("18446744073709551615\0")];
-
-rofl.  We really ought to have a #define for "this architecture's maximum
-length of an asciified int/long/s32/s64".  Generally people do
-guess-and-giggle-plus-20%, or they just get it wrong.
-
-> +#ifndef MADV_REMOVE
-> +#define MADV_REMOVE	0x5		/* remove these pages & resources */
-> +#endif
-> +
-> +int os_drop_memory(void *addr, int length)
-> +{
-> +	int err;
-> +
-> +	err = madvise(addr, length, MADV_REMOVE);
-> +	if(err < 0)
-> +		err = -errno;
-> +	return 0;
-> +}
-
- * NOTE: Currently, only shmfs/tmpfs is supported for this operation.
- * Other filesystems return -ENOSYS.
-
-Are you expecting that this memory is backed by tmpfs?
-
+Off cause I might be suggesting exactly what you did, since I didn't see
+the patch.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

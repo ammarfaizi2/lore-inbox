@@ -1,31 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423191AbWCXGnu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423196AbWCXGqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423191AbWCXGnu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 01:43:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423192AbWCXGnu
+	id S1423196AbWCXGqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 01:46:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423197AbWCXGqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 01:43:50 -0500
-Received: from wproxy.gmail.com ([64.233.184.227]:29707 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1423191AbWCXGnu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 01:43:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WGZAwDBcm5NX42fivnHRolq0MCl5phbov07vGnY2ofh5tYnW2GnkYdAB5DePk7EsoekLIsNbUhTalxFj87IBDMl366uLBMVEBvRZFxPkYKS32Fa+iXcwghYWHKzHA1caZLDb9jKpmTUEamgIOaPh18Zqk93xK7u/2UgOk7nF7/k=
-Message-ID: <6ff3e7140603232243x460b9722n@mail.gmail.com>
-Date: Fri, 24 Mar 2006 14:43:48 +0800
-From: "openbsd shen" <openbsd.shen@gmail.com>
-To: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Read /dev/kmem error in RHEL3
-In-Reply-To: <6ff3e7140603232203q6a5ddab8u@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <6ff3e7140603232203q6a5ddab8u@mail.gmail.com>
+	Fri, 24 Mar 2006 01:46:16 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:32418 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1423196AbWCXGqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 01:46:15 -0500
+Subject: Re: [2.6.16 PATCH] Connector: Filesystem Events Connector
+From: Arjan van de Ven <arjan@infradead.org>
+To: Yi Yang <yang.y.yi@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <44234115.7010303@gmail.com>
+References: <44216612.3060406@gmail.com>
+	 <1143101844.3147.9.camel@laptopd505.fenrus.org>
+	 <44234115.7010303@gmail.com>
+Content-Type: text/plain
+Date: Fri, 24 Mar 2006 07:46:10 +0100
+Message-Id: <1143182772.2882.2.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In another RHEL3, it said:
-Operation not permitted.
+On Fri, 2006-03-24 at 08:45 +0800, Yi Yang wrote:
+> Arjan van de Ven wrote:
+> > On Wed, 2006-03-22 at 22:58 +0800, Yi Yang wrote:
+> >   
+> >> This patch implements a new connector, Filesystem Event Connector,
+> >>  the user can monitor filesystem activities via it, currently, it
+> >>  can monitor access, attribute change, open, create, modify, delete,
+> >>  move and close of any file or directory.
+> >>     
+> >
+> >
+> > how is this not redundant functionality with the audit subsystem ?
+> >   
+> If you open Audit option, audit subsystem will audit all the syscalls, 
+
+no only those you subscribe to
+
+and your other arguments... I don't buy them either.
+If you want a small improvement to audit, DO THAT, not duplicate in
+other code...
+
+

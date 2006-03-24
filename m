@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWCXIYr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWCXIZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932367AbWCXIYr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 03:24:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbWCXIYr
+	id S932390AbWCXIZr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 03:25:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932557AbWCXIZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 03:24:47 -0500
-Received: from web25812.mail.ukl.yahoo.com ([217.146.176.245]:38068 "HELO
-	web25812.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932367AbWCXIYq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 03:24:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=zUeRBt8nkFsy4La45B8Zu0dCJt309bnm04I/fnyLhs2abZ3jcztOn+wrAwBxn9CZxvRaiLozuCV9POc4kKJ6gWsTO/Nn4hCB421n5K5B0BITOd3kWlaj3roIkNSIufcLPENa5I7ZyP2U+Gdd441TlPjxI2P2WjonPQJly8ljGfw=  ;
-Message-ID: <20060324082444.69962.qmail@web25812.mail.ukl.yahoo.com>
-Date: Fri, 24 Mar 2006 09:24:44 +0100 (CET)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: How to test vanilla kernel
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 24 Mar 2006 03:25:47 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:64641 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932390AbWCXIZr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 03:25:47 -0500
+Date: Fri, 24 Mar 2006 11:25:22 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: yang.y.yi@gmail.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       matthltc@us.ibm.com, arjan@infradead.org
+Subject: Re: [2.6.16 PATCH] Connector: Filesystem Events Connector v3
+Message-ID: <20060324082522.GE5426@2ka.mipt.ru>
+References: <4423673C.7000008@gmail.com> <20060324080542.GA5426@2ka.mipt.ru> <20060324.002019.57110478.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060324.002019.57110478.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 24 Mar 2006 11:25:23 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm wondering how you folks, install and run the latest vanilla kernel. I guess
-that people install their prefered distrib as a start point and then download
-the kernel sources. But each distrib patch and update the kernel, is it safe to
-forget them ?
+On Fri, Mar 24, 2006 at 12:20:19AM -0800, David S. Miller (davem@davemloft.net) wrote:
+> From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+> Date: Fri, 24 Mar 2006 11:05:42 +0300
+> 
+>  ...
+> > Ack.
+>  ...
+> 
+> Is it really necessary to quote the entire patch just to say "ACK"?
+> 
+> This wastes a lot of unnecessary mailing list bandwidth, please do not
+> do this.  Poor vger.kernel.org is overworked enough as it is :-)
+> 
+> Thank you.
 
-BTW, is there a 'best' distrib to achieve that ?
+:) my fault, sorry.
+But doesn't it have enough processors to show us this nice module again?
 
-Francis
-
-
-	
-
-	
-		
-___________________________________________________________________________ 
-Nouveau : téléphonez moins cher avec Yahoo! Messenger ! Découvez les tarifs exceptionnels pour appeler la France et l'international.
-Téléchargez sur http://fr.messenger.yahoo.com
+-- 
+	Evgeniy Polyakov

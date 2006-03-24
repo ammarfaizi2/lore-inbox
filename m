@@ -1,107 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbWCXMer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422767AbWCXMi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964902AbWCXMer (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 07:34:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932607AbWCXMeq
+	id S1422767AbWCXMi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 07:38:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422762AbWCXMi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 07:34:46 -0500
-Received: from mail17.syd.optusnet.com.au ([211.29.132.198]:57573 "EHLO
-	mail17.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932145AbWCXMeq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 07:34:46 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: [2.6.16-mm1 patch] throttling tree patches
-Date: Fri, 24 Mar 2006 23:34:19 +1100
-User-Agent: KMail/1.9.1
-Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Peter Williams <pwil3058@bigpond.net.au>
-References: <1143198208.7741.8.camel@homer> <200603242256.59795.kernel@kolivas.org> <1143202867.7741.76.camel@homer>
-In-Reply-To: <1143202867.7741.76.camel@homer>
+	Fri, 24 Mar 2006 07:38:57 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:29669 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1422741AbWCXMi4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 07:38:56 -0500
+Message-ID: <4423E853.1040707@garzik.org>
+Date: Fri, 24 Mar 2006 07:38:43 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Ian Pratt <m+Ian.Pratt@cl.cam.ac.uk>,
+       Anthony Liguori <aliguori@us.ibm.com>,
+       Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
+       Ian Pratt <ian.pratt@xensource.com>, ian.pratt@cl.cam.ac.uk,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [RFC PATCH 35/35] Add Xen virtual block device driver.
+References: <A95E2296287EAD4EB592B5DEEFCE0E9D4B9E8A@liverpoolst.ad.cl.cam.ac.uk>	 <4421D943.1090804@garzik.org> <1143202673.18986.5.camel@localhost.localdomain>
+In-Reply-To: <1143202673.18986.5.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603242334.19837.kernel@kolivas.org>
+X-Spam-Score: -2.5 (--)
+X-Spam-Report: SpamAssassin version 3.0.5 on srv5.dvmed.net summary:
+	Content analysis details:   (-2.5 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 March 2006 23:21, Mike Galbraith wrote:
-> On Fri, 2006-03-24 at 22:56 +1100, Con Kolivas wrote:
-> > On Friday 24 March 2006 22:16, Mike Galbraith wrote:
-> > > This patch does various interactivity cleanups.
-> >
-> > I have trouble with this patch. By your own admission this patch does 4
-> > different things which one patch shouldn't.
->
-> They're all part of the same thing, they're just cleanup.
+Alan Cox wrote:
+> On Mer, 2006-03-22 at 18:09 -0500, Jeff Garzik wrote:
+>> An IBM hypervisor on ppc64 communicates uses SCSI RPC messages.  I think 
+>> this would be quite nice for Xen, because SCSI (a) is a message-based 
+>> model, and (b) implementing block using SCSI has a very high Just 
+>> Works(tm) value which cannot be ignored.  And perhaps (c) SCSI target 
+>> code already exists, so implementing the server side doesn't require 
+>> starting from scratch, but rather simply connecting the Legos.
+> 
+> A pure SCSI abstraction doesn't allow for shared head scheduling which
+> you will need to scale Xen sanely on typical PC boxes.
 
-Cleanup? Something that changes behaviour is not cleanup.
->
-> > > 1.  Removes the barrier between kernel threads and user tasks wrt
-> > > dynamic priority handling.
-> >
-> > This is a bad idea. Subjecting a priority ceiling to kernel threads
-> > because they spend a long time idle is not the same as a user task that
-> > may be an idle bomb.
->
-> Kernel threads don't make the transition, they're sitting there with a
-> fully loaded sleep_avg.  You stop on the way up, sure, but once there, a
-> long sleep doesn't truncate you.  Try it.
+Not true at all.  If you can do it with a block device, you can do it 
+with a SCSI block device.
 
-Threads like kswapd do not have a fully loaded sleep_avg.
+In fact, SCSI should make a few things easier, because the notion of 
+host+bus topology is already present, and notion of messaging is already 
+present, so you don't have to recreate that in a Xen block device 
+infrastructure.
 
-> >  Most kernel threads do sleep for extended periods and will always
-> > end up hitting this ceiling. That could lead to some difficult to
-> > understand latencies in scheduling of kernel threads, even if they are
-> > nice -5 because they'll expire very easily.
->
-> No, they won't.  Furthermore, any kernel thread which cannot tolerate
-> dynamic priority semantics should not use them, they should be RT.
 
-Very few kernel threads should require RT just to work as you just said, yet 
-you'll make it harder for them with your changed dynamic priority semantics. 
-We already know they are not going to be misbehaving userspace tasks and they 
-deserve simpler semantics than the full interactivity estimator gives.
+> SCSI emulations
+> are also always full of bits people got wrong, often critical bits like
+> tagged queues and error sequences - things that break your journalled
+> file system.
 
-> > > 2.  Removes the priority barrier for IO.
-> >
-> > Bad again. This caused the biggest detriment on interbench numbers and is
-> > by far the most palpable interactivity killer in linux. I/O hurts us lots
-> > and this change will be very noticeable.
->
-> This barrier is artificial, and has been demonstrated to be harmful to
-> some loads.
+This I'll grant you.
 
-Which?
+	Jeff
 
-> Being practical, if this is demonstrated to still cause 
-> trouble, I'll happily re-introduce it with a follow-up patch.
 
-Trouble occurs months afterwards this hits mainline since you'll get almost 
-noone testing it in -mm. It was put there because it hurt interactivity and 
-you're removing it because you don't like that we have to put a special case 
-there?
 
-> > > 3.  Treats TASK_INTERACTIVE as a transition point that all tasks must
-> > > stop at prior to being promoted further.
-> >
-> > Why? Makes no sense. You end up getting hiccups in the rise of priority
-> > of tasks instead of it happening smoothly with sleep.
->
-> Quite the opposite, it makes perfect sense.  Taking the long sleeper to
-> the artificial barrier of prio 16 as stock does is the very reason that
-> thud totally destroys the interactive experience.  I'd love to remove
-> this barrier too, and have 'purity', but OTOH, the interactive border
-> _is_ a transition point where the scheduler changes behavior.  This is a
-> transition point in fact, so treating it as such is indeed correct.
-
-And what does it actually achieve making this change is my question? 
-
-I feel this discussion may degenerate beyond this point. Should we say to 
-agree to disagree at this point? I don't like these changes.
-
-Cheers,
-Con

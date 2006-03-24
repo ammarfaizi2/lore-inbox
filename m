@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423076AbWCXEuK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWCXEtN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423076AbWCXEuK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 23:50:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbWCXEtU
+	id S1030225AbWCXEtN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 23:49:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbWCXEtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 23:49:20 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:32235 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1423012AbWCXElz (ORCPT
+	Thu, 23 Mar 2006 23:49:12 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:35051 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1423013AbWCXElz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 23 Mar 2006 23:41:55 -0500
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 9 of 18] ipath - char devices for diagnostics and lightweight
-	subnet management
-X-Mercurial-Node: 26cb45d8d61c1a54e33b31d4414f623d325899f0
-Message-Id: <26cb45d8d61c1a54e33b.1143175301@eng-12.pathscale.com>
+Subject: [PATCH 15 of 18] ipath - misc infiniband code, part 1
+X-Mercurial-Node: 281189953c6fe5211c24bf09b0d0c23926fa483d
+Message-Id: <281189953c6fe5211c24.1143175307@eng-12.pathscale.com>
 In-Reply-To: <patchbomb.1143175292@eng-12.pathscale.com>
-Date: Thu, 23 Mar 2006 20:41:41 -0800
+Date: Thu, 23 Mar 2006 20:41:47 -0800
 From: "Bryan O'Sullivan" <bos@pathscale.com>
 To: akpm@osdl.org, greg@kroah.com, rdreier@cisco.com,
        linux-kernel@vger.kernel.org, openib-general@openib.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The ipath_diag.c file permits userspace diagnostic tools to read and
-write a chip's registers.  It is different in purpose from the mmap
-interfaces to the /sys/bus/pci resource files.
-
-The ipath_sma.c file supports a lightweight userspace subnet management
-agent (SMA).  This is used in deployments (such as HPC clusters) where
-a full Infiniband protocol stack is not needed.  The facilities provided
-by ipath_sma.c are also used by userspace hardware diagnostic tools.
+Completion queues, local and remote memory keys, and memory region
+support.
 
 Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
 
-diff -r d408c327e562 -r 26cb45d8d61c drivers/infiniband/hw/ipath/ipath_diag.c
+diff -r c57bdbdddd16 -r 281189953c6f drivers/infiniband/hw/ipath/ipath_cq.c
 --- /dev/null	Thu Jan  1 00:00:00 1970 +0000
-+++ b/drivers/infiniband/hw/ipath/ipath_diag.c	Thu Mar 23 20:27:45 2006 -0800
-@@ -0,0 +1,379 @@
++++ b/drivers/infiniband/hw/ipath/ipath_cq.c	Thu Mar 23 20:27:45 2006 -0800
+@@ -0,0 +1,295 @@
 +/*
-+ * Copyright (c) 2003, 2004, 2005, 2006 PathScale, Inc. All rights reserved.
++ * Copyright (c) 2005, 2006 PathScale, Inc. All rights reserved.
 + *
 + * This software is available to you under a choice of one of two
 + * licenses.  You may choose to be licensed under the terms of the GNU
@@ -71,744 +64,1170 @@ diff -r d408c327e562 -r 26cb45d8d61c drivers/infiniband/hw/ipath/ipath_diag.c
 + * SOFTWARE.
 + */
 +
-+/*
-+ * This file contains support for diagnostic functions.  It is accessed by
-+ * opening the ipath_diag device, normally minor number 129.  Diagnostic use
-+ * of the InfiniPath chip may render the chip or board unusable until the
-+ * driver is unloaded, or in some cases, until the system is rebooted.
-+ *
-+ * Accesses to the chip through this interface are not similar to going
-+ * through the /sys/bus/pci resource mmap interface.
-+ */
-+
-+#include <linux/pci.h>
-+#include <asm/uaccess.h>
-+
-+#include "ipath_common.h"
-+#include "ipath_kernel.h"
-+#include "ips_common.h"
-+#include "ipath_layer.h"
-+
-+int ipath_diag_inuse;
-+static int diag_set_link;
-+
-+static int ipath_diag_open(struct inode *in, struct file *fp);
-+static int ipath_diag_release(struct inode *in, struct file *fp);
-+static ssize_t ipath_diag_read(struct file *fp, char __user *data,
-+			       size_t count, loff_t *off);
-+static ssize_t ipath_diag_write(struct file *fp, const char __user *data,
-+				size_t count, loff_t *off);
-+
-+static struct file_operations diag_file_ops = {
-+	.owner = THIS_MODULE,
-+	.write = ipath_diag_write,
-+	.read = ipath_diag_read,
-+	.open = ipath_diag_open,
-+	.release = ipath_diag_release
-+};
-+
-+static struct cdev *diag_cdev;
-+static struct class_device *diag_class_dev;
-+
-+int ipath_diag_init(void)
-+{
-+	return ipath_cdev_init(IPATH_DIAG_MINOR, "ipath_diag",
-+			       &diag_file_ops, &diag_cdev, &diag_class_dev);
-+}
-+
-+void ipath_diag_cleanup(void)
-+{
-+	ipath_cdev_cleanup(&diag_cdev, &diag_class_dev);
-+}
-+
-+/**
-+ * ipath_read_umem64 - read a 64-bit quantity from the chip into user space
-+ * @dd: the infinipath device
-+ * @uaddr: the location to store the data in user memory
-+ * @caddr: the source chip address (full pointer, not offset)
-+ * @count: number of bytes to copy (multiple of 32 bits)
-+ *
-+ * This function also localizes all chip memory accesses.
-+ * The copy should be written such that we read full cacheline packets
-+ * from the chip.  This is usually used for a single qword
-+ *
-+ * NOTE:  This assumes the chip address is 64-bit aligned.
-+ */
-+static int ipath_read_umem64(struct ipath_devdata *dd, void __user *uaddr,
-+			     const void __iomem *caddr, size_t count)
-+{
-+	const u64 __iomem *reg_addr = caddr;
-+	const u64 __iomem *reg_end = reg_addr + (count / sizeof(u64));
-+	int ret;
-+
-+	/* not very efficient, but it works for now */
-+	if (reg_addr < dd->ipath_kregbase ||
-+	    reg_end > dd->ipath_kregend) {
-+		ret = -EINVAL;
-+		goto bail;
-+	}
-+	while (reg_addr < reg_end) {
-+		u64 data = readq(reg_addr);
-+		if (copy_to_user(uaddr, &data, sizeof(u64))) {
-+			ret = -EFAULT;
-+			goto bail;
-+		}
-+		reg_addr++;
-+		uaddr++;
-+	}
-+	ret = 0;
-+bail:
-+	return ret;
-+}
-+
-+/**
-+ * ipath_write_umem64 - write a 64-bit quantity to the chip from user space
-+ * @dd: the infinipath device
-+ * @caddr: the destination chip address (full pointer, not offset)
-+ * @uaddr: the source of the data in user memory
-+ * @count: the number of bytes to copy (multiple of 32 bits)
-+ *
-+ * This is usually used for a single qword
-+ * NOTE:  This assumes the chip address is 64-bit aligned.
-+ */
-+
-+static int ipath_write_umem64(struct ipath_devdata *dd, void __iomem *caddr,
-+			      const void __user *uaddr, size_t count)
-+{
-+	u64 __iomem *reg_addr = caddr;
-+	const u64 __iomem *reg_end = reg_addr + (count / sizeof(u64));
-+	int ret;
-+
-+	/* not very efficient, but it works for now */
-+	if (reg_addr < dd->ipath_kregbase ||
-+	    reg_end > dd->ipath_kregend) {
-+		ret = -EINVAL;
-+		goto bail;
-+	}
-+	while (reg_addr < reg_end) {
-+		u64 data;
-+		if (copy_from_user(&data, uaddr, sizeof(data))) {
-+			ret = -EFAULT;
-+			goto bail;
-+		}
-+		writeq(data, reg_addr);
-+
-+		reg_addr++;
-+		uaddr++;
-+	}
-+	ret = 0;
-+bail:
-+	return ret;
-+}
-+
-+/**
-+ * ipath_read_umem32 - read a 32-bit quantity from the chip into user space
-+ * @dd: the infinipath device
-+ * @uaddr: the location to store the data in user memory
-+ * @caddr: the source chip address (full pointer, not offset)
-+ * @count: number of bytes to copy
-+ *
-+ * read 32 bit values, not 64 bit; for memories that only
-+ * support 32 bit reads; usually a single dword.
-+ */
-+static int ipath_read_umem32(struct ipath_devdata *dd, void __user *uaddr,
-+			     const void __iomem *caddr, size_t count)
-+{
-+	const u32 __iomem *reg_addr = caddr;
-+	const u32 __iomem *reg_end = reg_addr + (count / sizeof(u32));
-+	int ret;
-+
-+	if (reg_addr < (u32 __iomem *) dd->ipath_kregbase ||
-+	    reg_end > (u32 __iomem *) dd->ipath_kregend) {
-+		ret = -EINVAL;
-+		goto bail;
-+	}
-+	/* not very efficient, but it works for now */
-+	while (reg_addr < reg_end) {
-+		u32 data = readl(reg_addr);
-+		if (copy_to_user(uaddr, &data, sizeof(data))) {
-+			ret = -EFAULT;
-+			goto bail;
-+		}
-+
-+		reg_addr++;
-+		uaddr++;
-+	}
-+	ret = 0;
-+bail:
-+	return ret;
-+}
-+
-+/**
-+ * ipath_write_umem32 - write a 32-bit quantity to the chip from user space
-+ * @dd: the infinipath device
-+ * @caddr: the destination chip address (full pointer, not offset)
-+ * @uaddr: the source of the data in user memory
-+ * @count: number of bytes to copy
-+ *
-+ * write 32 bit values, not 64 bit; for memories that only
-+ * support 32 bit write; usually a single dword.
-+ */
-+
-+static int ipath_write_umem32(struct ipath_devdata *dd, void __iomem *caddr,
-+			      const void __user *uaddr, size_t count)
-+{
-+	u32 __iomem *reg_addr = caddr;
-+	const u32 __iomem *reg_end = reg_addr + (count / sizeof(u32));
-+	int ret;
-+
-+	if (reg_addr < (u32 __iomem *) dd->ipath_kregbase ||
-+	    reg_end > (u32 __iomem *) dd->ipath_kregend) {
-+		ret = -EINVAL;
-+		goto bail;
-+	}
-+	while (reg_addr < reg_end) {
-+		u32 data;
-+		if (copy_from_user(&data, uaddr, sizeof(data))) {
-+			ret = -EFAULT;
-+			goto bail;
-+		}
-+		writel(data, reg_addr);
-+
-+		reg_addr++;
-+		uaddr++;
-+	}
-+	ret = 0;
-+bail:
-+	return ret;
-+}
-+
-+static int ipath_diag_open(struct inode *in, struct file *fp)
-+{
-+	struct ipath_devdata *dd;
-+	int unit = 0; /* XXX this is bogus */
-+	unsigned long flags;
-+	int ret;
-+
-+	dd = ipath_lookup(unit);
-+
-+	mutex_lock(&ipath_mutex);
-+	spin_lock_irqsave(&ipath_devs_lock, flags);
-+
-+	if (ipath_diag_inuse) {
-+		ret = -EBUSY;
-+		goto bail;
-+	}
-+
-+	list_for_each_entry(dd, &ipath_dev_list, ipath_list) {
-+		/*
-+		 * we need at least one infinipath device to be present
-+		 * (don't use INITTED, because we want to be able to open
-+		 * even if device is in freeze mode, which cleared INITTED).
-+		 * There is a small amount of risk to this, which is why we
-+		 * also verify kregbase is set.
-+		 */
-+
-+		if (!(dd->ipath_flags & IPATH_PRESENT) ||
-+		    !dd->ipath_kregbase)
-+			continue;
-+
-+		ipath_diag_inuse = 1;
-+		diag_set_link = 0;
-+		ret = 0;
-+		goto bail;
-+	}
-+
-+	ret = -ENODEV;
-+
-+bail:
-+	spin_unlock_irqrestore(&ipath_devs_lock, flags);
-+	mutex_unlock(&ipath_mutex);
-+
-+	/* Only expose a way to reset the device if we
-+	   make it into diag mode. */
-+	if (ret == 0)
-+		ipath_expose_reset(&dd->pcidev->dev);
-+
-+	return ret;
-+}
-+
-+static int ipath_diag_release(struct inode *i, struct file *f)
-+{
-+	mutex_lock(&ipath_mutex);
-+	ipath_diag_inuse = 0;
-+	mutex_unlock(&ipath_mutex);
-+	return 0;
-+}
-+
-+static ssize_t ipath_diag_read(struct file *fp, char __user *data,
-+			       size_t count, loff_t *off)
-+{
-+	int unit = 0; /* XXX provide for reads on other units some day */
-+	struct ipath_devdata *dd;
-+	void __iomem *kreg_base;
-+	ssize_t ret;
-+
-+	dd = ipath_lookup(unit);
-+	if (!dd) {
-+		ret = -ENODEV;
-+		goto bail;
-+	}
-+
-+	kreg_base = dd->ipath_kregbase;
-+
-+	if (count == 0)
-+		ret = 0;
-+	else if ((count % 4) || (*off % 4))
-+		/* address or length is not 32-bit aligned, hence invalid */
-+		ret = -EINVAL;
-+	else if ((count % 8) || (*off % 8))
-+		/* address or length not 64-bit aligned; do 32-bit reads */
-+		ret = ipath_read_umem32(dd, data, kreg_base + *off, count);
-+	else
-+		ret = ipath_read_umem64(dd, data, kreg_base + *off, count);
-+
-+	if (ret >= 0) {
-+		*off += count;
-+		ret = count;
-+	}
-+
-+bail:
-+	return ret;
-+}
-+
-+static ssize_t ipath_diag_write(struct file *fp, const char __user *data,
-+				size_t count, loff_t *off)
-+{
-+	int unit = 0; /* XXX this is bogus */
-+	struct ipath_devdata *dd;
-+	void __iomem *kreg_base;
-+	ssize_t ret;
-+
-+	dd = ipath_lookup(unit);
-+	if (!dd) {
-+		ret = -ENODEV;
-+		goto bail;
-+	}
-+	kreg_base = dd->ipath_kregbase;
-+
-+	if (count == 0)
-+		ret = 0;
-+	else if ((count % 4) || (*off % 4))
-+		/* address or length is not 32-bit aligned, hence invalid */
-+		ret = -EINVAL;
-+	else if ((count % 8) || (*off % 8))
-+		/* address or length not 64-bit aligned; do 32-bit writes */
-+		ret = ipath_write_umem32(dd, kreg_base + *off, data, count);
-+	else
-+		ret = ipath_write_umem64(dd, kreg_base + *off, data, count);
-+
-+	if (ret >= 0) {
-+		*off += count;
-+		ret = count;
-+	}
-+
-+bail:
-+	return ret;
-+}
-+
-+void ipath_diag_bringup_link(struct ipath_devdata *dd)
-+{
-+	if (diag_set_link || (dd->ipath_flags & IPATH_LINKACTIVE))
-+		return;
-+
-+	diag_set_link = 1;
-+	ipath_cdbg(VERBOSE, "Trying to set to set link active for "
-+		   "diag pkt\n");
-+	ipath_layer_set_linkstate(dd, IPATH_IB_LINKARM);
-+	ipath_layer_set_linkstate(dd, IPATH_IB_LINKACTIVE);
-+}
-diff -r d408c327e562 -r 26cb45d8d61c drivers/infiniband/hw/ipath/ipath_sma.c
---- /dev/null	Thu Jan  1 00:00:00 1970 +0000
-+++ b/drivers/infiniband/hw/ipath/ipath_sma.c	Thu Mar 23 20:27:45 2006 -0800
-@@ -0,0 +1,390 @@
-+/*
-+ * Copyright (c) 2003, 2004, 2005, 2006 PathScale, Inc. All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ */
-+
-+#include <linux/io.h>
-+#include <linux/pci.h>
-+#include <linux/cdev.h>
++#include <linux/err.h>
 +#include <linux/vmalloc.h>
-+#include <asm/uaccess.h>
 +
-+#include "ipath_kernel.h"
-+#include "ips_common.h"
-+#include "ipath_layer.h"
++#include "ipath_verbs.h"
 +
-+int ipath_sma_inuse;
-+DEFINE_SPINLOCK(ipath_sma_lock);	/* SMA receive */
-+
-+/* max SM received packets we'll queue; we keep the most recent packets. */
-+
-+struct _ipath_sma_rpkt ipath_sma_data[IPATH_NUM_SMA_PKTS];
-+
-+unsigned ipath_sma_first;	/* oldest sma packet index */
-+unsigned ipath_sma_next;	/* next sma packet index to use */
-+
-+/*
-+ * ipath_sma_data_bufs has one extra, pointed to by ipath_sma_data_spare,
-+ * so we can exchange buffers to do copy_to_user, and not hold the lock
-+ * across the copy_to_user().
++/**
++ * ipath_cq_enter - add a new entry to the completion queue
++ * @cq: completion queue
++ * @entry: work completion entry to add
++ * @sig: true if @entry is a solicitated entry
++ *
++ * This may be called with one of the qp->s_lock or qp->r_rq.lock held.
 + */
-+
-+u8 ipath_sma_data_bufs[IPATH_NUM_SMA_PKTS + 1][IPATH_SMA_MAX_PKTSZ];
-+u8 *ipath_sma_data_spare;
-+/* sma waits globally on all units */
-+wait_queue_head_t ipath_sma_wait;
-+wait_queue_head_t ipath_sma_state_wait;
-+
-+static int ipath_sma_open(struct inode *in, struct file *fp);
-+static int ipath_sma_release(struct inode *in, struct file *fp);
-+static ssize_t ipath_sma_read(struct file *fp, char __user *data,
-+			      size_t count, loff_t *off);
-+static ssize_t ipath_sma_write(struct file *fp, const char __user *data,
-+			       size_t count, loff_t *off);
-+
-+static struct file_operations sma_file_ops = {
-+	.owner = THIS_MODULE,
-+	.write = ipath_sma_write,
-+	.read = ipath_sma_read,
-+	.open = ipath_sma_open,
-+	.release = ipath_sma_release
-+};
-+
-+static struct cdev *sma_cdev;
-+static struct class_device *sma_class_dev;
-+
-+int ipath_sma_init(void)
++void ipath_cq_enter(struct ipath_cq *cq, struct ib_wc *entry, int solicited)
 +{
-+	return ipath_cdev_init(IPATH_SMA_MINOR, "ipath_sma", &sma_file_ops,
-+			       &sma_cdev, &sma_class_dev);
-+}
-+
-+void ipath_sma_cleanup(void)
-+{
-+	ipath_cdev_cleanup(&sma_cdev, &sma_class_dev);
-+}
-+
-+static int ipath_sma_open(struct inode *in, struct file *fp)
-+{
-+	struct ipath_devdata *dd;
 +	unsigned long flags;
-+	int ret;
++	u32 next;
 +
-+	spin_lock_irqsave(&ipath_sma_lock, flags);
-+	spin_lock(&ipath_devs_lock);
++	spin_lock_irqsave(&cq->lock, flags);
 +
-+	if (ipath_sma_inuse) {
-+		ret = -EBUSY;
-+		goto bail;
-+	}
-+
-+	list_for_each_entry(dd, &ipath_dev_list, ipath_list) {
-+		/*
-+		 * we need at least one infinipath device to be
-+		 * initialized.
-+		 */
-+		if (dd->ipath_flags & IPATH_INITTED) {
-+			ipath_sma_inuse = 1;
-+			*dd->ipath_statusp |= IPATH_STATUS_SMA;
-+			*dd->ipath_statusp &= ~IPATH_STATUS_OIB_SMA;
-+		}
-+	}
-+	if (ipath_sma_inuse)
-+		ret = 0;
++	if (cq->head == cq->ibcq.cqe)
++		next = 0;
 +	else
-+		ret = -ENODEV;
-+bail:
-+	spin_unlock(&ipath_devs_lock);
-+	spin_unlock_irqrestore(&ipath_sma_lock, flags);
-+	return ret;
-+}
++		next = cq->head + 1;
++	if (unlikely(next == cq->tail)) {
++		spin_unlock_irqrestore(&cq->lock, flags);
++		if (cq->ibcq.event_handler) {
++			struct ib_event ev;
 +
-+static int ipath_sma_release(struct inode *in, struct file *fp)
-+{
-+	struct ipath_devdata *dd;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&ipath_sma_lock, flags);
-+	spin_lock(&ipath_devs_lock);
-+
-+	ipath_sma_inuse = 0;
-+	ipath_cdbg(SMA, "Closing SMA device\n");
-+	list_for_each_entry(dd, &ipath_dev_list, ipath_list) {
-+		if (!(dd->ipath_flags & IPATH_INITTED))
-+			continue;
-+		*dd->ipath_statusp &= ~IPATH_STATUS_SMA;
-+		if (ipath_verbs_registered)
-+			*dd->ipath_statusp |= IPATH_STATUS_OIB_SMA;
++			ev.device = cq->ibcq.device;
++			ev.element.cq = &cq->ibcq;
++			ev.event = IB_EVENT_CQ_ERR;
++			cq->ibcq.event_handler(&ev, cq->ibcq.cq_context);
++		}
++		return;
 +	}
-+	spin_unlock(&ipath_devs_lock);
-+	spin_unlock_irqrestore(&ipath_sma_lock, flags);
-+	return 0;
++	cq->queue[cq->head] = *entry;
++	cq->head = next;
++
++	if (cq->notify == IB_CQ_NEXT_COMP ||
++	    (cq->notify == IB_CQ_SOLICITED && solicited)) {
++		cq->notify = IB_CQ_NONE;
++		cq->triggered++;
++		/*
++		 * This will cause send_complete() to be called in
++		 * another thread.
++		 */
++		tasklet_hi_schedule(&cq->comptask);
++	}
++
++	spin_unlock_irqrestore(&cq->lock, flags);
++
++	if (entry->status != IB_WC_SUCCESS)
++		to_idev(cq->ibcq.device)->n_wqe_errs++;
 +}
 +
 +/**
-+ * ipath_sma_read - receive an IB packet with QP 0 or 1
-+ * @fp: the SMA device file pointer
-+ * @data: ipath_sma_pkt structure saying where to place the SMA data
-+ * @count: unused by this code
-+ * @off: unused by this code
++ * ipath_poll_cq - poll for work completion entries
++ * @ibcq: the completion queue to poll
++ * @num_entries: the maximum number of entries to return
++ * @entry: pointer to array where work completions are placed
 + *
-+ * This receives from all/any of the active chips, and we currently do not
-+ * allow specifying just one (we could, by filling in unit in the library
-+ * before the syscall, and checking here).
++ * Returns the number of completion entries polled.
++ *
++ * This may be called from interrupt context.  Also called by ib_poll_cq()
++ * in the generic verbs code.
 + */
-+static ssize_t ipath_sma_read(struct file *fp, char __user *data,
-+			      size_t count, loff_t *off)
++int ipath_poll_cq(struct ib_cq *ibcq, int num_entries, struct ib_wc *entry)
 +{
-+	struct _ipath_sma_rpkt *smpkt;
-+	struct ipath_devdata *dd;
-+	struct ipath_sma_pkt rp;
++	struct ipath_cq *cq = to_icq(ibcq);
 +	unsigned long flags;
-+	ssize_t ret;
-+	u32 rp_len;
-+	u8 *sdata;
-+	u32 slen;
-+	int any;
++	int npolled;
 +
-+	if (copy_from_user(&rp, data, sizeof(rp))) {
-+		ret = -EFAULT;
-+		goto bail;
++	spin_lock_irqsave(&cq->lock, flags);
++
++	for (npolled = 0; npolled < num_entries; ++npolled, ++entry) {
++		if (cq->tail == cq->head)
++			break;
++		*entry = cq->queue[cq->tail];
++		if (cq->tail == cq->ibcq.cqe)
++			cq->tail = 0;
++		else
++			cq->tail++;
 +	}
 +
-+	if (!ipath_sma_data_spare) {
-+		ipath_dbg("can't do receive, sma not initialized\n");
-+		ret = -ENETDOWN;
-+		goto bail;
-+	}
++	spin_unlock_irqrestore(&cq->lock, flags);
 +
-+	spin_lock_irqsave(&ipath_devs_lock, flags);
++	return npolled;
++}
 +
-+	any = 0;
-+	list_for_each_entry(dd, &ipath_dev_list, ipath_list) {
-+		if (dd->ipath_flags & IPATH_INITTED)
-+			any++;
-+	}
-+
-+	spin_unlock_irqrestore(&ipath_devs_lock, flags);
-+
-+	if (!any) {		/* no hardware, freeze, etc. */
-+		ipath_cdbg(SMA, "Didn't find any initialized and "
-+			   "usable chips\n");
-+		ret = -ENODEV;
-+		goto bail;
-+	}
-+
-+	wait_event_interruptible(ipath_sma_wait,
-+				 ipath_sma_data[ipath_sma_first].len);
-+
-+	spin_lock_irqsave(&ipath_sma_lock, flags);
-+	if (ipath_sma_data[ipath_sma_first].len == 0) {
-+		/* usually means SMA process received a signal */
-+		spin_unlock_irqrestore(&ipath_sma_lock, flags);
-+		ret = -EAGAIN;
-+		goto bail;
-+	}
-+
-+	smpkt = &ipath_sma_data[ipath_sma_first];
++static void send_complete(unsigned long data)
++{
++	struct ipath_cq *cq = (struct ipath_cq *)data;
 +
 +	/*
-+	 * We swap out the buffer we are going to use with the spare buffer
-+	 * and set spare to that buffer.  This code is the only code that
-+	 * ever manipulates spare, other than the initialization code.  This
-+	 * code should never be entered by more than one process at a time,
-+	 * and if it is, the user code doing so deserves what it gets; it
-+	 * won't break anything in the driver by doing so.  We do it this
-+	 * way to avoid holding a lock across the copy_to_user, which could
-+	 * fault, or delay a long time while paging occurs; ditto for
-+	 * printks
++	 * The completion handler will most likely rearm the notification
++	 * and poll for all pending entries.  If a new completion entry
++	 * is added while we are in this routine, tasklet_hi_schedule()
++	 * won't call us again until we return so we check triggered to
++	 * see if we need to call the handler again.
 +	 */
++	for (;;) {
++		u8 triggered = cq->triggered;
 +
-+	rp_len = rp.len;
-+	rp.len = smpkt->len;
-+	rp.unit = smpkt->unit;
++		cq->ibcq.comp_handler(&cq->ibcq, cq->ibcq.cq_context);
 +
-+	slen = smpkt->len;
-+	sdata = smpkt->buf;
-+	smpkt->buf = ipath_sma_data_spare;
-+	ipath_sma_data_spare = sdata;
-+	smpkt->len = 0;	/* it's available again */
-+	if (++ipath_sma_first >= IPATH_NUM_SMA_PKTS)
-+		ipath_sma_first = 0;
-+	spin_unlock_irqrestore(&ipath_sma_lock, flags);
++		if (cq->triggered == triggered)
++			return;
++	}
++}
 +
-+	if (copy_to_user((void __user *) (unsigned long) rp.data,
-+			 sdata, min(rp_len, slen))) {
-+		ret = -EFAULT;
++/**
++ * ipath_create_cq - create a completion queue
++ * @ibdev: the device this completion queue is attached to
++ * @entries: the minimum size of the completion queue
++ * @context: unused by the InfiniPath driver
++ * @udata: unused by the InfiniPath driver
++ *
++ * Returns a pointer to the completion queue or negative errno values
++ * for failure.
++ *
++ * Called by ib_create_cq() in the generic verbs code.
++ */
++struct ib_cq *ipath_create_cq(struct ib_device *ibdev, int entries,
++			      struct ib_ucontext *context,
++			      struct ib_udata *udata)
++{
++	struct ipath_cq *cq;
++	struct ib_wc *wc;
++	struct ib_cq *ret;
++
++	/*
++	 * Need to use vmalloc() if we want to support large #s of
++	 * entries.
++	 */
++	cq = kmalloc(sizeof(*cq), GFP_KERNEL);
++	if (!cq) {
++		ret = ERR_PTR(-ENOMEM);
 +		goto bail;
 +	}
 +
-+	if (copy_to_user(data, &rp, sizeof(rp))) {
-+		ret = -EFAULT;
++	/*
++	 * Need to use vmalloc() if we want to support large #s of entries.
++	 */
++	wc = vmalloc(sizeof(*wc) * (entries + 1));
++	if (!wc) {
++		kfree(cq);
++		ret = ERR_PTR(-ENOMEM);
 +		goto bail;
 +	}
++	/*
++	 * ib_create_cq() will initialize cq->ibcq except for cq->ibcq.cqe.
++	 * The number of entries should be >= the number requested or return
++	 * an error.
++	 */
++	cq->ibcq.cqe = entries;
++	cq->notify = IB_CQ_NONE;
++	cq->triggered = 0;
++	spin_lock_init(&cq->lock);
++	tasklet_init(&cq->comptask, send_complete, (unsigned long)cq);
++	cq->head = 0;
++	cq->tail = 0;
++	cq->queue = wc;
 +
-+	ret = sizeof(rp);
++	ret = &cq->ibcq;
++
 +bail:
 +	return ret;
 +}
 +
 +/**
-+ * ipath_sma_write - receive an IB packet with QP 0 or 1
-+ * @fp: the SMA device file pointer
-+ * @data: ipath_sma_pkt structure saying where to get the SMA packet
-+ * @count: size of data to write
-+ * @off: unused by this code
++ * ipath_destroy_cq - destroy a completion queue
++ * @ibcq: the completion queue to destroy.
 + *
-+ * This routine is no longer on any critical paths; it is used only
-+ * for sending SMA packets, and some diagnostic usage.
-+ * Because it's currently sma only, there are no checks to see if the
-+ * link is up; sma must be able to send in the not fully initialized state
++ * Returns 0 for success.
++ *
++ * Called by ib_destroy_cq() in the generic verbs code.
 + */
-+static ssize_t ipath_sma_write(struct file *fp, const char __user *data,
-+			       size_t count, loff_t *off)
++int ipath_destroy_cq(struct ib_cq *ibcq)
 +{
-+	u32 __iomem *piobuf;
-+	u32 plen, clen, pbufn;
-+	struct ipath_sma_pkt sp;
-+	u32 *tmpbuf = NULL;
-+	struct ipath_devdata *dd;
-+	ssize_t ret = 0;
-+	u64 val;
++	struct ipath_cq *cq = to_icq(ibcq);
 +
-+	if (count < sizeof(sp)) {
-+		ret = -EINVAL;
-+		goto bail;
-+	}
++	tasklet_kill(&cq->comptask);
++	vfree(cq->queue);
++	kfree(cq);
 +
-+	if (copy_from_user(&sp, data, sizeof(sp))) {
-+		ret = -EFAULT;
-+		goto bail;
-+	}
++	return 0;
++}
 +
-+	// send count must be an exact number of dwords
-+	if (sp.len & 3) {
-+		ret = -EINVAL;
-+		goto bail;
-+	}
++/**
++ * ipath_req_notify_cq - change the notification type for a completion queue
++ * @ibcq: the completion queue
++ * @notify: the type of notification to request
++ *
++ * Returns 0 for success.
++ *
++ * This may be called from interrupt context.  Also called by
++ * ib_req_notify_cq() in the generic verbs code.
++ */
++int ipath_req_notify_cq(struct ib_cq *ibcq, enum ib_cq_notify notify)
++{
++	struct ipath_cq *cq = to_icq(ibcq);
++	unsigned long flags;
 +
-+	clen = sp.len >> 2;
++	spin_lock_irqsave(&cq->lock, flags);
++	/*
++	 * Don't change IB_CQ_NEXT_COMP to IB_CQ_SOLICITED but allow
++	 * any other transitions.
++	 */
++	if (cq->notify != IB_CQ_NEXT_COMP)
++		cq->notify = notify;
++	spin_unlock_irqrestore(&cq->lock, flags);
++	return 0;
++}
 +
-+	dd = ipath_lookup(sp.unit);
-+	if (!dd || !(dd->ipath_flags & IPATH_PRESENT) ||
-+	    !dd->ipath_kregbase) {
-+		ipath_cdbg(SMA, "illegal unit %u for sma send\n", sp.unit);
-+		ret = -ENODEV;
-+		goto bail;
-+	}
++int ipath_resize_cq(struct ib_cq *ibcq, int cqe, struct ib_udata *udata)
++{
++	struct ipath_cq *cq = to_icq(ibcq);
++	struct ib_wc *wc, *old_wc;
++	u32 n;
++	int ret;
 +
-+	if (ipath_diag_inuse)
-+		ipath_diag_bringup_link(dd);
-+
-+	if (!(dd->ipath_flags & IPATH_INITTED)) {
-+		/* no hardware, freeze, etc. */
-+		ipath_cdbg(SMA, "unit %u not usable\n", dd->ipath_unit);
-+		ret = -ENODEV;
-+		goto bail;
-+	}
-+	val = dd->ipath_lastibcstat & IPATH_IBSTATE_MASK;
-+	if (val != IPATH_IBSTATE_INIT && val != IPATH_IBSTATE_ARM &&
-+	    val != IPATH_IBSTATE_ACTIVE) {
-+		ipath_cdbg(SMA, "unit %u not ready (state %llx)\n",
-+			   dd->ipath_unit, (unsigned long long) val);
-+		ret = -EINVAL;
-+		goto bail;
-+	}
-+
-+	/* need total length before first word written */
-+	/* +1 word is for the qword padding */
-+	plen = sizeof(u32) + sp.len;
-+
-+	if ((plen + 4) > dd->ipath_ibmaxlen) {
-+		ipath_dbg("Pkt len 0x%x > ibmaxlen %x\n",
-+			  plen - 4, dd->ipath_ibmaxlen);
-+		ret = -EINVAL;
-+		goto bail;	/* before writing pbc */
-+	}
-+	tmpbuf = vmalloc(plen);
-+	if (!tmpbuf) {
-+		dev_info(&dd->pcidev->dev, "Unable to allocate tmp buffer, "
-+			 "failing\n");
++	/*
++	 * Need to use vmalloc() if we want to support large #s of entries.
++	 */
++	wc = vmalloc(sizeof(*wc) * (cqe + 1));
++	if (!wc) {
 +		ret = -ENOMEM;
 +		goto bail;
 +	}
 +
-+	if (copy_from_user(tmpbuf,
-+			   (const void __user *) (unsigned long) sp.data,
-+			   sp.len)) {
-+		ret = -EFAULT;
++	spin_lock_irq(&cq->lock);
++	if (cq->head < cq->tail)
++		n = cq->ibcq.cqe + 1 + cq->head - cq->tail;
++	else
++		n = cq->head - cq->tail;
++	if (unlikely((u32)cqe < n)) {
++		spin_unlock_irq(&cq->lock);
++		vfree(wc);
++		ret = -EOVERFLOW;
 +		goto bail;
 +	}
-+
-+	piobuf = ipath_getpiobuf(dd, &pbufn);
-+	if (!piobuf) {
-+		ipath_cdbg(SMA, "No PIO buffers avail unit %u %u times\n",
-+			   dd->ipath_unit, dd->ipath_nosma_bufs);
-+		dd->ipath_nosma_bufs++;
-+		ret = -EBUSY;
-+		goto bail;
++	for (n = 0; cq->tail != cq->head; n++) {
++		wc[n] = cq->queue[cq->tail];
++		if (cq->tail == cq->ibcq.cqe)
++			cq->tail = 0;
++		else
++			cq->tail++;
 +	}
-+	if (dd->ipath_nosma_bufs) {
-+		ipath_cdbg(SMA, "Unit %u got SMA send buffer after %u "
-+			   "failures, %u seconds\n",
-+			   dd->ipath_unit, dd->ipath_nosma_bufs,
-+			   dd->ipath_nosma_secs);
-+		dd->ipath_nosma_bufs = 0;
-+		dd->ipath_nosma_secs = 0;
-+	}
++	cq->ibcq.cqe = cqe;
++	cq->head = n;
++	cq->tail = 0;
++	old_wc = cq->queue;
++	cq->queue = wc;
++	spin_unlock_irq(&cq->lock);
 +
-+	plen >>= 2;		/* in dwords */
++	vfree(old_wc);
 +
-+	if (ipath_debug & __IPATH_PKTDBG)	// SMA and PKT, both
-+		ipath_cdbg(SMA, "unit %u 0x%x+1w pio%d\n",
-+			   dd->ipath_unit, plen - 1, pbufn);
-+
-+	/* we have to flush after the PBC for correctness on some cpus
-+	 * or WC buffer can be written out of order */
-+	writeq(plen, piobuf);
-+	ipath_flush_wc();
-+	/* copy all by the trigger word, then flush, so it's written
-+	 * to chip before trigger word, then write trigger word, then
-+	 * flush again, so packet is sent. */
-+	__iowrite32_copy(piobuf + 2, tmpbuf, clen - 1);
-+	ipath_flush_wc();
-+	__raw_writel(tmpbuf[clen - 1], piobuf + clen + 1);
-+	ipath_flush_wc();
-+	ipath_stats.sps_sma_spkts++;
-+
-+	ret = sizeof(sp);
++	ret = 0;
 +
 +bail:
-+	vfree(tmpbuf);
 +	return ret;
++}
+diff -r c57bdbdddd16 -r 281189953c6f drivers/infiniband/hw/ipath/ipath_keys.c
+--- /dev/null	Thu Jan  1 00:00:00 1970 +0000
++++ b/drivers/infiniband/hw/ipath/ipath_keys.c	Thu Mar 23 20:27:45 2006 -0800
+@@ -0,0 +1,236 @@
++/*
++ * Copyright (c) 2005, 2006 PathScale, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ */
++
++#include <asm/io.h>
++
++#include "ipath_verbs.h"
++
++/**
++ * ipath_alloc_lkey - allocate an lkey
++ * @rkt: lkey table in which to allocate the lkey
++ * @mr: memory region that this lkey protects
++ *
++ * Returns 1 if successful, otherwise returns 0.
++ */
++
++int ipath_alloc_lkey(struct ipath_lkey_table *rkt, struct ipath_mregion *mr)
++{
++	unsigned long flags;
++	u32 r;
++	u32 n;
++	int ret;
++
++	spin_lock_irqsave(&rkt->lock, flags);
++
++	/* Find the next available LKEY */
++	r = n = rkt->next;
++	for (;;) {
++		if (rkt->table[r] == NULL)
++			break;
++		r = (r + 1) & (rkt->max - 1);
++		if (r == n) {
++			spin_unlock_irqrestore(&rkt->lock, flags);
++			_VERBS_INFO("LKEY table full\n");
++			ret = 0;
++			goto bail;
++		}
++	}
++	rkt->next = (r + 1) & (rkt->max - 1);
++	/*
++	 * Make sure lkey is never zero which is reserved to indicate an
++	 * unrestricted LKEY.
++	 */
++	rkt->gen++;
++	mr->lkey = (r << (32 - ib_ipath_lkey_table_size)) |
++		((((1 << (24 - ib_ipath_lkey_table_size)) - 1) & rkt->gen)
++		 << 8);
++	if (mr->lkey == 0) {
++		mr->lkey |= 1 << 8;
++		rkt->gen++;
++	}
++	rkt->table[r] = mr;
++	spin_unlock_irqrestore(&rkt->lock, flags);
++
++	ret = 1;
++
++bail:
++	return ret;
++}
++
++/**
++ * ipath_free_lkey - free an lkey
++ * @rkt: table from which to free the lkey
++ * @lkey: lkey id to free
++ */
++void ipath_free_lkey(struct ipath_lkey_table *rkt, u32 lkey)
++{
++	unsigned long flags;
++	u32 r;
++
++	if (lkey == 0)
++		return;
++	r = lkey >> (32 - ib_ipath_lkey_table_size);
++	spin_lock_irqsave(&rkt->lock, flags);
++	rkt->table[r] = NULL;
++	spin_unlock_irqrestore(&rkt->lock, flags);
++}
++
++/**
++ * ipath_lkey_ok - check IB SGE for validity and initialize
++ * @rkt: table containing lkey to check SGE against
++ * @isge: outgoing internal SGE
++ * @sge: SGE to check
++ * @acc: access flags
++ *
++ * Return 1 if valid and successful, otherwise returns 0.
++ *
++ * Check the IB SGE for validity and initialize our internal version
++ * of it.
++ */
++int ipath_lkey_ok(struct ipath_lkey_table *rkt, struct ipath_sge *isge,
++		  struct ib_sge *sge, int acc)
++{
++	struct ipath_mregion *mr;
++	size_t off;
++	int ret;
++
++	/*
++	 * We use LKEY == zero to mean a physical kmalloc() address.
++	 * This is a bit of a hack since we rely on dma_map_single()
++	 * being reversible by calling bus_to_virt().
++	 */
++	if (sge->lkey == 0) {
++		isge->mr = NULL;
++		isge->vaddr = bus_to_virt(sge->addr);
++		isge->length = sge->length;
++		isge->sge_length = sge->length;
++		ret = 1;
++		goto bail;
++	}
++	spin_lock(&rkt->lock);
++	mr = rkt->table[(sge->lkey >> (32 - ib_ipath_lkey_table_size))];
++	spin_unlock(&rkt->lock);
++	if (unlikely(mr == NULL || mr->lkey != sge->lkey)) {
++		ret = 0;
++		goto bail;
++	}
++
++	off = sge->addr - mr->user_base;
++	if (unlikely(sge->addr < mr->user_base ||
++		     off + sge->length > mr->length ||
++		     (mr->access_flags & acc) != acc)) {
++		ret = 0;
++		goto bail;
++	}
++
++	off += mr->offset;
++	isge->mr = mr;
++	isge->m = 0;
++	isge->n = 0;
++	while (off >= mr->map[isge->m]->segs[isge->n].length) {
++		off -= mr->map[isge->m]->segs[isge->n].length;
++		isge->n++;
++		if (isge->n >= IPATH_SEGSZ) {
++			isge->m++;
++			isge->n = 0;
++		}
++	}
++	isge->vaddr = mr->map[isge->m]->segs[isge->n].vaddr + off;
++	isge->length = mr->map[isge->m]->segs[isge->n].length - off;
++	isge->sge_length = sge->length;
++
++	ret = 1;
++
++bail:
++	return ret;
++}
++
++/**
++ * ipath_rkey_ok - check the IB virtual address, length, and RKEY
++ * @dev: infiniband device
++ * @ss: SGE state
++ * @len: length of data
++ * @vaddr: virtual address to place data
++ * @rkey: rkey to check
++ * @acc: access flags
++ *
++ * Return 1 if successful, otherwise 0.
++ *
++ * The QP r_rq.lock should be held.
++ */
++int ipath_rkey_ok(struct ipath_ibdev *dev, struct ipath_sge_state *ss,
++		  u32 len, u64 vaddr, u32 rkey, int acc)
++{
++	struct ipath_lkey_table *rkt = &dev->lk_table;
++	struct ipath_sge *sge = &ss->sge;
++	struct ipath_mregion *mr;
++	size_t off;
++	int ret;
++
++	spin_lock(&rkt->lock);
++	mr = rkt->table[(rkey >> (32 - ib_ipath_lkey_table_size))];
++	spin_unlock(&rkt->lock);
++	if (unlikely(mr == NULL || mr->lkey != rkey)) {
++		ret = 0;
++		goto bail;
++	}
++
++	off = vaddr - mr->iova;
++	if (unlikely(vaddr < mr->iova || off + len > mr->length ||
++		     (mr->access_flags & acc) == 0)) {
++		ret = 0;
++		goto bail;
++	}
++
++	off += mr->offset;
++	sge->mr = mr;
++	sge->m = 0;
++	sge->n = 0;
++	while (off >= mr->map[sge->m]->segs[sge->n].length) {
++		off -= mr->map[sge->m]->segs[sge->n].length;
++		sge->n++;
++		if (sge->n >= IPATH_SEGSZ) {
++			sge->m++;
++			sge->n = 0;
++		}
++	}
++	sge->vaddr = mr->map[sge->m]->segs[sge->n].vaddr + off;
++	sge->length = mr->map[sge->m]->segs[sge->n].length - off;
++	sge->sge_length = len;
++	ss->sg_list = NULL;
++	ss->num_sge = 1;
++
++	ret = 1;
++
++bail:
++	return ret;
++}
+diff -r c57bdbdddd16 -r 281189953c6f drivers/infiniband/hw/ipath/ipath_mr.c
+--- /dev/null	Thu Jan  1 00:00:00 1970 +0000
++++ b/drivers/infiniband/hw/ipath/ipath_mr.c	Thu Mar 23 20:27:45 2006 -0800
+@@ -0,0 +1,383 @@
++/*
++ * Copyright (c) 2005, 2006 PathScale, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ */
++
++#include <rdma/ib_pack.h>
++#include <rdma/ib_smi.h>
++
++#include "ipath_verbs.h"
++
++/**
++ * ipath_get_dma_mr - get a DMA memory region
++ * @pd: protection domain for this memory region
++ * @acc: access flags
++ *
++ * Returns the memory region on success, otherwise returns an errno.
++ */
++struct ib_mr *ipath_get_dma_mr(struct ib_pd *pd, int acc)
++{
++	struct ipath_mr *mr;
++	struct ib_mr *ret;
++
++	mr = kzalloc(sizeof *mr, GFP_KERNEL);
++	if (!mr) {
++		ret = ERR_PTR(-ENOMEM);
++		goto bail;
++	}
++
++	mr->mr.access_flags = acc;
++	ret = &mr->ibmr;
++
++bail:
++	return ret;
++}
++
++static struct ipath_mr *alloc_mr(int count,
++				 struct ipath_lkey_table *lk_table)
++{
++	struct ipath_mr *mr;
++	int m, i = 0;
++
++	/* Allocate struct plus pointers to first level page tables. */
++	m = (count + IPATH_SEGSZ - 1) / IPATH_SEGSZ;
++	mr = kmalloc(sizeof *mr + m * sizeof mr->mr.map[0], GFP_KERNEL);
++	if (!mr)
++		goto done;
++
++	/* Allocate first level page tables. */
++	for (; i < m; i++) {
++		mr->mr.map[i] = kmalloc(sizeof *mr->mr.map[0], GFP_KERNEL);
++		if (!mr->mr.map[i])
++			goto bail;
++	}
++	mr->mr.mapsz = m;
++
++	/*
++	 * ib_reg_phys_mr() will initialize mr->ibmr except for
++	 * lkey and rkey.
++	 */
++	if (!ipath_alloc_lkey(lk_table, &mr->mr))
++		goto bail;
++	mr->ibmr.rkey = mr->ibmr.lkey = mr->mr.lkey;
++
++	goto done;
++
++bail:
++	while (i) {
++		i--;
++		kfree(mr->mr.map[i]);
++	}
++	kfree(mr);
++	mr = NULL;
++
++done:
++	return mr;
++}
++
++/**
++ * ipath_reg_phys_mr - register a physical memory region
++ * @pd: protection domain for this memory region
++ * @buffer_list: pointer to the list of physical buffers to register
++ * @num_phys_buf: the number of physical buffers to register
++ * @iova_start: the starting address passed over IB which maps to this MR
++ *
++ * Returns the memory region on success, otherwise returns an errno.
++ */
++struct ib_mr *ipath_reg_phys_mr(struct ib_pd *pd,
++				struct ib_phys_buf *buffer_list,
++				int num_phys_buf, int acc, u64 *iova_start)
++{
++	struct ipath_mr *mr;
++	int n, m, i;
++	struct ib_mr *ret;
++
++	mr = alloc_mr(num_phys_buf, &to_idev(pd->device)->lk_table);
++	if (mr == NULL) {
++		ret = ERR_PTR(-ENOMEM);
++		goto bail;
++	}
++
++	mr->mr.user_base = *iova_start;
++	mr->mr.iova = *iova_start;
++	mr->mr.length = 0;
++	mr->mr.offset = 0;
++	mr->mr.access_flags = acc;
++	mr->mr.max_segs = num_phys_buf;
++
++	m = 0;
++	n = 0;
++	for (i = 0; i < num_phys_buf; i++) {
++		mr->mr.map[m]->segs[n].vaddr =
++			phys_to_virt(buffer_list[i].addr);
++		mr->mr.map[m]->segs[n].length = buffer_list[i].size;
++		mr->mr.length += buffer_list[i].size;
++		n++;
++		if (n == IPATH_SEGSZ) {
++			m++;
++			n = 0;
++		}
++	}
++
++	ret = &mr->ibmr;
++
++bail:
++	return ret;
++}
++
++/**
++ * ipath_reg_user_mr - register a userspace memory region
++ * @pd: protection domain for this memory region
++ * @region: the user memory region
++ * @mr_access_flags: access flags for this memory region
++ * @udata: unused by the InfiniPath driver
++ *
++ * Returns the memory region on success, otherwise returns an errno.
++ */
++struct ib_mr *ipath_reg_user_mr(struct ib_pd *pd, struct ib_umem *region,
++				int mr_access_flags, struct ib_udata *udata)
++{
++	struct ipath_mr *mr;
++	struct ib_umem_chunk *chunk;
++	int n, m, i;
++	struct ib_mr *ret;
++
++	n = 0;
++	list_for_each_entry(chunk, &region->chunk_list, list)
++		n += chunk->nents;
++
++	mr = alloc_mr(n, &to_idev(pd->device)->lk_table);
++	if (!mr) {
++		ret = ERR_PTR(-ENOMEM);
++		goto bail;
++	}
++
++	mr->mr.user_base = region->user_base;
++	mr->mr.iova = region->virt_base;
++	mr->mr.length = region->length;
++	mr->mr.offset = region->offset;
++	mr->mr.access_flags = mr_access_flags;
++	mr->mr.max_segs = n;
++
++	m = 0;
++	n = 0;
++	list_for_each_entry(chunk, &region->chunk_list, list) {
++		for (i = 0; i < chunk->nmap; i++) {
++			mr->mr.map[m]->segs[n].vaddr =
++				page_address(chunk->page_list[i].page);
++			mr->mr.map[m]->segs[n].length = region->page_size;
++			n++;
++			if (n == IPATH_SEGSZ) {
++				m++;
++				n = 0;
++			}
++		}
++	}
++	ret = &mr->ibmr;
++
++bail:
++	return ret;
++}
++
++/**
++ * ipath_dereg_mr - unregister and free a memory region
++ * @ibmr: the memory region to free
++ *
++ * Returns 0 on success.
++ *
++ * Note that this is called to free MRs created by ipath_get_dma_mr()
++ * or ipath_reg_user_mr().
++ */
++int ipath_dereg_mr(struct ib_mr *ibmr)
++{
++	struct ipath_mr *mr = to_imr(ibmr);
++	int i;
++
++	ipath_free_lkey(&to_idev(ibmr->device)->lk_table, ibmr->lkey);
++	i = mr->mr.mapsz;
++	while (i) {
++		i--;
++		kfree(mr->mr.map[i]);
++	}
++	kfree(mr);
++	return 0;
++}
++
++/**
++ * ipath_alloc_fmr - allocate a fast memory region
++ * @pd: the protection domain for this memory region
++ * @mr_access_flags: access flags for this memory region
++ * @fmr_attr: fast memory region attributes
++ *
++ * Returns the memory region on success, otherwise returns an errno.
++ */
++struct ib_fmr *ipath_alloc_fmr(struct ib_pd *pd, int mr_access_flags,
++			       struct ib_fmr_attr *fmr_attr)
++{
++	struct ipath_fmr *fmr;
++	int m, i = 0;
++	struct ib_fmr *ret;
++
++	/* Allocate struct plus pointers to first level page tables. */
++	m = (fmr_attr->max_pages + IPATH_SEGSZ - 1) / IPATH_SEGSZ;
++	fmr = kmalloc(sizeof *fmr + m * sizeof fmr->mr.map[0], GFP_KERNEL);
++	if (!fmr)
++		goto bail;
++
++	/* Allocate first level page tables. */
++	for (; i < m; i++) {
++		fmr->mr.map[i] = kmalloc(sizeof *fmr->mr.map[0],
++					 GFP_KERNEL);
++		if (!fmr->mr.map[i])
++			goto bail;
++	}
++	fmr->mr.mapsz = m;
++
++	/*
++	 * ib_alloc_fmr() will initialize fmr->ibfmr except for lkey &
++	 * rkey.
++	 */
++	if (!ipath_alloc_lkey(&to_idev(pd->device)->lk_table, &fmr->mr))
++		goto bail;
++	fmr->ibfmr.rkey = fmr->ibfmr.lkey = fmr->mr.lkey;
++	/*
++	 * Resources are allocated but no valid mapping (RKEY can't be
++	 * used).
++	 */
++	fmr->mr.user_base = 0;
++	fmr->mr.iova = 0;
++	fmr->mr.length = 0;
++	fmr->mr.offset = 0;
++	fmr->mr.access_flags = mr_access_flags;
++	fmr->mr.max_segs = fmr_attr->max_pages;
++	fmr->page_shift = fmr_attr->page_shift;
++
++	ret = &fmr->ibfmr;
++	goto done;
++
++bail:
++	while (i)
++		kfree(fmr->mr.map[--i]);
++	kfree(fmr);
++	ret = ERR_PTR(-ENOMEM);
++
++done:
++	return ret;
++}
++
++/**
++ * ipath_map_phys_fmr - set up a fast memory region
++ * @ibmfr: the fast memory region to set up
++ * @page_list: the list of pages to associate with the fast memory region
++ * @list_len: the number of pages to associate with the fast memory region
++ * @iova: the virtual address of the start of the fast memory region
++ *
++ * This may be called from interrupt context.
++ */
++
++int ipath_map_phys_fmr(struct ib_fmr *ibfmr, u64 * page_list,
++		       int list_len, u64 iova)
++{
++	struct ipath_fmr *fmr = to_ifmr(ibfmr);
++	struct ipath_lkey_table *rkt;
++	unsigned long flags;
++	int m, n, i;
++	u32 ps;
++	int ret;
++
++	if (list_len > fmr->mr.max_segs) {
++		ret = -EINVAL;
++		goto bail;
++	}
++	rkt = &to_idev(ibfmr->device)->lk_table;
++	spin_lock_irqsave(&rkt->lock, flags);
++	fmr->mr.user_base = iova;
++	fmr->mr.iova = iova;
++	ps = 1 << fmr->page_shift;
++	fmr->mr.length = list_len * ps;
++	m = 0;
++	n = 0;
++	ps = 1 << fmr->page_shift;
++	for (i = 0; i < list_len; i++) {
++		fmr->mr.map[m]->segs[n].vaddr = phys_to_virt(page_list[i]);
++		fmr->mr.map[m]->segs[n].length = ps;
++		if (++n == IPATH_SEGSZ) {
++			m++;
++			n = 0;
++		}
++	}
++	spin_unlock_irqrestore(&rkt->lock, flags);
++	ret = 0;
++
++bail:
++	return ret;
++}
++
++/**
++ * ipath_unmap_fmr - unmap fast memory regions
++ * @fmr_list: the list of fast memory regions to unmap
++ *
++ * Returns 0 on success.
++ */
++int ipath_unmap_fmr(struct list_head *fmr_list)
++{
++	struct ipath_fmr *fmr;
++	struct ipath_lkey_table *rkt;
++	unsigned long flags;
++
++	list_for_each_entry(fmr, fmr_list, ibfmr.list) {
++		rkt = &to_idev(fmr->ibfmr.device)->lk_table;
++		spin_lock_irqsave(&rkt->lock, flags);
++		fmr->mr.user_base = 0;
++		fmr->mr.iova = 0;
++		fmr->mr.length = 0;
++		spin_unlock_irqrestore(&rkt->lock, flags);
++	}
++	return 0;
++}
++
++/**
++ * ipath_dealloc_fmr - deallocate a fast memory region
++ * @ibfmr: the fast memory region to deallocate
++ *
++ * Returns 0 on success.
++ */
++int ipath_dealloc_fmr(struct ib_fmr *ibfmr)
++{
++	struct ipath_fmr *fmr = to_ifmr(ibfmr);
++	int i;
++
++	ipath_free_lkey(&to_idev(ibfmr->device)->lk_table, ibfmr->lkey);
++	i = fmr->mr.mapsz;
++	while (i)
++		kfree(fmr->mr.map[--i]);
++	kfree(fmr);
++	return 0;
++}
+diff -r c57bdbdddd16 -r 281189953c6f drivers/infiniband/hw/ipath/ipath_srq.c
+--- /dev/null	Thu Jan  1 00:00:00 1970 +0000
++++ b/drivers/infiniband/hw/ipath/ipath_srq.c	Thu Mar 23 20:27:45 2006 -0800
+@@ -0,0 +1,273 @@
++/*
++ * Copyright (c) 2005, 2006 PathScale, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ */
++
++#include <linux/err.h>
++#include <linux/vmalloc.h>
++
++#include "ipath_verbs.h"
++
++/**
++ * ipath_post_srq_receive - post a receive on a shared receive queue
++ * @ibsrq: the SRQ to post the receive on
++ * @wr: the list of work requests to post
++ * @bad_wr: the first WR to cause a problem is put here
++ *
++ * This may be called from interrupt context.
++ */
++int ipath_post_srq_receive(struct ib_srq *ibsrq, struct ib_recv_wr *wr,
++			   struct ib_recv_wr **bad_wr)
++{
++	struct ipath_srq *srq = to_isrq(ibsrq);
++	struct ipath_ibdev *dev = to_idev(ibsrq->device);
++	unsigned long flags;
++	int ret;
++
++	for (; wr; wr = wr->next) {
++		struct ipath_rwqe *wqe;
++		u32 next;
++		int i, j;
++
++		if (wr->num_sge > srq->rq.max_sge) {
++			*bad_wr = wr;
++			ret = -ENOMEM;
++			goto bail;
++		}
++
++		spin_lock_irqsave(&srq->rq.lock, flags);
++		next = srq->rq.head + 1;
++		if (next >= srq->rq.size)
++			next = 0;
++		if (next == srq->rq.tail) {
++			spin_unlock_irqrestore(&srq->rq.lock, flags);
++			*bad_wr = wr;
++			ret = -ENOMEM;
++			goto bail;
++		}
++
++		wqe = get_rwqe_ptr(&srq->rq, srq->rq.head);
++		wqe->wr_id = wr->wr_id;
++		wqe->sg_list[0].mr = NULL;
++		wqe->sg_list[0].vaddr = NULL;
++		wqe->sg_list[0].length = 0;
++		wqe->sg_list[0].sge_length = 0;
++		wqe->length = 0;
++		for (i = 0, j = 0; i < wr->num_sge; i++) {
++			/* Check LKEY */
++			if (to_ipd(srq->ibsrq.pd)->user &&
++			    wr->sg_list[i].lkey == 0) {
++				spin_unlock_irqrestore(&srq->rq.lock,
++						       flags);
++				*bad_wr = wr;
++				ret = -EINVAL;
++				goto bail;
++			}
++			if (wr->sg_list[i].length == 0)
++				continue;
++			if (!ipath_lkey_ok(&dev->lk_table,
++					   &wqe->sg_list[j],
++					   &wr->sg_list[i],
++					   IB_ACCESS_LOCAL_WRITE)) {
++				spin_unlock_irqrestore(&srq->rq.lock,
++						       flags);
++				*bad_wr = wr;
++				ret = -EINVAL;
++				goto bail;
++			}
++			wqe->length += wr->sg_list[i].length;
++			j++;
++		}
++		wqe->num_sge = j;
++		srq->rq.head = next;
++		spin_unlock_irqrestore(&srq->rq.lock, flags);
++	}
++	ret = 0;
++
++bail:
++	return ret;
++}
++
++/**
++ * ipath_create_srq - create a shared receive queue
++ * @ibpd: the protection domain of the SRQ to create
++ * @attr: the attributes of the SRQ
++ * @udata: not used by the InfiniPath verbs driver
++ */
++struct ib_srq *ipath_create_srq(struct ib_pd *ibpd,
++				struct ib_srq_init_attr *srq_init_attr,
++				struct ib_udata *udata)
++{
++	struct ipath_srq *srq;
++	u32 sz;
++	struct ib_srq *ret;
++
++	if (srq_init_attr->attr.max_sge < 1) {
++		ret = ERR_PTR(-EINVAL);
++		goto bail;
++	}
++
++	srq = kmalloc(sizeof(*srq), GFP_KERNEL);
++	if (!srq) {
++		ret = ERR_PTR(-ENOMEM);
++		goto bail;
++	}
++
++	/*
++	 * Need to use vmalloc() if we want to support large #s of entries.
++	 */
++	srq->rq.size = srq_init_attr->attr.max_wr + 1;
++	sz = sizeof(struct ipath_sge) * srq_init_attr->attr.max_sge +
++		sizeof(struct ipath_rwqe);
++	srq->rq.wq = vmalloc(srq->rq.size * sz);
++	if (!srq->rq.wq) {
++		kfree(srq);
++		ret = ERR_PTR(-ENOMEM);
++		goto bail;
++	}
++
++	/*
++	 * ib_create_srq() will initialize srq->ibsrq.
++	 */
++	spin_lock_init(&srq->rq.lock);
++	srq->rq.head = 0;
++	srq->rq.tail = 0;
++	srq->rq.max_sge = srq_init_attr->attr.max_sge;
++	srq->limit = srq_init_attr->attr.srq_limit;
++
++	ret = &srq->ibsrq;
++
++bail:
++	return ret;
++}
++
++/**
++ * ipath_modify_srq - modify a shared receive queue
++ * @ibsrq: the SRQ to modify
++ * @attr: the new attributes of the SRQ
++ * @attr_mask: indicates which attributes to modify
++ */
++int ipath_modify_srq(struct ib_srq *ibsrq, struct ib_srq_attr *attr,
++		     enum ib_srq_attr_mask attr_mask)
++{
++	struct ipath_srq *srq = to_isrq(ibsrq);
++	unsigned long flags;
++	int ret;
++
++	if (attr_mask & IB_SRQ_LIMIT) {
++		spin_lock_irqsave(&srq->rq.lock, flags);
++		srq->limit = attr->srq_limit;
++		spin_unlock_irqrestore(&srq->rq.lock, flags);
++	}
++	if (attr_mask & IB_SRQ_MAX_WR) {
++		u32 size = attr->max_wr + 1;
++		struct ipath_rwqe *wq, *p;
++		u32 n;
++		u32 sz;
++
++		if (attr->max_sge < srq->rq.max_sge) {
++			ret = -EINVAL;
++			goto bail;
++		}
++
++		sz = sizeof(struct ipath_rwqe) +
++			attr->max_sge * sizeof(struct ipath_sge);
++		wq = vmalloc(size * sz);
++		if (!wq) {
++			ret = -ENOMEM;
++			goto bail;
++		}
++
++		spin_lock_irqsave(&srq->rq.lock, flags);
++		if (srq->rq.head < srq->rq.tail)
++			n = srq->rq.size + srq->rq.head - srq->rq.tail;
++		else
++			n = srq->rq.head - srq->rq.tail;
++		if (size <= n || size <= srq->limit) {
++			spin_unlock_irqrestore(&srq->rq.lock, flags);
++			vfree(wq);
++			ret = -EINVAL;
++			goto bail;
++		}
++		n = 0;
++		p = wq;
++		while (srq->rq.tail != srq->rq.head) {
++			struct ipath_rwqe *wqe;
++			int i;
++
++			wqe = get_rwqe_ptr(&srq->rq, srq->rq.tail);
++			p->wr_id = wqe->wr_id;
++			p->length = wqe->length;
++			p->num_sge = wqe->num_sge;
++			for (i = 0; i < wqe->num_sge; i++)
++				p->sg_list[i] = wqe->sg_list[i];
++			n++;
++			p = (struct ipath_rwqe *)((char *) p + sz);
++			if (++srq->rq.tail >= srq->rq.size)
++				srq->rq.tail = 0;
++		}
++		vfree(srq->rq.wq);
++		srq->rq.wq = wq;
++		srq->rq.size = size;
++		srq->rq.head = n;
++		srq->rq.tail = 0;
++		srq->rq.max_sge = attr->max_sge;
++		spin_unlock_irqrestore(&srq->rq.lock, flags);
++	}
++
++	ret = 0;
++
++bail:
++	return ret;
++}
++
++int ipath_query_srq(struct ib_srq *ibsrq, struct ib_srq_attr *attr)
++{
++	struct ipath_srq *srq = to_isrq(ibsrq);
++
++	attr->max_wr = srq->rq.size - 1;
++	attr->max_sge = srq->rq.max_sge;
++	attr->srq_limit = srq->limit;
++	return 0;
++}
++
++/**
++ * ipath_destroy_srq - destroy a shared receive queue
++ * @ibsrq: the SRQ to destroy
++ */
++int ipath_destroy_srq(struct ib_srq *ibsrq)
++{
++	struct ipath_srq *srq = to_isrq(ibsrq);
++
++	vfree(srq->rq.wq);
++	kfree(srq);
++
++	return 0;
 +}

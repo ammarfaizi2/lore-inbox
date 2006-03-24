@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWCXRor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbWCXRvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751298AbWCXRor (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 12:44:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbWCXRor
+	id S1751316AbWCXRvM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 12:51:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbWCXRvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 12:44:47 -0500
-Received: from ruth.realtime.net ([205.238.132.69]:8459 "EHLO
-	ruth.realtime.net") by vger.kernel.org with ESMTP id S1751298AbWCXRoq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 12:44:46 -0500
-In-Reply-To: <20060323203521.862355000@dyn-9-152-242-103.boeblingen.de.ibm.com>
-References: <20060323203423.620978000@dyn-9-152-242-103.boeblingen.de.ibm.com> <20060323203521.862355000@dyn-9-152-242-103.boeblingen.de.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <32140afe2349e8f1726d188eb85c780c@bga.com>
-Content-Transfer-Encoding: 7bit
-Cc: Arnd Bergmann <arnd.bergmann@de.ibm.com>, hpenner@de.ibm.com,
-       Paul Mackerras <paulus@samba.org>,
-       Segher Boessenkool <segher@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, stk@de.ibm.com,
-       benh@kernel.crashing.org, cbe-oss-dev@ozlabs.org
-From: Milton Miller <miltonm@bga.com>
-Subject: Re: [patch 06/13] powerpc: cell interrupt controller updates
-Date: Fri, 24 Mar 2006 11:43:39 -0600
-To: Arnd Bergmann <abergman@de.ibm.com>
-X-Mailer: Apple Mail (2.623)
-X-Server: High Performance Mail Server - http://surgemail.com r=-1092531819
+	Fri, 24 Mar 2006 12:51:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:47528 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751316AbWCXRvL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 12:51:11 -0500
+Date: Fri, 24 Mar 2006 09:49:01 -0800
+From: Greg KH <greg@kroah.com>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Christopher Hoover <ch@murgatroid.com>, Andrew Morton <akpm@osdl.org>,
+       kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org,
+       lm-sensors@lm-sensors.org
+Subject: Re: [KJ] Re: [PATCH] Clean up magic numbers in i2c_parport.h
+Message-ID: <20060324174901.GA27881@kroah.com>
+References: <20060323205617.38e02afe.khali@linux-fr.org> <000e01c64efd$cae7f750$8401000a@fakie> <20060324082600.ca9f9796.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060324082600.ca9f9796.khali@linux-fr.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 24, 2006 at 08:26:00AM +0100, Jean Delvare wrote:
+> Hi Christopher,
+> 
+> > > Beeuh. These macros don't really help. They actually make the lines
+> > > longer! I'm not taking this change, sorry.
+> > 
+> > If I kill off the macros but continue to use C99 structure initializers,
+> > which is I believe is the proper kernel coding style today, the lines are
+> > going to get even longer.  Is that OK?
+> > 
+> > Or are you asking for the patch w/o macros and w/o C99 structure
+> > initializers?
+> > 
+> > I can/will do either.  Just let me know what is acceptable a priori.
+> 
+> I don't think C99 initializers are needed here, the structure is pretty
+> simple and is also defined in the same file, a few lines above all its
+> instance declarations. So I am indeed asking for a patch w/o macros and
+> w/o C99 structure initializers, unless someone objects.
 
-On Mar 22, 2006, at 5:00 PM, Arnd Bergmann wrote:
->  static void spider_enable_irq(unsigned int irq)
->  {
-> +	int nodeid = (irq / IIC_NODE_STRIDE) * 0x10;
->  	void __iomem *cfg = spider_get_irq_config(irq);
->  	irq = spider_get_nr(irq);
->
-> -	out_be32(cfg, in_be32(cfg) | 0x3107000eu);
-> +	out_be32(cfg, in_be32(cfg) | 0x3107000eu | nodeid);
->  	out_be32(cfg + 4, in_be32(cfg + 4) | 0x00020000u | irq);
->  }
->
+You should use structure initializers whereever possible, as it makes
+future changes much easier and safer (reorder the fields and things
+don't break in odd ways.)  So I would encourage this kind of change.
 
-I just did a quick read of the code, but my first thought is what if 
-some other node id was previously set?  Perhaps you should mask off 
-some bits before or'ing in the node id?
+thanks,
 
-milton
-
+greg k-h

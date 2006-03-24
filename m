@@ -1,52 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932620AbWCXTfn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932627AbWCXTpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932620AbWCXTfn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 14:35:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbWCXTfm
+	id S932627AbWCXTpi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 14:45:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbWCXTph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 14:35:42 -0500
-Received: from mail.sw-soft.com ([69.64.46.34]:28349 "EHLO mail.sw-soft.com")
-	by vger.kernel.org with ESMTP id S932620AbWCXTfm (ORCPT
+	Fri, 24 Mar 2006 14:45:37 -0500
+Received: from soundwarez.org ([217.160.171.123]:11465 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S932627AbWCXTph (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 14:35:42 -0500
-Message-ID: <442449F8.4050808@sw.ru>
-Date: Fri, 24 Mar 2006 22:35:20 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Fri, 24 Mar 2006 14:45:37 -0500
+Date: Fri, 24 Mar 2006 20:45:35 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, viro@ftp.linux.org.uk
+Subject: Re: [BLOCK] delay all uevents until partition table is scanned
+Message-ID: <20060324194535.GA13905@vrfy.org>
+References: <20060324191748.GA13654@vrfy.org> <20060324113502.e6583da6.rdunlap@xenotime.net>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       xemul@sw.ru, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
-       herbert@13thfloor.at, devel@openvz.org, serue@us.ibm.com,
-       sam@vilain.net
-Subject: Re: [RFC][PATCH 1/2] Virtualization of UTS
-References: <44242B1B.1080909@sw.ru> <44242CE7.3030905@sw.ru> <m18xqzk6cy.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m18xqzk6cy.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SA-Do-Not-Rej: Toldya
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060324113502.e6583da6.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> This patch introduces utsname namespace in system, which allows to have
->> different utsnames on the host.
->> Introduces config option CONFIG_UTS_NS and uts_namespace structure for this.
+On Fri, Mar 24, 2006 at 11:35:02AM -0800, Randy.Dunlap wrote:
+> On Fri, 24 Mar 2006 20:17:48 +0100 Kay Sievers wrote:
 > 
-> Ok.  It looks like we need to resolve the sysctl issues before we merge
-> either patch, into the stable kernel.
-I disagree with you. Right now we can have sysctl and proc for init 
-namespaces only.
-And when sysctl and proc are virtualized somehow, we can fix all these.
-I simply don't expect /proc and sysctl to be done quickly. As we have 
-very different approaches. And there is no any consensus. Why not to 
-commit working/agreed parts then?
+> > +	/* scan partition table, but supress uevents */
+> > +	disk->part_uevent_supress = 1;
+> > +	err = blkdev_get(bdev, FMODE_READ, 0);
+> > +	disk->part_uevent_supress = 0;
+> 
+> s/supress/suppress/ please.
 
-> We also need to discuss the system call interface, as without one
-> the functionality is unusable :)
-I also don't see why it can be separated. There is an API in namespaces, 
-and how it is mapped into syscalls is another question. At least it 
-doesn't prevent us from commiting virtualization itself, agree?
+Oh!
 
 Thanks,
-Kirill
+Kay
+
+
+From: Kay Sievers <kay.sievers@suse.de>
+
+[BLOCK] delay all uevents until partition table is scanned
+
+Here we delay the annoucement of all block device events until the
+disk's partition table is scanned and all partition devices are already
+created and sysfs is populated.
+
+We have a bunch of old bugs for removable storage handling where we
+probe successfully for a filesystem on the raw disk, but at the
+same time the kernel recognizes a partition table and creates partition
+devices.
+Currently there is no sane way to tell if partitions will show up or not
+at the time the disk device is announced to userspace. With the delayed
+events we can simply skip any probe for a filesystem on the raw disk when
+we find already present partitions.
+
+Signed-off-by: Kay Sievers <kay.sievers@suse.de>
+---
+
+ fs/partitions/check.c |   40 +++++++++++++++++++++++++++++++---------
+ include/linux/genhd.h |    1 +
+ 2 files changed, 32 insertions(+), 9 deletions(-)
+
+diff --git a/fs/partitions/check.c b/fs/partitions/check.c
+index f924f45..64e65bd 100644
+--- a/fs/partitions/check.c
++++ b/fs/partitions/check.c
+@@ -310,7 +310,9 @@ void delete_partition(struct gendisk *di
+ 	p->ios[0] = p->ios[1] = 0;
+ 	p->sectors[0] = p->sectors[1] = 0;
+ 	devfs_remove("%s/part%d", disk->devfs_name, part);
+-	kobject_unregister(&p->kobj);
++	kobject_uevent(&p->kobj, KOBJ_REMOVE);
++	kobject_del(&p->kobj);
++	kobject_put(&p->kobj);
+ }
+ 
+ void add_partition(struct gendisk *disk, int part, sector_t start, sector_t len)
+@@ -336,7 +338,10 @@ void add_partition(struct gendisk *disk,
+ 		snprintf(p->kobj.name,KOBJ_NAME_LEN,"%s%d",disk->kobj.name,part);
+ 	p->kobj.parent = &disk->kobj;
+ 	p->kobj.ktype = &ktype_part;
+-	kobject_register(&p->kobj);
++	kobject_init(&p->kobj);
++	kobject_add(&p->kobj);
++	if (!disk->part_uevent_suppress)
++		kobject_uevent(&p->kobj, KOBJ_ADD);
+ 	disk->part[part-1] = p;
+ }
+ 
+@@ -373,6 +378,8 @@ void register_disk(struct gendisk *disk)
+ {
+ 	struct block_device *bdev;
+ 	char *s;
++	int i;
++	struct hd_struct *p;
+ 	int err;
+ 
+ 	strlcpy(disk->kobj.name,disk->disk_name,KOBJ_NAME_LEN);
+@@ -382,14 +389,13 @@ void register_disk(struct gendisk *disk)
+ 		*s = '!';
+ 	if ((err = kobject_add(&disk->kobj)))
+ 		return;
+-	disk_sysfs_symlinks(disk);
+-	kobject_uevent(&disk->kobj, KOBJ_ADD);
+ 
++	disk_sysfs_symlinks(disk);
+ 	/* No minors to use for partitions */
+ 	if (disk->minors == 1) {
+ 		if (disk->devfs_name[0] != '\0')
+ 			devfs_add_disk(disk);
+-		return;
++		goto exit;
+ 	}
+ 
+ 	/* always add handle for the whole disk */
+@@ -397,16 +403,32 @@ void register_disk(struct gendisk *disk)
+ 
+ 	/* No such device (e.g., media were just removed) */
+ 	if (!get_capacity(disk))
+-		return;
++		goto exit;
+ 
+ 	bdev = bdget_disk(disk, 0);
+ 	if (!bdev)
+-		return;
++		goto exit;
+ 
++	/* scan partition table, but suppress uevents */
+ 	bdev->bd_invalidated = 1;
+-	if (blkdev_get(bdev, FMODE_READ, 0) < 0)
+-		return;
++	disk->part_uevent_suppress = 1;
++	err = blkdev_get(bdev, FMODE_READ, 0);
++	disk->part_uevent_suppress = 0;
++	if (err < 0)
++		goto exit;
+ 	blkdev_put(bdev);
++
++exit:
++	/* announce disk after possible partitions are already created */
++	kobject_uevent(&disk->kobj, KOBJ_ADD);
++
++	/* announce possible partitions */
++	for (i = 1; i < disk->minors; i++) {
++		p = disk->part[i-1];
++		if (!p || !p->nr_sects)
++			continue;
++		kobject_uevent(&p->kobj, KOBJ_ADD);
++	}
+ }
+ 
+ int rescan_partitions(struct gendisk *disk, struct block_device *bdev)
+diff --git a/include/linux/genhd.h b/include/linux/genhd.h
+index eef5ccd..7e60142 100644
+--- a/include/linux/genhd.h
++++ b/include/linux/genhd.h
+@@ -104,6 +104,7 @@ struct gendisk {
+                                          * disks that can't be partitioned. */
+ 	char disk_name[32];		/* name of major driver */
+ 	struct hd_struct **part;	/* [indexed by minor] */
++	int part_uevent_suppress;
+ 	struct block_device_operations *fops;
+ 	struct request_queue *queue;
+ 	void *private_data;
+

@@ -1,87 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWCXXkz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWCXXn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbWCXXkz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 18:40:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWCXXkz
+	id S932283AbWCXXn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 18:43:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbWCXXn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 18:40:55 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:40057 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S932263AbWCXXky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 18:40:54 -0500
-Date: Fri, 24 Mar 2006 15:40:40 -0800
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: ocfs2-devel@oss.oracle.com, linux-kernel@vger.kernel.org
-Subject: [git patches] ocfs2 updates
-Message-ID: <20060324234040.GK25194@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-MIME-Version: 1.0
+	Fri, 24 Mar 2006 18:43:29 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:51596 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932269AbWCXXn2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 18:43:28 -0500
+Date: Fri, 24 Mar 2006 17:43:06 -0600
+To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Cc: Greg KH <greg@kroah.com>, Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 1/6] PCIERR : interfaces for synchronous I/O error detection on driver
+Message-ID: <20060324234306.GC21895@austin.ibm.com>
+References: <44210D1B.7010806@jp.fujitsu.com> <20060322210157.GH12335@kroah.com> <4423A40D.3080906@jp.fujitsu.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+In-Reply-To: <4423A40D.3080906@jp.fujitsu.com>
+User-Agent: Mutt/1.5.9i
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pull from 'upstream-linus' branch of
-git://oss.oracle.com/home/sourcebo/git/ocfs2.git
+On Fri, Mar 24, 2006 at 04:47:25PM +0900, Hidetoshi Seto wrote:
+> 
+> At 2.6.16-rc1, Linux kernel accepts and provides "PCI-bus error event
+> callbacks" that enable RAS-aware drivers to notice errors asynchronously,
+> and to join following kernel-initiated PCI-bus error recovery.
+> This callbacks work well on PPC64 where it was designed to fit.
+> 
+> However, some difficulty still remains to cover all possible error
+> situations even if we use callbacks. It will not help keeping data
+> integrity, passing no broken data to drivers and user lands, preventing
+> applications from going crazy or sudden death.
 
-to receive the following updates:
+This is not true.  Although there are some subtle issues, (which
+I invite you to describe), the goal of the current design is to 
+insure data integrity, and make sure that neither the driver nor 
+the userland gets corrupted data. There shouldn't be any "crazy
+or sudden death" if the device drivers are any good.
 
- fs/ocfs2/alloc.c             |   88 ++++++++--------
- fs/ocfs2/aops.c              |   18 +--
- fs/ocfs2/buffer_head_io.c    |   11 +-
- fs/ocfs2/cluster/heartbeat.c |   38 +++----
- fs/ocfs2/cluster/masklog.h   |   10 -
- fs/ocfs2/dcache.c            |    9 -
- fs/ocfs2/dir.c               |   42 +++----
- fs/ocfs2/dlm/dlmast.c        |   22 ++--
- fs/ocfs2/dlm/dlmcommon.h     |   21 +++
- fs/ocfs2/dlm/dlmconvert.c    |   11 +-
- fs/ocfs2/dlm/dlmdebug.c      |   18 ++-
- fs/ocfs2/dlm/dlmlock.c       |   14 ++
- fs/ocfs2/dlm/dlmmaster.c     |  227 ++++++++++++++++++++++++++++++++++++-------
- fs/ocfs2/dlm/dlmrecovery.c   |   50 +++++----
- fs/ocfs2/dlm/dlmunlock.c     |   11 +-
- fs/ocfs2/dlmglue.c           |  101 +++++++++----------
- fs/ocfs2/export.c            |   24 ++--
- fs/ocfs2/extent_map.c        |   34 +++---
- fs/ocfs2/file.c              |   42 ++++---
- fs/ocfs2/inode.c             |  116 +++++++++++----------
- fs/ocfs2/journal.c           |   27 ++---
- fs/ocfs2/localalloc.c        |   17 +--
- fs/ocfs2/namei.c             |   79 +++++++-------
- fs/ocfs2/ocfs2.h             |   12 +-
- fs/ocfs2/suballoc.c          |   72 +++++++------
- fs/ocfs2/super.c             |   14 +-
- fs/ocfs2/super.h             |    8 +
- fs/ocfs2/uptodate.c          |   40 ++++---
- fs/ocfs2/vote.c              |   63 ++++++-----
- 29 files changed, 749 insertions(+), 490 deletions(-)
+Of course, this depends on the hardware implementation. If
+your PCI bus sends corrupt data up to the driver ... all bets 
+are off. The design is predicated on the assumption that the
+hardware sends either good data or no data, ad that the latter
+is associated with a bus state indicating an error has ocurred.
 
-Kurt Hackel:
-      ocfs2: fix hang in dlm lock resource mastery
-      ocfs2: dlm recovery fixes
-      ocfs2: don't use MLF* in dlm/ files
+>  - It will be useful if arch chooses panic on bus errors not to pass
+>    any broken data to un-reliable drivers.
 
-Mark Fasheh:
-      ocfs2: use __attribute__ format
-      ocfs2: don't use MLF* in cluster/ files
-      ocfs2: don't use MLF* in the file system
-      ocfs2: finally remove MLF* macros
+I assume you meant "if arch chooses NOT to panic on bus errors ..."
 
-A patch file for the changes can also be found at:
+I'll review the rest of the patch via sepaate email
 
-http://oss.oracle.com/~mfasheh/ocfs2-update.patch
-
-It wasn't posted in e-mail because the MLF* updates drove the patch size
-past the lkml mail size limit.
-	--Mark
-
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
+--linas

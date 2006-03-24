@@ -1,148 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWCXW6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbWCXXHu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbWCXW6u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 17:58:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWCXW6t
+	id S964804AbWCXXHu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 18:07:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbWCXXHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 17:58:49 -0500
-Received: from xenotime.net ([66.160.160.81]:8865 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932206AbWCXW6t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 17:58:49 -0500
-Date: Fri, 24 Mar 2006 15:01:00 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: nix@esperi.org.uk, rob@landley.net, mmazur@kernel.pl,
-       linux-kernel@vger.kernel.org, llh-discuss@lists.pld-linux.org
-Subject: Re: State of userland headers
-Message-Id: <20060324150100.ec96dc15.rdunlap@xenotime.net>
-In-Reply-To: <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com>
-References: <200603141619.36609.mmazur@kernel.pl>
-	<200603231811.26546.mmazur@kernel.pl>
-	<DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com>
-	<200603241623.49861.rob@landley.net>
-	<878xqzpl8g.fsf@hades.wkstn.nix>
-	<D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Mar 2006 18:07:50 -0500
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:49328 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S964804AbWCXXHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 18:07:49 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: RSS Limit implementation issue
+To: Ram Gupta <ram.gupta5@gmail.com>,
+       linux mailing-list <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Sat, 25 Mar 2006 00:06:54 +0100
+References: <5ErmY-5vN-5@gated-at.bofh.it> <5EGm2-2eZ-27@gated-at.bofh.it> <5TBku-7fu-3@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1FMvNW-0000xW-C7@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Mar 2006 17:46:27 -0500 Kyle Moffett wrote:
+Ram Gupta <ram.gupta5@gmail.com> wrote:
+> On 2/9/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>> On Iau, 2006-02-09 at 15:10 -0600, Ram Gupta wrote:
 
-> On Mar 24, 2006, at 16:48:47, Nix wrote:
-> > On 24 Mar 2006, Rob Landley suggested tentatively:
-> >> On Friday 24 March 2006 1:51 pm, Kyle Moffett wrote:
-> >>> 1: Ewww, bad glibc!
-> >>> 2: The symbols in kabi/*.h should probably all start with __kabi_
-> >>
-> >> Any grand new incompatible thing is something I will happily  
-> >> ignore for as long as I am able to, and I'm not alone here.  Your  
-> >> uptake will be zero.
-> >
-> > I concur. The purpose of this thing is by definition to provide  
-> > libcs with the kernel/user interface stuff they need in order for  
-> > userspace programs to be compiled. There's no point defining a new  
-> > interface because there is a massive quantity of *existing* code  
-> > out there that we must work with. (Plus, it can be, uh, difficult  
-> > to get changes of this nature into glibc in particular, and glibc  
-> > is the 300-pound gorilla in this particular room. If the headers  
-> > don't have working with it as a goal, they are pointless.)
+>> > I am working to implement enforcing RSS limits of a process. I am
+>> > planning to make a check for rss limit when setting up pte. If the
+>> > limit is crossed I see couple of  different ways of handling .
+>> >
+>> > 1. Kill the process . In this case there is no swapping problem.
+>>
+>> Not good as the process isn't responsible for the RSS size so it would
+>> be rather random.
+>>
 > 
-> Hmm, I didn't really explain my idea very well.  Let me start with a  
-> list of a facts.  If anybody disagrees with any part of this, please  
-> let me know.
-> 
-> 1)  The <linux/*.h> headers include a lot of information essential to  
-> compiling userspace applications and libraries (libcs in  
-> particular).  That same information is also required while building  
-> the kernel (IE: The ABI).
-> 2)  Those headers have a lot of declarations and definitions which  
-> must *not* be present while compiling userspace applications, and is  
-> basically kernel-only stuff.
-> 3)  Glibc is extremely large and complex 500-pound gorilla and  
-> contains an ugly build process and a lot of static definitions in its  
-> own header files that conflict with the definitions in the kernel  
-> headers.
-> 4)  UML runs into a lot of problems when glibc's headers and the  
-> native kernel headers headers conflict.
-> 
-> Here's some of my opinions about this:
-> 
-> 1)  Trying to create and maintain 2 separate versions of an ABI as  
-> large and complex as the kernel<=>userspace ABI across new versions  
-> and features would be extremely difficult and result in subtle bugs  
-> and missing features, even over a short period of time.
-> 2)  Ideally there should be three distinct pieces, the kernel, the  
-> ABI, and userspace.  Compiling either the kernel or userspace  
-> requires the ABI, but the ABI depends only on the compiler.
-> 3)  Breaking any compatibility is bad
-> 4)  Trying to continue to maintain the glibc custom-header-file  
-> status-quo as more APIs and architectures get added to the kernel is  
-> going to become an increasingly difficult and tedious task.
-> 
-> My proposal (which I'm working on sample patches for) would be to  
-> divide up the kernel headers into 2 parts.  The first part would be  
-> <kabi/*.h>, and the second would be all the traditional kernel-only  
-> headers.  The kabi headers would *only* define things that begin with  
-> the prefix __kabi_.  This would mean that the kabi headers have no  
-> risk of namespace contamination with anything else existing in the  
-> kernel or userspace, and since they would depend only on the  
-> compiler, they would be useable anywhere.
-> 
-> The second step would be to convert the traditional linux header to  
-> include the corresponding kabi header, then redefine its own  
-> structures and defines in terms of those in the kabi header.  This  
-> would provide complete backwards compatibility to all kernel code, as  
-> well as to anything that currently compiles using the existing kernel  
-> headers.  The entire rest of the <linux/*.h> header file would be  
-> wrapped in #ifdef __KERNEL__, as it should not be needed by anything  
-> in userspace.
-> 
-> In the process of those two steps, we would relocate many of the  
-> misplaced "#ifdef __KERNEL__" and "#endif /* __KERNEL__ */".  The  
-> kabi headers should not mention __KERNEL__ at all, and the linux/*  
-> headers should be almost completely wrapped in __KERNEL__ ifdefs.   
-> That should be enough to make klibc build correctly, although from  
-> the description glibc needs significantly more work.
-> 
-> Once a significant portion of the kernel headers have been split that  
-> way (preserving complete backwards compatibility), external projects  
-> _may_ be converted to #include <kabi/*.h> instead of #include <linux/ 
-> *.h>, although this would require other changes to the source to  
-> handle the __kabi_ prefix.  Most of those should be straightforward,  
-> however.  Since the kabi/*.h headers would not be kernel-version- 
-> specific, they could be copied to a system running an older kernel  
-> and reused there without problems.  Even though some of the syscalls  
-> and ioctls referenced in the kabi headers might not be present on the  
-> running kernel, portable programs are expected to be able to sanely  
-> handle older kernels.
-> 
-> Once the kabi headers are available, it would be possible to begin  
-> cleaning up many of the glibc headers without worrying about  
-> differences between architectures.  If all critical constants and  
-> datatypes are already defined in <kabi/*.h> with __kabi_ or __KABI_  
-> prefixes, it should be possible to import those definitions into  
-> klibc and glibc without much effort.
-> 
-> UML has other issues with conflicts between the native kernel headers  
-> and the GLIBC-provided stubs.  It's been mentioned on the prior  
-> threads about this topic that this sort of system would ease most of  
-> the issues that UML runs into.
-> 
-> I'm working on some sample patches now which I'll try to post in a  
-> few days if I get the time.
+> I doubt I am missing some point here. I dont understand why the
+> process isn't responsible for RSS size. This limit is process specific
+> & the count of rss increases when the process maps some page in its
+> page table.
 
-Kyle,
-Do you have (recorded) or recall any constraints or requirements
-on this $subject from Linus or Andrew or others?
-I mean just basic big items, like "thou shalt not mix foo and bar".
+It can't be responsible because the kernel is controlling the RSS size e.g.
+by prefetching or swapping out. The process has very little means of
+influencing these mechanisms, nor is there a way to actively shrink the RSS.
 
-I'm just looking for the basic parameters of this task.
+(It's perfectly legal to e.g. mmap a large file (1 GB) and memcopy that area
+into another mmaped file, and the kernel is expected to keep sane even on a
+16 MB machine.)
 
-Thanks,
----
-~Randy
+You may introduce a mechanism that allows a process to keep it's RSS < n,
+but you'll have to deal with legacy processes at least for the next 20 years.
+
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

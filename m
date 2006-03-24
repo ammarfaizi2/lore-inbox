@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWCXPRY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWCXPXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWCXPRY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 10:17:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWCXPRX
+	id S1750760AbWCXPXF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 10:23:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWCXPXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 10:17:23 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:2720 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750736AbWCXPRX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 10:17:23 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH] mm: swsusp shrink_all_memory tweaks
-Date: Fri, 24 Mar 2006 16:16:05 +0100
-User-Agent: KMail/1.9.1
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       linux-mm@kvack.org
-References: <200603200231.50666.kernel@kolivas.org> <200603201946.32681.rjw@sisk.pl> <200603241807.41175.kernel@kolivas.org>
-In-Reply-To: <200603241807.41175.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Mar 2006 10:23:05 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:30684 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750760AbWCXPXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 10:23:03 -0500
+Date: Fri, 24 Mar 2006 07:22:51 -0800
+From: Ashok Raj <ashok.raj@intel.com>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Ignore MCFG if the mmconfig area isn't reserved in thee820 table
+Message-ID: <20060324072250.A13756@unix-os.sc.intel.com>
+References: <1143138170.3147.43.camel@laptopd505.fenrus.org> <200603231856.12227.ak@suse.de> <1143140539.3147.44.camel@laptopd505.fenrus.org> <1143141320.3147.47.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603241616.06687.rjw@sisk.pl>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1143141320.3147.47.camel@laptopd505.fenrus.org>; from arjan@linux.intel.com on Thu, Mar 23, 2006 at 11:15:19AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 March 2006 08:07, Con Kolivas wrote:
-> On Tuesday 21 March 2006 05:46, Rafael J. Wysocki wrote:
-> > swsusp_shrink_memory() is still wrong, because it will always fail for
-> > image_size = 0.  My bad, sorry.
-> >
-> > The appended patch (on top of yours) should fix that (hope I did it right
-> > this time).
+On Thu, Mar 23, 2006 at 11:15:19AM -0800, Arjan van de Ven wrote:
 > 
-> Well I discovered that if all the necessary memory is freed in one call to
->  shrink_all_memory we don't get the nice updating printout from
->  swsusp_shrink_memory telling us we're making progress. So instead of
->  modifying the function to call shrink_all_memory with the full amount (and
->  since we've botched swsusp_shrink_memory a few times between us), we should
->  limit it to a max of SHRINK_BITEs instead.
+>    >
+>    > I'll do a new patch using this for x86_64 though, no need to make a
+>    > second function like this.
 > 
->  This patch is fine standalone.
-> 
->  Rafael, Pavel what do you think of this one? 
+>     int  __init  e820_mapped(unsigned  long  start,  unsigned  long  end,
+>    unsigned type)
 
-In principle it looks good to me, but when I tested the previous one I noticed
-shrink_all_memory() tended to return 0 prematurely (ie. when it was possible
-to free some more pages).  It only happened if more than 50% of memory was
-occupied by application data.
 
-Unfortunately I couldn't find the reason.
+Why not use the same type of function like x86_64 as well instead of the newly
+added is_820_mapped()? If the purpose of both functions is the same, i386 could benefit 
+with same style code instead of a slight variant.
 
-Greetings,
-Rafael
+-- 
+Cheers,
+Ashok Raj
+- Open Source Technology Center

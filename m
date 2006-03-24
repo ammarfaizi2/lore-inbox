@@ -1,312 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422721AbWCXFcH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423146AbWCXFd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422721AbWCXFcH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 00:32:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423144AbWCXFcG
+	id S1423146AbWCXFd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 00:33:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423144AbWCXFd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 00:32:06 -0500
-Received: from smtpq2.groni1.gr.home.nl ([213.51.130.201]:26045 "EHLO
-	smtpq2.groni1.gr.home.nl") by vger.kernel.org with ESMTP
-	id S1423142AbWCXFcA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 00:32:00 -0500
-Message-ID: <44238482.50401@keyaccess.nl>
-Date: Fri, 24 Mar 2006 06:32:50 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Fri, 24 Mar 2006 00:33:26 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:27591 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1423148AbWCXFdZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 00:33:25 -0500
+Message-ID: <442382F1.2050300@jp.fujitsu.com>
+Date: Fri, 24 Mar 2006 14:26:09 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: ALSA devel <alsa-devel@alsa-project.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [ALSA] ISA drivers bailing on first !enable[i]
-Content-Type: multipart/mixed;
- boundary="------------010904020002050806060005"
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+To: Greg KH <greg@kroah.com>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [PATCH 2.6.16-mm1 0/4] PCI legacy I/O port free driver (take 6)
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010904020002050806060005
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi Greg,
 
-Hi Takashi.
+I've updated the series of patches for PCI legacy I/O port free driver
+to be applied to 2.6.16-mm1. The previous version of patches conflicts
+with some changes to e1000 driver. I also confirmed the updated one
+can be applied to 2.6.16-git7 though I got some warnings.
 
-After the change to the platform_driver stuff in 2.6.16, all ISA card
-module_inits loop over the cards using:
+I'm attaching the brief description below about what the problem I'm
+trying to solve is.
 
-	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-
-This means that the driver bails completely on the first !enable[i].
-This did not use to be the case and does not seem right. I believe it
-should rather be:
-
-	for (i = 0; i < SNDRV_CARDS; i++) {
-		if (!enable[i])
-			continue;
-
-This would restore the previous behaviour for the enable parameter; ie,
-only ignore the one.
-
-Assuming this was indeed the idea, I've attached a patch against 2.6.16.
-If it's correct, but you need it against ALSA CVS instead, please say so
-
-     sound/isa/ad1848/ad1848.c       |    4 +++-
-     sound/isa/cmi8330.c             |    4 ++--
-     sound/isa/cs423x/cs4231.c       |    4 +++-
-     sound/isa/cs423x/cs4236.c       |    4 ++--
-     sound/isa/es1688/es1688.c       |    4 +++-
-     sound/isa/gus/gusclassic.c      |    4 +++-
-     sound/isa/gus/gusextreme.c      |    4 +++-
-     sound/isa/gus/gusmax.c          |    4 +++-
-     sound/isa/gus/interwave.c       |    4 +++-
-     sound/isa/opl3sa2.c             |    4 +++-
-     sound/isa/sb/sb16.c             |    4 ++--
-     sound/isa/sb/sb8.c              |    4 +++-
-     sound/isa/sgalaxy.c             |    4 +++-
-     sound/isa/wavefront/wavefront.c |    4 +++-
-     14 files changed, 39 insertions(+), 17 deletions(-)
-
-Rene.
+Thanks,
+Kenji Kaneshige
 
 
+Brief Description
+~~~~~~~~~~~~~~~~~
+I encountered a problem that some PCI devices don't work on my system
+which have huge number of PCI devices.
 
+It is mandatory for all PCI device drivers to enable the device by
+calling pci_enable_device() which enables all regions probed from the
+device's BARs. If pci_enable_device() failes to enable any regions
+probed from BARs, it returns as error. On the large servers, I/O port
+resource could not be assigned to all PCI devices because it is
+limited (64KB on Intel Architecture[1]) and it would be fragmented
+(I/O base register of PCI-to-PCI bridge will usually be aligned to a
+4KB boundary[2]). In this case, the devices which have no I/O port
+resource assigned don't work because pci_enable_device() for those
+devices failes. This is what happened on my machine.
+---
+[1]: Some machines support 64KB I/O port space per PCI segment.
+[2]: Some P2P bridges support optional 1KB aligned I/O base.
 
-
---------------010904020002050806060005
-Content-Type: text/plain;
- name="alsa_platform_enable.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="alsa_platform_enable.diff"
-
-Index: local/sound/isa/ad1848/ad1848.c
-===================================================================
---- local.orig/sound/isa/ad1848/ad1848.c	2006-02-27 19:22:35.000000000 +0100
-+++ local/sound/isa/ad1848/ad1848.c	2006-03-24 02:39:20.000000000 +0100
-@@ -187,8 +187,10 @@ static int __init alsa_card_ad1848_init(
- 		return err;
- 
- 	cards = 0;
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
-+		if (!enable[i])
-+			continue;
- 		device = platform_device_register_simple(SND_AD1848_DRIVER,
- 							 i, NULL, 0);
- 		if (IS_ERR(device)) {
-Index: local/sound/isa/cmi8330.c
-===================================================================
---- local.orig/sound/isa/cmi8330.c	2006-02-27 19:22:35.000000000 +0100
-+++ local/sound/isa/cmi8330.c	2006-03-24 02:34:03.000000000 +0100
-@@ -690,9 +690,9 @@ static int __init alsa_card_cmi8330_init
- 	if ((err = platform_driver_register(&snd_cmi8330_driver)) < 0)
- 		return err;
- 
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
--		if (is_isapnp_selected(i))
-+		if (!enable[i] || is_isapnp_selected(i))
- 			continue;
- 		device = platform_device_register_simple(CMI8330_DRIVER,
- 							 i, NULL, 0);
-Index: local/sound/isa/cs423x/cs4231.c
-===================================================================
---- local.orig/sound/isa/cs423x/cs4231.c	2006-02-27 19:22:35.000000000 +0100
-+++ local/sound/isa/cs423x/cs4231.c	2006-03-24 02:38:21.000000000 +0100
-@@ -203,8 +203,10 @@ static int __init alsa_card_cs4231_init(
- 		return err;
- 
- 	cards = 0;
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
-+		if (!enable[i])
-+			continue;
- 		device = platform_device_register_simple(SND_CS4231_DRIVER,
- 							 i, NULL, 0);
- 		if (IS_ERR(device)) {
-Index: local/sound/isa/cs423x/cs4236.c
-===================================================================
---- local.orig/sound/isa/cs423x/cs4236.c	2006-03-23 04:11:11.000000000 +0100
-+++ local/sound/isa/cs423x/cs4236.c	2006-03-24 02:37:58.000000000 +0100
-@@ -771,9 +771,9 @@ static int __init alsa_card_cs423x_init(
- 	if ((err = platform_driver_register(&cs423x_nonpnp_driver)) < 0)
- 		return err;
- 
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
--		if (is_isapnp_selected(i))
-+		if (!enable[i] || is_isapnp_selected(i))
- 			continue;
- 		device = platform_device_register_simple(CS423X_DRIVER,
- 							 i, NULL, 0);
-Index: local/sound/isa/es1688/es1688.c
-===================================================================
---- local.orig/sound/isa/es1688/es1688.c	2006-02-27 19:22:35.000000000 +0100
-+++ local/sound/isa/es1688/es1688.c	2006-03-24 02:42:14.000000000 +0100
-@@ -207,8 +207,10 @@ static int __init alsa_card_es1688_init(
- 		return err;
- 
- 	cards = 0;
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
-+		if (!enable[i])
-+			continue;
- 		device = platform_device_register_simple(ES1688_DRIVER,
- 							 i, NULL, 0);
- 		if (IS_ERR(device)) {
-Index: local/sound/isa/gus/gusclassic.c
-===================================================================
---- local.orig/sound/isa/gus/gusclassic.c	2006-02-27 19:22:35.000000000 +0100
-+++ local/sound/isa/gus/gusclassic.c	2006-03-24 02:43:12.000000000 +0100
-@@ -247,8 +247,10 @@ static int __init alsa_card_gusclassic_i
- 		return err;
- 
- 	cards = 0;
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
-+		if (!enable[i])
-+			continue;
- 		device = platform_device_register_simple(GUSCLASSIC_DRIVER,
- 							 i, NULL, 0);
- 		if (IS_ERR(device)) {
-Index: local/sound/isa/gus/gusextreme.c
-===================================================================
---- local.orig/sound/isa/gus/gusextreme.c	2006-02-27 19:22:35.000000000 +0100
-+++ local/sound/isa/gus/gusextreme.c	2006-03-24 02:44:56.000000000 +0100
-@@ -357,8 +357,10 @@ static int __init alsa_card_gusextreme_i
- 		return err;
- 
- 	cards = 0;
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
-+		if (!enable[i])
-+			continue;
- 		device = platform_device_register_simple(GUSEXTREME_DRIVER,
- 							 i, NULL, 0);
- 		if (IS_ERR(device)) {
-Index: local/sound/isa/gus/gusmax.c
-===================================================================
---- local.orig/sound/isa/gus/gusmax.c	2006-02-27 19:22:35.000000000 +0100
-+++ local/sound/isa/gus/gusmax.c	2006-03-24 02:44:03.000000000 +0100
-@@ -384,8 +384,10 @@ static int __init alsa_card_gusmax_init(
- 		return err;
- 
- 	cards = 0;
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
-+		if (!enable[i])
-+			continue;
- 		device = platform_device_register_simple(GUSMAX_DRIVER,
- 							 i, NULL, 0);
- 		if (IS_ERR(device)) {
-Index: local/sound/isa/gus/interwave.c
-===================================================================
---- local.orig/sound/isa/gus/interwave.c	2006-02-27 19:22:35.000000000 +0100
-+++ local/sound/isa/gus/interwave.c	2006-03-24 02:45:43.000000000 +0100
-@@ -935,8 +935,10 @@ static int __init alsa_card_interwave_in
- 	if ((err = platform_driver_register(&snd_interwave_driver)) < 0)
- 		return err;
- 
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
-+		if (!enable[i])
-+			continue;
- #ifdef CONFIG_PNP
- 		if (isapnp[i])
- 			continue;
-Index: local/sound/isa/opl3sa2.c
-===================================================================
---- local.orig/sound/isa/opl3sa2.c	2006-02-27 19:22:35.000000000 +0100
-+++ local/sound/isa/opl3sa2.c	2006-03-24 02:47:22.000000000 +0100
-@@ -949,8 +949,10 @@ static int __init alsa_card_opl3sa2_init
- 	if ((err = platform_driver_register(&snd_opl3sa2_nonpnp_driver)) < 0)
- 		return err;
- 
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
-+		if (!enable[i])
-+			continue;
- #ifdef CONFIG_PNP
- 		if (isapnp[i])
- 			continue;
-Index: local/sound/isa/sb/sb16.c
-===================================================================
---- local.orig/sound/isa/sb/sb16.c	2006-02-27 19:22:35.000000000 +0100
-+++ local/sound/isa/sb/sb16.c	2006-03-24 02:49:24.000000000 +0100
-@@ -712,9 +712,9 @@ static int __init alsa_card_sb16_init(vo
- 	if ((err = platform_driver_register(&snd_sb16_nonpnp_driver)) < 0)
- 		return err;
- 
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
--		if (is_isapnp_selected(i))
-+		if (!enable[i] || is_isapnp_selected(i))
- 			continue;
- 		device = platform_device_register_simple(SND_SB16_DRIVER,
- 							 i, NULL, 0);
-Index: local/sound/isa/sb/sb8.c
-===================================================================
---- local.orig/sound/isa/sb/sb8.c	2006-02-27 19:22:35.000000000 +0100
-+++ local/sound/isa/sb/sb8.c	2006-03-24 02:50:20.000000000 +0100
-@@ -258,8 +258,10 @@ static int __init alsa_card_sb8_init(voi
- 		return err;
- 
- 	cards = 0;
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
-+		if (!enable[i])
-+			continue;
- 		device = platform_device_register_simple(SND_SB8_DRIVER,
- 							 i, NULL, 0);
- 		if (IS_ERR(device)) {
-Index: local/sound/isa/sgalaxy.c
-===================================================================
---- local.orig/sound/isa/sgalaxy.c	2006-02-27 19:22:35.000000000 +0100
-+++ local/sound/isa/sgalaxy.c	2006-03-24 02:51:11.000000000 +0100
-@@ -360,8 +360,10 @@ static int __init alsa_card_sgalaxy_init
- 		return err;
- 
- 	cards = 0;
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
-+		if (!enable[i])
-+			continue;
- 		device = platform_device_register_simple(SND_SGALAXY_DRIVER,
- 							 i, NULL, 0);
- 		if (IS_ERR(device)) {
-Index: local/sound/isa/wavefront/wavefront.c
-===================================================================
---- local.orig/sound/isa/wavefront/wavefront.c	2006-02-27 19:22:35.000000000 +0100
-+++ local/sound/isa/wavefront/wavefront.c	2006-03-24 02:53:05.000000000 +0100
-@@ -710,8 +710,10 @@ static int __init alsa_card_wavefront_in
- 	if ((err = platform_driver_register(&snd_wavefront_driver)) < 0)
- 		return err;
- 
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
-+		if (!enable[i])
-+			continue;
- #ifdef CONFIG_PNP
- 		if (isapnp[i])
- 			continue;
-
-
-
-
-
---------------010904020002050806060005--
+Here, there are many PCI devices that provide both I/O port and MMIO
+interface, and some of those devices can be handled without using I/O
+port interface. The reason why such devices provide I/O port interface
+is for compatibility to legacy OSs. So this kind of devices should
+work even if enough I/O port resources are not assigned. The "PCI
+Local Bus Specification Revision 3.0" also mentions about this topic
+(Please see p.44, "IMPLEMENTATION NOTE"). On the current linux,
+unfortunately, this kind of devices don't work if I/O port resources
+are not assigned, because pci_enable_device() for those devices fails.

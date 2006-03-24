@@ -1,64 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbWCXVZz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbWCXV1P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932506AbWCXVZz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 16:25:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWCXVZz
+	id S932514AbWCXV1P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 16:27:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbWCXV1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 16:25:55 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:36739
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932506AbWCXVZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 16:25:54 -0500
-Date: Fri, 24 Mar 2006 13:25:26 -0800
-From: Greg KH <greg@kroah.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Arjan van de Ven <arjan@linux.intel.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [patch] Ignore MCFG if the mmconfig area isn't reserved in the e820 table
-Message-ID: <20060324212526.GA4545@kroah.com>
-References: <1143138170.3147.43.camel@laptopd505.fenrus.org> <200603231856.12227.ak@suse.de> <1143140539.3147.44.camel@laptopd505.fenrus.org> <1143141320.3147.47.camel@laptopd505.fenrus.org> <p73k6ak593d.fsf@verdi.suse.de>
+	Fri, 24 Mar 2006 16:27:15 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:13276 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S932514AbWCXV1O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 16:27:14 -0500
+Date: Fri, 24 Mar 2006 22:27:13 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Kirill Korotaev <dev@sw.ru>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, xemul@sw.ru, ebiederm@xmission.com,
+       linux-kernel@vger.kernel.org, devel@openvz.org, serue@us.ibm.com,
+       sam@vilain.net
+Subject: Re: [RFC][PATCH 2/2] Virtualization of IPC
+Message-ID: <20060324212713.GC22308@MAIL.13thfloor.at>
+Mail-Followup-To: Dave Hansen <haveblue@us.ibm.com>,
+	Kirill Korotaev <dev@sw.ru>, Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, xemul@sw.ru, ebiederm@xmission.com,
+	linux-kernel@vger.kernel.org, devel@openvz.org, serue@us.ibm.com,
+	sam@vilain.net
+References: <44242B1B.1080909@sw.ru> <44242DFE.3090601@sw.ru> <1143227600.19152.81.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <p73k6ak593d.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1143227600.19152.81.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 24, 2006 at 01:19:02PM +0100, Andi Kleen wrote:
-> Arjan van de Ven <arjan@linux.intel.com> writes:
+On Fri, Mar 24, 2006 at 11:13:20AM -0800, Dave Hansen wrote:
+> On Fri, 2006-03-24 at 20:35 +0300, Kirill Korotaev wrote:
+> > This patch introduces IPC namespaces, which allow to create isolated IPC 
+> > users or containers.
+> > Introduces CONFIG_IPC_NS and ipc_namespace structure.
+> > It also uses current->ipc_ns as a pointer to current namespace, which 
+> > reduces places where additional argument to functions should be added.
 > 
-> > On Thu, 2006-03-23 at 20:02 +0100, Arjan van de Ven wrote:
-> > > > That is e820_mapped(address, address+size, E820_RESERVED)
-> > > > 
-> > > > And not having a size is definitely wrong on i386 too.
-> > > 
-> > > s/wrong/not selective enough/
-> > > 
-> > > and e820_mapped doesn't check this either anyway, at least not the way
-> > > you imply it does.
-> > > 
-> > > I'll do a new patch using this for x86_64 though, no need to make a
-> > > second function like this.
-> > 
-> > 
-> > There have been several machines that don't have a working MMCONFIG,
-> > often because of a buggy MCFG table in the ACPI bios. This patch adds a
-> > simple sanity check that detects a whole bunch of these cases, and when
-> > it detects it, linux now boots rather than crash-and-burns. The accuracy
-> > of this detection can in principle be improved if there was a "is this
-> > entire range in e820 with THIS attribute", but no such function exist
-> > and the complexity needed for this is not really worth it; this simple
-> > check already catches most cases anyway.
+> In three words, I think this has "too many #ifdefs".
 > 
-> I added the patch to my patchkit now. I also have an older patch (needs a bit
-> more cleanup) that checks for all busses if they are reachable using MCFG
-> Still needs some more work and interaction check with PCI hotplug though.
+> The non-containerized or namespaced case should probably just be one,
+> static namespace variable that gets wrapped up in some nice #ifdefed
+> hlper functions.
+> 
+> For instance, instead of this:
+> 
+> +#ifdef CONFIG_IPC_NS
+> +#define msg_ids                (*(current->ipc_ns->msg_ids))
+> +#endif
+> 
+> Have 
+> 
+> #ifdef CONFIG_IPC_NS
+> static inline struct ipc_namespace *current_ipc_ns(void)
+> {
+> 	return current->ipc_ns;
+> }
+> #else
+> static inline struct ipc_namespace *current_ipc_ns(void)
+> {
+> 	return &static_ipc_ns;
+> }
+> #endif
+> 
+> And use current_ipc_ns()->msg_ids.  I can't imagine that gcc can't
+> figure that out and turn it back into effectively the same thing.
 
-If you need help with that, please let me know.
+one issue here, not always 'current' is the right context,
+often you handle stuff on behalf of a task, which would
+then point to the 'proper' context ...
 
-Otherwise I'll let you push this to Linus when you feel it's ready :)
+i.e. something like task_msg_ids(current) is probably
+better and more flexible, also I'm still not convinced
+that 'per process' is the proper context for those
+things, 'per container' or 'per space' would be more
+appropriate IMHO ...
 
-thanks,
+more comments to follow, when I got to the patches ...
 
-greg k-h
+> I really dislike the idea of replacing nice variables with macros that
+> add indirection.  They really might fool people.  Putting a function
+> there is much nicer.
+> 
+> Why avoid to passing these things around as function arguments?  Doesn't
+> that make it more explicit what is going on, and where the indirection
+> is occurring?  Does it also make refcounting and lifetime issues easier
+> to manage?
+> 
+> BTW, Did you see my version of this?
+
+no, where is it?
+
+maybe we should put all that stuff on a wiki too?
+
+best,
+Herbert
+
+> 
+> -- Dave

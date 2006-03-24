@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWCXVOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbWCXVQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbWCXVOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 16:14:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWCXVOQ
+	id S1750820AbWCXVQd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 16:16:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWCXVQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 16:14:16 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:64964 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1750816AbWCXVOQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 16:14:16 -0500
-Date: Sat, 25 Mar 2006 00:13:47 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: James Morris <jmorris@namei.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, yang.y.yi@gmail.com,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Matt Helsley <matthltc@us.ibm.com>
-Subject: Re: Connector: Filesystem Events Connector v3
-Message-ID: <20060324211347.GB12687@2ka.mipt.ru>
-References: <4423673C.7000008@gmail.com> <1143183541.2882.7.camel@laptopd505.fenrus.org> <4c4443230603240624g132b8d37t1a271a8303b810bf@mail.gmail.com> <1143210523.2882.74.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0603241044080.26833@excalibur.intercode>
-Mime-Version: 1.0
+	Fri, 24 Mar 2006 16:16:33 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46553 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750820AbWCXVQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 16:16:32 -0500
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: Kirill Korotaev <dev@sw.ru>, Dave Hansen <haveblue@us.ibm.com>,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
+       OpenVZ developers list <dev@openvz.org>,
+       "Serge E.Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC] [PATCH 0/7] Some basic vserver infrastructure
+References: <20060321061333.27638.63963.stgit@localhost.localdomain>
+	<1142967011.10906.185.camel@localhost.localdomain>
+	<m1k6anq8uq.fsf@ebiederm.dsl.xmission.com> <44241224.9000200@sw.ru>
+	<m13bh7io3i.fsf@ebiederm.dsl.xmission.com>
+	<20060324210150.GA22308@MAIL.13thfloor.at>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 24 Mar 2006 14:13:40 -0700
+In-Reply-To: <20060324210150.GA22308@MAIL.13thfloor.at> (Herbert Poetzl's
+ message of "Fri, 24 Mar 2006 22:01:50 +0100")
+Message-ID: <m1u09nh7gb.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0603241044080.26833@excalibur.intercode>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 25 Mar 2006 00:13:48 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 24, 2006 at 10:44:29AM -0500, James Morris (jmorris@namei.org) wrote:
-> On Fri, 24 Mar 2006, Arjan van de Ven wrote:
-> 
-> > > > > big overhead for the whole system,
-> > > >
-> > > > this is not true
-> > > Hmm, Why?
-> > 
-> > audit only audits those syscalls (or rather, operations) you enable it
-> > to audit basically.
-> 
-> Exactly, which takes about 2 minutes of code reading to discover.
+Herbert Poetzl <herbert@13thfloor.at> writes:
 
-There is another problem with audit - it is audit daemon, which will
-receive and log all events which it actually should not process at all.
-Audit is really for different things, more security related, while this
-module adds informational events.
- 
-> - James
-> -- 
-> James Morris
-> <jmorris@namei.org>
+> hmm, isn't per process a little extreme ... I know
+> what you want to accomplish but won't this lead to
+> a per process procfs? 
 
--- 
-	Evgeniy Polyakov
+Where all of the values vary per process possibly, that
+is they way /proc is supposed to be.
+
+/proc/sys is the only case that I think really gets extreme.
+For things like /proc/sysvipc and /proc/net it really is a natural
+break, and /proc/mounts already shows that the technique works fine.
+
+So I am trying to turn an ugly design choice into feature :)
+
+> and, if you want to do per
+> process procfs, what would be the gain?
+>
+> just my opinion ...
+
+Under the covers the implementation is per namespace, but
+it isn't easy to export it that way from procfs.
+
+In any event this appears to be a way to implement these things
+while retaining backwards compatibility, with the current implementation,
+and it looks like it can be implemented fairly cleanly.
+
+Eric

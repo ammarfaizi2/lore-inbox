@@ -1,22 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbWCXJIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751602AbWCXJQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751457AbWCXJIs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 04:08:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWCXJIs
+	id S1751602AbWCXJQN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 04:16:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751608AbWCXJQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 04:08:48 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:65456 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751457AbWCXJIq (ORCPT
+	Fri, 24 Mar 2006 04:16:12 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:15538 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751602AbWCXJQL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 04:08:46 -0500
-Date: Fri, 24 Mar 2006 01:05:17 -0800
+	Fri, 24 Mar 2006 04:16:11 -0500
+Date: Fri, 24 Mar 2006 01:12:17 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Bernhard Rosenkraenzer <bero@arklinux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.16-mm1 x1205 RTC driver doesn't compile
-Message-Id: <20060324010517.0dbe8049.akpm@osdl.org>
-In-Reply-To: <200603231854.45960.bero@arklinux.org>
-References: <200603231854.45960.bero@arklinux.org>
+To: vgoyal@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org, torvalds@osdl.org,
+       ebiederm@xmission.com, galak@kernel.crashing.org, gregkh@suse.de,
+       bcrl@kvack.org, dave.jiang@gmail.com, arjan@infradead.org,
+       maneesh@in.ibm.com, muralim@in.ibm.com
+Subject: Re: [RFC][PATCH 0/10] 64 bit resources
+Message-Id: <20060324011217.7b8aade1.akpm@osdl.org>
+In-Reply-To: <20060323195752.GD7175@in.ibm.com>
+References: <20060323195752.GD7175@in.ibm.com>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,27 +27,28 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernhard Rosenkraenzer <bero@arklinux.org> wrote:
+Vivek Goyal <vgoyal@in.ibm.com> wrote:
 >
-> rtc-x1205 uses I2C_DRIVERID_X1205 without defining it.
+> Hi,
 > 
-> Signed-off-by: Bernhard Rosenkraenzer <bero@arklinux.org>
+> Here is an attempt to implement support for 64 bit resources. This will
+> enable memory more than 4G to be exported through /proc/iomem, which is used
+> by kexec/kdump to determine the physical memory layout of the system.
 > 
-> ---
-> --- linux-2.6.16/include/linux/i2c-id.h.ark	2006-03-23 18:56:50.000000000 
-> +0100
-> +++ linux-2.6.16/include/linux/i2c-id.h	2006-03-23 18:56:22.000000000 +0100
-> @@ -108,6 +108,7 @@
->  #define I2C_DRIVERID_UPD64083	78	/* upd64083 video processor	*/
->  #define I2C_DRIVERID_UPD64031A	79	/* upd64031a video processor	*/
->  #define I2C_DRIVERID_SAA717X	80	/* saa717x video encoder	*/
-> +#define I2C_DRIVERID_X1205	81	/* X1205 RTC			*/
->  
->  #define I2C_DRIVERID_I2CDEV	900
->  #define I2C_DRIVERID_ARP        902    /* SMBus ARP Client              */
+> ...
+> 
+> We used "make allyesconfig" with CONFIG_DEBUG_INFO=n on 2.6.16-mm1.
+> 
+> i386
+> ----
+> 
+> vmlinux size without patch: 40191425
+> vmlinux size with path: 40244677
+> vmlinux size bloat: 52K (.13%)
 
-But this ID was defined in
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.16-mm1/broken-out/rtc-subsystem-i2c-driver-ids.patch.
-With a different ID, btw.
+ugh, that's actually a surprising amount of growth.  Could you look into it
+a bit more please?  Where's it coming from?  text?  data?
 
-A patch reject at your end, I suspect.
+A bit of growth in drivers is probably OK, as all machines load a tiny
+subset of them.  But if it's core kernel, not so good.  What is the effect
+on allnoconfig?

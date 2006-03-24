@@ -1,704 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932628AbWCXBUe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932634AbWCXBVD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932628AbWCXBUe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 20:20:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932630AbWCXBUe
+	id S932634AbWCXBVD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 20:21:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932635AbWCXBVC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 20:20:34 -0500
-Received: from pproxy.gmail.com ([64.233.166.183]:17063 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932628AbWCXBUd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 20:20:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=mEolRhYtiwud7JrJvhOrpffPjtjPC94gCrwg+SJgSfWdm1TziUYm0jjsZf+SpUhrv83GjhR4yHQXGfYFmcaC+VzogK4l9cVHMdwqEhFr4Jg0hF7OFdl7NcNjMjOHi/A5jZ+7sX3BYzdF5y5LZB4VEMkAS7AAVVQOijidsJp5390=
-Message-ID: <442349A3.9060907@gmail.com>
-Date: Fri, 24 Mar 2006 09:21:39 +0800
-From: Yi Yang <yang.y.yi@gmail.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Matt Helsley <matthltc@us.ibm.com>
-CC: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Michael Kerrisk <michael.kerrisk@gmx.net>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Subject: Re: [2.6.16 PATCH] Connector: Filesystem Events Connector
-References: <44216612.3060406@gmail.com> <1143099809.29668.89.camel@stark>
-In-Reply-To: <1143099809.29668.89.camel@stark>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Mar 2006 20:21:02 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.158]:35406 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S932634AbWCXBVA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 20:21:00 -0500
+Date: Thu, 23 Mar 2006 18:21:37 -0700
+From: "Mark A. Greer" <mgreer@mvista.com>
+To: LM Sensors <lm-sensors@lm-sensors.org>
+Cc: Rudolf Marek <r.marek@sh.cvut.cz>, Jean Delvare <khali@linux-fr.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.16-mm1 2/3] rtc: m41t00 driver cleanup
+Message-ID: <20060324012137.GD9560@mag.az.mvista.com>
+References: <440B4B6E.8080307@sh.cvut.cz> <zt2d4LqL.1141645514.2993990.khali@localhost> <20060307170107.GA5250@mag.az.mvista.com> <20060318001254.GA14079@mag.az.mvista.com> <20060323210856.f1bfd02b.khali@linux-fr.org> <20060323203843.GA18912@mag.az.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060323203843.GA18912@mag.az.mvista.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Helsley wrote:
+This patch does some cleanup to the m41t00 i2c/rtc driver including:
+- use BCD2BIN/BIN2BCD instead of BCD_TO_BIN/BIN_TO_BCD
+- use strlcpy instead of strncpy
+- some whitespace cleanup
 
-Thanks for Matt's careful review. I'll follow your advices to modify it 
-and new version will be released soon.
-> On Wed, 2006-03-22 at 22:58 +0800, Yi Yang wrote:
->   
->> This patch implements a new connector, Filesystem Event Connector,
->>  the user can monitor filesystem activities via it, currently, it
->>  can monitor access, attribute change, open, create, modify, delete,
->>  move and close of any file or directory.
->>
->> Every filesystem event will include tgid, uid and gid of the process
->>  which triggered this event, process name, file or directory name 
->> operated by it.
->>
->> Filesystem events connector is never a duplicate of inotify, inotify
->>  just concerns change on file or directory, Beagle uses it to watch
->>  file changes in order to regenerate index for it, inotify can't tell
->>  us who did that change and what is its process name, but filesystem
->>  events connector can do these, moreover inotify's overhead is greater
->>  than filesystem events connector, inotify needs compare inode with 
->> watched file or directories list to decide whether it should generate an
->>  inotify_event, some locks also increase overhead, filesystem event 
->> connector hasn't these overhead, it just generates a fsevent and send.
->>
->> To be important, filesystem event connector doesn't add any new system 
->> call, the user space application can make use of it by netlink socket, 
->> but inotify added several system calls, many events mechanism in kernel
->>  have used netlink as communication way with user space, for example, 
->> KOBJECT_UEVENT, PROC_EVENTS, to use netlink will make it more possible
->>  to unify events interface to netlink, the user space application can use 
->> it very easy.
->>
->> Signed-off-by: Yi Yang <yang.y.yi@gmail.com>
->>
->> --- a/include/linux/connector.h.orig	2006-03-15 23:21:37.000000000 +0800
->> +++ b/include/linux/connector.h	2006-03-15 23:23:09.000000000 +0800
->> @@ -34,6 +34,8 @@
->>  #define CN_VAL_PROC			0x1
->>  #define CN_IDX_CIFS			0x2
->>  #define CN_VAL_CIFS                     0x1
->> +#define CN_IDX_FS			0x3
->> +#define CN_VAL_FS			0x1
->>  
->>  #define CN_NETLINK_USERS		1
->>  
->> --- a/include/linux/fsnotify.h.orig	2006-01-03 11:21:10.000000000 +0800
->> +++ b/include/linux/fsnotify.h	2006-03-22 21:48:24.000000000 +0800
->> @@ -15,6 +15,7 @@
->>  
->>  #include <linux/dnotify.h>
->>  #include <linux/inotify.h>
->> +#include <linux/fsevent.h>
->>  
->>  /*
->>   * fsnotify_move - file old_name at old_dir was moved to new_name at new_dir
->> @@ -45,6 +46,8 @@ static inline void fsnotify_move(struct 
->>  	if (source) {
->>  		inotify_inode_queue_event(source, IN_MOVE_SELF, 0, NULL);
->>  	}
->> +	raise_fsevent_move(old_dir, old_name, new_dir, new_name,
->> +			   FSEVENT_MOVE | (isdir?FSEVENT_ISDIR:0));
->>  }
->>  
->>  /*
->> @@ -56,6 +59,8 @@ static inline void fsnotify_nameremove(s
->>  		isdir = IN_ISDIR;
->>  	dnotify_parent(dentry, DN_DELETE);
->>  	inotify_dentry_parent_queue_event(dentry, IN_DELETE|isdir, 0, dentry->d_name.name);
->> +	raise_fsevent(dentry,
->> +		      FSEVENT_DELETE | (isdir?FSEVENT_ISDIR:0));
->>  }
->>  
->>  /*
->> @@ -74,6 +79,7 @@ static inline void fsnotify_create(struc
->>  {
->>  	inode_dir_notify(inode, DN_CREATE);
->>  	inotify_inode_queue_event(inode, IN_CREATE, 0, name);
->> +	raise_fsevent_create(inode, name, FSEVENT_CREATE);
->>  }
->>  
->>  /*
->> @@ -83,6 +89,8 @@ static inline void fsnotify_mkdir(struct
->>  {
->>  	inode_dir_notify(inode, DN_CREATE);
->>  	inotify_inode_queue_event(inode, IN_CREATE | IN_ISDIR, 0, name);
->> +	raise_fsevent_create(inode, name,
->> +			     FSEVENT_CREATE | FSEVENT_ISDIR);
->>  }
->>  
->>  /*
->> @@ -99,6 +107,8 @@ static inline void fsnotify_access(struc
->>  	dnotify_parent(dentry, DN_ACCESS);
->>  	inotify_dentry_parent_queue_event(dentry, mask, 0, dentry->d_name.name);
->>  	inotify_inode_queue_event(inode, mask, 0, NULL);
->> +	raise_fsevent(dentry, FSEVENT_ACCESS |
->> +				((S_ISDIR(inode->i_mode))?FSEVENT_ISDIR:0));
->>  }
->>  
->>  /*
->> @@ -115,6 +125,8 @@ static inline void fsnotify_modify(struc
->>  	dnotify_parent(dentry, DN_MODIFY);
->>  	inotify_dentry_parent_queue_event(dentry, mask, 0, dentry->d_name.name);
->>  	inotify_inode_queue_event(inode, mask, 0, NULL);
->> +	raise_fsevent(dentry, FSEVENT_MODIFY |
->> +				((S_ISDIR(inode->i_mode))?FSEVENT_ISDIR:0));
->>  }
->>  
->>  /*
->> @@ -130,6 +142,9 @@ static inline void fsnotify_open(struct 
->>  
->>  	inotify_dentry_parent_queue_event(dentry, mask, 0, dentry->d_name.name);
->>  	inotify_inode_queue_event(inode, mask, 0, NULL);	
->> +	raise_fsevent(dentry, FSEVENT_OPEN |
->> +				((S_ISDIR(inode->i_mode))?FSEVENT_ISDIR:0));
->> +
->>  }
->>  
->>  /*
->> @@ -148,6 +163,8 @@ static inline void fsnotify_close(struct
->>  
->>  	inotify_dentry_parent_queue_event(dentry, mask, 0, name);
->>  	inotify_inode_queue_event(inode, mask, 0, NULL);
->> +	raise_fsevent(dentry, FSEVENT_CLOSE |
->> +				((S_ISDIR(inode->i_mode))?FSEVENT_ISDIR:0));
->>  }
->>  
->>  /*
->> @@ -163,6 +180,8 @@ static inline void fsnotify_xattr(struct
->>  
->>  	inotify_dentry_parent_queue_event(dentry, mask, 0, dentry->d_name.name);
->>  	inotify_inode_queue_event(inode, mask, 0, NULL);
->> +	raise_fsevent(dentry, FSEVENT_MODIFY_ATTRIB |
->> +				((S_ISDIR(inode->i_mode))?FSEVENT_ISDIR:0));
->>  }
->>  
->>  /*
->> @@ -213,6 +232,24 @@ static inline void fsnotify_change(struc
->>  		inotify_dentry_parent_queue_event(dentry, in_mask, 0,
->>  						  dentry->d_name.name);
->>  	}
->> +
->> +#ifdef CONFIG_FS_EVENTS
->> +	{
->> +	u32 fsevent_mask = 0;
->> +	if (ia_valid & (ATTR_UID | ATTR_GID | ATTR_MODE))
->> +		fsevent_mask |= FSEVENT_MODIFY_ATTRIB;
->> +	if ((ia_valid & ATTR_ATIME) && (ia_valid & ATTR_MTIME))
->> +		fsevent_mask |= FSEVENT_MODIFY_ATTRIB;
->> +	else if (ia_valid & ATTR_ATIME)
->> +		fsevent_mask |= FSEVENT_ACCESS;
->> +	else if (ia_valid & ATTR_MTIME)
->> +		fsevent_mask |= FSEVENT_MODIFY;
->> +	if (ia_valid & ATTR_SIZE)
->> +		fsevent_mask |= FSEVENT_MODIFY;
->> +	if (fsevent_mask)
->> +		raise_fsevent(dentry, fsevent_mask);
->> +	}
->> +#endif /* CONFIG_FS_EVENTS */
->>  }
->>  
->>  #ifdef CONFIG_INOTIFY	/* inotify helpers */
->> --- a/drivers/connector/Makefile.orig	2006-03-12 21:23:18.000000000 +0800
->> +++ b/drivers/connector/Makefile	2006-03-12 21:24:25.000000000 +0800
->> @@ -1,4 +1,5 @@
->>  obj-$(CONFIG_CONNECTOR)		+= cn.o
->>  obj-$(CONFIG_PROC_EVENTS)	+= cn_proc.o
->> +obj-$(CONFIG_FS_EVENTS)	+= cn_fs.o
->>  
->>  cn-y				+= cn_queue.o connector.o
->> --- a/drivers/connector/Kconfig.orig	2006-03-12 21:23:53.000000000 +0800
->> +++ b/drivers/connector/Kconfig	2006-03-12 21:21:44.000000000 +0800
->> @@ -18,4 +18,12 @@ config PROC_EVENTS
->>  	  Provide a connector that reports process events to userspace. Send
->>  	  events such as fork, exec, id change (uid, gid, suid, etc), and exit.
->>  
->> +config FS_EVENTS
->> +	boolean "Report filesystem events to userspace"
->> +	depends on CONNECTOR=y
->> +	default y
->> +	---help---
->> +	  Provide a connector that reports filesystem events to userspace. The
->> +	  reported event include open, read, write.
->> +
->>  endmenu
->> --- /dev/null	2003-01-30 18:24:37.000000000 +0800
->> +++ b/include/linux/fsevent.h	2006-03-16 22:52:06.000000000 +0800
->> @@ -0,0 +1,86 @@
->> +/*
->> + * fsevent.h - filesystem events connector
->> + *
->> + * Copyright (C) 2006 Yi Yang <yang.y.yi@gmail.com>
->> + * Based on cn_proc.h by Matt Helsley, IBM Corp
->> + *
->> + * This program is free software; you can redistribute it and/or modify
->> + * it under the terms of the GNU General Public License as published by
->> + * the Free Software Foundation; either version 2 of the License, or
->> + * (at your option) any later version.
->> + *
->> + * This program is distributed in the hope that it will be useful,
->> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->> + * GNU General Public License for more details.
->> + *
->> + * You should have received a copy of the GNU General Public License
->> + * along with this program; if not, write to the Free Software
->> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
->> + */
->> +
->> +#ifndef LINUX_FSEVENT_H
->> +#define LINUX_FSEVENT_H
->> +
->> +#include <linux/types.h>
->> +#include <linux/time.h>
->> +#include <linux/connector.h>
->> +
->> +enum  fsevent_type {
->> +	FSEVENT_ACCESS = 	0x00000001,	/* File was accessed */
->> +	FSEVENT_MODIFY = 	0x00000002,	/* File was modified */
->> +	FSEVENT_MODIFY_ATTRIB = 0x00000004,	/* Metadata changed */
->> +	FSEVENT_CLOSE = 	0x00000008,	/* File was closed */
->> +	FSEVENT_OPEN = 		0x00000010,	/* File was opened */
->> +	FSEVENT_MOVE = 		0x00000020,	/* File was moved */
->> +	FSEVENT_CREATE = 	0x00000040,	/* File was created */
->> +	FSEVENT_DELETE =	0x00000080,	/* File was deleted */
->> +	FSEVENT_CMDACK = 	0x40000000,	/* For used internally */
->>     
->
-> s/used/use/
->
->   
->> +	FSEVENT_ISDIR = 	0x80000000	/* It is set for a dir */
->> +};
->>     
->
-> So we'd have DN_FOO, IN_FOO, and FSEVENT_FOO? Any chance inotify
-> definitions could be used instead of redefining all of these? Perhaps
-> that would simplify the code in fsnotify.h.
->
-> The only problem I can see is the FSEVENT_CMDACK type. This could be
-> avoided by breaking up the type field into an inotify-compatible mask
-> field and the type field (EVENT or CMDACK).
->   
-This advice is very good, I'll use this kind of way.
->   
->> +/*
->> + * Userspace sends this enum to register with the kernel that it is listening
->> + * for events on the connector.
->> + */
->> +enum fsevent_mode {
->> +	FSEVENT_LISTEN = 1,
->> +	FSEVENT_IGNORE = 2
->> +};
->> +
->>     
->
-> 	Process Events Connector uses this mechanism to avoid most of the event
-> generation code if there are no listeners. 
->
-> 	Michael Kerrisk has privately suggested to me that this mechanism gives
-> userspace too much rope with which to hang itself. I think it just gives
-> userspace more rope.
->
-> 	That said, perhaps we can shorten the rope by adding a connector
-> function to quickly return a value indicating if a process in userspace
-> is listening to messages sent by the kernel. Then connectors could use
-> that function rather that reinvent the same mechanism.
->   
-After Evgeniy did it, I'll follow his way.
->   
->> +struct fsevent {
->> +	__u32 type;
->> +	__u32 cpu;
->> +	struct timespec timestamp;
->> +	__u32 tgid;
->>     
->
-> 	I think pid_t would be more appropriate here instead of a __u32.
-> Also a tid field of type pid_t would be consistent with the Process
-> Events returned to userspace. If a userspace program ever wanted to
-> relate the two sets of events the tid field could be important. That
-> said it would be nice to know if any userspace programs are planning on
-> using this.
->   
-I ever used pid_t, but in the user space, it has problem, size of pid_t 
-in kernel space different from in user space,
-I don't know why, do you have an idea about it?
->   
->> +	__u32 uid;
->> +	__u32 gid;
->> +	__u32 err;
->>     
->
-> 	The err field appears to be unused when sending events back to
-> userspace. I suggest reusing it for the event mask and using the type
-> field to indicate whether the message is a CMDACK or simply an EVENT.
->   
-This is a good idea, I'll do so.
->   
->> +	__u32 len;
->> +	__u32 pname_len;
->> +	__u32 fname_len;
->> +	__u32 new_fname_len;
->>     
->
-> I think one of these _len fields could be dropped and later calculated
-> as:
->
-> 	new_fname_len = len - (pname_len + fname_len);
->
->   
->> +	char name[0];
->> +};
->> +
->> +#ifdef __KERNEL__
->> +#ifdef CONFIG_FS_EVENTS
->> +extern void raise_fsevent(struct dentry * dentryp, u32 mask);
->> +extern void raise_fsevent_move(struct inode * olddir, const char * oldname, 
->> +		struct inode * newdir, const char * newname, u32 mask);
->> +extern void raise_fsevent_create(struct inode * inode, 
->> +		const char * name, u32 mask);
->> +#else
->> +static void raise_fsevent(struct dentry * dentryp,  u32 mask);
->> +{}
->> +
->> +static void raise_fsevent_move(struct inode * olddir, const char * oldname, 
->> +		struct inode * newdir, const char * newname, u32 mask)
->> +{}
->> +
->> +static void raise_fsevent_create(struct inode * inode, 
->> +		const char * name, u32 mask)
->> +{}
->> +#endif	/* CONFIG_FS_EVENTS */
->> +#endif	/* __KERNEL__ */
->> +#endif	/* LINUX_FSEVENT_H */
->> --- /dev/null	2003-01-30 18:24:37.000000000 +0800
->> +++ b/drivers/connector/cn_fs.c	2006-03-16 22:54:28.000000000 +0800
->> @@ -0,0 +1,200 @@
->> +/*
->> + * cn_fs.c - filesystem events connector
->> + *
->> + * Copyright (C) 2006 Yi Yang <yang.y.yi@gmail.com>
->> + * Based on cn_proc.c by Matt Helsley, IBM Corp
->> + *
->> + * This program is free software; you can redistribute it and/or modify
->> + * it under the terms of the GNU General Public License as published by
->> + * the Free Software Foundation; either version 2 of the License, or
->> + * (at your option) any later version.
->> + *
->> + * This program is distributed in the hope that it will be useful,
->> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->> + * GNU General Public License for more details.
->> + *
->> + * You should have received a copy of the GNU General Public License
->> + * along with this program; if not, write to the Free Software
->> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
->> + */
->> +
->> +#include <linux/module.h>
->> +#include <linux/kernel.h>
->> +#include <linux/ktime.h>
->> +#include <linux/init.h>
->> +#include <linux/fs.h>
->> +#include <linux/fsevent.h>
->> +#include <asm/atomic.h>
->> +
->> +#define CN_FS_MSG_SIZE (sizeof(struct cn_msg) + sizeof(struct fsevent))
->> +
->> +static atomic_t cn_fs_event_listeners = ATOMIC_INIT(0);
->> +static struct cb_id cn_fs_event_id = { CN_IDX_FS, CN_VAL_FS };
->> +
->> +static DEFINE_PER_CPU(__u32, cn_fs_event_counts) = { 0 };
->> +static int fsevent_burst_limit = 100;
->> +static int fsevent_ratelimit = 5 * HZ;
->> +
->> +static inline void get_seq(__u32 *ts, int *cpu)
->> +{
->> +	*ts = get_cpu_var(cn_fs_event_counts)++;
->> +	*cpu = smp_processor_id();
->> +	put_cpu_var(cn_fs_event_counts);
->> +}
->> +
->> +int __raise_fsevent(const char * oldname, const char * newname, u32 mask)
->>     
->
-> The return value of this function does not appear to be used.
->   
-If some modules want to use it to transfer file system events reliably,  
-the return value will be very valuble,
-because the caller can retry the transfer until it successes.
->   
->> +{
->> +	struct cn_msg *msg;
->> +	struct fsevent *event;
->> +	__u8 * buffer;
->>     
->
-> While the contents of buffer are being sent to userspace eventually, the
-> pointer is not, so I don't think __u8 is necessary or conventional.
->   
-I agree.
->   
->> +	int namelen = 0;
->> +	static unsigned long last = 0;
->> +	static int fsevent_sum = 0;
->>     
->
-> Yuck, static local variables. IMHO these should be globals. It would
-> make the fact they aren't protected from concurrent access more obvious
-> (see below).
->   
-Yes, they should be global.
->   
->> +	if (atomic_read(&cn_fs_event_listeners) < 1)
->> +		return 0;
->> +
->> +	if (jiffies - last <= fsevent_ratelimit) {
->> +		if (fsevent_sum > fsevent_burst_limit) {
->> +			return -1;
->>     
->
-> OK, so you're rate limiting the events. Shouldn't you still boost the
-> sequence number so that userspace knows some events got dropped? Also
-> perhaps you can find an appropriate error to return instead of -1.
->   
-Good idea.
->   
->> +		}
->>     
->
-> remove unecessary braces
->
->   
->> +		fsevent_sum++;
->>     
->
-> Looks racy to me -- what's protecting fsevent_sum from access by
-> multiple cpus?
->   
-This just is used to limit event rate when the user space application 
-leads to an unlimited events loop.
-so it mustn't be precise, I used spinlock originally, but Andrew thinks 
-lock overhead is big, inotify has led to
-some frustrating lock overhead, so I decide to remove it, in fact 
-fsevent_sum just is the number used to limit rate,
- some race conditions don't effect the rate limit.
->   
->> +	}
->> +	else {
->>     
->
-> I seem to recall that coding style would have you move the else up.
->
->   
->> +		last = jiffies;
->> +		fsevent_sum = 0;
->> +	}
->> +
->> +	namelen = strlen(current->comm) + strlen(oldname) + 2;
->> +	if (newname) {
->> +		namelen += strlen(newname) + 1;
->> +	}
->>     
->
-> remove braces
->
->   
->> +	if ((buffer = (__u8 *)kmalloc(CN_FS_MSG_SIZE + namelen, GFP_KERNEL))
->> +		 == NULL) {
->>     
->
-> Pull the assignment out of the condition. You're not saving any space by
-> putting it into the if () and it's harder to read. I don't think the
-> __u8 cast is necessary..
->   
-I'll do so.
->   
->> +		printk("cn_fs: out of memory\n");
->>     
->
-> missing printk tag
->
->   
->> +		return -1;
->>     
->
-> Perhaps:
-> 	return -ENOMEM;
->
->   
->> +	}
->> +
->> +	msg = (struct cn_msg*)buffer;
->> +	event = (struct fsevent*)msg->data;
->> +	get_seq(&msg->seq, &event->cpu);
->> +	ktime_get_ts(&event->timestamp);
->> +	event->type = mask;
->> +	event->tgid = current->tgid;
->> +	event->uid = current->uid;
->> +	event->gid = current->gid;
->> +	event->pname_len = strlen(current->comm);
->> +	memcpy(event->name, current->comm, event->pname_len);
->> +	event->name[event->pname_len] = '\0';
->> +	event->fname_len = strlen(oldname);
->> +	memcpy(event->name + event->pname_len + 1, oldname, strlen(oldname));
->> +	event->len = event->pname_len +  event->fname_len + 2;
->> +	event->name[event->len-1] = '\0';
->> +	event->new_fname_len = 0;
->> +	if (newname) {
->> +		event->new_fname_len = strlen(newname);
->> +		memcpy(event->name + event->len, newname, strlen(newname));
->> +		event->len += event->new_fname_len + 1;
->> +		event->name[event->len-1] = '\0';
->> +	}
->>     
->
->
-> Maybe it's just my personal taste, but you could use pointer arithmetic
-> while copying the strings into the event buffer:
->
-> 	name = event->name;
->
-> 	strncpy(name, current->comm, event->pname_len);
-> 	name += event->pname_len;
-> 	name[0] = '\0';
-> 	name++;
->
-> 	strncpy(name, oldname, event->fname_len);
-> 	name += event->fname_len;
-> 	name[0] = '\0';
-> 	name++;
-> 	...
->
-> Then you could break it out into a small function that appends the
-> string to the buffer for you and call it for each string:
->
-> static void append_string(char **dest, const char *src, size_t len)
-> {
-> 	strncpy(*dest, src, len);
-> 	*dest += len;
-> 	(*dest)[0] = '\0';
-> 	(*dest)++;
-> } 
->
-> ...
-> int __raise_fsevent(const char * oldname, const char * newname,
-> 		    u32 mask)
-> {
-> 	...
-> 	name = event->name;
-> 	append_string(&name, current->comm, event->pname_len);
-> 	event->fname_len = strlen(oldname);
-> 	append_string(&name, oldname, event->fname_len);
-> 	...
-> }
->
->   
->> +	memcpy(&msg->id, &cn_fs_event_id, sizeof(msg->id));
->> +	msg->ack = 0;
->> +	msg->len = sizeof(struct fsevent) + event->len;
->> +	cn_netlink_send(msg, CN_IDX_FS, GFP_KERNEL);
->> +	kfree(buffer);
->> +	return 0;
->> +}
->> +
->> +void raise_fsevent(struct dentry * dentryp, u32 mask)
->> +{
->> +	__raise_fsevent(dentryp->d_name.name, NULL, mask);
->> +}
->> +EXPORT_SYMBOL_GPL(raise_fsevent);
->> +
->> +void raise_fsevent_create(struct inode * inode, const char * name, u32 mask)
->> +{
->> +	__raise_fsevent(name, NULL, mask);
->> +}
->> +EXPORT_SYMBOL_GPL(raise_fsevent_create);
->> +
->> +void raise_fsevent_move(struct inode * olddir, const char * oldname, 
->> +		struct inode * newdir, const char * newname, u32 mask)
->> +{
->> +	__raise_fsevent(oldname, newname, mask);
->> +}
->> +EXPORT_SYMBOL_GPL(raise_fsevent_move);
->> +
->> +static void cn_fs_event_ack(int err, int rcvd_seq, int rcvd_ack)
->> +{
->> +	struct cn_msg *msg;
->> +	struct fsevent *event;
->> +	__u8 * buffer = NULL;
->> +
->> +	if (atomic_read(&cn_fs_event_listeners) < 1)
->> +		return;
->> +
->> +	if ((buffer = (__u8 *)kmalloc(CN_FS_MSG_SIZE, GFP_KERNEL)) == NULL) {
->>     
->
-> I don't think the __u8 cast is necessary
->
->   
->> +		printk("cn_fs: out of memory\n");
->>     
->
-> missing printk tag
->
->   
->> +		return;
->> +	}
->> +
->> +	msg = (struct cn_msg*)buffer;
->> +	event = (struct fsevent*)msg->data;
->> +	msg->seq = rcvd_seq;
->> +	ktime_get_ts(&event->timestamp);
->> +	event->cpu = -1;
->> +	event->type = FSEVENT_CMDACK;
->> +	event->tgid = 0;
->> +	event->uid = 0;
->> +	event->gid = 0;
->> +	event->len = 0;
->> +	event->pname_len = 0;
->> +	event->fname_len = 0;
->> +	event->new_fname_len = 0;
->> +	event->err = err;
->> +	memcpy(&msg->id, &cn_fs_event_id, sizeof(msg->id));
->> +	msg->ack = rcvd_ack + 1;
->> +	msg->len = sizeof(struct fsevent);
->> +	cn_netlink_send(msg, CN_IDX_FS, GFP_KERNEL);
->> +}
->> +
->> +static void cn_fsevent_mode_ctl(void *data)
->> +{
->> +	struct cn_msg *msg = data;
->> +	enum fsevent_mode *mode = NULL;
->> +	int err = 0;
->> +
->> +	if (msg->len != sizeof(*mode))
->> +		return;
->> +
->> +	mode = (enum fsevent_mode*)msg->data;
->> +	switch (*mode) {
->> +	case FSEVENT_LISTEN:
->> +		atomic_inc(&cn_fs_event_listeners);
->> +		break;
->> +	case FSEVENT_IGNORE:
->> +		atomic_dec(&cn_fs_event_listeners);
->> +		break;
->> +	default:
->> +		err = EINVAL;
->> +		break;
->> +	}
->> +	cn_fs_event_ack(err, msg->seq, msg->ack);
->> +}
->> +
->> +static int __init cn_fs_init(void)
->> +{
->> +	int err;
->> +
->> +	if ((err = cn_add_callback(&cn_fs_event_id, "cn_fs",
->> +	 			   &cn_fsevent_mode_ctl))) {
->> +		printk(KERN_WARNING "cn_fs failed to register\n");
->> +		return err;
->> +	}
->> +	return 0;
->> +}
->> +
->> +module_init(cn_fs_init);
->>     
->
->
->
->   
+Signed-off-by: Mark A. Greer <mgreer@mvista.com>
+---
 
+ m41t00.c |   52 +++++++++++++++++++++++-----------------------------
+ 1 files changed, 23 insertions(+), 29 deletions(-)
+---
+
+diff -Nurp linux-2.6.16-mm1-wq/drivers/i2c/chips/m41t00.c linux-2.6.16-mm1-cleanup/drivers/i2c/chips/m41t00.c
+--- linux-2.6.16-mm1-wq/drivers/i2c/chips/m41t00.c	2006-03-23 16:04:01.000000000 -0700
++++ linux-2.6.16-mm1-cleanup/drivers/i2c/chips/m41t00.c	2006-03-23 16:16:35.000000000 -0700
+@@ -1,6 +1,4 @@
+ /*
+- * drivers/i2c/chips/m41t00.c
+- *
+  * I2C client/driver for the ST M41T00 Real-Time Clock chip.
+  *
+  * Author: Mark A. Greer <mgreer@mvista.com>
+@@ -13,9 +11,6 @@
+ /*
+  * This i2c client/driver wedges between the drivers/char/genrtc.c RTC
+  * interface and the SMBus interface of the i2c subsystem.
+- * It would be more efficient to use i2c msgs/i2c_transfer directly but, as
+- * recommened in .../Documentation/i2c/writing-clients section
+- * "Sending and receiving", using SMBus level communication is preferred.
+  */
+ 
+ #include <linux/kernel.h>
+@@ -42,17 +37,17 @@ static unsigned short ignore[] = { I2C_C
+ static unsigned short normal_addr[] = { 0x68, I2C_CLIENT_END };
+ 
+ static struct i2c_client_address_data addr_data = {
+-	.normal_i2c		= normal_addr,
+-	.probe			= ignore,
+-	.ignore			= ignore,
++	.normal_i2c	= normal_addr,
++	.probe		= ignore,
++	.ignore		= ignore,
+ };
+ 
+ ulong
+ m41t00_get_rtc_time(void)
+ {
+-	s32	sec, min, hour, day, mon, year;
+-	s32	sec1, min1, hour1, day1, mon1, year1;
+-	ulong	limit = 10;
++	s32 sec, min, hour, day, mon, year;
++	s32 sec1, min1, hour1, day1, mon1, year1;
++	ulong limit = 10;
+ 
+ 	sec = min = hour = day = mon = year = 0;
+ 	sec1 = min1 = hour1 = day1 = mon1 = year1 = 0;
+@@ -98,12 +93,12 @@ m41t00_get_rtc_time(void)
+ 	mon &= 0x1f;
+ 	year &= 0xff;
+ 
+-	BCD_TO_BIN(sec);
+-	BCD_TO_BIN(min);
+-	BCD_TO_BIN(hour);
+-	BCD_TO_BIN(day);
+-	BCD_TO_BIN(mon);
+-	BCD_TO_BIN(year);
++	sec = BCD2BIN(sec);
++	min = BCD2BIN(min);
++	hour = BCD2BIN(hour);
++	day = BCD2BIN(day);
++	mon = BCD2BIN(mon);
++	year = BCD2BIN(year);
+ 
+ 	year += 1900;
+ 	if (year < 1970)
+@@ -116,17 +111,17 @@ static void
+ m41t00_set(void *arg)
+ {
+ 	struct rtc_time	tm;
+-	ulong	nowtime = *(ulong *)arg;
++	ulong nowtime = *(ulong *)arg;
+ 
+ 	to_tm(nowtime, &tm);
+ 	tm.tm_year = (tm.tm_year - 1900) % 100;
+ 
+-	BIN_TO_BCD(tm.tm_sec);
+-	BIN_TO_BCD(tm.tm_min);
+-	BIN_TO_BCD(tm.tm_hour);
+-	BIN_TO_BCD(tm.tm_mon);
+-	BIN_TO_BCD(tm.tm_mday);
+-	BIN_TO_BCD(tm.tm_year);
++	tm.tm_sec = BIN2BCD(tm.tm_sec);
++	tm.tm_min = BIN2BCD(tm.tm_min);
++	tm.tm_hour = BIN2BCD(tm.tm_hour);
++	tm.tm_mon = BIN2BCD(tm.tm_mon);
++	tm.tm_mday = BIN2BCD(tm.tm_mday);
++	tm.tm_year = BIN2BCD(tm.tm_year);
+ 
+ 	mutex_lock(&m41t00_mutex);
+ 	if ((i2c_smbus_write_byte_data(save_client, 0, tm.tm_sec & 0x7f) < 0)
+@@ -144,10 +139,9 @@ m41t00_set(void *arg)
+ 		dev_warn(&save_client->dev,"m41t00: can't write to rtc chip\n");
+ 
+ 	mutex_unlock(&m41t00_mutex);
+-	return;
+ }
+ 
+-static ulong	new_time;
++static ulong new_time;
+ 
+ int
+ m41t00_set_rtc_time(ulong nowtime)
+@@ -179,7 +173,7 @@ m41t00_probe(struct i2c_adapter *adap, i
+ 	if (!client)
+ 		return -ENOMEM;
+ 
+-	strncpy(client->name, M41T00_DRV_NAME, I2C_NAME_SIZE);
++	strlcpy(client->name, M41T00_DRV_NAME, I2C_NAME_SIZE);
+ 	client->addr = addr;
+ 	client->adapter = adap;
+ 	client->driver = &m41t00_driver;
+@@ -203,7 +197,7 @@ m41t00_attach(struct i2c_adapter *adap)
+ static int
+ m41t00_detach(struct i2c_client *client)
+ {
+-	int	rc;
++	int rc;
+ 
+ 	if ((rc = i2c_detach_client(client)) == 0) {
+ 		kfree(client);
+@@ -214,6 +208,7 @@ m41t00_detach(struct i2c_client *client)
+ 
+ static struct i2c_driver m41t00_driver = {
+ 	.driver = {
++		.owner	= THIS_MODULE,
+ 		.name	= M41T00_DRV_NAME,
+ 	},
+ 	.id		= I2C_DRIVERID_STM41T00,
+@@ -231,7 +226,6 @@ static void __exit
+ m41t00_exit(void)
+ {
+ 	i2c_del_driver(&m41t00_driver);
+-	return;
+ }
+ 
+ module_init(m41t00_init);

@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbWCXSwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932602AbWCXSxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932592AbWCXSwp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 13:52:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932598AbWCXSwo
+	id S932602AbWCXSxN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 13:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932599AbWCXSxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 13:52:44 -0500
-Received: from THUNK.ORG ([69.25.196.29]:8160 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S932592AbWCXSwn (ORCPT
+	Fri, 24 Mar 2006 13:53:12 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:20955 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932598AbWCXSxI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 13:52:43 -0500
-Date: Fri, 24 Mar 2006 13:52:38 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Valerie Henson <val_henson@linux.intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, pbadari@gmail.com,
-       linux-kernel@vger.kernel.org, Ext2-devel@lists.sourceforge.net,
-       arjan@linux.intel.com, zach.brown@oracle.com
-Subject: Re: [Ext2-devel] [RFC] [PATCH] Reducing average ext2 fsck time through fs-wide dirty bit]
-Message-ID: <20060324185237.GB18020@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Valerie Henson <val_henson@linux.intel.com>,
-	Andrew Morton <akpm@osdl.org>, pbadari@gmail.com,
-	linux-kernel@vger.kernel.org, Ext2-devel@lists.sourceforge.net,
-	arjan@linux.intel.com, zach.brown@oracle.com
-References: <20060322011034.GP12571@goober> <1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com> <20060322224844.GU12571@goober> <20060322175503.3b678ab5.akpm@osdl.org> <20060324143239.GB14508@goober>
+	Fri, 24 Mar 2006 13:53:08 -0500
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: linuxppc-dev@ozlabs.org
+Subject: [PATCH] powerpc: fix cell platform detection
+Date: Fri, 24 Mar 2006 19:52:53 +0100
+User-Agent: KMail/1.9.1
+Cc: Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       cbe-oss-dev@ozlabs.org
+References: <1143178947.4257.78.camel@localhost.localdomain> <1143187298.3710.3.camel@localhost.localdomain> <200603240946.51793.arnd@arndb.de>
+In-Reply-To: <200603240946.51793.arnd@arndb.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060324143239.GB14508@goober>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+Message-Id: <200603241952.54126.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 24, 2006 at 06:32:39AM -0800, Valerie Henson wrote:
-> Note that ext3's habit of clearing indirect blocks on truncate would
-> break some things I want to do in the future. (Insert secret plans
-> here.)
+All future firmware should have 'CBEA' in the compatible
+property in order to tell us that we are running on the
+cell platform, so check for that as well as the now
+deprecated value we have been using so far.
 
-This is fixable, but it would require making the truncate code (even
-more) complicated.....
+Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
 
-						- Ted
+---
+
+This applies on top of the 'Kill machine numbers' patch
+from Ben Herrenschmidt.
+
+Index: linus-2.6/arch/powerpc/platforms/cell/setup.c
+===================================================================
+--- linus-2.6.orig/arch/powerpc/platforms/cell/setup.c
++++ linus-2.6/arch/powerpc/platforms/cell/setup.c
+@@ -198,7 +198,14 @@ static void __init cell_init_early(void)
+ static int __init cell_probe(void)
+ {
+ 	unsigned long root = of_get_flat_dt_root();
+-	if (!of_flat_dt_is_compatible(root, "IBM,CPB"))
++
++	/*
++	 * CPBW was used on early prototypes and will be removed.
++	 * The correct identification is CBEA.
++	 */
++	if (!of_flat_dt_is_compatible(root, "IBM,CPBW-1.0") &&
++	    !of_flat_dt_is_compatible(root, "IBM,CBEA") &&
++	    !of_flat_dt_is_compatible(root, "CBEA"))
+ 		return 0;
+ 
+ 	return 1;

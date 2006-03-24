@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422998AbWCXDrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422999AbWCXEFv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422998AbWCXDrr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 22:47:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751543AbWCXDrr
+	id S1422999AbWCXEFv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 23:05:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751540AbWCXEFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 22:47:47 -0500
-Received: from colin.muc.de ([193.149.48.1]:54797 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1751537AbWCXDrq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 22:47:46 -0500
-Date: 24 Mar 2006 04:47:38 +0100
-Date: Fri, 24 Mar 2006 04:47:38 +0100
-From: Andi Kleen <ak@muc.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: john stultz <johnstul@us.ibm.com>, Rafal.Wysocki@fuw.edu.pl,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-mm1
-Message-ID: <20060324034738.GA24453@muc.de>
-References: <20060323014046.2ca1d9df.akpm@osdl.org> <200603232317.50245.Rafal.Wysocki@fuw.edu.pl> <20060323160426.153fbea9.akpm@osdl.org> <1143161390.2299.36.camel@leatherman> <20060323172805.00926c13.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060323172805.00926c13.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 23 Mar 2006 23:05:51 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:6613 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1751233AbWCXEFu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 23:05:50 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: linux-kernel@vger.kernel.org
+Subject: ACPI Compile error in current git (pci.h)
+Date: Fri, 24 Mar 2006 14:04:03 +1000
+User-Agent: KMail/1.9.1
+Cc: linux-acpi@vger.kernel.org, Greg KH <gregkh@suse.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1862015.krs2c7nWbr";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200603241404.08109.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The above patch records the most-recent caller of local_irq_disable() in a
-> global variable, then prints that out in the lost-ticks handler.  But how
-> do we know that the global didn't get overwritten between the most-recent
-> local_irq_enable() and the call to handle_lost_ticks()?
+--nextPart1862015.krs2c7nWbr
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Because the overdue timer interrupt will trigger one instruction later.
+Hi.
 
-> 
-> I guess the code assumes that the local_irq_enable() will result in
-> insta-entry into the timer IRQ handler.  Which is probably good enough, as
-> interrupts from other sources won't be pending most times.
+Current git produces the following compile error (x86_64 uniprocessor compi=
+le):
 
-Yes. Actually irq 0 has higher priority than most interrupts,
-but not all.
+arch/x86_64/pci/mmconfig.c:152: error: conflicting types for =E2=80=98pci_m=
+mcfg_init=E2=80=99
+arch/i386/pci/pci.h:85: error: previous declaration of =E2=80=98pci_mmcfg_i=
+nit=E2=80=99 was here
+make[1]: *** [arch/x86_64/pci/mmconfig.o] Error 1
+make: *** [arch/x86_64/pci] Error 2
 
+I haven't found out yet how the i386 file is getting included, but I
+can say that git compiled fine last night.
 
-> 
-> So why did we lose three ticks after __do_sortirq()'s local_irq_disable()? 
-> Dunno.
+Greg, I believe you're the pci guru, so I thought I'd try you too.
+Apologies in advance if I've gotten it wrong.
 
-It's a mistery. I put the patches in to trace a pattern.
+Regards,
 
-But you're right they should at least be using per cpu variables
-instead of globals which can be corrupted by other CPUs.
+Nigel
 
-> (Is there any point in do_softirq() doing local_irq_save() instead of
-> local_irq_disable()?  __do_softirq() will unconditionally enable anyway..)
+--nextPart1862015.krs2c7nWbr
+Content-Type: application/pgp-signature
 
-The interrupt handling in there is quite messy and has some other
-wards too. Could probably take a good cleanup. Problem is that
-it will need a lot of editing of architectures to do properly.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
--Andi
+iD8DBQBEI2+4N0y+n1M3mo0RAs9PAKCJv3OgCscy4erTjLxLvwZkJibrnQCfbR3Z
+ncq1mzUM8OOg7W7n9p9ubEU=
+=QITD
+-----END PGP SIGNATURE-----
+
+--nextPart1862015.krs2c7nWbr--

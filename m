@@ -1,94 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWCXT73@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWCXUBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751377AbWCXT73 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 14:59:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWCXT72
+	id S1751357AbWCXUBg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 15:01:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWCXUBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 14:59:28 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60425 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751377AbWCXT72 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 14:59:28 -0500
-Date: Fri, 24 Mar 2006 19:59:18 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-serial@vger.kernel.org
-Subject: Re: 2.6.16-mm1
-Message-ID: <20060324195917.GA32098@flint.arm.linux.org.uk>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-serial@vger.kernel.org
-References: <20060323014046.2ca1d9df.akpm@osdl.org> <6bffcb0e0603230631r5e6cc3d3p@mail.gmail.com> <20060323144922.GA25849@flint.arm.linux.org.uk> <Pine.LNX.4.64.0603241140350.16802@scrub.home>
-Mime-Version: 1.0
+	Fri, 24 Mar 2006 15:01:36 -0500
+Received: from THUNK.ORG ([69.25.196.29]:26338 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1751357AbWCXUBf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 15:01:35 -0500
+Date: Fri, 24 Mar 2006 15:01:31 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Valerie Henson <val_henson@linux.intel.com>, Andrew Morton <akpm@osdl.org>,
+       pbadari@gmail.com, linux-kernel@vger.kernel.org,
+       Ext2-devel@lists.sourceforge.net, arjan@linux.intel.com,
+       zach.brown@oracle.com
+Subject: Re: [Ext2-devel] [RFC] [PATCH] Reducing average ext2 fsck time through fs-wide dirty bit]
+Message-ID: <20060324200131.GE18020@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Valerie Henson <val_henson@linux.intel.com>,
+	Andrew Morton <akpm@osdl.org>, pbadari@gmail.com,
+	linux-kernel@vger.kernel.org, Ext2-devel@lists.sourceforge.net,
+	arjan@linux.intel.com, zach.brown@oracle.com
+References: <20060322011034.GP12571@goober> <1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com> <20060322224844.GU12571@goober> <20060322175503.3b678ab5.akpm@osdl.org> <20060324143239.GB14508@goober> <20060324192802.GK14852@schatzie.adilger.int>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0603241140350.16802@scrub.home>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060324192802.GK14852@schatzie.adilger.int>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 24, 2006 at 12:28:27PM +0100, Roman Zippel wrote:
-> Hi,
+On Fri, Mar 24, 2006 at 12:28:02PM -0700, Andreas Dilger wrote:
+> The good news, is that fixing the "ext3 clearing indirect blocks" problem
+> not only allows undelete to work again, but also improves truncate
+> performance because (a) we only modify 1/32 of the blocks we would in the
+> old case (we don't need to modify any {d,t,}indirect blocks), (b) we do
+> indirect block walking in forward direction, and could submit {d,}indirect
+> block requests in a batch instead of one-at-a-time.
 > 
-> On Thu, 23 Mar 2006, Russell King wrote:
-> 
-> > Okay, so the default is now 'm', but the legal values are still only 'n'
-> > and 'm'.  I can only select 'm' or 'n', and this is what I end up with in
-> > the config file.  Now, if I remove the prompt text:
-> > 
-> > config SYM_D
-> >         tristate
-> >         depends on SYM_M && SYM_Y
-> >         default y
-> > 
-> > and hey presto, suddenly 'y' becomes a legal value.
-> > 
-> > CONFIG_SYM_Y=y
-> > CONFIG_SYM_M=m
-> > CONFIG_SYM_D=y
-> > 
-> > So it would seem to be a Kconfig bug.
-> 
-> No, it's not a bug, that's really the correct behaviour. It has its roots 
-> in the cml1 converter, where statements like this:
-> 
-> if [ "$CONFIG_FOO" = "y" ]; then
->   define_tristate CONFIG_BAR y
-> fi
-> 
-> would become:
-> 
-> config BAR
-> 	default y
-> 	depends on FOO=y
+> Fix for this problem (inode is locked already):
+> - create a modified ext3_free_branches() to do tree walking and call a
+>   method instead of always calling ext3_free_data->ext3_clear_blocks
+> - walk inode {d,t,}indirect blocks in forward direction, count bitmaps and
+>   groups that will be modified (essentially NULL ext3_free_branches method)
+> - try to start a journal handle for this many blocks + 1 (inode) +
+>   1 (super) + quota + EXT3_RESERVE_TRANS_BLOCKS
+>   - if journal handle is too large (journal_start() returns -ENOSPC) fall
+>     back to old zero-in-steps method (vast majority of cases will be OK
+>     because number of modified blocks is much fewer)
+> - walk inode {d,t,}indirect blocks again deleting blocks via
+>   ext3_free_blocks_sb() (updates group descriptor, bitmaps, quota), but
+>   not journaling or modifying the indirect blocks
+> - update i_size/i_disksize/i_blocks to new value, like ext2
+> - close transaction
 
-Okay, so going to the exact problem case, the behaviour we require is:
+I would love to see something like this as well (the fact that we zero
+out the indirect blocks on truncate/unlink has always bothered me).
+However, the thing that scares me about this is that this means we now
+have to maintain *two* horribly complicated pieces of code for which
+it will be very easy for bugs to creep in.  
 
-SERIAL_8250	PCI	EMBEDDED	gives SERIAL_8250_PCI
-	n	X	X		n
-	X	n	X		n
-	m	y	n		m
-	y	y	n		y
-	m	y	y		user selects 'm' or 'n'
-	y	y	y		user selects 'y', 'm' or 'n'
+This would be a prime candidate for trying to add the same sort of
+userspace test framework which Rusty and company did for netfilter, so
+we can try to test for race conditions, corner cases, etc.
 
-the correct way to tell Kconfig to give us that is:
-
-+config SERIAL_8250_PCI
-+       tristate "8250/16550 PCI device support" if EMBEDDED
-+       depends on SERIAL_8250 && PCI
-+       default SERIAL_8250
-+       help
-+         This builds standard PCI serial support. You may be able to
-+         disable this feature if you only need legacy serial support.
-+         Saves about 9K.
-
-?
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+						- Ted

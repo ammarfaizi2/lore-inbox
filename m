@@ -1,168 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932639AbWCXBYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932636AbWCXBYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932639AbWCXBYz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 20:24:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932637AbWCXBYz
+	id S932636AbWCXBYe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 20:24:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932637AbWCXBYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 20:24:55 -0500
-Received: from pproxy.gmail.com ([64.233.166.182]:49324 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932639AbWCXBYx (ORCPT
+	Thu, 23 Mar 2006 20:24:34 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:52890 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932636AbWCXBYd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 20:24:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=hHSeRaTVNBxXJ7K1wDDjKTOyUemm+olxUYUZb4Jq30iwRTNGIOUC1Qs96H2kiHg/W/Qaw3Cm22xss8KRjSrHOjQ29nRodiB47eWQOq15lz3Qxx2n2gkMo7qiSmbT0PCKQYXLUQaRgw22fDnndd+sOz/whi/FSySzFPTknNqZFVg=
-Message-ID: <44234A98.4060203@gmail.com>
-Date: Fri, 24 Mar 2006 09:25:44 +0800
-From: Yi Yang <yang.y.yi@gmail.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 23 Mar 2006 20:24:33 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: 2.6.16-mm1
+Date: Fri, 24 Mar 2006 02:23:15 +0100
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org
+References: <20060323014046.2ca1d9df.akpm@osdl.org> <200603240204.43294.rjw@sisk.pl> <1143162763.2299.50.camel@leatherman>
+In-Reply-To: <1143162763.2299.50.camel@leatherman>
 MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: Matt Helsley <matthltc@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Michael Kerrisk <michael.kerrisk@gmx.net>
-Subject: Re: [2.6.16 PATCH] Connector: Filesystem Events Connector
-References: <44216612.3060406@gmail.com> <1143099809.29668.89.camel@stark> <20060323085244.GA23750@2ka.mipt.ru>
-In-Reply-To: <20060323085244.GA23750@2ka.mipt.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603240223.16547.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> On Wed, Mar 22, 2006 at 11:43:28PM -0800, Matt Helsley (matthltc@us.ibm.com) wrote:
->   
->> On Wed, 2006-03-22 at 22:58 +0800, Yi Yang wrote:
->>     
->>> This patch implements a new connector, Filesystem Event Connector,
->>>  the user can monitor filesystem activities via it, currently, it
->>>  can monitor access, attribute change, open, create, modify, delete,
->>>  move and close of any file or directory.
->>>
->>> Every filesystem event will include tgid, uid and gid of the process
->>>  which triggered this event, process name, file or directory name 
->>> operated by it.
->>>
->>> Filesystem events connector is never a duplicate of inotify, inotify
->>>  just concerns change on file or directory, Beagle uses it to watch
->>>  file changes in order to regenerate index for it, inotify can't tell
->>>  us who did that change and what is its process name, but filesystem
->>>  events connector can do these, moreover inotify's overhead is greater
->>>  than filesystem events connector, inotify needs compare inode with 
->>> watched file or directories list to decide whether it should generate an
->>>  inotify_event, some locks also increase overhead, filesystem event 
->>> connector hasn't these overhead, it just generates a fsevent and send.
->>>
->>> To be important, filesystem event connector doesn't add any new system 
->>> call, the user space application can make use of it by netlink socket, 
->>> but inotify added several system calls, many events mechanism in kernel
->>>  have used netlink as communication way with user space, for example, 
->>> KOBJECT_UEVENT, PROC_EVENTS, to use netlink will make it more possible
->>>  to unify events interface to netlink, the user space application can use 
->>> it very easy.
->>>
->>> Signed-off-by: Yi Yang <yang.y.yi@gmail.com>
->>>       
->
-> Ugh, I like the idea!
->
->   
->>> --- a/include/linux/connector.h.orig	2006-03-15 23:21:37.000000000 +0800
->>> +++ b/include/linux/connector.h	2006-03-15 23:23:09.000000000 +0800
->>> @@ -34,6 +34,8 @@
->>>  #define CN_VAL_PROC			0x1
->>>  #define CN_IDX_CIFS			0x2
->>>  #define CN_VAL_CIFS                     0x1
->>> +#define CN_IDX_FS			0x3
->>> +#define CN_VAL_FS			0x1
->>>       
->
->
-> Please add some on-line comment about what it is here.
->   
-OK.
->   
->>>  #define CN_NETLINK_USERS		1
->>>       
->
->
-> This must be increased each time new id is added.
-> Although connector code does allocation with reserve, better to not
-> exhaust it.
-> Please increase it to 3.
->
-> ...
->
->   
-I'll do it.
->>> +/*
->>> + * Userspace sends this enum to register with the kernel that it is listening
->>> + * for events on the connector.
->>> + */
->>> +enum fsevent_mode {
->>> +	FSEVENT_LISTEN = 1,
->>> +	FSEVENT_IGNORE = 2
->>> +};
->>> +
->>>       
->> 	Process Events Connector uses this mechanism to avoid most of the event
->> generation code if there are no listeners. 
->>
->> 	Michael Kerrisk has privately suggested to me that this mechanism gives
->> userspace too much rope with which to hang itself. I think it just gives
->> userspace more rope.
->>
->> 	That said, perhaps we can shorten the rope by adding a connector
->> function to quickly return a value indicating if a process in userspace
->> is listening to messages sent by the kernel. Then connectors could use
->> that function rather that reinvent the same mechanism.
->>     
->
-> Btw, current connector code performs check for listeners before it
-> allocates any skbs.
-> If there are no listenres -ESRCH is returned from cn_netlink_send().
->
-> ...
->
->   
->> Pull the assignment out of the condition. You're not saving any space by
->> putting it into the if () and it's harder to read. I don't think the
->> __u8 cast is necessary..
->>
->>     
->>> +		printk("cn_fs: out of memory\n");
->>>       
->> missing printk tag
->>     
->
-> Do not print such info at all.
->   
-OK.
->   
->>> +void raise_fsevent(struct dentry * dentryp, u32 mask)
->>> +{
->>> +	__raise_fsevent(dentryp->d_name.name, NULL, mask);
->>> +}
->>> +EXPORT_SYMBOL_GPL(raise_fsevent);
->>> +
->>> +void raise_fsevent_create(struct inode * inode, const char * name, u32 mask)
->>> +{
->>> +	__raise_fsevent(name, NULL, mask);
->>> +}
->>> +EXPORT_SYMBOL_GPL(raise_fsevent_create);
->>> +
->>> +void raise_fsevent_move(struct inode * olddir, const char * oldname, 
->>> +		struct inode * newdir, const char * newname, u32 mask)
->>> +{
->>> +	__raise_fsevent(oldname, newname, mask);
->>> +}
->>> +EXPORT_SYMBOL_GPL(raise_fsevent_move);
->>>       
->
-> Are there external modules which might use it?
->   
-Yes, nfs will use it indirectly, because fsnotify is a common file 
-system code path. if nfs is configured into module, compiler will complain
-.
+On Friday 24 March 2006 02:12, john stultz wrote:
+> On Fri, 2006-03-24 at 02:04 +0100, Rafael J. Wysocki wrote:
+> > On Friday 24 March 2006 01:49, john stultz wrote:
+> > > On Thu, 2006-03-23 at 16:04 -0800, Andrew Morton wrote:
+> > > > "R. J. Wysocki" <Rafal.Wysocki@fuw.edu.pl> wrote:
+> > > > >
+> > > > > On Thursday 23 March 2006 10:40, Andrew Morton wrote:
+> > > > > > 
+> > > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.16-mm1/
+> > > > > 
+> > > > > On a uniprocessor AMD64 w/ CONFIG_SMP unset (2.6.16-rc6-mm2 works on this box
+> > > > > just fine, .config attached):
+> > > > 
+> > > > hm, uniproc x86_64 seems to cause problems sometimes.  I should test it more.
+> > > > 
+> > > > > }-- snip --{
+> > > > > PID hash table entries: 4096 (order: 12, 32768 bytes)
+> > > > > time.c: Using 3.579545 MHz WALL PM GTOD PIT/TSC timer.
+> > > > > time.c: Detected 1795.400 MHz processor.
+> > > > > disabling early console
+> > > > > Console: colour dummy device 80x25
+> > > > > time.c: Lost 103 timer tick(s)! rip 10:start_kernel+0x121/0x220
+> > > > > last cli 0x0
+> > > > > last cli caller 0x0
+> > > > > time.c: Lost 3 timer tick(s)! rip 10:__do_softirq+0x44/0xc0
+> > > > > last cli 0x0
+> > > > > last cli caller 0x0
+> > > > > time.c: Lost 3 timer tick(s)! rip 10:__do_softirq+0x44/0xc0
+> > > 
+> > > It seems report_lost_ticks has been set to one w/ 2.6.16-mm1, thus these
+> > > debug messages will be shown.
+> > > 
+> > > Rafael: To properly compare, could you boot 2.6.16-rc6-mm2 w/ the
+> > > "report_lost_ticks" boot option and see if the same sort of messages do
+> > > not appear?
+> > 
+> > It looks similar but not the same:
+> 
+> Yea, I think thats due to some new code from Andi.
+> 
+> The lost tick issue should be looked into (might be hardware SMIs), but
+> it seems this is not caused by my patches.
+
+You are right.  All of this is caused by report_lost_ticks set to 1.
+The appended patch helps.
+
+Thanks,
+Rafael
+
+---
+ arch/x86_64/kernel/time.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-2.6.16-mm1/arch/x86_64/kernel/time.c
+===================================================================
+--- linux-2.6.16-mm1.orig/arch/x86_64/kernel/time.c
++++ linux-2.6.16-mm1/arch/x86_64/kernel/time.c
+@@ -63,7 +63,7 @@ static unsigned long hpet_period;			/* f
+ unsigned long hpet_tick;				/* HPET clocks / interrupt */
+ int hpet_use_timer;				/* Use counter of hpet for time keeping, otherwise PIT */
+ unsigned long vxtime_hz = PIT_TICK_RATE;
+-int report_lost_ticks = 1;			/* command line option */
++int report_lost_ticks;				/* command line option */
+ unsigned long long monotonic_base;
+ 
+ struct vxtime_data __vxtime __section_vxtime;	/* for vsyscalls */
 

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161007AbWCXGO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423179AbWCXGNz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161007AbWCXGO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 01:14:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423167AbWCXGMJ
+	id S1423179AbWCXGNz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 01:13:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423171AbWCXGMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 01:12:09 -0500
-Received: from mail.kroah.org ([69.55.234.183]:40410 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161015AbWCXGLu (ORCPT
+	Fri, 24 Mar 2006 01:12:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:38874 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161013AbWCXGLr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 01:11:50 -0500
+	Fri, 24 Mar 2006 01:11:47 -0500
 Cc: "Ed L. Cashin" <ecashin@coraid.com>, "Ed L. Cashin" <ecashin@coraid.com>,
        Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 03/12] aoe [3/8]: increase allowed outstanding packets
-In-Reply-To: <11431806533538-git-send-email-gregkh@suse.de>
+Subject: [PATCH 07/12] aoe [7/8]: update driver compatibility string
+In-Reply-To: <11431806531230-git-send-email-gregkh@suse.de>
 X-Mailer: git-send-email
 Date: Thu, 23 Mar 2006 22:10:53 -0800
-Message-Id: <11431806532147-git-send-email-gregkh@suse.de>
+Message-Id: <1143180653135-git-send-email-gregkh@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg KH <gregkh@suse.de>
@@ -25,31 +25,31 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Increase the number of AoE packets per device that can be outstanding
-at one time, increasing performance.
+The aoe driver is not compatible with 2.6 kernels older
+than 2.6.2.
 
 Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
 
- drivers/block/aoe/aoecmd.c |    2 +-
+ drivers/block/aoe/aoemain.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-eaf0a3cbe5d0713eca3278b3b18f08dba4fb914b
-diff --git a/drivers/block/aoe/aoecmd.c b/drivers/block/aoe/aoecmd.c
-index 150eb78..34b8c8c 100644
---- a/drivers/block/aoe/aoecmd.c
-+++ b/drivers/block/aoe/aoecmd.c
-@@ -647,7 +647,7 @@ aoecmd_cfg_rsp(struct sk_buff *skb)
- 	ulong flags, sysminor, aoemajor;
- 	u16 bufcnt;
- 	struct sk_buff *sl;
--	enum { MAXFRAMES = 8 };
-+	enum { MAXFRAMES = 16 };
+02edb05e6310d3acbb26ffb038f0eb819274e6d0
+diff --git a/drivers/block/aoe/aoemain.c b/drivers/block/aoe/aoemain.c
+index f39d5ba..de08491 100644
+--- a/drivers/block/aoe/aoemain.c
++++ b/drivers/block/aoe/aoemain.c
+@@ -11,7 +11,7 @@
  
- 	h = (struct aoe_hdr *) skb->mac.raw;
- 	ch = (struct aoe_cfghdr *) (h+1);
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Sam Hopkins <sah@coraid.com>");
+-MODULE_DESCRIPTION("AoE block/char driver for 2.6.[0-9]+");
++MODULE_DESCRIPTION("AoE block/char driver for 2.6.2 and newer 2.6 kernels");
+ MODULE_VERSION(VERSION);
+ 
+ enum { TINIT, TRUN, TKILL };
 -- 
 1.2.4
 

@@ -1,98 +1,198 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWCXVkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751441AbWCXVnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbWCXVkb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 16:40:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbWCXVkb
+	id S1751441AbWCXVnP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 16:43:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWCXVnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 16:40:31 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:19164 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1750798AbWCXVka (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 16:40:30 -0500
-Date: Fri, 24 Mar 2006 22:40:29 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Kirill Korotaev <dev@sw.ru>, Dave Hansen <haveblue@us.ibm.com>,
-       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-       OpenVZ developers list <dev@openvz.org>,
-       "Serge E.Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] [PATCH 0/7] Some basic vserver infrastructure
-Message-ID: <20060324214029.GD22308@MAIL.13thfloor.at>
-Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-	Kirill Korotaev <dev@sw.ru>, Dave Hansen <haveblue@us.ibm.com>,
-	Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org,
-	OpenVZ developers list <dev@openvz.org>,
-	"Serge E.Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>
-References: <20060321061333.27638.63963.stgit@localhost.localdomain> <1142967011.10906.185.camel@localhost.localdomain> <m1k6anq8uq.fsf@ebiederm.dsl.xmission.com> <44241224.9000200@sw.ru> <m13bh7io3i.fsf@ebiederm.dsl.xmission.com> <20060324210150.GA22308@MAIL.13thfloor.at> <m1u09nh7gb.fsf@ebiederm.dsl.xmission.com>
+	Fri, 24 Mar 2006 16:43:15 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:51854
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751441AbWCXVnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 16:43:14 -0500
+Date: Fri, 24 Mar 2006 13:42:46 -0800
+From: Greg KH <gregkh@suse.de>
+To: "Mike D. Day" <ncmike@us.ibm.com>
+Cc: xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.16-rc6-xen] export Xen Hypervisor attributes to sysfs
+Message-ID: <20060324214246.GE4646@suse.de>
+References: <200603202335.k2KNZEjo005673@mdday.raleigh.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1u09nh7gb.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200603202335.k2KNZEjo005673@mdday.raleigh.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 24, 2006 at 02:13:40PM -0700, Eric W. Biederman wrote:
-> Herbert Poetzl <herbert@13thfloor.at> writes:
+On Mon, Mar 20, 2006 at 06:35:14PM -0500, Mike D. Day wrote:
+> Creates a module that exports Xen Hypervisor attributes to sysfs. The
+> module has a tri-state configuration so it can be a loadable module.
 > 
-> > hmm, isn't per process a little extreme ... I know
-> > what you want to accomplish but won't this lead to
-> > a per process procfs? 
+> Views the hypervisor as hardware device, uses sysfs as  a scripting
+> interface for user space tools that need these attributes.
 > 
-> Where all of the values vary per process possibly, that
-> is they way /proc is supposed to be.
+> Some user space apps, particularly for systems management, need to
+> know if their kernel is running in a virtual machine and if so in
+> what type of virtual machine. This property is contained in the
+> file /sys/hypervisor/type.
 > 
-> /proc/sys is the only case that I think really gets extreme. For
-> things like /proc/sysvipc and /proc/net it really is a natural break,
-> and /proc/mounts already shows that the technique works fine.
+> The file hypervisor_sysfs.c creates a generic  hypervisor subsystem
+> that can be linked to by any hypervisor. The file xen_sysfs.c exports
+> the xen-specific attributes.
 
-well, while /proc/mounts is a good example that it 'works'
-it isn't a good example for proper design, as the entire
-private namespaces lead to much obfuscation, and having
-the mounts per process, where they actually should be per
-namespace, and to hide the fact that there are different
-namespaces does not help either ...
+Why put the file hypervisor_sysfs.c in a xen specific directory then if
+you expect to share it with all hypervisors?
 
-IMHO a much better design would be to have the namespace
-'explicit' and link to that one, containig the mounts entry
-btw, this is something which should still be possible
-without breaking anything ...
+Also, if you want to make this generic and force everyone to have the
+same public interface (a good idea), you need to make callbacks to this
+file to provide the needed information, don't just create whatever file
+you want in the xen specific file.  Otherwise it is guaranteed that we
+will not have a uniform interface.
 
-> So I am trying to turn an ugly design choice into feature :)
-
-hmm, no, you are trying to multipy an ugly design :)
-
-> > and, if you want to do per
-> > process procfs, what would be the gain?
-> >
-> > just my opinion ...
+> signed-off-by: Mike D. Day <ncmike@us.ibm.com>
 > 
-> Under the covers the implementation is per namespace, but
-> it isn't easy to export it that way from procfs.
+> ---
+> Initial directory = /sys/hypervisor
+> +---compilation
+> |   >---compile_date
+> |   >---compiled_by
+> |   >---compiler
+> +---properties
+> |   >---capabilities
+> |   >---changeset
+> |   >---virtual_start
+> |   >---writable_pt
+> >---type
+> +---version
+> |   >---extra
+> |   >---major
+> |   >---minor
 
-why?
+Hint, 'tree' shows things a bit nicer :)
 
-/proc/self -> YYY/
-/proc/mounts -> self/mounts
+> 
+> Some examples: 
+> [mdday@athlon64 ~]$ cat /sys/hypervisor/type
+> xen
+> 
+> [mdday@athlon64 ~]$ cat /sys/hypervisor/version/major
+> 3
+> 
+> [mdday@athlon64 ~]$ cat /sys/hypervisor/properties/changeset
+> Sun Mar 19 09:17:50 2006 +0100 9322:768936b2800a
 
-(so far nothing new)
+That seems crazy to export, but hey, if you really think it's useful
+(and what are you going to do when it becomes a git changeset, not a hg
+one?)
 
-/proc/YYY/namespace -> ../namespace-XXX/
-/proc/YYY/mounts -> namespace/mounts 
+> diff -r a8b1d4fad72d -r 508bf03c36ab linux-2.6-xen-sparse/drivers/xen/Kconfig
+> --- a/linux-2.6-xen-sparse/drivers/xen/Kconfig	Mon Mar 20 12:01:32 2006 +0100
+> +++ b/linux-2.6-xen-sparse/drivers/xen/Kconfig	Mon Mar 20 18:06:53 2006 -0500
+> @@ -189,6 +189,14 @@ config XEN_DISABLE_SERIAL
+>  	  Disable serial port drivers, allowing the Xen console driver
+>  	  to provide a serial console at ttyS0.
+>  
+> +config XEN_SYSFS
+> +	tristate "Export Xen attributes in sysfs"
+> +	depends on XEN
+> +	depends on SYSFS
+> +	default y
+> +	help
+> +		Xen hypervisor attributes will show up under /sys/hypervisor/.
+> +
 
-(or alternatively)
+You told Arjan that it is different depending on which type of kernel
+you are running.  This config option does not show it.
 
-/proc/namespace -> namespace-XXX/
-/proc/mounts -> namespace/mounts
+Also, you don't need to depend on SYSFS, your code should build just
+fine without that option enabled (it will not do anything, but that's a
+different story...)  If not, please let me know.
 
-> In any event this appears to be a way to implement these things while
-> retaining backwards compatibility, with the current implementation,
-> and it looks like it can be implemented fairly cleanly.
+>  config HAVE_ARCH_ALLOC_SKB
+> diff -r a8b1d4fad72d -r 508bf03c36ab linux-2.6-xen-sparse/drivers/xen/core/Makefile
+> --- a/linux-2.6-xen-sparse/drivers/xen/core/Makefile	Mon Mar 20 12:01:32 2006 +0100
+> +++ b/linux-2.6-xen-sparse/drivers/xen/core/Makefile	Mon Mar 20 18:06:53 2006 -0500
+> @@ -7,3 +7,5 @@ obj-$(CONFIG_PROC_FS) += xen_proc.o
+>  obj-$(CONFIG_PROC_FS) += xen_proc.o
+>  obj-$(CONFIG_NET)     += skbuff.o
+>  obj-$(CONFIG_SMP)     += smpboot.o
+> +obj-$(CONFIG_SYSFS)   += hypervisor_sysfs.o
 
-I don't see any differences regarding compatibility when
-things like namespaces get explicit ...
+Again, no, you don't need to depend on CONFIG_SYSFS
 
-best,
-Herbert
+> +obj-$(CONFIG_XEN_SYSFS) += xen_sysfs.o
+> diff -r a8b1d4fad72d -r 508bf03c36ab linux-2.6-xen-sparse/drivers/xen/core/hypervisor_sysfs.c
+> --- /dev/null	Thu Jan  1 00:00:00 1970 +0000
+> +++ b/linux-2.6-xen-sparse/drivers/xen/core/hypervisor_sysfs.c	Mon Mar 20 18:06:53 2006 -0500
+> @@ -0,0 +1,58 @@
+> +/*
+> +    copyright (c) 2006 IBM Corporation
+> +    Authored by: Mike D. Day <ncmike@us.ibm.com>
+> +
+> +    This program is free software; you can redistribute it and/or modify
+> +    it under the terms of the GNU General Public License version 2 as
+> +    published by the Free Software Foundation.
+> +*/
+> +
+> +
+> +#include <linux/config.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/kobject.h>
+> +#include <xen/hypervisor_sysfs.h>
 
-> Eric
+Why a xen specific file in a "generic" file?  That will break the build
+for sure...
+
+I don't think it's even needed here, do you?
+
+> diff -r a8b1d4fad72d -r 508bf03c36ab linux-2.6-xen-sparse/include/xen/hypervisor_sysfs.h
+> --- /dev/null	Thu Jan  1 00:00:00 1970 +0000
+> +++ b/linux-2.6-xen-sparse/include/xen/hypervisor_sysfs.h	Mon Mar 20 18:06:53 2006 -0500
+> @@ -0,0 +1,34 @@
+> +/*
+> +    copyright (c) 2006 IBM Corporation
+> +    Authored by: Mike D. Day <ncmike@us.ibm.com>
+> +
+> +    This program is free software; you can redistribute it and/or modify
+> +    it under the terms of the GNU General Public License version 2 as
+> +    published by the Free Software Foundation.
+> +*/
+> +
+> +
+> +
+> +#ifndef _HYP_SYSFS_H_
+> +#define _HYP_SYSFS_H_
+> +
+> +#include <linux/kobject.h>
+> +#include <linux/sysfs.h>
+> +
+> +#define HYPERVISOR_ATTR_RO(_name) \
+> +static struct hyp_sysfs_attr  _name##_attr = __ATTR_RO(_name)
+> +
+> +#define HYPERVISOR_ATTR_RW(_name) \
+> +static struct hyp_sysfs_attr _name##_attr = \
+> +	__ATTR(_name, 0644, _name##_show, _name##_store)
+> +
+> +extern struct subsystem hypervisor_subsys;
+> +
+> +struct hyp_sysfs_attr {
+> +	struct attribute attr;
+> +	ssize_t (*show)(struct hyp_sysfs_attr *, char *);
+> +	ssize_t (*store)(struct hyp_sysfs_attr *, const char *, size_t);
+> +	void *hyp_attr_data;
+> +};
+> +
+> +#endif /* _HYP_SYSFS_H_ */
+
+Why is a .h file needed for this?
+
+Is someone else going to include it?  I can see exporting the
+hypervisor_subsys variable, but again, that better not be in a xen
+specific file...
+
+But those #defines and structure are not needed here.
+
+thanks,
+
+greg k-h

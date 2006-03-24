@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422803AbWCXJfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422808AbWCXJjF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422803AbWCXJfM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 04:35:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422804AbWCXJfM
+	id S1422808AbWCXJjF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 04:39:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422807AbWCXJjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 04:35:12 -0500
-Received: from web25815.mail.ukl.yahoo.com ([217.146.176.248]:5027 "HELO
-	web25815.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1422803AbWCXJfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 04:35:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=jWyIQRth9QgOUCL5KrC3LpuHls1ZlOUAr+h7bEUisj5aCkUXkcYU1k+mOQ/UODpN+rM/jlQLRmqfv/jKRA4mSr4Zz9GfmjACCdqAEN7UF4KFOO19i4N56050FUD0TA1Cmj2uxPva8xa0y11YBLtQ0LBn8OOQOSZsvP/9ss4yB1U=  ;
-Message-ID: <20060324093509.99437.qmail@web25815.mail.ukl.yahoo.com>
-Date: Fri, 24 Mar 2006 10:35:09 +0100 (CET)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Re: How to test vanilla kernel
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9a8748490603240100v33097236v1ccc79871b285941@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 24 Mar 2006 04:39:05 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:54963 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S1422804AbWCXJjE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 04:39:04 -0500
+Date: Fri, 24 Mar 2006 01:34:27 -0800
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: linux-ia64@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, nigel.croxon@hp.com
+Subject: gnu-efi-3.0c is available
+Message-ID: <20060324093427.GC28939@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jesper,
+Hello,
 
---- Jesper Juhl <jesper.juhl@gmail.com> a écrit :
-> > is it safe to
-> > forget them ?
-> >
-> Unless you have something setup on your box which depends on
-> functionality patched into the kernel by your vendor, then yes,
+I have released a new version of the GNU-EFI package.
+This package is used to build EFI applications on Linux
+for both IA-32 and IA-64 architectures.
 
-but how will I know that some shipped patchs are necessary ?
+This is a maintenance release with no new features just
+updates to support the latest GNU compilers:
 
-> running a vanilla kernel is perfectly OK - if it was not we'd never
-> get it tested ;-)
-> 
+	- updated linker scripts to support latest gcc sections.
+	  Provided by H.J. Lu from Intel. Special thanks to Jim Wilson
+	  for his help.
 
-well, last time I tried to replace fedora core 3 kernel with a vanilla 2.6.15
-kernel I have some troubles with my USB controller, I got some unhandled IRQ.
-And some devices like UART have their minor numbers changed. So I'm wondering
-when upgrading the kernel, some configurations must be done ?
+	- updated library to compile cleanly with gcc4.1.
+	  Provided by Raymund Will from SuSE
 
+I have tested the package on Linux/ia64 with Debian gcc-4.0.3
+and binutils 2.16.91. With this, you can build a working elilo3.6.
 
-Francis
+It compiles on Debian/i386 with gcc 4.0.3 and binutils 2.6.91.
+I dot have the setup to test i386 efi
+binaries.
 
+You can grab the package at:
+	ftp://ftp.hpl.hp.com/pub/linux-ia64/gnu-efi-3.0c.tar.gz
+	MD5SUM: 823e5f04d1c0a7b88831f91fbf12d470
 
-	
-	
-		
-___________________________________________________________________________ 
-Nouveau : téléphonez moins cher avec Yahoo! Messenger. Appelez le monde entier à partir de 0,012 €/minute ! 
-Téléchargez sur http://fr.messenger.yahoo.com
+This is the last gnu-efi release that I manage. I am handing over
+the maintenance of the package to Nigel Croxon from HP. Please forward
+any new questions to him from now on. He is copied on this announcement.
+
+Thanks.
+
+-- 
+-Stephane

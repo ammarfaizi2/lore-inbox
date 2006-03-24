@@ -1,55 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWCXXqf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWCXXrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbWCXXqf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 18:46:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWCXXqf
+	id S932309AbWCXXrM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 18:47:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWCXXrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 18:46:35 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:54984 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932282AbWCXXqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 18:46:34 -0500
-Date: Fri, 24 Mar 2006 15:45:59 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
-Subject: more smpnice patch issues
-Message-ID: <20060324154558.A20018@unix-os.sc.intel.com>
-References: <20060322155122.2745649f.akpm@osdl.org> <4421F702.5040609@bigpond.net.au>
+	Fri, 24 Mar 2006 18:47:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:32719 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932284AbWCXXrJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 18:47:09 -0500
+Date: Fri, 24 Mar 2006 15:49:20 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Michael Halcrow <mhalcrow@us.ibm.com>
+Cc: phillip@hellewell.homeip.net, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
+       mcthomps@us.ibm.com, yoder1@us.ibm.com, toml@us.ibm.com,
+       emilyr@us.ibm.com, daw@cs.berkeley.edu
+Subject: Re: eCryptfs Design Document
+Message-Id: <20060324154920.11561533.akpm@osdl.org>
+In-Reply-To: <20060324222517.GA13688@us.ibm.com>
+References: <20060324222517.GA13688@us.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4421F702.5040609@bigpond.net.au>; from pwil3058@bigpond.net.au on Wed, Mar 22, 2006 at 05:16:50PM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-more issues with smpnice patch...
+Michael Halcrow <mhalcrow@us.ibm.com> wrote:
+>
+> On Fri, Nov 18, 2005 at 10:16:59PM -0800, Andrew Morton wrote:
+> > If Linux is going to offer a feature like this then people have to
+> > be able to trust it to be quite secure.  What we don't want to
+> > happen is to distribute it for six months and then be buried in
+> > reports of vulnerabilites from cryptography specialists.  Even worse
+> > if those reports lead to exploits.
+> >
+> > So I guess what I'm asking is: has this code been reviewed by crypto
+> > experts?  Bearing in mind that it'll be world-class crypto people
+> > who will try to poke holes in it.
+> 
+> 
+> ...
+> The PDF document is obtainable from the eCryptfs SourceForge file
+> download section:
+> 
+> http://sourceforge.net/project/showfiles.php?group_id=133988
+>
+> I also have it posted on the eCryptfs web site:
+> 
+> http://ecryptfs.sourceforge.net/ecryptfs_design_doc_v0_1.pdf
 
-a) consider a 4-way system (simple SMP system with no HT and cores) scenario
-where a high priority task (nice -20) is running on P0 and two normal
-priority tasks running on P1. load balance with smp nice code
-will never be able to detect an imbalance and hence will never move one of 
-the normal priority tasks on P1 to idle cpus P2 or P3.
+Helps, thanks.
 
-b) smpnice seems to break this patch..
+> ...
+>
+> 3.2.3 Page Read
+> 
+> ...
+> 
+> On a page read, the eCryptfs page index is interpolated into the
+> corresponding lower page index, taking into account the header page in
+> the file.
 
-[PATCH] sched: allow the load to grow upto its cpu_power
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=0c117f1b4d14380baeed9c883f765ee023da8761
+I trust that PAGE_CACHE_SIZE is not implicitly encoded into the file layout?
 
-example scenario for this case: consider a numa system with two nodes, each
-node containing four processors. if there are two processes in node-0 and with
-node-1 being completely idle, your patch will move one of those processes to
-node-1 whereas the previous behavior will retain those two processes in node-0..
-(in this case, in your code max_load will be less than busiest_load_per_task)
+> ...
+> When a writepage() request comes through as a result of a VFS syscall,
+> eCryptfs will read the target extent from the lower file using the
+> process described in the prior paragraph. The data on that page is
+> modified according to the write request. The entire (modified) page is
+> re-encrypted (again, in CBC mode) with the same IV and key that were
+> used to originally encrypt the page; the newly encrypted page is then
+> written out to the lower file.
 
-smpnice patch has complicated the load balance code... Very difficult
-to comprehend the side effects of this patch in the presence of different 
-priority tasks...
+So ecryptfs files have their own plain-text pagecache, which is backed by
+the underlying file's encrypted pagecache.  Passing through things like
+fsync() will be interesting.  We get that wrong for loop at present.
 
-thanks,
-suresh
+hm.  The above write() description doesn't sound right.  The read+decrypt
+from the underlying fs should happen at ->prepare_write(), not at
+->writepage().  And it can be elided if ->prepare_write() is about to write
+the whole page, and if the underlying fs's blocksize is less than or equal
+to the ecryptfs's blocksize.
+
+Or something like that.  The way this document talks about a file's "page
+size" is a worry.  Files have block sizes, and they're <= PAGE_CACHE_SIZE,
+so the files are portable between different PAGE_SIZE setups.
+
+Anyway, I'll stop trying to review the code without the code.
+
+
+
+One dutifully wonders whether all this functionality could be provided via
+FUSE...
+

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423134AbWCXFjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932655AbWCXFj1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423134AbWCXFjE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 00:39:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423144AbWCXFjE
+	id S932655AbWCXFj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 00:39:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWCXFj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 00:39:04 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:21632 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1423134AbWCXFjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 00:39:03 -0500
-Message-ID: <44238424.3080500@jp.fujitsu.com>
-Date: Fri, 24 Mar 2006 14:31:16 +0900
+	Fri, 24 Mar 2006 00:39:26 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:3473 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932655AbWCXFjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 00:39:25 -0500
+Message-ID: <44238469.8080009@jp.fujitsu.com>
+Date: Fri, 24 Mar 2006 14:32:25 +0900
 From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
 User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 X-Accept-Language: ja, en-us, en
@@ -20,8 +20,8 @@ CC: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
        Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [PATCH 2.6.16-mm1 1/4] PCI legacy I/O port free driver (take 6) -
- Changes to generic PCI code
+Subject: [PATCH 2.6.16-mm1 2/4] PCI legacy I/O port free driver (take 6) -
+ Update Documentation/pci.txt
 References: <442382F1.2050300@jp.fujitsu.com>
 In-Reply-To: <442382F1.2050300@jp.fujitsu.com>
 Content-Type: text/plain; charset=ISO-2022-JP
@@ -29,166 +29,87 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds the following changes into generic PCI code especially
-for PCI legacy free drivers.
-
-    - Moved the following two things from pci_enable_device() into
-      pci_enable_device_bars(). By this change, we can use
-      pci_enable_device_bars() to enable only the specific regions.
-
-          o Call pci_fixup_device() on the device
-          o Set dev->is_enabled
-
-    - Added new field 'bars_enabled' into struct pci_device to
-      remember which BARs already enabled. This new field is
-      initialized at pci_enable_device_bars() time and cleared
-      at pci_disable_device() time.
- 
-    - Changed pci_request_regions()/pci_release_regions() to
-      request/release only the regions which have already been
-      enabled.
-
-    - Added helper routine pci_select_bars() which makes proper mask
-      of BARs from the specified resource type. This would be very
-      helpful for users of pci_enable_device_bars().
+This patch adds the description about legacy I/O port free driver into
+Documentation/pci.txt.
 
 Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
 
----
- drivers/pci/pci-driver.c |    3 ++-
- drivers/pci/pci.c        |   30 +++++++++++++++++++++++-------
- include/linux/pci.h      |   12 ++++++++++++
- 3 files changed, 37 insertions(+), 8 deletions(-)
+ Documentation/pci.txt |   67 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 67 insertions(+)
 
-Index: linux-2.6.16-mm1/drivers/pci/pci-driver.c
+Index: linux-2.6.16-mm1/Documentation/pci.txt
 ===================================================================
---- linux-2.6.16-mm1.orig/drivers/pci/pci-driver.c	2006-03-23 20:04:06.000000000 +0900
-+++ linux-2.6.16-mm1/drivers/pci/pci-driver.c	2006-03-23 20:04:11.000000000 +0900
-@@ -293,7 +293,8 @@
- 	pci_restore_state(pci_dev);
- 	/* if the device was enabled before suspend, reenable */
- 	if (pci_dev->is_enabled)
--		retval = pci_enable_device(pci_dev);
-+		retval = pci_enable_device_bars(pci_dev,
-+						pci_dev->bars_enabled);
- 	/* if the device was busmaster before the suspend, make it busmaster again */
- 	if (pci_dev->is_busmaster)
- 		pci_set_master(pci_dev);
-Index: linux-2.6.16-mm1/drivers/pci/pci.c
-===================================================================
---- linux-2.6.16-mm1.orig/drivers/pci/pci.c	2006-03-23 20:04:06.000000000 +0900
-+++ linux-2.6.16-mm1/drivers/pci/pci.c	2006-03-23 20:04:11.000000000 +0900
-@@ -493,6 +493,9 @@
- 	err = pcibios_enable_device(dev, bars);
- 	if (err < 0)
- 		return err;
-+	pci_fixup_device(pci_fixup_enable, dev);
-+	dev->is_enabled = 1;
-+	dev->bars_enabled = bars;
- 	return 0;
- }
- 
-@@ -510,8 +513,6 @@
- 	int err = pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1);
- 	if (err)
- 		return err;
--	pci_fixup_device(pci_fixup_enable, dev);
--	dev->is_enabled = 1;
- 	return 0;
- }
- 
-@@ -546,6 +547,7 @@
- 
- 	pcibios_disable_device(dev);
- 	dev->is_enabled = 0;
-+	dev->bars_enabled = 0;
- }
- 
- /**
-@@ -628,6 +630,12 @@
- {
- 	if (pci_resource_len(pdev, bar) == 0)
- 		return;
-+	if (!(pdev->bars_enabled & (1 << bar))) {
-+		dev_warn(&pdev->dev,
-+			 "Trying to release region #%d that is not enabled\n",
-+			 bar + 1);
-+		return;
+--- linux-2.6.16-mm1.orig/Documentation/pci.txt	2006-03-23 20:04:06.000000000 +0900
++++ linux-2.6.16-mm1/Documentation/pci.txt	2006-03-23 20:04:12.000000000 +0900
+@@ -269,3 +269,70 @@
+ pci_find_device()		Superseded by pci_get_device()
+ pci_find_subsys()		Superseded by pci_get_subsys()
+ pci_find_slot()			Superseded by pci_get_slot()
++
++
++9. Legacy I/O port free driver
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++Large servers may not be able to provide I/O port resources to all PCI
++devices. I/O Port space is only 64KB on Intel Architecture[1] and is
++likely also fragmented since the I/O base register of PCI-to-PCI
++bridge will usually be aligned to a 4KB boundary[2]. On such systems,
++pci_enable_device() and pci_request_regions() will fail when
++attempting to enable I/O Port regions that don't have I/O Port
++resources assigned.
++
++Fortunately, many PCI devices which request I/O Port resources also
++provide access to the same registers via MMIO BARs. These devices can
++be handled without using I/O port space and the drivers typically
++offer a CONFIG_ option to only use MMIO regions
++(e.g. CONFIG_TULIP_MMIO). PCI devices typically provide I/O port
++interface for legacy OSs and will work when I/O port resources are not
++assigned. The "PCI Local Bus Specification Revision 3.0" discusses
++this on p.44, "IMPLEMENTATION NOTE".
++
++If your PCI device driver doesn't need I/O port resources assigned to
++I/O Port BARs, you should use pci_enable_device_bars() instead of
++pci_enable_device() in order not to enable I/O port regions for the
++corresponding devices.
++
++[1] Some systems support 64KB I/O port space per PCI segment.
++[2] Some PCI-to-PCI bridges support optional 1KB aligned I/O base.
++
++
++10. MMIO Space and "Write Posting"
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++Converting a driver from using I/O Port space to using MMIO space
++often requires some additional changes. Specifically, "write posting"
++needs to be handled. Most drivers (e.g. tg3, acenic, sym53c8xx_2)
++already do. I/O Port space guarantees write transactions reach the PCI
++device before the CPU can continue. Writes to MMIO space allow to CPU
++continue before the transaction reaches the PCI device. HW weenies
++call this "Write Posting" because the write completion is "posted" to
++the CPU before the transaction has reached it's destination.
++
++Thus, timing sensitive code should add readl() where the CPU is
++expected to wait before doing other work.  The classic "bit banging"
++sequence works fine for I/O Port space:
++
++	for (i=8; --i; val >>= 1) {
++		outb(val & 1, ioport_reg);	/* write bit */
++		udelay(10);
 +	}
- 	if (pci_resource_flags(pdev, bar) & IORESOURCE_IO)
- 		release_region(pci_resource_start(pdev, bar),
- 				pci_resource_len(pdev, bar));
-@@ -654,7 +662,12 @@
- {
- 	if (pci_resource_len(pdev, bar) == 0)
- 		return 0;
--		
-+	if (!(pdev->bars_enabled & (1 << bar))) {
-+		dev_warn(&pdev->dev,
-+			 "Trying to request region #%d that is not enabled\n",
-+			 bar + 1);
-+		goto err_out;
++
++The same sequence for MMIO space should be:
++
++	for (i=8; --i; val >>= 1) {
++		writeb(val & 1, mmio_reg);	/* write bit */
++		readb(safe_mmio_reg);		/* flush posted write */
++		udelay(10);
 +	}
- 	if (pci_resource_flags(pdev, bar) & IORESOURCE_IO) {
- 		if (!request_region(pci_resource_start(pdev, bar),
- 			    pci_resource_len(pdev, bar), res_name))
-@@ -692,7 +705,8 @@
- 	int i;
- 	
- 	for (i = 0; i < 6; i++)
--		pci_release_region(pdev, i);
-+		if (pdev->bars_enabled & (1 << i))
-+			pci_release_region(pdev, i);
- }
- 
- /**
-@@ -713,13 +727,15 @@
- 	int i;
- 	
- 	for (i = 0; i < 6; i++)
--		if(pci_request_region(pdev, i, res_name))
--			goto err_out;
-+		if (pdev->bars_enabled & (1 << i))
-+			if(pci_request_region(pdev, i, res_name))
-+				goto err_out;
- 	return 0;
- 
- err_out:
- 	while(--i >= 0)
--		pci_release_region(pdev, i);
-+		if (pdev->bars_enabled & (1 << i))
-+			pci_release_region(pdev, i);
- 		
- 	return -EBUSY;
- }
-Index: linux-2.6.16-mm1/include/linux/pci.h
-===================================================================
---- linux-2.6.16-mm1.orig/include/linux/pci.h	2006-03-23 20:04:06.000000000 +0900
-+++ linux-2.6.16-mm1/include/linux/pci.h	2006-03-23 20:04:11.000000000 +0900
-@@ -169,6 +169,7 @@
- 	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
- 	int rom_attr_enabled;		/* has display of the rom attribute been enabled? */
- 	struct bin_attribute *res_attr[DEVICE_COUNT_RESOURCE]; /* sysfs file for resources */
-+	int	bars_enabled;		/* BARs enabled */
- };
- 
- #define pci_dev_g(n) list_entry(n, struct pci_dev, global_list)
-@@ -732,6 +733,17 @@
- }
- #endif /* HAVE_ARCH_PCI_RESOURCE_TO_USER */
- 
-+/*
-+ * This helper routine makes bar mask from the type of resource.
-+ */
-+static inline int pci_select_bars(struct pci_dev *dev, unsigned long flags)
-+{
-+	int i, bars = 0;
-+	for (i = 0; i < PCI_NUM_RESOURCES; i++)
-+		if (pci_resource_flags(dev, i) & flags)
-+			bars |= (1 << i);
-+	return bars;
-+}
- 
- /*
-  *  The world is not perfect and supplies us with broken PCI devices.
++
++It is important that "safe_mmio_reg" not have any side effects that
++interferes with the correct operation of the device.
++
++Another case to watch out for is when resetting a PCI device. Use PCI
++Configuration space reads to flush the writel(). This will gracefully
++handle the PCI master abort on all platforms if the PCI device is
++expected to not respond to a readl().  Most x86 platforms will allow
++MMIO reads to master abort (aka "Soft Fail") and return garbage
++(e.g. ~0). But many RISC platforms will crash (aka "Hard Fail").
 

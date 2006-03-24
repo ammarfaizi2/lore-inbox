@@ -1,94 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422974AbWCXB1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422665AbWCXBaQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422974AbWCXB1w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 20:27:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422973AbWCXB1v
+	id S1422665AbWCXBaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 20:30:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422965AbWCXBaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 20:27:51 -0500
-Received: from stinky.trash.net ([213.144.137.162]:60636 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S1422972AbWCXB1u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 20:27:50 -0500
-Message-ID: <44234B10.5040802@trash.net>
-Date: Fri, 24 Mar 2006 02:27:44 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: bunk@stusta.de, zhaojignmin@hotmail.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, netfilter-devel@lists.netfilter.org
-Subject: Re: [2.6 patch] ip_conntrack_helper_h323.c: EXPORT_SYMBOL'ed functions
- shouldn't be static
-References: <20060324000801.GM22727@stusta.de> <20060323.161314.59991770.davem@davemloft.net>
-In-Reply-To: <20060323.161314.59991770.davem@davemloft.net>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/mixed;
- boundary="------------020904020401040302050807"
+	Thu, 23 Mar 2006 20:30:16 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:11748
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1422665AbWCXBaO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 20:30:14 -0500
+Date: Thu, 23 Mar 2006 17:29:54 -0800
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [GIT PATCH] W1 patches for 2.6.16
+Message-ID: <20060324012954.GA17389@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020904020401040302050807
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Here are some w1 patches that have been in the -mm tree for a long time.
+They move some files into different locations, add a new driver, and fix
+some bugs.
 
-David S. Miller wrote:
-> From: Adrian Bunk <bunk@stusta.de>
-> Date: Fri, 24 Mar 2006 01:08:01 +0100
-> 
-> 
->>EXPORT_SYMBOL'ed functions shouldn't be static.
->>
->>Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> 
-> Fixed in Linus's tree as of yesterday.
-> 
-> I actually have a patch from Patrick McHardy that will make
-> this kind of error a build time failure instead of silently
-> working in the modular case.  I just need to test it out
-> a bit before pushing.
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/w1-2.6.git/
+or from:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/w1-2.6.git/
+if it isn't synced up yet.
 
-I guess I should send it to lkml anyway. It boots fine, I couldn't
-figure out how to compare checksums, since the time of compilation
-and a couple other dynamically generated strings end up in the binary.
+The full patch series will sent to the linux-kernel mailing list, if
+anyone wants to see them.
 
---------------020904020401040302050807
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x"
+thanks,
 
-[MODULES]: Don't allow statically declared exports
+greg k-h
 
-Add an extern declaration for exported symbols to make the compiler warn
-on symbols declared statically.
+ Documentation/w1/masters/ds2482   |   31 ++
+ drivers/w1/Kconfig                |   60 ----
+ drivers/w1/Makefile               |   10 
+ drivers/w1/masters/Kconfig        |   48 +++
+ drivers/w1/masters/Makefile       |   13 
+ drivers/w1/masters/ds2482.c       |  564 ++++++++++++++++++++++++++++++++++++++
+ drivers/w1/masters/ds_w1_bridge.c |   38 +-
+ drivers/w1/masters/dscore.c       |    4 
+ drivers/w1/masters/matrox_w1.c    |   22 -
+ drivers/w1/slaves/Kconfig         |   38 ++
+ drivers/w1/slaves/Makefile        |   12 
+ drivers/w1/slaves/w1_ds2433.c     |    8 
+ drivers/w1/slaves/w1_smem.c       |   10 
+ drivers/w1/slaves/w1_therm.c      |   14 
+ drivers/w1/w1.c                   |   77 +----
+ drivers/w1/w1.h                   |   37 +-
+ drivers/w1/w1_family.c            |    2 
+ drivers/w1/w1_int.c               |   49 ---
+ drivers/w1/w1_io.c                |    2 
+ 19 files changed, 824 insertions(+), 215 deletions(-)
 
-Signed-off-by: Patrick McHardy <kaber@trash.net>
+---------------
 
----
-commit 8648236083e488ff4fc279b66d63b1187e22e558
-tree cba9ee372f1056c8cf63cdc6a37a6a761fa490c9
-parent 8b21e6d05d6ac0aeb44f5866ab611e2709c2f08e
-author Patrick McHardy <kaber@trash.net> Thu, 23 Mar 2006 05:07:39 +0100
-committer Patrick McHardy <kaber@trash.net> Thu, 23 Mar 2006 05:07:39 +0100
+Adrian Bunk:
+      w1: misc cleanups
+      fix W1_MASTER_DS9490_BRIDGE dependencies
 
- include/linux/module.h |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+Andrew Morton:
+      W1: u64 is not long long
 
-diff --git a/include/linux/module.h b/include/linux/module.h
-index 70bd843..d956915 100644
---- a/include/linux/module.h
-+++ b/include/linux/module.h
-@@ -183,6 +183,7 @@ void *__symbol_get_gpl(const char *symbo
- 
- /* For every exported symbol, place a struct in the __ksymtab section */
- #define __EXPORT_SYMBOL(sym, sec)				\
-+	extern typeof(sym) sym;					\
- 	__CRC_SYMBOL(sym, sec)					\
- 	static const char __kstrtab_##sym[]			\
- 	__attribute__((section("__ksymtab_strings")))		\
+Evgeniy Polyakov:
+      W1: Change the type 'unsigned long' member of 'struct w1_bus_master' to 'void *'.
+      W1: Move w1 bus master code into 'w1/masters' and move w1 slave code into 'w1/slaves'
+      W1: Add the DS2482 I2C-to-w1 bridge driver.
+      w1: use kthread api.
 
---------------020904020401040302050807--
+Patrick McHardy:
+      W1: Remove incorrect MODULE_ALIAS
+

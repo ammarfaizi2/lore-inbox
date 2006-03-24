@@ -1,402 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbWCXQEf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWCXQOB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932380AbWCXQEf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 11:04:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWCXQEe
+	id S932415AbWCXQOB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 11:14:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWCXQOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 11:04:34 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:50615
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S932318AbWCXQEc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 11:04:32 -0500
-Subject: [PATCH] synclink_gt add gpio feature
-From: Paul Fulghum <paulkf@microgate.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Fri, 24 Mar 2006 10:04:11 -0600
-Message-Id: <1143216251.8513.3.camel@amdx2.microgate.com>
+	Fri, 24 Mar 2006 11:14:00 -0500
+Received: from colo.lackof.org ([198.49.126.79]:8682 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S932415AbWCXQOA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 11:14:00 -0500
+Date: Fri, 24 Mar 2006 09:24:58 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 2.6.16-mm1 2/4] PCI legacy I/O port free driver (take 6) - Update Documentation/pci.txt
+Message-ID: <20060324162458.GA4206@colo.lackof.org>
+References: <442382F1.2050300@jp.fujitsu.com> <44238469.8080009@jp.fujitsu.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44238469.8080009@jp.fujitsu.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add driver support for general purpose I/O feature
-of the Synclink GT adapters.
+On Fri, Mar 24, 2006 at 02:32:25PM +0900, Kenji Kaneshige wrote:
+> This patch adds the description about legacy I/O port free driver into
+> Documentation/pci.txt.
 
-Signed-off-by: Paul Fulghum <paulkf@micrgate.com>
+I very much appreciate Kenji has pursued this.
+I edited much of the original text and wrote some parts
+of the "MMIO Write Posting" chapter.  Errors in those
+bits are most likely mine.
 
---- linux-2.6.16/drivers/char/synclink_gt.c	2006-03-19 23:53:29.000000000 -0600
-+++ b/drivers/char/synclink_gt.c	2006-03-24 09:43:42.000000000 -0600
-@@ -1,5 +1,5 @@
- /*
-- * $Id: synclink_gt.c,v 4.22 2006/01/09 20:16:06 paulkf Exp $
-+ * $Id: synclink_gt.c,v 4.25 2006/02/06 21:20:33 paulkf Exp $
-  *
-  * Device driver for Microgate SyncLink GT serial adapters.
-  *
-@@ -92,7 +92,7 @@
-  * module identification
-  */
- static char *driver_name     = "SyncLink GT";
--static char *driver_version  = "$Revision: 4.22 $";
-+static char *driver_version  = "$Revision: 4.25 $";
- static char *tty_driver_name = "synclink_gt";
- static char *tty_dev_prefix  = "ttySLG";
- MODULE_LICENSE("GPL");
-@@ -188,6 +188,20 @@ static void hdlcdev_exit(struct slgt_inf
- #define SLGT_REG_SIZE  256
- 
- /*
-+ * conditional wait facility
-+ */
-+struct cond_wait {
-+	struct cond_wait *next;
-+	wait_queue_head_t q;
-+	wait_queue_t wait;
-+	unsigned int data;
-+};
-+static void init_cond_wait(struct cond_wait *w, unsigned int data);
-+static void add_cond_wait(struct cond_wait **head, struct cond_wait *w);
-+static void remove_cond_wait(struct cond_wait **head, struct cond_wait *w);
-+static void flush_cond_wait(struct cond_wait **head);
-+
-+/*
-  * DMA buffer descriptor and access macros
-  */
- struct slgt_desc
-@@ -269,6 +283,9 @@ struct slgt_info {
- 	struct timer_list	tx_timer;
- 	struct timer_list	rx_timer;
- 
-+	unsigned int            gpio_present;
-+	struct cond_wait        *gpio_wait_q;
-+
- 	spinlock_t lock;	/* spinlock for synchronizing with ISR */
- 
- 	struct work_struct task;
-@@ -379,6 +396,11 @@ static MGSL_PARAMS default_params = {
- #define MASK_OVERRUN BIT4
- 
- #define GSR   0x00 /* global status */
-+#define JCR   0x04 /* JTAG control */
-+#define IODR  0x08 /* GPIO direction */
-+#define IOER  0x0c /* GPIO interrupt enable */
-+#define IOVR  0x10 /* GPIO value */
-+#define IOSR  0x14 /* GPIO interrupt status */
- #define TDR   0x80 /* tx data */
- #define RDR   0x80 /* rx data */
- #define TCR   0x82 /* tx control */
-@@ -503,6 +525,9 @@ static int  tiocmset(struct tty_struct *
- static void set_break(struct tty_struct *tty, int break_state);
- static int  get_interface(struct slgt_info *info, int __user *if_mode);
- static int  set_interface(struct slgt_info *info, int if_mode);
-+static int  set_gpio(struct slgt_info *info, struct gpio_desc __user *gpio);
-+static int  get_gpio(struct slgt_info *info, struct gpio_desc __user *gpio);
-+static int  wait_gpio(struct slgt_info *info, struct gpio_desc __user *gpio);
- 
- /*
-  * driver functions
-@@ -1112,6 +1137,12 @@ static int ioctl(struct tty_struct *tty,
- 		return get_interface(info, argp);
- 	case MGSL_IOCSIF:
- 		return set_interface(info,(int)arg);
-+	case MGSL_IOCSGPIO:
-+		return set_gpio(info, argp);
-+	case MGSL_IOCGGPIO:
-+		return get_gpio(info, argp);
-+	case MGSL_IOCWAITGPIO:
-+		return wait_gpio(info, argp);
- 	case TIOCGICOUNT:
- 		spin_lock_irqsave(&info->lock,flags);
- 		cnow = info->icount;
-@@ -2158,6 +2189,24 @@ static void isr_txeom(struct slgt_info *
- 	}
- }
- 
-+static void isr_gpio(struct slgt_info *info, unsigned int changed, unsigned int state)
-+{
-+	struct cond_wait *w, *prev;
-+
-+	/* wake processes waiting for specific transitions */
-+	for (w = info->gpio_wait_q, prev = NULL ; w != NULL ; w = w->next) {
-+		if (w->data & changed) {
-+			w->data = state;
-+			wake_up_interruptible(&w->q);
-+			if (prev != NULL)
-+				prev->next = w->next;
-+			else
-+				info->gpio_wait_q = w->next;
-+		} else
-+			prev = w;
-+	}
-+}
-+
- /* interrupt service routine
-  *
-  * 	irq	interrupt number
-@@ -2193,6 +2242,22 @@ static irqreturn_t slgt_interrupt(int ir
- 		}
- 	}
- 
-+	if (info->gpio_present) {
-+		unsigned int state;
-+		unsigned int changed;
-+		while ((changed = rd_reg32(info, IOSR)) != 0) {
-+			DBGISR(("%s iosr=%08x\n", info->device_name, changed));
-+			/* read latched state of GPIO signals */
-+			state = rd_reg32(info, IOVR);
-+			/* clear pending GPIO interrupt bits */
-+			wr_reg32(info, IOSR, changed);
-+			for (i=0 ; i < info->port_count ; i++) {
-+				if (info->port_array[i] != NULL)
-+					isr_gpio(info->port_array[i], changed, state);
-+			}
-+		}
-+	}
-+
- 	for(i=0; i < info->port_count ; i++) {
- 		struct slgt_info *port = info->port_array[i];
- 
-@@ -2276,6 +2341,8 @@ static void shutdown(struct slgt_info *i
- 		set_signals(info);
- 	}
- 
-+	flush_cond_wait(&info->gpio_wait_q);
-+
- 	spin_unlock_irqrestore(&info->lock,flags);
- 
- 	if (info->tty)
-@@ -2650,6 +2717,175 @@ static int set_interface(struct slgt_inf
- 	return 0;
- }
- 
-+/*
-+ * set general purpose IO pin state and direction
-+ *
-+ * user_gpio fields:
-+ * state   each bit indicates a pin state
-+ * smask   set bit indicates pin state to set
-+ * dir     each bit indicates a pin direction (0=input, 1=output)
-+ * dmask   set bit indicates pin direction to set
-+ */
-+static int set_gpio(struct slgt_info *info, struct gpio_desc __user *user_gpio)
-+{
-+ 	unsigned long flags;
-+	struct gpio_desc gpio;
-+	__u32 data;
-+
-+	if (!info->gpio_present)
-+		return -EINVAL;
-+	if (copy_from_user(&gpio, user_gpio, sizeof(gpio)))
-+		return -EFAULT;
-+	DBGINFO(("%s set_gpio state=%08x smask=%08x dir=%08x dmask=%08x\n",
-+		 info->device_name, gpio.state, gpio.smask,
-+		 gpio.dir, gpio.dmask));
-+
-+	spin_lock_irqsave(&info->lock,flags);
-+	if (gpio.dmask) {
-+		data = rd_reg32(info, IODR);
-+		data |= gpio.dmask & gpio.dir;
-+		data &= ~(gpio.dmask & ~gpio.dir);
-+		wr_reg32(info, IODR, data);
-+	}
-+	if (gpio.smask) {
-+		data = rd_reg32(info, IOVR);
-+		data |= gpio.smask & gpio.state;
-+		data &= ~(gpio.smask & ~gpio.state);
-+		wr_reg32(info, IOVR, data);
-+	}
-+	spin_unlock_irqrestore(&info->lock,flags);
-+
-+	return 0;
-+}
-+
-+/*
-+ * get general purpose IO pin state and direction
-+ */
-+static int get_gpio(struct slgt_info *info, struct gpio_desc __user *user_gpio)
-+{
-+	struct gpio_desc gpio;
-+	if (!info->gpio_present)
-+		return -EINVAL;
-+	gpio.state = rd_reg32(info, IOVR);
-+	gpio.smask = 0xffffffff;
-+	gpio.dir   = rd_reg32(info, IODR);
-+	gpio.dmask = 0xffffffff;
-+	if (copy_to_user(user_gpio, &gpio, sizeof(gpio)))
-+		return -EFAULT;
-+	DBGINFO(("%s get_gpio state=%08x dir=%08x\n",
-+		 info->device_name, gpio.state, gpio.dir));
-+	return 0;
-+}
-+
-+/*
-+ * conditional wait facility
-+ */
-+static void init_cond_wait(struct cond_wait *w, unsigned int data)
-+{
-+	init_waitqueue_head(&w->q);
-+	init_waitqueue_entry(&w->wait, current);
-+	w->data = data;
-+}
-+
-+static void add_cond_wait(struct cond_wait **head, struct cond_wait *w)
-+{
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	add_wait_queue(&w->q, &w->wait);
-+	w->next = *head;
-+	*head = w;
-+}
-+
-+static void remove_cond_wait(struct cond_wait **head, struct cond_wait *cw)
-+{
-+	struct cond_wait *w, *prev;
-+	remove_wait_queue(&cw->q, &cw->wait);
-+	set_current_state(TASK_RUNNING);
-+	for (w = *head, prev = NULL ; w != NULL ; prev = w, w = w->next) {
-+		if (w == cw) {
-+			if (prev != NULL)
-+				prev->next = w->next;
-+			else
-+				*head = w->next;
-+			break;
-+		}
-+	}
-+}
-+
-+static void flush_cond_wait(struct cond_wait **head)
-+{
-+	while (*head != NULL) {
-+		wake_up_interruptible(&(*head)->q);
-+		*head = (*head)->next;
-+	}
-+}
-+
-+/*
-+ * wait for general purpose I/O pin(s) to enter specified state
-+ *
-+ * user_gpio fields:
-+ * state - bit indicates target pin state
-+ * smask - set bit indicates watched pin
-+ *
-+ * The wait ends when at least one watched pin enters the specified
-+ * state. When 0 (no error) is returned, user_gpio->state is set to the
-+ * state of all GPIO pins when the wait ends.
-+ *
-+ * Note: Each pin may be a dedicated input, dedicated output, or
-+ * configurable input/output. The number and configuration of pins
-+ * varies with the specific adapter model. Only input pins (dedicated
-+ * or configured) can be monitored with this function.
-+ */
-+static int wait_gpio(struct slgt_info *info, struct gpio_desc __user *user_gpio)
-+{
-+ 	unsigned long flags;
-+	int rc = 0;
-+	struct gpio_desc gpio;
-+	struct cond_wait wait;
-+	u32 state;
-+
-+	if (!info->gpio_present)
-+		return -EINVAL;
-+	if (copy_from_user(&gpio, user_gpio, sizeof(gpio)))
-+		return -EFAULT;
-+	DBGINFO(("%s wait_gpio() state=%08x smask=%08x\n",
-+		 info->device_name, gpio.state, gpio.smask));
-+	/* ignore output pins identified by set IODR bit */
-+	if ((gpio.smask &= ~rd_reg32(info, IODR)) == 0)
-+		return -EINVAL;
-+	init_cond_wait(&wait, gpio.smask);
-+
-+	spin_lock_irqsave(&info->lock, flags);
-+	/* enable interrupts for watched pins */
-+	wr_reg32(info, IOER, rd_reg32(info, IOER) | gpio.smask);
-+	/* get current pin states */
-+	state = rd_reg32(info, IOVR);
-+
-+	if (gpio.smask & ~(state ^ gpio.state)) {
-+		/* already in target state */
-+		gpio.state = state;
-+	} else {
-+		/* wait for target state */
-+		add_cond_wait(&info->gpio_wait_q, &wait);
-+		spin_unlock_irqrestore(&info->lock, flags);
-+		schedule();
-+		if (signal_pending(current))
-+			rc = -ERESTARTSYS;
-+		else
-+			gpio.state = wait.data;
-+		spin_lock_irqsave(&info->lock, flags);
-+		remove_cond_wait(&info->gpio_wait_q, &wait);
-+	}
-+
-+	/* disable all GPIO interrupts if no waiting processes */
-+	if (info->gpio_wait_q == NULL)
-+		wr_reg32(info, IOER, 0);
-+	spin_unlock_irqrestore(&info->lock,flags);
-+
-+	if ((rc == 0) && copy_to_user(user_gpio, &gpio, sizeof(gpio)))
-+		rc = -EFAULT;
-+	return rc;
-+}
-+
- static int modem_input_wait(struct slgt_info *info,int arg)
- {
-  	unsigned long flags;
-@@ -3166,8 +3402,10 @@ static void device_init(int adapter_num,
- 		} else {
- 			port_array[0]->irq_requested = 1;
- 			adapter_test(port_array[0]);
--			for (i=1 ; i < port_count ; i++)
-+			for (i=1 ; i < port_count ; i++) {
- 				port_array[i]->init_error = port_array[0]->init_error;
-+				port_array[i]->gpio_present = port_array[0]->gpio_present;
-+			}
- 		}
- 	}
- }
-@@ -4301,7 +4539,7 @@ static int register_test(struct slgt_inf
- 			break;
- 		}
- 	}
--
-+	info->gpio_present = (rd_reg32(info, JCR) & BIT5) ? 1 : 0;
- 	info->init_error = rc ? 0 : DiagStatus_AddressFailure;
- 	return rc;
- }
---- linux-2.6.16/include/linux/synclink.h	2006-03-19 23:53:29.000000000 -0600
-+++ b/include/linux/synclink.h	2006-03-24 09:52:55.000000000 -0600
-@@ -1,7 +1,7 @@
- /*
-  * SyncLink Multiprotocol Serial Adapter Driver
-  *
-- * $Id: synclink.h,v 3.10 2005/11/08 19:50:54 paulkf Exp $
-+ * $Id: synclink.h,v 3.11 2006/02/06 21:20:29 paulkf Exp $
-  *
-  * Copyright (C) 1998-2000 by Microgate Corporation
-  *
-@@ -221,6 +221,12 @@ struct mgsl_icount {
- 	__u32	rxidle;
- };
- 
-+struct gpio_desc {
-+	__u32 state;
-+	__u32 smask;
-+	__u32 dir;
-+	__u32 dmask;
-+};
- 
- #define DEBUG_LEVEL_DATA	1
- #define DEBUG_LEVEL_ERROR 	2
-@@ -276,5 +282,8 @@ struct mgsl_icount {
- #define MGSL_IOCLOOPTXDONE	_IO(MGSL_MAGIC_IOC,9)
- #define MGSL_IOCSIF		_IO(MGSL_MAGIC_IOC,10)
- #define MGSL_IOCGIF		_IO(MGSL_MAGIC_IOC,11)
-+#define MGSL_IOCSGPIO		_IOW(MGSL_MAGIC_IOC,16,struct gpio_desc)
-+#define MGSL_IOCGGPIO		_IOR(MGSL_MAGIC_IOC,17,struct gpio_desc)
-+#define MGSL_IOCWAITGPIO	_IOWR(MGSL_MAGIC_IOC,18,struct gpio_desc)
- 
- #endif /* _SYNCLINK_H_ */
+Please add my S-o-B line to the commit log in case the
+language needs further editing. I already see one typo
+("to CPU continue" -> "the CPU to continue") and will
+submit a patch if anyone has more.
+
+thanks,
+grant
+
+Signed-off-by: Grant Grundler <grundler@parisc-linux.org>
 
 
+> Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+> 
+>  Documentation/pci.txt |   67 ++++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 files changed, 67 insertions(+)
+> 
+> Index: linux-2.6.16-mm1/Documentation/pci.txt
+> ===================================================================
+> --- linux-2.6.16-mm1.orig/Documentation/pci.txt	2006-03-23 20:04:06.000000000 +0900
+> +++ linux-2.6.16-mm1/Documentation/pci.txt	2006-03-23 20:04:12.000000000 +0900
+> @@ -269,3 +269,70 @@
+>  pci_find_device()		Superseded by pci_get_device()
+>  pci_find_subsys()		Superseded by pci_get_subsys()
+>  pci_find_slot()			Superseded by pci_get_slot()
+> +
+> +
+> +9. Legacy I/O port free driver
+> +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> +Large servers may not be able to provide I/O port resources to all PCI
+> +devices. I/O Port space is only 64KB on Intel Architecture[1] and is
+> +likely also fragmented since the I/O base register of PCI-to-PCI
+> +bridge will usually be aligned to a 4KB boundary[2]. On such systems,
+> +pci_enable_device() and pci_request_regions() will fail when
+> +attempting to enable I/O Port regions that don't have I/O Port
+> +resources assigned.
+> +
+> +Fortunately, many PCI devices which request I/O Port resources also
+> +provide access to the same registers via MMIO BARs. These devices can
+> +be handled without using I/O port space and the drivers typically
+> +offer a CONFIG_ option to only use MMIO regions
+> +(e.g. CONFIG_TULIP_MMIO). PCI devices typically provide I/O port
+> +interface for legacy OSs and will work when I/O port resources are not
+> +assigned. The "PCI Local Bus Specification Revision 3.0" discusses
+> +this on p.44, "IMPLEMENTATION NOTE".
+> +
+> +If your PCI device driver doesn't need I/O port resources assigned to
+> +I/O Port BARs, you should use pci_enable_device_bars() instead of
+> +pci_enable_device() in order not to enable I/O port regions for the
+> +corresponding devices.
+> +
+> +[1] Some systems support 64KB I/O port space per PCI segment.
+> +[2] Some PCI-to-PCI bridges support optional 1KB aligned I/O base.
+> +
+> +
+> +10. MMIO Space and "Write Posting"
+> +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> +Converting a driver from using I/O Port space to using MMIO space
+> +often requires some additional changes. Specifically, "write posting"
+> +needs to be handled. Most drivers (e.g. tg3, acenic, sym53c8xx_2)
+> +already do. I/O Port space guarantees write transactions reach the PCI
+> +device before the CPU can continue. Writes to MMIO space allow to CPU
+> +continue before the transaction reaches the PCI device. HW weenies
+> +call this "Write Posting" because the write completion is "posted" to
+> +the CPU before the transaction has reached it's destination.
+> +
+> +Thus, timing sensitive code should add readl() where the CPU is
+> +expected to wait before doing other work.  The classic "bit banging"
+> +sequence works fine for I/O Port space:
+> +
+> +	for (i=8; --i; val >>= 1) {
+> +		outb(val & 1, ioport_reg);	/* write bit */
+> +		udelay(10);
+> +	}
+> +
+> +The same sequence for MMIO space should be:
+> +
+> +	for (i=8; --i; val >>= 1) {
+> +		writeb(val & 1, mmio_reg);	/* write bit */
+> +		readb(safe_mmio_reg);		/* flush posted write */
+> +		udelay(10);
+> +	}
+> +
+> +It is important that "safe_mmio_reg" not have any side effects that
+> +interferes with the correct operation of the device.
+> +
+> +Another case to watch out for is when resetting a PCI device. Use PCI
+> +Configuration space reads to flush the writel(). This will gracefully
+> +handle the PCI master abort on all platforms if the PCI device is
+> +expected to not respond to a readl().  Most x86 platforms will allow
+> +MMIO reads to master abort (aka "Soft Fail") and return garbage
+> +(e.g. ~0). But many RISC platforms will crash (aka "Hard Fail").

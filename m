@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWCXPtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWCXPuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWCXPtO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 10:49:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWCXPtN
+	id S932104AbWCXPuz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 10:50:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbWCXPuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 10:49:13 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:58776 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751130AbWCXPtK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 10:49:10 -0500
-Subject: Re: [RFC PATCH 35/35] Add Xen virtual block device driver.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Ian Pratt <m+Ian.Pratt@cl.cam.ac.uk>,
-       Anthony Liguori <aliguori@us.ibm.com>,
-       Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
-       Ian Pratt <ian.pratt@xensource.com>, ian.pratt@cl.cam.ac.uk,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <4423E853.1040707@garzik.org>
-References: <A95E2296287EAD4EB592B5DEEFCE0E9D4B9E8A@liverpoolst.ad.cl.cam.ac.uk>
-	 <4421D943.1090804@garzik.org>
-	 <1143202673.18986.5.camel@localhost.localdomain>
-	 <4423E853.1040707@garzik.org>
-Content-Type: text/plain
+	Fri, 24 Mar 2006 10:50:55 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:65180 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932104AbWCXPuy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 10:50:54 -0500
+Message-ID: <44241552.5020503@linux.intel.com>
+Date: Fri, 24 Mar 2006 16:50:42 +0100
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Ashok Raj <ashok.raj@intel.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Ignore MCFG if the mmconfig area isn't reserved in thee820
+ table
+References: <1143138170.3147.43.camel@laptopd505.fenrus.org> <200603241639.54192.ak@suse.de> <44241359.3070409@linux.intel.com> <200603241648.19901.ak@suse.de>
+In-Reply-To: <200603241648.19901.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 24 Mar 2006 15:55:27 +0000
-Message-Id: <1143215728.18986.15.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2006-03-24 at 07:38 -0500, Jeff Garzik wrote:
-> > A pure SCSI abstraction doesn't allow for shared head scheduling which
-> > you will need to scale Xen sanely on typical PC boxes.
+Andi Kleen wrote:
+> On Friday 24 March 2006 16:42, Arjan van de Ven wrote:
+>> Andi Kleen wrote:
+>>> In theory they should be the same. What do you think is different?
+>> in practice the x86-64 version returns "success" if there is one byte in the entire
+>> memory range that complies with the requested type, even if the rest of the range is
+>> of another type. 
 > 
-> Not true at all.  If you can do it with a block device, you can do it 
-> with a SCSI block device.
+> I would consider that a bug. Please send fix.
 
-I don't believe this is true. The complexity of expressing sequences of
-command ordering between virtual machines acting in a co-operative but
-secure manner isn't as far as I can see expressable sanely in SCSI TCQ
-> 
-> In fact, SCSI should make a few things easier, because the notion of 
-> host+bus topology is already present, and notion of messaging is already 
-> present, so you don't have to recreate that in a Xen block device 
-> infrastructure.
+I'm less sure. It's what the function does, and I can see very valid usage models for it;
+to detect that a certain type is NOT present. And the code is clearly written with that goal
+in mind at least. I'm tempted to write a real range function but I also was hoping to avoid
+doing that, since for the MCFG test it really is a bit overkill.
 
-Those are the easy bits. 
 
-> > are also always full of bits people got wrong, often critical bits like
-> > tagged queues and error sequences - things that break your journalled
-> > file system.
-> 
-> This I'll grant you.
-
-And every one you get wrong is a corruptor....
-
-Alan
 

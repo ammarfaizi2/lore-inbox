@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751582AbWCXHtV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751587AbWCXHuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751582AbWCXHtV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 02:49:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751586AbWCXHtV
+	id S1751587AbWCXHuT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 02:50:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751601AbWCXHuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 02:49:21 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:45206 "EHLO
+	Fri, 24 Mar 2006 02:50:19 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:47511 "EHLO
 	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751581AbWCXHtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 02:49:19 -0500
-Message-ID: <4423A40D.3080906@jp.fujitsu.com>
-Date: Fri, 24 Mar 2006 16:47:25 +0900
+	id S1751587AbWCXHuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 02:50:16 -0500
+Message-ID: <4423A434.5070701@jp.fujitsu.com>
+Date: Fri, 24 Mar 2006 16:48:04 +0900
 From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
 User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
 To: Greg KH <greg@kroah.com>
 CC: Linux Kernel list <linux-kernel@vger.kernel.org>,
        linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [PATCH 1/6] PCIERR : interfaces for synchronous I/O error detection
- on driver
+Subject: [PATCH 2/6] PCIERR : interfaces for synchronous I/O error detection
+ on driver (config)
 References: <44210D1B.7010806@jp.fujitsu.com> <20060322210157.GH12335@kroah.com>
 In-Reply-To: <20060322210157.GH12335@kroah.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
@@ -26,102 +26,96 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are 6 patches:
-  1: New interface's proposal, generic code in pci.h.
-  2: [1/4]IA64 specific implementation. (config)
-  3: [2/4]IA64 specific implementation. (base)
-  4: [3/4]IA64 specific implementation. (mcadrv)
-  5: [4/4]IA64 specific implementation. (poison)
-  6: Sample driver (Fusion MPT)
+This patch is 1/4 of PCIERR implementation for IA64.
 
-Following is abstract and 1st patch:
-
-This patch proposes new interfaces, that known by few as iochk_*,
-for synchronous I/O error detection on PCI drivers.
-
-At 2.6.16-rc1, Linux kernel accepts and provides "PCI-bus error event
-callbacks" that enable RAS-aware drivers to notice errors asynchronously,
-and to join following kernel-initiated PCI-bus error recovery.
-This callbacks work well on PPC64 where it was designed to fit.
-
-However, some difficulty still remains to cover all possible error
-situations even if we use callbacks. It will not help keeping data
-integrity, passing no broken data to drivers and user lands, preventing
-applications from going crazy or sudden death.
-
-I suppose that proposed interfaces will solve most of remaining issues.
-It would be FAQ that what is the difference between this interfaces and
-the callback. Following list would help you:
-
-** Feature 1: Asynchronous error event callbacks:
-  - written by Linas Vepstas
-  - patch was already accepted (2.6.16-rc1)
-  - designed for "Error Recovery":
-    Interface for asynchronous error recovery (such as bus reset)
-    on other context after an serious error occurrences.
-    This will be effective if system needs complex taking-time recovery,
-    ex. re-enabling erroneous PCI-bus.
-  - It will be useful if the arch supports bus-isolating and can continue
-    running after such isolation, limiting a part of its services.
-  - i.e. this feature improves Serviceability.
-  - drivers can use this feature by constructing struct pci_error_handlers
-    with its callbacks and register it in struct pci_driver of itself.
-
-** Feature 2: Synchronous error detect interfaces:
-  - written by Hidetoshi Seto
-  - patch is not accepted yet.
-  - designed for "Error Detection":
-    Interface for synchronous error detection on same context
-    and prevent system from data pollution on any error occurrences.
-    This will be effective if system doesn't require complex recovery,
-    ex. retrying I/O after trivial soft error, or re-issuing I/O if it
-    gets poisoned data (forwarded error from PCI-Express).
-  - It will be useful if arch chooses panic on bus errors not to pass
-    any broken data to un-reliable drivers.
-  - i.e. this feature improves Availability by keeping data integrity.
-  - drivers can use this feature by clipping its I/O by *_clear/read call
-    and checking the return value after all.
-
-Following patch adds definition of interfaces described as Feature 2.
-(They were renamed from iochk_* to pcierr_*, and located in pci.h.)
-There are no more patch for generic part. The core implementation is
-architecture dependent. You will get proper error status only on arch
-where supports and implements this feature. Or you will get always 0,
-means "no errors".
-
-Thanks,
-H.Seto
+This part enable us to switch IA64-specific PCIERR by config.
 
 Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
 
 -----
-  include/linux/pci.h |   15 +++++++++++++++
-  1 files changed, 15 insertions(+)
+  arch/ia64/Kconfig            |   10 ++++++++++
+  arch/ia64/lib/Makefile       |    1 +
+  arch/ia64/lib/pcierr_check.c |   23 +++++++++++++++++++++++
+  include/asm-ia64/pci.h       |    8 ++++++++
+  4 files changed, 42 insertions(+)
 
-Index: linux-2.6.16_WORK/include/linux/pci.h
+Index: linux-2.6.16_WORK/arch/ia64/Kconfig
 ===================================================================
---- linux-2.6.16_WORK.orig/include/linux/pci.h
-+++ linux-2.6.16_WORK/include/linux/pci.h
-@@ -696,6 +696,21 @@
-  #endif /* HAVE_ARCH_PCI_RESOURCE_TO_USER */
+--- linux-2.6.16_WORK.orig/arch/ia64/Kconfig
++++ linux-2.6.16_WORK/arch/ia64/Kconfig
+@@ -410,6 +410,16 @@
+  	bool
+  	default PCI
 
++config PCIERR_CHECK
++	bool "Support pcierr interfaces for IO error detection."
++	depends on PCI
++	help
++	  Saying Y provides pcierr infrastructure for "RAS-aware" drivers
++	  to detect and recover some IO errors, which strongly required by
++	  some of very-high-reliable systems.
++
++	  If you don't know what to do here, say N.
++
+  source "drivers/pci/Kconfig"
 
-+/* PCIERR_CHECK provides additional interfaces for drivers to detect
-+ * some IO errors, to support drivers can handle errors properly.
-+ * Some archs requiring high-reliability would implement these.
+  source "drivers/pci/hotplug/Kconfig"
+Index: linux-2.6.16_WORK/arch/ia64/lib/Makefile
+===================================================================
+--- linux-2.6.16_WORK.orig/arch/ia64/lib/Makefile
++++ linux-2.6.16_WORK/arch/ia64/lib/Makefile
+@@ -15,6 +15,7 @@
+  lib-$(CONFIG_MCKINLEY)	+= copy_page_mck.o memcpy_mck.o
+  lib-$(CONFIG_PERFMON)	+= carta_random.o
+  lib-$(CONFIG_MD_RAID5)	+= xor.o
++lib-$(CONFIG_PCIERR_CHECK) += pcierr_check.o
+
+  AFLAGS___divdi3.o	=
+  AFLAGS___udivdi3.o	= -DUNSIGNED
+Index: linux-2.6.16_WORK/include/asm-ia64/pci.h
+===================================================================
+--- linux-2.6.16_WORK.orig/include/asm-ia64/pci.h
++++ linux-2.6.16_WORK/include/asm-ia64/pci.h
+@@ -171,4 +171,12 @@
+
+  #define pcibios_scan_all_fns(a, b)	0
+
++#ifdef CONFIG_PCIERR_CHECK
++/* Enable ia64 pcierr - See arch/ia64/lib/pcierr_check.c */
++#define HAVE_ARCH_PCIERR_CHECK
++typedef struct {
++	int dummy;
++} iocookie;
++#endif /* CONFIG_PCIERR_CHECK  */
++
+  #endif /* _ASM_IA64_PCI_H */
+Index: linux-2.6.16_WORK/arch/ia64/lib/pcierr_check.c
+===================================================================
+--- /dev/null
++++ linux-2.6.16_WORK/arch/ia64/lib/pcierr_check.c
+@@ -0,0 +1,23 @@
++/*
++ * File:    pcierr_check.c
++ * Purpose: Implement the IA64 specific pcierr interfaces for RAS-drivers
 + */
-+#ifdef HAVE_ARCH_PCIERR_CHECK
-+/* type of iocookie is arch dependent */
-+extern void pcierr_clear(iocookie *cookie, struct pci_dev *dev);
-+extern int pcierr_read(iocookie *cookie);
-+#else
-+typedef int iocookie;
-+static inline void pcierr_clear(iocookie *cookie, struct pci_dev *dev) {}
-+static inline int pcierr_read(iocookie *cookie) { return 0; }
-+#endif
 +
++#include <linux/pci.h>
 +
-  /*
-   *  The world is not perfect and supplies us with broken PCI devices.
-   *  For at least a part of these bugs we need a work-around, so both
++void pcierr_clear(iocookie *cookie, struct pci_dev *dev);
++int  pcierr_read(iocookie *cookie);
++
++void pcierr_clear(iocookie *cookie, struct pci_dev *dev)
++{
++	/* register device etc. */
++}
++
++int pcierr_read(iocookie *cookie)
++{
++	/* check error etc. */
++	return 0;
++}
++
++EXPORT_SYMBOL(pcierr_read);
++EXPORT_SYMBOL(pcierr_clear);
+
 

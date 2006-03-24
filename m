@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWCXAoM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751503AbWCXAuN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751500AbWCXAoM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Mar 2006 19:44:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWCXAoM
+	id S1751503AbWCXAuN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Mar 2006 19:50:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWCXAuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Mar 2006 19:44:12 -0500
-Received: from pproxy.gmail.com ([64.233.166.176]:5491 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751500AbWCXAoM (ORCPT
+	Thu, 23 Mar 2006 19:50:13 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:32993 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751503AbWCXAuL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Mar 2006 19:44:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=QMhh5le282LrSc05M7QQ8bb31beu5U6eRKQTW8OaHO/ehKD50BvbZuFS+J64L//r3M4MPg++Ue5NfU7dUg1z7E3Z/WIXJl6dQBFRqZz5Mx1ov0WDTSriIwRomX8mc40ubXiHQAQ3dlllIufNsiplO5W1R8GWSDF4XVyOVx4ZvXU=
-Message-ID: <44234115.7010303@gmail.com>
-Date: Fri, 24 Mar 2006 08:45:09 +0800
-From: Yi Yang <yang.y.yi@gmail.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6.16 PATCH] Connector: Filesystem Events Connector
-References: <44216612.3060406@gmail.com> <1143101844.3147.9.camel@laptopd505.fenrus.org>
-In-Reply-To: <1143101844.3147.9.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 23 Mar 2006 19:50:11 -0500
+Subject: Re: 2.6.16-mm1
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@muc.de>, "R. J. Wysocki" <Rafal.Wysocki@fuw.edu.pl>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060323160426.153fbea9.akpm@osdl.org>
+References: <20060323014046.2ca1d9df.akpm@osdl.org>
+	 <200603232317.50245.Rafal.Wysocki@fuw.edu.pl>
+	 <20060323160426.153fbea9.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 23 Mar 2006 16:49:49 -0800
+Message-Id: <1143161390.2299.36.camel@leatherman>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Wed, 2006-03-22 at 22:58 +0800, Yi Yang wrote:
->   
->> This patch implements a new connector, Filesystem Event Connector,
->>  the user can monitor filesystem activities via it, currently, it
->>  can monitor access, attribute change, open, create, modify, delete,
->>  move and close of any file or directory.
->>     
->
->
-> how is this not redundant functionality with the audit subsystem ?
->   
-If you open Audit option, audit subsystem will audit all the syscalls, 
-so it adds big overhead for the whole system,
-but Filesystem Event Connector just concerns those operations related to 
-the filesystem, so it has little overhead,
-moreover, audit subsystem is a complicated function block, it not only 
-sends audit results to netlink interface, but also
- send them to klog or syslog, so it will add big overhead.
+On Thu, 2006-03-23 at 16:04 -0800, Andrew Morton wrote:
+> "R. J. Wysocki" <Rafal.Wysocki@fuw.edu.pl> wrote:
+> >
+> > On Thursday 23 March 2006 10:40, Andrew Morton wrote:
+> > > 
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.16-mm1/
+> > 
+> > On a uniprocessor AMD64 w/ CONFIG_SMP unset (2.6.16-rc6-mm2 works on this box
+> > just fine, .config attached):
+> 
+> hm, uniproc x86_64 seems to cause problems sometimes.  I should test it more.
+> 
+> > }-- snip --{
+> > PID hash table entries: 4096 (order: 12, 32768 bytes)
+> > time.c: Using 3.579545 MHz WALL PM GTOD PIT/TSC timer.
+> > time.c: Detected 1795.400 MHz processor.
+> > disabling early console
+> > Console: colour dummy device 80x25
+> > time.c: Lost 103 timer tick(s)! rip 10:start_kernel+0x121/0x220
+> > last cli 0x0
+> > last cli caller 0x0
+> > time.c: Lost 3 timer tick(s)! rip 10:__do_softirq+0x44/0xc0
+> > last cli 0x0
+> > last cli caller 0x0
+> > time.c: Lost 3 timer tick(s)! rip 10:__do_softirq+0x44/0xc0
 
-I think you can look File Event Connector as subset of audit subsystem, 
-but File Event Connector is a very lightweight
- subsystem.
->
->
->   
+It seems report_lost_ticks has been set to one w/ 2.6.16-mm1, thus these
+debug messages will be shown.
+
+Rafael: To properly compare, could you boot 2.6.16-rc6-mm2 w/ the
+"report_lost_ticks" boot option and see if the same sort of messages do
+not appear?
+
+thanks
+-john
 

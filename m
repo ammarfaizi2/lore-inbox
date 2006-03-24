@@ -1,68 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932591AbWCXSwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932596AbWCXSwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932591AbWCXSwL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 13:52:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbWCXSwL
+	id S932596AbWCXSwR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 13:52:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbWCXSwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 13:52:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:62950 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932591AbWCXSwK (ORCPT
+	Fri, 24 Mar 2006 13:52:17 -0500
+Received: from smtpout.mac.com ([17.250.248.97]:39136 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932596AbWCXSwQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 13:52:10 -0500
-Date: Fri, 24 Mar 2006 10:48:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Valerie Henson <val_henson@linux.intel.com>
-Cc: pbadari@gmail.com, linux-kernel@vger.kernel.org,
-       Ext2-devel@lists.sourceforge.net, arjan@linux.intel.com, tytso@mit.edu,
-       zach.brown@oracle.com
-Subject: Re: [Ext2-devel] [RFC] [PATCH] Reducing average ext2 fsck time
- through fs-wide dirty bit]
-Message-Id: <20060324104818.0016c2f2.akpm@osdl.org>
-In-Reply-To: <20060324143239.GB14508@goober>
-References: <20060322011034.GP12571@goober>
-	<1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com>
-	<20060322224844.GU12571@goober>
-	<20060322175503.3b678ab5.akpm@osdl.org>
-	<20060324143239.GB14508@goober>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 24 Mar 2006 13:52:16 -0500
+In-Reply-To: <200603231811.26546.mmazur@kernel.pl>
+References: <200603141619.36609.mmazur@kernel.pl> <200603231811.26546.mmazur@kernel.pl>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com>
+Cc: llh-announce@lists.pld-linux.org,
+       LKML Kernel <linux-kernel@vger.kernel.org>, dank@kegel.com,
+       nkukard@lbsd.net, vmiklos@frugalware.org, rseretny@paypc.com,
+       lkml@dervishd.net, Rob Landley <rob@landley.net>, jbailey@ubuntu.com,
+       llh-discuss@lists.pld-linux.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: State of userland headers
+Date: Fri, 24 Mar 2006 13:51:58 -0500
+To: Mariusz Mazur <mmazur@kernel.pl>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valerie Henson <val_henson@linux.intel.com> wrote:
->
-> On Wed, Mar 22, 2006 at 05:55:03PM -0800, Andrew Morton wrote:
-> > Valerie Henson <val_henson@linux.intel.com> wrote:
-> > > 
-> > > ext2 is simpler and faster than ext3 in many cases.  This is sort of
-> > > cheating; ext2 is simpler and faster because it makes no effort to
-> > > maintain on-disk consistency and can skip annoying things like, oh,
-> > > reserving space in the journal.  I am looking for ways to make ext2
-> > > cheat even more.
-> > > 
-> > 
-> > But it might be feasible to knock up an ext3-- in which all the journal
-> > operations are stubbed out.
-> 
-> Hmm... Could we get the mark_buffer_dirty/mark_inode_dirty logic
-> right?
+On Mar 23, 2006, at 12:11:26, Mariusz Mazur wrote:
+> There was a thread on lkml on this topic about a year ago. IIRC  
+> I've suggested, that the best option would be to get a new set of  
+> dirs somewhere inside the kernel, and gradually export the userland  
+> usable stuff from the kernel headers, so to (a) achieve full  
+> separation and (b) avoid duplication of definitions (meaning that  
+> kernel headers would simply include the userland ones where  
+> required). Linus said, that it would break stuff and so is  
+> unacceptable.
 
-All things are possible ;) One might add a new
-ext3_minus_minus_mark_buffer_dirty(), for example, put that in all the
-right places.
+I seem to remember Linus saying that "breaking things is  
+unacceptable", not that the project was guaranteed to break things  
+(we would just need to be much more careful about it than most kernel  
+patches).  What that seems to indicate to me is that an in-kernel  
+version would need to do the following for userspace-accessible  
+header files for a large number of kernel releases:
 
->  Probably create a list in the stubbed journal functions and
-> then mark them dirty in the journal close?  However, half the reason
-> I'm working on ext2 is the simplicity of the code - stubbing it out
-> would solve the performance problem but not the complexity problem.
+#ifndef _LINUX_HEADER_H
+#define _LINUX_HEADER_H
+#include <kabi/header.h>
+   /* Define or typedef a bunch of __kabi_ prefixes to the old  
+prefixes they used to have in the kernel header */
+#ifndef __KERNEL__
+# warning "The header file <linux/header.h> is deprecated for"
+# warning "userspace, please use <kabi/header.h> instead."
+#else
+   /* Kernel-only declarations/definitions */
+#endif
 
-Well ext3-- won't do anything to simplify the ext3 codebase.  It was just a
-thought..
+If this were done carefully, all programs that compile against kernel  
+headers could be _fixed_ in the short term (they'd go from throwing  
+errors to giving a couple deprecation warnings).  In the long term,  
+the extra ifdeffery could be removed and the <linux/*.h> headers for  
+which a <kabi/*.h> replacement had existed for a couple versions  
+could be removed.  New ABIs (including IOCTLs, new syscalls, etc)  
+could be required to use <kabi/*.h> in the first place.
 
-> Note that ext3's habit of clearing indirect blocks on truncate would
-> break some things I want to do in the future. (Insert secret plans
-> here.)
+> Unfortunately I must agree with him -- I don't think it is possible  
+> to completely avoid duplication of definitions and all tries would  
+> lead to breakage of some obscure configurations -- kernel headers  
+> sometimes require various magic that should be avoided inside the  
+> userland headers at all cost. This means that initially the llh-ng  
+> project would need to start as a completely separate entity that  
+> would not require the original kernel headers for anything, and  
+> only later, after achieving some level of maturity and getting  
+> merged into the kernel, would come the time for removing some  
+> duplication.
 
-Ah.  I guess one would need to port the ext2 truncate code.
+I think that requiring any kind of duplication of effort on that  
+large a scale is virtually guaranteed not to work.  It will break  
+down and be really painful for a long time.
+
+> And here's where the first problem arises -- llh were so great  
+> initially, because they removed a lot of conflicts with glibc, by  
+> simply removing 'offending' linux headers and including the glibc  
+> counterparts (eg. linux/socket.h would do nothing else, than  
+> include sys/socket.h).  Glibc's known for having lots of stuff  
+> simply 'hardcoded' into it's own set of headers, and more often  
+> than not, people do need to include headers from both places.
+
+1: Ewww, bad glibc!
+2: The symbols in kabi/*.h should probably all start with __kabi_
+
+The kernel _internally_ would "#include <kabi/foo.h>" and then  
+promptly redefine or typedef all of those objects.  If the kernel or  
+GLIBC want a struct renamed, they should #define  
+__kabi_name_of_struct name_of_struct just before including the header  
+file. We should also kind of frown upon non-libc userspace including  
+many <kabi/*.h> files, since if they get included before libc can  
+redefine the names to what it wants.
+
+> I don't know about uclibc, but klibc afaik expects a lot more of  
+> the linux headers to be present, than glibc does.
+
+Perhaps we should use klibc as our test-case for functional headers,  
+then, instead of glibc.
+
+> Hell, if llh-ng is supposed to be a full set of apis, we can't  
+> expect any of the headers to come from other places, so if any  
+> other app (libcs included) has duplicates, that's too bad for the  
+> app, since it's in need of some patching.
+
+The solution to that is to make sure that the new exported kernel  
+ABIs always have the __kabi_ prefix, so that we don't smash the  
+namespace of various programs.
+
+Cheers,
+Kyle Moffett

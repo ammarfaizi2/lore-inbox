@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751567AbWCXHZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751565AbWCXH1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751567AbWCXHZh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 02:25:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWCXHZh
+	id S1751565AbWCXH1z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 02:27:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751568AbWCXH1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 02:25:37 -0500
-Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:3335 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751562AbWCXHZg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 02:25:36 -0500
-Date: Fri, 24 Mar 2006 08:26:00 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: "Christopher Hoover" <ch@murgatroid.com>
-Cc: lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org,
-       kernel-janitors@lists.osdl.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Clean up magic numbers in i2c_parport.h
-Message-Id: <20060324082600.ca9f9796.khali@linux-fr.org>
-In-Reply-To: <000e01c64efd$cae7f750$8401000a@fakie>
-References: <20060323205617.38e02afe.khali@linux-fr.org>
-	<000e01c64efd$cae7f750$8401000a@fakie>
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Fri, 24 Mar 2006 02:27:55 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:45204 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751562AbWCXH1z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 02:27:55 -0500
+Date: Thu, 23 Mar 2006 23:23:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: arjan@infradead.org, yang.y.yi@gmail.com, linux-kernel@vger.kernel.org,
+       johnpol@2ka.mipt.ru, matthltc@us.ibm.com
+Subject: Re: [2.6.16 PATCH] Connector: Filesystem Events Connector v3
+Message-Id: <20060323232345.1ca16f3f.akpm@osdl.org>
+In-Reply-To: <20060323.230649.11516073.davem@davemloft.net>
+References: <4423673C.7000008@gmail.com>
+	<1143183541.2882.7.camel@laptopd505.fenrus.org>
+	<20060323.230649.11516073.davem@davemloft.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christopher,
-
-> > Beeuh. These macros don't really help. They actually make the lines
-> > longer! I'm not taking this change, sorry.
+"David S. Miller" <davem@davemloft.net> wrote:
+>
+> From: Arjan van de Ven <arjan@infradead.org>
+>  Date: Fri, 24 Mar 2006 07:59:01 +0100
 > 
-> If I kill off the macros but continue to use C99 structure initializers,
-> which is I believe is the proper kernel coding style today, the lines are
-> going to get even longer.  Is that OK?
+>  > then make the syslog part optional.. if it's not already!
 > 
-> Or are you asking for the patch w/o macros and w/o C99 structure
-> initializers?
-> 
-> I can/will do either.  Just let me know what is acceptable a priori.
+>  Regardless I still think the filesystem events connector is a useful
+>  facility.
 
-I don't think C99 initializers are needed here, the structure is pretty
-simple and is also defined in the same file, a few lines above all its
-instance declarations. So I am indeed asking for a patch w/o macros and
-w/o C99 structure initializers, unless someone objects.
+Why's that?
 
-Thanks,
--- 
-Jean Delvare
+(I'd viewed it as a fun thing, but I haven't really seen much pull for it,
+and the scalability issues in there aren't trivial).

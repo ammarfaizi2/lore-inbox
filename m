@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWCXS67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWCXS7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964772AbWCXS67 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 13:58:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbWCXS67
+	id S964774AbWCXS7R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 13:59:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbWCXS7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 13:58:59 -0500
-Received: from lixom.net ([66.141.50.11]:62942 "EHLO mail.lixom.net")
-	by vger.kernel.org with ESMTP id S964772AbWCXS66 (ORCPT
+	Fri, 24 Mar 2006 13:59:17 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:22681 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964773AbWCXS7P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 13:58:58 -0500
-Date: Fri, 24 Mar 2006 12:58:12 -0600
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] powerpc: Kill machine numbers
-Message-ID: <20060324185812.GE5538@pb15.lixom.net>
-References: <1143178947.4257.78.camel@localhost.localdomain> <20060324062624.GA16815@pb15.lixom.net> <1143187298.3710.3.camel@localhost.localdomain>
+	Fri, 24 Mar 2006 13:59:15 -0500
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: linuxppc-dev@ozlabs.org
+Subject: powerpc: fix hvc-rtas comments
+Date: Fri, 24 Mar 2006 19:58:51 +0100
+User-Agent: KMail/1.9.1
+Cc: cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Olof Johansson <olof@lixom.net>, Paul Mackerras <paulus@samba.org>
+References: <20060323203423.620978000@dyn-9-152-242-103.boeblingen.de.ibm.com> <20060323213217.GB5538@pb15.lixom.net> <200603232336.19683.arnd@arndb.de>
+In-Reply-To: <200603232336.19683.arnd@arndb.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1143187298.3710.3.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
-From: Olof Johansson <olof@lixom.net>
+Message-Id: <200603241958.52188.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 24, 2006 at 07:01:38PM +1100, Benjamin Herrenschmidt wrote:
-> 
-> > It would be very useful to print the ppc_md.name of the found machine
-> > here, even without debugging enabled.
-> 
-> Not sure ... without debugging enabled, it's likely that you won't see
-> anything that early anyway :)
+As notice by Olof Johansson, the comment about module_exit
+in hvc_rtas is rather confusing, so remove it.
 
-True, but it'd be in the dmesg, and get printed when the console comes up.
+Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
 
-> > It's really weird that IBM chose to use "chrp" to describe a
-> > PAPR-compliant platform. I guess it's for historical reasons, but it
-> > sure isn't CHRP any more.
-> 
-> Yup, I'm trying to get that changed in the architecture but even if I'm
-> successful, we'll have to deal with existing machines.
-
-Right, it was mostly a side comment.
-
-> > > +      is _not_ "chrp" as this will be matched by the kernel to be a
-> > > +      CHRP machine on 32 bits kernel or a pSeries on 64 bits kernels
-> > 
-> > ...or a PAPR-compliant machine on 64-bit kernels.
-> > 
-> > (Also, "xx-bit kernels", not "xx bits kernels").
-> 
-> yeah yeah :) Thanks for the review anyway !
-
-Hey, I couldn't find much technical issues, so I ended up reading your
-comments and picking errors there instead. :-)
-
-
--Olof
+---
+Index: linus-2.6/drivers/char/hvc_rtas.c
+===================================================================
+--- linus-2.6.orig/drivers/char/hvc_rtas.c
++++ linus-2.6/drivers/char/hvc_rtas.c
+@@ -119,7 +119,7 @@ static void __exit hvc_rtas_exit(void)
+ 	if (hvc_rtas_dev)
+ 		hvc_remove(hvc_rtas_dev);
+ }
+-module_exit(hvc_rtas_exit); /* before drivers/char/hvc_console.c */
++module_exit(hvc_rtas_exit);
+ 
+ /* This will happen prior to module init.  There is no tty at this time? */
+ static int hvc_rtas_console_init(void)

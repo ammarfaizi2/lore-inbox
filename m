@@ -1,88 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbWCXVXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWCXVYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751433AbWCXVXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 16:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWCXVXQ
+	id S1750890AbWCXVYh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 16:24:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWCXVYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 16:23:16 -0500
-Received: from mail.clusterfs.com ([206.168.112.78]:48799 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1751433AbWCXVXP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 16:23:15 -0500
-Date: Fri, 24 Mar 2006 14:23:12 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Valerie Henson <val_henson@linux.intel.com>, Andrew Morton <akpm@osdl.org>,
-       pbadari@gmail.com, linux-kernel@vger.kernel.org,
-       Ext2-devel@lists.sourceforge.net, arjan@linux.intel.com, tytso@mit.edu,
-       zach.brown@oracle.com
-Subject: Re: [Ext2-devel] [RFC] [PATCH] Reducing average ext2 fsck time through fs-wide dirty bit]
-Message-ID: <20060324212312.GR14852@schatzie.adilger.int>
-Mail-Followup-To: Matthew Wilcox <matthew@wil.cx>,
-	Valerie Henson <val_henson@linux.intel.com>,
-	Andrew Morton <akpm@osdl.org>, pbadari@gmail.com,
-	linux-kernel@vger.kernel.org, Ext2-devel@lists.sourceforge.net,
-	arjan@linux.intel.com, tytso@mit.edu, zach.brown@oracle.com
-References: <20060322011034.GP12571@goober> <1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com> <20060322224844.GU12571@goober> <20060322175503.3b678ab5.akpm@osdl.org> <20060324143239.GB14508@goober> <20060324192802.GK14852@schatzie.adilger.int> <20060324205229.GD11703@parisc-linux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 24 Mar 2006 16:24:37 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:17888
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1750890AbWCXVYg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 16:24:36 -0500
+From: Rob Landley <rob@landley.net>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: State of userland headers
+Date: Fri, 24 Mar 2006 16:23:49 -0500
+User-Agent: KMail/1.8.3
+Cc: Mariusz Mazur <mmazur@kernel.pl>, llh-announce@lists.pld-linux.org,
+       LKML Kernel <linux-kernel@vger.kernel.org>, dank@kegel.com,
+       nkukard@lbsd.net, vmiklos@frugalware.org, rseretny@paypc.com,
+       lkml@dervishd.net, jbailey@ubuntu.com, llh-discuss@lists.pld-linux.org
+References: <200603141619.36609.mmazur@kernel.pl> <200603231811.26546.mmazur@kernel.pl> <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com>
+In-Reply-To: <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060324205229.GD11703@parisc-linux.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Message-Id: <200603241623.49861.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 24, 2006  13:52 -0700, Matthew Wilcox wrote:
-> On Fri, Mar 24, 2006 at 12:28:02PM -0700, Andreas Dilger wrote:
-> > Fix for this problem (inode is locked already):
-> > - create a modified ext3_free_branches() to do tree walking and call a
-> >   method instead of always calling ext3_free_data->ext3_clear_blocks
-> > - walk inode {d,t,}indirect blocks in forward direction, count bitmaps and
-> >   groups that will be modified (essentially NULL ext3_free_branches method)
-> > - try to start a journal handle for this many blocks + 1 (inode) +
-> >   1 (super) + quota + EXT3_RESERVE_TRANS_BLOCKS
-> >   - if journal handle is too large (journal_start() returns -ENOSPC) fall
-> >     back to old zero-in-steps method (vast majority of cases will be OK
-> >     because number of modified blocks is much fewer)
-> 
-> Could we try a different fallback in this case?  For example, attempt to
-> truncate only half as much?  Is this even allowed?
+On Friday 24 March 2006 1:51 pm, Kyle Moffett wrote:
+> On Mar 23, 2006, at 12:11:26, Mariusz Mazur wrote:
+> > There was a thread on lkml on this topic about a year ago. IIRC
+> > I've suggested, that the best option would be to get a new set of
+> > dirs somewhere inside the kernel, and gradually export the userland
+> > usable stuff from the kernel headers, so to (a) achieve full
+> > separation and (b) avoid duplication of definitions (meaning that
+> > kernel headers would simply include the userland ones where
+> > required). Linus said, that it would break stuff and so is
+> > unacceptable.
+>
+> I seem to remember Linus saying that "breaking things is
+> unacceptable", not that the project was guaranteed to break things
+> (we would just need to be much more careful about it than most kernel
+> patches).
 
-What you suggest IS essentially the fallback.  The current code will start
-truncating at the end and grow the truncation until it can't any longer.
-In order to make this operation correct w.r.t. recovery, it HAS to
-zero out the already-truncated blocks, because the first transaction
-may complete and commit, while the second may not.  The proposed new
-behaviour is only acceptable because it ensures that the whole truncate
-can be completed in a single transaction.
+The gentoo guys clean up their own headers, apparently.  I'm told they do so 
+by moving around the #ifdef __KERNEL__ stuff to be in the correct places, and 
+that they're currently working on a 2.6.14 or 2.6.15 version of the headers:
 
+http://www.gentoo.org/cgi-bin/viewcvs.cgi/src/patchsets/gentoo-headers/?root=gentoo
 
-For a rough estimate of the allowable size of a "new" truncate
-transaction, worst case truncate dirties every group in the filesystem.
-A 2TB filesystem has 16384 groups, maximum transaction size:
+> What that seems to indicate to me is that an in-kernel 
+> version would need to do the following for userspace-accessible
+> header files for a large number of kernel releases:
+>
+> #ifndef _LINUX_HEADER_H
+> #define _LINUX_HEADER_H
+> #include <kabi/header.h>
+>    /* Define or typedef a bunch of __kabi_ prefixes to the old
+> prefixes they used to have in the kernel header */
+> #ifndef __KERNEL__
+> # warning "The header file <linux/header.h> is deprecated for"
+> # warning "userspace, please use <kabi/header.h> instead."
+> #else
+>    /* Kernel-only declarations/definitions */
+> #endif
 
-  (16384 bitmaps + (16384 / 128) group desc + inode + super + quota)
-  = 16518
+Changing the #include paths in all deployed software will basically never 
+happen.  If this header package requires that, I'm not interested in it 
+because I can't build existing software against it, and I don't expect anyone 
+else to be.
 
-requiring a journal size of 4x that is about 260MB (default journal
-size is 128MB these days for large filesystems).  For the worst case 1
-block/group this works out to a 64MB file, but in the vast majority of
-cases we will have more than a single block per group, and could have
-a full file truncate (up to 2TB file size) in the same (or smaller)
-transaction size.  Best case is about 125MB/group (i.e. per 4kB of journal
-transaction size).
+I was thinking of possibly a parallel header set under linux-2.6.x/usr/include 
+which the linux-2.6.x/include/*.h could #include to clean out their #ifndef 
+__KERNEL__ stuff, and that eventually the usr/include stuff would contain 
+approximately what Mazur's headers had contained.  Unfortunately, I'm under 
+the impression that's not a realistic approach.
 
-With the absolute minimum journal size we could always truncate files
-up to 1MB w/o fallback, and rougly up to 16GB (at 1/2 group chunks per
-"extent") without fallback.
+> If this were done carefully, all programs that compile against kernel
+> headers could be _fixed_ in the short term (they'd go from throwing
+> errors to giving a couple deprecation warnings).  In the long term,
+> the extra ifdeffery could be removed and the <linux/*.h> headers for
+> which a <kabi/*.h> replacement had existed for a couple versions
+> could be removed.  New ABIs (including IOCTLs, new syscalls, etc)
+> could be required to use <kabi/*.h> in the first place.
 
-The current code needs ~33 4kB blocks per 128MB of file size.
+A program that includes kabi/* instead of linux/* won't build against older C 
+libraries with older headers from older kernel versions (or older project's 
+like Mazur's headers).
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+> 1: Ewww, bad glibc!
+> 2: The symbols in kabi/*.h should probably all start with __kabi_
 
+Any grand new incompatible thing is something I will happily ignore for as 
+long as I am able to, and I'm not alone here.  Your uptake will be zero.
+
+Rob
+-- 
+Never bet against the cheap plastic solution.

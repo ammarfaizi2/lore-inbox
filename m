@@ -1,158 +1,201 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWCYDTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWCYDV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbWCYDTd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 22:19:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbWCYDTd
+	id S1750703AbWCYDV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 22:21:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWCYDV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 22:19:33 -0500
-Received: from xproxy.gmail.com ([66.249.82.192]:50597 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750702AbWCYDTd convert rfc822-to-8bit
+	Fri, 24 Mar 2006 22:21:57 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:49861 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750703AbWCYDV4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 22:19:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tGSVrtnzdO3mZgE5XTcZwjk2NwzKoaBQ6RZexggQR8rHfEMpJWjxMsKOyKcj4ZwXg4983kQ1SclLQkgyatJx1y2FcXUvJep9qIQDw4XvYSd7oB+OXLr51Rc1BsPyldy3m1VjDN19BTqiJfCp7QSkw8BCWJKb2xywxwRW3HeBCSU=
-Message-ID: <b8bf37780603241919x52e5711bpee734d3d9ec11cb9@mail.gmail.com>
-Date: Fri, 24 Mar 2006 23:19:26 -0400
-From: "=?ISO-8859-1?Q?Andr=E9_Goddard_Rosa?=" <andre.goddard@gmail.com>
-To: "Con Kolivas" <kernel@kolivas.org>
-Subject: Re: [ck] [benchmark] Interbench 2.6.16-ck/mm
-Cc: "linux list" <linux-kernel@vger.kernel.org>,
-       "ck list" <ck@vds.kolivas.org>
-In-Reply-To: <200603251351.57341.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 24 Mar 2006 22:21:56 -0500
+Date: Fri, 24 Mar 2006 21:21:46 -0600
+To: Greg KH <greg@kroah.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, john.ronciak@intel.com,
+       jesse.brandeburg@intel.com, jeffrey.t.kirsher@intel.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org,
+       linux.nics@intel.com
+Subject: Re: [PATCH] PCI Error Recovery: e1000 network device driver
+Message-ID: <20060325032146.GE21895@austin.ibm.com>
+References: <20060324220002.GC26137@austin.ibm.com> <20060325022206.GA6361@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200603251351.57341.kernel@kolivas.org>
+In-Reply-To: <20060325022206.GA6361@kroah.com>
+User-Agent: Mutt/1.5.9i
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/24/06, Con Kolivas <kernel@kolivas.org> wrote:
-> Here are interbench numbers for a pentium4 HT with 2.6.16-ck1 and 2.6.16-mm1
->
-> The rules I use for flagging diffferences are:
-> 1. Deadlines met is the primary endpoint.
-> 2. When latency is out of bounds, what is the worst max latency as that will
-> be the most noticeable jerkiness, stutter etc, but I only flag them if at
-> least one value is >=7ms since that is required to be human perceptible.
->
-> Using 2036365 loops per ms, running every load for 30 seconds
-> Benchmarking kernel 2.6.16-ck1 at datestamp 200603250244
->
-> --- Benchmarking simulated cpu of Audio in the presence of simulated ---
-> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU  % Deadlines Met
-> None      0.015 +/- 0.0159     0.023             100            100
-> Video     0.757 +/- 0.881          2             100            100
-> X         0.051 +/- 0.189       1.02             100            100
-> Burn      0.019 +/- 0.0201     0.056 *           100            100 *
-> Write     0.055 +/- 0.344       4.83             100            100
-> Read      0.024 +/- 0.0251     0.064             100            100
-> Compile    0.03 +/- 0.0888      1.69             100            100
-> Memload   0.321 +/- 4.94         112            99.8           99.8
->
-> --- Benchmarking simulated cpu of Video in the presence of simulated ---
-> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU  % Deadlines Met
-> None      0.016 +/- 0.0162     0.028             100            100
-> X         0.043 +/- 0.17        2.01 *           100            100 *
-> Burn      0.188 +/- 2.33        45.3 *          99.6           99.2 *
-> Write     0.043 +/- 0.558       16.7 *           100           99.9 *
-> Read      0.021 +/- 0.0217     0.078 *           100            100
-> Compile   0.093 +/- 1.08        18.4 *           100           99.6 *
-> Memload   0.385 +/- 4.83         138            98.9           98.3 *
->
-> --- Benchmarking simulated cpu of X in the presence of simulated ---
-> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU  % Deadlines Met
-> None      0.026 +/- 0.356          6 *           100             99 *
-> Video        14 +/- 26.5          72 *          35.6           26.5 *
-> Burn       51.4 +/- 98.4         456 *          15.1           7.91 *
-> Write      2.19 +/- 6.65          36 *          78.6           71.1
-> Read      0.756 +/- 3.33          24 *          90.6             86
-> Compile    34.5 +/- 53.8         165 *          20.7           11.6 *
-> Memload    4.05 +/- 12.6          80            73.3           66.8
->
-> --- Benchmarking simulated cpu of Gaming in the presence of simulated ---
-> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU
-> None       1.49 +/- 6.03        34.8 *          98.5 *
-> Video      68.7 +/- 68.9          74 *          59.3
-> X          60.7 +/- 70.6         143            62.2
-> Burn        514 +/- 534          602 *          16.3
-> Write      20.6 +/- 31.4         109 *          82.9
-> Read       7.77 +/- 9.04        31.3            92.8
-> Compile     436 +/- 459          697 *          18.7
-> Memload    27.1 +/- 58.3         755            78.7 *
->
->
->
-> Using 2036365 loops per ms, running every load for 30 seconds
-> Benchmarking kernel 2.6.16-mm1 at datestamp 200603250939
->
-> --- Benchmarking simulated cpu of Audio in the presence of simulated ---
-> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU  % Deadlines Met
-> None      0.012 +/- 0.0121     0.023             100            100
-> Video      1.16 +/- 1.24        2.01             100            100
-> X         0.302 +/- 0.681       2.01             100            100
-> Burn      0.365 +/- 8.63         211            99.7           99.7
-> Write     0.017 +/- 0.0193     0.072             100            100
-> Read       0.02 +/- 0.0209     0.056             100            100
-> Compile   0.019 +/- 0.0196     0.046             100            100
-> Memload   0.092 +/- 0.623         11 *           100 *          100 *
->
-> --- Benchmarking simulated cpu of Video in the presence of simulated ---
-> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU  % Deadlines Met
-> None      0.011 +/- 0.0114      0.04             100            100
-> X         0.885 +/- 3.73        18.7             100           95.8
-> Burn      0.977 +/- 22.6         934            98.4           95.9
-> Write     0.047 +/- 0.789       23.7             100           99.8
-> Read      0.017 +/- 0.0181     0.058             100            100
-> Compile     1.6 +/- 17.6         370            96.5           94.5
-> Memload   0.501 +/- 3.48        44.4 *          98.9           97.4
->
-> --- Benchmarking simulated cpu of X in the presence of simulated ---
-> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU  % Deadlines Met
-> None      0.255 +/- 2.25          27            94.1           93.3
-> Video      14.8 +/- 27.7          76            34.8           25.5
-> Burn       39.4 +/- 75.6         505            13.1           7.07
-> Write       1.6 +/- 6.17          48            78.7           74.9 *
-> Read      0.709 +/- 3.26          30            91.2             88 *
-> Compile    42.9 +/- 80.5         667            11.3           5.61
-> Memload    2.23 +/- 7.24          42 *          71.4           66.8
->
-> --- Benchmarking simulated cpu of Gaming in the presence of simulated ---
-> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU
-> None       5.31 +/- 19           123              95
-> Video      69.8 +/- 70.1        80.1            58.9 *
-> X          60.3 +/- 70.3         120 *          62.4
-> Burn        295 +/- 310          710            25.3 *
-> Write      17.3 +/- 30.8         110            85.2 *
-> Read       5.64 +/- 6.45        20.3 *          94.7 *
-> Compile     392 +/- 420          713            20.3
-> Memload    27.8 +/- 47.8         430 *          78.3
->
->
-> Summary:
->         Deadlines       Max Latencies
->         ck      mm      ck      mm
-> Audio   1       1       1       1
-> Video   5       0       5       1
-> X       4       2       6       1
-> Game    2       4       5       3
->
-> Note that most of the differences between -ck and -mm on this benchmark are
-> due to the staircase cpu scheduler in -ck. It has staircase v14.2 as recently
-> posted to the mailing list.
->
-> Cheers,
-> Con
+On Fri, Mar 24, 2006 at 06:22:06PM -0800, Greg KH wrote:
+> ... a bit
+> different from the traditional kernel coding style.
 
-I just tried  2.6.16-mm1 with Mike Galbraith patches and it feels
-better in some situations (like opening a new tab inside konqueror or
-running a configure script ) but it gave some
-stops when playing amarok/gstreamer and doing regular desktop work.
+Sorry, this is due to inattention on my part; I get cross-eyed 
+after staring at the same code for too long. The patch below should
+fix things.  
 
-Best regards,
---
-[]s,
+--linas
 
-André Goddard
+
+[PATCH] PCI Error Recovery: e1000 network device driver
+
+Various PCI bus errors can be signaled by newer PCI controllers.  This
+patch adds the PCI error recovery callbacks to the intel gigabit
+ethernet e1000 device driver. The patch has been tested, and appears
+to work well.
+
+Signed-off-by: Linas Vepstas <linas@linas.org>
+Acked-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+
+----
+
+ drivers/net/e1000/e1000_main.c |  114 ++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 113 insertions(+), 1 deletion(-)
+
+Index: linux-2.6.16-git6/drivers/net/e1000/e1000_main.c
+===================================================================
+--- linux-2.6.16-git6.orig/drivers/net/e1000/e1000_main.c	2006-03-23 15:48:01.000000000 -0600
++++ linux-2.6.16-git6/drivers/net/e1000/e1000_main.c	2006-03-24 15:14:40.431371705 -0600
+@@ -226,6 +226,16 @@ static int e1000_resume(struct pci_dev *
+ static void e1000_netpoll (struct net_device *netdev);
+ #endif
+ 
++static pci_ers_result_t e1000_io_error_detected(struct pci_dev *pdev,
++                     pci_channel_state_t state);
++static pci_ers_result_t e1000_io_slot_reset(struct pci_dev *pdev);
++static void e1000_io_resume(struct pci_dev *pdev);
++
++static struct pci_error_handlers e1000_err_handler = {
++	.error_detected = e1000_io_error_detected,
++	.slot_reset = e1000_io_slot_reset,
++	.resume = e1000_io_resume,
++};
+ 
+ static struct pci_driver e1000_driver = {
+ 	.name     = e1000_driver_name,
+@@ -235,8 +245,9 @@ static struct pci_driver e1000_driver = 
+ 	/* Power Managment Hooks */
+ #ifdef CONFIG_PM
+ 	.suspend  = e1000_suspend,
+-	.resume   = e1000_resume
++	.resume   = e1000_resume,
+ #endif
++	.err_handler = &e1000_err_handler,
+ };
+ 
+ MODULE_AUTHOR("Intel Corporation, <linux.nics@intel.com>");
+@@ -3063,6 +3074,10 @@ e1000_update_stats(struct e1000_adapter 
+ 
+ #define PHY_IDLE_ERROR_COUNT_MASK 0x00FF
+ 
++	/* Prevent stats update while adapter is being reset */
++	if (adapter->link_speed == 0)
++		return;
++
+ 	spin_lock_irqsave(&adapter->stats_lock, flags);
+ 
+ 	/* these counters are modified from e1000_adjust_tbi_stats,
+@@ -4631,4 +4646,101 @@ e1000_netpoll(struct net_device *netdev)
+ }
+ #endif
+ 
++/**
++ * e1000_io_error_detected - called when PCI error is detected
++ * @pdev: Pointer to PCI device
++ * @state: The current pci conneection state
++ *
++ * This function is called after a PCI bus error affecting
++ * this device has been detected.
++ */
++static pci_ers_result_t e1000_io_error_detected(struct pci_dev *pdev, pci_channel_state_t state)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct e1000_adapter *adapter = netdev->priv;
++
++	netif_device_detach(netdev);
++
++	if (netif_running(netdev))
++		e1000_down(adapter);
++
++	/* Request a slot slot reset. */
++	return PCI_ERS_RESULT_NEED_RESET;
++}
++
++/**
++ * e1000_io_slot_reset - called after the pci bus has been reset.
++ * @pdev: Pointer to PCI device
++ *
++ * Restart the card from scratch, as if from a cold-boot. Implementation
++ * resembles the first-half of the e1000_resume routine.
++ */
++static pci_ers_result_t e1000_io_slot_reset(struct pci_dev *pdev)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct e1000_adapter *adapter = netdev->priv;
++
++	if (pci_enable_device(pdev)) {
++		printk(KERN_ERR "e1000: Cannot re-enable PCI device after reset.\n");
++		return PCI_ERS_RESULT_DISCONNECT;
++	}
++	pci_set_master(pdev);
++
++	pci_enable_wake(pdev, 3, 0);
++	pci_enable_wake(pdev, 4, 0); /* 4 == D3 cold */
++
++	/* Perform card reset only on one instance of the card */
++	if (PCI_FUNC (pdev->devfn) != 0)
++		return PCI_ERS_RESULT_RECOVERED;
++
++	e1000_reset(adapter);
++	E1000_WRITE_REG(&adapter->hw, WUS, ~0);
++
++	return PCI_ERS_RESULT_RECOVERED;
++}
++
++/**
++ * e1000_io_resume - called when traffic can start flowing again.
++ * @pdev: Pointer to PCI device
++ *
++ * This callback is called when the error recovery driver tells us that
++ * its OK to resume normal operation. Implementation resembles the
++ * second-half of the e1000_resume routine.
++ */
++static void e1000_io_resume(struct pci_dev *pdev)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct e1000_adapter *adapter = netdev->priv;
++	uint32_t manc, swsm;
++
++	if (netif_running(netdev)) {
++		if (e1000_up(adapter)) {
++			printk("e1000: can't bring device back up after reset\n");
++			return;
++		}
++	}
++
++	netif_device_attach(netdev);
++
++	if (adapter->hw.mac_type >= e1000_82540 &&
++	    adapter->hw.media_type == e1000_media_type_copper) {
++		manc = E1000_READ_REG(&adapter->hw, MANC);
++		manc &= ~(E1000_MANC_ARP_EN);
++		E1000_WRITE_REG(&adapter->hw, MANC, manc);
++	}
++
++	switch (adapter->hw.mac_type) {
++	case e1000_82573:
++		swsm = E1000_READ_REG(&adapter->hw, SWSM);
++		E1000_WRITE_REG(&adapter->hw, SWSM,
++				swsm | E1000_SWSM_DRV_LOAD);
++		break;
++	default:
++		break;
++	}
++
++	if (netif_running(netdev))
++		mod_timer(&adapter->watchdog_timer, jiffies);
++}
++
+ /* e1000_main.c */

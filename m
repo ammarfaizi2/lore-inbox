@@ -1,73 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWCYA4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWCYBEY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbWCYA4d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 19:56:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWCYA4c
+	id S1751246AbWCYBEY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 20:04:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWCYBEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 19:56:32 -0500
-Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:7157 "EHLO
-	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750759AbWCYA4c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 19:56:32 -0500
-Message-ID: <4424953B.9030000@bigpond.net.au>
-Date: Sat, 25 Mar 2006 11:56:27 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: more smpnice patch issues
-References: <20060322155122.2745649f.akpm@osdl.org> <4421F702.5040609@bigpond.net.au> <20060324154558.A20018@unix-os.sc.intel.com>
-In-Reply-To: <20060324154558.A20018@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 25 Mar 2006 00:56:28 +0000
+	Fri, 24 Mar 2006 20:04:23 -0500
+Received: from [198.99.130.12] ([198.99.130.12]:33178 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751246AbWCYBEX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 20:04:23 -0500
+Date: Fri, 24 Mar 2006 20:05:24 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PATCH 12/16] UML - Memory hotplug
+Message-ID: <20060325010524.GA8117@ccure.user-mode-linux.org>
+References: <200603241814.k2OIExNn005555@ccure.user-mode-linux.org> <20060324144535.37b3daf7.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060324144535.37b3daf7.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Siddha, Suresh B wrote:
-> more issues with smpnice patch...
+On Fri, Mar 24, 2006 at 02:45:35PM -0800, Andrew Morton wrote:
+> The `= 0;' causes this to consume space in vmlinux's .data.  If we put it
+> in bss and let crt0.o take care of zeroing it, we save a little disk space.
+
+Yup.
+
+> > +			page = alloc_page(GFP_ATOMIC);
 > 
-> a) consider a 4-way system (simple SMP system with no HT and cores) scenario
-> where a high priority task (nice -20) is running on P0 and two normal
-> priority tasks running on P1. load balance with smp nice code
-> will never be able to detect an imbalance and hence will never move one of 
-> the normal priority tasks on P1 to idle cpus P2 or P3.
+> That's potentially quite a few atomically-allocated pages.  I guess UML is
+> more resistant to oom than normal kernels (?) but it'd be nice to be able to
+> run page reclaim here.
 
-Why?
+This is the big question with this patch.  How incestuous do I want to
+get with the VM system in order to get it to free up pages?  For now,
+I decided to be fairly hands-off, allocate as many pages as I can get,
+and return the total number to the host.  The host, if it wasn't happy
+with the results, can wait a bit while the UML notices that it is
+really low on memory and frees some up, and then hit up the UML for
+the remainder.
 
+> > +	char buf[sizeof("18446744073709551615\0")];
 > 
-> b) smpnice seems to break this patch..
+> rofl.  We really ought to have a #define for "this architecture's maximum
+> length of an asciified int/long/s32/s64".  Generally people do
+> guess-and-giggle-plus-20%, or they just get it wrong.
+
+I can write one up.  I did some quick grepping, and there are a good
+number of constant over-estimates, plus some which might be in danger
+with an large number of devices, plus one (kallsyms.c) which actually
+does some sane-looking approximate math to get a reasonable number (which
+is then doubled).
+
+>  * NOTE: Currently, only shmfs/tmpfs is supported for this operation.
+>  * Other filesystems return -ENOSYS.
 > 
-> [PATCH] sched: allow the load to grow upto its cpu_power
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=0c117f1b4d14380baeed9c883f765ee023da8761
-> 
-> example scenario for this case: consider a numa system with two nodes, each
-> node containing four processors. if there are two processes in node-0 and with
-> node-1 being completely idle, your patch will move one of those processes to
-> node-1 whereas the previous behavior will retain those two processes in node-0..
-> (in this case, in your code max_load will be less than busiest_load_per_task)
-> 
-> smpnice patch has complicated the load balance code... Very difficult
-> to comprehend the side effects of this patch in the presence of different 
-> priority tasks...
+> Are you expecting that this memory is backed by tmpfs?
 
-That is NOT true.  Without smpnice whether the "right thing" happens 
-with non zero nice tasks is largely down to luck.  With smpnice the 
-result is far more predictable.
+Yes, but there should be some checking of this beforehand.
 
-The PURPOSE of smpnice IS to alter load balancing in the face of the use 
-of non zero nice tasks.  The reason for doing this is so that nice 
-reliably effects the allocation of CPU resources on SMP machines. I.e. 
-changes in load balancing behaviour as a result of tasks having nice 
-values other than zero is the desired result and NOT a side effect.
+Drop this version for now, and I'll send a new one to cover these
+problems plus the one that BlaisorBlade pointed out.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+				Jeff

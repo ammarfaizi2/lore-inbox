@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751379AbWCYMGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWCYMKB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751379AbWCYMGv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 07:06:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWCYMGv
+	id S1750724AbWCYMKB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 07:10:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWCYMKB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 07:06:51 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:49555
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751384AbWCYMGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 07:06:50 -0500
-Date: Sat, 25 Mar 2006 04:06:54 -0800 (PST)
-Message-Id: <20060325.040654.133194625.davem@davemloft.net>
-To: rmk+lkml@arm.linux.org.uk
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+	Sat, 25 Mar 2006 07:10:01 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:8410 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750724AbWCYMKA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 07:10:00 -0500
+Date: Sat, 25 Mar 2006 04:06:24 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: SMP busted on non-cpu-hotplug systems
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060325120546.GA6100@flint.arm.linux.org.uk>
+Message-Id: <20060325040624.2b82abd1.akpm@osdl.org>
+In-Reply-To: <20060325.035900.121310564.davem@davemloft.net>
 References: <20060325.024226.53296559.davem@davemloft.net>
 	<20060325034744.35b70f43.akpm@osdl.org>
-	<20060325120546.GA6100@flint.arm.linux.org.uk>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	<20060325.035900.121310564.davem@davemloft.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-Date: Sat, 25 Mar 2006 12:05:46 +0000
+"David S. Miller" <davem@davemloft.net> wrote:
+>
+> From: Andrew Morton <akpm@osdl.org>
+>  Date: Sat, 25 Mar 2006 03:47:44 -0800
+> 
+>  > I think it'd be cleanest to require that the arch do that -
+>  > fixup_cpu_present_map() looks like a bit of a hack.
+> 
+>  Indeed it does.  I'm planning on doing someting like this
+>  for sparc64:
 
-> So no, this doesn't work.  Isn't it about time the pre-CPU hotplug SMP
-> stuff was updated, rather than trying to messily support two different
-> SMP initialisation methodologies in generic code with band aid plasters
-> all over?
+Fair enough.  fixup_cpu_present_map() is an elaborate no-op now.  I'll nuke
+it and will send a heads-up to the arch maintainers.
 
-Agreed.

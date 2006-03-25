@@ -1,70 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWCYBYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWCYBpB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751456AbWCYBYh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 20:24:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWCYBYh
+	id S1751408AbWCYBpB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 20:45:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWCYBpB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 20:24:37 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:32163 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751456AbWCYBYg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 20:24:36 -0500
-Message-Id: <200603250124.k2P1OKg21526@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Mark Rustad'" <mrustad@mac.com>, "'Andrew Morton'" <akpm@osdl.org>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: 2.6.16 hugetlbfs problem - DEBUG_PAGEALLOC
-Date: Fri, 24 Mar 2006 17:24:41 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Fri, 24 Mar 2006 20:45:01 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:22400 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751408AbWCYBpA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 20:45:00 -0500
+Date: Fri, 24 Mar 2006 17:44:48 -0800
+From: Paul Jackson <pj@sgi.com>
+To: akpm@osdl.org
+Cc: Christoph Lameter <clameter@sgi.com>, ak@suse.de, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Add gfp flag __GFP_POLICY to control policies and cpusets
+ redirection of allocations
+Message-Id: <20060324174448.0ac4a520.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0603221342170.24959@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0603221342170.24959@schroedinger.engr.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZPa7BGCRiOwyfSTbOGGRG2UBdFjwAO0q6A
-In-Reply-To: <C53A96CB-5B11-4BF3-879E-CF7B91E1BFEC@mac.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Rustad wrote on Friday, March 24, 2006 9:52 AM
-> I have narrowed this down to DEBUG_PAGEALLOC. If that option is  
-> enabled, attempts to reference areas mmap-ed from hugetlbfs files  
-> fault forever. You can see that I had that set in the failing config  
-> I reported below.
+Andrew,
 
-Yeah, it turns out that the debug option is not compatible with hugetlb
-page support. That debug option turns off PSE. Once it is turned off in
-CR4, cpu will ignore pse bit in the pmd and causing infinite page-not-
-present fault :-(
+I am NAQ'ing this patch, aka:
 
-void __init early_cpu_init(void)
-{ ...
+  add-gfp-flag-__gfp_policy-to-control-policies-and-cpusets-redirection.patch added to -mm tree
 
-#ifdef CONFIG_DEBUG_PAGEALLOC
-        /* pse is not compatible with on-the-fly unmapping,
-         * disable it even if the cpus claim to support it.
-         */
-        clear_bit(X86_FEATURE_PSE, boot_cpu_data.x86_capability);
-        disable_pse = 1;
-#endif
+This patch does not always fix the problem that first motivated it of
+failed memory migrations, and it changes the semantics of the
+interaction of the kernel page allocators with the cpuset and mempolicy
+memory policies in ways that, in my view, need more analysis first.
 
+I intend to send a patch with a different solution on about Monday
+three days from now, hopefully with Christoph's review and ACK.
 
-[patch] mark DEBUG_PAGEALLOC to be mutually exclusive option with
-        HUGETLBFS.  Bug found by Mark Rustad.
+Details ... for the curious:
 
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+  We have two sets of problems here.
 
+  1) Invoking memory migration via the cpuset interface 'memory_migrate'
+     would fail (do nothing, without complaint or explanation) if
+     the task invoking the migration was not in the target cpuset of
+     the migration.  This caused much confusion and befuddlement of
+     Christoph, myself and our test engineers.
 
---- ./arch/i386/Kconfig.debug.orig	2006-03-24 17:50:39.000000000 -0800
-+++ ./arch/i386/Kconfig.debug	2006-03-24 17:50:58.000000000 -0800
-@@ -36,7 +36,7 @@
- 
- config DEBUG_PAGEALLOC
- 	bool "Page alloc debugging"
--	depends on DEBUG_KERNEL && !SOFTWARE_SUSPEND
-+	depends on DEBUG_KERNEL && !SOFTWARE_SUSPEND && !HUGETLBFS
- 	help
- 	  Unmap pages from the kernel linear mapping after free_pages().
- 	  This results in a large slowdown, but helps to find certain types
+     The key problem was that we are trying to allocate the new pages
+     to receive the migration in the context of the task invoking the
+     migration.  If that tasks cpusets (or mbind mempolicy) doesn't allow
+     allocation on those nodes, the migration will move the target
+     task to some nodes that are in the invoking tasks cpuset instead.
 
+     This needs fixing sooner rather than later.  The ordinary user
+     of memory migration will often find it broken until we fix this.
 
+     My next attempt to fix this will have the kernel migration code
+     temporarilly and silently and automatically put the invoking task
+     in the necessary cpuset, so that the migration code can allocate
+     the new pages on the requested nodes.  I hope to prepare this
+     patch this weekend, so Christoph can review it Monday, and we
+     can submit it then.
+
+  2) The GFP flags and the interaction with various kernel allocators
+     and the cpuset and mm/mempolicy memory policies have some strange
+     '(mis)features'.  In the normal case, when there is enough memory
+     where asked for, they are ok.
+
+     Or, at least, no one has actually noticed the breakage, even
+     though much of it has been there for over a year.
+
+     The 2 patches that Christoph and I sent so far (the above
+     NAQ'd patch and its predecessor) both addressed some of these
+     '(mis)features', with the side affect of fixing (most of the time,
+     not all cases) the failed migrations of problem (1) above.
+
+     But both patches were partial bandaids.
+
+     More thought will be required before we offer up solutions for
+     (2).  If I get the chance this weekend, I will at least try to
+     write up an lkml post describing some of the '(mis)features' we
+     observed during our analysis of this area, under some such Subject
+     as "Misfeatures of the kernel allocators and memory policy."
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

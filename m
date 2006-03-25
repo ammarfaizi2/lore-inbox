@@ -1,119 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWCYMwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWCYMyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbWCYMwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 07:52:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWCYMwZ
+	id S1751186AbWCYMyF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 07:54:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWCYMyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 07:52:25 -0500
-Received: from mx02.cybersurf.com ([209.197.145.105]:21725 "EHLO
-	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S1750739AbWCYMwY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 07:52:24 -0500
-Subject: Re: [RFC][UPDATED PATCH 2.6.16] [Patch 9/9] Generic netlink
-	interface for delay accounting
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: balbir@in.ibm.com
-Cc: Matt Helsley <matthltc@us.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       netdev <netdev@vger.kernel.org>
-In-Reply-To: <20060325094126.GA9376@in.ibm.com>
-References: <1142296834.5858.3.camel@elinux04.optonline.net>
-	 <1142297791.5858.31.camel@elinux04.optonline.net>
-	 <1142303607.24621.63.camel@stark> <1142304506.5219.34.camel@jzny2>
-	 <20060322074922.GA1164@in.ibm.com> <1143122686.5186.27.camel@jzny2>
-	 <20060323154106.GA13159@in.ibm.com> <1143209061.5076.14.camel@jzny2>
-	 <20060324145459.GA7495@in.ibm.com> <1143249565.5184.6.camel@jzny2>
-	 <20060325094126.GA9376@in.ibm.com>
-Content-Type: text/plain
-Organization: unknown
-Date: Sat, 25 Mar 2006 07:52:13 -0500
-Message-Id: <1143291133.5184.32.camel@jzny2>
+	Sat, 25 Mar 2006 07:54:05 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27404 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751186AbWCYMyE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 07:54:04 -0500
+Date: Sat, 25 Mar 2006 12:53:49 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: davem@davemloft.net, linux-kernel@vger.kernel.org
+Subject: Re: SMP busted on non-cpu-hotplug systems
+Message-ID: <20060325125349.GB6100@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
+	linux-kernel@vger.kernel.org
+References: <20060325.024226.53296559.davem@davemloft.net> <20060325034744.35b70f43.akpm@osdl.org> <20060325120546.GA6100@flint.arm.linux.org.uk> <20060325041559.63011426.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060325041559.63011426.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-25-03 at 15:11 +0530, Balbir Singh wrote:
-
+On Sat, Mar 25, 2006 at 04:15:59AM -0800, Andrew Morton wrote:
+> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> > With your proposed change,
 > 
-> Thanks for the advice, I will dive into nesting. I could not find any 
-> in tree users who use nesting, so I have a few questions
+> Which proposed change?  I proposed two.
+
+The latter change.
+
+> > if a SMP system with has 4 possible CPUs
+> > was passed maxcpus=1, cpu_possible_map may well have 4 CPUs, and
+> > cpu_present_map will only contain the one.  However, due to the
+> > fixup_cpu_present_map(), it will say "oh only one CPU, we need to
+> > populate the others" and so you'd actually try to boot all 4.
 > 
-
-Hrm - I have to say i am suprised theres nothing; i could have sworn
-Thomas had done some conversions already.
-
-> nla_nest_start() accepts two parameters an skb and an attribute type.
-> Do I have to create a new attribute type like TASKSTATS_TYPE_AGGR to
-> contain the nested attributes 
+> The change we appear to be going with is to remove fixup_cpu_present_map()
+> which appears to address this.
 > 
-> TASKSTATS_TYPE_AGGR
->    TASKSTATS_TYPE_PID/TGID
->    TASKSTATS_TYPE_STATS
+> > So no, this doesn't work.
 > 
->
-> but this will lead to
+> What doesn't work?
+
+The situation I described and you've quoted in the bulk of the above
+quote.
+
+> >  Isn't it about time the pre-CPU hotplug SMP
+> > stuff was updated, rather than trying to messily support two different
+> > SMP initialisation methodologies in generic code with band aid plasters
+> > all over?
 > 
-> TASKSTATS_TYPE_AGGR
->    TASKSTATS_TYPE_PID
->    TASKSTATS_TYPE_STATS
-> TASKSTATS_TYPE_AGGR
->    TASKSTATS_TYPE_TGID
->    TASKSTATS_TYPE_STATS
-> 
-> being returned from taskstats_exit_pid().
-> 
+> What two methodologies?  arch-doing-it and fixup_cpu_present_map() doing it?
 
-no this is wrong by virtue of having TASKSTATS_TYPE_AGGR twice.
-Again invoke the rule i cited earlier.
-What you could do instead is a second AGGR; and your nesting would be:
+What I'm referring to is the pre-CPU hotplug SMP initialisation
+methodology and the post-CPU hotplug SMP initialisation methodology,
+which I think is covered by "two different SMP initialisation
+methodologies".
 
-TASKSTATS_TYPE_AGGR1 <--- nest start with this type
-   TASKSTATS_TYPE_PID <-- NLA_U32_PUT
-   TASKSTATS_TYPE_STATS <-- NAL_PUT_TYPE
-                     <-- nest end of TASKSTATS_TYPE_AGGR1
-TASKSTATS_TYPE_AGGR2 <--- nest start with this type
-   TASKSTATS_TYPE_TGID <-- NLA_U32_PUT
-   TASKSTATS_TYPE_STATS <-- NAL_PUT_TYPE
-                       <-- nest end of TASKSTATS_TYPE_AGGR2
+The two methodologies had entirely different ways of bringing up the
+non-boot CPUs to the extent of using the cpu_*_map variables in different
+ways.  However, now that I come to look again at x86, the situation does
+appear to have improved somewhat over the last year or so since I last
+looked (which was when I sorted out the ARM SMP support.)
 
-> The other option is to nest
-> 
-> TASKSTATS_TYPE_PID/TGID
->    TASKSTATS_TYPE_STATS
-> 
-
-The advantage being you dont introduce another T.
-
-> but the problem with this approach is, nla_len contains the length of
-> all attributes including the nested attribute. So it is hard to find
-> the offset of TASKSTATS_TYPE_STATS in the buffer.
-> 
-
-So you would distinguish the two as have something like:
-
-TASKSTATS_TYPE_PID
-   u32 pid
-   TASKSTATS_TYPE_STATS
-TASKSTATS_TYPE_TGID
-   u32 tgid
-   TASKSTATS_TYPE_STATS
-or
-TASKSTATS_TYPE_PID
-   u32 pid
-TASKSTATS_TYPE_TGID
-   u32 tgid
-
-both should be fine. The difference between the two is the length in the
-second case will be 4 and in the other case will be larger. 
-
-But come to think of it, this will introduce unneeded semantics; you
-have very few items to do, so forget it. Go with scheme #1 but change
-the names to TASKSTATS_TYPE_AGGR_PID and TASKSTATS_TYPE_AGGR_TGID.
-
-cheers,
-jamal
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

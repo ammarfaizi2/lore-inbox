@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbWCYAiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWCYArf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbWCYAiM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 19:38:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWCYAiM
+	id S1751344AbWCYArf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 19:47:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWCYArf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 19:38:12 -0500
-Received: from smtpq3.tilbu1.nb.home.nl ([213.51.146.202]:11984 "EHLO
-	smtpq3.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
-	id S1751238AbWCYAiK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 19:38:10 -0500
-Message-ID: <4424912F.2080109@keyaccess.nl>
-Date: Sat, 25 Mar 2006 01:39:11 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Fri, 24 Mar 2006 19:47:35 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:24865 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1751320AbWCYAre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 19:47:34 -0500
+X-IronPort-AV: i="4.03,127,1141632000"; 
+   d="scan'208"; a="1788197316:sNHT33578604"
+To: boutcher@cs.umn.edu (Dave C Boutcher)
+Cc: Mike Christie <michaelc@cs.wisc.edu>, Jeff Garzik <jeff@garzik.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Ian Pratt <m+Ian.Pratt@cl.cam.ac.uk>,
+       Anthony Liguori <aliguori@us.ibm.com>,
+       Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
+       Ian Pratt <ian.pratt@xensource.com>, ian.pratt@cl.cam.ac.uk,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [RFC PATCH 35/35] Add Xen virtual block device driver.
+X-Message-Flag: Warning: May contain useful information
+References: <A95E2296287EAD4EB592B5DEEFCE0E9D4B9E8A@liverpoolst.ad.cl.cam.ac.uk>
+	<4421D943.1090804@garzik.org>
+	<1143202673.18986.5.camel@localhost.localdomain>
+	<4423E853.1040707@garzik.org> <4423F60B.6020805@garzik.org>
+	<1143207657.2882.65.camel@laptopd505.fenrus.org>
+	<4423F91F.4060007@garzik.org>
+	<17444.4455.240044.724257@hound.rchland.ibm.com>
+	<442442CB.4090603@cs.wisc.edu>
+	<17444.18012.796603.193315@hound.rchland.ibm.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Fri, 24 Mar 2006 16:47:26 -0800
+In-Reply-To: <17444.18012.796603.193315@hound.rchland.ibm.com> (Dave C. Boutcher's message of "Fri, 24 Mar 2006 13:19:56 -0600")
+Message-ID: <adaveu3fizl.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: Greg Kroah-Hartman <gregkh@suse.de>,
-       ALSA devel <alsa-devel@alsa-project.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ALSA] ISA drivers bailing on first IS_ERR
-References: <4423848E.9030805@keyaccess.nl> <s5hslp8nlpk.wl%tiwai@suse.de>
-In-Reply-To: <s5hslp8nlpk.wl%tiwai@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 25 Mar 2006 00:47:32.0700 (UTC) FILETIME=[B389F9C0:01C64FA5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote:
+    Dave> And yeah, I'm aware that there is another SRP implementation
+    Dave> in the kernel...Merging would be good...
 
-> These looks OK to me.  Could you regenerate patches against the latest
-> git (or ALSA CVS) ?
-> 
-> Or, it might be better against to mm tree, since pnp registrations
-> will be modified there, too.  They should go also to mainstream
-> together.
+Changing the ibmvscsi driver to use the include/scsi/srp.h header file
+at least is on my list of things to do.  Probably a 2.6.18 type of thing.
 
-Will do.
-
-> Nevertheless, the patches (this and the previous one) are good to go
-> to stable tree, too.
-
-I'll wait a bit for a comment from Greg on the error propagation thing 
-and will submit both then.
-
-Even when simply returning the error as the patch to bus_add_device() 
-did, there's a problem in that driver_probe_device() specifically 
-ignores -ENODEV and -ENXIO. I suppose that's for hotpluggable stuff, 
-where do you do want the driver loaded even without devices...
-
-I guess for -stable the minimal fix would be to make sure all the probe 
-methods do not return -ENODEV. I'll audit them for that. For mainline, 
-it might be a better idea to have an option in the platform_driver 
-struct that, no, we certainly don't want to ignore -ENODEV for this 
-ancient non-hotplug non-pnp ISA stuff.
-
-Needs a comment from Greg as well.
-
-Rene.
+ - R.

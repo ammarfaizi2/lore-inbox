@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751655AbWCYCWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbWCYCi3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751655AbWCYCWh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 21:22:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751652AbWCYCWh
+	id S1751231AbWCYCi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 21:38:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbWCYCi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 21:22:37 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:7328 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S1751616AbWCYCWg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 21:22:36 -0500
-Date: Fri, 24 Mar 2006 18:22:06 -0800
+	Fri, 24 Mar 2006 21:38:29 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:31903
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751231AbWCYCi2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 21:38:28 -0500
+Date: Fri, 24 Mar 2006 18:38:08 -0800
 From: Greg KH <greg@kroah.com>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, john.ronciak@intel.com,
-       jesse.brandeburg@intel.com, jeffrey.t.kirsher@intel.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH] PCI Error Recovery: e1000 network device driver
-Message-ID: <20060325022206.GA6361@kroah.com>
-References: <20060324220002.GC26137@austin.ibm.com>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [Patch 0/9] Performance
+Message-ID: <20060325023808.GB6416@kroah.com>
+References: <1142296834.5858.3.camel@elinux04.optonline.net> <20060314192824.GB27012@kroah.com> <4422BBD9.40901@watson.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060324220002.GC26137@austin.ibm.com>
+In-Reply-To: <4422BBD9.40901@watson.ibm.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 24, 2006 at 04:00:02PM -0600, Linas Vepstas wrote:
-> +	/* Perform card reset only on one instance of the card */
-> +	if(0 != PCI_FUNC (pdev->devfn))
-> +		return PCI_ERS_RESULT_RECOVERED;
+On Thu, Mar 23, 2006 at 10:16:41AM -0500, Shailabh Nagar wrote:
+> Greg KH wrote:
+> > On Mon, Mar 13, 2006 at 07:40:34PM -0500, Shailabh Nagar wrote:
+> >
+> >>This is the next iteration of the delay accounting patches
+> >>last posted at
+> >>	http://www.ussg.iu.edu/hypermail/linux/kernel/0602.3/0893.html
+> >
+> >
+> > Do you have any benchmark numbers with this patch applied and with it
+> > not applied?  Last I heard it was a measurable decrease for some
+> > "important" benchmark results...
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> Here are some numbers for the latest set of posted patches
+> using microbenchmarks hackbench, kernbench and lmbench.
+> 
+> I was trying to get the real/big benchmark numbers too but
+> it looks like getting a run whose numbers can be trusted
+> will take a bit longer than expected. Preliminary runs of
+> transaction processing benchmarks indicate that overhead
+> actually decreases with the patch (as also seen in some of
+> the lmbench numbers below).
 
-You seem to have forgotton to put a ' ' after the 'if' in a number of
-different places in this patch.  Also the (0 != foo) form is a bit
-different from the traditional kernel coding style.
+That's good to hear.
 
-> +	switch(adapter->hw.mac_type) {
-
-And here too.
-
-Remember, "if" and "switch" are not functions...
+But your .5% is noticable on the +patch results, which I don't think
+people who take performance issues seriously will like (that's real
+money for the big vendors.)  And distros will be forced to enable that
+option in their kernels, so those vendors will have to get that
+percentage back some other way...
 
 thanks,
 

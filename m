@@ -1,40 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbWCYFtF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWCYGSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751057AbWCYFtF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 00:49:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWCYFtE
+	id S1751084AbWCYGSE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 01:18:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWCYGSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 00:49:04 -0500
-Received: from 85.8.13.51.se.wasadata.net ([85.8.13.51]:44450 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751057AbWCYFtC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 00:49:02 -0500
-Message-ID: <4424D9CA.7090303@drzeus.cx>
-Date: Sat, 25 Mar 2006 06:48:58 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Andrew Morton <akpm@osdl.org>, Mark Lord <lkml@rtr.ca>,
-       "David J. Wallace" <katana@onetel.com>, sdhci-devel@list.drzeus.cx,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Sdhci-devel] Submission to the kernel?
-References: <4419FA7A.4050104@cogweb.net> <200603171042.52589.katana@onetel.com> <441AD537.5080403@rtr.ca> <441AD9C3.2090703@drzeus.cx> <20060317170126.GB32281@kroah.com> <441AEEBB.10104@drzeus.cx> <20060325023942.GC6416@kroah.com>
-In-Reply-To: <20060325023942.GC6416@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Sat, 25 Mar 2006 01:18:04 -0500
+Received: from mail.gmx.net ([213.165.64.20]:8599 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751084AbWCYGSD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 01:18:03 -0500
+X-Authenticated: #14349625
+Subject: [2.6.16-mm1 patch] ignore timewarps
+From: Mike Galbraith <efault@gmx.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Peter Williams <pwil3058@bigpond.net.au>
+In-Reply-To: <1143263172.7930.15.camel@homer>
+References: <1143198208.7741.8.camel@homer>
+	 <200603242237.38100.kernel@kolivas.org>  <44248DE7.80001@bigpond.net.au>
+	 <1143263172.7930.15.camel@homer>
+Content-Type: text/plain
+Date: Sat, 25 Mar 2006 07:18:50 +0100
+Message-Id: <1143267530.9804.13.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> Tried it out and it works great (also see it's in 2.6.16-git9 now).  Hm,
-> my laptop's slot also supports xD cards, which your patch set does not
-> yet support, right?
->
->   
+Greetings,
 
-And will never do. Different hardware, interface and protocol.
+The patch below is a correction to patch 1 of my throttling tree series.
 
-Rgds
-Pierre
+The only thing that really matters is that timewarps are ignored,
+whatever the cause.  This patch does that, and only that.
+
+	-Mike
+
+Signed-off-by: Mike Galbraith <efault@gmx.de>
+
+--- linux-2.6.16-mm1/kernel/sched.c.org	2006-03-23 15:01:41.000000000 +0100
++++ linux-2.6.16-mm1/kernel/sched.c	2006-03-23 15:02:25.000000000 +0100
+@@ -805,6 +805,15 @@
+ 	unsigned long long __sleep_time = now - p->timestamp;
+ 	unsigned long sleep_time;
+ 
++	/*
++	 * On SMP systems, a task can go to sleep on one CPU
++	 * and wake up on another.  When this happens, now can
++	 * end up being less than p->timestamp for short sleeps.
++	 * Ignore these, they're insignificant.
++	 */
++	if (unlikely(now < p->timestamp))
++		__sleep_time = 0;
++
+ 	if (batch_task(p))
+ 		sleep_time = 0;
+ 	else {
+
 

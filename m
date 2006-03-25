@@ -1,50 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbWCYRpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWCYRsf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751484AbWCYRpo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 12:45:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWCYRpo
+	id S1751500AbWCYRsf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 12:48:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbWCYRsf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 12:45:44 -0500
-Received: from zproxy.gmail.com ([64.233.162.207]:51484 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751484AbWCYRpn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 12:45:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:x-enigmail-version:openpgp:content-type:content-transfer-encoding;
-        b=Iqr2XEXjCvpe0ulWdIxJuwxZuRXjPb78Dp/LY4npky6Fksd2XVCeB6A8cdUF4rE4e8/Wdn065qjdufzv/lDqJFSe6LAiDBT0lOwHq4Bn/fySbxKP/mX9lQF1ZGIIP83PecNkeIM6v54rsmVACLuPLRAZ2c5rab2idtXXrgnhcEc=
-Message-ID: <442582B8.8040403@gmail.com>
-Date: Sun, 26 Mar 2006 00:49:44 +0700
-From: Mikado <mikado4vn@gmail.com>
-Reply-To: mikado4vn@gmail.com
-Organization: IcySpace.net
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: linux-c-programming@vger.kernel.org
-CC: linux-kernel@vger.kernel.org
-Subject: Virtual Serial Port
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=65ABD897
-Content-Type: text/plain; charset=ISO-8859-1
+	Sat, 25 Mar 2006 12:48:35 -0500
+Received: from mx03.cybersurf.com ([209.197.145.106]:23758 "EHLO
+	mx03.cybersurf.com") by vger.kernel.org with ESMTP id S1751483AbWCYRsd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 12:48:33 -0500
+Subject: Re: [RFC][UPDATED PATCH 2.6.16] [Patch 9/9] Generic netlink
+	interface for delay accounting
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: balbir@in.ibm.com
+Cc: Matt Helsley <matthltc@us.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       netdev <netdev@vger.kernel.org>
+In-Reply-To: <20060325153632.GA25431@in.ibm.com>
+References: <1142303607.24621.63.camel@stark>
+	 <1142304506.5219.34.camel@jzny2> <20060322074922.GA1164@in.ibm.com>
+	 <1143122686.5186.27.camel@jzny2> <20060323154106.GA13159@in.ibm.com>
+	 <1143209061.5076.14.camel@jzny2> <20060324145459.GA7495@in.ibm.com>
+	 <1143249565.5184.6.camel@jzny2> <20060325094126.GA9376@in.ibm.com>
+	 <1143291133.5184.32.camel@jzny2>  <20060325153632.GA25431@in.ibm.com>
+Content-Type: text/plain
+Organization: unknown
+Date: Sat, 25 Mar 2006 12:48:21 -0500
+Message-Id: <1143308901.5184.48.camel@jzny2>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, 2006-25-03 at 21:06 +0530, Balbir Singh wrote:
+> On Sat, Mar 25, 2006 at 07:52:13AM -0500, jamal wrote:
 
-My machine has only one serial port. Now I want to add more *software*
-(virtual) serial ports. I also want to make a virtual serial cable
-between a real serial port and a virtual one OR between virtual ports.
-Is there any way to solve that problem in our universe?
 
-Thanks,
-Mikado.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+I didnt pay attention to failure paths etc; i suppose your testing
+should catch those. Getting there, a couple more comments:
 
-iD8DBQFEJYK3NWc9T2Wr2JcRAro+AKCMMf5So3sPJ+gXzSN+eYk0RXBxsQCg2V6I
-UK2pvLjQIECVc3e1//7d0WE=
-=GroY
------END PGP SIGNATURE-----
+
+> +enum {
+> +	TASKSTATS_CMD_UNSPEC = 0,	/* Reserved */
+> +	TASKSTATS_CMD_GET,		/* user->kernel request */
+> +	TASKSTATS_CMD_NEW,		/* kernel->user event */
+
+Should the comment read "kernel->user event/get-response"
+
+
+> +
+> +static int taskstats_send_stats(struct sk_buff *skb, struct genl_info *info)
+> +{
+
+
+> +
+> +	if (info->attrs[TASKSTATS_CMD_ATTR_PID]) {
+> +		u32 pid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_PID]);
+> +		rc = fill_pid((pid_t)pid, NULL, &stats);
+> +		if (rc < 0)
+> +			goto err;
+> +
+> +		na = nla_nest_start(rep_skb, TASKSTATS_TYPE_AGGR_PID);
+> +		NLA_PUT_U32(rep_skb, TASKSTATS_TYPE_PID, pid);
+> +	} else if (info->attrs[TASKSTATS_CMD_ATTR_TGID]) {
+
+in regards to the elseif above:
+Could you not have both PID and TGID passed? From my earlier
+understanding it seemed legit, no? if answer is yes, then you will have
+to do your sizes + reply TLVs at the end.
+
+Also in regards to the nesting, isnt there a need for nla_nest_cancel in
+case of failures to add TLVs?
+
+cheers,
+jamal
+
+

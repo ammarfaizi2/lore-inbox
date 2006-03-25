@@ -1,74 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWCYMyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWCYM4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751186AbWCYMyF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 07:54:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWCYMyF
+	id S1751378AbWCYM4z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 07:56:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWCYM4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 07:54:05 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27404 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751186AbWCYMyE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 07:54:04 -0500
-Date: Sat, 25 Mar 2006 12:53:49 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
+	Sat, 25 Mar 2006 07:56:55 -0500
+Received: from www.osadl.org ([213.239.205.134]:24797 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751378AbWCYM4y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 07:56:54 -0500
+Subject: [PATCH] Check and validate futex timeval
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
 To: Andrew Morton <akpm@osdl.org>
-Cc: davem@davemloft.net, linux-kernel@vger.kernel.org
-Subject: Re: SMP busted on non-cpu-hotplug systems
-Message-ID: <20060325125349.GB6100@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
-	linux-kernel@vger.kernel.org
-References: <20060325.024226.53296559.davem@davemloft.net> <20060325034744.35b70f43.akpm@osdl.org> <20060325120546.GA6100@flint.arm.linux.org.uk> <20060325041559.63011426.akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+Content-Type: text/plain
+Date: Sat, 25 Mar 2006 13:57:38 +0100
+Message-Id: <1143291458.5344.117.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060325041559.63011426.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 25, 2006 at 04:15:59AM -0800, Andrew Morton wrote:
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > With your proposed change,
-> 
-> Which proposed change?  I proposed two.
+The futex timeval is not checked for correctness. The change does not
+break existing applications as the timeval is supplied by glibc (and
+glibc always passes a correct value), but the glibc-internal tests for
+this functionality fail.
 
-The latter change.
+Signed-off-by: Thomas Gleixner <tglx@tglx.de>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-> > if a SMP system with has 4 possible CPUs
-> > was passed maxcpus=1, cpu_possible_map may well have 4 CPUs, and
-> > cpu_present_map will only contain the one.  However, due to the
-> > fixup_cpu_present_map(), it will say "oh only one CPU, we need to
-> > populate the others" and so you'd actually try to boot all 4.
-> 
-> The change we appear to be going with is to remove fixup_cpu_present_map()
-> which appears to address this.
-> 
-> > So no, this doesn't work.
-> 
-> What doesn't work?
+----
 
-The situation I described and you've quoted in the bulk of the above
-quote.
+ kernel/futex.c        |    4 +++-
+ kernel/futex_compat.c |    4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-> >  Isn't it about time the pre-CPU hotplug SMP
-> > stuff was updated, rather than trying to messily support two different
-> > SMP initialisation methodologies in generic code with band aid plasters
-> > all over?
-> 
-> What two methodologies?  arch-doing-it and fixup_cpu_present_map() doing it?
+Index: linux/kernel/futex.c
+===================================================================
+--- linux.orig/kernel/futex.c
++++ linux/kernel/futex.c
+@@ -1039,9 +1039,11 @@ asmlinkage long sys_futex(u32 __user *ua
+ 	unsigned long timeout = MAX_SCHEDULE_TIMEOUT;
+ 	int val2 = 0;
+ 
+-	if ((op == FUTEX_WAIT) && utime) {
++	if (utime && (op == FUTEX_WAIT)) {
+ 		if (copy_from_user(&t, utime, sizeof(t)) != 0)
+ 			return -EFAULT;
++		if (!timespec_valid(&t))
++			return -EINVAL;
+ 		timeout = timespec_to_jiffies(&t) + 1;
+ 	}
+ 	/*
+Index: linux/kernel/futex_compat.c
+===================================================================
+--- linux.orig/kernel/futex_compat.c
++++ linux/kernel/futex_compat.c
+@@ -129,9 +129,11 @@ asmlinkage long compat_sys_futex(u32 __u
+ 	unsigned long timeout = MAX_SCHEDULE_TIMEOUT;
+ 	int val2 = 0;
+ 
+-	if ((op == FUTEX_WAIT) && utime) {
++	if (utime && (op == FUTEX_WAIT)) {
+ 		if (get_compat_timespec(&t, utime))
+ 			return -EFAULT;
++		if (!timespec_valid(&t))
++			return -EINVAL;
+ 		timeout = timespec_to_jiffies(&t) + 1;
+ 	}
+ 	if (op >= FUTEX_REQUEUE)
 
-What I'm referring to is the pre-CPU hotplug SMP initialisation
-methodology and the post-CPU hotplug SMP initialisation methodology,
-which I think is covered by "two different SMP initialisation
-methodologies".
 
-The two methodologies had entirely different ways of bringing up the
-non-boot CPUs to the extent of using the cpu_*_map variables in different
-ways.  However, now that I come to look again at x86, the situation does
-appear to have improved somewhat over the last year or so since I last
-looked (which was when I sorted out the ARM SMP support.)
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

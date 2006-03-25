@@ -1,64 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbWCYQ7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbWCYRB4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751065AbWCYQ7L (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 11:59:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWCYQ7L
+	id S1751075AbWCYRB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 12:01:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWCYRBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 11:59:11 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:12815 "HELO
+	Sat, 25 Mar 2006 12:01:55 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:14607 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751065AbWCYQ7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 11:59:10 -0500
-Date: Sat, 25 Mar 2006 17:59:08 +0100
+	id S1751075AbWCYRBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 12:01:55 -0500
+Date: Sat, 25 Mar 2006 18:01:53 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Eric Sesterhenn <snakebyte@gmx.de>
-Cc: Joel Becker <Joel.Becker@oracle.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Possible NULL pointer dereference in fs/configfs/dir.c
-Message-ID: <20060325165908.GD4053@stusta.de>
-References: <1143068729.27276.1.camel@alice> <20060322232709.GD7844@ca-server1.us.oracle.com> <1143070614.27446.4.camel@alice>
+To: stern@rowland.harvard.edu, gregkh@suse.de
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/usb/host/pci-quirks.c: proper prototypes
+Message-ID: <20060325170153.GE4053@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1143070614.27446.4.camel@alice>
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 12:36:54AM +0100, Eric Sesterhenn wrote:
->...
-> On Wed, 2006-03-22 at 15:27 -0800, Joel Becker wrote:
->...
-> > 	group cannot be null here, we aren't called any other way.  So
-> > while you are correct that the code below is needed in the presence of a
-> > NULL group, really the "if (group" isn't necessary, just the "if
-> > (group->default_groups)".  I could even BUG_ON() if you'd like.
-> 
-> I would then propose the following patch, so the check can be
-> removed for people who like small kernels. I dont think gcc notices
-> that all callers use non-NULL values and optimizes it away.
-> 
-> --- linux-2.6.16/fs/configfs/dir.c.orig	2006-03-23 00:31:16.000000000 +0100
-> +++ linux-2.6.16/fs/configfs/dir.c	2006-03-23 00:32:07.000000000 +0100
-> @@ -504,7 +504,9 @@ static int populate_groups(struct config
->  	int ret = 0;
->  	int i;
->  
-> -	if (group && group->default_groups) {
-> +	BUG_ON(!group);		/* group == NULL is not allowed */
-> +	
-> +	if (group->default_groups) {
->...
+This patch adds a header file with proper prototypes for two functions 
+in drivers/usb/host/pci-quirks.c.
 
-Why do we need a BUG_ON() if we already got an Oops?
-Simply remove the check.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-cu
-Adrian
+---
 
--- 
+ drivers/usb/host/pci-quirks.c |    1 +
+ drivers/usb/host/pci-quirks.h |    7 +++++++
+ drivers/usb/host/uhci-hcd.c   |    4 +---
+ 3 files changed, 9 insertions(+), 3 deletions(-)
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--- /dev/null	2006-02-12 01:05:26.000000000 +0100
++++ linux-2.6.16-mm1-full/drivers/usb/host/pci-quirks.h	2006-03-25 15:55:14.000000000 +0100
+@@ -0,0 +1,7 @@
++#ifndef __LINUX_USB_PCI_QUIRKS_H
++#define __LINUX_USB_PCI_QUIRKS_H
++
++void uhci_reset_hc(struct pci_dev *pdev, unsigned long base);
++int uhci_check_and_reset_hc(struct pci_dev *pdev, unsigned long base);
++
++#endif  /*  __LINUX_USB_PCI_QUIRKS_H  */
+--- linux-2.6.16-mm1-full/drivers/usb/host/pci-quirks.c.old	2006-03-25 15:21:49.000000000 +0100
++++ linux-2.6.16-mm1-full/drivers/usb/host/pci-quirks.c	2006-03-25 15:55:34.000000000 +0100
+@@ -15,6 +15,7 @@
+ #include <linux/init.h>
+ #include <linux/delay.h>
+ #include <linux/acpi.h>
++#include "pci-quirks.h"
+ 
+ 
+ #define UHCI_USBLEGSUP		0xc0		/* legacy support */
+--- linux-2.6.16-mm1-full/drivers/usb/host/uhci-hcd.c.old	2006-03-25 15:22:20.000000000 +0100
++++ linux-2.6.16-mm1-full/drivers/usb/host/uhci-hcd.c	2006-03-25 15:55:54.000000000 +0100
+@@ -50,6 +50,7 @@
+ 
+ #include "../core/hcd.h"
+ #include "uhci-hcd.h"
++#include "pci-quirks.h"
+ 
+ /*
+  * Version Information
+@@ -100,9 +101,6 @@
+ #include "uhci-q.c"
+ #include "uhci-hub.c"
+ 
+-extern void uhci_reset_hc(struct pci_dev *pdev, unsigned long base);
+-extern int uhci_check_and_reset_hc(struct pci_dev *pdev, unsigned long base);
+-
+ /*
+  * Finish up a host controller reset and update the recorded state.
+  */
 

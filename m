@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWCYEyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWCYExq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750988AbWCYEyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 23:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbWCYEyP
+	id S1750847AbWCYExq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 23:53:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbWCYExq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 23:54:15 -0500
-Received: from mail.gmx.de ([213.165.64.20]:43908 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750936AbWCYEyP (ORCPT
+	Fri, 24 Mar 2006 23:53:46 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:11919 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750834AbWCYExp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 23:54:15 -0500
-X-Authenticated: #14349625
-Subject: Re: 2.6.16-mm1 grub oddness
-From: Mike Galbraith <efault@gmx.de>
+	Fri, 24 Mar 2006 23:53:45 -0500
+Date: Fri, 24 Mar 2006 20:53:37 -0800
+From: Paul Jackson <pj@sgi.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060324102537.1d426594.akpm@osdl.org>
-References: <20060323014046.2ca1d9df.akpm@osdl.org>
-	 <1143201413.7741.53.camel@homer>  <20060324102537.1d426594.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 25 Mar 2006 05:55:01 +0100
-Message-Id: <1143262501.7930.4.camel@homer>
+Cc: luke.adi@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix bug: flat binary loader doesn't check fd table full
+Message-Id: <20060324205337.d7d81d73.pj@sgi.com>
+In-Reply-To: <20060323011718.7f34a282.akpm@osdl.org>
+References: <489ecd0c0603222310j3f2b9804k30bca1adce33804d@mail.gmail.com>
+	<20060322234652.10f6afee.akpm@osdl.org>
+	<489ecd0c0603230115h4dd2b16fg54cfd97739a8b339@mail.gmail.com>
+	<20060323011718.7f34a282.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-24 at 10:25 -0800, Andrew Morton wrote:
-> Mike Galbraith <efault@gmx.de> wrote:
-> >
-> > Greetings,
-> > 
-> > I'm seeing strange things with grub with this kernel.  After my box has
-> > been up for a while, and I reboot, selecting a kernel to restart, upon
-> > reboot, I sometimes (fairly often) get a blank screen staring at me
-> > though I see grub doing it's thing.  Poking the power button results in
-> > an immediate poweroff, not as if the kernel had panicked or whatnot very
-> > early in boot.  Very odd, and never before seen.
-> > 
+> >   Anyone knows how to avoid "tab to space" converting in gmail?
 > 
-> Do you mean that grub is actually proceeding as expected, just that the
-> display is off?  If so, does it ever come back on?
+> If I knew, I'd put it in my .signature :(
 
-No, the box just sits there and does nada.
+If you use sendpatchset:
 
-	-Mike
+  http://www.speakeasy.org/~pj99/sgi/sendpatchset
 
+with the gmail SMTP server "smtp.gmail.com" you can send patches from
+your gmail account without tab destruction.
+
+The documentation for sendpatchset is within the script.  Grep for
+'gmail' in the script to see where to hack in your gmail account and
+password (low tech configuration ;)
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

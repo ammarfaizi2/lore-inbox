@@ -1,86 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWCYAD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWCYAHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbWCYAD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 19:03:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWCYAD5
+	id S1750993AbWCYAHn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 19:07:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbWCYAHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 19:03:57 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:37079 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1750832AbWCYAD4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 19:03:56 -0500
-Subject: Re: [openib-general] Re: [PATCH 0 of 18] ipath driver - for
-	inclusion in 2.6.17
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: akpm@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <ada8xqzh1ju.fsf@cisco.com>
-References: <patchbomb.1143175292@eng-12.pathscale.com>
-	 <ada4q1nr7pu.fsf@cisco.com>
-	 <1143227515.30626.43.camel@serpentine.pathscale.com>
-	 <adaveu3pml7.fsf@cisco.com>
-	 <1143239617.30626.83.camel@serpentine.pathscale.com>
-	 <ada8xqzh1ju.fsf@cisco.com>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Fri, 24 Mar 2006 16:03:56 -0800
-Message-Id: <1143245036.30626.112.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 24 Mar 2006 19:07:43 -0500
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:23192 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1750897AbWCYAHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 19:07:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=kmgH20mNTtv2wXgyWKJ2TP+XhMb3P2tb/AguSloRwhNAX3O3hjTsRKqRC/IlEqAWbC128dC4mHE6AFmWCwc1n6DC/l9VB2Qz6+NJH8787kHGJ04+gqi+f1hnUsHQA0qk1mlJdvnumgBxmfcTZuewCsxWGAakf0ZsE/ZC/xGYV8s=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: "Charles P. Wright" <cwright@cs.sunysb.edu>
+Subject: Re: [RFC] Proposed manpage additions for ptrace(2)
+Date: Sat, 25 Mar 2006 01:07:39 +0100
+User-Agent: KMail/1.8.3
+Cc: Daniel Jacobowitz <dan@debian.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Michael Kerrisk <mtk-manpages@gmx.net>
+References: <200603150415_MC3-1-BAB1-D3CE@compuserve.com> <200603171946.54784.blaisorblade@yahoo.it> <1142714267.22366.9.camel@localhost.localdomain>
+In-Reply-To: <1142714267.22366.9.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200603250107.40332.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-24 at 15:21 -0800, Roland Dreier wrote:
+On Saturday 18 March 2006 21:37, Charles P. Wright wrote:
+> On Fri, 2006-03-17 at 19:46 +0100, Blaisorblade wrote:
 
-> Clearly the simplest solution for your
-> situation is just to kill it.
+> > If you resume it with PTRACE_SYSEMU, it'll stop at next syscall entry, as
+> > expected, and next syscall will not be executed.
+> >
+> > If you resume it with PTRACE_SYSCALL (which made sense only for
+> > debugging), the only thing which changes is that _next_ syscall will be
+> > executed normally; then after stopping at syscall #2 exit you can choose
+> > to resume with PTRACE_SYSEMU. You can do that even at syscall #2 entry,
+> > but you get the same result.
 
-Yes, I'll do that.
+> If you do the PTRACE_SYSEMU at the entry, then it seems that you
 
-> We seem to be going around and around on this.  There definitely is
-> duplicated code; you just hide some of it in userspace.  You clearly
-> have two copies of the function to generate a reply to a GET of
-> NodeInfo, for example.
+What were you going to write here?
 
-That's true.  What I'm not so clear on is why you care that we have a
-similar facility in userland.  The userland SMA is so simple, we haven't
-had to touch it in a long time, except to use the new ioctl-free ABI.
-There's negligible duplicated coding effort going on.
+> > However, I remember I answered to your request to fix this problem with
+> > some patches to test (I remember I was sure enough of their correctness,
+> > for what can be seen by code inspection), but got no answer and didn't
+> > finish anything. Lost the email or the interest?
 
-> What if you moved the MAD query handling code into your core driver?
-> You could use your current method of sending and receiving replies
-> directly when ib_ipath isn't loaded, but just process the queries in
-> the kernel without proxying to userspace.  Then if/when QP0 is
-> created, switch to letting the MAD layer handle sending and receiving
-> queries and let it call the same query handling code via your
-> process_mad method.
-> 
-> But it would (I think) solve all the issues of needing ib_mad loaded
-> for things to work.  Users could even load ib_ipath without ib_mad and
-> have IB verbs work -- anything that actually needed MADs would pull in
-> ib_mad as a dependency, and everything else should work fine with the
-> SMA stuff handled by your driver.
+> Actually, I remember that you said that it wasn't very practical to try
+> and fix SYSEMU because UML already relies on its interface.
 
-I'll have to chew over this for a bit with a few other people.  I'm not
-actually trying to be difficult; it's just that changing the SMA at this
-point is quite disruptive.  we have schedules to muck with, plans to
-accelerate, people to reallocate, and the like.
+Yep, I implemented in fact an extension of the call, via setting a ptrace 
+option.
 
-It would be a huge relief to me to be able to simply merge what we have
-with the understanding that we'll resolve the SMA issue to your liking
-as soon as possible, but you're the gatekeeper.
+> You 
+> suggested a "checked" version of the call, which I didn't actually lose
+> interest in.  I've included a patch to 2.6.15 (based on your original
+> patch) that I've been using that adds "PTRACE_CHECKEMU", which I think
+> has more user-friendly semantics.
 
-> I understand that you really, really want your driver in 2.6.17.
+Indeed it is simpler to do PTRACE_CHECKEMU than to set an option and do 
+PTRACE_SYSEMU, but a quick read I felt that doing so adds additional 
+complication to the code... (mostly in the flag setting in arch_ptrace()).
 
-Very much.
+Also, I've to look well at your changes to do_syscall_trace() to judge about 
+them. The logic used is different from the one I wrote, though it seems valid 
+too. Until I look well (and I've not the time now) I won't be able to see 
+whether it's an improvement or not.
 
-> Also, in my opinion, we can still merge ipath
-> even after 2.6.17-rc1, since it doesn't touch anything (except trivial
-> kbuild stuff) outside of drivers/infiniband/hw/ipath.
+> The PTRACE_CHECKEMU call makes the emulation decision after
+> ptrace_notify is called so that the tracing process can examine/update
+> registers before issuing PTRACE_CHECKEMU (to emulate the call) or
+> PTRACE_SYSCALL (to let the call go through).
 
-I hope you're right.
+Ok, if I'm not missing anything this is the "better interface" we talked 
+about.
 
-	<b
+> I've also got a patch that allows you to execute the call, but skip the
+> return.  This is useful when you are emulating a subset of calls, and
+> don't care about the return value of unemulated calls.
 
+> > I was also busy so I didn't test them myself (even because reading this
+> > code and following the exact states causes me a headache).
+
+> There is indeed some headache in here.  I think particularly for SYSEMU,
+> because there is a large gap between calling it and the decision that is
+> made.
+
+Yes, but the "large gap" is achieved by the initial checking of the 
+tsk_thread_flag.
+
+> @@ -475,6 +475,7 @@
+>  		  break;
+>
+>  	case PTRACE_SYSEMU: /* continue and stop at next syscall, which will not
+> be executed */ +	case PTRACE_CHECKEMU: /* like SYSEMU, but allow per-call
+> emulation decisions. */ case PTRACE_SYSCALL:	/* continue and stop at next
+> (return from) syscall */ case PTRACE_CONT:	/* restart after signal. */
+>  		ret = -EIO;
+> @@ -483,12 +484,19 @@
+
+This "if" has probably become too large - better separate into an inline(?) 
+function the common code and split all request in different "case 
+PTRACE_XXX:" labels.
+
+>  		if (request == PTRACE_SYSEMU) {
+>  			set_tsk_thread_flag(child, TIF_SYSCALL_EMU);
+>  			clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
+> +			clear_tsk_thread_flag(child, TIF_SYSCALL_CHECKEMU);
+>  		} else if (request == PTRACE_SYSCALL) {
+>  			set_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
+>  			clear_tsk_thread_flag(child, TIF_SYSCALL_EMU);
+> +			clear_tsk_thread_flag(child, TIF_SYSCALL_CHECKEMU);
+> +		} else if (request == PTRACE_CHECKEMU) {
+> +			set_tsk_thread_flag(child, TIF_SYSCALL_CHECKEMU);
+> +			clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
+> +			clear_tsk_thread_flag(child, TIF_SYSCALL_EMU);
+>  		} else {
+>  			clear_tsk_thread_flag(child, TIF_SYSCALL_EMU);
+>  			clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
+> +			clear_tsk_thread_flag(child, TIF_SYSCALL_CHECKEMU);
+>  		}
+>  		child->exit_code = data;
+>  		/* make sure the single step bit is not set. */
+> @@ -524,6 +532,7 @@
+>  			clear_tsk_thread_flag(child, TIF_SYSCALL_EMU);
+>
+>  		clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
+> +		clear_tsk_thread_flag(child, TIF_SYSCALL_CHECKEMU);
+>  		set_singlestep(child);
+>  		child->exit_code = data;
+>  		/* give it a chance to run. */
+
+> diff -ur linux-2.6.15-vanilla/include/linux/ptrace.h
+> linux-2.6.15-checkemu/include/linux/ptrace.h ---
+> linux-2.6.15-vanilla/include/linux/ptrace.h	2006-01-02 22:21:10.000000000
+> -0500 +++ linux-2.6.15-checkemu/include/linux/ptrace.h	2006-02-03
+> 00:47:18.000000000 -0500 @@ -22,6 +22,7 @@
+>  #define PTRACE_SYSCALL		  24
+>  #define PTRACE_SYSEMU		  31
+>  #define PTRACE_SYSEMU_SINGLESTEP  32
+> +#define PTRACE_CHECKEMU		  33
+
+Argh - PTRACE_CHECKEMU shouldn't be 33, it was wrong from me to do so, I've 
+been taught only subsequently, and it shouldn't be in linux/ptrace.h; either 
+use the arch-independent range 0x4200-0x4300 (which is the better road IMHO) 
+or move it to asm-i386/ptrace.h:
+
+>  /* 0x4200-0x4300 are reserved for architecture-independent additions.  */
+>  #define PTRACE_SETOPTIONS	0x4200
+
+Indeed, I already moved PTRACE_SYSEMU* to asm-i386, because their value 
+conflicted with another ptrace code, on another arch.
+
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+
+
+		
+___________________________________ 
+Yahoo! Messenger with Voice: chiama da PC a telefono a tariffe esclusive 
+http://it.messenger.yahoo.com

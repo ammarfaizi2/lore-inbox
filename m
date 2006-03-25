@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbWCYPSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWCYPYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751410AbWCYPSW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 10:18:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbWCYPSW
+	id S1751417AbWCYPYa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 10:24:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbWCYPYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 10:18:22 -0500
-Received: from 4-16-ftth.onsnet.nu ([84.35.16.4]:7177 "EHLO beacon.dhs.org")
-	by vger.kernel.org with ESMTP id S1751410AbWCYPSV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 10:18:21 -0500
-Date: Sat, 25 Mar 2006 16:18:18 +0100
-From: Jonathan Black <vampjon@gmail.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
-Subject: Re: uptime increases during suspend
-Message-ID: <20060325151818.GA10939@beacon.dhs.org>
-References: <20060325150238.GA9023@beacon.dhs.org> <200603251610.16566.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603251610.16566.rjw@sisk.pl>
-User-Agent: Mutt/1.5.9i
+	Sat, 25 Mar 2006 10:24:30 -0500
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:16462 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751417AbWCYPYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 10:24:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=ajY5mE1EUrYntD+dUlkT0uUvYDBDG6OAfpd+Ph8T6Fj17ulzoD+yocuzFVIb7kVg6LiFL++VTvGP3eJfM7ZdQzlAJniPsq0cWVxtcvp353pmmODO3kUC7KnngfK0ai58lM/V2QlSnrrvUrnIJ9uE7xEMlmGLU7ltPBZ1rUYRTVI=  ;
+Message-ID: <442560A3.8040200@yahoo.com.au>
+Date: Sun, 26 Mar 2006 02:24:19 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ck@vds.kolivas.org
+Subject: Re: swap prefetching merge plans
+References: <20060322205305.0604f49b.akpm@osdl.org> <200603231804.36334.kernel@kolivas.org> <Pine.LNX.4.61.0603251537290.16342@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0603251537290.16342@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 25, 2006 at 04:10:16PM +0100, Rafael J. Wysocki wrote:
-> On Saturday 25 March 2006 16:02, Jonathan Black wrote:
-> > I'd like to enquire about the following behaviour:
-> > 
-> > $ uptime && sudo hibernate && uptime
-> >  14:18:51 up 1 day, 4:12,  2 users,  load average: 0.58, 3.30, 2.42
-> >  14:23:46 up 1 day, 4:17,  2 users,  load average: 20.34, 7.74, 3.91
-> > 
-> > I.e. the system was suspended to disk for 5 minutes, but the value
-> > reported by 'uptime' has increased by as much, as if it had actually
-> > continued running during that time.
-> > 
-> > I'm using Linux 2.6.16 with the latest version of the Suspend 2 patch
-> > (2.2.1), but Nigel its maintainer says that this isn't actually related
-> > to his suspend code, essentially the same would happen using the swsusp
-> > code currently in the kernel, and therefore we need to ask the kernel
-> > time code people about this issue.
-> 
-> Is your system an i386 or x86_64?
+Jan Engelhardt wrote:
 
-It is an i386.
- 
+> 
+> When will Staircase go in?
+> 
+
+It is in... the queue ;)
+
 -- 
-jonathaN
+Send instant messages to your online friends http://au.messenger.yahoo.com 

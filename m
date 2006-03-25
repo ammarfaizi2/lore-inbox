@@ -1,77 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWCYMF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751376AbWCYMGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751374AbWCYMF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 07:05:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWCYMF7
+	id S1751376AbWCYMGM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 07:06:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWCYMGL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 07:05:59 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17427 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751374AbWCYMF6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 07:05:58 -0500
-Date: Sat, 25 Mar 2006 12:05:46 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
-Subject: Re: SMP busted on non-cpu-hotplug systems
-Message-ID: <20060325120546.GA6100@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	linux-kernel@vger.kernel.org
-References: <20060325.024226.53296559.davem@davemloft.net> <20060325034744.35b70f43.akpm@osdl.org>
+	Sat, 25 Mar 2006 07:06:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:35033 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751376AbWCYMGK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 07:06:10 -0500
+Date: Sat, 25 Mar 2006 04:02:33 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Zoltan Menyhart <Zoltan.Menyhart@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: unlock_buffer() and clear_bit()
+Message-Id: <20060325040233.1f95b30d.akpm@osdl.org>
+In-Reply-To: <44247FAB.3040202@free.fr>
+References: <44247FAB.3040202@free.fr>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060325034744.35b70f43.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 25, 2006 at 03:47:44AM -0800, Andrew Morton wrote:
-> "David S. Miller" <davem@davemloft.net> wrote:
-> >
-> > 
-> > I just noticed this on sparc64, as I lost 31 cpus on my
-> > Niagara box due to it :)
-> > 
-> > boot_cpu_init() sets the boot processor ID in cpu_present_map.
-> > 
-> > But fixup_cpu_present_map() will only populate the cpu_present_map if
-> > it is empty, which it won't be because of what boot_cpu_init() just
-> > did.
+Zoltan Menyhart <Zoltan.Menyhart@free.fr> wrote:
+>
+> I'm afraid "unlock_buffer()" works incorrectly
+> (at least on the ia64 architecture).
 > 
-> oops.  I guess most architectures set cpu_present_map while bringing up the
-> APs.
+> As far As I can see, nothing makes it sure that data modifications
+> issued inside the critical section be globally visible before the
+> "BH_Lock" bit gets cleared.
 > 
-> I think it'd be cleanest to require that the arch do that -
-> fixup_cpu_present_map() looks like a bit of a hack.
+> When we acquire a resource, we need the "acq" semantics, when we
+> release the resource, we need the "rel" semantics (obviously).
 > 
-> I guess if we want to perpetuate fixup_cpu_present_map() then we should
-> teach it to ignore the boot cpu.   (cpus_weight(&cpu_present_map) == 1)
-> would do that.
+> Some architectures (at least the ia64) require explicit operations
+> to ensure these semantics, the ordinary "loads" and "stores" do not
+> guarantee any ordering.
+> 
+> For the "stand alone" bit operations, these semantics do not matter.
+> They are implemented by use of atomic operations in SMP mode, which
+> operations need to follow either the "acq" semantics or the "rel"
+> semantics (at least the ia64). An arbitrary choice was made to use
+> the "acq" semantics.
+> 
+> We use bit operations to implement buffer locking.
+> As a consequence, the requirement of the "rel" semantics, when we
+> release the resource, is not met (at least on the ia64).
+> 
+> - Either an "smp_mb__before_clear_bit()" is lacking
+>    (if we want to keep the existing definition of "clear_bit()"
+>     with its "acq" semantics).
+>    Note that "smp_mb__before_clear_bit()" is a bidirectional fence
+>    operation on ia64, it is less efficient than the simple
+>    "rel" semantics.
+> 
+> - Or a new bit clearing service needs to be added that includes
+>    the "rel" semantics, say "release_N_clear_bit()"
+>    (since we are actually _releasing_ a lock :-))
+> 
+> Thanks,
+> 
+> Zoltan Menyhart
+> 
+> 
+> 
+> buffer.c:
+> 
+> void fastcall unlock_buffer(struct buffer_head *bh)
+> {
+> 	clear_buffer_locked(bh);
+> 	smp_mb__after_clear_bit();
+> 	wake_up_bit(&bh->b_state, BH_Lock);
+> }
+> 
+> 
+> asm-ia64/bitops.h:
+> 
+> /*
+>   * clear_bit() has "acquire" semantics.
+>   */
+> #define smp_mb__before_clear_bit()	smp_mb()
+> #define smp_mb__after_clear_bit()	do { /* skip */; } while (0)
+> 
+> /**
+>   * clear_bit - Clears a bit in memory
+>   * @nr: Bit to clear
+>   * @addr: Address to start counting from
+>   *
+>   * clear_bit() is atomic and may not be reordered.  However, it does
+>   * not contain a memory barrier, so if it is used for locking purposes,
+>   * you should call smp_mb__before_clear_bit() and/or 
+> smp_mb__after_clear_bit()
+>   * in order to ensure changes are visible on other processors.
+>   */
 
-At setup_arch() time, we initialise cpu_possible_map to contain the CPUs
-the system might have.
+alpha and powerpc define both of these as smp_mb().  sparc64 is similar,
+but smarter.
 
-We then call smp_prepare_boot_cpu() which marks the boot cpu in both
-cpu_present_map and cpu_online_map.
 
-Eventually, we call smp_prepare_cpus(), where an architecture may
-populate cpu_present_map to indicate which cpus are actually present,
-and following this we call fixup_cpu_present_map().
+atomic_ops.txt says:
 
-With your proposed change, if a SMP system with has 4 possible CPUs
-was passed maxcpus=1, cpu_possible_map may well have 4 CPUs, and
-cpu_present_map will only contain the one.  However, due to the
-fixup_cpu_present_map(), it will say "oh only one CPU, we need to
-populate the others" and so you'd actually try to boot all 4.
+	/* All memory operations before this call will
+	 * be globally visible before the clear_bit().
+	 */
+	smp_mb__before_clear_bit();
+	clear_bit( ... );
 
-So no, this doesn't work.  Isn't it about time the pre-CPU hotplug SMP
-stuff was updated, rather than trying to messily support two different
-SMP initialisation methodologies in generic code with band aid plasters
-all over?
+	/* The clear_bit() will be visible before all
+	 * subsequent memory operations.
+	 */
+	 smp_mb__after_clear_bit();
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+So it would appear that to make all the modifications which were made to
+the buffer visible after the clear_bit(), yes, we should be using
+smp_mb__before_clear_bit();
+
+unlock_page() does both...

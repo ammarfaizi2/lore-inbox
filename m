@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWCYTBH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWCYTFw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932247AbWCYTBH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 14:01:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWCYTBG
+	id S932248AbWCYTFw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 14:05:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWCYTFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 14:01:06 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:12816 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932247AbWCYTBF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 14:01:05 -0500
-Date: Sat, 25 Mar 2006 20:01:03 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Eric Sesterhenn <snakebyte@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Fix compilation for sound/oss/vwsnd.c
-Message-ID: <20060325190103.GO4053@stusta.de>
-References: <1143151469.13816.1.camel@alice> <1143151741.14516.1.camel@alice> <Pine.LNX.4.61.0603251936080.29793@yvahk01.tjqt.qr>
+	Sat, 25 Mar 2006 14:05:52 -0500
+Received: from fe1.cox-internet.com ([66.76.2.38]:63158 "EHLO fe1.coxmail.com")
+	by vger.kernel.org with ESMTP id S932248AbWCYTFv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 14:05:51 -0500
+Message-ID: <44259489.4070507@tamu.edu>
+Date: Sat, 25 Mar 2006 13:05:45 -0600
+From: Benjamin <benchu@tamu.edu>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0603251936080.29793@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Modify the sock Structure!!
+References: <4424ED2A.3040006@tamu.edu> <Pine.LNX.4.61.0603251938110.29793@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0603251938110.29793@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 25, 2006 at 07:36:31PM +0100, Jan Engelhardt wrote:
-> >sorry,
-> >
-> >fixed patch below between all the switching i forgot to remove
-> >the declaration in li_create()
-> >
-> 
-> It would have been a lot simpler to add a (proper) prototype.
+Cool! Thanks for the answer!
 
-Eric's patch looks fine.
+Best Regards,
 
+Benjamin Chu
+
+Jan Engelhardt wrote:
+>> Hello! I try to modify the sock Structure in sock.h in order to record some
+>> data!
+>> I just add a unsigned short in the end of the structure. such as:
+>>
+>> struct sock {
+>>     
+>
+>   
+>> safe or not. Is there any side-effect? Or I need to add additional code to
+>> avoid some unexpected
+>> situation?  Thank you very much!
+>>     
+>
+>
+> Should be ok. For example, ipt_TPROXY/ipt_tproxy also adds something to 
+> struct sock (including enlarging fields in the middle of the struct);
+> I have not experienced any problem with it.
+>
+>
 > Jan Engelhardt
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+>   

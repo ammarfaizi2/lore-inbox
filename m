@@ -1,41 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWCYOx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751422AbWCYPCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751185AbWCYOx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 09:53:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWCYOx5
+	id S1751422AbWCYPCq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 10:02:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWCYPCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 09:53:57 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:10982 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S1751185AbWCYOx4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 09:53:56 -0500
-Date: Sat, 25 Mar 2006 15:48:54 +0100
-From: maximilian attems <maks@sternwelten.at>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] isicom: select FW_LOADER
-Message-ID: <20060325144854.GE883@nancy>
-MIME-Version: 1.0
+	Sat, 25 Mar 2006 10:02:46 -0500
+Received: from 4-16-ftth.onsnet.nu ([84.35.16.4]:17 "EHLO beacon.dhs.org")
+	by vger.kernel.org with ESMTP id S1751422AbWCYPCq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 10:02:46 -0500
+Date: Sat, 25 Mar 2006 16:02:40 +0100
+From: Jonathan Black <vampjon@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: john stultz <johnstul@us.ibm.com>
+Subject: uptime increases during suspend
+Message-ID: <20060325150238.GA9023@beacon.dhs.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The isicom driver uses request_firmware()                                  
-and thus needs to select FW_LOADER.                                             
+Hi,
 
-Signed-off-by: maximilian attems <maks@sternwelten.at>
+I'd like to enquire about the following behaviour:
 
-diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index 5980f3e..facc3f1 100644
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -187,6 +187,7 @@ config MOXA_SMARTIO
- config ISI
- 	tristate "Multi-Tech multiport card support (EXPERIMENTAL)"
- 	depends on SERIAL_NONSTANDARD
-+	select FW_LOADER
- 	help
- 	  This is a driver for the Multi-Tech cards which provide several
- 	  serial ports.  The driver is experimental and can currently only be
+$ uptime && sudo hibernate && uptime
+ 14:18:51 up 1 day, 4:12,  2 users,  load average: 0.58, 3.30, 2.42
+ 14:23:46 up 1 day, 4:17,  2 users,  load average: 20.34, 7.74, 3.91
+
+I.e. the system was suspended to disk for 5 minutes, but the value
+reported by 'uptime' has increased by as much, as if it had actually
+continued running during that time.
+
+I'm using Linux 2.6.16 with the latest version of the Suspend 2 patch
+(2.2.1), but Nigel its maintainer says that this isn't actually related
+to his suspend code, essentially the same would happen using the swsusp
+code currently in the kernel, and therefore we need to ask the kernel
+time code people about this issue.
+
+I've been using suspend2 for a while now, and until some point in the
+past it used to be the case that uptime would stand still during
+hibernation, i.e. only counting the time during which the system was
+actually up and running. This seems like more meaningful and desirable
+behaviour to me.
+
+The way it is now, one can essentially "cheat": suspend a machine, put
+it in the cupboard for a couple of weeks, resume it and claim a
+respectable uptime, because the uptime value only reflects how long ago
+the system was first booted up, with no regard to how much of that time
+it has actually been running.
+
+Would it be possible to get the old behaviour back?
+
+Greetings,
+-- 
+jonathaN

@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751610AbWCYBte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751613AbWCYBwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751610AbWCYBte (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 20:49:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751612AbWCYBte
+	id S1751613AbWCYBwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 20:52:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751614AbWCYBwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 20:49:34 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:61916 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1751610AbWCYBtd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 20:49:33 -0500
-Date: Sat, 25 Mar 2006 02:49:32 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] loop: potential kernel hang waiting for kthread
-Message-ID: <20060325014932.GA16485@MAIL.13thfloor.at>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
+	Fri, 24 Mar 2006 20:52:25 -0500
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:10949
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1751612AbWCYBwY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 20:52:24 -0500
+Subject: Re: [PATCH] synclink_gt add gpio feature
+From: Paul Fulghum <paulkf@microgate.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060324161350.0a18c29b.akpm@osdl.org>
+References: <1143216251.8513.3.camel@amdx2.microgate.com>
+	 <20060324141929.1fff0c15.akpm@osdl.org> <44247812.1040301@microgate.com>
+	 <20060324151245.299ff2c1.akpm@osdl.org>
+	 <1143244969.2594.24.camel@localhost.localdomain>
+	 <20060324161350.0a18c29b.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 24 Mar 2006 19:52:18 -0600
+Message-Id: <1143251538.2594.46.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-03-24 at 16:13 -0800, Andrew Morton wrote:
+> It should be possible to communicate between waker and waiter via
+> __wait_queue.private and __wait_queue.func.  Make ->private point at some
+> on-stack thing, let the waker read and write that.
+> 
+> That'd involve some rather low-level poking at waitqueues, but I don't
+> expect those facilities are going away.
 
-Hi Andrew! Folks!
+__wait_queue.private already holds a
+pointer to the task structure of the waiting process
 
-just stumbled over the following issue with loop_set_fd()
-calling kernel_thread(loop_thread), ignoring the return
-value, even if it is an error, then doing wait_for_completion()
-on the device, which, in beforementioned error case, would
-wait forever (keeping a process stuck in 'D' state)
+I might be able to implement what I need in a way
+that more closely resembles how wait_on_bit extends
+the standard wait queue. But the result is the same:
+a new wrapper (new structure containing wait_queue_t
+and access/init functions) built on top of the
+existing wait queue.
 
-I can imagine at least three other solutions, but this
-one seemed quite organic to me, YMMV ...
+I'll revisit this tomorrow to make sure I'm
+thinking about this correctly.
 
-best,
-Herbert
+--
+Paul
 
-Signed-off-by: Herbert Poetzl <herbert@13thfloor.at>
----
---- linux/drivers/block/loop.c	2006-03-24 03:37:07 +0100
-+++ linux/drivers/block/loop.c	2006-03-25 02:30:37 +0100
-@@ -747,6 +747,7 @@ static int loop_set_fd(struct loop_devic
- 	int		lo_flags = 0;
- 	int		error;
- 	loff_t		size;
-+	pid_t		pid;
- 
- 	/* This is safe, since we have a reference from open(). */
- 	__module_get(THIS_MODULE);
-@@ -839,10 +840,14 @@ static int loop_set_fd(struct loop_devic
- 
- 	set_blocksize(bdev, lo_blocksize);
- 
--	kernel_thread(loop_thread, lo, CLONE_KERNEL);
-+	pid = kernel_thread(loop_thread, lo, CLONE_KERNEL);
-+	if (pid < 0)
-+		goto out_err;
- 	wait_for_completion(&lo->lo_done);
- 	return 0;
- 
-+ out_err:
-+	error = (int)pid;
-  out_putf:
- 	fput(file);
-  out:
+
+

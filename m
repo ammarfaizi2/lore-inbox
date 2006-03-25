@@ -1,42 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWCYIg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWCYIuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751109AbWCYIg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 03:36:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbWCYIg2
+	id S1750714AbWCYIuv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 03:50:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWCYIuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 03:36:28 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:62897 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751109AbWCYIg2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 03:36:28 -0500
-Date: Sat, 25 Mar 2006 14:06:19 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Question on build_sched_domains
-Message-ID: <20060325083619.GC17011@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20060324025834.GD8903@in.ibm.com> <20060324071255.GB22150@in.ibm.com> <4423A391.4000301@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4423A391.4000301@yahoo.com.au>
-User-Agent: Mutt/1.5.11
+	Sat, 25 Mar 2006 03:50:51 -0500
+Received: from mx1.mm.pl ([217.172.224.151]:7135 "EHLO mx1.mm.pl")
+	by vger.kernel.org with ESMTP id S1750714AbWCYIuu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 03:50:50 -0500
+From: Radoslaw Szkodzinski <astralstorm@gorzow.mm.pl>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: [ck] [benchmark] Interbench 2.6.16-ck/mm
+Date: Sat, 25 Mar 2006 09:46:38 +0100
+User-Agent: KMail/1.9.1
+Cc: ck@vds.kolivas.org,
+       "=?utf-8?q?Andr=C3=A9_Goddard?= Rosa" <andre.goddard@gmail.com>,
+       linux list <linux-kernel@vger.kernel.org>
+References: <200603251351.57341.kernel@kolivas.org> <200603250921.32409.astralstorm@gorzow.mm.pl> <200603251928.39190.kernel@kolivas.org>
+In-Reply-To: <200603251928.39190.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3559212.uJkNJLlSQY";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200603250946.42867.astralstorm@gorzow.mm.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 24, 2006 at 06:45:21PM +1100, Nick Piggin wrote:
-> Yeah I think what's happening is that the sched groups structures
-> are not shared between nodes. (It's been a while since I looked at
-> this code, and it is a bit tricky to follow).
+--nextPart3559212.uJkNJLlSQY
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Its really odd that sched group structure aren't shared between nodes in some 
-case (sched_group_nodes) and are shared in other cases (sched_group_cpus, 
-sched_group_core, sched_group_phys).
+On Saturday 25 March 2006 09:28, Con Kolivas wrote yet:
+> On Saturday 25 March 2006 19:21, Radoslaw Szkodzinski wrote:
+> > On Saturday 25 March 2006 05:01, Con Kolivas wrote yet:
+> > > I don't expect that staircase will be better in every single situatio=
+n.
+> > > However it will be better more often, especially when it counts (like
+> > > audio or video skipping) and far more predictable. All that in 300
+> > > lines less code :)
+> >
+> > I thinks the main difference is those other scheduler improvements.
+> > Some of them are compatible with staircase.
+> > Could you also try a mixed and matched 2.6.16-ck1+mm?
+>
+> You're kidding, right? Check the code.
 
-Also is the GFP_ATOMIC allocation really required (for
-sched_group_nodes) in build_sched_domains()?
+Yes and no. I was kidding about "scheduler improvements" part.
+(they're mostly NUMA-only)
 
--- 
-Regards,
-vatsa
+But of course memload, read and write latencies aren't necessarily caused b=
+y=20
+scheduler itself.=20
+(burn also reads a file)
+
+The easiest thing to do would be to add staircase to -mm and see what happe=
+ns.
+It shouldn't be hard to port. (in fact, it may apply cleanly)
+
+=2D-=20
+GPG Key id:  0xD1F10BA2
+=46ingerprint: 96E2 304A B9C4 949A 10A0  9105 9543 0453 D1F1 0BA2
+
+AstralStorm
+
+--nextPart3559212.uJkNJLlSQY
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1 (GNU/Linux)
+
+iD8DBQBEJQNylUMEU9HxC6IRAjOgAJ0RUxmIZ2qX658Dn2Vlxv2/5pWT6QCeLEQf
+6JFb7IT5nPQEDT6YUfd+n8g=
+=PRbc
+-----END PGP SIGNATURE-----
+
+--nextPart3559212.uJkNJLlSQY--

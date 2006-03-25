@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751613AbWCYBwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751622AbWCYBxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751613AbWCYBwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 20:52:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751614AbWCYBwZ
+	id S1751622AbWCYBxc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 20:53:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751623AbWCYBxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 20:52:25 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:10949
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1751612AbWCYBwY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 20:52:24 -0500
-Subject: Re: [PATCH] synclink_gt add gpio feature
-From: Paul Fulghum <paulkf@microgate.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060324161350.0a18c29b.akpm@osdl.org>
-References: <1143216251.8513.3.camel@amdx2.microgate.com>
-	 <20060324141929.1fff0c15.akpm@osdl.org> <44247812.1040301@microgate.com>
-	 <20060324151245.299ff2c1.akpm@osdl.org>
-	 <1143244969.2594.24.camel@localhost.localdomain>
-	 <20060324161350.0a18c29b.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 24 Mar 2006 19:52:18 -0600
-Message-Id: <1143251538.2594.46.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+	Fri, 24 Mar 2006 20:53:32 -0500
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:31814 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751622AbWCYBxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 20:53:32 -0500
+Message-ID: <4424A298.70706@bigpond.net.au>
+Date: Sat, 25 Mar 2006 12:53:28 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+CC: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: more smpnice patch issues
+References: <20060322155122.2745649f.akpm@osdl.org> <4421F702.5040609@bigpond.net.au> <20060324154558.A20018@unix-os.sc.intel.com> <4424953B.9030000@bigpond.net.au>
+In-Reply-To: <4424953B.9030000@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 25 Mar 2006 01:53:29 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-24 at 16:13 -0800, Andrew Morton wrote:
-> It should be possible to communicate between waker and waiter via
-> __wait_queue.private and __wait_queue.func.  Make ->private point at some
-> on-stack thing, let the waker read and write that.
+Peter Williams wrote:
+> Siddha, Suresh B wrote:
+>> more issues with smpnice patch...
+>>
+>> a) consider a 4-way system (simple SMP system with no HT and cores) 
+>> scenario
+>> where a high priority task (nice -20) is running on P0 and two normal
+>> priority tasks running on P1. load balance with smp nice code
+>> will never be able to detect an imbalance and hence will never move 
+>> one of the normal priority tasks on P1 to idle cpus P2 or P3.
 > 
-> That'd involve some rather low-level poking at waitqueues, but I don't
-> expect those facilities are going away.
+> Why?
 
-__wait_queue.private already holds a
-pointer to the task structure of the waiting process
+OK, I think I know why.  The load balancing code will always decide that 
+P0 is the busiest CPU, right?
 
-I might be able to implement what I need in a way
-that more closely resembles how wait_on_bit extends
-the standard wait queue. But the result is the same:
-a new wrapper (new structure containing wait_queue_t
-and access/init functions) built on top of the
-existing wait queue.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-I'll revisit this tomorrow to make sure I'm
-thinking about this correctly.
-
---
-Paul
-
-
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

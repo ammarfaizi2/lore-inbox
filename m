@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWCYOuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWCYOx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbWCYOuP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 09:50:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWCYOuP
+	id S1751185AbWCYOx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 09:53:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWCYOx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 09:50:15 -0500
-Received: from mx1.suse.de ([195.135.220.2]:49109 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751239AbWCYOuO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 09:50:14 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: ccache complains in latest git about -p
-References: <200603251521.32217.ak@suse.de>
-X-Yow: Am I accompanied by a PARENT or GUARDIAN?
-Date: Sat, 25 Mar 2006 15:50:10 +0100
-In-Reply-To: <200603251521.32217.ak@suse.de> (Andi Kleen's message of "Sat, 25
-	Mar 2006 15:21:32 +0100")
-Message-ID: <jemzfe37fh.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+	Sat, 25 Mar 2006 09:53:57 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:10982 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S1751185AbWCYOx4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 09:53:56 -0500
+Date: Sat, 25 Mar 2006 15:48:54 +0100
+From: maximilian attems <maks@sternwelten.at>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] isicom: select FW_LOADER
+Message-ID: <20060325144854.GE883@nancy>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+The isicom driver uses request_firmware()                                  
+and thus needs to select FW_LOADER.                                             
 
-> ccache complains for me on x86-64 now:
->
->> make CC=ccache 
+Signed-off-by: maximilian attems <maks@sternwelten.at>
 
-Didn't you mean CC="ccache gcc"?
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+index 5980f3e..facc3f1 100644
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -187,6 +187,7 @@ config MOXA_SMARTIO
+ config ISI
+ 	tristate "Multi-Tech multiport card support (EXPERIMENTAL)"
+ 	depends on SERIAL_NONSTANDARD
++	select FW_LOADER
+ 	help
+ 	  This is a driver for the Multi-Tech cards which provide several
+ 	  serial ports.  The driver is experimental and can currently only be

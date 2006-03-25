@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWCYSiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWCYSjc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbWCYSiU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 13:38:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWCYSiU
+	id S1751048AbWCYSjc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 13:39:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbWCYSjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 13:38:20 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:57359 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750753AbWCYSiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 13:38:19 -0500
-Date: Sat, 25 Mar 2006 19:38:17 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH] swsusp: finally solve mysqld problem
-Message-ID: <20060325183817.GM4053@stusta.de>
-References: <200602051321.55519.rjw@sisk.pl>
+	Sat, 25 Mar 2006 13:39:32 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:23183 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751048AbWCYSjb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 13:39:31 -0500
+Date: Sat, 25 Mar 2006 19:39:06 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Benjamin <benchu@tamu.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Modify the sock Structure!!
+In-Reply-To: <4424ED2A.3040006@tamu.edu>
+Message-ID: <Pine.LNX.4.61.0603251938110.29793@yvahk01.tjqt.qr>
+References: <4424ED2A.3040006@tamu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602051321.55519.rjw@sisk.pl>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 05, 2006 at 01:21:54PM +0100, Rafael J. Wysocki wrote:
 
-> Hi,
+> Hello! I try to modify the sock Structure in sock.h in order to record some
+> data!
+> I just add a unsigned short in the end of the structure. such as:
+>
+> struct sock {
 
-Hi Rafael,
+> safe or not. Is there any side-effect? Or I need to add additional code to
+> avoid some unexpected
+> situation?  Thank you very much!
 
-> This patch from Pavel moves userland freeze signals handling into
-> more logical place.  It now hits even with mysqld running.
->...
 
-I've seen this patch has been included in Linus' tree.
+Should be ok. For example, ipt_TPROXY/ipt_tproxy also adds something to 
+struct sock (including enlarging fields in the middle of the struct);
+I have not experienced any problem with it.
 
-What exactly was this "mysqld problem" problem, and more specifically, 
-is this patch 2.6.16.2 material?
 
-> Greetings,
-> Rafael
->...
-
-cu
-Adrian
-
+Jan Engelhardt
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-

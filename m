@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751928AbWCYRWH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWCYR0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751928AbWCYRWH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 12:22:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751922AbWCYRWH
+	id S1750861AbWCYR0g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 12:26:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbWCYR0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 12:22:07 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:52400 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751928AbWCYRUU (ORCPT
+	Sat, 25 Mar 2006 12:26:36 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:57392 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750861AbWCYR0f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 12:20:20 -0500
+	Sat, 25 Mar 2006 12:26:35 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:openpgp:content-type:content-transfer-encoding;
-        b=lOwNikkUOKsMcHOuEHVcBWhsAUpCMCWApNigMIfRZuaIfD26mt+CkPreV3wCODe1jV6tDuRuKAvtyZVUu0dia8o9xj/5voIgxM6wn+LwBH7NsQchv6C7t3HFHH2fXZ74q4OGI/HqXN6Shj0uXKwx/WCsit4FMYVaKT+lAfwTepg=
-Message-ID: <44257CC6.8020109@gmail.com>
-Date: Sun, 26 Mar 2006 00:24:22 +0700
+        b=SIJCN6dd7OSRGv634L9ZJ3LygC1gX6hFbQOCyRmHdQVTQYF+sZeDdHhPVkxA/jMsrUPw0qP9GuwvJ0LZbSxjv7AkIOvgjTSI+WzlFXHH5kIuT/LkdIphuK9QAmK5GPWegvVYG19uvISQUHClhRFu9Klvxmt7BqYpCdF61W1q4y0=
+Message-ID: <44257E44.70302@gmail.com>
+Date: Sun, 26 Mar 2006 00:30:44 +0700
 From: Mikado <mikado4vn@gmail.com>
 Reply-To: mikado4vn@gmail.com
 Organization: IcySpace.net
@@ -53,19 +53,15 @@ Amit Luniya wrote:
 > Please help us as we are hang over our project.
 > Have a good day sir.....
 
-IMO, you can deal with low level socket and sk_buff, in kernel-space. I
-don't know whether there is other way. If you want to notify the resume
-process or do something like connecting to a server after resume, I
-think you better write a small module to pass events to userspace (using
-kernel-user space linker/connector) then let userspace programs do
-whatever they want.
+And the last thing, I don't know if network codes is legal in resume
+process or not.
 
 Mikado.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.2.2 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQFEJXzGNWc9T2Wr2JcRAvsbAJ9HulNEBoWdiY7vwT0j6IVCrJWWUwCfZu2p
-YkO3S1YdxfmQMpZpCO9nKro=
-=OXAX
+iD8DBQFEJX5ENWc9T2Wr2JcRAsheAJ94lPaw0Gn3B+D5JxyRYFapf6n3TQCg0GQX
+Br6DYoO+f6w+rE+c3cZ4pWY=
+=zYv4
 -----END PGP SIGNATURE-----

@@ -1,99 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWCYAbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWCYAc0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWCYAbq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 19:31:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbWCYAbp
+	id S1751187AbWCYAc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 19:32:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWCYAc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 19:31:45 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:36825 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751173AbWCYAbo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 19:31:44 -0500
-Date: Fri, 24 Mar 2006 16:33:58 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-Cc: phillip@hellewell.homeip.net, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
-       mcthomps@us.ibm.com, yoder1@us.ibm.com, toml@us.ibm.com,
-       emilyr@us.ibm.com, daw@cs.berkeley.edu
-Subject: Re: eCryptfs Design Document
-Message-Id: <20060324163358.557ac5f7.akpm@osdl.org>
-In-Reply-To: <20060325001345.GC13688@us.ibm.com>
-References: <20060324222517.GA13688@us.ibm.com>
-	<20060324154920.11561533.akpm@osdl.org>
-	<20060325001345.GC13688@us.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 24 Mar 2006 19:32:26 -0500
+Received: from tama5.ecl.ntt.co.jp ([129.60.39.102]:394 "EHLO
+	tama5.ecl.ntt.co.jp") by vger.kernel.org with ESMTP
+	id S1751187AbWCYAcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 19:32:24 -0500
+To: boutcher@cs.umn.edu
+Cc: michaelc@cs.wisc.edu, jeff@garzik.org, arjan@infradead.org,
+       alan@lxorguk.ukuu.org.uk, m+Ian.Pratt@cl.cam.ac.uk, aliguori@us.ibm.com,
+       chrisw@sous-sol.org, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org,
+       ian.pratt@xensource.com, ian.pratt@cl.cam.ac.uk,
+       linux-scsi@vger.kernel.org
+Subject: Re: [RFC PATCH 35/35] Add Xen virtual block device driver.
+From: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
+In-Reply-To: <17444.18012.796603.193315@hound.rchland.ibm.com>
+References: <17444.4455.240044.724257@hound.rchland.ibm.com>
+	<442442CB.4090603@cs.wisc.edu>
+	<17444.18012.796603.193315@hound.rchland.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20060325093218K.fujita.tomonori@lab.ntt.co.jp>
+Date: Sat, 25 Mar 2006 09:32:18 +0900
+X-Dispatcher: imput version 20040704(IM147)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Halcrow <mhalcrow@us.ibm.com> wrote:
->
-> On Fri, Mar 24, 2006 at 03:49:20PM -0800, Andrew Morton wrote:
-> > Michael Halcrow <mhalcrow@us.ibm.com> wrote:
-> > > On a page read, the eCryptfs page index is interpolated into the
-> > > corresponding lower page index, taking into account the header page in
-> > > the file.
-> > 
-> > I trust that PAGE_CACHE_SIZE is not implicitly encoded into the file
-> > layout?
-> 
-> For release 0.1, it is. Managing differing page sizes is one of the
-> not-so-trivial changes to eCryptfs that we have planned for the 0.2
-> release. For this release, we can easily include a flag setting in the
-> header that indicates the page size, so that at least eCryptfs will
-> return a -EIO when the file is moved between hosts with different page
-> sizes. We will make sure that this is in the code before it is
-> submitted.
-> 
-> Do you think that this is an acceptable approach for the initial
-> release of eCryptfs?
-
-Well it's not good.  Will ecryptfs-0.1 files be both-way compatible with
-ecryptfs-0.2 files?
-
-The basic unit of a pagecache page's backing store should be a
-filesystem-determined blocksize, divorced from page sizes.
-
-For your purposes we can abstract things out a bit and not have to worry
-about the actual on-underlying-disk blocksize.  Which is fortunate, because
-you want an ecryptfs-on-ext3-on-1kblocksize file to work when copied to an
-ecryptfs-on-ext2-on-2kblocksize filesystem.
-
-I think it would be acceptable to design ecryptfs to assume that its
-underlying store has a 4096-byte "blocksize".  So all the crypto operates
-on 4096-byte hunks and the header is 4096-bytes long and things are copied
-to and from the underlying fs's pagecache in 4096-byte hunks.
-
-That's because 4096 is, for practical purposes, the minimum Linux
-PAGE_CACHE_SIZE.  Globally available and all filesystems support it.
+From: boutcher@cs.umn.edu (Dave C Boutcher)
+Subject: Re: [RFC PATCH 35/35] Add Xen virtual block device driver.
+Date: Fri, 24 Mar 2006 13:19:56 -0600
 
 > 
-> ...
->
-> Speaking of which, is there any particular way of breaking the code
-> into patches that you would prefer for delivery of a new filesystem?
-> In the past, we have been breaking the code into one patch for
-> inode.c, another for dentry.c, and so forth.
-
-That seems a reasonable way of doing it.  It's all logically one patch, but
-for review purposes we need some sort of splitup.
-
-> > One dutifully wonders whether all this functionality could be
-> > provided via FUSE...
+> Mike Christie wrote:
+> > Does the IBM vscsi code/SPEC follow the SRP SPEC or is it slightly 
+> > modified? We also have a SRP initiator in kernel now too. It is just not 
+> > in the drivers/scsi dir.
 > 
-> My main concern with FUSE has to do with shared memory mappings.
+> The goal was to follow the SRP spec 100%.  We added one other optional
+> command set (different protocol identifier than SRP) to exchange some
+> information like "who is at the other end", but the intent was that
+> the SRP part was right from the spec.
+> 
+> I think, since we implemented this in three operating systems (Linux,
+> AIX, and OS/400) using the T10 spec as the reference that we are probably
+> pretty close.
 
-OK.  But I'm sure Miklos would appreciate help with that ;)
+About the target side, the lun structure is very different the spec
+(tgt implements this as a user-space library).
 
-> My
-> next concern is with regard to performance impact of constant context
-> switching during page reads and writes.
 
-Maybe.  One could estimate the cost of that by benchmarking an existing
-(efficient) FUSE fs and then add fiddle factors.  If the number of copies
-is the same for in-kernel versus FUSE then one would expect the performance
-to be similar.  Especially if the encrypt/decryption cost perponderates.
+> And yeah, I'm aware that there is another SRP implementation in the
+> kernel...Merging would be good...
 
+Do you have any plans for this?
+
+I've been thinking about writing something like scsi_transport_srp,
+which can help the initiator and target drivers. I like to enable tgt
+to support RDMA-capable adapters.

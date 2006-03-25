@@ -1,59 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbWCYL64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWCYMA2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751304AbWCYL64 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 06:58:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751374AbWCYL6z
+	id S1750815AbWCYMA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 07:00:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWCYMA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 06:58:55 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:47117 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751304AbWCYL6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 06:58:55 -0500
-Date: Sat, 25 Mar 2006 12:58:53 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Darren Jenkins <darrenrjenkins@gmail.com>
-Subject: [2.6 patch] fix array over-run in efi.c
-Message-ID: <20060325115853.GB4053@stusta.de>
-MIME-Version: 1.0
+	Sat, 25 Mar 2006 07:00:27 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:34213 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S1750815AbWCYMA1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 07:00:27 -0500
+Date: Sat, 25 Mar 2006 13:00:20 +0100
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Con Kolivas <kernel@kolivas.org>, john stultz <johnstul@us.ibm.com>,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       linux-kernel@vger.kernel.org, george@mvista.com,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] PM-Timer: doesn't use workaround if chipset is not buggy
+Message-ID: <20060325120020.GA2111@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+	Con Kolivas <kernel@kolivas.org>, john stultz <johnstul@us.ibm.com>,
+	Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+	linux-kernel@vger.kernel.org, george@mvista.com,
+	Andrew Morton <akpm@osdl.org>
+References: <20060320122449.GA29718@outpost.ds9a.nl> <1142968999.4281.4.camel@leatherman> <8764m7xzqg.fsf@duaron.myhome.or.jp> <200603221121.16168.kernel@kolivas.org> <87hd5qmi1d.fsf_-_@duaron.myhome.or.jp>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <87hd5qmi1d.fsf_-_@duaron.myhome.or.jp>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Darren Jenkins <darrenrjenkins@gmail.com>
+> This patch adds blacklist of buggy chip, and if chip is not buggy,
+> this uses fast normal version instead of slow workaround version.
 
-Coverity found an over-run @ line 364 of efi.c
+I can confirm that this patch solves the problem I originally complained
+about. 
 
-This is due to the loop checking the size correctly, then adding a '\0'
-after possibly hitting the end of the array.
+Timings of 10,000,000 gettimeofday calls on my pentium 4 3GHz (which I won
+at OLS, ha!):
 
-The patch below just ensures the loop exits with one space left in the
-array.
-
-Compile tested.
-
-
-Signed-off-by: Darren Jenkins <darrenrjenkins@gmail.com>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
+tsc
 ---
+real    0m2.504s
+user    0m0.700s
+sys     0m1.804s
 
-This patch was sent by Darren Jenkins on:
-- 08 Mar 2006
+2.6.16-mainline
+---------------
+real    0m36.973s
+user    0m1.440s
+sys     0m34.130s
 
---- linux-2.6.16-rc5/arch/i386/kernel/efi.c.orig	2006-03-08 12:31:14.000000000 +1100
-+++ linux-2.6.16-rc5/arch/i386/kernel/efi.c	2006-03-08 12:37:59.000000000 +1100
-@@ -359,7 +359,7 @@ void __init efi_init(void)
- 	 */
- 	c16 = (efi_char16_t *) boot_ioremap(efi.systab->fw_vendor, 2);
- 	if (c16) {
--		for (i = 0; i < sizeof(vendor) && *c16; ++i)
-+		for (i = 0; i < (sizeof(vendor) - 1) && *c16; ++i)
- 			vendor[i] = *c16++;
- 		vendor[i] = '\0';
- 	} else
+2.6.16-ogawa
+------------
+real    0m13.697s
+user    0m1.712s
+sys     0m11.117s
 
+For reference, baseline 2.6.16 on my Athlon64 3200+
+---------------------------------------------------
+real    0m1.994s
+user    0m0.990s
+sys     0m0.990s
 
+I'm still going to recommend all 'power' pdns_recursor users on single CPU
+and not using frequency scaling to boot with clock=tsc - saves
+2.2usec/packet. Or run on an opteron of course.
 
+Thanks for the work everybody!
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

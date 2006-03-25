@@ -1,36 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751606AbWCYBsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751610AbWCYBte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751606AbWCYBsX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 20:48:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751610AbWCYBsX
+	id S1751610AbWCYBte (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 20:49:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751612AbWCYBte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 20:48:23 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:12736
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751603AbWCYBsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 20:48:22 -0500
-Date: Fri, 24 Mar 2006 17:47:45 -0800 (PST)
-Message-Id: <20060324.174745.78769720.davem@davemloft.net>
-To: kenneth.w.chen@intel.com
-Cc: mrustad@mac.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16 hugetlbfs problem - DEBUG_PAGEALLOC
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200603250124.k2P1OKg21526@unix-os.sc.intel.com>
-References: <C53A96CB-5B11-4BF3-879E-CF7B91E1BFEC@mac.com>
-	<200603250124.k2P1OKg21526@unix-os.sc.intel.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 24 Mar 2006 20:49:34 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:61916 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1751610AbWCYBtd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 20:49:33 -0500
+Date: Sat, 25 Mar 2006 02:49:32 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] loop: potential kernel hang waiting for kthread
+Message-ID: <20060325014932.GA16485@MAIL.13thfloor.at>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Date: Fri, 24 Mar 2006 17:24:41 -0800
 
-> Yeah, it turns out that the debug option is not compatible with hugetlb
-> page support. That debug option turns off PSE. Once it is turned off in
-> CR4, cpu will ignore pse bit in the pmd and causing infinite page-not-
-> present fault :-(
+Hi Andrew! Folks!
 
-Thanks for tracking this down.
+just stumbled over the following issue with loop_set_fd()
+calling kernel_thread(loop_thread), ignoring the return
+value, even if it is an error, then doing wait_for_completion()
+on the device, which, in beforementioned error case, would
+wait forever (keeping a process stuck in 'D' state)
+
+I can imagine at least three other solutions, but this
+one seemed quite organic to me, YMMV ...
+
+best,
+Herbert
+
+Signed-off-by: Herbert Poetzl <herbert@13thfloor.at>
+---
+--- linux/drivers/block/loop.c	2006-03-24 03:37:07 +0100
++++ linux/drivers/block/loop.c	2006-03-25 02:30:37 +0100
+@@ -747,6 +747,7 @@ static int loop_set_fd(struct loop_devic
+ 	int		lo_flags = 0;
+ 	int		error;
+ 	loff_t		size;
++	pid_t		pid;
+ 
+ 	/* This is safe, since we have a reference from open(). */
+ 	__module_get(THIS_MODULE);
+@@ -839,10 +840,14 @@ static int loop_set_fd(struct loop_devic
+ 
+ 	set_blocksize(bdev, lo_blocksize);
+ 
+-	kernel_thread(loop_thread, lo, CLONE_KERNEL);
++	pid = kernel_thread(loop_thread, lo, CLONE_KERNEL);
++	if (pid < 0)
++		goto out_err;
+ 	wait_for_completion(&lo->lo_done);
+ 	return 0;
+ 
++ out_err:
++	error = (int)pid;
+  out_putf:
+ 	fput(file);
+  out:

@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbWCYRiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbWCYRpo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751457AbWCYRiu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 12:38:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWCYRiu
+	id S1751484AbWCYRpo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 12:45:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWCYRpo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 12:38:50 -0500
-Received: from main.gmane.org ([80.91.229.2]:50319 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751457AbWCYRit (ORCPT
+	Sat, 25 Mar 2006 12:45:44 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:51484 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751484AbWCYRpn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 12:38:49 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ben Pfaff <blp@cs.stanford.edu>
-Subject: Re: [RFC] [PATCH] Reducing average ext2 fsck time through fs-wide dirty bit]
-Date: Sat, 25 Mar 2006 09:38:26 -0800
-Message-ID: <8764m2v2zx.fsf@benpfaff.org>
-References: <20060322011034.GP12571@goober>
-	<1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com>
-	<20060322224844.GU12571@goober>
-	<20060322175503.3b678ab5.akpm@osdl.org>
-	<20060324143239.GB14508@goober>
-	<20060324192802.GK14852@schatzie.adilger.int>
-	<20060324200131.GE18020@thunk.org>
-	<20060324210033.GQ14852@schatzie.adilger.int>
-	<20060324213905.GG18020@thunk.org>
-	<20060324221656.GW14852@schatzie.adilger.int>
-Reply-To: blp@cs.stanford.edu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: c-24-7-50-23.hsd1.ca.comcast.net
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-Cancel-Lock: sha1:7B3CSHlLPxiI0sIM+g8iINTXzXE=
-Cc: ext2-devel@lists.sourceforge.net
+	Sat, 25 Mar 2006 12:45:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:x-enigmail-version:openpgp:content-type:content-transfer-encoding;
+        b=Iqr2XEXjCvpe0ulWdIxJuwxZuRXjPb78Dp/LY4npky6Fksd2XVCeB6A8cdUF4rE4e8/Wdn065qjdufzv/lDqJFSe6LAiDBT0lOwHq4Bn/fySbxKP/mX9lQF1ZGIIP83PecNkeIM6v54rsmVACLuPLRAZ2c5rab2idtXXrgnhcEc=
+Message-ID: <442582B8.8040403@gmail.com>
+Date: Sun, 26 Mar 2006 00:49:44 +0700
+From: Mikado <mikado4vn@gmail.com>
+Reply-To: mikado4vn@gmail.com
+Organization: IcySpace.net
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: linux-c-programming@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Subject: Virtual Serial Port
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=65ABD897
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger <adilger@clusterfs.com> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Mar 24, 2006  16:39 -0500, Theodore Ts'o wrote:
->> The former: a filesystem test harness in userspace, possibly with some
->> kernel code changes to make it easier to integrate it with the
->> userspace test harness.  It's very similar to what the Netfilter folks
->> did, and it has the advantage that we can do testing much more
->> quickly, especially in cases where we want to simulate crashes at
->> certain specific test points to make sure the journal recovery happens
->> correctly.
->
-> I seem to recall that the Stanford Metacompilation group (Dawson Engler)
-> already wrote such a tool.  Not sure what sort of access there is for the
-> tool, whether public funding would grant access to the public, or if they
-> are at least willing to make an online interface available (the group has
-> spun out into "Coverity", and it seems unlikely it will be completely OSS).
+My machine has only one serial port. Now I want to add more *software*
+(virtual) serial ports. I also want to make a virtual serial cable
+between a real serial port and a virtual one OR between virtual ports.
+Is there any way to solve that problem in our universe?
 
-I know the guys who wrote FiSC, the tool in question, and I have
-even hacked on related software a little bit myself.  I suspect
-that, if asked, they would say that the code is rather
-embarrassing and that they wouldn't want to release it for that
-reason.  However, to my knowledge it wasn't written by or in
-conjunction with Coverity, so there wouldn't be any issues of
-that kind.
+Thanks,
+Mikado.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-If you want to pursue this, I'd recommend emailing Paul Twohey
-<twohey@CS.Stanford.EDU> or Junfeng Yang <yjf@stanford.edu>.  As
-I understand it, they are the grad students who spent the most
-time working on FiSC and related tools.
--- 
-Ben Pfaff 
-email: blp@cs.stanford.edu
-web: http://benpfaff.org
-
+iD8DBQFEJYK3NWc9T2Wr2JcRAro+AKCMMf5So3sPJ+gXzSN+eYk0RXBxsQCg2V6I
+UK2pvLjQIECVc3e1//7d0WE=
+=GroY
+-----END PGP SIGNATURE-----

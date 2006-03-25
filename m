@@ -1,660 +1,848 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751964AbWCYX1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751967AbWCYX1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751964AbWCYX1P (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 18:27:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751967AbWCYX1P
+	id S1751967AbWCYX1l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 18:27:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751968AbWCYX1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 18:27:15 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:50186 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S1751964AbWCYX1O (ORCPT
+	Sat, 25 Mar 2006 18:27:41 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:9400 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751967AbWCYX1j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 18:27:14 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Don't pass boot parameters to argv_init[]
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 26 Mar 2006 08:27:07 +0900
-Message-ID: <87zmjeumus.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Sat, 25 Mar 2006 18:27:39 -0500
+Date: Sun, 26 Mar 2006 00:26:50 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Nathan Scott <nathans@sgi.com>
+cc: linux-xfs@oss.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Parenthesize macros in xfs
+In-Reply-To: <20060321084619.E653275@wobbly.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.61.0603260024090.12891@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0603202207310.20060@yvahk01.tjqt.qr>
+ <20060321082327.B653275@wobbly.melbourne.sgi.com>
+ <Pine.LNX.4.61.0603202239110.11933@yvahk01.tjqt.qr>
+ <20060321084619.E653275@wobbly.melbourne.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-if __setup()'s function returns 0, it's meaning pass others, and if
-there is no others, it is passed to argv_init[].
 
-This patch fixes wrong usage, however fixes obvious one only.
+Here is the second patch in the row which tries to make every .h 'compile 
+on its own'. It is not complete since the xfs directory (cvs copy) 
+references things not present in ws (copy of 2.6.16, _not_ cvs).
+(I know I should work on the full xfs cvs, but I did not want to download 
+all that.)
 
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
----
-
- arch/alpha/kernel/core_marvel.c   |    2 +-
- arch/i386/kernel/apic.c           |    2 +-
- arch/i386/kernel/cpu/mcheck/mce.c |    4 ++--
- arch/i386/kernel/io_apic.c        |    2 +-
- arch/i386/kernel/traps.c          |    2 +-
- arch/powerpc/kernel/crash_dump.c  |    4 ++--
- arch/sh/kernel/cpu/init.c         |    2 +-
- arch/x86_64/kernel/apic.c         |   14 +++++++-------
- arch/x86_64/kernel/early_printk.c |    2 +-
- arch/x86_64/kernel/mce.c          |    4 ++--
- arch/x86_64/kernel/pmtimer.c      |    2 +-
- arch/x86_64/kernel/setup.c        |    2 +-
- arch/x86_64/kernel/setup64.c      |    4 ++--
- arch/x86_64/kernel/smpboot.c      |    2 +-
- arch/x86_64/kernel/time.c         |    4 ++--
- arch/x86_64/kernel/traps.c        |    4 ++--
- arch/x86_64/mm/fault.c            |    2 +-
- block/elevator.c                  |    2 +-
- drivers/acpi/ec.c                 |    4 ++--
- drivers/block/amiflop.c           |    1 +
- drivers/media/video/cpia_pp.c     |    2 +-
- drivers/net/netconsole.c          |    2 +-
- drivers/net/pcmcia/xirc2ps_cs.c   |    2 +-
- drivers/pcmcia/vrc4171_card.c     |   12 ++++++------
- drivers/pcmcia/vrc4173_cardu.c    |    8 ++++----
- drivers/scsi/ibmmca.c             |    2 +-
- drivers/video/console/fbcon.c     |   10 +++++-----
- drivers/video/console/sticore.c   |    4 ++--
- drivers/video/fbmem.c             |    2 +-
- drivers/video/stifb.c             |    4 ++--
- kernel/audit.c                    |    2 +-
- mm/memory.c                       |    2 +-
- 32 files changed, 59 insertions(+), 58 deletions(-)
-
-diff -puN arch/alpha/kernel/core_marvel.c~__setup-fixes arch/alpha/kernel/core_marvel.c
---- linux-2.6/arch/alpha/kernel/core_marvel.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/alpha/kernel/core_marvel.c	2006-03-26 06:15:54.000000000 +0900
-@@ -435,7 +435,7 @@ marvel_specify_io7(char *str)
- 		str = pchar;
- 	} while(*str);
+diff --fast -pru ws~/fs/xfs/dmapi/xfs_dm.h ws/fs/xfs/dmapi/xfs_dm.h
+--- ws~/fs/xfs/dmapi/xfs_dm.h	2006-02-15 03:48:07.000000000 +0100
++++ ws/fs/xfs/dmapi/xfs_dm.h	2006-03-25 23:46:04.315287000 +0100
+@@ -18,9 +18,14 @@
+ #ifndef __XFS_DM_H__
+ #define __XFS_DM_H__
  
--	return 0;
-+	return 1;
- }
- __setup("io7=", marvel_specify_io7);
+-extern int xfs_dm_get_fsys_vector(bhv_desc_t *, caddr_t);
++#include <linux/types.h>
++#include "xfs_types.h"
  
-diff -puN arch/i386/kernel/apic.c~__setup-fixes arch/i386/kernel/apic.c
---- linux-2.6/arch/i386/kernel/apic.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/i386/kernel/apic.c	2006-03-26 06:15:54.000000000 +0900
-@@ -732,7 +732,7 @@ static int __init apic_set_verbosity(cha
- 		printk(KERN_WARNING "APIC Verbosity level %s not recognised"
- 				" use apic=verbose or apic=debug\n", str);
+-extern xfs_dmops_t xfs_dmcore_xfs;
++struct bhv_desc;
++
++extern int xfs_dm_get_fsys_vector(struct bhv_desc *, caddr_t);
++
++extern struct xfs_dmops xfs_dmcore_xfs;
+ extern struct file_system_type xfs_fs_type;
+ extern struct filesystem_dmapi_operations xfs_dmapiops;
  
--	return 0;
-+	return 1;
- }
+diff --fast -pru ws~/fs/xfs/linux-2.6/kmem.h ws/fs/xfs/linux-2.6/kmem.h
+--- ws~/fs/xfs/linux-2.6/kmem.h	2006-03-06 15:18:30.000000000 +0100
++++ ws/fs/xfs/linux-2.6/kmem.h	2006-03-25 23:12:21.925287000 +0100
+@@ -18,6 +18,8 @@
+ #ifndef __XFS_SUPPORT_KMEM_H__
+ #define __XFS_SUPPORT_KMEM_H__
  
- __setup("apic=", apic_set_verbosity);
-diff -puN arch/i386/kernel/cpu/mcheck/mce.c~__setup-fixes arch/i386/kernel/cpu/mcheck/mce.c
---- linux-2.6/arch/i386/kernel/cpu/mcheck/mce.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/i386/kernel/cpu/mcheck/mce.c	2006-03-26 06:15:54.000000000 +0900
-@@ -64,13 +64,13 @@ void mcheck_init(struct cpuinfo_x86 *c)
- static int __init mcheck_disable(char *str)
- {
- 	mce_disabled = 1;
--	return 0;
-+	return 1;
- }
++#include <linux/compiler.h>
++#include <linux/gfp.h>
+ #include <linux/slab.h>
+ #include <linux/sched.h>
+ #include <linux/mm.h>
+diff --fast -pru ws~/fs/xfs/linux-2.6/xfs_aops.h ws/fs/xfs/linux-2.6/xfs_aops.h
+--- ws~/fs/xfs/linux-2.6/xfs_aops.h	2006-03-06 15:19:18.000000000 +0100
++++ ws/fs/xfs/linux-2.6/xfs_aops.h	2006-03-25 23:19:08.925287000 +0100
+@@ -18,6 +18,13 @@
+ #ifndef __XFS_AOPS_H__
+ #define __XFS_AOPS_H__
  
- static int __init mcheck_enable(char *str)
- {
- 	mce_disabled = -1;
--	return 0;
-+	return 1;
- }
++#include <asm/atomic.h>
++#include <linux/mempool.h>
++#include <linux/workqueue.h>
++#include "xfs_types.h"
++
++struct inode;
++
+ extern struct workqueue_struct *xfsdatad_workqueue;
+ extern mempool_t *xfs_ioend_pool;
  
- __setup("nomce", mcheck_disable);
-diff -puN arch/i386/kernel/io_apic.c~__setup-fixes arch/i386/kernel/io_apic.c
---- linux-2.6/arch/i386/kernel/io_apic.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/i386/kernel/io_apic.c	2006-03-26 06:15:54.000000000 +0900
-@@ -644,7 +644,7 @@ failed:
- int __init irqbalance_disable(char *str)
- {
- 	irqbalance_disabled = 1;
--	return 0;
-+	return 1;
- }
+diff --fast -pru ws~/fs/xfs/linux-2.6/xfs_buf.h ws/fs/xfs/linux-2.6/xfs_buf.h
+--- ws~/fs/xfs/linux-2.6/xfs_buf.h	2005-12-17 12:31:50.000000000 +0100
++++ ws/fs/xfs/linux-2.6/xfs_buf.h	2006-03-26 00:17:38.675287000 +0100
+@@ -28,6 +28,9 @@
+ #include <linux/buffer_head.h>
+ #include <linux/uio.h>
  
- __setup("noirqbalance", irqbalance_disable);
-diff -puN arch/i386/kernel/traps.c~__setup-fixes arch/i386/kernel/traps.c
---- linux-2.6/arch/i386/kernel/traps.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/i386/kernel/traps.c	2006-03-26 06:15:54.000000000 +0900
-@@ -1187,6 +1187,6 @@ void __init trap_init(void)
- static int __init kstack_setup(char *s)
- {
- 	kstack_depth_to_print = simple_strtoul(s, NULL, 0);
--	return 0;
-+	return 1;
- }
- __setup("kstack=", kstack_setup);
-diff -puN arch/powerpc/kernel/crash_dump.c~__setup-fixes arch/powerpc/kernel/crash_dump.c
---- linux-2.6/arch/powerpc/kernel/crash_dump.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/powerpc/kernel/crash_dump.c	2006-03-26 06:15:54.000000000 +0900
-@@ -61,7 +61,7 @@ static int __init parse_elfcorehdr(char 
- 	if (p)
- 		elfcorehdr_addr = memparse(p, &p);
++#include <xfs_lrw.h>
++#include "xfs_types.h"
++
+ /*
+  *	Base types
+  */
+diff --fast -pru ws~/fs/xfs/linux-2.6/xfs_export.h ws/fs/xfs/linux-2.6/xfs_export.h
+--- ws~/fs/xfs/linux-2.6/xfs_export.h	2006-03-25 21:10:19.000000000 +0100
++++ ws/fs/xfs/linux-2.6/xfs_export.h	2006-03-25 23:29:33.815287000 +0100
+@@ -18,6 +18,10 @@
+ #ifndef __XFS_EXPORT_H__
+ #define __XFS_EXPORT_H__
  
--	return 0;
-+	return 1;
- }
- __setup("elfcorehdr=", parse_elfcorehdr);
++#include <asm/types.h>
++#include <linux/fs.h>
++#include "xfs_fs.h"
++
+ /*
+  * Common defines for code related to exporting XFS filesystems over NFS.
+  *
+diff --fast -pru ws~/fs/xfs/linux-2.6/xfs_fs_subr.h ws/fs/xfs/linux-2.6/xfs_fs_subr.h
+--- ws~/fs/xfs/linux-2.6/xfs_fs_subr.h	2005-09-23 05:51:28.000000000 +0200
++++ ws/fs/xfs/linux-2.6/xfs_fs_subr.h	2006-03-25 23:30:52.135287000 +0100
+@@ -18,12 +18,17 @@
+ #ifndef	__XFS_FS_SUBR_H__
+ #define __XFS_FS_SUBR_H__
+ 
++#include <linux/types.h>
++#include "xfs_types.h"
++
++struct bhv_desc;
+ struct cred;
++
+ extern int  fs_noerr(void);
+ extern int  fs_nosys(void);
+ extern void fs_noval(void);
+-extern void fs_tosspages(bhv_desc_t *, xfs_off_t, xfs_off_t, int);
+-extern void fs_flushinval_pages(bhv_desc_t *, xfs_off_t, xfs_off_t, int);
+-extern int  fs_flush_pages(bhv_desc_t *, xfs_off_t, xfs_off_t, uint64_t, int);
++extern void fs_tosspages(struct bhv_desc *, xfs_off_t, xfs_off_t, int);
++extern void fs_flushinval_pages(struct bhv_desc *, xfs_off_t, xfs_off_t, int);
++extern int  fs_flush_pages(struct bhv_desc *, xfs_off_t, xfs_off_t, uint64_t, int);
+ 
+ #endif	/* __XFS_FS_SUBR_H__ */
+diff --fast -pru ws~/fs/xfs/linux-2.6/xfs_globals.h ws/fs/xfs/linux-2.6/xfs_globals.h
+--- ws~/fs/xfs/linux-2.6/xfs_globals.h	2005-09-23 05:51:28.000000000 +0200
++++ ws/fs/xfs/linux-2.6/xfs_globals.h	2006-03-25 23:31:10.535287000 +0100
+@@ -18,6 +18,8 @@
+ #ifndef __XFS_GLOBALS_H__
+ #define __XFS_GLOBALS_H__
+ 
++#include <linux/types.h>
++
+ extern uint64_t	xfs_panic_mask;		/* set to cause more panics */
+ extern unsigned long xfs_physmem;
+ extern struct cred *sys_cred;
+diff --fast -pru ws~/fs/xfs/linux-2.6/xfs_ioctl32.h ws/fs/xfs/linux-2.6/xfs_ioctl32.h
+--- ws~/fs/xfs/linux-2.6/xfs_ioctl32.h	2006-03-20 03:46:07.000000000 +0100
++++ ws/fs/xfs/linux-2.6/xfs_ioctl32.h	2006-03-25 23:31:29.215287000 +0100
+@@ -18,6 +18,8 @@
+ #ifndef __XFS_IOCTL32_H__
+ #define __XFS_IOCTL32_H__
+ 
++struct file;
++
+ extern long xfs_file_compat_ioctl(struct file *, unsigned, unsigned long);
+ extern long xfs_file_compat_invis_ioctl(struct file *, unsigned, unsigned long);
+ 
+diff --fast -pru ws~/fs/xfs/linux-2.6/xfs_iops.h ws/fs/xfs/linux-2.6/xfs_iops.h
+--- ws~/fs/xfs/linux-2.6/xfs_iops.h	2006-03-06 15:20:54.000000000 +0100
++++ ws/fs/xfs/linux-2.6/xfs_iops.h	2006-03-25 23:32:29.695287000 +0100
+@@ -18,6 +18,13 @@
+ #ifndef __XFS_IOPS_H__
+ #define __XFS_IOPS_H__
+ 
++#include <linux/compiler.h>
++
++struct bhv_desc;
++struct file;
++struct inode;
++struct xfs_inode;
++
+ extern struct inode_operations xfs_inode_operations;
+ extern struct inode_operations xfs_dir_inode_operations;
+ extern struct inode_operations xfs_symlink_inode_operations;
+@@ -29,7 +36,6 @@ extern struct file_operations xfs_invis_
+ extern int xfs_ioctl(struct bhv_desc *, struct inode *, struct file *,
+                         int, unsigned int, void __user *);
+ 
+-struct xfs_inode;
+ extern void xfs_ichgtime(struct xfs_inode *, int);
+ extern void xfs_ichgtime_fast(struct xfs_inode *, struct inode *, int);
+ 
+diff --fast -pru ws~/fs/xfs/linux-2.6/xfs_lrw.h ws/fs/xfs/linux-2.6/xfs_lrw.h
+--- ws~/fs/xfs/linux-2.6/xfs_lrw.h	2005-09-23 05:51:28.000000000 +0200
++++ ws/fs/xfs/linux-2.6/xfs_lrw.h	2006-03-25 23:26:43.925287000 +0100
+@@ -18,8 +18,15 @@
+ #ifndef __XFS_LRW_H__
+ #define __XFS_LRW_H__
+ 
++#include <linux/fs.h>           /* read_actor_t */
++#include <linux/types.h>        /* ssize_t */
++#include "xfs_types.h"
++
+ struct vnode;
+ struct bhv_desc;
++struct cred;
++struct iovec;
++struct kiocb;
+ struct xfs_mount;
+ struct xfs_iocore;
+ struct xfs_inode;
+diff --fast -pru ws~/fs/xfs/linux-2.6/xfs_stats.h ws/fs/xfs/linux-2.6/xfs_stats.h
+--- ws~/fs/xfs/linux-2.6/xfs_stats.h	2005-12-17 12:31:50.000000000 +0100
++++ ws/fs/xfs/linux-2.6/xfs_stats.h	2006-03-25 23:37:39.235287000 +0100
+@@ -21,7 +21,9 @@
+ 
+ #if defined(CONFIG_PROC_FS) && !defined(XFS_STATS_OFF)
+ 
++#include <asm/types.h>
+ #include <linux/percpu.h>
++#include "xfs_types.h"
+ 
+ /*
+  * XFS global statistics
+diff --fast -pru ws~/fs/xfs/linux-2.6/xfs_super.h ws/fs/xfs/linux-2.6/xfs_super.h
+--- ws~/fs/xfs/linux-2.6/xfs_super.h	2006-03-17 15:28:04.000000000 +0100
++++ ws/fs/xfs/linux-2.6/xfs_super.h	2006-03-25 23:38:47.435287000 +0100
+@@ -18,6 +18,8 @@
+ #ifndef __XFS_SUPER_H__
+ #define __XFS_SUPER_H__
+ 
++#include "xfs_types.h"
++
+ #ifdef CONFIG_XFS_POSIX_ACL
+ # define XFS_ACL_STRING		"ACLs, "
+ # define set_posix_acl_flag(sb)	((sb)->s_flags |= MS_POSIXACL)
+@@ -69,15 +71,17 @@
+ 				XFS_TRACE_STRING \
+ 				XFS_DBG_STRING /* DBG must be last */
+ 
++struct bhv_desc;
++struct block_device;
++struct vnode;
+ struct xfs_inode;
+ struct xfs_mount;
+ struct xfs_buftarg;
+-struct block_device;
+ 
+ extern __uint64_t xfs_max_file_offset(unsigned int);
+ 
+-extern struct inode *xfs_get_inode(bhv_desc_t *, xfs_ino_t, int);
+-extern void xfs_initialize_vnode(bhv_desc_t *, vnode_t *, bhv_desc_t *, int);
++extern struct inode *xfs_get_inode(struct bhv_desc *, xfs_ino_t, int);
++extern void xfs_initialize_vnode(struct bhv_desc *, struct vnode *, struct bhv_desc *, int);
+ 
+ extern void xfs_flush_inode(struct xfs_inode *);
+ extern void xfs_flush_device(struct xfs_inode *);
+diff --fast -pru ws~/fs/xfs/linux-2.6/xfs_vfs.h ws/fs/xfs/linux-2.6/xfs_vfs.h
+--- ws~/fs/xfs/linux-2.6/xfs_vfs.h	2006-03-25 21:10:19.000000000 +0100
++++ ws/fs/xfs/linux-2.6/xfs_vfs.h	2006-03-25 23:41:08.605287000 +0100
+@@ -18,14 +18,20 @@
+ #ifndef __XFS_VFS_H__
+ #define __XFS_VFS_H__
+ 
++#include <linux/list.h>
++#include <linux/spinlock.h>
+ #include <linux/vfs.h>
++#include <linux/wait.h>
++#include "xfs_behavior.h"
+ #include "xfs_fs.h"
++#include "xfs_types.h"
+ 
+ struct fid;
+ struct vfs;
+ struct cred;
+ struct vnode;
+ struct kstatfs;
++struct module;
+ struct seq_file;
+ struct super_block;
+ struct xfs_mount_args;
+diff --fast -pru ws~/fs/xfs/linux-2.6/xfs_vnode.h ws/fs/xfs/linux-2.6/xfs_vnode.h
+--- ws~/fs/xfs/linux-2.6/xfs_vnode.h	2006-03-17 15:28:04.000000000 +0100
++++ ws/fs/xfs/linux-2.6/xfs_vnode.h	2006-03-25 23:44:12.215287000 +0100
+@@ -45,7 +45,15 @@
+ #ifndef __XFS_VNODE_H__
+ #define __XFS_VNODE_H__
+ 
++#include <linux/fs.h>
++#include <linux/spinlock.h>
++#include "xfs_behavior.h"
++#include "xfs_fs.h"
++#include "xfs_types.h"
++
+ struct uio;
++struct cred;
++struct fid;
+ struct file;
+ struct vattr;
+ struct xfs_iomap;
+@@ -490,7 +498,7 @@ extern vnode_t	*vn_initialize(struct ino
+  * vnode_map structures _must_ match vn_epoch and vnode structure sizes.
+  */
+ typedef struct vnode_map {
+-	vfs_t		*v_vfsp;
++	struct vfs	*v_vfsp;
+ 	vnumber_t	v_number;		/* in-core vnode number */
+ 	xfs_ino_t	v_ino;			/* inode #	*/
+ } vmap_t;
+diff --fast -pru ws~/fs/xfs/quota/xfs_dquot.h ws/fs/xfs/quota/xfs_dquot.h
+--- ws~/fs/xfs/quota/xfs_dquot.h	2005-09-26 05:46:03.000000000 +0200
++++ ws/fs/xfs/quota/xfs_dquot.h	2006-03-25 23:56:11.155287000 +0100
+@@ -18,6 +18,12 @@
+ #ifndef __XFS_DQUOT_H__
+ #define __XFS_DQUOT_H__
+ 
++#include <mutex.h>
++#include <sv.h>
++#include "quota/xfs_dquot_item.h"
++#include "xfs_quota.h"
++#include "xfs_types.h"
++
+ /*
+  * Dquots are structures that hold quota information about a user or a group,
+  * much like inodes are for files. In fact, dquots share many characteristics
+@@ -44,9 +50,6 @@ typedef struct xfs_dqlink {
+ 	struct xfs_dquot **ql_prevp;	/* pointer to prev ql_next */
+ } xfs_dqlink_t;
+ 
+-struct xfs_mount;
+-struct xfs_trans;
+-
+ /*
+  * This is the marker which is designed to occupy the first few
+  * bytes of the xfs_dquot_t structure. Even inside this, the freelist pointers
+@@ -174,11 +177,11 @@ extern void		xfs_qm_dqunpin_wait(xfs_dqu
+ extern int		xfs_qm_dqlock_nowait(xfs_dquot_t *);
+ extern int		xfs_qm_dqflock_nowait(xfs_dquot_t *);
+ extern void		xfs_qm_dqflock_pushbuf_wait(xfs_dquot_t *dqp);
+-extern void		xfs_qm_adjust_dqtimers(xfs_mount_t *,
++extern void		xfs_qm_adjust_dqtimers(struct xfs_mount *,
+ 					xfs_disk_dquot_t *);
+-extern void		xfs_qm_adjust_dqlimits(xfs_mount_t *,
++extern void		xfs_qm_adjust_dqlimits(struct xfs_mount *,
+ 					xfs_disk_dquot_t *);
+-extern int		xfs_qm_dqget(xfs_mount_t *, xfs_inode_t *,
++extern int		xfs_qm_dqget(struct xfs_mount *, struct xfs_inode *,
+ 					xfs_dqid_t, uint, uint, xfs_dquot_t **);
+ extern void		xfs_qm_dqput(xfs_dquot_t *);
+ extern void		xfs_qm_dqrele(xfs_dquot_t *);
+diff --fast -pru ws~/fs/xfs/quota/xfs_dquot_item.h ws/fs/xfs/quota/xfs_dquot_item.h
+--- ws~/fs/xfs/quota/xfs_dquot_item.h	2005-09-26 05:46:03.000000000 +0200
++++ ws/fs/xfs/quota/xfs_dquot_item.h	2006-03-25 23:56:34.055287000 +0100
+@@ -18,10 +18,8 @@
+ #ifndef __XFS_DQUOT_ITEM_H__
+ #define __XFS_DQUOT_ITEM_H__
+ 
+-struct xfs_dquot;
+-struct xfs_trans;
+-struct xfs_mount;
+-struct xfs_qoff_logitem;
++#include "xfs_quota.h"
++#include "xfs_trans.h"
+ 
+ typedef struct xfs_dq_logitem {
+ 	xfs_log_item_t		 qli_item;	   /* common portion */
+diff --fast -pru ws~/fs/xfs/quota/xfs_qm.h ws/fs/xfs/quota/xfs_qm.h
+--- ws~/fs/xfs/quota/xfs_qm.h	2006-01-25 01:34:27.000000000 +0100
++++ ws/fs/xfs/quota/xfs_qm.h	2006-03-26 00:00:55.085287000 +0100
+@@ -18,13 +18,13 @@
+ #ifndef __XFS_QM_H__
+ #define __XFS_QM_H__
+ 
++#include <spin.h>
+ #include "xfs_dquot_item.h"
+ #include "xfs_dquot.h"
+ #include "xfs_quota_priv.h"
+ #include "xfs_qm_stats.h"
+ 
+-struct xfs_qm;
+-struct xfs_inode;
++struct bhv_desc;
+ 
+ extern uint		ndquot;
+ extern mutex_t		xfs_Gqm_lock;
+@@ -110,8 +110,8 @@ typedef struct xfs_qm {
+  * The mount structure keeps a pointer to this.
+  */
+ typedef struct xfs_quotainfo {
+-	xfs_inode_t	*qi_uquotaip;	 /* user quota inode */
+-	xfs_inode_t	*qi_gquotaip;	 /* group quota inode */
++	struct xfs_inode	*qi_uquotaip;	 /* user quota inode */
++	struct xfs_inode	*qi_gquotaip;	 /* group quota inode */
+ 	lock_t		 qi_pinlock;	 /* dquot pinning mutex */
+ 	xfs_dqlist_t	 qi_dqlist;	 /* all dquots in filesys */
+ 	int		 qi_dqreclaims;	 /* a change here indicates
+@@ -137,7 +137,7 @@ typedef struct xfs_quotainfo {
+ extern xfs_dqtrxops_t	xfs_trans_dquot_ops;
+ 
+ extern void	xfs_trans_mod_dquot(xfs_trans_t *, xfs_dquot_t *, uint, long);
+-extern int	xfs_trans_reserve_quota_bydquots(xfs_trans_t *, xfs_mount_t *,
++extern int	xfs_trans_reserve_quota_bydquots(xfs_trans_t *, struct xfs_mount *,
+ 			xfs_dquot_t *, xfs_dquot_t *, long, long, uint);
+ extern void	xfs_trans_dqjoin(xfs_trans_t *, xfs_dquot_t *);
+ extern void	xfs_trans_log_dquot(xfs_trans_t *, xfs_dquot_t *);
+@@ -170,33 +170,33 @@ typedef struct xfs_dquot_acct {
+ #define XFS_QM_HOLD(xqm)	((xqm)->qm_nrefs++)
+ #define XFS_QM_RELE(xqm)	((xqm)->qm_nrefs--)
+ 
+-extern void		xfs_qm_destroy_quotainfo(xfs_mount_t *);
+-extern int		xfs_qm_mount_quotas(xfs_mount_t *, int);
+-extern void		xfs_qm_mount_quotainit(xfs_mount_t *, uint);
+-extern int		xfs_qm_quotacheck(xfs_mount_t *);
+-extern void		xfs_qm_unmount_quotadestroy(xfs_mount_t *);
+-extern int		xfs_qm_unmount_quotas(xfs_mount_t *);
+-extern int		xfs_qm_write_sb_changes(xfs_mount_t *, __int64_t);
+-extern int		xfs_qm_sync(xfs_mount_t *, short);
++extern void		xfs_qm_destroy_quotainfo(struct xfs_mount *);
++extern int		xfs_qm_mount_quotas(struct xfs_mount *, int);
++extern void		xfs_qm_mount_quotainit(struct xfs_mount *, uint);
++extern int		xfs_qm_quotacheck(struct xfs_mount *);
++extern void		xfs_qm_unmount_quotadestroy(struct xfs_mount *);
++extern int		xfs_qm_unmount_quotas(struct xfs_mount *);
++extern int		xfs_qm_write_sb_changes(struct xfs_mount *, __int64_t);
++extern int		xfs_qm_sync(struct xfs_mount *, short);
+ 
+ /* dquot stuff */
+ extern boolean_t	xfs_qm_dqalloc_incore(xfs_dquot_t **);
+-extern int		xfs_qm_dqattach(xfs_inode_t *, uint);
+-extern void		xfs_qm_dqdetach(xfs_inode_t *);
+-extern int		xfs_qm_dqpurge_all(xfs_mount_t *, uint);
+-extern void		xfs_qm_dqrele_all_inodes(xfs_mount_t *, uint);
++extern int		xfs_qm_dqattach(struct xfs_inode *, uint);
++extern void		xfs_qm_dqdetach(struct xfs_inode *);
++extern int		xfs_qm_dqpurge_all(struct xfs_mount *, uint);
++extern void		xfs_qm_dqrele_all_inodes(struct xfs_mount *, uint);
+ 
+ /* vop stuff */
+-extern int		xfs_qm_vop_dqalloc(xfs_mount_t *, xfs_inode_t *,
++extern int		xfs_qm_vop_dqalloc(struct xfs_mount *, struct xfs_inode *,
+ 					uid_t, gid_t, prid_t, uint,
+ 					xfs_dquot_t **, xfs_dquot_t **);
+ extern void		xfs_qm_vop_dqattach_and_dqmod_newinode(
+-					xfs_trans_t *, xfs_inode_t *,
++					xfs_trans_t *, struct xfs_inode *,
+ 					xfs_dquot_t *, xfs_dquot_t *);
+-extern int		xfs_qm_vop_rename_dqattach(xfs_inode_t **);
+-extern xfs_dquot_t *	xfs_qm_vop_chown(xfs_trans_t *, xfs_inode_t *,
++extern int		xfs_qm_vop_rename_dqattach(struct xfs_inode **);
++extern xfs_dquot_t *	xfs_qm_vop_chown(xfs_trans_t *, struct xfs_inode *,
+ 					xfs_dquot_t **, xfs_dquot_t *);
+-extern int		xfs_qm_vop_chown_reserve(xfs_trans_t *, xfs_inode_t *,
++extern int		xfs_qm_vop_chown_reserve(xfs_trans_t *, struct xfs_inode *,
+ 					xfs_dquot_t *, xfs_dquot_t *, uint);
+ 
+ /* list stuff */
+@@ -205,10 +205,10 @@ extern void		xfs_qm_freelist_unlink(xfs_
+ extern int		xfs_qm_freelist_lock_nowait(xfs_qm_t *);
+ 
+ /* system call interface */
+-extern int		xfs_qm_quotactl(bhv_desc_t *, int, int, xfs_caddr_t);
++extern int		xfs_qm_quotactl(struct bhv_desc *, int, int, xfs_caddr_t);
+ 
+ #ifdef DEBUG
+-extern int		xfs_qm_internalqcheck(xfs_mount_t *);
++extern int		xfs_qm_internalqcheck(struct xfs_mount *);
+ #else
+ #define xfs_qm_internalqcheck(mp)	(0)
  #endif
-@@ -71,7 +71,7 @@ static int __init parse_savemaxmem(char 
- 	if (p)
- 		saved_max_pfn = (memparse(p, &p) >> PAGE_SHIFT) - 1;
+diff --fast -pru ws~/fs/xfs/quota/xfs_qm_stats.h ws/fs/xfs/quota/xfs_qm_stats.h
+--- ws~/fs/xfs/quota/xfs_qm_stats.h	2005-09-26 05:46:03.000000000 +0200
++++ ws/fs/xfs/quota/xfs_qm_stats.h	2006-03-26 00:01:13.795287000 +0100
+@@ -18,6 +18,8 @@
+ #ifndef __XFS_QM_STATS_H__
+ #define __XFS_QM_STATS_H__
  
--	return 0;
-+	return 1;
- }
- __setup("savemaxmem=", parse_savemaxmem);
++#include "xfs_types.h"
++
+ #if defined(CONFIG_PROC_FS) && !defined(XFS_STATS_OFF)
  
-diff -puN arch/sh/kernel/cpu/init.c~__setup-fixes arch/sh/kernel/cpu/init.c
---- linux-2.6/arch/sh/kernel/cpu/init.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/sh/kernel/cpu/init.c	2006-03-26 06:15:54.000000000 +0900
-@@ -30,7 +30,7 @@ static int x##_disabled __initdata = 0;	
- static int __init x##_setup(char *opts)		\
- {						\
- 	x##_disabled = 1;			\
--	return 0;				\
-+	return 1;				\
- }						\
- __setup("no" __stringify(x), x##_setup);
+ /*
+diff --fast -pru ws~/fs/xfs/support/move.h ws/fs/xfs/support/move.h
+--- ws~/fs/xfs/support/move.h	2005-09-23 05:51:28.000000000 +0200
++++ ws/fs/xfs/support/move.h	2006-03-26 00:03:26.295287000 +0100
+@@ -47,6 +47,7 @@
  
-diff -puN arch/x86_64/kernel/apic.c~__setup-fixes arch/x86_64/kernel/apic.c
---- linux-2.6/arch/x86_64/kernel/apic.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/apic.c	2006-03-26 06:15:54.000000000 +0900
-@@ -595,7 +595,7 @@ static int __init apic_set_verbosity(cha
- 		printk(KERN_WARNING "APIC Verbosity level %s not recognised"
- 				" use apic=verbose or apic=debug", str);
+ #include <linux/uio.h>
+ #include <asm/uaccess.h>
++#include "xfs_types.h"
  
--	return 0;
-+	return 1;
- }
+ /* Segment flag values. */
+ enum uio_seg {
+diff --fast -pru ws~/fs/xfs/support/qsort.h ws/fs/xfs/support/qsort.h
+--- ws~/fs/xfs/support/qsort.h	2005-09-23 05:51:28.000000000 +0200
++++ ws/fs/xfs/support/qsort.h	2006-03-26 00:03:52.865287000 +0100
+@@ -18,6 +18,8 @@
+ #ifndef __XFS_SUPPORT_QSORT_H__
+ #define __XFS_SUPPORT_QSORT_H__
  
- __setup("apic=", apic_set_verbosity);
-@@ -1117,35 +1117,35 @@ int __init APIC_init_uniprocessor (void)
- static __init int setup_disableapic(char *str) 
- { 
- 	disable_apic = 1;
--	return 0;
-+	return 1;
- } 
++#include <linux/types.h>
++
+ extern void qsort(void *const pbase, size_t total_elems, size_t size,
+ 		  int (*cmp)(const void *, const void *));
  
- static __init int setup_nolapic(char *str) 
- { 
- 	disable_apic = 1;
--	return 0;
-+	return 1;
- } 
+diff --fast -pru ws~/fs/xfs/support/uuid.h ws/fs/xfs/support/uuid.h
+--- ws~/fs/xfs/support/uuid.h	2005-09-23 05:51:28.000000000 +0200
++++ ws/fs/xfs/support/uuid.h	2006-03-26 00:04:16.305287000 +0100
+@@ -18,6 +18,8 @@
+ #ifndef __XFS_SUPPORT_UUID_H__
+ #define __XFS_SUPPORT_UUID_H__
  
- static __init int setup_noapictimer(char *str) 
- { 
- 	if (str[0] != ' ' && str[0] != 0)
--		return -1;
-+		return 0;
- 	disable_apic_timer = 1;
--	return 0;
-+	return 1;
- } 
++#include "xfs_types.h"
++
+ typedef struct {
+ 	unsigned char	__u_bits[16];
+ } uuid_t;
+diff --fast -pru ws~/fs/xfs/xfs_acl.h ws/fs/xfs/xfs_acl.h
+--- ws~/fs/xfs/xfs_acl.h	2006-03-25 21:10:18.000000000 +0100
++++ ws/fs/xfs/xfs_acl.h	2006-03-26 00:06:06.045287000 +0100
+@@ -18,6 +18,9 @@
+ #ifndef __XFS_ACL_H__
+ #define __XFS_ACL_H__
  
- static __init int setup_apicmaintimer(char *str)
- {
- 	apic_runs_main_timer = 1;
- 	nohpet = 1;
--	return 0;
-+	return 1;
- }
- __setup("apicmaintimer", setup_apicmaintimer);
++#include <linux/types.h>
++#include "xfs_types.h"
++
+ /*
+  * Access Control Lists
+  */
+@@ -49,6 +52,7 @@ typedef struct xfs_acl {
  
- static __init int setup_noapicmaintimer(char *str)
- {
- 	apic_runs_main_timer = -1;
--	return 0;
-+	return 1;
- }
- __setup("noapicmaintimer", setup_noapicmaintimer);
+ #ifdef CONFIG_XFS_POSIX_ACL
  
-diff -puN arch/x86_64/kernel/early_printk.c~__setup-fixes arch/x86_64/kernel/early_printk.c
---- linux-2.6/arch/x86_64/kernel/early_printk.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/early_printk.c	2006-03-26 07:08:08.000000000 +0900
-@@ -221,7 +221,7 @@ int __init setup_early_printk(char *opt)
- 	char buf[256];
++struct cred;
+ struct vattr;
+ struct vnode;
+ struct xfs_inode;
+@@ -59,7 +63,7 @@ extern struct kmem_zone *xfs_acl_zone;
+ #define xfs_acl_zone_destroy(zone)	kmem_zone_destroy(zone)
  
- 	if (early_console_initialized)
--		return -1;
-+		return 1;
+ extern int xfs_acl_inherit(struct vnode *, struct vattr *, xfs_acl_t *);
+-extern int xfs_acl_iaccess(struct xfs_inode *, mode_t, cred_t *);
++extern int xfs_acl_iaccess(struct xfs_inode *, mode_t, struct cred *);
+ extern int xfs_acl_vtoacl(struct vnode *, xfs_acl_t *, xfs_acl_t *);
+ extern int xfs_acl_vhasacl_access(struct vnode *);
+ extern int xfs_acl_vhasacl_default(struct vnode *);
+diff --fast -pru ws~/fs/xfs/xfs_ag.h ws/fs/xfs/xfs_ag.h
+--- ws~/fs/xfs/xfs_ag.h	2006-03-25 21:10:18.000000000 +0100
++++ ws/fs/xfs/xfs_ag.h	2006-03-26 00:07:29.455287000 +0100
+@@ -18,6 +18,11 @@
+ #ifndef __XFS_AG_H__
+ #define	__XFS_AG_H__
  
- 	strlcpy(buf,opt,sizeof(buf));
- 	space = strchr(buf, ' ');
-diff -puN arch/x86_64/kernel/mce.c~__setup-fixes arch/x86_64/kernel/mce.c
---- linux-2.6/arch/x86_64/kernel/mce.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/mce.c	2006-03-26 06:15:54.000000000 +0900
-@@ -501,7 +501,7 @@ static struct miscdevice mce_log_device 
- static int __init mcheck_disable(char *str)
- {
- 	mce_dont_init = 1;
--	return 0;
-+	return 1;
- }
++#include <linux/types.h>
++#include <spin.h>
++#include "xfs_inum.h"
++#include "xfs_types.h"
++
+ /*
+  * Allocation group header
+  * This is divided into three structures, placed in sequential 512-byte
+diff --fast -pru ws~/fs/xfs/xfs_alloc.h ws/fs/xfs/xfs_alloc.h
+--- ws~/fs/xfs/xfs_alloc.h	2006-03-25 21:10:18.000000000 +0100
++++ ws/fs/xfs/xfs_alloc.h	2006-03-26 00:08:07.455287000 +0100
+@@ -18,6 +18,8 @@
+ #ifndef __XFS_ALLOC_H__
+ #define	__XFS_ALLOC_H__
  
- /* mce=off disables machine check. Note you can reenable it later
-@@ -521,7 +521,7 @@ static int __init mcheck_enable(char *st
- 		get_option(&str, &tolerant);
- 	else
- 		printk("mce= argument %s ignored. Please use /sys", str); 
--	return 0;
-+	return 1;
- }
++#include "xfs_types.h"
++
+ struct xfs_buf;
+ struct xfs_mount;
+ struct xfs_perag;
+@@ -173,13 +175,13 @@ xfs_free_extent(
+ 	xfs_extlen_t	len);	/* length of extent */
  
- __setup("nomce", mcheck_disable);
-diff -puN arch/x86_64/kernel/pmtimer.c~__setup-fixes arch/x86_64/kernel/pmtimer.c
---- linux-2.6/arch/x86_64/kernel/pmtimer.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/pmtimer.c	2006-03-26 06:15:54.000000000 +0900
-@@ -120,7 +120,7 @@ unsigned int do_gettimeoffset_pm(void)
- static int __init nopmtimer_setup(char *s)
- {
- 	pmtmr_ioport = 0;
--	return 0;
-+	return 1;
- }
+ void
+-xfs_alloc_mark_busy(xfs_trans_t *tp,
++xfs_alloc_mark_busy(struct xfs_trans *tp,
+ 		xfs_agnumber_t agno,
+ 		xfs_agblock_t bno,
+ 		xfs_extlen_t len);
  
- __setup("nopmtimer", nopmtimer_setup);
-diff -puN arch/x86_64/kernel/setup.c~__setup-fixes arch/x86_64/kernel/setup.c
---- linux-2.6/arch/x86_64/kernel/setup.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/setup.c	2006-03-26 06:15:54.000000000 +0900
-@@ -530,7 +530,7 @@ void __init alternative_instructions(voi
- static int __init noreplacement_setup(char *s)
- { 
-      no_replacement = 1; 
--     return 0; 
-+     return 1;
- } 
+ void
+-xfs_alloc_clear_busy(xfs_trans_t *tp,
++xfs_alloc_clear_busy(struct xfs_trans *tp,
+ 		xfs_agnumber_t ag,
+ 		int idx);
  
- __setup("noreplacement", noreplacement_setup); 
-diff -puN arch/x86_64/kernel/setup64.c~__setup-fixes arch/x86_64/kernel/setup64.c
---- linux-2.6/arch/x86_64/kernel/setup64.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/setup64.c	2006-03-26 06:15:54.000000000 +0900
-@@ -55,7 +55,7 @@ int __init nonx_setup(char *str)
- 		do_not_nx = 1;
- 		__supported_pte_mask &= ~_PAGE_NX;
-         }
--	return 0;
-+	return 1;
- } 
- __setup("noexec=", nonx_setup);	/* parsed early actually */
+diff --fast -pru ws~/fs/xfs/xfs_alloc_btree.h ws/fs/xfs/xfs_alloc_btree.h
+--- ws~/fs/xfs/xfs_alloc_btree.h	2005-10-21 20:08:47.000000000 +0200
++++ ws/fs/xfs/xfs_alloc_btree.h	2006-03-26 00:08:31.585287000 +0100
+@@ -18,6 +18,9 @@
+ #ifndef __XFS_ALLOC_BTREE_H__
+ #define	__XFS_ALLOC_BTREE_H__
  
-@@ -74,7 +74,7 @@ static int __init nonx32_setup(char *str
- 		force_personality32 &= ~READ_IMPLIES_EXEC;
- 	else if (!strcmp(str, "off"))
- 		force_personality32 |= READ_IMPLIES_EXEC;
--	return 0;
-+	return 1;
- }
- __setup("noexec32=", nonx32_setup);
++#include <linux/types.h>
++#include "xfs_types.h"
++
+ /*
+  * Freespace on-disk structures
+  */
+diff --fast -pru ws~/fs/xfs/xfs_arch.h ws/fs/xfs/xfs_arch.h
+--- ws~/fs/xfs/xfs_arch.h	2006-03-25 22:24:11.255287000 +0100
++++ ws/fs/xfs/xfs_arch.h	2006-03-25 23:34:09.425287000 +0100
+@@ -25,6 +25,8 @@
+ #ifdef __KERNEL__
  
-diff -puN arch/x86_64/kernel/smpboot.c~__setup-fixes arch/x86_64/kernel/smpboot.c
---- linux-2.6/arch/x86_64/kernel/smpboot.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/smpboot.c	2006-03-26 06:15:54.000000000 +0900
-@@ -350,7 +350,7 @@ static void __cpuinit tsc_sync_wait(void
- static __init int notscsync_setup(char *s)
- {
- 	notscsync = 1;
--	return 0;
-+	return 1;
- }
- __setup("notscsync", notscsync_setup);
+ #include <asm/byteorder.h>
++#include <asm/types.h>
++#include "xfs_types.h"
  
-diff -puN arch/x86_64/kernel/time.c~__setup-fixes arch/x86_64/kernel/time.c
---- linux-2.6/arch/x86_64/kernel/time.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/time.c	2006-03-26 06:15:54.000000000 +0900
-@@ -1322,7 +1322,7 @@ irqreturn_t hpet_rtc_interrupt(int irq, 
- static int __init nohpet_setup(char *s) 
- { 
- 	nohpet = 1;
--	return 0;
-+	return 1;
- } 
+ #ifdef __BIG_ENDIAN
+ #define	XFS_NATIVE_HOST	1
+diff --fast -pru ws~/fs/xfs/xfs_attr.h ws/fs/xfs/xfs_attr.h
+--- ws~/fs/xfs/xfs_attr.h	2005-09-23 05:51:28.000000000 +0200
++++ ws/fs/xfs/xfs_attr.h	2006-03-26 00:09:18.815287000 +0100
+@@ -18,6 +18,8 @@
+ #ifndef __XFS_ATTR_H__
+ #define	__XFS_ATTR_H__
  
- __setup("nohpet", nohpet_setup);
-@@ -1330,7 +1330,7 @@ __setup("nohpet", nohpet_setup);
- int __init notsc_setup(char *s)
- {
- 	notsc = 1;
--	return 0;
-+	return 1;
- }
++#include <linux/types.h>
++
+ /*
+  * xfs_attr.h
+  *
+@@ -35,6 +37,7 @@
+  * External interfaces
+  *========================================================================*/
  
- __setup("notsc", notsc_setup);
-diff -puN arch/x86_64/kernel/traps.c~__setup-fixes arch/x86_64/kernel/traps.c
---- linux-2.6/arch/x86_64/kernel/traps.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/traps.c	2006-03-26 06:15:54.000000000 +0900
-@@ -974,14 +974,14 @@ void __init trap_init(void)
- static int __init oops_dummy(char *s)
- { 
- 	panic_on_oops = 1;
--	return -1; 
-+	return 1;
- } 
- __setup("oops=", oops_dummy); 
++struct bhv_desc;
+ struct cred;
+ struct vnode;
  
- static int __init kstack_setup(char *s)
- {
- 	kstack_depth_to_print = simple_strtoul(s,NULL,0);
--	return 0;
-+	return 1;
- }
- __setup("kstack=", kstack_setup);
+@@ -158,10 +161,10 @@ struct xfs_da_args;
+ /*
+  * Overall external interface routines.
+  */
+-int xfs_attr_get(bhv_desc_t *, const char *, char *, int *, int, struct cred *);
+-int xfs_attr_set(bhv_desc_t *, const char *, char *, int, int, struct cred *);
+-int xfs_attr_remove(bhv_desc_t *, const char *, int, struct cred *);
+-int xfs_attr_list(bhv_desc_t *, char *, int, int,
++int xfs_attr_get(struct bhv_desc *, const char *, char *, int *, int, struct cred *);
++int xfs_attr_set(struct bhv_desc *, const char *, char *, int, int, struct cred *);
++int xfs_attr_remove(struct bhv_desc *, const char *, int, struct cred *);
++int xfs_attr_list(struct bhv_desc *, char *, int, int,
+ 			 struct attrlist_cursor_kern *, struct cred *);
+ int xfs_attr_inactive(struct xfs_inode *dp);
  
-diff -puN arch/x86_64/mm/fault.c~__setup-fixes arch/x86_64/mm/fault.c
---- linux-2.6/arch/x86_64/mm/fault.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/mm/fault.c	2006-03-26 06:15:54.000000000 +0900
-@@ -574,6 +574,6 @@ do_sigbus:
- static int __init enable_pagefaulttrace(char *str)
- {
- 	page_fault_trace = 1;
--	return 0;
-+	return 1;
- }
- __setup("pagefaulttrace", enable_pagefaulttrace);
-diff -puN block/elevator.c~__setup-fixes block/elevator.c
---- linux-2.6/block/elevator.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/block/elevator.c	2006-03-26 06:15:54.000000000 +0900
-@@ -145,7 +145,7 @@ static int __init elevator_setup(char *s
- 		strcpy(chosen_elevator, "anticipatory");
- 	else
- 		strncpy(chosen_elevator, str, sizeof(chosen_elevator) - 1);
--	return 0;
-+	return 1;
- }
+diff --fast -pru ws~/fs/xfs/xfs_attr_leaf.h ws/fs/xfs/xfs_attr_leaf.h
+--- ws~/fs/xfs/xfs_attr_leaf.h	2006-03-17 15:44:48.000000000 +0100
++++ ws/fs/xfs/xfs_attr_leaf.h	2006-03-26 00:12:13.175287000 +0100
+@@ -18,6 +18,10 @@
+ #ifndef __XFS_ATTR_LEAF_H__
+ #define	__XFS_ATTR_LEAF_H__
  
- __setup("elevator=", elevator_setup);
-diff -puN drivers/acpi/ec.c~__setup-fixes drivers/acpi/ec.c
---- linux-2.6/drivers/acpi/ec.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/acpi/ec.c	2006-03-26 06:15:54.000000000 +0900
-@@ -1572,7 +1572,7 @@ static void __exit acpi_ec_exit(void)
- static int __init acpi_fake_ecdt_setup(char *str)
- {
- 	acpi_fake_ecdt_enabled = 1;
--	return 0;
-+	return 1;
- }
++#include <asm/byteorder.h>
++#include <linux/types.h>
++#include "xfs_da_btree.h"
++
+ /*
+  * Attribute storage layout, internal structure, access macros, etc.
+  *
+@@ -232,7 +236,7 @@ int	xfs_attr_shortform_to_leaf(struct xf
+ int	xfs_attr_shortform_remove(struct xfs_da_args *args);
+ int	xfs_attr_shortform_list(struct xfs_attr_list_context *context);
+ int	xfs_attr_shortform_allfit(struct xfs_dabuf *bp, struct xfs_inode *dp);
+-int	xfs_attr_shortform_bytesfit(xfs_inode_t *dp, int bytes);
++int	xfs_attr_shortform_bytesfit(struct xfs_inode *dp, int bytes);
  
- __setup("acpi_fake_ecdt", acpi_fake_ecdt_setup);
-@@ -1591,7 +1591,7 @@ static int __init acpi_ec_set_intr_mode(
- 		acpi_ec_driver.ops.add = acpi_ec_poll_add;
- 	}
- 	printk(KERN_INFO PREFIX "EC %s mode.\n", intr ? "interrupt" : "polling");
--	return 0;
-+	return 1;
- }
  
- __setup("ec_intr=", acpi_ec_set_intr_mode);
-diff -puN drivers/block/amiflop.c~__setup-fixes drivers/block/amiflop.c
---- linux-2.6/drivers/block/amiflop.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/block/amiflop.c	2006-03-26 06:15:54.000000000 +0900
-@@ -1850,6 +1850,7 @@ static int __init amiga_floppy_setup (ch
- 		return 0;
- 	printk (KERN_INFO "amiflop: Setting default df0 to %x\n", n);
- 	fd_def_df0 = n;
-+	return 1;
- }
+ /*
+diff --fast -pru ws~/fs/xfs/xfs_attr_sf.h ws/fs/xfs/xfs_attr_sf.h
+--- ws~/fs/xfs/xfs_attr_sf.h	2006-03-17 15:45:34.000000000 +0100
++++ ws/fs/xfs/xfs_attr_sf.h	2006-03-26 00:12:33.025287000 +0100
+@@ -18,6 +18,9 @@
+ #ifndef __XFS_ATTR_SF_H__
+ #define	__XFS_ATTR_SF_H__
  
- __setup("floppy=", amiga_floppy_setup);
-diff -puN drivers/media/video/cpia_pp.c~__setup-fixes drivers/media/video/cpia_pp.c
---- linux-2.6/drivers/media/video/cpia_pp.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/media/video/cpia_pp.c	2006-03-26 06:15:54.000000000 +0900
-@@ -873,7 +873,7 @@ static int __init cpia_pp_setup(char *st
- 		parport_nr[parport_ptr++] = PPCPIA_PARPORT_NONE;
- 	}
++#include <linux/types.h>
++#include "xfs_types.h"
++
+ /*
+  * Attribute storage when stored inside the inode.
+  *
+diff --fast -pru ws~/fs/xfs/xfs_behavior.h ws/fs/xfs/xfs_behavior.h
+--- ws~/fs/xfs/xfs_behavior.h	2006-03-25 21:10:18.000000000 +0100
++++ ws/fs/xfs/xfs_behavior.h	2006-03-25 23:35:45.865287000 +0100
+@@ -78,7 +78,13 @@
+  *
+  */
  
--	return 0;
-+	return 1;
- }
++#include <asm/types.h>
++#include <linux/stddef.h>
++
+ struct bhv_head_lock;
++struct vnode;
++struct vnodeops;
++struct xfs_inode;
  
- __setup("cpia_pp=", cpia_pp_setup);
-diff -puN drivers/net/netconsole.c~__setup-fixes drivers/net/netconsole.c
---- linux-2.6/drivers/net/netconsole.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/net/netconsole.c	2006-03-26 06:15:54.000000000 +0900
-@@ -94,7 +94,7 @@ static struct console netconsole = {
- static int option_setup(char *opt)
- {
- 	configured = !netpoll_parse_options(&np, opt);
--	return 0;
-+	return 1;
- }
+ /*
+  * Behavior head.  Head of the chain of behaviors.
+@@ -183,6 +173,24 @@ extern bhv_desc_t *	bhv_lookup(bhv_head_
+ extern bhv_desc_t *	bhv_lookup_range(bhv_head_t *bhp, int low, int high);
+ extern bhv_desc_t *	bhv_base(bhv_head_t *bhp);
  
- __setup("netconsole=", option_setup);
-diff -puN drivers/net/pcmcia/xirc2ps_cs.c~__setup-fixes drivers/net/pcmcia/xirc2ps_cs.c
---- linux-2.6/drivers/net/pcmcia/xirc2ps_cs.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/net/pcmcia/xirc2ps_cs.c	2006-03-26 06:15:54.000000000 +0900
-@@ -1973,7 +1973,7 @@ static int __init setup_xirc2ps_cs(char 
- 	MAYBE_SET(lockup_hack, 6);
- #undef  MAYBE_SET
++/*
++ * Remove a behavior descriptor from a behavior chain.
++ */
++static inline void bhv_remove(bhv_head_t *bhp, struct bhv_desc *bdp) {
++    if(bhp->bh_first == bdp)
++        /*
++        * Remove from front of chain.
++        * Atomic wrt oip's.
++        */
++        bhp->bh_first = bdp->bd_next;
++    else
++        /* remove from non-front of chain */
++        bhv_remove_not_first(bhp, bdp);
++
++    bdp->bd_vobj = NULL;
++    return;
++}
++
+ /* No bhv locking on Linux */
+ #define bhv_lookup_unlocked	bhv_lookup
+ #define bhv_base_unlocked	bhv_base
+diff --fast -pru ws~/fs/xfs/xfs_bit.h ws/fs/xfs/xfs_bit.h
+--- ws~/fs/xfs/xfs_bit.h	2005-09-23 05:51:28.000000000 +0200
++++ ws/fs/xfs/xfs_bit.h	2006-03-26 00:13:16.515287000 +0100
+@@ -18,6 +18,9 @@
+ #ifndef __XFS_BIT_H__
+ #define	__XFS_BIT_H__
  
--	return 0;
-+	return 1;
- }
++#include <linux/types.h>
++#include "xfs_types.h"
++
+ /*
+  * XFS bit manipulation routines.
+  */
+diff --fast -pru ws~/fs/xfs/xfs_bmap.h ws/fs/xfs/xfs_bmap.h
+--- ws~/fs/xfs/xfs_bmap.h	2006-03-03 01:40:32.000000000 +0100
++++ ws/fs/xfs/xfs_bmap.h	2006-03-26 00:14:07.995287000 +0100
+@@ -18,6 +18,9 @@
+ #ifndef __XFS_BMAP_H__
+ #define	__XFS_BMAP_H__
  
- __setup("xirc2ps_cs=", setup_xirc2ps_cs);
-diff -puN drivers/pcmcia/vrc4171_card.c~__setup-fixes drivers/pcmcia/vrc4171_card.c
---- linux-2.6/drivers/pcmcia/vrc4171_card.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/pcmcia/vrc4171_card.c	2006-03-26 06:15:54.000000000 +0900
-@@ -634,7 +634,7 @@ static void vrc4171_remove_sockets(void)
- static int __devinit vrc4171_card_setup(char *options)
- {
- 	if (options == NULL || *options == '\0')
--		return 0;
-+		return 1;
++#include "xfs_inode.h"
++#include "xfs_types.h"
++
+ struct getbmap;
+ struct xfs_bmbt_irec;
+ struct xfs_ifork;
+diff --fast -pru ws~/fs/xfs/xfs_da_btree.h ws/fs/xfs/xfs_da_btree.h
+--- ws~/fs/xfs/xfs_da_btree.h	2006-03-17 15:48:35.000000000 +0100
++++ ws/fs/xfs/xfs_da_btree.h	2006-03-26 00:10:50.305287000 +0100
+@@ -18,6 +18,8 @@
+ #ifndef __XFS_DA_BTREE_H__
+ #define	__XFS_DA_BTREE_H__
  
- 	if (strncmp(options, "irq:", 4) == 0) {
- 		int irq;
-@@ -644,7 +644,7 @@ static int __devinit vrc4171_card_setup(
- 			vrc4171_irq = irq;
++#include "xfs_types.h"
++
+ struct xfs_buf;
+ struct xfs_bmap_free;
+ struct xfs_inode;
+diff --fast -pru ws~/fs/xfs/xfs_fs.h ws/fs/xfs/xfs_fs.h
+--- ws~/fs/xfs/xfs_fs.h	2006-03-25 22:24:11.265287000 +0100
++++ ws/fs/xfs/xfs_fs.h	2006-03-25 23:28:56.635287000 +0100
+@@ -18,6 +18,10 @@
+ #ifndef __XFS_FS_H__
+ #define __XFS_FS_H__
  
- 		if (*options != ',')
--			return 0;
-+			return 1;
- 		options++;
- 	}
++#include <linux/types.h>
++
++struct inode;
++
+ /*
+  * SGI's XFS filesystem's major stuff (constants, structures)
+  */
+diff --fast -pru ws~/fs/xfs/xfs_inum.h ws/fs/xfs/xfs_inum.h
+--- ws~/fs/xfs/xfs_inum.h	2005-09-23 05:51:28.000000000 +0200
++++ ws/fs/xfs/xfs_inum.h	2006-03-26 00:07:03.615287000 +0100
+@@ -18,6 +18,8 @@
+ #ifndef __XFS_INUM_H__
+ #define	__XFS_INUM_H__
  
-@@ -663,10 +663,10 @@ static int __devinit vrc4171_card_setup(
- 			}
++#include "xfs_types.h"
++
+ /*
+  * Inode number format:
+  * low inopblog bits - offset in block
+diff --fast -pru ws~/fs/xfs/xfs_log.h ws/fs/xfs/xfs_log.h
+--- ws~/fs/xfs/xfs_log.h	2006-03-25 21:10:18.000000000 +0100
++++ ws/fs/xfs/xfs_log.h	2006-03-25 23:53:46.815287000 +0100
+@@ -18,6 +18,12 @@
+ #ifndef	__XFS_LOG_H__
+ #define __XFS_LOG_H__
  
- 			if (*options != ',')
--				return 0;
-+				return 1;
- 			options++;
- 		} else
--			return 0;
-+			return 1;
++#include <linux/types.h>
++#include "xfs_types.h"
++
++struct xfs_buf;
++struct xfs_buftarg;
++
+ /* get lsn fields */
  
- 	}
+ #define CYCLE_LSN(lsn) ((uint)((lsn)>>32))
+diff --fast -pru ws~/fs/xfs/xfs_quota.h ws/fs/xfs/xfs_quota.h
+--- ws~/fs/xfs/xfs_quota.h	2006-03-25 21:10:18.000000000 +0100
++++ ws/fs/xfs/xfs_quota.h	2006-03-25 23:49:42.575287000 +0100
+@@ -18,6 +18,13 @@
+ #ifndef __XFS_QUOTA_H__
+ #define __XFS_QUOTA_H__
  
-@@ -688,7 +688,7 @@ static int __devinit vrc4171_card_setup(
- 			}
++#include <linux/types.h>
++#include "xfs_types.h"
++
++struct xfs_inode;
++struct xfs_mount;
++struct xfs_trans;
++
+ /*
+  * The ondisk form of a dquot structure.
+  */
+diff --fast -pru ws~/fs/xfs/xfs_trans.h ws/fs/xfs/xfs_trans.h
+--- ws~/fs/xfs/xfs_trans.h	2006-03-25 21:10:18.000000000 +0100
++++ ws/fs/xfs/xfs_trans.h	2006-03-25 23:53:59.705287000 +0100
+@@ -18,6 +18,11 @@
+ #ifndef	__XFS_TRANS_H__
+ #define	__XFS_TRANS_H__
  
- 			if (*options != ',')
--				return 0;
-+				return 1;
- 			options++;
++#include <linux/types.h>
++#include <sema.h>
++#include "xfs_log.h"
++#include "xfs_types.h"
++
+ /*
+  * This is the structure written in the log at the head of
+  * every transaction. It identifies the type and id of the
+diff --fast -pru ws~/fs/xfs/xfs_types.h ws/fs/xfs/xfs_types.h
+--- ws~/fs/xfs/xfs_types.h	2005-09-23 05:51:28.000000000 +0200
++++ ws/fs/xfs/xfs_types.h	2006-03-25 23:25:11.955287000 +0100
+@@ -20,6 +20,8 @@
  
- 			if (strncmp(options, "memnoprobe", 10) == 0)
-@@ -700,7 +700,7 @@ static int __devinit vrc4171_card_setup(
- 		}
- 	}
+ #ifdef __KERNEL__
  
--	return 0;
-+	return 1;
- }
- 
- __setup("vrc4171_card=", vrc4171_card_setup);
-diff -puN drivers/pcmcia/vrc4173_cardu.c~__setup-fixes drivers/pcmcia/vrc4173_cardu.c
---- linux-2.6/drivers/pcmcia/vrc4173_cardu.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/pcmcia/vrc4173_cardu.c	2006-03-26 06:15:54.000000000 +0900
-@@ -516,7 +516,7 @@ static int __devinit vrc4173_cardu_probe
- static int __devinit vrc4173_cardu_setup(char *options)
- {
- 	if (options == NULL || *options == '\0')
--		return 0;
-+		return 1;
- 
- 	if (strncmp(options, "cardu1:", 7) == 0) {
- 		options += 7;
-@@ -527,9 +527,9 @@ static int __devinit vrc4173_cardu_setup
- 			}
- 
- 			if (*options != ',')
--				return 0;
-+				return 1;
- 		} else
--			return 0;
-+			return 1;
- 	}
- 
- 	if (strncmp(options, "cardu2:", 7) == 0) {
-@@ -538,7 +538,7 @@ static int __devinit vrc4173_cardu_setup
- 			cardu_sockets[CARDU2].noprobe = 1;
- 	}
- 
--	return 0;
-+	return 1;
- }
- 
- __setup("vrc4173_cardu=", vrc4173_cardu_setup);
-diff -puN drivers/scsi/ibmmca.c~__setup-fixes drivers/scsi/ibmmca.c
---- linux-2.6/drivers/scsi/ibmmca.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/scsi/ibmmca.c	2006-03-26 06:15:54.000000000 +0900
-@@ -2488,7 +2488,7 @@ static int option_setup(char *str)
- 	}
- 	ints[0] = i - 1;
- 	internal_ibmmca_scsi_setup(cur, ints);
--	return 0;
-+	return 1;
- }
- 
- __setup("ibmmcascsi=", option_setup);
-diff -puN drivers/video/console/fbcon.c~__setup-fixes drivers/video/console/fbcon.c
---- linux-2.6/drivers/video/console/fbcon.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/video/console/fbcon.c	2006-03-26 06:15:54.000000000 +0900
-@@ -466,7 +466,7 @@ static int __init fb_console_setup(char 
- 	int i, j;
- 
- 	if (!this_opt || !*this_opt)
--		return 0;
-+		return 1;
- 
- 	while ((options = strsep(&this_opt, ",")) != NULL) {
- 		if (!strncmp(options, "font:", 5))
-@@ -481,10 +481,10 @@ static int __init fb_console_setup(char 
- 					options++;
- 				}
- 				if (*options != ',')
--					return 0;
-+					return 1;
- 				options++;
- 			} else
--				return 0;
-+				return 1;
- 		}
- 		
- 		if (!strncmp(options, "map:", 4)) {
-@@ -496,7 +496,7 @@ static int __init fb_console_setup(char 
- 					con2fb_map_boot[i] =
- 						(options[j++]-'0') % FB_MAX;
- 				}
--			return 0;
-+			return 1;
- 		}
- 
- 		if (!strncmp(options, "vc:", 3)) {
-@@ -518,7 +518,7 @@ static int __init fb_console_setup(char 
- 				rotate = 0;
- 		}
- 	}
--	return 0;
-+	return 1;
- }
- 
- __setup("fbcon=", fb_console_setup);
-diff -puN drivers/video/console/sticore.c~__setup-fixes drivers/video/console/sticore.c
---- linux-2.6/drivers/video/console/sticore.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/video/console/sticore.c	2006-03-26 06:15:54.000000000 +0900
-@@ -275,7 +275,7 @@ static int __init sti_setup(char *str)
- 	if (str)
- 		strlcpy (default_sti_path, str, sizeof (default_sti_path));
- 	
--	return 0;
-+	return 1;
- }
- 
- /*	Assuming the machine has multiple STI consoles (=graphic cards) which
-@@ -321,7 +321,7 @@ static int __init sti_font_setup(char *s
- 		i++;
- 	}
- 
--	return 0;
-+	return 1;
- }
- 
- /*	The optional linux kernel parameter "sti_font" defines which font
-diff -puN drivers/video/fbmem.c~__setup-fixes drivers/video/fbmem.c
---- linux-2.6/drivers/video/fbmem.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/video/fbmem.c	2006-03-26 06:15:54.000000000 +0900
-@@ -1585,7 +1585,7 @@ static int __init video_setup(char *opti
- 		}
- 	}
- 
--	return 0;
-+	return 1;
- }
- __setup("video=", video_setup);
- #endif
-diff -puN drivers/video/stifb.c~__setup-fixes drivers/video/stifb.c
---- linux-2.6/drivers/video/stifb.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/video/stifb.c	2006-03-26 06:15:54.000000000 +0900
-@@ -1457,7 +1457,7 @@ stifb_setup(char *options)
- 	int i;
- 	
- 	if (!options || !*options)
--		return 0;
-+		return 1;
- 	
- 	if (strncmp(options, "off", 3) == 0) {
- 		stifb_disabled = 1;
-@@ -1472,7 +1472,7 @@ stifb_setup(char *options)
- 			stifb_bpp_pref[i] = simple_strtoul(options, &options, 10);
- 		}
- 	}
--	return 0;
-+	return 1;
- }
- 
- __setup("stifb=", stifb_setup);
-diff -puN kernel/audit.c~__setup-fixes kernel/audit.c
---- linux-2.6/kernel/audit.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/kernel/audit.c	2006-03-26 06:15:54.000000000 +0900
-@@ -538,7 +538,7 @@ static int __init audit_enable(char *str
- 	       audit_initialized ? "" : " (after initialization)");
- 	if (audit_initialized)
- 		audit_enabled = audit_default;
--	return 0;
-+	return 1;
- }
- 
- __setup("audit=", audit_enable);
-diff -puN mm/memory.c~__setup-fixes mm/memory.c
---- linux-2.6/mm/memory.c~__setup-fixes	2006-03-26 06:15:54.000000000 +0900
-+++ linux-2.6-hirofumi/mm/memory.c	2006-03-26 06:15:54.000000000 +0900
-@@ -87,7 +87,7 @@ int randomize_va_space __read_mostly = 1
- static int __init disable_randmaps(char *s)
- {
- 	randomize_va_space = 0;
--	return 0;
-+	return 1;
- }
- __setup("norandmaps", disable_randmaps);
- 
-_
++#include <asm/types.h>
++
+ /*
+  * POSIX Extensions
+  */
+#<eof>
+
+
+Jan Engelhardt
+-- 

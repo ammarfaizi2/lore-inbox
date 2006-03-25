@@ -1,31 +1,52 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1752060AbWCPKOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750801AbWCYHLm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752060AbWCPKOg (ORCPT <rfc822;akpm@zip.com.au>);
-	Thu, 16 Mar 2006 05:14:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752321AbWCPKOg
+	id S1750801AbWCYHLm (ORCPT <rfc822;akpm@zip.com.au>);
+	Sat, 25 Mar 2006 02:11:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWCYHLm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 05:14:36 -0500
-Received: from mx1.MyOutlookOnline.com ([69.25.74.33]:65460 "EHLO
-	Mx1.myOutlookonline.com") by vger.kernel.org with ESMTP
-	id S1752060AbWCPKOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 05:14:35 -0500
-From: "Raj Kumar Yadav" <ryadav@neomagic.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 
-Date: Thu, 16 Mar 2006 15:44:27 +0530
+	Sat, 25 Mar 2006 02:11:42 -0500
+Received: from fe7.cox-internet.com ([66.76.2.52]:38892 "EHLO fe7.coxmail.com")
+	by vger.kernel.org with ESMTP id S1750801AbWCYHLl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 02:11:41 -0500
+Message-ID: <4424ED2A.3040006@tamu.edu>
+Date: Sat, 25 Mar 2006 01:11:38 -0600
+From: Benjamin <benchu@tamu.edu>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: linux-kernel@vger.kernel.org
+Subject: Modify the sock Structure!!
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <20060316070737.GA22920@eugeneteo.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Thread-Index: AcZIyIlAgnlOLiiyRmSsuauXfrtwLQAGc/sA
-Message-ID: <FE009StlS26hqgcBmrc000af456@Mx1.Myoutlookonline.com>
-X-OriginalArrivalTime: 16 Mar 2006 10:14:34.0400 (UTC) FILETIME=[6C55AA00:01C648E2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-unsubscribe linux-kernel 
+Hello! I try to modify the sock Structure in sock.h in order to record 
+some data!
+I just add a unsigned short in the end of the structure. such as:
+
+struct sock {
+    /* Socket demultiplex comparisons on incoming packets. */
+    __u32            daddr;        /* Foreign IPv4 addr            */
+    __u32            rcv_saddr;    /* Bound local IPv4 addr        */
+
+         ...................................................................
+        ....................................................................
 
 
+
+  void                    (*destruct)(struct sock *sk);
+  unsigned short        data;                 /*I put the unsigned short 
+here*/
+};
+
+
+
+ I re-complied the kernel.  The kernel and network functions work 
+normally so far.
+However, I am a new guy for the kernel programming. I just wonder this 
+modification is
+safe or not. Is there any side-effect? Or I need to add additional code 
+to avoid some unexpected
+situation?  Thank you very much!
+ 

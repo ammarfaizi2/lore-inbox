@@ -1,135 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWCYAaZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbWCYAZS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbWCYAaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 19:30:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWCYAaY
+	id S1750896AbWCYAZS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 19:25:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbWCYAZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 19:30:24 -0500
-Received: from xenotime.net ([66.160.160.81]:56194 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751163AbWCYAaY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 19:30:24 -0500
-Date: Fri, 24 Mar 2006 16:32:37 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: jzb@aexorsyst.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mem= causes oops (was Re: BIOS causes (exposes?) modprobe
- (load_module) kernel oops)
-Message-Id: <20060324163237.5743bd3c.rdunlap@xenotime.net>
-In-Reply-To: <200603240936.13178.jzb@aexorsyst.com>
-References: <200603212005.58274.jzb@aexorsyst.com>
-	<200603222126.56720.jzb@aexorsyst.com>
-	<20060322214257.1ef798e5.rdunlap@xenotime.net>
-	<200603240936.13178.jzb@aexorsyst.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 24 Mar 2006 19:25:18 -0500
+Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:7907 "EHLO
+	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750896AbWCYAZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 19:25:17 -0500
+Message-ID: <44248DE7.80001@bigpond.net.au>
+Date: Sat, 25 Mar 2006 11:25:11 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: Mike Galbraith <efault@gmx.de>, lkml <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [2.6.16-mm1 patch] throttling tree patches
+References: <1143198208.7741.8.camel@homer> <200603242237.38100.kernel@kolivas.org>
+In-Reply-To: <200603242237.38100.kernel@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 25 Mar 2006 00:25:12 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Mar 2006 09:36:13 -0800 John Z. Bohach wrote:
+Con Kolivas wrote:
+> On Friday 24 March 2006 22:03, Mike Galbraith wrote:
+>> Greetings,
+> 
+> /me waves
+> 
+>> Ignore timewarps caused by SMP timestamp rounding.  Also, don't stamp a
+>> task with a computed timestamp, stamp with the already called clock.
+> 
+> Looks good. Actually now < p->timestamp is not going to only happen on SMP. 
+> Once every I don't know how often the sched_clock seems to return a value 
+> that appears to have been in the past (I believe Peter has instrumented 
+> this).
 
-> On Wednesday 22 March 2006 21:42, Randy.Dunlap wrote:
-> > > So it seems that the page fault handler is somehow affected by something
-> > > that the BIOS has/has not done, long after the system has booted and been
-> > > running, with many page faults under its belt...now I've seen it all...or
-> > > not.
-> >
-> > Sounds like we need to see complete boot logs from both BIOSen boots.
-> > Can you do that?
-> >
-> > I'm just guessing that the memory maps are different, but who knows.
-> 
-> I got something...
-> 
-> Here's the symbolic dump.  I've gotten it to break on the BIOS it
-> did work on, by adding 512 MB RAM and bringing the total RAM to 1GB.
-> In fact, it now breaks during boot-up, and doesn't even give me a chance
-> to modprobe anything.  However, the cmdline is what makes it break/work:
-> 
-> Here it is:
-> 
-> fails with cmdline:
-> 
-> Kernel command line: ro root=/dev/sda1 rootdelay=10 mem=0x200M console=ttyS0,115200n8
-> 
-> works with:
-> 
-> Kernel command line: ro root=/dev/sda1 rootdelay=10 console=ttyS0,115200n8
-> 
-> Note the "mem=" being the differentiator!
+I haven't bothered to check if it still occurs for quite a long while. 
+I just check for time deltas being negative and if they are negative I 
+make them zero and move on.  As far as I can remember I only ever saw 
+this when measuring "delay" (i.e. time on the run queue waiting to get 
+on to a CPU which can be quite short :-) when the systems not heavily 
+loaded) as other time intervals that I measure (i.e. time on CPU and 
+sleep time) are generally long enough for the error in the delta not 
+being big enough to make the value negative.
 
-OK, that is memory map difference.
-
-Can you test a more recent kernel to see if it has the same problem?
-(like 2.6.16 or 2.6.16-git9)
-
-
-> So I guess BIOS is off the hook.  Here's a more interesting dump of the new failing
-> case (with 1 GB RAM, and mem=0x200M on command line).  BTW, note that
-> mem=0x200M works fine as long as there's only 512 MB in the system.
 > 
-> (And also note that the kernel was built without ACPI (or APM) support).
+>> Signed-off-by: Mike Galbraith <efault@gmx.de>
 > 
-> INIT: version 2.85 booting
-> INIT: Entering runlevel: 3
-> Starting system log daemon...
-> [   39.333210] Unable to handle kernel paging request at virtual address b7c4e000
-> [   39.340642]  printing eip:
-> [   39.343414] c013213c
-> [   39.345653] *pde = 017eb067
-> [   39.348516] *pte = 00000000
-> [   39.351379] Oops: 0002 [#1]
-> [   39.354239] SMP DEBUG_PAGEALLOC
-> [   39.357476] Modules linked in:
-> [   39.360615] CPU:    0
-> [   39.360616] EIP:    0060:[<c013213c>]    Not tainted VLI
-> [   39.360618] EFLAGS: 00010006   (2.6.14.2) 
-> [   39.373302] EIP is at free_block+0x41/0xbc
-> [   39.377501] eax: c1508d40   ebx: dffb6000   ecx: dffb6b80   edx: b7c4e000
-> [   39.384458] esi: c1508d40   edi: 00000000   ebp: c1505280   esp: c1567ef4
-> [   39.391413] ds: 007b   es: 007b   ss: 0068
-> [   39.395622] Process events/0 (pid: 4, threadinfo=c1566000 task=c151fa30)
-> [   39.402309] Stack: c150aa14 00000003 c150aa00 c1505280 c0132963 c1505280 c150aa14 00000003 
-> [   39.410930]        00000000 00000000 c1508368 c1508d10 c1508d40 c1505280 c0132a0d c1505280 
-> [   39.419568]        c150aa00 00000000 00000000 00000002 c15052dc 00000246 c14063e0 c14063e4 
-> [   39.428186] Call Trace:
-> [   39.430878]  [<c0132963>] drain_array_locked+0x61/0x8c
-> [   39.436161]  [<c0132a0d>] cache_reap+0x7f/0x18f
-> [   39.440823]  [<c011f86a>] worker_thread+0x16f/0x1dd
-> [   39.445843]  [<c013298e>] cache_reap+0x0/0x18f
-> [   39.450420]  [<c0110299>] default_wake_function+0x0/0x12
-> [   39.455879]  [<c0110299>] default_wake_function+0x0/0x12
-> [   39.461338]  [<c011f6fb>] worker_thread+0x0/0x1dd
-> [   39.466173]  [<c0122d23>] kthread+0x7c/0xa6
-> [   39.470472]  [<c0122ca7>] kthread+0x0/0xa6
-> [   39.474681]  [<c0100ea5>] kernel_thread_helper+0x5/0xb
-> [   39.479967] Code: 24 18 8b 15 50 ec 31 c0 8b 0c b8 8d 81 00 00 00 40 c1 e8 0c c1 e0 05 8b 5c 02 1c 8b 44 24 20 8b 53  
-> [   39.499780]  
+>> +		__sleep_time = 0ULL;
 > 
-> [42949372.960000] Linux version 2.6.14.2 (root@zeus) (gcc version 3.3.4) #1 SMP Fri Mar 24 08:27:33 PST 2006
-> [42949372.960000] BIOS-provided physical RAM map:
-> [42949372.960000]  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-> [42949372.960000]  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-> [42949372.960000]  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
-> [42949372.960000]  BIOS-e820: 0000000000100000 - 000000003fe30000 (usable)
-> [42949372.960000]  BIOS-e820: 000000003fe30000 - 000000003fe40000 (ACPI data)
-> [42949372.960000]  BIOS-e820: 000000003fe40000 - 000000003ff00000 (ACPI NVS)
-> [42949372.960000]  BIOS-e820: 000000003ff00000 - 0000000040000000 (reserved)
-> [42949372.960000]  BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
-> [42949372.960000]  BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
-> [42949372.960000] user-defined physical RAM map:
-> [42949372.960000]  user: 0000000000000000 - 000000000009fc00 (usable)
-> [42949372.960000]  user: 000000000009fc00 - 00000000000a0000 (reserved)
-> [42949372.960000]  user: 00000000000e0000 - 0000000000100000 (reserved)
-> [42949372.960000]  user: 0000000000100000 - 0000000020000000 (usable)
-> [42949372.960000] 512MB LOWMEM available.
-> [42949372.960000] found SMP MP-table at 000ff780
-> ...
+> I don't think the ULL is necessary.
 > 
-> Thanks for taking a look...
+>> -	unsigned long long now;
+>> +	unsigned long long now, comp;
+>>
+>> -	now = sched_clock();
+>> +	now = comp = sched_clock();
+>>  #ifdef CONFIG_SMP
+>>  	if (!local) {
+>>  		/* Compensate for drifting sched_clock */
+>>  		runqueue_t *this_rq = this_rq();
+>> -		now = (now - this_rq->timestamp_last_tick)
+>> +		comp = (now - this_rq->timestamp_last_tick)
+>>  			+ rq->timestamp_last_tick;
+>>  	}
+>>  #endif
+>>
+>>  	if (!rt_task(p))
+>> -		p->prio = recalc_task_prio(p, now);
+>> +		p->prio = recalc_task_prio(p, comp);
+> 
+> Seems wasteful of a very expensive (on 32bit) unsigned long long on 
+> uniprocessor builds.
 
----
-~Randy
+Unsigned long long is necessary in order to avoid overflow when dealing 
+with nano seconds but (if you reorganized the expressions and made the 
+desired precedence explicit) you could probably use something smaller 
+for the difference between the two timestamp_lats_tick values.  More 
+importantly, I think that the original code which used the computed 
+"now" was correct as otherwise the task's timestamp will not have the 
+correct time for its CPU.
+
+Of course, this all hinges on the differences between the run queues' 
+timestamp_last_tick fields being a true measure of the time drift 
+between them.  I've never been wholly convinced of that but as long as 
+any error is much smaller than the drift it's probably worth doing.
+
+Peter
+PS I think that some inline functions to handle timestamp adjustment 
+wouldn't hurt.
+PPS I'm not sure that the timstamp adjustment in __migrate_task() is 
+completely valid as the timestamp will be modified in activate_task() 
+using the wrong clock.  I need to study this more to see if I convince 
+myself one way or the other.
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

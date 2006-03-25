@@ -1,130 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751648AbWCYSWO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751663AbWCYSXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751648AbWCYSWO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 13:22:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751651AbWCYSWO
+	id S1751663AbWCYSXl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 13:23:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751665AbWCYSXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 13:22:14 -0500
-Received: from nproxy.gmail.com ([64.233.182.188]:44338 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751648AbWCYSWN convert rfc822-to-8bit
+	Sat, 25 Mar 2006 13:23:40 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:20939 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S1751662AbWCYSXk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 13:22:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fALPp8sYMGgcz23uqPQmoy7n+jjZZnwIDeAL8I7hH4571s93FyCVGeDFTRp6pDX23QawDnYLE3eLoSOQXw2AESFz6VaZc/Vp42+8GjZsOb2BwcPPsWplO40B54TwrgMNXVUYoGZogCtJXAWBVhJvLSDHl6T1ReBcOGGmFIl0rnw=
-Message-ID: <661de9470603251022w7f8991e9g73d70a65f5d475ea@mail.gmail.com>
-Date: Sat, 25 Mar 2006 23:52:12 +0530
-From: "Balbir Singh" <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-To: hadi@cyberus.ca
-Subject: Re: [RFC][UPDATED PATCH 2.6.16] [Patch 9/9] Generic netlink interface for delay accounting
-Cc: "Matt Helsley" <matthltc@us.ibm.com>,
-       "Shailabh Nagar" <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       netdev <netdev@vger.kernel.org>
-In-Reply-To: <1143308901.5184.48.camel@jzny2>
+	Sat, 25 Mar 2006 13:23:40 -0500
+Date: Sat, 25 Mar 2006 19:23:32 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Comment on 2.6.16-rt6 PI
+In-Reply-To: <1143295703.5344.120.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44L0.0603251912120.19918-100000@lifa01.phys.au.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1142303607.24621.63.camel@stark> <1143122686.5186.27.camel@jzny2>
-	 <20060323154106.GA13159@in.ibm.com> <1143209061.5076.14.camel@jzny2>
-	 <20060324145459.GA7495@in.ibm.com> <1143249565.5184.6.camel@jzny2>
-	 <20060325094126.GA9376@in.ibm.com> <1143291133.5184.32.camel@jzny2>
-	 <20060325153632.GA25431@in.ibm.com> <1143308901.5184.48.camel@jzny2>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/25/06, jamal <hadi@cyberus.ca> wrote:
-> On Sat, 2006-25-03 at 21:06 +0530, Balbir Singh wrote:
-> > On Sat, Mar 25, 2006 at 07:52:13AM -0500, jamal wrote:
->
->
-> I didnt pay attention to failure paths etc; i suppose your testing
-> should catch those. Getting there, a couple more comments:
->
+On Sat, 25 Mar 2006, Thomas Gleixner wrote:
 
-Yes, I have tried several negative test cases.
-
+> On Sat, 2006-03-25 at 14:52 +0100, Esben Nielsen wrote:
 >
-> > +enum {
-> > +     TASKSTATS_CMD_UNSPEC = 0,       /* Reserved */
-> > +     TASKSTATS_CMD_GET,              /* user->kernel request */
-> > +     TASKSTATS_CMD_NEW,              /* kernel->user event */
+> > In my test setup this leaves the owner->pi_waiters empty even though there
+> > are waiters. I tried to move the removal of top_waiter inside the second
+> > if statement but then a lot of other tests failed. I don't have time to
+> > fix it.
 >
-> Should the comment read "kernel->user event/get-response"
+> Can you please explain that more detailed how it happens ? And provide a
+> test case ?
 >
 
-Yes, good catch. I will update the comment.
+Sorry for the lack of details. I just thought the test-case wouldn't make
+sense to you much and didn't paste it in. I was in a bit of a hurry too.
+Now I have a little more time and can tell you what is going on:
 
+top_waiter!=NULL
+waiter!=NULL
+waiter!=rt_mutex_top_waiter(lock)
+
+Therefore one top_waiter is removed and but nothing is inserted.
+
+Below is a fix.
+
+Esben
+
+> 	tglx
 >
-> > +
-> > +static int taskstats_send_stats(struct sk_buff *skb, struct genl_info *info)
-> > +{
 >
->
-> > +
-> > +     if (info->attrs[TASKSTATS_CMD_ATTR_PID]) {
-> > +             u32 pid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_PID]);
-> > +             rc = fill_pid((pid_t)pid, NULL, &stats);
-> > +             if (rc < 0)
-> > +                     goto err;
-> > +
-> > +             na = nla_nest_start(rep_skb, TASKSTATS_TYPE_AGGR_PID);
-> > +             NLA_PUT_U32(rep_skb, TASKSTATS_TYPE_PID, pid);
-> > +     } else if (info->attrs[TASKSTATS_CMD_ATTR_TGID]) {
->
-> in regards to the elseif above:
-> Could you not have both PID and TGID passed? From my earlier
-> understanding it seemed legit, no? if answer is yes, then you will have
-> to do your sizes + reply TLVs at the end.
+--- linux-2.6.16-rt6/kernel/rtmutex.c.orig	2006-03-25 19:14:35.000000000 +0100
++++ linux-2.6.16-rt6/kernel/rtmutex.c	2006-03-25 19:22:04.000000000 +0100
+@@ -223,15 +223,22 @@ static void adjust_pi_chain(struct rt_mu
+ 	struct list_head *curr = lock_chain->prev;
 
-No, we cannot have both passed. If we pass both a PID and a TGID and
-then the code returns just the stats for the PID.
+ 	for (;;) {
+-		if (top_waiter)
++		if (top_waiter) {
+ 			plist_del(&top_waiter->pi_list_entry,
+ 				  &owner->pi_waiters);
+-
+-
+-		if (waiter && waiter == rt_mutex_top_waiter(lock)) {
++		}
++
++		if (waiter) {
+ 			waiter->pi_list_entry.prio = waiter->task->prio;
+-			plist_add(&waiter->pi_list_entry, &owner->pi_waiters);
+ 		}
++
++		if (rt_mutex_has_waiters(lock)) {
++			top_waiter = rt_mutex_top_waiter(lock);
++			plist_add(&top_waiter->pi_list_entry,
++				  &owner->pi_waiters);
++		}
++
++
+ 		adjust_prio(owner);
 
->
-> Also in regards to the nesting, isnt there a need for nla_nest_cancel in
-> case of failures to add TLVs?
->
+ 		waiter = owner->pi_blocked_on;
 
-I thought about it, but when I looked at the code of genlmsg_cancel()
-and nla_nest_cancel().  It seemed that genlmsg_cancel() should
-suffice.
-
-<snippet>
-static inline int genlmsg_cancel(struct sk_buff *skb, void *hdr)
-{
-        return nlmsg_cancel(skb, hdr - GENL_HDRLEN - NLMSG_HDRLEN);
-}
-
-static inline int nlmsg_cancel(struct sk_buff *skb, struct nlmsghdr *nlh)
-{
-        skb_trim(skb, (unsigned char *) nlh - skb->data);
-
-        return -1;
-}
-
-static inline int nla_nest_cancel(struct sk_buff *skb, struct nlattr *start)
-{
-        if (start)
-                skb_trim(skb, (unsigned char *) start - skb->data);
-
-        return -1;
-}
-
-</snippet>
-
-genlmsg_cancel() seemed more generic, since it handles skb_trim from
-the nlmsghdr down to skb->data, where as nla_test_cancel() does it
-only from the start of the nested attributes to skb->data.
-
-Is my understanding correct?
-
-
-> cheers,
-> jamal
->
-
-Thanks,
-Balbir

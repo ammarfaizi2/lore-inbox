@@ -1,84 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751663AbWCYSXl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751665AbWCYScM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751663AbWCYSXl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 13:23:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751665AbWCYSXk
+	id S1751665AbWCYScM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 13:32:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751668AbWCYScM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 13:23:40 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:20939 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S1751662AbWCYSXk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 13:23:40 -0500
-Date: Sat, 25 Mar 2006 19:23:32 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Comment on 2.6.16-rt6 PI
-In-Reply-To: <1143295703.5344.120.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44L0.0603251912120.19918-100000@lifa01.phys.au.dk>
+	Sat, 25 Mar 2006 13:32:12 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:64442 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751058AbWCYScM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 13:32:12 -0500
+Date: Sat, 25 Mar 2006 19:32:00 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+Subject: Re: [PATCH] Fix console utf8 composing (F)
+In-Reply-To: <Pine.LNX.4.61.0603221654460.7899@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.61.0603251931230.29793@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0603202048350.14231@yvahk01.tjqt.qr>
+ <441F7962.9080803@ums.usu.ru> <Pine.LNX.4.61.0603221654460.7899@yvahk01.tjqt.qr>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Mar 2006, Thomas Gleixner wrote:
+Hi Alex,
 
-> On Sat, 2006-03-25 at 14:52 +0100, Esben Nielsen wrote:
+On Mar 22 2006 16:56, Jan Engelhardt wrote:
+>>> can we have the patch[2] from this[1] thread merged? I have not yet heard
+>>> back
+>>> from Alexander since [3]. Plus we're lacking a Signed-off-by so far for
+>>> [2].
+>>> What to do?
+>>> 
+>> See the updated (in fact, just rediffed after "patch -Np1 -l") patch below. You
+>> certainly want to run Lindent after patching.
 >
-> > In my test setup this leaves the owner->pi_waiters empty even though there
-> > are waiters. I tried to move the removal of top_waiter inside the second
-> > if statement but then a lot of other tests failed. I don't have time to
-> > fix it.
->
-> Can you please explain that more detailed how it happens ? And provide a
-> test case ?
->
-
-Sorry for the lack of details. I just thought the test-case wouldn't make
-sense to you much and didn't paste it in. I was in a bit of a hurry too.
-Now I have a little more time and can tell you what is going on:
-
-top_waiter!=NULL
-waiter!=NULL
-waiter!=rt_mutex_top_waiter(lock)
-
-Therefore one top_waiter is removed and but nothing is inserted.
-
-Below is a fix.
-
-Esben
-
-> 	tglx
+>Looks good enough that I don't think Lindenting is required.
 >
 >
---- linux-2.6.16-rt6/kernel/rtmutex.c.orig	2006-03-25 19:14:35.000000000 +0100
-+++ linux-2.6.16-rt6/kernel/rtmutex.c	2006-03-25 19:22:04.000000000 +0100
-@@ -223,15 +223,22 @@ static void adjust_pi_chain(struct rt_mu
- 	struct list_head *curr = lock_chain->prev;
 
- 	for (;;) {
--		if (top_waiter)
-+		if (top_waiter) {
- 			plist_del(&top_waiter->pi_list_entry,
- 				  &owner->pi_waiters);
--
--
--		if (waiter && waiter == rt_mutex_top_waiter(lock)) {
-+		}
-+
-+		if (waiter) {
- 			waiter->pi_list_entry.prio = waiter->task->prio;
--			plist_add(&waiter->pi_list_entry, &owner->pi_waiters);
- 		}
-+
-+		if (rt_mutex_has_waiters(lock)) {
-+			top_waiter = rt_mutex_top_waiter(lock);
-+			plist_add(&top_waiter->pi_list_entry,
-+				  &owner->pi_waiters);
-+		}
-+
-+
- 		adjust_prio(owner);
+Well, no objection to style?
 
- 		waiter = owner->pi_blocked_on;
 
+
+Jan Engelhardt
+-- 

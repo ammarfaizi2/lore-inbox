@@ -1,103 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWCYMpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWCYMnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751147AbWCYMpU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 07:45:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWCYMpS
+	id S1750775AbWCYMnT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 07:43:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWCYMnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 07:45:18 -0500
-Received: from www.osadl.org ([213.239.205.134]:13533 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751147AbWCYMpR (ORCPT
+	Sat, 25 Mar 2006 07:43:19 -0500
+Received: from mail.gmx.net ([213.165.64.20]:19427 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750775AbWCYMnT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 07:45:17 -0500
-Message-Id: <20060325121223.557385000@localhost.localdomain>
-References: <20060325121219.172731000@localhost.localdomain>
-Date: Sat, 25 Mar 2006 12:46:01 -0000
-From: Thomas Gleixner <tglx@linutronix.de>
+	Sat, 25 Mar 2006 07:43:19 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6.16-mm1 grub oddness
+From: Mike Galbraith <efault@gmx.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-Subject: [patch 1/2] hrtimer
-Content-Disposition: inline; filename=hrtimer-create-generic-sleeper.patch
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1143263697.7930.24.camel@homer>
+References: <20060323014046.2ca1d9df.akpm@osdl.org>
+	 <1143201413.7741.53.camel@homer> <20060324102537.1d426594.akpm@osdl.org>
+	 <1143262501.7930.4.camel@homer>  <20060324205310.38ce20bf.akpm@osdl.org>
+	 <1143263697.7930.24.camel@homer>
+Content-Type: text/plain
+Date: Sat, 25 Mar 2006 13:44:07 +0100
+Message-Id: <1143290647.7682.5.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2006-03-25 at 06:14 +0100, Mike Galbraith wrote:
+> On Fri, 2006-03-24 at 20:53 -0800, Andrew Morton wrote:
+> > 
+> > Did you try disabling fbdev?
+> > 
+> 
+> No, but I will.
 
-The removal of the data field in the hrtimer structure enforces the embedding
-of the timer into another data structure. nanosleep now uses a private
-implementation of the most common used timer callback function (simple task wakeup).
-In order to avoid the reimplentation of such functionality all over the place
-a generic hrtimer_sleeper functionality is created.
+No dice, I just had another dead reboot.  Nobody else seems to be seeing
+this, so maybe my box is going south.  A single bit error the other day,
+and now this.  Maybe it's not the kernel, just a coincidence that I've
+only seen it with 2.6.16-mm1.  Maybe I've got dust crawling into memory
+sockets or whatnot.  Memtest86 time.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
- include/linux/hrtimer.h |   16 ++++++++++++++++
- kernel/hrtimer.c        |   19 +++++++++++++++++++
- 2 files changed, 35 insertions(+)
-
-Index: linux-2.6.16/include/linux/hrtimer.h
-===================================================================
---- linux-2.6.16.orig/include/linux/hrtimer.h
-+++ linux-2.6.16/include/linux/hrtimer.h
-@@ -58,6 +58,19 @@ struct hrtimer {
- };
- 
- /**
-+ * struct hrtimer_sleeper - simple sleeper structure
-+ *
-+ * @timer:	embedded timer structure
-+ * @task:	task to wake up
-+ *
-+ * task is set to NULL, when the timer expires.
-+ */
-+struct hrtimer_sleeper {
-+	struct hrtimer timer;
-+	struct task_struct *task;
-+};
-+
-+/**
-  * struct hrtimer_base - the timer base for a specific clock
-  *
-  * @index:		clock type index for per_cpu support when moving a timer
-@@ -127,6 +140,9 @@ extern long hrtimer_nanosleep(struct tim
- 			      const enum hrtimer_mode mode,
- 			      const clockid_t clockid);
- 
-+extern void hrtimer_init_sleeper(struct hrtimer_sleeper *sl,
-+				 struct task_struct *tsk);
-+
- /* Soft interrupt function to run the hrtimer queues: */
- extern void hrtimer_run_queues(void);
- 
-Index: linux-2.6.16/kernel/hrtimer.c
-===================================================================
---- linux-2.6.16.orig/kernel/hrtimer.c
-+++ linux-2.6.16/kernel/hrtimer.c
-@@ -656,6 +656,25 @@ void hrtimer_run_queues(void)
-  * Sleep related functions:
-  */
- 
-+static int hrtimer_wakeup(struct hrtimer *timer)
-+{
-+	struct hrtimer_sleeper *t =
-+		container_of(timer, struct hrtimer_sleeper, timer);
-+	struct task_struct *task = t->task;
-+
-+	t->task = NULL;
-+	if (task)
-+		wake_up_process(task);
-+
-+	return HRTIMER_NORESTART;
-+}
-+
-+void hrtimer_init_sleeper(struct hrtimer_sleeper *sl, task_t *task)
-+{
-+	sl->timer.function = hrtimer_wakeup;
-+	sl->task = task;
-+}
-+
- struct sleep_hrtimer {
- 	struct hrtimer timer;
- 	struct task_struct *task;
-
---
+	-Mike
 

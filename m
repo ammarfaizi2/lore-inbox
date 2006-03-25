@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWCYGkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWCYGqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751087AbWCYGkP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 01:40:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWCYGkP
+	id S1750779AbWCYGqN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 01:46:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWCYGqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 01:40:15 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:54668
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751087AbWCYGkO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 01:40:14 -0500
-Date: Fri, 24 Mar 2006 22:39:43 -0800
-From: Greg KH <greg@kroah.com>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Andrew Morton <akpm@osdl.org>, Mark Lord <lkml@rtr.ca>,
-       "David J. Wallace" <katana@onetel.com>, sdhci-devel@list.drzeus.cx,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Sdhci-devel] Submission to the kernel?
-Message-ID: <20060325063943.GB22214@kroah.com>
-References: <4419FA7A.4050104@cogweb.net> <200603171042.52589.katana@onetel.com> <441AD537.5080403@rtr.ca> <441AD9C3.2090703@drzeus.cx> <20060317170126.GB32281@kroah.com> <441AEEBB.10104@drzeus.cx> <20060325023942.GC6416@kroah.com> <4424D9CA.7090303@drzeus.cx>
-Mime-Version: 1.0
+	Sat, 25 Mar 2006 01:46:13 -0500
+Received: from ozlabs.org ([203.10.76.45]:59280 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750779AbWCYGqM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 01:46:12 -0500
+Date: Sat, 25 Mar 2006 17:41:42 +1100
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] quieten zone_pcp_init
+Message-ID: <20060325064142.GW30422@krispykreme>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4424D9CA.7090303@drzeus.cx>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 25, 2006 at 06:48:58AM +0100, Pierre Ossman wrote:
-> Greg KH wrote:
-> > Tried it out and it works great (also see it's in 2.6.16-git9 now).  Hm,
-> > my laptop's slot also supports xD cards, which your patch set does not
-> > yet support, right?
-> >
-> >   
-> 
-> And will never do. Different hardware, interface and protocol.
 
-Doh, you are right, sorry about that.  It's a totally different PCI
-device, I should have looked before writing that.
+In zone_pcp_init we print out all zones even if they are empty:
 
-Anyway, thanks again, this is working fine here.
+On node 0 totalpages: 245760
+  DMA zone: 245760 pages, LIFO batch:31
+  DMA32 zone: 0 pages, LIFO batch:0
+  Normal zone: 0 pages, LIFO batch:0
+  HighMem zone: 0 pages, LIFO batch:0
 
-greg k-h
+To conserve dmesg space why not print only the non zero zones.
+
+Signed-off-by: Anton Blanchard <anton@samba.org>
+---
+
+Index: build/mm/page_alloc.c
+===================================================================
+--- build.orig/mm/page_alloc.c	2006-03-25 16:26:58.000000000 +1100
++++ build/mm/page_alloc.c	2006-03-25 16:27:06.000000000 +1100
+@@ -2029,8 +2029,9 @@ static __meminit void zone_pcp_init(stru
+ 		setup_pageset(zone_pcp(zone,cpu), batch);
+ #endif
+ 	}
+-	printk(KERN_DEBUG "  %s zone: %lu pages, LIFO batch:%lu\n",
+-		zone->name, zone->present_pages, batch);
++	if (zone->present_pages)
++		printk(KERN_DEBUG "  %s zone: %lu pages, LIFO batch:%lu\n",
++			zone->name, zone->present_pages, batch);
+ }
+ 
+ static __meminit void init_currently_empty_zone(struct zone *zone,

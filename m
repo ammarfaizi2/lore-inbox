@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbWCYBUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWCYBYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751070AbWCYBUE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 20:20:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWCYBUD
+	id S1751456AbWCYBYh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 20:24:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWCYBYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 20:20:03 -0500
-Received: from mx02.cybersurf.com ([209.197.145.105]:54174 "EHLO
-	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S1751012AbWCYBUA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 20:20:00 -0500
-Subject: Re: [RFC][UPDATED PATCH 2.6.16] [Patch 9/9] Generic netlink
-	interface for delay accounting
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: balbir@in.ibm.com
-Cc: Matt Helsley <matthltc@us.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       netdev <netdev@vger.kernel.org>
-In-Reply-To: <20060324145459.GA7495@in.ibm.com>
-References: <1142296834.5858.3.camel@elinux04.optonline.net>
-	 <1142297791.5858.31.camel@elinux04.optonline.net>
-	 <1142303607.24621.63.camel@stark> <1142304506.5219.34.camel@jzny2>
-	 <20060322074922.GA1164@in.ibm.com> <1143122686.5186.27.camel@jzny2>
-	 <20060323154106.GA13159@in.ibm.com> <1143209061.5076.14.camel@jzny2>
-	 <20060324145459.GA7495@in.ibm.com>
-Content-Type: text/plain
-Organization: unknown
-Date: Fri, 24 Mar 2006 20:19:25 -0500
-Message-Id: <1143249565.5184.6.camel@jzny2>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Fri, 24 Mar 2006 20:24:37 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:32163 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751456AbWCYBYg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 20:24:36 -0500
+Message-Id: <200603250124.k2P1OKg21526@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Mark Rustad'" <mrustad@mac.com>, "'Andrew Morton'" <akpm@osdl.org>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: 2.6.16 hugetlbfs problem - DEBUG_PAGEALLOC
+Date: Fri, 24 Mar 2006 17:24:41 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcZPa7BGCRiOwyfSTbOGGRG2UBdFjwAO0q6A
+In-Reply-To: <C53A96CB-5B11-4BF3-879E-CF7B91E1BFEC@mac.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-24-03 at 20:24 +0530, Balbir Singh wrote:
+Mark Rustad wrote on Friday, March 24, 2006 9:52 AM
+> I have narrowed this down to DEBUG_PAGEALLOC. If that option is  
+> enabled, attempts to reference areas mmap-ed from hugetlbfs files  
+> fault forever. You can see that I had that set in the failing config  
+> I reported below.
 
-> Hmm... Would it be ok to send one message with the following format
-> 
-> 1. TLV=TASKSTATS_TYPE_PID
-> 2. TLV=TASKSTATS_TYPE_STATS
-> 3. TLV=TASKSTATS_TYPE_TGID
-> 4. TLV=TASKSTATS_TYPE_STATS
-> 
-> It would still be one message, except that 3 and 4 would be optional.
-> What do you think?
-> 
+Yeah, it turns out that the debug option is not compatible with hugetlb
+page support. That debug option turns off PSE. Once it is turned off in
+CR4, cpu will ignore pse bit in the pmd and causing infinite page-not-
+present fault :-(
 
-No, that wont work since #2 and #4 are basically the same TLV. [Recall
-that "T" is used to index an array]. Your other alternative is to have
-#4 perhaps called TASKSTATS_TGID_STATS and #2 TASKSTATS_PID_STATS
-although that would smell a little.
-Dont be afraid to do the nest, it will be a little painful initially but
-i am sure once you figure it out you will appreciate it.
+void __init early_cpu_init(void)
+{ ...
 
-cheers,
-jamal
+#ifdef CONFIG_DEBUG_PAGEALLOC
+        /* pse is not compatible with on-the-fly unmapping,
+         * disable it even if the cpus claim to support it.
+         */
+        clear_bit(X86_FEATURE_PSE, boot_cpu_data.x86_capability);
+        disable_pse = 1;
+#endif
+
+
+[patch] mark DEBUG_PAGEALLOC to be mutually exclusive option with
+        HUGETLBFS.  Bug found by Mark Rustad.
+
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+
+
+--- ./arch/i386/Kconfig.debug.orig	2006-03-24 17:50:39.000000000 -0800
++++ ./arch/i386/Kconfig.debug	2006-03-24 17:50:58.000000000 -0800
+@@ -36,7 +36,7 @@
+ 
+ config DEBUG_PAGEALLOC
+ 	bool "Page alloc debugging"
+-	depends on DEBUG_KERNEL && !SOFTWARE_SUSPEND
++	depends on DEBUG_KERNEL && !SOFTWARE_SUSPEND && !HUGETLBFS
+ 	help
+ 	  Unmap pages from the kernel linear mapping after free_pages().
+ 	  This results in a large slowdown, but helps to find certain types
+
 

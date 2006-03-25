@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWCYTFw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWCYTHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbWCYTFw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 14:05:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWCYTFw
+	id S932250AbWCYTHA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 14:07:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWCYTHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 14:05:52 -0500
-Received: from fe1.cox-internet.com ([66.76.2.38]:63158 "EHLO fe1.coxmail.com")
-	by vger.kernel.org with ESMTP id S932248AbWCYTFv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 14:05:51 -0500
-Message-ID: <44259489.4070507@tamu.edu>
-Date: Sat, 25 Mar 2006 13:05:45 -0600
-From: Benjamin <benchu@tamu.edu>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Sat, 25 Mar 2006 14:07:00 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:16144 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932250AbWCYTHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 14:07:00 -0500
+Date: Sat, 25 Mar 2006 20:06:58 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Mark Lord <lkml@rtr.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16 Regression:  vbetool:  Error: something went wrong performing real mode call
+Message-ID: <20060325190658.GP4053@stusta.de>
+References: <4422A340.2080104@rtr.ca> <4422A959.9030700@rtr.ca>
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Modify the sock Structure!!
-References: <4424ED2A.3040006@tamu.edu> <Pine.LNX.4.61.0603251938110.29793@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0603251938110.29793@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4422A959.9030700@rtr.ca>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cool! Thanks for the answer!
+On Thu, Mar 23, 2006 at 08:57:45AM -0500, Mark Lord wrote:
+> Mark Lord wrote:
+> >As of 2.6.16, I am seeing this message when I do suspend-to-RAM
+> >from a text window:
+> >
+> >Error: something went wrong performing real mode call
+> >
+> >I've narrowed it down to coming from "vbetool post"
+> >on resume from RAM.
+> 
+> Mmm.. looking more closely, it's a vm86 (old) call failing,
+> and I seem to be missing CONFIG_VM86 from my .config.
+>...
 
-Best Regards,
+It seems you are using CONFIG_EMBEDDED=y?
 
-Benjamin Chu
+> Cheers
 
-Jan Engelhardt wrote:
->> Hello! I try to modify the sock Structure in sock.h in order to record some
->> data!
->> I just add a unsigned short in the end of the structure. such as:
->>
->> struct sock {
->>     
->
->   
->> safe or not. Is there any side-effect? Or I need to add additional code to
->> avoid some unexpected
->> situation?  Thank you very much!
->>     
->
->
-> Should be ok. For example, ipt_TPROXY/ipt_tproxy also adds something to 
-> struct sock (including enlarging fields in the middle of the struct);
-> I have not experienced any problem with it.
->
->
-> Jan Engelhardt
->   
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751622AbWCYBxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751627AbWCYByS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751622AbWCYBxc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 20:53:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751623AbWCYBxc
+	id S1751627AbWCYByS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 20:54:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751626AbWCYByS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 20:53:32 -0500
-Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:31814 "EHLO
-	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751622AbWCYBxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 20:53:32 -0500
-Message-ID: <4424A298.70706@bigpond.net.au>
-Date: Sat, 25 Mar 2006 12:53:28 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Fri, 24 Mar 2006 20:54:18 -0500
+Received: from mail13.bluewin.ch ([195.186.18.62]:61825 "EHLO
+	mail13.bluewin.ch") by vger.kernel.org with ESMTP id S1751625AbWCYByS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 20:54:18 -0500
+Date: Fri, 24 Mar 2006 20:53:27 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, p_gortmaker@yahoo.com, jgarzik@pobox.com
+Subject: Re: -mm merge plans
+Message-ID: <20060325015327.GA30484@krypton>
+References: <20060322205305.0604f49b.akpm@osdl.org>
 MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: more smpnice patch issues
-References: <20060322155122.2745649f.akpm@osdl.org> <4421F702.5040609@bigpond.net.au> <20060324154558.A20018@unix-os.sc.intel.com> <4424953B.9030000@bigpond.net.au>
-In-Reply-To: <4424953B.9030000@bigpond.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 25 Mar 2006 01:53:29 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060322205305.0604f49b.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
+From: apgo@patchbomb.org (Arthur Othieno)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Siddha, Suresh B wrote:
->> more issues with smpnice patch...
->>
->> a) consider a 4-way system (simple SMP system with no HT and cores) 
->> scenario
->> where a high priority task (nice -20) is running on P0 and two normal
->> priority tasks running on P1. load balance with smp nice code
->> will never be able to detect an imbalance and hence will never move 
->> one of the normal priority tasks on P1 to idle cpus P2 or P3.
+On Wed, Mar 22, 2006 at 08:53:05PM -0800, Andrew Morton wrote:
 > 
-> Why?
+> A look at the -mm lineup for 2.6.17:
+ 
+[snip]
 
-OK, I think I know why.  The load balancing code will always decide that 
-P0 is the busiest CPU, right?
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+> net-remove-config_net_cbus-conditional-for-ns8390.patch
+ 
+On Sun, Feb 19, 2006 at 08:26:25AM -0800, Paul Gortmaker wrote:
+> Fine by me. 
+> 
+> Paul.
+> 
+> Signed-off-by: Paul Gortmaker <p_gortmaker@yahoo.com>
+> 
+> --- Arthur Othieno <apgo@patchbomb.org> wrote:
+> 
+> > Don't bother testing for CONFIG_NET_CBUS ("NEC PC-9800 C-bus cards");
+> > it went out with the rest of PC98 subarch.
+> > 
+> > Signed-off-by: Arthur Othieno <apgo@patchbomb.org>
+> > 
+> > ---
+> > 
+> >  drivers/net/8390.h |    2 +-
+> >  1 files changed, 1 insertions(+), 1 deletions(-)
+> > 
+> > 6eca48257ddfe560447fda2c0c1961d78b06a047
+> > diff --git a/drivers/net/8390.h b/drivers/net/8390.h
+> > index 599b68d..51e39dc 100644
+> > --- a/drivers/net/8390.h
+> > +++ b/drivers/net/8390.h
+> > @@ -134,7 +134,7 @@ struct ei_device {
+> >  #define inb_p(_p)	inb(_p)
+> >  #define outb_p(_v,_p)	outb(_v,_p)
+> >  
+> > -#elif defined(CONFIG_NET_CBUS) || defined(CONFIG_NE_H8300) ||
+> > defined(CONFIG_NE_H8300_MODULE)
+> > +#elif defined(CONFIG_NE_H8300) || defined(CONFIG_NE_H8300_MODULE)
+> >  #define EI_SHIFT(x)	(ei_local->reg_offset[x])
+> >  #else
+> >  #define EI_SHIFT(x)	(x)
+> > -- 
+> > 1.1.5

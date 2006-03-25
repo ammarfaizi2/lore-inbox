@@ -1,85 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbWCYFN2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWCYFOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750812AbWCYFN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 00:13:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWCYFN2
+	id S1750827AbWCYFOM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 00:14:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWCYFOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 00:13:28 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:47296 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750812AbWCYFN2 (ORCPT
+	Sat, 25 Mar 2006 00:14:11 -0500
+Received: from mail.gmx.net ([213.165.64.20]:4786 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750827AbWCYFOK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 00:13:28 -0500
-Date: Sat, 25 Mar 2006 10:43:00 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: "Theodore Ts'o" <tytso@mit.edu>,
-       Valerie Henson <val_henson@linux.intel.com>,
-       Andrew Morton <akpm@osdl.org>, pbadari@gmail.com,
-       linux-kernel@vger.kernel.org, Ext2-devel@lists.sourceforge.net,
-       arjan@linux.intel.com, zach.brown@oracle.com
-Subject: Re: [Ext2-devel] [RFC] [PATCH] Reducing average ext2 fsck time through fs-wide dirty bit]
-Message-ID: <20060325051259.GA11615@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20060322011034.GP12571@goober> <1143054558.6086.61.camel@dyn9047017100.beaverton.ibm.com> <20060322224844.GU12571@goober> <20060322175503.3b678ab5.akpm@osdl.org> <20060324143239.GB14508@goober> <20060324192802.GK14852@schatzie.adilger.int> <20060324200131.GE18020@thunk.org> <20060324210033.GQ14852@schatzie.adilger.int> <20060324213905.GG18020@thunk.org> <20060324221656.GW14852@schatzie.adilger.int>
+	Sat, 25 Mar 2006 00:14:10 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6.16-mm1 grub oddness
+From: Mike Galbraith <efault@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060324205310.38ce20bf.akpm@osdl.org>
+References: <20060323014046.2ca1d9df.akpm@osdl.org>
+	 <1143201413.7741.53.camel@homer> <20060324102537.1d426594.akpm@osdl.org>
+	 <1143262501.7930.4.camel@homer>  <20060324205310.38ce20bf.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sat, 25 Mar 2006 06:14:57 +0100
+Message-Id: <1143263697.7930.24.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060324221656.GW14852@schatzie.adilger.int>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 24, 2006 at 03:16:56PM -0700, Andreas Dilger wrote:
-> On Mar 24, 2006  16:39 -0500, Theodore Ts'o wrote:
-> > On Fri, Mar 24, 2006 at 02:00:33PM -0700, Andreas Dilger wrote:
-> > > Are you saying to make a filesystem test harness in userspace, or to
-> > > add hooks into the kernel to trigger specific cases in the running
-> > > kernel?
+On Fri, 2006-03-24 at 20:53 -0800, Andrew Morton wrote:
+> Mike Galbraith <efault@gmx.de> wrote:
+> >
+> > On Fri, 2006-03-24 at 10:25 -0800, Andrew Morton wrote:
+> > > Mike Galbraith <efault@gmx.de> wrote:
+> > > >
+> > > > Greetings,
+> > > > 
+> > > > I'm seeing strange things with grub with this kernel.  After my box has
+> > > > been up for a while, and I reboot, selecting a kernel to restart, upon
+> > > > reboot, I sometimes (fairly often) get a blank screen staring at me
+> > > > though I see grub doing it's thing.  Poking the power button results in
+> > > > an immediate poweroff, not as if the kernel had panicked or whatnot very
+> > > > early in boot.  Very odd, and never before seen.
+> > > > 
+> > > 
+> > > Do you mean that grub is actually proceeding as expected, just that the
+> > > display is off?  If so, does it ever come back on?
 > > 
-> > The former: a filesystem test harness in userspace, possibly with some
-> > kernel code changes to make it easier to integrate it with the
-> > userspace test harness.  It's very similar to what the Netfilter folks
-> > did, and it has the advantage that we can do testing much more
-> > quickly, especially in cases where we want to simulate crashes at
-> > certain specific test points to make sure the journal recovery happens
-> > correctly.
+> > No, the box just sits there and does nada.
+> > 
 > 
-> I seem to recall that the Stanford Metacompilation group (Dawson Engler)
-> already wrote such a tool.  Not sure what sort of access there is for the
-
-Yup, it is called FiSC (File System Checker) -- unlike the meta-compiler,
-this one is based on model checking. I found it quite interesting based
-on my reading of the paper. But I couldn't get any further in terms of
-actually being able to play with it since it wasn't available publicly as
-you point out.
-
-> tool, whether public funding would grant access to the public, or if they
-> are at least willing to make an online interface available (the group has
-> spun out into "Coverity", and it seems unlikely it will be completely OSS).
-
-Regards
-Suparna
-
+> Did you try disabling fbdev?
 > 
-> Cheers, Andreas
-> --
-> Andreas Dilger
-> Principal Software Engineer
-> Cluster File Systems, Inc.
-> 
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by xPML, a groundbreaking scripting language
-> that extends applications into web and mobile media. Attend the live webcast
-> and join the prime developer group breaking into this new coding territory!
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=110944&bid=241720&dat=121642
-> _______________________________________________
-> Ext2-devel mailing list
-> Ext2-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/ext2-devel
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+No, but I will.
+
+	-Mike
 

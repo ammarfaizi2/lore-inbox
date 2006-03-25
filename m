@@ -1,50 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWCYDUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWCYDTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbWCYDUc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Mar 2006 22:20:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbWCYDUc
+	id S1750708AbWCYDTd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Mar 2006 22:19:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbWCYDTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Mar 2006 22:20:32 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:32478
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1750702AbWCYDUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Mar 2006 22:20:31 -0500
-From: Rob Landley <rob@thyrsus.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: State of userland headers
-Date: Fri, 24 Mar 2006 22:19:54 -0500
-User-Agent: KMail/1.8.3
-Cc: Nix <nix@esperi.org.uk>, Mariusz Mazur <mmazur@kernel.pl>,
-       LKML Kernel <linux-kernel@vger.kernel.org>,
-       llh-discuss@lists.pld-linux.org
-References: <200603141619.36609.mmazur@kernel.pl> <878xqzpl8g.fsf@hades.wkstn.nix> <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com>
-In-Reply-To: <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com>
+	Fri, 24 Mar 2006 22:19:33 -0500
+Received: from xproxy.gmail.com ([66.249.82.192]:50597 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750702AbWCYDTd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Mar 2006 22:19:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tGSVrtnzdO3mZgE5XTcZwjk2NwzKoaBQ6RZexggQR8rHfEMpJWjxMsKOyKcj4ZwXg4983kQ1SclLQkgyatJx1y2FcXUvJep9qIQDw4XvYSd7oB+OXLr51Rc1BsPyldy3m1VjDN19BTqiJfCp7QSkw8BCWJKb2xywxwRW3HeBCSU=
+Message-ID: <b8bf37780603241919x52e5711bpee734d3d9ec11cb9@mail.gmail.com>
+Date: Fri, 24 Mar 2006 23:19:26 -0400
+From: "=?ISO-8859-1?Q?Andr=E9_Goddard_Rosa?=" <andre.goddard@gmail.com>
+To: "Con Kolivas" <kernel@kolivas.org>
+Subject: Re: [ck] [benchmark] Interbench 2.6.16-ck/mm
+Cc: "linux list" <linux-kernel@vger.kernel.org>,
+       "ck list" <ck@vds.kolivas.org>
+In-Reply-To: <200603251351.57341.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200603242219.54677.rob@landley.net>
+References: <200603251351.57341.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 March 2006 5:46 pm, Kyle Moffett wrote:
+On 3/24/06, Con Kolivas <kernel@kolivas.org> wrote:
+> Here are interbench numbers for a pentium4 HT with 2.6.16-ck1 and 2.6.16-mm1
+>
+> The rules I use for flagging diffferences are:
+> 1. Deadlines met is the primary endpoint.
+> 2. When latency is out of bounds, what is the worst max latency as that will
+> be the most noticeable jerkiness, stutter etc, but I only flag them if at
+> least one value is >=7ms since that is required to be human perceptible.
+>
+> Using 2036365 loops per ms, running every load for 30 seconds
+> Benchmarking kernel 2.6.16-ck1 at datestamp 200603250244
+>
+> --- Benchmarking simulated cpu of Audio in the presence of simulated ---
+> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU  % Deadlines Met
+> None      0.015 +/- 0.0159     0.023             100            100
+> Video     0.757 +/- 0.881          2             100            100
+> X         0.051 +/- 0.189       1.02             100            100
+> Burn      0.019 +/- 0.0201     0.056 *           100            100 *
+> Write     0.055 +/- 0.344       4.83             100            100
+> Read      0.024 +/- 0.0251     0.064             100            100
+> Compile    0.03 +/- 0.0888      1.69             100            100
+> Memload   0.321 +/- 4.94         112            99.8           99.8
+>
+> --- Benchmarking simulated cpu of Video in the presence of simulated ---
+> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU  % Deadlines Met
+> None      0.016 +/- 0.0162     0.028             100            100
+> X         0.043 +/- 0.17        2.01 *           100            100 *
+> Burn      0.188 +/- 2.33        45.3 *          99.6           99.2 *
+> Write     0.043 +/- 0.558       16.7 *           100           99.9 *
+> Read      0.021 +/- 0.0217     0.078 *           100            100
+> Compile   0.093 +/- 1.08        18.4 *           100           99.6 *
+> Memload   0.385 +/- 4.83         138            98.9           98.3 *
+>
+> --- Benchmarking simulated cpu of X in the presence of simulated ---
+> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU  % Deadlines Met
+> None      0.026 +/- 0.356          6 *           100             99 *
+> Video        14 +/- 26.5          72 *          35.6           26.5 *
+> Burn       51.4 +/- 98.4         456 *          15.1           7.91 *
+> Write      2.19 +/- 6.65          36 *          78.6           71.1
+> Read      0.756 +/- 3.33          24 *          90.6             86
+> Compile    34.5 +/- 53.8         165 *          20.7           11.6 *
+> Memload    4.05 +/- 12.6          80            73.3           66.8
+>
+> --- Benchmarking simulated cpu of Gaming in the presence of simulated ---
+> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU
+> None       1.49 +/- 6.03        34.8 *          98.5 *
+> Video      68.7 +/- 68.9          74 *          59.3
+> X          60.7 +/- 70.6         143            62.2
+> Burn        514 +/- 534          602 *          16.3
+> Write      20.6 +/- 31.4         109 *          82.9
+> Read       7.77 +/- 9.04        31.3            92.8
+> Compile     436 +/- 459          697 *          18.7
+> Memload    27.1 +/- 58.3         755            78.7 *
+>
+>
+>
+> Using 2036365 loops per ms, running every load for 30 seconds
+> Benchmarking kernel 2.6.16-mm1 at datestamp 200603250939
+>
+> --- Benchmarking simulated cpu of Audio in the presence of simulated ---
+> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU  % Deadlines Met
+> None      0.012 +/- 0.0121     0.023             100            100
+> Video      1.16 +/- 1.24        2.01             100            100
+> X         0.302 +/- 0.681       2.01             100            100
+> Burn      0.365 +/- 8.63         211            99.7           99.7
+> Write     0.017 +/- 0.0193     0.072             100            100
+> Read       0.02 +/- 0.0209     0.056             100            100
+> Compile   0.019 +/- 0.0196     0.046             100            100
+> Memload   0.092 +/- 0.623         11 *           100 *          100 *
+>
+> --- Benchmarking simulated cpu of Video in the presence of simulated ---
+> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU  % Deadlines Met
+> None      0.011 +/- 0.0114      0.04             100            100
+> X         0.885 +/- 3.73        18.7             100           95.8
+> Burn      0.977 +/- 22.6         934            98.4           95.9
+> Write     0.047 +/- 0.789       23.7             100           99.8
+> Read      0.017 +/- 0.0181     0.058             100            100
+> Compile     1.6 +/- 17.6         370            96.5           94.5
+> Memload   0.501 +/- 3.48        44.4 *          98.9           97.4
+>
+> --- Benchmarking simulated cpu of X in the presence of simulated ---
+> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU  % Deadlines Met
+> None      0.255 +/- 2.25          27            94.1           93.3
+> Video      14.8 +/- 27.7          76            34.8           25.5
+> Burn       39.4 +/- 75.6         505            13.1           7.07
+> Write       1.6 +/- 6.17          48            78.7           74.9 *
+> Read      0.709 +/- 3.26          30            91.2             88 *
+> Compile    42.9 +/- 80.5         667            11.3           5.61
+> Memload    2.23 +/- 7.24          42 *          71.4           66.8
+>
+> --- Benchmarking simulated cpu of Gaming in the presence of simulated ---
+> Load    Latency +/- SD (ms)  Max Latency   % Desired CPU
+> None       5.31 +/- 19           123              95
+> Video      69.8 +/- 70.1        80.1            58.9 *
+> X          60.3 +/- 70.3         120 *          62.4
+> Burn        295 +/- 310          710            25.3 *
+> Write      17.3 +/- 30.8         110            85.2 *
+> Read       5.64 +/- 6.45        20.3 *          94.7 *
+> Compile     392 +/- 420          713            20.3
+> Memload    27.8 +/- 47.8         430 *          78.3
+>
+>
+> Summary:
+>         Deadlines       Max Latencies
+>         ck      mm      ck      mm
+> Audio   1       1       1       1
+> Video   5       0       5       1
+> X       4       2       6       1
+> Game    2       4       5       3
+>
+> Note that most of the differences between -ck and -mm on this benchmark are
+> due to the staircase cpu scheduler in -ck. It has staircase v14.2 as recently
+> posted to the mailing list.
+>
+> Cheers,
+> Con
 
-> however.  Since the kabi/*.h headers would not be kernel-version-
-> specific, they could be copied to a system running an older kernel
-> and reused there without problems.
+I just tried  2.6.16-mm1 with Mike Galbraith patches and it feels
+better in some situations (like opening a new tab inside konqueror or
+running a configure script ) but it gave some
+stops when playing amarok/gstreamer and doing regular desktop work.
 
-Since when is the kernel ABI not kernel version specific?  You can use an 
-older ABI on a newer kernel, but you can't use a newer ABI on an older 
-kernel.
+Best regards,
+--
+[]s,
 
-> Even though some of the syscalls 
-> and ioctls referenced in the kabi headers might not be present on the
-> running kernel, portable programs are expected to be able to sanely
-> handle older kernels.
-
-At the source level, maybe.  At the binary level?  Not really.
-
-Rob
--- 
-Never bet against the cheap plastic solution.
+André Goddard

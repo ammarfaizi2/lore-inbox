@@ -1,91 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWCYQ0B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWCYQ01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750719AbWCYQ0B (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 11:26:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWCYQ0B
+	id S1751442AbWCYQ01 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 11:26:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbWCYQ00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 11:26:01 -0500
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:7562 "EHLO
+	Sat, 25 Mar 2006 11:26:26 -0500
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:8586 "EHLO
 	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S1750719AbWCYQZ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 11:25:59 -0500
-Subject: [patch 1 of 4] Rename e820_map to e820_any_map to reflect its
-	behavior better
+	id S1750823AbWCYQ0J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 11:26:09 -0500
+Subject: [patch 3 of 4] MCFG sanity check
 From: Arjan van de Ven <arjan@linux.intel.com>
-To: ak@suse.de, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, ak@suse.de
+In-Reply-To: <1143303796.2898.6.camel@laptopd505.fenrus.org>
+References: <1143303796.2898.6.camel@laptopd505.fenrus.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Sat, 25 Mar 2006 17:23:16 +0100
-Message-Id: <1143303796.2898.6.camel@laptopd505.fenrus.org>
+Date: Sat, 25 Mar 2006 17:24:58 +0100
+Message-Id: <1143303898.2898.9.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rename e820_mapped to e820_any_mapped since it tests if any part
-of the range is mapped according to the type. Later steps will introduce
-e820_all_mapped which will check if the entire range is mapped with the type.
-Both have their merit.
+This patch introduces a user for the e820_all_mapped function:
+
+There have been several machines that don't have a working MMCONFIG, often
+because of a buggy MCFG table in the ACPI bios. This patch adds a simple
+sanity check that detects a whole bunch of these cases, and when it detects
+it, linux now boots rather than crash-and-burns. The accuracy of this
+detection can in principle be improved if there was a "is this entire range
+in e820 with THIS attribute", but no such function exist and the complexity
+needed for this is not really worth it; this simple check already catches
+most cases anyway.
 
 Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
-
 ---
- arch/x86_64/kernel/aperture.c |    2 +-
- arch/x86_64/kernel/e820.c     |    2 +-
- arch/x86_64/mm/init.c         |    2 +-
- include/asm-x86_64/e820.h     |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ arch/x86_64/pci/mmconfig.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-Index: linux-2.6.16-mmconfig/arch/x86_64/kernel/aperture.c
+Index: linux-2.6.16-mmconfig/arch/x86_64/pci/mmconfig.c
 ===================================================================
---- linux-2.6.16-mmconfig.orig/arch/x86_64/kernel/aperture.c
-+++ linux-2.6.16-mmconfig/arch/x86_64/kernel/aperture.c
-@@ -80,7 +80,7 @@ static int __init aperture_valid(char *n
- 		printk("Aperture from %s beyond 4GB. Ignoring.\n",name);
- 		return 0; 
- 	}
--	if (e820_mapped(aper_base, aper_base + aper_size, E820_RAM)) {  
-+	if (e820_any_mapped(aper_base, aper_base + aper_size, E820_RAM)) {
- 		printk("Aperture from %s pointing to e820 RAM. Ignoring.\n",name);
- 		return 0; 
- 	} 
-Index: linux-2.6.16-mmconfig/arch/x86_64/kernel/e820.c
-===================================================================
---- linux-2.6.16-mmconfig.orig/arch/x86_64/kernel/e820.c
-+++ linux-2.6.16-mmconfig/arch/x86_64/kernel/e820.c
-@@ -80,7 +80,7 @@ static inline int bad_addr(unsigned long
- 	return 0;
- } 
+--- linux-2.6.16-mmconfig.orig/arch/x86_64/pci/mmconfig.c
++++ linux-2.6.16-mmconfig/arch/x86_64/pci/mmconfig.c
+@@ -9,6 +9,8 @@
+ #include <linux/init.h>
+ #include <linux/acpi.h>
+ #include <linux/bitmap.h>
++#include <asm/e820.h>
++
+ #include "pci.h"
  
--int __init e820_mapped(unsigned long start, unsigned long end, unsigned type) 
-+int __init e820_any_mapped(unsigned long start, unsigned long end, unsigned type)
- { 
- 	int i;
- 	for (i = 0; i < e820.nr_map; i++) { 
-Index: linux-2.6.16-mmconfig/arch/x86_64/mm/init.c
-===================================================================
---- linux-2.6.16-mmconfig.orig/arch/x86_64/mm/init.c
-+++ linux-2.6.16-mmconfig/arch/x86_64/mm/init.c
-@@ -277,7 +277,7 @@ static void __meminit phys_pud_init(pud_
- 		if (paddr >= end)
- 			break;
+ #define MMCONFIG_APER_SIZE (256*1024*1024)
+@@ -161,6 +163,14 @@ void __init pci_mmcfg_init(void)
+ 	    (pci_mmcfg_config[0].base_address == 0))
+ 		return;
  
--		if (!after_bootmem && !e820_mapped(paddr, paddr+PUD_SIZE, 0)) {
-+		if (!after_bootmem && !e820_any_mapped(paddr, paddr+PUD_SIZE, 0)) {
- 			set_pud(pud, __pud(0)); 
- 			continue;
- 		} 
-Index: linux-2.6.16-mmconfig/include/asm-x86_64/e820.h
-===================================================================
---- linux-2.6.16-mmconfig.orig/include/asm-x86_64/e820.h
-+++ linux-2.6.16-mmconfig/include/asm-x86_64/e820.h
-@@ -47,7 +47,7 @@ extern void contig_e820_setup(void); 
- extern unsigned long e820_end_of_ram(void);
- extern void e820_reserve_resources(void);
- extern void e820_print_map(char *who);
--extern int e820_mapped(unsigned long start, unsigned long end, unsigned type);
-+extern int e820_any_mapped(unsigned long start, unsigned long end, unsigned type);
- 
- extern void e820_bootmem_free(pg_data_t *pgdat, unsigned long start,unsigned long end);
- extern void e820_setup_gap(void);
++	if (!e820_all_mapped(pci_mmcfg_config[0].base_address,
++			pci_mmcfg_config[0].base_address + MMCONFIG_APER_SIZE,
++			E820_RESERVED)) {
++		printk(KERN_INFO "PCI: BIOS Bug: MCFG area is not E820-reserved\n");
++		printk(KERN_INFO "PCI: Not using MMCONFIG.\n");
++		return;
++	}
++
+ 	/* RED-PEN i386 doesn't do _nocache right now */
+ 	pci_mmcfg_virt = kmalloc(sizeof(*pci_mmcfg_virt) * pci_mmcfg_config_num, GFP_KERNEL);
+ 	if (pci_mmcfg_virt == NULL) {
 

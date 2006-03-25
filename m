@@ -1,78 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWCYRMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751928AbWCYRWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751448AbWCYRMS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 12:12:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbWCYRMR
+	id S1751928AbWCYRWH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 12:22:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751922AbWCYRWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 12:12:17 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21519 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751448AbWCYRMQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 12:12:16 -0500
-Date: Sat, 25 Mar 2006 18:12:14 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: greg@kroah.com
-Cc: linux-usb-devel@lists.sourceforge.ne, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] usb/input/keyspan_remote.c: don't use an uninitialized variable
-Message-ID: <20060325171214.GG4053@stusta.de>
+	Sat, 25 Mar 2006 12:22:07 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:52400 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751928AbWCYRUU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 12:20:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:openpgp:content-type:content-transfer-encoding;
+        b=lOwNikkUOKsMcHOuEHVcBWhsAUpCMCWApNigMIfRZuaIfD26mt+CkPreV3wCODe1jV6tDuRuKAvtyZVUu0dia8o9xj/5voIgxM6wn+LwBH7NsQchv6C7t3HFHH2fXZ74q4OGI/HqXN6Shj0uXKwx/WCsit4FMYVaKT+lAfwTepg=
+Message-ID: <44257CC6.8020109@gmail.com>
+Date: Sun, 26 Mar 2006 00:24:22 +0700
+From: Mikado <mikado4vn@gmail.com>
+Reply-To: mikado4vn@gmail.com
+Organization: IcySpace.net
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Amit Luniya <amit_31_08@yahoo.co.in>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Help related to socket creation in kernel space
+References: <20060325050910.25509.qmail@web8705.mail.in.yahoo.com>
+In-Reply-To: <20060325050910.25509.qmail@web8705.mail.in.yahoo.com>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=65ABD897
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc reported the following:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-<--  snip  -->
+Amit Luniya wrote:
+> Hello sir,
+>       I am final year student of comp. engg. from pune
+> university. My project is hibernation in network
+> environment. Existing utility of hibernation using
+> "swsusp.c" does not support ping operation or any
+> other n/w related services after resume. 
+>   Tell me whether could we create socket in code of
+> resume in such a way that we can get image back from
+> server? As ping is application layer program does not
+> support operation after resume , so could we do
+> creation of socket and write kernel level network
+> program in resume process and can communicate with
+> server?
+>  We are working on linux kernel 2.6.14.5 .
+> Please help us as we are hang over our project.
+> Have a good day sir.....
 
-...
-  CC      drivers/usb/input/keyspan_remote.o
-drivers/usb/input/keyspan_remote.c: In function 'keyspan_irq_recv':
-drivers/usb/input/keyspan_remote.c:186: warning: 'message.toggle' may be used uninitialized in this function
-...
+IMO, you can deal with low level socket and sk_buff, in kernel-space. I
+don't know whether there is other way. If you want to notify the resume
+process or do something like connecting to a server after resume, I
+think you better write a small module to pass events to userspace (using
+kernel-user space linker/connector) then let userspace programs do
+whatever they want.
 
-<--  snip  -->
+Mikado.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-
-gcc is right, there is an error case where this actually happens.
-
-What about this patch that returns in this error case?
-
-Signed-off-by: Darren Jenkins <darrenrjenkins@gmail.com>
-
---- linux-2.6.16-mm1-full/drivers/usb/input/keyspan_remote.c.old	2006-03-25 15:44:56.000000000 +0100
-+++ linux-2.6.16-mm1-full/drivers/usb/input/keyspan_remote.c	2006-03-25 15:45:48.000000000 +0100
-@@ -285,30 +285,31 @@ static void keyspan_check_data(struct us
- 				return;
- 			}
- 		}
- 
- 		keyspan_load_tester(remote, 6);
- 		if ((remote->data.tester & ZERO_MASK) == ZERO) {
- 			message.toggle = 0;
- 			remote->data.tester = remote->data.tester >> 5;
- 			remote->data.bits_left -= 5;
- 		} else if ((remote->data.tester & ONE_MASK) == ONE) {
- 			message.toggle = 1;
- 			remote->data.tester = remote->data.tester >> 6;
- 			remote->data.bits_left -= 6;
- 		} else {
- 			err("%s - Error in message, invalid toggle.\n", __FUNCTION__);
-+			return;
- 		}
- 
- 		keyspan_load_tester(remote, 5);
- 		if ((remote->data.tester & STOP_MASK) == STOP) {
- 			remote->data.tester = remote->data.tester >> 5;
- 			remote->data.bits_left -= 5;
- 		} else {
- 			err("Bad message recieved, no stop bit found.\n");
- 		}
- 
- 		dev_dbg(&remote->udev->dev,
- 			"%s found valid message: system: %d, button: %d, toggle: %d\n",
- 			__FUNCTION__, message.system, message.button, message.toggle);
- 
- 		if (message.toggle != remote->toggle) {
-
+iD8DBQFEJXzGNWc9T2Wr2JcRAvsbAJ9HulNEBoWdiY7vwT0j6IVCrJWWUwCfZu2p
+YkO3S1YdxfmQMpZpCO9nKro=
+=OXAX
+-----END PGP SIGNATURE-----

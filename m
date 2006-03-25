@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWCYL64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbWCYL64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbWCYL64 (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751304AbWCYL64 (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 25 Mar 2006 06:58:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWCYL64
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751374AbWCYL6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 06:58:56 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:53476
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751371AbWCYL6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 25 Mar 2006 06:58:55 -0500
-Date: Sat, 25 Mar 2006 03:59:00 -0800 (PST)
-Message-Id: <20060325.035900.121310564.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP busted on non-cpu-hotplug systems
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060325034744.35b70f43.akpm@osdl.org>
-References: <20060325.024226.53296559.davem@davemloft.net>
-	<20060325034744.35b70f43.akpm@osdl.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:47117 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751304AbWCYL6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 06:58:55 -0500
+Date: Sat, 25 Mar 2006 12:58:53 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Darren Jenkins <darrenrjenkins@gmail.com>
+Subject: [2.6 patch] fix array over-run in efi.c
+Message-ID: <20060325115853.GB4053@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Sat, 25 Mar 2006 03:47:44 -0800
+From: Darren Jenkins <darrenrjenkins@gmail.com>
 
-> I think it'd be cleanest to require that the arch do that -
-> fixup_cpu_present_map() looks like a bit of a hack.
+Coverity found an over-run @ line 364 of efi.c
 
-Indeed it does.  I'm planning on doing someting like this
-for sparc64:
+This is due to the loop checking the size correctly, then adding a '\0'
+after possibly hitting the end of the array.
 
-diff --git a/arch/sparc64/kernel/smp.c b/arch/sparc64/kernel/smp.c
-index 1b6e2ad..7dc28a4 100644
---- a/arch/sparc64/kernel/smp.c
-+++ b/arch/sparc64/kernel/smp.c
-@@ -1298,6 +1298,7 @@ void __init smp_prepare_cpus(unsigned in
- 		while (!cpu_find_by_instance(instance, NULL, &mid)) {
- 			if (mid != boot_cpu_id) {
- 				cpu_clear(mid, phys_cpu_present_map);
-+				cpu_clear(mid, cpu_present_map);
- 				if (num_possible_cpus() <= max_cpus)
- 					break;
- 			}
-@@ -1332,8 +1333,10 @@ void __init smp_setup_cpu_possible_map(v
- 
- 	instance = 0;
- 	while (!cpu_find_by_instance(instance, NULL, &mid)) {
--		if (mid < NR_CPUS)
-+		if (mid < NR_CPUS) {
- 			cpu_set(mid, phys_cpu_present_map);
-+			cpu_set(mid, cpu_present_map);
-+		}
- 		instance++;
- 	}
- }
+The patch below just ensures the loop exits with one space left in the
+array.
+
+Compile tested.
+
+
+Signed-off-by: Darren Jenkins <darrenrjenkins@gmail.com>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was sent by Darren Jenkins on:
+- 08 Mar 2006
+
+--- linux-2.6.16-rc5/arch/i386/kernel/efi.c.orig	2006-03-08 12:31:14.000000000 +1100
++++ linux-2.6.16-rc5/arch/i386/kernel/efi.c	2006-03-08 12:37:59.000000000 +1100
+@@ -359,7 +359,7 @@ void __init efi_init(void)
+ 	 */
+ 	c16 = (efi_char16_t *) boot_ioremap(efi.systab->fw_vendor, 2);
+ 	if (c16) {
+-		for (i = 0; i < sizeof(vendor) && *c16; ++i)
++		for (i = 0; i < (sizeof(vendor) - 1) && *c16; ++i)
+ 			vendor[i] = *c16++;
+ 		vendor[i] = '\0';
+ 	} else
+
+
+

@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWCYQ5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWCYQ6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbWCYQ5a (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 11:57:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbWCYQ5a
+	id S1751052AbWCYQ6c (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 11:58:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWCYQ6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 11:57:30 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:11791 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751019AbWCYQ53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 11:57:29 -0500
-Date: Sat, 25 Mar 2006 17:57:27 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Eric Sesterhenn <snakebyte@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Possible NULL pointer dereference in fs/configfs/dir.c
-Message-ID: <20060325165727.GC4053@stusta.de>
-References: <1143068729.27276.1.camel@alice> <20060322232709.GD7844@ca-server1.us.oracle.com>
+	Sat, 25 Mar 2006 11:58:32 -0500
+Received: from ns.suse.de ([195.135.220.2]:2017 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750950AbWCYQ6b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 11:58:31 -0500
+From: Andi Kleen <ak@suse.de>
+To: rgetz@blackfin.uclinux.org
+Subject: Re: RFC: Non Power of 2 memory allocator
+Date: Sat, 25 Mar 2006 17:58:19 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <mailman.10486.1143303698.3925.uclinux-dev@uclinux.org>
+In-Reply-To: <mailman.10486.1143303698.3925.uclinux-dev@uclinux.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060322232709.GD7844@ca-server1.us.oracle.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200603251758.19852.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 22, 2006 at 03:27:09PM -0800, Joel Becker wrote:
-> On Thu, Mar 23, 2006 at 12:05:29AM +0100, Eric Sesterhenn wrote:
-> > this fixes coverity bug #845, if group is NULL,
-> > we dereference it when setting up dentry.
-> 
-> 	Is the converity checker merly looking at in-function patterns?
-> Where can I access the bug report (sorry for the question).
-> 	group cannot be null here, we aren't called any other way.  So
-> while you are correct that the code below is needed in the presence of a
-> NULL group, really the "if (group" isn't necessary, just the "if
-> (group->default_groups)".  I could even BUG_ON() if you'd like.
+On Saturday 25 March 2006 17:21, uclinux-dev-owner@uclinux.org wrote:
+> You are not allowed to post to this mailing list, and your message has
+> been automatically rejected.  If you think that your messages are
+> being rejected in error, contact the mailing list owner at
+> uclinux-dev-owner@uclinux.org.
 
-Coverity is correct that something is wrong:
+P.S.: It is considered quite rude to post with closed lists in Cc 
+or even reply-to as it was the case here. Don't do that. If you
+want comments on your emails please make sure they can be answered
+by everybody.
 
-<--  snip  -->
-
-...
-        struct dentry *dentry = group->cg_item.ci_dentry;
-        int ret = 0;
-        int i;
-
-        if (group && group->default_groups) {
-...
-
-<--  snip  -->
-
-The question is only whether the dereferencing is a real bug or there's 
-only the harmless issue of a superfluous check.
-
-> Joel
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+-Andi
 

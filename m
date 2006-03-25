@@ -1,68 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWCYI0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWCYI17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750962AbWCYI0R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 03:26:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbWCYI0R
+	id S1750964AbWCYI17 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 03:27:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbWCYI17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 03:26:17 -0500
-Received: from mx1.mm.pl ([217.172.224.151]:40412 "EHLO mx1.mm.pl")
-	by vger.kernel.org with ESMTP id S1750769AbWCYI0Q (ORCPT
+	Sat, 25 Mar 2006 03:27:59 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:34995 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750866AbWCYI16 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 03:26:16 -0500
-From: Radoslaw Szkodzinski <astralstorm@gorzow.mm.pl>
-To: ck@vds.kolivas.org
-Subject: Re: [ck] [benchmark] Interbench 2.6.16-ck/mm
-Date: Sat, 25 Mar 2006 09:21:26 +0100
-User-Agent: KMail/1.9.1
-Cc: Con Kolivas <kernel@kolivas.org>,
-       "=?utf-8?q?Andr=C3=A9_Goddard?= Rosa" <andre.goddard@gmail.com>,
-       linux list <linux-kernel@vger.kernel.org>
-References: <200603251351.57341.kernel@kolivas.org> <b8bf37780603241919x52e5711bpee734d3d9ec11cb9@mail.gmail.com> <200603251501.32592.kernel@kolivas.org>
-In-Reply-To: <200603251501.32592.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1487275.9oiC8JZj6n";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200603250921.32409.astralstorm@gorzow.mm.pl>
+	Sat, 25 Mar 2006 03:27:58 -0500
+Date: Sat, 25 Mar 2006 13:57:30 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>
+Cc: suresh.b.siddha@intel.com, pj@sgi.com, hawkes@sgi.com,
+       linux-kernel@vger.kernel.org, Dinakar Guniguntala <dino@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 2.6.16-mm1 1/2] sched_domain: handle kmalloc failure
+Message-ID: <20060325082730.GA17011@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1487275.9oiC8JZj6n
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+I think there is a bug in build_sched_domains() when kmalloc fails to
+allocate memory for 'sched_group_allnodes'. 
 
-On Saturday 25 March 2006 05:01, Con Kolivas wrote yet:
->
-> I don't expect that staircase will be better in every single situation.
-> However it will be better more often, especially when it counts (like aud=
-io
-> or video skipping) and far more predictable. All that in 300 lines less
-> code :)
->
+Consider the case where build_sched_domains() is being invoked because a
+CPUset is being made exclusive. Further lets say user changed cpu_exclusive 
+property of some CPUset as follow:
 
-I thinks the main difference is those other scheduler improvements.
-Some of them are compatible with staircase.
-Could you also try a mixed and matched 2.6.16-ck1+mm?
+	echo 1 > cpu_exclusive	# (Step a)
+	echo 0 > cpu_exclusive	# (Step b)
+	echo 1 > cpu_exclusive	# (Step c)
 
-=2D-=20
-GPG Key id:  0xD1F10BA2
-=46ingerprint: 96E2 304A B9C4 949A 10A0  9105 9543 0453 D1F1 0BA2
 
-AstralStorm
+Lets say that all memory allocations succeeded during the 1st attempt to
+make CPUset exclusive (Step a). Step a would result in the sched domain
+heirarchy being initialized for all CPUs in the CPUSet under
+consideration. Step b would cause those memory allocations to be freed
+up.
 
---nextPart1487275.9oiC8JZj6n
-Content-Type: application/pgp-signature
+Now during Step c, lets say that kmalloc failed to allocate for
+'sched_group_allnodes'. When that happens, the code just breaks out of
+the 'for' loop. I think that is wrong, as it would cause the previous
+assignments (made during Step a) to be retained. This could cause, among
+other things, sd->groups to be invalid (for allnodes_domains)?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
+Patch below (against 2.6.16-mm1) fixes it. I have done some minimal test
+of it.
 
-iD8DBQBEJP2MlUMEU9HxC6IRAjYYAJ0XcOWRTH11lMn2171uqnKAL9Q57wCeIFeb
-dBl7SqfC7WlwYKCHWvmKpWA=
-=Nw37
------END PGP SIGNATURE-----
+Signed-off-by: Srivatsa Vaddagiri <vatsa@in.ibm.com>
 
---nextPart1487275.9oiC8JZj6n--
+
+
+ kernel/sched.c |   10 +++++++---
+ 1 files changed, 7 insertions(+), 3 deletions(-)
+
+diff -puN kernel/sched.c~sd_handle_error kernel/sched.c
+--- linux-2.6.16-mm1/kernel/sched.c~sd_handle_error	2006-03-25 11:39:07.000000000 +0530
++++ linux-2.6.16-mm1-root/kernel/sched.c	2006-03-25 11:39:59.000000000 +0530
+@@ -5965,6 +5965,7 @@ void build_sched_domains(const cpumask_t
+ {
+ 	int i;
+ #ifdef CONFIG_NUMA
++	int alloc_failed = 0;
+ 	struct sched_group **sched_group_nodes = NULL;
+ 	struct sched_group *sched_group_allnodes = NULL;
+ 
+@@ -5993,7 +5994,7 @@ void build_sched_domains(const cpumask_t
+ #ifdef CONFIG_NUMA
+ 		if (cpus_weight(*cpu_map)
+ 				> SD_NODES_PER_DOMAIN*cpus_weight(nodemask)) {
+-			if (!sched_group_allnodes) {
++			if (!sched_group_allnodes && !alloc_failed) {
+ 				sched_group_allnodes
+ 					= kmalloc(sizeof(struct sched_group)
+ 							* MAX_NUMNODES,
+@@ -6001,7 +6002,7 @@ void build_sched_domains(const cpumask_t
+ 				if (!sched_group_allnodes) {
+ 					printk(KERN_WARNING
+ 					"Can not alloc allnodes sched group\n");
+-					break;
++					alloc_failed = 1;
+ 				}
+ 				sched_group_allnodes_bycpu[i]
+ 						= sched_group_allnodes;
+@@ -6010,7 +6011,10 @@ void build_sched_domains(const cpumask_t
+ 			*sd = SD_ALLNODES_INIT;
+ 			sd->span = *cpu_map;
+ 			group = cpu_to_allnodes_group(i);
+-			sd->groups = &sched_group_allnodes[group];
++			sd->groups = sched_group_allnodes ?
++				 &sched_group_allnodes[group] : NULL;
++			if (!sd->groups)
++				sd->flags = 0;		/* No load balancing */
+ 			p = sd;
+ 		} else
+ 			p = NULL;
+
+_
+
+-- 
+Regards,
+vatsa

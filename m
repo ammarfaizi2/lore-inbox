@@ -1,86 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWCYTwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWCYTzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWCYTwL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 14:52:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWCYTwL
+	id S1751134AbWCYTzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 14:55:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWCYTzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 14:52:11 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:41171 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S1751114AbWCYTwJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 14:52:09 -0500
-Date: Sat, 25 Mar 2006 20:52:04 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Comment on 2.6.16-rt6 PI
-In-Reply-To: <1143311729.5344.131.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44L0.0603252043100.19918-100000@lifa01.phys.au.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 25 Mar 2006 14:55:25 -0500
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:42471 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP
+	id S1751128AbWCYTzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 14:55:24 -0500
+X-ORBL: [70.129.201.140]
+Date: Sat, 25 Mar 2006 13:50:15 -0600
+From: Michael Halcrow <lkml@halcrow.us>
+To: Phillip Susi <psusi@cfl.rr.com>
+Cc: Michael Halcrow <mhalcrow@us.ibm.com>, akpm@osdl.org,
+       phillip@hellewell.homeip.net, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk,
+       mcthomps@us.ibm.com, yoder1@us.ibm.com, toml@us.ibm.com,
+       emilyr@us.ibm.com, daw@cs.berk
+Subject: Re: eCryptfs Design Document
+Message-ID: <20060325195015.GA8174@halcrow.us>
+Reply-To: Michael Halcrow <lkml@halcrow.us>
+References: <20060324222517.GA13688@us.ibm.com> <442599D5.806@cfl.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <442599D5.806@cfl.rr.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Mar 2006, Thomas Gleixner wrote:
+On Sat, Mar 25, 2006 at 02:28:21PM -0500, Phillip Susi wrote:
+> Michael Halcrow wrote:
+> >* A mount-wide passphrase is stored in the user session 
+> >  keyring in the form of an authentication token.
+> 
+> You say several times that a mount-wide passphrase is used for the
+> master key.  If that is the case, then it would be given at mount
+> time and be bound to the super block.
 
-> On Sat, 2006-03-25 at 19:23 +0100, Esben Nielsen wrote:
-> > Sorry for the lack of details. I just thought the test-case wouldn't make
-> > sense to you much and didn't paste it in. I was in a bit of a hurry too.
-> > Now I have a little more time and can tell you what is going on:
-> >
-> > top_waiter!=NULL
-> > waiter!=NULL
-> > waiter!=rt_mutex_top_waiter(lock)
-> >
-> > Therefore one top_waiter is removed and but nothing is inserted.
->
-> How does this happen. From inside the loop this is impossible. And I
-> dont see a caller with that constellation either.
+The mount-wide passphrase in the user session keyring is actually not
+necessary to keep around after the mount process is finished in this
+release, and we will likely alter the design and implementation for
+the 0.1 release to just remove it once the file key encryption key is
+associated with the eCryptfs superblock object on mount.
 
-The test-case where I made it happen is below.
+In future releases, we will be storing multiple passphrase and public
+key authentication tokens in the user's eCryptfs keyring, and so the
+use of the kernel keyring will make a lot more sense. We are trying to
+make things as simple as possible for the 0.1 release so as to limit
+the complexity involved in analysis and debugging.
 
-What happens in the last line of execution is that the 3rd thread takes
-lock 1 and boosts task 1st task which is blocked on 2nd task. Now all 1st,
-2nd and 3rd task all have priority 1.
-Then the 4th task is allowed to run. It tries to lock lock 2, which is owned
-by the 2nd task. The first waiter is the 1st task bosted to priorty 2. So
-this is "top_waiter". But waiter referes to the 4th task with priority 2
-so not the first waiter.
+For the record, if you mount with one passphrase, create a file,
+unmount, mount with another passphrase, and create another file, then
+you will have two files side-by-side that are only accessible with
+their respective passphrases. To access the first file, you need to
+mount with the passphrase used to create that file in the first place,
+and to access the second file, you need to mount with the passphrase
+used to create that file. In future releases, the idea is that the
+user will have two authentication tokens in the keyring, one for each
+passphrase, so that he will be able to access either file under the
+same mount.
 
-The result is as above because I am running with deadlock detection on.
+> >passphrase into a key follows the S2K process as described in RFC
+> >2440, in that the passphrase is concatenated with a salt; that data
+> >block is then iteratively MD5-hashed 65,536 times to generate the key
+> >that encrypts the file encryption key.
+> 
+> Are you saying that you salt the passphrase, hash that, then hash
+> the hash, then hash that hash, and so on?  What good does repeatedly
+> hashing the hash do?  Simply hashing the salted passphrase should be
+> sufficient to obtain a key.
 
-Esben
+This approach is only used to help make dictionary attacks against the
+passphrase a bit harder.
 
-
-threads:   4            3            1              2
-         lock 1         +            +              +
-test:     +             +            +              +
-test:    prio 4      prio 3       prio 1         prio 2
-test:  lockcount 1  lockcount 0  lockcount 0  lockcount 0
-
-          +          lock 2          +              +
-test:     +             +            +              +
-test:    prio 4      prio 3       prio 1          prio 2
-test:  lockcount 1  lockcount 1  lockcount 0  lockcount 0
-
-         lock 2         +            +              +
-test:     -             +            +              +
-test:    prio 4      prio 3       prio 1          prio 2
-test:  lockcount 1  lockcount 1  lockcount 0  lockcount 0
-
-           +            +          lock1          lock 2
-test:     -             +            -             -
-test:    prio 1      prio 1       prio 1           prio 2
-test:  lockcount 1  lockcount 1  lockcount 0      lockcount 0
-
->
-> 	tglx
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+Mike

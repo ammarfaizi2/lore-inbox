@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWCYT0i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWCYT3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750830AbWCYT0i (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 14:26:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbWCYT0i
+	id S1751113AbWCYT3R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 14:29:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWCYT3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 14:26:38 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:24080 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750830AbWCYT0h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 14:26:37 -0500
-Date: Sat, 25 Mar 2006 20:26:35 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linda Walsh <lkml@tlinx.org>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Security downgrade? CONFIG_HOTPLUG required in 2.6.16?
-Message-ID: <20060325192635.GQ4053@stusta.de>
-References: <44237D87.70300@tlinx.org>
+	Sat, 25 Mar 2006 14:29:17 -0500
+Received: from ms-smtp-02-smtplb.tampabay.rr.com ([65.32.5.132]:42927 "EHLO
+	ms-smtp-02.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S1751068AbWCYT3Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 14:29:16 -0500
+Message-ID: <442599D5.806@cfl.rr.com>
+Date: Sat, 25 Mar 2006 14:28:21 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Mail/News 1.5 (X11/20060309)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44237D87.70300@tlinx.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Michael Halcrow <mhalcrow@us.ibm.com>
+CC: akpm@osdl.org, phillip@hellewell.homeip.net, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
+       mcthomps@us.ibm.com, yoder1@us.ibm.com, toml@us.ibm.com,
+       emilyr@us.ibm.com, daw@cs.berk
+Subject: Re: eCryptfs Design Document
+References: <20060324222517.GA13688@us.ibm.com>
+In-Reply-To: <20060324222517.GA13688@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 09:03:03PM -0800, Linda Walsh wrote:
-> I had this config'ed out in 2.6.15 for machine that didn't have
-> any hotpluggable devices.  It is also configured with all the
-> modules it needs and has kernel-module loading disabled.
-> 
-> What has changed in 2.6.16 that my "static" machine now
-> needs hotplugging?  As I understand it, hotplugging requires 
-> application-level support code (in /etc/) and a special
-> application level "demon" to run in order to support these
-> requests.
-> 
-> I'd prefer my kernel not to be dependent on a run-time demon
-> to load "arbitrary" (user defined) segments of code that could
-> come from any source -- usually outside the vanilla kernel tree.
-> 
-> If I don't want a specific kernel or machine to be dynamically
-> reconfigurable after boot, why do I need to build in a mechanism for
-> runtime loading of modules?
+Michael Halcrow wrote:
+> * A mount-wide passphrase is stored in the user session 
+>   keyring in the form of an authentication token.
 
-- hotplugging devices != module loading
-- CONFIG_HOTPLUG does not load any code into the kernel.
-- hotplugging devices can work without any userspace support
+I'm a bit confused because you appear to be contradicting yourself.  You 
+say several times that a mount-wide passphrase is used for the master 
+key.  If that is the case, then it would be given at mount time and be 
+bound to the super block.  You also then say that the master key is 
+stored in the kernel keyring.  If that is the case, then you don't have 
+to know the key at mount time, rather the key is associated with a given 
+process or group of processes and will be required when such a process 
+attempts to open a file on that mount point.  This would also allow 
+different users to use different keys.
 
-As an example, hotplugging an USB hard disk works fine with 
-CONFIG_MODULES=n and without any userspace support (assuming
-a static /dev).
 
-> Linda
+So which is it?  Is the master key bound to the superblock, or to the 
+session keyring?  Or am I just confused about the meaning of the kernel 
+keyring?
 
-cu
-Adrian
+> passphrase into a key follows the S2K process as described in RFC
+> 2440, in that the passphrase is concatenated with a salt; that data
+> block is then iteratively MD5-hashed 65,536 times to generate the key
+> that encrypts the file encryption key.
 
--- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Are you saying that you salt the passphrase, hash that, then hash the 
+hash, then hash that hash, and so on?  What good does repeatedly hashing 
+the hash do?  Simply hashing the salted passphrase should be sufficient 
+to obtain a key.
+
 

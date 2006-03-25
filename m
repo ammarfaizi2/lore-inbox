@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWCYFFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbWCYFJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751034AbWCYFFa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 00:05:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751038AbWCYFFa
+	id S1750984AbWCYFJT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 00:09:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWCYFJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 00:05:30 -0500
-Received: from mail.gmx.net ([213.165.64.20]:31621 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751024AbWCYFF3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 00:05:29 -0500
-X-Authenticated: #14349625
-Subject: Re: [2.6.16-mm1 patch] throttling tree patches
-From: Mike Galbraith <efault@gmx.de>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-In-Reply-To: <44248DE7.80001@bigpond.net.au>
-References: <1143198208.7741.8.camel@homer>
-	 <200603242237.38100.kernel@kolivas.org>  <44248DE7.80001@bigpond.net.au>
-Content-Type: text/plain
-Date: Sat, 25 Mar 2006 06:06:12 +0100
-Message-Id: <1143263172.7930.15.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Sat, 25 Mar 2006 00:09:19 -0500
+Received: from web8705.mail.in.yahoo.com ([203.84.221.126]:60862 "HELO
+	web8705.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S1750984AbWCYFJS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 00:09:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.co.in;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=pVRJG+uQKZnoYfsmy+/AL0DJJbK7M3H6FExhyX8UMdpR3FjjRA4WXOLyfJQ3GZsXOOl60bHZSwAKsobDDYMzDFn/BPfAl+6AlMVhez9TIewUt9IlVD9N1c/l2Almqgw29K5l0fvrOj2IY10SZLGyU+B343hQQsSw2vEusyNTBFI=  ;
+Message-ID: <20060325050910.25509.qmail@web8705.mail.in.yahoo.com>
+Date: Sat, 25 Mar 2006 05:09:10 +0000 (GMT)
+From: Amit Luniya <amit_31_08@yahoo.co.in>
+Subject: Help related to socket creation in kernel space
+To: Linux mailing <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-03-25 at 11:25 +1100, Peter Williams wrote:
-> Con Kolivas wrote:
+Hello sir,
+      I am final year student of comp. engg. from pune
+university. My project is hibernation in network
+environment. Existing utility of hibernation using
+"swsusp.c" does not support ping operation or any
+other n/w related services after resume. 
+  Tell me whether could we create socket in code of
+resume in such a way that we can get image back from
+server? As ping is application layer program does not
+support operation after resume , so could we do
+creation of socket and write kernel level network
+program in resume process and can communicate with
+server?
+ We are working on linux kernel 2.6.14.5 .
+Please help us as we are hang over our project.
+Have a good day sir.....
 
-> >>  	if (!rt_task(p))
-> >> -		p->prio = recalc_task_prio(p, now);
-> >> +		p->prio = recalc_task_prio(p, comp);
-> > 
-> > Seems wasteful of a very expensive (on 32bit) unsigned long long on 
-> > uniprocessor builds.
-> 
-> Unsigned long long is necessary in order to avoid overflow when dealing 
-> with nano seconds but (if you reorganized the expressions and made the 
-> desired precedence explicit) you could probably use something smaller 
-> for the difference between the two timestamp_lats_tick values.  More 
-> importantly, I think that the original code which used the computed 
-> "now" was correct as otherwise the task's timestamp will not have the 
-> correct time for its CPU.
 
-I can live with it either way.  On my SMT box, the rounding is much
-worse than the actual drift, that's microseconds, but the rounding turns
-it into milliseconds.
-
-> Of course, this all hinges on the differences between the run queues' 
-> timestamp_last_tick fields being a true measure of the time drift 
-> between them.  I've never been wholly convinced of that but as long as 
-> any error is much smaller than the drift it's probably worth doing.
-
-On a real SMP, this adjusting of timestamps probably helps (dunno, no
-have), on my box it's doomed to do more harm than good.  To me, the only
-thing that really matters is ignoring the bogus transition.
-
-	-Mike
-
+		
+__________________________________________________________ 
+Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com

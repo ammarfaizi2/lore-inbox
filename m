@@ -1,92 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWCYMTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWCYMpl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbWCYMTs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 07:19:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWCYMTs
+	id S1751154AbWCYMpl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 07:45:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWCYMpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 07:19:48 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:50139 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751213AbWCYMTr (ORCPT
+	Sat, 25 Mar 2006 07:45:22 -0500
+Received: from www.osadl.org ([213.239.205.134]:14301 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751154AbWCYMpS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 07:19:47 -0500
-Date: Sat, 25 Mar 2006 04:15:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: davem@davemloft.net, linux-kernel@vger.kernel.org
-Subject: Re: SMP busted on non-cpu-hotplug systems
-Message-Id: <20060325041559.63011426.akpm@osdl.org>
-In-Reply-To: <20060325120546.GA6100@flint.arm.linux.org.uk>
-References: <20060325.024226.53296559.davem@davemloft.net>
-	<20060325034744.35b70f43.akpm@osdl.org>
-	<20060325120546.GA6100@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 25 Mar 2006 07:45:18 -0500
+Message-Id: <20060325121223.966390000@localhost.localdomain>
+References: <20060325121219.172731000@localhost.localdomain>
+Date: Sat, 25 Mar 2006 12:46:02 -0000
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+Subject: [patch 2/2] hrtimer
+Content-Disposition: inline;
+	filename=hrtimer-nanosleep-use-generic-sleeper.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
->
-> On Sat, Mar 25, 2006 at 03:47:44AM -0800, Andrew Morton wrote:
-> > "David S. Miller" <davem@davemloft.net> wrote:
-> > >
-> > > 
-> > > I just noticed this on sparc64, as I lost 31 cpus on my
-> > > Niagara box due to it :)
-> > > 
-> > > boot_cpu_init() sets the boot processor ID in cpu_present_map.
-> > > 
-> > > But fixup_cpu_present_map() will only populate the cpu_present_map if
-> > > it is empty, which it won't be because of what boot_cpu_init() just
-> > > did.
-> > 
-> > oops.  I guess most architectures set cpu_present_map while bringing up the
-> > APs.
-> > 
-> > I think it'd be cleanest to require that the arch do that -
-> > fixup_cpu_present_map() looks like a bit of a hack.
-> > 
-> > I guess if we want to perpetuate fixup_cpu_present_map() then we should
-> > teach it to ignore the boot cpu.   (cpus_weight(&cpu_present_map) == 1)
-> > would do that.
-> 
-> At setup_arch() time, we initialise cpu_possible_map to contain the CPUs
-> the system might have.
 
-OK.
+Replace the nanosleep private sleeper functionality by the generic
+hrtimer sleeper.
 
-> We then call smp_prepare_boot_cpu() which marks the boot cpu in both
-> cpu_present_map and cpu_online_map.
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-OK.
 
-> Eventually, we call smp_prepare_cpus(), where an architecture may
-> populate cpu_present_map to indicate which cpus are actually present,
-> and following this we call fixup_cpu_present_map().
+ kernel/hrtimer.c |   34 +++++++---------------------------
+ 1 file changed, 7 insertions(+), 27 deletions(-)
 
-OK.
+Index: linux-2.6.16/kernel/hrtimer.c
+===================================================================
+--- linux-2.6.16.orig/kernel/hrtimer.c
++++ linux-2.6.16/kernel/hrtimer.c
+@@ -655,7 +655,6 @@ void hrtimer_run_queues(void)
+ /*
+  * Sleep related functions:
+  */
+-
+ static int hrtimer_wakeup(struct hrtimer *timer)
+ {
+ 	struct hrtimer_sleeper *t =
+@@ -675,28 +674,9 @@ void hrtimer_init_sleeper(struct hrtimer
+ 	sl->task = task;
+ }
+ 
+-struct sleep_hrtimer {
+-	struct hrtimer timer;
+-	struct task_struct *task;
+-	int expired;
+-};
+-
+-static int nanosleep_wakeup(struct hrtimer *timer)
+-{
+-	struct sleep_hrtimer *t =
+-		container_of(timer, struct sleep_hrtimer, timer);
+-
+-	t->expired = 1;
+-	wake_up_process(t->task);
+-
+-	return HRTIMER_NORESTART;
+-}
+-
+-static int __sched do_nanosleep(struct sleep_hrtimer *t, enum hrtimer_mode mode)
++static int __sched do_nanosleep(struct hrtimer_sleeper *t, enum hrtimer_mode mode)
+ {
+-	t->timer.function = nanosleep_wakeup;
+-	t->task = current;
+-	t->expired = 0;
++	hrtimer_init_sleeper(t, current);
+ 
+ 	do {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+@@ -704,18 +684,18 @@ static int __sched do_nanosleep(struct s
+ 
+ 		schedule();
+ 
+-		if (unlikely(!t->expired)) {
++		if (unlikely(t->task)) {
+ 			hrtimer_cancel(&t->timer);
+ 			mode = HRTIMER_ABS;
+ 		}
+-	} while (!t->expired && !signal_pending(current));
++	} while (t->task && !signal_pending(current));
+ 
+-	return t->expired;
++	return t->task == NULL;
+ }
+ 
+ static long __sched nanosleep_restart(struct restart_block *restart)
+ {
+-	struct sleep_hrtimer t;
++	struct hrtimer_sleeper t;
+ 	struct timespec __user *rmtp;
+ 	struct timespec tu;
+ 	ktime_t time;
+@@ -748,7 +728,7 @@ long hrtimer_nanosleep(struct timespec *
+ 		       const enum hrtimer_mode mode, const clockid_t clockid)
+ {
+ 	struct restart_block *restart;
+-	struct sleep_hrtimer t;
++	struct hrtimer_sleeper t;
+ 	struct timespec tu;
+ 	ktime_t rem;
+ 
 
-> With your proposed change,
+--
 
-Which proposed change?  I proposed two.
-
-> if a SMP system with has 4 possible CPUs
-> was passed maxcpus=1, cpu_possible_map may well have 4 CPUs, and
-> cpu_present_map will only contain the one.  However, due to the
-> fixup_cpu_present_map(), it will say "oh only one CPU, we need to
-> populate the others" and so you'd actually try to boot all 4.
-
-The change we appear to be going with is to remove fixup_cpu_present_map()
-which appears to address this.
-
-> So no, this doesn't work.
-
-What doesn't work?
-
->  Isn't it about time the pre-CPU hotplug SMP
-> stuff was updated, rather than trying to messily support two different
-> SMP initialisation methodologies in generic code with band aid plasters
-> all over?
-
-What two methodologies?  arch-doing-it and fixup_cpu_present_map() doing it?

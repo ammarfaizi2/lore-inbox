@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWCZVi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWCZVjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWCZVi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 16:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWCZVi1
+	id S932138AbWCZVjq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 16:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWCZVjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 16:38:27 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:63198 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932136AbWCZVi0 (ORCPT
+	Sun, 26 Mar 2006 16:39:45 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:53678 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932138AbWCZVjp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 16:38:26 -0500
-Date: Sun, 26 Mar 2006 23:35:52 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: tglx@linutronix.de, linux-kernel@vger.kernel.org
-Subject: Re: Are ALL_TASKS_PI on in 2.6.16-rt7?
-Message-ID: <20060326213552.GA1963@elte.hu>
-References: <20060326212738.GA32562@elte.hu> <Pine.LNX.4.44L0.0603262231110.8060-100000@lifa03.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 26 Mar 2006 16:39:45 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Jonathan Black <vampjon@gmail.com>
+Subject: Re: uptime increases during suspend
+Date: Sun, 26 Mar 2006 23:38:10 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
+References: <20060325150238.GA9023@beacon.dhs.org> <200603251610.16566.rjw@sisk.pl> <20060325151818.GA10939@beacon.dhs.org>
+In-Reply-To: <20060325151818.GA10939@beacon.dhs.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0603262231110.8060-100000@lifa03.phys.au.dk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200603262338.10750.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Esben Nielsen <simlo@phys.au.dk> wrote:
-
-> On Sun, 26 Mar 2006, Ingo Molnar wrote:
+On Saturday 25 March 2006 16:18, Jonathan Black wrote:
+> On Sat, Mar 25, 2006 at 04:10:16PM +0100, Rafael J. Wysocki wrote:
+> > On Saturday 25 March 2006 16:02, Jonathan Black wrote:
+> > > I'd like to enquire about the following behaviour:
+> > > 
+> > > $ uptime && sudo hibernate && uptime
+> > >  14:18:51 up 1 day, 4:12,  2 users,  load average: 0.58, 3.30, 2.42
+> > >  14:23:46 up 1 day, 4:17,  2 users,  load average: 20.34, 7.74, 3.91
+> > > 
+> > > I.e. the system was suspended to disk for 5 minutes, but the value
+> > > reported by 'uptime' has increased by as much, as if it had actually
+> > > continued running during that time.
+> > > 
+> > > I'm using Linux 2.6.16 with the latest version of the Suspend 2 patch
+> > > (2.2.1), but Nigel its maintainer says that this isn't actually related
+> > > to his suspend code, essentially the same would happen using the swsusp
+> > > code currently in the kernel, and therefore we need to ask the kernel
+> > > time code people about this issue.
+> > 
+> > Is your system an i386 or x86_64?
 > 
-> >
-> > * Esben Nielsen <simlo@phys.au.dk> wrote:
-> >
-> > > It just looks like also normal, non-rt tasks are boosting.
-> >
-> > correct. We'd like to make sure the PI code is correct - and for
-> > PI-futex it makes sense anyway.
-> >
-> 
-> It wont work 100% when a task is boosted to a normal, non-rt prio well
-> since at scheduler_tick()
->  		p->prio = effective_prio(p);
-> can be executed overwriting the boost.
+> It is an i386.
 
-yeah - but that's relatively rare, upon expiration of the timeslice.  
-The following would probably solve it: scheduler_tick() could take the 
-pi_lock (before taking the rq lock), update normal_prio, and then call 
-into rt_mutex_getprio() [just like setscheduler does] to set the 
-priority.
+This seems to happen on my box either, which is an x86_64, so it looks like
+this doesn't depend on the architecture.  Investigating.
 
-	Ingo
+Rafael

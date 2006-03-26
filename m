@@ -1,125 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWCZR4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWCZR5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbWCZR4s (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 12:56:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWCZR4s
+	id S1751466AbWCZR5q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 12:57:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWCZR5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 12:56:48 -0500
-Received: from w241.dkm.cz ([62.24.88.241]:46293 "EHLO machine.or.cz")
-	by vger.kernel.org with ESMTP id S1751360AbWCZR4r (ORCPT
+	Sun, 26 Mar 2006 12:57:46 -0500
+Received: from fw5.argo.co.il ([194.90.79.130]:56581 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1751466AbWCZR5q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 12:56:47 -0500
-Date: Sun, 26 Mar 2006 19:56:58 +0200
-From: Petr Baudis <pasky@suse.cz>
-To: git@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] Cogito-0.17.1
-Message-ID: <20060326175658.GN18185@pasky.or.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.11
+	Sun, 26 Mar 2006 12:57:46 -0500
+Message-ID: <4426D609.2050700@argo.co.il>
+Date: Sun, 26 Mar 2006 19:57:29 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Kyle Moffett <mrmacman_g4@mac.com>, nix@esperi.org.uk, rob@landley.net,
+       mmazur@kernel.pl, linux-kernel@vger.kernel.org,
+       llh-discuss@lists.pld-linux.org
+Subject: Re: [RFC][PATCH 0/2] KABI example conversion and cleanup
+References: <200603141619.36609.mmazur@kernel.pl>	 <200603231811.26546.mmazur@kernel.pl>	 <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com>	 <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix>	 <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com>	 <20060326065205.d691539c.mrmacman_g4@mac.com>	 <1143376008.3064.0.camel@laptopd505.fenrus.org>	 <F31089B5-0915-439D-B218-009384E2148F@mac.com>	 <4426974D.8040309@argo.co.il>	 <25A7D808-9900-4035-BEB3-A782C5EF8EF4@mac.com>	 <4426CE5F.5070201@argo.co.il> <1143394195.3055.1.camel@laptopd505.fenrus.org>
+In-Reply-To: <1143394195.3055.1.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Mar 2006 17:57:34.0765 (UTC) FILETIME=[C2DA75D0:01C650FE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
-
-  cogito-0.17.1 was just released, the next release on the latest stable
-line of the Cogito user-friendly Git user interface. Note that the
-stable stuff is now happening on the v0.17 branch, just like we did in
-the 0.16 times. In addition to that, however, an auto-built
-documentation in the man, txt and html format is available in the
-
-	http://www.kernel.org/pub/scm/cogito/cogito-doc.git/
-
-repository. It has the same branch structure as the cogito.git
-repository and should also have the same tags if my scripts work
-properly. Thanks to Junio for the base version of the script maintaining
-this repository.
-
-  So, what's new?
-
-  * Fixed several minor relative path related cg-add and cg-status bugs
-  * Fixed cg-add -r not readding cg-rm'd files
-  * Fixed support for branch names containing slashes
-
-  * cg-admin-rewritehist - the universal history rewriting tool
-  * cg-commit --author
-  * cg-commit -p alias for cg-commit --review
-  * cg-status -S will show the full contents of the untracked
-    directories instead of just the directory name
-  * $CG_NORC will make Cogito ignore ~/.cgrc
-  * https:// URLs are supported now
-
-  * Several small speed-ups (especially --topo-order in cg-mkpatch)
-  * Random documentation updates (most notably cg-ref quick reference)
-  * The tutorial script updated
-
-
-  Who did what:
-
-Dennis Stosberg:
-      Cogito: Allow https:// URLs
-
-Jonas Fonseca:
-      cg-export: document the -r option
-      [PATCH 1/4] Simplify wildcards for match files to be ignored
-      [PATCH 2/4] Encode the manpage section in the file name
-      [PATCH 3/4] Generate PDF documents using docbook2pdf
-      [PATCH 4/4] Add quick reference (cg-ref) to the documentation suite
-      Fix multi-paragraph list items in OPTIONS section
-
-Pavel Roskin:
-      Use Cogito when possible in the "tutorial" test.
-      [PATCH 3/3] Allow the tutorial script to be run by "make test"
-      [PATCH 1/3] cg-mv doesn't work with bash 3.1.7 due to excessive quotes
-      Clean up after failed "git merge" in the tutorial script
-
-Petr Baudis:
-      Refer to cg-branch-add in cg-clone docs and clarify stuff
-      Add example usage to cg-clone per jbl's request
-      Easier cut'n'paste
-      --merge-order is too slow, always use --topo-order
-      TODO: branches/with/slashes and cg-clone -a
-      Add cg-commit --author, consolidate author documentation
-      Update for the modern conflicts handling
-      Improve cg-switch -r shortdesc
-      Expand the git-mv workarounds description
-      cg-merge: Do not fast-forward when doing an octopus
-      Fix some relpath-related cg-add and cg-status bugs
-      Make cg-commit -p synonymous with --review
-      TODO: cg-shelf - shelve changes temporarily
-      Generalize the tac stub (cg-mkpatch -> cg-Xlib)
-      Generalize pick_author() to pick_id()
-      cg-admin-rewritehist - history rewriting swiss knife
-      Update the example usage
-      Hopefully fix cg-admin-rewritehist -r
-      Umm, update year in the (c) notice ;)
-      Properly support multiple -r arguments
-      Make the main cycle more efficient
-      Another optimization - retrieve the commit object only once
-      Accept subsections inside the OPTIONS section
-      Do not load ~/.cgrc if $CG_NORC is set
-      Remove bogus information from cg-patch docs
-      Properly document cg-commit --signoff=STRING
-      cg-admin-rewritehist --parent-filter for rewriting parent string
-      cg-admin-rewritehist --commit-filter for omitting commits
-      Reference cg-ref(7) from cogito(7)
-      A quick docs pointer and Getting help section update
-      cg-status -S will turn dirsquashing off
-      Fix cg-add -r not readding removed files
-      Use the new ref format when resetting the HEAD file
-      Fix support for branch names containing slashes
-
-
-P.S.: See us at #git @ FreeNode!
-
-  Happy hacking,
+Arjan van de Ven wrote:
+>> struct _LA(whatever) {
+>>     int foo;
+>>     int bar;
+>> };
+>>
+>> struct _LA(another) {
+>>     ...
+>> };
+>>     
+>
+> this is a good sign that this is all very over designed :)
+>
+>   
+It's an eyesore, isn't it? :)
+> namespace pollution is perhaps evil, but we also should not overreact.
+> Especially for struct names. *IF* they are in a "narrow enough" header,
+> the user of the header knows what he is doing, and accepts these to be
+> in his namespace.
+>   
+This is true for a small enough application. But things grow, libraries 
+are added, and includes keep pulling other includes in. Sooner or later 
+you'll have a collision.
+> The problem is things like u64 etc that is VERY common in all headers,
+> but then again __u64 etc are just fine, history has proven that already.
+>   
+Agree. But to be on the safe side one can use uint64_t and friends 
+(which the kernel can typedef to u64 and first degree relatives)
 
 -- 
-				Petr "Pasky the lousy poet" Baudis
-Stuff: http://pasky.or.cz/
-Of the 3 great composers Mozart tells us what it's like to be human,
-Beethoven tells us what it's like to be Beethoven and Bach tells us
-what it's like to be the universe.  -- Douglas Adams
+error compiling committee.c: too many arguments to function
+

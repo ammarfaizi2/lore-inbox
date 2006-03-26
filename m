@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWCZM2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWCZMat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbWCZM2O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 07:28:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbWCZM2O
+	id S1751307AbWCZMat (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 07:30:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWCZMat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 07:28:14 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:32410 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751307AbWCZM2N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 07:28:13 -0500
-Subject: Re: [RFC][PATCH 0/2] KABI example conversion and cleanup
-From: Arjan van de Ven <arjan@infradead.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: nix@esperi.org.uk, rob@landley.net, mmazur@kernel.pl,
-       linux-kernel@vger.kernel.org, llh-discuss@lists.pld-linux.org
-In-Reply-To: <20060326065205.d691539c.mrmacman_g4@mac.com>
-References: <200603141619.36609.mmazur@kernel.pl>
-	 <200603231811.26546.mmazur@kernel.pl>
-	 <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com>
-	 <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix>
-	 <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com>
-	 <20060326065205.d691539c.mrmacman_g4@mac.com>
-Content-Type: text/plain
-Date: Sun, 26 Mar 2006 14:26:48 +0200
-Message-Id: <1143376008.3064.0.camel@laptopd505.fenrus.org>
+	Sun, 26 Mar 2006 07:30:49 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:29479 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751307AbWCZMas (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 07:30:48 -0500
+Date: Sun, 26 Mar 2006 14:27:44 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] BLK_DEV_IO_TRACE Kconfig fixes
+Message-ID: <20060326122743.GF4290@suse.de>
+References: <20060323014046.2ca1d9df.akpm@osdl.org> <20060326122540.GL4053@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060326122540.GL4053@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-03-26 at 06:52 -0500, Kyle Moffett wrote:
-> On Fri, 24 Mar 2006 17:46:27 -0500 Kyle Moffett <mrmacman_g4@mac.com> wrote:
-> > I'm working on some sample patches now which I'll try to post in a
-> > few days if I get the time.
+On Sun, Mar 26 2006, Adrian Bunk wrote:
+> On Thu, Mar 23, 2006 at 01:40:46AM -0800, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.16-rc6-mm2:
+> >...
+> >  git-blktrace.patch
+> >...
+> >  git trees.
+> >...
 > 
-> Ok, here's a sample of the KABI conversion and cleanup patches that I'm
-> proposing.  I have a few fundamental goals for these patches:
+> BLK_DEV_IO_TRACE breaks the rule "If you select something, you must 
+> endure that the dependencies of what you are select'ing are fulfilled."
+> resulting in the following compile error with CONFIG_SYSFS=n:
+> 
+> <--  snip  -->
+> 
+> ...
+>   LD      .tmp_vmlinux1
+> fs/built-in.o: In function `debugfs_init':inode.c:(.init.text+0x3d35): 
+> undefined reference to `kernel_subsys'
+> make: *** [.tmp_vmlinux1] Error 1
+> 
+> <--  snip  -->
+> 
+> This patch fixes this bug.
+> 
+> Additionally, it moves the BLK_DEV_IO_TRACE option that now depends on 
+> DEBUG_KERNEL into the menu with the other DEBUG_KERNEL options.
 
-is KABI the right name? I mean.. from the kernel pov it's the interface
-to userspace ;)
+Thanks for the sysfs fix, however don't move the kconfig entry, this
+isn't a debug option.
+
+-- 
+Jens Axboe
 

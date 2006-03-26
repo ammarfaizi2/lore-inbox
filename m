@@ -1,373 +1,325 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWCZWG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWCZWHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbWCZWG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 17:06:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWCZWG7
+	id S932098AbWCZWHv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 17:07:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWCZWHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 17:06:59 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:57805 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932146AbWCZWG5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 17:06:57 -0500
-Date: Mon, 27 Mar 2006 00:04:22 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: tglx@linutronix.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rt7 and deadlock detection.
-Message-ID: <20060326220422.GA6052@elte.hu>
-References: <Pine.LNX.4.44L0.0603262214060.8060-100000@lifa03.phys.au.dk> <Pine.LNX.4.44L0.0603262255150.8060-100000@lifa03.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0603262255150.8060-100000@lifa03.phys.au.dk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.7 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sun, 26 Mar 2006 17:07:51 -0500
+Received: from smtpq2.tilbu1.nb.home.nl ([213.51.146.201]:7339 "EHLO
+	smtpq2.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S932098AbWCZWHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 17:07:50 -0500
+Message-ID: <442710A1.5030207@keyaccess.nl>
+Date: Mon, 27 Mar 2006 00:07:29 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Takashi Iwai <tiwai@suse.de>
+CC: ALSA devel <alsa-devel@alsa-project.org>, Adrian Bunk <bunk@stusta.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [ALSA] AdLib FM card driver
+Content-Type: multipart/mixed;
+ boundary="------------040607040700010304040602"
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------040607040700010304040602
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
+Hi Takashi
 
-> On Sun, 26 Mar 2006, Esben Nielsen wrote:
-> 
-> > I don't get any print outs of any deadlock detection with many of my
-> > tests.
-> > When there is a deadlock down() simply returns instead of blocking
-> > forever.
-> 
-> rt_mutex_slowlock seems to return -EDEADLK even though caller didn't 
-> ask for deadlock detection (detect_deadlock=0). That is bad because 
-> then the caller will not check for it. It ought to simply leave the 
-> task blocked.
-> 
-> It only happens with CONFIG_DEBUG_RT_MUTEXES. That one also messes up 
-> the task->pi_waiters as earlier reported.
+Adrian: this was one of the cards you listed as having an OSS but not an 
+ALSA driver a while ago.
 
-FYI, here are my current fixes relative to -rt9. The deadlock-detection 
-issue is not yet fixed i think, but i found a couple of other PI related 
-bugs.
+Attached you'll find an ALSA driver for AdLib FM cards. An AdLib card is 
+just an OPL2, which was already supported by sound/drivers/opl3, so only 
+very minimal bus-glue is needed. The patch applies cleanly to both 
+2.6.16 and 2.6.16-mm1.
 
-	Ingo
+The driver has been tested with an actual ancient 8-bit ISA AdLib card 
+and works fine. It also works fine for an OPL3 {,emulation} as still 
+found on many ISA soundcards but given that AdLib cards don't have their 
+own mixer, upping the volume from 0 might be a problem without the card 
+driver already loaded and driving the OPL3.
 
-Index: linux/kernel/rtmutex.c
+As far as I am concerned, this does not need additional testing and can 
+go to alsa-kernel after a review. It's very unlikely that anyone still 
+has this ancient card installed anyway. The one I have here was lent to 
+me and will be returned shortly, but given the minimal nature of this 
+driver, maintenance should not be a problem.
+
+I also stuck a very tiny HOWTO in ALSA-Configuration.txt, assuming quite 
+a few people would have no idea how to operate the thing, even if they 
+do happen across a card. Is it okay there?
+
+Takashi: As the card->shortname, I use "AdLib FM", which includes a 
+space. sound/core/init.c:choose_default_id() goes to lengths to not 
+allow this (it turns it into "FM") but when I manually give:
+
+   modprobe snd-adlib id="AdLib FM" port=0x388
+
+then the ID is used as is and everything seems fine. I assume that 
+either the space check could go or that a passed in ID should be 
+subjected to it as well? (that function also deletes all !isalnum's from 
+the shortname such as <underscore> which, again, is fine when passed in 
+manually).
+
+Comments appreciated. I'll go listen to this AdLib render "Master of 
+Puppets" again now. Heavens, what fun...
+
+Rene.
+
+
+
+
+--------------040607040700010304040602
+Content-Type: text/plain;
+ name="adlib.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="adlib.diff"
+
+Index: local/sound/isa/adlib.c
 ===================================================================
---- linux.orig/kernel/rtmutex.c
-+++ linux/kernel/rtmutex.c
-@@ -360,103 +360,6 @@ static void adjust_pi_chain(struct rt_mu
- }
- 
- /*
-- * Task blocks on lock.
-- *
-- * Prepare waiter and potentially propagate our priority into the pi chain.
-- *
-- * This must be called with lock->wait_lock held.
-- */
--static int task_blocks_on_rt_mutex(struct rt_mutex *lock,
--				   struct rt_mutex_waiter *waiter,
--				   int detect_deadlock __IP_DECL__)
--{
--	int res = 0;
--	struct rt_mutex_waiter *top_waiter = waiter;
--	LIST_HEAD(lock_chain);
--
--	waiter->task = current;
--	waiter->lock = lock;
--	debug_rt_mutex_reset_waiter(waiter);
--
--	spin_lock(&current->pi_lock);
--	current->pi_locked_by = current;
--	plist_node_init(&waiter->list_entry, current->prio);
--	plist_node_init(&waiter->pi_list_entry, current->prio);
--
--	/* Get the top priority waiter of the lock: */
--	if (rt_mutex_has_waiters(lock))
--		top_waiter = rt_mutex_top_waiter(lock);
--	plist_add(&waiter->list_entry, &lock->wait_list);
--
--	current->pi_blocked_on = waiter;
--
--	/*
--	 * Call adjust_prio_chain, when waiter is the new top waiter
--	 * or when deadlock detection is requested:
--	 */
--	if (waiter != rt_mutex_top_waiter(lock) &&
--	    !debug_rt_mutex_detect_deadlock(detect_deadlock))
--		goto out;
--
--	/* Try to lock the full chain: */
--	res = lock_pi_chain(lock, waiter, &lock_chain, 1, detect_deadlock);
--
--	if (likely(!res))
--		adjust_pi_chain(lock, waiter, top_waiter, &lock_chain);
--
--	/* Common case: we managed to lock it: */
--	if (res != -EBUSY)
--		goto out_unlock;
--
--	/* Rare case: we hit some other task running a pi chain operation: */
--	unlock_pi_chain(&lock_chain);
--
--	plist_del(&waiter->list_entry, &lock->wait_list);
--	current->pi_blocked_on = NULL;
--	current->pi_locked_by = NULL;
--	spin_unlock(&current->pi_lock);
--	fixup_rt_mutex_waiters(lock);
--
--	spin_unlock(&lock->wait_lock);
--
--	spin_lock(&pi_conflicts_lock);
--
--	spin_lock(&current->pi_lock);
--	current->pi_locked_by = current;
--	spin_lock(&lock->wait_lock);
--	if (!rt_mutex_owner(lock)) {
--		waiter->task = NULL;
--		spin_unlock(&pi_conflicts_lock);
--		goto out;
--	}
--	plist_node_init(&waiter->list_entry, current->prio);
--	plist_node_init(&waiter->pi_list_entry, current->prio);
--
--	/* Get the top priority waiter of the lock: */
--	if (rt_mutex_has_waiters(lock))
--		top_waiter = rt_mutex_top_waiter(lock);
--	plist_add(&waiter->list_entry, &lock->wait_list);
--
--	current->pi_blocked_on = waiter;
--
--	/* Lock the full chain: */
--	res = lock_pi_chain(lock, waiter, &lock_chain, 0, detect_deadlock);
--
--	/* Drop the conflicts lock before adjusting: */
--	spin_unlock(&pi_conflicts_lock);
--
--	if (likely(!res))
--		adjust_pi_chain(lock, waiter, top_waiter, &lock_chain);
--
-- out_unlock:
--	unlock_pi_chain(&lock_chain);
-- out:
--	current->pi_locked_by = NULL;
--	spin_unlock(&current->pi_lock);
--	return res;
--}
--
--/*
-  * Optimization: check if we can steal the lock from the
-  * assigned pending owner [which might not have taken the
-  * lock yet]:
-@@ -562,6 +465,117 @@ static int try_to_take_rt_mutex(struct r
- }
- 
- /*
-+ * Task blocks on lock.
-+ *
-+ * Prepare waiter and potentially propagate our priority into the pi chain.
-+ *
-+ * This must be called with lock->wait_lock held.
-+ * return values: 0: waiter queued, 1: got the lock,
-+ *		  -EDEADLK: deadlock detected.
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ local/sound/isa/adlib.c	2006-03-26 21:38:02.000000000 +0200
+@@ -0,0 +1,154 @@
++/*
++ * AdLib FM card driver.
 + */
-+static int task_blocks_on_rt_mutex(struct rt_mutex *lock,
-+				   struct rt_mutex_waiter *waiter,
-+				   int detect_deadlock __IP_DECL__)
++
++#include <sound/driver.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <sound/core.h>
++#include <sound/initval.h>
++#include <sound/opl3.h>
++
++#define CRD_NAME "AdLib FM"
++#define DRV_NAME "snd_adlib"
++
++MODULE_DESCRIPTION(CRD_NAME);
++MODULE_AUTHOR("Rene Herman");
++MODULE_LICENSE("GPL");
++
++static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;
++static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;
++static int enable[SNDRV_CARDS] = SNDRV_DEFAULT_ENABLE;
++static long port[SNDRV_CARDS] = SNDRV_DEFAULT_PORT;
++
++module_param_array(index, int, NULL, 0444);
++MODULE_PARM_DESC(index, "Index value for " CRD_NAME " soundcard.");
++module_param_array(id, charp, NULL, 0444);
++MODULE_PARM_DESC(id, "ID string for " CRD_NAME " soundcard.");
++module_param_array(enable, bool, NULL, 0444);
++MODULE_PARM_DESC(enable, "Enable " CRD_NAME " soundcard.");
++module_param_array(port, long, NULL, 0444);
++MODULE_PARM_DESC(port, "Port # for " CRD_NAME " driver.");
++
++static struct platform_device *devices[SNDRV_CARDS];
++
++static void snd_adlib_free(struct snd_card *card)
 +{
-+	struct rt_mutex_waiter *top_waiter = waiter;
-+	LIST_HEAD(lock_chain);
-+	int res = 0;
-+
-+	waiter->task = current;
-+	waiter->lock = lock;
-+	debug_rt_mutex_reset_waiter(waiter);
-+
-+	spin_lock(&current->pi_lock);
-+	current->pi_locked_by = current;
-+	plist_node_init(&waiter->list_entry, current->prio);
-+	plist_node_init(&waiter->pi_list_entry, current->prio);
-+
-+	/* Get the top priority waiter of the lock: */
-+	if (rt_mutex_has_waiters(lock))
-+		top_waiter = rt_mutex_top_waiter(lock);
-+	plist_add(&waiter->list_entry, &lock->wait_list);
-+
-+	current->pi_blocked_on = waiter;
-+
-+	/*
-+	 * Call adjust_prio_chain, when waiter is the new top waiter
-+	 * or when deadlock detection is requested:
-+	 */
-+	if (waiter != rt_mutex_top_waiter(lock) &&
-+	    !debug_rt_mutex_detect_deadlock(detect_deadlock))
-+		goto out_unlock_pi;
-+
-+	/* Try to lock the full chain: */
-+	res = lock_pi_chain(lock, waiter, &lock_chain, 1, detect_deadlock);
-+
-+	if (likely(!res))
-+		adjust_pi_chain(lock, waiter, top_waiter, &lock_chain);
-+
-+	/* Common case: we managed to lock it: */
-+	if (res != -EBUSY)
-+		goto out_unlock_chain_pi;
-+
-+	/* Rare case: we hit some other task running a pi chain operation: */
-+	unlock_pi_chain(&lock_chain);
-+
-+	plist_del(&waiter->list_entry, &lock->wait_list);
-+	current->pi_blocked_on = NULL;
-+	current->pi_locked_by = NULL;
-+	spin_unlock(&current->pi_lock);
-+	fixup_rt_mutex_waiters(lock);
-+
-+	spin_unlock(&lock->wait_lock);
-+
-+	/*
-+	 * Here we have dropped all locks, and take the global
-+	 * pi_conflicts_lock. We have to redo all the work, no
-+	 * previous information about the lock is valid anymore:
-+	 */
-+	spin_lock(&pi_conflicts_lock);
-+
-+	spin_lock(&lock->wait_lock);
-+	if (try_to_take_rt_mutex(lock __IP__)) {
-+		/*
-+		 * Rare race: against all odds we got the lock.
-+		 */
-+		res = 1;
-+		goto out;
-+	}
-+
-+	WARN_ON(!rt_mutex_owner(lock) || rt_mutex_owner(lock) == current);
-+
-+	spin_lock(&current->pi_lock);
-+	current->pi_locked_by = current;
-+
-+	plist_node_init(&waiter->list_entry, current->prio);
-+	plist_node_init(&waiter->pi_list_entry, current->prio);
-+
-+	/* Get the top priority waiter of the lock: */
-+	if (rt_mutex_has_waiters(lock))
-+		top_waiter = rt_mutex_top_waiter(lock);
-+	plist_add(&waiter->list_entry, &lock->wait_list);
-+
-+	current->pi_blocked_on = waiter;
-+
-+	/* Lock the full chain: */
-+	res = lock_pi_chain(lock, waiter, &lock_chain, 0, detect_deadlock);
-+
-+	/* Drop the conflicts lock before adjusting: */
-+	spin_unlock(&pi_conflicts_lock);
-+
-+	if (likely(!res))
-+		adjust_pi_chain(lock, waiter, top_waiter, &lock_chain);
-+
-+ out_unlock_chain_pi:
-+	unlock_pi_chain(&lock_chain);
-+ out_unlock_pi:
-+	current->pi_locked_by = NULL;
-+	spin_unlock(&current->pi_lock);
-+ out:
-+	return res;
++	release_and_free_resource(card->private_data);
 +}
 +
-+/*
-  * Wake up the next waiter on the lock.
-  *
-  * Remove the top waiter from the current tasks waiter list and from
-@@ -773,7 +787,7 @@ rt_lock_slowlock(struct rt_mutex *lock _
- 
- 	for (;;) {
- 		unsigned long saved_flags;
--		int saved_lock_depth = current->lock_depth;
-+		int ret, saved_lock_depth = current->lock_depth;
- 
- 		/* Try to acquire the lock */
- 		if (try_to_take_rt_mutex(lock __IP__))
-@@ -783,8 +797,16 @@ rt_lock_slowlock(struct rt_mutex *lock _
- 		 * when we have been woken up by the previous owner
- 		 * but the lock got stolen by an higher prio task.
- 		 */
--		if (unlikely(!waiter.task))
--			task_blocks_on_rt_mutex(lock, &waiter, 0 __IP__);
-+		if (!waiter.task) {
-+			ret = task_blocks_on_rt_mutex(lock, &waiter, 0 __IP__);
-+			/* got the lock: */
-+			if (ret == 1) {
-+				ret = 0;
-+				break;
-+			}
-+			/* deadlock_detect == 0, so return should be 0 or 1: */
-+			WARN_ON(ret);
-+		}
- 
- 		/*
- 		 * Prevent schedule() to drop BKL, while waiting for
-@@ -974,10 +996,9 @@ rt_mutex_slowlock(struct rt_mutex *lock,
- 		if (!waiter.task) {
- 			ret = task_blocks_on_rt_mutex(lock, &waiter,
- 						      detect_deadlock __IP__);
--			if (ret == -EDEADLK)
-+			/* got the lock or deadlock: */
-+			if (ret == 1 || ret == -EDEADLK)
- 				break;
--			if (ret == -EBUSY)
--				continue;
- 		}
- 
- 		saved_flags = current->flags & PF_NOSCHED;
-@@ -1043,16 +1064,15 @@ rt_mutex_slowtrylock(struct rt_mutex *lo
- 
- 	if (likely(rt_mutex_owner(lock) != current)) {
- 
-+		/* FIXME: why is this done here and not above? */
- 		init_lists(lock);
- 
- 		ret = try_to_take_rt_mutex(lock __IP__);
- 		/*
- 		 * try_to_take_rt_mutex() sets the lock waiters
--		 * bit. We might be the only waiter. Check if this
--		 * needs to be cleaned up.
-+		 * bit unconditionally. Clean this up.
- 		 */
--		if (!ret)
--			fixup_rt_mutex_waiters(lock);
-+		fixup_rt_mutex_waiters(lock);
- 	}
- 
- 	spin_unlock_irqrestore(&lock->wait_lock, flags);
-Index: linux/kernel/rtmutex_common.h
++static int __devinit snd_adlib_probe(struct platform_device *device)
++{
++	struct snd_card *card;
++	struct snd_opl3 *opl3;
++
++	int i = device->id;
++
++	if (port[i] == SNDRV_AUTO_PORT) {
++		snd_printk(KERN_ERR DRV_NAME ": please specify port\n");
++		return -EINVAL;
++	}
++
++	card = snd_card_new(index[i], id[i], THIS_MODULE, 0);
++	if (!card) {
++		snd_printk(KERN_ERR DRV_NAME ": could not create card\n");
++		return -EINVAL;
++	}
++
++	card->private_data = request_region(port[i], 4, CRD_NAME);
++	if (!card->private_data) {
++		snd_printk(KERN_ERR DRV_NAME ": could not grab ports\n");
++		snd_card_free(card);
++		return -EINVAL;
++	}
++	card->private_free = snd_adlib_free;
++
++	if (snd_opl3_create(card, port[i], port[i] + 2, OPL3_HW_AUTO, 1, &opl3) < 0) {
++		snd_printk(KERN_ERR DRV_NAME ": could not create OPL\n");
++		snd_card_free(card);
++		return -EINVAL;
++	}
++
++	if (snd_opl3_hwdep_new(opl3, 0, 0, NULL) < 0) {
++		snd_printk(KERN_ERR DRV_NAME ": could not create FM\n");
++		snd_card_free(card);
++		return -EINVAL;
++	}
++
++	strcpy(card->driver, DRV_NAME);
++	strcpy(card->shortname, CRD_NAME);
++	sprintf(card->longname, CRD_NAME " at %#lx", port[i]);
++
++	snd_card_set_dev(card, &device->dev);
++
++	if (snd_card_register(card) < 0) {
++		snd_printk(KERN_ERR DRV_NAME ": could not register card\n");
++		snd_card_free(card);
++		return -EINVAL;
++	}
++
++	platform_set_drvdata(device, card);
++	return 0;
++}
++
++static int __devexit snd_adlib_remove(struct platform_device *device)
++{
++	snd_card_free(platform_get_drvdata(device));
++	platform_set_drvdata(device, NULL);
++	return 0;
++}
++
++static struct platform_driver snd_adlib_driver = {
++	.probe		= snd_adlib_probe,
++	.remove		= __devexit_p(snd_adlib_remove),
++
++	.driver		= {
++		.name	= DRV_NAME
++	}
++};
++
++static int __init alsa_card_adlib_init(void)
++{
++	int i, cards;
++
++	if (platform_driver_register(&snd_adlib_driver) < 0) {
++		snd_printk(KERN_ERR DRV_NAME ": could not register driver\n");
++		return -ENODEV;
++	}
++
++	for (cards = 0, i = 0; i < SNDRV_CARDS; i++) {
++		struct platform_device *device;
++
++		if (!enable[i])
++			continue;
++
++		device = platform_device_register_simple(DRV_NAME, i, NULL, 0);
++		if (IS_ERR(device))
++			continue;
++
++		devices[i] = device;
++		cards++;
++	}
++
++	if (!cards) {
++#ifdef MODULE
++		printk(KERN_ERR CRD_NAME " soundcard not found or device busy\n");
++#endif
++		platform_driver_unregister(&snd_adlib_driver);
++		return -ENODEV;
++	}
++	return 0;
++}
++
++static void __exit alsa_card_adlib_exit(void)
++{
++	int i;
++
++	for (i = 0; i < SNDRV_CARDS; i++)
++		platform_device_unregister(devices[i]);
++	platform_driver_unregister(&snd_adlib_driver);
++}
++
++module_init(alsa_card_adlib_init);
++module_exit(alsa_card_adlib_exit);
+Index: local/sound/isa/Kconfig
 ===================================================================
---- linux.orig/kernel/rtmutex_common.h
-+++ linux/kernel/rtmutex_common.h
-@@ -98,18 +98,18 @@ task_top_pi_waiter(struct task_struct *p
- static inline struct task_struct *rt_mutex_owner(struct rt_mutex *lock)
- {
- 	return (struct task_struct *)
--		((unsigned long)((lock)->owner) & ~RT_MUTEX_OWNER_MASKALL);
-+		((unsigned long)lock->owner & ~RT_MUTEX_OWNER_MASKALL);
- }
+--- local.orig/sound/isa/Kconfig	2006-03-26 14:58:00.000000000 +0200
++++ local/sound/isa/Kconfig	2006-03-26 14:58:24.000000000 +0200
+@@ -11,6 +11,15 @@ config SND_CS4231_LIB
+         tristate
+         select SND_PCM
  
- static inline struct task_struct *rt_mutex_real_owner(struct rt_mutex *lock)
- {
-  	return (struct task_struct *)
--		((unsigned long)((lock)->owner) & ~RT_MUTEX_HAS_WAITERS);
-+		((unsigned long)lock->owner & ~RT_MUTEX_HAS_WAITERS);
- }
++config SND_ADLIB
++	tristate "AdLib FM card"
++	select SND_OPL3_LIB
++	help
++	  Say Y here to include support for AdLib FM cards.
++
++	  To compile this driver as a module, choose M here: the module
++	  will be called snd-adlib.
++
+ config SND_AD1816A
+ 	tristate "Analog Devices SoundPort AD1816A"
+ 	depends on SND && PNP && ISA
+Index: local/sound/isa/Makefile
+===================================================================
+--- local.orig/sound/isa/Makefile	2006-03-26 14:58:00.000000000 +0200
++++ local/sound/isa/Makefile	2006-03-26 14:58:24.000000000 +0200
+@@ -3,6 +3,7 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
  
- static inline unsigned long rt_mutex_owner_pending(struct rt_mutex *lock)
- {
--	return ((unsigned long)((lock)->owner) & RT_MUTEX_OWNER_PENDING);
-+	return (unsigned long)lock->owner & RT_MUTEX_OWNER_PENDING;
- }
++snd-adlib-objs := adlib.o
+ snd-als100-objs := als100.o
+ snd-azt2320-objs := azt2320.o
+ snd-cmi8330-objs := cmi8330.o
+@@ -13,6 +14,7 @@ snd-sgalaxy-objs := sgalaxy.o
+ snd-sscape-objs := sscape.o
  
- /*
+ # Toplevel Module Dependency
++obj-$(CONFIG_SND_ADLIB) += snd-adlib.o
+ obj-$(CONFIG_SND_ALS100) += snd-als100.o
+ obj-$(CONFIG_SND_AZT2320) += snd-azt2320.o
+ obj-$(CONFIG_SND_CMI8330) += snd-cmi8330.o
+Index: local/Documentation/sound/alsa/ALSA-Configuration.txt
+===================================================================
+--- local.orig/Documentation/sound/alsa/ALSA-Configuration.txt	2006-02-27 19:22:00.000000000 +0100
++++ local/Documentation/sound/alsa/ALSA-Configuration.txt	2006-03-26 23:14:06.000000000 +0200
+@@ -120,6 +120,34 @@ Prior to version 0.9.0rc4 options had a 
+     enable  	- enable card
+ 		- Default: enabled, for PCI and ISA PnP cards
+ 
++  Module snd-adlib
++  ----------------
++
++    Module for AdLib FM cards.
++
++    port	- port # for OPL chip
++
++    This module supports multiple cards. It does not support autoprobe, so
++    the port must be specified. For actual AdLib FM cards it will be 0x388.
++    Note that this card does not have PCM support and no mixer; only FM
++    synthesis.
++
++    Make sure you have "sbiload" from the alsa-tools package available and,
++    after loading the module, find out the assigned ALSA sequencer port
++    number through "sbiload -l". Example output:
++
++      Port     Client name                       Port name
++      64:0     OPL2 FM synth                     OPL2 FM Port
++
++    Load the std.sb and drums.sb patches also supplied by sbiload:
++
++      sbiload -p 64:0 std.sb drums.sb
++
++    If you use this driver to drive an OPL3, you can use std.o3 and drums.o3
++    instead. To have the card produce sound, use aplaymidi from alsa-utils:
++
++      aplaymidi -p 64:0 foo.mid
++
+   Module snd-ad1816a
+   ------------------
+ 
+
+--------------040607040700010304040602--

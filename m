@@ -1,70 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWCZOkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWCZOsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750778AbWCZOkr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 09:40:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWCZOkr
+	id S1751203AbWCZOsS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 09:48:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWCZOsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 09:40:47 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:61677 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750778AbWCZOkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 09:40:46 -0500
-Subject: Re: [RFC][PATCH 1/2] Create initial kernel ABI
-	header	infrastructure
-From: Arjan van de Ven <arjan@infradead.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: linux-kernel@vger.kernel.org, nix@esperi.org.uk, rob@landley.net,
-       mmazur@kernel.pl, llh-discuss@lists.pld-linux.org
-In-Reply-To: <A6491D09-3BCF-4742-A367-DCE717898446@mac.com>
-References: <200603141619.36609.mmazur@kernel.pl>
-	 <200603231811.26546.mmazur@kernel.pl>
-	 <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com>
-	 <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix>
-	 <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com>
-	 <20060326065205.d691539c.mrmacman_g4@mac.com>
-	 <20060326065416.93d5ce68.mrmacman_g4@mac.com>
-	 <1143376351.3064.9.camel@laptopd505.fenrus.org>
-	 <A6491D09-3BCF-4742-A367-DCE717898446@mac.com>
-Content-Type: text/plain
-Date: Sun, 26 Mar 2006 16:39:28 +0200
-Message-Id: <1143383968.3064.16.camel@laptopd505.fenrus.org>
+	Sun, 26 Mar 2006 09:48:18 -0500
+Received: from main.gmane.org ([80.91.229.2]:10912 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751203AbWCZOsS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 09:48:18 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: [RFC][PATCH 0/2] KABI example conversion and cleanup
+Date: Sun, 26 Mar 2006 16:45:41 +0200
+Message-ID: <11mpdnntc48oi.sq072ivuow2z.dlg@40tude.net>
+References: <200603141619.36609.mmazur@kernel.pl> <200603231811.26546.mmazur@kernel.pl> <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com> <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix> <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com> <20060326065205.d691539c.mrmacman_g4@mac.com> <1143376008.3064.0.camel@laptopd505.fenrus.org> <F31089B5-0915-439D-B218-009384E2148F@mac.com> <4426974D.8040309@argo.co.il> <25A7D808-9900-4035-BEB3-A782C5EF8EF4@mac.com> <1j559cjhfl0bj.1cvtvnq8t1x0t.dlg@40tude.net> <9A9D2580-8BA4-4A40-AB92-C34C60CE5E58@mac.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host-84-221-14-16.cust-adsl.tiscali.it
+User-Agent: 40tude_Dialog/2.0.15.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 26 Mar 2006 09:30:32 -0500, Kyle Moffett wrote:
 
+> On Mar 26, 2006, at 08:53:05, Giuseppe Bilotta wrote:
+>> On Sun, 26 Mar 2006 08:47:51 -0500, Kyle Moffett wrote:
+>>> The other thing that I quickly noticed while writing up the  
+>>> patches is that it's kind of tedious typing __kabi_ over and over  
+>>> again.  I actually did first try with __linux_abi_ but the typing  
+>>> effort and finger cramps made me give up on that really quickly.
+>>
+>> What kind of barebone editor are you using that doesn't offer a way  
+>> (through macro or automatic completion or abbreviations or  
+>> substitution or plain copy and paste or whatever else) to shorten  
+>> that typing effort?
 > 
-> According to the various standards all symbols beginning with __ are  
-> reserved for "The Implementation", including the compiler, the  
-> standard library, the kernel, etc.  In order to avoid clashing with  
-> any/all of those, I picked the __KABI_ and __kabi_ prefixes for  
-> uniqueness.  In theory I could just use __, but there are problems  
-> with that too.  For example, note how the current compiler.h files  
-> redefine __always_inline to mean something kinda different.
+> Well, actually I was using vim, and although I know how to configure  
+> shortcuts like that; do we really want to force people to use  
+> shortcuts and abbreviations to be able to sanely edit the ABI code?   
+> Isn't that counterproductive with the desire to get the maintainers  
+> fixing up their own ABIs?  Plus all the extra verbiage tends to make  
+> the lines too long (80-column limit) and makes it harder to read.
 
-well... the "problem" is there today, and... it's not much of a problem
-if at all; there's just a few simple rules to keep it that way which
-seem to wkr.
+Oh, I'm not exactly a fan of verbosity myself (essentially for the
+lines too long and hard to read), which is why I suggested __labi_ as
+a prefix --I wasn't arguing in favour of __linux_abi_.
 
-And your __alway_inline example.. that's something that really is kernel
-internal and shouldn't be exposed to userland. 
+However, as far as I know all programmer-friendly editors have some
+form of easy to use code-completion feature (e.g. in vim ctrl+n/ctrl+p
+are very handy without the need to define specific shortcuts, and the
+new completion code in the future vim 7 is extremely promising ...)
+and while I do agree that __linux_abi_ is too long, you remarked
+yourself __[ukl]abi_ is still annoying, albeit shorter :) *Any* prefix
+chosen will benefit from completion ;)
 
+-- 
+Giuseppe "Oblomov" Bilotta
 
-I think the "problem" really is not there if
-1) we only use __ symbols like we do today for non-structs
-2) avoid including kernel headers in kernel headers as far as possible.
-   This means, that if an application wants to use MTD struct 
-   "struct mtd_foo" it will have to include the MTD header, but that
-   he otherwise never gets it. Eg all such symbols are in a "Yes I
-   really want it" header.
-3) keep the userspace exposed stuff as small as reasonable. Your
-   __always_inline example doesn't make that cut. A struct used as
-   ioctl of a subsystem/driver in the header specially for that 
-   subsystem/driver does.
-
-
+"They that can give up essential liberty to obtain
+a little temporary safety deserve neither liberty
+nor safety." Benjamin Franklin
 

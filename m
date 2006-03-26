@@ -1,685 +1,1706 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWCZBAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWCZBlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751115AbWCZBAU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 20:00:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWCZBAU
+	id S1751193AbWCZBlg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 20:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWCZBlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 20:00:20 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:54026 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S1751115AbWCZBAS (ORCPT
+	Sat, 25 Mar 2006 20:41:36 -0500
+Received: from zproxy.gmail.com ([64.233.162.203]:31181 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751193AbWCZBlf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 20:00:18 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Don't pass boot parameters to argv_init[]
-References: <87zmjeumus.fsf@duaron.myhome.or.jp>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 26 Mar 2006 10:00:12 +0900
-In-Reply-To: <87zmjeumus.fsf@duaron.myhome.or.jp> (OGAWA Hirofumi's message of "Sun, 26 Mar 2006 08:27:07 +0900")
-Message-ID: <87d5gauijn.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Sat, 25 Mar 2006 20:41:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type;
+        b=GqBimb+Ofd9DER92cfiHTKrxtuQbceWoiPYH1MiRHYNFcq7Exe3FXcZwZrJPGjc+3C/SiFHv9OacIs9FdWyixh6+IRQAeSM5vA2Mj8GQCXfxYzQaPYnOO3LRdENNV+YZfkkt90xCgHLCqp+LyYYDT9863LCA8kBZA411MX3kLCE=
+Message-ID: <4425F14A.1060503@gmail.com>
+Date: Sat, 25 Mar 2006 20:41:30 -0500
+From: Jim Cromie <jim.cromie@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.16-mm1  NFSroot issues
+Content-Type: multipart/mixed;
+ boundary="------------040104070508080607060004"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix my crappy description. Sorry.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+This is a multi-part message in MIME format.
+--------------040104070508080607060004
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+
+Ive just built 2.6.16-mm1 using same config (modulo oldconfig)
+as was successful for vanilla 16.  it panics cuz its unable to mount root.
+
+Separately, it hangs for about 30 secs initializing RTC.
 
 
 
-The boot cmdline is parsed in parse_early_param() and
-parse_args(,unknown_bootoption).
+Loading vmlinuz-2.6.16-mm1-sk..........................
+Loading initrd-2.6.16-mm1-sk.img..................
+Ready.
+[    0.000000] Linux version 2.6.16-mm1-sk (jimc@harpo.jimc.earth) (gcc 
+version 4.0.2 20051125 (Red Hat 4.0.2-8)) #2 Sat Mar 25 17:35:07 EST 2006
+[    0.000000] BIOS-provided physical RAM map:
+[    0.000000] sanitize start
+[    0.000000] sanitize end
+[    0.000000] copy_e820_map() start: 0000000000000000 size: 
+000000000009fc00 end: 000000000009fc00 type: 1
+[    0.000000] copy_e820_map() type is E820_RAM
+[    0.000000] add_memory_region(0000000000000000, 000000000009fc00, 1)
+[    0.000000] copy_e820_map() start: 000000000009fc00 size: 
+0000000000000400 end: 00000000000a0000 type: 2
+[    0.000000] add_memory_region(000000000009fc00, 0000000000000400, 2)
+[    0.000000] copy_e820_map() start: 00000000000f0000 size: 
+0000000000010000 end: 0000000000100000 type: 2
+[    0.000000] add_memory_region(00000000000f0000, 0000000000010000, 2)
+[    0.000000] copy_e820_map() start: 0000000000100000 size: 
+0000000007f00000 end: 0000000008000000 type: 1
+[    0.000000] copy_e820_map() type is E820_RAM
+[    0.000000] add_memory_region(0000000000100000, 0000000007f00000, 1)
+[    0.000000] copy_e820_map() start: 00000000fff00000 size: 
+0000000000100000 end: 0000000100000000 type: 2
+[    0.000000] add_memory_region(00000000fff00000, 0000000000100000, 2)
+[    0.000000]  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+[    0.000000]  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+[    0.000000]  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+[    0.000000]  BIOS-e820: 0000000000100000 - 0000000008000000 (usable)
+[    0.000000]  BIOS-e820: 00000000fff00000 - 0000000100000000 (reserved)
+[    0.000000] 128MB LOWMEM available.
+[    0.000000] DMI not present or invalid.
+[    0.000000] Allocating PCI resources starting at 10000000 (gap: 
+08000000:f7f00000)
+[    0.000000] Detected 266.688 MHz processor.
+[   16.234479] Built 1 zonelists
+[   16.234546] Kernel command line: console=ttyS0,115200n81 
+root=/dev/nfs nfsroot=192.168.42.1:/nfshost/truck 
+nfsaddrs=192.168.42.100:192.168.42.1:192.168.42.1:255.255.255.0:soekris:eth0 
+panic=5 initrd=initrd-2.6.16-mm1-sk.img  BOOT_IMAGE=vmlinuz-2.6.16-mm1-sk
+[   16.237955] Initializing CPU#0
+[   16.238176] PID hash table entries: 1024 (order: 10, 4096 bytes)
+[   16.238727] Console: colour dummy device 80x25
+[   16.440124] Dentry cache hash table entries: 16384 (order: 4, 65536 
+bytes)
+[   16.448223] Inode-cache hash table entries: 8192 (order: 3, 32768 bytes)
+[   16.500161] Memory: 125180k/131072k available (1487k kernel code, 
+5448k reserved, 1196k data, 120k init, 0k highmem)
+[   16.510853] Checking if this processor honours the WP bit even in 
+supervisor mode... Ok.
+[   16.602120] Calibrating delay using timer specific routine.. 534.89 
+BogoMIPS (lpj=1069789)
+[   16.612658] Mount-cache hash table entries: 512
+[   16.624305] CPU: NSC Unknown stepping 01
+[   16.628477] Checking 'hlt' instruction... OK.
+[   16.633178] SMP alternatives: switching to UP code
+[   16.638097] Freeing SMP alternatives: 0k freed
+[   16.670530] Unpacking initramfs... done
+[   17.533150] Freeing initrd memory: 977k freed
+[   17.553690] NET: Registered protocol family 16
+[   17.577353] PCI: PCI BIOS revision 2.01 entry at 0xf7861, last bus=0
+[   17.617029] Linux Plug and Play Support v0.97 (c) Adam Belay
+[   17.632662] PCI: Probing PCI hardware
+[   17.933143] Setting up standard PCI resources
+[   18.939697] VFS: Disk quotas dquot_6.5.1
+[   18.944480] Dquot-cache hash table entries: 1024 (order 0, 4096 bytes)
+[   18.959629] Initializing Cryptographic API
+[   18.964049] io scheduler noop registered
+[   18.968316] io scheduler anticipatory registered (default)
+[   18.974243] io scheduler deadline registered
+[   18.979290] io scheduler cfq registered
+[   18.987460] isapnp: Scanning for PnP cards...
+[   19.348651] isapnp: No Plug & Play device found
+[   58.290419] Real Time Clock Driver v1.12ac
+[   58.294737] Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ 
+sharing disabled
+[   58.364826] serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+[   58.446115] serial8250: ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+[   59.360268] loop: loaded (max 8 devices)
+[   59.421302] natsemi dp8381x driver, version 1.07+LK1.0.17, Sep 27, 2002
+[   59.421365]   originally by Donald Becker <becker@scyld.com>
+[   59.421410]   http://www.scyld.com/network/natsemi.html
+[   59.421452]   2.4.x kernel port by Jeff Garzik, Tjeerd Mulder
+[   59.555021] natsemi eth0: NatSemi DP8381[56] at 0xa0000000 
+(0000:00:06.0), 00:00:24:c2:46:c8, IRQ 10, port TP.
+[   59.615270] natsemi eth1: NatSemi DP8381[56] at 0xa0001000 
+(0000:00:07.0), 00:00:24:c2:46:c9, IRQ 10, port TP.
+[   59.686054] natsemi eth2: NatSemi DP8381[56] at 0xa0002000 
+(0000:00:08.0), 00:00:24:c2:46:ca, IRQ 10, port TP.
+[   59.756335] Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+[   59.762987] ide: Assuming 33MHz system bus speed for PIO modes; 
+override with idebus=xx
+[   60.198310] hda: SanDisk SDCFB-512, CFA DISK drive
+[   60.869088] ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+[   60.927623] hda: max request size: 128KiB
+[   60.931919] hda: 1000944 sectors (512 MB) w/1KiB Cache, CHS=993/16/63
+[   60.967292]  hda: hda1
+[   61.131424] PNP: No PS/2 controller found. Probing ports directly.
+[   61.726242] i8042.c: Can't read CTR while initializing i8042.
+[   61.784092] mice: PS/2 mouse device common for all mice
+[   61.790269] EDAC MC: Ver: 2.0.0 Mar 23 2006
+[   61.828198] NET: Registered protocol family 2
+[   61.855166] IP route cache hash table entries: 1024 (order: 0, 4096 
+bytes)
+[   61.868675] TCP established hash table entries: 4096 (order: 4, 65536 
+bytes)
+[   61.879640] TCP bind hash table entries: 2048 (order: 3, 40960 bytes)
+[   61.888176] TCP: Hash tables configured (established 4096 bind 2048)
+[   61.894651] TCP reno registered
+[   61.899389] TCP bic registered
+[   61.902853] NET: Registered protocol family 1
+[   61.907788] NET: Registered protocol family 17
+[   61.917150] Using IPI Shortcut mode
+[   61.921149] 
+/mnt/dilbert/jimc/dilbert/lxbuild/linux-2.6.16-mm1/drivers/rtc/hctosys.c: 
+unable to open rtc device (rtc0)
+[   61.931971] Time: tsc clocksource has been installed.
+[   61.975451] eth0: DSPCFG accepted after 0 usec.
+[   61.980065] eth0: link up.
+[   61.982868] eth0: Setting full-duplex based on negotiated link 
+capability.
+[   62.020566] IP-Config: Complete:
+[   62.023769]       device=eth0, addr=192.168.42.100, 
+mask=255.255.255.0, gw=192.168.42.1,
+[   62.032093]      host=soekris, domain=, nis-domain=(none),
+[   62.037704]      bootserver=192.168.42.1, rootserver=192.168.42.1, 
+rootpath=
+[   62.047351] Freeing unused kernel memory: 120k freed
+Red Hat nash version 4.2.15 starting
+Mounted /proc filesystem
+Mounting sysfs
+Creating /dev
+Starting udev
+Creating root device
+Mounting root filesystem
+mount: error 6 mounting ext3
+Switching to new root
+ERROR opening /dev/console!!!!: 2
+error dup2'ing fd of 0 to 0
+[   71.854557] Kernel panic - not syncing: Attempted to kill init!
+error dup2'ing f[   71.861292]  d of 0 to 1
+err<0>Rebooting in 5 seconds..or dup2'ing fd of 0 to 2
+unmounting old /proc
+unmounting old /sys
+switchroot: mount failed: 22
 
-And __setup() is used in obsolete_checksetup().
+Having read Docs/nfsroot.txt several times, I get the vague sense that 
+Im over-specifying
+things on the boot-line, but it just works for vanilla .16
+Heres my pxelinux stanza:
 
-	start_kernel()
-		-> parse_args()
-			-> unknown_bootoption()
-				-> obsolete_checksetup()
+LABEL   D 2.6.16-mm1-sk
+  MENU LABEL    ^d.  2.6.16-mm1-sk
+  KERNEL        vmlinuz-2.6.16-mm1-sk
+  APPEND        console=ttyS0,115200n81 root=/dev/nfs 
+nfsroot=192.168.42.1:/nfshost/truck 
+nfsaddrs=192.168.42.100:192.168.42.1:192.168.42.1:255.255.255.0:soekris:eth0 
+panic=5 initrd=initrd-2.6.16-mm1-sk.img
 
-If __setup()'s callback (->setup_func()) returns 1 in obsolete_checksetup(),
-obsolete_checksetup() thinks a parameter was handled.
 
-If ->setup_func() returns 0, obsolete_checksetup() tries other
-->setup_func(). If all ->setup_func() that matched a parameter returns 0,
-a parameter is seted to argv_init[].
+and my .config, in case its helpful / at fault
 
-Then, when runing /sbin/init or init=app, argv_init[] is passed to the
-app. If the app doesn't ignore those arguments, it will warning and exit.
 
-This patch fixes a wrong usage of it, however fixes obvious one only.
+Tia for any help, tips.
+Jim Cromie
 
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
----
+--------------040104070508080607060004
+Content-Type: text/plain;
+ name="config"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="config"
 
- arch/alpha/kernel/core_marvel.c   |    2 +-
- arch/i386/kernel/apic.c           |    2 +-
- arch/i386/kernel/cpu/mcheck/mce.c |    4 ++--
- arch/i386/kernel/io_apic.c        |    2 +-
- arch/i386/kernel/traps.c          |    2 +-
- arch/powerpc/kernel/crash_dump.c  |    4 ++--
- arch/sh/kernel/cpu/init.c         |    2 +-
- arch/x86_64/kernel/apic.c         |   14 +++++++-------
- arch/x86_64/kernel/early_printk.c |    2 +-
- arch/x86_64/kernel/mce.c          |    4 ++--
- arch/x86_64/kernel/pmtimer.c      |    2 +-
- arch/x86_64/kernel/setup.c        |    2 +-
- arch/x86_64/kernel/setup64.c      |    4 ++--
- arch/x86_64/kernel/smpboot.c      |    2 +-
- arch/x86_64/kernel/time.c         |    4 ++--
- arch/x86_64/kernel/traps.c        |    4 ++--
- arch/x86_64/mm/fault.c            |    2 +-
- block/elevator.c                  |    2 +-
- drivers/acpi/ec.c                 |    4 ++--
- drivers/block/amiflop.c           |    1 +
- drivers/media/video/cpia_pp.c     |    2 +-
- drivers/net/netconsole.c          |    2 +-
- drivers/net/pcmcia/xirc2ps_cs.c   |    2 +-
- drivers/pcmcia/vrc4171_card.c     |   12 ++++++------
- drivers/pcmcia/vrc4173_cardu.c    |    8 ++++----
- drivers/scsi/ibmmca.c             |    2 +-
- drivers/video/console/fbcon.c     |   10 +++++-----
- drivers/video/console/sticore.c   |    4 ++--
- drivers/video/fbmem.c             |    2 +-
- drivers/video/stifb.c             |    4 ++--
- kernel/audit.c                    |    2 +-
- mm/memory.c                       |    2 +-
- 32 files changed, 59 insertions(+), 58 deletions(-)
+#
+# Automatically generated make config: don't edit
+# Linux kernel version: 2.6.16-mm1
+# Sat Mar 25 17:33:49 2006
+#
+CONFIG_X86_32=y
+CONFIG_GENERIC_TIME=y
+CONFIG_SEMAPHORE_SLEEPERS=y
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_GENERIC_HWEIGHT=y
+CONFIG_ARCH_MAY_HAVE_PC_FDC=y
+CONFIG_DMI=y
 
-diff -puN arch/alpha/kernel/core_marvel.c~__setup-fixes arch/alpha/kernel/core_marvel.c
---- linux-2.6/arch/alpha/kernel/core_marvel.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/alpha/kernel/core_marvel.c	2006-03-26 09:25:16.000000000 +0900
-@@ -435,7 +435,7 @@ marvel_specify_io7(char *str)
- 		str = pchar;
- 	} while(*str);
- 
--	return 0;
-+	return 1;
- }
- __setup("io7=", marvel_specify_io7);
- 
-diff -puN arch/i386/kernel/apic.c~__setup-fixes arch/i386/kernel/apic.c
---- linux-2.6/arch/i386/kernel/apic.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/i386/kernel/apic.c	2006-03-26 09:25:16.000000000 +0900
-@@ -732,7 +732,7 @@ static int __init apic_set_verbosity(cha
- 		printk(KERN_WARNING "APIC Verbosity level %s not recognised"
- 				" use apic=verbose or apic=debug\n", str);
- 
--	return 0;
-+	return 1;
- }
- 
- __setup("apic=", apic_set_verbosity);
-diff -puN arch/i386/kernel/cpu/mcheck/mce.c~__setup-fixes arch/i386/kernel/cpu/mcheck/mce.c
---- linux-2.6/arch/i386/kernel/cpu/mcheck/mce.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/i386/kernel/cpu/mcheck/mce.c	2006-03-26 09:25:16.000000000 +0900
-@@ -64,13 +64,13 @@ void mcheck_init(struct cpuinfo_x86 *c)
- static int __init mcheck_disable(char *str)
- {
- 	mce_disabled = 1;
--	return 0;
-+	return 1;
- }
- 
- static int __init mcheck_enable(char *str)
- {
- 	mce_disabled = -1;
--	return 0;
-+	return 1;
- }
- 
- __setup("nomce", mcheck_disable);
-diff -puN arch/i386/kernel/io_apic.c~__setup-fixes arch/i386/kernel/io_apic.c
---- linux-2.6/arch/i386/kernel/io_apic.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/i386/kernel/io_apic.c	2006-03-26 09:25:16.000000000 +0900
-@@ -644,7 +644,7 @@ failed:
- int __init irqbalance_disable(char *str)
- {
- 	irqbalance_disabled = 1;
--	return 0;
-+	return 1;
- }
- 
- __setup("noirqbalance", irqbalance_disable);
-diff -puN arch/i386/kernel/traps.c~__setup-fixes arch/i386/kernel/traps.c
---- linux-2.6/arch/i386/kernel/traps.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/i386/kernel/traps.c	2006-03-26 09:25:16.000000000 +0900
-@@ -1187,6 +1187,6 @@ void __init trap_init(void)
- static int __init kstack_setup(char *s)
- {
- 	kstack_depth_to_print = simple_strtoul(s, NULL, 0);
--	return 0;
-+	return 1;
- }
- __setup("kstack=", kstack_setup);
-diff -puN arch/powerpc/kernel/crash_dump.c~__setup-fixes arch/powerpc/kernel/crash_dump.c
---- linux-2.6/arch/powerpc/kernel/crash_dump.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/powerpc/kernel/crash_dump.c	2006-03-26 09:25:16.000000000 +0900
-@@ -61,7 +61,7 @@ static int __init parse_elfcorehdr(char 
- 	if (p)
- 		elfcorehdr_addr = memparse(p, &p);
- 
--	return 0;
-+	return 1;
- }
- __setup("elfcorehdr=", parse_elfcorehdr);
- #endif
-@@ -71,7 +71,7 @@ static int __init parse_savemaxmem(char 
- 	if (p)
- 		saved_max_pfn = (memparse(p, &p) >> PAGE_SHIFT) - 1;
- 
--	return 0;
-+	return 1;
- }
- __setup("savemaxmem=", parse_savemaxmem);
- 
-diff -puN arch/sh/kernel/cpu/init.c~__setup-fixes arch/sh/kernel/cpu/init.c
---- linux-2.6/arch/sh/kernel/cpu/init.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/sh/kernel/cpu/init.c	2006-03-26 09:25:16.000000000 +0900
-@@ -30,7 +30,7 @@ static int x##_disabled __initdata = 0;	
- static int __init x##_setup(char *opts)		\
- {						\
- 	x##_disabled = 1;			\
--	return 0;				\
-+	return 1;				\
- }						\
- __setup("no" __stringify(x), x##_setup);
- 
-diff -puN arch/x86_64/kernel/apic.c~__setup-fixes arch/x86_64/kernel/apic.c
---- linux-2.6/arch/x86_64/kernel/apic.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/apic.c	2006-03-26 09:25:16.000000000 +0900
-@@ -595,7 +595,7 @@ static int __init apic_set_verbosity(cha
- 		printk(KERN_WARNING "APIC Verbosity level %s not recognised"
- 				" use apic=verbose or apic=debug", str);
- 
--	return 0;
-+	return 1;
- }
- 
- __setup("apic=", apic_set_verbosity);
-@@ -1117,35 +1117,35 @@ int __init APIC_init_uniprocessor (void)
- static __init int setup_disableapic(char *str) 
- { 
- 	disable_apic = 1;
--	return 0;
-+	return 1;
- } 
- 
- static __init int setup_nolapic(char *str) 
- { 
- 	disable_apic = 1;
--	return 0;
-+	return 1;
- } 
- 
- static __init int setup_noapictimer(char *str) 
- { 
- 	if (str[0] != ' ' && str[0] != 0)
--		return -1;
-+		return 0;
- 	disable_apic_timer = 1;
--	return 0;
-+	return 1;
- } 
- 
- static __init int setup_apicmaintimer(char *str)
- {
- 	apic_runs_main_timer = 1;
- 	nohpet = 1;
--	return 0;
-+	return 1;
- }
- __setup("apicmaintimer", setup_apicmaintimer);
- 
- static __init int setup_noapicmaintimer(char *str)
- {
- 	apic_runs_main_timer = -1;
--	return 0;
-+	return 1;
- }
- __setup("noapicmaintimer", setup_noapicmaintimer);
- 
-diff -puN arch/x86_64/kernel/early_printk.c~__setup-fixes arch/x86_64/kernel/early_printk.c
---- linux-2.6/arch/x86_64/kernel/early_printk.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/early_printk.c	2006-03-26 09:25:16.000000000 +0900
-@@ -221,7 +221,7 @@ int __init setup_early_printk(char *opt)
- 	char buf[256];
- 
- 	if (early_console_initialized)
--		return -1;
-+		return 1;
- 
- 	strlcpy(buf,opt,sizeof(buf));
- 	space = strchr(buf, ' ');
-diff -puN arch/x86_64/kernel/mce.c~__setup-fixes arch/x86_64/kernel/mce.c
---- linux-2.6/arch/x86_64/kernel/mce.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/mce.c	2006-03-26 09:25:16.000000000 +0900
-@@ -501,7 +501,7 @@ static struct miscdevice mce_log_device 
- static int __init mcheck_disable(char *str)
- {
- 	mce_dont_init = 1;
--	return 0;
-+	return 1;
- }
- 
- /* mce=off disables machine check. Note you can reenable it later
-@@ -521,7 +521,7 @@ static int __init mcheck_enable(char *st
- 		get_option(&str, &tolerant);
- 	else
- 		printk("mce= argument %s ignored. Please use /sys", str); 
--	return 0;
-+	return 1;
- }
- 
- __setup("nomce", mcheck_disable);
-diff -puN arch/x86_64/kernel/pmtimer.c~__setup-fixes arch/x86_64/kernel/pmtimer.c
---- linux-2.6/arch/x86_64/kernel/pmtimer.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/pmtimer.c	2006-03-26 09:25:16.000000000 +0900
-@@ -120,7 +120,7 @@ unsigned int do_gettimeoffset_pm(void)
- static int __init nopmtimer_setup(char *s)
- {
- 	pmtmr_ioport = 0;
--	return 0;
-+	return 1;
- }
- 
- __setup("nopmtimer", nopmtimer_setup);
-diff -puN arch/x86_64/kernel/setup.c~__setup-fixes arch/x86_64/kernel/setup.c
---- linux-2.6/arch/x86_64/kernel/setup.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/setup.c	2006-03-26 09:25:16.000000000 +0900
-@@ -530,7 +530,7 @@ void __init alternative_instructions(voi
- static int __init noreplacement_setup(char *s)
- { 
-      no_replacement = 1; 
--     return 0; 
-+     return 1;
- } 
- 
- __setup("noreplacement", noreplacement_setup); 
-diff -puN arch/x86_64/kernel/setup64.c~__setup-fixes arch/x86_64/kernel/setup64.c
---- linux-2.6/arch/x86_64/kernel/setup64.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/setup64.c	2006-03-26 09:25:16.000000000 +0900
-@@ -55,7 +55,7 @@ int __init nonx_setup(char *str)
- 		do_not_nx = 1;
- 		__supported_pte_mask &= ~_PAGE_NX;
-         }
--	return 0;
-+	return 1;
- } 
- __setup("noexec=", nonx_setup);	/* parsed early actually */
- 
-@@ -74,7 +74,7 @@ static int __init nonx32_setup(char *str
- 		force_personality32 &= ~READ_IMPLIES_EXEC;
- 	else if (!strcmp(str, "off"))
- 		force_personality32 |= READ_IMPLIES_EXEC;
--	return 0;
-+	return 1;
- }
- __setup("noexec32=", nonx32_setup);
- 
-diff -puN arch/x86_64/kernel/smpboot.c~__setup-fixes arch/x86_64/kernel/smpboot.c
---- linux-2.6/arch/x86_64/kernel/smpboot.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/smpboot.c	2006-03-26 09:25:16.000000000 +0900
-@@ -350,7 +350,7 @@ static void __cpuinit tsc_sync_wait(void
- static __init int notscsync_setup(char *s)
- {
- 	notscsync = 1;
--	return 0;
-+	return 1;
- }
- __setup("notscsync", notscsync_setup);
- 
-diff -puN arch/x86_64/kernel/time.c~__setup-fixes arch/x86_64/kernel/time.c
---- linux-2.6/arch/x86_64/kernel/time.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/time.c	2006-03-26 09:25:16.000000000 +0900
-@@ -1322,7 +1322,7 @@ irqreturn_t hpet_rtc_interrupt(int irq, 
- static int __init nohpet_setup(char *s) 
- { 
- 	nohpet = 1;
--	return 0;
-+	return 1;
- } 
- 
- __setup("nohpet", nohpet_setup);
-@@ -1330,7 +1330,7 @@ __setup("nohpet", nohpet_setup);
- int __init notsc_setup(char *s)
- {
- 	notsc = 1;
--	return 0;
-+	return 1;
- }
- 
- __setup("notsc", notsc_setup);
-diff -puN arch/x86_64/kernel/traps.c~__setup-fixes arch/x86_64/kernel/traps.c
---- linux-2.6/arch/x86_64/kernel/traps.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/kernel/traps.c	2006-03-26 09:25:16.000000000 +0900
-@@ -974,14 +974,14 @@ void __init trap_init(void)
- static int __init oops_dummy(char *s)
- { 
- 	panic_on_oops = 1;
--	return -1; 
-+	return 1;
- } 
- __setup("oops=", oops_dummy); 
- 
- static int __init kstack_setup(char *s)
- {
- 	kstack_depth_to_print = simple_strtoul(s,NULL,0);
--	return 0;
-+	return 1;
- }
- __setup("kstack=", kstack_setup);
- 
-diff -puN arch/x86_64/mm/fault.c~__setup-fixes arch/x86_64/mm/fault.c
---- linux-2.6/arch/x86_64/mm/fault.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/arch/x86_64/mm/fault.c	2006-03-26 09:25:16.000000000 +0900
-@@ -574,6 +574,6 @@ do_sigbus:
- static int __init enable_pagefaulttrace(char *str)
- {
- 	page_fault_trace = 1;
--	return 0;
-+	return 1;
- }
- __setup("pagefaulttrace", enable_pagefaulttrace);
-diff -puN block/elevator.c~__setup-fixes block/elevator.c
---- linux-2.6/block/elevator.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/block/elevator.c	2006-03-26 09:25:16.000000000 +0900
-@@ -145,7 +145,7 @@ static int __init elevator_setup(char *s
- 		strcpy(chosen_elevator, "anticipatory");
- 	else
- 		strncpy(chosen_elevator, str, sizeof(chosen_elevator) - 1);
--	return 0;
-+	return 1;
- }
- 
- __setup("elevator=", elevator_setup);
-diff -puN drivers/acpi/ec.c~__setup-fixes drivers/acpi/ec.c
---- linux-2.6/drivers/acpi/ec.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/acpi/ec.c	2006-03-26 09:25:16.000000000 +0900
-@@ -1572,7 +1572,7 @@ static void __exit acpi_ec_exit(void)
- static int __init acpi_fake_ecdt_setup(char *str)
- {
- 	acpi_fake_ecdt_enabled = 1;
--	return 0;
-+	return 1;
- }
- 
- __setup("acpi_fake_ecdt", acpi_fake_ecdt_setup);
-@@ -1591,7 +1591,7 @@ static int __init acpi_ec_set_intr_mode(
- 		acpi_ec_driver.ops.add = acpi_ec_poll_add;
- 	}
- 	printk(KERN_INFO PREFIX "EC %s mode.\n", intr ? "interrupt" : "polling");
--	return 0;
-+	return 1;
- }
- 
- __setup("ec_intr=", acpi_ec_set_intr_mode);
-diff -puN drivers/block/amiflop.c~__setup-fixes drivers/block/amiflop.c
---- linux-2.6/drivers/block/amiflop.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/block/amiflop.c	2006-03-26 09:25:16.000000000 +0900
-@@ -1850,6 +1850,7 @@ static int __init amiga_floppy_setup (ch
- 		return 0;
- 	printk (KERN_INFO "amiflop: Setting default df0 to %x\n", n);
- 	fd_def_df0 = n;
-+	return 1;
- }
- 
- __setup("floppy=", amiga_floppy_setup);
-diff -puN drivers/media/video/cpia_pp.c~__setup-fixes drivers/media/video/cpia_pp.c
---- linux-2.6/drivers/media/video/cpia_pp.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/media/video/cpia_pp.c	2006-03-26 09:25:16.000000000 +0900
-@@ -873,7 +873,7 @@ static int __init cpia_pp_setup(char *st
- 		parport_nr[parport_ptr++] = PPCPIA_PARPORT_NONE;
- 	}
- 
--	return 0;
-+	return 1;
- }
- 
- __setup("cpia_pp=", cpia_pp_setup);
-diff -puN drivers/net/netconsole.c~__setup-fixes drivers/net/netconsole.c
---- linux-2.6/drivers/net/netconsole.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/net/netconsole.c	2006-03-26 09:25:16.000000000 +0900
-@@ -94,7 +94,7 @@ static struct console netconsole = {
- static int option_setup(char *opt)
- {
- 	configured = !netpoll_parse_options(&np, opt);
--	return 0;
-+	return 1;
- }
- 
- __setup("netconsole=", option_setup);
-diff -puN drivers/net/pcmcia/xirc2ps_cs.c~__setup-fixes drivers/net/pcmcia/xirc2ps_cs.c
---- linux-2.6/drivers/net/pcmcia/xirc2ps_cs.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/net/pcmcia/xirc2ps_cs.c	2006-03-26 09:25:16.000000000 +0900
-@@ -1973,7 +1973,7 @@ static int __init setup_xirc2ps_cs(char 
- 	MAYBE_SET(lockup_hack, 6);
- #undef  MAYBE_SET
- 
--	return 0;
-+	return 1;
- }
- 
- __setup("xirc2ps_cs=", setup_xirc2ps_cs);
-diff -puN drivers/pcmcia/vrc4171_card.c~__setup-fixes drivers/pcmcia/vrc4171_card.c
---- linux-2.6/drivers/pcmcia/vrc4171_card.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/pcmcia/vrc4171_card.c	2006-03-26 09:25:16.000000000 +0900
-@@ -634,7 +634,7 @@ static void vrc4171_remove_sockets(void)
- static int __devinit vrc4171_card_setup(char *options)
- {
- 	if (options == NULL || *options == '\0')
--		return 0;
-+		return 1;
- 
- 	if (strncmp(options, "irq:", 4) == 0) {
- 		int irq;
-@@ -644,7 +644,7 @@ static int __devinit vrc4171_card_setup(
- 			vrc4171_irq = irq;
- 
- 		if (*options != ',')
--			return 0;
-+			return 1;
- 		options++;
- 	}
- 
-@@ -663,10 +663,10 @@ static int __devinit vrc4171_card_setup(
- 			}
- 
- 			if (*options != ',')
--				return 0;
-+				return 1;
- 			options++;
- 		} else
--			return 0;
-+			return 1;
- 
- 	}
- 
-@@ -688,7 +688,7 @@ static int __devinit vrc4171_card_setup(
- 			}
- 
- 			if (*options != ',')
--				return 0;
-+				return 1;
- 			options++;
- 
- 			if (strncmp(options, "memnoprobe", 10) == 0)
-@@ -700,7 +700,7 @@ static int __devinit vrc4171_card_setup(
- 		}
- 	}
- 
--	return 0;
-+	return 1;
- }
- 
- __setup("vrc4171_card=", vrc4171_card_setup);
-diff -puN drivers/pcmcia/vrc4173_cardu.c~__setup-fixes drivers/pcmcia/vrc4173_cardu.c
---- linux-2.6/drivers/pcmcia/vrc4173_cardu.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/pcmcia/vrc4173_cardu.c	2006-03-26 09:25:16.000000000 +0900
-@@ -516,7 +516,7 @@ static int __devinit vrc4173_cardu_probe
- static int __devinit vrc4173_cardu_setup(char *options)
- {
- 	if (options == NULL || *options == '\0')
--		return 0;
-+		return 1;
- 
- 	if (strncmp(options, "cardu1:", 7) == 0) {
- 		options += 7;
-@@ -527,9 +527,9 @@ static int __devinit vrc4173_cardu_setup
- 			}
- 
- 			if (*options != ',')
--				return 0;
-+				return 1;
- 		} else
--			return 0;
-+			return 1;
- 	}
- 
- 	if (strncmp(options, "cardu2:", 7) == 0) {
-@@ -538,7 +538,7 @@ static int __devinit vrc4173_cardu_setup
- 			cardu_sockets[CARDU2].noprobe = 1;
- 	}
- 
--	return 0;
-+	return 1;
- }
- 
- __setup("vrc4173_cardu=", vrc4173_cardu_setup);
-diff -puN drivers/scsi/ibmmca.c~__setup-fixes drivers/scsi/ibmmca.c
---- linux-2.6/drivers/scsi/ibmmca.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/scsi/ibmmca.c	2006-03-26 09:25:16.000000000 +0900
-@@ -2488,7 +2488,7 @@ static int option_setup(char *str)
- 	}
- 	ints[0] = i - 1;
- 	internal_ibmmca_scsi_setup(cur, ints);
--	return 0;
-+	return 1;
- }
- 
- __setup("ibmmcascsi=", option_setup);
-diff -puN drivers/video/console/fbcon.c~__setup-fixes drivers/video/console/fbcon.c
---- linux-2.6/drivers/video/console/fbcon.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/video/console/fbcon.c	2006-03-26 09:25:16.000000000 +0900
-@@ -466,7 +466,7 @@ static int __init fb_console_setup(char 
- 	int i, j;
- 
- 	if (!this_opt || !*this_opt)
--		return 0;
-+		return 1;
- 
- 	while ((options = strsep(&this_opt, ",")) != NULL) {
- 		if (!strncmp(options, "font:", 5))
-@@ -481,10 +481,10 @@ static int __init fb_console_setup(char 
- 					options++;
- 				}
- 				if (*options != ',')
--					return 0;
-+					return 1;
- 				options++;
- 			} else
--				return 0;
-+				return 1;
- 		}
- 		
- 		if (!strncmp(options, "map:", 4)) {
-@@ -496,7 +496,7 @@ static int __init fb_console_setup(char 
- 					con2fb_map_boot[i] =
- 						(options[j++]-'0') % FB_MAX;
- 				}
--			return 0;
-+			return 1;
- 		}
- 
- 		if (!strncmp(options, "vc:", 3)) {
-@@ -518,7 +518,7 @@ static int __init fb_console_setup(char 
- 				rotate = 0;
- 		}
- 	}
--	return 0;
-+	return 1;
- }
- 
- __setup("fbcon=", fb_console_setup);
-diff -puN drivers/video/console/sticore.c~__setup-fixes drivers/video/console/sticore.c
---- linux-2.6/drivers/video/console/sticore.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/video/console/sticore.c	2006-03-26 09:25:16.000000000 +0900
-@@ -275,7 +275,7 @@ static int __init sti_setup(char *str)
- 	if (str)
- 		strlcpy (default_sti_path, str, sizeof (default_sti_path));
- 	
--	return 0;
-+	return 1;
- }
- 
- /*	Assuming the machine has multiple STI consoles (=graphic cards) which
-@@ -321,7 +321,7 @@ static int __init sti_font_setup(char *s
- 		i++;
- 	}
- 
--	return 0;
-+	return 1;
- }
- 
- /*	The optional linux kernel parameter "sti_font" defines which font
-diff -puN drivers/video/fbmem.c~__setup-fixes drivers/video/fbmem.c
---- linux-2.6/drivers/video/fbmem.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/video/fbmem.c	2006-03-26 09:25:16.000000000 +0900
-@@ -1585,7 +1585,7 @@ static int __init video_setup(char *opti
- 		}
- 	}
- 
--	return 0;
-+	return 1;
- }
- __setup("video=", video_setup);
- #endif
-diff -puN drivers/video/stifb.c~__setup-fixes drivers/video/stifb.c
---- linux-2.6/drivers/video/stifb.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/drivers/video/stifb.c	2006-03-26 09:25:16.000000000 +0900
-@@ -1457,7 +1457,7 @@ stifb_setup(char *options)
- 	int i;
- 	
- 	if (!options || !*options)
--		return 0;
-+		return 1;
- 	
- 	if (strncmp(options, "off", 3) == 0) {
- 		stifb_disabled = 1;
-@@ -1472,7 +1472,7 @@ stifb_setup(char *options)
- 			stifb_bpp_pref[i] = simple_strtoul(options, &options, 10);
- 		}
- 	}
--	return 0;
-+	return 1;
- }
- 
- __setup("stifb=", stifb_setup);
-diff -puN kernel/audit.c~__setup-fixes kernel/audit.c
---- linux-2.6/kernel/audit.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/kernel/audit.c	2006-03-26 09:25:16.000000000 +0900
-@@ -538,7 +538,7 @@ static int __init audit_enable(char *str
- 	       audit_initialized ? "" : " (after initialization)");
- 	if (audit_initialized)
- 		audit_enabled = audit_default;
--	return 0;
-+	return 1;
- }
- 
- __setup("audit=", audit_enable);
-diff -puN mm/memory.c~__setup-fixes mm/memory.c
---- linux-2.6/mm/memory.c~__setup-fixes	2006-03-26 09:25:16.000000000 +0900
-+++ linux-2.6-hirofumi/mm/memory.c	2006-03-26 09:25:16.000000000 +0900
-@@ -87,7 +87,7 @@ int randomize_va_space __read_mostly = 1
- static int __init disable_randmaps(char *s)
- {
- 	randomize_va_space = 0;
--	return 0;
-+	return 1;
- }
- __setup("norandmaps", disable_randmaps);
- 
-_
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+
+#
+# General setup
+#
+CONFIG_LOCALVERSION="-sk"
+CONFIG_LOCALVERSION_AUTO=y
+CONFIG_SWAP=y
+CONFIG_SWAP_PREFETCH=y
+CONFIG_SYSVIPC=y
+# CONFIG_POSIX_MQUEUE is not set
+# CONFIG_BSD_PROCESS_ACCT is not set
+CONFIG_SYSCTL=y
+# CONFIG_AUDIT is not set
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_RELAY=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_UID16=y
+CONFIG_VM86=y
+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+# CONFIG_EMBEDDED is not set
+CONFIG_KALLSYMS=y
+CONFIG_KALLSYMS_ALL=y
+# CONFIG_KALLSYMS_EXTRA_PASS is not set
+CONFIG_HOTPLUG=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_ELF_CORE=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_SLAB=y
+# CONFIG_TINY_SHMEM is not set
+CONFIG_BASE_SMALL=0
+# CONFIG_SLOB is not set
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_MODVERSIONS=y
+# CONFIG_MODULE_SRCVERSION_ALL is not set
+CONFIG_KMOD=y
+
+#
+# Block layer
+#
+# CONFIG_LBD is not set
+# CONFIG_BLK_DEV_IO_TRACE is not set
+# CONFIG_LSF is not set
+
+#
+# IO Schedulers
+#
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_DEFAULT_AS=y
+# CONFIG_DEFAULT_DEADLINE is not set
+# CONFIG_DEFAULT_CFQ is not set
+# CONFIG_DEFAULT_NOOP is not set
+CONFIG_DEFAULT_IOSCHED="anticipatory"
+
+#
+# Processor type and features
+#
+CONFIG_X86_PC=y
+# CONFIG_X86_ELAN is not set
+# CONFIG_X86_VOYAGER is not set
+# CONFIG_X86_NUMAQ is not set
+# CONFIG_X86_SUMMIT is not set
+# CONFIG_X86_BIGSMP is not set
+# CONFIG_X86_VISWS is not set
+# CONFIG_X86_GENERICARCH is not set
+# CONFIG_X86_ES7000 is not set
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+# CONFIG_MPENTIUMII is not set
+# CONFIG_MPENTIUMIII is not set
+# CONFIG_MPENTIUMM is not set
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MK8 is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MEFFICEON is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+CONFIG_MGEODEGX1=y
+# CONFIG_MGEODE_LX is not set
+# CONFIG_MCYRIXIII is not set
+# CONFIG_MVIAC3_2 is not set
+# CONFIG_X86_GENERIC is not set
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=4
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_CMPXCHG64=y
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_X86_TSC=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+# CONFIG_SMP is not set
+# CONFIG_PREEMPT_NONE is not set
+CONFIG_PREEMPT_VOLUNTARY=y
+# CONFIG_PREEMPT is not set
+# CONFIG_X86_UP_APIC is not set
+# CONFIG_X86_MCE is not set
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+# CONFIG_X86_REBOOTFIXUPS is not set
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+# CONFIG_X86_CPUID is not set
+
+#
+# Firmware Drivers
+#
+# CONFIG_EDD is not set
+# CONFIG_DELL_RBU is not set
+CONFIG_DCDBAS=m
+CONFIG_NOHIGHMEM=y
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+CONFIG_VMSPLIT_3G=y
+# CONFIG_VMSPLIT_3G_OPT is not set
+# CONFIG_VMSPLIT_2G is not set
+# CONFIG_VMSPLIT_1G is not set
+CONFIG_PAGE_OFFSET=0xC0000000
+CONFIG_ARCH_FLATMEM_ENABLE=y
+CONFIG_ARCH_SPARSEMEM_ENABLE=y
+CONFIG_ARCH_SELECT_MEMORY_MODEL=y
+CONFIG_SELECT_MEMORY_MODEL=y
+CONFIG_FLATMEM_MANUAL=y
+# CONFIG_DISCONTIGMEM_MANUAL is not set
+# CONFIG_SPARSEMEM_MANUAL is not set
+CONFIG_FLATMEM=y
+CONFIG_FLAT_NODE_MEM_MAP=y
+CONFIG_SPARSEMEM_STATIC=y
+CONFIG_SPLIT_PTLOCK_CPUS=4
+# CONFIG_MATH_EMULATION is not set
+# CONFIG_MTRR is not set
+# CONFIG_REGPARM is not set
+CONFIG_SECCOMP=y
+# CONFIG_HZ_100 is not set
+CONFIG_HZ_250=y
+# CONFIG_HZ_1000 is not set
+CONFIG_HZ=250
+# CONFIG_KEXEC is not set
+CONFIG_PHYSICAL_START=0x100000
+CONFIG_DOUBLEFAULT=y
+
+#
+# Power management options (ACPI, APM)
+#
+CONFIG_PM=y
+CONFIG_PM_LEGACY=y
+# CONFIG_PM_DEBUG is not set
+# CONFIG_SOFTWARE_SUSPEND is not set
+
+#
+# ACPI (Advanced Configuration and Power Interface) Support
+#
+# CONFIG_ACPI is not set
+
+#
+# APM (Advanced Power Management) BIOS Support
+#
+# CONFIG_APM is not set
+
+#
+# CPU Frequency scaling
+#
+# CONFIG_CPU_FREQ is not set
+
+#
+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+#
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GOMMCONFIG is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+# CONFIG_PCIEPORTBUS is not set
+CONFIG_PCI_DEBUG=y
+CONFIG_ISA_DMA_API=y
+CONFIG_ISA=y
+# CONFIG_EISA is not set
+# CONFIG_MCA is not set
+CONFIG_SCx200=m
+
+#
+# PCCARD (PCMCIA/CardBus) support
+#
+# CONFIG_PCCARD is not set
+
+#
+# PCI Hotplug Support
+#
+# CONFIG_HOTPLUG_PCI is not set
+
+#
+# Executable file formats
+#
+CONFIG_BINFMT_ELF=y
+# CONFIG_BINFMT_AOUT is not set
+# CONFIG_BINFMT_MISC is not set
+
+#
+# Networking
+#
+CONFIG_NET=y
+
+#
+# Networking options
+#
+# CONFIG_NETDEBUG is not set
+CONFIG_PACKET=y
+# CONFIG_PACKET_MMAP is not set
+CONFIG_UNIX=y
+# CONFIG_NET_KEY is not set
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+# CONFIG_IP_ADVANCED_ROUTER is not set
+CONFIG_IP_FIB_HASH=y
+CONFIG_IP_PNP=y
+CONFIG_IP_PNP_DHCP=y
+# CONFIG_IP_PNP_BOOTP is not set
+# CONFIG_IP_PNP_RARP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+# CONFIG_IP_MROUTE is not set
+# CONFIG_ARPD is not set
+# CONFIG_SYN_COOKIES is not set
+# CONFIG_INET_AH is not set
+# CONFIG_INET_ESP is not set
+# CONFIG_INET_IPCOMP is not set
+# CONFIG_INET_TUNNEL is not set
+CONFIG_INET_DIAG=y
+CONFIG_INET_TCP_DIAG=y
+# CONFIG_TCP_CONG_ADVANCED is not set
+CONFIG_TCP_CONG_BIC=y
+# CONFIG_IPV6 is not set
+# CONFIG_NETFILTER is not set
+
+#
+# DCCP Configuration (EXPERIMENTAL)
+#
+# CONFIG_IP_DCCP is not set
+
+#
+# SCTP Configuration (EXPERIMENTAL)
+#
+# CONFIG_IP_SCTP is not set
+
+#
+# TIPC Configuration (EXPERIMENTAL)
+#
+# CONFIG_TIPC is not set
+# CONFIG_ATM is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_DECNET is not set
+# CONFIG_LLC2 is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Network testing
+#
+# CONFIG_NET_PKTGEN is not set
+# CONFIG_HAMRADIO is not set
+# CONFIG_IRDA is not set
+# CONFIG_BT is not set
+CONFIG_IEEE80211=m
+CONFIG_IEEE80211_DEBUG=y
+CONFIG_IEEE80211_CRYPT_WEP=m
+CONFIG_IEEE80211_CRYPT_CCMP=m
+CONFIG_IEEE80211_CRYPT_TKIP=m
+CONFIG_WIRELESS_EXT=y
+
+#
+# Device Drivers
+#
+
+#
+# Generic Driver Options
+#
+# CONFIG_STANDALONE is not set
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_FW_LOADER=m
+# CONFIG_DEBUG_DRIVER is not set
+
+#
+# Connector - unified userspace <-> kernelspace linker
+#
+CONFIG_CONNECTOR=m
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_SERIAL=m
+# CONFIG_PARPORT_PC_FIFO is not set
+CONFIG_PARPORT_PC_SUPERIO=y
+# CONFIG_PARPORT_GSC is not set
+# CONFIG_PARPORT_1284 is not set
+
+#
+# Plug and Play support
+#
+CONFIG_PNP=y
+CONFIG_PNP_DEBUG=y
+
+#
+# Protocols
+#
+CONFIG_ISAPNP=y
+# CONFIG_PNPBIOS is not set
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=m
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+# CONFIG_BLK_DEV_UMEM is not set
+# CONFIG_BLK_DEV_COW_COMMON is not set
+CONFIG_BLK_DEV_LOOP=y
+# CONFIG_BLK_DEV_CRYPTOLOOP is not set
+# CONFIG_BLK_DEV_NBD is not set
+# CONFIG_BLK_DEV_SX8 is not set
+CONFIG_BLK_DEV_UB=m
+# CONFIG_BLK_DEV_RAM is not set
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_BLK_DEV_INITRD=y
+# CONFIG_CDROM_PKTCDVD is not set
+# CONFIG_ATA_OVER_ETH is not set
+
+#
+# ATA/ATAPI/MFM/RLL support
+#
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_IDE_SATA is not set
+# CONFIG_BLK_DEV_HD_IDE is not set
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_IDE_TASK_IOCTL is not set
+
+#
+# IDE chipset support/bugfixes
+#
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_CMD640=y
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+# CONFIG_BLK_DEV_IDEPNP is not set
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+CONFIG_BLK_DEV_GENERIC=y
+# CONFIG_BLK_DEV_OPTI621 is not set
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+# CONFIG_IDEDMA_PCI_AUTO is not set
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD74XX is not set
+# CONFIG_BLK_DEV_ATIIXP is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_TRIFLEX is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5520 is not set
+CONFIG_BLK_DEV_CS5530=m
+# CONFIG_BLK_DEV_CS5535 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+CONFIG_BLK_DEV_SC1200=m
+# CONFIG_BLK_DEV_PIIX is not set
+# CONFIG_BLK_DEV_IT821X is not set
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_PDC202XX_OLD is not set
+# CONFIG_BLK_DEV_PDC202XX_NEW is not set
+# CONFIG_BLK_DEV_SVWKS is not set
+# CONFIG_BLK_DEV_SIIMAGE is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+# CONFIG_IDE_ARM is not set
+# CONFIG_IDE_CHIPSETS is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_IDEDMA_AUTO is not set
+# CONFIG_BLK_DEV_HD is not set
+
+#
+# SCSI device support
+#
+# CONFIG_RAID_ATTRS is not set
+# CONFIG_SCSI is not set
+
+#
+# Old CD-ROM drivers (not SCSI, not IDE)
+#
+# CONFIG_CD_NO_IDESCSI is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+
+#
+# Fusion MPT device support
+#
+# CONFIG_FUSION is not set
+
+#
+# IEEE 1394 (FireWire) support
+#
+# CONFIG_IEEE1394 is not set
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+# CONFIG_DUMMY is not set
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
+# CONFIG_NET_SB1000 is not set
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+
+#
+# PHY device support
+#
+# CONFIG_PHYLIB is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+# CONFIG_HAPPYMEAL is not set
+# CONFIG_SUNGEM is not set
+# CONFIG_CASSINI is not set
+# CONFIG_NET_VENDOR_3COM is not set
+# CONFIG_LANCE is not set
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+
+#
+# Tulip family network device support
+#
+# CONFIG_NET_TULIP is not set
+# CONFIG_AT1700 is not set
+# CONFIG_DEPCA is not set
+# CONFIG_HP100 is not set
+# CONFIG_NET_ISA is not set
+CONFIG_NET_PCI=y
+# CONFIG_PCNET32 is not set
+# CONFIG_AMD8111_ETH is not set
+# CONFIG_ADAPTEC_STARFIRE is not set
+# CONFIG_AC3200 is not set
+# CONFIG_APRICOT is not set
+# CONFIG_B44 is not set
+# CONFIG_FORCEDETH is not set
+# CONFIG_CS89x0 is not set
+# CONFIG_DGRS is not set
+# CONFIG_EEPRO100 is not set
+# CONFIG_E100 is not set
+# CONFIG_FEALNX is not set
+CONFIG_NATSEMI=y
+# CONFIG_NE2K_PCI is not set
+# CONFIG_8139CP is not set
+# CONFIG_8139TOO is not set
+# CONFIG_SIS900 is not set
+# CONFIG_EPIC100 is not set
+# CONFIG_SUNDANCE is not set
+# CONFIG_TLAN is not set
+# CONFIG_VIA_RHINE is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_DL2K is not set
+# CONFIG_E1000 is not set
+# CONFIG_NS83820 is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_R8169 is not set
+# CONFIG_SIS190 is not set
+# CONFIG_SKGE is not set
+# CONFIG_SKY2 is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_VIA_VELOCITY is not set
+# CONFIG_TIGON3 is not set
+# CONFIG_BNX2 is not set
+
+#
+# Ethernet (10000 Mbit)
+#
+# CONFIG_CHELSIO_T1 is not set
+# CONFIG_IXGB is not set
+# CONFIG_S2IO is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+CONFIG_NET_RADIO=y
+
+#
+# Obsolete Wireless cards support (pre-802.11)
+#
+# CONFIG_STRIP is not set
+# CONFIG_ARLAN is not set
+# CONFIG_WAVELAN is not set
+
+#
+# Wireless 802.11b ISA/PCI cards support
+#
+# CONFIG_IPW2100 is not set
+# CONFIG_IPW2200 is not set
+# CONFIG_AIRO is not set
+# CONFIG_HERMES is not set
+# CONFIG_ATMEL is not set
+
+#
+# Prism GT/Duette 802.11(a/b/g) PCI/Cardbus support
+#
+# CONFIG_PRISM54 is not set
+# CONFIG_HOSTAP is not set
+# CONFIG_ACX is not set
+CONFIG_NET_WIRELESS=y
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+# CONFIG_PLIP is not set
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
+# CONFIG_SHAPER is not set
+# CONFIG_NETCONSOLE is not set
+# CONFIG_NETPOLL is not set
+# CONFIG_NET_POLL_CONTROLLER is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+
+#
+# Input device support
+#
+CONFIG_INPUT=y
+
+#
+# Userland interfaces
+#
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+# CONFIG_INPUT_EVDEV is not set
+# CONFIG_INPUT_EVBUG is not set
+
+#
+# Input Device Drivers
+#
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+# CONFIG_KEYBOARD_SUNKBD is not set
+# CONFIG_KEYBOARD_LKKBD is not set
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+# CONFIG_INPUT_MOUSE is not set
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
+# CONFIG_INPUT_MISC is not set
+
+#
+# Hardware I/O ports
+#
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+# CONFIG_SERIO_SERPORT is not set
+# CONFIG_SERIO_CT82C710 is not set
+# CONFIG_SERIO_PARKBD is not set
+# CONFIG_SERIO_PCIPS2 is not set
+CONFIG_SERIO_LIBPS2=y
+# CONFIG_SERIO_RAW is not set
+# CONFIG_GAMEPORT is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+# CONFIG_SERIAL_NONSTANDARD is not set
+
+#
+# Serial drivers
+#
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_PCI=y
+CONFIG_SERIAL_8250_PNP=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_8250_RUNTIME_UARTS=4
+# CONFIG_SERIAL_8250_EXTENDED is not set
+
+#
+# Non-8250 serial port support
+#
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+# CONFIG_SERIAL_JSM is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+# CONFIG_PRINTER is not set
+# CONFIG_PPDEV is not set
+# CONFIG_TIPAR is not set
+
+#
+# IPMI
+#
+# CONFIG_IPMI_HANDLER is not set
+
+#
+# Watchdog Cards
+#
+CONFIG_WATCHDOG=y
+# CONFIG_WATCHDOG_NOWAYOUT is not set
+
+#
+# Watchdog Device Drivers
+#
+CONFIG_SOFT_WATCHDOG=m
+# CONFIG_ACQUIRE_WDT is not set
+# CONFIG_ADVANTECH_WDT is not set
+# CONFIG_ALIM1535_WDT is not set
+# CONFIG_ALIM7101_WDT is not set
+# CONFIG_SC520_WDT is not set
+# CONFIG_EUROTECH_WDT is not set
+# CONFIG_IB700_WDT is not set
+# CONFIG_IBMASR is not set
+# CONFIG_WAFER_WDT is not set
+# CONFIG_I6300ESB_WDT is not set
+# CONFIG_I8XX_TCO is not set
+# CONFIG_SC1200_WDT is not set
+CONFIG_SCx200_WDT=m
+# CONFIG_60XX_WDT is not set
+# CONFIG_SBC8360_WDT is not set
+# CONFIG_CPU5_WDT is not set
+# CONFIG_W83627HF_WDT is not set
+# CONFIG_W83877F_WDT is not set
+# CONFIG_W83977F_WDT is not set
+# CONFIG_MACHZ_WDT is not set
+# CONFIG_SBC_EPX_C3_WATCHDOG is not set
+
+#
+# ISA-based Watchdog Cards
+#
+# CONFIG_PCWATCHDOG is not set
+# CONFIG_MIXCOMWD is not set
+# CONFIG_WDT is not set
+
+#
+# PCI-based Watchdog Cards
+#
+# CONFIG_PCIPCWATCHDOG is not set
+# CONFIG_WDTPCI is not set
+
+#
+# USB-based Watchdog Cards
+#
+# CONFIG_USBPCWATCHDOG is not set
+# CONFIG_HW_RANDOM is not set
+# CONFIG_NVRAM is not set
+CONFIG_RTC=y
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+# CONFIG_SONYPI is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+# CONFIG_AGP is not set
+# CONFIG_DRM is not set
+# CONFIG_MWAVE is not set
+CONFIG_SCx200_GPIO=m
+CONFIG_CS5535_GPIO=m
+# CONFIG_RAW_DRIVER is not set
+# CONFIG_HANGCHECK_TIMER is not set
+
+#
+# TPM devices
+#
+# CONFIG_TCG_TPM is not set
+# CONFIG_TELCLOCK is not set
+
+#
+# I2C support
+#
+CONFIG_I2C=m
+CONFIG_I2C_CHARDEV=m
+
+#
+# I2C Algorithms
+#
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_ALGOPCF=m
+CONFIG_I2C_ALGOPCA=m
+
+#
+# I2C Hardware Bus support
+#
+# CONFIG_I2C_ALI1535 is not set
+# CONFIG_I2C_ALI1563 is not set
+# CONFIG_I2C_ALI15X3 is not set
+# CONFIG_I2C_AMD756 is not set
+# CONFIG_I2C_AMD8111 is not set
+# CONFIG_I2C_ELEKTOR is not set
+# CONFIG_I2C_I801 is not set
+# CONFIG_I2C_I810 is not set
+# CONFIG_I2C_PIIX4 is not set
+CONFIG_I2C_ISA=m
+# CONFIG_I2C_NFORCE2 is not set
+# CONFIG_I2C_PARPORT is not set
+# CONFIG_I2C_PARPORT_LIGHT is not set
+# CONFIG_I2C_PROSAVAGE is not set
+# CONFIG_I2C_SAVAGE4 is not set
+CONFIG_SCx200_I2C=m
+CONFIG_SCx200_I2C_SCL=12
+CONFIG_SCx200_I2C_SDA=13
+CONFIG_SCx200_ACB=m
+# CONFIG_I2C_SIS5595 is not set
+# CONFIG_I2C_SIS630 is not set
+# CONFIG_I2C_SIS96X is not set
+CONFIG_I2C_STUB=m
+# CONFIG_I2C_VIA is not set
+# CONFIG_I2C_VIAPRO is not set
+# CONFIG_I2C_VOODOO3 is not set
+# CONFIG_I2C_PCA_ISA is not set
+
+#
+# Miscellaneous I2C Chip support
+#
+CONFIG_SENSORS_DS1337=m
+# CONFIG_SENSORS_DS1374 is not set
+# CONFIG_SENSORS_EEPROM is not set
+# CONFIG_SENSORS_PCF8574 is not set
+# CONFIG_SENSORS_PCA9539 is not set
+# CONFIG_SENSORS_PCF8591 is not set
+# CONFIG_SENSORS_MAX6875 is not set
+CONFIG_I2C_DEBUG_CORE=y
+CONFIG_I2C_DEBUG_ALGO=y
+CONFIG_I2C_DEBUG_BUS=y
+CONFIG_I2C_DEBUG_CHIP=y
+
+#
+# SPI support
+#
+# CONFIG_SPI is not set
+# CONFIG_SPI_MASTER is not set
+
+#
+# Dallas's 1-wire bus
+#
+# CONFIG_W1 is not set
+
+#
+# Hardware Monitoring support
+#
+CONFIG_HWMON=y
+CONFIG_HWMON_VID=m
+CONFIG_SENSORS_ADM1021=m
+CONFIG_SENSORS_ADM1025=m
+CONFIG_SENSORS_ADM1026=m
+CONFIG_SENSORS_ADM1031=m
+CONFIG_SENSORS_ADM9240=m
+CONFIG_SENSORS_ASB100=m
+CONFIG_SENSORS_ATXP1=m
+CONFIG_SENSORS_DS1621=m
+# CONFIG_SENSORS_F71805F is not set
+CONFIG_SENSORS_FSCHER=m
+CONFIG_SENSORS_FSCPOS=m
+CONFIG_SENSORS_GL518SM=m
+CONFIG_SENSORS_GL520SM=m
+CONFIG_SENSORS_IT87=m
+CONFIG_SENSORS_LM63=m
+CONFIG_SENSORS_LM75=m
+CONFIG_SENSORS_LM77=m
+CONFIG_SENSORS_LM78=m
+CONFIG_SENSORS_LM80=m
+CONFIG_SENSORS_LM83=m
+CONFIG_SENSORS_LM85=m
+CONFIG_SENSORS_LM87=m
+CONFIG_SENSORS_LM90=m
+CONFIG_SENSORS_LM92=m
+CONFIG_SENSORS_MAX1619=m
+CONFIG_SENSORS_PC87360=m
+CONFIG_SENSORS_SIS5595=m
+CONFIG_SENSORS_SMSC47M1=m
+CONFIG_SENSORS_SMSC47B397=m
+CONFIG_SENSORS_VIA686A=m
+# CONFIG_SENSORS_VT8231 is not set
+CONFIG_SENSORS_W83781D=m
+CONFIG_SENSORS_W83792D=m
+CONFIG_SENSORS_W83L785TS=m
+CONFIG_SENSORS_W83627HF=m
+CONFIG_SENSORS_W83627EHF=m
+CONFIG_SENSORS_HDAPS=m
+CONFIG_HWMON_DEBUG_CHIP=y
+
+#
+# Misc devices
+#
+# CONFIG_IBM_ASM is not set
+
+#
+# Multimedia devices
+#
+CONFIG_VIDEO_DEV=m
+
+#
+# Video For Linux
+#
+
+#
+# Video Adapters
+#
+# CONFIG_VIDEO_ADV_DEBUG is not set
+# CONFIG_VIDEO_BT848 is not set
+# CONFIG_VIDEO_PMS is not set
+# CONFIG_VIDEO_BWQCAM is not set
+# CONFIG_VIDEO_CQCAM is not set
+# CONFIG_VIDEO_CPIA is not set
+# CONFIG_VIDEO_CPIA2 is not set
+# CONFIG_VIDEO_SAA5246A is not set
+# CONFIG_VIDEO_SAA5249 is not set
+# CONFIG_TUNER_3036 is not set
+# CONFIG_VIDEO_STRADIS is not set
+# CONFIG_VIDEO_ZORAN is not set
+# CONFIG_VIDEO_SAA7134 is not set
+# CONFIG_VIDEO_MXB is not set
+# CONFIG_VIDEO_DPC is not set
+# CONFIG_VIDEO_HEXIUM_ORION is not set
+# CONFIG_VIDEO_HEXIUM_GEMINI is not set
+# CONFIG_VIDEO_CX88 is not set
+# CONFIG_VIDEO_EM28XX is not set
+# CONFIG_VIDEO_OVCAMCHIP is not set
+# CONFIG_VIDEO_MSP3400 is not set
+# CONFIG_VIDEO_CS53L32A is not set
+# CONFIG_VIDEO_WM8775 is not set
+# CONFIG_VIDEO_CX25840 is not set
+# CONFIG_VIDEO_SAA711X is not set
+# CONFIG_VIDEO_SAA7127 is not set
+
+#
+# Radio Adapters
+#
+# CONFIG_RADIO_CADET is not set
+# CONFIG_RADIO_RTRACK is not set
+# CONFIG_RADIO_RTRACK2 is not set
+# CONFIG_RADIO_AZTECH is not set
+# CONFIG_RADIO_GEMTEK is not set
+# CONFIG_RADIO_GEMTEK_PCI is not set
+# CONFIG_RADIO_MAXIRADIO is not set
+# CONFIG_RADIO_MAESTRO is not set
+# CONFIG_RADIO_SF16FMI is not set
+# CONFIG_RADIO_SF16FMR2 is not set
+# CONFIG_RADIO_TERRATEC is not set
+# CONFIG_RADIO_TRUST is not set
+# CONFIG_RADIO_TYPHOON is not set
+# CONFIG_RADIO_ZOLTRIX is not set
+
+#
+# Digital Video Broadcasting Devices
+#
+# CONFIG_DVB is not set
+
+#
+# Graphics support
+#
+# CONFIG_FB is not set
+# CONFIG_VIDEO_SELECT is not set
+
+#
+# Console display driver support
+#
+CONFIG_VGA_CONSOLE=y
+# CONFIG_VGACON_SOFT_SCROLLBACK is not set
+# CONFIG_MDA_CONSOLE is not set
+CONFIG_DUMMY_CONSOLE=y
+
+#
+# Sound
+#
+# CONFIG_SOUND is not set
+
+#
+# USB support
+#
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB_ARCH_HAS_EHCI=y
+CONFIG_USB=m
+# CONFIG_USB_DEBUG is not set
+
+#
+# Miscellaneous USB options
+#
+# CONFIG_USB_DEVICEFS is not set
+# CONFIG_USB_BANDWIDTH is not set
+# CONFIG_USB_DYNAMIC_MINORS is not set
+# CONFIG_USB_SUSPEND is not set
+# CONFIG_USB_OTG is not set
+
+#
+# USB Host Controller Drivers
+#
+# CONFIG_USB_EHCI_HCD is not set
+# CONFIG_USB_ISP116X_HCD is not set
+CONFIG_USB_OHCI_HCD=m
+# CONFIG_USB_OHCI_BIG_ENDIAN is not set
+CONFIG_USB_OHCI_LITTLE_ENDIAN=y
+CONFIG_USB_UHCI_HCD=m
+# CONFIG_USB_SL811_HCD is not set
+
+#
+# USB Device Class drivers
+#
+# CONFIG_USB_ACM is not set
+# CONFIG_USB_PRINTER is not set
+
+#
+# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support'
+#
+
+#
+# may also be needed; see USB_STORAGE Help for more information
+#
+# CONFIG_USB_STORAGE is not set
+# CONFIG_USB_LIBUSUAL is not set
+
+#
+# USB Input Devices
+#
+# CONFIG_USB_HID is not set
+
+#
+# USB HID Boot Protocol drivers
+#
+# CONFIG_USB_KBD is not set
+# CONFIG_USB_MOUSE is not set
+# CONFIG_USB_AIPTEK is not set
+# CONFIG_USB_WACOM is not set
+# CONFIG_USB_ACECAD is not set
+# CONFIG_USB_KBTAB is not set
+# CONFIG_USB_POWERMATE is not set
+# CONFIG_USB_MTOUCH is not set
+# CONFIG_USB_ITMTOUCH is not set
+# CONFIG_USB_EGALAX is not set
+# CONFIG_USB_YEALINK is not set
+# CONFIG_USB_XPAD is not set
+# CONFIG_USB_ATI_REMOTE is not set
+# CONFIG_USB_ATI_REMOTE2 is not set
+# CONFIG_USB_KEYSPAN_REMOTE is not set
+# CONFIG_USB_APPLETOUCH is not set
+
+#
+# USB Imaging devices
+#
+# CONFIG_USB_MDC800 is not set
+
+#
+# USB Multimedia devices
+#
+# CONFIG_USB_DABUSB is not set
+# CONFIG_USB_VICAM is not set
+# CONFIG_USB_DSBR is not set
+# CONFIG_USB_ET61X251 is not set
+# CONFIG_USB_IBMCAM is not set
+# CONFIG_USB_KONICAWC is not set
+CONFIG_USB_OV511=m
+# CONFIG_USB_SE401 is not set
+# CONFIG_USB_SN9C102 is not set
+# CONFIG_USB_STV680 is not set
+# CONFIG_USB_ZC0301 is not set
+# CONFIG_USB_PWC is not set
+
+#
+# USB Network Adapters
+#
+# CONFIG_USB_CATC is not set
+# CONFIG_USB_KAWETH is not set
+# CONFIG_USB_PEGASUS is not set
+# CONFIG_USB_RTL8150 is not set
+# CONFIG_USB_USBNET is not set
+# CONFIG_USB_ZD1201 is not set
+CONFIG_USB_MON=y
+
+#
+# USB port drivers
+#
+# CONFIG_USB_USS720 is not set
+
+#
+# USB Serial Converter support
+#
+CONFIG_USB_SERIAL=m
+# CONFIG_USB_SERIAL_GENERIC is not set
+# CONFIG_USB_SERIAL_AIRPRIME is not set
+# CONFIG_USB_SERIAL_ANYDATA is not set
+# CONFIG_USB_SERIAL_BELKIN is not set
+# CONFIG_USB_SERIAL_WHITEHEAT is not set
+# CONFIG_USB_SERIAL_DIGI_ACCELEPORT is not set
+# CONFIG_USB_SERIAL_CP2101 is not set
+# CONFIG_USB_SERIAL_CYPRESS_M8 is not set
+# CONFIG_USB_SERIAL_EMPEG is not set
+# CONFIG_USB_SERIAL_FTDI_SIO is not set
+# CONFIG_USB_SERIAL_VISOR is not set
+# CONFIG_USB_SERIAL_IPAQ is not set
+# CONFIG_USB_SERIAL_IR is not set
+# CONFIG_USB_SERIAL_EDGEPORT is not set
+# CONFIG_USB_SERIAL_EDGEPORT_TI is not set
+# CONFIG_USB_SERIAL_GARMIN is not set
+# CONFIG_USB_SERIAL_IPW is not set
+# CONFIG_USB_SERIAL_KEYSPAN_PDA is not set
+# CONFIG_USB_SERIAL_KEYSPAN is not set
+# CONFIG_USB_SERIAL_KLSI is not set
+# CONFIG_USB_SERIAL_KOBIL_SCT is not set
+# CONFIG_USB_SERIAL_MCT_U232 is not set
+# CONFIG_USB_SERIAL_NAVMAN is not set
+CONFIG_USB_SERIAL_PL2303=m
+# CONFIG_USB_SERIAL_HP4X is not set
+# CONFIG_USB_SERIAL_SAFE is not set
+# CONFIG_USB_SERIAL_TI is not set
+# CONFIG_USB_SERIAL_CYBERJACK is not set
+# CONFIG_USB_SERIAL_XIRCOM is not set
+# CONFIG_USB_SERIAL_OMNINET is not set
+
+#
+# USB Miscellaneous drivers
+#
+# CONFIG_USB_EMI62 is not set
+# CONFIG_USB_EMI26 is not set
+# CONFIG_USB_AUERSWALD is not set
+# CONFIG_USB_RIO500 is not set
+# CONFIG_USB_LEGOTOWER is not set
+# CONFIG_USB_LCD is not set
+# CONFIG_USB_LED is not set
+# CONFIG_USB_CYTHERM is not set
+# CONFIG_USB_GOTEMP is not set
+# CONFIG_USB_PHIDGETKIT is not set
+# CONFIG_USB_PHIDGETSERVO is not set
+# CONFIG_USB_IDMOUSE is not set
+# CONFIG_USB_LD is not set
+
+#
+# USB DSL modem support
+#
+
+#
+# USB Gadget Support
+#
+# CONFIG_USB_GADGET is not set
+
+#
+# MMC/SD Card support
+#
+# CONFIG_MMC is not set
+
+#
+# LED devices
+#
+# CONFIG_NEW_LEDS is not set
+
+#
+# InfiniBand support
+#
+# CONFIG_INFINIBAND is not set
+
+#
+# EDAC - error detection and reporting (RAS) (EXPERIMENTAL)
+#
+CONFIG_EDAC=y
+
+#
+# Reporting subsystems
+#
+# CONFIG_EDAC_DEBUG is not set
+CONFIG_EDAC_MM_EDAC=y
+# CONFIG_EDAC_AMD76X is not set
+# CONFIG_EDAC_E7XXX is not set
+# CONFIG_EDAC_E752X is not set
+# CONFIG_EDAC_I82875P is not set
+# CONFIG_EDAC_I82860 is not set
+# CONFIG_EDAC_R82600 is not set
+CONFIG_EDAC_POLL=y
+
+#
+# Distributed Lock Manager
+#
+# CONFIG_DLM is not set
+
+#
+# Real Time Clock
+#
+CONFIG_RTC_LIB=y
+CONFIG_RTC_CLASS=y
+CONFIG_RTC_HCTOSYS=y
+CONFIG_RTC_HCTOSYS_DEVICE="rtc0"
+
+#
+# RTC interfaces
+#
+CONFIG_RTC_INTF_SYSFS=m
+CONFIG_RTC_INTF_PROC=m
+CONFIG_RTC_INTF_DEV=y
+
+#
+# RTC drivers
+#
+# CONFIG_RTC_DRV_X1205 is not set
+# CONFIG_RTC_DRV_DS1672 is not set
+# CONFIG_RTC_DRV_PCF8563 is not set
+# CONFIG_RTC_DRV_RS5C372 is not set
+# CONFIG_RTC_DRV_M48T86 is not set
+# CONFIG_RTC_DRV_TEST is not set
+
+#
+# File systems
+#
+CONFIG_EXT2_FS=y
+# CONFIG_EXT2_FS_XATTR is not set
+# CONFIG_EXT2_FS_XIP is not set
+CONFIG_EXT3_FS=y
+# CONFIG_EXT3_FS_XATTR is not set
+CONFIG_JBD=y
+# CONFIG_JBD_DEBUG is not set
+# CONFIG_REISER4_FS is not set
+# CONFIG_REISERFS_FS is not set
+# CONFIG_JFS_FS is not set
+# CONFIG_FS_POSIX_ACL is not set
+# CONFIG_XFS_FS is not set
+# CONFIG_OCFS2_FS is not set
+# CONFIG_MINIX_FS is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_INOTIFY=y
+CONFIG_QUOTA=y
+# CONFIG_QFMT_V1 is not set
+CONFIG_QFMT_V2=y
+CONFIG_QUOTACTL=y
+CONFIG_DNOTIFY=y
+# CONFIG_AUTOFS_FS is not set
+CONFIG_AUTOFS4_FS=y
+# CONFIG_FUSE_FS is not set
+
+#
+# CD-ROM/DVD Filesystems
+#
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=m
+# CONFIG_UDF_FS is not set
+
+#
+# DOS/FAT/NT Filesystems
+#
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_NTFS_FS=m
+# CONFIG_NTFS_DEBUG is not set
+CONFIG_NTFS_RW=y
+
+#
+# Pseudo filesystems
+#
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+# CONFIG_HUGETLBFS is not set
+# CONFIG_HUGETLB_PAGE is not set
+CONFIG_RAMFS=y
+# CONFIG_CONFIGFS_FS is not set
+
+#
+# Miscellaneous filesystems
+#
+# CONFIG_ADFS_FS is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_HFSPLUS_FS is not set
+# CONFIG_BEFS_FS is not set
+# CONFIG_BFS_FS is not set
+# CONFIG_EFS_FS is not set
+# CONFIG_CRAMFS is not set
+# CONFIG_VXFS_FS is not set
+# CONFIG_HPFS_FS is not set
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_SYSV_FS is not set
+# CONFIG_UFS_FS is not set
+
+#
+# Network File Systems
+#
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+# CONFIG_NFS_V3_ACL is not set
+CONFIG_NFS_V4=y
+CONFIG_NFS_DIRECTIO=y
+# CONFIG_NFSD is not set
+CONFIG_ROOT_NFS=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_NFS_COMMON=y
+CONFIG_SUNRPC=y
+CONFIG_SUNRPC_GSS=y
+CONFIG_RPCSEC_GSS_KRB5=y
+# CONFIG_RPCSEC_GSS_SPKM3 is not set
+# CONFIG_SMB_FS is not set
+# CONFIG_CIFS is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_CODA_FS is not set
+# CONFIG_AFS_FS is not set
+# CONFIG_9P_FS is not set
+
+#
+# Partition Types
+#
+CONFIG_PARTITION_ADVANCED=y
+# CONFIG_ACORN_PARTITION is not set
+# CONFIG_OSF_PARTITION is not set
+# CONFIG_AMIGA_PARTITION is not set
+# CONFIG_ATARI_PARTITION is not set
+# CONFIG_MAC_PARTITION is not set
+CONFIG_MSDOS_PARTITION=y
+# CONFIG_BSD_DISKLABEL is not set
+# CONFIG_MINIX_SUBPARTITION is not set
+# CONFIG_SOLARIS_X86_PARTITION is not set
+# CONFIG_UNIXWARE_DISKLABEL is not set
+# CONFIG_LDM_PARTITION is not set
+# CONFIG_SGI_PARTITION is not set
+# CONFIG_ULTRIX_PARTITION is not set
+# CONFIG_SUN_PARTITION is not set
+# CONFIG_KARMA_PARTITION is not set
+# CONFIG_EFI_PARTITION is not set
+
+#
+# Native Language Support
+#
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="cp437"
+CONFIG_NLS_CODEPAGE_437=m
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+# CONFIG_NLS_CODEPAGE_850 is not set
+# CONFIG_NLS_CODEPAGE_852 is not set
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+# CONFIG_NLS_CODEPAGE_1250 is not set
+# CONFIG_NLS_CODEPAGE_1251 is not set
+# CONFIG_NLS_ASCII is not set
+# CONFIG_NLS_ISO8859_1 is not set
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_13 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+# CONFIG_NLS_ISO8859_15 is not set
+# CONFIG_NLS_KOI8_R is not set
+# CONFIG_NLS_KOI8_U is not set
+# CONFIG_NLS_UTF8 is not set
+
+#
+# Instrumentation Support
+#
+CONFIG_PROFILING=y
+CONFIG_OPROFILE=m
+# CONFIG_KPROBES is not set
+
+#
+# Kernel hacking
+#
+CONFIG_PRINTK_TIME=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_SHIRQ=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_LOG_BUF_SHIFT=18
+CONFIG_DETECT_SOFTLOCKUP=y
+# CONFIG_SCHEDSTATS is not set
+CONFIG_DEBUG_SLAB=y
+CONFIG_DEBUG_SLAB_LEAK=y
+CONFIG_DEBUG_MUTEXES=y
+CONFIG_DEBUG_SPINLOCK=y
+CONFIG_DEBUG_SPINLOCK_SLEEP=y
+# CONFIG_DEBUG_KOBJECT is not set
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_DEBUG_INFO=y
+# CONFIG_PAGE_OWNER is not set
+# CONFIG_DEBUG_FS is not set
+# CONFIG_DEBUG_VM is not set
+CONFIG_FRAME_POINTER=y
+CONFIG_UNWIND_INFO=y
+CONFIG_FORCED_INLINING=y
+# CONFIG_RCU_TORTURE_TEST is not set
+# CONFIG_DEBUG_SYNCHRO_TEST is not set
+CONFIG_EARLY_PRINTK=y
+# CONFIG_DEBUG_STACKOVERFLOW is not set
+# CONFIG_DEBUG_STACK_USAGE is not set
+CONFIG_STACK_BACKTRACE_COLS=1
+# CONFIG_DEBUG_PAGEALLOC is not set
+# CONFIG_DEBUG_RODATA is not set
+# CONFIG_DEBUG_INITDATA is not set
+# CONFIG_4KSTACKS is not set
+# CONFIG_KGDB is not set
+
+#
+# Security options
+#
+# CONFIG_KEYS is not set
+# CONFIG_SECURITY is not set
+
+#
+# Cryptographic options
+#
+CONFIG_CRYPTO=y
+# CONFIG_CRYPTO_HMAC is not set
+# CONFIG_CRYPTO_NULL is not set
+# CONFIG_CRYPTO_MD4 is not set
+CONFIG_CRYPTO_MD5=y
+# CONFIG_CRYPTO_SHA1 is not set
+# CONFIG_CRYPTO_SHA256 is not set
+# CONFIG_CRYPTO_SHA512 is not set
+# CONFIG_CRYPTO_WP512 is not set
+# CONFIG_CRYPTO_TGR192 is not set
+CONFIG_CRYPTO_DES=y
+# CONFIG_CRYPTO_BLOWFISH is not set
+# CONFIG_CRYPTO_TWOFISH is not set
+# CONFIG_CRYPTO_SERPENT is not set
+CONFIG_CRYPTO_AES=m
+# CONFIG_CRYPTO_AES_586 is not set
+# CONFIG_CRYPTO_CAST5 is not set
+# CONFIG_CRYPTO_CAST6 is not set
+# CONFIG_CRYPTO_TEA is not set
+CONFIG_CRYPTO_ARC4=m
+# CONFIG_CRYPTO_KHAZAD is not set
+# CONFIG_CRYPTO_ANUBIS is not set
+# CONFIG_CRYPTO_DEFLATE is not set
+CONFIG_CRYPTO_MICHAEL_MIC=m
+# CONFIG_CRYPTO_CRC32C is not set
+# CONFIG_CRYPTO_TEST is not set
+
+#
+# Hardware crypto devices
+#
+# CONFIG_CRYPTO_DEV_PADLOCK is not set
+
+#
+# Library routines
+#
+# CONFIG_CRC_CCITT is not set
+# CONFIG_CRC16 is not set
+CONFIG_CRC32=y
+CONFIG_LIBCRC32C=m
+CONFIG_ZLIB_INFLATE=m
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_KTIME_SCALAR=y
+
+--------------040104070508080607060004--

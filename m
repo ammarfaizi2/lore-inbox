@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWCZHsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWCZHvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751158AbWCZHsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 02:48:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWCZHsQ
+	id S1751159AbWCZHvE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 02:51:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWCZHvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 02:48:16 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:49093 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751158AbWCZHsP (ORCPT
+	Sun, 26 Mar 2006 02:51:04 -0500
+Received: from noby.w34u.sk ([217.67.24.122]:61119 "HELO mail.w34u.sk")
+	by vger.kernel.org with SMTP id S1751159AbWCZHvC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 02:48:15 -0500
-Date: Sun, 26 Mar 2006 09:45:35 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Bill Huey <billh@gnuppy.monkey.org>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [patch 00/10] PI-futex: -V1
-Message-ID: <20060326074535.GA9969@elte.hu>
-References: <20060325184528.GA16724@elte.hu> <20060326045404.GA9308@gnuppy.monkey.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060326045404.GA9308@gnuppy.monkey.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sun, 26 Mar 2006 02:51:02 -0500
+Message-ID: <442647E4.6080809@skalwifi.sk>
+Date: Sun, 26 Mar 2006 09:51:00 +0200
+From: Martin Petrak <martin.petrak@skalwifi.sk>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: unregister_netdevice: waiting for ppp0 to become free
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-* Bill Huey <billh@gnuppy.monkey.org> wrote:
+I am using kernel 2.6.14.6-grsec (x86_64 on AMD Sempron 64) with QoS (HTB)
 
-> You'll need to do priority ceiling emulation as well. [...]
+Occasionally, when pppd drops a connection I see this in syslog :
 
-i mentioned it further down in the text - PRIO_PROTECT support (which is 
-priority ceiling) is planned for pthread mutexes. It needs no further 
-kernel changes, it's a pure userspace thing.
 
-	Ingo
+Mar 25 13:40:17 myserver pppd[1300]: No response to 3 echo-requests
+Mar 25 13:40:17 myserver pppd[1300]: Serial link appears to be disconnected.
+Mar 25 13:40:17 myserver pppd[1300]: Connect time 1250.6 minutes.
+Mar 25 13:40:17 myserver pppd[1300]: Sent 971616622 bytes, received 
+1884313787 bytes.
+Mar 25 13:40:20 myserver pppd[1300]: Connection terminated.
+Mar 25 13:40:30 myserver kernel: unregister_netdevice: waiting for ppp0 
+to become free. Usage count = 358
+
+Then only force reboot of the machine solves the problem.
+
+I found very similar problem with same symptoms :
+http://groups.google.com/group/linux.debian.kernel/browse_thread/thread/dcb36b5fe827fad6/05445a30be147608
+
+Do you have any ideas how I can debug why dev->refcnt did not reach zero?
+
+regards,
+
+Martin

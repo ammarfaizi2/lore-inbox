@@ -1,89 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWCZXHQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWCZXKX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbWCZXHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 18:07:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWCZXHQ
+	id S932178AbWCZXKX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 18:10:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWCZXKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 18:07:16 -0500
-Received: from reserv6.univ-lille1.fr ([193.49.225.20]:64648 "EHLO
-	reserv6.univ-lille1.fr") by vger.kernel.org with ESMTP
-	id S932171AbWCZXHO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 18:07:14 -0500
-Message-ID: <44271E88.6040101@tremplin-utc.net>
-Date: Mon, 27 Mar 2006 01:06:48 +0200
-From: Eric Piel <Eric.Piel@tremplin-utc.net>
-User-Agent: Thunderbird 1.5 (X11/20060225)
+	Sun, 26 Mar 2006 18:10:22 -0500
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:62438
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S932178AbWCZXKV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 18:10:21 -0500
+Date: Sun, 26 Mar 2006 15:10:00 -0800
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Esben Nielsen <simlo@phys.au.dk>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
+Subject: Re: [patch 00/10] PI-futex: -V1
+Message-ID: <20060326231000.GA14280@gnuppy.monkey.org>
+References: <20060326074535.GA9969@elte.hu> <Pine.LNX.4.44L0.0603261045230.32389-100000@lifa03.phys.au.dk> <20060326142539.GA26204@elte.hu>
 MIME-Version: 1.0
-To: Rob Landley <rob@landley.net>
-CC: Kyle Moffett <mrmacman_g4@mac.com>, nix@esperi.org.uk, mmazur@kernel.pl,
-       linux-kernel@vger.kernel.org, llh-discuss@lists.pld-linux.org
-Subject: Re: [RFC][PATCH 0/2] KABI example conversion and cleanup
-References: <200603141619.36609.mmazur@kernel.pl> <20060326065205.d691539c.mrmacman_g4@mac.com> <4426A5BF.2080804@tremplin-utc.net> <200603261609.10992.rob@landley.net>
-In-Reply-To: <200603261609.10992.rob@landley.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender DNS name whitelisted, not delayed by milter-greylist-2.0.2 (reserv6.univ-lille1.fr [193.49.225.20]); Mon, 27 Mar 2006 01:06:56 +0200 (CEST)
-X-USTL-MailScanner-Information: Please contact the ISP for more information
-X-USTL-MailScanner: Found to be clean
-X-USTL-MailScanner-From: eric.piel@tremplin-utc.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060326142539.GA26204@elte.hu>
+User-Agent: Mutt/1.5.11+cvs20060126
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-26.03.2006 23:09, Rob Landley wrote/a écrit:
-> On Sunday 26 March 2006 9:31 am, Eric Piel wrote:
->> I completely agree with rules 1, 2 and 5. However, IMHO rule 4 should
->> just be the inverse of rule 5: The stuff in include/linux should always
->> be independent from KABI (and userspace of course). Simply because the
->> way we _implement_ things in the kernel has to be different from the
->> things that we _specify_ in the kernel ABI.
+On Sun, Mar 26, 2006 at 04:25:39PM +0200, Ingo Molnar wrote:
+> If PI is used, then the kernel will automatically boost the low-prio 
+> task to high-prio, if the high-prio task wants to take that lock too.  
+> Otherwise the low-prio task will remain on low-prio - not delaying the 
+> medium-prio task. So the average delays of the medium-prio task improve.  
 > 
-> You know all the stuff that's marked __user?  It's all kernel ABI.  Having it 
-> defined in two places invites version skew, and the kernel needs it too 
-> because the kernel is parsing the stuff sent in by userspace and filling it 
-> out to send back to userspace.
+> [ Furthermore, theoretically, if the application has a workflow pattern 
+>   in which the medium-prio and high-prio tasks will never run at the 
+>   same time, then priority ceiling logic would degrade the worst-case 
+>   latency of the medium-prio task too. ]
 > 
-> Lots of syscalls and ioctls and such pass a structure back and forth from 
-> userspace to the kernel and back, right?  Doing a stat() fills out a 
-> structure, doing an losetup fills out a structure, and so on.
+> [ for completeness: PI is transitive as well, so if at such a moment the 
+>   highprio task preempts the medium prio task (which preempted the 
+>   lowprio task holding the lock), and the highprio task wants to take 
+>   the lock, then the lowprio task will be boosted to high-prio and can 
+>   finish the critical section to hand over the lock to the highprio 
+>   task. ]
 > 
-> Userspace needs to know what's in this structure.  It may be wrapped in a libc 
-> function that fills out a different structure from the kernel structure, but 
-> the data that goes back and forth between the program and the kernel has to 
-> be defined in a header somewhere so the libc knows what the kernel's sending 
-> and the kernel knows what the libc is sending.  (And for those functions with 
-> no libc wrapper, the user program needs to know the structure directly, 
-> somehow.)
+> i.e. PI, as implemented by this patchset, is clearly superior to 
+> priority ceiling logic.
 > 
-> Having a data-marshalling ABI structure defined in two places invites version 
-> skew.  Userspace needs access to this (at least to build a libc), and the 
-> kernel needs access to this, because it's a _communication_mechanism_.  You 
-> can't have a communication mechanism that's only defined at one end.
-Well, that's half true. Indeed, in general, having two separate 
-definitions invites version skew. However, in this particular case, it's 
-slightly different: because the principle of the ABI is to be stable, or 
-more exactly _compatible_. This means that if one definition was right 
-at some point in the time, it should always still be true ten years 
-later. At worse, the ABI can be extended, but never changed. If the 
-specification (KABI) and the implementation (Linux) are not compatible 
-it means the kernel developers screwed up, not that the KABI maintainers 
-haven't updated in time.
+> furthermore, there's a usability advantage to PI too: programmers often 
+> find it more natural to assign priorities to a given 'workflow' 
+> (task/thread), and not to every lock. I.e. i think PI is more natural. 
+> (and hence easier to design for)
 
-Of course, next to the theory, there is the reality. Some part of the 
-ABI has already be changed (broken) in the past (like the alsa ABI, 
-IIRC). In such case the KABI maintainers will have to handle the changes 
-as promptly as possible, but the responsibility will be held by the 
-kernel developer who has opted for breakage.
+It's not quite as a simple as that. The use of a ceiling is a more aggressive
+method of controlling priority in an application. The use it can control the
+thread preeemption, with regard to thread priority, primarily below the ceiling
+by prevent the occurance of priority inversion and the for the need for simple
+priority inheritance in the first place. It just simplifies what's going on in
+the app as wel as what can happen.
 
-The real problem of sharing the same headers between kernel and KABI is 
-that it will end up by having to re-implement the "#ifdef __KERNEL__"'s. 
-Have a look at Kyle's second patch "Generalize fd_set handling across 
-architectures". Some headers had a different version of the __FD_*() 
-macros depending on the compiler. That's something you may want to have 
-in the implementation but definitely not in the specification. In this 
-situation, Kyle handled it nicely by writing versions compatible with 
-any compiler. Good looking solution inside the kernel will not always be 
-an option. IMHO, if KABI and the kernel share the same headers, it's 
-just a matter of time before someone introduces an "#ifdef 
-__KERNEL__"-alike mechanism, exactly what we've been trying to remove.
+Apps using ceilings don't have to consider the potential of a PI boost chain
+in the first place if it was allowed to complete without the effects of floating
+priority. Certain RT app needs depend on this kind of ceiling behavior and the
+timing that goes with it. I'm sure Esben and company will correctly me if I'm
+wrong, but his is how I understand it and I believe this to be correct.
 
-Eric
+> but nevertheless, the PRIO_PROTECT API for POSIX mutexes does exist, and 
+> we can (and will) support it from userspace. All that it needed was to 
+> make sure that setscheduler() is fully PI-aware: it must not decrease 
+> the priority of a task to below the highest-priority waiter, and it must 
+> 'remember' the setscheduler() priority [and restore to it] after PI 
+> effects wear off. This is implemented by our PI code anyway, so we get 
+> correct priority ceiling (PRIO_PROTECT) behavior 'for free'.
+
+Talking about nearly free things. If your userpace implementation has a crude
+notion of TCB, then you might able to a lazy user to kernel space sync of a
+thread's priority at an in-kernel preemption point such as an interrupt exit
+or some kind of preemption checks. This would maintain the run correctness of
+that thraed since it is already running in the first place. Userspace
+implementations of pthreead_{get,set}schedparam would just use the cached
+userspace value directly in from the TCB instead of a kernel call.
+
+I mention this because this could be a decent method of optimizing out the
+opening priority boost and associated setscheduler() with a ceiling. The demotion
+hit for a ceiling is unavoiable, but the PI demotion case suffers this as well
+if it's contended. That's how I understand the problem and I'm just forwarding
+some ideas with regard to the issue, but this is starting to push into scheduler
+activations which just about everybody has abandoned these days (Solaris, etc...). 
+
+bill
+

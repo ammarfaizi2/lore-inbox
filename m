@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWCZRFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWCZRHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbWCZRFt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 12:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWCZRFt
+	id S1751191AbWCZRHT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 12:07:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWCZRHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 12:05:49 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59142 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932096AbWCZRFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 12:05:48 -0500
-Date: Sun, 26 Mar 2006 19:05:46 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: dwmw2@infradead.org
-Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
-       "Petri T. Koistinen" <petri.koistinen@iki.fi>
-Subject: [2.6 patch] drivers_mtd_maps_vmax301.c: fix off by one vmax_mtd
-Message-ID: <20060326170546.GO4053@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sun, 26 Mar 2006 12:07:18 -0500
+Received: from mx02.cybersurf.com ([209.197.145.105]:64730 "EHLO
+	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S1751191AbWCZRHQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 12:07:16 -0500
+Subject: Re: [Patch 8/9] generic netlink utility functions
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: balbir@in.ibm.com
+Cc: Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       netdev <netdev@vger.kernel.org>
+In-Reply-To: <20060326164434.GC13362@in.ibm.com>
+References: <1142296834.5858.3.camel@elinux04.optonline.net>
+	 <1142297705.5858.28.camel@elinux04.optonline.net>
+	 <20060326164434.GC13362@in.ibm.com>
+Content-Type: text/plain
+Organization: unknown
+Date: Sun, 26 Mar 2006 12:06:57 -0500
+Message-Id: <1143392817.5184.55.camel@jzny2>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Petri T. Koistinen" <petri.koistinen@iki.fi>
+On Sun, 2006-26-03 at 22:14 +0530, Balbir Singh wrote:
 
-This patch fixes an obcious off-by-one error (vmax_mtd[] contains 
-two elements).
+> Jamal,
+> 
+> Does the implementation of these utilities look ok? We use genlmsg_data()
+> in the delay accounting code but not genlmsg_len(), hence it might not
+> be very well tested (just reviewed).
+> 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+They look fine to me - please resubmit and CC Thomas Graf in case he
+sees it different.
 
---- linux-2.6.14-rc3-git3/drivers/mtd/maps/vmax301.c	2005-05-25 13:48:53.000000000 +1000
-+++ .6877.trivial/drivers/mtd/maps/vmax301.c	2005-10-04 19:29:50.000000000 +1000
-@@ -182,7 +182,7 @@ int __init init_vmax301(void)
- 		}
- 	}
- 
--	if (!vmax_mtd[1] && !vmax_mtd[2]) {
-+	if (!vmax_mtd[0] && !vmax_mtd[1]) {
- 		iounmap((void *)iomapadr);
- 		return -ENXIO;
- 	}
-
+cheers,
+jamal
 

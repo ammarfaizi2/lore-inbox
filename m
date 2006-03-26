@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWCZPjF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWCZPkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbWCZPjF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 10:39:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWCZPjF
+	id S1751331AbWCZPkr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 10:40:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWCZPkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 10:39:05 -0500
-Received: from albireo.ucw.cz ([84.242.65.108]:50311 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751320AbWCZPjE (ORCPT
+	Sun, 26 Mar 2006 10:40:47 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:19353 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751331AbWCZPkr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 10:39:04 -0500
-Date: Sun, 26 Mar 2006 17:38:59 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       nix@esperi.org.uk, rob@landley.net, mmazur@kernel.pl,
-       llh-discuss@lists.pld-linux.org
-Subject: Re: [RFC][PATCH 1/2] Create initial kernel ABI header	infrastructure
-Message-ID: <mj+md-20060326.153649.8590.albireo@ucw.cz>
-References: <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com> <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix> <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com> <20060326065205.d691539c.mrmacman_g4@mac.com> <20060326065416.93d5ce68.mrmacman_g4@mac.com> <1143376351.3064.9.camel@laptopd505.fenrus.org> <A6491D09-3BCF-4742-A367-DCE717898446@mac.com> <mj+md-20060326.125803.7105.albireo@ucw.cz> <50ACA1D0-C376-491A-A927-872B04964663@mac.com>
+	Sun, 26 Mar 2006 10:40:47 -0500
+Date: Sun, 26 Mar 2006 10:40:42 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: smp_locks reference_discarded errors
+Message-ID: <20060326154042.GB13684@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060325033948.GA15564@redhat.com> <20060325235035.5fcb902f.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <50ACA1D0-C376-491A-A927-872B04964663@mac.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060325235035.5fcb902f.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sat, Mar 25, 2006 at 11:50:35PM -0800, Andrew Morton wrote:
+ > Dave Jones <davej@redhat.com> wrote:
+ > >
+ > > since the addition of smp alternatives, the following is occuring..
+ > > 
+ > > Error: ./drivers/md/md.o .smp_locks refers to 0000008c R_386_32          .exit.text
+ > > Error: ./drivers/usb/storage/libusual.o .smp_locks refers to 00000008 R_386_32          .exit.text
+ > > Error: ./net/802/psnap.o .smp_locks refers to 00000000 R_386_32          .exit.text
+ > > Error: ./drivers/pci/hotplug/ibmphp_hpc.o .smp_locks refers to 00000008 R_386_32          .exit.text
+ > > Error: ./drivers/pci/hotplug/ibmphp_hpc.o .smp_locks refers to 0000000c R_386_32          .exit.text
+ > > 
+ > > example .config at http://people.redhat.com/davej/kernel-2.6.16-i686-smp.config
+ > > 
+ > 
+ > I guess an atomic operation in __exit code will cause that.  down() and
+ > atomic_dec_and_test() in two cases.
+ > 
+ > I suspect most of these callsites are just wrongly coded - it's pretty
+ > unusual for __exit code to really need to lock anything - what is there to
+ > be racing against?
+ > 
+ > This is emitted by reference_discarded.pl?
 
-> It _is_ fragile, but for a number of POSIX-defined structs that's  
-> actually the only way to do it without duplicating the data structure  
-> in entirety, unless the GCC people can implement a "typedef struct  
-> foo struct bar;"
+came out of a 'make buildcheck' a day or two ago (the following day,
+Sam nuked reference_discarded.pl in favour of it being done
+magically somewhere else (I've not looked into how its done now).
 
-Actually, something like that can be achieved using anonymous structure
-members:
+		Dave
 
-struct xxx {
-	struct yyy;
-};
-
-However, I'm not sure how old versions of GCC support this feature.
-
-				Have a nice fortnight
 -- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-And God said: E = 1/2mv^2 - Ze^2/r ...and there *WAS* light!
+http://www.codemonkey.org.uk

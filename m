@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWCZHvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWCZHy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751159AbWCZHvE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 02:51:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWCZHvE
+	id S1751160AbWCZHy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 02:54:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWCZHy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 02:51:04 -0500
-Received: from noby.w34u.sk ([217.67.24.122]:61119 "HELO mail.w34u.sk")
-	by vger.kernel.org with SMTP id S1751159AbWCZHvC (ORCPT
+	Sun, 26 Mar 2006 02:54:29 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:50627 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751160AbWCZHy2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 02:51:02 -0500
-Message-ID: <442647E4.6080809@skalwifi.sk>
-Date: Sun, 26 Mar 2006 09:51:00 +0200
-From: Martin Petrak <martin.petrak@skalwifi.sk>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: unregister_netdevice: waiting for ppp0 to become free
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+	Sun, 26 Mar 2006 02:54:28 -0500
+Date: Sat, 25 Mar 2006 23:50:35 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: smp_locks reference_discarded errors
+Message-Id: <20060325235035.5fcb902f.akpm@osdl.org>
+In-Reply-To: <20060325033948.GA15564@redhat.com>
+References: <20060325033948.GA15564@redhat.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Dave Jones <davej@redhat.com> wrote:
+>
+> since the addition of smp alternatives, the following is occuring..
+> 
+> Error: ./drivers/md/md.o .smp_locks refers to 0000008c R_386_32          .exit.text
+> Error: ./drivers/usb/storage/libusual.o .smp_locks refers to 00000008 R_386_32          .exit.text
+> Error: ./net/802/psnap.o .smp_locks refers to 00000000 R_386_32          .exit.text
+> Error: ./drivers/pci/hotplug/ibmphp_hpc.o .smp_locks refers to 00000008 R_386_32          .exit.text
+> Error: ./drivers/pci/hotplug/ibmphp_hpc.o .smp_locks refers to 0000000c R_386_32          .exit.text
+> 
+> example .config at http://people.redhat.com/davej/kernel-2.6.16-i686-smp.config
+> 
 
-I am using kernel 2.6.14.6-grsec (x86_64 on AMD Sempron 64) with QoS (HTB)
+I guess an atomic operation in __exit code will cause that.  down() and
+atomic_dec_and_test() in two cases.
 
-Occasionally, when pppd drops a connection I see this in syslog :
+I suspect most of these callsites are just wrongly coded - it's pretty
+unusual for __exit code to really need to lock anything - what is there to
+be racing against?
 
-
-Mar 25 13:40:17 myserver pppd[1300]: No response to 3 echo-requests
-Mar 25 13:40:17 myserver pppd[1300]: Serial link appears to be disconnected.
-Mar 25 13:40:17 myserver pppd[1300]: Connect time 1250.6 minutes.
-Mar 25 13:40:17 myserver pppd[1300]: Sent 971616622 bytes, received 
-1884313787 bytes.
-Mar 25 13:40:20 myserver pppd[1300]: Connection terminated.
-Mar 25 13:40:30 myserver kernel: unregister_netdevice: waiting for ppp0 
-to become free. Usage count = 358
-
-Then only force reboot of the machine solves the problem.
-
-I found very similar problem with same symptoms :
-http://groups.google.com/group/linux.debian.kernel/browse_thread/thread/dcb36b5fe827fad6/05445a30be147608
-
-Do you have any ideas how I can debug why dev->refcnt did not reach zero?
-
-regards,
-
-Martin
+This is emitted by reference_discarded.pl?

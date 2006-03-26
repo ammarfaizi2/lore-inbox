@@ -1,77 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWCZPX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWCZPff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751319AbWCZPX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 10:23:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWCZPX2
+	id S1751200AbWCZPff (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 10:35:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWCZPff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 10:23:28 -0500
-Received: from smtpout.mac.com ([17.250.248.85]:56033 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751319AbWCZPX1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 10:23:27 -0500
-In-Reply-To: <1143383968.3064.16.camel@laptopd505.fenrus.org>
-References: <200603141619.36609.mmazur@kernel.pl> <200603231811.26546.mmazur@kernel.pl> <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com> <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix> <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com> <20060326065205.d691539c.mrmacman_g4@mac.com> <20060326065416.93d5ce68.mrmacman_g4@mac.com> <1143376351.3064.9.camel@laptopd505.fenrus.org> <A6491D09-3BCF-4742-A367-DCE717898446@mac.com> <1143383968.3064.16.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <C01BCBB9-8A65-4602-A26E-4468062D6AA4@mac.com>
-Cc: linux-kernel@vger.kernel.org, nix@esperi.org.uk, rob@landley.net,
-       mmazur@kernel.pl, llh-discuss@lists.pld-linux.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [RFC][PATCH 1/2] Create initial kernel ABI	header	infrastructure
-Date: Sun, 26 Mar 2006 10:23:04 -0500
-To: Arjan van de Ven <arjan@infradead.org>
-X-Mailer: Apple Mail (2.746.3)
+	Sun, 26 Mar 2006 10:35:35 -0500
+Received: from main.gmane.org ([80.91.229.2]:33419 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751200AbWCZPfe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 10:35:34 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: Papouch USB thermometer support
+Date: Mon, 27 Mar 2006 00:35:20 +0900
+Message-ID: <e06cbp$dv0$1@sea.gmane.org>
+References: <20060324194655.GY4124@vanheusden.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
+User-Agent: Mail/News 1.5 (X11/20060324)
+In-Reply-To: <20060324194655.GY4124@vanheusden.com>
+X-Enigmail-Version: 0.94.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 26, 2006, at 09:39:28, Arjan van de Ven wrote:
->> According to the various standards all symbols beginning with __  
->> are reserved for "The Implementation", including the compiler, the  
->> standard library, the kernel, etc.  In order to avoid clashing  
->> with any/all of those, I picked the __KABI_ and __kabi_ prefixes  
->> for uniqueness.  In theory I could just use __, but there are  
->> problems with that too.  For example, note how the current  
->> compiler.h files redefine __always_inline to mean something kinda  
->> different.
->
-> well... the "problem" is there today, and... it's not much of a  
-> problem if at all; there's just a few simple rules to keep it that  
-> way which seem to work.
+Folkert van Heusden wrote:
+> The following patch against 2.6.15 adds support for the www.Papouch.com
+> USB thermometer by adding the appropriate vendor and product id.
 
-The current rules work for things kept completely private to the  
-kernel.  If we start exporting things into the guts of libc, we can  
-expect that those guys have _also_ been using all sorts of double- 
-underscore symbols in conflicting ways.
+OK, this should probably work, but adding a new device support might require
+a bit more effort...
 
-> And your __alway_inline example.. that's something that really is  
-> kernel internal and shouldn't be exposed to userland.
+And since I started looking into the code, I think it may see some
+cleanup, so I'll be submitting shortly a series of two patches, yours included
+as a second one. I'll CC you and please add the correct Signed-off-by line if
+you agree and repost.
 
-Yes, but it illustrates how a supposedly-innocuous double-underscore  
-symbol actually conflicts with a GCC builtin, and that's just GCC!   
-That's not including the massive "The Implementation" codebase that  
-is GLIBC.
+The page for this device is here:
+http://www.papouch.com/shop/scripts/_detail.asp?katcislo=0188
 
-> 2) avoid including kernel headers in kernel headers as far as  
-> possible.  This means, that if an application wants to use MTD  
-> struct "struct mtd_foo" it will have to include the MTD header, but  
-> that he otherwise never gets it. Eg all such symbols are in a "Yes  
-> I really want it" header.
+Specs (in Polish) here:
+http://www.papouch.com/shop/scripts/pdf/tmu.pdf
 
-This is Hard(TM).  Take a look at the interdependent mess which is  
-kernel.h, or sched.h.  Feel free to submit patches :-D  That's  
-actually part of the reason why I'm trying this kabi/*.h bit.  I  
-think that if I can pull out userspace-required struct definitions  
-from the rest of the code, we'll notice that some of the header files  
-don't need as many dependencies anymore and can be cleaned out a bit.
+> 
+> 
+Be careful with this line:
+> Signed off: Folkert van Heusden <folkert@vanheusden.com
 
-I've also been looking at GCC's "precompiled header" stuff.  I think  
-that a single kabi.h file that includes all other kabi headers,  
-precompiled to "kabi.h.gch", could potentially speed up a portion of  
-the linux kernel build by removing a lot of text parsing.  I can't  
-tell for sure till I've cleaned up more crap and done benchmarks, but  
-I'm willing to give it a shot. :-D
+Should be:
+Signed-off-by: Folkert van Heusden <folkert@vanheusden.com>
 
-Cheers,
-Kyle Moffett
+> diff -uNrbBd old/ftdi_sio.c new/ftdi_sio.c
+> --- old/ftdi_sio.c      2006-03-24 20:36:19.000000000 +0100
+> +++ new/ftdi_sio.c      2006-03-24 20:33:20.000000000 +0100
+> @@ -307,6 +307,7 @@
+> 
+> 
+>  static struct usb_device_id id_table_combined [] = {
+> +       { USB_DEVICE(PAPOUCHE_VENDOR, PAPOUCHE_THEM_PROD) },
+
+What about:
+s/PAPOUCHE_VENDOR/PAPOUCHE_VID/g
+s/PAPOUCHE_THEM_PROD/PAPOUCHE_TMU_PID/g
+
+>         { USB_DEVICE(FTDI_VID, FTDI_IRTRANS_PID) },
+>         { USB_DEVICE(FTDI_VID, FTDI_SIO_PID) },
+>         { USB_DEVICE(FTDI_VID, FTDI_8U232AM_PID) },
+> diff -uNrbBd old/ftdi_sio.h new/ftdi_sio.h
+> --- old/ftdi_sio.h      2006-03-24 20:36:19.000000000 +0100
+> +++ new/ftdi_sio.h      2006-03-24 20:37:35.000000000 +0100
+> @@ -20,8 +20,13 @@
+>   * Philipp Gühring - pg@futureware.at - added the Device ID of the USB relais
+You are not using UTF-8 capable MUA or editor or both, so the umlaut is
+broken here.
+
+>   * from Rudolf Gugler
+>   *
+> + * Folkert van Heusden - folkert@vanheusden.com - added the device id of the
+> + * temperature sensor from www.papouch.com
+
+Credits are better with the PID/VID lines, not here. Just look at what
+other (most) people have done.
+
+add at least the name [TMU] here
+
+>   */
+> 
+> +#define PAPOUCHE_VENDOR 0x5050
+> +#define PAPOUCHE_THEM_PROD 0x0400
+
++#define PAPOUCHE_VID 0x5050
++#define PAPOUCHE_TMU_PID 0x0400
+
+> +
+>  #define FTDI_VID       0x0403  /* Vendor Id */
+>  #define FTDI_SIO_PID   0x8372  /* Product Id SIO application of 8U100AX  */
+>  #define FTDI_8U232AM_PID 0x6001 /* Similar device to SIO above */
+
+IMHO, `diff -ruN` or `diff -pruN` should be better when posting patches :-)
+
+Kalin.
+
+-- 
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
+
 

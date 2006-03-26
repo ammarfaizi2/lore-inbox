@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbWCZKI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWCZKLK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751210AbWCZKI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 05:08:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWCZKI5
+	id S1751212AbWCZKLK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 05:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWCZKLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 05:08:57 -0500
-Received: from mail.gmx.net ([213.165.64.20]:65247 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751210AbWCZKI4 (ORCPT
+	Sun, 26 Mar 2006 05:11:10 -0500
+Received: from ishtar.tlinx.org ([64.81.245.74]:17862 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S1751212AbWCZKLJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 05:08:56 -0500
-X-Authenticated: #14349625
-Subject: Re: 2.6.16-mm1 grub oddness
-From: Mike Galbraith <efault@gmx.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1143290647.7682.5.camel@homer>
-References: <20060323014046.2ca1d9df.akpm@osdl.org>
-	 <1143201413.7741.53.camel@homer> <20060324102537.1d426594.akpm@osdl.org>
-	 <1143262501.7930.4.camel@homer>  <20060324205310.38ce20bf.akpm@osdl.org>
-	 <1143263697.7930.24.camel@homer>  <1143290647.7682.5.camel@homer>
-Content-Type: text/plain
-Date: Sun, 26 Mar 2006 11:10:00 +0200
-Message-Id: <1143364200.8281.6.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Sun, 26 Mar 2006 05:11:09 -0500
+Message-ID: <442668B8.8020905@tlinx.org>
+Date: Sun, 26 Mar 2006 02:11:04 -0800
+From: Linda Walsh <lkml@tlinx.org>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Security downgrade? CONFIG_HOTPLUG required in 2.6.16?
+References: <44237D87.70300@tlinx.org> <Pine.LNX.4.61.0603251954030.29793@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0603251954030.29793@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-03-25 at 13:44 +0100, Mike Galbraith wrote:
-> On Sat, 2006-03-25 at 06:14 +0100, Mike Galbraith wrote:
-> > On Fri, 2006-03-24 at 20:53 -0800, Andrew Morton wrote:
-> > > 
-> > > Did you try disabling fbdev?
-> > > 
-> > 
-> > No, but I will.
-> 
-> No dice, I just had another dead reboot.  Nobody else seems to be seeing
-> this, so maybe my box is going south.  A single bit error the other day,
-> and now this.  Maybe it's not the kernel, just a coincidence that I've
-> only seen it with 2.6.16-mm1.  Maybe I've got dust crawling into memory
-> sockets or whatnot.  Memtest86 time.
+Jan Engelhardt wrote:
+> Do you use swsusp?
+>
+---
+    Nep.  It's acting as a server :-).  It's also SMP, does
+that work with SWSUSP?  Guess it has to now that laptops
+have dual CPU's.  In fact that that makes me wonder: how well
+do the SMP laptops do power management under linux?  Back
+when I had a dual boot laptop, I seem to remember linux getting
+about 25-33% more uptime. 
 
-It's apparently not my hardware btw.  If I find out what it is that's
-causing this, I'll holler.
-
-	-Mike
+-l
 

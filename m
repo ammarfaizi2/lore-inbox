@@ -1,110 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWCZCf6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWCZCkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbWCZCf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 21:35:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWCZCf6
+	id S1751322AbWCZCkt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 21:40:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWCZCkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 21:35:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:63634 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751284AbWCZCf5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 21:35:57 -0500
-Date: Sat, 25 Mar 2006 18:32:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [patch 2/2] hrtimer
-Message-Id: <20060325183213.63ab667c.akpm@osdl.org>
-In-Reply-To: <20060325121223.966390000@localhost.localdomain>
-References: <20060325121219.172731000@localhost.localdomain>
-	<20060325121223.966390000@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 25 Mar 2006 21:40:49 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:19130 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751322AbWCZCks
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 21:40:48 -0500
+Date: Sun, 26 Mar 2006 08:10:39 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nickpiggin@yahoo.com.au, mingo@elte.hu, suresh.b.siddha@intel.com,
+       pj@sgi.com, hawkes@sgi.com, linux-kernel@vger.kernel.org,
+       dino@in.ibm.com
+Subject: Re: [PATCH 2.6.16-mm1 1/2] sched_domain: handle kmalloc failure
+Message-ID: <20060326024039.GA2998@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060325082730.GA17011@in.ibm.com> <20060325180605.6e5bb4b9.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060325180605.6e5bb4b9.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner <tglx@linutronix.de> wrote:
->
-> 
-> Replace the nanosleep private sleeper functionality by the generic
-> hrtimer sleeper.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> 
-> 
->  kernel/hrtimer.c |   34 +++++++---------------------------
->  1 file changed, 7 insertions(+), 27 deletions(-)
-> 
-> Index: linux-2.6.16/kernel/hrtimer.c
-> ===================================================================
-> --- linux-2.6.16.orig/kernel/hrtimer.c
-> +++ linux-2.6.16/kernel/hrtimer.c
-> @@ -655,7 +655,6 @@ void hrtimer_run_queues(void)
->  /*
->   * Sleep related functions:
->   */
-> -
->  static int hrtimer_wakeup(struct hrtimer *timer)
->  {
->  	struct hrtimer_sleeper *t =
-> @@ -675,28 +674,9 @@ void hrtimer_init_sleeper(struct hrtimer
->  	sl->task = task;
->  }
->  
-> -struct sleep_hrtimer {
-> -	struct hrtimer timer;
-> -	struct task_struct *task;
-> -	int expired;
-> -};
-> -
-> -static int nanosleep_wakeup(struct hrtimer *timer)
-> -{
-> -	struct sleep_hrtimer *t =
-> -		container_of(timer, struct sleep_hrtimer, timer);
-> -
-> -	t->expired = 1;
-> -	wake_up_process(t->task);
-> -
-> -	return HRTIMER_NORESTART;
-> -}
-> -
-> -static int __sched do_nanosleep(struct sleep_hrtimer *t, enum hrtimer_mode mode)
-> +static int __sched do_nanosleep(struct hrtimer_sleeper *t, enum hrtimer_mode mode)
->  {
-> -	t->timer.function = nanosleep_wakeup;
-> -	t->task = current;
-> -	t->expired = 0;
-> +	hrtimer_init_sleeper(t, current);
->  
->  	do {
->  		set_current_state(TASK_INTERRUPTIBLE);
-> @@ -704,18 +684,18 @@ static int __sched do_nanosleep(struct s
->  
->  		schedule();
->  
-> -		if (unlikely(!t->expired)) {
-> +		if (unlikely(t->task)) {
->  			hrtimer_cancel(&t->timer);
->  			mode = HRTIMER_ABS;
->  		}
-> -	} while (!t->expired && !signal_pending(current));
-> +	} while (t->task && !signal_pending(current));
->  
-> -	return t->expired;
-> +	return t->task == NULL;
->  }
+On Sat, Mar 25, 2006 at 06:06:05PM -0800, Andrew Morton wrote:
+> This is rather ugly, sorry.
 
-This all looks vaguely racy.  hrtimer_wakeup() will set t->task to NULL
-without barriers, locks or anything.  And the waiter here can break out of
-schedule() due to signal delivery while a wakeup is in progress.
+That was about my reaction too when I was going thr'
+build_sched_domains()!
 
-So the value of t->task here is fairly meaningless.  Ot just depends on how
-far the waker has got through hrtimer_wakeup().
+> So if the kmalloc failed we'll try to limp along without load balancing?
 
-Maybe that doesn't matter, because hrtimer_cancel() will spin until
-hrtimer_wakeup() has completed anyway, but could you please recheck and
-confirm that this is all solid?
+Not exactly. We will still load balance at lower domains (between
+threads of a CPU & between CPUs of a node) that dont require any memory
+allocation.
 
+> I think it would be better to free any thus-far allocated memory and to
+> fail the whole thing.
+
+This would result in absolutely no load balancing (even for domain
+levels which didnt need any memory allocation - like at threads-of-a-cpu
+level). Is that acceptable?
+
+> Returning void from build_sched_domains was wrong.
+
+If we decide to return an error, then it has to be percolated all the
+way down (for ex: update_cpu_domains should now have to return an error
+too if partition_sched_domains returns an error)?
+
+> build_sched_domains() should be static and __cpuinit, btw.
+
+Ok ..Will take care of that in the next version of the patch.
+
+And thanks for the response to the patch!
+
+-- 
+Regards,
+vatsa

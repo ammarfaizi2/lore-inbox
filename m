@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751515AbWCZD2D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWCZDcg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751515AbWCZD2D (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 22:28:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbWCZD2B
+	id S1751054AbWCZDcg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 22:32:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWCZDcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 22:28:01 -0500
-Received: from pproxy.gmail.com ([64.233.166.182]:12048 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751331AbWCZD2A convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 22:28:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YqOdDLtADmwBO95VnjQzLW0RgZJ9fjhCUDSkcfGADVi6juJr6opk/jmSLwle/U9p+rPLbHyqgltjTrM0jbj4Zss9WFD6py6RBs6bEZwYcX/AS5Al3Pp1yzUWT9vKk2K0ZJ0sxHFjREMQEqdqYMkCvkyesVgbRUsQRRPs5axQonc=
-Message-ID: <5b5833aa0603251927u3b29e99fo5c4abde49ad6d08f@mail.gmail.com>
-Date: Sat, 25 Mar 2006 23:27:59 -0400
-From: "Anderson Lizardo" <anderson.lizardo@gmail.com>
-To: mikado4vn@gmail.com
-Subject: Re: Virtual Serial Port
-Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       linux-c-programming@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <4425FB22.7040405@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 25 Mar 2006 22:32:36 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:5331 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751054AbWCZDcg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 22:32:36 -0500
+Date: Sun, 26 Mar 2006 09:02:19 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nickpiggin@yahoo.com.au, mingo@elte.hu, suresh.b.siddha@intel.com,
+       pj@sgi.com, hawkes@sgi.com, linux-kernel@vger.kernel.org,
+       dino@in.ibm.com
+Subject: Re: [PATCH 2.6.16-mm1 1/2] sched_domain: handle kmalloc failure
+Message-ID: <20060326033219.GA12227@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060325082730.GA17011@in.ibm.com> <20060325180605.6e5bb4b9.akpm@osdl.org> <20060326024039.GA2998@in.ibm.com> <20060325184441.0f6ba5bc.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <442582B8.8040403@gmail.com>
-	 <Pine.LNX.4.61.0603251945100.29793@yvahk01.tjqt.qr>
-	 <4425FB22.7040405@gmail.com>
+In-Reply-To: <20060325184441.0f6ba5bc.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/25/06, Mikado <mikado4vn@gmail.com> wrote:
-> My purpose is to provide serial interfaces for debugging. My real box
-> acts as remote host connecting to VMWare box by a *virtual* serial cable
-> so that I can set up a debugging environment.
+On Sat, Mar 25, 2006 at 06:44:41PM -0800, Andrew Morton wrote:
+> Well, when is this code called?  It would be at boot time, in which case
+> the allocations will succeed (if not, the boot fails) or at cpu/node
+> hot-add, in which case the appropriate response is to fail to bring up the
+> new cpu/node.
 
-Have you tried using software-based serial snoopers? See e.g.
-http://freshmeat.net/snooper and
-http://packages.debian.org/unstable/comm/snooper. Haven't tried any of
-these but they seem to do what you describe.
 
+Hmm ..dont follow you here. Are you saying the above is the current
+behavior (say in 2.6.16-mm1)? AFAICS that is not true because 
+arch_init_sched_domains (which handles both bootup & cpu hot-add cases) 
+doesnt return any error back to its caller.
+
+Also note that build_sched_domains can be called from CPUset code too
+(partition_sched_domains) when we modify the exclusive property of a CPUset.
+
+> It's better to send the administrator back to work out why we ran out of
+> memory than to appear to have brought the new cpu/node online, only to have
+> it run funny.
+> 
+> I think?
+
+I don't know. Is load balancing an absolute critical feature that
+without it system bootup and cpu hot-add should be failed? Also note
+that we may be able to do partial load balancing (between threads of a
+CPU) even when there is memory allocation failure.
+
+Regarding giving administrator hints of allocation failure, the printks in 
+build_sched_domain do give those hints.
+
+> 
+> > > build_sched_domains() should be static and __cpuinit, btw.
+> > 
+> > Ok ..Will take care of that in the next version of the patch.
+> > 
+> 
+> umm, it's probably best to not bother.  I think Ashok is looking into all
+> the memory we're presently wasting on non-cpu_hotplug builds.  There's
+> quite a lot in there.
+
+Ok ..Will let Ashok take care of adding __cpuinit prefix.
+
+-- 
 Regards,
---
-Anderson Lizardo
-Embedded Linux Lab - 10LE
-Nokia Institute of Technology - INdT
-Manaus - Brazil
+vatsa

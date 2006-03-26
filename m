@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751514AbWCZUFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751528AbWCZUI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751514AbWCZUFY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 15:05:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbWCZUFY
+	id S1751528AbWCZUI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 15:08:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751537AbWCZUI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 15:05:24 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:1460 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1751507AbWCZUFX
+	Sun, 26 Mar 2006 15:08:28 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:1744 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S1751528AbWCZUI2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 15:05:23 -0500
-Date: Sun, 26 Mar 2006 13:05:22 -0700
+	Sun, 26 Mar 2006 15:08:28 -0500
+Date: Sun, 26 Mar 2006 13:08:26 -0700
 From: Matthew Wilcox <matthew@wil.cx>
-To: Bodo Eggert <7eggert@gmx.de>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Bodo Eggert <7eggert@gmx.de>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
 Subject: Re: [PATCH] Move SG_GET_SCSI_ID from sg to scsi
-Message-ID: <20060326200522.GA3486@parisc-linux.org>
-References: <Pine.LNX.4.58.0603262108500.13001@be1.lrz>
+Message-ID: <20060326200826.GB3486@parisc-linux.org>
+References: <Pine.LNX.4.58.0603262108500.13001@be1.lrz> <1143402698.3055.28.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0603262108500.13001@be1.lrz>
+In-Reply-To: <1143402698.3055.28.camel@laptopd505.fenrus.org>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 26, 2006 at 09:28:28PM +0200, Bodo Eggert wrote:
->          case SCSI_IOCTL_GET_PCI:
->                  return scsi_ioctl_get_pci(sdev, arg);
-> +	case SG_GET_SCSI_ID:
+On Sun, Mar 26, 2006 at 09:51:38PM +0200, Arjan van de Ven wrote:
+> On Sun, 2006-03-26 at 21:28 +0200, Bodo Eggert wrote:
+> > Having a SCSI ID is a generic SCSI property, therefore reading it should 
+> > not be restricted to sg. The SCSI_IOCTL_GET_IDLUN from scsi is limited 
+> > below the kernel data types, so it isn't an adequate replacement.
+> > 
+> > This patch moves SG_GET_SCSI_ID from sg to scsi while renaming it to
+> > SCSI_IOCTL_GET_PCI. Additionally, I renamed struct sg_scsi_id to struct
+> > scsi_ioctl_id, since it is no longer restricted to sg. The corresponding 
+> > typedef will be gone.
+> 
+> To be honest, I think this is the wrong direction; this ioctl seems to
+> be a bad idea (it exposes the SPI parameters... while SPI is only one of
+> many nowadays). Expanding the use of such a thing... please no.
 
-You're using the old ioctl name here ...
+What's SPI specific?
 
-> +		if (!access_ok(VERIFY_WRITE, arg, sizeof (struct scsi_ioctl_id)))
-> +			return -EFAULT;
-> +		else {
-> +			struct scsi_ioctl_id __user *idp = arg;
-> +
-> +			__put_user((int) sdev->host->host_no,
-> +				   &idp->host_no);
++struct scsi_ioctl_id { /* used by SCSI_IOCTL_GET_ID ioctl() */
++    int host_no;        /* as in "scsi<n>" where 'n' is one of 0, 1, 2
+etc */
++    int channel;
++    int scsi_id;        /* scsi id of target device */
++    int lun;
++    int scsi_type;      /* TYPE_... defined in scsi/scsi.h */
++    short h_cmd_per_lun;/* host (adapter) maximum commands per lun */
++    short d_queue_depth;/* device (or adapter) maximum queue length */
++    int unused[2];      /* unused part should be zero */
++}; /* 32 bytes long on i386 */
 
-The cast isn't necessary; __put_user casts the argument to the type of
-the pointer.
-
-> +			__put_user(0, &idp->unused[0]);
-> +			__put_user(0, &idp->unused[1]);
-
-Is it time to repurpose the unused bytes for the 64-bit LUN?
-
-> +struct scsi_ioctl_id { /* used by SCSI_IOCTL_GET_ID ioctl() */
-> +    int host_no;        /* as in "scsi<n>" where 'n' is one of 0, 1, 2 etc */
-
-tabs instead of spaces?
-
+Everything has to support HCIL, even if it's through some kind of
+mapping.  Yes, I know it might not make much *sense* for some
+transports, but we do need to support it.  Type isn't SPI-specific.
+cmd_per_lun isn't SPI-specific either, and neither is d_queue_depth,
+although neither may make too much sense for some adapters or targets.

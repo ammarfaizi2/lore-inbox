@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWCZSdf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbWCZSlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751016AbWCZSdf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 13:33:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWCZSde
+	id S1751071AbWCZSlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 13:41:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWCZSlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 13:33:34 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:54954 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750859AbWCZSde (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 13:33:34 -0500
-Subject: Re: [RFC][PATCH 0/2] KABI example conversion and cleanup
-From: Arjan van de Ven <arjan@infradead.org>
-To: Avi Kivity <avi@argo.co.il>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, nix@esperi.org.uk, rob@landley.net,
-       mmazur@kernel.pl, linux-kernel@vger.kernel.org,
-       llh-discuss@lists.pld-linux.org
-In-Reply-To: <4426D609.2050700@argo.co.il>
-References: <200603141619.36609.mmazur@kernel.pl>
-	 <200603231811.26546.mmazur@kernel.pl>
-	 <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com>
-	 <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix>
-	 <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com>
-	 <20060326065205.d691539c.mrmacman_g4@mac.com>
-	 <1143376008.3064.0.camel@laptopd505.fenrus.org>
-	 <F31089B5-0915-439D-B218-009384E2148F@mac.com>
-	 <4426974D.8040309@argo.co.il>
-	 <25A7D808-9900-4035-BEB3-A782C5EF8EF4@mac.com>
-	 <4426CE5F.5070201@argo.co.il>
-	 <1143394195.3055.1.camel@laptopd505.fenrus.org>
-	 <4426D609.2050700@argo.co.il>
-Content-Type: text/plain
-Date: Sun, 26 Mar 2006 20:32:17 +0200
-Message-Id: <1143397937.3055.17.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 26 Mar 2006 13:41:25 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:41157 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751071AbWCZSlY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 13:41:24 -0500
+Date: Sun, 26 Mar 2006 20:40:49 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+cc: jzb@aexorsyst.com, linux-kernel@vger.kernel.org
+Subject: Re: mem= causes oops
+In-Reply-To: <20060326094121.9464762a.rdunlap@xenotime.net>
+Message-ID: <Pine.LNX.4.61.0603262040090.28657@yvahk01.tjqt.qr>
+References: <200603212005.58274.jzb@aexorsyst.com> <200603240936.13178.jzb@aexorsyst.com>
+ <20060324163237.5743bd3c.rdunlap@xenotime.net> <200603251036.40379.jzb@aexorsyst.com>
+ <Pine.LNX.4.61.0603251948360.29793@yvahk01.tjqt.qr>
+ <20060326094121.9464762a.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-\
-> This is true for a small enough application. But things grow, libraries 
-> are added, and includes keep pulling other includes in. Sooner or later 
-> you'll have a collision.
-> > The problem is things like u64 etc that is VERY common in all headers,
-> > but then again __u64 etc are just fine, history has proven that already.
-> >   
-> Agree. But to be on the safe side one can use uint64_t and friends 
-> (which the kernel can typedef to u64 and first degree relatives)
+>> 
+>> Hm, seeing this mail reminds me of something I seen on SPARC just a while 
+>> ago. Maybe it's just something on my side. If I specify `mem=65536`, that 
+>> is, with no size suffix like M or G, what does Linux make out of it? 65536 
+>> KB or 64 KB?
+>
+>65536 bytes.  All of the suffixes [KMG] are optional.
+>
+Oh ok, that should explain why it 'segfaults' with mem=65536 ;)
 
 
-actually uint64_t is a bigger namespace pollution than __u64 ;)
-
-
+Jan Engelhardt
+-- 

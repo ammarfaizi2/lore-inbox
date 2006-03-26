@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWCZWlB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWCZWm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbWCZWlB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 17:41:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWCZWlB
+	id S932154AbWCZWm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 17:42:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWCZWm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 17:41:01 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:16398 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932153AbWCZWlA
+	Sun, 26 Mar 2006 17:42:29 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:12518 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932154AbWCZWm2 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 17:41:00 -0500
-Date: Wed, 22 Mar 2006 20:59:19 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
-       linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com,
-       Ian Pratt <ian.pratt@xensource.com>
-Subject: Re: [RFC PATCH 26/35] Add Xen subarch reboot support
-Message-ID: <20060322205919.GA2384@ucw.cz>
-References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063801.949835000@sorel.sous-sol.org> <200603221521.57639.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 26 Mar 2006 17:42:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=paLKKQYHVzfPBmSAeE8w3KBDTUXT47mODmmS6O3tFD19iXAmlsVjvAQ/ffzpnzH77vx5g+4olmpHYILzTJbDVWDoKfg6RVQw/IuAbvz8QO97fSXI141lwF9JiWsjfZxzKVMoV467xGZ1J3pH/CLqd+CHHubacttuxHVEId9GjS8=
+Message-ID: <2c0942db0603261442we907cb9x9d81c4a0235531b4@mail.gmail.com>
+Date: Sun, 26 Mar 2006 14:42:27 -0800
+From: "Ray Lee" <madrabbit@gmail.com>
+Reply-To: ray-gmail@madrabbit.org
+To: "Edward Chernenko" <edwardspec@yahoo.com>
+Subject: Re: [PATCH 2.6.15] Adding kernel-level identd dispatcher
+Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060326194904.24112.qmail@web37702.mail.mud.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200603221521.57639.ak@suse.de>
-User-Agent: Mutt/1.5.9i
+References: <20060326194904.24112.qmail@web37702.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 22-03-06 15:21:57, Andi Kleen wrote:
-> On Wednesday 22 March 2006 07:31, Chris Wright wrote:
-> > +       static char *envp[] = { "HOME=/", "TERM=linux",
-> > +                               "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
-> > +       static char *restart_argv[]  = { "/sbin/reboot", NULL };
-> > +       static char *poweroff_argv[] = { "/sbin/poweroff", NULL };
-> 
-> It would be better if that was user configurable.
+> Comparing with khttpd, we have no need to make
+> transfers between userspace and kernelspace;
 
-acpi also needs to shutdown machine on overheat. It would be nice to
-consolidate all those places. New signal to init would be best, I'd
-say.
+For any of this to be motivating to anyone here, you'll have to
+present an argument as to why this can't be done in userspace. identd
+isn't a terribly complex thing -- one would think that a carefully
+crafted userspace daemon could saturate any reasonable network
+connection.
 
--- 
-Thanks, Sharp!
+Conversely, if it can't be done fast from userspace, then people to
+hear about that. That means that there's some task the kernel needs to
+be made more faster at doing.
+
+And if whatever potential performance problems with the kernel are
+fixed, then all applications, including your userspace identd too,
+will benefit from the fixes.

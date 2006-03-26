@@ -1,52 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWCZQL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbWCZQRS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751382AbWCZQL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 11:11:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWCZQL2
+	id S1751403AbWCZQRS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 11:17:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751406AbWCZQRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 11:11:28 -0500
-Received: from main.gmane.org ([80.91.229.2]:62931 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751382AbWCZQL1 (ORCPT
+	Sun, 26 Mar 2006 11:17:17 -0500
+Received: from smtpout.mac.com ([17.250.248.83]:63980 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751403AbWCZQRR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 11:11:27 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: [2.6 PATCH 0/2]: Cleanup/Update FTDI_SIO
-Date: Mon, 27 Mar 2006 01:11:06 +0900
-Message-ID: <4426BD1A.7070204@thinrope.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+	Sun, 26 Mar 2006 11:17:17 -0500
+In-Reply-To: <mj+md-20060326.153649.8590.albireo@ucw.cz>
+References: <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com> <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix> <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com> <20060326065205.d691539c.mrmacman_g4@mac.com> <20060326065416.93d5ce68.mrmacman_g4@mac.com> <1143376351.3064.9.camel@laptopd505.fenrus.org> <A6491D09-3BCF-4742-A367-DCE717898446@mac.com> <mj+md-20060326.125803.7105.albireo@ucw.cz> <50ACA1D0-C376-491A-A927-872B04964663@mac.com> <mj+md-20060326.153649.8590.albireo@ucw.cz>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <F198DCEB-D09F-47B1-A827-A6341167D7A8@mac.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       nix@esperi.org.uk, rob@landley.net, mmazur@kernel.pl,
+       llh-discuss@lists.pld-linux.org
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-Cc: Folkert van Heusden <folkert@vanheusden.com>
-X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
-User-Agent: Mail/News 1.5 (X11/20060324)
-X-Enigmail-Version: 0.94.0.0
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC][PATCH 1/2] Create initial kernel ABI header	infrastructure
+Date: Sun, 26 Mar 2006 11:16:48 -0500
+To: Martin Mares <mj@ucw.cz>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mar 26, 2006, at 10:38:59, Martin Mares wrote:
+>> It _is_ fragile, but for a number of POSIX-defined structs that's  
+>> actually the only way to do it without duplicating the data  
+>> structure in entirety, unless the GCC people can implement a  
+>> "typedef struct foo struct bar;"
+>
+> Actually, something like that can be achieved using anonymous  
+> structure members:
+>
+> struct xxx {
+> 	struct yyy;
+> };
 
-Stirred by the patch from Folkert van Heusden [1], I had a look at the
-code and thought it might see a bit of cleanup before adding the patch
-from [1]...
+Oh, if only that worked.  Actually, what happens is the "struct yyy;"  
+declaration inside of struct xxx looks just like "struct yyy;" out in  
+the middle of some random header file.  It predeclares the existence  
+of a struct yyy and does nothing else.
 
-So here is a series of two incremental patches:
+For instance, the following sample program:
+   struct foo {
+   	int a;
+   	int b;
+   };
 
-[2.6 PATCH 1/2]: ftdi_sio.h whitespace cleanup
-[2.6 PATCH 2/2]: add support for Papouch TMU (USB thermometer)
+   struct bar {
+   	struct foo;
+   };
 
-they'll be posted as a reply to this one.
+   int main()
+   {
+   	struct foo myfoo = { .a = 1, .b = 2 };
+   	struct bar mybar = { .a = 1, .b = 2 };
+   	return 0;
+   }
 
-I couldn't figure who the maintainer is, so not CC-ing anybody.
+Compiled like this:
+   gcc mytest.c -o mytest
 
-[1]	http://article.gmane.org/gmane.linux.kernel/392970
+Generates these errors:
+   mytest.c:7: warning: declaration does not declare anything
+   mytest.c: In function `main':
+   mytest.c:12: error: unknown field `a' specified in initializer
+   mytest.c:12: warning: excess elements in struct initializer
+   mytest.c:12: warning: (near initialization for `mybar')
+   mytest.c:12: error: unknown field `b' specified in initializer
+   mytest.c:12: warning: excess elements in struct initializer
+   mytest.c:12: warning: (near initialization for `mybar')
 
-Kalin.
-
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
+Cheers,
+Kyle Moffett
 

@@ -1,90 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWCZBmh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWCZB5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbWCZBmh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 20:42:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWCZBmh
+	id S1751188AbWCZB5M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 20:57:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWCZB5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 20:42:37 -0500
-Received: from ozlabs.org ([203.10.76.45]:19884 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751225AbWCZBmg (ORCPT
+	Sat, 25 Mar 2006 20:57:12 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:37773 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751188AbWCZB5M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 20:42:36 -0500
-Date: Sun, 26 Mar 2006 12:37:38 +1100
-From: Anton Blanchard <anton@samba.org>
-To: levon@movementarian.org, akpm@osdl.org, bcr6@cornell.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Add oprofile_add_ext_sample
-Message-ID: <20060326013738.GC29975@krispykreme>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sat, 25 Mar 2006 20:57:12 -0500
+Date: Sat, 25 Mar 2006 17:53:22 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: gregkh@suse.de, tiwai@suse.de, alsa-devel@alsa-project.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: bus_add_device() losing an error return from the probe() method
+Message-Id: <20060325175322.1e04852b.akpm@osdl.org>
+In-Reply-To: <44238489.8090402@keyaccess.nl>
+References: <44238489.8090402@keyaccess.nl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rene Herman <rene.herman@keyaccess.nl> wrote:
+>
+>  ===================================================================
+>  --- local.orig/drivers/base/bus.c	2006-02-27 19:22:08.000000000 +0100
+>  +++ local/drivers/base/bus.c	2006-03-24 04:27:02.000000000 +0100
+>  @@ -363,19 +363,21 @@ static void device_remove_attrs(struct b
+>   int bus_add_device(struct device * dev)
+>   {
+>   	struct bus_type * bus = get_bus(dev->bus);
+>  -	int error = 0;
+>  +	int error;
+>   
+>   	if (bus) {
+>   		pr_debug("bus %s: add device %s\n", bus->name, dev->bus_id);
+>  -		device_attach(dev);
+>  +		error = device_attach(dev);
+>  +		if (error < 0)
+>  +			return error;
+>   		klist_add_tail(&dev->knode_bus, &bus->klist_devices);
+>   		error = device_add_attrs(bus, dev);
+>  -		if (!error) {
+>  -			sysfs_create_link(&bus->devices.kobj, &dev->kobj, dev->bus_id);
+>  -			sysfs_create_link(&dev->kobj, &dev->bus->subsys.kset.kobj, "bus");
+>  -		}
+>  +		if (error)
+>  +			return error;
+>  +		sysfs_create_link(&bus->devices.kobj, &dev->kobj, dev->bus_id);
+>  +		sysfs_create_link(&dev->kobj, &dev->bus->subsys.kset.kobj, "bus");
+>   	}
+>  -	return error;
+>  +	return 0;
+>   }
+>   
 
-From: Brian Rogan <bcr6@cornell.edu>
+Looks sane, but please don't sprinkle `return' statements all over a
+function in this manner.
 
-On ppc64 we look at a profiling register to work out the sample address
-and if it was in userspace or kernel.
 
-The backtrace interface oprofile_add_sample does not allow this. Create
-oprofile_add_ext_sample and make oprofile_add_sample use it too.
-
-Signed-off-by: Anton Blanchard <anton@samba.org>
----
-
-Index: linux-2.6/drivers/oprofile/cpu_buffer.c
-===================================================================
---- linux-2.6.orig/drivers/oprofile/cpu_buffer.c	2006-01-19 12:30:04.000000000 +1100
-+++ linux-2.6/drivers/oprofile/cpu_buffer.c	2006-03-26 12:13:07.000000000 +1100
-@@ -218,11 +218,10 @@ static void oprofile_end_trace(struct op
- 	cpu_buf->tracing = 0;
+--- devel/drivers/base/bus.c~bus_add_device-losing-an-error-return-from-the-probe-method	2006-03-25 17:46:34.000000000 -0800
++++ devel-akpm/drivers/base/bus.c	2006-03-25 17:49:45.000000000 -0800
+@@ -372,14 +372,17 @@ int bus_add_device(struct device * dev)
+ 
+ 	if (bus) {
+ 		pr_debug("bus %s: add device %s\n", bus->name, dev->bus_id);
+-		device_attach(dev);
++		error = device_attach(dev);
++		if (error < 0)
++			goto out;
+ 		klist_add_tail(&dev->knode_bus, &bus->klist_devices);
+ 		error = device_add_attrs(bus, dev);
+-		if (!error) {
+-			sysfs_create_link(&bus->devices.kobj, &dev->kobj, dev->bus_id);
+-			sysfs_create_link(&dev->kobj, &dev->bus->subsys.kset.kobj, "bus");
+-		}
++		if (error)
++			goto out;
++		sysfs_create_link(&bus->devices.kobj, &dev->kobj, dev->bus_id);
++		sysfs_create_link(&dev->kobj,&dev->bus->subsys.kset.kobj,"bus");
+ 	}
++out:
+ 	return error;
  }
  
--void oprofile_add_sample(struct pt_regs * const regs, unsigned long event)
-+void oprofile_add_ext_sample(unsigned long pc, struct pt_regs * const regs, 
-+				unsigned long event, int is_kernel)
- {
- 	struct oprofile_cpu_buffer * cpu_buf = &cpu_buffer[smp_processor_id()];
--	unsigned long pc = profile_pc(regs);
--	int is_kernel = !user_mode(regs);
- 
- 	if (!backtrace_depth) {
- 		log_sample(cpu_buf, pc, is_kernel, event);
-@@ -239,6 +238,14 @@ void oprofile_add_sample(struct pt_regs 
- 	oprofile_end_trace(cpu_buf);
- }
- 
-+void oprofile_add_sample(struct pt_regs * const regs, unsigned long event) 
-+{
-+	int is_kernel = !user_mode(regs);
-+	unsigned long pc = profile_pc(regs);
-+
-+	oprofile_add_ext_sample(pc, regs, event, is_kernel);
-+}
-+
- void oprofile_add_pc(unsigned long pc, int is_kernel, unsigned long event)
- {
- 	struct oprofile_cpu_buffer * cpu_buf = &cpu_buffer[smp_processor_id()];
-Index: linux-2.6/include/linux/oprofile.h
-===================================================================
---- linux-2.6.orig/include/linux/oprofile.h	2005-09-10 08:24:35.000000000 +1000
-+++ linux-2.6/include/linux/oprofile.h	2006-03-26 12:13:07.000000000 +1100
-@@ -61,6 +61,16 @@ void oprofile_arch_exit(void);
-  */
- void oprofile_add_sample(struct pt_regs * const regs, unsigned long event);
- 
-+/**
-+ * Add an extended sample.  Use this when the PC is not from the regs, and 
-+ * we cannot determine if we're in kernel mode from the regs.
-+ *
-+ * This function does perform a backtrace.
-+ *
-+ */
-+void oprofile_add_ext_sample(unsigned long pc, struct pt_regs * const regs, 
-+				unsigned long event, int is_kernel);
-+
- /* Use this instead when the PC value is not from the regs. Doesn't
-  * backtrace. */
- void oprofile_add_pc(unsigned long pc, int is_kernel, unsigned long event);
+
+It's a little surprising that this function returns "OK" if bus==NULL.
+
+Note that sysfs_create_link() can fail too.  This was one optimistic
+function.
+

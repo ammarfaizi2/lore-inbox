@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWCZSqk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWCZSqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbWCZSqk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 13:46:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWCZSqk
+	id S1751119AbWCZSqs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 13:46:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWCZSqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 13:46:40 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:34699 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751096AbWCZSqj (ORCPT
+	Sun, 26 Mar 2006 13:46:48 -0500
+Received: from mail.charite.de ([160.45.207.131]:46485 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S1751119AbWCZSqr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 13:46:39 -0500
-Date: Sun, 26 Mar 2006 20:46:24 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Stas Sergeev <stsp@aknet.ru>
-cc: 7eggert@gmx.de, dtor_core@ameritech.net,
-       Linux kernel <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: [patch 1/1] pc-speaker: add SND_SILENT
-In-Reply-To: <44266472.5080309@aknet.ru>
-Message-ID: <Pine.LNX.4.61.0603262042400.28657@yvahk01.tjqt.qr>
-References: <5TCqf-E6-49@gated-at.bofh.it> <5TCqf-E6-51@gated-at.bofh.it>
- <5TCqf-E6-53@gated-at.bofh.it> <5TCqg-E6-55@gated-at.bofh.it>
- <5TCqf-E6-47@gated-at.bofh.it> <E1FMv1A-0000fN-Lp@be1.lrz> <44266472.5080309@aknet.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 26 Mar 2006 13:46:47 -0500
+Date: Sun, 26 Mar 2006 20:46:44 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at fs/direct-io.c:916!
+Message-ID: <20060326184644.GC4776@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060326180440.GA4776@charite.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060326180440.GA4776@charite.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> The problem is that the snd-pcsp doesn't replace pcspkr.
->>>
->> If that's the problem, create a minimal input driver that will signal the
->> snd-pcsp to beep, and change the original pcspkr to include "(Non-ALSA)".
->>
-> Yes, making snd-pcsp to produce the console beeps and
-> making it mutually exclusive with pcspkr is possible.
-> But I think it is undesireable. People that don't like
-> the console beeps (myself included) simply do not load
+* Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>:
+> Today I wanted to run xfs_fsr on my laptop. I got:
 
-I like the current approach, that is, load pcspkr to get a beep, load 
-pcspkr+snd-pcsp to get the full blow.
+It's a 2.6.16-mm1 issue, since 2.6.16-git11 does not exhibit that
+failure.
 
-On some servers, I need a mixture of when to allow a beep and when not. In 
-these, I patched the oops and panic functions to make a sound, which 
-implies that pcspkr.ko must be loaded. In turn, I modified vt.c to have the 
-default bell time = 0 to shut /bin/*sh up. Works good.
+> # uname -a
+> Linux knarzkiste 2.6.16-mm1 #1 PREEMPT Fri Mar 24 19:01:24 CET 2006  i686 GNU/Linux
 
-
-Jan Engelhardt
 -- 
+Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

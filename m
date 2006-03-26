@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWCZMat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWCZMaf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751307AbWCZMat (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 07:30:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWCZMat
+	id S1751317AbWCZMaf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 07:30:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbWCZMae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 07:30:49 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:29479 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751307AbWCZMas (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 07:30:48 -0500
-Date: Sun, 26 Mar 2006 14:27:44 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] BLK_DEV_IO_TRACE Kconfig fixes
-Message-ID: <20060326122743.GF4290@suse.de>
-References: <20060323014046.2ca1d9df.akpm@osdl.org> <20060326122540.GL4053@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060326122540.GL4053@stusta.de>
+	Sun, 26 Mar 2006 07:30:34 -0500
+Received: from smtpout.mac.com ([17.250.248.70]:58092 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751317AbWCZMae convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 07:30:34 -0500
+In-Reply-To: <yw1x3bh5xut9.fsf@agrajag.inprovide.com>
+References: <Pine.LNX.4.61.0603202207310.20060@yvahk01.tjqt.qr> <20060321082327.B653275@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0603202239110.11933@yvahk01.tjqt.qr> <20060321084619.E653275@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0603252232570.18484@yvahk01.tjqt.qr> <je1wwq2lqn.fsf@sykes.suse.de> <Pine.LNX.4.61.0603260023070.12891@yvahk01.tjqt.qr> <jewtei1434.fsf@sykes.suse.de> <Pine.LNX.4.61.0603261124320.22145@yvahk01.tjqt.qr> <yw1x3bh5xut9.fsf@agrajag.inprovide.com>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
+Message-Id: <0BE1D87A-29F0-4633-86FA-57AE5C846C33@mac.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8BIT
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Parenthesize macros in xfs
+Date: Sun, 26 Mar 2006 07:30:24 -0500
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 26 2006, Adrian Bunk wrote:
-> On Thu, Mar 23, 2006 at 01:40:46AM -0800, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.16-rc6-mm2:
-> >...
-> >  git-blktrace.patch
-> >...
-> >  git trees.
-> >...
-> 
-> BLK_DEV_IO_TRACE breaks the rule "If you select something, you must 
-> endure that the dependencies of what you are select'ing are fulfilled."
-> resulting in the following compile error with CONFIG_SYSFS=n:
-> 
-> <--  snip  -->
-> 
-> ...
->   LD      .tmp_vmlinux1
-> fs/built-in.o: In function `debugfs_init':inode.c:(.init.text+0x3d35): 
-> undefined reference to `kernel_subsys'
-> make: *** [.tmp_vmlinux1] Error 1
-> 
-> <--  snip  -->
-> 
-> This patch fixes this bug.
-> 
-> Additionally, it moves the BLK_DEV_IO_TRACE option that now depends on 
-> DEBUG_KERNEL into the menu with the other DEBUG_KERNEL options.
+On Mar 26, 2006, at 07:19:14, Måns Rullgård wrote:
+> A double semicolon can cause all sorts of hard to debug problems.   
+> Consider this:
+>
+> #define foo() bar();
+> /* ... */
+> if(x)
+>     foo();
+> else
+>     baz();
+>
+> This will expand to syntactically invalid code because of the extra  
+> semicolon.
 
-Thanks for the sysfs fix, however don't move the kconfig entry, this
-isn't a debug option.
+More generically, the code "do { [...] } while(0)" can _always_ be  
+substituted for the code "function_returning_void()" without changing  
+the meaning of the surrounding code.  Look at the following examples:
 
--- 
-Jens Axboe
+for (i = 0; i < 10; i++) {
+	macro();
+}
+
+for (i = 0; i < 10; i++)
+	if (i > 5)
+		macro1();
+	else
+		macro2();
+
+Cheers,
+Kyle Moffett
 

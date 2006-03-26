@@ -1,71 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWCZHIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWCZHOv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751095AbWCZHIA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 02:08:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWCZHIA
+	id S1751133AbWCZHOv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 02:14:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWCZHOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 02:08:00 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:5314 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751095AbWCZHIA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 02:08:00 -0500
-Message-Id: <200603260706.k2Q76thB030947@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Linda Walsh <lkml@tlinx.org>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Block I/O Schedulers: Can they be made selectable/device? @runtime? 
-In-Reply-To: Your message of "Sat, 25 Mar 2006 22:41:00 PST."
-             <4426377C.7000605@tlinx.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <4426377C.7000605@tlinx.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1143356815_4291P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 26 Mar 2006 02:06:55 -0500
+	Sun, 26 Mar 2006 02:14:51 -0500
+Received: from nproxy.gmail.com ([64.233.182.185]:58685 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751133AbWCZHOu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 02:14:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Kjow/WOceCU2MKUt3Qp04Ezasb7DK18mB8G9oIG7uA4GJ1GMwEE0xBLLc/srvTzXyq3RvsejJ+ejpkZ3snKSGQ3UovZHflVA+MPwwp01SVguQArKSMLC9RiAUDeCy983EZiF//UNJPKIJDeLdoLj936ZsZllITpwoIRg7b2ZLW0=
+Message-ID: <40f323d00603252314k24e49f82q601e19c85ab0d5d3@mail.gmail.com>
+Date: Sun, 26 Mar 2006 08:14:48 +0100
+From: "Benoit Boissinot" <bboissin@gmail.com>
+To: "Greg Stark" <gsstark@mit.edu>
+Subject: Re: Connector: Filesystem Events Connector v3
+Cc: yang.y.yi@gmail.com, "David S. Miller" <davem@davemloft.net>,
+       arjan@infradead.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       johnpol@2ka.mipt.ru, matthltc@us.ibm.com
+In-Reply-To: <8764m2i08f.fsf@stark.xeocode.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4423673C.7000008@gmail.com>
+	 <1143183541.2882.7.camel@laptopd505.fenrus.org>
+	 <20060323.230649.11516073.davem@davemloft.net>
+	 <4c4443230603240614m5f495340y9dc6ccc45e1e45b4@mail.gmail.com>
+	 <8764m2i08f.fsf@stark.xeocode.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1143356815_4291P
-Content-Type: text/plain; charset=us-ascii
+On 25 Mar 2006 18:16:32 -0500, Greg Stark <gsstark@mit.edu> wrote:
+>
+> yang.y.yi@gmail.com writes:
+>
+> > the filesystem events connector is small and has low overhead, it only
+> > focuses on activities in the filesystem, so I think it should be an option
+> > for those users which just concerns events in the filesystem. audit dose do
+> > this, but it is complicated and overhead is big, I believe the filesystem
+> > events connector is useful, but it maybe need to be improved further.
+>
+> Would this be a good tool to tell me why I hear my hard drive stutter
+> periodically? This is above the regular buffer flushing.
+>
+> I'm curious what application is causing this file i/o since I have plenty of
+> free RAM so the only reason it would be hitting disk is if something is
+> calling fsync gratuitously.
+>
+blktrace (included at least in -mm) will tell you.
 
-On Sat, 25 Mar 2006 22:41:00 PST, Linda Walsh said:
-> Is it still the case that block I/O schedulers (AS, CFQ, etc.)
-> are only selectable at boot time?
+You have to activate BLK_DEV_IO_TRACE and use blktrace from
+http://www.kernel.org/pub/linux/kernel/people/axboe/blktrace/
 
-Hasn't been for quite some time.  CPU schedulers are stuck at boot time, even
-if you have the 'plugsched' patch (and if you don't, you're stuck with the one
-scheduler in-tree currently).  There was a patch posted a few days ago
-that allowed on-the-fly changing of plugsched, but that's still too bleeding
-edge even for me... ;)
+regards,
 
-> How difficult would it be to allow multiple, concurrent I/O
-> schedulers running on different block devices?
-
->From my /etc/rc.local:
-
-echo cfq > /sys/block/hda/queue/scheduler
-echo noop > /sys/block/hdb/queue/scheduler
-
-(hda is a real disk with ext3 partitions on it, hdb is a DVD/CD/RW that almost
-always has exactly one process reading or writing to it at a given time, so doing
-things in the order requested is just fine).
-
-Simple enough? ;)
-
-(This *does* require that you built more than one scheduler, and possibly
-to make sure they're loaded if you managed to build them modular...)
-
---==_Exmh_1143356815_4291P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEJj2PcC3lWbTT17ARAli1AJ94YSrsQB7UZfFgErq7Hg7wq2KspwCfZ7G4
-Eb5HakwjUhEtLo8swxT6pfs=
-=czS+
------END PGP SIGNATURE-----
-
---==_Exmh_1143356815_4291P--
+Benoit

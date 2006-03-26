@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbWCZDHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751515AbWCZD2D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751477AbWCZDHi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 22:07:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbWCZDHh
+	id S1751515AbWCZD2D (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 22:28:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbWCZD2B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 22:07:37 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:29079 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751477AbWCZDHh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 22:07:37 -0500
-Date: Sat, 25 Mar 2006 19:03:49 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, tglx@linutronix.de, torvalds@osdl.org,
-       arjan@infradead.org
-Subject: Re: [patch 04/10] PI-futex: scheduler support for PI
-Message-Id: <20060325190349.6b8fe5f3.akpm@osdl.org>
-In-Reply-To: <20060325184605.GE16724@elte.hu>
-References: <20060325184605.GE16724@elte.hu>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Sat, 25 Mar 2006 22:28:01 -0500
+Received: from pproxy.gmail.com ([64.233.166.182]:12048 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751331AbWCZD2A convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 22:28:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YqOdDLtADmwBO95VnjQzLW0RgZJ9fjhCUDSkcfGADVi6juJr6opk/jmSLwle/U9p+rPLbHyqgltjTrM0jbj4Zss9WFD6py6RBs6bEZwYcX/AS5Al3Pp1yzUWT9vKk2K0ZJ0sxHFjREMQEqdqYMkCvkyesVgbRUsQRRPs5axQonc=
+Message-ID: <5b5833aa0603251927u3b29e99fo5c4abde49ad6d08f@mail.gmail.com>
+Date: Sat, 25 Mar 2006 23:27:59 -0400
+From: "Anderson Lizardo" <anderson.lizardo@gmail.com>
+To: mikado4vn@gmail.com
+Subject: Re: Virtual Serial Port
+Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
+       linux-c-programming@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <4425FB22.7040405@gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <442582B8.8040403@gmail.com>
+	 <Pine.LNX.4.61.0603251945100.29793@yvahk01.tjqt.qr>
+	 <4425FB22.7040405@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
->
-> From: Ingo Molnar <mingo@elte.hu>
-> 
-> add framework to boost/unboost the priority of RT tasks.
-> 
-> This consists of:
-> 
->  - caching the 'normal' priority in ->normal_prio
->  - providing a functions to set/get the priority of the task
->  - make sched_setscheduler() aware of boosting
-> 
-> ...
->
-> +#ifdef CONFIG_RT_MUTEXES
-> +
-> +/*
-> + * rt_mutex_setprio - set the current priority of a task
-> + * @p: task
-> + * @prio: prio value (kernel-internal form)
-> + *
-> + * This function changes the 'effective' priority of a task. It does
-> + * not touch ->normal_prio like __setscheduler().
-> + *
-> + * Used by the rt_mutex code to implement priority inheritance logic.
-> + */
-> +void rt_mutex_setprio(task_t *p, int prio)
-> +{
+On 3/25/06, Mikado <mikado4vn@gmail.com> wrote:
+> My purpose is to provide serial interfaces for debugging. My real box
+> acts as remote host connecting to VMWare box by a *virtual* serial cable
+> so that I can set up a debugging environment.
 
-This function is not really rt-mutex-related at all, is it?  It's just a
-piece of new scheduler functionality which various things might use.
+Have you tried using software-based serial snoopers? See e.g.
+http://freshmeat.net/snooper and
+http://packages.debian.org/unstable/comm/snooper. Haven't tried any of
+these but they seem to do what you describe.
 
-If so, it should be named something non-mutexy and should be under a
-different CONFIG_option which CONFIG_RT_MUTEXES selects.
-
-Of course, we can do all that later on, if/when something else needs this
-facility.
-
+Regards,
+--
+Anderson Lizardo
+Embedded Linux Lab - 10LE
+Nokia Institute of Technology - INdT
+Manaus - Brazil

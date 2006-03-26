@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWCZSwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWCZTCW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbWCZSwy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 13:52:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbWCZSwy
+	id S932116AbWCZTCW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 14:02:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWCZTCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 13:52:54 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:31957 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S932109AbWCZSwx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 13:52:53 -0500
-Message-ID: <4426E303.9000701@vc.cvut.cz>
-Date: Sun, 26 Mar 2006 20:52:51 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.7.12) Gecko/20060205 Debian/1.7.12-1.1
-X-Accept-Language: cs, en
-MIME-Version: 1.0
-To: mikado4vn@gmail.com
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Glynn Clements <glynn@gclements.plus.com>, linux-kernel@vger.kernel.org,
-       linux-c-programming@vger.kernel.org
-Subject: Re: Virtual Serial Port
-References: <442582B8.8040403@gmail.com> <Pine.LNX.4.61.0603251945100.29793@yvahk01.tjqt.qr> <4425FB22.7040405@gmail.com> <Pine.LNX.4.61.0603261127580.22145@yvahk01.tjqt.qr> <4426CADF.2050902@gmail.com>
-In-Reply-To: <4426CADF.2050902@gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 26 Mar 2006 14:02:22 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:40925 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932116AbWCZTCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 14:02:21 -0500
+Subject: Re: kernel BUG at arch/i386/mm/highmem.c:63! kunmap_atomic
+From: Arjan van de Ven <arjan@infradead.org>
+To: Anil kumar <anils_r@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060326174556.45649.qmail@web32404.mail.mud.yahoo.com>
+References: <20060326174556.45649.qmail@web32404.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Sun, 26 Mar 2006 21:02:19 +0200
+Message-Id: <1143399739.3055.24.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikado wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Sun, 2006-03-26 at 09:45 -0800, Anil kumar wrote:
 > 
+> Hi,
 > 
->>  guest writes to /dev/ttyS0
->>  vmware connects its virtual S0 to the host's ttyFakeS0
->>  minicom on the host to ttyFakeS0
->>or even
->>  vmware S0 to host's ttyS0
->>  other remote machine do minicom to ttyS0
->>
->>The reason for FakeS0 is that vmware does not know about ptys, 
->>unfortunately.
+> I get the following kernel panic,
 > 
+> kernel BUG at arch/i386/mm/highmem.c:63!
+> EIP:    0060:[<c011af5a>]    Tainted: PF     VLI
+> EFLAGS: 00010006   (2.6.11-1.1369_FC4smp)
+> EIP is at kunmap_atomic+0x35/0x5f
 > 
-> Yes, VMWare doesn't support serial port using host's ttys any more. My
-> idea is:
+> The following is the code, I am using in my driver:
 > 
-> [host - application] <- read/write -> [virtual serial port
-> /dev/ttyFakeS0] <- read/write over virtual null-modem serial cable ->
-> [host - real serial port /dev/ttyS0] <- read/write -> [VMWare - application]
+> kmap_atomic code:
+> 
+> int hr_km_type = (in_interrupt())? KM_IRQ0: KM_USER0;
+>          pDataBuffer = kmap_atomic(cur_seg->page,
+> hr_km_type) + cur_seg->offset;
+>          if(pDataBuffer == NULL) {
+>             return (ENOMEM);
+>          }
+> 
 
-Although it is quite irrelevant to LKML (you may want to visit 
-www.vmware.com/community/index.jspa and ask there...), you can connect guest's 
-serial port also to Unix socket - and in such situation you need virtual serial 
-port driver only if 'host - application' does not know how to use /dev/tty* (for 
-unix socket <-> /dev/ptyp* app look at 
-http://platan.vc.cvut.cz/ftp/pub/vmware/serpipe.tar.gz).
-								Petr
+this is buggy; your irq handler may run with interrupts on for example
+
+I fear the worst for your code ;) I would suggest getting more people to
+review it (for example on kernel-newbies list or the kernel-mentors
+list) before using it in production ;)
 

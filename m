@@ -1,149 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWCZLum@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWCZLw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751291AbWCZLum (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 06:50:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWCZLum
+	id S1751282AbWCZLw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 06:52:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWCZLw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 06:50:42 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:773 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S1751287AbWCZLul (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 06:50:41 -0500
-Date: Sun, 26 Mar 2006 19:51:09 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Andrew Morton <akpm@osdl.org>
-cc: autofs@linux.kernel.org, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] autofs4 - follow_link missing funtionality
-In-Reply-To: <20060310145016.39b028be.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0603261946410.6061@eagle.themaw.net>
-References: <Pine.LNX.4.64.0603102003110.3032@eagle.themaw.net>
- <20060310145016.39b028be.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-themaw-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-1.896,
-	required 5, autolearn=not spam, BAYES_00 -2.60,
-	DATE_IN_PAST_12_24 0.70)
-X-themaw-MailScanner-From: raven@themaw.net
+	Sun, 26 Mar 2006 06:52:29 -0500
+Received: from smtpout.mac.com ([17.250.248.71]:20455 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751282AbWCZLw2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 06:52:28 -0500
+Date: Sun, 26 Mar 2006 06:52:05 -0500
+From: Kyle Moffett <mrmacman_g4@mac.com>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: nix@esperi.org.uk, rob@landley.net, mmazur@kernel.pl,
+       linux-kernel@vger.kernel.org, llh-discuss@lists.pld-linux.org
+Subject: [RFC][PATCH 0/2] KABI example conversion and cleanup
+Message-Id: <20060326065205.d691539c.mrmacman_g4@mac.com>
+In-Reply-To: <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com>
+References: <200603141619.36609.mmazur@kernel.pl>
+	<200603231811.26546.mmazur@kernel.pl>
+	<DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com>
+	<200603241623.49861.rob@landley.net>
+	<878xqzpl8g.fsf@hades.wkstn.nix>
+	<D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com>
+X-Mailer: Sylpheed version 2.2.1 (GTK+ 2.8.13; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 24 Mar 2006 17:46:27 -0500 Kyle Moffett <mrmacman_g4@mac.com> wrote:
+> I'm working on some sample patches now which I'll try to post in a
+> few days if I get the time.
 
-Hi Andrew,
+Ok, here's a sample of the KABI conversion and cleanup patches that I'm
+proposing.  I have a few fundamental goals for these patches:
+1)  The Linux kernel compiles and works at every step along the way
+2)  Since most of the headers are currently quite broken with respect to
+    GLIBC and userspace, I won't spend much extra time preserving
+    compatibility with GLIBC, userspace, or non-GCC compilers.
+3)  Everything in include/kabi will have a __kabi_ or __KABI_ prefix.
+4)  Headers in include/linux that need the KABI interfaces will include
+    the corresponding <kabi/*.h> header and define or typedef the
+    necessary KABI definitions to the names the kernel wants.
+5)  The stuff in include/kabi/*.h should always be completely independent
+    of userspace/kernelspace and not require any includes outside of
+    <kabi/*>.  This means that the only preprocessor symbols that we can
+    assume are present are those provided by the compiler itself.
 
-Here is an update to this patch to address your concern below.
-
-Basicly, I wait for pending operations to complete, the main concern is an 
-expire operation causing directories to be removed. As we hold a reference 
-to the vfsmount and the dentry that shouldn't happen once any that are in 
-progress have completed.
-
-At least that's what I expect.
-
-On Fri, 10 Mar 2006, Andrew Morton wrote:
-
-> Ian Kent <raven@themaw.net> wrote:
-> >
-> > @@ -337,10 +340,34 @@ static void *autofs4_follow_link(struct 
-> >  	if (oz_mode || !lookup_type)
-> >  		goto done;
-> >  
-> > +	/*
-> > +	 * If the dentry contains directories then it is an
-> > +	 * autofs multi-mount with no root offset. So don't
-> > +	 * try to mount it again.
-> > +	 */
-> > +	spin_lock(&dcache_lock);
-> > +	if (!list_empty(&dentry->d_subdirs)) {
-> > +		spin_unlock(&dcache_lock);
-> > +		goto done;
-> > +	}
-> > +	spin_unlock(&dcache_lock);
-> > +
-> 
-> Can list_empty(&dentry->d_subdirs) become false right here, after the lock
-> was dropped?  If so, what happens?
-> 
-> 
-> >  	status = try_to_fill_dentry(dentry, 0);
-> 
-
-Signed-off-by: Ian Kent <raven@themaw.net>
-
---
-
---- linux-2.6.16-mm1/fs/autofs4/root.c.follow_link-expire-check	2006-03-24 12:32:16.000000000 +0800
-+++ linux-2.6.16-mm1/fs/autofs4/root.c	2006-03-24 15:01:15.000000000 +0800
-@@ -341,38 +341,49 @@ static void *autofs4_follow_link(struct 
- 		goto done;
- 
- 	/*
--	 * If the dentry contains directories then it is an
--	 * autofs multi-mount with no root offset. So don't
--	 * try to mount it again.
-+	 * If a request is pending wait for it.
-+	 * If it's a mount then it won't be expired till at least
-+	 * a liitle later and if it's an expire then we might need
-+	 * to mount it again.
- 	 */
--	spin_lock(&dcache_lock);
--	if (!list_empty(&dentry->d_subdirs)) {
--		spin_unlock(&dcache_lock);
--		goto done;
--	}
--	spin_unlock(&dcache_lock);
-+	if (autofs4_ispending(dentry)) {
-+		DPRINTK("waiting for active request %p name=%.*s",
-+			dentry, dentry->d_name.len, dentry->d_name.name);
- 
--	status = try_to_fill_dentry(dentry, 0);
--	if (status)
--		goto out_error;
-+		status = autofs4_wait(sbi, dentry, NFY_NONE);
-+
-+		DPRINTK("request done status=%d", status);
-+	}
- 
- 	/*
--	 * The mount succeeded but if there is no root mount
--	 * and directories have been created then it must
--	 * be an autofs multi-mount with no root offset.
-+	 * If the dentry contains directories then it is an
-+	 * autofs multi-mount with no root mount offset. So
-+	 * don't try to mount it again.
- 	 */
- 	spin_lock(&dcache_lock);
--	if (!d_mountpoint(dentry) && !list_empty(&dentry->d_subdirs)) {
-+	if (!d_mountpoint(dentry) && list_empty(&dentry->d_subdirs)) {
- 		spin_unlock(&dcache_lock);
-+
-+		status = try_to_fill_dentry(dentry, 0);
-+		if (status)
-+			goto out_error;
-+
-+		/*
-+		 * The mount succeeded but if there is no root mount
-+		 * it must be an autofs multi-mount with no root offset
-+		 * so we don't need to follow the mount.
-+		 */
-+		if (d_mountpoint(dentry)) {
-+			if (!autofs4_follow_mount(&nd->mnt, &nd->dentry)) {
-+				status = -ENOENT;
-+				goto out_error;
-+			}
-+		}
-+
- 		goto done;
- 	}
- 	spin_unlock(&dcache_lock);
- 
--	if (!autofs4_follow_mount(&nd->mnt, &nd->dentry)) {
--		status = -ENOENT;
--		goto out_error;
--	}
--
- done:
- 	return NULL;
- 
+Cheers,
+Kyle Moffett

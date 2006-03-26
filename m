@@ -1,115 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWCYXuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751980AbWCZACO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbWCYXuI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 18:50:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWCYXuH
+	id S1751980AbWCZACO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 19:02:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751981AbWCZACO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 18:50:07 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:22939 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1750709AbWCYXuG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 18:50:06 -0500
-Date: Sun, 26 Mar 2006 06:47:11 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: [PATCH 2.6.16-mm1] send_sigqueue: simplify and fix the race
-Message-ID: <20060326024711.GA9300@oleg>
+	Sat, 25 Mar 2006 19:02:14 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15114 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751980AbWCZACN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 19:02:13 -0500
+Date: Sun, 26 Mar 2006 00:02:03 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-git6: build failure: ksysfs.c (h7201_defconfig)
+Message-ID: <20060326000202.GH25788@flint.arm.linux.org.uk>
+Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <20060323163852.GC25849@flint.arm.linux.org.uk> <20060323165108.GA16474@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060323165108.GA16474@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-send_sigqueue() checks PF_EXITING, then locks p->sighand->siglock.
-This is unsafe: 'p' can exit in between and set ->sighand = NULL.
-The race is theoretical, the window is tiny and irqs are disabled
-by the caller, so I don't think we need the fix for -stable tree.
+On Thu, Mar 23, 2006 at 08:51:08AM -0800, Greg KH wrote:
+> On Thu, Mar 23, 2006 at 04:38:52PM +0000, Russell King wrote:
+> > Building h7201_defconfig on ARM provokes these build errors:
+> > 
+> >   LD      .tmp_vmlinux1
+> > kernel/built-in.o: In function `uevent_seqnum_show':
+> > ksysfs.c:(.text+0x1f258): undefined reference to `uevent_seqnum'
+> > kernel/built-in.o: In function `uevent_helper_show':
+> > ksysfs.c:(.text+0x1f280): undefined reference to `uevent_helper'
+> > kernel/built-in.o: In function `uevent_helper_store':
+> > ksysfs.c:(.text+0x1f2e0): undefined reference to `uevent_helper'
+> > kernel/built-in.o:(.data+0xd1c): undefined reference to `uevent_helper'
+> > make: *** [.tmp_vmlinux1] Error 1
+> > make: Leaving directory `/var/tmp/kernel-orig'
+> 
+> Ugh, CONFIG_NET is not set, yet CONFIG_HOTPLUG is.  I was wrong with my
+> assumption that no one would ever need that :)
+> 
+> I have a patch in my queue from Andrew that fixes it up, I'll send it on
+> to Linus later today to fix this.  Thanks for letting me know.
 
-Convert send_sigqueue() to use lock_task_sighand() helper.
+2.6.16-git9 is better, but still fails on this defconfig.  We now
+have:
 
-Also, delete 'p->flags & PF_EXITING' re-check, it is unneeded and
-the comment is wrong.
+  LD      .tmp_vmlinux1
+kernel/built-in.o:(.data+0xd1c): undefined reference to `uevent_helper'
+make: *** [.tmp_vmlinux1] Error 1
+make: Leaving directory `/var/tmp/kernel-orig'
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+which seems to be a reference from sysfs.c for ...proc.../sys/kernel/hotplug.
 
---- MM/kernel/signal.c~5_SSQ	2006-03-24 21:24:33.000000000 +0300
-+++ MM/kernel/signal.c	2006-03-25 20:18:38.000000000 +0300
-@@ -1309,12 +1309,10 @@ void sigqueue_free(struct sigqueue *q)
- 	__sigqueue_free(q);
- }
- 
--int
--send_sigqueue(int sig, struct sigqueue *q, struct task_struct *p)
-+int send_sigqueue(int sig, struct sigqueue *q, struct task_struct *p)
- {
- 	unsigned long flags;
- 	int ret = 0;
--	struct sighand_struct *sh;
- 
- 	BUG_ON(!(q->flags & SIGQUEUE_PREALLOC));
- 
-@@ -1328,48 +1326,17 @@ send_sigqueue(int sig, struct sigqueue *
- 	 */
- 	rcu_read_lock();
- 
--	if (unlikely(p->flags & PF_EXITING)) {
-+	if (!likely(lock_task_sighand(p, &flags))) {
- 		ret = -1;
- 		goto out_err;
- 	}
- 
--retry:
--	sh = rcu_dereference(p->sighand);
--
--	spin_lock_irqsave(&sh->siglock, flags);
--	if (p->sighand != sh) {
--		/* We raced with exec() in a multithreaded process... */
--		spin_unlock_irqrestore(&sh->siglock, flags);
--		goto retry;
--	}
--
--	/*
--	 * We do the check here again to handle the following scenario:
--	 *
--	 * CPU 0		CPU 1
--	 * send_sigqueue
--	 * check PF_EXITING
--	 * interrupt		exit code running
--	 *			__exit_signal
--	 *			lock sighand->siglock
--	 *			unlock sighand->siglock
--	 * lock sh->siglock
--	 * add(tsk->pending) 	flush_sigqueue(tsk->pending)
--	 *
--	 */
--
--	if (unlikely(p->flags & PF_EXITING)) {
--		ret = -1;
--		goto out;
--	}
--
- 	if (unlikely(!list_empty(&q->list))) {
- 		/*
- 		 * If an SI_TIMER entry is already queue just increment
- 		 * the overrun count.
- 		 */
--		if (q->info.si_code != SI_TIMER)
--			BUG();
-+		BUG_ON(q->info.si_code != SI_TIMER);
- 		q->info.si_overrun++;
- 		goto out;
- 	}
-@@ -1385,7 +1352,7 @@ retry:
- 		signal_wake_up(p, sig == SIGKILL);
- 
- out:
--	spin_unlock_irqrestore(&sh->siglock, flags);
-+	unlock_task_sighand(p, &flags);
- out_err:
- 	rcu_read_unlock();
- 
+This brings up an interesting point - if CONFIG_NET is not set and
+CONFIG_HOTPLUG is set, don't we want to call /sbin/hotplug?  If
+...proc.../sys/kernel/hotplug isn't present then what?
 
+Or are we back in the business of breaking the userspace expectations
+in random ways?
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

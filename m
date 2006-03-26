@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWCZTCW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWCZTUx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWCZTCW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 14:02:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWCZTCW
+	id S1751123AbWCZTUx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 14:20:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWCZTUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 14:02:22 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:40925 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932116AbWCZTCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 14:02:21 -0500
-Subject: Re: kernel BUG at arch/i386/mm/highmem.c:63! kunmap_atomic
-From: Arjan van de Ven <arjan@infradead.org>
-To: Anil kumar <anils_r@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060326174556.45649.qmail@web32404.mail.mud.yahoo.com>
-References: <20060326174556.45649.qmail@web32404.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Sun, 26 Mar 2006 21:02:19 +0200
-Message-Id: <1143399739.3055.24.camel@laptopd505.fenrus.org>
+	Sun, 26 Mar 2006 14:20:53 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:44501 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751123AbWCZTUx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 14:20:53 -0500
+Date: Sun, 26 Mar 2006 11:16:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, tglx@linutronix.de, torvalds@osdl.org,
+       arjan@infradead.org, simlo@phys.au.dk
+Subject: Re: [patch] PI-futex: -V2
+Message-Id: <20060326111645.3cf2c206.akpm@osdl.org>
+In-Reply-To: <20060326160353.GA13282@elte.hu>
+References: <20060325184612.GF16724@elte.hu>
+	<20060325220728.3d5c8d36.akpm@osdl.org>
+	<20060326160353.GA13282@elte.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-03-26 at 09:45 -0800, Anil kumar wrote:
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> > > +	for (;;) {
+>  > > +		if (top_waiter)
+>  > > +			plist_del(&top_waiter->pi_list_entry,
+>  > > +				  &owner->pi_waiters);
+>  > > +
+>  > > +		if (waiter && waiter == rt_mutex_top_waiter(lock)) {
+>  > 
+>  > rt_mutex_top_waiter() can never return NULL, so the test for NULL 
+>  > could be removed.
 > 
-> Hi,
-> 
-> I get the following kernel panic,
-> 
-> kernel BUG at arch/i386/mm/highmem.c:63!
-> EIP:    0060:[<c011af5a>]    Tainted: PF     VLI
-> EFLAGS: 00010006   (2.6.11-1.1369_FC4smp)
-> EIP is at kunmap_atomic+0x35/0x5f
-> 
-> The following is the code, I am using in my driver:
-> 
-> kmap_atomic code:
-> 
-> int hr_km_type = (in_interrupt())? KM_IRQ0: KM_USER0;
->          pDataBuffer = kmap_atomic(cur_seg->page,
-> hr_km_type) + cur_seg->offset;
->          if(pDataBuffer == NULL) {
->             return (ENOMEM);
->          }
-> 
+>  it might be NULL if adjust_pi_chain() is called from remove_waiter(), 
+>  and next_waiter there is NULL (because !rt_mutex_has_waiters() after the 
+>  removal of the current waiter).
 
-this is buggy; your irq handler may run with interrupts on for example
+Yes, `waiter' might be NULL.  But rt_mutex_top_waiter() will never return
+NULL.  So it might be possible to just do
 
-I fear the worst for your code ;) I would suggest getting more people to
-review it (for example on kernel-newbies list or the kernel-mentors
-list) before using it in production ;)
+	if (waiter == rt_mutex_top_waiter(lock))
 
+Which might actually be less efficient, and more obscure.  Just pointing it
+out.

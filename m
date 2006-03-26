@@ -1,91 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWCZQdc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWCZQgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751459AbWCZQdc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 11:33:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWCZQdc
+	id S1751399AbWCZQgv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 11:36:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751463AbWCZQgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 11:33:32 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:24758 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751459AbWCZQdb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 11:33:31 -0500
-Date: Sun, 26 Mar 2006 18:30:56 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rt21, BUG at net/ipv4/netfilter/ip_conntrack_core.c:124
-Message-ID: <20060326163056.GC15667@elte.hu>
-References: <1143339628.5527.3.camel@cmn2.stanford.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1143339628.5527.3.camel@cmn2.stanford.edu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sun, 26 Mar 2006 11:36:50 -0500
+Received: from [84.204.75.166] ([84.204.75.166]:34707 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP
+	id S1751399AbWCZQgu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 11:36:50 -0500
+Message-ID: <4426C320.9010002@yandex.ru>
+Date: Sun, 26 Mar 2006 20:36:48 +0400
+From: "Artem B. Bityutskiy" <dedekind@yandex.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
+X-Accept-Language: en, ru, en-us
+MIME-Version: 1.0
+To: linux@horizon.com
+Cc: kalin@thinrope.net, linux-kernel@vger.kernel.org
+Subject: Re: Lifetime of flash memory
+References: <20060326162100.9204.qmail@science.horizon.com>
+In-Reply-To: <20060326162100.9204.qmail@science.horizon.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-
-> Hi Ingo... I'm seeing a few freezes with 2.6.15-rt21, they seem to be 
-> few and far between and most of the time they don't leave traces 
-> behind in the logs (and the reset button is the only way out). Here's 
-> one that apparently did leave something behind:
+linux@horizon.com wrote:
+> Sorry, I don't have anything in particular, just bits I've picked up
+> talking to CF manufacturers.
 > 
-> Mar 23 15:22:48 host kernel: BUG at
-> net/ipv4/netfilter/ip_conntrack_core.c:124!
+> Basically, a CF card is a flash ROM array attached to a little
+> microcontroller with an IDE interface.  The large manufacturers generally
+> have custom controllers.
+> 
+I'm actually interested in:
 
-does the patch below help?
+1. CF wear-levelling algorithms: how good or bad is it?
+2. How does CF implement block mapping, does it store the mapping table 
+on-flash or in memory, does it build it by scanning, how scalable are 
+those algorithms.
+3. Does CF perform bad erasable blocks hadling transparently when new 
+bad eraseblocks appear.
+4. How tolerant CF to powrer-offs.
+5. Is there a Garbage Collector in CF and how clever/stupid is it.
 
-	Ingo
+etc.
 
-Index: linux/include/linux/netfilter_ipv4/ip_conntrack.h
-===================================================================
---- linux.orig/include/linux/netfilter_ipv4/ip_conntrack.h
-+++ linux/include/linux/netfilter_ipv4/ip_conntrack.h
-@@ -336,7 +336,8 @@ ip_conntrack_expect_unregister_notifier(
- }
- 
- extern void ip_ct_deliver_cached_events(const struct ip_conntrack *ct);
--extern void __ip_ct_event_cache_init(struct ip_conntrack *ct);
-+extern void __ip_ct_event_cache_init(struct ip_conntrack_ecache *ecache,
-+				     struct ip_conntrack *ct);
- 
- static inline void 
- ip_conntrack_event_cache(enum ip_conntrack_events event,
-@@ -349,7 +350,7 @@ ip_conntrack_event_cache(enum ip_conntra
- 	local_bh_disable();
- 	ecache = &get_cpu_var_locked(ip_conntrack_ecache, &cpu);
- 	if (ct != ecache->ct)
--		__ip_ct_event_cache_init(ct);
-+		__ip_ct_event_cache_init(ecache, ct);
- 	ecache->events |= event;
- 	put_cpu_var_locked(ip_conntrack_ecache, cpu);
- 	local_bh_enable();
-Index: linux/net/ipv4/netfilter/ip_conntrack_core.c
-===================================================================
---- linux.orig/net/ipv4/netfilter/ip_conntrack_core.c
-+++ linux/net/ipv4/netfilter/ip_conntrack_core.c
-@@ -114,13 +114,10 @@ void ip_ct_deliver_cached_events(const s
- 	local_bh_enable();
- }
- 
--void __ip_ct_event_cache_init(struct ip_conntrack *ct)
-+void __ip_ct_event_cache_init(struct ip_conntrack_ecache *ecache,
-+			      struct ip_conntrack *ct)
- {
--	struct ip_conntrack_ecache *ecache;
--	int cpu = raw_smp_processor_id();
--
- 	/* take care of delivering potentially old events */
--	ecache = &__get_cpu_var_locked(ip_conntrack_ecache, cpu);
- 	BUG_ON(ecache->ct == ct);
- 	if (ecache->ct)
- 		__ip_ct_deliver_cached_events(ecache);
+I've heard CF does not have good characteristics in the above mentioned 
+aspects, but still, it would be interesting to know details. I'm not 
+going to use CFs, but as I'm working with flashes, I'm just interested. 
+It'd help me explaining people why it is bad to use CF for more serious 
+applications then those just storing pictures.
+
+-- 
+Best Regards,
+Artem B. Bityutskiy,
+St.-Petersburg, Russia.

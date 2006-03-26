@@ -1,122 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWCZMo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWCZMun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbWCZMo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 07:44:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWCZMo1
+	id S932070AbWCZMun (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 07:50:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWCZMun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 07:44:27 -0500
-Received: from pproxy.gmail.com ([64.233.166.182]:51636 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751353AbWCZMo0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 07:44:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cetaiFzKe4OOzZZzEs3jIviuoCPrtCCcvCdepw92qOGzrWYwpeEmwOI6zCLp9GHfcJ5sx43sMp9gvN9p827Mmz/EmI2/b6hJ7VacTyQ2qPjWjsLMT8I8Ryq6Dm63TAb+3Hsk3O5huO6wnU6jEjlSC3041VtLdO+ko+WYGTDWsWg=
-Message-ID: <9a8748490603260444w4ecfc5b4u820dd5a99f1f0c3c@mail.gmail.com>
-Date: Sun, 26 Mar 2006 14:44:25 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Jan Kara" <jack@suse.cz>
-Subject: Re: [PATCH] fix potential null pointer deref in quota
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <20060320094601.GA11037@atrey.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200603182308.05050.jesper.juhl@gmail.com>
-	 <20060320094601.GA11037@atrey.karlin.mff.cuni.cz>
+	Sun, 26 Mar 2006 07:50:43 -0500
+Received: from smtpout.mac.com ([17.250.248.71]:41429 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932070AbWCZMun (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 07:50:43 -0500
+In-Reply-To: <1143376351.3064.9.camel@laptopd505.fenrus.org>
+References: <200603141619.36609.mmazur@kernel.pl> <200603231811.26546.mmazur@kernel.pl> <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com> <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix> <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com> <20060326065205.d691539c.mrmacman_g4@mac.com> <20060326065416.93d5ce68.mrmacman_g4@mac.com> <1143376351.3064.9.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <A6491D09-3BCF-4742-A367-DCE717898446@mac.com>
+Cc: linux-kernel@vger.kernel.org, nix@esperi.org.uk, rob@landley.net,
+       mmazur@kernel.pl, llh-discuss@lists.pld-linux.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC][PATCH 1/2] Create initial kernel ABI header	infrastructure
+Date: Sun, 26 Mar 2006 07:50:28 -0500
+To: Arjan van de Ven <arjan@infradead.org>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/20/06, Jan Kara <jack@suse.cz> wrote:
->   Hello,
+On Mar 26, 2006, at 07:32:31, Arjan van de Ven wrote:
+> On Sun, 2006-03-26 at 06:54 -0500, Kyle Moffett wrote:
+>> Create initial kernel ABI header infrastructure
 >
-> > The coverity checker noticed that we may pass a NULL super_block to
-> > do_quotactl() that dereferences it.
-> > Dereferencing NULL pointers is bad medicine, better check and fail
-> > gracefully.
->   Umm, when do you think we can dereference NULL pointer to a super_block?
-> check_quotactl_valid() allows sb==NULL only in the case of Q_SYNC command.
-> And that is handled in do_quotactl() correctly even if sb==NULL...
+> it's nice that you picked this one;
+> for this you want an arch-generic/stddef32.h and stddef64.h
 >
+> and have arch-foo just only include the proper generic one..
 
-Reading the code again it looks like you are right and that this is a
-false positive by the coverity checker.
+I plan to add a lot of other definitions to this file later on.  For  
+example different architectures have different notions of what a  
+__kernel_ino_t is (unsigned int versus unsigned long).  I may rename  
+this file as types.h, but from looking through the code I figure I'll  
+have enough general purpose declarations about "This architecture has  
+blah" that a separate stddef.h file will be worth it.
 
-This is what the checker had to say :
+> (and... why do you prefix these with _KABI? that's a mistake imo.  
+> Don't bother with that. Really. Either these need exporting to  
+> userspace, but then either use __ as prefix or don't use a prefix.  
+> But KABI.. No.)
 
+According to the various standards all symbols beginning with __ are  
+reserved for "The Implementation", including the compiler, the  
+standard library, the kernel, etc.  In order to avoid clashing with  
+any/all of those, I picked the __KABI_ and __kabi_ prefixes for  
+uniqueness.  In theory I could just use __, but there are problems  
+with that too.  For example, note how the current compiler.h files  
+redefine __always_inline to mean something kinda different.  The GCC  
+manual says we should be able to write this:
 
-346  	asmlinkage long sys_quotactl(unsigned int cmd, const char __user
-*special, qid_t id, void __user *addr)
-347  	{
-348  		uint cmds, type;
+inline __attribute__((__always_inline)) int increment(int x)
+{
+	return x+1;
+}
 
-Event assign_zero: Variable "sb" assigned value 0.
-Also see events:
-[var_deref_model][var_deref_model][var_deref_model][var_deref_model][var_deref_model][var_deref_model][var_deref_model][var_deref_model]
+Except when compiling the kernel headers turn that into this (which  
+obviously doesn't compile):
+inline __attribute__((__attribute__((always_inline)))) int increment 
+(int x)
+{
+	return x+1;
+}
 
-349  		struct super_block *sb = NULL;
-350  		struct block_device *bdev;
-351  		char *tmp;
-352  		int ret;
-353  	
-354  		cmds = cmd >> SUBCMDSHIFT;
-355  		type = cmd & SUBCMDMASK;
-356  	
+As a result, I kinda want to stay away from anything that remotely  
+looks like a conflicting namespace.  Using such a unique namespace  
+means we can also safely do this if necessary (Since you can't  
+"typedef struct foo struct bar"):
 
-At conditional (1): "cmds != 8388609" taking false path
-At conditional (2): "special != 0" taking false path
+kabi/foo.h:
+   struct __kabi_foo {
+   	int x;
+   	int y;
+   };
 
-357  		if (cmds != Q_SYNC || special) {
-358  			tmp = getname(special);
-359  			if (IS_ERR(tmp))
-360  				return PTR_ERR(tmp);
-361  			bdev = lookup_bdev(tmp);
-362  			putname(tmp);
-363  			if (IS_ERR(bdev))
-364  				return PTR_ERR(bdev);
-365  			sb = get_super(bdev);
-366  			bdput(bdev);
-367  			if (!sb)
-368  				return -ENODEV;
-369  		}
-370  	
-371  		ret = check_quotactl_valid(sb, type, cmds, id);
+linux/foo.h:
+   #define __kabi_foo foo
+   #include <kabi/foo.h>
 
-At conditional (3): "ret >= 0" taking true path
+drivers/foo/foo.h:
+   #include <linux/foo.h>
+   void func()
+   {
+   	struct foo = { .x = 1, .y = 2 };
+   }
 
-372  		if (ret >= 0)
+Cheers,
+Kyle Moffett
 
-Event var_deref_model: Variable "sb" tracked as NULL was passed to a
-function that dereferences it. [model]
-Event var_deref_model: Variable "sb" tracked as NULL was passed to a
-function that dereferences it. [model]
-Event var_deref_model: Variable "sb" tracked as NULL was passed to a
-function that dereferences it. [model]
-Event var_deref_model: Variable "sb" tracked as NULL was passed to a
-function that dereferences it. [model]
-Event var_deref_model: Variable "sb" tracked as NULL was passed to a
-function that dereferences it. [model]
-Event var_deref_model: Variable "sb" tracked as NULL was passed to a
-function that dereferences it. [model]
-Event var_deref_model: Variable "sb" tracked as NULL was passed to a
-function that dereferences it. [model]
-Event var_deref_model: Variable "sb" tracked as NULL was passed to a
-function that dereferences it. [model]
-Also see events:
-[assign_zero][var_deref_model][var_deref_model][var_deref_model][var_deref_model][var_deref_model][var_deref_model][var_deref_model]
-
-373  			ret = do_quotactl(sb, type, cmds, id, addr);
-374  		if (sb)
-375  			drop_super(sb);
-376  	
-377  		return ret;
-378  	}
-
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

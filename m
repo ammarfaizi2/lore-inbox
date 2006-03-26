@@ -1,104 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWCZWYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWCZW2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbWCZWYG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 17:24:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWCZWYF
+	id S1751131AbWCZW2G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 17:28:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWCZW2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 17:24:05 -0500
-Received: from mx2.suse.de ([195.135.220.15]:31890 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751148AbWCZWYE (ORCPT
+	Sun, 26 Mar 2006 17:28:06 -0500
+Received: from flex.com ([206.126.0.13]:39687 "EHLO flex.com")
+	by vger.kernel.org with ESMTP id S1751164AbWCZW2F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 17:24:04 -0500
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Mon, 27 Mar 2006 09:22:26 +1100
-Message-Id: <1060326222226.15751@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] md: Convert reconfig_sem to reconfig_mutex
-References: <20060327092201.15732.patches@notabene>
+	Sun, 26 Mar 2006 17:28:05 -0500
+From: Marr <marr@flex.com>
+To: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com, drepper@redhat.com,
+       Hans Reiser <reiser@namesys.com>
+Subject: Re: Readahead value 128K? (was Re: Drastic Slowdown of 'fseek()'
+Date: Sun, 26 Mar 2006 17:25:14 -0500
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, Mark Lord <lkml@rtr.ca>,
+       Linda Walsh <lkml@tlinx.org>, Bill Davidsen <davidsen@tmr.com>,
+       Gerold Jury <gjury@inode.at>, Robert Hancock <hancockr@shaw.ca>,
+       Al Boldi <a1426z@gawab.com>, Ingo Oeser <ioe-lkml@rameria.de>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>, marr@flex.com
+References: <200603131437.50461.a1426z@gawab.com> <200603131501.38803.marr@flex.com>
+In-Reply-To: <200603131501.38803.marr@flex.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200603261725.15294.marr@flex.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greetings, Ulrich, Hans, et al,
 
-... being careful that mutex_trylock is inverted wrt down_trylock
+*** Please CC: me on replies -- I'm not subscribed.
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+After some more testing and some input (off-list) from others, here is a 
+summary of this problem and its various work-arounds to date....
 
-### Diffstat output
- ./drivers/md/md.c           |   14 +++++++-------
- ./include/linux/raid/md_k.h |    2 +-
- 2 files changed, 8 insertions(+), 8 deletions(-)
+On Monday 27 February 2006 4:53pm, Hans Reiser wrote:
+> Andrew Morton wrote:
+> >runs like a dog on 2.6's reiserfs.  libc is doing a (probably) 128k read
+> >on every fseek.
+> >
+> >- There may be a libc stdio function which allows you to tune this
+> >  behaviour.
 
-diff ./drivers/md/md.c~current~ ./drivers/md/md.c
---- ./drivers/md/md.c~current~	2006-03-27 09:21:08.000000000 +1100
-+++ ./drivers/md/md.c	2006-03-27 09:21:19.000000000 +1100
-@@ -254,7 +254,7 @@ static mddev_t * mddev_find(dev_t unit)
- 	else
- 		new->md_minor = MINOR(unit) >> MdpMinorShift;
- 
--	init_MUTEX(&new->reconfig_sem);
-+	mutex_init(&new->reconfig_mutex);
- 	INIT_LIST_HEAD(&new->disks);
- 	INIT_LIST_HEAD(&new->all_mddevs);
- 	init_timer(&new->safemode_timer);
-@@ -276,22 +276,22 @@ static mddev_t * mddev_find(dev_t unit)
- 
- static inline int mddev_lock(mddev_t * mddev)
- {
--	return down_interruptible(&mddev->reconfig_sem);
-+	return mutex_lock_interruptible(&mddev->reconfig_mutex);
- }
- 
- static inline void mddev_lock_uninterruptible(mddev_t * mddev)
- {
--	down(&mddev->reconfig_sem);
-+	mutex_lock(&mddev->reconfig_mutex);
- }
- 
- static inline int mddev_trylock(mddev_t * mddev)
- {
--	return down_trylock(&mddev->reconfig_sem);
-+	return mutex_trylock(&mddev->reconfig_mutex);
- }
- 
- static inline void mddev_unlock(mddev_t * mddev)
- {
--	up(&mddev->reconfig_sem);
-+	mutex_unlock(&mddev->reconfig_mutex);
- 
- 	md_wakeup_thread(mddev->thread);
- }
-@@ -4892,7 +4892,7 @@ void md_check_recovery(mddev_t *mddev)
- 		))
- 		return;
- 
--	if (mddev_trylock(mddev)==0) {
-+	if (mddev_trylock(mddev)) {
- 		int spares =0;
- 
- 		spin_lock_irq(&mddev->write_lock);
-@@ -5028,7 +5028,7 @@ static int md_notify_reboot(struct notif
- 		printk(KERN_INFO "md: stopping all md devices.\n");
- 
- 		ITERATE_MDDEV(mddev,tmp)
--			if (mddev_trylock(mddev)==0)
-+			if (mddev_trylock(mddev))
- 				do_md_stop (mddev, 1);
- 		/*
- 		 * certain more exotic SCSI devices are known to be
+It turns out that there is just such a function. Thanks to some sage 
+(off-list) advice from Gerold Jury, this is an effective way to switch the 
+file's stream to "unbuffered" mode:
 
-diff ./include/linux/raid/md_k.h~current~ ./include/linux/raid/md_k.h
---- ./include/linux/raid/md_k.h~current~	2006-03-27 09:21:09.000000000 +1100
-+++ ./include/linux/raid/md_k.h	2006-03-27 09:21:19.000000000 +1100
-@@ -185,7 +185,7 @@ struct mddev_s
- 	unsigned long			recovery;
- 
- 	int				in_sync;	/* know to not need resync */
--	struct semaphore		reconfig_sem;
-+	struct mutex			reconfig_mutex;
- 	atomic_t			active;
- 
- 	int				changed;	/* true if we might need to reread partition info */
+   setvbuf( inp_fh, 0, _IONBF, 0 );
+
+This results in incredible speedups on the ReiserFS+2.6.x setup, without the 
+need to even use the 'nolargeio=1' mount option. Basically, we're going from 
+128KB read-ahead on every 'fseek()' call to no read-ahead.
+
+> >
+> >- libc should probably be a bit more defensive about this anyway -
+> >  plainly the filesystem is being silly.
+>
+> I really thank you for isolating the problem, but I don't see how you
+> can do other than blame glibc for this.  The recommended IO size is only
+> relevant to uncached data, and glibc is using it regardless of whether
+> or not it is cached or uncached.   Do I misunderstand something myself
+> here?
+
+To date, I've not seen anyone address this implicit question/issue that Hans 
+raised. To wit: Is the "recommended I/O size" only relevant to _uncached_ 
+data???
+
+If not, then anyone using ReiserFS on a 2.6.x kernel had best be well aware 
+that 128KB read-aheads are going to occur with every 'fseek()' call, 
+degrading performance drastically. This seems like a good reason for the 
+ReiserFS folks to re-evaluate the use of 128KB as the default value for 
+read-ahead.
+
+Alternatively, if "recommended I/O size" _is_ (intended to be) only relevant 
+to _uncached_ data, then the question becomes this: Is 'glibc' erroneously 
+using that recommended size regardless of whether the data is cached or 
+uncached?
+
+Ulrich, we'd really appreciate your input on this matter. Please advise. Even 
+a simple reply of "buzz off" would be useful at this point! ;^)
+
+------------------------------
+
+In summary, the problem still exists, but any of the following work-arounds 
+are effective, ordered here from best to worst:
+
+(A) Use a 'setvbuf()' call in the target application to disable (or reduce) 
+buffering on the input stream. 
+
+Under certain conditions, this should be useful even when not using ReiserFS 
+and/or when not running a 2.6.x kernel. However, it's almost essential 
+(currently) with ReiserFS and 2.6.x kernels, for apps which do a lot of file 
+seeks using ANSI C file I/O (i.e. 'fseek()').
+
+OR
+
+(B) Use the `nolargeio=1' option when mounting a ReiserFS partition under 
+2.6.x kernels. This effectively changes the recommended I/O read-ahead after 
+each 'fseek()' call from 128KB to 4KB.
+
+Unlike option (A) above, this is useful for situations where you don't have 
+access to the source code of the target application(s).
+
+However, Andrew Morton mentioned this possible negative side-effect:
+
+>   This will alter the behaviour of every reiserfs filesystem in the
+>   machine.  Even the already mounted ones.
+
+OR
+
+(C) Don't use ReiserFS (v3) under 2.6.x kernels (for apps which do a lot of 
+file seeks using ANSI C file I/O).
+
+For example, the 'ext2'/'ext3' filesystems seem to still use the 4KB 
+read-ahead, resulting in _much_ better performance when performing multiple 
+seeks (outside the range of the 'read-ahead' setting).
+
+------------------------------
+
+Of course, the unmentioned option (which basically bypasses the whole issue) 
+is to convert the underlying application to use raw, unbuffered Unix file I/O 
+(i.e. 'lseek() + read()' [or even just 'pread()', as suggested by Andrew 
+Morton]) instead of ANSI C file I/O ('fseek() + fread()'), but that is 
+considered out-of-scope for purposes of this discussion.
+
+-----------------------------
+
+Thanks to all who supplied input. Special thanks to Andrew Morton and Gerold 
+Jury who supplied what effectively turned out to be the most-useful 
+work-arounds.
+
+*** Please CC: me on replies -- I'm not subscribed.
+
+Bill Marr

@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWCZJfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWCZJnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751106AbWCZJfL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 04:35:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWCZJfL
+	id S1751092AbWCZJnO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 04:43:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWCZJnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 04:35:11 -0500
-Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:44742 "EHLO
-	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751106AbWCZJfJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 04:35:09 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: swap prefetching merge plans
-Date: Sun, 26 Mar 2006 20:34:43 +1100
-User-Agent: KMail/1.9.1
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-References: <20060322205305.0604f49b.akpm@osdl.org> <200603261808.15785.kernel@kolivas.org> <1143358947.9658.19.camel@homer>
-In-Reply-To: <1143358947.9658.19.camel@homer>
+	Sun, 26 Mar 2006 04:43:14 -0500
+Received: from ishtar.tlinx.org ([64.81.245.74]:36541 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S1750741AbWCZJnN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 04:43:13 -0500
+Message-ID: <4426620C.2040707@tlinx.org>
+Date: Sun, 26 Mar 2006 01:42:36 -0800
+From: Linda Walsh <lkml@tlinx.org>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Adrian Bunk <bunk@stusta.de>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Security downgrade? CONFIG_HOTPLUG required in 2.6.16?
+References: <44237D87.70300@tlinx.org> <20060325192635.GQ4053@stusta.de>
+In-Reply-To: <20060325192635.GQ4053@stusta.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603261934.44552.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 26 March 2006 17:42, Mike Galbraith wrote:
-> On Sun, 2006-03-26 at 19:08 +1100, Con Kolivas wrote:
-> > I guess me criticising your patches made you want to find flaws with my
-> > code.
+Adrian Bunk wrote:
+> - hotplugging devices != module loading
+> - CONFIG_HOTPLUG does not load any code into the kernel.
+> - hotplugging devices can work without any userspace support
 >
-> I was simply curious as to how well the damn thing performs Con.  Don't
-> worry though, I'll never make the mistake of testing and reporting ever
-> again.
+> As an example, hotplugging an USB hard disk works fine with 
+> CONFIG_MODULES=n and without any userspace support (assuming
+> a static /dev).
+>   
+---
+    Ah, I see.   But if I have no USB hard disk to plug in?
+Should I still be compiling in HOTPLUG?  Seems a waste.
+Thanks for the example though...
 
-That was a foolishly bitter comment from me that you did absolutely nothing to 
-deserve and I humbly apologise.
-
-Con
+-linda

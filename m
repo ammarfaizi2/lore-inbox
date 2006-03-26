@@ -1,68 +1,231 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWCZOFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWCZOLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751205AbWCZOFh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 09:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWCZOFh
+	id S1751216AbWCZOLs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 09:11:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWCZOLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 09:05:37 -0500
-Received: from mx02.cybersurf.com ([209.197.145.105]:47777 "EHLO
-	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S1751177AbWCZOFg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 09:05:36 -0500
-Subject: Re: [RFC][UPDATED PATCH 2.6.16] [Patch 9/9] Generic netlink
-	interface for delay accounting
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: balbir@in.ibm.com
-Cc: Matt Helsley <matthltc@us.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       netdev <netdev@vger.kernel.org>
-In-Reply-To: <661de9470603251022w7f8991e9g73d70a65f5d475ea@mail.gmail.com>
-References: <1142303607.24621.63.camel@stark>
-	 <1143122686.5186.27.camel@jzny2> <20060323154106.GA13159@in.ibm.com>
-	 <1143209061.5076.14.camel@jzny2> <20060324145459.GA7495@in.ibm.com>
-	 <1143249565.5184.6.camel@jzny2> <20060325094126.GA9376@in.ibm.com>
-	 <1143291133.5184.32.camel@jzny2> <20060325153632.GA25431@in.ibm.com>
-	 <1143308901.5184.48.camel@jzny2>
-	 <661de9470603251022w7f8991e9g73d70a65f5d475ea@mail.gmail.com>
-Content-Type: text/plain
-Organization: unknown
-Date: Sun, 26 Mar 2006 09:05:18 -0500
-Message-Id: <1143381918.5184.52.camel@jzny2>
+	Sun, 26 Mar 2006 09:11:48 -0500
+Received: from mail.gmx.net ([213.165.64.20]:49845 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751216AbWCZOLs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 09:11:48 -0500
+X-Authenticated: #2308221
+Date: Sun, 26 Mar 2006 16:11:44 +0200
+From: Christian Trefzer <ctrefzer@gmx.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: snd-nm256: hard lockup on every second module load after powerup
+Message-ID: <20060326141144.GA12575@hermes.uziel.local>
+References: <20060326054542.GA11961@hermes.uziel.local> <20060326061124.GA9501@hermes.uziel.local>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+Content-Disposition: inline
+In-Reply-To: <20060326061124.GA9501@hermes.uziel.local>
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-25-03 at 23:52 +0530, Balbir Singh wrote:
+
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 
 
-> No, we cannot have both passed. If we pass both a PID and a TGID and
-> then the code returns just the stats for the PID.
-> 
+OK, apparently the importance of this issue is quite modest, so I won't
+expect too much attention - not that I'd have presumed any in the first
+place ; )
 
-ok, that clears it then; i think you are ready to go.
+Here's what I found so far, anyway:
 
-> >
-> > Also in regards to the nesting, isnt there a need for nla_nest_cancel in
-> > case of failures to add TLVs?
-> >
-> 
-> I thought about it, but when I looked at the code of genlmsg_cancel()
-> and nla_nest_cancel().  It seemed that genlmsg_cancel() should
-> suffice.
-> 
+Writing the following to the device one word at a time prior to loading
+snd-nm256 saved my laptop from hanging. It was dumped in a shell loop
+after successful driver loading:
 
-If your policy is to never send a message if anything fails, then you
-are fine.
+0x71918086
+0x0220011f
+0x06040003
+0x00012000
+0x00000000
+0x00000000
+0x20010100
+0xa2a0c0c0
+0xfef0fd00
+0xf9f0f800
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x008c0000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
 
-What would be really useful now that you understand this, is if you can
-help extending/cleaning the document i sent you. Or send me a table of
-contents of how it would have flowed better for you.
 
-cheers,
-jamal
+The following I get when reading stuff right before a crash:
 
 
+0x71918086
+0x0220011f
+0x06040003
+0x00012000
+0x00000000
+0x00000000
+0x20010100
+0x22a0c0c0
+0xfef0fd00
+0xf9f0f800
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x008c0000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+0x00000000
+
+
+The funny part is that only writing word #7 won't save the suicidal
+fsck from going over the edge, I only succeeded when writing all the
+stuff back to the device. By the way, here's a diff:
+
+
+--- nm256-device-beforedriver	2006-03-26 15:27:32.873773008 +0200
++++ nm256-device-driverloaded	2006-03-26 15:27:42.669283864 +0200
+@@ -5,7 +5,7 @@
+ 0x00000000
+ 0x00000000
+ 0x20010100
+-0x22a0c0c0
++0xa2a0c0c0
+ 0xfef0fd00
+ 0xf9f0f800
+ 0x00000000
+
+
+It came out of suspend2 just the way it was supposed to crash, I flushed
+the registers and it is now happily playing music for me. Strange
+thing... For now, I'll add the register paint job to an install
+directive in modprobe.conf, let's see what this can do.
+
+
+Kind regards,
+Chris
+
+
+--pf9I7BMVVzbSWLtt
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iQIVAwUBRCahHl2m8MprmeOlAQIKuA//bNLMDt6BlcXfWjejB3kBfu5ltAtVqsOI
+j9EAMuIxElPG4zHKbOD8CP6PgJspqaBB94/+GeqZSWpG34scq4T5ITpPNPUkFmGl
+Xzj0dhZKkLscE2PqavsTn7SoWCMwFG28F98fG99g8semAKCN3FrFDawg4+S2/YYK
+UAbKRlOOBmopAU9ileOkq14ovR5tdMFcQFKdDPev8fM/LBKbs01GMCeno6cTUgae
+TXb4eOy3wKz+rU8SoXSbcFZEFrz5Ll6elykvVFuVs1AqnSHoEbKVH14GPIX0qUTB
+lm9BZ/mT26JUKkof7vXBzXwUBfqm0LZyixNY9U4oKUKPKuHNL9EWuDeVRUee2TN1
++X9b3KL8z6r45Ris4r2vpB5uD9Z60E0KkGdUOgcx5hBd0ay3oNEvOcLFpn6N+Cu3
+TWOydfEyECmvEPCPfkClM+Q2eovYQD9EmEhKYTVnmMuPBojJe9XChf71nsEGI7XI
+MnKxTTe22gryjYznpfMx1M3qXBb/MJQcoyiCYqaBeoNtxZv1kZhfm/pCy3XYQGfs
+RiVN/wd8/eOgq4SWA0TpyJAFxOv3KKJLpYzHEs/JnucDFiE/nAIq5pFmJwY3HExa
+79lm98Wg3miz4SsGyRVZ1Fw3qaqNVQnfPjRtBX7UMXFahj6o+rOhh+Wrckalhar/
+7xYD3IOmCM4=
+=OVY2
+-----END PGP SIGNATURE-----
+
+--pf9I7BMVVzbSWLtt--
 

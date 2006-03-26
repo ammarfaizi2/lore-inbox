@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWCZLZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWCZLfT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbWCZLZN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 06:25:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWCZLZN
+	id S1751255AbWCZLfT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 06:35:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWCZLfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 06:25:13 -0500
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:46806 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1750835AbWCZLZL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 06:25:11 -0500
-Date: Sun, 26 Mar 2006 13:24:57 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Stas Sergeev <stsp@aknet.ru>
-cc: 7eggert@gmx.de, dtor_core@ameritech.net,
-       Linux kernel <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: [patch 1/1] pc-speaker: add SND_SILENT
-In-Reply-To: <44266472.5080309@aknet.ru>
-Message-ID: <Pine.LNX.4.58.0603261318170.3990@be1.lrz>
-References: <5TCqf-E6-49@gated-at.bofh.it> <5TCqf-E6-51@gated-at.bofh.it>
- <5TCqf-E6-53@gated-at.bofh.it> <5TCqg-E6-55@gated-at.bofh.it>
- <5TCqf-E6-47@gated-at.bofh.it> <E1FMv1A-0000fN-Lp@be1.lrz> <44266472.5080309@aknet.ru>
+	Sun, 26 Mar 2006 06:35:19 -0500
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:10726 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751255AbWCZLfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 06:35:18 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: [PATCH] Fix bug: flat binary loader doesn't check fd table full
+To: Luke Yang <luke.adi@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Paul Jackson <pj@sgi.com>
+Reply-To: 7eggert@gmx.de
+Date: Sun, 26 Mar 2006 13:34:27 +0200
+References: <5Tsh4-2q0-13@gated-at.bofh.it> <5TsTM-3aB-1@gated-at.bofh.it> <5Tuj1-5lw-31@gated-at.bofh.it> <5Tuj1-5lw-29@gated-at.bofh.it> <5U92I-6ki-11@gated-at.bofh.it> <5UiSm-3FG-17@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1FNTWV-00013n-WF@be1.lrz>
 X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
 X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Mar 2006, Stas Sergeev wrote:
-> Bodo Eggert wrote:
+Luke Yang <luke.adi@gmail.com> wrote:
+> On 3/25/06, Paul Jackson <pj@sgi.com> wrote:
 
-> >> The problem is that the snd-pcsp doesn't replace pcspkr.
-> > If that's the problem, create a minimal input driver that will signal the
-> > snd-pcsp to beep, and change the original pcspkr to include "(Non-ALSA)".
+>> > >   Anyone knows how to avoid "tab to space" converting in gmail?
+>> >
+>> > If I knew, I'd put it in my .signature :(
+>>
+>> If you use sendpatchset:
+>>
+>>   http://www.speakeasy.org/~pj99/sgi/sendpatchset
 
-> Yes, making snd-pcsp to produce the console beeps and
-> making it mutually exclusive with pcspkr is possible.
-> But I think it is undesireable. People that don't like
-> the console beeps (myself included) simply do not load
-> the pcspkr module right now. If snd-pcsp is to produce
-> the beeps, then not loading pcspkr will not get the desired
-> effect any more, and the only possibility would be to,
-> probably, add the separate mixer control for the beeps.
+[...]
 
-I asumed the input driver would be an extra module. Otherwise it should at 
-least be a runtime option (off cause).
+>   Thank you for your help. But my problem is that I can only access 80
+> and 443 ports behind the company firewall :(. So I guess that doesn't
+> work for me.
+
+Ask the admin. Most probably he can grant you an account so you can use
+the internal email server.
 -- 
-Microwave: Signal from a friendly micro... 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

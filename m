@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWCZHYD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWCZHsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbWCZHYD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 02:24:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWCZHYD
+	id S1751158AbWCZHsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 02:48:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWCZHsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 02:24:03 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:47896 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751132AbWCZHYC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 02:24:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=B6nnp6Y6jckvu8Yc44JSzSaqmaz04gxWF8yTyido9ucmMAY90ON88o8eSvOVOVCYLW6v09laqub5y3qK6hYrdhobdHvrjKcyYX7EwmSq+WsThBlGJgcVclr2uRokLyCpEr5vLub9xoFDD0pgmCGvt7gDv1Px6AUU0I+I8X6sT0o=
-Message-ID: <bda6d13a0603252324y3010ff84sdbce2d0aed68bb6e@mail.gmail.com>
-Date: Sat, 25 Mar 2006 23:24:01 -0800
-From: "Joshua Hudson" <joshudson@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Virtual Serial Port
-In-Reply-To: <4425FB22.7040405@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 26 Mar 2006 02:48:16 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:49093 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751158AbWCZHsP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 02:48:15 -0500
+Date: Sun, 26 Mar 2006 09:45:35 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Bill Huey <billh@gnuppy.monkey.org>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [patch 00/10] PI-futex: -V1
+Message-ID: <20060326074535.GA9969@elte.hu>
+References: <20060325184528.GA16724@elte.hu> <20060326045404.GA9308@gnuppy.monkey.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <442582B8.8040403@gmail.com>
-	 <Pine.LNX.4.61.0603251945100.29793@yvahk01.tjqt.qr>
-	 <4425FB22.7040405@gmail.com>
+In-Reply-To: <20060326045404.GA9308@gnuppy.monkey.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> My purpose is to provide serial interfaces for debugging. My real box
-> acts as remote host connecting to VMWare box by a *virtual* serial cable
-> so that I can set up a debugging environment.
->
-[snip]
->
-> Mikado
 
-I wonder if either ptyp/ttyp or pts/ interfaces would suit your
-purpose. They are
-supposed to appear on one side to be virtual serial ports.
+* Bill Huey <billh@gnuppy.monkey.org> wrote:
+
+> You'll need to do priority ceiling emulation as well. [...]
+
+i mentioned it further down in the text - PRIO_PROTECT support (which is 
+priority ceiling) is planned for pthread mutexes. It needs no further 
+kernel changes, it's a pure userspace thing.
+
+	Ingo

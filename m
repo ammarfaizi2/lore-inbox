@@ -1,68 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbWCZLfj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWCZLkx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbWCZLfj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 06:35:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbWCZLfj
+	id S1751281AbWCZLkx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 06:40:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWCZLkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 06:35:39 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:5493 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751265AbWCZLfi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 06:35:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MOLKOsaq1pHbT4m8YvEjk5TIMgbXGWMzqH9FWlejagQjxmX62bFFXa5NUHfdkjPfuVUsrkEk4fNR5ndsKlhjy+8Bk7SSWubj49okQOoR10DC82wgTti3h4MmN7a5Ac+cPBR4taNbI9exn7Z3PfW3WbZcwVzWe8s8C1wbx1j+ELo=
-Message-ID: <9a8748490603260335g4e527ae9had20de42041c3983@mail.gmail.com>
-Date: Sun, 26 Mar 2006 13:35:37 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Per Liden" <per.liden@ericsson.com>
-Subject: Re: [PATCH] cleanup for net/tipc/name_distr.c::tipc_named_node_up()
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0603221049140.6949@ulinpc219.uab.ericsson.se>
+	Sun, 26 Mar 2006 06:40:53 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:5 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S1751273AbWCZLkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 06:40:52 -0500
+Date: Sun, 26 Mar 2006 19:41:18 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Andrew Morton <akpm@osdl.org>
+cc: autofs mailing list <autofs@linux.kernel.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>
+Subject: [PATCH] autofs4 - atomic var underflow - obvious programming error
+Message-ID: <Pine.LNX.4.64.0603261921380.6061@eagle.themaw.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200603190045.24176.jesper.juhl@gmail.com>
-	 <Pine.LNX.4.64.0603221049140.6949@ulinpc219.uab.ericsson.se>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-themaw-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-1.896,
+	required 5, autolearn=not spam, BAYES_00 -2.60,
+	DATE_IN_PAST_12_24 0.70)
+X-themaw-MailScanner-From: raven@themaw.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/22/06, Per Liden <per.liden@ericsson.com> wrote:
-> On Sun, 19 Mar 2006, Jesper Juhl wrote:
->
-> > Small cleanup patch for net/tipc/name_distr.c::tipc_named_node_up()
->
-> Not sure if you followed the discussion on the tipc mailinglist, so here's
-> a short summary.
->
-I don't read the tipc mailing list, no.
 
+Hi Andrew,
 
-> > Patch does the following:
-> >
-> >  - Change a few pointer assignments from 0 to NULL (makes sparse happy).
->
-> Ok.
->
-> >  - Move a few variable assignment outside the tipc_nametbl_lock lock.
->
-> Ok.
->
+Here is the patch I have for the underflow of reported recently.
 
-Do you want a new patch with just these bits in it or will you take
-care of it yourself?
+It looks like an obvious programming error on my part (as usual).
 
-
-> >  - Make sure to free the allocated buffer before returning so we don't leak.
->
-> The additional kfree_skb() looks incorrect. If a buffer if allocated it
-> will later be released by tipc_link_send().
->
-I see. Then that bit is indeed incorrect.
+Signed-off-by: Ian Kent <raven@themaw.net>
 
 --
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+
+--- linux-2.6.16-rc6-mm1/fs/autofs4/waitq.c.notify-bug	2006-03-13 13:23:52.000000000 +0800
++++ linux-2.6.16-rc6-mm1/fs/autofs4/waitq.c	2006-03-13 13:25:40.000000000 +0800
+@@ -263,7 +263,7 @@ int autofs4_wait(struct autofs_sb_info *
+ 		wq->tgid = current->tgid;
+ 		wq->status = -EINTR; /* Status return if interrupted */
+ 		atomic_set(&wq->wait_ctr, 2);
+-		atomic_set(&wq->notified, 1);
++		atomic_set(&wq->notify, 1);
+ 		mutex_unlock(&sbi->wq_mutex);
+ 	} else {
+ 		atomic_inc(&wq->wait_ctr);
+@@ -273,9 +273,11 @@ int autofs4_wait(struct autofs_sb_info *
+ 			(unsigned long) wq->wait_queue_token, wq->len, wq->name, notify);
+ 	}
+ 
+-	if (notify != NFY_NONE && atomic_dec_and_test(&wq->notified)) {
++	if (notify != NFY_NONE && atomic_read(&wq->notify)) {
+ 		int type;
+ 
++		atomic_dec(&wq->notify);
++
+ 		if (sbi->version < 5) {
+ 			if (notify == NFY_MOUNT)
+ 				type = autofs_ptype_missing;
+--- linux-2.6.16-rc6-mm1/fs/autofs4/autofs_i.h.notify-bug	2006-03-13 13:23:39.000000000 +0800
++++ linux-2.6.16-rc6-mm1/fs/autofs4/autofs_i.h	2006-03-13 13:24:08.000000000 +0800
+@@ -85,7 +85,7 @@ struct autofs_wait_queue {
+ 	pid_t tgid;
+ 	/* This is for status reporting upon return */
+ 	int status;
+-	atomic_t notified;
++	atomic_t notify;
+ 	atomic_t wait_ctr;
+ };
+ 

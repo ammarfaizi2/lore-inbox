@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWCZNzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWCZOFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbWCZNzz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 08:55:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWCZNzz
+	id S1751205AbWCZOFh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 09:05:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWCZOFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 08:55:55 -0500
-Received: from main.gmane.org ([80.91.229.2]:26079 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932078AbWCZNzy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 08:55:54 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: [RFC][PATCH 0/2] KABI example conversion and cleanup
-Date: Sun, 26 Mar 2006 15:53:05 +0200
-Message-ID: <1j559cjhfl0bj.1cvtvnq8t1x0t.dlg@40tude.net>
-References: <200603141619.36609.mmazur@kernel.pl> <200603231811.26546.mmazur@kernel.pl> <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com> <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix> <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com> <20060326065205.d691539c.mrmacman_g4@mac.com> <1143376008.3064.0.camel@laptopd505.fenrus.org> <F31089B5-0915-439D-B218-009384E2148F@mac.com> <4426974D.8040309@argo.co.il> <25A7D808-9900-4035-BEB3-A782C5EF8EF4@mac.com>
+	Sun, 26 Mar 2006 09:05:37 -0500
+Received: from mx02.cybersurf.com ([209.197.145.105]:47777 "EHLO
+	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S1751177AbWCZOFg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 09:05:36 -0500
+Subject: Re: [RFC][UPDATED PATCH 2.6.16] [Patch 9/9] Generic netlink
+	interface for delay accounting
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: balbir@in.ibm.com
+Cc: Matt Helsley <matthltc@us.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       netdev <netdev@vger.kernel.org>
+In-Reply-To: <661de9470603251022w7f8991e9g73d70a65f5d475ea@mail.gmail.com>
+References: <1142303607.24621.63.camel@stark>
+	 <1143122686.5186.27.camel@jzny2> <20060323154106.GA13159@in.ibm.com>
+	 <1143209061.5076.14.camel@jzny2> <20060324145459.GA7495@in.ibm.com>
+	 <1143249565.5184.6.camel@jzny2> <20060325094126.GA9376@in.ibm.com>
+	 <1143291133.5184.32.camel@jzny2> <20060325153632.GA25431@in.ibm.com>
+	 <1143308901.5184.48.camel@jzny2>
+	 <661de9470603251022w7f8991e9g73d70a65f5d475ea@mail.gmail.com>
+Content-Type: text/plain
+Organization: unknown
+Date: Sun, 26 Mar 2006 09:05:18 -0500
+Message-Id: <1143381918.5184.52.camel@jzny2>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: host-84-221-14-16.cust-adsl.tiscali.it
-User-Agent: 40tude_Dialog/2.0.15.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Mar 2006 08:47:51 -0500, Kyle Moffett wrote:
+On Sat, 2006-25-03 at 23:52 +0530, Balbir Singh wrote:
 
-> The other thing that I quickly noticed while writing up the patches  
-> is that it's kind of tedious typing __kabi_ over and over again.  I  
-> actually did first try with __linux_abi_ but the typing effort and  
-> finger cramps made me give up on that really quickly.
 
-What kind of barebone editor are you using that doesn't offer a way
-(through macro or automatic completion or abbreviations or
-substitution or plain copy and paste or whatever else) to shorten that
-typing effort?
+> No, we cannot have both passed. If we pass both a PID and a TGID and
+> then the code returns just the stats for the PID.
+> 
 
--- 
-Giuseppe "Oblomov" Bilotta
+ok, that clears it then; i think you are ready to go.
 
-[W]hat country can preserve its liberties, if its rulers are not
-warned from time to time that [the] people preserve the spirit of
-resistance? Let them take arms...The tree of liberty must be
-refreshed from time to time, with the blood of patriots and
-tyrants.
-	-- Thomas Jefferson, letter to Col. William S. Smith, 1787
+> >
+> > Also in regards to the nesting, isnt there a need for nla_nest_cancel in
+> > case of failures to add TLVs?
+> >
+> 
+> I thought about it, but when I looked at the code of genlmsg_cancel()
+> and nla_nest_cancel().  It seemed that genlmsg_cancel() should
+> suffice.
+> 
+
+If your policy is to never send a message if anything fails, then you
+are fine.
+
+What would be really useful now that you understand this, is if you can
+help extending/cleaning the document i sent you. Or send me a table of
+contents of how it would have flowed better for you.
+
+cheers,
+jamal
+
+
 

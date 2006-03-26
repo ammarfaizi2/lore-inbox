@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbWCZMGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWCZMT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751292AbWCZMGR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 07:06:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWCZMGR
+	id S1750717AbWCZMT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 07:19:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWCZMT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 07:06:17 -0500
-Received: from smtpout.mac.com ([17.250.248.46]:28873 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751292AbWCZMGQ (ORCPT
+	Sun, 26 Mar 2006 07:19:26 -0500
+Received: from main.gmane.org ([80.91.229.2]:64721 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750717AbWCZMTZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 07:06:16 -0500
-Date: Sun, 26 Mar 2006 07:06:05 -0500
-From: Kyle Moffett <mrmacman_g4@mac.com>
+	Sun, 26 Mar 2006 07:19:25 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Cc: nix@esperi.org.uk, rob@landley.net, mmazur@kernel.pl,
-       llh-discuss@lists.pld-linux.org
-Subject: Re: [RFC][PATCH 0/2] KABI example conversion and cleanup
-Message-Id: <20060326070605.130a5a53.mrmacman_g4@mac.com>
-In-Reply-To: <20060326065205.d691539c.mrmacman_g4@mac.com>
-References: <200603141619.36609.mmazur@kernel.pl>
-	<200603231811.26546.mmazur@kernel.pl>
-	<DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com>
-	<200603241623.49861.rob@landley.net>
-	<878xqzpl8g.fsf@hades.wkstn.nix>
-	<D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com>
-	<20060326065205.d691539c.mrmacman_g4@mac.com>
-X-Mailer: Sylpheed version 2.2.1 (GTK+ 2.8.13; powerpc-unknown-linux-gnu)
+From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: Parenthesize macros in xfs
+Date: Sun, 26 Mar 2006 13:19:14 +0100
+Message-ID: <yw1x3bh5xut9.fsf@agrajag.inprovide.com>
+References: <Pine.LNX.4.61.0603202207310.20060@yvahk01.tjqt.qr> <20060321082327.B653275@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0603202239110.11933@yvahk01.tjqt.qr> <20060321084619.E653275@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0603252232570.18484@yvahk01.tjqt.qr> <je1wwq2lqn.fsf@sykes.suse.de> <Pine.LNX.4.61.0603260023070.12891@yvahk01.tjqt.qr> <jewtei1434.fsf@sykes.suse.de> <Pine.LNX.4.61.0603261124320.22145@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 82.153.166.94
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through Obscurity, linux)
+Cancel-Lock: sha1:LgiBS3+51GGIT2fj7VxiAS5L4aA=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Mar 2006 06:52:05 -0500 Kyle Moffett <mrmacman_g4@mac.com> wrote:
-> 2)  Since most of the headers are currently quite broken with respect to
->     GLIBC and userspace, I won't spend much extra time preserving
->     compatibility with GLIBC, userspace, or non-GCC compilers.
+Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
 
-That didn't come out right, but what I meant to say was this:  Since the 
-headers in include/linux are quite broken with respect to GLIBC and 
-userspace, I won't let so-called "compatibility" code like this get in 
-the way:
-  #ifndef __GNUC__
-  #define DO_SOMETHING(foo) ICKY_MACRO
-  #else
-  static __inline__ void DO_SOMETHING(int foo)
-  {
-  	sensible_inline_function();
-  }
-  #endif
+>>>>> +		swapfunc(a, b, es, swaptype)		\
+>>>>> +} while(0)
+>>>>                                           ^^
+>>>>Missing semicolon.
+>>>
+>>> It was missing before too. ;)
+>>
+>>No, previously it was provided at the call site.
+>
+> Bad habit IMO. It does not hurt to provide it in both the macro and 
+> the call site, GCC can handle empty instructions.
 
-You can see where I take that approach in the patches I sent.
+A double semicolon can cause all sorts of hard to debug problems.
+Consider this:
 
-One other thing I would like to point out:  The fd_set code wants to use
-__set_bit and __clear_bit from <linux/bitops.h>, but those really should
-not be accessible to userspace directly.  I would like to propose moving
-that functionality into <__klib/*.h> from which it would be accessible
-to both <linux/*.h> and <kabi/*.h>.  I think this would also help with 
-the UML header issues by providing those kernel-internal APIs to the 
-kernel when run from userspace. (Please correct me if I'm wrong).
+#define foo() bar();
+/* ... */
+if(x)
+    foo();
+else
+    baz();
 
-I appreciate your comments and corrections, thanks!
+This will expand to syntactically invalid code because of the extra
+semicolon.
 
-Cheers,
-Kyle Moffett
+-- 
+Måns Rullgård
+mru@inprovide.com
 

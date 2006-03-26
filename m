@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWCZCTT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbWCZCVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751276AbWCZCTT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 21:19:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWCZCTS
+	id S1751208AbWCZCVm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 21:21:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWCZCVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 21:19:18 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:16410 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751276AbWCZCTR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 21:19:17 -0500
+	Sat, 25 Mar 2006 21:21:42 -0500
+Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:5982 "HELO
+	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751208AbWCZCVl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Mar 2006 21:21:41 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:openpgp:content-type:content-transfer-encoding;
-        b=R//7aIoAQFgFLKbYqI1zJI6qQ21miLGaQaPqemjJPjfvFCN+u6WCV8oyyKYVHyaeqj6I0ev+MlygfnrWu5a15cUPC4VD0aRQY/WSo8djZW4eIXCMkGcdLHCj8A6DJyMsnprqV6dM9oyWLlKULIlbYKkEUaPpGvRHBN5unj+giH8=
-Message-ID: <4425FB22.7040405@gmail.com>
-Date: Sun, 26 Mar 2006 09:23:30 +0700
-From: Mikado <mikado4vn@gmail.com>
-Reply-To: mikado4vn@gmail.com
-Organization: IcySpace.net
-User-Agent: Thunderbird 1.5 (X11/20051201)
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=sqJREtOg7LJgZJeuUm0vPgOHZO58HTqn4qVj9aYwEFMmL7e1CjgyfzZ6NmWvpAhRY5yEe3vHyA3B2ttWicEm1Af6UpJboHq7iLZptB7KvlMB786uTUytPHQ5o0ZYx0FAapsZJITdDDB8g8WN/DnesWxSkOjnotfBLksMo8ETCgs=  ;
+Message-ID: <4425FAB0.70909@yahoo.com.au>
+Date: Sun, 26 Mar 2006 12:21:36 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: linux-c-programming@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Virtual Serial Port
-References: <442582B8.8040403@gmail.com> <Pine.LNX.4.61.0603251945100.29793@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0603251945100.29793@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=65ABD897
-Content-Type: text/plain; charset=ISO-8859-1
+To: vatsa@in.ibm.com
+CC: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: Question on build_sched_domains
+References: <20060324025834.GD8903@in.ibm.com> <20060324071255.GB22150@in.ibm.com> <4423A391.4000301@yahoo.com.au> <20060325083619.GC17011@in.ibm.com>
+In-Reply-To: <20060325083619.GC17011@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Srivatsa Vaddagiri wrote:
+> On Fri, Mar 24, 2006 at 06:45:21PM +1100, Nick Piggin wrote:
+> 
+>>Yeah I think what's happening is that the sched groups structures
+>>are not shared between nodes. (It's been a while since I looked at
+>>this code, and it is a bit tricky to follow).
+> 
+> 
+> Its really odd that sched group structure aren't shared between nodes in some 
+> case (sched_group_nodes) and are shared in other cases (sched_group_cpus, 
+> sched_group_core, sched_group_phys).
+> 
+> Also is the GFP_ATOMIC allocation really required (for
+> sched_group_nodes) in build_sched_domains()?
+> 
 
-> You could write a device driver implementing virtual serial ports. Then you 
-> just add an ioctl that connects/disconnects virtual ports to real ports if 
-> desired.
-> I do not quite see what this would be good for, but I am sure it's 
-> good for learning or for fun. :)
+I don't see why. It should be changed to GFP_KERNEL.
 
-Hi Jan Engelhardt,
-
-My purpose is to provide serial interfaces for debugging. My real box
-acts as remote host connecting to VMWare box by a *virtual* serial cable
-so that I can set up a debugging environment.
-
-There are several solutions for this problem but they could only run on
-Windows. Eg:
-- - http://www.mks.zp.ua/vspdxp.php
-- - http://www.virtual-serial-port.com/virtual-serial-port-kit.html
-
-I'll buy an USB-to-Serial cable and a Serial-Serial cable to solve this
-problem but it's also interesting for me to write such device driver.
-I'll try it later.
-
-Mikado
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEJfshNWc9T2Wr2JcRAhPwAJ9d/eifASrLPvJwOy6A4sSxgzMc0gCcChrG
-rSL3gqaTWernckeKhfc+wqY=
-=wIb+
------END PGP SIGNATURE-----
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

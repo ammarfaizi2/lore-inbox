@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWCZQ07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWCZQ1s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751396AbWCZQ07 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 11:26:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWCZQ06
+	id S932090AbWCZQ1s (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 11:27:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWCZQ1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 11:26:58 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:42647 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751396AbWCZQ06 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 11:26:58 -0500
-Date: Sun, 26 Mar 2006 18:24:21 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, tglx@linutronix.de, torvalds@osdl.org,
-       arjan@infradead.org
-Subject: Re: [patch 04/10] PI-futex: scheduler support for PI
-Message-ID: <20060326162421.GB15667@elte.hu>
-References: <20060325184605.GE16724@elte.hu> <20060325190349.6b8fe5f3.akpm@osdl.org>
+	Sun, 26 Mar 2006 11:27:48 -0500
+Received: from mail.clusterfs.com ([206.168.112.78]:31884 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932090AbWCZQ1r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 11:27:47 -0500
+Date: Sun, 26 Mar 2006 09:27:44 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: cascardo@minaslivre.org
+Cc: "Theodore Ts'o" <tytso@mit.edu>, "Stephen C. Tweedie" <sct@redhat.com>,
+       Takashi Sato <sho@bsd.tnes.nec.co.jp>, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       Laurent Vivier <Laurent.Vivier@bull.net>, ams@gnu.org
+Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
+Message-ID: <20060326162744.GA13185@schatzie.adilger.int>
+Mail-Followup-To: cascardo@minaslivre.org,
+	Theodore Ts'o <tytso@mit.edu>, "Stephen C. Tweedie" <sct@redhat.com>,
+	Takashi Sato <sho@bsd.tnes.nec.co.jp>, cmm@us.ibm.com,
+	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+	Laurent Vivier <Laurent.Vivier@bull.net>, ams@gnu.org
+References: <20060316183549.GK30801@schatzie.adilger.int> <20060316212632.GA21004@thunk.org> <20060316225913.GV30801@schatzie.adilger.int> <20060318170729.GI21232@thunk.org> <20060320063633.GC30801@schatzie.adilger.int> <1142894283.21593.59.camel@orbit.scot.redhat.com> <20060320234829.GJ6199@schatzie.adilger.int> <1142960722.3443.24.camel@orbit.scot.redhat.com> <20060321183822.GC11447@thunk.org> <20060325145139.GA5606@cascardo.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060325190349.6b8fe5f3.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.7 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20060325145139.GA5606@cascardo.localdomain>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mar 25, 2006  11:51 -0300, cascardo@minaslivre.org wrote:
+> As AMS has pointed out, the filesystem creator must be set to Hurd for
+> these inode fields to be used. Since ext2 seems to be the most
+> supported filesystem on Hurd, most of the ext2 fs used have the fs
+> creator set to Hurd.
 
-* Andrew Morton <akpm@osdl.org> wrote:
+So, if fs creator is Linux then HURD doesn't try to use those fields?
+That would allow Linux to start using them, and if such a filesystem
+is used on HURD then it could store the translator/author/mode_high
+in the xattr space.  Does it even make sense to add translator/author
+to existing files, or only at file creation time?
 
-> > +#ifdef CONFIG_RT_MUTEXES
-> > +
-> > +/*
-> > + * rt_mutex_setprio - set the current priority of a task
-> > + * @p: task
-> > + * @prio: prio value (kernel-internal form)
-> > + *
-> > + * This function changes the 'effective' priority of a task. It does
-> > + * not touch ->normal_prio like __setscheduler().
-> > + *
-> > + * Used by the rt_mutex code to implement priority inheritance logic.
-> > + */
-> > +void rt_mutex_setprio(task_t *p, int prio)
-> > +{
-> 
-> This function is not really rt-mutex-related at all, is it?  It's just 
-> a piece of new scheduler functionality which various things might use.
+That would mean that Linux would just need to check the fs creator
+field before using any of the HURD-reserved fields.
 
-well, this particular function should only be used by the rt-mutex 
-subsystem, because it sets the priority of a task unconditionally.  
-Priority will vary depending on how other tasks block on a lock held by 
-this task. So if some other subsystem changes the priority via this 
-interface, it will both interfere with PI, and PI will interfere with 
-this.
+> Regarding compatibility, there are plans to support xattr in Hurd and
+> use them for these fields, translator and author. (I can't recall what
+> i_mode_high is used for.) With respect to that, I'd appreciate if
+> there is a recommendation to every ext2 implementation (not only
+> Linux) that supports xattr, to support gnu.translator and gnu.author
+> (I'll check about the i_mode_high and post about it asap.).
 
-	Ingo
+Not that we will be in a rush to use these fields, but it would be good
+to know what i_mode_high is used for in case it ever becomes relevant
+for Linux we would want to keep it the same meaning as HURD.
+
+> There is a
+> patch by Roland McGrath for Linux that supports those besides the
+> reserved fields in case the fs creator is Hurd.
+
+I'm not sure what is required for supporting such EAs?  I don't think
+any kernel would remove existing EAs, even if it doesn't understand
+them.
+
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
+

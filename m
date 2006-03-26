@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWCZRew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbWCZRjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbWCZRew (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 12:34:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWCZRew
+	id S1751324AbWCZRjP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 12:39:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWCZRjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 12:34:52 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:10189 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751214AbWCZRev
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 12:34:51 -0500
-Date: Sun, 26 Mar 2006 09:23:58 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: manfred@dbl.q-ag.de, manfred@colorfullife.com,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: + mqueue-comment-fix.patch added to -mm tree
-Message-ID: <20060326152358.GA8280@sergelap.austin.ibm.com>
-References: <200603261022.k2QAM7BQ001237@shell0.pdx.osdl.net>
+	Sun, 26 Mar 2006 12:39:15 -0500
+Received: from xenotime.net ([66.160.160.81]:1226 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751324AbWCZRjP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 12:39:15 -0500
+Date: Sun, 26 Mar 2006 09:41:21 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: jzb@aexorsyst.com, linux-kernel@vger.kernel.org
+Subject: Re: mem= causes oops
+Message-Id: <20060326094121.9464762a.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.61.0603251948360.29793@yvahk01.tjqt.qr>
+References: <200603212005.58274.jzb@aexorsyst.com>
+	<200603240936.13178.jzb@aexorsyst.com>
+	<20060324163237.5743bd3c.rdunlap@xenotime.net>
+	<200603251036.40379.jzb@aexorsyst.com>
+	<Pine.LNX.4.61.0603251948360.29793@yvahk01.tjqt.qr>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603261022.k2QAM7BQ001237@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting akpm@osdl.org (akpm@osdl.org):
-> 
-> The patch titled
-> 
->      mquueu comment fix
-> 
-> has been added to the -mm tree.  Its filename is
-> 
->      mqueue-comment-fix.patch
+On Sat, 25 Mar 2006 19:50:35 +0100 (MET) Jan Engelhardt wrote:
 
-Well as long as we're patching that, may as well fix the spelling:
+> 
+> >Subject: Re: mem= causes oops (was Re: BIOS causes (exposes?) modprobe
+> >    (load_module) kernel oops)
+> >
+> 
+> Hm, seeing this mail reminds me of something I seen on SPARC just a while 
+> ago. Maybe it's just something on my side. If I specify `mem=65536`, that 
+> is, with no size suffix like M or G, what does Linux make out of it? 65536 
+> KB or 64 KB?
 
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+65536 bytes.  All of the suffixes [KMG] are optional.
 
---- mqueue.c.orig	2006-03-26 09:20:34.000000000 -0600
-+++ mqueue.c	2006-03-26 09:21:30.000000000 -0600
-@@ -761,7 +761,7 @@
-  * The receiver accepts the message and returns without grabbing the queue
-  * spinlock. Therefore an intermediate STATE_PENDING state and memory barriers
-  * are necessary. The same algorithm is used for sysv semaphores, see
-- * ipc/sem.c fore more details.
-+ * ipc/sem.c for more details.
-  *
-  * The same algorithm is used for senders.
-  */
+---
+~Randy

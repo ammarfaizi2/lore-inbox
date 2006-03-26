@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWCZCSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWCZCTT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751275AbWCZCSV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 21:18:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWCZCSV
+	id S1751276AbWCZCTT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Mar 2006 21:19:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWCZCTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 21:18:21 -0500
-Received: from pproxy.gmail.com ([64.233.166.180]:55248 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751275AbWCZCSU (ORCPT
+	Sat, 25 Mar 2006 21:19:18 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:16410 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751276AbWCZCTR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 21:18:20 -0500
+	Sat, 25 Mar 2006 21:19:17 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=jKKt3SAf34D+sNqdAYnbou9konvoq6qibK8t35mvortx45OfsJbVzvmOb6yU/x4x/vMYDK7hmhxX91ZbOl9zj1Xs6Va6zGfxntf3XeuDU2gW2baj5ZnRBMYlOyvVcMt0bSIy9gfVDoefF5RyGWXX9JDZT+gmSSaymrI0+SsTv74=
-Subject: Re: [2.6 patch] fix array over-run in efi.c
-From: "Darren Jenkins\\" <darrenrjenkins@gmail.com>
+        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:openpgp:content-type:content-transfer-encoding;
+        b=R//7aIoAQFgFLKbYqI1zJI6qQ21miLGaQaPqemjJPjfvFCN+u6WCV8oyyKYVHyaeqj6I0ev+MlygfnrWu5a15cUPC4VD0aRQY/WSo8djZW4eIXCMkGcdLHCj8A6DJyMsnprqV6dM9oyWLlKULIlbYKkEUaPpGvRHBN5unj+giH8=
+Message-ID: <4425FB22.7040405@gmail.com>
+Date: Sun, 26 Mar 2006 09:23:30 +0700
+From: Mikado <mikado4vn@gmail.com>
+Reply-To: mikado4vn@gmail.com
+Organization: IcySpace.net
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
 To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0603251941111.29793@yvahk01.tjqt.qr>
-References: <20060325115853.GB4053@stusta.de>
-	 <Pine.LNX.4.61.0603251941111.29793@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Sun, 26 Mar 2006 12:18:10 +1000
-Message-Id: <1143339491.8088.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+CC: linux-c-programming@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Virtual Serial Port
+References: <442582B8.8040403@gmail.com> <Pine.LNX.4.61.0603251945100.29793@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0603251945100.29793@yvahk01.tjqt.qr>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=65ABD897
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-03-25 at 19:41 +0100, Jan Engelhardt wrote:
-> >-		for (i = 0; i < sizeof(vendor) && *c16; ++i)
-> >+		for (i = 0; i < (sizeof(vendor) - 1) && *c16; ++i)
-> 
->                 for (i = 0; i <  sizeof(vendor) - 1  && *c16; ++i)
-> Should suffice.
-> 
-> 
-> Jan Engelhardt
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+> You could write a device driver implementing virtual serial ports. Then you 
+> just add an ioctl that connects/disconnects virtual ports to real ports if 
+> desired.
+> I do not quite see what this would be good for, but I am sure it's 
+> good for learning or for fun. :)
 
-OK since it is preferred without the brackets, here it is again.
+Hi Jan Engelhardt,
 
+My purpose is to provide serial interfaces for debugging. My real box
+acts as remote host connecting to VMWare box by a *virtual* serial cable
+so that I can set up a debugging environment.
 
+There are several solutions for this problem but they could only run on
+Windows. Eg:
+- - http://www.mks.zp.ua/vspdxp.php
+- - http://www.virtual-serial-port.com/virtual-serial-port-kit.html
 
-Coverity found an over-run @ line 364 of efi.c
+I'll buy an USB-to-Serial cable and a Serial-Serial cable to solve this
+problem but it's also interesting for me to write such device driver.
+I'll try it later.
 
-This is due to the loop checking the size correctly, then adding a '\0'
-after possibly hitting the end of the array.
+Mikado
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-The patch below just ensures the loop exits with one space left in the
-array.
-
-Compile tested.
-
-Signed-off-by: Darren Jenkins <darrenrjenkins@gmail.com>
-
---- linux-2.6.16-git8/arch/i386/kernel/efi.c.orig	2006-03-26 12:06:47.000000000 +1000
-+++ linux-2.6.16-git8/arch/i386/kernel/efi.c	2006-03-26 12:08:34.000000000 +1000
-@@ -361,7 +361,7 @@ void __init efi_init(void)
- 	 */
- 	c16 = (efi_char16_t *) boot_ioremap(efi.systab->fw_vendor, 2);
- 	if (c16) {
--		for (i = 0; i < sizeof(vendor) && *c16; ++i)
-+		for (i = 0; i < sizeof(vendor) - 1 && *c16; ++i)
- 			vendor[i] = *c16++;
- 		vendor[i] = '\0';
- 	} else
-
-
-
-
+iD8DBQFEJfshNWc9T2Wr2JcRAhPwAJ9d/eifASrLPvJwOy6A4sSxgzMc0gCcChrG
+rSL3gqaTWernckeKhfc+wqY=
+=wIb+
+-----END PGP SIGNATURE-----

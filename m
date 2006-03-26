@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbWCZMdb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWCZMeg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751318AbWCZMdb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 07:33:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWCZMdb
+	id S1751330AbWCZMeg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 07:34:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWCZMeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 07:33:31 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:517 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751318AbWCZMda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 07:33:30 -0500
-Date: Sun, 26 Mar 2006 14:33:28 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] BLK_DEV_IO_TRACE Kconfig fixes
-Message-ID: <20060326123328.GN4053@stusta.de>
-References: <20060323014046.2ca1d9df.akpm@osdl.org> <20060326122540.GL4053@stusta.de> <20060326122743.GF4290@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060326122743.GF4290@suse.de>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sun, 26 Mar 2006 07:34:36 -0500
+Received: from smtpout.mac.com ([17.250.248.88]:40128 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751332AbWCZMef (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 07:34:35 -0500
+In-Reply-To: <1143376008.3064.0.camel@laptopd505.fenrus.org>
+References: <200603141619.36609.mmazur@kernel.pl> <200603231811.26546.mmazur@kernel.pl> <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com> <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix> <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com> <20060326065205.d691539c.mrmacman_g4@mac.com> <1143376008.3064.0.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <F31089B5-0915-439D-B218-009384E2148F@mac.com>
+Cc: nix@esperi.org.uk, rob@landley.net, mmazur@kernel.pl,
+       linux-kernel@vger.kernel.org, llh-discuss@lists.pld-linux.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC][PATCH 0/2] KABI example conversion and cleanup
+Date: Sun, 26 Mar 2006 07:34:12 -0500
+To: Arjan van de Ven <arjan@infradead.org>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 26, 2006 at 02:27:44PM +0200, Jens Axboe wrote:
-> On Sun, Mar 26 2006, Adrian Bunk wrote:
-> > On Thu, Mar 23, 2006 at 01:40:46AM -0800, Andrew Morton wrote:
-> > >...
-> > > Changes since 2.6.16-rc6-mm2:
-> > >...
-> > >  git-blktrace.patch
-> > >...
-> > >  git trees.
-> > >...
-> > 
-> > BLK_DEV_IO_TRACE breaks the rule "If you select something, you must 
-> > endure that the dependencies of what you are select'ing are fulfilled."
-> > resulting in the following compile error with CONFIG_SYSFS=n:
-> > 
-> > <--  snip  -->
-> > 
-> > ...
-> >   LD      .tmp_vmlinux1
-> > fs/built-in.o: In function `debugfs_init':inode.c:(.init.text+0x3d35): 
-> > undefined reference to `kernel_subsys'
-> > make: *** [.tmp_vmlinux1] Error 1
-> > 
-> > <--  snip  -->
-> > 
-> > This patch fixes this bug.
-> > 
-> > Additionally, it moves the BLK_DEV_IO_TRACE option that now depends on 
-> > DEBUG_KERNEL into the menu with the other DEBUG_KERNEL options.
-> 
-> Thanks for the sysfs fix, however don't move the kconfig entry, this
-> isn't a debug option.
+On Mar 26, 2006, at 07:26:48, Arjan van de Ven wrote:
+> On Sun, 2006-03-26 at 06:52 -0500, Kyle Moffett wrote:
+>> On Fri, 24 Mar 2006 17:46:27 -0500 Kyle Moffett  
+>> <mrmacman_g4@mac.com> wrote:
+>>> I'm working on some sample patches now which I'll try to post in  
+>>> a few days if I get the time.
+>>
+>> Ok, here's a sample of the KABI conversion and cleanup patches  
+>> that I'm proposing.  I have a few fundamental goals for these  
+>> patches:
+>
+> is KABI the right name? I mean.. from the kernel pov it's the  
+> interface to userspace ;)
 
-It select's an option depending on DEBUG_KERNEL, and therefore also has 
-to depend on DEBUG_KERNEL.
+Well I guess you could call it UABI, but that might also imply that  
+it's _userspace_ that defines the interface, instead of the kernel.   
+Since the headers themselves are rather tightly coupled with the  
+kernel, I think I'll stick with the KABI name for now (unless  
+somebody can come up with a better one, of course :-D).
 
-> Jens Axboe
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Cheers,
+Kyle Moffett
 

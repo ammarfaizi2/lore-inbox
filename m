@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWCZEyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWCZFjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWCZEyM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Mar 2006 23:54:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWCZEyL
+	id S1750706AbWCZFjm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 00:39:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWCZFjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Mar 2006 23:54:11 -0500
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:6580
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S932081AbWCZEyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Mar 2006 23:54:11 -0500
-Date: Sat, 25 Mar 2006 20:54:04 -0800
+	Sun, 26 Mar 2006 00:39:42 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:48558 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750706AbWCZFjl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 00:39:41 -0500
+Date: Sat, 25 Mar 2006 21:35:51 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: [patch 00/10] PI-futex: -V1
-Message-ID: <20060326045404.GA9308@gnuppy.monkey.org>
-References: <20060325184528.GA16724@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060325184528.GA16724@elte.hu>
-User-Agent: Mutt/1.5.11+cvs20060126
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+Cc: linux-kernel@vger.kernel.org, tglx@linutronix.de, torvalds@osdl.org,
+       arjan@infradead.org
+Subject: Re: [patch 05/10] PI-futex: rt-mutex core
+Message-Id: <20060325213551.3003c2f8.akpm@osdl.org>
+In-Reply-To: <20060325184612.GF16724@elte.hu>
+References: <20060325184612.GF16724@elte.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 25, 2006 at 07:45:28PM +0100, Ingo Molnar wrote:
-> We are pleased to announce "lightweight userspace priority inheritance" 
-> (PI) support for futexes. The following patchset and glibc patch 
-> implements it, ontop of the robust-futexes patchset which is included in 
-> 2.6.16-mm1.
-... 
-> Priority Inheritance - why, oh why???
-> -------------------------------------
-...
-> The longer reply:
-> -----------------
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> --- linux-pi-futex.mm.q.orig/init/Kconfig
+>  +++ linux-pi-futex.mm.q/init/Kconfig
+>  @@ -361,9 +361,14 @@ config BASE_FULL
+>   	  kernel data structures. This saves memory on small machines,
+>   	  but may reduce performance.
+>   
+>  +config RT_MUTEXES
+>  +	boolean
+>  +	select PLIST
+>  +
+>   config FUTEX
+>   	bool "Enable futex support" if EMBEDDED
+>   	default y
+>  +	select RT_MUTEXES
+>   	help
 
-[comments on app usages of priority inheritance deleted]
-
-You'll need to do priority ceiling emulation as well. I've been using that in an
-application as a manual means of preventing preemption of key critical sections,
-like a spinlock/preempt_disable(), to prevent priority inversion from happening.
-Raising the priority of threads using that lock/critical section is a pretty
-effective means of partitioning program logical sections of the application into
-threads that are higher and lower priority than the resource. It's cool stuff.
-
-bill
-
+We can't turn these things off unless we also turn off futexes.  There goes
+another 8.7 kbytes...

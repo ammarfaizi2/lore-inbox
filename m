@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWC0Ii0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWC0Ikm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbWC0Ii0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 03:38:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWC0Ii0
+	id S1750742AbWC0Ikm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 03:40:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWC0Ikm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 03:38:26 -0500
-Received: from pproxy.gmail.com ([64.233.166.182]:31887 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750798AbWC0IiZ (ORCPT
+	Mon, 27 Mar 2006 03:40:42 -0500
+Received: from mx1.suse.de ([195.135.220.2]:13804 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750742AbWC0Ikl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 03:38:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=sJmfbeIszWg0NPW4Wd6Z72tbV6yOInLRSOhh3yfzCjz/9dYxix0XcUsfUi9NPN0nuO+V7VMG9f6gdnzZY/I197vRAjGNi8RyisqnF5UE0mw1dS/CmmEhl/xwYGpQVA9r9Z/1rTdfzPwTYuwDDlaHKTD9Oc3+GV4nbtFOdEEnXEs=
-Message-ID: <4427A46F.8090500@gmail.com>
-Date: Mon, 27 Mar 2006 16:38:07 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Mon, 27 Mar 2006 03:40:41 -0500
+Message-ID: <4427A590.5000201@suse.de>
+Date: Mon, 27 Mar 2006 10:42:56 +0200
+From: Gerd Hoffmann <kraxel@suse.de>
+User-Agent: Thunderbird 1.5 (X11/20060111)
 MIME-Version: 1.0
-To: linux-fbdev-devel@lists.sourceforge.net
-CC: Andrew Morton <akpm@osdl.org>, adaplas@pol.net,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: [Linux-fbdev-devel] [2.6 patch] framebuffer: Remove old radeon
- driver
-References: <20060326122521.GK4053@stusta.de>
-In-Reply-To: <20060326122521.GK4053@stusta.de>
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       Ian Pratt <ian.pratt@xensource.com>
+Subject: Re: [RFC PATCH 35/35] Add Xen virtual block device driver.
+References: <20060322063040.960068000@sorel.sous-sol.org> <20060322063809.005748000@sorel.sous-sol.org> <44217DBD.8030201@us.ibm.com>
+In-Reply-To: <44217DBD.8030201@us.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> From: Michael Hanselmann <linux-kernel@hansmi.ch>
-> 
-> This patch removes the old radeon driver which has been replaced by a
-> newer one.
-> 
-> Signed-off-by: Michael Hanselmann <linux-kernel@hansmi.ch>
-> Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+  Hi,
 
-Acked-by: Antonino Daplas <adaplas@pol.net>
+>> +static struct xlbd_type_info xlbd_ide_type = {
+>> +static struct xlbd_type_info xlbd_scsi_type = {
+>> +static struct xlbd_type_info xlbd_vbd_type = {
 
-Tony
+> This is another thing that has always put me off.  The virtual block
+> device driver has the ability to masquerade as other types of block
+> devices.  It actually claims to be an IDE or SCSI device allocating the
+> appropriate major/minor numbers.
+
+It's useful sometimes.  Debian/sarge for example doesn't work with xvd
+block devices.  At least not out-of-the-box, it needs some manual
+tweaks.  Probably it also is handy when moving real machines into an
+virtual environment.  I don't think it should be dropped.
+
+Most modern udev-based distros work just fine with xvd though.
+
+> This seems to be pretty evil and creating interesting failure conditions
+> for users who load IDE or SCSI modules.  I've seen it trip up a number
+> of people in the past.  I think we should only ever use the major number
+> that was actually allocated to us.
+
+Print a big fat warning?  And also change the example config files in
+the xen source tree to use xvda not hda to advertize them more than we
+do right now.  I think lots of users don't even know about the xvd
+devices ...
+
+cheers,
+
+  Gerd
+
+-- 
+Gerd 'just married' Hoffmann <kraxel@suse.de>
+I'm the hacker formerly known as Gerd Knorr.
+http://www.suse.de/~kraxel/just-married.jpeg

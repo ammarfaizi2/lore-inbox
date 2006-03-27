@@ -1,50 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWC0Txw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWC0Tzs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750975AbWC0Txw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 14:53:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbWC0Txw
+	id S1751032AbWC0Tzs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 14:55:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWC0Tzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 14:53:52 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:48332 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1750975AbWC0Txw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 14:53:52 -0500
-Date: Mon, 27 Mar 2006 21:53:29 +0200
-Message-Id: <200603271953.k2RJrTR28039@inv.it.uc3m.es>
-From: "Peter T. Breuer" <ptb@inv.it.uc3m.es>
-To: john stultz <johnstul@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: uptime increases during suspend
-X-Newsgroups: gmane.linux.kernel
-In-Reply-To: <1143484821.2168.16.camel@leatherman>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.15 (i686))
+	Mon, 27 Mar 2006 14:55:48 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:12418 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751032AbWC0Tzr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 14:55:47 -0500
+Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: cascardo@minaslivre.org
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Andreas Dilger <adilger@clusterfs.com>,
+       Takashi Sato <sho@bsd.tnes.nec.co.jp>, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       Laurent Vivier <Laurent.Vivier@bull.net>, ams@gnu.org,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20060325145139.GA5606@cascardo.localdomain>
+References: <02bc01c648f2$bd35e830$4168010a@bsd.tnes.nec.co.jp>
+	 <20060316183549.GK30801@schatzie.adilger.int>
+	 <20060316212632.GA21004@thunk.org>
+	 <20060316225913.GV30801@schatzie.adilger.int>
+	 <20060318170729.GI21232@thunk.org>
+	 <20060320063633.GC30801@schatzie.adilger.int>
+	 <1142894283.21593.59.camel@orbit.scot.redhat.com>
+	 <20060320234829.GJ6199@schatzie.adilger.int>
+	 <1142960722.3443.24.camel@orbit.scot.redhat.com>
+	 <20060321183822.GC11447@thunk.org>
+	 <20060325145139.GA5606@cascardo.localdomain>
+Content-Type: text/plain
+Date: Mon, 27 Mar 2006 14:55:01 -0500
+Message-Id: <1143489301.15697.9.camel@orbit.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1143484821.2168.16.camel@leatherman> you wrote:
->> Would it be possible to get the old behaviour back?
+Hi,
 
-> Why exactly do you want this behavior? Maybe a better explanation would
-> help stir this discussion.
+On Sat, 2006-03-25 at 11:51 -0300, cascardo@minaslivre.org wrote:
 
-I don't know why he wants it (uptime does not increase during
-hibernation) but I want it so that I can tell if I should time out or
-not on an alarm for inactivity in userspace!  The alarm should fire if
-there has been no activity for a while (30s) while activity is possible.
-If the machine is suspended, no activity is possible, so the alarm
-should not fire.
+> Regarding compatibility, there are plans to support xattr in Hurd and
+> use them for these fields, translator and author. (I can't recall what
+> i_mode_high is used for.) With respect to that, I'd appreciate if
+> there is a recommendation to every ext2 implementation (not only
+> Linux) that supports xattr, to support gnu.translator and gnu.author
+> (I'll check about the i_mode_high and post about it asap.). 
 
-This is to counteract sysadamins playing with system time (e.g. syncing
-with a net time server after bootup) which might cause artificial time
-outs. Causing a timeout has nasty consequences when, for example, your
-root fs is mounted over the net via daemons that do the network to-ing
-and fro-ing from userspace. The only way they have of getting an
-estimate of REAL time elapsed,  without admin playing about messing
-with them, is by surreptitiously snooping uptime, which more or less
-represents kernel jiffies.
+What do you mean by "support", exactly?
 
-If you change uptime to not represente kernel jiffies, goodbye the last
-hope for counting CPU time passed from userspace. False timeouts WILL
-ensue, and root mounts will fail.
+There are 3 different bits of xattr design which matter here.  There's
+the namespace exported to users via the *attr syscalls; there's the
+encoding used on disk for those different namespaces; and there's the
+exact semantics surrounding interpretation of the xattr contents.
 
-Peter
+Now, a non-Hurd system is not going to have any use for the gnu.* xattr
+semantics, as translator is a Hurd-specific concept.  The user "gnu.*"
+namespace is easy enough to teach to Linux: to simply reserve that
+namespace, without actually implementing any part of it, I think it be
+sufficient simply to claim the name in include/linux/xattr.h.
+
+For ext2/3, though, the key is how to store gnu.* on disk.  Right now
+the different namespaces that ext* stores on disk are enumerated in
+
+	fs/ext[23]/xattr.h
+
+which, for ext2, currently contains:
+
+        /* Name indexes */
+        /* Name indexes */
+        #define EXT2_XATTR_INDEX_USER			1
+        #define EXT2_XATTR_INDEX_POSIX_ACL_ACCESS	2
+        #define EXT2_XATTR_INDEX_POSIX_ACL_DEFAULT	3
+        #define EXT2_XATTR_INDEX_TRUSTED		4
+        #define	EXT2_XATTR_INDEX_LUSTRE			5
+        #define EXT2_XATTR_INDEX_SECURITY	        6
+
+If you want to reserve a new semantically-significant portion of the
+namespace for use in the Hurd by gnu.* xattrs, then you'd need to submit
+an authoritative Linux patch to register a new name index on ext2;
+reservation of such an xattr namespace index is in effect an on-disk
+format decision so needs to be agreed between implementations.
+
+> Regarding userland tools, it would be wise if they would still support
+> old format filesystems, including those with fs creator set to
+> Hurd. That would include supporting the oob block for translator when
+> counting used/free blocks and other operations like copying a file
+> using debugfs, for example.
+
+Certainly; I don't think anybody is arguing against that, and I regard
+such backwards compatibility as an absolute requirement.
+
+--Stephen
+
+

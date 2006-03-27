@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWC0Reu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWC0RgF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbWC0Reu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 12:34:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWC0Reu
+	id S1750835AbWC0RgF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 12:36:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbWC0RgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 12:34:50 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.154]:12739 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1750731AbWC0Ret (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 12:34:49 -0500
-Date: Mon, 27 Mar 2006 11:34:48 -0600
+	Mon, 27 Mar 2006 12:36:05 -0500
+Received: from sccrmhc11.comcast.net ([63.240.77.81]:65523 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1750835AbWC0RgC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 12:36:02 -0500
+Date: Mon, 27 Mar 2006 11:36:00 -0600
 From: Corey Minyard <minyard@acm.org>
 To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH 2/3] IPMI: tidy up various things
-Message-ID: <20060327173448.GB14601@i2.minyard.local>
+Subject: [PATCH 3/3] IPMI: convert from semaphores to mutexes
+Message-ID: <20060327173600.GC14601@i2.minyard.local>
 Reply-To: minyard@acm.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,297 +23,412 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Tidy up various coding standard things, mostly removing the
-space after !, but also break some long lines and fix a few
-other spacing inconsistencies.  Also fixes some bad error
-reporting when deleting an IPMI user.
+Convert the remaining semaphores to mutexes in the IPMI driver.  The
+watchdog was using a semaphore as a real semaphore (for IPC), so the
+conversion there required adding a completion.
 
 Signed-off-by: Corey Minyard <minyard@acm.org>
 
-Index: linux-2.6.16/drivers/char/ipmi/ipmi_kcs_sm.c
+Index: linux-2.6.16/drivers/char/ipmi/ipmi_devintf.c
 ===================================================================
---- linux-2.6.16.orig/drivers/char/ipmi/ipmi_kcs_sm.c
-+++ linux-2.6.16/drivers/char/ipmi/ipmi_kcs_sm.c
-@@ -227,7 +227,7 @@ static inline int check_ibf(struct si_sm
- static inline int check_obf(struct si_sm_data *kcs, unsigned char status,
- 			    long time)
- {
--	if (! GET_STATUS_OBF(status)) {
-+	if (!GET_STATUS_OBF(status)) {
- 		kcs->obf_timeout -= time;
- 		if (kcs->obf_timeout < 0) {
- 		    start_error_recovery(kcs, "OBF not ready in time");
-@@ -407,7 +407,7 @@ static enum si_sm_result kcs_event(struc
- 		}
+--- linux-2.6.16.orig/drivers/char/ipmi/ipmi_devintf.c
++++ linux-2.6.16/drivers/char/ipmi/ipmi_devintf.c
+@@ -42,7 +42,7 @@
+ #include <linux/slab.h>
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/ipmi.h>
+-#include <asm/semaphore.h>
++#include <linux/mutex.h>
+ #include <linux/init.h>
+ #include <linux/device.h>
+ #include <linux/compat.h>
+@@ -55,7 +55,7 @@ struct ipmi_file_private
+ 	struct file          *file;
+ 	struct fasync_struct *fasync_queue;
+ 	wait_queue_head_t    wait;
+-	struct semaphore     recv_sem;
++	struct mutex	     recv_mutex;
+ 	int                  default_retries;
+ 	unsigned int         default_retry_time_ms;
+ };
+@@ -141,7 +141,7 @@ static int ipmi_open(struct inode *inode
+ 	INIT_LIST_HEAD(&(priv->recv_msgs));
+ 	init_waitqueue_head(&priv->wait);
+ 	priv->fasync_queue = NULL;
+-	sema_init(&(priv->recv_sem), 1);
++	mutex_init(&priv->recv_mutex);
  
- 		if (state == KCS_READ_STATE) {
--			if (! check_obf(kcs, status, time))
-+			if (!check_obf(kcs, status, time))
- 				return SI_SM_CALL_WITH_DELAY;
- 			read_next_byte(kcs);
- 		} else {
-@@ -447,7 +447,7 @@ static enum si_sm_result kcs_event(struc
- 					     "Not in read state for error2");
+ 	/* Use the low-level defaults. */
+ 	priv->default_retries = -1;
+@@ -285,15 +285,15 @@ static int ipmi_ioctl(struct inode  *ino
  			break;
  		}
--		if (! check_obf(kcs, status, time))
-+		if (!check_obf(kcs, status, time))
- 			return SI_SM_CALL_WITH_DELAY;
  
- 		clear_obf(kcs, status);
-@@ -462,7 +462,7 @@ static enum si_sm_result kcs_event(struc
- 			break;
+-		/* We claim a semaphore because we don't want two
++		/* We claim a mutex because we don't want two
+                    users getting something from the queue at a time.
+                    Since we have to release the spinlock before we can
+                    copy the data to the user, it's possible another
+                    user will grab something from the queue, too.  Then
+                    the messages might get out of order if something
+                    fails and the message gets put back onto the
+-                   queue.  This semaphore prevents that problem. */
+-		down(&(priv->recv_sem));
++                   queue.  This mutex prevents that problem. */
++		mutex_lock(&priv->recv_mutex);
+ 
+ 		/* Grab the message off the list. */
+ 		spin_lock_irqsave(&(priv->recv_msg_lock), flags);
+@@ -352,7 +352,7 @@ static int ipmi_ioctl(struct inode  *ino
+ 			goto recv_putback_on_err;
  		}
  
--		if (! check_obf(kcs, status, time))
-+		if (!check_obf(kcs, status, time))
- 			return SI_SM_CALL_WITH_DELAY;
+-		up(&(priv->recv_sem));
++		mutex_unlock(&priv->recv_mutex);
+ 		ipmi_free_recv_msg(msg);
+ 		break;
  
- 		clear_obf(kcs, status);
+@@ -362,11 +362,11 @@ static int ipmi_ioctl(struct inode  *ino
+ 		spin_lock_irqsave(&(priv->recv_msg_lock), flags);
+ 		list_add(entry, &(priv->recv_msgs));
+ 		spin_unlock_irqrestore(&(priv->recv_msg_lock), flags);
+-		up(&(priv->recv_sem));
++		mutex_unlock(&priv->recv_mutex);
+ 		break;
+ 
+ 	recv_err:
+-		up(&(priv->recv_sem));
++		mutex_unlock(&priv->recv_mutex);
+ 		break;
+ 	}
+ 
 Index: linux-2.6.16/drivers/char/ipmi/ipmi_msghandler.c
 ===================================================================
 --- linux-2.6.16.orig/drivers/char/ipmi/ipmi_msghandler.c
 +++ linux-2.6.16/drivers/char/ipmi/ipmi_msghandler.c
-@@ -557,7 +557,7 @@ unsigned int ipmi_addr_length(int addr_t
+@@ -38,6 +38,7 @@
+ #include <linux/sched.h>
+ #include <linux/poll.h>
+ #include <linux/spinlock.h>
++#include <linux/mutex.h>
+ #include <linux/slab.h>
+ #include <linux/ipmi.h>
+ #include <linux/ipmi_smi.h>
+@@ -234,7 +235,7 @@ struct ipmi_smi
  
- static void deliver_response(struct ipmi_recv_msg *msg)
- {
--	if (! msg->user) {
-+	if (!msg->user) {
- 		ipmi_smi_t    intf = msg->user_msg_data;
- 		unsigned long flags;
+ 	/* The list of command receivers that are registered for commands
+ 	   on this interface. */
+-	struct semaphore cmd_rcvrs_lock;
++	struct mutex     cmd_rcvrs_mutex;
+ 	struct list_head cmd_rcvrs;
  
-@@ -598,11 +598,11 @@ static int intf_next_seq(ipmi_smi_t     
- 	     (i+1)%IPMI_IPMB_NUM_SEQ != intf->curr_seq;
- 	     i = (i+1)%IPMI_IPMB_NUM_SEQ)
- 	{
--		if (! intf->seq_table[i].inuse)
-+		if (!intf->seq_table[i].inuse)
- 			break;
- 	}
+ 	/* Events that were queues because no one was there to receive
+@@ -387,10 +388,10 @@ static void clean_up_interface_data(ipmi
  
--	if (! intf->seq_table[i].inuse) {
-+	if (!intf->seq_table[i].inuse) {
- 		intf->seq_table[i].recv_msg = recv_msg;
+ 	/* Wholesale remove all the entries from the list in the
+ 	 * interface and wait for RCU to know that none are in use. */
+-	down(&intf->cmd_rcvrs_lock);
++	mutex_lock(&intf->cmd_rcvrs_mutex);
+ 	list_add_rcu(&list, &intf->cmd_rcvrs);
+ 	list_del_rcu(&intf->cmd_rcvrs);
+-	up(&intf->cmd_rcvrs_lock);
++	mutex_unlock(&intf->cmd_rcvrs_mutex);
+ 	synchronize_rcu();
  
- 		/* Start with the maximum timeout, when the send response
-@@ -763,7 +763,7 @@ int ipmi_create_user(unsigned int       
- 	}
- 
- 	new_user = kmalloc(sizeof(*new_user), GFP_KERNEL);
--	if (! new_user)
-+	if (!new_user)
- 		return -ENOMEM;
- 
- 	spin_lock_irqsave(&interfaces_lock, flags);
-@@ -819,14 +819,13 @@ static void free_user(struct kref *ref)
- 
- int ipmi_destroy_user(ipmi_user_t user)
- {
--	int              rv = -ENODEV;
- 	ipmi_smi_t       intf = user->intf;
- 	int              i;
- 	unsigned long    flags;
- 	struct cmd_rcvr  *rcvr;
- 	struct cmd_rcvr  *rcvrs = NULL;
- 
--	user->valid = 1;
-+	user->valid = 0;
- 
- 	/* Remove the user from the interface's sequence table. */
- 	spin_lock_irqsave(&intf->seq_lock, flags);
-@@ -871,7 +870,7 @@ int ipmi_destroy_user(ipmi_user_t user)
- 
- 	kref_put(&user->refcount, free_user);
- 
--	return rv;
-+	return 0;
- }
- 
- void ipmi_get_version(ipmi_user_t   user,
-@@ -936,7 +935,8 @@ int ipmi_set_gets_events(ipmi_user_t use
- 
- 	if (val) {
- 		/* Deliver any queued events. */
--		list_for_each_entry_safe(msg, msg2, &intf->waiting_events, link) {
-+		list_for_each_entry_safe(msg, msg2, &intf->waiting_events,
-+					 link) {
- 			list_del(&msg->link);
- 			list_add_tail(&msg->link, &msgs);
+ 	list_for_each_entry_safe(rcvr, rcvr2, &list, link)
+@@ -848,7 +849,7 @@ int ipmi_destroy_user(ipmi_user_t user)
+ 	 * since other things may be using it till we do
+ 	 * synchronize_rcu()) then free everything in that list.
+ 	 */
+-	down(&intf->cmd_rcvrs_lock);
++	mutex_lock(&intf->cmd_rcvrs_mutex);
+ 	list_for_each_entry_rcu(rcvr, &intf->cmd_rcvrs, link) {
+ 		if (rcvr->user == user) {
+ 			list_del_rcu(&rcvr->link);
+@@ -856,7 +857,7 @@ int ipmi_destroy_user(ipmi_user_t user)
+ 			rcvrs = rcvr;
  		}
-@@ -978,7 +978,7 @@ int ipmi_register_for_cmd(ipmi_user_t   
- 
- 
- 	rcvr = kmalloc(sizeof(*rcvr), GFP_KERNEL);
--	if (! rcvr)
-+	if (!rcvr)
- 		return -ENOMEM;
- 	rcvr->cmd = cmd;
+ 	}
+-	up(&intf->cmd_rcvrs_lock);
++	mutex_unlock(&intf->cmd_rcvrs_mutex);
+ 	synchronize_rcu();
+ 	while (rcvrs) {
+ 		rcvr = rcvrs;
+@@ -986,7 +987,7 @@ int ipmi_register_for_cmd(ipmi_user_t   
  	rcvr->netfn = netfn;
-@@ -1514,7 +1514,7 @@ int ipmi_request_settime(ipmi_user_t    
- 	unsigned char saddr, lun;
- 	int           rv;
+ 	rcvr->user = user;
  
--	if (! user)
-+	if (!user)
- 		return -EINVAL;
- 	rv = check_addr(user->intf, addr, &saddr, &lun);
+-	down(&intf->cmd_rcvrs_lock);
++	mutex_lock(&intf->cmd_rcvrs_mutex);
+ 	/* Make sure the command/netfn is not already registered. */
+ 	entry = find_cmd_rcvr(intf, netfn, cmd);
+ 	if (entry) {
+@@ -997,7 +998,7 @@ int ipmi_register_for_cmd(ipmi_user_t   
+ 	list_add_rcu(&rcvr->link, &intf->cmd_rcvrs);
+ 
+  out_unlock:
+-	up(&intf->cmd_rcvrs_lock);
++	mutex_unlock(&intf->cmd_rcvrs_mutex);
  	if (rv)
-@@ -1545,7 +1545,7 @@ int ipmi_request_supply_msgs(ipmi_user_t
- 	unsigned char saddr, lun;
- 	int           rv;
+ 		kfree(rcvr);
  
--	if (! user)
-+	if (!user)
- 		return -EINVAL;
- 	rv = check_addr(user->intf, addr, &saddr, &lun);
- 	if (rv)
-@@ -1570,7 +1570,7 @@ static int ipmb_file_read_proc(char *pag
- 	char       *out = (char *) page;
- 	ipmi_smi_t intf = data;
- 	int        i;
--	int        rv= 0;
-+	int        rv = 0;
+@@ -1011,17 +1012,17 @@ int ipmi_unregister_for_cmd(ipmi_user_t 
+ 	ipmi_smi_t      intf = user->intf;
+ 	struct cmd_rcvr *rcvr;
  
- 	for (i = 0; i < IPMI_MAX_CHANNELS; i++)
- 		rv += sprintf(out+rv, "%x ", intf->channels[i].address);
-@@ -1990,7 +1990,7 @@ static int ipmi_bmc_register(ipmi_smi_t 
+-	down(&intf->cmd_rcvrs_lock);
++	mutex_lock(&intf->cmd_rcvrs_mutex);
+ 	/* Make sure the command/netfn is not already registered. */
+ 	rcvr = find_cmd_rcvr(intf, netfn, cmd);
+ 	if ((rcvr) && (rcvr->user == user)) {
+ 		list_del_rcu(&rcvr->link);
+-		up(&intf->cmd_rcvrs_lock);
++		mutex_unlock(&intf->cmd_rcvrs_mutex);
+ 		synchronize_rcu();
+ 		kfree(rcvr);
+ 		return 0;
  	} else {
- 		bmc->dev = platform_device_alloc("ipmi_bmc",
- 						 bmc->id.device_id);
--		if (! bmc->dev) {
-+		if (!bmc->dev) {
- 			printk(KERN_ERR
- 			       "ipmi_msghandler:"
- 			       " Unable to allocate platform device\n");
-@@ -2622,7 +2622,7 @@ static int handle_ipmb_get_msg_cmd(ipmi_
- 		spin_unlock_irqrestore(&intf->counter_lock, flags);
+-		up(&intf->cmd_rcvrs_lock);
++		mutex_unlock(&intf->cmd_rcvrs_mutex);
+ 		return -ENOENT;
+ 	}
+ }
+@@ -2368,7 +2369,7 @@ int ipmi_register_smi(struct ipmi_smi_ha
+ 	spin_lock_init(&intf->events_lock);
+ 	INIT_LIST_HEAD(&intf->waiting_events);
+ 	intf->waiting_events_count = 0;
+-	init_MUTEX(&intf->cmd_rcvrs_lock);
++	mutex_init(&intf->cmd_rcvrs_mutex);
+ 	INIT_LIST_HEAD(&intf->cmd_rcvrs);
+ 	init_waitqueue_head(&intf->waitq);
  
- 		recv_msg = ipmi_alloc_recv_msg();
--		if (! recv_msg) {
-+		if (!recv_msg) {
- 			/* We couldn't allocate memory for the
-                            message, so requeue it for handling
-                            later. */
-@@ -2777,7 +2777,7 @@ static int handle_lan_get_msg_cmd(ipmi_s
- 		spin_unlock_irqrestore(&intf->counter_lock, flags);
- 
- 		recv_msg = ipmi_alloc_recv_msg();
--		if (! recv_msg) {
-+		if (!recv_msg) {
- 			/* We couldn't allocate memory for the
-                            message, so requeue it for handling
-                            later. */
-@@ -2869,13 +2869,14 @@ static int handle_read_event_rsp(ipmi_sm
- 	   events. */
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(user, &intf->users, link) {
--		if (! user->gets_events)
-+		if (!user->gets_events)
- 			continue;
- 
- 		recv_msg = ipmi_alloc_recv_msg();
--		if (! recv_msg) {
-+		if (!recv_msg) {
- 			rcu_read_unlock();
--			list_for_each_entry_safe(recv_msg, recv_msg2, &msgs, link) {
-+			list_for_each_entry_safe(recv_msg, recv_msg2, &msgs,
-+						 link) {
- 				list_del(&recv_msg->link);
- 				ipmi_free_recv_msg(recv_msg);
- 			}
-@@ -2905,7 +2906,7 @@ static int handle_read_event_rsp(ipmi_sm
- 		/* No one to receive the message, put it in queue if there's
- 		   not already too many things in the queue. */
- 		recv_msg = ipmi_alloc_recv_msg();
--		if (! recv_msg) {
-+		if (!recv_msg) {
- 			/* We couldn't allocate memory for the
-                            message, so requeue it for handling
-                            later. */
-@@ -3190,7 +3191,7 @@ void ipmi_smi_watchdog_pretimeout(ipmi_s
- 
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(user, &intf->users, link) {
--		if (! user->handler->ipmi_watchdog_pretimeout)
-+		if (!user->handler->ipmi_watchdog_pretimeout)
- 			continue;
- 
- 		user->handler->ipmi_watchdog_pretimeout(user->handler_data);
-@@ -3278,7 +3279,7 @@ static void check_msg_timeout(ipmi_smi_t
- 
- 		smi_msg = smi_from_recv_msg(intf, ent->recv_msg, slot,
- 					    ent->seqid);
--		if (! smi_msg)
-+		if (!smi_msg)
- 			return;
- 
- 		spin_unlock_irqrestore(&intf->seq_lock, *flags);
-@@ -3314,8 +3315,9 @@ static void ipmi_timeout_handler(long ti
- 
- 		/* See if any waiting messages need to be processed. */
- 		spin_lock_irqsave(&intf->waiting_msgs_lock, flags);
--		list_for_each_entry_safe(smi_msg, smi_msg2, &intf->waiting_msgs, link) {
--			if (! handle_new_recv_msg(intf, smi_msg)) {
-+		list_for_each_entry_safe(smi_msg, smi_msg2,
-+					 &intf->waiting_msgs, link) {
-+			if (!handle_new_recv_msg(intf, smi_msg)) {
- 				list_del(&smi_msg->link);
- 				ipmi_free_smi_msg(smi_msg);
- 			} else {
-Index: linux-2.6.16/drivers/char/ipmi/ipmi_poweroff.c
-===================================================================
---- linux-2.6.16.orig/drivers/char/ipmi/ipmi_poweroff.c
-+++ linux-2.6.16/drivers/char/ipmi/ipmi_poweroff.c
-@@ -346,7 +346,7 @@ static int ipmi_dell_chassis_detect (ipm
- {
- 	const char ipmi_version_major = ipmi_version & 0xF;
- 	const char ipmi_version_minor = (ipmi_version >> 4) & 0xF;
--	const char mfr[3]=DELL_IANA_MFR_ID;
-+	const char mfr[3] = DELL_IANA_MFR_ID;
- 	if (!memcmp(mfr, &mfg_id, sizeof(mfr)) &&
- 	    ipmi_version_major <= 1 &&
- 	    ipmi_version_minor < 5)
-Index: linux-2.6.16/drivers/char/ipmi/ipmi_si_intf.c
-===================================================================
---- linux-2.6.16.orig/drivers/char/ipmi/ipmi_si_intf.c
-+++ linux-2.6.16/drivers/char/ipmi/ipmi_si_intf.c
-@@ -802,7 +802,7 @@ static int ipmi_thread(void *data)
- 	set_user_nice(current, 19);
- 	while (!kthread_should_stop()) {
- 		spin_lock_irqsave(&(smi_info->si_lock), flags);
--		smi_result=smi_event_handler(smi_info, 0);
-+		smi_result = smi_event_handler(smi_info, 0);
- 		spin_unlock_irqrestore(&(smi_info->si_lock), flags);
- 		if (smi_result == SI_SM_CALL_WITHOUT_DELAY) {
- 			/* do nothing */
 Index: linux-2.6.16/drivers/char/ipmi/ipmi_watchdog.c
 ===================================================================
 --- linux-2.6.16.orig/drivers/char/ipmi/ipmi_watchdog.c
 +++ linux-2.6.16/drivers/char/ipmi/ipmi_watchdog.c
-@@ -589,7 +589,7 @@ static void panic_halt_ipmi_heartbeat(vo
- 				 1);
+@@ -39,6 +39,7 @@
+ #include <linux/watchdog.h>
+ #include <linux/miscdevice.h>
+ #include <linux/init.h>
++#include <linux/completion.h>
+ #include <linux/rwsem.h>
+ #include <linux/errno.h>
+ #include <asm/uaccess.h>
+@@ -303,21 +304,22 @@ static int ipmi_heartbeat(void);
+ static void panic_halt_ipmi_heartbeat(void);
+ 
+ 
+-/* We use a semaphore to make sure that only one thing can send a set
++/* We use a mutex to make sure that only one thing can send a set
+    timeout at one time, because we only have one copy of the data.
+-   The semaphore is claimed when the set_timeout is sent and freed
++   The mutex is claimed when the set_timeout is sent and freed
+    when both messages are free. */
+ static atomic_t set_timeout_tofree = ATOMIC_INIT(0);
+-static DECLARE_MUTEX(set_timeout_lock);
++static DEFINE_MUTEX(set_timeout_lock);
++static DECLARE_COMPLETION(set_timeout_wait);
+ static void set_timeout_free_smi(struct ipmi_smi_msg *msg)
+ {
+     if (atomic_dec_and_test(&set_timeout_tofree))
+-	    up(&set_timeout_lock);
++	    complete(&set_timeout_wait);
+ }
+ static void set_timeout_free_recv(struct ipmi_recv_msg *msg)
+ {
+     if (atomic_dec_and_test(&set_timeout_tofree))
+-	    up(&set_timeout_lock);
++	    complete(&set_timeout_wait);
+ }
+ static struct ipmi_smi_msg set_timeout_smi_msg =
+ {
+@@ -399,7 +401,7 @@ static int ipmi_set_timeout(int do_heart
+ 
+ 
+ 	/* We can only send one of these at a time. */
+-	down(&set_timeout_lock);
++	mutex_lock(&set_timeout_lock);
+ 
+ 	atomic_set(&set_timeout_tofree, 2);
+ 
+@@ -407,16 +409,21 @@ static int ipmi_set_timeout(int do_heart
+ 				&set_timeout_recv_msg,
+ 				&send_heartbeat_now);
+ 	if (rv) {
+-		up(&set_timeout_lock);
+-	} else {
+-		if ((do_heartbeat == IPMI_SET_TIMEOUT_FORCE_HB)
+-		    || ((send_heartbeat_now)
+-			&& (do_heartbeat == IPMI_SET_TIMEOUT_HB_IF_NECESSARY)))
+-		{
+-			rv = ipmi_heartbeat();
+-		}
++		mutex_unlock(&set_timeout_lock);
++		goto out;
++	}
++
++	wait_for_completion(&set_timeout_wait);
++
++	if ((do_heartbeat == IPMI_SET_TIMEOUT_FORCE_HB)
++	    || ((send_heartbeat_now)
++		&& (do_heartbeat == IPMI_SET_TIMEOUT_HB_IF_NECESSARY)))
++	{
++		rv = ipmi_heartbeat();
+ 	}
++	mutex_unlock(&set_timeout_lock);
+ 
++out:
+ 	return rv;
  }
  
--static struct watchdog_info ident=
-+static struct watchdog_info ident =
+@@ -458,17 +465,17 @@ static void panic_halt_ipmi_set_timeout(
+    The semaphore is claimed when the set_timeout is sent and freed
+    when both messages are free. */
+ static atomic_t heartbeat_tofree = ATOMIC_INIT(0);
+-static DECLARE_MUTEX(heartbeat_lock);
+-static DECLARE_MUTEX_LOCKED(heartbeat_wait_lock);
++static DEFINE_MUTEX(heartbeat_lock);
++static DECLARE_COMPLETION(heartbeat_wait);
+ static void heartbeat_free_smi(struct ipmi_smi_msg *msg)
  {
- 	.options	= 0,	/* WDIOF_SETTIMEOUT, */
- 	.firmware_version = 1,
-@@ -790,13 +790,13 @@ static int ipmi_fasync(int fd, struct fi
+     if (atomic_dec_and_test(&heartbeat_tofree))
+-	    up(&heartbeat_wait_lock);
++	    complete(&heartbeat_wait);
+ }
+ static void heartbeat_free_recv(struct ipmi_recv_msg *msg)
+ {
+     if (atomic_dec_and_test(&heartbeat_tofree))
+-	    up(&heartbeat_wait_lock);
++	    complete(&heartbeat_wait);
+ }
+ static struct ipmi_smi_msg heartbeat_smi_msg =
+ {
+@@ -511,14 +518,14 @@ static int ipmi_heartbeat(void)
+ 		return ipmi_set_timeout(IPMI_SET_TIMEOUT_HB_IF_NECESSARY);
+ 	}
  
- static int ipmi_close(struct inode *ino, struct file *filep)
- {
--	if (iminor(ino)==WATCHDOG_MINOR)
--	{
-+	if (iminor(ino) == WATCHDOG_MINOR) {
- 		if (expect_close == 42) {
- 			ipmi_watchdog_state = WDOG_TIMEOUT_NONE;
- 			ipmi_set_timeout(IPMI_SET_TIMEOUT_NO_HB);
+-	down(&heartbeat_lock);
++	mutex_lock(&heartbeat_lock);
+ 
+ 	atomic_set(&heartbeat_tofree, 2);
+ 
+ 	/* Don't reset the timer if we have the timer turned off, that
+            re-enables the watchdog. */
+ 	if (ipmi_watchdog_state == WDOG_TIMEOUT_NONE) {
+-		up(&heartbeat_lock);
++		mutex_unlock(&heartbeat_lock);
+ 		return 0;
+ 	}
+ 
+@@ -539,14 +546,14 @@ static int ipmi_heartbeat(void)
+ 				      &heartbeat_recv_msg,
+ 				      1);
+ 	if (rv) {
+-		up(&heartbeat_lock);
++		mutex_unlock(&heartbeat_lock);
+ 		printk(KERN_WARNING PFX "heartbeat failure: %d\n",
+ 		       rv);
+ 		return rv;
+ 	}
+ 
+ 	/* Wait for the heartbeat to be sent. */
+-	down(&heartbeat_wait_lock);
++	wait_for_completion(&heartbeat_wait);
+ 
+ 	if (heartbeat_recv_msg.msg.data[0] != 0) {
+ 	    /* Got an error in the heartbeat response.  It was already
+@@ -555,7 +562,7 @@ static int ipmi_heartbeat(void)
+ 	    rv = -EINVAL;
+ 	}
+ 
+-	up(&heartbeat_lock);
++	mutex_unlock(&heartbeat_lock);
+ 
+ 	return rv;
+ }
+Index: linux-2.6.16/drivers/char/ipmi/ipmi_si_intf.c
+===================================================================
+--- linux-2.6.16.orig/drivers/char/ipmi/ipmi_si_intf.c
++++ linux-2.6.16/drivers/char/ipmi/ipmi_si_intf.c
+@@ -1016,7 +1016,7 @@ static struct ipmi_smi_handlers handlers
+ 
+ #define SI_MAX_PARMS 4
+ static LIST_HEAD(smi_infos);
+-static DECLARE_MUTEX(smi_infos_lock);
++static DEFINE_MUTEX(smi_infos_lock);
+ static int smi_num; /* Used to sequence the SMIs */
+ 
+ #define DEFAULT_REGSPACING	1
+@@ -2278,7 +2278,7 @@ static int try_smi_init(struct smi_info 
+ 		       new_smi->slave_addr, new_smi->irq);
+ 	}
+ 
+-	down(&smi_infos_lock);
++	mutex_lock(&smi_infos_lock);
+ 	if (!is_new_interface(new_smi)) {
+ 		printk(KERN_WARNING "ipmi_si: duplicate interface\n");
+ 		rv = -EBUSY;
+@@ -2434,7 +2434,7 @@ static int try_smi_init(struct smi_info 
+ 
+ 	list_add_tail(&new_smi->link, &smi_infos);
+ 
+-	up(&smi_infos_lock);
++	mutex_unlock(&smi_infos_lock);
+ 
+ 	printk(" IPMI %s interface initialized\n",si_to_str[new_smi->si_type]);
+ 
+@@ -2471,7 +2471,7 @@ static int try_smi_init(struct smi_info 
+ 
+ 	kfree(new_smi);
+ 
+-	up(&smi_infos_lock);
++	mutex_unlock(&smi_infos_lock);
+ 
+ 	return rv;
+ }
+@@ -2529,26 +2529,26 @@ static __devinit int init_ipmi_si(void)
+ #endif
+ 
+ 	if (si_trydefaults) {
+-		down(&smi_infos_lock);
++		mutex_lock(&smi_infos_lock);
+ 		if (list_empty(&smi_infos)) {
+ 			/* No BMC was found, try defaults. */
+-			up(&smi_infos_lock);
++			mutex_unlock(&smi_infos_lock);
+ 			default_find_bmc();
  		} else {
--			printk(KERN_CRIT PFX "Unexpected close, not stopping watchdog!\n");
-+			printk(KERN_CRIT PFX
-+			       "Unexpected close, not stopping watchdog!\n");
- 			ipmi_heartbeat();
+-			up(&smi_infos_lock);
++			mutex_unlock(&smi_infos_lock);
  		}
- 		clear_bit(0, &ipmi_wdog_open);
+ 	}
+ 
+-	down(&smi_infos_lock);
++	mutex_lock(&smi_infos_lock);
+ 	if (list_empty(&smi_infos)) {
+-		up(&smi_infos_lock);
++		mutex_unlock(&smi_infos_lock);
+ #ifdef CONFIG_PCI
+ 		pci_unregister_driver(&ipmi_pci_driver);
+ #endif
+ 		printk("ipmi_si: Unable to find any System Interface(s)\n");
+ 		return -ENODEV;
+ 	} else {
+-		up(&smi_infos_lock);
++		mutex_unlock(&smi_infos_lock);
+ 		return 0;
+ 	}
+ }
+@@ -2624,10 +2624,10 @@ static __exit void cleanup_ipmi_si(void)
+ 	pci_unregister_driver(&ipmi_pci_driver);
+ #endif
+ 
+-	down(&smi_infos_lock);
++	mutex_lock(&smi_infos_lock);
+ 	list_for_each_entry_safe(e, tmp_e, &smi_infos, link)
+ 		cleanup_one_si(e);
+-	up(&smi_infos_lock);
++	mutex_unlock(&smi_infos_lock);
+ 
+ 	driver_unregister(&ipmi_driver);
+ }

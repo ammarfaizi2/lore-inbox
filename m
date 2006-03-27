@@ -1,54 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWC0K7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWC0LBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWC0K7E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 05:59:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWC0K7D
+	id S1750873AbWC0LBe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 06:01:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWC0LBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 05:59:03 -0500
-Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:12886 "HELO
-	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750817AbWC0K7B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 05:59:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=slhuHTK97/gSowUStd5vghiHD68zP2Lya/8elBiN6qa9BSpFNsZKSVcRslqi/GXkJ7UQ/egl3vktZ/XVrZbKH27jlmGCEaZznpvDbM/5nSEil3toRJsbB3Hmjtl7juC4/6s+O+S8UBStfG1+ggRV3VbkPlXCmaau9ziWFcLKguc=  ;
-Message-ID: <4427C4EE.1070807@yahoo.com.au>
-Date: Mon, 27 Mar 2006 20:56:46 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: unlock_buffer() and clear_bit()
-References: <44247FAB.3040202@free.fr>	<20060325040233.1f95b30d.akpm@osdl.org>	<4427A817.4060905@bull.net> <20060327010739.027d410d.akpm@osdl.org> <4427B292.3080204@bull.net> <4427C284.3020206@yahoo.com.au>
-In-Reply-To: <4427C284.3020206@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Mar 2006 06:01:34 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:18156 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1750854AbWC0LBd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 06:01:33 -0500
+Date: Mon, 27 Mar 2006 13:01:32 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-fbdev-devel@lists.sourceforge.net,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: funny framebuffer fonts on PowerBook with radeonfb
+Message-ID: <20060327110131.GA16409@MAIL.13thfloor.at>
+Mail-Followup-To: "Antonino A. Daplas" <adaplas@gmail.com>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linux-fbdev-devel@lists.sourceforge.net,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>
+References: <20060327004741.GA19187@MAIL.13thfloor.at> <44273DBB.9070207@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44273DBB.9070207@gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-
-> smp_mb__after_clear_bit() is supposed to, when run directly after
-> a clear_bit operation, provide the equivalent of an smp_mb().
+On Mon, Mar 27, 2006 at 09:19:55AM +0800, Antonino A. Daplas wrote:
+> Herbert Poetzl wrote:
+> > Hey Ben!
+> > 
+> > 2.6.16 and 2.6.15-something show a funny behaviour
+> > when using the radeonfb driver (for text mode), they
+> > kind of twist and break the fonts in various places
+> > some characters or parts seem to be mirrored like
+> > '[' becoming ']' but not on character boundary but
+> > more on N pixels, colors seem to be correct for the
+> > characters, and sometimes the font is perfectly fine
+> > for larger runs, e.g. I can read the logon prompt
+> > fine, but everything I type is garbled ...
+> > 
+> > just for an example, when I type 'echo "Test"' then
+> > all characters are mirrored and cut off on the right
+> > side but the locations are as shown above, on enter
+> > the T is only a few pixels wide, but the est part is
+> > written perfectly fine ... this is a new behaviour
+> > and going back to 2.6.13.3 doesn't show this ...
+> > 
+> > if there is some testing I can do for you, or when
+> > you need more info, please let me know. here a few
+> > details for the machine:
+> > 
 > 
+> What font are you using? I presume the dimensions are
+> not divisible by 8.  
 
-Actually I guess I'm wrong here: it appears that it really should
-order before, and after the clear_bit, respectively (looking at
-its usage in unlock_page.
+precisely!
 
-So ia64's smp_mb__before_clear_bit needs to be a full barrier, but
-__after_clear_bit can be a release. I think?
+> Can you try this patch?
 
-By the way unlock_page is issuing extra barriers:
-Documentation/atomic_ops.txt defines test_and_clear_bit operations
-to provide full memory barriers before and after them, so no need
-for smp_mb__before/after there.
+yes, I did, and I can confirm this one fixes it for me
+thanks a lot for the fast response and the quite
+accurate fix!
 
-...ia64 gets these test_and_x_bit operations wrong as well...
+best,
+Herbert
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+it's obvious, but if you can make use of that:
+
+Acked-by: Herbert Poetzl <herbert@13thfloor.at>
+
+> Tony
+> 
+> diff --git a/drivers/video/cfbimgblt.c b/drivers/video/cfbimgblt.c
+> index 910e233..8ba6152 100644
+> --- a/drivers/video/cfbimgblt.c
+> +++ b/drivers/video/cfbimgblt.c
+> @@ -169,7 +169,7 @@ static inline void slow_imageblit(const 
+>  
+>  		while (j--) {
+>  			l--;
+> -			color = (*s & 1 << (FB_BIT_NR(l))) ? fgcolor : bgcolor;
+> +			color = (*s & (1 << l)) ? fgcolor : bgcolor;
+>  			val |= FB_SHIFT_HIGH(color, shift);
+>  			
+>  			/* Did the bitshift spill bits to the next long? */
+> diff --git a/include/linux/fb.h b/include/linux/fb.h
+> index 17fc771..4fe1d2d 100644
+> --- a/include/linux/fb.h
+> +++ b/include/linux/fb.h
+> @@ -841,12 +841,10 @@ struct fb_info {
+>  #define FB_LEFT_POS(bpp)          (32 - bpp)
+>  #define FB_SHIFT_HIGH(val, bits)  ((val) >> (bits))
+>  #define FB_SHIFT_LOW(val, bits)   ((val) << (bits))
+> -#define FB_BIT_NR(b)              (7 - (b))
+>  #else
+>  #define FB_LEFT_POS(bpp)          (0)
+>  #define FB_SHIFT_HIGH(val, bits)  ((val) << (bits))
+>  #define FB_SHIFT_LOW(val, bits)   ((val) >> (bits))
+> -#define FB_BIT_NR(b)              (b)
+>  #endif
+>  
+>      /*
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

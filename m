@@ -1,83 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWC0AmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWC0Arn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbWC0AmY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 19:42:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWC0AmY
+	id S932279AbWC0Arn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 19:47:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWC0Arn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 19:42:24 -0500
-Received: from zproxy.gmail.com ([64.233.162.199]:20072 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932273AbWC0AmX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 19:42:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rpzg2vfdVrwddwQdn+TMZXdOqiO+tXxa294RRR0lU3cFc7l2zIYutDVvFcpUnXGiQSnHxkhYc1FHKLIup7ZVhfjNmaPH7S4phsC2uRatuYo8sCSZi69maUWmhuB67VIfBjrOaBDG90rBB1uNEBDFqN42IksxvP9B94VvzPC3DJY=
-Message-ID: <2c0942db0603261642k1554be2al3f3b0fe49d2f5ff@mail.gmail.com>
-Date: Sun, 26 Mar 2006 16:42:22 -0800
-From: "Ray Lee" <madrabbit@gmail.com>
-Reply-To: ray-gmail@madrabbit.org
-To: "Chuck Ebbert" <76306.1226@compuserve.com>
-Subject: Re: [patch] fix delay_tsc (was Re: delay_tsc(): inefficient delay loop (2.6.16-mm1))
-Cc: "Andreas Mohr" <andi@rhlx01.fht-esslingen.de>,
-       "Andrew Morton" <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "Dominik Brodowski" <linux@brodo.de>,
-       "John Stultz" <johnstul@us.ibm.com>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Andi Kleen" <ak@suse.de>
-In-Reply-To: <200603261647_MC3-1-BB98-CB09@compuserve.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 26 Mar 2006 19:47:43 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:49378 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S932279AbWC0Arn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 19:47:43 -0500
+Date: Mon, 27 Mar 2006 02:47:41 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-fbdev-devel@lists.sourceforge.net,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: funny framebuffer fonts on PowerBook with radeonfb
+Message-ID: <20060327004741.GA19187@MAIL.13thfloor.at>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linux-fbdev-devel@lists.sourceforge.net,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200603261647_MC3-1-BB98-CB09@compuserve.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/26/06, Chuck Ebbert <76306.1226@compuserve.com> wrote:
-> On Fri, 24 Mar 2006 09:22:51 -0800, Ray Lee wrote:
-> > On 3/24/06, Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
-> > > +       loops += bclock;
-> > [...]
-> > > -       } while ((now-bclock) < loops);
-> > > +       } while (now < loops);
-> >
-> > Erm, aren't you introducing an overflow problem here?
-> >
-> > if loops is 2^32-1, bclock is 1, the old version would execute the
-> > proper number of times, the new one will blow out in one tick.
->
-> Yes, but the old version has a bug too.
-[...]
-> If (loops == 100000) and (bclock == 2^32-1) the loop will terminate
-> immediately when the low part of the TSC overflows because (now-bclock)
-> is a large number.
 
-Er, no, it won't, because (now-bclock) won't be large.
+Hey Ben!
 
-I know thinking about math on a modulo number line such as u8/16/32 is
-odd, but it's best if you just always think of "subtraction" to mean
-"distance between." (Which is always true in any space or coordinate
-system, even with wrap arounds.) This is the same trick used by
-Andrew's ring buffers, where you let head and tail wrap around freely,
-and only perform the modulo operation at dereferencing.
+2.6.16 and 2.6.15-something show a funny behaviour
+when using the radeonfb driver (for text mode), they
+kind of twist and break the fonts in various places
+some characters or parts seem to be mirrored like
+'[' becoming ']' but not on character boundary but
+more on N pixels, colors seem to be correct for the
+characters, and sometimes the font is perfectly fine
+for larger runs, e.g. I can read the logon prompt
+fine, but everything I type is garbled ...
 
-A simple test program will give you a better feel for what's going on
-(I write a lot of these...):
+just for an example, when I type 'echo "Test"' then
+all characters are mirrored and cut off on the right
+side but the locations are as shown above, on enter
+the T is only a few pixels wide, but the est part is
+written perfectly fine ... this is a new behaviour
+and going back to 2.6.13.3 doesn't show this ...
 
-#include <stdio.h>
-int main() {
-  unsigned int a,b,c;
-  a=-1-1;
-  b=1000;
-  c=b-a;
-  printf("%u - %u = %u\n", b, a, c);
-}
+if there is some testing I can do for you, or when
+you need more info, please let me know. here a few
+details for the machine:
 
-ray@issola:~/work/test/overflow$ gcc -o test test.c
-ray@issola:~/work/test/overflow$ ./test
-1000 - 4294967294 = 1002
+TIA,
+Herbert
 
-So, it wraps appropriately, as odd as that may seem at first blush.
+ processor	: 0
+ cpu		: 7450, altivec supported
+ clock		: 667.000000MHz
+ revision	: 0.1 (pvr 8000 0201)
+ bogomips	: 66.56
+ timebase	: 33290001
+ machine	: PowerBook3,3
+ motherboard	: PowerBook3,3 MacRISC2 MacRISC Power Macintosh
+ detected as	: 72 (PowerBook Titanium II)
+ pmac flags	: 0000001b
+ L2 cache	: 256K unified
+ pmac-generation: NewWorld
 
-Ray
+00:10.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M6 LY (prog-if 00 [VGA])
+ Subsystem: ATI Technologies Inc Radeon Mobility M6 LY
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
+ Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+ Latency: 255 (2000ns min), cache line size 08
+ Interrupt: pin A routed to IRQ 48
+ Region 0: Memory at b8000000 (32-bit, prefetchable) [size=128M]
+ Region 1: I/O ports at f0000400 [size=256]
+ Region 2: Memory at b0000000 (32-bit, non-prefetchable) [size=64K]
+ Expansion ROM at f1000000 [disabled] [size=128K]
+ Capabilities: [58] AGP version 2.0
+  Status: RQ=48 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2,x4
+  Command: RQ=1 ArqSz=0 Cal=0 SBA+ AGP- GART64- 64bit- FW- Rate=<none>
+  Capabilities: [50] Power Management version 2
+  Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+  Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+ PCI: Enabling device 0000:00:10.0 (0086 -> 0087)
+ radeonfb (0000:00:10.0): Invalid ROM signature 8080 should be 0xaa55
+ radeonfb: Retrieved PLL infos from Open Firmware
+ radeonfb: Reference=27.00 MHz (RefDiv=12) Memory=166.00 Mhz, System=166.00 MHz
+ radeonfb: PLL min 12000 max 35000
+ radeonfb: Monitor 1 type LCD found
+ radeonfb: EDID probed
+ radeonfb: Monitor 2 type no found
+ radeonfb: Using Firmware dividers 0x0001003a from PPLL 0
+ radeonfb: Dynamic Clock Power Management enabled
+ Console: switching to colour frame buffer device 164x54
+ Registered "ati" backlight controller,level: 15/15
+ radeonfb (0000:00:10.0): ATI Radeon LY 
+
+

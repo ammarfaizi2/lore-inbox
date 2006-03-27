@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbWC0DUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751551AbWC0DZb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750998AbWC0DUc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 22:20:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbWC0DUc
+	id S1751551AbWC0DZb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 22:25:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbWC0DZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 22:20:32 -0500
-Received: from ishtar.tlinx.org ([64.81.245.74]:32237 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S1750701AbWC0DUc (ORCPT
+	Sun, 26 Mar 2006 22:25:31 -0500
+Received: from zproxy.gmail.com ([64.233.162.203]:43036 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750701AbWC0DZb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 22:20:32 -0500
-Message-ID: <442759FB.8090309@tlinx.org>
-Date: Sun, 26 Mar 2006 19:20:27 -0800
-From: Linda Walsh <lkml@tlinx.org>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Sun, 26 Mar 2006 22:25:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:openpgp:content-type:content-transfer-encoding;
+        b=Pfw0uVpG6YlGRowLL69yamOrdMuLcjwqVqQJQtUTGrqXMu4EmPgWASmVqPXEmSIKm52isfmg3zeuuYpASfVE/739I2AObdB1yNPlHWh+7vgRS3VdG+OzKEojbLH9hyKzuUpVDktyQKkNsjZpgeatX1+a6Z8fz+GSAFDhturDgiU=
+Message-ID: <44275C2C.9010507@gmail.com>
+Date: Mon, 27 Mar 2006 10:29:48 +0700
+From: Mikado <mikado4vn@gmail.com>
+Reply-To: mikado4vn@gmail.com
+Organization: IcySpace.net
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Block I/O Schedulers: Can they be made selectable/device? @runtime?
-References: <4426377C.7000605@tlinx.org> <200603260706.k2Q76thB030947@turing-police.cc.vt.edu>
-In-Reply-To: <200603260706.k2Q76thB030947@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+CC: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Glynn Clements <glynn@gclements.plus.com>, linux-kernel@vger.kernel.org,
+       linux-c-programming@vger.kernel.org
+Subject: Re: Virtual Serial Port
+References: <442582B8.8040403@gmail.com> <Pine.LNX.4.61.0603251945100.29793@yvahk01.tjqt.qr> <4425FB22.7040405@gmail.com> <Pine.LNX.4.61.0603261127580.22145@yvahk01.tjqt.qr> <4426CADF.2050902@gmail.com> <4426E303.9000701@vc.cvut.cz>
+In-Reply-To: <4426E303.9000701@vc.cvut.cz>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=65ABD897
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> Hasn't been for quite some time. 
-> From my /etc/rc.local:
->   
-Great...the file "Documentation/as_iosched.txt"  is apparently
-out of date.
-> echo cfq > /sys/block/hda/queue/scheduler
-> echo noop > /sys/block/hdb/queue/scheduler
->
-> (hda is a real disk with ext3 partitions on it, hdb is a DVD/CD/RW that almost
-> always has exactly one process reading or writing to it at a given time, so doing
-> things in the order requested is just fine).
->
-> Simple enough? ;)
->   
----
-    Sounds fine.  I don't suppose it's too much to ask, but where should
-should I have found the updated information? :-)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
--l
+Petr Vandrovec wrote:
+> Although it is quite irrelevant to LKML (you may want to visit
+> www.vmware.com/community/index.jspa and ask there...), you can connect
+> guest's serial port also to Unix socket - and in such situation you need
+> virtual serial port driver only if 'host - application' does not know
+> how to use /dev/tty* (for unix socket <-> /dev/ptyp* app look at
+> http://platan.vc.cvut.cz/ftp/pub/vmware/serpipe.tar.gz).
+>                                 Petr
 
 
+Thank Petr. It also works well. That program acts as a data proxy
+between unix socket and /dev/ptyp*. Yesterday I wrote a similar program
+that read/write vmware's server unix sock then forward/backward data
+to/from /dev/ptyp0 but it didn't work. Maybe my program has problem.
+Thanks again.
 
+Mikado
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFEJ1wsNWc9T2Wr2JcRArmmAJ483BmLFrY+aIR71u/BQH+XCs8tIQCfZGs1
+uTwfbeYTsFg0Iq9/FL/82I4=
+=dgch
+-----END PGP SIGNATURE-----

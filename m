@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWC0WS5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWC0WWZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751110AbWC0WS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 17:18:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWC0WS5
+	id S1751146AbWC0WWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 17:22:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWC0WWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 17:18:57 -0500
-Received: from mail12.syd.optusnet.com.au ([211.29.132.193]:29634 "EHLO
-	mail12.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751110AbWC0WS4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 17:18:56 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: "=?iso-8859-1?q?Andr=E9_Goddard?= Rosa" <andre.goddard@gmail.com>
-Subject: Re: [ck] Re: swap prefetching merge plans
-Date: Tue, 28 Mar 2006 09:19:18 +1100
-User-Agent: KMail/1.8.3
-Cc: "Mike Galbraith" <efault@gmx.de>, "Andrew Morton" <akpm@osdl.org>,
-       "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "Jan Engelhardt" <jengelh@linux01.gwdg.de>, ck@vds.kolivas.org,
-       linux-kernel@vger.kernel.org
-References: <20060322205305.0604f49b.akpm@osdl.org> <200603261934.44552.kernel@kolivas.org> <b8bf37780603270737l7c2acb7etdd5c53b3af2eea84@mail.gmail.com>
-In-Reply-To: <b8bf37780603270737l7c2acb7etdd5c53b3af2eea84@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200603280919.19154.kernel@kolivas.org>
+	Mon, 27 Mar 2006 17:22:25 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:57533 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751098AbWC0WWY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 17:22:24 -0500
+Subject: Re: RFC: Move SG_GET_SCSI_ID from sg to scsi
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: dougg@torque.net
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, Bodo Eggert <7eggert@gmx.de>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <442861C4.7080304@torque.net>
+References: <Pine.LNX.4.58.0603061133070.2997@be1.lrz>
+	 <440C8E60.6020005@torque.net> <440D9F8E.7050402@s5r6.in-berlin.de>
+	 <442861C4.7080304@torque.net>
+Content-Type: text/plain
+Date: Mon, 27 Mar 2006 16:22:12 -0600
+Message-Id: <1143498132.3334.28.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Mar 2006 02:37 am, André Goddard Rosa wrote:
-> @Con: Is it possible to patch staircase to address this issue as Mike
-> did with the stock kernel, so I can see the testcase suceeding?
-> Perhaps changing a little the interactivity detection algorithm
-> (disabling fairness a little)?
+On Mon, 2006-03-27 at 17:05 -0500, Douglas Gilbert wrote:
+> I have been reviewing this thread and had one point
+> to add here.
+> 
+> The identity of the initiator port is important, at
+> least to a SCSI target that can implement (PERSISTENT)
+> RESERVE on behalf of one of its logical units.
+> So you may need to keep the equivalent of Scsi_Host:this_id
+> somewhere.
 
-I have code for it already and have been holding off putting it in for a long 
-time. This report has renewed my interest in pursuing it.
+Since Scsi_Host:this_id is an integer, it's impossible that a
+TransportID (which is what you use to identify the port) would ever fit
+into it, since these are defined to be at least 24 bytes long.
 
-> I would like to test any patches to improve this situation on staircase
-> too.
+> That is another shortcoming of the <hctl> tuple: the
+> initiator port isn't there.
 
-Thanks. You've always been very helpful in that regard and I appreciate it.
+Actually, it may not be in HCIL, but it is in the transport classes
+(although the only implementor is FC at this time, I think).  And that's
+where it should be since format and contents of the transport ID are
+transport specific.
 
-> I would like to see more cooperation on both of you, as you are trying 
-> to solve the same problems as I can see.
->
-> Please keep walking in the same direction and try to help each other. :)
-> Thank you both for your effort, it is very apreciated,
+James
 
-I'll try to.
 
-Cheers,
-Con

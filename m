@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751588AbWC0DMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbWC0DUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751588AbWC0DMX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 22:12:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751590AbWC0DMX
+	id S1750998AbWC0DUc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 22:20:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbWC0DUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 22:12:23 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:49068 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751573AbWC0DMX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 22:12:23 -0500
-Date: Sun, 26 Mar 2006 22:12:27 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Eric Piel <Eric.Piel@tremplin-utc.net>, Rob Landley <rob@landley.net>,
-       nix@esperi.org.uk, mmazur@kernel.pl, linux-kernel@vger.kernel.org,
-       llh-discuss@lists.pld-linux.org
-Subject: Re: [RFC][PATCH 0/2] KABI example conversion and cleanup
-Message-ID: <20060327031227.GA5874@ccure.user-mode-linux.org>
-References: <200603141619.36609.mmazur@kernel.pl> <20060326065205.d691539c.mrmacman_g4@mac.com> <4426A5BF.2080804@tremplin-utc.net> <200603261609.10992.rob@landley.net> <44271E88.6040101@tremplin-utc.net> <5DC72207-3C0B-44C2-A9E5-319C0A965E9D@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5DC72207-3C0B-44C2-A9E5-319C0A965E9D@mac.com>
-User-Agent: Mutt/1.4.2.1i
+	Sun, 26 Mar 2006 22:20:32 -0500
+Received: from ishtar.tlinx.org ([64.81.245.74]:32237 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S1750701AbWC0DUc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 22:20:32 -0500
+Message-ID: <442759FB.8090309@tlinx.org>
+Date: Sun, 26 Mar 2006 19:20:27 -0800
+From: Linda Walsh <lkml@tlinx.org>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Block I/O Schedulers: Can they be made selectable/device? @runtime?
+References: <4426377C.7000605@tlinx.org> <200603260706.k2Q76thB030947@turing-police.cc.vt.edu>
+In-Reply-To: <200603260706.k2Q76thB030947@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 26, 2006 at 07:40:14PM -0500, Kyle Moffett wrote:
-> According to Jeff Dike, UML would like access to some of that stuff  
-> unrestricted by __KERNEL__ too.  
+Valdis.Kletnieks@vt.edu wrote:
+> Hasn't been for quite some time. 
+> From my /etc/rc.local:
+>   
+Great...the file "Documentation/as_iosched.txt"  is apparently
+out of date.
+> echo cfq > /sys/block/hda/queue/scheduler
+> echo noop > /sys/block/hdb/queue/scheduler
+>
+> (hda is a real disk with ext3 partitions on it, hdb is a DVD/CD/RW that almost
+> always has exactly one process reading or writing to it at a given time, so doing
+> things in the order requested is just fine).
+>
+> Simple enough? ;)
+>   
+---
+    Sounds fine.  I don't suppose it's too much to ask, but where should
+should I have found the updated information? :-)
 
-Not quite true - I just want them physically separated from the
-non-userspace-usable stuff, as in different files.  I don't care
-whether they are inside #ifdef __KERNEL__, because that's defined in
-the UML build.
+-l
 
-				Jeff
+
+

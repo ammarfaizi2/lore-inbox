@@ -1,73 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWC0AXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWC0A16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932265AbWC0AXn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 19:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWC0AXm
+	id S932268AbWC0A16 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 19:27:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWC0A16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 19:23:42 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:54701 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932265AbWC0AXm (ORCPT
+	Sun, 26 Mar 2006 19:27:58 -0500
+Received: from smtpout.mac.com ([17.250.248.70]:206 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932268AbWC0A15 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 19:23:42 -0500
-Date: Mon, 27 Mar 2006 02:21:05 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-Subject: Re: PI patch against 2.6.16-rt9
-Message-ID: <20060327002105.GA29649@elte.hu>
-References: <20060326234722.GA25331@elte.hu> <Pine.LNX.4.44L0.0603270055090.2708-100000@lifa01.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0603270055090.2708-100000@lifa01.phys.au.dk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sun, 26 Mar 2006 19:27:57 -0500
+In-Reply-To: <20060326212601.GA7088@mars.ravnborg.org>
+References: <200603141619.36609.mmazur@kernel.pl> <200603231811.26546.mmazur@kernel.pl> <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com> <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix> <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com> <20060326065205.d691539c.mrmacman_g4@mac.com> <20060326065416.93d5ce68.mrmacman_g4@mac.com> <20060326200537.GA5012@mars.ravnborg.org> <1DF54B48-4541-4BA9-A71C-A64CE98B4964@mac.com> <20060326212601.GA7088@mars.ravnborg.org>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <6B80F385-00A4-4D45-9310-7A52DB53C190@mac.com>
+Cc: linux-kernel@vger.kernel.org, nix@esperi.org.uk, rob@landley.net,
+       mmazur@kernel.pl, llh-discuss@lists.pld-linux.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC][PATCH 1/2] Create initial kernel ABI header infrastructure
+Date: Sun, 26 Mar 2006 19:27:42 -0500
+To: Sam Ravnborg <sam@ravnborg.org>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mar 26, 2006, at 16:26:01, Sam Ravnborg wrote:
+> On Sun, Mar 26, 2006 at 03:39:32PM -0500, Kyle Moffett wrote:
+>> I'm not entirely sure I understand this bit.  The idea behind this  
+>> kabi stuff is precisely to split out portions of the headers so  
+>> that both userspace and kernelspace can get at them; to designate  
+>> specific items as "userspace clean" by putting them in kabi;  
+>> everything else need not care at all, and all those headers would  
+>> remain in include/ linux where they are now.  No sense moving  
+>> _everything_ in include/ around, we just want the parts that  
+>> userspace needs too.
+>
+> There are today a great number of users of the existing kernel  
+> headers.  Introducing a new namespace for the userspace suers will  
+> leave them in a dilemma where they have to support kernels before  
+> kabi, and kernels with kabi. That alone will limit the acceptance  
+> of this.
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
+I tried to talk to this in my other email, but for emphasis; I'd like  
+to do two things:
+1)  Preserve compatibility with <linux/*.h>, so that old programs  
+still work fine
+2)  Cause <kabi/*.h> to work on any distro, and kernel, not just  
+kernel released after it is introduced.  In practice this means that  
+a distro could just package up the kabi headers and install them in / 
+usr/include.  A package that is altered to compile against only  
+__kabi_* would be able to use information about which syscalls and  
+structures are available in each version to either handle different  
+kernels at runtime or have a configure-time kernel version specified  
+by the user.
 
-> > how do you guarantee that some other CPU doesnt send us on some
-> > goose-chase?
-> 
-> How should another CPU suddenly be able to insert stuff into a lock 
-> chain? Only the tasks themselves can do that and they are blocked on 
-> some lock - at least when we tested in some previous iteration. 
-> Ofcourse, they can have been signalled or timed out since, such they 
-> are already unblocked when the deadlock is reported. But that is not 
-> an error since the locks at some point actually were in a deadlock 
-> situation.
+> Keeping include/linux for the kernel ABI will allow us NOT to break  
+> existing users and it will allow a stepwise apporach at the same time.
 
-we are observing a non-time-coherent snapshot of the locking graph.  
-There is no guarantee that due to timeouts or signals the chain we 
-observe isnt artificially long - while if a time-coherent snapshot is 
-taken it is always fine. E.g. lets take dentry locks as an example: 
-their locking is ordered by the dentry (kernel-pointer) address. We 
-could in theory have a 'chain' of subsequent locking dependencies 
-related to 10,000 dentries, which are nicely ordered and create a 
-10,000-entry 'chain' if looked at in a non-time-coherent form. I.e. your 
-code could detect a deadlock where there's none. The more CPUs there 
-are, the larger the likelyhood is that other CPUs 'lure us' into a long 
-chain.
+I completely agree.  If you'll notice the patches I submitted were  
+quite careful to preserve the exact same semantics for the linux/*.h  
+headers, both in the interests of not breaking the kernel _and_ in  
+the interests of allowing userspace to still include <linux/ 
+types.h>.  IMHO, we should try to get the interface compatibility  
+crap _out_ of linux source tree and into a separate package which  
+depends only on the cleaned-up interface specification (IE: kabi/*).
 
-In other words: without taking all the locks we have no mathematical 
-proof that we detected a deadlock!
+Cheers,
+Kyle Moffett
 
-also, how does the taking of 2 locks only improve latencies? We still 
-have to hold the ->waiter_lock of this lock during this act, dont we? Or 
-can we do boosting with totally unlocked (and interrupts-enabled) 
-rescheduling points? If yes then the same situation could happen on UP 
-too: if there's lots of rescheduling of this boosting chain.
 
-nevertheless it _might_ work in practice, and it's certainly elegant and 
-thus tempting. Could you try to port your patch to -rt10? [you can skip 
-most of the conflicting rt7->rt10 deltas in rtmutex.c i think.]
 
-	Ingo

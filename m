@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWC0Lop@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWC0Lo0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750922AbWC0Lop (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 06:44:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbWC0Lop
+	id S1750933AbWC0Lo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 06:44:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbWC0Lo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 06:44:45 -0500
-Received: from bayc1-pasmtp02.bayc1.hotmail.com ([65.54.191.162]:46095 "EHLO
-	BAYC1-PASMTP02.bayc1.hotmail.com") by vger.kernel.org with ESMTP
-	id S1750922AbWC0Loo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 06:44:44 -0500
-Message-ID: <BAYC1-PASMTP02384285CB847B7D050BABAED20@CEZ.ICE>
-X-Originating-IP: [69.156.138.66]
-X-Originating-Email: [seanlkml@sympatico.ca]
-Date: Mon, 27 Mar 2006 06:42:03 -0500
-From: sean <seanlkml@sympatico.ca>
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, riel@redhat.com,
-       garloff@suse.de
-Subject: Re: [ANNOUNCE] OpenVZ patch for 2.6.16 and beta SUSE10.1 kernels
-Message-Id: <20060327064203.24f8f607.seanlkml@sympatico.ca>
-In-Reply-To: <20060327112201.GC16409@MAIL.13thfloor.at>
-References: <4427B7DC.3040804@openvz.org>
-	<20060327112201.GC16409@MAIL.13thfloor.at>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.15; i386-redhat-linux-gnu)
+	Mon, 27 Mar 2006 06:44:26 -0500
+Received: from vogsphere.datenknoten.de ([212.12.48.49]:46560 "EHLO
+	vogsphere.datenknoten.de") by vger.kernel.org with ESMTP
+	id S1750928AbWC0LoZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 06:44:25 -0500
+Subject: Re: [PATCH] pcmcia: avoid binding hostap_cs to Orinoco cards
+From: Sebastian <sebastian@expires0606.datenknoten.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux@dominikbrodowski.net, Netdev List <netdev@vger.kernel.org>
+In-Reply-To: <44063023.9010603@pobox.com>
+References: <200603012259.k21MxEN3013604@hera.kernel.org>
+	 <44063023.9010603@pobox.com>
+Content-Type: text/plain
+Date: Mon, 27 Mar 2006 13:44:44 +0200
+Message-Id: <1143459885.9691.6.camel@coruscant.datenknoten.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-OriginalArrivalTime: 27 Mar 2006 11:44:39.0575 (UTC) FILETIME=[D49D2A70:01C65193]
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Mar 2006 13:22:01 +0200
-Herbert Poetzl <herbert@13thfloor.at> wrote:
+> commit 40e3cad61197fce63853e778db020f7637d988f2
+> tree 6e086c930e1aef0bb24eb61af42d1f3c1fb7d38c
+> parent f0892b89e3c19c7d805825ca12511d26dcdf6415
+> author Pavel Roskin <proski@gnu.org> Tue, 28 Feb 2006 11:18:31 -0500
+> committer Dominik Brodowski <linux@dominikbrodowski.net> Wed, 01 Mar 
+> 2006 11:12:00 +0100
+> 
+> [PATCH] pcmcia: avoid binding hostap_cs to Orinoco cards
+> 
+> Don't just use cards with PCMCIA ID 0x0156, 0x0002.  Make sure that
+> the vendor string is "Intersil" or "INTERSIL"
+> 
+> Signed-off-by: Pavel Roskin <proski@gnu.org>
+> Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+> 
+>  drivers/net/wireless/hostap/hostap_cs.c |    5 ++++-
+>  1 files changed, 4 insertions(+), 1 deletion(-)
 
-> also the web pages 'Description of Virtuozzo(tm) benefits over OpenVZ'
-> clearly state that:
-> 
-> Virtuozzo(TM) is SWsoft's virtualization and automation solution 
-> built on top of OpenVZ. Differently from OpenVZ, Virtuozzo(TM) 
-> is developed and designed to run production workloads in 24×7 
-> environments and provides significant improvements and additional 
-> functionality in the areas of stability, density, management tools, 
-> recovery, and other areas. 
 
-Don't think anyone is proposing this for inclusion in mainline.
-And I doubt anyone wants a solution in mainline that isn't designed
-for production workloads and 24x7 environments, especially if it 
-has known stability problems.
+Hello,
 
-> 
-> Specific benefits of Virtuozzo(TM) compared to OpenVZ can be found 
-> below:
-> 
->   Higher VPS density. Virtuozzo^(TM) provides efficient memory and
->   file sharing mechanisms enabling higher VPS density and better
->   performance of VPSs.
-> 
->   Improved Stability, Scalability, and Performance. Virtuozzo(TM) 
->   is designed to run 24×7 environments with production workloads 
->   on hosts with up-to 32 CPUs.
-> 
+this patch seems to break my setup. The hostap_cs driver included in
+kernel 2.6.16 does not detect my Prism 2 WLAN card anymore, although it
+is *not* Orinoco. With 2.6.15.5 it still worked.
+
+FYI:
+pccardctl info
+PRODID_1=""
+PRODID_2="Link DWL-650 11Mbps WLAN Card"
+PRODID_3="Version 01.02"
+PRODID_4=""
+MANFID=0156,0002
+FUNCID=6
+
+Sebastian
+
+

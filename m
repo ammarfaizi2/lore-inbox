@@ -1,83 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWC0CgZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWC0Cgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbWC0CgZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 21:36:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWC0CgZ
+	id S932174AbWC0Cgz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 21:36:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbWC0Cgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 21:36:25 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:36266 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932099AbWC0CgY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 21:36:24 -0500
-Message-ID: <44274FF0.406@jp.fujitsu.com>
-Date: Mon, 27 Mar 2006 11:37:36 +0900
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Linas Vepstas <linas@austin.ibm.com>
-CC: Greg KH <greg@kroah.com>, Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 1/6] PCIERR : interfaces for synchronous I/O error detection
- on driver
-References: <44210D1B.7010806@jp.fujitsu.com> <20060322210157.GH12335@kroah.com> <4423A40D.3080906@jp.fujitsu.com> <20060324234306.GC21895@austin.ibm.com>
-In-Reply-To: <20060324234306.GC21895@austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 26 Mar 2006 21:36:55 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:9896 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S932151AbWC0Cgx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 21:36:53 -0500
+Date: Mon, 27 Mar 2006 13:36:02 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/2] create struct compat_timex and use it everywhere
+Message-Id: <20060327133602.235ef0dc.sfr@canb.auug.org.au>
+In-Reply-To: <20060323191819.GA13794@agluck-lia64.sc.intel.com>
+References: <20060323164623.699f569e.sfr@canb.auug.org.au>
+	<20060323185234.GA13486@agluck-lia64.sc.intel.com>
+	<20060323190922.GA13695@agluck-lia64.sc.intel.com>
+	<20060323191819.GA13794@agluck-lia64.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Mon__27_Mar_2006_13_36_02_+1100_FiwfBqRa6_Ltoc=r"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linas Vepstas wrote:
-> On Fri, Mar 24, 2006 at 04:47:25PM +0900, Hidetoshi Seto wrote:
->> However, some difficulty still remains to cover all possible error
->> situations even if we use callbacks. It will not help keeping data
->> integrity, passing no broken data to drivers and user lands, preventing
->> applications from going crazy or sudden death.
-> 
-> This is not true.  Although there are some subtle issues, (which
-> I invite you to describe), the goal of the current design is to 
-> insure data integrity, and make sure that neither the driver nor 
-> the userland gets corrupted data. There shouldn't be any "crazy
-> or sudden death" if the device drivers are any good.
+--Signature=_Mon__27_Mar_2006_13_36_02_+1100_FiwfBqRa6_Ltoc=r
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-OK, we are sharing the same goal even now.
+Hi Tony,
 
-I failed to mention that as you know this synchronous error detection
-would be required if the async-callback needs to touch the hardware
-due to recover it or to pick up diagnostic data during kernel-initiated
-recovery. (I found a word "pci_check_whatever() API" at your comment
-in document, Documentation/pci-error-recovery.txt)
+On Thu, 23 Mar 2006 11:18:19 -0800 "Luck, Tony" <tony.luck@intel.com> wrote:
+>
+> On Thu, Mar 23, 2006 at 11:09:22AM -0800, Luck, Tony wrote:
+> > -	data8 sys_ni_syscall	/* adjtimex */
+> > +	data8 sys32_adjtimex
+>=20
+> -ENOCOFFEE
+>=20
+> Of course that should be:
+>=20
+>=20
+> diff --git a/arch/ia64/ia32/ia32_entry.S b/arch/ia64/ia32/ia32_entry.S
+> index 95fe044..a32cd59 100644
+> --- a/arch/ia64/ia32/ia32_entry.S
+> +++ b/arch/ia64/ia32/ia32_entry.S
+> @@ -334,7 +334,7 @@ ia32_syscall_table:
+>  	data8 sys_setdomainname
+>  	data8 sys32_newuname
+>  	data8 sys32_modify_ldt
+> -	data8 sys_ni_syscall	/* adjtimex */
+> +	data8 compat_sys_adjtimex
+>  	data8 sys32_mprotect	  /* 125 */
+>  	data8 compat_sys_sigprocmask
+>  	data8 sys_ni_syscall	/* create_module */
 
-> Of course, this depends on the hardware implementation. If
-> your PCI bus sends corrupt data up to the driver ... all bets 
-> are off. The design is predicated on the assumption that the
-> hardware sends either good data or no data, ad that the latter
-> is associated with a bus state indicating an error has ocurred.
-> 
->>  - It will be useful if arch chooses panic on bus errors not to pass
->>    any broken data to un-reliable drivers.
-> 
-> I assume you meant "if arch chooses NOT to panic on bus errors ..."
 
-Hmm, what I meant is that:
-   There is an arch that chooses reboot on bus error.
-   The reason why it do so is that the design is based on the assumption
-   that no driver is able to handle bus error and that almost all drivers
-   will go without checking hardware status. So the arch chooses rebooting
-   rather than polluting user data.
-   The design allows OS to determine whether the system goes reboot or not,
-   but OS has no idea to know which driver actually check hardware state.
-Therefore this interface will help OS to know which driver is reliable.
+This patch is really just a matter for the ia64 tree, my patch was a cross
+architecture consolidation.  Now that my patches are in Linus's tree, you
+should just submit the above (as long as it works and is needed) via the
+ia64 tree.
 
-Of course there are some arch that chooses not to panic/reboot on bus error.
-I think they are believing that all drivers working on the arch can handle
-any type of errors, or they have their special feature against errors...,
-or just being idiot about hardware errors.
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-Anyway, all that is certain is that:
-  - To check the data from hardware, driver need to ask anywhere synchronously.
-  - "Anywhere" would be a register, and/or something in kernel/hardware.
-  - State check would be architecture dependent routine work.
+--Signature=_Mon__27_Mar_2006_13_36_02_+1100_FiwfBqRa6_Ltoc=r
+Content-Type: application/pgp-signature
 
-Thanks,
-H.Seto
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
+iD8DBQFEJ0+XFdBgD/zoJvwRAnetAKCHsLDzNaj9UGD7dX+6A/7p8PJtJgCgh3mS
+DSak3YcCSVCesWL+Ke6tbqo=
+=F4O1
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__27_Mar_2006_13_36_02_+1100_FiwfBqRa6_Ltoc=r--

@@ -1,556 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbWC0V77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbWC0WA5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751484AbWC0V77 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 16:59:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWC0V77
+	id S1751492AbWC0WA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 17:00:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbWC0WA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 16:59:59 -0500
-Received: from smtpq3.tilbu1.nb.home.nl ([213.51.146.202]:4803 "EHLO
-	smtpq3.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
-	id S1751484AbWC0V76 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 16:59:58 -0500
-Message-ID: <44286057.6080200@keyaccess.nl>
-Date: Mon, 27 Mar 2006 23:59:51 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Mon, 27 Mar 2006 17:00:56 -0500
+Received: from anubis.pendulus.net ([38.119.36.60]:14468 "EHLO
+	anubis.pendulus.net") by vger.kernel.org with ESMTP
+	id S1751494AbWC0WAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 17:00:55 -0500
+From: Matt Heler <lkml@lpbproductions.com>
+Reply-To: lkml@lpbproductions.com
+To: "Bill Rugolsky Jr." <bill@rugolsky.com>
+Subject: Re: [PATCH][INCOMPLETE] sata_nv: merge ADMA support
+Date: Mon, 27 Mar 2006 17:00:53 -0500
+User-Agent: KMail/1.9.1
+Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+References: <20060317232339.GA5674@ti64.telemetry-investments.com> <20060327160845.GG9411@ti64.telemetry-investments.com> <200603271646.55317.lkml@lpbproductions.com>
+In-Reply-To: <200603271646.55317.lkml@lpbproductions.com>
 MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: Greg Kroah-Hartman <gregkh@suse.de>,
-       ALSA devel <alsa-devel@alsa-project.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ALSA] ISA drivers bailing on first IS_ERR
-References: <4423848E.9030805@keyaccess.nl> <s5hslp8nlpk.wl%tiwai@suse.de> <4424912F.2080109@keyaccess.nl>
-In-Reply-To: <4424912F.2080109@keyaccess.nl>
-Content-Type: multipart/mixed;
- boundary="------------080204040509000907060002"
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603271700.53641.lkml@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080204040509000907060002
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+I forgot to include this.. but here's my bios version 
 
-Rene Herman wrote:
+        Vendor: Phoenix Technologies, LTD
+        Version: 6.00 PG
+        Release Date: 06/23/2005
 
->> These looks OK to me.  Could you regenerate patches against the latest
->> git (or ALSA CVS) ?
->>
->> Or, it might be better against to mm tree, since pnp registrations
->> will be modified there, too.  They should go also to mainstream
->> together.
-> 
-> Will do.
-
-Attached. This was in fact really just regenerating (against 2.6.16-mm1)
-Description:
-
-If platform_driver_register_simple() now returns the probe() method 
-error, the init loop should not bail on the first IS_ERR, but try the 
-next one.
-
-  sound/isa/ad1848/ad1848.c       |   14 ++++----------
-  sound/isa/cmi8330.c             |   14 ++++----------
-  sound/isa/cs423x/cs4231.c       |   14 ++++----------
-  sound/isa/cs423x/cs4236.c       |   14 ++++----------
-  sound/isa/es1688/es1688.c       |   14 ++++----------
-  sound/isa/gus/gusclassic.c      |   14 ++++----------
-  sound/isa/gus/gusextreme.c      |   14 ++++----------
-  sound/isa/gus/gusmax.c          |   14 ++++----------
-  sound/isa/gus/interwave.c       |   14 ++++----------
-  sound/isa/opl3sa2.c             |   14 ++++----------
-  sound/isa/sb/sb16.c             |   14 ++++----------
-  sound/isa/sb/sb8.c              |   14 ++++----------
-  sound/isa/sgalaxy.c             |   14 ++++----------
-  sound/isa/wavefront/wavefront.c |   14 ++++----------
-  14 files changed, 56 insertions(+), 140 deletions(-)
-
-Rene.
-
---------------080204040509000907060002
-Content-Type: text/plain;
- name="alsa_platform_is_err.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="alsa_platform_is_err.diff"
-
-Index: mm/sound/isa/ad1848/ad1848.c
-===================================================================
---- mm.orig/sound/isa/ad1848/ad1848.c	2006-03-26 23:25:56.000000000 +0200
-+++ mm/sound/isa/ad1848/ad1848.c	2006-03-27 23:15:27.000000000 +0200
-@@ -193,10 +193,8 @@ static int __init alsa_card_ad1848_init(
- 			continue;
- 		device = platform_device_register_simple(SND_AD1848_DRIVER,
- 							 i, NULL, 0);
--		if (IS_ERR(device)) {
--			err = PTR_ERR(device);
--			goto errout;
--		}
-+		if (IS_ERR(device))
-+			continue;
- 		devices[i] = device;
- 		cards++;
- 	}
-@@ -204,14 +202,10 @@ static int __init alsa_card_ad1848_init(
- #ifdef MODULE
- 		printk(KERN_ERR "AD1848 soundcard not found or device busy\n");
- #endif
--		err = -ENODEV;
--		goto errout;
-+		snd_ad1848_unregister_all();
-+		return -ENODEV;
- 	}
- 	return 0;
--
-- errout:
--	snd_ad1848_unregister_all();
--	return err;
- }
- 
- static void __exit alsa_card_ad1848_exit(void)
-Index: mm/sound/isa/cmi8330.c
-===================================================================
---- mm.orig/sound/isa/cmi8330.c	2006-03-26 23:25:56.000000000 +0200
-+++ mm/sound/isa/cmi8330.c	2006-03-27 23:15:27.000000000 +0200
-@@ -699,10 +699,8 @@ static int __init alsa_card_cmi8330_init
- 			continue;
- 		device = platform_device_register_simple(CMI8330_DRIVER,
- 							 i, NULL, 0);
--		if (IS_ERR(device)) {
--			err = PTR_ERR(device);
--			goto errout;
--		}
-+		if (IS_ERR(device))
-+			continue;
- 		platform_devices[i] = device;
- 		cards++;
- 	}
-@@ -719,14 +717,10 @@ static int __init alsa_card_cmi8330_init
- #ifdef MODULE
- 		snd_printk(KERN_ERR "CMI8330 not found or device busy\n");
- #endif
--		err = -ENODEV;
--		goto errout;
-+		snd_cmi8330_unregister_all();
-+		return -ENODEV;
- 	}
- 	return 0;
--
-- errout:
--	snd_cmi8330_unregister_all();
--	return err;
- }
- 
- static void __exit alsa_card_cmi8330_exit(void)
-Index: mm/sound/isa/cs423x/cs4231.c
-===================================================================
---- mm.orig/sound/isa/cs423x/cs4231.c	2006-03-26 23:25:56.000000000 +0200
-+++ mm/sound/isa/cs423x/cs4231.c	2006-03-27 23:15:27.000000000 +0200
-@@ -209,10 +209,8 @@ static int __init alsa_card_cs4231_init(
- 			continue;
- 		device = platform_device_register_simple(SND_CS4231_DRIVER,
- 							 i, NULL, 0);
--		if (IS_ERR(device)) {
--			err = PTR_ERR(device);
--			goto errout;
--		}
-+		if (IS_ERR(device))
-+			continue;
- 		devices[i] = device;
- 		cards++;
- 	}
-@@ -220,14 +218,10 @@ static int __init alsa_card_cs4231_init(
- #ifdef MODULE
- 		printk(KERN_ERR "CS4231 soundcard not found or device busy\n");
- #endif
--		err = -ENODEV;
--		goto errout;
-+		snd_cs4231_unregister_all();
-+		return -ENODEV;
- 	}
- 	return 0;
--
-- errout:
--	snd_cs4231_unregister_all();
--	return err;
- }
- 
- static void __exit alsa_card_cs4231_exit(void)
-Index: mm/sound/isa/cs423x/cs4236.c
-===================================================================
---- mm.orig/sound/isa/cs423x/cs4236.c	2006-03-26 23:25:56.000000000 +0200
-+++ mm/sound/isa/cs423x/cs4236.c	2006-03-27 23:15:27.000000000 +0200
-@@ -780,10 +780,8 @@ static int __init alsa_card_cs423x_init(
- 			continue;
- 		device = platform_device_register_simple(CS423X_DRIVER,
- 							 i, NULL, 0);
--		if (IS_ERR(device)) {
--			err = PTR_ERR(device);
--			goto errout;
--		}
-+		if (IS_ERR(device))
-+			continue;
- 		platform_devices[i] = device;
- 		snd_cs423x_devices++;
- 	}
-@@ -802,14 +800,10 @@ static int __init alsa_card_cs423x_init(
- #ifdef MODULE
- 		printk(KERN_ERR IDENT " soundcard not found or device busy\n");
- #endif
--		err = -ENODEV;
--		goto errout;
-+		snd_cs423x_unregister_all();
-+		return -ENODEV;
- 	}
- 	return 0;
--
-- errout:
--	snd_cs423x_unregister_all();
--	return err;
- }
- 
- static void __exit alsa_card_cs423x_exit(void)
-Index: mm/sound/isa/es1688/es1688.c
-===================================================================
---- mm.orig/sound/isa/es1688/es1688.c	2006-03-26 23:25:56.000000000 +0200
-+++ mm/sound/isa/es1688/es1688.c	2006-03-27 23:15:27.000000000 +0200
-@@ -213,10 +213,8 @@ static int __init alsa_card_es1688_init(
- 			continue;
- 		device = platform_device_register_simple(ES1688_DRIVER,
- 							 i, NULL, 0);
--		if (IS_ERR(device)) {
--			err = PTR_ERR(device);
--			goto errout;
--		}
-+		if (IS_ERR(device))
-+			continue;
- 		devices[i] = device;
- 		cards++;
- 	}
-@@ -224,14 +222,10 @@ static int __init alsa_card_es1688_init(
- #ifdef MODULE
- 		printk(KERN_ERR "ESS AudioDrive ES1688 soundcard not found or device busy\n");
- #endif
--		err = -ENODEV;
--		goto errout;
-+		snd_es1688_unregister_all();
-+		return -ENODEV;
- 	}
- 	return 0;
--
-- errout:
--	snd_es1688_unregister_all();
--	return err;
- }
- 
- static void __exit alsa_card_es1688_exit(void)
-Index: mm/sound/isa/gus/gusclassic.c
-===================================================================
---- mm.orig/sound/isa/gus/gusclassic.c	2006-03-26 23:25:56.000000000 +0200
-+++ mm/sound/isa/gus/gusclassic.c	2006-03-27 23:15:27.000000000 +0200
-@@ -253,10 +253,8 @@ static int __init alsa_card_gusclassic_i
- 			continue;
- 		device = platform_device_register_simple(GUSCLASSIC_DRIVER,
- 							 i, NULL, 0);
--		if (IS_ERR(device)) {
--			err = PTR_ERR(device);
--			goto errout;
--		}
-+		if (IS_ERR(device))
-+			continue;
- 		devices[i] = device;
- 		cards++;
- 	}
-@@ -264,14 +262,10 @@ static int __init alsa_card_gusclassic_i
- #ifdef MODULE
- 		printk(KERN_ERR "GUS Classic soundcard not found or device busy\n");
- #endif
--		err = -ENODEV;
--		goto errout;
-+		snd_gusclassic_unregister_all();
-+		return -ENODEV;
- 	}
- 	return 0;
--
-- errout:
--	snd_gusclassic_unregister_all();
--	return err;
- }
- 
- static void __exit alsa_card_gusclassic_exit(void)
-Index: mm/sound/isa/gus/gusextreme.c
-===================================================================
---- mm.orig/sound/isa/gus/gusextreme.c	2006-03-26 23:25:56.000000000 +0200
-+++ mm/sound/isa/gus/gusextreme.c	2006-03-27 23:15:27.000000000 +0200
-@@ -363,10 +363,8 @@ static int __init alsa_card_gusextreme_i
- 			continue;
- 		device = platform_device_register_simple(GUSEXTREME_DRIVER,
- 							 i, NULL, 0);
--		if (IS_ERR(device)) {
--			err = PTR_ERR(device);
--			goto errout;
--		}
-+		if (IS_ERR(device))
-+			continue;
- 		devices[i] = device;
- 		cards++;
- 	}
-@@ -374,14 +372,10 @@ static int __init alsa_card_gusextreme_i
- #ifdef MODULE
- 		printk(KERN_ERR "GUS Extreme soundcard not found or device busy\n");
- #endif
--		err = -ENODEV;
--		goto errout;
-+		snd_gusextreme_unregister_all();
-+		return -ENODEV;
- 	}
- 	return 0;
--
-- errout:
--	snd_gusextreme_unregister_all();
--	return err;
- }
- 
- static void __exit alsa_card_gusextreme_exit(void)
-Index: mm/sound/isa/gus/gusmax.c
-===================================================================
---- mm.orig/sound/isa/gus/gusmax.c	2006-03-26 23:25:56.000000000 +0200
-+++ mm/sound/isa/gus/gusmax.c	2006-03-27 23:15:27.000000000 +0200
-@@ -390,10 +390,8 @@ static int __init alsa_card_gusmax_init(
- 			continue;
- 		device = platform_device_register_simple(GUSMAX_DRIVER,
- 							 i, NULL, 0);
--		if (IS_ERR(device)) {
--			err = PTR_ERR(device);
--			goto errout;
--		}
-+		if (IS_ERR(device))
-+			continue;
- 		devices[i] = device;
- 		cards++;
- 	}
-@@ -401,14 +399,10 @@ static int __init alsa_card_gusmax_init(
- #ifdef MODULE
- 		printk(KERN_ERR "GUS MAX soundcard not found or device busy\n");
- #endif
--		err = -ENODEV;
--		goto errout;
-+		snd_gusmax_unregister_all();
-+		return -ENODEV;
- 	}
- 	return 0;
--
-- errout:
--	snd_gusmax_unregister_all();
--	return err;
- }
- 
- static void __exit alsa_card_gusmax_exit(void)
-Index: mm/sound/isa/gus/interwave.c
-===================================================================
---- mm.orig/sound/isa/gus/interwave.c	2006-03-26 23:25:56.000000000 +0200
-+++ mm/sound/isa/gus/interwave.c	2006-03-27 23:15:27.000000000 +0200
-@@ -947,10 +947,8 @@ static int __init alsa_card_interwave_in
- #endif
- 		device = platform_device_register_simple(INTERWAVE_DRIVER,
- 							 i, NULL, 0);
--		if (IS_ERR(device)) {
--			err = PTR_ERR(device);
--			goto errout;
--		}
-+		if (IS_ERR(device))
-+			continue;
- 		platform_devices[i] = device;
- 		cards++;
- 	}
-@@ -966,14 +964,10 @@ static int __init alsa_card_interwave_in
- #ifdef MODULE
- 		printk(KERN_ERR "InterWave soundcard not found or device busy\n");
- #endif
--		err = -ENODEV;
--		goto errout;
-+		snd_interwave_unregister_all();
-+		return -ENODEV;
- 	}
- 	return 0;
--
-- errout:
--	snd_interwave_unregister_all();
--	return err;
- }
- 
- static void __exit alsa_card_interwave_exit(void)
-Index: mm/sound/isa/opl3sa2.c
-===================================================================
---- mm.orig/sound/isa/opl3sa2.c	2006-03-26 23:25:56.000000000 +0200
-+++ mm/sound/isa/opl3sa2.c	2006-03-27 23:15:27.000000000 +0200
-@@ -962,10 +962,8 @@ static int __init alsa_card_opl3sa2_init
- #endif
- 		device = platform_device_register_simple(OPL3SA2_DRIVER,
- 							 i, NULL, 0);
--		if (IS_ERR(device)) {
--			err = PTR_ERR(device);
--			goto errout;
--		}
-+		if (IS_ERR(device))
-+			continue;
- 		platform_devices[i] = device;
- 		snd_opl3sa2_devices++;
- 	}
-@@ -983,14 +981,10 @@ static int __init alsa_card_opl3sa2_init
- #ifdef MODULE
- 		snd_printk(KERN_ERR "Yamaha OPL3-SA soundcard not found or device busy\n");
- #endif
--		err = -ENODEV;
--		goto errout;
-+		snd_opl3sa2_unregister_all();
-+		return -ENODEV;
- 	}
- 	return 0;
--
-- errout:
--	snd_opl3sa2_unregister_all();
--	return err;
- }
- 
- static void __exit alsa_card_opl3sa2_exit(void)
-Index: mm/sound/isa/sb/sb16.c
-===================================================================
---- mm.orig/sound/isa/sb/sb16.c	2006-03-26 23:25:56.000000000 +0200
-+++ mm/sound/isa/sb/sb16.c	2006-03-27 23:15:27.000000000 +0200
-@@ -720,10 +720,8 @@ static int __init alsa_card_sb16_init(vo
- 			continue;
- 		device = platform_device_register_simple(SND_SB16_DRIVER,
- 							 i, NULL, 0);
--		if (IS_ERR(device)) {
--			err = PTR_ERR(device);
--			goto errout;
--		}
-+		if (IS_ERR(device))
-+			continue;
- 		platform_devices[i] = device;
- 		cards++;
- 	}
-@@ -745,14 +743,10 @@ static int __init alsa_card_sb16_init(vo
- 		snd_printk(KERN_ERR "In case, if you have AWE card, try snd-sbawe module\n");
- #endif
- #endif
--		err = -ENODEV;
--		goto errout;
-+		snd_sb16_unregister_all();
-+		return -ENODEV;
- 	}
- 	return 0;
--
-- errout:
--	snd_sb16_unregister_all();
--	return err;
- }
- 
- static void __exit alsa_card_sb16_exit(void)
-Index: mm/sound/isa/sb/sb8.c
-===================================================================
---- mm.orig/sound/isa/sb/sb8.c	2006-03-26 23:25:56.000000000 +0200
-+++ mm/sound/isa/sb/sb8.c	2006-03-27 23:15:27.000000000 +0200
-@@ -264,10 +264,8 @@ static int __init alsa_card_sb8_init(voi
- 			continue;
- 		device = platform_device_register_simple(SND_SB8_DRIVER,
- 							 i, NULL, 0);
--		if (IS_ERR(device)) {
--			err = PTR_ERR(device);
--			goto errout;
--		}
-+		if (IS_ERR(device))
-+			continue;
- 		devices[i] = device;
- 		cards++;
- 	}
-@@ -275,14 +273,10 @@ static int __init alsa_card_sb8_init(voi
- #ifdef MODULE
- 		snd_printk(KERN_ERR "Sound Blaster soundcard not found or device busy\n");
- #endif
--		err = -ENODEV;
--		goto errout;
-+		snd_sb8_unregister_all();
-+		return -ENODEV;
- 	}
- 	return 0;
--
-- errout:
--	snd_sb8_unregister_all();
--	return err;
- }
- 
- static void __exit alsa_card_sb8_exit(void)
-Index: mm/sound/isa/sgalaxy.c
-===================================================================
---- mm.orig/sound/isa/sgalaxy.c	2006-03-26 23:25:56.000000000 +0200
-+++ mm/sound/isa/sgalaxy.c	2006-03-27 23:15:27.000000000 +0200
-@@ -366,10 +366,8 @@ static int __init alsa_card_sgalaxy_init
- 			continue;
- 		device = platform_device_register_simple(SND_SGALAXY_DRIVER,
- 							 i, NULL, 0);
--		if (IS_ERR(device)) {
--			err = PTR_ERR(device);
--			goto errout;
--		}
-+		if (IS_ERR(device))
-+			continue;
- 		devices[i] = device;
- 		cards++;
- 	}
-@@ -377,14 +375,10 @@ static int __init alsa_card_sgalaxy_init
- #ifdef MODULE
- 		snd_printk(KERN_ERR "Sound Galaxy soundcard not found or device busy\n");
- #endif
--		err = -ENODEV;
--		goto errout;
-+		snd_sgalaxy_unregister_all();
-+		return -ENODEV;
- 	}
- 	return 0;
--
-- errout:
--	snd_sgalaxy_unregister_all();
--	return err;
- }
- 
- static void __exit alsa_card_sgalaxy_exit(void)
-Index: mm/sound/isa/wavefront/wavefront.c
-===================================================================
---- mm.orig/sound/isa/wavefront/wavefront.c	2006-03-26 23:25:56.000000000 +0200
-+++ mm/sound/isa/wavefront/wavefront.c	2006-03-27 23:15:27.000000000 +0200
-@@ -722,10 +722,8 @@ static int __init alsa_card_wavefront_in
- #endif
- 		device = platform_device_register_simple(WAVEFRONT_DRIVER,
- 							 i, NULL, 0);
--		if (IS_ERR(device)) {
--			err = PTR_ERR(device);
--			goto errout;
--		}
-+		if (IS_ERR(device))
-+			continue;
- 		platform_devices[i] = device;
- 		cards++;
- 	}
-@@ -742,14 +740,10 @@ static int __init alsa_card_wavefront_in
- #ifdef MODULE
- 		printk (KERN_ERR "No WaveFront cards found or devices busy\n");
- #endif
--		err = -ENODEV;
--		goto errout;
-+		snd_wavefront_unregister_all();
-+		return -ENODEV;
- 	}
- 	return 0;
--
-- errout:
--	snd_wavefront_unregister_all();
--	return err;
- }
- 
- static void __exit alsa_card_wavefront_exit(void)
-
---------------080204040509000907060002--
+On Monday 27 March 2006 4:46 pm, Matt Heler wrote:
+> Hey Bill,
+>
+> I spoke abit to soon though regarding that stability.. After booting up X
+> and running Azerues and kde, my system stalled and locked. However it
+> lasted much longer then Jeff's version.
+>
+> I'm running the DFI Lanparty with an Athlon 4400. I also have the following
+> setup
+>
+> 2x300gb seagate drives 7200.8 in a raid0 format with ext3
+> 2x400gb seagate drives 7200.9 again in a raid0 format with ext3
+>
+> and lspci gives me the following ::
+>
+> 00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev a2)
+> 00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller (rev
+> a3) 00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller
+> (rev a3)
+>
+> On Monday 27 March 2006 11:08 am, Bill Rugolsky Jr. wrote:
+> > On Sun, Mar 26, 2006 at 08:14:35PM -0500, Matt Heler wrote:
+> > > Using Bill's original patch I was able to boot up perfectly with adma
+> > > support enabled on my workstation. Even after several stress tests (
+> > > tar -cf /dev/null . , and dd if=/dev/sda of=/dev/null ), everything
+> > > seems to be a-ok. However when I tried the sata_nv.c file that you sent
+> > > to Bill, I kept on getting hardlocks, and thus was unable to stress
+> > > test your version.
+> > >
+> > > Also for note, I heve not received any of the timeout problems reported
+> > > by Bill. Nor have I had any latency problems with adma enabled.
+> >
+> > Matt,
+> >
+> > Nice to see some value falling out of this sata_nv thread.  Did you see
+> > latency problems before enabling ADMA?
+> >
+> > Would you provide some specifics on your setup?
+> >
+> > Which motherboard, #CPUs, BIOS revision, kernel, MD/LVM2/fs?
+> >
+> > On two of my Tyan S2895 machines, including the one that I'm using for
+> > testing, lspci says:
+> >
+> > 00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev f2)
+> > 00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller
+> > (rev f3) 00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA
+> > Controller (rev f3)
+> >
+> > and dmidecode says:
+> >
+> > BIOS Information
+> >         Vendor: Phoenix Technologies Ltd.
+> >         Version: 2004Q3
+> >         Release Date: 10/12/2005
+> >
+> > The other, where I first had lost tick problems, says:
+> >
+> > 00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev a2)
+> > 00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller
+> > (rev a3) 00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA
+> > Controller (rev a3)
+> >
+> > BIOS Information
+> > 	Vendor: Phoenix Technologies Ltd.
+> > 	Version: 2004Q3
+> > 	Release Date: 06/07/2005
+> >
+> >
+> > Thanks,
+> >
+> > 	Bill
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

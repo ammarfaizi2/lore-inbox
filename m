@@ -1,93 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWC0Qsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWC0QuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbWC0Qsm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 11:48:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWC0Qsl
+	id S1751108AbWC0QuS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 11:50:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWC0QuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 11:48:41 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:1510 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751091AbWC0Qsl convert rfc822-to-8bit (ORCPT
+	Mon, 27 Mar 2006 11:50:17 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:60166 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751108AbWC0QuP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 11:48:41 -0500
-Subject: Re: Detecting I/O error and Halting System
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: zine el abidine Hamid <zine46@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060327145501.34766.qmail@web30606.mail.mud.yahoo.com>
-References: <20060327145501.34766.qmail@web30606.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Date: Mon, 27 Mar 2006 17:55:56 +0100
-Message-Id: <1143478556.4970.37.camel@localhost.localdomain>
+	Mon, 27 Mar 2006 11:50:15 -0500
+Date: Mon, 27 Mar 2006 11:48:49 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Sebastian <sebastian@expires0606.datenknoten.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux@dominikbrodowski.net, Netdev List <netdev@vger.kernel.org>,
+       proski@gnu.org
+Subject: Re: [PATCH] pcmcia: avoid binding hostap_cs to Orinoco cards
+Message-ID: <20060327164844.GF14403@tuxdriver.com>
+Mail-Followup-To: Sebastian <sebastian@expires0606.datenknoten.de>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux@dominikbrodowski.net, Netdev List <netdev@vger.kernel.org>,
+	proski@gnu.org
+References: <200603012259.k21MxEN3013604@hera.kernel.org> <44063023.9010603@pobox.com> <1143459885.9691.6.camel@coruscant.datenknoten.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1143459885.9691.6.camel@coruscant.datenknoten.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-03-27 at 16:55 +0200, zine el abidine Hamid wrote:
-> hda: status timeout: status=0xd0 { Busy }      adapter
-> disque annonce un status busy du DMA
+On Mon, Mar 27, 2006 at 01:44:44PM +0200, Sebastian wrote:
+> > commit 40e3cad61197fce63853e778db020f7637d988f2
+> > tree 6e086c930e1aef0bb24eb61af42d1f3c1fb7d38c
+> > parent f0892b89e3c19c7d805825ca12511d26dcdf6415
+> > author Pavel Roskin <proski@gnu.org> Tue, 28 Feb 2006 11:18:31 -0500
+> > committer Dominik Brodowski <linux@dominikbrodowski.net> Wed, 01 Mar 
+> > 2006 11:12:00 +0100
+> > 
+> > [PATCH] pcmcia: avoid binding hostap_cs to Orinoco cards
+> > 
+> > Don't just use cards with PCMCIA ID 0x0156, 0x0002.  Make sure that
+> > the vendor string is "Intersil" or "INTERSIL"
+> > 
+> > Signed-off-by: Pavel Roskin <proski@gnu.org>
+> > Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+> > 
+> >  drivers/net/wireless/hostap/hostap_cs.c |    5 ++++-
+> >  1 files changed, 4 insertions(+), 1 deletion(-)
 
-If I'm reading the translation right then your hard disk decided
-it was busy and then never came back
+> this patch seems to break my setup. The hostap_cs driver included in
+> kernel 2.6.16 does not detect my Prism 2 WLAN card anymore, although it
+> is *not* Orinoco. With 2.6.15.5 it still worked.
 
-> Feb 12 04:46:23 porte_de_clignancourt_nds_b kernel:
-> ide0: reset: success             
+This patch didn't come through me, so I don't know much about it.
+Hopefully Pavel or Dominik can comment?
 
-So the IDE layer tried to reset it
-
-> Feb 12 10:22:38 porte_de_clignancourt_nds_b kernel:
-> hda: timeout waiting for DMA
-
-Which didnt help
-
-> Feb 12 10:24:47 porte_de_clignancourt_nds_b kernel:
-> ide0: reset: success
-
-Still trying
-      
-> Feb 12 10:24:47 porte_de_clignancourt_nds_b kernel:
-> hda: irq timeout: status=0xd0 { Busy }                
-> 
-> Feb 12 10:24:47 porte_de_clignancourt_nds_b kernel:
-> hda: DMA disabled       
-
-We gave up on DMA to see if PIO would help
->                               
->    
-> Feb 12 10:24:47 porte_de_clignancourt_nds_b kernel:
-> ide0: reset timed-out, status=0x80
-> Feb 12 10:24:47 porte_de_clignancourt_nds_b kernel:
-> hda: status timeout: status=0x80 { Busy }        
-> nouvel échec de reset
-> Feb 12 10:24:47 porte_de_clignancourt_nds_b kernel:
-> hda: drive not ready for command
-> Feb 12 10:24:47 porte_de_clignancourt_nds_b kernel:
-> ide0: reset: success                  
-
-And reset.. 
-
-
-> Feb 12 13:45:38 porte_de_clignancourt_nds_b kernel:
-> hda: status timeout: status=0x80 { Busy }
-> Feb 12 13:45:38 porte_de_clignancourt_nds_b kernel:
-> hda: drive not ready for command
-> Feb 12 13:45:38 porte_de_clignancourt_nds_b kernel:
-> ide0: reset timed-out, status=0x80
-> Feb 12 13:45:38 porte_de_clignancourt_nds_b kernel:
-> end_request: I/O error, dev 03:02 (hda), sector 102263
-> Feb 12 13:45:38 porte_de_clignancourt_nds_b syslogd:
-> /var/log/maillog: Input/output error
-> Feb 12 13:45:38 porte_de_clignancourt_nds_b kernel:
-> end_request: I/O error, dev 03:02 (hda), sector 110720
-> Feb 12 13:45:38 porte_de_clignancourt_nds_b kernel:
-> end_request: I/O error, dev 03:02 (hda), sector 110728 
-
-Eventually we give up.
-
-
-First thing to check would be the disk and the temperature, then the
-cabling. In particular make sure the *long* part of the cable is between
-the drive and the controller.
-
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

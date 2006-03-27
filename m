@@ -1,75 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbWC0JTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWC0Jiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750814AbWC0JTE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 04:19:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbWC0JTE
+	id S1750807AbWC0Jiw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 04:38:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbWC0Jiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 04:19:04 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40328 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750814AbWC0JTC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 04:19:02 -0500
-Date: Mon, 27 Mar 2006 11:18:31 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] vt: TIOCL to read kmsg_redirect from user space
-Message-ID: <20060327091831.GE14248@elf.ucw.cz>
-References: <200603251219.08415.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603251219.08415.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 27 Mar 2006 04:38:52 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:29578 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1750807AbWC0Jiv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 04:38:51 -0500
+Message-ID: <4427B292.3080204@bull.net>
+Date: Mon, 27 Mar 2006 11:38:26 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en, fr, hu
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: unlock_buffer() and clear_bit()
+References: <44247FAB.3040202@free.fr>	<20060325040233.1f95b30d.akpm@osdl.org>	<4427A817.4060905@bull.net> <20060327010739.027d410d.akpm@osdl.org>
+In-Reply-To: <20060327010739.027d410d.akpm@osdl.org>
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 27/03/2006 11:40:43,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 27/03/2006 11:40:49,
+	Serialize complete at 27/03/2006 11:40:49
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andrew Morton wrote:
 
-> The userland suspend tool we're working on needs to get the current value
-> of kmsg_redirect from the kernel so that it can save it and restore it after
-> resume.  Unfortunetely there only is TIOCL_SETKMSGREDIRECT allowing us to
-> set this value from the user space.
+> This is, I think, a rather inefficient thing we're doing there.  For most
+> architectures, that amounts to:
 > 
-> The appended patch adds the "missing" TIOCL_GETKMSGREDIRECT that we
-> need.
-
-> Comments welcome.
-
-Looks good to me.
-								Pavel
-
->  drivers/char/vt.c     |    4 ++++
->  include/linux/tiocl.h |    1 +
->  2 files changed, 5 insertions(+)
+> 	mb();
+> 	clear_bit()
+> 	mb();
 > 
-> Index: linux-2.6.16-mm1/drivers/char/vt.c
-> ===================================================================
-> --- linux-2.6.16-mm1.orig/drivers/char/vt.c
-> +++ linux-2.6.16-mm1/drivers/char/vt.c
-> @@ -2328,6 +2328,10 @@ int tioclinux(struct tty_struct *tty, un
->  		case TIOCL_SETVESABLANK:
->  			set_vesa_blanking(p);
->  			break;
-> +		case TIOCL_GETKMSGREDIRECT:
-> +			data = kmsg_redirect;
-> +			ret = __put_user(data, p);
-> +			break;
->  		case TIOCL_SETKMSGREDIRECT:
->  			if (!capable(CAP_SYS_ADMIN)) {
->  				ret = -EPERM;
-> Index: linux-2.6.16-mm1/include/linux/tiocl.h
-> ===================================================================
-> --- linux-2.6.16-mm1.orig/include/linux/tiocl.h
-> +++ linux-2.6.16-mm1/include/linux/tiocl.h
-> @@ -34,5 +34,6 @@ struct tiocl_selection {
->  #define TIOCL_SCROLLCONSOLE	13	/* scroll console */
->  #define TIOCL_BLANKSCREEN	14	/* keep screen blank even if a key is pressed */
->  #define TIOCL_BLANKEDSCREEN	15	/* return which vt was blanked */
-> +#define TIOCL_GETKMSGREDIRECT	17	/* get the vt the kernel messages are restricted to */
->  
->  #endif /* _LINUX_TIOCL_H */
+> which is probably more than is needed.  We'd need to get some other
+> architecture people involved to see if there's a way of improving this, and
+> unlock_page().
 
--- 
-Picture of sleeping (Linux) penguin wanted...
+This is why I proposed also:
+
+>>> Or a new bit clearing service needs to be added that includes
+>>>   the "rel" semantics, say "release_N_clear_bit()"
+
+The architecture dependent "release_N_clear_bit()" should include what
+is necessary for the correct unlocking semantics (and it leaves the freedom
+for the "stand alone" bit operations implementations).
+
+Note that "lock_buffer()" works on ia64 "by chance", because all the
+atomic bit operations are implemented "by chance" by use of the "acq"
+semantics.
+
+I'd like to split the bit operations according to their purposes:
+- e.g. "test_and_set_bit_N_acquire()" for lock acquisition
+- "test_and_set_bit()", "clear_bit()" as they are today
+- "release_N_clear_bit()"...
+
+Thaks,
+
+Zoltan

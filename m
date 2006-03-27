@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWC0QRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWC0QRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbWC0QRj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 11:17:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWC0QRj
+	id S1750961AbWC0QRx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 11:17:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbWC0QRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 11:17:39 -0500
-Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:32004 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1750948AbWC0QRi
+	Mon, 27 Mar 2006 11:17:53 -0500
+Received: from xproxy.gmail.com ([66.249.82.199]:27964 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750960AbWC0QRu convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 11:17:38 -0500
-Date: Mon, 27 Mar 2006 18:17:28 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Build system runs ld more often than needed
-Message-Id: <20060327181728.a887c555.khali@linux-fr.org>
-In-Reply-To: <20060327140606.GA10649@mars.ravnborg.org>
-References: <20060327143848.3da1ac02.khali@linux-fr.org>
-	<20060327140606.GA10649@mars.ravnborg.org>
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Mon, 27 Mar 2006 11:17:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=W5ba2bvtvWFfzalPa67HesYWbhzsw0Zgl4dYhH7B7+Q6dFmADjLn4LhO4yEQ+Ve/qdOgX+vpqxAUfAWGixXlTIoHEkv63T5+xIgwhQHjpvR45hlAOvxwqbgV+GoMvUYRFNMn0lyG6KBsYQXtJ+FQaU8tj45QaWqq/yYp/ltwTQg=
+Message-ID: <afcef88a0603270817u6a32e37wb00c1aa9533bffe5@mail.gmail.com>
+Date: Mon, 27 Mar 2006 10:17:48 -0600
+From: "Michael Thompson" <michael.craig.thompson@gmail.com>
+To: "James Morris" <jmorris@namei.org>
+Subject: Re: eCryptfs Design Document
+Cc: "Michael Halcrow" <mhalcrow@us.ibm.com>, "Andrew Morton" <akpm@osdl.org>,
+       phillip@hellewell.homeip.net, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
+       mcthomps@us.ibm.com, yoder1@us.ibm.com, toml@us.ibm.com,
+       emilyr@us.ibm.com, daw@cs.berkeley.edu
+In-Reply-To: <Pine.LNX.4.64.0603241757090.27964@excalibur.intercode>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060324222517.GA13688@us.ibm.com>
+	 <Pine.LNX.4.64.0603241757090.27964@excalibur.intercode>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam,
+On 3/24/06, James Morris <jmorris@namei.org> wrote:
+> On Fri, 24 Mar 2006, Michael Halcrow wrote:
+>
+> > initialization vector by taking the MD5 sum of the file encryption
+> > key; the root IV is the first N bytes of that MD5 sum, where N is the
+> > number of bytes constituting an initialization vector for the cipher
+> > being used for the file (it is worth noting that known plaintext
+> > attacks against the MD5 hash algorithm do not affect the security of
+> > eCryptfs, since eCryptfs only hashes secret values).
+>
+> What about other attacks on MD5?  Hard coding it into the system makes me
+> nervous, what about making this selectable?
+>
+> > By default, eCryptfs selects AES-128. Later versions of eCryptfs will
+> > allow the user to select the cipher and key length.
+>
+> Also, what about making the encryption mode selectable, to at least allow
+> for like LRW support in addition to CBC?
 
-> > See how unrelated modules are linked again?
-> 
-> This is an unfortunate side-effect. Following snippet from
-> scripts/Makfile.build explains it:
-> 
-> # We would rather have a list of rules like
-> # 	foo.o: $(foo-objs)
-> # but that's not so easy, so we rather make all composite objects depend
-> # on the set of all their parts
-> $(multi-used-y) : %.o: $(multi-objs-y) FORCE
-> 	$(call if_changed,link_multi-y)
-> 
-> The problem is that we have no easy way to say that this specific
-> module depends on this list of .o files.
+These are part of the eCryptfs roadmap. I'm not sure when we are
+planning to incorperate the functionality to select your hash and
+cipher (I believe its 0.2 or 0.3), but we have experimented with this
+and have had success doing so. The code is not included in 0.1 due to
+lack of testing and conflict with our mental model of the releases.
 
-OK, I see. Indeed, we had a similar problem in quilt. The kernel build
-system is a bit too complex for me to propose a solution, but maybe if
-I show you two rules I wrote for a similar case in the quilt Makefile,
-you'll see if the same can be done for the kernel.
+Should this functionality be high desired / required, I see no reason
+why it can't be added, but Mike Halcrow and Phillip need to weight in
+on this too :)
 
-$(COMPAT_SYMLINKS:%=compat/%) :: Makefile
-	$(call VIRTUAL_SYMLINK, \
-		$($(shell echo $@ | $(AWK) '{split($$1, ar, "/"); print toupper(ar[2])}')), \
-		$(strip $@))
-	@chmod +x $(strip $@)
-
-install-compat-symlink-% :: install-compat1
-	ln -sf $($(shell echo $* | $(AWK) '{print toupper($$1)}'))	\
-	       $(BUILD_ROOT)$(datadir)/$(PACKAGE)/compat/$*
-
-Basically, the idea is to use awk (or any suitable tool, for that
-matter) to extract and/or transform the relevant part of either the
-target ($@) or the stem ($*), so as to build a variable name from it,
-and then access that variable.
-
-Given that composite targets each have an associated variable listing
-the parts they must be made of, maybe it is possible to use the same
-method for them? Or maybe it's too much hassle for the thin benefit,
-it's up to you.
-
-> With make 3.81 this would be possible utilising $(eval ...),
-> but the benefit is too low to introduce such a dependency.
-
-GNU make 3.80 already has $(eval ...), but having a dependency even on
-3.80 is no good, agreed.
-
-Thanks,
--- 
-Jean Delvare
+--
+Michael C. Thompson <mcthomps@us.ibm.com>
+Software-Engineer, IBM LTC Security

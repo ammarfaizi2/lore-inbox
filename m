@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbWC0R5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWC0SBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751111AbWC0R5I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 12:57:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWC0R5I
+	id S1751100AbWC0SBr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 13:01:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWC0SBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 12:57:08 -0500
-Received: from pat.uio.no ([129.240.10.6]:59124 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751111AbWC0R5H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 12:57:07 -0500
-Subject: Re: [PATCH 2.6.15] Adding kernel-level identd dispatcher
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Edward Chernenko <edwardspec@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, edwardspec@gmail.com
-In-Reply-To: <20060324162107.50804.qmail@web37710.mail.mud.yahoo.com>
-References: <20060324162107.50804.qmail@web37710.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Mon, 27 Mar 2006 12:56:56 -0500
-Message-Id: <1143482216.28645.15.camel@lade.trondhjem.org>
+	Mon, 27 Mar 2006 13:01:47 -0500
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:53705 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1751100AbWC0SBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 13:01:47 -0500
+Date: Mon, 27 Mar 2006 13:01:45 -0500
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: "Artem B. Bityutskiy" <dedekind@yandex.ru>, linux@horizon.com,
+       kalin@thinrope.net, linux-kernel@vger.kernel.org
+Subject: Re: Lifetime of flash memory
+Message-ID: <20060327180145.GD16773@csclub.uwaterloo.ca>
+References: <20060326162100.9204.qmail@science.horizon.com> <4426C320.9010002@yandex.ru> <20060327161845.GA16775@csclub.uwaterloo.ca> <Pine.LNX.4.61.0603271242100.16721@chaos.analogic.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.818, required 12,
-	autolearn=disabled, AWL 1.18, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0603271242100.16721@chaos.analogic.com>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-24 at 08:21 -0800, Edward Chernenko wrote:
-> This patch adds ident daemon to net/gnuidentd/
-> directory.
-> Apply to: 2.6.15.1.
-> Patch is here:
-> http://unwd.sourceforge.net/gnuidentd-2.6.15.patch
-> 
-> I used two threads: one for connections handling and
-> another for tracking /etc/passwd changes through
-> inotify.
-> Additionally, root can set users hiding rules using
-> file in /proc. 
-> 
-> I'm awaiting your notes/tips.
-> Please CC me to <edwardspec@gmail.com>
-> 
-> Signed-Off-by: Edward Chernenko <edwardspec@gmail.com>
+On Mon, Mar 27, 2006 at 12:44:50PM -0500, linux-os (Dick Johnson) wrote:
+> Experimental data show that it is not possible to 'destroy' the
+> chip by interrupting a write as previously reported by others.
+> In fact, one of the destroyed devices was recovered by writing
+> all the sectors in the device as in:
+>  	 `dd if=/dev/zero of=/dev/hdb bs=1M count=122`.
 
-Justification, please.
+I have a destroyed card here.  And I tried doing that.  A rep from
+sandisk told me, that yes that model/generation of sandisk could
+encounter that situation where the device was simply impossible to
+access because of corruption during a write.  He also said the card
+would have to be sent back to the factory to have the table reset.
+Newer generations were going to fix that so it didn't happen again.
 
-You haven't even tried to explain to us what is so broken about the
-userland identd that it needs to be replaced with a kernel version.
+> Note that there __is__ a problem that may become a "gotcha" if
+> you intend to RAW copy devices, one to another, for production.
+> The reported size (number of sectors) is different between
+> devices of the same type and manufacturer! Apparently, the size
+> gets set when the device is tested.
 
-Cheers,
-  Trond
+Yeah, I load cards by partitioning, mkfs'ing, and extracting data.
+Different manufacturers almost never have the same excact size.
 
+Len Sorensen

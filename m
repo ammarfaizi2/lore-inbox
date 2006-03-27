@@ -1,78 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbWC0MjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWC0NMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750982AbWC0MjB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 07:39:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbWC0MjB
+	id S1751017AbWC0NMr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 08:12:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbWC0NMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 07:39:01 -0500
-Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:4612 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1750966AbWC0MjA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 07:39:00 -0500
-Date: Mon, 27 Mar 2006 14:38:48 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Build system runs ld more often than needed
-Message-Id: <20060327143848.3da1ac02.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 27 Mar 2006 08:12:47 -0500
+Received: from [202.125.80.81] ([202.125.80.81]:8636 "EHLO rocsys.com")
+	by vger.kernel.org with ESMTP id S1750996AbWC0NMr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 08:12:47 -0500
+X-MessageWall-Score: 0 (rocsys.com)
+Message-ID: <4427E967.4050101@rocsys.com>
+Date: Mon, 27 Mar 2006 19:02:23 +0530
+From: kaushal <kaushal@rocsys.com>
+User-Agent: Mozilla Thunderbird M6 (Windows/20040405)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: ISDN hisax hfc_pci big endian port
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam,
+Hi list,
+         Can someone share the big endian port for the PCI ISDN card 
+driver ?Currently it prints the statement:
 
-I have noticed the following problem:
+#*error* "not running on *big endian* machines now"
 
-khali@arrakis:~/src/linux-2.6.16-git> make modules
-  CHK     include/linux/version.h
-  Building modules, stage 2.
-  MODPOST
-khali@arrakis:~/src/linux-2.6.16-git> touch drivers/media/video/zoran_card.c 
-khali@arrakis:~/src/linux-2.6.16-git> make modules
-  CHK     include/linux/version.h
-  CC [M]  drivers/media/video/zoran_card.o
-  LD [M]  drivers/media/video/zr36067.o
-  LD [M]  drivers/media/video/msp3400.o
-  LD [M]  drivers/media/video/tuner.o
-  Building modules, stage 2.
-  MODPOST
-  LD [M]  drivers/media/video/msp3400.ko
-  LD [M]  drivers/media/video/tuner.ko
-  LD [M]  drivers/media/video/zr36067.ko
-khali@arrakis:~/src/linux-2.6.16-git>
+This line is present in drivers/isdn/hisax/hfc_pci.c
 
-See how unrelated modules are linked again?
+If the port is not available can someone suggest/show pointers for the 
+guidelines to port for bigendian.
+Thanks in advance.
 
-I investigated further and it seems to happen whenever a given Makefile
-has more than one composite object definition. In the case of
-drivers/media/video, the following composite objects are defined:
+cheers-
+kaushal.
 
-zoran-objs      :=	zr36120.o zr36120_i2c.o zr36120_mem.o
-zr36067-objs	:=	zoran_procfs.o zoran_device.o \
-			zoran_driver.o zoran_card.o
-tuner-objs	:=	tuner-core.o tuner-types.o tuner-simple.o \
-			mt20xx.o tda8290.o tea5767.o
 
-msp3400-objs	:=	msp3400-driver.o msp3400-kthreads.o
-
-I have the following enabled:
-
-CONFIG_VIDEO_MSP3400=m
-CONFIG_VIDEO_ZORAN=m
-CONFIG_VIDEO_TUNER=m
-
-So msp3400 and tuner are relinked whenever I make a change to the
-zr36067 driver.
-
-I was able to reproduce the problem in drivers/scsi so it's not local
-to the media/video area. I was also able to reproduce the problem back
-to Linux 2.6.0 so the problem is not new.
-
-Can this be looked upon?
-
-Thanks,
--- 
-Jean Delvare

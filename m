@@ -1,135 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWC0VP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWC0VSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751437AbWC0VP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 16:15:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWC0VP3
+	id S1751456AbWC0VSA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 16:18:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWC0VR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 16:15:29 -0500
-Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:15110 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751437AbWC0VP2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 16:15:28 -0500
-Date: Mon, 27 Mar 2006 23:15:27 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: "Mark A. Greer" <mgreer@mvista.com>
-Cc: Randy Vinson <rvinson@mvista.com>, linux-kernel@vger.kernel.org,
-       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH, RFC] Stop using tasklet in ds1374 RTC driver
-Message-Id: <20060327231527.be0b1db4.khali@linux-fr.org>
-In-Reply-To: <20060327203802.GA10238@mag.az.mvista.com>
-References: <20060323201030.ccded642.khali@linux-fr.org>
-	<4423084B.1070701@mvista.com>
-	<20060323214028.GB21477@mag.az.mvista.com>
-	<20060324215311.8ea42d20.khali@linux-fr.org>
-	<20060327203802.GA10238@mag.az.mvista.com>
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Mon, 27 Mar 2006 16:17:59 -0500
+Received: from tayrelbas04.tay.hp.com ([161.114.80.247]:21220 "EHLO
+	tayrelbas04.tay.hp.com") by vger.kernel.org with ESMTP
+	id S1751453AbWC0VR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 16:17:58 -0500
+Date: Mon, 27 Mar 2006 13:17:54 -0800
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: netdev@vger.kernel.org, "John W. Linville" <linville@tuxdriver.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 32bit compat for rtnetlink wireless extensions?
+Message-ID: <20060327211754.GB31813@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <200603261408.48766.arnd@arndb.de> <20060327184242.GC31478@bougret.hpl.hp.com> <200603272310.44692.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200603272310.44692.arnd@arndb.de>
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+User-Agent: Mutt/1.5.9i
+From: Jean Tourrilhes <jt@hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mark,
-
-> > ds1374_set_tlet triggers many i2c transfers, which may delay or sleep
-> > depending on the underlying i2c implementation, and definitely will
-> > take some time (at least 224 I2C clock cycles if I'm counting properly,
-> > that is 14 ms at 16 kHz.)
-> > 
-> > So I came to the conclusion that it wouldn't be fair to other users if
-> > ds1374 was using the shared workqueue. Now, I really don't know for
-> > sure, so I'll let workqueue experts decide what should be done here.
+On Mon, Mar 27, 2006 at 11:10:44PM +0200, Arnd Bergmann wrote:
+> Am Monday 27 March 2006 20:42 schrieb Jean Tourrilhes:
+> >         Actually, when things are passed over RtNetlink, the pointer
+> > is removed, and the content of IW_HEADER_TYPE_POINT is moved to not
+> > leave a gap.
 > 
-> Hmm, you raise a good point, Jean.  I just talked to Randy and we agreed
-> to agree with you.  :)  Randy will make a patch for the ds1374 and I'll
-> rework the patches for the m41t00.  Stay tuned...
+> Ah, that makes sense, thanks for the explanation.
+> 
+> So if the wireless ioctl interface ever got retired, that code could
+> get simplified a lot to just pass around a flat data structure, right?
+> 
+> 	Arnd <><
 
-Well I already have a patch for ds1374. This is basically a mix between
-Randy's and my original patch: I've kept the dedicated workqueue as my
-patch had, but preserved the in_interrupt() call as in Randy's. Here's
-the result:
+	Actually, it could be removed *now*. You would just have to
+fix all wireless drivers in existence. I will scratch my head to see
+if we could plan a smooth transition.
 
-* * * * *
-
-A tasklet is not suitable for what the ds1374 driver does: neither sleeping
-nor mutex operations are allowed in tasklets, and ds1374_set_tlet may do
-both.
-
-We can use a workqueue instead, where both sleeping and mutex operations
-are allowed.
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
----
- drivers/i2c/chips/ds1374.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
-
---- linux-2.6.16-git.orig/drivers/i2c/chips/ds1374.c	2006-03-27 18:25:17.000000000 +0200
-+++ linux-2.6.16-git/drivers/i2c/chips/ds1374.c	2006-03-27 18:59:05.000000000 +0200
-@@ -27,6 +27,7 @@
- #include <linux/rtc.h>
- #include <linux/bcd.h>
- #include <linux/mutex.h>
-+#include <linux/workqueue.h>
- 
- #define DS1374_REG_TOD0		0x00
- #define DS1374_REG_TOD1		0x01
-@@ -139,7 +140,7 @@
- 	return t1;
- }
- 
--static void ds1374_set_tlet(ulong arg)
-+static void ds1374_set_work(void *arg)
- {
- 	ulong t1, t2;
- 	int limit = 10;		/* arbitrary retry limit */
-@@ -168,17 +169,18 @@
- 
- static ulong new_time;
- 
--static DECLARE_TASKLET_DISABLED(ds1374_tasklet, ds1374_set_tlet,
--				(ulong) & new_time);
-+static struct workqueue_struct *ds1374_workqueue;
-+
-+static DECLARE_WORK(ds1374_work, ds1374_set_work, &new_time);
- 
- int ds1374_set_rtc_time(ulong nowtime)
- {
- 	new_time = nowtime;
- 
- 	if (in_interrupt())
--		tasklet_schedule(&ds1374_tasklet);
-+		queue_work(ds1374_workqueue, &ds1374_work);
- 	else
--		ds1374_set_tlet((ulong) & new_time);
-+		ds1374_set_work(&new_time);
- 
- 	return 0;
- }
-@@ -204,6 +206,8 @@
- 	client->adapter = adap;
- 	client->driver = &ds1374_driver;
- 
-+	ds1374_workqueue = create_singlethread_workqueue("ds1374");
-+
- 	if ((rc = i2c_attach_client(client)) != 0) {
- 		kfree(client);
- 		return rc;
-@@ -227,7 +231,7 @@
- 
- 	if ((rc = i2c_detach_client(client)) == 0) {
- 		kfree(i2c_get_clientdata(client));
--		tasklet_kill(&ds1374_tasklet);
-+		destroy_workqueue(ds1374_workqueue);
- 	}
- 	return rc;
- }
-
-* * * * *
-
-If it's OK, then Randy can just sign it off and I'll push it to Greg
-quickly. If it's not OK for some reason, I'll just wait for a new patch
-from Randy.
-
-Thanks,
--- 
-Jean Delvare
+	Jean

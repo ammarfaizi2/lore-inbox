@@ -1,31 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWC0BSz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWC0BUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbWC0BSz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 20:18:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWC0BSz
+	id S1751228AbWC0BUn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 20:20:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWC0BUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 20:18:55 -0500
-Received: from gate.crashing.org ([63.228.1.57]:14991 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751171AbWC0BSy (ORCPT
+	Sun, 26 Mar 2006 20:20:42 -0500
+Received: from pproxy.gmail.com ([64.233.166.178]:10142 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751228AbWC0BUm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 20:18:54 -0500
-Subject: Re: funny framebuffer fonts on PowerBook with radeonfb
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: linux-fbdev-devel@lists.sourceforge.net,
+	Sun, 26 Mar 2006 20:20:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=KufZVuLmI9YN4v31kSgC0Z1shgHMl8Xkhj8VsOeaj9xfV8VGzOdL3mTk4fnXyyD3HS9h9mxRSF1BJ7hqSKHUz92lOuzCsfsmA4o94DYeGHVwl8IsvJyshsLOqBTyaEX8IeIEHzRQi6GKFUeGcHXfwxlu8SqnTwM7zWrQOA0LsCY=
+Message-ID: <44273DBB.9070207@gmail.com>
+Date: Mon, 27 Mar 2006 09:19:55 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-fbdev-devel@lists.sourceforge.net,
        Linux Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060327004741.GA19187@MAIL.13thfloor.at>
+Subject: Re: funny framebuffer fonts on PowerBook with radeonfb
 References: <20060327004741.GA19187@MAIL.13thfloor.at>
-Content-Type: text/plain
-Date: Mon, 27 Mar 2006 12:17:21 +1100
-Message-Id: <1143422242.3589.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+In-Reply-To: <20060327004741.GA19187@MAIL.13thfloor.at>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-27 at 02:47 +0200, Herbert Poetzl wrote:
+Herbert Poetzl wrote:
 > Hey Ben!
 > 
 > 2.6.16 and 2.6.15-something show a funny behaviour
@@ -48,13 +52,40 @@ On Mon, 2006-03-27 at 02:47 +0200, Herbert Poetzl wrote:
 > if there is some testing I can do for you, or when
 > you need more info, please let me know. here a few
 > details for the machine:
+> 
 
-I have a similar machine and haven't seen such a problem with it so
-far ... does this happen after you load X or already at boot before X
-ever kicks in ? Does it happen if you don't load any font (that is for
-example boot with init=/bin/sh to prevent any init script to try to load
-a font)
+What font are you using? I presume the dimensions are
+not divisible by 8.  Can you try this patch?
 
-Ben.
+Tony
 
-
+diff --git a/drivers/video/cfbimgblt.c b/drivers/video/cfbimgblt.c
+index 910e233..8ba6152 100644
+--- a/drivers/video/cfbimgblt.c
++++ b/drivers/video/cfbimgblt.c
+@@ -169,7 +169,7 @@ static inline void slow_imageblit(const 
+ 
+ 		while (j--) {
+ 			l--;
+-			color = (*s & 1 << (FB_BIT_NR(l))) ? fgcolor : bgcolor;
++			color = (*s & (1 << l)) ? fgcolor : bgcolor;
+ 			val |= FB_SHIFT_HIGH(color, shift);
+ 			
+ 			/* Did the bitshift spill bits to the next long? */
+diff --git a/include/linux/fb.h b/include/linux/fb.h
+index 17fc771..4fe1d2d 100644
+--- a/include/linux/fb.h
++++ b/include/linux/fb.h
+@@ -841,12 +841,10 @@ struct fb_info {
+ #define FB_LEFT_POS(bpp)          (32 - bpp)
+ #define FB_SHIFT_HIGH(val, bits)  ((val) >> (bits))
+ #define FB_SHIFT_LOW(val, bits)   ((val) << (bits))
+-#define FB_BIT_NR(b)              (7 - (b))
+ #else
+ #define FB_LEFT_POS(bpp)          (0)
+ #define FB_SHIFT_HIGH(val, bits)  ((val) << (bits))
+ #define FB_SHIFT_LOW(val, bits)   ((val) >> (bits))
+-#define FB_BIT_NR(b)              (b)
+ #endif
+ 
+     /*

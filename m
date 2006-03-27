@@ -1,88 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWC0F2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWC0Fh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWC0F2M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 00:28:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWC0F2M
+	id S1750708AbWC0Fh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 00:37:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWC0Fh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 00:28:12 -0500
-Received: from gate.crashing.org ([63.228.1.57]:7057 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750703AbWC0F2L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 00:28:11 -0500
-Subject: Re: funny framebuffer fonts on PowerBook with radeonfb
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: linux-fbdev-devel@lists.sourceforge.net,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       "Antonino A. Daplas" <adaplas@hotpop.com>
-In-Reply-To: <20060327033743.GA19788@MAIL.13thfloor.at>
-References: <20060327004741.GA19187@MAIL.13thfloor.at>
-	 <1143422242.3589.2.camel@localhost.localdomain>
-	 <20060327033743.GA19788@MAIL.13thfloor.at>
-Content-Type: text/plain
-Date: Mon, 27 Mar 2006 16:26:38 +1100
-Message-Id: <1143437199.2221.3.camel@localhost.localdomain>
+	Mon, 27 Mar 2006 00:37:27 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:1984 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750708AbWC0Fh0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 00:37:26 -0500
+Date: Mon, 27 Mar 2006 16:33:37 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at fs/direct-io.c:916!
+Message-ID: <20060327053337.GB2481@frodo>
+References: <20060326230206.06C1EE083AAB@knarzkiste.dyndns.org> <20060326180440.GA4776@charite.de> <20060326184644.GC4776@charite.de> <20060327080811.D753448@wobbly.melbourne.sgi.com> <20060326230358.GG4776@charite.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20060326230358.GG4776@charite.de>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-27 at 05:37 +0200, Herbert Poetzl wrote:
-
-> after that, the screen goes white for half a second
-> and becomes black with a large terminal font on it
-> (the one I get without framebuffer, I think), the
-> text there is printed undistorted ... shortly after
-> that, I get a flash, and the mode switches to a much
-> smaller font (the final framebuffer font) and the
-> kernel messages written there are already distorted.
-> half a second later (or less) the penguin appears at
-> the top area (undistorted), when the bootup is done
-> I get the following prompt (which again is okay)
+On Mon, Mar 27, 2006 at 01:03:59AM +0200, Ralf Hildebrandt wrote:
+> * Nathan Scott <nathans@sgi.com>:
 > 
-> 	bash-2.05b#
+> > Hmm, there were XFS patches in -mm last week, but they also got
+> > merged to mainline last week, not clear whether your git kernel
+> > had those changes or not.  I think there's probably some direct
+> > I/O (generic) changes in -mm too based on list traffic from the
+> > last couple of weeks (I'm an -mm lamer, sorry, couldn't easily
+> > tell you exactly what patches those might be) - could you retry
+> > with todays git snapshot and see if mainline is affected?  Else
+> > we'll need to find and analyse any -mm fs/direct-io.c patches.
 > 
-> typing anything there is distorted again ...
+> 2.6.16-git12 also fails utterly:
 
-Hrm... this is a a pristine 2.6.16 without any patch applied ? Also,
-what video chip revision do you have exactly ? (lspci will tell you)
+Could you find the inode number where its failing (fsr -v -d) and
+send me the xfs_bmap output for that file - use find -inum to get
+from an inum to a path for bmap.
 
-> pressing enter several times leaves 'copies' of
-> the caracters on the screen, forming vertical bars
-> the prompt (bash) is now always fine, the copy one
-> line above (as all the others) is distorted ...
-> 
-> note, the bootup is not much different with older
-> kernels, except for the strange distortions ...
-> 
-> attached my kernel configuration, just in case
-> it is related ...
+thanks.
 
-# CONFIG_VGA_CONSOLE is not set
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-# CONFIG_FRAMEBUFFER_CONSOLE_ROTATION is not set
-CONFIG_FONTS=y
-# CONFIG_FONT_8x8 is not set
-# CONFIG_FONT_8x16 is not set
-CONFIG_FONT_6x11=y
-CONFIG_FONT_7x14=y
-# CONFIG_FONT_PEARL_8x8 is not set
-# CONFIG_FONT_ACORN_8x8 is not set
-# CONFIG_FONT_MINI_4x6 is not set
-# CONFIG_FONT_SUN8x16 is not set
-# CONFIG_FONT_SUN12x22 is not set
-# CONFIG_FONT_10x18 is not set
-
-Interesting... I suspect there is an endian bug in the new font code
-that hits odd sized fonts (or non-multiple-of-8 fonts). Can you try
-enabling 8x8 and 8x16 instead of 6x11 and 7x14 fonts and tell me if
-those work ?
-
-Tony: If my suspition is confirmed, I think that's your call :)
-
-Cheers,
-Ben.
-
-
+-- 
+Nathan

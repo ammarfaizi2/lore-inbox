@@ -1,88 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWC0IlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWC0It2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbWC0IlV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 03:41:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbWC0IlV
+	id S1750810AbWC0It2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 03:49:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWC0It2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 03:41:21 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:11660 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750800AbWC0IlV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 03:41:21 -0500
-Message-Id: <200603270840.k2R8e92V024551@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: "Randy.Dunlap" <rdunlap@xenotime.net>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Cc: Linda Walsh <lkml@tlinx.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.16 Block I/O Schedulers - document runtime selection
-In-Reply-To: Your message of "Sun, 26 Mar 2006 22:19:52 PST."
-             <20060326221952.6f0e20a2.rdunlap@xenotime.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <4426377C.7000605@tlinx.org> <200603260706.k2Q76thB030947@turing-police.cc.vt.edu> <442759FB.8090309@tlinx.org>
-            <20060326221952.6f0e20a2.rdunlap@xenotime.net>
+	Mon, 27 Mar 2006 03:49:28 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:8209 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750810AbWC0It1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 03:49:27 -0500
+Date: Mon, 27 Mar 2006 10:49:36 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [cfq] sched_idle process stalled for 1 minute; strange ioprio too
+Message-ID: <20060327084936.GF8186@suse.de>
+References: <E1FMnkx-0003aE-08@approximate.corpus.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1143448808_18690P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 27 Mar 2006 03:40:09 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1FMnkx-0003aE-08@approximate.corpus.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1143448808_18690P
-Content-Type: text/plain; charset=us-ascii
+On Fri, Mar 24 2006, Sanjoy Mahajan wrote:
+> I'm trying the cfq io scheduler (in vanilla 2.6.16-rc5, TP 600X, Debian
+> testing/unstable) and noticed that a massive 'apt-get upgrade' (300MB
+> downloaded, 266 packages to upgrade) stalled at the 'Setting up sed'
+> line below, for about 1 minute.  The machine was otherwise idle (top
+> showed no processes chewing CPU), and no disk activity was going on --
+> strange since an 'apt-get upgrade' usually makes 'dpkg' chew on the
+> disk.
+> 
+> <snip>
+> (Reading database ... 184123 files and directories currently installed.)
+> Preparing to replace sed 4.1.2-8 (using .../archives/sed_4.1.4-5_i386.deb) ...
+> Unpacking replacement sed ...
+> Setting up sed (4.1.4-5) ...
+> <stalls here for about 1 minute>
+> <snip>
+> 
+> I had ioniced the shell to SCHED_IDLE with
+> 
+>   ionice -p$$ -c3
+> 
+> Then I ran the 'apt-get upgrade' so that the setting would be inherited.
+> After the minute-long stall, it continued as if nothing had gone wrong.
+> Maybe nothing is wrong, and it's something strange about dpkg needing a
+> lock and having too low a priority to get one (but who would it fight
+> with)?
+> 
+> While the dpkg was stalled, I did 'ps x' in another root window and
+> these were the interesting ones:
+> 
+>  4823 pts/7    S+     0:04 apt-get upgrade
+>  5228 ?        D      0:00 [pdflush]
+>  5261 pts/7    S+     0:01 /usr/bin/dpkg --status-fd 29 --unpack /var/cache/apt/
+>  5267 ?        S      0:00 [pdflush]
+>  5268 pts/7    D+     0:00 /usr/bin/dpkg --status-fd 29 --unpack /var/cache/apt/
 
-On Sun, 26 Mar 2006 22:19:52 PST, "Randy.Dunlap" said:
+Are you sure no other disk activity was going on at that time? Just a
+single writeout or read from the disk will stall your idle prio task. If
+you expect things to finish within a bounded time, then you should not
+use idle :-)
 
-> Patches accepted... Please summarize what you have found, even if not in
-> patch format (and I'll make it a patch).
+> produced these entries for some of the processes above:
+> 
+>   pid=4733, 24583
+>   idle: prio 7
+> 
+>   pid=4823, 24583
+>   idle: prio 7
+> 
+>   pid=5228, 0
+>   none: prio 0
+> 
+>   pid=5261, 24583
+>   idle: prio 7
+> 
+>   pid=5268, 24583
+>   idle: prio 7
+> 
+> I don't understand the ", 24583" in the pid lines.  In ionice.c it comes
+> from this code:
+>
+> 
+> 		ioprio = ioprio_get(IOPRIO_WHO_PROCESS, pid);
+> 		printf("pid=%d, %d\n", pid, ioprio);
+> 
+> So ioprio_get is returning a strange value -- or is 24583 correct?
 
-From: Valdis Kletnieks <valdis.kletnieks@vt.edu>
+It's a raw display of the priority, it would probably make more sense in
+hex. 24583 is 0x6007 - lower bits the priority, here 7. Shift it down by
+13 (IOPRIO_CLASS_SHIFT) and you have the class - that would be 11b, or 3
+decimal, which is IOPRIO_CLASS_IDLE. So 24583 is the idle io class,
+fixed priority of 7.
 
-We added the ability to change a block device's IO elevator scheduler both
-at kernel boot and on-the-fly, but we only documented the elevator= boot
-parameter.  Add a quick how-to on doing it on the fly.
+-- 
+Jens Axboe
 
-Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
----
---- linux-2.6.16-mm1/Documentation/block/switching-sched.txt.new	2006-03-27 03:26:25.000000000 -0500
-+++ linux-2.6.16-mm1/Documentation/block/switching-sched.txt	2006-03-27 03:33:39.000000000 -0500
-@@ -0,0 +1,22 @@
-+As of the Linux 2.6.mumble kernel, it is now possible to change the
-+IO scheduler for a given block device on the fly (thus making it possible,
-+for instance, to set the CFQ scheduler for the system default, but
-+set a specific device to use the anticipatory or noop schedulers - which
-+can improve that device's throughput).
-+
-+To set a specific scheduler, simply do this:
-+
-+echo SCHEDNAME > /sys/block/DEV/queue/scheduler
-+
-+where SCHEDNAME is the name of a defined IO scheduler, and DEV is the
-+device name (hda, hdb, sga, or whatever you happen to have).
-+
-+The list of defined schedulers can be found by simply doing
-+a "cat /sys/block/DEV/queue/scheduler" - the list of valid names
-+will be displayed, with the currently selected scheduler in brackets:
-+
-+# cat /sys/block/hda/queue/scheduler
-+noop anticipatory deadline [cfq]
-+# echo anticipatory > /sys/block/hda/queue/scheduler
-+# cat /sys/block/hda/queue/scheduler
-+noop [anticipatory] deadline cfq
-
-
-
-
---==_Exmh_1143448808_18690P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEJ6TocC3lWbTT17ARAjClAKD308kG9z4z0XYNVjchBMOgQwJ7bgCcDdIY
-GT4R8EJSfWS41FEPUIt8uhg=
-=WL79
------END PGP SIGNATURE-----
-
---==_Exmh_1143448808_18690P--

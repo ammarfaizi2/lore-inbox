@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWC0QS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWC0QWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbWC0QS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 11:18:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750986AbWC0QS4
+	id S1750968AbWC0QWs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 11:22:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWC0QWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 11:18:56 -0500
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:33211 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1750965AbWC0QSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 11:18:55 -0500
-Date: Mon, 27 Mar 2006 11:18:45 -0500
-To: "Artem B. Bityutskiy" <dedekind@yandex.ru>
-Cc: linux@horizon.com, kalin@thinrope.net, linux-kernel@vger.kernel.org
-Subject: Re: Lifetime of flash memory
-Message-ID: <20060327161845.GA16775@csclub.uwaterloo.ca>
-References: <20060326162100.9204.qmail@science.horizon.com> <4426C320.9010002@yandex.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 27 Mar 2006 11:22:48 -0500
+Received: from cantor.suse.de ([195.135.220.2]:45770 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750968AbWC0QWr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 11:22:47 -0500
+From: Andi Kleen <ak@suse.de>
+To: bharata@in.ibm.com
+Subject: Re: dcache leak in 2.6.16-git8
+Date: Mon, 27 Mar 2006 18:22:27 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <200603270750.28174.ak@suse.de> <20060327114813.GA11352@in.ibm.com>
+In-Reply-To: <20060327114813.GA11352@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4426C320.9010002@yandex.ru>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+Message-Id: <200603271822.28043.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 26, 2006 at 08:36:48PM +0400, Artem B. Bityutskiy wrote:
-> I'm actually interested in:
+On Monday 27 March 2006 13:48, Bharata B Rao wrote:
+> On Mon, Mar 27, 2006 at 07:50:20AM +0200, Andi Kleen wrote:
+> > 
+> > A 2GB x86-64 desktop system here is currently swapping itself to death after
+> > a few days uptime.
+> > 
+> > Some investigation shows this:
+> > 
+> > inode_cache         1287   1337    568    7    1 : tunables   54   27    8 : slabdata    191    191      0
+> > dentry_cache      1867436 1867643    208   19    1 : tunables  120   60    8 : slabdata  98297  98297      0
+> > 
 > 
-> 1. CF wear-levelling algorithms: how good or bad is it?
+> Would it be possible to try out this experimental patch which
+> gets some stats from the dentry cache ?
 
-Depends on the maker.
+It should be trivial to reproduce by other people. Biggest workload
+is kernel compiles and quilt.
 
-> 2. How does CF implement block mapping, does it store the mapping table 
-> on-flash or in memory, does it build it by scanning, how scalable are 
-> those algorithms.
+After a few hours with -git12 it's already at
 
-Well the map has to be stored in flash or other non volatile memory.
+dentry_cache      947013 952014    208   19    1 : tunables  120   60    8 : slabdata  50100  50106    480
 
-> 3. Does CF perform bad erasable blocks hadling transparently when new 
-> bad eraseblocks appear.
+and starting to go into swap.
 
-No idea, but it is almost certainly also vendor specific.
+I can't imagine I'm the only one seeing this?
 
-> 4. How tolerant CF to powrer-offs.
+I have a few x86-64 patches applied too, but they don't change anything
+in this area.
 
-I have seen some that a power off in the middle of a write would leave
-the card dead (it left it with a partially updated block map).  On
-others nothing happened (well you loose the write in progress of course
-just as a harddisk would).
-
-> 5. Is there a Garbage Collector in CF and how clever/stupid is it.
-
-That is vendor specific.  Depends how they did it.  Different
-generations from a given company may also be different in behaviour.  I
-imagine some parts of it are patented by some of the comapnies involed
-in flash card making.
-
-> I've heard CF does not have good characteristics in the above mentioned 
-> aspects, but still, it would be interesting to know details. I'm not 
-> going to use CFs, but as I'm working with flashes, I'm just interested. 
-> It'd help me explaining people why it is bad to use CF for more serious 
-> applications then those just storing pictures.
-
-The wearleveling is not a part of the CF spec.  So saying anything about
-CF in general just doesn't make much sense.  It all depends on the
-controller in the CF you are using.
-
-Len Sorensen
+-Andi

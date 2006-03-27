@@ -1,36 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWC0XmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWC0Xnb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751154AbWC0XmN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 18:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWC0XmN
+	id S1751156AbWC0Xnb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 18:43:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWC0Xnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 18:42:13 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:38361 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751154AbWC0XmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 18:42:13 -0500
-Message-ID: <44287853.5020804@ichips.intel.com>
-Date: Mon, 27 Mar 2006 15:42:11 -0800
-From: Sean Hefty <mshefty@ichips.intel.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Roland Dreier <rdreier@cisco.com>
-CC: openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: [openib-general] InfiniBand 2.6.17 merge plans
-References: <ada7j6f8xwi.fsf@cisco.com> <442848EF.4000407@ichips.intel.com> <adar74n5wbn.fsf@cisco.com>
-In-Reply-To: <adar74n5wbn.fsf@cisco.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Mar 2006 18:43:31 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:30675 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751156AbWC0Xna (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 18:43:30 -0500
+Date: Tue, 28 Mar 2006 09:43:17 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: XFS: 2.6.16-git13 warning??
+Message-ID: <20060328094316.A865430@wobbly.melbourne.sgi.com>
+References: <20060327154310.c5776847.rdunlap@xenotime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060327154310.c5776847.rdunlap@xenotime.net>; from rdunlap@xenotime.net on Mon, Mar 27, 2006 at 03:43:10PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
-> BTW, what do you think of changing rdma_wq to be a GPL export, to give
-> a hint that this is an internal symbol not really for general use?
+On Mon, Mar 27, 2006 at 03:43:10PM -0800, Randy.Dunlap wrote:
+> 
+> fs/xfs/linux-2.6/xfs_ioctl32.c:114: warning: initialization from incompatible pointer type
+> 
+> 	vnode_t		*vp = vn_to_inode(inode);
+> 
+> vn_to_inode() wants a vnode, not an inode.
+> 
+> should that be vn_from_inode(inode) ??
 
-I'm actually testing a patch set now that moves rdma_wq internal to ib_addr, and 
-  gives the RDMA CM its own WQ.
+Yep, thanks Randy - I'll get that fixed up.
 
-- Sean
+cheers.
 
+-- 
+Nathan

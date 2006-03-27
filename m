@@ -1,130 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWC0FQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWC0F2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWC0FQR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 00:16:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWC0FQR
+	id S1750703AbWC0F2M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 00:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWC0F2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 00:16:17 -0500
-Received: from ms-smtp-01-smtplb.rdc-nyc.rr.com ([24.29.109.5]:1517 "EHLO
-	ms-smtp-01.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id S1750707AbWC0FQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 00:16:16 -0500
-Subject: Re: [PATCH 8/8] zoran: Init cleanups
-From: "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060313213651.e983de01.khali@linux-fr.org>
-References: <20060313210933.88a42375.khali@linux-fr.org>
-	 <20060313213651.e983de01.khali@linux-fr.org>
+	Mon, 27 Mar 2006 00:28:12 -0500
+Received: from gate.crashing.org ([63.228.1.57]:7057 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750703AbWC0F2L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 00:28:11 -0500
+Subject: Re: funny framebuffer fonts on PowerBook with radeonfb
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: linux-fbdev-devel@lists.sourceforge.net,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       "Antonino A. Daplas" <adaplas@hotpop.com>
+In-Reply-To: <20060327033743.GA19788@MAIL.13thfloor.at>
+References: <20060327004741.GA19187@MAIL.13thfloor.at>
+	 <1143422242.3589.2.camel@localhost.localdomain>
+	 <20060327033743.GA19788@MAIL.13thfloor.at>
 Content-Type: text/plain
-Date: Mon, 27 Mar 2006 00:09:59 -0500
-Message-Id: <1143436200.2691.6.camel@localhost.localdomain>
+Date: Mon, 27 Mar 2006 16:26:38 +1100
+Message-Id: <1143437199.2221.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On Mon, 2006-03-27 at 05:37 +0200, Herbert Poetzl wrote:
 
-On Mon, 2006-03-13 at 21:36 +0100, Jean Delvare wrote:
-> Cleanups to the zr36057 initialization:
-> * Drop intermediate local variables.
-> * Single error path.
-> Also drop a needless cast on kfree.
+> after that, the screen goes white for half a second
+> and becomes black with a large terminal font on it
+> (the one I get without framebuffer, I think), the
+> text there is printed undistorted ... shortly after
+> that, I get a flash, and the mode switches to a much
+> smaller font (the final framebuffer font) and the
+> kernel messages written there are already distorted.
+> half a second later (or less) the penguin appears at
+> the top area (undistorted), when the bootup is done
+> I get the following prompt (which again is okay)
+> 
+> 	bash-2.05b#
+> 
+> typing anything there is distorted again ...
 
-Please take this patch into your tree, it looks good. Jean, thanks for
-contributing (again!).
+Hrm... this is a a pristine 2.6.16 without any patch applied ? Also,
+what video chip revision do you have exactly ? (lspci will tell you)
+
+> pressing enter several times leaves 'copies' of
+> the caracters on the screen, forming vertical bars
+> the prompt (bash) is now always fine, the copy one
+> line above (as all the others) is distorted ...
+> 
+> note, the bootup is not much different with older
+> kernels, except for the strange distortions ...
+> 
+> attached my kernel configuration, just in case
+> it is related ...
+
+# CONFIG_VGA_CONSOLE is not set
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+# CONFIG_FRAMEBUFFER_CONSOLE_ROTATION is not set
+CONFIG_FONTS=y
+# CONFIG_FONT_8x8 is not set
+# CONFIG_FONT_8x16 is not set
+CONFIG_FONT_6x11=y
+CONFIG_FONT_7x14=y
+# CONFIG_FONT_PEARL_8x8 is not set
+# CONFIG_FONT_ACORN_8x8 is not set
+# CONFIG_FONT_MINI_4x6 is not set
+# CONFIG_FONT_SUN8x16 is not set
+# CONFIG_FONT_SUN12x22 is not set
+# CONFIG_FONT_10x18 is not set
+
+Interesting... I suspect there is an endian bug in the new font code
+that hits odd sized fonts (or non-multiple-of-8 fonts). Can you try
+enabling 8x8 and 8x16 instead of 6x11 and 7x14 fonts and tell me if
+those work ?
+
+Tony: If my suspition is confirmed, I think that's your call :)
 
 Cheers,
-Ronald
+Ben.
 
-> Signed-off-by: Jean Delvare <khali@linux-fr.org>
-> ---
->  drivers/media/video/zoran_card.c |   38 +++++++++++++++++---------------------
->  1 file changed, 17 insertions(+), 21 deletions(-)
-> 
-> --- linux-2.6.15-git.orig/drivers/media/video/zoran_card.c	2006-01-12 21:08:57.000000000 +0100
-> +++ linux-2.6.15-git/drivers/media/video/zoran_card.c	2006-01-12 21:12:05.000000000 +0100
-> @@ -995,10 +995,7 @@
->  static int __devinit
->  zr36057_init (struct zoran *zr)
->  {
-> -	u32 *mem;
-> -	void *vdev;
-> -	unsigned mem_needed;
-> -	int j;
-> +	int j, err;
->  	int two = 2;
->  	int zero = 0;
->  
-> @@ -1049,19 +1046,16 @@
->  
->  	/* allocate memory *before* doing anything to the hardware
->  	 * in case allocation fails */
-> -	mem_needed = BUZ_NUM_STAT_COM * 4;
-> -	mem = kzalloc(mem_needed, GFP_KERNEL);
-> -	vdev = (void *) kmalloc(sizeof(struct video_device), GFP_KERNEL);
-> -	if (!mem || !vdev) {
-> +	zr->stat_com = kzalloc(BUZ_NUM_STAT_COM * 4, GFP_KERNEL);
-> +	zr->video_dev = kmalloc(sizeof(struct video_device), GFP_KERNEL);
-> +	if (!zr->stat_com || !zr->video_dev) {
->  		dprintk(1,
->  			KERN_ERR
->  			"%s: zr36057_init() - kmalloc (STAT_COM) failed\n",
->  			ZR_DEVNAME(zr));
-> -		kfree(vdev);
-> -		kfree(mem);
-> -		return -ENOMEM;
-> +		err = -ENOMEM;
-> +		goto exit_free;
->  	}
-> -	zr->stat_com = mem;
->  	for (j = 0; j < BUZ_NUM_STAT_COM; j++) {
->  		zr->stat_com[j] = 1;	/* mark as unavailable to zr36057 */
->  	}
-> @@ -1069,16 +1063,11 @@
->  	/*
->  	 *   Now add the template and register the device unit.
->  	 */
-> -	zr->video_dev = vdev;
->  	memcpy(zr->video_dev, &zoran_template, sizeof(zoran_template));
->  	strcpy(zr->video_dev->name, ZR_DEVNAME(zr));
-> -	if (video_register_device(zr->video_dev, VFL_TYPE_GRABBER,
-> -				  video_nr) < 0) {
-> -		zoran_unregister_i2c(zr);
-> -		kfree((void *) zr->stat_com);
-> -		kfree(vdev);
-> -		return -1;
-> -	}
-> +	err = video_register_device(zr->video_dev, VFL_TYPE_GRABBER, video_nr);
-> +	if (err < 0)
-> +		goto exit_unregister;
->  
->  	zoran_init_hardware(zr);
->  	if (*zr_debug > 2)
-> @@ -1092,6 +1081,13 @@
->  	zr->zoran_proc = NULL;
->  	zr->initialized = 1;
->  	return 0;
-> +
-> +exit_unregister:
-> +	zoran_unregister_i2c(zr);
-> +exit_free:
-> +	kfree(zr->stat_com);
-> +	kfree(zr->video_dev);
-> +	return err;
->  }
->  
->  static void
-> @@ -1121,7 +1117,7 @@
->  	btwrite(0, ZR36057_SPGPPCR);
->  	free_irq(zr->pci_dev->irq, zr);
->  	/* unmap and free memory */
-> -	kfree((void *) zr->stat_com);
-> +	kfree(zr->stat_com);
->  	zoran_proc_cleanup(zr);
->  	iounmap(zr->zr36057_mem);
->  	pci_disable_device(zr->pci_dev);
-> 
 

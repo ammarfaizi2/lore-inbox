@@ -1,38 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbWC0Xio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWC0Xk4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751157AbWC0Xio (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 18:38:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWC0Xio
+	id S1751152AbWC0Xk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 18:40:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWC0Xk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 18:38:44 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:21680 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751154AbWC0Xin (ORCPT
+	Mon, 27 Mar 2006 18:40:56 -0500
+Received: from xenotime.net ([66.160.160.81]:15587 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751154AbWC0Xk4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 18:38:43 -0500
-Date: Mon, 27 Mar 2006 15:40:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: norsk5@xmission.com, dthompson@linuxnetworx.com, dsp@llnl.gov,
-       dave_peterson@pobox.com, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] edac_752x needs CONFIG_HOTPLUG
-Message-Id: <20060327154055.564404f0.akpm@osdl.org>
-In-Reply-To: <20060327150637.5aaf6493.rdunlap@xenotime.net>
-References: <20060327150637.5aaf6493.rdunlap@xenotime.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 27 Mar 2006 18:40:56 -0500
+Date: Mon, 27 Mar 2006 15:43:10 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: XFS: 2.6.16-git13 warning??
+Message-Id: <20060327154310.c5776847.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
->
-> EDAC_752X uses pci_scan_single_device(), which is only available
-> if CONFIG_HOTPLUG is enabled
 
-hm.  That's not a hotpluggable device, surely?
+fs/xfs/linux-2.6/xfs_ioctl32.c:114: warning: initialization from incompatible pointer type
 
-If not then either a) PCI should be implementing pci_scan_single_device()
-if !CONFIG_HOTPLUG or b) EDAC shouldn't be using pci_scan_single_device().
+	vnode_t		*vp = vn_to_inode(inode);
 
+vn_to_inode() wants a vnode, not an inode.
+
+should that be vn_from_inode(inode) ??
+
+thanks,
+---
+~Randy

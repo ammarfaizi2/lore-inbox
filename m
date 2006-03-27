@@ -1,98 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWC0Tzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWC0T5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbWC0Tzs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 14:55:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWC0Tzs
+	id S1751054AbWC0T5r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 14:57:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbWC0T5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 14:55:48 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:12418 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751032AbWC0Tzr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 14:55:47 -0500
-Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: cascardo@minaslivre.org
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Andreas Dilger <adilger@clusterfs.com>,
-       Takashi Sato <sho@bsd.tnes.nec.co.jp>, cmm@us.ibm.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       Laurent Vivier <Laurent.Vivier@bull.net>, ams@gnu.org,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20060325145139.GA5606@cascardo.localdomain>
-References: <02bc01c648f2$bd35e830$4168010a@bsd.tnes.nec.co.jp>
-	 <20060316183549.GK30801@schatzie.adilger.int>
-	 <20060316212632.GA21004@thunk.org>
-	 <20060316225913.GV30801@schatzie.adilger.int>
-	 <20060318170729.GI21232@thunk.org>
-	 <20060320063633.GC30801@schatzie.adilger.int>
-	 <1142894283.21593.59.camel@orbit.scot.redhat.com>
-	 <20060320234829.GJ6199@schatzie.adilger.int>
-	 <1142960722.3443.24.camel@orbit.scot.redhat.com>
-	 <20060321183822.GC11447@thunk.org>
-	 <20060325145139.GA5606@cascardo.localdomain>
-Content-Type: text/plain
-Date: Mon, 27 Mar 2006 14:55:01 -0500
-Message-Id: <1143489301.15697.9.camel@orbit.scot.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Mar 2006 14:57:47 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:27984 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S1750812AbWC0T5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 14:57:46 -0500
+X-IronPort-AV: i="4.03,135,1141632000"; 
+   d="scan'208"; a="317694739:sNHT31322252"
+To: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: InfiniBand 2.6.17 merge plans
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 27 Mar 2006 11:56:13 -0800
+Message-ID: <ada7j6f8xwi.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 27 Mar 2006 19:57:42.0527 (UTC) FILETIME=[B56D68F0:01C651D8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+As we enter the second week of the 2.6.17 merge window, I thought it
+might be helpful to give an update on what I'm thinking about the
+remaining pending pieces.  This is really to stimulate discussion --
+if there's something that you think really should (or shouldn't) be
+merged, let me know.
 
-On Sat, 2006-03-25 at 11:51 -0300, cascardo@minaslivre.org wrote:
+Of course bug fixes are always welcome and can be merged pretty much
+any time -- that's the whole point of the stabilization period after
+the merge window.
 
-> Regarding compatibility, there are plans to support xattr in Hurd and
-> use them for these fields, translator and author. (I can't recall what
-> i_mode_high is used for.) With respect to that, I'd appreciate if
-> there is a recommendation to every ext2 implementation (not only
-> Linux) that supports xattr, to support gnu.translator and gnu.author
-> (I'll check about the i_mode_high and post about it asap.). 
+ * PathScale ipath driver.  In my git tree at
 
-What do you mean by "support", exactly?
+   git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git ipath
 
-There are 3 different bits of xattr design which matter here.  There's
-the namespace exported to users via the *attr syscalls; there's the
-encoding used on disk for those different namespaces; and there's the
-exact semantics surrounding interpretation of the xattr contents.
+   There is still ia64 build breakage and a lot of sparse endian
+   annotations to clean up before it's mergeable.  Also, there are two
+   issues I still see:
 
-Now, a non-Hurd system is not going to have any use for the gnu.* xattr
-semantics, as translator is a Hurd-specific concept.  The user "gnu.*"
-namespace is easy enough to teach to Linux: to simply reserve that
-namespace, without actually implementing any part of it, I think it be
-sufficient simply to claim the name in include/linux/xattr.h.
+   - Working around the IB midlayer SMA (subnet management agent) /
+     implementation with a character device when ib_mad isn't loaded.
+     Maybe I'm off-base here objecting to this.  Hal and Sean, as the
+     ib_mad guys, I'd be especially interested in your opinion of this.
 
-For ext2/3, though, the key is how to store gnu.* on disk.  Right now
-the different namespaces that ext* stores on disk are enumerated in
+   - The driver depends on 64BIT && PCI_MSI, and is basically
+     x86_64-only for practical purposes.  I think this is OK as far as
+     a merge goes, but it would be nice to be able to use a PCIe
+     device on any system with PCIe slots...
 
-	fs/ext[23]/xattr.h
+ * RDMA CM.  In my git tree at
 
-which, for ext2, currently contains:
+   git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git rdma_cm
 
-        /* Name indexes */
-        /* Name indexes */
-        #define EXT2_XATTR_INDEX_USER			1
-        #define EXT2_XATTR_INDEX_POSIX_ACL_ACCESS	2
-        #define EXT2_XATTR_INDEX_POSIX_ACL_DEFAULT	3
-        #define EXT2_XATTR_INDEX_TRUSTED		4
-        #define	EXT2_XATTR_INDEX_LUSTRE			5
-        #define EXT2_XATTR_INDEX_SECURITY	        6
+   I think this is OK to merge, but I don't see much pull to get it in
+   right now.  There are three consumers on the horizon:
 
-If you want to reserve a new semantically-significant portion of the
-namespace for use in the Hurd by gnu.* xattrs, then you'd need to submit
-an authoritative Linux patch to register a new name index on ext2;
-reservation of such an xattr namespace index is in effect an on-disk
-format decision so needs to be agreed between implementations.
+   - userspace RDMA CM, which exports the abstraction to userspace.
+     The feeling is that this interface needs more time to mature.
 
-> Regarding userland tools, it would be wise if they would still support
-> old format filesystems, including those with fs creator set to
-> Hurd. That would include supporting the oob block for translator when
-> counting used/free blocks and other operations like copying a file
-> using debugfs, for example.
+   - NFS/RDMA.  Not ready to merge right now.
 
-Certainly; I don't think anybody is arguing against that, and I regard
-such backwards compatibility as an absolute requirement.
+   - iSER.  Maybe ready to merge -- I haven't heard anything recently.
 
---Stephen
+   My feeling is that without someone making a case for why this
+   should go in now, I'm going to hold off.
 
+ * IPoIB tunables.  This is probably OK but I haven't seen any patches
+   yet, so we're running out time.
 
+ * SRP FMRs.  I have a patch that I'm pretty happy with now, so I
+   think this will go in.  This will need a lot of testing, or we may
+   have to turn it off by default for 2.6.17 final
+
+So if you care about any of this, let me know what you think.  And if
+there's something not on this list and not in
+
+    git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git for-2.6.17
+
+please make sure I know about it, or it won't get merged.
+
+Thanks,
+  Roland

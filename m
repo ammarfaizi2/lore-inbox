@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWC0U4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWC0U6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751106AbWC0U4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 15:56:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbWC0U4Y
+	id S1751127AbWC0U6l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 15:58:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWC0U6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 15:56:24 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:62217 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751106AbWC0U4Y convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 15:56:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hFy4ZjatZcJx/3FElTIPQ43PMDDdS1kmZ/PGE6n2AXtegIj6UCRCv7tzkusyRUn7IUwmeZOtPT9Uwb/dNlpklJqXV2YX71D/mIIQUZ26m7hN73v1IhhTs+nF9hHkO97UI7JqAa6QAkh5ch7r0xQ5GxaUwD3s4nw4Zn8NlkWYoj0=
-Message-ID: <d120d5000603271256g6ff971daq57282287fd1d5434@mail.gmail.com>
-Date: Mon, 27 Mar 2006 15:56:17 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Bodo Eggert" <7eggert@gmx.de>
-Subject: Re: [BUG] PS/2-mouse not found in 2.6.16
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0603272148050.2266@be1.lrz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 27 Mar 2006 15:58:41 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:45227 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751127AbWC0U6k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 15:58:40 -0500
+Date: Tue, 28 Mar 2006 03:55:30 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [patch 2/2] hrtimer
+Message-ID: <20060327235530.GA7024@oleg>
+References: <20060325121219.172731000@localhost.localdomain> <20060325121223.966390000@localhost.localdomain> <20060325183213.63ab667c.akpm@osdl.org> <1143411016.5344.139.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.58.0603272148050.2266@be1.lrz>
+In-Reply-To: <1143411016.5344.139.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/27/06, Bodo Eggert <7eggert@gmx.de> wrote:
-> With kernel 2.6.16, my Logitech mouse is no longer detected (not reported
-> in dmesg, not working).
->
+I also think this is racy.
 
-Does it help if you comment out call to quirk_usb_handoff_ohci() (your
-USB host controller is an OHCI one, isn't it?) in
-drivers/usb/host/pci-quirks.c::quirk_usb_early_handoff()?
+CPU_0					CPU_1
 
---
-Dmitry
+hrtimer_wakeup:
+
+	task = t->task;
+	t->task = NULL;
+
+	<--- INTERRUPT --->
+
+					task is woken by signal,
+					do_nanosleep() sees t->task == NULL,
+					returns without hrtimer_cancel(),
+					and __exits__.
+
+	<--- RESUME --->
+
+	wake_up_process(task);
+
+Instead of exit(), 'task' can go to TASK_STOPPED or TASK_UNINTERRUPTIBLE
+after return from do_nanosleep(), it will be awakened by hrtimer_wakeup()
+unexpectedly.
+
+Oleg.
+

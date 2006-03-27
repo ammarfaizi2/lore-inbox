@@ -1,100 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWC0S2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWC0Skg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbWC0S2l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 13:28:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWC0S2l
+	id S1750827AbWC0Skg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 13:40:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWC0Skg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 13:28:41 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:19643 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750818AbWC0S2l (ORCPT
+	Mon, 27 Mar 2006 13:40:36 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:44425 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750827AbWC0Skf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 13:28:41 -0500
-Message-ID: <44282ECE.5040803@watson.ibm.com>
-Date: Mon, 27 Mar 2006 13:28:30 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [Patch 0/9] Performance
-References: <1142296834.5858.3.camel@elinux04.optonline.net> <20060314192824.GB27012@kroah.com> <4422BBD9.40901@watson.ibm.com> <20060325023808.GB6416@kroah.com>
-In-Reply-To: <20060325023808.GB6416@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 27 Mar 2006 13:40:35 -0500
+Subject: Re: uptime increases during suspend
+From: john stultz <johnstul@us.ibm.com>
+To: Jonathan Black <vampjon@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060325150238.GA9023@beacon.dhs.org>
+References: <20060325150238.GA9023@beacon.dhs.org>
+Content-Type: text/plain
+Date: Mon, 27 Mar 2006 10:40:20 -0800
+Message-Id: <1143484821.2168.16.camel@leatherman>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 (2.6.0-1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+On Sat, 2006-03-25 at 16:02 +0100, Jonathan Black wrote:
+> I'd like to enquire about the following behaviour:
+> 
+> $ uptime && sudo hibernate && uptime
+>  14:18:51 up 1 day, 4:12,  2 users,  load average: 0.58, 3.30, 2.42
+>  14:23:46 up 1 day, 4:17,  2 users,  load average: 20.34, 7.74, 3.91
+> 
+> I.e. the system was suspended to disk for 5 minutes, but the value
+> reported by 'uptime' has increased by as much, as if it had actually
+> continued running during that time.
 
->On Thu, Mar 23, 2006 at 10:16:41AM -0500, Shailabh Nagar wrote:
->  
->
->>Greg KH wrote:
->>    
->>
->>>On Mon, Mar 13, 2006 at 07:40:34PM -0500, Shailabh Nagar wrote:
->>>
->>>      
->>>
->>>>This is the next iteration of the delay accounting patches
->>>>last posted at
->>>>	http://www.ussg.iu.edu/hypermail/linux/kernel/0602.3/0893.html
->>>>        
->>>>
->>>Do you have any benchmark numbers with this patch applied and with it
->>>not applied?  Last I heard it was a measurable decrease for some
->>>"important" benchmark results...
->>>
->>>thanks,
->>>
->>>greg k-h
->>>      
->>>
->>Here are some numbers for the latest set of posted patches
->>using microbenchmarks hackbench, kernbench and lmbench.
->>
->>I was trying to get the real/big benchmark numbers too but
->>it looks like getting a run whose numbers can be trusted
->>will take a bit longer than expected. Preliminary runs of
->>transaction processing benchmarks indicate that overhead
->>actually decreases with the patch (as also seen in some of
->>the lmbench numbers below).
->>    
->>
->
->That's good to hear.
->
->But your .5% is noticable on the +patch results, which I don't think
->people who take performance issues seriously will like (that's real
->money for the big vendors.)  And distros will be forced to enable that
->option in their kernels, so those vendors will have to get that
->percentage back some other way...
->  
->
+Yes, I don't know exactly when it was changed, but jiffies is now
+updated when we return from suspend, which causes the uptime to
+effectively increase while we are suspended.
 
-Sorry, missed your response.
+[snip]
+> The way it is now, one can essentially "cheat": suspend a machine, put
+> it in the cupboard for a couple of weeks, resume it and claim a
+> respectable uptime, because the uptime value only reflects how long ago
+> the system was first booted up, with no regard to how much of that time
+> it has actually been running.
 
-Yes, even the slight deterioration might be an issue for distros. We 
-discovered one memcpy,
-lack of use of "__read_mostly" and another "unlikely" that might help 
-with the 0.5% but other than
-that don't see any major way of reducing overhead further for the +patch 
-case.
+Well, anyone can hack their kernel to say whatever uptime they want, so
+I'm not to worried about cheating. Are you seeing an actual bug here?
 
-I'll be posting another iteration of the patches with these changes and 
-corresponding results
-(as well as the changes for the netlink interface which has been 
-stabilized after incorporating Jamal's
-comments). Lets see what that does.
 
-Thanks,
-Shailabh
+> Would it be possible to get the old behaviour back?
 
->thanks,
->
->greg k-h
->  
->
+Why exactly do you want this behavior? Maybe a better explanation would
+help stir this discussion.
+
+The question about the correct behavior is more relevant with
+virtualization as well. Should the OS's uptime increase even when
+another OS is running on the cpu? What is the proper interface to export
+the OS's cpu time? 
+
+Right now I'm of the opinion that jiffies should be updated, as real
+time has past and timer events that are queued should expire. 
+
+However with a good enough reason, we might want to add another counter
+that keeps track of how much time we've been suspended as well. 
+
+thanks
+-john
 

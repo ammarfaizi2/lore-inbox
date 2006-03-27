@@ -1,76 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbWC0KAE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWC0KBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750821AbWC0KAE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 05:00:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWC0KAE
+	id S1750834AbWC0KBH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 05:01:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWC0KBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 05:00:04 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:24478 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750821AbWC0KAD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 05:00:03 -0500
-Date: Mon, 27 Mar 2006 15:30:19 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       davem@davemloft.net, suparna@in.ibm.com, richardj_moore@uk.ibm.com,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       "Theodore Ts'o" <tytso@mit.edu>, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: RFC - Approaches to user-space probes
-Message-ID: <20060327100019.GA30427@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-References: <20060327065447.GA25745@in.ibm.com> <1143445068.2886.20.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1143445068.2886.20.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 27 Mar 2006 05:01:07 -0500
+Received: from mail.sw-soft.com ([69.64.46.34]:22441 "EHLO mail.sw-soft.com")
+	by vger.kernel.org with ESMTP id S1750834AbWC0KBG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 05:01:06 -0500
+Message-ID: <4427B7DC.3040804@openvz.org>
+Date: Mon, 27 Mar 2006 14:01:00 +0400
+From: Kirill Korotaev <dev@openvz.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Rik van Riel <riel@redhat.com>, Kurt Garloff <garloff@suse.de>,
+       Kir Kolyshkin <kir@openvz.org>, devel@openvz.org
+Subject: [ANNOUNCE] OpenVZ patch for 2.6.16 and beta SUSE10.1 kernels
+Content-Type: text/plain; charset=windows-1251; format=flowed
+Content-Transfer-Encoding: 7bit
+X-SA-Do-Not-Rej: Toldya
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 27, 2006 at 09:37:48AM +0200, Arjan van de Ven wrote:
-> On Mon, 2006-03-27 at 12:24 +0530, Prasanna S Panchamukhi wrote:
-> 
-> > - Low overhead and user can have thousands of active probes on the
-> >   system and detect any instance when the probe was hit including
-> >   probes on shared library etc.
-> 
-> I suspect this is the only reason for doing it inside the kernel;
-> anything else still really shouts "do it in userspace via ptrace" to me.
-> 
+OpenVZ team is happy to announce the release of its virtualization
+solution based on 2.6.16 and beta SUSE10.1 kernels.
 
-Other reasons would be:
+As in previous releases, OpenVZ 2.6.16 kernel patch includes:
+- virtualization
+- fine grained resource management (user beancounters)
+- 2 level disk quota
 
-- to view some privilaged data, such as system regs while you are
-  debugging in user-space
-- to view many arbitrary process address-space that use a common set
-  of modules - user or kernel space
+Coming soon new features (!):
+- virtualized AppArmor
+- dynamic virtual CPU adding/remove to/from VPS
 
-> 
-> > ===========================================================
-> > LOCAL PROBES(PER PROCESS) VS GLOBAL PROBES(EXECUTABLE FILE)
-> > ===========================================================
-> > 
-> > - All processes take a trap since the same executable file
-> >   gets mapped into different address_space.
-> 
-> is that true for breakpoints inserted after start?
+More information about OpenVZ project is available at http://openvz.org/
 
-Yes, insertion of the breakpoint happens at the physical
-page level and it gets written back to the disc.
+Fine grained broken-out patch set can be found at
+http://download.openvz.org/kernel/broken-out/2.6.16-026test005.1/
+or at GIT repository at http://git.openvz.org/
 
-> The reason I ask because... what if half the processed took a COW on the
-> page with the instruction you want to trap on. Are you going to edit all
-> those COW'd pages?
+About OpenVZ software
+~~~~~~~~~~~~~~~~~~~~~
 
-The current prototype does not insert probes on COW pages, but yes eventually
-we will provide probes insertions on COW'd pages feature too.
+OpenVZ is a kernel virtualization solution which can be considered as a
+natural step in the OS kernel evolution: after multiuser and
+multitasking functionality there comes an OpenVZ feature of having
+multiple environments.
 
-Thanks
-Prasanna
--- 
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Email: prasanna@in.ibm.com
-Ph: 91-80-51776329
+Virtualization lets you divide a system into separate isolated
+execution environments (called VPSs - Virtual Private Servers). From the
+point of view of the VPS owner (root), it looks like a stand-alone
+server. Each VPS has its own filesystem tree, process tree (starting
+from init as in a real system) and so on. The  single-kernel approach
+makes it possible to virtualize with very little overhead, if any.
+
+OpenVZ in-kernel modifications can be divided into several components:
+
+1. Virtualization and isolation.
+Many Linux kernel subsystems are virtualized, so each VPS has its own:
+- process tree (featuring virtualized pids, so that the init pid is 1);
+- filesystems (including virtualized /proc and /sys);
+- network (virtual network device, its own ip addresses,
+   set of netfilter and routing rules);
+- devices (if needed, any VPS can be granted access to real devices
+   like network interfaces, serial ports, disk partitions, etc);
+- IPC objects.
+
+2. Resource Management.
+This subsystem enables multiple VPSs to coexist, providing managed
+resource sharing and limiting.
+- User Beancounters is a set of per-VPS resource counters, limits,
+   and guarantees (kernel memory, network buffers, phys pages, etc.).
+- Two-level disk quota (first-level: per-VPS quota;
+   second-level: ordinary user/group quota inside a VPS)
+
+Resource management is what makes OpenVZ different from other solutions
+of this kind (like Linux VServer or FreeBSD jails). There are a few
+resources that can be abused from inside a VPS (such as files, IPC
+objects, ...) leading to a DoS attack. User Beancounters prevent such
+abuses.
+
+As virtualization solution OpenVZ makes it possible to do the same
+things for which people use UML, Xen, QEmu or VMware, but there are
+differences:
+(a) there is no ability to run other operating systems
+     (although different Linux distros can happily coexist);
+(b) performance loss is negligible due to absense of any kind of
+     emulation;
+(c) resource utilization is much better.
+
+Thanks,
+OpenVZ team.
+
+

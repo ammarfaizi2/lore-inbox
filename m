@@ -1,54 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWC0KFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbWC0KL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750836AbWC0KFV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 05:05:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWC0KFV
+	id S1750845AbWC0KL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 05:11:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWC0KL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 05:05:21 -0500
-Received: from ishtar.tlinx.org ([64.81.245.74]:23273 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S1750836AbWC0KFU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 05:05:20 -0500
-Message-ID: <4427B8DC.6090406@tlinx.org>
-Date: Mon, 27 Mar 2006 02:05:16 -0800
-From: Linda Walsh <lkml@tlinx.org>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 27 Mar 2006 05:11:26 -0500
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:14791 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750839AbWC0KLZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 05:11:25 -0500
+Date: Mon, 27 Mar 2006 12:11:14 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Matthew Wilcox <matthew@wil.cx>
+cc: Bodo Eggert <7eggert@gmx.de>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] Move SG_GET_SCSI_ID from sg to scsi
+In-Reply-To: <20060326200522.GA3486@parisc-linux.org>
+Message-ID: <Pine.LNX.4.58.0603271158360.3209@be1.lrz>
+References: <Pine.LNX.4.58.0603262108500.13001@be1.lrz>
+ <20060326200522.GA3486@parisc-linux.org>
 MIME-Version: 1.0
-To: Andre Tomt <andre@tomt.net>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Save 320K on production machines?
-References: <4426515B.5040307@tlinx.org> <44266F61.9050209@tomt.net>
-In-Reply-To: <44266F61.9050209@tomt.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Tomt wrote:
-> Linda Walsh wrote:
-> <snip>
->> To minimize
->> problems, I disable unused hardware, and all _used_ hardware
->> is compiled in (no module loading overhead, no chances for
->> arbitrary code insertion).
->
-> FYI, rootkits have been able to cope with inserting kernel code 
-> without using the modules support for ages. It is only makes it 
-> marginally harder.
->
----
-    True, but that's the point.  People break into systems with
-passwords.  Just because passwords aren't 100% effective in
-protecting systems doesn't mean we don't use them.  :-)
+On Sun, 26 Mar 2006, Matthew Wilcox wrote:
 
-    The point is to "minimize" a vulnerability profile.
-    I'm wondering why unused code is required to be compiled
-in to standard kernels.  It seems very un-linux like -- more like
-Windows that has support for everything compiled in.
+> On Sun, Mar 26, 2006 at 09:28:28PM +0200, Bodo Eggert wrote:
+> >          case SCSI_IOCTL_GET_PCI:
+> >                  return scsi_ioctl_get_pci(sdev, arg);
+> > +	case SG_GET_SCSI_ID:
+> 
+> You're using the old ioctl name here ...
 
-    Reducing code bloat is not just a good idea for embedded systems.
-It's good for performance and security if for no other reason that
-there are fewer lines that could go wrong. :-)
+Bad, bad, bad ...
 
--l
+> > +		if (!access_ok(VERIFY_WRITE, arg, sizeof (struct scsi_ioctl_id)))
+> > +			return -EFAULT;
+> > +		else {
+> > +			struct scsi_ioctl_id __user *idp = arg;
+> > +
+> > +			__put_user((int) sdev->host->host_no,
+> > +				   &idp->host_no);
+> 
+> The cast isn't necessary; __put_user casts the argument to the type of
+> the pointer.
 
+Nice.
+
+> > +			__put_user(0, &idp->unused[0]);
+> > +			__put_user(0, &idp->unused[1]);
+> 
+> Is it time to repurpose the unused bytes for the 64-bit LUN?
+
+ACK, but I didn't find out how to fill it, and having ints instead of
+__uXX made the struct look ugly. Therefore I postponed it to a later patch.
+
+> > +struct scsi_ioctl_id { /* used by SCSI_IOCTL_GET_ID ioctl() */
+> > +    int host_no;        /* as in "scsi<n>" where 'n' is one of 0, 1, 2 etc */
+> 
+> tabs instead of spaces?
+
+Will look at it.
+-- 
+ In:  DATA
+ Out: 554 Error: no valid recipients
+ In:  Received: from unknown (190.106.166.70)       -- SMTP-Dialog,
+ Out: 221 Error: I can break rules, too. Goodbye.      found in d.a.n.m

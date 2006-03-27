@@ -1,37 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWC0FvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWC0GPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbWC0FvE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 00:51:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWC0FvE
+	id S1750730AbWC0GPE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 01:15:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWC0GPD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 00:51:04 -0500
-Received: from ns2.suse.de ([195.135.220.15]:62131 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750718AbWC0FvB (ORCPT
+	Mon, 27 Mar 2006 01:15:03 -0500
+Received: from mail.parknet.jp ([210.171.160.80]:20228 "EHLO parknet.jp")
+	by vger.kernel.org with ESMTP id S1750730AbWC0GPB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 00:51:01 -0500
-From: Andi Kleen <ak@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: dcache leak in 2.6.16-git8
-Date: Mon, 27 Mar 2006 07:50:20 +0200
-User-Agent: KMail/1.9.1
+	Mon, 27 Mar 2006 01:15:01 -0500
+X-AuthUser: hirofumi@parknet.jp
+To: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] fs/fat/: proper prototypes for two functions
+References: <20060326210827.GT4053@stusta.de>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Mon, 27 Mar 2006 15:14:52 +0900
+In-Reply-To: <20060326210827.GT4053@stusta.de> (Adrian Bunk's message of "Sun, 26 Mar 2006 23:08:27 +0200")
+Message-ID: <87bqvs9zxf.fsf@duaron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603270750.28174.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adrian Bunk <bunk@stusta.de> writes:
 
-A 2GB x86-64 desktop system here is currently swapping itself to death after
-a few days uptime.
+> This patch adds proper prototypes for fat_cache_init() and 
+> fat_cache_destroy() in msdos_fs.h.
 
-Some investigation shows this:
+Looks good. Please apply.
 
-inode_cache         1287   1337    568    7    1 : tunables   54   27    8 : slabdata    191    191      0
-dentry_cache      1867436 1867643    208   19    1 : tunables  120   60    8 : slabdata  98297  98297      0
-
-Going to reboot it now.
-
--Andi
+Acked-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWC0CzB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWC0DJl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbWC0CzB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 21:55:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWC0CzB
+	id S1751168AbWC0DJl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 22:09:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751573AbWC0DJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 21:55:01 -0500
-Received: from ms-smtp-03-smtplb.tampabay.rr.com ([65.32.5.133]:20099 "EHLO
-	ms-smtp-03.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S932179AbWC0CzA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 21:55:00 -0500
-Message-ID: <44275391.40501@cfl.rr.com>
-Date: Sun, 26 Mar 2006 21:53:05 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Mail/News 1.5 (X11/20060309)
+	Sun, 26 Mar 2006 22:09:40 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:5531 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1751168AbWC0DJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 22:09:40 -0500
+Date: Sun, 26 Mar 2006 19:06:22 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] CONFIGFS_FS must depend on SYSFS
+Message-ID: <20060327030622.GV7844@ca-server1.us.oracle.com>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	linux-kernel@vger.kernel.org
+References: <20060326122552.GM4053@stusta.de>
 MIME-Version: 1.0
-To: Phillip Hellewell <phillip@hellewell.homeip.net>
-CC: Michael Halcrow <lkml@halcrow.us>, Michael Halcrow <mhalcrow@us.ibm.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk,
-       mcthomps@us.ibm.com, yoder1@us.ibm.com, toml@us.ibm.com,
-       emilyr@us.ibm.com
-Subject: Re: eCryptfs Design Document
-References: <20060324222517.GA13688@us.ibm.com> <442599D5.806@cfl.rr.com> <20060325195015.GA8174@halcrow.us> <4426CB05.2070604@cfl.rr.com> <20060326180458.GA10056@halcrow.us> <20060327000522.GA11655@hellewell.homeip.net>
-In-Reply-To: <20060327000522.GA11655@hellewell.homeip.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060326122552.GM4053@stusta.de>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Hellewell wrote:
-> Again I concur with Mike.  Iterative hashing is a very common technique,
-> and is very effective against this type of dictionary attack.  If you
-> hash 1000 times, then an attack that normally could check 1 million
-> passwords per second would now only be able to check 1000 passwords per
-> second.
+On Sun, Mar 26, 2006 at 02:25:52PM +0200, Adrian Bunk wrote:
+> This patch fixes the following compile error with CONFIG_SYSFS=n:
 > 
-> Without iterative hashing, as computers get faster, so would dictionary
-> attacks, and then people would have to keep using longer and longer
-> passwords to be as effective.  Iterative hashing "levels the playing
-> field" in a way.
+> <--  snip  -->
 > 
+> ...
+>   LD      .tmp_vmlinux1
+> fs/built-in.o: In function `configfs_init':mount.c:(.init.text+0x3d5d): undefined reference to `kernel_subsys'
+> make: *** [.tmp_vmlinux1] Error 1
 
+	Hmm.  We only rely on SYSFS because of the policy decree of
+default mounting at /sys/kernel/config (just like GregKH was asked to
+put debugfs at /sys/kernel/debug).  While we create the mount point, we
+don't rely on it.  You can mount configfs anywhere you like.
+	So, what do you think of making that part of the code check for
+CONFIG_SYSFS?  Then the module can be built without SYSFS instead of
+depending on it.  I'm open to either idea.  Certainly, we don't leave
+the compile error.
 
-Except that I believe you can write code to compute the nth hash in O(1) 
-time rather than O(n) time, so that kind of defeats the purpose, though 
-I'm no expert so I could be wrong.
+Joel
 
+-- 
 
+Life's Little Instruction Book #313
+
+	"Never underestimate the power of love."
+
+Joel Becker
+Principal Software Developer
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

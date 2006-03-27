@@ -1,64 +1,280 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751551AbWC0DZb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751552AbWC0Dhp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751551AbWC0DZb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 22:25:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbWC0DZb
+	id S1751552AbWC0Dhp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 22:37:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbWC0Dhp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 22:25:31 -0500
-Received: from zproxy.gmail.com ([64.233.162.203]:43036 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750701AbWC0DZb (ORCPT
+	Sun, 26 Mar 2006 22:37:45 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:16107 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1750711AbWC0Dhp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 22:25:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:openpgp:content-type:content-transfer-encoding;
-        b=Pfw0uVpG6YlGRowLL69yamOrdMuLcjwqVqQJQtUTGrqXMu4EmPgWASmVqPXEmSIKm52isfmg3zeuuYpASfVE/739I2AObdB1yNPlHWh+7vgRS3VdG+OzKEojbLH9hyKzuUpVDktyQKkNsjZpgeatX1+a6Z8fz+GSAFDhturDgiU=
-Message-ID: <44275C2C.9010507@gmail.com>
-Date: Mon, 27 Mar 2006 10:29:48 +0700
-From: Mikado <mikado4vn@gmail.com>
-Reply-To: mikado4vn@gmail.com
-Organization: IcySpace.net
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Glynn Clements <glynn@gclements.plus.com>, linux-kernel@vger.kernel.org,
-       linux-c-programming@vger.kernel.org
-Subject: Re: Virtual Serial Port
-References: <442582B8.8040403@gmail.com> <Pine.LNX.4.61.0603251945100.29793@yvahk01.tjqt.qr> <4425FB22.7040405@gmail.com> <Pine.LNX.4.61.0603261127580.22145@yvahk01.tjqt.qr> <4426CADF.2050902@gmail.com> <4426E303.9000701@vc.cvut.cz>
-In-Reply-To: <4426E303.9000701@vc.cvut.cz>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=65ABD897
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 26 Mar 2006 22:37:45 -0500
+Date: Mon, 27 Mar 2006 05:37:43 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-fbdev-devel@lists.sourceforge.net,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: funny framebuffer fonts on PowerBook with radeonfb
+Message-ID: <20060327033743.GA19788@MAIL.13thfloor.at>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linux-fbdev-devel@lists.sourceforge.net,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>
+References: <20060327004741.GA19187@MAIL.13thfloor.at> <1143422242.3589.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="UugvWAfsgieZRqgk"
+Content-Disposition: inline
+In-Reply-To: <1143422242.3589.2.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Petr Vandrovec wrote:
-> Although it is quite irrelevant to LKML (you may want to visit
-> www.vmware.com/community/index.jspa and ask there...), you can connect
-> guest's serial port also to Unix socket - and in such situation you need
-> virtual serial port driver only if 'host - application' does not know
-> how to use /dev/tty* (for unix socket <-> /dev/ptyp* app look at
-> http://platan.vc.cvut.cz/ftp/pub/vmware/serpipe.tar.gz).
->                                 Petr
+--UugvWAfsgieZRqgk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Mon, Mar 27, 2006 at 12:17:21PM +1100, Benjamin Herrenschmidt wrote:
+> On Mon, 2006-03-27 at 02:47 +0200, Herbert Poetzl wrote:
+> > Hey Ben!
+> > 
+> > 2.6.16 and 2.6.15-something show a funny behaviour
+> > when using the radeonfb driver (for text mode), they
+> > kind of twist and break the fonts in various places
+> > some characters or parts seem to be mirrored like
+> > '[' becoming ']' but not on character boundary but
+> > more on N pixels, colors seem to be correct for the
+> > characters, and sometimes the font is perfectly fine
+> > for larger runs, e.g. I can read the logon prompt
+> > fine, but everything I type is garbled ...
+> > 
+> > just for an example, when I type 'echo "Test"' then
+> > all characters are mirrored and cut off on the right
+> > side but the locations are as shown above, on enter
+> > the T is only a few pixels wide, but the est part is
+> > written perfectly fine ... this is a new behaviour
+> > and going back to 2.6.13.3 doesn't show this ...
+> > 
+> > if there is some testing I can do for you, or when
+> > you need more info, please let me know. here a few
+> > details for the machine:
+> 
+> I have a similar machine and haven't seen such a problem with 
+> it so far ... does this happen after you load X or already at 
+> boot before X ever kicks in? 
 
-Thank Petr. It also works well. That program acts as a data proxy
-between unix socket and /dev/ptyp*. Yesterday I wrote a similar program
-that read/write vmware's server unix sock then forward/backward data
-to/from /dev/ptyp0 but it didn't work. Maybe my program has problem.
-Thanks again.
+long before X is started (which doesn't happen by
+default on my setup), btw X works fine
 
-Mikado
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+> Does it happen if you don't load any font (that is for example 
+> boot with init=/bin/sh to prevent any init script to try to load
+> a font)
 
-iD8DBQFEJ1wsNWc9T2Wr2JcRArmmAJ483BmLFrY+aIR71u/BQH+XCs8tIQCfZGs1
-uTwfbeYTsFg0Iq9/FL/82I4=
-=dgch
------END PGP SIGNATURE-----
+yes, just tried that, the boot looks like this:
+
+first, I end up in the bootloader yaboot, which
+asks me (in a very small font) which kernel to
+boot, then, for example, I enter 
+
+	linux2616 init=/bin/bash
+
+after that, the screen goes white for half a second
+and becomes black with a large terminal font on it
+(the one I get without framebuffer, I think), the
+text there is printed undistorted ... shortly after
+that, I get a flash, and the mode switches to a much
+smaller font (the final framebuffer font) and the
+kernel messages written there are already distorted.
+half a second later (or less) the penguin appears at
+the top area (undistorted), when the bootup is done
+I get the following prompt (which again is okay)
+
+	bash-2.05b#
+
+typing anything there is distorted again ...
+
+pressing enter several times leaves 'copies' of
+the caracters on the screen, forming vertical bars
+the prompt (bash) is now always fine, the copy one
+line above (as all the others) is distorted ...
+
+note, the bootup is not much different with older
+kernels, except for the strange distortions ...
+
+attached my kernel configuration, just in case
+it is related ...
+
+TIA,
+Herbert
+
+> Ben.
+> 
+
+--UugvWAfsgieZRqgk
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="2616.config.bz2"
+Content-Transfer-Encoding: base64
+
+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
+
+--UugvWAfsgieZRqgk--

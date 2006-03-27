@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbWC0QF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWC0QKH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750910AbWC0QF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 11:05:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbWC0QF2
+	id S1750911AbWC0QKH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 11:10:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbWC0QKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 11:05:28 -0500
-Received: from wproxy.gmail.com ([64.233.184.226]:61934 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750909AbWC0QF1 convert rfc822-to-8bit
+	Mon, 27 Mar 2006 11:10:06 -0500
+Received: from xproxy.gmail.com ([66.249.82.205]:10976 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750907AbWC0QKE convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 11:05:27 -0500
+	Mon, 27 Mar 2006 11:10:04 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fR5GH18/hs3rnuU3Zr7xinXnBpmWSDmV46SqrjUY/fwhERXQVax9eyzYH2hGcB6FRrCdqgc3NdzMVtu1uQSAVbqVHorFgwlIMEXnJlT+gCzB7vhD0uIVRRb/yhDtytxPxfIdj5rGLkVXyM51rXnBOP0p6irqpzOiijyMFt4TZr0=
-Message-ID: <d120d5000603270805u40916079ufe12eb22d478c954@mail.gmail.com>
-Date: Mon, 27 Mar 2006 11:05:26 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Romano Giannetti" <romanol@upcomillas.es>, linux-kernel@vger.kernel.org,
-       linux-input@atrey.karlin.mff.cuni.cz
-Subject: Re: ALPS stop worked between 2.6.13 and 2.6.16
-In-Reply-To: <20060327153624.GC8679@pern.dea.icai.upcomillas.es>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DG6TxCYgbHfArSQiFrkxkuIShvG797DScq93zbAybuWHKqB33TGG3NMTjcjnbJzjzXYGNERCUu+h3wE1Oi1nTFit92DZAjaJ9DMwT0TxdZuCix/AEZtEzuCoCxtFRxGqL3p/nKbxMyD9LM+sqBSP9dhtMpX7Io1MAXqveVaPhnU=
+Message-ID: <afcef88a0603270810j58af1e7cs46f1558ba6553154@mail.gmail.com>
+Date: Mon, 27 Mar 2006 10:10:03 -0600
+From: "Michael Thompson" <michael.craig.thompson@gmail.com>
+To: "Phillip Susi" <psusi@cfl.rr.com>
+Subject: Re: eCryptfs Design Document
+Cc: "Phillip Hellewell" <phillip@hellewell.homeip.net>,
+       "Michael Halcrow" <lkml@halcrow.us>,
+       "Michael Halcrow" <mhalcrow@us.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       viro@ftp.linux.org.uk, mcthomps@us.ibm.com, yoder1@us.ibm.com,
+       toml@us.ibm.com, emilyr@us.ibm.com
+In-Reply-To: <44275391.40501@cfl.rr.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <20060327153624.GC8679@pern.dea.icai.upcomillas.es>
+References: <20060324222517.GA13688@us.ibm.com> <442599D5.806@cfl.rr.com>
+	 <20060325195015.GA8174@halcrow.us> <4426CB05.2070604@cfl.rr.com>
+	 <20060326180458.GA10056@halcrow.us>
+	 <20060327000522.GA11655@hellewell.homeip.net>
+	 <44275391.40501@cfl.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/27/06, Romano Giannetti <romanol@upcomillas.es> wrote:
+On 3/26/06, Phillip Susi <psusi@cfl.rr.com> wrote:
+> Phillip Hellewell wrote:
+> > Again I concur with Mike.  Iterative hashing is a very common technique,
+> > and is very effective against this type of dictionary attack.  If you
+> > hash 1000 times, then an attack that normally could check 1 million
+> > passwords per second would now only be able to check 1000 passwords per
+> > second.
+> >
+> > Without iterative hashing, as computers get faster, so would dictionary
+> > attacks, and then people would have to keep using longer and longer
+> > passwords to be as effective.  Iterative hashing "levels the playing
+> > field" in a way.
+> >
 >
-> Hi all. I upgraded kernel from 2.6.13-rc3 to 2.6.16 and ALPS touchpad
-> stopped worked. I have latest release of synaptics drivers, and can confirm
-> that  exactly the same config results in a working ALPS on old kernel and no
-> ALPS on newer (same config).
-> Details here:
 >
-> http://www.dea.icai.upco.es/romano/linux/vaio-conf/config-2.6.16-ck1-after-boot/laptop-config.html
->
-> and
->
-> http://www.dea.icai.upco.es/romano/linux/vaio-conf/config-2.6.13-rc3-rg-after-a-bit/
->
+> Except that I believe you can write code to compute the nth hash in O(1)
+> time rather than O(n) time, so that kind of defeats the purpose, though
+> I'm no expert so I could be wrong.
 
-Hi,
-
-According to your dmesg your ALPS touchpas awas successfully detected
-by the kernel. Please make sure that you have updated udev package.
+I do not believe it is possible to compute the nth hash in O(1) time,
+starting with no previously-computer hashes, since in order to
+computer the nth hash, you need input which is the n-1th hash. This
+takes the form: hash(n) = hash(hash(n-1)). In order to know the hash 
+of n-1, you need to know the hash of n-2. This chains down to your
+original hash. This argument holds if you retaining the standard
+properties of hashes: that is it is non-trivial to find input which
+yields a given hash.
 
 --
-Dmitry
+Michael C. Thompson <mcthomps@us.ibm.com>
+Software-Engineer, IBM LTC Security

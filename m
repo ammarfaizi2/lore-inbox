@@ -1,148 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbWC0LWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWC0LZY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750893AbWC0LWE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 06:22:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750898AbWC0LWE
+	id S1750851AbWC0LZY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 06:25:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbWC0LZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 06:22:04 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:24812 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1750893AbWC0LWD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 06:22:03 -0500
-Date: Mon, 27 Mar 2006 13:22:01 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
-       Kurt Garloff <garloff@suse.de>
-Subject: Re: [ANNOUNCE] OpenVZ patch for 2.6.16 and beta SUSE10.1 kernels
-Message-ID: <20060327112201.GC16409@MAIL.13thfloor.at>
-Mail-Followup-To: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
-	Kurt Garloff <garloff@suse.de>
-References: <4427B7DC.3040804@openvz.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 27 Mar 2006 06:25:24 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:42270 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750851AbWC0LZX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 06:25:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lFHVu8c/wabljTdoAG+d54KL9IdC+IbdWu2X03+ldzzDS+muP1lbX56/mxblk3YjDIMTY8fa6rbvAw5hlO5JvMSgJGsY7QqiNP9pBRWn/ctBgVhlJK2BDv+YW4h0gjG+P3pPsKuKxfENXZYB9aCygyMlljB3JZ4ZJfo0aIsw5zw=
+Message-ID: <bd7767e40603270325g71d39837if3bca8a05be39ace@mail.gmail.com>
+Date: Mon, 27 Mar 2006 16:55:22 +0530
+From: "Holy Aavu" <holyaavu@gmail.com>
+To: mikado4vn@gmail.com
+Subject: Re: Virtual Serial Port
+Cc: linux-c-programming@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <442582B8.8040403@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4427B7DC.3040804@openvz.org>
-User-Agent: Mutt/1.5.6i
+References: <442582B8.8040403@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 27, 2006 at 02:01:00PM +0400, Kirill Korotaev wrote:
-> OpenVZ team is happy to announce the release of its virtualization
-> solution based on 2.6.16 and beta SUSE10.1 kernels.
-> 
-> As in previous releases, OpenVZ 2.6.16 kernel patch includes:
-> - virtualization
-> - fine grained resource management (user beancounters)
-> - 2 level disk quota
-> 
-> Coming soon new features (!):
-> - virtualized AppArmor
-> - dynamic virtual CPU adding/remove to/from VPS
-> 
-> More information about OpenVZ project is available at http://openvz.org/
-> 
-> Fine grained broken-out patch set can be found at
-> http://download.openvz.org/kernel/broken-out/2.6.16-026test005.1/
-> or at GIT repository at http://git.openvz.org/
-> 
-> About OpenVZ software
-> ~~~~~~~~~~~~~~~~~~~~~
-> 
-> OpenVZ is a kernel virtualization solution which can be considered
-> as a natural step in the OS kernel evolution: after multiuser and
-> multitasking functionality there comes an OpenVZ feature of having
-> multiple environments.
+On 3/25/06, Mikado <mikado4vn@gmail.com> wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> My machine has only one serial port. Now I want to add more *software*
+> (virtual) serial ports. I also want to make a virtual serial cable
+> between a real serial port and a virtual one OR between virtual ports.
+> Is there any way to solve that problem in our universe?
 
-sorry, that's not an OpenVZ feature, that is a BSD feature
-which is called Jails and was implemented on Linux more
-than 3 years ago, in various implementations like:
+I have a doubt... I am not sure if you can have a full working
+solution to make all programs run using the virtual serial ports.
+Because, there *might* be some programs which actually use the 'in'
+and 'out' instructions of the processor directly from a user space
+program. (After calling iopl/ioperm etc to elevate their I/O
+privileges to directly use the IO ports) I dont think even a kernel
+change can help in that case...
 
-Linux-VServer[1], FreeVPS[2], Linux-Jails[3]
+Is my understanding correct or am I missing something?
 
-> Virtualization lets you divide a system into separate isolated
-> execution environments (called VPSs - Virtual Private Servers). From
-> the point of view of the VPS owner (root), it looks like a stand-alone
-> server. Each VPS has its own filesystem tree, process tree (starting
-> from init as in a real system) and so on. The single-kernel approach
-> makes it possible to virtualize with very little overhead, if any.
-> 
-> OpenVZ in-kernel modifications can be divided into several components:
-> 
-> 1. Virtualization and isolation.
-> Many Linux kernel subsystems are virtualized, so each VPS has its own:
-> - process tree (featuring virtualized pids, so that the init pid is 1);
-> - filesystems (including virtualized /proc and /sys);
-> - network (virtual network device, its own ip addresses,
->   set of netfilter and routing rules);
-> - devices (if needed, any VPS can be granted access to real devices
->   like network interfaces, serial ports, disk partitions, etc);
-> - IPC objects.
-> 
-> 2. Resource Management.
-> This subsystem enables multiple VPSs to coexist, providing managed
-> resource sharing and limiting.
-> - User Beancounters is a set of per-VPS resource counters, limits,
->   and guarantees (kernel memory, network buffers, phys pages, etc.).
-> - Two-level disk quota (first-level: per-VPS quota;
->   second-level: ordinary user/group quota inside a VPS)
-> 
-> Resource management is what makes OpenVZ different from other
-> solutions of this kind (like Linux VServer or FreeBSD jails). There
-> are a few resources that can be abused from inside a VPS (such as
-> files, IPC objects, ...) leading to a DoS attack. User Beancounters
-> prevent such abuses.
-
-resource management is also part of Linux-VServer and Free-VPS
-so nothing new here either ...
-
-> As virtualization solution OpenVZ makes it possible to do the same
-> things for which people use UML, Xen, QEmu or VMware, but there are
-> differences:
-> (a) there is no ability to run other operating systems
->     (although different Linux distros can happily coexist);
-> (b) performance loss is negligible due to absense of any kind of
->     emulation;
-> (c) resource utilization is much better.
-
-also the web pages 'Description of Virtuozzo(tm) benefits over OpenVZ'
-clearly state that:
-
-Virtuozzo(TM) is SWsoft's virtualization and automation solution 
-built on top of OpenVZ. Differently from OpenVZ, Virtuozzo(TM) 
-is developed and designed to run production workloads in 24×7 
-environments and provides significant improvements and additional 
-functionality in the areas of stability, density, management tools, 
-recovery, and other areas. 
-
-Specific benefits of Virtuozzo(TM) compared to OpenVZ can be found 
-below:
-
-  Higher VPS density. Virtuozzo^(TM) provides efficient memory and
-  file sharing mechanisms enabling higher VPS density and better
-  performance of VPSs.
-
-  Improved Stability, Scalability, and Performance. Virtuozzo(TM) 
-  is designed to run 24×7 environments with production workloads 
-  on hosts with up-to 32 CPUs.
-
----
-
-best,
-Herbert
-
-[1] http://linux-vserver.org/
-[2] http://www.freevps.com/
-[3] http://mail.wirex.com/pipermail/linux-security-module/2005-June/6207.html
-
+>
 > Thanks,
-> OpenVZ team.
-> 
-> 
+> Mikado.
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.2.2 (GNU/Linux)
+> Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+>
+> iD8DBQFEJYK3NWc9T2Wr2JcRAro+AKCMMf5So3sPJ+gXzSN+eYk0RXBxsQCg2V6I
+> UK2pvLjQIECVc3e1//7d0WE=
+> =GroY
+> -----END PGP SIGNATURE-----
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
+>

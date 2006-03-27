@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751455AbWC0VSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbWC0VU1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751455AbWC0VSu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 16:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWC0VSu
+	id S1751444AbWC0VU1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 16:20:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbWC0VU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 16:18:50 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:35554 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751458AbWC0VSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 16:18:49 -0500
-Date: Mon, 27 Mar 2006 13:18:26 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       pj@sgi.com, hawkes@sgi.com, Dinakar Guniguntala <dino@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       suresh.b.siddha@intel.com
-Subject: Re: [PATCH 2.6.16-mm1 2/2] sched_domains: Allocate sched_groups dynamically
-Message-ID: <20060327131826.A12364@unix-os.sc.intel.com>
-References: <20060325082804.GB17011@in.ibm.com>
+	Mon, 27 Mar 2006 16:20:26 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:45450 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751444AbWC0VU0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 16:20:26 -0500
+Date: Mon, 27 Mar 2006 13:10:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: cmm@us.ibm.com
+Cc: sho@tnes.nec.co.jp, kiran@scalex86.org, pbadari@us.ibm.com,
+       linux-kernel@vger.kernel.org, Ext2-devel@lists.sourceforge.net,
+       Laurent.Vivier@bull.net
+Subject: Re: [Ext2-devel] [PATCH 2/2] ext2/3: Support2^32-1blocks(e2fsprogs)
+Message-Id: <20060327131049.2c6a5413.akpm@osdl.org>
+In-Reply-To: <1143485147.3970.23.camel@dyn9047017067.beaverton.ibm.com>
+References: <20060325223358sho@rifu.tnes.nec.co.jp>
+	<1143485147.3970.23.camel@dyn9047017067.beaverton.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060325082804.GB17011@in.ibm.com>; from vatsa@in.ibm.com on Sat, Mar 25, 2006 at 01:58:04PM +0530
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 25, 2006 at 01:58:04PM +0530, Srivatsa Vaddagiri wrote:
-> +		if (!sched_group_phys && !alloc_phys_failed) {
-> +			sched_group_phys
-> +				= kmalloc(sizeof(struct sched_group) * NR_CPUS,
-> +					  GFP_KERNEL);
-> +			if (!sched_group_phys) {
-> +				printk (KERN_WARNING
-> +				"Can not alloc phys sched group\n");
-> +				alloc_phys_failed = 1;
-> +			}
-> +			sched_group_phys_bycpu[i] = sched_group_phys;
-> +		}
+Mingming Cao <cmm@us.ibm.com> wrote:
+>
+> I am wondering if we have (or plan to have) "long long " type of percpu
+>  counters?  Andrew, Kiran, do you know?  
+> 
+>  It seems right now the percpu counters are used mostly by ext2/3 for
+>  filesystem free blocks accounting. Right now the counter is "long" type,
+>  which is not enough if we want to extend the filesystem limit from 2**31
+>  to 2**32 on 32 bit machine.
+> 
+>  The patch from Takashi copies the whole percpu_count.h  and create a new
+>  percpu_llcounter.h to support longlong type percpu counters. I am
+>  wondering is there any better way for this?
+> 
 
-We can move this allocation outside the for loop and avoid the complexities
-of alloc_phys_failed, alloc_core_failed..
+I can't immediately think of anything smarter.
 
-thanks,
-suresh
+One could of course implement a 64-bit percpu counter by simply
+concatenating two 32-bit counters.  That would be a little less efficient,
+but would introduce less source code and would mean that we don't need to
+keep two different implemetations in sync.  But one would need to do a bit
+of implementation, see how bad it looks.

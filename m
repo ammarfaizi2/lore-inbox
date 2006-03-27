@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWC0Lo0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbWC0MGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750933AbWC0Lo0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 06:44:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbWC0Lo0
+	id S1750942AbWC0MGd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 07:06:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWC0MGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 06:44:26 -0500
-Received: from vogsphere.datenknoten.de ([212.12.48.49]:46560 "EHLO
-	vogsphere.datenknoten.de") by vger.kernel.org with ESMTP
-	id S1750928AbWC0LoZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 06:44:25 -0500
-Subject: Re: [PATCH] pcmcia: avoid binding hostap_cs to Orinoco cards
-From: Sebastian <sebastian@expires0606.datenknoten.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux@dominikbrodowski.net, Netdev List <netdev@vger.kernel.org>
-In-Reply-To: <44063023.9010603@pobox.com>
-References: <200603012259.k21MxEN3013604@hera.kernel.org>
-	 <44063023.9010603@pobox.com>
-Content-Type: text/plain
-Date: Mon, 27 Mar 2006 13:44:44 +0200
-Message-Id: <1143459885.9691.6.camel@coruscant.datenknoten.de>
+	Mon, 27 Mar 2006 07:06:33 -0500
+Received: from antispam.upcomillas.es ([130.206.70.245]:38881 "EHLO
+	antispam.upcomillas.es") by vger.kernel.org with ESMTP
+	id S1750942AbWC0MGc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 07:06:32 -0500
+Date: Mon, 27 Mar 2006 14:07:06 +0200
+From: Romano Giannetti <romanol@upcomillas.es>
+To: linux-kernel@vger.kernel.org
+Subject: Good news --- jump from 2.6.13-rc3 to 2.6.16  (almost) ok (swsusp, input)
+Message-ID: <20060327120706.GA838@pern.dea.icai.upcomillas.es>
+Mail-Followup-To: Romano Giannetti <romanol@upcomillas.es>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> commit 40e3cad61197fce63853e778db020f7637d988f2
-> tree 6e086c930e1aef0bb24eb61af42d1f3c1fb7d38c
-> parent f0892b89e3c19c7d805825ca12511d26dcdf6415
-> author Pavel Roskin <proski@gnu.org> Tue, 28 Feb 2006 11:18:31 -0500
-> committer Dominik Brodowski <linux@dominikbrodowski.net> Wed, 01 Mar 
-> 2006 11:12:00 +0100
-> 
-> [PATCH] pcmcia: avoid binding hostap_cs to Orinoco cards
-> 
-> Don't just use cards with PCMCIA ID 0x0156, 0x0002.  Make sure that
-> the vendor string is "Intersil" or "INTERSIL"
-> 
-> Signed-off-by: Pavel Roskin <proski@gnu.org>
-> Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
-> 
->  drivers/net/wireless/hostap/hostap_cs.c |    5 ++++-
->  1 files changed, 4 insertions(+), 1 deletion(-)
 
+Hi all. 
 
-Hello,
+I finally tried to install 2.6.16 on my portable PC, jumping directly from
+2.6.13-rc3, and there are good news. The most critical thing, namely swsusp,
+did work ok and seems faster than before. A little problem is that when
+starting the suspend, no messages are printed (the screen goes blank and
+after a bit the machine poweroff). But then resume is ok . The same goes for
+-ck1,  which has a really nice feeling.
 
-this patch seems to break my setup. The hostap_cs driver included in
-kernel 2.6.16 does not detect my Prism 2 WLAN card anymore, although it
-is *not* Orinoco. With 2.6.15.5 it still worked.
+The only little problem is with the synaptics ALPS touchpad. It seems that the
+"event" interface changes at every reboot, and the method "use device
+/dev/psaux" and protocol "auto-dev" does not work. All logs are here:
 
-FYI:
-pccardctl info
-PRODID_1=""
-PRODID_2="Link DWL-650 11Mbps WLAN Card"
-PRODID_3="Version 01.02"
-PRODID_4=""
-MANFID=0156,0002
-FUNCID=6
+http://www.dea.icai.upco.es/romano/linux/vaio-conf/config-2.6.16-ck1-after-boot/laptop-config.html
 
-Sebastian
+Thanks for the good work, all.
 
+       Romano 
 
+PS: this is probably offtopic, but my laptop started doing a very strange 
+thing. When powered off and then rapidly powered on, it stays stuck at the
+"Sony" logo page. I have to wait 2 to 3 minutes to have it enters LILO. Any
+idea? I lost time too; could the little bios-backup battery be responsible? 
+Thanks!
+
+-- 
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+http://www.dea.icai.upcomillas.es/romano/
+
+--
+La presente comunicación tiene carácter confidencial y es para el exclusivo uso del destinatario indicado en la misma. Si Ud. no es el destinatario indicado, le informamos que cualquier forma de distribución, reproducción o uso de esta comunicación y/o de la información contenida en la misma están estrictamente prohibidos por la ley. Si Ud. ha recibido esta comunicación por error, por favor, notifíquelo inmediatamente al remitente contestando a este mensaje y proceda a continuación a destruirlo. Gracias por su colaboración.
+
+This communication contains confidential information. It is for the exclusive use of the intended addressee. If you are not the intended addressee, please note that any form of distribution, copying or use of this communication or the information in it is strictly prohibited by law. If you have received this communication in error, please immediately notify the sender by reply e-mail and destroy this message. Thank you for your cooperation. 

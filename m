@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbWC0Uxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWC0U4Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750971AbWC0Uxt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 15:53:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWC0Uxt
+	id S1751106AbWC0U4Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 15:56:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbWC0U4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 15:53:49 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.152]:49868 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1750971AbWC0Uxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 15:53:48 -0500
-Subject: AGP graphics card in "PCI mode"?
-From: Florin Andrei <florin@andrei.myip.org>
-Reply-To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Mon, 27 Mar 2006 12:53:43 -0800
-Message-Id: <1143492823.2289.10.camel@rivendell.home.local>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Mar 2006 15:56:24 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:62217 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751106AbWC0U4Y convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 15:56:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hFy4ZjatZcJx/3FElTIPQ43PMDDdS1kmZ/PGE6n2AXtegIj6UCRCv7tzkusyRUn7IUwmeZOtPT9Uwb/dNlpklJqXV2YX71D/mIIQUZ26m7hN73v1IhhTs+nF9hHkO97UI7JqAa6QAkh5ch7r0xQ5GxaUwD3s4nw4Zn8NlkWYoj0=
+Message-ID: <d120d5000603271256g6ff971daq57282287fd1d5434@mail.gmail.com>
+Date: Mon, 27 Mar 2006 15:56:17 -0500
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "Bodo Eggert" <7eggert@gmx.de>
+Subject: Re: [BUG] PS/2-mouse not found in 2.6.16
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0603272148050.2266@be1.lrz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.58.0603272148050.2266@be1.lrz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using:
-- motherboard ECS L7S7A2
+On 3/27/06, Bodo Eggert <7eggert@gmx.de> wrote:
+> With kernel 2.6.16, my Logitech mouse is no longer detected (not reported
+> in dmesg, not working).
+>
 
-http://www.ecs.com.tw/ECSWeb/Downloads/ProductsDetail_Download.aspx?categoryid=1&typeid=4&detailid=267&DetailName=Driver&DetailDesc=L7S7A2(1.1A)&MenuID=45&LanID=0
-http://www.mainboard.cz/mb/ecs/L7S7A2.htm
+Does it help if you comment out call to quirk_usb_handoff_ohci() (your
+USB host controller is an OHCI one, isn't it?) in
+drivers/usb/host/pci-quirks.c::quirk_usb_early_handoff()?
 
-- AGP graphics card GeForce FX 5200 Ultra
-- Linux Fedora Core 5
-- kernel 2.6.15-1.2054_FC5
-
-I installed Second Life ( http://secondlife.com/ ) on this system, both
-the Windows and the Linux versions. Both versions claimed that my video
-card is either PCI or "AGP running in PCI mode" and, if the latter was
-true, I needed to install some drivers.
-
-On Windows, I installed the AGP driver from here:
-
-http://www.ecs.com.tw/ECSWeb/Downloads/ProductsDetail_Download.aspx?categoryid=1&typeid=4&detailid=267&DetailName=Driver&DetailDesc=L7S7A2(1.1A)&MenuID=45&LanID=0
-
-After that, Second Life did not complain about the graphics card
-anymore.
-
-However, after installing that driver on Windows, the speed of all 3D
-applications (mostly games) on my Windows partition increased
-tremendously. All 3D games now have a much higher FPS and everything
-moves smoothly.
-
-Is there anything I can do on Linux to get this speed increase? Is there
-any driver under Linux that's similar to the one I installed on Windows?
-I thought that all AGP buses are supported on Linux by default.
-
-And what is the deal with an AGP card running in "PCI mode" anyway? What
-does "PCI mode" mean in this case? I thought an AGP card is an AGP
-card. :-)
-
--- 
-Florin Andrei
-
-http://florin.myip.org/
-
+--
+Dmitry

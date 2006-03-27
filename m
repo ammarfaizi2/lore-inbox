@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWC0Xs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWC0XvU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbWC0Xs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 18:48:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbWC0Xs1
+	id S932071AbWC0XvU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 18:51:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWC0XvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 18:48:27 -0500
-Received: from mail.vtacs.com ([207.42.84.219]:53164 "EHLO mail.vtacs.com")
-	by vger.kernel.org with ESMTP id S932072AbWC0Xs0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 18:48:26 -0500
-From: "Greg Lee" <glee@swspec.com>
-To: <linux-kernel@vger.kernel.org>, <rmk+kernel@arm.linux.org.uk>
-Subject: HZ != 1000 causes problem with serial device shown by git-bisect
-Date: Mon, 27 Mar 2006 18:46:02 -0500
-Message-ID: <0e6601c651f8$9d253b40$a100a8c0@casabyte.com>
+	Mon, 27 Mar 2006 18:51:20 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:16824 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S932071AbWC0XvT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 18:51:19 -0500
+X-IronPort-AV: i="4.03,136,1141632000"; 
+   d="scan'208"; a="420425095:sNHT32659568"
+To: Sean Hefty <mshefty@ichips.intel.com>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [openib-general] InfiniBand 2.6.17 merge plans
+X-Message-Flag: Warning: May contain useful information
+References: <ada7j6f8xwi.fsf@cisco.com> <442848EF.4000407@ichips.intel.com>
+	<adar74n5wbn.fsf@cisco.com> <44287853.5020804@ichips.intel.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 27 Mar 2006 15:51:17 -0800
+In-Reply-To: <44287853.5020804@ichips.intel.com> (Sean Hefty's message of "Mon, 27 Mar 2006 15:42:11 -0800")
+Message-ID: <adahd5je9ai.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-x-mimeole: Produced By Microsoft MimeOLE V6.00.2900.2670
-Thread-Index: AcZR+JtbL264IrTkQ2qYXlhOs+es9w==
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 27 Mar 2006 23:51:17.0866 (UTC) FILETIME=[57386CA0:01C651F9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am having a problem when using PPP over a particular PCMCIA based serial device and have
-pinned the problem down using git-bisect to this particular commit that was made between
-2.6.12.6 and 2.6.13:
+    Sean> I'm actually testing a patch set now that moves rdma_wq
+    Sean> internal to ib_addr, and gives the RDMA CM its own WQ.
 
-59121003721a8fad11ee72e646fd9d3076b5679c is first bad commit
-diff-tree 59121003721a8fad11ee72e646fd9d3076b5679c (from
-799d19f6ec5ca2102c61122f5219a17f1c4e961a)
-Author: Christoph Lameter <christ...@lameter.com>
-Date:   Thu Jun 23 00:08:25 2005 -0700
+OK, that's better still.
 
-    [PATCH] i386: Selectable Frequency of the Timer Interrupt
+BTW ib_local_sa also uses rdma_wq ... it might be worth fixing that,
+because it actually makes ib_local_sa depend on CONFIG_NET right now
+(since ib_addr can't build without CONFIG_NET).
 
-    Make the timer frequency selectable. The timer interrupt may cause bus
-    and memory contention in large NUMA systems since the interrupt occurs
-    on each processor HZ times per second.
+Not that anyone is building kernels without CONFIG_NET...
 
-
-The problem that I am seeing can be reproduced by attempting to send large packets via a
-PPP interface on the modem, e.g. "ping -s 1000 www.kernel.org".
-
-With this patch, the value of HZ was changed from the previously "hardcoded" 1000 to be
-configurable with the default being 250.  My ping packet size problem goes away if I
-select 1000 as the new value.  I do need to be able to run with HZ = 250 (actually 100 is
-better for my situation).
-
-It looks to me like the git-bisect did not really get me down to the core problem which is
-that there is something is the system that isn't happy with HZ == 250.
-
-I have also tried a number of other kernels and the problem exists all the way to 2.6.15.6
-but is fixed in 2.6.16, so I am going to git-bisect 2.6.15.6 to 2.6.16, but I thought I
-would get this message out now in case someone has an inkling of what the problem is.
-
-Please cc me on any responses.  Russell I copied you directly since I think you may be in
-the best position to understand the problem.
-
-Greg Lee
-
-
+ - R.

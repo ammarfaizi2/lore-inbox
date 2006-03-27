@@ -1,65 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWC0UDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWC0UF1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbWC0UDo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 15:03:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWC0UDo
+	id S1751117AbWC0UF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 15:05:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbWC0UF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 15:03:44 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:51928 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751118AbWC0UDn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 15:03:43 -0500
-Subject: Re: RFC - Approaches to user-space probes
-From: Arjan van de Ven <arjan@infradead.org>
-To: prasanna@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       davem@davemloft.net, suparna@in.ibm.com, richardj_moore@uk.ibm.com,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       "Theodore Ts'o" <tytso@mit.edu>, Nick Piggin <nickpiggin@yahoo.com.au>
-In-Reply-To: <20060327100019.GA30427@in.ibm.com>
-References: <20060327065447.GA25745@in.ibm.com>
-	 <1143445068.2886.20.camel@laptopd505.fenrus.org>
-	 <20060327100019.GA30427@in.ibm.com>
-Content-Type: text/plain
-Date: Mon, 27 Mar 2006 22:03:14 +0200
-Message-Id: <1143489794.2886.43.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 27 Mar 2006 15:05:27 -0500
+Received: from colibri.its.uu.se ([130.238.4.154]:18309 "EHLO
+	colibri.its.uu.se") by vger.kernel.org with ESMTP id S1751117AbWC0UF1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 15:05:27 -0500
+From: "Alfred M. Szmidt" <ams@gnu.org>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+CC: cascardo@minaslivre.org, tytso@mit.edu, adilger@clusterfs.com,
+       sho@bsd.tnes.nec.co.jp, cmm@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, Laurent.Vivier@bull.net,
+       sct@redhat.com
+In-reply-to: <1143489301.15697.9.camel@orbit.scot.redhat.com> (sct@redhat.com)
+Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
+Reply-to: ams@gnu.org
+References: <02bc01c648f2$bd35e830$4168010a@bsd.tnes.nec.co.jp>
+	 <20060316183549.GK30801@schatzie.adilger.int>
+	 <20060316212632.GA21004@thunk.org>
+	 <20060316225913.GV30801@schatzie.adilger.int>
+	 <20060318170729.GI21232@thunk.org>
+	 <20060320063633.GC30801@schatzie.adilger.int>
+	 <1142894283.21593.59.camel@orbit.scot.redhat.com>
+	 <20060320234829.GJ6199@schatzie.adilger.int>
+	 <1142960722.3443.24.camel@orbit.scot.redhat.com>
+	 <20060321183822.GC11447@thunk.org>
+	 <20060325145139.GA5606@cascardo.localdomain> <1143489301.15697.9.camel@orbit.scot.redhat.com>
+Message-Id: <20060327200518.0413A44002@Psilocybe.Update.UU.SE>
+Date: Mon, 27 Mar 2006 22:05:18 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-27 at 15:30 +0530, Prasanna S Panchamukhi wrote:
-> On Mon, Mar 27, 2006 at 09:37:48AM +0200, Arjan van de Ven wrote:
-> > On Mon, 2006-03-27 at 12:24 +0530, Prasanna S Panchamukhi wrote:
-> > 
-> > > - Low overhead and user can have thousands of active probes on the
-> > >   system and detect any instance when the probe was hit including
-> > >   probes on shared library etc.
-> > 
-> > I suspect this is the only reason for doing it inside the kernel;
-> > anything else still really shouts "do it in userspace via ptrace" to me.
-> > 
-> 
-> Other reasons would be:
-> 
-> - to view some privilaged data, such as system regs while you are
->   debugging in user-space
+   Now, a non-Hurd system is not going to have any use for the gnu.*
+   xattr semantics, as translator is a Hurd-specific concept.
 
-root can do that anyway afaics
-
-> - to view many arbitrary process address-space that use a common set
->   of modules - user or kernel space
-
-that's just a matter of userspace tooling.
-
-> Yes, insertion of the breakpoint happens at the physical
-> page level and it gets written back to the disc.
-
-at which point you get to deal with tripwire and other intrusion
-detection systems.... and you prevent doing this on binaries residing on
-read-only mounts (which isn't as uncommon as it sounds, read only
-shared /usr is quite common in enterprise)
-
+gnu.* doesn't just concern itself with translators, it can also be
+gnu.author (or some such) which is a normal UID, which GNU/Linux can
+support without any problems.

@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWC0K1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWC0Ki1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750849AbWC0K1O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 05:27:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWC0K1N
+	id S1750875AbWC0Ki1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 05:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWC0Ki1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 05:27:13 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:975 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750847AbWC0K1N (ORCPT
+	Mon, 27 Mar 2006 05:38:27 -0500
+Received: from smtp2.home.se ([212.78.199.22]:15510 "EHLO smtp2.home.se")
+	by vger.kernel.org with ESMTP id S1750874AbWC0Ki1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 05:27:13 -0500
-Date: Mon, 27 Mar 2006 12:26:36 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Mark Lord <lkml@rtr.ca>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Nigel Cunningham <ncunningham@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] swsusp: separate swap-writing/reading code
-Message-ID: <20060327102636.GH14344@elf.ucw.cz>
-References: <200603231702.k2NH2OSC006774@hera.kernel.org> <200603240713.41566.ncunningham@cyclades.com> <200603232253.01025.rjw@sisk.pl> <442325DA.80300@rtr.ca>
+	Mon, 27 Mar 2006 05:38:27 -0500
+Date: Mon, 27 Mar 2006 12:37:57 +0200
+From: Martin Samuelsson <sam@home.se>
+To: linux-kernel@vger.kernel.org
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>
+Subject: AverMedia 6 Eyes AVS6EYES driver
+Message-Id: <20060327123757.6e06cf8a.sam@home.se>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <442325DA.80300@rtr.ca>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Čt 23-03-06 17:48:58, Mark Lord wrote:
-> Rafael J. Wysocki wrote:
-> >
-> >I agree it probably may be improved.  Still it seems to be good enough.  
-> >Further,
-> >it's more efficient than the previous solution, so I consider it as an 
-> >improvement.
-> >Also this code has been tested for quite some time in -mm and appears to
-> >behave properly, at least we haven't got any bug reports related to it so 
-> >far.
-> 
-> I find the in-kernel swsusp to be quite slow, and it seems to use
-> an awful lot of memory for book-keeping.  So count that as encouragement
-> to improve the performance when you can.
+Hello again!
 
-Extents will provide 0.01% speedup at most, and with increase of code
-complexity. Not a nice tradeoff if you ask me.
+This time, I bring you a somewhat larger patch than the previous one. It adds support for the AverMedia AVS6EYES Zoran-based MJPEG card. And it's not base64 encoded. Sorry about that one.
 
-If you want faster suspend, that should be easy. You'll need *current*
-2.6.16-git , and userland tools from suspend.sf.net . There's HOWTO
-that explains how to set it up. We can even do LZF these days... 
+It can be found at 
 
-> >Currently I'm not working on any better solution.  If you can provide any
-> >patches to implement one, please submit them, but I think they'll have to 
-> >be
-> >tested for as long as this code, in -mm.
-> 
-> It would be *really nice* if you guys could stop being so underhandedly
-> nasty in every single reply to anything from Nigel.
+http://sam.kfib.org/sixeyes/linux-2.6.16-avs6eyes.diff
 
-> He really is trying to help, you know.
+and weighs in at a respectable 46 kB.
 
-Actually Rafael was *very* nice at him, I'd say. Pointing for tiny
-inefficiencies, without patch attached is not really helpful.
+I've tried to keep it as small as possible, but it does affect quite a number of things:
 
-I have repeatedly pointed him on ways how he can *really* help. There
-are ways to do suspend2 in userspace these days, but Nigel refuses to
-use them.
-								Pavel
--- 
-Picture of sleeping (Linux) penguin wanted...
+It adds a whole new driver, for the Conexant bt866 video encoder.
+It imports an almost whole new driver, created within the Marvel project, for the Samsung ks0127 video decoder.
+It modifies drivers/media/video/Kconfig,
+            drivers/media/video/Makefile,
+            drivers/media/video/zoran_card.c,
+            drivers/media/video/zoran.h,
+            Documentation/video4linux/Zoran
+        and include/linux/i2c-id.h
+
+The latter defines two experimental I2C_DRIVERIDs; not suited for real usage, but I'm not sure about how to obtain official ones.
+
+I've stripped the ks0127 driver of all Marvel specific stuff, and reworked a few crucial functions to use stock kernel names for video modes and such things.
+
+The diff is against the 2.6.16 tree, and considering its size and impact, it would probably be wise to let somebody with a little spare time take a look at it before inclusion.
+
+I'd appreciate being kept in the recipient list in case of discussion.
+
+Regards,
+/Sam

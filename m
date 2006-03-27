@@ -1,255 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWC0LTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbWC0LWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWC0LTh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 06:19:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbWC0LTh
+	id S1750893AbWC0LWE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 06:22:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750898AbWC0LWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 06:19:37 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:17578 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1750885AbWC0LTg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 06:19:36 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH] deinline some larger functions from netdevice.h
-Date: Mon, 27 Mar 2006 14:19:06 +0300
-User-Agent: KMail/1.8.2
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_qo8JE270ABC0Yyj"
-Message-Id: <200603271419.06468.vda@ilport.com.ua>
+	Mon, 27 Mar 2006 06:22:04 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:24812 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1750893AbWC0LWD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 06:22:03 -0500
+Date: Mon, 27 Mar 2006 13:22:01 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       Kurt Garloff <garloff@suse.de>
+Subject: Re: [ANNOUNCE] OpenVZ patch for 2.6.16 and beta SUSE10.1 kernels
+Message-ID: <20060327112201.GC16409@MAIL.13thfloor.at>
+Mail-Followup-To: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+	Kurt Garloff <garloff@suse.de>
+References: <4427B7DC.3040804@openvz.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4427B7DC.3040804@openvz.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_qo8JE270ABC0Yyj
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Mon, Mar 27, 2006 at 02:01:00PM +0400, Kirill Korotaev wrote:
+> OpenVZ team is happy to announce the release of its virtualization
+> solution based on 2.6.16 and beta SUSE10.1 kernels.
+> 
+> As in previous releases, OpenVZ 2.6.16 kernel patch includes:
+> - virtualization
+> - fine grained resource management (user beancounters)
+> - 2 level disk quota
+> 
+> Coming soon new features (!):
+> - virtualized AppArmor
+> - dynamic virtual CPU adding/remove to/from VPS
+> 
+> More information about OpenVZ project is available at http://openvz.org/
+> 
+> Fine grained broken-out patch set can be found at
+> http://download.openvz.org/kernel/broken-out/2.6.16-026test005.1/
+> or at GIT repository at http://git.openvz.org/
+> 
+> About OpenVZ software
+> ~~~~~~~~~~~~~~~~~~~~~
+> 
+> OpenVZ is a kernel virtualization solution which can be considered
+> as a natural step in the OS kernel evolution: after multiuser and
+> multitasking functionality there comes an OpenVZ feature of having
+> multiple environments.
 
-On a allyesconfig'ured kernel:
+sorry, that's not an OpenVZ feature, that is a BSD feature
+which is called Jails and was implemented on Linux more
+than 3 years ago, in various implementations like:
 
-Size  Uses Wasted Name and definition
-===== ==== ====== ================================================
-   95  162  12075 netif_wake_queue      include/linux/netdevice.h
-  129   86   9265 dev_kfree_skb_any     include/linux/netdevice.h
-  127   56   5885 netif_device_attach   include/linux/netdevice.h
-   73   86   4505 dev_kfree_skb_irq     include/linux/netdevice.h
-   46   60   1534 netif_device_detach   include/linux/netdevice.h
-  119   16   1485 __netif_rx_schedule   include/linux/netdevice.h
-  143    5    492 netif_rx_schedule     include/linux/netdevice.h
-   81    7    366 netif_schedule        include/linux/netdevice.h
+Linux-VServer[1], FreeVPS[2], Linux-Jails[3]
 
-netif_wake_queue is big because __netif_schedule is a big inline:
+> Virtualization lets you divide a system into separate isolated
+> execution environments (called VPSs - Virtual Private Servers). From
+> the point of view of the VPS owner (root), it looks like a stand-alone
+> server. Each VPS has its own filesystem tree, process tree (starting
+> from init as in a real system) and so on. The single-kernel approach
+> makes it possible to virtualize with very little overhead, if any.
+> 
+> OpenVZ in-kernel modifications can be divided into several components:
+> 
+> 1. Virtualization and isolation.
+> Many Linux kernel subsystems are virtualized, so each VPS has its own:
+> - process tree (featuring virtualized pids, so that the init pid is 1);
+> - filesystems (including virtualized /proc and /sys);
+> - network (virtual network device, its own ip addresses,
+>   set of netfilter and routing rules);
+> - devices (if needed, any VPS can be granted access to real devices
+>   like network interfaces, serial ports, disk partitions, etc);
+> - IPC objects.
+> 
+> 2. Resource Management.
+> This subsystem enables multiple VPSs to coexist, providing managed
+> resource sharing and limiting.
+> - User Beancounters is a set of per-VPS resource counters, limits,
+>   and guarantees (kernel memory, network buffers, phys pages, etc.).
+> - Two-level disk quota (first-level: per-VPS quota;
+>   second-level: ordinary user/group quota inside a VPS)
+> 
+> Resource management is what makes OpenVZ different from other
+> solutions of this kind (like Linux VServer or FreeBSD jails). There
+> are a few resources that can be abused from inside a VPS (such as
+> files, IPC objects, ...) leading to a DoS attack. User Beancounters
+> prevent such abuses.
 
-static inline void __netif_schedule(struct net_device *dev)
-{
-        if (!test_and_set_bit(__LINK_STATE_SCHED, &dev->state)) {
-                unsigned long flags;
-                struct softnet_data *sd;
+resource management is also part of Linux-VServer and Free-VPS
+so nothing new here either ...
 
-                local_irq_save(flags);
-                sd = &__get_cpu_var(softnet_data);
-                dev->next_sched = sd->output_queue;
-                sd->output_queue = dev;
-                raise_softirq_irqoff(NET_TX_SOFTIRQ);
-                local_irq_restore(flags);
-        }
-}
+> As virtualization solution OpenVZ makes it possible to do the same
+> things for which people use UML, Xen, QEmu or VMware, but there are
+> differences:
+> (a) there is no ability to run other operating systems
+>     (although different Linux distros can happily coexist);
+> (b) performance loss is negligible due to absense of any kind of
+>     emulation;
+> (c) resource utilization is much better.
 
-static inline void netif_wake_queue(struct net_device *dev)
-{
-#ifdef CONFIG_NETPOLL_TRAP
-        if (netpoll_trap())
-                return;
-#endif
-        if (test_and_clear_bit(__LINK_STATE_XOFF, &dev->state))
-                __netif_schedule(dev);
-}
+also the web pages 'Description of Virtuozzo(tm) benefits over OpenVZ'
+clearly state that:
 
-By de-inlining __netif_schedule we are saving a lot of text
-at each callsite of netif_wake_queue and netif_schedule.
-__netif_rx_schedule is also big, and it makes more sense to keep
-both of them out of line.
+Virtuozzo(TM) is SWsoft's virtualization and automation solution 
+built on top of OpenVZ. Differently from OpenVZ, Virtuozzo(TM) 
+is developed and designed to run production workloads in 24×7 
+environments and provides significant improvements and additional 
+functionality in the areas of stability, density, management tools, 
+recovery, and other areas. 
 
-Patch also deinlines dev_kfree_skb_any. We can deinline dev_kfree_skb_irq
-instead... oh well.
+Specific benefits of Virtuozzo(TM) compared to OpenVZ can be found 
+below:
 
-netif_device_attach/detach are not hot paths, we can deinline them too.
+  Higher VPS density. Virtuozzo^(TM) provides efficient memory and
+  file sharing mechanisms enabling higher VPS density and better
+  performance of VPSs.
 
-Signed-off-by: Denis Vlasenko <vda@ilport.com.ua>
---
-vda
+  Improved Stability, Scalability, and Performance. Virtuozzo(TM) 
+  is designed to run 24×7 environments with production workloads 
+  on hosts with up-to 32 CPUs.
 
---Boundary-00=_qo8JE270ABC0Yyj
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="netdevice.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="netdevice.patch"
+---
 
-diff -urpN linux-2.6.16.org/include/linux/netdevice.h linux-2.6.16.deinline2/include/linux/netdevice.h
---- linux-2.6.16.org/include/linux/netdevice.h	Mon Mar 20 07:53:29 2006
-+++ linux-2.6.16.deinline2/include/linux/netdevice.h	Mon Mar 27 13:46:15 2006
-@@ -594,20 +594,7 @@ DECLARE_PER_CPU(struct softnet_data,soft
- 
- #define HAVE_NETIF_QUEUE
- 
--static inline void __netif_schedule(struct net_device *dev)
--{
--	if (!test_and_set_bit(__LINK_STATE_SCHED, &dev->state)) {
--		unsigned long flags;
--		struct softnet_data *sd;
--
--		local_irq_save(flags);
--		sd = &__get_cpu_var(softnet_data);
--		dev->next_sched = sd->output_queue;
--		sd->output_queue = dev;
--		raise_softirq_irqoff(NET_TX_SOFTIRQ);
--		local_irq_restore(flags);
--	}
--}
-+extern void __netif_schedule(struct net_device *dev);
- 
- static inline void netif_schedule(struct net_device *dev)
- {
-@@ -671,13 +658,7 @@ static inline void dev_kfree_skb_irq(str
- /* Use this variant in places where it could be invoked
-  * either from interrupt or non-interrupt context.
-  */
--static inline void dev_kfree_skb_any(struct sk_buff *skb)
--{
--	if (in_irq() || irqs_disabled())
--		dev_kfree_skb_irq(skb);
--	else
--		dev_kfree_skb(skb);
--}
-+extern void dev_kfree_skb_any(struct sk_buff *skb);
- 
- #define HAVE_NETIF_RX 1
- extern int		netif_rx(struct sk_buff *skb);
-@@ -735,22 +716,9 @@ static inline int netif_device_present(s
- 	return test_bit(__LINK_STATE_PRESENT, &dev->state);
- }
- 
--static inline void netif_device_detach(struct net_device *dev)
--{
--	if (test_and_clear_bit(__LINK_STATE_PRESENT, &dev->state) &&
--	    netif_running(dev)) {
--		netif_stop_queue(dev);
--	}
--}
-+extern void netif_device_detach(struct net_device *dev);
- 
--static inline void netif_device_attach(struct net_device *dev)
--{
--	if (!test_and_set_bit(__LINK_STATE_PRESENT, &dev->state) &&
--	    netif_running(dev)) {
--		netif_wake_queue(dev);
-- 		__netdev_watchdog_up(dev);
--	}
--}
-+extern void netif_device_attach(struct net_device *dev);
- 
- /*
-  * Network interface message level settings
-@@ -818,20 +786,7 @@ static inline int netif_rx_schedule_prep
-  * already been called and returned 1.
-  */
- 
--static inline void __netif_rx_schedule(struct net_device *dev)
--{
--	unsigned long flags;
--
--	local_irq_save(flags);
--	dev_hold(dev);
--	list_add_tail(&dev->poll_list, &__get_cpu_var(softnet_data).poll_list);
--	if (dev->quota < 0)
--		dev->quota += dev->weight;
--	else
--		dev->quota = dev->weight;
--	__raise_softirq_irqoff(NET_RX_SOFTIRQ);
--	local_irq_restore(flags);
--}
-+extern void __netif_rx_schedule(struct net_device *dev);
- 
- /* Try to reschedule poll. Called by irq handler. */
- 
-diff -urpN linux-2.6.16.org/net/core/dev.c linux-2.6.16.deinline2/net/core/dev.c
---- linux-2.6.16.org/net/core/dev.c	Mon Mar 20 07:53:29 2006
-+++ linux-2.6.16.deinline2/net/core/dev.c	Mon Mar 27 13:47:00 2006
-@@ -1073,6 +1073,70 @@ void dev_queue_xmit_nit(struct sk_buff *
- 	rcu_read_unlock();
- }
- 
-+
-+void __netif_schedule(struct net_device *dev)
-+{
-+	if (!test_and_set_bit(__LINK_STATE_SCHED, &dev->state)) {
-+		unsigned long flags;
-+		struct softnet_data *sd;
-+
-+		local_irq_save(flags);
-+		sd = &__get_cpu_var(softnet_data);
-+		dev->next_sched = sd->output_queue;
-+		sd->output_queue = dev;
-+		raise_softirq_irqoff(NET_TX_SOFTIRQ);
-+		local_irq_restore(flags);
-+	}
-+}
-+EXPORT_SYMBOL(__netif_schedule);
-+
-+void __netif_rx_schedule(struct net_device *dev)
-+{
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	dev_hold(dev);
-+	list_add_tail(&dev->poll_list, &__get_cpu_var(softnet_data).poll_list);
-+	if (dev->quota < 0)
-+		dev->quota += dev->weight;
-+	else
-+		dev->quota = dev->weight;
-+	__raise_softirq_irqoff(NET_RX_SOFTIRQ);
-+	local_irq_restore(flags);
-+}
-+EXPORT_SYMBOL(__netif_rx_schedule);
-+
-+void dev_kfree_skb_any(struct sk_buff *skb)
-+{
-+	if (in_irq() || irqs_disabled())
-+		dev_kfree_skb_irq(skb);
-+	else
-+		dev_kfree_skb(skb);
-+}
-+EXPORT_SYMBOL(dev_kfree_skb_any);
-+
-+
-+/* Hot-plugging. */
-+void netif_device_detach(struct net_device *dev)
-+{
-+	if (test_and_clear_bit(__LINK_STATE_PRESENT, &dev->state) &&
-+	    netif_running(dev)) {
-+		netif_stop_queue(dev);
-+	}
-+}
-+EXPORT_SYMBOL(netif_device_detach);
-+
-+void netif_device_attach(struct net_device *dev)
-+{
-+	if (!test_and_set_bit(__LINK_STATE_PRESENT, &dev->state) &&
-+	    netif_running(dev)) {
-+		netif_wake_queue(dev);
-+ 		__netdev_watchdog_up(dev);
-+	}
-+}
-+EXPORT_SYMBOL(netif_device_attach);
-+
-+
- /*
-  * Invalidate hardware checksum when packet is to be mangled, and
-  * complete checksum manually on outgoing path.
+best,
+Herbert
 
---Boundary-00=_qo8JE270ABC0Yyj--
+[1] http://linux-vserver.org/
+[2] http://www.freevps.com/
+[3] http://mail.wirex.com/pipermail/linux-security-module/2005-June/6207.html
+
+> Thanks,
+> OpenVZ team.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

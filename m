@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWC0WGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWC0WS5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751500AbWC0WGP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 17:06:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWC0WGP
+	id S1751110AbWC0WS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 17:18:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWC0WS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 17:06:15 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:13806 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1751501AbWC0WGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 17:06:13 -0500
-Message-ID: <442861C4.7080304@torque.net>
-Date: Mon, 27 Mar 2006 17:05:56 -0500
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-CC: Bodo Eggert <7eggert@gmx.de>, linux-scsi@vger.kernel.org,
+	Mon, 27 Mar 2006 17:18:57 -0500
+Received: from mail12.syd.optusnet.com.au ([211.29.132.193]:29634 "EHLO
+	mail12.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751110AbWC0WS4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 17:18:56 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: "=?iso-8859-1?q?Andr=E9_Goddard?= Rosa" <andre.goddard@gmail.com>
+Subject: Re: [ck] Re: swap prefetching merge plans
+Date: Tue, 28 Mar 2006 09:19:18 +1100
+User-Agent: KMail/1.8.3
+Cc: "Mike Galbraith" <efault@gmx.de>, "Andrew Morton" <akpm@osdl.org>,
+       "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       "Jan Engelhardt" <jengelh@linux01.gwdg.de>, ck@vds.kolivas.org,
        linux-kernel@vger.kernel.org
-Subject: Re: RFC: Move SG_GET_SCSI_ID from sg to scsi
-References: <Pine.LNX.4.58.0603061133070.2997@be1.lrz> <440C8E60.6020005@torque.net> <440D9F8E.7050402@s5r6.in-berlin.de>
-In-Reply-To: <440D9F8E.7050402@s5r6.in-berlin.de>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+References: <20060322205305.0604f49b.akpm@osdl.org> <200603261934.44552.kernel@kolivas.org> <b8bf37780603270737l7c2acb7etdd5c53b3af2eea84@mail.gmail.com>
+In-Reply-To: <b8bf37780603270737l7c2acb7etdd5c53b3af2eea84@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200603280919.19154.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Richter wrote:
-> Douglas Gilbert wrote:
-> 
->> In linux there is also a move away from the host_number,
->> channel_number, target_identifier and LUN tuple used
->> traditionally by many Unix SCSI subsystems (most do not
->> have the second component: channel_number). At least the
->> LUN is not controversial (as long as it is 8 byte!). The
->> target_identifier is actually transport dependent (but
->> could just be a simple enumeration). The host_number is
->> typically an enumeration over PCI addresses but some
->> other type of computer buses (e.g. microchannel) could be
->> involved.
-> 
-> 
-> For some transports, not only the channel but also the Scsi_Host is
-> meaningless. Such transports deal only with targets and logical units.
-> This includes all multi-protocol + multi-bus or network infrastructures
-> such as iSCSI, USB, IEEE 1394.
+On Tue, 28 Mar 2006 02:37 am, André Goddard Rosa wrote:
+> @Con: Is it possible to patch staircase to address this issue as Mike
+> did with the stock kernel, so I can see the testcase suceeding?
+> Perhaps changing a little the interactivity detection algorithm
+> (disabling fairness a little)?
 
-Stefan,
-I have been reviewing this thread and had one point
-to add here.
+I have code for it already and have been holding off putting it in for a long 
+time. This report has renewed my interest in pursuing it.
 
-The identity of the initiator port is important, at
-least to a SCSI target that can implement (PERSISTENT)
-RESERVE on behalf of one of its logical units.
-So you may need to keep the equivalent of Scsi_Host:this_id
-somewhere.
+> I would like to test any patches to improve this situation on staircase
+> too.
 
-That is another shortcoming of the <hctl> tuple: the
-initiator port isn't there.
+Thanks. You've always been very helpful in that regard and I appreciate it.
 
-Doug Gilbert
+> I would like to see more cooperation on both of you, as you are trying 
+> to solve the same problems as I can see.
+>
+> Please keep walking in the same direction and try to help each other. :)
+> Thank you both for your effort, it is very apreciated,
+
+I'll try to.
+
+Cheers,
+Con

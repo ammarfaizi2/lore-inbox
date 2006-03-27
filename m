@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWC0KWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWC0K1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbWC0KWo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 05:22:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWC0KWo
+	id S1750849AbWC0K1O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 05:27:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWC0K1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 05:22:44 -0500
-Received: from ishtar.tlinx.org ([64.81.245.74]:43712 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S1750868AbWC0KWn (ORCPT
+	Mon, 27 Mar 2006 05:27:13 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:975 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750847AbWC0K1N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 05:22:43 -0500
-Message-ID: <4427BCCC.4080506@tlinx.org>
-Date: Mon, 27 Mar 2006 02:22:04 -0800
-From: Linda Walsh <lkml@tlinx.org>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Save 320K on production machines?
-References: <4426515B.5040307@tlinx.org> <Pine.LNX.4.61.0603261122410.22145@yvahk01.tjqt.qr> <20060326100639.GE4053@stusta.de>
-In-Reply-To: <20060326100639.GE4053@stusta.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Mar 2006 05:27:13 -0500
+Date: Mon, 27 Mar 2006 12:26:36 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Mark Lord <lkml@rtr.ca>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Nigel Cunningham <ncunningham@cyclades.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] swsusp: separate swap-writing/reading code
+Message-ID: <20060327102636.GH14344@elf.ucw.cz>
+References: <200603231702.k2NH2OSC006774@hera.kernel.org> <200603240713.41566.ncunningham@cyclades.com> <200603232253.01025.rjw@sisk.pl> <442325DA.80300@rtr.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <442325DA.80300@rtr.ca>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Sun, Mar 26, 2006 at 11:24:15AM +0200, Jan Engelhardt wrote
->>> ** primarily "funit-at-a-time", though -fweb &
->>> -frename-registers may add a bit (GCC 3.3.5 as
->>> patched by SuSE; Maybe extra optimizations could
->>> be a "CONFIG" option much like regparms is now?
->>>       
->> IIRC, -funit-at-a-time with gcc3 made compiled code go bloat.
->>     
-> That's wrong, the compiled code is smaller.
->   
->> Jan Engelhardt
->>     
-> cu
-> Adrian
->   
----
-    That's my point -- if the code is optimized and it shrinks the code 
-size
-due to unnecessary path duplication, the remain code is more likely
-to fit in the CPU cache (getting some performance benefits as well
-faster in the process), isn't that a good reason to use it?
+On Čt 23-03-06 17:48:58, Mark Lord wrote:
+> Rafael J. Wysocki wrote:
+> >
+> >I agree it probably may be improved.  Still it seems to be good enough.  
+> >Further,
+> >it's more efficient than the previous solution, so I consider it as an 
+> >improvement.
+> >Also this code has been tested for quite some time in -mm and appears to
+> >behave properly, at least we haven't got any bug reports related to it so 
+> >far.
+> 
+> I find the in-kernel swsusp to be quite slow, and it seems to use
+> an awful lot of memory for book-keeping.  So count that as encouragement
+> to improve the performance when you can.
 
-This was measured on a Pentium-III, SMP optioned kernel.  I'm sure it
-will help my code fit just a little better in the runtime caches, no?
+Extents will provide 0.01% speedup at most, and with increase of code
+complexity. Not a nice tradeoff if you ask me.
 
-The current makefile turns on the optimization only on gcc4 or higher,
-but my results were with gcc3.5.5.  Maybe defaults for 386 should
-enabler the optimization for some versions of gcc 3 as well?  
--l
+If you want faster suspend, that should be easy. You'll need *current*
+2.6.16-git , and userland tools from suspend.sf.net . There's HOWTO
+that explains how to set it up. We can even do LZF these days... 
 
+> >Currently I'm not working on any better solution.  If you can provide any
+> >patches to implement one, please submit them, but I think they'll have to 
+> >be
+> >tested for as long as this code, in -mm.
+> 
+> It would be *really nice* if you guys could stop being so underhandedly
+> nasty in every single reply to anything from Nigel.
+
+> He really is trying to help, you know.
+
+Actually Rafael was *very* nice at him, I'd say. Pointing for tiny
+inefficiencies, without patch attached is not really helpful.
+
+I have repeatedly pointed him on ways how he can *really* help. There
+are ways to do suspend2 in userspace these days, but Nigel refuses to
+use them.
+								Pavel
+-- 
+Picture of sleeping (Linux) penguin wanted...

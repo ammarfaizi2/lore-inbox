@@ -1,156 +1,210 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWC0TRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbWC0T0I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751442AbWC0TRj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 14:17:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWC0TRj
+	id S1750960AbWC0T0I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 14:26:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWC0T0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 14:17:39 -0500
-Received: from flex.com ([206.126.0.13]:49421 "EHLO flex.com")
-	by vger.kernel.org with ESMTP id S1751442AbWC0TRi (ORCPT
+	Mon, 27 Mar 2006 14:26:08 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:29644 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750960AbWC0T0G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 14:17:38 -0500
-From: Marr <marr@flex.com>
-To: Hans Reiser <reiser@namesys.com>, libc-alpha@gnu.org
-Subject: Re: Readahead value 128K? (was Re: Drastic Slowdown of 'fseek()'
-Date: Mon, 27 Mar 2006 14:12:57 -0500
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com, drepper@redhat.com,
-       Andrew Morton <akpm@osdl.org>, Mark Lord <lkml@rtr.ca>,
-       Linda Walsh <lkml@tlinx.org>, Bill Davidsen <davidsen@tmr.com>,
-       Gerold Jury <gjury@inode.at>, Robert Hancock <hancockr@shaw.ca>,
-       Al Boldi <a1426z@gawab.com>, Ingo Oeser <ioe-lkml@rameria.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>, marr@flex.com
-References: <200603131437.50461.a1426z@gawab.com> <200603261725.15294.marr@flex.com> <442833FC.7080109@namesys.com>
-In-Reply-To: <442833FC.7080109@namesys.com>
+	Mon, 27 Mar 2006 14:26:06 -0500
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: cbe-oss-dev@ozlabs.org
+Subject: [updated patch 2/2] powerpc: add hvc backend for rtas
+Date: Mon, 27 Mar 2006 21:26:03 +0200
+User-Agent: KMail/1.9.1
+Cc: Paul Mackerras <paulus@samba.org>, Arnd Bergmann <abergman@de.ibm.com>,
+       linuxppc-dev@ozlabs.org, "Ryan S. Arnold" <rsa@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+References: <20060323203423.620978000@dyn-9-152-242-103.boeblingen.de.ibm.com> <20060323203520.909999000@dyn-9-152-242-103.boeblingen.de.ibm.com> <17447.25413.486950.115568@cargo.ozlabs.ibm.com>
+In-Reply-To: <17447.25413.486950.115568@cargo.ozlabs.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200603271412.58364.marr@flex.com>
+Message-Id: <200603272126.04399.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 27 March 2006 1:50pm, Hans Reiser wrote:
-> Thanks Marr.
->
-> My concern here is with the users who have no idea what fseek is, and
-> just see their apps getting slow.  libc is to my mind doing the clearly
-> incorrect thing here.
->
-> Is there a libc developers mailing list, maybe we should try them if
-> Ulrich is no longer active in libc maintaining?
+Current Cell hardware is using the console through a set
+of rtas calls. This driver is needed to get console
+output on those boards.
 
-Good point. I've found a 'glibc' developers' mailing list, so I'm including 
-them on this reply. Hopefully someone there will pick up on this thread and 
-respond.
+Signed-off-by: Arnd Bergmann <abergman@de.ibm.com>
 
-Bill Marr
-
-> Marr wrote:
-> >Greetings, Ulrich, Hans, et al,
-> >
-> >*** Please CC: me on replies -- I'm not subscribed.
-> >
-> >After some more testing and some input (off-list) from others, here is a
-> >summary of this problem and its various work-arounds to date....
-> >
-> >On Monday 27 February 2006 4:53pm, Hans Reiser wrote:
-> >>Andrew Morton wrote:
-> >>>runs like a dog on 2.6's reiserfs.  libc is doing a (probably) 128k read
-> >>>on every fseek.
-> >>>
-> >>>- There may be a libc stdio function which allows you to tune this
-> >>> behaviour.
-> >
-> >It turns out that there is just such a function. Thanks to some sage
-> >(off-list) advice from Gerold Jury, this is an effective way to switch the
-> >file's stream to "unbuffered" mode:
-> >
-> >   setvbuf( inp_fh, 0, _IONBF, 0 );
-> >
-> >This results in incredible speedups on the ReiserFS+2.6.x setup, without
-> > the need to even use the 'nolargeio=1' mount option. Basically, we're
-> > going from 128KB read-ahead on every 'fseek()' call to no read-ahead.
-> >
-> >>>- libc should probably be a bit more defensive about this anyway -
-> >>> plainly the filesystem is being silly.
-> >>
-> >>I really thank you for isolating the problem, but I don't see how you
-> >>can do other than blame glibc for this.  The recommended IO size is only
-> >>relevant to uncached data, and glibc is using it regardless of whether
-> >>or not it is cached or uncached.   Do I misunderstand something myself
-> >>here?
-> >
-> >To date, I've not seen anyone address this implicit question/issue that
-> > Hans raised. To wit: Is the "recommended I/O size" only relevant to
-> > _uncached_ data???
-> >
-> >If not, then anyone using ReiserFS on a 2.6.x kernel had best be well
-> > aware that 128KB read-aheads are going to occur with every 'fseek()'
-> > call, degrading performance drastically. This seems like a good reason
-> > for the ReiserFS folks to re-evaluate the use of 128KB as the default
-> > value for read-ahead.
-> >
-> >Alternatively, if "recommended I/O size" _is_ (intended to be) only
-> > relevant to _uncached_ data, then the question becomes this: Is 'glibc'
-> > erroneously using that recommended size regardless of whether the data is
-> > cached or uncached?
-> >
-> >Ulrich, we'd really appreciate your input on this matter. Please advise.
-> > Even a simple reply of "buzz off" would be useful at this point! ;^)
-> >
-> >------------------------------
-> >
-> >In summary, the problem still exists, but any of the following
-> > work-arounds are effective, ordered here from best to worst:
-> >
-> >(A) Use a 'setvbuf()' call in the target application to disable (or
-> > reduce) buffering on the input stream.
-> >
-> >Under certain conditions, this should be useful even when not using
-> > ReiserFS and/or when not running a 2.6.x kernel. However, it's almost
-> > essential (currently) with ReiserFS and 2.6.x kernels, for apps which do
-> > a lot of file seeks using ANSI C file I/O (i.e. 'fseek()').
-> >
-> >OR
-> >
-> >(B) Use the `nolargeio=1' option when mounting a ReiserFS partition under
-> >2.6.x kernels. This effectively changes the recommended I/O read-ahead
-> > after each 'fseek()' call from 128KB to 4KB.
-> >
-> >Unlike option (A) above, this is useful for situations where you don't
-> > have access to the source code of the target application(s).
-> >
-> >However, Andrew Morton mentioned this possible negative side-effect:
-> >>  This will alter the behaviour of every reiserfs filesystem in the
-> >>  machine.  Even the already mounted ones.
-> >
-> >OR
-> >
-> >(C) Don't use ReiserFS (v3) under 2.6.x kernels (for apps which do a lot
-> > of file seeks using ANSI C file I/O).
-> >
-> >For example, the 'ext2'/'ext3' filesystems seem to still use the 4KB
-> >read-ahead, resulting in _much_ better performance when performing
-> > multiple seeks (outside the range of the 'read-ahead' setting).
-> >
-> >------------------------------
-> >
-> >Of course, the unmentioned option (which basically bypasses the whole
-> > issue) is to convert the underlying application to use raw, unbuffered
-> > Unix file I/O (i.e. 'lseek() + read()' [or even just 'pread()', as
-> > suggested by Andrew Morton]) instead of ANSI C file I/O ('fseek() +
-> > fread()'), but that is considered out-of-scope for purposes of this
-> > discussion.
-> >
-> >-----------------------------
-> >
-> >Thanks to all who supplied input. Special thanks to Andrew Morton and
-> > Gerold Jury who supplied what effectively turned out to be the
-> > most-useful work-arounds.
-> >
-> >*** Please CC: me on replies -- I'm not subscribed.
-> >
-> >Bill Marr
+Index: linus-2.6/drivers/char/hvc_rtas.c
+===================================================================
+--- /dev/null
++++ linus-2.6/drivers/char/hvc_rtas.c
+@@ -0,0 +1,138 @@
++/*
++ * IBM RTAS driver interface to hvc_console.c
++ *
++ * (C) Copyright IBM Corporation 2001-2005
++ * (C) Copyright Red Hat, Inc. 2005
++ *
++ * Author(s): Maximino Augilar <IBM STI Design Center>
++ *	    : Ryan S. Arnold <rsa@us.ibm.com>
++ *	    : Utz Bacher <utz.bacher@de.ibm.com>
++ *	    : David Woodhouse <dwmw2@infradead.org>
++ *
++ *    inspired by drivers/char/hvc_console.c
++ *    written by Anton Blanchard and Paul Mackerras
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
++ */
++
++#include <linux/console.h>
++#include <linux/delay.h>
++#include <linux/err.h>
++#include <linux/init.h>
++#include <linux/moduleparam.h>
++#include <linux/types.h>
++
++#include <asm/irq.h>
++#include <asm/rtas.h>
++#include "hvc_console.h"
++
++#define hvc_rtas_cookie 0x67781e15
++struct hvc_struct *hvc_rtas_dev;
++
++#define RTASCONS_PUT_ATTEMPTS  16
++
++static int rtascons_put_char_token = RTAS_UNKNOWN_SERVICE;
++static int rtascons_get_char_token = RTAS_UNKNOWN_SERVICE;
++static int rtascons_put_delay = 100;
++module_param_named(put_delay, rtascons_put_delay, int, 0644);
++
++static inline int hvc_rtas_write_console(uint32_t vtermno, const char *buf, int count)
++{
++	int done;
++
++	/* if there is more than one character to be displayed, wait a bit */
++	for (done = 0; done < count; done++) {
++		int result;
++		result = rtas_call(rtascons_put_char_token, 1, 1, NULL, buf[done]);
++		if (result)
++			break;
++	}
++	/* the calling routine expects to receive the number of bytes sent */
++	return done;
++}
++
++static int hvc_rtas_read_console(uint32_t vtermno, char *buf, int count)
++{
++	int i;
++
++	for (i = 0; i < count; i++) {
++		int c, err;
++
++		err = rtas_call(rtascons_get_char_token, 0, 2, &c);
++		if (err)
++			break;
++
++		buf[i] = c;
++	}
++
++	return i;
++}
++
++static struct hv_ops hvc_rtas_get_put_ops = {
++	.get_chars = hvc_rtas_read_console,
++	.put_chars = hvc_rtas_write_console,
++};
++
++static int hvc_rtas_init(void)
++{
++	struct hvc_struct *hp;
++
++	if (rtascons_put_char_token == RTAS_UNKNOWN_SERVICE)
++		rtascons_put_char_token = rtas_token("put-term-char");
++	if (rtascons_put_char_token == RTAS_UNKNOWN_SERVICE)
++		return -EIO;
++
++	if (rtascons_get_char_token == RTAS_UNKNOWN_SERVICE)
++		rtascons_get_char_token = rtas_token("get-term-char");
++	if (rtascons_get_char_token == RTAS_UNKNOWN_SERVICE)
++		return -EIO;
++
++	BUG_ON(hvc_rtas_dev);
++
++	/* Allocate an hvc_struct for the console device we instantiated
++	 * earlier.  Save off hp so that we can return it on exit */
++	hp = hvc_alloc(hvc_rtas_cookie, NO_IRQ, &hvc_rtas_get_put_ops);
++	if (IS_ERR(hp))
++		return PTR_ERR(hp);
++	hvc_rtas_dev = hp;
++	return 0;
++}
++module_init(hvc_rtas_init);
++
++/* This will tear down the tty portion of the driver */
++static void __exit hvc_rtas_exit(void)
++{
++	/* Really the fun isn't over until the worker thread breaks down and the
++	 * tty cleans up */
++	if (hvc_rtas_dev)
++		hvc_remove(hvc_rtas_dev);
++}
++module_exit(hvc_rtas_exit);
++
++/* This will happen prior to module init.  There is no tty at this time? */
++static int hvc_rtas_console_init(void)
++{
++	rtascons_put_char_token = rtas_token("put-term-char");
++	if (rtascons_put_char_token == RTAS_UNKNOWN_SERVICE)
++		return -EIO;
++	rtascons_get_char_token = rtas_token("get-term-char");
++	if (rtascons_get_char_token == RTAS_UNKNOWN_SERVICE)
++		return -EIO;
++
++	hvc_instantiate(hvc_rtas_cookie, 0, &hvc_rtas_get_put_ops );
++	add_preferred_console("hvc", 0, NULL);
++	return 0;
++}
++console_initcall(hvc_rtas_console_init);
+Index: linus-2.6/drivers/char/Makefile
+===================================================================
+--- linus-2.6.orig/drivers/char/Makefile
++++ linus-2.6/drivers/char/Makefile
+@@ -43,6 +43,7 @@ obj-$(CONFIG_SX)		+= sx.o generic_serial
+ obj-$(CONFIG_RIO)		+= rio/ generic_serial.o
+ obj-$(CONFIG_HVC_DRIVER)	+= hvc_console.o
+ obj-$(CONFIG_HVC_CONSOLE)	+= hvc_vio.o hvsi.o
++obj-$(CONFIG_HVC_RTAS)		+= hvc_rtas.o
+ obj-$(CONFIG_RAW_DRIVER)	+= raw.o
+ obj-$(CONFIG_SGI_SNSC)		+= snsc.o snsc_event.o
+ obj-$(CONFIG_MMTIMER)		+= mmtimer.o
+Index: linus-2.6/drivers/char/Kconfig
+===================================================================
+--- linus-2.6.orig/drivers/char/Kconfig
++++ linus-2.6/drivers/char/Kconfig
+@@ -579,6 +579,13 @@ config HVC_CONSOLE
+ 	  console. This driver allows each pSeries partition to have a console
+ 	  which is accessed via the HMC.
+ 
++config HVC_RTAS
++	bool "IBM RTAS Console support"
++	depends on PPC_RTAS
++	select HVC_DRIVER
++	help
++	  IBM Console device driver which makes use of RTAS
++
+ config HVCS
+ 	tristate "IBM Hypervisor Virtual Console Server support"
+ 	depends on PPC_PSERIES

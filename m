@@ -1,54 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWC0Qem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWC0Qsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751048AbWC0Qem (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 11:34:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbWC0Qem
+	id S1751091AbWC0Qsm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 11:48:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWC0Qsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 11:34:42 -0500
-Received: from wproxy.gmail.com ([64.233.184.236]:8222 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751045AbWC0Qel convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 11:34:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KNLU8OGi+isJ3YmNg/BCe8kFZY4Rjy7wid00Pu1PyH0smtjfnoEvLvGVtkyoKuTDqBmLc1QC40EGJ5dOUu1O7XZrGQacDB+Jrg5CGe1Ny+31wZl9Xc7d45UncsXgHBMN/+q2KsD6j6GTnHN2g5eNy+TtYQswiijJx1O+1GABDRg=
-Message-ID: <d120d5000603270834j79e707ffu760eba3062531b64@mail.gmail.com>
-Date: Mon, 27 Mar 2006 11:34:39 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Stas Sergeev" <stsp@aknet.ru>
-Subject: Re: [patch 1/1] pc-speaker: add SND_SILENT
-Cc: 7eggert@gmx.de, "Linux kernel" <linux-kernel@vger.kernel.org>,
-       vojtech@suse.cz
-In-Reply-To: <44266472.5080309@aknet.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5TCqf-E6-49@gated-at.bofh.it> <5TCqf-E6-51@gated-at.bofh.it>
-	 <5TCqf-E6-53@gated-at.bofh.it> <5TCqg-E6-55@gated-at.bofh.it>
-	 <5TCqf-E6-47@gated-at.bofh.it> <E1FMv1A-0000fN-Lp@be1.lrz>
-	 <44266472.5080309@aknet.ru>
+	Mon, 27 Mar 2006 11:48:41 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:1510 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751091AbWC0Qsl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 11:48:41 -0500
+Subject: Re: Detecting I/O error and Halting System
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: zine el abidine Hamid <zine46@yahoo.fr>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060327145501.34766.qmail@web30606.mail.mud.yahoo.com>
+References: <20060327145501.34766.qmail@web30606.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Date: Mon, 27 Mar 2006 17:55:56 +0100
+Message-Id: <1143478556.4970.37.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/26/06, Stas Sergeev <stsp@aknet.ru> wrote:
->
-> I think I'd better try to code up the grabbing capability in
-> the input layer, since Dmitry didn't seem to object to that.
->
+On Llu, 2006-03-27 at 16:55 +0200, zine el abidine Hamid wrote:
+> hda: status timeout: status=0xd0 { Busy }      adapter
+> disque annonce un status busy du DMA
 
-I was pondering over implications of "grabbing" events over the
-weekend and I am not entirely happy with it either. The problem with
-grabbing is that your driver does not have any knowledge of how the
-events would be processed if left untouched. Right now you assume that
-all bells are handled by pcspkr but we could really have alternative
-bell implementations. For example we could have "visual" bell that
-could flash framebuffer or a bell that is routed through ALSA, etc,
-etc. All these alternative bells would not disrupt operation of your
-snd_pcsp module but it still would disable the bell because it does
-not know better.
+If I'm reading the translation right then your hard disk decided
+it was busy and then never came back
 
---
-Dmitry
+> Feb 12 04:46:23 porte_de_clignancourt_nds_b kernel:
+> ide0: reset: success             
+
+So the IDE layer tried to reset it
+
+> Feb 12 10:22:38 porte_de_clignancourt_nds_b kernel:
+> hda: timeout waiting for DMA
+
+Which didnt help
+
+> Feb 12 10:24:47 porte_de_clignancourt_nds_b kernel:
+> ide0: reset: success
+
+Still trying
+      
+> Feb 12 10:24:47 porte_de_clignancourt_nds_b kernel:
+> hda: irq timeout: status=0xd0 { Busy }                
+> 
+> Feb 12 10:24:47 porte_de_clignancourt_nds_b kernel:
+> hda: DMA disabled       
+
+We gave up on DMA to see if PIO would help
+>                               
+>    
+> Feb 12 10:24:47 porte_de_clignancourt_nds_b kernel:
+> ide0: reset timed-out, status=0x80
+> Feb 12 10:24:47 porte_de_clignancourt_nds_b kernel:
+> hda: status timeout: status=0x80 { Busy }        
+> nouvel échec de reset
+> Feb 12 10:24:47 porte_de_clignancourt_nds_b kernel:
+> hda: drive not ready for command
+> Feb 12 10:24:47 porte_de_clignancourt_nds_b kernel:
+> ide0: reset: success                  
+
+And reset.. 
+
+
+> Feb 12 13:45:38 porte_de_clignancourt_nds_b kernel:
+> hda: status timeout: status=0x80 { Busy }
+> Feb 12 13:45:38 porte_de_clignancourt_nds_b kernel:
+> hda: drive not ready for command
+> Feb 12 13:45:38 porte_de_clignancourt_nds_b kernel:
+> ide0: reset timed-out, status=0x80
+> Feb 12 13:45:38 porte_de_clignancourt_nds_b kernel:
+> end_request: I/O error, dev 03:02 (hda), sector 102263
+> Feb 12 13:45:38 porte_de_clignancourt_nds_b syslogd:
+> /var/log/maillog: Input/output error
+> Feb 12 13:45:38 porte_de_clignancourt_nds_b kernel:
+> end_request: I/O error, dev 03:02 (hda), sector 110720
+> Feb 12 13:45:38 porte_de_clignancourt_nds_b kernel:
+> end_request: I/O error, dev 03:02 (hda), sector 110728 
+
+Eventually we give up.
+
+
+First thing to check would be the disk and the temperature, then the
+cabling. In particular make sure the *long* part of the cable is between
+the drive and the controller.
+

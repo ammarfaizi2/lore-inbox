@@ -1,166 +1,305 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWC0Q2K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWC0Q31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750988AbWC0Q2K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 11:28:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWC0Q2K
+	id S1751007AbWC0Q31 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 11:29:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbWC0Q31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 11:28:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.229]:56853 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750988AbWC0Q2J convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 11:28:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=M3H0Oz65C99iyxqfLG0TyPpB4e85zVA4WPww38N3nUBv2LdczCQ+jmqZEY+8z42phGTX8Cv00dLZLoEI/A/9JrxqbauHEIfBdCbFscbjnm0PJH3lauuu07mqGH2jyAdHhFfq190yxeDkN3XhCQu93xFq0r6DjYVsE8H+cSomsYU=
-Message-ID: <d120d5000603270828w4aef947cy7202da6076dd1268@mail.gmail.com>
-Date: Mon, 27 Mar 2006 11:28:08 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Shaun Jackman" <sjackman@gmail.com>
-Subject: Re: [PATCH] elo: Support non-pressure-sensitive ELO touchscreens
-Cc: LKML <linux-kernel@vger.kernel.org>, "Vojtech Pavlik" <vojtech@suse.cz>
-In-Reply-To: <7f45d9390603151047t7f18b3afn4fcf899ff8368aa3@mail.gmail.com>
+	Mon, 27 Mar 2006 11:29:27 -0500
+Received: from smtpq2.tilbu1.nb.home.nl ([213.51.146.201]:21203 "EHLO
+	smtpq2.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S1751005AbWC0Q30 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 11:29:26 -0500
+Message-ID: <442812E4.5060803@keyaccess.nl>
+Date: Mon, 27 Mar 2006 18:29:24 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <7f45d9390602241045p45aec8auaf881a4dab00c17a@mail.gmail.com>
-	 <7f45d9390603151047t7f18b3afn4fcf899ff8368aa3@mail.gmail.com>
+To: Takashi Iwai <tiwai@suse.de>
+CC: ALSA devel <alsa-devel@alsa-project.org>, Adrian Bunk <bunk@stusta.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ALSA] AdLib FM card driver
+References: <442710A1.5030207@keyaccess.nl> <s5hmzfc3stk.wl%tiwai@suse.de> <44281194.50800@keyaccess.nl>
+In-Reply-To: <44281194.50800@keyaccess.nl>
+Content-Type: multipart/mixed;
+ boundary="------------050602040902090108010905"
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/15/06, Shaun Jackman <sjackman@gmail.com> wrote:
-> Comments, please?
->
+This is a multi-part message in MIME format.
+--------------050602040902090108010905
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Shaun,
+Rene Herman wrote:
 
-Sorry it took me long time to respond... Overall it looks good, I have
-couple of comments though.
+> Attached is a version that simply jumps to a return -EINVAL, which
+> would also be the easiest way to fixup the others, at least for
+> -stable. If you disagree though, in the next message I'll sent a
+> version that does register the error, but for now just turns them
+> into -EINVAL before returning.
 
-> >
-> > * Use the touch status bit rather than the pressure bits to
-> >   distinguish a BTN_TOUCH event. Non-pressure-sensitive touchscreens
-> >   always report full pressure.
-> > * Report ABS_PRESSURE information only if the touchscreen supports it.
+As promised. As said, I prefer the previous one. With this one, it would 
+only be a matter of deleting the "error = -EINVAL;" lines again to have 
+it propagate the error up after a resolution of that -ENODEV | -ENXIO 
+thing, but since the value isn't used anyway...
 
-We should not only omit reporting pressure if toucscreen does not
-support it but also not set ABS_PRESSURE bit in input device.
+Rene.
 
-> > * Implement the checksum calculation correctly, and verify that the
-> >   transmitted checksum is correct.
-> > * Use dev_dbg to log errors in the protocol.
-> >
-> > Signed-off-by: Shaun Jackman <sjackman@gmail.com>
-> >
-> > diff --git a/drivers/input/touchscreen/elo.c b/drivers/input/touchscreen/elo.c
-> > index c86a2eb..23b269a 100644
-> > --- a/drivers/input/touchscreen/elo.c
-> > +++ b/drivers/input/touchscreen/elo.c
-> > @@ -35,6 +35,8 @@ MODULE_LICENSE("GPL");
-> >   */
-> >
-> >  #define        ELO_MAX_LENGTH  10
-> > +#define ELO10_TOUCH 0x03
-> > +#define ELO10_PRESSURE 0x80
-> >
-> >  /*
-> >   * Per-touchscreen data.
-> > @@ -53,38 +55,40 @@ struct elo {
-> >   static void elo_process_data_10(struct elo* elo, unsigned char data,
-> > struct pt_regs *regs)
-> >  {
-> >         struct input_dev *dev = elo->dev;
-> > +       struct device *dbg = &elo->serio->dev;
-> >
-> > -       elo->csum += elo->data[elo->idx] = data;
-> > -
-> > +       elo->data[elo->idx] = data;
-> >         switch (elo->idx++) {
-> > -
-> >                 case 0:
-> > +                       elo->csum = 0xaa;
-> >                         if (data != 'U') {
-> > +                               dev_dbg(dbg, "unsynchronized data: 0x%02x\n", data);
-> >                                 elo->idx = 0;
-> > -                               elo->csum = 0;
-> >                         }
-> >                         break;
-> > -
-> > -               case 1:
-> > -                       if (data != 'T') {
-> > -                               elo->idx = 0;
-> > -                               elo->csum = 0;
-> > -                       }
-> > -                       break;
-> > -
-> >                 case 9:
-> > -                       if (elo->csum) {
-> > -                               input_regs(dev, regs);
-> > -                               input_report_abs(dev, ABS_X, (elo->data[4] << 8) | elo->data[3]);
-> > -                               input_report_abs(dev, ABS_Y, (elo->data[6] << 8) | elo->data[5]);
-> > -                               input_report_abs(dev, ABS_PRESSURE, (elo->data[8] << 8) | elo->data[7]);
-> > -                               input_report_key(dev, BTN_TOUCH, elo->data[8] || elo->data[7]);
-> > -                               input_sync(dev);
-> > -                       }
-> >                         elo->idx = 0;
-> > -                       elo->csum = 0;
-> > +                       if (elo->csum != elo->data[9]) {
-> > +                               dev_dbg(dbg, "bad checksum: 0x%02x, expected 0x%02x\n",
-> > +                                               elo->data[9], elo->csum);
-> > +                               break;
-> > +                       }
-> > +                       if (elo->data[1] != 'T') {
-> > +                               dev_dbg(dbg, "unexpected packet: 0x%02x\n",
-> > +                                               elo->data[1]);
-> > +                               break;
-> > +                       }
+--------------050602040902090108010905
+Content-Type: text/plain;
+ name="adlib-3.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="adlib-3.diff"
 
-What is the reason for postponing checking for 'T' until full packet
-is assembled? Did you actually see packets with valid checksum but
-without 'T'?
+Index: local/sound/isa/adlib.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ local/sound/isa/adlib.c	2006-03-27 16:47:21.000000000 +0200
+@@ -0,0 +1,163 @@
++/*
++ * AdLib FM card driver.
++ */
++
++#include <sound/driver.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <sound/core.h>
++#include <sound/initval.h>
++#include <sound/opl3.h>
++
++#define CRD_NAME "AdLib FM"
++#define DRV_NAME "snd_adlib"
++
++MODULE_DESCRIPTION(CRD_NAME);
++MODULE_AUTHOR("Rene Herman");
++MODULE_LICENSE("GPL");
++
++static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;
++static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;
++static int enable[SNDRV_CARDS] = SNDRV_DEFAULT_ENABLE;
++static long port[SNDRV_CARDS] = SNDRV_DEFAULT_PORT;
++
++module_param_array(index, int, NULL, 0444);
++MODULE_PARM_DESC(index, "Index value for " CRD_NAME " soundcard.");
++module_param_array(id, charp, NULL, 0444);
++MODULE_PARM_DESC(id, "ID string for " CRD_NAME " soundcard.");
++module_param_array(enable, bool, NULL, 0444);
++MODULE_PARM_DESC(enable, "Enable " CRD_NAME " soundcard.");
++module_param_array(port, long, NULL, 0444);
++MODULE_PARM_DESC(port, "Port # for " CRD_NAME " driver.");
++
++static struct platform_device *devices[SNDRV_CARDS];
++
++static void snd_adlib_free(struct snd_card *card)
++{
++	release_and_free_resource(card->private_data);
++}
++
++static int __devinit snd_adlib_probe(struct platform_device *device)
++{
++	struct snd_card *card;
++	struct snd_opl3 *opl3;
++
++	int error;
++	int i = device->id;
++
++	if (port[i] == SNDRV_AUTO_PORT) {
++		snd_printk(KERN_ERR DRV_NAME ": please specify port\n");
++		error = -EINVAL;
++		goto out0;
++	}
++
++	card = snd_card_new(index[i], id[i], THIS_MODULE, 0);
++	if (!card) {
++		snd_printk(KERN_ERR DRV_NAME ": could not create card\n");
++		error = -EINVAL;
++		goto out0;
++	}
++
++	card->private_data = request_region(port[i], 4, CRD_NAME);
++	if (!card->private_data) {
++		snd_printk(KERN_ERR DRV_NAME ": could not grab ports\n");
++		error = -EBUSY;
++		goto out1;
++	}
++	card->private_free = snd_adlib_free;
++
++	error = snd_opl3_create(card, port[i], port[i] + 2, OPL3_HW_AUTO, 1, &opl3);
++	if (error < 0) {
++		snd_printk(KERN_ERR DRV_NAME ": could not create OPL\n");
++		error = -EINVAL;
++		goto out1;
++	}
++
++	error = snd_opl3_hwdep_new(opl3, 0, 0, NULL);
++	if (error < 0) {
++		snd_printk(KERN_ERR DRV_NAME ": could not create FM\n");
++		error = -EINVAL;
++		goto out1;
++	}
++
++	strcpy(card->driver, DRV_NAME);
++	strcpy(card->shortname, CRD_NAME);
++	sprintf(card->longname, CRD_NAME " at %#lx", port[i]);
++
++	snd_card_set_dev(card, &device->dev);
++
++	error = snd_card_register(card);
++	if (error < 0) {
++		snd_printk(KERN_ERR DRV_NAME ": could not register card\n");
++		error = -EINVAL;
++		goto out1;
++	}
++
++	platform_set_drvdata(device, card);
++	return 0;
++
++out1:	snd_card_free(card);
++out0:	return error;
++}
++
++static int __devexit snd_adlib_remove(struct platform_device *device)
++{
++	snd_card_free(platform_get_drvdata(device));
++	platform_set_drvdata(device, NULL);
++	return 0;
++}
++
++static struct platform_driver snd_adlib_driver = {
++	.probe		= snd_adlib_probe,
++	.remove		= __devexit_p(snd_adlib_remove),
++
++	.driver		= {
++		.name	= DRV_NAME
++	}
++};
++
++static int __init alsa_card_adlib_init(void)
++{
++	int i, cards;
++
++	if (platform_driver_register(&snd_adlib_driver) < 0) {
++		snd_printk(KERN_ERR DRV_NAME ": could not register driver\n");
++		return -ENODEV;
++	}
++
++	for (cards = 0, i = 0; i < SNDRV_CARDS; i++) {
++		struct platform_device *device;
++
++		if (!enable[i])
++			continue;
++
++		device = platform_device_register_simple(DRV_NAME, i, NULL, 0);
++		if (IS_ERR(device))
++			continue;
++
++		devices[i] = device;
++		cards++;
++	}
++
++	if (!cards) {
++#ifdef MODULE
++		printk(KERN_ERR CRD_NAME " soundcard not found or device busy\n");
++#endif
++		platform_driver_unregister(&snd_adlib_driver);
++		return -ENODEV;
++	}
++	return 0;
++}
++
++static void __exit alsa_card_adlib_exit(void)
++{
++	int i;
++
++	for (i = 0; i < SNDRV_CARDS; i++)
++		platform_device_unregister(devices[i]);
++	platform_driver_unregister(&snd_adlib_driver);
++}
++
++module_init(alsa_card_adlib_init);
++module_exit(alsa_card_adlib_exit);
+Index: local/sound/isa/Kconfig
+===================================================================
+--- local.orig/sound/isa/Kconfig	2006-03-26 14:58:00.000000000 +0200
++++ local/sound/isa/Kconfig	2006-03-26 14:58:24.000000000 +0200
+@@ -11,6 +11,15 @@ config SND_CS4231_LIB
+         tristate
+         select SND_PCM
+ 
++config SND_ADLIB
++	tristate "AdLib FM card"
++	select SND_OPL3_LIB
++	help
++	  Say Y here to include support for AdLib FM cards.
++
++	  To compile this driver as a module, choose M here: the module
++	  will be called snd-adlib.
++
+ config SND_AD1816A
+ 	tristate "Analog Devices SoundPort AD1816A"
+ 	depends on SND && PNP && ISA
+Index: local/sound/isa/Makefile
+===================================================================
+--- local.orig/sound/isa/Makefile	2006-03-26 14:58:00.000000000 +0200
++++ local/sound/isa/Makefile	2006-03-26 14:58:24.000000000 +0200
+@@ -3,6 +3,7 @@
+ # Copyright (c) 2001 by Jaroslav Kysela <perex@suse.cz>
+ #
+ 
++snd-adlib-objs := adlib.o
+ snd-als100-objs := als100.o
+ snd-azt2320-objs := azt2320.o
+ snd-cmi8330-objs := cmi8330.o
+@@ -13,6 +14,7 @@ snd-sgalaxy-objs := sgalaxy.o
+ snd-sscape-objs := sscape.o
+ 
+ # Toplevel Module Dependency
++obj-$(CONFIG_SND_ADLIB) += snd-adlib.o
+ obj-$(CONFIG_SND_ALS100) += snd-als100.o
+ obj-$(CONFIG_SND_AZT2320) += snd-azt2320.o
+ obj-$(CONFIG_SND_CMI8330) += snd-cmi8330.o
+Index: local/Documentation/sound/alsa/ALSA-Configuration.txt
+===================================================================
+--- local.orig/Documentation/sound/alsa/ALSA-Configuration.txt	2006-02-27 19:22:00.000000000 +0100
++++ local/Documentation/sound/alsa/ALSA-Configuration.txt	2006-03-26 23:14:06.000000000 +0200
+@@ -120,6 +120,34 @@ Prior to version 0.9.0rc4 options had a 
+     enable  	- enable card
+ 		- Default: enabled, for PCI and ISA PnP cards
+ 
++  Module snd-adlib
++  ----------------
++
++    Module for AdLib FM cards.
++
++    port	- port # for OPL chip
++
++    This module supports multiple cards. It does not support autoprobe, so
++    the port must be specified. For actual AdLib FM cards it will be 0x388.
++    Note that this card does not have PCM support and no mixer; only FM
++    synthesis.
++
++    Make sure you have "sbiload" from the alsa-tools package available and,
++    after loading the module, find out the assigned ALSA sequencer port
++    number through "sbiload -l". Example output:
++
++      Port     Client name                       Port name
++      64:0     OPL2 FM synth                     OPL2 FM Port
++
++    Load the std.sb and drums.sb patches also supplied by sbiload:
++
++      sbiload -p 64:0 std.sb drums.sb
++
++    If you use this driver to drive an OPL3, you can use std.o3 and drums.o3
++    instead. To have the card produce sound, use aplaymidi from alsa-utils:
++
++      aplaymidi -p 64:0 foo.mid
++
+   Module snd-ad1816a
+   ------------------
+ 
 
-> > +                       input_regs(dev, regs);
-> > +                       input_report_abs(dev, ABS_X, (elo->data[4] << 8) | elo->data[3]);
-> > +                       input_report_abs(dev, ABS_Y, (elo->data[6] << 8) | elo->data[5]);
-> > +                       if (elo->data[2] & ELO10_PRESSURE)
-> > +                               input_report_abs(dev, ABS_PRESSURE,
-> > +                                               (elo->data[8] << 8) | elo->data[7]);
-> > +                       input_report_key(dev, BTN_TOUCH, elo->data[2] & ELO10_TOUCH);
-> > +                       input_sync(dev);
-> >                         break;
-> >         }
-> > +       elo->csum += data;
-> >  }
-> >
-> >   static void elo_process_data_6(struct elo* elo, unsigned char data,
-> > struct pt_regs *regs)
-> > @@ -189,6 +193,7 @@ static void elo_disconnect(struct serio
-> >  {
-> >         struct elo* elo = serio_get_drvdata(serio);
-> >
-> > +       dev_dbg(&serio->dev, "disconnect\n");
-
-I am not sure if we want to have this logging here. Serio core or
-maybe even driver core might be better suited for this.
-
-> >         input_unregister_device(elo->dev);
-> >         serio_close(serio);
-> >         serio_set_drvdata(serio, NULL);
-> > @@ -207,6 +212,7 @@ static int elo_connect(struct serio *ser
-> >         struct input_dev *input_dev;
-> >         int err;
-> >
-> > +       dev_dbg(&serio->dev, "connect\n");
-
-Same here.
-
-> >         elo = kzalloc(sizeof(struct elo), GFP_KERNEL);
-> >         input_dev = input_allocate_device();
-> >         if (!elo || !input_dev) {
-> >
->
-
---
-Dmitry
+--------------050602040902090108010905--

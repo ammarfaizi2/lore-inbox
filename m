@@ -1,23 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWC0NpE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWC0NtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751025AbWC0NpE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 08:45:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbWC0NpE
+	id S1751028AbWC0NtR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 08:49:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWC0NtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 08:45:04 -0500
-Received: from mail.suse.de ([195.135.220.2]:19639 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751028AbWC0NpB (ORCPT
+	Mon, 27 Mar 2006 08:49:16 -0500
+Received: from ns.suse.de ([195.135.220.2]:55223 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751023AbWC0NtQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 08:45:01 -0500
-Date: Mon, 27 Mar 2006 15:44:55 +0200
-Message-ID: <s5hmzfc3stk.wl%tiwai@suse.de>
+	Mon, 27 Mar 2006 08:49:16 -0500
+Date: Mon, 27 Mar 2006 15:49:11 +0200
+Message-ID: <s5hlkuw3smg.wl%tiwai@suse.de>
 From: Takashi Iwai <tiwai@suse.de>
 To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: ALSA devel <alsa-devel@alsa-project.org>, Adrian Bunk <bunk@stusta.de>,
+Cc: Clemens Ladisch <clemens@ladisch.de>,
+       ALSA devel <alsa-devel@alsa-project.org>, Adrian Bunk <bunk@stusta.de>,
        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ALSA] AdLib FM card driver
-In-Reply-To: <442710A1.5030207@keyaccess.nl>
+Subject: Re: [Alsa-devel] [ALSA] AdLib FM card driver
+In-Reply-To: <4427E560.4080702@keyaccess.nl>
 References: <442710A1.5030207@keyaccess.nl>
+	<20060327083113.GB2521@turing.informatik.uni-halle.de>
+	<4427E560.4080702@keyaccess.nl>
 User-Agent: Wanderlust/2.12.0 (Your Wildest Dreams) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.7 (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 MULE XEmacs/21.5 (beta25)
  (eggplant) (i386-suse-linux)
@@ -26,105 +29,46 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Mon, 27 Mar 2006 00:07:29 +0200,
+At Mon, 27 Mar 2006 15:15:12 +0200,
 Rene Herman wrote:
 > 
-> Hi Takashi
+> Clemens Ladisch wrote:
 > 
-> Adrian: this was one of the cards you listed as having an OSS but not an 
-> ALSA driver a while ago.
+> > Rene Herman wrote:
 > 
-> Attached you'll find an ALSA driver for AdLib FM cards. An AdLib card is 
-> just an OPL2, which was already supported by sound/drivers/opl3, so only 
-> very minimal bus-glue is needed. The patch applies cleanly to both 
-> 2.6.16 and 2.6.16-mm1.
+> >> I also stuck a very tiny HOWTO in ALSA-Configuration.txt, assuming
+> >> quite a few people would have no idea how to operate the thing,
+> >> even if they do happen across a card. Is it okay there?
+> > 
+> > It should probably go into a seperate file below Documentation/.
 > 
-> The driver has been tested with an actual ancient 8-bit ISA AdLib card 
-> and works fine. It also works fine for an OPL3 {,emulation} as still 
-> found on many ISA soundcards but given that AdLib cards don't have their 
-> own mixer, upping the volume from 0 might be a problem without the card 
-> driver already loaded and driving the OPL3.
+> Probably. Documentation/sound/alsa/adlib.txt is ofcourse okay but I saw 
+> a few other remark type things in ALSA-Configuration as well. Seeing as 
+> how it's very small, and given the tendency of Documentation/ to not be 
+> updated alongside code itself, I thought I'd try to get away with just 
+> keeping things in the one file...
+
+Yes, it's not so big, so could be embedded in that file.
+
+> > I think at least the port address for the first card should be
+> > defaulted to 0x388.
 > 
-> As far as I am concerned, this does not need additional testing and can 
-> go to alsa-kernel after a review. It's very unlikely that anyone still 
-> has this ancient card installed anyway. The one I have here was lent to 
-> me and will be returned shortly, but given the minimal nature of this 
-> driver, maintenance should not be a problem.
+> No, you never want to autoprobe ISA due to the non-discoverability of 
+> the old non-PnP ISA bus. If you just start poking at addresses you might 
+> touch something sensitive. The generic example of this is screwing over 
+> a Novell NIC and while there are still some ALSA drivers that do ISA 
+> autoprobing (es1688, es18xx, gus, opti9xx, sb8, sb16) this has been 
+> verboten in the tree in general for some time now.
 > 
-> I also stuck a very tiny HOWTO in ALSA-Configuration.txt, assuming quite 
-> a few people would have no idea how to operate the thing, even if they 
-> do happen across a card. Is it okay there?
-
-This amount of description should be OK.
-
-> Takashi: As the card->shortname, I use "AdLib FM", which includes a 
-> space. sound/core/init.c:choose_default_id() goes to lengths to not 
-> allow this (it turns it into "FM") but when I manually give:
+> Hardcoding addresses and probing there might be a bit more userfriendly 
+> but people who install an 8-bit ISA AdLib FM in this day and age are 
+> likely not the type to care deeply about userfriendlyness anyway...
 > 
->    modprobe snd-adlib id="AdLib FM" port=0x388
-> 
-> then the ID is used as is and everything seems fine. I assume that 
-> either the space check could go or that a passed in ID should be 
-> subjected to it as well? (that function also deletes all !isalnum's from 
-> the shortname such as <underscore> which, again, is fine when passed in 
-> manually).
+> Note lastly that the adlib_card OSS driver also needed the address 
+> passed in.
 
-The space check is there to retrieve the second word from the
-shortname, because the length of id string is much shorter.  In most
-cases, you likely have names like "Vendor DeviceXXXX".  Then only
-DeviceXXX is extracted.  If it matters, pass a string without space in
-the shortname field.
-
-> Comments appreciated. I'll go listen to this AdLib render "Master of 
-> Puppets" again now. Heavens, what fun...
-
-> +static int __devinit snd_adlib_probe(struct platform_device *device)
-(snip)
-> +	card->private_data = request_region(port[i], 4, CRD_NAME);
-> +	if (!card->private_data) {
-> +		snd_printk(KERN_ERR DRV_NAME ": could not grab ports\n");
-> +		snd_card_free(card);
-> +		return -EINVAL;
-> +	}
-
--EBUSY would be more suitable (although it's ignored later).
-
-> +	card->private_free = snd_adlib_free;
-> +
-> +	if (snd_opl3_create(card, port[i], port[i] + 2, OPL3_HW_AUTO, 1, &opl3) < 0) {
-> +		snd_printk(KERN_ERR DRV_NAME ": could not create OPL\n");
-> +		snd_card_free(card);
-> +		return -EINVAL;
-> +	}
-
-Better to keep the original error value?
-
-> +
-> +	if (snd_opl3_hwdep_new(opl3, 0, 0, NULL) < 0) {
-> +		snd_printk(KERN_ERR DRV_NAME ": could not create FM\n");
-> +		snd_card_free(card);
-> +		return -EINVAL;
-> +	}
-
-Ditto.
-
-> +
-> +	strcpy(card->driver, DRV_NAME);
-> +	strcpy(card->shortname, CRD_NAME);
-> +	sprintf(card->longname, CRD_NAME " at %#lx", port[i]);
-> +
-> +	snd_card_set_dev(card, &device->dev);
-> +
-> +	if (snd_card_register(card) < 0) {
-> +		snd_printk(KERN_ERR DRV_NAME ": could not register card\n");
-> +		snd_card_free(card);
-> +		return -EINVAL;
-> +	}
-
-Ditto.  Maybe better to have a single error exit with snd_card_free()?
-
-
-The other parts look good to me.
+OK, we'd need an autoprobe if the old system were capable, but it's
+not the case.
 
 
 Takashi

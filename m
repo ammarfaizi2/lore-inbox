@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWC0VSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbWC0VSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751456AbWC0VSA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 16:18:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWC0VR7
+	id S1751457AbWC0VSY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 16:18:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWC0VSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 16:17:59 -0500
-Received: from tayrelbas04.tay.hp.com ([161.114.80.247]:21220 "EHLO
-	tayrelbas04.tay.hp.com") by vger.kernel.org with ESMTP
-	id S1751453AbWC0VR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 16:17:58 -0500
-Date: Mon, 27 Mar 2006 13:17:54 -0800
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: netdev@vger.kernel.org, "John W. Linville" <linville@tuxdriver.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 32bit compat for rtnetlink wireless extensions?
-Message-ID: <20060327211754.GB31813@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <200603261408.48766.arnd@arndb.de> <20060327184242.GC31478@bougret.hpl.hp.com> <200603272310.44692.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200603272310.44692.arnd@arndb.de>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
+	Mon, 27 Mar 2006 16:18:24 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:21192 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751448AbWC0VSX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 16:18:23 -0500
+From: hawkes@sgi.com
+To: Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Jack Steiner <steiner@sgi.com>, hawkes@sgi.com, Jes Sorensen <jes@sgi.com>
+Date: Mon, 27 Mar 2006 13:18:17 -0800
+Message-Id: <20060327211817.16768.77971.sendpatchset@tomahawk.engr.sgi.com>
+Subject: [PATCH] ia64 sn_hwperf use of num_online_cpus()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 27, 2006 at 11:10:44PM +0200, Arnd Bergmann wrote:
-> Am Monday 27 March 2006 20:42 schrieb Jean Tourrilhes:
-> >         Actually, when things are passed over RtNetlink, the pointer
-> > is removed, and the content of IW_HEADER_TYPE_POINT is moved to not
-> > leave a gap.
-> 
-> Ah, that makes sense, thanks for the explanation.
-> 
-> So if the wireless ioctl interface ever got retired, that code could
-> get simplified a lot to just pass around a flat data structure, right?
-> 
-> 	Arnd <><
+Eliminate an unnecessary -- and flawed -- use of the expensive
+num_online_cpus().
 
-	Actually, it could be removed *now*. You would just have to
-fix all wireless drivers in existence. I will scratch my head to see
-if we could plan a smooth transition.
+Signed-off-by: John Hawkes <hawkes@sgi.com>
 
-	Jean
+Index: linux/arch/ia64/sn/kernel/sn2/sn_hwperf.c
+===================================================================
+--- linux.orig/arch/ia64/sn/kernel/sn2/sn_hwperf.c	2006-03-19 21:53:29.000000000 -0800
++++ linux/arch/ia64/sn/kernel/sn2/sn_hwperf.c	2006-03-27 13:14:12.000000000 -0800
+@@ -605,7 +605,7 @@ static int sn_hwperf_op_cpu(struct sn_hw
+ 	op_info->a->arg &= SN_HWPERF_ARG_OBJID_MASK;
+ 
+ 	if (cpu != SN_HWPERF_ARG_ANY_CPU) {
+-		if (cpu >= num_online_cpus() || !cpu_online(cpu)) {
++		if (cpu >= NR_CPUS || !cpu_online(cpu)) {
+ 			r = -EINVAL;
+ 			goto out;
+ 		}

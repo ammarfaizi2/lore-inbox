@@ -1,85 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWC0XQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWC0XVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbWC0XQV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 18:16:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWC0XQV
+	id S1751134AbWC0XVl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 18:21:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWC0XVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 18:16:21 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57729 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751093AbWC0XQU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 18:16:20 -0500
-Date: Tue, 28 Mar 2006 01:15:57 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Mark Lord <lkml@rtr.ca>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: regular swsusp flamewar [was Re: [PATCH] swsusp: separate swap-writing/reading code]
-Message-ID: <20060327231557.GB2439@elf.ucw.cz>
-References: <200603231702.k2NH2OSC006774@hera.kernel.org> <442325DA.80300@rtr.ca> <20060327102636.GH14344@elf.ucw.cz> <200603272044.05431.ncunningham@cyclades.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603272044.05431.ncunningham@cyclades.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 27 Mar 2006 18:21:41 -0500
+Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:12680 "EHLO
+	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751134AbWC0XVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 18:21:40 -0500
+Message-ID: <44287382.4050108@bigpond.net.au>
+Date: Tue, 28 Mar 2006 10:21:38 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+CC: Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sched: prevent high load weight tasks suppressing balancing
+References: <4427873A.4010601@bigpond.net.au> <20060327135204.B12364@unix-os.sc.intel.com>
+In-Reply-To: <20060327135204.B12364@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 27 Mar 2006 23:21:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Siddha, Suresh B wrote:
+> This breaks HT and MC optimizations.. Consider a DP system with each
+> physical processor having two HT logical threads.. if there are two 
+> runnable processes running on package-0, with this patch scheduler 
+> will never move one of those processes to package-1..
 
-> > If you want faster suspend, that should be easy. You'll need *current*
-> > 2.6.16-git , and userland tools from suspend.sf.net . There's HOWTO
-> > that explains how to set it up. We can even do LZF these days...
-> >
-> > > >Currently I'm not working on any better solution.  If you can provide
-> > > > any patches to implement one, please submit them, but I think they'll
-> > > > have to be
-> > > >tested for as long as this code, in -mm.
-> > >
-> > > It would be *really nice* if you guys could stop being so underhandedly
-> > > nasty in every single reply to anything from Nigel.
-> > >
-> > > He really is trying to help, you know.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Is this an active_load_balance() issue?
 
-> > Actually Rafael was *very* nice at him, I'd say. Pointing for tiny
-> > inefficiencies, without patch attached is not really helpful.
-...
-> > I have repeatedly pointed him on ways how he can *really* help. There
-> > are ways to do suspend2 in userspace these days, but Nigel refuses to
-> > use them.
-> 
-> You know that I disagree that doing suspend in userspace is the
-> right 
+If it is then I suggest that the solution is to fix the 
+active_load_balance() and associated code so that it works with this 
+patch in place.
 
-You know "disagreeing" with subsystem maintainer (and everyone else
-for that matter) is not exactly helpful in getting patches merged. You
-are free to believe whatever you want, but if you disagree on
-something as fundamental as "do not put unneccessary code to kernel"
-with me, it should be no surprise that I "disagree" with your patches
-(*).
+It would be possible to modify find_busiest_group() and 
+find_busiest_queue() so that they just PREFER the busiest group to have 
+at least one CPU with more than one running task and the busiest queue 
+to have more than one task.  However, this would make the code 
+considerably more complex and I'm reluctant to impose that on all 
+architectures just to satisfy HT and MC requirements.  Are there 
+configuration macros or other means that I can use to exclude this 
+(proposed) code on systems where it isn't needed i.e. non HT and MC 
+systems or HT and MC systems with only one package.
 
-> approach, and you know that current uswsusp can't do everything Suspend2 does 
-> without further substantial modification. Please stop painting me as the bad 
-> guy because I won't roll over and play dead for you. Please also
-> stop 
+Personally, I think that the optimal performance of the load balancing 
+code has already been considerably compromised by its unconditionally 
+accommodating the requirements of active_load_balance() (which you have 
+said is now only required by HT and MC systems) and that it might be 
+better if active load balancing was separated out into a separate 
+mechanism that could be excluded from the build on architectures that 
+don't need it.  I can't help thinking that this would result in a more 
+efficient active load balancing mechanism as well because the current 
+one is very inefficient.
 
-I'm not trying to paint you as a bad guy. But Mark said you are trying
-to help, and in that context I'd read it as "trying to help mainline
-development". And you are not doing that, you are developing your own
-suspend2 branch, that has nothing to do with mainline. I think we can
-agree on that one...
-
-> encouraging people to use uswsusp when you have also warned that it might eat 
-> their partitions.
-
-uswsusp is now reasonably stable. Of course, it was dangerous some
-time ago. Every software is dangerous when it is young.
-								Pavel
-
-(*) Actually I can't "disagree" with your patches because you did not
-submit any, in recent history.
+Peter
+PS I don't think that this issue is sufficiently important to prevent 
+the adoption of the smpnice patches while it's being resolved.
 -- 
-Picture of sleeping (Linux) penguin wanted...
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

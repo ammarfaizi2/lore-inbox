@@ -1,202 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWC0EeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751607AbWC0E6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbWC0EeS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 23:34:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbWC0EeS
+	id S1751607AbWC0E6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 23:58:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWC0E6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 23:34:18 -0500
-Received: from mail.gmx.net ([213.165.64.20]:22455 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932139AbWC0EeS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 23:34:18 -0500
-X-Authenticated: #14349625
-Subject: scheduler starvation resistance patches for 2.6.16
-From: Mike Galbraith <efault@gmx.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-ce1iQi9GxPZMBcMHpjRx"
-Date: Mon, 27 Mar 2006 06:35:25 +0200
-Message-Id: <1143434125.17567.11.camel@homer>
+	Sun, 26 Mar 2006 23:58:25 -0500
+Received: from asteria.debian.or.at ([86.59.21.34]:36005 "EHLO
+	asteria.debian.or.at") by vger.kernel.org with ESMTP
+	id S1751607AbWC0E6Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 23:58:24 -0500
+Date: Mon, 27 Mar 2006 06:58:23 +0200
+From: Peter Palfrader <peter@palfrader.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16: Oops - null ptr in blk_recount_segments?
+Message-ID: <20060327045823.GW25288@asteria.noreply.org>
+Mail-Followup-To: Peter Palfrader <peter@palfrader.org>,
+	linux-kernel@vger.kernel.org
+References: <20060327022814.GV25288@asteria.noreply.org> <20060327043601.GE27189130@melbourne.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <20060327043601.GE27189130@melbourne.sgi.com>
+X-PGP: 1024D/94C09C7F 5B00 C96D 5D54 AEE1 206B  AF84 DE7A AF6E 94C0 9C7F
+X-Request-PGP: http://www.palfrader.org/keys/94C09C7F.asc
+X-Accept-Language: de, en
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 27 Mar 2006, David Chinner wrote:
 
---=-ce1iQi9GxPZMBcMHpjRx
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> > I've seen a few of these since upgrading to 2.6.16 on my x86_64 system:
+> 
+> What did you upgrade from?
 
-Greetings,
-
-Knowing that not everybody runs the latest/greatest mm kernels, I've
-adapted my scheduler starvation resistance tree to virgin 2.6.16.  Those
-interested will find seven patches in the attached tarball.
-
-Test feedback much appreciated.
-
-	-Mike
-
---=-ce1iQi9GxPZMBcMHpjRx
-Content-Disposition: attachment; filename=throttle-V25-2.6.16.tar.gz
-Content-Type: application/x-compressed-tar; name=throttle-V25-2.6.16.tar.gz
-Content-Transfer-Encoding: base64
-
-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
+2.6.14.2.
 
 
+> > [14513.189101] Call Trace: <ffffffff80288e8d>{blk_recount_segments+125}
+> > [14513.189113]        <ffffffff8045ab19>{schedule_timeout+153} <ffffffff8017df90>{__bio_clone+128}
+> > [14513.189134]        <ffffffff8017dfed>{bio_clone+61} <ffffffff80144a70>{autoremove_wake_function+0}
+> > [14513.189143]        <ffffffff882576c1>{:dm_crypt:crypt_alloc_buffer+65}
+> > [14513.189157]        <ffffffff8825813e>{:dm_crypt:crypt_map+174} <ffffffff8823b463>{:dm_mod:__map_bio+83}
+> > [14513.189190]        <ffffffff8823b6a8>{:dm_mod:__clone_and_map+168} <ffffffff8823b8de>{:dm_mod:__split_bio+174}
+> > [14513.189223]        <ffffffff8823b9dc>{:dm_mod:dm_request+204} <ffffffff8028b532>{generic_make_request+258}
+> > [14513.189243]        <ffffffff8028b628>{submit_bio+216} <ffffffff8017e20f>{__bio_add_page+463}
+> > [14513.189256]        <ffffffff8026bd3e>{xfs_submit_ioend_bio+30} <ffffffff8026bec0>{xfs_submit_ioend+144}
+> > [14513.189269]        <ffffffff8026cd03>{xfs_page_state_convert+1379} <ffffffff8026d2e0>{linvfs_writepage+176}
+> 
+> This area of XFS changed in 2.6.16; it might be doing something wrong
+> with bios that is blowing up later. Then again, it might be something in dm
+> that is wrong. Does this happen on non-dmcrypt XFS filesystems you have?
 
---=-ce1iQi9GxPZMBcMHpjRx--
+All the Oopses so far had dm_crypt in their backtrace, but then the
+non-crypted XFSs don't see that much action.  Also, I recently added a
+new XFS filesytem to the system.  Is there a way to tell which of them
+causes the Oops?
 
+> I understand that the recognised way to find introduced a reproducable problem
+> like this is to do a git bisect to find the mod that introduced the problem.
+> Is it possible for you to do this?
+
+I can certainly try but it usually takes several hours or a at least a
+few days to manifest here on my desktop.
+
+-- 
+ PGP signed and encrypted  |  .''`.  ** Debian GNU/Linux **
+    messages preferred.    | : :' :      The  universal
+                           | `. `'      Operating System
+ http://www.palfrader.org/ |   `-    http://www.debian.org/

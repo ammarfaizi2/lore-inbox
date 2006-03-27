@@ -1,40 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWC0FB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWC0FMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWC0FB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 00:01:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbWC0FB6
+	id S1750705AbWC0FMA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 00:12:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWC0FL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 00:01:58 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:16108 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750777AbWC0FB5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 00:01:57 -0500
-Subject: RE: [PATCH] less tlb flush in unmap_vmas
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
-       "Li, Shaohua" <shaohua.li@intel.com>,
-       "'lkml'" <linux-kernel@vger.kernel.org>,
-       "'Andrew Morton'" <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <200603220744.k2M7iBg05206@unix-os.sc.intel.com>
-References: <200603220744.k2M7iBg05206@unix-os.sc.intel.com>
-Content-Type: text/plain
-Date: Mon, 27 Mar 2006 00:01:53 -0500
-Message-Id: <1143435714.1792.227.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Mar 2006 00:11:59 -0500
+Received: from xproxy.gmail.com ([66.249.82.195]:23086 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750705AbWC0FL7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 00:11:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=H8UM5YFM0X6BBFN6K7jxqIv3a677NGnE39w6qjCTSb9ntcM2NR3KI+PBZekAL0PU4fwSNuL6x7Miv5agSgLWSUysN0nDmJ87CmMbdRmwmIAdIdWpM3HdyWRk8SazmvqAheLf9dk+i5ZwGHhIxbF6OC9NLcxb6nF3oKofUc/bizg=
+Message-ID: <197974190603262111h29a5f49cy483c3295987eb247@mail.gmail.com>
+Date: Mon, 27 Mar 2006 10:41:58 +0530
+From: ecmproute <ecmproute@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Memory management benchmarking tool for Linux?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-21 at 23:44 -0800, Chen, Kenneth W wrote:
-> 
-> OK, I think it would be beneficial to take a latency measurement
-> again,
-> just to see how it perform now a day.  The dynamics might changed. 
-
-I will test this with Ingo's latency tracer as soon as I get a chance.
-I had previously posted results showing this to be a problem spot.
-
-Lee
-
+Hello,
+Is there any benchmarking tool, or test scripts, with which one can
+test the performance of the linux memory management, process forking,
+among other paramters?
+Any pointers would definitely help.
+Thanks & regards,
+ecmproute

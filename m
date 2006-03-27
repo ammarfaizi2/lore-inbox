@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWC0UhW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWC0Ukt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750974AbWC0UhW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 15:37:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbWC0UhW
+	id S1751132AbWC0Ukt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 15:40:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWC0Ukt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 15:37:22 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:33157 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1750989AbWC0UhV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 15:37:21 -0500
-Date: Mon, 27 Mar 2006 13:38:02 -0700
-From: "Mark A. Greer" <mgreer@mvista.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: "Mark A. Greer" <mgreer@mvista.com>, Randy Vinson <rvinson@mvista.com>,
-       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH, RFC] Stop using tasklet in ds1374 RTC driver
-Message-ID: <20060327203802.GA10238@mag.az.mvista.com>
-References: <20060323201030.ccded642.khali@linux-fr.org> <4423084B.1070701@mvista.com> <20060323214028.GB21477@mag.az.mvista.com> <20060324215311.8ea42d20.khali@linux-fr.org>
+	Mon, 27 Mar 2006 15:40:49 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:5024 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751132AbWC0Uks (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 15:40:48 -0500
+Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: ams@gnu.org
+Cc: cascardo@minaslivre.org, tytso@mit.edu, adilger@clusterfs.com,
+       sho@bsd.tnes.nec.co.jp, cmm@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, Laurent.Vivier@bull.net,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20060327200518.0413A44002@Psilocybe.Update.UU.SE>
+References: <02bc01c648f2$bd35e830$4168010a@bsd.tnes.nec.co.jp>
+	 <20060316183549.GK30801@schatzie.adilger.int>
+	 <20060316212632.GA21004@thunk.org>
+	 <20060316225913.GV30801@schatzie.adilger.int>
+	 <20060318170729.GI21232@thunk.org>
+	 <20060320063633.GC30801@schatzie.adilger.int>
+	 <1142894283.21593.59.camel@orbit.scot.redhat.com>
+	 <20060320234829.GJ6199@schatzie.adilger.int>
+	 <1142960722.3443.24.camel@orbit.scot.redhat.com>
+	 <20060321183822.GC11447@thunk.org>
+	 <20060325145139.GA5606@cascardo.localdomain>
+	 <1143489301.15697.9.camel@orbit.scot.redhat.com>
+	 <20060327200518.0413A44002@Psilocybe.Update.UU.SE>
+Content-Type: text/plain
+Date: Mon, 27 Mar 2006 15:40:32 -0500
+Message-Id: <1143492032.15697.19.camel@orbit.scot.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060324215311.8ea42d20.khali@linux-fr.org>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 24, 2006 at 09:53:11PM +0100, Jean Delvare wrote:
-> Hi Mark,
-> 
-> > > I've attached a similar patch that has been tested using the DS1374 on the 
-> > > Freescale MPC8349MDS reference system. It is patterned after a similar 
-> > > change made to the m41t00 driver. The changes work, but I am also 
-> > > unfamiliar with workqueues, so my patch may not be any better.
-> > 
-> > I'm no expert in workqueues either; however, after reading
-> > http://lwn.net/Articles/23634/, I believe that its unnecessary for an
-> > rtc driver to have its own workqueue since rtc writes aren't particularly
-> > time-critical.  If I am correct, then Randy's patch uses the proper wq calls.  
-> > 
-> > Agree?
-> 
-> I'm not sure. My first try was mostly similar to Randy's, using the
-> shared workqueue. However, LDD3 (and, for that matter, the article you
-> pointed to) says to be cautious when using the shared workqueue, not
-> only because of by what others can do to you, but also because of what
-> your can do to others.
-> 
-> ds1374_set_tlet triggers many i2c transfers, which may delay or sleep
-> depending on the underlying i2c implementation, and definitely will
-> take some time (at least 224 I2C clock cycles if I'm counting properly,
-> that is 14 ms at 16 kHz.)
-> 
-> So I came to the conclusion that it wouldn't be fair to other users if
-> ds1374 was using the shared workqueue. Now, I really don't know for
-> sure, so I'll let workqueue experts decide what should be done here.
+Hi,
 
-Hmm, you raise a good point, Jean.  I just talked to Randy and we agreed
-to agree with you.  :)  Randy will make a patch for the ds1374 and I'll
-rework the patches for the m41t00.  Stay tuned...
+On Mon, 2006-03-27 at 22:05 +0200, Alfred M. Szmidt wrote:
+>    Now, a non-Hurd system is not going to have any use for the gnu.*
+>    xattr semantics, as translator is a Hurd-specific concept.
+> 
+> gnu.* doesn't just concern itself with translators, it can also be
+> gnu.author (or some such) which is a normal UID, which GNU/Linux can
+> support without any problems.
 
-Mark
+OK, but would it have any active semantics on non-Hurd kernels?  How
+would the behaviour of ext3 change in the presence of a gnu.author
+attribute on a file?
+
+It would certainly be possible to add a generic ext2/3 namespace handler
+to allow those fields to be set on, say, Linux hosts; but that would
+just be a matter of matching the gnu.* syscall xattr encoding to the
+EXT2_XATTR_INDEX_GNU on-disk encoding; it wouldn't actually deal with
+any semantic expectations surrounding the use of those fields.
+
+--Stephen
+
+

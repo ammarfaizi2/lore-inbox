@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWC0BYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751535AbWC0Bj1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbWC0BYf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 20:24:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWC0BYf
+	id S1751535AbWC0Bj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 20:39:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbWC0Bj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 20:24:35 -0500
-Received: from smtp.enter.net ([216.193.128.24]:1799 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1751242AbWC0BYf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 20:24:35 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-fbdev-devel@lists.sourceforge.net,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: funny framebuffer fonts on PowerBook with radeonfb
-Date: Sun, 26 Mar 2006 20:24:44 -0500
-User-Agent: KMail/1.8.1
-References: <20060327004741.GA19187@MAIL.13thfloor.at>
-In-Reply-To: <20060327004741.GA19187@MAIL.13thfloor.at>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 26 Mar 2006 20:39:27 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:4498
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751485AbWC0Bj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 20:39:26 -0500
+Date: Sun, 26 Mar 2006 17:39:18 -0800 (PST)
+Message-Id: <20060326.173918.15234485.davem@davemloft.net>
+To: bunk@stusta.de
+Cc: akpm@osdl.org, nkiesel@tbdnetworks.com, acme@conectiva.com.br,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [2.6 patch] net: drop duplicate assignment in request_sock
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060326122410.GG4053@stusta.de>
+References: <20060326122410.GG4053@stusta.de>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603262024.44737.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 26 March 2006 19:47, Herbert Poetzl wrote:
-> Hey Ben!
->
-> 2.6.16 and 2.6.15-something show a funny behaviour
-> when using the radeonfb driver (for text mode), they
-> kind of twist and break the fonts in various places
-> some characters or parts seem to be mirrored like
-> '[' becoming ']' but not on character boundary but
-> more on N pixels, colors seem to be correct for the
-> characters, and sometimes the font is perfectly fine
-> for larger runs, e.g. I can read the logon prompt
-> fine, but everything I type is garbled ...
->
-> just for an example, when I type 'echo "Test"' then
-> all characters are mirrored and cut off on the right
-> side but the locations are as shown above, on enter
-> the T is only a few pixels wide, but the est part is
-> written perfectly fine ... this is a new behaviour
-> and going back to 2.6.13.3 doesn't show this ...
->
-> if there is some testing I can do for you, or when
-> you need more info, please let me know. here a few
-> details for the machine:
+From: Adrian Bunk <bunk@stusta.de>
+Date: Sun, 26 Mar 2006 14:24:10 +0200
 
-I saw this on an PC with a Radeon 7000/VE that was slowly going bad. I'd 
-recommend you run a full diagnostic on the video system memory (if possible) 
-and look for errors there. If it isn't the memory (which was the problem on 
-my Radeon) then the GPU itself might be going bad.
+> From: Norbert Kiesel <nkiesel@tbdnetworks.com>
+> 
+> Just noticed that request_sock.[ch] contain a useless assignment of
+> rskq_accept_head to itself.  I assume this is a typo and the 2nd one
+> was supposed to be _tail.  However, setting _tail to NULL is not
+> needed, so the patch below just drops the 2nd assignment.
+> 
+> Signed-Off-By: Norbert Kiesel <nkiesel@tbdnetworks.com>
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-ShadowWolf
+Applied, thanks.

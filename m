@@ -1,99 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWC0KBH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWC0KFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbWC0KBH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 05:01:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWC0KBH
+	id S1750836AbWC0KFV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 05:05:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWC0KFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 05:01:07 -0500
-Received: from mail.sw-soft.com ([69.64.46.34]:22441 "EHLO mail.sw-soft.com")
-	by vger.kernel.org with ESMTP id S1750834AbWC0KBG (ORCPT
+	Mon, 27 Mar 2006 05:05:21 -0500
+Received: from ishtar.tlinx.org ([64.81.245.74]:23273 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S1750836AbWC0KFU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 05:01:06 -0500
-Message-ID: <4427B7DC.3040804@openvz.org>
-Date: Mon, 27 Mar 2006 14:01:00 +0400
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Mon, 27 Mar 2006 05:05:20 -0500
+Message-ID: <4427B8DC.6090406@tlinx.org>
+Date: Mon, 27 Mar 2006 02:05:16 -0800
+From: Linda Walsh <lkml@tlinx.org>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Rik van Riel <riel@redhat.com>, Kurt Garloff <garloff@suse.de>,
-       Kir Kolyshkin <kir@openvz.org>, devel@openvz.org
-Subject: [ANNOUNCE] OpenVZ patch for 2.6.16 and beta SUSE10.1 kernels
-Content-Type: text/plain; charset=windows-1251; format=flowed
+To: Andre Tomt <andre@tomt.net>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Save 320K on production machines?
+References: <4426515B.5040307@tlinx.org> <44266F61.9050209@tomt.net>
+In-Reply-To: <44266F61.9050209@tomt.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SA-Do-Not-Rej: Toldya
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OpenVZ team is happy to announce the release of its virtualization
-solution based on 2.6.16 and beta SUSE10.1 kernels.
+Andre Tomt wrote:
+> Linda Walsh wrote:
+> <snip>
+>> To minimize
+>> problems, I disable unused hardware, and all _used_ hardware
+>> is compiled in (no module loading overhead, no chances for
+>> arbitrary code insertion).
+>
+> FYI, rootkits have been able to cope with inserting kernel code 
+> without using the modules support for ages. It is only makes it 
+> marginally harder.
+>
+---
+    True, but that's the point.  People break into systems with
+passwords.  Just because passwords aren't 100% effective in
+protecting systems doesn't mean we don't use them.  :-)
 
-As in previous releases, OpenVZ 2.6.16 kernel patch includes:
-- virtualization
-- fine grained resource management (user beancounters)
-- 2 level disk quota
+    The point is to "minimize" a vulnerability profile.
+    I'm wondering why unused code is required to be compiled
+in to standard kernels.  It seems very un-linux like -- more like
+Windows that has support for everything compiled in.
 
-Coming soon new features (!):
-- virtualized AppArmor
-- dynamic virtual CPU adding/remove to/from VPS
+    Reducing code bloat is not just a good idea for embedded systems.
+It's good for performance and security if for no other reason that
+there are fewer lines that could go wrong. :-)
 
-More information about OpenVZ project is available at http://openvz.org/
-
-Fine grained broken-out patch set can be found at
-http://download.openvz.org/kernel/broken-out/2.6.16-026test005.1/
-or at GIT repository at http://git.openvz.org/
-
-About OpenVZ software
-~~~~~~~~~~~~~~~~~~~~~
-
-OpenVZ is a kernel virtualization solution which can be considered as a
-natural step in the OS kernel evolution: after multiuser and
-multitasking functionality there comes an OpenVZ feature of having
-multiple environments.
-
-Virtualization lets you divide a system into separate isolated
-execution environments (called VPSs - Virtual Private Servers). From the
-point of view of the VPS owner (root), it looks like a stand-alone
-server. Each VPS has its own filesystem tree, process tree (starting
-from init as in a real system) and so on. The  single-kernel approach
-makes it possible to virtualize with very little overhead, if any.
-
-OpenVZ in-kernel modifications can be divided into several components:
-
-1. Virtualization and isolation.
-Many Linux kernel subsystems are virtualized, so each VPS has its own:
-- process tree (featuring virtualized pids, so that the init pid is 1);
-- filesystems (including virtualized /proc and /sys);
-- network (virtual network device, its own ip addresses,
-   set of netfilter and routing rules);
-- devices (if needed, any VPS can be granted access to real devices
-   like network interfaces, serial ports, disk partitions, etc);
-- IPC objects.
-
-2. Resource Management.
-This subsystem enables multiple VPSs to coexist, providing managed
-resource sharing and limiting.
-- User Beancounters is a set of per-VPS resource counters, limits,
-   and guarantees (kernel memory, network buffers, phys pages, etc.).
-- Two-level disk quota (first-level: per-VPS quota;
-   second-level: ordinary user/group quota inside a VPS)
-
-Resource management is what makes OpenVZ different from other solutions
-of this kind (like Linux VServer or FreeBSD jails). There are a few
-resources that can be abused from inside a VPS (such as files, IPC
-objects, ...) leading to a DoS attack. User Beancounters prevent such
-abuses.
-
-As virtualization solution OpenVZ makes it possible to do the same
-things for which people use UML, Xen, QEmu or VMware, but there are
-differences:
-(a) there is no ability to run other operating systems
-     (although different Linux distros can happily coexist);
-(b) performance loss is negligible due to absense of any kind of
-     emulation;
-(c) resource utilization is much better.
-
-Thanks,
-OpenVZ team.
-
+-l
 

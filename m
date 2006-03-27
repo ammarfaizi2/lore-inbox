@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWC0AHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWC0AHL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932251AbWC0AHR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Mar 2006 19:07:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWC0AHR
+	id S932253AbWC0AHL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Mar 2006 19:07:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWC0AHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Mar 2006 19:07:17 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:48776 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S932251AbWC0AHO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Mar 2006 19:07:14 -0500
-Date: Mon, 27 Mar 2006 01:07:07 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Thomas Gleixner <tglx@linutronix.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: PI patch against 2.6.16-rt9
-In-Reply-To: <20060326234722.GA25331@elte.hu>
-Message-ID: <Pine.LNX.4.44L0.0603270055090.2708-100000@lifa01.phys.au.dk>
+	Sun, 26 Mar 2006 19:07:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:9374 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932231AbWC0AHJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Mar 2006 19:07:09 -0500
+Date: Sun, 26 Mar 2006 16:06:56 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Bodo Eggert <7eggert@gmx.de>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Move SG_GET_SCSI_ID from sg to scsi
+In-Reply-To: <Pine.LNX.4.61.0603270116150.15593@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.64.0603261602070.15714@g5.osdl.org>
+References: <Pine.LNX.4.58.0603262108500.13001@be1.lrz>
+ <Pine.LNX.4.64.0603261424590.15714@g5.osdl.org> <Pine.LNX.4.61.0603270116150.15593@yvahk01.tjqt.qr>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Mar 2006, Ingo Molnar wrote:
 
->
-> * Esben Nielsen <simlo@phys.au.dk> wrote:
->
-> > Hi,
-> >  I got the patch I mentioned earlier to run. It passes my userspace
-> > testscripts as well as all the scripts for Thomas's rtmutex-tester on a UP
-> > machine.
-> >
-> > The idea is to avoid the deadlocks by releasing all locks before going
-> > to the next lock in the chain. I use get_/put_task_struct to avoid the
-> > task disappearing during the iteration.
->
-> but we lose reliable deadlock detection ...
->
-> how do you guarantee that some other CPU doesnt send us on some
-> goose-chase?
->
 
-How should another CPU suddenly be able to insert stuff into a lock chain?
-Only the tasks themselves can do that and they are blocked on some lock -
-at least when we tested in some previous iteration. Ofcourse, they can
-have been signalled or timed out since, such they are already unblocked
-when the deadlock is reported. But that is not an error since the locks at
-some point actually were in a deadlock situation.
+On Mon, 27 Mar 2006, Jan Engelhardt wrote:
+> 
+> Ah. So all the minix, bsd and sun c?t?[dps]? naming is based on what then 
+> (someone drinking just too much coffe?), if BTL/CTD/HCIL (call it what you 
+> want) never existed?
 
-I do put in a limit of 100 (can be changed with sysctl) iterations. But
-that is to avoid looping forever when a new task blocks on a lock already
-part of a deadlock.
+Right. 
 
-> 	Ingo
->
+It was a stupid idea even in the 80's. It's only gotten stupider since.
 
-Esben
+Now, during the 80's it was at least _excusable_. It was reasonable to 
+think that you can just enumerate the controllers. And it was simple, and 
+since hotplug controllers back then was "operator plug", not the modern 
+kind of "they magically show up", it worked and controller numbers _meant_ 
+something (even though they'd change when you switched things around, but 
+you can expect that).
 
+These days, you just cannot enumerate controllers in any meaningful 
+manner. I don't think you ever really could, but at least with static 
+hardware, any random enumeration was as good as any other.
+
+			Linus

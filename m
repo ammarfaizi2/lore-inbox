@@ -1,81 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWC0XZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWC0XbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbWC0XZU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 18:25:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWC0XZU
+	id S1750825AbWC0XbL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 18:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWC0XbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 18:25:20 -0500
-Received: from smtp.bredband2.net ([82.209.166.4]:11822 "EHLO
-	smtp.bredband2.net") by vger.kernel.org with ESMTP id S1751140AbWC0XZS
+	Mon, 27 Mar 2006 18:31:11 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:15567 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750825AbWC0XbK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 18:25:18 -0500
-Message-ID: <44287452.6030205@home.se>
-Date: Tue, 28 Mar 2006 01:25:06 +0200
-From: =?ISO-8859-1?Q?John_B=E4ckstrand?= <sandos@home.se>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: netdev@vger.kernel.org, linux-net@vger.kernel.org
-Subject: 2.6.16, 3com: transmit timed out, tx_status 00 status 8000
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 27 Mar 2006 18:31:10 -0500
+Date: Mon, 27 Mar 2006 17:31:11 -0600
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: phillip@hellewell.homeip.net, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
+       mcthomps@us.ibm.com, yoder1@us.ibm.com, toml@us.ibm.com,
+       emilyr@us.ibm.com, daw@cs.berkeley.edu, sfrench@us.ibm.com,
+       sct@redhat.com
+Subject: Re: eCryptfs Design Document
+Message-ID: <20060327233111.GH4541@us.ibm.com>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+References: <20060324222517.GA13688@us.ibm.com> <20060324154920.11561533.akpm@osdl.org> <20060325001345.GC13688@us.ibm.com> <20060324163358.557ac5f7.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060324163358.557ac5f7.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ive been seeing stuff in dmesg with very recent kernels:
+On Fri, Mar 24, 2006 at 04:33:58PM -0800, Andrew Morton wrote:
+> I think it would be acceptable to design ecryptfs to assume that its
+> underlying store has a 4096-byte "blocksize".  So all the crypto
+> operates on 4096-byte hunks and the header is 4096-bytes long and
+> things are copied to and from the underlying fs's pagecache in
+> 4096-byte hunks.
+> 
+> That's because 4096 is, for practical purposes, the minimum Linux
+> PAGE_CACHE_SIZE.  Globally available and all filesystems support it.
 
-NETDEV WATCHDOG: 3com: transmit timed out
-3com: transmit timed out, tx_status 00 status 8000.
-   diagnostics: net 04fa media 8880 dma 000000a0 fifo 0000
-   Flags; bus-master 1, dirty 67260778(10) current 67260794(10)
-   Transmit list 2f6758e0 vs. ef675840.
-3com: command 0x3002 did not complete! Status=0x9000
-   0: @ef675200  length 80000036 status 00000036
-   1: @ef6752a0  length 80000042 status 00000042
-   2: @ef675340  length 8000028c status 0000028c
-   3: @ef6753e0  length 800005d6 status 000005d6
-   4: @ef675480  length 800005ea status 000005ea
-   5: @ef675520  length 800005ba status 000005ba
-   6: @ef6755c0  length 8000028c status 0000028c
-   7: @ef675660  length 800005d6 status 000005d6
-   8: @ef675700  length 800005ea status 800005ea
-   9: @ef6757a0  length 800005d6 status 800005d6
-   10: @ef675840  length 80000036 status 00010036
-   11: @ef6758e0  length 80000036 status 00000036
-   12: @ef675980  length 80000036 status 00000036
-   13: @ef675a20  length 80000036 status 00000036
-   14: @ef675ac0  length 80000036 status 00000036
-   15: @ef675b60  length 80000036 status 00000036
+So let's say that locking eCryptfs files to only be accessible on
+machines with the same page size as the machine on which the files
+were created is unacceptable. eCryptfs will have to be modified a bit
+to accommodate that. Now we have several issues to consider. My team
+has discussed several potential solutions, but I would like to lay it
+all out on the table to see if anyone out there has any suggestions on
+how to proceed.
 
-Any ideas at all? Seems to happen mostly when doing heavy downloading.
+eCryptfs currently keeps the header information in the first page of
+the file. This will not work when moving from a host with a page size
+of 4K to a host with a page size of 8K (or vice versa). We will be
+changing that so that eCryptfs works on extent-based regions of 4096
+bytes, as Andrew Morton suggested.
 
-I think this did not happen a few versions ago, I know it happened with 
-2.6.16-rc6, and 2.6.16. I donk think it used to happen on .14/.15 and 
-earlier though.
+In the current release, eCryptfs writes the header in the first page
+of the file (which will soon be changed to the first 4k extent of the
+file). This is nice because the header only needs to be generated and
+written once (at file creation), and then it can be left alone from
+that point forward.
 
-The card is a 3c905.
+In the current release, changing eCryptfs to operate in terms of
+fixed-size (4096-byte) extents will cause page reads and writes in
+eCryptfs to ``straddle'' pages in the lower filesystem if the first
+extent contains the header. Consider 8K page sizes:
 
-0000:00:0b.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M 
-[Tornado] (rev 74)
-         Subsystem: 3Com Corporation 3C905C-TX Fast Etherlink for PC 
-Management NIC
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 32 (2500ns min, 2500ns max), Cache Line Size: 0x08 (32 
-bytes)
-         Interrupt: pin A routed to IRQ 10
-         Region 0: I/O ports at 9000 [size=128]
-         Region 1: Memory at e3000000 (32-bit, non-prefetchable) [size=128]
-         Expansion ROM at 40000000 [disabled] [size=128K]
-         Capabilities: [dc] Power Management version 2
-                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold+)
-                 Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+eCryptfs (unencrypted view):
++----------+----------+----------+----------+----------
+| EXTENT_0 | EXTENT_1 | EXTENT_2 | EXTENT_3 |   ...    
++----------+----------+----------+----------+----------
+|       PAGE_0        |       PAGE_1        |   ...
++---------------------+---------------------+----------
 
-(I see there has been 3com-related patches in -git, should I try this? 
-Any chance of them helping?
+Lower (encrypted form):
++----------+----------+----------+----------+----------
+|  HEADER  | EXTENT_0 | EXTENT_1 | EXTENT_2 |   ...    
++----------+----------+----------+----------+----------
+|       PAGE_0        |       PAGE_1        |   ...    
++---------------------+---------------------+----------
 
----
-John Bäckstrand
+So, to read or write page 0 via eCryptfs, eCryptfs will have to read
+or write extents 0 and 1, which will require accessing both page 0 and
+page 1 in the lower filesystem. I do not think that this will be
+acceptable in terms of performance, nor will it maintain the pattern
+of one page operation in eCryptfs correlating with exactly one page
+operation in the lower filesystem. For instance, if eCryptfs writes
+page 0 out to disk, and then a crash occurs, then the data will be
+left in an inconsistent state.
+
+To achieve page alignment, one solution is to make the header consume
+as many extents as will occupy some notion of a ``largest supported
+page size.'' If we arbitrarily set that at, say, 64k, then every file
+in eCryptfs on a system with a page size of 4k will automatically
+consume at least 68k of space (64k header + 4k page), and eCryptfs
+still will have to straddle pages for systems with 128k or 256k page
+sizes (how may systems out there have page sizes >64k?).
+
+Another solution is to write the ``header'' at the tail 4k of the
+file. Then we have to abandon the benefit of having an ``untouchable''
+first 4k region of the lower file. Seeks past the end of the file to
+truncate to a larger size or to append data will blow away the header
+extent, and it will have to be re-written. When should that happen? On
+each and every truncate? When the file is closed? If we choose the
+latter, then it is easy to lose your file forever if there is a system
+crash before the file is closed and the header can be re-written to
+its new location.
+
+To complicate matters, in future versions, the header will need to
+take multiple extents, and so we have always been planning on
+eventually appending some header information at the end of the file
+anyway; it looks like we are having to confront some of the issues
+involved in doing that right now. In later versions, the header will
+contain multiple passphrase and public key packets, along with HMAC
+values. The header will need to grow to consume an arbitrary number of
+extents, depending on the file size and the number of authentication
+token packets. 
+
+To guarantee that the header is always present in the file, when the
+eCryptfs function ecryptfs_truncate() is called, it could add on as
+many additional pages to the lower file as are necessary to write the
+header and then write the header out prior to returning. The overhead
+in maintaining several 4k header extents at the end of the file would
+be substantial (e.g., for a log file that is constantly being
+appended). Plus, if the header spans more than one page, then there
+are additional steps necessary to maintain consistency in the event of
+an incomplete header write operation (i.e., maintain a temporary
+pointer to the prior header location until the header is completely
+written out to the new location).
+
+Another idea that we have kicked around involves keeping an eCryptfs
+journal file. In this case, the header can be overwritten in the lower
+file for a while before it is re-written, but all of the information
+necessary to generate that header always exists in a hidden journal
+file. If there is a system crash, on the next mount, ecryptfsck will
+check the journal file to determine that the header needs to be
+written out to the file, and then it can repair the file. Journaling
+functionality is something that we gauge to be a fairly large
+development effort, and we feel it really should be slated for a
+future release (>0.2) of eCryptfs.
+
+So we have several ways to proceed at this point, but before we run
+off and implement one of them, does anyone else out there have any
+insights?
+
+Thanks,
+Mike

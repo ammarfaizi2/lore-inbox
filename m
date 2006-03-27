@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWC0Ukt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWC0U5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbWC0Ukt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 15:40:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWC0Ukt
+	id S1751128AbWC0U5n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 15:57:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbWC0U5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 15:40:49 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:5024 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751132AbWC0Uks (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 15:40:48 -0500
-Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: ams@gnu.org
-Cc: cascardo@minaslivre.org, tytso@mit.edu, adilger@clusterfs.com,
-       sho@bsd.tnes.nec.co.jp, cmm@us.ibm.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, Laurent.Vivier@bull.net,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20060327200518.0413A44002@Psilocybe.Update.UU.SE>
-References: <02bc01c648f2$bd35e830$4168010a@bsd.tnes.nec.co.jp>
-	 <20060316183549.GK30801@schatzie.adilger.int>
-	 <20060316212632.GA21004@thunk.org>
-	 <20060316225913.GV30801@schatzie.adilger.int>
-	 <20060318170729.GI21232@thunk.org>
-	 <20060320063633.GC30801@schatzie.adilger.int>
-	 <1142894283.21593.59.camel@orbit.scot.redhat.com>
-	 <20060320234829.GJ6199@schatzie.adilger.int>
-	 <1142960722.3443.24.camel@orbit.scot.redhat.com>
-	 <20060321183822.GC11447@thunk.org>
-	 <20060325145139.GA5606@cascardo.localdomain>
-	 <1143489301.15697.9.camel@orbit.scot.redhat.com>
-	 <20060327200518.0413A44002@Psilocybe.Update.UU.SE>
-Content-Type: text/plain
-Date: Mon, 27 Mar 2006 15:40:32 -0500
-Message-Id: <1143492032.15697.19.camel@orbit.scot.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Mar 2006 15:57:43 -0500
+Received: from xproxy.gmail.com ([66.249.82.196]:26868 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751128AbWC0U5m convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 15:57:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=keDzu/H3cGTmM35TngOpS5PzpGFu1Nx/klcILkVuw3NL9//r3El1YYak0sQ55UP83QbOJQPscElzj8CPL+zWBGkHO3Tk3Is6lFkoQpRcKm+po4bNWTDS/IliUzH93DGxhOVmt2ALHAEdxm8h+wdS476I9c85HmJtT6ajWvTKD1s=
+Message-ID: <4807377b0603271257l237c29e6h8ba14cfd3551db8c@mail.gmail.com>
+Date: Mon, 27 Mar 2006 12:57:41 -0800
+From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: [PATCH] Lower e100 latency
+Cc: akpm@osdl.org, "Linux-Kernel," <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060327223013.674d1970@werewolf.auna.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060323014046.2ca1d9df.akpm@osdl.org>
+	 <20060323220711.28fcb82f@werewolf.auna.net>
+	 <20060323221342.2352789d@werewolf.auna.net>
+	 <4423221D.6020109@garzik.org>
+	 <20060327223013.674d1970@werewolf.auna.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 3/27/06, J.A. Magallon <jamagallon@able.es> wrote:
+> Corrected:
+>
+> --- linux/drivers/net/e100.c.orig       2006-01-24 09:20:44.000000000 +0100
+> +++ linux/drivers/net/e100.c    2006-01-24 09:21:55.000000000 +0100
+> @@ -884,10 +884,10 @@
+>          * procedure it should be done under lock.
+>          */
+>         spin_lock_irqsave(&nic->mdio_lock, flags);
+> -       for (i = 100; i; --i) {
+> +       for (i = 1000; i; --i) {
+>                 if (readl(&nic->csr->mdi_ctrl) & mdi_ready)
+>                         break;
+> -               udelay(20);
+> +               udelay(2);
 
-On Mon, 2006-03-27 at 22:05 +0200, Alfred M. Szmidt wrote:
->    Now, a non-Hurd system is not going to have any use for the gnu.*
->    xattr semantics, as translator is a Hurd-specific concept.
-> 
-> gnu.* doesn't just concern itself with translators, it can also be
-> gnu.author (or some such) which is a normal UID, which GNU/Linux can
-> support without any problems.
+what is the purpose of this patch?  what bug is it solving?  Are we
+trying to achieve some goal?  A comment at the very least is
+necessary.  I don't like changing timing stuff unless we have some
+clear reason.  In fact I sent a patch a while back to a guy who was
+complaining about latency in a -RT kernel with e100 and he said this
+kind of change made things worse: see the end of:
 
-OK, but would it have any active semantics on non-Hurd kernels?  How
-would the behaviour of ext3 change in the presence of a gnu.author
-attribute on a file?
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113808831932769&w=2
 
-It would certainly be possible to add a generic ext2/3 namespace handler
-to allow those fields to be set on, say, Linux hosts; but that would
-just be a matter of matching the gnu.* syscall xattr encoding to the
-EXT2_XATTR_INDEX_GNU on-disk encoding; it wouldn't actually deal with
-any semantic expectations surrounding the use of those fields.
+The problem in this case is the mii library calling back into our
+mdio_read.  eepro100's mdio read hard spins with no delay besides the
+ioread32 delay created by reading from an i/o port.  This could
+explain the glitching in an RT kernel.
 
---Stephen
+Is this the kind of problem this patch tries to solve?
 
-
+Thanks,
+  Jesse

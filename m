@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWC1Q2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWC1Q3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbWC1Q2F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 11:28:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWC1Q2F
+	id S932114AbWC1Q3c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 11:29:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWC1Q3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 11:28:05 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:56708 "EHLO
-	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
-	id S932074AbWC1Q2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 11:28:04 -0500
-Message-ID: <4429640F.8060907@grupopie.com>
-Date: Tue, 28 Mar 2006 17:27:59 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: yenganti pradeep <pradeepls143@yahoo.co.in>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: procfs question
-References: <20060328153449.3321.qmail@web8409.mail.in.yahoo.com>
-In-Reply-To: <20060328153449.3321.qmail@web8409.mail.in.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 28 Mar 2006 11:29:32 -0500
+Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:4100 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932114AbWC1Q3b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 11:29:31 -0500
+Date: Tue, 28 Mar 2006 18:29:33 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Frank Gevaerts <frank@gevaerts.be>
+Cc: Robert Love <rlove@rlove.org>, linux-kernel@vger.kernel.org
+Subject: Re: patch : hdaps on Thinkpad R52
+Message-Id: <20060328182933.4184db3f.khali@linux-fr.org>
+In-Reply-To: <20060314205758.GA9229@gevaerts.be>
+References: <20060314205758.GA9229@gevaerts.be>
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yenganti pradeep wrote:
-> Hi,
+Hi Frank,
 
-Hi,
+> I had to add a new entry to the hdaps_whitelist table in hdaps.c to get
+> my Thinkpad R52 recognized. Patch is attached
+> (...)
+>  	/* Note that DMI_MATCH(...,"ThinkPad T42") will match "ThinkPad T42p" */
+>  	struct dmi_system_id hdaps_whitelist[] = {
+> +		HDAPS_DMI_MATCH_NORMAL("ThinkPad H"),
+>  		HDAPS_DMI_MATCH_INVERT("ThinkPad R50p"),
+>  		HDAPS_DMI_MATCH_NORMAL("ThinkPad R50"),
+>  		HDAPS_DMI_MATCH_NORMAL("ThinkPad R51"),
 
-> I've created a new entry under /proc, to make tests.
-> 
-> I've defined an static int var=0;
-> 
-> Then I link my proc entry read function to a function
-> that only performs this:
-> 
-> int length;
-> length=sprintf(page,"Value %d",var++);
-> 
-> return length;
-> 
-> But when I cat/vi the file continuosly I get:
-> 
-> Value 0
-> Value 3
-> Value 6
-> 
-> etc...
-> 
-> Why is this three numbers increment? 
+I have some doubt about this. The Thinkpad R52 is already supported
+(with identifier string "ThinkPad R52", unsuprisingly) and "ThinkPad H"
+doesn't exactly sound sane. Looks like your DMI data is corrupted or
+something. Could you please provide the output of dmidecode and
+vpddecode on your laptop?
 
-'cat' will issue a read for more bytes than your function provides. As 
-this read isn't fully satisfied it will issue another read for the rest 
-at a different offset, etc. So your function gets called several times.
+Anyone else with a Thinkpad R52 can provide the same information for
+comparison?
 
-Just do a 'strace' on 'cat' to see what 'cat' really does. For more 
-details search for the thread 'procfs uglyness caused by "cat"'.
+Feel free to send the outputs to me privately if you don't want to make
+them public.
 
-Your read function really shouldn't have side effects...
-
+Thanks,
 -- 
-Paulo Marques - www.grupopie.com
-
-Pointy-Haired Boss: I don't see anything that could stand in our way.
-            Dilbert: Sanity? Reality? The laws of physics?
+Jean Delvare

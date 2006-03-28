@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWC1Vfr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWC1Vis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbWC1Vfr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 16:35:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932227AbWC1Vfr
+	id S932233AbWC1Vis (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 16:38:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWC1Vis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 16:35:47 -0500
-Received: from www.osadl.org ([213.239.205.134]:22435 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S932223AbWC1Vfq (ORCPT
+	Tue, 28 Mar 2006 16:38:48 -0500
+Received: from asteria.debian.or.at ([86.59.21.34]:11749 "EHLO
+	asteria.debian.or.at") by vger.kernel.org with ESMTP
+	id S932233AbWC1Vir convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 16:35:46 -0500
-Subject: Re: PI patch against 2.6.16-rt9
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44L0.0603282202250.22822-100000@lifa02.phys.au.dk>
-References: <Pine.LNX.4.44L0.0603282202250.22822-100000@lifa02.phys.au.dk>
-Content-Type: text/plain
-Date: Tue, 28 Mar 2006 23:36:42 +0200
-Message-Id: <1143581802.5344.229.camel@localhost.localdomain>
+	Tue, 28 Mar 2006 16:38:47 -0500
+Date: Tue, 28 Mar 2006 23:38:46 +0200
+From: Peter Palfrader <peter@palfrader.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16: Oops - null ptr in blk_recount_segments?
+Message-ID: <20060328213845.GO25288@asteria.noreply.org>
+Mail-Followup-To: Peter Palfrader <peter@palfrader.org>,
+	linux-kernel@vger.kernel.org
+References: <20060327022814.GV25288@asteria.noreply.org> <20060327043601.GE27189130@melbourne.sgi.com> <20060327045823.GW25288@asteria.noreply.org> <20060327061021.GT1173973@melbourne.sgi.com> <Pine.LNX.4.61.0603281621210.27529@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <Pine.LNX.4.61.0603281621210.27529@yvahk01.tjqt.qr>
+X-PGP: 1024D/94C09C7F 5B00 C96D 5D54 AEE1 206B  AF84 DE7A AF6E 94C0 9C7F
+X-Request-PGP: http://www.palfrader.org/keys/94C09C7F.asc
+X-Accept-Language: de, en
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-28 at 22:17 +0100, Esben Nielsen wrote:
-> I think we talk about the situation
+Jan Engelhardt schrieb am Dienstag, dem 28. März 2006:
 
-No, we talk about existing lock chains L(0) --> L(n).
-
->                         B locks 1            C locks 2       D locks 3
->                         B locks 2, boosts C and block
->       A locks 2
->       A is boost B
->       A drop it's spinlocks and is preempted
->                                              C unlocks 2 and auto unboosts
->                         B is running
->                         B locks 3, boosts C and blocks
->       A gets a CPU again
->       A boosts B
->       A boosts D
+> >These diffs:
+> >
+> >2006-01-18
+> >[XFS] Fix a race in xfs_submit_ioend() where we can ...
+> >2006-01-11
+> >[XFS] fix writeback control handling fix a reversed ...
+> >[XFS] cluster rewrites We can cluster mapped pages ...
+> >[...]
 > 
-> Is there anything wrong with that?
-> And in the case where A==D there indeed is a deadlock which will be
-> detected.
+> I bet on the 3rd...
 
-If you get to L(x) the underlying dependencies might have changed
-already as well as the dependencies x ... n. We might get false
-positives in the deadlock detection that way, as a deadlock is an
-"atomic" state.
+Some of the patches don't unapply cleanly anymore.  I'll see what I can
+do despite that.
 
-	tglx
-
-
+-- 
+Peter

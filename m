@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWC1U0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWC1Ua0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbWC1U0q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 15:26:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWC1U0q
+	id S932154AbWC1Ua0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 15:30:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWC1Ua0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 15:26:46 -0500
-Received: from mail8.fw-bc.sony.com ([160.33.98.75]:15792 "EHLO
-	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
-	id S932153AbWC1U0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 15:26:45 -0500
-Message-ID: <44299BE5.6040308@am.sony.com>
-Date: Tue, 28 Mar 2006 12:26:13 -0800
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Tue, 28 Mar 2006 15:30:26 -0500
+Received: from web37705.mail.mud.yahoo.com ([209.191.87.103]:32626 "HELO
+	web37705.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932154AbWC1Ua0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 15:30:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=WS/9XeOAehx3HJwgZgcc31Sq9h9xULazwwx400VXioGVAdJxV+y41ki6Yftlth7NCebzMF9+4uVe/zulcTR7y6+tcZ9xYoYzBIvicHzAYBjnhdsc9Py+PqVHBty68t6sRpVtRNL7mGBBeytU61WxKpOf7tNEuggbpXgBnorl5L4=  ;
+Message-ID: <20060328203023.59855.qmail@web37705.mail.mud.yahoo.com>
+Date: Tue, 28 Mar 2006 12:30:23 -0800 (PST)
+From: Edward Chernenko <edwardspec@yahoo.com>
+Subject: Re: [PATCH 2.6.15] Adding kernel-level identd dispatcher
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org, edwardspec@gmail.com
+In-Reply-To: <1143561207.8009.58.camel@lade.trondhjem.org>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [patch 06/10] PI-futex: rt-mutex docs
-References: <20060325184620.GG16724@elte.hu>
-In-Reply-To: <20060325184620.GG16724@elte.hu>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some minor nits.
+--- Trond Myklebust <trond.myklebust@fys.uio.no>
+wrote:
+> > 
+> > If so, then why khttpd _was_ included into kernel?
+> 
+> That has been widely acknowledged as a mistake.
+> You'll note that khttpd
+> was removed prior to the release of linux-2.6.0.
+> Nobody misses it.
+> 
 
-Ingo Molnar wrote:
-> Is the temporary priority
-> +boosted owner blocked on a rt_mutex itself it propagates the priority
-> +boosting to the owner of the rt_mutex it is blocked on.
+That's bad. I think that some people need this, so my
+module will be distributed like Tux webserver,
+separately from kernel.
 
-Should that sentence start with "If"?
+Anyway, can you help me by explaining your opinion
+about my code, not about development phylosophy?
+That's my first work and it's important to me to find
+if I done something unefficient.
 
-> The priority
-> +boosting is immidiately removed once the rt_mutex has been unlocked.
+Edward Chernenko <edwardspec@gmail.com>
 
-immidiately -> immediately
 
-> Per
-> +rtmutex only the top priority waiter is enqueued into the owners
-> +priority waiters list. Also this list enqueues in priority
-> +order.
-
-owners -> owner's
-
-> The optimized fathpath operations require cmpxchg
-> +support.
-
-fathpath -> fastpath
-
-If you would like the above changes in patch format,
-please let me know.
-
-Regards,
- -- Tim
-
-=============================
-Tim Bird
-Architecture Group Chair, CE Linux Forum
-Senior Staff Engineer, Sony Electronics
-=============================
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

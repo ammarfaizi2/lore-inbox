@@ -1,85 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbWC1WY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbWC1WY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932460AbWC1WY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 17:24:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbWC1WY4
+	id S932455AbWC1WY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 17:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWC1WY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 17:24:56 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:22663 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932461AbWC1WYz (ORCPT
+	Tue, 28 Mar 2006 17:24:26 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:39565 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932455AbWC1WYY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 17:24:55 -0500
-Date: Tue, 28 Mar 2006 17:24:17 -0500
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Kumar Gala <galak@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       fastboot@lists.osdl.org, torvalds@osdl.org, ebiederm@xmission.com,
-       gregkh@suse.de, bcrl@kvack.org, dave.jiang@gmail.com,
-       arjan@infradead.org, maneesh@in.ibm.com, muralim@in.ibm.com
-Subject: Re: [RFC][PATCH 0/10] 64 bit resources
-Message-ID: <20060328222417.GC20335@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20060323195752.GD7175@in.ibm.com> <20060324011217.7b8aade1.akpm@osdl.org> <20060324180538.GC4406@in.ibm.com> <DA5FFD16-3FBF-4CB1-BD38-0125E503512F@kernel.crashing.org>
+	Tue, 28 Mar 2006 17:24:24 -0500
+Date: Wed, 29 Mar 2006 08:23:45 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
+       lkml <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
+Subject: Re: kernel BUG at fs/direct-io.c:916!
+Message-ID: <20060329082345.G871924@wobbly.melbourne.sgi.com>
+References: <20060326230206.06C1EE083AAB@knarzkiste.dyndns.org> <20060326180440.GA4776@charite.de> <20060326184644.GC4776@charite.de> <20060327080811.D753448@wobbly.melbourne.sgi.com> <20060326230358.GG4776@charite.de> <20060327060436.GC2481@frodo> <20060327110342.GX21946@charite.de> <20060328050135.GA2177@frodo> <1143567049.26106.2.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <DA5FFD16-3FBF-4CB1-BD38-0125E503512F@kernel.crashing.org>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1143567049.26106.2.camel@dyn9047017100.beaverton.ibm.com>; from pbadari@us.ibm.com on Tue, Mar 28, 2006 at 09:30:44AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 28, 2006 at 10:34:39AM -0600, Kumar Gala wrote:
-[..]
+On Tue, Mar 28, 2006 at 09:30:44AM -0800, Badari Pulavarty wrote:
+> Thanks for working this out. You may want to add a description
+> to the patch. Like:
 > 
-> >Here are more compilation results with allnoconfig, allmodconfig and
-> >allyesconfig on i386. I have picked section sizes from the output  
-> >of readelf.
-> >
-> >allnoconfig
-> >----------
-> >
-> >vmlinux bloat: 0
-> >
-> >.text bloat: 1008 bytes
-> >.data bloat: 672 bytes.
-> >.init.text bloat: 128 bytes
-> >.init.data bloat: 0 bytes
-> >
-> >(Not sure why vmlinux size difference is zero, given the fact that few
-> > sections are showing bloated size)
-> >
-> >
-> >allmodconfig (CONFIG_DEBUG_INFO=n)
-> >------------
-> >
-> >vmlinux bloat:4096 bytes
-> >
-> >.text bloat: 4064 bytes
-> >.init.text bloat: 470 bytes
-> >.data bloat: 640 bytes
-> >
-> >
-> >allyesconfig  (CONFIG_DEBUG_INFO=n)
-> >-----------
-> >
-> >vmlinux size bloat: 52K
-> >
-> >.text bloat: 28.5K
-> >.init_text bloat: 5K
-> >.eh_frame bloat: 16K  (What's that. Looks big)
-> >.rodata bloat: 152 bytes
-> >.data bloat: 768 bytes
-> 
-> So the bloat seems be in the drivers as expected.
-> 
-> Vivek, mind updating these against -mm2 also, can you fixup arch/ 
-> powerpc/kernel/pci_32.c.
-> 
-> Andrew, any issues in merging into -mm?
+> "inode->i_blkbits should be used instead of dio->blkbits, as
+> it may not indicate the filesystem block size all the time".
 
-These patches are now in -mm2. I did some cross compilation for powerpc
-and fixed more warnings including powerpc/kernel/pci_32.c. Posting patches
-in a separate thread.
+Will do, thanks.  Oh, another thing - what is the situation
+where a NULL bdev would be passed into __blockdev_direct_IO?
+All the filesystems seem to pass i_sb->s_bdev, so I guess it
+must be blkdev_direct_IO - can I_BDEV(inode) ever be NULL on
+a block device inode (doesn't sound right)?  If it cannot, I
+suppose we should remove those NULL bdev checks too...
 
--vivek
+cheers.
 
+-- 
+Nathan
+
+
+Index: xfs-linux-2.6/fs/direct-io.c
+===================================================================
+--- xfs-linux-2.6.orig/fs/direct-io.c
++++ xfs-linux-2.6/fs/direct-io.c
+@@ -1186,8 +1186,8 @@ __blockdev_direct_IO(int rw, struct kioc
+ 	size_t size;
+ 	unsigned long addr;
+ 	unsigned blkbits = inode->i_blkbits;
+-	unsigned bdev_blkbits = 0;
+ 	unsigned blocksize_mask = (1 << blkbits) - 1;
++	unsigned bdev_blkbits = blksize_bits(bdev_hardsect_size(bdev));
+ 	ssize_t retval = -EINVAL;
+ 	loff_t end = offset;
+ 	struct dio *dio;
+@@ -1197,12 +1197,8 @@ __blockdev_direct_IO(int rw, struct kioc
+ 	if (rw & WRITE)
+ 		current->flags |= PF_SYNCWRITE;
+ 
+-	if (bdev)
+-		bdev_blkbits = blksize_bits(bdev_hardsect_size(bdev));
+-
+ 	if (offset & blocksize_mask) {
+-		if (bdev)
+-			 blkbits = bdev_blkbits;
++		blkbits = bdev_blkbits;
+ 		blocksize_mask = (1 << blkbits) - 1;
+ 		if (offset & blocksize_mask)
+ 			goto out;
+@@ -1214,8 +1210,7 @@ __blockdev_direct_IO(int rw, struct kioc
+ 		size = iov[seg].iov_len;
+ 		end += size;
+ 		if ((addr & blocksize_mask) || (size & blocksize_mask))  {
+-			if (bdev)
+-				 blkbits = bdev_blkbits;
++			blkbits = bdev_blkbits;
+ 			blocksize_mask = (1 << blkbits) - 1;
+ 			if ((addr & blocksize_mask) || (size & blocksize_mask))  
+ 				goto out;

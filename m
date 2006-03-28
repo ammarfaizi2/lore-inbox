@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWC1ADu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWC1AEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbWC1ADu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 19:03:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWC1ADu
+	id S932104AbWC1AEh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 19:04:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWC1AEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 19:03:50 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:60079 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932101AbWC1ADt (ORCPT
+	Mon, 27 Mar 2006 19:04:37 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:38571 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932104AbWC1AEg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 19:03:49 -0500
-Date: Tue, 28 Mar 2006 02:03:28 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [patch 2/2] hrtimer
-In-Reply-To: <20060327235530.GA7024@oleg>
-Message-ID: <Pine.LNX.4.64.0603280155350.17704@scrub.home>
-References: <20060325121219.172731000@localhost.localdomain>
- <20060325121223.966390000@localhost.localdomain> <20060325183213.63ab667c.akpm@osdl.org>
- <1143411016.5344.139.camel@localhost.localdomain> <20060327235530.GA7024@oleg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 27 Mar 2006 19:04:36 -0500
+Date: Mon, 27 Mar 2006 19:04:18 -0500
+From: Dave Jones <davej@redhat.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: smp_locks reference_discarded errors
+Message-ID: <20060328000418.GB19025@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20060325033948.GA15564@redhat.com> <20060325235035.5fcb902f.akpm@osdl.org> <20060326154042.GB13684@redhat.com> <20060326161055.GA4584@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060326161055.GA4584@mars.ravnborg.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Mar 26, 2006 at 06:10:55PM +0200, Sam Ravnborg wrote:
 
-On Tue, 28 Mar 2006, Oleg Nesterov wrote:
+ > Also the output from modpost provides a bit more info.
+ > So output from fresh -linus kernel would make it easier to locate the
+ > guilty stuff.
 
-> I also think this is racy.
-> 
-> CPU_0					CPU_1
-> 
-> hrtimer_wakeup:
-> 
-> 	task = t->task;
-> 	t->task = NULL;
-> 
-> 	<--- INTERRUPT --->
-> 
-> 					task is woken by signal,
-> 					do_nanosleep() sees t->task == NULL,
-> 					returns without hrtimer_cancel(),
-> 					and __exits__.
-> 
-> 	<--- RESUME --->
-> 
-> 	wake_up_process(task);
-> 
-> Instead of exit(), 'task' can go to TASK_STOPPED or TASK_UNINTERRUPTIBLE
-> after return from do_nanosleep(), it will be awakened by hrtimer_wakeup()
-> unexpectedly.
+Finally coaxed latest -git to build on all archs I care about..
+grab http://people.redhat.com/davej/buildlog.txt  and grep for WARNING:
+and see a zillion errors.  The smp_locks ones seem to have disappeared
+now though.
 
-Indeed and my original patch did call hrtimer_cancel() unconditionally to 
-synchronize with a possibly running timer.
-Thomas, could you please document it a bit better, when you modify my 
-patches?
+		Dave
 
-bye, Roman
+-- 
+http://www.codemonkey.org.uk

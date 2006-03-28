@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWC1ALt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWC1AQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932142AbWC1ALt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 19:11:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWC1ALt
+	id S932172AbWC1AQe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 19:16:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWC1AQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 19:11:49 -0500
-Received: from xenotime.net ([66.160.160.81]:4517 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932142AbWC1ALt (ORCPT
+	Mon, 27 Mar 2006 19:16:34 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:40880 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932085AbWC1AQd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 19:11:49 -0500
-Date: Mon, 27 Mar 2006 16:14:02 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: dwmw2@infradead.org, akpm <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-mtd@lists.infradead.org
-Subject: [PATCH] MTD: m25p80: fix printk format warning
-Message-Id: <20060327161402.06eaa84b.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Mon, 27 Mar 2006 19:16:33 -0500
+Date: Mon, 27 Mar 2006 19:16:16 -0500
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: valdis.kletnieks@vt.edu, axboe@suse.de, mm-commits@vger.kernel.org
+Subject: Re: + block-i-o-schedulers-document-runtime-selection.patch added to -mm tree
+Message-ID: <20060328001616.GC19025@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org, valdis.kletnieks@vt.edu,
+	axboe@suse.de, mm-commits@vger.kernel.org
+References: <200603272348.k2RNms03005570@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603272348.k2RNms03005570@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+On Mon, Mar 27, 2006 at 03:51:17PM -0800, Andrew Morton wrote:
 
-Fix printk format warning:
-drivers/mtd/devices/m25p80.c:189: warning: format '%zd' expects type 'signed size_t', but argument 6 has type 'u_int32_t'
+ > +As of the Linux 2.6.mumble kernel, it is now possible to change the
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- drivers/mtd/devices/m25p80.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+s/mumble/10/
 
---- linux-2616-g13.orig/drivers/mtd/devices/m25p80.c
-+++ linux-2616-g13/drivers/mtd/devices/m25p80.c
-@@ -186,7 +186,7 @@ static int m25p80_erase(struct mtd_info 
- 	struct m25p *flash = mtd_to_m25p(mtd);
- 	u32 addr,len;
- 
--	DEBUG(MTD_DEBUG_LEVEL2, "%s: %s %s 0x%08x, len %zd\n",
-+	DEBUG(MTD_DEBUG_LEVEL2, "%s: %s %s 0x%08x, len %d\n",
- 			flash->spi->dev.bus_id, __FUNCTION__, "at",
- 			(u32)instr->addr, instr->len);
- 
+		Dave
 
-
----
+-- 
+http://www.codemonkey.org.uk

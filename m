@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbWC1Dpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWC1D5P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751231AbWC1Dpo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 22:45:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWC1Dpo
+	id S1750743AbWC1D5P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 22:57:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWC1D5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 22:45:44 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:43660 "EHLO
-	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S1751231AbWC1Dpn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 22:45:43 -0500
-Subject: Re: [RFC][PATCH 1/2] Virtualization of UTS
-From: Sam Vilain <sam@vilain.net>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       xemul@sw.ru, ebiederm@xmission.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, herbert@13thfloor.at, devel@openvz.org,
-       serue@us.ibm.com
-In-Reply-To: <44242CE7.3030905@sw.ru>
-References: <44242B1B.1080909@sw.ru>  <44242CE7.3030905@sw.ru>
-Content-Type: text/plain
-Date: Tue, 28 Mar 2006 15:45:56 +1200
-Message-Id: <1143517556.7156.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Mar 2006 22:57:15 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:59617 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1750743AbWC1D5O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 22:57:14 -0500
+From: "Peter T. Breuer" <ptb@inv.it.uc3m.es>
+Message-Id: <200603280357.k2S3vBk14437@inv.it.uc3m.es>
+Subject: Re: uptime increases during suspend
+In-Reply-To: <44286783.9000709@tremplin-utc.net> from "Eric Piel" at "Mar 28,
+ 2006 00:30:27 am"
+To: "Eric Piel" <Eric.Piel@tremplin-utc.net>
+Date: Tue, 28 Mar 2006 05:57:11 +0200 (MET DST)
+CC: "Peter T. Breuer" <ptb@inv.it.uc3m.es>,
+       "john stultz" <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
+X-Anonymously-To: 
+Reply-To: ptb@inv.it.uc3m.es
+X-message-flag: Had your Outlook virus, today?  http://www.counterpane.com/crypto-gram-0103.html#4
+X-WebTV-Stationery: Standard\; BGColor=black\; TextColor=black
+Reply-By: Sat, 1 Apr 2006 14:21:08 -0700
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-24 at 20:31 +0300, Kirill Korotaev wrote:
-> +static inline void get_uts_ns(struct uts_namespace *ns)
-> +{
-> +	atomic_inc(&ns->cnt);
-> +}
-> +
-> +static inline void put_uts_ns(struct uts_namespace *ns)
-> +{
-> +	if (atomic_dec_and_test(&ns->cnt))
-> +		free_uts_ns(ns);
-> +}
+"Also sprach Eric Piel:"
+> monotonic clock. Linux has such thing since few releases. Using 
+> CLOCK_MONOTONIC (cf "man 3 clock_gettime") may look much less hacky than 
+> using the uptime ;-)
 
-I think somebody already said this, but this is probably better using
-kobject as I was asked to for the vx_info.  (Documentation/kobject.txt)
+Actually, the man page does not say anything about the behavior across
+suspends, and ...
 
-Also I think it might be useful to have a count of tasks that refer to
-the structure, in addition to the count of actual references.  In this
-way you can know whether the resource is "free" before its kobject
-destructor is called (as the vserver vx_info does).
+      CLOCK_REALTIME
+              System-wide  realtime clock.  Setting this clock requires appro-
+              priate privileges.
 
-Perhaps that abstraction is best to put in when it becomes "useful",
-like you have a situation where you want to do something when the last
-process with a utsname exits, but before the last kthread referencing
-the structure stops (eg, a sleeping process reading /proc somewhere).
+       CLOCK_MONOTONIC
+              Clock that cannot be set and  represents  monotonic  time  since
+              some unspecified starting point.
 
-Otherwise, nice and simple; I could quite easily at this point plug this
-into the syscall infrastructure I posted earlier (once it is reworked
-based on people's comments), and provide tests for this.
+I'd understand both those wordings the same way!  Well, I suppose
+"cannot be set" means that at least humans can't willingly interfere with
+it, but maybe something else can.
 
-Sam.
+> Now... concerning the suspend effect on this clock, I don't know. It's 
+> probably the same problem as uptime: no official semantic has ever been 
+> stated yet... Does anyone know?
 
+"Monotonic" means "always goes in the same direction", not "never
+skips".
+
+Peter

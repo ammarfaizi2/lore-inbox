@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWC1XJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWC1XJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964811AbWC1XJu (ORCPT <rfc822;willy@w.ods.org>);
+	id S964810AbWC1XJu (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 28 Mar 2006 18:09:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbWC1XJt
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWC1XJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 18:09:49 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:23876 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S964811AbWC1XJt
+	Tue, 28 Mar 2006 18:09:50 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:25412 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S964810AbWC1XJt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 28 Mar 2006 18:09:49 -0500
-Message-ID: <4429C252.2000405@tmr.com>
-Date: Tue, 28 Mar 2006 18:10:10 -0500
+Message-ID: <4429BCAC.80208@tmr.com>
+Date: Tue, 28 Mar 2006 17:46:04 -0500
 From: Bill Davidsen <davidsen@tmr.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
 MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: hda-intel woes
-References: <20060327231049.GA30641@localhost.in.y0ur.4ss> <4428872E.3020308@wolfmountaingroup.com>
-In-Reply-To: <4428872E.3020308@wolfmountaingroup.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Ulrich Drepper <drepper@gmail.com>
+CC: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       jakub@redhat.com
+Subject: Re: [PATCH] 2.6.16 - futex: small optimization (?)
+References: <4428E7B7.8040408@bull.net> <a36005b50603280702n2979d8ddh97484615ea9d4f3a@mail.gmail.com>
+In-Reply-To: <a36005b50603280702n2979d8ddh97484615ea9d4f3a@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff V. Merkey wrote:
+Ulrich Drepper wrote:
+> On 3/27/06, Pierre PEIFFER <pierre.peiffer@bull.net> wrote:
+>> I found a (optimization ?) problem in the futexes, during a futex_wake,
+>>   if the waiter has a higher priority than the waker.
 > 
-> Visit www.redhat.com.
-> 
-> Purchase a support contract for customer service, fastest way to get help.
+> There are no such situations anymore in an optimal userlevel
+> implementation.  The last problem (in pthread_cond_signal) was fixed
+> by the addition of FUTEX_WAKE_OP.  The userlevel code you're looking
+> at is simply not optimized for the modern kernels.
 
-Several things have escaped you:
-  1 - common politeness - the question was reasonable
-  2 - sound doesn't work on ASUS laptops up thru at least 2.6.15.3
-  3 - Fedora is user supported
+What are you suggesting here, that the kernel can be inefficient as long 
+as the user has a way to program around it?
 
-Having spent months trying to convince people that there was no 
-{various_things} to mute or unmute, it didn't work with earphones 
-either, etc, I decided that given a choice between (a) Windows, (b) a 
-new laptop which might not work either, or (c) a cheap USB sound setup, 
-I decided to stop banging my head on that particular rock.
-
-My friend bought one at the same time I did, he reports that neither the 
-latest Fedora kernel, 2.6.15.6, or 2.6.16 works. Downloading the latest 
-ALSA patches may work if they apply to the kernel you have.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
 

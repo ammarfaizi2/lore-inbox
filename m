@@ -1,104 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbWC1W0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbWC1W1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932458AbWC1W0G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 17:26:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbWC1W0G
+	id S932461AbWC1W1X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 17:27:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWC1W1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 17:26:06 -0500
-Received: from iron.cat.pdx.edu ([131.252.208.92]:6025 "EHLO iron.cat.pdx.edu")
-	by vger.kernel.org with ESMTP id S932458AbWC1W0E (ORCPT
+	Tue, 28 Mar 2006 17:27:23 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:20152 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932461AbWC1W1W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 17:26:04 -0500
-Date: Tue, 28 Mar 2006 14:25:06 -0800 (PST)
-From: Suzanne Wood <suzannew@cs.pdx.edu>
-Message-Id: <200603282225.k2SMP6kb023905@baham.cs.pdx.edu>
-To: dhowells@redhat.com
-Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com
-Subject: Re: [PATCH] Document Linux's memory barriers [try #5]
+	Tue, 28 Mar 2006 17:27:22 -0500
+Date: Tue, 28 Mar 2006 17:27:03 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Morton Andrew Morton <akpm@osdl.org>,
+       Kumar Gala <galak@kernel.crashing.org>
+Subject: [PATCH 1/3] 64 bit resources arch powerpc changes
+Message-ID: <20060328222703.GD20335@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-This is just a question about intended meaning in a paragraph  
-at the end of the "What are memory barriers?" section.
 
- > From: Paul E. McKenney Thu Mar 16 2006 - 18:14:11 EST 
- > On Wed, Mar 15, 2006 at 02:23:19PM +0000, David Howells wrote:
- > > 
- > > The attached patch documents the Linux kernel's memory barriers.
- > > 
- > > I've updated it from the comments I've been given.
- > > 
- > . . .
- > 
- > Good stuff!!! Please see comments interspersed, search for empty lines.
- > 
- > One particularly serious issue involve your smp_read_barrier_depends()
- > example.
- > 
- > > Signed-Off-By: David Howells <dhowells@redhat.com>
- > > ---
- > > warthog>diffstat -p1 /tmp/mb.diff 
- > > Documentation/memory-barriers.txt | 1039 
- > ++++++++++++++++++++++++++++++++++++++
- > > 1 files changed, 1039 insertions(+)
- > > 
- > > diff --git a/Documentation/memory-barriers.txt 
- > b/Documentation/memory-barriers.txt
- > > new file mode 100644
- > > index 0000000..fd7a6f1
- > > --- /dev/null
- > > +++ b/Documentation/memory-barriers.txt
- > > @@ -0,0 +1,1039 @@
- > > + ============================
- > > + LINUX KERNEL MEMORY BARRIERS
- > > + ============================
- 
- . . .
- 
- > > +=========================
- > > +WHAT ARE MEMORY BARRIERS?
- > > +=========================
- > > +
- 
- > . . . 
- 
- > > +It is also guaranteed that a CPU will be self-consistent: it will see its _own_
- > > +accesses appear to be correctly ordered, without the need for a memory barrier.
- > > +For instance with the following code:
- > > +
- > > + X = *A;
- > > + *A = Y;
- > > + Z = *A;
- > > +
- > > +assuming no intervention by an external influence, it can be taken that:
- > > +
- > > + (*) X will hold the old value of *A, and will never happen after the write and
- > > + thus end up being given the value that was assigned to *A from Y instead;
- 
-Seems like the subject of "will never happen" is the read from memory for the 
-asmt to X, but does that sentence say that?  
 
- > > + and
- > > +
- > > + (*) Z will always be given the value in *A that was assigned there from Y, and
- > > + will never happen before the write, and thus end up with the same value
- > > + that was in *A initially.
- 
-Similarly, the read from memory for the asmt to Z won't precede the write of Y
-to *A.
- 
- > > +
- > > +(This is ignoring the fact that the value initially in *A may appear to be the
- > > +same as the value assigned to *A from Y).
- > > +
- > > +
- > > +=================================
- > > +WHERE ARE MEMORY BARRIERS NEEDED?
- > > +=================================
 
-It seems to require more effort than necessary to understand in regard to
-all that is presented in this document.
+o powerpc cross-compilation with CONFIG_PPC=32 resulted in more warnings
+  for 64bit resources. This patch fixes it.
 
-Thanks.
-Suzanne
+o Contains changes for arch/powerpc/* dir.
+
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
+
+ arch/powerpc/kernel/pci_32.c          |   15 ++++++++-------
+ arch/powerpc/platforms/83xx/pci.c     |    5 +++--
+ arch/powerpc/platforms/85xx/pci.c     |    5 +++--
+ arch/powerpc/platforms/chrp/pci.c     |    4 ++--
+ arch/powerpc/platforms/maple/pci.c    |    5 +++--
+ arch/powerpc/platforms/powermac/pci.c |    5 +++--
+ 6 files changed, 22 insertions(+), 17 deletions(-)
+
+diff -puN arch/powerpc/kernel/pci_32.c~64bit-resources-arch-powerpc-changes arch/powerpc/kernel/pci_32.c
+--- linux-2.6.16-mm2-64bit-res/arch/powerpc/kernel/pci_32.c~64bit-resources-arch-powerpc-changes	2006-03-28 16:08:18.000000000 -0500
++++ linux-2.6.16-mm2-64bit-res-root/arch/powerpc/kernel/pci_32.c	2006-03-28 16:09:29.000000000 -0500
+@@ -173,8 +173,8 @@ EXPORT_SYMBOL(pcibios_bus_to_resource);
+  * but we want to try to avoid allocating at 0x2900-0x2bff
+  * which might have be mirrored at 0x0100-0x03ff..
+  */
+-void pcibios_align_resource(void *data, struct resource *res, unsigned long size,
+-		       unsigned long align)
++void pcibios_align_resource(void *data, struct resource *res, u64 size,
++				u64 align)
+ {
+ 	struct pci_dev *dev = data;
+ 
+@@ -183,7 +183,7 @@ void pcibios_align_resource(void *data, 
+ 
+ 		if (size > 0x100) {
+ 			printk(KERN_ERR "PCI: I/O Region %s/%d too large"
+-			       " (%ld bytes)\n", pci_name(dev),
++			       " (%lld bytes)\n", pci_name(dev),
+ 			       dev->resource - res, size);
+ 		}
+ 
+@@ -367,8 +367,9 @@ pci_relocate_bridge_resource(struct pci_
+ 		return -1;		/* "can't happen" */
+ 	}
+ 	update_bridge_base(bus, i);
+-	printk(KERN_INFO "PCI: bridge %d resource %d moved to %lx..%lx\n",
+-	       bus->number, i, res->start, res->end);
++	printk(KERN_INFO "PCI: bridge %d resource %d moved to %llx..%llx\n",
++	       bus->number, i, (unsigned long long)res->start,
++	       (unsigned long long)res->end);
+ 	return 0;
+ }
+ 
+@@ -1573,8 +1574,8 @@ static pgprot_t __pci_mmap_set_pgprot(st
+ 	else
+ 		prot |= _PAGE_GUARDED;
+ 
+-	printk("PCI map for %s:%lx, prot: %lx\n", pci_name(dev), rp->start,
+-	       prot);
++	printk("PCI map for %s:%llx, prot: %lx\n", pci_name(dev),
++		(unsigned long long)rp->start, prot);
+ 
+ 	return __pgprot(prot);
+ }
+diff -puN arch/powerpc/platforms/83xx/pci.c~64bit-resources-arch-powerpc-changes arch/powerpc/platforms/83xx/pci.c
+--- linux-2.6.16-mm2-64bit-res/arch/powerpc/platforms/83xx/pci.c~64bit-resources-arch-powerpc-changes	2006-03-28 16:08:24.000000000 -0500
++++ linux-2.6.16-mm2-64bit-res-root/arch/powerpc/platforms/83xx/pci.c	2006-03-28 16:09:29.000000000 -0500
+@@ -91,9 +91,10 @@ int __init add_bridge(struct device_node
+ 		mpc83xx_pci2_busno = hose->first_busno;
+ 	}
+ 
+-	printk(KERN_INFO "Found MPC83xx PCI host bridge at 0x%08lx. "
++	printk(KERN_INFO "Found MPC83xx PCI host bridge at 0x%016llx. "
+ 	       "Firmware bus number: %d->%d\n",
+-	       rsrc.start, hose->first_busno, hose->last_busno);
++	       (unsigned long long)rsrc.start, hose->first_busno,
++	       hose->last_busno);
+ 
+ 	DBG(" ->Hose at 0x%p, cfg_addr=0x%p,cfg_data=0x%p\n",
+ 	    hose, hose->cfg_addr, hose->cfg_data);
+diff -puN arch/powerpc/platforms/85xx/pci.c~64bit-resources-arch-powerpc-changes arch/powerpc/platforms/85xx/pci.c
+--- linux-2.6.16-mm2-64bit-res/arch/powerpc/platforms/85xx/pci.c~64bit-resources-arch-powerpc-changes	2006-03-28 16:08:34.000000000 -0500
++++ linux-2.6.16-mm2-64bit-res-root/arch/powerpc/platforms/85xx/pci.c	2006-03-28 16:09:29.000000000 -0500
+@@ -79,9 +79,10 @@ int __init add_bridge(struct device_node
+ 		mpc85xx_pci2_busno = hose->first_busno;
+ 	}
+ 
+-	printk(KERN_INFO "Found MPC85xx PCI host bridge at 0x%08lx. "
++	printk(KERN_INFO "Found MPC85xx PCI host bridge at 0x%016llx. "
+ 	       "Firmware bus number: %d->%d\n",
+-		rsrc.start, hose->first_busno, hose->last_busno);
++		(unsigned long long)rsrc.start, hose->first_busno,
++		hose->last_busno);
+ 
+ 	DBG(" ->Hose at 0x%p, cfg_addr=0x%p,cfg_data=0x%p\n",
+ 		hose, hose->cfg_addr, hose->cfg_data);
+diff -puN arch/powerpc/platforms/chrp/pci.c~64bit-resources-arch-powerpc-changes arch/powerpc/platforms/chrp/pci.c
+--- linux-2.6.16-mm2-64bit-res/arch/powerpc/platforms/chrp/pci.c~64bit-resources-arch-powerpc-changes	2006-03-28 16:08:42.000000000 -0500
++++ linux-2.6.16-mm2-64bit-res-root/arch/powerpc/platforms/chrp/pci.c	2006-03-28 16:09:29.000000000 -0500
+@@ -141,7 +141,7 @@ hydra_init(void)
+ 	if (np == NULL || of_address_to_resource(np, 0, &r))
+ 		return 0;
+ 	Hydra = ioremap(r.start, r.end-r.start);
+-	printk("Hydra Mac I/O at %lx\n", r.start);
++	printk("Hydra Mac I/O at %llx\n", (unsigned long long)r.start);
+ 	printk("Hydra Feature_Control was %x",
+ 	       in_le32(&Hydra->Feature_Control));
+ 	out_le32(&Hydra->Feature_Control, (HYDRA_FC_SCC_CELL_EN |
+@@ -265,7 +265,7 @@ chrp_find_bridges(void)
+ 			       bus_range[0], bus_range[1]);
+ 		printk(" controlled by %s", dev->type);
+ 		if (!is_longtrail)
+-			printk(" at %lx", r.start);
++			printk(" at %llx", (unsigned long long)r.start);
+ 		printk("\n");
+ 
+ 		hose = pcibios_alloc_controller();
+diff -puN arch/powerpc/platforms/maple/pci.c~64bit-resources-arch-powerpc-changes arch/powerpc/platforms/maple/pci.c
+--- linux-2.6.16-mm2-64bit-res/arch/powerpc/platforms/maple/pci.c~64bit-resources-arch-powerpc-changes	2006-03-28 16:08:49.000000000 -0500
++++ linux-2.6.16-mm2-64bit-res-root/arch/powerpc/platforms/maple/pci.c	2006-03-28 16:09:29.000000000 -0500
+@@ -376,9 +376,10 @@ static void __init maple_fixup_phb_resou
+ 		unsigned long offset = (unsigned long)hose->io_base_virt - pci_io_base;
+ 		hose->io_resource.start += offset;
+ 		hose->io_resource.end += offset;
+-		printk(KERN_INFO "PCI Host %d, io start: %lx; io end: %lx\n",
++		printk(KERN_INFO "PCI Host %d, io start: %llx; io end: %llx\n",
+ 		       hose->global_number,
+-		       hose->io_resource.start, hose->io_resource.end);
++		       (unsigned long long)hose->io_resource.start,
++		       (unsigned long long)hose->io_resource.end);
+ 	}
+ }
+ 
+diff -puN arch/powerpc/platforms/powermac/pci.c~64bit-resources-arch-powerpc-changes arch/powerpc/platforms/powermac/pci.c
+--- linux-2.6.16-mm2-64bit-res/arch/powerpc/platforms/powermac/pci.c~64bit-resources-arch-powerpc-changes	2006-03-28 16:08:56.000000000 -0500
++++ linux-2.6.16-mm2-64bit-res-root/arch/powerpc/platforms/powermac/pci.c	2006-03-28 16:09:29.000000000 -0500
+@@ -939,9 +939,10 @@ static int __init add_bridge(struct devi
+ 		disp_name = "Chaos";
+ 		primary = 0;
+ 	}
+-	printk(KERN_INFO "Found %s PCI host bridge at 0x%08lx. "
++	printk(KERN_INFO "Found %s PCI host bridge at 0x%016llx. "
+ 	       "Firmware bus number: %d->%d\n",
+-		disp_name, rsrc.start, hose->first_busno, hose->last_busno);
++		disp_name, (unsigned long long)rsrc.start, hose->first_busno,
++		hose->last_busno);
+ #endif /* CONFIG_PPC32 */
+ 
+ 	DBG(" ->Hose at 0x%p, cfg_addr=0x%p,cfg_data=0x%p\n",
+_

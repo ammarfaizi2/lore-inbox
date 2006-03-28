@@ -1,101 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWC1XDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWC1XEJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWC1XDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 18:03:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964794AbWC1XDI
+	id S964794AbWC1XEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 18:04:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbWC1XEJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 18:03:08 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:13883 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S964791AbWC1XDF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 18:03:05 -0500
-In-Reply-To: <c0a09e5c0603281401uaeea6aci57054aef444a5e1@mail.gmail.com>
-References: <20060311022759.3950.58788.stgit@gitlost.site> <20060311022919.3950.43835.stgit@gitlost.site> <2FF801BB-F96C-4864-AC44-09B4B92531F7@kernel.crashing.org> <c0a09e5c0603281044i57730c66ye08c45aadd352cf8@mail.gmail.com> <D760971F-3C6A-400B-99EA-E95358B37F82@kernel.crashing.org> <c0a09e5c0603281401uaeea6aci57054aef444a5e1@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <3B202D51-1683-465D-AE3D-DE301017BD69@kernel.crashing.org>
-Cc: "Chris Leech" <christopher.leech@intel.com>,
-       "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org
+	Tue, 28 Mar 2006 18:04:09 -0500
+Received: from watts.utsl.gen.nz ([202.78.240.73]:51597 "EHLO
+	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S964794AbWC1XEI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 18:04:08 -0500
+Subject: Re: [RFC] Virtualization steps
+From: Sam Vilain <sam@vilain.net>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org
+In-Reply-To: <4428FEA5.9020808@yahoo.com.au>
+References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>
+	 <4428FB90.5000601@sw.ru>  <4428FEA5.9020808@yahoo.com.au>
+Content-Type: text/plain
+Date: Wed, 29 Mar 2006 11:04:18 +1200
+Message-Id: <1143587058.6325.54.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [PATCH 1/8] [I/OAT] DMA memcpy subsystem
-Date: Tue, 28 Mar 2006 17:03:09 -0600
-To: Andrew Grover <andy.grover@gmail.com>
-X-Mailer: Apple Mail (2.746.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-03-28 at 19:15 +1000, Nick Piggin wrote:
+> Kirill Korotaev wrote:
+> > First of all, what it does which low level virtualization can't:
+> > - it allows to run 100 containers on 1GB RAM
+> >   (it is called containers, VE - Virtual Environments,
+> >    VPS - Virtual Private Servers).
+> > - it has no much overhead (<1-2%), which is unavoidable with hardware
+> >   virtualization. For example, Xen has >20% overhead on disk I/O.
+> Are any future hardware solutions likely to improve these problems?
 
-On Mar 28, 2006, at 4:01 PM, Andrew Grover wrote:
+No, not all of them.
 
-> On 3/28/06, Kumar Gala <galak@kernel.crashing.org> wrote:
->
->>>> Also, what do you think about adding an operation type (MEMCPY,  
->>>> XOR,
->>>> CRYPTO_AES, etc).  We can than validate if the operation type
->>>> expected is supported by the devices that exist.
->>>
->>> No objections, but this speculative support doesn't need to be in  
->>> our
->>> initial patchset.
->>
->> I don't consider it speculative.  The patch is for a generic DMA
->> engine interface.  That interface should encompass all users.  I have
->> a security/crypto DMA engine that I'd like to front with the generic
->> DMA interface today.  Also, I believe there is another Intel group
->> with an XOR engine that had a similar concept called ADMA posted a
->> while ago.
->
-> Please submit patches then. We will be doing another rev of the I/OAT
-> patch very soon, which you will be able to patch against. Or, once the
-> patch gets in mainline then we can enhance it. Code in the Linux
-> kernel is never "done", and the burden of implementing additional
-> functionality falls on those who want it.
+> > OS kernel virtualization
+> > ~~~~~~~~~~~~~~~~~~~~~~~~
+> Is this considered secure enough that multiple untrusted VEs are run
+> on production systems?
 
-I completely understand that.  However, I think putting something  
-into mainline that only works or solves the particular problem you  
-have is a bad idea.  I'll provide patches for the changes I'd like to  
-see.  However, I figured a little discussion on the subject before I  
-went off an spent time on it was worth while.
+Yes, hosting providers have been deploying this technology for years.
 
->> Can you explain what the semantics are.
->>
->> It's been a little while since I posted so my thoughts on the subject
->> are going to take a little while to come back to me :)
->
-> Yeah. Basically you register as a DMA client, and say how many DMA
-> channels you want. Our net_dma patch for example uses multiple
-> channels to help lock contention. Then when channels are available
-> (i.e. a DMA device added or another client gives them up) then you get
-> a callback. If the channel goes away (i.e. DMA device is removed
-> (theoretically possible but practically never happens) or *you* are
-> going away and change your request to 0 channels) then you get a
-> remove callback.
+> What kind of users want this, who can't use alternatives like real
+> VMs?
 
-Do you only get callback when a channel is available?  How do you  
-decide to do to provide PIO to the client?
+People who want low overhead and the administrative benefits of only
+running a single kernel and not umpteen.  For instance visibility from
+the host into the guests' filesystems is a huge advantage, even if the
+performance benefits can be magically overcome somehow.
 
-A client should only request multiple channel to handle multiple  
-concurrent operations.
+> > Summary of previous discussions on LKML
+> > ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> 
+> Have their been any discussions between the groups pushing this
+> virtualization, and important kernel developers who are not part of
+> a virtualization effort? Ie. is there any consensus about the
+> future of these patches?
 
-> This gets around the problem of DMA clients registering (and therefore
-> not getting) channels simply because they init before the DMA device
-> is discovered.
+Plenty recently.  Check for threads involving (the people on the CC list
+to the head of this thread) this year.
 
-What do you expect to happen in a system in which the channels are  
-over subscribed?
+Comparing Xen/VMI with Vserver/OpenVZ is comparing apples with orchards.
+May I refer you to some slides for a talk I gave at Linux.conf.au about
+Vserver: http://utsl.gen.nz/talks/vserver/slide17a.html
 
-Do you expect the DMA device driver to handle scheduling of channels  
-between multiple clients?
+Sam.
 
-- kumar
+
+
 

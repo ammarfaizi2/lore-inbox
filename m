@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWC1JSz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWC1JWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751245AbWC1JSz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 04:18:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWC1JSz
+	id S1751251AbWC1JWp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 04:22:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWC1JWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 04:18:55 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:58803 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751245AbWC1JSy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 04:18:54 -0500
-Date: Tue, 28 Mar 2006 11:18:29 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-serial@vger.kernel.org
-Subject: Re: 2.6.16-mm1
-In-Reply-To: <20060324195917.GA32098@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0603281117530.16802@scrub.home>
-References: <20060323014046.2ca1d9df.akpm@osdl.org> <6bffcb0e0603230631r5e6cc3d3p@mail.gmail.com>
- <20060323144922.GA25849@flint.arm.linux.org.uk> <Pine.LNX.4.64.0603241140350.16802@scrub.home>
- <20060324195917.GA32098@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 28 Mar 2006 04:22:44 -0500
+Received: from 213-140-2-71.ip.fastwebnet.it ([213.140.2.71]:2219 "EHLO
+	aa004msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1751251AbWC1JWo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 04:22:44 -0500
+Date: Tue, 28 Mar 2006 11:22:41 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Random GCC segfaults -- Was: [2.6.16] slab error in
+ slab_destroy_objs(): cache `radix_tree_node'...
+Message-ID: <20060328112241.40b9c975@localhost>
+In-Reply-To: <20060328004137.607e51db.akpm@osdl.org>
+References: <20060326215346.1b303010@localhost>
+	<20060328095521.52ea3424@localhost>
+	<20060328004137.607e51db.akpm@osdl.org>
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.12; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 28 Mar 2006 00:41:37 -0800
+Andrew Morton <akpm@osdl.org> wrote:
 
-On Fri, 24 Mar 2006, Russell King wrote:
+> If those errors had no corresponding kernel messages then what you have is
+> a classic symptom of failing memory hardware.  Suggest you grab memtest86,
+> run it for 24 hours.
 
-> the correct way to tell Kconfig to give us that is:
-> 
-> +config SERIAL_8250_PCI
-> +       tristate "8250/16550 PCI device support" if EMBEDDED
-> +       depends on SERIAL_8250 && PCI
-> +       default SERIAL_8250
-> +       help
-> +         This builds standard PCI serial support. You may be able to
-> +         disable this feature if you only need legacy serial support.
-> +         Saves about 9K.
-> 
-> ?
+I've already run memtest86+ for hours (not 24 ok... "only" 4/5h) and I
+found this:
 
-Yes, this should do it.
+An easly reproducilble memory failure (single bit flipping always at
+the same address) <---- this one goes AWAY disabling bank interleaving
+in BIOS.
 
-bye, Roman
+Another memory failure (different address, always one bit flipping)
+isn't found by memtest86+: I found it with CONFIG_DEBUG_SLAB and
+I "fixed" it with memmap=... boot option.
+
+
+Now, these 2 problems are both in my first 256MB memory module, so maybe
+it is really another memory failure.
+
+BUT now that I'm back on 2.6.15.6 I'm compiling a LOT of big CPP
+projects and I haven't seen a single GCC segfault yet.
+
+Maybe I should retry with 2.6.16 and if I can reproduce the problem I
+can start testing 2.6.16-rc1 and so on...
+
+-- 
+	Paolo Ornati
+	Linux 2.6.15.6 on x86_64

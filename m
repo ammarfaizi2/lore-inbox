@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbWC1GQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWC1Gl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750984AbWC1GQo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 01:16:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWC1GQn
+	id S932238AbWC1Gl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 01:41:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWC1Gl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 01:16:43 -0500
-Received: from relay01.pair.com ([209.68.5.15]:11274 "HELO relay01.pair.com")
-	by vger.kernel.org with SMTP id S1750984AbWC1GQn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 01:16:43 -0500
-X-pair-Authenticated: 71.197.50.189
-From: Chase Venters <chase.venters@clientec.com>
-To: ck@vds.kolivas.org
-Subject: Re: [ck] swap prefetching merge plans
-Date: Tue, 28 Mar 2006 00:16:15 -0600
-User-Agent: KMail/1.9.1
-Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20060322205305.0604f49b.akpm@osdl.org> <200603231804.36334.kernel@kolivas.org>
-In-Reply-To: <200603231804.36334.kernel@kolivas.org>
-Organization: Clientec, Inc.
+	Tue, 28 Mar 2006 01:41:56 -0500
+Received: from pproxy.gmail.com ([64.233.166.182]:37592 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932238AbWC1Gl4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 01:41:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eK8Cht3mvOKQaeCYccW4EvB0yA1Ch1Xkk2aUIFytKLfFhzC+dAydGOkY4ye7e2CZHvsjp6u1NSU2W/X58gwWMVC7uhHesYbWulFrmDedzJKMvBEsbwEBAOnzBnCJpg/VEkFjs4TSILg905PIFgaQPiWNYWq0+eYLp0Mg+wq4r90=
+Message-ID: <aec7e5c30603272241n5c07aa0csd52b237aaaeb30d6@mail.gmail.com>
+Date: Tue, 28 Mar 2006 15:41:53 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "Sergei Organov" <s.organov@javad.com>
+Subject: Re: Lifetime of flash memory
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       "Artem B. Bityutskiy" <dedekind@yandex.ru>, linux@horizon.com,
+       kalin@thinrope.net, linux-kernel@vger.kernel.org
+In-Reply-To: <87acbb6vlj.fsf@javad.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200603280016.38327.chase.venters@clientec.com>
+References: <20060326162100.9204.qmail@science.horizon.com>
+	 <4426C320.9010002@yandex.ru>
+	 <20060327161845.GA16775@csclub.uwaterloo.ca>
+	 <Pine.LNX.4.61.0603271242100.16721@chaos.analogic.com>
+	 <87acbb6vlj.fsf@javad.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 March 2006 01:04, Con Kolivas wrote:
-> For those users who feel they do have a compelling argument for it, please
-> speak now or I'll end up maintaining this in -ck only forever.  I've come
-> to depend on it with my workloads now so I'm never dropping it. There's no
-> point me explaining how it is useful yet again, though, because I just end
-> up looking like I'm handwaving. It seems a shame for it not to be available
-> to all linux users.
+On 3/28/06, Sergei Organov <s.organov@javad.com> wrote:
+> "linux-os \(Dick Johnson\)" <linux-os@analogic.com> writes:
+> > Note that the actual block size is usually 64k, not the 512 bytes of a
+> > 'sector'. Apparently, some of the data-space on each block is used for
+> > relocation and logical-to-physical mapping.
+>
+> Wrong. AFAIK, first disks had FLASH with 512b blocks, then next
+> generation had 16K blocks, and currently most of cards have 128K
+> blocks. Besides, each page of a block (64 pages * 2K for 128K block) has
+> additional "system" area of 64 bytes. One thing that is in the system
+> area is bad block indicator (2 bytes) to mark some blocks as bad on
+> factory, and the rest could be used by application[1] the same way the
+> rest of the page is used. So physical block size is in fact 64 * (2048 +
+> 64) = 135168 bytes.
 
-Another happy prefetch user chiming in (sadly, without rigorous scientific 
-research -- my team of monkeys is too busy at the moment). In my case, I have 
-a gig of RAM, but I'm a pig when it comes to leaving applications open. 
+Doesn't this depend on if we are talking about NOR or NAND memory? It
+looks like you are describing some kind of NAND memory. Also I guess
+it varies with manufacturer.
 
-Testimonials may not meet the appropriate criteria for merging a patch; I 
-hope, though, that the aggregate value of these messages, in considering this 
-issue, is more than that of mere noise.
+When it comes to CF the internal block size doesn't really matter
+because the CF controller will hide it for you. The controller will
+perform some kind of mapping between the 512 byte based IDE-interface
+and it's internal sector size. This together with wear levelling.
 
-> Cheers,
-> Con
+The quality of the wear levelling will probably vary, but I guess even
+the most primitive brands have something to cope with the fact that
+the blocks containing the FAT are often rewritten on FAT filesystems.
 
-Thanks,
-Chase
+/ magnus

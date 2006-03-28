@@ -1,101 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbWC1XfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWC1XsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964837AbWC1XfL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 18:35:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbWC1XfK
+	id S964843AbWC1XsY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 18:48:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWC1XsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 18:35:10 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:32985 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S964837AbWC1XfJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 18:35:09 -0500
-Date: Wed, 29 Mar 2006 00:34:57 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
-Subject: Re: PI patch against 2.6.16-rt9
-In-Reply-To: <1143585726.5344.238.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44L0.0603290006290.32655-100000@lifa02.phys.au.dk>
+	Tue, 28 Mar 2006 18:48:24 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:4247 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964843AbWC1XsX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 18:48:23 -0500
+Date: Tue, 28 Mar 2006 15:48:15 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>
+cc: Zoltan Menyhart <Zoltan.Menyhart@free.fr>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Fix unlock_buffer() to work the same way as bit_unlock()
+In-Reply-To: <4429ADBC.50507@free.fr>
+Message-ID: <Pine.LNX.4.64.0603281537500.15037@schroedinger.engr.sgi.com>
+References: <200603281853.k2SIrGg28290@unix-os.sc.intel.com> <4429ADBC.50507@free.fr>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Mar 2006, Thomas Gleixner wrote:
+On Tue, 28 Mar 2006, Zoltan Menyhart wrote:
 
-> On Tue, 2006-03-28 at 23:23 +0100, Esben Nielsen wrote:
-> > > If you get to L(x) the underlying dependencies might have changed
-> > > already as well as the dependencies x ... n. We might get false
-> > > positives in the deadlock detection that way, as a deadlock is an
-> > > "atomic" state.
-> >
-> > As I see it you might detect a circular lock graph "atomically". But is
-> > that a "deadlock"? Yes, if you rule out signals and timeouts, this
-> > situation does indeed deadlock your program.
-> >
-> > But if you count in signals and timeouts your algoritm also gives "false
-> > positives": You can detect a circular lock but when you return from
-> > rt_mutex_slowlock(), a signal is delivered and there is no longer a
-> > circular dependency and most important: The program wouldn't be
-> > deadlocked even if you didn't ask for deadlock detection and your task in
-> > that case would block.
-> >
-> > I would like to see an examble of a false deadlock. I don't rule them out
-> > in the present code. But they might be simple to fix.
->
-> Simply the initial lock chain is L1->L2->L3->L4, which is no deadlock.
-> Now in the course of your lock dropping L2 gets removed while you are at
-> L3 and L5 gets added on top of L4. You follow the chain blindly and
-> detect a dealock vs. L5, but its not longer valid. The L2 cleanup is
-> blocked by yourself. There is no way to prevent this with your method.
->
+> Why not to use separate bit operations for different purposes?
+> 
+> - e.g. "test_and_set_bit_N_acquire()" for lock acquisition
+> - "test_and_set_bit()", "clear_bit()" as they are today
+> - "release_N_clear_bit()"...
+> 
 
-Hmm, let me try to write it out
+That would force IA64 specifics onto all other architectures.
 
-       A                B             C           D
-    lock L1           lock L2       lock L3       lock L4
-    lock L2           lock L3       lock L4
- traverse to C
- is preempted
-                                                  unlock L4
-                                    unlock L4
-                                    unlock L3
-                      unlock L3                   lock L4
-                      unlock L2     lock L3
-                      lock L3       lock L4
+Could we simply define these smb_mb__*_clear_bit to be noops
+and then make the atomic bit ops to have full barriers? That would satisfy 
+Nick's objections.
 
- Continue from C
-
-Ok, I see the problem for _deadlock detection_.  There still is no problem
-for PI.
-
-
-
-> Your method is tempting, but I do not see how it works out right now.
->
-
-It works for PI. It might give false positives for deadlock detection even
-without signals involved. But that might be solved by simply checking
-again. If it is stored on a task when they blocked on a lock it
-could be seen if they had released and reobtained the task since the last
-traversal.
-
-If I should choose between a 100% certain deadlock detection and
-rescheduling while doing PI I would choose that latter as that gives a
-deterministic RT system. Are there at all applications depending on
-deadlock detection or is it only for debug perposes anyway?
-
-Esben
-
-> 	tglx
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
+Index: linux-2.6.16/include/asm-ia64/bitops.h
+===================================================================
+--- linux-2.6.16.orig/include/asm-ia64/bitops.h	2006-03-19 21:53:29.000000000 -0800
++++ linux-2.6.16/include/asm-ia64/bitops.h	2006-03-28 15:45:08.000000000 -0800
+@@ -45,6 +45,7 @@
+ 		old = *m;
+ 		new = old | bit;
+ 	} while (cmpxchg_acq(m, old, new) != old);
++	smb_mb();
+ }
+ 
+ /**
+@@ -65,7 +66,7 @@
+ /*
+  * clear_bit() has "acquire" semantics.
+  */
+-#define smp_mb__before_clear_bit()	smp_mb()
++#define smp_mb__before_clear_bit()	do { } while (0)
+ #define smp_mb__after_clear_bit()	do { /* skip */; } while (0)
+ 
+ /**
+@@ -92,6 +93,7 @@
+ 		old = *m;
+ 		new = old & mask;
+ 	} while (cmpxchg_acq(m, old, new) != old);
++	smp_mb();
+ }
+ 
+ /**
+@@ -128,6 +130,7 @@
+ 		old = *m;
+ 		new = old ^ bit;
+ 	} while (cmpxchg_acq(m, old, new) != old);
++	smp_mb();
+ }
+ 
+ /**
+@@ -167,6 +170,7 @@
+ 		old = *m;
+ 		new = old | bit;
+ 	} while (cmpxchg_acq(m, old, new) != old);
++	smp_mb();
+ 	return (old & bit) != 0;
+ }
+ 
+@@ -212,6 +216,7 @@
+ 		old = *m;
+ 		new = old & mask;
+ 	} while (cmpxchg_acq(m, old, new) != old);
++	smp_mb();
+ 	return (old & ~mask) != 0;
+ }
+ 
+@@ -257,6 +262,7 @@
+ 		old = *m;
+ 		new = old ^ bit;
+ 	} while (cmpxchg_acq(m, old, new) != old);
++	smp_mb();
+ 	return (old & bit) != 0;
+ }
+ 

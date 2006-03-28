@@ -1,94 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWC1KNe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWC1KOJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932093AbWC1KNe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 05:13:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWC1KNe
+	id S932069AbWC1KOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 05:14:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbWC1KOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 05:13:34 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:11228 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932093AbWC1KNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 05:13:32 -0500
-Date: Tue, 28 Mar 2006 19:12:35 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [Patch:000/004]Unify pxm_to_node id ver.3.
-Cc: Yasunori Goto <y-goto@jp.fujitsu.com>, "Luck, Tony" <tony.luck@intel.com>,
-       Andi Kleen <ak@suse.de>, "Brown, Len" <len.brown@intel.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       ACPI-ML <linux-acpi@vger.kernel.org>, linux-ia64@vger.kernel.org,
-       x86-64 Discuss <discuss@x86-64.org>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060328183058.CC46.Y-GOTO@jp.fujitsu.com>
+	Tue, 28 Mar 2006 05:14:09 -0500
+Received: from web37710.mail.mud.yahoo.com ([209.191.87.108]:54908 "HELO
+	web37710.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932069AbWC1KOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 05:14:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=eCNJtYNZSd6+fi3Xj1ptuDXT+D83g3U3HwxnSYCKViMs1sOdv54KxpqI+vfWRiJpMvqmbdswGi57jkNU4jO+7dSmHcPjt1gwtQTk2/cr5r3rLomxvfqU2/81y1P1QLkhyYp4JSYb1NGWSokVEfGLnB8/B0/RJwcKYaVp5jbNk60=  ;
+Message-ID: <20060328101407.96598.qmail@web37710.mail.mud.yahoo.com>
+Date: Tue, 28 Mar 2006 02:14:07 -0800 (PST)
+From: Edward Chernenko <edwardspec@yahoo.com>
+Subject: Re: [PATCH 2.6.15] Adding kernel-level identd dispatcher
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org, edwardspec@gmail.com
+In-Reply-To: <1143482216.28645.15.camel@lade.trondhjem.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+--- Trond Myklebust <trond.myklebust@fys.uio.no>
+wrote:
+>
+> Justification, please.
+> 
+> You haven't even tried to explain to us what is so
+> broken about the
+> userland identd that it needs to be replaced with a
+> kernel version.
+> 
 
-I rewrote patches to unify mapping from pxm to node id as ver.3.
+My point is that everything which follows this
+conditions should be moved into kernel:
+ - must dispatch requests in a fixed time
+ - must work rarely, sleep most time
+ - must depend on internal kernel variables (for
+example, established connections table)
 
-In previous patches, I moved MAX_PXM_DOMAINS into
-include/acpi/acpi_numa.h to unify pxm_to_node mapping. 
-Its max number was 256. 
-However, ACPI spec ver.3 defines pxm's extension. So, pxm can be over 256.
-256 was not enough for maximum of it, and u8 was not good for pxm's
-definition.
-In addition, SGI's SN2 already uses its extension in 2.6.16-git14,
-and MAX_PXM_DOMAINS was defined by CONFIG_IA64_NR_NODES
-in include/asm-ia64/acpi.h.
-I defined CONFIG_NR_NODES for common definition.
+Don't forget that many years ago there was echo daemon
+in userspace. But as it's highly effective to dispatch
+all echo requests in kernel, it was moved into
+low-level TCP implementation. 
 
-This patches are for 2.6.16-git14.
-I tested them on ia64(Tiger4) with node emulation.
+I think that ident protocol also matches this
+criteria.
 
-And I confirmed no compile error against ....
-  - x86-64
-  - i386 with summit config.
-  - ia64's SN2 config.
+Edward Chernenko <edwardspec@gmail.com>
 
-Please apply.
-
-Thanks.
-
-------------------------
-Change log from ver.2
-  - update for 2.6.16-git14.
-  - definition of pxm was changed from u8 to int. Pxm can be over 256.
-  - CONFIG_NR_NODES is defined to configure MAX_PXM_DOMAINS.
-  - redundant call of pxm_bit_set() is removed at acpi_numa_arch_fixup()
-    of ia64 like followings.  :-P
-	if (pxm_bit_test(i)) {
-		:
-		pxm_bit_set(i);  <---------------------- !!!
-		:
-	}
-
-Change log from ver.1 
-  - Fix old map from HP and SGI's code by Bob Picco-san.
-  - Remove MAX_PXM_DOMAINS from asm-ia64/acpi.h. It is already defined at
-    include/acpi/acpi_numa.h.
-  - Fix return code of setup_node() at arch/x86_64/mm/srat.c
-  - Fix ACPI_NUMA config for i386 by Andy Witcroft-san.
-  - Define dummy functions for i386's compile error.
-  - Remove garbage nid_to_pxm_map from acpi20_parse_srat() 
-    at arch/i386/kernel/srat.c
-
-----------------------------------
-Description.
-
-This patch is to unify mapping from pxm to node id.
-In current code, i386, x86-64, and ia64 have its mapping by each own code.
-But PXM is defined by ACPI and node id is used generically. So,
-I think there is no reason to define it on each arch's code.
-This mapping should be written at drivers/acpi/numa.c as a common code.
-
-
-
--- 
-Yasunori Goto 
-
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

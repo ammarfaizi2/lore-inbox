@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWC1VHL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWC1VH4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWC1VHL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 16:07:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWC1VHL
+	id S932228AbWC1VH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 16:07:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWC1VHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 16:07:11 -0500
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:29798 "HELO
-	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932180AbWC1VHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 16:07:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=OV2XZBszKg/PDsXrb78nqsM/UT0MfZ7hi2jtfeCruhuD2CMT00wI5XjJwHaGhHhmQlrPbZz/RpI9zYTg/j6/laAs+BkahATOPEAFfAB2tZvpIxZt+Ha/xNRsb/oxsfnI29x5Jhj2B6goVterHVf+jbN+WnfirU8Om94CcsD4oGc=  ;
-Message-ID: <44295C17.1050202@yahoo.com.au>
-Date: Wed, 29 Mar 2006 01:53:59 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Herbert Poetzl <herbert@13thfloor.at>
-CC: Kirill Korotaev <dev@sw.ru>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, devel@openvz.org,
-       serue@us.ibm.com, akpm@osdl.org, sam@vilain.net,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Pavel Emelianov <xemul@sw.ru>,
-       Stanislav Protassov <st@sw.ru>
-Subject: Re: [RFC] Virtualization steps
-References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au> <4428FB90.5000601@sw.ru> <4428FEA5.9020808@yahoo.com.au> <20060328153558.GF14576@MAIL.13thfloor.at>
-In-Reply-To: <20060328153558.GF14576@MAIL.13thfloor.at>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 28 Mar 2006 16:07:55 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:64667 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932213AbWC1VHy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 16:07:54 -0500
+Date: Tue, 28 Mar 2006 13:07:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Yasunori Goto <y-goto@jp.fujitsu.com>
+Cc: tony.luck@intel.com, ak@suse.de, len.brown@intel.com,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       linux-ia64@vger.kernel.org, discuss@x86-64.org
+Subject: Re: [Patch:001/004]Unify pxm_to_node id ver.3.(generic code)
+Message-Id: <20060328130736.5a4273d9.akpm@osdl.org>
+In-Reply-To: <20060328191250.CC48.Y-GOTO@jp.fujitsu.com>
+References: <20060328183058.CC46.Y-GOTO@jp.fujitsu.com>
+	<20060328191250.CC48.Y-GOTO@jp.fujitsu.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl wrote:
-> On Tue, Mar 28, 2006 at 07:15:17PM +1000, Nick Piggin wrote:
+Yasunori Goto <y-goto@jp.fujitsu.com> wrote:
+>
+> +/* Proximity bitmap length */
+>  +#ifdef CONFIG_NR_NODES_CHANGABLE
+>  +#define MAX_PXM_DOMAINS CONFIG_NR_NODES
+>  +#else
+>  +#define MAX_PXM_DOMAINS (256)
+>  +#endif
 
-[...]
+I don't think we need CONFIG_NR_NODES_CHANGABLE (it is spelled
+"changeable", btw).
 
-Thanks for the clarifications, Herbert.
+If the architecture wants to support changing of CONFIG_NR_NODES then it
+can permit CONFIG_NR_NODES to be changed in its Kconfig implementation.
 
->>Ie. is there any consensus about the future of these patches?  
-> 
-> 
-> what patches?
+If the architecture doesn't want to permit changing of CONFIG_NR_NODES
+then it should simply hardwire CONFIG_NR_NODES to the chosen value in
+its Kconfig.
 
-One's being thrown around lkml, and future ones being talked about.
-Patches ~= changes to kernel.
+So all architectures which use acpi_numa must implement CONFIG_NR_NODES.
 
-> what future?
+In fact, it would probably make sense to require that all NUMA-supporting
+archtectures implement CONFIG_NR_NODES.
 
-I presume everyone's goal is to get something into the kernel?
+Also, we already have NODES_SHIFT defined in include/asm-*/numnodes.h. 
+What's the relationship between that and CONFIG_NR_NODES?  It seems that we
+want to derive NODES_SHIFT from CONFIG_NR_NODES.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Was ia64's CONFIG_IA64_NR_NODES the best choice?  Should ia64 instead have
+made NODES_SHIFT Kconfigurable, and derived its max-nr_nodes from that?
+
+It's all a bit of a pickle.
+
+
+I guess for now a suitable approach would be to make all numa-using
+architectures define CONFIG_NR_NODES, and to leave that rather
+unpleasant-looking code in include/asm-ia64/numnodes.h as it is.
+

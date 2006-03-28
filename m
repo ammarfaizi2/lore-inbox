@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbWC1Wsh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWC1Wtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932489AbWC1Wsh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 17:48:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWC1Wsh
+	id S932490AbWC1Wtm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 17:49:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbWC1Wtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 17:48:37 -0500
-Received: from mx2.netapp.com ([216.240.18.37]:40307 "EHLO mx2.netapp.com")
-	by vger.kernel.org with ESMTP id S932485AbWC1Wsg (ORCPT
+	Tue, 28 Mar 2006 17:49:42 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:50923 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932490AbWC1Wtl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 17:48:36 -0500
-X-IronPort-AV: i="4.03,140,1141632000"; 
-   d="scan'208"; a="370551607:sNHT24132748"
-Subject: Re: [PATCH] config: Fix CONFIG_LFS option
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0603281430370.15714@g5.osdl.org>
-References: <1143584319.8199.34.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.64.0603281430370.15714@g5.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Network Appliance, Inc
-Date: Tue, 28 Mar 2006 17:48:34 -0500
-Message-Id: <1143586114.8199.49.camel@lade.trondhjem.org>
+	Tue, 28 Mar 2006 17:49:41 -0500
+Date: Wed, 29 Mar 2006 00:49:30 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Marko <letterdrop@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Who wants to test cracklinux??
+Message-ID: <20060328224929.GC5760@elf.ucw.cz>
+References: <20060328221223.80753cab.letterdrop@gmx.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-X-OriginalArrivalTime: 28 Mar 2006 22:48:35.0141 (UTC) FILETIME=[BEDFE750:01C652B9]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060328221223.80753cab.letterdrop@gmx.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-28 at 14:34 -0800, Linus Torvalds wrote:
-> 
-> On Tue, 28 Mar 2006, Trond Myklebust wrote:
-> >
-> > The help text says that if you select CONFIG_LBD, then it will
-> > automatically select CONFIG_LFS. Nope... That isn't currently the
-> > case.
-> 
-> I'm not sure your patch makes anything much better, though.
-> 
-> Why does CONFIG_LSF exist in the first place? Afaik, it only affects a 
-> totally not-very-interesting thing (blkcnt_t) for a totally not very 
-> interesting feature (the number of people who want single files >2TB is 
-> likely not very big).
-> 
-> Having it auto-selected by LBD sounds insane, since LBD is likely more 
-> interesting than LSF itsef is. It would make more sense to go the other 
-> way (have LSF auto-select LBD).
+Hi!
 
-NFSv3 and CIFS are two examples of commonly used filesystems that don't
-care a hoot for CONFIG_LBD, but that still want to be able to support
-large values for inode->i_blocks.
+> I've written a small kernel module & shared object for kernel 2.6 to
+> enable the following for normal users:
+> 
+> - inb()/outb()... via a wrapper function
 
-Cheers,
-  Trond
+ioperm() does that already, no? You mean, you enable it for non-root,
+too? That's security hole.
+
+> - enable direct IO access (like ioperm())
+> - direct access on physical memory addresses
+
+read/write on /dev/mem. chmod 666 /dev/mem if you want to allow normal
+users to access physical memory (security hole, again).
+
+> - installation of user space ISR
+
+That seems nice. Does it work with PCI shared interrupts?
+
+> - change nice level
+> 
+> The module is primary thought for education, but perhaps also helpful
+> in software development.
+> The module is finished now, but because it's my first kernel code
+> there could be something to improve. If anyone wants to test, just
+> send me a mail and you'll get the code.
+
+Please post it to the list.
+								Pavel
+-- 
+Picture of sleeping (Linux) penguin wanted...

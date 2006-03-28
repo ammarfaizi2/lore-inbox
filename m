@@ -1,81 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWC1DCc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWC1DPo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbWC1DCc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 22:02:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbWC1DCb
+	id S1751223AbWC1DPo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 22:15:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWC1DPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 22:02:31 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:41182 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751212AbWC1DCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 22:02:31 -0500
-Date: Mon, 27 Mar 2006 18:58:09 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Yinghai Lu <yinghai.lu@amd.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: migrate_pages_to not defined ...
-In-Reply-To: <86802c440603271826s684cf1dcj24acce894bdd0260@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0603271855230.6010@schroedinger.engr.sgi.com>
-References: <86802c440603271826s684cf1dcj24acce894bdd0260@mail.gmail.com>
+	Mon, 27 Mar 2006 22:15:44 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:7119 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1751223AbWC1DPn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 22:15:43 -0500
+Date: Tue, 28 Mar 2006 11:44:26 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Matt Heler <lkml@lpbproductions.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/23] Adaptive read-ahead V11
+Message-ID: <20060328034426.GA5474@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Matt Heler <lkml@lpbproductions.com>,
+	Jon Smirl <jonsmirl@gmail.com>, linux-kernel@vger.kernel.org
+References: <20060319023413.305977000@localhost.localdomain> <9e4733910603181910p21117f3anc107673e31f6352b@mail.gmail.com> <200603271638.34260.lkml@lpbproductions.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603271638.34260.lkml@lpbproductions.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Mar 2006, Yinghai Lu wrote:
+On Mon, Mar 27, 2006 at 04:38:33PM -0500, Matt Heler wrote:
+> We use lighttpd on our servers, and I can say with 100% that this problem 
+> happens alot. Because of this , we were forced to use to userspace mechanism 
+> that the lighttpd author made to cirvumvent this issue. However with this 
+> patch, I'm unable to produce any of the problems we had experienced before. 
+> IO-Wait has dropped significantly from 80% to 20%. 
+> I'd be happy to send over some benchmarks if need be.
 
-> please check the migrate)pages_to in migrate.h...
-> otherwise  I can not compile the kernel if i disable the swap in config.
+Thanks, your production service would be the best benchmark ;)
 
-Right. migrate_pages_to in mempolicy.cis also called from mbind() outside 
-of CONFIG_MIGRATION sigh.
+Would you send some performance numbers and the basic server configuration?
 
-> +static inline int migrate_pages_to(struct list_head *pagelist,
-> +                        struct vm_area_struct *vma, int dest) {
-> return -ENOSYS; }
-
-No it needs to return the number of pages not ENOSYS.
-
-> diff --git a/mm/migrate.c b/mm/migrate.c
-> --- a/mm/migrate.c
-> +++ b/mm/migrate.c
-> @@ -653,3 +653,4 @@ out:
->                 nr_pages++;
->         return nr_pages;
->  }
-> +EXPORT_SYMBOL(migrate_pages_to);
-
-Why add an export?
-
-Could you try this patch?
-
-
-
-Fix migrate_pages_to() definition.
-
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6/include/linux/migrate.h
-===================================================================
---- linux-2.6.orig/include/linux/migrate.h	2006-03-22 09:29:49.000000000 -0800
-+++ linux-2.6/include/linux/migrate.h	2006-03-27 18:33:52.000000000 -0800
-@@ -12,7 +12,7 @@ extern void migrate_page_copy(struct pag
- extern int migrate_page_remove_references(struct page *, struct page *, int);
- extern int migrate_pages(struct list_head *l, struct list_head *t,
- 		struct list_head *moved, struct list_head *failed);
--int migrate_pages_to(struct list_head *pagelist,
-+extern int migrate_pages_to(struct list_head *pagelist,
- 			struct vm_area_struct *vma, int dest);
- extern int fail_migrate_page(struct page *, struct page *);
- 
-@@ -26,6 +26,9 @@ static inline int putback_lru_pages(stru
- static inline int migrate_pages(struct list_head *l, struct list_head *t,
- 	struct list_head *moved, struct list_head *failed) { return -ENOSYS; }
- 
-+static int migrate_pages_to(struct list_head *pagelist,
-+			struct vm_area_struct *vma, int dest) { return 0; }
-+
- static inline int migrate_prep(void) { return -ENOSYS; }
- 
- /* Possible settings for the migrate_page() method in address_operations */
-
+Wu

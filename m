@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWC1Wee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932470AbWC1Wgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932466AbWC1Wee (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 17:34:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWC1Wee
+	id S932470AbWC1Wgh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 17:36:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbWC1Wgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 17:34:34 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:16312 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932434AbWC1Wed (ORCPT
+	Tue, 28 Mar 2006 17:36:36 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:48294 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932464AbWC1Wgg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 17:34:33 -0500
-Date: Tue, 28 Mar 2006 14:34:29 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Trond Myklebust <Trond.Myklebust@netapp.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>
-Subject: Re: [PATCH] config: Fix CONFIG_LFS option
-In-Reply-To: <1143584319.8199.34.camel@lade.trondhjem.org>
-Message-ID: <Pine.LNX.4.64.0603281430370.15714@g5.osdl.org>
-References: <1143584319.8199.34.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 28 Mar 2006 17:36:36 -0500
+Date: Tue, 28 Mar 2006 16:36:23 -0600
+To: tsbogend@alpha.franken.de, donf@us.ibm.com
+Cc: jklewis@us.bm.com, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: [PATCH] Janitor: drivers/net/pcnet32: fix incorrect comments
+Message-ID: <20060328223623.GD2172@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Please sign-off/ack/apply and/or forward upstream.
 
-On Tue, 28 Mar 2006, Trond Myklebust wrote:
->
-> The help text says that if you select CONFIG_LBD, then it will
-> automatically select CONFIG_LFS. Nope... That isn't currently the
-> case.
+[PATCH] Janitor: drivers/net/pcnet32: fix incorrect comments
 
-I'm not sure your patch makes anything much better, though.
+The comments concerning how the pcnet32 ethernet device driver selects 
+the MAC addr to use are incorrect. A recent patch (in the last 3 months)
+changed how the code worked, but did not change the comments.
 
-Why does CONFIG_LSF exist in the first place? Afaik, it only affects a 
-totally not-very-interesting thing (blkcnt_t) for a totally not very 
-interesting feature (the number of people who want single files >2TB is 
-likely not very big).
+Side comment: the new behaviour is good; I've got a pcnet32 card which
+powers up with garbage in the CSR's, and a good MAC addr in the PROM.
 
-Having it auto-selected by LBD sounds insane, since LBD is likely more 
-interesting than LSF itsef is. It would make more sense to go the other 
-way (have LSF auto-select LBD).
+Signed-off-by: Linas Vepstas <linas@linas.org>
 
-			Linus
+----
+
+ drivers/net/pcnet32.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+Index: linux-2.6.16-git6/drivers/net/pcnet32.c
+===================================================================
+--- linux-2.6.16-git6.orig/drivers/net/pcnet32.c	2006-03-23 12:21:41.000000000 -0600
++++ linux-2.6.16-git6/drivers/net/pcnet32.c	2006-03-28 16:08:23.398158717 -0600
+@@ -1167,8 +1167,8 @@ pcnet32_probe1(unsigned long ioaddr, int
+ 	 * station address PROM at the base address and programmed into the
+ 	 * "Physical Address Registers" CSR12-14.
+ 	 * As a precautionary measure, we read the PROM values and complain if
+-	 * they disagree with the CSRs.  Either way, we use the CSR values, and
+-	 * double check that they are valid.
++	 * they disagree with the CSRs.  If they miscompare, and the PROM addr
++	 * is valid, then the PROM addr is used.
+ 	 */
+ 	for (i = 0; i < 3; i++) {
+ 		unsigned int val;

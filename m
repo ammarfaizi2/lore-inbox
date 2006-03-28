@@ -1,89 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWC1TcB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWC1TiX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbWC1TcB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 14:32:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWC1TcA
+	id S1751268AbWC1TiX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 14:38:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWC1TiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 14:32:00 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:64641 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751284AbWC1TcA (ORCPT
+	Tue, 28 Mar 2006 14:38:23 -0500
+Received: from colin.muc.de ([193.149.48.1]:15369 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1751268AbWC1TiX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 14:32:00 -0500
-Date: Tue, 28 Mar 2006 11:31:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Don Dupuis" <dondster@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops at __bio_clone with 2.6.16-rc6 anyone??????
-Message-Id: <20060328113150.0acf2b60.akpm@osdl.org>
-In-Reply-To: <632b79000603280735w1908684djab2798c3f35cfebb@mail.gmail.com>
-References: <632b79000603271917h4104049dh9b6b8251feac0437@mail.gmail.com>
-	<20060327200134.7369c7f8.akpm@osdl.org>
-	<632b79000603280735w1908684djab2798c3f35cfebb@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 28 Mar 2006 14:38:23 -0500
+Date: 28 Mar 2006 21:38:15 +0200
+Date: Tue, 28 Mar 2006 21:38:15 +0200
+From: Andi Kleen <ak@muc.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-mm2
+Message-ID: <20060328193815.GA63865@muc.de>
+References: <20060328003508.2b79c050.akpm@osdl.org> <1143569778.26106.5.camel@dyn9047017100.beaverton.ibm.com> <20060328111101.463d09e2.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060328111101.463d09e2.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Don Dupuis" <dondster@gmail.com> wrote:
->
-> Yes it does also happen on 2.6.16
+On Tue, Mar 28, 2006 at 11:11:01AM -0800, Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >
+> > On Tue, 2006-03-28 at 00:35 -0800, Andrew Morton wrote:
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.16-mm2/
+> > > 
+> > > 
+> > > - It seems to compile.
+> > 
+> > Well, depends :)
+> > 
+> > Ran into this on -mm1 also. Haven't digged into finding out why ?
+> > 
+> >   LD      init/built-in.o
+> >   LD      .tmp_vmlinux1
+> > arch/x86_64/mm/built-in.o(.init.text+0x1298): In function `__change_page_attr':
+> > arch/x86_64/mm/pageattr.c:58: undefined reference to `srat_reserve_add_area'
+> > make: *** [.tmp_vmlinux1] Error 1
+> > 
+> > Ideas ?
+> > 
 > 
+> Yes, that'll happen.  I guess you'll need to set CONFIG_ACPI_NUMA for now.
 
-(please don't top-post).
+Fixed.
 
-> 
-> On 3/27/06, Andrew Morton <akpm@osdl.org> wrote:
-> > "Don Dupuis" <dondster@gmail.com> wrote:
-> > >
-> > > I will get this oops during reboots. It doesn't happen everytime, but
-> > > It happens on this system at least 1 to 2 out of 10 reboots. The
-> > > machine is a Dell Powervault 745n. Here is the oops output:
-> > >
-> > > Mar 20 22:27:49 (none) kernel: EXT3-fs: mounted filesystem with
-> > > journal data mode.
-> > > Mar 20 22:27:49 (none) kernel: Unable to handle kernel paging request
-> > > at virtual address f8000000
-> > > Mar 20 22:27:49 (none) kernel: printing eip:
-> > > Mar 20 22:27:49 (none) kernel: c0156db1
-> > > Mar 20 22:27:49 (none) kernel: *pde = 00000000
-> > > Mar 20 22:27:49 (none) kernel: Oops: 0000 [#1]
-> > > Mar 20 22:27:49 (none) kernel: SMP
-> > > Mar 20 22:27:49 (none) kernel: Modules linked in:
-> > > Mar 20 22:27:49 (none) kernel: CPU: 0
-> > > Mar 20 22:27:50 (none) kernel: EIP: 0060:[<c0156db1>] Not tainted VLI
-> > > Mar 20 22:27:50 (none) kernel: EFLAGS: 00010206 (2.6.16-rc6 #3)
-> > > Mar 20 22:27:50 (none) kernel: EIP is at __bio_clone+0x29/0x9b
-> > > Mar 20 22:27:50 (none) kernel: eax: 00000300 ebx: f68f3700 ecx:
-> > > 00000002 edx: f7fffc80
-> > > Mar 20 22:27:50 (none) kernel: esi: f8000000 edi: f7f3d378 ebp:
-> > > f7c44b98 esp: f7c44b84
-> > > Mar 20 22:27:50 (none) kernel: ds: 007b es: 007b ss: 0068
-> > > Mar 20 22:27:50 (none) kernel: Process ldconfig (pid: 581,
-> > > threadinfo=f7c44000 task=f7db9070)
-> > > Mar 20 22:27:50 (none) kernel: Stack: <0>f7d3b458 f68f3700 f68f3700
-> > > f7fffc80 f65b4640 f7c44ba8 c0156e4e f7d4c664
-> > > Mar 20 22:27:50 (none) kernel: 00000010 f7c44bf4 c02c8346
-> > > 00000080 00000000 00000e00 c0154b1b 00000000
-> > > Mar 20 22:27:50 (none) kernel: 0000007f 00000080 f7fffc80
-> > > f7d4a740 f7d44400 f7fffc80 f7d3b458 c01579c3
-> > > Mar 20 22:27:50 (none) kernel: Call Trace:
-> > > Mar 20 22:27:50 (none) kernel: [<c0104260>] show_stack_log_lvl+0xa8/0xb0
-> > > Mar 20 22:27:50 (none) kernel: [<c0104397>] show_registers+0x109/0x171
-> > > Mar 20 22:27:50 (none) kernel: [<c010456e>] die+0xfb/0x16f
-> > > Mar 20 22:27:50 (none) kernel: [<c0114750>] do_page_fault+0x359/0x48b
-> > > Mar 20 22:27:50 (none) kernel: [<c0103f0b>] error_code+0x4f/0x54
-> > > Mar 20 22:27:50 (none) kernel: [<c0156e4e>] bio_clone+0x2b/0x31
-> > > Mar 20 22:27:50 (none) kernel: [<c02c8346>] make_request+0x208/0x3d4
-> > > Mar 20 22:27:50 (none) kernel: [<c02c8211>] make_request+0xd3/0x3d4
-> > > Mar 20 22:27:50 (none) kernel: [<c01d3b68>] generic_make_request+0xf5/0x105
-> > > Mar 20 22:27:50 (none) kernel: [<c01d3c19>] submit_bio+0xa1/0xa9
-> > > Mar 20 22:27:50 (none) kernel: [<c0170453>] mpage_bio_submit+0x1c/0x21
-> > > Mar 20 22:27:50 (none) kernel: [<c017085c>] do_mpage_readpage+0x30b/0x44d
-> > > Mar 20 22:27:50 (none) kernel: [<c0170a2b>] mpage_readpages+0x8d/0xf1
-> > > Mar 20 22:27:50 (none) kernel: [<c01a7ee7>] ext3_readpages+0x14/0x16
-> > > Mar 20 22:27:50 (none) kernel: [<c013e92f>] read_pages+0x26/0xc6
+(I could have sworn i added that ifdef earlier already, weird)
 
-Jens points out that the "dm: bio split bvec fix" patch which went into
-2.6.16.1 might fix this.  Can you try it please?
+-Andi (who thinks we have too many CONFIGs)

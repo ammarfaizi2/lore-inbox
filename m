@@ -1,46 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWC1Tke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWC1Tm0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751303AbWC1Tke (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 14:40:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWC1Tke
+	id S1751293AbWC1Tm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 14:42:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWC1Tm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 14:40:34 -0500
-Received: from mga01.intel.com ([192.55.52.88]:45066 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751295AbWC1Tkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 14:40:33 -0500
-X-IronPort-AV: i="4.03,139,1141632000"; 
-   d="scan'208"; a="16692216:sNHT1808589594"
-Message-Id: <200603281853.k2SIrGg28290@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
-       "Christoph Lameter" <clameter@sgi.com>
-Cc: <akpm@osdl.org>, <Zoltan.Menyhart@free.fr>, <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>
-Subject: RE: Fix unlock_buffer() to work the same way as bit_unlock()
-Date: Tue, 28 Mar 2006 10:53:52 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZSVByRHaXEXQrYQMq3l3W82HEwOwAQ++Hw
-In-Reply-To: <4428EF8B.7040202@yahoo.com.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Tue, 28 Mar 2006 14:42:26 -0500
+Received: from mailfe07.tele2.fr ([212.247.154.204]:34203 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S1751293AbWC1TmZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 14:42:25 -0500
+X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
+X-Cloudmark-Score: 0.000000 []
+Date: Tue, 28 Mar 2006 21:42:10 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: linux-kernel@vger.kernel.org
+Cc: dave@mielke.cc
+Subject: How should an application ask for uinput module load?
+Message-ID: <20060328194210.GD4660@bouh.residence.ens-lyon.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	linux-kernel@vger.kernel.org, dave@mielke.cc
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote on Tuesday, March 28, 2006 12:11 AM
-> Also, I think there is still the issue of ia64 not having the
-> correct memory consistency semantics. To start with, all the bitops
-> and atomic ops which both modify their operand and return a value
-> should be full memory barriers before and after the operation,
-> according to Documentation/atomic_ops.txt.
+Hi,
 
+Given a freshly booted linux box, hence uinput is not loaded (why would
+it be, it doesn't drive any real hardware) ; what is the right way(tm)
+for an application to have the uinput module loaded, so that it can open
+/dev/input/uinput for emulating keypresses?
 
-I suppose the usage of atomic ops is abused, it is used in both lock
-and unlock path.  And it naturally suck because it now requires full
-memory barrier.  A better way is to define 3 variants: one for lock
-path, one for unlock path, and one with full memory fence.
+- With good-old static /dev, we could just open /dev/input/uinput
+  (installed by the distribution), and thanks to a
+  alias char-major-10-223 uinput
+  line somewhere in /etc/modprobe.d, uinput finally gets auto-loaded.
 
-- Ken
+- With devfs, it doesn't look like it works (/dev/misc/uinput is not
+  present and opening it just like if it existed doesn't work). But I
+  read in archives that it could be feasible.
+
+- With udev, this just cannot work. As explained in an earlier thread,
+  even using a special filesystem that would report the opening attempt
+  to udevd wouldn't work fine since udevd takes time for creating the
+  device, and hence the original program needs to be notified ; this
+  becomes racy.
+
+So what is the correct way to do it? I can see two approaches:
+
+Using modprobe:
+- try to use /dev/input/uinput ; if it succeeds, fine.
+- else, if errno != ENOENT, fail
+- else, (ENOENT)
+  - try to call `cat /proc/sys/kernel/modprobe` uinput
+  - try to use /dev/input/uinput again ; if it succeeds, fine
+    - else, assume that it really wasn't compiled, and hence fail.
+
+Triggering auto-load by creating one's own node.
+- try to use /dev/input/uinput ; if it suceeds, fine.
+- else, if errno != ENOENT, fail
+- else, (ENOENT)
+  - mknod /somewhere/safe/uinput c 10 223
+  - use /somewhere/safe/uinput ; if it succeeds, fine
+    - else, assume that it really wasn't compiled, and hence fail.
+
+I guess the same problem arises for loop devices and all such virtual
+devices...
+
+Regards,
+Samuel

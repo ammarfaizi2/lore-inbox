@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWC1Ual@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWC1Ugh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932155AbWC1Ual (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 15:30:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWC1Uak
+	id S932133AbWC1Ugh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 15:36:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWC1Ugh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 15:30:40 -0500
-Received: from mail-in-08.arcor-online.net ([151.189.21.48]:54720 "EHLO
-	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932155AbWC1Uaj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 15:30:39 -0500
-Date: Tue, 28 Mar 2006 22:30:34 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Bodo Eggert <7eggert@gmx.de>
-cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] PS/2-mouse not found in 2.6.16
-In-Reply-To: <Pine.LNX.4.58.0603282044060.2538@be1.lrz>
-Message-ID: <Pine.LNX.4.58.0603282226270.2450@be1.lrz>
-References: <Pine.LNX.4.58.0603272148050.2266@be1.lrz>
- <d120d5000603271256g6ff971daq57282287fd1d5434@mail.gmail.com>
- <Pine.LNX.4.58.0603282044060.2538@be1.lrz>
+	Tue, 28 Mar 2006 15:36:37 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:47832 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932133AbWC1Ugg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 15:36:36 -0500
+To: prasanna@in.ibm.com
+Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, davem@davemloft.net, suparna@in.ibm.com,
+       richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: RFC - Approaches to user-space probes
+References: <20060327065447.GA25745@in.ibm.com>
+	<1143445068.2886.20.camel@laptopd505.fenrus.org>
+	<20060327100019.GA30427@in.ibm.com>
+	<1143489794.2886.43.camel@laptopd505.fenrus.org>
+	<20060328145441.GA25465@in.ibm.com>
+From: fche@redhat.com (Frank Ch. Eigler)
+Date: 28 Mar 2006 15:35:43 -0500
+In-Reply-To: <20060328145441.GA25465@in.ibm.com>
+Message-ID: <y0m64lye28w.fsf@ton.toronto.redhat.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Mar 2006, Bodo Eggert wrote:
-> On Mon, 27 Mar 2006, Dmitry Torokhov wrote:
-> > On 3/27/06, Bodo Eggert <7eggert@gmx.de> wrote:
+Prasanna S Panchamukhi <prasanna@in.ibm.com> writes:
 
-> > > With kernel 2.6.16, my Logitech mouse is no longer detected (not reported
-> > > in dmesg, not working).
-> > >
-> > 
-> > Does it help if you comment out call to quirk_usb_handoff_ohci() (your
-> > USB host controller is an OHCI one, isn't it?) in
-> > drivers/usb/host/pci-quirks.c::quirk_usb_early_handoff()?
-> 
-> It's uhci, and turning
-> drivers/usb/host/pci-quirks.c::quirk_usb_early_handoff into a noop did not 
-> help.
+> [...]
+> If the executable is mmaped shared, then those mappings will get written
+> back to the disk.
+> Writting to the disk is not the requirement for user-space probes, it is
+> just the side effect [...]
 
-Now I copied (symlinked) the input/mouse directory from 2.6.15, and it 
-works.
--- 
-Top 100 things you don't want the sysadmin to say:
-60. We're standardizing on AIX.
+It's pretty clear that writing the dirtied pages to disk is an
+*undesirable* side-effect, and should be eliminated.  (Among many
+other scenarios, imagine a kernel shutting down without all the probes
+being cleanly removed.  Then the executables are irretrievably
+corrupted.)
+
+- FChE

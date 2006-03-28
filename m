@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbWC1Mxy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbWC1MsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750915AbWC1Mxy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 07:53:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWC1Mxy
+	id S1750969AbWC1MsU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 07:48:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbWC1MsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 07:53:54 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:11693 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750915AbWC1Mxx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 07:53:53 -0500
-Date: Tue, 28 Mar 2006 06:53:42 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, devel@openvz.org, serue@us.ibm.com,
-       akpm@osdl.org, sam@vilain.net, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Pavel Emelianov <xemul@sw.ru>, Stanislav Protassov <st@sw.ru>
-Subject: Re: [RFC] Virtualization steps
-Message-ID: <20060328125342.GB12264@sergelap.austin.ibm.com>
-References: <44242A3F.1010307@sw.ru> <20060324211917.GB22308@MAIL.13thfloor.at> <m1psk7enfm.fsf@ebiederm.dsl.xmission.com> <4428F902.1020706@sw.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4428F902.1020706@sw.ru>
-User-Agent: Mutt/1.5.11
+	Tue, 28 Mar 2006 07:48:20 -0500
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:15312 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S1750737AbWC1MsT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 07:48:19 -0500
+In-Reply-To: <200603281028.25627.ncunningham@cyclades.com>
+References: <200603211133.AA00855@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <200603272357.AA00920@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <200603281028.25627.ncunningham@cyclades.com>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <8c956d57936a14bf8f473a698dbfa63c@cl.cam.ac.uk>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com,
+       Jim Crilly <jim@why.dont.jablowme.net>,
+       suspend2-devel@lists.suspend2.net,
+       Jun OKAJIMA <okajima@digitalinfra.co.jp>
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Subject: Re: [Xen-devel] Re: Fwd: Faster resuming of suspend technology.
+Date: Tue, 28 Mar 2006 13:48:37 +0100
+To: Nigel Cunningham <ncunningham@cyclades.com>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Kirill Korotaev (dev@sw.ru):
-> >>so IMHO, we should make a kernel branch (Eric or Sam
-> >>are probably willing to maintain that), which we keep
-> >>in-sync with mainline (not necessarily git, but at 
-> >>least snapshot wise), where we put all the patches
-> >>we agree on, and each party should then adjust the
-> >>existing solution to this kernel, so we get some deep
-> >>testing in the process, and everybody can see if it
-> >>'works' for him or not ...
-> >
-> >ACK.  A collection of patches that we can all agree
-> >on sounds like something worth aiming for.
-> >
-> >It looks like Kirill last round of patches can form
-> >a nucleus for that.  So far I have seem plenty of technical
-> >objects but no objections to the general direction.
-> yup, I will fix everything and will come with a set of patches for IPC, 
-> so we could select which way is better to do it :)
-> 
-> >So agreement appears possible.
-> Nice to hear this!
-> 
-> Eric, we have a GIT repo on openvz.org already:
-> http://git.openvz.org
-> 
-> we will create a separate branch also called -acked, where patches 
-> agreed upon will go.
 
-That's ok by me.  If a more neutral name/site were preferred, we could
-use the sf.net set we had finally gotten around to setting up -
-www.sf.net/projects/lxc  (LinuX Containers).  Unfortunately that would
-likely be just a quilt patch repository.
+On 28 Mar 2006, at 01:28, Nigel Cunningham wrote:
 
-A wiki + git repository would be ideal.
+>> I think it must have and you can use the same suspend image on all 
+>> Xen PCs.
+>
+> Yeah.
 
--serge
+Certain CPU features can screw things up. So moving from a CPU that 
+supports SSE2 to one that doesn't is unlikely to work well, for 
+example. But as long as CPU capabilities are a reasonably close match 
+then yes, you should be able to use a suspend image anywhere.
+
+  -- Keir
+

@@ -1,34 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWC1WpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbWC1Wsh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932481AbWC1WpU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 17:45:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbWC1WpT
+	id S932489AbWC1Wsh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 17:48:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWC1Wsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 17:45:19 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:10938 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932481AbWC1WpD (ORCPT
+	Tue, 28 Mar 2006 17:48:37 -0500
+Received: from mx2.netapp.com ([216.240.18.37]:40307 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S932485AbWC1Wsg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 17:45:03 -0500
-Date: Tue, 28 Mar 2006 14:44:52 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Trond.Myklebust@netapp.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
+	Tue, 28 Mar 2006 17:48:36 -0500
+X-IronPort-AV: i="4.03,140,1141632000"; 
+   d="scan'208"; a="370551607:sNHT24132748"
 Subject: Re: [PATCH] config: Fix CONFIG_LFS option
-Message-Id: <20060328144452.12812f25.akpm@osdl.org>
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>
 In-Reply-To: <Pine.LNX.4.64.0603281430370.15714@g5.osdl.org>
 References: <1143584319.8199.34.camel@lade.trondhjem.org>
-	<Pine.LNX.4.64.0603281430370.15714@g5.osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	 <Pine.LNX.4.64.0603281430370.15714@g5.osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: Network Appliance, Inc
+Date: Tue, 28 Mar 2006 17:48:34 -0500
+Message-Id: <1143586114.8199.49.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+X-OriginalArrivalTime: 28 Mar 2006 22:48:35.0141 (UTC) FILETIME=[BEDFE750:01C652B9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
->
-> 
+On Tue, 2006-03-28 at 14:34 -0800, Linus Torvalds wrote:
 > 
 > On Tue, 28 Mar 2006, Trond Myklebust wrote:
 > >
@@ -42,17 +44,14 @@ Linus Torvalds <torvalds@osdl.org> wrote:
 > totally not-very-interesting thing (blkcnt_t) for a totally not very 
 > interesting feature (the number of people who want single files >2TB is 
 > likely not very big).
-
-Yes, it's strictly a bugfix, but it's not a very big bug.  Perhaps we
-should turn it on all the time and not have the config option, but it does
-have some cost in text size, data size and instruction count.
-
+> 
 > Having it auto-selected by LBD sounds insane, since LBD is likely more 
 > interesting than LSF itsef is. It would make more sense to go the other 
 > way (have LSF auto-select LBD).
 
-Spose so.  I wonder what distributors will choose to do.
+NFSv3 and CIFS are two examples of commonly used filesystems that don't
+care a hoot for CONFIG_LBD, but that still want to be able to support
+large values for inode->i_blocks.
 
-It's a bit odd to have a config option to select whether or not to have a
-buggy kernel.
-
+Cheers,
+  Trond

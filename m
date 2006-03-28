@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWC1VmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWC1VnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932247AbWC1VmY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 16:42:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbWC1VmY
+	id S932245AbWC1VnE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 16:43:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWC1VnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 16:42:24 -0500
-Received: from smtp5-g19.free.fr ([212.27.42.35]:1255 "EHLO smtp5-g19.free.fr")
-	by vger.kernel.org with ESMTP id S932236AbWC1VmX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 16:42:23 -0500
-Message-ID: <4429ADBC.50507@free.fr>
-Date: Tue, 28 Mar 2006 23:42:20 +0200
-From: Zoltan Menyhart <Zoltan.Menyhart@free.fr>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.12) Gecko/20050915
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-CC: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
-       Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Fix unlock_buffer() to work the same way as bit_unlock()
-References: <200603281853.k2SIrGg28290@unix-os.sc.intel.com>
-In-Reply-To: <200603281853.k2SIrGg28290@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Mar 2006 16:43:04 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:7562 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932245AbWC1VnB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 16:43:01 -0500
+Date: Wed, 29 Mar 2006 07:42:14 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Peter Palfrader <peter@palfrader.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16: Oops - null ptr in blk_recount_segments?
+Message-ID: <20060329074214.D871924@wobbly.melbourne.sgi.com>
+References: <20060327022814.GV25288@asteria.noreply.org> <20060327043601.GE27189130@melbourne.sgi.com> <20060327045823.GW25288@asteria.noreply.org> <20060327061021.GT1173973@melbourne.sgi.com> <Pine.LNX.4.61.0603281621210.27529@yvahk01.tjqt.qr> <20060328213845.GO25288@asteria.noreply.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060328213845.GO25288@asteria.noreply.org>; from peter@palfrader.org on Tue, Mar 28, 2006 at 11:38:46PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chen, Kenneth W wrote:
-> Nick Piggin wrote on Tuesday, March 28, 2006 12:11 AM
+On Tue, Mar 28, 2006 at 11:38:46PM +0200, Peter Palfrader wrote:
+> Jan Engelhardt schrieb am Dienstag, dem 28. März 2006:
 > 
->>Also, I think there is still the issue of ia64 not having the
->>correct memory consistency semantics. To start with, all the bitops
->>and atomic ops which both modify their operand and return a value
->>should be full memory barriers before and after the operation,
->>according to Documentation/atomic_ops.txt.
->
-> I suppose the usage of atomic ops is abused, it is used in both lock
-> and unlock path.  And it naturally suck because it now requires full
-> memory barrier.  A better way is to define 3 variants: one for lock
-> path, one for unlock path, and one with full memory fence.
+> > >These diffs:
+> > >
+> > >2006-01-18
+> > >[XFS] Fix a race in xfs_submit_ioend() where we can ...
+> > >2006-01-11
+> > >[XFS] fix writeback control handling fix a reversed ...
+> > >[XFS] cluster rewrites We can cluster mapped pages ...
+> > >[...]
+> > 
+> > I bet on the 3rd...
+> 
+> Some of the patches don't unapply cleanly anymore.  I'll see what I can
+> do despite that.
 
-I agree. As I wrote a few days ago:
+You'll be better off trying the bio_clone fix discussed in the
+other (ext3-bio_clone-panic) thread than go down this route
+(there is a fix in 2.6.16.1 apparently - start there).  Certainly
+try that before attempting to revert these changes anyway.
 
-Why not to use separate bit operations for different purposes?
+cheers.
 
-- e.g. "test_and_set_bit_N_acquire()" for lock acquisition
-- "test_and_set_bit()", "clear_bit()" as they are today
-- "release_N_clear_bit()"...
-
-Thanks,
-
-Zoltan
-
+-- 
+Nathan

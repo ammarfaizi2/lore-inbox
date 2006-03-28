@@ -1,62 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWC1NyK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWC1OGu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932218AbWC1NyK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 08:54:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWC1NyK
+	id S932259AbWC1OGu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 09:06:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWC1OGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 08:54:10 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45700 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932218AbWC1NyJ (ORCPT
+	Tue, 28 Mar 2006 09:06:50 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:21889 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932259AbWC1OGu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 08:54:09 -0500
-Date: Tue, 28 Mar 2006 15:23:46 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Paolo Ornati <ornati@fastwebnet.it>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Random GCC segfaults -- Was: [2.6.16] slab error in slab_destroy_objs(): cache `radix_tree_node'...
-Message-ID: <20060328132346.GB3300@elf.ucw.cz>
-References: <20060326215346.1b303010@localhost> <20060328095521.52ea3424@localhost> <20060328004137.607e51db.akpm@osdl.org> <20060328112241.40b9c975@localhost>
+	Tue, 28 Mar 2006 09:06:50 -0500
+Subject: Re: HZ != 1000 causes problem with serial device shown by
+	git-bisect
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Greg Lee <glee@swspec.com>
+Cc: linux-kernel@vger.kernel.org, rmk+kernel@arm.linux.org.uk
+In-Reply-To: <0e6601c651f8$9d253b40$a100a8c0@casabyte.com>
+References: <0e6601c651f8$9d253b40$a100a8c0@casabyte.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 28 Mar 2006 15:13:53 +0100
+Message-Id: <1143555233.17522.23.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060328112241.40b9c975@localhost>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Llu, 2006-03-27 at 18:46 -0500, Greg Lee wrote:
+> I am having a problem when using PPP over a particular PCMCIA based serial device and have
+> pinned the problem down using git-bisect to this particular commit that was made between
+> 2.6.12.6 and 2.6.13:
 
-> On Tue, 28 Mar 2006 00:41:37 -0800
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > If those errors had no corresponding kernel messages then what you have is
-> > a classic symptom of failing memory hardware.  Suggest you grab memtest86,
-> > run it for 24 hours.
-> 
-> I've already run memtest86+ for hours (not 24 ok... "only" 4/5h) and I
-> found this:
-> 
-> An easly reproducilble memory failure (single bit flipping always at
-> the same address) <---- this one goes AWAY disabling bank interleaving
-> in BIOS.
-> 
-> Another memory failure (different address, always one bit flipping)
-> isn't found by memtest86+: I found it with CONFIG_DEBUG_SLAB and
-> I "fixed" it with memmap=... boot option.
-> 
-> 
-> Now, these 2 problems are both in my first 256MB memory module, so maybe
-> it is really another memory failure.
-> 
-> BUT now that I'm back on 2.6.15.6 I'm compiling a LOT of big CPP
-> projects and I haven't seen a single GCC segfault yet.
-> 
-> Maybe I should retry with 2.6.16 and if I can reproduce the problem I
-> can start testing 2.6.16-rc1 and so on...
+That would make sense.
 
-I'd really get new RAM... If the machine is "known bad", debugging on
-it is likely waste of time.
-								Pavel
--- 
-Picture of sleeping (Linux) penguin wanted...
+> I have also tried a number of other kernels and the problem exists all the way to 2.6.15.6
+> but is fixed in 2.6.16, so I am going to git-bisect 2.6.15.6 to 2.6.16, but I thought I
+> would get this message out now in case someone has an inkling of what the problem is.
+
+I think I can tell you fairly accurately if you are running fairly high
+data rates.
+
+The old pre 2.6.16 tty code works something like this
+
+Each serial IRQ
+	add chars to buffer if they fit
+
+Each timer IRQ
+	switch buffers
+	process original buffer
+
+
+So the higher HZ is the faster data speed you can do. With very high
+data rates lower HZ means more dropped characters.
+
+2.6.16 implements the new tty layer which replaces this with a proper
+buffering and queueing mechanism and is SMP aware (and thanks to Paul
+rather SMP clever too). 
+
+If you want to do very high data rates you either
+
+1.	Up HZ
+2.	Set the tty to low latency mode (process each char as it arrives) and
+pray you have enough CPU power
+3.	Fix the buffering. (2.6.16)
+
+In theory you can change the flip buffer sizes but that needs care.
+
+Alan
+
+

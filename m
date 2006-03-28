@@ -1,78 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbWC1WXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWC1WYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932447AbWC1WXb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 17:23:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWC1WXb
+	id S932454AbWC1WYI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 17:24:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWC1WYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 17:23:31 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:467 "EHLO lirs02.phys.au.dk")
-	by vger.kernel.org with ESMTP id S932447AbWC1WXb (ORCPT
+	Tue, 28 Mar 2006 17:24:07 -0500
+Received: from [62.205.161.221] ([62.205.161.221]:4787 "EHLO kir.sacred.ru")
+	by vger.kernel.org with ESMTP id S932454AbWC1WYF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 17:23:31 -0500
-Date: Tue, 28 Mar 2006 23:23:20 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
-Subject: Re: PI patch against 2.6.16-rt9
-In-Reply-To: <1143581802.5344.229.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44L0.0603282313050.22822-100000@lifa02.phys.au.dk>
+	Tue, 28 Mar 2006 17:24:05 -0500
+Message-ID: <4429B789.4030209@sacred.ru>
+Date: Wed, 29 Mar 2006 02:24:09 +0400
+From: Kir Kolyshkin <kir@sacred.ru>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060217)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Sam Vilain <sam@vilain.net>
+CC: Kir Kolyshkin <kir@openvz.org>, devel@openvz.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Devel] Re: [RFC] Virtualization steps
+References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>	 <1143228339.19152.91.camel@localhost.localdomain>	 <4428BB5C.3060803@tmr.com>  <4428DB76.9040102@openvz.org> <1143583179.6325.10.camel@localhost.localdomain>
+In-Reply-To: <1143583179.6325.10.camel@localhost.localdomain>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Mar 2006, Thomas Gleixner wrote:
+Sam Vilain wrote:
 
-> On Tue, 2006-03-28 at 22:17 +0100, Esben Nielsen wrote:
-> > I think we talk about the situation
+>On Tue, 2006-03-28 at 10:45 +0400, Kir Kolyshkin wrote:
+>  
 >
-> No, we talk about existing lock chains L(0) --> L(n).
+>>It is actually not a future goal, but rather a reality. Since os-level 
+>>virtualization overhead is very low (1-2 per cent or so), one can run 
+>>hundreds of VEs.
+>>    
+>>
 >
-> >                         B locks 1            C locks 2       D locks 3
-> >                         B locks 2, boosts C and block
-> >       A locks 2
-> >       A is boost B
-> >       A drop it's spinlocks and is preempted
-> >                                              C unlocks 2 and auto unboosts
-> >                         B is running
-> >                         B locks 3, boosts C and blocks
-> >       A gets a CPU again
-> >       A boosts B
-> >       A boosts D
-> >
-> > Is there anything wrong with that?
-> > And in the case where A==D there indeed is a deadlock which will be
-> > detected.
+>Huh?  You managed to measure it!?  Or do you just mean "negligible" by
+>"1-2 per cent" ?  :-)
+>  
 >
-> If you get to L(x) the underlying dependencies might have changed
-> already as well as the dependencies x ... n. We might get false
-> positives in the deadlock detection that way, as a deadlock is an
-> "atomic" state.
+We run different tests to measure OpenVZ/Virtuozzo overhead, as we do 
+care much for that stuff. I do not remember all the gory details at the 
+moment, but I gave the correct numbers: "1-2 per cent or so".
 
-As I see it you might detect a circular lock graph "atomically". But is
-that a "deadlock"? Yes, if you rule out signals and timeouts, this
-situation does indeed deadlock your program.
+There are things such as networking (OpenVZ's venet device) overhead, a 
+fair cpu scheduler overhead, something else.
 
-But if you count in signals and timeouts your algoritm also gives "false
-positives": You can detect a circular lock but when you return from
-rt_mutex_slowlock(), a signal is delivered and there is no longer a
-circular dependency and most important: The program wouldn't be
-deadlocked even if you didn't ask for deadlock detection and your task in
-that case would block.
+Why do you think it can not be measured? It either can be, or it is too 
+low to be measured reliably (a fraction of a per cent or so).
 
-I would like to see an examble of a false deadlock. I don't rule them out
-in the present code. But they might be simple to fix.
-
-Esben
-
->
-> 	tglx
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+Regards,
+  Kir.

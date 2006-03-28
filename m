@@ -1,35 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWC1Pmr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWC1Pnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751119AbWC1Pmr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 10:42:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWC1Pmr
+	id S1751123AbWC1Pnz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 10:43:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbWC1Pnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 10:42:47 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:58806 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751119AbWC1Pmr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 10:42:47 -0500
-Date: Tue, 28 Mar 2006 16:42:46 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
+	Tue, 28 Mar 2006 10:43:55 -0500
+Received: from 213-140-2-70.ip.fastwebnet.it ([213.140.2.70]:8396 "EHLO
+	aa003msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1751123AbWC1Pny (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 10:43:54 -0500
+Date: Tue, 28 Mar 2006 17:44:57 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: cyber rigger <cyber_rigger@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-mm2
-Message-ID: <20060328154246.GA18266@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060328003508.2b79c050.akpm@osdl.org>
+Subject: Re: Need help reporting bug, no 3D accel with Matrox g400
+Message-ID: <20060328174457.1e12b6c8@localhost>
+In-Reply-To: <20060328151328.53672.qmail@web31811.mail.mud.yahoo.com>
+References: <20060328151328.53672.qmail@web31811.mail.mud.yahoo.com>
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.12; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060328003508.2b79c050.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +make-tty_insert_flip_char-a-non-gpl-export.patch
+On Tue, 28 Mar 2006 07:13:28 -0800 (PST)
+cyber rigger <cyber_rigger@yahoo.com> wrote:
 
-the argumentation is wrong.  the previous code beein inline made drivers
-using it even more of a derived work than a _GPL export.  
+> My test case is ppracer which runs dreadfully slow.
 
+Isn't the output of this command enough to tell if direct rendering is
+enabled or not?
+
+glxinfo | grep ^direct
+
+-- 
+	Paolo Ornati
+	Linux 2.6.16 on x86_64

@@ -1,103 +1,199 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWC1Pf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWC1PgB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbWC1Pf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 10:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWC1Pf0
+	id S1751101AbWC1PgB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 10:36:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751066AbWC1PgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 10:35:26 -0500
-Received: from pproxy.gmail.com ([64.233.166.178]:44068 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751097AbWC1PfY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 10:35:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=obz7WTkejlmFcVTSQXpXyXIAn1M7x01lJ2vXBqhreUdfk3k6unGsEvBYZjhfXvHsQZzt/R49Xvd7EPkw43Ftvi0aw7sOp/zO4UbuNAi5bAZUupUznUTaz4ViyRmW/giyv49Vufgy4Wv3H8ohIaUVAKp3GLi0GUlRslOWH8NrZRI=
-Message-ID: <632b79000603280735w1908684djab2798c3f35cfebb@mail.gmail.com>
-Date: Tue, 28 Mar 2006 09:35:22 -0600
-From: "Don Dupuis" <dondster@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: Oops at __bio_clone with 2.6.16-rc6 anyone??????
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060327200134.7369c7f8.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 28 Mar 2006 10:36:00 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:22402 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1751097AbWC1Pf7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 10:35:59 -0500
+Date: Tue, 28 Mar 2006 17:35:58 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Kirill Korotaev <dev@sw.ru>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, devel@openvz.org,
+       serue@us.ibm.com, akpm@osdl.org, sam@vilain.net,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Pavel Emelianov <xemul@sw.ru>,
+       Stanislav Protassov <st@sw.ru>
+Subject: Re: [RFC] Virtualization steps
+Message-ID: <20060328153558.GF14576@MAIL.13thfloor.at>
+Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
+	Kirill Korotaev <dev@sw.ru>,
+	"Eric W. Biederman" <ebiederm@xmission.com>, haveblue@us.ibm.com,
+	linux-kernel@vger.kernel.org, devel@openvz.org, serue@us.ibm.com,
+	akpm@osdl.org, sam@vilain.net,
+	Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+	Pavel Emelianov <xemul@sw.ru>, Stanislav Protassov <st@sw.ru>
+References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au> <4428FB90.5000601@sw.ru> <4428FEA5.9020808@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <632b79000603271917h4104049dh9b6b8251feac0437@mail.gmail.com>
-	 <20060327200134.7369c7f8.akpm@osdl.org>
+In-Reply-To: <4428FEA5.9020808@yahoo.com.au>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes it does also happen on 2.6.16
+On Tue, Mar 28, 2006 at 07:15:17PM +1000, Nick Piggin wrote:
+> Kirill Korotaev wrote:
+> >
+> >Nick, will be glad to shed some light on it.
+> >
+> 
+> Thanks very much Kirill.
+> 
+> I don't think I'm qualified to make any decisions about this,
+> so I don't want to detract from the real discussions, but I
+> just had a couple more questions:
+> 
+> >First of all, what it does which low level virtualization can't:
+> >- it allows to run 100 containers on 1GB RAM
+> >  (it is called containers, VE - Virtual Environments,
+> >   VPS - Virtual Private Servers).
+> >- it has no much overhead (<1-2%), which is unavoidable with hardware
+> >  virtualization. For example, Xen has >20% overhead on disk I/O.
+> 
+> Are any future hardware solutions likely to improve these problems?
 
-Don
+not really, but as you know, "640K ought to be enough 
+for anybody", so maybe future hardware developments will
+make shared resources possible (with different kernels)
 
-On 3/27/06, Andrew Morton <akpm@osdl.org> wrote:
-> "Don Dupuis" <dondster@gmail.com> wrote:
-> >
-> > I will get this oops during reboots. It doesn't happen everytime, but
-> > It happens on this system at least 1 to 2 out of 10 reboots. The
-> > machine is a Dell Powervault 745n. Here is the oops output:
-> >
-> > Mar 20 22:27:49 (none) kernel: EXT3-fs: mounted filesystem with
-> > journal data mode.
-> > Mar 20 22:27:49 (none) kernel: Unable to handle kernel paging request
-> > at virtual address f8000000
-> > Mar 20 22:27:49 (none) kernel: printing eip:
-> > Mar 20 22:27:49 (none) kernel: c0156db1
-> > Mar 20 22:27:49 (none) kernel: *pde = 00000000
-> > Mar 20 22:27:49 (none) kernel: Oops: 0000 [#1]
-> > Mar 20 22:27:49 (none) kernel: SMP
-> > Mar 20 22:27:49 (none) kernel: Modules linked in:
-> > Mar 20 22:27:49 (none) kernel: CPU: 0
-> > Mar 20 22:27:50 (none) kernel: EIP: 0060:[<c0156db1>] Not tainted VLI
-> > Mar 20 22:27:50 (none) kernel: EFLAGS: 00010206 (2.6.16-rc6 #3)
-> > Mar 20 22:27:50 (none) kernel: EIP is at __bio_clone+0x29/0x9b
-> > Mar 20 22:27:50 (none) kernel: eax: 00000300 ebx: f68f3700 ecx:
-> > 00000002 edx: f7fffc80
-> > Mar 20 22:27:50 (none) kernel: esi: f8000000 edi: f7f3d378 ebp:
-> > f7c44b98 esp: f7c44b84
-> > Mar 20 22:27:50 (none) kernel: ds: 007b es: 007b ss: 0068
-> > Mar 20 22:27:50 (none) kernel: Process ldconfig (pid: 581,
-> > threadinfo=f7c44000 task=f7db9070)
-> > Mar 20 22:27:50 (none) kernel: Stack: <0>f7d3b458 f68f3700 f68f3700
-> > f7fffc80 f65b4640 f7c44ba8 c0156e4e f7d4c664
-> > Mar 20 22:27:50 (none) kernel: 00000010 f7c44bf4 c02c8346
-> > 00000080 00000000 00000e00 c0154b1b 00000000
-> > Mar 20 22:27:50 (none) kernel: 0000007f 00000080 f7fffc80
-> > f7d4a740 f7d44400 f7fffc80 f7d3b458 c01579c3
-> > Mar 20 22:27:50 (none) kernel: Call Trace:
-> > Mar 20 22:27:50 (none) kernel: [<c0104260>] show_stack_log_lvl+0xa8/0xb0
-> > Mar 20 22:27:50 (none) kernel: [<c0104397>] show_registers+0x109/0x171
-> > Mar 20 22:27:50 (none) kernel: [<c010456e>] die+0xfb/0x16f
-> > Mar 20 22:27:50 (none) kernel: [<c0114750>] do_page_fault+0x359/0x48b
-> > Mar 20 22:27:50 (none) kernel: [<c0103f0b>] error_code+0x4f/0x54
-> > Mar 20 22:27:50 (none) kernel: [<c0156e4e>] bio_clone+0x2b/0x31
-> > Mar 20 22:27:50 (none) kernel: [<c02c8346>] make_request+0x208/0x3d4
-> > Mar 20 22:27:50 (none) kernel: [<c02c8211>] make_request+0xd3/0x3d4
-> > Mar 20 22:27:50 (none) kernel: [<c01d3b68>] generic_make_request+0xf5/0x105
-> > Mar 20 22:27:50 (none) kernel: [<c01d3c19>] submit_bio+0xa1/0xa9
-> > Mar 20 22:27:50 (none) kernel: [<c0170453>] mpage_bio_submit+0x1c/0x21
-> > Mar 20 22:27:50 (none) kernel: [<c017085c>] do_mpage_readpage+0x30b/0x44d
-> > Mar 20 22:27:50 (none) kernel: [<c0170a2b>] mpage_readpages+0x8d/0xf1
-> > Mar 20 22:27:50 (none) kernel: [<c01a7ee7>] ext3_readpages+0x14/0x16
-> > Mar 20 22:27:50 (none) kernel: [<c013e92f>] read_pages+0x26/0xc6
-> > Mar 20 22:27:50 (none) kernel: [<c013eae8>]
-> > __do_page_cache_readahead+0x119/0x135
-> > Mar 20 22:27:50 (none) kernel: [<c013ebac>] do_page_cache_readahead+0x3d/0x49
-> > Mar 20 22:27:50 (none) kernel: [<c0139c92>] filemap_nopage+0x149/0x2c9
-> > Mar 20 22:27:50 (none) kernel: [<c01445ce>] do_no_page+0x82/0x245
-> > Mar 20 22:27:50 (none) kernel: [<c01448fb>] __handle_mm_fault+0xf4/0x1ba
-> > Mar 20 22:27:50 (none) kernel: [<c011456b>] do_page_fault+0x174/0x48b
-> > Mar 20 22:27:50 (none) kernel: [<c0103f0b>] error_code+0x4f/0x54
-> > Mar 20 22:27:50 (none) kernel: Code: 5d c3 55 89 e5 57 56 53 51 51 89
-> > 45 f0 8b 42 0c 8b 4d f0 8b 40 58 8b 40 34 89 45 ec 6b 42 2c 0c 8b 79
-> > 30 8b 72 30 89 c1 c1 e9 02 <f3> a5 89 c1 83 e1 03 74 02 f3 a4 8b 45 f0
-> > 8b 0a 8b 5a 04 89 58
-> >
->
-> Can you please confirm that 2.6.16 has the same problem?  (I'd expect it to).
->
-> Thanks.
->
+> >OS kernel virtualization
+> >~~~~~~~~~~~~~~~~~~~~~~~~
+> 
+> Is this considered secure enough that multiple untrusted VEs are run
+> on production systems?
+
+definitely! there are many, many, hosting providers
+using exactly this technology to provide Virutal Private
+Servers for their customers, of course, in production
+
+> What kind of users want this, who can't use alternatives like real
+> VMs?
+
+well, the same users who do not want to use Bochs for
+emulating a PC on a PC, when they can use UML for example,
+because it's much faster and easier to use ...
+
+aside from that, Linux-VServer for example, is not only 
+designed to create complete virtual servers, it also 
+works for service separation and increasing security for
+many applications, like for example:
+
+ - test environments (one guest per distro)
+ - service separation (one service per 'container')
+ - resource management and accounting
+
+> >Summary of previous discussions on LKML
+> >~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> 
+> Have their been any discussions between the groups pushing this
+> virtualization, and ...
+
+yes, the discussions are ongoing ... maybe to clarify the
+situation for the folks not involved (projects in 
+alphabetical order):
+
+ FreeVPS (Free Virtual Private Server Solution):
+ ===============================================
+ [http://www.freevps.com/]
+	not pushing for inclusion, early Linux-VServer
+	spinoff, partially maintained but they seem to have
+	other interrests lately
+
+   Alex Lyashkov (FreeVPS kernel maintainer)
+   [Positive Software Corporation http://www.freevps.com/]
+
+ BSD Jail LSM (Linux-Jails security module):
+ ===========================================
+ [http://kerneltrap.org/node/3823]
+
+   Serge E. Hallyn (Patch/Module maintainer) [IBM]
+	interested in some kind of mainline solution
+
+   Dave Hansen (IBM Linux Technology Center)
+	interested in virtualization for context/container
+	migration
+
+ Linux-VServer (community project, maintained):
+ ==============================================
+ [http://linux-vserver.org/]
+
+   Jacques Gelinas (previous VServer maintainer)
+	not pushing for inclusion
+
+   Herbert Poetzl (Linux-VServer kernel maintainer) 
+	not pushing for inclusion, but I want to make damn
+	sure that there does not come bloat into the kernel
+	and the mainline effords will be usable for 
+	Linux-VServer and similar ...
+
+   Sam Vilain (Refactoring Linux-VServer patches)
+   [Catalyst http://catalyst.net.nz/]
+	trying hard to provide a simple/minimalistic version
+	of Linux-VServer for mainline
+
+   many others, not really pushing anything here :)
+
+ OpenVZ (open project, maintained, subset of Virtuozzo(tm)):
+ ===========================================================
+ [http://openvz.org/]
+
+   Kir Kolyshkin (OpenVZ maintainer):
+   [SWsoft http://www.swsoft.com I gues?]
+	maybe pushing for inclusion ...
+
+   Kirill Korotaev (OpenVZ/Virtuozzo kernel developer?)
+   [SWsoft http://www.swsoft.com]
+        heavily pushing for inclusion ...
+
+   Alexey Kuznetsov (Chief Software Engineer)
+   [SWsoft http://www.swsoft.com]
+	not pushing but supporting company interrests
+
+ PID Virtualization (kernel branch for inclusion):
+ =================================================
+ 
+   Eric W. Biederman (branch developer/maintainer)
+   [XMission http://xmission.com/]
+
+ Virtuozzo(tm) (Commercial solution form SWsoft):
+ ================================================
+ [http://www.virtuozzo.com/]
+
+   not involved yet, except via OpenVZ 
+
+   Stanislav Protassov (Director of Engineering)
+   [SWsoft http://www.swsoft.com]
+
+ 
+A ton of IBM and VZ folks are not listed here, but I
+guess you can figure who is who from the email addresses
+
+there are also a bunch of folks from Columbia and
+Princeton university interested and/or involved in
+kernel level virtualization and context migration.
+
+please extend this list where appropriate, I'm pretty
+sure I forgot at least five important/involved persons
+
+> important kernel developers who are not part of a virtualization
+> effort? 
+
+no idea, probably none for now ...
+
+> Ie. is there any consensus about the future of these patches?  
+
+what patches? what future?
+
+HTC,
+Herbert
+
+> Thanks,
+> Nick
+> 
+> -- 
+> SUSE Labs, Novell Inc.
+> Send instant messages to your online friends http://au.messenger.yahoo.com 

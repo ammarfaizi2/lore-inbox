@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWC1Q3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWC1Qdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbWC1Q3c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 11:29:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWC1Q3c
+	id S932075AbWC1Qdy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 11:33:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWC1Qdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 11:29:32 -0500
-Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:4100 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932114AbWC1Q3b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 11:29:31 -0500
-Date: Tue, 28 Mar 2006 18:29:33 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Frank Gevaerts <frank@gevaerts.be>
-Cc: Robert Love <rlove@rlove.org>, linux-kernel@vger.kernel.org
-Subject: Re: patch : hdaps on Thinkpad R52
-Message-Id: <20060328182933.4184db3f.khali@linux-fr.org>
-In-Reply-To: <20060314205758.GA9229@gevaerts.be>
-References: <20060314205758.GA9229@gevaerts.be>
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Mar 2006 11:33:54 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:30619 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932075AbWC1Qdx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 11:33:53 -0500
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Kirill Korotaev <dev@sw.ru>, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, devel@openvz.org, serue@us.ibm.com,
+       akpm@osdl.org, sam@vilain.net, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Pavel Emelianov <xemul@sw.ru>, Stanislav Protassov <st@sw.ru>
+Subject: Re: [RFC] Virtualization steps
+References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>
+	<4428FB90.5000601@sw.ru> <4428FEA5.9020808@yahoo.com.au>
+	<20060328153558.GF14576@MAIL.13thfloor.at>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 28 Mar 2006 09:31:38 -0700
+In-Reply-To: <20060328153558.GF14576@MAIL.13thfloor.at> (Herbert Poetzl's
+ message of "Tue, 28 Mar 2006 17:35:58 +0200")
+Message-ID: <m1vetybket.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Frank,
+Herbert Poetzl <herbert@13thfloor.at> writes:
 
-> I had to add a new entry to the hdaps_whitelist table in hdaps.c to get
-> my Thinkpad R52 recognized. Patch is attached
-> (...)
->  	/* Note that DMI_MATCH(...,"ThinkPad T42") will match "ThinkPad T42p" */
->  	struct dmi_system_id hdaps_whitelist[] = {
-> +		HDAPS_DMI_MATCH_NORMAL("ThinkPad H"),
->  		HDAPS_DMI_MATCH_INVERT("ThinkPad R50p"),
->  		HDAPS_DMI_MATCH_NORMAL("ThinkPad R50"),
->  		HDAPS_DMI_MATCH_NORMAL("ThinkPad R51"),
+>  PID Virtualization (kernel branch for inclusion):
+>  =================================================
+>  
+>    Eric W. Biederman (branch developer/maintainer)
+>    [XMission http://xmission.com/]
 
-I have some doubt about this. The Thinkpad R52 is already supported
-(with identifier string "ThinkPad R52", unsuprisingly) and "ThinkPad H"
-doesn't exactly sound sane. Looks like your DMI data is corrupted or
-something. Could you please provide the output of dmidecode and
-vpddecode on your laptop?
+Actually I work for Linux Networx http://www.lnxi.com
+XMission is just my ISP.  I find it easier to work from
+home. :)
 
-Anyone else with a Thinkpad R52 can provide the same information for
-comparison?
-
-Feel free to send the outputs to me privately if you don't want to make
-them public.
-
-Thanks,
--- 
-Jean Delvare
+Eric

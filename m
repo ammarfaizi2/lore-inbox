@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbWC1PPa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWC1P22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751044AbWC1PPa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 10:15:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbWC1PPa
+	id S1750778AbWC1P22 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 10:28:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWC1P22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 10:15:30 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:59586 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S1751044AbWC1PPa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 10:15:30 -0500
-Date: Tue, 28 Mar 2006 17:15:22 +0200
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: Andrew Morton <akpm@osdl.org>
+	Tue, 28 Mar 2006 10:28:28 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:16815 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750778AbWC1P22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 10:28:28 -0500
+Subject: Re: Detecting I/O error and Halting System
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: zine el abidine Hamid <zine46@yahoo.fr>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-mm2
-Message-ID: <20060328151522.GA12177@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060328003508.2b79c050.akpm@osdl.org>
+In-Reply-To: <20060328150712.85169.qmail@web30602.mail.mud.yahoo.com>
+References: <20060328150712.85169.qmail@web30602.mail.mud.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 28 Mar 2006 16:36:03 +0100
+Message-Id: <1143560163.17522.29.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060328003508.2b79c050.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 28, 2006 at 12:35:08AM -0800, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.16-mm2/
-> - It seems to compile.
+On Maw, 2006-03-28 at 17:07 +0200, zine el abidine Hamid wrote:
+> I don't think that it's a HDD problem nor a cable
+> problem because the servers are new. We have tried
 
-I often consult Con when I can't find my australian dictionary - I assume
-this means you think this release is unstable and that all you can say is
-that it compiles?
+New. Thats another word for "untested" I believe 8)
 
-In the interest of our multicultural audience, it might make sense to not
-assume intimate knowledge of such advanced concepts as irony,
-understatements etc.
+> How can I determine the problem?
 
-Not that I don't appreciate it :-) But still.
+I would consult the hardware vendor
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+> I want to add that the HDD seems to be disconnected
+> (the BIOS can't find any drive for boot) after a
+> simple reset. We must switch off the servers to get
+> them work again.
+
+Thats strongly indicating a hardware problem.
+
+> (http://www.tldp.org/LDP/lkmpg/) but how can I
+> shutdown Linux from inside a module...? 
+
+See the softdog driver for an example.
+

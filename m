@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWC1VnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWC1VoA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932245AbWC1VnE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 16:43:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWC1VnE
+	id S932248AbWC1VoA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 16:44:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWC1VoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 16:43:04 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:7562 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932245AbWC1VnB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 16:43:01 -0500
-Date: Wed, 29 Mar 2006 07:42:14 +1000
+	Tue, 28 Mar 2006 16:44:00 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:13962 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932248AbWC1Vn7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 16:43:59 -0500
+Date: Wed, 29 Mar 2006 07:43:33 +1000
 From: Nathan Scott <nathans@sgi.com>
-To: Peter Palfrader <peter@palfrader.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16: Oops - null ptr in blk_recount_segments?
-Message-ID: <20060329074214.D871924@wobbly.melbourne.sgi.com>
-References: <20060327022814.GV25288@asteria.noreply.org> <20060327043601.GE27189130@melbourne.sgi.com> <20060327045823.GW25288@asteria.noreply.org> <20060327061021.GT1173973@melbourne.sgi.com> <Pine.LNX.4.61.0603281621210.27529@yvahk01.tjqt.qr> <20060328213845.GO25288@asteria.noreply.org>
+To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: kernel BUG at fs/direct-io.c:916!
+Message-ID: <20060329074333.E871924@wobbly.melbourne.sgi.com>
+References: <20060326230206.06C1EE083AAB@knarzkiste.dyndns.org> <20060326180440.GA4776@charite.de> <20060326184644.GC4776@charite.de> <20060327080811.D753448@wobbly.melbourne.sgi.com> <20060326230358.GG4776@charite.de> <20060327060436.GC2481@frodo> <20060327110342.GX21946@charite.de> <20060328050135.GA2177@frodo> <20060328112859.GA3851@charite.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060328213845.GO25288@asteria.noreply.org>; from peter@palfrader.org on Tue, Mar 28, 2006 at 11:38:46PM +0200
+In-Reply-To: <20060328112859.GA3851@charite.de>; from Ralf.Hildebrandt@charite.de on Tue, Mar 28, 2006 at 01:28:59PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 28, 2006 at 11:38:46PM +0200, Peter Palfrader wrote:
-> Jan Engelhardt schrieb am Dienstag, dem 28. März 2006:
+On Tue, Mar 28, 2006 at 01:28:59PM +0200, Ralf Hildebrandt wrote:
+> * Nathan Scott <nathans@sgi.com>:
 > 
-> > >These diffs:
-> > >
-> > >2006-01-18
-> > >[XFS] Fix a race in xfs_submit_ioend() where we can ...
-> > >2006-01-11
-> > >[XFS] fix writeback control handling fix a reversed ...
-> > >[XFS] cluster rewrites We can cluster mapped pages ...
-> > >[...]
-> > 
-> > I bet on the 3rd...
+> > OK, I think I see whats gone wrong here now.  Ralf, could you try
+> > the patch below and check that it fixes your test case?
 > 
-> Some of the patches don't unapply cleanly anymore.  I'll see what I can
-> do despite that.
+> The patch is against what? -git12? 2.6.16?
 
-You'll be better off trying the bio_clone fix discussed in the
-other (ext3-bio_clone-panic) thread than go down this route
-(there is a fix in 2.6.16.1 apparently - start there).  Certainly
-try that before attempting to revert these changes anyway.
+Should apply cleanly to the current git tree (did yesterday, anyway).
 
 cheers.
 

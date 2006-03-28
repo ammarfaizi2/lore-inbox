@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWC1ORX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWC1OTY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbWC1ORX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 09:17:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWC1ORX
+	id S932274AbWC1OTY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 09:19:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWC1OTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 09:17:23 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:28563 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932256AbWC1ORW (ORCPT
+	Tue, 28 Mar 2006 09:19:24 -0500
+Received: from mail.vtacs.com ([207.42.84.219]:25273 "EHLO mail.vtacs.com")
+	by vger.kernel.org with ESMTP id S932274AbWC1OTX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 09:17:22 -0500
-Date: Tue, 28 Mar 2006 16:17:05 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-cc: Douglas Gilbert <dougg@torque.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Matthew Wilcox <matthew@wil.cx>,
-       Bodo Eggert <7eggert@gmx.de>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Move SG_GET_SCSI_ID from sg to scsi
-In-Reply-To: <4428E7CB.6030407@s5r6.in-berlin.de>
-Message-ID: <Pine.LNX.4.61.0603281616230.27529@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.58.0603262108500.13001@be1.lrz> 
- <Pine.LNX.4.64.0603261424590.15714@g5.osdl.org>  <4427FEC9.4010803@torque.net>
-  <Pine.LNX.4.64.0603270854570.15714@g5.osdl.org>  <20060327172530.GH3486@parisc-linux.org>
-  <Pine.LNX.4.64.0603270936290.15714@g5.osdl.org> <1143489287.4970.76.camel@localhost.localdomain>
- <44285929.4020806@torque.net> <4428E7CB.6030407@s5r6.in-berlin.de>
+	Tue, 28 Mar 2006 09:19:23 -0500
+From: "Greg Lee" <glee@swspec.com>
+To: "'Russell King'" <rmk+lkml@arm.linux.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: HZ != 1000 causes problem with serial device shown by git-bisect
+Date: Tue, 28 Mar 2006 09:17:16 -0500
+Message-ID: <0f1401c65272$515bfc10$a100a8c0@casabyte.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+x-mimeole: Produced By Microsoft MimeOLE V6.00.2900.2670
+In-Reply-To: <20060328081324.GA15222@flint.arm.linux.org.uk>
+Thread-Index: AcZSP3/3JHVFiNVeSgCzCbWLnr6oZAAKpVaw
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->[host/ channel/ target/ LU enumeration...]
->>> is still a very visible reality if you work in a data centre or with
->>> server kit, or if you have tape arrays or multi-CD towers. The LUN or
->>> device number in particular are generally the number emblazoned on each
->>> slot in the unit
->...
->> USB multi-card readers seem to like the concept of LUNs as well.
->
->Sure. The h:c:i:l tuple does not provide the LUN though, only an ersatz.
+> Saying that the problem is between 2.6.15.6 and 2.6.16 is rather
+> meaningless because you're effectively omitting _all_ the development
+> work between 2.6.15 to 2.6.16, and that's likely where the problem
+> lies.  Hence, you're omitting all the 2.6.16-rc kernels from your
+> testing.
 
-[For the list:]
+Yes, I realized last night that the -rc kernels actually came before the 2.6.16.  I'm in
+the process of a git-bisect between 2.6.15 and 2.6.16 which will cover all of the changes
+made in the -rc kernels, right?
 
-..., only a replacement.
+Greg
 
 
-Jan Engelhardt
--- 

@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWC1X6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbWC1X5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbWC1X6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 18:58:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbWC1X6Z
+	id S964849AbWC1X5y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 18:57:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbWC1X5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 18:58:25 -0500
-Received: from www.osadl.org ([213.239.205.134]:16549 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S964851AbWC1X6Y (ORCPT
+	Tue, 28 Mar 2006 18:57:53 -0500
+Received: from mx0.towertech.it ([213.215.222.73]:38283 "HELO mx0.towertech.it")
+	by vger.kernel.org with SMTP id S964849AbWC1X5x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 18:58:24 -0500
-Subject: Re: PI patch against 2.6.16-rt9
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44L0.0603290006290.32655-100000@lifa02.phys.au.dk>
-References: <Pine.LNX.4.44L0.0603290006290.32655-100000@lifa02.phys.au.dk>
-Content-Type: text/plain
-Date: Wed, 29 Mar 2006 01:59:23 +0200
-Message-Id: <1143590363.5344.257.camel@localhost.localdomain>
+	Tue, 28 Mar 2006 18:57:53 -0500
+Date: Wed, 29 Mar 2006 01:57:38 +0200
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][UPDATE] rtc: Added support for ds1672 control
+Message-ID: <20060329015738.5dbbb22d@inspiron>
+In-Reply-To: <E135E70C-2F39-4007-B4CC-4D1AEBE2EE74@kernel.crashing.org>
+References: <20060329004122.64e91176@inspiron>
+	<Pine.LNX.4.44.0603281654370.22846-100000@gate.crashing.org>
+	<20060329014851.0f54da89@inspiron>
+	<E135E70C-2F39-4007-B4CC-4D1AEBE2EE74@kernel.crashing.org>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-29 at 00:34 +0100, Esben Nielsen wrote:
-> > Your method is tempting, but I do not see how it works out right now
+On Tue, 28 Mar 2006 17:52:00 -0600
+Kumar Gala <galak@kernel.crashing.org> wrote:
+
+> >
+> >  shouldn't this be
+> >  if (err < 0)
+> > 	return err;
 > 
-> It works for PI.
+> It could be, but doesn't need to.  ds1672_get_control either returns  
+> 0 (success) or non-zero (-EIO) for failure.
+> 
+> >> +	/* read control register */
+> >> +	err = ds1672_get_control(client, &control);
+> >> +	if (err) {
+> >> +		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
+> >> +		goto exit_detach;
+> >> +	}
+> >
+> >  ditto.
+> 
+> ditto.
 
-Well, works and effective are two things. In the worst case it
-introduces scheduler floods.
+ ok. will apply, thanks.
 
-> It might give false positives for deadlock detection even
-> without signals involved. But that might be solved by simply checking
-> again.
 
-Which is even more broken. Rechecking is less deterministic as the
-global lock fall back solution.
+-- 
 
-> If it is stored on a task when they blocked on a lock it
-> could be seen if they had released and reobtained the task since the last
-> traversal.
+ Best regards,
 
--ENOPARSE
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
 
-> If I should choose between a 100% certain deadlock detection and
-> rescheduling while doing PI I would choose that latter as that gives a
-> deterministic RT system. Are there at all applications depending on
-> deadlock detection or is it only for debug perposes anyway?
-
-No, userspace can request deadlock checking and we have to return
--EDEADLK in that case.
-
-[EDEADLK]
-        A deadlock condition was detected or the current thread already
-        owns the mutex.
-        
-Returning false positives might break well designed applications and
-prevent real deadlock detection.
-
-Btw, your get/put_task proposal adds two atomic ops. Atomic ops are
-implicit memory barriers and therefor you add two extra slow downs into
-the non conflict case.
-
-	tglx
-
+  http://www.towertech.it
 

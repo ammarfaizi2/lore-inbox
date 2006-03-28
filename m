@@ -1,104 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWC0XyU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWC1ADu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbWC0XyU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 18:54:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWC0XyU
+	id S932101AbWC1ADu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 19:03:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWC1ADu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 18:54:20 -0500
-Received: from master.soleranetworks.com ([67.137.28.188]:7597 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S932103AbWC0XyT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 18:54:19 -0500
-Message-ID: <4428872E.3020308@wolfmountaingroup.com>
-Date: Mon, 27 Mar 2006 17:45:34 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Mon, 27 Mar 2006 19:03:50 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:60079 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932101AbWC1ADt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 19:03:49 -0500
+Date: Tue, 28 Mar 2006 02:03:28 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Oleg Nesterov <oleg@tv-sign.ru>
+cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [patch 2/2] hrtimer
+In-Reply-To: <20060327235530.GA7024@oleg>
+Message-ID: <Pine.LNX.4.64.0603280155350.17704@scrub.home>
+References: <20060325121219.172731000@localhost.localdomain>
+ <20060325121223.966390000@localhost.localdomain> <20060325183213.63ab667c.akpm@osdl.org>
+ <1143411016.5344.139.camel@localhost.localdomain> <20060327235530.GA7024@oleg>
 MIME-Version: 1.0
-To: =?UTF-8?B?RnJpZWRyaWNoIEfDtnBlbA==?= <shado23@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: hda-intel woes
-References: <20060327231049.GA30641@localhost.in.y0ur.4ss>
-In-Reply-To: <20060327231049.GA30641@localhost.in.y0ur.4ss>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Visit www.redhat.com.
+On Tue, 28 Mar 2006, Oleg Nesterov wrote:
 
-Purchase a support contract for customer service, fastest way to get help.
+> I also think this is racy.
+> 
+> CPU_0					CPU_1
+> 
+> hrtimer_wakeup:
+> 
+> 	task = t->task;
+> 	t->task = NULL;
+> 
+> 	<--- INTERRUPT --->
+> 
+> 					task is woken by signal,
+> 					do_nanosleep() sees t->task == NULL,
+> 					returns without hrtimer_cancel(),
+> 					and __exits__.
+> 
+> 	<--- RESUME --->
+> 
+> 	wake_up_process(task);
+> 
+> Instead of exit(), 'task' can go to TASK_STOPPED or TASK_UNINTERRUPTIBLE
+> after return from do_nanosleep(), it will be awakened by hrtimer_wakeup()
+> unexpectedly.
 
-Jeff
+Indeed and my original patch did call hrtimer_cancel() unconditionally to 
+synchronize with a possibly running timer.
+Thomas, could you please document it a bit better, when you modify my 
+patches?
 
-Friedrich Göpel wrote:
-
->This same message was sent to the alsa mailinglist 3 weeks ago,
->but it still seems to be waiting on being moderated, so I'm resending
->this here.
->
->
->
->Hi,
->
->I tried installing linux on my sister's new acer extensa 6700 laptop.
->I tried Fedora FC4, FC5 test 3 and now Gentoo with various kernel and
->alsa versions (specifically 1.0.10 and 1.0.11-rc3 and whatever is in
->fedora before and after a full update).
->Also I set up a friends vaio laptop also with an intel hd audio chip,
->which is working peachy.
->I also tried model=basic/hp/fujitsu just in case.
->
->Just to preempt the question: I did unmute and raise the mixer levels.
->
->Anyways the damn thing is not to be convinced to produce a single
->sound.
->
->In light of this I suppose Acer did something nasty to that chip.
->
->I'm attatching here the relevant part of lspci -vv in hopes of somebody
->being either able to point out a fix or tell me if it's going to be
->supported sometime soon.
->
->I could pose as a genuea pig if neccessary.
->Also if there is any further information I should gather just tell me.
->
->Otherwise it's back to windows for my sister I guess.
->
->PS. I'm not subscribed to the list so please CC me.
->Thanks.
->
->00:1b.0 Audio device: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) High Definition Audio Controller (rev 04)
->        Subsystem: Acer Incorporated [ALI] Unknown device 008f
->        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
->        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->        Latency: 0
->        Interrupt: pin A routed to IRQ 177
->        Region 0: Memory at d000c000 (64-bit, non-prefetchable) [size=16K]
->        Capabilities: [50] Power Management version 2
->                Flags: PMEClk- DSI- D1- D2- AuxCurrent=55mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
->                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
->        Capabilities: [60] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
->                Address: 0000000000000000  Data: 0000
->        Capabilities: [70] Express Unknown type IRQ 0
->                Device: Supported: MaxPayload 128 bytes, PhantFunc 0, ExtTag-
->                Device: Latency L0s <64ns, L1 <1us
->                Device: Errors: Correctable- Non-Fatal- Fatal- Unsupported-
->                Device: RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop+
->                Device: MaxPayload 128 bytes, MaxReadReq 128 bytes
->                Link: Supported Speed unknown, Width x0, ASPM unknown, Port 0
->                Link: Latency L0s <64ns, L1 <1us
->                Link: ASPM Disabled CommClk- ExtSynch-
->                Link: Speed unknown, Width x0
->        Capabilities: [100] Virtual Channel
->        Capabilities: [130] Unknown (5)
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-
+bye, Roman

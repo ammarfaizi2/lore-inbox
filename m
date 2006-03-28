@@ -1,26 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWC1Sns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWC1Spn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbWC1Sns (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 13:43:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWC1Sns
+	id S1751214AbWC1Spn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 13:45:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWC1Spn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 13:43:48 -0500
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:22225 "EHLO
+	Tue, 28 Mar 2006 13:45:43 -0500
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:42198 "EHLO
 	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932068AbWC1Snr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 13:43:47 -0500
-Date: Tue, 28 Mar 2006 20:43:35 +0200 (CEST)
+	id S1751214AbWC1Spm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 13:45:42 -0500
+Date: Tue, 28 Mar 2006 20:45:38 +0200 (CEST)
 From: Bodo Eggert <7eggert@gmx.de>
-To: Joseph Fannin <jfannin@gmail.com>
-cc: Stas Sergeev <stsp@aknet.ru>, 7eggert@gmx.de, dtor_core@ameritech.net,
-       Linux kernel <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: [patch 1/1] pc-speaker: add SND_SILENT
-In-Reply-To: <20060328183140.GA21446@nineveh.rivenstone.net>
-Message-ID: <Pine.LNX.4.58.0603282040480.2538@be1.lrz>
-References: <5TCqf-E6-49@gated-at.bofh.it> <5TCqf-E6-51@gated-at.bofh.it>
- <5TCqf-E6-53@gated-at.bofh.it> <5TCqg-E6-55@gated-at.bofh.it>
- <5TCqf-E6-47@gated-at.bofh.it> <E1FMv1A-0000fN-Lp@be1.lrz> <44266472.5080309@aknet.ru>
- <20060328183140.GA21446@nineveh.rivenstone.net>
+To: dtor_core@ameritech.net
+cc: Bodo Eggert <7eggert@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] PS/2-mouse not found in 2.6.16
+In-Reply-To: <d120d5000603271256g6ff971daq57282287fd1d5434@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0603282044060.2538@be1.lrz>
+References: <Pine.LNX.4.58.0603272148050.2266@be1.lrz>
+ <d120d5000603271256g6ff971daq57282287fd1d5434@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
@@ -29,18 +26,20 @@ X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Mar 2006, Joseph Fannin wrote:
+On Mon, 27 Mar 2006, Dmitry Torokhov wrote:
+> On 3/27/06, Bodo Eggert <7eggert@gmx.de> wrote:
 
->     I would think the ideal situation would be to make every ALSA
-> device capable of acting as the console bell (defaulting to muted,
-> like every other ALSA mixer control).  Then only pcspkr would be the
-> odd case (though maybe a common one).
+> > With kernel 2.6.16, my Logitech mouse is no longer detected (not reported
+> > in dmesg, not working).
+> >
 > 
->     I dunno if there's a reasonably easy way to do that (without
-> changing every ALSA driver) though.
+> Does it help if you comment out call to quirk_usb_handoff_ohci() (your
+> USB host controller is an OHCI one, isn't it?) in
+> drivers/usb/host/pci-quirks.c::quirk_usb_early_handoff()?
 
-I think that should be done using a userspace input device if possible.
+It's uhci, and turning
+drivers/usb/host/pci-quirks.c::quirk_usb_early_handoff into a noop did not 
+help.
 -- 
-A man inserted an advertisement in the classified: Wife Wanted."
-The next day he received a hundred letters. They all said the
-same thing: "You can have mine."
+Top 100 things you don't want the sysadmin to say:
+22. hey, what does mkfs do?

@@ -1,73 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbWC1Kaf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWC1Kex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751259AbWC1Kaf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 05:30:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWC1Kae
+	id S932065AbWC1Kex (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 05:34:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWC1Kex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 05:30:34 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:6308 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1751259AbWC1Kae (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 05:30:34 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: regular swsusp flamewar [was Re: [PATCH] swsusp: separate swap-writing/reading code]
-Date: Tue, 28 Mar 2006 20:28:56 +1000
-User-Agent: KMail/1.9.1
-Cc: Mark Lord <lkml@rtr.ca>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <200603231702.k2NH2OSC006774@hera.kernel.org> <200603280936.31365.ncunningham@cyclades.com> <20060328091649.GE2874@elf.ucw.cz>
-In-Reply-To: <20060328091649.GE2874@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart4207816.thMBepyikl";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200603282029.01540.ncunningham@cyclades.com>
+	Tue, 28 Mar 2006 05:34:53 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:15762 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S932065AbWC1Kew
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 05:34:52 -0500
+Subject: Re: [Ext2-devel] [PATCH 2/2] ext2/3: Support2^32-1blocks(e2fsprogs)
+From: Laurent Vivier <Laurent.Vivier@bull.net>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: Andrew Morton <akpm@osdl.org>, Mingming Cao <cmm@us.ibm.com>,
+       Takashi Sato <sho@tnes.nec.co.jp>,
+       Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>
+In-Reply-To: <20060328080257.GA3581@localhost.localdomain>
+References: <20060325223358sho@rifu.tnes.nec.co.jp>
+	 <1143485147.3970.23.camel@dyn9047017067.beaverton.ibm.com>
+	 <20060327131049.2c6a5413.akpm@osdl.org>
+	 <20060327225847.GC3756@localhost.localdomain>
+	 <1143530126.11560.6.camel@openx2.frec.bull.fr>
+	 <20060328080257.GA3581@localhost.localdomain>
+Message-Id: <1143542080.11560.27.camel@openx2.frec.bull.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-14) 
+Date: Tue, 28 Mar 2006 12:34:41 +0200
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 28/03/2006 12:36:53,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 28/03/2006 12:36:55,
+	Serialize complete at 28/03/2006 12:36:55
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5jwH0ZTiI4T56FQxTZab"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4207816.thMBepyikl
-Content-Type: text/plain;
-  charset="iso-8859-1"
+
+--=-5jwH0ZTiI4T56FQxTZab
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Hi.
+Le mar 28/03/2006 =C3=A0 10:02, Ravikiran G Thirumalai a =C3=A9crit :
+> On Tue, Mar 28, 2006 at 09:15:26AM +0200, Laurent Vivier wrote:
+> > Le mar 28/03/2006 =C3=A0 00:58, Ravikiran G Thirumalai a =C3=A9crit :
+> > > On Mon, Mar 27, 2006 at 01:10:49PM -0800, Andrew Morton wrote:
+> > > > Mingming Cao <cmm@us.ibm.com> wrote:
+> >=20
+> > As 64bit per cpu counter is used only by ext3 and needed only on 64bit
+>=20
+> No, per-cpu counters are generic, and used for nr_files counter in vfs, a=
+nd
+> struct  proto.memory_allocated in net (on current -mm).=20
 
-On Tuesday 28 March 2006 19:16, Pavel Machek wrote:
-> On =DAt 28-03-06 09:36:26, Nigel Cunningham wrote:
-> > Hello.
-> >
-> > I'm not playing that game again.
-> >
-> > Instead I'm letting you know that I'm building a git tree at the moment,
-> > and hope to start posting patches from it shortly and seeking to merge
-> > Suspend2. A few weeks ago I lacked the motivation to do it, but that has
-> > since changed.
->
-> Just out of interest... what made you motivated? (Not that it is
-> important and feel free to tell me I don't need to know, or reply
-> privately...)
+In fact, I'm wondering if it is really a problem, as on 64bit arch
+sizeof(long) =3D sizeof(long long) =3D 8 ...
 
-You did.
+Laurent
+--=20
+Laurent Vivier
+Bull, Architect of an Open World (TM)
+http://www.bullopensource.org/ext4
 
-Regards,
-
-Nigel
-
---nextPart4207816.thMBepyikl
-Content-Type: application/pgp-signature
+--=-5jwH0ZTiI4T56FQxTZab
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.2.7 (GNU/Linux)
 
-iD8DBQBEKQ/tN0y+n1M3mo0RAph3AKCegaTAxCctaR5uvBQE4lKRw5vPWgCg1llE
-6lCGhFPRuoyyHVhvosyfTR0=
-=KqvR
+iD8DBQBEKRFA9Kffa9pFVzwRAr0RAKCkcIMCkGkMN0D7Sajpfd4kS/dseACcCF4R
+sUWUPVBT+6QlUHUQlogZ32I=
+=+A4S
 -----END PGP SIGNATURE-----
 
---nextPart4207816.thMBepyikl--
+--=-5jwH0ZTiI4T56FQxTZab--
+

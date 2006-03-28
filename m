@@ -1,77 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWC1ScJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWC1SlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbWC1ScJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 13:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbWC1ScJ
+	id S1751247AbWC1SlY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 13:41:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWC1SlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 13:32:09 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:61598 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751248AbWC1ScF (ORCPT
+	Tue, 28 Mar 2006 13:41:24 -0500
+Received: from xenotime.net ([66.160.160.81]:20643 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751247AbWC1SlY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 13:32:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
-        b=oGSbES/tVo8BZjNMyl43+WfRUQtSfnmBu7vLa/N9Tel9atlLjMcLaLYUxZrHEA0BBnuQ3J0OoEgfPRMfRURvVeIfAtWpnt7Z5s+f5ZPgkGxc9tclclowuJTwsfjPR2kfwvnKHABQNCqjbLPDKkjI3Bk9bsMvDX5N/Y6KvTOeO9k=
-Date: Tue, 28 Mar 2006 13:31:40 -0500
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: 7eggert@gmx.de, dtor_core@ameritech.net,
-       Linux kernel <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: [patch 1/1] pc-speaker: add SND_SILENT
-Message-ID: <20060328183140.GA21446@nineveh.rivenstone.net>
-Mail-Followup-To: Stas Sergeev <stsp@aknet.ru>, 7eggert@gmx.de,
-	dtor_core@ameritech.net,
-	Linux kernel <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-References: <5TCqf-E6-49@gated-at.bofh.it> <5TCqf-E6-51@gated-at.bofh.it> <5TCqf-E6-53@gated-at.bofh.it> <5TCqg-E6-55@gated-at.bofh.it> <5TCqf-E6-47@gated-at.bofh.it> <E1FMv1A-0000fN-Lp@be1.lrz> <44266472.5080309@aknet.ru>
+	Tue, 28 Mar 2006 13:41:24 -0500
+Date: Tue, 28 Mar 2006 10:43:37 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Shlomi Fish <shlomif@iglu.org.il>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PoC "make xconfig" Search Facility
+Message-Id: <20060328104337.bb646fad.rdunlap@xenotime.net>
+In-Reply-To: <200603272150.42305.shlomif@iglu.org.il>
+References: <200603272150.42305.shlomif@iglu.org.il>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44266472.5080309@aknet.ru>
-User-Agent: Mutt/1.5.9i
-From: jfannin@gmail.com (Joseph Fannin)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 26, 2006 at 01:52:50PM +0400, Stas Sergeev wrote:
-> Bodo Eggert wrote:
->>>The problem is that the snd-pcsp doesn't replace pcspkr.
+On Mon, 27 Mar 2006 21:50:41 +0200 Shlomi Fish wrote:
 
->>If that's the problem, create a minimal input driver that will signal the
->>snd-pcsp to beep, and change the original pcspkr to include
->>"(Non-ALSA)".
+> Hi all!
+> 
+> [ I'm not subscribed to this list so please CC me on your replies. ]
+> 
+> This patch adds a proof-of-concept search facility to "make xconfig". Current 
+> problems and limitations:
+> 
+> 1. Only case-insensitive single-substring search is supported.
+> 
+> 2. The style is completely wrong, as I could not find a suitable vim 
+> configuration for editing Linux kernel source (and Google was not help). If 
+> anyone can refer me to one, I'll be grateful.
 
-> Yes, making snd-pcsp to produce the console beeps and
-> making it mutually exclusive with pcspkr is possible.
-> But I think it is undesireable. People that don't like
-> the console beeps (myself included) simply do not load
-> the pcspkr module right now. If snd-pcsp is to produce
-> the beeps, then not loading pcspkr will not get the desired
-> effect any more, and the only possibility would be to,
-> probably, add the separate mixer control for the beeps.
-> I find this counter-intuitive: some people will be able to
-> disable the beeps by simply not loading pcspkr, while for
-> others this will suddenly magically stop working. This may
-> lead to a few unnecessary bug reports and confusions.
+I don't know of a vim config for kernel source code.
+Just read/use Documentation/CodingStyle, although for this code that probably
+doesn't matter so much (since this isn't kernel run-time code).
 
-    My laptop already has such a mixer control (and it works too,
-though it does depend on pcspkr being loaded).  Have there been bug
-reports about PC speakers that don't work because the PC speaker mixer
-control was not unmuted?  Well, probably, but it's not a new
-situation.
+> 3. At the moment the results are displayed in a listbox as text. One cannot go 
+> from the result node to the place to toggle it in the configuration. (much 
+> less from one of it ancessorts)
+> 
+> But it works!
+> 
+> The patch is against kernel 2.6.16-git13.
+> 
+> Comments, suggestions, corrections, and flames are welcome.
 
-    It doesn't seem unreasonable to me to expect users to configure
-their PC speaker beep preference through the ALSA mixer when
-configuring the PC speaker to be an audio device.
+Thanks.  It's useful and a good start.
 
-    I would think the ideal situation would be to make every ALSA
-device capable of acting as the console bell (defaulting to muted,
-like every other ALSA mixer control).  Then only pcspkr would be the
-odd case (though maybe a common one).
+A one-line comment about how to invoke it would have been nice:
+Use Edit/Find or Ctrl-F to invoke the search (find) tool.
 
-    I dunno if there's a reasonably easy way to do that (without
-changing every ALSA driver) though.
---
-Joseph Fannin
-jfannin@gmail.com
+To be really useful it needs to display items that SELECT the search string
+IMO.  Look at how menuconfig can do that.
 
-"That's all I have to say about that." -- Forrest Gump.
+E.g., for FW_LOADER (my favorite because it keeps me from disabling HOTPLUG
+so often), using /FW_LOADER in menuconfig tells me what SELECTs FW_LOADER
+as well as where it's defined.
+
+Being able to enter more queries without leaving the dialog box is nice/good.
+
+Oh, and patches should apply with 'patch -p1' (i.e., their filenames should
+begin with linux-tree/scripts/ etc., not with scripts/*).
+
+---
+~Randy

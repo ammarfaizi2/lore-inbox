@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWC1Ohn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWC1OjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932255AbWC1Ohn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 09:37:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbWC1Ohn
+	id S932284AbWC1OjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 09:39:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWC1OjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 09:37:43 -0500
-Received: from 213-140-2-72.ip.fastwebnet.it ([213.140.2.72]:20638 "EHLO
-	aa005msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S932255AbWC1Ohm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 09:37:42 -0500
-Date: Tue, 28 Mar 2006 16:38:46 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Paolo Ornati <ornati@fastwebnet.it>
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Random GCC segfaults -- Was: [2.6.16] slab error in
- slab_destroy_objs(): cache `radix_tree_node'...
-Message-ID: <20060328163846.272af289@localhost>
-In-Reply-To: <20060328163027.1e755745@localhost>
-References: <20060326215346.1b303010@localhost>
-	<20060328095521.52ea3424@localhost>
-	<20060328004137.607e51db.akpm@osdl.org>
-	<20060328112241.40b9c975@localhost>
-	<20060328132346.GB3300@elf.ucw.cz>
-	<20060328163027.1e755745@localhost>
-X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.12; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Mar 2006 09:39:09 -0500
+Received: from mail.tmr.com ([64.65.253.246]:9377 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S932284AbWC1OjH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 09:39:07 -0500
+Message-ID: <44294B33.3040507@tmr.com>
+Date: Tue, 28 Mar 2006 09:41:55 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kirill Korotaev <dev@sw.ru>
+CC: Dave Hansen <haveblue@us.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org, herbert@13thfloor.at, devel@openvz.org,
+       serue@us.ibm.com, akpm@osdl.org, sam@vilain.net,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Pavel Emelianov <xemul@sw.ru>,
+       Stanislav Protassov <st@sw.ru>
+Subject: Re: [RFC] Virtualization steps
+References: <44242A3F.1010307@sw.ru>  <44242D4D.40702@yahoo.com.au> <1143228339.19152.91.camel@localhost.localdomain> <4428BB5C.3060803@tmr.com> <4428FB2B.8070805@sw.ru>
+In-Reply-To: <4428FB2B.8070805@sw.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Mar 2006 16:30:27 +0200
-Paolo Ornati <ornati@fastwebnet.it> wrote:
+Kirill Korotaev wrote:
 
-> I'm re-testing with 2.6.15.6 --> it is compiling by some hours without
-> a single segfault.
+>> Frankly I don't see running 100 VMs as a realistic goal, being able 
+>> to run Linux, Windows, Solaris and BEOS unmodified in 4-5 VMs would 
+>> be far more useful.
+>
+> It is more than realistic. Hosting companies run more than 100 VPSs in 
+> reality. There are also other usefull scenarios. For example, I know 
+> the universities which run VPS for every faculty web site, for every 
+> department, mail server and so on. Why do you think they want to run 
+> only 5VMs on one machine? Much more! 
 
-Maybe I've exagerated here, it is finished now:
-
-real    106m35.548s
-user    56m11.111s
-sys     33m48.371s
-
-No problems as expected.
+I made no commont on what "they" might want, I want to make the rack of 
+underutilized Windows, BSD and Solaris servers go away. An approach 
+which doesn't support unmodified guest installs doesn't solve any of my 
+current problems. I didn't say it was in any way not useful, just not of 
+interest to me. What needs I have for Linux environments are answered by 
+jails and/or UML.
 
 -- 
-	Paolo Ornati
-	Linux 2.6.15.6 on x86_64
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+  Doing interesting things with small computers since 1979
+

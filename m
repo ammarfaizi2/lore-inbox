@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWC1WYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWC1WXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932454AbWC1WYI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 17:24:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWC1WYH
+	id S932452AbWC1WXg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 17:23:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWC1WXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 17:24:07 -0500
-Received: from [62.205.161.221] ([62.205.161.221]:4787 "EHLO kir.sacred.ru")
-	by vger.kernel.org with ESMTP id S932454AbWC1WYF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 17:24:05 -0500
-Message-ID: <4429B789.4030209@sacred.ru>
-Date: Wed, 29 Mar 2006 02:24:09 +0400
-From: Kir Kolyshkin <kir@sacred.ru>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060217)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Vilain <sam@vilain.net>
-CC: Kir Kolyshkin <kir@openvz.org>, devel@openvz.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Devel] Re: [RFC] Virtualization steps
-References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>	 <1143228339.19152.91.camel@localhost.localdomain>	 <4428BB5C.3060803@tmr.com>  <4428DB76.9040102@openvz.org> <1143583179.6325.10.camel@localhost.localdomain>
-In-Reply-To: <1143583179.6325.10.camel@localhost.localdomain>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+	Tue, 28 Mar 2006 17:23:36 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:35224 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932452AbWC1WXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 17:23:35 -0500
+Subject: Re: [PATCH 2.6.16-mm2] Kconfig SND_SEQUENCER_OSS help text fix
+From: Lee Revell <rlrevell@joe-job.com>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060328134654.GA9671@silenus.home.res>
+References: <20060328003508.2b79c050.akpm@osdl.org>
+	 <20060328134654.GA9671@silenus.home.res>
+Content-Type: text/plain
+Date: Tue, 28 Mar 2006 17:23:29 -0500
+Message-Id: <1143584610.11792.101.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Vilain wrote:
+On Tue, 2006-03-28 at 15:46 +0200, Frederik Deweerdt wrote:
+> Hi Andrew,
+> 
+> The SND_SEQUENCER_OSS config option in sound/core/Kconfig claims it could be 
+> compiled as a module despite being a bool. This patch removes the misleading
+> help text. This should apply to 2.6.16 as well, should I resend a patch?
 
->On Tue, 2006-03-28 at 10:45 +0400, Kir Kolyshkin wrote:
->  
->
->>It is actually not a future goal, but rather a reality. Since os-level 
->>virtualization overhead is very low (1-2 per cent or so), one can run 
->>hundreds of VEs.
->>    
->>
->
->Huh?  You managed to measure it!?  Or do you just mean "negligible" by
->"1-2 per cent" ?  :-)
->  
->
-We run different tests to measure OpenVZ/Virtuozzo overhead, as we do 
-care much for that stuff. I do not remember all the gory details at the 
-moment, but I gave the correct numbers: "1-2 per cent or so".
+But... it can be compiled as a module - I'm using it right now.
 
-There are things such as networking (OpenVZ's venet device) overhead, a 
-fair cpu scheduler overhead, something else.
+$ lsmod | grep ^snd_seq_oss
+snd_seq_oss            31396  0 
 
-Why do you think it can not be measured? It either can be, or it is too 
-low to be measured reliably (a fraction of a per cent or so).
+Lee
 
-Regards,
-  Kir.

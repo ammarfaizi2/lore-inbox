@@ -1,45 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbWC1TpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWC1Tqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751311AbWC1TpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 14:45:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWC1TpJ
+	id S1751312AbWC1Tqd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 14:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWC1Tqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 14:45:09 -0500
-Received: from mga03.intel.com ([143.182.124.21]:50240 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751311AbWC1TpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 14:45:07 -0500
-X-IronPort-AV: i="4.03,139,1141632000"; 
-   d="scan'208"; a="15909109:sNHT11658884965"
-From: "Bob Woodruff" <robert.j.woodruff@intel.com>
-To: "'Roland Dreier'" <rdreier@cisco.com>, <openib-general@openib.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: [openib-general] InfiniBand 2.6.17 merge plans
-Date: Tue, 28 Mar 2006 10:47:36 -0800
-Message-ID: <000001c65298$170359c0$010fa8c0@amr.corp.intel.com>
+	Tue, 28 Mar 2006 14:46:33 -0500
+Received: from mx.laposte.net ([81.255.54.11]:50344 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S1751312AbWC1Tqc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 14:46:32 -0500
+Date: Tue, 28 Mar 2006 21:45:49 +0200
+Message-Id: <IWUS8D$C76A20BE10DE33C8730E1540BA7E6640@laposte.net>
+Subject: Re: no more interrupt load balancing
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AcZR2MD/qxqEIZkISGey8phJRHf05QAvoqUg
-In-Reply-To: <ada7j6f8xwi.fsf@cisco.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
-X-OriginalArrivalTime: 28 Mar 2006 18:47:40.0622 (UTC) FILETIME=[174F56E0:01C65298]
+X-Sensitivity: 3
+Content-Type: multipart/mixed; boundary="_=__=_XaM3_.1143575149.2A.404205.42.12061.52.42.007.27756"
+From: =?iso-8859-1?b?RW1tYW51ZWwgRnVzdOk=?= <emmanuel.fuste@laposte.net>
+To: "emmanuel\.fuste" <emmanuel.fuste@laposte.net>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+X-XaM3-API-Version: 4.1 (B103)
+X-SenderIP: 127.0.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland wrote, 
->   - userspace RDMA CM, which exports the abstraction to userspace.
->     The feeling is that this interface needs more time to mature.
 
-The userspace RDMA-CM is currently being used by uDAPL and seems to 
-work fine for that application. Our testing so far shows that the code is
-stable. However, uDAPL also has a socket based mechanism that can used until
-the CMA 
-is merged. If others think it still needs more time to mature, then uDAPL
-has an interim solution.
+--_=__=_XaM3_.1143575149.2A.404205.42.12061.52.42.007.27756
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-my 2 cents on this one.
+> Hello,
+> 
+> 2.6.13 was Nok,
+> 2.6.14 was Ok,
+> 2.6.15 Nok :
+> efuste@rafale:~$ cat /proc/interrupts 
+>            CPU0       CPU1       
+>   0:    1046433        211    IO-APIC-edge  timer
+>   1:       2778          9    IO-APIC-edge  i8042
+>   2:          0          0          XT-PIC  cascade
+>   3:         17          0    IO-APIC-edge  serial
+>   5:          0          0    IO-APIC-edge  SoundBlaster
+>   7:          1          2    IO-APIC-edge  parport0
+>   8:          4          0    IO-APIC-edge  rtc
+>  12:     116647          3    IO-APIC-edge  i8042
+>  17:     170055          0   IO-APIC-level  eth0
+>  19:     216141          1   IO-APIC-level  aic7xxx,
+uhci_hcd:usb1
+> NMI:          0          0 
+> LOC:    1046486    1046485 
+> ERR:          0
+> MIS:          0
 
-woody
+2.6.16 Nok:
+
+           CPU0       CPU1       
+  0:     419187        103    IO-APIC-edge  timer
+  1:       1932          9    IO-APIC-edge  i8042
+  2:          0          0          XT-PIC  cascade
+  3:         17          1    IO-APIC-edge  serial
+  5:          0          0    IO-APIC-edge  SoundBlaster
+  7:          2          0    IO-APIC-edge  parport0
+  8:          4          0    IO-APIC-edge  rtc
+ 12:      22454          2    IO-APIC-edge  i8042
+ 16:      91690          1   IO-APIC-level  mga@pci:0000:00:0c.0
+ 17:       7402          0   IO-APIC-level  eth0
+ 19:     347961          1   IO-APIC-level  aic7xxx, uhci_hcd:usb1
+NMI:          0          0 
+LOC:     419237     419235 
+ERR:          0
+MIS:          0
+
+boot log:
+=0A=0AAcc=E9dez au courrier =E9lectronique de La Poste : www.laposte.net =
+; =0A3615 LAPOSTENET (0,34 =80/mn) ; t=E9l : 08 92 68 13 50 (0,34=80/mn)=0A=
+=0A
+
+--_=__=_XaM3_.1143575149.2A.404205.42.12061.52.42.007.27756
+Content-Type: application/octet-stream;
+	name="=?iso-8859-1?Q?log?="
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="=?iso-8859-1?Q?log?="
+
+TGludXggdmVyc2lvbiAyLjYuMTYgKDIuNi4xNi0xMC4wMC5DdXN0b20pIChyb290QGV4Y2Fs
+aWJ1cikgKGdjYyB2ZXJzaW9uIDQuMC4zIChEZWJpYW4gNC4wLjMtMSkpICMxIFNNUCBUdWUg
+TWFyIDI4IDE0OjM3OjExIENFU1QgMjAwNgpCSU9TLXByb3ZpZGVkIHBoeXNpY2FsIFJBTSBt
+YXA6CiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwMDAwMDAgLSAwMDAwMDAwMDAwMDlmYzAwICh1
+c2FibGUpCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwOWZjMDAgLSAwMDAwMDAwMDAwMGEwMDAw
+IChyZXNlcnZlZCkKIEJJT1MtZTgyMDogMDAwMDAwMDAwMDBmMDAwMCAtIDAwMDAwMDAwMDAx
+MDAwMDAgKHJlc2VydmVkKQogQklPUy1lODIwOiAwMDAwMDAwMDAwMTAwMDAwIC0gMDAwMDAw
+MDAyMDAwMDAwMCAodXNhYmxlKQogQklPUy1lODIwOiAwMDAwMDAwMGZlYzAwMDAwIC0gMDAw
+MDAwMDBmZWMwMTAwMCAocmVzZXJ2ZWQpCiBCSU9TLWU4MjA6IDAwMDAwMDAwZmVlMDAwMDAg
+LSAwMDAwMDAwMGZlZTAxMDAwIChyZXNlcnZlZCkKIEJJT1MtZTgyMDogMDAwMDAwMDBmZmZm
+MDAwMCAtIDAwMDAwMDAxMDAwMDAwMDAgKHJlc2VydmVkKQo1MTJNQiBMT1dNRU0gYXZhaWxh
+YmxlLgpmb3VuZCBTTVAgTVAtdGFibGUgYXQgMDAwZjY5NjAKT24gbm9kZSAwIHRvdGFscGFn
+ZXM6IDEzMTA3MgogIERNQSB6b25lOiA0MDk2IHBhZ2VzLCBMSUZPIGJhdGNoOjAKICBETUEz
+MiB6b25lOiAwIHBhZ2VzLCBMSUZPIGJhdGNoOjAKICBOb3JtYWwgem9uZTogMTI2OTc2IHBh
+Z2VzLCBMSUZPIGJhdGNoOjMxCiAgSGlnaE1lbSB6b25lOiAwIHBhZ2VzLCBMSUZPIGJhdGNo
+OjAKRE1JIDIuMCBwcmVzZW50LgpJbnRlbCBNdWx0aVByb2Nlc3NvciBTcGVjaWZpY2F0aW9u
+IHYxLjQKICAgIFZpcnR1YWwgV2lyZSBjb21wYXRpYmlsaXR5IG1vZGUuCk9FTSBJRDogT0VN
+MDAwMDAgUHJvZHVjdCBJRDogUFJPRDAwMDAwMDAwIEFQSUMgYXQ6IDB4RkVFMDAwMDAKUHJv
+Y2Vzc29yICMwIDU6NCBBUElDIHZlcnNpb24gMTYKUHJvY2Vzc29yICMxIDU6NCBBUElDIHZl
+cnNpb24gMTYKSS9PIEFQSUMgIzIgVmVyc2lvbiAxNyBhdCAweEZFQzAwMDAwLgpFbmFibGlu
+ZyBBUElDIG1vZGU6ICBGbGF0LiAgVXNpbmcgMSBJL08gQVBJQ3MKUHJvY2Vzc29yczogMgpB
+bGxvY2F0aW5nIFBDSSByZXNvdXJjZXMgc3RhcnRpbmcgYXQgMzAwMDAwMDAgKGdhcDogMjAw
+MDAwMDA6ZGVjMDAwMDApCkJ1aWx0IDEgem9uZWxpc3RzCktlcm5lbCBjb21tYW5kIGxpbmU6
+IGF1dG8gQk9PVF9JTUFHRT1MaW51eCBybyByb290PTgwMgptYXBwZWQgQVBJQyB0byBmZmZm
+ZDAwMCAoZmVlMDAwMDApCm1hcHBlZCBJT0FQSUMgdG8gZmZmZmMwMDAgKGZlYzAwMDAwKQpJ
+bml0aWFsaXppbmcgQ1BVIzAKQ1BVIDAgaXJxc3RhY2tzLCBoYXJkPWMwMzMzMDAwIHNvZnQ9
+YzAzMzUwMDAKUElEIGhhc2ggdGFibGUgZW50cmllczogNDA5NiAob3JkZXI6IDEyLCA2NTUz
+NiBieXRlcykKRGV0ZWN0ZWQgMjMyLjcwMyBNSHogcHJvY2Vzc29yLgpVc2luZyB0c2MgZm9y
+IGhpZ2gtcmVzIHRpbWVzb3VyY2UKQ29uc29sZTogY29sb3VyIFZHQSsgODB4MjUKRGVudHJ5
+IGNhY2hlIGhhc2ggdGFibGUgZW50cmllczogMTMxMDcyIChvcmRlcjogNywgNTI0Mjg4IGJ5
+dGVzKQpJbm9kZS1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDY1NTM2IChvcmRlcjogNiwg
+MjYyMTQ0IGJ5dGVzKQpNZW1vcnk6IDUxNTE2NGsvNTI0Mjg4ayBhdmFpbGFibGUgKDE1NjZr
+IGtlcm5lbCBjb2RlLCA4NjI4ayByZXNlcnZlZCwgNDc4ayBkYXRhLCAxODBrIGluaXQsIDBr
+IGhpZ2htZW0pCkNoZWNraW5nIGlmIHRoaXMgcHJvY2Vzc29yIGhvbm91cnMgdGhlIFdQIGJp
+dCBldmVuIGluIHN1cGVydmlzb3IgbW9kZS4uLiBPay4KQ2FsaWJyYXRpbmcgZGVsYXkgdXNp
+bmcgdGltZXIgc3BlY2lmaWMgcm91dGluZS4uIDQ2Ni42MSBCb2dvTUlQUyAobHBqPTkzMzIy
+MCkKU2VjdXJpdHkgRnJhbWV3b3JrIHYxLjAuMCBpbml0aWFsaXplZApTRUxpbnV4OiAgRGlz
+YWJsZWQgYXQgYm9vdC4KQ2FwYWJpbGl0eSBMU00gaW5pdGlhbGl6ZWQKTW91bnQtY2FjaGUg
+aGFzaCB0YWJsZSBlbnRyaWVzOiA1MTIKQ1BVOiBBZnRlciBnZW5lcmljIGlkZW50aWZ5LCBj
+YXBzOiAwMDgwMDNiZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAw
+MDAwMCAwMDAwMDAwMApDUFU6IEFmdGVyIHZlbmRvciBpZGVudGlmeSwgY2FwczogMDA4MDAz
+YmYgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAw
+MDAKSW50ZWwgUGVudGl1bSB3aXRoIEYwIDBGIGJ1ZyAtIHdvcmthcm91bmQgZW5hYmxlZC4K
+Q1BVOiBBZnRlciBhbGwgaW5pdHMsIGNhcHM6IDAwODAwM2JmIDAwMDAwMDAwIDAwMDAwMDAw
+IDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwCkNoZWNraW5nICdobHQnIGlu
+c3RydWN0aW9uLi4uIE9LLgpDUFUwOiBJbnRlbCBQZW50aXVtIE1NWCBzdGVwcGluZyAwMwpC
+b290aW5nIHByb2Nlc3NvciAxLzEgZWlwIDIwMDAKQ1BVIDEgaXJxc3RhY2tzLCBoYXJkPWMw
+MzM0MDAwIHNvZnQ9YzAzMzYwMDAKSW5pdGlhbGl6aW5nIENQVSMxCkNhbGlicmF0aW5nIGRl
+bGF5IHVzaW5nIHRpbWVyIHNwZWNpZmljIHJvdXRpbmUuLiA0NjUuMzggQm9nb01JUFMgKGxw
+aj05MzA3NzQpCkNQVTogQWZ0ZXIgZ2VuZXJpYyBpZGVudGlmeSwgY2FwczogMDA4MDAzYmYg
+MDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAK
+Q1BVOiBBZnRlciB2ZW5kb3IgaWRlbnRpZnksIGNhcHM6IDAwODAwM2JmIDAwMDAwMDAwIDAw
+MDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwCkNQVTogQWZ0ZXIg
+YWxsIGluaXRzLCBjYXBzOiAwMDgwMDNiZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAw
+MDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMApDUFUxOiBJbnRlbCBQZW50aXVtIE1NWCBzdGVw
+cGluZyAwMwpUb3RhbCBvZiAyIHByb2Nlc3NvcnMgYWN0aXZhdGVkICg5MzEuOTkgQm9nb01J
+UFMpLgpFeHRJTlQgbm90IHNldHVwIGluIGhhcmR3YXJlIGJ1dCByZXBvcnRlZCBieSBNUCB0
+YWJsZQpFTkFCTElORyBJTy1BUElDIElSUXMKLi5USU1FUjogdmVjdG9yPTB4MzEgYXBpYzE9
+MCBwaW4xPTIgYXBpYzI9MCBwaW4yPTAKY2hlY2tpbmcgVFNDIHN5bmNocm9uaXphdGlvbiBh
+Y3Jvc3MgMiBDUFVzOiBwYXNzZWQuCkJyb3VnaHQgdXAgMiBDUFVzCm1pZ3JhdGlvbl9jb3N0
+PTE4MwpjaGVja2luZyBpZiBpbWFnZSBpcyBpbml0cmFtZnMuLi4gaXQgaXMKRnJlZWluZyBp
+bml0cmQgbWVtb3J5OiAxMTY2ayBmcmVlZApORVQ6IFJlZ2lzdGVyZWQgcHJvdG9jb2wgZmFt
+aWx5IDE2ClBDSTogUENJIEJJT1MgcmV2aXNpb24gMi4xMCBlbnRyeSBhdCAweGYwNDQwLCBs
+YXN0IGJ1cz0wClBDSTogVXNpbmcgY29uZmlndXJhdGlvbiB0eXBlIDEKTGludXggUGx1ZyBh
+bmQgUGxheSBTdXBwb3J0IHYwLjk3IChjKSBBZGFtIEJlbGF5ClBuUEJJT1M6IFNjYW5uaW5n
+IHN5c3RlbSBmb3IgUG5QIEJJT1Mgc3VwcG9ydC4uLgpQblBCSU9TOiBGb3VuZCBQblAgQklP
+UyBpbnN0YWxsYXRpb24gc3RydWN0dXJlIGF0IDB4YzAwZmNlYzAKUG5QQklPUzogUG5QIEJJ
+T1MgdmVyc2lvbiAxLjAsIGVudHJ5IDB4ZjAwMDA6MHhjZWYwLCBkc2VnIDB4ZjAwMDAKUG5Q
+QklPUzogMTQgbm9kZXMgcmVwb3J0ZWQgYnkgUG5QIEJJT1M7IDE0IHJlY29yZGVkIGJ5IGRy
+aXZlcgpQQ0k6IFByb2JpbmcgUENJIGhhcmR3YXJlClBDSTogUHJvYmluZyBQQ0kgaGFyZHdh
+cmUgKGJ1cyAwMCkKQm9vdCB2aWRlbyBkZXZpY2UgaXMgMDAwMDowMDowYS4wClBDSTogVXNp
+bmcgSVJRIHJvdXRlciBQSUlYL0lDSCBbODA4Ni83MDAwXSBhdCAwMDAwOjAwOjAxLjAKUENJ
+LT5BUElDIElSUSB0cmFuc2Zvcm06IDAwMDA6MDA6MDEuMltEXSAtPiBJUlEgMTkKUENJLT5B
+UElDIElSUSB0cmFuc2Zvcm06IDAwMDA6MDA6MGEuMFtBXSAtPiBJUlEgMTgKUENJLT5BUElD
+IElSUSB0cmFuc2Zvcm06IDAwMDA6MDA6MGIuMFtBXSAtPiBJUlEgMTcKUENJLT5BUElDIElS
+USB0cmFuc2Zvcm06IDAwMDA6MDA6MGMuMFtBXSAtPiBJUlEgMTYKUENJLT5BUElDIElSUSB0
+cmFuc2Zvcm06IDAwMDA6MDA6MGQuMFtBXSAtPiBJUlEgMTkK
+
+
+--_=__=_XaM3_.1143575149.2A.404205.42.12061.52.42.007.27756--
+

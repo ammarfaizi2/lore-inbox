@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbWC1W6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWC1W7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964779AbWC1W6M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 17:58:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWC1W6M
+	id S964790AbWC1W7e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 17:59:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWC1W7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 17:58:12 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:38569
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S964779AbWC1W6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 17:58:11 -0500
-From: Rob Landley <rob@landley.net>
-To: Mariusz Mazur <mmazur@kernel.pl>
-Subject: Re: [RFC][PATCH 0/2] KABI example conversion and cleanup
-Date: Tue, 28 Mar 2006 17:57:48 -0500
-User-Agent: KMail/1.8.3
-Cc: Avi Kivity <avi@argo.co.il>, Arjan van de Ven <arjan@infradead.org>,
-       Kyle Moffett <mrmacman_g4@mac.com>, nix@esperi.org.uk,
-       linux-kernel@vger.kernel.org, llh-discuss@lists.pld-linux.org
-References: <200603141619.36609.mmazur@kernel.pl> <200603271448.56645.rob@landley.net> <200603282204.53493.mmazur@kernel.pl>
-In-Reply-To: <200603282204.53493.mmazur@kernel.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603281757.49255.rob@landley.net>
+	Tue, 28 Mar 2006 17:59:15 -0500
+Received: from [198.99.130.12] ([198.99.130.12]:24003 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S964790AbWC1W7E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 17:59:04 -0500
+Message-Id: <200603282300.k2SN0JaP023007@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       viro@zeniv.linux.org.uk
+Subject: [PATCH 10/10] UML - Fix min usage
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 28 Mar 2006 18:00:19 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 March 2006 3:04 pm, Mariusz Mazur wrote:
-> On Monday 27 March 2006 21:48, Rob Landley wrote:
-> > Either way, it's not sounding like something I can grab and build uClibc
-> > systems with any time soon, the way I could use Mazur's headers to build
-> > uClibc.  I'll probably wind up using the gentoo headers when the 2.6.14
-> > version ships.
->
-> That's the trouble. While I have nothing against someone (as in -- not me
-> :) doing all that abi separation, it's not something I can use straight
-> away. Hell, I don't even get where in all of it I'd end up with something I
-> could use (granted, I haven't looked into the thread too closely). Not to
-> mention, that I suspect, that if there were enough people to do it, it
-> would have gotten done two years ago.
->
-> So unless anybody's got a better idea, I'll try releasing some initial
-> version of that llh-ng thingie rather soonish and see how that'll work out.
-> Anybody with me on that? :)
+From: Al Viro <viro@zeniv.linux.org.uk>
+type-safe min() in arch/um/drivers/mconsole_kern.c
 
-I'm highly interested in seeing the result. :)
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Rob
--- 
-Never bet against the cheap plastic solution.
+ arch/um/drivers/mconsole_kern.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+Index: linux-2.6.16-mm/arch/um/drivers/mconsole_kern.c
+===================================================================
+--- linux-2.6.16-mm.orig/arch/um/drivers/mconsole_kern.c	2006-03-28 09:30:36.000000000 -0500
++++ linux-2.6.16-mm/arch/um/drivers/mconsole_kern.c	2006-03-28 09:40:36.000000000 -0500
+@@ -616,7 +616,7 @@ static void console_write(struct console
+ 		return;
+ 
+ 	while(1){
+-		n = min(len, ARRAY_SIZE(console_buf) - console_index);
++		n = min((size_t)len, ARRAY_SIZE(console_buf) - console_index);
+ 		strncpy(&console_buf[console_index], string, n);
+ 		console_index += n;
+ 		string += n;
+

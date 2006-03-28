@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWC1Upq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWC1UtG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbWC1Upq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 15:45:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWC1Upq
+	id S932210AbWC1UtG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 15:49:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWC1UtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 15:45:46 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49619 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932190AbWC1Upp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 15:45:45 -0500
-Subject: Re: 2.6.16-mm2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060328154246.GA18266@infradead.org>
-References: <20060328003508.2b79c050.akpm@osdl.org>
-	 <20060328154246.GA18266@infradead.org>
-Content-Type: text/plain
+	Tue, 28 Mar 2006 15:49:06 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:43967 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932210AbWC1UtF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 15:49:05 -0500
+Message-ID: <4429A134.3060800@pobox.com>
+Date: Tue, 28 Mar 2006 15:48:52 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Roger Luethi <rl@hellgate.ch>
+CC: Andrew Morton <akpm@osdl.org>, vda@ilport.com.ua, rlrevell@joe-job.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] via-rhine: link state fix
+References: <20060328185356.GA22278@k3.hellgate.ch>
+In-Reply-To: <20060328185356.GA22278@k3.hellgate.ch>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 28 Mar 2006 21:53:02 +0100
-Message-Id: <1143579182.17522.36.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Spam-Score: -3.5 (---)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-3.5 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-03-28 at 16:42 +0100, Christoph Hellwig wrote:
-> > +make-tty_insert_flip_char-a-non-gpl-export.patch
+Roger Luethi wrote:
+> Problems with link state detection have been reported several times in the
+> past months.
 > 
-> the argumentation is wrong.  the previous code beein inline made drivers
-> using it even more of a derived work than a _GPL export.  
+> Denis Vlasenko did all the work tracking it down. Jeff Garzik suggested the
+> proper place for the fix.
+> 
+> When using the mii library, the driver needs to check mii->force_media
+> and set dev->state accordingly.
+> 
+> Roger
+> 
+> Signed-off-by: Roger Luethi <rl@hellgate.ch>
 
-You shouldn't take it that way. My full message to Andrew for public
-record was as follows
+ACK, will apply this...
 
---
-
-Based on Linus original comments about _GPL we should export
-tty_insert_flip_char as EXPORT_SYMBOL because it used to be
-EXPORT_SYMBOL equivalent (trivial inline). The other features are new
-extensions are were not available to drivers before so need not be
-provided except as _GPL functionality as far as I can see.
-
-None of the above should be taken as permission directly, indirectly or
-by means such as estoppel of the waving of GPL rights and me giving
-permission for non-GPL code to use any of my GPL code if it is in any
-way derivative of my work of course.
-
---
-
-So if its derivative then so be it.
-
-Alan
 

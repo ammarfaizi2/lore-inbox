@@ -1,79 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWC1Lhf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWC1Llw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWC1Lhf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 06:37:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWC1Lhf
+	id S932184AbWC1Llw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 06:41:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWC1Llw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 06:37:35 -0500
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:18844 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932199AbWC1Lhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 06:37:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=2gQiUMB+uvCAGDazpU4JljsFdx8oGhtjGO0HXRKSlSq3UkrP7TyP5iz8sXYNl+rrkveRaG7AUNTHOntCTGXQJzVbkXOfN8s3PhRuUL4wZbb1abVFJL0nKRHMVAOhF1QgoANPx5vL5XXqexg6q7iUn/qDHzjhlgRi/YUyhfhz1BA=  ;
-Message-ID: <4428FEA5.9020808@yahoo.com.au>
-Date: Tue, 28 Mar 2006 19:15:17 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, herbert@13thfloor.at, devel@openvz.org,
-       serue@us.ibm.com, akpm@osdl.org, sam@vilain.net,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Pavel Emelianov <xemul@sw.ru>,
-       Stanislav Protassov <st@sw.ru>
-Subject: Re: [RFC] Virtualization steps
-References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au> <4428FB90.5000601@sw.ru>
-In-Reply-To: <4428FB90.5000601@sw.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 28 Mar 2006 06:41:52 -0500
+Received: from main.gmane.org ([80.91.229.2]:56490 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932184AbWC1Llv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 06:41:51 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: [2.6 PATCH] add support for Papouch TMU (USB thermometer)
+Date: Tue, 28 Mar 2006 20:41:26 +0900
+Message-ID: <442920E6.3020603@thinrope.net>
+References: <4426BD1A.7070204@thinrope.net> <4426C1BF.90802@thinrope.net> <20060326180309.GD3569@vanheusden.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+Cc: Greg KH <greg@kroah.com>, Folkert van Heusden <folkert@vanheusden.com>
+X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
+User-Agent: Mail/News 1.5 (X11/20060324)
+In-Reply-To: <20060326180309.GD3569@vanheusden.com>
+X-Enigmail-Version: 0.94.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
-> 
-> Nick, will be glad to shed some light on it.
-> 
 
-Thanks very much Kirill.
+Hello Greg,
 
-I don't think I'm qualified to make any decisions about this,
-so I don't want to detract from the real discussions, but I
-just had a couple more questions:
+As the time flies by, I think it is better to have this patch in for now
+and leave the "big mess" for later and another thread...
+(the "big mess" refers as UTF-8 and other soup of encodings in kernel
+code + tab and space usage).
 
-> First of all, what it does which low level virtualization can't:
-> - it allows to run 100 containers on 1GB RAM
->   (it is called containers, VE - Virtual Environments,
->    VPS - Virtual Private Servers).
-> - it has no much overhead (<1-2%), which is unavoidable with hardware
->   virtualization. For example, Xen has >20% overhead on disk I/O.
+The patch below applies (with fuzz 2, which I hope is OK) to 2.6.16 and
+2.6.16.1 vanilla. The original submitter to LKML was Folkert van Heusden
+and that is why I have included his name in the code. I have just
+cleaned his code and fixed the style. Not sure of the order of
+Signed-off-by lines, change it if you need.
 
-Are any future hardware solutions likely to improve these problems?
+The patch as submitted below was tested with the actual device by
+Folkert and reported working.
 
-> 
-> OS kernel virtualization
-> ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Is this considered secure enough that multiple untrusted VEs are run
-on production systems?
 
-What kind of users want this, who can't use alternatives like real
-VMs?
 
-> Summary of previous discussions on LKML
-> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This patch adds support for new vendor (papouch) and one of their
+devices - TMU (a USB thermometer).
 
-Have their been any discussions between the groups pushing this
-virtualization, and important kernel developers who are not part of
-a virtualization effort? Ie. is there any consensus about the
-future of these patches?
+More information:
+vendor homepage:
+	http://www.papouch.com/en/
+product homepage (Polish):
+	http://www.papouch.com/shop/scripts/_detail.asp?katcislo=0188
 
-Thanks,
-Nick
+This patch is based on the submission from Folkert van Heusden [1].
+Then reviseted by Kalin KOZHUHAROV [2] and retested by Folkert.
+
+[1]	http://article.gmane.org/gmane.linux.kernel/392970
+[2]	http://article.gmane.org/gmane.linux.kernel/393386
+
+
+
+Signed-off-by: Folkert van Heusden <folkert@vanheusden.com>
+Signed-off-by: Kalin KOZHUHAROV <kalin@thinrope.net>
+
+
+diff -pruN linux-2.6.16-K01/drivers/usb/serial/ftdi_sio.c linux-2.6.16-tmp/drivers/usb/serial/ftdi_sio.c
+--- linux-2.6.16-K01/drivers/usb/serial/ftdi_sio.c	2006-03-20 14:53:29.000000000 +0900
++++ linux-2.6.16-tmp/drivers/usb/serial/ftdi_sio.c	2006-03-27 00:52:20.000000000 +0900
+@@ -492,6 +492,7 @@ static struct usb_device_id id_table_com
+ 	{ USB_DEVICE(FTDI_VID, FTDI_WESTREX_MODEL_777_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_WESTREX_MODEL_8900F_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_PCDJ_DAC2_PID) },
++	{ USB_DEVICE(PAPOUCH_VID, PAPOUCH_TMU_PID) },
+ 	{ },					/* Optional parameter entry */
+ 	{ }					/* Terminating entry */
+ };
+diff -pruN linux-2.6.16-K01/drivers/usb/serial/ftdi_sio.h linux-2.6.16-tmp/drivers/usb/serial/ftdi_sio.h
+--- linux-2.6.16-K01/drivers/usb/serial/ftdi_sio.h	2006-03-27 00:49:43.000000000 +0900
++++ linux-2.6.16-tmp/drivers/usb/serial/ftdi_sio.h	2006-03-27 00:46:55.000000000 +0900
+@@ -392,6 +392,15 @@
+ #define FTDI_WESTREX_MODEL_777_PID	0xDC00	/* Model 777 */
+ #define FTDI_WESTREX_MODEL_8900F_PID	0xDC01	/* Model 8900F */
+ 
++/*
++ * Papouch products (http://www.papouch.com/)
++ * Submitted by Folkert van Heusden
++ */
++
++#define PAPOUCH_VID			0x5050	/* Vendor ID */
++#define PAPOUCH_TMU_PID			0x0400	/* TMU USB Thermometer */
++
++
+ /* Commands */
+ #define FTDI_SIO_RESET			0	/* Reset the port */
+ #define FTDI_SIO_MODEM_CTRL		1	/* Set the modem control register */
+
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
+

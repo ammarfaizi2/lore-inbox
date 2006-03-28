@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWC1NXH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbWC1N3H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbWC1NXH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 08:23:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWC1NXH
+	id S932165AbWC1N3H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 08:29:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWC1N3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 08:23:07 -0500
-Received: from king.bitgnome.net ([70.84.111.244]:11919 "EHLO
-	king.bitgnome.net") by vger.kernel.org with ESMTP id S932100AbWC1NXF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 08:23:05 -0500
-Date: Tue, 28 Mar 2006 07:23:04 -0600
-From: Mark Nipper <nipsy@bitgnome.net>
-To: linux-kernel@vger.kernel.org
-Message-ID: <20060328132304.GA4571@king.bitgnome.net>
+	Tue, 28 Mar 2006 08:29:07 -0500
+Received: from javad.com ([216.122.176.236]:53772 "EHLO javad.com")
+	by vger.kernel.org with ESMTP id S932165AbWC1N3F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 08:29:05 -0500
+From: Sergei Organov <osv@javad.com>
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Cc: "Artem B. Bityutskiy" <dedekind@yandex.ru>, <linux@horizon.com>,
+       <kalin@thinrope.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Lifetime of flash memory
+References: <20060326162100.9204.qmail@science.horizon.com>
+	<4426C320.9010002@yandex.ru>
+	<20060327161845.GA16775@csclub.uwaterloo.ca>
+	<Pine.LNX.4.61.0603271242100.16721@chaos.analogic.com>
+	<87acbb6vlj.fsf@javad.com>
+	<Pine.LNX.4.61.0603280737210.21370@chaos.analogic.com>
+Date: Tue, 28 Mar 2006 17:27:33 +0400
+In-Reply-To: <Pine.LNX.4.61.0603280737210.21370@chaos.analogic.com>
+	(linux-os@analogic.com's message of "Tue, 28 Mar 2006 07:55:32 -0500")
+Message-ID: <87vety66nu.fsf@javad.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: text/plain; charset=utf-8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        I'm seeing these in my logcheck output:
----
-Mar 27 16:16:45 king kernel: KERNEL: assertion (!sk->sk_forward_alloc) failed at net/core/stream.c (283)
-Mar 27 16:16:45 king kernel: KERNEL: assertion (!sk->sk_forward_alloc) failed at net/ipv4/af_inet.c (150)
----
+"linux-os \(Dick Johnson\)" <linux-os@analogic.com> writes:
 
-I also saw this with 2.6.14.5.  I found references on LKML about
-this happening in 2.6.9 with regards to TSO and lowering
-tcp_tso_win_divisor.  I'm not lowering any values via sysctl
-(that I'm aware of anyway), so I'm not sure if I should worry
-about this.
+> On Mon, 27 Mar 2006, Sergei Organov wrote:
+>
+>> "linux-os \(Dick Johnson\)" <linux-os@analogic.com> writes:
+>> [...]
+>>> CompactFlash(tm) like SanDisk(tm) has very good R/W characteristics.
+>>
+>> Try to write 512-byte sectors in random order, and I'm sure write
+>> characteristics won't be that good.
+>>
+>>> It consists of a connector that exactly emulates an IDE drive connector
+>>> in miniature, an interface controller that emulates and responds to
+>>> most IDE commands, plus a method of performing reads and writes using
+>>> static RAM buffers and permanent storage in NVRAM.
+>>
+>> Are you sure they do have NVRAM? What kind of NVRAM? Do they have backup
+>> battery inside to keep NVRAM alive?
+>>
+>
+> NVRAM means [N]on-[V]olatile-[RAM]. Any of many types, currently NAND flash.
+> No battery required.
 
-        Just a heads up in case this is a real problem.
+But NAND FLASH, while it is NV(Non-Volatile) *is not* RAM (Random Access
+Memory), sorry. So it seems there is no NVRAM inside CFs, right?
 
--- 
-Mark Nipper                                                e-contacts:
-832 Tanglewood Drive                                nipsy@bitgnome.net
-Bryan, Texas 77802-4013                     http://nipsy.bitgnome.net/
-(979)575-3193                      AIM/Yahoo: texasnipsy ICQ: 66971617
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-GG/IT d- s++:+ a- C++$ UBL++++$ P--->+++ L+++$ !E---
-W++(--) N+ o K++ w(---) O++ M V(--) PS+++(+) PE(--)
-Y+ PGP t+ 5 X R tv b+++@ DI+(++) D+ G e h r++ y+(**)
-------END GEEK CODE BLOCK------
-
----begin random quote of the moment---
-As a computer, I find your faith in technology amusing.
-----end random quote of the moment----
+-- Sergei.

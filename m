@@ -1,72 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWC1NhW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWC1Ni7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932192AbWC1NhW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 08:37:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWC1NhW
+	id S932208AbWC1Ni7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 08:38:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWC1Ni7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 08:37:22 -0500
-Received: from pat.uio.no ([129.240.10.6]:58068 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932192AbWC1NhS (ORCPT
+	Tue, 28 Mar 2006 08:38:59 -0500
+Received: from mummy.ncsc.mil ([144.51.88.129]:25987 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S932179AbWC1Ni5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 08:37:18 -0500
-Subject: Re: [PATCH 2.6.15] Adding kernel-level identd dispatcher
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Edward Chernenko <edwardspec@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, edwardspec@gmail.com
-In-Reply-To: <20060328101407.96598.qmail@web37710.mail.mud.yahoo.com>
-References: <20060328101407.96598.qmail@web37710.mail.mud.yahoo.com>
+	Tue, 28 Mar 2006 08:38:57 -0500
+Subject: Re: [PATCH] split security_key_alloc into two functions
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Reply-To: sds@tycho.nsa.gov
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: James Morris <jmorris@namei.org>, lkml <linux-kernel@vger.kernel.org>,
+       linux-security-module@vger.kernel.org,
+       David Howells <dhowells@redhat.com>
+In-Reply-To: <20060328130533.GB19243@sergelap.austin.ibm.com>
+References: <20060328130533.GB19243@sergelap.austin.ibm.com>
 Content-Type: text/plain
-Date: Tue, 28 Mar 2006 08:36:30 -0500
-Message-Id: <1143552990.8009.27.camel@lade.trondhjem.org>
+Organization: National Security Agency
+Date: Tue, 28 Mar 2006 08:43:26 -0500
+Message-Id: <1143553407.3037.8.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.071, required 12,
-	autolearn=disabled, AWL 1.74, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-28 at 02:14 -0800, Edward Chernenko wrote:
-> --- Trond Myklebust <trond.myklebust@fys.uio.no>
-> wrote:
-> >
-> > Justification, please.
-> > 
-> > You haven't even tried to explain to us what is so
-> > broken about the
-> > userland identd that it needs to be replaced with a
-> > kernel version.
-> > 
+On Tue, 2006-03-28 at 07:05 -0600, Serge E. Hallyn wrote:
+> The security_key_alloc() function acted as both an authorizer and
+> security structure allocation function.  These roles should be
+> separated.  There are two reasons for this.
 > 
-> My point is that everything which follows this
-> conditions should be moved into kernel:
->  - must dispatch requests in a fixed time
->  - must work rarely, sleep most time
->  - must depend on internal kernel variables (for
-> example, established connections table)
+> First, if two modules are stacked, the first module might grant
+> permission and allocate security data, after which the second
+> module refuses permission.
 > 
-> Don't forget that many years ago there was echo daemon
-> in userspace. But as it's highly effective to dispatch
-> all echo requests in kernel, it was moved into
-> low-level TCP implementation. 
+> Second, by adding a security_post_alloc() function after the
+> serial number has been assigned, security modules can append
+> useful info.
+
+Are you sure that the key cannot be accessed (looked up) by another
+process as soon as it is assigned a serial number?  If it can be, then
+you risk having it accessed before its security structure is set up.
+
+> Note that currently there is no LSM using these hooks, so the
+> question of whether an LSM needs to recored the serial number
+> can't really be answered.
 > 
-> I think that ident protocol also matches this
-> criteria.
+> An alternative to this patch, supported by the historical approach
+> to LSM hooks, would be to remove all these hooks.  However as
+> the keystore starts being used - in particular by, eg, ecryptfs -
+> one might expect LSMs to be more interested in key activity.
 
-Most servers are designed for low latency. A lot of them sleep a lot,
-and a fair number of them also go poking around the kernel variables
-in /proc (which exists precisely in order to export internal kernel
-variables to userspace programs). I'll bet even your average Oracle
-database application fits those criteria.
+We are interested in using these hooks for SELinux, as we need complete
+mediation for MAC.  But we aren't yet clear on the precise usage model,
+so we don't have a well-defined set of controls just yet.
 
-Echo made sense to move into the kernel because in addition to the above
-it is a required feature on all Internet hosts, is pretty much stateless
-(and/or depends only on internal IP stack state), and needs extra low
-latency because it is designed to be used for timing purposes by
-clients.
-The same criteria hardly apply to identd.
+> 
+> :100644 100644 aaa0a5c... 3d8602e... M	include/linux/security.h
+> :100644 100644 fd99429... 1eff777... M	security/dummy.c
+> :100644 100644 a057e33... 6be6269... M	security/keys/key.c
+> 
+> Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+> 
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -844,10 +844,14 @@ struct swap_info_struct;
+>   * Security hooks affecting all Key Management operations
+>   *
+>   * @key_alloc:
+> - *	Permit allocation of a key and assign security data. Note that key does
+> - *	not have a serial number assigned at this point.
+> + *	Check permission to allocate a key and assign security data. Note
+> + *	that key does not have a serial number assigned at this point.
+>   *	@key points to the key.
+>   *	Return 0 if permission is granted, -ve error otherwise.
+> + * @key_post_alloc:
+> + * 	Allocate and attach a security structure to a key structure.
+> + * 	At this point there is a serial number attached to the key.
+> + *	@key points to the key.
+>   * @key_free:
+>   *	Notification of destruction; free security data.
+>   *	@key points to the key.
+> @@ -1312,6 +1316,7 @@ struct security_operations {
+>  	/* key management security hooks */
+>  #ifdef CONFIG_KEYS
+>  	int (*key_alloc)(struct key *key);
+> +	void (*key_post_alloc)(struct key *key);
+>  	void (*key_free)(struct key *key);
+>  	int (*key_permission)(key_ref_t key_ref,
+>  			      struct task_struct *context,
+> @@ -3001,6 +3006,11 @@ static inline int security_key_alloc(str
+>  	return security_ops->key_alloc(key);
+>  }
+>  
+> +static inline void security_key_post_alloc(struct key *key)
+> +{
+> +	security_ops->key_post_alloc(key);
+> +}
+> +
+>  static inline void security_key_free(struct key *key)
+>  {
+>  	security_ops->key_free(key);
+> @@ -3020,6 +3030,10 @@ static inline int security_key_alloc(str
+>  	return 0;
+>  }
+>  
+> +static inline void security_key_post_alloc(struct key *key)
+> +{
+> +}
+> +
+>  static inline void security_key_free(struct key *key)
+>  {
+>  }
+> diff --git a/security/dummy.c b/security/dummy.c
+> index fd99429..1eff777 100644
+> --- a/security/dummy.c
+> +++ b/security/dummy.c
+> @@ -860,6 +860,10 @@ static inline int dummy_key_alloc(struct
+>  	return 0;
+>  }
+>  
+> +static inline void dummy_key_post_alloc(struct key *key)
+> +{
+> +}
+> +
+>  static inline void dummy_key_free(struct key *key)
+>  {
+>  }
+> @@ -1036,6 +1040,7 @@ void security_fixup_ops (struct security
+>  #endif	/* CONFIG_SECURITY_NETWORK_XFRM */
+>  #ifdef CONFIG_KEYS
+>  	set_to_dummy_if_null(ops, key_alloc);
+> +	set_to_dummy_if_null(ops, key_post_alloc);
+>  	set_to_dummy_if_null(ops, key_free);
+>  	set_to_dummy_if_null(ops, key_permission);
+>  #endif	/* CONFIG_KEYS */
+> diff --git a/security/keys/key.c b/security/keys/key.c
+> index a057e33..6be6269 100644
+> --- a/security/keys/key.c
+> +++ b/security/keys/key.c
+> @@ -325,6 +325,7 @@ struct key *key_alloc(struct key_type *t
+>  	/* publish the key by giving it a serial number */
+>  	atomic_inc(&user->nkeys);
+>  	key_alloc_serial(key);
+> +	security_key_post_alloc(key);
+>  
+>  error:
+>  	return key;
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Cheers,
-  Trond
+-- 
+Stephen Smalley
+National Security Agency
 

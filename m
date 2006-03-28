@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWC1UpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWC1Upq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbWC1UpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 15:45:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWC1UpQ
+	id S932190AbWC1Upq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 15:45:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWC1Upq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 15:45:16 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:17611 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932196AbWC1UpO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 15:45:14 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Frank Ch. Eigler" <fche@redhat.com>
-Subject: Re: RFC - Approaches to user-space probes
-Date: Tue, 28 Mar 2006 22:44:47 +0200
-User-Agent: KMail/1.9.1
-Cc: prasanna@in.ibm.com, Arjan van de Ven <arjan@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, davem@davemloft.net, suparna@in.ibm.com,
-       richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, "Theodore Ts'o" <tytso@mit.edu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-References: <20060327065447.GA25745@in.ibm.com> <20060328145441.GA25465@in.ibm.com> <y0m64lye28w.fsf@ton.toronto.redhat.com>
-In-Reply-To: <y0m64lye28w.fsf@ton.toronto.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 28 Mar 2006 15:45:46 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49619 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932190AbWC1Upp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 15:45:45 -0500
+Subject: Re: 2.6.16-mm2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060328154246.GA18266@infradead.org>
+References: <20060328003508.2b79c050.akpm@osdl.org>
+	 <20060328154246.GA18266@infradead.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603282244.48900.ak@suse.de>
+Date: Tue, 28 Mar 2006 21:53:02 +0100
+Message-Id: <1143579182.17522.36.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 March 2006 22:35, Frank Ch. Eigler wrote:
-> Prasanna S Panchamukhi <prasanna@in.ibm.com> writes:
+On Maw, 2006-03-28 at 16:42 +0100, Christoph Hellwig wrote:
+> > +make-tty_insert_flip_char-a-non-gpl-export.patch
 > 
-> > [...]
-> > If the executable is mmaped shared, then those mappings will get written
-> > back to the disk.
-> > Writting to the disk is not the requirement for user-space probes, it is
-> > just the side effect [...]
-> 
-> It's pretty clear that writing the dirtied pages to disk is an
-> *undesirable* side-effect, and should be eliminated.  (Among many
-> other scenarios, imagine a kernel shutting down without all the probes
-> being cleanly removed.  Then the executables are irretrievably
-> corrupted.)
+> the argumentation is wrong.  the previous code beein inline made drivers
+> using it even more of a derived work than a _GPL export.  
 
-That's pretty hard unfortunately. There are plenty of operations
-that just access the page cache directly for IO 
-(like sendfile or mmap or other IO) 
+You shouldn't take it that way. My full message to Andrew for public
+record was as follows
 
-And allocating bounce buffers is tricky because the IO paths
-cannot allocate memory reliably without deadlocks (or rather 
-it would require mempool and other inefficient measures)
+--
 
-Doing forced COW like ptrace is probably more practical.
+Based on Linus original comments about _GPL we should export
+tty_insert_flip_char as EXPORT_SYMBOL because it used to be
+EXPORT_SYMBOL equivalent (trivial inline). The other features are new
+extensions are were not available to drivers before so need not be
+provided except as _GPL functionality as far as I can see.
 
--Andi
+None of the above should be taken as permission directly, indirectly or
+by means such as estoppel of the waving of GPL rights and me giving
+permission for non-GPL code to use any of my GPL code if it is in any
+way derivative of my work of course.
+
+--
+
+So if its derivative then so be it.
+
+Alan
+

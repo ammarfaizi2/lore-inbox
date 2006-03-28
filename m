@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWC1L3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWC1LeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbWC1L3J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 06:29:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWC1L3J
+	id S932207AbWC1LeT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 06:34:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWC1LeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 06:29:09 -0500
-Received: from mail.charite.de ([160.45.207.131]:32933 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S932186AbWC1L3G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 06:29:06 -0500
-Date: Tue, 28 Mar 2006 13:28:59 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>,
-       Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: kernel BUG at fs/direct-io.c:916!
-Message-ID: <20060328112859.GA3851@charite.de>
-Mail-Followup-To: Nathan Scott <nathans@sgi.com>,
-	Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-xfs@oss.sgi.com
-References: <20060326230206.06C1EE083AAB@knarzkiste.dyndns.org> <20060326180440.GA4776@charite.de> <20060326184644.GC4776@charite.de> <20060327080811.D753448@wobbly.melbourne.sgi.com> <20060326230358.GG4776@charite.de> <20060327060436.GC2481@frodo> <20060327110342.GX21946@charite.de> <20060328050135.GA2177@frodo>
+	Tue, 28 Mar 2006 06:34:19 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:24756 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932207AbWC1LeS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 06:34:18 -0500
+Subject: Re: OOM kills if swappiness set to 0, swap storms otherwise
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1143510828.1792.353.camel@mindpipe>
+References: <1143510828.1792.353.camel@mindpipe>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 28 Mar 2006 12:41:50 +0100
+Message-Id: <1143546110.17522.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060328050135.GA2177@frodo>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Nathan Scott <nathans@sgi.com>:
+On Llu, 2006-03-27 at 20:53 -0500, Lee Revell wrote:
+> What is the problem here?  Is the modern Linux desktop really too
+> bloated to run in half a gig of RAM, or is the kernel overzealous with
+> its OOM killing?
 
-> OK, I think I see whats gone wrong here now.  Ralf, could you try
-> the patch below and check that it fixes your test case?
+Evolution will regularly try and eat over 1GByte of RAM. In addition it
+is possible for an attacker to send you a plain text email that makes it
+do this.
 
-The patch is against what? -git12? 2.6.16?
+If you want to run gnome & firefox & evolution you need a lot more RAM.
+Alternatively run something sane and sensible.
 
--- 
-_________________________________________________
+Alan
+(whose todo list does indeed have 'new mailer' on it)
 
-  Charité - Universitätsmedizin Berlin
-_________________________________________________
-
-  Ralf Hildebrandt
-   i.A. Geschäftsbereich Informationsmanagement
-   Campus Benjamin Franklin
-   Hindenburgdamm 30 | Berlin
-   Tel. +49 30 450 570155 | Fax +49 30 450 570962
-   Ralf.Hildebrandt@charite.de
-   http://www.charite.de

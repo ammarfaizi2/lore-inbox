@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWC1W4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbWC1W6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964777AbWC1W4L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 17:56:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWC1W4L
+	id S964779AbWC1W6M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 17:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWC1W6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 17:56:11 -0500
-Received: from nproxy.gmail.com ([64.233.182.191]:6015 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964777AbWC1W4I convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 17:56:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ri0/6vy0dbf6tSh+1Q6judZctSJ/1WT6veguJ0uDLICsd94rWVxX0kFjdUT6pQKpgWW3iOj6cTCx0Nzk3sUkC8AYPb4rc6qeyQMQc5UbeolIaBOQM5Y9X4uE2ESVELpu7zWbroASHYOsXrqhKWOVXHCRQ8r6xUtCTuOqUNYviXg=
-Message-ID: <21d7e9970603281456p1086ff0fh4490f90ef8f18fa3@mail.gmail.com>
-Date: Wed, 29 Mar 2006 09:56:06 +1100
-From: "Dave Airlie" <airlied@gmail.com>
-To: "cyber rigger" <cyber_rigger@yahoo.com>
-Subject: Re: Need help reporting bug, no 3D accel with Matrox g400
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060328151328.53672.qmail@web31811.mail.mud.yahoo.com>
+	Tue, 28 Mar 2006 17:58:12 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:38569
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S964779AbWC1W6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 17:58:11 -0500
+From: Rob Landley <rob@landley.net>
+To: Mariusz Mazur <mmazur@kernel.pl>
+Subject: Re: [RFC][PATCH 0/2] KABI example conversion and cleanup
+Date: Tue, 28 Mar 2006 17:57:48 -0500
+User-Agent: KMail/1.8.3
+Cc: Avi Kivity <avi@argo.co.il>, Arjan van de Ven <arjan@infradead.org>,
+       Kyle Moffett <mrmacman_g4@mac.com>, nix@esperi.org.uk,
+       linux-kernel@vger.kernel.org, llh-discuss@lists.pld-linux.org
+References: <200603141619.36609.mmazur@kernel.pl> <200603271448.56645.rob@landley.net> <200603282204.53493.mmazur@kernel.pl>
+In-Reply-To: <200603282204.53493.mmazur@kernel.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060328151328.53672.qmail@web31811.mail.mud.yahoo.com>
+Message-Id: <200603281757.49255.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 28 March 2006 3:04 pm, Mariusz Mazur wrote:
+> On Monday 27 March 2006 21:48, Rob Landley wrote:
+> > Either way, it's not sounding like something I can grab and build uClibc
+> > systems with any time soon, the way I could use Mazur's headers to build
+> > uClibc.  I'll probably wind up using the gentoo headers when the 2.6.14
+> > version ships.
 >
+> That's the trouble. While I have nothing against someone (as in -- not me
+> :) doing all that abi separation, it's not something I can use straight
+> away. Hell, I don't even get where in all of it I'd end up with something I
+> could use (granted, I haven't looked into the thread too closely). Not to
+> mention, that I suspect, that if there were enough people to do it, it
+> would have gotten done two years ago.
 >
-> It appears that some later kernel versions
-> do not support 3D acceleration in some cases.
-> I'm getting this problem with Debain etch and Ubuntu
-> Dapper. I first thought it was a problem caused by
-> switching to xorg but Ubuntu 5.10 is fine and it uses
-> xorg.
->
-> ----------------------------------------------------
-> The 3D acceleration doesn't work with xorg using the
-> mga driver for a Matrox g400.
-> My test case is ppracer which runs dreadfully slow.
->
-> This is a Debian etch machine with Debian's
-> 2.6.15-1-k7 kernel.
->
->
-> This is what I have found so far.
->
-> Re: No direct rendering with recent kernels
-> http://lists.debian.org/debian-x/2006/01/msg00133.html[mga]
->
->
-> DRM for MGA broken since 2005-Aug-04.
-> https://bugs.freedesktop.org/show_bug.cgi?id=4797
->
->
->
-> The 3D acceleration for mga appears to still be
-> broken.
->
-> Where and how may I respectfully plead for this to be
-> fixed?
+> So unless anybody's got a better idea, I'll try releasing some initial
+> version of that llh-ng thingie rather soonish and see how that'll work out.
+> Anybody with me on that? :)
 
-Here, .. no pleading required.. I'm going to get my MGA out and setup
-again, however I was sure we'd fixed this before... there is a problem
-with the MGA userspace having broken locking,
+I'm highly interested in seeing the result. :)
 
-I'm nearly sure I've fixed up most of the kernel side, but I'll try
-and get time to test it again..
-
-Dave.
+Rob
+-- 
+Never bet against the cheap plastic solution.

@@ -1,55 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWC1XB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWC1XDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWC1XB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 18:01:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWC1W7I
+	id S964791AbWC1XDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 18:03:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964794AbWC1XDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 17:59:08 -0500
-Received: from [198.99.130.12] ([198.99.130.12]:18115 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S964782AbWC1W7C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 17:59:02 -0500
-Message-Id: <200603282300.k2SMxxOe022962@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 1/10] UML - Redeclare highmem
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 28 Mar 2006 17:59:59 -0500
-From: Jeff Dike <jdike@addtoit.com>
+	Tue, 28 Mar 2006 18:03:08 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:13883 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S964791AbWC1XDF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 18:03:05 -0500
+In-Reply-To: <c0a09e5c0603281401uaeea6aci57054aef444a5e1@mail.gmail.com>
+References: <20060311022759.3950.58788.stgit@gitlost.site> <20060311022919.3950.43835.stgit@gitlost.site> <2FF801BB-F96C-4864-AC44-09B4B92531F7@kernel.crashing.org> <c0a09e5c0603281044i57730c66ye08c45aadd352cf8@mail.gmail.com> <D760971F-3C6A-400B-99EA-E95358B37F82@kernel.crashing.org> <c0a09e5c0603281401uaeea6aci57054aef444a5e1@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <3B202D51-1683-465D-AE3D-DE301017BD69@kernel.crashing.org>
+Cc: "Chris Leech" <christopher.leech@intel.com>,
+       "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH 1/8] [I/OAT] DMA memcpy subsystem
+Date: Tue, 28 Mar 2006 17:03:09 -0600
+To: Andrew Grover <andy.grover@gmail.com>
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The earlier printf patch missed a corresponding change in the printed
-variable.
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+On Mar 28, 2006, at 4:01 PM, Andrew Grover wrote:
 
-Index: linux-2.6.16-mm/arch/um/include/user_util.h
-===================================================================
---- linux-2.6.16-mm.orig/arch/um/include/user_util.h	2006-03-28 09:30:36.000000000 -0500
-+++ linux-2.6.16-mm/arch/um/include/user_util.h	2006-03-28 15:59:38.000000000 -0500
-@@ -31,7 +31,7 @@ extern unsigned long uml_physmem;
- extern unsigned long uml_reserved;
- extern unsigned long end_vm;
- extern unsigned long start_vm;
--extern unsigned long highmem;
-+extern unsigned long long highmem;
- 
- extern char host_info[];
- 
-Index: linux-2.6.16-mm/arch/um/kernel/mem.c
-===================================================================
---- linux-2.6.16-mm.orig/arch/um/kernel/mem.c	2006-03-28 15:55:28.000000000 -0500
-+++ linux-2.6.16-mm/arch/um/kernel/mem.c	2006-03-28 15:59:33.000000000 -0500
-@@ -30,7 +30,7 @@ extern char __binary_start;
- unsigned long *empty_zero_page = NULL;
- unsigned long *empty_bad_page = NULL;
- pgd_t swapper_pg_dir[PTRS_PER_PGD];
--unsigned long highmem;
-+unsigned long long highmem;
- int kmalloc_ok = 0;
- 
- static unsigned long brk_end;
+> On 3/28/06, Kumar Gala <galak@kernel.crashing.org> wrote:
+>
+>>>> Also, what do you think about adding an operation type (MEMCPY,  
+>>>> XOR,
+>>>> CRYPTO_AES, etc).  We can than validate if the operation type
+>>>> expected is supported by the devices that exist.
+>>>
+>>> No objections, but this speculative support doesn't need to be in  
+>>> our
+>>> initial patchset.
+>>
+>> I don't consider it speculative.  The patch is for a generic DMA
+>> engine interface.  That interface should encompass all users.  I have
+>> a security/crypto DMA engine that I'd like to front with the generic
+>> DMA interface today.  Also, I believe there is another Intel group
+>> with an XOR engine that had a similar concept called ADMA posted a
+>> while ago.
+>
+> Please submit patches then. We will be doing another rev of the I/OAT
+> patch very soon, which you will be able to patch against. Or, once the
+> patch gets in mainline then we can enhance it. Code in the Linux
+> kernel is never "done", and the burden of implementing additional
+> functionality falls on those who want it.
+
+I completely understand that.  However, I think putting something  
+into mainline that only works or solves the particular problem you  
+have is a bad idea.  I'll provide patches for the changes I'd like to  
+see.  However, I figured a little discussion on the subject before I  
+went off an spent time on it was worth while.
+
+>> Can you explain what the semantics are.
+>>
+>> It's been a little while since I posted so my thoughts on the subject
+>> are going to take a little while to come back to me :)
+>
+> Yeah. Basically you register as a DMA client, and say how many DMA
+> channels you want. Our net_dma patch for example uses multiple
+> channels to help lock contention. Then when channels are available
+> (i.e. a DMA device added or another client gives them up) then you get
+> a callback. If the channel goes away (i.e. DMA device is removed
+> (theoretically possible but practically never happens) or *you* are
+> going away and change your request to 0 channels) then you get a
+> remove callback.
+
+Do you only get callback when a channel is available?  How do you  
+decide to do to provide PIO to the client?
+
+A client should only request multiple channel to handle multiple  
+concurrent operations.
+
+> This gets around the problem of DMA clients registering (and therefore
+> not getting) channels simply because they init before the DMA device
+> is discovered.
+
+What do you expect to happen in a system in which the channels are  
+over subscribed?
+
+Do you expect the DMA device driver to handle scheduling of channels  
+between multiple clients?
+
+- kumar
 

@@ -1,40 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWC1VoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWC1Vr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbWC1VoA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 16:44:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWC1VoA
+	id S932237AbWC1Vr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 16:47:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWC1Vr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 16:44:00 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:13962 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932248AbWC1Vn7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 16:43:59 -0500
-Date: Wed, 29 Mar 2006 07:43:33 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: kernel BUG at fs/direct-io.c:916!
-Message-ID: <20060329074333.E871924@wobbly.melbourne.sgi.com>
-References: <20060326230206.06C1EE083AAB@knarzkiste.dyndns.org> <20060326180440.GA4776@charite.de> <20060326184644.GC4776@charite.de> <20060327080811.D753448@wobbly.melbourne.sgi.com> <20060326230358.GG4776@charite.de> <20060327060436.GC2481@frodo> <20060327110342.GX21946@charite.de> <20060328050135.GA2177@frodo> <20060328112859.GA3851@charite.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 28 Mar 2006 16:47:26 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:51168
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S932237AbWC1VrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 16:47:25 -0500
+From: Rob Landley <rob@landley.net>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [OT] Non-GCC compilers used for linux userspace
+Date: Tue, 28 Mar 2006 16:47:05 -0500
+User-Agent: KMail/1.8.3
+Cc: Eric Piel <Eric.Piel@tremplin-utc.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, nix@esperi.org.uk,
+       mmazur@kernel.pl, linux-kernel@vger.kernel.org,
+       llh-discuss@lists.pld-linux.org
+References: <200603141619.36609.mmazur@kernel.pl> <442960B6.2040502@tremplin-utc.net> <7E2F0C3C-4091-4EEB-8E10-C1F58F94BD59@mac.com>
+In-Reply-To: <7E2F0C3C-4091-4EEB-8E10-C1F58F94BD59@mac.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060328112859.GA3851@charite.de>; from Ralf.Hildebrandt@charite.de on Tue, Mar 28, 2006 at 01:28:59PM +0200
+Message-Id: <200603281647.06020.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 28, 2006 at 01:28:59PM +0200, Ralf Hildebrandt wrote:
-> * Nathan Scott <nathans@sgi.com>:
-> 
-> > OK, I think I see whats gone wrong here now.  Ralf, could you try
-> > the patch below and check that it fixes your test case?
-> 
-> The patch is against what? -git12? 2.6.16?
+On Tuesday 28 March 2006 11:20 am, Kyle Moffett wrote:
+> On Mar 28, 2006, at 11:13:42, Eric Piel wrote:
+> > 03/28/2006 05:57 PM, Kyle Moffett wrote/a écrit:
+> >> But my question still stands.  Does anybody actually use any non-
+> >> GCC compiler for userspace in Linux?
+> >
+> > At least in the domain of HPC, I've seen people which were
+> > compiling mostly *everything* with the intel compiler (x86 and
+> > ia64) for performance reason. So... yes userspace is sometimes
+> > compiled with non-GCC compiler :-)
+>
+> Ok, well, the Intel compiler actually ends up emulating GCC and
+> supports most of its extensions; supposedly it can even be used to
+> compile the kernel sources, as per include/linux/compiler-intel.h. (I
+> don't know how recently this has been tested, though)  So does
+> anybody compile userspace under anything other than GCC or Intel
+> compilers?  Do any such compilers even exist?
+>
+> Cheers,
+> Kyle Moffett
 
-Should apply cleanly to the current git tree (did yesterday, anyway).
+I play with Fabrice Bellard's Tiny C Compiler (http://www.tinycc.org), and 
+hope to get a distro compiled with it someday, at least as a proof of 
+concept.
 
-cheers.
+That aims for full c99 and is already implementing a lot of gcc stuff too.
 
+Rob
 -- 
-Nathan
+Never bet against the cheap plastic solution.

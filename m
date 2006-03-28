@@ -1,111 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWC1Uua@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWC1UwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbWC1Uua (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 15:50:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWC1Uua
+	id S932146AbWC1UwT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 15:52:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWC1UwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 15:50:30 -0500
-Received: from [62.205.161.221] ([62.205.161.221]:3032 "EHLO kir.sacred.ru")
-	by vger.kernel.org with ESMTP id S932132AbWC1Uu3 (ORCPT
+	Tue, 28 Mar 2006 15:52:19 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:42373 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932146AbWC1UwS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 15:50:29 -0500
-Message-ID: <4429A17D.2050506@openvz.org>
-Date: Wed, 29 Mar 2006 00:50:05 +0400
-From: Kir Kolyshkin <kir@openvz.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060217)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: devel@openvz.org
-CC: akpm@osdl.org, Nick Piggin <nickpiggin@yahoo.com.au>, sam@vilain.net,
-       linux-kernel@vger.kernel.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>, serue@us.ibm.com,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, herbert@13thfloor.at
-Subject: Re: [Devel] Re: [RFC] Virtualization steps
-References: <1143228339.19152.91.camel@localhost.localdomain> <200603282029.AA00927@bbb-jz5c7z9hn9y.digitalinfra.co.jp>
-In-Reply-To: <200603282029.AA00927@bbb-jz5c7z9hn9y.digitalinfra.co.jp>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Mar 2006 15:52:18 -0500
+Date: Tue, 28 Mar 2006 22:49:45 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Simon Derr <simon.derr@bull.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rt10
+Message-ID: <20060328204944.GA1217@elte.hu>
+References: <Pine.LNX.4.44L0.0603262214060.8060-100000@lifa03.phys.au.dk> <Pine.LNX.4.44L0.0603262255150.8060-100000@lifa03.phys.au.dk> <20060326233530.GA22496@elte.hu> <Pine.LNX.4.58.0603281142410.17504@apollon>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0603281142410.17504@apollon>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4997]
+	0.7 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jun OKAJIMA wrote:
 
->>I'll summarize it this way: low-level virtualization uses resource
->>inefficiently.
->>
->>With this higher-level stuff, you get to share all of the Linux caching,
->>and can do things like sharing libraries pretty naturally.
->>
->>They are also much lighter-weight to create and destroy than full
->>virtual machines.  We were planning on doing some performance
->>comparisons versus some hypervisors like Xen and the ppc64 one to show
->>scaling with the number of virtualized instances.  Creating 100 of these
->>Linux containers is as easy as a couple of shell scripts, but we still
->>can't find anybody crazy enough to go create 100 Xen VMs.
->>
->>Anyway, those are the things that came to my mind first.  I'm sure the
->>others involved have their own motivations.
->>
->>    
->>
->
->Some questions.
->
->1. Your point is rignt in some ways, and I agree with you.
->   Yes, I currently guess Jail is quite practical than Xen.
->   Xen sounds cool, but really practical? I doubt a bit.
->   But it would be a narrow thought, maybe.
->   How you estimate feature improvement of memory shareing
->   on VM ( e.g. Xen/VMware)?
->   I have seen there are many papers about this issue.
->   If once memory sharing gets much efficient, Xen possibly wins.
->  
->
-This is not just about memory sharing. Dynamic resource management is 
-hardly possible in a model where you have multiple kernels running; all 
-of those kernel were designed to run on a dedicated hardware. As it was 
-pointed out, adding/removing memory from a Xen guest during runtime is 
-tricky.
+* Simon Derr <simon.derr@bull.net> wrote:
 
-Finally, multiple-kernels-on-top-of-hypervisor architecture is just more 
-complex and has more overhead then one-kernel-with-many-namespaces.
+> On Mon, 27 Mar 2006, Ingo Molnar wrote:
+> 
+> > i've released -rt10
+> 
+> Is anyone working on a port of this patch to the IA64 architecture ?
 
->2. Folks, how you think about other good points of Xen,
->   like live migration, or runs solaris, or has suspend/resume or...
->  
->
-OpenVZ will have live zero downtime migration and suspend/resume some 
-time next month.
+not that i know of. If someone wants to do that, take a look at the 
+x86_64 changes (or ppc/mips/i386 changes) to get an idea. These are the 
+rough steps needed:
 
->   No Linux jails have such feature for now, although I dont think
->   it is impossible with jail.
->
->
->My current suggestion is,
->
->1. Dont use Xen for running multiple VMs.
->2. Use Xen for better admin/operation/deploy... tools.
->  
->
-This point is controversial. Tools are tools -- they can be made to 
-support Xen, Linux VServer, UML, OpenVZ, VMware -- or even all of them!
+ - do the raw_spinlock_t/rwlock_t -> __raw_spinlock_t/rwlock_t rename
 
-But anyway, speaking of tools and better admin operations, what it takes 
-to create a Xen domain (I mean create all those files needed to run a 
-new Xen domain), and how much time it takes? Say, in OpenVZ creation of 
-a VE (Virtual Environment) is a matter of unpacking a ~100MB tarball and 
-copying 1K config file -- which essentially means one can create a VE in 
-a minute. Linux-VServer should be pretty much the same.
+ - change the APIs in asm-ia64/semaphore.h (and arch files) to
+   compat_up()/down()/etc.
 
-Another concern is, yes, manageability. In OpenVZ model the host system 
-can easily access all the VPSs' files, making, say, a mass software 
-update a reality. You can easily change some settings in 100+ VEs very 
-easy. In systems based on Xen and, say, VMware one should log in into 
-each system, one by one, to administer them, which is not unlike the 
-'separate physical server' model.
+ - in the arch Kconfig, turn off RWSEM_XCHGADD_ALGORITHM if PREEMPT_RT.
 
->3. If you need multiple VMs, use jail on Xen.
->  
->
-Indeed, a mixed approach is very interesting. You can run OpenVZ or 
-Linux-VServer in a Xen domain, that makes a lot of sense.
+ - add the TID_NEED_RESCHED_DELAYED logic to thread_info.h and the entry
+   assembly code.
+
+ - change most/all spinlocks in arch/ia64 to raw_spinlock / RAW_SPINLOCK
+
+ - change most/all seqlocks to raw_seqlock / RAW_SEQLOCK
+
+ - add smp_send_reschedule_allbutself().
+
+ - take a good look at the arch/x86_64/kernel/process.c changes and port
+   the need_resched_delayed() and __schedule() changes.
+
+that should be at least 95% of what's needed. (the x86_64 port does a 
+couple of other things too, like latency tracing support, etc., but you 
+dont need those for the initial ia64 port.)
+
+	Ingo

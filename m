@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWC1WUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWC1WV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932440AbWC1WUK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 17:20:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWC1WUJ
+	id S932449AbWC1WV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 17:21:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWC1WV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 17:20:09 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2263 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932440AbWC1WUI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 17:20:08 -0500
-Date: Wed, 29 Mar 2006 00:19:56 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Romano Giannetti <romanol@upcomillas.es>, linux-kernel@vger.kernel.org
-Subject: Re: Good news --- jump from 2.6.13-rc3 to 2.6.16  (almost) ok (swsusp, input)
-Message-ID: <20060328221956.GA5760@elf.ucw.cz>
-References: <20060327120706.GA838@pern.dea.icai.upcomillas.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060327120706.GA838@pern.dea.icai.upcomillas.es>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Tue, 28 Mar 2006 17:21:56 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:7992 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S932449AbWC1WVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 17:21:55 -0500
+In-Reply-To: <20060328220525.GB16205@flint.arm.linux.org.uk>
+References: <20060328003508.2b79c050.akpm@osdl.org> <9F2A5122-5295-4B86-9AC5-3D002C5FD5D4@kernel.crashing.org> <20060328220525.GB16205@flint.arm.linux.org.uk>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <7A08E1F7-8DED-4EBB-8735-97238B4F4F60@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: 2.6.16-mm2
+Date: Tue, 28 Mar 2006 16:21:59 -0600
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> I finally tried to install 2.6.16 on my portable PC, jumping directly from
-> 2.6.13-rc3, and there are good news. The most critical thing, namely swsusp,
-> did work ok and seems faster than before. A little problem is that when
-> starting the suspend, no messages are printed (the screen goes blank and
-> after a bit the machine poweroff). But then resume is ok . The same goes for
-> -ck1,  which has a really nice feeling.
+On Mar 28, 2006, at 4:05 PM, Russell King wrote:
 
-See FAQ:
+> On Tue, Mar 28, 2006 at 03:52:33PM -0600, Kumar Gala wrote:
+>> When building pmac32_defconfig for arch=powerpc:
+>>
+>> drivers/built-in.o(.text+0x74cd4): In function  
+>> `pciserial_init_ports':
+>> : undefined reference to `serial8250_register_port'
+>> drivers/built-in.o(.text+0x74d88): In function  
+>> `pciserial_remove_ports':
+>> : undefined reference to `serial8250_unregister_port'
+>> drivers/built-in.o(.text+0x74e70): In function
+>> `pciserial_suspend_ports':
+>> : undefined reference to `serial8250_suspend_port'
+>> drivers/built-in.o(.text+0x74ee0): In function  
+>> `pciserial_resume_ports':
+>> : undefined reference to `serial8250_resume_port'
+>>
+>> Need to hunt down why this is happening.
+>
+> We know why, it's a kconfig oddity - as discussed in the 2.6.16-mm1
+> thread.
 
-Q: How do I make suspend more verbose?
+Ahh, thanks I'll go look there.
 
-A: If you want to see any non-error kernel messages on the virtual
-terminal the kernel switches to during suspend, you have to set the
-kernel console loglevel to at least 4 (KERN_WARNING), for example by
-doing
-
-        # save the old loglevel
-        read LOGLEVEL DUMMY < /proc/sys/kernel/printk
-        # set the loglevel so we see the progress bar.
-        # if the level is higher than needed, we leave it alone.
-        if [ $LOGLEVEL -lt 5 ]; then
-                echo 5 > /proc/sys/kernel/printk
-                fi
-
-        IMG_SZ=0
-        read IMG_SZ < /sys/power/image_size
-        echo -n disk > /sys/power/state
-        RET=$?
-        #
-        # the logic here is:
-        # if image_size > 0 (without kernel support, IMG_SZ will be
-zero),
-        # then try again with image_size set to zero.
-        if [ $IMG_SZ -ne 0 ]; then # try again with minimal image size
-                echo 0 > /sys/power/image_size
-                echo -n disk > /sys/power/state
-                RET=$?
-        fi
-
-        # restore previous loglevel
-        echo $LOGLEVEL > /proc/sys/kernel/printk
-        exit $RET
-
-
--- 
-Picture of sleeping (Linux) penguin wanted...
+- kumar

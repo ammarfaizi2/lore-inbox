@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWC1LHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWC1LQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbWC1LHF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 06:07:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWC1LHF
+	id S932177AbWC1LQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 06:16:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWC1LQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 06:07:05 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:35207 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932185AbWC1LHE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 06:07:04 -0500
-Date: Tue, 28 Mar 2006 03:06:39 -0800
-From: Valerie Henson <val.henson@intel.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6: Load average calculation?
-Message-ID: <20060328110637.GB16173@goober>
-References: <20060328105612.GA17094@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060328105612.GA17094@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.9i
+	Tue, 28 Mar 2006 06:16:58 -0500
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:27293 "HELO
+	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932177AbWC1LQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 06:16:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=bi+NNhaH6b4+8Y2oPQfMJXs+XEnN10y8pB8s+1yCadwW5WmiyFDrxMo4zAEygKO6zTOxFL4aoly4Kw5kR6lYjh1hZvuh0fQ1wpI5LeiXED9sAHhmo5jM/BJO5gvk3fELHWBQWKO5tMgoWzomCbjOjjXunAtFYkkx3OGSU458hh8=  ;
+Message-ID: <4428FB29.8020402@yahoo.com.au>
+Date: Tue, 28 Mar 2006 19:00:25 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Herbert Poetzl <herbert@13thfloor.at>
+CC: Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Virtualization steps
+References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au> <1143228339.19152.91.camel@localhost.localdomain> <4428BB5C.3060803@tmr.com> <20060328085206.GA14089@MAIL.13thfloor.at>
+In-Reply-To: <20060328085206.GA14089@MAIL.13thfloor.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 28, 2006 at 11:56:12AM +0100, Russell King wrote:
+Herbert Poetzl wrote:
+
+> well, that largely depends on the 'use' ...
 > 
-> So, the question becomes - should a lot of network activity contribute
-> to the system load average, thereby denying other services from
-> performing their usual business.
+> I don't think that vps providers like lycos would be
+> very happy if they had to multiply the ammount of
+> machines they require by 10 or 20 :)
+> 
+> and yes, running 100 and more Linux-VServers on a
+> single machine _is_ realistic ...
+> 
 
-Another case where simply counting up all processes in D state results
-in an unreasonable load average is the "NFS server stops responding"
-case.  Even though all threads doing I/O to the NFS server are totally
-inactive until the server comes back, they are all stuck in D state -
-and counting towards the load average.
+Yep.
 
-What these cases have in common is interesting: in both cases, the
-thread is throttled by an external machine.  We're not waiting on I/O
-that is taking up resources locally and therefore should be counted as
-part of load average; we're waiting for some other machine to free up
-enough resources that we can push some data down the pipe.
+And if it is intrusive to the core kernel, then as always we have
+to try to evaluate the question "is it worth it"? How many people
+want it and what alternatives do they have (eg. maintaining
+seperate patches, using another approach), what are the costs,
+complexities, to other users and developers etc.
 
-The comment for io_schedule() suggests that this case has received
-some thought:
-
-/*
- * This task is about to go to sleep on IO.  Increment rq->nr_iowait so
- * that process accounting knows that this is a task in IO wait state.
- *
- * But don't do that if it is a deliberate, throttling IO wait (this task
- * has set its backing_dev_info: the queue against which it should throttle)
- */
-void __sched io_schedule(void)
-{
-	struct runqueue *rq = &per_cpu(runqueues, raw_smp_processor_id());
-
-	atomic_inc(&rq->nr_iowait);
-	schedule();
-	atomic_dec(&rq->nr_iowait);
-}
-
-The code and comment are out of sync and in any case don't help us
-here.
-
-Possible solution: Maybe sync_page should take into account whether
-this is an NFS file or TCP sendfile page and call schedule() instead of
-io_schedule() in these cases?
-
--VAL
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,79 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbWC1IwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWC1Ivh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751385AbWC1IwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 03:52:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWC1IwJ
+	id S1751383AbWC1Ivh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 03:51:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWC1Ivh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 03:52:09 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:19073 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1751385AbWC1IwH (ORCPT
+	Tue, 28 Mar 2006 03:51:37 -0500
+Received: from mail.sw-soft.com ([69.64.46.34]:6835 "EHLO mail.sw-soft.com")
+	by vger.kernel.org with ESMTP id S1751383AbWC1Ivg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 03:52:07 -0500
-Date: Tue, 28 Mar 2006 10:52:06 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+	Tue, 28 Mar 2006 03:51:36 -0500
+Message-ID: <4428F902.1020706@sw.ru>
+Date: Tue, 28 Mar 2006 12:51:14 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: haveblue@us.ibm.com, linux-kernel@vger.kernel.org, devel@openvz.org,
+       serue@us.ibm.com, akpm@osdl.org, sam@vilain.net,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Pavel Emelianov <xemul@sw.ru>,
+       Stanislav Protassov <st@sw.ru>
 Subject: Re: [RFC] Virtualization steps
-Message-ID: <20060328085206.GA14089@MAIL.13thfloor.at>
-Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au> <1143228339.19152.91.camel@localhost.localdomain> <4428BB5C.3060803@tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4428BB5C.3060803@tmr.com>
-User-Agent: Mutt/1.5.6i
+References: <44242A3F.1010307@sw.ru>	<20060324211917.GB22308@MAIL.13thfloor.at> <m1psk7enfm.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1psk7enfm.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 27, 2006 at 11:28:12PM -0500, Bill Davidsen wrote:
-> Dave Hansen wrote:
-> >On Sat, 2006-03-25 at 04:33 +1100, Nick Piggin wrote:
-> >>Oh, after you come to an agreement and start posting patches, can you
-> >>also outline why we want this in the kernel (what it does that low
-> >>level virtualization doesn't, etc, etc) 
-> >
-> >Can you wait for an OLS paper? ;)
-> >
-> >I'll summarize it this way: low-level virtualization uses resource
-> >inefficiently.
-> >
-> >With this higher-level stuff, you get to share all of the Linux caching,
-> >and can do things like sharing libraries pretty naturally.
-> >
-> >They are also much lighter-weight to create and destroy than full
-> >virtual machines.  We were planning on doing some performance
-> >comparisons versus some hypervisors like Xen and the ppc64 one to show
-> >scaling with the number of virtualized instances.  Creating 100 of these
-> >Linux containers is as easy as a couple of shell scripts, but we still
-> >can't find anybody crazy enough to go create 100 Xen VMs.
+>> so IMHO, we should make a kernel branch (Eric or Sam
+>> are probably willing to maintain that), which we keep
+>> in-sync with mainline (not necessarily git, but at 
+>> least snapshot wise), where we put all the patches
+>> we agree on, and each party should then adjust the
+>> existing solution to this kernel, so we get some deep
+>> testing in the process, and everybody can see if it
+>> 'works' for him or not ...
 > 
-> But these require a modified O/S, do they not? Or do I read that
-> incorrectly? Is this going to be real virtualization able to run any
-> O/S?
+> ACK.  A collection of patches that we can all agree
+> on sounds like something worth aiming for.
+> 
+> It looks like Kirill last round of patches can form
+> a nucleus for that.  So far I have seem plenty of technical
+> objects but no objections to the general direction.
+yup, I will fix everything and will come with a set of patches for IPC, 
+so we could select which way is better to do it :)
 
-Xen requires slighly modified kernels, while e.g.
-Linux-VServer only uses a _single_ kernel for all
-virtualized guests ...
+> So agreement appears possible.
+Nice to hear this!
 
-> Frankly I don't see running 100 VMs as a realistic goal, being able to
-> run Linux, Windows, Solaris and BEOS unmodified in 4-5 VMs would be
-> far more useful.
+Eric, we have a GIT repo on openvz.org already:
+http://git.openvz.org
 
-well, that largely depends on the 'use' ...
+we will create a separate branch also called -acked, where patches 
+agreed upon will go.
 
-I don't think that vps providers like lycos would be
-very happy if they had to multiply the ammount of
-machines they require by 10 or 20 :)
-
-and yes, running 100 and more Linux-VServers on a
-single machine _is_ realistic ...
-
-best,
-Herbert
-
-> >Anyway, those are the things that came to my mind first.  I'm sure the
-> >others involved have their own motivations.
-> >
-> >-- Dave
-> >
+Thanks,
+Kirill

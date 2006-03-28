@@ -1,48 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbWC1RNY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWC1RPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751165AbWC1RNY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 12:13:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWC1RNY
+	id S1751131AbWC1RPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 12:15:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWC1RPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 12:13:24 -0500
-Received: from smtpout.mac.com ([17.250.248.84]:12765 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751165AbWC1RNX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 12:13:23 -0500
-In-Reply-To: <ufazmjaec9q.fsf@epithumia.math.uh.edu>
-References: <200603141619.36609.mmazur@kernel.pl> <20060326065205.d691539c.mrmacman_g4@mac.com> <4426A5BF.2080804@tremplin-utc.net> <200603261609.10992.rob@landley.net> <44271E88.6040101@tremplin-utc.net> <5DC72207-3C0B-44C2-A9E5-319C0A965E9D@mac.com> <Pine.LNX.4.61.0603281619300.27529@yvahk01.tjqt.qr> <36A8C3CC-3E4D-4158-AABB-F4D2C66AA8CD@mac.com> <442960B6.2040502@tremplin-utc.net> <7E2F0C3C-4091-4EEB-8E10-C1F58F94BD59@mac.com> <ufazmjaec9q.fsf@epithumia.math.uh.edu>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <54199D84-7DB7-434E-BA83-9B2658182124@mac.com>
-Cc: Eric Piel <Eric.Piel@tremplin-utc.net>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Rob Landley <rob@landley.net>,
-       nix@esperi.org.uk, mmazur@kernel.pl, linux-kernel@vger.kernel.org,
-       llh-discuss@lists.pld-linux.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [OT] Non-GCC compilers used for linux userspace
-Date: Tue, 28 Mar 2006 12:13:15 -0500
-To: Jason L Tibbitts III <tibbs@math.uh.edu>
-X-Mailer: Apple Mail (2.746.3)
+	Tue, 28 Mar 2006 12:15:16 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.158]:12744 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751131AbWC1RPP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 12:15:15 -0500
+Date: Tue, 28 Mar 2006 10:15:59 -0700
+From: "Mark A. Greer" <mgreer@mvista.com>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Andrew Morton <akpm@osdl.org>, "Mark A. Greer" <mgreer@mvista.com>,
+       lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.16-mm1 3/3] rtc: add support for m41t81 & m41t85 chips to m41t00 driver
+Message-ID: <20060328171559.GA14170@mag.az.mvista.com>
+References: <zt2d4LqL.1141645514.2993990.khali@localhost> <20060307170107.GA5250@mag.az.mvista.com> <20060318001254.GA14079@mag.az.mvista.com> <20060323210856.f1bfd02b.khali@linux-fr.org> <20060323203843.GA18912@mag.az.mvista.com> <20060324012406.GE9560@mag.az.mvista.com> <20060326145840.5e578fa4.akpm@osdl.org> <20060328002625.GE21077@mag.az.mvista.com> <20060327165120.35376d11.akpm@osdl.org> <20060328142114.e578cd7c.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060328142114.e578cd7c.khali@linux-fr.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 28, 2006, at 11:59:13, Jason L Tibbitts III wrote:
->>>>>> "KM" == Kyle Moffett <mrmacman_g4@mac.com> writes:
->> So does anybody compile userspace under anything other than GCC or  
->> Intel compilers?  Do any such compilers even exist?
->
-> PGI and PathScale are around.  Lahey, too, although they seem to  
-> just do Fortran now.
->
-> I doubt you'd want to worry about compiling the entire userland  
-> with these compilers, however.
+On Tue, Mar 28, 2006 at 02:21:14PM +0200, Jean Delvare wrote:
+> Hi Mark, Andrew,
+> 
+> > Mark A. Greer wrote:
+> > >
+> > > Resend...
+> > > ---
+> > > 
+> > >  drivers/i2c/chips/m41t00.c |  294 ++++++++++++++++++++++++++++++++++-----------
+> > >  include/linux/m41t00.h     |   50 +++++++
+> > 
+> 
+> Andrew Morton wrote:
+> > Not sure what to make of this.  It has no changelog,
 
-Mainly I want to know if I should even bother making the kabi headers  
-compile with anything other than GCC.  Judging from the apparently  
-negligible number of users, it doesn't sound like something I should  
-spend much or any time on, at least for now.
+Oops.  My bad.
 
-Cheers,
-Kyle Moffett
+> > it doesn't apply on
+> > top of your previous three patches:
+> > 
+> > rtc-m41t00-driver-should-use-workqueue-instead-of-tasklet.patch
+> > rtc-m41t00-driver-cleanup.patch
+> > rtc-add-support-for-m41t81-m41t85-chips-to-m41t00-driver.patch
+> > 
+> > and it doesn't apply when used to replace
+> > rtc-add-support-for-m41t81-m41t85-chips-to-m41t00-driver.patch.
+> 
+> Replacing works for me, after also replacing the two first patches of
+> the series with their new respective version. As for the changelog I
+> picked the one from the original third patch.
 
+Sorry for the confusion, Andrew.  The 3 patches I sent were all
+replacement patches for the previous 3 patches.
+
+> > An incremental patch against the three above patches would be ideal...
+
+I would have done that but there wasn't a 2.6.16-mm2 patch yesterday
+(that I see is there now) so I had nothing to diff against.
+
+<snip>
+
+> Mark, is it OK if this third patch adding the m41t81 and m41t85 support
+> spends some time in Andrew's tree and only goes in mainline for 2.6.18,
+> or do you need it in 2.6.17?
+
+No, waiting is fine, Jean.
+
+Thanks guys.
+
+Mark

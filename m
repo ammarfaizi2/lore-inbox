@@ -1,81 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWC1SaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWC1ScJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751205AbWC1SaI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 13:30:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWC1SaI
+	id S1751248AbWC1ScJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 13:32:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbWC1ScJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 13:30:08 -0500
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:16137 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751205AbWC1SaG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 13:30:06 -0500
-Date: Tue, 28 Mar 2006 20:30:08 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: "Mark A. Greer" <mgreer@mvista.com>
-Cc: Andrew Morton <akpm@osdl.org>, lm-sensors@lm-sensors.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.16-mm1 3/3] rtc: add support for m41t81 & m41t85
- chips to m41t00 driver
-Message-Id: <20060328203008.5910ead6.khali@linux-fr.org>
-In-Reply-To: <20060328181111.GB14170@mag.az.mvista.com>
-References: <440B4B6E.8080307@sh.cvut.cz>
-	<zt2d4LqL.1141645514.2993990.khali@localhost>
-	<20060307170107.GA5250@mag.az.mvista.com>
-	<20060318001254.GA14079@mag.az.mvista.com>
-	<20060323210856.f1bfd02b.khali@linux-fr.org>
-	<20060323203843.GA18912@mag.az.mvista.com>
-	<20060324012406.GE9560@mag.az.mvista.com>
-	<20060326145840.5e578fa4.akpm@osdl.org>
-	<20060328002625.GE21077@mag.az.mvista.com>
-	<20060328175450.f207effa.khali@linux-fr.org>
-	<20060328181111.GB14170@mag.az.mvista.com>
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Tue, 28 Mar 2006 13:32:09 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:61598 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751248AbWC1ScF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 13:32:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
+        b=oGSbES/tVo8BZjNMyl43+WfRUQtSfnmBu7vLa/N9Tel9atlLjMcLaLYUxZrHEA0BBnuQ3J0OoEgfPRMfRURvVeIfAtWpnt7Z5s+f5ZPgkGxc9tclclowuJTwsfjPR2kfwvnKHABQNCqjbLPDKkjI3Bk9bsMvDX5N/Y6KvTOeO9k=
+Date: Tue, 28 Mar 2006 13:31:40 -0500
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: 7eggert@gmx.de, dtor_core@ameritech.net,
+       Linux kernel <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+Subject: Re: [patch 1/1] pc-speaker: add SND_SILENT
+Message-ID: <20060328183140.GA21446@nineveh.rivenstone.net>
+Mail-Followup-To: Stas Sergeev <stsp@aknet.ru>, 7eggert@gmx.de,
+	dtor_core@ameritech.net,
+	Linux kernel <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+References: <5TCqf-E6-49@gated-at.bofh.it> <5TCqf-E6-51@gated-at.bofh.it> <5TCqf-E6-53@gated-at.bofh.it> <5TCqg-E6-55@gated-at.bofh.it> <5TCqf-E6-47@gated-at.bofh.it> <E1FMv1A-0000fN-Lp@be1.lrz> <44266472.5080309@aknet.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44266472.5080309@aknet.ru>
+User-Agent: Mutt/1.5.9i
+From: jfannin@gmail.com (Joseph Fannin)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mark,
+On Sun, Mar 26, 2006 at 01:52:50PM +0400, Stas Sergeev wrote:
+> Bodo Eggert wrote:
+>>>The problem is that the snd-pcsp doesn't replace pcspkr.
 
-Answering your questions before I forget about them and let a week pass
-again...
+>>If that's the problem, create a minimal input driver that will signal the
+>>snd-pcsp to beep, and change the original pcspkr to include
+>>"(Non-ALSA)".
 
-Anything I don't comment on, means that you were right and I agree with
-you.
+> Yes, making snd-pcsp to produce the console beeps and
+> making it mutually exclusive with pcspkr is possible.
+> But I think it is undesireable. People that don't like
+> the console beeps (myself included) simply do not load
+> the pcspkr module right now. If snd-pcsp is to produce
+> the beeps, then not loading pcspkr will not get the desired
+> effect any more, and the only possibility would be to,
+> probably, add the separate mixer control for the beeps.
+> I find this counter-intuitive: some people will be able to
+> disable the beeps by simply not loading pcspkr, while for
+> others this will suddenly magically stop working. This may
+> lead to a few unnecessary bug reports and confusions.
 
-> > May I ask why you define separate types for the M41T81 and the M41T85,
-> > when you handle both exactly the same way?
-> 
-> The only reason is so that its obvious that both the t81 and t85 are
-> supported.  If I make it M41T81 only then I can easily see someone
-> grep'ing around looking for M41T85, not finding it, and writing their
-> own driver.  I don't see any harm in having both, do you?
+    My laptop already has such a mixer control (and it works too,
+though it does depend on pcspkr being loaded).  Have there been bug
+reports about PC speakers that don't work because the PC speaker mixer
+control was not unmuted?  Well, probably, but it's not a new
+situation.
 
-It wastes some memory, and you may later fix something for the M41T81
-and forget to fix it for the M41T85.
+    It doesn't seem unreasonable to me to expect users to configure
+their PC speaker beep preference through the ALSA mixer when
+configuring the PC speaker to be an audio device.
 
-If your only concern is to help grepers, you can add a clear list of
-supported chips either as a comment at the top of the source file, or
-as Documentation/i2c/chips/m41t00. That's what we do for hardware
-monitoring chips.
+    I would think the ideal situation would be to make every ALSA
+device capable of acting as the console bell (defaulting to muted,
+like every other ALSA mixer control).  Then only pcspkr would be the
+odd case (though maybe a common one).
 
-No big deal anyway, so the decision is up to you.
+    I dunno if there's a reasonably easy way to do that (without
+changing every ALSA driver) though.
+--
+Joseph Fannin
+jfannin@gmail.com
 
-> > What you do here are basically SMBus Read Byte and SMBus Write Byte
-> > transactions. The code would be much more simple if you were using the
-> > i2c_smbus_read_byte_data and i2c_smbus_write_byte_data functions, which
-> > take care of all the technical details.
-> 
-> That's true but I assumed that since I was using i2c_transfer
-> earlier, I should use it here.  Is that a bad assumption?
-> I do see that ds1337.c uses both types.
-
-Bad assumption, indeed. Nothing prevents you from using the smbus
-functions and the i2c functions in the same driver, as long as your
-call to i2c_check_functionality covers every function you use. So,
-just use whatever makes your driver easier to write.
-
-Thanks,
--- 
-Jean Delvare
+"That's all I have to say about that." -- Forrest Gump.

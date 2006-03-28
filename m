@@ -1,53 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWC1UXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWC1U0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbWC1UXD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 15:23:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWC1UXD
+	id S932148AbWC1U0K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 15:26:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWC1U0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 15:23:03 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:24650 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932143AbWC1UXB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 15:23:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=H4/mp703lluTA9gpLAnFVKwZxWSZNhH5Wi0KBHO4ek42WRqqMJHz7Wff+H8LsY6+RgZ7us/09ZetiMf5rQ2gKS3EkuFwAo3cUHsZnxjZYzp2G/hH6tEj2vqflz3/emT5hJQZi4sR68xOkAmrZHTp81oXZ10hnCtlckDis6begmQ=
-Message-ID: <d120d5000603281223p28792d7la7a13438a2a68149@mail.gmail.com>
-Date: Tue, 28 Mar 2006 15:23:00 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Bodo Eggert" <7eggert@gmx.de>
-Subject: Re: [BUG] PS/2-mouse not found in 2.6.16
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0603282044060.2538@be1.lrz>
+	Tue, 28 Mar 2006 15:26:10 -0500
+Received: from s93.xrea.com ([218.216.67.44]:10639 "HELO s93.xrea.com")
+	by vger.kernel.org with SMTP id S932148AbWC1U0J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 15:26:09 -0500
+Message-Id: <200603282029.AA00927@bbb-jz5c7z9hn9y.digitalinfra.co.jp>
+From: Jun OKAJIMA <okajima@digitalinfra.co.jp>
+Date: Wed, 29 Mar 2006 05:29:43 +0900
+To: devel@openvz.org
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, herbert@13thfloor.at, sam@vilain.net,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, serue@us.ibm.com
+Subject: Re: [Devel] Re: [RFC] Virtualization steps
+In-Reply-To: <1143228339.19152.91.camel@localhost.localdomain>
+References: <1143228339.19152.91.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.58.0603272148050.2266@be1.lrz>
-	 <d120d5000603271256g6ff971daq57282287fd1d5434@mail.gmail.com>
-	 <Pine.LNX.4.58.0603282044060.2538@be1.lrz>
+X-Mailer: AL-Mail32 Version 1.13
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/28/06, Bodo Eggert <7eggert@gmx.de> wrote:
-> On Mon, 27 Mar 2006, Dmitry Torokhov wrote:
-> > On 3/27/06, Bodo Eggert <7eggert@gmx.de> wrote:
 >
-> > > With kernel 2.6.16, my Logitech mouse is no longer detected (not reported
-> > > in dmesg, not working).
-> > >
-> >
-> > Does it help if you comment out call to quirk_usb_handoff_ohci() (your
-> > USB host controller is an OHCI one, isn't it?) in
-> > drivers/usb/host/pci-quirks.c::quirk_usb_early_handoff()?
+>I'll summarize it this way: low-level virtualization uses resource
+>inefficiently.
 >
-> It's uhci, and turning
-> drivers/usb/host/pci-quirks.c::quirk_usb_early_handoff into a noop did not
-> help.
+>With this higher-level stuff, you get to share all of the Linux caching,
+>and can do things like sharing libraries pretty naturally.
+>
+>They are also much lighter-weight to create and destroy than full
+>virtual machines.  We were planning on doing some performance
+>comparisons versus some hypervisors like Xen and the ppc64 one to show
+>scaling with the number of virtualized instances.  Creating 100 of these
+>Linux containers is as easy as a couple of shell scripts, but we still
+>can't find anybody crazy enough to go create 100 Xen VMs.
+>
+>Anyway, those are the things that came to my mind first.  I'm sure the
+>others involved have their own motivations.
+>
 
-OK, then please boot with i8042.debug=1 and post your full dmesg.
+Some questions.
 
---
-Dmitry
+1. Your point is rignt in some ways, and I agree with you.
+   Yes, I currently guess Jail is quite practical than Xen.
+   Xen sounds cool, but really practical? I doubt a bit.
+   But it would be a narrow thought, maybe.
+   How you estimate feature improvement of memory shareing
+   on VM ( e.g. Xen/VMware)?
+   I have seen there are many papers about this issue.
+   If once memory sharing gets much efficient, Xen possibly wins.
+
+2. Folks, how you think about other good points of Xen,
+   like live migration, or runs solaris, or has suspend/resume or...
+   No Linux jails have such feature for now, although I dont think
+   it is impossible with jail.
+
+
+My current suggestion is,
+
+1. Dont use Xen for running multiple VMs.
+2. Use Xen for better admin/operation/deploy... tools.
+3. If you need multiple VMs, use jail on Xen.
+
+           --- Okajima, Jun. Tokyo, Japan.
+               http://www.digitalinfra.co.jp/
+               http://www.colinux.org/
+               http://www.machboot.com/

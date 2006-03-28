@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWC1Wtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWC1Wux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932490AbWC1Wtm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 17:49:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbWC1Wtm
+	id S932491AbWC1Wux (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 17:50:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWC1Wux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 17:49:42 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:50923 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932490AbWC1Wtl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 17:49:41 -0500
-Date: Wed, 29 Mar 2006 00:49:30 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Marko <letterdrop@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Who wants to test cracklinux??
-Message-ID: <20060328224929.GC5760@elf.ucw.cz>
-References: <20060328221223.80753cab.letterdrop@gmx.de>
+	Tue, 28 Mar 2006 17:50:53 -0500
+Received: from watts.utsl.gen.nz ([202.78.240.73]:50829 "EHLO
+	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S932491AbWC1Wuw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 17:50:52 -0500
+Subject: Re: [RFC] Virtualization steps
+From: Sam Vilain <sam@vilain.net>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: linux-kernel@vger.kernel.org, devel@openvz.org
+In-Reply-To: <4428F902.1020706@sw.ru>
+References: <44242A3F.1010307@sw.ru>
+	 <20060324211917.GB22308@MAIL.13thfloor.at>
+	 <m1psk7enfm.fsf@ebiederm.dsl.xmission.com>  <4428F902.1020706@sw.ru>
+Content-Type: text/plain
+Date: Wed, 29 Mar 2006 10:51:03 +1200
+Message-Id: <1143586264.6325.44.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060328221223.80753cab.letterdrop@gmx.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 2006-03-28 at 12:51 +0400, Kirill Korotaev wrote:
+> we will create a separate branch also called -acked, where patches 
+> agreed upon will go.
 
-> I've written a small kernel module & shared object for kernel 2.6 to
-> enable the following for normal users:
-> 
-> - inb()/outb()... via a wrapper function
+No need.  Just use Acked-By: comments.
 
-ioperm() does that already, no? You mean, you enable it for non-root,
-too? That's security hole.
+Also, can I give some more feedback on the way you publish your patches:
 
-> - enable direct IO access (like ioperm())
-> - direct access on physical memory addresses
+ 1. git's replication uses the notion of a forward-only commit list. 
+    So, if you change patches or rebase them then you have to rewind
+    the base point - which in pure git terms means create a new head.
+    So, you should use the convention of putting some identifier - a
+    date, or a version number - in each head.
 
-read/write on /dev/mem. chmod 666 /dev/mem if you want to allow normal
-users to access physical memory (security hole, again).
+ 2. Why do you have a seperate repository for your normal openvz and the
+    -ms trees?  You can just you different heads.
 
-> - installation of user space ISR
+ 3. Apache was doing something weird to the HEAD symlink in your
+    repository.  (mind you, if you adopt notion 1., this becomes
+    irrelevant :-))
 
-That seems nice. Does it work with PCI shared interrupts?
+Otherwise, it's a great thing to see your patches published via git!
 
-> - change nice level
-> 
-> The module is primary thought for education, but perhaps also helpful
-> in software development.
-> The module is finished now, but because it's my first kernel code
-> there could be something to improve. If anyone wants to test, just
-> send me a mail and you'll get the code.
+I can't recommend Stacked Git more highly for performing the 'winding'
+of the patch stack necessary for revising patches.  Google for "stgit".
 
-Please post it to the list.
-								Pavel
--- 
-Picture of sleeping (Linux) penguin wanted...
+Sam.
+

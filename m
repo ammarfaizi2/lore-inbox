@@ -1,58 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWC1Vik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWC1Vko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbWC1Vik (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 16:38:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWC1Vik
+	id S932235AbWC1Vko (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 16:40:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWC1Vko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 16:38:40 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:20368 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932230AbWC1Vij (ORCPT
+	Tue, 28 Mar 2006 16:40:44 -0500
+Received: from mx0.towertech.it ([213.215.222.73]:47321 "HELO mx0.towertech.it")
+	by vger.kernel.org with SMTP id S932235AbWC1Vko (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 16:38:39 -0500
-Message-ID: <4429ACBE.2060502@redhat.com>
-Date: Tue, 28 Mar 2006 15:38:06 -0600
-From: Clark Williams <williams@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: boot hang in 2.6.16-rt[7-10]
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 28 Mar 2006 16:40:44 -0500
+Date: Tue, 28 Mar 2006 23:40:27 +0200
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: Added support for ds1672 control
+Message-ID: <20060328234027.26b5602b@inspiron>
+In-Reply-To: <Pine.LNX.4.44.0603281507050.20373-100000@gate.crashing.org>
+References: <Pine.LNX.4.44.0603281507050.20373-100000@gate.crashing.org>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 28 Mar 2006 15:07:33 -0600 (CST)
+Kumar Gala <galak@kernel.crashing.org> wrote:
 
-I'm seeing a boot hang in the latest -rt series (from -rt7 to current
-- -rt10), on an Athlon64x2 (3800+). The kernel loads and boots up to
-calibrate_migration_costs then hangs. I'd give some console output,
-except that in their infinite wisdom, Gateway decided that this system
-didn't need a serial port. Gah...
+ is almost ok, please check my comments below:
 
-I've prink'ed my way down into where measure_one tries to migrate a
-thread from cpu0 to cpu1 and calls set_cpus_allowed, where it then
-tries to wake the migration thread by calling wake_up_process, which
-just calls try_to_wake_up. Strangely, I see multiple printks from
-try_to_wake_up (like it's running multiple times) and the last print I
-see is that I'm returning a 1 from wake_up_process. Nothing after that.
+>  
+>  	buf[0] = DS1672_REG_CNT_BASE;
+>  	buf[1] = secs & 0x000000FF;
+>  	buf[2] = (secs & 0x0000FF00) >> 8;
+>  	buf[3] = (secs & 0x00FF0000) >> 16;
+>  	buf[4] = (secs & 0xFF000000) >> 24;
+> +	buf[5] = 0;
 
-I'd really like to see the boot messages before all those printk's
-I've scattered in sched.c, so I'm investigating using the parallel
-port as a console and just spewing that output into an xterm on the
-other end. Never done it before so I'm bumping my head against the
-wall a bit. Any advice would be appreciated.
+ I'd add a comment to say that 0 enables the osc.
 
-Clark
+> +static int ds1672_get_control(struct i2c_client *client)
+> +{
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+[..]
 
-iD8DBQFEKay+Hyuj/+TTEp0RAi8YAJ92U1KHM0BW5nWZWl7lCBBQAZWCQQCg1FWy
-8dGHlzkPQBn22Y1pK6lOen8=
-=Hr9n
------END PGP SIGNATURE-----
+> +	} else
+> +		return val;
+> +}
+
+ I think it would be cleaner to define the routine as follow:
+.. ds1672_get_control(...., unsigned char *status)
+
+ and to usa the space provided by the caller to store the result.
+
+> +	if (ds1672_get_control(client))
+> +		state = "disabled";
+> +	return sprintf(buf, "%s\n", state);
+> +}
+
+please #define DS1672_REG_CONTROL_EOSC 0x80
+and check the single bit.
+
+
+> +	err = ds1672_get_control(client);
+
+ ditto.
+
+
+ thanks for your work!
+
+-- 
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
 

@@ -1,26 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWC1AHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWC1ALt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932128AbWC1AHY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 19:07:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932135AbWC1AHY
+	id S932142AbWC1ALt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 19:11:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWC1ALt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 19:07:24 -0500
-Received: from xenotime.net ([66.160.160.81]:35998 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932128AbWC1AHX (ORCPT
+	Mon, 27 Mar 2006 19:11:49 -0500
+Received: from xenotime.net ([66.160.160.81]:4517 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932142AbWC1ALt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 19:07:23 -0500
-Date: Mon, 27 Mar 2006 16:09:39 -0800
+	Mon, 27 Mar 2006 19:11:49 -0500
+Date: Mon, 27 Mar 2006 16:14:02 -0800
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Dave Jones <davej@redhat.com>
-Cc: sam@ravnborg.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: smp_locks reference_discarded errors
-Message-Id: <20060327160939.40475581.rdunlap@xenotime.net>
-In-Reply-To: <20060328000418.GB19025@redhat.com>
-References: <20060325033948.GA15564@redhat.com>
-	<20060325235035.5fcb902f.akpm@osdl.org>
-	<20060326154042.GB13684@redhat.com>
-	<20060326161055.GA4584@mars.ravnborg.org>
-	<20060328000418.GB19025@redhat.com>
+To: dwmw2@infradead.org, akpm <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-mtd@lists.infradead.org
+Subject: [PATCH] MTD: m25p80: fix printk format warning
+Message-Id: <20060327161402.06eaa84b.rdunlap@xenotime.net>
 Organization: YPO4
 X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -29,20 +23,27 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Mar 2006 19:04:18 -0500 Dave Jones wrote:
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-> On Sun, Mar 26, 2006 at 06:10:55PM +0200, Sam Ravnborg wrote:
-> 
->  > Also the output from modpost provides a bit more info.
->  > So output from fresh -linus kernel would make it easier to locate the
->  > guilty stuff.
-> 
-> Finally coaxed latest -git to build on all archs I care about..
-> grab http://people.redhat.com/davej/buildlog.txt  and grep for WARNING:
-> and see a zillion errors.  The smp_locks ones seem to have disappeared
-> now though.
+Fix printk format warning:
+drivers/mtd/devices/m25p80.c:189: warning: format '%zd' expects type 'signed size_t', but argument 6 has type 'u_int32_t'
 
-I just posted a boatload of them to the kernel-janitors m-l also.
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ drivers/mtd/devices/m25p80.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2616-g13.orig/drivers/mtd/devices/m25p80.c
++++ linux-2616-g13/drivers/mtd/devices/m25p80.c
+@@ -186,7 +186,7 @@ static int m25p80_erase(struct mtd_info 
+ 	struct m25p *flash = mtd_to_m25p(mtd);
+ 	u32 addr,len;
+ 
+-	DEBUG(MTD_DEBUG_LEVEL2, "%s: %s %s 0x%08x, len %zd\n",
++	DEBUG(MTD_DEBUG_LEVEL2, "%s: %s %s 0x%08x, len %d\n",
+ 			flash->spi->dev.bus_id, __FUNCTION__, "at",
+ 			(u32)instr->addr, instr->len);
+ 
+
 
 ---
-~Randy

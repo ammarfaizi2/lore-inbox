@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWC1NrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWC1Ntx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbWC1NrF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 08:47:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWC1NrE
+	id S932159AbWC1Ntx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 08:49:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWC1Ntx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 08:47:04 -0500
-Received: from zproxy.gmail.com ([64.233.162.203]:58993 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932225AbWC1NrD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 08:47:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=jPVp6uSxDIpnT/jYb3oLbuUpHDVkyJF3PmhWLagOG6nBeyEzdePHRrijnsWNXTVgqpP4T/f1CPaRls9RWVXGUNBAWznRnTYzMnUCiGwlhUd7KGgqRU1Nr0rxFpOGh8QB+3O+tnFRrqbHBw+WtXKoOYk6ESPLf/2+LbmLFvnDnks=
-Date: Tue, 28 Mar 2006 15:46:54 +0200
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.16-mm2] Kconfig SND_SEQUENCER_OSS help text fix
-Message-ID: <20060328134654.GA9671@silenus.home.res>
-References: <20060328003508.2b79c050.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060328003508.2b79c050.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r790 (Linux)
+	Tue, 28 Mar 2006 08:49:53 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:51717 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S932159AbWC1Ntw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 08:49:52 -0500
+Date: Tue, 28 Mar 2006 15:49:47 +0200
+From: Christian Cachin <cca@zurich.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: eCryptfs Design Document
+Message-ID: <20060328154947.2e2ae43b@localhost.localdomain>
+Organization: IBM Zurich Research Lab
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.13; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+Hi all,
 
-The SND_SEQUENCER_OSS config option in sound/core/Kconfig claims it could be 
-compiled as a module despite being a bool. This patch removes the misleading
-help text. This should apply to 2.6.16 as well, should I resend a patch?
+I'm a cryptographer with an interest in encrypting stored data.
 
-Regards,
-Frederik
+Mike had asked me to read the eCryptfs design and I can confirm the
+security statements made there, and that the algorithm choices are
+adequate.  The current release does not support integrity protection, but
+this feature is promised for the next release through a MAC. 
 
-Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
+I don't see the need for tweakable encryption modes (like LRW, CMC)
+in the eCryptfs strategy because being a virtual file system, it can
+afford to insert some extra space and is not bound to the block
+boundaries like a block device, for which these were developed.  And with
+integrity protection coming in the next release, the little extra security
+gained in the current release by the tweakable modes would be a wasted
+effort.
 
---- linux-2.6.16-mm2/sound/core/Kconfig~        2006-03-28 15:31:43.000000000 +0200
-+++ linux-2.6.16-mm2/sound/core/Kconfig 2006-03-28 15:31:55.000000000 +0200
-@@ -92,9 +92,6 @@
+cc
 
-          Many programs still use the OSS API, so say Y.
-
--         To compile this driver as a module, choose M here: the module
--         will be called snd-seq-oss.
--
- config SND_RTCTIMER
-        tristate "RTC Timer support"
-        depends on SND && RTC
+--- 
+Christian Cachin                           email: cca@zurich.ibm.com
+IBM Zurich Research Laboratory                  tel: +41-44-724-8989
+Saumerstrasse 4 / Postfach                      fax: +41-44-724-8953
+CH-8803 Rueschlikon, Switzerland      http://www.zurich.ibm.com/~cca
 

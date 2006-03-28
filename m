@@ -1,53 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbWC1Ro1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWC1RsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751022AbWC1Ro1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 12:44:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWC1Ro1
+	id S932077AbWC1RsN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 12:48:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWC1RsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 12:44:27 -0500
-Received: from vms040pub.verizon.net ([206.46.252.40]:56452 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751022AbWC1Ro0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 12:44:26 -0500
-Date: Tue, 28 Mar 2006 12:44:24 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Possible breakage in 2.6.16?
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Reply-to: gene.heskett@verizononline.net
-Message-id: <200603281244.24906.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-User-Agent: KMail/1.7
+	Tue, 28 Mar 2006 12:48:12 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:55231 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S932077AbWC1RsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 12:48:11 -0500
+Date: Tue, 28 Mar 2006 12:48:38 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Bill Davidsen <davidsen@tmr.com>, Kirill Korotaev <dev@sw.ru>,
+       Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       herbert@13thfloor.at, devel@openvz.org, serue@us.ibm.com, akpm@osdl.org,
+       sam@vilain.net, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Pavel Emelianov <xemul@sw.ru>, Stanislav Protassov <st@sw.ru>
+Subject: Re: [RFC] Virtualization steps
+Message-ID: <20060328174838.GA20962@ccure.user-mode-linux.org>
+References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au> <1143228339.19152.91.camel@localhost.localdomain> <4428BB5C.3060803@tmr.com> <4428FB2B.8070805@sw.ru> <44294B33.3040507@tmr.com> <m1d5g6d321.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1d5g6d321.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+On Tue, Mar 28, 2006 at 08:03:34AM -0700, Eric W. Biederman wrote:
+> UML may use these features to accelerate it's own processes.
 
-Always curious as to what sort of information can be extracted from the 
-tools linux gives us, I've discovered that netstat, from the
+And I'm planning on doing exactly that.
 
-net-tools-1.60-25.1 rpm
-
-no longer functions for anything as even a 'netstat --version' takes the 
-curser to the upper left corner of the screen and hangs till ctl+c'd.
-
-The only evidence of its execution is a steady, about 2 per second, 
-increase in the number of processes running as reported by gkrellm, all 
-of which go away when I ctl+c netstat itself.
-
-I'm running 2.6.16 self configured here.
-
-Is this a known problem because my net-tools rpm is old?  Or because  
-2.6.16 broke it?
-
--- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+				Jeff

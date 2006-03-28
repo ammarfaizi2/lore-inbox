@@ -1,64 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWC1BRi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWC1BVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751037AbWC1BRi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 20:17:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWC1BRi
+	id S1751158AbWC1BVi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 20:21:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWC1BVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 20:17:38 -0500
-Received: from ns.mimer.no ([213.184.200.1]:60128 "EHLO odin.mimer.no")
-	by vger.kernel.org with ESMTP id S1751037AbWC1BRh (ORCPT
+	Mon, 27 Mar 2006 20:21:38 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:63433 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751158AbWC1BVh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 20:17:37 -0500
-From: Harald Arnesen <harald@skogtun.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Nigel Cunningham <ncunningham@cyclades.com>, Mark Lord <lkml@rtr.ca>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: regular swsusp flamewar
-References: <200603231702.k2NH2OSC006774@hera.kernel.org>
-	<442325DA.80300@rtr.ca> <20060327102636.GH14344@elf.ucw.cz>
-	<200603272044.05431.ncunningham@cyclades.com>
-	<20060327231557.GB2439@elf.ucw.cz>
-Date: Tue, 28 Mar 2006 03:16:22 +0200
-In-Reply-To: <20060327231557.GB2439@elf.ucw.cz> (Pavel Machek's message of
-	"Tue, 28 Mar 2006 01:15:57 +0200")
-Message-ID: <87mzfb9xnd.fsf@basilikum.skogtun.org>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 27 Mar 2006 20:21:37 -0500
+Date: Mon, 27 Mar 2006 17:23:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: adrian@smop.co.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-mm1 leaks in dvb playback
+Message-Id: <20060327172356.7d4923d2.akpm@osdl.org>
+In-Reply-To: <20060326211514.GA19287@wyvern.smop.co.uk>
+References: <20060326211514.GA19287@wyvern.smop.co.uk>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> writes:
-
->> You know that I disagree that doing suspend in userspace is the
->> right 
+Adrian Bridgett <adrian@smop.co.uk> wrote:
 >
-> You know "disagreeing" with subsystem maintainer (and everyone else
-> for that matter) is not exactly helpful in getting patches merged. You
-> are free to believe whatever you want, but if you disagree on
-> something as fundamental as "do not put unneccessary code to kernel"
-> with me, it should be no surprise that I "disagree" with your patches
-> (*).
->
->> approach, and you know that current uswsusp can't do everything Suspend2 does 
->> without further substantial modification. Please stop painting me as the bad 
->> guy because I won't roll over and play dead for you. Please also
->> stop 
->
-> I'm not trying to paint you as a bad guy. But Mark said you are trying
-> to help, and in that context I'd read it as "trying to help mainline
-> development". And you are not doing that, you are developing your own
-> suspend2 branch, that has nothing to do with mainline. I think we can
-> agree on that one...
+> I've had this problem for a little while (probably since 2.6.14/15
+> era) but I've only recently spent some time to figure out what's been
+> going wrong.
+> 
+> There is a patch in the -mm series which causes leaks in both
+> sock_inode_cache and dentry_cache for me during DVB playback (thanks
+> to slabtop). 
+> 
+> 2.6.16 is fine (no leakage), 2.6.16-mm1 has this problem (~ 2MB/s in
+> each cache).
 
-The main point for me is that suspend2 works, while mainline supspend
-does not ("works": it takes less time to suspend/resume than to
-shutdown/reboot).
+Do you mean that the problem has been present in -mm kernels since the
+2.6.14/15 timeframe, and not in mainline?
 
-I haven't tried uswsusp yet. Why try another out-of-kernel suspend when
-suspend2 works perfectly?
--- 
-Hilsen Harald.
+> I'm using dvbstream and sending the output to /dev/null,  dvb modules
+> loaded are dvb_usb_vp7045, dvb_usb, dvb_core, dvb_pll.  It's an EHCI USB
+> device running on a Dell D600 latitude.
+> 
+> turning on some debugging and looking at /proc/slab_allocators and
+> /proc/page_owners shows that the most prevalent page owners are:
+> 
+> (5363 out of 5631)
+> Page allocated via order 0, mask 0xd0
+> [0xc0161079] poison_obj+41
+> [0xc0162355] cache_alloc_refill+981
+> [0xc0161889] cache_alloc_debugcheck_after+169
+> [0xc01d5169] vsnprintf+857
+> [0xc0247eec] lock_sock+204
+> [0xc0244999] sock_alloc_inode+25
+> [0xc0161f73] kmem_cache_alloc+131
+> [0xc027a4b4] inet_csk_accept+436
+> 
+> (1989 out of 2734)
+> Page allocated via order 0, mask 0xd0
+> [0xc0162355] cache_alloc_refill+981
+> [0xc0161079] poison_obj+41
+> [0xc0161079] poison_obj+41
+> [0xc01d5169] vsnprintf+857
+> [0xc0182341] d_alloc+33
+> [0xc0161f73] kmem_cache_alloc+131
+> [0xc0182341] d_alloc+33
+> [0xc02461e0] sock_attach_fd+96
+> 
 
+Strange.  Are you sure that they really leak?  Doing
+
+	echo 3 > /proc/sys/vm/drop_caches
+
+doesn't make them go away?

@@ -1,60 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWC1JWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWC1J2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbWC1JWp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 04:22:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWC1JWo
+	id S1751249AbWC1J2t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 04:28:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWC1J2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 04:22:44 -0500
-Received: from 213-140-2-71.ip.fastwebnet.it ([213.140.2.71]:2219 "EHLO
-	aa004msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1751251AbWC1JWo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 04:22:44 -0500
-Date: Tue, 28 Mar 2006 11:22:41 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Random GCC segfaults -- Was: [2.6.16] slab error in
- slab_destroy_objs(): cache `radix_tree_node'...
-Message-ID: <20060328112241.40b9c975@localhost>
-In-Reply-To: <20060328004137.607e51db.akpm@osdl.org>
-References: <20060326215346.1b303010@localhost>
-	<20060328095521.52ea3424@localhost>
-	<20060328004137.607e51db.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.12; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Mar 2006 04:28:48 -0500
+Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:1000 "HELO
+	briare1.heliogroup.fr") by vger.kernel.org with SMTP
+	id S1751249AbWC1J2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 04:28:48 -0500
+From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
+To: Harald Welte <laforge@netfilter.org>
+Cc: linux-kernel@vger.kernel.org, netfilter@lists.netfilter.org
+Subject: Re: failed to configure iptables with 2.6.16 kernel
+Date: Tue, 28 Mar 2006 13:10:54 GMT
+Message-ID: <064G9Y712@briare1.heliogroup.fr>
+X-Mailer: Pliant 96
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Mar 2006 00:41:37 -0800
-Andrew Morton <akpm@osdl.org> wrote:
+Harald Welte wrote:
+>
+> this sounds like you're missing support for the tcp/udp match.
+> This functionality is implemented in xt_tcpudp.{c,ko}, which is compiled
+> as soon as x_tables is compiled.
 
-> If those errors had no corresponding kernel messages then what you have is
-> a classic symptom of failing memory hardware.  Suggest you grab memtest86,
-> run it for 24 hours.
+Loading 'xt_tcpudp' module solves the problem. Thanks for the answer.
 
-I've already run memtest86+ for hours (not 24 ok... "only" 4/5h) and I
-found this:
-
-An easly reproducilble memory failure (single bit flipping always at
-the same address) <---- this one goes AWAY disabling bank interleaving
-in BIOS.
-
-Another memory failure (different address, always one bit flipping)
-isn't found by memtest86+: I found it with CONFIG_DEBUG_SLAB and
-I "fixed" it with memmap=... boot option.
-
-
-Now, these 2 problems are both in my first 256MB memory module, so maybe
-it is really another memory failure.
-
-BUT now that I'm back on 2.6.15.6 I'm compiling a LOT of big CPP
-projects and I haven't seen a single GCC segfault yet.
-
-Maybe I should retry with 2.6.16 and if I can reproduce the problem I
-can start testing 2.6.16-rc1 and so on...
-
--- 
-	Paolo Ornati
-	Linux 2.6.15.6 on x86_64
+So, the problem was just that the new 'x_tables' module is loaded automatically
+according to modules dependencies, but 'xt_tcpudp' is not.
+As a result, an upgrade of the FullPliant user land tools is required in order
+to force the 'xt_tcpudp' module to load before calling 'iptables' with
+'--destination-port' option.

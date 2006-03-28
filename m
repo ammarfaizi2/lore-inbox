@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWC1KOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWC1KQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbWC1KOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 05:14:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbWC1KOJ
+	id S932082AbWC1KQc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 05:16:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWC1KQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 05:14:09 -0500
-Received: from web37710.mail.mud.yahoo.com ([209.191.87.108]:54908 "HELO
-	web37710.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932069AbWC1KOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 05:14:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=eCNJtYNZSd6+fi3Xj1ptuDXT+D83g3U3HwxnSYCKViMs1sOdv54KxpqI+vfWRiJpMvqmbdswGi57jkNU4jO+7dSmHcPjt1gwtQTk2/cr5r3rLomxvfqU2/81y1P1QLkhyYp4JSYb1NGWSokVEfGLnB8/B0/RJwcKYaVp5jbNk60=  ;
-Message-ID: <20060328101407.96598.qmail@web37710.mail.mud.yahoo.com>
-Date: Tue, 28 Mar 2006 02:14:07 -0800 (PST)
-From: Edward Chernenko <edwardspec@yahoo.com>
-Subject: Re: [PATCH 2.6.15] Adding kernel-level identd dispatcher
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org, edwardspec@gmail.com
-In-Reply-To: <1143482216.28645.15.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 28 Mar 2006 05:16:32 -0500
+Received: from www.osadl.org ([213.239.205.134]:12699 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S932082AbWC1KQb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 05:16:31 -0500
+Subject: [patch-mm2] PI-futex: fix timeout race
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060326231638.GA18395@elte.hu>
+References: <20060325184612.GF16724@elte.hu>
+	 <20060325220728.3d5c8d36.akpm@osdl.org> <20060326160353.GA13282@elte.hu>
+	 <20060326231638.GA18395@elte.hu>
+Content-Type: text/plain
+Date: Tue, 28 Mar 2006 12:17:28 +0200
+Message-Id: <1143541048.5344.182.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Trond Myklebust <trond.myklebust@fys.uio.no>
-wrote:
->
-> Justification, please.
-> 
-> You haven't even tried to explain to us what is so
-> broken about the
-> userland identd that it needs to be replaced with a
-> kernel version.
-> 
+The futex code has consequently the same timeout race as generic sleeper
+based nanosleep. Call hrtimer_cancel() unconditionally.
 
-My point is that everything which follows this
-conditions should be moved into kernel:
- - must dispatch requests in a fixed time
- - must work rarely, sleep most time
- - must depend on internal kernel variables (for
-example, established connections table)
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 
-Don't forget that many years ago there was echo daemon
-in userspace. But as it's highly effective to dispatch
-all echo requests in kernel, it was moved into
-low-level TCP implementation. 
+Index: linux-2.6.16-mm2/kernel/rtmutex.c
+===================================================================
+--- linux-2.6.16-mm2.orig/kernel/rtmutex.c
++++ linux-2.6.16-mm2/kernel/rtmutex.c
+@@ -789,7 +789,7 @@ rt_mutex_slowlock(struct rt_mutex *lock,
+ 	spin_unlock_irqrestore(&lock->wait_lock, flags);
+ 
+ 	/* Remove pending timer: */
+-	if (unlikely(timeout && timeout->task))
++	if (unlikely(timeout))
+ 		hrtimer_cancel(&timeout->timer);
+ 
+ 	/*
 
-I think that ident protocol also matches this
-criteria.
 
-Edward Chernenko <edwardspec@gmail.com>
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

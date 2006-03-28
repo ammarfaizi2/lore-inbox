@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964831AbWC1X2L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWC1X3d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964831AbWC1X2L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 18:28:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWC1X2L
+	id S964835AbWC1X3d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 18:29:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbWC1X3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 18:28:11 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:59277 "EHLO
-	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S964831AbWC1X2K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 18:28:10 -0500
-Subject: Re: [Devel] Re: [RFC] Virtualization steps
-From: Sam Vilain <sam@vilain.net>
-To: Kir Kolyshkin <kir@sacred.ru>
-Cc: devel@openvz.org, linux-kernel@vger.kernel.org
-In-Reply-To: <4429B789.4030209@sacred.ru>
-References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>
-	 <1143228339.19152.91.camel@localhost.localdomain>
-	 <4428BB5C.3060803@tmr.com>  <4428DB76.9040102@openvz.org>
-	 <1143583179.6325.10.camel@localhost.localdomain>
-	 <4429B789.4030209@sacred.ru>
-Content-Type: text/plain
-Date: Wed, 29 Mar 2006 11:28:21 +1200
-Message-Id: <1143588501.6325.75.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Mar 2006 18:29:33 -0500
+Received: from thunk.org ([69.25.196.29]:10708 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S964835AbWC1X3c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 18:29:32 -0500
+Date: Tue, 28 Mar 2006 18:29:27 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: e2label suggestions
+Message-ID: <20060328232927.GB32385@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	"Jeff V. Merkey" <jmerkey@soleranetworks.com>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+References: <4429AF42.1090101@soleranetworks.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4429AF42.1090101@soleranetworks.com>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-29 at 02:24 +0400, Kir Kolyshkin wrote:
-> >Huh?  You managed to measure it!?  Or do you just mean "negligible" by
-> >"1-2 per cent" ?  :-)
-> We run different tests to measure OpenVZ/Virtuozzo overhead, as we do 
-> care much for that stuff. I do not remember all the gory details at the 
-> moment, but I gave the correct numbers: "1-2 per cent or so".
+On Tue, Mar 28, 2006 at 02:48:50PM -0700, Jeff V. Merkey wrote:
+> e2label takes as parms:
 > 
-> There are things such as networking (OpenVZ's venet device) overhead, a 
-> fair cpu scheduler overhead, something else.
+> e2label <device name> <mount point>
+
+Actually, it's label name, not "mount point".  Some
+people/distributions will use a label name of "/" for the root
+filesystem, but that is purely a convention.
+
+> What's useless about this is the association of device name and file 
+> system label which is completely broken on SATA systems which do dynamic
+> assignment.  e2label was a great idea, but did not go far enough to 
+> abstract. 
+
+It's not an association of device name and file system label.  It is
+an assignment of a filesystme label to a *filesystem*.  The label is
+actually stored in the ext3's superblock.
+
+> The Initial mount sequence using:
 > 
-> Why do you think it can not be measured? It either can be, or it is too 
-> low to be measured reliably (a fraction of a per cent or so).
+> root=LABEL=/
+> 
+> should be modified to ignore the device assignment and dunamically scan 
+> the drives for the root drive for initial bootup and DETECT
+> the device assignment rather then reverting to fixed device 
+> assignments.  As implemented it's pretty useless and is simply an aliasing
+> mechanism rather than solving the problem of the system being truly 
+> dynamic. 
 
-Well, for instance the fair CPU scheduling overhead is so tiny it may as
-well not be there in the VServer patch.  It's just a per-vserver TBF
-that feeds back into the priority (and hence timeslice length) of the
-process.  ie, you get "CPU tokens" which deplete as processes in your
-vserver run and you either get a boost or a penalty depending on the
-level of the tokens in the bucket.  This doesn't provide guarantees, but
-works well for many typical workloads.  And once Herbert fixed the SMP
-cacheline problems in my code ;) it was pretty much full speed.  That
-is, until you want it to sacrifice overall performance for enforcing
-limits.
+You can do this, and on some distributions it does work that way; the
+initial root device is actually an initrd, and the initrd will search
+the drivers looking for the root drive.  The blkid library, or the
+blkid program, can be used provide that functionality (indeed the
+mount program, when passed the argument "LABEL=/" can be compiled to
+use the blkid library to do this searching).
 
-How does your fair scheduler work?  Do you just keep a runqueue for each
-vps?
+So it does (or at least can) work this way already, but it's all
+userspace stuff which is currently distro-specific.  Which brings up
+the question why you posted this on LKML....
 
-To be honest, I've never needed to determine whether its overhead is 1%
-or 0.01%, it would just be a meaningless benchmark anyway :-).  I know
-it's "good enough for me".
-
-Sam.
-
+						- Ted

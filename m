@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWC1T50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWC1UDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbWC1T50 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 14:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWC1T50
+	id S1751275AbWC1UDT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 15:03:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWC1UDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 14:57:26 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:28876 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751253AbWC1T5Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 14:57:25 -0500
-Subject: Re: 2.6.16-mm2
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060328193815.GA63865@muc.de>
-References: <20060328003508.2b79c050.akpm@osdl.org>
-	 <1143569778.26106.5.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060328111101.463d09e2.akpm@osdl.org>  <20060328193815.GA63865@muc.de>
-Content-Type: text/plain
-Date: Tue, 28 Mar 2006 11:59:19 -0800
-Message-Id: <1143575959.26106.20.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Tue, 28 Mar 2006 15:03:19 -0500
+Received: from [212.76.87.71] ([212.76.87.71]:40972 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1751275AbWC1UDT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 15:03:19 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: scheduler starvation resistance patches for 2.6.16
+Date: Tue, 28 Mar 2006 23:01:55 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200603272136.07908.a1426z@gawab.com> <1143522632.7441.16.camel@homer> <1143537120.10571.5.camel@homer>
+In-Reply-To: <1143537120.10571.5.camel@homer>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="windows-1256"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603282301.55314.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-28 at 21:38 +0200, Andi Kleen wrote:
-> On Tue, Mar 28, 2006 at 11:11:01AM -0800, Andrew Morton wrote:
-> > Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> > >
-> > > On Tue, 2006-03-28 at 00:35 -0800, Andrew Morton wrote:
-> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.16-mm2/
-> > > > 
-> > > > 
-> > > > - It seems to compile.
-> > > 
-> > > Well, depends :)
-> > > 
-> > > Ran into this on -mm1 also. Haven't digged into finding out why ?
-> > > 
-> > >   LD      init/built-in.o
-> > >   LD      .tmp_vmlinux1
-> > > arch/x86_64/mm/built-in.o(.init.text+0x1298): In function `__change_page_attr':
-> > > arch/x86_64/mm/pageattr.c:58: undefined reference to `srat_reserve_add_area'
-> > > make: *** [.tmp_vmlinux1] Error 1
-> > > 
-> > > Ideas ?
-> > > 
-> > 
-> > Yes, that'll happen.  I guess you'll need to set CONFIG_ACPI_NUMA for now.
-> 
-> Fixed.
-> 
-> (I could have sworn i added that ifdef earlier already, weird)
-> 
-> -Andi (who thinks we have too many CONFIGs)
+Mike Galbraith wrote:
+> On Tue, 2006-03-28 at 07:10 +0200, Mike Galbraith wrote:
+> > On Mon, 2006-03-27 at 21:36 +0300, Al Boldi wrote:
+> > > It's not bad.  w/ credit_c1/2 set to 0 results in an improvement in
+> > > running the MESA demos  "# gears & reflect & morph3d" .
+> >
+> > Hmm.  That's unexpected.
+> >
+> > > But a simple "# while :; do :; done &" (10x) makes a "# ping 10.1 -A
+> > > -s8" choke.
+> >
+> > Ouch, so is that.  But thanks, testcases are great.  I'll look into it.
+>
+> OK, this has nothing to do with my patches.  The same slowdown happens
+> with a stock kernel when running a few pure cpu hogs.  I suspect it has
+> to do with softirqd, but am still investigating.
 
-Thanks. Setting CONFIG_X86_64_ACPI_NUMA=y solved my problem.
+I think so too.
 
-I carry around known-to-work .config file for each machine and don't
-bother selecting new config options :(
+I played with some numbers inside sched.c.  Raising the MIN_TIMESLICE from 1 
+to between 10-100  affects interactivity positively, although it does not 
+fix it entirely.
+
+It does look like there is an underlying problem (locking?) that may be 
+worked-around by tuning the scheduler to some extent.
+
+Also, MAX_TIMESLICE = 800 seems a bit high.  Can this be lowered?
+
+Thanks!
+
+--
+Al
 

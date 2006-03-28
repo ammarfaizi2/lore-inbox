@@ -1,81 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWC1Vko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWC1VmY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932235AbWC1Vko (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 16:40:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWC1Vko
+	id S932247AbWC1VmY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 16:42:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbWC1VmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 16:40:44 -0500
-Received: from mx0.towertech.it ([213.215.222.73]:47321 "HELO mx0.towertech.it")
-	by vger.kernel.org with SMTP id S932235AbWC1Vko (ORCPT
+	Tue, 28 Mar 2006 16:42:24 -0500
+Received: from smtp5-g19.free.fr ([212.27.42.35]:1255 "EHLO smtp5-g19.free.fr")
+	by vger.kernel.org with ESMTP id S932236AbWC1VmX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 16:40:44 -0500
-Date: Tue, 28 Mar 2006 23:40:27 +0200
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: Kumar Gala <galak@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: Added support for ds1672 control
-Message-ID: <20060328234027.26b5602b@inspiron>
-In-Reply-To: <Pine.LNX.4.44.0603281507050.20373-100000@gate.crashing.org>
-References: <Pine.LNX.4.44.0603281507050.20373-100000@gate.crashing.org>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Mar 2006 16:42:23 -0500
+Message-ID: <4429ADBC.50507@free.fr>
+Date: Tue, 28 Mar 2006 23:42:20 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart@free.fr>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.12) Gecko/20050915
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+CC: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Fix unlock_buffer() to work the same way as bit_unlock()
+References: <200603281853.k2SIrGg28290@unix-os.sc.intel.com>
+In-Reply-To: <200603281853.k2SIrGg28290@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Mar 2006 15:07:33 -0600 (CST)
-Kumar Gala <galak@kernel.crashing.org> wrote:
+Chen, Kenneth W wrote:
+> Nick Piggin wrote on Tuesday, March 28, 2006 12:11 AM
+> 
+>>Also, I think there is still the issue of ia64 not having the
+>>correct memory consistency semantics. To start with, all the bitops
+>>and atomic ops which both modify their operand and return a value
+>>should be full memory barriers before and after the operation,
+>>according to Documentation/atomic_ops.txt.
+>
+> I suppose the usage of atomic ops is abused, it is used in both lock
+> and unlock path.  And it naturally suck because it now requires full
+> memory barrier.  A better way is to define 3 variants: one for lock
+> path, one for unlock path, and one with full memory fence.
 
- is almost ok, please check my comments below:
+I agree. As I wrote a few days ago:
 
->  
->  	buf[0] = DS1672_REG_CNT_BASE;
->  	buf[1] = secs & 0x000000FF;
->  	buf[2] = (secs & 0x0000FF00) >> 8;
->  	buf[3] = (secs & 0x00FF0000) >> 16;
->  	buf[4] = (secs & 0xFF000000) >> 24;
-> +	buf[5] = 0;
+Why not to use separate bit operations for different purposes?
 
- I'd add a comment to say that 0 enables the osc.
+- e.g. "test_and_set_bit_N_acquire()" for lock acquisition
+- "test_and_set_bit()", "clear_bit()" as they are today
+- "release_N_clear_bit()"...
 
-> +static int ds1672_get_control(struct i2c_client *client)
-> +{
+Thanks,
 
-[..]
-
-> +	} else
-> +		return val;
-> +}
-
- I think it would be cleaner to define the routine as follow:
-.. ds1672_get_control(...., unsigned char *status)
-
- and to usa the space provided by the caller to store the result.
-
-> +	if (ds1672_get_control(client))
-> +		state = "disabled";
-> +	return sprintf(buf, "%s\n", state);
-> +}
-
-please #define DS1672_REG_CONTROL_EOSC 0x80
-and check the single bit.
-
-
-> +	err = ds1672_get_control(client);
-
- ditto.
-
-
- thanks for your work!
-
--- 
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
+Zoltan
 

@@ -1,61 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWC1WV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbWC1WXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbWC1WV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 17:21:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWC1WV4
+	id S932447AbWC1WXb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 17:23:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWC1WXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 17:21:56 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:7992 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S932449AbWC1WVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 17:21:55 -0500
-In-Reply-To: <20060328220525.GB16205@flint.arm.linux.org.uk>
-References: <20060328003508.2b79c050.akpm@osdl.org> <9F2A5122-5295-4B86-9AC5-3D002C5FD5D4@kernel.crashing.org> <20060328220525.GB16205@flint.arm.linux.org.uk>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <7A08E1F7-8DED-4EBB-8735-97238B4F4F60@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: 2.6.16-mm2
-Date: Tue, 28 Mar 2006 16:21:59 -0600
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-X-Mailer: Apple Mail (2.746.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 28 Mar 2006 17:23:31 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:467 "EHLO lirs02.phys.au.dk")
+	by vger.kernel.org with ESMTP id S932447AbWC1WXb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 17:23:31 -0500
+Date: Tue, 28 Mar 2006 23:23:20 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
+Subject: Re: PI patch against 2.6.16-rt9
+In-Reply-To: <1143581802.5344.229.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44L0.0603282313050.22822-100000@lifa02.phys.au.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 28 Mar 2006, Thomas Gleixner wrote:
 
-On Mar 28, 2006, at 4:05 PM, Russell King wrote:
-
-> On Tue, Mar 28, 2006 at 03:52:33PM -0600, Kumar Gala wrote:
->> When building pmac32_defconfig for arch=powerpc:
->>
->> drivers/built-in.o(.text+0x74cd4): In function  
->> `pciserial_init_ports':
->> : undefined reference to `serial8250_register_port'
->> drivers/built-in.o(.text+0x74d88): In function  
->> `pciserial_remove_ports':
->> : undefined reference to `serial8250_unregister_port'
->> drivers/built-in.o(.text+0x74e70): In function
->> `pciserial_suspend_ports':
->> : undefined reference to `serial8250_suspend_port'
->> drivers/built-in.o(.text+0x74ee0): In function  
->> `pciserial_resume_ports':
->> : undefined reference to `serial8250_resume_port'
->>
->> Need to hunt down why this is happening.
+> On Tue, 2006-03-28 at 22:17 +0100, Esben Nielsen wrote:
+> > I think we talk about the situation
 >
-> We know why, it's a kconfig oddity - as discussed in the 2.6.16-mm1
-> thread.
+> No, we talk about existing lock chains L(0) --> L(n).
+>
+> >                         B locks 1            C locks 2       D locks 3
+> >                         B locks 2, boosts C and block
+> >       A locks 2
+> >       A is boost B
+> >       A drop it's spinlocks and is preempted
+> >                                              C unlocks 2 and auto unboosts
+> >                         B is running
+> >                         B locks 3, boosts C and blocks
+> >       A gets a CPU again
+> >       A boosts B
+> >       A boosts D
+> >
+> > Is there anything wrong with that?
+> > And in the case where A==D there indeed is a deadlock which will be
+> > detected.
+>
+> If you get to L(x) the underlying dependencies might have changed
+> already as well as the dependencies x ... n. We might get false
+> positives in the deadlock detection that way, as a deadlock is an
+> "atomic" state.
 
-Ahh, thanks I'll go look there.
+As I see it you might detect a circular lock graph "atomically". But is
+that a "deadlock"? Yes, if you rule out signals and timeouts, this
+situation does indeed deadlock your program.
 
-- kumar
+But if you count in signals and timeouts your algoritm also gives "false
+positives": You can detect a circular lock but when you return from
+rt_mutex_slowlock(), a signal is delivered and there is no longer a
+circular dependency and most important: The program wouldn't be
+deadlocked even if you didn't ask for deadlock detection and your task in
+that case would block.
+
+I would like to see an examble of a false deadlock. I don't rule them out
+in the present code. But they might be simple to fix.
+
+Esben
+
+>
+> 	tglx
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

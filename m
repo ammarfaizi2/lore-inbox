@@ -1,36 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWC1RsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbWC1Rwd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932077AbWC1RsN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 12:48:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWC1RsM
+	id S932094AbWC1Rwd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 12:52:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWC1Rwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 12:48:12 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:55231 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932077AbWC1RsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 12:48:11 -0500
-Date: Tue, 28 Mar 2006 12:48:38 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, Kirill Korotaev <dev@sw.ru>,
-       Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       herbert@13thfloor.at, devel@openvz.org, serue@us.ibm.com, akpm@osdl.org,
-       sam@vilain.net, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Pavel Emelianov <xemul@sw.ru>, Stanislav Protassov <st@sw.ru>
-Subject: Re: [RFC] Virtualization steps
-Message-ID: <20060328174838.GA20962@ccure.user-mode-linux.org>
-References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au> <1143228339.19152.91.camel@localhost.localdomain> <4428BB5C.3060803@tmr.com> <4428FB2B.8070805@sw.ru> <44294B33.3040507@tmr.com> <m1d5g6d321.fsf@ebiederm.dsl.xmission.com>
+	Tue, 28 Mar 2006 12:52:32 -0500
+Received: from main.gmane.org ([80.91.229.2]:41435 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932094AbWC1Rwc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 12:52:32 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthieu CASTET <castet.matthieu@free.fr>
+Subject: Re: compile error when building multiple EHCI host controllers as modules
+Date: Tue, 28 Mar 2006 19:51:55 +0200
+Message-ID: <pan.2006.03.28.17.51.53.450352@free.fr>
+References: <97434D6A-A556-4288-8F13-7048E416E611@kernel.crashing.org> <Pine.LNX.4.44.0603241429220.19557-100000@gate.crashing.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1d5g6d321.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Cc: linux-usb-devel@lists.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 28, 2006 at 08:03:34AM -0700, Eric W. Biederman wrote:
-> UML may use these features to accelerate it's own processes.
+Hi,
 
-And I'm planning on doing exactly that.
+Le Fri, 24 Mar 2006 14:32:57 -0600, Kumar Gala a écrit :
 
-				Jeff
+
+> +
+> +static int __init ehci_hcd_init(void)
+> +{
+> +	int retval = 0;
+> +
+> +	pr_debug("%s: block sizes: qh %Zd qtd %Zd itd %Zd sitd %Zd\n",
+> +		 hcd_name,
+> +		 sizeof(struct ehci_qh), sizeof(struct ehci_qtd),
+> +		 sizeof(struct ehci_itd), sizeof(struct ehci_sitd));
+> +
+> +#ifdef CONFIG_PPC_83xx
+> +	retval = platform_driver_register(&ehci_fsl_dr_driver);
+> +	if (retval < 0)
+> +		return retval;
+This is wrong as the first driver could failed but the following one could
+be correct : imagine generic kernel were multiple config options are
+enabled.
+On some board we could have only one controller, on other both.
+
+> +	retval = platform_driver_register(&ehci_fsl_dr_driver);
+> +	if (retval < 0)
+> +		return retval;
+> +#endif
+We should unregister all the previous drivers if we fail.
+
+Matthieu
+

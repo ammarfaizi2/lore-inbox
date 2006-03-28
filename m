@@ -1,57 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWC1OjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWC1Oyg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbWC1OjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 09:39:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWC1OjJ
+	id S932267AbWC1Oyg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 09:54:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWC1Oyg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 09:39:09 -0500
-Received: from mail.tmr.com ([64.65.253.246]:9377 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S932284AbWC1OjH (ORCPT
+	Tue, 28 Mar 2006 09:54:36 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:35007 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932267AbWC1Oyf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 09:39:07 -0500
-Message-ID: <44294B33.3040507@tmr.com>
-Date: Tue, 28 Mar 2006 09:41:55 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-CC: Dave Hansen <haveblue@us.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel@vger.kernel.org, herbert@13thfloor.at, devel@openvz.org,
-       serue@us.ibm.com, akpm@osdl.org, sam@vilain.net,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Pavel Emelianov <xemul@sw.ru>,
-       Stanislav Protassov <st@sw.ru>
-Subject: Re: [RFC] Virtualization steps
-References: <44242A3F.1010307@sw.ru>  <44242D4D.40702@yahoo.com.au> <1143228339.19152.91.camel@localhost.localdomain> <4428BB5C.3060803@tmr.com> <4428FB2B.8070805@sw.ru>
-In-Reply-To: <4428FB2B.8070805@sw.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Mar 2006 09:54:35 -0500
+Date: Tue, 28 Mar 2006 20:24:41 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       davem@davemloft.net, suparna@in.ibm.com, richardj_moore@uk.ibm.com,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: RFC - Approaches to user-space probes
+Message-ID: <20060328145441.GA25465@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <20060327065447.GA25745@in.ibm.com> <1143445068.2886.20.camel@laptopd505.fenrus.org> <20060327100019.GA30427@in.ibm.com> <1143489794.2886.43.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1143489794.2886.43.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
+On Mon, Mar 27, 2006 at 10:03:14PM +0200, Arjan van de Ven wrote:
+> On Mon, 2006-03-27 at 15:30 +0530, Prasanna S Panchamukhi wrote:
+> > On Mon, Mar 27, 2006 at 09:37:48AM +0200, Arjan van de Ven wrote:
+> > > On Mon, 2006-03-27 at 12:24 +0530, Prasanna S Panchamukhi wrote:
+> > > 
+> > > > - Low overhead and user can have thousands of active probes on the
+> > > >   system and detect any instance when the probe was hit including
+> > > >   probes on shared library etc.  > > > 
+> > > I suspect this is the only reason for doing it inside the kernel;
+> > > anything else still really shouts "do it in userspace via ptrace" to me.
+> > > 
+> > 
+> > Other reasons would be:
+> > 
+> > - to view some privilaged data, such as system regs while you are
+> >   debugging in user-space
+> 
+> root can do that anyway afaics
+> 
+> > - to view many arbitrary process address-space that use a common set
+> >   of modules - user or kernel space
+> 
+> that's just a matter of userspace tooling.
+> 
+> > Yes, insertion of the breakpoint happens at the physical
+> > page level and it gets written back to the disc.
+> 
+> at which point you get to deal with tripwire and other intrusion
+> detection systems.... and you prevent doing this on binaries residing on
+> read-only mounts (which isn't as uncommon as it sounds, read only
+> shared /usr is quite common in enterprise)
 
->> Frankly I don't see running 100 VMs as a realistic goal, being able 
->> to run Linux, Windows, Solaris and BEOS unmodified in 4-5 VMs would 
->> be far more useful.
->
-> It is more than realistic. Hosting companies run more than 100 VPSs in 
-> reality. There are also other usefull scenarios. For example, I know 
-> the universities which run VPS for every faculty web site, for every 
-> department, mail server and so on. Why do you think they want to run 
-> only 5VMs on one machine? Much more! 
+Arjan,
 
-I made no commont on what "they" might want, I want to make the rack of 
-underutilized Windows, BSD and Solaris servers go away. An approach 
-which doesn't support unmodified guest installs doesn't solve any of my 
-current problems. I didn't say it was in any way not useful, just not of 
-interest to me. What needs I have for Linux environments are answered by 
-jails and/or UML.
+The probes are inserted at physical page level and if the
+executable is mmaped private, probes never gets written to the disk.
+The physical page mmaped will still have probes in it. If the page in
+the memory gets discarded due to the low-memory situation, then probes
+will get inserted into that page when read in via readpage/s() hooks.
+Only thing that will be written to the disk is the corresponding
+inode, since we increment and decrement its i_writecount.
+
+But, if we do a objdump on the probed executable, we are seeing the
+breakpoints in the disassembly. We are looking into this issue.
+Does this mean that breakpoints are written to the disk?
+
+If the executable is mmaped shared, then those mappings will get written
+back to the disk.
+
+Writting to the disk is not the requirement for user-space probes, it is
+just the side effect and probes are successful even if it is written or
+not to the disk.
+
+User-space probes are successful even if it is on "read-only" mounts, since
+nothing is written back.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
-
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Email: prasanna@in.ibm.com
+Ph: 91-80-51776329

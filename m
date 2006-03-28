@@ -1,87 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWC0XK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWC0XLa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750946AbWC0XK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 18:10:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbWC0XK4
+	id S1751034AbWC0XLa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 18:11:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWC0XLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 18:10:56 -0500
-Received: from uproxy.gmail.com ([66.249.92.196]:35291 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750946AbWC0XKz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 18:10:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
-        b=icUe8DkcnDrV/uwZZdj2/YDLr/eWNZX88TWbz6NvGJH4umXRrFTHyFrI3Mwqxs+Ly4I8kQN8AlHyF9lc39qPjv1mr9peF5bze7cLuYFDecUtYYGcIjPqd7FKNtbRl2OrHp/JFrLSH1grATepYVB+PuVgvjc+vmrW5gUCuey0obE=
-Date: Tue, 28 Mar 2006 01:10:49 +0200
-From: Friedrich =?iso-8859-1?Q?G=F6pel?= <shado23@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: hda-intel woes
-Message-ID: <20060327231049.GA30641@localhost.in.y0ur.4ss>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Mon, 27 Mar 2006 18:11:30 -0500
+Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:64702 "HELO
+	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751034AbWC0XL3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 18:11:29 -0500
+Date: Mon, 27 Mar 2006 21:14:30 -0300
+From: cascardo@minaslivre.org
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: cascardo@minaslivre.org, "Theodore Ts'o" <tytso@mit.edu>,
+       Andreas Dilger <adilger@clusterfs.com>,
+       Takashi Sato <sho@bsd.tnes.nec.co.jp>, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       Laurent Vivier <Laurent.Vivier@bull.net>, ams@gnu.org
+Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
+Message-ID: <20060328001430.GD9925@cascardo.localdomain>
+References: <20060316212632.GA21004@thunk.org> <20060316225913.GV30801@schatzie.adilger.int> <20060318170729.GI21232@thunk.org> <20060320063633.GC30801@schatzie.adilger.int> <1142894283.21593.59.camel@orbit.scot.redhat.com> <20060320234829.GJ6199@schatzie.adilger.int> <1142960722.3443.24.camel@orbit.scot.redhat.com> <20060321183822.GC11447@thunk.org> <20060325145139.GA5606@cascardo.localdomain> <1143489301.15697.9.camel@orbit.scot.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: mutt-ng/devel-r790 (Linux)
+In-Reply-To: <1143489301.15697.9.camel@orbit.scot.redhat.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This same message was sent to the alsa mailinglist 3 weeks ago,
-but it still seems to be waiting on being moderated, so I'm resending
-this here.
+On Mon, Mar 27, 2006 at 02:55:01PM -0500, Stephen C. Tweedie wrote:
+> Hi,
+> 
+> On Sat, 2006-03-25 at 11:51 -0300, cascardo@minaslivre.org wrote:
+> 
+> > Regarding compatibility, there are plans to support xattr in Hurd and
+> > use them for these fields, translator and author. (I can't recall what
+> > i_mode_high is used for.) With respect to that, I'd appreciate if
+> > there is a recommendation to every ext2 implementation (not only
+> > Linux) that supports xattr, to support gnu.translator and gnu.author
+> > (I'll check about the i_mode_high and post about it asap.). 
+> 
+> What do you mean by "support", exactly?
+> 
+> There are 3 different bits of xattr design which matter here.  There's
+> the namespace exported to users via the *attr syscalls; there's the
+> encoding used on disk for those different namespaces; and there's the
+> exact semantics surrounding interpretation of the xattr contents.
+> 
 
+Listing the attributes of a file should return the "gnu.*"
+ones. That's the first meaning of supporting. Storing them on ext2/3
+is the second. This one is already implemented for Linux by Roland
+McGrath. I don't know, however, it that patch was submitted to the
+right people. Is anyone here responsible for that? I can send it to
+the list or privately, including the number used to store them. AFAIK,
+the Linux code does not blindly lists all the attributes, but only
+those "supported", as you pointed below, because they require a
+reservation.
 
+> Now, a non-Hurd system is not going to have any use for the gnu.* xattr
+> semantics, as translator is a Hurd-specific concept.  The user "gnu.*"
+> namespace is easy enough to teach to Linux: to simply reserve that
+> namespace, without actually implementing any part of it, I think it be
+> sufficient simply to claim the name in include/linux/xattr.h.
+> 
 
-Hi,
+The semantics may not be supported, if they have no meaning to the
+system. But star or cp should be able to keep those attributes if they
+are written to do so. Does anyone know if cp can keep the xattr of a
+file? Anyway, a patched cp that would keep the xattrs should keep the
+"gnu.*" xattrs, and that's all (if both underlying filesystems support
+them, which would be true for two ext2/3 filesystems).
 
-I tried installing linux on my sister's new acer extensa 6700 laptop.
-I tried Fedora FC4, FC5 test 3 and now Gentoo with various kernel and
-alsa versions (specifically 1.0.10 and 1.0.11-rc3 and whatever is in
-fedora before and after a full update).
-Also I set up a friends vaio laptop also with an intel hd audio chip,
-which is working peachy.
-I also tried model=basic/hp/fujitsu just in case.
+> For ext2/3, though, the key is how to store gnu.* on disk.  Right now
+> the different namespaces that ext* stores on disk are enumerated in
+> 
+> 	fs/ext[23]/xattr.h
+> 
+> which, for ext2, currently contains:
+> 
+>         /* Name indexes */
+>         /* Name indexes */
+>         #define EXT2_XATTR_INDEX_USER			1
+>         #define EXT2_XATTR_INDEX_POSIX_ACL_ACCESS	2
+>         #define EXT2_XATTR_INDEX_POSIX_ACL_DEFAULT	3
+>         #define EXT2_XATTR_INDEX_TRUSTED		4
+>         #define	EXT2_XATTR_INDEX_LUSTRE			5
+>         #define EXT2_XATTR_INDEX_SECURITY	        6
+> 
+> If you want to reserve a new semantically-significant portion of the
+> namespace for use in the Hurd by gnu.* xattrs, then you'd need to submit
+> an authoritative Linux patch to register a new name index on ext2;
+> reservation of such an xattr namespace index is in effect an on-disk
+> format decision so needs to be agreed between implementations.
+> 
 
-Just to preempt the question: I did unmute and raise the mixer levels.
+That's just what I meant by saying that I'd like them to be supported
+by every implementation of ext2/3 xattr. Sorry if that was not
+clear. That would be 7, right? That's what Roland uses in his patch.
 
-Anyways the damn thing is not to be convinced to produce a single
-sound.
+[...]
+> 
+> --Stephen
+> 
+> 
 
-In light of this I suppose Acer did something nasty to that chip.
+Regards,
+Thadeu Cascardo.
+--
 
-I'm attatching here the relevant part of lspci -vv in hopes of somebody
-being either able to point out a fix or tell me if it's going to be
-supported sometime soon.
-
-I could pose as a genuea pig if neccessary.
-Also if there is any further information I should gather just tell me.
-
-Otherwise it's back to windows for my sister I guess.
-
-PS. I'm not subscribed to the list so please CC me.
-Thanks.
-
-00:1b.0 Audio device: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) High Definition Audio Controller (rev 04)
-        Subsystem: Acer Incorporated [ALI] Unknown device 008f
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin A routed to IRQ 177
-        Region 0: Memory at d000c000 (64-bit, non-prefetchable) [size=16K]
-        Capabilities: [50] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=55mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-        Capabilities: [60] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
-                Address: 0000000000000000  Data: 0000
-        Capabilities: [70] Express Unknown type IRQ 0
-                Device: Supported: MaxPayload 128 bytes, PhantFunc 0, ExtTag-
-                Device: Latency L0s <64ns, L1 <1us
-                Device: Errors: Correctable- Non-Fatal- Fatal- Unsupported-
-                Device: RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop+
-                Device: MaxPayload 128 bytes, MaxReadReq 128 bytes
-                Link: Supported Speed unknown, Width x0, ASPM unknown, Port 0
-                Link: Latency L0s <64ns, L1 <1us
-                Link: ASPM Disabled CommClk- ExtSynch-
-                Link: Speed unknown, Width x0
-        Capabilities: [100] Virtual Channel
-        Capabilities: [130] Unknown (5)
+		
+_______________________________________________________ 
+Yahoo! Acesso Grátis - Internet rápida e grátis. Instale o discador agora! 
+http://br.acesso.yahoo.com

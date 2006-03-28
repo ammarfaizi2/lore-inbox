@@ -1,90 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWC1R27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbWC1R30@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbWC1R27 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 12:28:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWC1R27
+	id S1751176AbWC1R30 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 12:29:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWC1R30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 12:28:59 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:12967 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750756AbWC1R27
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 12:28:59 -0500
-Subject: Re: kernel BUG at fs/direct-io.c:916!
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-       lkml <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
-In-Reply-To: <20060328050135.GA2177@frodo>
-References: <20060326230206.06C1EE083AAB@knarzkiste.dyndns.org>
-	 <20060326180440.GA4776@charite.de> <20060326184644.GC4776@charite.de>
-	 <20060327080811.D753448@wobbly.melbourne.sgi.com>
-	 <20060326230358.GG4776@charite.de> <20060327060436.GC2481@frodo>
-	 <20060327110342.GX21946@charite.de>  <20060328050135.GA2177@frodo>
+	Tue, 28 Mar 2006 12:29:26 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:49383 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751176AbWC1R3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 12:29:25 -0500
+Subject: Re: RFC - Approaches to user-space probes
+From: Arjan van de Ven <arjan@infradead.org>
+To: prasanna@in.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       davem@davemloft.net, suparna@in.ibm.com, richardj_moore@uk.ibm.com,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, Nick Piggin <nickpiggin@yahoo.com.au>
+In-Reply-To: <20060328145441.GA25465@in.ibm.com>
+References: <20060327065447.GA25745@in.ibm.com>
+	 <1143445068.2886.20.camel@laptopd505.fenrus.org>
+	 <20060327100019.GA30427@in.ibm.com>
+	 <1143489794.2886.43.camel@laptopd505.fenrus.org>
+	 <20060328145441.GA25465@in.ibm.com>
 Content-Type: text/plain
-Date: Tue, 28 Mar 2006 09:30:44 -0800
-Message-Id: <1143567049.26106.2.camel@dyn9047017100.beaverton.ibm.com>
+Date: Tue, 28 Mar 2006 19:29:01 +0200
+Message-Id: <1143566941.2885.30.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-28 at 16:01 +1100, Nathan Scott wrote:
-> On Mon, Mar 27, 2006 at 01:03:42PM +0200, Ralf Hildebrandt wrote:
-> > * Nathan Scott <nathans@sgi.com>:
-> > > On Mon, Mar 27, 2006 at 01:03:59AM +0200, Ralf Hildebrandt wrote:
-> > > > * Nathan Scott <nathans@sgi.com>:
-> > > > 
-> > > > > Hmm, there were XFS patches in -mm last week, but they also got
-> > > > > merged to mainline last week, not clear whether your git kernel
-> > > > > had those changes or not.  I think there's probably some direct
-> > > > > I/O (generic) changes in -mm too based on list traffic from the
-> > > > > last couple of weeks (I'm an -mm lamer, sorry, couldn't easily
-> > > > > tell you exactly what patches those might be) - could you retry
-> > > > > with todays git snapshot and see if mainline is affected?  Else
-> > > > > we'll need to find and analyse any -mm fs/direct-io.c patches.
-> > > > 
-> > > > 2.6.16-git12 also fails utterly:
-> > > 
-> > > Could you also try reverting this patch:
-> > > 
-> > > http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=1d8fa7a2b9a39d18727acc5c468e870df606c852
-> > > 
-> > > and let me know if the problem still happens?
-> > 
-> > Reverting this particular patch does ELIMINATE the problem.
-> > Excellent!
-> 
-> OK, I think I see whats gone wrong here now.  Ralf, could you try
-> the patch below and check that it fixes your test case?
-> 
-> Badari, it looks like a regression from the "remove ->get_blocks()
-> support" patch - can you look over the fix below and confirm/deny
-> please?  
-> 
-> I'm definately seeing block mapping requests that are smaller than
-> the filesystem block size coming into XFS from direct-io.c - and it
-> looks like that eventually blows up in do_direct_IO if dio_remainder
-> becomes set and we could only map one block (if dio->blocks_available
-> was 1 after get_more_blocks).  We'll reduce that to zero right at the
-> end of the branch that calls get_more_blocks in do_direct_IO... and
-> mayhem ensues further on.
-> 
-> I have a couple of other .17 changes pending, if you could ACK this
-> I'll get it merged in for ya.
-> 
-> cheers.
-> 
-Nathan,
 
-Thanks for working this out. You may want to add a description
-to the patch. Like:
 
-"inode->i_blkbits should be used instead of dio->blkbits, as
-it may not indicate the filesystem block size all the time".
+> But, if we do a objdump on the probed executable, we are seeing the
+> breakpoints in the disassembly. We are looking into this issue.
+> Does this mean that breakpoints are written to the disk?
 
-Acked-by: Badari Pulavarty <pbadari@us.ibm.com>
+it means tripwire and similar tools will raise big alarms at least.
 
-Thanks,
-Badari
+
 

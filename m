@@ -1,96 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWC1QQ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWC1QSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751232AbWC1QQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 11:16:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWC1QQ6
+	id S1751066AbWC1QSP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 11:18:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWC1QSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 11:16:58 -0500
-Received: from hs-grafik.net ([80.237.205.72]:57097 "EHLO hs-grafik.net")
-	by vger.kernel.org with ESMTP id S1751232AbWC1QQ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 11:16:58 -0500
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Reiser4 bug
-Date: Tue, 28 Mar 2006 18:16:43 +0200
-User-Agent: KMail/1.9.1
-X-Face: ){635DT*1Z+Z}$~Bf[[i"X:f2i+:Za[:Q0<UzyJPoAm(;y"@=?utf-8?q?LwMhWM4=5D=60x1bDaQDpet=3B=3Be=0A=09N=5CBIb8o=5BF!fdHrI-=7E=24?=
- =?utf-8?q?ctS=3F!?=,U+0}](xD}_b]awZrK=>753Wk;RwhCU`Bt(I^/Jxl~5zIH<
- =?utf-8?q?=0A=09XplI=3A9GKEcr/JPqzW=3BR=5FqDQe*=23CE=7E70=3Bj=25Hg8CNh*4?=<
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3164147.boInqyXV1G";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Tue, 28 Mar 2006 11:18:15 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:63007 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1751066AbWC1QSO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 11:18:14 -0500
+In-Reply-To: <Pine.LNX.4.44.0603241429220.19557-100000@gate.crashing.org>
+References: <Pine.LNX.4.44.0603241429220.19557-100000@gate.crashing.org>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <52F4EC29-680D-4F23-AF10-A4986B375AF0@kernel.crashing.org>
+Cc: linux-usb-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
+       LKML mailing list <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
-Message-Id: <200603281816.48367@zodiac.zodiac.dnsalias.org>
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [linux-usb-devel] compile error when building multiple EHCI host controllers as modules
+Date: Tue, 28 Mar 2006 10:18:17 -0600
+To: David Brownell <david-b@pacbell.net>
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3164147.boInqyXV1G
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Hi,
+On Mar 24, 2006, at 2:32 PM, Kumar Gala wrote:
 
-reiser4 buged around, I think while trying to mount a ntfs partition:
-=2D-----------[ cut here ]------------
-kernel BUG at fs/reiser4/plugin/file/tail_conversion.c:29!
-invalid opcode: 0000 [#1]
-PREEMPT
-last sysfs file: /devices/pci0000:00/0000:00:1d.7/usb4/idProduct
-Modules linked in: ntfs ath_rate_sample wlan ath_hal irtty_sir sir_dev=20
-ehci_hcd uhci_hcd
-CPU:    0
-EIP:    0060:[<b01b2829>]    Tainted: P      VLI
-EFLAGS: 00010286   (2.6.16-mm1 #1)
-EIP is at get_exclusive_access+0x35/0x3f
-eax: cdf097c0   ebx: 00000000   ecx: dab5f894   edx: 00000000
-esi: 00000000   edi: c7dd5fa4   ebp: 00000000   esp: c7dd5f0c
-ds: 007b   es: 007b   ss: 0068
-Process soffice.bin (pid: 6615, threadinfo=3Dc7dd4000 task=3Db0f2c030)
-Stack: <0>b01b087f 00000000 dab5fb88 0000c000 b01420e7 e2f4acd4 ef739c80=20
-b0146b5b
-       e2f4a880 e2f4a874 dab5faec a3914000 e4f8c680 ef3b37c0 dab5f8ec ef69f=
-b40
-       dab5f894 00000000 0000bd18 00000001 dab5f8a0 00000071 00001000 0000b=
-d18
-Call Trace:
- [<b01b087f>] write_unix_file+0x1a4/0x527
- [<b01420e7>] vma_prio_tree_insert+0x17/0x2a
- [<b0146b5b>] vma_link+0x82/0x109
- [<b0155f8f>] vfs_write+0x8b/0x13f
- [<b01b06db>] write_unix_file+0x0/0x527
- [<b015687a>] sys_write+0x41/0x6a
- [<b0102c1b>] sysenter_past_esp+0x54/0x75
-Code: 00 8b 80 a0 04 00 00 8b 40 40 8b 40 08 85 c0 75 1a ba 01 00 ff ff 89 =
-c8=20
-0f c1 10 85 d2 0f 85 ce 0d 00 00 c7 41 24 01 00 00 00 c3 <0f> 0b 1d 00 4c d=
-3=20
-45 b0 eb dc 89 c1 85 d2 75 19 b8 00 e0 ff ff
+>> The issue I have this is that it makes two (or more) things that were
+>> independent now dependent.  What about just moving the module_init/
+>> exit() functions into files that are built separately.  For the ehci-
+>> fsl case it was trivial, need to look at ehci-pci case.
+>
+> Ok, my idea required exporting things I didn't really want to  
+> export, so
+> what about something like this or where you thinking of some more
+> sophisticated?
+>
+> If this is good, I'll do the same for ohci.
 
-I'm not ccing the reiserfs list, because they reported my last mail as=20
-spam....
+David, any comments?
 
-regards
-Alex
+- k
 
-=2D-=20
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
+> diff --git a/drivers/usb/host/ehci-au1xxx.c b/drivers/usb/host/ehci- 
+> au1xxx.c
+> index 63eadee..036a1c0 100644
+> --- a/drivers/usb/host/ehci-au1xxx.c
+> +++ b/drivers/usb/host/ehci-au1xxx.c
+> @@ -280,18 +280,3 @@ static struct device_driver ehci_hcd_au1
+>  	/*.suspend      = ehci_hcd_au1xxx_drv_suspend, */
+>  	/*.resume       = ehci_hcd_au1xxx_drv_resume, */
+>  };
+> -
+> -static int __init ehci_hcd_au1xxx_init(void)
+> -{
+> -	pr_debug(DRIVER_INFO " (Au1xxx)\n");
+> -
+> -	return driver_register(&ehci_hcd_au1xxx_driver);
+> -}
+> -
+> -static void __exit ehci_hcd_au1xxx_cleanup(void)
+> -{
+> -	driver_unregister(&ehci_hcd_au1xxx_driver);
+> -}
+> -
+> -module_init(ehci_hcd_au1xxx_init);
+> -module_exit(ehci_hcd_au1xxx_cleanup);
+> diff --git a/drivers/usb/host/ehci-fsl.c b/drivers/usb/host/ehci-fsl.c
+> index f985f12..30410c2 100644
+> --- a/drivers/usb/host/ehci-fsl.c
+> +++ b/drivers/usb/host/ehci-fsl.c
+> @@ -339,28 +339,3 @@ static struct platform_driver ehci_fsl_m
+>  		   .name = "fsl-usb2-mph",
+>  		   },
+>  };
+> -
+> -static int __init ehci_fsl_init(void)
+> -{
+> -	int retval;
+> -
+> -	pr_debug("%s: block sizes: qh %Zd qtd %Zd itd %Zd sitd %Zd\n",
+> -		 hcd_name,
+> -		 sizeof(struct ehci_qh), sizeof(struct ehci_qtd),
+> -		 sizeof(struct ehci_itd), sizeof(struct ehci_sitd));
+> -
+> -	retval = platform_driver_register(&ehci_fsl_dr_driver);
+> -	if (retval)
+> -		return retval;
+> -
+> -	return platform_driver_register(&ehci_fsl_mph_driver);
+> -}
+> -
+> -static void __exit ehci_fsl_cleanup(void)
+> -{
+> -	platform_driver_unregister(&ehci_fsl_mph_driver);
+> -	platform_driver_unregister(&ehci_fsl_dr_driver);
+> -}
+> -
+> -module_init(ehci_fsl_init);
+> -module_exit(ehci_fsl_cleanup);
+> diff --git a/drivers/usb/host/ehci-hcd.c b/drivers/usb/host/ehci-hcd.c
+> index 79f2d8b..549ce59 100644
+> --- a/drivers/usb/host/ehci-hcd.c
+> +++ b/drivers/usb/host/ehci-hcd.c
+> @@ -905,3 +905,57 @@ MODULE_LICENSE ("GPL");
+>  #ifndef	EHCI_BUS_GLUED
+>  #error "missing bus glue for ehci-hcd"
+>  #endif
+> +
+> +static int __init ehci_hcd_init(void)
+> +{
+> +	int retval = 0;
+> +
+> +	pr_debug("%s: block sizes: qh %Zd qtd %Zd itd %Zd sitd %Zd\n",
+> +		 hcd_name,
+> +		 sizeof(struct ehci_qh), sizeof(struct ehci_qtd),
+> +		 sizeof(struct ehci_itd), sizeof(struct ehci_sitd));
+> +
+> +#ifdef CONFIG_PPC_83xx
+> +	retval = platform_driver_register(&ehci_fsl_dr_driver);
+> +	if (retval < 0)
+> +		return retval;
+> +
+> +	retval = platform_driver_register(&ehci_fsl_dr_driver);
+> +	if (retval < 0)
+> +		return retval;
+> +#endif
+> +
+> +#ifdef CONFIG_SOC_AU1X00
+> +	pr_debug(DRIVER_INFO " (Au1xxx)\n");
+> +
+> +	retval = driver_register(&ehci_hcd_au1xxx_driver);
+> +	if (retval < 0)
+> +		return retval;
+> +#endif
+> +
+> +#ifdef CONFIG_PCI
+> +	retval = pci_register_driver(&ehci_pci_driver);
+> +	if (retval < 0)
+> +		return retval;
+> +#endif
+> +
+> +	return retval;
+> +}
+> +
+> +static void __exit ehci_hcd_cleanup(void)
+> +{
+> +#ifdef CONFIG_PPC_83xx
+> +	platform_driver_unregister(&ehci_fsl_mph_driver);
+> +	platform_driver_unregister(&ehci_fsl_dr_driver);
+> +#endif
+> +#ifdef CONFIG_SOC_AU1X00
+> +	driver_unregister(&ehci_hcd_au1xxx_driver);
+> +#endif
+> +#ifdef CONFIG_PCI
+> +	pci_unregister_driver(&ehci_pci_driver);
+> +#endif
+> +}
+> +
+> +module_init(ehci_hcd_init);
+> +module_exit(ehci_hcd_cleanup);
+> +
+> diff --git a/drivers/usb/host/ehci-pci.c b/drivers/usb/host/ehci-pci.c
+> index 1e03f1a..e0641bc 100644
+> --- a/drivers/usb/host/ehci-pci.c
+> +++ b/drivers/usb/host/ehci-pci.c
+> @@ -370,23 +370,3 @@ static struct pci_driver ehci_pci_driver
+>  	.resume =	usb_hcd_pci_resume,
+>  #endif
+>  };
+> -
+> -static int __init ehci_hcd_pci_init(void)
+> -{
+> -	if (usb_disabled())
+> -		return -ENODEV;
+> -
+> -	pr_debug("%s: block sizes: qh %Zd qtd %Zd itd %Zd sitd %Zd\n",
+> -		hcd_name,
+> -		sizeof(struct ehci_qh), sizeof(struct ehci_qtd),
+> -		sizeof(struct ehci_itd), sizeof(struct ehci_sitd));
+> -
+> -	return pci_register_driver(&ehci_pci_driver);
+> -}
+> -module_init(ehci_hcd_pci_init);
+> -
+> -static void __exit ehci_hcd_pci_cleanup(void)
+> -{
+> -	pci_unregister_driver(&ehci_pci_driver);
+> -}
+> -module_exit(ehci_hcd_pci_cleanup);
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux- 
+> kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
---nextPart3164147.boInqyXV1G
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQBEKWFw/aHb+2190pERAiTfAKCtYf60mpazRTTbK1k/dYlyqq4wxQCaA9yA
-H66zGWScqQjsR7YpnaVIAK4=
-=z+xt
------END PGP SIGNATURE-----
-
---nextPart3164147.boInqyXV1G--

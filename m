@@ -1,68 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWC1DAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWC1DCc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751218AbWC1DAs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 22:00:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWC1DAs
+	id S1751212AbWC1DCc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 22:02:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbWC1DCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 22:00:48 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:13022 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751219AbWC1DAr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 22:00:47 -0500
-Date: Mon, 27 Mar 2006 19:00:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: bharata@in.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: dcache leak in 2.6.16-git8
-Message-Id: <20060327190027.24498e3a.akpm@osdl.org>
-In-Reply-To: <200603271822.28043.ak@suse.de>
-References: <200603270750.28174.ak@suse.de>
-	<20060327114813.GA11352@in.ibm.com>
-	<200603271822.28043.ak@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Mar 2006 22:02:31 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:41182 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751212AbWC1DCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 22:02:31 -0500
+Date: Mon, 27 Mar 2006 18:58:09 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Yinghai Lu <yinghai.lu@amd.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: migrate_pages_to not defined ...
+In-Reply-To: <86802c440603271826s684cf1dcj24acce894bdd0260@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0603271855230.6010@schroedinger.engr.sgi.com>
+References: <86802c440603271826s684cf1dcj24acce894bdd0260@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> On Monday 27 March 2006 13:48, Bharata B Rao wrote:
-> > On Mon, Mar 27, 2006 at 07:50:20AM +0200, Andi Kleen wrote:
-> > > 
-> > > A 2GB x86-64 desktop system here is currently swapping itself to death after
-> > > a few days uptime.
-> > > 
-> > > Some investigation shows this:
-> > > 
-> > > inode_cache         1287   1337    568    7    1 : tunables   54   27    8 : slabdata    191    191      0
-> > > dentry_cache      1867436 1867643    208   19    1 : tunables  120   60    8 : slabdata  98297  98297      0
-> > > 
-> > 
-> > Would it be possible to try out this experimental patch which
-> > gets some stats from the dentry cache ?
-> 
-> It should be trivial to reproduce by other people. Biggest workload
-> is kernel compiles and quilt.
-> 
-> After a few hours with -git12 it's already at
-> 
-> dentry_cache      947013 952014    208   19    1 : tunables  120   60    8 : slabdata  50100  50106    480
-> 
-> and starting to go into swap.
-> 
-> I can't imagine I'm the only one seeing this?
-> 
-> I have a few x86-64 patches applied too, but they don't change anything
-> in this area.
+On Mon, 27 Mar 2006, Yinghai Lu wrote:
 
-I don't think I can reproduce this on x86 uniproc.  (avtab_node_cache
-is a different story - maintainers separately pinged).
+> please check the migrate)pages_to in migrate.h...
+> otherwise  I can not compile the kernel if i disable the swap in config.
 
-I'd expect pretty much everything we have in there now was under test in
--mm for quite some time - any obvious leaks would have been noticed.  I'd
-be suspecting recent changes in perhaps audit or nfs, at a guess.  Or
-something weird.
+Right. migrate_pages_to in mempolicy.cis also called from mbind() outside 
+of CONFIG_MIGRATION sigh.
 
-Which filesystems are in use?
+> +static inline int migrate_pages_to(struct list_head *pagelist,
+> +                        struct vm_area_struct *vma, int dest) {
+> return -ENOSYS; }
+
+No it needs to return the number of pages not ENOSYS.
+
+> diff --git a/mm/migrate.c b/mm/migrate.c
+> --- a/mm/migrate.c
+> +++ b/mm/migrate.c
+> @@ -653,3 +653,4 @@ out:
+>                 nr_pages++;
+>         return nr_pages;
+>  }
+> +EXPORT_SYMBOL(migrate_pages_to);
+
+Why add an export?
+
+Could you try this patch?
+
+
+
+Fix migrate_pages_to() definition.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6/include/linux/migrate.h
+===================================================================
+--- linux-2.6.orig/include/linux/migrate.h	2006-03-22 09:29:49.000000000 -0800
++++ linux-2.6/include/linux/migrate.h	2006-03-27 18:33:52.000000000 -0800
+@@ -12,7 +12,7 @@ extern void migrate_page_copy(struct pag
+ extern int migrate_page_remove_references(struct page *, struct page *, int);
+ extern int migrate_pages(struct list_head *l, struct list_head *t,
+ 		struct list_head *moved, struct list_head *failed);
+-int migrate_pages_to(struct list_head *pagelist,
++extern int migrate_pages_to(struct list_head *pagelist,
+ 			struct vm_area_struct *vma, int dest);
+ extern int fail_migrate_page(struct page *, struct page *);
+ 
+@@ -26,6 +26,9 @@ static inline int putback_lru_pages(stru
+ static inline int migrate_pages(struct list_head *l, struct list_head *t,
+ 	struct list_head *moved, struct list_head *failed) { return -ENOSYS; }
+ 
++static int migrate_pages_to(struct list_head *pagelist,
++			struct vm_area_struct *vma, int dest) { return 0; }
++
+ static inline int migrate_prep(void) { return -ENOSYS; }
+ 
+ /* Possible settings for the migrate_page() method in address_operations */
+

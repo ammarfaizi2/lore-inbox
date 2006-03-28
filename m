@@ -1,78 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWC1NpM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWC1Nqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbWC1NpM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 08:45:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWC1NpM
+	id S932179AbWC1Nqe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 08:46:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWC1Nqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 08:45:12 -0500
-Received: from dtp.xs4all.nl ([80.126.206.180]:2667 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S932206AbWC1NpK (ORCPT
+	Tue, 28 Mar 2006 08:46:34 -0500
+Received: from mail.vtacs.com ([207.42.84.219]:24760 "EHLO mail.vtacs.com")
+	by vger.kernel.org with ESMTP id S932179AbWC1Nqd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 08:45:10 -0500
-Date: Tue, 28 Mar 2006 15:45:06 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Valerie Henson <val.henson@intel.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6: Load average calculation?
-Message-ID: <20060328134506.GF6351@harddisk-recovery.com>
-References: <20060328105612.GA17094@flint.arm.linux.org.uk> <20060328110637.GB16173@goober>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060328110637.GB16173@goober>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+	Tue, 28 Mar 2006 08:46:33 -0500
+From: "Greg Lee" <glee@swspec.com>
+To: <Valdis.Kletnieks@vt.edu>, "'Lee Revell'" <rlrevell@joe-job.com>
+Cc: <linux-kernel@vger.kernel.org>, <rmk+kernel@arm.linux.org.uk>
+Subject: RE: HZ != 1000 causes problem with serial device shown by git-bisect 
+Date: Tue, 28 Mar 2006 08:44:23 -0500
+Message-ID: <0f0501c6526d$b95e8490$a100a8c0@casabyte.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+x-mimeole: Produced By Microsoft MimeOLE V6.00.2900.2670
+In-Reply-To: <200603280537.k2S5bLvZ012916@turing-police.cc.vt.edu>
+Thread-Index: AcZSKbpWK1i0HSQwS3O+id169pJzlAAQQNLw
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 28, 2006 at 03:06:39AM -0800, Valerie Henson wrote:
-> On Tue, Mar 28, 2006 at 11:56:12AM +0100, Russell King wrote:
-> > 
-> > So, the question becomes - should a lot of network activity contribute
-> > to the system load average, thereby denying other services from
-> > performing their usual business.
-> 
-> Another case where simply counting up all processes in D state results
-> in an unreasonable load average is the "NFS server stops responding"
-> case.  Even though all threads doing I/O to the NFS server are totally
-> inactive until the server comes back, they are all stuck in D state -
-> and counting towards the load average.
+> I may be misreading Greg's concern, but I got the feeling that he's worried
+> that 2.6.16 isn't *really* fixed, but that something is just papering over the
+> driver's innate displeasure with HZ==250 (and thus it's likely that in .17 or
+> .18 or whenever, some *other* patch will make it re-manifest).
 
-Or the other way around:
+To be clear, I am virtually locked into a 2.6.14.2 kernel since that is what has been
+qualified for use in the product.  I am "permitted" to patch the kernel with specifically
+justified bug fixes.  If these patches are too broad (a judgment call by a group of
+engineer's) then we have to re-qualify  the kernel selection which is the (long) process
+that I am trying to avoid.  I performed a git bisect between 2.6.12.6 and 2.6.13 and found
+the problem is first noticed when the commit that allows HZ==250 is made.  Support for
+this change is pretty wide ranging --- a lot of use of msleep() instead of busy loops,
+etc.
 
-An NFS client writing 50 MB/s to a server. The NFS server keeps up with
-the amount of traffic (i.e.: no "NFS server stops responding" on the
-client) and manages to write the data to the disks but the load average
-on the server goes to ~16 without any major CPU usage.
+I did try the brute force approach, diffed the two kernels (800,000 line diff) and then
+looked for any changes related to HZ (diff -Naur kernel1 kernel2 | egrep ^-.*HZ) and then
+studied the code that was changed to see if I thought it might be related to this problem.
+Given my limited understanding of the kernel code I was really just hoping to get lucky.
+That did not prove out which is not surprising since it did not test the cases where the
+code did not change and HZ is used and the code is not friendly to HZ != 1000.  This
+pretty much leaves me at a dead end with this approach.
 
-> What these cases have in common is interesting: in both cases, the
-> thread is throttled by an external machine.  We're not waiting on I/O
-> that is taking up resources locally and therefore should be counted as
-> part of load average; we're waiting for some other machine to free up
-> enough resources that we can push some data down the pipe.
+Then we decided, what the heck, we'll try the latest kernel (2.6.16) just to see if it is
+fixed and voila, it is.  Jumping back one revision to 2.6.15.6 showed that the problem
+existed again, so I decided to git-bisect those two versions (I'm down to 9 more
+iterations) and then see if the change in those two versions yield any insight into the
+core problem.  I'm not very hopeful though since this commit is in the path between
+2.6.15.6 and 2.6.16):
 
-I get the impression it's not only a network problem. You can also
-increase the load by copying a large file from one disk to another (of
-course using a large blocksize to eliminate a high number of syscalls),
-so it looks like waiting on local I/O is the problem.
+commit 33f0f88f1c51ae5c2d593d26960c760ea154c2e2
 
-With modern disk subsystems (i.e.: anything except IDE in PIO mode) a
-high IO load shouldn't really burn many CPU cycles. IMHO the load
-average should account this differently.
+Author: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date:   Mon Jan 9 20:54:13 2006 -0800
 
-The current load average calculation is a great way for a DoS attack
-for programs that look at the load average like Exim and Sendmail: just
-generate enough IO load on the machine to get the load above a certain
-threshold and you will get a temporary error on SMTP. One way to do
-such a thing (and effectively creating a remote DoS) is what Russell
-said: lots of people downloading FC5 images through vsftpd. Vsftpd uses
-sendfile() to pump out files, which (among other things) was made in
-order to work around large system loads. It certainly does, but
-unfortunately it's not accounted as such.
+    [PATCH] TTY layer buffering revamp
+    
+    The API and code have been through various bits of initial review by
+    serial driver people but they definitely need to live somewhere for a
+    while so the unconverted drivers can get knocked into shape, existing
+    drivers that have been updated can be better tuned and bugs whacked out.
 
 
-Erik
 
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+So, any recommendations for a better approach?
+
+(please cc replies)
+
+Greg 
+
+

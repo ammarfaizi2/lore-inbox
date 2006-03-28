@@ -1,39 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWC1OUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbWC1OX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbWC1OUY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 09:20:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWC1OUY
+	id S932280AbWC1OX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 09:23:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWC1OX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 09:20:24 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:5793 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932278AbWC1OUX (ORCPT
+	Tue, 28 Mar 2006 09:23:26 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:21409 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932280AbWC1OXZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 09:20:23 -0500
-Date: Tue, 28 Mar 2006 16:20:09 +0200 (MEST)
+	Tue, 28 Mar 2006 09:23:25 -0500
+Date: Tue, 28 Mar 2006 16:22:26 +0200 (MEST)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Eric Piel <Eric.Piel@tremplin-utc.net>, Rob Landley <rob@landley.net>,
-       nix@esperi.org.uk, mmazur@kernel.pl, linux-kernel@vger.kernel.org,
-       llh-discuss@lists.pld-linux.org
-Subject: Re: [RFC][PATCH 0/2] KABI example conversion and cleanup
-In-Reply-To: <5DC72207-3C0B-44C2-A9E5-319C0A965E9D@mac.com>
-Message-ID: <Pine.LNX.4.61.0603281619300.27529@yvahk01.tjqt.qr>
-References: <200603141619.36609.mmazur@kernel.pl> <20060326065205.d691539c.mrmacman_g4@mac.com>
- <4426A5BF.2080804@tremplin-utc.net> <200603261609.10992.rob@landley.net>
- <44271E88.6040101@tremplin-utc.net> <5DC72207-3C0B-44C2-A9E5-319C0A965E9D@mac.com>
+To: David Chinner <dgc@sgi.com>
+cc: Peter Palfrader <peter@palfrader.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16: Oops - null ptr in blk_recount_segments?
+In-Reply-To: <20060327061021.GT1173973@melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.61.0603281621210.27529@yvahk01.tjqt.qr>
+References: <20060327022814.GV25288@asteria.noreply.org>
+ <20060327043601.GE27189130@melbourne.sgi.com> <20060327045823.GW25288@asteria.noreply.org>
+ <20060327061021.GT1173973@melbourne.sgi.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>These diffs:
 >
-> Eh, not really.  "__inline__" is GCC-specific and probably won't work in other
-> compilers (unless you did "#define __inline__", which would bloat the code a
-> lot).
->
-But ___inline is a C99 keyword, isnot it?
+>2006-01-18
+>[XFS] Fix a race in xfs_submit_ioend() where we can ...
+>2006-01-11
+>[XFS] fix writeback control handling fix a reversed ...
+>[XFS] cluster rewrites We can cluster mapped pages ...
+>[...]
 
-
+I bet on the 3rd...
 
 
 Jan Engelhardt

@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWC1EMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWC1EOF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbWC1EMV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Mar 2006 23:12:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWC1EMV
+	id S1751095AbWC1EOF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Mar 2006 23:14:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWC1EOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Mar 2006 23:12:21 -0500
-Received: from rwcrmhc14.comcast.net ([204.127.192.84]:30853 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1750972AbWC1EMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Mar 2006 23:12:20 -0500
-From: Parag Warudkar <kernel-stuff@comcast.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: OOM kills if swappiness set to 0, swap storms otherwise
-Date: Mon, 27 Mar 2006 23:12:17 -0500
-User-Agent: KMail/1.9.1
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-References: <1143510828.1792.353.camel@mindpipe> <20060327195905.7f666cb5.akpm@osdl.org>
-In-Reply-To: <20060327195905.7f666cb5.akpm@osdl.org>
-X-Face: M;&!dfz|m-o'K\Cz\J=6-U&/;8+edm=snaTAX=*NtQpWX@=?utf-8?q?156L1=25mHDt3XI=25X!5Hw3U+pe=0A=09nazcjJnz?=>75*V8\Sz\]3brW#a+Oa,8P7p6L+sVZkP;ZwyeKR0o`*#k2zD&!2Mn,0d3<=?utf-8?q?7qa=0A=096=25?=>g:?bp|XU>`.|?x2l;ounL%k85<JW7G=Df&(@a?]WbFJ{3aEyx4\`#@=?utf-8?q?JXn=7C4Le8c=3BbgI=0A=09JIayR9DG=24hLN8!=5B=5B*=60T=5FY=7Bx?=(y>T/KB"2a|vqpcO*?ngOt-V0Lo5nTA{)=?utf-8?q?k+Pm=7CokhK=60=5BikO=0A=09=3BlvKCYCBdfs=7EQ?=
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Mar 2006 23:14:04 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:6151 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751095AbWC1EOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Mar 2006 23:14:03 -0500
+Date: Tue, 28 Mar 2006 06:14:00 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Mike Galbraith <efault@gmx.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: scheduler starvation resistance patches for 2.6.16
+Message-ID: <20060328041400.GJ21493@w.ods.org>
+References: <1143434125.17567.11.camel@homer>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603272312.18252.kernel-stuff@comcast.net>
+In-Reply-To: <1143434125.17567.11.camel@homer>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 27 March 2006 22:59, Andrew Morton wrote:
-> I'd tentatively say that your options are to put up
-> with the swapping or find a new mail client.
+On Mon, Mar 27, 2006 at 06:35:25AM +0200, Mike Galbraith wrote:
+> Greetings,
+> 
+> Knowing that not everybody runs the latest/greatest mm kernels, I've
+> adapted my scheduler starvation resistance tree to virgin 2.6.16.  Those
+> interested will find seven patches in the attached tarball.
+> 
+> Test feedback much appreciated.
 
-I tried mem=512m , swapoff -a and swappiness=0 and all works fine for me on 
-x86. I use Evolution and Firefox's KDE counterparts - in addition to that 
-Amarok, Kopete and Akregator fit in too.
+Thanks Mike.
 
-Lee - Perhaps you are running fat 64 bit code?
+It will be easier to test, and I'll try to convince some people around
+me to give it a try. Do you expect the exact same behaviour as in -mm ?
 
-Parag
+Regards,
+Willy
+

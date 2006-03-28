@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWC1VFW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWC1VHL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbWC1VFW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 16:05:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWC1VFW
+	id S932180AbWC1VHL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 16:07:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWC1VHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 16:05:22 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:57768 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932171AbWC1VFV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 16:05:21 -0500
-Date: Tue, 28 Mar 2006 23:02:48 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-Subject: Re: PI patch against 2.6.16-rt9
-Message-ID: <20060328210248.GE1217@elte.hu>
-References: <Pine.LNX.4.44L0.0603271501150.20599-100000@lifa03.phys.au.dk> <Pine.LNX.4.44L0.0603280002430.25351-100000@lifa03.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0603280002430.25351-100000@lifa03.phys.au.dk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 28 Mar 2006 16:07:11 -0500
+Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:29798 "HELO
+	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932180AbWC1VHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 16:07:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=OV2XZBszKg/PDsXrb78nqsM/UT0MfZ7hi2jtfeCruhuD2CMT00wI5XjJwHaGhHhmQlrPbZz/RpI9zYTg/j6/laAs+BkahATOPEAFfAB2tZvpIxZt+Ha/xNRsb/oxsfnI29x5Jhj2B6goVterHVf+jbN+WnfirU8Om94CcsD4oGc=  ;
+Message-ID: <44295C17.1050202@yahoo.com.au>
+Date: Wed, 29 Mar 2006 01:53:59 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Herbert Poetzl <herbert@13thfloor.at>
+CC: Kirill Korotaev <dev@sw.ru>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, devel@openvz.org,
+       serue@us.ibm.com, akpm@osdl.org, sam@vilain.net,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Pavel Emelianov <xemul@sw.ru>,
+       Stanislav Protassov <st@sw.ru>
+Subject: Re: [RFC] Virtualization steps
+References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au> <4428FB90.5000601@sw.ru> <4428FEA5.9020808@yahoo.com.au> <20060328153558.GF14576@MAIL.13thfloor.at>
+In-Reply-To: <20060328153558.GF14576@MAIL.13thfloor.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Herbert Poetzl wrote:
+> On Tue, Mar 28, 2006 at 07:15:17PM +1000, Nick Piggin wrote:
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
+[...]
 
-> My girl friend will be angry for me not being to bed yet, but I had to 
-> steal time to make this patch. I hope I managed to send it without 
-> white-space damage or anything like it.
+Thanks for the clarifications, Herbert.
 
-thanks - this looks fine to me, but i'm still worried about the 
-nonatomic chain boosting side-effects that i outlined in the previous 
-mail.
+>>Ie. is there any consensus about the future of these patches?  
+> 
+> 
+> what patches?
 
-the tempting property of your patch is the fundamental reschedulability 
-of the boosting itself - and the resulting simplicity of locking. On the 
-con side, i dont see how we can detect deadlocks reliably, nor how we 
-can avoid 'incorrect boosting' (outlined in the previous mail), if the 
-chain gets 'broken'.
+One's being thrown around lkml, and future ones being talked about.
+Patches ~= changes to kernel.
 
-	Ingo
+> what future?
+
+I presume everyone's goal is to get something into the kernel?
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

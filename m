@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWC1Top@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbWC1TpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751307AbWC1Top (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 14:44:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWC1Top
+	id S1751311AbWC1TpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 14:45:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWC1TpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 14:44:45 -0500
-Received: from xenotime.net ([66.160.160.81]:16020 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751287AbWC1Too (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 14:44:44 -0500
-Date: Tue, 28 Mar 2006 11:46:55 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, linux-acpi@vger.kernel.org
-Subject: [PATCH -mm] acpi: fix memory_hotplug externs
-Message-Id: <20060328114655.05e1933f.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Mar 2006 14:45:09 -0500
+Received: from mga03.intel.com ([143.182.124.21]:50240 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751311AbWC1TpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 14:45:07 -0500
+X-IronPort-AV: i="4.03,139,1141632000"; 
+   d="scan'208"; a="15909109:sNHT11658884965"
+From: "Bob Woodruff" <robert.j.woodruff@intel.com>
+To: "'Roland Dreier'" <rdreier@cisco.com>, <openib-general@openib.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: [openib-general] InfiniBand 2.6.17 merge plans
+Date: Tue, 28 Mar 2006 10:47:36 -0800
+Message-ID: <000001c65298$170359c0$010fa8c0@amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AcZR2MD/qxqEIZkISGey8phJRHf05QAvoqUg
+In-Reply-To: <ada7j6f8xwi.fsf@cisco.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+X-OriginalArrivalTime: 28 Mar 2006 18:47:40.0622 (UTC) FILETIME=[174F56E0:01C65298]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+Roland wrote, 
+>   - userspace RDMA CM, which exports the abstraction to userspace.
+>     The feeling is that this interface needs more time to mature.
 
-Spell CONFIG option correctly so that externs work.
-Fixes these warnings:
-drivers/acpi/acpi_memhotplug.c:248: warning: implicit declaration of function 'add_memory'
-drivers/acpi/acpi_memhotplug.c:312: warning: implicit declaration of function 'remove_memory'
+The userspace RDMA-CM is currently being used by uDAPL and seems to 
+work fine for that application. Our testing so far shows that the code is
+stable. However, uDAPL also has a socket based mechanism that can used until
+the CMA 
+is merged. If others think it still needs more time to mature, then uDAPL
+has an interim solution.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- linsrc/linux-2616-mm2/include/linux/memory_hotplug.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+my 2 cents on this one.
 
---- rddunlap.orig/linsrc/linux-2616-mm2/include/linux/memory_hotplug.h
-+++ rddunlap/linsrc/linux-2616-mm2/include/linux/memory_hotplug.h
-@@ -105,7 +105,7 @@ static inline int __remove_pages(struct 
- }
- 
- #if defined(CONFIG_MEMORY_HOTPLUG) || defined(CONFIG_ACPI_HOTPLUG_MEMORY) \
--	|| defined(CONFIG_ACPI_MEMORY_HOTPLUG_MODULE)
-+	|| defined(CONFIG_ACPI_HOTPLUG_MEMORY_MODULE)
- extern int add_memory(u64 start, u64 size);
- extern int remove_memory(u64 start, u64 size);
- #endif
-
-
----
+woody

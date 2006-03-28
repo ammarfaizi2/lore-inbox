@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWC1RSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWC1RRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbWC1RSO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 12:18:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWC1RSO
+	id S1751167AbWC1RRx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 12:17:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWC1RRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 12:18:14 -0500
-Received: from main.gmane.org ([80.91.229.2]:11443 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751191AbWC1RSM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 12:18:12 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ben Pfaff <blp@cs.stanford.edu>
-Subject: Re: [RFC][PATCH 0/2] KABI example conversion and cleanup
-Date: Tue, 28 Mar 2006 09:16:40 -0800
-Message-ID: <87hd5iebgn.fsf@benpfaff.org>
-References: <200603141619.36609.mmazur@kernel.pl>
-	<20060326065205.d691539c.mrmacman_g4@mac.com>
-	<4426A5BF.2080804@tremplin-utc.net>
-	<200603261609.10992.rob@landley.net>
-	<44271E88.6040101@tremplin-utc.net>
-	<5DC72207-3C0B-44C2-A9E5-319C0A965E9D@mac.com>
-	<Pine.LNX.4.61.0603281619300.27529@yvahk01.tjqt.qr>
-Reply-To: blp@cs.stanford.edu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: c-24-7-50-23.hsd1.ca.comcast.net
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-Cancel-Lock: sha1:XW7JxSGJk5i3ea4WnCNjjirh8UA=
+	Tue, 28 Mar 2006 12:17:53 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:61475 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1751167AbWC1RRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 12:17:53 -0500
+In-Reply-To: <20060328184305.6fe7f1b5@inspiron>
+References: <20060318171946.821316000@towertech.it> <4487A3AA-AA9A-4B14-B8E1-7A63AEE711EC@kernel.crashing.org> <20060328184305.6fe7f1b5@inspiron>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <19E77D21-1080-48D4-A68C-923E0CD298B3@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH 00/18] RTC subsystem
+Date: Tue, 28 Mar 2006 11:17:51 -0600
+To: Alessandro Zummo <alessandro.zummo@towertech.it>
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
 
->> Eh, not really.  "__inline__" is GCC-specific and probably won't work in other
->> compilers (unless you did "#define __inline__", which would bloat the code a
->> lot).
+On Mar 28, 2006, at 10:43 AM, Alessandro Zummo wrote:
+
+> On Tue, 28 Mar 2006 10:25:59 -0600
+> Kumar Gala <galak@kernel.crashing.org> wrote:
+>
 >>
-> But ___inline is a C99 keyword, isnot it?
+>> Alessandro, is there any mechanism to determine if an RTC is enabled
+>> through /dev or sysfs?
+>>
+>> The DS1672 has an enable counting bit in its I2C register interface.
+>> I can have a set time enable it if its not, however I'd like to
+>> report to user space the fact that its not enabled.
+>
+>  No mechanism, an rtc is actually supposed to be running. You may want
+>  to export a sysfs attribute from the ds1672 driver to inform
+>  user space.
 
-___inline is not, but inline is.
--- 
-"Platonically Evil Monkey has been symbolically representing the darkest 
- fears of humanity since the dawn of literature and religion, and I think
- I speak for everyone when I give it a sidelong glance of uneasy recognition 
- this evening." --Scrymarch
+Any suggestions on what to call it?
+
+>  I can't check it right now, but iirc I enable the ds1672 counting
+>  bit in the driver init code.
+
+Hmm, I didn't see that.  I was going to send a patch to have  
+ds1672_set_mmss() always enable the counting bit.
+
+- kumar
 

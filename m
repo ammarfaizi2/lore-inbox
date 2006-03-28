@@ -1,115 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWC1Gpk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbWC1HCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbWC1Gpk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 01:45:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWC1Gpk
+	id S1750793AbWC1HCe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 02:02:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbWC1HCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 01:45:40 -0500
-Received: from [62.205.161.221] ([62.205.161.221]:59338 "EHLO kir.sacred.ru")
-	by vger.kernel.org with ESMTP id S932240AbWC1Gpj (ORCPT
+	Tue, 28 Mar 2006 02:02:34 -0500
+Received: from smop.co.uk ([81.5.177.201]:12190 "EHLO hades.smop.co.uk")
+	by vger.kernel.org with ESMTP id S1750793AbWC1HCd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 01:45:39 -0500
-Message-ID: <4428DB76.9040102@openvz.org>
-Date: Tue, 28 Mar 2006 10:45:10 +0400
-From: Kir Kolyshkin <kir@openvz.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060217)
-X-Accept-Language: en-us, en
+	Tue, 28 Mar 2006 02:02:33 -0500
+Date: Tue, 28 Mar 2006 08:02:20 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-mm1 leaks in dvb playback
+Message-ID: <20060328070220.GA29429@smop.co.uk>
+Reply-To: adrian@smop.co.uk
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20060326211514.GA19287@wyvern.smop.co.uk> <20060327172356.7d4923d2.akpm@osdl.org>
 MIME-Version: 1.0
-To: devel@openvz.org
-CC: Dave Hansen <haveblue@us.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, herbert@13thfloor.at, sam@vilain.net,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, serue@us.ibm.com
-Subject: Re: [Devel] Re: [RFC] Virtualization steps
-References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>	<1143228339.19152.91.camel@localhost.localdomain> <4428BB5C.3060803@tmr.com>
-In-Reply-To: <4428BB5C.3060803@tmr.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060327172356.7d4923d2.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
+From: adrian <adrian@smop.co.uk>
+X-smop.co.uk-MailScanner: Found to be clean
+X-smop.co.uk-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.705,
+	required 5, autolearn=not spam, AWL -0.10, BAYES_00 -2.60,
+	NO_RELAYS -0.00)
+X-smop.co.uk-MailScanner-From: adrian@smop.co.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
+On Mon, Mar 27, 2006 at 17:23:56 -0800 (-0800), Andrew Morton wrote:
+> 
+> Do you mean that the problem has been present in -mm kernels since the
+> 2.6.14/15 timeframe, and not in mainline?
 
-> Dave Hansen wrote:
->
->> On Sat, 2006-03-25 at 04:33 +1100, Nick Piggin wrote:
->>
->>> Oh, after you come to an agreement and start posting patches, can you
->>> also outline why we want this in the kernel (what it does that low
->>> level virtualization doesn't, etc, etc) 
->>
->>
->> Can you wait for an OLS paper? ;)
->>
->> I'll summarize it this way: low-level virtualization uses resource
->> inefficiently.
->>
->> With this higher-level stuff, you get to share all of the Linux caching,
->> and can do things like sharing libraries pretty naturally.
->>
->> They are also much lighter-weight to create and destroy than full
->> virtual machines.  We were planning on doing some performance
->> comparisons versus some hypervisors like Xen and the ppc64 one to show
->> scaling with the number of virtualized instances.  Creating 100 of these
->> Linux containers is as easy as a couple of shell scripts, but we still
->> can't find anybody crazy enough to go create 100 Xen VMs.
->
->
-> But these require a modified O/S, do they not? Or do I read that 
-> incorrectly? Is this going to be real virtualization able to run any O/S?
+Correct.
 
-This type is called OS-level virtualization, or kernel-level 
-virtualization, or partitioning. Basically it allows to create a 
-compartments (in OpenVZ we call them VEs -- Virtual Environments) in 
-which you can run full *unmodified* Linux system (but the kernel itself 
--- it is one single kernel common for all compartments). That means that 
-with this approach you can not run OSs other than Linux, but different 
-Linux distributions are working just fine.
+> Strange.  Are you sure that they really leak?  Doing
+> 
+> 	echo 3 > /proc/sys/vm/drop_caches
+> 
+> doesn't make them go away?
 
-> Frankly I don't see running 100 VMs as a realistic goal
+dentry_cache drops a little bit, but the vast majority stays.
+sock_inode_cache I didn't notice drop.  If I don't reboot every
+15/20mins the machine suddenly starts thrashing like mad and then
+effectively locks up :-(
 
-It is actually not a future goal, but rather a reality. Since os-level 
-virtualization overhead is very low (1-2 per cent or so), one can run 
-hundreds of VEs.
+Last night I tried reverting the dvb-core ringbuffer part of -mm1 and
+that didn't seem to help at all.  
 
-Say, on a box with 1GB of RAM OpenVZ [http://openvz.org/] is able to run 
-about 150 VEs each one having init, apache (serving static content), 
-sendmail, sshd, cron etc. running. Actually you can run more, but with 
-the aggressive swapping so performance drops considerably. So it all 
-mostly depends on RAM, and I'd say that 500+ VEs on a 4GB box should run 
-just fine. Of course it all depends on what you run inside those VEs.
+I've just tried 2.6.16 with just the origin.patch from -mm1 and that
+has the same leak in it.   So it looks like I should have spotted this
+earlier before it was pushed into 2.6.16+  Just double checked and
+in 2.5.16 sock_inode_cache isn't even on the slabtop screen.
 
-> , being able to run Linux, Windows, Solaris and BEOS unmodified in 4-5 
-> VMs would be far more useful.
+I suppose that leads to a new question - what's the easiest way to
+start to break down origin.patch and do you know of any likely
+culprits?  I see Andi Kleen has seen dentry_cache leaking on x86_64
+(this machine is x86(_32) uni processor. 
 
-This is a different story. If you want to run different OSs on the same 
-box -- use emulation or paravirtualization.
+Thanks for your help,
 
-If you are happy to stick to Linux on this box -- use OS-level 
-virtualization. Aside from the best possible scalability and 
-performance, the other benefit of this approach is dynamic resource 
-management -- since there is a single kernel managing all the resources 
-such as RAM, you can easily tune all those resources runtime. More to 
-say, you can make one VE use more RAM while nobody else it using it, 
-leading to much better resource usage. And since there is one single 
-kernel that manages everything, you could do nice tricks like VE 
-checkpointing, live migration, etc. etc.
-
-Some more info on topic are available from 
-http://openvz.org/documentation/tech/
-
-Kir.
-
->>
->> Anyway, those are the things that came to my mind first.  I'm sure the
->> others involved have their own motivations.
->>
->> -- Dave
->>
->
-> _______________________________________________
-> Devel mailing list
-> Devel@openvz.org
-> https://openvz.org/mailman/listinfo/devel
-
-
+Adrian

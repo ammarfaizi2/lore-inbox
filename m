@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWC1JRW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWC1JSz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbWC1JRW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 04:17:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWC1JRW
+	id S1751245AbWC1JSz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 04:18:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWC1JSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 04:17:22 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38295 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751239AbWC1JRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 04:17:22 -0500
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       xemul@sw.ru, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
-       herbert@13thfloor.at, devel@openvz.org, serue@us.ibm.com,
-       sam@vilain.net
-Subject: Re: [RFC][PATCH 1/2] Virtualization of UTS
-References: <44242B1B.1080909@sw.ru> <44242CE7.3030905@sw.ru>
-	<m18xqzk6cy.fsf@ebiederm.dsl.xmission.com> <442449F8.4050808@sw.ru>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 27 Mar 2006 12:40:50 -0700
-In-Reply-To: <442449F8.4050808@sw.ru> (Kirill Korotaev's message of "Fri, 24
- Mar 2006 22:35:20 +0300")
-Message-ID: <m1bqvrekvx.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 28 Mar 2006 04:18:55 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:58803 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751245AbWC1JSy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 04:18:54 -0500
+Date: Tue, 28 Mar 2006 11:18:29 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-serial@vger.kernel.org
+Subject: Re: 2.6.16-mm1
+In-Reply-To: <20060324195917.GA32098@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0603281117530.16802@scrub.home>
+References: <20060323014046.2ca1d9df.akpm@osdl.org> <6bffcb0e0603230631r5e6cc3d3p@mail.gmail.com>
+ <20060323144922.GA25849@flint.arm.linux.org.uk> <Pine.LNX.4.64.0603241140350.16802@scrub.home>
+ <20060324195917.GA32098@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev <dev@sw.ru> writes:
+Hi,
 
->>> This patch introduces utsname namespace in system, which allows to have
->>> different utsnames on the host.
->>> Introduces config option CONFIG_UTS_NS and uts_namespace structure for this.
->> Ok.  It looks like we need to resolve the sysctl issues before we merge
->> either patch, into the stable kernel.
-> I disagree with you. Right now we can have sysctl and proc for init namespaces
-> only.
-> And when sysctl and proc are virtualized somehow, we can fix all these.
-> I simply don't expect /proc and sysctl to be done quickly. As we have very
-> different approaches. And there is no any consensus. Why not to commit
-> working/agreed parts then?
+On Fri, 24 Mar 2006, Russell King wrote:
 
-So for planning purposes.  I don't think we can even if we ignore sysctl
-and proc have an implementation that we all agree is stable and safe
-before 2.6.17 merge window closes.  I do think if we get our act
-together something that works and is tested when the 2.6.18 window
-opens is very reasonable.  (Limited to UTS and sysvipc with other work
-waiting until later).
+> the correct way to tell Kconfig to give us that is:
+> 
+> +config SERIAL_8250_PCI
+> +       tristate "8250/16550 PCI device support" if EMBEDDED
+> +       depends on SERIAL_8250 && PCI
+> +       default SERIAL_8250
+> +       help
+> +         This builds standard PCI serial support. You may be able to
+> +         disable this feature if you only need legacy serial support.
+> +         Saves about 9K.
+> 
+> ?
 
-Does that sound like a reasonable and achievable goal?
+Yes, this should do it.
 
-Eric
+bye, Roman

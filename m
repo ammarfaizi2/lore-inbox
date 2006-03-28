@@ -1,85 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWC1Syf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWC1S64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751193AbWC1Syf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 13:54:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbWC1Syf
+	id S1751255AbWC1S64 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 13:58:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWC1S64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 13:54:35 -0500
-Received: from mail19.bluewin.ch ([195.186.18.65]:13041 "EHLO
-	mail19.bluewin.ch") by vger.kernel.org with ESMTP id S1751193AbWC1Sye
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 13:54:34 -0500
-Date: Tue, 28 Mar 2006 20:53:56 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, vda@ilport.com.ua, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] via-rhine: link state fix
-Message-ID: <20060328185356.GA22278@k3.hellgate.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux 2.6.16 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.11
+	Tue, 28 Mar 2006 13:58:56 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:4138 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1751250AbWC1S6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 13:58:55 -0500
+In-Reply-To: <c0a09e5c0603281044i57730c66ye08c45aadd352cf8@mail.gmail.com>
+References: <20060311022759.3950.58788.stgit@gitlost.site> <20060311022919.3950.43835.stgit@gitlost.site> <2FF801BB-F96C-4864-AC44-09B4B92531F7@kernel.crashing.org> <c0a09e5c0603281044i57730c66ye08c45aadd352cf8@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <D760971F-3C6A-400B-99EA-E95358B37F82@kernel.crashing.org>
+Cc: "Chris Leech" <christopher.leech@intel.com>,
+       "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH 1/8] [I/OAT] DMA memcpy subsystem
+Date: Tue, 28 Mar 2006 12:58:57 -0600
+To: Andrew Grover <andy.grover@gmail.com>
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problems with link state detection have been reported several times in the
-past months.
 
-Denis Vlasenko did all the work tracking it down. Jeff Garzik suggested the
-proper place for the fix.
+On Mar 28, 2006, at 12:44 PM, Andrew Grover wrote:
 
-When using the mii library, the driver needs to check mii->force_media
-and set dev->state accordingly.
+> On 3/16/06, Kumar Gala <galak@kernel.crashing.org> wrote:
+>> It would seem that when a client registers (or shortly there after
+>> when they call dma_async_client_chan_request()) they would expect to
+>> get the number of channels they need by some given time period.
+>>
+>> For example, lets say a client registers but no dma device exists.
+>> They will never get called to be aware of this condition.
+>>
+>> I would think most clients would either spin until they have all the
+>> channels they need or fall back to a non-async mechanism.
+>
+> Clients *are* expected to fall back to non-async if they are not given
+> channels. The reason it was implemented with callbacks for
+> added/removed was that the client may be initializing before the
+> channels are enumerated. For example, the net subsystem will ask for
+> channels and not get them for a while, until the ioatdma PCI device is
+> found and its driver loads. In this scenario, we'd like the net
+> subsystem to be given these channels, instead of them going unused.
 
-Roger
+Fair, I need to think on that a little more.
 
-Signed-off-by: Roger Luethi <rl@hellgate.ch>
+>> Also, what do you think about adding an operation type (MEMCPY, XOR,
+>> CRYPTO_AES, etc).  We can than validate if the operation type
+>> expected is supported by the devices that exist.
+>
+> No objections, but this speculative support doesn't need to be in our
+> initial patchset.
 
---- linux-2.6.15.6/drivers/net/via-rhine.c.orig	2006-03-12 13:32:16.000000000 +0100
-+++ linux-2.6.15.6/drivers/net/via-rhine.c	2006-03-12 22:01:36.000000000 +0100
-@@ -1085,6 +1085,25 @@
- 	else
- 	    iowrite8(ioread8(ioaddr + ChipCmd1) & ~Cmd1FDuplex,
- 		   ioaddr + ChipCmd1);
-+	if (debug > 1)
-+		printk(KERN_INFO "%s: force_media %d, carrier %d\n", dev->name,
-+			rp->mii_if.force_media, netif_carrier_ok(dev));
-+}
-+
-+/* Called after status of force_media possibly changed */
-+void rhine_set_carrier(struct mii_if_info *mii)
-+{
-+	if (mii->force_media) {
-+		/* autoneg is off: Link is always assumed to be up */
-+		if (!netif_carrier_ok(mii->dev))
-+			netif_carrier_on(mii->dev);
-+	}
-+	else	/* Let MMI library update carrier status */
-+		rhine_check_media(mii->dev, 0);
-+	if (debug > 1)
-+		printk(KERN_INFO "%s: force_media %d, carrier %d\n",
-+		       mii->dev->name, mii->force_media,
-+		       netif_carrier_ok(mii->dev));
- }
- 
- static void rhine_check_media_task(struct net_device *dev)
-@@ -1782,6 +1801,7 @@
- 	spin_lock_irq(&rp->lock);
- 	rc = mii_ethtool_sset(&rp->mii_if, cmd);
- 	spin_unlock_irq(&rp->lock);
-+	rhine_set_carrier(&rp->mii_if);
- 
- 	return rc;
- }
-@@ -1869,6 +1889,7 @@
- 	spin_lock_irq(&rp->lock);
- 	rc = generic_mii_ioctl(&rp->mii_if, if_mii(rq), cmd, NULL);
- 	spin_unlock_irq(&rp->lock);
-+	rhine_set_carrier(&rp->mii_if);
- 
- 	return rc;
- }
+I don't consider it speculative.  The patch is for a generic DMA  
+engine interface.  That interface should encompass all users.  I have  
+a security/crypto DMA engine that I'd like to front with the generic  
+DMA interface today.  Also, I believe there is another Intel group  
+with an XOR engine that had a similar concept called ADMA posted a  
+while ago.
+
+http://marc.theaimsgroup.com/?t=112603120100004&r=1&w=2
+
+>> Shouldn't we also have a dma_async_client_chan_free()?
+>
+> Well we could just define it to be chan_request(0) but it doesn't seem
+> to be needed. Also, the allocation mechanism we have for channels is
+> different from alloc/free's semantics, so it may be best to not muddy
+> the water in this area.
+
+Can you explain what the semantics are.
+
+It's been a little while since I posted so my thoughts on the subject  
+are going to take a little while to come back to me :)
+
+- kumar

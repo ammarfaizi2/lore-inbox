@@ -1,162 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWC1XAB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWC1XAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbWC1XAB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 18:00:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWC1W7M
+	id S964781AbWC1XAA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 18:00:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWC1W7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 17:59:12 -0500
-Received: from [198.99.130.12] ([198.99.130.12]:19651 "EHLO
+	Tue, 28 Mar 2006 17:59:14 -0500
+Received: from [198.99.130.12] ([198.99.130.12]:23235 "EHLO
 	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S964785AbWC1W7C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S964781AbWC1W7C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 28 Mar 2006 17:59:02 -0500
-Message-Id: <200603282300.k2SN06sL022972@ccure.user-mode-linux.org>
+Message-Id: <200603282300.k2SN0Fci022997@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
 To: akpm@osdl.org
 cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
        viro@zeniv.linux.org.uk
-Subject: [PATCH 3/10] UML - Eliminate symlinks to host arch
+Subject: [PATCH 8/10] UML - __user annotations
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 28 Mar 2006 18:00:06 -0500
+Date: Tue, 28 Mar 2006 18:00:15 -0500
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
 
-uml: kills symlinks in arch/um/sys-*
+uml: __user annotations (hppfs)
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
- arch/um/Makefile-x86_64        |    2 +-
- arch/um/scripts/Makefile.rules |   26 ++++----------------------
- arch/um/sys-i386/Makefile      |   17 +++++------------
- arch/um/sys-x86_64/Makefile    |   28 +++++++++-------------------
- 4 files changed, 19 insertions(+), 54 deletions(-)
+ fs/hppfs/hppfs_kern.c |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/arch/um/Makefile-x86_64 b/arch/um/Makefile-x86_64
-index 38df311..dfd88b6 100644
---- a/arch/um/Makefile-x86_64
-+++ b/arch/um/Makefile-x86_64
-@@ -1,7 +1,7 @@
- # Copyright 2003 - 2004 Pathscale, Inc
- # Released under the GPL
+diff --git a/fs/hppfs/hppfs_kern.c b/fs/hppfs/hppfs_kern.c
+index a44dc58..8469826 100644
+--- a/fs/hppfs/hppfs_kern.c
++++ b/fs/hppfs/hppfs_kern.c
+@@ -216,10 +216,10 @@ static struct dentry *hppfs_lookup(struc
+ static struct inode_operations hppfs_file_iops = {
+ };
  
--libs-y += arch/um/sys-x86_64/
-+core-y += arch/um/sys-x86_64/
- START := 0x60000000
+-static ssize_t read_proc(struct file *file, char *buf, ssize_t count,
++static ssize_t read_proc(struct file *file, char __user *buf, ssize_t count,
+ 			 loff_t *ppos, int is_user)
+ {
+-	ssize_t (*read)(struct file *, char *, size_t, loff_t *);
++	ssize_t (*read)(struct file *, char __user *, size_t, loff_t *);
+ 	ssize_t n;
  
- #We #undef __x86_64__ for kernelspace, not for userspace where
-diff --git a/arch/um/scripts/Makefile.rules b/arch/um/scripts/Makefile.rules
-index 2e41cab..b696b45 100644
---- a/arch/um/scripts/Makefile.rules
-+++ b/arch/um/scripts/Makefile.rules
-@@ -20,25 +20,7 @@ define unprofile
- 	$(patsubst -pg,,$(patsubst -fprofile-arcs -ftest-coverage,,$(1)))
- endef
+ 	read = file->f_dentry->d_inode->i_fop->read;
+@@ -236,7 +236,7 @@ static ssize_t read_proc(struct file *fi
+ 	return n;
+ }
  
--
--# cmd_make_link checks to see if the $(foo-dir) variable starts with a /.  If
--# so, it's considered to be a path relative to $(srcdir) rather than
--# $(srcdir)/arch/$(SUBARCH).  This is because x86_64 wants to get ldt.c from
--# arch/um/sys-i386 rather than arch/i386 like the other borrowed files.  So,
--# it sets $(ldt.c-dir) to /arch/um/sys-i386.
--quiet_cmd_make_link = SYMLINK $@
--cmd_make_link       = rm -f $@; ln -sf $(srctree)$(if $(filter-out /%,$($(notdir $@)-dir)),/arch/$(SUBARCH))/$($(notdir $@)-dir)/$(notdir $@) $@
--
--# this needs to be before the foreach, because targets does not accept
--# complete paths like $(obj)/$(f). To make sure this works, use a := assignment
--# or we will get $(obj)/$(f) in the "targets" value.
--# Also, this forces you to use the := syntax when assigning to targets.
--# Otherwise the line below will cause an infinite loop (if you don't know why,
--# just do it).
--
--targets := $(targets) $(SYMLINKS)
--
--SYMLINKS := $(foreach f,$(SYMLINKS),$(obj)/$(f))
--
--$(SYMLINKS): FORCE
--	$(call if_changed,make_link)
-+ifdef subarch-obj-y
-+obj-y += subarch.o
-+subarch-y = $(addprefix ../../$(SUBARCH)/,$(subarch-obj-y))
-+endif
-diff --git a/arch/um/sys-i386/Makefile b/arch/um/sys-i386/Makefile
-index f5fd5b0..1c89f43 100644
---- a/arch/um/sys-i386/Makefile
-+++ b/arch/um/sys-i386/Makefile
-@@ -1,23 +1,16 @@
--obj-y := bitops.o bugs.o checksum.o delay.o fault.o ksyms.o ldt.o ptrace.o \
--	ptrace_user.o semaphore.o signal.o sigcontext.o syscalls.o sysrq.o \
--	sys_call_table.o
-+obj-y = bugs.o checksum.o delay.o fault.o ksyms.o ldt.o ptrace.o \
-+	ptrace_user.o signal.o sigcontext.o syscalls.o sysrq.o sys_call_table.o
+-static ssize_t hppfs_read_file(int fd, char *buf, ssize_t count)
++static ssize_t hppfs_read_file(int fd, char __user *buf, ssize_t count)
+ {
+ 	ssize_t n;
+ 	int cur, err;
+@@ -274,7 +274,7 @@ static ssize_t hppfs_read_file(int fd, c
+ 	return n;
+ }
  
- obj-$(CONFIG_MODE_SKAS) += stub.o stub_segv.o
+-static ssize_t hppfs_read(struct file *file, char *buf, size_t count,
++static ssize_t hppfs_read(struct file *file, char __user *buf, size_t count,
+ 			  loff_t *ppos)
+ {
+ 	struct hppfs_private *hppfs = file->private_data;
+@@ -313,12 +313,12 @@ static ssize_t hppfs_read(struct file *f
+ 	return(count);
+ }
  
--obj-$(CONFIG_HIGHMEM) += highmem.o
--obj-$(CONFIG_MODULES) += module.o
-+subarch-obj-y = lib/bitops.o kernel/semaphore.o
-+subarch-obj-$(CONFIG_HIGHMEM) += mm/highmem.o
-+subarch-obj-$(CONFIG_MODULES) += kernel/module.o
+-static ssize_t hppfs_write(struct file *file, const char *buf, size_t len,
++static ssize_t hppfs_write(struct file *file, const char __user *buf, size_t len,
+ 			   loff_t *ppos)
+ {
+ 	struct hppfs_private *data = file->private_data;
+ 	struct file *proc_file = data->proc_file;
+-	ssize_t (*write)(struct file *, const char *, size_t, loff_t *);
++	ssize_t (*write)(struct file *, const char __user *, size_t, loff_t *);
+ 	int err;
  
- USER_OBJS := bugs.o ptrace_user.o sigcontext.o fault.o stub_segv.o
+ 	write = proc_file->f_dentry->d_inode->i_fop->write;
+@@ -658,7 +658,7 @@ static struct super_operations hppfs_sbo
+ 	.statfs		= hppfs_statfs,
+ };
  
--SYMLINKS = bitops.c semaphore.c highmem.c module.c
--
- include arch/um/scripts/Makefile.rules
- 
--bitops.c-dir = lib
--semaphore.c-dir = kernel
--highmem.c-dir = mm
--module.c-dir = kernel
--
- $(obj)/stub_segv.o : _c_flags = $(call unprofile,$(CFLAGS))
- 
- include arch/um/scripts/Makefile.unmap
-diff --git a/arch/um/sys-x86_64/Makefile b/arch/um/sys-x86_64/Makefile
-index a351091..fd19211 100644
---- a/arch/um/sys-x86_64/Makefile
-+++ b/arch/um/sys-x86_64/Makefile
-@@ -4,30 +4,20 @@
- # Licensed under the GPL
- #
- 
--#XXX: why into lib-y?
--lib-y = bitops.o bugs.o csum-partial.o delay.o fault.o ldt.o mem.o memcpy.o \
--	ptrace.o ptrace_user.o sigcontext.o signal.o syscalls.o \
--	syscall_table.o sysrq.o thunk.o
--lib-$(CONFIG_MODE_SKAS) += stub.o stub_segv.o
-+obj-y = bugs.o delay.o fault.o ldt.o mem.o ptrace.o ptrace_user.o \
-+	sigcontext.o signal.o syscalls.o syscall_table.o sysrq.o ksyms.o
- 
--obj-y := ksyms.o
--obj-$(CONFIG_MODULES) += module.o um_module.o
-+obj-$(CONFIG_MODE_SKAS) += stub.o stub_segv.o
-+obj-$(CONFIG_MODULES) += um_module.o
- 
--USER_OBJS := ptrace_user.o sigcontext.o stub_segv.o
-+subarch-obj-y = lib/bitops.o lib/csum-partial.o lib/memcpy.o lib/thunk.o
-+subarch-obj-$(CONFIG_MODULES) += kernel/module.o
- 
--SYMLINKS = bitops.c csum-copy.S csum-partial.c csum-wrappers.c ldt.c memcpy.S \
--	thunk.S module.c
-+ldt-y = ../sys-i386/ldt.o
- 
--include arch/um/scripts/Makefile.rules
-+USER_OBJS := ptrace_user.o sigcontext.o stub_segv.o
- 
--bitops.c-dir = lib
--csum-copy.S-dir = lib
--csum-partial.c-dir = lib
--csum-wrappers.c-dir = lib
--ldt.c-dir = /arch/um/sys-i386
--memcpy.S-dir = lib
--thunk.S-dir = lib
--module.c-dir = kernel
-+include arch/um/scripts/Makefile.rules
- 
- $(obj)/stub_segv.o: _c_flags = $(call unprofile,$(CFLAGS))
- 
+-static int hppfs_readlink(struct dentry *dentry, char *buffer, int buflen)
++static int hppfs_readlink(struct dentry *dentry, char __user *buffer, int buflen)
+ {
+ 	struct file *proc_file;
+ 	struct dentry *proc_dentry;
 

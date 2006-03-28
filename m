@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbWC1F0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWC1F0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751328AbWC1F0M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 00:26:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWC1F0M
+	id S1751246AbWC1F0W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 00:26:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWC1F0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 00:26:12 -0500
-Received: from ozlabs.org ([203.10.76.45]:33412 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751328AbWC1F0L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 00:26:11 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 28 Mar 2006 00:26:22 -0500
+Received: from watts.utsl.gen.nz ([202.78.240.73]:53900 "EHLO
+	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S1751330AbWC1F0V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 00:26:21 -0500
+Subject: Re: [RFC][PATCH 2/2] Virtualization of IPC
+From: Sam Vilain <sam@vilain.net>
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       xemul@sw.ru, ebiederm@xmission.com, linux-kernel@vger.kernel.org,
+       devel@openvz.org, serue@us.ibm.com
+In-Reply-To: <20060324212713.GC22308@MAIL.13thfloor.at>
+References: <44242B1B.1080909@sw.ru> <44242DFE.3090601@sw.ru>
+	 <1143227600.19152.81.camel@localhost.localdomain>
+	 <20060324212713.GC22308@MAIL.13thfloor.at>
+Content-Type: text/plain
+Date: Tue, 28 Mar 2006 17:26:30 +1200
+Message-Id: <1143523590.7156.22.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17448.51252.937620.740306@cargo.ozlabs.ibm.com>
-Date: Tue, 28 Mar 2006 16:23:00 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Cc: cbe-oss-dev@ozlabs.org, Arnd Bergmann <abergman@de.ibm.com>,
-       linuxppc-dev@ozlabs.org, "Ryan S. Arnold" <rsa@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [updated patch 1/2] powerpc: hvc_console updates
-In-Reply-To: <200603272125.16871.arnd.bergmann@de.ibm.com>
-References: <20060323203423.620978000@dyn-9-152-242-103.boeblingen.de.ibm.com>
-	<20060323203520.909999000@dyn-9-152-242-103.boeblingen.de.ibm.com>
-	<17447.25413.486950.115568@cargo.ozlabs.ibm.com>
-	<200603272125.16871.arnd.bergmann@de.ibm.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann writes:
+On Fri, 2006-03-24 at 22:27 +0100, Herbert Poetzl wrote:
+> maybe we should put all that stuff on a wiki too?
 
-> These are some updates from both Ryan and Arnd for the hvc_console
-> driver:
+Good heavens, for the love of life and everything pure and good in the
+world, no!
 
-...
+Perhaps we can get a kernel.org git tree?  Each submission can be put in
+as seperate branches.
 
-> From: "Ryan S. Arnold" <rsa@us.ibm.com>
-> Signed-off-by: "Ryan S. Arnold" <rsa@us.ibm.com>
-> Signed-off-by: Arnd Bergmann <abergman@de.ibm.com>
+For instance I have already been doing this for several submissions, see
 
-Arnd, please put the From: line as the first non-blank line in the
-email body.  That way the git tools will handle it automatically and I
-won't have to edit things by hand.
+  http://vserver.utsl.gen.nz/gitweb/?p=vserver;a=heads
 
-Thanks,
-Paul.
+This doesn't include Dave's or Kirill's patches yet (as of -0328T15:53
++12).
+
+OK, now it does (as of -0328T17:23+12).
+
+I am more than happy to continue to track people's submissions in this
+way, but they probably belong on kernel.org
+
+Sam.
+

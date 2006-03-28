@@ -1,67 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWC1PGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbWC1PHP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbWC1PGe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 10:06:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWC1PGe
+	id S1750846AbWC1PHP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 10:07:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWC1PHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 10:06:34 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39322 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750732AbWC1PGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 10:06:34 -0500
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Kirill Korotaev <dev@sw.ru>, Dave Hansen <haveblue@us.ibm.com>,
-       linux-kernel@vger.kernel.org, herbert@13thfloor.at, devel@openvz.org,
-       serue@us.ibm.com, akpm@osdl.org, sam@vilain.net,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Pavel Emelianov <xemul@sw.ru>,
-       Stanislav Protassov <st@sw.ru>
-Subject: Re: [RFC] Virtualization steps
-References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>
-	<1143228339.19152.91.camel@localhost.localdomain>
-	<4428BB5C.3060803@tmr.com> <4428FB2B.8070805@sw.ru>
-	<44294B33.3040507@tmr.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 28 Mar 2006 08:03:34 -0700
-In-Reply-To: <44294B33.3040507@tmr.com> (Bill Davidsen's message of "Tue, 28
- Mar 2006 09:41:55 -0500")
-Message-ID: <m1d5g6d321.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 28 Mar 2006 10:07:15 -0500
+Received: from web30602.mail.mud.yahoo.com ([68.142.200.125]:37781 "HELO
+	web30602.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750809AbWC1PHN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 10:07:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=4bkwdz/E40yhnYuOh7e0Af7w6Defo7mp82QuF5Cf6QbhMHx0Wl3ixsVyDsMHru2mQIn6+K3+dNFc9wHHYJfIm6brwoupAuHIYaYGcjGJtuxOnCeBjnhWQNtZotsctXjGdNQTntpHYqr6nqJYJg4zxIcTWrjJZxant5vtO7DMG6M=  ;
+Message-ID: <20060328150712.85169.qmail@web30602.mail.mud.yahoo.com>
+Date: Tue, 28 Mar 2006 17:07:12 +0200 (CEST)
+From: zine el abidine Hamid <zine46@yahoo.fr>
+Subject: Re: Detecting I/O error and Halting System
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1143478556.4970.37.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen <davidsen@tmr.com> writes:
+First of all, thank you for your analysis.
 
-> Kirill Korotaev wrote:
->
->>> Frankly I don't see running 100 VMs as a realistic goal, being able to run
->>> Linux, Windows, Solaris and BEOS unmodified in 4-5 VMs would be far more
->>> useful.
->>
->> It is more than realistic. Hosting companies run more than 100 VPSs in
->> reality. There are also other usefull scenarios. For example, I know the
->> universities which run VPS for every faculty web site, for every department,
->> mail server and so on. Why do you think they want to run only 5VMs on one
->> machine? Much more!
->
-> I made no commont on what "they" might want, I want to make the rack of
-> underutilized Windows, BSD and Solaris servers go away. An approach which
-> doesn't support unmodified guest installs doesn't solve any of my current
-> problems. I didn't say it was in any way not useful, just not of interest to
-> me. What needs I have for Linux environments are answered by jails and/or UML.
+I don't think that it's a HDD problem nor a cable
+problem because the servers are new. We have tried
+different HDD (seagate, maxtor) but it has not help
+anyway.
+It's perhaps a temperature problem but we make a lot
+tests in hard condition (high temperature) 
+successfuly...    
 
-So from one perspective that is what we are building.  A full featured
-jail capable of running an unmodified linux distro.  The cost is
-simply making a way to use the same names twice for the global
-namespaces.  UML may use these features to accelerate it's own processes.
+One thinks that the problem comes from the VIA chipset
+VT82c686 (it's also the opinion of Dick Johnson
+(linux-os) whom advised me to try UDMA33 instead of
+UDMA66).
 
-Virtualization is really the wrong word to describe what we are building.  As
-it allows for all kinds of heavy weight implementations, and has an associate
-with much heavier things.  
+How can I determine the problem?
 
-At the extreme end where you only have one process in each logical instance
-of the kernel, a better name would be a heavy weight process.  Where each
-such process sees an environment as if it owned the entire machine.
+I want to add that the HDD seems to be disconnected
+(the BIOS can't find any drive for boot) after a
+simple reset. We must switch off the servers to get
+them work again.
+However, it takes a long time (4 mounths and more)
+before the HDD fell down. I want to work around by
+write a module which will supervise the HDD. I know
+how to write a module (I used the lkmpg guide
+(http://www.tldp.org/LDP/lkmpg/) but how can I
+shutdown Linux from inside a module...? 
 
-Eric
+best regards.
+
+Zine.
+
+
+--- Alan Cox <alan@lxorguk.ukuu.org.uk> a écrit :
+
+> On Llu, 2006-03-27 at 16:55 +0200, zine el abidine
+> Hamid wrote:
+> > hda: status timeout: status=0xd0 { Busy }     
+> adapter
+> > disque annonce un status busy du DMA
+> 
+> If I'm reading the translation right then your hard
+> disk decided
+> it was busy and then never came back
+> 
+> > Feb 12 04:46:23 porte_de_clignancourt_nds_b
+> kernel:
+> > ide0: reset: success             
+> 
+> So the IDE layer tried to reset it
+> 
+> > Feb 12 10:22:38 porte_de_clignancourt_nds_b
+> kernel:
+> > hda: timeout waiting for DMA
+> 
+> Which didnt help
+> 
+> > Feb 12 10:24:47 porte_de_clignancourt_nds_b
+> kernel:
+> > ide0: reset: success
+> 
+> Still trying
+>       
+> > Feb 12 10:24:47 porte_de_clignancourt_nds_b
+> kernel:
+> > hda: irq timeout: status=0xd0 { Busy }            
+>    
+> > 
+> > Feb 12 10:24:47 porte_de_clignancourt_nds_b
+> kernel:
+> > hda: DMA disabled       
+> 
+> We gave up on DMA to see if PIO would help
+> >                               
+> >    
+> > Feb 12 10:24:47 porte_de_clignancourt_nds_b
+> kernel:
+> > ide0: reset timed-out, status=0x80
+> > Feb 12 10:24:47 porte_de_clignancourt_nds_b
+> kernel:
+> > hda: status timeout: status=0x80 { Busy }        
+> > nouvel échec de reset
+> > Feb 12 10:24:47 porte_de_clignancourt_nds_b
+> kernel:
+> > hda: drive not ready for command
+> > Feb 12 10:24:47 porte_de_clignancourt_nds_b
+> kernel:
+> > ide0: reset: success                  
+> 
+> And reset.. 
+> 
+> 
+> > Feb 12 13:45:38 porte_de_clignancourt_nds_b
+> kernel:
+> > hda: status timeout: status=0x80 { Busy }
+> > Feb 12 13:45:38 porte_de_clignancourt_nds_b
+> kernel:
+> > hda: drive not ready for command
+> > Feb 12 13:45:38 porte_de_clignancourt_nds_b
+> kernel:
+> > ide0: reset timed-out, status=0x80
+> > Feb 12 13:45:38 porte_de_clignancourt_nds_b
+> kernel:
+> > end_request: I/O error, dev 03:02 (hda), sector
+> 102263
+> > Feb 12 13:45:38 porte_de_clignancourt_nds_b
+> syslogd:
+> > /var/log/maillog: Input/output error
+> > Feb 12 13:45:38 porte_de_clignancourt_nds_b
+> kernel:
+> > end_request: I/O error, dev 03:02 (hda), sector
+> 110720
+> > Feb 12 13:45:38 porte_de_clignancourt_nds_b
+> kernel:
+> > end_request: I/O error, dev 03:02 (hda), sector
+> 110728 
+> 
+> Eventually we give up.
+> 
+> 
+> First thing to check would be the disk and the
+> temperature, then the
+> cabling. In particular make sure the *long* part of
+> the cable is between
+> the drive and the controller.
+> 
+> 
+
+
+
+
+	
+
+	
+		
+___________________________________________________________________________ 
+Nouveau : téléphonez moins cher avec Yahoo! Messenger ! Découvez les tarifs exceptionnels pour appeler la France et l'international.
+Téléchargez sur http://fr.messenger.yahoo.com

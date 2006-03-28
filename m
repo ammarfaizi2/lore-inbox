@@ -1,86 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWC1S3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWC1SaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbWC1S3F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 13:29:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWC1S3F
+	id S1751205AbWC1SaI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 13:30:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWC1SaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 13:29:05 -0500
-Received: from smtp12.wanadoo.fr ([193.252.22.20]:42073 "EHLO
-	smtp12.wanadoo.fr") by vger.kernel.org with ESMTP id S1751197AbWC1S3E
+	Tue, 28 Mar 2006 13:30:08 -0500
+Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:16137 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751205AbWC1SaG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 13:29:04 -0500
-X-ME-UUID: 20060328182901673.A44921C00091@mwinf1208.wanadoo.fr
-Date: Tue, 28 Mar 2006 20:29:05 +0200
-From: Thierry Godefroy <thgodef@nerim.net>
-To: linux-kernel@vger.kernel.org
-Subject: BUG in Linux 2.6.16/2.6.16.1 (compilation failure of third party
- software)
-Message-Id: <20060328202905.18cb2cb0.thgodef@nerim.net>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.4; i586-mandrake-linux-gnu)
+	Tue, 28 Mar 2006 13:30:06 -0500
+Date: Tue, 28 Mar 2006 20:30:08 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: "Mark A. Greer" <mgreer@mvista.com>
+Cc: Andrew Morton <akpm@osdl.org>, lm-sensors@lm-sensors.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.16-mm1 3/3] rtc: add support for m41t81 & m41t85
+ chips to m41t00 driver
+Message-Id: <20060328203008.5910ead6.khali@linux-fr.org>
+In-Reply-To: <20060328181111.GB14170@mag.az.mvista.com>
+References: <440B4B6E.8080307@sh.cvut.cz>
+	<zt2d4LqL.1141645514.2993990.khali@localhost>
+	<20060307170107.GA5250@mag.az.mvista.com>
+	<20060318001254.GA14079@mag.az.mvista.com>
+	<20060323210856.f1bfd02b.khali@linux-fr.org>
+	<20060323203843.GA18912@mag.az.mvista.com>
+	<20060324012406.GE9560@mag.az.mvista.com>
+	<20060326145840.5e578fa4.akpm@osdl.org>
+	<20060328002625.GE21077@mag.az.mvista.com>
+	<20060328175450.f207effa.khali@linux-fr.org>
+	<20060328181111.GB14170@mag.az.mvista.com>
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paragon_NTFS_3.x.v5.1 fails to compile (with gcc v3.4.3) with the following
-errors:
+Hi Mark,
 
-gcc -DMODULE  -fshort-wchar  -DUFSD_NTFS=1 -DUFSD_NTFS_SECURITY -DUFSD_NTFS_OBJECTID -DUFSD_NTFS_WRITE_ENABLE -DNDEBUG -DUFSD_DEVICE=ufsd -DUFSD_READONLY=0 -DKBUILD_BASENAME=_ufsdvfs_ -include fs_conf.h -pipe -Wall -fno-exceptions -Wno-multichar -Wstrict-prototypes -Wno-unknown-pragmas -mpreferred-stack-boundary=2 -march=k8 -I /usr/src/linux/include/asm/mach-default -g0 -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common    -c -I /usr/src/linux/include -I "/include" -I/include ufsdvfs.c -o objfre/vfs/ufsdvfs.o
-In file included from /usr/src/linux/include/linux/rwsem.h:27,
-                 from /usr/src/linux/include/asm/semaphore.h:42,
-                 from /usr/src/linux/include/linux/sched.h:20,
-                 from /usr/src/linux/include/linux/module.h:10,
-                 from ufsdvfs.c:30:
-/usr/src/linux/include/asm/rwsem.h: In function `__down_read':
-/usr/src/linux/include/asm/rwsem.h:105: error: syntax error before "_ufsdvfs_"
-/usr/src/linux/include/asm/rwsem.h: In function `__down_write':
-/usr/src/linux/include/asm/rwsem.h:157: error: syntax error before "_ufsdvfs_"
-/usr/src/linux/include/asm/rwsem.h: In function `__up_read':
-/usr/src/linux/include/asm/rwsem.h:194: error: syntax error before "_ufsdvfs_"
-/usr/src/linux/include/asm/rwsem.h:188: warning: unused variable `tmp'
-/usr/src/linux/include/asm/rwsem.h: In function `__up_write':
-/usr/src/linux/include/asm/rwsem.h:220: error: syntax error before "_ufsdvfs_"
-/usr/src/linux/include/asm/rwsem.h: In function `__downgrade_write':
-/usr/src/linux/include/asm/rwsem.h:245: error: syntax error before "_ufsdvfs_"
-In file included from /usr/src/linux/include/linux/sched.h:20,
-                 from /usr/src/linux/include/linux/module.h:10,
-                 from ufsdvfs.c:30:
-/usr/src/linux/include/asm/semaphore.h: In function `down':
-/usr/src/linux/include/asm/semaphore.h:105: error: syntax error before "_ufsdvfs_"
-/usr/src/linux/include/asm/semaphore.h: In function `down_interruptible':
-/usr/src/linux/include/asm/semaphore.h:130: error: syntax error before "_ufsdvfs_"
-/usr/src/linux/include/asm/semaphore.h: In function `down_trylock':
-/usr/src/linux/include/asm/semaphore.h:155: error: syntax error before "_ufsdvfs_"
-/usr/src/linux/include/asm/semaphore.h: In function `up':
-/usr/src/linux/include/asm/semaphore.h:179: error: syntax error before "_ufsdvfs_"
-ufsdvfs.c: In function `ufsd_readdir':
-ufsdvfs.c:864: warning: implicit declaration of function `update_atime'
-ufsdvfs.c: At top level:
-ufsdvfs.c:2219: warning: initialization from incompatible pointer type
-make: *** [objfre/vfs/ufsdvfs.o] Erreur 1
+Answering your questions before I forget about them and let a week pass
+again...
 
-------
+Anything I don't comment on, means that you were right and I agree with
+you.
 
-I tracked down the problem to a patch of include/linux/spinlock.h which was
-introduced somewhere in 2.6.16:
-diff -urN linux-2.6.15/include/linux/spinlock.h linux-2.6.16.1/include/linux/spinlock.h
-gives:
+> > May I ask why you define separate types for the M41T81 and the M41T85,
+> > when you handle both exactly the same way?
+> 
+> The only reason is so that its obvious that both the t81 and t85 are
+> supported.  If I make it M41T81 only then I can easily see someone
+> grep'ing around looking for M41T85, not finding it, and writing their
+> own driver.  I don't see any harm in having both, do you?
 
---- linux-2.6.15/include/linux/spinlock.h       2006-03-28 19:52:29.000000000 +0200
-+++ linux-2.6.16.1/include/linux/spinlock.h     2006-03-24 19:55:28.000000000 +0100
-@@ -59,8 +59,7 @@
- /*
-  * Must define these before including other files, inline functions need them
-  */
--#define LOCK_SECTION_NAME                       \
--        ".text.lock." __stringify(KBUILD_BASENAME)
-+#define LOCK_SECTION_NAME ".text.lock."KBUILD_BASENAME
- 
- #define LOCK_SECTION_START(extra)               \
-         ".subsection 1\n\t"                     \
+It wastes some memory, and you may later fix something for the M41T81
+and forget to fix it for the M41T85.
 
-Reverting this patch fixes the compilation problem.
+If your only concern is to help grepers, you can add a clear list of
+supported chips either as a comment at the top of the source file, or
+as Documentation/i2c/chips/m41t00. That's what we do for hardware
+monitoring chips.
 
-Thierry Godefroy.
+No big deal anyway, so the decision is up to you.
 
+> > What you do here are basically SMBus Read Byte and SMBus Write Byte
+> > transactions. The code would be much more simple if you were using the
+> > i2c_smbus_read_byte_data and i2c_smbus_write_byte_data functions, which
+> > take care of all the technical details.
+> 
+> That's true but I assumed that since I was using i2c_transfer
+> earlier, I should use it here.  Is that a bad assumption?
+> I do see that ds1337.c uses both types.
+
+Bad assumption, indeed. Nothing prevents you from using the smbus
+functions and the i2c functions in the same driver, as long as your
+call to i2c_check_functionality covers every function you use. So,
+just use whatever makes your driver easier to write.
+
+Thanks,
+-- 
+Jean Delvare

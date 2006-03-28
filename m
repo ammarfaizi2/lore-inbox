@@ -1,36 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWC1J2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWC1Jn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbWC1J2t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 04:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWC1J2s
+	id S1751281AbWC1Jn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 04:43:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWC1Jn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 04:28:48 -0500
-Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:1000 "HELO
-	briare1.heliogroup.fr") by vger.kernel.org with SMTP
-	id S1751249AbWC1J2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 04:28:48 -0500
-From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-To: Harald Welte <laforge@netfilter.org>
-Cc: linux-kernel@vger.kernel.org, netfilter@lists.netfilter.org
-Subject: Re: failed to configure iptables with 2.6.16 kernel
-Date: Tue, 28 Mar 2006 13:10:54 GMT
-Message-ID: <064G9Y712@briare1.heliogroup.fr>
-X-Mailer: Pliant 96
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 28 Mar 2006 04:43:29 -0500
+Received: from mail.gmx.de ([213.165.64.20]:15254 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751281AbWC1Jn2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 04:43:28 -0500
+X-Authenticated: #428038
+Date: Tue, 28 Mar 2006 11:43:22 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Move SG_GET_SCSI_ID from sg to scsi
+Message-ID: <20060328094322.GA345@merlin.emma.line.org>
+Mail-Followup-To: Bodo Eggert <7eggert@gmx.de>,
+	Linus Torvalds <torvalds@osdl.org>, linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0603262108500.13001@be1.lrz> <Pine.LNX.4.64.0603261424590.15714@g5.osdl.org> <Pine.LNX.4.58.0603271306140.3209@be1.lrz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0603271306140.3209@be1.lrz>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Harald Welte wrote:
->
-> this sounds like you're missing support for the tcp/udp match.
-> This functionality is implemented in xt_tcpudp.{c,ko}, which is compiled
-> as soon as x_tables is compiled.
+Bodo Eggert schrieb am 2006-03-27:
 
-Loading 'xt_tcpudp' module solves the problem. Thanks for the answer.
+> As I understand, having a /dev/sd0815 corresponding to a /dev/sg4711 is
+> the root of all evil and idiotic things, and moving all sg functions into
+> the apropiate place is the sane thing to do.
+> 
+> This patch is a part of the process, and as soon as all sg functions are
+> available using /dev/s[dtr]*, the corresponding sg devices should be
+> deprecated and removed.
 
-So, the problem was just that the new 'x_tables' module is loaded automatically
-according to modules dependencies, but 'xt_tcpudp' is not.
-As a result, an upgrade of the FullPliant user land tools is required in order
-to force the 'xt_tcpudp' module to load before calling 'iptables' with
-'--destination-port' option.
+Oh, I hear Schilling wailing...
+
+Seriously, at the time such changes are committed, a good manual for how
+user-space applications are to be upgraded wouldn't hurt, and I am
+indeed proposing that those familiar with the code should write it -
+perhaps when porting an existing application to the new interfaces.
+
+-- 
+Matthias Andree

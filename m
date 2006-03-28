@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWC1Vis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWC1Vik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbWC1Vis (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 16:38:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWC1Vis
+	id S932230AbWC1Vik (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 16:38:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWC1Vik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 16:38:48 -0500
-Received: from asteria.debian.or.at ([86.59.21.34]:11749 "EHLO
-	asteria.debian.or.at") by vger.kernel.org with ESMTP
-	id S932233AbWC1Vir convert rfc822-to-8bit (ORCPT
+	Tue, 28 Mar 2006 16:38:40 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:20368 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932230AbWC1Vij (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 16:38:47 -0500
-Date: Tue, 28 Mar 2006 23:38:46 +0200
-From: Peter Palfrader <peter@palfrader.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16: Oops - null ptr in blk_recount_segments?
-Message-ID: <20060328213845.GO25288@asteria.noreply.org>
-Mail-Followup-To: Peter Palfrader <peter@palfrader.org>,
-	linux-kernel@vger.kernel.org
-References: <20060327022814.GV25288@asteria.noreply.org> <20060327043601.GE27189130@melbourne.sgi.com> <20060327045823.GW25288@asteria.noreply.org> <20060327061021.GT1173973@melbourne.sgi.com> <Pine.LNX.4.61.0603281621210.27529@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <Pine.LNX.4.61.0603281621210.27529@yvahk01.tjqt.qr>
-X-PGP: 1024D/94C09C7F 5B00 C96D 5D54 AEE1 206B  AF84 DE7A AF6E 94C0 9C7F
-X-Request-PGP: http://www.palfrader.org/keys/94C09C7F.asc
-X-Accept-Language: de, en
-User-Agent: Mutt/1.5.9i
+	Tue, 28 Mar 2006 16:38:39 -0500
+Message-ID: <4429ACBE.2060502@redhat.com>
+Date: Tue, 28 Mar 2006 15:38:06 -0600
+From: Clark Williams <williams@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: boot hang in 2.6.16-rt[7-10]
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt schrieb am Dienstag, dem 28. März 2006:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> >These diffs:
-> >
-> >2006-01-18
-> >[XFS] Fix a race in xfs_submit_ioend() where we can ...
-> >2006-01-11
-> >[XFS] fix writeback control handling fix a reversed ...
-> >[XFS] cluster rewrites We can cluster mapped pages ...
-> >[...]
-> 
-> I bet on the 3rd...
+I'm seeing a boot hang in the latest -rt series (from -rt7 to current
+- -rt10), on an Athlon64x2 (3800+). The kernel loads and boots up to
+calibrate_migration_costs then hangs. I'd give some console output,
+except that in their infinite wisdom, Gateway decided that this system
+didn't need a serial port. Gah...
 
-Some of the patches don't unapply cleanly anymore.  I'll see what I can
-do despite that.
+I've prink'ed my way down into where measure_one tries to migrate a
+thread from cpu0 to cpu1 and calls set_cpus_allowed, where it then
+tries to wake the migration thread by calling wake_up_process, which
+just calls try_to_wake_up. Strangely, I see multiple printks from
+try_to_wake_up (like it's running multiple times) and the last print I
+see is that I'm returning a 1 from wake_up_process. Nothing after that.
 
--- 
-Peter
+I'd really like to see the boot messages before all those printk's
+I've scattered in sched.c, so I'm investigating using the parallel
+port as a console and just spewing that output into an xterm on the
+other end. Never done it before so I'm bumping my head against the
+wall a bit. Any advice would be appreciated.
+
+Clark
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFEKay+Hyuj/+TTEp0RAi8YAJ92U1KHM0BW5nWZWl7lCBBQAZWCQQCg1FWy
+8dGHlzkPQBn22Y1pK6lOen8=
+=Hr9n
+-----END PGP SIGNATURE-----
+

@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWC1UOv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWC1USk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWC1UOv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 15:14:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWC1UOv
+	id S932138AbWC1USk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 15:18:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWC1USk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 15:14:51 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:4802 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932136AbWC1UOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 15:14:50 -0500
-Date: Tue, 28 Mar 2006 14:14:29 -0600
-From: Dimitri Sivanich <sivanich@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Eric Dumazet <dada1@cosmosbay.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, roe@sgi.com, steiner@sgi.com, clameter@sgi.com
-Subject: [PATCH] Call get_softirq_time() only when necessary in run_hrtimer_queue()
-Message-ID: <20060328201429.GA17130@sgi.com>
-References: <20060324175136.GA10186@sgi.com> <20060324142849.5cc27edb.akpm@osdl.org> <20060328165127.GC10411@sgi.com> <442974BC.30304@cosmosbay.com> <20060328175511.GC13918@sgi.com> <1143573640.5344.215.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1143573640.5344.215.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+	Tue, 28 Mar 2006 15:18:40 -0500
+Received: from 64-30-195-78.dsl.linkline.com ([64.30.195.78]:1006 "EHLO
+	jg555.com") by vger.kernel.org with ESMTP id S932138AbWC1USk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 15:18:40 -0500
+Message-ID: <442999E5.9070300@jg555.com>
+Date: Tue, 28 Mar 2006 12:17:41 -0800
+From: Jim Gifford <maillist@jg555.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Kyle Moffett <mrmacman_g4@mac.com>
+CC: "Randy.Dunlap" <rdunlap@xenotime.net>, nix@esperi.org.uk, rob@landley.net,
+       mmazur@kernel.pl, linux-kernel@vger.kernel.org,
+       llh-discuss@lists.pld-linux.org
+Subject: Re: State of userland headers
+References: <200603141619.36609.mmazur@kernel.pl> <200603231811.26546.mmazur@kernel.pl> <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com> <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix> <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com> <20060324150100.ec96dc15.rdunlap@xenotime.net> <E6A4D94A-64AF-46C5-804C-91D661C8C7FE@mac.com>
+In-Reply-To: <E6A4D94A-64AF-46C5-804C-91D661C8C7FE@mac.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that run_hrtimer_queue() is calling get_softirq_time() more
-often than it needs to.
+Just to through this out, I'm working on project right now where we want 
+to use the latest Kernel Headers, but since LLH is pretty much dead we 
+came up with a interim solution until something else gets worked out. 
+The script lists below only sanitizes the headers that are needed by 
+userspace, there may be some missing, but this has worked on the systems 
+I've built up to this point.
 
-With this patch, it only calls get_softirq_time() if there's a
-pending timer.
+http://ftp.jg555.com/headers/headers2
 
-Signed-off-by: Dimitri Sivanich <sivanich@sgi.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+-- 
+----
+Jim Gifford
+maillist@jg555.com
 
-Index: linux/kernel/hrtimer.c
-===================================================================
---- linux.orig/kernel/hrtimer.c	2006-03-28 11:46:45.279722496 -0600
-+++ linux/kernel/hrtimer.c	2006-03-28 11:51:36.722469752 -0600
-@@ -606,6 +606,9 @@ static inline void run_hrtimer_queue(str
- {
- 	struct rb_node *node;
- 
-+	if (!base->first)
-+		return;
-+
- 	if (base->get_softirq_time)
- 		base->softirq_time = base->get_softirq_time();
- 

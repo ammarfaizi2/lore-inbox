@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWC1Vwd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWC1Vy4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932335AbWC1Vwd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 16:52:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWC1Vwd
+	id S932377AbWC1Vy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 16:54:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWC1Vy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 16:52:33 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:17974 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S932335AbWC1Vwc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 16:52:32 -0500
-In-Reply-To: <20060328003508.2b79c050.akpm@osdl.org>
-References: <20060328003508.2b79c050.akpm@osdl.org>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <9F2A5122-5295-4B86-9AC5-3D002C5FD5D4@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: 2.6.16-mm2
-Date: Tue, 28 Mar 2006 15:52:33 -0600
-To: Andrew Morton <akpm@osdl.org>
-X-Mailer: Apple Mail (2.746.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 28 Mar 2006 16:54:56 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34206 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932377AbWC1Vyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 16:54:55 -0500
+To: Jun OKAJIMA <okajima@digitalinfra.co.jp>
+Cc: devel@openvz.org, akpm@osdl.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       sam@vilain.net, linux-kernel@vger.kernel.org,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, serue@us.ibm.com,
+       herbert@13thfloor.at
+Subject: Re: [Devel] Re: [RFC] Virtualization steps
+References: <4429A17D.2050506@openvz.org>
+	<200603282138.AA00929@bbb-jz5c7z9hn9y.digitalinfra.co.jp>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 28 Mar 2006 14:51:05 -0700
+In-Reply-To: <200603282138.AA00929@bbb-jz5c7z9hn9y.digitalinfra.co.jp> (Jun
+ OKAJIMA's message of "Wed, 29 Mar 2006 06:38:42 +0900")
+Message-ID: <m1ek0mme5y.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When building pmac32_defconfig for arch=powerpc:
+Jun OKAJIMA <okajima@digitalinfra.co.jp> writes:
 
-drivers/built-in.o(.text+0x74cd4): In function `pciserial_init_ports':
-: undefined reference to `serial8250_register_port'
-drivers/built-in.o(.text+0x74d88): In function `pciserial_remove_ports':
-: undefined reference to `serial8250_unregister_port'
-drivers/built-in.o(.text+0x74e70): In function  
-`pciserial_suspend_ports':
-: undefined reference to `serial8250_suspend_port'
-drivers/built-in.o(.text+0x74ee0): In function `pciserial_resume_ports':
-: undefined reference to `serial8250_resume_port'
+> Probably, the biggest problem for now is, Xen patch conflicts with
+> Vserver/OpenVZ patch.
 
-Need to hunt down why this is happening.
+The implementations are significantly different enough that I don't
+see Xen and any jail patch really conflicting.  There might be some
+trivial conflicts in /proc but even that seems unlikely.
 
-- kumar
+Eric

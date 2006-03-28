@@ -1,55 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWC1LQ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWC1L3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932177AbWC1LQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 06:16:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWC1LQ6
+	id S932194AbWC1L3N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 06:29:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWC1L3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 06:16:58 -0500
-Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:27293 "HELO
-	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932177AbWC1LQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 06:16:58 -0500
+	Tue, 28 Mar 2006 06:29:13 -0500
+Received: from wproxy.gmail.com ([64.233.184.227]:10412 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932194AbWC1L3L convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 06:29:11 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=bi+NNhaH6b4+8Y2oPQfMJXs+XEnN10y8pB8s+1yCadwW5WmiyFDrxMo4zAEygKO6zTOxFL4aoly4Kw5kR6lYjh1hZvuh0fQ1wpI5LeiXED9sAHhmo5jM/BJO5gvk3fELHWBQWKO5tMgoWzomCbjOjjXunAtFYkkx3OGSU458hh8=  ;
-Message-ID: <4428FB29.8020402@yahoo.com.au>
-Date: Tue, 28 Mar 2006 19:00:25 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=BKnS5H1RmNj923VgLZ+vmFePupcg4hhHr3kQvTE9GktmhaV9Q1wCwg6afKkkN0jh+0j42RNU6UrN7OgAdVv2xNzHPO56z8Hmmj8Q7LSU5ELoeKZBN4cjmGbdCm039ELjTqWg4+c2ubrhNWzG8JrS1aQiDEQwRjiqmyPn3iouUCY=
+Message-ID: <7d40d7190603280226l34f88a74y37fcc96ed60d53eb@mail.gmail.com>
+Date: Tue, 28 Mar 2006 12:26:57 +0200
+From: "Aritz Bastida" <aritzbastida@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: ksoftird doesn't work like it should (?)
+Cc: "Robert Olsson" <Robert.Olsson@data.slu.se>
 MIME-Version: 1.0
-To: Herbert Poetzl <herbert@13thfloor.at>
-CC: Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Virtualization steps
-References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au> <1143228339.19152.91.camel@localhost.localdomain> <4428BB5C.3060803@tmr.com> <20060328085206.GA14089@MAIL.13thfloor.at>
-In-Reply-To: <20060328085206.GA14089@MAIL.13thfloor.at>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl wrote:
+Hello everybody.
 
-> well, that largely depends on the 'use' ...
-> 
-> I don't think that vps providers like lycos would be
-> very happy if they had to multiply the ammount of
-> machines they require by 10 or 20 :)
-> 
-> and yes, running 100 and more Linux-VServers on a
-> single machine _is_ realistic ...
-> 
+First of all, thank you all of you that helped me when i was doing my
+thesis project: olsson, greg k-h, ... I could learn a lot (although
+i'm still a newbie, of course) in these 8 months, and wrote in this
+mailing list when i was too lost...
 
-Yep.
+Well, you won't remember me, but I had to design a network analysis
+system in kernel space. Letting apart that is or is not useful (I
+didnt choose that, I just had to do it), I made some testing that
+could be interesting, or that's what i think.
 
-And if it is intrusive to the core kernel, then as always we have
-to try to evaluate the question "is it worth it"? How many people
-want it and what alternatives do they have (eg. maintaining
-seperate patches, using another approach), what are the costs,
-complexities, to other users and developers etc.
+That's why I would like to share it with you. Here I attach a link to
+a picture, which show the problems they happen when the network load
+goes high.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+http://www.flickr.com/photos/57861108@N00/119255818/
+
+This picture shows the throughput of a network analysis system in user
+space (not mine), with different injection speeds.
+  x axis: traffic speed (packets per second)
+  y axis: analyzer throughput (packets per second)
+
+You can see that, when the network traffic is low, the network
+analyzer can process all the packets (straight line), but when it gets
+too high, it starts losing packets. If it gets even higher, the
+ksoftirqd kernel thread starts eating 99.9% CPU time, even if it is
+supposed that its priority is the lowest possible, so the throughput
+goes lower. ksoftirqd is supposed that would not starve user programs,
+but the system almost goes to livelock. The system stabilizes around
+1.2 Gpps.
+
+So what we can conclude here is that ksoftirqd doesnt work as it
+should, or maybe do_softirq() is called from more places apart from
+the ksoftird kernel thread. In any case, the user process almost
+starves.
+
+If you'd like, i have more pictures similar to this, and the
+"solution" i found, which tries to make the throughput to be constant
+independently of the traffic speed.
+
+Regards
+Aritz

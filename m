@@ -1,65 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWC1Gl5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWC1Gpk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbWC1Gl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 01:41:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWC1Gl4
+	id S932240AbWC1Gpk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 01:45:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWC1Gpk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 01:41:56 -0500
-Received: from pproxy.gmail.com ([64.233.166.182]:37592 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932238AbWC1Gl4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 01:41:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eK8Cht3mvOKQaeCYccW4EvB0yA1Ch1Xkk2aUIFytKLfFhzC+dAydGOkY4ye7e2CZHvsjp6u1NSU2W/X58gwWMVC7uhHesYbWulFrmDedzJKMvBEsbwEBAOnzBnCJpg/VEkFjs4TSILg905PIFgaQPiWNYWq0+eYLp0Mg+wq4r90=
-Message-ID: <aec7e5c30603272241n5c07aa0csd52b237aaaeb30d6@mail.gmail.com>
-Date: Tue, 28 Mar 2006 15:41:53 +0900
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: "Sergei Organov" <s.organov@javad.com>
-Subject: Re: Lifetime of flash memory
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       "Artem B. Bityutskiy" <dedekind@yandex.ru>, linux@horizon.com,
-       kalin@thinrope.net, linux-kernel@vger.kernel.org
-In-Reply-To: <87acbb6vlj.fsf@javad.com>
+	Tue, 28 Mar 2006 01:45:40 -0500
+Received: from [62.205.161.221] ([62.205.161.221]:59338 "EHLO kir.sacred.ru")
+	by vger.kernel.org with ESMTP id S932240AbWC1Gpj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 01:45:39 -0500
+Message-ID: <4428DB76.9040102@openvz.org>
+Date: Tue, 28 Mar 2006 10:45:10 +0400
+From: Kir Kolyshkin <kir@openvz.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060217)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060326162100.9204.qmail@science.horizon.com>
-	 <4426C320.9010002@yandex.ru>
-	 <20060327161845.GA16775@csclub.uwaterloo.ca>
-	 <Pine.LNX.4.61.0603271242100.16721@chaos.analogic.com>
-	 <87acbb6vlj.fsf@javad.com>
+To: devel@openvz.org
+CC: Dave Hansen <haveblue@us.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, herbert@13thfloor.at, sam@vilain.net,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, serue@us.ibm.com
+Subject: Re: [Devel] Re: [RFC] Virtualization steps
+References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>	<1143228339.19152.91.camel@localhost.localdomain> <4428BB5C.3060803@tmr.com>
+In-Reply-To: <4428BB5C.3060803@tmr.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/28/06, Sergei Organov <s.organov@javad.com> wrote:
-> "linux-os \(Dick Johnson\)" <linux-os@analogic.com> writes:
-> > Note that the actual block size is usually 64k, not the 512 bytes of a
-> > 'sector'. Apparently, some of the data-space on each block is used for
-> > relocation and logical-to-physical mapping.
+Bill Davidsen wrote:
+
+> Dave Hansen wrote:
 >
-> Wrong. AFAIK, first disks had FLASH with 512b blocks, then next
-> generation had 16K blocks, and currently most of cards have 128K
-> blocks. Besides, each page of a block (64 pages * 2K for 128K block) has
-> additional "system" area of 64 bytes. One thing that is in the system
-> area is bad block indicator (2 bytes) to mark some blocks as bad on
-> factory, and the rest could be used by application[1] the same way the
-> rest of the page is used. So physical block size is in fact 64 * (2048 +
-> 64) = 135168 bytes.
+>> On Sat, 2006-03-25 at 04:33 +1100, Nick Piggin wrote:
+>>
+>>> Oh, after you come to an agreement and start posting patches, can you
+>>> also outline why we want this in the kernel (what it does that low
+>>> level virtualization doesn't, etc, etc) 
+>>
+>>
+>> Can you wait for an OLS paper? ;)
+>>
+>> I'll summarize it this way: low-level virtualization uses resource
+>> inefficiently.
+>>
+>> With this higher-level stuff, you get to share all of the Linux caching,
+>> and can do things like sharing libraries pretty naturally.
+>>
+>> They are also much lighter-weight to create and destroy than full
+>> virtual machines.  We were planning on doing some performance
+>> comparisons versus some hypervisors like Xen and the ppc64 one to show
+>> scaling with the number of virtualized instances.  Creating 100 of these
+>> Linux containers is as easy as a couple of shell scripts, but we still
+>> can't find anybody crazy enough to go create 100 Xen VMs.
+>
+>
+> But these require a modified O/S, do they not? Or do I read that 
+> incorrectly? Is this going to be real virtualization able to run any O/S?
 
-Doesn't this depend on if we are talking about NOR or NAND memory? It
-looks like you are describing some kind of NAND memory. Also I guess
-it varies with manufacturer.
+This type is called OS-level virtualization, or kernel-level 
+virtualization, or partitioning. Basically it allows to create a 
+compartments (in OpenVZ we call them VEs -- Virtual Environments) in 
+which you can run full *unmodified* Linux system (but the kernel itself 
+-- it is one single kernel common for all compartments). That means that 
+with this approach you can not run OSs other than Linux, but different 
+Linux distributions are working just fine.
 
-When it comes to CF the internal block size doesn't really matter
-because the CF controller will hide it for you. The controller will
-perform some kind of mapping between the 512 byte based IDE-interface
-and it's internal sector size. This together with wear levelling.
+> Frankly I don't see running 100 VMs as a realistic goal
 
-The quality of the wear levelling will probably vary, but I guess even
-the most primitive brands have something to cope with the fact that
-the blocks containing the FAT are often rewritten on FAT filesystems.
+It is actually not a future goal, but rather a reality. Since os-level 
+virtualization overhead is very low (1-2 per cent or so), one can run 
+hundreds of VEs.
 
-/ magnus
+Say, on a box with 1GB of RAM OpenVZ [http://openvz.org/] is able to run 
+about 150 VEs each one having init, apache (serving static content), 
+sendmail, sshd, cron etc. running. Actually you can run more, but with 
+the aggressive swapping so performance drops considerably. So it all 
+mostly depends on RAM, and I'd say that 500+ VEs on a 4GB box should run 
+just fine. Of course it all depends on what you run inside those VEs.
+
+> , being able to run Linux, Windows, Solaris and BEOS unmodified in 4-5 
+> VMs would be far more useful.
+
+This is a different story. If you want to run different OSs on the same 
+box -- use emulation or paravirtualization.
+
+If you are happy to stick to Linux on this box -- use OS-level 
+virtualization. Aside from the best possible scalability and 
+performance, the other benefit of this approach is dynamic resource 
+management -- since there is a single kernel managing all the resources 
+such as RAM, you can easily tune all those resources runtime. More to 
+say, you can make one VE use more RAM while nobody else it using it, 
+leading to much better resource usage. And since there is one single 
+kernel that manages everything, you could do nice tricks like VE 
+checkpointing, live migration, etc. etc.
+
+Some more info on topic are available from 
+http://openvz.org/documentation/tech/
+
+Kir.
+
+>>
+>> Anyway, those are the things that came to my mind first.  I'm sure the
+>> others involved have their own motivations.
+>>
+>> -- Dave
+>>
+>
+> _______________________________________________
+> Devel mailing list
+> Devel@openvz.org
+> https://openvz.org/mailman/listinfo/devel
+
+

@@ -1,87 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWC2DBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWC2DIS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750811AbWC2DBV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 22:01:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbWC2DBU
+	id S1750700AbWC2DIS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 22:08:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWC2DIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 22:01:20 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:5336 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750811AbWC2DBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 22:01:20 -0500
-Subject: Re: interactive task starvation
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Willy Tarreau <willy@w.ods.org>, Con Kolivas <kernel@kolivas.org>,
-       Mike Galbraith <efault@gmx.de>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, bugsplatter@gmail.com
-In-Reply-To: <20060321145202.GA3268@elte.hu>
-References: <1142592375.7895.43.camel@homer>
-	 <200603220119.50331.kernel@kolivas.org> <1142951339.7807.99.camel@homer>
-	 <200603220130.34424.kernel@kolivas.org> <20060321143240.GA310@elte.hu>
-	 <20060321144410.GE26171@w.ods.org>  <20060321145202.GA3268@elte.hu>
-Content-Type: text/plain
-Date: Tue, 28 Mar 2006 22:01:17 -0500
-Message-Id: <1143601277.3330.2.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+	Tue, 28 Mar 2006 22:08:18 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:26247 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1750700AbWC2DIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 22:08:17 -0500
+Message-ID: <4429F9F9.9000403@torque.net>
+Date: Tue, 28 Mar 2006 22:07:37 -0500
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
+CC: "Ju, Seokmann" <Seokmann.Ju@engenio.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+Subject: Re: I/O performance measurement tools on Linux
+References: <890BF3111FB9484E9526987D912B261901BC88@NAMAIL3.ad.lsil.com>
+In-Reply-To: <890BF3111FB9484E9526987D912B261901BC88@NAMAIL3.ad.lsil.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-21 at 15:52 +0100, Ingo Molnar wrote:
-> * Willy Tarreau <willy@w.ods.org> wrote:
+Ju, Seokmann wrote:
+> Hi,
 > 
-> > Ah no, I never use those montruous environments ! xterm is already 
-> > heavy. [...]
-> 
-> [ offtopic note: gnome-terminal developers claim some massive speedups
->   in Gnome 2.14, and my experiments on Fedora rawhide seem to 
->   corraborate that - gnome-term is now faster (for me) than xterm. ]
-> 
-> > [...] don't you remember, we found that doing "ls" in an xterm was 
-> > waking the xterm process for every single line, which in turn woke the 
-> > X server for a one-line scroll, while adding the "|cat" acted like a 
-> > buffer with batched scrolls. Newer xterms have been improved to 
-> > trigger jump scroll earlier and don't exhibit this behaviour even on 
-> > non-patched kernels. However, sshd still shows the same problem IMHO.
-> 
-> yeah. The "|cat" changes the workload, which gets rated by the scheduler 
-> differently. Such artifacts are inevitable once interactivity heuristics 
-> are strong enough to significantly distort the equal sharing of CPU 
-> time.
+> Are there any performance measurement tools available that running on
+> Linux?
+> I would like to measure disk I/O performance (file system and raw I/O)
+> on several kernels.
+> Please lead me to the place.
 
-Can you explain why terminal output ping-pongs back and forth between
-taking a certain amount of time, and approximately 10x longer?  For
-example here's the result of "time dmesg" 6 times in an xterm with a
-constant background workload:
+The sg3_utils package may help with some raw SCSI
+and SATA disk I/O measurements.
+sg_dd, sgp_dd and sgm_dd are dd variants that
+let you tweak a lot of low level details. The sg_read
+utility can be used to measure disk cache throughput,
+transport speeds and command overhead.
 
-real    0m0.086s
-user    0m0.005s
-sys     0m0.012s
+Recently I have been looking at measuring command overhead.
+On the disks that I am testing a zero block READ (i.e.
+issue a SCSI READ for zero blocks) is the fastest command.
 
-real    0m0.078s
-user    0m0.008s
-sys     0m0.009s
+The most recent released sg3_utils can be found at:
+http://www.torque.net/sg   [Utilities section]
+The latest beta is in the news section of that page.
+A description can be found at:
+http://www.torque.net/sg/u_index.html
 
-real    0m0.082s
-user    0m0.004s
-sys     0m0.013s
+Doug Gilbert
 
-real    0m0.084s
-user    0m0.005s
-sys     0m0.011s
 
-real    0m0.751s
-user    0m0.006s
-sys     0m0.017s
-
-real    0m0.749s
-user    0m0.005s
-sys     0m0.017s
-
-Why does it ping-pong between taking ~0.08s and ~0.75s like that?  The
-behavior is completely reproducible.
-
-Lee
 

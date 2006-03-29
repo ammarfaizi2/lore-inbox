@@ -1,107 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWC2Dmu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWC2DpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWC2Dmu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 22:42:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWC2Dmu
+	id S1750735AbWC2DpU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 22:45:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWC2DpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 22:42:50 -0500
-Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:14324 "EHLO
-	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750714AbWC2Dmu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 22:42:50 -0500
-Message-ID: <442A0235.1060305@bigpond.net.au>
-Date: Wed, 29 Mar 2006 14:42:45 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Con Kolivas <kernel@kolivas.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sched: smpnice work around for active_load_balance()
-References: <4428D112.7050704@bigpond.net.au> <20060328112521.A27574@unix-os.sc.intel.com> <4429BC61.7020201@bigpond.net.au> <20060328185202.A1135@unix-os.sc.intel.com>
-In-Reply-To: <20060328185202.A1135@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 29 Mar 2006 03:42:45 +0000
+	Tue, 28 Mar 2006 22:45:20 -0500
+Received: from smtp-relay.dca.net ([216.158.48.66]:33988 "EHLO
+	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S1750735AbWC2DpT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 22:45:19 -0500
+Date: Tue, 28 Mar 2006 22:45:10 -0500
+From: "Mark M. Hoffman" <mhoffman@lightlink.com>
+To: Etienne Lorrain <etienne_lorrain@yahoo.fr>
+Cc: linux-kernel@vger.kernel.org, lm-sensors <lm-sensors@lm-sensors.org>,
+       Ian Campbell <icampbell@arcom.com>
+Subject: Re: I2C_PCA_ISA causes boot delays (was re: sis96x compiled in by error: delay of one minute at boot)
+Message-ID: <20060329034510.GA8309@jupiter.solarsys.private>
+References: <20060317042019.GC3446@jupiter.solarsys.private> <20060320230037.29764.qmail@web26902.mail.ukl.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060320230037.29764.qmail@web26902.mail.ukl.yahoo.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Siddha, Suresh B wrote:
-> On Wed, Mar 29, 2006 at 09:44:49AM +1100, Peter Williams wrote:
->> Siddha, Suresh B wrote:
->>> We need to balance even if the other packages are not idle.. For example,
->>> consider a 4-core DP system, if we have 6 runnable(assume same priority)
->>> processes, we want to schedule 3 of them in each package..
->> Well I hope that when you do a proper implementation for this issue that 
->> it takes this into account.  The current implementation doesn't.
-> 
-> This will also have issues when we want to implement power savings policy
-> for multi-core. Attached is the prototype patch(against 2.6.16-git15)
-> I was planning to send to mainline..
-> 
->>> Todays active load balance implementation is very simple and generic. And
->>> hence it works smoothly with dual and multi-core..
->> The application of active balancing to address your problem in the 
->> current implementation is essentially random.
-> 
-> why so? we wanted to implement these HT and MC optimizations generically
-> in the scheduler and domain topology(and sched groups cpu_power) provided
-> that infrastructure cleanly..
+Hi Etienne, Ian:
 
-I meant that it doesn't explicitly address your problem.  What it does 
-is ASSUME that failure of load balancing to move tasks is because there 
-was exactly one task on the source run queue and that this makes it a 
-suitable candidate to have that single task moved elsewhere in the blind 
-hope that it may fix an HT/MC imbalance that may or may not exist.  In 
-my mind this is very close to random.  Also back to front and inefficient.
+Etienne: sorry for the delay... I have't forgotten about you.
 
-> 
->>> Please read my OLS 
->>> 2005 paper which talks about different scheduling scenarios and also how 
->> A URL would be handy.
-> 
-> http://www.linuxsymposium.org/2005/linuxsymposium_procv2.pdf
-> Look for the paper titled "Chip Multi Processing aware Linux Kernel Scheduler"
-> 
->>> Either way, I can show scheduling scenarios which will fail...
->> I'd be interested to see the ones that would fail with the corrected 
->> code.  
-> 
-> 4-way system with HT (8 logical processors) ... 
-> 
-> Package-P0 T0 has a highest priority task, T1 is idle
-> Package-P1 Both T0 and T1 have 1 normal priority task each..
-> P2 and P3 are idle.
-> 
-> Scheduler needs to move one of the normal priority tasks to P2 or P3.. 
-> But find_busiest_group() will always think P0 as the busy group and
-> will not distribute the load as expected..
+Recap for Ian: Etienne was suffering very long delays at boot time due
+to some combination of I2C / hwmon drivers built-in (not modular) to
+his kernel.
 
-This is a variation of the problem that active_load_balance() is being 
-used as a random fix for.  I.e. it's HT/MC specific and should 
-eventually be fixed in HT/MC specific code.  As I've said several times 
-the mechanism for triggering active_load_balance() to try and achieve 
-your aims is essentially random and it's a matter of luck whether it 
-works or not (even without smpnice patches).  The smpnice patch probably 
-reduces the odds that it will work but that's not their problem.  The 
-unique load balancing needs of HT/MC need to be handled more 
-deterministically.
-
+* Etienne Lorrain <etienne_lorrain@yahoo.fr> [2006-03-21 00:00:37 +0100]:
+> --- "Mark M. Hoffman" wrote:
+> > * Etienne Lorrain [2006-03-16 11:53:32 +0100]:
+> > >  I did not built with all hwmon drivers because I could determine what I
+> > >  had on my mainboard.
+> > 
+> > Really?  If you don't have all the hwmon drivers built in, then I'm not
+> > sure how the i2c subsystem could take so long to init.  Can we see the
+> > entire kernel config please?
 > 
-> I am giving so many examples that I am confused at the end of day, which
-> examples are fixed and which are not by your patches :)
-> So please send the latest smpnice patch, which you think is clean and fixes 
-> all the issues(look at all my examples and also the ones mentioned in the 
-> OLS paper...)
+>    That is the real 2.6.16 with only CONFIG_I2C_VIAPRO=y (the only I2C module loaded
+>  using Knoppix on my motherboard) (full .config attached):
 
-I'm in the process of doing that.
+OK: you didn't have all the hwmon/sensors drivers built in, just seven of
+them.  ;)  This really is not a good idea.  In an ideal world, these drivers
+would notice that the hardware is not present and move on.  But I2C/SMBus is
+not like PCI.  There is no single ID to read and test.  This hardware is only
+recognized based on heuristics.  And the probing itself takes time: especially
+if you have a very slow I2C bus.  More on that later...
 
-Peter
+> 885c885
+> < # CONFIG_I2C_PCA_ISA is not set
+> ---
+> > CONFIG_I2C_PCA_ISA=y
+
+This alone is the cause of the delay.  (I have confirmed it by running some
+similar .configs here.)  You almost certainly don't own this specialized
+piece of hardware.  Worse still, that particular driver has no code to detect
+whether or not the hardware is present.  I cc'ed the listed driver author
+(Ian) just in case this might be corrected... but I guess there is no way
+to fix it.
+
+So the delay is (1) an I2C bus driver that is not actually present, trying to
+probe for (2) seven different sensors chip drivers that certainly aren't present
+on the nonexistent bus.  Timeouts ensue.
+
+So unless Ian knows a better way to detect that bus driver... the best I can
+advise is to *not* build in those drivers for hardware that you do not have.
+
+Regards,
+
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Mark M. Hoffman
+mhoffman@lightlink.com
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

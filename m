@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWC2JH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWC2JLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWC2JH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 04:07:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWC2JH6
+	id S1750788AbWC2JLU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 04:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWC2JLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 04:07:58 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:54034 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750715AbWC2JH5 (ORCPT
+	Wed, 29 Mar 2006 04:11:19 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:46789 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750788AbWC2JLS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 04:07:57 -0500
-Date: Wed, 29 Mar 2006 11:08:06 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Mark Lord <lkml@rtr.ca>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.16-git4: kernel BUG at block/ll_rw_blk.c:3497
-Message-ID: <20060329090806.GW8186@suse.de>
-References: <44288882.4020809@rtr.ca> <20060329081642.GU8186@suse.de> <20060329082747.GV27946@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060329082747.GV27946@ftp.linux.org.uk>
+	Wed, 29 Mar 2006 04:11:18 -0500
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Jackson <pj@sgi.com>, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, clameter@sgi.com
+Date: Wed, 29 Mar 2006 01:11:14 -0800
+Message-Id: <20060329091114.14612.8784.sendpatchset@jackhammer.engr.sgi.com>
+In-Reply-To: <20060329091108.14612.84403.sendpatchset@jackhammer.engr.sgi.com>
+References: <20060329091108.14612.84403.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH 02/03] Cpuset: unsafe mm reference fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29 2006, Al Viro wrote:
-> On Wed, Mar 29, 2006 at 10:16:43AM +0200, Jens Axboe wrote:
-> > triggering. What sort of testing were you running, exactly?
-> > 
-> > Al, any ideas?
-> 
-> I really wonder why it's the call from do_exit() that triggers it.
-> The thing is, we get off-by-exactly-one here and all previous callers
-> of that puppy would be elsewhere (cfq, mostly).
-> 
-> IOW, we get exactly one extra call of put_io_context() _and_ have it
-> happen before do_exit() (i.e. from normal IO paths).  Interesting...
-> 
-> Is there any way to reproduce it without too much PITA?
+From: Paul Jackson <pj@sgi.com>
 
-That's what I'd like to know as well. So far I haven't seen any io
-context anomalies with the current kernels. I'll keep poking.
+Fix unsafe reference to a tasks mm struct, by moving the
+reference inside of a convenient nearby properly guarded
+code block.
+
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
+---
+
+ kernel/cpuset.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- 2.6.16-mm1.orig/kernel/cpuset.c	2006-03-27 08:44:26.165846244 -0800
++++ 2.6.16-mm1/kernel/cpuset.c	2006-03-27 08:44:27.405861502 -0800
+@@ -1183,11 +1183,11 @@ static int attach_task(struct cpuset *cs
+ 	mm = get_task_mm(tsk);
+ 	if (mm) {
+ 		mpol_rebind_mm(mm, &to);
++		if (is_memory_migrate(cs))
++			do_migrate_pages(mm, &from, &to, MPOL_MF_MOVE_ALL);
+ 		mmput(mm);
+ 	}
+ 
+-	if (is_memory_migrate(cs))
+-		do_migrate_pages(tsk->mm, &from, &to, MPOL_MF_MOVE_ALL);
+ 	put_task_struct(tsk);
+ 	synchronize_rcu();
+ 	if (atomic_dec_and_test(&oldcs->count))
 
 -- 
-Jens Axboe
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

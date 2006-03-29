@@ -1,84 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWC2N10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbWC2N1E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbWC2N10 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 08:27:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWC2N10
+	id S1751111AbWC2N1E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 08:27:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbWC2N1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 08:27:26 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:46368 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751113AbWC2N10 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 08:27:26 -0500
-Date: Wed, 29 Mar 2006 15:27:25 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH][RFC] splice support
-Message-ID: <20060329132724.GF8186@suse.de>
-References: <20060329122841.GC8186@suse.de> <442A8883.9060909@garzik.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <442A8883.9060909@garzik.org>
+	Wed, 29 Mar 2006 08:27:03 -0500
+Received: from smtp13.wanadoo.fr ([193.252.22.54]:62351 "EHLO
+	smtp13.wanadoo.fr") by vger.kernel.org with ESMTP id S1751111AbWC2N1B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 08:27:01 -0500
+X-ME-UUID: 20060329132700417.65CFC700008A@mwinf1307.wanadoo.fr
+To: mrmacman_g4@mac.com (Kyle Moffett)
+Cc: Eric Piel <Eric.Piel@tremplin-utc.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Rob Landley <rob@landley.net>,
+       nix@esperi.org.uk, mmazur@kernel.pl, linux-kernel@vger.kernel.org,
+       llh-discuss@lists.pld-linux.org
+Subject: Re: [OT] Non-GCC compilers used for linux userspace
+References: <200603141619.36609.mmazur@kernel.pl>
+	<20060326065205.d691539c.mrmacman_g4@mac.com>
+	<4426A5BF.2080804@tremplin-utc.net>
+	<200603261609.10992.rob@landley.net>
+	<44271E88.6040101@tremplin-utc.net>
+	<5DC72207-3C0B-44C2-A9E5-319C0A965E9D@mac.com>
+	<Pine.LNX.4.61.0603281619300.27529@yvahk01.tjqt.qr>
+	<36A8C3CC-3E4D-4158-AABB-F4D2C66AA8CD@mac.com>
+	<442960B6.2040502@tremplin-utc.net>
+	<7E2F0C3C-4091-4EEB-8E10-C1F58F94BD59@mac.com>
+X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
+From: Mathieu Chouquet-Stringer <ml2news@free.fr>
+Organization: Uh?
+Date: 29 Mar 2006 15:25:49 +0200
+In-Reply-To: <7E2F0C3C-4091-4EEB-8E10-C1F58F94BD59@mac.com>
+Message-ID: <m3lkuto00y.fsf@localhost.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29 2006, Jeff Garzik wrote:
-> Jens Axboe wrote:
-> 
-> >index 509ccec..23e2c7c 100644
-> >--- a/fs/ext2/file.c
-> >+++ b/fs/ext2/file.c
-> >@@ -53,6 +53,8 @@ const struct file_operations ext2_file_o
-> > 	.readv		= generic_file_readv,
-> > 	.writev		= generic_file_writev,
-> > 	.sendfile	= generic_file_sendfile,
-> >+	.splice_read	= generic_file_splice_read,
-> >+	.splice_write	= generic_file_splice_write,
-> > };
-> > 
-> > #ifdef CONFIG_EXT2_FS_XIP
-> >diff --git a/fs/ext3/file.c b/fs/ext3/file.c
-> >index 783a796..1efefb6 100644
-> >--- a/fs/ext3/file.c
-> >+++ b/fs/ext3/file.c
-> >@@ -119,6 +119,8 @@ const struct file_operations ext3_file_o
-> > 	.release	= ext3_release_file,
-> > 	.fsync		= ext3_sync_file,
-> > 	.sendfile	= generic_file_sendfile,
-> >+	.splice_read	= generic_file_splice_read,
-> >+	.splice_write	= generic_file_splice_write,
-> 
-> >+static long do_splice_from(struct inode *pipe, struct file *out, size_t 
-> >len,
-> >+			   unsigned long flags)
-> >+{
-> >+	if (out->f_op && out->f_op->splice_write)
-> >+		return out->f_op->splice_write(pipe, out, len, flags);
-> 
-> 1) What are the consequences of doing
-> 
-> 	if (f_op->splice_write)
-> 		f_op->splice_write(...);
-> 	else
-> 		generic_file_splice_write(...);
-> 
-> to cause sys_splice() to default to supported?
+mrmacman_g4@mac.com (Kyle Moffett) writes:
+> So does  anybody compile userspace under anything other than GCC or Intel
+> compilers?  Do any such compilers even exist?
 
-It should probably work, the fs guys should know more about that. Any fs
-that ->prepare_write(), ->commit_write() works for can use
-generic_file_splice_write(). I prefer to keep it sane for now, mason
-tells me that eg xfs might need special care.
-
-> 2) Do you really have to test f_op itself for NULL?  Is that a stealth 
-> closed-file check or something?  I would be surprised if f_op was ever 
-> really NULL.
-
-Probably not, paranoia.
-
-After posting I fixed another bug, essentially making the 'more' flag to
-sendpage() be correct. Should improve throughput a little.
-
+ccc on alpha
 -- 
-Jens Axboe
+Mathieu Chouquet-Stringer
+    "Le disparu, si l'on vénère sa mémoire, est plus présent et
+                 plus puissant que le vivant".
+           -- Antoine de Saint-Exupéry, Citadelle --
 

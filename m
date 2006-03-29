@@ -1,115 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWC2CMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWC2COr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbWC2CMO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 21:12:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWC2CMN
+	id S1750772AbWC2COr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 21:14:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWC2COr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 21:12:13 -0500
-Received: from mail.gmx.de ([213.165.64.20]:40650 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750773AbWC2CMM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 21:12:12 -0500
-X-Authenticated: #427522
-Message-ID: <4429ED2F.10407@gmx.de>
-Date: Wed, 29 Mar 2006 04:13:03 +0200
-From: Mathis Ahrens <Mathis.Ahrens@gmx.de>
-User-Agent: Mail/News 1.5 (X11/20060325)
+	Tue, 28 Mar 2006 21:14:47 -0500
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:33784 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750772AbWC2COq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 21:14:46 -0500
+Message-ID: <4429ED92.9040602@bigpond.net.au>
+Date: Wed, 29 Mar 2006 13:14:42 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: Andrew Morton <akpm@osdl.org>, col-pepper@piments.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: o_sync in vfat driver
-References: <op.s5lrw0hrj68xd1@mail.piments.com> <op.s5nkafhpj68xd1@mail.piments.com> <20060227151230.695de2af.akpm@osdl.org> <200602281347.46169.mason@suse.com>
-In-Reply-To: <200602281347.46169.mason@suse.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+CC: Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Con Kolivas <kernel@kolivas.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched: smpnice work around for active_load_balance()
+References: <4428D112.7050704@bigpond.net.au> <20060328112521.A27574@unix-os.sc.intel.com> <4429BC61.7020201@bigpond.net.au>
+In-Reply-To: <4429BC61.7020201@bigpond.net.au>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 29 Mar 2006 02:14:43 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-
-Chris Mason wrote:
-> On Monday 27 February 2006 18:12, Andrew Morton wrote:
->   
->> We don't know that the same number of same-sized write()s were happening in
->> each case.
+Peter Williams wrote:
+> Siddha, Suresh B wrote:
+>> On Tue, Mar 28, 2006 at 05:00:50PM +1100, Peter Williams wrote:
+[bits deleted]
 >>
->> There's been some talk about implementing fsync()-on-file-close for this
->> problem, and some protopatches.  But nothing final yet.
->>     
->
-> Here's the patch I'm using in -suse right now.  What I want to do is make a 
-> much more generic -o flush, but it'll still need a few bits in individual 
-> filesystem to kick off metadata writes quickly.
->
-> The basic goal behind the code is to trigger writes without waiting for both
-> data and metadata.  If the user is watching the memory stick, when the 
-> little light stops flashing all the data and metadata will be on disk.
->
-> It also generally throttles userland a little during file release.  This 
-> could be changed to throttle for each page dirtied, but most users I 
-> asked liked the current setup better.
->   
+>> Even with no HT and MC, this patch has still has issues in the presence
+>> of different priority tasks... consider a simple DP system and run two
+>> instances of high priority tasks(simple infinite loop) and two normal 
+>> priority
+>> tasks. With "top" I observed that these normal priority tasks keep on 
+>> jumping
+>> from one processor to another... Ideally with smpnice, we would assume 
+>> that each processor should have two tasks (one high priority and 
+>> another one with normal priority) ..
+> 
+> Yes, but you are failing to take into account the effect of the other 
+> tasks on your system (e.g. top) that run from time to time.  If their 
+> burst of CPU use happens to coincide with some load balancing activity 
+> they will cause an imbalance to be detected (that is different to that 
+> which only considers your test tasks) and this will result in some tasks 
+> being moved.  Beware the Heisenberg Uncertainty Principle :-).
 
-I like the idea and would like to see something like this in mainline.
+Notwithstanding the HUP, I've investigated this and have found that 
+there is more instability than expected and that it is due to a silly 
+bit of code (by me) at the end of find_busiest_queue() marked by the 
+comment:
 
-Here is some non-scientific benchmark done with 2.6.16, comparing
-default mount and flush mount of a USB2 stick:
+/* or if there's a reasonable chance that *imbalance is big
+  * enough to cause a move
+  */
 
-/////////////////////////////////////////////////////////////////////
-Single File "Test": 43MB
-$ time cp Test /media/usbdisk/test/ && time umount /media/usbdisk/
-/////////////////////////////////////////////////////////////////////
+that makes load balancing more aggressive.  The functionality it 
+implemented should have been abandoned when the code was updated to use 
+average run queue loads instead of SCHED_LOAD_SCALE in the code that 
+handled small imbalances but wasn't.  I'll send Andrew a patch that 
+removes the offending code shortly.
 
-VANILLA:
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-real    0m3.770s
-user    0m0.004s
-sys     0m0.308s
-
-real    0m9.439s
-user    0m0.000s
-sys     0m0.040s
-
-FLUSH:
-
-real    0m6.000s
-user    0m0.012s
-sys     0m0.400s
-
-real    0m3.668s
-user    0m0.000s
-sys     0m0.028s
-
-REAL TIME RATIO (FLUSH/VANILLA):
-9.6 / 13.1 = 0.73
-
-/////////////////////////////////////////////////////////////////////
-Directory Tree "flushtest": 44MB (8866 files, 1820 dirs)
-$ time cp -R flushtest/ /media/usbdisk/ && time umount /media/usbdisk/
-/////////////////////////////////////////////////////////////////////
-
-VANILLA:
-
-real    0m0.966s
-user    0m0.024s
-sys     0m0.860s
-
-real    1m11.962s
-user    0m0.004s
-sys     0m0.160s
-
-FLUSH:
-
-real    1m41.645s
-user    0m0.032s
-sys     0m1.112s
-
-real    0m4.660s
-user    0m0.004s
-sys     0m0.068s
-
-REAL TIME RATIO (FLUSH/VANILLA):
-106.3 / 77.9 = 1.36
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

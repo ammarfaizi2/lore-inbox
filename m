@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWC2AbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWC2AdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWC2AbM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 19:31:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWC2AbL
+	id S1750703AbWC2AdM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 19:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbWC2AdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 19:31:11 -0500
-Received: from vms048pub.verizon.net ([206.46.252.48]:43956 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1750716AbWC2AbK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 19:31:10 -0500
-Date: Tue, 28 Mar 2006 19:34:46 -0500
-From: Paul Davis <paul@linuxaudiosystems.com>
-Subject: Re: realtime-preempt 2.6.16-rt7-10 bug?
-In-reply-to: <1143585658.11792.113.camel@mindpipe>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       "Shayne O'Connor" <machine@machinehasnoagenda.com>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, ardour-dev@lists.ardour.org
-Reply-to: paul@linuxaudiosystems.com
-Message-id: <1143592486.3402.3.camel@localhost.localdomain>
-Organization: Linux Audio Systems
-MIME-version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7)
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1143559994.2959.5.camel@machine>
-	<1143579439.12960.5.camel@localhost.localdomain>
-	<1143585658.11792.113.camel@mindpipe>
+	Tue, 28 Mar 2006 19:33:12 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:11938 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1750703AbWC2AdL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 19:33:11 -0500
+Subject: Re: [PATCH -mm 0/4] LED Updates
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: alan@lxorguk.ukuu.org.uk, bzolnier@gmail.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20060328162300.5bf4f4fc.akpm@osdl.org>
+References: <1143591415.14682.55.camel@localhost.localdomain>
+	 <20060328162300.5bf4f4fc.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 29 Mar 2006 01:33:05 +0100
+Message-Id: <1143592385.14682.68.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-28 at 17:40 -0500, Lee Revell wrote:
-> On Tue, 2006-03-28 at 15:57 -0500, Steven Rostedt wrote:
-> > On Wed, 2006-03-29 at 02:33 +1100, Shayne O'Connor wrote:
-> > > i've compiled the 2.6.16 kernel with the realtime-preempt patches, but
-> > > have run into some problems while using Ardour for realtime audio.
-> > > Ardour crashes whenever i stop recording, and after running dmesg i'm
-> > > suspecting a bug in the realtime patch (i've tried rt7 and rt10, both
-> > > have the same problem):
-> > > 
-> > 
-> > Hmm, this may be a bug in Ardour.  Since it's for realtime audio, I
-> > assume that it knows about the timeofday hack, which is the only way to
-> > get this bug.  
-
-Ardour does not use this hack. Only if you were using a JACK built to do
-this could you see this.
-
-> Specifically it unlinked a file.
+On Tue, 2006-03-28 at 16:23 -0800, Andrew Morton wrote:
+> Richard Purdie <rpurdie@rpsys.net> wrote:
+> >
+> > ...
+> >
+> > Also add some missing externs.
+> >
+> > ... 
+> >  
+> >  /* Registration functions for complex triggers */
+> > -int led_trigger_register(struct led_trigger *trigger);
+> > -void led_trigger_unregister(struct led_trigger *trigger);
+> > +extern int led_trigger_register(struct led_trigger *trigger);
+> > +extern void led_trigger_unregister(struct led_trigger *trigger);
 > 
-> Shayne, is your /tmp a tmpfs or ext3?
+> Well.  The externs weren't "missing".  They were "unnecessary".  I don't
+> know why we do this really - it doesn't communicate any information.  Oh
+> well.
 
+Half of the leds header had them, half of it didn't. I looked at some
+other kernel headers and saw the were present so presumed they were
+needed for some reason. Looks like I changed the wrong half... :-/
+
+Richard
 

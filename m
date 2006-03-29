@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932494AbWC2ARy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbWC2ARw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932494AbWC2ARy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 19:17:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbWC2ARy
+	id S932495AbWC2ARw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 19:17:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWC2ARc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 19:17:54 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:14524 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S932494AbWC2ARd (ORCPT
+	Tue, 28 Mar 2006 19:17:32 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:14012 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S932495AbWC2AR3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 19:17:33 -0500
-Subject: [PATCH -mm 4/4] LED: Add IDE disk activity LED trigger
+	Tue, 28 Mar 2006 19:17:29 -0500
+Subject: [PATCH -mm 3/4] LED: Add LED Timer Trigger
 From: Richard Purdie <rpurdie@rpsys.net>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Wed, 29 Mar 2006 01:17:25 +0100
-Message-Id: <1143591445.14682.60.camel@localhost.localdomain>
+Date: Wed, 29 Mar 2006 01:17:21 +0100
+Message-Id: <1143591441.14682.59.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add an LED trigger for IDE disk activity to the ide-disk driver.
+
+From: Richard Purdie <rpurdie@rpsys.net>
+
+Add an example of a complex LED trigger in the form of a generic timer which
+triggers the LED its attached to at a user specified frequency and duty cycle.
 
 Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
 
-Index: linux-2.6.16/drivers/ide/ide-disk.c
+Index: linux-2.6.16/drivers/leds/Kconfig
 ===================================================================
---- linux-2.6.16.orig/drivers/ide/ide-disk.c	2006-03-28 17:22:51.000000000 +0100
-+++ linux-2.6.16/drivers/ide/ide-disk.c	2006-03-28 17:25:12.000000000 +0100
-@@ -60,6 +60,7 @@
- #include <linux/genhd.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
-+#include <linux/leds.h>
+--- linux-2.6.16.orig/drivers/leds/Kconfig	2006-03-28 13:37:34.000000000 +0100
++++ linux-2.6.16/drivers/leds/Kconfig	2006-03-28 13:38:35.000000000 +0100
+@@ -22,5 +22,12 @@
+ 	  These triggers allow kernel events to drive the LEDs and can
+ 	  be configured via sysfs. If unsure, say Y.
  
- #define _IDE_DISK
- 
-@@ -316,6 +317,8 @@
- 		return ide_stopped;
- 	}
- 
-+	ledtrig_ide_activity();
++config LEDS_TRIGGER_TIMER
++	tristate "LED Timer Trigger"
++	depends LEDS_TRIGGERS
++	help
++	  This allows LEDs to be controlled by a programmable timer
++	  via sysfs. If unsure, say Y.
 +
- 	pr_debug("%s: %sing: block=%llu, sectors=%lu, buffer=0x%08lx\n",
- 		 drive->name, rq_data_dir(rq) == READ ? "read" : "writ",
- 		 (unsigned long long)block, rq->nr_sectors,
-Index: linux-2.6.16/drivers/leds/ledtrig-ide-disk.c
+ endmenu
+ 
+Index: linux-2.6.16/drivers/leds/ledtrig-timer.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.16/drivers/leds/ledtrig-ide-disk.c	2006-03-28 17:36:43.000000000 +0100
-@@ -0,0 +1,62 @@
++++ linux-2.6.16/drivers/leds/ledtrig-timer.c	2006-03-28 13:38:35.000000000 +0100
+@@ -0,0 +1,170 @@
 +/*
-+ * LED IDE-Disk Activity Trigger
++ * LED Kernel Timer Trigger
 + *
-+ * Copyright 2006 Openedhand Ltd.
++ * Copyright 2005-2006 Openedhand Ltd.
 + *
 + * Author: Richard Purdie <rpurdie@openedhand.com>
 + *
@@ -67,98 +65,173 @@ Index: linux-2.6.16/drivers/leds/ledtrig-ide-disk.c
 + *
 + */
 +
++#include <linux/config.h>
 +#include <linux/module.h>
 +#include <linux/kernel.h>
 +#include <linux/init.h>
++#include <linux/list.h>
++#include <linux/spinlock.h>
++#include <linux/device.h>
++#include <linux/sysdev.h>
 +#include <linux/timer.h>
 +#include <linux/leds.h>
++#include "leds.h"
 +
-+static void ledtrig_ide_timerfunc(unsigned long data);
++struct timer_trig_data {
++	unsigned long delay_on;		/* milliseconds on */
++	unsigned long delay_off;	/* milliseconds off */
++	struct timer_list timer;
++};
 +
-+DEFINE_LED_TRIGGER(ledtrig_ide);
-+static DEFINE_TIMER(ledtrig_ide_timer, ledtrig_ide_timerfunc, 0, 0);
-+static int ide_activity;
-+static int ide_lastactivity;
-+
-+void ledtrig_ide_activity(void)
++static void led_timer_function(unsigned long data)
 +{
-+	ide_activity++;
-+	if (!timer_pending(&ledtrig_ide_timer))
-+		mod_timer(&ledtrig_ide_timer, jiffies + msecs_to_jiffies(10));
++	struct led_classdev *led_cdev = (struct led_classdev *) data;
++	struct timer_trig_data *timer_data = led_cdev->trigger_data;
++	unsigned long brightness = LED_OFF;
++	unsigned long delay = timer_data->delay_off;
++
++	if (!timer_data->delay_on || !timer_data->delay_off) {
++		led_set_brightness(led_cdev, LED_OFF);
++		return;
++	}
++
++	if (!led_cdev->brightness) {
++		brightness = LED_FULL;
++		delay = timer_data->delay_on;
++	}
++
++	led_set_brightness(led_cdev, brightness);
++
++	mod_timer(&timer_data->timer, jiffies + msecs_to_jiffies(delay));
 +}
-+EXPORT_SYMBOL(ledtrig_ide_activity);
 +
-+static void ledtrig_ide_timerfunc(unsigned long data)
++static ssize_t led_delay_on_show(struct class_device *dev, char *buf)
 +{
-+	if (ide_lastactivity != ide_activity) {
-+		ide_lastactivity = ide_activity;
-+		led_trigger_event(ledtrig_ide, LED_FULL);
-+	    	mod_timer(&ledtrig_ide_timer, jiffies + msecs_to_jiffies(10));
-+	} else {
-+		led_trigger_event(ledtrig_ide, LED_OFF);
++	struct led_classdev *led_cdev = class_get_devdata(dev);
++	struct timer_trig_data *timer_data = led_cdev->trigger_data;
++
++	sprintf(buf, "%lu\n", timer_data->delay_on);
++
++	return strlen(buf) + 1;
++}
++
++static ssize_t led_delay_on_store(struct class_device *dev, const char *buf,
++				size_t size)
++{
++	struct led_classdev *led_cdev = class_get_devdata(dev);
++	struct timer_trig_data *timer_data = led_cdev->trigger_data;
++	int ret = -EINVAL;
++	char *after;
++	unsigned long state = simple_strtoul(buf, &after, 10);
++
++	if (after - buf > 0) {
++		timer_data->delay_on = state;
++		mod_timer(&timer_data->timer, jiffies + 1);
++		ret = after - buf;
++	}
++
++	return ret;
++}
++
++static ssize_t led_delay_off_show(struct class_device *dev, char *buf)
++{
++	struct led_classdev *led_cdev = class_get_devdata(dev);
++	struct timer_trig_data *timer_data = led_cdev->trigger_data;
++
++	sprintf(buf, "%lu\n", timer_data->delay_off);
++
++	return strlen(buf) + 1;
++}
++
++static ssize_t led_delay_off_store(struct class_device *dev, const char *buf,
++				size_t size)
++{
++	struct led_classdev *led_cdev = class_get_devdata(dev);
++	struct timer_trig_data *timer_data = led_cdev->trigger_data;
++	int ret = -EINVAL;
++	char *after;
++	unsigned long state = simple_strtoul(buf, &after, 10);
++
++	if (after - buf > 0) {
++		timer_data->delay_off = state;
++		mod_timer(&timer_data->timer, jiffies + 1);
++		ret = after - buf;
++	}
++
++	return ret;
++}
++
++static CLASS_DEVICE_ATTR(delay_on, 0644, led_delay_on_show,
++			led_delay_on_store);
++static CLASS_DEVICE_ATTR(delay_off, 0644, led_delay_off_show,
++			led_delay_off_store);
++
++static void timer_trig_activate(struct led_classdev *led_cdev)
++{
++	struct timer_trig_data *timer_data;
++
++	timer_data = kzalloc(sizeof(struct timer_trig_data), GFP_KERNEL);
++	if (!timer_data)
++		return;
++
++	led_cdev->trigger_data = timer_data;
++
++	init_timer(&timer_data->timer);
++	timer_data->timer.function = led_timer_function;
++	timer_data->timer.data = (unsigned long) led_cdev;
++
++	class_device_create_file(led_cdev->class_dev,
++				&class_device_attr_delay_on);
++	class_device_create_file(led_cdev->class_dev,
++				&class_device_attr_delay_off);
++}
++
++static void timer_trig_deactivate(struct led_classdev *led_cdev)
++{
++	struct timer_trig_data *timer_data = led_cdev->trigger_data;
++
++	if (timer_data) {
++		class_device_remove_file(led_cdev->class_dev,
++					&class_device_attr_delay_on);
++		class_device_remove_file(led_cdev->class_dev,
++					&class_device_attr_delay_off);
++		del_timer_sync(&timer_data->timer);
++		kfree(timer_data);
 +	}
 +}
 +
-+static int __init ledtrig_ide_init(void)
++static struct led_trigger timer_led_trigger = {
++	.name     = "timer",
++	.activate = timer_trig_activate,
++	.deactivate = timer_trig_deactivate,
++};
++
++static int __init timer_trig_init(void)
 +{
-+	led_trigger_register_simple("ide-disk", &ledtrig_ide);
-+	return 0;
++	return led_trigger_register(&timer_led_trigger);
 +}
 +
-+static void __exit ledtrig_ide_exit(void)
++static void __exit timer_trig_exit(void)
 +{
-+	led_trigger_unregister_simple(ledtrig_ide);
++	led_trigger_unregister(&timer_led_trigger);
 +}
 +
-+module_init(ledtrig_ide_init);
-+module_exit(ledtrig_ide_exit);
++module_init(timer_trig_init);
++module_exit(timer_trig_exit);
 +
 +MODULE_AUTHOR("Richard Purdie <rpurdie@openedhand.com>");
-+MODULE_DESCRIPTION("LED IDE Disk Activity Trigger");
++MODULE_DESCRIPTION("Timer LED trigger");
 +MODULE_LICENSE("GPL");
-Index: linux-2.6.16/include/linux/leds.h
-===================================================================
---- linux-2.6.16.orig/include/linux/leds.h	2006-03-28 17:25:12.000000000 +0100
-+++ linux-2.6.16/include/linux/leds.h	2006-03-28 17:25:12.000000000 +0100
-@@ -98,4 +98,12 @@
- #define led_trigger_event(x, y) do {} while(0)
- 
- #endif
-+
-+/* Trigger specific functions */
-+#ifdef CONFIG_LEDS_TRIGGER_IDE_DISK
-+extern void ledtrig_ide_activity(void);
-+#else
-+#define ledtrig_ide_activity() do {} while(0)
-+#endif
-+
- #endif		/* __LINUX_LEDS_H_INCLUDED */
-Index: linux-2.6.16/drivers/leds/Kconfig
-===================================================================
---- linux-2.6.16.orig/drivers/leds/Kconfig	2006-03-28 17:25:12.000000000 +0100
-+++ linux-2.6.16/drivers/leds/Kconfig	2006-03-28 17:25:12.000000000 +0100
-@@ -66,5 +66,12 @@
- 	  This allows LEDs to be controlled by a programmable timer
- 	  via sysfs. If unsure, say Y.
- 
-+config LEDS_TRIGGER_IDE_DISK
-+	bool "LED Timer Trigger"
-+	depends LEDS_TRIGGERS && BLK_DEV_IDEDISK
-+	help
-+	  This allows LEDs to be controlled by IDE disk activity.
-+	  If unsure, say Y.
-+
- endmenu
- 
 Index: linux-2.6.16/drivers/leds/Makefile
 ===================================================================
---- linux-2.6.16.orig/drivers/leds/Makefile	2006-03-28 17:25:12.000000000 +0100
-+++ linux-2.6.16/drivers/leds/Makefile	2006-03-28 17:28:18.000000000 +0100
-@@ -13,3 +13,4 @@
- 
- # LED Triggers
- obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+= ledtrig-timer.o
-+obj-$(CONFIG_LEDS_TRIGGER_IDE_DISK)	+= ledtrig-ide-disk.o
-
+--- linux-2.6.16.orig/drivers/leds/Makefile	2006-03-28 13:37:34.000000000 +0100
++++ linux-2.6.16/drivers/leds/Makefile	2006-03-28 13:38:35.000000000 +0100
+@@ -3,3 +3,6 @@
+ obj-$(CONFIG_NEW_LEDS)			+= led-core.o
+ obj-$(CONFIG_LEDS_CLASS)		+= led-class.o
+ obj-$(CONFIG_LEDS_TRIGGERS)		+= led-triggers.o
++
++# LED Triggers
++obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+= ledtrig-timer.o
 
 

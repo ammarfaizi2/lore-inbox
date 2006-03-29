@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964881AbWC2A2k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWC2AbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964881AbWC2A2k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 19:28:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964883AbWC2A2k
+	id S1750716AbWC2AbM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 19:31:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWC2AbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 19:28:40 -0500
-Received: from mga02.intel.com ([134.134.136.20]:2093 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964881AbWC2A2j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 19:28:39 -0500
-X-IronPort-AV: i="4.03,140,1141632000"; 
-   d="scan'208"; a="16331201:sNHT3040387154"
-Message-Id: <200603290012.k2T0C6g32166@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Christoph Lameter'" <clameter@sgi.com>,
-       "'Nick Piggin'" <nickpiggin@yahoo.com.au>
-Cc: "Zoltan Menyhart" <Zoltan.Menyhart@free.fr>, <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-Subject: RE: Fix unlock_buffer() to work the same way as bit_unlock()
-Date: Tue, 28 Mar 2006 16:12:42 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZSxMfxr6gMEsIsQ8OR0DYRRxpRBwAADIJg
-In-Reply-To: <Pine.LNX.4.64.0603281537500.15037@schroedinger.engr.sgi.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Tue, 28 Mar 2006 19:31:11 -0500
+Received: from vms048pub.verizon.net ([206.46.252.48]:43956 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1750716AbWC2AbK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 19:31:10 -0500
+Date: Tue, 28 Mar 2006 19:34:46 -0500
+From: Paul Davis <paul@linuxaudiosystems.com>
+Subject: Re: realtime-preempt 2.6.16-rt7-10 bug?
+In-reply-to: <1143585658.11792.113.camel@mindpipe>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+       "Shayne O'Connor" <machine@machinehasnoagenda.com>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, ardour-dev@lists.ardour.org
+Reply-to: paul@linuxaudiosystems.com
+Message-id: <1143592486.3402.3.camel@localhost.localdomain>
+Organization: Linux Audio Systems
+MIME-version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7)
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1143559994.2959.5.camel@machine>
+	<1143579439.12960.5.camel@localhost.localdomain>
+	<1143585658.11792.113.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote on Tuesday, March 28, 2006 3:48 PM
-> On Tue, 28 Mar 2006, Zoltan Menyhart wrote:
-> 
-> > Why not to use separate bit operations for different purposes?
+On Tue, 2006-03-28 at 17:40 -0500, Lee Revell wrote:
+> On Tue, 2006-03-28 at 15:57 -0500, Steven Rostedt wrote:
+> > On Wed, 2006-03-29 at 02:33 +1100, Shayne O'Connor wrote:
+> > > i've compiled the 2.6.16 kernel with the realtime-preempt patches, but
+> > > have run into some problems while using Ardour for realtime audio.
+> > > Ardour crashes whenever i stop recording, and after running dmesg i'm
+> > > suspecting a bug in the realtime patch (i've tried rt7 and rt10, both
+> > > have the same problem):
+> > > 
 > > 
-> > - e.g. "test_and_set_bit_N_acquire()" for lock acquisition
-> > - "test_and_set_bit()", "clear_bit()" as they are today
-> > - "release_N_clear_bit()"...
-> > 
-> 
-> That would force IA64 specifics onto all other architectures.
-> 
-> Could we simply define these smb_mb__*_clear_bit to be noops
-> and then make the atomic bit ops to have full barriers? That would satisfy 
-> Nick's objections.
-> 
-> --- linux-2.6.16.orig/include/asm-ia64/bitops.h	2006-03-19 21:53:29.000000000 -0800
-> +++ linux-2.6.16/include/asm-ia64/bitops.h	2006-03-28 15:45:08.000000000 -0800
-> @@ -45,6 +45,7 @@
->  		old = *m;
->  		new = old | bit;
->  	} while (cmpxchg_acq(m, old, new) != old);
-> +	smb_mb();
->  }
+> > Hmm, this may be a bug in Ardour.  Since it's for realtime audio, I
+> > assume that it knows about the timeofday hack, which is the only way to
+> > get this bug.  
 
-There are better way to do it.  The pointer is already cast as volatile,
-so old = *m has acq semantics built-in, we can just change cmpxchg_acq to
-cmpxchg_rel, then effectively it is a full memory barrier without doing the
-expensive smp_mb().
+Ardour does not use this hack. Only if you were using a JACK built to do
+this could you see this.
 
-- Ken
+> Specifically it unlinked a file.
+> 
+> Shayne, is your /tmp a tmpfs or ext3?
+
+

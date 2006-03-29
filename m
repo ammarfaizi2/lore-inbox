@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWC2XYS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWC2X2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751263AbWC2XYS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 18:24:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWC2XYI
+	id S1751251AbWC2X2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 18:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbWC2X2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 18:24:08 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:18376 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751247AbWC2XXv (ORCPT
+	Wed, 29 Mar 2006 18:28:08 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:23496 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751251AbWC2XXy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 18:23:51 -0500
+	Wed, 29 Mar 2006 18:23:54 -0500
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 3 of 16] ipath - support for HyperTransport devices
-X-Mercurial-Node: ce67993a1036558d630b35b940290d1acf696d85
-Message-Id: <ce67993a1036558d630b.1143674606@chalcedony.internal.keyresearch.com>
+Subject: [PATCH 8 of 16] ipath - support for userspace apps using core driver
+X-Mercurial-Node: 244bf654cabbc93501e5f3e1571a5fe85aca0445
+Message-Id: <244bf654cabbc93501e5.1143674611@chalcedony.internal.keyresearch.com>
 In-Reply-To: <patchbomb.1143674603@chalcedony.internal.keyresearch.com>
-Date: Wed, 29 Mar 2006 15:23:26 -0800
+Date: Wed, 29 Mar 2006 15:23:31 -0800
 From: "Bryan O'Sullivan" <bos@pathscale.com>
 To: rdreier@cisco.com
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The ipath_ht400.c file contains routines and definitions specific to
-HyperTransport-based InfiniPath devices.
+These files introduce a char device that userspace apps use to gain
+direct memory-mapped access to the InfiniPath hardware, and routines for
+pinning and unpinning user memory in cases where the hardware needs to
+DMA into the user address space.
 
 Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
 
-diff -r 3120546d7bd3 -r ce67993a1036 drivers/infiniband/hw/ipath/ipath_ht400.c
+diff -r a7122f893096 -r 244bf654cabb drivers/infiniband/hw/ipath/ipath_file_ops.c
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/drivers/infiniband/hw/ipath/ipath_ht400.c	Wed Mar 29 15:21:26 2006 -0800
-@@ -0,0 +1,1586 @@
++++ b/drivers/infiniband/hw/ipath/ipath_file_ops.c	Wed Mar 29 15:21:26 2006 -0800
+@@ -0,0 +1,1910 @@
 +/*
 + * Copyright (c) 2003, 2004, 2005, 2006 PathScale, Inc. All rights reserved.
 + *
@@ -64,1557 +66,2092 @@ diff -r 3120546d7bd3 -r ce67993a1036 drivers/infiniband/hw/ipath/ipath_ht400.c
 + * SOFTWARE.
 + */
 +
-+/*
-+ * This file contains all of the code that is specific to the InfiniPath
-+ * HT-400 chip.
-+ */
-+
 +#include <linux/pci.h>
-+#include <linux/delay.h>
++#include <linux/poll.h>
++#include <linux/cdev.h>
++#include <linux/swap.h>
++#include <linux/vmalloc.h>
++#include <asm/pgtable.h>
 +
 +#include "ipath_kernel.h"
-+#include "ipath_registers.h"
++#include "ips_common.h"
++#include "ipath_layer.h"
 +
-+/*
-+ * This lists the InfiniPath HT400 registers, in the actual chip layout.
-+ * This structure should never be directly accessed.
-+ *
-+ * The names are in InterCap form because they're taken straight from
-+ * the chip specification.  Since they're only used in this file, they
-+ * don't pollute the rest of the source.
-+*/
++static int ipath_open(struct inode *, struct file *);
++static int ipath_close(struct inode *, struct file *);
++static ssize_t ipath_write(struct file *, const char __user *, size_t,
++			   loff_t *);
++static unsigned int ipath_poll(struct file *, struct poll_table_struct *);
++static int ipath_mmap(struct file *, struct vm_area_struct *);
 +
-+struct _infinipath_do_not_use_kernel_regs {
-+	unsigned long long Revision;
-+	unsigned long long Control;
-+	unsigned long long PageAlign;
-+	unsigned long long PortCnt;
-+	unsigned long long DebugPortSelect;
-+	unsigned long long DebugPort;
-+	unsigned long long SendRegBase;
-+	unsigned long long UserRegBase;
-+	unsigned long long CounterRegBase;
-+	unsigned long long Scratch;
-+	unsigned long long ReservedMisc1;
-+	unsigned long long InterruptConfig;
-+	unsigned long long IntBlocked;
-+	unsigned long long IntMask;
-+	unsigned long long IntStatus;
-+	unsigned long long IntClear;
-+	unsigned long long ErrorMask;
-+	unsigned long long ErrorStatus;
-+	unsigned long long ErrorClear;
-+	unsigned long long HwErrMask;
-+	unsigned long long HwErrStatus;
-+	unsigned long long HwErrClear;
-+	unsigned long long HwDiagCtrl;
-+	unsigned long long MDIO;
-+	unsigned long long IBCStatus;
-+	unsigned long long IBCCtrl;
-+	unsigned long long ExtStatus;
-+	unsigned long long ExtCtrl;
-+	unsigned long long GPIOOut;
-+	unsigned long long GPIOMask;
-+	unsigned long long GPIOStatus;
-+	unsigned long long GPIOClear;
-+	unsigned long long RcvCtrl;
-+	unsigned long long RcvBTHQP;
-+	unsigned long long RcvHdrSize;
-+	unsigned long long RcvHdrCnt;
-+	unsigned long long RcvHdrEntSize;
-+	unsigned long long RcvTIDBase;
-+	unsigned long long RcvTIDCnt;
-+	unsigned long long RcvEgrBase;
-+	unsigned long long RcvEgrCnt;
-+	unsigned long long RcvBufBase;
-+	unsigned long long RcvBufSize;
-+	unsigned long long RxIntMemBase;
-+	unsigned long long RxIntMemSize;
-+	unsigned long long RcvPartitionKey;
-+	unsigned long long ReservedRcv[10];
-+	unsigned long long SendCtrl;
-+	unsigned long long SendPIOBufBase;
-+	unsigned long long SendPIOSize;
-+	unsigned long long SendPIOBufCnt;
-+	unsigned long long SendPIOAvailAddr;
-+	unsigned long long TxIntMemBase;
-+	unsigned long long TxIntMemSize;
-+	unsigned long long ReservedSend[9];
-+	unsigned long long SendBufferError;
-+	unsigned long long SendBufferErrorCONT1;
-+	unsigned long long SendBufferErrorCONT2;
-+	unsigned long long SendBufferErrorCONT3;
-+	unsigned long long ReservedSBE[4];
-+	unsigned long long RcvHdrAddr0;
-+	unsigned long long RcvHdrAddr1;
-+	unsigned long long RcvHdrAddr2;
-+	unsigned long long RcvHdrAddr3;
-+	unsigned long long RcvHdrAddr4;
-+	unsigned long long RcvHdrAddr5;
-+	unsigned long long RcvHdrAddr6;
-+	unsigned long long RcvHdrAddr7;
-+	unsigned long long RcvHdrAddr8;
-+	unsigned long long ReservedRHA[7];
-+	unsigned long long RcvHdrTailAddr0;
-+	unsigned long long RcvHdrTailAddr1;
-+	unsigned long long RcvHdrTailAddr2;
-+	unsigned long long RcvHdrTailAddr3;
-+	unsigned long long RcvHdrTailAddr4;
-+	unsigned long long RcvHdrTailAddr5;
-+	unsigned long long RcvHdrTailAddr6;
-+	unsigned long long RcvHdrTailAddr7;
-+	unsigned long long RcvHdrTailAddr8;
-+	unsigned long long ReservedRHTA[7];
-+	unsigned long long Sync;	/* Software only */
-+	unsigned long long Dump;	/* Software only */
-+	unsigned long long SimVer;	/* Software only */
-+	unsigned long long ReservedSW[5];
-+	unsigned long long SerdesConfig0;
-+	unsigned long long SerdesConfig1;
-+	unsigned long long SerdesStatus;
-+	unsigned long long XGXSConfig;
-+	unsigned long long ReservedSW2[4];
++static struct file_operations ipath_file_ops = {
++	.owner = THIS_MODULE,
++	.write = ipath_write,
++	.open = ipath_open,
++	.release = ipath_close,
++	.poll = ipath_poll,
++	.mmap = ipath_mmap
 +};
 +
-+#define IPATH_KREG_OFFSET(field) (offsetof(struct \
-+    _infinipath_do_not_use_kernel_regs, field) / sizeof(u64))
-+#define IPATH_CREG_OFFSET(field) (offsetof( \
-+    struct infinipath_counters, field) / sizeof(u64))
-+
-+static const struct ipath_kregs ipath_ht_kregs = {
-+	.kr_control = IPATH_KREG_OFFSET(Control),
-+	.kr_counterregbase = IPATH_KREG_OFFSET(CounterRegBase),
-+	.kr_debugport = IPATH_KREG_OFFSET(DebugPort),
-+	.kr_debugportselect = IPATH_KREG_OFFSET(DebugPortSelect),
-+	.kr_errorclear = IPATH_KREG_OFFSET(ErrorClear),
-+	.kr_errormask = IPATH_KREG_OFFSET(ErrorMask),
-+	.kr_errorstatus = IPATH_KREG_OFFSET(ErrorStatus),
-+	.kr_extctrl = IPATH_KREG_OFFSET(ExtCtrl),
-+	.kr_extstatus = IPATH_KREG_OFFSET(ExtStatus),
-+	.kr_gpio_clear = IPATH_KREG_OFFSET(GPIOClear),
-+	.kr_gpio_mask = IPATH_KREG_OFFSET(GPIOMask),
-+	.kr_gpio_out = IPATH_KREG_OFFSET(GPIOOut),
-+	.kr_gpio_status = IPATH_KREG_OFFSET(GPIOStatus),
-+	.kr_hwdiagctrl = IPATH_KREG_OFFSET(HwDiagCtrl),
-+	.kr_hwerrclear = IPATH_KREG_OFFSET(HwErrClear),
-+	.kr_hwerrmask = IPATH_KREG_OFFSET(HwErrMask),
-+	.kr_hwerrstatus = IPATH_KREG_OFFSET(HwErrStatus),
-+	.kr_ibcctrl = IPATH_KREG_OFFSET(IBCCtrl),
-+	.kr_ibcstatus = IPATH_KREG_OFFSET(IBCStatus),
-+	.kr_intblocked = IPATH_KREG_OFFSET(IntBlocked),
-+	.kr_intclear = IPATH_KREG_OFFSET(IntClear),
-+	.kr_interruptconfig = IPATH_KREG_OFFSET(InterruptConfig),
-+	.kr_intmask = IPATH_KREG_OFFSET(IntMask),
-+	.kr_intstatus = IPATH_KREG_OFFSET(IntStatus),
-+	.kr_mdio = IPATH_KREG_OFFSET(MDIO),
-+	.kr_pagealign = IPATH_KREG_OFFSET(PageAlign),
-+	.kr_partitionkey = IPATH_KREG_OFFSET(RcvPartitionKey),
-+	.kr_portcnt = IPATH_KREG_OFFSET(PortCnt),
-+	.kr_rcvbthqp = IPATH_KREG_OFFSET(RcvBTHQP),
-+	.kr_rcvbufbase = IPATH_KREG_OFFSET(RcvBufBase),
-+	.kr_rcvbufsize = IPATH_KREG_OFFSET(RcvBufSize),
-+	.kr_rcvctrl = IPATH_KREG_OFFSET(RcvCtrl),
-+	.kr_rcvegrbase = IPATH_KREG_OFFSET(RcvEgrBase),
-+	.kr_rcvegrcnt = IPATH_KREG_OFFSET(RcvEgrCnt),
-+	.kr_rcvhdrcnt = IPATH_KREG_OFFSET(RcvHdrCnt),
-+	.kr_rcvhdrentsize = IPATH_KREG_OFFSET(RcvHdrEntSize),
-+	.kr_rcvhdrsize = IPATH_KREG_OFFSET(RcvHdrSize),
-+	.kr_rcvintmembase = IPATH_KREG_OFFSET(RxIntMemBase),
-+	.kr_rcvintmemsize = IPATH_KREG_OFFSET(RxIntMemSize),
-+	.kr_rcvtidbase = IPATH_KREG_OFFSET(RcvTIDBase),
-+	.kr_rcvtidcnt = IPATH_KREG_OFFSET(RcvTIDCnt),
-+	.kr_revision = IPATH_KREG_OFFSET(Revision),
-+	.kr_scratch = IPATH_KREG_OFFSET(Scratch),
-+	.kr_sendbuffererror = IPATH_KREG_OFFSET(SendBufferError),
-+	.kr_sendctrl = IPATH_KREG_OFFSET(SendCtrl),
-+	.kr_sendpioavailaddr = IPATH_KREG_OFFSET(SendPIOAvailAddr),
-+	.kr_sendpiobufbase = IPATH_KREG_OFFSET(SendPIOBufBase),
-+	.kr_sendpiobufcnt = IPATH_KREG_OFFSET(SendPIOBufCnt),
-+	.kr_sendpiosize = IPATH_KREG_OFFSET(SendPIOSize),
-+	.kr_sendregbase = IPATH_KREG_OFFSET(SendRegBase),
-+	.kr_txintmembase = IPATH_KREG_OFFSET(TxIntMemBase),
-+	.kr_txintmemsize = IPATH_KREG_OFFSET(TxIntMemSize),
-+	.kr_userregbase = IPATH_KREG_OFFSET(UserRegBase),
-+	.kr_serdesconfig0 = IPATH_KREG_OFFSET(SerdesConfig0),
-+	.kr_serdesconfig1 = IPATH_KREG_OFFSET(SerdesConfig1),
-+	.kr_serdesstatus = IPATH_KREG_OFFSET(SerdesStatus),
-+	.kr_xgxsconfig = IPATH_KREG_OFFSET(XGXSConfig),
-+	/*
-+	 * These should not be used directly via ipath_read_kreg64(),
-+	 * use them with ipath_read_kreg64_port(),
-+	 */
-+	.kr_rcvhdraddr = IPATH_KREG_OFFSET(RcvHdrAddr0),
-+	.kr_rcvhdrtailaddr = IPATH_KREG_OFFSET(RcvHdrTailAddr0)
-+};
-+
-+static const struct ipath_cregs ipath_ht_cregs = {
-+	.cr_badformatcnt = IPATH_CREG_OFFSET(RxBadFormatCnt),
-+	.cr_erricrccnt = IPATH_CREG_OFFSET(RxICRCErrCnt),
-+	.cr_errlinkcnt = IPATH_CREG_OFFSET(RxLinkProblemCnt),
-+	.cr_errlpcrccnt = IPATH_CREG_OFFSET(RxLPCRCErrCnt),
-+	.cr_errpkey = IPATH_CREG_OFFSET(RxPKeyMismatchCnt),
-+	.cr_errrcvflowctrlcnt = IPATH_CREG_OFFSET(RxFlowCtrlErrCnt),
-+	.cr_err_rlencnt = IPATH_CREG_OFFSET(RxLenErrCnt),
-+	.cr_errslencnt = IPATH_CREG_OFFSET(TxLenErrCnt),
-+	.cr_errtidfull = IPATH_CREG_OFFSET(RxTIDFullErrCnt),
-+	.cr_errtidvalid = IPATH_CREG_OFFSET(RxTIDValidErrCnt),
-+	.cr_errvcrccnt = IPATH_CREG_OFFSET(RxVCRCErrCnt),
-+	.cr_ibstatuschange = IPATH_CREG_OFFSET(IBStatusChangeCnt),
-+	/* calc from Reg_CounterRegBase + offset */
-+	.cr_intcnt = IPATH_CREG_OFFSET(LBIntCnt),
-+	.cr_invalidrlencnt = IPATH_CREG_OFFSET(RxMaxMinLenErrCnt),
-+	.cr_invalidslencnt = IPATH_CREG_OFFSET(TxMaxMinLenErrCnt),
-+	.cr_lbflowstallcnt = IPATH_CREG_OFFSET(LBFlowStallCnt),
-+	.cr_pktrcvcnt = IPATH_CREG_OFFSET(RxDataPktCnt),
-+	.cr_pktrcvflowctrlcnt = IPATH_CREG_OFFSET(RxFlowPktCnt),
-+	.cr_pktsendcnt = IPATH_CREG_OFFSET(TxDataPktCnt),
-+	.cr_pktsendflowcnt = IPATH_CREG_OFFSET(TxFlowPktCnt),
-+	.cr_portovflcnt = IPATH_CREG_OFFSET(RxP0HdrEgrOvflCnt),
-+	.cr_rcvebpcnt = IPATH_CREG_OFFSET(RxEBPCnt),
-+	.cr_rcvovflcnt = IPATH_CREG_OFFSET(RxBufOvflCnt),
-+	.cr_senddropped = IPATH_CREG_OFFSET(TxDroppedPktCnt),
-+	.cr_sendstallcnt = IPATH_CREG_OFFSET(TxFlowStallCnt),
-+	.cr_sendunderruncnt = IPATH_CREG_OFFSET(TxUnderrunCnt),
-+	.cr_wordrcvcnt = IPATH_CREG_OFFSET(RxDwordCnt),
-+	.cr_wordsendcnt = IPATH_CREG_OFFSET(TxDwordCnt),
-+	.cr_unsupvlcnt = IPATH_CREG_OFFSET(TxUnsupVLErrCnt),
-+	.cr_rxdroppktcnt = IPATH_CREG_OFFSET(RxDroppedPktCnt),
-+	.cr_iblinkerrrecovcnt = IPATH_CREG_OFFSET(IBLinkErrRecoveryCnt),
-+	.cr_iblinkdowncnt = IPATH_CREG_OFFSET(IBLinkDownedCnt),
-+	.cr_ibsymbolerrcnt = IPATH_CREG_OFFSET(IBSymbolErrCnt)
-+};
-+
-+/* kr_intstatus, kr_intclear, kr_intmask bits */
-+#define INFINIPATH_I_RCVURG_MASK 0x1FF
-+#define INFINIPATH_I_RCVAVAIL_MASK 0x1FF
-+
-+/* kr_hwerrclear, kr_hwerrmask, kr_hwerrstatus, bits */
-+#define INFINIPATH_HWE_HTCMEMPARITYERR_SHIFT 0
-+#define INFINIPATH_HWE_HTCMEMPARITYERR_MASK 0x3FFFFFULL
-+#define INFINIPATH_HWE_HTCLNKABYTE0CRCERR   0x0000000000800000ULL
-+#define INFINIPATH_HWE_HTCLNKABYTE1CRCERR   0x0000000001000000ULL
-+#define INFINIPATH_HWE_HTCLNKBBYTE0CRCERR   0x0000000002000000ULL
-+#define INFINIPATH_HWE_HTCLNKBBYTE1CRCERR   0x0000000004000000ULL
-+#define INFINIPATH_HWE_HTCMISCERR4          0x0000000008000000ULL
-+#define INFINIPATH_HWE_HTCMISCERR5          0x0000000010000000ULL
-+#define INFINIPATH_HWE_HTCMISCERR6          0x0000000020000000ULL
-+#define INFINIPATH_HWE_HTCMISCERR7          0x0000000040000000ULL
-+#define INFINIPATH_HWE_HTCBUSTREQPARITYERR  0x0000000080000000ULL
-+#define INFINIPATH_HWE_HTCBUSTRESPPARITYERR 0x0000000100000000ULL
-+#define INFINIPATH_HWE_HTCBUSIREQPARITYERR  0x0000000200000000ULL
-+#define INFINIPATH_HWE_COREPLL_FBSLIP       0x0080000000000000ULL
-+#define INFINIPATH_HWE_COREPLL_RFSLIP       0x0100000000000000ULL
-+#define INFINIPATH_HWE_HTBPLL_FBSLIP        0x0200000000000000ULL
-+#define INFINIPATH_HWE_HTBPLL_RFSLIP        0x0400000000000000ULL
-+#define INFINIPATH_HWE_HTAPLL_FBSLIP        0x0800000000000000ULL
-+#define INFINIPATH_HWE_HTAPLL_RFSLIP        0x1000000000000000ULL
-+#define INFINIPATH_HWE_SERDESPLLFAILED      0x2000000000000000ULL
-+
-+/* kr_extstatus bits */
-+#define INFINIPATH_EXTS_FREQSEL 0x2
-+#define INFINIPATH_EXTS_SERDESSEL 0x4
-+#define INFINIPATH_EXTS_MEMBIST_ENDTEST     0x0000000000004000
-+#define INFINIPATH_EXTS_MEMBIST_CORRECT     0x0000000000008000
-+
-+/*
-+ * masks and bits that are different in different chips, or present only
-+ * in one
-+ */
-+static const ipath_err_t infinipath_hwe_htcmemparityerr_mask =
-+    INFINIPATH_HWE_HTCMEMPARITYERR_MASK;
-+static const ipath_err_t infinipath_hwe_htcmemparityerr_shift =
-+    INFINIPATH_HWE_HTCMEMPARITYERR_SHIFT;
-+
-+static const ipath_err_t infinipath_hwe_htclnkabyte0crcerr =
-+    INFINIPATH_HWE_HTCLNKABYTE0CRCERR;
-+static const ipath_err_t infinipath_hwe_htclnkabyte1crcerr =
-+    INFINIPATH_HWE_HTCLNKABYTE1CRCERR;
-+static const ipath_err_t infinipath_hwe_htclnkbbyte0crcerr =
-+    INFINIPATH_HWE_HTCLNKBBYTE0CRCERR;
-+static const ipath_err_t infinipath_hwe_htclnkbbyte1crcerr =
-+    INFINIPATH_HWE_HTCLNKBBYTE1CRCERR;
-+
-+#define _IPATH_GPIO_SDA_NUM 1
-+#define _IPATH_GPIO_SCL_NUM 0
-+
-+#define IPATH_GPIO_SDA \
-+	(1ULL << (_IPATH_GPIO_SDA_NUM+INFINIPATH_EXTC_GPIOOE_SHIFT))
-+#define IPATH_GPIO_SCL \
-+	(1ULL << (_IPATH_GPIO_SCL_NUM+INFINIPATH_EXTC_GPIOOE_SHIFT))
-+
-+/* keep the code below somewhat more readonable; not used elsewhere */
-+#define _IPATH_HTLINK0_CRCBITS (infinipath_hwe_htclnkabyte0crcerr |	\
-+				infinipath_hwe_htclnkabyte1crcerr)
-+#define _IPATH_HTLINK1_CRCBITS (infinipath_hwe_htclnkbbyte0crcerr |	\
-+				infinipath_hwe_htclnkbbyte1crcerr)
-+#define _IPATH_HTLANE0_CRCBITS (infinipath_hwe_htclnkabyte0crcerr |	\
-+				infinipath_hwe_htclnkbbyte0crcerr)
-+#define _IPATH_HTLANE1_CRCBITS (infinipath_hwe_htclnkabyte1crcerr |	\
-+				infinipath_hwe_htclnkbbyte1crcerr)
-+
-+static void hwerr_crcbits(struct ipath_devdata *dd, ipath_err_t hwerrs,
-+			  char *msg, size_t msgl)
++static int ipath_get_base_info(struct ipath_portdata *pd,
++			       void __user *ubase, size_t ubase_size)
 +{
-+	char bitsmsg[64];
-+	ipath_err_t crcbits = hwerrs &
-+		(_IPATH_HTLINK0_CRCBITS | _IPATH_HTLINK1_CRCBITS);
-+	/* don't check if 8bit HT */
-+	if (dd->ipath_flags & IPATH_8BIT_IN_HT0)
-+		crcbits &= ~infinipath_hwe_htclnkabyte1crcerr;
-+	/* don't check if 8bit HT */
-+	if (dd->ipath_flags & IPATH_8BIT_IN_HT1)
-+		crcbits &= ~infinipath_hwe_htclnkbbyte1crcerr;
++	int ret = 0;
++	struct ipath_base_info *kinfo = NULL;
++	struct ipath_devdata *dd = pd->port_dd;
++
++	if (ubase_size < sizeof(*kinfo)) {
++		ipath_cdbg(PROC,
++			   "Base size %lu, need %lu (version mismatch?)\n",
++			   (unsigned long) ubase_size,
++			   (unsigned long) sizeof(*kinfo));
++		ret = -EINVAL;
++		goto bail;
++	}
++
++	kinfo = kzalloc(sizeof(*kinfo), GFP_KERNEL);
++	if (kinfo == NULL) {
++		ret = -ENOMEM;
++		goto bail;
++	}
++
++	ret = dd->ipath_f_get_base_info(pd, kinfo);
++	if (ret < 0)
++		goto bail;
++
++	kinfo->spi_rcvhdr_cnt = dd->ipath_rcvhdrcnt;
++	kinfo->spi_rcvhdrent_size = dd->ipath_rcvhdrentsize;
++	kinfo->spi_tidegrcnt = dd->ipath_rcvegrcnt;
++	kinfo->spi_rcv_egrbufsize = dd->ipath_rcvegrbufsize;
 +	/*
-+	 * we'll want to ignore link errors on link that is
-+	 * not in use, if any.  For now, complain about both
++	 * have to mmap whole thing
 +	 */
-+	if (crcbits) {
-+		u16 ctrl0, ctrl1;
-+		snprintf(bitsmsg, sizeof bitsmsg,
-+			 "[HT%s lane %s CRC (%llx); ignore till reload]",
-+			 !(crcbits & _IPATH_HTLINK1_CRCBITS) ?
-+			 "0 (A)" : (!(crcbits & _IPATH_HTLINK0_CRCBITS)
-+				    ? "1 (B)" : "0+1 (A+B)"),
-+			 !(crcbits & _IPATH_HTLANE1_CRCBITS) ? "0"
-+			 : (!(crcbits & _IPATH_HTLANE0_CRCBITS) ? "1" :
-+			    "0+1"), (unsigned long long) crcbits);
-+		strlcat(msg, bitsmsg, msgl);
++	kinfo->spi_rcv_egrbuftotlen =
++		pd->port_rcvegrbuf_chunks * pd->port_rcvegrbuf_size;
++	kinfo->spi_rcv_egrperchunk = pd->port_rcvegrbufs_perchunk;
++	kinfo->spi_rcv_egrchunksize = kinfo->spi_rcv_egrbuftotlen /
++		pd->port_rcvegrbuf_chunks;
++	kinfo->spi_tidcnt = dd->ipath_rcvtidcnt;
++	/*
++	 * for this use, may be ipath_cfgports summed over all chips that
++	 * are are configured and present
++	 */
++	kinfo->spi_nports = dd->ipath_cfgports;
++	/* unit (chip/board) our port is on */
++	kinfo->spi_unit = dd->ipath_unit;
++	/* for now, only a single page */
++	kinfo->spi_tid_maxsize = PAGE_SIZE;
 +
-+		/*
-+		 * print extra info for debugging.  slave/primary
-+		 * config word 4, 8 (link control 0, 1)
-+		 */
++	/*
++	 * Doing this per port, and based on the skip value, etc.  This has
++	 * to be the actual buffer size, since the protocol code treats it
++	 * as an array.
++	 *
++	 * These have to be set to user addresses in the user code via mmap.
++	 * These values are used on return to user code for the mmap target
++	 * addresses only.  For 32 bit, same 44 bit address problem, so use
++	 * the physical address, not virtual.  Before 2.6.11, using the
++	 * page_address() macro worked, but in 2.6.11, even that returns the
++	 * full 64 bit address (upper bits all 1's).  So far, using the
++	 * physical addresses (or chip offsets, for chip mapping) works, but
++	 * no doubt some future kernel release will chang that, and we'll be
++	 * on to yet another method of dealing with this
++	 */
++	kinfo->spi_rcvhdr_base = (u64) pd->port_rcvhdrq_phys;
++	kinfo->spi_rcv_egrbufs = (u64) pd->port_rcvegr_phys;
++	kinfo->spi_pioavailaddr = (u64) dd->ipath_pioavailregs_phys;
++	kinfo->spi_status = (u64) kinfo->spi_pioavailaddr +
++		(void *) dd->ipath_statusp -
++		(void *) dd->ipath_pioavailregs_dma;
++	kinfo->spi_piobufbase = (u64) pd->port_piobufs;
++	kinfo->__spi_uregbase =
++		dd->ipath_uregbase + dd->ipath_palign * pd->port_port;
 +
-+		if (pci_read_config_word(dd->pcidev,
-+					 dd->ipath_ht_slave_off + 0x4,
-+					 &ctrl0))
-+			dev_info(&dd->pcidev->dev, "Couldn't read "
-+				 "linkctrl0 of slave/primary "
-+				 "config block\n");
-+		else if (!(ctrl0 & 1 << 6))
-+			/* not if EOC bit set */
-+			ipath_dbg("HT linkctrl0 0x%x%s%s\n", ctrl0,
-+				  ((ctrl0 >> 8) & 7) ? " CRC" : "",
-+				  ((ctrl0 >> 4) & 1) ? "linkfail" :
-+				  "");
-+		if (pci_read_config_word(dd->pcidev,
-+					 dd->ipath_ht_slave_off + 0x8,
-+					 &ctrl1))
-+			dev_info(&dd->pcidev->dev, "Couldn't read "
-+				 "linkctrl1 of slave/primary "
-+				 "config block\n");
-+		else if (!(ctrl1 & 1 << 6))
-+			/* not if EOC bit set */
-+			ipath_dbg("HT linkctrl1 0x%x%s%s\n", ctrl1,
-+				  ((ctrl1 >> 8) & 7) ? " CRC" : "",
-+				  ((ctrl1 >> 4) & 1) ? "linkfail" :
-+				  "");
++	kinfo->spi_pioindex = dd->ipath_pbufsport * (pd->port_port - 1);
++	kinfo->spi_piocnt = dd->ipath_pbufsport;
++	kinfo->spi_pioalign = dd->ipath_palign;
 +
-+		/* disable until driver reloaded */
-+		dd->ipath_hwerrmask &= ~crcbits;
-+		ipath_write_kreg(dd, dd->ipath_kregs->kr_hwerrmask,
-+				 dd->ipath_hwerrmask);
-+		ipath_dbg("HT crc errs: %s\n", msg);
-+	} else
-+		ipath_dbg("ignoring HT crc errors 0x%llx, "
-+			  "not in use\n", (unsigned long long)
-+			  (hwerrs & (_IPATH_HTLINK0_CRCBITS |
-+				     _IPATH_HTLINK1_CRCBITS)));
++	kinfo->spi_qpair = IPATH_KD_QP;
++	kinfo->spi_piosize = dd->ipath_ibmaxlen;
++	kinfo->spi_mtu = dd->ipath_ibmaxlen;	/* maxlen, not ibmtu */
++	kinfo->spi_port = pd->port_port;
++	kinfo->spi_sw_version = IPATH_USER_SWVERSION;
++	kinfo->spi_hw_version = dd->ipath_revision;
++
++	if (copy_to_user(ubase, kinfo, sizeof(*kinfo)))
++		ret = -EFAULT;
++
++bail:
++	kfree(kinfo);
++	return ret;
 +}
 +
 +/**
-+ * ipath_ht_handle_hwerrors - display hardware errors
-+ * @dd: the infinipath device
-+ * @msg: the output buffer
-+ * @msgl: the size of the output buffer
++ * ipath_tid_update - update a port TID
++ * @pd: the port
++ * @ti: the TID information
 + *
-+ * Use same msg buffer as regular errors to avoid
-+ * excessive stack use.  Most hardware errors are catastrophic, but for
-+ * right now, we'll print them and continue.
-+ * We reuse the same message buffer as ipath_handle_errors() to avoid
-+ * excessive stack usage.
++ * The new implementation as of Oct 2004 is that the driver assigns
++ * the tid and returns it to the caller.   To make it easier to
++ * catch bugs, and to reduce search time, we keep a cursor for
++ * each port, walking the shadow tid array to find one that's not
++ * in use.
++ *
++ * For now, if we can't allocate the full list, we fail, although
++ * in the long run, we'll allocate as many as we can, and the
++ * caller will deal with that by trying the remaining pages later.
++ * That means that when we fail, we have to mark the tids as not in
++ * use again, in our shadow copy.
++ *
++ * It's up to the caller to free the tids when they are done.
++ * We'll unlock the pages as they free them.
++ *
++ * Also, right now we are locking one page at a time, but since
++ * the intended use of this routine is for a single group of
++ * virtually contiguous pages, that should change to improve
++ * performance.
 + */
-+static void ipath_ht_handle_hwerrors(struct ipath_devdata *dd, char *msg,
-+				     size_t msgl)
++static int ipath_tid_update(struct ipath_portdata *pd,
++			    const struct ipath_tid_info *ti)
 +{
-+	ipath_err_t hwerrs;
-+	u32 bits, ctrl;
-+	int isfatal = 0;
-+	char bitsmsg[64];
++	int ret = 0, ntids;
++	u32 tid, porttid, cnt, i, tidcnt;
++	u16 *tidlist;
++	struct ipath_devdata *dd = pd->port_dd;
++	u64 physaddr;
++	unsigned long vaddr;
++	u64 __iomem *tidbase;
++	unsigned long tidmap[8];
++	struct page **pagep = NULL;
 +
-+	hwerrs = ipath_read_kreg64(dd, dd->ipath_kregs->kr_hwerrstatus);
-+
-+	if (!hwerrs) {
-+		ipath_cdbg(VERBOSE, "Called but no hardware errors set\n");
-+		/*
-+		 * better than printing cofusing messages
-+		 * This seems to be related to clearing the crc error, or
-+		 * the pll error during init.
-+		 */
-+		goto bail;
-+	} else if (hwerrs == -1LL) {
-+		ipath_dev_err(dd, "Read of hardware error status failed "
-+			      "(all bits set); ignoring\n");
-+		goto bail;
++	if (!dd->ipath_pageshadow) {
++		ret = -ENOMEM;
++		goto done;
 +	}
-+	ipath_stats.sps_hwerrs++;
 +
-+	/* Always clear the error status register, except MEMBISTFAIL,
-+	 * regardless of whether we continue or stop using the chip.
-+	 * We want that set so we know it failed, even across driver reload.
-+	 * We'll still ignore it in the hwerrmask.  We do this partly for
-+	 * diagnostics, but also for support */
-+	ipath_write_kreg(dd, dd->ipath_kregs->kr_hwerrclear,
-+			 hwerrs&~INFINIPATH_HWE_MEMBISTFAILED);
++	cnt = ti->tidcnt;
++	if (!cnt) {
++		ipath_dbg("After copyin, tidcnt 0, tidlist %llx\n",
++			  (unsigned long long) ti->tidlist);
++		/*
++		 * Should we treat as success?  likely a bug
++		 */
++		ret = -EFAULT;
++		goto done;
++	}
++	tidcnt = dd->ipath_rcvtidcnt;
++	if (cnt >= tidcnt) {
++		/* make sure it all fits in port_tid_pg_list */
++		dev_info(&dd->pcidev->dev, "Process tried to allocate %u "
++			 "TIDs, only trying max (%u)\n", cnt, tidcnt);
++		cnt = tidcnt;
++	}
++	pagep = (struct page **)pd->port_tid_pg_list;
++	tidlist = (u16 *) (&pagep[cnt]);
 +
-+	hwerrs &= dd->ipath_hwerrmask;
++	memset(tidmap, 0, sizeof(tidmap));
++	tid = pd->port_tidcursor;
++	/* before decrement; chip actual # */
++	porttid = pd->port_port * tidcnt;
++	ntids = tidcnt;
++	tidbase = (u64 __iomem *) (((char __iomem *) dd->ipath_kregbase) +
++				   dd->ipath_rcvtidbase +
++				   porttid * sizeof(*tidbase));
 +
-+	/*
-+	 * make sure we get this much out, unless told to be quiet,
-+	 * or it's occurred within the last 5 seconds
-+	 */
-+	if ((hwerrs & ~dd->ipath_lasthwerror) ||
-+	    (ipath_debug & __IPATH_VERBDBG))
-+		dev_info(&dd->pcidev->dev, "Hardware error: hwerr=0x%llx "
-+			 "(cleared)\n", (unsigned long long) hwerrs);
-+	dd->ipath_lasthwerror |= hwerrs;
++	ipath_cdbg(VERBOSE, "Port%u %u tids, cursor %u, tidbase %p\n",
++		   pd->port_port, cnt, tid, tidbase);
 +
-+	if (hwerrs & ~infinipath_hwe_bitsextant)
-+		ipath_dev_err(dd, "hwerror interrupt with unknown errors "
-+			      "%llx set\n", (unsigned long long)
-+			      (hwerrs & ~infinipath_hwe_bitsextant));
-+
-+	ctrl = ipath_read_kreg32(dd, dd->ipath_kregs->kr_control);
-+	if (ctrl & INFINIPATH_C_FREEZEMODE) {
-+		if (hwerrs) {
++	/* virtual address of first page in transfer */
++	vaddr = ti->tidvaddr;
++	if (!access_ok(VERIFY_WRITE, (void __user *) vaddr,
++		       cnt * PAGE_SIZE)) {
++		ipath_dbg("Fail vaddr %p, %u pages, !access_ok\n",
++			  (void *)vaddr, cnt);
++		ret = -EFAULT;
++		goto done;
++	}
++	ret = ipath_get_user_pages(vaddr, cnt, pagep);
++	if (ret) {
++		if (ret == -EBUSY) {
++			ipath_dbg("Failed to lock addr %p, %u pages "
++				  "(already locked)\n",
++				  (void *) vaddr, cnt);
 +			/*
-+			 * if any set that we aren't ignoring; only
-+			 * make the complaint once, in case it's stuck
-+			 * or recurring, and we get here multiple
-+			 * times.
++			 * for now, continue, and see what happens but with
++			 * the new implementation, this should never happen,
++			 * unless perhaps the user has mpin'ed the pages
++			 * themselves (something we need to test)
 +			 */
-+			if (dd->ipath_flags & IPATH_INITTED) {
-+				ipath_dev_err(dd, "Fatal Error (freeze "
-+					      "mode), no longer usable\n");
-+				isfatal = 1;
-+			}
-+			*dd->ipath_statusp &= ~IPATH_STATUS_IB_READY;
-+			/* mark as having had error */
-+			*dd->ipath_statusp |= IPATH_STATUS_HWERROR;
-+			/*
-+			 * mark as not usable, at a minimum until driver
-+			 * is reloaded, probably until reboot, since no
-+			 * other reset is possible.
-+			 */
-+			dd->ipath_flags &= ~IPATH_INITTED;
++			ret = 0;
 +		} else {
-+			ipath_dbg("Clearing freezemode on ignored hardware "
-+				  "error\n");
-+			ctrl &= ~INFINIPATH_C_FREEZEMODE;
-+			ipath_write_kreg(dd, dd->ipath_kregs->kr_control,
-+					 ctrl);
++			dev_info(&dd->pcidev->dev,
++				 "Failed to lock addr %p, %u pages: "
++				 "errno %d\n", (void *) vaddr, cnt, -ret);
++			goto done;
 +		}
 +	}
-+
-+	*msg = '\0';
-+
-+	/*
-+	 * may someday want to decode into which bits are which
-+	 * functional area for parity errors, etc.
-+	 */
-+	if (hwerrs & (infinipath_hwe_htcmemparityerr_mask
-+		      << INFINIPATH_HWE_HTCMEMPARITYERR_SHIFT)) {
-+		bits = (u32) ((hwerrs >>
-+			       INFINIPATH_HWE_HTCMEMPARITYERR_SHIFT) &
-+			      INFINIPATH_HWE_HTCMEMPARITYERR_MASK);
-+		snprintf(bitsmsg, sizeof bitsmsg, "[HTC Parity Errs %x] ",
-+			 bits);
-+		strlcat(msg, bitsmsg, msgl);
-+	}
-+	if (hwerrs & (INFINIPATH_HWE_RXEMEMPARITYERR_MASK
-+		      << INFINIPATH_HWE_RXEMEMPARITYERR_SHIFT)) {
-+		bits = (u32) ((hwerrs >>
-+			       INFINIPATH_HWE_RXEMEMPARITYERR_SHIFT) &
-+			      INFINIPATH_HWE_RXEMEMPARITYERR_MASK);
-+		snprintf(bitsmsg, sizeof bitsmsg, "[RXE Parity Errs %x] ",
-+			 bits);
-+		strlcat(msg, bitsmsg, msgl);
-+	}
-+	if (hwerrs & (INFINIPATH_HWE_TXEMEMPARITYERR_MASK
-+		      << INFINIPATH_HWE_TXEMEMPARITYERR_SHIFT)) {
-+		bits = (u32) ((hwerrs >>
-+			       INFINIPATH_HWE_TXEMEMPARITYERR_SHIFT) &
-+			      INFINIPATH_HWE_TXEMEMPARITYERR_MASK);
-+		snprintf(bitsmsg, sizeof bitsmsg, "[TXE Parity Errs %x] ",
-+			 bits);
-+		strlcat(msg, bitsmsg, msgl);
-+	}
-+	if (hwerrs & INFINIPATH_HWE_IBCBUSTOSPCPARITYERR)
-+		strlcat(msg, "[IB2IPATH Parity]", msgl);
-+	if (hwerrs & INFINIPATH_HWE_IBCBUSFRSPCPARITYERR)
-+		strlcat(msg, "[IPATH2IB Parity]", msgl);
-+	if (hwerrs & INFINIPATH_HWE_HTCBUSIREQPARITYERR)
-+		strlcat(msg, "[HTC Ireq Parity]", msgl);
-+	if (hwerrs & INFINIPATH_HWE_HTCBUSTREQPARITYERR)
-+		strlcat(msg, "[HTC Treq Parity]", msgl);
-+	if (hwerrs & INFINIPATH_HWE_HTCBUSTRESPPARITYERR)
-+		strlcat(msg, "[HTC Tresp Parity]", msgl);
-+
-+	if (hwerrs & (_IPATH_HTLINK0_CRCBITS | _IPATH_HTLINK1_CRCBITS))
-+		hwerr_crcbits(dd, hwerrs, msg, msgl);
-+
-+	if (hwerrs & INFINIPATH_HWE_HTCMISCERR5)
-+		strlcat(msg, "[HT core Misc5]", msgl);
-+	if (hwerrs & INFINIPATH_HWE_HTCMISCERR6)
-+		strlcat(msg, "[HT core Misc6]", msgl);
-+	if (hwerrs & INFINIPATH_HWE_HTCMISCERR7)
-+		strlcat(msg, "[HT core Misc7]", msgl);
-+	if (hwerrs & INFINIPATH_HWE_MEMBISTFAILED) {
-+		strlcat(msg, "[Memory BIST test failed, HT-400 unusable]",
-+			msgl);
-+		/* ignore from now on, so disable until driver reloaded */
-+		dd->ipath_hwerrmask &= ~INFINIPATH_HWE_MEMBISTFAILED;
-+		ipath_write_kreg(dd, dd->ipath_kregs->kr_hwerrmask,
-+				 dd->ipath_hwerrmask);
-+	}
-+#define _IPATH_PLL_FAIL (INFINIPATH_HWE_COREPLL_FBSLIP |	\
-+			 INFINIPATH_HWE_COREPLL_RFSLIP |	\
-+			 INFINIPATH_HWE_HTBPLL_FBSLIP |		\
-+			 INFINIPATH_HWE_HTBPLL_RFSLIP |		\
-+			 INFINIPATH_HWE_HTAPLL_FBSLIP |		\
-+			 INFINIPATH_HWE_HTAPLL_RFSLIP)
-+
-+	if (hwerrs & _IPATH_PLL_FAIL) {
-+		snprintf(bitsmsg, sizeof bitsmsg,
-+			 "[PLL failed (%llx), HT-400 unusable]",
-+			 (unsigned long long) (hwerrs & _IPATH_PLL_FAIL));
-+		strlcat(msg, bitsmsg, msgl);
-+		/* ignore from now on, so disable until driver reloaded */
-+		dd->ipath_hwerrmask &= ~(hwerrs & _IPATH_PLL_FAIL);
-+		ipath_write_kreg(dd, dd->ipath_kregs->kr_hwerrmask,
-+				 dd->ipath_hwerrmask);
-+	}
-+
-+	if (hwerrs & INFINIPATH_HWE_SERDESPLLFAILED) {
++	for (i = 0; i < cnt; i++, vaddr += PAGE_SIZE) {
++		for (; ntids--; tid++) {
++			if (tid == tidcnt)
++				tid = 0;
++			if (!dd->ipath_pageshadow[porttid + tid])
++				break;
++		}
++		if (ntids < 0) {
++			/*
++			 * oops, wrapped all the way through their TIDs,
++			 * and didn't have enough free; see comments at
++			 * start of routine
++			 */
++			ipath_dbg("Not enough free TIDs for %u pages "
++				  "(index %d), failing\n", cnt, i);
++			i--;	/* last tidlist[i] not filled in */
++			ret = -ENOMEM;
++			break;
++		}
++		tidlist[i] = tid;
++		ipath_cdbg(VERBOSE, "Updating idx %u to TID %u, "
++			   "vaddr %lx\n", i, tid, vaddr);
++		/* we "know" system pages and TID pages are same size */
++		dd->ipath_pageshadow[porttid + tid] = pagep[i];
 +		/*
-+		 * If it occurs, it is left masked since the eternal
-+		 * interface is unused
++		 * don't need atomic or it's overhead
 +		 */
-+		dd->ipath_hwerrmask &= ~INFINIPATH_HWE_SERDESPLLFAILED;
-+		ipath_write_kreg(dd, dd->ipath_kregs->kr_hwerrmask,
-+				 dd->ipath_hwerrmask);
++		__set_bit(tid, tidmap);
++		physaddr = page_to_phys(pagep[i]);
++		ipath_stats.sps_pagelocks++;
++		ipath_cdbg(VERBOSE,
++			   "TID %u, vaddr %lx, physaddr %llx pgp %p\n",
++			   tid, vaddr, (unsigned long long) physaddr,
++			   pagep[i]);
++		dd->ipath_f_put_tid(dd, &tidbase[tid], 1, physaddr);
++		/*
++		 * don't check this tid in ipath_portshadow, since we
++		 * just filled it in; start with the next one.
++		 */
++		tid++;
 +	}
 +
-+	if (hwerrs & INFINIPATH_HWE_RXDSYNCMEMPARITYERR)
-+		strlcat(msg, "[Rx Dsync]", msgl);
-+	if (hwerrs & INFINIPATH_HWE_SERDESPLLFAILED)
-+		strlcat(msg, "[SerDes PLL]", msgl);
-+
-+	ipath_dev_err(dd, "%s hardware error\n", msg);
-+	if (isfatal && !ipath_diag_inuse && dd->ipath_freezemsg)
++	if (ret) {
++		u32 limit;
++	cleanup:
++		/* jump here if copy out of updated info failed... */
++		ipath_dbg("After failure (ret=%d), undo %d of %d entries\n",
++			  -ret, i, cnt);
++		/* same code that's in ipath_free_tid() */
++		limit = sizeof(tidmap) * BITS_PER_BYTE;
++		if (limit > tidcnt)
++			/* just in case size changes in future */
++			limit = tidcnt;
++		tid = find_first_bit((const unsigned long *)tidmap, limit);
++		for (; tid < limit; tid++) {
++			if (!test_bit(tid, tidmap))
++				continue;
++			if (dd->ipath_pageshadow[porttid + tid]) {
++				ipath_cdbg(VERBOSE, "Freeing TID %u\n",
++					   tid);
++				dd->ipath_f_put_tid(dd, &tidbase[tid], 1,
++						    dd->ipath_tidinvalid);
++				dd->ipath_pageshadow[porttid + tid] = NULL;
++				ipath_stats.sps_pageunlocks++;
++			}
++		}
++		ipath_release_user_pages(pagep, cnt);
++	} else {
 +		/*
-+		 * for status file; if no trailing brace is copied,
-+		 * we'll know it was truncated.
++		 * Copy the updated array, with ipath_tid's filled in, back
++		 * to user.  Since we did the copy in already, this "should
++		 * never fail" If it does, we have to clean up...
 +		 */
-+		snprintf(dd->ipath_freezemsg,
-+			 dd->ipath_freezelen, "{%s}", msg);
++		if (copy_to_user((void __user *)
++				 (unsigned long) ti->tidlist,
++				 tidlist, cnt * sizeof(*tidlist))) {
++			ret = -EFAULT;
++			goto cleanup;
++		}
++		if (copy_to_user((void __user *) (unsigned long) ti->tidmap,
++				 tidmap, sizeof tidmap)) {
++			ret = -EFAULT;
++			goto cleanup;
++		}
++		if (tid == tidcnt)
++			tid = 0;
++		pd->port_tidcursor = tid;
++	}
 +
-+bail:;
++done:
++	if (ret)
++		ipath_dbg("Failed to map %u TID pages, failing with %d\n",
++			  ti->tidcnt, -ret);
++	return ret;
 +}
 +
 +/**
-+ * ipath_ht_boardname - fill in the board name
-+ * @dd: the infinipath device
-+ * @name: the output buffer
-+ * @namelen: the size of the output buffer
++ * ipath_tid_free - free a port TID
++ * @pd: the port
++ * @ti: the TID info
 + *
-+ * fill in the board name, based on the board revision register
++ * right now we are unlocking one page at a time, but since
++ * the intended use of this routine is for a single group of
++ * virtually contiguous pages, that should change to improve
++ * performance.  We check that the TID is in range for this port
++ * but otherwise don't check validity; if user has an error and
++ * frees the wrong tid, it's only their own data that can thereby
++ * be corrupted.  We do check that the TID was in use, for sanity
++ * We always use our idea of the saved address, not the address that
++ * they pass in to us.
 + */
-+static int ipath_ht_boardname(struct ipath_devdata *dd, char *name,
-+			      size_t namelen)
++
++static int ipath_tid_free(struct ipath_portdata *pd,
++			  const struct ipath_tid_info *ti)
 +{
-+	char *n = NULL;
-+	u8 boardrev = dd->ipath_boardrev;
++	int ret = 0;
++	u32 tid, porttid, cnt, limit, tidcnt;
++	struct ipath_devdata *dd = pd->port_dd;
++	u64 __iomem *tidbase;
++	unsigned long tidmap[8];
++
++	if (!dd->ipath_pageshadow) {
++		ret = -ENOMEM;
++		goto done;
++	}
++
++	if (copy_from_user(tidmap, (void __user *)(unsigned long)ti->tidmap,
++			   sizeof tidmap)) {
++		ret = -EFAULT;
++		goto done;
++	}
++
++	porttid = pd->port_port * dd->ipath_rcvtidcnt;
++	tidbase = (u64 __iomem *) ((char __iomem *)(dd->ipath_kregbase) +
++				   dd->ipath_rcvtidbase +
++				   porttid * sizeof(*tidbase));
++
++	tidcnt = dd->ipath_rcvtidcnt;
++	limit = sizeof(tidmap) * BITS_PER_BYTE;
++	if (limit > tidcnt)
++		/* just in case size changes in future */
++		limit = tidcnt;
++	tid = find_first_bit(tidmap, limit);
++	ipath_cdbg(VERBOSE, "Port%u free %u tids; first bit (max=%d) "
++		   "set is %d, porttid %u\n", pd->port_port, ti->tidcnt,
++		   limit, tid, porttid);
++	for (cnt = 0; tid < limit; tid++) {
++		/*
++		 * small optimization; if we detect a run of 3 or so without
++		 * any set, use find_first_bit again.  That's mainly to
++		 * accelerate the case where we wrapped, so we have some at
++		 * the beginning, and some at the end, and a big gap
++		 * in the middle.
++		 */
++		if (!test_bit(tid, tidmap))
++			continue;
++		cnt++;
++		if (dd->ipath_pageshadow[porttid + tid]) {
++			ipath_cdbg(VERBOSE, "PID %u freeing TID %u\n",
++				   pd->port_pid, tid);
++			dd->ipath_f_put_tid(dd, &tidbase[tid], 1,
++					    dd->ipath_tidinvalid);
++			ipath_release_user_pages(
++				&dd->ipath_pageshadow[porttid + tid], 1);
++			dd->ipath_pageshadow[porttid + tid] = NULL;
++			ipath_stats.sps_pageunlocks++;
++		} else
++			ipath_dbg("Unused tid %u, ignoring\n", tid);
++	}
++	if (cnt != ti->tidcnt)
++		ipath_dbg("passed in tidcnt %d, only %d bits set in map\n",
++			  ti->tidcnt, cnt);
++done:
++	if (ret)
++		ipath_dbg("Failed to unmap %u TID pages, failing with %d\n",
++			  ti->tidcnt, -ret);
++	return ret;
++}
++
++/**
++ * ipath_set_part_key - set a partition key
++ * @pd: the port
++ * @key: the key
++ *
++ * We can have up to 4 active at a time (other than the default, which is
++ * always allowed).  This is somewhat tricky, since multiple ports may set
++ * the same key, so we reference count them, and clean up at exit.  All 4
++ * partition keys are packed into a single infinipath register.  It's an
++ * error for a process to set the same pkey multiple times.  We provide no
++ * mechanism to de-allocate a pkey at this time, we may eventually need to
++ * do that.  I've used the atomic operations, and no locking, and only make
++ * a single pass through what's available.  This should be more than
++ * adequate for some time. I'll think about spinlocks or the like if and as
++ * it's necessary.
++ */
++static int ipath_set_part_key(struct ipath_portdata *pd, u16 key)
++{
++	struct ipath_devdata *dd = pd->port_dd;
++	int i, any = 0, pidx = -1;
++	u16 lkey = key & 0x7FFF;
 +	int ret;
 +
-+	switch (boardrev) {
-+	case 4:		/* Ponderosa is one of the bringup boards */
-+		n = "Ponderosa";
-+		break;
-+	case 5:		/* HT-460 original production board */
-+		n = "InfiniPath_HT-460";
-+		break;
-+	case 6:
-+		n = "OEM_Board_3";
-+		break;
-+	case 7:
-+		/* HT-460 small form factor production board */
-+		n = "InfiniPath_HT-465";
-+		break;
-+	case 8:
-+		n = "LS/X-1";
-+		break;
-+	case 9:		/* Comstock bringup test board */
-+		n = "Comstock";
-+		break;
-+	case 10:
-+		n = "OEM_Board_2";
-+		break;
-+	case 11:
-+		n = "InfiniPath_HT-470";
-+		break;
-+	case 12:
-+		n = "OEM_Board_4";
-+		break;
-+	default:		/* don't know, just print the number */
-+		ipath_dev_err(dd, "Don't yet know about board "
-+			      "with ID %u\n", boardrev);
-+		snprintf(name, namelen, "Unknown_InfiniPath_HT-4xx_%u",
-+			 boardrev);
-+		break;
-+	}
-+	if (n)
-+		snprintf(name, namelen, "%s", n);
-+
-+	if (dd->ipath_majrev != 3 || dd->ipath_minrev != 2) {
-+		/*
-+		 * This version of the driver only supports the HT-400
-+		 * Rev 3.2
-+		 */
-+		ipath_dev_err(dd,
-+			      "Unsupported HT-400 revision %u.%u!\n",
-+			      dd->ipath_majrev, dd->ipath_minrev);
-+		ret = 1;
++	if (lkey == (IPS_DEFAULT_P_KEY & 0x7FFF)) {
++		/* nothing to do; this key always valid */
++		ret = 0;
 +		goto bail;
 +	}
++
++	ipath_cdbg(VERBOSE, "p%u try to set pkey %hx, current keys "
++		   "%hx:%x %hx:%x %hx:%x %hx:%x\n",
++		   pd->port_port, key, dd->ipath_pkeys[0],
++		   atomic_read(&dd->ipath_pkeyrefs[0]), dd->ipath_pkeys[1],
++		   atomic_read(&dd->ipath_pkeyrefs[1]), dd->ipath_pkeys[2],
++		   atomic_read(&dd->ipath_pkeyrefs[2]), dd->ipath_pkeys[3],
++		   atomic_read(&dd->ipath_pkeyrefs[3]));
++
++	if (!lkey) {
++		ipath_cdbg(PROC, "p%u tries to set key 0, not allowed\n",
++			   pd->port_port);
++		ret = -EINVAL;
++		goto bail;
++	}
++
 +	/*
-+	 * pkt/word counters are 32 bit, and therefore wrap fast enough
-+	 * that we snapshot them from a timer, and maintain 64 bit shadow
-+	 * copies
++	 * Set the full membership bit, because it has to be
++	 * set in the register or the packet, and it seems
++	 * cleaner to set in the register than to force all
++	 * callers to set it. (see bug 4331)
 +	 */
-+	dd->ipath_flags |= IPATH_32BITCOUNTERS;
-+	if (dd->ipath_htspeed != 800)
-+		ipath_dev_err(dd,
-+			      "Incorrectly configured for HT @ %uMHz\n",
-+			      dd->ipath_htspeed);
-+	if (dd->ipath_boardrev == 7 || dd->ipath_boardrev == 11 ||
-+	    dd->ipath_boardrev == 6)
-+		dd->ipath_flags |= IPATH_GPIO_INTR;
-+	else
-+		dd->ipath_flags |= IPATH_POLL_RX_INTR;
-+	if (dd->ipath_boardrev == 8) {	/* LS/X-1 */
-+		u64 val;
-+		val = ipath_read_kreg64(dd, dd->ipath_kregs->kr_extstatus);
-+		if (val & INFINIPATH_EXTS_SERDESSEL) {
-+			/*
-+			 * hardware disabled
-+			 *
-+			 * This means that the chip is hardware disabled,
-+			 * and will not be able to bring up the link,
-+			 * in any case.  We special case this and abort
-+			 * early, to avoid later messages.  We also set
-+			 * the DISABLED status bit
-+			 */
-+			ipath_dbg("Unit %u is hardware-disabled\n",
-+				  dd->ipath_unit);
-+			*dd->ipath_statusp |= IPATH_STATUS_DISABLED;
-+			/* this value is handled differently */
-+			ret = 2;
++	key |= 0x8000;
++
++	for (i = 0; i < ARRAY_SIZE(pd->port_pkeys); i++) {
++		if (!pd->port_pkeys[i] && pidx == -1)
++			pidx = i;
++		if (pd->port_pkeys[i] == key) {
++			ipath_cdbg(VERBOSE, "p%u tries to set same pkey "
++				   "(%x) more than once\n",
++				   pd->port_port, key);
++			ret = -EEXIST;
 +			goto bail;
 +		}
 +	}
++	if (pidx == -1) {
++		ipath_dbg("All pkeys for port %u already in use, "
++			  "can't set %x\n", pd->port_port, key);
++		ret = -EBUSY;
++		goto bail;
++	}
++	for (any = i = 0; i < ARRAY_SIZE(dd->ipath_pkeys); i++) {
++		if (!dd->ipath_pkeys[i]) {
++			any++;
++			continue;
++		}
++		if (dd->ipath_pkeys[i] == key) {
++			atomic_t *pkrefs = &dd->ipath_pkeyrefs[i];
++
++			if (atomic_inc_return(pkrefs) > 1) {
++				pd->port_pkeys[pidx] = key;
++				ipath_cdbg(VERBOSE, "p%u set key %x "
++					   "matches #%d, count now %d\n",
++					   pd->port_port, key, i,
++					   atomic_read(pkrefs));
++				ret = 0;
++				goto bail;
++			} else {
++				/*
++				 * lost race, decrement count, catch below
++				 */
++				atomic_dec(pkrefs);
++				ipath_cdbg(VERBOSE, "Lost race, count was "
++					   "0, after dec, it's %d\n",
++					   atomic_read(pkrefs));
++				any++;
++			}
++		}
++		if ((dd->ipath_pkeys[i] & 0x7FFF) == lkey) {
++			/*
++			 * It makes no sense to have both the limited and
++			 * full membership PKEY set at the same time since
++			 * the unlimited one will disable the limited one.
++			 */
++			ret = -EEXIST;
++			goto bail;
++		}
++	}
++	if (!any) {
++		ipath_dbg("port %u, all pkeys already in use, "
++			  "can't set %x\n", pd->port_port, key);
++		ret = -EBUSY;
++		goto bail;
++	}
++	for (any = i = 0; i < ARRAY_SIZE(dd->ipath_pkeys); i++) {
++		if (!dd->ipath_pkeys[i] &&
++		    atomic_inc_return(&dd->ipath_pkeyrefs[i]) == 1) {
++			u64 pkey;
++
++			/* for ipathstats, etc. */
++			ipath_stats.sps_pkeys[i] = lkey;
++			pd->port_pkeys[pidx] = dd->ipath_pkeys[i] = key;
++			pkey =
++				(u64) dd->ipath_pkeys[0] |
++				((u64) dd->ipath_pkeys[1] << 16) |
++				((u64) dd->ipath_pkeys[2] << 32) |
++				((u64) dd->ipath_pkeys[3] << 48);
++			ipath_cdbg(PROC, "p%u set key %x in #%d, "
++				   "portidx %d, new pkey reg %llx\n",
++				   pd->port_port, key, i, pidx,
++				   (unsigned long long) pkey);
++			ipath_write_kreg(
++				dd, dd->ipath_kregs->kr_partitionkey, pkey);
++
++			ret = 0;
++			goto bail;
++		}
++	}
++	ipath_dbg("port %u, all pkeys already in use 2nd pass, "
++		  "can't set %x\n", pd->port_port, key);
++	ret = -EBUSY;
++
++bail:
++	return ret;
++}
++
++/**
++ * ipath_manage_rcvq - manage a port's receive queue
++ * @pd: the port
++ * @start_stop: action to carry out
++ *
++ * start_stop == 0 disables receive on the port, for use in queue
++ * overflow conditions.  start_stop==1 re-enables, to be used to
++ * re-init the software copy of the head register
++ */
++static int ipath_manage_rcvq(struct ipath_portdata *pd, int start_stop)
++{
++	struct ipath_devdata *dd = pd->port_dd;
++	u64 tval;
++
++	ipath_cdbg(PROC, "%sabling rcv for unit %u port %u\n",
++		   start_stop ? "en" : "dis", dd->ipath_unit,
++		   pd->port_port);
++	/* atomically clear receive enable port. */
++	if (start_stop) {
++		/*
++		 * On enable, force in-memory copy of the tail register to
++		 * 0, so that protocol code doesn't have to worry about
++		 * whether or not the chip has yet updated the in-memory
++		 * copy or not on return from the system call. The chip
++		 * always resets it's tail register back to 0 on a
++		 * transition from disabled to enabled.  This could cause a
++		 * problem if software was broken, and did the enable w/o
++		 * the disable, but eventually the in-memory copy will be
++		 * updated and correct itself, even in the face of software
++		 * bugs.
++		 */
++		*pd->port_rcvhdrtail_kvaddr = 0;
++		set_bit(INFINIPATH_R_PORTENABLE_SHIFT + pd->port_port,
++			&dd->ipath_rcvctrl);
++	} else
++		clear_bit(INFINIPATH_R_PORTENABLE_SHIFT + pd->port_port,
++			  &dd->ipath_rcvctrl);
++	ipath_write_kreg(dd, dd->ipath_kregs->kr_rcvctrl,
++			 dd->ipath_rcvctrl);
++	/* now be sure chip saw it before we return */
++	tval = ipath_read_kreg64(dd, dd->ipath_kregs->kr_scratch);
++	if (start_stop) {
++		/*
++		 * And try to be sure that tail reg update has happened too.
++		 * This should in theory interlock with the RXE changes to
++		 * the tail register.  Don't assign it to the tail register
++		 * in memory copy, since we could overwrite an update by the
++		 * chip if we did.
++		 */
++		tval = ipath_read_ureg32(dd, ur_rcvhdrtail, pd->port_port);
++	}
++	/* always; new head should be equal to new tail; see above */
++	return 0;
++}
++
++static void ipath_clean_part_key(struct ipath_portdata *pd,
++				 struct ipath_devdata *dd)
++{
++	int i, j, pchanged = 0;
++	u64 oldpkey;
++
++	/* for debugging only */
++	oldpkey = (u64) dd->ipath_pkeys[0] |
++		((u64) dd->ipath_pkeys[1] << 16) |
++		((u64) dd->ipath_pkeys[2] << 32) |
++		((u64) dd->ipath_pkeys[3] << 48);
++
++	for (i = 0; i < ARRAY_SIZE(pd->port_pkeys); i++) {
++		if (!pd->port_pkeys[i])
++			continue;
++		ipath_cdbg(VERBOSE, "look for key[%d] %hx in pkeys\n", i,
++			   pd->port_pkeys[i]);
++		for (j = 0; j < ARRAY_SIZE(dd->ipath_pkeys); j++) {
++			/* check for match independent of the global bit */
++			if ((dd->ipath_pkeys[j] & 0x7fff) !=
++			    (pd->port_pkeys[i] & 0x7fff))
++				continue;
++			if (atomic_dec_and_test(&dd->ipath_pkeyrefs[j])) {
++				ipath_cdbg(VERBOSE, "p%u clear key "
++					   "%x matches #%d\n",
++					   pd->port_port,
++					   pd->port_pkeys[i], j);
++				ipath_stats.sps_pkeys[j] =
++					dd->ipath_pkeys[j] = 0;
++				pchanged++;
++			}
++			else ipath_cdbg(
++				VERBOSE, "p%u key %x matches #%d, "
++				"but ref still %d\n", pd->port_port,
++				pd->port_pkeys[i], j,
++				atomic_read(&dd->ipath_pkeyrefs[j]));
++			break;
++		}
++		pd->port_pkeys[i] = 0;
++	}
++	if (pchanged) {
++		u64 pkey = (u64) dd->ipath_pkeys[0] |
++			((u64) dd->ipath_pkeys[1] << 16) |
++			((u64) dd->ipath_pkeys[2] << 32) |
++			((u64) dd->ipath_pkeys[3] << 48);
++		ipath_cdbg(VERBOSE, "p%u old pkey reg %llx, "
++			   "new pkey reg %llx\n", pd->port_port,
++			   (unsigned long long) oldpkey,
++			   (unsigned long long) pkey);
++		ipath_write_kreg(dd, dd->ipath_kregs->kr_partitionkey,
++				 pkey);
++	}
++}
++
++/**
++ * ipath_create_user_egr - allocate eager TID buffers
++ * @pd: the port to allocate TID buffers for
++ *
++ * This routine is now quite different for user and kernel, because
++ * the kernel uses skb's, for the accelerated network performance
++ * This is the user port version
++ *
++ * Allocate the eager TID buffers and program them into infinipath
++ * They are no longer completely contiguous, we do multiple allocation
++ * calls.
++ */
++static int ipath_create_user_egr(struct ipath_portdata *pd)
++{
++	struct ipath_devdata *dd = pd->port_dd;
++	unsigned e, egrcnt, alloced, egrperchunk, chunk, egrsize, egroff;
++	size_t size;
++	int ret;
++
++	egrcnt = dd->ipath_rcvegrcnt;
++	/* TID number offset for this port */
++	egroff = pd->port_port * egrcnt;
++	egrsize = dd->ipath_rcvegrbufsize;
++	ipath_cdbg(VERBOSE, "Allocating %d egr buffers, at egrtid "
++		   "offset %x, egrsize %u\n", egrcnt, egroff, egrsize);
++
++	/*
++	 * to avoid wasting a lot of memory, we allocate 32KB chunks of
++	 * physically contiguous memory, advance through it until used up
++	 * and then allocate more.  Of course, we need memory to store those
++	 * extra pointers, now.  Started out with 256KB, but under heavy
++	 * memory pressure (creating large files and then copying them over
++	 * NFS while doing lots of MPI jobs), we hit some allocation
++	 * failures, even though we can sleep...  (2.6.10) Still get
++	 * failures at 64K.  32K is the lowest we can go without waiting
++	 * more memory again.  It seems likely that the coalescing in
++	 * free_pages, etc. still has issues (as it has had previously
++	 * during 2.6.x development).
++	 */
++	size = 0x8000;
++	alloced = ALIGN(egrsize * egrcnt, size);
++	egrperchunk = size / egrsize;
++	chunk = (egrcnt + egrperchunk - 1) / egrperchunk;
++	pd->port_rcvegrbuf_chunks = chunk;
++	pd->port_rcvegrbufs_perchunk = egrperchunk;
++	pd->port_rcvegrbuf_size = size;
++	pd->port_rcvegrbuf = vmalloc(chunk * sizeof(pd->port_rcvegrbuf[0]));
++	if (!pd->port_rcvegrbuf) {
++		ret = -ENOMEM;
++		goto bail;
++	}
++	pd->port_rcvegrbuf_phys =
++		vmalloc(chunk * sizeof(pd->port_rcvegrbuf_phys[0]));
++	if (!pd->port_rcvegrbuf_phys) {
++		ret = -ENOMEM;
++		goto bail_rcvegrbuf;
++	}
++	for (e = 0; e < pd->port_rcvegrbuf_chunks; e++) {
++		/*
++		 * GFP_USER, but without GFP_FS, so buffer cache can be
++		 * coalesced (we hope); otherwise, even at order 4,
++		 * heavy filesystem activity makes these fail
++		 */
++		gfp_t gfp_flags = __GFP_WAIT | __GFP_IO | __GFP_COMP;
++
++		pd->port_rcvegrbuf[e] = dma_alloc_coherent(
++			&dd->pcidev->dev, size, &pd->port_rcvegrbuf_phys[e],
++			gfp_flags);
++
++		if (!pd->port_rcvegrbuf[e]) {
++			ret = -ENOMEM;
++			goto bail_rcvegrbuf_phys;
++		}
++	}
++
++	pd->port_rcvegr_phys = pd->port_rcvegrbuf_phys[0];
++
++	for (e = chunk = 0; chunk < pd->port_rcvegrbuf_chunks; chunk++) {
++		dma_addr_t pa = pd->port_rcvegrbuf_phys[chunk];
++		unsigned i;
++
++		for (i = 0; e < egrcnt && i < egrperchunk; e++, i++) {
++			dd->ipath_f_put_tid(dd, e + egroff +
++					    (u64 __iomem *)
++					    ((char __iomem *)
++					     dd->ipath_kregbase +
++					     dd->ipath_rcvegrbase), 0, pa);
++			pa += egrsize;
++		}
++		cond_resched();	/* don't hog the cpu */
++	}
++
++	ret = 0;
++	goto bail;
++
++bail_rcvegrbuf_phys:
++	for (e = 0; e < pd->port_rcvegrbuf_chunks &&
++		     pd->port_rcvegrbuf[e]; e++)
++		dma_free_coherent(&dd->pcidev->dev, size,
++				  pd->port_rcvegrbuf[e],
++				  pd->port_rcvegrbuf_phys[e]);
++
++	vfree(pd->port_rcvegrbuf_phys);
++	pd->port_rcvegrbuf_phys = NULL;
++bail_rcvegrbuf:
++	vfree(pd->port_rcvegrbuf);
++	pd->port_rcvegrbuf = NULL;
++bail:
++	return ret;
++}
++
++static int ipath_do_user_init(struct ipath_portdata *pd,
++			      const struct ipath_user_info *uinfo)
++{
++	int ret = 0;
++	struct ipath_devdata *dd = pd->port_dd;
++	u64 physaddr, uaddr, off, atmp;
++	struct page *pagep;
++	u32 head32;
++	u64 head;
++
++	/* for now, if major version is different, bail */
++	if ((uinfo->spu_userversion >> 16) != IPATH_USER_SWMAJOR) {
++		dev_info(&dd->pcidev->dev,
++			 "User major version %d not same as driver "
++			 "major %d\n", uinfo->spu_userversion >> 16,
++			 IPATH_USER_SWMAJOR);
++		ret = -ENODEV;
++		goto done;
++	}
++
++	if ((uinfo->spu_userversion & 0xffff) != IPATH_USER_SWMINOR)
++		ipath_dbg("User minor version %d not same as driver "
++			  "minor %d\n", uinfo->spu_userversion & 0xffff,
++			  IPATH_USER_SWMINOR);
++
++	if (uinfo->spu_rcvhdrsize) {
++		ret = ipath_setrcvhdrsize(dd, uinfo->spu_rcvhdrsize);
++		if (ret)
++			goto done;
++	}
++
++	/* for now we do nothing with rcvhdrcnt: uinfo->spu_rcvhdrcnt */
++
++	/* set up for the rcvhdr Q tail register writeback to user memory */
++	if (!uinfo->spu_rcvhdraddr ||
++	    !access_ok(VERIFY_WRITE, (u64 __user *) (unsigned long)
++		       uinfo->spu_rcvhdraddr, sizeof(u64))) {
++		ipath_dbg("Port %d rcvhdrtail addr %llx not valid\n",
++			  pd->port_port,
++			  (unsigned long long) uinfo->spu_rcvhdraddr);
++		ret = -EINVAL;
++		goto done;
++	}
++
++	off = offset_in_page(uinfo->spu_rcvhdraddr);
++	uaddr = PAGE_MASK & (unsigned long) uinfo->spu_rcvhdraddr;
++	ret = ipath_get_user_pages_nocopy(uaddr, &pagep);
++	if (ret) {
++		dev_info(&dd->pcidev->dev, "Failed to lookup and lock "
++			 "address %llx for rcvhdrtail: errno %d\n",
++			 (unsigned long long) uinfo->spu_rcvhdraddr, -ret);
++		goto done;
++	}
++	ipath_stats.sps_pagelocks++;
++	pd->port_rcvhdrtail_uaddr = uaddr;
++	pd->port_rcvhdrtail_pagep = pagep;
++	pd->port_rcvhdrtail_kvaddr =
++		page_address(pagep);
++	pd->port_rcvhdrtail_kvaddr += off;
++	physaddr = page_to_phys(pagep) + off;
++	ipath_cdbg(VERBOSE, "port %d user addr %llx hdrtailaddr, %llx "
++		   "physical (off=%llx)\n",
++		   pd->port_port,
++		   (unsigned long long) uinfo->spu_rcvhdraddr,
++		   (unsigned long long) physaddr, (unsigned long long) off);
++	ipath_write_kreg_port(dd, dd->ipath_kregs->kr_rcvhdrtailaddr,
++			      pd->port_port, physaddr);
++	atmp = ipath_read_kreg64_port(dd,
++				      dd->ipath_kregs->kr_rcvhdrtailaddr,
++				      pd->port_port);
++	if (physaddr != atmp) {
++		ipath_dev_err(dd,
++			      "Catastrophic software error, "
++			      "RcvHdrTailAddr%u written as %llx, "
++			      "read back as %llx\n", pd->port_port,
++			      (unsigned long long) physaddr,
++			      (unsigned long long) atmp);
++		ret = -EINVAL;
++		goto done;
++	}
++
++	/* for right now, kernel piobufs are at end, so port 1 is at 0 */
++	pd->port_piobufs = dd->ipath_piobufbase +
++		dd->ipath_pbufsport * (pd->port_port -
++				       1) * dd->ipath_palign;
++	ipath_cdbg(VERBOSE, "Set base of piobufs for port %u to 0x%x\n",
++		   pd->port_port, pd->port_piobufs);
++
++	/*
++	 * Now allocate the rcvhdr Q and eager TIDs; skip the TID
++	 * array for time being.  If pd->port_port > chip-supported,
++	 * we need to do extra stuff here to handle by handling overflow
++	 * through port 0, someday
++	 */
++	ret = ipath_create_rcvhdrq(dd, pd);
++	if (!ret)
++		ret = ipath_create_user_egr(pd);
++	if (ret)
++		goto done;
++	/* enable receives now */
++	/* atomically set enable bit for this port */
++	set_bit(INFINIPATH_R_PORTENABLE_SHIFT + pd->port_port,
++		&dd->ipath_rcvctrl);
++
++	/*
++	 * set the head registers for this port to the current values
++	 * of the tail pointers, since we don't know if they were
++	 * updated on last use of the port.
++	 */
++	head32 = ipath_read_ureg32(dd, ur_rcvhdrtail, pd->port_port);
++	head = (u64) head32;
++	ipath_write_ureg(dd, ur_rcvhdrhead, head, pd->port_port);
++	head32 = ipath_read_ureg32(dd, ur_rcvegrindextail, pd->port_port);
++	ipath_write_ureg(dd, ur_rcvegrindexhead, head32, pd->port_port);
++	dd->ipath_lastegrheads[pd->port_port] = -1;
++	dd->ipath_lastrcvhdrqtails[pd->port_port] = -1;
++	ipath_cdbg(VERBOSE, "Wrote port%d head %llx, egrhead %x from "
++		   "tail regs\n", pd->port_port,
++		   (unsigned long long) head, head32);
++	pd->port_tidcursor = 0;	/* start at beginning after open */
++	/*
++	 * now enable the port; the tail registers will be written to memory
++	 * by the chip as soon as it sees the write to
++	 * dd->ipath_kregs->kr_rcvctrl.  The update only happens on
++	 * transition from 0 to 1, so clear it first, then set it as part of
++	 * enabling the port.  This will (very briefly) affect any other
++	 * open ports, but it shouldn't be long enough to be an issue.
++	 */
++	ipath_write_kreg(dd, dd->ipath_kregs->kr_rcvctrl,
++			 dd->ipath_rcvctrl & ~INFINIPATH_R_TAILUPD);
++	ipath_write_kreg(dd, dd->ipath_kregs->kr_rcvctrl,
++			 dd->ipath_rcvctrl);
++
++done:
++	return ret;
++}
++
++static int mmap_ureg(struct vm_area_struct *vma, struct ipath_devdata *dd,
++		     u64 ureg)
++{
++	unsigned long phys;
++	int ret;
++
++	/* it's the real hardware, so io_remap works */
++
++	if ((vma->vm_end - vma->vm_start) > PAGE_SIZE) {
++		dev_info(&dd->pcidev->dev, "FAIL mmap userreg: reqlen "
++			 "%lx > PAGE\n", vma->vm_end - vma->vm_start);
++		ret = -EFAULT;
++	} else {
++		phys = dd->ipath_physaddr + ureg;
++		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
++
++		vma->vm_flags |= VM_DONTCOPY | VM_DONTEXPAND;
++		ret = io_remap_pfn_range(vma, vma->vm_start,
++					 phys >> PAGE_SHIFT,
++					 vma->vm_end - vma->vm_start,
++					 vma->vm_page_prot);
++	}
++	return ret;
++}
++
++static int mmap_piobufs(struct vm_area_struct *vma,
++			struct ipath_devdata *dd,
++			struct ipath_portdata *pd)
++{
++	unsigned long phys;
++	int ret;
++
++	/*
++	 * When we map the PIO buffers, we want to map them as writeonly, no
++	 * read possible.
++	 */
++
++	if ((vma->vm_end - vma->vm_start) >
++	    (dd->ipath_pbufsport * dd->ipath_palign)) {
++		dev_info(&dd->pcidev->dev, "FAIL mmap piobufs: "
++			 "reqlen %lx > PAGE\n",
++			 vma->vm_end - vma->vm_start);
++		ret = -EFAULT;
++		goto bail;
++	}
++
++	phys = dd->ipath_physaddr + pd->port_piobufs;
++	/*
++	 * Do *NOT* mark this as non-cached (PWT bit), or we don't get the
++	 * write combining behavior we want on the PIO buffers!
++	 * vma->vm_page_prot =
++	 *        pgprot_noncached(vma->vm_page_prot);
++	 */
++
++	if (vma->vm_flags & VM_READ) {
++		dev_info(&dd->pcidev->dev,
++			 "Can't map piobufs as readable (flags=%lx)\n",
++			 vma->vm_flags);
++		ret = -EPERM;
++		goto bail;
++	}
++
++	/* don't allow them to later change to readable with mprotect */
++
++	vma->vm_flags &= ~VM_MAYWRITE;
++	vma->vm_flags |= VM_DONTCOPY | VM_DONTEXPAND;
++
++	ret = io_remap_pfn_range(vma, vma->vm_start, phys >> PAGE_SHIFT,
++				 vma->vm_end - vma->vm_start,
++				 vma->vm_page_prot);
++bail:
++	return ret;
++}
++
++static int mmap_rcvegrbufs(struct vm_area_struct *vma,
++			   struct ipath_portdata *pd)
++{
++	struct ipath_devdata *dd = pd->port_dd;
++	unsigned long start, size;
++	size_t total_size, i;
++	dma_addr_t *phys;
++	int ret;
++
++	if (!pd->port_rcvegrbuf) {
++		ret = -EFAULT;
++		goto bail;
++	}
++
++	size = pd->port_rcvegrbuf_size;
++	total_size = pd->port_rcvegrbuf_chunks * size;
++	if ((vma->vm_end - vma->vm_start) > total_size) {
++		dev_info(&dd->pcidev->dev, "FAIL on egr bufs: "
++			 "reqlen %lx > actual %lx\n",
++			 vma->vm_end - vma->vm_start,
++			 (unsigned long) total_size);
++		ret = -EFAULT;
++		goto bail;
++	}
++
++	if (vma->vm_flags & VM_WRITE) {
++		dev_info(&dd->pcidev->dev, "Can't map eager buffers as "
++			 "writable (flags=%lx)\n", vma->vm_flags);
++		ret = -EPERM;
++		goto bail;
++	}
++
++	start = vma->vm_start;
++	phys = pd->port_rcvegrbuf_phys;
++
++	/* don't allow them to later change to writeable with mprotect */
++	vma->vm_flags &= ~VM_MAYWRITE;
++
++	for (i = 0; i < pd->port_rcvegrbuf_chunks; i++, start += size) {
++		ret = remap_pfn_range(vma, start, phys[i] >> PAGE_SHIFT,
++				      size, vma->vm_page_prot);
++		if (ret < 0)
++			goto bail;
++	}
 +	ret = 0;
 +
 +bail:
 +	return ret;
 +}
 +
-+static void ipath_check_htlink(struct ipath_devdata *dd)
++static int mmap_rcvhdrq(struct vm_area_struct *vma,
++			struct ipath_portdata *pd)
 +{
-+	u8 linkerr, link_off, i;
++	struct ipath_devdata *dd = pd->port_dd;
++	size_t total_size;
++	int ret;
 +
-+	for (i = 0; i < 2; i++) {
-+		link_off = dd->ipath_ht_slave_off + i * 4 + 0xd;
-+		if (pci_read_config_byte(dd->pcidev, link_off, &linkerr))
-+			dev_info(&dd->pcidev->dev, "Couldn't read "
-+				 "linkerror%d of HT slave/primary block\n",
-+				 i);
-+		else if (linkerr & 0xf0) {
-+			ipath_cdbg(VERBOSE, "HT linkerr%d bits 0x%x set, "
-+				   "clearing\n", linkerr >> 4, i);
-+			/*
-+			 * writing the linkerr bits that are set should
-+			 * clear them
-+			 */
-+			if (pci_write_config_byte(dd->pcidev, link_off,
-+						  linkerr))
-+				ipath_dbg("Failed write to clear HT "
-+					  "linkerror%d\n", i);
-+			if (pci_read_config_byte(dd->pcidev, link_off,
-+						 &linkerr))
-+				dev_info(&dd->pcidev->dev,
-+					 "Couldn't reread linkerror%d of "
-+					 "HT slave/primary block\n", i);
-+			else if (linkerr & 0xf0)
-+				dev_info(&dd->pcidev->dev,
-+					 "HT linkerror%d bits 0x%x "
-+					 "couldn't be cleared\n",
-+					 i, linkerr >> 4);
-+		}
++	/*
++	 * kmalloc'ed memory, physically contiguous; this is from
++	 * spi_rcvhdr_base; we allow user to map read-write so they can
++	 * write hdrq entries to allow protocol code to directly poll
++	 * whether a hdrq entry has been written.
++	 */
++	total_size = ALIGN(dd->ipath_rcvhdrcnt * dd->ipath_rcvhdrentsize *
++			   sizeof(u32), PAGE_SIZE);
++	if ((vma->vm_end - vma->vm_start) > total_size) {
++		dev_info(&dd->pcidev->dev,
++			 "FAIL on rcvhdrq: reqlen %lx > actual %lx\n",
++			 vma->vm_end - vma->vm_start,
++			 (unsigned long) total_size);
++		ret = -EFAULT;
++		goto bail;
 +	}
++
++	ret = remap_pfn_range(vma, vma->vm_start,
++			      pd->port_rcvhdrq_phys >> PAGE_SHIFT,
++			      vma->vm_end - vma->vm_start,
++			      vma->vm_page_prot);
++bail:
++	return ret;
 +}
 +
-+static int ipath_setup_ht_reset(struct ipath_devdata *dd)
++static int mmap_pioavailregs(struct vm_area_struct *vma,
++			     struct ipath_portdata *pd)
 +{
-+	ipath_dbg("No reset possible for HT-400\n");
++	struct ipath_devdata *dd = pd->port_dd;
++	int ret;
++
++	/*
++	 * when we map the PIO bufferavail registers, we want to map them as
++	 * readonly, no write possible.
++	 *
++	 * kmalloc'ed memory, physically contiguous, one page only, readonly
++	 */
++
++	if ((vma->vm_end - vma->vm_start) > PAGE_SIZE) {
++		dev_info(&dd->pcidev->dev, "FAIL on pioavailregs_dma: "
++			 "reqlen %lx > actual %lx\n",
++			 vma->vm_end - vma->vm_start,
++			 (unsigned long) PAGE_SIZE);
++		ret = -EFAULT;
++		goto bail;
++	}
++
++	if (vma->vm_flags & VM_WRITE) {
++		dev_info(&dd->pcidev->dev,
++			 "Can't map pioavailregs as writable (flags=%lx)\n",
++			 vma->vm_flags);
++		ret = -EPERM;
++		goto bail;
++	}
++
++	/* don't allow them to later change with mprotect */
++	vma->vm_flags &= ~VM_MAYWRITE;
++
++	ret = remap_pfn_range(vma, vma->vm_start,
++			      dd->ipath_pioavailregs_phys >> PAGE_SHIFT,
++			      PAGE_SIZE, vma->vm_page_prot);
++bail:
++	return ret;
++}
++
++/**
++ * ipath_mmap - mmap various structures into user space
++ * @fp: the file pointer
++ * @vma: the VM area
++ *
++ * We use this to have a shared buffer between the kernel and the user code
++ * for the rcvhdr queue, egr buffers, and the per-port user regs and pio
++ * buffers in the chip.  We have the open and close entries so we can bump
++ * the ref count and keep the driver from being unloaded while still mapped.
++ */
++static int ipath_mmap(struct file *fp, struct vm_area_struct *vma)
++{
++	struct ipath_portdata *pd;
++	struct ipath_devdata *dd;
++	u64 pgaddr, ureg;
++	int ret;
++
++	pd = port_fp(fp);
++	dd = pd->port_dd;
++	/*
++	 * This is the ipath_do_user_init() code, mapping the shared buffers
++	 * into the user process. The address referred to by vm_pgoff is the
++	 * virtual, not physical, address; we only do one mmap for each
++	 * space mapped.
++	 */
++	pgaddr = vma->vm_pgoff << PAGE_SHIFT;
++
++	/*
++	 * note that ureg does *NOT* have the kregvirt as part of it, to be
++	 * sure that for 32 bit programs, we don't end up trying to map a >
++	 * 44 address.  Has to match ipath_get_base_info() code that sets
++	 * __spi_uregbase
++	 */
++
++	ureg = dd->ipath_uregbase + dd->ipath_palign * pd->port_port;
++
++	ipath_cdbg(MM, "ushare: pgaddr %llx vm_start=%lx, vmlen %lx\n",
++		   (unsigned long long) pgaddr, vma->vm_start,
++		   vma->vm_end - vma->vm_start);
++
++	if (pgaddr == ureg)
++		ret = mmap_ureg(vma, dd, ureg);
++	else if (pgaddr == pd->port_piobufs)
++		ret = mmap_piobufs(vma, dd, pd);
++	else if (pgaddr == (u64) pd->port_rcvegr_phys)
++		ret = mmap_rcvegrbufs(vma, pd);
++	else if (pgaddr == (u64) pd->port_rcvhdrq_phys)
++		ret = mmap_rcvhdrq(vma, pd);
++	else if (pgaddr == dd->ipath_pioavailregs_phys)
++		ret = mmap_pioavailregs(vma, pd);
++	else
++		ret = -EINVAL;
++
++	vma->vm_private_data = NULL;
++
++	if (ret < 0)
++		dev_info(&dd->pcidev->dev,
++			 "Failure %d on addr %lx, off %lx\n",
++			 -ret, vma->vm_start, vma->vm_pgoff);
++
++	return ret;
++}
++
++static unsigned int ipath_poll(struct file *fp,
++			       struct poll_table_struct *pt)
++{
++	struct ipath_portdata *pd;
++	u32 head, tail;
++	int bit;
++	struct ipath_devdata *dd;
++
++	pd = port_fp(fp);
++	dd = pd->port_dd;
++
++	bit = pd->port_port + INFINIPATH_R_INTRAVAIL_SHIFT;
++	set_bit(bit, &dd->ipath_rcvctrl);
++
++	/*
++	 * Before blocking, make sure that head is still == tail,
++	 * reading from the chip, so we can be sure the interrupt
++	 * enable has made it to the chip.  If not equal, disable
++	 * interrupt again and return immediately.  This avoids races,
++	 * and the overhead of the chip read doesn't matter much at
++	 * this point, since we are waiting for something anyway.
++	 */
++
++	ipath_write_kreg(dd, dd->ipath_kregs->kr_rcvctrl,
++			 dd->ipath_rcvctrl);
++
++	head = ipath_read_ureg32(dd, ur_rcvhdrhead, pd->port_port);
++	tail = ipath_read_ureg32(dd, ur_rcvhdrtail, pd->port_port);
++
++	if (tail == head) {
++		set_bit(IPATH_PORT_WAITING_RCV, &pd->port_flag);
++		poll_wait(fp, &pd->port_wait, pt);
++
++		if (test_bit(IPATH_PORT_WAITING_RCV, &pd->port_flag)) {
++			/* timed out, no packets received */
++			clear_bit(IPATH_PORT_WAITING_RCV, &pd->port_flag);
++			pd->port_rcvwait_to++;
++		}
++	}
++	else {
++		/* it's already happened; don't do wait_event overhead */
++		pd->port_rcvnowait++;
++	}
++
++	clear_bit(bit, &dd->ipath_rcvctrl);
++	ipath_write_kreg(dd, dd->ipath_kregs->kr_rcvctrl,
++			 dd->ipath_rcvctrl);
++
 +	return 0;
 +}
 +
-+#define HT_CAPABILITY_ID   0x08	/* HT capabilities not defined in kernel */
-+#define HT_INTR_DISC_CONFIG  0x80	/* HT interrupt and discovery cap */
-+#define HT_INTR_REG_INDEX    2	/* intconfig requires indirect accesses */
-+
-+/*
-+ * Bits 13-15 of command==0 is slave/primary block.  Clear any HT CRC
-+ * errors.  We only bother to do this at load time, because it's OK if
-+ * it happened before we were loaded (first time after boot/reset),
-+ * but any time after that, it's fatal anyway.  Also need to not check
-+ * for for upper byte errors if we are in 8 bit mode, so figure out
-+ * our width.  For now, at least, also complain if it's 8 bit.
-+ */
-+static void slave_or_pri_blk(struct ipath_devdata *dd, struct pci_dev *pdev,
-+			     int pos, u8 cap_type)
++static int try_alloc_port(struct ipath_devdata *dd, int port,
++			  struct file *fp)
 +{
-+	u8 linkwidth = 0, linkerr, link_a_b_off, link_off;
-+	u16 linkctrl = 0;
-+	int i;
++	int ret;
 +
-+	dd->ipath_ht_slave_off = pos;
-+	/* command word, master_host bit */
-+	/* master host || slave */
-+	if ((cap_type >> 2) & 1)
-+		link_a_b_off = 4;
-+	else
-+		link_a_b_off = 0;
-+	ipath_cdbg(VERBOSE, "HT%u (Link %c) connected to processor\n",
-+		   link_a_b_off ? 1 : 0,
-+		   link_a_b_off ? 'B' : 'A');
++	if (!dd->ipath_pd[port]) {
++		void *p, *ptmp;
 +
-+	link_a_b_off += pos;
++		p = kzalloc(sizeof(struct ipath_portdata), GFP_KERNEL);
 +
-+	/*
-+	 * check both link control registers; clear both HT CRC sets if
-+	 * necessary.
-+	 */
-+	for (i = 0; i < 2; i++) {
-+		link_off = pos + i * 4 + 0x4;
-+		if (pci_read_config_word(pdev, link_off, &linkctrl))
-+			ipath_dev_err(dd, "Couldn't read HT link control%d "
-+				      "register\n", i);
-+		else if (linkctrl & (0xf << 8)) {
-+			ipath_cdbg(VERBOSE, "Clear linkctrl%d CRC Error "
-+				   "bits %x\n", i, linkctrl & (0xf << 8));
-+			/*
-+			 * now write them back to clear the error.
-+			 */
-+			pci_write_config_byte(pdev, link_off,
-+					      linkctrl & (0xf << 8));
++		/*
++		 * Allocate memory for use in ipath_tid_update() just once
++		 * at open, not per call.  Reduces cost of expected send
++		 * setup.
++		 */
++		ptmp = kmalloc(dd->ipath_rcvtidcnt * sizeof(u16) +
++			       dd->ipath_rcvtidcnt * sizeof(struct page **),
++			       GFP_KERNEL);
++		if (!p || !ptmp) {
++			ipath_dev_err(dd, "Unable to allocate portdata "
++				      "memory, failing open\n");
++			ret = -ENOMEM;
++			kfree(p);
++			kfree(ptmp);
++			goto bail;
 +		}
++		dd->ipath_pd[port] = p;
++		dd->ipath_pd[port]->port_port = port;
++		dd->ipath_pd[port]->port_dd = dd;
++		dd->ipath_pd[port]->port_tid_pg_list = ptmp;
++		init_waitqueue_head(&dd->ipath_pd[port]->port_wait);
++	}
++	if (!dd->ipath_pd[port]->port_cnt) {
++		dd->ipath_pd[port]->port_cnt = 1;
++		fp->private_data = (void *) dd->ipath_pd[port];
++		ipath_cdbg(PROC, "%s[%u] opened unit:port %u:%u\n",
++			   current->comm, current->pid, dd->ipath_unit,
++			   port);
++		dd->ipath_pd[port]->port_pid = current->pid;
++		strncpy(dd->ipath_pd[port]->port_comm, current->comm,
++			sizeof(dd->ipath_pd[port]->port_comm));
++		ipath_stats.sps_ports++;
++		ret = 0;
++		goto bail;
++	}
++	ret = -EBUSY;
++
++bail:
++	return ret;
++}
++
++static inline int usable(struct ipath_devdata *dd)
++{
++	return dd &&
++		(dd->ipath_flags & IPATH_PRESENT) &&
++		dd->ipath_kregbase &&
++		dd->ipath_lid &&
++		!(dd->ipath_flags & (IPATH_LINKDOWN | IPATH_DISABLED
++				     | IPATH_LINKUNK));
++}
++
++static int find_free_port(int unit, struct file *fp)
++{
++	struct ipath_devdata *dd = ipath_lookup(unit);
++	int ret, i;
++
++	if (!dd) {
++		ret = -ENODEV;
++		goto bail;
 +	}
 +
-+	/*
-+	 * As with HT CRC bits, same for protocol errors that might occur
-+	 * during boot.
-+	 */
-+	for (i = 0; i < 2; i++) {
-+		link_off = pos + i * 4 + 0xd;
-+		if (pci_read_config_byte(pdev, link_off, &linkerr))
-+			dev_info(&pdev->dev, "Couldn't read linkerror%d "
-+				 "of HT slave/primary block\n", i);
-+		else if (linkerr & 0xf0) {
-+			ipath_cdbg(VERBOSE, "HT linkerr%d bits 0x%x set, "
-+				   "clearing\n", linkerr >> 4, i);
-+			/*
-+			 * writing the linkerr bits that are set will clear
-+			 * them
-+			 */
-+			if (pci_write_config_byte
-+			    (pdev, link_off, linkerr))
-+				ipath_dbg("Failed write to clear HT "
-+					  "linkerror%d\n", i);
-+			if (pci_read_config_byte(pdev, link_off, &linkerr))
-+				dev_info(&pdev->dev, "Couldn't reread "
-+					 "linkerror%d of HT slave/primary "
-+					 "block\n", i);
-+			else if (linkerr & 0xf0)
-+				dev_info(&pdev->dev, "HT linkerror%d bits "
-+					 "0x%x couldn't be cleared\n",
-+					 i, linkerr >> 4);
-+		}
++	if (!usable(dd)) {
++		ret = -ENETDOWN;
++		goto bail;
 +	}
 +
++	for (i = 0; i < dd->ipath_cfgports; i++) {
++		ret = try_alloc_port(dd, i, fp);
++		if (ret != -EBUSY)
++			goto bail;
++	}
++	ret = -EBUSY;
++
++bail:
++	return ret;
++}
++
++static int find_best_unit(struct file *fp)
++{
++	int ret = 0, i, prefunit = -1, devmax;
++	int maxofallports, npresent, nup;
++	int ndev;
++
++	(void) ipath_count_units(&npresent, &nup, &maxofallports);
++
 +	/*
-+	 * this is just for our link to the host, not devices connected
-+	 * through tunnel.
++	 * This code is present to allow a knowledgeable person to
++	 * specify the layout of processes to processors before opening
++	 * this driver, and then we'll assign the process to the "closest"
++	 * HT-400 to that processor (we assume reasonable connectivity,
++	 * for now).  This code assumes that if affinity has been set
++	 * before this point, that at most one cpu is set; for now this
++	 * is reasonable.  I check for both cpus_empty() and cpus_full(),
++	 * in case some kernel variant sets none of the bits when no
++	 * affinity is set.  2.6.11 and 12 kernels have all present
++	 * cpus set.  Some day we'll have to fix it up further to handle
++	 * a cpu subset.  This algorithm fails for two HT-400's connected
++	 * in tunnel fashion.  Eventually this needs real topology
++	 * information.  There may be some issues with dual core numbering
++	 * as well.  This needs more work prior to release.
 +	 */
-+
-+	if (pci_read_config_byte(pdev, link_a_b_off + 7, &linkwidth))
-+		ipath_dev_err(dd, "Couldn't read HT link width "
-+			      "config register\n");
-+	else {
-+		u32 width;
-+		switch (linkwidth & 7) {
-+		case 5:
-+			width = 4;
-+			break;
-+		case 4:
-+			width = 2;
-+			break;
-+		case 3:
-+			width = 32;
-+			break;
-+		case 1:
-+			width = 16;
-+			break;
-+		case 0:
-+		default:	/* if wrong, assume 8 bit */
-+			width = 8;
-+			break;
-+		}
-+
-+		dd->ipath_htwidth = width;
-+
-+		if (linkwidth != 0x11) {
-+			ipath_dev_err(dd, "Not configured for 16 bit HT "
-+				      "(%x)\n", linkwidth);
-+			if (!(linkwidth & 0xf)) {
-+				ipath_dbg("Will ignore HT lane1 errors\n");
-+				dd->ipath_flags |= IPATH_8BIT_IN_HT0;
++	if (!cpus_empty(current->cpus_allowed) &&
++	    !cpus_full(current->cpus_allowed)) {
++		int ncpus = num_online_cpus(), curcpu = -1;
++		for (i = 0; i < ncpus; i++)
++			if (cpu_isset(i, current->cpus_allowed)) {
++				ipath_cdbg(PROC, "%s[%u] affinity set for "
++					   "cpu %d\n", current->comm,
++					   current->pid, i);
++				curcpu = i;
++			}
++		if (curcpu != -1) {
++			if (npresent) {
++				prefunit = curcpu / (ncpus / npresent);
++				ipath_dbg("%s[%u] %d chips, %d cpus, "
++					  "%d cpus/chip, select unit %d\n",
++					  current->comm, current->pid,
++					  npresent, ncpus, ncpus / npresent,
++					  prefunit);
 +			}
 +		}
 +	}
 +
 +	/*
-+	 * this is just for our link to the host, not devices connected
-+	 * through tunnel.
++	 * user ports start at 1, kernel port is 0
++	 * For now, we do round-robin access across all chips
 +	 */
-+	if (pci_read_config_byte(pdev, link_a_b_off + 0xd, &linkwidth))
-+		ipath_dev_err(dd, "Couldn't read HT link frequency "
-+			      "config register\n");
-+	else {
-+		u32 speed;
-+		switch (linkwidth & 0xf) {
-+		case 6:
-+			speed = 1000;
-+			break;
-+		case 5:
-+			speed = 800;
-+			break;
-+		case 4:
-+			speed = 600;
-+			break;
-+		case 3:
-+			speed = 500;
-+			break;
-+		case 2:
-+			speed = 400;
-+			break;
-+		case 1:
-+			speed = 300;
-+			break;
-+		default:
-+			/*
-+			 * assume reserved and vendor-specific are 200...
-+			 */
-+		case 0:
-+			speed = 200;
-+			break;
++
++	if (prefunit != -1)
++		devmax = prefunit + 1;
++	else
++		devmax = ipath_count_units(NULL, NULL, NULL);
++recheck:
++	for (i = 1; i < maxofallports; i++) {
++		for (ndev = prefunit != -1 ? prefunit : 0; ndev < devmax;
++		     ndev++) {
++			struct ipath_devdata *dd = ipath_lookup(ndev);
++
++			if (!usable(dd))
++				continue; /* can't use this unit */
++			if (i >= dd->ipath_cfgports)
++				/*
++				 * Maxed out on users of this unit. Try
++				 * next.
++				 */
++				continue;
++			ret = try_alloc_port(dd, i, fp);
++			if (!ret)
++				goto done;
 +		}
-+		dd->ipath_htspeed = speed;
 +	}
++
++	if (npresent) {
++		if (nup == 0) {
++			ret = -ENETDOWN;
++			ipath_dbg("No ports available (none initialized "
++				  "and ready)\n");
++		} else {
++			if (prefunit > 0) {
++				/* if started above 0, retry from 0 */
++				ipath_cdbg(PROC,
++					   "%s[%u] no ports on prefunit "
++					   "%d, clear and re-check\n",
++					   current->comm, current->pid,
++					   prefunit);
++				devmax = ipath_count_units(NULL, NULL,
++							   NULL);
++				prefunit = -1;
++				goto recheck;
++			}
++			ret = -EBUSY;
++			ipath_dbg("No ports available\n");
++		}
++	} else {
++		ret = -ENXIO;
++		ipath_dbg("No boards found\n");
++	}
++
++done:
++	return ret;
 +}
 +
-+static int set_int_handler(struct ipath_devdata *dd, struct pci_dev *pdev,
-+			    int pos)
++static int ipath_open(struct inode *in, struct file *fp)
 +{
-+	u32 int_handler_addr_lower;
-+	u32 int_handler_addr_upper;
-+	u64 ihandler;
-+	u32 intvec;
++	int ret, minor;
 +
-+	/* use indirection register to get the intr handler */
-+	pci_write_config_byte(pdev, pos + HT_INTR_REG_INDEX, 0x10);
-+	pci_read_config_dword(pdev, pos + 4, &int_handler_addr_lower);
-+	pci_write_config_byte(pdev, pos + HT_INTR_REG_INDEX, 0x11);
-+	pci_read_config_dword(pdev, pos + 4, &int_handler_addr_upper);
++	mutex_lock(&ipath_mutex);
 +
-+	ihandler = (u64) int_handler_addr_lower |
-+		((u64) int_handler_addr_upper << 32);
++	minor = iminor(in);
++	ipath_cdbg(VERBOSE, "open on dev %lx (minor %d)\n",
++		   (long)in->i_rdev, minor);
 +
-+	/*
-+	 * kernels with CONFIG_PCI_MSI set the vector in the irq field of
-+	 * struct pci_device, so we use that to program the HT-400 internal
-+	 * interrupt register (not config space) with that value. The BIOS
-+	 * must still have done the basic MSI setup.
-+	 */
-+	intvec = pdev->irq;
-+	/*
-+	 * clear any vector bits there; normally not set but we'll overload
-+	 * this for some debug purposes (setting the HTC debug register
-+	 * value from software, rather than GPIOs), so it might be set on a
-+	 * driver reload.
-+	 */
-+	ihandler &= ~0xff0000;
-+	/* x86 vector goes in intrinfo[23:16] */
-+	ihandler |= intvec << 16;
-+	ipath_cdbg(VERBOSE, "ihandler lower %x, upper %x, intvec %x, "
-+		   "interruptconfig %llx\n", int_handler_addr_lower,
-+		   int_handler_addr_upper, intvec,
-+		   (unsigned long long) ihandler);
++	if (minor)
++		ret = find_free_port(minor - 1, fp);
++	else
++		ret = find_best_unit(fp);
 +
-+	/* can't program yet, so save for interrupt setup */
-+	dd->ipath_intconfig = ihandler;
-+	/* keep going, so we find link control stuff also */
-+
-+	return ihandler != 0;
-+}
-+
-+/**
-+ * ipath_setup_ht_config - setup the interruptconfig register
-+ * @dd: the infinipath device
-+ * @pdev: the PCI device
-+ *
-+ * setup the interruptconfig register from the HT config info.
-+ * Also clear CRC errors in HT linkcontrol, if necessary.
-+ * This is done only for the real hardware.  It is done before
-+ * chip address space is initted, so can't touch infinipath registers
-+ */
-+static int ipath_setup_ht_config(struct ipath_devdata *dd,
-+				 struct pci_dev *pdev)
-+{
-+	int pos, ret = 0;
-+	int ihandler = 0;
-+
-+	/*
-+	 * Read the capability info to find the interrupt info, and also
-+	 * handle clearing CRC errors in linkctrl register if necessary.  We
-+	 * do this early, before we ever enable errors or hardware errors,
-+	 * mostly to avoid causing the chip to enter freeze mode.
-+	 */
-+	pos = pci_find_capability(pdev, HT_CAPABILITY_ID);
-+	if (!pos) {
-+		ipath_dev_err(dd, "Couldn't find HyperTransport "
-+			      "capability; no interrupts\n");
-+		ret = -ENODEV;
-+		goto bail;
-+	}
-+	do {
-+		u8 cap_type;
-+
-+		/* the HT capability type byte is 3 bytes after the
-+		 * capability byte.
-+		 */
-+		if (pci_read_config_byte(pdev, pos + 3, &cap_type)) {
-+			dev_info(&pdev->dev, "Couldn't read config "
-+				 "command @ %d\n", pos);
-+			continue;
-+		}
-+		if (!(cap_type & 0xE0))
-+			slave_or_pri_blk(dd, pdev, pos, cap_type);
-+		else if (cap_type == HT_INTR_DISC_CONFIG)
-+			ihandler = set_int_handler(dd, pdev, pos);
-+	} while ((pos = pci_find_next_capability(pdev, pos,
-+						 HT_CAPABILITY_ID)));
-+
-+	if (!ihandler) {
-+		ipath_dev_err(dd, "Couldn't find interrupt handler in "
-+			      "config space\n");
-+		ret = -ENODEV;
-+	}
-+
-+bail:
++	mutex_unlock(&ipath_mutex);
 +	return ret;
 +}
 +
 +/**
-+ * ipath_setup_ht_cleanup - clean up any per-chip chip-specific stuff
-+ * @dd: the infinipath device
++ * unlock_exptid - unlock any expected TID entries port still had in use
++ * @pd: port
 + *
-+ * Called during driver unload.
-+ * This is currently a nop for the HT-400, not for all chips
++ * We don't actually update the chip here, because we do a bulk update
++ * below, using ipath_f_clear_tids.
 + */
-+static void ipath_setup_ht_cleanup(struct ipath_devdata *dd)
++static void unlock_expected_tids(struct ipath_portdata *pd)
 +{
++	struct ipath_devdata *dd = pd->port_dd;
++	int port_tidbase = pd->port_port * dd->ipath_rcvtidcnt;
++	int i, cnt = 0, maxtid = port_tidbase + dd->ipath_rcvtidcnt;
++
++	ipath_cdbg(VERBOSE, "Port %u unlocking any locked expTID pages\n",
++		   pd->port_port);
++	for (i = port_tidbase; i < maxtid; i++) {
++		if (!dd->ipath_pageshadow[i])
++			continue;
++
++		ipath_release_user_pages_on_close(&dd->ipath_pageshadow[i],
++						  1);
++		dd->ipath_pageshadow[i] = NULL;
++		cnt++;
++		ipath_stats.sps_pageunlocks++;
++	}
++	if (cnt)
++		ipath_cdbg(VERBOSE, "Port %u locked %u expTID entries\n",
++			   pd->port_port, cnt);
++
++	if (ipath_stats.sps_pagelocks || ipath_stats.sps_pageunlocks)
++		ipath_cdbg(VERBOSE, "%llu pages locked, %llu unlocked\n",
++			   (unsigned long long) ipath_stats.sps_pagelocks,
++			   (unsigned long long)
++			   ipath_stats.sps_pageunlocks);
 +}
 +
-+/**
-+ * ipath_setup_ht_setextled - set the state of the two external LEDs
-+ * @dd: the infinipath device
-+ * @lst: the L state
-+ * @ltst: the LT state
-+ *
-+ * Set the state of the two external LEDs, to indicate physical and
-+ * logical state of IB link.   For this chip (at least with recommended
-+ * board pinouts), LED1 is Green (physical state), and LED2 is Yellow
-+ * (logical state)
-+ *
-+ * Note:  We try to match the Mellanox HCA LED behavior as best
-+ * we can.  Green indicates physical link state is OK (something is
-+ * plugged in, and we can train).
-+ * Amber indicates the link is logically up (ACTIVE).
-+ * Mellanox further blinks the amber LED to indicate data packet
-+ * activity, but we have no hardware support for that, so it would
-+ * require waking up every 10-20 msecs and checking the counters
-+ * on the chip, and then turning the LED off if appropriate.  That's
-+ * visible overhead, so not something we will do.
-+ *
-+ */
-+static void ipath_setup_ht_setextled(struct ipath_devdata *dd,
-+				     u64 lst, u64 ltst)
++static int ipath_close(struct inode *in, struct file *fp)
 +{
-+	u64 extctl;
++	int ret = 0;
++	struct ipath_portdata *pd;
++	struct ipath_devdata *dd;
++	unsigned port;
 +
-+	/* the diags use the LED to indicate diag info, so we leave
-+	 * the external LED alone when the diags are running */
-+	if (ipath_diag_inuse)
-+		return;
++	ipath_cdbg(VERBOSE, "close on dev %lx, private data %p\n",
++		   (long)in->i_rdev, fp->private_data);
 +
-+	/*
-+	 * start by setting both LED control bits to off, then turn
-+	 * on the appropriate bit(s).
-+	 */
-+	if (dd->ipath_boardrev == 8) { /* LS/X-1 uses different pins */
-+		/*
-+		 * major difference is that INFINIPATH_EXTC_LEDGBLERR_OFF
-+		 * is inverted,  because it is normally used to indicate
-+		 * a hardware fault at reset, if there were errors
-+		 */
-+		extctl = (dd->ipath_extctrl & ~INFINIPATH_EXTC_LEDGBLOK_ON)
-+			| INFINIPATH_EXTC_LEDGBLERR_OFF;
-+		if (ltst == INFINIPATH_IBCS_LT_STATE_LINKUP)
-+			extctl &= ~INFINIPATH_EXTC_LEDGBLERR_OFF;
-+		if (lst == INFINIPATH_IBCS_L_STATE_ACTIVE)
-+			extctl |= INFINIPATH_EXTC_LEDGBLOK_ON;
++	mutex_lock(&ipath_mutex);
++
++	pd = port_fp(fp);
++	port = pd->port_port;
++	fp->private_data = NULL;
++	dd = pd->port_dd;
++
++	if (pd->port_hdrqfull) {
++		ipath_cdbg(PROC, "%s[%u] had %u rcvhdrqfull errors "
++			   "during run\n", pd->port_comm, pd->port_pid,
++			   pd->port_hdrqfull);
++		pd->port_hdrqfull = 0;
 +	}
-+	else {
-+		extctl = dd->ipath_extctrl &
-+			~(INFINIPATH_EXTC_LED1PRIPORT_ON |
-+			  INFINIPATH_EXTC_LED2PRIPORT_ON);
-+		if (ltst == INFINIPATH_IBCS_LT_STATE_LINKUP)
-+			extctl |= INFINIPATH_EXTC_LED1PRIPORT_ON;
-+		if (lst == INFINIPATH_IBCS_L_STATE_ACTIVE)
-+			extctl |= INFINIPATH_EXTC_LED2PRIPORT_ON;
++
++	if (pd->port_rcvwait_to || pd->port_piowait_to
++	    || pd->port_rcvnowait || pd->port_pionowait) {
++		ipath_cdbg(VERBOSE, "port%u, %u rcv, %u pio wait timeo; "
++			   "%u rcv %u, pio already\n",
++			   pd->port_port, pd->port_rcvwait_to,
++			   pd->port_piowait_to, pd->port_rcvnowait,
++			   pd->port_pionowait);
++		pd->port_rcvwait_to = pd->port_piowait_to =
++			pd->port_rcvnowait = pd->port_pionowait = 0;
 +	}
-+	dd->ipath_extctrl = extctl;
-+	ipath_write_kreg(dd, dd->ipath_kregs->kr_extctrl, extctl);
++	if (pd->port_flag) {
++		ipath_dbg("port %u port_flag still set to 0x%lx\n",
++			  pd->port_port, pd->port_flag);
++		pd->port_flag = 0;
++	}
++
++	if (dd->ipath_kregbase) {
++		if (pd->port_rcvhdrtail_uaddr) {
++			pd->port_rcvhdrtail_uaddr = 0;
++			pd->port_rcvhdrtail_kvaddr = NULL;
++			ipath_release_user_pages_on_close(
++				&pd->port_rcvhdrtail_pagep, 1);
++			pd->port_rcvhdrtail_pagep = NULL;
++			ipath_stats.sps_pageunlocks++;
++		}
++		ipath_write_kreg_port(
++			dd, dd->ipath_kregs->kr_rcvhdrtailaddr,
++			port, 0ULL);
++		ipath_write_kreg_port(
++			dd, dd->ipath_kregs->kr_rcvhdraddr,
++			pd->port_port, 0);
++
++		/* clean up the pkeys for this port user */
++		ipath_clean_part_key(pd, dd);
++
++		if (port < dd->ipath_cfgports) {
++			int i = dd->ipath_pbufsport * (port - 1);
++			ipath_disarm_piobufs(dd, i, dd->ipath_pbufsport);
++
++			/* atomically clear receive enable port. */
++			clear_bit(INFINIPATH_R_PORTENABLE_SHIFT + port,
++				  &dd->ipath_rcvctrl);
++			ipath_write_kreg(
++				dd,
++				dd->ipath_kregs->kr_rcvctrl,
++				dd->ipath_rcvctrl);
++
++			if (dd->ipath_pageshadow)
++				unlock_expected_tids(pd);
++			ipath_stats.sps_ports--;
++			ipath_cdbg(PROC, "%s[%u] closed port %u:%u\n",
++				   pd->port_comm, pd->port_pid,
++				   dd->ipath_unit, port);
++		}
++	}
++
++	pd->port_cnt = 0;
++	pd->port_pid = 0;
++
++	dd->ipath_f_clear_tids(dd, pd->port_port);
++
++	ipath_free_pddata(dd, pd->port_port, 0);
++
++	mutex_unlock(&ipath_mutex);
++
++	return ret;
 +}
 +
-+static void ipath_init_ht_variables(void)
++static int ipath_port_info(struct ipath_portdata *pd,
++			   struct ipath_port_info __user *uinfo)
 +{
-+	ipath_gpio_sda_num = _IPATH_GPIO_SDA_NUM;
-+	ipath_gpio_scl_num = _IPATH_GPIO_SCL_NUM;
-+	ipath_gpio_sda = IPATH_GPIO_SDA;
-+	ipath_gpio_scl = IPATH_GPIO_SCL;
-+
-+	infinipath_i_bitsextant =
-+		(INFINIPATH_I_RCVURG_MASK << INFINIPATH_I_RCVURG_SHIFT) |
-+		(INFINIPATH_I_RCVAVAIL_MASK <<
-+		 INFINIPATH_I_RCVAVAIL_SHIFT) |
-+		INFINIPATH_I_ERROR | INFINIPATH_I_SPIOSENT |
-+		INFINIPATH_I_SPIOBUFAVAIL | INFINIPATH_I_GPIO;
-+
-+	infinipath_e_bitsextant =
-+		INFINIPATH_E_RFORMATERR | INFINIPATH_E_RVCRC |
-+		INFINIPATH_E_RICRC | INFINIPATH_E_RMINPKTLEN |
-+		INFINIPATH_E_RMAXPKTLEN | INFINIPATH_E_RLONGPKTLEN |
-+		INFINIPATH_E_RSHORTPKTLEN | INFINIPATH_E_RUNEXPCHAR |
-+		INFINIPATH_E_RUNSUPVL | INFINIPATH_E_REBP |
-+		INFINIPATH_E_RIBFLOW | INFINIPATH_E_RBADVERSION |
-+		INFINIPATH_E_RRCVEGRFULL | INFINIPATH_E_RRCVHDRFULL |
-+		INFINIPATH_E_RBADTID | INFINIPATH_E_RHDRLEN |
-+		INFINIPATH_E_RHDR | INFINIPATH_E_RIBLOSTLINK |
-+		INFINIPATH_E_SMINPKTLEN | INFINIPATH_E_SMAXPKTLEN |
-+		INFINIPATH_E_SUNDERRUN | INFINIPATH_E_SPKTLEN |
-+		INFINIPATH_E_SDROPPEDSMPPKT | INFINIPATH_E_SDROPPEDDATAPKT |
-+		INFINIPATH_E_SPIOARMLAUNCH | INFINIPATH_E_SUNEXPERRPKTNUM |
-+		INFINIPATH_E_SUNSUPVL | INFINIPATH_E_IBSTATUSCHANGED |
-+		INFINIPATH_E_INVALIDADDR | INFINIPATH_E_RESET |
-+		INFINIPATH_E_HARDWARE;
-+
-+	infinipath_hwe_bitsextant =
-+		(INFINIPATH_HWE_HTCMEMPARITYERR_MASK <<
-+		 INFINIPATH_HWE_HTCMEMPARITYERR_SHIFT) |
-+		(INFINIPATH_HWE_TXEMEMPARITYERR_MASK <<
-+		 INFINIPATH_HWE_TXEMEMPARITYERR_SHIFT) |
-+		(INFINIPATH_HWE_RXEMEMPARITYERR_MASK <<
-+		 INFINIPATH_HWE_RXEMEMPARITYERR_SHIFT) |
-+		INFINIPATH_HWE_HTCLNKABYTE0CRCERR |
-+		INFINIPATH_HWE_HTCLNKABYTE1CRCERR |
-+		INFINIPATH_HWE_HTCLNKBBYTE0CRCERR |
-+		INFINIPATH_HWE_HTCLNKBBYTE1CRCERR |
-+		INFINIPATH_HWE_HTCMISCERR4 |
-+		INFINIPATH_HWE_HTCMISCERR5 | INFINIPATH_HWE_HTCMISCERR6 |
-+		INFINIPATH_HWE_HTCMISCERR7 |
-+		INFINIPATH_HWE_HTCBUSTREQPARITYERR |
-+		INFINIPATH_HWE_HTCBUSTRESPPARITYERR |
-+		INFINIPATH_HWE_HTCBUSIREQPARITYERR |
-+		INFINIPATH_HWE_RXDSYNCMEMPARITYERR |
-+		INFINIPATH_HWE_MEMBISTFAILED |
-+		INFINIPATH_HWE_COREPLL_FBSLIP |
-+		INFINIPATH_HWE_COREPLL_RFSLIP |
-+		INFINIPATH_HWE_HTBPLL_FBSLIP |
-+		INFINIPATH_HWE_HTBPLL_RFSLIP |
-+		INFINIPATH_HWE_HTAPLL_FBSLIP |
-+		INFINIPATH_HWE_HTAPLL_RFSLIP |
-+		INFINIPATH_HWE_SERDESPLLFAILED |
-+		INFINIPATH_HWE_IBCBUSTOSPCPARITYERR |
-+		INFINIPATH_HWE_IBCBUSFRSPCPARITYERR;
-+
-+	infinipath_i_rcvavail_mask = INFINIPATH_I_RCVAVAIL_MASK;
-+	infinipath_i_rcvurg_mask = INFINIPATH_I_RCVURG_MASK;
-+}
-+
-+/**
-+ * ipath_ht_init_hwerrors - enable hardware errors
-+ * @dd: the infinipath device
-+ *
-+ * now that we have finished initializing everything that might reasonably
-+ * cause a hardware error, and cleared those errors bits as they occur,
-+ * we can enable hardware errors in the mask (potentially enabling
-+ * freeze mode), and enable hardware errors as errors (along with
-+ * everything else) in errormask
-+ */
-+static void ipath_ht_init_hwerrors(struct ipath_devdata *dd)
-+{
-+	ipath_err_t val;
-+	u64 extsval;
-+
-+	extsval = ipath_read_kreg64(dd, dd->ipath_kregs->kr_extstatus);
-+
-+	if (!(extsval & INFINIPATH_EXTS_MEMBIST_ENDTEST))
-+		ipath_dev_err(dd, "MemBIST did not complete!\n");
-+
-+	ipath_check_htlink(dd);
-+
-+	/* barring bugs, all hwerrors become interrupts, which can */
-+	val = -1LL;
-+	/* don't look at crc lane1 if 8 bit */
-+	if (dd->ipath_flags & IPATH_8BIT_IN_HT0)
-+		val &= ~infinipath_hwe_htclnkabyte1crcerr;
-+	/* don't look at crc lane1 if 8 bit */
-+	if (dd->ipath_flags & IPATH_8BIT_IN_HT1)
-+		val &= ~infinipath_hwe_htclnkbbyte1crcerr;
-+
-+	/*
-+	 * disable RXDSYNCMEMPARITY because external serdes is unused,
-+	 * and therefore the logic will never be used or initialized,
-+	 * and uninitialized state will normally result in this error
-+	 * being asserted.  Similarly for the external serdess pll
-+	 * lock signal.
-+	 */
-+	val &= ~(INFINIPATH_HWE_SERDESPLLFAILED |
-+		 INFINIPATH_HWE_RXDSYNCMEMPARITYERR);
-+
-+	/*
-+	 * Disable MISCERR4 because of an inversion in the HT core
-+	 * logic checking for errors that cause this bit to be set.
-+	 * The errata can also cause the protocol error bit to be set
-+	 * in the HT config space linkerror register(s).
-+	 */
-+	val &= ~INFINIPATH_HWE_HTCMISCERR4;
-+
-+	/*
-+	 * PLL ignored because MDIO interface has a logic problem
-+	 * for reads, on Comstock and Ponderosa.  BRINGUP
-+	 */
-+	if (dd->ipath_boardrev == 4 || dd->ipath_boardrev == 9)
-+		val &= ~INFINIPATH_HWE_SERDESPLLFAILED;
-+	dd->ipath_hwerrmask = val;
-+}
-+
-+/**
-+ * ipath_ht_bringup_serdes - bring up the serdes
-+ * @dd: the infinipath device
-+ */
-+static int ipath_ht_bringup_serdes(struct ipath_devdata *dd)
-+{
-+	u64 val, config1;
-+	int ret = 0, change = 0;
-+
-+	ipath_dbg("Trying to bringup serdes\n");
-+
-+	if (ipath_read_kreg64(dd, dd->ipath_kregs->kr_hwerrstatus) &
-+	    INFINIPATH_HWE_SERDESPLLFAILED)
-+	{
-+		ipath_dbg("At start, serdes PLL failed bit set in "
-+			  "hwerrstatus, clearing and continuing\n");
-+		ipath_write_kreg(dd, dd->ipath_kregs->kr_hwerrclear,
-+				 INFINIPATH_HWE_SERDESPLLFAILED);
-+	}
-+
-+	val = ipath_read_kreg64(dd, dd->ipath_kregs->kr_serdesconfig0);
-+	config1 = ipath_read_kreg64(dd, dd->ipath_kregs->kr_serdesconfig1);
-+
-+	ipath_cdbg(VERBOSE, "Initial serdes status is config0=%llx "
-+		   "config1=%llx, sstatus=%llx xgxs %llx\n",
-+		   (unsigned long long) val, (unsigned long long) config1,
-+		   (unsigned long long)
-+		   ipath_read_kreg64(dd, dd->ipath_kregs->kr_serdesstatus),
-+		   (unsigned long long)
-+		   ipath_read_kreg64(dd, dd->ipath_kregs->kr_xgxsconfig));
-+
-+	/* force reset on */
-+	val |= INFINIPATH_SERDC0_RESET_PLL
-+		/* | INFINIPATH_SERDC0_RESET_MASK */
-+		;
-+	ipath_write_kreg(dd, dd->ipath_kregs->kr_serdesconfig0, val);
-+	udelay(15);		/* need pll reset set at least for a bit */
-+
-+	if (val & INFINIPATH_SERDC0_RESET_PLL) {
-+		u64 val2 = val &= ~INFINIPATH_SERDC0_RESET_PLL;
-+		/* set lane resets, and tx idle, during pll reset */
-+		val2 |= INFINIPATH_SERDC0_RESET_MASK |
-+			INFINIPATH_SERDC0_TXIDLE;
-+		ipath_cdbg(VERBOSE, "Clearing serdes PLL reset (writing "
-+			   "%llx)\n", (unsigned long long) val2);
-+		ipath_write_kreg(dd, dd->ipath_kregs->kr_serdesconfig0,
-+				 val2);
-+		/*
-+		 * be sure chip saw it
-+		 */
-+		val = ipath_read_kreg64(dd, dd->ipath_kregs->kr_scratch);
-+		/*
-+		 * need pll reset clear at least 11 usec before lane
-+		 * resets cleared; give it a few more
-+		 */
-+		udelay(15);
-+		val = val2;	/* for check below */
-+	}
-+
-+	if (val & (INFINIPATH_SERDC0_RESET_PLL |
-+		   INFINIPATH_SERDC0_RESET_MASK |
-+		   INFINIPATH_SERDC0_TXIDLE)) {
-+		val &= ~(INFINIPATH_SERDC0_RESET_PLL |
-+			 INFINIPATH_SERDC0_RESET_MASK |
-+			 INFINIPATH_SERDC0_TXIDLE);
-+		/* clear them */
-+		ipath_write_kreg(dd, dd->ipath_kregs->kr_serdesconfig0,
-+				 val);
-+	}
-+
-+	val = ipath_read_kreg64(dd, dd->ipath_kregs->kr_xgxsconfig);
-+	if (((val >> INFINIPATH_XGXS_MDIOADDR_SHIFT) &
-+	     INFINIPATH_XGXS_MDIOADDR_MASK) != 3) {
-+		val &= ~(INFINIPATH_XGXS_MDIOADDR_MASK <<
-+			 INFINIPATH_XGXS_MDIOADDR_SHIFT);
-+		/*
-+		 * we use address 3
-+		 */
-+		val |= 3ULL << INFINIPATH_XGXS_MDIOADDR_SHIFT;
-+		change = 1;
-+	}
-+	if (val & INFINIPATH_XGXS_RESET) {
-+		/* normally true after boot */
-+		val &= ~INFINIPATH_XGXS_RESET;
-+		change = 1;
-+	}
-+	if (change)
-+		ipath_write_kreg(dd, dd->ipath_kregs->kr_xgxsconfig, val);
-+
-+	val = ipath_read_kreg64(dd, dd->ipath_kregs->kr_serdesconfig0);
-+
-+	/* clear current and de-emphasis bits */
-+	config1 &= ~0x0ffffffff00ULL;
-+	/* set current to 20ma */
-+	config1 |= 0x00000000000ULL;
-+	/* set de-emphasis to -5.68dB */
-+	config1 |= 0x0cccc000000ULL;
-+	ipath_write_kreg(dd, dd->ipath_kregs->kr_serdesconfig1, config1);
-+
-+	ipath_cdbg(VERBOSE, "After setup: serdes status is config0=%llx "
-+		   "config1=%llx, sstatus=%llx xgxs %llx\n",
-+		   (unsigned long long) val, (unsigned long long) config1,
-+		   (unsigned long long)
-+		   ipath_read_kreg64(dd, dd->ipath_kregs->kr_serdesstatus),
-+		   (unsigned long long)
-+		   ipath_read_kreg64(dd, dd->ipath_kregs->kr_xgxsconfig));
-+
-+	if (!ipath_waitfor_mdio_cmdready(dd)) {
-+		ipath_write_kreg(dd, dd->ipath_kregs->kr_mdio,
-+				 ipath_mdio_req(IPATH_MDIO_CMD_READ, 31,
-+						IPATH_MDIO_CTRL_XGXS_REG_8,
-+						0));
-+		if (ipath_waitfor_complete(dd, dd->ipath_kregs->kr_mdio,
-+					   IPATH_MDIO_DATAVALID, &val))
-+			ipath_dbg("Never got MDIO data for XGXS status "
-+				  "read\n");
-+		else
-+			ipath_cdbg(VERBOSE, "MDIO Read reg8, "
-+				   "'bank' 31 %x\n", (u32) val);
-+	} else
-+		ipath_dbg("Never got MDIO cmdready for XGXS status read\n");
-+
-+	return ret;		/* for now, say we always succeeded */
-+}
-+
-+/**
-+ * ipath_ht_quiet_serdes - set serdes to txidle
-+ * @dd: the infinipath device
-+ * driver is being unloaded
-+ */
-+static void ipath_ht_quiet_serdes(struct ipath_devdata *dd)
-+{
-+	u64 val = ipath_read_kreg64(dd, dd->ipath_kregs->kr_serdesconfig0);
-+
-+	val |= INFINIPATH_SERDC0_TXIDLE;
-+	ipath_dbg("Setting TxIdleEn on serdes (config0 = %llx)\n",
-+		  (unsigned long long) val);
-+	ipath_write_kreg(dd, dd->ipath_kregs->kr_serdesconfig0, val);
-+}
-+
-+static int ipath_ht_intconfig(struct ipath_devdata *dd)
-+{
++	struct ipath_port_info info;
++	int nup;
 +	int ret;
 +
-+	if (!dd->ipath_intconfig) {
-+		ipath_dev_err(dd, "No interrupts enabled, couldn't setup "
-+			      "interrupt address\n");
-+		ret = 1;
++	(void) ipath_count_units(NULL, &nup, NULL);
++	info.num_active = nup;
++	info.unit = pd->port_dd->ipath_unit;
++	info.port = pd->port_port;
++
++	if (copy_to_user(uinfo, &info, sizeof(info))) {
++		ret = -EFAULT;
 +		goto bail;
 +	}
-+
-+	ipath_write_kreg(dd, dd->ipath_kregs->kr_interruptconfig,
-+			 dd->ipath_intconfig);	/* interrupt address */
 +	ret = 0;
 +
 +bail:
 +	return ret;
 +}
 +
-+/**
-+ * ipath_pe_put_tid - write a TID in chip
-+ * @dd: the infinipath device
-+ * @tidptr: pointer to the expected TID (in chip) to udpate
-+ * @tidtype: 0 for eager, 1 for expected
-+ * @pa: physical address of in memory buffer; ipath_tidinvalid if freeing
-+ *
-+ * This exists as a separate routine to allow for special locking etc.
-+ * It's used for both the full cleanup on exit, as well as the normal
-+ * setup and teardown.
-+ */
-+static void ipath_ht_put_tid(struct ipath_devdata *dd,
-+			     u64 __iomem *tidptr, u32 type,
-+			     unsigned long pa)
++static ssize_t ipath_write(struct file *fp, const char __user *data,
++			   size_t count, loff_t *off)
 +{
-+	if (pa != dd->ipath_tidinvalid) {
-+		if (unlikely((pa & ~INFINIPATH_RT_ADDR_MASK))) {
-+			dev_info(&dd->pcidev->dev,
-+				 "physaddr %lx has more than "
-+				 "40 bits, using only 40!!!\n", pa);
-+			pa &= INFINIPATH_RT_ADDR_MASK;
-+		}
-+		if (type == 0)
-+			pa |= dd->ipath_tidtemplate;
-+		else {
-+			/* in words (fixed, full page).  */
-+			u64 lenvalid = PAGE_SIZE >> 2;
-+			lenvalid <<= INFINIPATH_RT_BUFSIZE_SHIFT;
-+			pa |= lenvalid | INFINIPATH_RT_VALID;
-+		}
++	const struct ipath_cmd __user *ucmd;
++	struct ipath_portdata *pd;
++	const void __user *src;
++	size_t consumed, copy;
++	struct ipath_cmd cmd;
++	ssize_t ret = 0;
++	void *dest;
++
++	if (count < sizeof(cmd.type)) {
++		ret = -EINVAL;
++		goto bail;
 +	}
-+	if (dd->ipath_kregbase)
-+		writeq(pa, tidptr);
-+}
 +
-+/**
-+ * ipath_ht_clear_tid - clear all TID entries for a port, expected and eager
-+ * @dd: the infinipath device
-+ * @port: the port
-+ *
-+ * Used from ipath_close(), and at chip initialization.
-+ */
-+static void ipath_ht_clear_tids(struct ipath_devdata *dd, unsigned port)
-+{
-+	u64 __iomem *tidbase;
-+	int i;
++	ucmd = (const struct ipath_cmd __user *) data;
 +
-+	if (!dd->ipath_kregbase)
-+		return;
-+
-+	ipath_cdbg(VERBOSE, "Invalidate TIDs for port %u\n", port);
-+
-+	/*
-+	 * need to invalidate all of the expected TID entries for this
-+	 * port, so we don't have valid entries that might somehow get
-+	 * used (early in next use of this port, or through some bug)
-+	 */
-+	tidbase = (u64 __iomem *) ((char __iomem *)(dd->ipath_kregbase) +
-+				   dd->ipath_rcvtidbase +
-+				   port * dd->ipath_rcvtidcnt *
-+				   sizeof(*tidbase));
-+	for (i = 0; i < dd->ipath_rcvtidcnt; i++)
-+		ipath_ht_put_tid(dd, &tidbase[i], 1, dd->ipath_tidinvalid);
-+
-+	tidbase = (u64 __iomem *) ((char __iomem *)(dd->ipath_kregbase) +
-+				   dd->ipath_rcvegrbase +
-+				   port * dd->ipath_rcvegrcnt *
-+				   sizeof(*tidbase));
-+
-+	for (i = 0; i < dd->ipath_rcvegrcnt; i++)
-+		ipath_ht_put_tid(dd, &tidbase[i], 0, dd->ipath_tidinvalid);
-+}
-+
-+/**
-+ * ipath_ht_tidtemplate - setup constants for TID updates
-+ * @dd: the infinipath device
-+ *
-+ * We setup stuff that we use a lot, to avoid calculating each time
-+ */
-+static void ipath_ht_tidtemplate(struct ipath_devdata *dd)
-+{
-+	dd->ipath_tidtemplate = dd->ipath_ibmaxlen >> 2;
-+	dd->ipath_tidtemplate <<= INFINIPATH_RT_BUFSIZE_SHIFT;
-+	dd->ipath_tidtemplate |= INFINIPATH_RT_VALID;
-+
-+	/*
-+	 * work around chip errata bug 7358, by marking invalid tids
-+	 * as having max length
-+	 */
-+	dd->ipath_tidinvalid = (-1LL & INFINIPATH_RT_BUFSIZE_MASK) <<
-+		INFINIPATH_RT_BUFSIZE_SHIFT;
-+}
-+
-+static int ipath_ht_early_init(struct ipath_devdata *dd)
-+{
-+	u32 __iomem *piobuf;
-+	u32 pioincr, val32, egrsize;
-+	int i;
-+
-+	/*
-+	 * one cache line; long IB headers will spill over into received
-+	 * buffer
-+	 */
-+	dd->ipath_rcvhdrentsize = 16;
-+	dd->ipath_rcvhdrsize = IPATH_DFLT_RCVHDRSIZE;
-+
-+	/*
-+	 * For HT-400, we allocate a somewhat overly large eager buffer,
-+	 * such that we can guarantee that we can receive the largest
-+	 * packet that we can send out.  To truly support a 4KB MTU,
-+	 * we need to bump this to a large value.  To date, other than
-+	 * testing, we have never encountered an HCA that can really
-+	 * send 4KB MTU packets, so we do not handle that (we'll get
-+	 * errors interrupts if we ever see one).
-+	 */
-+	dd->ipath_rcvegrbufsize = dd->ipath_piosize2k;
-+	egrsize = dd->ipath_rcvegrbufsize;
-+
-+	/*
-+	 * the min() check here is currently a nop, but it may not
-+	 * always be, depending on just how we do ipath_rcvegrbufsize
-+	 */
-+	dd->ipath_ibmaxlen = min(dd->ipath_piosize2k,
-+				 dd->ipath_rcvegrbufsize);
-+	dd->ipath_init_ibmaxlen = dd->ipath_ibmaxlen;
-+	ipath_ht_tidtemplate(dd);
-+
-+	/*
-+	 * zero all the TID entries at startup.  We do this for sanity,
-+	 * in case of a previous driver crash of some kind, and also
-+	 * because the chip powers up with these memories in an unknown
-+	 * state.  Use portcnt, not cfgports, since this is for the
-+	 * full chip, not for current (possibly different) configuration
-+	 * value.
-+	 * Chip Errata bug 6447
-+	 */
-+	for (val32 = 0; val32 < dd->ipath_portcnt; val32++)
-+		ipath_ht_clear_tids(dd, val32);
-+
-+	/*
-+	 * write the pbc of each buffer, to be sure it's initialized, then
-+	 * cancel all the buffers, and also abort any packets that might
-+	 * have been in flight for some reason (the latter is for driver
-+	 * unload/reload, but isn't a bad idea at first init).	PIO send
-+	 * isn't enabled at this point, so there is no danger of sending
-+	 * these out on the wire.
-+	 * Chip Errata bug 6610
-+	 */
-+	piobuf = (u32 __iomem *) (((char __iomem *)(dd->ipath_kregbase)) +
-+				  dd->ipath_piobufbase);
-+	pioincr = dd->ipath_palign / sizeof(*piobuf);
-+	for (i = 0; i < dd->ipath_piobcnt2k; i++) {
-+		/*
-+		 * reasonable word count, just to init pbc
-+		 */
-+		writel(16, piobuf);
-+		piobuf += pioincr;
++	if (copy_from_user(&cmd.type, &ucmd->type, sizeof(cmd.type))) {
++		ret = -EFAULT;
++		goto bail;
 +	}
++
++	consumed = sizeof(cmd.type);
++
++	switch (cmd.type) {
++	case IPATH_CMD_USER_INIT:
++		copy = sizeof(cmd.cmd.user_info);
++		dest = &cmd.cmd.user_info;
++		src = &ucmd->cmd.user_info;
++		break;
++	case IPATH_CMD_RECV_CTRL:
++		copy = sizeof(cmd.cmd.recv_ctrl);
++		dest = &cmd.cmd.recv_ctrl;
++		src = &ucmd->cmd.recv_ctrl;
++		break;
++	case IPATH_CMD_PORT_INFO:
++		copy = sizeof(cmd.cmd.port_info);
++		dest = &cmd.cmd.port_info;
++		src = &ucmd->cmd.port_info;
++		break;
++	case IPATH_CMD_TID_UPDATE:
++	case IPATH_CMD_TID_FREE:
++		copy = sizeof(cmd.cmd.tid_info);
++		dest = &cmd.cmd.tid_info;
++		src = &ucmd->cmd.tid_info;
++		break;
++	case IPATH_CMD_SET_PART_KEY:
++		copy = sizeof(cmd.cmd.part_key);
++		dest = &cmd.cmd.part_key;
++		src = &ucmd->cmd.part_key;
++		break;
++	default:
++		ret = -EINVAL;
++		goto bail;
++	}
++
++	if ((count - consumed) < copy) {
++		ret = -EINVAL;
++		goto bail;
++	}
++
++	if (copy_from_user(dest, src, copy)) {
++		ret = -EFAULT;
++		goto bail;
++	}
++
++	consumed += copy;
++	pd = port_fp(fp);
++
++	switch (cmd.type) {
++	case IPATH_CMD_USER_INIT:
++		ret = ipath_do_user_init(pd, &cmd.cmd.user_info);
++		if (ret < 0)
++			goto bail;
++		ret = ipath_get_base_info(
++			pd, (void __user *) (unsigned long)
++			cmd.cmd.user_info.spu_base_info,
++			cmd.cmd.user_info.spu_base_info_size);
++		break;
++	case IPATH_CMD_RECV_CTRL:
++		ret = ipath_manage_rcvq(pd, cmd.cmd.recv_ctrl);
++		break;
++	case IPATH_CMD_PORT_INFO:
++		ret = ipath_port_info(pd,
++				      (struct ipath_port_info __user *)
++				      (unsigned long) cmd.cmd.port_info);
++		break;
++	case IPATH_CMD_TID_UPDATE:
++		ret = ipath_tid_update(pd, &cmd.cmd.tid_info);
++		break;
++	case IPATH_CMD_TID_FREE:
++		ret = ipath_tid_free(pd, &cmd.cmd.tid_info);
++		break;
++	case IPATH_CMD_SET_PART_KEY:
++		ret = ipath_set_part_key(pd, cmd.cmd.part_key);
++		break;
++	}
++
++	if (ret >= 0)
++		ret = consumed;
++
++bail:
++	return ret;
++}
++
++static struct class *ipath_class;
++
++static int init_cdev(int minor, char *name, struct file_operations *fops,
++		     struct cdev **cdevp, struct class_device **class_devp)
++{
++	const dev_t dev = MKDEV(IPATH_MAJOR, minor);
++	struct cdev *cdev = NULL;
++	struct class_device *class_dev = NULL;
++	int ret;
++
++	cdev = cdev_alloc();
++	if (!cdev) {
++		printk(KERN_ERR IPATH_DRV_NAME
++		       ": Could not allocate cdev for minor %d, %s\n",
++		       minor, name);
++		ret = -ENOMEM;
++		goto done;
++	}
++
++	cdev->owner = THIS_MODULE;
++	cdev->ops = fops;
++	kobject_set_name(&cdev->kobj, name);
++
++	ret = cdev_add(cdev, dev, 1);
++	if (ret < 0) {
++		printk(KERN_ERR IPATH_DRV_NAME
++		       ": Could not add cdev for minor %d, %s (err %d)\n",
++		       minor, name, -ret);
++		goto err_cdev;
++	}
++
++	class_dev = class_device_create(ipath_class, NULL, dev, NULL, name);
++
++	if (IS_ERR(class_dev)) {
++		ret = PTR_ERR(class_dev);
++		printk(KERN_ERR IPATH_DRV_NAME ": Could not create "
++		       "class_dev for minor %d, %s (err %d)\n",
++		       minor, name, -ret);
++		goto err_cdev;
++	}
++
++	goto done;
++
++err_cdev:
++	cdev_del(cdev);
++	cdev = NULL;
++
++done:
++	if (ret >= 0) {
++		*cdevp = cdev;
++		*class_devp = class_dev;
++	} else {
++		*cdevp = NULL;
++		*class_devp = NULL;
++	}
++
++	return ret;
++}
++
++int ipath_cdev_init(int minor, char *name, struct file_operations *fops,
++		    struct cdev **cdevp, struct class_device **class_devp)
++{
++	return init_cdev(minor, name, fops, cdevp, class_devp);
++}
++
++static void cleanup_cdev(struct cdev **cdevp,
++			 struct class_device **class_devp)
++{
++	struct class_device *class_dev = *class_devp;
++
++	if (class_dev) {
++		class_device_unregister(class_dev);
++		*class_devp = NULL;
++	}
++
++	if (*cdevp) {
++		cdev_del(*cdevp);
++		*cdevp = NULL;
++	}
++}
++
++void ipath_cdev_cleanup(struct cdev **cdevp,
++			struct class_device **class_devp)
++{
++	cleanup_cdev(cdevp, class_devp);
++}
++
++static struct cdev *wildcard_cdev;
++static struct class_device *wildcard_class_dev;
++
++static const dev_t dev = MKDEV(IPATH_MAJOR, 0);
++
++static int user_init(void)
++{
++	int ret;
++
++	ret = register_chrdev_region(dev, IPATH_NMINORS, IPATH_DRV_NAME);
++	if (ret < 0) {
++		printk(KERN_ERR IPATH_DRV_NAME ": Could not register "
++		       "chrdev region (err %d)\n", -ret);
++		goto done;
++	}
++
++	ipath_class = class_create(THIS_MODULE, IPATH_DRV_NAME);
++
++	if (IS_ERR(ipath_class)) {
++		ret = PTR_ERR(ipath_class);
++		printk(KERN_ERR IPATH_DRV_NAME ": Could not create "
++		       "device class (err %d)\n", -ret);
++		goto bail;
++	}
++
++	goto done;
++bail:
++	unregister_chrdev_region(dev, IPATH_NMINORS);
++done:
++	return ret;
++}
++
++static void user_cleanup(void)
++{
++	if (ipath_class) {
++		class_destroy(ipath_class);
++		ipath_class = NULL;
++	}
++
++	unregister_chrdev_region(dev, IPATH_NMINORS);
++}
++
++static atomic_t user_count = ATOMIC_INIT(0);
++static atomic_t user_setup = ATOMIC_INIT(0);
++
++int ipath_user_add(struct ipath_devdata *dd)
++{
++	char name[10];
++	int ret;
++
++	if (atomic_inc_return(&user_count) == 1) {
++		ret = user_init();
++		if (ret < 0) {
++			ipath_dev_err(dd, "Unable to set up user support: "
++				      "error %d\n", -ret);
++			goto bail;
++		}
++		ret = ipath_diag_init();
++		if (ret < 0) {
++			ipath_dev_err(dd, "Unable to set up diag support: "
++				      "error %d\n", -ret);
++			goto bail_sma;
++		}
++
++		ret = init_cdev(0, "ipath", &ipath_file_ops, &wildcard_cdev,
++				&wildcard_class_dev);
++		if (ret < 0) {
++			ipath_dev_err(dd, "Could not create wildcard "
++				      "minor: error %d\n", -ret);
++			goto bail_diag;
++		}
++
++		atomic_set(&user_setup, 1);
++	}
++
++	snprintf(name, sizeof(name), "ipath%d", dd->ipath_unit);
++
++	ret = init_cdev(dd->ipath_unit + 1, name, &ipath_file_ops,
++			&dd->cdev, &dd->class_dev);
++	if (ret < 0)
++		ipath_dev_err(dd, "Could not create user minor %d, %s\n",
++			      dd->ipath_unit + 1, name);
++
++	goto bail;
++
++bail_diag:
++	ipath_diag_cleanup();
++bail_sma:
++	user_cleanup();
++bail:
++	return ret;
++}
++
++void ipath_user_del(struct ipath_devdata *dd)
++{
++	cleanup_cdev(&dd->cdev, &dd->class_dev);
++
++	if (atomic_dec_return(&user_count) == 0) {
++		if (atomic_read(&user_setup) == 0)
++			goto bail;
++
++		cleanup_cdev(&wildcard_cdev, &wildcard_class_dev);
++		ipath_diag_cleanup();
++		user_cleanup();
++
++		atomic_set(&user_setup, 0);
++	}
++bail:
++	return;
++}
+diff -r a7122f893096 -r 244bf654cabb drivers/infiniband/hw/ipath/ipath_user_pages.c
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/drivers/infiniband/hw/ipath/ipath_user_pages.c	Wed Mar 29 15:21:26 2006 -0800
+@@ -0,0 +1,207 @@
++/*
++ * Copyright (c) 2003, 2004, 2005, 2006 PathScale, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ */
++
++#include <linux/mm.h>
++#include <linux/device.h>
++
++#include "ipath_kernel.h"
++
++static void __ipath_release_user_pages(struct page **p, size_t num_pages,
++				   int dirty)
++{
++	size_t i;
++
++	for (i = 0; i < num_pages; i++) {
++		ipath_cdbg(MM, "%lu/%lu put_page %p\n", (unsigned long) i,
++			   (unsigned long) num_pages, p[i]);
++		if (dirty)
++			set_page_dirty_lock(p[i]);
++		put_page(p[i]);
++	}
++}
++
++/* call with current->mm->mmap_sem held */
++static int __get_user_pages(unsigned long start_page, size_t num_pages,
++			struct page **p, struct vm_area_struct **vma)
++{
++	unsigned long lock_limit;
++	size_t got;
++	int ret;
++
++#if 0
 +	/*
-+	 * self-clearing
++	 * XXX - causes MPI programs to fail, haven't had time to check
++	 * yet
 +	 */
-+	ipath_write_kreg(dd, dd->ipath_kregs->kr_sendctrl,
-+			 INFINIPATH_S_ABORT);
-+	return 0;
++	if (!capable(CAP_IPC_LOCK)) {
++		ret = -EPERM;
++		goto bail;
++	}
++#endif
++
++	lock_limit = current->signal->rlim[RLIMIT_MEMLOCK].rlim_cur >>
++		PAGE_SHIFT;
++
++	if (num_pages > lock_limit) {
++		ret = -ENOMEM;
++		goto bail;
++	}
++
++	ipath_cdbg(VERBOSE, "pin %lx pages from vaddr %lx\n",
++		   (unsigned long) num_pages, start_page);
++
++	for (got = 0; got < num_pages; got += ret) {
++		ret = get_user_pages(current, current->mm,
++				     start_page + got * PAGE_SIZE,
++				     num_pages - got, 1, 1,
++				     p + got, vma);
++		if (ret < 0)
++			goto bail_release;
++	}
++
++	current->mm->locked_vm += num_pages;
++
++	ret = 0;
++	goto bail;
++
++bail_release:
++	__ipath_release_user_pages(p, got, 0);
++bail:
++	return ret;
 +}
 +
 +/**
-+ * ipath_init_ht_get_base_info - set chip-specific flags for user code
-+ * @dd: the infinipath device
-+ * @kbase: ipath_base_info pointer
++ * ipath_get_user_pages - lock user pages into memory
++ * @start_page: the start page
++ * @num_pages: the number of pages
++ * @p: the output page structures
 + *
-+ * We set the PCIE flag because the lower bandwidth on PCIe vs
-+ * HyperTransport can affect some user packet algorithims.
++ * This function takes a given start page (page aligned user virtual
++ * address) and pins it and the following specified number of pages.  For
++ * now, num_pages is always 1, but that will probably change at some point
++ * (because caller is doing expected sends on a single virtually contiguous
++ * buffer, so we can do all pages at once).
 + */
-+static int ipath_ht_get_base_info(struct ipath_portdata *pd, void *kbase)
++int ipath_get_user_pages(unsigned long start_page, size_t num_pages,
++			 struct page **p)
 +{
-+	struct ipath_base_info *kinfo = kbase;
++	int ret;
 +
-+	kinfo->spi_runtime_flags |= IPATH_RUNTIME_HT |
-+		IPATH_RUNTIME_RCVHDR_COPY;
++	down_write(&current->mm->mmap_sem);
 +
-+	return 0;
++	ret = __get_user_pages(start_page, num_pages, p, NULL);
++
++	up_write(&current->mm->mmap_sem);
++
++	return ret;
 +}
 +
 +/**
-+ * ipath_init_ht400_funcs - set up the chip-specific function pointers
-+ * @dd: the infinipath device
++ * ipath_get_user_pages_nocopy - lock a single page for I/O and mark shared
++ * @start_page: the page to lock
++ * @p: the output page structure
 + *
-+ * This is global, and is called directly at init to set up the
-+ * chip-specific function pointers for later use.
++ * This is similar to ipath_get_user_pages, but it's always one page, and we
++ * mark the page as locked for I/O, and shared.  This is used for the user
++ * process page that contains the destination address for the rcvhdrq tail
++ * update, so we need to have the vma. If we don't do this, the page can be
++ * taken away from us on fork, even if the child never touches it, and then
++ * the user process never sees the tail register updates.
 + */
-+void ipath_init_ht400_funcs(struct ipath_devdata *dd)
++int ipath_get_user_pages_nocopy(unsigned long page, struct page **p)
 +{
-+	dd->ipath_f_intrsetup = ipath_ht_intconfig;
-+	dd->ipath_f_bus = ipath_setup_ht_config;
-+	dd->ipath_f_reset = ipath_setup_ht_reset;
-+	dd->ipath_f_get_boardname = ipath_ht_boardname;
-+	dd->ipath_f_init_hwerrors = ipath_ht_init_hwerrors;
-+	dd->ipath_f_init_hwerrors = ipath_ht_init_hwerrors;
-+	dd->ipath_f_early_init = ipath_ht_early_init;
-+	dd->ipath_f_handle_hwerrors = ipath_ht_handle_hwerrors;
-+	dd->ipath_f_quiet_serdes = ipath_ht_quiet_serdes;
-+	dd->ipath_f_bringup_serdes = ipath_ht_bringup_serdes;
-+	dd->ipath_f_clear_tids = ipath_ht_clear_tids;
-+	dd->ipath_f_put_tid = ipath_ht_put_tid;
-+	dd->ipath_f_cleanup = ipath_setup_ht_cleanup;
-+	dd->ipath_f_setextled = ipath_setup_ht_setextled;
-+	dd->ipath_f_get_base_info = ipath_ht_get_base_info;
++	struct vm_area_struct *vma;
++	int ret;
 +
-+	/*
-+	 * initialize chip-specific variables
-+	 */
-+	dd->ipath_f_tidtemplate = ipath_ht_tidtemplate;
++	down_write(&current->mm->mmap_sem);
 +
-+	/*
-+	 * setup the register offsets, since they are different for each
-+	 * chip
-+	 */
-+	dd->ipath_kregs = &ipath_ht_kregs;
-+	dd->ipath_cregs = &ipath_ht_cregs;
++	ret = __get_user_pages(page, 1, p, &vma);
 +
-+	/*
-+	 * do very early init that is needed before ipath_f_bus is
-+	 * called
-+	 */
-+	ipath_init_ht_variables();
++	up_write(&current->mm->mmap_sem);
++
++	return ret;
++}
++
++void ipath_release_user_pages(struct page **p, size_t num_pages)
++{
++	down_write(&current->mm->mmap_sem);
++
++	__ipath_release_user_pages(p, num_pages, 1);
++
++	current->mm->locked_vm -= num_pages;
++
++	up_write(&current->mm->mmap_sem);
++}
++
++struct ipath_user_pages_work {
++	struct work_struct work;
++	struct mm_struct *mm;
++	unsigned long num_pages;
++};
++
++static void user_pages_account(void *ptr)
++{
++	struct ipath_user_pages_work *work = ptr;
++
++	down_write(&work->mm->mmap_sem);
++	work->mm->locked_vm -= work->num_pages;
++	up_write(&work->mm->mmap_sem);
++	mmput(work->mm);
++	kfree(work);
++}
++
++void ipath_release_user_pages_on_close(struct page **p, size_t num_pages)
++{
++	struct ipath_user_pages_work *work;
++	struct mm_struct *mm;
++
++	__ipath_release_user_pages(p, num_pages, 1);
++
++	mm = get_task_mm(current);
++	if (!mm)
++		goto bail;
++
++	work = kmalloc(sizeof(*work), GFP_KERNEL);
++	if (!work)
++		goto bail_mm;
++
++	goto bail;
++
++	INIT_WORK(&work->work, user_pages_account, work);
++	work->mm = mm;
++	work->num_pages = num_pages;
++
++bail_mm:
++	mmput(mm);
++bail:
++	return;
 +}

@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWC2Vuf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbWC2WBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750993AbWC2Vuf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 16:50:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbWC2Vuf
+	id S1751010AbWC2WBG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 17:01:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWC2WBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 16:50:35 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:22429 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750993AbWC2Vuf (ORCPT
+	Wed, 29 Mar 2006 17:01:06 -0500
+Received: from ozlabs.org ([203.10.76.45]:56809 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751010AbWC2WBF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 16:50:35 -0500
-Date: Thu, 30 Mar 2006 07:49:57 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH][RFC] splice support
-Message-ID: <20060330074957.C921158@wobbly.melbourne.sgi.com>
-References: <20060329122841.GC8186@suse.de> <442A8883.9060909@garzik.org> <20060329132724.GF8186@suse.de>
-Mime-Version: 1.0
+	Wed, 29 Mar 2006 17:01:05 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060329132724.GF8186@suse.de>; from axboe@suse.de on Wed, Mar 29, 2006 at 03:27:25PM +0200
+Content-Transfer-Encoding: 7bit
+Message-ID: <17451.866.287446.68155@cargo.ozlabs.ibm.com>
+Date: Thu, 30 Mar 2006 09:00:02 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Michael Ellerman <michael@ellerman.id.au>
+Subject: Re: [PATCH] powerpc: Move pSeries firmware feature setup into platforms/pseries
+In-Reply-To: <20060329195212.GA19236@redhat.com>
+References: <200603230714.k2N7EmH1021685@hera.kernel.org>
+	<20060329195212.GA19236@redhat.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29, 2006 at 03:27:25PM +0200, Jens Axboe wrote:
-> On Wed, Mar 29 2006, Jeff Garzik wrote:
-> > to cause sys_splice() to default to supported?
+Dave Jones writes:
+
+> This (or one of the other firmware patches, I've not narrowed it down that close)
+> breaks ppc64 oprofile.
 > 
-> It should probably work, the fs guys should know more about that. Any fs
-> that ->prepare_write(), ->commit_write() works for can use
-> generic_file_splice_write(). I prefer to keep it sane for now, mason
-> tells me that eg xfs might need special care.
+> modpost now complains with..
+> 
+> kernel/arch/powerpc/oprofile/oprofile.ko needs unknown symbol ppc64_firmware_features
 
-It looks pretty straightforward to get XFS support done - we will
-likely need routines that wrap around generic_file_splice_read /
-write to handle offline files for an HSM, etc, but not too tricky.
-I'll make the XFS changes once the generic support is in place.
+That got renamed to powerpc_firmware_features.  I don't see any
+occurrences of ppc64_firmware_features left anywhere in the tree.  Are
+you sure you don't just need to make clean and rebuild?
 
-cheers.
-
--- 
-Nathan
+Paul.

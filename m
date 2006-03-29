@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWC2HR3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWC2HS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbWC2HR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 02:17:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWC2HR3
+	id S1751130AbWC2HS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 02:18:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWC2HS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 02:17:29 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:50058 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751126AbWC2HR3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 02:17:29 -0500
-Date: Wed, 29 Mar 2006 09:14:56 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-Subject: Re: PI patch against 2.6.16-rt9
-Message-ID: <20060329071456.GA20187@elte.hu>
-References: <20060328212448.GA7120@elte.hu> <Pine.LNX.4.44L0.0603282324030.22822-100000@lifa02.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 29 Mar 2006 02:18:26 -0500
+Received: from pproxy.gmail.com ([64.233.166.178]:15251 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751130AbWC2HS0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 02:18:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gD7HcJUuh8q6a1CUVddHz9ovIq1NCrjXYnBuuR7hzrCK62La4FtQF6duIrV1A4J0ed/BkW+qS0r0x9ItiuV+61XpudlirFkkQPySiQVt5QWN5W7uqQkRyrG2aii8hfWsHTtWCuA7aBhNtv+iTeHwkHg9qUvALIRFC08RSYnow8g=
+Message-ID: <58cb370e0603282318t1b74c40cx6a173b3561c3fa54@mail.gmail.com>
+Date: Wed, 29 Mar 2006 09:18:25 +0200
+From: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
+To: "Richard Purdie" <rpurdie@rpsys.net>
+Subject: Re: [PATCH -mm 4/4] LED: Add IDE disk activity LED trigger
+Cc: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <1143591445.14682.60.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0603282324030.22822-100000@lifa02.phys.au.dk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.7 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <1143591445.14682.60.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 3/29/06, Richard Purdie <rpurdie@rpsys.net> wrote:
+> Add an LED trigger for IDE disk activity to the ide-disk driver.
+>
+> Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+>
+> Index: linux-2.6.16/drivers/ide/ide-disk.c
+> ===================================================================
+> --- linux-2.6.16.orig/drivers/ide/ide-disk.c    2006-03-28 17:22:51.000000000 +0100
+> +++ linux-2.6.16/drivers/ide/ide-disk.c 2006-03-28 17:25:12.000000000 +0100
+> @@ -60,6 +60,7 @@
+>  #include <linux/genhd.h>
+>  #include <linux/slab.h>
+>  #include <linux/delay.h>
+> +#include <linux/leds.h>
+>
+>  #define _IDE_DISK
+>
+> @@ -316,6 +317,8 @@
+>                 return ide_stopped;
+>         }
+>
+> +       ledtrig_ide_activity();
+> +
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
+Now this is really non-intrusive. :)
+Thank you for reworking the patch.
 
-> > well, another possibility is that the task got blocked again, and we'll
-> > continue boosting _the wrong chain_. I.e. we'll add extra priority to
-> > task(s) that might not deserve it at all (it doesnt own the lock we are
-> > interested in anymore).
-> 
-> This can't happen. We are always looking at the first waiter on 
-> task->pi_waiter task->pi_lock held when doing the boosting. If task 
-> has released the lock the entry task->pi_waiter is gone and no 
-> boosting will take place!
+The rest of changes also look fine for me, ACK.
 
-no, the task got blocked _again_, as part of a _new_ blocking chain, and 
-there's a _new_ PI waiter! How does the two-lock preemptible boosting 
-algorithm ensure that if we are in the middle of boosting a 
-blocking-dependency chain:
-
-   T1 -> T2 -> ... -> TI -> TI+1 -> ... TN-1 -> TN
-
-we are at TI, and we [the task doing the boosting] now get preempted.
-
-What prevents TI from being part of a _totally new_ blocking-chain, 
-where the only similarity between the two chains is that TI is in the 
-middle of it:
-
-   T1' -> T2' -> ... -> TI -> TI+1' -> ... TM-1 -> TM'
-
-the only match between the two chains is 'TI'. Now the algorithm will
-happily walk the wrong boosting chain, and will boost the wrong tasks.
-
-	Ingo
+Bartlomiej

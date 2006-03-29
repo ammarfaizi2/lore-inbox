@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWC2Wva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWC2Wwu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbWC2Wva (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 17:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWC2Wva
+	id S1751147AbWC2Wwu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 17:52:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWC2Wwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 17:51:30 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:9344 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751045AbWC2Wv3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 17:51:29 -0500
-Date: Wed, 29 Mar 2006 14:52:41 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Sam Vilain <sam@vilain.net>
-Cc: Chris Wright <chrisw@sous-sol.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Virtualization steps
-Message-ID: <20060329225241.GO15997@sorel.sous-sol.org>
-References: <1143228339.19152.91.camel@localhost.localdomain> <4428BB5C.3060803@tmr.com> <20060328085206.GA14089@MAIL.13thfloor.at> <4428FB29.8020402@yahoo.com.au> <20060328142639.GE14576@MAIL.13thfloor.at> <44294BE4.2030409@yahoo.com.au> <m1psk5kcpj.fsf@ebiederm.dsl.xmission.com> <442A26E9.20608@vilain.net> <20060329182027.GB14724@sorel.sous-sol.org> <442B0BFE.9080709@vilain.net>
+	Wed, 29 Mar 2006 17:52:50 -0500
+Received: from mga06.intel.com ([134.134.136.21]:3115 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751147AbWC2Wws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 17:52:48 -0500
+TrustExchangeSourcedMail: True
+X-ExchangeTrusted: True
+X-IronPort-AV: i="4.03,144,1141632000"; 
+   d="scan'208"; a="16816044:sNHT39798556"
+Date: Wed, 29 Mar 2006 14:52:42 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Con Kolivas <kernel@kolivas.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched: smpnice work around for active_load_balance()
+Message-ID: <20060329145242.A11376@unix-os.sc.intel.com>
+References: <4428D112.7050704@bigpond.net.au> <20060328112521.A27574@unix-os.sc.intel.com> <4429BC61.7020201@bigpond.net.au> <20060328185202.A1135@unix-os.sc.intel.com> <442A0235.1060305@bigpond.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <442B0BFE.9080709@vilain.net>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <442A0235.1060305@bigpond.net.au>; from pwil3058@bigpond.net.au on Wed, Mar 29, 2006 at 02:42:45PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Sam Vilain (sam@vilain.net) wrote:
-> extern struct security_operations *security_ops; in
-> include/linux/security.h is the global I refer to.
+On Wed, Mar 29, 2006 at 02:42:45PM +1100, Peter Williams wrote:
+> I meant that it doesn't explicitly address your problem.  What it does 
+> is ASSUME that failure of load balancing to move tasks is because there 
+> was exactly one task on the source run queue and that this makes it a 
+> suitable candidate to have that single task moved elsewhere in the blind 
+> hope that it may fix an HT/MC imbalance that may or may not exist.  In 
+> my mind this is very close to random.  
 
-OK, I figured that's what you meant.  The top-level ops are similar in
-nature to inode_ops in that there's not a real compelling reason to make
-them per process.  The process context is (usually) available, and more
-importantly, the object whose access is being mediated is readily
-available with its security label.
+That so called assumption happens only when load balancing has
+failed for more than the domain specific cache_nice_tries. Only reason
+why it can fail so many times is because of all pinned tasks or only a single
+task is running on that particular CPU. load balancing code takes care of both
+these scenarios..
 
-> There is likely to be some contention there between the security folk
-> who probably won't like the idea that your security module can be
-> different for different processes, and the people who want to provide
-> access to security modules on the systems they want to host or consolidate.
+sched groups cpu_power controls the mechanism of implementing HT/MC
+optimizations in addition to active balance code... There is no randomness
+in this.
 
-I think the current setup would work fine.  It's less likely that we'd
-want a separate security module for each container than simply policy
-that is container aware.
+
+> Also back to front and inefficient.
+
+HT/MC imbalance is detected in a normal way.. A lightly loaded group
+finds an imbalance and tries to pull some load from a busy group (which
+is inline with normal load balance)... pull fails because the only task
+on that cpu is busy running and needs to go off the cpu (which is triggered
+by active load balance)... Scheduler load balance is generally done by a 
+pull mechansim and here (HT/MC) it is still a pull mechanism(triggering a 
+final push only because of the single running task) 
+
+If you have any better generic and simple method, please let us know.
 
 thanks,
--chris
+suresh

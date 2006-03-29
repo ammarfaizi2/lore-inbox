@@ -1,118 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWC2MHc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWC2MQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750841AbWC2MHc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 07:07:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbWC2MHc
+	id S1750964AbWC2MQw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 07:16:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbWC2MQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 07:07:32 -0500
-Received: from mail.sw-soft.com ([69.64.46.34]:46037 "EHLO mail.sw-soft.com")
-	by vger.kernel.org with ESMTP id S1750841AbWC2MHc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 07:07:32 -0500
-Message-ID: <442A7879.20802@sw.ru>
-Date: Wed, 29 Mar 2006 16:07:21 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Wed, 29 Mar 2006 07:16:52 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:56500 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1750846AbWC2MQv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 07:16:51 -0500
+Message-ID: <442A7AA6.7080206@bull.net>
+Date: Wed, 29 Mar 2006 14:16:38 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en, fr, hu
 MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: devel@openvz.org, Sam Vilain <sam@vilain.net>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Herbert Poetzl <herbert@13thfloor.at>, Mishin Dmitry <dim@sw.ru>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Subject: Re: [Devel] Re: [RFC] [PATCH 0/7] Some basic vserver infrastructure
-References: <20060321061333.27638.63963.stgit@localhost.localdomain> <1142967011.10906.185.camel@localhost.localdomain> <44206B58.5000404@vilain.net> <1142976756.10906.200.camel@localhost.localdomain> <4420885F.5070602@vilain.net> <m1bqvzq7de.fsf@ebiederm.dsl.xmission.com> <44241214.7090405@sw.ru> <20060327124517.GA16114@sergelap.austin.ibm.com>
-In-Reply-To: <20060327124517.GA16114@sergelap.austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Christoph Lameter'" <clameter@sgi.com>,
+       "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       Zoltan Menyhart <Zoltan.Menyhart@free.fr>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Fix unlock_buffer() to work the same way as bit_unlock()
+References: <200603290139.k2T1d1g00702@unix-os.sc.intel.com>
+In-Reply-To: <200603290139.k2T1d1g00702@unix-os.sc.intel.com>
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 29/03/2006 14:18:54,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 29/03/2006 14:18:56,
+	Serialize complete at 29/03/2006 14:18:56
 Content-Transfer-Encoding: 7bit
-X-SA-Do-Not-Rej: Toldya
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge,
+Part 2.
+There are a couple of different ways of using / implementing bit-op-s.
+I try to summarize them:
 
-Serge E. Hallyn wrote:
-> Quoting Kirill Korotaev (dev@sw.ru):
->> Just to make it more clear: my understanding of word "nested" means that
->> if you have, for example, a nested IPC namespace, than parent can see
->> all the resources (sems, shms, ...) of it's children and have some
->> private, while children see only its own set of private resources. But
->> it doesn't look like you are going to implement anything like this.
->> So what is nesting then? Ability to create namespace? To delegate it
->> some part of own resource limits?
-> 
-> Nesting simply means that any child ns can create child namespaces of
-> it's own.
-your picture below doesn't show that containers have nested containers. 
-You draw a plain container set inside vserv.
-What I mean is that if some container user can create another container, 
-it DOES not mean it is nested. It is just about permitions to create 
-other containers. Nested containers in my POV is something different, 
-when you can see the resources of your container and your children. You see?
 
-I will try to show what I mean on a picture:
+1. "Stand alone" bit operations:
 
---------------------------------------------------
-|           ---------------------------------     | 
-                            |           |              --------------- 
-|     |                                                |           | 
-           | cont 1.1.1  |  |     | 
-            |           |              |  shm1.1.1.1 |  |     | 
-                                        |           |              | 
-shm1.1.1.2 |  |     |                                                | 
-cont 1.  | cont 1.1     ---------------  |     |
-|   shm1.1  |  shm1.1.1    ---------------  |     | 
-                            |   shm1.2  |              | cont 1.1.2  | 
-|     |                                                |           | 
-           |  shm1.1.2.1 |  |     | 
-            |           |              ---------------  |     | 
-                                        | 
----------------------------------     | 
-                |--------------------------------------------------
+By "stand alone" I mean that a modification to a bit field member is
+independent of any other operation before / after the bit operation
+in question. There is no ordering with respect to the other operations.
 
-You see what I mean? In this example with IPC sharememory container 1 
-can see all the shm segments. while container1.1.2 can see only his 
-private one smm1.1.2.1.
+They do not provide any SMP synch. semantics, there is no need to
+implement them as some atomic operations.
 
-And if resources are not nested like this, than it is a PLAIN container 
-structure.
 
-Kirill
+2. Atomic bit operations:
 
-> In particular, the following scenario should be perfectly valid:
-> 
-> 	Machine 1                    Machine 2
-> 	  Xen VM1.1                    Xen VM2.1
-> 	    vserv 1.1.1                  vserv2.1.1
-> 	      cont1.1.1.1                  cont2.1.1.1
-> 	      cont1.1.1.2                  cont2.1.1.2
-> 	      cont1.1.1.n                  cont2.1.1.n
-> 	    vserv 1.1.2                  vserv2.1.2
-> 	      cont1.1.2.1                  cont2.1.2.1
-> 	      cont1.1.2.2                  cont2.1.2.2
-> 	      cont1.1.2.n                  cont2.1.2.n
-> 	  Xen VM1.2                    Xen VM2.2
-> 	    vserv 1.2.1                  vserv2.2.1
-> 	      cont1.2.1.1                  cont2.2.1.1
-> 	      cont1.2.1.2                  cont2.2.1.2
-> 	      cont1.2.1.n                  cont2.2.1.n
-> 	    vserv 1.2.2                  vserv2.2.2
-> 	      cont1.2.2.1                  cont2.2.2.1
-> 	      cont1.2.2.2                  cont2.2.2.2
-> 	      cont1.2.2.n                  cont2.2.2.n
-> 
-> where containers are used for each virtual server and each container,
-> so that we can migrate entire VMs, entire virtual servers, or any
-> container.
-> 
->>>>>> Perhaps we can get a ruling from core team on this one, as it's
->>>>>> aesthetics :-).
->> I propose to use "namespace" naming.
->> 1. This is already used in fs.
->> 2. This is what IMHO suites at least OpenVZ/Eric
->> 3. it has good acronym "ns".
-> 
-> I agree.
-> 
-> -serge
-> 
+As Linux turned to SMP safe, a couple of bit operations have been
+re-implemented by use of some atomic operations.
+An early implementation on PCs determined the basic semantics of
+these operations, including their fencing behavior.
+
+atomic_ops.txt:
+
+"      obj->dead = 1;
+      if (test_and_set_bit(0, &obj->flags))
+              /* ... */;
+      obj->killed = 1;
+
+   The implementation of test_and_set_bit() must guarentee that
+   "obj->dead = 1;" is visible to cpus before the atomic memory operation
+   done by test_and_set_bit() becomes visible.  Likewise, the atomic
+   memory operation done by test_and_set_bit() must become visible before
+   "obj->killed = 1;" is visible."
+
+I am not convenienced that this is a good sync. strategy.
+Unfortunately, the acquisition / release semantics were not defined
+in Linux via some architecture independent and explicit way.
+People simply abused the fact that the bidirectional fencing is
+implicitly provided by some architectures for free.
+
+Theoretically, the code fragments like above have to be cleared up
+to use explicit ordering primitives. The description in atomic_ops.txt
+should state that this is not the way to do... (see the Fencing bit
+operations below).
+There can be ~20 "test_and_set_bit()" here or there.
+
+
+The atomic bit operation with requirements to order the preceding /
+following operations are mainly used for locking(-like) purposes:
+
+
+3. Fencing bit operations:
+
+Should someone still insist on using the atomic bit operations as today,
+s/he should change to use e.g.:
+
+   obj->dead = 1;
+   if (test_and_set_bit_N_fence(0, &obj->flags))
+         /* ... */;
+   obj->killed = 1;
+
+
+4. Bit-lock operations:
+
+I summarized the ordering requirements here:
+http://marc.theaimsgroup.com/?l=linux-ia64&m=114362989421046&w=2
+
+In order to let the architectures implement these bit-lock
+operations efficiently, the usage has to indicate the _minimal_
+required ordering semantics, e.g.:
+
+     test_and_set_bit_N_acquire()
+or   ordered_test_and_set_bit(acquire, ...)
+     release_N_clear_bit()
+etc.
+
+The style like:
+
+	do_some_ordering_before()
+	bit_op()
+	do_some_ordering_after()
+
+is quite correct, however, the compiler is not sufficiently
+intelligent to let the architecture dependent part to merge e.g. into
+a single machine instruction (if it exists).
+
+
+Regards,
+
+Zoltan 
+

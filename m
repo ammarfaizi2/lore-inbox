@@ -1,63 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWC2GTe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWC2Gn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbWC2GTe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 01:19:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWC2GTe
+	id S1751084AbWC2Gn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 01:43:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWC2Gn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 01:19:34 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:23694 "EHLO
-	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S1751093AbWC2GTd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 01:19:33 -0500
-Message-ID: <442A26E9.20608@vilain.net>
-Date: Wed, 29 Mar 2006 18:19:21 +1200
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Virtualization steps
-References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>	<1143228339.19152.91.camel@localhost.localdomain>	<4428BB5C.3060803@tmr.com> <20060328085206.GA14089@MAIL.13thfloor.at>	<4428FB29.8020402@yahoo.com.au>	<20060328142639.GE14576@MAIL.13thfloor.at>	<44294BE4.2030409@yahoo.com.au> <m1psk5kcpj.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1psk5kcpj.fsf@ebiederm.dsl.xmission.com>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 29 Mar 2006 01:43:26 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:27587 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751084AbWC2Gn0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 01:43:26 -0500
+Date: Tue, 28 Mar 2006 22:43:08 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pete Clements <clem@clem.clem-digital.net>
+Cc: klassert@mathematik.tu-chemnitz.de, clem@clem.clem-digital.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Correction: 2.6.16-git12 killed networking -- 3c900 card
+Message-Id: <20060328224308.23cac292.akpm@osdl.org>
+In-Reply-To: <200603290250.k2T2od8d001585@clem.clem-digital.net>
+References: <20060328141443.GB8455@gareth.mathematik.tu-chemnitz.de>
+	<200603290250.k2T2od8d001585@clem.clem-digital.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-
->That plus using the security module infrastructure you can
->implement the semantics pretty in a straight forward manner.
->  
+Pete Clements <clem@clem.clem-digital.net> wrote:
 >
+> Quoting Steffen Klassert
+>   > >   Had several of these with git11
+>   > >   NETDEV WATCHDOG: eth0: transmit timed out
+>   > 
+>   > Is this for sure that these messages occured first time with git11?
+>   > There were no changes in the 3c59x driver between git10 and git11.
+>   > 
+> Tried 2.6.15 and could not get a timed out condition.  Looks like
+> that defect is between 15 and 16 in my case.  
+> 
+> Be glad to do any testing that I can.
+> 
 
-Yes, this is the essence of it all. Globals are bad, mmm'kay?
+Well here's one.  Steffen, please confirm.
 
-This raises a very interesting question. All those LSM globals,
-shouldn't those be virtualisable, too? After all, isn't it natural to
-want to apply a different security policy to different sets of processes?
 
-I don't think anyone's done any work on this yet...
+From: Andrew Morton <akpm@osdl.org>
 
-Man, fork() is going to get really expensive if we don't put in the
-"process family" abstraction... but like you say, it comes later,
-getting the semantics right comes first.
+The pre-2.6.16 patch "3c59x collision statistics fix" accidentally caused
+vortex_error() to not run iowrite16(TxEnable, ioaddr + EL3_CMD) if we got a
+maxCollisions interrupt but MAX_COLLISION_RESET is not set.
 
->The only really intrusive part is that because we tickle the
->code differently we see a different set of problems.  Such
->as the mess that is the proc and sysctl code, and the lack of
->good resource limits.
->
->But none of that is inherent to the problem it is just when
->you use the kernel harder and have more untrusted users you
->see a different set of problems.
->  
->
+Cc: Steffen Klassert <klassert@mathematik.tu-chemnitz.de>
+Cc: Pete Clements <clem@clem.clem-digital.net>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-Indeed. Lots of old turds to clean up...
+ drivers/net/3c59x.c |   12 +++++-------
+ 1 files changed, 5 insertions(+), 7 deletions(-)
 
-Sam.
+diff -puN drivers/net/3c59x.c~3c59x-collision-statistics-fix-fix drivers/net/3c59x.c
+--- devel/drivers/net/3c59x.c~3c59x-collision-statistics-fix-fix	2006-03-28 22:36:48.000000000 -0800
++++ devel-akpm/drivers/net/3c59x.c	2006-03-28 22:40:01.000000000 -0800
+@@ -2085,16 +2085,14 @@ vortex_error(struct net_device *dev, int
+ 		}
+ 		if (tx_status & 0x14)  vp->stats.tx_fifo_errors++;
+ 		if (tx_status & 0x38)  vp->stats.tx_aborted_errors++;
++		if (tx_status & 0x08)  vp->xstats.tx_max_collisions++;
+ 		iowrite8(0, ioaddr + TxStatus);
+ 		if (tx_status & 0x30) {			/* txJabber or txUnderrun */
+ 			do_tx_reset = 1;
+-		} else if (tx_status & 0x08) {	/* maxCollisions */
+-			vp->xstats.tx_max_collisions++;
+-			if (vp->drv_flags & MAX_COLLISION_RESET) {
+-				do_tx_reset = 1;
+-				reset_mask = 0x0108;		/* Reset interface logic, but not download logic */
+-			}
+-		} else {						/* Merely re-enable the transmitter. */
++		} else if ((tx_status & 0x08) && (vp->drv_flags & MAX_COLLISION_RESET))  {	/* maxCollisions */
++			do_tx_reset = 1;
++			reset_mask = 0x0108;		/* Reset interface logic, but not download logic */
++		} else {				/* Merely re-enable the transmitter. */
+ 			iowrite16(TxEnable, ioaddr + EL3_CMD);
+ 		}
+ 	}
+_
+

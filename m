@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWC2Mcg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbWC2Mh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751066AbWC2Mcg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 07:32:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbWC2Mcg
+	id S1751071AbWC2Mh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 07:37:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWC2Mh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 07:32:36 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:706 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751066AbWC2Mcg (ORCPT
+	Wed, 29 Mar 2006 07:37:59 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:36785 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751071AbWC2Mh6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 07:32:36 -0500
-Date: Wed, 29 Mar 2006 14:29:59 +0200
+	Wed, 29 Mar 2006 07:37:58 -0500
+Date: Wed, 29 Mar 2006 14:35:26 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Esben Nielsen <simlo@phys.au.dk>, linux-kernel@vger.kernel.org
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
 Subject: Re: PI patch against 2.6.16-rt9
-Message-ID: <20060329122959.GA5175@elte.hu>
-References: <Pine.LNX.4.44L0.0603290006290.32655-100000@lifa02.phys.au.dk> <1143590363.5344.257.camel@localhost.localdomain>
+Message-ID: <20060329123526.GA4322@elte.hu>
+References: <20060329071456.GA20187@elte.hu> <Pine.LNX.4.44L0.0603290851320.12114-100000@lifa01.phys.au.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1143590363.5344.257.camel@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44L0.0603290851320.12114-100000@lifa01.phys.au.dk>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: -2.6
 X-ELTE-SpamLevel: 
@@ -35,14 +35,33 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Thomas Gleixner <tglx@linutronix.de> wrote:
+* Esben Nielsen <simlo@phys.au.dk> wrote:
 
-> Btw, your get/put_task proposal adds two atomic ops. Atomic ops are 
-> implicit memory barriers and therefor you add two extra slow downs 
-> into the non conflict case.
+> The point is: It does not matter that is another chain!
+> 
+> It will _not_ boost any task which doesn't need boosting, because it 
+> is not boosting according to current->prio but always 
+> task->pi_waiters. So all it does is to fix the priorities on some 
+> tasks. There is absolutely nothing wrong with that. [...]
 
-i'm not that worried about this - the atomic ops are for already cached 
-cachelines, any sane CPU ought to execute them close to full speed.  
-(x86-ish cpus certainly do)
+doh, you are right, i missed that. All the state to do the boosting is 
+contained in a single entry along the chain, so no prior information is 
+needed.
+
+the problem with deadlock detection remains though. Can we live with 
+deadlock detection being a bit statistical? I think we can: deadlock 
+detection is for _bugs_, no application should rely on it to provide 
+actual functionality. (if it still does it will still work fine, but we 
+dont design for them.) Also, if we walk long enough (say 1024 entries) 
+the probability of a false positive ought to be pretty low. So i think 
+the following type of deadlock detection ought to be pretty OK:
+
+ - check whether we get back to 'current'.
+
+ - check whether we exceed a configurable limit of steps
+
+most 'sane' deadlocks will be detected quickly: they'll lead back to 
+'current' and the kernel returns. On the off chance of the chain-walking 
+getting lured into a completely unrelated chain the limit will catch it.
 
 	Ingo

@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWC2If7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWC2JH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbWC2If7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 03:35:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWC2If7
+	id S1750715AbWC2JH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 04:07:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWC2JH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 03:35:59 -0500
-Received: from mail.charite.de ([160.45.207.131]:27798 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S1750718AbWC2If6 (ORCPT
+	Wed, 29 Mar 2006 04:07:58 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:54034 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750715AbWC2JH5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 03:35:58 -0500
-Date: Wed, 29 Mar 2006 10:35:54 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: kernel BUG at fs/direct-io.c:916!
-Message-ID: <20060329083554.GB5438@charite.de>
-Mail-Followup-To: Nathan Scott <nathans@sgi.com>,
-	linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-References: <20060326230206.06C1EE083AAB@knarzkiste.dyndns.org> <20060326180440.GA4776@charite.de> <20060326184644.GC4776@charite.de> <20060327080811.D753448@wobbly.melbourne.sgi.com> <20060326230358.GG4776@charite.de> <20060327060436.GC2481@frodo> <20060327110342.GX21946@charite.de> <20060328050135.GA2177@frodo> <20060328112859.GA3851@charite.de> <20060329074333.E871924@wobbly.melbourne.sgi.com>
+	Wed, 29 Mar 2006 04:07:57 -0500
+Date: Wed, 29 Mar 2006 11:08:06 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Mark Lord <lkml@rtr.ca>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16-git4: kernel BUG at block/ll_rw_blk.c:3497
+Message-ID: <20060329090806.GW8186@suse.de>
+References: <44288882.4020809@rtr.ca> <20060329081642.GU8186@suse.de> <20060329082747.GV27946@ftp.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060329074333.E871924@wobbly.melbourne.sgi.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060329082747.GV27946@ftp.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Nathan Scott <nathans@sgi.com>:
-> On Tue, Mar 28, 2006 at 01:28:59PM +0200, Ralf Hildebrandt wrote:
-> > * Nathan Scott <nathans@sgi.com>:
+On Wed, Mar 29 2006, Al Viro wrote:
+> On Wed, Mar 29, 2006 at 10:16:43AM +0200, Jens Axboe wrote:
+> > triggering. What sort of testing were you running, exactly?
 > > 
-> > > OK, I think I see whats gone wrong here now.  Ralf, could you try
-> > > the patch below and check that it fixes your test case?
-> > 
-> > The patch is against what? -git12? 2.6.16?
+> > Al, any ideas?
 > 
-> Should apply cleanly to the current git tree (did yesterday, anyway).
+> I really wonder why it's the call from do_exit() that triggers it.
+> The thing is, we get off-by-exactly-one here and all previous callers
+> of that puppy would be elsewhere (cfq, mostly).
+> 
+> IOW, we get exactly one extra call of put_io_context() _and_ have it
+> happen before do_exit() (i.e. from normal IO paths).  Interesting...
+> 
+> Is there any way to reproduce it without too much PITA?
 
-Alas, it fixes the problem (in -mm2, that is). Thanks!
+That's what I'd like to know as well. So far I haven't seen any io
+context anomalies with the current kernels. I'll keep poking.
 
 -- 
-_________________________________________________
+Jens Axboe
 
-  Charité - Universitätsmedizin Berlin
-_________________________________________________
-
-  Ralf Hildebrandt
-   i.A. Geschäftsbereich Informationsmanagement
-   Campus Benjamin Franklin
-   Hindenburgdamm 30 | Berlin
-   Tel. +49 30 450 570155 | Fax +49 30 450 570962
-   Ralf.Hildebrandt@charite.de
-   http://www.charite.de

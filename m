@@ -1,61 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWC2HS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWC2HYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751130AbWC2HS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 02:18:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWC2HS0
+	id S1751134AbWC2HYa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 02:24:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWC2HYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 02:18:26 -0500
-Received: from pproxy.gmail.com ([64.233.166.178]:15251 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751130AbWC2HS0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 02:18:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gD7HcJUuh8q6a1CUVddHz9ovIq1NCrjXYnBuuR7hzrCK62La4FtQF6duIrV1A4J0ed/BkW+qS0r0x9ItiuV+61XpudlirFkkQPySiQVt5QWN5W7uqQkRyrG2aii8hfWsHTtWCuA7aBhNtv+iTeHwkHg9qUvALIRFC08RSYnow8g=
-Message-ID: <58cb370e0603282318t1b74c40cx6a173b3561c3fa54@mail.gmail.com>
-Date: Wed, 29 Mar 2006 09:18:25 +0200
-From: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
-To: "Richard Purdie" <rpurdie@rpsys.net>
-Subject: Re: [PATCH -mm 4/4] LED: Add IDE disk activity LED trigger
-Cc: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <1143591445.14682.60.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 29 Mar 2006 02:24:30 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:5420 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751134AbWC2HYa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 02:24:30 -0500
+Date: Wed, 29 Mar 2006 09:21:25 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Tejun Heo <htejun@gmail.com>
+Cc: Linda Walsh <lkml@tlinx.org>, Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Block I/O Schedulers: Can they be made selectable/device? @runtime?
+Message-ID: <20060329072124.GR8186@suse.de>
+References: <4426377C.7000605@tlinx.org> <442A08AA.80305@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1143591445.14682.60.camel@localhost.localdomain>
+In-Reply-To: <442A08AA.80305@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/29/06, Richard Purdie <rpurdie@rpsys.net> wrote:
-> Add an LED trigger for IDE disk activity to the ide-disk driver.
->
-> Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
->
-> Index: linux-2.6.16/drivers/ide/ide-disk.c
-> ===================================================================
-> --- linux-2.6.16.orig/drivers/ide/ide-disk.c    2006-03-28 17:22:51.000000000 +0100
-> +++ linux-2.6.16/drivers/ide/ide-disk.c 2006-03-28 17:25:12.000000000 +0100
-> @@ -60,6 +60,7 @@
->  #include <linux/genhd.h>
->  #include <linux/slab.h>
->  #include <linux/delay.h>
-> +#include <linux/leds.h>
->
->  #define _IDE_DISK
->
-> @@ -316,6 +317,8 @@
->                 return ide_stopped;
->         }
->
-> +       ledtrig_ide_activity();
-> +
+On Wed, Mar 29 2006, Tejun Heo wrote:
+> Linda Walsh wrote:
+> >Is it still the case that block I/O schedulers (AS, CFQ, etc.)
+> >are only selectable at boot time?
+> >
+> >How difficult would it be to allow multiple, concurrent I/O
+> >schedulers running on different block devices?
+> >
+> >How close is the kernel to "being there"?  I.e. if someone has a
+> >"regular" hard disk and a high-end solid state disk, can
+> >Linux allow whichever algorithm is best for the hardware?
+> >(or applications if they are run on separate block devices)?
+> >
+> 
+> Hello, Linda, Jens.
+> 
+> Actually, I've been thinking about related stuff for sometime. e.g. It 
+> doesn't make much sense to use any scheduler other than noop for SSDs 
+> and it also doesn't make much sense to plug requests for milliseconds to 
+> such devices. So, what I'm currently thinking is...
+> 
+> * Give LLDD a chance to say that it doesn't need fancy scheduling.
 
-Now this is really non-intrusive. :)
-Thank you for reworking the patch.
+Something I've been meaning to do for ages as well. I figure the
+simplest way is to define a simple set of profiles, ala
 
-The rest of changes also look fine for me, ACK.
+enum {
+        BLK_QUEUE_TYPE_HD,
+        BLK_QUEUE_TYPE_SS,
+        BLK_QUEUE_TYPE_CDROM,
+};
 
-Bartlomiej
+Make BLK_QUEUE_TYPE_HD the default setting, and then let setting of this
+look something ala:
+
+        q = blk_init_queue(rfn, lock);
+        blk_set_queue_type(q, BLK_QUEUE_TYPE_SS);
+        ...
+
+and be done with it.
+
+> * Automagically tune plugging time. We can maintain running average of 
+> request turn-around time and use fraction of it to plug the device. This 
+> should be give good enough merging behavior while not adding excessive 
+> delay to seek time.
+
+Sounds like too much work for little (or zero) benefit. The current
+heuristics are a little rough, and if you can show a tangible benefit
+from actually looking/calculating this stuff, then we can talk :-)
+
+> * Don't leave device devices with queue depth > 1 idle. For queued 
+> devices, we can push the first request fast such that the head moves to 
+> proximity of what would probably follow. So, don't plug the first 
+> request, plug from the second.
+
+Trade off, if the next io is mergable it will still be a loss. But
+generally I like the idea!
+
+-- 
+Jens Axboe
+

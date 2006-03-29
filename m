@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWC2A0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964881AbWC2A2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964880AbWC2A0y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 19:26:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbWC2A0y
+	id S964881AbWC2A2k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 19:28:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964883AbWC2A2k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 19:26:54 -0500
-Received: from master.soleranetworks.com ([67.137.28.188]:54704 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S964880AbWC2A0y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 19:26:54 -0500
-Message-ID: <4429E050.7080008@soleranetworks.com>
-Date: Tue, 28 Mar 2006 18:18:08 -0700
-From: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Tue, 28 Mar 2006 19:28:40 -0500
+Received: from mga02.intel.com ([134.134.136.20]:2093 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964881AbWC2A2j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 19:28:39 -0500
+X-IronPort-AV: i="4.03,140,1141632000"; 
+   d="scan'208"; a="16331201:sNHT3040387154"
+Message-Id: <200603290012.k2T0C6g32166@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Christoph Lameter'" <clameter@sgi.com>,
+       "'Nick Piggin'" <nickpiggin@yahoo.com.au>
+Cc: "Zoltan Menyhart" <Zoltan.Menyhart@free.fr>, <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+Subject: RE: Fix unlock_buffer() to work the same way as bit_unlock()
+Date: Tue, 28 Mar 2006 16:12:42 -0800
 MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       "Theodore Ts'o" <tytso@mit.edu>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: e2label suggestions
-References: <4429AF42.1090101@soleranetworks.com> <20060328232927.GB32385@thunk.org> <4429D3E4.3060305@wolfmountaingroup.com> <4429D11F.6040000@garzik.org>
-In-Reply-To: <4429D11F.6040000@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcZSxMfxr6gMEsIsQ8OR0DYRRxpRBwAADIJg
+In-Reply-To: <Pine.LNX.4.64.0603281537500.15037@schroedinger.engr.sgi.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+Christoph Lameter wrote on Tuesday, March 28, 2006 3:48 PM
+> On Tue, 28 Mar 2006, Zoltan Menyhart wrote:
+> 
+> > Why not to use separate bit operations for different purposes?
+> > 
+> > - e.g. "test_and_set_bit_N_acquire()" for lock acquisition
+> > - "test_and_set_bit()", "clear_bit()" as they are today
+> > - "release_N_clear_bit()"...
+> > 
+> 
+> That would force IA64 specifics onto all other architectures.
+> 
+> Could we simply define these smb_mb__*_clear_bit to be noops
+> and then make the atomic bit ops to have full barriers? That would satisfy 
+> Nick's objections.
+> 
+> --- linux-2.6.16.orig/include/asm-ia64/bitops.h	2006-03-19 21:53:29.000000000 -0800
+> +++ linux-2.6.16/include/asm-ia64/bitops.h	2006-03-28 15:45:08.000000000 -0800
+> @@ -45,6 +45,7 @@
+>  		old = *m;
+>  		new = old | bit;
+>  	} while (cmpxchg_acq(m, old, new) != old);
+> +	smb_mb();
+>  }
 
-> Jeff V. Merkey wrote:
->
->> the detection of and translation of
->> LABEL=/ is passed in the kernel, so its a kernel issue.
->
->
-> Incorrect.  The kernel does zero 'LABEL=' processing.  Read 
-> init/do_mount*.c.
->
-> LABEL= is handled in initrd/initramfs normally.
->
->     Jeff
->
->
->
+There are better way to do it.  The pointer is already cast as volatile,
+so old = *m has acq semantics built-in, we can just change cmpxchg_acq to
+cmpxchg_rel, then effectively it is a full memory barrier without doing the
+expensive smp_mb().
 
-Jeff,
-
-Thanks for verifying it is passed through the kernel to initrd, another 
-kernel component.    It's also stored as EXT meta data
-(also in the kernel).  and retrieved from there.  And its not accessible 
-from normal user space applications (except in raw mode).
-One of these days you need to get down to Lindon for lunch.  I'll even buy.
-
-Jeff
+- Ken

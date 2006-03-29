@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWC2GIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWC2GGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751085AbWC2GIR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 01:08:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWC2GIR
+	id S1751086AbWC2GGg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 01:06:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWC2GGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 01:08:17 -0500
-Received: from king.bitgnome.net ([70.84.111.244]:20142 "EHLO
-	king.bitgnome.net") by vger.kernel.org with ESMTP id S1751085AbWC2GIQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 01:08:16 -0500
-Date: Wed, 29 Mar 2006 00:08:16 -0600
-From: Mark Nipper <nipsy@bitgnome.net>
-To: linux-kernel@vger.kernel.org
-Subject: KERNEL: assertion (!sk->sk_forward_alloc) failed at net/...
-Message-ID: <20060329060816.GB26340@king.bitgnome.net>
+	Wed, 29 Mar 2006 01:06:36 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:11171 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751086AbWC2GGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 01:06:36 -0500
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Virtualization steps
+References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>
+	<1143228339.19152.91.camel@localhost.localdomain>
+	<4428BB5C.3060803@tmr.com> <20060328085206.GA14089@MAIL.13thfloor.at>
+	<4428FB29.8020402@yahoo.com.au>
+	<20060328142639.GE14576@MAIL.13thfloor.at>
+	<44294BE4.2030409@yahoo.com.au>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 28 Mar 2006 23:05:28 -0700
+In-Reply-To: <44294BE4.2030409@yahoo.com.au> (Nick Piggin's message of "Wed,
+ 29 Mar 2006 00:44:52 +1000")
+Message-ID: <m1psk5kcpj.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        Sorry, I forgot a subject last time.  Maybe this will get
-a response instead.
+Nick Piggin <nickpiggin@yahoo.com.au> writes:
 
-        I'm seeing these in my logcheck output:
----
-Mar 27 16:16:45 king kernel: KERNEL: assertion (!sk->sk_forward_alloc) failed at net/core/stream.c (283)
-Mar 27 16:16:45 king kernel: KERNEL: assertion (!sk->sk_forward_alloc) failed at net/ipv4/af_inet.c (150)
----
+> I don't think I could give a complete answer...
+> I guess it could be stated as the increase in the complexity of
+> the rest of the code for someone who doesn't know anything about
+> the virtualization implementation.
+>
+> Completely non intrusive is something like 2 extra function calls
+> to/from generic code, changes to data structures are transparent
+> (or have simple wrappers), and there is no shared locking or data
+> with the rest of the kernel. And it goes up from there.
+>
+> Anyway I'm far from qualified... I just hope that with all the
+> work you guys are putting in that you'll be able to justify it ;)
 
-I also saw this with 2.6.14.5.  I found references on LKML about
-this happening in 2.6.9 with regards to TSO and lowering
-tcp_tso_win_divisor.  I'm not lowering any values via sysctl
-(that I'm aware of anyway), so I'm not sure if I should worry
-about this.
+As I have been able to survey the work, the most common case
+is replacing a global variable with a variable we lookup via
+current.
 
-        Just a heads up in case this is a real problem.
+That plus using the security module infrastructure you can
+implement the semantics pretty in a straight forward manner.
 
--- 
-Mark Nipper                                                e-contacts:
-832 Tanglewood Drive                                nipsy@bitgnome.net
-Bryan, Texas 77802-4013                     http://nipsy.bitgnome.net/
-(979)575-3193                      AIM/Yahoo: texasnipsy ICQ: 66971617
+The only really intrusive part is that because we tickle the
+code differently we see a different set of problems.  Such
+as the mess that is the proc and sysctl code, and the lack of
+good resource limits.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-GG/IT d- s++:+ a- C++$ UBL++++$ P--->+++ L+++$ !E---
-W++(--) N+ o K++ w(---) O++ M V(--) PS+++(+) PE(--)
-Y+ PGP t+ 5 X R tv b+++@ DI+(++) D+ G e h r++ y+(**)
-------END GEEK CODE BLOCK------
+But none of that is inherent to the problem it is just when
+you use the kernel harder and have more untrusted users you
+see a different set of problems.
 
----begin random quote of the moment---
-As a computer, I find your faith in technology amusing.
-----end random quote of the moment----
+Eric

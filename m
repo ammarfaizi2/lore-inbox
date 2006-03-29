@@ -1,68 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWC2H4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWC2H7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751168AbWC2H4L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 02:56:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWC2H4L
+	id S1751144AbWC2H7j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 02:59:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWC2H7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 02:56:11 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:9190 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1751150AbWC2H4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 02:56:09 -0500
-Date: Wed, 29 Mar 2006 09:55:57 +0200 (CEST)
-From: Simon Derr <Simon.Derr@bull.net>
-X-X-Sender: derrs@openx3.frec.bull.fr
+	Wed, 29 Mar 2006 02:59:39 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:11410 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S1751144AbWC2H7i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 02:59:38 -0500
+Date: Wed, 29 Mar 2006 08:59:30 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
 To: Ingo Molnar <mingo@elte.hu>
-Cc: Simon Derr <simon.derr@bull.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rt10
-In-Reply-To: <20060328204944.GA1217@elte.hu>
-Message-ID: <Pine.LNX.4.61.0603290953580.15393@openx3.frec.bull.fr>
-References: <Pine.LNX.4.44L0.0603262214060.8060-100000@lifa03.phys.au.dk>
- <Pine.LNX.4.44L0.0603262255150.8060-100000@lifa03.phys.au.dk>
- <20060326233530.GA22496@elte.hu> <Pine.LNX.4.58.0603281142410.17504@apollon>
- <20060328204944.GA1217@elte.hu>
+cc: Thomas Gleixner <tglx@linutronix.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: PI patch against 2.6.16-rt9
+In-Reply-To: <20060329071456.GA20187@elte.hu>
+Message-ID: <Pine.LNX.4.44L0.0603290851320.12114-100000@lifa01.phys.au.dk>
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 29/03/2006 09:58:13,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 29/03/2006 09:58:14,
-	Serialize complete at 29/03/2006 09:58:14
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Mar 2006, Ingo Molnar wrote:
+On Wed, 29 Mar 2006, Ingo Molnar wrote:
 
-> > Is anyone working on a port of this patch to the IA64 architecture ?
-> 
-> not that i know of. If someone wants to do that, take a look at the 
-> x86_64 changes (or ppc/mips/i386 changes) to get an idea. These are the 
-> rough steps needed:
-> 
->  - do the raw_spinlock_t/rwlock_t -> __raw_spinlock_t/rwlock_t rename
-> 
->  - change the APIs in asm-ia64/semaphore.h (and arch files) to
->    compat_up()/down()/etc.
-> 
->  - in the arch Kconfig, turn off RWSEM_XCHGADD_ALGORITHM if PREEMPT_RT.
-> 
->  - add the TID_NEED_RESCHED_DELAYED logic to thread_info.h and the entry
->    assembly code.
-> 
->  - change most/all spinlocks in arch/ia64 to raw_spinlock / RAW_SPINLOCK
-> 
->  - change most/all seqlocks to raw_seqlock / RAW_SEQLOCK
-> 
->  - add smp_send_reschedule_allbutself().
-> 
->  - take a good look at the arch/x86_64/kernel/process.c changes and port
->    the need_resched_delayed() and __schedule() changes.
-> 
-> that should be at least 95% of what's needed. (the x86_64 port does a 
-> couple of other things too, like latency tracing support, etc., but you 
-> dont need those for the initial ia64 port.)
+>
+> * Esben Nielsen <simlo@phys.au.dk> wrote:
+>
+> > > well, another possibility is that the task got blocked again, and we'll
+> > > continue boosting _the wrong chain_. I.e. we'll add extra priority to
+> > > task(s) that might not deserve it at all (it doesnt own the lock we are
+> > > interested in anymore).
+> >
+> > This can't happen. We are always looking at the first waiter on
+> > task->pi_waiter task->pi_lock held when doing the boosting. If task
+> > has released the lock the entry task->pi_waiter is gone and no
+> > boosting will take place!
+>
+> no, the task got blocked _again_, as part of a _new_ blocking chain, and
+> there's a _new_ PI waiter! How does the two-lock preemptible boosting
+> algorithm ensure that if we are in the middle of boosting a
+> blocking-dependency chain:
+>
+>    T1 -> T2 -> ... -> TI -> TI+1 -> ... TN-1 -> TN
+>
+> we are at TI, and we [the task doing the boosting] now get preempted.
+>
+> What prevents TI from being part of a _totally new_ blocking-chain,
+> where the only similarity between the two chains is that TI is in the
+> middle of it:
+>
+>    T1' -> T2' -> ... -> TI -> TI+1' -> ... TM-1 -> TM'
+>
+> the only match between the two chains is 'TI'. Now the algorithm will
+> happily walk the wrong boosting chain, and will boost the wrong tasks.
+>
 
-Thanks a lot for your reply, Ingo, and for these hints on how to begin.
+The point is: It does not matter that is another chain!
 
-	Simon.
+It will _not_ boost any task which doesn't need boosting, because it is
+not boosting according to current->prio but always task->pi_waiters. So
+all it does is to fix the priorities on some tasks. There is
+absolutely nothing wrong with that. But these task will already have the
+right priorities, because the new outermost locker (T1') will have
+traversed the list and done the boosting. So current will stop boosting
+and break out of the loop (unless it is doing deadlock detection).
+
+But what about the original chain? Well, as the tasks aren't blocked
+anymore, they doesn't need boosting anymore, so no boosting missed either.
+Or if they are blocked on something else, the those locking operations
+have or will take care of it.
+
+Esben
+
+
+
+> 	Ingo
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

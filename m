@@ -1,54 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWC2PHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWC2PLA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWC2PHb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 10:07:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWC2PHb
+	id S1750733AbWC2PLA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 10:11:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWC2PLA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 10:07:31 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:63411 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750777AbWC2PHa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 10:07:30 -0500
-Message-ID: <442AA2A4.5010104@aitel.hist.no>
-Date: Wed, 29 Mar 2006 17:07:16 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: beware <wimille@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Float numbers in module programming
-References: <3fd7d9680603290634n6fabcdc7r193c30447acc1858@mail.gmail.com>
-In-Reply-To: <3fd7d9680603290634n6fabcdc7r193c30447acc1858@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Mar 2006 10:11:00 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:35970 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750733AbWC2PLA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 10:11:00 -0500
+Date: Wed, 29 Mar 2006 17:08:15 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: emin ak <eminak71@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rt10 crash on ppc
+Message-ID: <20060329150815.GA24741@elte.hu>
+References: <2cf1ee820603270656w6697778ai83935217ea5ab3a5@mail.gmail.com> <2cf1ee820603271231l69187925j3150098097c7ca15@mail.gmail.com> <44288FB3.5030208@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44288FB3.5030208@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-beware wrote:
 
->Hi
->
->i wonder if it is available to use float numbers in a module programming.
->Because, when I'm look for the param_get functions, i find them only
->for integers (long, short, and others) but none for the float numbers.
->
->Thanks for yours answer.
->  
->
-The short answer is no, don't bother.
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-If you touch the floating point registers in kernel code, then
-you mess them up for any user program that use floating point.
+> Normally what will happen is that kswapd will be woken up, and 
+> ksoftirqd will start throttling (soft) interrupts and kswapd will be 
+> allowed to get a chance to run. With the -rt kernel, I guess if your 
+> network irq has a higher priority than kswapd, it could prevent it 
+> from running completely. (I could be wrong here).
+> 
+> You might try increasing /proc/sys/vm/min_free_kbytes, or failing 
+> that, increase the priority of kswapd to something comparable to or 
+> greater than your network interrupt.
+> 
+> I'm not very familiar with the -rt tree, but possibly what should be 
+> happening, if interrupts are executed in process context and allowed 
+> to schedule, is that their memory allocations should also be allowed 
+> to reclaim memory.
 
-It can be done, but then you have to take all sorts of precations
-saving the registers before using them, and restoring them
-when finished.  And you must prevent context switching
-while you have them! 
+indeed - very good point. Emin, could you try the patch below [which 
+isnt a full solution but should be a good first approximation], does it 
+make any difference?
 
-If you need a few computations, try to do it with fixed point
-instead if at all possible. Or emulate floating point,
-or have a userspace helper app to do it.
-It all depends on what you think you need floats for.
+> OTOH, I guess for a deterministic realtime system, you need to 
+> allocate fixed minimum amounts of memory for each element of the 
+> system so you never run out like this.
 
-Helge Hafting
+yeah, preallocation is pretty much the only way to go for deterministic 
+workloads. Still, networking (and other complex subsystems) can still be 
+used in parallel to deterministic tasks - and those should not be 
+starved easier when PREEMPT_RT is enabled. In fact, with the patch below 
+it could become much more robust - we could in fact achieve to never 
+fail an allocation due to being in an atomic context.
+
+	Ingo
+
+Index: linux/mm/page_alloc.c
+===================================================================
+--- linux.orig/mm/page_alloc.c
++++ linux/mm/page_alloc.c
+@@ -1008,9 +1008,11 @@ nofail_alloc:
+ 		goto nopage;
+ 	}
+ 
++#ifndef CONFIG_PREEMPT_RT
+ 	/* Atomic allocations - we can't balance anything */
+ 	if (!wait)
+ 		goto nopage;
++#endif
+ 
+ rebalance:
+ 	cond_resched();

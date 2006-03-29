@@ -1,84 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWC2Nj6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWC2Njd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbWC2Nj6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 08:39:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWC2Nj6
+	id S1750703AbWC2Njd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 08:39:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbWC2Njd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 08:39:58 -0500
-Received: from smtp-relay.dca.net ([216.158.48.66]:53633 "EHLO
-	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S1750713AbWC2Nj5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 08:39:57 -0500
-Date: Wed, 29 Mar 2006 08:38:35 -0500
-From: "Mark M. Hoffman" <mhoffman@lightlink.com>
-To: Etienne Lorrain <etienne_lorrain@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org, lm-sensors <lm-sensors@lm-sensors.org>,
-       Ian Campbell <icampbell@arcom.com>
-Subject: Re: I2C_PCA_ISA causes boot delays (was re: sis96x compiled in by error: delay of one minute at boot)
-Message-ID: <20060329133835.GB8309@jupiter.solarsys.private>
-References: <20060329034510.GA8309@jupiter.solarsys.private> <20060329092628.16392.qmail@web26908.mail.ukl.yahoo.com>
+	Wed, 29 Mar 2006 08:39:33 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:16576 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S1750703AbWC2Njc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 08:39:32 -0500
+Date: Thu, 30 Mar 2006 00:39:27 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: apgo@patchbomb.org (Arthur Othieno)
+Cc: sam@ravnborg.org, psmith@gnu.org, linux-kernel@vger.kernel.org,
+       stable@kernel.org, kernel@kolivas.org
+Subject: Re: [PATCH] change kbuild to not rely on incorrect GNU make
+ behavior
+Message-Id: <20060330003927.1db023b5.sfr@canb.auug.org.au>
+In-Reply-To: <20060329131501.GA8537@krypton>
+References: <E1FG1UQ-00045B-5P@fencepost.gnu.org>
+	<20060305231312.GA25673@mars.ravnborg.org>
+	<20060329131501.GA8537@krypton>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060329092628.16392.qmail@web26908.mail.ukl.yahoo.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Thu__30_Mar_2006_00_39_27_+1100_q=cKnk.tTWyv5eBl"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Etienne:
+--Signature=_Thu__30_Mar_2006_00_39_27_+1100_q=cKnk.tTWyv5eBl
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-* Etienne Lorrain <etienne_lorrain@yahoo.fr> [2006-03-29 11:26:28 +0200]:
-> --- "Mark M. Hoffman" <mhoffman@lightlink.com> wrote:
-> > > 885c885
-> > > < # CONFIG_I2C_PCA_ISA is not set
-> > > ---
-> > > > CONFIG_I2C_PCA_ISA=y
-> > 
-> > This alone is the cause of the delay.  (I have confirmed it by running some
-> > similar .configs here.)  You almost certainly don't own this specialized
-> > piece of hardware.  Worse still, that particular driver has no code to detect
-> > whether or not the hardware is present.  I cc'ed the listed driver author
-> > (Ian) just in case this might be corrected... but I guess there is no way
-> > to fix it.
-> > 
-> > So the delay is (1) an I2C bus driver that is not actually present, trying to
-> > probe for (2) seven different sensors chip drivers that certainly aren't present
-> > on the nonexistent bus.  Timeouts ensue.
-> > 
-> > So unless Ian knows a better way to detect that bus driver... the best I can
-> > advise is to *not* build in those drivers for hardware that you do not have.
-> 
->  OK, I know the I2C protocol, and I can imagine a hardware board which does
->  not have a way to detect its own presence - or the presence of its own ISA bus.
->  What I dislike the most is that, after the driver has taken more than 20
->  seconds to probe something it did not find, it did not display anything to
->  say "either there is a hardware problem, or you should disable me".
+On Wed, 29 Mar 2006 08:15:01 -0500 apgo@patchbomb.org (Arthur Othieno) wrot=
+e:
+>
+> Sam, this was merged into Linus' tree post v2.6.16 (like you intended),
+> but, won't the window between now and 2.6.17 be a little too big for such
+> a fix? Debian etch (and sid) already ships with the affected make version:
+>=20
+>   $ make -v | head -1
+>   GNU Make 3.81rc1
+>=20
+> Now, this patch re-based against 2.6.16 is still too big for -stable
+> (~830 lines plus context). I'm Cc'ing -stable team here for comments, and
+> also because this will continue to bite between -stable releases. Should
+> they decide to pick it up, I'll post re-based version as a reply.
 
-I repeat just once more: the supported method for identifying hwmon/sensors
-chips is a Perl script called sensors-detect that is distributed with the
-lm-sensors package.  
+You should note this changelog entry from Debian sid:
 
->  Are you sure that there isn't any distribution around trying to insert
->  _all_ the modules to do hardware detection?
+make-dfsg (3.80+3.81.rc2-1) unstable; urgency=3Dlow
 
-No, because that is not supported.  All of the major distributions package
-lm-sensors, and AFAIK they all build hwmon/sensors as modules.  They don't
-insert any of them by default.  If a distro was silly enough to blindly
-insert them all... then it would take forever to boot and nobody would use
-it.
+  * New upstream release candidate.
+  * Bug fix: "Make always recompiles everything in the Linux Kernel.",
+    thanks to Neil Brown. This is really a bug in the kernel build system,
+    not make. However, this release defers the change so as not to trigger
+    the bug.                                      (Closes: #356552, #356630=
+).
 
->  Note that most I2C driver detect abscence of the hardware in a lot less than
->  a second: most of the I2C system is fine.
+ -- Manoj Srivastava <srivasta@debian.org>  Mon, 20 Mar 2006 15:37:15 -0600
 
-Feel free to write a patch for drivers/busses/i2c/i2c-pca-isa.c;  I don't
-have that hardware myself.  Otherwise, my final advice is:
+So that the make in sid is no longer affected and (hopefully) this version =
+will
+make its way into etch soon.
 
-	Patient: It hurts when I do this.
-	Doctor: Don't do that.
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-Regards,
+--Signature=_Thu__30_Mar_2006_00_39_27_+1100_q=cKnk.tTWyv5eBl
+Content-Type: application/pgp-signature
 
--- 
-Mark M. Hoffman
-mhoffman@lightlink.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
+iD8DBQFEKo4PFdBgD/zoJvwRAs45AJ9IDS7xZSYxs8YCZL2DVs/E89W6AgCgifbA
+U9nChC56vuoPsU5NdZ61Bm4=
+=sQmW
+-----END PGP SIGNATURE-----
+
+--Signature=_Thu__30_Mar_2006_00_39_27_+1100_q=cKnk.tTWyv5eBl--

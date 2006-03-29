@@ -1,67 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWC2R0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWC2R3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750881AbWC2R0v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 12:26:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750882AbWC2R0v
+	id S1750880AbWC2R3E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 12:29:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbWC2R3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 12:26:51 -0500
-Received: from master.soleranetworks.com ([67.137.28.188]:61874 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S1750880AbWC2R0v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 12:26:51 -0500
-Message-ID: <442ACF5D.90805@wolfmountaingroup.com>
-Date: Wed, 29 Mar 2006 11:18:05 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: hda-intel woes
-References: <20060327231049.GA30641@localhost.in.y0ur.4ss> <4428872E.3020308@wolfmountaingroup.com> <4429C252.2000405@tmr.com> <4429D322.7040907@wolfmountaingroup.com> <442AC08D.5040800@tmr.com>
-In-Reply-To: <442AC08D.5040800@tmr.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Mar 2006 12:29:04 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:47750 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1750880AbWC2R3C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 12:29:02 -0500
+Date: Wed, 29 Mar 2006 19:29:01 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Kirill Korotaev <dev@openvz.org>, devel@openvz.org,
+       Kir Kolyshkin <kir@sacred.ru>, linux-kernel@vger.kernel.org,
+       sam@vilain.net
+Subject: Re: [Devel] Re: [RFC] Virtualization steps
+Message-ID: <20060329172901.GE15842@MAIL.13thfloor.at>
+Mail-Followup-To: Kirill Korotaev <dev@sw.ru>,
+	Kirill Korotaev <dev@openvz.org>, devel@openvz.org,
+	Kir Kolyshkin <kir@sacred.ru>, linux-kernel@vger.kernel.org,
+	sam@vilain.net
+References: <44242D4D.40702@yahoo.com.au> <1143228339.19152.91.camel@localhost.localdomain> <4428BB5C.3060803@tmr.com> <4428DB76.9040102@openvz.org> <1143583179.6325.10.camel@localhost.localdomain> <4429B789.4030209@sacred.ru> <1143588501.6325.75.camel@localhost.localdomain> <442A4FAA.4010505@openvz.org> <20060329134524.GA14522@MAIL.13thfloor.at> <442A9E1E.4030707@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <442A9E1E.4030707@sw.ru>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
+On Wed, Mar 29, 2006 at 06:47:58PM +0400, Kirill Korotaev wrote:
+> >>I wonder what is the value of it if it doesn't do guarantees or QoS?
+> >>In our experiments with it we failed to observe any fairness. 
+> >
+> >probably a misconfiguration on your side ...
+> maybe you can provide some instructions on which kernel version to use
+> and how to setup the following scenario: 2CPU box. 3 VPSs which should
+> run with 1:2:3 ratio of CPU usage.
 
-> Jeff V. Merkey wrote:
->
->> I wasn;t trying to be flippant or rude, I was simply pointing this 
->> person to a website where they might find answers.  Most users are 
->> not programmers and expecting them to debug patches and rebuild a 
->> kernel (which won't work in most cases because of forking and massive 
->> patches by the DISTRO vendors) .
->
->
-> Since at least one other person mentioned that your reply was harsh, 
-> leave it that your intentions were good and you weren't intentionally 
-> impolitic.
->
->> Linux has grown up.    People using laptops with distros will find a 
->> lot of answers on these forums.
->> How about wireless drivers?  Bcm drivers for example.  Written as 
->> NDIS and using ndiswrapper.  Laptop issues are complicated and not 
->> general bugs.  LKML isn;t useful to address these issues.  I don't 
->> even get responses on AMD issues and I do kernel development all day 
->> long.    And I don't use stock kernel.org releases any longer since 
->> the distro's have forked so extensively.
->
->
-> Since the issue is/was in the kernel.org release, the question wasn't 
-> really out of place. As noted ASUS sound hasn't worked forever, and 
-> last night I was curious about the claims that it was fixed, and lo... 
-> I have sound in 2.6.16.1. Of course my webcam stopped working, so now 
-> that I can play back my meeting notes I can't record the meeting :-( 
-> That's not a trouble report, I have to look at all my config stuff first.
+that is quite simple, you enable the Hard CPU Scheduler
+and select the Idle Time Skip, then you set the following
+token bucket values depending on what your mean with
+'should run with 1:2:3 ratio of CPU usage':
+
+a) a guaranteed maximum of 16.7%, 33.3% and 50.0%
+
+b) a fair sharing according to 1:2:3
+
+c) a guaranteed minimum of 16.7%, 33.3% and 50.0%
+   with a fair sharing of 1:2:3 for the rest ...
 
 
-Thanks for the kind response.  I will not be so abrupt next time. 
+for all cases you would set:
+(adjust according to you reserve/boost likings)
+   
+    VPS1,2,3:	tokens_min = 50, tokens_max = 500
+    	    	interval = interval2 = 6
 
-Jeff
+a)  VPS1: rate = 1, hard, noidleskip
+    VPS2: rate = 2, hard, noidleskip
+    VPS3: rate = 3, hard, noidleskip
 
->
->
+b)  VPS1: rate2 = 1, hard, idleskip
+    VPS2: rate2 = 2, hard, idleskip
+    VPS3: rate2 = 3, hard, idleskip
 
+c)  VPS1: rate = rate2 = 1, hard, idleskip
+    VPS2: rate = rate2 = 2, hard, idleskip
+    VPS3: rate = rate2 = 3, hard, idleskip
+
+of course, adjusting rate/interval while keeping
+the ratio might help you depending on the guest load
+(i.e. more batch load type or mor interactive stuff)
+
+of course, you can do those adjustments per CPU so, if
+you for example want to assign one CPU to the third
+guest, you can do that easily too ...
+
+> >well, do you have numbers?
+> just run the above scenario with one busy loop inside each VPS. I was 
+> not able to observe 1:2:3 cpu distribution. Other scenarios also didn't 
+> showed my any fairness. The results were different. Sometimes 1:1:2, 
+> sometimes others.
+
+what was your setup?
+
+best,
+Herbert
+
+> Thanks,
+> Kirill

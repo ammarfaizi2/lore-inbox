@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWC2TJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWC2TLM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbWC2TJJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 14:09:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWC2TJI
+	id S1750837AbWC2TLM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 14:11:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWC2TLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 14:09:08 -0500
-Received: from CS-LINUX.ubishops.ca ([206.167.194.130]:8855 "EHLO
-	cs-linux.ubishops.ca") by vger.kernel.org with ESMTP
-	id S1750832AbWC2TJH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 14:09:07 -0500
-Date: Wed, 29 Mar 2006 08:48:41 -0800
-From: Greg KH <greg@kroah.com>
-To: "Paul D. Smith" <psmith@gnu.org>
-Cc: Arthur Othieno <apgo@patchbomb.org>, Sam Ravnborg <sam@ravnborg.org>,
-       linux-kernel@vger.kernel.org, kernel@kolivas.org, stable@kernel.org
-Subject: Re: [stable] Re: [PATCH] change kbuild to not rely on incorrect GNU make behavior
-Message-ID: <20060329164841.GA2561@kroah.com>
-References: <E1FG1UQ-00045B-5P@fencepost.gnu.org> <20060305231312.GA25673@mars.ravnborg.org> <20060329131501.GA8537@krypton> <17450.35947.966666.328091@lemming.engeast.baynetworks.com>
-Mime-Version: 1.0
+	Wed, 29 Mar 2006 14:11:12 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:52418 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S1750831AbWC2TLK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 14:11:10 -0500
+Date: Wed, 29 Mar 2006 11:11:32 -0800
+From: Grant Grundler <iod00d@hp.com>
+To: "Boehm, Hans" <hans.boehm@hp.com>
+Cc: Christoph Lameter <clameter@sgi.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Zoltan Menyhart <Zoltan.Menyhart@free.fr>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Fix unlock_buffer() to work the same way as bit_unlock()
+Message-ID: <20060329191132.GD31225@esmail.cup.hp.com>
+References: <65953E8166311641A685BDF71D865826A23CF1@cacexc12.americas.cpqcorp.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17450.35947.966666.328091@lemming.engeast.baynetworks.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <65953E8166311641A685BDF71D865826A23CF1@cacexc12.americas.cpqcorp.net>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29, 2006 at 08:32:27AM -0500, Paul D. Smith wrote:
-> 
-> On the gripping hand, it's quite possible to provide a significantly
-> smaller, targeted patch that fixes just the most egregious problem with
-> only two lines changed, if the -stable team was interested in that
-> instead.
+On Wed, Mar 29, 2006 at 10:33:57AM -0800, Boehm, Hans wrote:
+...
+> - At user level, the ordering semantics required for something like
+> pthread_mutex_lock() are unfortunately unclear.  If you try to interpret
+> the current standard, you arrive at the conclusion that
+> pthread_mutex_lock() basically needs a full barrier, though
+> pthread_mutex_unlock() doesn't.  (See
+> http://www.hpl.hp.com/techreports/2005/HPL-2005-217.html .)
 
-That sounds good, and if it solves problems for people, should be
-acceptable.
+Was the talk you presented at the May 2005 Gelato meeting in Cupertino
+based on an earlier version of this paper?
+
+That was a very good presentation that exposed the deficiencies
+in the programming models and languages.  If the slides and/or
+a recording are available, that might be helpful here too.
 
 thanks,
-
-greg k-h
+grant

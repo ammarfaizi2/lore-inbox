@@ -1,77 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWC2Np0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWC2Nw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbWC2Np0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 08:45:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWC2NpZ
+	id S1750716AbWC2Nw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 08:52:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWC2Nw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 08:45:25 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:10374 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1750726AbWC2NpZ (ORCPT
+	Wed, 29 Mar 2006 08:52:58 -0500
+Received: from rtr.ca ([64.26.128.89]:50650 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1750716AbWC2Nw5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 08:45:25 -0500
-Date: Wed, 29 Mar 2006 15:45:24 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Kirill Korotaev <dev@openvz.org>
-Cc: devel@openvz.org, Kir Kolyshkin <kir@sacred.ru>,
-       linux-kernel@vger.kernel.org, sam@vilain.net
-Subject: Re: [Devel] Re: [RFC] Virtualization steps
-Message-ID: <20060329134524.GA14522@MAIL.13thfloor.at>
-Mail-Followup-To: Kirill Korotaev <dev@openvz.org>, devel@openvz.org,
-	Kir Kolyshkin <kir@sacred.ru>, linux-kernel@vger.kernel.org,
-	sam@vilain.net
-References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au> <1143228339.19152.91.camel@localhost.localdomain> <4428BB5C.3060803@tmr.com> <4428DB76.9040102@openvz.org> <1143583179.6325.10.camel@localhost.localdomain> <4429B789.4030209@sacred.ru> <1143588501.6325.75.camel@localhost.localdomain> <442A4FAA.4010505@openvz.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <442A4FAA.4010505@openvz.org>
-User-Agent: Mutt/1.5.6i
+	Wed, 29 Mar 2006 08:52:57 -0500
+Message-ID: <442A9131.9030500@rtr.ca>
+Date: Wed, 29 Mar 2006 08:52:49 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20060305 SeaMonkey/1.1a
+MIME-Version: 1.0
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16-git4: kernel BUG at block/ll_rw_blk.c:3497
+References: <44288882.4020809@rtr.ca> <20060329081642.GU8186@suse.de> <20060329082747.GV27946@ftp.linux.org.uk>
+In-Reply-To: <20060329082747.GV27946@ftp.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29, 2006 at 01:13:14PM +0400, Kirill Korotaev wrote:
-> Sam,
+Al Viro wrote:
+> On Wed, Mar 29, 2006 at 10:16:43AM +0200, Jens Axboe wrote:
+>> triggering. What sort of testing were you running, exactly?
+
+It's a dual 1GHz-P3 SMP test box, with three SATA drives.
+Each drive has two partitions, and /dev/md0 was RAID5
+over the first partitions of each drive (no spares),
+and /dev/md1 was RAID over the second partitions (no spares).
+
+Both /dev/md[01] were formatted as ext2, and mounted,
+and several processes were running, copying directory trees
+back and forth between the two RAIDs, while the MD layer 
+was still doing resyncs underneath it all.
+
+Basically, trying really hard to stress everything.
+
+> I really wonder why it's the call from do_exit() that triggers it.
+> The thing is, we get off-by-exactly-one here and all previous callers
+> of that puppy would be elsewhere (cfq, mostly).
 > 
-> >>Why do you think it can not be measured? It either can be, or it is too 
-> >>low to be measured reliably (a fraction of a per cent or so).
-> >
-> >Well, for instance the fair CPU scheduling overhead is so tiny it may as
-> >well not be there in the VServer patch.  It's just a per-vserver TBF
-> >that feeds back into the priority (and hence timeslice length) of the
-> >process.  ie, you get "CPU tokens" which deplete as processes in your
-> >vserver run and you either get a boost or a penalty depending on the
-> >level of the tokens in the bucket.  This doesn't provide guarantees, but
-> >works well for many typical workloads.
-
-> I wonder what is the value of it if it doesn't do guarantees or QoS?
-> In our experiments with it we failed to observe any fairness. 
-
-probably a misconfiguration on your side ...
-
-> So I suppose the only goal of this is too make sure that maliscuios
-> user want consume all the CPU power, right?
-
-the currently used scheduler extensions do much
-more than that, basically all kinds of scenarios
-can be satisfied with it, at almost no overhead
-
-> >How does your fair scheduler work?  
-> >Do you just keep a runqueue for each vps?
-> we keep num_online_cpus runqueues per VPS.
-
-> Fairs scheduler is some kind of SFQ like algorithm which selects VPS
-> to be scheduled, than standart linux scheduler selects a process in a
-> VPS runqueues to run.
+> IOW, we get exactly one extra call of put_io_context() _and_ have it
+> happen before do_exit() (i.e. from normal IO paths).  Interesting...
 > 
-> >To be honest, I've never needed to determine whether its overhead is 1%
-> >or 0.01%, it would just be a meaningless benchmark anyway :-).  I know
-> >it's "good enough for me".
+> Is there any way to reproduce it without too much PITA?
 
-> Sure! We feel the same, but people like numbers :)
+It's only happened the once, so far.  Tell me how you want the code
+instrumented, and I'll do it, in case I manage to get it to happen again.
 
-well, do you have numbers?
-
-best,
-Herbert
-
-> Thanks,
-> Kirill
+Cheers

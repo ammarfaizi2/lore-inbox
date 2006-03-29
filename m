@@ -1,39 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWC2CFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWC2CLz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWC2CFt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 21:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWC2CFt
+	id S1750770AbWC2CLz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 21:11:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWC2CLy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 21:05:49 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:11915
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750751AbWC2CFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 21:05:49 -0500
-Date: Tue, 28 Mar 2006 18:06:05 -0800 (PST)
-Message-Id: <20060328.180605.96459770.davem@davemloft.net>
-To: horms@verge.net.au
-Cc: penberg@cs.helsinki.fi, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] slab: optimize constant-size kzalloc calls
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060329015745.GA29301@verge.net.au>
-References: <1142868958.11159.0.camel@localhost>
-	<20060329015745.GA29301@verge.net.au>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 28 Mar 2006 21:11:54 -0500
+Received: from [198.99.130.12] ([198.99.130.12]:24517 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1750770AbWC2CLy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 21:11:54 -0500
+Date: Tue, 28 Mar 2006 21:12:53 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PATCH 0/7] UML TLS support [for 2.6.17]
+Message-ID: <20060329021253.GA25000@ccure.user-mode-linux.org>
+References: <20060328235442.13838.26861.stgit@zion.home.lan>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060328235442.13838.26861.stgit@zion.home.lan>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Horms <horms@verge.net.au>
-Date: Wed, 29 Mar 2006 10:57:46 +0900
+On Wed, Mar 29, 2006 at 01:54:42AM +0200, Paolo 'Blaisorblade' Giarrusso wrote:
+> This is UML support for TLS, which allows one to fully use NPTL glibc,
+> finally, on a 2.6 host (either x86 or x86_64). This has been happily tested 
+> by many users and by us for some times and we've now fixed all known bugs, 
+> and tested with different glibc's. So this code can IMHO be merged finally.
 
-> I feel like I mist be dreaming, but this patch, which was inlcuded
-> in Linus' tree as 40c07ae8daa659b8feb149c84731629386873c16 calls
-> __you_cannot_kzalloc_that_much(), but that does not seem to exist.
-> 
-> On i386 at least that causes a build failure
-
-It's a purposeful build time error introduced so that invalid calls
-that specify too large kzalloc() length arguments are caught at build
-time.
+Acked-by: Jeff Dike <jdike@addtoit.com>

@@ -1,123 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWC2Q5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWC2RCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750849AbWC2Q5e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 11:57:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750851AbWC2Q5d
+	id S1750857AbWC2RCM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 12:02:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750858AbWC2RCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 11:57:33 -0500
-Received: from vmailb.mclink.it ([195.110.128.107]:52234 "EHLO
-	vmailb.mclink.it") by vger.kernel.org with ESMTP id S1750847AbWC2Q5d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 11:57:33 -0500
-From: "Mauro Tassinari" <mtassinari@cmanet.it>
-To: <jeff@garzik.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: libata/sata status on ich[?]
-Date: Wed, 29 Mar 2006 18:57:12 +0200
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA//gP36uv0hG9NQDAJogAp8KAAAAQAAAAyTp2U2YnGEW3ub1INE9nAAEAAAAA@cmanet.it>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-Importance: Normal
+	Wed, 29 Mar 2006 12:02:12 -0500
+Received: from nsm.pl ([195.34.211.229]:46858 "EHLO nsm.pl")
+	by vger.kernel.org with ESMTP id S1750853AbWC2RCL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 12:02:11 -0500
+Date: Wed, 29 Mar 2006 19:01:22 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel@vger.kernel.org
+Cc: Romano Giannetti <romanol@upcomillas.es>,
+       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       linux-input@atrey.karlin.mff.cuni.cz
+Subject: Re: ALPS stop worked between 2.6.13 and 2.6.16
+Message-ID: <20060329170122.GA4090@irc.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Romano Giannetti <romanol@upcomillas.es>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@atrey.karlin.mff.cuni.cz
+References: <20060327153624.GC8679@pern.dea.icai.upcomillas.es> <d120d5000603270805u40916079ufe12eb22d478c954@mail.gmail.com> <20060327190826.GA18193@pern.dea.icai.upcomillas.es> <d120d5000603271112r35ba7100jceb8aaf3e8bf8c70@mail.gmail.com> <20060329164330.GA8977@pern.dea.icai.upcomillas.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060329164330.GA8977@pern.dea.icai.upcomillas.es>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff, All,
+On Wed, Mar 29, 2006 at 06:43:30PM +0200, Romano Giannetti wrote:
+> 
+> On Mon, Mar 27, 2006 at 02:12:26PM -0500, Dmitry Torokhov wrote:
+> > On 3/27/06, Romano Giannetti <romanol@upcomillas.es> wrote:
+> > >
+> > > Udev is 054 (as per Mandriva 2005). Is that the culprit?
+> > 
+> > [~/linux] grep udev Documentation/Changes
+> > o  udev                   071                     # udevinfo -V
+> > ...
+> 
+> Bad news... I tried to upgrade udev to 088, but evidently this is not a
+> trivial task.
 
-our latest tests on previously reported ICH6 platforms show
-2.6.16.git not reporting any device on 4th master port.
-The same behaviour was previously observed with 2.6.16-mm2,
-regardless the hd brand and type.
+  It's not so easy.  You have to carefully read release notes for every
+udev release between 054 and 088, and spot every incompatibile change.
+And accommodate.
 
-
-2.6.16.1
-
-[... snip ...]
-
-libata version 1.20 loaded.
-ata_piix 0000:00:1f.2: version 1.05
-ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 19 (level, low) -> IRQ 19
-PCI: Setting latency timer of device 0000:00:1f.2 to 64
-ata1: SATA max UDMA/133 cmd 0xAC00 ctl 0xA882 bmdma 0xA400 irq 19
-ata2: SATA max UDMA/133 cmd 0xA800 ctl 0xA482 bmdma 0xA408 irq 19
-ata1: dev 0 cfg 49:2f00 82:74eb 83:7fea 84:4023 85:74e9 86:3c02 87:4023
-88:203f
-ata1: dev 0 ATA-6, max UDMA/100, 321672960 sectors: LBA48
-ata1: dev 0 configured for UDMA/100
-scsi0 : ata_piix
-ata2: dev 0 cfg 49:2f00 82:7c6b 83:7f09 84:4673 85:7c69 86:3e21 87:4663
-88:207f
-ata2: dev 0 ATA-7, max UDMA/133, 320173056 sectors: LBA48
-ata2: dev 0 configured for UDMA/133
-scsi1 : ata_piix
-  Vendor: ATA       Model: HDS722516VLSA80   Rev: V34O
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-  Vendor: ATA       Model: Maxtor 6L160M0    Rev: BACE
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sda: 321672960 512-byte hdwr sectors (164697 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
-SCSI device sda: 321672960 512-byte hdwr sectors (164697 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
- sda: sda1 sda2 sda3 sda4
-sd 0:0:0:0: Attached scsi disk sda
-SCSI device sdb: 320173056 512-byte hdwr sectors (163929 MB)
-sdb: Write Protect is off
-sdb: Mode Sense: 00 3a 00 00
-SCSI device sdb: drive cache: write back
-SCSI device sdb: 320173056 512-byte hdwr sectors (163929 MB)
-sdb: Write Protect is off
-sdb: Mode Sense: 00 3a 00 00
-SCSI device sdb: drive cache: write back
- sdb: sdb1 sdb2 sdb3 sdb4
-sd 1:0:0:0: Attached scsi disk sdb
-
-[... snip ...]
-
-2.6.16-git16
-
-[... snip ...]
-
-libata version 1.20 loaded.
-ata_piix 0000:00:1f.2: version 1.05
-ata_piix 0000:00:1f.2: MAP [ P0 P1 P2 P3 ]
-ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 19 (level, low) -> IRQ 19
-PCI: Setting latency timer of device 0000:00:1f.2 to 64
-ata1: SATA max UDMA/133 cmd 0xAC00 ctl 0xA882 bmdma 0xA400 irq 19
-ata2: SATA max UDMA/133 cmd 0xA800 ctl 0xA482 bmdma 0xA408 irq 19
-ata1: dev 0 cfg 49:2f00 82:74eb 83:7fea 84:4023 85:74e9 86:3c02 87:4023
-88:203f
-ata1: dev 0 ATA-6, max UDMA/100, 321672960 sectors: LBA48
-ata1: dev 0 configured for UDMA/100
-scsi0 : ata_piix
-ata2: SATA port has no device.
-scsi1 : ata_piix
-  Vendor: ATA       Model: HDS722516VLSA80   Rev: V34O
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sda: 321672960 512-byte hdwr sectors (164697 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
-SCSI device sda: 321672960 512-byte hdwr sectors (164697 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
- sda: sda1 sda2 sda3 sda4
-sd 0:0:0:0: Attached scsi disk sda
-
-[... snip ...]
-
-Will provide more info if needed.
-
-Regards
-
-Mauro Tassinari
+-- 
+Tomasz Torcz               "Never underestimate the bandwidth of a station
+zdzichu@irc.-nie.spam-.pl    wagon filled with backup tapes." -- Jim Gray
 

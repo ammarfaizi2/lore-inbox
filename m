@@ -1,383 +1,265 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWC2WzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWC2WxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWC2WzF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 17:55:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWC2WxW
+	id S1751195AbWC2WxR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 17:53:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbWC2Ww7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 17:53:22 -0500
-Received: from [198.78.49.142] ([198.78.49.142]:43269 "EHLO gitlost.site")
-	by vger.kernel.org with ESMTP id S1751194AbWC2WxD (ORCPT
+	Wed, 29 Mar 2006 17:52:59 -0500
+Received: from [198.78.49.142] ([198.78.49.142]:38661 "EHLO gitlost.site")
+	by vger.kernel.org with ESMTP id S1751165AbWC2Wwt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 17:53:03 -0500
+	Wed, 29 Mar 2006 17:52:49 -0500
 From: Chris Leech <christopher.leech@intel.com>
-Subject: [PATCH 9/9] [I/OAT] TCP recv offload to I/OAT
-Date: Wed, 29 Mar 2006 14:56:07 -0800
+Subject: [PATCH 3/9] [I/OAT] Setup the networking subsystem as a DMA client
+Date: Wed, 29 Mar 2006 14:55:53 -0800
 To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Message-Id: <20060329225606.25585.35230.stgit@gitlost.site>
+Message-Id: <20060329225553.25585.66453.stgit@gitlost.site>
 In-Reply-To: <20060329225505.25585.30392.stgit@gitlost.site>
 References: <20060329225505.25585.30392.stgit@gitlost.site>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Locks down user pages and sets up for DMA in tcp_recvmsg, then calls
-dma_async_try_early_copy in tcp_v4_do_rcv
+Attempts to allocate per-CPU DMA channels
 
 Signed-off-by: Chris Leech <christopher.leech@intel.com>
 ---
 
- net/ipv4/tcp.c       |  101 ++++++++++++++++++++++++++++++++++++++++++++------
- net/ipv4/tcp_input.c |   74 +++++++++++++++++++++++++++++++++----
- net/ipv4/tcp_ipv4.c  |   18 ++++++++-
- net/ipv6/tcp_ipv6.c  |   12 +++++-
- 4 files changed, 183 insertions(+), 22 deletions(-)
+ drivers/dma/Kconfig       |   12 +++++
+ include/linux/netdevice.h |    4 ++
+ include/net/netdma.h      |   38 ++++++++++++++++
+ net/core/dev.c            |  104 +++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 158 insertions(+), 0 deletions(-)
 
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 2346539..8be8d69 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -263,7 +263,7 @@
- #include <net/tcp.h>
- #include <net/xfrm.h>
- #include <net/ip.h>
--
-+#include <net/netdma.h>
+diff --git a/drivers/dma/Kconfig b/drivers/dma/Kconfig
+index 0f15e76..30d021d 100644
+--- a/drivers/dma/Kconfig
++++ b/drivers/dma/Kconfig
+@@ -10,6 +10,18 @@ config DMA_ENGINE
+ 	  DMA engines offload copy operations from the CPU to dedicated
+ 	  hardware, allowing the copies to happen asynchronously.
  
- #include <asm/uaccess.h>
- #include <asm/ioctls.h>
-@@ -1110,6 +1110,7 @@ int tcp_recvmsg(struct kiocb *iocb, stru
- 	int target;		/* Read at least this many bytes */
- 	long timeo;
- 	struct task_struct *user_recv = NULL;
-+	int copied_early = 0;
++comment "DMA Clients"
++
++config NET_DMA
++	bool "Network: TCP receive copy offload"
++	depends on DMA_ENGINE && NET
++	default y
++	---help---
++	  This enables the use of DMA engines in the network stack to
++	  offload receive copy-to-user operations, freeing CPU cycles.
++	  Since this is the main user of the DMA engine, it should be enabled;
++	  say Y here.
++
+ comment "DMA Devices"
  
- 	lock_sock(sk);
+ config INTEL_IOATDMA
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 950dc55..7fda35f 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -37,6 +37,7 @@
+ #include <linux/config.h>
+ #include <linux/device.h>
+ #include <linux/percpu.h>
++#include <linux/dmaengine.h>
  
-@@ -1133,6 +1134,15 @@ int tcp_recvmsg(struct kiocb *iocb, stru
+ struct divert_blk;
+ struct vlan_group;
+@@ -592,6 +593,9 @@ struct softnet_data
+ 	struct sk_buff		*completion_queue;
  
- 	target = sock_rcvlowat(sk, flags & MSG_WAITALL, len);
- 
+ 	struct net_device	backlog_dev;	/* Sorry. 8) */
 +#ifdef CONFIG_NET_DMA
-+	tp->ucopy.dma_chan = NULL;
-+	preempt_disable();
-+	if ((len > sysctl_tcp_dma_copybreak) && !(flags & MSG_PEEK) &&
-+	    !sysctl_tcp_low_latency && __get_cpu_var(softnet_data.net_dma))
-+		tp->ucopy.pinned_list = dma_pin_iovec_pages(msg->msg_iov, len);
-+	preempt_enable_no_resched();
++	struct dma_chan		*net_dma;
 +#endif
-+
- 	do {
- 		struct sk_buff *skb;
- 		u32 offset;
-@@ -1274,6 +1284,10 @@ int tcp_recvmsg(struct kiocb *iocb, stru
- 		} else
- 			sk_wait_data(sk, &timeo);
+ };
  
+ DECLARE_PER_CPU(struct softnet_data,softnet_data);
+diff --git a/include/net/netdma.h b/include/net/netdma.h
+new file mode 100644
+index 0000000..cbfe89d
+--- /dev/null
++++ b/include/net/netdma.h
+@@ -0,0 +1,38 @@
++/*
++ * Copyright(c) 2004 - 2006 Intel Corporation. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ *
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc., 59
++ * Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++ *
++ * The full GNU General Public License is included in this distribution in the
++ * file called COPYING.
++ */
++#ifndef NETDMA_H
++#define NETDMA_H
++#include <linux/config.h>
 +#ifdef CONFIG_NET_DMA
-+		tp->ucopy.wakeup = 0;
-+#endif
++#include <linux/dmaengine.h>
 +
- 		if (user_recv) {
- 			int chunk;
- 
-@@ -1329,13 +1343,39 @@ do_prequeue:
- 		}
- 
- 		if (!(flags & MSG_TRUNC)) {
--			err = skb_copy_datagram_iovec(skb, offset,
--						      msg->msg_iov, used);
--			if (err) {
--				/* Exception. Bailout! */
--				if (!copied)
--					copied = -EFAULT;
--				break;
-+#ifdef CONFIG_NET_DMA
-+			if (!tp->ucopy.dma_chan && tp->ucopy.pinned_list)
-+				tp->ucopy.dma_chan = get_softnet_dma();
-+
-+			if (tp->ucopy.dma_chan) {
-+				tp->ucopy.dma_cookie = dma_skb_copy_datagram_iovec(
-+					tp->ucopy.dma_chan, skb, offset,
-+					msg->msg_iov, used,
-+					tp->ucopy.pinned_list);
-+
-+				if (tp->ucopy.dma_cookie < 0) {
-+
-+					printk(KERN_ALERT "dma_cookie < 0\n");
-+
-+					/* Exception. Bailout! */
-+					if (!copied)
-+						copied = -EFAULT;
-+					break;
-+				}
-+				if ((offset + used) == skb->len)
-+					copied_early = 1;
-+
-+			} else
-+#endif
-+			{
-+				err = skb_copy_datagram_iovec(skb, offset,
-+						msg->msg_iov, used);
-+				if (err) {
-+					/* Exception. Bailout! */
-+					if (!copied)
-+						copied = -EFAULT;
-+					break;
-+				}
- 			}
- 		}
- 
-@@ -1355,15 +1395,19 @@ skip_copy:
- 
- 		if (skb->h.th->fin)
- 			goto found_fin_ok;
--		if (!(flags & MSG_PEEK))
--			sk_eat_skb(sk, skb, 0);
-+		if (!(flags & MSG_PEEK)) {
-+			sk_eat_skb(sk, skb, copied_early);
-+			copied_early = 0;
-+		}
- 		continue;
- 
- 	found_fin_ok:
- 		/* Process the FIN. */
- 		++*seq;
--		if (!(flags & MSG_PEEK))
--			sk_eat_skb(sk, skb, 0);
-+		if (!(flags & MSG_PEEK)) {
-+			sk_eat_skb(sk, skb, copied_early);
-+			copied_early = 0;
-+		}
- 		break;
- 	} while (len > 0);
- 
-@@ -1386,6 +1430,36 @@ skip_copy:
- 		tp->ucopy.len = 0;
- 	}
- 
-+#ifdef CONFIG_NET_DMA
-+	if (tp->ucopy.dma_chan) {
-+		struct sk_buff *skb;
-+		dma_cookie_t done, used;
-+
-+		dma_async_memcpy_issue_pending(tp->ucopy.dma_chan);
-+
-+		while (dma_async_memcpy_complete(tp->ucopy.dma_chan,
-+		                                 tp->ucopy.dma_cookie, &done,
-+		                                 &used) == DMA_IN_PROGRESS) {
-+			/* do partial cleanup of sk_async_wait_queue */
-+			while ((skb = skb_peek(&sk->sk_async_wait_queue)) &&
-+			       (dma_async_is_complete(skb->dma_cookie, done,
-+			                              used) == DMA_SUCCESS)) {
-+				__skb_dequeue(&sk->sk_async_wait_queue);
-+				kfree_skb(skb);
-+			}
-+		}
-+
-+		/* Safe to free early-copied skbs now */
-+		__skb_queue_purge(&sk->sk_async_wait_queue);
-+		dma_chan_put(tp->ucopy.dma_chan);
-+		tp->ucopy.dma_chan = NULL;
-+	}
-+	if (tp->ucopy.pinned_list) {
-+		dma_unpin_iovec_pages(tp->ucopy.pinned_list);
-+		tp->ucopy.pinned_list = NULL;
-+	}
-+#endif
-+
- 	/* According to UNIX98, msg_name/msg_namelen are ignored
- 	 * on connected socket. I was just happy when found this 8) --ANK
- 	 */
-@@ -1653,6 +1727,9 @@ int tcp_disconnect(struct sock *sk, int 
- 	__skb_queue_purge(&sk->sk_receive_queue);
- 	sk_stream_writequeue_purge(sk);
- 	__skb_queue_purge(&tp->out_of_order_queue);
-+#ifdef CONFIG_NET_DMA
-+	__skb_queue_purge(&sk->sk_async_wait_queue);
-+#endif
- 
- 	inet->dport = 0;
- 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 195d835..c87f4eb 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -71,6 +71,7 @@
- #include <net/inet_common.h>
- #include <linux/ipsec.h>
- #include <asm/unaligned.h>
-+#include <net/netdma.h>
- 
- int sysctl_tcp_timestamps = 1;
- int sysctl_tcp_window_scaling = 1;
-@@ -3785,6 +3786,50 @@ static inline int tcp_checksum_complete_
- 		__tcp_checksum_complete_user(sk, skb);
- }
- 
-+#ifdef CONFIG_NET_DMA
-+static int tcp_dma_try_early_copy(struct sock *sk, struct sk_buff *skb, int hlen)
++static inline struct dma_chan *get_softnet_dma(void)
 +{
-+	struct tcp_sock *tp = tcp_sk(sk);
-+	int chunk = skb->len - hlen;
-+	int dma_cookie;
-+	int copied_early = 0;
-+
-+	if (tp->ucopy.wakeup)
-+          	return 0;
-+
-+	if (!tp->ucopy.dma_chan && tp->ucopy.pinned_list)
-+		tp->ucopy.dma_chan = get_softnet_dma();
-+
-+	if (tp->ucopy.dma_chan && skb->ip_summed == CHECKSUM_UNNECESSARY) {
-+
-+		dma_cookie = dma_skb_copy_datagram_iovec(tp->ucopy.dma_chan,
-+			skb, hlen, tp->ucopy.iov, chunk, tp->ucopy.pinned_list);
-+
-+		if (dma_cookie < 0)
-+			goto out;
-+
-+		tp->ucopy.dma_cookie = dma_cookie;
-+		copied_early = 1;
-+
-+		tp->ucopy.len -= chunk;
-+		tp->copied_seq += chunk;
-+		tcp_rcv_space_adjust(sk);
-+
-+		if ((tp->ucopy.len == 0) ||
-+		    (tcp_flag_word(skb->h.th) & TCP_FLAG_PSH) ||
-+		    (atomic_read(&sk->sk_rmem_alloc) > (sk->sk_rcvbuf >> 1))) {
-+			tp->ucopy.wakeup = 1;
-+			sk->sk_data_ready(sk, 0);
-+		}
-+	} else if (chunk > 0) {
-+		tp->ucopy.wakeup = 1;
-+		sk->sk_data_ready(sk, 0);
-+	}
-+out:
-+	return copied_early;
++	struct dma_chan *chan;
++	rcu_read_lock();
++	chan = rcu_dereference(__get_cpu_var(softnet_data.net_dma));
++	if (chan)
++		dma_chan_get(chan);
++	rcu_read_unlock();
++	return chan;
 +}
 +#endif /* CONFIG_NET_DMA */
++#endif /* NETDMA_H */
+diff --git a/net/core/dev.c b/net/core/dev.c
+index a3ab11f..ffd3d6d 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -115,6 +115,7 @@
+ #include <net/iw_handler.h>
+ #include <asm/current.h>
+ #include <linux/audit.h>
++#include <linux/dmaengine.h>
+ 
+ /*
+  *	The list of packet types we will receive (as opposed to discard)
+@@ -148,6 +149,12 @@ static DEFINE_SPINLOCK(ptype_lock);
+ static struct list_head ptype_base[16];	/* 16 way hashed list */
+ static struct list_head ptype_all;		/* Taps */
+ 
++#ifdef CONFIG_NET_DMA
++static struct dma_client *net_dma_client;
++static unsigned int net_dma_count;
++static spinlock_t net_dma_event_lock;
++#endif
 +
  /*
-  *	TCP receive function for the ESTABLISHED state. 
-  *
-@@ -3901,14 +3946,23 @@ int tcp_rcv_established(struct sock *sk,
- 			}
- 		} else {
- 			int eaten = 0;
-+			int copied_early = 0;
- 
--			if (tp->ucopy.task == current &&
--			    tp->copied_seq == tp->rcv_nxt &&
--			    len - tcp_header_len <= tp->ucopy.len &&
--			    sock_owned_by_user(sk)) {
--				__set_current_state(TASK_RUNNING);
-+			if (tp->copied_seq == tp->rcv_nxt &&
-+			    len - tcp_header_len <= tp->ucopy.len) {
+  * The @dev_base list is protected by @dev_base_lock and the rtln
+  * semaphore.
+@@ -1780,6 +1787,19 @@ static void net_rx_action(struct softirq
+ 		}
+ 	}
+ out:
 +#ifdef CONFIG_NET_DMA
-+				if (tcp_dma_try_early_copy(sk, skb, tcp_header_len)) {
-+					copied_early = 1;
-+					eaten = 1;
-+				}
++	/*
++	 * There may not be any more sk_buffs coming right now, so push
++	 * any pending DMA copies to hardware
++	 */
++	if (net_dma_client) {
++		struct dma_chan *chan;
++		rcu_read_lock();
++		list_for_each_entry_rcu(chan, &net_dma_client->channels, client_node)
++			dma_async_memcpy_issue_pending(chan);
++		rcu_read_unlock();
++	}
 +#endif
-+				if (tp->ucopy.task == current && sock_owned_by_user(sk) && !copied_early) {
-+					__set_current_state(TASK_RUNNING);
+ 	local_irq_enable();
+ 	return;
  
--				if (!tcp_copy_to_iovec(sk, skb, tcp_header_len)) {
-+					if (!tcp_copy_to_iovec(sk, skb, tcp_header_len))
-+						eaten = 1;
-+				}
-+				if (eaten) {
- 					/* Predicted packet is in window by definition.
- 					 * seq == rcv_nxt and rcv_wup <= rcv_nxt.
- 					 * Hence, check seq<=rcv_wup reduces to:
-@@ -3924,8 +3978,9 @@ int tcp_rcv_established(struct sock *sk,
- 					__skb_pull(skb, tcp_header_len);
- 					tp->rcv_nxt = TCP_SKB_CB(skb)->end_seq;
- 					NET_INC_STATS_BH(LINUX_MIB_TCPHPHITSTOUSER);
--					eaten = 1;
- 				}
-+				if (copied_early)
-+					tcp_cleanup_rbuf(sk, skb->len);
- 			}
- 			if (!eaten) {
- 				if (tcp_checksum_complete_user(sk, skb))
-@@ -3966,6 +4021,11 @@ int tcp_rcv_established(struct sock *sk,
- 
- 			__tcp_ack_snd_check(sk, 0);
- no_ack:
-+#ifdef CONFIG_NET_DMA
-+			if (copied_early)
-+				__skb_queue_tail(&sk->sk_async_wait_queue, skb);
-+			else
-+#endif
- 			if (eaten)
- 				__kfree_skb(skb);
- 			else
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index 9e85c04..5ed065f 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -71,6 +71,7 @@
- #include <net/inet_common.h>
- #include <net/timewait_sock.h>
- #include <net/xfrm.h>
-+#include <net/netdma.h>
- 
- #include <linux/inet.h>
- #include <linux/ipv6.h>
-@@ -1091,8 +1092,18 @@ process:
- 	bh_lock_sock(sk);
- 	ret = 0;
- 	if (!sock_owned_by_user(sk)) {
--		if (!tcp_prequeue(sk, skb))
-+#ifdef CONFIG_NET_DMA
-+		struct tcp_sock *tp = tcp_sk(sk);
-+		if (!tp->ucopy.dma_chan && tp->ucopy.pinned_list)
-+			tp->ucopy.dma_chan = get_softnet_dma();
-+		if (tp->ucopy.dma_chan)
- 			ret = tcp_v4_do_rcv(sk, skb);
-+		else
-+#endif
-+		{
-+			if (!tcp_prequeue(sk, skb))
-+			ret = tcp_v4_do_rcv(sk, skb);
-+		}
- 	} else
- 		sk_add_backlog(sk, skb);
- 	bh_unlock_sock(sk);
-@@ -1296,6 +1307,11 @@ int tcp_v4_destroy_sock(struct sock *sk)
- 	/* Cleans up our, hopefully empty, out_of_order_queue. */
-   	__skb_queue_purge(&tp->out_of_order_queue);
+@@ -3243,6 +3263,88 @@ static int dev_cpu_callback(struct notif
+ }
+ #endif /* CONFIG_HOTPLUG_CPU */
  
 +#ifdef CONFIG_NET_DMA
-+	/* Cleans up our sk_async_wait_queue */
-+  	__skb_queue_purge(&sk->sk_async_wait_queue);
-+#endif
++/**
++ * net_dma_rebalance -
++ * This is called when the number of channels allocated to the net_dma_client
++ * changes.  The net_dma_client tries to have one DMA channel per CPU.
++ */
++static void net_dma_rebalance(void)
++{
++	unsigned int cpu, i, n;
++	struct dma_chan *chan;
 +
- 	/* Clean prequeue, it must be empty really */
- 	__skb_queue_purge(&tp->ucopy.prequeue);
- 
-diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
-index 301eee7..a50eb30 100644
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -1218,8 +1218,16 @@ process:
- 	bh_lock_sock(sk);
- 	ret = 0;
- 	if (!sock_owned_by_user(sk)) {
--		if (!tcp_prequeue(sk, skb))
--			ret = tcp_v6_do_rcv(sk, skb);
-+#ifdef CONFIG_NET_DMA
-+                struct tcp_sock *tp = tcp_sk(sk);
-+                if (tp->ucopy.dma_chan)
-+                        ret = tcp_v6_do_rcv(sk, skb);
-+                else
-+#endif
-+		{
-+			if (!tcp_prequeue(sk, skb))
-+				ret = tcp_v6_do_rcv(sk, skb);
++	lock_cpu_hotplug();
++
++	if (net_dma_count == 0) {
++		for_each_online_cpu(cpu)
++			rcu_assign_pointer(per_cpu(softnet_data.net_dma, cpu), NULL);
++		unlock_cpu_hotplug();
++		return;
++	}
++
++	i = 0;
++	cpu = first_cpu(cpu_online_map);
++
++	rcu_read_lock();
++	list_for_each_entry(chan, &net_dma_client->channels, client_node) {
++		n = ((num_online_cpus() / net_dma_count)
++		   + (i < (num_online_cpus() % net_dma_count) ? 1 : 0));
++
++		while(n) {
++			per_cpu(softnet_data.net_dma, cpu) = chan;
++			cpu = next_cpu(cpu, cpu_online_map);
++			n--;
 +		}
- 	} else
- 		sk_add_backlog(sk, skb);
- 	bh_unlock_sock(sk);
++		i++;
++	}
++	rcu_read_unlock();
++
++	unlock_cpu_hotplug();
++}
++
++/**
++ * netdev_dma_event - event callback for the net_dma_client
++ * @client: should always be net_dma_client
++ * @chan:
++ * @event:
++ */
++static void netdev_dma_event(struct dma_client *client, struct dma_chan *chan,
++	enum dma_event event)
++{
++	spin_lock(&net_dma_event_lock);
++	switch (event) {
++	case DMA_RESOURCE_ADDED:
++		net_dma_count++;
++		net_dma_rebalance();
++		break;
++	case DMA_RESOURCE_REMOVED:
++		net_dma_count--;
++		net_dma_rebalance();
++		break;
++	default:
++		break;
++	}
++	spin_unlock(&net_dma_event_lock);
++}
++
++/**
++ * netdev_dma_regiser - register the networking subsystem as a DMA client
++ */
++static int __init netdev_dma_register(void)
++{
++	spin_lock_init(&net_dma_event_lock);
++	net_dma_client = dma_async_client_register(netdev_dma_event);
++	if (net_dma_client == NULL)
++		return -ENOMEM;
++
++	dma_async_client_chan_request(net_dma_client, num_online_cpus());
++	return 0;
++}
++
++#else
++static int __init netdev_dma_register(void) { return -ENODEV; }
++#endif /* CONFIG_NET_DMA */
+ 
+ /*
+  *	Initialize the DEV module. At boot time this walks the device list and
+@@ -3296,6 +3398,8 @@ static int __init net_dev_init(void)
+ 		atomic_set(&queue->backlog_dev.refcnt, 1);
+ 	}
+ 
++	netdev_dma_register();
++
+ 	dev_boot_phase = 0;
+ 
+ 	open_softirq(NET_TX_SOFTIRQ, net_tx_action, NULL);
 

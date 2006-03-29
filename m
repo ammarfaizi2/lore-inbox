@@ -1,69 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWC2Nx1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWC2N5z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbWC2Nx1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 08:53:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWC2Nx1
+	id S1750738AbWC2N5z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 08:57:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWC2N5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 08:53:27 -0500
-Received: from zcars04e.nortel.com ([47.129.242.56]:1928 "EHLO
-	zcars04e.nortel.com") by vger.kernel.org with ESMTP
-	id S1750734AbWC2Nx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 08:53:26 -0500
+	Wed, 29 Mar 2006 08:57:55 -0500
+Received: from wproxy.gmail.com ([64.233.184.237]:17001 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750738AbWC2N5z convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 08:57:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=pEqUyTo58BWS8mkGElzYSKtxCfE7gQjUlf1SVR/S9hFUdkUwnxNZJTe5A39RsCC+XeVidckt2NnovLXtGx0D7qT99q2WMAF9KFb2hXp6c608bJMKuKetuAWtQ+jcnWKKEtkgpHCggjBuIiBcQr+fKmw0Pyg74HI1p2vVGtXqs+E=
+Message-ID: <194f62550603290557v71415cedw9e565d8c59d7630b@mail.gmail.com>
+Date: Wed, 29 Mar 2006 15:57:53 +0200
+From: "Clemens Eisserer" <linuxhippy@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Problems with SiS 7018 sound chipset
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17450.35947.966666.328091@lemming.engeast.baynetworks.com>
-Date: Wed, 29 Mar 2006 08:32:27 -0500
-To: apgo@patchbomb.org (Arthur Othieno)
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
-       stable@kernel.org, kernel@kolivas.org
-Subject: Re: [PATCH] change kbuild to not rely on incorrect GNU make behavior
-In-Reply-To: <20060329131501.GA8537@krypton>
-References: <E1FG1UQ-00045B-5P@fencepost.gnu.org>
-	<20060305231312.GA25673@mars.ravnborg.org>
-	<20060329131501.GA8537@krypton>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-From: "Paul D. Smith" <psmith@gnu.org>
-Reply-To: "Paul D. Smith" <psmith@gnu.org>
-Organization: GNU's Not Unix!
-X-OriginalArrivalTime: 29 Mar 2006 13:53:11.0230 (UTC) FILETIME=[1DF1D5E0:01C65338]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-%% apgo@patchbomb.org (Arthur Othieno) writes:
+Hello,
 
-  >> The patch will be included in 2.6.17 and will see exposure in -mm when
-  >> Andrew does next -mm.
- 
-  ao> Sam, this was merged into Linus' tree post v2.6.16 (like you
-  ao> intended), but, won't the window between now and 2.6.17 be a
-  ao> little too big for such a fix? Debian etch (and sid) already ships
-  ao> with the affected make version:
+I hope I don't bother you too much, I thought a long time wether I
+should report this at all but well, as an AC/DC fan I can't live
+without my soundcard ;)
 
-  ao>   $ make -v | head -1
-  ao>   GNU Make 3.81rc1
+I own a laptop with a sis7018 sound-chipset and I am running FC4
+updated to kernel Linux cehost 2.6.15-1.1831_FC4 (not compiled
+myself).
+I never had problems with my soundcard at all but some time ago it
+suddely stopped to work. I can't remember wether it was a
+kernel-update or a motherboard exchange made by service engineers.
 
-I reverted this fix in GNU make 3.81rc2 (available for a bit over a week
-now).  3.81 final will ship with the old, buggy behavior instead of the
-fixed behavior.
+Whenever an application tries to access the sound-device I get
+messages like the following on syslog:
+codec_write 0: semaphore is not ready for register 0x2c
+the same again and again, but different registers: 0x2c, 0x2a 0x2c
+0x2c 0x2c 0x2c 0x3a 0x2a
 
-Immediately post-3.81 I'll re-introduce the GNU make fix.
+When booting up I get a strange message from the pci subsystem:
+PCI: Failed to allocate mem resource #6:20000@f0000000 for 0000:01:00.0
+booting with pci=noacpi did not help or change the situation.
 
+this is the output I get from lspci:
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] 645xx (rev 03)
+00:01.0 PCI bridge: Silicon Integrated Systems [SiS] SG86C202
+00:02.0 ISA bridge: Silicon Integrated Systems [SiS] SiS963 [MuTIOL
+Media IO] (rev 14)
+00:02.1 SMBus: Silicon Integrated Systems [SiS] SiS961/2 SMBus Controller
+00:02.3 FireWire (IEEE 1394): Silicon Integrated Systems [SiS]
+FireWire Controller
+00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE]
+00:02.6 Modem: Silicon Integrated Systems [SiS] AC'97 Modem Controller (rev a0)
+00:02.7 Multimedia audio controller: Silicon Integrated Systems [SiS]
+Sound Controller (rev a0)
+00:03.0 USB Controller: Silicon Integrated Systems [SiS] USB 1.0
+Controller (rev 0f)
+00:03.1 USB Controller: Silicon Integrated Systems [SiS] USB 1.0
+Controller (rev 0f)
+00:03.2 USB Controller: Silicon Integrated Systems [SiS] USB 1.0
+Controller (rev 0f)
+00:03.3 USB Controller: Silicon Integrated Systems [SiS] USB 2.0 Controller
+00:04.0 Ethernet controller: Silicon Integrated Systems [SiS] SiS900
+PCI Fast Ethernet (rev 90)
+00:0c.0 CardBus bridge: ENE Technology Inc CB1410 Cardbus Controller
+01:00.0 VGA compatible controller: nVidia Corporation NV18M [GeForce4
+488 Go] (rev a2)
 
-Note that this only impacts people who build the kernel multiple times
-without cleaning the tree.  While this is very common with newer
-versions of the kernel (for developers) it's probably less common with
-older versions, and many of those (distro-based) can apply this kbuild
-patch with the rest of their distro-specific patches.
+I hope somebody reads this, if not the life will go on ;)
 
-
-On the gripping hand, it's quite possible to provide a significantly
-smaller, targeted patch that fixes just the most egregious problem with
-only two lines changed, if the -stable team was interested in that
-instead.
-
--- 
--------------------------------------------------------------------------------
- Paul D. Smith <psmith@gnu.org>          Find some GNU make tips at:
- http://www.gnu.org                      http://make.paulandlesley.org
- "Please remain calm...I may be mad, but I am a professional." --Mad Scientist
+Thanks for making linux-2.6 such great, lg Clemens

@@ -1,80 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWC2F4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbWC2F4W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751077AbWC2F4O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 00:56:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWC2F4O
+	id S1751083AbWC2F4W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 00:56:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbWC2F4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 00:56:14 -0500
-Received: from mail.gmx.net ([213.165.64.20]:27076 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751077AbWC2F4O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 00:56:14 -0500
-X-Authenticated: #14349625
-Subject: Re: scheduler starvation resistance patches for 2.6.16
-From: Mike Galbraith <efault@gmx.de>
-To: Al Boldi <a1426z@gawab.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200603282301.55314.a1426z@gawab.com>
-References: <200603272136.07908.a1426z@gawab.com>
-	 <1143522632.7441.16.camel@homer> <1143537120.10571.5.camel@homer>
-	 <200603282301.55314.a1426z@gawab.com>
-Content-Type: text/plain
-Date: Wed, 29 Mar 2006 07:56:14 +0200
-Message-Id: <1143611774.7535.30.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Wed, 29 Mar 2006 00:56:22 -0500
+Received: from zproxy.gmail.com ([64.233.162.192]:54450 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751083AbWC2F4V convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 00:56:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fKv6P5jmf/FFYLIz5PL4SKgsFbD7sZz/smMZek6YQHqgKVewVELGaHL+8S4qfCdeiFGZESWRMy2o/ibhMOQHu5f4irWu5MWtmo0LwnOKRHlaIkcBVEcbAnyonfHEAQBf/Eg2cv/Pp75BcRN8sFyLAYsdsAnFawLUUsQFwwmmd+Y=
+Message-ID: <2c0942db0603282156x468f4246nae414b2a853668dc@mail.gmail.com>
+Date: Tue, 28 Mar 2006 21:56:20 -0800
+From: "Ray Lee" <madrabbit@gmail.com>
+Reply-To: ray-gmail@madrabbit.org
+To: "Lee Revell" <rlrevell@joe-job.com>
+Subject: Re: interactive task starvation
+Cc: "Ingo Molnar" <mingo@elte.hu>, "Willy Tarreau" <willy@w.ods.org>,
+       "Con Kolivas" <kernel@kolivas.org>, "Mike Galbraith" <efault@gmx.de>,
+       lkml <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
+       bugsplatter@gmail.com
+In-Reply-To: <1143601277.3330.2.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1142592375.7895.43.camel@homer>
+	 <200603220119.50331.kernel@kolivas.org>
+	 <1142951339.7807.99.camel@homer>
+	 <200603220130.34424.kernel@kolivas.org> <20060321143240.GA310@elte.hu>
+	 <20060321144410.GE26171@w.ods.org> <20060321145202.GA3268@elte.hu>
+	 <1143601277.3330.2.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-28 at 23:01 +0300, Al Boldi wrote:
-> Mike Galbraith wrote:
-> > On Tue, 2006-03-28 at 07:10 +0200, Mike Galbraith wrote:
-> > > On Mon, 2006-03-27 at 21:36 +0300, Al Boldi wrote:
-> > > > It's not bad.  w/ credit_c1/2 set to 0 results in an improvement in
-> > > > running the MESA demos  "# gears & reflect & morph3d" .
-> > >
-> > > Hmm.  That's unexpected.
-> > >
-> > > > But a simple "# while :; do :; done &" (10x) makes a "# ping 10.1 -A
-> > > > -s8" choke.
-> > >
-> > > Ouch, so is that.  But thanks, testcases are great.  I'll look into it.
-> >
-> > OK, this has nothing to do with my patches.  The same slowdown happens
-> > with a stock kernel when running a few pure cpu hogs.  I suspect it has
-> > to do with softirqd, but am still investigating.
-> 
-> I think so too.
+On 3/28/06, Lee Revell <rlrevell@joe-job.com> wrote:
+> Can you explain why terminal output ping-pongs back and forth between
+> taking a certain amount of time, and approximately 10x longer?
+[...]
+> Why does it ping-pong between taking ~0.08s and ~0.75s like that?  The
+> behavior is completely reproducible.
 
-(suspicion led to wild goose chase)
+Does the scheduler have any concept of dependent tasks? (If so, hit
+<delete> and move on.) If not, then the producer and consumer will be
+scheduled randomly w/r/t each other, right? Sometimes producer then
+consumer, sometimes vice versa. If so, the ping pong should be half of
+the time slow, half of the time fast (+/- sqrt(N)), and the slow time
+should scale directly with the number of tasks running on the system.
 
-> I played with some numbers inside sched.c.  Raising the MIN_TIMESLICE from 1 
-> to between 10-100  affects interactivity positively, although it does not 
-> fix it entirely.
+Do any of the above WAGs match what you see? If so, then perhaps it's
+random just due to the order in which the tasks get initially
+scheduled (dmesg vs ssh, or dmesg vs xterm vs X -- er, though I guess
+in that latter case there's really <thinks> three separate timings
+that you'd get back, as the triple set of tasks could be in one of six
+orderings, one fast, one slow, and four equally mixed between the
+two).
 
-After some fiddling with it, looks to me like it's just a combination of
-EXPIRED_STARVING(rq) doing it's thing, which in turn causes (if you're
-running kde at least) your terminal to not be able to keep up, which
-makes it lose priority due to burning more cpu trying to catch up.
+I wonder if on a pipe write, moving the reader to be right after the
+writer in the list would even that out. (But only on cases where the
+reader didn't just run -- wouldn't want a back and forth conversation
+to starve everyone else...)
 
-Try this.  Using virgin 2.6.16, disable EXPIRED_STARVING(rq), and start
-your ping -A without any cpu hogs.  If you're running KDE, you'll notice
-that the konsole priority where ping is running remains forever highly
-interactive.  Enable EXPIRED_STARVING(rq) and repeat.  Just from the
-scrolling, being bumped into the expired array will cause konsole to
-lose priority because of increased cpu usage trying to catch up.
+But like I said, just a WAG.
 
-There is a price to be paid for starvation prevention.  You can choose
-when it's paid, and in what sized installments, but pay you will :-/
-
-> It does look like there is an underlying problem (locking?) that may be 
-> worked-around by tuning the scheduler to some extent.
-> 
-> Also, MAX_TIMESLICE = 800 seems a bit high.  Can this be lowered?
-
-The round-robin logic prevents this from being a problem.
-
-	-Mike
-
+Ray

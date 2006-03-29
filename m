@@ -1,81 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWC2Tci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWC2TfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbWC2Tci (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 14:32:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWC2Tci
+	id S1750875AbWC2TfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 14:35:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbWC2TfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 14:32:38 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:57010 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S1750790AbWC2Tch convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 14:32:37 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Fix unlock_buffer() to work the same way as bit_unlock()
-Date: Wed, 29 Mar 2006 11:31:44 -0800
-Message-ID: <65953E8166311641A685BDF71D865826A23D0E@cacexc12.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Fix unlock_buffer() to work the same way as bit_unlock()
-Thread-Index: AcZTZImszgwt3pN0QbmQN7kH+Vz3HgAARmYA
-From: "Boehm, Hans" <hans.boehm@hp.com>
-To: "Grundler, Grant G" <grant.grundler@hp.com>
-Cc: "Christoph Lameter" <clameter@sgi.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "Zoltan Menyhart" <Zoltan.Menyhart@free.fr>, <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 29 Mar 2006 19:31:45.0471 (UTC) FILETIME=[6A2D04F0:01C65367]
+	Wed, 29 Mar 2006 14:35:25 -0500
+Received: from ms-smtp-03.tampabay.rr.com ([65.32.5.133]:1439 "EHLO
+	ms-smtp-03.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S1750830AbWC2TfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 14:35:25 -0500
+Date: Wed, 29 Mar 2006 14:35:23 -0500
+From: JimD <Jim@keeliegirl.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Subject: AMD64 overclock issue with 2.6.16 but not with 2.6.15
+Message-ID: <20060329143523.3bbb4df7@keelie.localdomain>
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.13; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That was actually based on a different, earlier paper.
+Do any one know of any other issues with amd64 and the
+2.6.16 series?  I have run into a weird issue.
 
-Somewhat improved slides for the talk Grant is referring to are at
-http://www.hpl.hp.com/personal/Hans_Boehm/misc_slides/pldi05_threads.pdf
-.  The problem is also relevant for kernel development, though the title
-doesn't fit, and it clearly needs to be addressed at the language spec
-and compiler level.  (Note that the claim about gcc on slide 14 is
-actually incorrect as it stands (I misread the .s file), but the claim
-is correct if you add a conditional to the body of the example loop.
-Thus you won't be led far astray.)  The PLDI paper on which the talk is
-based contained a conjecture about required ordering for Posix locks,
-which is disproved by the TR below.
+I have an AMD64 3200+ that runs at 2 GHz and runs *very* cool at about
+34c.  My motherboard makes it pretty easy to overclock so I have
+overclocked the 3200+ to 2.2 GHz and it has been running very stable
+and still only around 39c.
 
-It's hard to get this stuff right.  But we knew that.
+When I was runing overclocked in 2.6.15 /proc/cpuinfo would show:
 
-Hans
+jim@keelie$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 15
+model           : 47
+model name      : AMD Athlon(tm) 64 Processor 3200+
+stepping        : 2
+cpu MHz         : 2200.000
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr
+                  pge mca cmov pat pse36 clflush mmx fxsr sse sse2
+                  syscall nx mmxext fxsr_opt lm 3dnowext 3dnow pni
+                  lahf_lm ts fid vid ttp tm stc
+bogomips        : 4409.17
 
-> -----Original Message-----
-> From: Grundler, Grant G 
-> Sent: Wednesday, March 29, 2006 11:12 AM
-> To: Boehm, Hans
-> Cc: Christoph Lameter; Chen, Kenneth W; Nick Piggin; Zoltan 
-> Menyhart; akpm@osdl.org; linux-kernel@vger.kernel.org; 
-> linux-ia64@vger.kernel.org
-> Subject: Re: Fix unlock_buffer() to work the same way as bit_unlock()
-> 
-> On Wed, Mar 29, 2006 at 10:33:57AM -0800, Boehm, Hans wrote:
-> ...
-> > - At user level, the ordering semantics required for something like
-> > pthread_mutex_lock() are unfortunately unclear.  If you try to 
-> > interpret the current standard, you arrive at the conclusion that
-> > pthread_mutex_lock() basically needs a full barrier, though
-> > pthread_mutex_unlock() doesn't.  (See
-> > http://www.hpl.hp.com/techreports/2005/HPL-2005-217.html .)
-> 
-> Was the talk you presented at the May 2005 Gelato meeting in 
-> Cupertino based on an earlier version of this paper?
-> 
-> That was a very good presentation that exposed the 
-> deficiencies in the programming models and languages.  If the 
-> slides and/or a recording are available, that might be 
-> helpful here too.
-> 
-> thanks,
-> grant
-> 
+
+Now with 2.6.16 it shows:
+
+jim@keelie$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 15
+model           : 47
+model name      : AMD Athlon(tm) 64 Processor 3200+
+stepping        : 2
+cpu MHz         : 2000.000
+                 ^^^^^^^^^^
+<snip>
+bogomips        : 4409.17
+
+
+The bogomips are showing the same though the kernel is not reporting
+the correct MHz.  If I reboot and check the BIOS, the correct MHz is
+reported.  I have not run any CPU benchmarks to see if performance is
+really going back down to 2000 MHz.
+
+Does anyone have a clue what could be causing this?
+
+Jim

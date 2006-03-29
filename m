@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWC2XaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbWC2XbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbWC2XaR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 18:30:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWC2XaR
+	id S1751270AbWC2XbD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 18:31:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWC2XbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 18:30:17 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:13513 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751252AbWC2XaP (ORCPT
+	Wed, 29 Mar 2006 18:31:01 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:32990 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751271AbWC2XbA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 18:30:15 -0500
-Subject: Re: [openib-general] InfiniBand 2.6.17 merge plans
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
-In-Reply-To: <ada7j6f8xwi.fsf@cisco.com>
-References: <ada7j6f8xwi.fsf@cisco.com>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Wed, 29 Mar 2006 15:30:14 -0800
-Message-Id: <1143675014.5238.1.camel@chalcedony.internal.keyresearch.com>
+	Wed, 29 Mar 2006 18:31:00 -0500
+Date: Wed, 29 Mar 2006 15:32:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Hyok S. Choi" <hyok.choi@samsung.com>
+Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com, linux@arm.linux.org.uk
+Subject: Re: [PATCH 2.6.16-git] defines MMU mode specific syscalls as
+ 'cond_syscall' and clean-up unneeded macros
+Message-Id: <20060329153251.30826295.akpm@osdl.org>
+In-Reply-To: <200603291829.57719.hyok.choi@samsung.com>
+References: <200603291829.57719.hyok.choi@samsung.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-27 at 11:56 -0800, Roland Dreier wrote:
+"Hyok S. Choi" <hyok.choi@samsung.com> wrote:
+>
+> diff --git a/arch/frv/kernel/entry.S b/arch/frv/kernel/entry.S
+> index 1d21c8d..a9b5952 100644
+> --- a/arch/frv/kernel/entry.S
+> +++ b/arch/frv/kernel/entry.S
 
->  * PathScale ipath driver.  In my git tree at
-> 
->    git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git ipath
-> 
->    There is still ia64 build breakage and a lot of sparse endian
->    annotations to clean up before it's mergeable.
-
-These are all fixed now.
-
->    - Working around the IB midlayer SMA (subnet management agent) /
->      implementation with a character device when ib_mad isn't loaded.
-
-We dropped this in the round of changes I just submitted.
-
->    - The driver depends on 64BIT && PCI_MSI, and is basically
->      x86_64-only for practical purposes.  I think this is OK as far as
->      a merge goes, but it would be nice to be able to use a PCIe
->      device on any system with PCIe slots...
-
-We'll see what we can do about this at some point, but I don't think it
-should block the merge.
-
-	<b
-
+Your email client mangled this patch more than I am prepared to unmangle
+it.  Probably you need to use a text/plain attachment when resending,
+please.

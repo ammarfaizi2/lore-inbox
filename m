@@ -1,90 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWC2Xho@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWC2Xh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbWC2Xho (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 18:37:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWC2Xhn
+	id S1751277AbWC2Xh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 18:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWC2Xh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 18:37:43 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:52159 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1751278AbWC2Xhm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 18:37:42 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: Ashok Raj <ashok.raj@intel.com>
-Subject: Re: [rfc] fix Kconfig, hotplug_cpu is needed for swsusp
-Date: Thu, 30 Mar 2006 09:36:16 +1000
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org
-References: <20060329220808.GA1716@elf.ucw.cz> <20060329144746.358a6b4e.akpm@osdl.org> <20060329150950.A12482@unix-os.sc.intel.com>
-In-Reply-To: <20060329150950.A12482@unix-os.sc.intel.com>
+	Wed, 29 Mar 2006 18:37:28 -0500
+Received: from smop.co.uk ([81.5.177.201]:64914 "EHLO hades.smop.co.uk")
+	by vger.kernel.org with ESMTP id S1751277AbWC2Xh1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 18:37:27 -0500
+Date: Thu, 30 Mar 2006 00:37:12 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-mm1 leaks in dvb playback
+Message-ID: <20060329233712.GA21810@smop.co.uk>
+Reply-To: adrian@smop.co.uk
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20060326211514.GA19287@wyvern.smop.co.uk> <20060327172356.7d4923d2.akpm@osdl.org> <20060328070220.GA29429@smop.co.uk> <20060327231630.76e97b83.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart25418762.Vyl80jxFUJ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200603300936.22757.ncunningham@cyclades.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060327231630.76e97b83.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
+From: adrian <adrian@smop.co.uk>
+X-smop.co.uk-MailScanner: Found to be clean
+X-smop.co.uk-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.71,
+	required 5, autolearn=not spam, AWL -0.11, BAYES_00 -2.60,
+	NO_RELAYS -0.00)
+X-smop.co.uk-MailScanner-From: adrian@smop.co.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart25418762.Vyl80jxFUJ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Mon, Mar 27, 2006 at 23:16:30 -0800 (-0800), Andrew Morton wrote:
+> It's unlikely that the sock_inode_cache leak is related to the dcache leak,
+> but we won't know until we know...
 
-Hi.
+Looks like this might be the same issus as "dcache leak in 2.6.16-git8
+(II)"...
 
-On Thursday 30 March 2006 09:09, Ashok Raj wrote:
-> On Wed, Mar 29, 2006 at 02:47:46PM -0800, Andrew Morton wrote:
-> > Pavel Machek <pavel@ucw.cz> wrote:
-> > > HOTPLUG_CPU is needed on normal PCs, too -- it is neccessary for
-> > > software suspend.
-> >
-> > OK, this will get ugly.  APICs are involved.
->
-> I guess you need only on systems that support >1 cpu right? I doubt you
-> will need it on a system that cannot run with the config-generic-arch on.
-> although we use bigsmp when hotplug is turned on, all we really end up is
-> using flat physical mode instead of using logical mode.
->
-> I still havent understood why this wont work. Choosing
-> CONFIG_X86_GENERICARCH shouldnt break anything AFAICT.
->
-> Pavel, you could use CONFIG_HOTPLUG_CPU, just need to enable
-> X86_GENERICARCH now. Is there a reason you think that wont work? I wish we
-> would revert it for a strong reason that we know will not make hotplug wo=
-rk
-> on certain systems because of this choise not that we currently have X86_=
-PC
-> now, and are unwiling to change the config.
->
-> (PS: the word bigsmp although sounds like some large NR_CPUS, its just
-> using a mode that permits the system to work from 1 .. >8 cpus. So there =
-is
-> really nothing determental to selecting this.)
+I think I've found the patch which causes the leak - it was the
+"use fget_light() in net/socket.c" patch.   I can't see anything
+obviously wrong, although the patch changes the code so that in
+sys_sendto and sys_recvfrom it now does a sockfd_put(sock) if the
+sock_from_file call fails which didn't use to happen.   That seems to
+agree more with other bits of code, but I've no idea what is the right
+thing todo.
 
-So if you have a single core x86, you want X86_PC, and if you have HT or SM=
-P,=20
-you want GENERICARCH? If so, could this be done via selects or depends or a=
-t=20
-least defaults in Kconfig?
+One item I spotted whilst perusing the code is that in net/core/sock.c
+in compat_sock_common_getsockopt, it checks if
+sk->sk_prot->compat_setsockopt is NULL before calling
+sk->sk_prot->compat_getsockopt (set vs get).
 
-Regards,
+I'll try and confirm tomorrow with a nice fresh build.   The command
+I'm using to test is "dvbstream -f 650166.670 -v 570 -a 571 -o >
+/dev/null" 
 
-Nigel
+Thanks,
 
---nextPart25418762.Vyl80jxFUJ
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEKxn2N0y+n1M3mo0RAnyYAKCF2eEAfkkFMddgoPUqjRmPwEpR7ACglv5t
-CFWZT3R68pkOIh5/MsJZRhM=
-=Qx3S
------END PGP SIGNATURE-----
-
---nextPart25418762.Vyl80jxFUJ--
+Adrian

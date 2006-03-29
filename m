@@ -1,99 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWC2LIp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbWC2LKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbWC2LIp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 06:08:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWC2LIp
+	id S1751149AbWC2LKh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 06:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWC2LKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 06:08:45 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:26254 "EHLO
-	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S1751038AbWC2LIo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 06:08:44 -0500
-Subject: Re: [Devel] Re: [RFC] Virtualization steps
-From: Sam Vilain <sam@vilain.net>
-To: Kirill Korotaev <dev@openvz.org>
-Cc: devel@openvz.org, Kir Kolyshkin <kir@sacred.ru>,
-       linux-kernel@vger.kernel.org, Herbert Poetzl <herbert@13thfloor.at>
-In-Reply-To: <442A4FAA.4010505@openvz.org>
-References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>
-	 <1143228339.19152.91.camel@localhost.localdomain>
-	 <4428BB5C.3060803@tmr.com>  <4428DB76.9040102@openvz.org>
-	 <1143583179.6325.10.camel@localhost.localdomain>
-	 <4429B789.4030209@sacred.ru>
-	 <1143588501.6325.75.camel@localhost.localdomain>
-	 <442A4FAA.4010505@openvz.org>
-Content-Type: text/plain
-Date: Wed, 29 Mar 2006 23:08:50 +1200
-Message-Id: <1143630530.8022.22.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Mar 2006 06:10:37 -0500
+Received: from [80.71.248.82] ([80.71.248.82]:41690 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S1751149AbWC2LKg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 06:10:36 -0500
+To: linux-kernel@vger.kernel.org
+CC: akpm@osdl.org, alex@clusterfs.com
+Subject: [RFC] support for large I/O requests
+From: Alex Tomas <alex@clusterfs.com>
+Organization: HOME
+Date: Wed, 29 Mar 2006 15:13:56 +0400
+Message-ID: <m31wwljyff.fsf@bzzz.home.net>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-29 at 13:13 +0400, Kirill Korotaev wrote:
-> > Well, for instance the fair CPU scheduling overhead is so tiny it may as
-> > well not be there in the VServer patch.  It's just a per-vserver TBF
-> > that feeds back into the priority (and hence timeslice length) of the
-> > process.  ie, you get "CPU tokens" which deplete as processes in your
-> > vserver run and you either get a boost or a penalty depending on the
-> > level of the tokens in the bucket.  This doesn't provide guarantees, but
-> > works well for many typical workloads.
-> I wonder what is the value of it if it doesn't do guarantees or QoS?
 
-It still does "QoS".  The TBF has a "fill rate", which is basically N
-tokens per M jiffies.  Then you just set the size of the "bucket", and
-the prio bonus given is between -5 (when bucket is full) and +15 (when
-bucket is empty).  The normal -10 to +10 'interactive' prio bonus is
-reduced to -5 to +5 to compensate.
+On some system (DDN, for example), we've observed noticable
+performance improvement using large I/O requests (1,2,4 MBs).
+please, review the patch for inclusion.
 
-In other words, it's like a global 'nice' across all of the processes in
-the vserver.
+thanks, Alex
 
-So, these characteristics do provide some level of guarantees, but not
-all that people expect.  eg, people want to say "cap usage at 5%", but
-as designed the scheduler does not ever prevent runnable processes from
-running if the CPUs have nothing better to do, so they think the
-scheduler is broken.  It is also possible with a fork bomb (assuming the
-absence of appropriate ulimits) that you start enough processes that you
-don't care that they are all effectively nice +19.
 
-Herbert later made it add some of these guarantees, but I believe there
-is a performance impact of some kind.
+Signed-off-by: Johann Lombardi <johann.lombardi@bull.net>
 
-> In our experiments with it we failed to observe any fairness.
+Index: linux-2.6.16/include/linux/blkdev.h
+===================================================================
+--- linux-2.6.16.orig/include/linux/blkdev.h	2006-02-07 14:27:53.000000000 +0100
++++ linux-2.6.16/include/linux/blkdev.h	2006-02-07 15:21:48.000000000 +0100
+@@ -667,10 +667,29 @@ extern long blk_congestion_wait(int rw, 
+ extern void blk_rq_bio_prep(request_queue_t *, struct request *, struct bio *);
+ extern int blkdev_issue_flush(struct block_device *, sector_t *);
+ 
+-#define MAX_PHYS_SEGMENTS 128
+-#define MAX_HW_SEGMENTS 128
+ #define SAFE_MAX_SECTORS 255
+ #define BLK_DEF_MAX_SECTORS 1024
++#ifdef CONFIG_LARGE_IO_SIZE_512K
++#define MAX_PHYS_SEGMENTS (1 << (19 - PAGE_CACHE_SHIFT))
++#define MAX_HW_SEGMENTS (1 << (19 - PAGE_CACHE_SHIFT))
++#elif CONFIG_LARGE_IO_SIZE_1M
++#define MAX_PHYS_SEGMENTS (1 << (20 - PAGE_CACHE_SHIFT))
++#define MAX_HW_SEGMENTS (1 << (20 - PAGE_CACHE_SHIFT))
++#elif CONFIG_LARGE_IO_SIZE_2M
++#define MAX_PHYS_SEGMENTS (1 << (21 - PAGE_CACHE_SHIFT))
++#define MAX_HW_SEGMENTS (1 << (21 - PAGE_CACHE_SHIFT))
++#elif CONFIG_LARGE_IO_SIZE_4M
++#define MAX_PHYS_SEGMENTS (1 << (22 - PAGE_CACHE_SHIFT))
++#define MAX_HW_SEGMENTS (1 << (22 - PAGE_CACHE_SHIFT))
++#elif CONFIG_LARGE_IO_SIZE_8M
++#define MAX_PHYS_SEGMENTS (1 << (23 - PAGE_CACHE_SHIFT))
++#define MAX_HW_SEGMENTS (1 << (23 - PAGE_CACHE_SHIFT))
++#elif CONFIG_LARGE_IO_SIZE_16M
++#define MAX_PHYS_SEGMENTS (1 << (24 - PAGE_CACHE_SHIFT))
++#define MAX_HW_SEGMENTS (1 << (24 - PAGE_CACHE_SHIFT))
++#else
++#error "unknown size, check .config"
++#endif
 
-Well, it does not aim to be 'fair', it aims to be useful for allocating
-CPU to vservers.   ie, if you allocate X% of the CPU in the system to a
-vserver, and it uses more, then try to make it use less via priority
-penalties - and give others shortchanged or not using the CPU very much
-performance bonuses.  That's all.
+ #define MAX_SEGMENT_SIZE	65536
 
-So, if you under- or over-book CPU allocation, it doesn't work.  The
-idea was that monitoring it could be shipped out to userland.  I just
-wanted something flexible enough to allow virtually any policy to be put
-into place without wasting too many cycles.
-
-> > How does your fair scheduler work?  Do you just keep a runqueue for each
-> > vps?
-> we keep num_online_cpus runqueues per VPS.
-
-Right.  I considered that approach but just couldn't be bothered
-implementing it, so went with the TBF because it worked and was
-lightweight.
-
-> Fairs scheduler is some kind of SFQ like algorithm which selects VPS to 
-> be scheduled, than standart linux scheduler selects a process in a VPS 
-> runqueues to run.
-
-Right.
-
-> > To be honest, I've never needed to determine whether its overhead is 1%
-> > or 0.01%, it would just be a meaningless benchmark anyway :-).  I know
-> > it's "good enough for me".
-> Sure! We feel the same, but people like numbers :)
-
-Sometimes the answer has to be "mu".
-
-Sam.
-
+Index: linux-2.6.16/include/linux/bio.h
+===================================================================
+--- linux-2.6.16.orig/include/linux/bio.h	2006-02-07 14:27:53.000000000 +0100
++++ linux-2.6.16/include/linux/bio.h	2006-02-07 15:22:35.000000000 +0100
+@@ -46,7 +46,22 @@
+ #define BIO_BUG_ON
+ #endif
+ 
+-#define BIO_MAX_PAGES		(256)
++#ifdef CONFIG_LARGE_IO_SIZE_512K
++#define BIO_MAX_PAGES		(1 << (19 - PAGE_CACHE_SHIFT))
++#elif CONFIG_LARGE_IO_SIZE_1M
++#define BIO_MAX_PAGES		(1 << (20 - PAGE_CACHE_SHIFT))
++#elif CONFIG_LARGE_IO_SIZE_2M
++#define BIO_MAX_PAGES		(1 << (21 - PAGE_CACHE_SHIFT))
++#elif CONFIG_LARGE_IO_SIZE_4M
++#define BIO_MAX_PAGES		(1 << (22 - PAGE_CACHE_SHIFT))
++#elif CONFIG_LARGE_IO_SIZE_8M
++#define BIO_MAX_PAGES		(1 << (23 - PAGE_CACHE_SHIFT))
++#elif CONFIG_LARGE_IO_SIZE_16M
++#define BIO_MAX_PAGES		(1 << (24 - PAGE_CACHE_SHIFT))
++#else
++#error "unknown size, check .config"
++#endif
++
+ #define BIO_MAX_SIZE		(BIO_MAX_PAGES << PAGE_CACHE_SHIFT)
+ #define BIO_MAX_SECTORS		(BIO_MAX_SIZE >> 9)
+ 
+Index: linux-2.6.16/include/scsi/scsi_host.h
+===================================================================
+--- linux-2.6.16.orig/include/scsi/scsi_host.h	2006-02-07 14:27:53.000000000 +0100
++++ linux-2.6.16/include/scsi/scsi_host.h	2006-02-07 15:20:30.000000000 +0100
+@@ -25,7 +25,21 @@ struct scsi_transport_template;
+  *	 used in one scatter-gather request.
+  */
+ #define SG_NONE 0
+-#define SG_ALL 0xff
++#ifdef CONFIG_LARGE_IO_SIZE_512K
++#define SG_ALL (1 << (19 - PAGE_CACHE_SHIFT))
++#elif CONFIG_LARGE_IO_SIZE_1M
++#define SG_ALL (1 << (20 - PAGE_CACHE_SHIFT))
++#elif CONFIG_LARGE_IO_SIZE_2M
++#define SG_ALL (1 << (21 - PAGE_CACHE_SHIFT))
++#elif CONFIG_LARGE_IO_SIZE_4M
++#define SG_ALL (1 << (22 - PAGE_CACHE_SHIFT))
++#elif CONFIG_LARGE_IO_SIZE_8M
++#define SG_ALL (1 << (23 - PAGE_CACHE_SHIFT))
++#elif CONFIG_LARGE_IO_SIZE_16M
++#define SG_ALL (1 << (24 - PAGE_CACHE_SHIFT))
++#else
++#error "unknown size, check .config"
++#endif
+ 
+ 
+ #define DISABLE_CLUSTERING 0
+Index: linux-2.6.16/drivers/block/Kconfig
+===================================================================
+--- linux-2.6.16.orig/drivers/block/Kconfig	2006-02-07 14:28:10.000000000 +0100
++++ linux-2.6.16/drivers/block/Kconfig	2006-02-07 15:28:41.000000000 +0100
+@@ -461,6 +461,30 @@ config LBD
+ 	  your machine, or if you want to have a raid or loopback device
+ 	  bigger than 2TB.  Otherwise say N.
+ 
++choice
++	prompt "Support for Large I/O Requests"
++	default LARGE_IO_SIZE_512K
++
++config LARGE_IO_SIZE_512K
++	bool "512K"
++
++config LARGE_IO_SIZE_1M
++	bool "1M"
++
++config LARGE_IO_SIZE_2M
++	bool "2M"
++
++config LARGE_IO_SIZE_4M
++	bool "4M"
++
++config LARGE_IO_SIZE_8M
++	bool "8M"
++
++config LARGE_IO_SIZE_16M
++	bool "16M"
++
++endchoice
++
+ config CDROM_PKTCDVD
+ 	tristate "Packet writing on CD/DVD media"
+ 	depends on !UML
+Index: linux-2.6.16/drivers/scsi/scsi_lib.c
+===================================================================
+--- linux-2.6.16.orig/drivers/scsi/scsi_lib.c	2006-02-07 14:27:53.000000000 +0100
++++ linux-2.6.16/drivers/scsi/scsi_lib.c	2006-02-07 17:24:17.000000000 +0100
+@@ -55,11 +55,23 @@ struct scsi_host_sg_pool scsi_sg_pools[]
+ #if (SCSI_MAX_PHYS_SEGMENTS > 128)
+ 	SP(256),
+ #if (SCSI_MAX_PHYS_SEGMENTS > 256)
++	SP(512),
++#if (SCSI_MAX_PHYS_SEGMENTS > 512)
++	SP(1024),
++#if (SCSI_MAX_PHYS_SEGMENTS > 1024)
++	SP(2048),
++#if (SCSI_MAX_PHYS_SEGMENTS > 2048)
++	SP(4096),
++#if (SCSI_MAX_PHYS_SEGMENTS > 4096)
+ #error SCSI_MAX_PHYS_SEGMENTS is too large
+ #endif
+ #endif
+ #endif
+ #endif
++#endif
++#endif
++#endif
++#endif
+ }; 	
+ #undef SP
+ 

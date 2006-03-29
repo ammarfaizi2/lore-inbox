@@ -1,131 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWC2Wxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbWC2Wx7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbWC2Wxc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 17:53:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWC2Wx0
+	id S1751194AbWC2Wx7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 17:53:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWC2Wxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 17:53:26 -0500
-Received: from [198.78.49.142] ([198.78.49.142]:41733 "EHLO gitlost.site")
-	by vger.kernel.org with ESMTP id S1751177AbWC2Ww6 (ORCPT
+	Wed, 29 Mar 2006 17:53:33 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:1516 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751177AbWC2Wxa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 17:52:58 -0500
-From: Chris Leech <christopher.leech@intel.com>
-Subject: [PATCH 7/9] [I/OAT] make sk_eat_skb I/OAT aware
-Date: Wed, 29 Mar 2006 14:56:02 -0800
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Message-Id: <20060329225602.25585.70017.stgit@gitlost.site>
-In-Reply-To: <20060329225505.25585.30392.stgit@gitlost.site>
-References: <20060329225505.25585.30392.stgit@gitlost.site>
+	Wed, 29 Mar 2006 17:53:30 -0500
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: dcache leak in 2.6.16-git8 II
+Date: Thu, 30 Mar 2006 00:53:24 +0200
+User-Agent: KMail/1.9.1
+Cc: bharata@in.ibm.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <200603270750.28174.ak@suse.de> <200603300026.59131.ak@suse.de> <20060329145013.37c87323.akpm@osdl.org>
+In-Reply-To: <20060329145013.37c87323.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603300053.25235.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add an extra argument to sk_eat_skb, and make it move early copied packets
-to the async_wait_queue instead of freeing them.
-Signed-off-by: Chris Leech <christopher.leech@intel.com>
----
+On Thursday 30 March 2006 00:50, Andrew Morton wrote:
 
- include/net/sock.h |   13 ++++++++++++-
- net/dccp/proto.c   |    4 ++--
- net/ipv4/tcp.c     |    8 ++++----
- net/llc/af_llc.c   |    2 +-
- 4 files changed, 19 insertions(+), 8 deletions(-)
+> It looks that way.  Didn't someone else report a sock_inode_cache leak?
 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index 190809c..e3723b6 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -1272,11 +1272,22 @@ sock_recv_timestamp(struct msghdr *msg, 
-  * This routine must be called with interrupts disabled or with the socket
-  * locked so that the sk_buff queue operation is ok.
- */
--static inline void sk_eat_skb(struct sock *sk, struct sk_buff *skb)
-+#ifdef CONFIG_NET_DMA
-+static inline void sk_eat_skb(struct sock *sk, struct sk_buff *skb, int copied_early)
-+{
-+	__skb_unlink(skb, &sk->sk_receive_queue);
-+	if (!copied_early)
-+		__kfree_skb(skb);
-+	else
-+		__skb_queue_tail(&sk->sk_async_wait_queue, skb);
-+}
-+#else
-+static inline void sk_eat_skb(struct sock *sk, struct sk_buff *skb, int copied_early)
- {
- 	__skb_unlink(skb, &sk->sk_receive_queue);
- 	__kfree_skb(skb);
- }
-+#endif
+Didn't see it.
  
- extern void sock_enable_timestamp(struct sock *sk);
- extern int sock_get_timestamp(struct sock *, struct timeval __user *);
-diff --git a/net/dccp/proto.c b/net/dccp/proto.c
-index 1ff7328..35d7dfd 100644
---- a/net/dccp/proto.c
-+++ b/net/dccp/proto.c
-@@ -719,7 +719,7 @@ int dccp_recvmsg(struct kiocb *iocb, str
- 		}
- 		dccp_pr_debug("packet_type=%s\n",
- 			      dccp_packet_name(dh->dccph_type));
--		sk_eat_skb(sk, skb);
-+		sk_eat_skb(sk, skb, 0);
- verify_sock_status:
- 		if (sock_flag(sk, SOCK_DONE)) {
- 			len = 0;
-@@ -773,7 +773,7 @@ verify_sock_status:
- 		}
- 	found_fin_ok:
- 		if (!(flags & MSG_PEEK))
--			sk_eat_skb(sk, skb);
-+			sk_eat_skb(sk, skb, 0);
- 		break;
- 	} while (1);
- out:
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index b10f78c..2346539 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -1072,11 +1072,11 @@ int tcp_read_sock(struct sock *sk, read_
- 				break;
- 		}
- 		if (skb->h.th->fin) {
--			sk_eat_skb(sk, skb);
-+			sk_eat_skb(sk, skb, 0);
- 			++seq;
- 			break;
- 		}
--		sk_eat_skb(sk, skb);
-+		sk_eat_skb(sk, skb, 0);
- 		if (!desc->count)
- 			break;
- 	}
-@@ -1356,14 +1356,14 @@ skip_copy:
- 		if (skb->h.th->fin)
- 			goto found_fin_ok;
- 		if (!(flags & MSG_PEEK))
--			sk_eat_skb(sk, skb);
-+			sk_eat_skb(sk, skb, 0);
- 		continue;
- 
- 	found_fin_ok:
- 		/* Process the FIN. */
- 		++*seq;
- 		if (!(flags & MSG_PEEK))
--			sk_eat_skb(sk, skb);
-+			sk_eat_skb(sk, skb, 0);
- 		break;
- 	} while (len > 0);
- 
-diff --git a/net/llc/af_llc.c b/net/llc/af_llc.c
-index 5a04db7..7465170 100644
---- a/net/llc/af_llc.c
-+++ b/net/llc/af_llc.c
-@@ -789,7 +789,7 @@ static int llc_ui_recvmsg(struct kiocb *
- 			continue;
- 
- 		if (!(flags & MSG_PEEK)) {
--			sk_eat_skb(sk, skb);
-+			sk_eat_skb(sk, skb, 0);
- 			*seq = 0;
- 		}
- 	} while (len > 0);
+> > I still got a copy of the /proc in case anybody wants more information.
+> 
+> We have this fancy new /proc/slab_allocators now, it might show something
+> interesting.  It needs CONFIG_DEBUG_SLAB_LEAK.
+
+I didn't have that enabled unfortunately. I can try it on the next round.
+
+-Andi
 

@@ -1,78 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWC2N5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWC2N6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWC2N5z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 08:57:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWC2N5z
+	id S1750740AbWC2N6j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 08:58:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWC2N6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 08:57:55 -0500
-Received: from wproxy.gmail.com ([64.233.184.237]:17001 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750738AbWC2N5z convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 08:57:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=pEqUyTo58BWS8mkGElzYSKtxCfE7gQjUlf1SVR/S9hFUdkUwnxNZJTe5A39RsCC+XeVidckt2NnovLXtGx0D7qT99q2WMAF9KFb2hXp6c608bJMKuKetuAWtQ+jcnWKKEtkgpHCggjBuIiBcQr+fKmw0Pyg74HI1p2vVGtXqs+E=
-Message-ID: <194f62550603290557v71415cedw9e565d8c59d7630b@mail.gmail.com>
-Date: Wed, 29 Mar 2006 15:57:53 +0200
-From: "Clemens Eisserer" <linuxhippy@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problems with SiS 7018 sound chipset
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Wed, 29 Mar 2006 08:58:39 -0500
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:5780 "EHLO
+	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1750740AbWC2N6i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 08:58:38 -0500
+From: Ian Campbell <ijc@hellion.org.uk>
+To: "Mark M. Hoffman" <mhoffman@lightlink.com>
+Cc: Etienne Lorrain <etienne_lorrain@yahoo.fr>, linux-kernel@vger.kernel.org,
+       lm-sensors <lm-sensors@lm-sensors.org>
+In-Reply-To: <20060329034510.GA8309@jupiter.solarsys.private>
+References: <20060317042019.GC3446@jupiter.solarsys.private>
+	 <20060320230037.29764.qmail@web26902.mail.ukl.yahoo.com>
+	 <20060329034510.GA8309@jupiter.solarsys.private>
+Content-Type: text/plain
+Date: Wed, 29 Mar 2006 15:00:07 +0100
+Message-Id: <1143640808.22244.26.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 213.104.11.16
+X-SA-Exim-Mail-From: ijc@hellion.org.uk
+Subject: Re: I2C_PCA_ISA causes boot delays (was re: sis96x compiled in by
+	error: delay of one minute at boot)
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on hopkins.hellion.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 2006-03-28 at 22:45 -0500, Mark M. Hoffman wrote:
+> 
+> This alone is the cause of the delay.  (I have confirmed it by running
+> some similar .configs here.)  You almost certainly don't own this
+> specialized piece of hardware.  Worse still, that particular driver
+> has no code to detect whether or not the hardware is present.  I cc'ed
+> the listed driver author (Ian) just in case this might be corrected...
+> but I guess there is no way to fix it.
+> 
+> So the delay is (1) an I2C bus driver that is not actually present,
+> trying to probe for (2) seven different sensors chip drivers that
+> certainly aren't present on the nonexistent bus.  Timeouts ensue.
+> 
+> So unless Ian knows a better way to detect that bus driver... the best
+> I can advise is to *not* build in those drivers for hardware that you
+> do not have. 
 
-I hope I don't bother you too much, I thought a long time wether I
-should report this at all but well, as an AC/DC fan I can't live
-without my soundcard ;)
+I don't work at Arcom anymore so I don't have access to the hardware,
+but I don't know of a better way off the top of my head how to detect
+the presence of the PCA chip.
 
-I own a laptop with a sis7018 sound-chipset and I am running FC4
-updated to kernel Linux cehost 2.6.15-1.1831_FC4 (not compiled
-myself).
-I never had problems with my soundcard at all but some time ago it
-suddely stopped to work. I can't remember wether it was a
-kernel-update or a motherboard exchange made by service engineers.
+You are unlikely to have the particular PC/104 card the driver was
+written for. If I recall correctly PCA chip itself doesn't do ISA (it
+has simple processor bus chip select type arrangement I think) but the
+PC/104 card in question has a small CPLD which does the address decoding
+for ISA. I guess you are unlikely to find another ISA card which has the
+PCA chip on it.
 
-Whenever an application tries to access the sound-device I get
-messages like the following on syslog:
-codec_write 0: semaphore is not ready for register 0x2c
-the same again and again, but different registers: 0x2c, 0x2a 0x2c
-0x2c 0x2c 0x2c 0x3a 0x2a
+It's possible that you might have an embedded board with the PCA chip
+directly on it -- but if you don't then I don't know why you would
+enable the driver.
 
-When booting up I get a strange message from the pci subsystem:
-PCI: Failed to allocate mem resource #6:20000@f0000000 for 0000:01:00.0
-booting with pci=noacpi did not help or change the situation.
+Ian.
+-- 
+Ian Campbell
 
-this is the output I get from lspci:
-00:00.0 Host bridge: Silicon Integrated Systems [SiS] 645xx (rev 03)
-00:01.0 PCI bridge: Silicon Integrated Systems [SiS] SG86C202
-00:02.0 ISA bridge: Silicon Integrated Systems [SiS] SiS963 [MuTIOL
-Media IO] (rev 14)
-00:02.1 SMBus: Silicon Integrated Systems [SiS] SiS961/2 SMBus Controller
-00:02.3 FireWire (IEEE 1394): Silicon Integrated Systems [SiS]
-FireWire Controller
-00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE]
-00:02.6 Modem: Silicon Integrated Systems [SiS] AC'97 Modem Controller (rev a0)
-00:02.7 Multimedia audio controller: Silicon Integrated Systems [SiS]
-Sound Controller (rev a0)
-00:03.0 USB Controller: Silicon Integrated Systems [SiS] USB 1.0
-Controller (rev 0f)
-00:03.1 USB Controller: Silicon Integrated Systems [SiS] USB 1.0
-Controller (rev 0f)
-00:03.2 USB Controller: Silicon Integrated Systems [SiS] USB 1.0
-Controller (rev 0f)
-00:03.3 USB Controller: Silicon Integrated Systems [SiS] USB 2.0 Controller
-00:04.0 Ethernet controller: Silicon Integrated Systems [SiS] SiS900
-PCI Fast Ethernet (rev 90)
-00:0c.0 CardBus bridge: ENE Technology Inc CB1410 Cardbus Controller
-01:00.0 VGA compatible controller: nVidia Corporation NV18M [GeForce4
-488 Go] (rev a2)
+To save a single life is better than to build a seven story pagoda.
 
-I hope somebody reads this, if not the life will go on ;)
-
-Thanks for making linux-2.6 such great, lg Clemens

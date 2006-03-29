@@ -1,83 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWC2PPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWC2PVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbWC2PPP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 10:15:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWC2PPO
+	id S1751172AbWC2PVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 10:21:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWC2PVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 10:15:14 -0500
-Received: from clem.clem-digital.net ([68.16.168.10]:64439 "EHLO
-	clem.clem-digital.net") by vger.kernel.org with ESMTP
-	id S1750806AbWC2PPN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 10:15:13 -0500
-From: Pete Clements <clem@clem.clem-digital.net>
-Message-Id: <200603291515.k2TFF3GM001689@clem.clem-digital.net>
-Subject: Re: Correction: 2.6.16-git12 killed networking -- 3c900 card
-To: akpm@osdl.org (Andrew Morton)
-Date: Wed, 29 Mar 2006 10:15:03 -0500 (EST)
-Cc: clem@clem.clem-digital.net (Pete Clements),
-       klassert@mathematik.tu-chemnitz.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20060328230132.52c79c6c.akpm@osdl.org>
-X-Mailer: ELM [version 2.5 PL7]
+	Wed, 29 Mar 2006 10:21:09 -0500
+Received: from nproxy.gmail.com ([64.233.182.184]:25057 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751172AbWC2PVI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 10:21:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=okVWqBBBVggRgSpQRioWEFYeGBZBCAVHxY/X36WH0/98Pm9S4tpUtyaX/mEixmP5DKU3AEoAsUIQjnqdkSLJwvdTav/qhBSrVK09WYDQrU5ESIBXO5YgBjXbQ4O5SYaiE0uaMZT/raRYr2NkK4ZBxebzaLWa1P44NlOrLP7cco0=
+Message-ID: <aad1205e0603290720s50901a76h@mail.gmail.com>
+Date: Wed, 29 Mar 2006 23:20:56 +0800
+From: Andyliu <liudeyan@gmail.com>
+To: "Eric Persson" <eric@persson.tm>
+Subject: Re: kernel config repository
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <442A99CA.20303@persson.tm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <442A99CA.20303@persson.tm>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch applied on top of previous patch to 2.6.16, no longer
-seeing the timeouts.
+Eric,
 
-  > Pete Clements <clem@clem.clem-digital.net> wrote:
-  > >
-  > > Quoting Steffen Klassert
-  > >   > >   Had several of these with git11
-  > >   > >   NETDEV WATCHDOG: eth0: transmit timed out
-  > >   > 
-  > >   > Is this for sure that these messages occured first time with git11?
-  > >   > There were no changes in the 3c59x driver between git10 and git11.
-  > >   > 
-  > > Tried 2.6.15 and could not get a timed out condition.  Looks like
-  > > that defect is between 15 and 16 in my case.  
-  > > 
-  > > Be glad to do any testing that I can.
-  > 
-  > If it's noether of those then I'd expect the problem relates to the
-  > conversion to use the standard mii layer.  Possibly we need to re-port some
-  > mdo reading oddity into 3c59x.c:mdio_read(), but it would take some effort
-  > to work out which one.
-  > 
-  > You could try this shot-in-the-dark:
-  > 
-  > 
-  > diff -puN drivers/net/3c59x.c~revert-3c59x-avoid-blindly-reading-link-status-twice drivers/net/3c59x.c
-  > --- devel/drivers/net/3c59x.c~revert-3c59x-avoid-blindly-reading-link-status-twice	2006-03-28 22:51:52.000000000 -0800
-  > +++ devel-akpm/drivers/net/3c59x.c	2006-03-28 23:00:47.000000000 -0800
-  > @@ -3196,7 +3196,7 @@ static void mdio_sync(void __iomem *ioad
-  >  	}
-  >  }
-  >  
-  > -static int mdio_read(struct net_device *dev, int phy_id, int location)
-  > +static int __mdio_read(struct net_device *dev, int phy_id, int location)
-  >  {
-  >  	int i;
-  >  	struct vortex_private *vp = netdev_priv(dev);
-  > @@ -3227,6 +3227,13 @@ static int mdio_read(struct net_device *
-  >  	return retval & 0x20000 ? 0xffff : retval>>1 & 0xffff;
-  >  }
-  >  
-  > +static int mdio_read(struct net_device *dev, int phy_id, int location)
-  > +{
-  > +	if (location == MII_BMSR)
-  > +		__mdio_read(dev, phy_id, location);
-  > +	return __mdio_read(dev, phy_id, location);
-  > +}
-  > +
-  >  static void mdio_write(struct net_device *dev, int phy_id, int location, int value)
-  >  {
-  >  	struct vortex_private *vp = netdev_priv(dev);
-  > _
-  > 
+For ppc and ppc64, there are some config files:
+arch/ppc/configs/ and arch/powerpc/configs/.
+
+Seems none for i386.
+
+2006/3/29, Eric Persson <eric@persson.tm>:
+> Hi,
+>
+> I hope I'm not totally wrong here, but I figured this would be a good
+> place to start, the kernel-config list seems a bit dead.
+>
+> I've been thinking about creating a community-driven .config repository,
+> since I havent found any good place for this sort of information.
+> I would see it as a place for people to contribute .configs for various
+> hardware/platforms and keep them updated and current with the kernel
+> releases.
+>
+> Perhaps this exist(i havent found any easily), or is considered a bad
+> idea(please tell me), or is actually a good idea.
+>
+> Tell me what you think, sorry if I might have sent this to the wrong list.
+>
+> Keep up the good work.
+>
+> Best regards,
+>     Eric
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
 
--- 
-Pete Clements 
+--
+Andyliu

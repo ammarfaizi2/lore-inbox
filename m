@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWC2IXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWC2IYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750783AbWC2IXj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 03:23:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWC2IXj
+	id S1750776AbWC2IYI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 03:24:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWC2IYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 03:23:39 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:45403 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750783AbWC2IXj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 03:23:39 -0500
-Date: Wed, 29 Mar 2006 10:23:44 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Peter Palfrader <peter@palfrader.org>, linux-kernel@vger.kernel.org
-Cc: agk@redhat.com
-Subject: Re: 2.6.16: Oops - null ptr in blk_recount_segments?
-Message-ID: <20060329082343.GV8186@suse.de>
-References: <20060327022814.GV25288@asteria.noreply.org> <20060327043601.GE27189130@melbourne.sgi.com> <20060327045823.GW25288@asteria.noreply.org> <20060327061021.GT1173973@melbourne.sgi.com> <Pine.LNX.4.61.0603281621210.27529@yvahk01.tjqt.qr> <20060328213845.GO25288@asteria.noreply.org> <20060329074214.D871924@wobbly.melbourne.sgi.com> <20060329005917.GR25288@asteria.noreply.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060329005917.GR25288@asteria.noreply.org>
+	Wed, 29 Mar 2006 03:24:08 -0500
+Received: from 85.8.13.51.se.wasadata.net ([85.8.13.51]:57511 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1750776AbWC2IYG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 03:24:06 -0500
+Message-ID: <442A4426.2060306@drzeus.cx>
+Date: Wed, 29 Mar 2006 10:24:06 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+CC: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       Mark Lord <lkml@rtr.ca>, "David J. Wallace" <katana@onetel.com>,
+       sdhci-devel@list.drzeus.cx, linux-kernel@vger.kernel.org
+Subject: Re: [Sdhci-devel] Submission to the kernel?
+References: <4419FA7A.4050104@cogweb.net> <20060325063943.GB22214@kroah.com> <44254EDC.9020503@drzeus.cx> <200603280323.15915.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200603280323.15915.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29 2006, Peter Palfrader wrote:
-> On Wed, 29 Mar 2006, Nathan Scott wrote:
-> 
-> > You'll be better off trying the bio_clone fix discussed in the
-> > other (ext3-bio_clone-panic) thread than go down this route
-> > (there is a fix in 2.6.16.1 apparently - start there).  Certainly
-> > try that before attempting to revert these changes anyway.
-> 
-> The problem persists on 2.6.16.1.
+Alistair John Strachan wrote:
+> O2 Micro SD readers still don't work; I can't offer hardware very easily, but 
+> I'd be more than glad to provide a networked box with root access..
+>
+>   
 
-The original oops showed the path into bio_clone() originating from
-crypt_alloc_buffer() in dm-crypt.c - and blk_recount_segments() is
-oopsinig in page_to_pfn(), meaning that the most likely cause of this is
-dm-crypt passing in a bio with invalid ->bi_idx and/or ->bi_vcnt. At
-least they are not matching what ->bi_io_vec[] holds.
+Thanks, but during the initial development it is more or less necessary
+to have the hardware directly available.
 
--- 
-Jens Axboe
+Rgds
+Pierre
 

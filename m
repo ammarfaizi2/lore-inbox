@@ -1,77 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWC2BLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWC2BMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbWC2BLT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 20:11:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWC2BLT
+	id S1750739AbWC2BMT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 20:12:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWC2BMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 20:11:19 -0500
-Received: from mx0.towertech.it ([213.215.222.73]:58004 "HELO mx0.towertech.it")
-	by vger.kernel.org with SMTP id S1750726AbWC2BLT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 20:11:19 -0500
-Date: Wed, 29 Mar 2006 03:11:02 +0200
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andi Kleen <ak@muc.de>,
-       akpm@osdl.org, torvalds@osdl.org, davem@davemloft.net,
-       kkojima@rr.iij4u.or.jp, lethal@linux-sh.org, paulus@samba.org,
-       ralf@linux-mips.org, rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 11 minute RTC update (was Re: Remove RTC UIP)
-Message-ID: <20060329031102.0e056d85@inspiron>
-In-Reply-To: <20060329000345.GZ3642@waste.org>
-References: <200603270920.k2R9KYYx007214@shell0.pdx.osdl.net>
-	<20060327111836.GA79131@muc.de>
-	<20060327163218.GD3642@waste.org>
-	<20060327190037.GB27030@muc.de>
-	<20060327211143.55ef7c4e@inspiron>
-	<1143512075.2284.2.camel@localhost.localdomain>
-	<20060329000215.683eb2d5@inspiron>
-	<20060329000345.GZ3642@waste.org>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
+	Tue, 28 Mar 2006 20:12:19 -0500
+Received: from mga02.intel.com ([134.134.136.20]:36377 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750739AbWC2BMS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 20:12:18 -0500
+X-IronPort-AV: i="4.03,140,1141632000"; 
+   d="scan'208"; a="16348481:sNHT9470464304"
+Date: Tue, 28 Mar 2006 16:58:18 -0800
+From: "Luck, Tony" <tony.luck@intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: "Raj, Ashok" <ashok.raj@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Some section mismatch in acpi_processor_power_init on ia64 build
+Message-ID: <20060329005818.GA7461@agluck-lia64.sc.intel.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0613EDAB@scsmsx401.amr.corp.intel.com> <200603290200.56023.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603290200.56023.ak@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Mar 2006 18:03:45 -0600
-Matt Mackall <mpm@selenic.com> wrote:
-
-> > > >  While we are on the topic, I would like to ask everyone about
-> > > >  the 11 min ntp/rtc update feature of the kernel.
-> > > > 
-> > > >  It is something that makes sense to move to
-> > > >  userland?
-> > > 
-> > > YES !!! :)
-> > 
-> >  great! given that it is not implemented in the new RTC subsystem
-> >  and nobody objected, I will not add it :)
+On Wed, Mar 29, 2006 at 02:00:55AM +0200, Andi Kleen wrote:
+> > WARNING: drivers/acpi/processor.o - Section mismatch: reference to
+> > .init.data: from .text between 'acpi_processor_power_init' (at offset
+> > 0x5040) and 'acpi_processor_power_exit'
+> > WARNING: drivers/acpi/processor.o - Section mismatch: reference to
+> > .init.data: from .text between 'acpi_processor_power_init' (at offset
+> > 0x5050) and 'acpi_processor_power_exit'
 > 
-> I agree that this should be migrated to userspace, but I'm more
-> worried about the functionality impact here than for the UIP case.
+> These functions need to be marked __cpuinit I guess. I doubt they
+> run without new CPUs.
+
+Marking acpi_processor_power_init() as __cpuinit produced a complaint about
+a section mismatch in acpi_processor_start().  Marking that __cpuinit fixed
+things for me (patch at end of this e-mail, only compile tested on one ia64
+config).
+> >   /* Actually this shouldn't be __cpuinitdata, would be better to fix the
+> >      callers to only run once -AK */
 > 
-> With existing NTP setups, and the kernel no longer writing to the RTC,
-> you might have the RTC drift far enough that NTP failed to sync on the
-> next boot. (Correct me if I'm wrong, of course.)
+> Yes that's me. What is cryptic?
 
- That's probably true, I'm not expert on the matter. The new subsystem only
- covers platforms that were not covered before (i.e. without external patches),
- so that this should not impact users because the NTP update mode
- was not working on them.
+Perhaps it wasn't the comment that was baffling me, I was just generally
+confused at this point.
 
- The problem might arise when other RTC drivers (i.e. x86) will be converted
- and deployed.
 
- We need a migration plan. Any suggestion? 
-
--- 
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
-
+diff --git a/drivers/acpi/processor_core.c b/drivers/acpi/processor_core.c
+index 713b763..2dedc59 100644
+--- a/drivers/acpi/processor_core.c
++++ b/drivers/acpi/processor_core.c
+@@ -533,7 +533,7 @@ #endif
+ 
+ static void *processor_device_array[NR_CPUS];
+ 
+-static int acpi_processor_start(struct acpi_device *device)
++static int __cpuinit acpi_processor_start(struct acpi_device *device)
+ {
+ 	int result = 0;
+ 	acpi_status status = AE_OK;
+diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
+index 80fa434..106d6f3 100644
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -1077,7 +1077,7 @@ static struct file_operations acpi_proce
+ 	.release = single_release,
+ };
+ 
+-int acpi_processor_power_init(struct acpi_processor *pr,
++int __cpuinit acpi_processor_power_init(struct acpi_processor *pr,
+ 			      struct acpi_device *device)
+ {
+ 	acpi_status status = 0;

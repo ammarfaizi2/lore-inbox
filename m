@@ -1,40 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWC2IYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWC2I0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbWC2IYI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 03:24:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWC2IYI
+	id S1750712AbWC2I0F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 03:26:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWC2I0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 03:24:08 -0500
-Received: from 85.8.13.51.se.wasadata.net ([85.8.13.51]:57511 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1750776AbWC2IYG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 03:24:06 -0500
-Message-ID: <442A4426.2060306@drzeus.cx>
-Date: Wed, 29 Mar 2006 10:24:06 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Wed, 29 Mar 2006 03:26:04 -0500
+Received: from mx.ininfo.com.ua ([212.26.159.7]:31718 "EHLO mx.ininfo.com.ua")
+	by vger.kernel.org with ESMTP id S1750712AbWC2I0D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 03:26:03 -0500
+Message-ID: <442A4498.9060304@ininfo.com.ua>
+Date: Wed, 29 Mar 2006 11:26:00 +0300
+From: artem <artem@ininfo.com.ua>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-CC: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       Mark Lord <lkml@rtr.ca>, "David J. Wallace" <katana@onetel.com>,
-       sdhci-devel@list.drzeus.cx, linux-kernel@vger.kernel.org
-Subject: Re: [Sdhci-devel] Submission to the kernel?
-References: <4419FA7A.4050104@cogweb.net> <20060325063943.GB22214@kroah.com> <44254EDC.9020503@drzeus.cx> <200603280323.15915.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200603280323.15915.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1
+To: linux-kernel@vger.kernel.org
+Subject: i2c
+Content-Type: text/plain; charset=windows-1251; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan wrote:
-> O2 Micro SD readers still don't work; I can't offer hardware very easily, but 
-> I'd be more than glad to provide a networked box with root access..
->
->   
-
-Thanks, but during the initial development it is more or less necessary
-to have the hardware directly available.
-
-Rgds
-Pierre
+Hi. Does anyone now, what has happend. Since kernel 2.6.14 I experience
+problems with kernel:
+1) I have tvtuner (SAA7134). When switching channels, sound disappear
+for a while and then appear (I think that problem is in trying to found
+stereo), using 2.6.12 it's OK
+2) My IR (on tvtuner) work worse (have delay,before it begin to react
+on keypress)
+All my suspicions are on i2c
 

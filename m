@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWC2DIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWC2DRJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbWC2DIS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 22:08:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWC2DIS
+	id S1750717AbWC2DRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 22:17:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWC2DRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 22:08:18 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:26247 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1750700AbWC2DIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 22:08:17 -0500
-Message-ID: <4429F9F9.9000403@torque.net>
-Date: Tue, 28 Mar 2006 22:07:37 -0500
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Tue, 28 Mar 2006 22:17:08 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:46553 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750717AbWC2DRI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 22:17:08 -0500
+Message-ID: <4429F5AC.4000103@linux.intel.com>
+Date: Tue, 28 Mar 2006 18:49:16 -0800
+From: Tim Chen <tim.c.chen@linux.intel.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
-CC: "Ju, Seokmann" <Seokmann.Ju@engenio.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-Subject: Re: I/O performance measurement tools on Linux
-References: <890BF3111FB9484E9526987D912B261901BC88@NAMAIL3.ad.lsil.com>
-In-Reply-To: <890BF3111FB9484E9526987D912B261901BC88@NAMAIL3.ad.lsil.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=us-ascii
+To: pwil3058@bigpond.net.au
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] sched: smpnice try to wakeup modification
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ju, Seokmann wrote:
-> Hi,
-> 
-> Are there any performance measurement tools available that running on
-> Linux?
-> I would like to measure disk I/O performance (file system and raw I/O)
-> on several kernels.
-> Please lead me to the place.
+Peter,
 
-The sg3_utils package may help with some raw SCSI
-and SATA disk I/O measurements.
-sg_dd, sgp_dd and sgm_dd are dd variants that
-let you tweak a lot of low level details. The sg_read
-utility can be used to measure disk cache throughput,
-transport speeds and command overhead.
+If there is no load on this_cpu, (i.e. tl_per_task is 0), we will fail the  
+"tl + target_load(cpu, idx) <= tl_per_task" check.  I think the original intention was
+to put task on this_cpu if it has no load and when there's already one task on 
+cpu. This helps spread tasks out for low load condition.
 
-Recently I have been looking at measuring command overhead.
-On the disks that I am testing a zero block READ (i.e.
-issue a SCSI READ for zero blocks) is the fastest command.
+Thanks.
 
-The most recent released sg3_utils can be found at:
-http://www.torque.net/sg   [Utilities section]
-The latest beta is in the news section of that page.
-A description can be found at:
-http://www.torque.net/sg/u_index.html
+Tim
 
-Doug Gilbert
+Signed-off-by: Tim Chen <tim.c.chen@linux.intel.com>
 
-
+--- linux-2.6.16-mm2-a/kernel/sched.c	2006-03-28 16:00:37.091779904 -0800
++++ linux-2.6.16-mm2-b/kernel/sched.c	2006-03-28 16:09:08.237074008 -0800
+@@ -1393,7 +1393,7 @@ static int try_to_wake_up(task_t *p, uns
+ 
+ 		if (this_sd->flags & SD_WAKE_AFFINE) {
+ 			unsigned long tl = this_load;
+-			unsigned long tl_per_task = cpu_avg_load_per_task(this_cpu);
++			unsigned long sl_per_task = cpu_avg_load_per_task(cpu);
+ 
+ 			/*
+ 			 * If sync wakeup then subtract the (maximum possible)
+@@ -1404,7 +1404,7 @@ static int try_to_wake_up(task_t *p, uns
+ 				tl -= current->load_weight;
+ 
+ 			if ((tl <= load &&
+-				tl + target_load(cpu, idx) <= tl_per_task) ||
++				tl + target_load(cpu, idx) <= sl_per_task) ||
+ 				100*(tl + p->load_weight) <= imbalance*load) {
+ 				/*
+ 				 * This domain has SD_WAKE_AFFINE and
 

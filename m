@@ -1,88 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbWC2W32@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWC2WdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751060AbWC2W32 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 17:29:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWC2W32
+	id S1750996AbWC2WdI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 17:33:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751067AbWC2WdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 17:29:28 -0500
-Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:7084 "EHLO
-	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751058AbWC2W31 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 17:29:27 -0500
-Message-ID: <442B0A45.90808@bigpond.net.au>
-Date: Thu, 30 Mar 2006 09:29:25 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Wed, 29 Mar 2006 17:33:08 -0500
+Received: from ore.jhcloos.com ([64.240.156.239]:41990 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id S1751064AbWC2WdH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 17:33:07 -0500
+From: James Cloos <cloos@jhcloos.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Schedule for adding pata to kernel?
+In-Reply-To: <442A9A1C.1020004@shaw.ca> (Robert Hancock's message of "Wed, 29
+	Mar 2006 08:30:52 -0600")
+References: <5SuEq-6ut-39@gated-at.bofh.it> <5TDme-22E-27@gated-at.bofh.it>
+	<5UAcC-3bd-3@gated-at.bofh.it> <5UH4o-4RJ-27@gated-at.bofh.it>
+	<5UTfA-5uK-17@gated-at.bofh.it> <442A9A1C.1020004@shaw.ca>
+Copyright: Copyright 2006 James Cloos
+X-Hashcash: 1:23:060329:linux-kernel@vger.kernel.org::O2lQWCCniPOk5t+U:0000000000000000000000000000000016Z7D
+X-Hashcash: 1:23:060329:hancockr@shaw.ca::bIS0jeq5wpEwTqP7:0h8F0
+Date: Wed, 29 Mar 2006 17:30:31 -0500
+Message-ID: <m3acb8eveg.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/23.0.0 (gnu/linux)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Con Kolivas <kernel@kolivas.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Mike Galbraith <efault@gmx.de>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] sched: improve stability of smpnice load balancing
-Content-Type: multipart/mixed;
- boundary="------------000406080309050309020505"
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 29 Mar 2006 22:29:25 +0000
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000406080309050309020505
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+>>>>> "Robert" == Robert Hancock <hancockr@shaw.ca> writes:
 
-Problem:
+JimC> but [I] never managed to determine the CONFIG that used ata_piix rather
+JimC> than the old ide drivers.  Each attempt left me with a kernel which
+JimC> could not mount its root....
 
-Due to an injudicious piece of code near the end of find_busiest_group() 
-smpnice load balancing is too aggressive resulting in excessive movement 
-of tasks from one CPU to another.
+Robert> If you build them into the kernel, it should just work..
 
-Solution:
+Agreed.  It should.
 
-Remove the offending code.  The thinking that caused it to be included 
-became invalid when find_busiest_queue() was modified to use average 
-load per task (on the relevant run queue) instead of SCHED_LOAD_SCALE 
-when evaluating small imbalance values to see whether they warranted 
-being moved.
+But if I leave in CONFIG_IDE=y, CONFIG_BLK_DEV_PIIX=y I get root on
+0x0302 rather than 0x0802 even when I also have CONFIG_SCSI_SATA=y
+and CONFIG_SCSI_ATA_PIIX=y.
 
-Signed-off-by: Peter Williams <pwil3058@bigpond.com.au>
+If the first two are not set then the kernel cannot find anything.
 
-Peter
+My understanding is that with Alan's patch everything should be
+using major 8, and that CONFIG_IDE is no longer required, yes?
+
+-JimC
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
-
---------------000406080309050309020505
-Content-Type: text/plain;
- name="smpnice-increase-stability"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="smpnice-increase-stability"
-
-Index: MM-2.6.X/kernel/sched.c
-===================================================================
---- MM-2.6.X.orig/kernel/sched.c	2006-03-29 16:18:37.000000000 +1100
-+++ MM-2.6.X/kernel/sched.c	2006-03-29 16:20:37.000000000 +1100
-@@ -2290,13 +2290,10 @@ find_busiest_group(struct sched_domain *
- 		pwr_move /= SCHED_LOAD_SCALE;
- 
- 		/* Move if we gain throughput */
--		if (pwr_move > pwr_now)
--			*imbalance = busiest_load_per_task;
--		/* or if there's a reasonable chance that *imbalance is big
--		 * enough to cause a move
--		 */
--		 else if (*imbalance <= busiest_load_per_task / 2)
-+		if (pwr_move <= pwr_now)
- 			goto out_balanced;
-+
-+		*imbalance = busiest_load_per_task;
- 	}
- 
- 	return busiest;
-
---------------000406080309050309020505--
+James H. Cloos, Jr. <cloos@jhcloos.com>

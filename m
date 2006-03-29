@@ -1,58 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWC2Bj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWC2Bnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750758AbWC2Bj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 20:39:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbWC2Bj1
+	id S1750761AbWC2Bnd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 20:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWC2Bnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 20:39:27 -0500
-Received: from mga01.intel.com ([192.55.52.88]:59409 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750757AbWC2BjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 20:39:25 -0500
-X-IronPort-AV: i="4.03,140,1141632000"; 
-   d="scan'208"; a="16854501:sNHT180611480"
-Message-Id: <200603290139.k2T1d1g00702@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Christoph Lameter'" <clameter@sgi.com>
-Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
-       "Zoltan Menyhart" <Zoltan.Menyhart@free.fr>, <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-Subject: RE: Fix unlock_buffer() to work the same way as bit_unlock()
-Date: Tue, 28 Mar 2006 17:39:37 -0800
+	Tue, 28 Mar 2006 20:43:33 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:59824 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S1750761AbWC2Bnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 20:43:33 -0500
+Message-ID: <4429F247.90209@soleranetworks.com>
+Date: Tue, 28 Mar 2006 19:34:47 -0700
+From: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: "Theodore Ts'o" <tytso@mit.edu>
+CC: Jeff Garzik <jeff@garzik.org>,
+       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: e2label suggestions
+References: <4429AF42.1090101@soleranetworks.com> <20060328232927.GB32385@thunk.org> <4429D3E4.3060305@wolfmountaingroup.com> <4429D11F.6040000@garzik.org> <4429E050.7080008@soleranetworks.com> <20060329014048.GA29971@thunk.org>
+In-Reply-To: <20060329014048.GA29971@thunk.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZSzSrc3nQY/YFiTA+dUV/6DHVX4QAAtjOw
-In-Reply-To: <Pine.LNX.4.64.0603281644270.16702@schroedinger.engr.sgi.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote on Tuesday, March 28, 2006 4:47 PM
-> > Why not make unlock_buffer use test_and_clear_bit()?  Utilizing it's implied
-> > full memory fence and throw away the return value?  OK, OK, this is obscured.
-> > Then introduce clear_bit_memory_fence API or some sort.
-> 
-> Only for IA64's sake? Better clean up the bitops as you suggested earlier. 
-> The open ended acquires there leaves a weird feeling.
-> 
-> Something like this? (builds fine not tested yet)
+Theodore Ts'o wrote:
 
-It's warm and fuzzy feeling with changes in set_bit(), clear_bit(), and
-change_bit().  The API never meant to have implied memory fence in them.
-Though the usage might be assuming one way or the other because of x86
-semantics.
+>On Tue, Mar 28, 2006 at 06:18:08PM -0700, Jeff V. Merkey wrote:
+>  
+>
+>>Thanks for verifying it is passed through the kernel to initrd, another 
+>>kernel component.    It's also stored as EXT meta data
+>>(also in the kernel).  and retrieved from there.  And its not accessible 
+>>from normal user space applications (except in raw mode).
+>>    
+>>
+>
+>No, the contents of initrd/initramfs is not shipped as part of a
+>standard kernel.org kernel.  It is the responsibility of each
+>distribution to set up their initrd or initramfs initial boot scripts
+>themselves.  One could argue that it would be better if there were a
+>standard set of initrd scripts (and udev binaries) paired with
+>specific kernel.org kernels and used by all distro's, but that's not
+>where we are right now.
+>
+>  
+>
+????????
 
-How many of these things are used as (1) simple atomic op, (2) lock,
-(3) unlock, and (4) full fence?
+>The data is most certainly accessible from normal userspace
+>applications.  All they have to do is link against blkid library; 
+>  
+>
+All you need is a degree from MIT in advanced Fusion mechanics. :-)
 
-clear_bit  - 1,070 hits
-Set_bit    - 1,450 hits
-Change_bit -     8 hits
+>indeed the kernel doesn't do any LABEL= or UUID= searching at all.  By
+>design, it all supposed to be done in userspace.
+>  
+>
+?????????
 
-The effect of changing them to full memory fence could be wide spread. Though
-I don't have any numbers yet to say how much it will matter for performance.
+Ted,
 
-- Ken
+I give up on this one. I also agree a standardized initrd with built in 
+init is a great idea.
+
+:-)
+
+Jeff
+
+>						- Ted
+>
+>  
+>
+

@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750914AbWC2UnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWC2Ust@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750914AbWC2UnL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 15:43:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbWC2UnK
+	id S1750959AbWC2Ust (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 15:48:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbWC2Uss
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 15:43:10 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:36417 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750914AbWC2UnJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 15:43:09 -0500
-Date: Wed, 29 Mar 2006 22:43:16 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] splice support
-Message-ID: <20060329204316.GC13476@suse.de>
-References: <20060329122841.GC8186@suse.de> <442A8883.9060909@garzik.org> <Pine.LNX.4.64.0603291159150.15714@g5.osdl.org> <20060329204216.GB13476@suse.de>
+	Wed, 29 Mar 2006 15:48:48 -0500
+Received: from smtp108.sbc.mail.re2.yahoo.com ([68.142.229.97]:5809 "HELO
+	smtp108.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750944AbWC2Uss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 15:48:48 -0500
+Subject: Core-iSCSI v1.6.2.5 & Core-iSCSI-tools v3.3
+From: "Nicholas A. Bellinger" <nab@kernel.org>
+To: Core-iSCSI <Core-iSCSI@googlegroups.com>,
+       Open iSCSI <open-iscsi@googlegroups.com>,
+       linux-scsi <linux-scsi@vger.kernel.org>,
+       iet-dev <iscsitarget-devel@lists.sourceforge.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 29 Mar 2006 12:41:19 -0800
+Message-Id: <1143664879.17194.12.camel@haakon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060329204216.GB13476@suse.de>
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29 2006, Jens Axboe wrote:
-> On Wed, Mar 29 2006, Linus Torvalds wrote:
-> > 
-> > 
-> > On Wed, 29 Mar 2006, Jeff Garzik wrote:
-> > > 
-> > > 1) What are the consequences of doing
-> > > 
-> > > 	if (f_op->splice_write)
-> > > 		f_op->splice_write(...);
-> > > 	else
-> > > 		generic_file_splice_write(...);
-> > > 
-> > > to cause sys_splice() to default to supported?
-> > 
-> > I'd actually much prefer a number of filesystems just adding he 
-> > "generic_file_splice_write()" thing. If it works for them (and it usually 
-> > will), it's a one-liner. And it won't do wrong things on filesystems that 
-> > have special rules (inode re-validate for networked filesystems etc).
-> > 
-> > > 2) Do you really have to test f_op itself for NULL?  Is that a stealth
-> > > closed-file check or something?  I would be surprised if f_op was ever really
-> > > NULL.
-> > 
-> > Hmm.. I agree that f_op probably should never be NULL (a struct file with 
-> > a NULL f_op is pretty useless), but it is a test that we historically have 
-> > had. So it's probably best to keep for consistency, and if somebody wants 
-> > to, they can clean up all the other tests too (in the read/write/lseek 
-> > paths).
-> > 
-> > I'm inclined to apply this patch (well, I'd like the fixed one). The whole 
-> > splice() thing has been rolling around in my head for years, and the pipe 
-> > support infrastructure for it has been around for over a year now in 
-> > preparation for this.
-> > 
-> > And the patch actually looks pretty clean to me.
-> 
-> Go ahead, as mentioned there are a few little extra fixes in the git
-> repo. The remaining changes I had in mind don't require anything
-> massive, so...
+Greetings all,
 
-git://brick.kernel.dk/data/git/linux-2.6-block.git splice
+Core-iSCSI v1.6.2.5 and Core-iSCSI-tools v3.3 are now available from:
 
-is the url, just in case.
+http://www.kernel.org/pub/linux/kernel/people/nab/iscsi-initiator-core/core-iscsi-v1.6.2.5.tar.bz2
+http://www.kernel.org/pub/linux/utils/storage/iscsi/core-iscsi-tools-v3.3.tar.bz2
+
+The changes a relatively minor relating to a fix for core-iscsi on ARM
+(namely the Nokia 770), as well as some fixes related to using the
+core-iscsi-tools scripts in a busybox environment.  v3.3 of the tools
+should also fix the authentication problem that appeared with v1.6.2.5
+of the stack.
+
+On a related note, the wiki on http://www.linux-iscsi.org has been
+filling in nicely, and I would like to thank everyone that has
+contributed.  linux-iscsi.org will continue to move forward the
+evolution of Linux/iSCSI on all platfroms along with the Open/iSCSI and
+IET development communities.
+
+Thanks!
 
 -- 
-Jens Axboe
+Nicholas A. Bellinger <nab@kernel.org>
 

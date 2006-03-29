@@ -1,56 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWC2Bk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWC2BjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750757AbWC2Bk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 20:40:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbWC2Bk4
+	id S1750749AbWC2BjO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 20:39:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWC2BjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 20:40:56 -0500
-Received: from thunk.org ([69.25.196.29]:42200 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1750757AbWC2Bkz (ORCPT
+	Tue, 28 Mar 2006 20:39:14 -0500
+Received: from mail.sw-soft.com ([69.64.46.34]:15269 "EHLO mail.sw-soft.com")
+	by vger.kernel.org with ESMTP id S1750749AbWC2BjO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 20:40:55 -0500
-Date: Tue, 28 Mar 2006 20:40:48 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
-Cc: Jeff Garzik <jeff@garzik.org>,
-       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: e2label suggestions
-Message-ID: <20060329014048.GA29971@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	"Jeff V. Merkey" <jmerkey@soleranetworks.com>,
-	Jeff Garzik <jeff@garzik.org>,
-	"Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-	Linux kernel <linux-kernel@vger.kernel.org>
-References: <4429AF42.1090101@soleranetworks.com> <20060328232927.GB32385@thunk.org> <4429D3E4.3060305@wolfmountaingroup.com> <4429D11F.6040000@garzik.org> <4429E050.7080008@soleranetworks.com>
+	Tue, 28 Mar 2006 20:39:14 -0500
+Message-ID: <4429E534.8030206@sw.ru>
+Date: Wed, 29 Mar 2006 05:39:00 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4429E050.7080008@soleranetworks.com>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: "Eric W. Biederman" <ebiederm@xmission.com>, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, herbert@13thfloor.at, devel@openvz.org,
+       serue@us.ibm.com, akpm@osdl.org, sam@vilain.net,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Pavel Emelianov <xemul@sw.ru>,
+       Stanislav Protassov <st@sw.ru>
+Subject: Re: [RFC] Virtualization steps
+References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au> <4428FB90.5000601@sw.ru> <4428FEA5.9020808@yahoo.com.au>
+In-Reply-To: <4428FEA5.9020808@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 28, 2006 at 06:18:08PM -0700, Jeff V. Merkey wrote:
-> Thanks for verifying it is passed through the kernel to initrd, another 
-> kernel component.    It's also stored as EXT meta data
-> (also in the kernel).  and retrieved from there.  And its not accessible 
-> from normal user space applications (except in raw mode).
+Nick,
 
-No, the contents of initrd/initramfs is not shipped as part of a
-standard kernel.org kernel.  It is the responsibility of each
-distribution to set up their initrd or initramfs initial boot scripts
-themselves.  One could argue that it would be better if there were a
-standard set of initrd scripts (and udev binaries) paired with
-specific kernel.org kernels and used by all distro's, but that's not
-where we are right now.
+>> First of all, what it does which low level virtualization can't:
+>> - it allows to run 100 containers on 1GB RAM
+>>   (it is called containers, VE - Virtual Environments,
+>>    VPS - Virtual Private Servers).
+>> - it has no much overhead (<1-2%), which is unavoidable with hardware
+>>   virtualization. For example, Xen has >20% overhead on disk I/O.
+> 
+> Are any future hardware solutions likely to improve these problems?
+Probably you are aware of VT-i/VT-x technologies and planned virtualized 
+MMU and I/O MMU from Intel and AMD.
+These features should improve the performance somehow, but there is 
+still a limit for decreasing the overhead, since at least disk, network, 
+video and such devices should be emulated.
 
-The data is most certainly accessible from normal userspace
-applications.  All they have to do is link against blkid library;
-indeed the kernel doesn't do any LABEL= or UUID= searching at all.  By
-design, it all supposed to be done in userspace.
+>> OS kernel virtualization
+>> ~~~~~~~~~~~~~~~~~~~~~~~~
+> 
+> Is this considered secure enough that multiple untrusted VEs are run
+> on production systems?
+it is secure enough. What makes it secure? In general:
+- virtualization, which makes resources private
+- resource control, which makes VE to be limited with its usages
+In more technical details virtualization projects make user access (and 
+capabilities) checks stricter. Moreover, OpenVZ is using "denied by 
+default" approach to make sure it is secure and VE users are not allowed 
+something else.
 
-						- Ted
+Also, about 2-3 month ago we had a security review of OpenVZ project 
+made by Solar Designer. So, in general such virtualization approach 
+should be not less secure than VM-like one. VM core code is bigger and 
+there is enough chances for bugs there.
+
+> What kind of users want this, who can't use alternatives like real
+> VMs?
+Many companies, just can't share their names. But in general no 
+enterprise and hosting companies need to run different OSes on the same 
+machine. For them it is quite natural to use N machines for Linux and M 
+for Windows. And since VEs are much more lightweight and easier to work 
+with, they like it very much.
+
+Just for example, OpenVZ core is running more than 300,000 VEs worldwide.
+
+Thanks,
+Kirill

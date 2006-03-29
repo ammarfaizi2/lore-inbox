@@ -1,1023 +1,685 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWC2Cb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWC2Cbu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbWC2Cb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 21:31:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWC2Cbz
+	id S1750804AbWC2Cbu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 21:31:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWC2Cb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 21:31:55 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:34014 "EHLO
+	Tue, 28 Mar 2006 21:31:29 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:32734 "EHLO
 	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750791AbWC2Cbe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 21:31:34 -0500
-Date: Tue, 28 Mar 2006 20:31:21 -0600 (CST)
+	id S1750791AbWC2Cb0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 21:31:26 -0500
+Date: Tue, 28 Mar 2006 20:31:11 -0600 (CST)
 From: Mark Maule <maule@sgi.com>
 To: linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz,
        linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: j-nomura@ce.jp.nec.com, Tony Luck <tony.luck@intel.com>, gregkh@suse.de,
        Mark Maule <maule@sgi.com>
-Message-Id: <20060329023121.13892.96308.71863@lnx-maule.americas.sgi.com>
+Message-Id: <20060329023111.13892.94826.67421@lnx-maule.americas.sgi.com>
 In-Reply-To: <20060329023105.13892.52299.24895@lnx-maule.americas.sgi.com>
 References: <20060329023105.13892.52299.24895@lnx-maule.americas.sgi.com>
-Subject: [PATCH 3/3] altix:  msi support
+Subject: [PATCH 1/3] msi vector targeting abstractions
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MSI callouts for altix.  Involves a fair amount of code reorg in sn irq.c
-code as well as adding some extensions to the altix PCI provider abstaction.
+Abstract portions of the MSI core for platforms that do not use standard
+APIC interrupt controllers.  This is implemented through a new arch-specific
+msi setup routine, and a set of msi ops which can be set on a per platform
+basis.
 
 Signed-off-by: Mark Maule <maule@sgi.com>
 
-Index: linux-2.6/arch/ia64/sn/kernel/io_init.c
+Index: linux-2.6/drivers/pci/msi.c
 ===================================================================
---- linux-2.6.orig/arch/ia64/sn/kernel/io_init.c	2006-03-27 11:10:59.000000000 -0600
-+++ linux-2.6/arch/ia64/sn/kernel/io_init.c	2006-03-27 19:03:17.206816884 -0600
-@@ -58,7 +58,7 @@
-  */
+--- linux-2.6.orig/drivers/pci/msi.c	2006-03-27 11:11:04.000000000 -0600
++++ linux-2.6/drivers/pci/msi.c	2006-03-27 13:32:56.192398615 -0600
+@@ -23,8 +23,6 @@
+ #include "pci.h"
+ #include "msi.h"
  
- static dma_addr_t
--sn_default_pci_map(struct pci_dev *pdev, unsigned long paddr, size_t size)
-+sn_default_pci_map(struct pci_dev *pdev, unsigned long paddr, size_t size, int type)
- {
- 	return 0;
- }
-@@ -457,13 +457,6 @@
- 		pcidev_info->pdi_sn_irq_info = NULL;
- 		kfree(sn_irq_info);
- 	}
+-#define MSI_TARGET_CPU		first_cpu(cpu_online_map)
 -
--	/*
--	 * MSI currently not supported on altix.  Remove this when
--	 * the MSI abstraction patches are integrated into the kernel
--	 * (sometime after 2.6.16 releases)
--	 */
--	dev->no_msi = 1;
- }
- 
- /*
-Index: linux-2.6/arch/ia64/sn/kernel/irq.c
-===================================================================
---- linux-2.6.orig/arch/ia64/sn/kernel/irq.c	2006-03-27 14:28:49.000000000 -0600
-+++ linux-2.6/arch/ia64/sn/kernel/irq.c	2006-03-27 14:33:46.977089283 -0600
-@@ -26,11 +26,11 @@
- 
- int sn_force_interrupt_flag = 1;
- extern int sn_ioif_inited;
--static struct list_head **sn_irq_lh;
-+struct list_head **sn_irq_lh;
- static spinlock_t sn_irq_info_lock = SPIN_LOCK_UNLOCKED; /* non-IRQ lock */
- 
--static inline u64 sn_intr_alloc(nasid_t local_nasid, int local_widget,
--				     u64 sn_irq_info,
-+u64 sn_intr_alloc(nasid_t local_nasid, int local_widget,
-+				     struct sn_irq_info *sn_irq_info,
- 				     int req_irq, nasid_t req_nasid,
- 				     int req_slice)
- {
-@@ -40,12 +40,13 @@
- 
- 	SAL_CALL_NOLOCK(ret_stuff, (u64) SN_SAL_IOIF_INTERRUPT,
- 			(u64) SAL_INTR_ALLOC, (u64) local_nasid,
--			(u64) local_widget, (u64) sn_irq_info, (u64) req_irq,
-+			(u64) local_widget, __pa(sn_irq_info), (u64) req_irq,
- 			(u64) req_nasid, (u64) req_slice);
-+
- 	return ret_stuff.status;
- }
- 
--static inline void sn_intr_free(nasid_t local_nasid, int local_widget,
-+void sn_intr_free(nasid_t local_nasid, int local_widget,
- 				struct sn_irq_info *sn_irq_info)
- {
- 	struct ia64_sal_retval ret_stuff;
-@@ -112,73 +113,91 @@
- 
- static void sn_irq_info_free(struct rcu_head *head);
- 
--static void sn_set_affinity_irq(unsigned int irq, cpumask_t mask)
-+struct sn_irq_info *sn_retarget_vector(struct sn_irq_info *sn_irq_info,
-+				       nasid_t nasid, int slice)
- {
--	struct sn_irq_info *sn_irq_info, *sn_irq_info_safe;
--	int cpuid, cpuphys;
-+	int vector;
-+	int cpuphys;
-+	int64_t bridge;
-+	int local_widget, status;
-+	nasid_t local_nasid;
-+	struct sn_irq_info *new_irq_info;
-+	struct sn_pcibus_provider *pci_provider;
- 
--	cpuid = first_cpu(mask);
--	cpuphys = cpu_physical_id(cpuid);
-+	new_irq_info = kmalloc(sizeof(struct sn_irq_info), GFP_ATOMIC);
-+	if (new_irq_info == NULL)
-+		return NULL;
-+
-+	memcpy(new_irq_info, sn_irq_info, sizeof(struct sn_irq_info));
-+
-+	bridge = (u64) new_irq_info->irq_bridge;
-+	if (!bridge) {
-+		kfree(new_irq_info);
-+		return NULL; /* irq is not a device interrupt */
-+	}
- 
--	list_for_each_entry_safe(sn_irq_info, sn_irq_info_safe,
--				 sn_irq_lh[irq], list) {
--		u64 bridge;
--		int local_widget, status;
--		nasid_t local_nasid;
--		struct sn_irq_info *new_irq_info;
--		struct sn_pcibus_provider *pci_provider;
--
--		new_irq_info = kmalloc(sizeof(struct sn_irq_info), GFP_ATOMIC);
--		if (new_irq_info == NULL)
--			break;
--		memcpy(new_irq_info, sn_irq_info, sizeof(struct sn_irq_info));
--
--		bridge = (u64) new_irq_info->irq_bridge;
--		if (!bridge) {
--			kfree(new_irq_info);
--			break; /* irq is not a device interrupt */
--		}
-+	local_nasid = NASID_GET(bridge);
- 
--		local_nasid = NASID_GET(bridge);
-+	if (local_nasid & 1)
-+		local_widget = TIO_SWIN_WIDGETNUM(bridge);
-+	else
-+		local_widget = SWIN_WIDGETNUM(bridge);
-+
-+	vector = sn_irq_info->irq_irq;
-+	/* Free the old PROM new_irq_info structure */
-+	sn_intr_free(local_nasid, local_widget, new_irq_info);
-+	/* Update kernels new_irq_info with new target info */
-+	unregister_intr_pda(new_irq_info);
-+
-+	/* allocate a new PROM new_irq_info struct */
-+	status = sn_intr_alloc(local_nasid, local_widget,
-+			       new_irq_info, vector,
-+			       nasid, slice);
-+
-+	/* SAL call failed */
-+	if (status) {
-+		kfree(new_irq_info);
-+		return NULL;
-+	}
- 
--		if (local_nasid & 1)
--			local_widget = TIO_SWIN_WIDGETNUM(bridge);
--		else
--			local_widget = SWIN_WIDGETNUM(bridge);
--
--		/* Free the old PROM new_irq_info structure */
--		sn_intr_free(local_nasid, local_widget, new_irq_info);
--		/* Update kernels new_irq_info with new target info */
--		unregister_intr_pda(new_irq_info);
--
--		/* allocate a new PROM new_irq_info struct */
--		status = sn_intr_alloc(local_nasid, local_widget,
--				       __pa(new_irq_info), irq,
--				       cpuid_to_nasid(cpuid),
--				       cpuid_to_slice(cpuid));
--
--		/* SAL call failed */
--		if (status) {
--			kfree(new_irq_info);
--			break;
--		}
-+	cpuphys = nasid_slice_to_cpuid(nasid, slice);
-+	new_irq_info->irq_cpuid = cpuphys;
-+	register_intr_pda(new_irq_info);
- 
--		new_irq_info->irq_cpuid = cpuid;
--		register_intr_pda(new_irq_info);
-+	pci_provider = sn_pci_provider[new_irq_info->irq_bridge_type];
- 
--		pci_provider = sn_pci_provider[new_irq_info->irq_bridge_type];
--		if (pci_provider && pci_provider->target_interrupt)
--			(pci_provider->target_interrupt)(new_irq_info);
--
--		spin_lock(&sn_irq_info_lock);
--		list_replace_rcu(&sn_irq_info->list, &new_irq_info->list);
--		spin_unlock(&sn_irq_info_lock);
--		call_rcu(&sn_irq_info->rcu, sn_irq_info_free);
-+	/*
-+	 * If this represents a line interrupt, target it.  If it's
-+	 * an msi (irq_int_bit < 0), it's already targeted.
-+	 */
-+	if (new_irq_info->irq_int_bit >= 0 &&
-+	    pci_provider && pci_provider->target_interrupt)
-+		(pci_provider->target_interrupt)(new_irq_info);
-+
-+	spin_lock(&sn_irq_info_lock);
-+	list_replace_rcu(&sn_irq_info->list, &new_irq_info->list);
-+	spin_unlock(&sn_irq_info_lock);
-+	call_rcu(&sn_irq_info->rcu, sn_irq_info_free);
- 
- #ifdef CONFIG_SMP
--		set_irq_affinity_info((irq & 0xff), cpuphys, 0);
-+	set_irq_affinity_info((vector & 0xff), cpuphys, 0);
+ static DEFINE_SPINLOCK(msi_lock);
+ static struct msi_desc* msi_desc[NR_IRQS] = { [0 ... NR_IRQS-1] = NULL };
+ static kmem_cache_t* msi_cachep;
+@@ -40,6 +38,15 @@
+ u8 irq_vector[NR_IRQ_VECTORS] = { FIRST_DEVICE_VECTOR , 0 };
  #endif
--	}
+ 
++static struct msi_ops *msi_ops;
 +
-+	return new_irq_info;
++int
++msi_register(struct msi_ops *ops)
++{
++	msi_ops = ops;
++	return 0;
 +}
 +
-+static void sn_set_affinity_irq(unsigned int irq, cpumask_t mask)
-+{
-+	struct sn_irq_info *sn_irq_info, *sn_irq_info_safe;
-+	nasid_t nasid;
-+	int slice;
-+
-+	nasid = cpuid_to_nasid(first_cpu(mask));
-+	slice = cpuid_to_slice(first_cpu(mask));
-+
-+	list_for_each_entry_safe(sn_irq_info, sn_irq_info_safe,
-+				 sn_irq_lh[irq], list)
-+		(void)sn_retarget_vector(sn_irq_info, nasid, slice);
- }
- 
- struct hw_interrupt_type irq_type_sn = {
-Index: linux-2.6/arch/ia64/sn/pci/pci_dma.c
-===================================================================
---- linux-2.6.orig/arch/ia64/sn/pci/pci_dma.c	2006-03-27 11:10:59.000000000 -0600
-+++ linux-2.6/arch/ia64/sn/pci/pci_dma.c	2006-03-27 14:33:46.980018681 -0600
-@@ -11,7 +11,7 @@
- 
- #include <linux/module.h>
- #include <asm/dma.h>
--#include <asm/sn/pcibr_provider.h>
-+#include <asm/sn/intr.h>
- #include <asm/sn/pcibus_provider_defs.h>
- #include <asm/sn/pcidev.h>
- #include <asm/sn/sn_sal.h>
-@@ -113,7 +113,8 @@
- 	 * resources.
- 	 */
- 
--	*dma_handle = provider->dma_map_consistent(pdev, phys_addr, size);
-+	*dma_handle = provider->dma_map_consistent(pdev, phys_addr, size,
-+						   SN_DMA_ADDR_PHYS);
- 	if (!*dma_handle) {
- 		printk(KERN_ERR "%s: out of ATEs\n", __FUNCTION__);
- 		free_pages((unsigned long)cpuaddr, get_order(size));
-@@ -176,7 +177,7 @@
- 	BUG_ON(dev->bus != &pci_bus_type);
- 
- 	phys_addr = __pa(cpu_addr);
--	dma_addr = provider->dma_map(pdev, phys_addr, size);
-+	dma_addr = provider->dma_map(pdev, phys_addr, size, SN_DMA_ADDR_PHYS);
- 	if (!dma_addr) {
- 		printk(KERN_ERR "%s: out of ATEs\n", __FUNCTION__);
- 		return 0;
-@@ -260,7 +261,8 @@
- 	for (i = 0; i < nhwentries; i++, sg++) {
- 		phys_addr = SG_ENT_PHYS_ADDRESS(sg);
- 		sg->dma_address = provider->dma_map(pdev,
--						    phys_addr, sg->length);
-+						    phys_addr, sg->length,
-+						    SN_DMA_ADDR_PHYS);
- 
- 		if (!sg->dma_address) {
- 			printk(KERN_ERR "%s: out of ATEs\n", __FUNCTION__);
-Index: linux-2.6/arch/ia64/sn/pci/pcibr/pcibr_dma.c
-===================================================================
---- linux-2.6.orig/arch/ia64/sn/pci/pcibr/pcibr_dma.c	2006-03-27 11:10:59.000000000 -0600
-+++ linux-2.6/arch/ia64/sn/pci/pcibr/pcibr_dma.c	2006-03-27 14:33:46.983924544 -0600
-@@ -41,7 +41,7 @@
- 
- static dma_addr_t
- pcibr_dmamap_ate32(struct pcidev_info *info,
--		   u64 paddr, size_t req_size, u64 flags)
-+		   u64 paddr, size_t req_size, u64 flags, int dma_flags)
+ static void msi_cache_ctor(void *p, kmem_cache_t *cache, unsigned long flags)
  {
+ 	memset(p, 0, NR_IRQS * sizeof(struct msi_desc));
+@@ -92,7 +99,7 @@
+ static void set_msi_affinity(unsigned int vector, cpumask_t cpu_mask)
+ {
+ 	struct msi_desc *entry;
+-	struct msg_address address;
++	u32 address_hi, address_lo;
+ 	unsigned int irq = vector;
+ 	unsigned int dest_cpu = first_cpu(cpu_mask);
  
- 	struct pcidev_info *pcidev_info = info->pdi_host_pcidev_info;
-@@ -81,9 +81,12 @@
- 	if (IS_PCIX(pcibus_info))
- 		ate_flags &= ~(PCI32_ATE_PREF);
+@@ -108,28 +115,36 @@
+ 		if (!pos)
+ 			return;
  
--	xio_addr =
--	    IS_PIC_SOFT(pcibus_info) ? PHYS_TO_DMA(paddr) :
--	    PHYS_TO_TIODMA(paddr);
-+	if (SN_DMA_ADDRTYPE(dma_flags == SN_DMA_ADDR_PHYS))
-+		xio_addr = IS_PIC_SOFT(pcibus_info) ? PHYS_TO_DMA(paddr) :
-+	    					      PHYS_TO_TIODMA(paddr);
-+	else
-+		xio_addr = paddr;
++		pci_read_config_dword(entry->dev, msi_upper_address_reg(pos),
++			&address_hi);
+ 		pci_read_config_dword(entry->dev, msi_lower_address_reg(pos),
+-			&address.lo_address.value);
+-		address.lo_address.value &= MSI_ADDRESS_DEST_ID_MASK;
+-		address.lo_address.value |= (cpu_physical_id(dest_cpu) <<
+-									MSI_TARGET_CPU_SHIFT);
+-		entry->msi_attrib.current_cpu = cpu_physical_id(dest_cpu);
++			&address_lo);
 +
- 	offset = IOPGOFF(xio_addr);
- 	ate = ate_flags | (xio_addr - offset);
- 
-@@ -91,6 +94,13 @@
- 	if (IS_PIC_SOFT(pcibus_info)) {
- 		ate |= (pcibus_info->pbi_hub_xid << PIC_ATE_TARGETID_SHFT);
++		msi_ops->target(vector, dest_cpu, &address_hi, &address_lo);
++
++		pci_write_config_dword(entry->dev, msi_upper_address_reg(pos),
++			address_hi);
+ 		pci_write_config_dword(entry->dev, msi_lower_address_reg(pos),
+-			address.lo_address.value);
++			address_lo);
+ 		set_native_irq_info(irq, cpu_mask);
+ 		break;
  	}
-+
-+	/*
-+	 * If we're mapping for MSI, set the MSI bit in the ATE
-+	 */
-+	if (dma_flags & SN_DMA_MSI)
-+		ate |= PCI32_ATE_MSI;
-+
- 	ate_write(pcibus_info, ate_index, ate_count, ate);
+ 	case PCI_CAP_ID_MSIX:
+ 	{
+-		int offset = entry->msi_attrib.entry_nr * PCI_MSIX_ENTRY_SIZE +
+-			PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET;
++		int offset_hi =
++			entry->msi_attrib.entry_nr * PCI_MSIX_ENTRY_SIZE +
++				PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET;
++		int offset_lo =
++			entry->msi_attrib.entry_nr * PCI_MSIX_ENTRY_SIZE +
++				PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET;
  
- 	/*
-@@ -105,20 +115,27 @@
- 	if (pcibus_info->pbi_devreg[internal_device] & PCIBR_DEV_SWAP_DIR)
- 		ATE_SWAP_ON(pci_addr);
- 
+-		address.lo_address.value = readl(entry->mask_base + offset);
+-		address.lo_address.value &= MSI_ADDRESS_DEST_ID_MASK;
+-		address.lo_address.value |= (cpu_physical_id(dest_cpu) <<
+-									MSI_TARGET_CPU_SHIFT);
+-		entry->msi_attrib.current_cpu = cpu_physical_id(dest_cpu);
+-		writel(address.lo_address.value, entry->mask_base + offset);
++		address_hi = readl(entry->mask_base + offset_hi);
++		address_lo = readl(entry->mask_base + offset_lo);
 +
- 	return pci_addr;
- }
++		msi_ops->target(vector, dest_cpu, &address_hi, &address_lo);
++
++		writel(address_hi, entry->mask_base + offset_hi);
++		writel(address_lo, entry->mask_base + offset_lo);
+ 		set_native_irq_info(irq, cpu_mask);
+ 		break;
+ 	}
+@@ -251,30 +266,6 @@
+ 	.set_affinity	= set_msi_affinity
+ };
  
- static dma_addr_t
- pcibr_dmatrans_direct64(struct pcidev_info * info, u64 paddr,
--			u64 dma_attributes)
-+			u64 dma_attributes, int dma_flags)
+-static void msi_data_init(struct msg_data *msi_data,
+-			  unsigned int vector)
+-{
+-	memset(msi_data, 0, sizeof(struct msg_data));
+-	msi_data->vector = (u8)vector;
+-	msi_data->delivery_mode = MSI_DELIVERY_MODE;
+-	msi_data->level = MSI_LEVEL_MODE;
+-	msi_data->trigger = MSI_TRIGGER_MODE;
+-}
+-
+-static void msi_address_init(struct msg_address *msi_address)
+-{
+-	unsigned int	dest_id;
+-	unsigned long	dest_phys_id = cpu_physical_id(MSI_TARGET_CPU);
+-
+-	memset(msi_address, 0, sizeof(struct msg_address));
+-	msi_address->hi_address = (u32)0;
+-	dest_id = (MSI_ADDRESS_HEADER << MSI_ADDRESS_HEADER_SHIFT);
+-	msi_address->lo_address.u.dest_mode = MSI_PHYSICAL_MODE;
+-	msi_address->lo_address.u.redirection_hint = MSI_REDIRECTION_HINT_MODE;
+-	msi_address->lo_address.u.dest_id = dest_id;
+-	msi_address->lo_address.value |= (dest_phys_id << MSI_TARGET_CPU_SHIFT);
+-}
+-
+ static int msi_free_vector(struct pci_dev* dev, int vector, int reassign);
+ static int assign_msi_vector(void)
  {
- 	struct pcibus_info *pcibus_info = (struct pcibus_info *)
- 	    ((info->pdi_host_pcidev_info)->pdi_pcibus_info);
- 	u64 pci_addr;
+@@ -369,13 +360,29 @@
+ 		return status;
+ 	}
  
- 	/* Translate to Crosstalk View of Physical Address */
--	pci_addr = (IS_PIC_SOFT(pcibus_info) ? PHYS_TO_DMA(paddr) :
--		    PHYS_TO_TIODMA(paddr)) | dma_attributes;
-+	if (SN_DMA_ADDRTYPE(dma_flags) == SN_DMA_ADDR_PHYS)
-+		pci_addr = IS_PIC_SOFT(pcibus_info) ?
-+				PHYS_TO_DMA(paddr) :
-+		    		PHYS_TO_TIODMA(paddr) | dma_attributes;
-+	else
-+		pci_addr = IS_PIC_SOFT(pcibus_info) ?
-+				paddr :
-+				paddr | dma_attributes;
++	status = msi_arch_init();
++	if (status < 0) {
++		pci_msi_enable = 0;
++		printk(KERN_WARNING
++		       "PCI: MSI arch init failed.  MSI disabled.\n");
++		return status;
++	}
++
++	if (! msi_ops) {
++		printk(KERN_WARNING
++		       "PCI: MSI ops not registered. MSI disabled.\n");
++		status = -EINVAL;
++		return status;
++	}
++
++	last_alloc_vector = assign_irq_vector(AUTO_ASSIGN);
+ 	status = msi_cache_init();
+ 	if (status < 0) {
+ 		pci_msi_enable = 0;
+ 		printk(KERN_WARNING "PCI: MSI cache init failed\n");
+ 		return status;
+ 	}
+-	last_alloc_vector = assign_irq_vector(AUTO_ASSIGN);
++
+ 	if (last_alloc_vector < 0) {
+ 		pci_msi_enable = 0;
+ 		printk(KERN_WARNING "PCI: No interrupt vectors available for MSI\n");
+@@ -515,9 +522,11 @@
+  **/
+ static int msi_capability_init(struct pci_dev *dev)
+ {
++	int status;
+ 	struct msi_desc *entry;
+-	struct msg_address address;
+-	struct msg_data data;
++	u32 address_lo;
++	u32 address_hi;
++	u32 data;
+ 	int pos, vector;
+ 	u16 control;
  
- 	/* Handle Bus mode */
- 	if (IS_PCIX(pcibus_info))
-@@ -130,7 +147,9 @@
- 		    ((u64) pcibus_info->
- 		     pbi_hub_xid << PIC_PCI64_ATTR_TARG_SHFT);
+@@ -546,23 +555,27 @@
+ 		entry->mask_base = (void __iomem *)(long)msi_mask_bits_reg(pos,
+ 				is_64bit_address(control));
+ 	}
++	/* Configure MSI capability structure */
++	status = msi_ops->setup(dev, vector,
++				&address_hi,
++				&address_lo,
++				&data);
++	if (status < 0) {
++		dev->irq = entry->msi_attrib.default_vector;
++		kmem_cache_free(msi_cachep, entry);
++		return status;
++	}
+ 	/* Replace with MSI handler */
+ 	irq_handler_init(PCI_CAP_ID_MSI, vector, entry->msi_attrib.maskbit);
+-	/* Configure MSI capability structure */
+-	msi_address_init(&address);
+-	msi_data_init(&data, vector);
+-	entry->msi_attrib.current_cpu = ((address.lo_address.u.dest_id >>
+-				MSI_TARGET_CPU_SHIFT) & MSI_TARGET_CPU_MASK);
+-	pci_write_config_dword(dev, msi_lower_address_reg(pos),
+-			address.lo_address.value);
++
++	pci_write_config_dword(dev, msi_lower_address_reg(pos), address_lo);
+ 	if (is_64bit_address(control)) {
+ 		pci_write_config_dword(dev,
+-			msi_upper_address_reg(pos), address.hi_address);
+-		pci_write_config_word(dev,
+-			msi_data_reg(pos, 1), *((u32*)&data));
++			msi_upper_address_reg(pos), address_hi);
++		pci_write_config_word(dev, msi_data_reg(pos, 1), data);
  	} else
--		pci_addr |= TIOCP_PCI64_CMDTYPE_MEM;
-+		pci_addr |= (dma_flags & SN_DMA_MSI) ?
-+				TIOCP_PCI64_CMDTYPE_MSI :
-+				TIOCP_PCI64_CMDTYPE_MEM;
- 
- 	/* If PCI mode, func zero uses VCHAN0, every other func uses VCHAN1 */
- 	if (!IS_PCIX(pcibus_info) && PCI_FUNC(info->pdi_linux_pcidev->devfn))
-@@ -141,7 +160,7 @@
- 
- static dma_addr_t
- pcibr_dmatrans_direct32(struct pcidev_info * info,
--			u64 paddr, size_t req_size, u64 flags)
-+			u64 paddr, size_t req_size, u64 flags, int dma_flags)
- {
- 	struct pcidev_info *pcidev_info = info->pdi_host_pcidev_info;
- 	struct pcibus_info *pcibus_info = (struct pcibus_info *)pcidev_info->
-@@ -156,8 +175,14 @@
- 		return 0;
- 	}
- 
--	xio_addr = IS_PIC_SOFT(pcibus_info) ? PHYS_TO_DMA(paddr) :
--	    PHYS_TO_TIODMA(paddr);
-+	if (dma_flags & SN_DMA_MSI)
-+		return 0;
+-		pci_write_config_word(dev,
+-			msi_data_reg(pos, 0), *((u32*)&data));
++		pci_write_config_word(dev, msi_data_reg(pos, 0), data);
 +
-+	if (SN_DMA_ADDRTYPE(dma_flags) == SN_DMA_ADDR_PHYS)
-+		xio_addr = IS_PIC_SOFT(pcibus_info) ? PHYS_TO_DMA(paddr) :
-+	    					      PHYS_TO_TIODMA(paddr);
-+	else
-+		xio_addr = paddr;
- 
- 	xio_base = pcibus_info->pbi_dir_xbase;
- 	offset = xio_addr - xio_base;
-@@ -327,7 +352,7 @@
-  */
- 
- dma_addr_t
--pcibr_dma_map(struct pci_dev * hwdev, unsigned long phys_addr, size_t size)
-+pcibr_dma_map(struct pci_dev * hwdev, unsigned long phys_addr, size_t size, int dma_flags)
- {
- 	dma_addr_t dma_handle;
- 	struct pcidev_info *pcidev_info = SN_PCIDEV_INFO(hwdev);
-@@ -344,11 +369,11 @@
- 		 */
- 
- 		dma_handle = pcibr_dmatrans_direct64(pcidev_info, phys_addr,
--						     PCI64_ATTR_PREF);
-+						     PCI64_ATTR_PREF, dma_flags);
- 	} else {
- 		/* Handle 32-63 bit cards via direct mapping */
- 		dma_handle = pcibr_dmatrans_direct32(pcidev_info, phys_addr,
--						     size, 0);
-+						     size, 0, dma_flags);
- 		if (!dma_handle) {
- 			/*
- 			 * It is a 32 bit card and we cannot do direct mapping,
-@@ -356,7 +381,8 @@
- 			 */
- 
- 			dma_handle = pcibr_dmamap_ate32(pcidev_info, phys_addr,
--							size, PCI32_ATE_PREF);
-+							size, PCI32_ATE_PREF,
-+							dma_flags);
- 		}
- 	}
- 
-@@ -365,18 +391,18 @@
- 
- dma_addr_t
- pcibr_dma_map_consistent(struct pci_dev * hwdev, unsigned long phys_addr,
--			 size_t size)
-+			 size_t size, int dma_flags)
- {
- 	dma_addr_t dma_handle;
- 	struct pcidev_info *pcidev_info = SN_PCIDEV_INFO(hwdev);
- 
- 	if (hwdev->dev.coherent_dma_mask == ~0UL) {
- 		dma_handle = pcibr_dmatrans_direct64(pcidev_info, phys_addr,
--					    PCI64_ATTR_BAR);
-+					    PCI64_ATTR_BAR, dma_flags);
- 	} else {
- 		dma_handle = (dma_addr_t) pcibr_dmamap_ate32(pcidev_info,
- 						    phys_addr, size,
--						    PCI32_ATE_BAR);
-+						    PCI32_ATE_BAR, dma_flags);
- 	}
- 
- 	return dma_handle;
-Index: linux-2.6/arch/ia64/sn/pci/tioca_provider.c
-===================================================================
---- linux-2.6.orig/arch/ia64/sn/pci/tioca_provider.c	2006-03-27 11:10:59.000000000 -0600
-+++ linux-2.6/arch/ia64/sn/pci/tioca_provider.c	2006-03-27 14:33:46.983924544 -0600
-@@ -515,11 +515,17 @@
-  * use the GART mapped mode.
-  */
- static u64
--tioca_dma_map(struct pci_dev *pdev, u64 paddr, size_t byte_count)
-+tioca_dma_map(struct pci_dev *pdev, u64 paddr, size_t byte_count, int dma_flags)
- {
- 	u64 mapaddr;
- 
- 	/*
-+	 * Not supported for now ...
-+	 */
-+	if (dma_flags & SN_DMA_MSI)
-+		return 0;
+ 	if (entry->msi_attrib.maskbit) {
+ 		unsigned int maskbits, temp;
+ 		/* All MSIs are unmasked by default, Mask them all */
+@@ -652,18 +665,20 @@
+ 		/* Replace with MSI-X handler */
+ 		irq_handler_init(PCI_CAP_ID_MSIX, vector, 1);
+ 		/* Configure MSI-X capability structure */
+-		msi_address_init(&address);
+-		msi_data_init(&data, vector);
+-		entry->msi_attrib.current_cpu =
+-			((address.lo_address.u.dest_id >>
+-			MSI_TARGET_CPU_SHIFT) & MSI_TARGET_CPU_MASK);
+-		writel(address.lo_address.value,
++		status = msi_ops->setup(dev, vector,
++					&address_hi,
++					&address_lo,
++					&data);
++		if (status < 0)
++			break;
 +
-+	/*
- 	 * If card is 64 or 48 bit addresable, use a direct mapping.  32
- 	 * bit direct is so restrictive w.r.t. where the memory resides that
- 	 * we don't use it even though CA has some support.
-Index: linux-2.6/arch/ia64/sn/pci/tioce_provider.c
-===================================================================
---- linux-2.6.orig/arch/ia64/sn/pci/tioce_provider.c	2006-03-27 11:10:59.000000000 -0600
-+++ linux-2.6/arch/ia64/sn/pci/tioce_provider.c	2006-03-27 14:38:54.049198769 -0600
-@@ -170,7 +170,8 @@
- 	(ATE_PAGE((start)+(len)-1, pagesize) - ATE_PAGE(start, pagesize) + 1)
- 
- #define ATE_VALID(ate)	((ate) & (1UL << 63))
--#define ATE_MAKE(addr, ps) (((addr) & ~ATE_PAGEMASK(ps)) | (1UL << 63))
-+#define ATE_MAKE(addr, ps, msi) \
-+	(((addr) & ~ATE_PAGEMASK(ps)) | (1UL << 63) | ((msi)?(1UL << 62):0))
- 
- /*
-  * Flavors of ate-based mapping supported by tioce_alloc_map()
-@@ -196,15 +197,17 @@
-  *
-  * 63    - must be 1 to indicate d64 mode to CE hardware
-  * 62    - barrier bit ... controlled with tioce_dma_barrier()
-- * 61    - 0 since this is not an MSI transaction
-+ * 61    - msi bit ... specified through dma_flags
-  * 60:54 - reserved, MBZ
-  */
- static u64
--tioce_dma_d64(unsigned long ct_addr)
-+tioce_dma_d64(unsigned long ct_addr, int dma_flags)
- {
- 	u64 bus_addr;
- 
- 	bus_addr = ct_addr | (1UL << 63);
-+	if (dma_flags & SN_DMA_MSI)
-+		bus_addr |= (1UL << 61);
- 
- 	return bus_addr;
- }
-@@ -261,7 +264,7 @@
-  */
- static u64
- tioce_alloc_map(struct tioce_kernel *ce_kern, int type, int port,
--		u64 ct_addr, int len)
-+		u64 ct_addr, int len, int dma_flags)
- {
- 	int i;
- 	int j;
-@@ -270,6 +273,7 @@
- 	int entries;
- 	int nates;
- 	u64 pagesize;
-+	int msi_capable, msi_wanted;
- 	u64 *ate_shadow;
- 	u64 *ate_reg;
- 	u64 addr;
-@@ -291,6 +295,7 @@
- 		ate_reg = ce_mmr->ce_ure_ate3240;
- 		pagesize = ce_kern->ce_ate3240_pagesize;
- 		bus_base = TIOCE_M32_MIN;
-+		msi_capable = 1;
- 		break;
- 	case TIOCE_ATE_M40:
- 		first = 0;
-@@ -299,6 +304,7 @@
- 		ate_reg = ce_mmr->ce_ure_ate40;
- 		pagesize = MB(64);
- 		bus_base = TIOCE_M40_MIN;
-+		msi_capable = 0;
- 		break;
- 	case TIOCE_ATE_M40S:
- 		/*
-@@ -311,11 +317,16 @@
- 		ate_reg = ce_mmr->ce_ure_ate3240;
- 		pagesize = GB(16);
- 		bus_base = TIOCE_M40S_MIN;
-+		msi_capable = 0;
- 		break;
- 	default:
- 		return 0;
- 	}
- 
-+	msi_wanted = dma_flags & SN_DMA_MSI;
-+	if (msi_wanted && !msi_capable)
-+		return 0;
-+
- 	nates = ATE_NPAGES(ct_addr, len, pagesize);
- 	if (nates > entries)
- 		return 0;
-@@ -344,7 +355,7 @@
- 	for (j = 0; j < nates; j++) {
- 		u64 ate;
- 
--		ate = ATE_MAKE(addr, pagesize);
-+		ate = ATE_MAKE(addr, pagesize, msi_wanted);
- 		ate_shadow[i + j] = ate;
- 		tioce_mmr_storei(ce_kern, &ate_reg[i + j], ate);
- 		addr += pagesize;
-@@ -371,7 +382,7 @@
-  * Map @paddr into 32-bit bus space of the CE associated with @pcidev_info.
-  */
- static u64
--tioce_dma_d32(struct pci_dev *pdev, u64 ct_addr)
-+tioce_dma_d32(struct pci_dev *pdev, u64 ct_addr, int dma_flags)
- {
- 	int dma_ok;
- 	int port;
-@@ -381,6 +392,9 @@
- 	u64 ct_lower;
- 	dma_addr_t bus_addr;
- 
-+	if (dma_flags & SN_DMA_MSI)
-+		return 0;
-+
- 	ct_upper = ct_addr & ~0x3fffffffUL;
- 	ct_lower = ct_addr & 0x3fffffffUL;
- 
-@@ -507,7 +521,7 @@
-  */
- static u64
- tioce_do_dma_map(struct pci_dev *pdev, u64 paddr, size_t byte_count,
--		 int barrier)
-+		 int barrier, int dma_flags)
- {
++		writel(address_lo,
+ 			base + j * PCI_MSIX_ENTRY_SIZE +
+ 			PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET);
+-		writel(address.hi_address,
++		writel(address_hi,
+ 			base + j * PCI_MSIX_ENTRY_SIZE +
+ 			PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET);
+-		writel(*(u32*)&data,
++		writel(data,
+ 			base + j * PCI_MSIX_ENTRY_SIZE +
+ 			PCI_MSIX_ENTRY_DATA_OFFSET);
+ 		attach_msi_entry(entry, vector);
+@@ -809,6 +824,8 @@
+ 	void __iomem *base;
  	unsigned long flags;
- 	u64 ct_addr;
-@@ -523,15 +537,18 @@
- 	if (dma_mask < 0x7fffffffUL)
- 		return 0;
  
--	ct_addr = PHYS_TO_TIODMA(paddr);
-+	if (SN_DMA_ADDRTYPE(dma_flags) == SN_DMA_ADDR_PHYS)
-+		ct_addr = PHYS_TO_TIODMA(paddr);
-+	else
-+		ct_addr = paddr;
++	msi_ops->teardown(vector);
++
+ 	spin_lock_irqsave(&msi_lock, flags);
+ 	entry = msi_desc[vector];
+ 	if (!entry || entry->dev != dev) {
+Index: linux-2.6/include/asm-i386/msi.h
+===================================================================
+--- linux-2.6.orig/include/asm-i386/msi.h	2006-03-27 11:11:06.000000000 -0600
++++ linux-2.6/include/asm-i386/msi.h	2006-03-27 13:22:19.533603545 -0600
+@@ -12,4 +12,12 @@
+ #define LAST_DEVICE_VECTOR		232
+ #define MSI_TARGET_CPU_SHIFT	12
  
- 	/*
- 	 * If the device can generate 64 bit addresses, create a D64 map.
--	 * Since this should never fail, bypass the rest of the checks.
- 	 */
- 	if (dma_mask == ~0UL) {
--		mapaddr = tioce_dma_d64(ct_addr);
--		goto dma_map_done;
-+		mapaddr = tioce_dma_d64(ct_addr, dma_flags);
-+		if (mapaddr)
-+			goto dma_map_done;
- 	}
++extern struct msi_ops msi_apic_ops;
++
++static inline int msi_arch_init(void)
++{
++	msi_register(&msi_apic_ops);
++	return 0;
++}
++
+ #endif /* ASM_MSI_H */
+Index: linux-2.6/include/asm-x86_64/msi.h
+===================================================================
+--- linux-2.6.orig/include/asm-x86_64/msi.h	2006-03-27 11:11:07.000000000 -0600
++++ linux-2.6/include/asm-x86_64/msi.h	2006-03-27 13:22:19.536532943 -0600
+@@ -13,4 +13,12 @@
+ #define LAST_DEVICE_VECTOR		232
+ #define MSI_TARGET_CPU_SHIFT	12
  
- 	pcidev_to_tioce(pdev, NULL, &ce_kern, &port);
-@@ -574,18 +591,22 @@
++extern struct msi_ops msi_apic_ops;
++
++static inline int msi_arch_init(void)
++{
++	msi_register(&msi_apic_ops);
++	return 0;
++}
++
+ #endif /* ASM_MSI_H */
+Index: linux-2.6/include/asm-ia64/machvec.h
+===================================================================
+--- linux-2.6.orig/include/asm-ia64/machvec.h	2006-03-27 11:11:06.000000000 -0600
++++ linux-2.6/include/asm-ia64/machvec.h	2006-03-27 13:27:36.669263094 -0600
+@@ -76,6 +76,7 @@
+ typedef unsigned short ia64_mv_readw_relaxed_t (const volatile void __iomem *);
+ typedef unsigned int ia64_mv_readl_relaxed_t (const volatile void __iomem *);
+ typedef unsigned long ia64_mv_readq_relaxed_t (const volatile void __iomem *);
++typedef int ia64_mv_msi_init_t (void);
  
- 		if (byte_count > MB(64)) {
- 			mapaddr = tioce_alloc_map(ce_kern, TIOCE_ATE_M40S,
--						  port, ct_addr, byte_count);
-+						  port, ct_addr, byte_count,
-+						  dma_flags);
- 			if (!mapaddr)
- 				mapaddr =
- 				    tioce_alloc_map(ce_kern, TIOCE_ATE_M40, -1,
--						    ct_addr, byte_count);
-+						    ct_addr, byte_count,
-+						    dma_flags);
- 		} else {
- 			mapaddr = tioce_alloc_map(ce_kern, TIOCE_ATE_M40, -1,
--						  ct_addr, byte_count);
-+						  ct_addr, byte_count,
-+						  dma_flags);
- 			if (!mapaddr)
- 				mapaddr =
- 				    tioce_alloc_map(ce_kern, TIOCE_ATE_M40S,
--						    port, ct_addr, byte_count);
-+						    port, ct_addr, byte_count,
-+						    dma_flags);
- 		}
- 	}
+ static inline void
+ machvec_noop (void)
+@@ -154,6 +155,7 @@
+ #  define platform_readl_relaxed        ia64_mv.readl_relaxed
+ #  define platform_readq_relaxed        ia64_mv.readq_relaxed
+ #  define platform_migrate		ia64_mv.migrate
++#  define platform_msi_init		ia64_mv.msi_init
+ # endif
  
-@@ -593,7 +614,7 @@
- 	 * 32-bit direct is the next mode to try
- 	 */
- 	if (!mapaddr && dma_mask >= 0xffffffffUL)
--		mapaddr = tioce_dma_d32(pdev, ct_addr);
-+		mapaddr = tioce_dma_d32(pdev, ct_addr, dma_flags);
+ /* __attribute__((__aligned__(16))) is required to make size of the
+@@ -203,6 +205,7 @@
+ 	ia64_mv_readl_relaxed_t *readl_relaxed;
+ 	ia64_mv_readq_relaxed_t *readq_relaxed;
+ 	ia64_mv_migrate_t *migrate;
++	ia64_mv_msi_init_t *msi_init;
+ } __attribute__((__aligned__(16))); /* align attrib? see above comment */
  
- 	/*
- 	 * Last resort, try 32-bit ATE-based map.
-@@ -601,7 +622,7 @@
- 	if (!mapaddr)
- 		mapaddr =
- 		    tioce_alloc_map(ce_kern, TIOCE_ATE_M32, -1, ct_addr,
--				    byte_count);
-+				    byte_count, dma_flags);
- 
- 	spin_unlock_irqrestore(&ce_kern->ce_lock, flags);
- 
-@@ -622,9 +643,9 @@
-  * in the address.
-  */
- static u64
--tioce_dma(struct pci_dev *pdev, u64 paddr, size_t byte_count)
-+tioce_dma(struct pci_dev *pdev, u64 paddr, size_t byte_count, int dma_flags)
- {
--	return tioce_do_dma_map(pdev, paddr, byte_count, 0);
-+	return tioce_do_dma_map(pdev, paddr, byte_count, 0, dma_flags);
+ #define MACHVEC_INIT(name)			\
+@@ -248,6 +251,7 @@
+ 	platform_readl_relaxed,			\
+ 	platform_readq_relaxed,			\
+ 	platform_migrate,			\
++	platform_msi_init,			\
  }
  
- /**
-@@ -636,9 +657,9 @@
-  * Simply call tioce_do_dma_map() to create a map with the barrier bit set
-  * in the address.
-  */ static u64
--tioce_dma_consistent(struct pci_dev *pdev, u64 paddr, size_t byte_count)
-+tioce_dma_consistent(struct pci_dev *pdev, u64 paddr, size_t byte_count, int dma_flags)
- {
--	return tioce_do_dma_map(pdev, paddr, byte_count, 1);
-+	return tioce_do_dma_map(pdev, paddr, byte_count, 1, dma_flags);
- }
+ extern struct ia64_machine_vector ia64_mv;
+@@ -399,5 +403,8 @@
+ #ifndef platform_migrate
+ # define platform_migrate machvec_noop_task
+ #endif
++#ifndef platform_msi_init
++# define platform_msi_init	((ia64_mv_msi_init_t*)NULL)
++#endif
  
- /**
-@@ -696,7 +717,7 @@
- 	while (ate_index <= last_ate) {
- 		u64 ate;
- 
--		ate = ATE_MAKE(0xdeadbeef, ps);
-+		ate = ATE_MAKE(0xdeadbeef, ps, 0);
- 		ce_kern->ce_ate3240_shadow[ate_index] = ate;
- 		tioce_mmr_storei(ce_kern, &ce_mmr->ce_ure_ate3240[ate_index],
- 				 ate);
-Index: linux-2.6/include/asm-ia64/sn/intr.h
+ #endif /* _ASM_IA64_MACHVEC_H */
+Index: linux-2.6/include/asm-ia64/machvec_sn2.h
 ===================================================================
---- linux-2.6.orig/include/asm-ia64/sn/intr.h	2006-03-27 11:11:06.000000000 -0600
-+++ linux-2.6/include/asm-ia64/sn/intr.h	2006-03-27 14:33:46.994665669 -0600
-@@ -10,6 +10,7 @@
- #define _ASM_IA64_SN_INTR_H
+--- linux-2.6.orig/include/asm-ia64/machvec_sn2.h	2006-03-27 11:11:06.000000000 -0600
++++ linux-2.6/include/asm-ia64/machvec_sn2.h	2006-03-27 13:29:15.149771095 -0600
+@@ -117,6 +117,11 @@
+ #define platform_dma_mapping_error		sn_dma_mapping_error
+ #define platform_dma_supported		sn_dma_supported
+ #define platform_migrate		sn_migrate
++#ifdef CONFIG_PCI_MSI
++#define platform_msi_init		sn_msi_init
++#else
++#define platform_msi_init		((ia64_mv_msi_init_t*)NULL)
++#endif
  
- #include <linux/rcupdate.h>
-+#include <asm/sn/types.h>
+ #include <asm/sn/io.h>
  
- #define SGI_UART_VECTOR		0xe9
- 
-@@ -40,6 +41,7 @@
- 	int		irq_cpuid;	/* kernel logical cpuid	     */
- 	int		irq_irq;	/* the IRQ number */
- 	int		irq_int_bit;	/* Bridge interrupt pin */
-+					/* <0 means MSI */
- 	u64	irq_xtalkaddr;	/* xtalkaddr IRQ is sent to  */
- 	int		irq_bridge_type;/* pciio asic type (pciio.h) */
- 	void	       *irq_bridge;	/* bridge generating irq     */
-@@ -53,6 +55,12 @@
- };
- 
- extern void sn_send_IPI_phys(int, long, int, int);
-+extern u64 sn_intr_alloc(nasid_t, int,
-+			      struct sn_irq_info *,
-+			      int, nasid_t, int);
-+extern void sn_intr_free(nasid_t, int, struct sn_irq_info *);
-+extern struct sn_irq_info *sn_retarget_vector(struct sn_irq_info *, nasid_t, int);
-+extern struct list_head **sn_irq_lh;
- 
- #define CPU_VECTOR_TO_IRQ(cpuid,vector) (vector)
- 
-Index: linux-2.6/include/asm-ia64/sn/pcibr_provider.h
+Index: linux-2.6/include/asm-ia64/msi.h
 ===================================================================
---- linux-2.6.orig/include/asm-ia64/sn/pcibr_provider.h	2006-03-27 11:11:06.000000000 -0600
-+++ linux-2.6/include/asm-ia64/sn/pcibr_provider.h	2006-03-27 14:33:46.994665669 -0600
-@@ -55,6 +55,7 @@
- #define PCI32_ATE_V                     (0x1 << 0)
- #define PCI32_ATE_CO                    (0x1 << 1)
- #define PCI32_ATE_PREC                  (0x1 << 2)
-+#define PCI32_ATE_MSI                   (0x1 << 2)
- #define PCI32_ATE_PREF                  (0x1 << 3)
- #define PCI32_ATE_BAR                   (0x1 << 4)
- #define PCI32_ATE_ADDR_SHFT             12
-@@ -117,8 +118,8 @@
+--- linux-2.6.orig/include/asm-ia64/msi.h	2006-03-27 11:11:06.000000000 -0600
++++ linux-2.6/include/asm-ia64/msi.h	2006-03-27 13:22:19.540438807 -0600
+@@ -14,4 +14,16 @@
+ #define ack_APIC_irq		ia64_eoi
+ #define MSI_TARGET_CPU_SHIFT	4
  
- extern int  pcibr_init_provider(void);
- extern void *pcibr_bus_fixup(struct pcibus_bussoft *, struct pci_controller *);
--extern dma_addr_t pcibr_dma_map(struct pci_dev *, unsigned long, size_t);
--extern dma_addr_t pcibr_dma_map_consistent(struct pci_dev *, unsigned long, size_t);
-+extern dma_addr_t pcibr_dma_map(struct pci_dev *, unsigned long, size_t, int type);
-+extern dma_addr_t pcibr_dma_map_consistent(struct pci_dev *, unsigned long, size_t, int type);
- extern void pcibr_dma_unmap(struct pci_dev *, dma_addr_t, int);
- 
- /*
-Index: linux-2.6/include/asm-ia64/sn/pcibus_provider_defs.h
++extern struct msi_ops msi_apic_ops;
++
++static inline int msi_arch_init(void)
++{
++	if (platform_msi_init)
++		return platform_msi_init();
++
++	/* default ops for most ia64 platforms */
++	msi_register(&msi_apic_ops);
++	return 0;
++}
++
+ #endif /* ASM_MSI_H */
+Index: linux-2.6/drivers/pci/Makefile
 ===================================================================
---- linux-2.6.orig/include/asm-ia64/sn/pcibus_provider_defs.h	2006-03-27 11:11:06.000000000 -0600
-+++ linux-2.6/include/asm-ia64/sn/pcibus_provider_defs.h	2006-03-27 14:33:46.995642134 -0600
-@@ -3,7 +3,7 @@
-  * License.  See the file "COPYING" in the main directory of this archive
-  * for more details.
-  *
-- * Copyright (C) 1992 - 1997, 2000-2004 Silicon Graphics, Inc. All rights reserved.
-+ * Copyright (C) 1992 - 1997, 2000-2005 Silicon Graphics, Inc. All rights reserved.
-  */
- #ifndef _ASM_IA64_SN_PCI_PCIBUS_PROVIDER_H
- #define _ASM_IA64_SN_PCI_PCIBUS_PROVIDER_H
-@@ -45,13 +45,24 @@
-  */
+--- linux-2.6.orig/drivers/pci/Makefile	2006-03-27 11:11:03.000000000 -0600
++++ linux-2.6/drivers/pci/Makefile	2006-03-27 13:22:19.540438807 -0600
+@@ -26,7 +26,11 @@
+ obj-$(CONFIG_PPC64) += setup-bus.o
+ obj-$(CONFIG_MIPS) += setup-bus.o setup-irq.o
+ obj-$(CONFIG_X86_VISWS) += setup-irq.o
+-obj-$(CONFIG_PCI_MSI) += msi.o
++
++msiobj-y := msi.o msi-apic.o
++msiobj-$(CONFIG_IA64_GENERIC) += msi-altix.o
++msiobj-$(CONFIG_IA64_SGI_SN2) += msi-altix.o
++obj-$(CONFIG_PCI_MSI) += $(msiobj-y)
  
- struct sn_pcibus_provider {
--	dma_addr_t	(*dma_map)(struct pci_dev *, unsigned long, size_t);
--	dma_addr_t	(*dma_map_consistent)(struct pci_dev *, unsigned long, size_t);
-+	dma_addr_t	(*dma_map)(struct pci_dev *, unsigned long, size_t, int flags);
-+	dma_addr_t	(*dma_map_consistent)(struct pci_dev *, unsigned long, size_t, int flags);
- 	void		(*dma_unmap)(struct pci_dev *, dma_addr_t, int);
- 	void *		(*bus_fixup)(struct pcibus_bussoft *, struct pci_controller *);
-  	void		(*force_interrupt)(struct sn_irq_info *);
-  	void		(*target_interrupt)(struct sn_irq_info *);
- };
- 
+ #
+ # ACPI Related PCI FW Functions
+Index: linux-2.6/drivers/pci/msi-apic.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6/drivers/pci/msi-apic.c	2006-03-27 13:22:19.541415273 -0600
+@@ -0,0 +1,100 @@
 +/*
-+ * Flags used by the map interfaces
-+ * bits 3:0 specifies format of passed in address
-+ * bit  4   specifies that address is to be used for MSI
++ * MSI hooks for standard x86 apic
 + */
 +
-+#define SN_DMA_ADDRTYPE(x)	((x) & 0xf)
-+#define     SN_DMA_ADDR_PHYS	1	/* address is an xio address. */
-+#define     SN_DMA_ADDR_XIO	2	/* address is phys memory */
-+#define SN_DMA_MSI		0x10	/* Bus address is to be used for MSI */
-+
- extern struct sn_pcibus_provider *sn_pci_provider[];
- #endif				/* _ASM_IA64_SN_PCI_PCIBUS_PROVIDER_H */
-Index: linux-2.6/include/asm-ia64/sn/tiocp.h
-===================================================================
---- linux-2.6.orig/include/asm-ia64/sn/tiocp.h	2006-03-27 11:11:06.000000000 -0600
-+++ linux-2.6/include/asm-ia64/sn/tiocp.h	2006-03-27 14:33:46.995642134 -0600
-@@ -3,13 +3,14 @@
-  * License.  See the file "COPYING" in the main directory of this archive
-  * for more details.
-  *
-- * Copyright (C) 2003-2004 Silicon Graphics, Inc. All rights reserved.
-+ * Copyright (C) 2003-2005 Silicon Graphics, Inc. All rights reserved.
-  */
- #ifndef _ASM_IA64_SN_PCI_TIOCP_H
- #define _ASM_IA64_SN_PCI_TIOCP_H
- 
- #define TIOCP_HOST_INTR_ADDR            0x003FFFFFFFFFFFFFUL
- #define TIOCP_PCI64_CMDTYPE_MEM         (0x1ull << 60)
-+#define TIOCP_PCI64_CMDTYPE_MSI         (0x3ull << 60)
- 
- 
- /*****************************************************************************
-Index: linux-2.6/drivers/pci/msi-altix.c
-===================================================================
---- linux-2.6.orig/drivers/pci/msi-altix.c	2006-03-27 13:22:19.000000000 -0600
-+++ linux-2.6/drivers/pci/msi-altix.c	2006-03-27 14:33:47.003453861 -0600
-@@ -6,13 +6,205 @@
-  * Copyright (C) 2006 Silicon Graphics, Inc.  All Rights Reserved.
-  */
- 
--#include <asm/errno.h>
-+#include <linux/types.h>
 +#include <linux/pci.h>
-+#include <linux/cpumask.h>
-+
-+#include <asm/sn/addrs.h>
-+#include <asm/sn/intr.h>
-+#include <asm/sn/pcibus_provider_defs.h>
-+#include <asm/sn/pcidev.h>
-+#include <asm/sn/nodepda.h>
++#include <linux/irq.h>
 +
 +#include "msi.h"
 +
-+struct sn_msi_info {
-+	u64 pci_addr;
-+	struct sn_irq_info *sn_irq_info;
-+};
++/*
++ * Shifts for APIC-based data
++ */
 +
-+static struct sn_msi_info *sn_msi_info;
++#define MSI_DATA_VECTOR_SHIFT		0
++#define	    MSI_DATA_VECTOR(v)		(((u8)v) << MSI_DATA_VECTOR_SHIFT)
++
++#define MSI_DATA_DELIVERY_SHIFT		8
++#define     MSI_DATA_DELIVERY_FIXED	(0 << MSI_DATA_DELIVERY_SHIFT)
++#define     MSI_DATA_DELIVERY_LOWPRI	(1 << MSI_DATA_DELIVERY_SHIFT)
++
++#define MSI_DATA_LEVEL_SHIFT		14
++#define     MSI_DATA_LEVEL_DEASSERT	(0 << MSI_DATA_LEVEL_SHIFT)
++#define     MSI_DATA_LEVEL_ASSERT	(1 << MSI_DATA_LEVEL_SHIFT)
++
++#define MSI_DATA_TRIGGER_SHIFT		15
++#define     MSI_DATA_TRIGGER_EDGE	(0 << MSI_DATA_TRIGGER_SHIFT)
++#define     MSI_DATA_TRIGGER_LEVEL	(1 << MSI_DATA_TRIGGER_SHIFT)
++
++/*
++ * Shift/mask fields for APIC-based bus address
++ */
++
++#define MSI_ADDR_HEADER			0xfee00000
++
++#define MSI_ADDR_DESTID_MASK		0xfff0000f
++#define     MSI_ADDR_DESTID_CPU(cpu)	((cpu) << MSI_TARGET_CPU_SHIFT)
++
++#define MSI_ADDR_DESTMODE_SHIFT		2
++#define     MSI_ADDR_DESTMODE_PHYS	(0 << MSI_ADDR_DESTMODE_SHIFT)
++#define	    MSI_ADDR_DESTMODE_LOGIC	(1 << MSI_ADDR_DESTMODE_SHIFT)
++
++#define MSI_ADDR_REDIRECTION_SHIFT	3
++#define     MSI_ADDR_REDIRECTION_CPU	(0 << MSI_ADDR_REDIRECTION_SHIFT)
++#define     MSI_ADDR_REDIRECTION_LOWPRI	(1 << MSI_ADDR_REDIRECTION_SHIFT)
++
 +
 +static void
-+sn_msi_teardown(unsigned int vector)
++msi_target_apic(unsigned int vector,
++		unsigned int dest_cpu,
++		u32 *address_hi,	/* in/out */
++		u32 *address_lo)	/* in/out */
 +{
-+	nasid_t nasid;
-+	int widget;
-+	struct pci_dev *pdev;
-+	struct pcidev_info *sn_pdev;
-+	struct sn_irq_info *sn_irq_info;
-+	struct pcibus_bussoft *bussoft;
-+	struct sn_pcibus_provider *provider;
++	u32 addr = *address_lo;
 +
-+	sn_irq_info = sn_msi_info[vector].sn_irq_info;
-+	if (sn_irq_info == NULL || sn_irq_info->irq_int_bit >= 0)
-+		return;
++	addr &= MSI_ADDR_DESTID_MASK;
++	addr |= MSI_ADDR_DESTID_CPU(cpu_physical_id(dest_cpu));
 +
-+	sn_pdev = (struct pcidev_info *)sn_irq_info->irq_pciioinfo;
-+	pdev = sn_pdev->pdi_linux_pcidev;
-+	provider = SN_PCIDEV_BUSPROVIDER(pdev);
-+
-+	(*provider->dma_unmap)(pdev,
-+			       sn_msi_info[vector].pci_addr,
-+			       PCI_DMA_FROMDEVICE);
-+	sn_msi_info[vector].pci_addr = 0;
-+
-+	bussoft = SN_PCIDEV_BUSSOFT(pdev);
-+	nasid = NASID_GET(bussoft->bs_base);
-+	widget = (nasid & 1) ?
-+			TIO_SWIN_WIDGETNUM(bussoft->bs_base) :
-+			SWIN_WIDGETNUM(bussoft->bs_base);
-+
-+	sn_intr_free(nasid, widget, sn_irq_info);
-+	sn_msi_info[vector].sn_irq_info = NULL;
-+
-+	return;
++	*address_lo = addr;
 +}
- 
- int
--sn_msi_init(void)
-+sn_msi_setup(struct pci_dev *pdev, unsigned int vector,
-+	     u32 *addr_hi, u32 *addr_lo, u32 *data)
- {
-+	int widget;
-+	int status;
-+	nasid_t nasid;
-+	u64 bus_addr;
-+	struct sn_irq_info *sn_irq_info;
-+	struct pcibus_bussoft *bussoft = SN_PCIDEV_BUSSOFT(pdev);
-+	struct sn_pcibus_provider *provider = SN_PCIDEV_BUSPROVIDER(pdev);
 +
-+	if (bussoft == NULL)
-+		return -EINVAL;
++static int
++msi_setup_apic(struct pci_dev *pdev,	/* unused in generic */
++		unsigned int vector,
++		u32 *address_hi,
++		u32 *address_lo,
++		u32 *data)
++{
++	unsigned long	dest_phys_id;
 +
-+	if (provider == NULL || provider->dma_map_consistent == NULL)
-+		return -EINVAL;
++	dest_phys_id = cpu_physical_id(first_cpu(cpu_online_map));
 +
-+	/*
-+	 * Set up the vector plumbing.  Let the prom (via sn_intr_alloc)
-+	 * decide which cpu to direct this msi at by default.
-+	 */
++	*address_hi = 0;
++	*address_lo =	MSI_ADDR_HEADER |
++			MSI_ADDR_DESTMODE_PHYS |
++			MSI_ADDR_REDIRECTION_CPU |
++			MSI_ADDR_DESTID_CPU(dest_phys_id);
 +
-+	nasid = NASID_GET(bussoft->bs_base);
-+	widget = (nasid & 1) ?
-+			TIO_SWIN_WIDGETNUM(bussoft->bs_base) :
-+			SWIN_WIDGETNUM(bussoft->bs_base);
-+
-+	sn_irq_info = kzalloc(sizeof(struct sn_irq_info), GFP_KERNEL);
-+	if (! sn_irq_info)
-+		return -ENOMEM;
-+
-+	status = sn_intr_alloc(nasid, widget, sn_irq_info, vector, -1, -1);
-+	if (status) {
-+		kfree(sn_irq_info);
-+		return -ENOMEM;
-+	}
-+
-+	sn_irq_info->irq_int_bit = -1;		/* mark this as an MSI irq */
-+	sn_irq_fixup(pdev, sn_irq_info);
-+
-+	/* Prom probably should fill these in, but doesn't ... */
-+	sn_irq_info->irq_bridge_type = bussoft->bs_asic_type;
-+	sn_irq_info->irq_bridge = (void *)bussoft->bs_base;
-+
- 	/*
--	 * return error until MSI is supported on altix platforms
-+	 * Map the xio address into bus space
- 	 */
--	return -EINVAL;
-+	bus_addr = (*provider->dma_map_consistent)(pdev,
-+					sn_irq_info->irq_xtalkaddr,
-+					sizeof(sn_irq_info->irq_xtalkaddr),
-+					SN_DMA_MSI|SN_DMA_ADDR_XIO);
-+	if (! bus_addr) {
-+		sn_intr_free(nasid, widget, sn_irq_info);
-+		kfree(sn_irq_info);
-+		return -ENOMEM;
-+	}
-+
-+	sn_msi_info[vector].sn_irq_info = sn_irq_info;
-+	sn_msi_info[vector].pci_addr = bus_addr;
-+
-+	*addr_hi = (u32)(bus_addr >> 32);
-+	*addr_lo = (u32)(bus_addr & 0x00000000ffffffff);
-+
-+	/*
-+	 * In the SN platform, bit 16 is a "send vector" bit which
-+	 * must be present in order to move the vector through the system.
-+	 */
-+	*data = 0x100 + (unsigned int)vector;
-+
-+#ifdef CONFIG_SMP
-+	set_irq_affinity_info((vector & 0xff), sn_irq_info->irq_cpuid, 0);
-+#endif
++	*data = MSI_DATA_TRIGGER_EDGE |
++		MSI_DATA_LEVEL_ASSERT |
++		MSI_DATA_DELIVERY_FIXED |
++		MSI_DATA_VECTOR(vector);
 +
 +	return 0;
 +}
 +
 +static void
-+sn_msi_target(unsigned int vector, unsigned int cpu,
-+	      u32 *addr_hi, u32 *addr_lo)
++msi_teardown_apic(unsigned int vector)
 +{
-+	int slice;
-+	nasid_t nasid;
-+	u64 bus_addr;
-+	struct pci_dev *pdev;
-+	struct pcidev_info *sn_pdev;
-+	struct sn_irq_info *sn_irq_info;
-+	struct sn_irq_info *new_irq_info;
-+	struct sn_pcibus_provider *provider;
-+
-+	sn_irq_info = sn_msi_info[vector].sn_irq_info;
-+	if (sn_irq_info == NULL || sn_irq_info->irq_int_bit >= 0)
-+		return;
-+
-+	/*
-+	 * Release XIO resources for the old MSI PCI address
-+	 */
-+
-+        sn_pdev = (struct pcidev_info *)sn_irq_info->irq_pciioinfo;
-+	pdev = sn_pdev->pdi_linux_pcidev;
-+	provider = SN_PCIDEV_BUSPROVIDER(pdev);
-+
-+	bus_addr = (u64)(*addr_hi) << 32 | (u64)(*addr_lo);
-+	(*provider->dma_unmap)(pdev, bus_addr, PCI_DMA_FROMDEVICE);
-+	sn_msi_info[vector].pci_addr = 0;
-+
-+	nasid = cpuid_to_nasid(cpu);
-+	slice = cpuid_to_slice(cpu);
-+
-+	new_irq_info = sn_retarget_vector(sn_irq_info, nasid, slice);
-+	sn_msi_info[vector].sn_irq_info = new_irq_info;
-+	if (new_irq_info == NULL)
-+		return;
-+
-+	/*
-+	 * Map the xio address into bus space
-+	 */
-+
-+	bus_addr = (*provider->dma_map_consistent)(pdev,
-+					new_irq_info->irq_xtalkaddr,
-+					sizeof(new_irq_info->irq_xtalkaddr),
-+					SN_DMA_MSI|SN_DMA_ADDR_XIO);
-+
-+	sn_msi_info[vector].pci_addr = bus_addr;
-+	*addr_hi = (u32)(bus_addr >> 32);
-+	*addr_lo = (u32)(bus_addr & 0x00000000ffffffff);
++	return;		/* no-op */
 +}
 +
-+struct msi_ops sn_msi_ops = {
-+	.setup = sn_msi_setup,
-+	.teardown = sn_msi_teardown,
-+#ifdef CONFIG_SMP
-+	.target = sn_msi_target,
-+#endif
++/*
++ * Generic ops used on most IA archs/platforms.  Set with msi_register()
++ */
++
++struct msi_ops msi_apic_ops = {
++	.setup = msi_setup_apic,
++	.teardown = msi_teardown_apic,
++	.target = msi_target_apic,
 +};
+Index: linux-2.6/drivers/pci/msi.h
+===================================================================
+--- linux-2.6.orig/drivers/pci/msi.h	2006-03-27 11:11:04.000000000 -0600
++++ linux-2.6/drivers/pci/msi.h	2006-03-27 13:22:19.542391739 -0600
+@@ -6,6 +6,68 @@
+ #ifndef MSI_H
+ #define MSI_H
+ 
++/*
++ * MSI operation vector.  Used by the msi core code (drivers/pci/msi.c)
++ * to abstract platform-specific tasks relating to MSI address generation
++ * and resource management.
++ */
++struct msi_ops {
++	/**
++	 * setup - generate an MSI bus address and data for a given vector
++	 * @pdev: PCI device context (in)
++	 * @vector: vector allocated by the msi core (in)
++	 * @addr_hi: upper 32 bits of PCI bus MSI address (out)
++	 * @addr_lo: lower 32 bits of PCI bus MSI address (out)
++	 * @data: MSI data payload (out)
++	 *
++	 * Description: The setup op is used to generate a PCI bus addres and
++	 * data which the msi core will program into the card MSI capability
++	 * registers.  The setup routine is responsible for picking an initial
++	 * cpu to target the MSI at.  The setup routine is responsible for
++	 * examining pdev to determine the MSI capabilities of the card and
++	 * generating a suitable address/data.  The setup routine is
++	 * responsible for allocating and tracking any system resources it
++	 * needs to route the MSI to the cpu it picks, and for associating
++	 * those resources with the passed in vector.
++	 *
++	 * Returns 0 if the MSI address/data was successfully setup.
++	 **/
++
++	int	(*setup)    (struct pci_dev *pdev, unsigned int vector,
++			     u32 *addr_hi, u32 *addr_lo, u32 *data);
++
++	/**
++	 * teardown - release resources allocated by setup
++	 * @vector: vector context for resources (in)
++	 *
++	 * Description:  The teardown op is used to release any resources
++	 * that were allocated in the setup routine associated with the passed
++	 * in vector.
++	 **/
++
++	void	(*teardown) (unsigned int vector);
++
++	/**
++	 * target - retarget an MSI at a different cpu
++	 * @vector: vector context for resources (in)
++	 * @cpu:  new cpu to direct vector at (in)
++	 * @addr_hi: new value of PCI bus upper 32 bits (in/out)
++	 * @addr_lo: new value of PCI bus lower 32 bits (in/out)
++	 *
++	 * Description:  The target op is used to redirect an MSI vector
++	 * at a different cpu.  addr_hi/addr_lo coming in are the existing
++	 * values that the MSI core has programmed into the card.  The
++	 * target code is responsible for freeing any resources (if any)
++	 * associated with the old address, and generating a new PCI bus
++	 * addr_hi/addr_lo that will redirect the vector at the indicated cpu.
++	 **/
++
++	void	(*target)   (unsigned int vector, unsigned int cpu,
++			     u32 *addr_hi, u32 *addr_lo);
++};
++
++extern int msi_register(struct msi_ops *ops);
++
+ #include <asm/msi.h>
+ 
+ /*
+@@ -63,67 +125,6 @@
+ #define msix_mask(address)		(address | PCI_MSIX_FLAGS_BITMASK)
+ #define msix_is_pending(address) 	(address & PCI_MSIX_FLAGS_PENDMASK)
+ 
+-/*
+- * MSI Defined Data Structures
+- */
+-#define MSI_ADDRESS_HEADER		0xfee
+-#define MSI_ADDRESS_HEADER_SHIFT	12
+-#define MSI_ADDRESS_HEADER_MASK		0xfff000
+-#define MSI_ADDRESS_DEST_ID_MASK	0xfff0000f
+-#define MSI_TARGET_CPU_MASK		0xff
+-#define MSI_DELIVERY_MODE		0
+-#define MSI_LEVEL_MODE			1	/* Edge always assert */
+-#define MSI_TRIGGER_MODE		0	/* MSI is edge sensitive */
+-#define MSI_PHYSICAL_MODE		0
+-#define MSI_LOGICAL_MODE		1
+-#define MSI_REDIRECTION_HINT_MODE	0
+-
+-struct msg_data {
+-#if defined(__LITTLE_ENDIAN_BITFIELD)
+-	__u32	vector		:  8;
+-	__u32	delivery_mode	:  3;	/* 000b: FIXED | 001b: lowest prior */
+-	__u32	reserved_1	:  3;
+-	__u32	level		:  1;	/* 0: deassert | 1: assert */
+-	__u32	trigger		:  1;	/* 0: edge | 1: level */
+-	__u32	reserved_2	: 16;
+-#elif defined(__BIG_ENDIAN_BITFIELD)
+-	__u32	reserved_2	: 16;
+-	__u32	trigger		:  1;	/* 0: edge | 1: level */
+-	__u32	level		:  1;	/* 0: deassert | 1: assert */
+-	__u32	reserved_1	:  3;
+-	__u32	delivery_mode	:  3;	/* 000b: FIXED | 001b: lowest prior */
+-	__u32	vector		:  8;
+-#else
+-#error "Bitfield endianness not defined! Check your byteorder.h"
+-#endif
+-} __attribute__ ((packed));
+-
+-struct msg_address {
+-	union {
+-		struct {
+-#if defined(__LITTLE_ENDIAN_BITFIELD)
+-			__u32	reserved_1	:  2;
+-			__u32	dest_mode	:  1;	/*0:physic | 1:logic */
+-			__u32	redirection_hint:  1;  	/*0: dedicated CPU
+-							  1: lowest priority */
+-			__u32	reserved_2	:  4;
+- 			__u32	dest_id		: 24;	/* Destination ID */
+-#elif defined(__BIG_ENDIAN_BITFIELD)
+- 			__u32	dest_id		: 24;	/* Destination ID */
+-			__u32	reserved_2	:  4;
+-			__u32	redirection_hint:  1;  	/*0: dedicated CPU
+-							  1: lowest priority */
+-			__u32	dest_mode	:  1;	/*0:physic | 1:logic */
+-			__u32	reserved_1	:  2;
+-#else
+-#error "Bitfield endianness not defined! Check your byteorder.h"
+-#endif
+-      		}u;
+-       		__u32  value;
+-	}lo_address;
+-	__u32 	hi_address;
+-} __attribute__ ((packed));
+-
+ struct msi_desc {
+ 	struct {
+ 		__u8	type	: 5; 	/* {0: unused, 5h:MSI, 11h:MSI-X} */
+@@ -132,7 +133,7 @@
+ 		__u8	reserved: 1; 	/* reserved			  */
+ 		__u8	entry_nr;    	/* specific enabled entry 	  */
+ 		__u8	default_vector; /* default pre-assigned vector    */
+-		__u8	current_cpu; 	/* current destination cpu	  */
++		__u8	unused; 	/* formerly unused destination cpu*/
+ 	}msi_attrib;
+ 
+ 	struct {
+Index: linux-2.6/drivers/pci/msi-altix.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6/drivers/pci/msi-altix.c	2006-03-27 13:22:19.543368205 -0600
+@@ -0,0 +1,18 @@
++/*
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ *
++ * Copyright (C) 2006 Silicon Graphics, Inc.  All Rights Reserved.
++ */
++
++#include <asm/errno.h>
 +
 +int
 +sn_msi_init(void)
 +{
-+	sn_msi_info =
-+		kzalloc(sizeof(struct sn_msi_info) * NR_VECTORS, GFP_KERNEL);
-+	if (! sn_msi_info)
-+		return -ENOMEM;
-+
-+	msi_register(&sn_msi_ops);
-+	return 0;
- }
++	/*
++	 * return error until MSI is supported on altix platforms
++	 */
++	return -EINVAL;
++}

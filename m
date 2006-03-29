@@ -1,378 +1,384 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbWC2ART@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWC2ARK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932492AbWC2ART (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 19:17:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbWC2ART
+	id S932215AbWC2ARK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 19:17:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWC2ARK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 19:17:19 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:11708 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S932492AbWC2ARS (ORCPT
+	Tue, 28 Mar 2006 19:17:10 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:8636 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S932215AbWC2ARI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 19:17:18 -0500
-Subject: [PATCH -mm 1/4] LED: Add LED Class
+	Tue, 28 Mar 2006 19:17:08 -0500
+Subject: [PATCH -mm 0/4] LED Updates
 From: Richard Purdie <rpurdie@rpsys.net>
 To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Wed, 29 Mar 2006 01:17:08 +0100
-Message-Id: <1143591428.14682.56.camel@localhost.localdomain>
+Date: Wed, 29 Mar 2006 01:16:55 +0100
+Message-Id: <1143591415.14682.55.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Richard Purdie <rpurdie@rpsys.net>
+These patches update the LED subsystem to fix a few issues:
 
-Add the foundations of a new LEDs subsystem.  This patch adds a class which
-presents LED devices within sysfs and allows their brightness to be
-controlled.
+A potential irq deadlock issue in led_trigger_event is resolved by only
+writing to leddev_list_lock with irqs held (it can be read without) and
+removing led_cdev->lock entirely. The led_cdev lock is no longer
+required as other locks now provide all the protection needed.
+
+The IDE trigger has been reworked to reduce its impact on IDE
+performance. This currently adds the overhead of a mod_timer call for
+the first IDE transaction in a given activity period but this could also
+be avoided if need by at the expense of the timer continually running
+although I'd prefer to avoid that.
+
+The ensure-ide-taskfile-calls-any-driver-specific patch in -mm is not
+needed after these IDE trigger changes (although it might be a valid
+piece of cleanup).
+
+Also add some missing externs.
+
+I've included the flattened differences below for transparency and easy
+of evaluation of the changes. Following this email are replacement
+patches for those currently in -mm that have changed.
 
 Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
 
-Index: linux-2.6.16/arch/arm/Kconfig
-===================================================================
---- linux-2.6.16.orig/arch/arm/Kconfig	2006-03-20 05:53:29.000000000 +0000
-+++ linux-2.6.16/arch/arm/Kconfig	2006-03-27 23:36:45.000000000 +0100
-@@ -809,6 +809,8 @@
+diff -urN old-led/drivers/ide/ide-disk.c new-led/drivers/ide/ide-disk.c
+--- old-led/drivers/ide/ide-disk.c	2006-03-23 22:02:44.000000000 +0000
++++ new-led/drivers/ide/ide-disk.c	2006-03-29 00:30:27.000000000 +0100
+@@ -81,8 +81,6 @@
  
- source "drivers/mfd/Kconfig"
+ static DECLARE_MUTEX(idedisk_ref_sem);
  
-+source "drivers/leds/Kconfig"
-+
- source "drivers/media/Kconfig"
+-DEFINE_LED_TRIGGER(ide_led_trigger);
+-
+ #define to_ide_disk(obj) container_of(obj, struct ide_disk_obj, kref)
  
- source "drivers/video/Kconfig"
-Index: linux-2.6.16/drivers/Kconfig
-===================================================================
---- linux-2.6.16.orig/drivers/Kconfig	2006-03-20 05:53:29.000000000 +0000
-+++ linux-2.6.16/drivers/Kconfig	2006-03-27 23:36:45.000000000 +0100
-@@ -64,6 +64,8 @@
+ #define ide_disk_g(disk) \
+@@ -301,13 +299,6 @@
+ 	}
+ }
  
- source "drivers/mmc/Kconfig"
+-static int ide_end_rw_disk(ide_drive_t *drive, int uptodate, int nr_sectors)
+-{
+-	if (blk_fs_request(HWGROUP(drive)->rq))
+-		led_trigger_event(ide_led_trigger, LED_OFF);
+-	return ide_end_request(drive, uptodate, nr_sectors);
+-}
+-
+ /*
+  * 268435455  == 137439 MB or 28bit limit
+  * 320173056  == 163929 MB or 48bit addressing
+@@ -322,11 +313,11 @@
  
-+source "drivers/leds/Kconfig"
-+
- source "drivers/infiniband/Kconfig"
+ 	if (!blk_fs_request(rq)) {
+ 		blk_dump_rq_flags(rq, "ide_do_rw_disk - bad command");
+-		ide_end_rw_disk(drive, 0, 0);
++		ide_end_request(drive, 0, 0);
+ 		return ide_stopped;
+ 	}
  
- source "drivers/sn/Kconfig"
-Index: linux-2.6.16/drivers/leds/Kconfig
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.16/drivers/leds/Kconfig	2006-03-27 23:36:51.000000000 +0100
-@@ -0,0 +1,18 @@
-+
-+menu "LED devices"
-+
-+config NEW_LEDS
-+	bool "LED Support"
+-	led_trigger_event(ide_led_trigger, LED_FULL);
++	ledtrig_ide_activity();
+ 
+ 	pr_debug("%s: %sing: block=%llu, sectors=%lu, buffer=0x%08lx\n",
+ 		 drive->name, rq_data_dir(rq) == READ ? "read" : "writ",
+@@ -1075,7 +1066,7 @@
+ 	.media			= ide_disk,
+ 	.supports_dsc_overlap	= 0,
+ 	.do_request		= ide_do_rw_disk,
+-	.end_request		= ide_end_rw_disk,
++	.end_request		= ide_end_request,
+ 	.error			= __ide_error,
+ 	.abort			= __ide_abort,
+ 	.proc			= idedisk_proc,
+@@ -1248,16 +1239,12 @@
+ 
+ static void __exit idedisk_exit (void)
+ {
+-	led_trigger_unregister_simple(ide_led_trigger);
+ 	driver_unregister(&idedisk_driver.gen_driver);
+ }
+ 
+ static int __init idedisk_init(void)
+ {
+-	int ret = driver_register(&idedisk_driver.gen_driver);
+-	if (ret >= 0)
+-		led_trigger_register_simple("ide-disk", &ide_led_trigger);
+-	return ret;
++	return driver_register(&idedisk_driver.gen_driver);
+ }
+ 
+ MODULE_ALIAS("ide:*m-disk*");
+diff -urN old-led/drivers/leds/Kconfig new-led/drivers/leds/Kconfig
+--- old-led/drivers/leds/Kconfig	2006-03-23 22:02:43.000000000 +0000
++++ new-led/drivers/leds/Kconfig	2006-03-29 00:30:27.000000000 +0100
+@@ -66,5 +66,12 @@
+ 	  This allows LEDs to be controlled by a programmable timer
+ 	  via sysfs. If unsure, say Y.
+ 
++config LEDS_TRIGGER_IDE_DISK
++	bool "LED Timer Trigger"
++	depends LEDS_TRIGGERS && BLK_DEV_IDEDISK
 +	help
-+	  Say Y to enable Linux LED support.  This is not related to standard
-+	  keyboard LEDs which are controlled via the input system.
++	  This allows LEDs to be controlled by IDE disk activity.
++	  If unsure, say Y.
 +
-+config LEDS_CLASS
-+	tristate "LED Class Support"
-+	depends NEW_LEDS
-+	help
-+	  This option enables the led sysfs class in /sys/class/leds.  You'll
-+	  need this to do anything useful with LEDs.  If unsure, say N.
+ endmenu
+ 
+diff -urN old-led/drivers/leds/Makefile new-led/drivers/leds/Makefile
+--- old-led/drivers/leds/Makefile	2006-03-23 22:02:43.000000000 +0000
++++ new-led/drivers/leds/Makefile	2006-03-29 00:38:47.000000000 +0100
+@@ -13,3 +13,4 @@
+ 
+ # LED Triggers
+ obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+= ledtrig-timer.o
++obj-$(CONFIG_LEDS_TRIGGER_IDE_DISK)	+= ledtrig-ide-disk.o
+diff -urN old-led/drivers/leds/led-class.c new-led/drivers/leds/led-class.c
+--- old-led/drivers/leds/led-class.c	2006-03-23 22:02:41.000000000 +0000
++++ new-led/drivers/leds/led-class.c	2006-03-29 00:30:27.000000000 +0100
+@@ -46,9 +46,7 @@
+ 
+ 	if (after - buf > 0) {
+ 		ret = after - buf;
+-		write_lock(&led_cdev->lock);
+ 		led_set_brightness(led_cdev, state);
+-		write_unlock(&led_cdev->lock);
+ 	}
+ 
+ 	return ret;
+@@ -66,10 +64,8 @@
+  */
+ void led_classdev_suspend(struct led_classdev *led_cdev)
+ {
+-	write_lock(&led_cdev->lock);
+ 	led_cdev->flags |= LED_SUSPENDED;
+ 	led_cdev->brightness_set(led_cdev, 0);
+-	write_unlock(&led_cdev->lock);
+ }
+ EXPORT_SYMBOL_GPL(led_classdev_suspend);
+ 
+@@ -79,10 +75,8 @@
+  */
+ void led_classdev_resume(struct led_classdev *led_cdev)
+ {
+-	write_lock(&led_cdev->lock);
+-	led_cdev->flags &= ~LED_SUSPENDED;
+ 	led_cdev->brightness_set(led_cdev, led_cdev->brightness);
+-	write_unlock(&led_cdev->lock);
++	led_cdev->flags &= ~LED_SUSPENDED;
+ }
+ EXPORT_SYMBOL_GPL(led_classdev_resume);
+ 
+@@ -98,7 +92,6 @@
+ 	if (unlikely(IS_ERR(led_cdev->class_dev)))
+ 		return PTR_ERR(led_cdev->class_dev);
+ 
+-	rwlock_init(&led_cdev->lock);
+ 	class_set_devdata(led_cdev->class_dev, led_cdev);
+ 
+ 	/* register the attributes */
+diff -urN old-led/drivers/leds/led-triggers.c new-led/drivers/leds/led-triggers.c
+--- old-led/drivers/leds/led-triggers.c	2006-03-23 22:02:41.000000000 +0000
++++ new-led/drivers/leds/led-triggers.c	2006-03-29 00:30:27.000000000 +0100
+@@ -24,7 +24,7 @@
+ #include "leds.h"
+ 
+ /*
+- * Nests outside led_cdev->lock and led_cdev->trigger_lock
++ * Nests outside led_cdev->trigger_lock
+  */
+ static rwlock_t triggers_list_lock = RW_LOCK_UNLOCKED;
+ static LIST_HEAD(trigger_list);
+@@ -109,9 +109,7 @@
+ 		struct led_classdev *led_cdev;
+ 
+ 		led_cdev = list_entry(entry, struct led_classdev, trig_list);
+-		write_lock(&led_cdev->lock);
+ 		led_set_brightness(led_cdev, brightness);
+-		write_unlock(&led_cdev->lock);
+ 	}
+ 	read_unlock(&trigger->leddev_list_lock);
+ }
+@@ -119,18 +117,20 @@
+ /* Caller must ensure led_cdev->trigger_lock held */
+ void led_trigger_set(struct led_classdev *led_cdev, struct led_trigger *trigger)
+ {
++	unsigned long flags;
 +
-+endmenu
-+
-Index: linux-2.6.16/drivers/leds/led-class.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.16/drivers/leds/led-class.c	2006-03-28 13:16:55.000000000 +0100
-@@ -0,0 +1,147 @@
+ 	/* Remove any existing trigger */
+ 	if (led_cdev->trigger) {
+-		write_lock(&led_cdev->trigger->leddev_list_lock);
++		write_lock_irqsave(&led_cdev->trigger->leddev_list_lock, flags);
+ 		list_del(&led_cdev->trig_list);
+-		write_unlock(&led_cdev->trigger->leddev_list_lock);
++		write_unlock_irqrestore(&led_cdev->trigger->leddev_list_lock, flags);
+ 		if (led_cdev->trigger->deactivate)
+ 			led_cdev->trigger->deactivate(led_cdev);
+ 	}
+ 	if (trigger) {
+-		write_lock(&trigger->leddev_list_lock);
++		write_lock_irqsave(&trigger->leddev_list_lock, flags);
+ 		list_add_tail(&led_cdev->trig_list, &trigger->led_cdevs);
+-		write_unlock(&trigger->leddev_list_lock);
++		write_unlock_irqrestore(&trigger->leddev_list_lock, flags);
+ 		if (trigger->activate)
+ 			trigger->activate(led_cdev);
+ 	}
+diff -urN old-led/drivers/leds/leds.h new-led/drivers/leds/leds.h
+--- old-led/drivers/leds/leds.h	2006-03-23 22:02:41.000000000 +0000
++++ new-led/drivers/leds/leds.h	2006-03-29 00:30:27.000000000 +0100
+@@ -15,7 +15,6 @@
+ 
+ #include <linux/leds.h>
+ 
+-/* led_cdev->lock must be held as write */
+ static inline void led_set_brightness(struct led_classdev *led_cdev,
+ 					enum led_brightness value)
+ {
+diff -urN old-led/drivers/leds/ledtrig-ide-disk.c new-led/drivers/leds/ledtrig-ide-disk.c
+--- old-led/drivers/leds/ledtrig-ide-disk.c	1970-01-01 01:00:00.000000000 +0100
++++ new-led/drivers/leds/ledtrig-ide-disk.c	2006-03-29 00:30:27.000000000 +0100
+@@ -0,0 +1,62 @@
 +/*
-+ * LED Class Core
++ * LED IDE-Disk Activity Trigger
 + *
-+ * Copyright (C) 2005 John Lenz <lenz@cs.wisc.edu>
-+ * Copyright (C) 2005-2006 Richard Purdie <rpurdie@openedhand.com>
++ * Copyright 2006 Openedhand Ltd.
++ *
++ * Author: Richard Purdie <rpurdie@openedhand.com>
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License version 2 as
 + * published by the Free Software Foundation.
++ *
 + */
 +
-+#include <linux/config.h>
 +#include <linux/module.h>
 +#include <linux/kernel.h>
 +#include <linux/init.h>
-+#include <linux/list.h>
-+#include <linux/spinlock.h>
-+#include <linux/device.h>
-+#include <linux/sysdev.h>
 +#include <linux/timer.h>
-+#include <linux/err.h>
 +#include <linux/leds.h>
-+#include "leds.h"
 +
-+static struct class *leds_class;
++static void ledtrig_ide_timerfunc(unsigned long data);
 +
-+static ssize_t led_brightness_show(struct class_device *dev, char *buf)
++DEFINE_LED_TRIGGER(ledtrig_ide);
++static DEFINE_TIMER(ledtrig_ide_timer, ledtrig_ide_timerfunc, 0, 0);
++static int ide_activity;
++static int ide_lastactivity;
++
++void ledtrig_ide_activity(void)
 +{
-+	struct led_classdev *led_cdev = class_get_devdata(dev);
-+	ssize_t ret = 0;
-+
-+	/* no lock needed for this */
-+	sprintf(buf, "%u\n", led_cdev->brightness);
-+	ret = strlen(buf) + 1;
-+
-+	return ret;
++	ide_activity++;
++	if (!timer_pending(&ledtrig_ide_timer))
++		mod_timer(&ledtrig_ide_timer, jiffies + msecs_to_jiffies(10));
 +}
++EXPORT_SYMBOL(ledtrig_ide_activity);
 +
-+static ssize_t led_brightness_store(struct class_device *dev,
-+				const char *buf, size_t size)
++static void ledtrig_ide_timerfunc(unsigned long data)
 +{
-+	struct led_classdev *led_cdev = class_get_devdata(dev);
-+	ssize_t ret = -EINVAL;
-+	char *after;
-+	unsigned long state = simple_strtoul(buf, &after, 10);
-+
-+	if (after - buf > 0) {
-+		ret = after - buf;
-+		led_set_brightness(led_cdev, state);
++	if (ide_lastactivity != ide_activity) {
++		ide_lastactivity = ide_activity;
++		led_trigger_event(ledtrig_ide, LED_FULL);
++	    	mod_timer(&ledtrig_ide_timer, jiffies + msecs_to_jiffies(10));
++	} else {
++		led_trigger_event(ledtrig_ide, LED_OFF);
 +	}
-+
-+	return ret;
 +}
 +
-+static CLASS_DEVICE_ATTR(brightness, 0644, led_brightness_show,
-+			led_brightness_store);
-+
-+/**
-+ * led_classdev_suspend - suspend an led_classdev.
-+ * @led_cdev: the led_classdev to suspend.
-+ */
-+void led_classdev_suspend(struct led_classdev *led_cdev)
++static int __init ledtrig_ide_init(void)
 +{
-+	led_cdev->flags |= LED_SUSPENDED;
-+	led_cdev->brightness_set(led_cdev, 0);
-+}
-+EXPORT_SYMBOL_GPL(led_classdev_suspend);
-+
-+/**
-+ * led_classdev_resume - resume an led_classdev.
-+ * @led_cdev: the led_classdev to resume.
-+ */
-+void led_classdev_resume(struct led_classdev *led_cdev)
-+{
-+	led_cdev->brightness_set(led_cdev, led_cdev->brightness);
-+	led_cdev->flags &= ~LED_SUSPENDED;
-+}
-+EXPORT_SYMBOL_GPL(led_classdev_resume);
-+
-+/**
-+ * led_classdev_register - register a new object of led_classdev class.
-+ * @dev: The device to register.
-+ * @led_cdev: the led_classdev structure for this device.
-+ */
-+int led_classdev_register(struct device *parent, struct led_classdev *led_cdev)
-+{
-+	led_cdev->class_dev = class_device_create(leds_class, NULL, 0,
-+						parent, "%s", led_cdev->name);
-+	if (unlikely(IS_ERR(led_cdev->class_dev)))
-+		return PTR_ERR(led_cdev->class_dev);
-+
-+	class_set_devdata(led_cdev->class_dev, led_cdev);
-+
-+	/* register the attributes */
-+	class_device_create_file(led_cdev->class_dev,
-+				&class_device_attr_brightness);
-+
-+	/* add to the list of leds */
-+	write_lock(&leds_list_lock);
-+	list_add_tail(&led_cdev->node, &leds_list);
-+	write_unlock(&leds_list_lock);
-+
-+	printk(KERN_INFO "Registered led device: %s\n",
-+			led_cdev->class_dev->class_id);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(led_classdev_register);
-+
-+/**
-+ * led_classdev_unregister - unregisters a object of led_properties class.
-+ * @led_cdev: the led device to unreigister
-+ *
-+ * Unregisters a previously registered via led_classdev_register object.
-+ */
-+void led_classdev_unregister(struct led_classdev *led_cdev)
-+{
-+	class_device_remove_file(led_cdev->class_dev,
-+				&class_device_attr_brightness);
-+
-+	class_device_unregister(led_cdev->class_dev);
-+
-+	write_lock(&leds_list_lock);
-+	list_del(&led_cdev->node);
-+	write_unlock(&leds_list_lock);
-+}
-+EXPORT_SYMBOL_GPL(led_classdev_unregister);
-+
-+static int __init leds_init(void)
-+{
-+	leds_class = class_create(THIS_MODULE, "leds");
-+	if (IS_ERR(leds_class))
-+		return PTR_ERR(leds_class);
++	led_trigger_register_simple("ide-disk", &ledtrig_ide);
 +	return 0;
 +}
 +
-+static void __exit leds_exit(void)
++static void __exit ledtrig_ide_exit(void)
 +{
-+	class_destroy(leds_class);
++	led_trigger_unregister_simple(ledtrig_ide);
 +}
 +
-+subsys_initcall(leds_init);
-+module_exit(leds_exit);
++module_init(ledtrig_ide_init);
++module_exit(ledtrig_ide_exit);
 +
-+MODULE_AUTHOR("John Lenz, Richard Purdie");
++MODULE_AUTHOR("Richard Purdie <rpurdie@openedhand.com>");
++MODULE_DESCRIPTION("LED IDE Disk Activity Trigger");
 +MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("LED Class Interface");
-Index: linux-2.6.16/drivers/leds/led-core.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.16/drivers/leds/led-core.c	2006-03-23 22:10:48.000000000 +0000
-@@ -0,0 +1,25 @@
-+/*
-+ * LED Class Core
-+ *
-+ * Copyright 2005-2006 Openedhand Ltd.
-+ *
-+ * Author: Richard Purdie <rpurdie@openedhand.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
+diff -urN old-led/drivers/leds/ledtrig-timer.c new-led/drivers/leds/ledtrig-timer.c
+--- old-led/drivers/leds/ledtrig-timer.c	2006-03-23 22:02:41.000000000 +0000
++++ new-led/drivers/leds/ledtrig-timer.c	2006-03-29 00:30:27.000000000 +0100
+@@ -37,9 +37,7 @@
+ 	unsigned long delay = timer_data->delay_off;
+ 
+ 	if (!timer_data->delay_on || !timer_data->delay_off) {
+-		write_lock(&led_cdev->lock);
+ 		led_set_brightness(led_cdev, LED_OFF);
+-		write_unlock(&led_cdev->lock);
+ 		return;
+ 	}
+ 
+@@ -48,9 +46,7 @@
+ 		delay = timer_data->delay_on;
+ 	}
+ 
+-	write_lock(&led_cdev->lock);
+ 	led_set_brightness(led_cdev, brightness);
+-	write_unlock(&led_cdev->lock);
+ 
+ 	mod_timer(&timer_data->timer, jiffies + msecs_to_jiffies(delay));
+ }
+diff -urN old-led/include/linux/leds.h new-led/include/linux/leds.h
+--- old-led/include/linux/leds.h	2006-03-23 22:02:41.000000000 +0000
++++ new-led/include/linux/leds.h	2006-03-29 01:11:15.000000000 +0100
+@@ -38,9 +38,6 @@
+ 	/* LED Device linked list */
+ 	struct list_head node;
+ 
+-	/* Protects the LED properties data above */
+-	rwlock_t lock;
+-
+ 	/* Trigger data */
+ 	char *default_trigger;
+ #ifdef CONFIG_LEDS_TRIGGERS
+@@ -81,16 +78,17 @@
+ };
+ 
+ /* Registration functions for complex triggers */
+-int led_trigger_register(struct led_trigger *trigger);
+-void led_trigger_unregister(struct led_trigger *trigger);
++extern int led_trigger_register(struct led_trigger *trigger);
++extern void led_trigger_unregister(struct led_trigger *trigger);
+ 
+ /* Registration functions for simple triggers */
+ #define DEFINE_LED_TRIGGER(x)		static struct led_trigger *x;
+ #define DEFINE_LED_TRIGGER_GLOBAL(x)	struct led_trigger *x;
+-void led_trigger_register_simple(const char *name,
++extern void led_trigger_register_simple(const char *name,
+ 				struct led_trigger **trigger);
+-void led_trigger_unregister_simple(struct led_trigger *trigger);
+-void led_trigger_event(struct led_trigger *trigger, enum led_brightness event);
++extern void led_trigger_unregister_simple(struct led_trigger *trigger);
++extern void led_trigger_event(struct led_trigger *trigger,
++				enum led_brightness event);
+ 
+ #else
+ 
+@@ -102,4 +100,12 @@
+ #define led_trigger_event(x, y) do {} while(0)
+ 
+ #endif
 +
-+#include <linux/kernel.h>
-+#include <linux/list.h>
-+#include <linux/module.h>
-+#include <linux/spinlock.h>
-+#include <linux/leds.h>
-+#include "leds.h"
++/* Trigger specific functions */
++#ifdef CONFIG_LEDS_TRIGGER_IDE_DISK
++extern void ledtrig_ide_activity(void);
++#else
++#define ledtrig_ide_activity() do {} while(0)
++#endif
 +
-+rwlock_t leds_list_lock = RW_LOCK_UNLOCKED;
-+LIST_HEAD(leds_list);
-+
-+EXPORT_SYMBOL_GPL(leds_list);
-+EXPORT_SYMBOL_GPL(leds_list_lock);
-Index: linux-2.6.16/drivers/leds/leds.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.16/drivers/leds/leds.h	2006-03-28 13:17:36.000000000 +0100
-@@ -0,0 +1,31 @@
-+/*
-+ * LED Core
-+ *
-+ * Copyright 2005 Openedhand Ltd.
-+ *
-+ * Author: Richard Purdie <rpurdie@openedhand.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+#ifndef __LEDS_H_INCLUDED
-+#define __LEDS_H_INCLUDED
-+
-+#include <linux/leds.h>
-+
-+static inline void led_set_brightness(struct led_classdev *led_cdev,
-+					enum led_brightness value)
-+{
-+	if (value > LED_FULL)
-+		value = LED_FULL;
-+	led_cdev->brightness = value;
-+	if (!(led_cdev->flags & LED_SUSPENDED))
-+		led_cdev->brightness_set(led_cdev, value);
-+}
-+
-+extern rwlock_t leds_list_lock;
-+extern struct list_head leds_list;
-+
-+#endif	/* __LEDS_H_INCLUDED */
-Index: linux-2.6.16/drivers/leds/Makefile
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.16/drivers/leds/Makefile	2006-03-27 23:36:51.000000000 +0100
-@@ -0,0 +1,4 @@
-+
-+# LED Core
-+obj-$(CONFIG_NEW_LEDS)			+= led-core.o
-+obj-$(CONFIG_LEDS_CLASS)		+= led-class.o
-Index: linux-2.6.16/drivers/Makefile
-===================================================================
---- linux-2.6.16.orig/drivers/Makefile	2006-03-20 05:53:29.000000000 +0000
-+++ linux-2.6.16/drivers/Makefile	2006-03-27 23:36:45.000000000 +0100
-@@ -68,6 +68,7 @@
- obj-$(CONFIG_EISA)		+= eisa/
- obj-$(CONFIG_CPU_FREQ)		+= cpufreq/
- obj-$(CONFIG_MMC)		+= mmc/
-+obj-$(CONFIG_NEW_LEDS)		+= leds/
- obj-$(CONFIG_INFINIBAND)	+= infiniband/
- obj-$(CONFIG_SGI_SN)		+= sn/
- obj-y				+= firmware/
-Index: linux-2.6.16/include/linux/leds.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.16/include/linux/leds.h	2006-03-28 13:14:37.000000000 +0100
-@@ -0,0 +1,51 @@
-+/*
-+ * Driver model for leds and led triggers
-+ *
-+ * Copyright (C) 2005 John Lenz <lenz@cs.wisc.edu>
-+ * Copyright (C) 2005 Richard Purdie <rpurdie@openedhand.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+#ifndef __LINUX_LEDS_H_INCLUDED
-+#define __LINUX_LEDS_H_INCLUDED
-+
-+struct device;
-+struct class_device;
-+/*
-+ * LED Core
-+ */
-+
-+enum led_brightness {
-+	LED_OFF = 0,
-+	LED_HALF = 127,
-+	LED_FULL = 255,
-+};
-+
-+struct led_classdev {
-+	const char *name;
-+	int brightness;
-+	int flags;
-+#define LED_SUSPENDED       (1 << 0)
-+
-+	/* A function to set the brightness of the led */
-+	void (*brightness_set)(struct led_classdev *led_cdev,
-+				enum led_brightness brightness);
-+
-+	struct class_device *class_dev;
-+	/* LED Device linked list */
-+	struct list_head node;
-+
-+	/* Trigger data */
-+	char *default_trigger;
-+};
-+
-+extern int led_classdev_register(struct device *parent,
-+				struct led_classdev *led_cdev);
-+extern void led_classdev_unregister(struct led_classdev *led_cdev);
-+extern void led_classdev_suspend(struct led_classdev *led_cdev);
-+extern void led_classdev_resume(struct led_classdev *led_cdev);
-+
-+#endif		/* __LINUX_LEDS_H_INCLUDED */
+ #endif		/* __LINUX_LEDS_H_INCLUDED */
 
 

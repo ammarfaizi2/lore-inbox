@@ -1,53 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbWC2E4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWC2F4O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750820AbWC2E4I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 23:56:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWC2E4I
+	id S1751077AbWC2F4O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 00:56:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWC2F4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 23:56:08 -0500
-Received: from sputnik.senvnet.fi ([80.83.5.69]:6352 "EHLO sputnik.senvnet.fi")
-	by vger.kernel.org with ESMTP id S1750820AbWC2E4H (ORCPT
+	Wed, 29 Mar 2006 00:56:14 -0500
+Received: from mail.gmx.net ([213.165.64.20]:27076 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751077AbWC2F4O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 23:56:07 -0500
-Date: Wed, 29 Mar 2006 07:56:03 +0300 (EEST)
-From: Jussi Hamalainen <count@theblah.fi>
-X-X-Sender: count@mir.senvnet.fi
-To: Paul Risenhoover <prisenhoover@daxsolutions.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel: BUG: soft lockup detected on CPU#0!
-In-Reply-To: <4429A027.1010509@daxsolutions.com>
-Message-ID: <Pine.LNX.4.62.0603290748240.22034@mir.senvnet.fi>
-References: <4429A027.1010509@daxsolutions.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1397768965-39367188-1143608163=:22034"
+	Wed, 29 Mar 2006 00:56:14 -0500
+X-Authenticated: #14349625
+Subject: Re: scheduler starvation resistance patches for 2.6.16
+From: Mike Galbraith <efault@gmx.de>
+To: Al Boldi <a1426z@gawab.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200603282301.55314.a1426z@gawab.com>
+References: <200603272136.07908.a1426z@gawab.com>
+	 <1143522632.7441.16.camel@homer> <1143537120.10571.5.camel@homer>
+	 <200603282301.55314.a1426z@gawab.com>
+Content-Type: text/plain
+Date: Wed, 29 Mar 2006 07:56:14 +0200
+Message-Id: <1143611774.7535.30.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Tue, 2006-03-28 at 23:01 +0300, Al Boldi wrote:
+> Mike Galbraith wrote:
+> > On Tue, 2006-03-28 at 07:10 +0200, Mike Galbraith wrote:
+> > > On Mon, 2006-03-27 at 21:36 +0300, Al Boldi wrote:
+> > > > It's not bad.  w/ credit_c1/2 set to 0 results in an improvement in
+> > > > running the MESA demos  "# gears & reflect & morph3d" .
+> > >
+> > > Hmm.  That's unexpected.
+> > >
+> > > > But a simple "# while :; do :; done &" (10x) makes a "# ping 10.1 -A
+> > > > -s8" choke.
+> > >
+> > > Ouch, so is that.  But thanks, testcases are great.  I'll look into it.
+> >
+> > OK, this has nothing to do with my patches.  The same slowdown happens
+> > with a stock kernel when running a few pure cpu hogs.  I suspect it has
+> > to do with softirqd, but am still investigating.
+> 
+> I think so too.
 
---1397768965-39367188-1143608163=:22034
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+(suspicion led to wild goose chase)
 
-On Tue, 28 Mar 2006, Paul Risenhoover wrote:
+> I played with some numbers inside sched.c.  Raising the MIN_TIMESLICE from 1 
+> to between 10-100  affects interactivity positively, although it does not 
+> fix it entirely.
 
-> I have been experiencing a number of networking issues with three 
-> new machines I have purchased.  They are Dell SC1425 machines, each 
-> with two 64-bit processors.  I have attached the dmesg log to this 
-> email for your review.
+After some fiddling with it, looks to me like it's just a combination of
+EXPIRED_STARVING(rq) doing it's thing, which in turn causes (if you're
+running kde at least) your terminal to not be able to keep up, which
+makes it lose priority due to burning more cpu trying to catch up.
 
-Although not it is possibly not directly related to your problem, 
-I've also experienced soft lockups on CPU#0 with a Dell PE1850 running
-Xen unstable and 2.6.16. The BUG caused the machine to instantly 
-crash and was 100% reproducible by starting an ftp transfer from
-a fast server.
+Try this.  Using virgin 2.6.16, disable EXPIRED_STARVING(rq), and start
+your ping -A without any cpu hogs.  If you're running KDE, you'll notice
+that the konsole priority where ping is running remains forever highly
+interactive.  Enable EXPIRED_STARVING(rq) and repeat.  Just from the
+scrolling, being bumped into the expired array will cause konsole to
+lose priority because of increased cpu usage trying to catch up.
 
-After spending a good portion of the day pulling my hair out, I 
-figured out that the USB controller in Dell PowerEdges is really 
-flaky and had caused similar problems before. Disabling the USB 
-controller from BIOS made my problem go away.
+There is a price to be paid for starvation prevention.  You can choose
+when it's paid, and in what sized installments, but pay you will :-/
 
--- 
--=[ Count Zero / TBH - Jussi Hämäläinen - email count@theblah.fi ]=-
---1397768965-39367188-1143608163=:22034--
+> It does look like there is an underlying problem (locking?) that may be 
+> worked-around by tuning the scheduler to some extent.
+> 
+> Also, MAX_TIMESLICE = 800 seems a bit high.  Can this be lowered?
+
+The round-robin logic prevents this from being a problem.
+
+	-Mike
+

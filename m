@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWC2P5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWC2QLx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbWC2P5X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 10:57:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWC2P5X
+	id S1751188AbWC2QLx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 11:11:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWC2QLx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 10:57:23 -0500
-Received: from tayrelbas04.tay.hp.com ([161.114.80.247]:48021 "EHLO
-	tayrelbas04.tay.hp.com") by vger.kernel.org with ESMTP
-	id S1751090AbWC2P5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 10:57:22 -0500
-Date: Wed, 29 Mar 2006 10:57:19 -0500
-From: Amy Griffis <amy.griffis@hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: John McCutchan <ttb@tentacle.dhs.org>, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: [PATCH] inotify: IN_DELETE events missing in -mm
-Message-ID: <20060329155719.GA22092@zk3.dec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 29 Mar 2006 11:11:53 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.7]:31501 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1751188AbWC2QLw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 11:11:52 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Subject: Re: [Sdhci-devel] Submission to the kernel?
+Date: Wed, 29 Mar 2006 17:11:40 +0100
+User-Agent: KMail/1.9.1
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       Mark Lord <lkml@rtr.ca>, "David J. Wallace" <katana@onetel.com>,
+       sdhci-devel@list.drzeus.cx, linux-kernel@vger.kernel.org
+References: <4419FA7A.4050104@cogweb.net> <200603280323.15915.s0348365@sms.ed.ac.uk> <442A4426.2060306@drzeus.cx>
+In-Reply-To: <442A4426.2060306@drzeus.cx>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-X-Mailer: Mutt http://www.mutt.org/
-X-Editor: Vim http://www.vim.org/
-User-Agent: Mutt/1.5.10i
+Message-Id: <200603291711.40677.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In recent -mm kernels (e.g. 2.6.16-mm1), IN_DELETE events are no longer 
-generated for the removal of a file from a watched directory.
+On Wednesday 29 March 2006 09:24, Pierre Ossman wrote:
+> Alistair John Strachan wrote:
+> > O2 Micro SD readers still don't work; I can't offer hardware very easily,
+> > but I'd be more than glad to provide a networked box with root access..
+>
+> Thanks, but during the initial development it is more or less necessary
+> to have the hardware directly available.
 
-This seems to be a result of clearing DCACHE_INOTIFY_PARENT_WATCHED in
-d_delete() directly before calling fsnotify_nameremove().
+Do you know if this hardware can be obtained in some other way than buying an 
+entire laptop?
 
-Assuming the flag doesn't need to be cleared before dentry_iput(), this should
-do the trick.
+-- 
+Cheers,
+Alistair.
 
-Signed-off-by: Amy Griffis <amy.griffis@hp.com>
-
-diff --git a/fs/dcache.c b/fs/dcache.c
-index 363cd4b..344ce91 100644
---- a/fs/dcache.c
-+++ b/fs/dcache.c
-@@ -1198,11 +1198,11 @@ void d_delete(struct dentry * dentry)
- 	spin_lock(&dentry->d_lock);
- 	isdir = S_ISDIR(dentry->d_inode->i_mode);
- 	if (atomic_read(&dentry->d_count) == 1) {
--		/* remove this and other inotify debug checks after 2.6.18 */
--		dentry->d_flags &= ~DCACHE_INOTIFY_PARENT_WATCHED;
--
- 		dentry_iput(dentry);
- 		fsnotify_nameremove(dentry, isdir);
-+
-+		/* remove this and other inotify debug checks after 2.6.18 */
-+		dentry->d_flags &= ~DCACHE_INOTIFY_PARENT_WATCHED;
- 		return;
- 	}
- 
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbWC1X5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbWC2ABD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964849AbWC1X5y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 18:57:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbWC1X5x
+	id S964853AbWC2ABD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 19:01:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964854AbWC2ABD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 18:57:53 -0500
-Received: from mx0.towertech.it ([213.215.222.73]:38283 "HELO mx0.towertech.it")
-	by vger.kernel.org with SMTP id S964849AbWC1X5x (ORCPT
+	Tue, 28 Mar 2006 19:01:03 -0500
+Received: from mx2.suse.de ([195.135.220.15]:49886 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964853AbWC2ABB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 18:57:53 -0500
-Date: Wed, 29 Mar 2006 01:57:38 +0200
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: Kumar Gala <galak@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][UPDATE] rtc: Added support for ds1672 control
-Message-ID: <20060329015738.5dbbb22d@inspiron>
-In-Reply-To: <E135E70C-2F39-4007-B4CC-4D1AEBE2EE74@kernel.crashing.org>
-References: <20060329004122.64e91176@inspiron>
-	<Pine.LNX.4.44.0603281654370.22846-100000@gate.crashing.org>
-	<20060329014851.0f54da89@inspiron>
-	<E135E70C-2F39-4007-B4CC-4D1AEBE2EE74@kernel.crashing.org>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Mar 2006 19:01:01 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Luck, Tony" <tony.luck@intel.com>
+Subject: Re: Some section mismatch in acpi_processor_power_init on ia64 build
+Date: Wed, 29 Mar 2006 02:00:55 +0200
+User-Agent: KMail/1.9.1
+Cc: "Raj, Ashok" <ashok.raj@intel.com>, linux-kernel@vger.kernel.org
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0613EDAB@scsmsx401.amr.corp.intel.com>
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0613EDAB@scsmsx401.amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603290200.56023.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Mar 2006 17:52:00 -0600
-Kumar Gala <galak@kernel.crashing.org> wrote:
-
-> >
-> >  shouldn't this be
-> >  if (err < 0)
-> > 	return err;
+On Wednesday 29 March 2006 01:09, Luck, Tony wrote:
+> I've only just noticed these warnings when building ia64 !SMP or
+> !HOTPLUG_CPU
+> kernels:
 > 
-> It could be, but doesn't need to.  ds1672_get_control either returns  
-> 0 (success) or non-zero (-EIO) for failure.
+> WARNING: drivers/acpi/processor.o - Section mismatch: reference to
+> .init.data: from .text between 'acpi_processor_power_init' (at offset
+> 0x5040) and 'acpi_processor_power_exit'
+> WARNING: drivers/acpi/processor.o - Section mismatch: reference to
+> .init.data: from .text between 'acpi_processor_power_init' (at offset
+> 0x5050) and 'acpi_processor_power_exit'
+
+These functions need to be marked __cpuinit I guess. I doubt they
+run without new CPUs.
+
 > 
-> >> +	/* read control register */
-> >> +	err = ds1672_get_control(client, &control);
-> >> +	if (err) {
-> >> +		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
-> >> +		goto exit_detach;
-> >> +	}
-> >
-> >  ditto.
-> 
-> ditto.
+> According to git bisect, they began with Matt Domsch's "ia64: use i386
+> dmi_scan.c"
+> patch (commit 3ed3bce8), but it appears that the real issue may be
+> further back when
+> Ashok Raj marked processor_power_dmi_table as __cpuinitdata in 7ded5689
+> with a
+> cryptic comment by AK (Andi Kleen?):
+>   /* Actually this shouldn't be __cpuinitdata, would be better to fix
+> the
+>      callers to only run once -AK */
 
- ok. will apply, thanks.
+Yes that's me. What is cryptic?
 
-
--- 
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
-
+-Andi

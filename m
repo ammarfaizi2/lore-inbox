@@ -1,69 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWC3U0o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWC3U1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbWC3U0o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 15:26:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWC3U0o
+	id S1750874AbWC3U1i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 15:27:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbWC3U1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 15:26:44 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:3806 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1750822AbWC3U0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 15:26:44 -0500
-From: Rob Landley <rob@landley.net>
-To: Nix <nix@esperi.org.uk>
-Subject: Re: [OT] Non-GCC compilers used for linux userspace
-Date: Thu, 30 Mar 2006 15:26:14 -0500
-User-Agent: KMail/1.8.3
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Eric Piel <Eric.Piel@tremplin-utc.net>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, mmazur@kernel.pl,
-       linux-kernel@vger.kernel.org, llh-discuss@lists.pld-linux.org
-References: <200603141619.36609.mmazur@kernel.pl> <200603292036.38937.rob@landley.net> <87k6actmy2.fsf@hades.wkstn.nix>
-In-Reply-To: <87k6actmy2.fsf@hades.wkstn.nix>
+	Thu, 30 Mar 2006 15:27:38 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:45591 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1750846AbWC3U1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 15:27:37 -0500
+Message-ID: <442AEB3A.9030503@tmr.com>
+Date: Wed, 29 Mar 2006 15:16:58 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Ram Gupta <ram.gupta5@gmail.com>
+CC: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: RSS Limit implementation issue
+References: <728201270602091310r67a3f2dcq4788199f26a69528@mail.gmail.com>	 <1139526447.6692.7.camel@localhost.localdomain> <728201270603230855l11faeb6ah33ee88568843068f@mail.gmail.com>
+In-Reply-To: <728201270603230855l11faeb6ah33ee88568843068f@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603301526.14744.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 March 2006 2:24 am, Nix wrote:
-> On Wed, 29 Mar 2006, Rob Landley whispered secretively:
-> > Actually according to the changelog version 0.9.21 grew support for ARM,
-> > and I believe it supports some other platforms too.
->
-> That's... impressive. Of course the more generality it grows the slower
-> it must necessarily become,
+Ram Gupta wrote:
+> On 2/9/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>> On Iau, 2006-02-09 at 15:10 -0600, Ram Gupta wrote:
+>>> I am working to implement enforcing RSS limits of a process. I am
+>>> planning to make a check for rss limit when setting up pte. If the
+>>> limit is crossed I see couple of  different ways of handling .
+>>>
+>>> 1. Kill the process . In this case there is no swapping problem.
+>> Not good as the process isn't responsible for the RSS size so it would
+>> be rather random.
+>>
+> 
+> I doubt I am missing some point here. I dont understand why the
+> process isn't responsible for RSS size. This limit is process specific
+> & the count of rss increases when the process maps some page in its
+> page table.
 
-Not if compliation speed is the primary explicit design goal from day one, and 
-they regression test with that in mind.
+A process has no control over its RSS size, only its virtual size. I'm 
+not sure you're clear on that, or just not saying it clearly. Therefore 
+the same process, say a largish perl run, may be 175mB in vsize, and 
+during the day have rss of perhaps half that. At night, with next to no 
+load on the machine, the rss is 175mB because there is a bunch of free 
+memory available.
 
-Keep in mind that the main use of tcc these days is to turn c into a scripting 
-language.  Just start your C file with
+If you want to make rss a hard limit the result should be swapping, not 
+failure to run. I'm not sure the limit in that form is a good idea, and 
+before someone reminds me, I do remember liking it better a few years ago.
 
-#!/usr/bin/tcc -run
+If you can come up with a better way to adjust rss to get better overall 
+greater throughput while being fair to all processes, go to it. But in 
+general these things are a tradeoff, like swappiness, you tune until the 
+volume of complaints reaches a minimum.
 
-And notice that #! is a preprocessor comment line as far as tcc is 
-concerned. :)
+You could do tuning to get minimum page faults overall, or assure a 
+minumum size, or... I think there's room for improvement, particularly 
+for servers, but a hard limit doesn't seem to be it.
 
-> > The result was qemu, which sort of compiles machine code to machine code
-> > dynamically, and which has taken up a large chunk of his time ever since.
-> > (The speed of tcc development has tailed off noticeably since, but he
-> > still spends a little time on it, and there are other developers...)
->
-> Well, I'd rather he spent time on qemu than tcc; there are other C
-> compilers but there's nothing quite like qemu (bochs doesn't work very
-> well, valgrind is similar in essence but very different in operation...)
+Didn't Rik do something in this area back in 2.4 and decide there 
+weren't many fish in that pond?
 
-They're still sort of related.  The sad part is that tcc is -><- this close to 
-building an unmodified linux kernel, as tccboot demonstrates.  But Fabrice 
-seems to have gone "ooh, shiny!" off in another direction, for entirely 
-understandable reasons... :)
-
-I'm sure somebody will go take a whack at it sooner or later.  (I haven't got 
-time either.)
-
-Rob
 -- 
-Never bet against the cheap plastic solution.
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
+

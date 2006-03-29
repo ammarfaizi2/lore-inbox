@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWC2GOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWC2GQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbWC2GOs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 01:14:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWC2GOs
+	id S1751088AbWC2GQN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 01:16:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWC2GQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 01:14:48 -0500
-Received: from pproxy.gmail.com ([64.233.166.176]:32958 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750822AbWC2GOs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 01:14:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=F278VCepGLPdcoVoxhHwxRCL4SKrm1So6O815KdBJcwj4CgoBVFWiN0vydjdia430jJW5dpneqc5DyMq3cp0gJTYuZ9Ww59WJJf9DryBkttjHkypSEdXC7vBK1IKoceargFk+MKVT+Nr9xBzFGsHhP0X243d+hSa4V+knGfuANw=
-Message-ID: <323d1f6f0603282214m4a2c65b0t2e2bf7e74352e5f@mail.gmail.com>
-Date: Wed, 29 Mar 2006 11:44:47 +0530
-From: Tushar <tushar.telichari@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: DTrace for Linux
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Wed, 29 Mar 2006 01:16:12 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:22921 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751088AbWC2GQL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 01:16:11 -0500
+Subject: Re: interactive task starvation
+From: Lee Revell <rlrevell@joe-job.com>
+To: ray-gmail@madrabbit.org
+Cc: Ingo Molnar <mingo@elte.hu>, Willy Tarreau <willy@w.ods.org>,
+       Con Kolivas <kernel@kolivas.org>, Mike Galbraith <efault@gmx.de>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       bugsplatter@gmail.com
+In-Reply-To: <2c0942db0603282156x468f4246nae414b2a853668dc@mail.gmail.com>
+References: <1142592375.7895.43.camel@homer>
+	 <200603220119.50331.kernel@kolivas.org> <1142951339.7807.99.camel@homer>
+	 <200603220130.34424.kernel@kolivas.org> <20060321143240.GA310@elte.hu>
+	 <20060321144410.GE26171@w.ods.org> <20060321145202.GA3268@elte.hu>
+	 <1143601277.3330.2.camel@mindpipe>
+	 <2c0942db0603282156x468f4246nae414b2a853668dc@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 29 Mar 2006 01:16:07 -0500
+Message-Id: <1143612969.3330.11.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Guys,
+On Tue, 2006-03-28 at 21:56 -0800, Ray Lee wrote:
+> Do any of the above WAGs match what you see? If so, then perhaps it's
+> random just due to the order in which the tasks get initially
+> scheduled (dmesg vs ssh, or dmesg vs xterm vs X -- er, though I guess
+> in that latter case there's really <thinks> three separate timings
+> that you'd get back, as the triple set of tasks could be in one of six
+> orderings, one fast, one slow, and four equally mixed between the
+> two).
+> 
 
-I am planning to port DTrace (Solaris 10) utility to Linux. I have
-done good enough research for same. Is this port of DTrace to Linux
-already been started/completed ?
+Possibly - *very* rarely, like 1 out of 50 or 100 times, it falls
+somewhere in the middle.
 
-Please let me know your comments on this.
+Lee
 
-- Tushar

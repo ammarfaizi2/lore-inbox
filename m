@@ -1,50 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWC2TyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWC2T7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbWC2TyM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 14:54:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWC2TyM
+	id S1750720AbWC2T7l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 14:59:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWC2T7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 14:54:12 -0500
-Received: from mcr-smtp-001.bulldogdsl.com ([212.158.248.7]:2056 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1750908AbWC2TyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 14:54:11 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: JimD <Jim@keeliegirl.dyndns.org>
-Subject: Re: AMD64 overclock issue with 2.6.16 but not with 2.6.15
-Date: Wed, 29 Mar 2006 20:54:09 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <20060329143523.3bbb4df7@keelie.localdomain>
-In-Reply-To: <20060329143523.3bbb4df7@keelie.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Mar 2006 14:59:41 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:41927 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1750720AbWC2T7k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 14:59:40 -0500
+Date: Wed, 29 Mar 2006 12:00:20 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: Laurent Vivier <Laurent.Vivier@bull.net>, Andrew Morton <akpm@osdl.org>,
+       Takashi Sato <sho@tnes.nec.co.jp>,
+       Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [PATCH 2/2] ext2/3: Support2^32-1blocks(e2fsprogs)
+Message-ID: <20060329200020.GA3729@localhost.localdomain>
+References: <20060325223358sho@rifu.tnes.nec.co.jp> <1143485147.3970.23.camel@dyn9047017067.beaverton.ibm.com> <20060327131049.2c6a5413.akpm@osdl.org> <20060327225847.GC3756@localhost.localdomain> <1143530126.11560.6.camel@openx2.frec.bull.fr> <1143568905.3935.13.camel@dyn9047017067.beaverton.ibm.com> <1143623605.5046.11.camel@openx2.frec.bull.fr> <1143657317.4045.12.camel@dyn9047017067.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603292054.09385.s0348365@sms.ed.ac.uk>
+In-Reply-To: <1143657317.4045.12.camel@dyn9047017067.beaverton.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 29 March 2006 20:35, JimD wrote:
-> Do any one know of any other issues with amd64 and the
-> 2.6.16 series?  I have run into a weird issue.
-[snip]
-> The bogomips are showing the same though the kernel is not reporting
-> the correct MHz.  If I reboot and check the BIOS, the correct MHz is
-> reported.  I have not run any CPU benchmarks to see if performance is
-> really going back down to 2000 MHz.
->
-> Does anyone have a clue what could be causing this?
+On Wed, Mar 29, 2006 at 10:35:10AM -0800, Mingming Cao wrote:
+> On Wed, 2006-03-29 at 11:13 +0200, Laurent Vivier wrote:
+> > 
+> > You're right, Mingming.
+> > 
+> > But I think instead of thinking to change "long" by "long long" we
+> > should think about changing "long" by "unsigned long" in the per-cpu
+> > counter structure.
+> > 
+> > Is there someone knowing why this counter is signed ?
+> 
+> I am wondering the same thing asked by Laurent. Initially I thought the
+> signed value is there to prevent overflow, or to maintain a "int" type
+> counters. Are those the intentions, kiran?
 
-At a guess, it sounds like you're trying to use cpufreq on an overclocked CPU, 
-a definitely no-no. Check your config for this option, remove it if desired.
+I don't know if the local counter version values can be unsigned in this
+case.  Consider a case like this with the initial counter value to be 0,
+and FBC_BATCH is 32 (8cpusx4)
 
--- 
-Cheers,
-Alistair.
+cpu 1				cpu 2			cpu 3
+--------			-------			--------
+add(10)
+//local = 10 fbc = 0.
+				sub(5)
+				//local = -5 fbc = 0
+							add(31)
+							//local = 31 fbc = 0
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+				sub(30)
+				//local = 0 fbc = -35
+				--------------->(A)
+
+Now if the local counters were unsigned, and the global counters unsigned
+too, counter read at A would result in a large value, which would mislead
+the app.  Maybe it doesn't matter if we use percpu_counter_exceeds at
+critical places, so these get caught, but that would mean going on all cpus
+more often than before..and that would also mean weird values when we just
+use percpu_counter_read to print these counters.
+
+So maybe using long long is a simpler solution here? Andrew, thoughts?
+
+> 
+> But it seems the per cpu counters used in ext2/3 are all number of free
+> blocks/inodes/directories.  So it should be always positive values.  It
+> seems fine to change the percpu counters to type "unsigned long" for
+> ext2/3 itself. But I am not sure if this will cause issues for other
+> users of percpu counters.  Kiran, could you please confirm this?
+
+I guess most of the uses for per-cpu counters will be up counters, we don't
+need the signedness if it wasn't for the issues above.  The nr_files,
+memory_allocated counters are up counters too.
+
+Thanks,
+Kiran

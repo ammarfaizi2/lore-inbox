@@ -1,93 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWC2Ojp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWC2Olj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751166AbWC2Ojp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 09:39:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWC2Ojp
+	id S1751132AbWC2Olj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 09:41:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWC2Olj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 09:39:45 -0500
-Received: from clem.clem-digital.net ([68.16.168.10]:14498 "EHLO
-	clem.clem-digital.net") by vger.kernel.org with ESMTP
-	id S1751166AbWC2Ojo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 09:39:44 -0500
-From: Pete Clements <clem@clem.clem-digital.net>
-Message-Id: <200603291439.k2TEdYej001786@clem.clem-digital.net>
-Subject: Re: Correction: 2.6.16-git12 killed networking -- 3c900 card
-To: akpm@osdl.org (Andrew Morton)
-Date: Wed, 29 Mar 2006 09:39:34 -0500 (EST)
-Cc: clem@clem.clem-digital.net (Pete Clements),
-       klassert@mathematik.tu-chemnitz.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20060328224308.23cac292.akpm@osdl.org>
-X-Mailer: ELM [version 2.5 PL7]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Mar 2006 09:41:39 -0500
+Received: from smtp2.rz.uni-karlsruhe.de ([129.13.185.218]:60892 "EHLO
+	smtp2.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
+	id S1751132AbWC2Olj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 09:41:39 -0500
+Date: Wed, 29 Mar 2006 16:43:03 +0200
+From: Christian Trefzer <ctrefzer@gmx.de>
+To: Lee Revell <rlrevell@joe-job.com>, Takashi Iwai <tiwai@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+Subject: Re: snd-nm256: hard lockup on every second module load after powerup
+Message-ID: <20060329144303.GA24146@hermes.uziel.local>
+References: <20060326054542.GA11961@hermes.uziel.local> <s5hveu0chvy.wl%tiwai@suse.de> <1143500400.1792.314.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
+Content-Disposition: inline
+In-Reply-To: <1143500400.1792.314.camel@mindpipe>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Andrew Morton
 
-Patch applied to 2.6.16, timeouts remain. Will try the other also.
+--1yeeQ81UyVL57Vl7
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-  > Pete Clements <clem@clem.clem-digital.net> wrote:
-  > >
-  > > Quoting Steffen Klassert
-  > >   > >   Had several of these with git11
-  > >   > >   NETDEV WATCHDOG: eth0: transmit timed out
-  > >   > 
-  > >   > Is this for sure that these messages occured first time with git11?
-  > >   > There were no changes in the 3c59x driver between git10 and git11.
-  > >   > 
-  > > Tried 2.6.15 and could not get a timed out condition.  Looks like
-  > > that defect is between 15 and 16 in my case.  
-  > > 
-  > > Be glad to do any testing that I can.
-  > > 
-  > 
-  > Well here's one.  Steffen, please confirm.
-  > 
-  > 
-  > From: Andrew Morton <akpm@osdl.org>
-  > 
-  > The pre-2.6.16 patch "3c59x collision statistics fix" accidentally caused
-  > vortex_error() to not run iowrite16(TxEnable, ioaddr + EL3_CMD) if we got a
-  > maxCollisions interrupt but MAX_COLLISION_RESET is not set.
-  > 
-  > Cc: Steffen Klassert <klassert@mathematik.tu-chemnitz.de>
-  > Cc: Pete Clements <clem@clem.clem-digital.net>
-  > Signed-off-by: Andrew Morton <akpm@osdl.org>
-  > ---
-  > 
-  >  drivers/net/3c59x.c |   12 +++++-------
-  >  1 files changed, 5 insertions(+), 7 deletions(-)
-  > 
-  > diff -puN drivers/net/3c59x.c~3c59x-collision-statistics-fix-fix drivers/net/3c59x.c
-  > --- devel/drivers/net/3c59x.c~3c59x-collision-statistics-fix-fix	2006-03-28 22:36:48.000000000 -0800
-  > +++ devel-akpm/drivers/net/3c59x.c	2006-03-28 22:40:01.000000000 -0800
-  > @@ -2085,16 +2085,14 @@ vortex_error(struct net_device *dev, int
-  >  		}
-  >  		if (tx_status & 0x14)  vp->stats.tx_fifo_errors++;
-  >  		if (tx_status & 0x38)  vp->stats.tx_aborted_errors++;
-  > +		if (tx_status & 0x08)  vp->xstats.tx_max_collisions++;
-  >  		iowrite8(0, ioaddr + TxStatus);
-  >  		if (tx_status & 0x30) {			/* txJabber or txUnderrun */
-  >  			do_tx_reset = 1;
-  > -		} else if (tx_status & 0x08) {	/* maxCollisions */
-  > -			vp->xstats.tx_max_collisions++;
-  > -			if (vp->drv_flags & MAX_COLLISION_RESET) {
-  > -				do_tx_reset = 1;
-  > -				reset_mask = 0x0108;		/* Reset interface logic, but not download logic */
-  > -			}
-  > -		} else {						/* Merely re-enable the transmitter. */
-  > +		} else if ((tx_status & 0x08) && (vp->drv_flags & MAX_COLLISION_RESET))  {	/* maxCollisions */
-  > +			do_tx_reset = 1;
-  > +			reset_mask = 0x0108;		/* Reset interface logic, but not download logic */
-  > +		} else {				/* Merely re-enable the transmitter. */
-  >  			iowrite16(TxEnable, ioaddr + EL3_CMD);
-  >  		}
-  >  	}
-  > _
-  > 
+Hi Takashi, Lee,
 
 
--- 
-Pete Clements 
+On Mon, Mar 27, 2006 at 05:59:59PM -0500, Lee Revell wrote:
+> On Mon, 2006-03-27 at 12:16 +0200, Takashi Iwai wrote:
+> >=20
+> > Try 2.6.16-git tree.  Some patches for this problem are there.=20
+>=20
+> If this does not fix the problem then alsa-devel (cc'ed) is the best
+> list to discuss the issue.
+
+Actually, the changes in Linus' current git have fixed the hang for me.
+Good job - thanks a lot, guys!
+
+
+Kind regards,
+Chris
+
+--1yeeQ81UyVL57Vl7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iQIVAwUBRCqc9l2m8MprmeOlAQKU1BAAkYibdE03Fukjl2F344jnsQAY6t3cPeym
+gsWIMkKbVwy9iXl3qdS+0IEKRmwo26dUUNDZfvbww1hQhmAhFFB3d4sG4jHUV2cR
+lI+scSarVECUtZ9B42oPbJOLTkm3jy7YtHgk7QnVlxujJtacGDbbMZ6RmGCOegsc
+5vJ7nmoCdf7Kd0HI/1purtpDUbp7cjOTwK+hCt65qH6LaSxs3e++551uVks00ZuD
+Dn7z8pBwLRuCwuQYbgM+/h9zgmdnGeEbZ/HhcP6DMTTU+9bSC3+L/c/dB9EPcZPB
+zWxhwojIJLym9OSZf+pVaKDaaV0+IPFg7U4KmKa3GiAumhQxZoZ7CyF9WXw0mJYl
+WlGYRjyAHvYHe9BzJEAyBshUps9vX2T+dTTI0W3P6aMjKfRNKFLTn3rBU+CG+T4X
+XAOIKnHgFappDBVjJ4eDDQAZ7ixi4YR1XOCRFTThX6h62AcHGGXf9Fp23sr7EUzq
+ev+BAvFlHb+Cwcc7sn3MqTVHXmlCEONFVkZtD5clrg43po/g0RqQgw+odkIUcdtb
+NzUF+HuTEG/xBr4zgUzxr6poUWJMwd5csH/6UD4X4jBaxloPQ9xEclWVyZYP22Hg
+3+oTKciehU895x03GSwAwStblLb4mNUgyBuP3DNhCVU0Le2nXj9WkwCTsfz9T5YB
+7PTUR2aV9h8=
+=ok0H
+-----END PGP SIGNATURE-----
+
+--1yeeQ81UyVL57Vl7--
+

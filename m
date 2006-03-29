@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWC2XLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWC2XMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751223AbWC2XLX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 18:11:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWC2XLX
+	id S1751236AbWC2XMA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 18:12:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbWC2XMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 18:11:23 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:61623 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751223AbWC2XLW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 18:11:22 -0500
-Date: Wed, 29 Mar 2006 18:11:00 -0500
-From: Dave Jones <davej@redhat.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michael Ellerman <michael@ellerman.id.au>
-Subject: Re: [PATCH] powerpc: Move pSeries firmware feature setup into platforms/pseries
-Message-ID: <20060329231100.GI452@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Paul Mackerras <paulus@samba.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Michael Ellerman <michael@ellerman.id.au>
-References: <200603230714.k2N7EmH1021685@hera.kernel.org> <20060329195212.GA19236@redhat.com> <17451.866.287446.68155@cargo.ozlabs.ibm.com> <20060329220701.GE452@redhat.com> <17451.4345.531029.950930@cargo.ozlabs.ibm.com>
+	Wed, 29 Mar 2006 18:12:00 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:50306 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751230AbWC2XL7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 18:11:59 -0500
+Date: Wed, 29 Mar 2006 15:13:15 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Sam Vilain <sam@vilain.net>
+Cc: Chris Wright <chrisw@sous-sol.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Virtualization steps
+Message-ID: <20060329231315.GP15997@sorel.sous-sol.org>
+References: <20060328085206.GA14089@MAIL.13thfloor.at> <4428FB29.8020402@yahoo.com.au> <20060328142639.GE14576@MAIL.13thfloor.at> <44294BE4.2030409@yahoo.com.au> <m1psk5kcpj.fsf@ebiederm.dsl.xmission.com> <442A26E9.20608@vilain.net> <20060329182027.GB14724@sorel.sous-sol.org> <442B0BFE.9080709@vilain.net> <20060329225241.GO15997@sorel.sous-sol.org> <442B11CC.6040503@vilain.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17451.4345.531029.950930@cargo.ozlabs.ibm.com>
+In-Reply-To: <442B11CC.6040503@vilain.net>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 30, 2006 at 09:58:01AM +1100, Paul Mackerras wrote:
- > Dave Jones writes:
- > 
- > > See firmware_has_feature() in include/asm-powerpc/firmware.h
- > 
- > In my clone of Linus' linux-2.6 tree, it looks like this:
- > 
- > #define firmware_has_feature(feature)					\
- > 	((FW_FEATURE_ALWAYS & (feature)) ||				\
- > 		(FW_FEATURE_POSSIBLE & powerpc_firmware_features & (feature)))
- > 
- > Perhaps you need to do another pull?
- 
-Ah, it hadn't made it into a -git release yet.
-git17 was still busted.
-I see the commit on the commits-list though, so I'll
-just twiddle my thumbs until git18 :-)
+* Sam Vilain (sam@vilain.net) wrote:
+> AIUI inode_ops are not globals, they are per FS.
+
+Heh, yes really bad example.
+
+> That to me reads as:
+> 
+> "To avoid having to consider making security_ops non-global we will
+> force security modules to be container aware".
+
+Not my intention.  Rather, I think from a security standpoint there's
+sanity in controlling things with a single policy.  I'm thinking of
+containers as a simple and logical extension of roles.  Point being,
+the per-object security label can easily include notion of container.
+
+> It also means you could not mix security modules that affect the same
+> operation different containers on a system. Personally I don't care, I
+> don't use them. But perhaps this inflexibility will bring problems later
+> for some.
+
+No issue with addressing these issues as they come.
 
 thanks,
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+-chris

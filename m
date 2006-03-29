@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWC3SXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWC3SYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751355AbWC3SXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 13:23:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWC3SXI
+	id S1751357AbWC3SYu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 13:24:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWC3SYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 13:23:08 -0500
-Received: from mail.gmx.de ([213.165.64.20]:37262 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751355AbWC3SXH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 13:23:07 -0500
-X-Authenticated: #14349625
-Subject: Re: [rfc][patch] improved interactive starvation patch against
-	2.6.16
-From: Mike Galbraith <efault@gmx.de>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, Peter Williams <pwil3058@bigpond.net.au>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>
-In-Reply-To: <1143728558.7840.11.camel@homer>
-References: <1143713997.9381.28.camel@homer>
-	 <20060330115540.GA4914@w.ods.org>  <1143728558.7840.11.camel@homer>
-Content-Type: text/plain
-Date: Thu, 30 Mar 2006 20:23:24 +0200
-Message-Id: <1143743004.7532.33.camel@homer>
+	Thu, 30 Mar 2006 13:24:50 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58632 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751357AbWC3SYt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 13:24:49 -0500
+Date: Wed, 29 Mar 2006 00:30:13 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Ashok Raj <ashok.raj@intel.com>,
+       Nigel Cunningham <ncunningham@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [rfc] fix Kconfig, hotplug_cpu is needed for swsusp
+Message-ID: <20060329003012.GC2762@ucw.cz>
+References: <20060329220808.GA1716@elf.ucw.cz> <20060329154748.A12897@unix-os.sc.intel.com> <20060330084153.GC8485@elf.ucw.cz> <200603301817.37315.rjw@sisk.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603301817.37315.rjw@sisk.pl>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-30 at 16:22 +0200, Mike Galbraith wrote:
-> +		if (expired_starving(rq)) {
-> +			int limit = MIN_TIMESLICE + CURRENT_BONUS(p);
-> +			int runtime = now - p->timestamp;
-> +
-> +			runtime = NS_TO_JIFFIES(runtime);
-> +			if (runtime >= limit && p->time_slice >= limit) {
-> +
-> +				dequeue_task(p, rq->active);
-> +				enqueue_task(p, rq->expired);
-> +				set_tsk_need_resched(p);
-> +				if (p->prio < rq->best_expired_prio)
-> +					rq->best_expired_prio = p->prio;
-> +			}
-> +		}
+Hi!
 
-This bit isn't cutting it.  expired_starving() is routine enough that
-short slicing (on this scale at least) is noticed.  Don't waste your
-time with this one.
+> > > I thought Rafael cced Pavel during that exchange, maybe i missed.
+> 
+> I did, but Pavel was travelling at that time (I think).
 
-	-Mike
+Yes, I was cc-ed, but only watching discussion by single eye...
 
+> FUrther, the whole problem, as far as I can understand it, is i386-specific,
+> so it should be resolved in the i386 architecture config rather than anywhere
+> else.
+
+Or maybe in i386 .c files :-). Could we just switch to BIGSMP mode by
+default? Intel claims it has no performance disadvatage, and distros
+want suspend, anyway...
+								Pavel
+-- 
+Thanks, Sharp!

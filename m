@@ -1,91 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWC2Wt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWC2Wvk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750930AbWC2Wt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 17:49:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbWC2Wt4
+	id S1751025AbWC2Wvk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 17:51:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWC2Wvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 17:49:56 -0500
-Received: from omta02sl.mx.bigpond.com ([144.140.93.154]:26722 "EHLO
-	omta02sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750929AbWC2Wtz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 17:49:55 -0500
-Message-ID: <442B0F10.9000606@bigpond.net.au>
-Date: Thu, 30 Mar 2006 09:49:52 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Tim Chen <tim.c.chen@linux.intel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sched: smpnice try to wakeup modification
-References: <4429F5AC.4000103@linux.intel.com>
-In-Reply-To: <4429F5AC.4000103@linux.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 29 Mar 2006 22:49:53 +0000
+	Wed, 29 Mar 2006 17:51:40 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:2990 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751025AbWC2Wvj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 17:51:39 -0500
+Date: Wed, 29 Mar 2006 17:51:30 -0500
+From: Dave Jones <davej@redhat.com>
+To: Michael Ellerman <michael@ellerman.id.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH] powerpc: Move pSeries firmware feature setup into platforms/pseries
+Message-ID: <20060329225130.GG452@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Michael Ellerman <michael@ellerman.id.au>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Paul Mackerras <paulus@samba.org>
+References: <200603230714.k2N7EmH1021685@hera.kernel.org> <20060329195212.GA19236@redhat.com> <1143671955.23392.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1143671955.23392.3.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Chen wrote:
-> Peter,
-> 
-> If there is no load on this_cpu, (i.e. tl_per_task is 0), we will fail 
-> the  "tl + target_load(cpu, idx) <= tl_per_task" check.
+On Thu, Mar 30, 2006 at 09:39:15AM +1100, Michael Ellerman wrote:
+ > On Wed, 2006-03-29 at 14:52 -0500, Dave Jones wrote:
+ > > On Thu, Mar 23, 2006 at 07:14:49AM +0000, Linux Kernel wrote:
+ > >  > commit 1965746bce49ddf001af52c7985e16343c768021
+ > >  > tree d311fce31613545f3430582322d66411566f1863
+ > >  > parent 0941d57aa7034ef7010bd523752c2e3bee569ef1
+ > >  > author Michael Ellerman <michael@ellerman.id.au> Fri, 10 Feb 2006 15:47:36 +1100
+ > >  > committer Paul Mackerras <paulus@samba.org> Fri, 10 Feb 2006 16:52:03 +1100
+ > >  > 
+ > >  > [PATCH] powerpc: Move pSeries firmware feature setup into platforms/pseries
+ > >  > 
+ > >  > Currently we have some stuff in firmware.h and kernel/firmware.c that is
+ > >  > #ifdef CONFIG_PPC_PSERIES. Move it all into platforms/pseries.
+ > > 
+ > > This (or one of the other firmware patches, I've not narrowed it down that close)
+ > > breaks ppc64 oprofile.
+ > > 
+ > > modpost now complains with..
+ > > 
+ > > kernel/arch/powerpc/oprofile/oprofile.ko needs unknown symbol ppc64_firmware_features
+ > 
+ > Hi Dave,
+ > 
+ > I'm not sure about that patch, but I think the firmware feature stuff
+ > has been broken for modules for a while, we weren't exporting
+ > ppc64_firmware_features anywhere.
 
-This isn't the case.  If this_cpu is idle tl_per_task will be set to 
-SCHED_LOAD_SCALE (see implementation of cpu_avg_load_per_task()) and 
-that expression should succeed unless the value returned by 
-target_load(cpu, idx) is bigger than SCHED_LOAD_SCALE.  This is exactly 
-the same as would have happened with the original code.
+It's bizarre that it's only just started complaining about it.
+(I get a nice mail from our buildsystem when a kernel package is built with
+ unresolved symbols), and the 2.6.16.1 kernel happily sails through.
 
-(BTW cpu_avg_load_per_task()'s original implementation would have had 
-the effect you describe but it was modified when it was realized that it 
-would break the code in a lot of places (not just here).  The thinking 
-now is that if there isn't enough data available to calculate the 
-average load per task for a run queue then the correct value to use is 
-the theoretical average i.e. SCHED_LOAD_SCALE.)
+ > The fix just got merged in the last day or so:
+ > http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=d0160bf0b3e87032be8e85f80ddd2f18e107b86f
 
->  I think the 
-> original intention was
-> to put task on this_cpu if it has no load and when there's already one 
-> task on cpu. This helps spread tasks out for low load condition.
-> 
-> Thanks.
-> 
-> Tim
-> 
-> Signed-off-by: Tim Chen <tim.c.chen@linux.intel.com>
-> 
-> --- linux-2.6.16-mm2-a/kernel/sched.c    2006-03-28 16:00:37.091779904 
-> -0800
-> +++ linux-2.6.16-mm2-b/kernel/sched.c    2006-03-28 16:09:08.237074008 
-> -0800
-> @@ -1393,7 +1393,7 @@ static int try_to_wake_up(task_t *p, uns
-> 
->         if (this_sd->flags & SD_WAKE_AFFINE) {
->             unsigned long tl = this_load;
-> -            unsigned long tl_per_task = cpu_avg_load_per_task(this_cpu);
-> +            unsigned long sl_per_task = cpu_avg_load_per_task(cpu);
-> 
->             /*
->              * If sync wakeup then subtract the (maximum possible)
-> @@ -1404,7 +1404,7 @@ static int try_to_wake_up(task_t *p, uns
->                 tl -= current->load_weight;
-> 
->             if ((tl <= load &&
-> -                tl + target_load(cpu, idx) <= tl_per_task) ||
-> +                tl + target_load(cpu, idx) <= sl_per_task) ||
->                 100*(tl + p->load_weight) <= imbalance*load) {
->                 /*
->                  * This domain has SD_WAKE_AFFINE and
+still broken with that diff. (I just tested -git15)
 
-Nevertheless, in some cases, it was difficult to decide which run 
-queue's average load per task should be used to replace SCHED_LOAD_SCALE 
-and a careful review of the code by those with expertise in this area 
-would be appreciated as I may have made mistakes.
+firmware_has_feature() needs fixing up.
 
-Peter
+		Dave
+
+
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+http://www.codemonkey.org.uk

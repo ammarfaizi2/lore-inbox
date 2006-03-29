@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWC2Tto@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWC2TwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750882AbWC2Tto (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 14:49:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbWC2Tto
+	id S1750892AbWC2TwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 14:52:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbWC2TwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 14:49:44 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:10370 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1750852AbWC2Ttn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 14:49:43 -0500
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <7C75FBEB-F962-4860-A797-AC6B454D6E6E@kernel.crashing.org>
-Cc: David Brownell <david-b@pacbell.net>,
-       spi-devel-general@lists.sourceforge.net
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: SPI bus driver synchronous support
-Date: Wed, 29 Mar 2006 13:49:48 -0600
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-X-Mailer: Apple Mail (2.746.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 29 Mar 2006 14:52:25 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:47005 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750885AbWC2TwY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 14:52:24 -0500
+Date: Wed, 29 Mar 2006 14:52:12 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Paul Mackerras <paulus@samba.org>,
+       Michael Ellerman <michael@ellerman.id.au>
+Subject: Re: [PATCH] powerpc: Move pSeries firmware feature setup into platforms/pseries
+Message-ID: <20060329195212.GA19236@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Paul Mackerras <paulus@samba.org>,
+	Michael Ellerman <michael@ellerman.id.au>
+References: <200603230714.k2N7EmH1021685@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603230714.k2N7EmH1021685@hera.kernel.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was wondering if there was any thought to providing a mechanism for  
-SPI bus drivers to implement a direct synchronous interface so we  
-don't have to use wait_for_completion.
+On Thu, Mar 23, 2006 at 07:14:49AM +0000, Linux Kernel wrote:
+ > commit 1965746bce49ddf001af52c7985e16343c768021
+ > tree d311fce31613545f3430582322d66411566f1863
+ > parent 0941d57aa7034ef7010bd523752c2e3bee569ef1
+ > author Michael Ellerman <michael@ellerman.id.au> Fri, 10 Feb 2006 15:47:36 +1100
+ > committer Paul Mackerras <paulus@samba.org> Fri, 10 Feb 2006 16:52:03 +1100
+ > 
+ > [PATCH] powerpc: Move pSeries firmware feature setup into platforms/pseries
+ > 
+ > Currently we have some stuff in firmware.h and kernel/firmware.c that is
+ > #ifdef CONFIG_PPC_PSERIES. Move it all into platforms/pseries.
 
-The case I have is I need to talk to a microcontroller connected over  
-SPI.  I'd like to be able to issue a command to the microcontroller  
-in a MachineCheck handler before the system reboots.  I need a truly  
-synchronous interface opposed to one fronting the async interface.
+This (or one of the other firmware patches, I've not narrowed it down that close)
+breaks ppc64 oprofile.
 
-Also, who is the maintainer for the SPI subsystem?
+modpost now complains with..
 
-thanks
+kernel/arch/powerpc/oprofile/oprofile.ko needs unknown symbol ppc64_firmware_features
 
-- kumar
+		Dave
 
-
+-- 
+http://www.codemonkey.org.uk

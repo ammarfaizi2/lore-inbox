@@ -1,89 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWC2MBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWC2MHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbWC2MBj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 07:01:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWC2MBj
+	id S1750841AbWC2MHc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 07:07:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbWC2MHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 07:01:39 -0500
-Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:5088 "EHLO
-	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750780AbWC2MBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 07:01:38 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: ck list <ck@vds.kolivas.org>
-Subject: 2.6.16-ck2
-Date: Wed, 29 Mar 2006 22:01:29 +1000
-User-Agent: KMail/1.9.1
-Cc: linux list <linux-kernel@vger.kernel.org>
+	Wed, 29 Mar 2006 07:07:32 -0500
+Received: from mail.sw-soft.com ([69.64.46.34]:46037 "EHLO mail.sw-soft.com")
+	by vger.kernel.org with ESMTP id S1750841AbWC2MHc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 07:07:32 -0500
+Message-ID: <442A7879.20802@sw.ru>
+Date: Wed, 29 Mar 2006 16:07:21 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1987516.mjxi2vYcEm";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+CC: devel@openvz.org, Sam Vilain <sam@vilain.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Herbert Poetzl <herbert@13thfloor.at>, Mishin Dmitry <dim@sw.ru>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Subject: Re: [Devel] Re: [RFC] [PATCH 0/7] Some basic vserver infrastructure
+References: <20060321061333.27638.63963.stgit@localhost.localdomain> <1142967011.10906.185.camel@localhost.localdomain> <44206B58.5000404@vilain.net> <1142976756.10906.200.camel@localhost.localdomain> <4420885F.5070602@vilain.net> <m1bqvzq7de.fsf@ebiederm.dsl.xmission.com> <44241214.7090405@sw.ru> <20060327124517.GA16114@sergelap.austin.ibm.com>
+In-Reply-To: <20060327124517.GA16114@sergelap.austin.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200603292201.32192.kernel@kolivas.org>
+X-SA-Do-Not-Rej: Toldya
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1987516.mjxi2vYcEm
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Serge,
 
-These are patches designed to improve system responsiveness and interactivi=
-ty.=20
-It is configurable to any workload but the default ck patch is aimed at the=
-=20
-desktop and cks is available with more emphasis on serverspace.
+Serge E. Hallyn wrote:
+> Quoting Kirill Korotaev (dev@sw.ru):
+>> Just to make it more clear: my understanding of word "nested" means that
+>> if you have, for example, a nested IPC namespace, than parent can see
+>> all the resources (sems, shms, ...) of it's children and have some
+>> private, while children see only its own set of private resources. But
+>> it doesn't look like you are going to implement anything like this.
+>> So what is nesting then? Ability to create namespace? To delegate it
+>> some part of own resource limits?
+> 
+> Nesting simply means that any child ns can create child namespaces of
+> it's own.
+your picture below doesn't show that containers have nested containers. 
+You draw a plain container set inside vserv.
+What I mean is that if some container user can create another container, 
+it DOES not mean it is nested. It is just about permitions to create 
+other containers. Nested containers in my POV is something different, 
+when you can see the resources of your container and your children. You see?
 
-THESE INCLUDE THE PATCHES FROM 2.6.16.1 SO START WITH 2.6.16 AS YOUR BASE
+I will try to show what I mean on a picture:
 
-Apply to 2.6.16
-http://ck.kolivas.org/patches/2.6/2.6.16/2.6.16-ck2/patch-2.6.16-ck2.bz2
+--------------------------------------------------
+|           ---------------------------------     | 
+                            |           |              --------------- 
+|     |                                                |           | 
+           | cont 1.1.1  |  |     | 
+            |           |              |  shm1.1.1.1 |  |     | 
+                                        |           |              | 
+shm1.1.1.2 |  |     |                                                | 
+cont 1.  | cont 1.1     ---------------  |     |
+|   shm1.1  |  shm1.1.1    ---------------  |     | 
+                            |   shm1.2  |              | cont 1.1.2  | 
+|     |                                                |           | 
+           |  shm1.1.2.1 |  |     | 
+            |           |              ---------------  |     | 
+                                        | 
+---------------------------------     | 
+                |--------------------------------------------------
 
-or server version
-http://ck.kolivas.org/patches/cks/patch-2.6.16-cks2.bz2
+You see what I mean? In this example with IPC sharememory container 1 
+can see all the shm segments. while container1.1.2 can see only his 
+private one smm1.1.2.1.
 
-web:
-http://kernel.kolivas.org
+And if resources are not nested like this, than it is a PLAIN container 
+structure.
 
-all patches:
-http://ck.kolivas.org/patches/
+Kirill
 
-Split patches available.
-
-
-Changes:
-
-Added:
- +kbuild-dont-rely-on-incorrect-gnu-make-behavior.patch
-An change in kbuild meant that the whole kernel would be recompiled every=20
-single time you rebuilt it. This patch corrects that issue (thanks =20
-Arthur Othieno for backporting)
-
- +patch-2.6.16.1.bz2
-Latest stable version
-
-
-Modified:
- -2.6.16-ck1-version.patch
- +2.6.16-ck2-version.patch
-Version update
-
-
-Cheers,
-Con
-
---nextPart1987516.mjxi2vYcEm
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEKnccZUg7+tp6mRURAibGAJ9XieonGe5+ZIKoci+3v3t0+mJCNwCcDUoy
-IG//wHp1BxlEec6CEhaVuhY=
-=CdwS
------END PGP SIGNATURE-----
-
---nextPart1987516.mjxi2vYcEm--
+> In particular, the following scenario should be perfectly valid:
+> 
+> 	Machine 1                    Machine 2
+> 	  Xen VM1.1                    Xen VM2.1
+> 	    vserv 1.1.1                  vserv2.1.1
+> 	      cont1.1.1.1                  cont2.1.1.1
+> 	      cont1.1.1.2                  cont2.1.1.2
+> 	      cont1.1.1.n                  cont2.1.1.n
+> 	    vserv 1.1.2                  vserv2.1.2
+> 	      cont1.1.2.1                  cont2.1.2.1
+> 	      cont1.1.2.2                  cont2.1.2.2
+> 	      cont1.1.2.n                  cont2.1.2.n
+> 	  Xen VM1.2                    Xen VM2.2
+> 	    vserv 1.2.1                  vserv2.2.1
+> 	      cont1.2.1.1                  cont2.2.1.1
+> 	      cont1.2.1.2                  cont2.2.1.2
+> 	      cont1.2.1.n                  cont2.2.1.n
+> 	    vserv 1.2.2                  vserv2.2.2
+> 	      cont1.2.2.1                  cont2.2.2.1
+> 	      cont1.2.2.2                  cont2.2.2.2
+> 	      cont1.2.2.n                  cont2.2.2.n
+> 
+> where containers are used for each virtual server and each container,
+> so that we can migrate entire VMs, entire virtual servers, or any
+> container.
+> 
+>>>>>> Perhaps we can get a ruling from core team on this one, as it's
+>>>>>> aesthetics :-).
+>> I propose to use "namespace" naming.
+>> 1. This is already used in fs.
+>> 2. This is what IMHO suites at least OpenVZ/Eric
+>> 3. it has good acronym "ns".
+> 
+> I agree.
+> 
+> -serge
+> 

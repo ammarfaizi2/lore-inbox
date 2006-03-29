@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWC2AXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWC2A0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964878AbWC2AXO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 19:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWC2AXO
+	id S964880AbWC2A0y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 19:26:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbWC2A0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 19:23:14 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:9431 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964878AbWC2AXN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 19:23:13 -0500
-Date: Tue, 28 Mar 2006 16:23:00 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: alan@lxorguk.ukuu.org.uk, bzolnier@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm 0/4] LED Updates
-Message-Id: <20060328162300.5bf4f4fc.akpm@osdl.org>
-In-Reply-To: <1143591415.14682.55.camel@localhost.localdomain>
-References: <1143591415.14682.55.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Mar 2006 19:26:54 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:54704 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S964880AbWC2A0y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 19:26:54 -0500
+Message-ID: <4429E050.7080008@soleranetworks.com>
+Date: Tue, 28 Mar 2006 18:18:08 -0700
+From: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jeff@garzik.org>
+CC: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       "Theodore Ts'o" <tytso@mit.edu>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: e2label suggestions
+References: <4429AF42.1090101@soleranetworks.com> <20060328232927.GB32385@thunk.org> <4429D3E4.3060305@wolfmountaingroup.com> <4429D11F.6040000@garzik.org>
+In-Reply-To: <4429D11F.6040000@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Purdie <rpurdie@rpsys.net> wrote:
->
-> ...
->
-> Also add some missing externs.
->
-> ... 
->  
->  /* Registration functions for complex triggers */
-> -int led_trigger_register(struct led_trigger *trigger);
-> -void led_trigger_unregister(struct led_trigger *trigger);
-> +extern int led_trigger_register(struct led_trigger *trigger);
-> +extern void led_trigger_unregister(struct led_trigger *trigger);
+Jeff Garzik wrote:
 
-Well.  The externs weren't "missing".  They were "unnecessary".  I don't
-know why we do this really - it doesn't communicate any information.  Oh
-well.
+> Jeff V. Merkey wrote:
+>
+>> the detection of and translation of
+>> LABEL=/ is passed in the kernel, so its a kernel issue.
+>
+>
+> Incorrect.  The kernel does zero 'LABEL=' processing.  Read 
+> init/do_mount*.c.
+>
+> LABEL= is handled in initrd/initramfs normally.
+>
+>     Jeff
+>
+>
+>
 
+Jeff,
+
+Thanks for verifying it is passed through the kernel to initrd, another 
+kernel component.    It's also stored as EXT meta data
+(also in the kernel).  and retrieved from there.  And its not accessible 
+from normal user space applications (except in raw mode).
+One of these days you need to get down to Lindon for lunch.  I'll even buy.
+
+Jeff

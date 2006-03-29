@@ -1,68 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWC2PVJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWC2P0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751172AbWC2PVJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 10:21:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWC2PVJ
+	id S1751170AbWC2P0s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 10:26:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWC2P0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 10:21:09 -0500
-Received: from nproxy.gmail.com ([64.233.182.184]:25057 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751172AbWC2PVI convert rfc822-to-8bit
+	Wed, 29 Mar 2006 10:26:48 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:16010 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1751170AbWC2P0r
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 10:21:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=okVWqBBBVggRgSpQRioWEFYeGBZBCAVHxY/X36WH0/98Pm9S4tpUtyaX/mEixmP5DKU3AEoAsUIQjnqdkSLJwvdTav/qhBSrVK09WYDQrU5ESIBXO5YgBjXbQ4O5SYaiE0uaMZT/raRYr2NkK4ZBxebzaLWa1P44NlOrLP7cco0=
-Message-ID: <aad1205e0603290720s50901a76h@mail.gmail.com>
-Date: Wed, 29 Mar 2006 23:20:56 +0800
-From: Andyliu <liudeyan@gmail.com>
-To: "Eric Persson" <eric@persson.tm>
-Subject: Re: kernel config repository
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <442A99CA.20303@persson.tm>
+	Wed, 29 Mar 2006 10:26:47 -0500
+Message-ID: <442AA708.3030802@cosmosbay.com>
+Date: Wed, 29 Mar 2006 17:26:00 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <442A99CA.20303@persson.tm>
+To: Pierre PEIFFER <pierre.peiffer@bull.net>
+CC: Ulrich Drepper <drepper@gmail.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, jakub@redhat.com
+Subject: Re: [PATCH] 2.6.16 - futex: small optimization (?)
+References: <4428E7B7.8040408@bull.net> <a36005b50603280702n2979d8ddh97484615ea9d4f3a@mail.gmail.com> <442A8933.6090408@bull.net>
+In-Reply-To: <442A8933.6090408@bull.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Wed, 29 Mar 2006 17:26:05 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric,
+Pierre PEIFFER a écrit :
+> Ulrich Drepper a écrit :
+>>
+>> There are no such situations anymore in an optimal userlevel
+>> implementation.  The last problem (in pthread_cond_signal) was fixed
+>> by the addition of FUTEX_WAKE_OP.  The userlevel code you're looking
+>> at is simply not optimized for the modern kernels.
+>>
+> 
+> I think there is a misunderstanding here.
+> 
 
-For ppc and ppc64, there are some config files:
-arch/ppc/configs/ and arch/powerpc/configs/.
+Hum... maybe Ulrich was answering to my own message (where I stated that most 
+existing multithreaded pay the price of context switches)
 
-Seems none for i386.
+(To Ulrich : Most existing applications use glibc <= 2.3.6, where 
+FUTEX_WAKE_OP is not used yet AFAIK)
 
-2006/3/29, Eric Persson <eric@persson.tm>:
-> Hi,
->
-> I hope I'm not totally wrong here, but I figured this would be a good
-> place to start, the kernel-config list seems a bit dead.
->
-> I've been thinking about creating a community-driven .config repository,
-> since I havent found any good place for this sort of information.
-> I would see it as a place for people to contribute .configs for various
-> hardware/platforms and keep them updated and current with the kernel
-> releases.
->
-> Perhaps this exist(i havent found any easily), or is considered a bad
-> idea(please tell me), or is actually a good idea.
->
-> Tell me what you think, sorry if I might have sent this to the wrong list.
->
-> Keep up the good work.
->
-> Best regards,
->     Eric
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+I think your analysis is correct Pierre, but you speak of 'task-switches', 
+where there is only a spinlock involved :
 
+On UP case : a wake_up_all() wont preempt current thread : it will task-switch 
+only when current thread exits kernel mode.
 
---
-Andyliu
+On PREEMPT case : wake_up_all() wont preempt current thread (because current 
+thread is holding bh->lock).
+
+On SMP : the awaken thread will spin some time on bh->lock, but not 
+task-switch again.
+
+On RT kernel, this might be different of course...
+
+> FUTEX_WAKE_OP is implemented to handle simultaneously more than one 
+> futex in some specific situations (such as pthread_cond_signal).
+> 
+> The scenario I've described occurred in futex_wake, futex_wake_op and 
+> futex_requeue and is _independent_ of the userlevel code.
+> 
+> All these functions call wake_futex, and then wake_up_all, with the 
+> futex_hash_bucket lock still held.
+> 
+> If the woken thread is immediately scheduled (in wake_up_all), and only 
+> in this case (because of a higher priority, etc), it will try to take 
+> this lock too (because of the "if (lock_ptr != 0)" statement in 
+> unqueue_me), causing two task-switches to take this lock for nothing.
+> 
+> Otherwise, it will not: lock_ptr is set to NULL just after the 
+> wake_up_all call)
+> 
+> This scenario happens at least in pthread_cond_signal, 
+> pthread_cond_broadcast and probably all pthread_*_unlock functions.
+> 
+> The patch I've proposed should, at least in theory, solve this. But I'm 
+> not sure of the correctness...
+> 
+

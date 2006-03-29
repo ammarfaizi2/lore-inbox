@@ -1,53 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWC2E1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWC2Eej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbWC2E1s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 23:27:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWC2E1s
+	id S1750810AbWC2Eej (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 23:34:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbWC2Eej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 23:27:48 -0500
-Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:28873 "EHLO
-	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750760AbWC2E1s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 23:27:48 -0500
+	Tue, 28 Mar 2006 23:34:39 -0500
+Received: from javad.com ([216.122.176.236]:28425 "EHLO javad.com")
+	by vger.kernel.org with ESMTP id S1750810AbWC2Eei (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 23:34:38 -0500
+From: Sergei Organov <osv@javad.com>
+To: linux@horizon.com
+Cc: linux-os@analogic.com, dedekind@yandex.ru, kalin@thinrope.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Lifetime of flash memory
+References: <20060329010111.26121.qmail@science.horizon.com>
+Date: Wed, 29 Mar 2006 08:33:31 +0400
+In-Reply-To: <20060329010111.26121.qmail@science.horizon.com>
+	(linux@horizon.com's message of "28 Mar 2006 20:01:11 -0500")
+Message-ID: <87mzf96fac.fsf@javad.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17450.3208.566621.817647@wombat.chubb.wattle.id.au>
-Date: Wed, 29 Mar 2006 15:26:48 +1100
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Eric Piel <Eric.Piel@tremplin-utc.net>, Rob Landley <rob@landley.net>,
-       nix@esperi.org.uk, mmazur@kernel.pl, linux-kernel@vger.kernel.org,
-       llh-discuss@lists.pld-linux.org
-Subject: Re: [OT] Non-GCC compilers used for linux userspace
-In-Reply-To: <36A8C3CC-3E4D-4158-AABB-F4D2C66AA8CD@mac.com>
-References: <200603141619.36609.mmazur@kernel.pl>
-	<20060326065205.d691539c.mrmacman_g4@mac.com>
-	<4426A5BF.2080804@tremplin-utc.net>
-	<200603261609.10992.rob@landley.net>
-	<44271E88.6040101@tremplin-utc.net>
-	<5DC72207-3C0B-44C2-A9E5-319C0A965E9D@mac.com>
-	<Pine.LNX.4.61.0603281619300.27529@yvahk01.tjqt.qr>
-	<36A8C3CC-3E4D-4158-AABB-F4D2C66AA8CD@mac.com>
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Type: text/plain; charset=utf-8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Kyle" == Kyle Moffett <mrmacman_g4@mac.com> writes:
+linux@horizon.com writes:
+>>> Note that the actual block size is usually 64k, not the 512 bytes of a
+>>> 'sector'. Apparently, some of the data-space on each block is used for
+>>> relocation and logical-to-physical mapping.
+>
+>> Wrong. AFAIK, first disks had FLASH with 512b blocks, then next
+>> generation had 16K blocks, and currently most of cards have 128K
+>> blocks. Besides, each page of a block (64 pages * 2K for 128K block) has
+>> additional "system" area of 64 bytes. One thing that is in the system
+>> area is bad block indicator (2 bytes) to mark some blocks as bad on
+>> factory, and the rest could be used by application[1] the same way the
+>> rest of the page is used. So physical block size is in fact 64 * (2048 +
+>> 64) = 135168 bytes.
+>
+> Er, I think you know what you're talking about, but some people reading
+> this might be confused by the Flash-ROM-specific meaning of the word
+> "block" here.
 
+Yes, it's NAND-FLASH specific indeed, and block here means the unit of
+erasure, while page is a unit of write, as you carefully describe
+below.
 
-Kyle> But my question still stands.  Does anybody actually use any
-Kyle> non-GCC compiler for userspace in Linux?
+> In NAND Flash terminology, a PAGE is the unit of write.  Thus was
+> originaly 256+8 bytes,
 
-Yes.  GCC produces much less than optimal code on Itanium, so the
-Intel compiler often gets used.
+Yes, with 2 pages per block, AFAIK, thus the block was 512 bytes and was
+equal to the sector size that is used in the interface of CF card. I
+indeed used a few of them and while their average write time was much
+worse than those with current technology, it was *much* more predictable
+due to the block size not exceeding interface sector size.
 
+> which quickly got bumped to 512+16 bytes.
 
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-http://www.ertos.nicta.com.au           ERTOS within National ICT Australia
+Yes, with 32 pages per block, thus the block became 16K.
+
+> This is called a "small page" device. "large page" devices have
+> 2048+64 byte pages.
+
+Yes, with 64 pages per block (typically?), thus the block became 128K.
+
+BTW, it's a pity the information about physical block size is not
+accessible anywhere in CF interface.
+
+> E.g. the 2 Gbyte device
+> at
+> http://www.samsung.com/Products/Semiconductor/NANDFlash/SLC_LargeBlock/16Gbit/K9WAG08U1M/K9WAG08U1M.htm
+>
+> Now, in a flash device, "writing" is changing selected bits from 1 to 0.
+> "Erasing" is changing a large chunk of bits to 1.
+>
+> In some NOR devices, you can perform an almost unlimited number of writes,
+> limited only by the fact that each one has to change at least one 1 bit
+> to a 0 or there's no point.
+>
+> Due to the multiplexing scheme used in high-density NAND flash devices,
+> even the non-programmed cells are exposed to a fraction of the programming
+> voltage and there are very low limits on the number of write cycles to
+> a page before it has to be erased again.  Exceeding that can cause some
+> unwanted bits to change from 1 to 0.  Typically, however, it is enough
+> to write each 512-byte portion of a page independently.
+
+Well, I'm not sure. The Toshiba and Samsung NANDs I've read manuals for
+seem to limit number of writes to a single page before block erase, --
+is 512-byte portion some implementation detail I'm not aware of?
+
+> Now, erasing is done in larger units called BLOCKs.  This is more
+> variable, but a power of two multiple of the page size.  32 to 64 pages
+> (16 k for small page/32-page blocks to 128K for large page with 64-page
+> blocks) is a typical quantity.  You can only erase a block at a time.
+
+Typical? Are you aware of a "large page" NAND FLASH with different
+number of pages per block? It's not just curiosity, it's indeed
+important for me to know if there are CF cards in the market with
+physical block size != 128K.
+
+[... skip interesting and nicely put details of NAND technology ...]
+
+-- Sergei.

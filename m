@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWC2Wwu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWC2Wws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751147AbWC2Wwu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 17:52:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWC2Wwu
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 17:52:50 -0500
-Received: from mga06.intel.com ([134.134.136.21]:3115 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751147AbWC2Wws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751179AbWC2Wws (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 29 Mar 2006 17:52:48 -0500
-TrustExchangeSourcedMail: True
-X-ExchangeTrusted: True
-X-IronPort-AV: i="4.03,144,1141632000"; 
-   d="scan'208"; a="16816044:sNHT39798556"
-Date: Wed, 29 Mar 2006 14:52:42 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Con Kolivas <kernel@kolivas.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sched: smpnice work around for active_load_balance()
-Message-ID: <20060329145242.A11376@unix-os.sc.intel.com>
-References: <4428D112.7050704@bigpond.net.au> <20060328112521.A27574@unix-os.sc.intel.com> <4429BC61.7020201@bigpond.net.au> <20060328185202.A1135@unix-os.sc.intel.com> <442A0235.1060305@bigpond.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <442A0235.1060305@bigpond.net.au>; from pwil3058@bigpond.net.au on Wed, Mar 29, 2006 at 02:42:45PM +1100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbWC2Wws
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 29 Mar 2006 17:52:48 -0500
+Received: from [198.78.49.142] ([198.78.49.142]:36357 "EHLO gitlost.site")
+	by vger.kernel.org with ESMTP id S1751145AbWC2Wwr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 17:52:47 -0500
+From: Chris Leech <christopher.leech@intel.com>
+Subject: [PATCH 0/9] I/OAT
+Date: Wed, 29 Mar 2006 14:55:05 -0800
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Message-Id: <20060329225505.25585.30392.stgit@gitlost.site>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29, 2006 at 02:42:45PM +1100, Peter Williams wrote:
-> I meant that it doesn't explicitly address your problem.  What it does 
-> is ASSUME that failure of load balancing to move tasks is because there 
-> was exactly one task on the source run queue and that this makes it a 
-> suitable candidate to have that single task moved elsewhere in the blind 
-> hope that it may fix an HT/MC imbalance that may or may not exist.  In 
-> my mind this is very close to random.  
+This patch series is the a full release of the Intel(R) I/O
+Acceleration Technology (I/OAT) for Linux.  It includes an in kernel API
+for offloading memory copies to hardware, a driver for the I/OAT DMA memcpy
+engine, and changes to the TCP stack to offload copies of received
+networking data to application space.
 
-That so called assumption happens only when load balancing has
-failed for more than the domain specific cache_nice_tries. Only reason
-why it can fail so many times is because of all pinned tasks or only a single
-task is running on that particular CPU. load balancing code takes care of both
-these scenarios..
+Changes from last posting:
+	Fixed a page reference leak that happened when offloaded copies were 
+	set up but never used for a recv.
+	Fixed the ioatdma self test to handle failures correctly.
+	Serialized DMA ADD and REMOVE events in the networking core with a lock.
+	Added a long comment in dmaengine.c to describe the locking and 
+	reference counting being used.
+	Disabled preempt around a use of get_cpu_var.
+	Made tcp_dma_try_early_copy static, it is only used in one file.
+	Made some GFP_ATOMIC allocations GFP_KERNEL where safe to sleep.
+	Made changes to sk_eat_skb, removing some ifdefs in the TCP code.
+	
 
-sched groups cpu_power controls the mechanism of implementing HT/MC
-optimizations in addition to active balance code... There is no randomness
-in this.
+These changes apply to DaveM's net-2.6.17 tree as of commit
+68907dad58cd7ef11536e1db6baeb98b20af91b2 ([DCCP]: Use NULL for pointers, comfort sparse.)
 
+They are available to pull from
+	git://198.78.49.142/~cleech/linux-2.6 ioat-2.6.17
 
-> Also back to front and inefficient.
+There are 9 patches in the series:
+	1) The memcpy offload APIs and class code
+	2) The Intel I/OAT DMA driver (ioatdma)
+	3) Core networking code to setup networking as a DMA memcpy client
+	4) Utility functions for sk_buff to iovec offloaded copy
+	5) Structure changes needed for TCP receive offload
+	6) Rename cleanup_rbuf to tcp_cleanup_rbuf
+	7) Make sk_eat_skb aware of early copied packets
+	8) Add a sysctl to tune the minimum offloaded I/O size for TCP
+	9) The main TCP receive offload changes
 
-HT/MC imbalance is detected in a normal way.. A lightly loaded group
-finds an imbalance and tries to pull some load from a busy group (which
-is inline with normal load balance)... pull fails because the only task
-on that cpu is busy running and needs to go off the cpu (which is triggered
-by active load balance)... Scheduler load balance is generally done by a 
-pull mechansim and here (HT/MC) it is still a pull mechanism(triggering a 
-final push only because of the single running task) 
-
-If you have any better generic and simple method, please let us know.
-
-thanks,
-suresh
+--
+Chris Leech <christopher.leech@intel.com>
+I/O Acceleration Technology Software Development
+LAN Access Division / Digital Enterprise Group 

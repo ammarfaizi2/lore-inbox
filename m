@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWC2AjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWC2Ani@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWC2AjA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 19:39:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbWC2Ai7
+	id S1750713AbWC2Ani (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 19:43:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWC2Ani
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 19:38:59 -0500
-Received: from mga05.intel.com ([192.55.52.89]:33336 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750705AbWC2Ai7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 19:38:59 -0500
-TrustExchangeSourcedMail: True
-X-ExchangeTrusted: True
+	Tue, 28 Mar 2006 19:43:38 -0500
+Received: from mga02.intel.com ([134.134.136.20]:43168 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750713AbWC2Anh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 19:43:37 -0500
 X-IronPort-AV: i="4.03,140,1141632000"; 
-   d="scan'208"; a="16822849:sNHT41648036689"
-Date: Tue, 28 Mar 2006 16:16:24 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: "Raj, Ashok" <ashok.raj@intel.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Some section mismatch in acpi_processor_power_init on ia64 build
-Message-ID: <20060328161624.A31861@unix-os.sc.intel.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0613EDAB@scsmsx401.amr.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0613EDAB@scsmsx401.amr.corp.intel.com>; from tony.luck@intel.com on Tue, Mar 28, 2006 at 03:09:36PM -0800
+   d="scan'208"; a="16337270:sNHT6146217476"
+Message-Id: <200603290027.k2T0R7g32314@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Christoph Lameter'" <clameter@sgi.com>,
+       "'Nick Piggin'" <nickpiggin@yahoo.com.au>
+Cc: "Zoltan Menyhart" <Zoltan.Menyhart@free.fr>, <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+Subject: RE: Fix unlock_buffer() to work the same way as bit_unlock()
+Date: Tue, 28 Mar 2006 16:27:43 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcZSxMfxr6gMEsIsQ8OR0DYRRxpRBwAAOw6w
+In-Reply-To: <Pine.LNX.4.64.0603281537500.15037@schroedinger.engr.sgi.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 28, 2006 at 03:09:36PM -0800, Luck, Tony wrote:
-> I've only just noticed these warnings when building ia64 !SMP or
-> !HOTPLUG_CPU
-> kernels:
-> 
-> WARNING: drivers/acpi/processor.o - Section mismatch: reference to
-> .init.data: from .text between 'acpi_processor_power_init' (at offset
-> 0x5040) and 'acpi_processor_power_exit'
-> WARNING: drivers/acpi/processor.o - Section mismatch: reference to
-> .init.data: from .text between 'acpi_processor_power_init' (at offset
-> 0x5050) and 'acpi_processor_power_exit'
-> 
-> According to git bisect, they began with Matt Domsch's "ia64: use i386
-> dmi_scan.c"
-> patch (commit 3ed3bce8), but it appears that the real issue may be
-> further back when
-> Ashok Raj marked processor_power_dmi_table as __cpuinitdata in 7ded5689
-> with a
-> cryptic comment by AK (Andi Kleen?):
->   /* Actually this shouldn't be __cpuinitdata, would be better to fix
-> the
->      callers to only run once -AK */
-> 
-> -Tony
+Christoph Lameter wrote on Tuesday, March 28, 2006 3:48 PM
+> Could we simply define these smb_mb__*_clear_bit to be noops
+> and then make the atomic bit ops to have full barriers? That would satisfy 
+> Nick's objections.
 
-Humm.. originally they were marked as __initdata, but for CPU hotplug we call it
-when processor gets hot plugged. So i changed it to __cpuinitdata so that when we use
-cpu hotplug they stay resident.
+Oh, it also penalize all other 1,055 call site of clear_bit(), though I don't
+know how many actually needs memory barrier.  I suspect some need "lock"
+barrier, some need "unlock" barrier, and of course some needs full fence.
 
-the only reference is to that table is from acpi_processor_power_init(), that gets called 
-currently only from acpi_processor_start().
+Why not make unlock_buffer use test_and_clear_bit()?  Utilizing it's implied
+full memory fence and throw away the return value?  OK, OK, this is obscured.
+Then introduce clear_bit_memory_fence API or some sort.
 
-the code is either compiled in kernel (which means it will be all thrown after free
-init mem if !HOTPLUG_CPU) or if this is a module code, then __initdata/cpuinit doesnt 
-make a difference.
+- Ken
 
-possibly acpi_processor_start(), acpi_processor_power_init() etc should also be
-__cpuinit, which would make the warning go away. 
 
-Are there any others i missed Andi? maybe this is a general watch out comment, but 
-he knows better.
-
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+diff -Nurp linux-2.6.16/fs/buffer.c linux-2.6.16.ken/fs/buffer.c
+--- linux-2.6.16/fs/buffer.c	2006-03-19 21:53:29.000000000 -0800
++++ linux-2.6.16.ken/fs/buffer.c	2006-03-28 17:20:02.000000000 -0800
+@@ -78,8 +78,7 @@ EXPORT_SYMBOL(__lock_buffer);
+ 
+ void fastcall unlock_buffer(struct buffer_head *bh)
+ {
+-	clear_buffer_locked(bh);
+-	smp_mb__after_clear_bit();
++	test_clear_buffer_locked(bh);
+ 	wake_up_bit(&bh->b_state, BH_Lock);
+ }
+ 

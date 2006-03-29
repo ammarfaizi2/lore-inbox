@@ -1,84 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWC2H7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWC2IQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751144AbWC2H7j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 02:59:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWC2H7j
+	id S1750773AbWC2IQh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 03:16:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWC2IQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 02:59:39 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:11410 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S1751144AbWC2H7i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 02:59:38 -0500
-Date: Wed, 29 Mar 2006 08:59:30 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Thomas Gleixner <tglx@linutronix.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: PI patch against 2.6.16-rt9
-In-Reply-To: <20060329071456.GA20187@elte.hu>
-Message-ID: <Pine.LNX.4.44L0.0603290851320.12114-100000@lifa01.phys.au.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 29 Mar 2006 03:16:37 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:53590 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750773AbWC2IQg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 03:16:36 -0500
+Date: Wed, 29 Mar 2006 10:16:43 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Mark Lord <lkml@rtr.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, viro@ftp.linux.org.uk
+Subject: Re: 2.6.16-git4: kernel BUG at block/ll_rw_blk.c:3497
+Message-ID: <20060329081642.GU8186@suse.de>
+References: <44288882.4020809@rtr.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44288882.4020809@rtr.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Mar 2006, Ingo Molnar wrote:
+On Mon, Mar 27 2006, Mark Lord wrote:
+> This popped up during heavy RAID5 testing today (2.6.16-git4).
+> The SATA drives are being run by a modified sata_mv that I'm testing,
+> and it seems to be behaving now, except for the BUG below:
+> 
+> Cheers
+> 
+> ------------[ cut here ]------------
+> kernel BUG at block/ll_rw_blk.c:3497!
+> invalid opcode: 0000 [#1]
+> PREEMPT SMP
+> Modules linked in: sata_mv libata raid5 xor snd_pcm_oss snd_pcm snd_timer 
+> snd_page_alloc snd_mixer_oss snd soundcore edd pl2303 usbserial usblp 
+> usbhid evdev joydev sg sr_mod ide_cd cdrom af_packet ohci_hcd sworks_agp 
+> agpgart e100 mii i2c_piix4 i2c_core usbcore sd_mod dm_mod scsi_mod
+> CPU:    1
+> EIP:    0060:[<b0209e76>]    Not tainted VLI
+> EFLAGS: 00010246   (2.6.16-git4 #1)
+> EIP is at put_io_context+0x66/0x80
+> eax: 00000000   ebx: b1ac096c   ecx: e3ced12c   edx: ef25b798
+> esi: ed72a570   edi: ed72aa20   ebp: 00000000   esp: d2619f78
+> ds: 007b   es: 007b   ss: 0068
+> Process cat (pid: 16399, threadinfo=d2618000 task=ed72a570)
+> Stack: <0>b19acba0 b0124ea5 00000004 d2619fbc d2619fbc b035c26b 00000001 
+> 00000000
+>        e043b660 d2618000 00000000 b0125097 00000000 3abf1f04 3abf1f04 
+>        d2618000
+>        b0102e1b 00000000 00000000 00000000 3abf1f04 3abf1f04 aff1e8d8 
+>        000000fc
+> Call Trace:
+>  [<b0124ea5>] do_exit+0x295/0x410
+>  [<b0125097>] do_group_exit+0x37/0xa0
+>  [<b0102e1b>] sysenter_past_esp+0x54/0x75
+> Code: 75 22 b8 00 e0 ff ff 21 e0 ff 48 14 8b 40 08 a8 08 75 24 89 da 5b a1 
+> 44 b8 46 b0 e9 65 6a f5 ff ff d2 eb d0 90 ff d2 eb d9 5b c3 <0f> 0b a9 0d 
+> 2c ac 36 b0 89 f6 eb 9b e8 79 f2 12 00 eb d5 8d b4
+>  <1>Fixing recursive fault but reboot is needed!
 
->
-> * Esben Nielsen <simlo@phys.au.dk> wrote:
->
-> > > well, another possibility is that the task got blocked again, and we'll
-> > > continue boosting _the wrong chain_. I.e. we'll add extra priority to
-> > > task(s) that might not deserve it at all (it doesnt own the lock we are
-> > > interested in anymore).
-> >
-> > This can't happen. We are always looking at the first waiter on
-> > task->pi_waiter task->pi_lock held when doing the boosting. If task
-> > has released the lock the entry task->pi_waiter is gone and no
-> > boosting will take place!
->
-> no, the task got blocked _again_, as part of a _new_ blocking chain, and
-> there's a _new_ PI waiter! How does the two-lock preemptible boosting
-> algorithm ensure that if we are in the middle of boosting a
-> blocking-dependency chain:
->
->    T1 -> T2 -> ... -> TI -> TI+1 -> ... TN-1 -> TN
->
-> we are at TI, and we [the task doing the boosting] now get preempted.
->
-> What prevents TI from being part of a _totally new_ blocking-chain,
-> where the only similarity between the two chains is that TI is in the
-> middle of it:
->
->    T1' -> T2' -> ... -> TI -> TI+1' -> ... TM-1 -> TM'
->
-> the only match between the two chains is 'TI'. Now the algorithm will
-> happily walk the wrong boosting chain, and will boost the wrong tasks.
->
+Auch, so that's
 
-The point is: It does not matter that is another chain!
+        BUG_ON(atomic_read(&ioc->refcount) == 0);
 
-It will _not_ boost any task which doesn't need boosting, because it is
-not boosting according to current->prio but always task->pi_waiters. So
-all it does is to fix the priorities on some tasks. There is
-absolutely nothing wrong with that. But these task will already have the
-right priorities, because the new outermost locker (T1') will have
-traversed the list and done the boosting. So current will stop boosting
-and break out of the loop (unless it is doing deadlock detection).
+triggering. What sort of testing were you running, exactly?
 
-But what about the original chain? Well, as the tasks aren't blocked
-anymore, they doesn't need boosting anymore, so no boosting missed either.
-Or if they are blocked on something else, the those locking operations
-have or will take care of it.
+Al, any ideas?
 
-Esben
-
-
-
-> 	Ingo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-- 
+Jens Axboe
 

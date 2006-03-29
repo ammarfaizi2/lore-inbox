@@ -1,87 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWC2Gn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWC2Gpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751084AbWC2Gn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 01:43:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWC2Gn0
+	id S1751100AbWC2Gpm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 01:45:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWC2Gpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 01:43:26 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:27587 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751084AbWC2Gn0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 01:43:26 -0500
-Date: Tue, 28 Mar 2006 22:43:08 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Pete Clements <clem@clem.clem-digital.net>
-Cc: klassert@mathematik.tu-chemnitz.de, clem@clem.clem-digital.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Correction: 2.6.16-git12 killed networking -- 3c900 card
-Message-Id: <20060328224308.23cac292.akpm@osdl.org>
-In-Reply-To: <200603290250.k2T2od8d001585@clem.clem-digital.net>
-References: <20060328141443.GB8455@gareth.mathematik.tu-chemnitz.de>
-	<200603290250.k2T2od8d001585@clem.clem-digital.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 29 Mar 2006 01:45:42 -0500
+Received: from mga01.intel.com ([192.55.52.88]:28092 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751092AbWC2Gpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 01:45:41 -0500
+X-IronPort-AV: i="4.03,141,1141632000"; 
+   d="scan'208"; a="16944142:sNHT23364852"
+Message-Id: <200603290645.k2T6jbg03728@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "Christoph Lameter" <clameter@sgi.com>
+Cc: "Zoltan Menyhart" <Zoltan.Menyhart@free.fr>, <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+Subject: RE: Fix unlock_buffer() to work the same way as bit_unlock()
+Date: Tue, 28 Mar 2006 22:46:22 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcZS7Z6GV0Ex2LG7QaGE7pL7Z0DCxQADDzMw
+In-Reply-To: <4429F27C.6020404@yahoo.com.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Clements <clem@clem.clem-digital.net> wrote:
->
-> Quoting Steffen Klassert
->   > >   Had several of these with git11
->   > >   NETDEV WATCHDOG: eth0: transmit timed out
->   > 
->   > Is this for sure that these messages occured first time with git11?
->   > There were no changes in the 3c59x driver between git10 and git11.
->   > 
-> Tried 2.6.15 and could not get a timed out condition.  Looks like
-> that defect is between 15 and 16 in my case.  
+Nick Piggin wrote on Tuesday, March 28, 2006 6:36 PM
+> Hmm, not sure. Maybe a few new bitops with _lock / _unlock postfixes?
+> For page lock and buffer lock we'd just need test_and_set_bit_lock,
+> clear_bit_unlock, smp_mb__after_clear_bit_unlock.
 > 
-> Be glad to do any testing that I can.
-> 
+> I don't know, _for_lock might be a better name. But it's getting long.
 
-Well here's one.  Steffen, please confirm.
+I think kernel needs all 4 variants:
 
+clear_bit
+clear_bit_lock
+clear_bit_unlock
+clear_bit_fence
 
-From: Andrew Morton <akpm@osdl.org>
+And the variant need to permutated on all other bit ops ...  I think it
+would be indeed a better API and be more explicit about the ordering.
 
-The pre-2.6.16 patch "3c59x collision statistics fix" accidentally caused
-vortex_error() to not run iowrite16(TxEnable, ioaddr + EL3_CMD) if we got a
-maxCollisions interrupt but MAX_COLLISION_RESET is not set.
-
-Cc: Steffen Klassert <klassert@mathematik.tu-chemnitz.de>
-Cc: Pete Clements <clem@clem.clem-digital.net>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- drivers/net/3c59x.c |   12 +++++-------
- 1 files changed, 5 insertions(+), 7 deletions(-)
-
-diff -puN drivers/net/3c59x.c~3c59x-collision-statistics-fix-fix drivers/net/3c59x.c
---- devel/drivers/net/3c59x.c~3c59x-collision-statistics-fix-fix	2006-03-28 22:36:48.000000000 -0800
-+++ devel-akpm/drivers/net/3c59x.c	2006-03-28 22:40:01.000000000 -0800
-@@ -2085,16 +2085,14 @@ vortex_error(struct net_device *dev, int
- 		}
- 		if (tx_status & 0x14)  vp->stats.tx_fifo_errors++;
- 		if (tx_status & 0x38)  vp->stats.tx_aborted_errors++;
-+		if (tx_status & 0x08)  vp->xstats.tx_max_collisions++;
- 		iowrite8(0, ioaddr + TxStatus);
- 		if (tx_status & 0x30) {			/* txJabber or txUnderrun */
- 			do_tx_reset = 1;
--		} else if (tx_status & 0x08) {	/* maxCollisions */
--			vp->xstats.tx_max_collisions++;
--			if (vp->drv_flags & MAX_COLLISION_RESET) {
--				do_tx_reset = 1;
--				reset_mask = 0x0108;		/* Reset interface logic, but not download logic */
--			}
--		} else {						/* Merely re-enable the transmitter. */
-+		} else if ((tx_status & 0x08) && (vp->drv_flags & MAX_COLLISION_RESET))  {	/* maxCollisions */
-+			do_tx_reset = 1;
-+			reset_mask = 0x0108;		/* Reset interface logic, but not download logic */
-+		} else {				/* Merely re-enable the transmitter. */
- 			iowrite16(TxEnable, ioaddr + EL3_CMD);
- 		}
- 	}
-_
-
+- Ken

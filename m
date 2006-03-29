@@ -1,60 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWC2JNZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbWC2JOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbWC2JNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 04:13:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWC2JNZ
+	id S1750942AbWC2JOg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 04:14:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWC2JOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 04:13:25 -0500
-Received: from mail.sw-soft.com ([69.64.46.34]:27334 "EHLO mail.sw-soft.com")
-	by vger.kernel.org with ESMTP id S1750801AbWC2JNY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 04:13:24 -0500
-Message-ID: <442A4FAA.4010505@openvz.org>
-Date: Wed, 29 Mar 2006 13:13:14 +0400
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: devel@openvz.org
-CC: Kir Kolyshkin <kir@sacred.ru>, linux-kernel@vger.kernel.org,
-       sam@vilain.net, Herbert Poetzl <herbert@13thfloor.at>
-Subject: Re: [Devel] Re: [RFC] Virtualization steps
-References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>	<1143228339.19152.91.camel@localhost.localdomain>	<4428BB5C.3060803@tmr.com>  <4428DB76.9040102@openvz.org>	<1143583179.6325.10.camel@localhost.localdomain>	<4429B789.4030209@sacred.ru> <1143588501.6325.75.camel@localhost.localdomain>
-In-Reply-To: <1143588501.6325.75.camel@localhost.localdomain>
-Content-Type: text/plain; charset=windows-1251; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SA-Do-Not-Rej: Toldya
+	Wed, 29 Mar 2006 04:14:36 -0500
+Received: from john.hrz.tu-chemnitz.de ([134.109.132.2]:46754 "EHLO
+	john.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S1750942AbWC2JOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 04:14:35 -0500
+Date: Wed, 29 Mar 2006 11:14:33 +0200
+From: Steffen Klassert <klassert@mathematik.tu-chemnitz.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Pete Clements <clem@clem.clem-digital.net>,
+       klassert@mathematik.tu-chemnitz.de, linux-kernel@vger.kernel.org
+Subject: Re: Correction: 2.6.16-git12 killed networking -- 3c900 card
+Message-ID: <20060329091433.GB8237@bayes.mathematik.tu-chemnitz.de>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Pete Clements <clem@clem.clem-digital.net>,
+	klassert@mathematik.tu-chemnitz.de, linux-kernel@vger.kernel.org
+References: <20060328141443.GB8455@gareth.mathematik.tu-chemnitz.de> <200603290250.k2T2od8d001585@clem.clem-digital.net> <20060328224308.23cac292.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060328224308.23cac292.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: --- Start der SpamAssassin 3.1.1 Textanalyse (-1.4 Punkte)
+	Fragen an/questions to:  Postmaster TU Chemnitz <postmaster@tu-chemnitz.de>
+	-1.4 ALL_TRUSTED            Nachricht wurde nur ueber vertrauenswuerdige Rechner
+	weitergeleitet
+	--- Ende der SpamAssassin Textanalyse
+X-Scan-Signature: 652e4af5a5c207f483e6e71f7e96832f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam,
+On Tue, Mar 28, 2006 at 10:43:08PM -0800, Andrew Morton wrote:
+> Pete Clements <clem@clem.clem-digital.net> wrote:
+> >
+> > Quoting Steffen Klassert
+> >   > >   Had several of these with git11
+> >   > >   NETDEV WATCHDOG: eth0: transmit timed out
+> >   > 
+> >   > Is this for sure that these messages occured first time with git11?
+> >   > There were no changes in the 3c59x driver between git10 and git11.
+> >   > 
+> > Tried 2.6.15 and could not get a timed out condition.  Looks like
+> > that defect is between 15 and 16 in my case.  
+> > 
+> > Be glad to do any testing that I can.
+> > 
 
->> Why do you think it can not be measured? It either can be, or it is too 
->> low to be measured reliably (a fraction of a per cent or so).
+I will try to borrow a coax cable and see whats up with 10base2.
+
 > 
-> Well, for instance the fair CPU scheduling overhead is so tiny it may as
-> well not be there in the VServer patch.  It's just a per-vserver TBF
-> that feeds back into the priority (and hence timeslice length) of the
-> process.  ie, you get "CPU tokens" which deplete as processes in your
-> vserver run and you either get a boost or a penalty depending on the
-> level of the tokens in the bucket.  This doesn't provide guarantees, but
-> works well for many typical workloads.
-I wonder what is the value of it if it doesn't do guarantees or QoS?
-In our experiments with it we failed to observe any fairness. So I 
-suppose the only goal of this is too make sure that maliscuios user want 
-consume all the CPU power, right?
+> Well here's one.  Steffen, please confirm.
+> 
+> 
+> From: Andrew Morton <akpm@osdl.org>
+> 
+> The pre-2.6.16 patch "3c59x collision statistics fix" accidentally caused
+> vortex_error() to not run iowrite16(TxEnable, ioaddr + EL3_CMD) if we got a
+> maxCollisions interrupt but MAX_COLLISION_RESET is not set.
 
-> How does your fair scheduler work?  Do you just keep a runqueue for each
-> vps?
-we keep num_online_cpus runqueues per VPS.
-Fairs scheduler is some kind of SFQ like algorithm which selects VPS to 
-be scheduled, than standart linux scheduler selects a process in a VPS 
-runqueues to run.
+True, this can explain the transmit timed out messages.
 
-> To be honest, I've never needed to determine whether its overhead is 1%
-> or 0.01%, it would just be a meaningless benchmark anyway :-).  I know
-> it's "good enough for me".
-Sure! We feel the same, but people like numbers :)
+Acked-by: Steffen Klassert <klassert@mathematik.tu-chemnitz.de>
 
-Thanks,
-Kirill
+
+> 
+> Cc: Steffen Klassert <klassert@mathematik.tu-chemnitz.de>
+> Cc: Pete Clements <clem@clem.clem-digital.net>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> ---
+> 
+>  drivers/net/3c59x.c |   12 +++++-------
+>  1 files changed, 5 insertions(+), 7 deletions(-)
+> 
+> diff -puN drivers/net/3c59x.c~3c59x-collision-statistics-fix-fix drivers/net/3c59x.c
+> --- devel/drivers/net/3c59x.c~3c59x-collision-statistics-fix-fix	2006-03-28 22:36:48.000000000 -0800
+> +++ devel-akpm/drivers/net/3c59x.c	2006-03-28 22:40:01.000000000 -0800
+> @@ -2085,16 +2085,14 @@ vortex_error(struct net_device *dev, int
+>  		}
+>  		if (tx_status & 0x14)  vp->stats.tx_fifo_errors++;
+>  		if (tx_status & 0x38)  vp->stats.tx_aborted_errors++;
+> +		if (tx_status & 0x08)  vp->xstats.tx_max_collisions++;
+>  		iowrite8(0, ioaddr + TxStatus);
+>  		if (tx_status & 0x30) {			/* txJabber or txUnderrun */
+>  			do_tx_reset = 1;
+> -		} else if (tx_status & 0x08) {	/* maxCollisions */
+> -			vp->xstats.tx_max_collisions++;
+> -			if (vp->drv_flags & MAX_COLLISION_RESET) {
+> -				do_tx_reset = 1;
+> -				reset_mask = 0x0108;		/* Reset interface logic, but not download logic */
+> -			}
+> -		} else {						/* Merely re-enable the transmitter. */
+> +		} else if ((tx_status & 0x08) && (vp->drv_flags & MAX_COLLISION_RESET))  {	/* maxCollisions */
+> +			do_tx_reset = 1;
+> +			reset_mask = 0x0108;		/* Reset interface logic, but not download logic */
+> +		} else {				/* Merely re-enable the transmitter. */
+>  			iowrite16(TxEnable, ioaddr + EL3_CMD);
+>  		}
+>  	}
+> _

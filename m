@@ -1,77 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWC2BjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWC2Bj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbWC2BjO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Mar 2006 20:39:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWC2BjO
+	id S1750758AbWC2Bj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Mar 2006 20:39:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbWC2Bj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Mar 2006 20:39:14 -0500
-Received: from mail.sw-soft.com ([69.64.46.34]:15269 "EHLO mail.sw-soft.com")
-	by vger.kernel.org with ESMTP id S1750749AbWC2BjO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Mar 2006 20:39:14 -0500
-Message-ID: <4429E534.8030206@sw.ru>
-Date: Wed, 29 Mar 2006 05:39:00 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Tue, 28 Mar 2006 20:39:27 -0500
+Received: from mga01.intel.com ([192.55.52.88]:59409 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750757AbWC2BjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Mar 2006 20:39:25 -0500
+X-IronPort-AV: i="4.03,140,1141632000"; 
+   d="scan'208"; a="16854501:sNHT180611480"
+Message-Id: <200603290139.k2T1d1g00702@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Christoph Lameter'" <clameter@sgi.com>
+Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "Zoltan Menyhart" <Zoltan.Menyhart@free.fr>, <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+Subject: RE: Fix unlock_buffer() to work the same way as bit_unlock()
+Date: Tue, 28 Mar 2006 17:39:37 -0800
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, herbert@13thfloor.at, devel@openvz.org,
-       serue@us.ibm.com, akpm@osdl.org, sam@vilain.net,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Pavel Emelianov <xemul@sw.ru>,
-       Stanislav Protassov <st@sw.ru>
-Subject: Re: [RFC] Virtualization steps
-References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au> <4428FB90.5000601@sw.ru> <4428FEA5.9020808@yahoo.com.au>
-In-Reply-To: <4428FEA5.9020808@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcZSzSrc3nQY/YFiTA+dUV/6DHVX4QAAtjOw
+In-Reply-To: <Pine.LNX.4.64.0603281644270.16702@schroedinger.engr.sgi.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick,
-
->> First of all, what it does which low level virtualization can't:
->> - it allows to run 100 containers on 1GB RAM
->>   (it is called containers, VE - Virtual Environments,
->>    VPS - Virtual Private Servers).
->> - it has no much overhead (<1-2%), which is unavoidable with hardware
->>   virtualization. For example, Xen has >20% overhead on disk I/O.
+Christoph Lameter wrote on Tuesday, March 28, 2006 4:47 PM
+> > Why not make unlock_buffer use test_and_clear_bit()?  Utilizing it's implied
+> > full memory fence and throw away the return value?  OK, OK, this is obscured.
+> > Then introduce clear_bit_memory_fence API or some sort.
 > 
-> Are any future hardware solutions likely to improve these problems?
-Probably you are aware of VT-i/VT-x technologies and planned virtualized 
-MMU and I/O MMU from Intel and AMD.
-These features should improve the performance somehow, but there is 
-still a limit for decreasing the overhead, since at least disk, network, 
-video and such devices should be emulated.
-
->> OS kernel virtualization
->> ~~~~~~~~~~~~~~~~~~~~~~~~
+> Only for IA64's sake? Better clean up the bitops as you suggested earlier. 
+> The open ended acquires there leaves a weird feeling.
 > 
-> Is this considered secure enough that multiple untrusted VEs are run
-> on production systems?
-it is secure enough. What makes it secure? In general:
-- virtualization, which makes resources private
-- resource control, which makes VE to be limited with its usages
-In more technical details virtualization projects make user access (and 
-capabilities) checks stricter. Moreover, OpenVZ is using "denied by 
-default" approach to make sure it is secure and VE users are not allowed 
-something else.
+> Something like this? (builds fine not tested yet)
 
-Also, about 2-3 month ago we had a security review of OpenVZ project 
-made by Solar Designer. So, in general such virtualization approach 
-should be not less secure than VM-like one. VM core code is bigger and 
-there is enough chances for bugs there.
+It's warm and fuzzy feeling with changes in set_bit(), clear_bit(), and
+change_bit().  The API never meant to have implied memory fence in them.
+Though the usage might be assuming one way or the other because of x86
+semantics.
 
-> What kind of users want this, who can't use alternatives like real
-> VMs?
-Many companies, just can't share their names. But in general no 
-enterprise and hosting companies need to run different OSes on the same 
-machine. For them it is quite natural to use N machines for Linux and M 
-for Windows. And since VEs are much more lightweight and easier to work 
-with, they like it very much.
+How many of these things are used as (1) simple atomic op, (2) lock,
+(3) unlock, and (4) full fence?
 
-Just for example, OpenVZ core is running more than 300,000 VEs worldwide.
+clear_bit  - 1,070 hits
+Set_bit    - 1,450 hits
+Change_bit -     8 hits
 
-Thanks,
-Kirill
+The effect of changing them to full memory fence could be wide spread. Though
+I don't have any numbers yet to say how much it will matter for performance.
+
+- Ken

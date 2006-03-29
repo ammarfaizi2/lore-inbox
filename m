@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWC2RCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWC2REg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750857AbWC2RCM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 12:02:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750858AbWC2RCM
+	id S1750861AbWC2REg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 12:04:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWC2REg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 12:02:12 -0500
-Received: from nsm.pl ([195.34.211.229]:46858 "EHLO nsm.pl")
-	by vger.kernel.org with ESMTP id S1750853AbWC2RCL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 12:02:11 -0500
-Date: Wed, 29 Mar 2006 19:01:22 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: linux-kernel@vger.kernel.org
-Cc: Romano Giannetti <romanol@upcomillas.es>,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       linux-input@atrey.karlin.mff.cuni.cz
-Subject: Re: ALPS stop worked between 2.6.13 and 2.6.16
-Message-ID: <20060329170122.GA4090@irc.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Romano Giannetti <romanol@upcomillas.es>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@atrey.karlin.mff.cuni.cz
-References: <20060327153624.GC8679@pern.dea.icai.upcomillas.es> <d120d5000603270805u40916079ufe12eb22d478c954@mail.gmail.com> <20060327190826.GA18193@pern.dea.icai.upcomillas.es> <d120d5000603271112r35ba7100jceb8aaf3e8bf8c70@mail.gmail.com> <20060329164330.GA8977@pern.dea.icai.upcomillas.es>
-Mime-Version: 1.0
+	Wed, 29 Mar 2006 12:04:36 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:25980 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S1750858AbWC2REf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 12:04:35 -0500
+X-IronPort-AV: i="4.03,144,1141632000"; 
+   d="scan'208"; a="318198849:sNHT2925283364"
+To: "Dan Bar Dov" <bardov@gmail.com>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [openib-general] InfiniBand 2.6.17 merge plans
+X-Message-Flag: Warning: May contain useful information
+References: <ada7j6f8xwi.fsf@cisco.com>
+	<d6944c490603290028n70725678g287445429a9c2ae5@mail.gmail.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 29 Mar 2006 09:03:40 -0800
+In-Reply-To: <d6944c490603290028n70725678g287445429a9c2ae5@mail.gmail.com> (Dan Bar Dov's message of "Wed, 29 Mar 2006 10:28:17 +0200")
+Message-ID: <ada7j6d89oz.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060329164330.GA8977@pern.dea.icai.upcomillas.es>
-User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 29 Mar 2006 17:03:41.0426 (UTC) FILETIME=[BADF5520:01C65352]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29, 2006 at 06:43:30PM +0200, Romano Giannetti wrote:
-> 
-> On Mon, Mar 27, 2006 at 02:12:26PM -0500, Dmitry Torokhov wrote:
-> > On 3/27/06, Romano Giannetti <romanol@upcomillas.es> wrote:
-> > >
-> > > Udev is 054 (as per Mandriva 2005). Is that the culprit?
-> > 
-> > [~/linux] grep udev Documentation/Changes
-> > o  udev                   071                     # udevinfo -V
-> > ...
-> 
-> Bad news... I tried to upgrade udev to 088, but evidently this is not a
-> trivial task.
+    Dan> Therefore the plan for iSER is to push it into 2.6.18
 
-  It's not so easy.  You have to carefully read release notes for every
-udev release between 054 and 088, and spot every incompatibile change.
-And accommodate.
+OK, thanks.
 
--- 
-Tomasz Torcz               "Never underestimate the bandwidth of a station
-zdzichu@irc.-nie.spam-.pl    wagon filled with backup tapes." -- Jim Gray
+Based on all of this I'm thinking that it's better to hold back the
+RDMA CM as well, since there will be no code using it ready to merge
+for 2.6.17.
 
+ - R.

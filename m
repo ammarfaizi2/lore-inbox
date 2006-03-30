@@ -1,64 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWC3VjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWC3Vju@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750974AbWC3VjI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 16:39:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbWC3VjI
+	id S1750987AbWC3Vju (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 16:39:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbWC3Vjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 16:39:08 -0500
-Received: from www2.persson.tm.12.198.194.in-addr.arpa ([194.198.12.206]:18056
-	"HELO mail.persson.tm") by vger.kernel.org with SMTP
-	id S1750974AbWC3VjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 16:39:07 -0500
-Message-ID: <442C4FFC.2040109@persson.tm>
-Date: Thu, 30 Mar 2006 23:39:08 +0200
-From: Eric Persson <eric@persson.tm>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel config repository
-References: <442A99CA.20303@persson.tm> <9a8748490603291505h19be30b0ue454437c9aa1faac@mail.gmail.com>
-In-Reply-To: <9a8748490603291505h19be30b0ue454437c9aa1faac@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Mar 2006 16:39:49 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:52714 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750987AbWC3Vjs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 16:39:48 -0500
+Date: Thu, 30 Mar 2006 15:39:28 -0600
+To: john.ronciak@intel.com, jesse.brandeburg@intel.com,
+       jeffrey.t.kirsher@intel.com
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linuxppc-dev@ozlabs.org
+Subject: [PATCH]: e1000: prevent statistics from getting garbled during reset.
+Message-ID: <20060330213928.GQ2172@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> For some users being able to grab a pre-made .config may be valuable,
-> but for most people I doubt it will be very useful. Peoples hardware
-> differ a lot, so a "best" config is always going to be one that you
-> tweak personally to match your system. If you don't want to do that
-> you are probably just going to use a generic distro kernel anyway (or
-> you could use the .config of the distro kernel with make oldconfig
-> when building a new kernel).
-> 
-> Maybe it's a good idea, dunno, but I don't really think so.
 
-I understand your point, and you might as well be right.
+Please review, sign-off/ack, and forward upstream.
+--linas
 
-I have experienced a very tough testing phase to make myself believe and 
-thrust a new kernel config, before I put it to live use. I only use HP 
-machines, most of them the same model and the difference in hardware are 
-usually just disks, memory and speed of cpu, which affects the config 
-inself very minmial, otherwise theyre all the same.
-And to hook up and see other HP(replace with any brand/model) users and 
-see what configs they use, so all can benefit from config testing, would 
-be a great idea, thats what I think at least.
+[PATCH]: e1000: prevent statistics from getting garbled during reset.
 
-People compiling custom kernels for whatever piece of hardware they can 
-find will most likely not benefit, but the overall "community wisdom" 
-that this might generate would perhaps everyone benefit from.
+If a PCI bus error/fault triggers a PCI bus reset, attempts to get the
+ethernet packet count statistics from the hardware will fail, returning
+garbage data upstream.  This patch skips statistics data collection
+if the PCI device is not on the bus. 
 
-Today, I find it hard find information about all the different configs, 
-more than whats in the help function in make menuconfig, but thats me. 
-And I think its a waste if good kernel development get ignored since 
-people dont know what config options to turn on. ;)
+This patch presumes that an earlier patch,
+[PATCH] PCI Error Recovery: e1000 network device driver
+has already been applied.
 
-Well, I hope I might inspired or given some clarity on the topic, any 
-new input from this?
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
 
-Best regards,
-	Eric
+----
+ drivers/net/e1000/e1000_main.c |    8 ++++++--
+ 1 files changed, 6 insertions(+), 2 deletions(-)
 
+Index: linux-2.6.16-git6/drivers/net/e1000/e1000_main.c
+===================================================================
+--- linux-2.6.16-git6.orig/drivers/net/e1000/e1000_main.c	2006-03-30 14:42:33.000000000 -0600
++++ linux-2.6.16-git6/drivers/net/e1000/e1000_main.c	2006-03-30 14:44:52.000000000 -0600
+@@ -3069,13 +3069,17 @@ void
+ e1000_update_stats(struct e1000_adapter *adapter)
+ {
+ 	struct e1000_hw *hw = &adapter->hw;
++	struct pci_dev *pdev = adapter->pdev;
+ 	unsigned long flags;
+ 	uint16_t phy_tmp;
+ 
+ #define PHY_IDLE_ERROR_COUNT_MASK 0x00FF
+ 
+-	/* Prevent stats update while adapter is being reset */
+-	if (adapter->link_speed == 0)
++	/* Prevent stats update while adapter is being reset, or if
++	 * the pci connection is down. */
++	if ((adapter->link_speed == 0) ||
++       ((pdev->error_state != 0) &&
++	    (pdev->error_state != pci_channel_io_normal)))
+ 		return;
+ 
+ 	spin_lock_irqsave(&adapter->stats_lock, flags);

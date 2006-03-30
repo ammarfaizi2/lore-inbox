@@ -1,81 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWC3ImN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWC3Ino@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbWC3ImN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 03:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWC3ImN
+	id S1751189AbWC3Ino (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 03:43:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWC3Ino
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 03:42:13 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8336 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751092AbWC3ImM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 03:42:12 -0500
-Date: Thu, 30 Mar 2006 10:41:54 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: Nigel Cunningham <ncunningham@cyclades.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, rjw@sisk.pl
-Subject: Re: [rfc] fix Kconfig, hotplug_cpu is needed for swsusp
-Message-ID: <20060330084153.GC8485@elf.ucw.cz>
-References: <20060329220808.GA1716@elf.ucw.cz> <20060329144746.358a6b4e.akpm@osdl.org> <20060329150950.A12482@unix-os.sc.intel.com> <200603300936.22757.ncunningham@cyclades.com> <20060329154748.A12897@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060329154748.A12897@unix-os.sc.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 30 Mar 2006 03:43:44 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:19331 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1751093AbWC3Inn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 03:43:43 -0500
+Message-ID: <442B9A2A.7000306@bull.net>
+Date: Thu, 30 Mar 2006 10:43:22 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en, fr, hu
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, "Boehm, Hans" <hans.boehm@hp.com>,
+       "Grundler, Grant G" <grant.grundler@hp.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Fix unlock_buffer() to work the same way as bit_unlock()
+References: <65953E8166311641A685BDF71D865826A23D40@cacexc12.americas.cpqcorp.net> <Pine.LNX.4.64.0603291529160.26011@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0603291529160.26011@schroedinger.engr.sgi.com>
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 30/03/2006 10:45:39,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 30/03/2006 10:45:47,
+	Serialize complete at 30/03/2006 10:45:47
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > So if you have a single core x86, you want X86_PC, and if you have HT or SMP, 
-> > you want GENERICARCH? If so, could this be done via selects or depends or at 
-> > least defaults in Kconfig?
+Christoph Lameter wrote:
+> Hmmm... Maybe we therefore need to add a mode to each bit operation in 
+> the kernel?
 > 
-> Yes, i think only SUSPEND_SMP is affect by this. I thought Rafael cced Pavel during 
-> that exchange, maybe i missed.
+> With that we can also get rid of the __* version of bitops.
 > 
-> > 
-> > Regards,
-> > 
-> > Nigel
+> Possible modes are
 > 
-> How about this patch.
+> NON_ATOMIC 	Do not perform any atomic ops at all.
 > 
-> Make SUSPEND_SMP depend on X86_GENERICARCH, since hotplug cpu requires !X86_PC 
-> due to some race in IPI handling.  See more discussion here
+> ATOMIC		Atomic but unordered
 > 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=114303306032338&w=2
-
-I can't see useful discussion there.
-
-> Index: linux-2.6.16-git16/kernel/power/Kconfig
-> ===================================================================
-> --- linux-2.6.16-git16.orig/kernel/power/Kconfig
-> +++ linux-2.6.16-git16/kernel/power/Kconfig
-> @@ -96,5 +96,5 @@ config SWSUSP_ENCRYPT
+> ACQUIRE		Atomic with acquire semantics (or lock semantics)
 > 
->  config SUSPEND_SMP
->         bool
-> -       depends on HOTPLUG_CPU && X86 && PM
-> +       depends on HOTPLUG_CPU && X86 && PM && X86_GENERICARCH
->         default y
+> RELEASE 	Atomic with release semantics (or unlock semantics)
+> 
+> FENCE		Atomic with full fence.
+> 
+> This would require another bitops overhaul.
+> 
+> Maybe we can preserve the existing code with bitops like __* mapped to 
+> *(..., NON_ATOMIC) and * mapped to *(..., FENCE) and the gradually fix the 
+> rest of the kernel.
 
+Form semantical point of view, the forms:
 
-Heh, great, so one more magic option that is required.
+	bit_foo(..., mode)
+and
+	bit_foo_mode(...)
 
-Plus GENERICARCH does not sound like something normal users would
-enable:
+are equivalent.
 
-config X86_GENERICARCH
-       bool "Generic architecture (Summit, bigsmp, ES7000, default)"
-       depends on SMP
-       help
-          This option compiles in the Summit, bigsmp, ES7000, default subarchitectures.
-          It is intended for a generic binary kernel.
+However, I do not think your implementation would be efficient due to
+selecting the ordering mode at run time:
 
-(What does "default" mean there, anyway? X86_PC?)
+> +	switch (mode) {
+> +	case MODE_NONE :
+> +	case MODE_ACQUIRE :
+> +		return cmpxchg_acq(m, old, new);
+> +	case MODE_FENCE :
+> +		smp_mb();
+> +		/* Fall through */
+> +	case MODE_RELEASE :
+> +		return cmpxchg_rel(m, old, new);
 
-								Pavel
--- 
-Picture of sleeping (Linux) penguin wanted...
+> +	if (mode == ORDER_NON_ATOMIC) {
+> +		*m |= bit;
+> +		return;
+> +	}
+
+etc.
+
+In addition, we may want to inline these primitives...
+
+A compile-time selection of the appropriate code sequence would help.
+
+Thanks,
+
+Zoltan

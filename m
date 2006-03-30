@@ -1,72 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWC3U6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbWC3U7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750908AbWC3U6u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 15:58:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbWC3U6u
+	id S1750916AbWC3U7V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 15:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbWC3U7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 15:58:50 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:30422 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750902AbWC3U6t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 15:58:49 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH] mm: swsusp shrink_all_memory tweaks
-Date: Thu, 30 Mar 2006 22:57:24 +0200
-User-Agent: KMail/1.9.1
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       linux-mm@kvack.org
-References: <200603200231.50666.kernel@kolivas.org> <200603301912.32204.rjw@sisk.pl> <200603310638.23873.kernel@kolivas.org>
-In-Reply-To: <200603310638.23873.kernel@kolivas.org>
+	Thu, 30 Mar 2006 15:59:20 -0500
+Received: from test-iport-3.cisco.com ([171.71.176.78]:22554 "EHLO
+	test-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S1750911AbWC3U7T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 15:59:19 -0500
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH 0 of 16] ipath - driver submission for 2.6.17
+X-Message-Flag: Warning: May contain useful information
+References: <patchbomb.1143674603@chalcedony.internal.keyresearch.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 30 Mar 2006 12:59:17 -0800
+In-Reply-To: <patchbomb.1143674603@chalcedony.internal.keyresearch.com> (Bryan O'Sullivan's message of "Wed, 29 Mar 2006 15:23:23 -0800")
+Message-ID: <adairpv1wey.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603302257.24979.rjw@sisk.pl>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 30 Mar 2006 20:59:18.0863 (UTC) FILETIME=[CFDAC5F0:01C6543C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 March 2006 22:38, Con Kolivas wrote:
-> On Friday 31 March 2006 03:12, Rafael J. Wysocki wrote:
-> > OK, I have the following observations:
-> 
-> Thanks.
-> >
-> > 1) The patch generally causes more memory to be freed during suspend than
-> > the unpatched code (good).
-> 
-> Yes I know you meant less, that's good.
-> 
-> > 2) However, if more than 50% of RAM is used by application data, it causes
-> > the swap prefetch to trigger during resume (that's an impression; anyway
-> > the system swaps in a lot at that time), which takes some time (generally
-> > it makes resume 5-10s longer on my box).
-> 
-> Is that with this "swsusp shrink_all_memory tweaks" patch alone? It doesn't 
-> touch swap prefetch.
+Looks like there are still problems with dependencies on networking.
+If I start with allnoconfig and just enable CONFIG_PCI,
+CONFIG_PCI_MSI, CONFIG_INFINIBAND, CONFIG_IPATH_CORE and
+CONFIG_INFINIBAND_IPATH, the build ends with:
 
-Still swap prefetch is present in -mm so it can be triggered incidentally
-I think.
- 
-> > 3) The problem with returning zero prematurely has not been entirely
-> > eliminated.  It's happened for me only once, though.
-> 
-> Probably hard to say, but is the system in any better state after resume has 
-> completed?
+      LD      .tmp_vmlinux1
+    drivers/built-in.o: In function `ipath_free_pddata': undefined reference to `kfree_skb'
+    drivers/built-in.o: In function `ipath_alloc_skb': undefined reference to `__alloc_skb'
+    drivers/built-in.o: In function `ipath_kreceive': undefined reference to `skb_over_panic'
+    drivers/built-in.o: In function `ipath_init_chip': undefined reference to `kfree_skb'
 
-It seems so, but it also depends on the (actual) image size, memory usage
-before suspend etc.  Well ...
+Should I just make IPATH_CORE depend on NET as well?
 
-> That was one of the aims. Also a major part of this patch is a cleanup of
-> the hot balance_pgdat function as well, which suspend no longer touches with
-> this patch.
-
-I think the patch is a good idea overall, but it needs some more testing.
-I'll try to figure out a way to measure its performance, so we have some
-hard data to discuss.
-
-Greetings,
-Rafael
+ - R.

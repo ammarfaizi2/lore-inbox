@@ -1,56 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWC3Oxn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWC3OyT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWC3Oxn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 09:53:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbWC3Oxm
+	id S1750718AbWC3OyT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 09:54:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWC3OyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 09:53:42 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:50189 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1750714AbWC3Oxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 09:53:42 -0500
-Date: Thu, 30 Mar 2006 16:53:24 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Mike Galbraith <efault@gmx.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, Peter Williams <pwil3058@bigpond.net.au>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>
-Subject: Re: [rfc][patch] improved interactive starvation patch against 2.6.16
-Message-ID: <20060330145324.GB4914@w.ods.org>
-References: <1143713997.9381.28.camel@homer> <20060330115540.GA4914@w.ods.org> <1143728558.7840.11.camel@homer>
-Mime-Version: 1.0
+	Thu, 30 Mar 2006 09:54:19 -0500
+Received: from ns.suse.de ([195.135.220.2]:6533 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750718AbWC3OyS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 09:54:18 -0500
+To: Voluspa <lista1@telia.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [2.6.16-gitX] initcall at 0xffffffff804615d1: returned with error code -1
+References: <20060330131115.73886fd4.lista1@telia.com>
+	<20060330031949.2febaf62.akpm@osdl.org>
+	<20060330140124.3f67a17b.lista1@telia.com>
+From: Andi Kleen <ak@suse.de>
+Date: 30 Mar 2006 16:54:14 +0200
+In-Reply-To: <20060330140124.3f67a17b.lista1@telia.com>
+Message-ID: <p734q1g9e5l.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1143728558.7840.11.camel@homer>
-User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 30, 2006 at 04:22:38PM +0200, Mike Galbraith wrote:
- 
-> You applied the wrong patch.  The inlined one was against virgin 2.6.16,
-> for folks to comment on, and the attached was the incremental against
-> the 2.6.16 anti-starvation tree.
+Voluspa <lista1@telia.com> writes:
 > 
-> Ah, your mailer probably showed both as attached.  Anyway, here's the
-> incremental again inlined.
+> Those options are just wish-thinking since the machine doesn't have that kind of timer.
+> So the warning should go away when I turn them off. Sorry about the noise.
 
-Ah OK, it's not even the mailer, it's me. I read the message and did not
-notice the attachment, just the inline patch. Then I forwarded it to my
-work address and lost the attachment. You know the rest ...
+I fixed it here
 
-> (note to self:  never include patches for two trees in same message)
-
-Good advice. Or manually edit the directory name in the diff to
-explicitly show what it refers to. Eg:
-
---- linux-2.6.16-sched7/kernel/sched.c	2006-03-27 06:11:01.000000000 +0200
-+++ linux-2.6.16/kernel/sched.c	2006-03-30 10:50:46.000000000 +0200
-
-Anyway, thanks for your reply, I'll re-apply it and recompile.
-
-> 	-Mike
-
-Cheers,
-Willy
-
+-Andi

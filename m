@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWC3Ug5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWC3UjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbWC3Ug5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 15:36:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWC3Ug5
+	id S1750742AbWC3UjO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 15:39:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWC3UjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 15:36:57 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58816 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750831AbWC3Ug4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 15:36:56 -0500
-Date: Thu, 30 Mar 2006 22:36:33 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: rdreier@cisco.com, linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH 12 of 16] ipath - infiniband RC protocol support
-Message-ID: <20060330203633.GA29023@elf.ucw.cz>
-References: <patchbomb.1143674603@chalcedony.internal.keyresearch.com> <2fe2c58d0de99a067ae1.1143674615@chalcedony.internal.keyresearch.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Mar 2006 15:39:14 -0500
+Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:29576 "EHLO
+	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750742AbWC3UjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 15:39:13 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [PATCH] mm: swsusp shrink_all_memory tweaks
+Date: Fri, 31 Mar 2006 06:38:23 +1000
+User-Agent: KMail/1.9.1
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>,
+       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       linux-mm@kvack.org
+References: <200603200231.50666.kernel@kolivas.org> <200603241714.48909.rjw@sisk.pl> <200603301912.32204.rjw@sisk.pl>
+In-Reply-To: <200603301912.32204.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <2fe2c58d0de99a067ae1.1143674615@chalcedony.internal.keyresearch.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200603310638.23873.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Friday 31 March 2006 03:12, Rafael J. Wysocki wrote:
+> OK, I have the following observations:
 
-> This is an implementation of the Infiniband RC ("reliable connection")
-> protocol.
+Thanks.
+>
+> 1) The patch generally causes more memory to be freed during suspend than
+> the unpatched code (good).
 
-> +/* cut down ridiculously long IB macro names */
-> +#define OP(x) IB_OPCODE_RC_##x
+Yes I know you meant less, that's good.
 
-Heh... what about fixing those names in the first place?
+> 2) However, if more than 50% of RAM is used by application data, it causes
+> the swap prefetch to trigger during resume (that's an impression; anyway
+> the system swaps in a lot at that time), which takes some time (generally
+> it makes resume 5-10s longer on my box).
 
-> +	/* GRH header size in 32-bit words. */
-> +	qp->s_hdrwords += 10;
-> +	qp->s_hdr.u.l.grh.version_tclass_flow =
-> +		cpu_to_be32((6 << 28) |
-> +			    (grh->traffic_class << 20) |
-> +			    grh->flow_label);
-> +	qp->s_hdr.u.l.grh.paylen =
-> +		cpu_to_be16(((qp->s_hdrwords - 12) + nwords +
-> +			     SIZE_OF_CRC) << 2);
-> +	/* next_hdr is defined by C8-7 in ch. 8.4.1 */
-> +	qp->s_hdr.u.l.grh.next_hdr = 0x1B;
-> +	qp->s_hdr.u.l.grh.hop_limit = grh->hop_limit;
-> +	/* The SGID is 32-bit aligned. */
-> +	qp->s_hdr.u.l.grh.sgid.global.subnet_prefix = dev->gid_prefix;
-> +	qp->s_hdr.u.l.grh.sgid.global.interface_id =
-> +		ipath_layer_get_guid(dev->dd);
-> +	qp->s_hdr.u.l.grh.dgid = grh->dgid;
+Is that with this "swsusp shrink_all_memory tweaks" patch alone? It doesn't 
+touch swap prefetch.
 
-Don't know about you, but it looks like perl code to
-me. qp->s_hdr.u.l.grh.next_hdr ?
+> 3) The problem with returning zero prematurely has not been entirely
+> eliminated.  It's happened for me only once, though.
 
-> +	/* Check for a constructed packet to be sent. */
-> +	if (qp->s_hdrwords != 0) {
-> +		/*
-> +		 * If no PIO bufs are available, return.  An interrupt will
-> +		 * call ipath_ib_piobufavail() when one is available.
-> +		 */
-> +		_VERBS_INFO("h %u %p\n", qp->s_hdrwords, &qp->s_hdr);
-> +		_VERBS_INFO("d %u %p %u %p %u %u %u %u\n",  qp->s_cur_size,
+Probably hard to say, but is the system in any better state after resume has 
+completed? That was one of the aims. Also a major part of this patch is a 
+cleanup of the hot balance_pgdat function as well, which suspend no longer 
+touches with this patch.
 
-Info on verbs, or verbose info? Why does it start with _ ? What is
-wrong with printk?
-								Pavel
--- 
-Picture of sleeping (Linux) penguin wanted...
+Cheers,
+Con

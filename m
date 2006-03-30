@@ -1,76 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWC3QKe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWC3QMk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbWC3QKe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 11:10:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWC3QKe
+	id S1751029AbWC3QMk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 11:12:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWC3QMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 11:10:34 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:32264 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1750798AbWC3QKe convert rfc822-to-8bit (ORCPT
+	Thu, 30 Mar 2006 11:12:40 -0500
+Received: from pat.uio.no ([129.240.10.6]:55701 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751029AbWC3QMj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 11:10:34 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <442C0BA3.1050603@corky.net>
-x-originalarrivaltime: 30 Mar 2006 16:10:32.0464 (UTC) FILETIME=[78841900:01C65414]
-Content-class: urn:content-classes:message
-Subject: Re: Crash soon after an alloc_skb failure in 2.6.16 and previous, swap disabled
-Date: Thu, 30 Mar 2006 11:10:27 -0500
-Message-ID: <Pine.LNX.4.61.0603301059420.738@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Crash soon after an alloc_skb failure in 2.6.16 and previous, swap disabled
-Thread-Index: AcZUFHiqgLyrD5paR/K5kXm9QRxGdA==
-References: <442C0BA3.1050603@corky.net>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Just Marc" <marc@corky.net>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Thu, 30 Mar 2006 11:12:39 -0500
+Subject: Re: NFS/Kernel Problem: getfh failed: Operation not permitted
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.64.0603301011160.18696@p34>
+References: <Pine.LNX.4.64.0603300813270.18696@p34>
+	 <1143728720.8074.41.camel@lade.trondhjem.org>
+	 <Pine.LNX.4.64.0603300929340.18696@p34>
+	 <1143729766.8074.49.camel@lade.trondhjem.org>
+	 <Pine.LNX.4.64.0603300949000.18696@p34>
+	 <1143731364.8074.53.camel@lade.trondhjem.org>
+	 <Pine.LNX.4.64.0603301011160.18696@p34>
+Content-Type: text/plain
+Date: Thu, 30 Mar 2006 11:12:31 -0500
+Message-Id: <1143735152.8093.13.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.679, required 12,
+	autolearn=disabled, AWL 1.32, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-03-30 at 10:13 -0500, Justin Piszcz wrote:
+> On Thu, 30 Mar 2006, Trond Myklebust wrote:
+> 
+> > On Thu, 2006-03-30 at 09:50 -0500, Justin Piszcz wrote:
+> >> I tried an exportfs -rv and it did not help.  Any other suggestions?
+> >
+> > Did the output from 'exportfs -rv' match with the contents
+> > of /etc/exports? If so, did it also match with the contents
+> > of /var/lib/nfs/xtab and /proc/fs/nfs/exports?
+> >
+> > Cheers,
+> >  Trond
+> >
+> 
+> In the /etc/exports file, I have an entry that looks like this:
+> /path	specific-host-001(ro,root_squash,no_sync)
+> /path	specific-host-002((ro,root_squash,no_sync)
+> /path	*(ro,root_squash,no_sync)
+> 
+> So while there are only three entries, there are:
+> 
+> cat /proc/fs/nfs/exports | wc -> 566
+> cat /var/lib/nfs/xtab | wc -> 564
 
-On Thu, 30 Mar 2006, Just Marc wrote:
+Yes, but do they match? /var/lib/nfs/xtab and /proc/fs/nfs/exports are
+supposed to differ in that 'exportfs' will fill in a few default
+options. The question is whether there are entries for
+specific-host-001, specific-host-002,...
 
-> Hello,
->
+> Entries per file.
+> 
+> Is this more of a kernel or nfsutils issue at this point?
 
-> I'm running a few machines with swap turned off and am experiencing
-> crashes when the system is extremely low on kernel memory.   So far the
-> crashes observed are always inside the recv function of the Ethernet
-[SNIPPED...]
-
-Huh? If no buffers are available, received packets get thrown on the
-floor. I see the failure(s) happened in an interrupt. If so, the
-problem is in the network driver and your starved memory situation
-brought out a bug.
-
->
-> The benefits of running a system without swap are arguable, but in my
-> particular scenario I prefer to have connections dropped rather than
-> experience the overheads and latencies of a heavily swapping system.
-
-I read this as; "I want the advantages of swap, but I don't want
-to use swap." Or, "It doesn't work as I expected so therefore it's
-broken!" In any event, swap is used to handle the problems with a
-finite amount of memory. Normally sleeping tasks get swapped out,
-freeing their memory for your network stuff. If you don't have swap,
-that memory can't be freed. Tough! You did it, so you live with
-it -- but contact the maintainer of your network card. You may
-have forced a bug to come to the surface.
-
+More likely to be an nfs-utils issue.
 
 Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.42 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
+  Trond
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

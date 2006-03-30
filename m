@@ -1,46 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbWC3BE4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWC3BEt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751238AbWC3BE4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 20:04:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWC3BEz
+	id S1751330AbWC3BEt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 20:04:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWC3BEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 20:04:55 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:40832 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751238AbWC3BEz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 20:04:55 -0500
-Message-ID: <442B2EB2.4040401@garzik.org>
-Date: Wed, 29 Mar 2006 20:04:50 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Wed, 29 Mar 2006 20:04:49 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:40621 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751330AbWC3BEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 20:04:48 -0500
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: Sam Vilain <sam@vilain.net>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>
+Subject: Re: [RFC] Virtualization steps
+References: <1143228339.19152.91.camel@localhost.localdomain>
+	<4428BB5C.3060803@tmr.com> <20060328085206.GA14089@MAIL.13thfloor.at>
+	<4428FB29.8020402@yahoo.com.au>
+	<20060328142639.GE14576@MAIL.13thfloor.at>
+	<44294BE4.2030409@yahoo.com.au>
+	<m1psk5kcpj.fsf@ebiederm.dsl.xmission.com> <442A26E9.20608@vilain.net>
+	<20060329182027.GB14724@sorel.sous-sol.org>
+	<442B0BFE.9080709@vilain.net>
+	<20060329225241.GO15997@sorel.sous-sol.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 29 Mar 2006 18:02:41 -0700
+In-Reply-To: <20060329225241.GO15997@sorel.sous-sol.org> (Chris Wright's
+ message of "Wed, 29 Mar 2006 14:52:41 -0800")
+Message-ID: <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] splice support
-References: <20060329122841.GC8186@suse.de> <20060329143758.607c1ccc.akpm@osdl.org> <Pine.LNX.4.64.0603291624420.27203@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0603291624420.27203@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -3.5 (---)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-3.5 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> The "destination first" convention is insane. It only makes sense for 
-> assignments, and these aren't assignments.
+Chris Wright <chrisw@sous-sol.org> writes:
 
-I agree.
+> * Sam Vilain (sam@vilain.net) wrote:
+>> extern struct security_operations *security_ops; in
+>> include/linux/security.h is the global I refer to.
+>
+> OK, I figured that's what you meant.  The top-level ops are similar in
+> nature to inode_ops in that there's not a real compelling reason to make
+> them per process.  The process context is (usually) available, and more
+> importantly, the object whose access is being mediated is readily
+> available with its security label.
+>
+>> There is likely to be some contention there between the security folk
+>> who probably won't like the idea that your security module can be
+>> different for different processes, and the people who want to provide
+>> access to security modules on the systems they want to host or consolidate.
+>
+> I think the current setup would work fine.  It's less likely that we'd
+> want a separate security module for each container than simply policy
+> that is container aware.
 
-But alas, sendfile(2) is defined as destination first:
+I think what we really want are stacked security modules.
 
-> ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count)
+I have not yet fully digested all of the requirements for multiple servers
+on the same machine but increasingly the security aspects look
+like a job for a security module.
 
-which begs the question, do we want to be different from sendfile(2), 
-and confuse a segment of the programmer populace?  :)
+Enforcing policies like container A cannot send signals to processes
+in container B or something like that.
 
-	Jeff
+Then inside of each container we could have the code that implements
+a containers internal security policy.
+
+At least one implementation Linux Jails by Serge E. Hallyn was done completely
+with security modules, and the code was pretty minimal.
 
 
+Eric

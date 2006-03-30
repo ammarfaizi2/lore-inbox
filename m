@@ -1,57 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbWC3GSq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWC3GT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751122AbWC3GSq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 01:18:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWC3GSq
+	id S1751117AbWC3GT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 01:19:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWC3GT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 01:18:46 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:16462 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751122AbWC3GSp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 01:18:45 -0500
-Date: Thu, 30 Mar 2006 08:18:53 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Garzik <jeff@garzik.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] splice support
-Message-ID: <20060330061852.GE13476@suse.de>
-References: <20060329122841.GC8186@suse.de> <20060329143758.607c1ccc.akpm@osdl.org> <Pine.LNX.4.64.0603291624420.27203@g5.osdl.org> <442B2EB2.4040401@garzik.org> <20060329172057.301a41ff.akpm@osdl.org>
+	Thu, 30 Mar 2006 01:19:28 -0500
+Received: from theorix.CeNTIE.NET.au ([202.9.6.84]:4752 "HELO
+	theorix.CeNTIE.NET.au") by vger.kernel.org with SMTP
+	id S1751117AbWC3GT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 01:19:27 -0500
+Subject: Re: 2.6.16-rt11 and low-latency audio xruns (interrupt latency
+	problem?)
+From: "Valin, Jean-Marc (ICT Centre, Marsfield)" <jean-marc.valin@csiro.au>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1143699333.15145.20.camel@mindpipe>
+References: <1143695638.7328.5.camel@theorix.CeNTIE.NET.au>
+	 <1143699333.15145.20.camel@mindpipe>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 30 Mar 2006 17:19:25 +1100
+Message-Id: <1143699565.7328.8.camel@theorix.CeNTIE.NET.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060329172057.301a41ff.akpm@osdl.org>
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29 2006, Andrew Morton wrote:
-> Jeff Garzik <jeff@garzik.org> wrote:
-> >
-> > Linus Torvalds wrote:
-> > > The "destination first" convention is insane. It only makes sense for 
-> > > assignments, and these aren't assignments.
-> > 
-> > I agree.
-> > 
-> > But alas, sendfile(2) is defined as destination first:
-> > 
-> > > ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count)
-> > 
-> > which begs the question, do we want to be different from sendfile(2), 
-> > and confuse a segment of the programmer populace?  :)
-> > 
-> 
-> strcpy, memcpy...
-> 
-> Obviously copy(from, to) is the sane way to do things, but yeah, I _think_
-> a C programmer would expect copy(to, from).
-> 
-> I don't think it matters much at all, really.  If they get it backwards
-> they'll notice pretty quickly ;)
+> It's possible that your hardware simply isn't capable of this and you'll
+> have to get a multichannel soundcard (more channels means you can use a
+> smaller buffer before hitting the lower limit of a PCI transfer) or use
+> a period of 128 samples or more.
 
-Yeah, I've always thought that the sendfile() arguments are stupidly
-transposed :-)
+>From the ALSA verbose mode, I can see that the hardware does accept as
+low as 8 samples per period -- and it actually works outside of the few
+xruns per minute. 
 
--- 
-Jens Axboe
-
+	Jean-Marc

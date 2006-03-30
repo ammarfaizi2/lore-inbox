@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWC3CYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWC3Cgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751448AbWC3CYz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 21:24:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWC3CYz
+	id S1751287AbWC3Cgr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 21:36:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWC3Cgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 21:24:55 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:3983 "EHLO watts.utsl.gen.nz")
-	by vger.kernel.org with ESMTP id S1751448AbWC3CYz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 21:24:55 -0500
-Message-ID: <442B4168.6070806@vilain.net>
-Date: Thu, 30 Mar 2006 14:24:40 +1200
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Wed, 29 Mar 2006 21:36:47 -0500
+Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:14424 "HELO
+	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751287AbWC3Cgq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 21:36:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=XOXJE2b/EJhmM6W6M5Wzwv7HOSk688cTVgApctByu7TbeOUufB7Bw1YvS0mWPQ63onMSMq7QlyjXYV8jfN3knMPgRCE7qc/kAcQSizJgm/gkM/S5EsG7cPogH7iJKZDZEFu6GWXe28zJ6NMugqmQgCE7igiqvw70tt7UzGKmJtM=  ;
+Message-ID: <442B358A.4060805@yahoo.com.au>
+Date: Thu, 30 Mar 2006 12:34:02 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       "Serge E. Hallyn" <serue@us.ibm.com>
-Subject: Re: [RFC] Virtualization steps
-References: <1143228339.19152.91.camel@localhost.localdomain>	<4428BB5C.3060803@tmr.com> <20060328085206.GA14089@MAIL.13thfloor.at>	<4428FB29.8020402@yahoo.com.au>	<20060328142639.GE14576@MAIL.13thfloor.at>	<44294BE4.2030409@yahoo.com.au>	<m1psk5kcpj.fsf@ebiederm.dsl.xmission.com> <442A26E9.20608@vilain.net>	<20060329182027.GB14724@sorel.sous-sol.org>	<442B0BFE.9080709@vilain.net>	<20060329225241.GO15997@sorel.sous-sol.org> <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+CC: Christoph Lameter <clameter@sgi.com>,
+       Zoltan Menyhart <Zoltan.Menyhart@free.fr>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Fix unlock_buffer() to work the same way as bit_unlock()
+References: <200603290645.k2T6jbg03728@unix-os.sc.intel.com>
+In-Reply-To: <200603290645.k2T6jbg03728@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+Chen, Kenneth W wrote:
 
->I think what we really want are stacked security modules.
+>Nick Piggin wrote on Tuesday, March 28, 2006 6:36 PM
 >
->I have not yet fully digested all of the requirements for multiple servers
->on the same machine but increasingly the security aspects look
->like a job for a security module.
+>>Hmm, not sure. Maybe a few new bitops with _lock / _unlock postfixes?
+>>For page lock and buffer lock we'd just need test_and_set_bit_lock,
+>>clear_bit_unlock, smp_mb__after_clear_bit_unlock.
+>>
+>>I don't know, _for_lock might be a better name. But it's getting long.
+>>
 >
->Enforcing policies like container A cannot send signals to processes
->in container B or something like that.
->  
+>I think kernel needs all 4 variants:
+>
+>clear_bit
+>clear_bit_lock
+>clear_bit_unlock
+>clear_bit_fence
+>
+>And the variant need to permutated on all other bit ops ...  I think it
+>would be indeed a better API and be more explicit about the ordering.
+>
 >
 
-We could even end up making security modules to implement standard unix
-security. ie, which processes can send any signal to other processes.
-Why hardcode the (!sender.user_id || (sender.user_id == target.user_id)
-) rule at all? That rule should be the default rule in a security module
-chain.
+We could just introduce them as required, though? clear_bit_fence shouldn't
+be required for ia64 any longer, if you change bitops to be full barriers,
+right?
 
-I just think that doing it this way is the wrong way around, but I guess
-I'm hardly qualified to speak on this. Aren't security modules supposed
-to be for custom security policy, not standard system semantics ?
+And for now, let's just not let people open critical sections unless doing
+a test_and_set, nor close them unless doing a plain clear?
 
-Sam.
+It seems that memory ordering model seems to be almost too much for people
+to cope with already, so would it be reasonable to require some performance
+justification before adding more?
+
+--
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

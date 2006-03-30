@@ -1,49 +1,269 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751237AbWC3HVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWC3HWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751237AbWC3HVl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 02:21:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWC3HVk
+	id S1750808AbWC3HWn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 02:22:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbWC3HWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 02:21:40 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:49593 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751203AbWC3HVk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 02:21:40 -0500
-Date: Thu, 30 Mar 2006 10:21:24 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Chris Leech <christopher.leech@intel.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH 2/9] I/OAT
-Message-ID: <20060330062124.GA8545@2ka.mipt.ru>
-References: <1143672844.27644.5.camel@black-lazer.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <1143672844.27644.5.camel@black-lazer.jf.intel.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 30 Mar 2006 10:21:25 +0400 (MSD)
+	Thu, 30 Mar 2006 02:22:43 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:10222 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S932080AbWC3HWm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 02:22:42 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH] deinline some larger functions from netdevice.h
+Date: Thu, 30 Mar 2006 10:21:48 +0300
+User-Agent: KMail/1.8.2
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_Mc4KEOI7pHi+J7Z"
+Message-Id: <200603301021.48925.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29, 2006 at 02:54:04PM -0800, Chris Leech (christopher.leech@intel.com) wrote:
-> [I/OAT] Driver for the Intel(R) I/OAT DMA engine
-> 
-> From: Chris Leech <christopher.leech@intel.com>
-> 
-> Adds a new ioatdma driver
-> 
-> Signed-off-by: Chris Leech <christopher.leech@intel.com>
+--Boundary-00=_Mc4KEOI7pHi+J7Z
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Let's do it again.
-Could you please describe how struct ioat_dma_chan channels are freed?
-For example when device is removed just after it has been added.
+Hi Andrew,
 
-ioat_probe() -> enumerate_dma_channels() (failures are ok now) ->
-kmalloc a lot of channels.
+Network folks did non comment on these two patches, let me try
+submitting them to you instead.
 
-ioat_remove() -> dma_async_device_unregister() which does not cleanup
-ioat_dma_chan channels, but only clients.
-It ends up in dma_async_device_cleanup() only.
+I hunted down some large inlines. This patch address those found
+in netdevice.h.
 
--- 
-	Evgeniy Polyakov
+On a allyesconfig'ured kernel:
+
+Size =A0Uses Wasted Name and definition
+=3D=3D=3D=3D=3D =3D=3D=3D=3D =3D=3D=3D=3D=3D=3D =3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=A0 =A095 =A0162 =A012075 netif_wake_queue =A0 =A0 =A0include/linux/netdevi=
+ce.h
+=A0 129 =A0 86 =A0 9265 dev_kfree_skb_any =A0 =A0 include/linux/netdevice.h
+=A0 127 =A0 56 =A0 5885 netif_device_attach =A0 include/linux/netdevice.h
+=A0 =A073 =A0 86 =A0 4505 dev_kfree_skb_irq =A0 =A0 include/linux/netdevice=
+=2Eh
+=A0 =A046 =A0 60 =A0 1534 netif_device_detach =A0 include/linux/netdevice.h
+=A0 119 =A0 16 =A0 1485 __netif_rx_schedule =A0 include/linux/netdevice.h
+=A0 143 =A0 =A05 =A0 =A0492 netif_rx_schedule =A0 =A0 include/linux/netdevi=
+ce.h
+=A0 =A081 =A0 =A07 =A0 =A0366 netif_schedule =A0 =A0 =A0 =A0include/linux/n=
+etdevice.h
+
+netif_wake_queue is big because __netif_schedule is a big inline:
+
+static inline void __netif_schedule(struct net_device *dev)
+{
+=A0 =A0 =A0 =A0 if (!test_and_set_bit(__LINK_STATE_SCHED, &dev->state)) {
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 unsigned long flags;
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct softnet_data *sd;
+
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 local_irq_save(flags);
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 sd =3D &__get_cpu_var(softnet_data);
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->next_sched =3D sd->output_queue;
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 sd->output_queue =3D dev;
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 raise_softirq_irqoff(NET_TX_SOFTIRQ);
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 local_irq_restore(flags);
+=A0 =A0 =A0 =A0 }
+}
+
+static inline void netif_wake_queue(struct net_device *dev)
+{
+#ifdef CONFIG_NETPOLL_TRAP
+=A0 =A0 =A0 =A0 if (netpoll_trap())
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return;
+#endif
+=A0 =A0 =A0 =A0 if (test_and_clear_bit(__LINK_STATE_XOFF, &dev->state))
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __netif_schedule(dev);
+}
+
+By de-inlining __netif_schedule we are saving a lot of text
+at each callsite of netif_wake_queue and netif_schedule.
+__netif_rx_schedule is also big, and it makes more sense to keep
+both of them out of line.
+
+Patch also deinlines dev_kfree_skb_any. We can deinline dev_kfree_skb_irq
+instead... oh well.
+
+netif_device_attach/detach are not hot paths, we can deinline them too.
+
+Signed-off-by: Denis Vlasenko <vda@ilport.com.ua>
+=2D-
+vda
+
+--Boundary-00=_Mc4KEOI7pHi+J7Z
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="netdevice.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="netdevice.patch"
+
+diff -urpN linux-2.6.16.org/include/linux/netdevice.h linux-2.6.16.deinline2/include/linux/netdevice.h
+--- linux-2.6.16.org/include/linux/netdevice.h	Mon Mar 20 07:53:29 2006
++++ linux-2.6.16.deinline2/include/linux/netdevice.h	Mon Mar 27 13:46:15 2006
+@@ -594,20 +594,7 @@ DECLARE_PER_CPU(struct softnet_data,soft
+ 
+ #define HAVE_NETIF_QUEUE
+ 
+-static inline void __netif_schedule(struct net_device *dev)
+-{
+-	if (!test_and_set_bit(__LINK_STATE_SCHED, &dev->state)) {
+-		unsigned long flags;
+-		struct softnet_data *sd;
+-
+-		local_irq_save(flags);
+-		sd = &__get_cpu_var(softnet_data);
+-		dev->next_sched = sd->output_queue;
+-		sd->output_queue = dev;
+-		raise_softirq_irqoff(NET_TX_SOFTIRQ);
+-		local_irq_restore(flags);
+-	}
+-}
++extern void __netif_schedule(struct net_device *dev);
+ 
+ static inline void netif_schedule(struct net_device *dev)
+ {
+@@ -671,13 +658,7 @@ static inline void dev_kfree_skb_irq(str
+ /* Use this variant in places where it could be invoked
+  * either from interrupt or non-interrupt context.
+  */
+-static inline void dev_kfree_skb_any(struct sk_buff *skb)
+-{
+-	if (in_irq() || irqs_disabled())
+-		dev_kfree_skb_irq(skb);
+-	else
+-		dev_kfree_skb(skb);
+-}
++extern void dev_kfree_skb_any(struct sk_buff *skb);
+ 
+ #define HAVE_NETIF_RX 1
+ extern int		netif_rx(struct sk_buff *skb);
+@@ -735,22 +716,9 @@ static inline int netif_device_present(s
+ 	return test_bit(__LINK_STATE_PRESENT, &dev->state);
+ }
+ 
+-static inline void netif_device_detach(struct net_device *dev)
+-{
+-	if (test_and_clear_bit(__LINK_STATE_PRESENT, &dev->state) &&
+-	    netif_running(dev)) {
+-		netif_stop_queue(dev);
+-	}
+-}
++extern void netif_device_detach(struct net_device *dev);
+ 
+-static inline void netif_device_attach(struct net_device *dev)
+-{
+-	if (!test_and_set_bit(__LINK_STATE_PRESENT, &dev->state) &&
+-	    netif_running(dev)) {
+-		netif_wake_queue(dev);
+- 		__netdev_watchdog_up(dev);
+-	}
+-}
++extern void netif_device_attach(struct net_device *dev);
+ 
+ /*
+  * Network interface message level settings
+@@ -818,20 +786,7 @@ static inline int netif_rx_schedule_prep
+  * already been called and returned 1.
+  */
+ 
+-static inline void __netif_rx_schedule(struct net_device *dev)
+-{
+-	unsigned long flags;
+-
+-	local_irq_save(flags);
+-	dev_hold(dev);
+-	list_add_tail(&dev->poll_list, &__get_cpu_var(softnet_data).poll_list);
+-	if (dev->quota < 0)
+-		dev->quota += dev->weight;
+-	else
+-		dev->quota = dev->weight;
+-	__raise_softirq_irqoff(NET_RX_SOFTIRQ);
+-	local_irq_restore(flags);
+-}
++extern void __netif_rx_schedule(struct net_device *dev);
+ 
+ /* Try to reschedule poll. Called by irq handler. */
+ 
+diff -urpN linux-2.6.16.org/net/core/dev.c linux-2.6.16.deinline2/net/core/dev.c
+--- linux-2.6.16.org/net/core/dev.c	Mon Mar 20 07:53:29 2006
++++ linux-2.6.16.deinline2/net/core/dev.c	Mon Mar 27 13:47:00 2006
+@@ -1073,6 +1073,70 @@ void dev_queue_xmit_nit(struct sk_buff *
+ 	rcu_read_unlock();
+ }
+ 
++
++void __netif_schedule(struct net_device *dev)
++{
++	if (!test_and_set_bit(__LINK_STATE_SCHED, &dev->state)) {
++		unsigned long flags;
++		struct softnet_data *sd;
++
++		local_irq_save(flags);
++		sd = &__get_cpu_var(softnet_data);
++		dev->next_sched = sd->output_queue;
++		sd->output_queue = dev;
++		raise_softirq_irqoff(NET_TX_SOFTIRQ);
++		local_irq_restore(flags);
++	}
++}
++EXPORT_SYMBOL(__netif_schedule);
++
++void __netif_rx_schedule(struct net_device *dev)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++	dev_hold(dev);
++	list_add_tail(&dev->poll_list, &__get_cpu_var(softnet_data).poll_list);
++	if (dev->quota < 0)
++		dev->quota += dev->weight;
++	else
++		dev->quota = dev->weight;
++	__raise_softirq_irqoff(NET_RX_SOFTIRQ);
++	local_irq_restore(flags);
++}
++EXPORT_SYMBOL(__netif_rx_schedule);
++
++void dev_kfree_skb_any(struct sk_buff *skb)
++{
++	if (in_irq() || irqs_disabled())
++		dev_kfree_skb_irq(skb);
++	else
++		dev_kfree_skb(skb);
++}
++EXPORT_SYMBOL(dev_kfree_skb_any);
++
++
++/* Hot-plugging. */
++void netif_device_detach(struct net_device *dev)
++{
++	if (test_and_clear_bit(__LINK_STATE_PRESENT, &dev->state) &&
++	    netif_running(dev)) {
++		netif_stop_queue(dev);
++	}
++}
++EXPORT_SYMBOL(netif_device_detach);
++
++void netif_device_attach(struct net_device *dev)
++{
++	if (!test_and_set_bit(__LINK_STATE_PRESENT, &dev->state) &&
++	    netif_running(dev)) {
++		netif_wake_queue(dev);
++ 		__netdev_watchdog_up(dev);
++	}
++}
++EXPORT_SYMBOL(netif_device_attach);
++
++
+ /*
+  * Invalidate hardware checksum when packet is to be mangled, and
+  * complete checksum manually on outgoing path.
+
+--Boundary-00=_Mc4KEOI7pHi+J7Z--

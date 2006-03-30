@@ -1,122 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWC3Au7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWC3Au5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751323AbWC3Au7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 19:50:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWC3Au6
+	id S1751319AbWC3Au5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 19:50:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWC3Au5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 19:50:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:30091 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751323AbWC3Au6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 19:50:58 -0500
-Date: Wed, 29 Mar 2006 16:50:52 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] splice support
-In-Reply-To: <20060329143758.607c1ccc.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0603291624420.27203@g5.osdl.org>
-References: <20060329122841.GC8186@suse.de> <20060329143758.607c1ccc.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 29 Mar 2006 19:50:57 -0500
+Received: from mga06.intel.com ([134.134.136.21]:28307 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751319AbWC3Au4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 19:50:56 -0500
+TrustExchangeSourcedMail: True
+X-ExchangeTrusted: True
+X-IronPort-AV: i="4.03,145,1141632000"; 
+   d="scan'208"; a="16872451:sNHT22537291"
+Date: Wed, 29 Mar 2006 16:50:53 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Con Kolivas <kernel@kolivas.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched: smpnice work around for active_load_balance()
+Message-ID: <20060329165052.C11376@unix-os.sc.intel.com>
+References: <4428D112.7050704@bigpond.net.au> <20060328112521.A27574@unix-os.sc.intel.com> <4429BC61.7020201@bigpond.net.au> <20060328185202.A1135@unix-os.sc.intel.com> <442A0235.1060305@bigpond.net.au> <20060329145242.A11376@unix-os.sc.intel.com> <442B1AE8.5030005@bigpond.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <442B1AE8.5030005@bigpond.net.au>; from pwil3058@bigpond.net.au on Thu, Mar 30, 2006 at 10:40:24AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 29 Mar 2006, Andrew Morton wrote:
+On Thu, Mar 30, 2006 at 10:40:24AM +1100, Peter Williams wrote:
+> Siddha, Suresh B wrote:
+> > On Wed, Mar 29, 2006 at 02:42:45PM +1100, Peter Williams wrote:
+> >> I meant that it doesn't explicitly address your problem.  What it does 
+> >> is ASSUME that failure of load balancing to move tasks is because there 
+> >> was exactly one task on the source run queue and that this makes it a 
+> >> suitable candidate to have that single task moved elsewhere in the blind 
+> >> hope that it may fix an HT/MC imbalance that may or may not exist.  In 
+> >> my mind this is very close to random.  
+> > 
+> > That so called assumption happens only when load balancing has
+> > failed for more than the domain specific cache_nice_tries. Only reason
+> > why it can fail so many times is because of all pinned tasks or only a single
+> > task is running on that particular CPU. load balancing code takes care of both
+> > these scenarios..
+> > 
+> > sched groups cpu_power controls the mechanism of implementing HT/MC
+> > optimizations in addition to active balance code... There is no randomness
+> > in this.
 > 
-> - splice() take a size_t length.  Should it be taking a 64-bit length?
+> The above explanation just increases my belief in the randomness of this 
+> solution.  This code is mostly done without locks and is therefore very 
+> racy and any assumptions made based on the number of times load 
+> balancing has failed etc. are highly speculative.
 
-No. You can't splice more than the kernel buffers anyway (ie currently 
-PIPE_BUFFERS pages, ie ~64kB, although in theory somebody could use large 
-pages for it), so 64-bit would be total overkill.
+Isn't it the same case with regular cpu load calculations during load
+balance?
 
-> - splice() doesn't check for (len < 0), like read() and write() do. 
->   Should it?
+> And even if there is only one task on the CPU there's no guarantee that
+> that CPU is in a package that meets the other requirements to make the 
+> move desirable.  So there's a good probability that you'll be moving 
+> tasks unnecessarily.
 
-Umm. More likely better to just do rw_verify_area() instead, which limits 
-it to MAX_INT. Although it probably doesn't matter, for the above obvious 
-reason anyway (ie we end up doing everything on a page-granular area 
-anyway).
+sched groups cpu_power and domain topology information cleanly
+encapsulates the imbalance identification and source/destination groups
+to fix the imbalance.
 
-> - Please don't call it `len'.  VFS has to deal with "lengths" which can
->   be in units of PAGE_CACHE_SIZE, fs blocksize, 512-bytes sectors or bytes,
->   and it gets confusing.  Our liking for variable names like `len' and
->   `count' just makes it worse.
+> It's a poor solution and it's being inflicted on architectures that 
+> don't need it.  Even if cache_nice_tries is used to suppress this 
+> behaviour on architectures that don't need it they have to carry the 
+> code in their kernel.
 
-I don't see that being problematic. I agree that if "len" is in pages, we 
-should call it something else (like 'npages'), but the fact that we 
-commonly use "len" for byte-lengths just sounds sane.
-
-> - why is the `flags' arg to sys_splice() unsigned long?  Can it be `int'?
-
-flags are always unsigned long, haven't you noticed? Besides, they should 
-never be signed, if you do bitmasks and shifting on them: "int" is 
-strictly worse than "unsigned" when we're talking flags.
-
-> - what does `flags' do, anyway?  The whole thing is undocumented and
->   almost uncommented.
-
-Right now "flags" doesn't do anything at all, and you should just pass in 
-zero.
-
-But if we ever do a "move" vs "copy" hint, we'll want something.
-
-> - the tmp_page trick in anon_pipe_buf_release() seems to be unrelated to
->   the splice() work.  It should be a separate patch and any peformance
->   testing (needed, please) should be decoupled from that change.
-
-It's not unrelated. Note the new "page_count() == 1" test.
-
-> - All the operations do foo(in, out, ...).  It's a bit more conventional
->   to do foo(out, in, ...).
-
-You think? What convention do we have? We don't say "cp dst src", we say 
-"cp src dst".
-
-The "destination first" convention is insane. It only makes sense for 
-assignments, and these aren't assignments.
-
-> - The logic in do_splice() hurts my brain.  "if `in' is a pipe then
->   splice from `in-as-a-pipe' to `out' else if `out' is a pipe then splice
->   from `in' to 'out-as-a-pipe'.  Make sense, I guess, but I do wonder "what
->   would happen if those tests were reversed?".  Nothing, I guess.
-
-Why would it matter? If both are pipes, then one is as good as the other. 
-You just want to pick the version that is potentially more efficient, if 
-there is any difference (and there is).
-
-However, I don't think Jens actually did the pipe->pipe case at all (ie 
-pipes don't have the "splice_read()" function yet).
+We can clearly throw CONFIG_SCHED_MC/SMT around that code.. Nick/Ingo
+do you see any issue?
 
 > 
-> - In pipe_to_file():
+> > 
+> > 
+> >> Also back to front and inefficient.
+> > 
+> > HT/MC imbalance is detected in a normal way.. A lightly loaded group
+> > finds an imbalance and tries to pull some load from a busy group (which
+> > is inline with normal load balance)... pull fails because the only task
+> > on that cpu is busy running and needs to go off the cpu (which is triggered
+> > by active load balance)... Scheduler load balance is generally done by a 
+> > pull mechansim and here (HT/MC) it is still a pull mechanism(triggering a 
+> > final push only because of the single running task) 
+> > 
+> > If you have any better generic and simple method, please let us know.
 > 
->   - Shouldn't it be using GFP_HIGHUSER()?
+> I gave an example in a previous e-mail.  Basically, at the end of 
+> scheduler_tick() if rebalance_tick() doesn't move any tasks (it would be 
+> foolish to contemplate moving tasks of the queue just after you've moved 
+> some there) and the run queue has exactly one running task and it's time 
+> for a HT/MC rebalance check on the package that this run queue belongs 
+> to then check that package to to see if it meets the rest of criteria 
+> for needing to lose some tasks.  If it does look for a package that is a 
+> suitable recipient for the moved task and if you find one then mark this 
+> run queue as needing active load balancing and arrange for its migration 
+> thread to be started.
+> 
+> Simple, direct and amenable to being only built on architectures that 
+> need the functionality.
 
-Some filesystems may not like having highpages. 
+First of all we will be doing unnecessary checks to see if there is
+an imbalance.. Current code triggers the checks and movement only when
+it is necessary.. And second, finding the correct destination cpu in the 
+presence of SMT and MC is really complicated.. Look at different examples
+in the OLS paper.. Domain topology provides all this info with no added
+complexity...
 
-I suspect it should be "mapping_gfp_mask(mapping)".
+> Another (more complex) solution that would also allow improvements to 
+> other HT related code (e.g. the sleeping dependent code) would be to 
+> modify the load balancing code so that all CPUs in a package share a run 
+> queue and load balancing is then done between packages.  As long as the 
+> number of CPUs in a package is small this shouldn't have scalability 
+> issues.  The big disadvantage of this approach is its complexity which 
+> is probably too great to contemplate doing it in 2.6.X kernels.
 
-> What does the feature do?  How would one use it in an application?  Is it
-> intended that it be generalised to other kinds of address_spaces?  If so,
-> which ones, and what implementation problems might we expect?
+Presence of SMT and MC, implementation of power-savings scheduler
+policy will present more challenges...
 
-You'd use it instead of "sendfile()".
-
-Think of it as a hell of a lot more capable than "sendfile()" can ever be. 
-It can take input from anything that just has "splice_read()", and move it 
-to anything else, without doing any extra copies.
-
-So imagine a streaming media thing, with a DVB card. Imaging wanting to 
-push all that data around the system without doing a "read()" into user 
-space and then a "write()" out to a file.
-
-Also, imagine doing a "tee()" system call that can duplicate the pages 
-from one pipe into two other pipes. By just incrementing the page count. 
-So that your media streaming application can stream to both a file _and_ 
-to live video (or whatever else) without doubling the buffering and doing 
-memcpy.
-
-		Linus
+thanks,
+suresh

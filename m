@@ -1,89 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWC3Iv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWC3IxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbWC3Iv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 03:51:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWC3Iv4
+	id S1751197AbWC3IxA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 03:53:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWC3IxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 03:51:56 -0500
-Received: from ns2.suse.de ([195.135.220.15]:19120 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751182AbWC3Ivz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 03:51:55 -0500
-Date: Thu, 30 Mar 2006 10:51:53 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Karsten Keil <kkeil@suse.de>,
-       Kai Germaschewski <kai.germaschewski@gmx.de>,
-       isdn4linux@listserv.isdn4linux.de
-Subject: Re: [PATCH] ISDN: fix a few resource leaks in sc_ioctl()
-Message-ID: <20060330085153.GA1033@pingi.kke.suse.de>
-Mail-Followup-To: Jesper Juhl <jesper.juhl@gmail.com>,
-	linux-kernel@vger.kernel.org, Karsten Keil <kkeil@suse.de>,
-	Kai Germaschewski <kai.germaschewski@gmx.de>,
-	isdn4linux@listserv.isdn4linux.de
-References: <200603261616.25741.jesper.juhl@gmail.com>
+	Thu, 30 Mar 2006 03:53:00 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:3468 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751197AbWC3Iw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 03:52:59 -0500
+Date: Thu, 30 Mar 2006 17:54:06 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH][RFC] splice support
+Message-Id: <20060330175406.fbd6d82c.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060329122841.GC8186@suse.de>
+References: <20060329122841.GC8186@suse.de>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603261616.25741.jesper.juhl@gmail.com>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.13-15.7-smp x86_64
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 26, 2006 at 04:16:25PM +0200, Jesper Juhl wrote:
-> 
-> Fix a few resource leaks in drivers/isdn/sc/ioctl.c::sc_ioctl()
-> 
-> 
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+On Wed, 29 Mar 2006 14:28:41 +0200
+Jens Axboe <axboe@suse.de> wrote:
+>
+> +	/*
+> +	 * Get as many pages from the page cache as possible..
+> +	 * Start IO on the page cache entries we create (we
+> +	 * can assume that any pre-existing ones we find have
+> +	 * already had IO started on them).
+> +	 */
+> +	i = find_get_pages(mapping, index, pages, array);
+> +
 
-Acked-by: Karsten Keil <kkeil@suse.de>
+It looks page caches in this array is hold by pipe until data is consumed.
+So..this page cannot be reclaimd or migrated and hot-removed :).
+I don't know about sendfile() but this looks client can hold server's memory,
+when server uses sendfile() 64k/conn.
 
-> ---
-> 
->  drivers/isdn/sc/ioctl.c |    9 +++++----
->  1 files changed, 5 insertions(+), 4 deletions(-)
-> 
-> --- linux-2.6.16-mm1-orig/drivers/isdn/sc/ioctl.c	2006-03-20 06:53:29.000000000 +0100
-> +++ linux-2.6.16-mm1/drivers/isdn/sc/ioctl.c	2006-03-26 16:11:49.000000000 +0200
-> @@ -46,7 +46,8 @@ int sc_ioctl(int card, scs_ioctl *data)
->  		pr_debug("%s: SCIOCRESET: ioctl received\n",
->  			sc_adapter[card]->devicename);
->  		sc_adapter[card]->StartOnReset = 0;
-> -		return (reset(card));
-> +		kfree(rcvmsg);
-> +		return reset(card);
->  	}
->  
->  	case SCIOCLOAD:
-> @@ -183,7 +184,7 @@ int sc_ioctl(int card, scs_ioctl *data)
->  				sc_adapter[card]->devicename);
->  
->  		spid = kmalloc(SCIOC_SPIDSIZE, GFP_KERNEL);
-> -		if(!spid) {
-> +		if (!spid) {
->  			kfree(rcvmsg);
->  			return -ENOMEM;
->  		}
-> @@ -195,10 +196,10 @@ int sc_ioctl(int card, scs_ioctl *data)
->  		if (!status) {
->  			pr_debug("%s: SCIOCGETSPID: command successful\n",
->  					sc_adapter[card]->devicename);
-> -		}
-> -		else {
-> +		} else {
->  			pr_debug("%s: SCIOCGETSPID: command failed (status = %d)\n",
->  				sc_adapter[card]->devicename, status);
-> +			kfree(spid);
->  			kfree(rcvmsg);
->  			return status;
->  		}
-> 
-> 
+Is there a way to force these pages to be freed ? or page reclaimer can
+know this page is held by splice ? (we need additional PG_flags to do this ?)
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+I think these pages are necessary to be held only when data in them is used.
+
+--Kame
+
+

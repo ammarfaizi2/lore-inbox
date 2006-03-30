@@ -1,79 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWC3QPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWC3QSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751230AbWC3QPr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 11:15:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWC3QPr
+	id S1751241AbWC3QSq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 11:18:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWC3QSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 11:15:47 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:12417 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751230AbWC3QPq (ORCPT
+	Thu, 30 Mar 2006 11:18:46 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:7892 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751241AbWC3QSp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 11:15:46 -0500
-Date: Thu, 30 Mar 2006 10:15:21 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Chris Wright <chrisw@sous-sol.org>,
-       David Lang <dlang@digitalinsight.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Sam Vilain <sam@vilain.net>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Virtualization steps
-Message-ID: <20060330161521.GH2403@sergelap.austin.ibm.com>
-References: <442A26E9.20608@vilain.net> <20060329182027.GB14724@sorel.sous-sol.org> <442B0BFE.9080709@vilain.net> <20060329225241.GO15997@sorel.sous-sol.org> <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com> <20060330013618.GS15997@sorel.sous-sol.org> <Pine.LNX.4.62.0603291738290.266@qynat.qvtvafvgr.pbz> <20060330020445.GT15997@sorel.sous-sol.org> <20060330143224.GC6933@sergelap.austin.ibm.com> <1143734855.24555.211.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Mar 2006 11:18:45 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [rfc] fix Kconfig, hotplug_cpu is needed for swsusp
+Date: Thu, 30 Mar 2006 18:17:36 +0200
+User-Agent: KMail/1.9.1
+Cc: Ashok Raj <ashok.raj@intel.com>,
+       Nigel Cunningham <ncunningham@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060329220808.GA1716@elf.ucw.cz> <20060329154748.A12897@unix-os.sc.intel.com> <20060330084153.GC8485@elf.ucw.cz>
+In-Reply-To: <20060330084153.GC8485@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1143734855.24555.211.camel@moss-spartans.epoch.ncsc.mil>
-User-Agent: Mutt/1.5.11
+Message-Id: <200603301817.37315.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Stephen Smalley (sds@tycho.nsa.gov):
-> On Thu, 2006-03-30 at 08:32 -0600, Serge E. Hallyn wrote:
-> > Frankly I thought, and am still not unconvinced, that containers owned
-> > by someone other than the system owner would/should never want to load
-> > their own LSMs, so that this wasn't a problem.  Isolation, as Chris has
-> > mentioned, would be taken care of by the very nature of namespaces.
+Hi,
+
+On Thursday 30 March 2006 10:41, Pavel Machek wrote:
+> > > So if you have a single core x86, you want X86_PC, and if you have HT or SMP, 
+> > > you want GENERICARCH? If so, could this be done via selects or depends or at 
+> > > least defaults in Kconfig?
 > > 
-> > There are of course two alternatives...  First, we might want to allow the
-> > machine admin to insert per-container/per-namespace LSMs.    To support
-> > this case, we would need a way for the admin to tag a container some way
-> > identifying it as being subject to a particular set of security_ops.  
+> > Yes, i think only SUSPEND_SMP is affect by this.
+
+That's correct.
+
+> > I thought Rafael cced Pavel during that exchange, maybe i missed.
+
+I did, but Pavel was travelling at that time (I think).
+
+[Well, I had the feeling it would cause problems but unfortunately I couldn't
+show that.]
+
+> > How about this patch.
 > > 
-> > Second, we might want container admins to insert LSMs.  In addition to
-> > a straightforward way of tagging subjects/objects with their container,
-> > we'd need to implement at least permissions for "may insert global LSM",
-> > "may insert container LSM", and "may not insert any LSM."  This might be
-> > sufficient if we trust userspace to always create full containers.
-> > Otherwise we might want to support meta-policy along the lines of "may
-> > authorize ptrace and mount hooks only", or even "not subject to the
-> > global inode_permission hook, and may create its own."  (yuck)
+> > Make SUSPEND_SMP depend on X86_GENERICARCH, since hotplug cpu requires !X86_PC 
+> > due to some race in IPI handling.  See more discussion here
 > > 
-> > But so much of this depends on how the namespaces/containers end up
-> > being implemented...
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=114303306032338&w=2
 > 
-> FWIW, SELinux now has a notion of a type hierarchy in its policy, so the
-> root admin can carve out a portion of the policy space and allow less
-> privileged admins to then define sub-types that are strictly constrained
-> by what was allowed to the parent type by the root admin.  This is
-> handled in userspace, with the policy mediation performed by a userspace
-> agent (daemon, policy management server), which then becomes the focal
-> point for all policy loading.
+> I can't see useful discussion there.
+> 
+> > Index: linux-2.6.16-git16/kernel/power/Kconfig
+> > ===================================================================
+> > --- linux-2.6.16-git16.orig/kernel/power/Kconfig
+> > +++ linux-2.6.16-git16/kernel/power/Kconfig
+> > @@ -96,5 +96,5 @@ config SWSUSP_ENCRYPT
+> > 
+> >  config SUSPEND_SMP
+> >         bool
+> > -       depends on HOTPLUG_CPU && X86 && PM
+> > +       depends on HOTPLUG_CPU && X86 && PM && X86_GENERICARCH
+> >         default y
+> 
+> 
+> Heh, great, so one more magic option that is required.
 
-Yes, my first response (which I cancelled) mentioned this as a possible
-solution.
+BTW it's i386-centric, as X86_GENERICARCH is not defined on x86_64, for
+example.
 
-The global admin could assign certain max privileges to 'container_b'.
-The admin in container_b could create container_b.root_t,
-container_b.user_t, etc, which would be limited by the container_b
-max perms.
+FUrther, the whole problem, as far as I can understand it, is i386-specific,
+so it should be resolved in the i386 architecture config rather than anywhere
+else.
 
-Presumably the policy daemon, running in container 0, could accept input
-from a socket from container 2, labeled appropriately automatically
-ensuring that all types created by the policy in container 2 are
-prefixed with container_b, and doing the obvious restrictions.
-
-Or something like that :)
-
--serge
+Greetings,
+Rafael

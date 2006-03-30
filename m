@@ -1,160 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWC3MOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWC3MQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWC3MOP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 07:14:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWC3MOO
+	id S932191AbWC3MQc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 07:16:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWC3MQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 07:14:14 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:43474 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932189AbWC3MOO (ORCPT
+	Thu, 30 Mar 2006 07:16:32 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:54598 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932191AbWC3MQb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 07:14:14 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Subject: Re: Suspend2-2.2.2 for 2.6.16.
-Date: Thu, 30 Mar 2006 14:13:05 +0200
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Mark Lord <lkml@rtr.ca>,
-       linux-kernel@vger.kernel.org
-References: <200603281601.22521.ncunningham@cyclades.com> <200603301134.49089.rjw@sisk.pl> <200603301939.45872.ncunningham@cyclades.com>
-In-Reply-To: <200603301939.45872.ncunningham@cyclades.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_St8KEPoMWVQnYYg"
-Message-Id: <200603301413.06408.rjw@sisk.pl>
+	Thu, 30 Mar 2006 07:16:31 -0500
+Date: Thu, 30 Mar 2006 14:16:39 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Subject: Re: [PATCH] splice support #2
+Message-ID: <20060330121638.GA13476@suse.de>
+References: <20060330100630.GT13476@suse.de> <20060330120055.GA10402@elte.hu> <20060330120512.GX13476@suse.de> <20060330121030.GA14621@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060330121030.GA14621@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_St8KEPoMWVQnYYg
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Hi,
-
-On Thursday 30 March 2006 11:39, Nigel Cunningham wrote:
-> On Thursday 30 March 2006 19:34, Rafael J. Wysocki wrote:
-> > Hi,
-> >
-> > On Wednesday 29 March 2006 12:50, Nigel Cunningham wrote:
-> > > Don't bother suggesting that to x86_64 owners: compilation is currently
-> > > broken in vbetool/lrmi.c (at least).
+On Thu, Mar 30 2006, Ingo Molnar wrote:
 > 
-> I get:
+> * Jens Axboe <axboe@suse.de> wrote:
+> 
+> > On Thu, Mar 30 2006, Ingo Molnar wrote:
+> > > 
+> > > * Jens Axboe <axboe@suse.de> wrote:
+> > > 
+> > > > Hi,
+> > > > 
+> > > > This patch should resolve all issues mentioned so far. I'd still like 
+> > > > to implement the page moving, but that should just be a separate 
+> > > > patch.
+> > > 
+> > > neat stuff. One question: why do we require fdin or fdout to be a pipe?  
+> > > Is there any fundamental problem with implementing what Larry's original 
+> > > paper described too: straight pagecache -> socket transfers? Without a
+> > > pipe intermediary forced inbetween. It only adds unnecessary overhead.
+> > 
+> > No, not a fundamental problem. I think I even hid that in some comment 
+> > in there, at least if it's decipharable by someone else than myself... 
+> > Basically I think it would be nice in the future to tidy this a little 
+> > bit and separate the actual container from the pipe itself - and have 
+> > the pipe just fill/use the same container.
+> 
+> why is there a container needed at all? If i splice pagecache->socket, 
+> we can use sendpage to send it off immediately. There is no need for any 
+> container - both the pagecache and sendpage use struct page, and when we 
+> iterate to create a container we might as well ->sendpage() those pages 
+> off immediately instead.
+> 
+> I agree with the purpose of making sys_splice() generic and in 
+> particular usable in scripts/shells where pipes are commonly used, but 
+> we should also fulfill the original promise (outlined 15 years ago or 
+> so) and not limit this to pipes. That way i could improve TUX to make 
+> use of it for example ;)
 
-Please try the Makefile that I use on x86_64 (attached).
+There's absolutely no reason why we can't add fd -> fd splicing as well,
+so no worries. Right now we just require a pipe transport. It's
+extendable :-)
 
-Greetings,
-Rafael
+-- 
+Jens Axboe
 
---Boundary-00=_St8KEPoMWVQnYYg
-Content-Type: text/x-makefile;
-  charset="utf-8";
-  name="Makefile"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Makefile"
-
-CONFIG_COMPRESS=yes
-CONFIG_ENCRYPT=yes
-ARCH=x86_64
-
-CC_FLAGS=-I/usr/local/include
-LD_FLAGS=-L/usr/local/lib
-
-ifdef CONFIG_COMPRESS
-CC_FLAGS	+= -DCONFIG_COMPRESS
-LD_FLAGS	+= -llzf
-endif
-ifdef CONFIG_ENCRYPT
-CC_FLAGS	+= -DCONFIG_ENCRYPT
-LD_FLAGS	+= -lcrypto
-endif
-
-SUSPEND_DIR=/usr/local/sbin
-CONFIG_DIR=/etc
-RESUME_DEVICE=<path_to_resume_device_file>
-BOOT_DIR=/boot
-
-ifdef CONFIG_ENCRYPT
-all: suspend suspend-keygen resume s2ram
-else
-all: suspend resume s2ram
-endif
-
-S2RAMOBJ=vt.o vbetool/lrmi.o vbetool/x86-common.o vbetool/vbetool.o radeontool.o dmidecode.o
-
-ifeq ($(ARCH), x86_64)
-S2RAMOBJ=vt.o vbetool/thunk.o vbetool/x86-common.o vbetool/vbetool.o vbetool/x86emu/libx86emu.a radeontool.o dmidecode.o
-endif
-
-clean:
-	rm -f suspend suspend-keygen suspend.keys resume s2ram *.o vbetool/*.o vbetool/x86emu/*.o vbetool/x86emu/*.a
-
-s2ram:	s2ram.c dmidecode.c whitelist.c radeontool.c $(S2RAMOBJ)
-	$(CC) -g -Wall -O2 s2ram.c $(S2RAMOBJ) -lpci -o s2ram
-
-vbetool/vbetool.o:	vbetool/vbetool.c
-	$(CC) -Wall -O2 -DS2RAM -c vbetool/vbetool.c -o vbetool/vbetool.o
-
-vbetool/lrmi.o:	vbetool/lrmi.c
-	$(CC) -Wall -O2 -c vbetool/lrmi.c -o vbetool/lrmi.o
-
-vbetool/x86-common.o:	vbetool/x86-common.c
-	$(CC) -Wall -O2 -c vbetool/x86-common.c -o vbetool/x86-common.o
-
-vbetool/x86emu/libx86emu.a:
-	make -C vbetool/x86emu -f makefile.linux
-
-vbetool/thunk.o:	vbetool/thunk.c
-	$(CC) -Wall -O2 -c vbetool/thunk.c -o vbetool/thunk.o
-
-dmidecode.o:	dmidecode.c
-	$(CC) -Wall -O2 -DS2RAM -c dmidecode.c -o dmidecode.o
-
-radeontool.o:	radeontool.c
-	$(CC) -Wall -O2 -DS2RAM -c radeontool.c -o radeontool.o
-
-md5.o:	md5.c md5.h
-	$(CC) -Wall -o md5.o -DHAVE_INTTYPES_H -DHAVE_STDINT_H -c md5.c
-
-encrypt.o:	encrypt.c encrypt.h md5.h
-	$(CC) -Wall -DHAVE_INTTYPES_H -DHAVE_STDINT_H $(CC_FLAGS) -c encrypt.c
-
-config.o:	config.c config.h
-	$(CC) -Wall $(CC_FLAGS) -c config.c
-
-vt.o:	vt.c vt.h
-	$(CC) -Wall -c vt.c
-
-suspend:	md5.o encrypt.o config.o suspend.c swsusp.h config.h encrypt.h md5.h s2ram.c dmidecode.c whitelist.c radeontool.c $(S2RAMOBJ)
-	$(CC) -g -O2 -DCONFIG_BOTH -Wall $(CC_FLAGS) md5.o encrypt.o config.o suspend.c s2ram.c -o suspend $(S2RAMOBJ) $(LD_FLAGS) -lpci
-
-resume:	md5.o encrypt.o config.o resume.c swsusp.h config.h encrypt.h md5.h
-	$(CC) -Wall $(CC_FLAGS) md5.o encrypt.o config.o resume.c -static -o resume $(LD_FLAGS)
-
-ifdef CONFIG_ENCRYPT
-suspend-keygen:	md5.o encrypt.o keygen.c encrypt.h md5.h
-	$(CC) -Wall -DHAVE_INTTYPES_H -DHAVE_STDINT_H -DCONFIG_ENCRYPT md5.o keygen.c -o suspend-keygen -lcrypto
-
-install-suspend:	suspend suspend-keygen conf/suspend.conf
-	if [ ! -c /dev/snapshot ]; then mknod /dev/snapshot c 10 231; fi
-	install --mode=755 suspend-keygen $(SUSPEND_DIR)
-	install --mode=755 suspend $(SUSPEND_DIR)
-	install --mode=644 conf/suspend.conf $(CONFIG_DIR)
-else
-install-suspend:	suspend conf/suspend.conf
-	if [ ! -c /dev/snapshot ]; then mknod /dev/snapshot c 10 231; fi
-	install --mode=755 suspend $(SUSPEND_DIR)
-	install --mode=644 conf/suspend.conf $(CONFIG_DIR)
-endif
-
-install-resume-initrd:	resume conf/suspend.conf
-	BOOT_DIR=$(BOOT_DIR) ./scripts/create-resume-initrd.sh $(RESUME_DEVICE)
-
-install-resume:		resume 
-	./scripts/install-resume.sh
-
-
---Boundary-00=_St8KEPoMWVQnYYg--

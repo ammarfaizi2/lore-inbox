@@ -1,48 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWC3O2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWC3O3w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbWC3O2R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 09:28:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbWC3O2R
+	id S932235AbWC3O3w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 09:29:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWC3O3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 09:28:17 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:22497 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932231AbWC3O2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 09:28:16 -0500
-Subject: [PATCH -rt] spin_lock in check_monotonic_clock must be raw
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 30 Mar 2006 09:28:04 -0500
-Message-Id: <1143728884.26540.31.camel@localhost.localdomain>
+	Thu, 30 Mar 2006 09:29:52 -0500
+Received: from john.hrz.tu-chemnitz.de ([134.109.132.2]:38328 "EHLO
+	john.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S932235AbWC3O3v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 09:29:51 -0500
+Date: Thu, 30 Mar 2006 16:29:50 +0200
+From: Steffen Klassert <klassert@mathematik.tu-chemnitz.de>
+To: Pete Clements <clem@clem.clem-digital.net>
+Cc: Andrew Morton <akpm@osdl.org>, klassert@mathematik.tu-chemnitz.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Correction: 2.6.16-git12 killed networking -- 3c900 card
+Message-ID: <20060330142950.GB8629@bayes.mathematik.tu-chemnitz.de>
+Mail-Followup-To: Pete Clements <clem@clem.clem-digital.net>,
+	Andrew Morton <akpm@osdl.org>, klassert@mathematik.tu-chemnitz.de,
+	linux-kernel@vger.kernel.org
+References: <20060329210904.3e1391bb.akpm@osdl.org> <200603301346.k2UDksdJ001794@clem.clem-digital.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603301346.k2UDksdJ001794@clem.clem-digital.net>
+User-Agent: Mutt/1.4.2.1i
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: --- Start der SpamAssassin 3.1.1 Textanalyse (-1.4 Punkte)
+	Fragen an/questions to:  Postmaster TU Chemnitz <postmaster@tu-chemnitz.de>
+	-1.4 ALL_TRUSTED            Nachricht wurde nur ueber vertrauenswuerdige Rechner
+	weitergeleitet
+	--- Ende der SpamAssassin Textanalyse
+X-Scan-Signature: e732f858814c7a815fb214039343b7c0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+On Thu, Mar 30, 2006 at 08:46:54AM -0500, Pete Clements wrote:
+> 
+> Looks like that is the case until -git12, which Steffen has identified.
+> Tested on git18 (with git12 fix) and looks good.
 
-The lock in check_monotonic_clock must be a raw spinlock since it is
-called from the hrtimer_interrupt.
+This Patch is a candidate for the final fix to make 10base2 work again. 
+Could you please try this together with Andrews 
+3c59x-collision-statistics-fix-fix.patch?
 
--- Steve
+Steffen
 
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-
-Index: linux-2.6.16-rt11/kernel/time/timeofday.c
-===================================================================
---- linux-2.6.16-rt11.orig/kernel/time/timeofday.c	2006-03-30 07:10:16.000000000 -0500
-+++ linux-2.6.16-rt11/kernel/time/timeofday.c	2006-03-30 09:23:07.000000000 -0500
-@@ -125,7 +125,7 @@
+--- linux-2.6.16-git12/drivers/net/3c59x.c	2006-03-30 14:16:23.000000000 +0200
++++ linux-2.6.16-git12-sk/drivers/net/3c59x.c	2006-03-30 15:27:13.000000000 +0200
+@@ -788,7 +788,7 @@
+ 	int options;						/* User-settable misc. driver options. */
+ 	unsigned int media_override:4, 		/* Passed-in media type. */
+ 		default_media:4,				/* Read from the EEPROM/Wn3_Config. */
+-		full_duplex:1, force_fd:1, autoselect:1,
++		full_duplex:1, autoselect:1,
+ 		bus_master:1,					/* Vortex can only do a fragment bus-m. */
+ 		full_bus_master_tx:1, full_bus_master_rx:2, /* Boomerang  */
+ 		flow_ctrl:1,					/* Use 802.3x flow control (PAUSE only) */
+@@ -1633,12 +1633,6 @@
+ 			((vp->full_duplex && vp->flow_ctrl && vp->partner_flow_ctrl) ?
+ 					0x100 : 0),
+ 			ioaddr + Wn3_MAC_Ctrl);
+-
+-	issue_and_wait(dev, TxReset);
+-	/*
+-	 * Don't reset the PHY - that upsets autonegotiation during DHCP operations.
+-	 */
+-	issue_and_wait(dev, RxReset|0x04);
+ }
  
- #ifdef CONFIG_PARANOID_GENERIC_TIME
- /* This will hurt performance! */
--static DEFINE_SPINLOCK(check_monotonic_lock);
-+static DEFINE_RAW_SPINLOCK(check_monotonic_lock);
- static ktime_t last_monotonic_ktime;
+ static void vortex_check_media(struct net_device *dev, unsigned int init)
+@@ -1663,7 +1657,7 @@
+ 	struct vortex_private *vp = netdev_priv(dev);
+ 	void __iomem *ioaddr = vp->ioaddr;
+ 	unsigned int config;
+-	int i;
++	int i, mii_reg1, mii_reg5;
  
- static ktime_t get_check_value(void)
-
+ 	if (VORTEX_PCI(vp)) {
+ 		pci_set_power_state(VORTEX_PCI(vp), PCI_D0);	/* Go active */
+@@ -1723,14 +1717,23 @@
+ 		printk(KERN_DEBUG "vortex_up(): writing 0x%x to InternalConfig\n", config);
+ 	iowrite32(config, ioaddr + Wn3_Config);
+ 
+-	netif_carrier_off(dev);
+ 	if (dev->if_port == XCVR_MII || dev->if_port == XCVR_NWAY) {
+ 		EL3WINDOW(4);
++		mii_reg1 = mdio_read(dev, vp->phys[0], MII_BMSR);
++		mii_reg5 = mdio_read(dev, vp->phys[0], MII_LPA);
++		vp->partner_flow_ctrl = ((mii_reg5 & 0x0400) != 0);
++
+ 		vortex_check_media(dev, 1);
+ 	}
+ 	else
+ 		vortex_set_duplex(dev);
+ 
++	issue_and_wait(dev, TxReset);
++	/*
++	 * Don't reset the PHY - that upsets autonegotiation during DHCP operations.
++	 */
++	issue_and_wait(dev, RxReset|0x04);
++
+ 
+ 	iowrite16(SetStatusEnb | 0x00, ioaddr + EL3_CMD);
+ 
 

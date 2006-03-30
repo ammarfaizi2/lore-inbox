@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWC3MHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWC3MLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbWC3MHE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 07:07:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWC3MHD
+	id S932144AbWC3MLR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 07:11:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWC3MLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 07:07:03 -0500
-Received: from spitalnik.net ([86.49.85.240]:35777 "EHLO
-	spity-nb.home.spitalnik.net") by vger.kernel.org with ESMTP
-	id S932183AbWC3MHB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 07:07:01 -0500
-From: Jan Spitalnik <jan@spitalnik.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: ACPI assign-busses
-Date: Thu, 30 Mar 2006 14:07:05 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <200603300223.13530.jan@spitalnik.net> <20060329192616.4644963e.akpm@osdl.org>
-In-Reply-To: <20060329192616.4644963e.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
+	Thu, 30 Mar 2006 07:11:17 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:3000 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S932144AbWC3MLQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 07:11:16 -0500
+Date: Thu, 30 Mar 2006 05:11:14 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Akinobu Mita <mita@miraclelinux.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Corey Minyard <minyard@mvista.com>, Ben Collins <bcollins@debian.org>,
+       Roland Dreier <rolandd@cisco.com>,
+       Alasdair Kergon <dm-devel@redhat.com>, Gerd Knorr <kraxel@bytesex.org>,
+       Paul Mackerras <paulus@samba.org>, Frank Pavlic <fpavlic@de.ibm.com>,
+       Andrew Vasquez <linux-driver@qlogic.com>,
+       Mikael Starvik <starvik@axis.com>, Greg Kroah-Hartman <greg@kroah.com>
+Subject: Re: [patch 7/8] drivers: use list_move()
+Message-ID: <20060330121114.GF13590@parisc-linux.org>
+References: <20060330081605.085383000@localhost.localdomain> <20060330081731.173381000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603301407.05848.jan@spitalnik.net>
+In-Reply-To: <20060330081731.173381000@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dne ètvrtek 30 bøezen 2006 05:26 Andrew Morton napsal(a):
-> Jan Spitalnik <jan@spitalnik.net> wrote:
-> > while playing with 2.6.16-git kernel from today, I've found out following
-> >  message in dmesg:
-> >
-> >  PCI: Bus #04 (-#07) is hidden behind transparent bridge #02 (-#04)
-> >  (try 'pci=assign-busses')
-> >
-> >  My notebook is HP nc6120 (Pent-M, ICH6). So i've rebooted with said
-> > parameter and dmesg changed a bit, finding new "resources" (not sure
-> > what's the proper terminology :)
->
-> Did everything actually work OK when pci=assign-busses was not used?
+On Thu, Mar 30, 2006 at 04:16:12PM +0800, Akinobu Mita wrote:
+>  drivers/scsi/ncr53c8xx.c                       |    3 +--
 
-Yeah, I didn't notice any change after using pci=assign-busses - the dmesg 
-shown changes in cardbus, among other things, so i tested my only pcmcia card 
-I have (cf card reader) and it worked well w/ and w/o the param.
+> Index: 2.6-git/drivers/scsi/ncr53c8xx.c
+> ===================================================================
+> --- 2.6-git.orig/drivers/scsi/ncr53c8xx.c
+> +++ 2.6-git/drivers/scsi/ncr53c8xx.c
+> @@ -5118,8 +5118,7 @@ static void ncr_ccb_skipped(struct ncb *
+>  		cp->host_status &= ~HS_SKIPMASK;
+>  		cp->start.schedule.l_paddr = 
+>  			cpu_to_scr(NCB_SCRIPT_PHYS (np, select));
+> -		list_del(&cp->link_ccbq);
+> -		list_add_tail(&cp->link_ccbq, &lp->skip_ccbq);
+> +		list_move_tail(&cp->link_ccbq, &lp->skip_ccbq);
+>  		if (cp->queued) {
+>  			--lp->queuedccbs;
+>  		}
 
--- 
-Jan Spitalnik
-jan@spitalnik.net
+ACK.  Thanks!

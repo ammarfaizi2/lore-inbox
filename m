@@ -1,69 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWC3Wgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWC3Wly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbWC3Wgj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 17:36:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWC3Wgj
+	id S1750706AbWC3Wly (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 17:41:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWC3Wly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 17:36:39 -0500
-Received: from xenotime.net ([66.160.160.81]:7856 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750756AbWC3Wgi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 17:36:38 -0500
-Date: Thu, 30 Mar 2006 14:35:26 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Beber <beber.lkml@gmail.com>
-cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
-       torvalds@osdl.org, beber@gna.org, akpm@osdl.org
-Subject: [PATCH] isd200: limit to BLK_DEV_IDE
-In-Reply-To: <4615f4910603301146x5496ccaai17bf5f4636c91c45@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0603301431560.26598@shark.he.net>
-References: <20060328075629.GA8083@kroah.com>
- <4615f4910603301146x5496ccaai17bf5f4636c91c45@mail.gmail.com>
+	Thu, 30 Mar 2006 17:41:54 -0500
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:11142 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1750706AbWC3Wlx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 17:41:53 -0500
+X-Sasl-enc: gKBFEDu+qbzk32S+bVaZ+E/ImxHNV74KxU+KAHbsjeZX 1143758490
+Message-ID: <13d501c6544b$23e023d0$c100a8c0@robm>
+From: "Robert Mueller" <robm@fastmail.fm>
+To: <linux-kernel@vger.kernel.org>,
+       "Reiserfs developers mail-list" <Reiserfs-Dev@namesys.com>,
+       "Oleg Drokin" <green@linuxhacker.ru>, "Chris Mason" <mason@suse.com>
+Cc: "Bron Gondwana" <brong@fastmail.fm>, "Jeremy Howard" <jhoward@fastmail.fm>
+Subject: System lockup with processes in D state in 2.6.16.1
+Date: Fri, 31 Mar 2006 08:41:38 +1000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=response
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2670
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Mar 2006, Beber wrote:
+Some time ago, we were seeing a problem in the kernel in the reiserfs code 
+where a lock inversion issue could cause processes to get stuck in D state, 
+requiring a system reboot.
 
-> On 3/28/06, Greg KH <gregkh@suse.de> wrote:
-> > We (the -stable team) are announcing the release of the 2.6.16.1 kernel.
->
-> I still get this error :
->
-> # make
-...
-> drivers/built-in.o: In function `isd200_Initialization':
-> : undefined reference to `ide_fix_driveid'
-> make: *** [.tmp_vmlinux1] Error 1
+http://marc.theaimsgroup.com/?t=108932517300001&r=1&w=2
 
-Was this reported earlier?
+This link describes the actual call path that causes the problem.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109035413201491&w=2
 
-Please test the patch below.
-It works for me with your config and various others.
+At the time, the solution we got was to add a patch the basically bypasses 
+reiser_file_write and just calls generic_file_write. This semed to fix the 
+problem and we've been running for over a year fine with that patch.
+
+Recent we brought the issue up again with some reiser people, who mentioned 
+that:
+
+> There was a patch for the problem referenced by this link. (By Cris Mason,
+> I think). This patch is long included into vanilla kernel
+> (2.6.15 certainly contains it). If you still see deadlocks, I guess you 
+> need
+> to gather some more info again (sysrq-t and friends).
+
+So we recently built 2.6.16.1, without the patch. However after just 1 hour 
+of stress testing with cyrus again, we were able to lock up the system with 
+lots of processes stuck in D state and a load running to 500+. The machine 
+had about 1500 processes running on it, and the dmesg buffer was only 1M, so 
+it seems we weren't able to capture all the traces with a sysrq-t, but 
+there's still a lot of info. I've put the sysrq-t and kernel config output 
+at the links below:
+
+http://kernel.robm.fastmail.fm/sysrq-t-2006-03-30-1.txt
+http://kernel.robm.fastmail.fm/kernel-config-2006-03-30-1.txt
+
+Any idea if this is related to the previous problem or is something 
+different?
+
+Rob
 
 
-
-From: Randy Dunlap <rdunlap@xenotime.net>
-
-Limit USB_STORAGE_ISD200 to whatever BLK_DEV_IDE and USB_STORAGE
-are set to (y, m) since isd200 calls ide_fix_driveid() in the
-BLK_DEV_IDE code.
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- drivers/usb/storage/Kconfig |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2616-z.orig/drivers/usb/storage/Kconfig
-+++ linux-2616-z/drivers/usb/storage/Kconfig
-@@ -48,7 +48,7 @@ config USB_STORAGE_FREECOM
-
- config USB_STORAGE_ISD200
- 	bool "ISD-200 USB/ATA Bridge support"
--	depends on USB_STORAGE && BLK_DEV_IDE
-+	depends on USB_STORAGE && (BLK_DEV_IDE=y || BLK_DEV_IDE=m && USB_STORAGE=m)
- 	---help---
- 	  Say Y here if you want to use USB Mass Store devices based
- 	  on the In-Systems Design ISD-200 USB/ATA bridge.

@@ -1,52 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbWC3Bzk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbWC3B4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751424AbWC3Bzk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 20:55:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWC3Bzk
+	id S1751427AbWC3B4o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 20:56:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWC3B4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 20:55:40 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:31648 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751424AbWC3Bzj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 20:55:39 -0500
-Date: Wed, 29 Mar 2006 17:54:46 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: cmm@us.ibm.com
-Cc: sho@tnes.nec.co.jp, Laurent.Vivier@bull.net, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/2]Extend ext3 filesystem limit from 8TB to 16TB
-Message-Id: <20060329175446.67149f32.akpm@osdl.org>
-In-Reply-To: <1143682730.4045.145.camel@dyn9047017067.beaverton.ibm.com>
-References: <20060325223358sho@rifu.tnes.nec.co.jp>
-	<1143485147.3970.23.camel@dyn9047017067.beaverton.ibm.com>
-	<20060327131049.2c6a5413.akpm@osdl.org>
-	<20060327225847.GC3756@localhost.localdomain>
-	<1143530126.11560.6.camel@openx2.frec.bull.fr>
-	<1143568905.3935.13.camel@dyn9047017067.beaverton.ibm.com>
-	<1143623605.5046.11.camel@openx2.frec.bull.fr>
-	<1143682730.4045.145.camel@dyn9047017067.beaverton.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Mar 2006 20:56:44 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:19926 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id S1751427AbWC3B4n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 20:56:43 -0500
+Date: Wed, 29 Mar 2006 17:41:01 -0800 (PST)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Chris Wright <chrisw@sous-sol.org>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>, Sam Vilain <sam@vilain.net>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>
+Subject: Re: [RFC] Virtualization steps
+In-Reply-To: <20060330013618.GS15997@sorel.sous-sol.org>
+Message-ID: <Pine.LNX.4.62.0603291738290.266@qynat.qvtvafvgr.pbz>
+References: <20060328085206.GA14089@MAIL.13thfloor.at>  <4428FB29.8020402@yahoo.com.au>
+ <20060328142639.GE14576@MAIL.13thfloor.at>  <44294BE4.2030409@yahoo.com.au>
+ <m1psk5kcpj.fsf@ebiederm.dsl.xmission.com>  <442A26E9.20608@vilain.net>
+ <20060329182027.GB14724@sorel.sous-sol.org>  <442B0BFE.9080709@vilain.net>
+ <20060329225241.GO15997@sorel.sous-sol.org>  <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com>
+ <20060330013618.GS15997@sorel.sous-sol.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mingming Cao <cmm@us.ibm.com> wrote:
+On Wed, 29 Mar 2006, Chris Wright wrote:
+
+> 
+> * Eric W. Biederman (ebiederm@xmission.com) wrote:
+>> Chris Wright <chrisw@sous-sol.org> writes:
+>>
+>>> * Sam Vilain (sam@vilain.net) wrote:
+>>>> extern struct security_operations *security_ops; in
+>>>> include/linux/security.h is the global I refer to.
+>>>
+>>> OK, I figured that's what you meant.  The top-level ops are similar in
+>>> nature to inode_ops in that there's not a real compelling reason to make
+>>> them per process.  The process context is (usually) available, and more
+>>> importantly, the object whose access is being mediated is readily
+>>> available with its security label.
+>>>
+>>>> There is likely to be some contention there between the security folk
+>>>> who probably won't like the idea that your security module can be
+>>>> different for different processes, and the people who want to provide
+>>>> access to security modules on the systems they want to host or consolidate.
+>>>
+>>> I think the current setup would work fine.  It's less likely that we'd
+>>> want a separate security module for each container than simply policy
+>>> that is container aware.
+>>
+>> I think what we really want are stacked security modules.
 >
-> The things need to be done to complete this work is the issue with
->  current percpu counter, which could not handle u32 type count well. 
+> I'm not convinced we need a new module for each container.  The module
+> is a policy enforcement engine, so give it a container aware policy and
+> you shouldn't need another module.
 
-I'm surprised there's much of a problem here.  It is a 32-bit value, so it
-should mainly be a matter of treating the return value from
-percpu_counter_read() as unsigned long.
+what if the people administering the container are different from the 
+people administering the host?
 
-However a stickier problem is when dealing with a filesystem which has,
-say, 0xffff_ff00 blocks.  Because percpu counters are approximate, and a
-counter which really has a value of 0xffff_feee might return 0x00000123. 
-What do we do then?
+in that case the people working in the container want to be able to 
+implement and change their own policy, and the people working on the host 
+don't want to have to implement changes to their main policy config (wtih 
+all the auditing that would be involved with it) every time a container 
+wants to change it's internal policy.
 
-Of course the simple option is to nuke the percpu counters in ext3 and use
-atomic_long_t (which is signed, so appropriate treat-it-as-unsigned code
-would be needed).  I doubt if the percpu counters in ext3 are gaining us
-much.
+I can definantly see where a container aware policy on the master would be 
+useful, but I can also see where the ability to nest seperate policies 
+would be useful.
+
+David Lang

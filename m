@@ -1,36 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWC3QSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWC3QTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751224AbWC3QSj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 11:18:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWC3QSj
+	id S1751325AbWC3QTk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 11:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWC3QTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 11:18:39 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:39092 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751224AbWC3QSi (ORCPT
+	Thu, 30 Mar 2006 11:19:40 -0500
+Received: from 200-233-239-107.xd-dynamic.ctbcnetsuper.com.br ([200.233.239.107]:20488
+	"EHLO 200-233-239-107.xd-dynamic.ctbcnetsuper.com.br")
+	by vger.kernel.org with ESMTP id S1751295AbWC3QTi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 11:18:38 -0500
-Message-ID: <442C04BE.5000602@RedHat.com>
-Date: Thu, 30 Mar 2006 11:18:06 -0500
-From: Steve Dickson <SteveD@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060130 Red Hat/1.7.12-1.4.2
-X-Accept-Language: en-us, en
+	Thu, 30 Mar 2006 11:19:38 -0500
+Message-ID: <001d01c65415$9788a900$9512000a@tzaQqWK>
+From: "Galusya" <nsh@33.east.ru>
+To: "linux-kernel-owner" <linux-kernel-owner@vger.kernel.org>
+Subject: Re[2]: Hello from Galusya
+Date: Thu, 30 Mar 2006 19:19:13 +0300
 MIME-Version: 1.0
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net
-Subject: Re: [NFS] Re: NFS/Kernel Problem: getfh failed: Operation not permitted
-References: <Pine.LNX.4.64.0603300813270.18696@p34> <1143728720.8074.41.camel@lade.trondhjem.org> <Pine.LNX.4.64.0603300929340.18696@p34>
-In-Reply-To: <Pine.LNX.4.64.0603300929340.18696@p34>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="windows-1251"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Piszcz wrote:
-> Not running RH9, but running RHEL WS3, Taroon Update 4, however, the 
-> nfs-utils is 1.0.6-33EL, I know there were many fixes in 1.0.7+, could 
-> nfs-utils be the problem?  The kernel version in question is 
-> 2.4.21-31.ELa1smp.
-Try updating your nfs-utils to 1.0.6-43EL....
+Hello .	
 
-steved.
+I want to start my first letter from a question: "Is it possible to be happy without LOVE?"
+I think that you will agree with me if the answer will be "NO WAY". Love is the most beautiful and exciting thing
+that may happen between man and woman! It inspires us only for doing positive things towards each other.
+One very famous writer said: "The beauty will rescue the world" i agree with his words but still i would add :
+" LOVE and Beauty will rescure the world". 
+I hope you agree with me that Love is a big notion.
+There's love to  God, to Mother, to a child to the country where you were born, and there's love that joins a man
+and woman for all their life. That is the LOVE i'm looking for! And i'm seeking for the man who is also eager to have
+this life long adventure full of surprises and new experience we can share together! Will you join me for this trip?
+I do realise that it should be very difficult to say "Yes" from the first letter having no idea about me.
+That's why i just offer to get to know each other better though correspondence that will help us to reveal many things
+about each other whether we mach perfectly or not. In addition you can look at my pictures and read some info about me here
+http://N.i-am-waiting4love.com/
+I hope you'll like what you see and read there.
+Well closing my first letter to you i just want to thank you for reading it and i really hope that you'll share
+my point of view on what i said above. I do really hope that you'll answer me soon.
+
+Yourth faithfully
+Galusya
+
+

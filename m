@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWC3Wgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWC3Wvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWC3Wgi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 17:36:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWC3Wgi
+	id S1750782AbWC3Wvn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 17:51:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWC3Wvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 17:36:38 -0500
-Received: from test-iport-3.cisco.com ([171.71.176.78]:13602 "EHLO
-	test-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S1750738AbWC3Wgi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 17:36:38 -0500
-To: "Bryan O'Sullivan" <bos@pathscale.com>, sam@ravnborg.org
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH 16 of 16] ipath - kbuild infrastructure
+	Thu, 30 Mar 2006 17:51:43 -0500
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:28052 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S1750782AbWC3Wvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 17:51:42 -0500
+X-IronPort-AV: i="4.03,148,1141632000"; 
+   d="scan'208"; a="265682214:sNHT29597286"
+To: openib-general@openib.org
+Cc: linux-kernel@vger.kernel.org
+Subject: updated InfiniBand 2.6.17 merge plans
 X-Message-Flag: Warning: May contain useful information
-References: <36bfb4f1ad322a8fb23e.1143674619@chalcedony.internal.keyresearch.com>
-	<adaek0j1w25.fsf@cisco.com>
-	<1143755751.24402.11.camel@chalcedony.internal.keyresearch.com>
+References: <ada7j6f8xwi.fsf@cisco.com>
 From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 30 Mar 2006 14:36:34 -0800
-In-Reply-To: <1143755751.24402.11.camel@chalcedony.internal.keyresearch.com> (Bryan O'Sullivan's message of "Thu, 30 Mar 2006 13:55:51 -0800")
-Message-ID: <ada64lv1rwt.fsf@cisco.com>
+Date: Thu, 30 Mar 2006 14:51:36 -0800
+In-Reply-To: <ada7j6f8xwi.fsf@cisco.com> (Roland Dreier's message of "Mon, 27 Mar 2006 11:56:13 -0800")
+Message-ID: <ada1wwj1r7r.fsf@cisco.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 30 Mar 2006 22:36:36.0139 (UTC) FILETIME=[672467B0:01C6544A]
+X-OriginalArrivalTime: 30 Mar 2006 22:51:39.0842 (UTC) FILETIME=[81CA8A20:01C6544C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Bryan> I did ask at one point whether the core driver should live
-    Bryan> in a directory in drivers/char/, since it's not really an
-    Bryan> IB driver at all, and just have the IB-specific stuff live
-    Bryan> in drivers/infiniband/hw/.
+OK, here's a quick update on 2.6.17 merge plans:
 
-I guess we could do that (now or later).
+ * PathScale ipath driver.  In my git tree at
 
-For now how about something minimal like the change below?
+   git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git ipath
 
-Sam, does this seem OK to you?  (The situation is that the IPATH_CORE
-source physically sits in drivers/infiniband/hw/ipath, but it is
-possible to enable IPATH_CORE without enabling INFINIBAND.  So we need
-to tell the build system to descend into drivers/infiniband if
-IPATH_CORE is enabled, even if INFINIBAND isn't enabled)
+   The new version looks good to me.  I'll merge it unless I hear an
+   objection to the latest code.
+
+ * RDMA CM.  In my git tree at
+
+   git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git rdma_cm
+
+   None of the users of this code look are to merge, and it looks like
+   there's some changes in the design happening now.  Seems like this
+   can and should wait for 2.6.18.
+
+ * IPoIB tunable ring sizes.  Still no patch yet.
+
+ * SRP FMRs.  I have a patch that I like, but it's not totally stable.
+   I may be hitting target bugs (ie in someone else's code).  On the
+   other hand I don't have any numbers showing a benefit, so I'm not
+   sure if it's worth merging this.
+
+ * (new since last time) Improved static rate handling.  I will get
+   this in.
+
+As before, if you care about any of this, let me know what you think.
+And if there's something not on this list and not in
+
+    git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git for-2.6.17
+
+please make sure I know about it, or it won't get merged.
 
 Thanks,
   Roland
-
-diff --git a/drivers/Makefile b/drivers/Makefile
-index 4249552..2449ec5 100644
---- a/drivers/Makefile
-+++ b/drivers/Makefile
-@@ -70,6 +70,7 @@ obj-$(CONFIG_EISA)		+= eisa/
- obj-$(CONFIG_CPU_FREQ)		+= cpufreq/
- obj-$(CONFIG_MMC)		+= mmc/
- obj-$(CONFIG_INFINIBAND)	+= infiniband/
-+obj-$(CONFIG_IPATH_CORE)	+= infiniband/
- obj-$(CONFIG_SGI_SN)		+= sn/
- obj-y				+= firmware/
- obj-$(CONFIG_CRYPTO)		+= crypto/

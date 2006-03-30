@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWC3LMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWC3LRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932175AbWC3LMN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 06:12:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWC3LMN
+	id S932177AbWC3LRE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 06:17:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWC3LRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 06:12:13 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:60612 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932175AbWC3LML
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 06:12:11 -0500
-Subject: Re: Schedule for adding pata to kernel?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: James Cloos <cloos@jhcloos.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Robert Hancock <hancockr@shaw.ca>
-In-Reply-To: <m3acb8eveg.fsf@lugabout.jhcloos.org>
-References: <5SuEq-6ut-39@gated-at.bofh.it> <5TDme-22E-27@gated-at.bofh.it>
-	 <5UAcC-3bd-3@gated-at.bofh.it> <5UH4o-4RJ-27@gated-at.bofh.it>
-	 <5UTfA-5uK-17@gated-at.bofh.it> <442A9A1C.1020004@shaw.ca>
-	 <m3acb8eveg.fsf@lugabout.jhcloos.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 30 Mar 2006 12:20:02 +0100
-Message-Id: <1143717602.29388.34.camel@localhost.localdomain>
+	Thu, 30 Mar 2006 06:17:04 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:50910 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932177AbWC3LRD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 06:17:03 -0500
+Date: Thu, 30 Mar 2006 03:16:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] splice support #2
+Message-Id: <20060330031643.028a28de.akpm@osdl.org>
+In-Reply-To: <20060330102419.GU13476@suse.de>
+References: <20060330100630.GT13476@suse.de>
+	<20060330021644.7f7c5282.akpm@osdl.org>
+	<20060330102419.GU13476@suse.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2006-03-29 at 17:30 -0500, James Cloos wrote:
-> My understanding is that with Alan's patch everything should be
-> using major 8, and that CONFIG_IDE is no longer required, yes?
+Jens Axboe <axboe@suse.de> wrote:
+>
+> > > +static void *page_cache_pipe_buf_map(struct file *file,
+>  > > +				     struct pipe_inode_info *info,
+>  > > +				     struct pipe_buffer *buf)
+>  > > +{
+>  > > +	struct page *page = buf->page;
+>  > > +
+>  > > +	lock_page(page);
+>  > > +
+>  > > +	if (!PageUptodate(page)) {
+>  > 
+>  >  || page->mapping == NULL
+> 
+>  Fixed
 
-This is correct both if you are just using the existing SATA drivers or
-if you are using the libata patch to drive older chips via libata.
+Actually that wasn't right.  If the page was truncated then we shouldn't
+return -EIO to userspace.  We should return zero, as this is the first
+page.
 
-You can mix and match but don't compile in two drivers for the same chip
-
-Alan
+Which means either returning an ERR_PTR here for -EIO or re-checking i_size
+in the caller.   Maybe the latter?
 

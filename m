@@ -1,124 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWC3Gsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWC3Gto@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751146AbWC3Gsg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 01:48:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWC3Gsg
+	id S932074AbWC3Gto (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 01:49:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWC3Gto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 01:48:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:22400 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751146AbWC3Gsf (ORCPT
+	Thu, 30 Mar 2006 01:49:44 -0500
+Received: from ns2.suse.de ([195.135.220.15]:56484 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751182AbWC3Gtn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 01:48:35 -0500
-Date: Wed, 29 Mar 2006 22:47:37 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: balbir@in.ibm.com
-Cc: nagar@watson.ibm.com, greg@kroah.com, arjan@infradead.org, hadi@cyberus.ca,
-       ak@suse.de, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [Patch 0/8] per-task delay accounting
-Message-Id: <20060329224737.071b9567.akpm@osdl.org>
-In-Reply-To: <20060330062357.GB18387@in.ibm.com>
-References: <442B271D.10208@watson.ibm.com>
-	<20060329210314.3db53aaa.akpm@osdl.org>
-	<20060330062357.GB18387@in.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 30 Mar 2006 01:49:43 -0500
+From: Neil Brown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Thu, 30 Mar 2006 17:48:03 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17451.32547.622388.387407@cse.unsw.edu.au>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 001 of 3] md: Don't clear bits in bitmap when writing to
+ one device fails during recovery.
+In-Reply-To: message from Andrew Morton on Wednesday March 29
+References: <20060330164933.25210.patches@notabene>
+	<1060330055237.25270@suse.de>
+	<20060329221209.20e7fd00.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh <balbir@in.ibm.com> wrote:
->
-> On Wed, Mar 29, 2006 at 09:03:14PM -0800, Andrew Morton wrote:
-> > Shailabh Nagar <nagar@watson.ibm.com> wrote:
-> > >
-> > > Could you please include the following delay accounting patches
-> > >  in -mm ?
-> > 
-> > I'm at a loss to evaluate the suitability of this work, really.  I always
-> > am when accounting patches come along.
-> > 
-> > There are various people and various groups working on various different
-> > things and there appears to be no coordination and little commonality of
-> > aims.  I worry that picking one submission basically at random will provide
-> > nothing which the other groups can work on to build up their feature.
-> > 
-> > On the other hand, we don't want to do nothing until some uber-grand
-> > all-singing, all-dancing statistics-gathering infrastructure comes along.
-> > 
-> > So I'm a bit stuck.  What I would like to see happen is that there be some
-> > coordination between the various stakeholders, and some vague plan which
-> > they're all happy with as a basis for the eventual grand solution.
-> > 
-> > We already have various bits and pieces of statistics gathering in the
-> > kernel and it's already a bit ad-hoc.  Adding more one-requirement-specific
-> > accounting code won't improve that situation.
-> > 
-> > But then, I said all this a year or two ago and nothing much has happened
-> > since then.  It's not your fault, but it's a problem.
-> > 
-> > Perhaps a good starting point would be a one-page bullet-point-form
-> > wishlist of all the accounting which people want to get out of the kernel,
-> > and a description of what the kernel<->user interface should look like. 
-> > Right now, I don't think we even have a picture of that.
-> > 
-> > We need a statistics maintainer, too, to pull together the plan,
-> > coordinate, push things forwards.  The first step would be to identify the
-> > stakeholders, come up with that page of bullet-points.
-> > 
-> > Then again, maybe the right thing to do is to keep adding low-impact
-> > requirement-specific statistics patches as they come along.  But if we're
-> > going to do it that way, we need an up-front reason for doing so, and I
-> > don't know what that would be.
-> > 
-> > See my problem?
+On Wednesday March 29, akpm@osdl.org wrote:
+> NeilBrown <neilb@suse.de> wrote:
+> >
+> > +	if (!uptodate) {
+> >  +		int sync_blocks = 0;
+> >  +		sector_t s = r1_bio->sector;
+> >  +		long sectors_to_go = r1_bio->sectors;
+> >  +		/* make sure these bits doesn't get cleared. */
+> >  +		do {
+> >  +			bitmap_end_sync(mddev->bitmap, r1_bio->sector,
+> >  +					&sync_blocks, 1);
+> >  +			s += sync_blocks;
+> >  +			sectors_to_go -= sync_blocks;
+> >  +		} while (sectors_to_go > 0);
+> >   		md_error(mddev, conf->mirrors[mirror].rdev);
+> >  +	}
 > 
-> One of the issues we have tried to address is the ability to provide some
-> form of a common ground for all the statistics to co-exist. Various methods
-> were discussed for exchanging data between kernel and user space, genetlink
-> was suggested often and the clear winner.
+> Can mddev->bitmap be NULL?
+
+Yes, normally it is.
+
 > 
-> To that end, we have created a taskstats.c file. Any subsystem wanting
-> to add their statistics and sending it to user space can add their own
-> types by extending taskstats.c (changing the version number) and creating
-> their own types using genetlink. They will have to do the following
+> If so, will the above loop do the right thing when this:
 > 
-> 1. Add statistics gathering in their own subsystem
-> 2. Add a type to taskstats.c, extend it and use data from (1) and send
->    it to user space.
+> void bitmap_end_sync(struct bitmap *bitmap, sector_t offset, int *blocks, int aborted)
+> {
+> 	bitmap_counter_t *bmc;
+> 	unsigned long flags;
+> /*
+> 	if (offset == 0) printk("bitmap_end_sync 0 (%d)\n", aborted);
+> */	if (bitmap == NULL) {
+> 		*blocks = 1024;
+> 		return;
+> 	}
 > 
-> The data from various subsystems can co-exist. I feel that this could serve as
-> the basic common infrastructure to begin with and refined later (depending on
-> the needs of other people).
-> 
+> triggers?
 
-Sounds fine to me, but I'm not a stakeholder.
+Yes.  sync_blocks will be 1024 (a nice big number) and the loop will
+exit quite quickly having done nothing (which is what it needs to do
+in that case).
+Ofcourse, if someone submits a bio for multiple thousands of sectors
+it will loop needlessly a few times, but do we ever generate bios that
+are even close to a megabyte?
+If so, that 1024 can be safely increased to 1<<20, and possibly higher
+but I would need to check.
 
-Trolling back through lse-tech gives us:
-
-pnotify:
-  Erik Jacobson <erikj@sgi.com>
-
-CSA accounting/PAGG/JOB:
-  Jay Lan <jlan@engr.sgi.com>
-  Limin Gu <limin@dbear.engr.sgi.com>
-
-per-process IO statistics:
-  Levent Serinol <lserinol@gmail.com>
-
-ELSA:
-  Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-
-per-cpu time statistics:
-  Erich Focht <efocht@ess.nec.de>
-
-Scalable statistics counters with /proc reporting:
-  Ravikiran G Thirumalai <kiran@in.ibm.com>
-  (Kiran feft IBM, but presumably the requirement lives on)
-
-There was a long thread "A common layer for Accounting packages".  Did it
-come to a conclusion?
-
-Anyway, if mostly everyone is mostly happy with what you propose then that
-it good news.
+Thanks for asking
+NeilBrown

@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWC3FEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWC3FEz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbWC3FEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 00:04:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbWC3FET
+	id S1750938AbWC3FEz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 00:04:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWC3FEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 00:04:19 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:13780 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750854AbWC3FEQ (ORCPT
+	Thu, 30 Mar 2006 00:04:54 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:23252 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750949AbWC3FEh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 00:04:16 -0500
-Date: Wed, 29 Mar 2006 21:03:14 -0800
+	Thu, 30 Mar 2006 00:04:37 -0500
+Date: Wed, 29 Mar 2006 21:04:21 -0800
 From: Andrew Morton <akpm@osdl.org>
 To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: greg@kroah.com, arjan@infradead.org, hadi@cyberus.ca, ak@suse.de,
-       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Patch 0/8] per-task delay accounting
-Message-Id: <20060329210314.3db53aaa.akpm@osdl.org>
-In-Reply-To: <442B271D.10208@watson.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Patch 7/8] proc interface for block I/O delays
+Message-Id: <20060329210421.549e319b.akpm@osdl.org>
+In-Reply-To: <442B2CCC.2080604@watson.ibm.com>
 References: <442B271D.10208@watson.ibm.com>
+	<442B2CCC.2080604@watson.ibm.com>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,43 +27,28 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Shailabh Nagar <nagar@watson.ibm.com> wrote:
 >
-> Could you please include the following delay accounting patches
->  in -mm ?
+> delayacct-procfs.patch
+> 
+> Export I/O delays seen by a task through /proc/<tgid>/stats
+> for use in top etc.
+> 
+> Note that delays for I/O done for swapping in pages (swapin I/O) is
+> clubbed together with all other I/O here (this is not the
+> case in the netlink interface where the swapin I/O is kept distinct)
+> 
+> ...
+>
+> +
+> +unsigned long long __delayacct_blkio_ticks(struct task_struct *tsk)
 
-I'm at a loss to evaluate the suitability of this work, really.  I always
-am when accounting patches come along.
+Why unsigned long long here, rather than __u64?
 
-There are various people and various groups working on various different
-things and there appears to be no coordination and little commonality of
-aims.  I worry that picking one submission basically at random will provide
-nothing which the other groups can work on to build up their feature.
+> +{
+> +	unsigned long long ret;
+> +
+> +	if (!tsk->delays)
+> +		return 0;
 
-On the other hand, we don't want to do nothing until some uber-grand
-all-singing, all-dancing statistics-gathering infrastructure comes along.
+delayacct_blkio_ticks() already checked that.
 
-So I'm a bit stuck.  What I would like to see happen is that there be some
-coordination between the various stakeholders, and some vague plan which
-they're all happy with as a basis for the eventual grand solution.
 
-We already have various bits and pieces of statistics gathering in the
-kernel and it's already a bit ad-hoc.  Adding more one-requirement-specific
-accounting code won't improve that situation.
-
-But then, I said all this a year or two ago and nothing much has happened
-since then.  It's not your fault, but it's a problem.
-
-Perhaps a good starting point would be a one-page bullet-point-form
-wishlist of all the accounting which people want to get out of the kernel,
-and a description of what the kernel<->user interface should look like. 
-Right now, I don't think we even have a picture of that.
-
-We need a statistics maintainer, too, to pull together the plan,
-coordinate, push things forwards.  The first step would be to identify the
-stakeholders, come up with that page of bullet-points.
-
-Then again, maybe the right thing to do is to keep adding low-impact
-requirement-specific statistics patches as they come along.  But if we're
-going to do it that way, we need an up-front reason for doing so, and I
-don't know what that would be.
-
-See my problem?

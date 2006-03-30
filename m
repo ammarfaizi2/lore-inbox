@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWC3K3x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWC3KcH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbWC3K3x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 05:29:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWC3K3x
+	id S932164AbWC3KcH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 05:32:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWC3KcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 05:29:53 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:56011 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932162AbWC3K3x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 05:29:53 -0500
-Subject: Re: why no option for 'ide=nocddma'?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Jack Howarth <howarth@bromo.msbb.uc.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <58cb370e0603300110p43c33040hdb95a8c871f4b50d@mail.gmail.com>
-References: <20060324184338.7A87511003E@bromo.msbb.uc.edu>
-	 <1143396437.2540.7.camel@localhost.localdomain>
-	 <58cb370e0603300110p43c33040hdb95a8c871f4b50d@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 30 Mar 2006 11:37:28 +0100
-Message-Id: <1143715048.29388.22.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 30 Mar 2006 05:32:07 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47794 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932164AbWC3KcG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 05:32:06 -0500
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Virtualization steps
+References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>
+	<1143228339.19152.91.camel@localhost.localdomain>
+	<4428BB5C.3060803@tmr.com> <20060328085206.GA14089@MAIL.13thfloor.at>
+	<4428FB29.8020402@yahoo.com.au>
+	<20060328142639.GE14576@MAIL.13thfloor.at>
+	<44294BE4.2030409@yahoo.com.au>
+	<m1psk5kcpj.fsf@ebiederm.dsl.xmission.com>
+	<442B4FD6.1050600@yahoo.com.au>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 30 Mar 2006 03:30:58 -0700
+In-Reply-To: <442B4FD6.1050600@yahoo.com.au> (Nick Piggin's message of "Thu,
+ 30 Mar 2006 14:26:14 +1100")
+Message-ID: <m1d5g4dy1p.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2006-03-30 at 11:10 +0200, Bartlomiej Zolnierkiewicz wrote:
-> EOF handling error has nothing to do with IDE layer,
-> the same problem can be reproduced using libata+PATA patches.
+Nick Piggin <nickpiggin@yahoo.com.au> writes:
 
-I've never been able to reproduce it with libata+PATA patches, with
-ide-scsi or with scsi devices. One clear reason for that is they handle
-partial write returns correctly which unpatched drivers/ide does not.
+> Yes... about that; if/when namespaces get into the kernel, you guys
+> are going to start pushing all sorts of per-container resource
+> control, right? Or will you be happy to leave most of that to VMs?
 
-So ide-cd goes  "Read 64K" and the CD goes "umm erp splat have 8K" and
-it tells the block layer "failed". ide-scsi goes "here is 8K, fail 56K"
-and also adjusts the volume size (without proper locking)
+That will certainly be an aspect of it, and that is one of the
+pieces of the ongoing discussion.  The out of tree implementations
+already do this.
 
-The underlying problem is the block layer certainly but ide-cd is an
-offender too. One simple hack for ide-cd would be to return success and
-fill the excess buffer space with "JensAxboeAteMyComputer"[1] or similar
-as padding providing the write fail is coming from end of media in the
-last 150K or so.
-
-Alan
-
-[1] I'm kidding about this, zero would be the right padding.
+What flavor of resource limits these will be I don't know.  That
+is a part of the discussion we are just coming to now.
 
 
+Eric

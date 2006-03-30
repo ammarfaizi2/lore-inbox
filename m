@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWC3T5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWC3UGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbWC3T5m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 14:57:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWC3T5m
+	id S1750796AbWC3UGO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 15:06:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbWC3UGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 14:57:42 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:9684 "EHLO
+	Thu, 30 Mar 2006 15:06:14 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:5333 "EHLO
 	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1750778AbWC3T5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 14:57:41 -0500
-In-Reply-To: <c0a09e5c0603301036s4e9a63e5v476d89ff8ba37760@mail.gmail.com>
-References: <20060329225505.25585.30392.stgit@gitlost.site> <20060329225548.25585.73037.stgit@gitlost.site> <8C52750C-8BC3-4815-834C-6DBEA714BA0F@kernel.crashing.org> <c0a09e5c0603301036s4e9a63e5v476d89ff8ba37760@mail.gmail.com>
+	id S1750796AbWC3UGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 15:06:14 -0500
+In-Reply-To: <20060329015738.5dbbb22d@inspiron>
+References: <20060329004122.64e91176@inspiron> <Pine.LNX.4.44.0603281654370.22846-100000@gate.crashing.org> <20060329014851.0f54da89@inspiron> <E135E70C-2F39-4007-B4CC-4D1AEBE2EE74@kernel.crashing.org> <20060329015738.5dbbb22d@inspiron>
 Mime-Version: 1.0 (Apple Message framework v746.3)
 Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <351C5BDA-D7E3-4257-B07E-ABDDCF254954@kernel.crashing.org>
-Cc: "Chris Leech" <christopher.leech@intel.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
+Message-Id: <207037DC-B6E0-44A5-84C5-14F77D17E174@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
 From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [PATCH 1/9] [I/OAT] DMA memcpy subsystem
-Date: Thu, 30 Mar 2006 13:57:51 -0600
-To: Andrew Grover <andy.grover@gmail.com>
+Subject: Re: [PATCH][UPDATE] rtc: Added support for ds1672 control
+Date: Thu, 30 Mar 2006 14:06:22 -0600
+To: Alessandro Zummo <alessandro.zummo@towertech.it>
 X-Mailer: Apple Mail (2.746.3)
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
@@ -34,23 +33,33 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mar 30, 2006, at 12:36 PM, Andrew Grover wrote:
+On Mar 28, 2006, at 5:57 PM, Alessandro Zummo wrote:
 
-> On 3/30/06, Kumar Gala <galak@kernel.crashing.org> wrote:
->> What is the utility of exporting memcpy_count, and bytes_transferred
->> to userspace via sysfs?  Is this really for debug (and thus should be
->> under debugfs?)
+> On Tue, 28 Mar 2006 17:52:00 -0600
+> Kumar Gala <galak@kernel.crashing.org> wrote:
 >
-> Well....it's true they're useful for debugging but I would put them in
-> the category of system statistics that shouldn't go in debugfs. I
-> think they are like /proc/interrupts' interrupt counts or the TX/RX
-> stats reported by ifconfig.
+>>>
+>>>  shouldn't this be
+>>>  if (err < 0)
+>>> 	return err;
+>>
+>> It could be, but doesn't need to.  ds1672_get_control either returns
+>> 0 (success) or non-zero (-EIO) for failure.
+>>
+>>>> +	/* read control register */
+>>>> +	err = ds1672_get_control(client, &control);
+>>>> +	if (err) {
+>>>> +		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
+>>>> +		goto exit_detach;
+>>>> +	}
+>>>
+>>>  ditto.
+>>
+>> ditto.
+>
+>  ok. will apply, thanks.
 
-Fair, but wouldn't it be better to have the association per client.
-
-Maybe leave the one as a summary and have a dir per client with  
-similar stats that are for each client and add a per channel summary  
-at the top level as well.
+Do you have a queue of patches for 2.6.17 or should I send this to  
+Andrew to get into 2.6.17?
 
 - kumar
-

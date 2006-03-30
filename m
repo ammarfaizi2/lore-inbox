@@ -1,128 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWC3IRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWC3IRn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWC3IRm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 03:17:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWC3IRm
+	id S932099AbWC3IRn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 03:17:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWC3IRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 03:17:42 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:27219 "EHLO
+	Thu, 30 Mar 2006 03:17:43 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:29779 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932098AbWC3IRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932099AbWC3IRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 30 Mar 2006 03:17:41 -0500
-Message-Id: <20060330081730.371346000@localhost.localdomain>
+Message-Id: <20060330081730.068972000@localhost.localdomain>
 References: <20060330081605.085383000@localhost.localdomain>
-Date: Thu, 30 Mar 2006 16:16:09 +0800
+Date: Thu, 30 Mar 2006 16:16:08 +0800
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-       "David S. Miller" <davem@davemloft.net>,
+Cc: akpm@osdl.org, Karsten Keil <kkeil@suse.de>,
+       Jan Harkes <jaharkes@cs.cmu.edu>, Jan Kara <jack@suse.cz>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Sridhar Samudrala <sri@us.ibm.com>,
        Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 4/8] arch: use list_move()
-Content-Disposition: inline; filename=list-move-arch.patch
+Subject: [patch 3/8] use list_add_tail() instead of list_add()
+Content-Disposition: inline; filename=list-add-tail.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch converts the combination of list_del(A) and list_add(A, B)
-to list_move(A, B) under arch/.
+This patch converts list_add(A, B.prev) to list_add_tail(A, &B)
+for readability.
 
-CC: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: "David S. Miller" <davem@davemloft.net>
+CC: Karsten Keil <kkeil@suse.de>
+CC: Jan Harkes <jaharkes@cs.cmu.edu>
+CC: Jan Kara <jack@suse.cz>
+CC: David Woodhouse <dwmw2@infradead.org>
+CC: Sridhar Samudrala <sri@us.ibm.com>
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
- arch/i386/pci/pcbios.c    |    6 ++----
- arch/m68k/mm/memory.c     |    6 ++----
- arch/m68k/sun3/sun3dvma.c |    6 ++----
- arch/sparc64/kernel/pci.c |    6 ++----
- 4 files changed, 8 insertions(+), 16 deletions(-)
+ drivers/isdn/capi/capi.c |    2 +-
+ fs/coda/psdev.c          |    2 +-
+ fs/coda/upcall.c         |    2 +-
+ fs/dcache.c              |    2 +-
+ fs/dquot.c               |    4 ++--
+ fs/jffs2/compr.c         |    4 ++--
+ net/sctp/outqueue.c      |    2 +-
+ 7 files changed, 9 insertions(+), 9 deletions(-)
 
-Index: 2.6-git/arch/i386/pci/pcbios.c
+Index: 2.6-git/drivers/isdn/capi/capi.c
 ===================================================================
---- 2.6-git.orig/arch/i386/pci/pcbios.c
-+++ 2.6-git/arch/i386/pci/pcbios.c
-@@ -371,8 +371,7 @@ void __devinit pcibios_sort(void)
- 			list_for_each(ln, &pci_devices) {
- 				d = pci_dev_g(ln);
- 				if (d->bus->number == bus && d->devfn == devfn) {
--					list_del(&d->global_list);
--					list_add_tail(&d->global_list, &sorted_devices);
-+					list_move_tail(&d->global_list, &sorted_devices);
- 					if (d == dev)
- 						found = 1;
- 					break;
-@@ -390,8 +389,7 @@ void __devinit pcibios_sort(void)
- 		if (!found) {
- 			printk(KERN_WARNING "PCI: Device %s not found by BIOS\n",
- 				pci_name(dev));
--			list_del(&dev->global_list);
--			list_add_tail(&dev->global_list, &sorted_devices);
-+			list_move_tail(&dev->global_list, &sorted_devices);
+--- 2.6-git.orig/drivers/isdn/capi/capi.c
++++ 2.6-git/drivers/isdn/capi/capi.c
+@@ -238,7 +238,7 @@ static struct capiminor *capiminor_alloc
+ 		
+ 		if (minor < capi_ttyminors) {
+ 			mp->minor = minor;
+-			list_add(&mp->list, p->list.prev);
++			list_add_tail(&mp->list, &p->list);
  		}
  	}
- 	list_splice(&sorted_devices, &pci_devices);
-Index: 2.6-git/arch/m68k/mm/memory.c
+ 		write_unlock_irqrestore(&capiminor_list_lock, flags);
+Index: 2.6-git/fs/coda/psdev.c
 ===================================================================
---- 2.6-git.orig/arch/m68k/mm/memory.c
-+++ 2.6-git/arch/m68k/mm/memory.c
-@@ -94,8 +94,7 @@ pmd_t *get_pointer_table (void)
- 	PD_MARKBITS(dp) = mask & ~tmp;
- 	if (!PD_MARKBITS(dp)) {
- 		/* move to end of list */
--		list_del(dp);
--		list_add_tail(dp, &ptable_list);
-+		list_move_tail(dp, &ptable_list);
+--- 2.6-git.orig/fs/coda/psdev.c
++++ 2.6-git/fs/coda/psdev.c
+@@ -259,7 +259,7 @@ static ssize_t coda_psdev_read(struct fi
+ 	/* If request was not a signal, enqueue and don't free */
+ 	if (!(req->uc_flags & REQ_ASYNC)) {
+ 		req->uc_flags |= REQ_READ;
+-		list_add(&(req->uc_chain), vcp->vc_processing.prev);
++		list_add_tail(&(req->uc_chain), &vcp->vc_processing);
+ 		goto out;
  	}
- 	return (pmd_t *) (page_address(PD_PAGE(dp)) + off);
- }
-@@ -123,8 +122,7 @@ int free_pointer_table (pmd_t *ptable)
- 		 * move this descriptor to the front of the list, since
- 		 * it has one or more free tables.
+ 
+Index: 2.6-git/fs/coda/upcall.c
+===================================================================
+--- 2.6-git.orig/fs/coda/upcall.c
++++ 2.6-git/fs/coda/upcall.c
+@@ -725,7 +725,7 @@ static int coda_upcall(struct coda_sb_in
+ 	((union inputArgs *)buffer)->ih.unique = req->uc_unique;
+ 
+ 	/* Append msg to pending queue and poke Venus. */
+-	list_add(&(req->uc_chain), vcommp->vc_pending.prev);
++	list_add_tail(&(req->uc_chain), &vcommp->vc_pending);
+         
+ 	wake_up_interruptible(&vcommp->vc_waitq);
+ 	/* We can be interrupted while we wait for Venus to process
+Index: 2.6-git/fs/dcache.c
+===================================================================
+--- 2.6-git.orig/fs/dcache.c
++++ 2.6-git/fs/dcache.c
+@@ -584,7 +584,7 @@ resume:
+ 		 * of the unused list for prune_dcache
  		 */
--		list_del(dp);
--		list_add(dp, &ptable_list);
-+		list_move(dp, &ptable_list);
- 	}
- 	return 0;
- }
-Index: 2.6-git/arch/m68k/sun3/sun3dvma.c
-===================================================================
---- 2.6-git.orig/arch/m68k/sun3/sun3dvma.c
-+++ 2.6-git/arch/m68k/sun3/sun3dvma.c
-@@ -119,8 +119,7 @@ static inline int refill(void)
- 		if(hole->end == prev->start) {
- 			hole->size += prev->size;
- 			hole->end = prev->end;
--			list_del(&(prev->list));
--			list_add(&(prev->list), &hole_cache);
-+			list_move(&(prev->list), &hole_cache);
- 			ret++;
+ 		if (!atomic_read(&dentry->d_count)) {
+-			list_add(&dentry->d_lru, dentry_unused.prev);
++			list_add_tail(&dentry->d_lru, &dentry_unused);
+ 			dentry_stat.nr_unused++;
+ 			found++;
  		}
- 
-@@ -182,8 +181,7 @@ static inline unsigned long get_baddr(in
- #endif
- 			return hole->end;
- 		} else if(hole->size == newlen) {
--			list_del(&(hole->list));
--			list_add(&(hole->list), &hole_cache);
-+			list_move(&(hole->list), &hole_cache);
- 			dvma_entry_use(hole->start) = newlen;
- #ifdef DVMA_DEBUG
- 			dvma_allocs++;
-Index: 2.6-git/arch/sparc64/kernel/pci.c
+Index: 2.6-git/fs/dquot.c
 ===================================================================
---- 2.6-git.orig/arch/sparc64/kernel/pci.c
-+++ 2.6-git/arch/sparc64/kernel/pci.c
-@@ -328,10 +328,8 @@ static void __init pci_reorder_devs(void
- 		struct pci_dev *pdev = pci_dev_g(walk);
- 		struct list_head *walk_next = walk->next;
+--- 2.6-git.orig/fs/dquot.c
++++ 2.6-git/fs/dquot.c
+@@ -250,7 +250,7 @@ static inline struct dquot *find_dquot(u
+ /* Add a dquot to the tail of the free list */
+ static inline void put_dquot_last(struct dquot *dquot)
+ {
+-	list_add(&dquot->dq_free, free_dquots.prev);
++	list_add_tail(&dquot->dq_free, &free_dquots);
+ 	dqstats.free_dquots++;
+ }
  
--		if (pdev->irq && (__irq_ino(pdev->irq) & 0x20)) {
--			list_del(walk);
--			list_add(walk, pci_onboard);
--		}
-+		if (pdev->irq && (__irq_ino(pdev->irq) & 0x20))
-+			list_move(walk, pci_onboard);
+@@ -266,7 +266,7 @@ static inline void put_inuse(struct dquo
+ {
+ 	/* We add to the back of inuse list so we don't have to restart
+ 	 * when traversing this list and we block */
+-	list_add(&dquot->dq_inuse, inuse_list.prev);
++	list_add_tail(&dquot->dq_inuse, &inuse_list);
+ 	dqstats.allocated_dquots++;
+ }
  
- 		walk = walk_next;
- 	}
+Index: 2.6-git/fs/jffs2/compr.c
+===================================================================
+--- 2.6-git.orig/fs/jffs2/compr.c
++++ 2.6-git/fs/jffs2/compr.c
+@@ -231,7 +231,7 @@ int jffs2_register_compressor(struct jff
+ 
+         list_for_each_entry(this, &jffs2_compressor_list, list) {
+                 if (this->priority < comp->priority) {
+-                        list_add(&comp->list, this->list.prev);
++                        list_add_tail(&comp->list, &this->list);
+                         goto out;
+                 }
+         }
+@@ -394,7 +394,7 @@ reinsert:
+         list_del(&comp->list);
+         list_for_each_entry(this, &jffs2_compressor_list, list) {
+                 if (this->priority < comp->priority) {
+-                        list_add(&comp->list, this->list.prev);
++                        list_add_tail(&comp->list, &this->list);
+                         spin_unlock(&jffs2_compressor_list_lock);
+                         return 0;
+                 }
+Index: 2.6-git/net/sctp/outqueue.c
+===================================================================
+--- 2.6-git.orig/net/sctp/outqueue.c
++++ 2.6-git/net/sctp/outqueue.c
+@@ -370,7 +370,7 @@ static void sctp_insert_list(struct list
+ 		lchunk = list_entry(pos, struct sctp_chunk, transmitted_list);
+ 		ltsn = ntohl(lchunk->subh.data_hdr->tsn);
+ 		if (TSN_lt(ntsn, ltsn)) {
+-			list_add(new, pos->prev);
++			list_add_tail(new, pos);
+ 			done = 1;
+ 			break;
+ 		}
 
 --

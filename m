@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWC3PJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWC3PNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbWC3PJl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 10:09:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWC3PJl
+	id S1750776AbWC3PNj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 10:13:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWC3PNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 10:09:41 -0500
-Received: from pat.uio.no ([129.240.10.6]:65484 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1750784AbWC3PJk (ORCPT
+	Thu, 30 Mar 2006 10:13:39 -0500
+Received: from lucidpixels.com ([66.45.37.187]:21450 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1750776AbWC3PNj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 10:09:40 -0500
+	Thu, 30 Mar 2006 10:13:39 -0500
+Date: Thu, 30 Mar 2006 10:13:38 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
 Subject: Re: NFS/Kernel Problem: getfh failed: Operation not permitted
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.64.0603300949000.18696@p34>
-References: <Pine.LNX.4.64.0603300813270.18696@p34>
-	 <1143728720.8074.41.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.64.0603300929340.18696@p34>
-	 <1143729766.8074.49.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.64.0603300949000.18696@p34>
-Content-Type: text/plain
-Date: Thu, 30 Mar 2006 10:09:24 -0500
-Message-Id: <1143731364.8074.53.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.707, required 12,
-	autolearn=disabled, AWL 1.11, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+In-Reply-To: <1143731364.8074.53.camel@lade.trondhjem.org>
+Message-ID: <Pine.LNX.4.64.0603301011160.18696@p34>
+References: <Pine.LNX.4.64.0603300813270.18696@p34> 
+ <1143728720.8074.41.camel@lade.trondhjem.org>  <Pine.LNX.4.64.0603300929340.18696@p34>
+  <1143729766.8074.49.camel@lade.trondhjem.org>  <Pine.LNX.4.64.0603300949000.18696@p34>
+ <1143731364.8074.53.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-30 at 09:50 -0500, Justin Piszcz wrote:
-> I tried an exportfs -rv and it did not help.  Any other suggestions?
+On Thu, 30 Mar 2006, Trond Myklebust wrote:
 
-Did the output from 'exportfs -rv' match with the contents
-of /etc/exports? If so, did it also match with the contents
-of /var/lib/nfs/xtab and /proc/fs/nfs/exports?
+> On Thu, 2006-03-30 at 09:50 -0500, Justin Piszcz wrote:
+>> I tried an exportfs -rv and it did not help.  Any other suggestions?
+>
+> Did the output from 'exportfs -rv' match with the contents
+> of /etc/exports? If so, did it also match with the contents
+> of /var/lib/nfs/xtab and /proc/fs/nfs/exports?
+>
+> Cheers,
+>  Trond
+>
 
-Cheers,
-  Trond
+In the /etc/exports file, I have an entry that looks like this:
+/path	specific-host-001(ro,root_squash,no_sync)
+/path	specific-host-002((ro,root_squash,no_sync)
+/path	*(ro,root_squash,no_sync)
+
+So while there are only three entries, there are:
+
+cat /proc/fs/nfs/exports | wc -> 566
+cat /var/lib/nfs/xtab | wc -> 564
+
+Entries per file.
+
+Is this more of a kernel or nfsutils issue at this point?
 

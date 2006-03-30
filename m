@@ -1,135 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWC3Act@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWC3Adw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751300AbWC3Act (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 19:32:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbWC3Acs
+	id S1751301AbWC3Adw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 19:33:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWC3Adv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 19:32:48 -0500
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:50713 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1751300AbWC3Acr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 19:32:47 -0500
-Message-ID: <442B271D.10208@watson.ibm.com>
-Date: Wed, 29 Mar 2006 19:32:29 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
+	Wed, 29 Mar 2006 19:33:51 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:41887 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1751301AbWC3Adv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 19:33:51 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: Ashok Raj <ashok.raj@intel.com>
+Subject: Re: [rfc] fix Kconfig, hotplug_cpu is needed for swsusp
+Date: Thu, 30 Mar 2006 10:32:27 +1000
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org, rjw@sisk.pl
+References: <20060329220808.GA1716@elf.ucw.cz> <200603300953.32298.ncunningham@cyclades.com> <20060329161258.A13186@unix-os.sc.intel.com>
+In-Reply-To: <20060329161258.A13186@unix-os.sc.intel.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Greg KH <greg@kroah.com>, Arjan van de Ven <arjan@infradead.org>,
-       Jamal <hadi@cyberus.ca>, Andi Kleen <ak@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Patch 0/8] per-task delay accounting 
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed;
+  boundary="nextPart1592196.Le3P8lMxlp";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200603301032.32862.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+--nextPart1592196.Le3P8lMxlp
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Could you please include the following delay accounting patches
-in -mm ?
+Hi.
 
-The patches have gone through several iterations on lkml and
-numerous comments raised by reviewers have been addressed
+On Thursday 30 March 2006 10:12, Ashok Raj wrote:
+> On Thu, Mar 30, 2006 at 09:53:26AM +1000, Nigel Cunningham wrote:
+> > >  config SUSPEND_SMP
+> > >         bool
+> > > -       depends on HOTPLUG_CPU && X86 && PM
+> > > +       depends on HOTPLUG_CPU && X86 && PM && X86_GENERICARCH
+> > >         default y
+> >
+> > Sounds like the right approach to me, but I think it's better to use
+> > selects. I reckon that if the user selects SMP and then selects suspend
+> > support, everything else required should be automatic. If we do too many
+> > 'depends on's, they have to mess about figuring out what they haven't
+> > selected yet and why they can't find the option to suspend. Most people
+> > don't seem to know about '/' in make menuconfig.
+>
+> I tried the same with HOTPLUG_CPU as well, to just say
+>
+> select X86_GENERICARCH
+>
+> but problem was this didnt enforce the selection, i.e user still could go
+> and revert the selection made automatic for him, i.e go ahead and select
+> X86_PC, and it would still leave the HOTPLUG_CPU=3Dy around. I thought
+> "depends" sort of forces the selection.
+>
+> Maybe i didnt try correctly, if you have alternatives please do, actually
+> even for HOTPLUG_CPU if this could be made automatic select, and at the
+> same time enforced strictly, thats great.
+>
+> (for e.g i shoud;t be able to select X86_PC=3Dy and leave
+> CONFIG_HOTPLUG_CPU=3Dy around)
 
-- several netlink interface comments (Jamal)
-- block I/O collection method (Arjan)
-- block I/O delays export through /proc (Andi)
-- performance issues (Greg) (just addressed, see below)
-- GPL headers (Arjan)
+I tried too, with the same results. It seems to me that the problem is that=
+=20
+Kconfig doesn't enforce select for choices in the same way that it does for=
+=20
+bools. Should this be filed as a bug with the Kconfig guys?
 
-Most of the descriptions of the patches are either in the
-patch itself or in the documentation patch at the end.
+Regards,
 
-Thanks
---Shailabh
+Nigel
 
+--nextPart1592196.Le3P8lMxlp
+Content-Type: application/pgp-signature
 
-Patch series
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-delayacct-setup.patch
-delayacct-blkio-swapin.patch
-delayacct-schedstats.patch
-genetlink-utils.patch
-delayacct-genetlink.patch
-delayacct-virtcpu.patch
-delayacct-procfs.patch
-delayacct-doc.patch
+iD8DBQBEKycgN0y+n1M3mo0RAhqtAKCsM5Ya4rM/bymtHguEvNIn3tiUZQCcC0Rw
+UjTbB0Pxi6Kc5zkVkHb5ptc=
+=chkq
+-----END PGP SIGNATURE-----
 
-
-
-Results highlights
-
-- No statistically significant performance degradation is seen in
-  kernbench, hackbench and large OLTP benchmark when delay
-  accounting is configured.
-
-  The overheads of configuring delay accounting,
-  without enabling at boot time, are statistically negligible
-  for hackbench and a large OLTP benchmark and negative
-  (i.e. performance improves) in kernbench.
-
-- Similar lack of degradation is seen in kernbench and hackbench
-  even when delay accounting is enabled at boot.
-
-  No data could be collected for the large OLTP benchmark (efforts
-  ongoing).
-
-Legend
-
-Base
-	Vanilla 2.6.16 kernel
-	without any patches applied
-+patch	
-	Delay accounting configured
-	but not enabled at boot
-+patch+enable
-	Delay accounting enabled at boot
-	but no stats read
-
-
-
-Time	Elapsed time, averaged over 10 runs
-Stddev	Standard deviation of elapsed times
-Ovhd	% difference of elapsed time with respect to base kernel
-t-value	Used to measure statistical significance
-	of difference of two mean values (in this
-	case mean elapsed time). Low t-values indicate
-	insignificant difference. The t-values here were
-	calculated at 95% confidence interval using the tool at
-	http://www.polarismr.com/education/tools_stat_diff_means.html
-
-
-Hackbench
----------
-200 groups, using pipes
-Elapsed time, in seconds, lower better
-
-		Ovhd	Time 	Stddev	Ovhd significant (t-value)
-Base		0%	43.483	0.178	na
-+patch		0.1%	43.517	0.265	No (0.337)
-+patch+enable	0.3%	43.629	0.167	No (1.892)
-
-Kernbench
----------
-Average of 10 iterations
-Elapsed time, in seconds, lower better
-
-		Ovhd	Time 	Stddev	Ovhd significant (t-value)
-Base		0%	196.704	0.459	na
-+patch		-0.5%	195.812	0.477	Yes (4.261)
-+patch+enable	0.02%	196.752 0.356	No (0.261)
-
-
-Large OLTP benchmark
---------------------
-An industry standard large database online transaction processing
-workload was run with delay accounting patches configured
-ON and OFF.
-
-The performance degradation of delay accounting was about 0.2%,
-which was well within the normal range of variation between
-similar runs.
-
-No runs were taken with delay accounting enabled at boot time.
+--nextPart1592196.Le3P8lMxlp--

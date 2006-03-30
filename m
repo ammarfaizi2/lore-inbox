@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWC3Qvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWC3Qw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbWC3Qvi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 11:51:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWC3Qvi
+	id S1751171AbWC3Qw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 11:52:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWC3Qw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 11:51:38 -0500
-Received: from lucidpixels.com ([66.45.37.187]:40584 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1751169AbWC3Qvi (ORCPT
+	Thu, 30 Mar 2006 11:52:28 -0500
+Received: from node8.mtu.edu ([141.219.69.8]:17571 "EHLO node8.mtu.edu")
+	by vger.kernel.org with ESMTP id S1751171AbWC3Qw2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 11:51:38 -0500
-Date: Thu, 30 Mar 2006 11:51:36 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: Steve Dickson <SteveD@redhat.com>
-cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net
-Subject: Re: [NFS] Re: NFS/Kernel Problem: getfh failed: Operation not
- permitted
-In-Reply-To: <442C04BE.5000602@RedHat.com>
-Message-ID: <Pine.LNX.4.64.0603301151200.18696@p34>
-References: <Pine.LNX.4.64.0603300813270.18696@p34> <1143728720.8074.41.camel@lade.trondhjem.org>
- <Pine.LNX.4.64.0603300929340.18696@p34> <442C04BE.5000602@RedHat.com>
+	Thu, 30 Mar 2006 11:52:28 -0500
+Date: Thu, 30 Mar 2006 11:52:25 -0500
+From: Jon DeVree <jadevree@mtu.edu>
+To: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: How to determine the start of DATA segment
+Message-ID: <20060330165225.GA24074@tesla.setec>
+References: <728201270603300837g60eefb65u8b55df910b86f6c4@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="W/nzBZO5zC0uMSeA"
+Content-Disposition: inline
+In-Reply-To: <728201270603300837g60eefb65u8b55df910b86f6c4@mail.gmail.com>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.3.0.1, Antispam-Data: 2006.03.30.083108
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CD 0, __CT 0, __CTYPE_HAS_BOUNDARY 0, __CTYPE_MULTIPART 0, __HAS_MSGID 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, I will give this a try sometime soon and hopefully it'll fix the 
-issue :)
 
-Justin.
+--W/nzBZO5zC0uMSeA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 30 Mar 2006, Steve Dickson wrote:
+On Thu, Mar 30, 2006 at 10:37:25AM -0600, Ram Gupta wrote:
+> Is there a system call or library function which a process can use to
+> determine the start of its data segment . I need to know the start of
+> the data segment so that process does not cross its DATA limit. Using
+> this information & sbrk it knows how much data space is already used &
+> how much it can grow further without crossing the limit.
 
-> Justin Piszcz wrote:
->> Not running RH9, but running RHEL WS3, Taroon Update 4, however, the 
->> nfs-utils is 1.0.6-33EL, I know there were many fixes in 1.0.7+, could 
->> nfs-utils be the problem?  The kernel version in question is 
->> 2.4.21-31.ELa1smp.
-> Try updating your nfs-utils to 1.0.6-43EL....
->
-> steved.
->
+I think getrlimit() might be what you are looking for.
+--=20
+Jon
+"RISC architecture is gonna change everything." -Kate Libby
+
+--W/nzBZO5zC0uMSeA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFELAzJ4m3oE/xVNJ4RAp3hAJ4lZJagbsHrH0dSAYMrbbBpFRp3lgCfSMT4
+yI5zAjUCcQPHktDBRpPkcfc=
+=nREz
+-----END PGP SIGNATURE-----
+
+--W/nzBZO5zC0uMSeA--

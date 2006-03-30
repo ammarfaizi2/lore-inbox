@@ -1,50 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWC3IA1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWC3IBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbWC3IA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 03:00:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWC3IA1
+	id S1751320AbWC3IBj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 03:01:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWC3IBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 03:00:27 -0500
-Received: from mx1.suse.de ([195.135.220.2]:52670 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932090AbWC3IA1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 03:00:27 -0500
-From: Neil Brown <neilb@suse.de>
-To: akpm@osdl.org
-Date: Thu, 30 Mar 2006 18:58:46 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Mar 2006 03:01:38 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:41130 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1751320AbWC3IBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 03:01:37 -0500
+In-Reply-To: <c0a09e5c0603291505h10f062d5qd6e1861ef052d07b@mail.gmail.com>
+References: <20060311022759.3950.58788.stgit@gitlost.site> <20060311022919.3950.43835.stgit@gitlost.site> <2FF801BB-F96C-4864-AC44-09B4B92531F7@kernel.crashing.org> <c0a09e5c0603281044i57730c66ye08c45aadd352cf8@mail.gmail.com> <D760971F-3C6A-400B-99EA-E95358B37F82@kernel.crashing.org> <c0a09e5c0603281401uaeea6aci57054aef444a5e1@mail.gmail.com> <3B202D51-1683-465D-AE3D-DE301017BD69@kernel.crashing.org> <c0a09e5c0603291505h10f062d5qd6e1861ef052d07b@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <F9901EAA-FA85-4C9C-94F5-BE6A9C62A4A4@kernel.crashing.org>
+Cc: "Chris Leech" <christopher.leech@intel.com>,
+       "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-Message-ID: <17451.36790.450410.79788@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, drepper@redhat.com, mtk-manpages@gmx.net,
-       nickpiggin@yahoo.com.au
-Subject: Re: [patch 1/1] sys_sync_file_range()
-In-Reply-To: message from akpm@osdl.org on Wednesday March 29
-References: <200603300741.k2U7fQLe002202@shell0.pdx.osdl.net>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH 1/8] [I/OAT] DMA memcpy subsystem
+Date: Thu, 30 Mar 2006 02:01:50 -0600
+To: "Andrew Grover" <andy.grover@gmail.com>
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday March 29, akpm@osdl.org wrote:
-> 
-> From: Andrew Morton <akpm@osdl.org>
-> 
-> Remove the recently-added LINUX_FADV_ASYNC_WRITE and LINUX_FADV_WRITE_WAIT
-> fadvise() additions, do it in a new sys_sync_file_range() syscall
-> instead. 
 
-Hmmm... any chance this could be split into a sys_sync_file_range and
-a vfs_sync_file_range which takes a 'struct file*' and does less (or
-no) sanity checking, so I can call it from nfsd?
+On Mar 29, 2006, at 5:05 PM, Andrew Grover wrote:
 
-Currently I implement COMMIT (which has a range) with a by messing
-around with filemap_fdatawrite and filemap_fdatawait (ignoring the
-range) and I'd rather than a vfs helper.
+> On 3/28/06, Kumar Gala <galak@kernel.crashing.org> wrote:
+>> Do you only get callback when a channel is available?
+>
+> Yes
+>
+>> How do you
+>> decide to do to provide PIO to the client?
+>
+> The client is responsible for using any channels it gets, or falling
+> back to memcpy() if it doesn't get any. (I don't understand how PIO
+> comes into the picture..?)
 
-And in nfsd I call filp->f_op->fsync between the two.  Doesn't
-sys_sync_file_range need to call into the filesystem at all?
+I was under the impression that the DMA engine would provide a "sync"  
+cpu based memcpy (PIO) if a real HW channel wasn't avail, if this is  
+left to the client that's fine.  So how does the client know he  
+should use normal memcpy()?
 
-NeilBrown
+>> A client should only request multiple channel to handle multiple
+>> concurrent operations.
+>
+> Correct, if there aren't any CPU concurrency issues then 1 channel
+> will use the device's full bandwidth (unless some other client has
+> acquired the other channels and is using them, of course.)
+>
+>>> This gets around the problem of DMA clients registering (and  
+>>> therefore
+>>> not getting) channels simply because they init before the DMA device
+>>> is discovered.
+>>
+>> What do you expect to happen in a system in which the channels are
+>> over subscribed?
+>>
+>> Do you expect the DMA device driver to handle scheduling of channels
+>> between multiple clients?
+>
+> It does the simplest thing that could possibly work right now:
+> channels are allocated first come first serve. When there is a need,
+> it should be straightforward to allow multiple clients to share DMA
+> channels.
+
+Sounds good for a start.  Have you given any thoughts on handling  
+priorities between clients?
+
+I need to take a look at the latest patches. How would you guys like  
+modifications?
+
+- k

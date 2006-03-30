@@ -1,53 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWC3QCz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWC3QDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750783AbWC3QCz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 11:02:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbWC3QCz
+	id S1750702AbWC3QDU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 11:03:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWC3QDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 11:02:55 -0500
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:48607 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1750783AbWC3QCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 11:02:54 -0500
-Date: Thu, 30 Mar 2006 18:02:52 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Con Kolivas <kernel@kolivas.org>, john stultz <johnstul@us.ibm.com>,
-       bert hubert <bert.hubert@netherlabs.nl>, linux-kernel@vger.kernel.org,
-       george@mvista.com, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] PM-Timer: doesn't use workaround if chipset is not buggy
-Message-ID: <20060330160252.GA8767@rhlx01.fht-esslingen.de>
-References: <20060320122449.GA29718@outpost.ds9a.nl> <1142968999.4281.4.camel@leatherman> <8764m7xzqg.fsf@duaron.myhome.or.jp> <200603221121.16168.kernel@kolivas.org> <87hd5qmi1d.fsf_-_@duaron.myhome.or.jp> <20060323170413.GA20234@rhlx01.fht-esslingen.de> <871wwtja30.fsf@duaron.myhome.or.jp> <20060330115315.GA15375@rhlx01.fht-esslingen.de> <878xqsrljx.fsf@duaron.myhome.or.jp>
+	Thu, 30 Mar 2006 11:03:19 -0500
+Received: from zombie.ncsc.mil ([144.51.88.131]:35021 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1750702AbWC3QDI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 11:03:08 -0500
+Subject: Re: [RFC] Virtualization steps
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Reply-To: sds@tycho.nsa.gov
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, David Lang <dlang@digitalinsight.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Sam Vilain <sam@vilain.net>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060330143224.GC6933@sergelap.austin.ibm.com>
+References: <44294BE4.2030409@yahoo.com.au>
+	 <m1psk5kcpj.fsf@ebiederm.dsl.xmission.com> <442A26E9.20608@vilain.net>
+	 <20060329182027.GB14724@sorel.sous-sol.org> <442B0BFE.9080709@vilain.net>
+	 <20060329225241.GO15997@sorel.sous-sol.org>
+	 <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com>
+	 <20060330013618.GS15997@sorel.sous-sol.org>
+	 <Pine.LNX.4.62.0603291738290.266@qynat.qvtvafvgr.pbz>
+	 <20060330020445.GT15997@sorel.sous-sol.org>
+	 <20060330143224.GC6933@sergelap.austin.ibm.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Thu, 30 Mar 2006 11:07:35 -0500
+Message-Id: <1143734855.24555.211.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <878xqsrljx.fsf@duaron.myhome.or.jp>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Fri, Mar 31, 2006 at 12:37:06AM +0900, OGAWA Hirofumi wrote:
-> Andreas Mohr <andi@rhlx01.fht-esslingen.de> writes:
+On Thu, 2006-03-30 at 08:32 -0600, Serge E. Hallyn wrote:
+> Frankly I thought, and am still not unconvinced, that containers owned
+> by someone other than the system owner would/should never want to load
+> their own LSMs, so that this wasn't a problem.  Isolation, as Chris has
+> mentioned, would be taken care of by the very nature of namespaces.
 > 
-> > What further steps should now be taken for this patch to be included
-> > in a sufficiently official kernel in some form?
+> There are of course two alternatives...  First, we might want to allow the
+> machine admin to insert per-container/per-namespace LSMs.    To support
+> this case, we would need a way for the admin to tag a container some way
+> identifying it as being subject to a particular set of security_ops.  
 > 
-> This patch was included into Linus's tree. Thanks.
+> Second, we might want container admins to insert LSMs.  In addition to
+> a straightforward way of tagging subjects/objects with their container,
+> we'd need to implement at least permissions for "may insert global LSM",
+> "may insert container LSM", and "may not insert any LSM."  This might be
+> sufficient if we trust userspace to always create full containers.
+> Otherwise we might want to support meta-policy along the lines of "may
+> authorize ptrace and mount hooks only", or even "not subject to the
+> global inode_permission hook, and may create its own."  (yuck)
+> 
+> But so much of this depends on how the namespaces/containers end up
+> being implemented...
 
-Sorry, I totally hadn't expected this to have gone in already, otherwise
-I'd certainly have verified that. But indeed the patch seemed quite ok
-already...
-
-Oh well, seems Denis Vlasenko (coincidentally quite well-known to me)
-now is not the only one having issues with patch status ;)
-
-Andreas Mohr
+FWIW, SELinux now has a notion of a type hierarchy in its policy, so the
+root admin can carve out a portion of the policy space and allow less
+privileged admins to then define sub-types that are strictly constrained
+by what was allowed to the parent type by the root admin.  This is
+handled in userspace, with the policy mediation performed by a userspace
+agent (daemon, policy management server), which then becomes the focal
+point for all policy loading.
 
 -- 
-No programming skills!? Why not help translate many Linux applications! 
-https://launchpad.ubuntu.com/rosetta
-(or alternatively buy nicely packaged Linux distros/OSS software to help
-support Linux developers creating shiny new things for you?)
+Stephen Smalley
+National Security Agency
+

@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWC3SxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWC3Sw0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbWC3SxV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 13:53:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWC3SxV
+	id S1750717AbWC3Sw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 13:52:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWC3Sw0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 13:53:21 -0500
-Received: from zproxy.gmail.com ([64.233.162.193]:15152 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750731AbWC3SxU convert rfc822-to-8bit
+	Thu, 30 Mar 2006 13:52:26 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:5248 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750717AbWC3SwZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 13:53:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=uVPRGSN/KCmbf9U3VnQLQ2prsLlZFIiiwH7TV9FJi477hb+5s5tcL3V12UJwgpIWoHZUECxwcANTqzw7xhDS2q4/TGGLOXpF50L/tbVU+O2qDrLjJWY5vi8Y4K6UD+ACnIpadVzBKmi2NtpPX6XpOBhtA4i0N6XQdbgtqK8J14c=
-Message-ID: <4d8e3fd30603301053h31bf53aayed1e8c94b8cea500@mail.gmail.com>
-Date: Thu, 30 Mar 2006 20:53:19 +0200
-From: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: No automount of USB stick with latest kernel
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 30 Mar 2006 13:52:25 -0500
+Date: Thu, 30 Mar 2006 10:53:34 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, David Lang <dlang@digitalinsight.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Sam Vilain <sam@vilain.net>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Virtualization steps
+Message-ID: <20060330185334.GW15997@sorel.sous-sol.org>
+References: <m1psk5kcpj.fsf@ebiederm.dsl.xmission.com> <442A26E9.20608@vilain.net> <20060329182027.GB14724@sorel.sous-sol.org> <442B0BFE.9080709@vilain.net> <20060329225241.GO15997@sorel.sous-sol.org> <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com> <20060330013618.GS15997@sorel.sous-sol.org> <Pine.LNX.4.62.0603291738290.266@qynat.qvtvafvgr.pbz> <20060330020445.GT15997@sorel.sous-sol.org> <20060330143224.GC6933@sergelap.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060330143224.GC6933@sergelap.austin.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-it has been a long time since the last time I used a vanilla kernel
-(more then 1 year) so I cannot say when this problem came up.
+* Serge E. Hallyn (serue@us.ibm.com) wrote:
+> Quoting Chris Wright (chrisw@sous-sol.org):
+> > This is all fine.  The question is whether this is a policy management
+> > issue or a kernel infrastructure issue.  So far, it's not clear that this
+> > really necessitates kernel infrastructure changes to support container
+> > aware policies to be loaded by physical host admin/owner or the virtual
+> > host admin.  The place where it breaks down is if each virtual host
+> > wants not only to control its own policy, but also its security model.
+> 
+> What do you define as 'policy', and how is it different from the
+> security model?
 
-paolo@Italia:~$ uname -a
-Linux Italia 2.6.16-g5d4fe2c1 #7 PREEMPT Thu Mar 30 20:26:30 CEST 2006
-i686 GNU/
+Model, as in TE, RBAC, or something trivially simple ala Openwall type
+protection.  Policy, as in rules to drive the model.
 
-paolo@Italia:~$ udevinfo -V
-udevinfo, version 079
+> Second, we might want container admins to insert LSMs.
 
-If I plug my usb stick I see the following in /var/log/messages:
-Mar 30 20:50:44 localhost kernel: usb 1-4: new high speed USB device
-using ehci_hcd and address 3
-Mar 30 20:50:45 localhost kernel: usb 1-4: Product: Flash Disk
-Mar 30 20:50:45 localhost kernel: usb 1-4: Manufacturer: USB
-Mar 30 20:50:45 localhost kernel: usb 1-4: SerialNumber: AA0070005481932D
-Mar 30 20:50:45 localhost kernel: usb 1-4: configuration #1 chosen from 1 choice
-Mar 30 20:50:45 localhost kernel: scsi1 : SCSI emulation for USB Mass
-Storage devices
-Mar 30 20:50:50 localhost kernel:   Vendor: Imation   Model:  USB
-Flash Drive  Rev: 2.00
-Mar 30 20:50:50 localhost kernel:   Type:   Direct-Access             
-        ANSI SCSI revision: 02
+I think we can agree that this way lies madness.
 
-But the volume is NOT automounted, it is if I boot using a kenel from
-Ubuntu Dapper.
-
-Is udev 0.80 required for 2.6.15-xxxx ?
-If so... I cannot find any reference in the documentation.
-
-Thanks!!
-
-
---
-Paolo
-http://paolociarrocchi.googlepages.com
+thanks,
+-chris

@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWC3HVn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751237AbWC3HVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbWC3HVn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 02:21:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWC3HVm
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 02:21:42 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:22788 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751216AbWC3HVl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S1751237AbWC3HVl (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 30 Mar 2006 02:21:41 -0500
-Date: Thu, 30 Mar 2006 09:21:49 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] splice support
-Message-ID: <20060330072149.GI13476@suse.de>
-References: <20060329122841.GC8186@suse.de> <20060329143758.607c1ccc.akpm@osdl.org> <Pine.LNX.4.64.0603291624420.27203@g5.osdl.org> <20060329180830.50666eff.akpm@osdl.org>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWC3HVk
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 30 Mar 2006 02:21:40 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:49593 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751203AbWC3HVk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 02:21:40 -0500
+Date: Thu, 30 Mar 2006 10:21:24 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Chris Leech <christopher.leech@intel.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 2/9] I/OAT
+Message-ID: <20060330062124.GA8545@2ka.mipt.ru>
+References: <1143672844.27644.5.camel@black-lazer.jf.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20060329180830.50666eff.akpm@osdl.org>
+In-Reply-To: <1143672844.27644.5.camel@black-lazer.jf.intel.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 30 Mar 2006 10:21:25 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29 2006, Andrew Morton wrote:
-> > Besides, they should 
-> >  never be signed, if you do bitmasks and shifting on them: "int" is 
-> >  strictly worse than "unsigned" when we're talking flags.
+On Wed, Mar 29, 2006 at 02:54:04PM -0800, Chris Leech (christopher.leech@intel.com) wrote:
+> [I/OAT] Driver for the Intel(R) I/OAT DMA engine
 > 
-> Sure, but is there any gain in making flags 64-bit on 64-bit machines when
-> we cannot use more than 32 bits in there anyway?
+> From: Chris Leech <christopher.leech@intel.com>
+> 
+> Adds a new ioatdma driver
+> 
+> Signed-off-by: Chris Leech <christopher.leech@intel.com>
 
-unsigned int seems fine to me.
+Let's do it again.
+Could you please describe how struct ioat_dma_chan channels are freed?
+For example when device is removed just after it has been added.
 
-> > Right now "flags" doesn't do anything at all, and you should just pass in 
-> > zero.
-> 
-> In that case perhaps we should be enforcing flags==0 so that future
-> flags-using applications will reliably fail on old flags-not-understanding
-> kernels.
-> 
-> But that won't work if we later define a bit in flags to mean "behave like
-> old kernels used to".  So perhaps we should require that bits 0-15 of
-> `flags' be zero and not care about bits 16-31.
-> 
-> IOW: it might be best to make `flags' just go away, and add new syscalls in
-> the future as appropriate.
+ioat_probe() -> enumerate_dma_channels() (failures are ok now) ->
+kmalloc a lot of channels.
 
-Not if flags == 0 maintains the same behaviour. The only flag I can
-think of right now is the 'move' or 'gift' flag, meaning that the caller
-wants to migrate pages from the pipe instead of copying them. I'd
-imagine we'd get that in way before 2.6.17 anyways, so I think we're
-fine.
+ioat_remove() -> dma_async_device_unregister() which does not cleanup
+ioat_dma_chan channels, but only clients.
+It ends up in dma_async_device_cleanup() only.
 
 -- 
-Jens Axboe
-
+	Evgeniy Polyakov

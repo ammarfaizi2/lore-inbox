@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWC3AqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWC3AtL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbWC3AqL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 19:46:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWC3AqL
+	id S1751317AbWC3AtL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 19:49:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWC3AtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 19:46:11 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:640 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751313AbWC3AqJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 19:46:09 -0500
-Message-ID: <442B2A4D.4010606@pobox.com>
-Date: Wed, 29 Mar 2006 19:46:05 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Wed, 29 Mar 2006 19:49:11 -0500
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:1807 "EHLO
+	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751317AbWC3AtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 19:49:09 -0500
+Message-ID: <442B2AF4.1020302@watson.ibm.com>
+Date: Wed, 29 Mar 2006 19:48:52 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Mark Lord <lkml@rtr.ca>
-CC: IDE/ATA development list <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>,
-       sander@humilis.net
-Subject: Re: [PATCH 2.6.16] sata_mv.c :: three bug fixes
-References: <200603290950.32219.lkml@rtr.ca>
-In-Reply-To: <200603290950.32219.lkml@rtr.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: netdev <netdev@vger.kernel.org>, Thomas Graf <tgraf@suug.ch>,
+       Jamal <hadi@cyberus.ca>
+Subject: [Patch 4/8] generic netlink utility functions
+References: <442B271D.10208@watson.ibm.com>
+In-Reply-To: <442B271D.10208@watson.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -3.6 (---)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-3.6 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
->  	u8 ata_status = 0;
-[...]
->  	for (port = port0; port < port0 + MV_PORTS_PER_HC; port++) {
-> -		ap = host_set->ports[port];
-> +		struct ata_port *ap = host_set->ports[port];
-> +		struct mv_port_priv *pp = ap->private_data;
->  		hard_port = port & MV_PORT_MASK;	/* range 0-3 */
+genetlink-utils.patch
 
+Two utilities for simplifying usage of NETLINK_GENERIC
+interface.
 
-Applied, even though it should be quite obvious that the patch does not 
-apply to 2.6.16 at all; its missing your previous ata_status patch, 
-which the upstream kernel has already included.
+Signed-off-by: Balbir Singh <balbir@in.ibm.com>
+Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>
 
-	Jeff
+ include/net/genetlink.h |   20 ++++++++++++++++++++
+ 1 files changed, 20 insertions(+)
 
+Index: linux-2.6.16/include/net/genetlink.h
+===================================================================
+--- linux-2.6.16.orig/include/net/genetlink.h	2006-03-29 18:12:54.000000000 -0500
++++ linux-2.6.16/include/net/genetlink.h	2006-03-29 18:13:17.000000000 -0500
+@@ -150,4 +150,24 @@ static inline int genlmsg_unicast(struct
+ 	return nlmsg_unicast(genl_sock, skb, pid);
+ }
+
++/**
++ * gennlmsg_data - head of message payload
++ * @gnlh: genetlink messsage header
++ */
++static inline void *genlmsg_data(const struct genlmsghdr *gnlh)
++{
++       return ((unsigned char *) gnlh + GENL_HDRLEN);
++}
++
++/**
++ * genlmsg_len - length of message payload
++ * @gnlh: genetlink message header
++ */
++static inline int genlmsg_len(const struct genlmsghdr *gnlh)
++{
++       struct nlmsghdr *nlh = (struct nlmsghdr *)((unsigned char *)gnlh -
++                                                   NLMSG_HDRLEN);
++       return (nlh->nlmsg_len - GENL_HDRLEN - NLMSG_HDRLEN);
++}
++
+ #endif	/* __NET_GENERIC_NETLINK_H */
 

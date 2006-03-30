@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWC3Qw3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWC3QzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbWC3Qw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 11:52:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWC3Qw2
+	id S932222AbWC3QzP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 11:55:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWC3QzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 11:52:28 -0500
-Received: from node8.mtu.edu ([141.219.69.8]:17571 "EHLO node8.mtu.edu")
-	by vger.kernel.org with ESMTP id S1751171AbWC3Qw2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 11:52:28 -0500
-Date: Thu, 30 Mar 2006 11:52:25 -0500
-From: Jon DeVree <jadevree@mtu.edu>
-To: linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: How to determine the start of DATA segment
-Message-ID: <20060330165225.GA24074@tesla.setec>
-References: <728201270603300837g60eefb65u8b55df910b86f6c4@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="W/nzBZO5zC0uMSeA"
-Content-Disposition: inline
-In-Reply-To: <728201270603300837g60eefb65u8b55df910b86f6c4@mail.gmail.com>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.3.0.1, Antispam-Data: 2006.03.30.083108
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CD 0, __CT 0, __CTYPE_HAS_BOUNDARY 0, __CTYPE_MULTIPART 0, __HAS_MSGID 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
+	Thu, 30 Mar 2006 11:55:15 -0500
+Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:44733 "EHLO
+	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S932222AbWC3QzN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 11:55:13 -0500
+Date: Thu, 30 Mar 2006 18:55:05 +0200
+From: Voluspa <lista1@telia.com>
+To: dtor_core@ameritech.net
+Cc: dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org,
+       bjorn.helgaas@hp.com
+Subject: Re: [2.6.16-gitX] PNP: No PS/2 controller found. Probing ports
+ directly.
+Message-Id: <20060330185505.798dfb7b.lista1@telia.com>
+In-Reply-To: <d120d5000603300613o3e5db188p521b766be075dfdc@mail.gmail.com>
+References: <20060330125523.2b713a96.lista1@telia.com>
+	<d120d5000603300613o3e5db188p521b766be075dfdc@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 30 Mar 2006 09:13:30 -0500 Dmitry Torokhov wrote:
+> On 3/30/06, Voluspa wrote:
+> >
+> > Due to the commit:
+> >
+> > 982c609448b9d724e1c3a0d5aeee388c064479f0 is first bad commit
+> > diff-tree 982c609448b9d724e1c3a0d5aeee388c064479f0 (from 070c6999831dc4cfd9b07c74c2fea1964d7adfec)
+> > Author: Bjorn Helgaas <bjorn.helgaas@hp.com>
+> > Date:   Mon Mar 27 01:17:08 2006 -0800
+> >
+> >    [PATCH] pnp: PNP: adjust pnp_register_driver signature
+> >
+> 
+> Does it help if you apply this patch:
+> 
+> http://www.kernel.org/git/?p=linux/kernel/git/dtor/input.git;a=commitdiff_plain;h=2bfc3c6e9516ece6856ec7904319650a5d4d9871;hp=dd55563f635751327eb06ae569d4761a0220f2e0
 
---W/nzBZO5zC0uMSeA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Perfect. No change in hardware function, no additional log messages and
+I'm back at:
 
-On Thu, Mar 30, 2006 at 10:37:25AM -0600, Ram Gupta wrote:
-> Is there a system call or library function which a process can use to
-> determine the start of its data segment . I need to know the start of
-> the data segment so that process does not cross its DATA limit. Using
-> this information & sbrk it knows how much data space is already used &
-> how much it can grow further without crossing the limit.
+dmesg-5d4fe2c1ce83c3e967ccc1ba3d580c1a5603a866
+[...]
+io scheduler deadline registered
+io scheduler cfq registered (default)
+Real Time Clock Driver v1.12ac
+PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+parport: PnPBIOS parport detected.
 
-I think getrlimit() might be what you are looking for.
---=20
-Jon
-"RISC architecture is gonna change everything." -Kate Libby
-
---W/nzBZO5zC0uMSeA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQFELAzJ4m3oE/xVNJ4RAp3hAJ4lZJagbsHrH0dSAYMrbbBpFRp3lgCfSMT4
-yI5zAjUCcQPHktDBRpPkcfc=
-=nREz
------END PGP SIGNATURE-----
-
---W/nzBZO5zC0uMSeA--
+Mvh
+Mats Johannesson
+--

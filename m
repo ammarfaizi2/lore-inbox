@@ -1,52 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWC3JgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWC3Jko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932145AbWC3JgN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 04:36:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbWC3JgN
+	id S1751125AbWC3Jko (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 04:40:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWC3Jko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 04:36:13 -0500
-Received: from outgoing2.smtp.agnat.pl ([193.239.44.84]:46604 "EHLO
-	outgoing2.smtp.agnat.pl") by vger.kernel.org with ESMTP
-	id S932145AbWC3JgM convert rfc822-to-8bit (ORCPT
+	Thu, 30 Mar 2006 04:40:44 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:56000 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751125AbWC3Jkn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 04:36:12 -0500
-From: Arkadiusz Miskiewicz <arekm@maven.pl>
-Organization: SelfOrganizing
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Suspend2-2.2.2 for 2.6.16.
-Date: Thu, 30 Mar 2006 11:35:05 +0200
-User-Agent: KMail/1.9.1
-Cc: Nigel Cunningham <ncunningham@cyclades.com>, Mark Lord <lkml@rtr.ca>,
-       suspend2-announce@lists.suspend2.net, linux-kernel@vger.kernel.org
-References: <200603281601.22521.ncunningham@cyclades.com> <200603292050.33622.ncunningham@cyclades.com> <20060330092627.GG8485@elf.ucw.cz>
-In-Reply-To: <20060330092627.GG8485@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200603301135.05293.arekm@maven.pl>
-X-Authenticated-Id: arekm
+	Thu, 30 Mar 2006 04:40:43 -0500
+Date: Thu, 30 Mar 2006 01:40:24 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH][RFC] splice support
+Message-Id: <20060330014024.6ada0532.akpm@osdl.org>
+In-Reply-To: <20060330091523.GQ13476@suse.de>
+References: <20060329122841.GC8186@suse.de>
+	<20060329143758.607c1ccc.akpm@osdl.org>
+	<20060330074534.GL13476@suse.de>
+	<20060330000240.156f4933.akpm@osdl.org>
+	<20060330081008.GO13476@suse.de>
+	<20060330002726.48cf0ffb.akpm@osdl.org>
+	<20060330085134.GP13476@suse.de>
+	<20060330091523.GQ13476@suse.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 March 2006 11:26, Pavel Machek wrote:
-> On St 29-03-06 20:50:27, Nigel Cunningham wrote:
-> > Hi.
-
-> > > Please do try code at suspend.sf.net. It should be as fast and not
-> > > needing big kernel patch.
-> >
-> > Don't bother suggesting that to x86_64 owners: compilation is currently
-> > broken in vbetool/lrmi.c (at least).
+Jens Axboe <axboe@suse.de> wrote:
 >
-> It seems to work at least for some users. I do not have x86-64 machine
-> easily available, so someone else will have to fix that one.
+> Actually it isn't so bad, how does this look?
+> 
+> ...
+>
+>  @@ -180,30 +181,48 @@ static int __generic_file_splice_read(st
+>   	i = find_get_pages(mapping, index, nr_pages, pages);
+>   
+>   	/*
+>  -	 * If not all pages were in the page-cache, we'll
+>  -	 * just assume that the rest haven't been read in,
+>  -	 * so we'll get the rest locked and start IO on
+>  -	 * them if we can..
+>  +	 * common case - we found all pages, kick it off
+>   	 */
+>  -	while (i < nr_pages) {
+>  -		struct page *page;
+>  -		int error;
+>  -
+>  -		page = find_or_create_page(mapping, index + i, GFP_USER);
+>  -		if (!page)
+>  -			break;
+>  +	if (i == nr_pages)
+>  +		goto splice_them;
 
-It builds fine here on x86_64 with gcc 4.1.
+The return value from find_get_pages() is "how many pages did I find" - it
+doesn't tell us whether they were contiguous.
 
-> 								Pavel
+How about
 
--- 
-Arkadiusz Mi¶kiewicz        PLD/Linux Team
-arekm / maven.pl            http://ftp.pld-linux.org/
+	if (i && (pages[i - 1]->index == index + i - 1))
+
+<thinks>
+
+So if we asked for N pages starting at index=10 and got
+
+	[11, 13]
+
+i == 2
+pages[i-1]->index == 13
+index + i - 1 == 11.
+
+So I think it's OK.  Yeah, it has to be - any gap at all in the returned
+page array will make pages[i-1]->index too big.
+
+
+The one-at-a-time logic looks OK from a quick scan.  Do we have logic in
+there to check that we're not overrunning i_size?  (See the pain
+do_generic_mapping_read() goes through).
+
+
+argh, readahead.  Really we should be kicking the readahead engine in there
+as well.  That's fairly straightforward - see do_generic_mapping_read().
+
+Also, the code here _might_ be able to use do_page_cache_readahead() just
+to prepopulate the pages which you know you'll be needing.  There are no
+guarantees that the pages will still be there when you want them of course,
+but it's a decent way of putting a block of pages into a single BIO and
+speeding up the common case.  But if the code is calling
+page_cache_readahead() it won't need to do that.
+

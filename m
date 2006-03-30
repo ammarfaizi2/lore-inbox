@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWC3KIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWC3KMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbWC3KIK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 05:08:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWC3KIK
+	id S1751151AbWC3KMY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 05:12:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWC3KMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 05:08:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.232]:60430 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751151AbWC3KIJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 05:08:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=EM1S3ROhD994mxJ10Gv0IYXrnBuNRwobqMBf93CVKcF4heUxb6EaFldOChQdB0tDNdxv2IP9QV7yuzoFi7BPbyYRxtbluatHbHWX46NGr1FVjDHqX63V8wbig3GQuAuQaSkrhj59iucG0XAwZ4L8Id2jrR98Pt1g9MQ1y3o1D4c=
-Message-ID: <6d6a94c50603300208p3d9d2df3m29fdd9b304f606de@mail.gmail.com>
-Date: Thu, 30 Mar 2006 18:08:08 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: I2C initialization issue
-Cc: khali@linux-fr.org
+	Thu, 30 Mar 2006 05:12:24 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:52165 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751151AbWC3KMX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 05:12:23 -0500
+Date: Thu, 30 Mar 2006 12:11:56 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Nigel Cunningham <ncunningham@cyclades.com>, Andrew Morton <akpm@osdl.org>,
+       ashok.raj@intel.com, pavel@ucw.cz, linux-kernel@vger.kernel.org,
+       rjw@sisk.pl
+Subject: Re: [rfc] fix Kconfig, hotplug_cpu is needed for swsusp
+In-Reply-To: <20060330030657.GA10405@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.64.0603301208330.16802@scrub.home>
+References: <20060329220808.GA1716@elf.ucw.cz> <20060329161354.3ce3d71b.akpm@osdl.org>
+ <200603301018.36654.ncunningham@cyclades.com> <200603301301.42922.ncunningham@cyclades.com>
+ <20060330030657.GA10405@mars.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi,
 
-I'm writing a joystick driver for blackfin linux. when my kernel
-startup, I got the following messages:
+On Thu, 30 Mar 2006, Sam Ravnborg wrote:
 
-root:~>dmesg
-............
-input: ad7142 joystick as /class/input/input0
-input: ad7142 joystick at js0
-i2c /dev entries driver
-ad7142_js_attach: at 0x58
-............
+> Roman is the one to addrress this.
+> Roman?
+> 
+> On Thu, Mar 30, 2006 at 01:01:37PM +1000, Nigel Cunningham wrote:
+> > Hi Sam.
+> > 
+> > A bunch of us were discussing an issue this morning, and came across the 
+> > problem that selects don't seem to be enforced in choice menus. To give a 
+> > concrete example, a couple of us tried to make CONFIG_SOFTWARE_SUSPEND select 
+> > CONFIG_X86_GENERICARCH. After enabling SOFTWARE_SUSPEND, we want back to the 
+> > subarchitecture menu, and could still select other subarches. Is this by 
+> > design?
 
-If I understood correct, the i2c bus initializtion is implemented
-after the input module initializtion. That's a roadblock for me.
-Because my joystick is connected to my target board through the I2C
-interface. And I should call some I2C routines to initialize my
-joystick chip in the input driver. Of course my driver failed.
+Yes, kconfig is supposed to be deterministic. Imagine two options each 
+select a choice option, which would create an inconsistent configuration, 
+so it's not allowed in first place.
 
-I know there are many ways to work around this issue. But if I'm
-right, I still think it should be fixed in the kernel initialization
-sequence.
-
-Thanks for your suggestions.
-
-Regards,
--Aubrey
+bye, Roman

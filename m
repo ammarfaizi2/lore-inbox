@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWC3Vju@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWC3VpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750987AbWC3Vju (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 16:39:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbWC3Vjt
+	id S1750991AbWC3VpP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 16:45:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750996AbWC3VpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 16:39:49 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:52714 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750987AbWC3Vjs (ORCPT
+	Thu, 30 Mar 2006 16:45:15 -0500
+Received: from ishtar.tlinx.org ([64.81.245.74]:41149 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S1750991AbWC3VpO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 16:39:48 -0500
-Date: Thu, 30 Mar 2006 15:39:28 -0600
-To: john.ronciak@intel.com, jesse.brandeburg@intel.com,
-       jeffrey.t.kirsher@intel.com
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linuxppc-dev@ozlabs.org
-Subject: [PATCH]: e1000: prevent statistics from getting garbled during reset.
-Message-ID: <20060330213928.GQ2172@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-From: linas@austin.ibm.com (Linas Vepstas)
+	Thu, 30 Mar 2006 16:45:14 -0500
+Message-ID: <442C5168.4040904@tlinx.org>
+Date: Thu, 30 Mar 2006 13:45:12 -0800
+From: Linda Walsh <lkml@tlinx.org>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Security downgrade? CONFIG_HOTPLUG required in 2.6.16?
+References: <44237D87.70300@tlinx.org> <20060325192635.GQ4053@stusta.de> <4426620C.2040707@tlinx.org> <20060326192958.GA4864@voodoo>
+In-Reply-To: <20060326192958.GA4864@voodoo>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jim Crilly wrote:
+> But what about USB keyboards and mice? IIRC at least some of the newer
+> servers where I work don't come with PS/2 ports anymore.
+>   
+---
+    I have basic USB serial-I/O support built-in to my kernel:
+it needs to monitor a USB-based UPS.  Would a keyboard/mouse
+require more support than to simply be compiled in?
 
-Please review, sign-off/ack, and forward upstream.
---linas
+    I had a laptop that only had a 10Mb-ethernet built-in. 
+When it became a few years old, I switched to using a PCMCIA
+card for 100Mb-ethernet.  I never used the laptop's internal
+port anymore but always used the pluggable card.  PCMCIA was
+still outside the kernel then, so my quick & easy solution was
+to not compile in the 10BT device and use the in-kernel driver
+for the 3com based 100BT card.  I didn't need the "hot plugging"
+capabilities of PCMCIA -- the kernel just called the new device
+"eth0", and used it as a "permanent device".
 
-[PATCH]: e1000: prevent statistics from getting garbled during reset.
+    If a computer uses USB I/O for basic console operations,
+can't those drivers be statically built-in?
 
-If a PCI bus error/fault triggers a PCI bus reset, attempts to get the
-ethernet packet count statistics from the hardware will fail, returning
-garbage data upstream.  This patch skips statistics data collection
-if the PCI device is not on the bus. 
+-linda
 
-This patch presumes that an earlier patch,
-[PATCH] PCI Error Recovery: e1000 network device driver
-has already been applied.
-
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
-
-----
- drivers/net/e1000/e1000_main.c |    8 ++++++--
- 1 files changed, 6 insertions(+), 2 deletions(-)
-
-Index: linux-2.6.16-git6/drivers/net/e1000/e1000_main.c
-===================================================================
---- linux-2.6.16-git6.orig/drivers/net/e1000/e1000_main.c	2006-03-30 14:42:33.000000000 -0600
-+++ linux-2.6.16-git6/drivers/net/e1000/e1000_main.c	2006-03-30 14:44:52.000000000 -0600
-@@ -3069,13 +3069,17 @@ void
- e1000_update_stats(struct e1000_adapter *adapter)
- {
- 	struct e1000_hw *hw = &adapter->hw;
-+	struct pci_dev *pdev = adapter->pdev;
- 	unsigned long flags;
- 	uint16_t phy_tmp;
- 
- #define PHY_IDLE_ERROR_COUNT_MASK 0x00FF
- 
--	/* Prevent stats update while adapter is being reset */
--	if (adapter->link_speed == 0)
-+	/* Prevent stats update while adapter is being reset, or if
-+	 * the pci connection is down. */
-+	if ((adapter->link_speed == 0) ||
-+       ((pdev->error_state != 0) &&
-+	    (pdev->error_state != pci_channel_io_normal)))
- 		return;
- 
- 	spin_lock_irqsave(&adapter->stats_lock, flags);

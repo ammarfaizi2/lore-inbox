@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbWC3Vtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbWC3Vyg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751002AbWC3Vtx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 16:49:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbWC3Vtx
+	id S1751006AbWC3Vyg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 16:54:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbWC3Vyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 16:49:53 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:21724 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1751002AbWC3Vtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 16:49:52 -0500
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <26F95EDB-C8BA-4FF0-A847-10D6D4255C4C@kernel.crashing.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Thu, 30 Mar 2006 16:54:35 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:14274 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751006AbWC3Vyf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 16:54:35 -0500
+Subject: Re: [PATCH 0 of 16] ipath - driver submission for 2.6.17
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <adairpv1wey.fsf@cisco.com>
+References: <patchbomb.1143674603@chalcedony.internal.keyresearch.com>
+	 <adairpv1wey.fsf@cisco.com>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Thu, 30 Mar 2006 13:54:34 -0800
+Message-Id: <1143755674.24402.9.camel@chalcedony.internal.keyresearch.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 (2.6.0-1) 
 Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: kconfig question
-Date: Thu, 30 Mar 2006 15:50:04 -0600
-To: Sam Ravnborg <sam@ravnborg.org>
-X-Mailer: Apple Mail (2.746.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam,
+On Thu, 2006-03-30 at 12:59 -0800, Roland Dreier wrote:
 
-Is there a way to have a set of choices either be mutual exclusive or  
-individually selectable depending on how some other Kconfig var is set?
+> Should I just make IPATH_CORE depend on NET as well?
 
-- kumar
+Yes, please.  I actually did that myself, but must have fumbled
+something in quilt before I sent you the patches.
+
+	<b
+

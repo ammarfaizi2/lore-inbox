@@ -1,51 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWC3KMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWC3KNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751151AbWC3KMY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 05:12:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWC3KMY
+	id S932158AbWC3KNF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 05:13:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWC3KNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 05:12:24 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:52165 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751151AbWC3KMX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 05:12:23 -0500
-Date: Thu, 30 Mar 2006 12:11:56 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Nigel Cunningham <ncunningham@cyclades.com>, Andrew Morton <akpm@osdl.org>,
-       ashok.raj@intel.com, pavel@ucw.cz, linux-kernel@vger.kernel.org,
-       rjw@sisk.pl
-Subject: Re: [rfc] fix Kconfig, hotplug_cpu is needed for swsusp
-In-Reply-To: <20060330030657.GA10405@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.64.0603301208330.16802@scrub.home>
-References: <20060329220808.GA1716@elf.ucw.cz> <20060329161354.3ce3d71b.akpm@osdl.org>
- <200603301018.36654.ncunningham@cyclades.com> <200603301301.42922.ncunningham@cyclades.com>
- <20060330030657.GA10405@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 30 Mar 2006 05:13:04 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:37036 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751335AbWC3KNB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 05:13:01 -0500
+Date: Thu, 30 Mar 2006 11:12:56 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, bharata@in.ibm.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: dcache leak in 2.6.16-git8 II
+Message-ID: <20060330101256.GX27946@ftp.linux.org.uk>
+References: <200603270750.28174.ak@suse.de> <200603271822.28043.ak@suse.de> <20060327190027.24498e3a.akpm@osdl.org> <200603300026.59131.ak@suse.de> <20060330095048.GW27946@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060330095048.GW27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Mar 30, 2006 at 10:50:48AM +0100, Al Viro wrote:
+> FWIW...  One thing that might be useful here:
 
-On Thu, 30 Mar 2006, Sam Ravnborg wrote:
+Here's what I had in mind:
 
-> Roman is the one to addrress this.
-> Roman?
-> 
-> On Thu, Mar 30, 2006 at 01:01:37PM +1000, Nigel Cunningham wrote:
-> > Hi Sam.
-> > 
-> > A bunch of us were discussing an issue this morning, and came across the 
-> > problem that selects don't seem to be enforced in choice menus. To give a 
-> > concrete example, a couple of us tried to make CONFIG_SOFTWARE_SUSPEND select 
-> > CONFIG_X86_GENERICARCH. After enabling SOFTWARE_SUSPEND, we want back to the 
-> > subarchitecture menu, and could still select other subarches. Is this by 
-> > design?
+Allow explictly mark allocated objects as "allocated here", so that they'll
+show up that way for all slab debugging purposes.  New helpers:
+	slab_charge_here(objp, cachep)
+	slab_charge_caller(objp, cachep)
+mark object as allocated resp. by place where we have ...charge_here() called
+and by the caller of function that calls slab_charge_caller().
 
-Yes, kconfig is supposed to be deterministic. Imagine two options each 
-select a choice option, which would create an inconsistent configuration, 
-so it's not allowed in first place.
+It's useful when call chain leading to allocation in given cache always
+ends the same way, making normal caller accounting uninformative.  E.g.
+allocation of struct socket is always done via sock_alloc() => new_inode() =>
+alloc_inode() => sock_alloc_inode() => kmem_cache_alloc().  The last step
+has no chance to give any useful information about the caller; adding
+slab_charge_caller() in sock_alloc() will give us much more useful picture.
 
-bye, Roman
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+----
+
+diff --git a/include/linux/slab.h b/include/linux/slab.h
+index 3af03b1..6cc2f96 100644
+--- a/include/linux/slab.h
++++ b/include/linux/slab.h
+@@ -151,6 +151,16 @@ static inline void *kcalloc(size_t n, si
+ extern void kfree(const void *);
+ extern unsigned int ksize(const void *);
+ 
++#ifndef CONFIG_DEBUG_SLAB
++#define slab_set_creator(objp, cachep, address)
++#define slab_charge_here(objp, cachep)
++#else
++extern void slab_set_creator(void *objp, struct kmem_cache *cachep, void *address);
++extern void slab_charge_here(void *objp, struct kmem_cache *cachep);
++#endif
++#define slab_charge_caller(objp, cachep) \
++	slab_set_creator((objp), (cachep), __builtin_return_address(0))
++
+ #ifdef CONFIG_NUMA
+ extern void *kmem_cache_alloc_node(kmem_cache_t *, gfp_t flags, int node);
+ extern void *kmalloc_node(size_t size, gfp_t flags, int node);
+@@ -189,6 +199,10 @@ void kfree(const void *m);
+ unsigned int ksize(const void *m);
+ unsigned int kmem_cache_size(struct kmem_cache *c);
+ 
++#define slab_set_creator(objp, cachep, address)
++#define slab_charge_here(objp, cachep)
++#define slab_charge_caller(objp, cachep)
++
+ static inline void *kcalloc(size_t n, size_t size, gfp_t flags)
+ {
+ 	return __kzalloc(n * size, flags);
+diff --git a/mm/slab.c b/mm/slab.c
+index 4cbf8bb..db21301 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -3144,6 +3144,23 @@ void *kmem_cache_zalloc(struct kmem_cach
+ }
+ EXPORT_SYMBOL(kmem_cache_zalloc);
+ 
++#ifdef CONFIG_DEBUG_SLAB
++void slab_set_creator(void *objp, struct kmem_cache *cachep, void *address)
++{
++	if (cachep->flags & SLAB_STORE_USER)
++		*dbg_userword(cachep, objp) = address;
++}
++
++EXPORT_SYMBOL(slab_set_creator);
++
++void slab_charge_here(void *objp, struct kmem_cache *cachep)
++{
++	slab_set_creator(objp, cachep, __builtin_return_address(0));
++}
++EXPORT_SYMBOL(slab_charge_here);
++
++#endif
++
+ /**
+  * kmem_ptr_validate - check if an untrusted pointer might
+  *	be a slab entry.
+diff --git a/net/socket.c b/net/socket.c
+index fcd77ea..0c4d61b 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -517,6 +517,9 @@ static struct socket *sock_alloc(void)
+ 	if (!inode)
+ 		return NULL;
+ 
++	slab_charge_caller(container_of(inode, struct socket_alloc, vfs_inode),
++			   sock_inode_cachep);
++
+ 	sock = SOCKET_I(inode);
+ 
+ 	inode->i_mode = S_IFSOCK|S_IRWXUGO;

@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWC3TFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWC3TGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbWC3TFe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 14:05:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWC3TFd
+	id S1750750AbWC3TGl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 14:06:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWC3TGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 14:05:33 -0500
-Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:4215 "HELO
-	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750749AbWC3TFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 14:05:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=OznYuoyiSZ9wsmQiLQ/mYlzoZG9TZqJbb33JW9yM+al+rtuf4aiMJ89rGnz6PQ1yz7Uw38uC6wPI33/BxYLwHQAqUTUAgGtxox82FWPr57fHQkGMwvmLLAG19iLTyFya/PQ2YPVb/coiUvwZdGQrpHKhSU8EtebhWWDzSbpLHGw=  ;
-Message-ID: <442B9FC5.4040409@yahoo.com.au>
-Date: Thu, 30 Mar 2006 19:07:17 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Luke Yang <luke.adi@gmail.com>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <npiggin@suse.de>
-Subject: Re: [PATCH] nommu page refcount bug fixing
-References: <489ecd0c0603291905m7ebffff2j83809cc3c93595f1@mail.gmail.com>	 <442B4EEB.6020407@yahoo.com.au>	 <489ecd0c0603300056t272b4d22g8501302f4f86fc85@mail.gmail.com> <489ecd0c0603300100o7e9293b4mbde4340b0129e5d5@mail.gmail.com>
-In-Reply-To: <489ecd0c0603300100o7e9293b4mbde4340b0129e5d5@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Mar 2006 14:06:41 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:13186 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750750AbWC3TGk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 14:06:40 -0500
+Date: Thu, 30 Mar 2006 11:07:58 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Chris Wright <chrisw@sous-sol.org>,
+       David Lang <dlang@digitalinsight.com>, Sam Vilain <sam@vilain.net>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Virtualization steps
+Message-ID: <20060330190758.GY15997@sorel.sous-sol.org>
+References: <442A26E9.20608@vilain.net> <20060329182027.GB14724@sorel.sous-sol.org> <442B0BFE.9080709@vilain.net> <20060329225241.GO15997@sorel.sous-sol.org> <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com> <20060330013618.GS15997@sorel.sous-sol.org> <Pine.LNX.4.62.0603291738290.266@qynat.qvtvafvgr.pbz> <20060330020445.GT15997@sorel.sous-sol.org> <20060330143224.GC6933@sergelap.austin.ibm.com> <m1bqvndb7t.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1bqvndb7t.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luke Yang wrote:
->>>NOMMU special-casing in page refcounting. As a temporary fix, what I
->>>think should happen is simply for all slab allocations to ask for
->>>__GFP_COMP pages.
->>>
->>>Could you check that fixes your problem?
->>
->>  It works.  What's your plan to modify nommu mm? I would like to
->>help. And I am also interested in implementing the "non-power-of-2"
->>allocator in 2.6.
->>
-
-I'll get it up to date and send it over to you, offline. It
-would be great if you could help.
-
->>  New patch:
+* Eric W. Biederman (ebiederm@xmission.com) wrote:
+> "Serge E. Hallyn" <serue@us.ibm.com> writes:
 > 
+> > Frankly I thought, and am still not unconvinced, that containers owned
+> > by someone other than the system owner would/should never want to load
+> > their own LSMs, so that this wasn't a problem.  Isolation, as Chris has
+> > mentioned, would be taken care of by the very nature of namespaces.
+> 
+> Up to uids I agree.  Once we hit uids things get very ugly.
+> And since security modules already seem to touch all of the places
+> we need to touch to make a UID namespace work I think using security
+> modules to implement the strange things we need with uid.
+> 
+> To ensure uid isolation we would need a different copy of every other
+> namespace.  The pid space would need to be completely isolated,
+> and we couldn't share any filesystem mounts with any other namespace.
+> This especially includes /proc and sysfs.
 
-Acked-by: Nick Piggin <npiggin@suse.de>
+Security modules use labels not uid's.  The uid is the basis for
+traditional DAC checks, the label are used for MAC checks.  And its
+easy to imagine a label that includes a notion of container id.
 
-I'll write a changelog for you:
+> However it is possible to build the capacity to multiplex 
+> compiled in or already loaded security modules, and allowed which
+> security modules are in effect to be controlled by securityfs.
 
-***
-The earlier patch to consolidate mmu and nommu page allocation
-and refcounting by using compound pages for nommu allocations
-had a bug: kmalloc slabs who's pages were initially allocated
-by a non-__GFP_COMP allocator could be passed into mm/nommu.c
-kmalloc allocations which really wanted __GFP_COMP underlying
-pages.
+Yes, it's been proposed and discussed many times.  There's some
+fundamental issues with composing security modules.  First and foremost
+is the notion that arbritrary security models may not compose to form
+meaningful (in a security sense) results.  Second, at an implementation
+level, sharing labels is non-trivial and comes with overhead.
 
-Fix that by having nommu pass __GFP_COMP to all higher order
-slab allocations
-***
+> With appropriate care we should be able to allow the container
+> administrator to use this capability to select which security
+> policies, and mechanisms they want. 
+> 
+> That is something we probably want to consider anyway as
+> currently the security modules break the basic rule that
+> compiling code in should not affect how the kernel operates
+> by default.
 
-Sound OK? Can you do it next time? ;)
+Don't follow you on this one.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+thanks,
+-chris

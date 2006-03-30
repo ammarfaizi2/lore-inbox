@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWC3LUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWC3LX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbWC3LUl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 06:20:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWC3LUl
+	id S932181AbWC3LX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 06:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWC3LX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 06:20:41 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:27104 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932171AbWC3LUl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 06:20:41 -0500
-Date: Thu, 30 Mar 2006 03:19:49 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Voluspa <lista1@telia.com>
+	Thu, 30 Mar 2006 06:23:57 -0500
+Received: from science.horizon.com ([192.35.100.1]:26415 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S932181AbWC3LX4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 06:23:56 -0500
+Date: 30 Mar 2006 06:23:49 -0500
+Message-ID: <20060330112349.11324.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux@horizon.com, osv@javad.com
+Subject: Re: Lifetime of flash memory
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.16-gitX] initcall at 0xffffffff804615d1: returned with
- error code -1
-Message-Id: <20060330031949.2febaf62.akpm@osdl.org>
-In-Reply-To: <20060330131115.73886fd4.lista1@telia.com>
-References: <20060330131115.73886fd4.lista1@telia.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <87acb85tnb.fsf@javad.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Voluspa <lista1@telia.com> wrote:
+>>>> Due to the multiplexing scheme used in high-density NAND flash devices,
+>>>> even the non-programmed cells are exposed to a fraction of the programming
+>>>> voltage and there are very low limits on the number of write cycles to
+>>>> a page before it has to be erased again.  Exceeding that can cause some
+>>>> unwanted bits to change from 1 to 0.  Typically, however, it is enough
+>>>> to write each 512-byte portion of a page independently.
+>>>
+>>> Well, I'm not sure. The Toshiba and Samsung NANDs I've read manuals for
+>>> seem to limit number of writes to a single page before block erase, --
+>>> is 512-byte portion some implementation detail I'm not aware of?
+>>
+>> No.  I just meant that I generally see "you may program each 2K page a
+>> maximum of 4 times before performing an erase cycle", and I assume the
+>> spec came from 2048/512 = 4, so you can program each 512-byte sector
+>> separately.
 >
-> 
-> CC-ing author since I'm unsure about domain responsibility. The commit
-> "[PATCH] initcall failure reporting" AKA
-> c1cda48af8b330a23206eceef3bd030b53c979cd immediately triggered:
-> 
-> --- dmesg-cd02b966bfcad12d1b2e265dc8dbc331d4c184c4      2006-03-30 08:41:30.000000000 +0200
-> +++ dmesg-c1cda48af8b330a23206eceef3bd030b53c979cd      2006-03-30 09:12:31.000000000 +0200
-> [...]
-> @@ -83,10 +83,12 @@
->  SCSI subsystem initialized
->  PCI: Using ACPI for IRQ routing
->  PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
-> +initcall at 0xffffffff804615d1: returned with error code -1
->  pnp: 00:06: ioport range 0x600-0x60f has been reserved
->  pnp: 00:06: ioport range 0x1c0-0x1cf has been reserved
->  pnp: 00:06: ioport range 0x4d0-0x4d1 has been reserved
->  pnp: 00:06: ioport range 0xfe10-0xfe11 could not be reserved
-> +initcall at 0xffffffff804704fc: returned with error code 2
->  PCI: Failed to allocate mem resource #6:20000@f0000000 for 0000:01:00.0
->  PCI: Bridge: 0000:00:01.0
->    IO window: disabled.
-> 
-> Since then (now at 2.6.16-git18) the last/lower one has vanished, but the
-> first one remains. The patch says that the initcall function should be
-> printed, but it seems to need some debugging option set. Please advice if
-> this is of interest (the addresses do not stay constant). 
-> 
+> I've a file system implementation that writes up to 3 times to the first
+> 3 bytes of the first page of a block (clearing more and more bits every
+> time), and it seems to work in practice, so maybe this number (4) came
+> from another source? Alternatively, it works by accident and then I need
+> to reconsider the design.
 
-If you have CONFIG_KALLSYMS enabled then the kernel should print the name
-of the function at that address.  It's pretty hard to turn off
-CONFIG_KALLSYMS, actually.
+No, I'm sorry, I was still unclear.  The spec is 4 writes per page.
+I believe that the REASON for this spec was so that people could write
+512+16 bytes at a time just like they did with small-block devices and
+it would work.
 
-If you _do_ have CONFIG_KALLSYMS enabled then something bad has happened -
-you can look up those addresses with `nm -n vmlinux > foo' then searching
-through foo.  (Or use addr2line, or gdb, or other things...)
+But I do not believe there is any limitation on the pattern you may use,
+so your system should work fine.
 
+What confuses me is that I thought I said (quoted above; paraphrasing
+here) "there is a very low limit on the number of times you may write
+to a page.  That limit is large enough that you can do pagesize/512 =
+2048/512 = 4 separate 512-byte writes."  I didn't intend to imply that
+that was the ONLY legal pattern.
+
+But from your comments, I'm getting the impression that you think I did
+say that was the only legal pattern.  If that impression is correct,
+I'm not sure how you read that into my statements.
+
+
+(I wonder if the actual limit is the number of writes per BLOCK, and
+they just expressed it as writes per page.  I don't know enough about
+the programming circuitry to know what's exposed to what voltages.
+If the physics implied it, it would be useful flexibility for file system
+design.)

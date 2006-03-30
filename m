@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWC3UTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWC3UVY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750804AbWC3UTo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 15:19:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbWC3UTo
+	id S1750809AbWC3UVY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 15:21:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWC3UVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 15:19:44 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:59605 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750817AbWC3UTn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 15:19:43 -0500
-Date: Thu, 30 Mar 2006 12:19:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: neilb@suse.de, linux-kernel@vger.kernel.org, drepper@redhat.com,
-       mtk-manpages@gmx.net, nickpiggin@yahoo.com.au
-Subject: Re: [patch 1/1] sys_sync_file_range()
-Message-Id: <20060330121903.643352ac.akpm@osdl.org>
-In-Reply-To: <87d5g4rlth.fsf@duaron.myhome.or.jp>
-References: <200603300741.k2U7fQLe002202@shell0.pdx.osdl.net>
-	<17451.36790.450410.79788@cse.unsw.edu.au>
-	<20060330003246.31216ff2.akpm@osdl.org>
-	<87d5g4rlth.fsf@duaron.myhome.or.jp>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 30 Mar 2006 15:21:24 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:15062 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1750809AbWC3UVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 15:21:23 -0500
+In-Reply-To: <200603302217.55435.ak@suse.de>
+References: <20060330164120.GJ13590@parisc-linux.org> <200603302150.05357.ak@suse.de> <20060330201435.GM13590@parisc-linux.org> <200603302217.55435.ak@suse.de>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <D3AB1B22-E33B-409F-BF54-2F6FD071337A@kernel.crashing.org>
+Cc: Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH] ioremap_cached()
+Date: Thu, 30 Mar 2006 14:21:32 -0600
+To: Andi Kleen <ak@suse.de>
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+
+On Mar 30, 2006, at 2:17 PM, Andi Kleen wrote:
+
+> On Thursday 30 March 2006 22:14, Matthew Wilcox wrote:
 >
-> Andrew Morton <akpm@osdl.org> writes:
-> 
-> > +	if ((s64)offset < 0)
-> > +		goto out;
-> > +	if ((s64)endbyte < 0)
-> > +		goto out;
-> 
-> loff_t is long long on all arch. This is not need?
+>> I think you misunderstood.  The right interface to call, that should
+>> work everywhere, should be the simple, obvious one.  ioremap().  That
+>> effectively is what everyone gets anyway (since they test on x86).
+>> So change the *definition* of ioremap() to be uncached.  Then we  
+>> can add
+>> ioremap_wc() and ioremap_cached() for these special purpose mappings.
+>
+> That would break all the current users who do ioremap on memory
+> and want it cached.
 
-True, the casts happen to be unneeded.  But they do set the reader's mind
-at ease.
+What's an example of this?  I ask since on powerpc ioremap() is  
+always _PAGE_NO_CACHE.
 
-> > +	if (S_ISFIFO(file->f_dentry->d_inode->i_mode)) {
-> > +		ret = -ESPIPE;
-> > +		goto out_put;
-> > +	}
-> 
-> How about to check "if (!file->f_op || !file->f_op->fsync)" or something?
-
-This syscall won't call ->fsync.
-
-> For chrdev is also strange, and in the case of fsync(), it returns -EINVAL.
-> IMHO it seems there is consistency.
-> 
-
-I guess so.   Perhaps it should be S_ISREG|S_ISBLK|S_ISDIR|S_ISLNK.
+- kumar

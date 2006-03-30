@@ -1,56 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWC3Qlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWC3Qnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbWC3Qlm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 11:41:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWC3Qlm
+	id S932247AbWC3Qnl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 11:43:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWC3Qnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 11:41:42 -0500
-Received: from unthought.net ([212.97.129.88]:45576 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S932243AbWC3Qll (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 11:41:41 -0500
-Date: Thu, 30 Mar 2006 18:41:40 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Justin Piszcz <jpiszcz@lucidpixels.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: NFS/Kernel Problem: getfh failed: Operation not permitted
-Message-ID: <20060330164140.GD9811@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	"linux-os (Dick Johnson)" <linux-os@analogic.com>,
-	Justin Piszcz <jpiszcz@lucidpixels.com>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-References: <1143728720.8074.41.camel@lade.trondhjem.org> <Pine.LNX.4.64.0603300929340.18696@p34> <1143729766.8074.49.camel@lade.trondhjem.org> <Pine.LNX.4.64.0603300949000.18696@p34> <1143731364.8074.53.camel@lade.trondhjem.org> <Pine.LNX.4.64.0603301011160.18696@p34> <20060330153128.GB9811@unthought.net> <Pine.LNX.4.61.0603301053030.738@chaos.analogic.com> <20060330160521.GC9811@unthought.net> <Pine.LNX.4.61.0603301111421.738@chaos.analogic.com>
+	Thu, 30 Mar 2006 11:43:41 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:55477 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932247AbWC3Qnk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 11:43:40 -0500
+Date: Thu, 30 Mar 2006 10:43:33 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Chris Wright <chrisw@sous-sol.org>, David Lang <dlang@digitalinsight.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Sam Vilain <sam@vilain.net>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: [RFC] Virtualization steps
+Message-ID: <20060330164333.GI2403@sergelap.austin.ibm.com>
+References: <442A26E9.20608@vilain.net> <20060329182027.GB14724@sorel.sous-sol.org> <442B0BFE.9080709@vilain.net> <20060329225241.GO15997@sorel.sous-sol.org> <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com> <20060330013618.GS15997@sorel.sous-sol.org> <Pine.LNX.4.62.0603291738290.266@qynat.qvtvafvgr.pbz> <20060330020445.GT15997@sorel.sous-sol.org> <20060330143224.GC6933@sergelap.austin.ibm.com> <20060330153012.GA16720@MAIL.13thfloor.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0603301111421.738@chaos.analogic.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060330153012.GA16720@MAIL.13thfloor.at>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 30, 2006 at 11:14:11AM -0500, linux-os (Dick Johnson) wrote:
+Quoting Herbert Poetzl (herbert@13thfloor.at):
+> On Thu, Mar 30, 2006 at 08:32:24AM -0600, Serge E. Hallyn wrote:
+> > Quoting Chris Wright (chrisw@sous-sol.org):
+> > > * David Lang (dlang@digitalinsight.com) wrote:
+> > > > what if the people administering the container are different from the 
+> > > > people administering the host?
+> > > 
+> > > Yes, I alluded to that.
+> > > 
+> > > > in that case the people working in the container want to be able to 
+> > > > implement and change their own policy, and the people working on the host 
+> > > > don't want to have to implement changes to their main policy config (wtih 
+> > > > all the auditing that would be involved with it) every time a container 
+> > > > wants to change it's internal policy.
+> > > 
+> > > *nod*
+> > > 
+> > > > I can definantly see where a container aware policy on the master would be 
+> > > > useful, but I can also see where the ability to nest seperate policies 
+> > > > would be useful.
+> > > 
+> > > This is all fine.  The question is whether this is a policy management
+> > > issue or a kernel infrastructure issue.  So far, it's not clear that this
+> > > really necessitates kernel infrastructure changes to support container
+> > > aware policies to be loaded by physical host admin/owner or the virtual
+> > > host admin.  The place where it breaks down is if each virtual host
+> > > wants not only to control its own policy, but also its security model.
+> > 
+> > What do you define as 'policy', and how is it different from the
+> > security model?
+> > 
+> > > Then we are left with stacking modules or heavier isolation (as in Xen).
+> > 
+> > Hmm, talking about 'container' in this sense is confusing, because we're
+> > not yet clear on what a container is.
+> > 
+> > So I'm trying to get a handle on what we really want to do.
+> > 
+> > Talking about namespaces is tricky. For instance if I do
+> > clone(CLONE_NEWNS), the new process is in a new fs namespace, but the
+> > fs objects are still the same, so if it loads an LSM, then perhaps at
+> > most the new process should only control mount activities in its own
+> > namespace.
+> >
+> > Frankly I thought, and am still not unconvinced, that containers owned
+> > by someone other than the system owner would/should never want to load
+> > their own LSMs, so that this wasn't a problem. Isolation, as Chris has
+> > mentioned, would be taken care of by the very nature of namespaces.
+> >
+> > There are of course two alternatives... First, we might want to
+> > allow the machine admin to insert per-container/per-namespace LSMs.
+> > To support this case, we would need a way for the admin to tag a
+> > container some way identifying it as being subject to a particular set
+> > of security_ops.
+> >
+> > Second, we might want container admins to insert LSMs. In addition
+> > to a straightforward way of tagging subjects/objects with their
+> > container, we'd need to implement at least permissions for "may insert
+> > global LSM", "may insert container LSM", and "may not insert any LSM."
+> > This might be sufficient if we trust userspace to always create full
+> > containers. Otherwise we might want to support meta-policy along the
+> > lines of "may authorize ptrace and mount hooks only", or even "not
+> > subject to the global inode_permission hook, and may create its own."
 > 
-...
-> Well NFS is supposed to work like this.
+> sorry folks, I don't think that we _ever_ want container
+> root to be able to load any kernel modues at any time
+> without having CAP_SYS_ADMIN or so, in which case the
+> modules can be global as well ... otherwise we end up
+> as a bad Xen imitation with a lot of security issues,
+> where it should be a security enhancement ...
 
-I know that (which is why I once spent a *long* time troubleshooting
-this until someone told me that is was well known to cause flaky
-behaviour on Linux - quite unlike Solaris in the same setup).
+I agree.  As Chris points out, at most we should help LSM become
+container-aware.  But as the selinux example shows, even that should
+not be necessary.
 
-Anyway, it's a long time ago, and as I state initially, I don't know if
-this is still a problem.
+And that's for funky setups.  For normal setups, the isolation provided
+inherently by the namespaces should suffice.
 
-> If it doesn't, you may
-> have some far more serious problems, perhaps duplicate IP addresses,
-> etc., that prevent proper resolution and subsequent connections.
-> It has nothing to do with luck.
-
-Whatever you say.
-
--- 
-
- / jakob
-
+thanks,
+-serge

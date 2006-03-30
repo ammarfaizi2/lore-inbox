@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWC3LX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWC3Lhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWC3LX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 06:23:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWC3LX5
+	id S1751093AbWC3Lhe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 06:37:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWC3Lhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 06:23:57 -0500
-Received: from science.horizon.com ([192.35.100.1]:26415 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S932181AbWC3LX4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 06:23:56 -0500
-Date: 30 Mar 2006 06:23:49 -0500
-Message-ID: <20060330112349.11324.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux@horizon.com, osv@javad.com
-Subject: Re: Lifetime of flash memory
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87acb85tnb.fsf@javad.com>
+	Thu, 30 Mar 2006 06:37:34 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:54945 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751093AbWC3Lhd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 06:37:33 -0500
+Date: Thu, 30 Mar 2006 13:34:52 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: emin ak <eminak71@gmail.com>
+Cc: Kumar Gala <galak@kernel.crashing.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rt10 crash on ppc
+Message-ID: <20060330113452.GA9901@elte.hu>
+References: <2cf1ee820603270656w6697778ai83935217ea5ab3a5@mail.gmail.com> <2cf1ee820603271231l69187925j3150098097c7ca15@mail.gmail.com> <44288FB3.5030208@yahoo.com.au> <20060329150815.GA24741@elte.hu> <442B4890.6000905@yahoo.com.au> <20060330071322.GA3137@elte.hu> <F86880BD-2EE9-4078-AB28-F769EF507C3B@kernel.crashing.org> <20060330072339.GB3941@elte.hu> <2cf1ee820603300225x3c5a6f98qe8bdda1023f0d74f@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2cf1ee820603300225x3c5a6f98qe8bdda1023f0d74f@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.7 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> Due to the multiplexing scheme used in high-density NAND flash devices,
->>>> even the non-programmed cells are exposed to a fraction of the programming
->>>> voltage and there are very low limits on the number of write cycles to
->>>> a page before it has to be erased again.  Exceeding that can cause some
->>>> unwanted bits to change from 1 to 0.  Typically, however, it is enough
->>>> to write each 512-byte portion of a page independently.
->>>
->>> Well, I'm not sure. The Toshiba and Samsung NANDs I've read manuals for
->>> seem to limit number of writes to a single page before block erase, --
->>> is 512-byte portion some implementation detail I'm not aware of?
->>
->> No.  I just meant that I generally see "you may program each 2K page a
->> maximum of 4 times before performing an erase cycle", and I assume the
->> spec came from 2048/512 = 4, so you can program each 512-byte sector
->> separately.
->
-> I've a file system implementation that writes up to 3 times to the first
-> 3 bytes of the first page of a block (clearing more and more bits every
-> time), and it seems to work in practice, so maybe this number (4) came
-> from another source? Alternatively, it works by accident and then I need
-> to reconsider the design.
 
-No, I'm sorry, I was still unclear.  The spec is 4 writes per page.
-I believe that the REASON for this spec was so that people could write
-512+16 bytes at a time just like they did with small-block devices and
-it would work.
+* emin ak <eminak71@gmail.com> wrote:
 
-But I do not believe there is any limitation on the pattern you may use,
-so your system should work fine.
+> Soryy fot the late answer. I have change the driver to use 
+> SA_INTERRUPT, OOM messages disappeared but the ethernet throughput 
+> decreased significantly as Kumar said before(90MBit for 1518Byte 
+> packet, and throughput without the patch is about 900Bits) and the 
+> system can't manage load balancing between to interfaces,the system 
+> acts like the priorty of tsec0 (eth0) is higher then tsec1 because of 
+> this, under heavy load on tsec0 blocks packet receiving on tsec1 
+> (eth1). And also I have tried Nick solution, increased 
+> /proc/sys/vm/min_free_kbytes to 10MB, the result did'nt changed, OOM 
+> messages was repeated again.
+> I'll try Ingo patch immediately and and report you the results.
 
-What confuses me is that I thought I said (quoted above; paraphrasing
-here) "there is a very low limit on the number of times you may write
-to a page.  That limit is large enough that you can do pagesize/512 =
-2048/512 = 4 separate 512-byte writes."  I didn't intend to imply that
-that was the ONLY legal pattern.
+well, if SA_INTERRUPT made a difference then you are likely not running 
+PREEMPT_RT nor PREEMPT_HARDIRQS. Could you send me your .config?
 
-But from your comments, I'm getting the impression that you think I did
-say that was the only legal pattern.  If that impression is correct,
-I'm not sure how you read that into my statements.
-
-
-(I wonder if the actual limit is the number of writes per BLOCK, and
-they just expressed it as writes per page.  I don't know enough about
-the programming circuitry to know what's exposed to what voltages.
-If the physics implied it, it would be useful flexibility for file system
-design.)
+	Ingo

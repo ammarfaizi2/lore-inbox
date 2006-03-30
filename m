@@ -1,165 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWC3BXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbWC3BfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751419AbWC3BXk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 20:23:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWC3BXk
+	id S1751265AbWC3BfW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 20:35:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWC3BfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 20:23:40 -0500
-Received: from 63.15.233.220.exetel.com.au ([220.233.15.63]:13242 "EHLO
-	hufpuf.lan1.hme1.samad.com.au") by vger.kernel.org with ESMTP
-	id S1751419AbWC3BXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 20:23:39 -0500
-Date: Thu, 30 Mar 2006 11:23:41 +1000
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][INCOMPLETE] sata_nv: merge ADMA support
-Message-ID: <20060330012340.GC7785@hufpuf.lan1.hme1.samad.com.au>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20060317232339.GA5674@ti64.telemetry-investments.com> <20060327160845.GG9411@ti64.telemetry-investments.com> <200603271646.55317.lkml@lpbproductions.com> <200603271700.53641.lkml@lpbproductions.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="adJ1OR3c6QgCpb/j"
+	Wed, 29 Mar 2006 20:35:22 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:54913 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751265AbWC3BfV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 20:35:21 -0500
+Date: Wed, 29 Mar 2006 17:36:18 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Chris Wright <chrisw@sous-sol.org>, Sam Vilain <sam@vilain.net>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>
+Subject: Re: [RFC] Virtualization steps
+Message-ID: <20060330013618.GS15997@sorel.sous-sol.org>
+References: <20060328085206.GA14089@MAIL.13thfloor.at> <4428FB29.8020402@yahoo.com.au> <20060328142639.GE14576@MAIL.13thfloor.at> <44294BE4.2030409@yahoo.com.au> <m1psk5kcpj.fsf@ebiederm.dsl.xmission.com> <442A26E9.20608@vilain.net> <20060329182027.GB14724@sorel.sous-sol.org> <442B0BFE.9080709@vilain.net> <20060329225241.GO15997@sorel.sous-sol.org> <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200603271700.53641.lkml@lpbproductions.com>
-User-Agent: Mutt/1.5.11+cvs20060126
-From: Alexander Samad <alex@samad.com.au>
+In-Reply-To: <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---adJ1OR3c6QgCpb/j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi
-
-I was wondering if the patch for sata_nv to hanlde the lost interrupts
-has been submitted for inclussion in the kernel.
-
-I have sort of been  following this thread, were it seems that the
-interrupt problem has been fixed, but they were also going to fix the
-adma problem as well.
-
-I did a quick check of 2.6.16 changelog and see no mention for sata_nv.
-
-I seem to suffere from this issue quite often - doing dvd burns across a
-network.....
-
-Thanks
-
-On Mon, Mar 27, 2006 at 05:00:53PM -0500, Matt Heler wrote:
-> I forgot to include this.. but here's my bios version=20
->=20
->         Vendor: Phoenix Technologies, LTD
->         Version: 6.00 PG
->         Release Date: 06/23/2005
->=20
-> On Monday 27 March 2006 4:46 pm, Matt Heler wrote:
-> > Hey Bill,
+* Eric W. Biederman (ebiederm@xmission.com) wrote:
+> Chris Wright <chrisw@sous-sol.org> writes:
+> 
+> > * Sam Vilain (sam@vilain.net) wrote:
+> >> extern struct security_operations *security_ops; in
+> >> include/linux/security.h is the global I refer to.
 > >
-> > I spoke abit to soon though regarding that stability.. After booting up=
- X
-> > and running Azerues and kde, my system stalled and locked. However it
-> > lasted much longer then Jeff's version.
+> > OK, I figured that's what you meant.  The top-level ops are similar in
+> > nature to inode_ops in that there's not a real compelling reason to make
+> > them per process.  The process context is (usually) available, and more
+> > importantly, the object whose access is being mediated is readily
+> > available with its security label.
 > >
-> > I'm running the DFI Lanparty with an Athlon 4400. I also have the follo=
-wing
-> > setup
+> >> There is likely to be some contention there between the security folk
+> >> who probably won't like the idea that your security module can be
+> >> different for different processes, and the people who want to provide
+> >> access to security modules on the systems they want to host or consolidate.
 > >
-> > 2x300gb seagate drives 7200.8 in a raid0 format with ext3
-> > 2x400gb seagate drives 7200.9 again in a raid0 format with ext3
-> >
-> > and lspci gives me the following ::
-> >
-> > 00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev a2)
-> > 00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller (=
-rev
-> > a3) 00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA Controll=
-er
-> > (rev a3)
-> >
-> > On Monday 27 March 2006 11:08 am, Bill Rugolsky Jr. wrote:
-> > > On Sun, Mar 26, 2006 at 08:14:35PM -0500, Matt Heler wrote:
-> > > > Using Bill's original patch I was able to boot up perfectly with ad=
-ma
-> > > > support enabled on my workstation. Even after several stress tests (
-> > > > tar -cf /dev/null . , and dd if=3D/dev/sda of=3D/dev/null ), everyt=
-hing
-> > > > seems to be a-ok. However when I tried the sata_nv.c file that you =
-sent
-> > > > to Bill, I kept on getting hardlocks, and thus was unable to stress
-> > > > test your version.
-> > > >
-> > > > Also for note, I heve not received any of the timeout problems repo=
-rted
-> > > > by Bill. Nor have I had any latency problems with adma enabled.
-> > >
-> > > Matt,
-> > >
-> > > Nice to see some value falling out of this sata_nv thread.  Did you s=
-ee
-> > > latency problems before enabling ADMA?
-> > >
-> > > Would you provide some specifics on your setup?
-> > >
-> > > Which motherboard, #CPUs, BIOS revision, kernel, MD/LVM2/fs?
-> > >
-> > > On two of my Tyan S2895 machines, including the one that I'm using for
-> > > testing, lspci says:
-> > >
-> > > 00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev f2)
-> > > 00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller
-> > > (rev f3) 00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA
-> > > Controller (rev f3)
-> > >
-> > > and dmidecode says:
-> > >
-> > > BIOS Information
-> > >         Vendor: Phoenix Technologies Ltd.
-> > >         Version: 2004Q3
-> > >         Release Date: 10/12/2005
-> > >
-> > > The other, where I first had lost tick problems, says:
-> > >
-> > > 00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev a2)
-> > > 00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller
-> > > (rev a3) 00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA
-> > > Controller (rev a3)
-> > >
-> > > BIOS Information
-> > > 	Vendor: Phoenix Technologies Ltd.
-> > > 	Version: 2004Q3
-> > > 	Release Date: 06/07/2005
-> > >
-> > >
-> > > Thanks,
-> > >
-> > > 	Bill
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->=20
+> > I think the current setup would work fine.  It's less likely that we'd
+> > want a separate security module for each container than simply policy
+> > that is container aware.
+> 
+> I think what we really want are stacked security modules.
 
---adJ1OR3c6QgCpb/j
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+I'm not convinced we need a new module for each container.  The module
+is a policy enforcement engine, so give it a container aware policy and
+you shouldn't need another module.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
+> I have not yet fully digested all of the requirements for multiple servers
+> on the same machine but increasingly the security aspects look
+> like a job for a security module.
 
-iD8DBQFEKzMckZz88chpJ2MRAtVlAJ9hfWB4sNimWf3dB23umzxixyr7mwCg71p0
-H1qXxZSibOIH/nA5ogi8omY=
-=HtMy
------END PGP SIGNATURE-----
+There's two primary security areas here.  One is container level
+isolation, which is the job of the container itself.  Security modules
+can effectively introduce containers, but w/out any notion of a virtual
+environment (easy example, uts).  With namespaces you get isolation w/out
+any formal access control check, you simply can't find objects that aren't
+in your namespace.  The second is object level isolation (objects such
+as files, processes, etc), standard access control checks that should
+happen within a container.  This can be handled quite naturally by the
+security module.
 
---adJ1OR3c6QgCpb/j--
+> Enforcing policies like container A cannot send signals to processes
+> in container B or something like that.
+
+This is a question of visibility.  One method of containment is via
+LSM.  This checks all object access against a label that's aware of
+container ids to disallow inter-container, well, anything.  However,
+if a namespace would mean you simply can't find those other processes,
+then there's no need for the LSM side except for intra-container.
+
+> Then inside of each container we could have the code that implements
+> a containers internal security policy.
+
+Right, and that's doable as a single top-level policy.  It's a bit
+interesting when you want to be able to specifiy policy from within a
+container (e.g. virtual hosting), granted.
+
+> At least one implementation Linux Jails by Serge E. Hallyn was done completely
+> with security modules, and the code was pretty minimal.
+
+Yes, although the networking area was something that looked better done
+via namespaces (at least that's my recollection of my conversations with
+Serge on that one a few years back).
+
+thanks,
+-chris

@@ -1,92 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbWC3UTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWC3UTo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750802AbWC3UTG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 15:19:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWC3UTF
+	id S1750804AbWC3UTo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 15:19:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbWC3UTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 15:19:05 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:61658 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750804AbWC3UTD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 15:19:03 -0500
-Subject: Re: [Ext2-devel] [BENCHMARK] fswide dirty bit for ext2
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-To: Valerie Henson <val_henson@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       Zach Brown <zach.brown@oracle.com>, "Theodore Ts'o" <tytso@mit.edu>,
-       Arjan van de Ven <arjan@linux.intel.com>
-In-Reply-To: <20060329065724.GD16173@goober>
-References: <20060329065724.GD16173@goober>
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Thu, 30 Mar 2006 12:18:49 -0800
-Message-Id: <1143749930.3896.59.camel@dyn9047017067.beaverton.ibm.com>
+	Thu, 30 Mar 2006 15:19:44 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:59605 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750817AbWC3UTn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 15:19:43 -0500
+Date: Thu, 30 Mar 2006 12:19:03 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: neilb@suse.de, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       mtk-manpages@gmx.net, nickpiggin@yahoo.com.au
+Subject: Re: [patch 1/1] sys_sync_file_range()
+Message-Id: <20060330121903.643352ac.akpm@osdl.org>
+In-Reply-To: <87d5g4rlth.fsf@duaron.myhome.or.jp>
+References: <200603300741.k2U7fQLe002202@shell0.pdx.osdl.net>
+	<17451.36790.450410.79788@cse.unsw.edu.au>
+	<20060330003246.31216ff2.akpm@osdl.org>
+	<87d5g4rlth.fsf@duaron.myhome.or.jp>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-28 at 22:57 -0800, Valerie Henson wrote:
-> I am working on a file system wide dirty bit for ext2.  This allows
-> you to skip a full fsck if you crash while the file system is not
-> being actively modified.
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+>
+> Andrew Morton <akpm@osdl.org> writes:
 > 
-> Zach Brown was kind enough to run a few benchmarks comparing various
-> versions of ext2 and ext3.  Results:
+> > +	if ((s64)offset < 0)
+> > +		goto out;
+> > +	if ((s64)endbyte < 0)
+> > +		goto out;
 > 
->            ext2   ext2r *ext2fw*   ext3  ext3wb
-> kuntar    17.86   19.59   17.58   21.10   30.60
-> postmark   6.41    6.57    8.48   30.87   15.47
-> tiobench  34.11   34.96   34.26   34.00   34.06
-> 
-> ext2: ext2: 4k blocks, noatime
-> ext2r: ext2: 4k blocks, noatime, reservations
-> ext2fw: ext2: 4k blocks, noatime, reservations, fswide
-> ext3: ext3: 4k blocks, 256m journal, noatime
-> ext3wb: ext3: 4k blocks, 256m journal, noatime, data=writeback
-> kuntar: expanding a cached uncompressed kernel tarball and syncing
-> postmark: postmark: numbers = 10000, transactions = 10000
-> tiobench: tiobench: 16 threads, 256m size
-> 
-> The summary is that ext2+fswide bit is the same as plain ext2 except
-> 30% slower on postmark.  Slower postmark is expected given the orphan
-> inode list requires at least two writes to either the superblock or
-> another inode per file removal.  An obvious improvement would be
-> per-block group orphan inode lists, which would require a non-trivial
-> but not frightening patch to fsck. (This might also be ported to
-> ext3.) Other ideas?
-> 
-> I split out the ext2 reservations port into its own patch.
-> ext2+reservations alone is strangely slower than ext2+fswide on one
-> benchmark; I did some preliminary debugging but didn't find anything
-> obvious wrong as yet.  The patches are available for anyone who wants
-> to track this down themselves before I get around to it.
-> 
-Patch looks fine from 5 minutes review. I will look more closely at your
-port later. Does this regression on kuntar tests happened on ext3 also?
+> loff_t is long long on all arch. This is not need?
 
-> Patches against 2.6.16-rc5-mm3 here:
-> 
-> Fswide bit (includes reservations):
-> 
-> http://infohost.nmt.edu/~val/patches/fswide_shorter_patch
-> 
-> Reservations only:
-> 
-> http://infohost.nmt.edu/~val/patches/resv_only_patch
-> 
-> -VAL
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by xPML, a groundbreaking scripting language
-> that extends applications into web and mobile media. Attend the live webcast
-> and join the prime developer group breaking into this new coding territory!
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=110944&bid=241720&dat=121642
-> _______________________________________________
-> Ext2-devel mailing list
-> Ext2-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/ext2-devel
+True, the casts happen to be unneeded.  But they do set the reader's mind
+at ease.
 
+> > +	if (S_ISFIFO(file->f_dentry->d_inode->i_mode)) {
+> > +		ret = -ESPIPE;
+> > +		goto out_put;
+> > +	}
+> 
+> How about to check "if (!file->f_op || !file->f_op->fsync)" or something?
+
+This syscall won't call ->fsync.
+
+> For chrdev is also strange, and in the case of fsync(), it returns -EINVAL.
+> IMHO it seems there is consistency.
+> 
+
+I guess so.   Perhaps it should be S_ISREG|S_ISBLK|S_ISDIR|S_ISLNK.

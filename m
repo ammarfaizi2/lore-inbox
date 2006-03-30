@@ -1,89 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWC3Sid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWC3Smd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWC3Sid (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 13:38:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWC3Sic
+	id S1750700AbWC3Smd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 13:42:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbWC3Smd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 13:38:32 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:33493 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750703AbWC3Sic (ORCPT
+	Thu, 30 Mar 2006 13:42:33 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:31919 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750700AbWC3Smd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 13:38:32 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH] mm: swsusp shrink_all_memory tweaks
-Date: Thu, 30 Mar 2006 20:37:13 +0200
-User-Agent: KMail/1.9.1
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       linux-mm@kvack.org
-References: <200603200231.50666.kernel@kolivas.org> <200603241714.48909.rjw@sisk.pl> <200603301912.32204.rjw@sisk.pl>
-In-Reply-To: <200603301912.32204.rjw@sisk.pl>
+	Thu, 30 Mar 2006 13:42:33 -0500
+Message-ID: <442C268F.7080701@us.ibm.com>
+Date: Thu, 30 Mar 2006 10:42:23 -0800
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Nathan Scott <nathans@sgi.com>
+CC: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
+       lkml <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
+Subject: Re: kernel BUG at fs/direct-io.c:916!
+References: <20060326230206.06C1EE083AAB@knarzkiste.dyndns.org> <20060326180440.GA4776@charite.de> <20060326184644.GC4776@charite.de> <20060327080811.D753448@wobbly.melbourne.sgi.com> <20060326230358.GG4776@charite.de> <20060327060436.GC2481@frodo> <20060327110342.GX21946@charite.de> <20060328050135.GA2177@frodo> <1143567049.26106.2.camel@dyn9047017100.beaverton.ibm.com> <20060329082345.G871924@wobbly.melbourne.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603302037.14421.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[update]
 
-On Thursday 30 March 2006 19:12, Rafael J. Wysocki wrote:
-> On Friday 24 March 2006 17:14, Rafael J. Wysocki wrote:
-> > On Friday 24 March 2006 16:30, Con Kolivas wrote:
-> > > On Saturday 25 March 2006 02:16, Rafael J. Wysocki wrote:
-> > > > On Friday 24 March 2006 08:07, Con Kolivas wrote:
-> > > > > On Tuesday 21 March 2006 05:46, Rafael J. Wysocki wrote:
-> > > > > > swsusp_shrink_memory() is still wrong, because it will always fail for
-> > > > > > image_size = 0.  My bad, sorry.
-> > > > > >
-> > > > > > The appended patch (on top of yours) should fix that (hope I did it
-> > > > > > right this time).
-> > > > >
-> > > > > Well I discovered that if all the necessary memory is freed in one call
-> > > > > to shrink_all_memory we don't get the nice updating printout from
-> > > > >  swsusp_shrink_memory telling us we're making progress. So instead of
-> > > > >  modifying the function to call shrink_all_memory with the full amount
-> > > > > (and since we've botched swsusp_shrink_memory a few times between us), we
-> > > > > should limit it to a max of SHRINK_BITEs instead.
-> > > > >
-> > > > >  This patch is fine standalone.
-> > > > >
-> > > > >  Rafael, Pavel what do you think of this one?
-> > > >
-> > > > In principle it looks good to me, but when I tested the previous one I
-> > > > noticed shrink_all_memory() tended to return 0 prematurely (ie. when it was
-> > > > possible to free some more pages).  It only happened if more than 50% of
-> > > > memory was occupied by application data.
-> > > >
-> > > > Unfortunately I couldn't find the reason.
-> > > 
-> > > Perhaps it was just trying to free up too much in one go. There are a number 
-> > > of steps a mapped page needs to go through before being finally swapped and 
-> > > there are a limited number of iterations over it. Limiting it to SHRINK_BITEs 
-> > > at a time will probably improve that.
-> > 
-> > OK [I'll be testing it for the next couple of days.]
-> 
-> OK, I have the following observations:
-> 
-> 1) The patch generally causes more memory to be freed during suspend than
-> the unpatched code (good).
 
-Oops.  s/more/less/
+Nathan Scott wrote:
 
-By which I mean with the patch applied the actual image size is usually closer
-to the value of image_size.
+>On Tue, Mar 28, 2006 at 09:30:44AM -0800, Badari Pulavarty wrote:
+>
+>>Thanks for working this out. You may want to add a description
+>>to the patch. Like:
+>>
+>>"inode->i_blkbits should be used instead of dio->blkbits, as
+>>it may not indicate the filesystem block size all the time".
+>>
+>
+>Will do, thanks.  Oh, another thing - what is the situation
+>where a NULL bdev would be passed into __blockdev_direct_IO?
+>All the filesystems seem to pass i_sb->s_bdev, so I guess it
+>must be blkdev_direct_IO - can I_BDEV(inode) ever be NULL on
+>a block device inode (doesn't sound right)?  If it cannot, I
+>suppose we should remove those NULL bdev checks too...
+>
+>cheers.
+>
 
-> 2) However, if more than 50% of RAM is used by application data, it causes
-> the swap prefetch to trigger during resume (that's an impression; anyway
-> the system swaps in a lot at that time), which takes some time (generally
-> it makes resume 5-10s longer on my box).
-> 3) The problem with returning zero prematurely has not been entirely
-> eliminated.  It's happened for me only once, though.
+I can't think of a case, where we would end up getting b_dev = NULL in 
+direct
+IO code.
 
-Greetings,
-Rafael
+Thanks,
+Badari
+
+>
+>
+
+
+

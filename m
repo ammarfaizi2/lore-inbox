@@ -1,68 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWC3Rgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWC3Rix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbWC3Rgl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 12:36:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWC3Rgl
+	id S1751344AbWC3Rix (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 12:38:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWC3Rix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 12:36:41 -0500
-Received: from mail.clusterfs.com ([206.168.112.78]:2540 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1750923AbWC3Rgk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 12:36:40 -0500
-Date: Thu, 30 Mar 2006 10:36:37 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Takashi Sato <sho@tnes.nec.co.jp>,
-       Laurent Vivier <Laurent.Vivier@bull.net>, linux-kernel@vger.kernel.org,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/2]Extend ext3 filesystem limit from 8TB to 16TB
-Message-ID: <20060330173637.GV5030@schatzie.adilger.int>
-Mail-Followup-To: Mingming Cao <cmm@us.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, Takashi Sato <sho@tnes.nec.co.jp>,
-	Laurent Vivier <Laurent.Vivier@bull.net>,
-	linux-kernel@vger.kernel.org,
-	ext2-devel <ext2-devel@lists.sourceforge.net>,
-	linux-fsdevel@vger.kernel.org
-References: <20060325223358sho@rifu.tnes.nec.co.jp> <1143485147.3970.23.camel@dyn9047017067.beaverton.ibm.com> <20060327131049.2c6a5413.akpm@osdl.org> <20060327225847.GC3756@localhost.localdomain> <1143530126.11560.6.camel@openx2.frec.bull.fr> <1143568905.3935.13.camel@dyn9047017067.beaverton.ibm.com> <1143623605.5046.11.camel@openx2.frec.bull.fr> <1143682730.4045.145.camel@dyn9047017067.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1143682730.4045.145.camel@dyn9047017067.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Thu, 30 Mar 2006 12:38:53 -0500
+Received: from 26.mail-out.ovh.net ([213.186.42.179]:49585 "EHLO
+	26.mail-out.ovh.net") by vger.kernel.org with ESMTP
+	id S1751346AbWC3Riw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 12:38:52 -0500
+Date: Thu, 30 Mar 2006 19:35:24 +0200
+From: col-pepper@piments.com
+To: "Mathis Ahrens" <Mathis.Ahrens@gmx.de>, "Chris Mason" <mason@suse.com>
+Subject: Re: o_sync in vfat driver
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <op.s5lrw0hrj68xd1@mail.piments.com> <op.s5nkafhpj68xd1@mail.piments.com> <20060227151230.695de2af.akpm@osdl.org> <200602281347.46169.mason@suse.com> <4429ED2F.10407@gmx.de>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <op.s68ls1r8j68xd1@mail.piments.com>
+In-Reply-To: <4429ED2F.10407@gmx.de>
+User-Agent: Opera M2/8.52 (Linux, build 1631)
+X-Ovh-Remote: 80.170.110.32 (d80-170-110-32.cust.tele2.fr)
+X-Ovh-Local: 213.186.33.20 (ns0.ovh.net)
+X-Spam-Check: fait|type 1&3|2.3|H 0.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 29, 2006  17:38 -0800, Mingming Cao wrote:
-> There are places in ext3 code to use "int" to represent block numbers in
-> kernel(not on-disk). This seems the "only" reason that why we can only
-> have 8TB ext3 rather than 16TB.  Most times it just a bug with no
-> particular reason why not use unsigned 32 bit value, so the fix is easy.
-> 
-> However, it is not so straightforward fix for the ext3 block allocation
-> code, as ext3_new_block() returns a block number, and "-1" to indicating
-> block allocation failure. Ext3 block reservation code, called by
-> ext3_new_block(), thus also use "int" for block numbers in some places.
+On Wed, 29 Mar 2006 04:13:03 +0200, Mathis Ahrens <Mathis.Ahrens@gmx.de>  
+wrote:
 
-What might make the code a lot clearer, easier to audit, and easier to
-fix in the future is to declare new types for fs block offsets and group
-block offsets.  Something like "ext3_fsblk" and "ext3_grblk".  That way,
-we can declare ext3_fsblk as "unsigned long" and "ext3_grblk" as "unsigned
-int", and we could optionally change ext3_fsblk to be "unsigned long long"
-later to support 64-bit filesystems without having to re-patch all of the
-code.
+> Hi all,
+>
+> Chris Mason wrote:
+>> On Monday 27 February 2006 18:12, Andrew Morton wrote:
+>>
+>>> We don't know that the same number of same-sized write()s were  
+>>> happening in
+>>> each case.
+>>>
+>>> There's been some talk about implementing fsync()-on-file-close for  
+>>> this
+>>> problem, and some protopatches.  But nothing final yet.
+>>>
+>>
+>> Here's the patch I'm using in -suse right now.  What I want to do is  
+>> make a much more generic -o flush, but it'll still need a few bits in  
+>> individual filesystem to kick off metadata writes quickly.
+>>
+>> The basic goal behind the code is to trigger writes without waiting for  
+>> both
+>> data and metadata.  If the user is watching the memory stick, when the  
+>> little light stops flashing all the data and metadata will be on disk.
+>>
+>> It also generally throttles userland a little during file release.   
+>> This could be changed to throttle for each page dirtied, but most users  
+>> I asked liked the current setup better.
+>>
+>
+> I like the idea and would like to see something like this in mainline.
+>
+> Here is some non-scientific benchmark done with 2.6.16, comparing
+> default mount and flush mount of a USB2 stick:
+>
+> /////////////////////////////////////////////////////////////////////
+> Single File "Test": 43MB
+> $ time cp Test /media/usbdisk/test/ && time umount /media/usbdisk/
+> /////////////////////////////////////////////////////////////////////
+>
+> VANILLA:
+>
+> real    0m3.770s
+> user    0m0.004s
+> sys     0m0.308s
+>
+> real    0m9.439s
+> user    0m0.000s
+> sys     0m0.040s
+>
+> FLUSH:
+>
+> real    0m6.000s
+> user    0m0.012s
+> sys     0m0.400s
+>
+> real    0m3.668s
+> user    0m0.000s
+> sys     0m0.028s
+>
+> REAL TIME RATIO (FLUSH/VANILLA):
+> 9.6 / 13.1 = 0.73
+>
+> /////////////////////////////////////////////////////////////////////
+> Directory Tree "flushtest": 44MB (8866 files, 1820 dirs)
+> $ time cp -R flushtest/ /media/usbdisk/ && time umount /media/usbdisk/
+> /////////////////////////////////////////////////////////////////////
+>
+> VANILLA:
+>
+> real    0m0.966s
+> user    0m0.024s
+> sys     0m0.860s
+>
+> real    1m11.962s
+> user    0m0.004s
+> sys     0m0.160s
+>
+> FLUSH:
+>
+> real    1m41.645s
+> user    0m0.032s
+> sys     0m1.112s
+>
+> real    0m4.660s
+> user    0m0.004s
+> sys     0m0.068s
+>
+> REAL TIME RATIO (FLUSH/VANILLA):
+> 106.3 / 77.9 = 1.36
+>
+>
 
-It would be more clear what type of block offset a function is handling
-(fs-wide or group-relative).  If we wanted to be able to overload the
-block number with an error code we could use ERR_PTR and PTR_ERR like
-macros, and just restrict the filesystem to 2^32 - 1024 blocks until we
-extend it to 64 bits.
+That's interesting, albeit non-scientific, I think it is quite informative.
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+There are two basic problems with the current code: speed is down by  
+around and order of magnitude compared to a non-synced write and the fact  
+that the code is hammering the FAT.  The two are obviously related.
+
+Viewing the system globally rather than considering the details of the  
+techniques used, it would seem that any algorithm that does not  
+drastically reduce write times, at least on the one large file test , is  
+missing the mark and presumably repeating the problem in a slightly  
+different way.
+
+Not knocking the efforts Chris has put in , it's great to see this is  
+getting some attention, but I think viewing overall performance times as  
+shown above gives a touchstone as to whether any particular proto is  
+effective.
+
+The fact that flush can be almost 40% slower in some cases is worrying.
+
+Thanks for the info.
 

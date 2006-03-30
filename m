@@ -1,40 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWC3S1D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWC3S1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbWC3S1D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 13:27:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWC3S1A
+	id S1751361AbWC3S1q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 13:27:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWC3S1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 13:27:00 -0500
-Received: from systemlinux.org ([83.151.29.59]:40637 "EHLO m18s25.vlinux.de")
-	by vger.kernel.org with ESMTP id S1751362AbWC3S07 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 13:26:59 -0500
-Date: Thu, 30 Mar 2006 20:26:43 +0200
-From: Andre Noll <maan@systemlinux.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, beware <wimille@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Float numbers in module programming
-Message-ID: <20060330182643.GV27173@skl-net.de>
-References: <3fd7d9680603290634n6fabcdc7r193c30447acc1858@mail.gmail.com> <Pine.LNX.4.61.0603290955440.27913@chaos.analogic.com> <Pine.LNX.4.61.0603301010400.30783@yvahk01.tjqt.qr> <Pine.LNX.4.61.0603300739050.32259@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Mar 2006 13:27:46 -0500
+Received: from xproxy.gmail.com ([66.249.82.192]:45659 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751362AbWC3S1p convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 13:27:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Ku7S1JFhiQ4wpwk+R1+/8Z4yJkh8lTSuENDdeXN0rbpB8kpJI4kcb7Q/kK8Io825vfx//ExELbmj0Zii0vyh/Z+kNjvz6VU1SOFQuLnZR4kz/+22BcZ57ZRkFokOzwXOxooE4LxXzQygOM44a30h2fwdNIE8h9B4wXaleGKVki4=
+Message-ID: <c0a09e5c0603301027j50f09acbq9ed2df95f80cfa8d@mail.gmail.com>
+Date: Thu, 30 Mar 2006 10:27:44 -0800
+From: "Andrew Grover" <andy.grover@gmail.com>
+To: "Kumar Gala" <galak@kernel.crashing.org>
+Subject: Re: [PATCH 1/8] [I/OAT] DMA memcpy subsystem
+Cc: "Chris Leech" <christopher.leech@intel.com>,
+       "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+In-Reply-To: <F9901EAA-FA85-4C9C-94F5-BE6A9C62A4A4@kernel.crashing.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0603300739050.32259@chaos.analogic.com>
-User-Agent: Mutt/1.5.9i
+References: <20060311022759.3950.58788.stgit@gitlost.site>
+	 <20060311022919.3950.43835.stgit@gitlost.site>
+	 <2FF801BB-F96C-4864-AC44-09B4B92531F7@kernel.crashing.org>
+	 <c0a09e5c0603281044i57730c66ye08c45aadd352cf8@mail.gmail.com>
+	 <D760971F-3C6A-400B-99EA-E95358B37F82@kernel.crashing.org>
+	 <c0a09e5c0603281401uaeea6aci57054aef444a5e1@mail.gmail.com>
+	 <3B202D51-1683-465D-AE3D-DE301017BD69@kernel.crashing.org>
+	 <c0a09e5c0603291505h10f062d5qd6e1861ef052d07b@mail.gmail.com>
+	 <F9901EAA-FA85-4C9C-94F5-BE6A9C62A4A4@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08:09, linux-os (Dick Johnson) wrote:
+On 3/30/06, Kumar Gala <galak@kernel.crashing.org> wrote:
+> I was under the impression that the DMA engine would provide a "sync"
+> cpu based memcpy (PIO) if a real HW channel wasn't avail, if this is
+> left to the client that's fine.  So how does the client know he
+> should use normal memcpy()?
 
-> For instance __all__ real numbers, except for transcendentals, can
-> be represented as a ratio of two integers.
+It has to keep track of what DMA channel to use, which it gets when
+the channel ADDED callback happens. So it's basically
 
-Nope. It was known already to Euklid (300 before christ) that the real
-number sqrt(2) can _not_ be represented as ratio of two integers. Of
-course, sqrt(2) is not transcendental because it is a zero of x^2 -
-2, a polynomial with integer coefficients.
+if (some_client_struct->dma_chan)
+    dma_memcpy()
+else
+    memcpy()
 
-Andre
--- 
-The only person who always got his work done by Friday was Robinson Crusoe
+The async memcpy has the added requirement that at some point the
+client must verify the copies have been completed, so doing async
+memcopies does require more work on the client's part.
+
+> Sounds good for a start.  Have you given any thoughts on handling
+> priorities between clients?
+>
+> I need to take a look at the latest patches. How would you guys like
+> modifications?
+
+Haven't given any thought to priorities yet -- we've been focusing on
+getting the 1 client case to perform well. :)
+
+Chris posted a link to this: git://198.78.49.142/~cleech/linux-2.6
+branch ioat-2.6.17
+
+So you can post patches against that, or the patches posted here apply
+against davem's git tree.
+
+Regards -- Andy

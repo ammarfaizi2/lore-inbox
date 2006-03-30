@@ -1,57 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWC3Lvx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWC3LxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751127AbWC3Lvx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 06:51:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWC3Lvx
+	id S1751134AbWC3LxX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 06:53:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWC3LxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 06:51:53 -0500
-Received: from wproxy.gmail.com ([64.233.184.224]:3463 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751127AbWC3Lvw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 06:51:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=nqHo7g5ciIvfQhE5nhGntgSxpS9e8juPaHv9ylzw87zXcF71J6FLxHo8whDOuK0T0ivqkbLlJuC9tlhWhG++rORPP37+z1370d/7orUJSe7on/0h64vx6Ptt8G5tjMP0Nc8JN2eblAZjO4sFKwYt78E2bG47n/Ao2ZFMmCKvIBc=
-Date: Thu, 30 Mar 2006 13:51:45 +0200
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: Takashi Iwai <tiwai@suse.de>, Clemens Ladisch <clemens@ladisch.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.16-mm2] Kconfig SND_SEQUENCER_OSS help text fix
-Message-ID: <20060330115145.GB10311@silenus.home.res>
-References: <20060328003508.2b79c050.akpm@osdl.org> <20060328134654.GA9671@silenus.home.res> <1143617782.442a38f61b98b@www.domainfactory-webmail.de> <20060329094419.GA9446@silenus.home.res> <s5hacb9kt96.wl%tiwai@suse.de> <20060330073605.GA10311@silenus.home.res> <442BA30C.70606@keyaccess.nl>
-MIME-Version: 1.0
+	Thu, 30 Mar 2006 06:53:23 -0500
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:21712 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1751134AbWC3LxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 06:53:22 -0500
+Date: Thu, 30 Mar 2006 13:53:15 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: OGAWA Hirofum <hirofumi@mail.parknet.co.jp>
+Cc: Con Kolivas <kernel@kolivas.org>, john stultz <johnstul@us.ibm.com>,
+       bert hubert <bert.hubert@netherlabs.nl>, linux-kernel@vger.kernel.org,
+       george@mvista.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] PM-Timer: doesn't use workaround if chipset is not buggy
+Message-ID: <20060330115315.GA15375@rhlx01.fht-esslingen.de>
+References: <20060320122449.GA29718@outpost.ds9a.nl> <1142968999.4281.4.camel@leatherman> <8764m7xzqg.fsf@duaron.myhome.or.jp> <200603221121.16168.kernel@kolivas.org> <87hd5qmi1d.fsf_-_@duaron.myhome.or.jp> <20060323170413.GA20234@rhlx01.fht-esslingen.de> <871wwtja30.fsf@duaron.myhome.or.jp>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <442BA30C.70606@keyaccess.nl>
-User-Agent: mutt-ng/devel-r790 (Linux)
+In-Reply-To: <871wwtja30.fsf@duaron.myhome.or.jp>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 30, 2006 at 12:21:16PM +0200, Rene Herman wrote:
-> Frederik Deweerdt wrote:
-> 
-> >+	  If you choosed M in "Sequencer support" (SND_SEQUENCER),
-> 
-> "choosed" is not English. Present tense "choose", past tense "chose".
-> 
-> Rene.
-Thanks, here's the corrected version.
+Hi,
 
-Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
+On Fri, Mar 24, 2006 at 03:21:39AM +0900, OGAWA Hirofumi wrote:
+> Andreas Mohr <andi@rhlx01.fht-esslingen.de> writes:
+> 
+> > Should I do a public request for chipset testing?
+> > (I wrote a small test app here that would hopefully identify a buggy
+> > chipset).
+> 
+> I think almost ICH4 is not buggy.  But probably current approach is safe.
+> So, I added "pmtmr_good" to disable the workaround instead.
+> 
+> I posted probably similar one for mainly ICH4 users.
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=114297656924494&w=2
 
---- linux-2.6.16-mm2/sound/core/Kconfig~	2006-03-29 11:08:33.000000000 +0200
-+++ linux-2.6.16-mm2/sound/core/Kconfig	2006-03-29 11:27:23.000000000 +0200
-@@ -92,8 +92,9 @@
- 
- 	  Many programs still use the OSS API, so say Y.
- 
--	  To compile this driver as a module, choose M here: the module
--	  will be called snd-seq-oss.
-+	  If you choose M in "Sequencer support" (SND_SEQUENCER),
-+	  this will be compiled as a module. The module will be called
-+	  snd-seq-oss.
- 
- config SND_RTCTIMER
- 	tristate "RTC Timer support"
+IMHO this request was much too non-verbose (both Subject *and* introduction).
+Interested parties wouldn't even know that they should be interested in it ;)
+
+
+> > Data that I have collected from internet snippets (mostly Intel errata
+> > documents):
+> > Affected (PCI ID / rev):
+> >   - ICH4???
+> >   - PIIX4 A0 (0x7113 / 00?), A1 (0x7113 / 00?), B0 (0x7113 / 01?)
+> >   - PIIX4E A0 (0x7113 / 02?)
+> > Probably fixed (PCI ID / rev):
+> >   - PIIX4M A0 (0x7113 / 03?)
+> >
+> > My Toshiba Satellite 4280 seems to have non-buggy PIIX4M
+> > (since it's PCI rev. 03), haven't had time to test reliability yet, though.
+> 
+> I tested PIIX4E (yes, really buggy), ICH7, VT88237. And ICH6 was
+> reported as sane.
+
+What further steps should now be taken for this patch to be included
+in a sufficiently official kernel in some form?
+
+I'm asking now since as some kind of weird Christmas present this one
+has found its way under my desk rather very accidentally:
+
+00:00.0 Host bridge: Intel Corporation 440LX/EX - 82443LX/EX Host bridge (rev 0
+3)
+00:01.0 PCI bridge: Intel Corporation 440LX/EX - 82443LX/EX AGP bridge (rev 03)
+00:04.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 01)
+00:04.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
+00:04.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
+00:04.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 01)
+00:06.0 SCSI storage controller: Adaptec AIC-7880U
+00:0a.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink] (rev 7
+4)
+00:0c.0 VGA compatible controller: ATI Technologies Inc 264VT4 [Mach64 VT4] (re
+v 3a)
+
+
+So this means I have ICH5, PIIX4M and PIIX4 rev. 01 (most likely buggy)
+and some non-Intel chipsets. Ideal conditions for testing.
+
+Andreas Mohr

@@ -1,79 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWC3QOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWC3QPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751159AbWC3QOR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 11:14:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWC3QOR
+	id S1751230AbWC3QPr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 11:15:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWC3QPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 11:14:17 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:34825 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1751159AbWC3QOQ convert rfc822-to-8bit (ORCPT
+	Thu, 30 Mar 2006 11:15:47 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:12417 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751230AbWC3QPq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 11:14:16 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <20060330160521.GC9811@unthought.net>
-x-originalarrivaltime: 30 Mar 2006 16:14:11.0932 (UTC) FILETIME=[FB5441C0:01C65414]
-Content-class: urn:content-classes:message
-Subject: Re: NFS/Kernel Problem: getfh failed: Operation not permitted
-Date: Thu, 30 Mar 2006 11:14:11 -0500
-Message-ID: <Pine.LNX.4.61.0603301111421.738@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: NFS/Kernel Problem: getfh failed: Operation not permitted
-Thread-Index: AcZUFPtd1gjp/q7oSYqzm+TUvg+q5A==
-References: <Pine.LNX.4.64.0603300813270.18696@p34> <1143728720.8074.41.camel@lade.trondhjem.org> <Pine.LNX.4.64.0603300929340.18696@p34> <1143729766.8074.49.camel@lade.trondhjem.org> <Pine.LNX.4.64.0603300949000.18696@p34> <1143731364.8074.53.camel@lade.trondhjem.org> <Pine.LNX.4.64.0603301011160.18696@p34> <20060330153128.GB9811@unthought.net> <Pine.LNX.4.61.0603301053030.738@chaos.analogic.com> <20060330160521.GC9811@unthought.net>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Jakob Oestergaard" <jakob@unthought.net>
-Cc: "Justin Piszcz" <jpiszcz@lucidpixels.com>,
-       "Trond Myklebust" <trond.myklebust@fys.uio.no>,
-       <linux-kernel@vger.kernel.org>, <nfs@lists.sourceforge.net>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Thu, 30 Mar 2006 11:15:46 -0500
+Date: Thu, 30 Mar 2006 10:15:21 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Chris Wright <chrisw@sous-sol.org>,
+       David Lang <dlang@digitalinsight.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Sam Vilain <sam@vilain.net>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Virtualization steps
+Message-ID: <20060330161521.GH2403@sergelap.austin.ibm.com>
+References: <442A26E9.20608@vilain.net> <20060329182027.GB14724@sorel.sous-sol.org> <442B0BFE.9080709@vilain.net> <20060329225241.GO15997@sorel.sous-sol.org> <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com> <20060330013618.GS15997@sorel.sous-sol.org> <Pine.LNX.4.62.0603291738290.266@qynat.qvtvafvgr.pbz> <20060330020445.GT15997@sorel.sous-sol.org> <20060330143224.GC6933@sergelap.austin.ibm.com> <1143734855.24555.211.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1143734855.24555.211.camel@moss-spartans.epoch.ncsc.mil>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> On Thu, 2006-03-30 at 08:32 -0600, Serge E. Hallyn wrote:
+> > Frankly I thought, and am still not unconvinced, that containers owned
+> > by someone other than the system owner would/should never want to load
+> > their own LSMs, so that this wasn't a problem.  Isolation, as Chris has
+> > mentioned, would be taken care of by the very nature of namespaces.
+> > 
+> > There are of course two alternatives...  First, we might want to allow the
+> > machine admin to insert per-container/per-namespace LSMs.    To support
+> > this case, we would need a way for the admin to tag a container some way
+> > identifying it as being subject to a particular set of security_ops.  
+> > 
+> > Second, we might want container admins to insert LSMs.  In addition to
+> > a straightforward way of tagging subjects/objects with their container,
+> > we'd need to implement at least permissions for "may insert global LSM",
+> > "may insert container LSM", and "may not insert any LSM."  This might be
+> > sufficient if we trust userspace to always create full containers.
+> > Otherwise we might want to support meta-policy along the lines of "may
+> > authorize ptrace and mount hooks only", or even "not subject to the
+> > global inode_permission hook, and may create its own."  (yuck)
+> > 
+> > But so much of this depends on how the namespaces/containers end up
+> > being implemented...
+> 
+> FWIW, SELinux now has a notion of a type hierarchy in its policy, so the
+> root admin can carve out a portion of the policy space and allow less
+> privileged admins to then define sub-types that are strictly constrained
+> by what was allowed to the parent type by the root admin.  This is
+> handled in userspace, with the policy mediation performed by a userspace
+> agent (daemon, policy management server), which then becomes the focal
+> point for all policy loading.
 
-On Thu, 30 Mar 2006, Jakob Oestergaard wrote:
+Yes, my first response (which I cancelled) mentioned this as a possible
+solution.
 
-> On Thu, Mar 30, 2006 at 10:58:08AM -0500, linux-os (Dick Johnson) wrote:
-> ...
->> This is my /etc/exports and it works fine with linux-2.6.15.4.
->> All the host names are local, inside the firewall, and need to
->> be looked-up over a W$<crap> name-server.
->>
->> #
->> /rmtboot/LinuxRoot	*(ro,async)
->> /root/Scanner	*(ro,no_root_squash,sync)
->> /tmp		*(rw,no_root_squash,sync)
->> /usr/src	quark(rw,no_root_squash,sync)
->> /usr/lib	quark(rw,no_root_squash,sync)
-> ...
->
-> Well lucky you  :)
->
-> I'm not saying it can't work. I'm just saying I've spent too much time
-> finding out the hard way that it does not necessarily work  :)
->
-> --
->
-> / jakob
->
+The global admin could assign certain max privileges to 'container_b'.
+The admin in container_b could create container_b.root_t,
+container_b.user_t, etc, which would be limited by the container_b
+max perms.
 
-Well NFS is supposed to work like this. If it doesn't, you may
-have some far more serious problems, perhaps duplicate IP addresses,
-etc., that prevent proper resolution and subsequent connections.
-It has nothing to do with luck.
+Presumably the policy daemon, running in container 0, could accept input
+from a socket from container 2, labeled appropriately automatically
+ensuring that all types created by the policy in container 2 are
+prefixed with container_b, and doing the obvious restrictions.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.42 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
+Or something like that :)
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+-serge

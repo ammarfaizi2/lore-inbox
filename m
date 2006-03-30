@@ -1,166 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWC3BIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWC3BPG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbWC3BIP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 20:08:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWC3BIP
+	id S1751416AbWC3BPG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 20:15:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWC3BPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 20:08:15 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17298 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751217AbWC3BIO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 20:08:14 -0500
-Date: Wed, 29 Mar 2006 17:10:30 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Pete Clements <clem@clem.clem-digital.net>
-Cc: clem@clem.clem-digital.net, klassert@mathematik.tu-chemnitz.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: Correction: 2.6.16-git12 killed networking -- 3c900 card
-Message-Id: <20060329171030.3d475bcb.akpm@osdl.org>
-In-Reply-To: <200603300053.k2U0rYwc001690@clem.clem-digital.net>
-References: <20060329112931.766aecbd.akpm@osdl.org>
-	<200603300053.k2U0rYwc001690@clem.clem-digital.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 29 Mar 2006 20:15:06 -0500
+Received: from omta02sl.mx.bigpond.com ([144.140.93.154]:44953 "EHLO
+	omta02sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751416AbWC3BPE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 20:15:04 -0500
+Message-ID: <442B3111.5030808@bigpond.net.au>
+Date: Thu, 30 Mar 2006 12:14:57 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+CC: Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Con Kolivas <kernel@kolivas.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched: smpnice work around for active_load_balance()
+References: <4428D112.7050704@bigpond.net.au> <20060328112521.A27574@unix-os.sc.intel.com> <4429BC61.7020201@bigpond.net.au> <20060328185202.A1135@unix-os.sc.intel.com> <442A0235.1060305@bigpond.net.au> <20060329145242.A11376@unix-os.sc.intel.com> <442B1AE8.5030005@bigpond.net.au> <20060329165052.C11376@unix-os.sc.intel.com>
+In-Reply-To: <20060329165052.C11376@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 30 Mar 2006 01:14:57 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Clements <clem@clem.clem-digital.net> wrote:
->
-> Quoting Andrew Morton
->   > 
->   > Pete Clements <clem@clem.clem-digital.net> wrote:
->   > >
->   > > Quoting Andrew Morton
->   > >   > > Quoting Steffen Klassert
->   > >   > >   > >   Had several of these with git11
->   > >   > >   > >   NETDEV WATCHDOG: eth0: transmit timed out
->   > >   > >   > 
->   > >   > >   > Is this for sure that these messages occured first time with git11?
->   > >   > >   > There were no changes in the 3c59x driver between git10 and git11.
->   > >   > >   > 
->   > >   > > Tried 2.6.15 and could not get a timed out condition.  Looks like
->   > >   > > that defect is between 15 and 16 in my case.  
->   > >   > > 
->   > >   > > Be glad to do any testing that I can.
->   > >   > > 
->   > >   > 
->   > >   > Please try adding the 3c59x module parameter `global_enable_wol=0', see if
->   > >   > that helps.
->   > >   > 
->   > > Driver is compiled in, not module.
->   > > 
->   > 
->   > Boot with 3c59x.global_enable_wol=0 on the kernel command line.
->   > 
-> Backed out your second patch and booted with the parameter.  Not
-> seeing the time outs.
+Siddha, Suresh B wrote:
+> On Thu, Mar 30, 2006 at 10:40:24AM +1100, Peter Williams wrote:
+>> Siddha, Suresh B wrote:
+>>> On Wed, Mar 29, 2006 at 02:42:45PM +1100, Peter Williams wrote:
+>>>> I meant that it doesn't explicitly address your problem.  What it does 
+>>>> is ASSUME that failure of load balancing to move tasks is because there 
+>>>> was exactly one task on the source run queue and that this makes it a 
+>>>> suitable candidate to have that single task moved elsewhere in the blind 
+>>>> hope that it may fix an HT/MC imbalance that may or may not exist.  In 
+>>>> my mind this is very close to random.  
+>>> That so called assumption happens only when load balancing has
+>>> failed for more than the domain specific cache_nice_tries. Only reason
+>>> why it can fail so many times is because of all pinned tasks or only a single
+>>> task is running on that particular CPU. load balancing code takes care of both
+>>> these scenarios..
+>>>
+>>> sched groups cpu_power controls the mechanism of implementing HT/MC
+>>> optimizations in addition to active balance code... There is no randomness
+>>> in this.
+>> The above explanation just increases my belief in the randomness of this 
+>> solution.  This code is mostly done without locks and is therefore very 
+>> racy and any assumptions made based on the number of times load 
+>> balancing has failed etc. are highly speculative.
 > 
+> Isn't it the same case with regular cpu load calculations during load
+> balance?
 
-Oh damn.  So you're sure that 3c59x.global_enable_wol=0 actually makes the
-driver behave better?
+Yes.  Which is why move_tasks() is designed to cope.
 
-For years the driver required a special module parameter to enable WOL,
-because there was some problem with some hardware.  It's all lost in the
-mists of time.
+But this doesn't effect the argument w.r.t. your code.
 
-So the situation as I understand it now is:
+> 
+>> And even if there is only one task on the CPU there's no guarantee that
+>> that CPU is in a package that meets the other requirements to make the 
+>> move desirable.  So there's a good probability that you'll be moving 
+>> tasks unnecessarily.
+> 
+> sched groups cpu_power and domain topology information cleanly
+> encapsulates the imbalance identification and source/destination groups
+> to fix the imbalance.
 
-- We need to apply the "vortex_error() to not run iowrite16" fix
+But you don't look at the rest of the queues in the package to see if 
+the need is REALLY required.
 
-- The "do mdio_read() twice if we're reading MII_BMSR" patch does indeed
-  fix something (what did it fix, again?) but we don't recall why the
-  driver was reading it twice in the first place.
+> 
+>> It's a poor solution and it's being inflicted on architectures that 
+>> don't need it.  Even if cache_nice_tries is used to suppress this 
+>> behaviour on architectures that don't need it they have to carry the 
+>> code in their kernel.
+> 
+> We can clearly throw CONFIG_SCHED_MC/SMT around that code.. Nick/Ingo
+> do you see any issue?
 
-Both patches are appended below.
+That just makes it a poor solution and ugly. :-)
 
-If we do both of those things, does the driver still require
-3c59x.global_enable_wol=0 to function properly?
+> 
+>>>
+>>>> Also back to front and inefficient.
+>>> HT/MC imbalance is detected in a normal way.. A lightly loaded group
+>>> finds an imbalance and tries to pull some load from a busy group (which
+>>> is inline with normal load balance)... pull fails because the only task
+>>> on that cpu is busy running and needs to go off the cpu (which is triggered
+>>> by active load balance)... Scheduler load balance is generally done by a 
+>>> pull mechansim and here (HT/MC) it is still a pull mechanism(triggering a 
+>>> final push only because of the single running task) 
+>>>
+>>> If you have any better generic and simple method, please let us know.
+>> I gave an example in a previous e-mail.  Basically, at the end of 
+>> scheduler_tick() if rebalance_tick() doesn't move any tasks (it would be 
+>> foolish to contemplate moving tasks of the queue just after you've moved 
+>> some there) and the run queue has exactly one running task and it's time 
+>> for a HT/MC rebalance check on the package that this run queue belongs 
+>> to then check that package to to see if it meets the rest of criteria 
+>> for needing to lose some tasks.  If it does look for a package that is a 
+>> suitable recipient for the moved task and if you find one then mark this 
+>> run queue as needing active load balancing and arrange for its migration 
+>> thread to be started.
+>>
+>> Simple, direct and amenable to being only built on architectures that 
+>> need the functionality.
+> 
+> First of all we will be doing unnecessary checks to see if there is
+> an imbalance.. Current code triggers the checks and movement only when
+> it is necessary.. And second, finding the correct destination cpu in the 
+> presence of SMT and MC is really complicated.. Look at different examples
+> in the OLS paper.. Domain topology provides all this info with no added
+> complexity...
+> 
+>> Another (more complex) solution that would also allow improvements to 
+>> other HT related code (e.g. the sleeping dependent code) would be to 
+>> modify the load balancing code so that all CPUs in a package share a run 
+>> queue and load balancing is then done between packages.  As long as the 
+>> number of CPUs in a package is small this shouldn't have scalability 
+>> issues.  The big disadvantage of this approach is its complexity which 
+>> is probably too great to contemplate doing it in 2.6.X kernels.
+> 
+> Presence of SMT and MC, implementation of power-savings scheduler
+> policy will present more challenges...
 
-(This driver supports a huge number of cards spread across 15 or more years
-and it has large amounts of tricky trial-and-error knowledge in it.  It's
-generally best not to touch it).
+And I would recommend a similar approach to what I've suggested above. 
+They could probably be combined into a single neat well encapsulated 
+solution.
 
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-From: Andrew Morton <akpm@osdl.org>
-
-The pre-2.6.16 patch "3c59x collision statistics fix" accidentally caused
-vortex_error() to not run iowrite16(TxEnable, ioaddr + EL3_CMD) if we got a
-maxCollisions interrupt but MAX_COLLISION_RESET is not set.
-
-Cc: Steffen Klassert <klassert@mathematik.tu-chemnitz.de>
-Cc: Pete Clements <clem@clem.clem-digital.net>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- drivers/net/3c59x.c |   12 +++++-------
- 1 files changed, 5 insertions(+), 7 deletions(-)
-
-diff -puN drivers/net/3c59x.c~3c59x-collision-statistics-fix-fix drivers/net/3c59x.c
---- devel/drivers/net/3c59x.c~3c59x-collision-statistics-fix-fix	2006-03-28 22:36:48.000000000 -0800
-+++ devel-akpm/drivers/net/3c59x.c	2006-03-28 22:40:01.000000000 -0800
-@@ -2085,16 +2085,14 @@ vortex_error(struct net_device *dev, int
- 		}
- 		if (tx_status & 0x14)  vp->stats.tx_fifo_errors++;
- 		if (tx_status & 0x38)  vp->stats.tx_aborted_errors++;
-+		if (tx_status & 0x08)  vp->xstats.tx_max_collisions++;
- 		iowrite8(0, ioaddr + TxStatus);
- 		if (tx_status & 0x30) {			/* txJabber or txUnderrun */
- 			do_tx_reset = 1;
--		} else if (tx_status & 0x08) {	/* maxCollisions */
--			vp->xstats.tx_max_collisions++;
--			if (vp->drv_flags & MAX_COLLISION_RESET) {
--				do_tx_reset = 1;
--				reset_mask = 0x0108;		/* Reset interface logic, but not download logic */
--			}
--		} else {						/* Merely re-enable the transmitter. */
-+		} else if ((tx_status & 0x08) && (vp->drv_flags & MAX_COLLISION_RESET))  {	/* maxCollisions */
-+			do_tx_reset = 1;
-+			reset_mask = 0x0108;		/* Reset interface logic, but not download logic */
-+		} else {				/* Merely re-enable the transmitter. */
- 			iowrite16(TxEnable, ioaddr + EL3_CMD);
- 		}
- 	}
-_
-
-
-
-
-
-From: Andrew Morton <akpm@osdl.org>
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- drivers/net/3c59x.c |    9 ++++++++-
- 1 files changed, 8 insertions(+), 1 deletion(-)
-
-diff -puN drivers/net/3c59x.c~revert-3c59x-avoid-blindly-reading-link-status-twice drivers/net/3c59x.c
---- devel/drivers/net/3c59x.c~revert-3c59x-avoid-blindly-reading-link-status-twice	2006-03-28 22:51:52.000000000 -0800
-+++ devel-akpm/drivers/net/3c59x.c	2006-03-28 23:00:47.000000000 -0800
-@@ -3196,7 +3196,7 @@ static void mdio_sync(void __iomem *ioad
- 	}
- }
- 
--static int mdio_read(struct net_device *dev, int phy_id, int location)
-+static int __mdio_read(struct net_device *dev, int phy_id, int location)
- {
- 	int i;
- 	struct vortex_private *vp = netdev_priv(dev);
-@@ -3227,6 +3227,13 @@ static int mdio_read(struct net_device *
- 	return retval & 0x20000 ? 0xffff : retval>>1 & 0xffff;
- }
- 
-+static int mdio_read(struct net_device *dev, int phy_id, int location)
-+{
-+	if (location == MII_BMSR)
-+		__mdio_read(dev, phy_id, location);
-+	return __mdio_read(dev, phy_id, location);
-+}
-+
- static void mdio_write(struct net_device *dev, int phy_id, int location, int value)
- {
- 	struct vortex_private *vp = netdev_priv(dev);
-_
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

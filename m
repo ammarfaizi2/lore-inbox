@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWC3UWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbWC3UZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWC3UWR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 15:22:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbWC3UWR
+	id S1750814AbWC3UZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 15:25:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbWC3UZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 15:22:17 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:30214 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1750817AbWC3UWQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 15:22:16 -0500
-Date: Thu, 30 Mar 2006 22:22:08 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Spurious rebuilds of raid6 and drivers/media/video in 2.6.16
-Message-ID: <20060330202208.GA14016@mars.ravnborg.org>
-References: <442BC74B.7060305@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <442BC74B.7060305@gmx.net>
-User-Agent: Mutt/1.5.11
+	Thu, 30 Mar 2006 15:25:27 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:18196 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1750814AbWC3UZ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 15:25:26 -0500
+Message-ID: <442C3F3F.5050107@tmr.com>
+Date: Thu, 30 Mar 2006 15:27:43 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9a1) Gecko/20060330 SeaMonkey/1.5a
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Ulrich Drepper <drepper@gmail.com>, linux-kernel@vger.kernel.org,
+       jakub@redhat.com
+Subject: Re: [PATCH] 2.6.16 - futex: small optimization (?)
+References: <4428E7B7.8040408@bull.net> <a36005b50603280702n2979d8ddh97484615ea9d4f3a@mail.gmail.com> <4429BCAC.80208@tmr.com> <20060329152643.GA13194@elte.hu>
+In-Reply-To: <20060329152643.GA13194@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 30, 2006 at 01:55:55PM +0200, Carl-Daniel Hailfinger wrote:
-> Hi,
+Ingo Molnar wrote:
+> * Bill Davidsen <davidsen@tmr.com> wrote:
 > 
-> if I copy a compiled kernel tree to another location and run
-> make again in the new directory, a few files always get rebuilt.
-> These files only are rebuilt if the tree is a copy of another
-> tree and they are rebuilt only once.
-> Any ideas why this is the case?
-The reason why the predictive rebuild happens is that in some parts
-of the kbuild files it has been necessary to use absolute paths.
-One example is the oiu2c shell script where we use the full path
-to locate the shell script.
-The reason why a full path is used is that this shall also work when
-compiling the kernel using make O=...
-What happens is that kbuild detects that the command used to build the
-target has changed and therefore force a rebuild. It is the same
-mechanishm that is used to detect when arguments to the compiler
-changes.
+>> Ulrich Drepper wrote:
+>>> On 3/27/06, Pierre PEIFFER <pierre.peiffer@bull.net> wrote:
+>>>> I found a (optimization ?) problem in the futexes, during a futex_wake,
+>>>>  if the waiter has a higher priority than the waker.
+>>> There are no such situations anymore in an optimal userlevel
+>>> implementation.  The last problem (in pthread_cond_signal) was fixed
+>>> by the addition of FUTEX_WAKE_OP.  The userlevel code you're looking
+>>> at is simply not optimized for the modern kernels.
+>> What are you suggesting here, that the kernel can be inefficient as 
+>> long as the user has a way to program around it?
+> 
+> What are you suggesting here, that FUTEX_WAKE_UP is a "user way to 
+> program around" an inefficiency? If yes then please explain to me why 
+> and what you would do differently.
 
-So the rebuild will happen. It would be possible to minimize the places
-where a rebuild is triggered when moving the source tree, but I have not
-seen any benefit doing so lately.
+The point I'm making is that even if an application is "not optimized
+for modern kernels" or whatever, there's no reason to ignore
+inefficiencies. As Pierre Pfeiffer noted this happens independently of
+user code. If a change can eliminate some CPU cycles and possible cache
+activity, it would seem to be worth investigation.
 
-	Sam
+The suggestion that the user code was inefficient was not mine...
+
+Did I clarify it this time?
+
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
+

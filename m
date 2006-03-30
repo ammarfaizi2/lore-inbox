@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWC3SB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbWC3SC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932255AbWC3SB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 13:01:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWC3SB4
+	id S932257AbWC3SC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 13:02:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWC3SC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 13:01:56 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53430 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751347AbWC3SB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 13:01:56 -0500
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, David Lang <dlang@digitalinsight.com>,
-       Sam Vilain <sam@vilain.net>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Virtualization steps
-References: <m1psk5kcpj.fsf@ebiederm.dsl.xmission.com>
-	<442A26E9.20608@vilain.net>
-	<20060329182027.GB14724@sorel.sous-sol.org>
-	<442B0BFE.9080709@vilain.net>
-	<20060329225241.GO15997@sorel.sous-sol.org>
-	<m1psk4g2xa.fsf@ebiederm.dsl.xmission.com>
-	<20060330013618.GS15997@sorel.sous-sol.org>
-	<Pine.LNX.4.62.0603291738290.266@qynat.qvtvafvgr.pbz>
-	<20060330020445.GT15997@sorel.sous-sol.org>
-	<20060330143224.GC6933@sergelap.austin.ibm.com>
-	<20060330153012.GA16720@MAIL.13thfloor.at>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 30 Mar 2006 11:00:19 -0700
-In-Reply-To: <20060330153012.GA16720@MAIL.13thfloor.at> (Herbert Poetzl's
- message of "Thu, 30 Mar 2006 17:30:12 +0200")
-Message-ID: <m1fykzdd8s.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Mar 2006 13:02:56 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:60299 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751350AbWC3SCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 13:02:55 -0500
+Message-Id: <200603301802.k2UI2hN1016850@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, beware <wimille@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Float numbers in module programming 
+In-Reply-To: Your message of "Thu, 30 Mar 2006 08:09:14 EST."
+             <Pine.LNX.4.61.0603300739050.32259@chaos.analogic.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <3fd7d9680603290634n6fabcdc7r193c30447acc1858@mail.gmail.com> <Pine.LNX.4.61.0603290955440.27913@chaos.analogic.com> <Pine.LNX.4.61.0603301010400.30783@yvahk01.tjqt.qr>
+            <Pine.LNX.4.61.0603300739050.32259@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1143741763_4126P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 30 Mar 2006 13:02:43 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl <herbert@13thfloor.at> writes:
+--==_Exmh_1143741763_4126P
+Content-Type: text/plain; charset=us-ascii
 
-> sorry folks, I don't think that we _ever_ want container
-> root to be able to load any kernel modues at any time
-> without having CAP_SYS_ADMIN or so, in which case the
-> modules can be global as well ... otherwise we end up
-> as a bad Xen imitation with a lot of security issues,
-> where it should be a security enhancement ...
+On Thu, 30 Mar 2006 08:09:14 EST, "linux-os (Dick Johnson)" said:
 
-Agreed.  At least until someone defines a user-mode
-linux-security-module.  We may want a different security module
-in effect for a particular guest.  Which modules you get
-being defined by the one system administrator is fine.
+> For instance __all__ real numbers, except for transcendentals, can
+> be represented as a ratio of two integers. For instance, you can't
+> represent 1/3 exactly as a decimal.
 
-The primary case I see worth worry about is using 
-a security module to ensure isolation of a container,
-while still providing the selinux mandatory capabilities
-to a container.
+That's a "rational" number (or alternately, an algebraic number of order 1.
+Irrational numbers result from algebraic expressions but aren't representable
+as a ratio (for instance, the square root of 2, or the number phi - both of
+these are algebraic numbers of order 2).   Trancendentals are numbers which
+can't result from algebraic expressions with whole number coefficients (for
+instance, pi and e).
 
-Eric
+All transcendentals are irrational, but not all irrationals are transcendental.
+
+http://mathworld.wolfram.com/AlgebraicNumber.html
+http://mathworld.wolfram.com/IrrationalNumber.html
+http://mathworld.wolfram.com/TranscendentalNumber.html
+http://mathworld.wolfram.com/GoldenRatio.html
+
+--==_Exmh_1143741763_4126P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFELB1DcC3lWbTT17ARAswzAJ0eLe4vSXa/k3wB5DLR55eV61lZ3ACfdw6q
+We2CWLbLsrQDe8FrNXiY6Xg=
+=XRVL
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1143741763_4126P--

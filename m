@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWC3Mol@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWC3M75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbWC3Mol (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 07:44:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWC3Mol
+	id S932197AbWC3M75 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 07:59:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWC3M74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 07:44:41 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:49637 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932154AbWC3Mok (ORCPT
+	Thu, 30 Mar 2006 07:59:56 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27835 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932197AbWC3M74 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 07:44:40 -0500
-Date: Thu, 30 Mar 2006 14:42:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
-Subject: Re: [PATCH] splice support #2
-Message-ID: <20060330124212.GA19637@elte.hu>
-References: <20060330100630.GT13476@suse.de> <20060330120055.GA10402@elte.hu> <20060330120512.GX13476@suse.de> <20060330121030.GA14621@elte.hu> <20060330121638.GA13476@suse.de> <20060330123805.GA18726@elte.hu> <20060330124206.GE13476@suse.de>
+	Thu, 30 Mar 2006 07:59:56 -0500
+Date: Thu, 30 Mar 2006 14:59:03 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>, Mark Lord <lkml@rtr.ca>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Suspend2-2.2.2 for 2.6.16.
+Message-ID: <20060330125902.GR8485@elf.ucw.cz>
+References: <200603281601.22521.ncunningham@cyclades.com> <20060330120514.GO8485@elf.ucw.cz> <200603301417.18646.rjw@sisk.pl> <200603301424.50562.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20060330124206.GE13476@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200603301424.50562.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Jens Axboe <axboe@suse.de> wrote:
-
-> On Thu, Mar 30 2006, Ingo Molnar wrote:
-> > 
-> > * Jens Axboe <axboe@suse.de> wrote:
-> > 
-> > > > I agree with the purpose of making sys_splice() generic and in 
-> > > > particular usable in scripts/shells where pipes are commonly used, but 
-> > > > we should also fulfill the original promise (outlined 15 years ago or 
-> > > > so) and not limit this to pipes. That way i could improve TUX to make 
-> > > > use of it for example ;)
+On Čt 30-03-06 14:24:50, Rafael J. Wysocki wrote:
+> On Thursday 30 March 2006 14:17, Rafael J. Wysocki wrote:
+> > On Thursday 30 March 2006 14:05, Pavel Machek wrote:
+> > > > > I do not see missing includes, so I'm not sure it will help. Can you
+> > > > > try adding
+> > > > >
+> > > > > ARCH=x86_64
+> > > > >
+> > > > > to Makefile?
+> > > > 
+> > > > Heh. It worked. Maybe you should have something to figure out what arch the 
+> > > > user is using :) It seems a bit strange to tell the compiler that I'm using 
+> > > > the arch it ought to know I'm using.
 > > > 
-> > > There's absolutely no reason why we can't add fd -> fd splicing as 
-> > > well, so no worries. Right now we just require a pipe transport. It's 
-> > > extendable :-)
+> > > Good. Does 
+> > > 
+> > > ARCH=`uname -m`
+> > > 
+> > > work, too?
 > > 
-> > ok :) I think this code should be merged into v2.6.17 - it's very clean 
-> > and unintrusive.
+> > No, it doesn't.
 > 
-> I hope so, too. I'll post a hopefully finished patch real soon, and 
-> then the move pages addon afterwards (which works now).
+> Something like this works, though:
+> 
+> ARCH:=$(shell uname -m)
 
-what does the move pages addon do? pagecache->pagecache transfer?
-
-	Ingo
+looks good, can you commit it (when sf works again :-).
+							Pavel
+-- 
+Picture of sleeping (Linux) penguin wanted...

@@ -1,46 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWC3SRx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWC3SVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWC3SRx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 13:17:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWC3SRx
+	id S1751351AbWC3SVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 13:21:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbWC3SVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 13:17:53 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:60814 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932196AbWC3SRw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 13:17:52 -0500
-Date: Thu, 30 Mar 2006 10:17:38 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: "Boehm, Hans" <hans.boehm@hp.com>
-cc: Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Grundler, Grant G" <grant.grundler@hp.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: RE: Fix unlock_buffer() to work the same way as bit_unlock()
-In-Reply-To: <65953E8166311641A685BDF71D865826A23E13@cacexc12.americas.cpqcorp.net>
-Message-ID: <Pine.LNX.4.64.0603301016330.32317@schroedinger.engr.sgi.com>
-References: <65953E8166311641A685BDF71D865826A23E13@cacexc12.americas.cpqcorp.net>
+	Thu, 30 Mar 2006 13:21:09 -0500
+Received: from wproxy.gmail.com ([64.233.184.231]:2760 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751351AbWC3SVI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 13:21:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mhGRp+B5ycxeCNAmo0NGMCLXaEcDfYEdXjsVPVDzzfpyAGMP5pDDvTZL4A+9T+b60KHGtaC2MIL4AYr10kR8jlIv1QIKWR/04k5FNc4apoprud6y5CzaGYd+vUx4uwN6gX/e4qWaGOMJ0okB4sUqgiF9ensmJ5rbjlL/lQVx1fk=
+Message-ID: <c0c067900603301021k3f3a4e70g68225d2900cf6e8b@mail.gmail.com>
+Date: Thu, 30 Mar 2006 13:21:06 -0500
+From: "Dan Merillat" <harik.attar@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: ISO9660 2GB/4GB limit? + UDF/loop conflict
+In-Reply-To: <c0c067900603300207v162908a9n1795f4dd41896cac@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <c0c067900603300207v162908a9n1795f4dd41896cac@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Mar 2006, Boehm, Hans wrote:
+I'm trying to use ISO9660 to make large file backups (4.3 or 8.1gb on
+DVD/DVD-DL) but I'm hitting the 32bit limit.
 
-> > The compiler will select that at compile time. One has the 
-> > option of also generating run time seletion by specifying a 
-> > variable instead of a constant when callig these functions.
-> I would view the latter as a disadvantage, since I can't think of a case
-> in which you wouldn't want it reported as an error instead, at least if
-> you care about performance.  If you know of one, I'd be very interested.
+A quick tweak to mkisofs will make it write 4gb-1 files, which are
+apparently readable under
+linux.  That's something  I need to test.   I'm posting because I'm
+curious about the ISO
+spec, does it support >32bit files in any interchange level?  It looks
+like the limitation is purely
+in the directory structure, as the single extent limt is 512mb. It
+looks like the indirection
+supports 128tb, though I could be wrong, it was a cursory look through
+the source.
 
-In that case: We could check that a constant is passed at compile time.
- 
-> The first form does have the advantage that it's possible to build up
-> more complicated primitives from simpler ones without repeating the
-> definition four times.
 
-What is the first form? The advantage of passing a parameter is more 
-compact code and less definitions.
+If not, (and this isn't a kernel question) has anyone looked into
+patching mkisofs to make pure
+UDF?   file->UDF mounted loopback->burn is exceedingly slow and
+awkward, especially when
+backing up <2gb files goes straight to DVD.
 
+As a side note, udf -> loop -> reiser3 -> linux software raid5 is
+obnoxiously slow, with vmstat showing 2-3x the block traffic it
+should.
+
+ dd bs=256k if=/dev/zero of=test
+ reiserfs->raid5:             32MB/sec
+ reiserfs->loop->reiserfs->raid5  32MB/sec
+ udf -> loop -> reiserfs -> raid5   6MB/sec
+
+  1  2  19884   9332  26608 742880    0    0 13732   244 3855 17627  1 21  0 78
+  0  1  19884   9092  26600 740692    0    0  5962 47056 2138 12102  0 20  0 80
+  0  2  19884   9864  26620 739996    0    0   572 19584  987  8122  0  8  0 92
+  0  2  19884  10156  26628 740716    0    0 13112   188 3703 16754  1 13  0 86
+  0  2  19884   9232  26644 742936    0    0 14828   120 4126 18921  0 15  0 85
+  1  1  19884   9816  26648 741996    0    0  4120 24088 1773 11268  0 14 16 70
+  0  2  19884   9268  26644 740936    0    0   634 38220 1047  7597  6 15 10 69
+  0  3  19884   9968  26672 741076    0    0 13744   180 3988 17700  1 18  0 81
+
+That 2k blocksize isn't being handled intelligently AT ALL, no
+buffering whatsoever. Reiserfs and raw dump to disk didn't show this
+behavior.
+
+UDF on raid5 directly has nearly no reads, and pulls a decent
+15MB/sec.  I had to test that on
+a seperate raid array, so the initial results are not directly
+comparable, but the lack of block-in
+does make me guess that loop can't handle 2k blocksize, and is either
+doing 4k read + 4k write,
+or is  breaking up the writes into 2k chunks that the raid5 is barfing on.

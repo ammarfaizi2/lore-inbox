@@ -1,82 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWC3U2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWC3U2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbWC3U2S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 15:28:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWC3U2L
+	id S1750825AbWC3U2J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 15:28:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWC3U2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 15:28:11 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:2072 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1750871AbWC3U1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 15:27:49 -0500
-Message-ID: <442AE0CD.1090707@tmr.com>
-Date: Wed, 29 Mar 2006 14:32:29 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+	Thu, 30 Mar 2006 15:28:09 -0500
+Received: from ns.suse.de ([195.135.220.2]:23730 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750825AbWC3U2A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 15:28:00 -0500
+From: Andi Kleen <ak@suse.de>
+To: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH] ioremap_cached()
+Date: Thu, 30 Mar 2006 22:27:53 +0200
+User-Agent: KMail/1.9.1
+Cc: Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org
+References: <20060330164120.GJ13590@parisc-linux.org> <200603302217.55435.ak@suse.de> <D3AB1B22-E33B-409F-BF54-2F6FD071337A@kernel.crashing.org>
+In-Reply-To: <D3AB1B22-E33B-409F-BF54-2F6FD071337A@kernel.crashing.org>
 MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
-CC: Jeff Garzik <jeff@garzik.org>,
-       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: e2label suggestions
-References: <4429AF42.1090101@soleranetworks.com> <20060328232927.GB32385@thunk.org> <4429D3E4.3060305@wolfmountaingroup.com> <4429D11F.6040000@garzik.org> <4429E050.7080008@soleranetworks.com> <20060329014048.GA29971@thunk.org> <4429F247.90209@soleranetworks.com>
-In-Reply-To: <4429F247.90209@soleranetworks.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603302227.53343.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff V. Merkey wrote:
-> Theodore Ts'o wrote:
+On Thursday 30 March 2006 22:21, Kumar Gala wrote:
 > 
->> On Tue, Mar 28, 2006 at 06:18:08PM -0700, Jeff V. Merkey wrote:
->>  
->>
->>> Thanks for verifying it is passed through the kernel to initrd, 
->>> another kernel component.    It's also stored as EXT meta data
->>> (also in the kernel).  and retrieved from there.  And its not 
->>> accessible from normal user space applications (except in raw mode).
->>>   
->>
->> No, the contents of initrd/initramfs is not shipped as part of a
->> standard kernel.org kernel.  It is the responsibility of each
->> distribution to set up their initrd or initramfs initial boot scripts
->> themselves.  One could argue that it would be better if there were a
->> standard set of initrd scripts (and udev binaries) paired with
->> specific kernel.org kernels and used by all distro's, but that's not
->> where we are right now.
->>
->>  
->>
-> ????????
+> On Mar 30, 2006, at 2:17 PM, Andi Kleen wrote:
 > 
->> The data is most certainly accessible from normal userspace
->> applications.  All they have to do is link against blkid library;  
->>
-> All you need is a degree from MIT in advanced Fusion mechanics. :-)
+> > On Thursday 30 March 2006 22:14, Matthew Wilcox wrote:
+> >
+> >> I think you misunderstood.  The right interface to call, that should
+> >> work everywhere, should be the simple, obvious one.  ioremap().  That
+> >> effectively is what everyone gets anyway (since they test on x86).
+> >> So change the *definition* of ioremap() to be uncached.  Then we  
+> >> can add
+> >> ioremap_wc() and ioremap_cached() for these special purpose mappings.
+> >
+> > That would break all the current users who do ioremap on memory
+> > and want it cached.
 > 
->> indeed the kernel doesn't do any LABEL= or UUID= searching at all.  By
->> design, it all supposed to be done in userspace.
->>  
->>
-> ?????????
-> 
-> Ted,
-> 
-> I give up on this one. I also agree a standardized initrd with built in 
-> init is a great idea.
+> What's an example of this?  I ask since on powerpc ioremap() is  
+> always _PAGE_NO_CACHE.
 
-It's a great idea until you ask which init script will be used and 
-forced on all the other vendors. Or all the vendors, let's standardize 
-on my script, or your script, or Linus' script.
+ACPI, IPMI, DMI, ... I bet there are more. It's needed every time
+a driver needs to look for some firmware table because it might
+not be mapped.
 
-Better yet, let's leave it alone, because even if there were a script 
-with the kernel, it would not be a standard ir would only be a default. 
-All the vendors do their own thing because they feel it's best, and 
-that's not going to change (not probably should it).
-
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
-
+-Andi

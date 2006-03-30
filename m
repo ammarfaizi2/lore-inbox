@@ -1,185 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWC3RYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWC3RXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbWC3RYH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 12:24:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWC3RYG
+	id S932186AbWC3RXp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 12:23:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWC3RXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 12:24:06 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:15586 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751216AbWC3RYF (ORCPT
+	Thu, 30 Mar 2006 12:23:45 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:13857 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1751216AbWC3RXp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 12:24:05 -0500
-Message-ID: <442C140C.8040404@watson.ibm.com>
-Date: Thu, 30 Mar 2006 12:23:24 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Thu, 30 Mar 2006 12:23:45 -0500
+Message-ID: <442C1415.6080906@cfl.rr.com>
+Date: Thu, 30 Mar 2006 12:23:33 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: balbir@in.ibm.com, greg@kroah.com, arjan@infradead.org, hadi@cyberus.ca,
-       ak@suse.de, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [Patch 0/8] per-task delay accounting
-References: <442B271D.10208@watson.ibm.com>	<20060329210314.3db53aaa.akpm@osdl.org>	<20060330062357.GB18387@in.ibm.com> <20060329224737.071b9567.akpm@osdl.org>
-In-Reply-To: <20060329224737.071b9567.akpm@osdl.org>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, beware <wimille@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Float numbers in module programming
+References: <3fd7d9680603290634n6fabcdc7r193c30447acc1858@mail.gmail.com> <Pine.LNX.4.61.0603290955440.27913@chaos.analogic.com> <Pine.LNX.4.61.0603301010400.30783@yvahk01.tjqt.qr> <Pine.LNX.4.61.0603300739050.32259@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0603300739050.32259@chaos.analogic.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Mar 2006 17:23:51.0910 (UTC) FILETIME=[B6CA4860:01C6541E]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14355.000
+X-TM-AS-Result: No--8.100000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+linux-os (Dick Johnson) wrote:
+> No. Any file I/O, or anything that takes time sleeps and gives up
+> the CPU, ultimately calling schedule(). That means that anybody
+> can have its coprocessor state dorked. This has been discussed many
 
->Balbir Singh <balbir@in.ibm.com> wrote:
->  
->
->>On Wed, Mar 29, 2006 at 09:03:14PM -0800, Andrew Morton wrote:
->>    
->>
->>>Shailabh Nagar <nagar@watson.ibm.com> wrote:
->>>      
->>>
->>>>Could you please include the following delay accounting patches
->>>> in -mm ?
->>>>        
->>>>
->>>I'm at a loss to evaluate the suitability of this work, really.  I always
->>>am when accounting patches come along.
->>>
->>>There are various people and various groups working on various different
->>>things and there appears to be no coordination and little commonality of
->>>aims.  I worry that picking one submission basically at random will provide
->>>nothing which the other groups can work on to build up their feature.
->>>
->>>On the other hand, we don't want to do nothing until some uber-grand
->>>all-singing, all-dancing statistics-gathering infrastructure comes along.
->>>
->>>So I'm a bit stuck.  What I would like to see happen is that there be some
->>>coordination between the various stakeholders, and some vague plan which
->>>they're all happy with as a basis for the eventual grand solution.
->>>
->>>We already have various bits and pieces of statistics gathering in the
->>>kernel and it's already a bit ad-hoc.  Adding more one-requirement-specific
->>>accounting code won't improve that situation.
->>>
->>>But then, I said all this a year or two ago and nothing much has happened
->>>since then.  It's not your fault, but it's a problem.
->>>      
->>>
-Yes, I agree it is a problem. We found it ourselves while developing 
-this patchset. BSD accounting had
-some properties we liked (like availability of stats for a process after 
-it died) but the way to extend it or
-get access to those stats while a process was alive wasn't all that 
-good. Similarly CSA had needs like ours
-but not quite the same.
+The FPU state is saved across normal thread switches if either the new 
+or old thread uses the fpu, so this should be safe.  Unless this does 
+not apply to kernel threads?
 
-Our compromise solution, prompted by your comments on getting a 
-consensus for the use of a "statistics
-connector" for all accounting stakeholders, was the taskstats interface, 
-as described by Balbir below.
+> times. Also, floating-point is never required for anything!!! It's
+> just a convenience for people who like to write code using 10 fingers.
+> It has real problems when trying to exactly represent real numbers.
+> For instance __all__ real numbers, except for transcendentals, can
+> be represented as a ratio of two integers. For instance, you can't
+> represent 1/3 exactly as a decimal. It is, however exactly the ratio
+> of 1 and 3, two integers. Given this, I'm sure you can find a way
+> to perform high-precision mathematics within the kernel without
+> using the coprocessor. Usually, it's just a little thought that
+> is required. Somebody needs 8 bits to feed into a volume-control
+> register, but the value needs to be log-scale. Trivial, even if
+> you don't want to use a table.
+> 
 
-But it is not the complete solution or an attempt to get some common 
-accounting infrastructure, true :-(
+Agreed, adjusting your thinking a bit to stick to integer math is 
+usually preferred for efficiency reasons.
 
-
->>>Perhaps a good starting point would be a one-page bullet-point-form
->>>wishlist of all the accounting which people want to get out of the kernel,
->>>and a description of what the kernel<->user interface should look like. 
->>>Right now, I don't think we even have a picture of that.
->>>
->>>We need a statistics maintainer, too, to pull together the plan,
->>>coordinate, push things forwards.  The first step would be to identify the
->>>stakeholders, come up with that page of bullet-points.
->>>      
->>>
->>>Then again, maybe the right thing to do is to keep adding low-impact
->>>requirement-specific statistics patches as they come along.  
->>>
-Personally, this is the approach I favor with unification happening 
-piecewise, atleast as far as the
-collection of statistics is concerned.
-
-The interface for making stats available outside would seem to be more 
-in need of a unified
-approach since we already have a profusion of export methods, some 
-legacy and some being
-introduced by folks like us.
-
-
->>>But if we're
->>>going to do it that way, we need an up-front reason for doing so, and I
->>>don't know what that would be.
->>>
->>>See my problem?
->>>      
->>>
-
->>One of the issues we have tried to address is the ability to provide some
->>form of a common ground for all the statistics to co-exist. Various methods
->>were discussed for exchanging data between kernel and user space, genetlink
->>was suggested often and the clear winner.
->>
->>To that end, we have created a taskstats.c file. Any subsystem wanting
->>to add their statistics and sending it to user space can add their own
->>types by extending taskstats.c (changing the version number) and creating
->>their own types using genetlink. They will have to do the following
->>
->>1. Add statistics gathering in their own subsystem
->>2. Add a type to taskstats.c, extend it and use data from (1) and send
->>   it to user space.
->>
->>The data from various subsystems can co-exist. I feel that this could serve as
->>the basic common infrastructure to begin with and refined later (depending on
->>the needs of other people).
->>
->>    
->>
->
->Sounds fine to me, but I'm not a stakeholder.
->
->Trolling back through lse-tech gives us:
->
->pnotify:
->  Erik Jacobson <erikj@sgi.com>
->
->CSA accounting/PAGG/JOB:
->  Jay Lan <jlan@engr.sgi.com>
->  Limin Gu <limin@dbear.engr.sgi.com>
->
->per-process IO statistics:
->  Levent Serinol <lserinol@gmail.com>
->
->ELSA:
->  Guillaume Thouvenin <guillaume.thouvenin@bull.net>
->
->per-cpu time statistics:
->  Erich Focht <efocht@ess.nec.de>
->
->Scalable statistics counters with /proc reporting:
->  Ravikiran G Thirumalai <kiran@in.ibm.com>
->  (Kiran feft IBM, but presumably the requirement lives on)
->  
->
-To this list we can also add
-
-    Microstate accounting
-       Peter Chubb <peter@chubb.wattle.id.au>
-     I don't know if Peter is still interested in pursuing this or it 
-was rejected.
-
->There was a long thread "A common layer for Accounting packages".  Did it
->come to a conclusion?
->  
->
-Unfortunately, not.
-
->Anyway, if mostly everyone is mostly happy with what you propose then that
->it good news.
->  
->
-It would seem like a good first step then, for me to contact the folks 
-above and see if they are able to
-use the interface we're proposing and modify it if needed.
-
---Shailabh
+> If you divulge the mathematics you need calculated, I'll bet you
+> will get many answers from responders to the linux-kernel list.
+> However, if you expect to use the coprocessor as part of an image
+> processing routine and your driver was designed to use that
+> coprocessor, then you need a private coprocessor or you need
+> a user-space 'driver' that probably communicates using shared-
+> memory, this not involving kernel code at all.
+> 
+> 
 

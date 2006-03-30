@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWC3U0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWC3U06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbWC3U0h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 15:26:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWC3U0h
+	id S1750823AbWC3U06 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 15:26:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWC3U0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 15:26:37 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:790 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1750818AbWC3U0h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 15:26:37 -0500
-Message-ID: <442AC258.6010804@tmr.com>
-Date: Wed, 29 Mar 2006 12:22:32 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
-MIME-Version: 1.0
-To: Greg Lee <glee@swspec.com>, linux-kernel@vger.kernel.org
-Subject: Re: HZ != 1000 causes problem with serial device shown by git-bisect
-References: <0e6601c651f8$9d253b40$a100a8c0@casabyte.com> <20060328081324.GA15222@flint.arm.linux.org.uk>
-In-Reply-To: <20060328081324.GA15222@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 30 Mar 2006 15:26:45 -0500
+Received: from mx0.towertech.it ([213.215.222.73]:11746 "HELO mx0.towertech.it")
+	by vger.kernel.org with SMTP id S1750823AbWC3U0o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 15:26:44 -0500
+Date: Thu, 30 Mar 2006 22:26:09 +0200
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][UPDATE] rtc: Added support for ds1672 control
+Message-ID: <20060330222609.0397a97f@inspiron>
+In-Reply-To: <207037DC-B6E0-44A5-84C5-14F77D17E174@kernel.crashing.org>
+References: <20060329004122.64e91176@inspiron>
+	<Pine.LNX.4.44.0603281654370.22846-100000@gate.crashing.org>
+	<20060329014851.0f54da89@inspiron>
+	<E135E70C-2F39-4007-B4CC-4D1AEBE2EE74@kernel.crashing.org>
+	<20060329015738.5dbbb22d@inspiron>
+	<207037DC-B6E0-44A5-84C5-14F77D17E174@kernel.crashing.org>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Mon, Mar 27, 2006 at 06:46:02PM -0500, Greg Lee wrote:
->> I have also tried a number of other kernels and the problem exists all
->> the way to 2.6.15.6 but is fixed in 2.6.16, so I am going to git-bisect
->> 2.6.15.6 to 2.6.16, but I thought I would get this message out now in
->> case someone has an inkling of what the problem is.
-> 
-> Saying that the problem is between 2.6.15.6 and 2.6.16 is rather
-> meaningless because you're effectively omitting _all_ the development
-> work between 2.6.15 to 2.6.16, and that's likely where the problem
-> lies.  Hence, you're omitting all the 2.6.16-rc kernels from your
-> testing.
+On Thu, 30 Mar 2006 14:06:22 -0600
+Kumar Gala <galak@kernel.crashing.org> wrote:
 
-But won't a git bisect cover all the bases even so? Aren't rc versions 
-just selected git pulls?
+> >>
+> >> ditto.
+> >
+> >  ok. will apply, thanks.
+> 
+> Do you have a queue of patches for 2.6.17 or should I send this to  
+> Andrew to get into 2.6.17?
+
+ I have a queue. Will send it to Andrew tomorrow.
+
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
 

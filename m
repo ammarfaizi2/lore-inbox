@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWC3Nnu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWC3NrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932210AbWC3Nnu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 08:43:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWC3Nnu
+	id S932212AbWC3NrD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 08:47:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWC3NrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 08:43:50 -0500
-Received: from ns1.suse.de ([195.135.220.2]:40424 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932210AbWC3Nnt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 08:43:49 -0500
-Date: Thu, 30 Mar 2006 15:43:09 +0200
-From: Stefan Seyfried <seife@suse.de>
-To: gene.heskett@verizononline.net
-Cc: linux-kernel@vger.kernel.org,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Subject: Re: Possible breakage in 2.6.16?
-Message-ID: <20060330134309.GB4627@suse.de>
-References: <200603281244.24906.gene.heskett@verizon.net> <Pine.LNX.4.61.0603281316480.23823@chaos.analogic.com> <200603281603.53561.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200603281603.53561.gene.heskett@verizon.net>
-X-Operating-System: SUSE Linux Enterprise Desktop 10 (i586) Beta8, Kernel 2.6.16-2-default
-User-Agent: Mutt/1.5.9i
+	Thu, 30 Mar 2006 08:47:03 -0500
+Received: from clem.clem-digital.net ([68.16.168.10]:38924 "EHLO
+	clem.clem-digital.net") by vger.kernel.org with ESMTP
+	id S932212AbWC3NrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 08:47:02 -0500
+From: Pete Clements <clem@clem.clem-digital.net>
+Message-Id: <200603301346.k2UDksdJ001794@clem.clem-digital.net>
+Subject: Re: Correction: 2.6.16-git12 killed networking -- 3c900 card
+To: akpm@osdl.org (Andrew Morton)
+Date: Thu, 30 Mar 2006 08:46:54 -0500 (EST)
+Cc: clem@clem.clem-digital.net (Pete Clements),
+       klassert@mathematik.tu-chemnitz.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20060329210904.3e1391bb.akpm@osdl.org>
+X-Mailer: ELM [version 2.5 PL7]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 28, 2006 at 04:03:53PM -0500, Gene Heskett wrote:
+Quoting Andrew Morton
+  > Pete Clements <clem@clem.clem-digital.net> wrote:
+  > >
+  > > Quoting Andrew Morton
+  > >   > 
+  > >   > Oh damn.  So you're sure that 3c59x.global_enable_wol=0 actually makes the
+  > >   > driver behave better?
+  > >   > 
+  > > Ok, new results.
+  > > Built a new virgin 2.6.16.
+  > > 1) able to stimulate a tx time out message
+  > > 2) rebooted with 3c59x.global_enable_wol=0 on command line,
+  > >    able to stimulate a tx time out message
+  > > 
+  > > Applied the collision statistics fix fix. Changed the extraversion
+  > > in the top Makefile to preserve my baseline, also make does more
+  > > work than previous. 
+  > > 1) Booted and unable to stimulate a tx time out message
+  > > 
+  > > Rebooted to virgin 2.6.16
+  > > 1) able to stimulate a tx time out message
+  > > 2) rebooted with 3c59x.global_enable_wol=0 on command line,
+  > >    able to stimulate a tx time out message
+  > > 
+  > > Rebooted to the patched driver kernel (collision statistics fix fix)
+  > > 1) unable to stimulate a tx time out message.
+  > > 
+  > > Rebooted to virgin 2.6.16
+  > > 1) able to stimulate a tx time out message
+  > > 
+  > > Appears that earlier results were tainted.
+  > > 
+  > 
+  > OK, thanks.  So it looks like 3c59x-collision-statistics-fix-fix.patch is
+  > the only patch which we need to return your machine to working condition?
+  > 
 
-> It appears strace does about 5-6 pages of its own setup, then this:
-> --------------------open("/root/bin/netstat", O_RDONLY|O_LARGEFILE) = 3
-
-you are running /root/bin/netstat, not the netstat that came with your
-rpm...
-
-> ioctl(3, SNDCTL_TMR_TIMEBASE or TCGETS, 0xaf86e2e8) = -1 ENOTTY 
-> (Inappropriate ioctl for device)
-> _llseek(3, 0, [0], SEEK_CUR)            = 0
-> read(3, "#!/bin/bash\nreset\nwhile [ 1 ] ; "..., 80) = 80
-
-...and it is a script. Care to show us the script?
+Looks like that is the case until -git12, which Steffen has identified.
+Tested on git18 (with git12 fix) and looks good.
 -- 
-Stefan Seyfried                  \ "I didn't want to write for pay. I
-QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
-SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen
+Pete Clements 

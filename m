@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWC3Jz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWC3J4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751333AbWC3Jz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 04:55:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWC3Jz4
+	id S1751336AbWC3J4u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 04:56:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWC3J4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 04:55:56 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:25740 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751333AbWC3Jzz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 04:55:55 -0500
-Date: Thu, 30 Mar 2006 01:55:22 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: balbir@in.ibm.com, nagar@watson.ibm.com, greg@kroah.com,
-       arjan@infradead.org, hadi@cyberus.ca, ak@suse.de,
-       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Patch 0/8] per-task delay accounting
-Message-Id: <20060330015522.0153b9fb.pj@sgi.com>
-In-Reply-To: <20060329224737.071b9567.akpm@osdl.org>
-References: <442B271D.10208@watson.ibm.com>
-	<20060329210314.3db53aaa.akpm@osdl.org>
-	<20060330062357.GB18387@in.ibm.com>
-	<20060329224737.071b9567.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Thu, 30 Mar 2006 04:56:50 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:65478 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751336AbWC3J4u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 04:56:50 -0500
+Date: Thu, 30 Mar 2006 01:56:30 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH][RFC] splice support
+Message-Id: <20060330015630.00d8cba2.akpm@osdl.org>
+In-Reply-To: <20060330094522.GR13476@suse.de>
+References: <20060329122841.GC8186@suse.de>
+	<20060329143758.607c1ccc.akpm@osdl.org>
+	<20060330074534.GL13476@suse.de>
+	<20060330000240.156f4933.akpm@osdl.org>
+	<20060330081008.GO13476@suse.de>
+	<20060330002726.48cf0ffb.akpm@osdl.org>
+	<20060330085134.GP13476@suse.de>
+	<20060330091523.GQ13476@suse.de>
+	<20060330014024.6ada0532.akpm@osdl.org>
+	<20060330094522.GR13476@suse.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> CSA accounting/PAGG/JOB:
->   Jay Lan <jlan@engr.sgi.com>
->   Limin Gu <limin@dbear.engr.sgi.com>
+Jens Axboe <axboe@suse.de> wrote:
+>
+> > The one-at-a-time logic looks OK from a quick scan.  Do we have logic in
+>  > there to check that we're not overrunning i_size?  (See the pain
+>  > do_generic_mapping_read() goes through).
+> 
+>  do_splice_to() checks that, should I move that checking further down in
+>  case the file is truncated?
 
-You can remove Limin Gu from this list.  She has joined
-the ranks of former-SGI employees, some time back.  We
-wish her well.
+Again, see do_generic_mapping_read()'s ghastly tricks - it checks i_size
+after each readpage().
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+i_size can increase or decrease under our feet if we're not holding i_mutex
+(and we don't want to).  So userspace is being silly and the main things we
+need to care about here are to not leak uninitialised data and to not oops.
+A readpage() outside i_size will return either all-zeroes or some valid
+data which isn't actually within i_size any more, so I guess we're OK.
+
+
+

@@ -1,169 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWC3IyU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWC3I4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbWC3IyU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 03:54:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWC3IyT
+	id S932100AbWC3I4f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 03:56:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWC3I4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 03:54:19 -0500
-Received: from 220-130-178-142.HINET-IP.hinet.net ([220.130.178.142]:5986 "EHLO
-	areca.com.tw") by vger.kernel.org with ESMTP id S1751201AbWC3IyS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 03:54:18 -0500
-Message-ID: <007701c653d7$8b8ee670$b100a8c0@erich2003>
-From: "erich" <erich@areca.com.tw>
-To: "Chris Caputo" <ccaputo@alt.net>
-Cc: =?utf-8?B?KOW7o+WuieenkeaKgCnlronlj69P?= <billion.wu@areca.com.tw>,
-       "Al Viro" <viro@ftp.linux.org.uk>, "Andrew Morton" <akpm@osdl.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Matti Aarnio" <matti.aarnio@zmailer.org>,
-       <linux-kernel@vger.kernel.org>, <dax@gurulabs.com>, <ccaputo@alt.net>
-References: <Pine.LNX.4.64.0603212310070.20655@nacho.alt.net>
-Subject: Re: new Areca driver in 2.6.16-rc6-mm2 appears to be broken
-Date: Thu, 30 Mar 2006 16:54:22 +0800
+	Thu, 30 Mar 2006 03:56:35 -0500
+Received: from wproxy.gmail.com ([64.233.184.225]:51634 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932100AbWC3I4e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 03:56:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=cXB8WtrIadwa1zjD3NoDJbxLlLTNC6PsaPSSQ4zG5pKWvQovM2eD80mnD53foMI8LQXuUp7KXWe7MLJZh0bqPOb9El58jFGR3ZBI5Ic6NetWHrc+SJt0VPLWI6efALWDbVxrKKAXsQxCUnOFmayspMvW1M+GPl2budHMPXRem8Y=
+Message-ID: <489ecd0c0603300056t272b4d22g8501302f4f86fc85@mail.gmail.com>
+Date: Thu, 30 Mar 2006 16:56:34 +0800
+From: "Luke Yang" <luke.adi@gmail.com>
+To: "Nick Piggin" <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH] nommu page refcount bug fixing
+Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
+       "Nick Piggin" <npiggin@suse.de>
+In-Reply-To: <442B4EEB.6020407@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="utf-8";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.3790.1830
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
-X-OriginalArrivalTime: 30 Mar 2006 08:49:20.0187 (UTC) FILETIME=[D5CF30B0:01C653D6]
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_797_11725657.1143708994175"
+References: <489ecd0c0603291905m7ebffff2j83809cc3c93595f1@mail.gmail.com>
+	 <442B4EEB.6020407@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Chris Caputo,
+------=_Part_797_11725657.1143708994175
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Could you tell me about the file system of testing volume on bonnie++ ?
-Does this issue come from different driver update?
-I had done more two weeks of long time testing on three machines with 
-bonnie++ and iometer benchmark utility.
-I have not got this phenomena in ext3 file system and reiserfs filesystem.
-But I can reproduce this message immediately on large file "900MB" copy from 
-ARECA RAID volume format with ext2 file system.
-The ext2 file system seem have this bug after linux kernel version 2.6.3.
-I do same operation at linux 2.6.3 , it works fine.
-Now I am researching the files system kernel source, I hope you can help me 
-to clear up the issue that what's happen with it
+On 3/30/06, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> Luke Yang wrote:
+>
+> Yep, sorry this slipped into the kernel. It's my fault for not giving
+> Andrew a fix for it.
+>
+> As you might know, page refcounting in nommu was already broken, so
+> I'm working on a proper solution to fix it.
+>
+> In the meantime though, this is a step backwards and reintroduces
+> NOMMU special-casing in page refcounting. As a temporary fix, what I
+> think should happen is simply for all slab allocations to ask for
+> __GFP_COMP pages.
+>
+> Could you check that fixes your problem?
+  It works.  What's your plan to modify nommu mm? I would like to
+help. And I am also interested in implementing the "non-power-of-2"
+allocator in 2.6.
 
-Best Regartds
-Erich Chen
------ Original Message ----- 
-From: "Chris Caputo" <ccaputo@alt.net>
-To: "Erich Chen" <erich@areca.com.tw>
-Sent: Wednesday, March 22, 2006 7:45 AM
-Subject: new Areca driver in 2.6.16-rc6-mm2 appears to be broken
+  New patch:
+Signed-off-by: Luke Yang <luke.adi@gmail.com>
 
+diff --git a/mm/slab.c b/mm/slab.c
+index 4cbf8bb..f93d3d5 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -1454,7 +1454,7 @@ static void *kmem_getpages(struct kmem_c
+        int i;
 
-> Erich,
->
-> The new Areca driver in 2.6.16-rc6-mm2 is broken as far as I can tell.
->
-> I applied the Areca driver in Linux 2.6.16-rc6-mm2 to a 2.6.15.6 as
-> follows:
->
->  cd /usr/src
->  wget 
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm2/broken-out/areca-raid-linux-scsi-driver.patch
->  wget 
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm2/broken-out/areca-raid-linux-scsi-driver-update4.patch
->  cd /usr/src/linux
->  cat ../areca-raid-linux-scsi-driver.patch | patch -p1
->  cat ../areca-raid-linux-scsi-driver-update4.patch | patch -p1
->
-> After compiling a new 2.6.15.6 kernel with the driver I was able to boot
-> and things appeared fine until I ran a bonnie++ test.  During the test the
-> following started spewing endlessly and the system was unusable:
->
->  ...
->  attempt to access beyond end of device
->  sdb1: rw=0, want=134744080, limit=128002016
->  attempt to access beyond end of device
->  sdb1: rw=0, want=134744080, limit=128002016
->  attempt to access beyond end of device
->  sdb1: rw=0, want=134744080, limit=128002016
->  attempt to access beyond end of device
->  sdb1: rw=0, want=134744080, limit=128002016
->  attempt to access beyond end of device
->  sdb1: rw=0, want=134744080, limit=128002016
->  attempt to access beyond end of device
->  sdb1: rw=0, want=134744080, limit=128002016
->  attempt to access beyond end of device
->  sdb1: rw=0, want=134744080, limit=128002016
->  ...
->
-> When only "areca-raid-linux-scsi-driver.patch" is used, the system works
-> fine for bonnie++ tests and general usage.
->
-> The system is as follows:
->
->  AMD Opteron 280 dual-core 2.4ghz.  Revision E6, 256KB L1, 2048KB L2.
->  SuperMicro H8DAE (rev 1.11)
->  8 gigabytes (4 * 2GB PC3200/DDR400 REG ECC)
->  Areca Tekram ARC-1160ML SATAII 16-port multi-lane with 256 megs RAM
->  Areca ARC-6120 Battery Backup Module
->  Four (4) Seagate ST3250823AS 250GB
->  Twelve (12) Western Digital WD2500JD 250GB
->
-> Info on the RAID config is below.
->
-> Please let me know how I can assist.
->
-> Thank you,
-> Chris Caputo
->
-> ---
->
-> # areca rsf info
-> Num Name             Disks TotalCap  FreeCap DiskChannels       State
-> ===============================================================================
-> 1  Raid Set # 00       14 3500.0GB    0.0GB FG3456789ABCDE     Normal
-> ===============================================================================
-> GuiErrMsg<0x00>: Success.
->
-> # areca vsf info
-> # Name             Raid# Level   Capacity Ch/Id/Lun  State
-> ===============================================================================
-> 1 ARC-1160-VOL#00    1   Raid0+1   19.0GB 00/00/00   Normal
-> 2 ARC-1160-VOL#01    1   Raid0+1 1731.0GB 00/01/00   Normal
-> ===============================================================================
-> GuiErrMsg<0x00>: Success.
->
-> # areca disk info
-> Ch   ModelName        Serial#          FirmRev     Capacity  State
-> ===============================================================================
-> 1   ST3250823AS      4ND1JKDW         3.03         250.1GB  HotSpare
-> 2   ST3250823AS      4ND1HEKE         3.03         250.1GB  HotSpare
-> 3   ST3250823AS      4ND1DEFN         3.03         250.1GB  RaidSet 
-> Member(1)
-> 4   ST3250823AS      4ND1E37B         3.03         250.1GB  RaidSet 
-> Member(1)
-> 5   WDC WD2500JD-00  WD-WMAEH1416638  02.05D02     250.1GB  RaidSet 
-> Member(1)
-> 6   WDC WD2500JD-00  WD-WMAEH1415477  02.05D02     250.1GB  RaidSet 
-> Member(1)
-> 7   WDC WD2500JD-00  WD-WMAEH1408943  02.05D02     250.1GB  RaidSet 
-> Member(1)
-> 8   WDC WD2500JD-00  WD-WMAEH1428940  02.05D02     250.1GB  RaidSet 
-> Member(1)
-> 9   WDC WD2500JD-00  WD-WMAEH1416508  02.05D02     250.1GB  RaidSet 
-> Member(1)
-> 10   WDC WD2500JD-00  WD-WMAEH1416317  02.05D02     250.1GB  RaidSet 
-> Member(1)
-> 11   WDC WD2500JD-00  WD-WMAEH1596552  02.05D02     250.1GB  RaidSet 
-> Member(1)
-> 12   WDC WD2500SD-01  WD-WMAL71480351  08.02D08     250.1GB  RaidSet 
-> Member(1)
-> 13   WDC WD2500JD-00  WD-WMAEH1408933  02.05D02     250.1GB  RaidSet 
-> Member(1)
-> 14   WDC WD2500JD-00  WD-WMAEH1398573  02.05D02     250.1GB  RaidSet 
-> Member(1)
-> 15   WDC WD2500JD-00  WD-WMAEH1409027  02.05D02     250.1GB  RaidSet 
-> Member(1)
-> 16   WDC WD2500SD-01  WD-WMAL72085064  08.02D08     250.1GB  RaidSet 
-> Member(1)
-> ===============================================================================
-> GuiErrMsg<0x00>: Success. 
+        flags |=3D cachep->gfpflags;
+-       page =3D alloc_pages_node(nodeid, flags, cachep->gfporder);
++       page =3D alloc_pages_node(nodeid, (flags | __GFP_COMP), cachep->gfp=
+order);
+        if (!page)
+                return NULL;
+        addr =3D page_address(page);
 
+--
+Best regards,
+Luke Yang (Kernel for Blackfin maintainer)
+luke.adi@gmail.com
+
+------=_Part_797_11725657.1143708994175
+Content-Type: text/x-patch; name=nommu_use_compound_page_in_slab.patch; 
+	charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Attachment-Id: f_eleupogg
+Content-Disposition: attachment; filename="nommu_use_compound_page_in_slab.patch"
+
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+diff --git a/mm/slab.c b/mm/slab.c
+index 4cbf8bb..f93d3d5 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -1454,7 +1454,7 @@ static void *kmem_getpages(struct kmem_c
+ 	int i;
+ 
+ 	flags |= cachep->gfpflags;
+-	page = alloc_pages_node(nodeid, flags, cachep->gfporder);
++	page = alloc_pages_node(nodeid, (flags | __GFP_COMP), cachep->gfporder);
+ 	if (!page)
+ 		return NULL;
+ 	addr = page_address(page);
+
+------=_Part_797_11725657.1143708994175--

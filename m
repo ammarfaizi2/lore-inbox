@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWC3U06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWC3U0o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbWC3U06 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 15:26:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWC3U0p
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 15:26:45 -0500
-Received: from mx0.towertech.it ([213.215.222.73]:11746 "HELO mx0.towertech.it")
-	by vger.kernel.org with SMTP id S1750823AbWC3U0o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S1750822AbWC3U0o (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 30 Mar 2006 15:26:44 -0500
-Date: Thu, 30 Mar 2006 22:26:09 +0200
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: Kumar Gala <galak@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][UPDATE] rtc: Added support for ds1672 control
-Message-ID: <20060330222609.0397a97f@inspiron>
-In-Reply-To: <207037DC-B6E0-44A5-84C5-14F77D17E174@kernel.crashing.org>
-References: <20060329004122.64e91176@inspiron>
-	<Pine.LNX.4.44.0603281654370.22846-100000@gate.crashing.org>
-	<20060329014851.0f54da89@inspiron>
-	<E135E70C-2F39-4007-B4CC-4D1AEBE2EE74@kernel.crashing.org>
-	<20060329015738.5dbbb22d@inspiron>
-	<207037DC-B6E0-44A5-84C5-14F77D17E174@kernel.crashing.org>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWC3U0o
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 30 Mar 2006 15:26:44 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:3806 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1750822AbWC3U0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 15:26:44 -0500
+From: Rob Landley <rob@landley.net>
+To: Nix <nix@esperi.org.uk>
+Subject: Re: [OT] Non-GCC compilers used for linux userspace
+Date: Thu, 30 Mar 2006 15:26:14 -0500
+User-Agent: KMail/1.8.3
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Eric Piel <Eric.Piel@tremplin-utc.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, mmazur@kernel.pl,
+       linux-kernel@vger.kernel.org, llh-discuss@lists.pld-linux.org
+References: <200603141619.36609.mmazur@kernel.pl> <200603292036.38937.rob@landley.net> <87k6actmy2.fsf@hades.wkstn.nix>
+In-Reply-To: <87k6actmy2.fsf@hades.wkstn.nix>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603301526.14744.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Mar 2006 14:06:22 -0600
-Kumar Gala <galak@kernel.crashing.org> wrote:
+On Thursday 30 March 2006 2:24 am, Nix wrote:
+> On Wed, 29 Mar 2006, Rob Landley whispered secretively:
+> > Actually according to the changelog version 0.9.21 grew support for ARM,
+> > and I believe it supports some other platforms too.
+>
+> That's... impressive. Of course the more generality it grows the slower
+> it must necessarily become,
 
-> >>
-> >> ditto.
-> >
-> >  ok. will apply, thanks.
-> 
-> Do you have a queue of patches for 2.6.17 or should I send this to  
-> Andrew to get into 2.6.17?
+Not if compliation speed is the primary explicit design goal from day one, and 
+they regression test with that in mind.
 
- I have a queue. Will send it to Andrew tomorrow.
+Keep in mind that the main use of tcc these days is to turn c into a scripting 
+language.  Just start your C file with
 
+#!/usr/bin/tcc -run
+
+And notice that #! is a preprocessor comment line as far as tcc is 
+concerned. :)
+
+> > The result was qemu, which sort of compiles machine code to machine code
+> > dynamically, and which has taken up a large chunk of his time ever since.
+> > (The speed of tcc development has tailed off noticeably since, but he
+> > still spends a little time on it, and there are other developers...)
+>
+> Well, I'd rather he spent time on qemu than tcc; there are other C
+> compilers but there's nothing quite like qemu (bochs doesn't work very
+> well, valgrind is similar in essence but very different in operation...)
+
+They're still sort of related.  The sad part is that tcc is -><- this close to 
+building an unmodified linux kernel, as tccboot demonstrates.  But Fabrice 
+seems to have gone "ooh, shiny!" off in another direction, for entirely 
+understandable reasons... :)
+
+I'm sure somebody will go take a whack at it sooner or later.  (I haven't got 
+time either.)
+
+Rob
 -- 
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
-
+Never bet against the cheap plastic solution.

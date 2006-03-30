@@ -1,58 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWC3GUB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWC3G0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbWC3GUB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 01:20:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWC3GUB
+	id S1751126AbWC3G0e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 01:26:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbWC3G0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 01:20:01 -0500
-Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:17269 "HELO
-	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751127AbWC3GUA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 01:20:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=r214dpkKTVgXxaQHcn1BBTr6Ckqt+wwde8NoRol+GJ/sqbWfmJYwXBVXAw7vdGZ4WBrsF96Qv9vHxTo5WRAhjsoRy5MJb6B68RfR6BceYaeHV6wx/FJHiE8B6+UN2JOrtsY5UTXHzLLQmbLvj2ZmfSVzQFsWGge+kLtlDz45IYs=  ;
-Message-ID: <442B4C1C.4030308@yahoo.com.au>
-Date: Thu, 30 Mar 2006 14:10:20 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] splice support
-References: <20060329122841.GC8186@suse.de> <20060329143758.607c1ccc.akpm@osdl.org> <Pine.LNX.4.64.0603291624420.27203@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0603291624420.27203@g5.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Mar 2006 01:26:34 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:50828 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751126AbWC3G0d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 01:26:33 -0500
+Date: Thu, 30 Mar 2006 11:53:57 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Shailabh Nagar <nagar@watson.ibm.com>, greg@kroah.com, arjan@infradead.org,
+       hadi@cyberus.ca, ak@suse.de, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [Patch 0/8] per-task delay accounting
+Message-ID: <20060330062357.GB18387@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+References: <442B271D.10208@watson.ibm.com> <20060329210314.3db53aaa.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060329210314.3db53aaa.akpm@osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Wed, Mar 29, 2006 at 09:03:14PM -0800, Andrew Morton wrote:
+> Shailabh Nagar <nagar@watson.ibm.com> wrote:
+> >
+> > Could you please include the following delay accounting patches
+> >  in -mm ?
+> 
+> I'm at a loss to evaluate the suitability of this work, really.  I always
+> am when accounting patches come along.
+> 
+> There are various people and various groups working on various different
+> things and there appears to be no coordination and little commonality of
+> aims.  I worry that picking one submission basically at random will provide
+> nothing which the other groups can work on to build up their feature.
+> 
+> On the other hand, we don't want to do nothing until some uber-grand
+> all-singing, all-dancing statistics-gathering infrastructure comes along.
+> 
+> So I'm a bit stuck.  What I would like to see happen is that there be some
+> coordination between the various stakeholders, and some vague plan which
+> they're all happy with as a basis for the eventual grand solution.
+> 
+> We already have various bits and pieces of statistics gathering in the
+> kernel and it's already a bit ad-hoc.  Adding more one-requirement-specific
+> accounting code won't improve that situation.
+> 
+> But then, I said all this a year or two ago and nothing much has happened
+> since then.  It's not your fault, but it's a problem.
+> 
+> Perhaps a good starting point would be a one-page bullet-point-form
+> wishlist of all the accounting which people want to get out of the kernel,
+> and a description of what the kernel<->user interface should look like. 
+> Right now, I don't think we even have a picture of that.
+> 
+> We need a statistics maintainer, too, to pull together the plan,
+> coordinate, push things forwards.  The first step would be to identify the
+> stakeholders, come up with that page of bullet-points.
+> 
+> Then again, maybe the right thing to do is to keep adding low-impact
+> requirement-specific statistics patches as they come along.  But if we're
+> going to do it that way, we need an up-front reason for doing so, and I
+> don't know what that would be.
+> 
+> See my problem?
 
->
->On Wed, 29 Mar 2006, Andrew Morton wrote:
->
->>- splice() take a size_t length.  Should it be taking a 64-bit length?
->>
->
->No. You can't splice more than the kernel buffers anyway (ie currently 
->PIPE_BUFFERS pages, ie ~64kB, although in theory somebody could use large 
->pages for it), so 64-bit would be total overkill.
->
->
+One of the issues we have tried to address is the ability to provide some
+form of a common ground for all the statistics to co-exist. Various methods
+were discussed for exchanging data between kernel and user space, genetlink
+was suggested often and the clear winner.
 
-But in that case you'll just end up blocking on the pipe won't you? I
-think Andrew's talking about the syscall itself, which should be 64-bit
-surely.
+To that end, we have created a taskstats.c file. Any subsystem wanting
+to add their statistics and sending it to user space can add their own
+types by extending taskstats.c (changing the version number) and creating
+their own types using genetlink. They will have to do the following
 
-Hmm, with no "offset" parameter, you cannot splice-sendfile >4GB files...
-Or am I going crazy? I see, it uses f_pos. Should it use offsets instead?
-I guess you covered this in your earlier sys_splice discussions. I'll do
-some research.
+1. Add statistics gathering in their own subsystem
+2. Add a type to taskstats.c, extend it and use data from (1) and send
+   it to user space.
 
---
+The data from various subsystems can co-exist. I feel that this could serve as
+the basic common infrastructure to begin with and refined later (depending on
+the needs of other people).
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Thoughts?
+
+Balbir

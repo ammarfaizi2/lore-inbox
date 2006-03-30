@@ -1,74 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWC3FNu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWC3Fyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751054AbWC3FNu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 00:13:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWC3FNu
+	id S1751085AbWC3Fyy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 00:54:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWC3Fyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 00:13:50 -0500
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:44685 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751050AbWC3FNt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 00:13:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=W4jD0+1aXUD/GRPGZs7KHC8yEqDWjFST98c0kR9JpCYWBCQKRpQu0R8TQjrduHDJcAG+MKmwbUjZ+qKep5avxYF8RecIO9R8cclDrRh4geCeTDcXRAwvFZbpoKOGTAtxA4Ze4dy89bEv4lRuXdtDPhLl1Ji8LNjXBYyIDWmVn0E=  ;
-Message-ID: <442B4447.9050700@yahoo.com.au>
-Date: Thu, 30 Mar 2006 13:36:55 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH][RFC] splice support
-References: <20060329122841.GC8186@suse.de>
-In-Reply-To: <20060329122841.GC8186@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Mar 2006 00:54:53 -0500
+Received: from ns.suse.de ([195.135.220.2]:46769 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751091AbWC3FyZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 00:54:25 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Thu, 30 Mar 2006 16:52:47 +1100
+Message-Id: <1060330055247.25295@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 003 of 3] md: Raid-6 did not create sysfs entries for stripe cache
+References: <20060330164933.25210.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
 
-Looks nice!
+Signed-off-by: Brad Campbell <brad@wasp.net.au>
+Signed-off-by: Neil Brown <neilb@suse.de>
 
-Jens Axboe wrote:
+### Diffstat output
+ ./drivers/md/raid6main.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
->Hi,
->
->Since my initial posting back in December, I've had some private queries
->about the state of splice support. The state was pretty much that it was
->a little broken, if one attempted to do file | file splicing. The
->original patch migrated pages from one file to another in this case,
->which got vm ugly really quickly. And it wasn't always the right thing
->to do, since it would mean that splicing file1 to file2 would move
->file1's page cache to file2. Sometimes this is what you want, sometimes
->it is 
->
-
-Page migration now generalised vmscan.c and introduced remove_mapping
-function, which should help keep things clean.
-
-Moving a page onto and off the LRU is an interesting problem, though.
-But possibly you could just leave it on the LRU and transfer the pagecache
-reference over to the pipe. vmscan would find extra pages on the LRU at
-times, but they would go away when pipe releases the page.
-
-Moving a page from a pipe to a filesystem might be harder, because you
-don't know if it came from a filesystem (still on LRU) or not (in which
-case you need to add it to LRU). If only you can keep track of this
-information as the page gets passed around... hmm the PG_private will be
-free to use because a filesystem must always drop its buffers before
-remove_mapping can run. One would also need to take care of replacing
-an existing page I guess.
-
-Hmm... I think it can work, falling back to copies if we get stuck
-anywhere.
-
-Unless someone beats me to it, I'll try coding something up when I get
-a bit more free time.
-
---
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+diff ./drivers/md/raid6main.c~current~ ./drivers/md/raid6main.c
+--- ./drivers/md/raid6main.c~current~	2006-03-30 16:48:30.000000000 +1100
++++ ./drivers/md/raid6main.c	2006-03-30 16:48:52.000000000 +1100
+@@ -2151,6 +2151,8 @@ static int run(mddev_t *mddev)
+ 	}
+ 
+ 	/* Ok, everything is just fine now */
++	sysfs_create_group(&mddev->kobj, &raid6_attrs_group);
++
+ 	mddev->array_size =  mddev->size * (mddev->raid_disks - 2);
+ 
+ 	mddev->queue->unplug_fn = raid6_unplug_device;

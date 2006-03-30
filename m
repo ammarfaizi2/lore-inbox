@@ -1,71 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWC3Iv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWC3Iv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbWC3Iv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 03:51:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWC3Iv1
+	id S1751182AbWC3Iv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 03:51:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWC3Iv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 03:51:27 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:14930 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751118AbWC3Iv1 (ORCPT
+	Thu, 30 Mar 2006 03:51:56 -0500
+Received: from ns2.suse.de ([195.135.220.15]:19120 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751182AbWC3Ivz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 03:51:27 -0500
-Date: Thu, 30 Mar 2006 10:51:34 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH][RFC] splice support
-Message-ID: <20060330085134.GP13476@suse.de>
-References: <20060329122841.GC8186@suse.de> <20060329143758.607c1ccc.akpm@osdl.org> <20060330074534.GL13476@suse.de> <20060330000240.156f4933.akpm@osdl.org> <20060330081008.GO13476@suse.de> <20060330002726.48cf0ffb.akpm@osdl.org>
+	Thu, 30 Mar 2006 03:51:55 -0500
+Date: Thu, 30 Mar 2006 10:51:53 +0200
+From: Karsten Keil <kkeil@suse.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Karsten Keil <kkeil@suse.de>,
+       Kai Germaschewski <kai.germaschewski@gmx.de>,
+       isdn4linux@listserv.isdn4linux.de
+Subject: Re: [PATCH] ISDN: fix a few resource leaks in sc_ioctl()
+Message-ID: <20060330085153.GA1033@pingi.kke.suse.de>
+Mail-Followup-To: Jesper Juhl <jesper.juhl@gmail.com>,
+	linux-kernel@vger.kernel.org, Karsten Keil <kkeil@suse.de>,
+	Kai Germaschewski <kai.germaschewski@gmx.de>,
+	isdn4linux@listserv.isdn4linux.de
+References: <200603261616.25741.jesper.juhl@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060330002726.48cf0ffb.akpm@osdl.org>
+In-Reply-To: <200603261616.25741.jesper.juhl@gmail.com>
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.13-15.7-smp x86_64
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 30 2006, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> >
-> > > find_get_pages() does "find me the next N pages above `index' which are
-> >  > presently in pagecache'.  So it can return an array of page*'s which do not
-> >  > represent contiguous pages in the file - there can be holes in there.
-> >  > 
-> >  > IOW: pages[n]->index !necessarily= pages[n+1]->index-1
-> >  > 
-> >  > Maybe the code handles that by making sure that all the pages in the range
-> >  > are already in pagecache - I didn't check.  But that would take some heroic
-> >  > locking.
-> > 
-> >  It doesn't, I'm assuming that find_get_pages() returns consequtive pages
-> >  atm. Would seem like the sane interface :-)
+On Sun, Mar 26, 2006 at 04:16:25PM +0200, Jesper Juhl wrote:
 > 
-> Yeah, sorry.  It's a "gather what's presently there" thing.  For writeback.
+> Fix a few resource leaks in drivers/isdn/sc/ioctl.c::sc_ioctl()
 > 
-> Nick has some gang-lookup-slots code.  So instead of populating an array of
-> page*'s you can populate an array of (effectively) page**'s.  Then one
-> could walk that.   All while holding ->tree_lock.    This doesn't help ;)
 > 
-> Or you could walk the pages[] array until you hit an ->index which doesn't
-> match and then toss the rest away.  That's a bit of extra work, but in the
-> common case all the pages will be good.  Perhaps.
-> 
-> >  We continue doing find_or_create_page() on the remaining, but using 'i'
-> >  as the 'index' addition. So if we had non-conseq pages, we'd be screwed.
-> 
-> Yup.
-> 
-> Probably the simplest for now is an open-coded find_get_page() loop.  Later
-> on we should optimise that into a find_get_contig_pages() which only takes
-> tree_lock a single time.
-> 
-> Doing it with a new radix_tree_gang_lookup_contig_name_me_longer() would be
-> relatively straightforward too.  It would bale out as soon as it hit a
-> not-present slot.
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 
-I'll go for the simple approach right now, going over the returned
-find_get_pages() array and moving pages around and filling holes doesn't
-sound too alluring. Thanks!
+Acked-by: Karsten Keil <kkeil@suse.de>
+
+> ---
+> 
+>  drivers/isdn/sc/ioctl.c |    9 +++++----
+>  1 files changed, 5 insertions(+), 4 deletions(-)
+> 
+> --- linux-2.6.16-mm1-orig/drivers/isdn/sc/ioctl.c	2006-03-20 06:53:29.000000000 +0100
+> +++ linux-2.6.16-mm1/drivers/isdn/sc/ioctl.c	2006-03-26 16:11:49.000000000 +0200
+> @@ -46,7 +46,8 @@ int sc_ioctl(int card, scs_ioctl *data)
+>  		pr_debug("%s: SCIOCRESET: ioctl received\n",
+>  			sc_adapter[card]->devicename);
+>  		sc_adapter[card]->StartOnReset = 0;
+> -		return (reset(card));
+> +		kfree(rcvmsg);
+> +		return reset(card);
+>  	}
+>  
+>  	case SCIOCLOAD:
+> @@ -183,7 +184,7 @@ int sc_ioctl(int card, scs_ioctl *data)
+>  				sc_adapter[card]->devicename);
+>  
+>  		spid = kmalloc(SCIOC_SPIDSIZE, GFP_KERNEL);
+> -		if(!spid) {
+> +		if (!spid) {
+>  			kfree(rcvmsg);
+>  			return -ENOMEM;
+>  		}
+> @@ -195,10 +196,10 @@ int sc_ioctl(int card, scs_ioctl *data)
+>  		if (!status) {
+>  			pr_debug("%s: SCIOCGETSPID: command successful\n",
+>  					sc_adapter[card]->devicename);
+> -		}
+> -		else {
+> +		} else {
+>  			pr_debug("%s: SCIOCGETSPID: command failed (status = %d)\n",
+>  				sc_adapter[card]->devicename, status);
+> +			kfree(spid);
+>  			kfree(rcvmsg);
+>  			return status;
+>  		}
+> 
+> 
 
 -- 
-Jens Axboe
-
+Karsten Keil
+SuSE Labs
+ISDN development

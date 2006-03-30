@@ -1,88 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWC3HPy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbWC3HSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751205AbWC3HPy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 02:15:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWC3HPx
+	id S1751050AbWC3HSE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 02:18:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWC3HSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 02:15:53 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:11633 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751205AbWC3HPx (ORCPT
+	Thu, 30 Mar 2006 02:18:04 -0500
+Received: from pat.uio.no ([129.240.10.6]:58806 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751050AbWC3HSC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 02:15:53 -0500
-Date: Thu, 30 Mar 2006 09:16:01 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] splice support
-Message-ID: <20060330071601.GH13476@suse.de>
-References: <20060329122841.GC8186@suse.de> <20060329143758.607c1ccc.akpm@osdl.org> <Pine.LNX.4.64.0603291624420.27203@g5.osdl.org>
+	Thu, 30 Mar 2006 02:18:02 -0500
+Subject: Re: [PATCH] knfsd: Correct reserved reply space for read requests.
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: NeilBrown <neilb@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1060330055350.25337@suse.de>
+References: <20060330165307.25307.patches@notabene>
+	 <1060330055350.25337@suse.de>
+Content-Type: text/plain
+Date: Thu, 30 Mar 2006 02:17:31 -0500
+Message-Id: <1143703051.8129.2.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0603291624420.27203@g5.osdl.org>
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.117, required 12,
+	autolearn=disabled, AWL 1.70, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-(So Linus basically handled everything here, I'll make some scattered
-comments where I made changes).
-
-On Wed, Mar 29 2006, Linus Torvalds wrote:
-> > - splice() doesn't check for (len < 0), like read() and write() do. 
-> >   Should it?
+On Thu, 2006-03-30 at 16:53 +1100, NeilBrown wrote:
+> Single patch for nfsd in 2.6.16.  As the comment say, it is sensible
+> for this to sit in -mm for a while just in case.
 > 
-> Umm. More likely better to just do rw_verify_area() instead, which limits 
-> it to MAX_INT. Although it probably doesn't matter, for the above obvious 
-> reason anyway (ie we end up doing everything on a page-granular area 
-> anyway).
-
-I've added rw_verify_area() calls now.
-
-> > - what does `flags' do, anyway?  The whole thing is undocumented and
-> >   almost uncommented.
+> ### Comments for Changeset
 > 
-> Right now "flags" doesn't do anything at all, and you should just pass in 
-> zero.
+> NFSd makes sure there is enough space to hold the maximum possible
+> reply before accepting a request.  The units for this maximum is
+> (4byte) words.  However in three places, particularly for read
+> request, the number given is a number of bytes.
 > 
-> But if we ever do a "move" vs "copy" hint, we'll want something.
-
-Precisely. I already have something in progress for that...
-
-> > - the tmp_page trick in anon_pipe_buf_release() seems to be unrelated to
-> >   the splice() work.  It should be a separate patch and any peformance
-> >   testing (needed, please) should be decoupled from that change.
+> This means too much space is reserved which is slightly wasteful.
 > 
-> It's not unrelated. Note the new "page_count() == 1" test.
-
-Yes, this is needed to make migrating pages from a pipe to the page
-cache possible.
-
-> > - The logic in do_splice() hurts my brain.  "if `in' is a pipe then
-> >   splice from `in-as-a-pipe' to `out' else if `out' is a pipe then splice
-> >   from `in' to 'out-as-a-pipe'.  Make sense, I guess, but I do wonder "what
-> >   would happen if those tests were reversed?".  Nothing, I guess.
+> This is the sort of patch that could uncover a deeper bug, and it is
+> not critical, so it would be best for it to spend a while in -mm before going in to mainline.
 > 
-> Why would it matter? If both are pipes, then one is as good as the other. 
-> You just want to pick the version that is potentially more efficient, if 
-> there is any difference (and there is).
+> Discovered-by: "Eivind  Sarto" <ivan@kasenna.com>
 > 
-> However, I don't think Jens actually did the pipe->pipe case at all (ie 
-> pipes don't have the "splice_read()" function yet).
-
-No it's not there yet, coverage will increase soon :)
-
-> > 
-> > - In pipe_to_file():
-> > 
-> >   - Shouldn't it be using GFP_HIGHUSER()?
+> Cc: "Eivind  Sarto" <ivan@kasenna.com>
 > 
-> Some filesystems may not like having highpages. 
+> Signed-off-by: Neil Brown <neilb@suse.de>
 > 
-> I suspect it should be "mapping_gfp_mask(mapping)".
+> ### Diffstat output
+>  ./fs/nfsd/nfs3proc.c |    2 +-
+>  ./fs/nfsd/nfs4proc.c |    2 +-
+>  ./fs/nfsd/nfsproc.c  |    2 +-
+>  3 files changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff ./fs/nfsd/nfs3proc.c~current~ ./fs/nfsd/nfs3proc.c
+> --- ./fs/nfsd/nfs3proc.c~current~	2006-03-30 16:48:30.000000000 +1100
+> +++ ./fs/nfsd/nfs3proc.c	2006-03-30 16:48:58.000000000 +1100
+> @@ -682,7 +682,7 @@ static struct svc_procedure		nfsd_proced
+>    PROC(lookup,	 dirop,		dirop,		fhandle2, RC_NOCACHE, ST+FH+pAT+pAT),
+>    PROC(access,	 access,	access,		fhandle,  RC_NOCACHE, ST+pAT+1),
+>    PROC(readlink, readlink,	readlink,	fhandle,  RC_NOCACHE, ST+pAT+1+NFS3_MAXPATHLEN/4),
+> -  PROC(read,	 read,		read,		fhandle,  RC_NOCACHE, ST+pAT+4+NFSSVC_MAXBLKSIZE),
+> +  PROC(read,	 read,		read,		fhandle,  RC_NOCACHE, ST+pAT+4+NFSSVC_MAXBLKSIZE/4),
 
-I actually already made it GFP_HIGHUSER yesterday in a non-yet committed
-patch, so I'll check up on this and make the change.
+Hmm... Wouldn't it be safer to use XDR_QUADLEN()? I doubt that we will
+ever set a NFSSVC_MAXBLKSIZE that is not divisible by 4, but...
 
--- 
-Jens Axboe
+>    PROC(write,	 write,		write,		fhandle,  RC_REPLBUFF, ST+WC+4),
+>    PROC(create,	 create,	create,		fhandle2, RC_REPLBUFF, ST+(1+FH+pAT)+WC),
+>    PROC(mkdir,	 mkdir,		create,		fhandle2, RC_REPLBUFF, ST+(1+FH+pAT)+WC),
+> 
+> diff ./fs/nfsd/nfs4proc.c~current~ ./fs/nfsd/nfs4proc.c
+> --- ./fs/nfsd/nfs4proc.c~current~	2006-03-30 16:48:30.000000000 +1100
+> +++ ./fs/nfsd/nfs4proc.c	2006-03-30 16:48:58.000000000 +1100
+> @@ -973,7 +973,7 @@ struct nfsd4_voidargs { int dummy; };
+>   */
+>  static struct svc_procedure		nfsd_procedures4[2] = {
+>    PROC(null,	 void,		void,		void,	  RC_NOCACHE, 1),
+> -  PROC(compound, compound,	compound,	compound, RC_NOCACHE, NFSD_BUFSIZE)
+> +  PROC(compound, compound,	compound,	compound, RC_NOCACHE, NFSD_BUFSIZE/4)
+
+Ditto...
+
+>  };
+>  
+>  struct svc_version	nfsd_version4 = {
+> 
+> diff ./fs/nfsd/nfsproc.c~current~ ./fs/nfsd/nfsproc.c
+> --- ./fs/nfsd/nfsproc.c~current~	2006-03-30 16:48:30.000000000 +1100
+> +++ ./fs/nfsd/nfsproc.c	2006-03-30 16:48:58.000000000 +1100
+> @@ -553,7 +553,7 @@ static struct svc_procedure		nfsd_proced
+>    PROC(none,	 void,		void,		none,		RC_NOCACHE, ST),
+>    PROC(lookup,	 diropargs,	diropres,	fhandle,	RC_NOCACHE, ST+FH+AT),
+>    PROC(readlink, readlinkargs,	readlinkres,	none,		RC_NOCACHE, ST+1+NFS_MAXPATHLEN/4),
+> -  PROC(read,	 readargs,	readres,	fhandle,	RC_NOCACHE, ST+AT+1+NFSSVC_MAXBLKSIZE),
+> +  PROC(read,	 readargs,	readres,	fhandle,	RC_NOCACHE, ST+AT+1+NFSSVC_MAXBLKSIZE/4),
+>    PROC(none,	 void,		void,		none,		RC_NOCACHE, ST),
+>    PROC(write,	 writeargs,	attrstat,	fhandle,	RC_REPLBUFF, ST+AT),
+>    PROC(create,	 createargs,	diropres,	fhandle,	RC_REPLBUFF, ST+FH+AT),
+
+Cheers,
+  Trond
 

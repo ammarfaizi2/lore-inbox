@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbWC3Pbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWC3Pb3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750896AbWC3Pbg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 10:31:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750958AbWC3Pbg
+	id S1750913AbWC3Pb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 10:31:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbWC3Pb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 10:31:36 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:15878 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S1750896AbWC3Pbf (ORCPT
+	Thu, 30 Mar 2006 10:31:29 -0500
+Received: from unthought.net ([212.97.129.88]:27913 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S1750896AbWC3Pb3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 10:31:35 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: Andrew Morton <akpm@osdl.org>
-Cc: Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org,
-       drepper@redhat.com, mtk-manpages@gmx.net, nickpiggin@yahoo.com.au
-Subject: Re: [patch 1/1] sys_sync_file_range()
-References: <200603300741.k2U7fQLe002202@shell0.pdx.osdl.net>
-	<17451.36790.450410.79788@cse.unsw.edu.au>
-	<20060330003246.31216ff2.akpm@osdl.org>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 31 Mar 2006 00:31:22 +0900
-In-Reply-To: <20060330003246.31216ff2.akpm@osdl.org> (Andrew Morton's message of "Thu, 30 Mar 2006 00:32:46 -0800")
-Message-ID: <87d5g4rlth.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 30 Mar 2006 10:31:29 -0500
+Date: Thu, 30 Mar 2006 17:31:28 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net
+Subject: Re: NFS/Kernel Problem: getfh failed: Operation not permitted
+Message-ID: <20060330153128.GB9811@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Justin Piszcz <jpiszcz@lucidpixels.com>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+References: <Pine.LNX.4.64.0603300813270.18696@p34> <1143728720.8074.41.camel@lade.trondhjem.org> <Pine.LNX.4.64.0603300929340.18696@p34> <1143729766.8074.49.camel@lade.trondhjem.org> <Pine.LNX.4.64.0603300949000.18696@p34> <1143731364.8074.53.camel@lade.trondhjem.org> <Pine.LNX.4.64.0603301011160.18696@p34>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0603301011160.18696@p34>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On Thu, Mar 30, 2006 at 10:13:38AM -0500, Justin Piszcz wrote:
+> On Thu, 30 Mar 2006, Trond Myklebust wrote:
+> 
+...
+> In the /etc/exports file, I have an entry that looks like this:
+> /path	specific-host-001(ro,root_squash,no_sync)
+> /path	specific-host-002((ro,root_squash,no_sync)
+> /path	*(ro,root_squash,no_sync)
 
-> +	if ((s64)offset < 0)
-> +		goto out;
-> +	if ((s64)endbyte < 0)
-> +		goto out;
+I don't know how this works today, but historically Linux has been
+completely unable to deal with any kind of names in /etc/exports.
+Netgroups, DNS names, ...  And the results have been the strangest mix
+of things sort-of-mostly-but-not-quite working.
 
-loff_t is long long on all arch. This is not need?
+I'd put in IP addresses, netmasks or '*', and see if that solves the
+problem.
 
-> +	if (S_ISFIFO(file->f_dentry->d_inode->i_mode)) {
-> +		ret = -ESPIPE;
-> +		goto out_put;
-> +	}
+Again, I don't know if this is related to what you're seeing, but I'd
+say it's worth a shot :)
 
-How about to check "if (!file->f_op || !file->f_op->fsync)" or something?
-
-For chrdev is also strange, and in the case of fsync(), it returns -EINVAL.
-IMHO it seems there is consistency.
-
-Thanks.
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+
+ / jakob
+

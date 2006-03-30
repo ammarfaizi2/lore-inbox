@@ -1,69 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWC3ANB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWC3AUD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbWC3ANB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 19:13:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWC3ANB
+	id S1750838AbWC3AUD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 19:20:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWC3AUC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 19:13:01 -0500
-Received: from mga07.intel.com ([143.182.124.22]:4913 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751281AbWC3ANA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 19:13:00 -0500
-TrustExchangeSourcedMail: True
-X-ExchangeTrusted: True
-X-IronPort-AV: i="4.03,145,1141632000"; 
-   d="scan'208"; a="16569140:sNHT50229277"
-Date: Wed, 29 Mar 2006 16:12:59 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Ashok Raj <ashok.raj@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org, rjw@sisk.pl
+	Wed, 29 Mar 2006 19:20:02 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:50109 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1750838AbWC3AUA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 19:20:00 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: Andrew Morton <akpm@osdl.org>
 Subject: Re: [rfc] fix Kconfig, hotplug_cpu is needed for swsusp
-Message-ID: <20060329161258.A13186@unix-os.sc.intel.com>
-References: <20060329220808.GA1716@elf.ucw.cz> <200603300936.22757.ncunningham@cyclades.com> <20060329154748.A12897@unix-os.sc.intel.com> <200603300953.32298.ncunningham@cyclades.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200603300953.32298.ncunningham@cyclades.com>; from ncunningham@cyclades.com on Thu, Mar 30, 2006 at 09:53:26AM +1000
+Date: Thu, 30 Mar 2006 10:18:31 +1000
+User-Agent: KMail/1.9.1
+Cc: ashok.raj@intel.com, pavel@ucw.cz, linux-kernel@vger.kernel.org,
+       rjw@sisk.pl
+References: <20060329220808.GA1716@elf.ucw.cz> <200603300953.32298.ncunningham@cyclades.com> <20060329161354.3ce3d71b.akpm@osdl.org>
+In-Reply-To: <20060329161354.3ce3d71b.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1148576.0bsUY1VZns";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200603301018.36654.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 30, 2006 at 09:53:26AM +1000, Nigel Cunningham wrote:
-> 
-> >  config SUSPEND_SMP
-> >         bool
-> > -       depends on HOTPLUG_CPU && X86 && PM
-> > +       depends on HOTPLUG_CPU && X86 && PM && X86_GENERICARCH
-> >         default y
-> 
-> Sounds like the right approach to me, but I think it's better to use selects. 
-> I reckon that if the user selects SMP and then selects suspend support, 
-> everything else required should be automatic. If we do too many 'depends 
-> on's, they have to mess about figuring out what they haven't selected yet and 
-> why they can't find the option to suspend. Most people don't seem to know 
-> about '/' in make menuconfig.
-> 
+--nextPart1148576.0bsUY1VZns
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I tried the same with HOTPLUG_CPU as well, to just say 
+Hi.
 
-select X86_GENERICARCH
+On Thursday 30 March 2006 10:13, Andrew Morton wrote:
+> Nigel Cunningham <ncunningham@cyclades.com> wrote:
+> > I think it's better to use selects.
+> > I reckon that if the user selects SMP and then selects suspend support,
+> > everything else required should be automatic.
+>
+> Yes.  `select' is end-user-friendly but kernel-developer-hostile.
+> Sometimes it's infuriating trying to work out why a symbol keeps on getti=
+ng
+> turned on.
+>
+> <checks>
+>
+> hm, menuconfig's "/" command does show "Selected by:".  That helps.
 
-but problem was this didnt enforce the selection, i.e user still could go and revert
-the selection made automatic for him, i.e go ahead and select X86_PC, and it would 
-still leave the HOTPLUG_CPU=y around. I thought "depends" sort of forces the selection.
+This might give the Kconfig guys a headache, but maybe a middle road would =
+be=20
+to make selects turn on options rather than force them on. That is, make it=
+=20
+so that if SUSPEND depends on SWAP, and selects it, after enabling SUSPEND,=
+=20
+SWAP is also enabled, but you can still go to SWAP and turn it off, thereby=
+=20
+also disabling SUSPEND again?
 
-Maybe i didnt try correctly, if you have alternatives please do, actually even for 
-HOTPLUG_CPU if this could be made automatic select, and at the same time enforced
-strictly, thats great.
+Regards,
 
-(for e.g i shoud;t be able to select X86_PC=y and leave CONFIG_HOTPLUG_CPU=y around)
+Nigel
 
+--nextPart1148576.0bsUY1VZns
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
+iD8DBQBEKyPcN0y+n1M3mo0RAq0jAKDK8p+vqZpJoKSAHmy9+bifzk2ANACgknJD
+xoekVUSPsVRlumBtiB8paL0=
+=Pdg5
+-----END PGP SIGNATURE-----
 
-
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+--nextPart1148576.0bsUY1VZns--

@@ -1,180 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWC3XaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWC3Xe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbWC3XaW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 18:30:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbWC3XaW
+	id S1751151AbWC3Xe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 18:34:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWC3Xe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 18:30:22 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10899 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751150AbWC3XaV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 18:30:21 -0500
-Date: Fri, 31 Mar 2006 01:30:05 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
-       patches@arm.linux.org.uk, Bompart Cedric <cedric.bompart@thales-is.com>
-Subject: Re: Hook collie frontlight into sysfs
-Message-ID: <20060330233005.GE1663@elf.ucw.cz>
-References: <20060330114609.GA14505@elf.ucw.cz> <1143759565.6418.74.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Mar 2006 18:34:28 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:55467 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751151AbWC3Xe1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 18:34:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=uKZql+5r9sh74Zf8w++xaC4MaRQzGHkdBiHC8oDqRj42ErEzmcJOTIVXY3oVLG3VA3LGGvSfROX5Pmii7CQWxMZIcMbHcNU71ov+9mI8pBhSO3ClOq59KiHJ4JXt7Rje/7Fu1BrlY4nqSwP1VlELVF/kew4XIdkDo+Lb67VBiPQ=
+Message-ID: <355e5e5e0603301534g2a00e65aqdb57e340578b33d1@mail.gmail.com>
+Date: Thu, 30 Mar 2006 18:34:26 -0500
+From: "Lukasz Kosewski" <lkosewsk@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Status of promise sata hotplug patches? (works great!)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1143759565.6418.74.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hey Philip,
 
-> > Hook backlight handling into backlight subsystem, so that backlight is
-> > controllable using /sys . I had to shuffle code around a bit in order
-> > to avoid prototypes.
-> 
-> Hi Pavel,
-> 
-> There are a few issues with this. Firstly,
+(re-send due to the list ignoring my UTF-8 charset)
 
->  CC      arch/arm/common/locomo.o
-> arch/arm/common/locomo.c: In function `locomo_frontlight_set':
-> arch/arm/common/locomo.c:1061: error: `LOCOMO_ALC_EN' undeclared (first use in this function)
-> arch/arm/common/locomo.c:1061: error: (Each undeclared identifier is reported only once
-> arch/arm/common/locomo.c:1061: error: for each function it appears in.)
-> make[1]: *** [arch/arm/common/locomo.o] Error 1
+On 3/15/06, Philip Langdale <philipl@mail.utexas.edu> wrote:
+> I recently dug up your promise sata hotplug patches
+> and have been successfully using them with a SATA300 TX4
+> card (I had to modify the patch to identify this card as
+> hotplug capable, but it's all the same as the SATAII150).
 
-Oops, too much hand editing, probably.
+So contrary to popular belief, I'm not dead, just in the middle of
+final exams.  Thankfully, this is the last time anyone will have to
+deal with such a delay, since if all goes well I'll be getting my
+Bachelor's degree at the end of April.
 
-> > +static int set_intensity(struct backlight_device *bd, int intensity)
-> > +{
-> > +	switch (intensity) {
-> > +	/* AC and non-AC are handled differently, but produce same results in sharp code? */
-> > +	case 0: locomo_frontlight_set(locomolcd_dev, 0, 0, 161); break;
-> > +	case 1: locomo_frontlight_set(locomolcd_dev, 117, 0, 161); break;
-> > +	case 2: locomo_frontlight_set(locomolcd_dev, 163, 0, 148); break;
-> > +	case 3: locomo_frontlight_set(locomolcd_dev, 194, 0, 161); break;
-> > +	case 4: locomo_frontlight_set(locomolcd_dev, 194, 1, 161); break;
-> > +
-> > +	default:
-> > +		locomo_frontlight_set(locomolcd_dev, intensity, 0, 148); break;
-> > +	}
-> > +	current_intensity = intensity;
-> > +	return 0;
-> > +}
-> 
-> That default statement gives cause for concern. Should it not return
-> -EINVAL for intensities outside of 0-4?
+Feel free to send me the modification you made; I won't be able to
+test it since I don't have a SATA300 TX4 card, but I can integrate it
+into what I've got.
 
-Well.. I noticed that values 80..194 actually provide continuous
-selection of backlights, so this was my little hack to play with.
+> I also had to make very minor changes to get the patches
+> to apply to 2.6.16-rc6, but they work great - so I was
+> wondering what the situation was with respect to getting
+> them merged in?
 
-I am not sure if it is okay to leave backlight at some state like that
-for long ammount of time, nor how is third parameter related...
+OK, it's sweet that things are working with 2.6.16.  I keep meaning to
+port my patches forward, but never really have the time.  Soon I will.
+ With respect to merging into mainline, the current stumbling block is
+Tejun Heo's EH layer changes, which are really sane but their
+completion is still just around the corner.  Currently, the big issue
+with hotplug stuff is that it isn't synchronizing with libata at all,
+so the suspicion is that if the controller is in the middle of doing
+some PIO operation or something and the drive gets unplugged, things
+would be bad.  Perhaps this can be viewed as an 'edge case,' but I
+think it's important to keep things synchronized.
 
-I guess I'll simply return -EINVAL. 
+So, when I get a chance, I will start looking at all the EH changes,
+and make hotplug play well with those.  By that, I mean that rather
+than bypassing libata EH completely and just calling SCSI plug/unplug
+routines, resetting the bus., etc, what I will try to do is integrate
+the two.  For instance; I get an interrupt saying 'the disk is gone',
+and then ask EH "is the disk REALLY gone, or was this a cable blip?"
+EH then tells me and some action (or none) occurs.
 
-> > +static int get_intensity(struct backlight_device *bd)
-> > +{
-> > +	return current_intensity;
-> > +}
-> > +
-> > +static struct backlight_properties locomobl_data = {
-> > +	.owner		= THIS_MODULE,
-> > +	.get_brightness = get_intensity,
-> > +	.set_brightness = set_intensity,
-> > +	.max_brightness = 5,
-> 
-> Maximum brightness is 4 above?
+This still has some ways to go, but it's not in some unforseeable
+future, it just depends on when I'll have time to hack on this.
+Currently, it's looking like come the end of June (at the earliest) I
+can get back to hacking on it, assuming I've got a job condusive to my
+doing lots of kernel hacking at the time.
 
-It seems to be ignored, anyway, but will fix.
+Sorry that I can't say anything terribly exciting like "tomorrow," but
+it's just not time-feasible at the moment.  Thanks for inquiring about
+the project status though, with the positive feedback this is getting,
+it at least means things are on the right path.
 
-> > @@ -147,8 +183,13 @@ static int __init poodle_lcd_init(void)
-> >  
-> >  #ifdef CONFIG_SA1100_COLLIE
-> >  	sa1100fb_lcd_power = locomolcd_power;
-> > +
-> > +	backlight_device_register("collie-bl", NULL, &locomobl_data);
-> >  #endif
-> >  	return 0;
-> >  }
-> 
-> Could this be changed to:
-> 
-> #ifdef CONFIG_SA1100_COLLIE
-> 	sa1100fb_lcd_power = locomolcd_power;
-> #endif
-> 	backlight_device_register("locomo-bl", NULL, &locomobl_data);
-> 
->  	return 0;
-> 
-> This means that it will also present a backlight interface on poodle. In
-> fact I've already helped a poodle user test this and it works!
-
-Good -- I had no idea if it would work. Changed.
-
-> Also note that there are some backlight interface changes sitting in -mm
-> (see the linux-fbdev-devel mailing list) which this patch isn't covered
-> by. If this patch gets merged first, I'll make sure it gets adapted to
-> the new interface though (which actually brings some benefits like power
-> attribute implementation for free).
-
-Perhaps I can merge it into your tree (instead of rmk's?).
-								Pavel
-
-This incremental diff should fix these issues...
-
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-PATCH FOLLOWS
-KernelVersion: 2.6.16-git-previouspatch
-
-diff --git a/arch/arm/common/locomo.c b/arch/arm/common/locomo.c
-index bcce028..84b0226 100644
---- a/arch/arm/common/locomo.c
-+++ b/arch/arm/common/locomo.c
-@@ -1090,6 +1090,7 @@ void locomo_frontlight_set(struct locomo
- 	locomo_writel(bpwf, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALS);
- 	udelay(100);
- 	locomo_writel(duty, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALD);
-+#define LOCOMO_ALC_EN	0x8000
- 	locomo_writel(bpwf | LOCOMO_ALC_EN, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALS);
- 	spin_unlock_irqrestore(&lchip->lock, flags);
- }
-diff --git a/drivers/video/backlight/locomolcd.c b/drivers/video/backlight/locomolcd.c
-index a95cd25..d033471 100644
---- a/drivers/video/backlight/locomolcd.c
-+++ b/drivers/video/backlight/locomolcd.c
-@@ -120,7 +120,9 @@ static int set_intensity(struct backligh
- 	case 4: locomo_frontlight_set(locomolcd_dev, 194, 1, 161); break;
- 
- 	default:
--		locomo_frontlight_set(locomolcd_dev, intensity, 0, 148); break;
-+		return -EINVAL;
-+		/* Actually, other values are possible, too. Everything between 80..194
-+		   seems to work as duty parameter */
- 	}
- 	current_intensity = intensity;
- 	return 0;
-@@ -135,7 +137,7 @@ static struct backlight_properties locom
- 	.owner		= THIS_MODULE,
- 	.get_brightness = get_intensity,
- 	.set_brightness = set_intensity,
--	.max_brightness = 5,
-+	.max_brightness = 4,
- };
- 
- static int poodle_lcd_probe(struct locomo_dev *dev)
-@@ -183,9 +185,9 @@ static int __init poodle_lcd_init(void)
- 
- #ifdef CONFIG_SA1100_COLLIE
- 	sa1100fb_lcd_power = locomolcd_power;
--
--	backlight_device_register("collie-bl", NULL, &locomobl_data);
- #endif
-+	backlight_device_register("collie-bl", NULL, &locomobl_data);
-+
- 	return 0;
- }
- device_initcall(poodle_lcd_init);
-
--- 
-Picture of sleeping (Linux) penguin wanted...
+Luke Kosewski

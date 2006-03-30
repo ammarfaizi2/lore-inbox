@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWC3Ap3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWC3AqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751234AbWC3Ap3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 19:45:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWC3Ap3
+	id S1751313AbWC3AqL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 19:46:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWC3AqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 19:45:29 -0500
-Received: from smop.co.uk ([81.5.177.201]:409 "EHLO hades.smop.co.uk")
-	by vger.kernel.org with ESMTP id S1751234AbWC3Ap3 (ORCPT
+	Wed, 29 Mar 2006 19:46:11 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:640 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751313AbWC3AqJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 19:45:29 -0500
-Date: Thu, 30 Mar 2006 01:45:18 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-       Andi Kleen <ak@muc.de>
-Subject: Re: 2.6.16-mm1 leaks in dvb playback
-Message-ID: <20060330004518.GA23404@smop.co.uk>
-Reply-To: adrian@smop.co.uk
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org,
-	"David S. Miller" <davem@davemloft.net>, Andi Kleen <ak@muc.de>
-References: <20060326211514.GA19287@wyvern.smop.co.uk> <20060327172356.7d4923d2.akpm@osdl.org> <20060328070220.GA29429@smop.co.uk> <20060327231630.76e97b83.akpm@osdl.org> <20060329233712.GA21810@smop.co.uk> <20060329160648.59395d67.akpm@osdl.org>
+	Wed, 29 Mar 2006 19:46:09 -0500
+Message-ID: <442B2A4D.4010606@pobox.com>
+Date: Wed, 29 Mar 2006 19:46:05 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060329160648.59395d67.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060126
-From: Adrian Bridgett <adrian@smop.co.uk>
-X-smop.co.uk-MailScanner: Found to be clean
-X-smop.co.uk-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.702,
-	required 5, autolearn=not spam, AWL -0.10, BAYES_00 -2.60,
-	NO_RELAYS -0.00)
-X-smop.co.uk-MailScanner-From: adrian@smop.co.uk
+To: Mark Lord <lkml@rtr.ca>
+CC: IDE/ATA development list <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>,
+       sander@humilis.net
+Subject: Re: [PATCH 2.6.16] sata_mv.c :: three bug fixes
+References: <200603290950.32219.lkml@rtr.ca>
+In-Reply-To: <200603290950.32219.lkml@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -3.6 (---)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-3.6 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29, 2006 at 16:06:48 -0800 (-0800), Andrew Morton wrote:
-> adrian <adrian@smop.co.uk> wrote:
-> >
-> > On Mon, Mar 27, 2006 at 23:16:30 -0800 (-0800), Andrew Morton wrote:
-> > > It's unlikely that the sock_inode_cache leak is related to the dcache leak,
-> > > but we won't know until we know...
-> > 
-> > Looks like this might be the same issus as "dcache leak in 2.6.16-git8
-> > (II)"...
-> > 
-> > I think I've found the patch which causes the leak - it was the
-> > "use fget_light() in net/socket.c" patch.   I can't see anything
-> > I'll try and confirm tomorrow with a nice fresh build.   The command
+Mark Lord wrote:
+>  	u8 ata_status = 0;
+[...]
+>  	for (port = port0; port < port0 + MV_PORTS_PER_HC; port++) {
+> -		ap = host_set->ports[port];
+> +		struct ata_port *ap = host_set->ports[port];
+> +		struct mv_port_priv *pp = ap->private_data;
+>  		hard_port = port & MV_PORT_MASK;	/* range 0-3 */
 
-Well I've just tried 2.6.11-mm1 with that patch reverted and it still
-leaks so I must be mistaken I'm afraid.  I'll go and trawl through the
-builds I've done and try a simpler config as I reverted back to a
-bigger config to confirm it.
 
-Sorry - I had gone through carefully and that was the one that made
-the difference.  Back to some more builds :-(
+Applied, even though it should be quite obvious that the patch does not 
+apply to 2.6.16 at all; its missing your previous ata_status patch, 
+which the upstream kernel has already included.
 
-Adrian
+	Jeff
+
+

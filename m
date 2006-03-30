@@ -1,69 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWC3Oza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWC3Ozu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbWC3Oza (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 09:55:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWC3Oza
+	id S1750743AbWC3Ozu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 09:55:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWC3Ozu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 09:55:30 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:50307 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750727AbWC3Oz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 09:55:29 -0500
-Date: Thu, 30 Mar 2006 23:55:14 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH][RFC] splice support
-Message-Id: <20060330235514.947a77fa.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060330143809.GN13476@suse.de>
-References: <20060329122841.GC8186@suse.de>
-	<20060330175406.fbd6d82c.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060330135346.GL13476@suse.de>
-	<20060330230509.b1ae0d8c.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060330143809.GN13476@suse.de>
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Thu, 30 Mar 2006 09:55:50 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:46284 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750743AbWC3Ozq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 09:55:46 -0500
+Date: Thu, 30 Mar 2006 08:55:44 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Chris Wright <chrisw@sous-sol.org>,
+       Sam Vilain <sam@vilain.net>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Virtualization steps
+Message-ID: <20060330145544.GA2403@sergelap.austin.ibm.com>
+References: <44294BE4.2030409@yahoo.com.au> <m1psk5kcpj.fsf@ebiederm.dsl.xmission.com> <442A26E9.20608@vilain.net> <20060329182027.GB14724@sorel.sous-sol.org> <442B0BFE.9080709@vilain.net> <20060329225241.GO15997@sorel.sous-sol.org> <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com> <20060330013618.GS15997@sorel.sous-sol.org> <20060330132922.GB6933@sergelap.austin.ibm.com> <m1r74kcaux.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1r74kcaux.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Mar 2006 16:38:10 +0200
-Jens Axboe <axboe@suse.de> wrote:
-
-> On Thu, Mar 30 2006, KAMEZAWA Hiroyuki wrote:
-> > On Thu, 30 Mar 2006 15:53:46 +0200
-> > Jens Axboe <axboe@suse.de> wrote:
-> > 
-> > > > I don't know about sendfile() but this looks client can hold server's
-> > > > memory, when server uses sendfile() 64k/conn.
-> > > 
-> > > You mean when the server uses splice, 64kb (well 16 pages actually) /
-> > > connection? That's a correct observation, I wouldn't think that pinning
-> > > that small a number of pages is likely to cause any issues. At least I
-> > > can think of much worse pinning by just doing IO :-)
-> > > 
-> > My point is consumer can sleep forever and pages are pinnded forever.
-> > And people who use splice() will not notice they are pinning pages.
-> > 
-> > But as you say, it's not problem in usual situation.
-> > Maybe I'm too pessimistic how my cusomers play with Linux ;)
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> "Serge E. Hallyn" <serue@us.ibm.com> writes:
 > 
-> It's a valid concern, however as mentioned there's a number of ways in
-> which a user can pin memory already. 
-Yes.
-
->Perhaps this general problem should be capped elsewhere?
+> > Quoting Chris Wright (chrisw@sous-sol.org):
+> >> * Eric W. Biederman (ebiederm@xmission.com) wrote:
+> >> > At least one implementation Linux Jails by Serge E. Hallyn was done
+> > completely
+> >> > with security modules, and the code was pretty minimal.
+> >> 
+> >> Yes, although the networking area was something that looked better done
+> >> via namespaces (at least that's my recollection of my conversations with
+> >> Serge on that one a few years back).
+> >
+> > Yes, namespaces would be better - just as the file system isolation was
+> > moved from a "strong chroot" approach to using pivot-root.  Though note
+> > that vserver still uses basically the method that bsdjail uses, and my
+> > two attempts at getting network namespaces considered in the kernel so
+> > far were dismal failures.  Hopefully this time we've got some better,
+> > more network-savvy minds on the task  :)
 > 
-I don't know. but this new one cannot be catched by overcommit_memory but
-a user can consume not-reclaimable memory.
+> Any pointers to those old discussions?
 
-To be honest, I have to work with crash-dump. Sometimes cutomers request me to 
-find out "how pages is used and why memory cannot be reclaimed ?" from dump.
-So, I don't like unknown "1" reference to page-cache from some codes.
-splice can increase this unkonwn 1 reference to some extent.
+I can only find the one.
 
-But I like idea of splice itself :).
+http://marc.theaimsgroup.com/?l=linux-netdev&m=109837694221901&w=2
 
--Kame
+I thought I'd sent one earlier than this too.  Maybe I just got ready to
+resend a new version, then decided the code quality wasn't worth it.
+
+> I'm curious why getting your network namespaces were dismal failures.
+
+Ok, I guess "dismal failure" most aptly applies to the patch itself :)
+
+> Everyone ignored the patch?
+
+Well, there was that.  Then I briefly tried to rework the patch, but
+just ran out of time, and have kept this on my todo list ever since,
+but never really gotten back to it.  At last it looks like this may
+finally be coming back up.
+
+-serge
 

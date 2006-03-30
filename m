@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWC3OvX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWC3Oxn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbWC3OvX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 09:51:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWC3OvW
+	id S1750714AbWC3Oxn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 09:53:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbWC3Oxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 09:51:22 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:56045 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1750718AbWC3OvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 09:51:21 -0500
-Message-ID: <442BF083.2070104@bull.net>
-Date: Thu, 30 Mar 2006 16:51:47 +0200
-From: Pierre PEIFFER <pierre.peiffer@bull.net>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] 2.6.16 - futex: small optimization (?)
-References: <4428E7B7.8040408@bull.net> <a36005b50603280702n2979d8ddh97484615ea9d4f3a@mail.gmail.com> <442A8933.6090408@bull.net> <442AA708.3030802@cosmosbay.com>
-In-Reply-To: <442AA708.3030802@cosmosbay.com>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/03/2006 16:53:27,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/03/2006 16:53:27,
-	Serialize complete at 30/03/2006 16:53:27
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 30 Mar 2006 09:53:42 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:50189 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1750714AbWC3Oxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 09:53:42 -0500
+Date: Thu, 30 Mar 2006 16:53:24 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Mike Galbraith <efault@gmx.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, Peter Williams <pwil3058@bigpond.net.au>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>
+Subject: Re: [rfc][patch] improved interactive starvation patch against 2.6.16
+Message-ID: <20060330145324.GB4914@w.ods.org>
+References: <1143713997.9381.28.camel@homer> <20060330115540.GA4914@w.ods.org> <1143728558.7840.11.camel@homer>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1143728558.7840.11.camel@homer>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet a écrit :
-> I think your analysis is correct Pierre, but you speak of 
-> 'task-switches', where there is only a spinlock involved :
+On Thu, Mar 30, 2006 at 04:22:38PM +0200, Mike Galbraith wrote:
+ 
+> You applied the wrong patch.  The inlined one was against virgin 2.6.16,
+> for folks to comment on, and the attached was the incremental against
+> the 2.6.16 anti-starvation tree.
 > 
-> On UP case : a wake_up_all() wont preempt current thread : it will 
-> task-switch only when current thread exits kernel mode.
-> 
-> On PREEMPT case : wake_up_all() wont preempt current thread (because 
-> current thread is holding bh->lock).
-> 
-> On SMP : the awaken thread will spin some time on bh->lock, but not 
-> task-switch again.
+> Ah, your mailer probably showed both as attached.  Anyway, here's the
+> incremental again inlined.
 
-Ok, yes, you're right, thanks.
+Ah OK, it's not even the mailer, it's me. I read the message and did not
+notice the attachment, just the inline patch. Then I forwarded it to my
+work address and lost the attachment. You know the rest ...
 
-> 
-> On RT kernel, this might be different of course...
+> (note to self:  never include patches for two trees in same message)
 
-So, I confirm it only happens on RT kernel ...
-... but my patch does not work on those kernels :-/
+Good advice. Or manually edit the directory name in the diff to
+explicitly show what it refers to. Eg:
 
-In fact, I don't really see what's wrong ?
+--- linux-2.6.16-sched7/kernel/sched.c	2006-03-27 06:11:01.000000000 +0200
++++ linux-2.6.16/kernel/sched.c	2006-03-30 10:50:46.000000000 +0200
 
--- 
-Pierre
+Anyway, thanks for your reply, I'll re-apply it and recompile.
+
+> 	-Mike
+
+Cheers,
+Willy
 

@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWC3GaZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWC3GcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932065AbWC3GaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 01:30:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbWC3GaZ
+	id S932066AbWC3GcS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 01:32:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbWC3GcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 01:30:25 -0500
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:48032 "HELO
-	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932065AbWC3GaX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 01:30:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=pbR1/8xIV8LnwT9+6Fcm6v7+eMWjNefBMqWPSsm7PLpTp2KUumawxMbHZR0V1piH9z78idt6qYB9Yj7vmWndhntsQFyvqWMm9eVdte8L6WVJ9jmpHoJIG/kLgzkCy3zVBOWpeQe4nS5XA53JmQGkwLK8npkr7L2iuTB+1BLCMqg=  ;
-Message-ID: <442B4EEB.6020407@yahoo.com.au>
-Date: Thu, 30 Mar 2006 14:22:19 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Luke Yang <luke.adi@gmail.com>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <npiggin@suse.de>
-Subject: Re: [PATCH] nommu page refcount bug fixing
-References: <489ecd0c0603291905m7ebffff2j83809cc3c93595f1@mail.gmail.com>
-In-Reply-To: <489ecd0c0603291905m7ebffff2j83809cc3c93595f1@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Mar 2006 01:32:18 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:18921 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932066AbWC3GcR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 01:32:17 -0500
+Date: Thu, 30 Mar 2006 11:59:22 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nagar@watson.ibm.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       tgraf@suug.ch, hadi@cyberus.ca
+Subject: Re: [Patch 5/8] generic netlink interface for delay accounting
+Message-ID: <20060330062922.GA30151@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+References: <442B271D.10208@watson.ibm.com> <442B2BB6.9020309@watson.ibm.com> <20060329210406.08d1c929.akpm@osdl.org> <20060330061005.GA18387@in.ibm.com> <20060329222629.0a730997.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060329222629.0a730997.akpm@osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luke Yang wrote:
+On Wed, Mar 29, 2006 at 10:26:29PM -0800, Andrew Morton wrote:
+> Balbir Singh <balbir@in.ibm.com> wrote:
+> >
+> > > The kmem_cache_free() can happen outside the lock.
+> > 
+> > 
+> > kmem_cache_free() and setting to NULL outside the lock is prone to
+> > race conditions. Consider the following scenario
+> > 
+> > A thread group T1 has exiting processes P1 and P2
+> > 
+> > P1 is exiting, finishes the delay accounting by calling taskstats_exit_pid()
+> > and gives up the mutex and calls kmem_cache_free(), but before it can set
+> > tsk->delays to NULL, we try to get statistics for the entire thread group.
+> > This task will show up in the thread group with a dangling tsk->delays.
+> 
+> Yes, the `tsk->delays = NULL;' needs to happen inside the lock.  But the
+> kmem_cache_free() does not.  It pointlessly increases the lock hold time.
 
->Hi all,
->
->   The previous "nommu use compound pages" patch has a problem: when
->the pages allocated is not compound page (eg: slab allocator), the
->refcount value of every page still need to be set, otherwise the
->get/put_page() would free a single page improperly, such as in
->access_process_vm().
->
->
+Understood will fix it
 
-Yep, sorry this slipped into the kernel. It's my fault for not giving
-Andrew a fix for it.
+> 
+> > > > +	if (info->attrs[TASKSTATS_CMD_ATTR_PID]) {
+> > > > +		u32 pid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_PID]);
+> > > > +		rc = fill_pid((pid_t)pid, NULL, &stats);
+> > > 
+> > > We shouldn't have a typecast here.  If it generates a warning then we need
+> > > to get in there and find out why.
+> > 
+> > The reason for a typecast is that pid is passed as a u32 from userspace.
+> > genetlink currently supports most unsigned types with little or no
+> > support for signed types. We exchange data as u32 and do the correct
+> > thing in the kernel. Would you like us to move away from this?
+> > 
+> 
+> I think it's best to avoid the cast unless it's actually needed to avoid a
+> warning or compile error, or to do special things with sign extension. 
+> Because casts clutter up the code and can hide real bugs.  In this case the
+> compiler should silently perform the conversion.
 
-As you might know, page refcounting in nommu was already broken, so
-I'm working on a proper solution to fix it.
-
-In the meantime though, this is a step backwards and reintroduces
-NOMMU special-casing in page refcounting. As a temporary fix, what I
-think should happen is simply for all slab allocations to ask for
-__GFP_COMP pages.
-
-Could you check that fixes your problem?
+Yep, the compiler was doing it for me, but I tried to be smart and cast
+things around. Will fix it.
 
 Thanks,
-Nick
-
---
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Balbir

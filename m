@@ -1,82 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbWC3RNl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWC3RRe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751314AbWC3RNl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 12:13:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWC3RNl
+	id S932072AbWC3RRe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 12:17:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWC3RRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 12:13:41 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:63700 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751314AbWC3RNk (ORCPT
+	Thu, 30 Mar 2006 12:17:34 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:29580 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750729AbWC3RRd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 12:13:40 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH] mm: swsusp shrink_all_memory tweaks
-Date: Thu, 30 Mar 2006 19:12:31 +0200
-User-Agent: KMail/1.9.1
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       linux-mm@kvack.org
-References: <200603200231.50666.kernel@kolivas.org> <200603250230.08140.kernel@kolivas.org> <200603241714.48909.rjw@sisk.pl>
-In-Reply-To: <200603241714.48909.rjw@sisk.pl>
+	Thu, 30 Mar 2006 12:17:33 -0500
+Date: Thu, 30 Mar 2006 09:17:25 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] splice support #2
+In-Reply-To: <Pine.LNX.4.64.0603300853190.27203@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0603300905270.27203@g5.osdl.org>
+References: <20060330100630.GT13476@suse.de> <20060330120055.GA10402@elte.hu>
+ <20060330120512.GX13476@suse.de> <Pine.LNX.4.64.0603300853190.27203@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603301912.32204.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Friday 24 March 2006 17:14, Rafael J. Wysocki wrote:
-> On Friday 24 March 2006 16:30, Con Kolivas wrote:
-> > On Saturday 25 March 2006 02:16, Rafael J. Wysocki wrote:
-> > > On Friday 24 March 2006 08:07, Con Kolivas wrote:
-> > > > On Tuesday 21 March 2006 05:46, Rafael J. Wysocki wrote:
-> > > > > swsusp_shrink_memory() is still wrong, because it will always fail for
-> > > > > image_size = 0.  My bad, sorry.
-> > > > >
-> > > > > The appended patch (on top of yours) should fix that (hope I did it
-> > > > > right this time).
-> > > >
-> > > > Well I discovered that if all the necessary memory is freed in one call
-> > > > to shrink_all_memory we don't get the nice updating printout from
-> > > >  swsusp_shrink_memory telling us we're making progress. So instead of
-> > > >  modifying the function to call shrink_all_memory with the full amount
-> > > > (and since we've botched swsusp_shrink_memory a few times between us), we
-> > > > should limit it to a max of SHRINK_BITEs instead.
-> > > >
-> > > >  This patch is fine standalone.
-> > > >
-> > > >  Rafael, Pavel what do you think of this one?
-> > >
-> > > In principle it looks good to me, but when I tested the previous one I
-> > > noticed shrink_all_memory() tended to return 0 prematurely (ie. when it was
-> > > possible to free some more pages).  It only happened if more than 50% of
-> > > memory was occupied by application data.
-> > >
-> > > Unfortunately I couldn't find the reason.
-> > 
-> > Perhaps it was just trying to free up too much in one go. There are a number 
-> > of steps a mapped page needs to go through before being finally swapped and 
-> > there are a limited number of iterations over it. Limiting it to SHRINK_BITEs 
-> > at a time will probably improve that.
+
+On Thu, 30 Mar 2006, Linus Torvalds wrote:
 > 
-> OK [I'll be testing it for the next couple of days.]
+> Actually, there _is_ a fundamental problem. Two of them, in fact.
 
-OK, I have the following observations:
+Actually, four.
 
-1) The patch generally causes more memory to be freed during suspend than
-the unpatched code (good).
-2) However, if more than 50% of RAM is used by application data, it causes
-the swap prefetch to trigger during resume (that's an impression; anyway
-the system swaps in a lot at that time), which takes some time (generally
-it makes resume 5-10s longer on my box).
-3) The problem with returning zero prematurely has not been entirely
-eliminated.  It's happened for me only once, though.
+The third reason the pipe buffer is so useful is that it's literally a 
+stream with no position.
 
-Greetings,
-Rafael
+That may sound bad, but it's actually a huge deal. It's why standard unix 
+pipelines are so powerful. You don't pass around "this file, this offset, 
+this length" - you pass around a simple fd, and you can feed that fd data 
+without ever having to worry about what the reader of the data does. The 
+reader cannot seek around to places that you didn't want him to see, and 
+the reader cannot get confused about where the end is.
+
+The 4th reason is "tee". Again, you _could_ perhaps do "tee" without the 
+pipe, but it would be a total nightmare. Now, tee isn't that common, but 
+it does happen, and in particular it happens a lot with certain streaming 
+content.
+
+Doing a "tee" with regular pipes is not that common: you usually just use 
+it for debugging or logging (ie you have a pipeline you want to debug, and 
+inserting "tee" in the middle is a good way to keep the same pipeline, but 
+also being able to look at the intermediate data when something went 
+wrong).
+
+However, one reason "tee" _isn't_ that common with regular pipe usage is 
+that normal programs never need to do that anyway: all the pipe data 
+always goes through user space, so you can trivially do a "tee" inside of 
+the application itself without any external support. You just log the data 
+as you receive it. 
+
+But with splice(), the whole _point_ of the system call is that at least a 
+portion of the data never hits a user space buffer at all. Which means 
+that suddenly "tee" becomes much more important, because it's the _only_ 
+way to insert a point where you can do logging/debugging of the data.
+
+Now, I didn't do the "tee()" system call in my initial example thing, and 
+Jens didn't add it either, but I described it back in Jan-2005 with the 
+original description. It really is very fundamental if you ever want to 
+have a "plugin" kind of model, where you plug in different users to the 
+same data stream.
+
+The canonical example is getting video input from an mpeg encoder, and 
+_both_ saving it to a file and sending it on in real-time to the app that 
+shows it in a window. Again, having the pipe is what allows this.
+
+		Linus

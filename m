@@ -1,80 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWC3Gto@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWC3HAE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbWC3Gto (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 01:49:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWC3Gto
+	id S1750822AbWC3HAE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 02:00:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWC3HAD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 01:49:44 -0500
-Received: from ns2.suse.de ([195.135.220.15]:56484 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751182AbWC3Gtn (ORCPT
+	Thu, 30 Mar 2006 02:00:03 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:2918 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751197AbWC3HAB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 01:49:43 -0500
-From: Neil Brown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 30 Mar 2006 17:48:03 +1100
-MIME-Version: 1.0
+	Thu, 30 Mar 2006 02:00:01 -0500
+Date: Thu, 30 Mar 2006 09:00:09 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH][RFC] splice support
+Message-ID: <20060330070009.GG13476@suse.de>
+References: <20060329122841.GC8186@suse.de> <442B4447.9050700@yahoo.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17451.32547.622388.387407@cse.unsw.edu.au>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 001 of 3] md: Don't clear bits in bitmap when writing to
- one device fails during recovery.
-In-Reply-To: message from Andrew Morton on Wednesday March 29
-References: <20060330164933.25210.patches@notabene>
-	<1060330055237.25270@suse.de>
-	<20060329221209.20e7fd00.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <442B4447.9050700@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday March 29, akpm@osdl.org wrote:
-> NeilBrown <neilb@suse.de> wrote:
+On Thu, Mar 30 2006, Nick Piggin wrote:
+> Hi Jens,
+> 
+> Looks nice!
+> 
+> Jens Axboe wrote:
+> 
+> >Hi,
 > >
-> > +	if (!uptodate) {
-> >  +		int sync_blocks = 0;
-> >  +		sector_t s = r1_bio->sector;
-> >  +		long sectors_to_go = r1_bio->sectors;
-> >  +		/* make sure these bits doesn't get cleared. */
-> >  +		do {
-> >  +			bitmap_end_sync(mddev->bitmap, r1_bio->sector,
-> >  +					&sync_blocks, 1);
-> >  +			s += sync_blocks;
-> >  +			sectors_to_go -= sync_blocks;
-> >  +		} while (sectors_to_go > 0);
-> >   		md_error(mddev, conf->mirrors[mirror].rdev);
-> >  +	}
+> >Since my initial posting back in December, I've had some private queries
+> >about the state of splice support. The state was pretty much that it was
+> >a little broken, if one attempted to do file | file splicing. The
+> >original patch migrated pages from one file to another in this case,
+> >which got vm ugly really quickly. And it wasn't always the right thing
+> >to do, since it would mean that splicing file1 to file2 would move
+> >file1's page cache to file2. Sometimes this is what you want, sometimes
+> >it is 
+> >
 > 
-> Can mddev->bitmap be NULL?
+> Page migration now generalised vmscan.c and introduced remove_mapping
+> function, which should help keep things clean.
 
-Yes, normally it is.
+Excellent.
 
+> Moving a page onto and off the LRU is an interesting problem, though.
+> But possibly you could just leave it on the LRU and transfer the pagecache
+> reference over to the pipe. vmscan would find extra pages on the LRU at
+> times, but they would go away when pipe releases the page.
 > 
-> If so, will the above loop do the right thing when this:
-> 
-> void bitmap_end_sync(struct bitmap *bitmap, sector_t offset, int *blocks, int aborted)
-> {
-> 	bitmap_counter_t *bmc;
-> 	unsigned long flags;
-> /*
-> 	if (offset == 0) printk("bitmap_end_sync 0 (%d)\n", aborted);
-> */	if (bitmap == NULL) {
-> 		*blocks = 1024;
-> 		return;
-> 	}
-> 
-> triggers?
+> Moving a page from a pipe to a filesystem might be harder, because you
+> don't know if it came from a filesystem (still on LRU) or not (in which
+> case you need to add it to LRU). If only you can keep track of this
 
-Yes.  sync_blocks will be 1024 (a nice big number) and the loop will
-exit quite quickly having done nothing (which is what it needs to do
-in that case).
-Ofcourse, if someone submits a bio for multiple thousands of sectors
-it will loop needlessly a few times, but do we ever generate bios that
-are even close to a megabyte?
-If so, that 1024 can be safely increased to 1<<20, and possibly higher
-but I would need to check.
+Well that, to me, is _the_ hard problem to solve for this. But you
+sort-of do know, my plan is/was to add a ->steal() hook to the pipe
+buffers that would 'unhook' the page so it was in a clean state to be
+added to the LRU/page cache again. If stealing failed, just fall back to
+copying (or hard error, let the flags decide).
 
-Thanks for asking
-NeilBrown
+> information as the page gets passed around... hmm the PG_private will be
+> free to use because a filesystem must always drop its buffers before
+> remove_mapping can run. One would also need to take care of replacing
+> an existing page I guess.
+> 
+> Hmm... I think it can work, falling back to copies if we get stuck
+> anywhere.
+> 
+> Unless someone beats me to it, I'll try coding something up when I get
+> a bit more free time.
+
+You are more than welcome, I hope to give it a little shot today and see
+how it goes.
+
+-- 
+Jens Axboe
+

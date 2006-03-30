@@ -1,258 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbWC3IBN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWC3H7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751324AbWC3IBN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 03:01:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWC3IBN
+	id S932088AbWC3H7c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 02:59:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWC3H7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 03:01:13 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:39850 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1751185AbWC3IBL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 03:01:11 -0500
-In-Reply-To: <20060329225548.25585.73037.stgit@gitlost.site>
-References: <20060329225505.25585.30392.stgit@gitlost.site> <20060329225548.25585.73037.stgit@gitlost.site>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <8C52750C-8BC3-4815-834C-6DBEA714BA0F@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [PATCH 1/9] [I/OAT] DMA memcpy subsystem
-Date: Thu, 30 Mar 2006 02:01:20 -0600
-To: Chris Leech <christopher.leech@intel.com>
-X-Mailer: Apple Mail (2.746.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Thu, 30 Mar 2006 02:59:31 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:10113 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751185AbWC3H7b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 02:59:31 -0500
+Date: Thu, 30 Mar 2006 00:00:25 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       pazke@donpac.ru, James.Bottomley@HansenPartnership.com
+Subject: Re: [PATCH] Cleanup subarch definitions in Linux/i386
+Message-ID: <20060330080025.GC14724@sorel.sous-sol.org>
+References: <442B5BF8.5000502@vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <442B5BF8.5000502@vmware.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Zachary Amsden (zach@vmware.com) wrote:
+> Comments, suggestions, anything welcome.  I think this is a much cleaner 
+> approach, and both new and existing sub-architectures will benefit.  I 
+> am sorry this patch is so large, but it is very difficult to separate 
+> into multiple steps that still allow all the subarches to compile.
 
-On Mar 29, 2006, at 4:55 PM, Chris Leech wrote:
+Zach, looks nice.  Saves Xen a partial copy of setup.c.  Did you have
+further/similar consolidations in mind?
 
-> Provides an API for offloading memory copies to DMA devices
->
-> Signed-off-by: Chris Leech <christopher.leech@intel.com>
-> ---
->
->  drivers/Kconfig           |    2
->  drivers/Makefile          |    1
->  drivers/dma/Kconfig       |   13 +
->  drivers/dma/Makefile      |    1
->  drivers/dma/dmaengine.c   |  405 ++++++++++++++++++++++++++++++++++ 
-> +++++++++++
->  include/linux/dmaengine.h |  337 ++++++++++++++++++++++++++++++++++ 
-> +++
->  6 files changed, 759 insertions(+), 0 deletions(-)
->
-> diff --git a/drivers/Kconfig b/drivers/Kconfig
-> index 9f5c0da..f89ac05 100644
-> --- a/drivers/Kconfig
-> +++ b/drivers/Kconfig
-> @@ -72,4 +72,6 @@ source "drivers/edac/Kconfig"
->
->  source "drivers/rtc/Kconfig"
->
-> +source "drivers/dma/Kconfig"
-> +
->  endmenu
-> diff --git a/drivers/Makefile b/drivers/Makefile
-> index 4249552..9b808a6 100644
-> --- a/drivers/Makefile
-> +++ b/drivers/Makefile
-> @@ -74,3 +74,4 @@ obj-$(CONFIG_SGI_SN)		+= sn/
->  obj-y				+= firmware/
->  obj-$(CONFIG_CRYPTO)		+= crypto/
->  obj-$(CONFIG_SUPERH)		+= sh/
-> +obj-$(CONFIG_DMA_ENGINE)	+= dma/
-> diff --git a/drivers/dma/Kconfig b/drivers/dma/Kconfig
-> new file mode 100644
-> index 0000000..f9ac4bc
-> --- /dev/null
-> +++ b/drivers/dma/Kconfig
-> @@ -0,0 +1,13 @@
-> +#
-> +# DMA engine configuration
-> +#
-> +
-> +menu "DMA Engine support"
-> +
-> +config DMA_ENGINE
-> +	bool "Support for DMA engines"
-> +	---help---
-> +	  DMA engines offload copy operations from the CPU to dedicated
-> +	  hardware, allowing the copies to happen asynchronously.
-> +
-> +endmenu
-> diff --git a/drivers/dma/Makefile b/drivers/dma/Makefile
-> new file mode 100644
-> index 0000000..10b7391
-> --- /dev/null
-> +++ b/drivers/dma/Makefile
-> @@ -0,0 +1 @@
-> +obj-y += dmaengine.o
-> diff --git a/drivers/dma/dmaengine.c b/drivers/dma/dmaengine.c
-> new file mode 100644
-> index 0000000..683456a
-> --- /dev/null
-> +++ b/drivers/dma/dmaengine.c
-> @@ -0,0 +1,405 @@
-> +/*
-> + * Copyright(c) 2004 - 2006 Intel Corporation. All rights reserved.
-> + *
-> + * This program is free software; you can redistribute it and/or  
-> modify it
-> + * under the terms of the GNU General Public License as published  
-> by the Free
-> + * Software Foundation; either version 2 of the License, or (at  
-> your option)
-> + * any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,  
-> but WITHOUT
-> + * ANY WARRANTY; without even the implied warranty of  
-> MERCHANTABILITY or
-> + * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public  
-> License for
-> + * more details.
-> + *
-> + * You should have received a copy of the GNU General Public  
-> License along with
-> + * this program; if not, write to the Free Software Foundation,  
-> Inc., 59
-> + * Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-> + *
-> + * The full GNU General Public License is included in this  
-> distribution in the
-> + * file called COPYING.
-> + */
-> +
-> +/*
-> + * This code implements the DMA subsystem. It provides a HW- 
-> neutral interface
-> + * for other kernel code to use asynchronous memory copy  
-> capabilities,
-> + * if present, and allows different HW DMA drivers to register as  
-> providing
-> + * this capability.
-> + *
-> + * Due to the fact we are accelerating what is already a  
-> relatively fast
-> + * operation, the code goes to great lengths to avoid additional  
-> overhead,
-> + * such as locking.
-> + *
-> + * LOCKING:
-> + *
-> + * The subsystem keeps two global lists, dma_device_list and  
-> dma_client_list.
-> + * Both of these are protected by a spinlock, dma_list_lock.
-> + *
-> + * Each device has a channels list, which runs unlocked but is  
-> never modified
-> + * once the device is registered, it's just setup by the driver.
-> + *
-> + * Each client has a channels list, it's only modified under the  
-> client->lock
-> + * and in an RCU callback, so it's safe to read under rcu_read_lock 
-> ().
-> + *
-> + * Each device has a kref, which is initialized to 1 when the  
-> device is
-> + * registered. A kref_put is done for each class_device  
-> registered.  When the
-> + * class_device is released, the coresponding kref_put is done in  
-> the release
-> + * method. Every time one of the device's channels is allocated to  
-> a client,
-> + * a kref_get occurs.  When the channel is freed, the coresponding  
-> kref_put
-> + * happens. The device's release function does a completion, so
-> + * unregister_device does a remove event, class_device_unregister,  
-> a kref_put
-> + * for the first reference, then waits on the completion for all  
-> other
-> + * references to finish.
-> + *
-> + * Each channel has an open-coded implementation of Rusty  
-> Russell's "bigref,"
-> + * with a kref and a per_cpu local_t.  A single reference is set  
-> when on an
-> + * ADDED event, and removed with a REMOVE event.  Net DMA client  
-> takes an
-> + * extra reference per outstanding transaction.  The relase  
-> function does a
-> + * kref_put on the device. -ChrisL
-> + */
-> +
+> --- linux-2.6.16.1.orig/arch/i386/Makefile	2006-03-29 19:38:47.000000000 -0800
+> +++ linux-2.6.16.1/arch/i386/Makefile	2006-03-29 19:38:54.000000000 -0800
+> @@ -45,37 +45,32 @@ CFLAGS				+= $(shell if [ $(call cc-vers
+>  
+>  CFLAGS += $(cflags-y)
+>  
+> -# Default subarch .c files
+> -mcore-y  := mach-default
+> +# Default subarch .c files (none)
+> +mcore-y  := 
+>  
+>  # Voyager subarch support
+>  mflags-$(CONFIG_X86_VOYAGER)	:= -Iinclude/asm-i386/mach-voyager
+> -mcore-$(CONFIG_X86_VOYAGER)	:= mach-voyager
+> +mcore-$(CONFIG_X86_VOYAGER)	:= arch/i386/mach-voyager/
+
+Is this intended to make way for possible fine tuning?  Smth like:
+
+mcore-$(CONFIG_X86_VOYAGER)	+= arch/i386/another_default.o
+(hmm, not sure if that would even work)
+
+Or just an aesthetic change?
+
+> --- linux-2.6.16.1.orig/include/asm-i386/acpi.h	2006-03-29 19:38:47.000000000 -0800
+> +++ linux-2.6.16.1/include/asm-i386/acpi.h	2006-03-29 19:38:54.000000000 -0800
+> @@ -31,6 +31,7 @@
+>  #include <acpi/pdc_intel.h>
+>  
+>  #include <asm/system.h>		/* defines cmpxchg */
+> +#include <asm/processor.h>	/* defines boot_cpu_data */
+
+that one necessary?
+
+>  #define COMPILER_DEPENDENT_INT64   long long
+>  #define COMPILER_DEPENDENT_UINT64  unsigned long long
+> Index: linux-2.6.16.1/include/asm-i386/arch_hooks.h
+> ===================================================================
+> --- linux-2.6.16.1.orig/include/asm-i386/arch_hooks.h	2006-03-29 19:38:47.000000000 -0800
+> +++ linux-2.6.16.1/include/asm-i386/arch_hooks.h	2006-03-29 19:38:54.000000000 -0800
+> @@ -1,7 +1,13 @@
+>  #ifndef _ASM_ARCH_HOOKS_H
+>  #define _ASM_ARCH_HOOKS_H
+>  
+> +#include <linux/config.h>
+> +#include <linux/smp.h>
 > +#include <linux/init.h>
-> +#include <linux/module.h>
-> +#include <linux/device.h>
-> +#include <linux/dmaengine.h>
-> +#include <linux/hardirq.h>
-> +#include <linux/spinlock.h>
-> +#include <linux/percpu.h>
-> +#include <linux/rcupdate.h>
-> +
-> +static DEFINE_SPINLOCK(dma_list_lock);
-> +static LIST_HEAD(dma_device_list);
-> +static LIST_HEAD(dma_client_list);
-> +
-> +/* --- sysfs implementation --- */
-> +
-> +static ssize_t show_memcpy_count(struct class_device *cd, char *buf)
-> +{
-> +	struct dma_chan *chan = container_of(cd, struct dma_chan,  
-> class_dev);
-> +	unsigned long count = 0;
-> +	int i;
-> +
-> +	for_each_cpu(i)
-> +		count += per_cpu_ptr(chan->local, i)->memcpy_count;
-> +
-> +	return sprintf(buf, "%lu\n", count);
-> +}
-> +
-> +static ssize_t show_bytes_transferred(struct class_device *cd,  
-> char *buf)
-> +{
-> +	struct dma_chan *chan = container_of(cd, struct dma_chan,  
-> class_dev);
-> +	unsigned long count = 0;
-> +	int i;
-> +
-> +	for_each_cpu(i)
-> +		count += per_cpu_ptr(chan->local, i)->bytes_transferred;
-> +
-> +	return sprintf(buf, "%lu\n", count);
-> +}
-> +
+>  #include <linux/interrupt.h>
+> +#include <asm/acpi.h>
+> +#include <asm/arch_hooks.h>
 
-What is the utility of exporting memcpy_count, and bytes_transferred  
-to userspace via sysfs?  Is this really for debug (and thus should be  
-under debugfs?)
+extraneous include
 
-> +static ssize_t show_in_use(struct class_device *cd, char *buf)
-> +{
-> +	struct dma_chan *chan = container_of(cd, struct dma_chan,  
-> class_dev);
-> +
-> +	return sprintf(buf, "%d\n", (chan->client ? 1 : 0));
-> +}
-> +
-> +static struct class_device_attribute dma_class_attrs[] = {
-> +	__ATTR(memcpy_count, S_IRUGO, show_memcpy_count, NULL),
-> +	__ATTR(bytes_transferred, S_IRUGO, show_bytes_transferred, NULL),
-> +	__ATTR(in_use, S_IRUGO, show_in_use, NULL),
-> +	__ATTR_NULL
-> +};
-> +
+> --- linux-2.6.16.1.orig/include/asm-i386/mach-default/mach_hooks.h	2006-03-29 19:38:54.000000000 -0800
+> +++ linux-2.6.16.1/include/asm-i386/mach-default/mach_hooks.h	2006-03-29 19:38:54.000000000 -0800
+> @@ -0,0 +1,6 @@
+> +#ifndef _MACH_HOOKS_H
+> +#define _MACH_HOOKS_H
 
-[snip]
+should probably be consistent (_MACH_HOOKS_H vs. MACH_HOOKS_H)
 
-- kumar
+> --- linux-2.6.16.1.orig/include/asm-i386/mach-visws/mach_hooks.h	2006-03-29 19:38:54.000000000 -0800
+> +++ linux-2.6.16.1/include/asm-i386/mach-visws/mach_hooks.h	2006-03-29 19:38:54.000000000 -0800
+> @@ -0,0 +1,15 @@
+> +#ifndef MACH_HOOKS_H
+> +#define MACH_HOOKS_H

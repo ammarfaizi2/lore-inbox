@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWC3Sq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWC3SxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWC3Sq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 13:46:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbWC3Sq1
+	id S1750731AbWC3SxV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 13:53:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWC3SxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 13:46:27 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:49169 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1750728AbWC3Sq0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 13:46:26 -0500
+	Thu, 30 Mar 2006 13:53:21 -0500
+Received: from zproxy.gmail.com ([64.233.162.193]:15152 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750731AbWC3SxU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 13:53:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=uVPRGSN/KCmbf9U3VnQLQ2prsLlZFIiiwH7TV9FJi477hb+5s5tcL3V12UJwgpIWoHZUECxwcANTqzw7xhDS2q4/TGGLOXpF50L/tbVU+O2qDrLjJWY5vi8Y4K6UD+ACnIpadVzBKmi2NtpPX6XpOBhtA4i0N6XQdbgtqK8J14c=
+Message-ID: <4d8e3fd30603301053h31bf53aayed1e8c94b8cea500@mail.gmail.com>
+Date: Thu, 30 Mar 2006 20:53:19 +0200
+From: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: No automount of USB stick with latest kernel
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <20060330182643.GV27173@skl-net.de>
-x-originalarrivaltime: 30 Mar 2006 18:46:21.0208 (UTC) FILETIME=[3CCD3980:01C6542A]
-Content-class: urn:content-classes:message
-Subject: Re: Float numbers in module programming
-Date: Thu, 30 Mar 2006 13:46:20 -0500
-Message-ID: <Pine.LNX.4.61.0603301342410.1215@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Float numbers in module programming
-Thread-Index: AcZUKjzUnWj8q6TBQfaTOVxXEXyVkQ==
-References: <3fd7d9680603290634n6fabcdc7r193c30447acc1858@mail.gmail.com> <Pine.LNX.4.61.0603290955440.27913@chaos.analogic.com> <Pine.LNX.4.61.0603301010400.30783@yvahk01.tjqt.qr> <Pine.LNX.4.61.0603300739050.32259@chaos.analogic.com> <20060330182643.GV27173@skl-net.de>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Andre Noll" <maan@systemlinux.org>
-Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>, "beware" <wimille@gmail.com>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
+it has been a long time since the last time I used a vanilla kernel
+(more then 1 year) so I cannot say when this problem came up.
 
-On Thu, 30 Mar 2006, Andre Noll wrote:
+paolo@Italia:~$ uname -a
+Linux Italia 2.6.16-g5d4fe2c1 #7 PREEMPT Thu Mar 30 20:26:30 CEST 2006
+i686 GNU/
 
-> On 08:09, linux-os (Dick Johnson) wrote:
->
->> For instance __all__ real numbers, except for transcendentals, can
->> be represented as a ratio of two integers.
->
-> Nope. It was known already to Euklid (300 before christ) that the real
-> number sqrt(2) can _not_ be represented as ratio of two integers. Of
-> course, sqrt(2) is not transcendental because it is a zero of x^2 -
-> 2, a polynomial with integer coefficients.
->
-> Andre
-> --
+paolo@Italia:~$ udevinfo -V
+udevinfo, version 079
 
-Yeah. The correct word was irrational, which is its definition. The
-point was that one can do a lot of very accurate work on real numbers
-without using the FP unit and the decimal system.
+If I plug my usb stick I see the following in /var/log/messages:
+Mar 30 20:50:44 localhost kernel: usb 1-4: new high speed USB device
+using ehci_hcd and address 3
+Mar 30 20:50:45 localhost kernel: usb 1-4: Product: Flash Disk
+Mar 30 20:50:45 localhost kernel: usb 1-4: Manufacturer: USB
+Mar 30 20:50:45 localhost kernel: usb 1-4: SerialNumber: AA0070005481932D
+Mar 30 20:50:45 localhost kernel: usb 1-4: configuration #1 chosen from 1 choice
+Mar 30 20:50:45 localhost kernel: scsi1 : SCSI emulation for USB Mass
+Storage devices
+Mar 30 20:50:50 localhost kernel:   Vendor: Imation   Model:  USB
+Flash Drive  Rev: 2.00
+Mar 30 20:50:50 localhost kernel:   Type:   Direct-Access             
+        ANSI SCSI revision: 02
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.42 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
+But the volume is NOT automounted, it is if I boot using a kenel from
+Ubuntu Dapper.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+Is udev 0.80 required for 2.6.15-xxxx ?
+If so... I cannot find any reference in the documentation.
 
-Thank you.
+Thanks!!
+
+
+--
+Paolo
+http://paolociarrocchi.googlepages.com

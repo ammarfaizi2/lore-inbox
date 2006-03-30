@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWC3QYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWC3QZG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbWC3QYm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 11:24:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWC3QYm
+	id S932216AbWC3QZG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 11:25:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWC3QZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 11:24:42 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:62928 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932194AbWC3QYl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 11:24:41 -0500
-Message-ID: <442C0646.3090308@watson.ibm.com>
-Date: Thu, 30 Mar 2006 11:24:38 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Thu, 30 Mar 2006 11:25:06 -0500
+Received: from [212.76.84.251] ([212.76.84.251]:24590 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S932216AbWC3QZE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 11:25:04 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: [rfc][patch] improved interactive starvation patch against
+Date: Thu, 30 Mar 2006 19:12:54 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, Willy Tarreau <willy@w.ods.org>
 MIME-Version: 1.0
-To: balbir@in.ibm.com
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, tgraf@suug.ch, hadi@cyberus.ca
-Subject: Re: [Patch 5/8] generic netlink interface for delay accounting
-References: <442B271D.10208@watson.ibm.com> <442B2BB6.9020309@watson.ibm.com> <20060329210406.08d1c929.akpm@osdl.org> <20060330061005.GA18387@in.ibm.com>
-In-Reply-To: <20060330061005.GA18387@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200603301912.54765.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh wrote:
+On Thu, Mar 30, 2006 at 12:19:57PM +0200, Mike Galbraith wrote:
+> The patch below alone makes virgin 2.6.16 usable in the busy apache
+> server scenario, and should help quite a bit with other situations as
+> well.
 
->Hi, Andrew
->
->
->On Wed, Mar 29, 2006 at 09:04:06PM -0800, Andrew Morton wrote:
->  
->
->>Shailabh Nagar <nagar@watson.ibm.com> wrote:
->>    
->>
->>>delayacct-genetlink.patch
->>>
->>>Create a generic netlink interface (NETLINK_GENERIC family),
->>>called "taskstats", for getting delay and cpu statistics of
->>>tasks and thread groups during their lifetime and when they exit.
->>>
->>>
->>>
->>>      
->>>
-<snip>
+Thanks again!
 
->>>+
->>>+static int __init taskstats_init(void)
->>>+{
->>>+	if (genl_register_family(&family))
->>>+		return -EFAULT;
->>>      
->>>
->>EFAULT?
->>    
->>
->
->It shouldn't be (Shailabh please comment). We will fix it.
->  
->
-Sorry, it should return the  value returned by genl_register_family.
+> For the one or two folks on the planet testing my anti-starvation
+> patches, I've attached an incremental to my 2.6.16 test release.
 
-I copied the code from net/tipc/netlink.c
-where a similarly erroneous errno is being used. We'll submit a fix
-for that as well.
+After playing some more w/ sched.c tunables, which really should be exported 
+through procfs, I adjusted these to yield near hardRT performance on a 
+400MHz PII.
 
---Shailabh
+	MIN_TIMESLICE=1
+	DEF_TIMESLICE=1
+	PRIO_BONUS_RATIO=15
+	INTERACTIVE_DELTA=20
+
+Could you try them on vanilla 2.6.16?
+
+Thanks!
+
+--
+Al
+

@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWC3Nv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWC3Nxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbWC3Nv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 08:51:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWC3Nv4
+	id S932214AbWC3Nxj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 08:53:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWC3Nxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 08:51:56 -0500
-Received: from mail.sw-soft.com ([69.64.46.34]:34184 "EHLO mail.sw-soft.com")
-	by vger.kernel.org with ESMTP id S932213AbWC3Nv4 (ORCPT
+	Thu, 30 Mar 2006 08:53:39 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:19764 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932214AbWC3Nxi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 08:51:56 -0500
-Message-ID: <442BE268.60500@sw.ru>
-Date: Thu, 30 Mar 2006 17:51:36 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
-       devel@openvz.org, serue@us.ibm.com, akpm@osdl.org, sam@vilain.net,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Pavel Emelianov <xemul@sw.ru>,
-       Stanislav Protassov <st@sw.ru>
-Subject: Re: [RFC] Virtualization steps
-References: <44242A3F.1010307@sw.ru>	 <20060324211917.GB22308@MAIL.13thfloor.at>	 <m1psk7enfm.fsf@ebiederm.dsl.xmission.com>  <4428F902.1020706@sw.ru> <1143664234.9731.47.camel@localhost.localdomain>
-In-Reply-To: <1143664234.9731.47.camel@localhost.localdomain>
-Content-Type: text/plain; charset=windows-1251; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Mar 2006 08:53:38 -0500
+Date: Thu, 30 Mar 2006 15:53:46 +0200
+From: Jens Axboe <axboe@suse.de>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH][RFC] splice support
+Message-ID: <20060330135346.GL13476@suse.de>
+References: <20060329122841.GC8186@suse.de> <20060330175406.fbd6d82c.kamezawa.hiroyu@jp.fujitsu.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060330175406.fbd6d82c.kamezawa.hiroyu@jp.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok. This is also easier for us, as it is a usual way of doing things in 
-OpenVZ. Will see...
+On Thu, Mar 30 2006, KAMEZAWA Hiroyuki wrote:
+> On Wed, 29 Mar 2006 14:28:41 +0200
+> Jens Axboe <axboe@suse.de> wrote:
+> >
+> > +	/*
+> > +	 * Get as many pages from the page cache as possible..
+> > +	 * Start IO on the page cache entries we create (we
+> > +	 * can assume that any pre-existing ones we find have
+> > +	 * already had IO started on them).
+> > +	 */
+> > +	i = find_get_pages(mapping, index, pages, array);
+> > +
+> 
+> It looks page caches in this array is hold by pipe until data is consumed.
+> So..this page cannot be reclaimd or migrated and hot-removed :).
 
-> On Tue, 2006-03-28 at 12:51 +0400, Kirill Korotaev wrote:
->> Eric, we have a GIT repo on openvz.org already:
->> http://git.openvz.org 
+Right
+
+> I don't know about sendfile() but this looks client can hold server's
+> memory, when server uses sendfile() 64k/conn.
+
+You mean when the server uses splice, 64kb (well 16 pages actually) /
+connection? That's a correct observation, I wouldn't think that pinning
+that small a number of pages is likely to cause any issues. At least I
+can think of much worse pinning by just doing IO :-)
+
+> Is there a way to force these pages to be freed ? or page reclaimer
+> can know this page is held by splice ? (we need additional PG_flags to
+> do this ?)
 > 
-> Git is great for getting patches and lots of updates out, but I'm not
-> sure it is idea for what we're trying to do.  We'll need things reviewed
-> at each step, especially because we're going to be touching so much
-> common code.
-> 
-> I'd guess set of quilt (or patch-utils) patches is probably best,
-> especially if we're trying to get stuff into -mm first.
-> 
-> -- Dave
-> 
-> 
+> I think these pages are necessary to be held only when data in them is
+> used.
+
+Not without tearing down the pipe.
+
+-- 
+Jens Axboe
+

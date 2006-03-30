@@ -1,47 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWC3M0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWC3M2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932192AbWC3M0E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 07:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWC3M0E
+	id S1751020AbWC3M2h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 07:28:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWC3M2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 07:26:04 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44046 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932192AbWC3M0C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 07:26:02 -0500
-Date: Thu, 30 Mar 2006 13:25:44 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>, Richard Purdie <rpurdie@rpsys.net>,
-       lenz@cs.wisc.edu
-Subject: 2.6.16-git18: collie_defconfig broken
-Message-ID: <20060330122544.GA30314@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Pavel Machek <pavel@ucw.cz>, Richard Purdie <rpurdie@rpsys.net>,
-	lenz@cs.wisc.edu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 30 Mar 2006 07:28:37 -0500
+Received: from quechua.inka.de ([193.197.184.2]:46031 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1750711AbWC3M2g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 07:28:36 -0500
+From: be-news06@lina.inka.de (Bernd Eckenfels)
+To: linux-kernel@vger.kernel.org
+Subject: Re: Detecting I/O error and Halting System
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <1143560163.17522.29.camel@localhost.localdomain>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
+Message-Id: <E1FOwGQ-00034J-00@calista.inka.de>
+Date: Thu, 30 Mar 2006 14:28:34 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The kautobuild found the following error while trying to build 2.6.16-git18
-using collie_defconfig:
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> See the softdog driver for an example.
 
-arch/arm/mach-sa1100/collie.c:92: error: 'collie_uart_set_mctrl' undeclared here (not in a function)
-arch/arm/mach-sa1100/collie.c:93: error: 'collie_uart_get_mctrl' undeclared here (not in a function)
-make[1]: *** [arch/arm/mach-sa1100/collie.o] Error 1
-make: *** [arch/arm/mach-sa1100] Error 2
-make: Leaving directory `/var/tmp/kernel-orig'
+The usermode agent (watchdog(8) can, btw monitor the availableness of a
+file, no need to write a module. MAybe this feature was added after somebody
+took that code over from you? :)
 
-See
+watchdog.conf(5) says: 
 
-http://armlinux.simtec.co.uk/kautobuild/2.6.16-git18/collie_defconfig/zimage.log
+#     file = <filename> Set file name for file mode.  This option can be
+#              given as often as you like to check several files.
 
-for the full build log.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Bernd

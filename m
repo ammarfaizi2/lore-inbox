@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWC3NX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWC3NZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbWC3NX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 08:23:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWC3NX4
+	id S932206AbWC3NZf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 08:25:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWC3NZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 08:23:56 -0500
-Received: from morbo.e-centre.net ([66.154.82.3]:50681 "EHLO
-	cubert.e-centre.net") by vger.kernel.org with ESMTP id S932205AbWC3NXz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 08:23:55 -0500
-X-ASG-Debug-ID: 1143725028-11432-37-0
-X-Barracuda-URL: http://10.3.1.19:8000/cgi-bin/mark.cgi
-X-ASG-Orig-Subj: Re: jiffies doesn't increase while doing mdelay() ?
-Subject: Re: jiffies doesn't increase while doing mdelay() ?
-From: Arjan van de Ven <arjan@infradead.org>
-To: James Yu <cyu021@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <60bb95410603292152l7597259dx28eaec77ebc5dfdf@mail.gmail.com>
-References: <60bb95410603292150r6448596clbef348e1bededdaf@mail.gmail.com>
-	 <60bb95410603292152l7597259dx28eaec77ebc5dfdf@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 30 Mar 2006 15:23:47 +0200
-Message-Id: <1143725027.3062.4.camel@laptopd505.fenrus.org>
+	Thu, 30 Mar 2006 08:25:35 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:7851 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932206AbWC3NZe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 08:25:34 -0500
+Date: Thu, 30 Mar 2006 18:53:59 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: balbir@in.ibm.com, nagar@watson.ibm.com, greg@kroah.com,
+       arjan@infradead.org, hadi@cyberus.ca, ak@suse.de,
+       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: [Patch 0/8] per-task delay accounting
+Message-ID: <20060330132359.GB1701@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <442B271D.10208@watson.ibm.com> <20060329210314.3db53aaa.akpm@osdl.org> <20060330062357.GB18387@in.ibm.com> <20060329224737.071b9567.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=4.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.10269
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060329224737.071b9567.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-30 at 13:52 +0800, James Yu wrote:
-> Dear all,
+On Wed, Mar 29, 2006 at 10:47:37PM -0800, Andrew Morton wrote:
 > 
-> I am doing the following in a kernel thread :
+> Sounds fine to me, but I'm not a stakeholder.
 > 
-> ===== code segment=====
-> prink("before mdelay:%d, ", jiffies);
-> mdelay(300); // delay 300ms
-> printk("after mdelay:%d\n", jiffies);
-> ===== code segment=====
+> Trolling back through lse-tech gives us:
 > 
-> However, jiffies before and after doing mdelay are the same!!!
-> Can someone please explain why jiffies doesn't change ?
+> Scalable statistics counters with /proc reporting:
+>   Ravikiran G Thirumalai <kiran@in.ibm.com>
+>   (Kiran feft IBM, but presumably the requirement lives on)
 
-first of all you should use msleep() not mdelay() for such long
-delays...
-second if you have interrupts disables (for example via
-spin_lock_irqsave) this is normal (and the reason why your code is
-evil): The timer interrupt that normally increments jiffies can't happen
-because you disabled it..
+Not necessarily in that form. A lot of statistics has now become
+per-cpu, something we wanted to achieve back then. Automatic
+/proc reporting was an idea only tossed around, but /proc is now
+deprecated for such things. There may be a need for fast export of 
+counters to userspace, but those requirements are not yet clear.
 
+This is different from per-task accounting infrastructure that
+people are trying to develop.
+
+Thanks
+Dipankar

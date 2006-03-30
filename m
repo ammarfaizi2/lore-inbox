@@ -1,269 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWC3HWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWC3HY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750808AbWC3HWn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 02:22:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbWC3HWn
+	id S1751212AbWC3HY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 02:24:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWC3HY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 02:22:43 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:10222 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S932080AbWC3HWm
+	Thu, 30 Mar 2006 02:24:28 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:51210 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751212AbWC3HY2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 02:22:42 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH] deinline some larger functions from netdevice.h
-Date: Thu, 30 Mar 2006 10:21:48 +0300
-User-Agent: KMail/1.8.2
+	Thu, 30 Mar 2006 02:24:28 -0500
+To: Rob Landley <rob@landley.net>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Eric Piel <Eric.Piel@tremplin-utc.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, mmazur@kernel.pl,
+       linux-kernel@vger.kernel.org, llh-discuss@lists.pld-linux.org
+Subject: Re: [OT] Non-GCC compilers used for linux userspace
+References: <200603141619.36609.mmazur@kernel.pl>
+	<200603281647.06020.rob@landley.net> <87irpxvtb3.fsf@hades.wkstn.nix>
+	<200603292036.38937.rob@landley.net>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: if SIGINT doesn't work, try a tranquilizer.
+Date: Thu, 30 Mar 2006 08:24:05 +0100
+In-Reply-To: <200603292036.38937.rob@landley.net> (Rob Landley's message of
+ "Wed, 29 Mar 2006 20:36:38 -0500")
+Message-ID: <87k6actmy2.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_Mc4KEOI7pHi+J7Z"
-Message-Id: <200603301021.48925.vda@ilport.com.ua>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_Mc4KEOI7pHi+J7Z
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, 29 Mar 2006, Rob Landley whispered secretively:
+> Actually according to the changelog version 0.9.21 grew support for ARM, and I 
+> believe it supports some other platforms too.
 
-Hi Andrew,
+That's... impressive. Of course the more generality it grows the slower
+it must necessarily become, although it'll be a while until its IR is as
+bloated and thus as slow as GCC's... (GCC's only slow because of cache
+effects, really).
 
-Network folks did non comment on these two patches, let me try
-submitting them to you instead.
+> The result was qemu, which sort of compiles machine code to machine code 
+> dynamically, and which has taken up a large chunk of his time ever since.  
+> (The speed of tcc development has tailed off noticeably since, but he still 
+> spends a little time on it, and there are other developers...)
 
-I hunted down some large inlines. This patch address those found
-in netdevice.h.
+Well, I'd rather he spent time on qemu than tcc; there are other C compilers
+but there's nothing quite like qemu (bochs doesn't work very well, valgrind
+is similar in essence but very different in operation...)
 
-On a allyesconfig'ured kernel:
+>> > That aims for full c99 and is already implementing a lot of gcc stuff
+>> > too.
+>>
+>> Good for it, as long as it doesn't go on to define __GNUC__ like icc did
+>> at one point (even though it doesn't implement all GCC
+>> extensions)... but Fabrice is sane so I doubt he'd do anything that
+>> loopy.
+> 
+> That's more a header issue anyway.  That's the uClibc developers problem. :)
 
-Size =A0Uses Wasted Name and definition
-=3D=3D=3D=3D=3D =3D=3D=3D=3D =3D=3D=3D=3D=3D=3D =3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-=A0 =A095 =A0162 =A012075 netif_wake_queue =A0 =A0 =A0include/linux/netdevi=
-ce.h
-=A0 129 =A0 86 =A0 9265 dev_kfree_skb_any =A0 =A0 include/linux/netdevice.h
-=A0 127 =A0 56 =A0 5885 netif_device_attach =A0 include/linux/netdevice.h
-=A0 =A073 =A0 86 =A0 4505 dev_kfree_skb_irq =A0 =A0 include/linux/netdevice=
-=2Eh
-=A0 =A046 =A0 60 =A0 1534 netif_device_detach =A0 include/linux/netdevice.h
-=A0 119 =A0 16 =A0 1485 __netif_rx_schedule =A0 include/linux/netdevice.h
-=A0 143 =A0 =A05 =A0 =A0492 netif_rx_schedule =A0 =A0 include/linux/netdevi=
-ce.h
-=A0 =A081 =A0 =A07 =A0 =A0366 netif_schedule =A0 =A0 =A0 =A0include/linux/n=
-etdevice.h
+;)
 
-netif_wake_queue is big because __netif_schedule is a big inline:
-
-static inline void __netif_schedule(struct net_device *dev)
-{
-=A0 =A0 =A0 =A0 if (!test_and_set_bit(__LINK_STATE_SCHED, &dev->state)) {
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 unsigned long flags;
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct softnet_data *sd;
-
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 local_irq_save(flags);
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 sd =3D &__get_cpu_var(softnet_data);
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->next_sched =3D sd->output_queue;
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 sd->output_queue =3D dev;
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 raise_softirq_irqoff(NET_TX_SOFTIRQ);
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 local_irq_restore(flags);
-=A0 =A0 =A0 =A0 }
-}
-
-static inline void netif_wake_queue(struct net_device *dev)
-{
-#ifdef CONFIG_NETPOLL_TRAP
-=A0 =A0 =A0 =A0 if (netpoll_trap())
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return;
-#endif
-=A0 =A0 =A0 =A0 if (test_and_clear_bit(__LINK_STATE_XOFF, &dev->state))
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __netif_schedule(dev);
-}
-
-By de-inlining __netif_schedule we are saving a lot of text
-at each callsite of netif_wake_queue and netif_schedule.
-__netif_rx_schedule is also big, and it makes more sense to keep
-both of them out of line.
-
-Patch also deinlines dev_kfree_skb_any. We can deinline dev_kfree_skb_irq
-instead... oh well.
-
-netif_device_attach/detach are not hot paths, we can deinline them too.
-
-Signed-off-by: Denis Vlasenko <vda@ilport.com.ua>
-=2D-
-vda
-
---Boundary-00=_Mc4KEOI7pHi+J7Z
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="netdevice.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="netdevice.patch"
-
-diff -urpN linux-2.6.16.org/include/linux/netdevice.h linux-2.6.16.deinline2/include/linux/netdevice.h
---- linux-2.6.16.org/include/linux/netdevice.h	Mon Mar 20 07:53:29 2006
-+++ linux-2.6.16.deinline2/include/linux/netdevice.h	Mon Mar 27 13:46:15 2006
-@@ -594,20 +594,7 @@ DECLARE_PER_CPU(struct softnet_data,soft
- 
- #define HAVE_NETIF_QUEUE
- 
--static inline void __netif_schedule(struct net_device *dev)
--{
--	if (!test_and_set_bit(__LINK_STATE_SCHED, &dev->state)) {
--		unsigned long flags;
--		struct softnet_data *sd;
--
--		local_irq_save(flags);
--		sd = &__get_cpu_var(softnet_data);
--		dev->next_sched = sd->output_queue;
--		sd->output_queue = dev;
--		raise_softirq_irqoff(NET_TX_SOFTIRQ);
--		local_irq_restore(flags);
--	}
--}
-+extern void __netif_schedule(struct net_device *dev);
- 
- static inline void netif_schedule(struct net_device *dev)
- {
-@@ -671,13 +658,7 @@ static inline void dev_kfree_skb_irq(str
- /* Use this variant in places where it could be invoked
-  * either from interrupt or non-interrupt context.
-  */
--static inline void dev_kfree_skb_any(struct sk_buff *skb)
--{
--	if (in_irq() || irqs_disabled())
--		dev_kfree_skb_irq(skb);
--	else
--		dev_kfree_skb(skb);
--}
-+extern void dev_kfree_skb_any(struct sk_buff *skb);
- 
- #define HAVE_NETIF_RX 1
- extern int		netif_rx(struct sk_buff *skb);
-@@ -735,22 +716,9 @@ static inline int netif_device_present(s
- 	return test_bit(__LINK_STATE_PRESENT, &dev->state);
- }
- 
--static inline void netif_device_detach(struct net_device *dev)
--{
--	if (test_and_clear_bit(__LINK_STATE_PRESENT, &dev->state) &&
--	    netif_running(dev)) {
--		netif_stop_queue(dev);
--	}
--}
-+extern void netif_device_detach(struct net_device *dev);
- 
--static inline void netif_device_attach(struct net_device *dev)
--{
--	if (!test_and_set_bit(__LINK_STATE_PRESENT, &dev->state) &&
--	    netif_running(dev)) {
--		netif_wake_queue(dev);
-- 		__netdev_watchdog_up(dev);
--	}
--}
-+extern void netif_device_attach(struct net_device *dev);
- 
- /*
-  * Network interface message level settings
-@@ -818,20 +786,7 @@ static inline int netif_rx_schedule_prep
-  * already been called and returned 1.
-  */
- 
--static inline void __netif_rx_schedule(struct net_device *dev)
--{
--	unsigned long flags;
--
--	local_irq_save(flags);
--	dev_hold(dev);
--	list_add_tail(&dev->poll_list, &__get_cpu_var(softnet_data).poll_list);
--	if (dev->quota < 0)
--		dev->quota += dev->weight;
--	else
--		dev->quota = dev->weight;
--	__raise_softirq_irqoff(NET_RX_SOFTIRQ);
--	local_irq_restore(flags);
--}
-+extern void __netif_rx_schedule(struct net_device *dev);
- 
- /* Try to reschedule poll. Called by irq handler. */
- 
-diff -urpN linux-2.6.16.org/net/core/dev.c linux-2.6.16.deinline2/net/core/dev.c
---- linux-2.6.16.org/net/core/dev.c	Mon Mar 20 07:53:29 2006
-+++ linux-2.6.16.deinline2/net/core/dev.c	Mon Mar 27 13:47:00 2006
-@@ -1073,6 +1073,70 @@ void dev_queue_xmit_nit(struct sk_buff *
- 	rcu_read_unlock();
- }
- 
-+
-+void __netif_schedule(struct net_device *dev)
-+{
-+	if (!test_and_set_bit(__LINK_STATE_SCHED, &dev->state)) {
-+		unsigned long flags;
-+		struct softnet_data *sd;
-+
-+		local_irq_save(flags);
-+		sd = &__get_cpu_var(softnet_data);
-+		dev->next_sched = sd->output_queue;
-+		sd->output_queue = dev;
-+		raise_softirq_irqoff(NET_TX_SOFTIRQ);
-+		local_irq_restore(flags);
-+	}
-+}
-+EXPORT_SYMBOL(__netif_schedule);
-+
-+void __netif_rx_schedule(struct net_device *dev)
-+{
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	dev_hold(dev);
-+	list_add_tail(&dev->poll_list, &__get_cpu_var(softnet_data).poll_list);
-+	if (dev->quota < 0)
-+		dev->quota += dev->weight;
-+	else
-+		dev->quota = dev->weight;
-+	__raise_softirq_irqoff(NET_RX_SOFTIRQ);
-+	local_irq_restore(flags);
-+}
-+EXPORT_SYMBOL(__netif_rx_schedule);
-+
-+void dev_kfree_skb_any(struct sk_buff *skb)
-+{
-+	if (in_irq() || irqs_disabled())
-+		dev_kfree_skb_irq(skb);
-+	else
-+		dev_kfree_skb(skb);
-+}
-+EXPORT_SYMBOL(dev_kfree_skb_any);
-+
-+
-+/* Hot-plugging. */
-+void netif_device_detach(struct net_device *dev)
-+{
-+	if (test_and_clear_bit(__LINK_STATE_PRESENT, &dev->state) &&
-+	    netif_running(dev)) {
-+		netif_stop_queue(dev);
-+	}
-+}
-+EXPORT_SYMBOL(netif_device_detach);
-+
-+void netif_device_attach(struct net_device *dev)
-+{
-+	if (!test_and_set_bit(__LINK_STATE_PRESENT, &dev->state) &&
-+	    netif_running(dev)) {
-+		netif_wake_queue(dev);
-+ 		__netdev_watchdog_up(dev);
-+	}
-+}
-+EXPORT_SYMBOL(netif_device_attach);
-+
-+
- /*
-  * Invalidate hardware checksum when packet is to be mangled, and
-  * complete checksum manually on outgoing path.
-
---Boundary-00=_Mc4KEOI7pHi+J7Z--
+-- 
+`Come now, you should know that whenever you plan the duration of your
+ unplanned downtime, you should add in padding for random management
+ freakouts.'

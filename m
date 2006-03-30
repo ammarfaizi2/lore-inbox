@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750931AbWC3W6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbWC3XEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750931AbWC3W6m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 17:58:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbWC3W6m
+	id S1750936AbWC3XEM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 18:04:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbWC3XEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 17:58:42 -0500
-Received: from smop.co.uk ([81.5.177.201]:19921 "EHLO hades.smop.co.uk")
-	by vger.kernel.org with ESMTP id S1750781AbWC3W6l (ORCPT
+	Thu, 30 Mar 2006 18:04:12 -0500
+Received: from ns.mimer.no ([213.184.200.1]:17646 "EHLO odin.mimer.no")
+	by vger.kernel.org with ESMTP id S1750935AbWC3XEL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 17:58:41 -0500
-Date: Thu, 30 Mar 2006 23:58:30 +0100
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>, Andi Kleen <ak@muc.de>
-Subject: Re: 2.6.16-mm1 leaks in dvb playback (found)
-Message-ID: <20060330225830.GA24009@smop.co.uk>
-Reply-To: adrian@smop.co.uk
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org,
-	"David S. Miller" <davem@davemloft.net>, Andi Kleen <ak@muc.de>
-References: <20060326211514.GA19287@wyvern.smop.co.uk> <20060327172356.7d4923d2.akpm@osdl.org> <20060328070220.GA29429@smop.co.uk> <20060327231630.76e97b83.akpm@osdl.org> <20060329233712.GA21810@smop.co.uk> <20060329160648.59395d67.akpm@osdl.org> <20060330004518.GA23404@smop.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060330004518.GA23404@smop.co.uk>
-User-Agent: Mutt/1.5.11+cvs20060126
-From: Adrian Bridgett <adrian@smop.co.uk>
-X-smop.co.uk-MailScanner: Found to be clean
-X-smop.co.uk-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.673,
-	required 5, autolearn=not spam, AWL -0.07, BAYES_00 -2.60,
-	NO_RELAYS -0.00)
-X-smop.co.uk-MailScanner-From: adrian@smop.co.uk
+	Thu, 30 Mar 2006 18:04:11 -0500
+Date: Fri, 31 Mar 2006 01:00:10 +0200
+From: Harald Arnesen <harald@skogtun.org>
+To: Nix <nix@esperi.org.uk>
+Cc: Rob Landley <rob@landley.net>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Eric Piel <Eric.Piel@tremplin-utc.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, mmazur@kernel.pl,
+       linux-kernel@vger.kernel.org, llh-discuss@lists.pld-linux.org
+Subject: Re: [OT] Non-GCC compilers used for linux userspace
+Message-ID: <20060331010010.4ac166ab@basilikum>
+In-Reply-To: <87odznsi98.fsf@hades.wkstn.nix>
+References: <200603141619.36609.mmazur@kernel.pl>
+	<200603292036.38937.rob@landley.net>
+	<87k6actmy2.fsf@hades.wkstn.nix>
+	<200603301526.14744.rob@landley.net>
+	<87odznsi98.fsf@hades.wkstn.nix>
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.13; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What I thought was just one patch was actually two and it was the
-other patch causing the problem - "Do not lose accepted socket when
--ENFILE/-EMFILE".
+Nix <nix@esperi.org.uk> (Thu, 30 Mar 2006 23:02:59 +0100):
 
-Most of the patch seems to be just a restructuring - I guess that
-leaves the sys_accept changes that are leaking the memory. 
+> > And notice that #! is a preprocessor comment line as far as tcc is 
+> > concerned. :)
+> 
+> I noticed that, but I didn't think anyone actually *used* tcc for
+> this.
+> 
 
-I've no idea how the code is supposed to work, so large rocks of salt
-required :-)  The code now does a sock_alloc_fd, and the error cases
-now do a "put_filp" and "put_unused_fd" if the alloc succeeded.
-However in the normal case, nothing gets freed (I guess that's the
-memory leak).  OTOH the description of the patch is:
-
- "Try to allocate the struct file and an unused file
- descriptor before we try to pull a newly accepted
- socket out of the protocol layer."
-
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=39d8c1b6fbaeb8d6adec4a8c08365cc9eaca6ae4
-
-Cheers,
-
-Adrian
+I did...
+-- 
+Hilsen Harald.

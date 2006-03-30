@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWC3UjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWC3Up5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbWC3UjO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 15:39:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWC3UjO
+	id S1750867AbWC3Up5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 15:45:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWC3Up5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 15:39:14 -0500
-Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:29576 "EHLO
-	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750742AbWC3UjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 15:39:13 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH] mm: swsusp shrink_all_memory tweaks
-Date: Fri, 31 Mar 2006 06:38:23 +1000
-User-Agent: KMail/1.9.1
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       linux-mm@kvack.org
-References: <200603200231.50666.kernel@kolivas.org> <200603241714.48909.rjw@sisk.pl> <200603301912.32204.rjw@sisk.pl>
-In-Reply-To: <200603301912.32204.rjw@sisk.pl>
+	Thu, 30 Mar 2006 15:45:57 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:6581 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1750852AbWC3Upy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 15:45:54 -0500
+Date: Thu, 30 Mar 2006 15:45:50 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Greg KH <greg@kroah.com>
+cc: David Brownell <david-b@pacbell.net>, Russell King <rmk@arm.linux.org.uk>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Handling devices that don't have a bus
+Message-ID: <Pine.LNX.4.44L0.0603301520330.4652-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603310638.23873.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 31 March 2006 03:12, Rafael J. Wysocki wrote:
-> OK, I have the following observations:
+Greg et al.:
 
-Thanks.
->
-> 1) The patch generally causes more memory to be freed during suspend than
-> the unpatched code (good).
+I recently tried running the dummy_hcd driver for the first time in a 
+while, and it crashed when the gadget driver was unloaded.  It turns out 
+this was because the gadget's embedded struct device is registered without 
+a bus, which triggers an oops when the device's driver is unbound.  The 
+oops could be fixed by doing this:
 
-Yes I know you meant less, that's good.
+Index: usb-2.6/drivers/base/dd.c
+===================================================================
+--- usb-2.6.orig/drivers/base/dd.c
++++ usb-2.6/drivers/base/dd.c
+@@ -209,7 +209,7 @@ static void __device_release_driver(stru
+ 		sysfs_remove_link(&dev->kobj, "driver");
+ 		klist_remove(&dev->knode_driver);
+ 
+-		if (dev->bus->remove)
++		if (dev->bus && dev->bus->remove)
+ 			dev->bus->remove(dev);
+ 		else if (drv->remove)
+ 			drv->remove(dev);
 
-> 2) However, if more than 50% of RAM is used by application data, it causes
-> the swap prefetch to trigger during resume (that's an impression; anyway
-> the system swaps in a lot at that time), which takes some time (generally
-> it makes resume 5-10s longer on my box).
+but I'm not so sure this is the right approach.  (Russell wrote the line 
+that this would change; that's why I have CC'ed him.)  Is the current 
+policy that every device is supposed to belong to a bus?
 
-Is that with this "swsusp shrink_all_memory tweaks" patch alone? It doesn't 
-touch swap prefetch.
+If gadgets were registered on a bus, you would expect it to be the bus of
+their parent USB device controllers.  As it happens, most of the UDC
+drivers don't register their gadgets in sysfs at all.  dummy_hcd and
+net2280 are exceptions.  Presumably this same oops would affect net2280
+but I haven't tried it.
 
-> 3) The problem with returning zero prematurely has not been entirely
-> eliminated.  It's happened for me only once, though.
+Part of the problem here is that most of the USB controllers are platform
+devices and so belong on the platform bus.  That's true of dummy_hcd.  
+But struct usb_gadget contains an embedded struct device, not an embedded
+struct platform_device... so the gadget _can't_ be registered on its 
+parent's bus.
 
-Probably hard to say, but is the system in any better state after resume has 
-completed? That was one of the aims. Also a major part of this patch is a 
-cleanup of the hot balance_pgdat function as well, which suspend no longer 
-touches with this patch.
+I suppose David could change things so that usb_gadget does contain a
+platform_device.  But then what about the net2280, which is a PCI device
+rather than a platform device?  Would it want to register its child on the
+platform bus?
 
-Cheers,
-Con
+What's the right thing to do here?
+
+Alan Stern
+

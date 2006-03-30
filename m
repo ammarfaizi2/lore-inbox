@@ -1,57 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWC3HPv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWC3HPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751209AbWC3HPv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 02:15:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWC3HPv
+	id S1751205AbWC3HPy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 02:15:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWC3HPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 02:15:51 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:26298 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751203AbWC3HPu (ORCPT
+	Thu, 30 Mar 2006 02:15:53 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:11633 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751205AbWC3HPx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 02:15:50 -0500
-Date: Thu, 30 Mar 2006 09:13:22 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: emin ak <eminak71@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rt10 crash on ppc
-Message-ID: <20060330071322.GA3137@elte.hu>
-References: <2cf1ee820603270656w6697778ai83935217ea5ab3a5@mail.gmail.com> <2cf1ee820603271231l69187925j3150098097c7ca15@mail.gmail.com> <44288FB3.5030208@yahoo.com.au> <20060329150815.GA24741@elte.hu> <442B4890.6000905@yahoo.com.au>
+	Thu, 30 Mar 2006 02:15:53 -0500
+Date: Thu, 30 Mar 2006 09:16:01 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] splice support
+Message-ID: <20060330071601.GH13476@suse.de>
+References: <20060329122841.GC8186@suse.de> <20060329143758.607c1ccc.akpm@osdl.org> <Pine.LNX.4.64.0603291624420.27203@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <442B4890.6000905@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <Pine.LNX.4.64.0603291624420.27203@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+(So Linus basically handled everything here, I'll make some scattered
+comments where I made changes).
 
-> Yes, that patch is basically what I had in mind.
+On Wed, Mar 29 2006, Linus Torvalds wrote:
+> > - splice() doesn't check for (len < 0), like read() and write() do. 
+> >   Should it?
 > 
-> Is -rt ever allocating memory from really-hard-don't-preempt-me 
-> context? I guess not, unless the zone->lock is one of those locks too, 
-> right?
+> Umm. More likely better to just do rw_verify_area() instead, which limits 
+> it to MAX_INT. Although it probably doesn't matter, for the above obvious 
+> reason anyway (ie we end up doing everything on a page-granular area 
+> anyway).
 
-no. zone->lock (and all the slab locks, and all the other MM locks) are 
-fully preemptible too.
+I've added rw_verify_area() calls now.
 
-> Should you add a
+> > - what does `flags' do, anyway?  The whole thing is undocumented and
+> >   almost uncommented.
 > 
->  #else
->     BUG_ON(_really_dont_preempt_me());
->  #endif
+> Right now "flags" doesn't do anything at all, and you should just pass in 
+> zero.
 > 
-> just for safety, or will such misusage get caught elsewhere (eg. when 
-> attempting to take zone->lock).
+> But if we ever do a "move" vs "copy" hint, we'll want something.
 
-it should be caught immediately, by the cond_resched().
+Precisely. I already have something in progress for that...
 
-	Ingo
+> > - the tmp_page trick in anon_pipe_buf_release() seems to be unrelated to
+> >   the splice() work.  It should be a separate patch and any peformance
+> >   testing (needed, please) should be decoupled from that change.
+> 
+> It's not unrelated. Note the new "page_count() == 1" test.
+
+Yes, this is needed to make migrating pages from a pipe to the page
+cache possible.
+
+> > - The logic in do_splice() hurts my brain.  "if `in' is a pipe then
+> >   splice from `in-as-a-pipe' to `out' else if `out' is a pipe then splice
+> >   from `in' to 'out-as-a-pipe'.  Make sense, I guess, but I do wonder "what
+> >   would happen if those tests were reversed?".  Nothing, I guess.
+> 
+> Why would it matter? If both are pipes, then one is as good as the other. 
+> You just want to pick the version that is potentially more efficient, if 
+> there is any difference (and there is).
+> 
+> However, I don't think Jens actually did the pipe->pipe case at all (ie 
+> pipes don't have the "splice_read()" function yet).
+
+No it's not there yet, coverage will increase soon :)
+
+> > 
+> > - In pipe_to_file():
+> > 
+> >   - Shouldn't it be using GFP_HIGHUSER()?
+> 
+> Some filesystems may not like having highpages. 
+> 
+> I suspect it should be "mapping_gfp_mask(mapping)".
+
+I actually already made it GFP_HIGHUSER yesterday in a non-yet committed
+patch, so I'll check up on this and make the change.
+
+-- 
+Jens Axboe
+

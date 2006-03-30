@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWC3GSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbWC3GSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751110AbWC3GSP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 01:18:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWC3GSP
+	id S1751122AbWC3GSq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 01:18:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWC3GSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 01:18:15 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:2126 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751110AbWC3GSO (ORCPT
+	Thu, 30 Mar 2006 01:18:46 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:16462 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751122AbWC3GSp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 01:18:14 -0500
-Date: Thu, 30 Mar 2006 08:17:58 +0200
+	Thu, 30 Mar 2006 01:18:45 -0500
+Date: Thu, 30 Mar 2006 08:18:53 +0200
 From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Garzik <jeff@garzik.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH][RFC] splice support
-Message-ID: <20060330061758.GD13476@suse.de>
-References: <20060329122841.GC8186@suse.de> <442A8883.9060909@garzik.org> <Pine.LNX.4.64.0603291159150.15714@g5.osdl.org> <20060329204216.GB13476@suse.de> <20060329204316.GC13476@suse.de> <Pine.LNX.4.64.0603291313120.15714@g5.osdl.org>
+Message-ID: <20060330061852.GE13476@suse.de>
+References: <20060329122841.GC8186@suse.de> <20060329143758.607c1ccc.akpm@osdl.org> <Pine.LNX.4.64.0603291624420.27203@g5.osdl.org> <442B2EB2.4040401@garzik.org> <20060329172057.301a41ff.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0603291313120.15714@g5.osdl.org>
+In-Reply-To: <20060329172057.301a41ff.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29 2006, Linus Torvalds wrote:
-> 
-> 
-> On Wed, 29 Mar 2006, Jens Axboe wrote:
+On Wed, Mar 29 2006, Andrew Morton wrote:
+> Jeff Garzik <jeff@garzik.org> wrote:
+> >
+> > Linus Torvalds wrote:
+> > > The "destination first" convention is insane. It only makes sense for 
+> > > assignments, and these aren't assignments.
 > > 
-> > git://brick.kernel.dk/data/git/linux-2.6-block.git splice
+> > I agree.
 > > 
-> > is the url, just in case.
+> > But alas, sendfile(2) is defined as destination first:
+> > 
+> > > ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count)
+> > 
+> > which begs the question, do we want to be different from sendfile(2), 
+> > and confuse a segment of the programmer populace?  :)
+> > 
 > 
-> Btw, would you mind if I just re-created that as a single patch instead? 
-> Especially with the first commit being slightly corrupt (look at the first 
-> line of the commit message ;), and some of the later commits just fixing 
-> things up further, it would appear to be cleaner to just merge it as a 
-> single "initial splice support" commit..
+> strcpy, memcpy...
+> 
+> Obviously copy(from, to) is the sane way to do things, but yeah, I _think_
+> a C programmer would expect copy(to, from).
+> 
+> I don't think it matters much at all, really.  If they get it backwards
+> they'll notice pretty quickly ;)
 
-I'll make the suggestions made while I was gone sleeping and rebase a
-single patch on top of current HEAD.
+Yeah, I've always thought that the sendfile() arguments are stupidly
+transposed :-)
 
 -- 
 Jens Axboe

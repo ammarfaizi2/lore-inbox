@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWC3Smd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWC3SoR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbWC3Smd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 13:42:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbWC3Smd
+	id S1750716AbWC3SoR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 13:44:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWC3SoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 13:42:33 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:31919 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750700AbWC3Smd (ORCPT
+	Thu, 30 Mar 2006 13:44:16 -0500
+Received: from corky.net ([212.150.53.130]:9892 "EHLO zebday.corky.net")
+	by vger.kernel.org with ESMTP id S1750716AbWC3SoQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 13:42:33 -0500
-Message-ID: <442C268F.7080701@us.ibm.com>
-Date: Thu, 30 Mar 2006 10:42:23 -0800
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
+	Thu, 30 Mar 2006 13:44:16 -0500
+Message-ID: <442C34F9.8000602@corky.net>
+Date: Thu, 30 Mar 2006 20:43:53 +0100
+From: Just Marc <marc@corky.net>
+User-Agent: Mail/News 1.5 (X11/20060228)
 MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-CC: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-       lkml <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
-Subject: Re: kernel BUG at fs/direct-io.c:916!
-References: <20060326230206.06C1EE083AAB@knarzkiste.dyndns.org> <20060326180440.GA4776@charite.de> <20060326184644.GC4776@charite.de> <20060327080811.D753448@wobbly.melbourne.sgi.com> <20060326230358.GG4776@charite.de> <20060327060436.GC2481@frodo> <20060327110342.GX21946@charite.de> <20060328050135.GA2177@frodo> <1143567049.26106.2.camel@dyn9047017100.beaverton.ibm.com> <20060329082345.G871924@wobbly.melbourne.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Crash soon after an alloc_skb failure in 2.6.16 and previous,
+ swap disabled
+References: <442C0BA3.1050603@corky.net> <Pine.LNX.4.61.0603301059420.738@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0603301059420.738@chaos.analogic.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AV-Checked: ClamAV using ClamSMTP on CorKy.NeT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Nathan Scott wrote:
-
->On Tue, Mar 28, 2006 at 09:30:44AM -0800, Badari Pulavarty wrote:
+Hi
+>> I'm running a few machines with swap turned off and am experiencing
+>> crashes when the system is extremely low on kernel memory.   So far the
+>> crashes observed are always inside the recv function of the Ethernet
+>>     
+> [SNIPPED...]
 >
->>Thanks for working this out. You may want to add a description
->>to the patch. Like:
->>
->>"inode->i_blkbits should be used instead of dio->blkbits, as
->>it may not indicate the filesystem block size all the time".
->>
+> Huh? If no buffers are available, received packets get thrown on the
+> floor. I see the failure(s) happened in an interrupt. If so, the
+> problem is in the network driver and your starved memory situation
+> brought out a bug.
 >
->Will do, thanks.  Oh, another thing - what is the situation
->where a NULL bdev would be passed into __blockdev_direct_IO?
->All the filesystems seem to pass i_sb->s_bdev, so I guess it
->must be blkdev_direct_IO - can I_BDEV(inode) ever be NULL on
->a block device inode (doesn't sound right)?  If it cannot, I
->suppose we should remove those NULL bdev checks too...
+>   
+The printout to the kernel log I attached to the previous email still 
+does not mean the crash occurred there and then.
+>> The benefits of running a system without swap are arguable, but in my
+>> particular scenario I prefer to have connections dropped rather than
+>> experience the overheads and latencies of a heavily swapping system.
+>>     
 >
->cheers.
+> I read this as; "I want the advantages of swap, but I don't want
+> to use swap." Or, "It doesn't work as I expected so therefore it's
+> broken!" In any event, swap is used to handle the problems with a
+> finite amount of memory. Normally sleeping tasks get swapped out,
+> freeing their memory for your network stuff. If you don't have swap,
+> that memory can't be freed. Tough! You did it, so you live with
+> it -- but contact the maintainer of your network card. You may
+> have forced a bug to come to the surface.
 >
+>   
+In most cases you are right, in my case, there is almost no application 
+used RAM and therefore nothing to be freed.   In my particular case I 
+don't *really* need memory freed, I know a little odd.
 
-I can't think of a case, where we would end up getting b_dev = NULL in 
-direct
-IO code.
+But, as this is issue is occurring with at least e1000 and tg3 the bug 
+might not be in these particular drivers.   As I do not have a crash 
+dump or log of what happened when the system froze, I have no way of 
+knowing.
 
-Thanks,
-Badari
+As this problem is easily reproducible, I'll leave it to the kernel 
+people involved to dig into it, that is of course, if they are interested.
 
->
->
-
-
-
+Thanks

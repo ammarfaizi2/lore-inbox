@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWC3S1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbWC3S2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751361AbWC3S1q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 13:27:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWC3S1q
+	id S1751363AbWC3S2L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 13:28:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWC3S2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 13:27:46 -0500
-Received: from xproxy.gmail.com ([66.249.82.192]:45659 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751362AbWC3S1p convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 13:27:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ku7S1JFhiQ4wpwk+R1+/8Z4yJkh8lTSuENDdeXN0rbpB8kpJI4kcb7Q/kK8Io825vfx//ExELbmj0Zii0vyh/Z+kNjvz6VU1SOFQuLnZR4kz/+22BcZ57ZRkFokOzwXOxooE4LxXzQygOM44a30h2fwdNIE8h9B4wXaleGKVki4=
-Message-ID: <c0a09e5c0603301027j50f09acbq9ed2df95f80cfa8d@mail.gmail.com>
-Date: Thu, 30 Mar 2006 10:27:44 -0800
-From: "Andrew Grover" <andy.grover@gmail.com>
-To: "Kumar Gala" <galak@kernel.crashing.org>
-Subject: Re: [PATCH 1/8] [I/OAT] DMA memcpy subsystem
-Cc: "Chris Leech" <christopher.leech@intel.com>,
-       "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org
-In-Reply-To: <F9901EAA-FA85-4C9C-94F5-BE6A9C62A4A4@kernel.crashing.org>
+	Thu, 30 Mar 2006 13:28:11 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:32897 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751363AbWC3S2J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 13:28:09 -0500
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ioremap_cached()
+References: <20060330164120.GJ13590@parisc-linux.org>
+From: Andi Kleen <ak@suse.de>
+Date: 30 Mar 2006 20:27:53 +0200
+In-Reply-To: <20060330164120.GJ13590@parisc-linux.org>
+Message-ID: <p73zmj7949i.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060311022759.3950.58788.stgit@gitlost.site>
-	 <20060311022919.3950.43835.stgit@gitlost.site>
-	 <2FF801BB-F96C-4864-AC44-09B4B92531F7@kernel.crashing.org>
-	 <c0a09e5c0603281044i57730c66ye08c45aadd352cf8@mail.gmail.com>
-	 <D760971F-3C6A-400B-99EA-E95358B37F82@kernel.crashing.org>
-	 <c0a09e5c0603281401uaeea6aci57054aef444a5e1@mail.gmail.com>
-	 <3B202D51-1683-465D-AE3D-DE301017BD69@kernel.crashing.org>
-	 <c0a09e5c0603291505h10f062d5qd6e1861ef052d07b@mail.gmail.com>
-	 <F9901EAA-FA85-4C9C-94F5-BE6A9C62A4A4@kernel.crashing.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/30/06, Kumar Gala <galak@kernel.crashing.org> wrote:
-> I was under the impression that the DMA engine would provide a "sync"
-> cpu based memcpy (PIO) if a real HW channel wasn't avail, if this is
-> left to the client that's fine.  So how does the client know he
-> should use normal memcpy()?
+Matthew Wilcox <matthew@wil.cx> writes:
 
-It has to keep track of what DMA channel to use, which it gets when
-the channel ADDED callback happens. So it's basically
+> We currently have three ways for getting access to device memory --
+> ioremap(), ioremap_nocache() and pci_iomap().  99% of the callers of
+> ioremap() are doing it to access device registers, and really, really
+> want to use ioremap_nocache() instead.  I presume nobody notices on PCs
+> because they have write-through caches, but it ought to trip up people
+> trying to flush writes.
 
-if (some_client_struct->dma_chan)
-    dma_memcpy()
-else
-    memcpy()
+Actually MTRRs take care of that on x86.
+So essentially on x86 ioremap() for devices is already ioremap_uncached()
+And ioremap on memory is cached.
 
-The async memcpy has the added requirement that at some point the
-client must verify the copies have been completed, so doing async
-memcopies does require more work on the client's part.
+That's nice and simple semantics that other platforms can emulate too.
+Doing things differently will just cause pain for the other platforms
+when they have to fix up drivers all the time.
 
-> Sounds good for a start.  Have you given any thoughts on handling
-> priorities between clients?
->
-> I need to take a look at the latest patches. How would you guys like
-> modifications?
+It all works fine until someone wants WC too. I would rather add a 
+ioremap_wc(), that would be more useful.
 
-Haven't given any thought to priorities yet -- we've been focusing on
-getting the 1 client case to perform well. :)
-
-Chris posted a link to this: git://198.78.49.142/~cleech/linux-2.6
-branch ioat-2.6.17
-
-So you can post patches against that, or the patches posted here apply
-against davem's git tree.
-
-Regards -- Andy
+-Andi

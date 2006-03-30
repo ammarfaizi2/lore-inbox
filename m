@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWC3LKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWC3LL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbWC3LKa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 06:10:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWC3LKa
+	id S932172AbWC3LL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 06:11:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWC3LL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 06:10:30 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:59332 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932174AbWC3LK3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 06:10:29 -0500
-Subject: Re: IDE CDROM tail read errors
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-In-Reply-To: <m3wtedrrpf.fsf@defiant.localdomain>
-References: <m3wtedrrpf.fsf@defiant.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 30 Mar 2006 12:18:09 +0100
-Message-Id: <1143717489.29388.32.camel@localhost.localdomain>
+	Thu, 30 Mar 2006 06:11:27 -0500
+Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:21928 "EHLO
+	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S932172AbWC3LL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 06:11:26 -0500
+Date: Thu, 30 Mar 2006 13:11:15 +0200
+From: Voluspa <lista1@telia.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [2.6.16-gitX] initcall at 0xffffffff804615d1: returned with error
+ code -1
+Message-Id: <20060330131115.73886fd4.lista1@telia.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2006-03-29 at 21:11 +0200, Krzysztof Halasa wrote:
-> # ls -l
-> -rw-r--r-- 1 root root 687177728 Mar 29 15:51 img-15.iso
-> -rw-r--r-- 1 root root 687177728 Mar 29 15:58 img-15a.iso
-> 
-> The files are just truncated FC5d1 images (57344 bytes missing).
 
-The final partial read is dropped rather than partially completed.
+CC-ing author since I'm unsure about domain responsibility. The commit
+"[PATCH] initcall failure reporting" AKA
+c1cda48af8b330a23206eceef3bd030b53c979cd immediately triggered:
 
-> # cat /sys/block/sr0/size
-> 1342264 (i.e., the same as with 2.6.15 + drivers/ide)
-> 
-> # cat /dev/cdrw > img-16a.iso
-> cat: /dev/cdrw: Input/output error
-> 
-> # cat /sys/block/sr0/size
-> 1342256 (looks like it has been adjusted to .iso image size / 512 when
->          the first I/O error occured)
+--- dmesg-cd02b966bfcad12d1b2e265dc8dbc331d4c184c4      2006-03-30 08:41:30.000000000 +0200
++++ dmesg-c1cda48af8b330a23206eceef3bd030b53c979cd      2006-03-30 09:12:31.000000000 +0200
+[...]
+@@ -83,10 +83,12 @@
+ SCSI subsystem initialized
+ PCI: Using ACPI for IRQ routing
+ PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
++initcall at 0xffffffff804615d1: returned with error code -1
+ pnp: 00:06: ioport range 0x600-0x60f has been reserved
+ pnp: 00:06: ioport range 0x1c0-0x1cf has been reserved
+ pnp: 00:06: ioport range 0x4d0-0x4d1 has been reserved
+ pnp: 00:06: ioport range 0xfe10-0xfe11 could not be reserved
++initcall at 0xffffffff804704fc: returned with error code 2
+ PCI: Failed to allocate mem resource #6:20000@f0000000 for 0000:01:00.0
+ PCI: Bridge: 0000:00:01.0
+   IO window: disabled.
 
-The SCSI layer does this bit for everyone. Its actually not libata or
-the PATA drivers that have done the work here. You should find ide-scsi
-does the same.
+Since then (now at 2.6.16-git18) the last/lower one has vanished, but the
+first one remains. The patch says that the initcall function should be
+printed, but it seems to need some debugging option set. Please advice if
+this is of interest (the addresses do not stay constant). 
 
-I patched the old IDE driver a bit to try and deal with this and if you
-want the patch to hack on and tidy up further feel free. 
-
-
+Mvh
+Mats Johannesson
+--

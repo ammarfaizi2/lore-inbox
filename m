@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbWC3WDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWC3W1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751043AbWC3WDe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 17:03:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751044AbWC3WDe
+	id S1750757AbWC3W1V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 17:27:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWC3W1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 17:03:34 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:24332 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751041AbWC3WDd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 17:03:33 -0500
-To: Rob Landley <rob@landley.net>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Eric Piel <Eric.Piel@tremplin-utc.net>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, mmazur@kernel.pl,
-       linux-kernel@vger.kernel.org, llh-discuss@lists.pld-linux.org
-Subject: Re: [OT] Non-GCC compilers used for linux userspace
-References: <200603141619.36609.mmazur@kernel.pl>
-	<200603292036.38937.rob@landley.net> <87k6actmy2.fsf@hades.wkstn.nix>
-	<200603301526.14744.rob@landley.net>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: an inspiring example of form following function... to Hell.
-Date: Thu, 30 Mar 2006 23:02:59 +0100
-In-Reply-To: <200603301526.14744.rob@landley.net> (Rob Landley's message of
- "Thu, 30 Mar 2006 15:26:14 -0500")
-Message-ID: <87odznsi98.fsf@hades.wkstn.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Thu, 30 Mar 2006 17:27:20 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:7834 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750757AbWC3W1U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 17:27:20 -0500
+Date: Thu, 30 Mar 2006 14:27:16 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dave Airlie <airlied@linux.ie>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [git pull] DRM changes for 2.6.17
+In-Reply-To: <Pine.LNX.4.64.0603302255530.6981@skynet.skynet.ie>
+Message-ID: <Pine.LNX.4.64.0603301427020.27203@g5.osdl.org>
+References: <Pine.LNX.4.64.0603300650180.24125@skynet.skynet.ie>
+ <Pine.LNX.4.64.0603301232050.27203@g5.osdl.org> <Pine.LNX.4.64.0603302255530.6981@skynet.skynet.ie>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Mar 2006, Rob Landley suggested tentatively:
-> On Thursday 30 March 2006 2:24 am, Nix wrote:
->> On Wed, 29 Mar 2006, Rob Landley whispered secretively:
->> > Actually according to the changelog version 0.9.21 grew support for ARM,
->> > and I believe it supports some other platforms too.
->>
->> That's... impressive. Of course the more generality it grows the slower
->> it must necessarily become,
+
+
+On Thu, 30 Mar 2006, Dave Airlie wrote:
 > 
-> Not if compliation speed is the primary explicit design goal from day one, and 
-> they regression test with that in mind.
-
-Aaah.
-
-> Keep in mind that the main use of tcc these days is to turn c into a scripting 
-> language.  Just start your C file with
+> No it means people with old X versions won't try to enable hw accel on cards
+> that their X.org doesn't suppport...
 > 
-> #!/usr/bin/tcc -run
+> The X.org drivers with respect to r300 drivers are highly experimental and
+> enabled DRI on r300 by default before they should, when I added the r300 PCI
+> IDs as I tried last time, lots of people crashed and you backed out the
+> changes... so now the kernel isn't going to to trigger those problems, as all
+> of the new r300 class cards require using a new Xorg driver to enable DRI..
+> 
+> Its the only way I can think off to get the r300 PCI ids into the kernel and
+> not break current systems... there is nothing I can do in the DRM to fix the
+> Xorg DDX stupidity..
 
-I feel distinctly queasy. (I can't easily think of a less suitable language for
-scripting than C, either: perhaps COBOL...)
+Ok, thanks. Sounds good. Pulled,
 
-> And notice that #! is a preprocessor comment line as far as tcc is 
-> concerned. :)
-
-I noticed that, but I didn't think anyone actually *used* tcc for this.
-
--- 
-`Come now, you should know that whenever you plan the duration of your
- unplanned downtime, you should add in padding for random management
- freakouts.'
+		Linus

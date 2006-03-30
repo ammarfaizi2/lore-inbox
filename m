@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWC3MZ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWC3M0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbWC3MZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 07:25:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWC3MZ6
+	id S932192AbWC3M0E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 07:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWC3M0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 07:25:58 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:50386 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932193AbWC3MZ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 07:25:57 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Suspend2-2.2.2 for 2.6.16.
-Date: Thu, 30 Mar 2006 14:24:50 +0200
-User-Agent: KMail/1.9.1
-Cc: Nigel Cunningham <ncunningham@cyclades.com>, Mark Lord <lkml@rtr.ca>,
-       linux-kernel@vger.kernel.org
-References: <200603281601.22521.ncunningham@cyclades.com> <20060330120514.GO8485@elf.ucw.cz> <200603301417.18646.rjw@sisk.pl>
-In-Reply-To: <200603301417.18646.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Mar 2006 07:26:04 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44046 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932192AbWC3M0C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 07:26:02 -0500
+Date: Thu, 30 Mar 2006 13:25:44 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>, Richard Purdie <rpurdie@rpsys.net>,
+       lenz@cs.wisc.edu
+Subject: 2.6.16-git18: collie_defconfig broken
+Message-ID: <20060330122544.GA30314@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Pavel Machek <pavel@ucw.cz>, Richard Purdie <rpurdie@rpsys.net>,
+	lenz@cs.wisc.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603301424.50562.rjw@sisk.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 March 2006 14:17, Rafael J. Wysocki wrote:
-> On Thursday 30 March 2006 14:05, Pavel Machek wrote:
-> > > > I do not see missing includes, so I'm not sure it will help. Can you
-> > > > try adding
-> > > >
-> > > > ARCH=x86_64
-> > > >
-> > > > to Makefile?
-> > > 
-> > > Heh. It worked. Maybe you should have something to figure out what arch the 
-> > > user is using :) It seems a bit strange to tell the compiler that I'm using 
-> > > the arch it ought to know I'm using.
-> > 
-> > Good. Does 
-> > 
-> > ARCH=`uname -m`
-> > 
-> > work, too?
-> 
-> No, it doesn't.
+The kautobuild found the following error while trying to build 2.6.16-git18
+using collie_defconfig:
 
-Something like this works, though:
+arch/arm/mach-sa1100/collie.c:92: error: 'collie_uart_set_mctrl' undeclared here (not in a function)
+arch/arm/mach-sa1100/collie.c:93: error: 'collie_uart_get_mctrl' undeclared here (not in a function)
+make[1]: *** [arch/arm/mach-sa1100/collie.o] Error 1
+make: *** [arch/arm/mach-sa1100] Error 2
+make: Leaving directory `/var/tmp/kernel-orig'
 
-ARCH:=$(shell uname -m)
+See
 
-Rafael
+http://armlinux.simtec.co.uk/kautobuild/2.6.16-git18/collie_defconfig/zimage.log
+
+for the full build log.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,85 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWC3MAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWC3MBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbWC3MAY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 07:00:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWC3MAY
+	id S932182AbWC3MBg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 07:01:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWC3MBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 07:00:24 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:58021 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932122AbWC3MAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 07:00:23 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Suspend2-2.2.2 for 2.6.16.
-Date: Thu, 30 Mar 2006 21:59:01 +1000
-User-Agent: KMail/1.9.1
-Cc: Mark Lord <lkml@rtr.ca>, linux-kernel@vger.kernel.org
-References: <200603281601.22521.ncunningham@cyclades.com> <200603301944.27188.ncunningham@cyclades.com> <20060330115519.GN8485@elf.ucw.cz>
-In-Reply-To: <20060330115519.GN8485@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1176791.HMTUW8be4Z";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Thu, 30 Mar 2006 07:01:36 -0500
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:61870 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S932182AbWC3MBf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 07:01:35 -0500
+Date: Thu, 30 Mar 2006 14:01:24 +0200
+From: Voluspa <lista1@telia.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.16-gitX] initcall at 0xffffffff804615d1: returned with
+ error code -1
+Message-Id: <20060330140124.3f67a17b.lista1@telia.com>
+In-Reply-To: <20060330031949.2febaf62.akpm@osdl.org>
+References: <20060330131115.73886fd4.lista1@telia.com>
+	<20060330031949.2febaf62.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200603302159.05751.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1176791.HMTUW8be4Z
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, 30 Mar 2006 03:19:49 -0800 Andrew Morton wrote:
+> Voluspa wrote:
+[..]
+> > 
+> > Since then (now at 2.6.16-git18) the last/lower one has vanished, but the
+> > first one remains. The patch says that the initcall function should be
+> > printed, but it seems to need some debugging option set. Please advice if
+> > this is of interest (the addresses do not stay constant). 
+> > 
+> 
+> If you have CONFIG_KALLSYMS enabled then the kernel should print the name
+> of the function at that address.  It's pretty hard to turn off
+> CONFIG_KALLSYMS, actually.
 
-Hi.
+Ah ok, kallsyms... I've been pampered by good quality kernels and turned it
+off a long time ago.
 
-On Thursday 30 March 2006 21:55, Pavel Machek wrote:
-> Hi!
->
-> > > > > Please do try code at suspend.sf.net. It should be as fast and not
-> > > > > needing big kernel patch.
-> > > >
-> > > > Don't bother suggesting that to x86_64 owners: compilation is
-> > > > currently broken in vbetool/lrmi.c (at least).
-> > >
-> > > It seems to work at least for some users. I do not have x86-64 machine
-> > > easily available, so someone else will have to fix that one.
-> > >
-> > > (Also it should be possible to compile suspend without s2ram support,
-> > > avoiding the problem).
-> >
-> > I just found the line saying pciutils-devel is needed. Maybe that will
-> > make the difference.
->
-> I do not see missing includes, so I'm not sure it will help. Can you
-> try adding
->
-> ARCH=3Dx86_64
->
-> to Makefile?
+initcall at 0xffffffff8049a5b0: late_hpet_init+0x0/0xb0(): returned with error code -1
 
-Heh. It worked. Maybe you should have something to figure out what arch the=
-=20
-user is using :) It seems a bit strange to tell the compiler that I'm using=
-=20
-the arch it ought to know I'm using.
+loke@sleipner:/home/git$ grep -i hpet 2.6.16-git-kallsyms-.config
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+CONFIG_HPET=y
+# CONFIG_HPET_RTC_IRQ is not set
+CONFIG_HPET_MMAP=y
 
-Regards,
+Those options are just wish-thinking since the machine doesn't have that kind of timer.
+So the warning should go away when I turn them off. Sorry about the noise.
 
-Nigel
-
---nextPart1176791.HMTUW8be4Z
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEK8gJN0y+n1M3mo0RAuApAJ9IXrQkNIVa64AZmbTP0soALYLGegCgnRke
-WGZfER7UfnZNWWSjwLWhDSo=
-=7YKT
------END PGP SIGNATURE-----
-
---nextPart1176791.HMTUW8be4Z--
+Mvh
+Mats Johannesson
+--

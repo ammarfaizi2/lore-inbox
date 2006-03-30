@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWC3XSG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWC3XSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbWC3XSG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 18:18:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWC3XSG
+	id S1751132AbWC3XSe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 18:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWC3XSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 18:18:06 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:7892 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751132AbWC3XSF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 18:18:05 -0500
-Message-ID: <442C672A.2030707@ichips.intel.com>
-Date: Thu, 30 Mar 2006 15:18:02 -0800
-From: Sean Hefty <mshefty@ichips.intel.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
+	Thu, 30 Mar 2006 18:18:34 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:62421
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1751132AbWC3XSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 18:18:33 -0500
+From: Rob Landley <rob@landley.net>
+To: Nix <nix@esperi.org.uk>
+Subject: Re: [OT] Non-GCC compilers used for linux userspace
+Date: Thu, 30 Mar 2006 18:16:47 -0500
+User-Agent: KMail/1.8.3
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Eric Piel <Eric.Piel@tremplin-utc.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, mmazur@kernel.pl,
+       linux-kernel@vger.kernel.org, llh-discuss@lists.pld-linux.org
+References: <200603141619.36609.mmazur@kernel.pl> <200603301526.14744.rob@landley.net> <87odznsi98.fsf@hades.wkstn.nix>
+In-Reply-To: <87odznsi98.fsf@hades.wkstn.nix>
 MIME-Version: 1.0
-To: Roland Dreier <rdreier@cisco.com>
-CC: openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: [openib-general] updated InfiniBand 2.6.17 merge plans
-References: <ada7j6f8xwi.fsf@cisco.com> <ada1wwj1r7r.fsf@cisco.com>
-In-Reply-To: <ada1wwj1r7r.fsf@cisco.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603301816.47811.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
->  * RDMA CM.  In my git tree at
-> 
->    git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git rdma_cm
-> 
->    None of the users of this code look are to merge, and it looks like
->    there's some changes in the design happening now.  Seems like this
->    can and should wait for 2.6.18.
+On Thursday 30 March 2006 5:02 pm, Nix wrote:
+> > Keep in mind that the main use of tcc these days is to turn c into a
+> > scripting language.  Just start your C file with
+> >
+> > #!/usr/bin/tcc -run
+>
+> I feel distinctly queasy. (I can't easily think of a less suitable language
+> for scripting than C, either: perhaps COBOL...)
 
-Does it make sense to merge the first two patches of that patch series?
+No, the queasy bit is when you realize that you can stick library linkage 
+directives on that command line and thus you can dynamically compile and run 
+X apps.
 
-1. Provide common handling for marshalling data between userspace clients and
-kernel mode Infiniband drivers.
+They have examples of doing this. :)
 
-2. Extend the Infiniband CM to include private data comparisons as part of its
-connection request matching process.
+> > And notice that #! is a preprocessor comment line as far as tcc is
+> > concerned. :)
+>
+> I noticed that, but I didn't think anyone actually *used* tcc for this.
 
-This would make it easier to keep the openib tree in sync with the kernel.
+It's not exactly "what it's for", but it's up there.
 
-- Sean
+Rob
+-- 
+Never bet against the cheap plastic solution.

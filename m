@@ -1,108 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWC3JAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWC3JKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932118AbWC3JAL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 04:00:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWC3JAL
+	id S932123AbWC3JKu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 04:10:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWC3JKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 04:00:11 -0500
-Received: from wproxy.gmail.com ([64.233.184.234]:63414 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932118AbWC3JAK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 04:00:10 -0500
+	Thu, 30 Mar 2006 04:10:50 -0500
+Received: from pproxy.gmail.com ([64.233.166.182]:12177 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932123AbWC3JKt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 04:10:49 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=pTK9p9CTupLc35lHaDHZJGVN2NMhUfNMc2lAS6dsTW3qoCimtyyjEKq0G4ALhsFo7iyr0RTDlktoXI+IEgVSPSjdKxo3oWNOYpKrFaLtNAZupq9trgjHUJzZ1U/JEIuUxWUW0/8+P2D0LVkwaOR9SjOCve5lKtdke/vteYQhyRk=
-Message-ID: <489ecd0c0603300100o7e9293b4mbde4340b0129e5d5@mail.gmail.com>
-Date: Thu, 30 Mar 2006 17:00:09 +0800
-From: "Luke Yang" <luke.adi@gmail.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH] nommu page refcount bug fixing
-Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
-       "Nick Piggin" <npiggin@suse.de>
-In-Reply-To: <489ecd0c0603300056t272b4d22g8501302f4f86fc85@mail.gmail.com>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=feinGMFvBMehwPSVuhzsyDWsqH0dQdOrsU4exb6Rv9xbYlhcloat9dmu9SL3c8wQoI2T4PtfwYgKckb2R7yUWme7AMPn0Sd6OD+cCvrroSxSe0pe2BMGq8cM+r/WxrmFAQg0mdQgn2On1CH9TLBq2UehsKOfBIbV4TdHzVPTpe8=
+Message-ID: <58cb370e0603300110p43c33040hdb95a8c871f4b50d@mail.gmail.com>
+Date: Thu, 30 Mar 2006 11:10:49 +0200
+From: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: why no option for 'ide=nocddma'?
+Cc: "Jack Howarth" <howarth@bromo.msbb.uc.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1143396437.2540.7.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_809_3329942.1143709209525"
-References: <489ecd0c0603291905m7ebffff2j83809cc3c93595f1@mail.gmail.com>
-	 <442B4EEB.6020407@yahoo.com.au>
-	 <489ecd0c0603300056t272b4d22g8501302f4f86fc85@mail.gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060324184338.7A87511003E@bromo.msbb.uc.edu>
+	 <1143396437.2540.7.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_809_3329942.1143709209525
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-> > NOMMU special-casing in page refcounting. As a temporary fix, what I
-> > think should happen is simply for all slab allocations to ask for
-> > __GFP_COMP pages.
-> >
-> > Could you check that fixes your problem?
->   It works.  What's your plan to modify nommu mm? I would like to
-> help. And I am also interested in implementing the "non-power-of-2"
-> allocator in 2.6.
+On 3/26/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Gwe, 2006-03-24 at 13:43 -0500, Jack Howarth wrote:
+> > release unless users pass the 'ide=nodma' kernel option. If
+> > the problem with CDs using dma isn't going to be fully resolved,
+> > why can't we have a 'ide=nocddma' kernel option that would only
 >
->   New patch:
-  Sorry! Previous patch only works for nommu...  Here's the correct one:
-Signed-off-by: Luke Yang <luke.adi@gmail.com>
-
-diff --git a/mm/slab.c b/mm/slab.c
-index 4cbf8bb..388a6a9 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -1454,7 +1454,11 @@ static void *kmem_getpages(struct kmem_c
-        int i;
-
-        flags |=3D cachep->gfpflags;
-+#ifdef CONFIG_MMU
-        page =3D alloc_pages_node(nodeid, flags, cachep->gfporder);
-+#else
-+       page =3D alloc_pages_node(nodeid, (flags | __GFP_COMP), cachep->gfp=
-order);
-+#endif
-        if (!page)
-                return NULL;
-        addr =3D page_address(page);
-
-> --
-> Best regards,
-> Luke Yang (Kernel for Blackfin maintainer)
-> luke.adi@gmail.com
+> It is nothing to do with DMA. See the postings in 2004 on the subject.
+> EOF handling in the block layer and IDE layer don't work for the case
+> where the size of a block device is not precisely defined
 >
+> None fo the current block layer maintainers care about fixing it and
+> nobody else has submitted changes. Feel free to do that.
 >
->
+> Fortunately the drivers/ide layer will hopefully be going away soon
 
+EOF handling error has nothing to do with IDE layer,
+the same problem can be reproduced using libata+PATA patches.
 
---
-Best regards,
-Luke Yang
-luke.adi@gmail.com
-
-------=_Part_809_3329942.1143709209525
-Content-Type: text/x-patch; name=nommu_use_compound_page_in_slab.patch; 
-	charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Attachment-Id: f_eleuuzzp
-Content-Disposition: attachment; filename="nommu_use_compound_page_in_slab.patch"
-
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-diff --git a/mm/slab.c b/mm/slab.c
-index 4cbf8bb..388a6a9 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -1454,7 +1454,11 @@ static void *kmem_getpages(struct kmem_c
- 	int i;
- 
- 	flags |= cachep->gfpflags;
-+#ifdef CONFIG_MMU
- 	page = alloc_pages_node(nodeid, flags, cachep->gfporder);
-+#else
-+	page = alloc_pages_node(nodeid, (flags | __GFP_COMP), cachep->gfporder);
-+#endif
- 	if (!page)
- 		return NULL;
- 	addr = page_address(page);
-
-------=_Part_809_3329942.1143709209525--
+Bartlomiej

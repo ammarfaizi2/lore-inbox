@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWC3GcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWC3Gdb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWC3GcS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 01:32:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbWC3GcS
+	id S932069AbWC3Gdb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 01:33:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbWC3Gdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 01:32:18 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:18921 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932066AbWC3GcR (ORCPT
+	Thu, 30 Mar 2006 01:33:31 -0500
+Received: from javad.com ([216.122.176.236]:17424 "EHLO javad.com")
+	by vger.kernel.org with ESMTP id S932069AbWC3Gda (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 01:32:17 -0500
-Date: Thu, 30 Mar 2006 11:59:22 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: nagar@watson.ibm.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       tgraf@suug.ch, hadi@cyberus.ca
-Subject: Re: [Patch 5/8] generic netlink interface for delay accounting
-Message-ID: <20060330062922.GA30151@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <442B271D.10208@watson.ibm.com> <442B2BB6.9020309@watson.ibm.com> <20060329210406.08d1c929.akpm@osdl.org> <20060330061005.GA18387@in.ibm.com> <20060329222629.0a730997.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060329222629.0a730997.akpm@osdl.org>
-User-Agent: Mutt/1.5.10i
+	Thu, 30 Mar 2006 01:33:30 -0500
+From: Sergei Organov <osv@javad.com>
+To: linux@horizon.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Lifetime of flash memory
+References: <20060329155610.4903.qmail@science.horizon.com>
+Date: Thu, 30 Mar 2006 10:33:12 +0400
+In-Reply-To: <20060329155610.4903.qmail@science.horizon.com>
+	(linux@horizon.com's message of "29 Mar 2006 10:56:10 -0500")
+Message-ID: <87acb85tnb.fsf@javad.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29, 2006 at 10:26:29PM -0800, Andrew Morton wrote:
-> Balbir Singh <balbir@in.ibm.com> wrote:
-> >
-> > > The kmem_cache_free() can happen outside the lock.
-> > 
-> > 
-> > kmem_cache_free() and setting to NULL outside the lock is prone to
-> > race conditions. Consider the following scenario
-> > 
-> > A thread group T1 has exiting processes P1 and P2
-> > 
-> > P1 is exiting, finishes the delay accounting by calling taskstats_exit_pid()
-> > and gives up the mutex and calls kmem_cache_free(), but before it can set
-> > tsk->delays to NULL, we try to get statistics for the entire thread group.
-> > This task will show up in the thread group with a dangling tsk->delays.
-> 
-> Yes, the `tsk->delays = NULL;' needs to happen inside the lock.  But the
-> kmem_cache_free() does not.  It pointlessly increases the lock hold time.
+linux@horizon.com writes:
 
-Understood will fix it
+>>> Due to the multiplexing scheme used in high-density NAND flash devices,
+>>> even the non-programmed cells are exposed to a fraction of the programming
+>>> voltage and there are very low limits on the number of write cycles to
+>>> a page before it has to be erased again.  Exceeding that can cause some
+>>> unwanted bits to change from 1 to 0.  Typically, however, it is enough
+>>> to write each 512-byte portion of a page independently.
+>
+>> Well, I'm not sure. The Toshiba and Samsung NANDs I've read manuals for
+>> seem to limit number of writes to a single page before block erase, --
+>> is 512-byte portion some implementation detail I'm not aware of?
+>
+> No.  I just meant that I generally see "you may program each 2K page a
+> maximum of 4 times before performing an erase cycle", and I assume the
+> spec came from 2048/512 = 4, so you can program each 512-byte sector
+> separately.
 
-> 
-> > > > +	if (info->attrs[TASKSTATS_CMD_ATTR_PID]) {
-> > > > +		u32 pid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_PID]);
-> > > > +		rc = fill_pid((pid_t)pid, NULL, &stats);
-> > > 
-> > > We shouldn't have a typecast here.  If it generates a warning then we need
-> > > to get in there and find out why.
-> > 
-> > The reason for a typecast is that pid is passed as a u32 from userspace.
-> > genetlink currently supports most unsigned types with little or no
-> > support for signed types. We exchange data as u32 and do the correct
-> > thing in the kernel. Would you like us to move away from this?
-> > 
-> 
-> I think it's best to avoid the cast unless it's actually needed to avoid a
-> warning or compile error, or to do special things with sign extension. 
-> Because casts clutter up the code and can hide real bugs.  In this case the
-> compiler should silently perform the conversion.
+I've a file system implementation that writes up to 3 times to the first
+3 bytes of the first page of a block (clearing more and more bits every
+time), and it seems to work in practice, so maybe this number (4) came
+from another source? Alternatively, it works by accident and then I need
+to reconsider the design.
 
-Yep, the compiler was doing it for me, but I tried to be smart and cast
-things around. Will fix it.
-
-Thanks,
-Balbir
+-- Sergei.

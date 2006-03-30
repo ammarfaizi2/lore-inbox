@@ -1,101 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWC3JpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWC3JvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751017AbWC3JpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 04:45:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWC3JpQ
+	id S932150AbWC3JvF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 04:51:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWC3JvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 04:45:16 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:10544 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751017AbWC3JpO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 04:45:14 -0500
-Date: Thu, 30 Mar 2006 11:45:22 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH][RFC] splice support
-Message-ID: <20060330094522.GR13476@suse.de>
-References: <20060329122841.GC8186@suse.de> <20060329143758.607c1ccc.akpm@osdl.org> <20060330074534.GL13476@suse.de> <20060330000240.156f4933.akpm@osdl.org> <20060330081008.GO13476@suse.de> <20060330002726.48cf0ffb.akpm@osdl.org> <20060330085134.GP13476@suse.de> <20060330091523.GQ13476@suse.de> <20060330014024.6ada0532.akpm@osdl.org>
+	Thu, 30 Mar 2006 04:51:04 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:51373 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751333AbWC3JvD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 04:51:03 -0500
+Date: Thu, 30 Mar 2006 10:50:48 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, bharata@in.ibm.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: dcache leak in 2.6.16-git8 II
+Message-ID: <20060330095048.GW27946@ftp.linux.org.uk>
+References: <200603270750.28174.ak@suse.de> <200603271822.28043.ak@suse.de> <20060327190027.24498e3a.akpm@osdl.org> <200603300026.59131.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060330014024.6ada0532.akpm@osdl.org>
+In-Reply-To: <200603300026.59131.ak@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 30 2006, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> >
-> > Actually it isn't so bad, how does this look?
-> > 
-> > ...
-> >
-> >  @@ -180,30 +181,48 @@ static int __generic_file_splice_read(st
-> >   	i = find_get_pages(mapping, index, nr_pages, pages);
-> >   
-> >   	/*
-> >  -	 * If not all pages were in the page-cache, we'll
-> >  -	 * just assume that the rest haven't been read in,
-> >  -	 * so we'll get the rest locked and start IO on
-> >  -	 * them if we can..
-> >  +	 * common case - we found all pages, kick it off
-> >   	 */
-> >  -	while (i < nr_pages) {
-> >  -		struct page *page;
-> >  -		int error;
-> >  -
-> >  -		page = find_or_create_page(mapping, index + i, GFP_USER);
-> >  -		if (!page)
-> >  -			break;
-> >  +	if (i == nr_pages)
-> >  +		goto splice_them;
+On Thu, Mar 30, 2006 at 12:26:58AM +0200, Andi Kleen wrote:
+> dentry_cache      999168 1024594    208   19    1 : tunables  120   60    8 : slabdata  53926  53926      0 : shrinker stat 18522624 8871000
 > 
-> The return value from find_get_pages() is "how many pages did I find" - it
-> doesn't tell us whether they were contiguous.
-
-Oh right, so there's still a hole there. The above logic foolishly
-thinks that if i == nr_pages, they must be contig. But I can see that
-may not be the case. Additionally, I need to init pages[] from i and
-forward, since we may be looking at that in the loop.
-
-> How about
+> Hrm interesting is this one:
 > 
-> 	if (i && (pages[i - 1]->index == index + i - 1))
+> sock_inode_cache  996784 996805    704    5    1 : tunables   54   27    8 : slabdata 199361 199361      0
 > 
-> <thinks>
+> Most of the leaked dentries seem to be sockets. I didn't notice this earlier.
+
+ITYM "all".  You've got 2384 non-socket dentries, which is about what I'd
+expect on severely pressured busy system...
+ 
+> This was with the debugging patches applied btw. 
 > 
-> So if we asked for N pages starting at index=10 and got
-> 
-> 	[11, 13]
-> 
-> i == 2
-> pages[i-1]->index == 13
-> index + i - 1 == 11.
-> 
-> So I think it's OK.  Yeah, it has to be - any gap at all in the returned
-> page array will make pages[i-1]->index too big.
+> So maybe we have a socket leak?
 
-Agree, that should be sound. I'll adjust the code.
+Looks like that.  Note: /proc/slab_allocators won't help here; all allocations
+into that cache are done from sock_alloc_inode(), which is what will be shown.
+Not useful...  Moreover, call chain is predictable several steps deeper than
+that: sock_alloc_inode() (as ->alloc_inode()) from alloc_inode() from
+new_inode() from sock_alloc().
 
-> The one-at-a-time logic looks OK from a quick scan.  Do we have logic in
-> there to check that we're not overrunning i_size?  (See the pain
-> do_generic_mapping_read() goes through).
+FWIW...  One thing that might be useful here:
 
-do_splice_to() checks that, should I move that checking further down in
-case the file is truncated?
+a) slab_set_creator(objp, cachep, address): no-op unless DEBUG_SLAB_LEAK set,
+void slab_set_creator(void *objp, struct kmem_cache *cachep, void *address)
+{
+        if (cachep->flags & SLAB_STORE_USER)
+                *dbg_userword(cachep, objp) = address;
+}
+otherwise (has to be function in mm/slab.c; exported).
 
-> argh, readahead.  Really we should be kicking the readahead engine in there
-> as well.  That's fairly straightforward - see do_generic_mapping_read().
-> 
-> Also, the code here _might_ be able to use do_page_cache_readahead() just
-> to prepopulate the pages which you know you'll be needing.  There are no
-> guarantees that the pages will still be there when you want them of course,
-> but it's a decent way of putting a block of pages into a single BIO and
-> speeding up the common case.  But if the code is calling
-> page_cache_readahead() it won't need to do that.
+b)
+void slab_charge_here(void *objp, struct kmem_cache *cachep, void *address)
+{
+	slab_set_creator(objp, cachep, __builtin_return_address(0));
+}
+in mm/slab.c (exported)
 
-I'll look into readahead.
+c) #define slab_charge_caller(objp, cachep) \
+	slab_set_creator((objp), (cachep), __builtin_return_address(0))
 
--- 
-Jens Axboe
 
+Then we can do the following: in sock_alloc() have
+	slab_charge_caller(container_of(inode, struct socket_alloc, vfs_inode),
+			   sock_inode_cachep);
+
+and _then_ /proc/slab_allocators will charge these guys to callers of
+sock_alloc(); if you'll need to pursue it further, you can always slap
+more slab_charge_...() where needed.

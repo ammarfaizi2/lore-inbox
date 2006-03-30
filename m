@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWC3See@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWC3Sgb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbWC3See (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 13:34:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWC3See
+	id S1750726AbWC3Sgb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 13:36:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWC3Sgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 13:34:34 -0500
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:26471 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750753AbWC3Sed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 13:34:33 -0500
+	Thu, 30 Mar 2006 13:36:31 -0500
+Received: from xproxy.gmail.com ([66.249.82.205]:58779 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750715AbWC3Sga convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 13:36:30 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=DniFEou6F2fgItrovu2FOGxKKyiYJJhFyhN1uDQCJ/TBiVaZFKLLstnm7IF0+XNMXpfo1Zj9VG8KiI2uN8FJbDTTb5QvVB5hdKb4VZpiAuYmmE0XhjPb5LgIh219+ERpBQaRjWcJRYuexlcN3f+FrhS/ThBtkauFaVOmspz/6IM=  ;
-Message-ID: <442B9BD5.7030101@yahoo.com.au>
-Date: Thu, 30 Mar 2006 18:50:29 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=e+dw34GSUIh/8lqwkD8VWLyCI6ZsK5v9wzGdkQrTn6ypb8eKNN306EfP77XgumokaHNHVJdCDC4W2LhoeE6er8/8I/QU2BqCbg5RFbEOXVS/kdZOO/Qr4CMnBOk7wui2GFjks2oaRjH/TVNkj7m0xFs/7ZhHZwysgML5picSL0c=
+Message-ID: <c0a09e5c0603301036s4e9a63e5v476d89ff8ba37760@mail.gmail.com>
+Date: Thu, 30 Mar 2006 10:36:29 -0800
+From: "Andrew Grover" <andy.grover@gmail.com>
+To: "Kumar Gala" <galak@kernel.crashing.org>
+Subject: Re: [PATCH 1/9] [I/OAT] DMA memcpy subsystem
+Cc: "Chris Leech" <christopher.leech@intel.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <8C52750C-8BC3-4815-834C-6DBEA714BA0F@kernel.crashing.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH][RFC] splice support
-References: <20060329122841.GC8186@suse.de>	<20060329143758.607c1ccc.akpm@osdl.org>	<20060330074534.GL13476@suse.de>	<20060330000240.156f4933.akpm@osdl.org>	<20060330081008.GO13476@suse.de> <20060330002726.48cf0ffb.akpm@osdl.org>
-In-Reply-To: <20060330002726.48cf0ffb.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060329225505.25585.30392.stgit@gitlost.site>
+	 <20060329225548.25585.73037.stgit@gitlost.site>
+	 <8C52750C-8BC3-4815-834C-6DBEA714BA0F@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
+On 3/30/06, Kumar Gala <galak@kernel.crashing.org> wrote:
+> What is the utility of exporting memcpy_count, and bytes_transferred
+> to userspace via sysfs?  Is this really for debug (and thus should be
+> under debugfs?)
 
->> It doesn't, I'm assuming that find_get_pages() returns consequtive pages
->> atm. Would seem like the sane interface :-)
-> 
-> 
-> Yeah, sorry.  It's a "gather what's presently there" thing.  For writeback.
-> 
-> Nick has some gang-lookup-slots code.  So instead of populating an array of
-> page*'s you can populate an array of (effectively) page**'s.  Then one
-> could walk that.   All while holding ->tree_lock.    This doesn't help ;)
-> 
+Well....it's true they're useful for debugging but I would put them in
+the category of system statistics that shouldn't go in debugfs. I
+think they are like /proc/interrupts' interrupt counts or the TX/RX
+stats reported by ifconfig.
 
-Actually while we're on the subject, my gang_lookup_slot code is just
-named to match lookup_slot and gang_lookup... it still only returns
-slots that are presently populated. Suggestions for a better name
-welcome?
-
-> Probably the simplest for now is an open-coded find_get_page() loop.  Later
-
-Agreed. I think that's the best idea for now.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Regards -- Andy

@@ -1,102 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWC3TBR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWC3TEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbWC3TBR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 14:01:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWC3TBR
+	id S1750740AbWC3TEW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 14:04:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWC3TEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 14:01:17 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:45777 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750739AbWC3TBQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 14:01:16 -0500
-Subject: Re: [RFC][PATCH 0/2]Extend ext3 filesystem limit from 8TB to 16TB
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: Andrew Morton <akpm@osdl.org>, Takashi Sato <sho@tnes.nec.co.jp>,
-       Laurent Vivier <Laurent.Vivier@bull.net>, linux-kernel@vger.kernel.org,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <20060330173637.GV5030@schatzie.adilger.int>
-References: <20060325223358sho@rifu.tnes.nec.co.jp>
-	 <1143485147.3970.23.camel@dyn9047017067.beaverton.ibm.com>
-	 <20060327131049.2c6a5413.akpm@osdl.org>
-	 <20060327225847.GC3756@localhost.localdomain>
-	 <1143530126.11560.6.camel@openx2.frec.bull.fr>
-	 <1143568905.3935.13.camel@dyn9047017067.beaverton.ibm.com>
-	 <1143623605.5046.11.camel@openx2.frec.bull.fr>
-	 <1143682730.4045.145.camel@dyn9047017067.beaverton.ibm.com>
-	 <20060330173637.GV5030@schatzie.adilger.int>
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Thu, 30 Mar 2006 11:01:11 -0800
-Message-Id: <1143745271.3896.15.camel@dyn9047017067.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+	Thu, 30 Mar 2006 14:04:22 -0500
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:6799 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750740AbWC3TEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 14:04:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Oo1sO5kfhGc6noFrL23YP8GmMywsh2BFisZnguK0WmxOAGbQ6u2Ux/EaTnOX73cT91EBPTlCPSUOWp9oZm3Ez8XcvCk83yZ1SNKfFA4ypxrA6dz5HoR7yHz0TohTqoeGgcy5E8uSmL28+Sn8qps9UcsiYkKXIrZYRG+hoilX3AM=  ;
+Message-ID: <442B9D18.4050903@yahoo.com.au>
+Date: Thu, 30 Mar 2006 18:55:52 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+CC: Christoph Lameter <clameter@sgi.com>, "Boehm, Hans" <hans.boehm@hp.com>,
+       "Grundler, Grant G" <grant.grundler@hp.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Fix unlock_buffer() to work the same way as bit_unlock()
+References: <65953E8166311641A685BDF71D865826A23D40@cacexc12.americas.cpqcorp.net> <Pine.LNX.4.64.0603291529160.26011@schroedinger.engr.sgi.com> <442B9A2A.7000306@bull.net>
+In-Reply-To: <442B9A2A.7000306@bull.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-30 at 10:36 -0700, Andreas Dilger wrote:
-> On Mar 29, 2006  17:38 -0800, Mingming Cao wrote:
-> > There are places in ext3 code to use "int" to represent block numbers in
-> > kernel(not on-disk). This seems the "only" reason that why we can only
-> > have 8TB ext3 rather than 16TB.  Most times it just a bug with no
-> > particular reason why not use unsigned 32 bit value, so the fix is easy.
-> > 
-> > However, it is not so straightforward fix for the ext3 block allocation
-> > code, as ext3_new_block() returns a block number, and "-1" to indicating
-> > block allocation failure. Ext3 block reservation code, called by
-> > ext3_new_block(), thus also use "int" for block numbers in some places.
+Zoltan Menyhart wrote:
+
+> However, I do not think your implementation would be efficient due to
+> selecting the ordering mode at run time:
 > 
-Hi Andreas,
-
-> What might make the code a lot clearer, easier to audit, and easier to
-> fix in the future is to declare new types for fs block offsets and group
-> block offsets.  Something like "ext3_fsblk" and "ext3_grblk".  That way,
-> we can declare ext3_fsblk as "unsigned long" and "ext3_grblk" as "unsigned
-> int", 
-
-Yep, that makes sense. If we do this, the patch needs more audit, as the
-existing code uses "unsigned long" for block numbers in many many
-places.
-
-Also I think it might make sense to define "ext3_fileblk" for logical
-block type, as right now many functions called "block" in many places
-for file logical block, and it takes some to determine whether it's a
-file logical block or physical block.
-
-> and we could optionally change ext3_fsblk to be "unsigned long long"
-> later to support 64-bit filesystems without having to re-patch all of the
-> code.
+>> +    switch (mode) {
+>> +    case MODE_NONE :
+>> +    case MODE_ACQUIRE :
+>> +        return cmpxchg_acq(m, old, new);
+>> +    case MODE_FENCE :
+>> +        smp_mb();
+>> +        /* Fall through */
+>> +    case MODE_RELEASE :
+>> +        return cmpxchg_rel(m, old, new);
 > 
-I do have an untested patch which tries to change all fs-wide block
-numbers from "unsigned long" to "sector_t" type as Laurent suggested. He
-did this in his 64 bit ext3 block number support patch. I wasn't sure if
-we should do this for current 32 bit ext3 or wait until other 64 bit
-patches.
 
-Yeah, with the suggestion you made above, this change should be easy to
-support 64bit filesystem without go through all the code again.
+BTW. Isn't MODE_FENCE wrong? Seems like a read or write could be moved
+above cmpxchg_rel?
 
-> It would be more clear what type of block offset a function is handling
-> (fs-wide or group-relative). 
+I think you need rel+acq rather than acq+rel (if I'm right, then the
+same goes for your earlier bitops patches, btw).
 
-Okey, I will add more comments in the function.
-
->  If we wanted to be able to overload the
-> block number with an error code we could use ERR_PTR and PTR_ERR like
-> macros, and just restrict the filesystem to 2^32 - 1024 blocks until we
-> extend it to 64 bits.
-> 
-> Cheers, Andreas
-> --
-> Andreas Dilger
-> Principal Software Engineer
-> Cluster File Systems, Inc.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

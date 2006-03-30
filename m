@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751434AbWC3CDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWC3CDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751434AbWC3CDG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 21:03:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbWC3CDF
+	id S1751437AbWC3CDx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 21:03:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWC3CDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 21:03:05 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:43975 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751434AbWC3CDE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 21:03:04 -0500
-Date: Thu, 30 Mar 2006 11:02:53 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [Patch:000/011] Configureable NODES_SHIFT
-Cc: Yasunori Goto <y-goto@jp.fujitsu.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060330105135.DC9F.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+	Wed, 29 Mar 2006 21:03:53 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:36226 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751437AbWC3CDw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 21:03:52 -0500
+Date: Wed, 29 Mar 2006 18:04:46 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: David Lang <dlang@digitalinsight.com>
+Cc: Chris Wright <chrisw@sous-sol.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Sam Vilain <sam@vilain.net>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>
+Subject: Re: [RFC] Virtualization steps
+Message-ID: <20060330020445.GT15997@sorel.sous-sol.org>
+References: <20060328142639.GE14576@MAIL.13thfloor.at> <44294BE4.2030409@yahoo.com.au> <m1psk5kcpj.fsf@ebiederm.dsl.xmission.com> <442A26E9.20608@vilain.net> <20060329182027.GB14724@sorel.sous-sol.org> <442B0BFE.9080709@vilain.net> <20060329225241.GO15997@sorel.sous-sol.org> <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com> <20060330013618.GS15997@sorel.sous-sol.org> <Pine.LNX.4.62.0603291738290.266@qynat.qvtvafvgr.pbz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0603291738290.266@qynat.qvtvafvgr.pbz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+* David Lang (dlang@digitalinsight.com) wrote:
+> what if the people administering the container are different from the 
+> people administering the host?
 
-This patch set is to make configurable node's number.
+Yes, I alluded to that.
 
-Current implementation defines NODES_SHIFT at include/asm-xxx/numnodes.h
-for each arch. Its definition is sometimes plural.
-Indeed, ia64 defines 5 NODES_SHIFT at newest git tree.
-But it looks a bit messy.
+> in that case the people working in the container want to be able to 
+> implement and change their own policy, and the people working on the host 
+> don't want to have to implement changes to their main policy config (wtih 
+> all the auditing that would be involved with it) every time a container 
+> wants to change it's internal policy.
 
-SGI-SN2(ia64) system requires 1024 nodes, 
-and the number of nodes already has been changeable by config.
-Suitable node's number may be changed in the future even if 
-it is other architecture. So, I wrote configurable node's number.
+*nod*
 
-This patch set defines just default value for each arch which needs
-multi nodes except ia64. 
-But, it is easy to change to configurable if necessary.
+> I can definantly see where a container aware policy on the master would be 
+> useful, but I can also see where the ability to nest seperate policies 
+> would be useful.
 
-This patch is for 2.6.16-git16.
+This is all fine.  The question is whether this is a policy management
+issue or a kernel infrastructure issue.  So far, it's not clear that this
+really necessitates kernel infrastructure changes to support container
+aware policies to be loaded by physical host admin/owner or the virtual
+host admin.  The place where it breaks down is if each virtual host
+wants not only to control its own policy, but also its security model.
+Then we are left with stacking modules or heavier isolation (as in Xen).
 
-See also:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114358010523896&w=2
-
-Thanks.
-
-P.S. I divided this patch from pxm to node id mapping.
-     It will be posted later...
--- 
-Yasunori Goto 
-
-
+thanks,
+-chris

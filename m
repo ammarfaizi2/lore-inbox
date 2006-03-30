@@ -1,337 +1,197 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWC3Hlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWC3Hp0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWC3Hlr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 02:41:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWC3Hlr
+	id S1751312AbWC3Hp0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 02:45:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWC3Hp0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 02:41:47 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:46483 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751296AbWC3Hlr (ORCPT
+	Thu, 30 Mar 2006 02:45:26 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:27670 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751312AbWC3HpZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 02:41:47 -0500
-Message-Id: <200603300741.k2U7fQLe002202@shell0.pdx.osdl.net>
-Subject: [patch 1/1] sys_sync_file_range()
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, drepper@redhat.com, mtk-manpages@gmx.net,
-       nickpiggin@yahoo.com.au
-From: akpm@osdl.org
-Date: Wed, 29 Mar 2006 23:41:11 -0800
+	Thu, 30 Mar 2006 02:45:25 -0500
+Date: Thu, 30 Mar 2006 09:45:34 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH][RFC] splice support
+Message-ID: <20060330074534.GL13476@suse.de>
+References: <20060329122841.GC8186@suse.de> <20060329143758.607c1ccc.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060329143758.607c1ccc.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Andrew Morton <akpm@osdl.org>
+(going over the other comments, thanks a lot for taking a good look
+Andrew!)
 
-Remove the recently-added LINUX_FADV_ASYNC_WRITE and LINUX_FADV_WRITE_WAIT
-fadvise() additions, do it in a new sys_sync_file_range() syscall instead. 
-Reasons:
+On Wed, Mar 29 2006, Andrew Morton wrote:
+> - Please don't call it `len'.  VFS has to deal with "lengths" which can
+>   be in units of PAGE_CACHE_SIZE, fs blocksize, 512-bytes sectors or bytes,
+>   and it gets confusing.  Our liking for variable names like `len' and
+>   `count' just makes it worse.
+> 
+>   If it's in units of pages then call it `npages'.  If it's in bytes then
+>   call it `nbytes'.
 
-- It's more flexible.  Things which would require two or three syscalls with
-  fadvise() can be done in a single syscall.
+Hmm well I usually use 'len' or something like that when it's a base
+unit, like bytes. If it was in units of pages or something I agree it
+would be confusing.
 
-- Using fadvise() in this manner is something not covered by POSIX.
+>   What _is_ it in units of, anyway?  I guess bytes, since it's size_t.
+> 
+>   I assume all this lenning:
+> 
+> 			unsigned int this_len;
+> 
+> 			this_len = buf->len;
+> 			if (this_len > len)
+> 				this_len = len;
+> 
+>   is dealing with bytes too.  You'll be wanting a size_t in there.
 
+But buf->len is unsigned int to begin with.
 
-The patch wires up the syscall for x86.
+> - I think the `size_t left' in do_splice_to() can overflow if f_pos is
+>   sufficiently different from i_size.
 
-The sycall is implemented in the new fs/sync.c.  The intention is that we can
-move sys_fsync(), sys_fdatasync() and perhaps sys_sync() into there later.
+They're both loff_t.
 
-Documentation for the syscall is in fs/sync.c.
+> - In pipe_to_file():
+> 
+>   - Shouldn't it be using GFP_HIGHUSER()?
+> 
+>   - local variable `index' should be unsigned long or, for clarity
+>     value, pgoff_t.
 
-A test app (sync_file_range.c) is in
-http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz.
+Fixed.
 
-Note: the `async' writeout mode SYNC_FILE_RANGE_WRITE will turn synchronous if
-the queue is congested.  This is trivial to fix: add a new flag bit, set
-wbc->nonblocking.  But I'm not sure that we want to expose implementation
-details down to that level.
+>   - Incoming arg `pos' should be loff_t?
 
-Note: it's notable that we can sync an fd which wasn't opened for writing. 
-Same with fsync() and fdatasync()).
+Fixed
 
-Note: the code takes some care to handle attempts to sync file contents
-outside the 16TB offset on 32-bit machines.  It makes such attempts appears to
-succeed, for best 32-bit/64-bit compatibility.  Perhaps it should make such
-requests fail...
+>   - It's racy against truncate().  After running ->readpage and
+>     lock_page(), need to check for page->mapping == NULL.
 
+Indeed, fixed.
 
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Michael Kerrisk <mtk-manpages@gmx.net>
-Cc: Ulrich Drepper <drepper@redhat.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+>   - There's a duplicate flush_dcache_page().
 
- arch/i386/kernel/syscall_table.S |    1 
- fs/Makefile                      |    2 
- fs/sync.c                        |  147 +++++++++++++++++++++++++++++
- include/asm-i386/unistd.h        |    3 
- include/linux/fadvise.h          |    6 -
- include/linux/fs.h               |    5 
- include/linux/syscalls.h         |    2 
- mm/fadvise.c                     |   20 ---
- 8 files changed, 158 insertions(+), 28 deletions(-)
+Doh, fixed.
 
-diff -puN mm/fadvise.c~sys_sync_file_range mm/fadvise.c
---- devel/mm/fadvise.c~sys_sync_file_range	2006-03-29 23:26:42.000000000 -0800
-+++ devel-akpm/mm/fadvise.c	2006-03-29 23:26:42.000000000 -0800
-@@ -35,17 +35,6 @@
-  *
-  * LINUX_FADV_ASYNC_WRITE: push some or all of the dirty pages at the disk.
-  *
-- * LINUX_FADV_WRITE_WAIT, LINUX_FADV_ASYNC_WRITE: push all of the currently
-- * dirty pages at the disk.
-- *
-- * LINUX_FADV_WRITE_WAIT, LINUX_FADV_ASYNC_WRITE, LINUX_FADV_WRITE_WAIT: push
-- * all of the currently dirty pages at the disk, wait until they have been
-- * written.
-- *
-- * It should be noted that none of these operations write out the file's
-- * metadata.  So unless the application is strictly performing overwrites of
-- * already-instantiated disk blocks, there are no guarantees here that the data
-- * will be available after a crash.
-  */
- asmlinkage long sys_fadvise64_64(int fd, loff_t offset, loff_t len, int advice)
- {
-@@ -129,15 +118,6 @@ asmlinkage long sys_fadvise64_64(int fd,
- 			invalidate_mapping_pages(mapping, start_index,
- 						end_index);
- 		break;
--	case LINUX_FADV_ASYNC_WRITE:
--		ret = __filemap_fdatawrite_range(mapping, offset, endbyte,
--						WB_SYNC_NONE);
--		break;
--	case LINUX_FADV_WRITE_WAIT:
--		ret = wait_on_page_writeback_range(mapping,
--					offset >> PAGE_CACHE_SHIFT,
--					endbyte >> PAGE_CACHE_SHIFT);
--		break;
- 	default:
- 		ret = -EINVAL;
- 	}
-diff -puN include/linux/fadvise.h~sys_sync_file_range include/linux/fadvise.h
---- devel/include/linux/fadvise.h~sys_sync_file_range	2006-03-29 23:26:42.000000000 -0800
-+++ devel-akpm/include/linux/fadvise.h	2006-03-29 23:26:42.000000000 -0800
-@@ -18,10 +18,4 @@
- #define POSIX_FADV_NOREUSE	5 /* Data will be accessed once.  */
- #endif
- 
--/*
-- * Linux-specific fadvise() extensions:
-- */
--#define LINUX_FADV_ASYNC_WRITE	32	/* Start writeout on range */
--#define LINUX_FADV_WRITE_WAIT	33	/* Wait upon writeout to range */
--
- #endif	/* FADVISE_H_INCLUDED */
-diff -puN /dev/null fs/sync.c
---- /dev/null	2003-09-15 06:40:47.000000000 -0700
-+++ devel-akpm/fs/sync.c	2006-03-29 23:26:42.000000000 -0800
-@@ -0,0 +1,147 @@
-+/*
-+ * High-level sync()-related operations
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/file.h>
-+#include <linux/fs.h>
-+#include <linux/writeback.h>
-+#include <linux/syscalls.h>
-+#include <linux/linkage.h>
-+#include <linux/pagemap.h>
-+
-+#define VALID_FLAGS (SYNC_FILE_RANGE_WAIT_BEFORE|SYNC_FILE_RANGE_WRITE| \
-+			SYNC_FILE_RANGE_WAIT_AFTER)
-+
-+/*
-+ * sys_sync_file_range() permits finely controlled syncing over a segment of
-+ * a file in the range offset .. (offset+nbytes-1) inclusive.  If nbytes is
-+ * zero then sys_sync_file_range() will operate from offset out to EOF.
-+ *
-+ * The flag bits are:
-+ *
-+ * SYNC_FILE_RANGE_WAIT_BEFORE: wait upon writeout of all pages in the range
-+ * before performing the write.
-+ *
-+ * SYNC_FILE_RANGE_WRITE: initiate writeout of all those dirty pages in the
-+ * range which are not presently under writeback.
-+ *
-+ * SYNC_FILE_RANGE_WAIT_AFTER: wait upon writeout of all pages in the range
-+ * after performing the write.
-+ *
-+ * Useful combinations of the flag bits are:
-+ *
-+ * SYNC_FILE_RANGE_WAIT_BEFORE|SYNC_FILE_RANGE_WRITE: ensures that all pages
-+ * in the range which were dirty on entry to sys_sync_file_range() are placed
-+ * under writeout.  This is a start-write-for-data-integrity operation.
-+ *
-+ * SYNC_FILE_RANGE_WRITE: start writeout of all dirty pages in the range which
-+ * are not presently under writeout.  This is an asynchronous flush-to-disk
-+ * operation.  Not suitable for data integrity operations.
-+ *
-+ * SYNC_FILE_RANGE_WAIT_BEFORE (or SYNC_FILE_RANGE_WAIT_AFTER): wait for
-+ * completion of writeout of all pages in the range.  This will be used after an
-+ * earlier SYNC_FILE_RANGE_WAIT_BEFORE|SYNC_FILE_RANGE_WRITE operation to wait
-+ * for that operation to complete and to return the result.
-+ *
-+ * SYNC_FILE_RANGE_WAIT_BEFORE|SYNC_FILE_RANGE_WRITE|SYNC_FILE_RANGE_WAIT_AFTER:
-+ * a traditional sync() operation.  This is a write-for-data-integrity operation
-+ * which will ensure that all pages in the range which were dirty on entry to
-+ * sys_sync_file_range() are committed to disk.
-+ *
-+ *
-+ * SYNC_FILE_RANGE_WAIT_BEFORE and SYNC_FILE_RANGE_WAIT_AFTER will detect any
-+ * I/O errors or ENOSPC conditions and will return those to the caller, after
-+ * clearing the EIO and ENOSPC flags in the address_space.
-+ *
-+ * It should be noted that none of these operations write out the file's
-+ * metadata.  So unless the application is strictly performing overwrites of
-+ * already-instantiated disk blocks, there are no guarantees here that the data
-+ * will be available after a crash.
-+ */
-+asmlinkage long sys_sync_file_range(int fd, loff_t offset, loff_t nbytes,
-+					int flags)
-+{
-+	int ret;
-+	struct file *file;
-+	struct address_space *mapping;
-+	loff_t endbyte;			/* inclusive */
-+
-+	ret = -EINVAL;
-+	if (flags & ~VALID_FLAGS)
-+		goto out;
-+
-+	endbyte = offset + nbytes;
-+
-+	if ((s64)offset < 0)
-+		goto out;
-+	if ((s64)endbyte < 0)
-+		goto out;
-+	if (endbyte < offset)
-+		goto out;
-+
-+	if (sizeof(pgoff_t) == 4) {
-+		if (offset >= (0x100000000ULL << PAGE_CACHE_SHIFT)) {
-+			/*
-+			 * The range starts outside a 32 bit machine's
-+			 * pagecache addressing capabilities.  Let it "succeed"
-+			 */
-+			ret = 0;
-+			goto out;
-+		}
-+		if (endbyte >= (0x100000000ULL << PAGE_CACHE_SHIFT)) {
-+			/*
-+			 * Out to EOF
-+			 */
-+			nbytes = 0;
-+		}
-+	}
-+
-+	if (nbytes == 0)
-+		endbyte = -1;
-+	else
-+		endbyte--;		/* inclusive */
-+
-+	file = fget(fd);
-+	if (!file) {
-+		ret = -EBADF;
-+		goto out;
-+	}
-+
-+	if (S_ISFIFO(file->f_dentry->d_inode->i_mode)) {
-+		ret = -ESPIPE;
-+		goto out_put;
-+	}
-+
-+	mapping = file->f_mapping;
-+	if (!mapping) {
-+		ret = -EINVAL;
-+		goto out_put;
-+	}
-+
-+	ret = 0;
-+	if (flags & SYNC_FILE_RANGE_WAIT_BEFORE) {
-+		ret = wait_on_page_writeback_range(mapping,
-+					offset >> PAGE_CACHE_SHIFT,
-+					endbyte >> PAGE_CACHE_SHIFT);
-+		if (ret < 0)
-+			goto out_put;
-+	}
-+
-+	if (flags & SYNC_FILE_RANGE_WRITE) {
-+		ret = __filemap_fdatawrite_range(mapping, offset, endbyte,
-+						WB_SYNC_NONE);
-+		if (ret < 0)
-+			goto out_put;
-+	}
-+
-+	if (flags & SYNC_FILE_RANGE_WAIT_AFTER) {
-+		ret = wait_on_page_writeback_range(mapping,
-+					offset >> PAGE_CACHE_SHIFT,
-+					endbyte >> PAGE_CACHE_SHIFT);
-+	}
-+out_put:
-+	fput(file);
-+out:
-+	return ret;
-+}
-diff -puN include/linux/syscalls.h~sys_sync_file_range include/linux/syscalls.h
---- devel/include/linux/syscalls.h~sys_sync_file_range	2006-03-29 23:26:42.000000000 -0800
-+++ devel-akpm/include/linux/syscalls.h	2006-03-29 23:40:57.000000000 -0800
-@@ -569,5 +569,7 @@ asmlinkage long compat_sys_newfstatat(un
- asmlinkage long compat_sys_openat(unsigned int dfd, const char __user *filename,
- 				   int flags, int mode);
- asmlinkage long sys_unshare(unsigned long unshare_flags);
-+asmlinkage long sys_sync_file_range(int fd, loff_t offset, loff_t nbytes,
-+					int flags);
- 
- #endif
-diff -puN include/linux/fs.h~sys_sync_file_range include/linux/fs.h
---- devel/include/linux/fs.h~sys_sync_file_range	2006-03-29 23:26:42.000000000 -0800
-+++ devel-akpm/include/linux/fs.h	2006-03-29 23:40:55.000000000 -0800
-@@ -757,6 +757,11 @@ extern void send_sigio(struct fown_struc
- extern int fcntl_setlease(unsigned int fd, struct file *filp, long arg);
- extern int fcntl_getlease(struct file *filp);
- 
-+/* fs/sync.c */
-+#define SYNC_FILE_RANGE_WAIT_BEFORE	1
-+#define SYNC_FILE_RANGE_WRITE		2
-+#define SYNC_FILE_RANGE_WAIT_AFTER	4
-+
- /* fs/locks.c */
- extern void locks_init_lock(struct file_lock *);
- extern void locks_copy_lock(struct file_lock *, struct file_lock *);
-diff -puN fs/Makefile~sys_sync_file_range fs/Makefile
---- devel/fs/Makefile~sys_sync_file_range	2006-03-29 23:26:42.000000000 -0800
-+++ devel-akpm/fs/Makefile	2006-03-29 23:40:54.000000000 -0800
-@@ -10,7 +10,7 @@ obj-y :=	open.o read_write.o file_table.
- 		ioctl.o readdir.o select.o fifo.o locks.o dcache.o inode.o \
- 		attr.o bad_inode.o file.o filesystems.o namespace.o aio.o \
- 		seq_file.o xattr.o libfs.o fs-writeback.o mpage.o direct-io.o \
--		ioprio.o pnode.o drop_caches.o
-+		ioprio.o pnode.o drop_caches.o sync.o
- 
- obj-$(CONFIG_INOTIFY)		+= inotify.o
- obj-$(CONFIG_EPOLL)		+= eventpoll.o
-diff -puN include/asm-i386/unistd.h~sys_sync_file_range include/asm-i386/unistd.h
---- devel/include/asm-i386/unistd.h~sys_sync_file_range	2006-03-29 23:26:42.000000000 -0800
-+++ devel-akpm/include/asm-i386/unistd.h	2006-03-29 23:26:42.000000000 -0800
-@@ -318,8 +318,9 @@
- #define __NR_unshare		310
- #define __NR_set_robust_list	311
- #define __NR_get_robust_list	312
-+#define __NR_sys_sync_file_range 313
- 
--#define NR_syscalls 313
-+#define NR_syscalls 314
- 
- /*
-  * user-visible error numbers are in the range -1 - -128: see
-diff -puN arch/i386/kernel/syscall_table.S~sys_sync_file_range arch/i386/kernel/syscall_table.S
---- devel/arch/i386/kernel/syscall_table.S~sys_sync_file_range	2006-03-29 23:26:42.000000000 -0800
-+++ devel-akpm/arch/i386/kernel/syscall_table.S	2006-03-29 23:26:42.000000000 -0800
-@@ -312,3 +312,4 @@ ENTRY(sys_call_table)
- 	.long sys_unshare		/* 310 */
- 	.long sys_set_robust_list
- 	.long sys_get_robust_list
-+	.long sys_sync_file_range
-_
+>   - Why does it run write_one_page()???  (Don't tell me.  I'll work it
+>     out when I see the commented version ;))
+
+Can probably go, will re-check!
+
+>   - I worry a bit about the assumption in one place that a non-zero
+>     return from commit_write() indicates an error, whereas another place
+>     assumes that a negative return is an error.  We had problems in the
+>     past where some a_ops implementations decided to return small positive
+>     numbers from prepare_write() or commit_write() a_ops, which broke
+>     stuff.  They shouldn't be doing that now, but it's a thing to watch out
+>     for.
+
+I'll just check for < 0 and be safe.
+
+>   - Bug.  If write_one_page() returned an error, it still unlocked the page.
+
+Ok, I guess that could be a future but (it can't fail with !wait now).
+
+> - In pipe_to_sendpage():
+> 
+>   - local variable `offset' is ulong, but elsewhere you've used uint. 
+>     The latter is better.
+
+Fixed.
+
+>   - Again, incoming arg `len' is confusing.  I _think_ it's actually
+>     "number of bytes to be moved from this page".  A comment which explains
+>     these things would be nice, and perhaps a better name (bytes_to_send?)
+
+It's bytes, yes. Comment added.
+
+>   - Should incoming arg `pos' be loff_t?  That would give it some meaning.
+
+Yes changed with the pipe_to_file() change since it modified the actor
+typedef anyways.
+
+>   - Why does it use PAGE_SIZE and PAGE_SHIFT rather than PAGE_CACHE_*?
+
+Fixed, the other places used PAGE_CACHE_*.
+
+> - In generic_file_splice_read():
+> 
+>   - nonatomic modification of f_pos.  Is i_mutex held?  (see
+>     generic_file_llseek())
+
+Fixed.
+
+>   - Darnit, we carried `flags' this far and ended up not using it. 
+>     (What _does_ flags do, anyway?  Reads on..)
+
+It'll be passed to the actor next! Will probably change some of the
+actor args into a little struct instead of passing so many variables.
+
+> - In __generic_file_splice_read():
+> 
+>   - local variable `index' is ulong, could be pgoff_t (for clarity)
+
+Fixed.
+
+>   - local variable `offset' could be uint (it is uint elsewhere, and
+>     might generate better code).
+
+Fixed.
+
+>   - local variable `pages' could be uint (but watch out for overflow!!).
+
+Fixed.
+
+>     A better name might be nr_pages (matches find_get_pages()).  Then,
+>     local variable `array' can be renamed to `pages', which is all much
+>     better.
+
+Agree, fixed.
+
+>   - whoa.  We move the pages into the pipe while they're still under
+>     read I/O.  Is that deliberate?  (pls add nice comment).
+
+It's fine, you need to call ->map() to get at it anways, which will lock
+the page.
+
+>   - These pages can get truncated at any time they're unlocked.  Does
+>     the code cope with all that?
+
+I guess page_cache_pipe_buf_map() needs the same ->mapping check?
+
+>   - hm.  What happens if the pages which find_get_pages() returned are
+>     not contiguous in pagecache?  I think your `pages' array gets all
+>     jumbled up.
+
+Hmm please expand.
+
+> - In move_to_pipe()
+> 
+>   - Suggest you rename `pages' to `nr_pages', `array' to `pages'.  And
+>     `i' to `page_nr'.
+
+Done (except 'i').
+
+>   - local var `bufs' could be renamed `nrbufs' to align with
+>     pipe_inode_info and could be made uint.
+> 
+>   - Do we actually need local var `bufs'?  It seems to be caching info->nrbufs.
+
+Cleaner that way, imho.
+
+>   - release_pages() might be faster than one-at-a-time page_cache_release()
+
+We should not hit that case very often. Not sure how to handle the
+'cold' right now, so I'll just leave it.
+
+-- 
+Jens Axboe
+

@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWC3MQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWC3MSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932191AbWC3MQc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 07:16:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWC3MQc
+	id S932190AbWC3MSE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 07:18:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWC3MSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 07:16:32 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:54598 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932191AbWC3MQb (ORCPT
+	Thu, 30 Mar 2006 07:18:04 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:46546 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932190AbWC3MSB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 07:16:31 -0500
-Date: Thu, 30 Mar 2006 14:16:39 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
-Subject: Re: [PATCH] splice support #2
-Message-ID: <20060330121638.GA13476@suse.de>
-References: <20060330100630.GT13476@suse.de> <20060330120055.GA10402@elte.hu> <20060330120512.GX13476@suse.de> <20060330121030.GA14621@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Mar 2006 07:18:01 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Suspend2-2.2.2 for 2.6.16.
+Date: Thu, 30 Mar 2006 14:17:18 +0200
+User-Agent: KMail/1.9.1
+Cc: Nigel Cunningham <ncunningham@cyclades.com>, Mark Lord <lkml@rtr.ca>,
+       linux-kernel@vger.kernel.org
+References: <200603281601.22521.ncunningham@cyclades.com> <200603302159.05751.ncunningham@cyclades.com> <20060330120514.GO8485@elf.ucw.cz>
+In-Reply-To: <20060330120514.GO8485@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060330121030.GA14621@elte.hu>
+Message-Id: <200603301417.18646.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 30 2006, Ingo Molnar wrote:
-> 
-> * Jens Axboe <axboe@suse.de> wrote:
-> 
-> > On Thu, Mar 30 2006, Ingo Molnar wrote:
-> > > 
-> > > * Jens Axboe <axboe@suse.de> wrote:
-> > > 
-> > > > Hi,
-> > > > 
-> > > > This patch should resolve all issues mentioned so far. I'd still like 
-> > > > to implement the page moving, but that should just be a separate 
-> > > > patch.
-> > > 
-> > > neat stuff. One question: why do we require fdin or fdout to be a pipe?  
-> > > Is there any fundamental problem with implementing what Larry's original 
-> > > paper described too: straight pagecache -> socket transfers? Without a
-> > > pipe intermediary forced inbetween. It only adds unnecessary overhead.
+Hi,
+
+On Thursday 30 March 2006 14:05, Pavel Machek wrote:
+> > > I do not see missing includes, so I'm not sure it will help. Can you
+> > > try adding
+> > >
+> > > ARCH=x86_64
+> > >
+> > > to Makefile?
 > > 
-> > No, not a fundamental problem. I think I even hid that in some comment 
-> > in there, at least if it's decipharable by someone else than myself... 
-> > Basically I think it would be nice in the future to tidy this a little 
-> > bit and separate the actual container from the pipe itself - and have 
-> > the pipe just fill/use the same container.
+> > Heh. It worked. Maybe you should have something to figure out what arch the 
+> > user is using :) It seems a bit strange to tell the compiler that I'm using 
+> > the arch it ought to know I'm using.
 > 
-> why is there a container needed at all? If i splice pagecache->socket, 
-> we can use sendpage to send it off immediately. There is no need for any 
-> container - both the pagecache and sendpage use struct page, and when we 
-> iterate to create a container we might as well ->sendpage() those pages 
-> off immediately instead.
+> Good. Does 
 > 
-> I agree with the purpose of making sys_splice() generic and in 
-> particular usable in scripts/shells where pipes are commonly used, but 
-> we should also fulfill the original promise (outlined 15 years ago or 
-> so) and not limit this to pipes. That way i could improve TUX to make 
-> use of it for example ;)
+> ARCH=`uname -m`
+> 
+> work, too?
 
-There's absolutely no reason why we can't add fd -> fd splicing as well,
-so no worries. Right now we just require a pipe transport. It's
-extendable :-)
+No, it doesn't.
 
--- 
-Jens Axboe
-
+Rafael

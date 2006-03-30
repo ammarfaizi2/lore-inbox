@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWC3HSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWC3HUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbWC3HSu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 02:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWC3HSu
+	id S932076AbWC3HUE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 02:20:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWC3HUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 02:18:50 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:33960 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1751203AbWC3HSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 02:18:49 -0500
-In-Reply-To: <20060330071322.GA3137@elte.hu>
-References: <2cf1ee820603270656w6697778ai83935217ea5ab3a5@mail.gmail.com> <2cf1ee820603271231l69187925j3150098097c7ca15@mail.gmail.com> <44288FB3.5030208@yahoo.com.au> <20060329150815.GA24741@elte.hu> <442B4890.6000905@yahoo.com.au> <20060330071322.GA3137@elte.hu>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <F86880BD-2EE9-4078-AB28-F769EF507C3B@kernel.crashing.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, emin ak <eminak71@gmail.com>,
+	Thu, 30 Mar 2006 02:20:04 -0500
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:53088 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751203AbWC3HUC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 02:20:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=2KAnRwG/PEik6H3I7ofAfpkiL7nlm32wYY8IEwJQg0nbfreQKetXOKJIjXXzBsxSOqgAJbkIDE2PEkDhad0V4sAdWV9KiRph5dHUgQxhS0J6Dqw2iLHx8rCo3S6jDE5wMRdLIxEJTdDVG4JYz6d0e7qijwUIHnKk9kp4bSvluME=  ;
+Message-ID: <442B5406.9060606@yahoo.com.au>
+Date: Thu, 30 Mar 2006 14:44:06 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linus Torvalds <torvalds@osdl.org>, axboe@suse.de,
        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] splice support
+References: <20060329122841.GC8186@suse.de>	<20060329143758.607c1ccc.akpm@osdl.org>	<Pine.LNX.4.64.0603291624420.27203@g5.osdl.org> <20060329180830.50666eff.akpm@osdl.org>
+In-Reply-To: <20060329180830.50666eff.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: 2.6.16-rt10 crash on ppc
-Date: Thu, 30 Mar 2006 01:18:58 -0600
-To: Ingo Molnar <mingo@elte.hu>
-X-Mailer: Apple Mail (2.746.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
-On Mar 30, 2006, at 1:13 AM, Ingo Molnar wrote:
-
+>Linus Torvalds <torvalds@osdl.org> wrote:
 >
-> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
->> Yes, that patch is basically what I had in mind.
+>>Right now "flags" doesn't do anything at all, and you should just pass in 
+>>zero.
 >>
->> Is -rt ever allocating memory from really-hard-don't-preempt-me
->> context? I guess not, unless the zone->lock is one of those locks  
->> too,
->> right?
 >
-> no. zone->lock (and all the slab locks, and all the other MM locks)  
-> are
-> fully preemptible too.
+>In that case perhaps we should be enforcing flags==0 so that future
+>flags-using applications will reliably fail on old flags-not-understanding
+>kernels.
 >
->> Should you add a
->>
->>  #else
->>     BUG_ON(_really_dont_preempt_me());
->>  #endif
->>
->> just for safety, or will such misusage get caught elsewhere (eg. when
->> attempting to take zone->lock).
+>But that won't work if we later define a bit in flags to mean "behave like
+>old kernels used to".  So perhaps we should require that bits 0-15 of
+>`flags' be zero and not care about bits 16-31.
 >
-> it should be caught immediately, by the cond_resched().
+>IOW: it might be best to make `flags' just go away, and add new syscalls in
+>the future as appropriate.
+>
 
-The issue me actually be a driver interrupt locking bug.  The driver  
-supports three distinct interrupts for TX, RX, Error.  I asked Emin  
-to try changing the driver to use SA_INTERRUPT in the request_irq()  
-to see what happens.  I believe that when he did that it worked but  
-hurts performance.
+Well it is always going to transfer data from infd to outfd, isn't it?
+If something comes up that does not do that, then that should be a new
+syscall rather than a new flag.
 
-- kumar
+flags just modify the manner of the transfer I think. Things should still
+work if some flag is not supported, perhaps just not with optimal
+performance. That said, unsupported flags probably should fail, shouldn't
+they? The application / library could then retry with flags = 0.
+
+--
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

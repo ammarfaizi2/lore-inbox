@@ -1,227 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWC3IOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWC3IRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbWC3IOz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 03:14:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWC3IOz
+	id S932105AbWC3IRm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 03:17:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWC3IRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 03:14:55 -0500
-Received: from web30612.mail.mud.yahoo.com ([68.142.201.245]:13756 "HELO
-	web30612.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932096AbWC3IOy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 03:14:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=GvvYfBmYjN7issKUL6knAVOrxkOkYasOYgbIWl7XSgwSF2sF+cMqwOIkAC8nD3FL48w0MGoxhOlN8Y05rZtk/MCRFB3rIVXb0sWQtrBzOd3TcIvm1xVSuoX3lBrmjiWQ4jTG2VlpRnPui/nJHMg4KWBvIHbQyt9FU9mm6qnnX+k=  ;
-Message-ID: <20060330081451.86861.qmail@web30612.mail.mud.yahoo.com>
-Date: Thu, 30 Mar 2006 10:14:51 +0200 (CEST)
-From: zine el abidine Hamid <zine46@yahoo.fr>
-Subject: Re: Detecting I/O error and Halting System
-To: gene.heskett@verizononline.net, linux-kernel@vger.kernel.org
-In-Reply-To: <200603281255.42705.gene.heskett@verizon.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 30 Mar 2006 03:17:42 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:27219 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S932098AbWC3IRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 03:17:41 -0500
+Message-Id: <20060330081730.371346000@localhost.localdomain>
+References: <20060330081605.085383000@localhost.localdomain>
+Date: Thu, 30 Mar 2006 16:16:09 +0800
+From: Akinobu Mita <mita@miraclelinux.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Akinobu Mita <mita@miraclelinux.com>
+Subject: [patch 4/8] arch: use list_move()
+Content-Disposition: inline; filename=list-move-arch.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch converts the combination of list_del(A) and list_add(A, B)
+to list_move(A, B) under arch/.
 
+CC: Geert Uytterhoeven <geert@linux-m68k.org>
+CC: "David S. Miller" <davem@davemloft.net>
+Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
-I know about smartd, but the HDD are ok.   When the
-problem happen's, we have to switch off/on the servers
-and then go on without any errors; The servers work's 
-after that like nothing happen's...
+ arch/i386/pci/pcbios.c    |    6 ++----
+ arch/m68k/mm/memory.c     |    6 ++----
+ arch/m68k/sun3/sun3dvma.c |    6 ++----
+ arch/sparc64/kernel/pci.c |    6 ++----
+ 4 files changed, 8 insertions(+), 16 deletions(-)
 
+Index: 2.6-git/arch/i386/pci/pcbios.c
+===================================================================
+--- 2.6-git.orig/arch/i386/pci/pcbios.c
++++ 2.6-git/arch/i386/pci/pcbios.c
+@@ -371,8 +371,7 @@ void __devinit pcibios_sort(void)
+ 			list_for_each(ln, &pci_devices) {
+ 				d = pci_dev_g(ln);
+ 				if (d->bus->number == bus && d->devfn == devfn) {
+-					list_del(&d->global_list);
+-					list_add_tail(&d->global_list, &sorted_devices);
++					list_move_tail(&d->global_list, &sorted_devices);
+ 					if (d == dev)
+ 						found = 1;
+ 					break;
+@@ -390,8 +389,7 @@ void __devinit pcibios_sort(void)
+ 		if (!found) {
+ 			printk(KERN_WARNING "PCI: Device %s not found by BIOS\n",
+ 				pci_name(dev));
+-			list_del(&dev->global_list);
+-			list_add_tail(&dev->global_list, &sorted_devices);
++			list_move_tail(&dev->global_list, &sorted_devices);
+ 		}
+ 	}
+ 	list_splice(&sorted_devices, &pci_devices);
+Index: 2.6-git/arch/m68k/mm/memory.c
+===================================================================
+--- 2.6-git.orig/arch/m68k/mm/memory.c
++++ 2.6-git/arch/m68k/mm/memory.c
+@@ -94,8 +94,7 @@ pmd_t *get_pointer_table (void)
+ 	PD_MARKBITS(dp) = mask & ~tmp;
+ 	if (!PD_MARKBITS(dp)) {
+ 		/* move to end of list */
+-		list_del(dp);
+-		list_add_tail(dp, &ptable_list);
++		list_move_tail(dp, &ptable_list);
+ 	}
+ 	return (pmd_t *) (page_address(PD_PAGE(dp)) + off);
+ }
+@@ -123,8 +122,7 @@ int free_pointer_table (pmd_t *ptable)
+ 		 * move this descriptor to the front of the list, since
+ 		 * it has one or more free tables.
+ 		 */
+-		list_del(dp);
+-		list_add(dp, &ptable_list);
++		list_move(dp, &ptable_list);
+ 	}
+ 	return 0;
+ }
+Index: 2.6-git/arch/m68k/sun3/sun3dvma.c
+===================================================================
+--- 2.6-git.orig/arch/m68k/sun3/sun3dvma.c
++++ 2.6-git/arch/m68k/sun3/sun3dvma.c
+@@ -119,8 +119,7 @@ static inline int refill(void)
+ 		if(hole->end == prev->start) {
+ 			hole->size += prev->size;
+ 			hole->end = prev->end;
+-			list_del(&(prev->list));
+-			list_add(&(prev->list), &hole_cache);
++			list_move(&(prev->list), &hole_cache);
+ 			ret++;
+ 		}
+ 
+@@ -182,8 +181,7 @@ static inline unsigned long get_baddr(in
+ #endif
+ 			return hole->end;
+ 		} else if(hole->size == newlen) {
+-			list_del(&(hole->list));
+-			list_add(&(hole->list), &hole_cache);
++			list_move(&(hole->list), &hole_cache);
+ 			dvma_entry_use(hole->start) = newlen;
+ #ifdef DVMA_DEBUG
+ 			dvma_allocs++;
+Index: 2.6-git/arch/sparc64/kernel/pci.c
+===================================================================
+--- 2.6-git.orig/arch/sparc64/kernel/pci.c
++++ 2.6-git/arch/sparc64/kernel/pci.c
+@@ -328,10 +328,8 @@ static void __init pci_reorder_devs(void
+ 		struct pci_dev *pdev = pci_dev_g(walk);
+ 		struct list_head *walk_next = walk->next;
+ 
+-		if (pdev->irq && (__irq_ino(pdev->irq) & 0x20)) {
+-			list_del(walk);
+-			list_add(walk, pci_onboard);
+-		}
++		if (pdev->irq && (__irq_ino(pdev->irq) & 0x20))
++			list_move(walk, pci_onboard);
+ 
+ 		walk = walk_next;
+ 	}
 
-
---- Gene Heskett <gene.heskett@verizon.net> a écrit :
-
-> On Tuesday 28 March 2006 10:07, zine el abidine
-> Hamid wrote:
-> >First of all, thank you for your analysis.
-> >
-> >I don't think that it's a HDD problem nor a cable
-> >problem because the servers are new. We have tried
-> >different HDD (seagate, maxtor) but it has not help
-> >anyway.
-> >It's perhaps a temperature problem but we make a
-> lot
-> >tests in hard condition (high temperature)
-> >successfuly...
-> >
-> >One thinks that the problem comes from the VIA
-> chipset
-> >VT82c686 (it's also the opinion of Dick Johnson
-> >(linux-os) whom advised me to try UDMA33 instead of
-> >UDMA66).
-> >
-> >How can I determine the problem?
-> >
-> >I want to add that the HDD seems to be disconnected
-> >(the BIOS can't find any drive for boot) after a
-> >simple reset. We must switch off the servers to get
-> >them work again.
-> >However, it takes a long time (4 mounths and more)
-> >before the HDD fell down. I want to work around by
-> >write a module which will supervise the HDD. I know
-> >how to write a module (I used the lkmpg guide
-> >(http://www.tldp.org/LDP/lkmpg/) but how can I
-> >shutdown Linux from inside a module...?
-> >
-> >best regards.
-> >
-> >Zine.
-> 
-> I take it that you are aware of a drive monitoring
-> utility called 
-> smartd?  By querying the drive after a new powerup,
-> you may be able to 
-> extract usefull information about its health.
-> 
-> >--- Alan Cox <alan@lxorguk.ukuu.org.uk> a écrit :
-> >> On Llu, 2006-03-27 at 16:55 +0200, zine el
-> abidine
-> >>
-> >> Hamid wrote:
-> >> > hda: status timeout: status=0xd0 { Busy }
-> >>
-> >> adapter
-> >>
-> >> > disque annonce un status busy du DMA
-> >>
-> >> If I'm reading the translation right then your
-> hard
-> >> disk decided
-> >> it was busy and then never came back
-> >>
-> >> > Feb 12 04:46:23 porte_de_clignancourt_nds_b
-> >>
-> >> kernel:
-> >> > ide0: reset: success
-> >>
-> >> So the IDE layer tried to reset it
-> >>
-> >> > Feb 12 10:22:38 porte_de_clignancourt_nds_b
-> >>
-> >> kernel:
-> >> > hda: timeout waiting for DMA
-> >>
-> >> Which didnt help
-> >>
-> >> > Feb 12 10:24:47 porte_de_clignancourt_nds_b
-> >>
-> >> kernel:
-> >> > ide0: reset: success
-> >>
-> >> Still trying
-> >>
-> >> > Feb 12 10:24:47 porte_de_clignancourt_nds_b
-> >>
-> >> kernel:
-> >> > hda: irq timeout: status=0xd0 { Busy }
-> >> >
-> >> >
-> >> > Feb 12 10:24:47 porte_de_clignancourt_nds_b
-> >>
-> >> kernel:
-> >> > hda: DMA disabled
-> >>
-> >> We gave up on DMA to see if PIO would help
-> >>
-> >> > Feb 12 10:24:47 porte_de_clignancourt_nds_b
-> >>
-> >> kernel:
-> >> > ide0: reset timed-out, status=0x80
-> >> > Feb 12 10:24:47 porte_de_clignancourt_nds_b
-> >>
-> >> kernel:
-> >> > hda: status timeout: status=0x80 { Busy }
-> >> > nouvel échec de reset
-> >> > Feb 12 10:24:47 porte_de_clignancourt_nds_b
-> >>
-> >> kernel:
-> >> > hda: drive not ready for command
-> >> > Feb 12 10:24:47 porte_de_clignancourt_nds_b
-> >>
-> >> kernel:
-> >> > ide0: reset: success
-> >>
-> >> And reset..
-> >>
-> >> > Feb 12 13:45:38 porte_de_clignancourt_nds_b
-> >>
-> >> kernel:
-> >> > hda: status timeout: status=0x80 { Busy }
-> >> > Feb 12 13:45:38 porte_de_clignancourt_nds_b
-> >>
-> >> kernel:
-> >> > hda: drive not ready for command
-> >> > Feb 12 13:45:38 porte_de_clignancourt_nds_b
-> >>
-> >> kernel:
-> >> > ide0: reset timed-out, status=0x80
-> >> > Feb 12 13:45:38 porte_de_clignancourt_nds_b
-> >>
-> >> kernel:
-> >> > end_request: I/O error, dev 03:02 (hda), sector
-> >>
-> >> 102263
-> >>
-> >> > Feb 12 13:45:38 porte_de_clignancourt_nds_b
-> >>
-> >> syslogd:
-> >> > /var/log/maillog: Input/output error
-> >> > Feb 12 13:45:38 porte_de_clignancourt_nds_b
-> >>
-> >> kernel:
-> >> > end_request: I/O error, dev 03:02 (hda), sector
-> >>
-> >> 110720
-> >>
-> >> > Feb 12 13:45:38 porte_de_clignancourt_nds_b
-> >>
-> >> kernel:
-> >> > end_request: I/O error, dev 03:02 (hda), sector
-> >>
-> >> 110728
-> >>
-> >> Eventually we give up.
-> >>
-> >>
-> >> First thing to check would be the disk and the
-> >> temperature, then the
-> >> cabling. In particular make sure the *long* part
-> of
-> >> the cable is between
-> >> the drive and the controller.
-> 
-> -- 
-> Cheers, Gene
-> People having trouble with vz bouncing email to me
-> should add the word
-> 'online' between the 'verizon', and the dot which
-> bypasses vz's
-> stupid bounce rules.  I do use spamassassin too. :-)
-> Yahoo.com and AOL/TW attorneys please note,
-> additions to the above
-> message by Gene Heskett are:
-> Copyright 2006 by Maurice Eugene Heskett, all rights
-> reserved.
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
-
-	
-
-	
-		
-___________________________________________________________________________ 
-Nouveau : téléphonez moins cher avec Yahoo! Messenger ! Découvez les tarifs exceptionnels pour appeler la France et l'international.
-Téléchargez sur http://fr.messenger.yahoo.com
+--

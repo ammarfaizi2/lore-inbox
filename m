@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbWC3FFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbWC3FJb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750999AbWC3FFK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 00:05:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbWC3FE4
+	id S1751022AbWC3FJb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 00:09:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWC3FJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 00:04:56 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:20692 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750854AbWC3FEa (ORCPT
+	Thu, 30 Mar 2006 00:09:31 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:62420 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751007AbWC3FJb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 00:04:30 -0500
-Date: Wed, 29 Mar 2006 21:04:15 -0800
+	Thu, 30 Mar 2006 00:09:31 -0500
+Date: Wed, 29 Mar 2006 21:09:04 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch 6/8] virtual cpu run time
-Message-Id: <20060329210415.5d84e5a5.akpm@osdl.org>
-In-Reply-To: <442B2C5D.2020300@watson.ibm.com>
-References: <442B271D.10208@watson.ibm.com>
-	<442B2C5D.2020300@watson.ibm.com>
+To: Pete Clements <clem@clem.clem-digital.net>
+Cc: clem@clem.clem-digital.net, klassert@mathematik.tu-chemnitz.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Correction: 2.6.16-git12 killed networking -- 3c900 card
+Message-Id: <20060329210904.3e1391bb.akpm@osdl.org>
+In-Reply-To: <200603300451.k2U4pcaK001781@clem.clem-digital.net>
+References: <20060329171030.3d475bcb.akpm@osdl.org>
+	<200603300451.k2U4pcaK001781@clem.clem-digital.net>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,59 +26,38 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shailabh Nagar <nagar@watson.ibm.com> wrote:
+Pete Clements <clem@clem.clem-digital.net> wrote:
 >
-> delayacct-virtcpu.patch
+> Quoting Andrew Morton
+>   > 
+>   > Oh damn.  So you're sure that 3c59x.global_enable_wol=0 actually makes the
+>   > driver behave better?
+>   > 
+> Ok, new results.
+> Built a new virgin 2.6.16.
+> 1) able to stimulate a tx time out message
+> 2) rebooted with 3c59x.global_enable_wol=0 on command line,
+>    able to stimulate a tx time out message
 > 
-> Distinguish between "wall-clock" and "virtual" cpu run times and return
-> both, at per-task and per-tgid granularity.
+> Applied the collision statistics fix fix. Changed the extraversion
+> in the top Makefile to preserve my baseline, also make does more
+> work than previous. 
+> 1) Booted and unable to stimulate a tx time out message
 > 
-> Some architectures adjust tsk->utime+tsk->stime to reflect the time that
-> the kernel wasn't scheduled in hypervised environments and this is the
-> "wall-clock" cpu run time. "Virtual" cpu run time, on the other hand, does
-> not account for the kernel being descheduled.
+> Rebooted to virgin 2.6.16
+> 1) able to stimulate a tx time out message
+> 2) rebooted with 3c59x.global_enable_wol=0 on command line,
+>    able to stimulate a tx time out message
 > 
-> This patch allows the most accurate "virtual" cpu run time, collected by
-> the schedstats code (now shared with delay accounting code), to be returned
-> to user space, in addition to the "wall-clock" cpu time that was being exported
-> earlier. Both these times are useful for workload management in different
-> situations.
+> Rebooted to the patched driver kernel (collision statistics fix fix)
+> 1) unable to stimulate a tx time out message.
 > 
-> In a non-virtualized environment, or on architectures which do not adjust
-> tsk->utime/stime, these will effectively be the same value but at different
-> granularities.
+> Rebooted to virgin 2.6.16
+> 1) able to stimulate a tx time out message
 > 
-> ...
-> 
-> Index: linux-2.6.16/include/linux/taskstats.h
-> ===================================================================
-> --- linux-2.6.16.orig/include/linux/taskstats.h	2006-03-29 18:13:18.000000000 -0500
-> +++ linux-2.6.16/include/linux/taskstats.h	2006-03-29 18:13:20.000000000 -0500
-> @@ -46,8 +46,14 @@ struct taskstats {
->  	__u64	swapin_count;
->  	__u64	swapin_delay_total;	/* swapin page fault wait*/
-> 
-> -	__u64	cpu_run_total;		/* cpu running time
-> -					 * no count available/provided */
-> +	__u64	cpu_run_real_total;	/* cpu "wall-clock" running time
-> +					 * Potentially accounts for cpu
-> +					 * virtualization, on some arches
-> +					 */
-> +	__u64	cpu_run_virtual_total;	/* cpu "virtual" running time
-> +					 * Uses time intervals as seen by
-> +					 * the kernel
-> +					 */
->  };
+> Appears that earlier results were tainted.
 > 
 
-Again, the reader of this struct wants to know what the atomicity rules are.
-
-> +	d->cpu_run_real_total = (tmp < (nsec_t)d->cpu_run_real_total)? 0: tmp;
-
-	lval = expr1 ? expr2 : expr3;
-
-> +	tmp = (nsec_t)d->cpu_run_virtual_total
-> +		+ (nsec_t)jiffies_to_usecs(t3) * 1000;
-
-umm, Linux doesn't have nsec_t any more.
+OK, thanks.  So it looks like 3c59x-collision-statistics-fix-fix.patch is
+the only patch which we need to return your machine to working condition?
 

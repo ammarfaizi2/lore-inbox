@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWC3QTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbWC3QWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbWC3QTk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 11:19:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWC3QTk
+	id S1751261AbWC3QWL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 11:22:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWC3QWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 11:19:40 -0500
-Received: from 200-233-239-107.xd-dynamic.ctbcnetsuper.com.br ([200.233.239.107]:20488
-	"EHLO 200-233-239-107.xd-dynamic.ctbcnetsuper.com.br")
-	by vger.kernel.org with ESMTP id S1751295AbWC3QTi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 11:19:38 -0500
-Message-ID: <001d01c65415$9788a900$9512000a@tzaQqWK>
-From: "Galusya" <nsh@33.east.ru>
-To: "linux-kernel-owner" <linux-kernel-owner@vger.kernel.org>
-Subject: Re[2]: Hello from Galusya
-Date: Thu, 30 Mar 2006 19:19:13 +0300
+	Thu, 30 Mar 2006 11:22:11 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:11732 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751261AbWC3QWJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 11:22:09 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Suspend2-2.2.2 for 2.6.16.
+Date: Thu, 30 Mar 2006 18:20:40 +0200
+User-Agent: KMail/1.9.1
+Cc: Nigel Cunningham <ncunningham@cyclades.com>, Mark Lord <lkml@rtr.ca>,
+       linux-kernel@vger.kernel.org
+References: <200603281601.22521.ncunningham@cyclades.com> <200603301424.50562.rjw@sisk.pl> <20060330125902.GR8485@elf.ucw.cz>
+In-Reply-To: <20060330125902.GR8485@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="windows-1251"
-Content-Transfer-Encoding: 8bit
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200603301820.41344.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello .	
+On Thursday 30 March 2006 14:59, Pavel Machek wrote:
+> On Čt 30-03-06 14:24:50, Rafael J. Wysocki wrote:
+> > On Thursday 30 March 2006 14:17, Rafael J. Wysocki wrote:
+> > > On Thursday 30 March 2006 14:05, Pavel Machek wrote:
+> > > > > > I do not see missing includes, so I'm not sure it will help. Can you
+> > > > > > try adding
+> > > > > >
+> > > > > > ARCH=x86_64
+> > > > > >
+> > > > > > to Makefile?
+> > > > > 
+> > > > > Heh. It worked. Maybe you should have something to figure out what arch the 
+> > > > > user is using :) It seems a bit strange to tell the compiler that I'm using 
+> > > > > the arch it ought to know I'm using.
+> > > > 
+> > > > Good. Does 
+> > > > 
+> > > > ARCH=`uname -m`
+> > > > 
+> > > > work, too?
+> > > 
+> > > No, it doesn't.
+> > 
+> > Something like this works, though:
+> > 
+> > ARCH:=$(shell uname -m)
+> 
+> looks good, can you commit it (when sf works again :-).
 
-I want to start my first letter from a question: "Is it possible to be happy without LOVE?"
-I think that you will agree with me if the answer will be "NO WAY". Love is the most beautiful and exciting thing
-that may happen between man and woman! It inspires us only for doing positive things towards each other.
-One very famous writer said: "The beauty will rescue the world" i agree with his words but still i would add :
-" LOVE and Beauty will rescure the world". 
-I hope you agree with me that Love is a big notion.
-There's love to  God, to Mother, to a child to the country where you were born, and there's love that joins a man
-and woman for all their life. That is the LOVE i'm looking for! And i'm seeking for the man who is also eager to have
-this life long adventure full of surprises and new experience we can share together! Will you join me for this trip?
-I do realise that it should be very difficult to say "Yes" from the first letter having no idea about me.
-That's why i just offer to get to know each other better though correspondence that will help us to reveal many things
-about each other whether we mach perfectly or not. In addition you can look at my pictures and read some info about me here
-http://N.i-am-waiting4love.com/
-I hope you'll like what you see and read there.
-Well closing my first letter to you i just want to thank you for reading it and i really hope that you'll share
-my point of view on what i said above. I do really hope that you'll answer me soon.
+Yup, I will.
 
-Yourth faithfully
-Galusya
-
-
+Rafael

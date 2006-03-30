@@ -1,49 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWC3Ikx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWC3ImN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751086AbWC3Ikx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 03:40:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWC3Ikx
+	id S1751092AbWC3ImN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 03:42:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWC3ImN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 03:40:53 -0500
-Received: from ns1.siteground.net ([207.218.208.2]:63967 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S1751086AbWC3Ikx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 03:40:53 -0500
-Date: Thu, 30 Mar 2006 00:41:42 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: Laurent Vivier <Laurent.Vivier@bull.net>, Andrew Morton <akpm@osdl.org>,
-       Takashi Sato <sho@tnes.nec.co.jp>,
-       Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [PATCH 2/2] ext2/3: Support2^32-1blocks(e2fsprogs)
-Message-ID: <20060330084142.GB3754@localhost.localdomain>
-References: <20060325223358sho@rifu.tnes.nec.co.jp> <1143485147.3970.23.camel@dyn9047017067.beaverton.ibm.com> <20060327131049.2c6a5413.akpm@osdl.org> <20060327225847.GC3756@localhost.localdomain> <1143530126.11560.6.camel@openx2.frec.bull.fr> <1143568905.3935.13.camel@dyn9047017067.beaverton.ibm.com> <1143623605.5046.11.camel@openx2.frec.bull.fr> <1143657317.4045.12.camel@dyn9047017067.beaverton.ibm.com> <20060329200020.GA3729@localhost.localdomain> <1143664718.4045.76.camel@dyn9047017067.beaverton.ibm.com>
+	Thu, 30 Mar 2006 03:42:13 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8336 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751092AbWC3ImM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 03:42:12 -0500
+Date: Thu, 30 Mar 2006 10:41:54 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, rjw@sisk.pl
+Subject: Re: [rfc] fix Kconfig, hotplug_cpu is needed for swsusp
+Message-ID: <20060330084153.GC8485@elf.ucw.cz>
+References: <20060329220808.GA1716@elf.ucw.cz> <20060329144746.358a6b4e.akpm@osdl.org> <20060329150950.A12482@unix-os.sc.intel.com> <200603300936.22757.ncunningham@cyclades.com> <20060329154748.A12897@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1143664718.4045.76.camel@dyn9047017067.beaverton.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <20060329154748.A12897@unix-os.sc.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29, 2006 at 12:38:37PM -0800, Mingming Cao wrote:
-> On Wed, 2006-03-29 at 12:00 -0800, Ravikiran G Thirumalai wrote:
-> > On Wed, Mar 29, 2006 at 10:35:10AM -0800, Mingming Cao wrote:
+Hi!
+
+> > So if you have a single core x86, you want X86_PC, and if you have HT or SMP, 
+> > you want GENERICARCH? If so, could this be done via selects or depends or at 
+> > least defaults in Kconfig?
+> 
+> Yes, i think only SUSPEND_SMP is affect by this. I thought Rafael cced Pavel during 
+> that exchange, maybe i missed.
+> 
 > > 
-> Wild suggestion, how about we don't update the global counter is the
-> result is negative?
+> > Regards,
+> > 
+> > Nigel
+> 
+> How about this patch.
+> 
+> Make SUSPEND_SMP depend on X86_GENERICARCH, since hotplug cpu requires !X86_PC 
+> due to some race in IPI handling.  See more discussion here
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=114303306032338&w=2
 
-You mean just keep the local version even below -FBC_BATCH 
-and only empty it to the global unsigned counter if the result is going to 
-be +ve?  That would work I think.
+I can't see useful discussion there.
 
-Thanks,
-Kiran
+> Index: linux-2.6.16-git16/kernel/power/Kconfig
+> ===================================================================
+> --- linux-2.6.16-git16.orig/kernel/power/Kconfig
+> +++ linux-2.6.16-git16/kernel/power/Kconfig
+> @@ -96,5 +96,5 @@ config SWSUSP_ENCRYPT
+> 
+>  config SUSPEND_SMP
+>         bool
+> -       depends on HOTPLUG_CPU && X86 && PM
+> +       depends on HOTPLUG_CPU && X86 && PM && X86_GENERICARCH
+>         default y
+
+
+Heh, great, so one more magic option that is required.
+
+Plus GENERICARCH does not sound like something normal users would
+enable:
+
+config X86_GENERICARCH
+       bool "Generic architecture (Summit, bigsmp, ES7000, default)"
+       depends on SMP
+       help
+          This option compiles in the Summit, bigsmp, ES7000, default subarchitectures.
+          It is intended for a generic binary kernel.
+
+(What does "default" mean there, anyway? X86_PC?)
+
+								Pavel
+-- 
+Picture of sleeping (Linux) penguin wanted...

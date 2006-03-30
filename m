@@ -1,60 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWC3ILn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWC3ILX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbWC3ILn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 03:11:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWC3ILn
+	id S1751077AbWC3ILX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 03:11:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWC3ILX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 03:11:43 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:33185 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751091AbWC3ILm (ORCPT
+	Thu, 30 Mar 2006 03:11:23 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:19902 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751077AbWC3ILW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 03:11:42 -0500
-Date: Thu, 30 Mar 2006 00:11:09 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Neil Brown <neilb@suse.de>
-Cc: linux-kernel@vger.kernel.org, drepper@redhat.com, mtk-manpages@gmx.net,
-       nickpiggin@yahoo.com.au
-Subject: Re: [patch 1/1] sys_sync_file_range()
-Message-Id: <20060330001109.6cd10565.akpm@osdl.org>
-In-Reply-To: <17451.36790.450410.79788@cse.unsw.edu.au>
-References: <200603300741.k2U7fQLe002202@shell0.pdx.osdl.net>
-	<17451.36790.450410.79788@cse.unsw.edu.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Mar 2006 03:11:22 -0500
+Date: Thu, 30 Mar 2006 10:11:16 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+cc: beware <wimille@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Float numbers in module programming
+In-Reply-To: <Pine.LNX.4.61.0603290955440.27913@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0603301010400.30783@yvahk01.tjqt.qr>
+References: <3fd7d9680603290634n6fabcdc7r193c30447acc1858@mail.gmail.com>
+ <Pine.LNX.4.61.0603290955440.27913@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown <neilb@suse.de> wrote:
 >
-> On Wednesday March 29, akpm@osdl.org wrote:
-> > 
-> > From: Andrew Morton <akpm@osdl.org>
-> > 
-> > Remove the recently-added LINUX_FADV_ASYNC_WRITE and LINUX_FADV_WRITE_WAIT
-> > fadvise() additions, do it in a new sys_sync_file_range() syscall
-> > instead. 
-> 
-> Hmmm... any chance this could be split into a sys_sync_file_range and
-> a vfs_sync_file_range which takes a 'struct file*' and does less (or
-> no) sanity checking, so I can call it from nfsd?
+>This used to be a FAQ. The floating-point coprocessor in ix86
+>machines is a shared resource. There is only one. Therefore,
+>the state of the floating-point unit needs to be saved and
+>restored across all context switches. Because this is expensive
+>in terms of CPU time used, it is not saved and restored during
+>system calls. This means that if you use the coprocessor in
+>the kernel, you may screw up somebody's mathematics,
 
-Coming right up.  (Will switch it to fget_light() too)
+"somebody" is the current process, is not it? What if used in kthreads?
 
-> Currently I implement COMMIT (which has a range) with a by messing
-> around with filemap_fdatawrite and filemap_fdatawait (ignoring the
-> range) and I'd rather than a vfs helper.
-> 
-> And in nfsd I call filp->f_op->fsync between the two.  Doesn't
-> sys_sync_file_range need to call into the filesystem at all?
 
-Interesting question.  sync_file_range() is purely a pagecache (ie: file
-contents) operation.  It doesn't touch metadata at all.
-
-So if it's being used for data-integrity purposes then it really only makes
-sense when it's doing file overwrites.
-
-It does call into the filesystem of course - a_ops.writepages() and perhaps
-a_ops.writepage().
-
+Jan Engelhardt
+-- 

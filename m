@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbWC3G12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWC3G34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751142AbWC3G12 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 01:27:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWC3G12
+	id S1751032AbWC3G34 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 01:29:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWC3G34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 01:27:28 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:15849 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751127AbWC3G11 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 01:27:27 -0500
-Date: Wed, 29 Mar 2006 22:26:29 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: balbir@in.ibm.com
-Cc: nagar@watson.ibm.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       tgraf@suug.ch, hadi@cyberus.ca
-Subject: Re: [Patch 5/8] generic netlink interface for delay accounting
-Message-Id: <20060329222629.0a730997.akpm@osdl.org>
-In-Reply-To: <20060330061005.GA18387@in.ibm.com>
-References: <442B271D.10208@watson.ibm.com>
-	<442B2BB6.9020309@watson.ibm.com>
-	<20060329210406.08d1c929.akpm@osdl.org>
-	<20060330061005.GA18387@in.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 30 Mar 2006 01:29:56 -0500
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:44131 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751032AbWC3G34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 01:29:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=vD4fsGH87jbakAlxA0mCGzEWlumiIXF4unqNU3QLxMroXUsoyPfqbGKa94Brrrw6sIy8iaRe/YmT7rp0ZFGGdXLNjDh5SRDJ4WMHpuj7hd9hxZEM+dOqXnzCDXo51JoYYjjyxVP9ZEPfK+iz8L/Yvr6U+++pu15AqLV6GzeGLGE=  ;
+Message-ID: <442B4FD6.1050600@yahoo.com.au>
+Date: Thu, 30 Mar 2006 14:26:14 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Virtualization steps
+References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>	<1143228339.19152.91.camel@localhost.localdomain>	<4428BB5C.3060803@tmr.com> <20060328085206.GA14089@MAIL.13thfloor.at>	<4428FB29.8020402@yahoo.com.au>	<20060328142639.GE14576@MAIL.13thfloor.at>	<44294BE4.2030409@yahoo.com.au> <m1psk5kcpj.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1psk5kcpj.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh <balbir@in.ibm.com> wrote:
+Eric W. Biederman wrote:
+
+>Nick Piggin <nickpiggin@yahoo.com.au> writes:
 >
-> > The kmem_cache_free() can happen outside the lock.
-> 
-> 
-> kmem_cache_free() and setting to NULL outside the lock is prone to
-> race conditions. Consider the following scenario
-> 
-> A thread group T1 has exiting processes P1 and P2
-> 
-> P1 is exiting, finishes the delay accounting by calling taskstats_exit_pid()
-> and gives up the mutex and calls kmem_cache_free(), but before it can set
-> tsk->delays to NULL, we try to get statistics for the entire thread group.
-> This task will show up in the thread group with a dangling tsk->delays.
+>
+>>I don't think I could give a complete answer...
+>>I guess it could be stated as the increase in the complexity of
+>>the rest of the code for someone who doesn't know anything about
+>>the virtualization implementation.
+>>
+>>Completely non intrusive is something like 2 extra function calls
+>>to/from generic code, changes to data structures are transparent
+>>(or have simple wrappers), and there is no shared locking or data
+>>with the rest of the kernel. And it goes up from there.
+>>
+>>Anyway I'm far from qualified... I just hope that with all the
+>>work you guys are putting in that you'll be able to justify it ;)
+>>
+>
+>As I have been able to survey the work, the most common case
+>is replacing a global variable with a variable we lookup via
+>current.
+>
+>That plus using the security module infrastructure you can
+>implement the semantics pretty in a straight forward manner.
+>
+>The only really intrusive part is that because we tickle the
+>code differently we see a different set of problems.  Such
+>as the mess that is the proc and sysctl code, and the lack of
+>good resource limits.
+>
+>But none of that is inherent to the problem it is just when
+>you use the kernel harder and have more untrusted users you
+>see a different set of problems.
+>
+>
 
-Yes, the `tsk->delays = NULL;' needs to happen inside the lock.  But the
-kmem_cache_free() does not.  It pointlessly increases the lock hold time.
+Yes... about that; if/when namespaces get into the kernel, you guys
+are going to start pushing all sorts of per-container resource
+control, right? Or will you be happy to leave most of that to VMs?
 
-> > > +	if (info->attrs[TASKSTATS_CMD_ATTR_PID]) {
-> > > +		u32 pid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_PID]);
-> > > +		rc = fill_pid((pid_t)pid, NULL, &stats);
-> > 
-> > We shouldn't have a typecast here.  If it generates a warning then we need
-> > to get in there and find out why.
-> 
-> The reason for a typecast is that pid is passed as a u32 from userspace.
-> genetlink currently supports most unsigned types with little or no
-> support for signed types. We exchange data as u32 and do the correct
-> thing in the kernel. Would you like us to move away from this?
-> 
+--
 
-I think it's best to avoid the cast unless it's actually needed to avoid a
-warning or compile error, or to do special things with sign extension. 
-Because casts clutter up the code and can hide real bugs.  In this case the
-compiler should silently perform the conversion.
-
+Send instant messages to your online friends http://au.messenger.yahoo.com 

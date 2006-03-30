@@ -1,284 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWC3L4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWC3L4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbWC3L4W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 06:56:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbWC3L4K
+	id S932070AbWC3L4X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 06:56:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWC3L4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 06:56:10 -0500
-Received: from mail.gmx.net ([213.165.64.20]:42690 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932082AbWC3Lz5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 06:56:07 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:53930 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932070AbWC3Lz5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 30 Mar 2006 06:55:57 -0500
-X-Authenticated: #31060655
-Message-ID: <442BC74B.7060305@gmx.net>
-Date: Thu, 30 Mar 2006 13:55:55 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.12) Gecko/20050921
-X-Accept-Language: de, en
+Date: Thu, 30 Mar 2006 20:55:43 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [Patch:004/004]Unify pxm_to_node id ver.4. (for i386)
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060330204245.A4F5.Y-GOTO@jp.fujitsu.com>
+References: <20060330204245.A4F5.Y-GOTO@jp.fujitsu.com>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060330205413.A4FD.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Sam Ravnborg <sam@ravnborg.org>
-Subject: Spurious rebuilds of raid6 and drivers/media/video in 2.6.16
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-if I copy a compiled kernel tree to another location and run
-make again in the new directory, a few files always get rebuilt.
-These files only are rebuilt if the tree is a copy of another
-tree and they are rebuilt only once.
-Any ideas why this is the case?
+This is to remove the code of pxm_to_nid_map from i386 code.
+And, some of changing Kconfig and dummy function for compile.
 
-arch=x86_64, make=3.80, filesystem=reiserfs
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
-Log follows:
-compiler@switch:/storage> cd linux-2.6.16/
-compiler@switch:/storage/linux-2.6.16> make
-  CHK     include/linux/version.h
-  CHK     include/linux/compile.h
-  CHK     usr/initramfs_list
-Kernel: arch/x86_64/boot/bzImage is ready  (#1)
-  Building modules, stage 2.
-  MODPOST
-compiler@switch:/storage/linux-2.6.16> cd ..
-compiler@switch:/storage> cp -ar linux-2.6.16/ linux-2.6.16-unmodified
-compiler@switch:/storage> cd linux-2.6.16-unmodified/
-compiler@switch:/storage/linux-2.6.16-unmodified> make
-  CHK     include/linux/version.h
-  CHK     include/linux/compile.h
-  CHK     usr/initramfs_list
-  OUI2C   drivers/ieee1394/oui.c
-  CC [M]  drivers/ieee1394/oui.o
-  LD [M]  drivers/ieee1394/ieee1394.o
-  UNROLL  drivers/md/raid6int1.c
-  CC [M]  drivers/md/raid6int1.o
-  UNROLL  drivers/md/raid6int2.c
-  CC [M]  drivers/md/raid6int2.o
-  UNROLL  drivers/md/raid6int4.c
-  CC [M]  drivers/md/raid6int4.o
-  UNROLL  drivers/md/raid6int8.c
-  CC [M]  drivers/md/raid6int8.o
-  UNROLL  drivers/md/raid6int16.c
-  CC [M]  drivers/md/raid6int16.o
-  UNROLL  drivers/md/raid6int32.c
-  CC [M]  drivers/md/raid6int32.o
-  UNROLL  drivers/md/raid6altivec1.c
-  CC [M]  drivers/md/raid6altivec1.o
-  UNROLL  drivers/md/raid6altivec2.c
-  CC [M]  drivers/md/raid6altivec2.o
-  UNROLL  drivers/md/raid6altivec4.c
-  CC [M]  drivers/md/raid6altivec4.o
-  UNROLL  drivers/md/raid6altivec8.c
-  CC [M]  drivers/md/raid6altivec8.o
-  LD [M]  drivers/md/raid6.o
-  LD [M]  drivers/md/dm-mod.o
-  LD [M]  drivers/md/dm-multipath.o
-  LD [M]  drivers/md/dm-snapshot.o
-  LD [M]  drivers/md/dm-mirror.o
-  CC [M]  drivers/media/video/videodev.o
-  CC [M]  drivers/media/video/v4l2-common.o
-  CC [M]  drivers/media/video/v4l1-compat.o
-  CC [M]  drivers/media/video/compat_ioctl32.o
-  CC [M]  drivers/media/video/bttv-driver.o
-  CC [M]  drivers/media/video/bttv-cards.o
-  CC [M]  drivers/media/video/bttv-if.o
-  CC [M]  drivers/media/video/bttv-risc.o
-  CC [M]  drivers/media/video/bttv-vbi.o
-  CC [M]  drivers/media/video/bttv-i2c.o
-  CC [M]  drivers/media/video/bttv-gpio.o
-  CC [M]  drivers/media/video/bttv-input.o
-  CC [M]  drivers/media/video/msp3400-driver.o
-  CC [M]  drivers/media/video/msp3400-kthreads.o
-  CC [M]  drivers/media/video/tuner-core.o
-  CC [M]  drivers/media/video/tuner-types.o
-  CC [M]  drivers/media/video/tuner-simple.o
-  CC [M]  drivers/media/video/mt20xx.o
-  CC [M]  drivers/media/video/tda8290.o
-  CC [M]  drivers/media/video/tea5767.o
-  CC [M]  drivers/media/video/zoran_procfs.o
-  CC [M]  drivers/media/video/zoran_device.o
-drivers/media/video/zoran_device.c: In function `zr36057_overlay':
-drivers/media/video/zoran_device.c:539: warning: cast from pointer to integer of different size
-  CC [M]  drivers/media/video/zoran_driver.o
-  CC [M]  drivers/media/video/zoran_card.o
-  LD [M]  drivers/media/video/bttv.o
-  LD [M]  drivers/media/video/msp3400.o
-  CC [M]  drivers/media/video/tvaudio.o
-  CC [M]  drivers/media/video/tda7432.o
-  CC [M]  drivers/media/video/tda9875.o
-  CC [M]  drivers/media/video/ir-kbd-i2c.o
-  CC [M]  drivers/media/video/tvmixer.o
-  CC [M]  drivers/media/video/saa6588.o
-  CC [M]  drivers/media/video/saa5246a.o
-  CC [M]  drivers/media/video/saa5249.o
-  CC [M]  drivers/media/video/c-qcam.o
-  CC [M]  drivers/media/video/bw-qcam.o
-  CC [M]  drivers/media/video/w9966.o
-  CC [M]  drivers/media/video/saa7111.o
-  CC [M]  drivers/media/video/saa7185.o
-  CC [M]  drivers/media/video/zr36060.o
-  CC [M]  drivers/media/video/saa7110.o
-  CC [M]  drivers/media/video/adv7175.o
-  CC [M]  drivers/media/video/vpx3220.o
-  CC [M]  drivers/media/video/zr36050.o
-  CC [M]  drivers/media/video/zr36016.o
-  CC [M]  drivers/media/video/bt819.o
-  CC [M]  drivers/media/video/bt856.o
-  CC [M]  drivers/media/video/saa7114.o
-  CC [M]  drivers/media/video/adv7170.o
-  LD [M]  drivers/media/video/zr36067.o
-  CC [M]  drivers/media/video/videocodec.o
-  CC [M]  drivers/media/video/stradis.o
-  CC [M]  drivers/media/video/cpia.o
-  CC [M]  drivers/media/video/cpia_pp.o
-  CC [M]  drivers/media/video/cpia_usb.o
-  CC [M]  drivers/media/video/saa711x.o
-  CC [M]  drivers/media/video/tvp5150.o
-  CC [M]  drivers/media/video/wm8775.o
-  CC [M]  drivers/media/video/cs53l32a.o
-  LD [M]  drivers/media/video/tuner.o
-  CC [M]  drivers/media/video/tda9840.o
-  CC [M]  drivers/media/video/tea6415c.o
-  CC [M]  drivers/media/video/tea6420.o
-  CC [M]  drivers/media/video/mxb.o
-  CC [M]  drivers/media/video/hexium_orion.o
-  CC [M]  drivers/media/video/hexium_gemini.o
-  CC [M]  drivers/media/video/dpc7146.o
-  CC [M]  drivers/media/video/tuner-3036.o
-  CC [M]  drivers/media/video/tda9887.o
-  CC [M]  drivers/media/video/video-buf.o
-  CC [M]  drivers/media/video/video-buf-dvb.o
-  CC [M]  drivers/media/video/btcx-risc.o
-  CC [M]  drivers/media/video/tveeprom.o
-  CC [M]  drivers/media/video/saa7115.o
-  CC [M]  drivers/media/video/saa7127.o
-  CC [M]  drivers/media/video/cx88/cx88-video.o
-  CC [M]  drivers/media/video/cx88/cx88-vbi.o
-  CC [M]  drivers/media/video/cx88/cx88-mpeg.o
-  CC [M]  drivers/media/video/cx88/cx88-cards.o
-  CC [M]  drivers/media/video/cx88/cx88-core.o
-  CC [M]  drivers/media/video/cx88/cx88-i2c.o
-  CC [M]  drivers/media/video/cx88/cx88-tvaudio.o
-  CC [M]  drivers/media/video/cx88/cx88-input.o
-  LD [M]  drivers/media/video/cx88/cx88xx.o
-  LD [M]  drivers/media/video/cx88/cx8800.o
-  LD [M]  drivers/media/video/cx88/cx8802.o
-  CC [M]  drivers/media/video/cx88/cx88-blackbird.o
-  CC [M]  drivers/media/video/cx88/cx88-dvb.o
-  CC [M]  drivers/media/video/cx88/cx88-alsa.o
-  CC [M]  drivers/media/video/cx88/cx88-vp3054-i2c.o
-  CC [M]  drivers/media/video/saa7134/saa7134-cards.o
-  CC [M]  drivers/media/video/saa7134/saa7134-core.o
-  CC [M]  drivers/media/video/saa7134/saa7134-i2c.o
-  CC [M]  drivers/media/video/saa7134/saa7134-ts.o
-  CC [M]  drivers/media/video/saa7134/saa7134-tvaudio.o
-  CC [M]  drivers/media/video/saa7134/saa7134-vbi.o
-  CC [M]  drivers/media/video/saa7134/saa7134-video.o
-  CC [M]  drivers/media/video/saa7134/saa7134-input.o
-  LD [M]  drivers/media/video/saa7134/saa7134.o
-  CC [M]  drivers/media/video/saa7134/saa7134-empress.o
-  CC [M]  drivers/media/video/saa7134/saa6752hs.o
-  CC [M]  drivers/media/video/saa7134/saa7134-alsa.o
-  CC [M]  drivers/media/video/saa7134/saa7134-dvb.o
-  CC [M]  drivers/net/chelsio/cxgb2.o
-  CC [M]  drivers/net/chelsio/espi.o
-  CC [M]  drivers/net/chelsio/pm3393.o
-  CC [M]  drivers/net/chelsio/sge.o
-  CC [M]  drivers/net/chelsio/subr.o
-  CC [M]  drivers/net/chelsio/mv88x201x.o
-  LD [M]  drivers/net/chelsio/cxgb.o
-Kernel: arch/x86_64/boot/bzImage is ready  (#1)
-  Building modules, stage 2.
-  MODPOST
-  LD [M]  drivers/ieee1394/ieee1394.ko
-  LD [M]  drivers/md/dm-mirror.ko
-  LD [M]  drivers/md/dm-mod.ko
-  LD [M]  drivers/md/dm-multipath.ko
-  LD [M]  drivers/md/dm-snapshot.ko
-  LD [M]  drivers/md/raid6.ko
-  LD [M]  drivers/media/video/adv7170.ko
-  LD [M]  drivers/media/video/adv7175.ko
-  LD [M]  drivers/media/video/bt819.ko
-  LD [M]  drivers/media/video/bt856.ko
-  LD [M]  drivers/media/video/btcx-risc.ko
-  LD [M]  drivers/media/video/bttv.ko
-  LD [M]  drivers/media/video/bw-qcam.ko
-  LD [M]  drivers/media/video/c-qcam.ko
-  LD [M]  drivers/media/video/compat_ioctl32.ko
-  LD [M]  drivers/media/video/cpia.ko
-  LD [M]  drivers/media/video/cpia_pp.ko
-  LD [M]  drivers/media/video/cpia_usb.ko
-  LD [M]  drivers/media/video/cs53l32a.ko
-  LD [M]  drivers/media/video/cx88/cx88-alsa.ko
-  LD [M]  drivers/media/video/cx88/cx88-blackbird.ko
-  LD [M]  drivers/media/video/cx88/cx88-dvb.ko
-  LD [M]  drivers/media/video/cx88/cx88-vp3054-i2c.ko
-  LD [M]  drivers/media/video/cx88/cx8800.ko
-  LD [M]  drivers/media/video/cx88/cx8802.ko
-  LD [M]  drivers/media/video/cx88/cx88xx.ko
-  LD [M]  drivers/media/video/dpc7146.ko
-  LD [M]  drivers/media/video/hexium_gemini.ko
-  LD [M]  drivers/media/video/hexium_orion.ko
-  LD [M]  drivers/media/video/ir-kbd-i2c.ko
-  LD [M]  drivers/media/video/msp3400.ko
-  LD [M]  drivers/media/video/mxb.ko
-  LD [M]  drivers/media/video/saa5246a.ko
-  LD [M]  drivers/media/video/saa5249.ko
-  LD [M]  drivers/media/video/saa6588.ko
-  LD [M]  drivers/media/video/saa7110.ko
-  LD [M]  drivers/media/video/saa7111.ko
-  LD [M]  drivers/media/video/saa7114.ko
-  LD [M]  drivers/media/video/saa7115.ko
-  LD [M]  drivers/media/video/saa711x.ko
-  LD [M]  drivers/media/video/saa7127.ko
-  LD [M]  drivers/media/video/saa7134/saa6752hs.ko
-  LD [M]  drivers/media/video/saa7134/saa7134-alsa.ko
-  LD [M]  drivers/media/video/saa7134/saa7134-dvb.ko
-  LD [M]  drivers/media/video/saa7134/saa7134-empress.ko
-  LD [M]  drivers/media/video/saa7134/saa7134.ko
-  LD [M]  drivers/media/video/saa7185.ko
-  LD [M]  drivers/media/video/stradis.ko
-  LD [M]  drivers/media/video/tda7432.ko
-  LD [M]  drivers/media/video/tda9840.ko
-  LD [M]  drivers/media/video/tda9875.ko
-  LD [M]  drivers/media/video/tda9887.ko
-  LD [M]  drivers/media/video/tea6415c.ko
-  LD [M]  drivers/media/video/tea6420.ko
-  LD [M]  drivers/media/video/tuner-3036.ko
-  LD [M]  drivers/media/video/tuner.ko
-  LD [M]  drivers/media/video/tvaudio.ko
-  LD [M]  drivers/media/video/tveeprom.ko
-  LD [M]  drivers/media/video/tvmixer.ko
-  LD [M]  drivers/media/video/tvp5150.ko
-  LD [M]  drivers/media/video/v4l1-compat.ko
-  LD [M]  drivers/media/video/v4l2-common.ko
-  LD [M]  drivers/media/video/video-buf-dvb.ko
-  LD [M]  drivers/media/video/video-buf.ko
-  LD [M]  drivers/media/video/videocodec.ko
-  LD [M]  drivers/media/video/videodev.ko
-  LD [M]  drivers/media/video/vpx3220.ko
-  LD [M]  drivers/media/video/w9966.ko
-  LD [M]  drivers/media/video/wm8775.ko
-  LD [M]  drivers/media/video/zr36016.ko
-  LD [M]  drivers/media/video/zr36050.ko
-  LD [M]  drivers/media/video/zr36060.ko
-  LD [M]  drivers/media/video/zr36067.ko
-  LD [M]  drivers/net/chelsio/cxgb.ko
-compiler@switch:/storage/linux-2.6.16-unmodified> make
-  CHK     include/linux/version.h
-  CHK     include/linux/compile.h
-  CHK     usr/initramfs_list
-Kernel: arch/x86_64/boot/bzImage is ready  (#1)
-  Building modules, stage 2.
-  MODPOST
-compiler@switch:/storage/linux-2.6.16-unmodified>
+ arch/i386/Kconfig       |    6 ++++++
+ arch/i386/kernel/srat.c |   19 ++-----------------
+ drivers/acpi/Kconfig    |    2 +-
+ include/linux/acpi.h    |    8 ++++++++
+ 4 files changed, 17 insertions(+), 18 deletions(-)
+
+Index: pxm_ver4/arch/i386/kernel/srat.c
+===================================================================
+--- pxm_ver4.orig/arch/i386/kernel/srat.c	2006-01-05 15:43:10.000000000 +0900
++++ pxm_ver4/arch/i386/kernel/srat.c	2006-03-30 18:50:52.164237197 +0900
+@@ -39,7 +39,6 @@
+ #define NODE_ARRAY_OFFSET(x)	((x) % 8)	/* 8 bits/char */
+ #define BMAP_SET(bmap, bit)	((bmap)[NODE_ARRAY_INDEX(bit)] |= 1 << NODE_ARRAY_OFFSET(bit))
+ #define BMAP_TEST(bmap, bit)	((bmap)[NODE_ARRAY_INDEX(bit)] & (1 << NODE_ARRAY_OFFSET(bit)))
+-#define MAX_PXM_DOMAINS		256	/* 1 byte and no promises about values */
+ /* bitmap length; _PXM is at most 255 */
+ #define PXM_BITMAP_LEN (MAX_PXM_DOMAINS / 8) 
+ static u8 pxm_bitmap[PXM_BITMAP_LEN];	/* bitmap of proximity domains */
+@@ -213,19 +212,11 @@ static __init void node_read_chunk(int n
+ 		node_end_pfn[nid] = memory_chunk->end_pfn;
+ }
+ 
+-static u8 pxm_to_nid_map[MAX_PXM_DOMAINS];/* _PXM to logical node ID map */
+-
+-int pxm_to_node(int pxm)
+-{
+-	return pxm_to_nid_map[pxm];
+-}
+-
+ /* Parse the ACPI Static Resource Affinity Table */
+ static int __init acpi20_parse_srat(struct acpi_table_srat *sratp)
+ {
+ 	u8 *start, *end, *p;
+ 	int i, j, nid;
+-	u8 nid_to_pxm_map[MAX_NUMNODES];/* logical node ID to _PXM map */
+ 
+ 	start = (u8 *)(&(sratp->reserved) + 1);	/* skip header */
+ 	p = start;
+@@ -235,10 +226,6 @@ static int __init acpi20_parse_srat(stru
+ 	memset(node_memory_chunk, 0, sizeof(node_memory_chunk));
+ 	memset(zholes_size, 0, sizeof(zholes_size));
+ 
+-	/* -1 in these maps means not available */
+-	memset(pxm_to_nid_map, -1, sizeof(pxm_to_nid_map));
+-	memset(nid_to_pxm_map, -1, sizeof(nid_to_pxm_map));
+-
+ 	num_memory_chunks = 0;
+ 	while (p < end) {
+ 		switch (*p) {
+@@ -278,9 +265,7 @@ static int __init acpi20_parse_srat(stru
+ 	nodes_clear(node_online_map);
+ 	for (i = 0; i < MAX_PXM_DOMAINS; i++) {
+ 		if (BMAP_TEST(pxm_bitmap, i)) {
+-			nid = num_online_nodes();
+-			pxm_to_nid_map[i] = nid;
+-			nid_to_pxm_map[nid] = i;
++			int nid = acpi_map_pxm_to_node(i);
+ 			node_set_online(nid);
+ 		}
+ 	}
+@@ -288,7 +273,7 @@ static int __init acpi20_parse_srat(stru
+ 
+ 	/* set cnode id in memory chunk structure */
+ 	for (i = 0; i < num_memory_chunks; i++)
+-		node_memory_chunk[i].nid = pxm_to_nid_map[node_memory_chunk[i].pxm];
++		node_memory_chunk[i].nid = pxm_to_node(node_memory_chunk[i].pxm);
+ 
+ 	printk("pxm bitmap: ");
+ 	for (i = 0; i < sizeof(pxm_bitmap); i++) {
+Index: pxm_ver4/arch/i386/Kconfig
+===================================================================
+--- pxm_ver4.orig/arch/i386/Kconfig	2006-03-30 09:35:13.000000000 +0900
++++ pxm_ver4/arch/i386/Kconfig	2006-03-30 18:50:52.193534071 +0900
+@@ -144,6 +144,12 @@ config ACPI_SRAT
+ 	bool
+ 	default y
+ 	depends on NUMA && (X86_SUMMIT || X86_GENERICARCH)
++	select ACPI_NUMA
++
++config HAVE_ARCH_PARSE_SRAT
++       bool
++       default y
++       depends on ACPI_SRAT
+ 
+ config X86_SUMMIT_NUMA
+ 	bool
+Index: pxm_ver4/drivers/acpi/Kconfig
+===================================================================
+--- pxm_ver4.orig/drivers/acpi/Kconfig	2006-03-30 09:35:03.000000000 +0900
++++ pxm_ver4/drivers/acpi/Kconfig	2006-03-30 18:50:52.226737196 +0900
+@@ -162,7 +162,7 @@ config ACPI_THERMAL
+ config ACPI_NUMA
+ 	bool "NUMA support"
+ 	depends on NUMA
+-	depends on (IA64 || X86_64)
++	depends on (X86_32 || IA64 || X86_64)
+ 	default y if IA64_GENERIC || IA64_SGI_SN2
+ 
+ config ACPI_ASUS
+Index: pxm_ver4/include/linux/acpi.h
+===================================================================
+--- pxm_ver4.orig/include/linux/acpi.h	2006-03-30 09:35:13.000000000 +0900
++++ pxm_ver4/include/linux/acpi.h	2006-03-30 18:50:52.251151258 +0900
+@@ -409,10 +409,18 @@ void acpi_table_print_madt_entry (acpi_t
+ void acpi_table_print_srat_entry (acpi_table_entry_header *srat);
+ 
+ /* the following four functions are architecture-dependent */
++#ifdef CONFIG_HAVE_ARCH_PARSE_SRAT
++#define NR_NODE_MEMBLKS MAX_NUMNODES
++#define acpi_numa_slit_init(slit) do {} while (0)
++#define acpi_numa_processor_affinity_init(pa) do {} while (0)
++#define acpi_numa_memory_affinity_init(ma) do {} while (0)
++#define acpi_numa_arch_fixup() do {} while (0)
++#else
+ void acpi_numa_slit_init (struct acpi_table_slit *slit);
+ void acpi_numa_processor_affinity_init (struct acpi_table_processor_affinity *pa);
+ void acpi_numa_memory_affinity_init (struct acpi_table_memory_affinity *ma);
+ void acpi_numa_arch_fixup(void);
++#endif
+ 
+ #ifdef CONFIG_ACPI_HOTPLUG_CPU
+ /* Arch dependent functions for cpu hotplug support */
+
+-- 
+Yasunori Goto 
 
 
-Regards,
-Carl-Daniel

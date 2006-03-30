@@ -1,90 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbWC3DPh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWC3DZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751231AbWC3DPh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 22:15:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWC3DPh
+	id S1751264AbWC3DZL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 22:25:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWC3DZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 22:15:37 -0500
-Received: from wproxy.gmail.com ([64.233.184.233]:16212 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751231AbWC3DPh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 22:15:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=la1YaKgcUkck4LKZyVtu8eJrh5YnhhY6OT3/Iq4KlW0aHiJ9eSRDMxo+eZx1cvjzEZTACgDxQlx5vekMxqeBFMK60xGdUObwpXTAks2jYO2AQu2Ginz0nKfc6jEgv48rCk/eqdDixNYRNRr+UarE4Gj6JPfL1b3LHTeYd1ge+y0=
-Message-ID: <6d6a94c50603291915i67e1c960o17cc743efff33e74@mail.gmail.com>
-Date: Thu, 30 Mar 2006 11:15:36 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: I2C SMBUS problem
-MIME-Version: 1.0
+	Wed, 29 Mar 2006 22:25:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:35510 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751264AbWC3DZK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Mar 2006 22:25:10 -0500
+Date: Wed, 29 Mar 2006 19:24:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org, ashok.raj@intel.com
+Subject: Re: [rfc] fix Kconfig, hotplug_cpu is needed for swsusp
+Message-Id: <20060329192453.538a131d.akpm@osdl.org>
+In-Reply-To: <20060329150950.A12482@unix-os.sc.intel.com>
+References: <20060329220808.GA1716@elf.ucw.cz>
+	<20060329144746.358a6b4e.akpm@osdl.org>
+	<20060329150950.A12482@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Ashok Raj <ashok.raj@intel.com> wrote:
+>
+> On Wed, Mar 29, 2006 at 02:47:46PM -0800, Andrew Morton wrote:
+>  > Pavel Machek <pavel@ucw.cz> wrote:
+>  > >
+>  > > HOTPLUG_CPU is needed on normal PCs, too -- it is neccessary for
+>  > > software suspend.
+>  > > 
+>  > 
+>  > OK, this will get ugly.  APICs are involved.
+> 
+>  I guess you need only on systems that support >1 cpu right? I doubt you will need
+>  it on a system that cannot run with the config-generic-arch on. although we use bigsmp 
+>  when hotplug is turned on, all we really end up is using flat physical mode instead
+>  of using logical mode.
+> 
+>  I still havent understood why this wont work. Choosing CONFIG_X86_GENERICARCH shouldnt
+>  break anything AFAICT.
+> 
+>  Pavel, you could use CONFIG_HOTPLUG_CPU, just need to enable X86_GENERICARCH now. 
+>  Is there a reason you think that wont work? I wish we would revert it for a strong 
+>  reason that we know will not make hotplug work on certain systems because of this choise
+>  not that we currently have X86_PC now, and are unwiling to change the config.
+> 
+>  (PS: the word bigsmp although sounds like some large NR_CPUS, its just using a mode that
+>  permits the system to work from 1 .. >8 cpus. So there is really nothing determental 
+>  to selecting this.)
 
-I'm writing a driver for ADI's chip AD7142, the following is the
-single register I2C write operation of it:
-
-[Write]
-
-(s)-(6-BIT device addr )-(W)-(ACK)- \
-(register addr[15:8])-(ACK)- \
-(register addr[7:0])-(ACK)- \
-(Write Data[15:8])-(ACK)- \
-(Write Data[7:0])-(ACK)-(P)
-
-I found it does not match any mode of the existing SMBUS specs.
-Because the number of the internal register exceeds 8-bit(approximate
-600), the register address(command field) needs 2-byte.
-
-In the kernel, I found the doc about it. part of it is here:
-./Documentation/i2c/smbus-protocal
-
-I2C Block Read (2 Comm bytes)
-=============================
-
-This command reads a block of bytes from a device, from a
-designated register that is specified through the two Comm bytes.
-
-S Addr Wr [A] Comm1 [A] Comm2 [A]
-           S Addr Rd [A] [Data] A [Data] A ... A [Data] NA P
-
-
-I2C Block Write
-===============
-
-The opposite of the Block Read command, this writes bytes to
-a device, to a designated register that is specified through the
-Comm byte. Note that command lengths of 0, 2, or more bytes are
-supported as they are indistinguishable from data.
-
-S Addr Wr [A] Comm [A] Data [A] Data [A] ... [A] Data [A] P
-==============================
-
-As the doc mentioned, the [Comm] field can be 2 or more bytes. But
-this does not match the I2C driver code, see the file
-"drivers/i2c/i2c-core.c"
-===============================================
-s32 i2c_smbus_read_i2c_block_data(struct i2c_client *client, u8
-command, u8 *values)
-s32 i2c_smbus_write_i2c_block_data(struct i2c_client *client, u8 command,
-                                   u8 length, u8 *values)
-
-The type of the parameter [command] of these two routines are "u8", I
-think that means you can't pass 2 or more bytes command to the
-routine.
-
-So this is my problem. Did I missing something?
-
-I may need to modify the common I2C SMBUS driver and finalize my chip
-driver. I want to know if it's acceptable.
-
-Thanks for your hints and suggestions,
-
-Regards,
--Aubrey
+Something which remains to be beaten into my head: *why* does HOTPLUG_CPU
+require flat pyhsical mode?  What necessitated that change, and cannot we
+make it work OK in logical mode as well as flat mode?

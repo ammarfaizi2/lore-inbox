@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWC3SyZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWC3S6B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbWC3SyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 13:54:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWC3SyY
+	id S1750734AbWC3S6B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 13:58:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWC3S6B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 13:54:24 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:23425 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750733AbWC3SyY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 13:54:24 -0500
-Date: Thu, 30 Mar 2006 10:55:25 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Chris Wright <chrisw@sous-sol.org>,
-       David Lang <dlang@digitalinsight.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Sam Vilain <sam@vilain.net>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Virtualization steps
-Message-ID: <20060330185525.GX15997@sorel.sous-sol.org>
-References: <442A26E9.20608@vilain.net> <20060329182027.GB14724@sorel.sous-sol.org> <442B0BFE.9080709@vilain.net> <20060329225241.GO15997@sorel.sous-sol.org> <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com> <20060330013618.GS15997@sorel.sous-sol.org> <Pine.LNX.4.62.0603291738290.266@qynat.qvtvafvgr.pbz> <20060330020445.GT15997@sorel.sous-sol.org> <20060330143224.GC6933@sergelap.austin.ibm.com> <1143734855.24555.211.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1143734855.24555.211.camel@moss-spartans.epoch.ncsc.mil>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 30 Mar 2006 13:58:01 -0500
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:6516 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750734AbWC3S6A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 13:58:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=sZp10HsbmCHaM5LMRnQF4CvXVI9xkBxZmzp+6mpbq/ej9fx6Neexz1QJJirKXK3PQEny+csb9OLbGbt/Xi6L919JQFYOG5DgiJ1h5Lbwq3SXM2Ew1PHcv7++gNgxI7Wj06OoHifioowUVSnCmDuEwH6AUtg+aTHY8WFsnevpTBs=  ;
+Message-ID: <442B9616.3050400@yahoo.com.au>
+Date: Thu, 30 Mar 2006 18:25:58 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH][RFC] splice support
+References: <20060329122841.GC8186@suse.de> <20060329143758.607c1ccc.akpm@osdl.org> <20060330074534.GL13476@suse.de> <20060330000240.156f4933.akpm@osdl.org> <20060330081008.GO13476@suse.de>
+In-Reply-To: <20060330081008.GO13476@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen Smalley (sds@tycho.nsa.gov) wrote:
-> FWIW, SELinux now has a notion of a type hierarchy in its policy, so the
-> root admin can carve out a portion of the policy space and allow less
-> privileged admins to then define sub-types that are strictly constrained
-> by what was allowed to the parent type by the root admin.  This is
-> handled in userspace, with the policy mediation performed by a userspace
-> agent (daemon, policy management server), which then becomes the focal
-> point for all policy loading.
+Jens Axboe wrote:
+> On Thu, Mar 30 2006, Andrew Morton wrote:
 
-*nod* this is exactly what I was thinking in terms of container
-specifying policy.  Goes through the system/root container and gets
-validated before loaded.
+>>Maybe the code handles that by making sure that all the pages in the range
+>>are already in pagecache - I didn't check.  But that would take some heroic
+>>locking.
+> 
+> 
+> It doesn't, I'm assuming that find_get_pages() returns consequtive pages
+> atm. Would seem like the sane interface :-)
+> 
 
-thanks,
--chris
+It doesn't.
+
+You could do a find_get_pages_and_holes (or something along those
+lines), which would fetch contiguous pagecache and stick NULLs
+if pages don't exist.
+
+Would require a bit of radix-tree support to do it nicely, but you
+could get started with a naive find_get_page loop.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

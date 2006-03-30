@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbWC3CGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWC3CIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751435AbWC3CGF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Mar 2006 21:06:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWC3CGF
+	id S1751439AbWC3CIs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Mar 2006 21:08:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWC3CIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 21:06:05 -0500
-Received: from ns1.suse.de ([195.135.220.2]:20893 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751435AbWC3CGE (ORCPT
+	Wed, 29 Mar 2006 21:08:48 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:11940 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751439AbWC3CIr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 21:06:04 -0500
-From: Andi Kleen <ak@suse.de>
-To: Voluspa <lista1@telia.com>
-Subject: Re: [2.6.16-gitX] (x86_64) WARNING: vmlinux: 'strlen' exported twice. Previous export was in vmlinux
-Date: Thu, 30 Mar 2006 04:05:58 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <20060330035318.41a5b74c.lista1@telia.com>
-In-Reply-To: <20060330035318.41a5b74c.lista1@telia.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 29 Mar 2006 21:08:47 -0500
+Date: Wed, 29 Mar 2006 18:08:30 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] splice support
+Message-Id: <20060329180830.50666eff.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0603291624420.27203@g5.osdl.org>
+References: <20060329122841.GC8186@suse.de>
+	<20060329143758.607c1ccc.akpm@osdl.org>
+	<Pine.LNX.4.64.0603291624420.27203@g5.osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603300405.59138.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 March 2006 03:53, Voluspa wrote:
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
+>  > - why is the `flags' arg to sys_splice() unsigned long?  Can it be `int'?
 > 
-> Git versions keep incrementing but no fix for:
-> 
->   BUILD   arch/x86_64/boot/bzImage
-> Root device is (3, 2)
-> Boot sector 512 bytes.
-> Setup is 4696 bytes.
-> System is 1530 kB
-> Kernel: arch/x86_64/boot/bzImage is ready  (#1)
->   Building modules, stage 2.
->   MODPOST
-> WARNING: vmlinux: 'strlen' exported twice. Previous export was in vmlinux
-> 
-> And every module built ouside of the kernel also spews that message. Has
-> been the case since this got in:
+>  flags are always unsigned long, haven't you noticed?
 
+<does `man 2 open', gets confused>
 
-My kernel build doesn't say that. Please send your .config and state
-which gcc version are you using.
+> Besides, they should 
+>  never be signed, if you do bitmasks and shifting on them: "int" is 
+>  strictly worse than "unsigned" when we're talking flags.
 
--Andi
+Sure, but is there any gain in making flags 64-bit on 64-bit machines when
+we cannot use more than 32 bits in there anyway?
+
+> Right now "flags" doesn't do anything at all, and you should just pass in 
+> zero.
+
+In that case perhaps we should be enforcing flags==0 so that future
+flags-using applications will reliably fail on old flags-not-understanding
+kernels.
+
+But that won't work if we later define a bit in flags to mean "behave like
+old kernels used to".  So perhaps we should require that bits 0-15 of
+`flags' be zero and not care about bits 16-31.
+
+IOW: it might be best to make `flags' just go away, and add new syscalls in
+the future as appropriate.
+

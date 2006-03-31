@@ -1,134 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWCaQNb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWCaQRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbWCaQNb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 11:13:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWCaQNb
+	id S1751281AbWCaQRO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 11:17:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWCaQRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 11:13:31 -0500
-Received: from gate.perex.cz ([85.132.177.35]:36802 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S1751264AbWCaQNb (ORCPT
+	Fri, 31 Mar 2006 11:17:14 -0500
+Received: from iron.cat.pdx.edu ([131.252.208.92]:23233 "EHLO iron.cat.pdx.edu")
+	by vger.kernel.org with ESMTP id S1751281AbWCaQRO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 11:13:31 -0500
-Date: Fri, 31 Mar 2006 18:13:28 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103.perex-int.cz
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Takashi Iwai <tiwai@suse.de>
-Subject: [ALSA PATCH] CVS sync
-Message-ID: <Pine.LNX.4.61.0603311812010.9303@tm8103.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 31 Mar 2006 11:17:14 -0500
+Date: Fri, 31 Mar 2006 08:16:39 -0800 (PST)
+From: Suzanne Wood <suzannew@cs.pdx.edu>
+Message-Id: <200603311616.k2VGGdUh000738@baham.cs.pdx.edu>
+To: dhowells@redhat.com
+Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com
+Subject: Re: [PATCH] Document Linux's memory barriers [try #5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please do an update from:
+Thank you.
 
-  rsync://rsync.kernel.org/pub/scm/linux/kernel/git/perex/alsa.git
+  > From David Howells Fri Mar 31 06:51:59 2006
 
-The GNU patch is available at:
+  > Suzanne Wood <suzannew@cs.pdx.edu> wrote:
 
-  ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-git-2006-03-31.patch.gz
+  > > OK, you can dispense with a store if the value is not used before another
+  > > store to the same memory location.  So if, for some other reason, X = *A
+  > > goes away, you discard *A = W.
 
-The following files will be updated:
+  > What I was actually thinking of is:
 
- Documentation/sound/alsa/ALSA-Configuration.txt |   69 
- include/sound/core.h                            |    2 
- include/sound/pcm.h                             |   15 
- include/sound/pcm_oss.h                         |    3 
- sound/core/Kconfig                              |    5 
- sound/core/control.c                            |    6 
- sound/core/control_compat.c                     |    6 
- sound/core/init.c                               |    9 
- sound/core/oss/pcm_oss.c                        |  290 +--
- sound/core/pcm.c                                |   14 
- sound/core/pcm_lib.c                            |   49 
- sound/core/pcm_native.c                         |  157 -
- sound/isa/Kconfig                               |   23 
- sound/isa/Makefile                              |    2 
- sound/isa/adlib.c                               |  161 +
- sound/isa/cmi8330.c                             |    4 
- sound/isa/opti9xx/Makefile                      |    2 
- sound/isa/opti9xx/miro.c                        | 1455 +++++++++++++++
- sound/isa/opti9xx/miro.h                        |   73 
- sound/pci/Kconfig                               |   30 
- sound/pci/Makefile                              |    3 
- sound/pci/als300.c                              |  866 +++++++++
- sound/pci/cs4281.c                              |   28 
- sound/pci/hda/hda_codec.c                       |    2 
- sound/pci/hda/hda_intel.c                       |    2 
- sound/pci/hda/patch_analog.c                    |    9 
- sound/pci/hda/patch_realtek.c                   |  300 ++-
- sound/pci/hda/patch_sigmatel.c                  |   53 
- sound/pci/ice1712/aureon.c                      |  163 +
- sound/pci/ice1712/ice1712.c                     |    2 
- sound/pci/ice1712/ice1712.h                     |    1 
- sound/pci/maestro3.c                            |   57 
- sound/pci/pcxhr/pcxhr_core.c                    |    9 
- sound/pci/riptide/Makefile                      |    3 
- sound/pci/riptide/riptide.c                     | 2223 ++++++++++++++++++++++++
- sound/pci/via82xx.c                             |    1 
- sound/usb/usbmixer.c                            |   37 
- 37 files changed, 5660 insertions(+), 474 deletions(-)
+  > 	*A = Y;
+  > 	Z = *A;
+
+  > Can be changed by the compiler or the CPU into:
+
+  > 	*A = Y;
+  > 	Z = Y;
+
+  > Which would eliminate the externally visible "Z = LOAD *A" entirely by
+  > combination with the store.
+
+  > However, that's reintroducing the concept of caching back into the abstract
+  > CPU again - which complicates things once again.
+
+  > I've decided to rewrite what I was trying to say to the attached.
+
+  > David
 
 
-The following things were done:
+  > However, it is guaranteed that a CPU will be self-consistent: it will see its
+  > _own_ accesses appear to be correctly ordered, without the need for a memory
+  > barrier.  For instance with the following code:
 
-Alan Horstmann:
-      [ALSA] ice1712 - Fix wrong register value for DMX 6FIRE
+  > 	U = *A;
+  > 	*A = V;
+  > 	*A = W;
+  > 	X = *A;
+  > 	*A = Y;
+  > 	Z = *A;
 
-Andreas Mohr:
-      [ALSA] maestro3.c: fix BUG, optimization
+  > and assuming no intervention by an external influence, it can be assumed that
+  > the final result will appear to be:
 
-Ash Willis:
-      [ALSA] Add snd-als300 driver for Avance Logic ALS300/ALS300+ soundcards
+  > 	U == the original value of *A
+  > 	X == W
+  > 	Z == Y
+  > 	*A == Y
 
-Felix Kuehling:
-      [ALSA] hda-intel - Add support of ATI SB600
+  > The code above may cause the CPU to generate the full sequence of memory
+  > accesses:
 
-Frederik Deweerdt:
-      [ALSA] Kconfig SND_SEQUENCER_OSS help text fix
+  > 	U=LOAD *A, STORE *A=V, STORE *A=W, X=LOAD *A, STORE *A=Y, Z=LOAD *A
 
-Jonathan Woithe:
-      [ALSA] HDA/Realtek: multiple input mux definitions and pin mode additions
+  > in that order, but, without intervention, the sequence may have almost any
+  > combination of elements combined or discarded, provided the program's view of
+  > the world remains consistent.
 
-Markus Bollinger:
-      [ALSA] pcxhr - Fix the crash with REV01 board
+  > The compiler may also combine, discard or defer elements of the sequence before
+  > the CPU even sees them.
 
-Martin Langer:
-      [ALSA] Add snd-miro driver
+  > For instance:
 
-Maximilian Rehkopf:
-      [ALSA] Add Aux input switch control for Aureon Universe
+  > 	*A = V;
+  > 	*A = W;
 
-OGAWA Hirofumi:
-      [ALSA] sound/pci/hda: use create_singlethread_workqueue()
+  > may be reduced to:
 
-Peter Gruber:
-      [ALSA] Add snd-riptide driver for Conexant Riptide chip
+  > 	*A = W;
 
-Rene Herman:
-      [ALSA] ISA drivers bailing on first !enable[i]
-      [ALSA] AdLib FM card driver
+  > since, without a write barrier, it can be assumed that the effect of the
+  > storage of V to *A is lost.  Similarly:
 
-Takashi Iwai:
-      [ALSA] Add support of LG LW20 laptop
-      [ALSA] hda-codec - Fix VREF level of Mic inputs on STAC92xx codecs
-      [ALSA] via82xx - Add dxs entry for EPoX EP-8KRAI
-      [ALSA] Cleanup unused argument for snd_power_wait()
-      [ALSA] Make CONFIG_SND_CS46XX_NEW_DSP yes as default
-      [ALSA] hda-codec - Fix unsol event initialization at resume of stac92xx
-      [ALSA] hda-codec - Fix noisy output wtih AD1986A 3stack model
-      [ALSA] Remove obsolete kfree_nocheck call
-      [ALSA] Remove obsolete kfree_nocheck call
-      [ALSA] Tiny clean up of PCM codes
-      [ALSA] Clean up PCM codes (take 2)
-      [ALSA] Fix / clean up PCM-OSS setup hooks
-      [ALSA] Test volume resolution of usb audio at initialization
-      [ALSA] cs4281 - Fix the check of right channel
-      [ALSA] cs4281 - Fix the check of timeout in probe
+  > 	*A = Y;
+  > 	Z = *A;
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+  > may, without a memory barrier, be reduced to:
+
+  > 	*A = Y;
+  > 	Z = Y;
+
+  > and the LOAD operation never appear outside of the CPU.
+
+Looks good.  Now I can see the gain without a loss.
+Thanks.
+Suzanne

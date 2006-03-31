@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbWCaTqX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWCaTxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932258AbWCaTqX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 14:46:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbWCaTqX
+	id S932249AbWCaTxU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 14:53:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbWCaTxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 14:46:23 -0500
-Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:10631 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S932248AbWCaTqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 14:46:22 -0500
-To: trond.myklebust@fys.uio.no
-CC: akpm@osdl.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-reply-to: <1143834022.8116.1.camel@lade.trondhjem.org> (message from Trond
-	Myklebust on Fri, 31 Mar 2006 14:40:22 -0500)
-Subject: Re: [PATCH 2/4] locks: don't unnecessarily fail posix lock
-	operations
-References: <E1FPNOD-0005Tg-00@dorka.pomaz.szeredi.hu>
-	 <E1FPNSB-0005VK-00@dorka.pomaz.szeredi.hu>
-	 <1143829641.8085.7.camel@lade.trondhjem.org>
-	 <E1FPPFC-0005mL-00@dorka.pomaz.szeredi.hu> <1143834022.8116.1.camel@lade.trondhjem.org>
-Message-Id: <E1FPPZK-0005qJ-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 31 Mar 2006 21:46:02 +0200
+	Fri, 31 Mar 2006 14:53:20 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:48743 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932249AbWCaTxT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 14:53:19 -0500
+Date: Fri, 31 Mar 2006 21:53:30 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Subject: Re: [PATCH] splice SPLICE_F_MOVE support
+Message-ID: <20060331195330.GG14022@suse.de>
+References: <20060330131530.GI13476@suse.de> <20060330131915.GJ13476@suse.de> <442CED15.7000303@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <442CED15.7000303@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > In the first case no new locks are needed.  In the second, no locks
-> > are modified prior to the check.
+On Fri, Mar 31 2006, Nick Piggin wrote:
+> Jens Axboe wrote:
+> >Hi,
+> >
+> >This applies on top of the splice #3 just posted, adding support for
+> >moving of pages. The caller can use the SPLICE_F_MOVE flag to the splice
+> >syscall to ask the kernel to try and move pages, if needed.
+> >
+> >Disclaimer: this works for me, but may have vm issues that I missed.
+> >CC'ing Nick :-)
+> >
 > 
-> Consider something like
+> Like Andrew said, you can't check PageLRU without holding zone->lru_lock.
+> The page release code can get away with it only because the page refcount
+> is 0 at that point. Also, you can't reliably remove pages from the LRU
+> unless the refcount is 0. Ever.
 > 
-> fcntl(SETLK, 0, 100)
-> fcntl(SETLK, 0, 100)
-> fcntl(SETLK, 0, 100)
+> The following (untested) is something like what I had in mind, and should
+> get stealing closer to working. I've only given it a quick review so far
+> (btw. why do you only unlock the page if it hasn't been stolen?)
 
-Huh?  What is the type of lock in each case.
+The current branch does not :)
 
-But anyway your example is no good.  If the new lock completely covers
-the previous one, then the old lock will simply be adjusted and no new
-lock is inserted.
+> With this patch, the ->steal will indicate if the page had been on the
+> LRU or not. If not, then add it; if yes, then do nothing.
+> 
+> There is no caller of ->steal yet that wants the page off the LRU (is
+> there?). That's a bit harder.
 
-Miklos
+Thanks Nick, but would you care to rebase it off the 'splice' branch?
+There's already some changes in this area (notably, getting rid of
+->stolen).
+
+git://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-2.6-block.git splice
+
+-- 
+Jens Axboe
+

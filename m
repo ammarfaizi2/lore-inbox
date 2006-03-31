@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWCaOjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWCaOoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbWCaOjO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 09:39:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbWCaOjO
+	id S1751371AbWCaOoT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 09:44:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751064AbWCaOoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 09:39:14 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:15373 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1750754AbWCaOjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 09:39:14 -0500
-In-Reply-To: <9FCDBA58F226D911B202000BDBAD467305790AEB@zch01exm40.ap.freescale.net>
-References: <9FCDBA58F226D911B202000BDBAD467305790AEB@zch01exm40.ap.freescale.net>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <2DAA97AA-4DB6-4E2B-A702-729681BCA478@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>
+	Fri, 31 Mar 2006 09:44:19 -0500
+Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:53439 "EHLO
+	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750754AbWCaOoS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 09:44:18 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Al Boldi <a1426z@gawab.com>
+Subject: Re: [RFC] sched.c : procfs tunables
+Date: Sat, 1 Apr 2006 00:44:08 +1000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org
+References: <200603311723.49049.a1426z@gawab.com>
+In-Reply-To: <200603311723.49049.a1426z@gawab.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: moving board support from arch/ppc/ to arch/powerpc
-Date: Fri, 31 Mar 2006 08:39:20 -0600
-To: Zang Roy-r61911 <tie-fei.zang@freescale.com>
-X-Mailer: Apple Mail (2.746.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Disposition: inline
+Message-Id: <200604010044.09185.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 01 April 2006 00:23, Al Boldi wrote:
+> Proper scheduling in a multi-tasking environment is critical to the success
+> of a desktop OS.  Linux, being mainly a server OS, is currently tuned to
+> scheduling defaults that may be appropriate only for the server scenario.
+>
+> To enable Linux to play an effective role on the desktop, a more flexible
+> approach is necessary.  An approach that would allow the end-User the
+> freedom to adjust the OS to the specific environment at hand.
+>
+> So instead of forcing a one-size fits all approach on the end-User, would
+> not exporting sched.c tunables to the procfs present a flexible approach to
+> the scheduling dilemma?
+>
+> All comments that have a vested interest in enabling Linux on the desktop
+> are most welcome, even if they describe other/better/smarter approaches.
 
-On Mar 31, 2006, at 4:44 AM, Zang Roy-r61911 wrote:
+None of the current "tunables" have easily understandable heuristics. Even 
+those that appear to be obvious, like timselice, are not. While exporting 
+tunables is not a bad idea, exporting tunables that noone understands is not 
+really helpful. Even with heavy documentation, changes are not immediately 
+predictable, and parts of the scheduler "know" about the default tuning 
+values and they'd be broken by modifying them. Other scheduler designs, or 
+more infrastructure on the current one (like what Mike's working on) might 
+make some more obvious tunables. I've already discussed what I think in that 
+regard too on a similar email thread. Exporting them also incurs a not 
+insignificant cost.
 
-> Hi,
-> 	I am moving mpc7448 hpc2 support from arch/ppc to arch/powerpc and  
-> plan to summit it to open source tree future.  Is there any good  
-> suggestion or reference?
-> 	Thanks a lot!
-
-All ports under arch/powerpc are required to use a flat device tree  
-to boot.  Look at Documentation/powerpc/booting-without-of.txt
-  for details on how that is done.  Beyond that there isn't too much  
-different from arch/ppc to arch/powerpc.  Take a look at the 83xx or  
-85xx platforms for comparison examples between arch/ppc & arch/powerpc.
-
-I'd suggest for working up your flat dev tree for the bridge on HPC2  
-and post that to the linuxppc-dev list for review and then go from  
-there.
-
-- kumar
+Cheers,
+Con

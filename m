@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWCaTcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWCaTcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932067AbWCaTcM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 14:32:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWCaTcM
+	id S932092AbWCaTcN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 14:32:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWCaTcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 14:32:12 -0500
-Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:46513 "HELO
+	Fri, 31 Mar 2006 14:32:13 -0500
+Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:48305 "HELO
 	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932067AbWCaTcK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932092AbWCaTcK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 31 Mar 2006 14:32:10 -0500
 From: David Brownell <david-b@pacbell.net>
-To: stephen@streetfiresound.com
+To: spi-devel-general@lists.sourceforge.net
 Subject: Re: [spi-devel-general] Re: question on spi_bitbang
-Date: Fri, 31 Mar 2006 11:16:27 -0800
+Date: Fri, 31 Mar 2006 11:32:06 -0800
 User-Agent: KMail/1.7.1
 Cc: Kumar Gala <galak@kernel.crashing.org>,
-       spi-devel-general@lists.sourceforge.net,
        linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1B2FA58D-1F7F-469E-956D-564947BDA59A@kernel.crashing.org> <200603311011.00981.david-b@pacbell.net> <1143829180.4355.51.camel@ststephen.streetfiresound.com>
-In-Reply-To: <1143829180.4355.51.camel@ststephen.streetfiresound.com>
+References: <1B2FA58D-1F7F-469E-956D-564947BDA59A@kernel.crashing.org> <200603311011.00981.david-b@pacbell.net> <29F33C89-519A-412B-9615-1944ED29FD9C@kernel.crashing.org>
+In-Reply-To: <29F33C89-519A-412B-9615-1944ED29FD9C@kernel.crashing.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-Message-Id: <200603311116.27971.david-b@pacbell.net>
+Message-Id: <200603311132.06819.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 31 March 2006 10:19 am, Stephen Street wrote:
-> On Fri, 2006-03-31 at 10:11 -0800, David Brownell wrote:
-> > I don't know how your particular hardware works, but if you have a
-> > real SPI controller it would probably be more natural to have your
-> > setup() function handle that mode register earlier, out of the main
-> > transfer loop ... unless that mode register is shared among all
-> > chipselects, in which case you'd use the setup_transfer() call for
-> > that, inside the transfer loop.  (That call hasn't yet been merged
-> > into the mainline kernel yet; it's in the MM tree.)
-> > 
-> Is setup_transfer() a change to framework API or just the bit_bang
-> driver?
+On Friday 31 March 2006 11:07 am, Kumar Gala wrote:
+> My controller is just a shift register that I can set the  
+> characteristics of (bit length for example, reverse data).
 
-Just bitbang.
+I've got a patch somewhere to enable LSB-first transfers in the API,
+though without an implementation, if you're interested.  I'll post it
+as an RFC at some point.
 
 
 > > The chipselect() call should only affect the chipselect signal and,
@@ -49,10 +41,19 @@ Just bitbang.
 > > if you're not using the latest from the MM tree, that's also your
 > > hook for ensuring that the SPI mode is set up right.
 > 
-> Ditto?
+> Why deal with just clock polarity and not clock phase as well in  
+> chipselect()?
 
-Ditto.  Though it should also be OK, come to think of it, to keep
-doing SPI mode selection in chipselect(); that shouldn't break.
+You could, but the point is that you _must_ set the initial polarity
+before setting the chipselect.  Most SPI devices support modes 0 and 3,
+and make the choice based on the clock polarity when chipselect goes
+active.  Changing polarity later would start a transfer.  :)
+
+
+> It sounds like with the new patch, I'll end up setting txrx_word[] to  
+> the same function for all modes.
+
+Yes, it does sound like that.  If that works for you, I'd like to see
+that go into 2.6.17 kernels.
 
 - Dave
-

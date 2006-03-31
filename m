@@ -1,40 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWCaTES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWCaTHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751289AbWCaTES (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 14:04:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWCaTES
+	id S1750953AbWCaTHg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 14:07:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWCaTHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 14:04:18 -0500
-Received: from zproxy.gmail.com ([64.233.162.193]:17423 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751289AbWCaTER convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 14:04:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ORcFTjjeBGgM+83bkyWYGMAah3rYLXacOZRMWpToCToLdiXcc9YVTk0YABoTf9y2xuwP6ckxyOl0aUphEShpCzfM6QqvkK7Hlu01OWlWsLTMtGrITI9kse+8lQsE1vzc4kykWQpMkFul8Da3FspZHC8SYedAKdTZBI5YLPxkkyI=
-Message-ID: <41b516cb0603311104h617a0a7bnc0daefc024911f17@mail.gmail.com>
-Date: Fri, 31 Mar 2006 11:04:14 -0800
-From: "Chris Leech" <christopher.leech@intel.com>
-Reply-To: chris.leech@gmail.com
-To: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>
-Subject: Re: [PATCH 2/9] I/OAT
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <20060330062124.GA8545@2ka.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1143672844.27644.5.camel@black-lazer.jf.intel.com>
-	 <20060330062124.GA8545@2ka.mipt.ru>
+	Fri, 31 Mar 2006 14:07:36 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:10269 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1750953AbWCaTHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 14:07:36 -0500
+In-Reply-To: <200603311011.00981.david-b@pacbell.net>
+References: <1B2FA58D-1F7F-469E-956D-564947BDA59A@kernel.crashing.org> <200603311011.00981.david-b@pacbell.net>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <29F33C89-519A-412B-9615-1944ED29FD9C@kernel.crashing.org>
+Cc: spi-devel-general@lists.sourceforge.net,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: question on spi_bitbang
+Date: Fri, 31 Mar 2006 13:07:45 -0600
+To: David Brownell <david-b@pacbell.net>
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Could you please describe how struct ioat_dma_chan channels are freed?
 
-Sorry, I got distracted by other issues and never ended up following
-up on this.  You're right, and it's just sloppiness on my part for
-missing it, those structs are being leaked on module unload.  I'll fix
-it.  Thanks.
+On Mar 31, 2006, at 12:11 PM, David Brownell wrote:
 
--Chris
+> On Friday 31 March 2006 9:31 am, Kumar Gala wrote:
+>> I'm looking at using spi_bitbang for a SPI driver and was trying to
+>> understand were the right point is to handle MODE switches.
+>>
+>> There are 4 function pointers provided for each mode.
+>
+> That's if you are indeed "bit banging", or your controller is the
+> type that's basically a wrapper around a shift register:  each
+> txrx_word() function transfers (or bitbangs) a 1-32 bit word in
+> the relevant SPI mode (0-3).
+>
+> There's also a higher level txrx_bufs() routine for buffer-at-a-time
+> access, better suited to DMA, FIFOs, and half-duplex hardware.
+
+My controller is just a shift register that I can set the  
+characteristics of (bit length for example, reverse data).
+
+>> My controller
+>> HW has a mode register which allows setting clock polarity and clock
+>> phase.  I assume what I want is in my chipselect() function is to set
+>> my mode register and have the four function pointers set to the same
+>> function.
+>
+> I don't know how your particular hardware works, but if you have a
+> real SPI controller it would probably be more natural to have your
+> setup() function handle that mode register earlier, out of the main
+> transfer loop ... unless that mode register is shared among all
+> chipselects, in which case you'd use the setup_transfer() call for
+> that, inside the transfer loop.  (That call hasn't yet been merged
+> into the mainline kernel yet; it's in the MM tree.)
+
+The mode register is shared between chipselects so I'll go pull the  
+patches from -mm for setup_transfer().  That sounds like the right  
+place for setting my mode register.
+
+> The chipselect() call should only affect the chipselect signal and,
+> when you're activating a chip, its initial clock polarity.  Though
+> if you're not using the latest from the MM tree, that's also your
+> hook for ensuring that the SPI mode is set up right.
+
+Why deal with just clock polarity and not clock phase as well in  
+chipselect()?
+
+It sounds like with the new patch, I'll end up setting txrx_word[] to  
+the same function for all modes.
+
+- kumar

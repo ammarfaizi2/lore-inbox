@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWCaItP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWCaJSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751243AbWCaItP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 03:49:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWCaItP
+	id S1751284AbWCaJSX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 04:18:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWCaJSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 03:49:15 -0500
-Received: from max.feld.cvut.cz ([147.32.192.36]:1262 "EHLO max.feld.cvut.cz")
-	by vger.kernel.org with ESMTP id S1751243AbWCaItO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 03:49:14 -0500
-From: CIJOML <cijoml@volny.cz>
-To: Stefan Seyfried <seife@suse.de>
-Subject: Re: 2.6.16 - cpufreq doesn't find Celeron (Pentium4/XEON) processor
-Date: Fri, 31 Mar 2006 10:48:14 +0200
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
-References: <200603210902.19335.cijoml@volny.cz> <200603211034.38393.cijoml@volny.cz> <20060324082325.GA7645@suse.de>
-In-Reply-To: <20060324082325.GA7645@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200603311048.14616.cijoml@volny.cz>
+	Fri, 31 Mar 2006 04:18:23 -0500
+Received: from mail.gmx.net ([213.165.64.20]:32951 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751284AbWCaJSW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 04:18:22 -0500
+X-Authenticated: #14349625
+Subject: [2.6.16-mm2 patch] don't awaken RT tasks on expired array
+From: Mike Galbraith <efault@gmx.de>
+To: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 31 Mar 2006 11:18:49 +0200
+Message-Id: <1143796729.7524.14.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stefan,
+RT tasks are being awakened on the expired array when expired_starving()
+is true, whereas they really should be excluded.  Fix below.
 
-yes, it is clockmod, but problem is, that my laptop doesn't support 
-throttling, so this is only chance for me to do scaling...
+	
+Signed-off-by: Mike Galbraith <efault@gmx.de>
 
-cat /proc/acpi/processor/CPU0/throttling
-<not supported>
+--- linux-2.6.16-mm2/kernel/sched.c.org	2006-03-31 09:56:37.000000000 +0200
++++ linux-2.6.16-mm2/kernel/sched.c	2006-03-31 10:01:54.000000000 +0200
+@@ -820,7 +820,7 @@
+ {
+ 	prio_array_t *target = rq->active;
+ 
+-	if (unlikely(batch_task(p) || expired_starving(rq)))
++	if (unlikely(batch_task(p) || (expired_starving(rq) && !rt_task(p))))
+ 		target = rq->expired;
+ 	enqueue_task(p, target);
+ 	inc_nr_running(p, rq);
 
-Regards
 
-Michal
-
-Dne pá 24. bøezna 2006 09:23 Stefan Seyfried napsal(a):
-> On Tue, Mar 21, 2006 at 10:34:38AM +0100, CIJOML wrote:
-> > http://www.freewebs.com/duckzland/t240.html
->
-> ...is using p4-clockmod which is basically useless for power saving
-> It does the same as throttling IIUC.

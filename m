@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWCaQhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWCaQhA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbWCaQhR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 11:37:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWCaQhQ
+	id S1751308AbWCaQhA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 11:37:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWCaQhA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 11:37:16 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:36359 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S1751313AbWCaQhO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 11:37:14 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: Jes Sorensen <jes@sgi.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [patch] avoid unaligned access when accessing poll stack
-References: <yq0sloytyj5.fsf@jaguar.mkp.net>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 01 Apr 2006 01:37:05 +0900
-In-Reply-To: <yq0sloytyj5.fsf@jaguar.mkp.net> (Jes Sorensen's message of "31 Mar 2006 10:38:22 -0500")
-Message-ID: <87irpupo3y.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Fri, 31 Mar 2006 11:37:00 -0500
+Received: from test-iport-1.cisco.com ([171.71.176.117]:16992 "EHLO
+	test-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1751308AbWCaQg7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 11:36:59 -0500
+To: Christoph Hellwig <hch@infradead.org>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [openib-general] updated InfiniBand 2.6.17 merge plans
+X-Message-Flag: Warning: May contain useful information
+References: <ada7j6f8xwi.fsf@cisco.com> <ada1wwj1r7r.fsf@cisco.com>
+	<adawtebzfxm.fsf@cisco.com> <20060331063239.GA31436@infradead.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Fri, 31 Mar 2006 08:36:57 -0800
+In-Reply-To: <20060331063239.GA31436@infradead.org> (Christoph Hellwig's message of "Fri, 31 Mar 2006 07:32:39 +0100")
+Message-ID: <adaodzmzi3a.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 31 Mar 2006 16:36:58.0851 (UTC) FILETIME=[547D4B30:01C654E1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen <jes@sgi.com> writes:
+    Roland> * Get rid of option for building IPoIB and mthca debug
+    Roland> output unless EMBEDDED=y
 
->   	struct poll_list *walk;
->  	struct fdtable *fdt;
->  	int max_fdset;
-> -	/* Allocate small arguments on the stack to save memory and be faster */
-> -	char stack_pps[POLL_STACK_ALLOC];
-> +	/* Allocate small arguments on the stack to save memory and be 
-> +	   faster - use long to make sure the buffer is aligned properly
-> +	   on 64 bit archs to avoid unaligned access */
-> +	long stack_pps[POLL_STACK_ALLOC/sizeof(long)];
->  	struct poll_list *stack_pp = NULL;
+    Christoph> NACK.  Just add a FOO_DEBUG config option, this has
+    Christoph> noþhing to do with EMBEDDED.
 
-struct poll_list stack_pps[POLL_STACK_ALLOC / sizeof(struct poll_list)];
+I think you misunderstood (probably because what I wrote was very
+unclear).  What I meant to say was that I wanted to make
+CONFIG_INFINIBAND_IPOIB_DEBUG=y, without the option to disable it,
+unless CONFIG_EMBEDDED is set.  In Kconfig language, change it to:
 
-is more readable, and probably gcc align it rightly?
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+	config INFINIBAND_IPOIB_DEBUG
+		bool "IP-over-InfiniBand debugging" if EMBEDDED
+		depends on INFINIBAND_IPOIB
+		default y
+
+Do you still have a problem with that?  The rationale is that we want
+the debugging output compiled in (it still needs to be enabled at
+runtime) unless the user really really knows they don't want it,
+because by the time we know we want the output, it's too late to
+recompile to kernel.
+
+ - R.

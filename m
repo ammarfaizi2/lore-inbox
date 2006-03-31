@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWCaNgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWCaNkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWCaNgO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 08:36:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWCaNgO
+	id S932141AbWCaNkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 08:40:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWCaNkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 08:36:14 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:36314 "EHLO
-	moreton.com.au") by vger.kernel.org with ESMTP id S932136AbWCaNgN
+	Fri, 31 Mar 2006 08:40:24 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:53376 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932141AbWCaNkY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 08:36:13 -0500
-Date: Fri, 31 Mar 2006 23:36:12 +1000
-From: David McCullough <david_mccullough@au.securecomputing.com>
-To: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: ocf-linux-20060331 - Asynchronous Crypto support for linux
-Message-ID: <20060331133612.GB23729@beast>
-References: <20060301042632.GA17290@beast>
+	Fri, 31 Mar 2006 08:40:24 -0500
+Date: Fri, 31 Mar 2006 07:40:21 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Chris Wright <chrisw@sous-sol.org>,
+       David Lang <dlang@digitalinsight.com>, Sam Vilain <sam@vilain.net>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Virtualization steps
+Message-ID: <20060331134021.GB8505@sergelap.austin.ibm.com>
+References: <20060329182027.GB14724@sorel.sous-sol.org> <442B0BFE.9080709@vilain.net> <20060329225241.GO15997@sorel.sous-sol.org> <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com> <20060330013618.GS15997@sorel.sous-sol.org> <Pine.LNX.4.62.0603291738290.266@qynat.qvtvafvgr.pbz> <20060330020445.GT15997@sorel.sous-sol.org> <20060330143224.GC6933@sergelap.austin.ibm.com> <20060330153012.GA16720@MAIL.13thfloor.at> <m1fykzdd8s.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060301042632.GA17290@beast>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <m1fykzdd8s.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> Herbert Poetzl <herbert@13thfloor.at> writes:
+> 
+> > sorry folks, I don't think that we _ever_ want container
+> > root to be able to load any kernel modues at any time
+> > without having CAP_SYS_ADMIN or so, in which case the
+> > modules can be global as well ... otherwise we end up
+> > as a bad Xen imitation with a lot of security issues,
+> > where it should be a security enhancement ...
+> 
+> Agreed.  At least until someone defines a user-mode
+> linux-security-module.  We may want a different security module
 
-Hi all,
+It's been done before, at least for some hooks (ie one implementation by
+antivirus folks).  But to actually do this with full support for all
+hooks would require some changes.  For example, the security_task_kill()
+hook is called under several potential locks.  At least
+read_lock(tasklist_lock) and plain rcu_read_lock() (and I thought also
+write_lock(tasklist_lock), but can't find that instance right now).
 
-A new release of the ocf-linux package is up:
+Clearly that can be fixed, but atm a user-mode lsm isn't entirely
+possible.
 
-	http://ocf-linux.sourceforge.net/
-
-The changes from the previous release:
-
-	* New Freescale Talitos Driver contributed by Kim Phillips
-	* Fixups for some 64bit OS support issues
-	* Correctly address safenet lockups on rev 1.0 chips
-	* updated openswan patch to 2.4.5rc6
-
-Tested under 2.4.32 and 2.6.16 across multiple architectures,
-
-Cheers,
-Davidm
-
--- 
-David McCullough,  david_mccullough@securecomputing.com,   Ph:+61 734352815
-Secure Computing - SnapGear  http://www.uCdot.org http://www.cyberguard.com
+-serge

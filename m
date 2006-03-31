@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWCaH57@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWCaINr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbWCaH57 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 02:57:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWCaH57
+	id S1751260AbWCaINr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 03:13:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWCaINr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 02:57:59 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:22028 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1751253AbWCaH57 (ORCPT
+	Fri, 31 Mar 2006 03:13:47 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:24281 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751260AbWCaINr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 02:57:59 -0500
-Date: Fri, 31 Mar 2006 09:57:58 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Float numbers in module programming
-Message-ID: <20060331075758.GB93977@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	linux-kernel@vger.kernel.org
-References: <3fd7d9680603290634n6fabcdc7r193c30447acc1858@mail.gmail.com> <Pine.LNX.4.61.0603290955440.27913@chaos.analogic.com> <Pine.LNX.4.61.0603301010400.30783@yvahk01.tjqt.qr> <Pine.LNX.4.61.0603300739050.32259@chaos.analogic.com> <20060330182643.GV27173@skl-net.de> <Pine.LNX.4.61.0603301342410.1215@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 31 Mar 2006 03:13:47 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Subject: Re: Suspend2-2.2.2 for 2.6.16.
+Date: Fri, 31 Mar 2006 10:12:28 +0200
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, Mark Lord <lkml@rtr.ca>,
+       linux-kernel@vger.kernel.org
+References: <200603281601.22521.ncunningham@cyclades.com> <200603301413.06408.rjw@sisk.pl> <200603310914.43512.ncunningham@cyclades.com>
+In-Reply-To: <200603310914.43512.ncunningham@cyclades.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0603301342410.1215@chaos.analogic.com>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200603311012.29491.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 30, 2006 at 01:46:20PM -0500, linux-os (Dick Johnson) wrote:
-> Yeah. The correct word was irrational, which is its definition. The
-> point was that one can do a lot of very accurate work on real numbers
-> without using the FP unit and the decimal system.
+On Friday 31 March 2006 01:14, Nigel Cunningham wrote:
+> On Thursday 30 March 2006 22:13, Rafael J. Wysocki wrote:
+> > On Thursday 30 March 2006 11:39, Nigel Cunningham wrote:
+> > > On Thursday 30 March 2006 19:34, Rafael J. Wysocki wrote:
+> > > > On Wednesday 29 March 2006 12:50, Nigel Cunningham wrote:
+> > > > > Don't bother suggesting that to x86_64 owners: compilation is
+> > > > > currently broken in vbetool/lrmi.c (at least).
+> > >
+> > > I get:
+> >
+> > Please try the Makefile that I use on x86_64 (attached).
+> 
+> Am I right in guessing that I don't need to anymore, given the other emails on 
+> this thread?
 
-As long as you don't use sin/cos (oops, no 3D, no polar coordinates,
-no FFT), sqrt (oops no lenghts), pi (oops no non-polygonal surfaces)
-or ln/exp (oops, a lot of things are gone there).
+Yes, you are. :-)
 
-Working with rationals is not that realistic nowadays except in things
-like mathematica, maple and friends.  Fixed-point though is still very
-realistics, it's just a different precision/scale tradeoff than fp,
-and one you control.
-
-  OG.
-
+Greetings,
+Rafael

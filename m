@@ -1,103 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWCaS1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbWCaS3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932244AbWCaS1i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 13:27:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWCaS1i
+	id S932236AbWCaS3N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 13:29:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWCaS3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 13:27:38 -0500
-Received: from pat.uio.no ([129.240.10.6]:32176 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932223AbWCaS1h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 13:27:37 -0500
-Subject: Re: [PATCH 2/4] locks: don't unnecessarily fail posix lock
-	operations
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <E1FPNSB-0005VK-00@dorka.pomaz.szeredi.hu>
-References: <E1FPNOD-0005Tg-00@dorka.pomaz.szeredi.hu>
-	 <E1FPNSB-0005VK-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Date: Fri, 31 Mar 2006 13:27:21 -0500
-Message-Id: <1143829641.8085.7.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.68, required 12,
-	autolearn=disabled, AWL 1.32, UIO_MAIL_IS_INTERNAL -5.00)
+	Fri, 31 Mar 2006 13:29:13 -0500
+Received: from oola.is.scarlet.be ([193.74.71.23]:43754 "EHLO
+	oola.is.scarlet.be") by vger.kernel.org with ESMTP id S932236AbWCaS3N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 13:29:13 -0500
+Date: Fri, 31 Mar 2006 20:29:00 +0200
+From: maartendeprez@scarlet.be, maartendeprez@scarlet.be,
+       maartendeprez@scarlet.be, maartendeprez@scarlet.be,
+       maartendeprez@scarlet.be
+To: linux-kernel@vger.kernel.org
+Subject: nvidiafb and Aladdin TNT2 card
+Message-ID: <20060331182858.GA2656@deprez-aerts.dyndns.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
+X-DCC-scarlet.be-Metrics: oola 2020; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-31 at 19:30 +0200, Miklos Szeredi wrote:
-> posix_lock_file() was too cautious, failing operations on OOM, even if
-> they didn't actually require an allocation.
-> 
-> This has the disadvantage, that a failing unlock on process exit could
-> lead to a memory leak.  There are two possibilites for this:
-> 
-> - filesystem implements .lock() and calls back to posix_lock_file().
-> On cleanup of files_struct locks_remove_posix() is called which should
-> remove all locks belonging to files_struct.  However if filesystem
-> calls posix_lock_file() which fails, then those locks will never be
-> freed.
-> 
-> - if a file is closed while a lock is blocked, then after acquiring
-> fcntl_setlk() will undo the lock.  But this unlock itself might fail
-> on OOM, again possibly leaking the lock.
-> 
-> The solution is to move the checking of the allocations until after it
-> is sure that they will be needed.  This will solve the above problem
-> since unlock will always succeed unless it splits an existing region.
-> 
-> Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
-> 
-> Index: linux/fs/locks.c
-> ===================================================================
-> --- linux.orig/fs/locks.c	2006-03-31 18:55:33.000000000 +0200
-> +++ linux/fs/locks.c	2006-03-31 18:55:33.000000000 +0200
-> @@ -835,14 +835,7 @@ int __posix_lock_file(struct inode *inod
->  	if (request->fl_flags & FL_ACCESS)
->  		goto out;
->  
-> -	error = -ENOLCK; /* "no luck" */
-> -	if (!(new_fl && new_fl2))
-> -		goto out;
-> -
->  	/*
-> -	 * We've allocated the new locks in advance, so there are no
-> -	 * errors possible (and no blocking operations) from here on.
-> -	 * 
->  	 * Find the first old lock with the same owner as the new lock.
->  	 */
->  	
-> @@ -939,6 +932,18 @@ int __posix_lock_file(struct inode *inod
->  		before = &fl->fl_next;
->  	}
->  
-> +	/*
-> +	 * The above code only modifies existing locks in case of
-> +	 * merging or replacing.  If new lock(s) need to be inserted
-> +	 * all modifications are done bellow this, so it's safe yet to
-> +	 * bail out.
-> +	 */
-> +	error = -ENOLCK; /* "no luck" */
-> +	if (!added && request->fl_type != F_UNLCK && !new_fl)
-> +		goto out;
-> +	if (right && left == right && !new_fl2)
-> +		goto out;
-> +
->  	error = 0;
->  	if (!added) {
->  		if (request->fl_type == F_UNLCK)
+Hello.
 
-NACK.
+To make nvidiafb work with an Aladdin TNT2 card, i need to add "case
+0x00a0:" on line 1541 to let it detect the architecture type (the card
+says it's NV5 instead of NV4 but that's no problem i think). In
+nv_hw.c and nv_setup.c, sometimes "(par->Chipset & 0x0ff0) == 0x0020"
+is checked, which should probably be changed to "par->Architecture ==
+NV_ARCH_04".  That way it works, but crashes after a while, unless
+acceleration is disabled. When i run "while n in $(seq 100000); do
+echo \"$n\"; done", it works fine in unaccelerated modes, but locks up
+when accelerated.  Any ideas why? Something i noticed is that
+depending on the mode, the pixclock can be faster than the system ram
+which it uses (it's integrated in the motherboard and uses a part of
+system memory). Then some random "snow" (usuakky not moving till
+something on the screen is changed) appears, and this doesn't happen
+in slower modes. Maybe that could cause lockups?
 
-This changes the behaviour of F_UNLCK. Currently, if the allocation
-fails, the inode locking state remains unchanged. With your change, an
-unlock request may end up unlocking part of the inode, but not the rest.
-
-Furthermore, AFAICS you are now able to Oops if (!added && !new_fl).
-
-Cheers,
-  Trond
-
+Thanks,
+Maarten Deprez

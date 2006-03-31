@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWCaO4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWCaO52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751377AbWCaO4u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 09:56:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWCaO4u
+	id S1751381AbWCaO52 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 09:57:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWCaO52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 09:56:50 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:27403 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751377AbWCaO4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 09:56:50 -0500
-Date: Fri, 31 Mar 2006 16:56:48 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: [-mm patch] arch/i386/kernel/apic.c: make modern_apic() static
-Message-ID: <20060331145648.GG3893@stusta.de>
-References: <20060328003508.2b79c050.akpm@osdl.org>
-MIME-Version: 1.0
+	Fri, 31 Mar 2006 09:57:28 -0500
+Received: from unthought.net ([212.97.129.88]:59661 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S1751381AbWCaO51 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 09:57:27 -0500
+Date: Fri, 31 Mar 2006 16:57:26 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org
+Subject: Re: NFS client (10x) performance regression 2.6.14.7 -> 2.6.15
+Message-ID: <20060331145726.GL9811@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	"Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	linux-kernel@vger.kernel.org
+References: <20060331094850.GF9811@unthought.net> <1143807770.8096.4.camel@lade.trondhjem.org> <20060331124518.GH9811@unthought.net> <1143810392.8096.11.camel@lade.trondhjem.org> <20060331132131.GI9811@unthought.net> <1143812658.8096.18.camel@lade.trondhjem.org> <20060331140816.GJ9811@unthought.net> <1143814889.8096.22.camel@lade.trondhjem.org> <20060331143500.GK9811@unthought.net> <20060331144951.GA9207@ti64.telemetry-investments.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060328003508.2b79c050.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060331144951.GA9207@ti64.telemetry-investments.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes a nnedlessly global function static.
+On Fri, Mar 31, 2006 at 09:49:51AM -0500, Bill Rugolsky Jr. wrote:
+...
+> Jakob,
+> 
+> Your NFS setup is specific to your system. 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+True. But it is my impression that this is a problem isolated on the
+client side (am I wrong?)
 
----
+> Have you considered trying this
+> over loopback to narrow down the variables?
 
- arch/i386/kernel/apic.c |    2 +-
- include/asm-i386/apic.h |    2 --
- 2 files changed, 1 insertion(+), 3 deletions(-)
+Do you mean NFS exporting a local filesystem, NFS mounting it again on
+the local host?   Or do you mean something with loopback mounts?
 
---- linux-2.6.16-mm2-full/include/asm-i386/apic.h.old	2006-03-31 15:32:14.000000000 +0200
-+++ linux-2.6.16-mm2-full/include/asm-i386/apic.h	2006-03-31 15:32:22.000000000 +0200
-@@ -139,8 +139,6 @@
- 
- extern int timer_over_8254;
- 
--extern int modern_apic(void);
--
- #else /* !CONFIG_X86_LOCAL_APIC */
- static inline void lapic_shutdown(void) { }
- 
---- linux-2.6.16-mm2-full/arch/i386/kernel/apic.c.old	2006-03-31 15:32:30.000000000 +0200
-+++ linux-2.6.16-mm2-full/arch/i386/kernel/apic.c	2006-03-31 15:32:36.000000000 +0200
-@@ -62,7 +62,7 @@
- 
- static void apic_pm_activate(void);
- 
--int modern_apic(void)
-+static int modern_apic(void)
- {
- 	unsigned int lvr, version;
- 	/* AMD systems use old APIC versions, so check the CPU */
+(Sorry if that's a stupid question, but I just need to know what you
+mean :)
+
+> If you see similar getattr/write
+> behavior over loopback, it will make it easy for everyone else to test.
+
+True.
+
+I've currently tried compiling the kernel with three different gcc
+versions to see if that made any change. It didn't. And I tried SMP
+versus UP, again no difference. I'm just about to try HIGHMEM vs no
+HIGHMEM...
+
+Thanks for your suggestion - I will try it, if you tell me precisely
+what you mean in the above  :)
+
+-- 
+
+ / jakob
 

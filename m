@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWCaCgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWCaChs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbWCaCgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 21:36:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWCaCgJ
+	id S1751201AbWCaChs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 21:37:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWCaChs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 21:36:09 -0500
-Received: from xenotime.net ([66.160.160.81]:46983 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751200AbWCaCgI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 21:36:08 -0500
-Date: Thu, 30 Mar 2006 18:36:06 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Sumit Narayan <talk2sumit@gmail.com>
-cc: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       George P Nychis <gnychis@cmu.edu>
-Subject: Re: cannot get clean 2.4.20 kernel to compile
-In-Reply-To: <1458d9610603301725r127cc73djb125ae56c992cb99@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0603301834210.32434@shark.he.net>
-References: <5W8lY-1wF-29@gated-at.bofh.it> <442C81BC.7030605@shaw.ca>
- <1458d9610603301725r127cc73djb125ae56c992cb99@mail.gmail.com>
+	Thu, 30 Mar 2006 21:37:48 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:30160 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751194AbWCaChr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 21:37:47 -0500
+Date: Thu, 30 Mar 2006 18:37:32 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
+       "Boehm, Hans" <hans.boehm@hp.com>,
+       "Grundler, Grant G" <grant.grundler@hp.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: RE: Synchronizing Bit operations V2
+In-Reply-To: <200603310234.k2V2Ysg28086@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.64.0603301835140.2884@schroedinger.engr.sgi.com>
+References: <200603310234.k2V2Ysg28086@unix-os.sc.intel.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Mar 2006, Sumit Narayan wrote:
+On Thu, 30 Mar 2006, Chen, Kenneth W wrote:
 
-> >From the error output 1, it appears that your directory include/asm is
-> not a link to include/linux. Can you check that?
->
-> Otherwise, simply delete the directory include/asm and re-compile the
-> kernel from start; it should work.
+> > > Option (1):
+> > > 
+> > > #define clear_bit                     clear_bit_mode(..., RELEASE)
+> > > #define Smp_mb__before_clear_bit      do { } while (0)
+> > > #define Smp_mb__after_clear_bit       smp_mb()
+> > > 
+> > > Or option (2):
+> > > 
+> > > #define clear_bit                     clear_bit_mode(..., ACQUIRE)
+> > > #define Smp_mb__before_clear_bit      smp_mb()
+> > > #define Smp_mb__after_clear_bit       do { } while (0)
+> > > 
+> > > I'm fine with either one.
+> > 
+> > Neither one is correct because there will always be one combination of 
+> > clear_bit with these macros that does not generate the required memory 
+> > barrier.
+> 
+> Can you give an example?  Which combination?
 
-Nope, include/asm is an expected directory (symlink) in 2.4.x build.
-This is what you get without out:
+For Option(1)
 
-make: *** No rule to make target `/var/linsrc/linux-2420/include/asm/param.h', needed by `/var/linsrc/linux-2420/include/linux/sched.h'.  Stop.
-make: *** Waiting for unfinished jobs....
+smp_mb__before_clear_bit()
+clear_bit(...)(
 
+For Option(2)
 
-> On 3/31/06, Robert Hancock <hancockr@shaw.ca> wrote:
-> > George P Nychis wrote:
-> > > Hi,
-> > >
-> > > I have downloaded the 2.4.20 kernel from ftp.kernel.org, have checked its sign, and no matter what I try I cannot get it to compile.
-> > >
-> > > I do a make mrproper, I then do make dep which is fine, but then i try "make bzImage modules modules_install", selecting all the defaults, and get an SMP header error:
-> > > http://rafb.net/paste/results/QzIq7v86.html
-> > >
-> > > I then disable SMP support and get:
-> > > http://rafb.net/paste/results/muYA9t12.html
-> > >
-> > > I even tried using my config from the 2.4.32 kernel which works perfectly fine, and I also get the sched errors.
-> >
-> > What gcc version? Some old kernels might not be buildable with newer
-> > compilers.
+clear_bit()
+smb_mp_after_clear_bit();
 
--- 
-~Randy
+Both have either acquire or release semantics but do not have the effect 
+of a barrier as required by the macros.
+
+Note that both before and after are used in the core kernel code. Both 
+must work correctly.
+

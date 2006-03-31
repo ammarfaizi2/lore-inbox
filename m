@@ -1,81 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWCaUAo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWCaUAK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbWCaUAo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 15:00:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWCaUAo
+	id S932263AbWCaUAK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 15:00:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWCaUAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 15:00:44 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:544 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S932264AbWCaUAn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 15:00:43 -0500
-In-Reply-To: <200603311132.06819.david-b@pacbell.net>
-References: <1B2FA58D-1F7F-469E-956D-564947BDA59A@kernel.crashing.org> <200603311011.00981.david-b@pacbell.net> <29F33C89-519A-412B-9615-1944ED29FD9C@kernel.crashing.org> <200603311132.06819.david-b@pacbell.net>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <3E572FEF-093B-4359-9FC4-45D00B33C993@kernel.crashing.org>
-Cc: spi-devel-general@lists.sourceforge.net,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [spi-devel-general] Re: question on spi_bitbang
-Date: Fri, 31 Mar 2006 14:00:55 -0600
-To: David Brownell <david-b@pacbell.net>
-X-Mailer: Apple Mail (2.746.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 31 Mar 2006 15:00:09 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:47283
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S932263AbWCaUAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 15:00:08 -0500
+Date: Fri, 31 Mar 2006 11:59:35 -0800
+From: Greg KH <greg@kroah.com>
+To: Folkert van Heusden <folkert@vanheusden.com>
+Cc: info@papouch.com, linux-kernel@vger.kernel.org, bryder@sgi.com
+Subject: Re: Papouch USB thermometer support
+Message-ID: <20060331195935.GA15859@kroah.com>
+References: <20060324194655.GY4124@vanheusden.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060324194655.GY4124@vanheusden.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 24, 2006 at 08:46:55PM +0100, Folkert van Heusden wrote:
+> Hi,
+> 
+> The following patch against 2.6.15 adds support for the www.Papouch.com
+> USB thermometer by adding the appropriate vendor and product id.
+> 
+> 
+> Signed off: Folkert van Heusden <folkert@vanheusden.com
 
-On Mar 31, 2006, at 1:32 PM, David Brownell wrote:
+It should be "Signed-off-by:".
 
-> On Friday 31 March 2006 11:07 am, Kumar Gala wrote:
->> My controller is just a shift register that I can set the
->> characteristics of (bit length for example, reverse data).
->
-> I've got a patch somewhere to enable LSB-first transfers in the API,
-> though without an implementation, if you're interested.  I'll post it
-> as an RFC at some point.
+> diff -uNrbBd old/ftdi_sio.c new/ftdi_sio.c
+> --- old/ftdi_sio.c      2006-03-24 20:36:19.000000000 +0100
+> +++ new/ftdi_sio.c      2006-03-24 20:33:20.000000000 +0100
 
-The controllers capable so if/when we have something at a higher  
-level I can look at adding support for it.
+Can you make it so I can apply the patch from the root of the kernel
+tree?  Documentation/SubmittingPatches describes how to create a patch
+in this way.
 
->>> The chipselect() call should only affect the chipselect signal and,
->>> when you're activating a chip, its initial clock polarity.  Though
->>> if you're not using the latest from the MM tree, that's also your
->>> hook for ensuring that the SPI mode is set up right.
->>
->> Why deal with just clock polarity and not clock phase as well in
->> chipselect()?
->
-> You could, but the point is that you _must_ set the initial polarity
-> before setting the chipselect.  Most SPI devices support modes 0  
-> and 3,
-> and make the choice based on the clock polarity when chipselect goes
-> active.  Changing polarity later would start a transfer.  :)
+> @@ -307,6 +307,7 @@
+> 
+> 
+>  static struct usb_device_id id_table_combined [] = {
+> +       { USB_DEVICE(PAPOUCHE_VENDOR, PAPOUCHE_THEM_PROD) },
+>         { USB_DEVICE(FTDI_VID, FTDI_IRTRANS_PID) },
 
-Makes sense about needing to set polarity in the chipselect() before  
-the actual chip select.  I just now completely confused on when I  
-need to things.
+Your email client ate the tabs :(
 
-My confusion is about the order of which various things occur.  setup 
-(), chipselect() and transfer() vs what's happening in bitbang_work 
-().  I don't see how we handle the fact that two different devices  
-may require setup() to be called when we switch between them.
+>         { USB_DEVICE(FTDI_VID, FTDI_SIO_PID) },
+>         { USB_DEVICE(FTDI_VID, FTDI_8U232AM_PID) },
+> diff -uNrbBd old/ftdi_sio.h new/ftdi_sio.h
+> --- old/ftdi_sio.h      2006-03-24 20:36:19.000000000 +0100
+> +++ new/ftdi_sio.h      2006-03-24 20:37:35.000000000 +0100
+> @@ -20,8 +20,13 @@
+>   * Philipp G?hring - pg@futureware.at - added the Device ID of the USB relais
+>   * from Rudolf Gugler
+>   *
+> + * Folkert van Heusden - folkert@vanheusden.com - added the device id of the
+> + * temperature sensor from www.papouch.com
 
->> It sounds like with the new patch, I'll end up setting txrx_word[] to
->> the same function for all modes.
->
-> Yes, it does sound like that.  If that works for you, I'd like to see
-> that go into 2.6.17 kernels.
+This information doesn't belong in the file, only in the changelog.
+It's not needed.
 
-I'm not sure I understand what you'd like to see go into 2.6.17.
+Care to redo this?
 
-- kumar
+thanks,
+
+greg k-h

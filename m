@@ -1,85 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWCaTHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWCaTIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750953AbWCaTHg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 14:07:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWCaTHg
+	id S1751392AbWCaTIx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 14:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWCaTIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 14:07:36 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:10269 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1750953AbWCaTHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 14:07:36 -0500
-In-Reply-To: <200603311011.00981.david-b@pacbell.net>
-References: <1B2FA58D-1F7F-469E-956D-564947BDA59A@kernel.crashing.org> <200603311011.00981.david-b@pacbell.net>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <29F33C89-519A-412B-9615-1944ED29FD9C@kernel.crashing.org>
-Cc: spi-devel-general@lists.sourceforge.net,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: question on spi_bitbang
-Date: Fri, 31 Mar 2006 13:07:45 -0600
-To: David Brownell <david-b@pacbell.net>
-X-Mailer: Apple Mail (2.746.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 31 Mar 2006 14:08:53 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:19725 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751392AbWCaTIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 14:08:53 -0500
+Date: Fri, 31 Mar 2006 21:08:51 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: smp_locks reference_discarded errors
+Message-ID: <20060331190851.GB22677@stusta.de>
+References: <20060325033948.GA15564@redhat.com> <20060325235035.5fcb902f.akpm@osdl.org> <20060326154042.GB13684@redhat.com> <20060326161055.GA4584@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060326161055.GA4584@mars.ravnborg.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Mar 26, 2006 at 06:10:55PM +0200, Sam Ravnborg wrote:
+> On Sun, Mar 26, 2006 at 10:40:42AM -0500, Dave Jones wrote:
+> > 
+> > came out of a 'make buildcheck' a day or two ago (the following day,
+> > Sam nuked reference_discarded.pl in favour of it being done
+> > magically somewhere else (I've not looked into how its done now).
+> The check is part of modpost now. modpost is only used when building
+> modules but that holds true for most builds anyway therefore I did not
+> move it to a separate executable.
+>...
 
-On Mar 31, 2006, at 12:11 PM, David Brownell wrote:
+This doesn't sound good.
 
-> On Friday 31 March 2006 9:31 am, Kumar Gala wrote:
->> I'm looking at using spi_bitbang for a SPI driver and was trying to
->> understand were the right point is to handle MODE switches.
->>
->> There are 4 function pointers provided for each mode.
->
-> That's if you are indeed "bit banging", or your controller is the
-> type that's basically a wrapper around a shift register:  each
-> txrx_word() function transfers (or bitbangs) a 1-32 bit word in
-> the relevant SPI mode (0-3).
->
-> There's also a higher level txrx_bufs() routine for buffer-at-a-time
-> access, better suited to DMA, FIFOs, and half-duplex hardware.
+This means that we have no longer any tool that warns us about e.g. 
+references from non-__exit code to __exit code [1]?
 
-My controller is just a shift register that I can set the  
-characteristics of (bit length for example, reverse data).
+> 	Sam
 
->> My controller
->> HW has a mode register which allows setting clock polarity and clock
->> phase.  I assume what I want is in my chipselect() function is to set
->> my mode register and have the four function pointers set to the same
->> function.
->
-> I don't know how your particular hardware works, but if you have a
-> real SPI controller it would probably be more natural to have your
-> setup() function handle that mode register earlier, out of the main
-> transfer loop ... unless that mode register is shared among all
-> chipselects, in which case you'd use the setup_transfer() call for
-> that, inside the transfer loop.  (That call hasn't yet been merged
-> into the mainline kernel yet; it's in the MM tree.)
+cu
+Adrian
 
-The mode register is shared between chipselects so I'll go pull the  
-patches from -mm for setup_transfer().  That sounds like the right  
-place for setting my mode register.
+[1] __exit, not __{dev,cpu,mem}exit
 
-> The chipselect() call should only affect the chipselect signal and,
-> when you're activating a chip, its initial clock polarity.  Though
-> if you're not using the latest from the MM tree, that's also your
-> hook for ensuring that the SPI mode is set up right.
+-- 
 
-Why deal with just clock polarity and not clock phase as well in  
-chipselect()?
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-It sounds like with the new patch, I'll end up setting txrx_word[] to  
-the same function for all modes.
-
-- kumar

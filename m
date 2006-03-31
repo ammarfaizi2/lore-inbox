@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbWCaVMo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWCaVPe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932359AbWCaVMo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 16:12:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWCaVMn
+	id S932419AbWCaVPe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 16:15:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbWCaVPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 16:12:43 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:49934 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932359AbWCaVMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 16:12:42 -0500
-Date: Fri, 31 Mar 2006 23:12:40 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Christian Trefzer <ctrefzer@gmx.de>
-Cc: Lee Revell <rlrevell@joe-job.com>, Takashi Iwai <tiwai@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-Subject: Re: snd-nm256: hard lockup on every second module load after powerup
-Message-ID: <20060331211240.GD22677@stusta.de>
-References: <20060326054542.GA11961@hermes.uziel.local> <s5hveu0chvy.wl%tiwai@suse.de> <1143500400.1792.314.camel@mindpipe> <20060329144303.GA24146@hermes.uziel.local>
+	Fri, 31 Mar 2006 16:15:34 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:18356 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932268AbWCaVPc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 16:15:32 -0500
+Date: Fri, 31 Mar 2006 13:15:17 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
+       "Boehm, Hans" <hans.boehm@hp.com>,
+       "Grundler, Grant G" <grant.grundler@hp.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: RE: Synchronizing Bit operations V2
+In-Reply-To: <200603311940.k2VJeRg05420@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.64.0603311313530.8003@schroedinger.engr.sgi.com>
+References: <200603311940.k2VJeRg05420@unix-os.sc.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060329144303.GA24146@hermes.uziel.local>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 29, 2006 at 04:43:03PM +0200, Christian Trefzer wrote:
-> Hi Takashi, Lee,
-> 
-> 
-> On Mon, Mar 27, 2006 at 05:59:59PM -0500, Lee Revell wrote:
-> > On Mon, 2006-03-27 at 12:16 +0200, Takashi Iwai wrote:
-> > > 
-> > > Try 2.6.16-git tree.  Some patches for this problem are there. 
-> > 
-> > If this does not fix the problem then alsa-devel (cc'ed) is the best
-> > list to discuss the issue.
-> 
-> Actually, the changes in Linus' current git have fixed the hang for me.
-> Good job - thanks a lot, guys!
-> 
-> Kind regards,
-> Chris
+On Fri, 31 Mar 2006, Chen, Kenneth W wrote:
 
-Takashi, would it be possible getting the fixes for this hard lookup 
-into 2.6.16.2?
+> > They are not. They provide equivalent barrier when performed
+> > before/after a clear_bit, there is a big difference.
+> 
+> Just to give another blunt brutal example, what is said here is equivalent
+> to say kernel requires:
+> 
+>    <end of critical section>
+>    smp_mb_before_spin_unlock
+>    spin_unlock
+> 
+> Because it is undesirable to have spin_unlock to leak into the critical
+> Section and allow critical section to leak after spin_unlock.  This is
+> just plain brain dead.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+I think we could say that lock semantics are different from barriers. They 
+are more like acquire and release on IA64. The problem with smb_mb_*** is 
+that the coder *explicitly* requested a barrier operation and we do not 
+give it to him.
 

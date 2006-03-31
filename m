@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbWCaWBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWCaWLk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751410AbWCaWBX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 17:01:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWCaWBX
+	id S1750881AbWCaWLk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 17:11:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWCaWLk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 17:01:23 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:50919 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751333AbWCaWBW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 17:01:22 -0500
-Date: Fri, 31 Mar 2006 16:01:17 -0600
-To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Cc: Greg KH <greg@kroah.com>, Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 1/6] PCIERR : interfaces for synchronous I/O error detection on driver
-Message-ID: <20060331220117.GB23872@austin.ibm.com>
-References: <44210D1B.7010806@jp.fujitsu.com> <20060322210157.GH12335@kroah.com> <4423A40D.3080906@jp.fujitsu.com> <20060324234306.GC21895@austin.ibm.com> <44274FF0.406@jp.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44274FF0.406@jp.fujitsu.com>
-User-Agent: Mutt/1.5.9i
-From: linas@austin.ibm.com (Linas Vepstas)
+	Fri, 31 Mar 2006 17:11:40 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:6439 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1750881AbWCaWLj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 17:11:39 -0500
+In-Reply-To: <200603311315.14408.david-b@pacbell.net>
+References: <1B2FA58D-1F7F-469E-956D-564947BDA59A@kernel.crashing.org> <200603311236.02665.david-b@pacbell.net> <A164CF6D-0330-46A7-ABF2-87127753E048@kernel.crashing.org> <200603311315.14408.david-b@pacbell.net>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <61D4885F-D742-4583-939F-FA93A4AAC8D4@kernel.crashing.org>
+Cc: spi-devel-general@lists.sourceforge.net,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [spi-devel-general] Re: question on spi_bitbang
+Date: Fri, 31 Mar 2006 16:11:51 -0600
+To: David Brownell <david-b@pacbell.net>
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 27, 2006 at 11:37:36AM +0900, Hidetoshi Seto wrote:
->  - State check would be architecture dependent routine work.
 
-I read through your patches.  You are proposing a very different
-way of handling PCI errors than the pci_error_handlers API.
-It seems to be much more invasive, and I don't understand why
-its needed or how its better.  Let me be specific:
+On Mar 31, 2006, at 3:15 PM, David Brownell wrote:
 
-In the mpt code you have a function called pciras_readl()
-that tries to perform an error-free read by retrying the read:
+> On Friday 31 March 2006 12:52 pm, Kumar Gala wrote:
+>
+>> What I'm looking at is the following:
+>>
+>> * use spi_bitbang_setup() as is
+>> * have my chipselect do:
+>> 	if (BITBANG_CS_INACTIVE)
+>> 		deassert GPIO pin for CS
+>> 	else
+>> 		set HW mode register (polarity, phase, bit length)
+>> 		assert GPIO pin for CS
+>> * setup_transfer()
+>> 	* set HW mode register (bit length)
+>> 	* call bitbang_setup_transfer()
+>
+> And export bitbang_setup_transfer()?  I guess that makes sense,
+> but you should probably rename it then to match the convention for
+> the other exported symbols.
+>
+> Once that's all working, please submit the relevant patch.
 
-  do {
-    pcierr_clear(&cookie, ioc->pcidev);
-    val = ioread32(addr);
-    status = pcierr_read(&cookie);
-  } while(status && (--retries > 0));
+Will do.
 
-Why not create special arch/ia_64 readl routine to do this?
-In that case, other device drivers would get the benefit of
-the retry-on-error type read.
+So I give a new question.  Any issue with adding a rx & tx completion  
+to spi_bitbang?  In my HW I get an interrupt when the transmitter is  
+done transmitting and one when the receiver is done receiving.  I  
+need some way to synchronize and wait for both events to occur before  
+continuing on in txrx_word().
 
-Now, you probably shouldn't put this into the default readl
-routine, since some devices do peculiar things if the same
-register is read repeatedly.
-
-Next, I notice that if the repeated read fails, then
-
-   schedule_work(&mptbase_rstTask);
-
-is called. This seems to be exactly the kind of action
-that the pci_error_handlers API was meant to provide:
-if there is a pci read error that cannot be trivially
-recovered, then the error_detected() &c. routines would
-be called. The mpt device driver would then initiate
-a mptbase_rstTask upon one of these callbacks.
-
-Thus, in the ia64 code, if a repeated readl fails,
-then the ia64 reset task calls the device drivers
-error_detected() routine, followed by the drivers's 
-link_reset() routine, followed by the resume() routine.
-
-For the mpt, it would probably be resume() that was
-a wrapper around mptbase_rstTask(). Wouldn't this 
-work just as well? 
-
---linas
-
+- kumar

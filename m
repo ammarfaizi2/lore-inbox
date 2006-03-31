@@ -1,47 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWCaDRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWCaDVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751228AbWCaDRI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 22:17:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWCaDRI
+	id S1751218AbWCaDVM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 22:21:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbWCaDVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 22:17:08 -0500
-Received: from mga03.intel.com ([143.182.124.21]:27823 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751212AbWCaDRG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 22:17:06 -0500
-X-IronPort-AV: i="4.03,148,1141632000"; 
-   d="scan'208"; a="17193226:sNHT16114098"
-Message-Id: <200603310317.k2V3H5g28544@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Christoph Lameter'" <clameter@sgi.com>
-Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "Zoltan Menyhart" <Zoltan.Menyhart@bull.net>,
-       "Boehm, Hans" <hans.boehm@hp.com>,
-       "Grundler, Grant G" <grant.grundler@hp.com>, <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-Subject: RE: Synchronizing Bit operations V2
-Date: Thu, 30 Mar 2006 19:17:49 -0800
+	Thu, 30 Mar 2006 22:21:11 -0500
+Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:25774 "HELO
+	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751225AbWCaDVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 22:21:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=iEtjA5ahD8qw50kbBPlpqxkgbgm9L40KDFiK/GnhFCdAm/h9aZQ7wR9KHupxFtEAS973gSuM9kGKt73B9n+P2VfuxR4+XlZ2Gr246n2SfNnG2ZtQkgd/ol6B4wv8HPpoHclBH2Y+9Ou5hGQChk9Nc4EJby/Kt8taayAS1T+VNVU=  ;
+Message-ID: <442C7B51.1060203@yahoo.com.au>
+Date: Fri, 31 Mar 2006 10:44:01 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Christoph Lameter <clameter@sgi.com>
+CC: Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
+       "Boehm, Hans" <hans.boehm@hp.com>,
+       "Grundler, Grant G" <grant.grundler@hp.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Synchronizing Bit operations V2
+References: <Pine.LNX.4.64.0603301300430.1014@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0603301615540.2023@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0603301615540.2023@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZUcOq3zmzy2yEaTL6XZJMfzv7kWwAAHd/w
-In-Reply-To: <Pine.LNX.4.64.0603301909590.3145@schroedinger.engr.sgi.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote on Thursday, March 30, 2006 7:12 PM
-> > On ia64, we map the following:
-> > #define Smp_mb__before_clear_bit      do { } while (0)
-> > #define clear_bit                     clear_bit_mode(..., RELEASE)
-> > 
-> > Which looked perfect fine to me.  I don't understand why you say it does
-> > not provide memory ordering.
+Christoph Lameter wrote:
+> Changelog:
 > 
-> It does not provide a memory barrier / fence. Later memory references can 
-> still be moved by the processor above the instruction with release semantics.
+> V2
+> 	- Fix various oversights
+> 	- Follow Hans Boehm's scheme for the barrier logic
+> 
+> The following patchset implements the ability to specify a
+> synchronization mode for bit operations.
+> 
+> I.e. instead of set_bit(x,y) we can do set_bit(x,y, mode).
+> 
+> The following modes are supported:
+> 
 
-That is perfect legitimate, and was precisely the reason for the invention of 
-smp_mb__after_clear_bit - prevent later load to leak before clear_bit.
+This has acquire and release, instead of the generic kernel
+memory barriers rmb and wmb. As such, I don't think it would
+get merged.
+
+> Note that the current semantics for bitops IA64 are broken. Both
+> smp_mb__after/before_clear_bit are now set to full memory barriers
+> to compensate which may affect performance.
+
+I think you should fight the fights you can win and get a 90%
+solution ;) at any rate you do need to fix the existing routines
+unless you plan to audit all callers...
+
+First, fix up ia64 in 2.6-head, this means fixing test_and_set_bit
+and friends, smp_mb__*_clear_bit, and all the atomic operations that
+both modify and return a value.
+
+Then add test_and_set_bit_lock / clear_bit_unlock, and apply them
+to a couple of critical places like page lock and buffer lock.
+
+Is this being planned?
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

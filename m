@@ -1,54 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWCaUtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWCaUvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbWCaUtx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 15:49:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWCaUtx
+	id S932223AbWCaUvv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 15:51:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWCaUvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 15:49:53 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:13445 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932110AbWCaUtw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 15:49:52 -0500
-Date: Fri, 31 Mar 2006 12:49:43 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hua Zhong <hzhong@gmail.com>
-cc: "'Jens Axboe'" <axboe@suse.de>, "'Ingo Molnar'" <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: RE: [PATCH] splice support #2
-In-Reply-To: <000001c65503$207d8e40$853d010a@nuitysystems.com>
-Message-ID: <Pine.LNX.4.64.0603311244300.27203@g5.osdl.org>
-References: <000001c65503$207d8e40$853d010a@nuitysystems.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 31 Mar 2006 15:51:51 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:45602 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S932223AbWCaUvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 15:51:50 -0500
+In-Reply-To: <200603311236.02665.david-b@pacbell.net>
+References: <1B2FA58D-1F7F-469E-956D-564947BDA59A@kernel.crashing.org> <200603311132.06819.david-b@pacbell.net> <3E572FEF-093B-4359-9FC4-45D00B33C993@kernel.crashing.org> <200603311236.02665.david-b@pacbell.net>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <A164CF6D-0330-46A7-ABF2-87127753E048@kernel.crashing.org>
+Cc: spi-devel-general@lists.sourceforge.net,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [spi-devel-general] Re: question on spi_bitbang
+Date: Fri, 31 Mar 2006 14:52:02 -0600
+To: David Brownell <david-b@pacbell.net>
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Mar 31, 2006, at 2:36 PM, David Brownell wrote:
 
-On Fri, 31 Mar 2006, Hua Zhong wrote:
-> 
-> If I understand correctly:
-> 
-> splice is one fd in, one fd out
+> On Friday 31 March 2006 12:00 pm, Kumar Gala wrote:
+>
+>> My confusion is about the order of which various things occur.  setup
+>> (), chipselect() and transfer() vs what's happening in bitbang_work
+>> ().  I don't see how we handle the fact that two different devices
+>> may require setup() to be called when we switch between them.
+>
+> In your case, it sounds like setup() will just store data, and you'll
+> want a different method to actually grab that data and use it to stuff
+> your controller registers before actually transferring data.  The
+> transfer() method just queues transfers (and maybe kicks them off).
+>
+> Remember that setup() is generally a one-time thing.  Fancier hardware
+> will use it to store clock, mode, wordsize, and other parameters into
+> a hardware register so that starting a transfer is very quick.  In  
+> your
+> case, there's no such register, so starting transfers is slower.
+>
+> One thing to keep in mind is that while I believe the spi_bitbang code
+> ought to support controllers like the one you're working with, I don't
+> know that anyone has done that yet.  So patches might be necessary.
 
-Yes, and one of the fd's have to be a pipe.
+What I'm looking at is the following:
 
-> tee is one fd in, two fd out (and I'd assume the "one fd in" would always be
-> a pipe)
+* use spi_bitbang_setup() as is
+* have my chipselect do:
+	if (BITBANG_CS_INACTIVE)
+		deassert GPIO pin for CS
+	else
+		set HW mode register (polarity, phase, bit length)
+		assert GPIO pin for CS
+* setup_transfer()
+	* set HW mode register (bit length)
+	* call bitbang_setup_transfer()
 
-Actually, all three of them would have to be pipes. The tee() thing has to 
-push to both sources in a "synchronized" manner, so it can't just take 
-arbitrary file descriptors that it doesn't know the exact buffering rules 
-for.
+> At the top of <linux/spi/spi_bitbang.h> are verbal sketches of three
+> types of "bitbang" drivers.  Implementations of two of them now seem
+> to be working (word-at-a-time with GPIO bitbanging, "spi_butterfly"
+> being one of a few examples; and transfer-at-a-time, "omap_uwire").
+> Your hardware would be of the third type.
+>
+>
+>
+>>>> It sounds like with the new patch, I'll end up setting txrx_word 
+>>>> [] to
+>>>> the same function for all modes.
+>>>
+>>> Yes, it does sound like that.  If that works for you, I'd like to  
+>>> see
+>>> that go into 2.6.17 kernels.
+>>
+>> I'm not sure I understand what you'd like to see go into 2.6.17.
+>
+> The patch allowing the per-transfer overrides, which you were going to
+> grab from the MM tree.
+>
+> That would support SPI drivers for things like bitmapped displays,  
+> some
+> of which need oddball things like 9-bit commands followed by 8-bit  
+> data.
 
-(Otherwise you wouldn't need "tee()" at all - you could have a "splice()" 
-that just takes several output fd's).
+Right, I dont think I need the support of setup_transfer() for my  
+devices aren't
+changing their settings mid message.  However, I do think some  
+changes are needed to the patch
 
-> How about one fd in, N fd out? Do you then stack the tee calls using
-> temporary pipes?
-
-I didn't write the tee() logic, but making it 1:N instead of 1:2 is not 
-conceptually a problem at all. The exact system call interface might limit 
-it some way, of course. 
-
-		Linus
+- kumar

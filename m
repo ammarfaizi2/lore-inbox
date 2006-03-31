@@ -1,110 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWCaXo2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWCaXsM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751448AbWCaXo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 18:44:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWCaXo2
+	id S1750736AbWCaXsM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 18:48:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWCaXsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 18:44:28 -0500
-Received: from mail.gmx.net ([213.165.64.20]:28336 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751448AbWCaXo1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 18:44:27 -0500
-Date: Sat, 1 Apr 2006 01:44:26 +0200 (MEST)
-From: "Michael Kerrisk" <mtk-manpages@gmx.net>
-To: linux-kernel@vger.kernel.org
-Cc: michael.kerrisk@gmx.net
-MIME-Version: 1.0
-References: <5159.1143403544@www006.gmx.net>
-Subject: man-pages-2.28 is released
-X-Priority: 3 (Normal)
-X-Authenticated: #24879014
-Message-ID: <6915.1143848666@www076.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+	Fri, 31 Mar 2006 18:48:12 -0500
+Received: from smtp107.rog.mail.re2.yahoo.com ([68.142.225.205]:42364 "HELO
+	smtp107.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750736AbWCaXsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 18:48:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Received:In-Reply-To:References:Mime-Version:Content-Type:Message-Id:Cc:Content-Transfer-Encoding:From:Subject:Date:To:X-Pgp-Agent:X-Mailer;
+  b=j3vrEjVPahAGz0IkSDJay3E9/iITm11TnhaFywEakbnuqgrzfTZebHXit2T6FEcS0/0bSbrAV34Bwx7lrvRsSPotj/qimirJ0wwS+FCCzk4kXo460/tkXk7xXXfgq/5y1bBD6VqY/vmZQLrokMgm2hGZiin0GF1/hTyLBAQhlO8=  ;
+In-Reply-To: <BC34AAD1-595C-4E8E-A8D0-D0F1A9E93C69@rogers.com>
+References: <BC34AAD1-595C-4E8E-A8D0-D0F1A9E93C69@rogers.com>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-45-185442290"
+Message-Id: <4F7382C6-F3E9-4513-865C-695D93811761@rogers.com>
+Cc: linux-kernel@vger.kernel.org, rmk+serial@arm.linux.org.uk
 Content-Transfer-Encoding: 7bit
+From: Georg Nikodym <georgn@rogers.com>
+Subject: Re: [PATCH] 8250: yet another attempt at a serial console fix
+Date: Fri, 31 Mar 2006 18:48:02 -0500
+To: Georg Nikodym <georgn@rogers.com>
+X-Pgp-Agent: GPGMail 1.1 (Tiger)
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gidday,
 
-I recently released man-pages-2.28, which can be found at:
+--Apple-Mail-45-185442290
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
 
-    ftp://ftp.win.tue.nl/pub/linux-local/manpages
 
-or:
+On Mar 31, 2006, at 14:29, Georg Nikodym wrote:
+>
+> Since the old code worked I had trouble swallowing the backup timer  
+> idea.  But the detection logic worked a charm so I lifted that and  
+> offer up the attached patch for evisceration.
 
-    ftp://ftp.kernel.org/pub/linux/docs/manpages
-    or mirrors: ftp://ftp.XX.kernel.org/pub/linux/docs/manpages
+Please ignore my earlier patch submission.  There are at least four  
+things wrong with it.
 
-This release includes the following new pages:
+-g
 
-sem_post.3
-sem_getvalue.3
-sem_close.3
-sem_open.3
-sem_destroy.3
-sem_wait.3
-sem_unlink.3
-sem_init.3
-sem_overview.7
-    mtk
-        New pages describing the POSIX semaphores API.
 
-        These pages supercede and provide a superset of the information 
-        in the glibc (3thr) "semaphores(3)" manual page.
+--Apple-Mail-45-185442290
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
 
-==========
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (Darwin)
 
-The man-pages set contains sections 2, 3, 4, 5, and 7 of
-the manual pages.  These sections describe the following:
+iD8DBQFELb+1oJNnikTddkMRAkukAKCQUNvUnkiVaetcUk5WG1dtiM+KmwCdGbPV
+VrdObDZu1Y0fuNsmiJIHBzY=
+=C+gW
+-----END PGP SIGNATURE-----
 
-2: (Linux) system calls
-3: (libc) library functions
-4: Devices
-5: File formats and protocols
-7: Overview pages, conventions, etc.
-
-As far as this list is concerned the most relevant parts are:
-all of sections 2 and 4, which describe kernel-userland interfaces;
-in section 5, the proc(5) manual page, which attempts (it's always
-catching up) to be a comprehensive description of /proc; and
-various pages in section 7, some of which are overview pages of
-kernel features (e.g., networking protocols).
-
-If you make a change to a kernel-userland interface, or observe 
-a discrepancy between the manual pages and reality, would you 
-please send me (at mtk-manpages@gmx.net ) one of the following
-(in decreasing order of preference):
-
-1. An in-line "diff -u" patch with text changes for the
-   corresponding manual page.  (The most up-to-date version
-   of the manual pages can always be found at
-   ftp://ftp.win.tue.nl/pub/linux-local/manpages or
-   ftp://ftp.kernel.org/pub/linux/docs/manpages .)
-
-2. Some raw text describing the changes, which I can then
-   integrate into the appropriate manual page.
-
-3. A message alerting me that some part of the manual pages
-   does not correspond to reality.  Eventually, I will try to
-   remedy the situation.
-
-Obviously, as we get further down this list, more of my time
-is required, and things may go slower, especially when the
-changes concern some part of the kernel that I am ignorant
-about and I can't find someone to assist.
-
-Cheers,
-
-Michael
-
--- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
-
-Want to help with man page maintenance?  
-Grab the latest tarball at
-ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
-read the HOWTOHELP file and grep the source 
-files for 'FIXME'.
+--Apple-Mail-45-185442290--

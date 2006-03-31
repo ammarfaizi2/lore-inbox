@@ -1,72 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbWCaF1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWCaFhR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750752AbWCaF1p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 00:27:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWCaF1p
+	id S1750704AbWCaFhR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 00:37:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWCaFhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 00:27:45 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:14055 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750752AbWCaF1o (ORCPT
+	Fri, 31 Mar 2006 00:37:16 -0500
+Received: from ore.jhcloos.com ([64.240.156.239]:50694 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id S1750704AbWCaFhP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 00:27:44 -0500
-Message-ID: <442CBDC8.50401@watson.ibm.com>
-Date: Fri, 31 Mar 2006 00:27:36 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Fri, 31 Mar 2006 00:37:15 -0500
+From: James Cloos <cloos@jhcloos.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Schedule for adding pata to kernel?
+In-Reply-To: <442B1981.1050201@shaw.ca> (Robert Hancock's message of "Wed, 29
+	Mar 2006 17:34:25 -0600")
+References: <5SuEq-6ut-39@gated-at.bofh.it> <5TDme-22E-27@gated-at.bofh.it>
+	<5UAcC-3bd-3@gated-at.bofh.it> <5UH4o-4RJ-27@gated-at.bofh.it>
+	<5UTfA-5uK-17@gated-at.bofh.it> <442A9A1C.1020004@shaw.ca>
+	<m3acb8eveg.fsf@lugabout.jhcloos.org> <442B1981.1050201@shaw.ca>
+Copyright: Copyright 2006 James Cloos
+X-Hashcash: 1:23:060331:linux-kernel@vger.kernel.org::2KO/HpU0zb1wFNNn:000000000000000000000000000000000jVsX
+X-Hashcash: 1:23:060331:hancockr@shaw.ca::vFvuQ84qkbb7Etrb:0ETQi
+Date: Fri, 31 Mar 2006 00:37:03 -0500
+Message-ID: <m3zmj7goow.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/23.0.0 (gnu/linux)
 MIME-Version: 1.0
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-CC: Andrew Morton <akpm@osdl.org>, balbir@in.ibm.com, greg@kroah.com,
-       arjan@infradead.org, hadi@cyberus.ca, ak@suse.de,
-       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Patch 0/8] per-task delay accounting
-References: <442B271D.10208@watson.ibm.com>	<20060329210314.3db53aaa.akpm@osdl.org>	<20060330062357.GB18387@in.ibm.com>	<20060329224737.071b9567.akpm@osdl.org>	<442C140C.8040404@watson.ibm.com> <17452.39418.693521.149502@wombat.chubb.wattle.id.au>
-In-Reply-To: <17452.39418.693521.149502@wombat.chubb.wattle.id.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Chubb wrote:
+I did try it again with 2.6.16.
 
->>>>>>"Shailabh" == Shailabh Nagar <nagar@watson.ibm.com> writes:
->>>>>>            
->>>>>>
->
->  
->
->Shailabh> To this list we can also add
->
->Shailabh>     Microstate accounting Peter Chubb
->Shailabh> <peter@chubb.wattle.id.au> I don't know if Peter is still
->Shailabh> interested in pursuing this or it was rejected.
->
->It's still maintained in a sporadic sort of way --- I update it when
->either I need it for something, or someone's downloaded it and asks
->why it doesn't work agains kernel X.Y.Z.  I see a few downloads a
->month.
->  
->
-So do you intend to pursue acceptance ? If so, do you think the 
-netlink-based taskstats
-interface provided by the delay accounting patches could be an 
-acceptable substitute for the
-interfaces you had (from  an old lkml post, they appear  to be  
-/proc/tgid/msa and  a syscall
-based one) ?
- 
+And now it does work.
 
->My microstate accounting patch overlaps the delay accounting patch quite a
->lot in functionality, (but I thnk mine is cleaner except for interrupt
->time accounting... which the delay accounting patch doesn't do.  I
->wanted to know how much time a thread *really* had on the processor,
->subtracting off the time spent in interrupt handlers for some other
->process).
->  
->
-Thanks. Will incorporate into a note on the mechanisms of the other 
-accounting patches.
+Even seems faster than 2.6.16 w/o Alan's patch. :>
 
---Shailabh
+But that is probably just the short uptime.
 
+(The laptop has always slowed down after being up for a few days....)
 
+-JimC
+-- 
+James H. Cloos, Jr. <cloos@jhcloos.com>

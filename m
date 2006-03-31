@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWCaXPG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWCaXRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbWCaXPG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 18:15:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbWCaXPG
+	id S932124AbWCaXRT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 18:17:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWCaXRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 18:15:06 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:7881 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932122AbWCaXPE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 18:15:04 -0500
-Message-ID: <442DB7F0.8090000@garzik.org>
-Date: Fri, 31 Mar 2006 18:14:56 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Fri, 31 Mar 2006 18:17:19 -0500
+Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:65421 "EHLO
+	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932124AbWCaXRS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 18:17:18 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: ck@vds.kolivas.org
+Subject: Re: [ck] Re: Staircase test patch
+Date: Sat, 1 Apr 2006 09:17:08 +1000
+User-Agent: KMail/1.9.1
+Cc: Thorsten Will <thor_w@arcor.de>, linux list <linux-kernel@vger.kernel.org>
+References: <200603312307.58507.kernel@kolivas.org> <20060331213106.GA6905@lliwnetsroht.news.arcor.de>
+In-Reply-To: <20060331213106.GA6905@lliwnetsroht.news.arcor.de>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] splice exports
-References: <20060331040613.GA23511@havoc.gtf.org> <1143802879.3053.3.camel@laptopd505.fenrus.org> <20060331110233.GM14022@suse.de> <442D3608.8090906@garzik.org> <20060331183617.GD14022@suse.de>
-In-Reply-To: <20060331183617.GD14022@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -3.6 (---)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-3.6 points, 5.0 required)
+Content-Disposition: inline
+Message-Id: <200604010917.09413.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Fri, Mar 31 2006, Jeff Garzik wrote:
->> Jens Axboe wrote:
->>> On Fri, Mar 31 2006, Arjan van de Ven wrote:
->>>> On Thu, 2006-03-30 at 23:06 -0500, Jeff Garzik wrote:
->>>>> Woe be unto he who builds their filesystems as modules.
->>>> since splice support is highly linux specific and new.. shouldn't these
->>>> be _GPL exports?
->>> Yes they should, I'll add that to the current splice tree.
->> Why?  We don't usually restrict filesystems in such ways...  I would 
->> rather a binary-only module reference generic_file_splice_read() than 
->> create its own.
-> 
-> You could use that very same argument for any piece of the kernel, then,
-> so I don't think that adds much value to _not_ exporting it GPL.
+On Saturday 01 April 2006 07:31, Thorsten Will wrote:
+> On Friday 31 March 2006 23:07 +1000, Con Kolivas wrote:
+> >Hi Thorsten et al
+>
+> Hi, Con.
+>
+> >Thorsten could you please test to see if this fixes the problem for you?
+>
+> Oh boy, oh boy, oh boy.
+>
+> Against a bash loop:
+> |# dd bs=1M count=2048 </dev/hdb >/dev/null
+> |2048+0 records in
+> |2048+0 records out
+> |2147483648 bytes transferred in 35.497603 seconds (60496582 bytes/sec)
+>
+> Yes! Success! And the crowd goes wild! :-)
+>
+> I think you finally nailed it. Thank you so much!
 
-Not really, because I'm considering the Real World(tm) users, not 
-abstract theory :)  The other filesystem junk is exported non-GPL, and 
-existing binary-only filesystems use that stuff.
+No, thank _you_ for bringing it to my attention and testing :)
 
-IOW its a bit rude to say "oh you can have your BO filesystem, just not 
-splice support."
-
-	Jeff
-
-
-
+Cheers,
+Con

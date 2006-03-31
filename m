@@ -1,305 +1,280 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWCaAKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWCaAOl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbWCaAKW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 19:10:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWCaAKW
+	id S1751114AbWCaAOl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 19:14:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWCaAOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 19:10:22 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:8372 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751113AbWCaAKV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 19:10:21 -0500
-Date: Thu, 30 Mar 2006 16:12:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] Introduce sys_splice() system call
-Message-Id: <20060330161240.11ee3d5f.akpm@osdl.org>
-In-Reply-To: <200603302109.k2UL9Auj011419@hera.kernel.org>
-References: <200603302109.k2UL9Auj011419@hera.kernel.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 30 Mar 2006 19:14:41 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:8888 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S1751114AbWCaAOk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 19:14:40 -0500
+Message-ID: <442C8069.507@wolfmountaingroup.com>
+Date: Thu, 30 Mar 2006 18:05:45 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linas Vepstas <linas@austin.ibm.com>
+CC: john.ronciak@intel.com, jesse.brandeburg@intel.com,
+       jeffrey.t.kirsher@intel.com, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH]: e1000: prevent statistics from getting garbled during
+ reset.
+References: <20060330213928.GQ2172@austin.ibm.com> <20060331000208.GS2172@austin.ibm.com>
+In-Reply-To: <20060331000208.GS2172@austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List <linux-kernel@vger.kernel.org> wrote:
+
+Linas Vepstas wrote:
+
+>On Thu, Mar 30, 2006 at 03:39:28PM -0600, Linas Vepstas wrote:
+>  
 >
-> commit 5274f052e7b3dbd81935772eb551dfd0325dfa9d
-> tree c79f813ec513660edb6f1e4a75cb366c6b84f53f
-> parent 5d4fe2c1ce83c3e967ccc1ba3d580c1a5603a866
-> author Jens Axboe <axboe@suse.de> Thu, 30 Mar 2006 15:15:30 +0200
-> committer Linus Torvalds <torvalds@g5.osdl.org> Fri, 31 Mar 2006 04:28:18 -0800
+>>Please review, sign-off/ack, and forward upstream.
+>>--linas
+>>    
+>>
+>
+>Per feedback, here's a slightly more human-readable version.
+>--linas
+>
+>[PATCH]: e1000: prevent statistics from getting garbled during reset.
+>
+>If a PCI bus error/fault triggers a PCI bus reset, attempts to get the
+>ethernet packet count statistics from the hardware will fail, returning
+>garbage data upstream.  This patch skips statistics data collection
+>if the PCI device is not on the bus. 
+>
+>This patch presumes that an earlier patch,
+>[PATCH] PCI Error Recovery: e1000 network device driver
+>has already been applied.
+>
+>Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+>
+>----
+> drivers/net/e1000/e1000_main.c |    6 +++++-
+> 1 files changed, 5 insertions(+), 1 deletion(-)
+>
+>Index: linux-2.6.16-git6/drivers/net/e1000/e1000_main.c
+>===================================================================
+>--- linux-2.6.16-git6.orig/drivers/net/e1000/e1000_main.c	2006-03-30 17:51:37.924162779 -0600
+>+++ linux-2.6.16-git6/drivers/net/e1000/e1000_main.c	2006-03-30 17:54:07.659188391 -0600
+>@@ -3069,14 +3069,18 @@ void
+> e1000_update_stats(struct e1000_adapter *adapter)
+> {
+> 	struct e1000_hw *hw = &adapter->hw;
+>+	struct pci_dev *pdev = adapter->pdev;
+> 	unsigned long flags;
+> 	uint16_t phy_tmp;
 > 
-> [PATCH] Introduce sys_splice() system call
-
-eek.
-
-
-
-splice.c should include syscalls.h.
-
-> ...
+> #define PHY_IDLE_ERROR_COUNT_MASK 0x00FF
+> 
+>-	/* Prevent stats update while adapter is being reset */
+>+	/* Prevent stats update while adapter is being reset,
+>+	 * or if the pci connection is down. */
+> 	if (adapter->link_speed == 0)
+> 		return;
+>+   if (pdev->error_state && pdev->error_state != pci_channel_io_normal)
+>+		return;
+> 
+> 	spin_lock_irqsave(&adapter->stats_lock, flags);
+> 
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 >
-> +static int __generic_file_splice_read(struct file *in, struct inode *pipe,
-> +				      size_t len)
-> +{
-> +	struct address_space *mapping = in->f_mapping;
-> +	unsigned int offset, nr_pages;
-> +	struct page *pages[PIPE_BUFFERS], *shadow[PIPE_BUFFERS];
-> +	struct page *page;
-> +	pgoff_t index, pidx;
-> +	int i, j;
-> +
-> +	index = in->f_pos >> PAGE_CACHE_SHIFT;
-> +	offset = in->f_pos & ~PAGE_CACHE_MASK;
-> +	nr_pages = (len + offset + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
-> +
-> +	if (nr_pages > PIPE_BUFFERS)
-> +		nr_pages = PIPE_BUFFERS;
-> +
-> +	/*
-> +	 * initiate read-ahead on this page range
-> +	 */
-> +	do_page_cache_readahead(mapping, in, index, nr_pages);
-> +
-> +	/*
-> +	 * Get as many pages from the page cache as possible..
-> +	 * Start IO on the page cache entries we create (we
-> +	 * can assume that any pre-existing ones we find have
-> +	 * already had IO started on them).
-> +	 */
-> +	i = find_get_pages(mapping, index, nr_pages, pages);
-> +
-> +	/*
-> +	 * common case - we found all pages and they are contiguous,
-> +	 * kick them off
-> +	 */
-> +	if (i && (pages[i - 1]->index == index + i - 1))
-> +		goto splice_them;
-> +
-> +	/*
-> +	 * fill shadow[] with pages at the right locations, so we only
-> +	 * have to fill holes
-> +	 */
-> +	memset(shadow, 0, i * sizeof(struct page *));
+>  
+>
 
-This leaves shadow[i] up to shadow[nr_pages - 1] uninitialised.
+The driver also needs to be fixed to allow clearing of the stats (like 
+all the other adapter drivers). At present, when I run performance
+and packet drop counts on the cards, I cannot reset the stats with this 
+code because the driver stores them in the e100_adapter
+structure. This is busted.
 
-> +	for (j = 0, pidx = index; j < i; pidx++, j++)
-> +		shadow[pages[j]->index - pidx] = pages[j];
+This function:
 
-This can overindex shadow[].
+int clear_network_device_stats(BYTE *name)
+{
+register int i;
 
-> +	/*
-> +	 * now fill in the holes
-> +	 */
-> +	for (i = 0, pidx = index; i < nr_pages; pidx++, i++) {
+i = get_dev_index_by_name(name);
+if (i != -1)
+{
+if (ndevs[i])
+{
+struct net_device_stats *stats;
 
-We've lost `i', which is the number of pages in pages[], and the number of
-initialised entries in shadow[].
+stats = (ndevs[i]->get_stats)(ndevs[i]);
+if (stats)
+{
+stats->rx_packets = 0;
+stats->tx_packets = 0;
+stats->rx_bytes = 0;
+stats->tx_bytes = 0;
+stats->multicast = 0;
+stats->collisions = 0;
+stats->rx_errors = 0;
+stats->rx_length_errors = 0;
+stats->rx_crc_errors = 0;
+stats->rx_frame_errors = 0;
+stats->rx_fifo_errors = 0;
+stats->rx_missed_errors = 0;
+stats->tx_errors = 0;
+stats->tx_aborted_errors = 0;
+stats->tx_window_errors = 0;
+stats->tx_carrier_errors = 0;
+P_Print("solera: stats cleared for %s\n", ndevs[i]->name);
+return 0;
+}
+}
+return 0;
+}
+return -1;
+}
+
+does not work on e1000 due to this section of code:
 
 
-> +		int error;
-> +
-> +		if (shadow[i])
-> +			continue;
+void
+e1000_update_stats(struct e1000_adapter *adapter)
+{
+struct e1000_hw *hw = &adapter->hw;
+unsigned long flags;
+uint16_t phy_tmp;
 
-As this loop iterates up to nr_pages, which can be greater than the
-now-lost `i', we're playing with potentially-uninitialised entries in
-shadow[].
+#define PHY_IDLE_ERROR_COUNT_MASK 0x00FF
 
-Doing
+spin_lock_irqsave(&adapter->stats_lock, flags);
 
-	nr_pages = find_get_pages(..., nr_pages, ...)
+/* these counters are modified from e1000_adjust_tbi_stats,
+* called from the interrupt context, so they must only
+* be written while holding adapter->stats_lock
+*/
 
-up above would be a good start on getting this sorted out.
+adapter->stats.crcerrs += E1000_READ_REG(hw, CRCERRS);
+adapter->stats.gprc += E1000_READ_REG(hw, GPRC);
+adapter->stats.gorcl += E1000_READ_REG(hw, GORCL);
+adapter->stats.gorch += E1000_READ_REG(hw, GORCH);
+adapter->stats.bprc += E1000_READ_REG(hw, BPRC);
+adapter->stats.mprc += E1000_READ_REG(hw, MPRC);
+adapter->stats.roc += E1000_READ_REG(hw, ROC);
+adapter->stats.prc64 += E1000_READ_REG(hw, PRC64);
+adapter->stats.prc127 += E1000_READ_REG(hw, PRC127);
+adapter->stats.prc255 += E1000_READ_REG(hw, PRC255);
+adapter->stats.prc511 += E1000_READ_REG(hw, PRC511);
+adapter->stats.prc1023 += E1000_READ_REG(hw, PRC1023);
+adapter->stats.prc1522 += E1000_READ_REG(hw, PRC1522);
 
-> +		/*
-> +		 * no page there, look one up / create it
-> +		 */
-> +		page = find_or_create_page(mapping, pidx,
-> +						   mapping_gfp_mask(mapping));
-> +		if (!page)
-> +			break;
+adapter->stats.symerrs += E1000_READ_REG(hw, SYMERRS);
+adapter->stats.mpc += E1000_READ_REG(hw, MPC);
+adapter->stats.scc += E1000_READ_REG(hw, SCC);
+adapter->stats.ecol += E1000_READ_REG(hw, ECOL);
+adapter->stats.mcc += E1000_READ_REG(hw, MCC);
+adapter->stats.latecol += E1000_READ_REG(hw, LATECOL);
+adapter->stats.dc += E1000_READ_REG(hw, DC);
+adapter->stats.sec += E1000_READ_REG(hw, SEC);
+adapter->stats.rlec += E1000_READ_REG(hw, RLEC);
+adapter->stats.xonrxc += E1000_READ_REG(hw, XONRXC);
+adapter->stats.xontxc += E1000_READ_REG(hw, XONTXC);
+adapter->stats.xoffrxc += E1000_READ_REG(hw, XOFFRXC);
+adapter->stats.xofftxc += E1000_READ_REG(hw, XOFFTXC);
+adapter->stats.fcruc += E1000_READ_REG(hw, FCRUC);
+adapter->stats.gptc += E1000_READ_REG(hw, GPTC);
+adapter->stats.gotcl += E1000_READ_REG(hw, GOTCL);
+adapter->stats.gotch += E1000_READ_REG(hw, GOTCH);
+adapter->stats.rnbc += E1000_READ_REG(hw, RNBC);
+adapter->stats.ruc += E1000_READ_REG(hw, RUC);
+adapter->stats.rfc += E1000_READ_REG(hw, RFC);
+adapter->stats.rjc += E1000_READ_REG(hw, RJC);
+adapter->stats.torl += E1000_READ_REG(hw, TORL);
+adapter->stats.torh += E1000_READ_REG(hw, TORH);
+adapter->stats.totl += E1000_READ_REG(hw, TOTL);
+adapter->stats.toth += E1000_READ_REG(hw, TOTH);
+adapter->stats.tpr += E1000_READ_REG(hw, TPR);
+adapter->stats.ptc64 += E1000_READ_REG(hw, PTC64);
+adapter->stats.ptc127 += E1000_READ_REG(hw, PTC127);
+adapter->stats.ptc255 += E1000_READ_REG(hw, PTC255);
+adapter->stats.ptc511 += E1000_READ_REG(hw, PTC511);
+adapter->stats.ptc1023 += E1000_READ_REG(hw, PTC1023);
+adapter->stats.ptc1522 += E1000_READ_REG(hw, PTC1522);
+adapter->stats.mptc += E1000_READ_REG(hw, MPTC);
+adapter->stats.bptc += E1000_READ_REG(hw, BPTC);
 
-So if OOM happened, we can still have NULLs and live page*'s in shadow[],
-outside `i'
+//NOTE These stats need to be stored in the stats structure so they can 
+be cleared by
+statistics monitoring programs.
 
-> +		if (PageUptodate(page))
-> +			unlock_page(page);
-> +		else {
-> +			error = mapping->a_ops->readpage(in, page);
-> +
-> +			if (unlikely(error)) {
-> +				page_cache_release(page);
-> +				break;
-> +			}
-> +		}
-> +		shadow[i] = page;
-> +	}
-> +
-> +	if (!i) {
-> +		for (i = 0; i < nr_pages; i++) {
-> +			 if (shadow[i])
-> +				page_cache_release(shadow[i]);
-> +		}
-> +		return 0;
-> +	}
+/* used for adaptive IFS */
 
-OK.
+hw->tx_packet_delta = E1000_READ_REG(hw, TPT);
+adapter->stats.tpt += hw->tx_packet_delta;
+hw->collision_delta = E1000_READ_REG(hw, COLC);
+adapter->stats.colc += hw->collision_delta;
 
-> +	memcpy(pages, shadow, i * sizeof(struct page *));
+if(hw->mac_type >= e1000_82543) {
+adapter->stats.algnerrc += E1000_READ_REG(hw, ALGNERRC);
+adapter->stats.rxerrc += E1000_READ_REG(hw, RXERRC);
+adapter->stats.tncrs += E1000_READ_REG(hw, TNCRS);
+adapter->stats.cexterr += E1000_READ_REG(hw, CEXTERR);
+adapter->stats.tsctc += E1000_READ_REG(hw, TSCTC);
+adapter->stats.tsctfc += E1000_READ_REG(hw, TSCTFC);
+}
 
-If we hit oom above, there can be live page*'s in shadow[], between the
-current value of `i' and the now-lost return from find_get_pages().
+/* Fill out the OS statistics structure */
 
-The pages will leak.
+adapter->net_stats.rx_packets = adapter->stats.gprc;
+adapter->net_stats.tx_packets = adapter->stats.gptc;
+adapter->net_stats.rx_bytes = adapter->stats.gorcl;
+adapter->net_stats.tx_bytes = adapter->stats.gotcl;
+adapter->net_stats.multicast = adapter->stats.mprc;
+adapter->net_stats.collisions = adapter->stats.colc;
 
-> +
-> +/*
-> + * Send 'len' bytes to socket from 'file' at position 'pos' using sendpage().
+/* Rx Errors */
 
-sd->len, actually.
+adapter->net_stats.rx_errors = adapter->stats.rxerrc +
+adapter->stats.crcerrs + adapter->stats.algnerrc +
+adapter->stats.rlec + adapter->stats.rnbc +
+adapter->stats.mpc + adapter->stats.cexterr;
+adapter->net_stats.rx_dropped = adapter->stats.rnbc;
+adapter->net_stats.rx_length_errors = adapter->stats.rlec;
+adapter->net_stats.rx_crc_errors = adapter->stats.crcerrs;
+adapter->net_stats.rx_frame_errors = adapter->stats.algnerrc;
+adapter->net_stats.rx_fifo_errors = adapter->stats.mpc;
+adapter->net_stats.rx_missed_errors = adapter->stats.mpc;
 
-> + */
-> +static int pipe_to_sendpage(struct pipe_inode_info *info,
-> +			    struct pipe_buffer *buf, struct splice_desc *sd)
-> +{
-> +	struct file *file = sd->file;
-> +	loff_t pos = sd->pos;
-> +	unsigned int offset;
-> +	ssize_t ret;
-> +	void *ptr;
-> +
-> +	/*
-> +	 * sub-optimal, but we are limited by the pipe ->map. we don't
-> +	 * need a kmap'ed buffer here, we just want to make sure we
-> +	 * have the page pinned if the pipe page originates from the
-> +	 * page cache
-> +	 */
-> +	ptr = buf->ops->map(file, info, buf);
-> +	if (IS_ERR(ptr))
-> +		return PTR_ERR(ptr);
-> +
-> +	offset = pos & ~PAGE_CACHE_MASK;
-> +
-> +	ret = file->f_op->sendpage(file, buf->page, offset, sd->len, &pos,
-> +					sd->len < sd->total_len);
-> +
-> +	buf->ops->unmap(info, buf);
-> +	if (ret == sd->len)
-> +		return 0;
-> +
-> +	return -EIO;
-> +}
-> +
-> +/*
-> + * This is a little more tricky than the file -> pipe splicing. There are
-> + * basically three cases:
-> + *
-> + *	- Destination page already exists in the address space and there
-> + *	  are users of it. For that case we have no other option that
-> + *	  copying the data. Tough luck.
-> + *	- Destination page already exists in the address space, but there
-> + *	  are no users of it. Make sure it's uptodate, then drop it. Fall
-> + *	  through to last case.
-> + *	- Destination page does not exist, we can add the pipe page to
-> + *	  the page cache and avoid the copy.
-> + *
-> + * For now we just do the slower thing and always copy pages over, it's
-> + * easier than migrating pages from the pipe to the target file. For the
-> + * case of doing file | file splicing, the migrate approach had some LRU
-> + * nastiness...
-> + */
-> +static int pipe_to_file(struct pipe_inode_info *info, struct pipe_buffer *buf,
-> +			struct splice_desc *sd)
-> +{
-> +	struct file *file = sd->file;
-> +	struct address_space *mapping = file->f_mapping;
-> +	unsigned int offset;
-> +	struct page *page;
-> +	char *src, *dst;
-> +	pgoff_t index;
-> +	int ret;
-> +
-> +	/*
-> +	 * after this, page will be locked and unmapped
-> +	 */
-> +	src = buf->ops->map(file, info, buf);
-> +	if (IS_ERR(src))
-> +		return PTR_ERR(src);
-> +
-> +	index = sd->pos >> PAGE_CACHE_SHIFT;
-> +	offset = sd->pos & ~PAGE_CACHE_MASK;
-> +
-> +find_page:
-> +	ret = -ENOMEM;
-> +	page = find_or_create_page(mapping, index, mapping_gfp_mask(mapping));
-> +	if (!page)
-> +		goto out;
-> +
-> +	/*
-> +	 * If the page is uptodate, it is also locked. If it isn't
-> +	 * uptodate, we can mark it uptodate if we are filling the
-> +	 * full page. Otherwise we need to read it in first...
-> +	 */
-> +	if (!PageUptodate(page)) {
-> +		if (sd->len < PAGE_CACHE_SIZE) {
-> +			ret = mapping->a_ops->readpage(file, page);
-> +			if (unlikely(ret))
-> +				goto out;
-> +
-> +			lock_page(page);
-> +
-> +			if (!PageUptodate(page)) {
-> +				/*
-> +				 * page got invalidated, repeat
-> +				 */
-> +				if (!page->mapping) {
-> +					unlock_page(page);
-> +					page_cache_release(page);
-> +					goto find_page;
-> +				}
-> +				ret = -EIO;
-> +				goto out;
-> +			}
-> +		} else {
-> +			WARN_ON(!PageLocked(page));
-> +			SetPageUptodate(page);
-> +		}
-> +	}
-> +
-> +	ret = mapping->a_ops->prepare_write(file, page, 0, sd->len);
-> +	if (ret)
-> +		goto out;
-> +
-> +	dst = kmap_atomic(page, KM_USER0);
-> +	memcpy(dst + offset, src + buf->offset, sd->len);
-> +	flush_dcache_page(page);
-> +	kunmap_atomic(dst, KM_USER0);
-> +
-> +	ret = mapping->a_ops->commit_write(file, page, 0, sd->len);
-> +	if (ret < 0)
-> +		goto out;
-> +
-> +	set_page_dirty(page);
-> +	ret = write_one_page(page, 0);
+/* Tx Errors */
 
-Still want to know why this is here??
+adapter->net_stats.tx_errors = adapter->stats.ecol +
+adapter->stats.latecol;
+adapter->net_stats.tx_aborted_errors = adapter->stats.ecol;
+adapter->net_stats.tx_window_errors = adapter->stats.latecol;
+adapter->net_stats.tx_carrier_errors = adapter->stats.tncrs;
 
-> +out:
-> +	if (ret < 0)
-> +		unlock_page(page);
+/* Tx Dropped needs to be maintained elsewhere */
 
-If write_one_page()'s call to ->writepage() failed, this will cause a
-double unlock.
+/* Phy Stats */
 
-> +	page_cache_release(page);
-> +	buf->ops->unmap(info, buf);
-> +	return ret;
-> +}
-> +
-> +
+if(hw->media_type == e1000_media_type_copper) {
+if((adapter->link_speed == SPEED_1000) &&
+(!e1000_read_phy_reg(hw, PHY_1000T_STATUS, &phy_tmp))) {
+phy_tmp &= PHY_IDLE_ERROR_COUNT_MASK;
+adapter->phy_stats.idle_errors += phy_tmp;
+}
+
+if((hw->mac_type <= e1000_82546) &&
+(hw->phy_type == e1000_phy_m88) &&
+!e1000_read_phy_reg(hw, M88E1000_RX_ERR_CNTR, &phy_tmp))
+adapter->phy_stats.receive_errors += phy_tmp;
+}
+
+spin_unlock_irqrestore(&adapter->stats_lock, flags);
+}
 

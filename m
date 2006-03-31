@@ -1,121 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWCaXMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWCaXL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750909AbWCaXMa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 18:12:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbWCaXMa
+	id S1750849AbWCaXL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 18:11:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWCaXL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 18:12:30 -0500
-Received: from vms046pub.verizon.net ([206.46.252.46]:2233 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1750884AbWCaXM3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 18:12:29 -0500
-Date: Fri, 31 Mar 2006 18:12:26 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: 2.6.16.1 (1) vs ieee1394 (0)  HELP! (I told the missus I could do this)
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Reply-to: gene.heskett@verizononline.net
-Message-id: <200603311812.27023.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 8BIT
-Content-disposition: inline
-User-Agent: KMail/1.7
+	Fri, 31 Mar 2006 18:11:56 -0500
+Received: from test-iport-1.cisco.com ([171.71.176.117]:44371 "EHLO
+	test-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1750841AbWCaXL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 18:11:56 -0500
+To: Shirley Ma <xma@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH] IPoIB queue size tune patch
+X-Message-Flag: Warning: May contain useful information
+References: <OFC9A94743.F4C78DFE-ON87257142.005F70AF-88257142.006068A0@us.ibm.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Fri, 31 Mar 2006 12:44:49 -0800
+In-Reply-To: <OFC9A94743.F4C78DFE-ON87257142.005F70AF-88257142.006068A0@us.ibm.com> (Shirley Ma's message of "Fri, 31 Mar 2006 10:38:02 -0700")
+Message-ID: <adaacb6z6m6.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 31 Mar 2006 20:44:51.0507 (UTC) FILETIME=[F5488030:01C65503]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings all;
+ > +static int expsize(int size)
+ > +{ 
+ > +       int expsize_t = 1;
+ > +       int j = 1;
+ > +       while (size / 2 >= expsize_t) {
+ > +               expsize_t = 1 << ++j;
+ > +       }
+ > +       return expsize_t;
+ > +}
 
-I may have found a gotcha in the 2.6.16.1 and NDI how far back it goes 
-because I haven't used anything ieee1394 in months.
+Yikes... is this just a very hard-to-understand version of roundup_pow_of_two()?
 
-Anyway, I plugged in my camera, a Sony DCR-TVR460 and fired up kino, 
-fully expecting to see the viewfinders image on screen as soon as I 
-switched kino to the capture screen.
+Hmm, no, it's rounding down I guess.  But is there any reason not to
+use roundup_pow_of_two() instead?
 
-Unforch, its blank and kino is locked up, needing kde's emergency kill 
-the process to kill it when I click on the closing x.
-
->From the logs, I get this is 4 or 5 lines.
-
-Mar 31 17:30:16 coyote ieee1394.agent[8925]: ... no drivers for IEEE1394 
-product 0x/0x/0x
-Mar 31 17:30:16 coyote ieee1394.agent[8921]: ... no drivers for IEEE1394 
-product 0x/0x/0x
-Mar 31 17:30:16 coyote kernel: ieee1394: raw1394: /dev/raw1394 device 
-initialized
-
-And about 6 or 7 lines of gconf verbosy later, this:
-
-Mar 31 17:31:28 coyote kernel: ohci1394: fw-host0: Waking dma ctx=0 ... 
-processing is probably too slow
-
-then:
-
-[root@coyote linux-2.6.16.1]# lsmod |grep 1394
-raw1394                24172  0
-dv1394                 16716  0
-ohci1394               27824  1 dv1394
-ieee1394               82488  3 raw1394,dv1394,ohci1394
-
-And:
-
-[root@coyote linux-2.6.16.1]# 
-ls /lib/modules/2.6.16.1/kernel/drivers/ieee1394
-dv1394.ko  ieee1394.ko  ohci1394.ko  raw1394.ko  sbp2.ko  video1394.ko
-
-sbp2.ko isn't needed, its for a webcam thats a POS.  I should quit 
-building it altogether.
-
-modprobe video1394 inserts that module, but makes zilch difference.
-kino still freezes the instant the capture button is clicked.
-
-Unplugging the firewire cable from the camera is silent in messages, but 
-dmesg says:
-ieee1394: Node changed: 0-01:1023 -> 0-00:1023
-ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[08004601044684e4]
-ieee1394: Node resumed: ID:BUS[0-00:1023]  GUID[08004601044684e4]
-ieee1394: Node changed: 0-00:1023 -> 0-01:1023
-ieee1394: Node changed: 0-01:1023 -> 0-00:1023
-ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[08004601044684e4]
-ieee1394: Node resumed: ID:BUS[0-00:1023]  GUID[08004601044684e4]
-ieee1394: Node changed: 0-00:1023 -> 0-01:1023
-
-Then from:
-[root@coyote boot]# lspci -vv |grep -A10 01:09
-01:09.0 FireWire (IEEE 1394): Texas Instruments TSB43AB23 
-IEEE-1394a-2000 Controller (PHY/Link) (prog-if 10 [OHCI])
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (500ns min, 1000ns max), Cache Line Size 08
-        Interrupt: pin A routed to IRQ 12
-        Region 0: Memory at ec004000 (32-bit, non-prefetchable)
-        Region 1: Memory at ec000000 (32-bit, non-prefetchable) 
-[size=16K]
-        Capabilities: [44] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME+
-
-And I'm not smart enough for anything there to raise a flag.
-
-So obviously something's gone aglay, but what?
-
-The last time I ran this config to do some movie editing of a wedding, 
-along about June of last year, it all Just Worked. And I recently did 
-some much needed housekeeping, such that if I wanted to build a 2.6.14 
-kernel, I'd have to go get the tarball & start from scratch.
-
-Ideas anybody?
-
--- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+ - R.

@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWCaAtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWCaAva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbWCaAtd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 19:49:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWCaAtd
+	id S1751085AbWCaAva (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 19:51:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWCaAva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 19:49:33 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:54728 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751078AbWCaAtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 19:49:32 -0500
-Date: Thu, 30 Mar 2006 16:49:22 -0800 (PST)
+	Thu, 30 Mar 2006 19:51:30 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:14026 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751085AbWCaAv3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 19:51:29 -0500
+Date: Thu, 30 Mar 2006 16:51:21 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
-To: David Mosberger-Tang <David.Mosberger@acm.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
 cc: Nick Piggin <nickpiggin@yahoo.com.au>,
        Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
        "Boehm, Hans" <hans.boehm@hp.com>,
-       "Grundler, Grant G" <grant.grundler@hp.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, akpm@osdl.org,
+       "Grundler, Grant G" <grant.grundler@hp.com>, akpm@osdl.org,
        linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Synchronizing Bit operations V2
-In-Reply-To: <ed5aea430603301642t283174f6wa0587089920ca3a8@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0603301645370.2068@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0603301300430.1014@schroedinger.engr.sgi.com> 
- <Pine.LNX.4.64.0603301615540.2023@schroedinger.engr.sgi.com>
- <ed5aea430603301642t283174f6wa0587089920ca3a8@mail.gmail.com>
+Subject: RE: Synchronizing Bit operations V2
+In-Reply-To: <200603310049.k2V0nVg26779@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.64.0603301650220.2068@schroedinger.engr.sgi.com>
+References: <200603310049.k2V0nVg26779@unix-os.sc.intel.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Mar 2006, David Mosberger-Tang wrote:
+On Thu, 30 Mar 2006, Chen, Kenneth W wrote:
 
-> I have to agree with Hans and I'd much prefer making the mode part of
-> the operation's
-> name and not a parameter.  Besides being The Right Thing, it saves a
-> lot of typing.
+> > It precise the uncleanness in ia64 that such semantics are attached to 
+> > these bit operations which may lead people to depend on those. We need to 
+> > either make these explicit or not depend on them.
+> 
+> I know, I'm saying since it doesn't make any difference from API point of
+> view whether it is acq, rel, or no ordering, then just make them rel as a
+> "preferred" Operation on ia64.
 
-IMHO It reduces the flexibility of the scheme and makes it not extendable. 
-Leads to a large quantity of macros that are difficult to manage. 
-
-Also some higher level functions may want to have the mode passed to them 
-as parameters. See f.e. include/linux/buffer_head.h. Without the 
-parameters you will have to maintain farms of definitions for all cases.
-
-
+That would make the behavior of clear_bit different from other bitops and 
+references to volatile pointers. I'd like to have this as consistent as 
+possible.
 

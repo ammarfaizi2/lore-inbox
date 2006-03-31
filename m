@@ -1,72 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbWCaITf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWCaIYE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751262AbWCaITf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 03:19:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWCaITf
+	id S1751263AbWCaIYE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 03:24:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWCaIYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 03:19:35 -0500
-Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:27093 "EHLO
-	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751262AbWCaITe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 03:19:34 -0500
-MIME-Version: 1.0
+	Fri, 31 Mar 2006 03:24:04 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19167 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751263AbWCaIYD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 03:24:03 -0500
+Date: Fri, 31 Mar 2006 10:23:52 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Bompart Cedric <cedric.bompart@thales-is.com>
+Cc: Richard Purdie <rpurdie@rpsys.net>, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Hook collie frontlight into sysfs
+Message-ID: <20060331082352.GF1663@elf.ucw.cz>
+References: <6CE648B340455F479A7AE27769282663018A276F@gva0013.ch.intra>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17452.58762.293670.563445@wombat.chubb.wattle.id.au>
-Date: Fri, 31 Mar 2006 19:17:14 +1100
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
-       balbir@in.ibm.com, greg@kroah.com, arjan@infradead.org, hadi@cyberus.ca,
-       ak@suse.de, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [Patch 0/8] per-task delay accounting
-In-Reply-To: <442CBDC8.50401@watson.ibm.com>
-References: <442B271D.10208@watson.ibm.com>
-	<20060329210314.3db53aaa.akpm@osdl.org>
-	<20060330062357.GB18387@in.ibm.com>
-	<20060329224737.071b9567.akpm@osdl.org>
-	<442C140C.8040404@watson.ibm.com>
-	<17452.39418.693521.149502@wombat.chubb.wattle.id.au>
-	<442CBDC8.50401@watson.ibm.com>
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+In-Reply-To: <6CE648B340455F479A7AE27769282663018A276F@gva0013.ch.intra>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Shailabh" == Shailabh Nagar <nagar@watson.ibm.com> writes:
+Hi!
 
-Shailabh> Peter Chubb wrote:
- (microstate accounting patch)
->>  It's still maintained in a sporadic sort of way --- I update it
->> when either I need it for something, or someone's downloaded it and
->> asks why it doesn't work agains kernel X.Y.Z.  I see a few
->> downloads a month.
->> 
->> 
-Shailabh> So do you intend to pursue acceptance ? If so, do you think
-Shailabh> the netlink-based taskstats interface provided by the delay
-Shailabh> accounting patches could be an acceptable substitute for the
-Shailabh> interfaces you had (from an old lkml post, they appear to be
-Shailabh> /proc/tgid/msa and a syscall based one) ?
+> During our test with Richard, we've been thinking can you implement the
+> full range of brightness intensity values? For example for the others
+> Zaurus, I think the range is between 0 and 63. So the userspace can
+
+Well, I'm not sure if other values are "legal". They could damage
+frontlight long-term or just eat too much power...
+
+> adjust a wider range of levels for the backlight. Another thing, I
+> didn't see anything different visually between the value 3 and 4.
+
+You are right, the code to go brightness 4 is attached. It probably
+needs to be converted to writel/readl...
+
+diff --git a/arch/arm/common/locomo.c b/arch/arm/common/locomo.c
+index 8c53ebc..bcce028 100644
+--- a/arch/arm/common/locomo.c
++++ b/arch/arm/common/locomo.c
+@@ -1046,13 +1046,46 @@ void locomo_m62332_senddata(struct locom
+  *	Frontlight control
+  */
  
-I'd have to take a close look.  The syscall interface is modelled on
-getrusage(), and only lets you get your own or your children's data;
-I'm not too worried about trashing it, as it should be possible to
-emulate in terms of netlink (albeit at a cost; system calls are
-relatively cheap)
++#define LOCOMO_GPIO9        (1<<9)
++
++#ifdef DONE
++/* Should be same for collie and poodle */
++static int poodlefl_enable_accel(void)
++{
++	if (!(LOCOMO_GPO & LOCOMO_GPIO9)) {
++		LOCOMO_GPD &= ~LOCOMO_GPIO9;
++		LOCOMO_GPE &= ~LOCOMO_GPIO9;
++		LOCOMO_GPO |=  LOCOMO_GPIO9;
++	}
++	return 0;
++}
++
++/* Should be same for collie and poodle */
++static int poodlefl_disable_accel(void)
++{
++	if (LOCOMO_GPO & LOCOMO_GPIO9) {
++	        LOCOMO_GPD &= ~LOCOMO_GPIO9;
++		LOCOMO_GPE &= ~LOCOMO_GPIO9;
++		LOCOMO_GPO &= ~LOCOMO_GPIO9;
++	}
++	return 0;
++}
++#endif
++
+ static struct locomo *locomo_chip_driver(struct locomo_dev *ldev);
+ 
++#define LOCOMO_ALC_EN	0x8000
++
+ void locomo_frontlight_set(struct locomo_dev *dev, int duty, int vr, int bpwf)
+ {
+ 	unsigned long flags;
+ 	struct locomo *lchip = locomo_chip_driver(dev);
+ 
++#ifdef DONE
++	if (vr) poodlefl_enable_accel();
++	else 	poodlefl_disable_accel();
++#endif
++
+ 	spin_lock_irqsave(&lchip->lock, flags);
+ 	locomo_writel(bpwf, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALS);
+ 	udelay(100);
 
-/proc/<pid>/task/<tid>/msa lets you get at anything you own.  I use
-awk scripts to process the msa file in /proc/... and pipe it into
-gnuplot at n second intervals; a netlink interface would need to have
-an auxiliary program to read it and then squirt it into the scripts, I
-think --- or is there a way to get ASCII out on demand?  I quite often
-use cat to do quick checks on whats going on too --- so overall I think
-the /proc interface is desirable.
-
+								Pavel
 -- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-http://www.ertos.nicta.com.au           ERTOS within National ICT Australia
+Picture of sleeping (Linux) penguin wanted...

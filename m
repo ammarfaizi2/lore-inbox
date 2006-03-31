@@ -1,50 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWCaPQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWCaPVP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbWCaPQN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 10:16:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbWCaPQN
+	id S1751364AbWCaPVP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 10:21:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWCaPVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 10:16:13 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:34827 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751118AbWCaPQM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 10:16:12 -0500
-Date: Fri, 31 Mar 2006 17:16:10 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [-mm patch] arch/i386/kernel/apic.c: make modern_apic() static
-Message-ID: <20060331151610.GH3893@stusta.de>
-References: <20060328003508.2b79c050.akpm@osdl.org> <20060331145648.GG3893@stusta.de> <200603311702.19669.ak@suse.de>
+	Fri, 31 Mar 2006 10:21:15 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:52154 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751333AbWCaPVO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 10:21:14 -0500
+Message-ID: <442D48E2.3050706@garzik.org>
+Date: Fri, 31 Mar 2006 10:21:06 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603311702.19669.ak@suse.de>
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Ed Lin <ed.lin@promise.com>
+CC: Matthew Wilcox <matthew@wil.cx>, Andrew Morton <akpm@osdl.org>,
+       "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+       "promise_linux@promise.com" <promise_linux@promise.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.16-rc6] Promise SuperTrak driver
+References: <NONAMEBK04QBh0TzlYb000006b5@nonameb.ptu.promise.com>
+In-Reply-To: <NONAMEBK04QBh0TzlYb000006b5@nonameb.ptu.promise.com>
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -3.6 (---)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-3.6 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 31, 2006 at 05:02:19PM +0200, Andi Kleen wrote:
-> On Friday 31 March 2006 16:56, Adrian Bunk wrote:
-> > This patch makes a nnedlessly global function static.
+Ed Lin wrote:
+> ======= On 2006-03-15 04:04:30, Matthew Wilcox wrote:
 > 
-> Disagree. It will be likely used in more code in the future.
+>> On Mon, Mar 13, 2006 at 03:42:36PM -0800, Andrew Morton wrote:
+>>>> +#include <linux/irq.h>
+>>> Can't include linux/irq.h from generic code (we really ought to fix that).
+>> In a sense we have -- everybody should include <linux/interrupt.h> and
+>> not <*/irq.h>.  Perhaps we need to poison the includes.
+>>
+>>>> +static inline u16 shasta_alloc_tag(u32 *bitmap)
+>>>> +{
+>>>> +	u16 i;
+>>>> +	for (i = 0; i < TAG_BITMAP_LENGTH; i++) 
+>>>> +		if (!((*bitmap) & (1 << i))) {
+>>>> +			*bitmap |= (1 << i);
+>>>> +			return i;
+>>>> +		}
+>>>> +
+>>>> +	return TAG_BITMAP_LENGTH;
+>>>> +}
+>>> This is too large to be inlined.
+>> And if I read the driver right, is unnecessary code.  It could just use
+>> the midlayer tag code (ok, not scsi_populate_tag_msg() which is
+>> SPI-specific, but scsi_activate_tcq(), scsi_deactivate_tcq(),
+>> scsi_find_tag(), scsi_set_tag_type(), and scsi_get_tag_type() should all
+>> work, being thin wrappers around the block layer functionality.
+>>
+> 
+> Really sorry about that. But...
+> 
+> When I was starting to implement the tcq according to the advice, I
+> suddenly found there may be a misunderstanding here. I think the tagged
+> command queue should be applied to a disk. But here the tag is adapter(HBA)
+> wide, not just for a specific disk. So maybe this is not the proper case
+> where tagged queue is being used...
 
-If this "likely" case becomes reality at any time in the future, 
-reverting my patch will be trivial.
+The block layer code works just fine with host queueing, but I agree
+that it may not be appropriate for the SCSI tcq API.
 
-OTOH, I have seen too many cases where people have said "I will need 
-this soon", and one year later it was still unused.
+In any case, I'm fine with merging the driver with existing tagging --
+since its known to work -- and then pondering the best course of action
+for tagging APIs in a later patch to the shasta driver.
 
-> -Andi
+Let's go ahead and get it in, minus the requested tagging changes but
+including the other requests.
 
-cu
-Adrian
+	Jeff
 
--- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

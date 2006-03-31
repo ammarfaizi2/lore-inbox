@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWCaAVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWCaAXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751166AbWCaAVb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 19:21:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWCaAVb
+	id S1751173AbWCaAXK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 19:23:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWCaAXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 19:21:31 -0500
-Received: from smtpout.mac.com ([17.250.248.72]:52730 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751166AbWCaAVa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 19:21:30 -0500
-In-Reply-To: <20060326065205.d691539c.mrmacman_g4@mac.com>
-References: <200603141619.36609.mmazur@kernel.pl> <200603231811.26546.mmazur@kernel.pl> <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com> <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix> <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com> <20060326065205.d691539c.mrmacman_g4@mac.com>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <4B0E79B3-4738-4B6A-82F9-6121E65263EB@mac.com>
-Cc: Andrew Morton <akpm@osdl.org>, Nix <nix@esperi.org.uk>,
-       Rob Landley <rob@landley.net>, Mariusz Mazur <mmazur@kernel.pl>,
-       llh-discuss@lists.pld-linux.org, John Livingston <jujutama@comcast.net>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Arch-specific header inconsistency (asm-*/termios.h)
-Date: Thu, 30 Mar 2006 19:20:52 -0500
-To: LKML Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: Apple Mail (2.746.3)
+	Thu, 30 Mar 2006 19:23:10 -0500
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:26341 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751173AbWCaAXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 19:23:08 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: [PATCH] splice support #3
+To: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       torvalds@osdl.org, Christoph Hellwig <hch@infradead.org>
+Reply-To: 7eggert@gmx.de
+Date: Fri, 31 Mar 2006 02:08:47 +0200
+References: <5W5ei-5kR-11@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1FP7PM-0003E3-PE@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm in the process of cleaning up various headers for use from  
-userspace, and at the same time I'm working to clean up some of the  
-duplication in the kernel-only portions of those headers.  I'm  
-running into one oddity that I can't explain.  In the various asm-*/ 
-termios.h files, there are user_termio_to_kernel_termios functions.   
-The m68k header does this:
+Jens Axboe <axboe@suse.de> wrote:
 
-get_user((termios)->c_line, &(termio)->c_line);
+> Ok, this should be it, I hope. Fixed the remaining issues spotted by
+> akpm, and also thanks to KAMEZAWA Hiroyuki for pointing out that the
+> page moving logic could get confused.
 
-The i386 header is missing that line, and after macro expansion the  
-rest of the context is almost exactly identical.  It appears there  
-are a couple other architectures that fall on both sides of the  
-fence.  Can anyone explain this apparently aberrant behavior or is  
-this a bug?  If there's a reason behind it, I'll make sure to put in  
-a useful comment; otherwise I'll fix it.
+a) JFTR: When I first read of splice, I imagined the splice call would
+replace the remote side of a pipe with any of the own fds (after flushing
+the buffer). E.g. cat could optionally call splice on the last input file
+and stdout, and on success, exit before the work is done. Is something like
+this planned?
 
-Thanks for the help!
+(Yes, I didn't pay much attention.)
 
-Cheers,
-Kyle Moffett
+b) Having read Christoph's comment, I think the planned splice syscall
+should overlay the sendfile sysctl (keeping the historic name). Off cause
+the offset parameter will give you strange results (*) if you're expecting
+an input file, but I doubt there are programs using sendfile randomly,
+hoping it would fail on pipes.
 
+If you do that, users can generically call sendfile and it will DTRT if
+possible.
+
+
+
+*) Obviously offset = n on pipe-in_fd will either
+ - skip n bytes from a pipe/socket, and it will be decremented by the
+   number of skipped bytes after returning from the syscall.
+or
+ - be incremented by the number of copied bytes (no skipping happens).
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

@@ -1,52 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWCaLUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWCaLWv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbWCaLUt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 06:20:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWCaLUt
+	id S1751296AbWCaLWv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 06:22:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWCaLWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 06:20:49 -0500
-Received: from morbo.e-centre.net ([66.154.82.3]:12238 "EHLO
-	cubert.e-centre.net") by vger.kernel.org with ESMTP
-	id S1751250AbWCaLUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 06:20:49 -0500
-X-ASG-Debug-ID: 1143804047-22205-391-0
-X-Barracuda-URL: http://10.3.1.19:8000/cgi-bin/mark.cgi
-X-ASG-Orig-Subj: Re: [PATCH] ioremap_cached()
-Subject: Re: [PATCH] ioremap_cached()
-From: Arjan van de Ven <arjan@infradead.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060330164120.GJ13590@parisc-linux.org>
-References: <20060330164120.GJ13590@parisc-linux.org>
-Content-Type: text/plain
-Date: Fri, 31 Mar 2006 13:20:44 +0200
-Message-Id: <1143804045.3053.7.camel@laptopd505.fenrus.org>
+	Fri, 31 Mar 2006 06:22:51 -0500
+Received: from unthought.net ([212.97.129.88]:62219 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S1751296AbWCaLWu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 06:22:50 -0500
+Date: Fri, 31 Mar 2006 13:22:49 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: linux-kernel@vger.kernel.org
+Subject: NFS client regression, simple test program
+Message-ID: <20060331112249.GG9811@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	linux-kernel@vger.kernel.org
+References: <20060331094850.GF9811@unthought.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=4.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.10304
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+Content-Type: multipart/mixed; boundary="17pEHd4RhPHOinZp"
+Content-Disposition: inline
+In-Reply-To: <20060331094850.GF9811@unthought.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> 
-> It seems clear to me that ioremap() and ioremap_nocache() are the
-> wrong way around.  The default needs to be uncached -- and the obvious
-> (rare) alternative becomes ioremap_cached().
-> 
-> So here's a patch for i386 to add ioremap_cached() and make ioremap()
-> uncached.  ioremap_nocache() remains as an alias for ioremap() so we
-> don't needlessly break old drivers.  Architecture maintainers will need
-> to fix up their ports if this patch is accepted.
+--17pEHd4RhPHOinZp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I'd actually suggest deprecating ioremap() and moving away from it to
-make sure all users think of which variant they want. Explicit naming is
-always better than "some" unknown behavior (especially for old drivers
-that work on multiple kernels... while you allow them to keep compiling,
-you change the world under them so I think eventually break them
-compiling is actually better than having them limp along broken)
 
+Attached is a small test program that exposes the regression.
+
+Kernel LEADING_EMPTY_SPACE wall-clock time to run
+2.6.15    0                0.2s
+2.6.15    1                29.3s
+2.6.14.7  0                0.2s
+2.6.14.7  1                0.2s
+
+So it seems that if a file is repeatedly read from and written to, it
+matters a lot for later kernels whether or not the blocks that are
+worked on, are offset a single byte or not...
+
+Any ideas?
+
+-- 
+
+ / jakob
+
+
+--17pEHd4RhPHOinZp
+Content-Type: text/x-csrc; charset=us-ascii
+Content-Disposition: attachment; filename="nfsbench.c"
+
+/*
+ * Tiny benchmark for Linux NFS client problem 2.6.14.7->2.6.15
+ *
+ * By Jakob Oestergaard, joe@unthought.net / joe@evalesco.com
+ *
+ * Compile as:
+ *  gcc -o nfsbench -O3 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 nfsbench.c
+ */
+
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <stdint.h>
+
+#define MYBLOCKSIZE 32768
+#define MYSUBSIZE 1024
+
+/* Set this define to non-zero to expose the regression */
+#define LEADING_EMPTY_SPACE 1
+
+int main(int argc, char **argv)
+{
+  int testfd = open("testfile", O_RDWR|O_CREAT|O_TRUNC, 0666);
+  off_t blockoff;
+  uint8_t garbage[MYBLOCKSIZE];
+
+  memset(garbage, 42, sizeof garbage);
+
+  for (blockoff = LEADING_EMPTY_SPACE;
+       blockoff < 10 * 1024 * 1024;
+       blockoff += MYBLOCKSIZE) {
+    off_t inblockoff;
+    lseek(testfd, blockoff, SEEK_SET);
+    write(testfd, garbage, MYBLOCKSIZE);
+
+    for (inblockoff = MYBLOCKSIZE / 4;
+	 inblockoff < MYBLOCKSIZE * 3 / 4;
+	 inblockoff += MYSUBSIZE * 2) {
+      uint8_t gdata[MYBLOCKSIZE];
+      lseek(testfd, blockoff, SEEK_SET);
+      read(testfd, gdata, MYBLOCKSIZE);
+      lseek(testfd, -inblockoff, SEEK_CUR);
+      write(testfd, gdata + inblockoff, MYSUBSIZE);
+    }
+  }
+
+  close(testfd);
+}
+
+--17pEHd4RhPHOinZp--

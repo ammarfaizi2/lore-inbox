@@ -1,48 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWCaBdw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWCaBfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751110AbWCaBdw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 20:33:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWCaBdw
+	id S1751178AbWCaBfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 20:35:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWCaBfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 20:33:52 -0500
-Received: from science.horizon.com ([192.35.100.1]:55875 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S1751110AbWCaBdv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 20:33:51 -0500
-Date: 30 Mar 2006 20:33:46 -0500
-Message-ID: <20060331013346.913.qmail@science.horizon.com>
-From: linux@horizon.com
-To: clameter@sgi.com
-Subject: Re: Synchronizing Bit operations V2
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+	Thu, 30 Mar 2006 20:35:25 -0500
+Received: from dukecmmtao03.coxmail.com ([68.99.120.70]:3790 "EHLO
+	dukecmmtao03.coxmail.com") by vger.kernel.org with ESMTP
+	id S1751178AbWCaBfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 20:35:25 -0500
+Message-ID: <015301c65463$5f0cd5d0$2801010a@Dolphin>
+From: "Peter Van" <plst@ws.sbcoxmail.com>
+To: "Robert Hancock" <hancockr@shaw.ca>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <5WbMU-6U1-67@gated-at.bofh.it> <442C8153.1050907@shaw.ca>
+Subject: Re: How to debug an Oops on  FC4 2.6 Kernel
+Date: Thu, 30 Mar 2006 17:35:19 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=response
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2527
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The following patchset implements the ability to specify a
-> synchronization mode for bit operations.
->
-> I.e. instead of set_bit(x,y) we can do set_bit(x,y, mode).
+Thanks, 
+
+I'll  update the kernel.....
+Pete
+
+----- Original Message ----- 
+From: "Robert Hancock" <hancockr@shaw.ca>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Cc: "Peter Van" <plst@ws.sbcoxmail.com>
+Sent: Thursday, March 30, 2006 5:09 PM
+Subject: Re: How to debug an Oops on FC4 2.6 Kernel
+
+
+> Peter Van wrote:
+>> Hi,
+>> 
+>> My computer hung af few day ago for no apparent  reason requiring a 
+>> reboot and clear.
+>> /var/log/messages has an  Oops log but I don't know how to use the Oops 
+>> log to determine the cause of the problem.  According to some posts,  
+>> ksymoops can't be used
+>> on a 2.6 kernel.
 > 
-> The following modes are supported:
-
-Yuck.
-
-The only conceivable reason for passing the mode as a separate parameter is
-- To change the mode dynamically at run time.
-- To share common code when the sequence is long and mostly shared
-  between the various modes (as in open(2) or ll_rw_block()).
-
-I sincerely hope neither of those apply in this case.
-
-On the downside, it's more typing and uglier than a series of
-
-frob_bit_nonatomic()
-	(probably temporarily or permanently aliased to frob_bit())
-frob_bit_atomic()
-frob_bit_acquire()
-frob_bit_release()
-frob_bit_barrier()
-
-functions, and those also prevent you from doing something silly like
-frob_bit(x, y, O_DIRECT).  Also, the MODE_ prefix might be wanted by
-something else.
+> That's because it's not needed, the oops already shows the symbols.
+> 
+> That's a somewhat old FC4 kernel now, you could try the latest version.
+> 
+> -- 
+> Robert Hancock      Saskatoon, SK, Canada
+> To email, remove "nospam" from hancockr@nospamshaw.ca
+> Home Page: http://www.roberthancock.com/
+> 
+> 
+> 
+> -- 
+> No virus found in this incoming message.
+> Checked by AVG Free Edition.
+> Version: 7.1.385 / Virus Database: 268.3.3/298 - Release Date: 3/30/2006
+> 
+>

@@ -1,111 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbWCaHMI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWCaHQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751210AbWCaHMI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 02:12:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWCaHMI
+	id S1751155AbWCaHQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 02:16:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWCaHQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 02:12:08 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:40622 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751210AbWCaHMG (ORCPT
+	Fri, 31 Mar 2006 02:16:27 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:23608 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751155AbWCaHQ1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 02:12:06 -0500
-Date: Fri, 31 Mar 2006 09:09:32 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jeff@garzik.org>, Jens Axboe <axboe@suse.de>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] splice support #2
-Message-ID: <20060331070931.GA25853@elte.hu>
-References: <20060330100630.GT13476@suse.de> <20060330120055.GA10402@elte.hu> <20060330120512.GX13476@suse.de> <Pine.LNX.4.64.0603300853190.27203@g5.osdl.org> <442C440B.2090700@garzik.org> <Pine.LNX.4.64.0603301259220.27203@g5.osdl.org>
+	Fri, 31 Mar 2006 02:16:27 -0500
+Date: Fri, 31 Mar 2006 09:16:36 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Introduce sys_splice() system call
+Message-ID: <20060331071635.GA14022@suse.de>
+References: <200603302109.k2UL9Auj011419@hera.kernel.org> <20060330161240.11ee3d5f.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0603301259220.27203@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20060330161240.11ee3d5f.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 30 2006, Andrew Morton wrote:
+ 
+> splice.c should include syscalls.h.
 
-* Linus Torvalds <torvalds@osdl.org> wrote:
+done
 
-> In particular, what happens when you try to connect two streaming 
-> devices, but the destination stops accepting data? You cannot put the 
-> received data "back" into the streaming source any way - so if you 
-> actually want to be able to handle error recovery, you _have_ to get 
-> access to the source buffers.
+> > +	if (i && (pages[i - 1]->index == index + i - 1))
+> > +		goto splice_them;
+> > +
+> > +	/*
+> > +	 * fill shadow[] with pages at the right locations, so we only
+> > +	 * have to fill holes
+> > +	 */
+> > +	memset(shadow, 0, i * sizeof(struct page *));
+> 
+> This leaves shadow[i] up to shadow[nr_pages - 1] uninitialised.
+> 
+> > +	for (j = 0, pidx = index; j < i; pidx++, j++)
+> > +		shadow[pages[j]->index - pidx] = pages[j];
+> 
+> This can overindex shadow[].
 
-i'd rather implement this error case as an exception mechanism, instead 
-of a forced intermediary buffer mechanism.
+This and the above was already fixed in the splice branch yesterday, it
+just missed the cut for the splice #3 posting. So at least that's taken
+care of :-). We need to init nr_pages of shadow of course, and don't
+increment pidx in that loop (in fact, just use 'index').
 
-We should extend the userspace API so that it is prepared to receive 
-'excess data' via a separate 'flush excess data to' file descriptor:
+> > +	/*
+> > +	 * now fill in the holes
+> > +	 */
+> > +	for (i = 0, pidx = index; i < nr_pages; pidx++, i++) {
+> 
+> We've lost `i', which is the number of pages in pages[], and the number of
+> initialised entries in shadow[].
 
-	sys_splice(fd_in, fd_out, fd_flush, size,
-                   max_flush_size, *bytes_flushed)
+Doesn't matter, we know that all entries in shadow[] are either valid or
+NULL up to nr_pages which is our target.
 
-Note1: fd_flush can be a pipe too! This would avoid copies in the 
-       exception case - if the exception case is expected to be common.
+> > +		int error;
+> > +
+> > +		if (shadow[i])
+> > +			continue;
+> 
+> As this loop iterates up to nr_pages, which can be greater than the
+> now-lost `i', we're playing with potentially-uninitialised entries in
+> shadow[].
+> 
+> Doing
+> 
+> 	nr_pages = find_get_pages(..., nr_pages, ...)
+> 
+> up above would be a good start on getting this sorted out.
 
-Note2: max_flush_size serves as hint and as a natural 'buffering limit' 
-       for the kernel-internal loops. I believe it's more natural than 
-       the implicit 'pipe buffering limit' we currently have.
-       max_flush_size == 0 would say to the kernel: 'use whatever 
-       buffering is natural or necessary'. E.g. if fd_flush is a pipe, 
-       it would automatically set the buffering size to the flush-pipe's
-       internal buffering limit.
+It should work fine with the memset() and for loop fix.
 
-Note3: we could even eliminate the "*bytes_flushed" parameter from 
-       the syscall: as fd_flush's seek offset gives userspace an idea 
-       about how much data was written to it.
+> 
+> > +		/*
+> > +		 * no page there, look one up / create it
+> > +		 */
+> > +		page = find_or_create_page(mapping, pidx,
+> > +						   mapping_gfp_mask(mapping));
+> > +		if (!page)
+> > +			break;
+> 
+> So if OOM happened, we can still have NULLs and live page*'s in shadow[],
+> outside `i'
 
-Note4: if the user messes up fd_flush so that the kernel's "excess data" 
-       transfer into fd_flush failes then that's 'tough luck' and flush 
-       data may be lost. Users can use pipes [if the exception case is 
-       common and they want to optimize that codepath] or can pre-write 
-       their files if they need a 100% guarantee.
-       In fact, the kernel doesnt even have to _look up_ fd_flush in the 
-       common case. It's the application's responsibility to make sure 
-       the exception case will work. This means that the _only_ overhead 
-       from this exception mechanism are the 2-3 extra parameters to
-       sys_splice(). That's _much_ faster.
+Yes
 
-Just look at the beauty of this generalization. fd_flush can be 
-_anything_. It could be a pipe. It could be a temporary file in /tmp. It 
-could be a file over the network. fd_flush could be mmap()-ed to 
-user-space! Or it could even be -1 if the user is not interested in the 
-error case for the streaming data. (For example a good portion of video 
-and audio playback applications are not interested in the fd_out error 
-case at all: such data can easily lose 'value' if it gets delayed by 
-more than a few milliseconds and the right answer is to skip the frame 
-or display an error message, ignoring the lost data.)
+> > +		if (PageUptodate(page))
+> > +			unlock_page(page);
+> > +		else {
+> > +			error = mapping->a_ops->readpage(in, page);
+> > +
+> > +			if (unlikely(error)) {
+> > +				page_cache_release(page);
+> > +				break;
+> > +			}
+> > +		}
+> > +		shadow[i] = page;
+> > +	}
+> > +
+> > +	if (!i) {
+> > +		for (i = 0; i < nr_pages; i++) {
+> > +			 if (shadow[i])
+> > +				page_cache_release(shadow[i]);
+> > +		}
+> > +		return 0;
+> > +	}
+> 
+> OK.
+> 
+> > +	memcpy(pages, shadow, i * sizeof(struct page *));
+> 
+> If we hit oom above, there can be live page*'s in shadow[], between the
+> current value of `i' and the now-lost return from find_get_pages().
+> 
+> The pages will leak.
 
-But for heaven's sake: do not slow down the 99.9999999999% fastpath by 
-forcing a pipe inbetween on the ABI level! I really have nothing against 
-making sys_splice() generic and i agree that a very good first step to 
-achieve that is to include pipes in the implementation, but i dont think 
-pipes are (or should be) all that critical and fundamental to the splice 
-data-streaming concept itself, as you are suggesting.
+Please check the current branch, I don't see any leaks.
 
-> Also, for signal handling, you need to have some way to keep the pipe 
-> around for several iterations on the sender side, while still 
-> returning to user space to do the signal handler.
+> > +
+> > +/*
+> > + * Send 'len' bytes to socket from 'file' at position 'pos' using sendpage().
+> 
+> sd->len, actually.
 
-i believe the signal case is naturally handled by the fd_flush approach 
-too - in fact it can also acts as a nice tester for the exception 
-handling mechanism.
+Right, comment corrected.
 
-If the application in question expects to get many signals then it can 
-use a pipe as fd_flush. (But signal-heavy apps are quite rare: most 
-performance-critical apps avoid them for the fastpath like the plague, 
-on modern CPUs it's more expensive to receive and handle a single signal 
-than to create and tear down a completely new thread (!))
+> > +	ret = mapping->a_ops->prepare_write(file, page, 0, sd->len);
+> > +	if (ret)
+> > +		goto out;
+> > +
+> > +	dst = kmap_atomic(page, KM_USER0);
+> > +	memcpy(dst + offset, src + buf->offset, sd->len);
+> > +	flush_dcache_page(page);
+> > +	kunmap_atomic(dst, KM_USER0);
+> > +
+> > +	ret = mapping->a_ops->commit_write(file, page, 0, sd->len);
+> > +	if (ret < 0)
+> > +		goto out;
+> > +
+> > +	set_page_dirty(page);
+> > +	ret = write_one_page(page, 0);
+> 
+> Still want to know why this is here??
+> 
+> > +out:
+> > +	if (ret < 0)
+> > +		unlock_page(page);
+> 
+> If write_one_page()'s call to ->writepage() failed, this will cause a
+> double unlock.
 
-	Ingo
+Can probably be improved - can I drop write_one_page() and just unlock
+the page and regular cleaning will flush it out?
+
+-- 
+Jens Axboe
+

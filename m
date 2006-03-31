@@ -1,74 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWCaD1G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWCaD2N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751211AbWCaD1G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 22:27:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWCaD1G
+	id S1751234AbWCaD2N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 22:28:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWCaD2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 22:27:06 -0500
-Received: from mail.tmr.com ([64.65.253.246]:56997 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S1751211AbWCaD1F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 22:27:05 -0500
-Message-ID: <442CA294.7010902@tmr.com>
-Date: Thu, 30 Mar 2006 22:31:32 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Thu, 30 Mar 2006 22:28:13 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:38355 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751234AbWCaD2M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 22:28:12 -0500
+Date: Thu, 30 Mar 2006 19:28:02 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
+       "Boehm, Hans" <hans.boehm@hp.com>,
+       "Grundler, Grant G" <grant.grundler@hp.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Synchronizing Bit operations V2
+In-Reply-To: <442C7B51.1060203@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0603301921550.3145@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0603301300430.1014@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.64.0603301615540.2023@schroedinger.engr.sgi.com>
+ <442C7B51.1060203@yahoo.com.au>
 MIME-Version: 1.0
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-CC: Ram Gupta <ram.gupta5@gmail.com>,
-       linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: RSS Limit implementation issue
-References: <728201270602091310r67a3f2dcq4788199f26a69528@mail.gmail.com>	<1139526447.6692.7.camel@localhost.localdomain>	<728201270603230855l11faeb6ah33ee88568843068f@mail.gmail.com>	<442AEB3A.9030503@tmr.com> <17452.39743.625417.599298@wombat.chubb.wattle.id.au>
-In-Reply-To: <17452.39743.625417.599298@wombat.chubb.wattle.id.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Chubb wrote:
+On Fri, 31 Mar 2006, Nick Piggin wrote:
 
->>>>>>"Bill" == Bill Davidsen <davidsen@tmr.com> writes:
->>>>>>            
->>>>>>
->
->Bill> Ram Gupta wrote:
->
->Bill> If you want to make rss a hard limit the result should be
->Bill> swapping, not failure to run. I'm not sure the limit in that
->Bill> form is a good idea, and before someone reminds me, I do
->Bill> remember liking it better a few years ago.
->
->Bill> If you can come up with a better way to adjust rss to get better
->Bill> overall greater throughput while being fair to all processes, go
->Bill> to it. But in general these things are a tradeoff, like
->Bill> swappiness, you tune until the volume of complaints reaches a
->Bill> minimum.
->
->What I did in one experiment was to:
->     1.  delay swapin requests if the process was over its rsslimit,
->         until it fell below, and
->     2.  Poke the swapper to try to swap out the current process's
->         pages in that case.
->
->The problem with the approach is that it behaved poorly under memory
->pressure.  If a process's optimum working set was larger than its RSS
->limit, then either it was delayed to the point of glaciality, or it
->could saturate the swap device (and so disturb other processes's
->operation). 
->
->  
->
-I'm paying close attention, but that's kind of the problem people have, 
-memory pressure gets high and the processes don't run. I thought of 
-"swap out two to swap in one" as a way to dribble the rss down, but I 
-doubt it's a magic solution. Swap kills, so does not swap and no memory. 
-Obvious solution is to make the rss limit hard and keep it small, I 
-don't think that's the answer.
+> This has acquire and release, instead of the generic kernel
+> memory barriers rmb and wmb. As such, I don't think it would
+> get merged.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+Right. From the earlier conversation I had the impression that this is 
+what you wanted.
+ 
+> > Note that the current semantics for bitops IA64 are broken. Both
+> > smp_mb__after/before_clear_bit are now set to full memory barriers
+> > to compensate which may affect performance.
+> 
+> I think you should fight the fights you can win and get a 90%
+> solution ;) at any rate you do need to fix the existing routines
+> unless you plan to audit all callers...
+> 
+> First, fix up ia64 in 2.6-head, this means fixing test_and_set_bit
+> and friends, smp_mb__*_clear_bit, and all the atomic operations that
+> both modify and return a value.
+> 
+> Then add test_and_set_bit_lock / clear_bit_unlock, and apply them
+> to a couple of critical places like page lock and buffer lock.
+> 
+> Is this being planned?
+
+That sounds like a long and tedious route to draw out the pain for a 
+couple of years and add loads of additional macro definitions all over the 
+header files. I'd really like a solution that allows a gradual 
+simplification of the macros and that has clear semantics.
+
+So far it seems that I have not even been able to find the definitions for 
+the proper behavior of memory barriers.
 

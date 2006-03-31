@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbWCaDAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWCaDA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750949AbWCaDAU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 22:00:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWCaDAU
+	id S1751125AbWCaDA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 22:00:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWCaDA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 22:00:20 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:44512 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750949AbWCaDAU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 22:00:20 -0500
-Date: Thu, 30 Mar 2006 18:59:56 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: linux-kernel@vger.kernel.org, axboe@suse.de, nickpiggin@yahoo.com.au
-Subject: Re: [PATCH] splice: add support for SPLICE_F_MOVE flag
-Message-Id: <20060330185956.54961b7b.akpm@osdl.org>
-In-Reply-To: <20060330163544.72e50aab.akpm@osdl.org>
-References: <200603302109.k2UL9ET0012970@hera.kernel.org>
-	<20060330163544.72e50aab.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 30 Mar 2006 22:00:27 -0500
+Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:55517 "EHLO
+	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751125AbWCaDA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 22:00:26 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17452.39743.625417.599298@wombat.chubb.wattle.id.au>
+Date: Fri, 31 Mar 2006 14:00:15 +1100
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Ram Gupta <ram.gupta5@gmail.com>,
+       linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: RSS Limit implementation issue
+In-Reply-To: <442AEB3A.9030503@tmr.com>
+References: <728201270602091310r67a3f2dcq4788199f26a69528@mail.gmail.com>
+	<1139526447.6692.7.camel@localhost.localdomain>
+	<728201270603230855l11faeb6ah33ee88568843068f@mail.gmail.com>
+	<442AEB3A.9030503@tmr.com>
+X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
->   static void page_cache_pipe_buf_unmap(struct pipe_inode_info *info,
->  >  				      struct pipe_buffer *buf)
->  >  {
->  > -	unlock_page(buf->page);
->  > +	if (!buf->stolen)
->  > +		unlock_page(buf->page);
->  >  	kunmap(buf->page);
->  >  }
-> 
->  There go our chances of ever getting rid of kmap().  Is it not feasible to
->  use atomic kmaps throughout this code?
+>>>>> "Bill" == Bill Davidsen <davidsen@tmr.com> writes:
 
-What are the kmaps for, anyway?  afaict they're doing the
-kmap-the-page-while-we-run-some-a_ops thing which ceased being a
-requirement 3-4 years ago.
+Bill> Ram Gupta wrote:
 
-The general approach we should take is that the code which actually
-modifies a page's contents is the code which is responsible for kmapping
-that page.  Use an atomic kmap, memcpy-or-memset, atomic kunmap.  Just four
-or five lines.
+Bill> If you want to make rss a hard limit the result should be
+Bill> swapping, not failure to run. I'm not sure the limit in that
+Bill> form is a good idea, and before someone reminds me, I do
+Bill> remember liking it better a few years ago.
 
-If we can do that, pipe_buf_operations.map/unmap can be removed.
+Bill> If you can come up with a better way to adjust rss to get better
+Bill> overall greater throughput while being fair to all processes, go
+Bill> to it. But in general these things are a tradeoff, like
+Bill> swappiness, you tune until the volume of complaints reaches a
+Bill> minimum.
+
+What I did in one experiment was to:
+     1.  delay swapin requests if the process was over its rsslimit,
+         until it fell below, and
+     2.  Poke the swapper to try to swap out the current process's
+         pages in that case.
+
+The problem with the approach is that it behaved poorly under memory
+pressure.  If a process's optimum working set was larger than its RSS
+limit, then either it was delayed to the point of glaciality, or it
+could saturate the swap device (and so disturb other processes's
+operation). 
+
+-- 
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+http://www.ertos.nicta.com.au           ERTOS within National ICT Australia

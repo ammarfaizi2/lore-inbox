@@ -1,69 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWCaMXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWCaM0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbWCaMXK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 07:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWCaMXK
+	id S1751339AbWCaM0T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 07:26:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWCaM0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 07:23:10 -0500
-Received: from pat.uio.no ([129.240.10.6]:57328 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751352AbWCaMXJ (ORCPT
+	Fri, 31 Mar 2006 07:26:18 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:59165 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751339AbWCaM0S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 07:23:09 -0500
-Subject: Re: NFS client (10x) performance regression 2.6.14.7 -> 2.6.15
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Jakob Oestergaard <jakob@unthought.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060331094850.GF9811@unthought.net>
-References: <20060331094850.GF9811@unthought.net>
-Content-Type: text/plain
-Date: Fri, 31 Mar 2006 07:22:50 -0500
-Message-Id: <1143807770.8096.4.camel@lade.trondhjem.org>
+	Fri, 31 Mar 2006 07:26:18 -0500
+Date: Fri, 31 Mar 2006 14:26:26 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] splice support #2
+Message-ID: <20060331122626.GT14022@suse.de>
+References: <20060330100630.GT13476@suse.de> <20060330120055.GA10402@elte.hu> <20060330120512.GX13476@suse.de> <Pine.LNX.4.64.0603300853190.27203@g5.osdl.org> <20060331121817.GA11810@elte.hu> <20060331122339.GS14022@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.696, required 12,
-	autolearn=disabled, AWL 1.12, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060331122339.GS14022@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-31 at 11:48 +0200, Jakob Oestergaard wrote:
-> Hi guys,
+On Fri, Mar 31 2006, Jens Axboe wrote:
+> On Fri, Mar 31 2006, Ingo Molnar wrote:
+> > 
+> > * Linus Torvalds <torvalds@osdl.org> wrote:
+> > 
+> > >  - The pipe is the buffer #2: it's what allows you to do _other_ things 
+> > >    with splice that are simply impossible to do with sendfile. Notably, 
+> > >    splice allows very naturally the "readv/writev" scatter-gather 
+> > >    behaviour of _mixing_ streams. If you're a web-server, with splice you 
+> > >    can do
+> > > 
+> > > 	write(pipefd, header, header_len);
+> > > 	splice(file, pipefd, file_len);
+> > > 	splice(pipefd, socket, total_len);
+> > > 
+> > >    (this is all conceptual pseudo-code, of course), and this very 
+> > >    naturally has none of the issues that sendfile() has with plugging etc. 
+> > >    There's never any "send header separately and do extra work to make 
+> > >    sure it is in the same packet as the start of the data".
+> > 
+> > with pipe-based buffering this approach has still the very same problems 
+> > that sendfile() has with packet boundaries, because it's not enough to 
+> > have "large enough" buffering (like a pipe has), the pipe also has to be 
+> > drained, and the networking layer has to know the precise boundary of 
+> > data.
+> > 
+> > the right solution to the packet boundary problem is to pass in a proper 
+> > "does userspace expect more data right now" flag, or to let userspace 
+> > 'flush' the socket independently - which is independent of the 
+> > pipe-in-slice issue. This solution already exists: the MSG_MORE flag.
 > 
-> I just found out... Installed 2.6.16.1 (32-bit) on a spanking new dual
-> opteron 275 (dual-core) machine, and saw that my link jobs were taking
-> ages.
-> 
-> I narrowed it down a bit - these are the kernels I have tested:
-> 2.6.13.5:  Good
-> 2.6.14.7:  Good
-> 2.6.15:    Poor
-> 2.6.15.7:  Poor
-> 2.6.16.1:  Poor
-> 
-> Sequential NFS I/O is good on all kernels. Only "ld" shows the problem.
-> 
-> On 2.6.14.7, I can run a large link job creating a 60 MB executable in
-> 15.6 seconds wall-clock time.
-> 
-> On 2.6.15, the same link job takes 2 minutes 28 seconds.
-> 
-> This is almost 10 *times* longer.
-> 
-> Testing with tiobench, I can see no notable difference between the
-> kernels (!)   It seems that this is very specific to ld.  I am using GNU
-> ld version 2.15.
-> 
-> The NFS client mounts the working directory using NFS v3 over UDP with
-> default (32k) rsize/wsize.
-> 
-> Since this machine is not in production yet, I can experiment with
-> kernel patches on it - I would like to try and narrow this down even
-> further - any suggestions as to which patches to exclude/include will be
-> greatly appreciated.
+> We can add a SPLICE_F_MORE flag for this, right now splice doesn't set
+> the MSG_MORE flag for the end of the pipe.
 
-Some nfsstat output comparing the good and bad cases would help.
+Ala
 
-Cheers,
-  Trond
+diff --git a/fs/splice.c b/fs/splice.c
+index d8787c1..8a9ef67 100644
+--- a/fs/splice.c
++++ b/fs/splice.c
+@@ -343,15 +343,16 @@ static int pipe_to_sendpage(struct pipe_
+ 	loff_t pos = sd->pos;
+ 	unsigned int offset;
+ 	ssize_t ret;
++	int more;
+ 
+ 	ret = buf->ops->map(file, info, buf);
+ 	if (unlikely(ret))
+ 		return ret;
+ 
+ 	offset = pos & ~PAGE_CACHE_MASK;
++	more = (sd->flags & SPLICE_F_MORE) || sd->len < sd->total_len;
+ 
+-	ret = file->f_op->sendpage(file, buf->page, offset, sd->len, &pos,
+-					sd->len < sd->total_len);
++	ret = file->f_op->sendpage(file, buf->page, offset, sd->len, &pos,more);
+ 
+ 	buf->ops->unmap(info, buf);
+ 	if (ret == sd->len)
+diff --git a/include/linux/pipe_fs_i.h b/include/linux/pipe_fs_i.h
+index bdf9d57..b003e3d 100644
+--- a/include/linux/pipe_fs_i.h
++++ b/include/linux/pipe_fs_i.h
+@@ -59,5 +59,6 @@ void free_pipe_info(struct inode* inode)
+  * add the splice flags here.
+  */
+ #define SPLICE_F_MOVE	(0x01)	/* move pages instead of copying */
++#define SPLICE_F_MORE	(0x02)	/* expect more data */
+ 
+ #endif
+
+-- 
+Jens Axboe
 

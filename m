@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWCaRgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWCaRkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932138AbWCaRgc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 12:36:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWCaRgc
+	id S932139AbWCaRkl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 12:40:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWCaRkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 12:36:32 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:45187 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S1751094AbWCaRgb (ORCPT
+	Fri, 31 Mar 2006 12:40:41 -0500
+Received: from mail.parknet.jp ([210.171.160.80]:53511 "EHLO parknet.jp")
+	by vger.kernel.org with ESMTP id S932139AbWCaRkk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 12:36:31 -0500
-Message-ID: <442D689E.9080209@hp.com>
-Date: Fri, 31 Mar 2006 09:36:30 -0800
-From: Rick Jones <rick.jones2@hp.com>
-User-Agent: Mozilla/5.0 (X11; U; HP-UX 9000/785; en-US; rv:1.6) Gecko/20040304
-X-Accept-Language: en-us, en
+	Fri, 31 Mar 2006 12:40:40 -0500
+X-AuthUser: hirofumi@parknet.jp
+To: Andi Kleen <ak@suse.de>
+Cc: Jes Sorensen <jes@sgi.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [patch] avoid unaligned access when accessing poll stack
+References: <yq0sloytyj5.fsf@jaguar.mkp.net> <200603311853.32870.ak@suse.de>
+	<87ek0ipmae.fsf@duaron.myhome.or.jp> <200603311918.35207.ak@suse.de>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sat, 01 Apr 2006 02:40:34 +0900
+In-Reply-To: <200603311918.35207.ak@suse.de> (Andi Kleen's message of "Fri, 31 Mar 2006 19:18:34 +0200")
+Message-ID: <87irpums19.fsf@duaron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH]: e1000: prevent statistics from getting garbled during
- reset.
-References: <20060330213928.GQ2172@austin.ibm.com>	<20060331000208.GS2172@austin.ibm.com>	<442C8069.507@wolfmountaingroup.com>	<20060331003506.GU2172@austin.ibm.com>	<442CACC0.1060308@wolfmountaingroup.com> <20060331170319.GV2172@austin.ibm.com>
-In-Reply-To: <20060331170319.GV2172@austin.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2) What's wrong with taking deltas? Typical through-put performance
-> measurement is done by pre-loading the pipes (i.e. running for
-> a few minutes wihtout measuring, then starting the measurement).
-> I'd think that snapshotting the numbers would be easier, and is 
-> trivially doable in user-space. I guess I don't understand why 
-> you need a new kernel featre to imlement this.
+Andi Kleen <ak@suse.de> writes:
 
-ftp://ftp.cup.hp.com/dist/networking/tools/beforeafter.tar.gz
+>> 	char stack_pps[POLL_STACK_ALLOC]
+>>         	__attribute__((aligned (sizeof(struct poll_list))));
+>
+> This would require much more alignment than really necessary. Probably you meant
+> s/sizeof/alignof/. But Jes' patch is fine I think.
 
-Not my code, I've used it with success against ethtool -S output.
-
-rick jones
+I read your this patch now, so, I agree. Sorry for noise.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

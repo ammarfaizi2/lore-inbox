@@ -1,67 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbWCaSXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWCaS1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbWCaSXN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 13:23:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWCaSXN
+	id S932244AbWCaS1i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 13:27:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWCaS1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 13:23:13 -0500
-Received: from smtp-4.llnl.gov ([128.115.41.84]:3260 "EHLO smtp-4.llnl.gov")
-	by vger.kernel.org with ESMTP id S932200AbWCaSXM (ORCPT
+	Fri, 31 Mar 2006 13:27:38 -0500
+Received: from pat.uio.no ([129.240.10.6]:32176 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932223AbWCaS1h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 13:23:12 -0500
-From: Dave Peterson <dsp@llnl.gov>
-To: gtm.kramer@inter.nl.net, linux-kernel@vger.kernel.org
-Subject: Re: Non-Fatal Error PCI Express messages
-Date: Fri, 31 Mar 2006 10:22:56 -0800
-User-Agent: KMail/1.5.3
-References: <1143793550.3331.4.camel@paragon.slim>
-In-Reply-To: <1143793550.3331.4.camel@paragon.slim>
-Cc: bluesmoke-devel@lists.sourceforge.net
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Fri, 31 Mar 2006 13:27:37 -0500
+Subject: Re: [PATCH 2/4] locks: don't unnecessarily fail posix lock
+	operations
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: akpm@osdl.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <E1FPNSB-0005VK-00@dorka.pomaz.szeredi.hu>
+References: <E1FPNOD-0005Tg-00@dorka.pomaz.szeredi.hu>
+	 <E1FPNSB-0005VK-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Date: Fri, 31 Mar 2006 13:27:21 -0500
+Message-Id: <1143829641.8085.7.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603311022.56896.dsp@llnl.gov>
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.68, required 12,
+	autolearn=disabled, AWL 1.32, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 31 March 2006 00:25, Jurgen Kramer wrote:
-> With 2.6.16 (from FC5s 2.6.16-1.2080_FC5smp) I am getting a lot of
->
-> Mar 31 09:35:16 paragon kernel: Non-Fatal Error PCI Express B
-> Mar 31 09:35:17 paragon kernel: Non-Fatal Error PCI Express B
-> Mar 31 09:35:17 paragon kernel: Non-Fatal Error PCI Express B
-> Mar 31 09:35:18 paragon kernel: Non-Fatal Error PCI Express B
-> Mar 31 09:35:18 paragon kernel: Non-Fatal Error PCI Express B
-> Mar 31 09:35:20 paragon kernel: Non-Fatal Error PCI Express B
-> Mar 31 09:35:20 paragon kernel: Non-Fatal Error PCI Express B
-> Mar 31 09:35:39 paragon kernel: Non-Fatal Error PCI Express B
->
-> messages which presumably come from
->
-> Mar 31 09:17:15 paragon kernel: MC: drivers/edac/edac_mc.c version
-> edac_mc  Ver: 2.0.0 Mar 28 2006
-> Mar 31 09:17:15 paragon kernel: EDAC MC0: Giving out device to
-> "e752x_edac" E7525: PCI 0000:00:00.0
->
-> Is there really something broken here of just a noisy driver?
->
-> BTW this is on a Asus NCT-D mobo with Intel E7525 chipset.
->
-> Jurgen
+On Fri, 2006-03-31 at 19:30 +0200, Miklos Szeredi wrote:
+> posix_lock_file() was too cautious, failing operations on OOM, even if
+> they didn't actually require an allocation.
+> 
+> This has the disadvantage, that a failing unlock on process exit could
+> lead to a memory leak.  There are two possibilites for this:
+> 
+> - filesystem implements .lock() and calls back to posix_lock_file().
+> On cleanup of files_struct locks_remove_posix() is called which should
+> remove all locks belonging to files_struct.  However if filesystem
+> calls posix_lock_file() which fails, then those locks will never be
+> freed.
+> 
+> - if a file is closed while a lock is blocked, then after acquiring
+> fcntl_setlk() will undo the lock.  But this unlock itself might fail
+> on OOM, again possibly leaking the lock.
+> 
+> The solution is to move the checking of the allocations until after it
+> is sure that they will be needed.  This will solve the above problem
+> since unlock will always succeed unless it splits an existing region.
+> 
+> Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+> 
+> Index: linux/fs/locks.c
+> ===================================================================
+> --- linux.orig/fs/locks.c	2006-03-31 18:55:33.000000000 +0200
+> +++ linux/fs/locks.c	2006-03-31 18:55:33.000000000 +0200
+> @@ -835,14 +835,7 @@ int __posix_lock_file(struct inode *inod
+>  	if (request->fl_flags & FL_ACCESS)
+>  		goto out;
+>  
+> -	error = -ENOLCK; /* "no luck" */
+> -	if (!(new_fl && new_fl2))
+> -		goto out;
+> -
+>  	/*
+> -	 * We've allocated the new locks in advance, so there are no
+> -	 * errors possible (and no blocking operations) from here on.
+> -	 * 
+>  	 * Find the first old lock with the same owner as the new lock.
+>  	 */
+>  	
+> @@ -939,6 +932,18 @@ int __posix_lock_file(struct inode *inod
+>  		before = &fl->fl_next;
+>  	}
+>  
+> +	/*
+> +	 * The above code only modifies existing locks in case of
+> +	 * merging or replacing.  If new lock(s) need to be inserted
+> +	 * all modifications are done bellow this, so it's safe yet to
+> +	 * bail out.
+> +	 */
+> +	error = -ENOLCK; /* "no luck" */
+> +	if (!added && request->fl_type != F_UNLCK && !new_fl)
+> +		goto out;
+> +	if (right && left == right && !new_fl2)
+> +		goto out;
+> +
+>  	error = 0;
+>  	if (!added) {
+>  		if (request->fl_type == F_UNLCK)
 
-Hi Jurgen,
+NACK.
 
-I haven't seen this particular error before, and I can't say for sure
-whether it's a genuine problem that should be dealt with or just a
-minor annoyance that can be safely ignored.  EDAC is a relatively new
-piece of code, and still very much a work in progress.  If this is in
-fact a benign type of error, EDAC should provide a mechanism by which
-a sysadmin can silence it.  This is an area of future work.
+This changes the behaviour of F_UNLCK. Currently, if the allocation
+fails, the inode locking state remains unchanged. With your change, an
+unlock request may end up unlocking part of the inode, but not the rest.
 
-I'm forwarding your message to the bluesmoke mailing list just in
-case anyone who reads that list has seen instances of this error in
-the past and can provide more info on it.
+Furthermore, AFAICS you are now able to Oops if (!added && !new_fl).
 
-Dave
+Cheers,
+  Trond
+

@@ -1,46 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbWCaRbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWCaRcJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751022AbWCaRbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 12:31:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWCaRbQ
+	id S1751059AbWCaRcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 12:32:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWCaRcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 12:31:16 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:58647 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1751022AbWCaRbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 12:31:14 -0500
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <1B2FA58D-1F7F-469E-956D-564947BDA59A@kernel.crashing.org>
-Cc: spi-devel-general@lists.sourceforge.net,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: question on spi_bitbang
-Date: Fri, 31 Mar 2006 11:31:18 -0600
-To: David Brownell <david-b@pacbell.net>
-X-Mailer: Apple Mail (2.746.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 31 Mar 2006 12:32:08 -0500
+Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:60391 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1751059AbWCaRcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 12:32:07 -0500
+To: akpm@osdl.org
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-reply-to: <E1FPNOD-0005Tg-00@dorka.pomaz.szeredi.hu> (message from Miklos
+	Szeredi on Fri, 31 Mar 2006 19:26:25 +0200)
+Subject: [PATCH 3/4] locks: don't do unnecessary allocations
+References: <E1FPNOD-0005Tg-00@dorka.pomaz.szeredi.hu>
+Message-Id: <E1FPNTX-0005W5-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 31 Mar 2006 19:31:55 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm looking at using spi_bitbang for a SPI driver and was trying to  
-understand were the right point is to handle MODE switches.
+posix_lock_file() always allocates new locks in advance, even if it's
+easy to determine that no allocations will be needed.
 
-There are 4 function pointers provided for each mode.  My controller  
-HW has a mode register which allows setting clock polarity and clock  
-phase.  I assume what I want is in my chipselect() function is to set  
-my mode register and have the four function pointers set to the same  
-function.
+Optimize these cases:
 
-Is this the right usage model, or should I set the mode register as  
-part of the txrx_word[mode] function?
+ - FL_ACCESS flag is set
 
-- kumar
+ - Unlocking the whole range
+
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+
+Index: linux/fs/locks.c
+===================================================================
+--- linux.orig/fs/locks.c	2006-03-31 18:55:33.000000000 +0200
++++ linux/fs/locks.c	2006-03-31 18:55:33.000000000 +0200
+@@ -795,7 +795,8 @@ int __posix_lock_file(struct inode *inod
+ 		      struct file_lock *conflock)
+ {
+ 	struct file_lock *fl;
+-	struct file_lock *new_fl, *new_fl2;
++	struct file_lock *new_fl = NULL;
++	struct file_lock *new_fl2 = NULL;
+ 	struct file_lock *left = NULL;
+ 	struct file_lock *right = NULL;
+ 	struct file_lock **before;
+@@ -804,9 +805,15 @@ int __posix_lock_file(struct inode *inod
+ 	/*
+ 	 * We may need two file_lock structures for this operation,
+ 	 * so we get them in advance to avoid races.
++	 *
++	 * In some cases we can be sure, that no new locks will be needed
+ 	 */
+-	new_fl = locks_alloc_lock();
+-	new_fl2 = locks_alloc_lock();
++	if (!(request->fl_flags & FL_ACCESS) &&
++	    (request->fl_type != F_UNLCK ||
++	     request->fl_start != 0 || request->fl_end != OFFSET_MAX)) {
++		new_fl = locks_alloc_lock();
++		new_fl2 = locks_alloc_lock();
++	}
+ 
+ 	lock_kernel();
+ 	if (request->fl_type != F_UNLCK) {

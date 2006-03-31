@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWCaSLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWCaSSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbWCaSLG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 13:11:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWCaSLG
+	id S932188AbWCaSSS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 13:18:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWCaSSS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 13:11:06 -0500
-Received: from smtp102.sbc.mail.mud.yahoo.com ([68.142.198.201]:37307 "HELO
-	smtp102.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932185AbWCaSLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 13:11:05 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: question on spi_bitbang
-Date: Fri, 31 Mar 2006 10:11:00 -0800
-User-Agent: KMail/1.7.1
-Cc: spi-devel-general@lists.sourceforge.net,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1B2FA58D-1F7F-469E-956D-564947BDA59A@kernel.crashing.org>
-In-Reply-To: <1B2FA58D-1F7F-469E-956D-564947BDA59A@kernel.crashing.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 31 Mar 2006 13:18:18 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:29595 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932188AbWCaSSR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 13:18:17 -0500
+Date: Fri, 31 Mar 2006 20:15:48 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Ulrich Drepper <drepper@gmail.com>, linux-kernel@vger.kernel.org,
+       jakub@redhat.com
+Subject: Re: [PATCH] 2.6.16 - futex: small optimization (?)
+Message-ID: <20060331181548.GA25053@elte.hu>
+References: <4428E7B7.8040408@bull.net> <a36005b50603280702n2979d8ddh97484615ea9d4f3a@mail.gmail.com> <4429BCAC.80208@tmr.com> <20060329152643.GA13194@elte.hu> <442C3F3F.5050107@tmr.com> <20060331060155.GA21975@elte.hu> <442D41B1.1070005@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603311011.00981.david-b@pacbell.net>
+In-Reply-To: <442D41B1.1070005@tmr.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 31 March 2006 9:31 am, Kumar Gala wrote:
-> I'm looking at using spi_bitbang for a SPI driver and was trying to  
-> understand were the right point is to handle MODE switches.
-> 
-> There are 4 function pointers provided for each mode.
 
-That's if you are indeed "bit banging", or your controller is the
-type that's basically a wrapper around a shift register:  each
-txrx_word() function transfers (or bitbangs) a 1-32 bit word in
-the relevant SPI mode (0-3).
+* Bill Davidsen <davidsen@tmr.com> wrote:
 
-There's also a higher level txrx_bufs() routine for buffer-at-a-time
-access, better suited to DMA, FIFOs, and half-duplex hardware.
+> >What are you suggesting here, that the implementation of 
+> >FUTEX_WAKE_OP is "ignoring inefficiencies"? Please explain why and 
+> >what you would do differently to solve that inefficiency.
+>
+> I am suggesting that "There are no such situations anymore in an 
+> optimal userlevel implementation" is not the right approach to the 
+> original post. What I would do differently is to evaluate the original 
+> suggestion to see if it would in fact be more efficient. [...]
 
+that's what we did a year ago for a similar futex rescheduling 
+inefficiency, and came up with the FUTEX_WAKE_OP solution, which is now 
+part of the kernel and is used by glibc. But we are all ears for 
+alternative suggestions.
 
-> My controller   
-> HW has a mode register which allows setting clock polarity and clock  
-> phase.  I assume what I want is in my chipselect() function is to set  
-> my mode register and have the four function pointers set to the same  
-> function.
-
-I don't know how your particular hardware works, but if you have a
-real SPI controller it would probably be more natural to have your
-setup() function handle that mode register earlier, out of the main
-transfer loop ... unless that mode register is shared among all
-chipselects, in which case you'd use the setup_transfer() call for
-that, inside the transfer loop.  (That call hasn't yet been merged
-into the mainline kernel yet; it's in the MM tree.)
-
-The chipselect() call should only affect the chipselect signal and,
-when you're activating a chip, its initial clock polarity.  Though
-if you're not using the latest from the MM tree, that's also your
-hook for ensuring that the SPI mode is set up right.
-
-- Dave
-
+	Ingo

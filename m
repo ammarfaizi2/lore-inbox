@@ -1,165 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWCaHQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbWCaHRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbWCaHQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 02:16:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWCaHQ1
+	id S1751240AbWCaHRN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 02:17:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWCaHRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 02:16:27 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:23608 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751155AbWCaHQ1 (ORCPT
+	Fri, 31 Mar 2006 02:17:13 -0500
+Received: from corky.net ([212.150.53.130]:19895 "EHLO zebday.corky.net")
+	by vger.kernel.org with ESMTP id S1751240AbWCaHRM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 02:16:27 -0500
-Date: Fri, 31 Mar 2006 09:16:36 +0200
-From: Jens Axboe <axboe@suse.de>
+	Fri, 31 Mar 2006 02:17:12 -0500
+Message-ID: <442CE572.3060408@corky.net>
+Date: Fri, 31 Mar 2006 09:16:50 +0100
+From: Just Marc <marc@corky.net>
+User-Agent: Mail/News 1.5 (X11/20060228)
+MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Introduce sys_splice() system call
-Message-ID: <20060331071635.GA14022@suse.de>
-References: <200603302109.k2UL9Auj011419@hera.kernel.org> <20060330161240.11ee3d5f.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060330161240.11ee3d5f.akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Crash soon after an alloc_skb failure in 2.6.16 and previous,
+ swap disabled
+References: <442C0BA3.1050603@corky.net> <20060330145422.6c7e2517.akpm@osdl.org>
+In-Reply-To: <20060330145422.6c7e2517.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AV-Checked: ClamAV using ClamSMTP on CorKy.NeT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 30 2006, Andrew Morton wrote:
- 
-> splice.c should include syscalls.h.
+Hello Andrew,
+> Just Marc <marc@corky.net> wrote:
+>   
+>> I'm running a few machines with swap turned off and am experiencing 
+>> crashes when the system is extremely low on kernel memory.   So far the 
+>> crashes observed are always inside the recv function of the Ethernet 
+>> module, below is the trace for the tg3 module but a similar result is 
+>> also seen with the e1000 module.   Th crash is not necessarily related 
+>> to the Ethernet modules but may happen at a later stage deeper in the 
+>> networking code.
+>>
+>> I don't have console access to the machine so I can't know what the 
+>> final oops/crash message is (if any) but this can be reproduced on any 
+>> machine quite easily by consuming all of the available memory,  I guess 
+>> that if done at userspace the OOM killer will prevent this from 
+>> happening but a simple LKM can allocate all this memory and this issue 
+>> should surface quickly.
+>>     
+>
+> We'd really need to see that final oops trace, please.
+>
+>   
+I will get that for you once I have physical access to the machines.   
+I'm hoping there would be one rather than a hard lockup.
+> It's not unusual for a hard-working gigabit NIC to exhaust the page
+> allocator reserves and perhaps we're a bit too noisy in the logs when it
+> happens.  But it's sufficiently rare and sufficiently associated with other
+> problems (like this one) that nobody has yet gone and stuck the
+> __GFP_NOWARN into the relevant drivers to suppress the messages.
+>
+> If we really have broken something in there then someone else will hit this
+> soon enough.  But nobody has, as far as I know.
+>
+> A digital photo of the screen would suit.
+>
+> Or perhaps netconsole.  If the crash is really associated with the NIC
+> running out of txbufs then netconsole might not be useful.  But perhaps the
+> crash is something else altogether.
+>
+>   
+I suspect netconsole is going to have a hard time transmitting anything 
+at that moment.   I'll try it anyway.
 
-done
+But still, this problem is highly reproducible, in my setup anyway, it 
+happens to the machine once every few days.
 
-> > +	if (i && (pages[i - 1]->index == index + i - 1))
-> > +		goto splice_them;
-> > +
-> > +	/*
-> > +	 * fill shadow[] with pages at the right locations, so we only
-> > +	 * have to fill holes
-> > +	 */
-> > +	memset(shadow, 0, i * sizeof(struct page *));
-> 
-> This leaves shadow[i] up to shadow[nr_pages - 1] uninitialised.
-> 
-> > +	for (j = 0, pidx = index; j < i; pidx++, j++)
-> > +		shadow[pages[j]->index - pidx] = pages[j];
-> 
-> This can overindex shadow[].
+I'll get back to you with more details as they become available.
 
-This and the above was already fixed in the splice branch yesterday, it
-just missed the cut for the splice #3 posting. So at least that's taken
-care of :-). We need to init nr_pages of shadow of course, and don't
-increment pidx in that loop (in fact, just use 'index').
-
-> > +	/*
-> > +	 * now fill in the holes
-> > +	 */
-> > +	for (i = 0, pidx = index; i < nr_pages; pidx++, i++) {
-> 
-> We've lost `i', which is the number of pages in pages[], and the number of
-> initialised entries in shadow[].
-
-Doesn't matter, we know that all entries in shadow[] are either valid or
-NULL up to nr_pages which is our target.
-
-> > +		int error;
-> > +
-> > +		if (shadow[i])
-> > +			continue;
-> 
-> As this loop iterates up to nr_pages, which can be greater than the
-> now-lost `i', we're playing with potentially-uninitialised entries in
-> shadow[].
-> 
-> Doing
-> 
-> 	nr_pages = find_get_pages(..., nr_pages, ...)
-> 
-> up above would be a good start on getting this sorted out.
-
-It should work fine with the memset() and for loop fix.
-
-> 
-> > +		/*
-> > +		 * no page there, look one up / create it
-> > +		 */
-> > +		page = find_or_create_page(mapping, pidx,
-> > +						   mapping_gfp_mask(mapping));
-> > +		if (!page)
-> > +			break;
-> 
-> So if OOM happened, we can still have NULLs and live page*'s in shadow[],
-> outside `i'
-
-Yes
-
-> > +		if (PageUptodate(page))
-> > +			unlock_page(page);
-> > +		else {
-> > +			error = mapping->a_ops->readpage(in, page);
-> > +
-> > +			if (unlikely(error)) {
-> > +				page_cache_release(page);
-> > +				break;
-> > +			}
-> > +		}
-> > +		shadow[i] = page;
-> > +	}
-> > +
-> > +	if (!i) {
-> > +		for (i = 0; i < nr_pages; i++) {
-> > +			 if (shadow[i])
-> > +				page_cache_release(shadow[i]);
-> > +		}
-> > +		return 0;
-> > +	}
-> 
-> OK.
-> 
-> > +	memcpy(pages, shadow, i * sizeof(struct page *));
-> 
-> If we hit oom above, there can be live page*'s in shadow[], between the
-> current value of `i' and the now-lost return from find_get_pages().
-> 
-> The pages will leak.
-
-Please check the current branch, I don't see any leaks.
-
-> > +
-> > +/*
-> > + * Send 'len' bytes to socket from 'file' at position 'pos' using sendpage().
-> 
-> sd->len, actually.
-
-Right, comment corrected.
-
-> > +	ret = mapping->a_ops->prepare_write(file, page, 0, sd->len);
-> > +	if (ret)
-> > +		goto out;
-> > +
-> > +	dst = kmap_atomic(page, KM_USER0);
-> > +	memcpy(dst + offset, src + buf->offset, sd->len);
-> > +	flush_dcache_page(page);
-> > +	kunmap_atomic(dst, KM_USER0);
-> > +
-> > +	ret = mapping->a_ops->commit_write(file, page, 0, sd->len);
-> > +	if (ret < 0)
-> > +		goto out;
-> > +
-> > +	set_page_dirty(page);
-> > +	ret = write_one_page(page, 0);
-> 
-> Still want to know why this is here??
-> 
-> > +out:
-> > +	if (ret < 0)
-> > +		unlock_page(page);
-> 
-> If write_one_page()'s call to ->writepage() failed, this will cause a
-> double unlock.
-
-Can probably be improved - can I drop write_one_page() and just unlock
-the page and regular cleaning will flush it out?
-
--- 
-Jens Axboe
-
+Thanks

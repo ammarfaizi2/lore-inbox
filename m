@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWCaPEz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWCaPQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbWCaPEz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 10:04:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWCaPEz
+	id S1751118AbWCaPQN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 10:16:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbWCaPQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 10:04:55 -0500
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:62125 "EHLO
-	mail1.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S932108AbWCaPEy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 10:04:54 -0500
-Date: Fri, 31 Mar 2006 10:04:53 -0500
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: Jakob Oestergaard <jakob@unthought.net>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: NFS client (10x) performance regression 2.6.14.7 -> 2.6.15
-Message-ID: <20060331150453.GB9207@ti64.telemetry-investments.com>
-Reply-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	Jakob Oestergaard <jakob@unthought.net>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	linux-kernel@vger.kernel.org
-References: <1143807770.8096.4.camel@lade.trondhjem.org> <20060331124518.GH9811@unthought.net> <1143810392.8096.11.camel@lade.trondhjem.org> <20060331132131.GI9811@unthought.net> <1143812658.8096.18.camel@lade.trondhjem.org> <20060331140816.GJ9811@unthought.net> <1143814889.8096.22.camel@lade.trondhjem.org> <20060331143500.GK9811@unthought.net> <20060331144951.GA9207@ti64.telemetry-investments.com> <20060331145726.GL9811@unthought.net>
-Mime-Version: 1.0
+	Fri, 31 Mar 2006 10:16:13 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:34827 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751118AbWCaPQM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 10:16:12 -0500
+Date: Fri, 31 Mar 2006 17:16:10 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [-mm patch] arch/i386/kernel/apic.c: make modern_apic() static
+Message-ID: <20060331151610.GH3893@stusta.de>
+References: <20060328003508.2b79c050.akpm@osdl.org> <20060331145648.GG3893@stusta.de> <200603311702.19669.ak@suse.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060331145726.GL9811@unthought.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200603311702.19669.ak@suse.de>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 31, 2006 at 04:57:26PM +0200, Jakob Oestergaard wrote:
-> True. But it is my impression that this is a problem isolated on the
-> client side (am I wrong?)
+On Fri, Mar 31, 2006 at 05:02:19PM +0200, Andi Kleen wrote:
+> On Friday 31 March 2006 16:56, Adrian Bunk wrote:
+> > This patch makes a nnedlessly global function static.
+> 
+> Disagree. It will be likely used in more code in the future.
 
-That seems to be the case.
+If this "likely" case becomes reality at any time in the future, 
+reverting my patch will be trivial.
 
-> Do you mean NFS exporting a local filesystem, NFS mounting it again on
-> the local host?   Or do you mean something with loopback mounts?
- 
-The former; just export a local directory to 127.0.0.1 in /etc/exports,
-then mount it on /mnt.
+OTOH, I have seen too many cases where people have said "I will need 
+this soon", and one year later it was still unused.
 
-> Thanks for your suggestion - I will try it, if you tell me precisely
-> what you mean in the above  :)
+> -Andi
 
-I'll give it a try here.
+cu
+Adrian
 
-	-Bill
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

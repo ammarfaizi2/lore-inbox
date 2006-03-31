@@ -1,39 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbWCaAny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWCaApS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750977AbWCaAny (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 19:43:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbWCaAnx
+	id S1751049AbWCaApS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 19:45:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbWCaApR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 19:43:53 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:23739 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750977AbWCaAnx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 19:43:53 -0500
-To: Valerie Henson <val_henson@linux.intel.com>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Tushar <tushar.telichari@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: DTrace for Linux
-References: <323d1f6f0603282214m4a2c65b0t2e2bf7e74352e5f@mail.gmail.com>
-	<20060328225203.7443c09f.rdunlap@xenotime.net>
-	<20060330205537.GF16173@goober>
-From: fche@redhat.com (Frank Ch. Eigler)
-Date: 30 Mar 2006 19:43:41 -0500
-In-Reply-To: <20060330205537.GF16173@goober>
-Message-ID: <y0mr74jcuki.fsf@ton.toronto.redhat.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.3
+	Thu, 30 Mar 2006 19:45:17 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:28872 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751046AbWCaApP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 19:45:15 -0500
+Date: Thu, 30 Mar 2006 16:45:09 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
+       "Boehm, Hans" <hans.boehm@hp.com>,
+       "Grundler, Grant G" <grant.grundler@hp.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: RE: Synchronizing Bit operations V2
+In-Reply-To: <200603310038.k2V0crg26704@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.64.0603301642330.2068@schroedinger.engr.sgi.com>
+References: <200603310038.k2V0crg26704@unix-os.sc.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 30 Mar 2006, Chen, Kenneth W wrote:
 
-Valerie Henson <val_henson@linux.intel.com> writes:
+> >  static __inline__ void
+> >  clear_bit (int nr, volatile void *addr)
+> >  {
+> > -	__u32 mask, old, new;
+> > -	volatile __u32 *m;
+> > -	CMPXCHG_BUGCHECK_DECL
+> > -
+> > -	m = (volatile __u32 *) addr + (nr >> 5);
+> > -	mask = ~(1 << (nr & 31));
+> > -	do {
+> > -		CMPXCHG_BUGCHECK(m);
+> > -		old = *m;
+> > -		new = old & mask;
+> > -	} while (cmpxchg_acq(m, old, new) != old);
+> > +	clear_bit_mode(nr, addr, MODE_ATOMIC);
+> >  }
+> 
+> I would make that MODE_RELEASE for clear_bit, simply to match the
+> observation that clear_bit is usually used in unlock path and have
+> potential less surprises.
 
-> [...]  My opinion is that a port of DTrace to Linux would be
-> extremely valuable, above and beyond the goals of SystemTap.  It is
-> also my opinion that it will be extremely difficult. :)
+clear_bit per se is defined as an atomic operation with no implications 
+for release or acquire. If it is used for release then either add the 
+appropriate barrier or use MODE_RELEASE explicitly.
 
-Beyond the technical challenges, a legal one (SCSL-vs-GPL license
-incompatibility) would at least complicate deployment of a plain port.
+It precise the uncleanness in ia64 that such semantics are attached to 
+these bit operations which may lead people to depend on those. We need to 
+either make these explicit or not depend on them.
 
-- FChE
+

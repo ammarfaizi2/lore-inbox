@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWCaOse@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbWCaOt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbWCaOse (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 09:48:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWCaOse
+	id S1751372AbWCaOt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 09:49:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWCaOt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 09:48:34 -0500
-Received: from mummy.ncsc.mil ([144.51.88.129]:52121 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1751372AbWCaOsd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 09:48:33 -0500
-Subject: Re: [RFC] Virtualization steps
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Reply-To: sds@tycho.nsa.gov
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: James Morris <jmorris@namei.org>, Chris Wright <chrisw@sous-sol.org>,
-       Sam Vilain <sam@vilain.net>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       "Serge E. Hallyn" <serue@us.ibm.com>
-In-Reply-To: <m1hd5fb1bz.fsf@ebiederm.dsl.xmission.com>
-References: <20060328142639.GE14576@MAIL.13thfloor.at>
-	 <44294BE4.2030409@yahoo.com.au> <m1psk5kcpj.fsf@ebiederm.dsl.xmission.com>
-	 <442A26E9.20608@vilain.net> <20060329182027.GB14724@sorel.sous-sol.org>
-	 <442B0BFE.9080709@vilain.net> <20060329225241.GO15997@sorel.sous-sol.org>
-	 <m1psk4g2xa.fsf@ebiederm.dsl.xmission.com>
-	 <20060330013618.GS15997@sorel.sous-sol.org>
-	 <m164lwfy1c.fsf@ebiederm.dsl.xmission.com>
-	 <20060330192308.GZ15997@sorel.sous-sol.org>
-	 <m1hd5fb1bz.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Fri, 31 Mar 2006 09:52:26 -0500
-Message-Id: <1143816746.24555.317.camel@moss-spartans.epoch.ncsc.mil>
+	Fri, 31 Mar 2006 09:49:57 -0500
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:32173 "EHLO
+	mail1.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S1751372AbWCaOt5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 09:49:57 -0500
+Date: Fri, 31 Mar 2006 09:49:51 -0500
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: Jakob Oestergaard <jakob@unthought.net>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org
+Subject: Re: NFS client (10x) performance regression 2.6.14.7 -> 2.6.15
+Message-ID: <20060331144951.GA9207@ti64.telemetry-investments.com>
+Reply-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	Jakob Oestergaard <jakob@unthought.net>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	linux-kernel@vger.kernel.org
+References: <20060331094850.GF9811@unthought.net> <1143807770.8096.4.camel@lade.trondhjem.org> <20060331124518.GH9811@unthought.net> <1143810392.8096.11.camel@lade.trondhjem.org> <20060331132131.GI9811@unthought.net> <1143812658.8096.18.camel@lade.trondhjem.org> <20060331140816.GJ9811@unthought.net> <1143814889.8096.22.camel@lade.trondhjem.org> <20060331143500.GK9811@unthought.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060331143500.GK9811@unthought.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-30 at 23:00 -0700, Eric W. Biederman wrote:
-> I do still need to read up on the selinux mandatory access controls.
-> Although the comment from the NSA selinux FAQ about selinux being
-> just a proof-of-concept and no security bugs were discovered or
-> looked for during it's implementation scares me.  
+On Fri, Mar 31, 2006 at 04:35:00PM +0200, Jakob Oestergaard wrote:
+> I'm wondering... Can anyone else reproduce this problem?
+> 
+> Just to explain quickly:
+>  Running nfsbench (on the NFS client) once with LEADING_EMPTY_SPACE set
+>  to 0 and then once with the option set to 1.  If there's a big change
+>  in wall-clock execution time, this indicates that the problem exists.
+> 
+> I'd be really interested in knowing whether I'm the only one who sees
+> this problem.
+ 
+Jakob,
 
-Point of clarification:  The original SELinux prototype NSA released in
-Dec 2000 based on Linux 2.2.x kernels was a proof-of-concept reference
-implementation.  I wouldn't describe the current implementation in
-mainline Linux 2.6 and certain distributions in the same manner.  Also,
-the separate Q&A about "did you try to fix any vulnerabilities" is just
-saying that NSA did not perform a thorough code audit of the entire
-Linux kernel; we just implemented the extensions needed for mandatory
-access control.
+Your NFS setup is specific to your system.  Have you considered trying this
+over loopback to narrow down the variables?  If you see similar getattr/write
+behavior over loopback, it will make it easy for everyone else to test.
 
-http://selinux.sf.net/resources.php3 has some good pointers for SELinux
-resources.  There is also a recently created SELinux news site at
-http://selinuxnews.org/wp/.
-
-
--- 
-Stephen Smalley
-National Security Agency
-
+	-Bill

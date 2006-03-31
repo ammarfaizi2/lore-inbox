@@ -1,125 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWCaXg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWCaXo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751146AbWCaXg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 18:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWCaXg2
+	id S1751448AbWCaXo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 18:44:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWCaXo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 18:36:28 -0500
-Received: from vms046pub.verizon.net ([206.46.252.46]:45810 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751146AbWCaXg2 convert rfc822-to-8bit (ORCPT
+	Fri, 31 Mar 2006 18:44:28 -0500
+Received: from mail.gmx.net ([213.165.64.20]:28336 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751448AbWCaXo1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 18:36:28 -0500
-Date: Fri, 31 Mar 2006 18:36:26 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: 2.6.16.1 (1) vs ieee1394 (0)  HELP! (I told the missus I could do this)
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Reply-to: gene.heskett@verizononline.net
-Message-id: <200603311836.26478.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.7
+	Fri, 31 Mar 2006 18:44:27 -0500
+Date: Sat, 1 Apr 2006 01:44:26 +0200 (MEST)
+From: "Michael Kerrisk" <mtk-manpages@gmx.net>
+To: linux-kernel@vger.kernel.org
+Cc: michael.kerrisk@gmx.net
+MIME-Version: 1.0
+References: <5159.1143403544@www006.gmx.net>
+Subject: man-pages-2.28 is released
+X-Priority: 3 (Normal)
+X-Authenticated: #24879014
+Message-ID: <6915.1143848666@www076.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings all;
+Gidday,
 
-I sent this once, but it hasn't come back in about 20 minutes, sorry if 
-it hits twice.
+I recently released man-pages-2.28, which can be found at:
 
-I may have found a gotcha in the 2.6.16.1 and NDI how far back it goes 
-because I haven't used anything ieee1394 in months.
+    ftp://ftp.win.tue.nl/pub/linux-local/manpages
 
-Anyway, I plugged in my camera, a Sony DCR-TVR460 and fired up kino, 
-fully expecting to see the viewfinders image on screen as soon as I 
-switched kino to the capture screen.
+or:
 
-Unforch, its blank and kino is locked up, needing kde's emergency kill 
-the process to kill it when I click on the closing x.
+    ftp://ftp.kernel.org/pub/linux/docs/manpages
+    or mirrors: ftp://ftp.XX.kernel.org/pub/linux/docs/manpages
 
->From the logs, I get this is 4 or 5 lines.
+This release includes the following new pages:
 
-Mar 31 17:30:16 coyote ieee1394.agent[8925]: ... no drivers for IEEE1394 
-product 0x/0x/0x
-Mar 31 17:30:16 coyote ieee1394.agent[8921]: ... no drivers for IEEE1394 
-product 0x/0x/0x
-Mar 31 17:30:16 coyote kernel: ieee1394: raw1394: /dev/raw1394 device 
-initialized
+sem_post.3
+sem_getvalue.3
+sem_close.3
+sem_open.3
+sem_destroy.3
+sem_wait.3
+sem_unlink.3
+sem_init.3
+sem_overview.7
+    mtk
+        New pages describing the POSIX semaphores API.
 
-And about 6 or 7 lines of gconf verbosy later, this:
+        These pages supercede and provide a superset of the information 
+        in the glibc (3thr) "semaphores(3)" manual page.
 
-Mar 31 17:31:28 coyote kernel: ohci1394: fw-host0: Waking dma ctx=0 ... 
-processing is probably too slow
+==========
 
-then:
+The man-pages set contains sections 2, 3, 4, 5, and 7 of
+the manual pages.  These sections describe the following:
 
-[root@coyote linux-2.6.16.1]# lsmod |grep 1394
-raw1394                24172  0
-dv1394                 16716  0
-ohci1394               27824  1 dv1394
-ieee1394               82488  3 raw1394,dv1394,ohci1394
+2: (Linux) system calls
+3: (libc) library functions
+4: Devices
+5: File formats and protocols
+7: Overview pages, conventions, etc.
 
-And:
+As far as this list is concerned the most relevant parts are:
+all of sections 2 and 4, which describe kernel-userland interfaces;
+in section 5, the proc(5) manual page, which attempts (it's always
+catching up) to be a comprehensive description of /proc; and
+various pages in section 7, some of which are overview pages of
+kernel features (e.g., networking protocols).
 
-[root@coyote linux-2.6.16.1]# 
-ls /lib/modules/2.6.16.1/kernel/drivers/ieee1394
-dv1394.ko  ieee1394.ko  ohci1394.ko  raw1394.ko  sbp2.ko  video1394.ko
+If you make a change to a kernel-userland interface, or observe 
+a discrepancy between the manual pages and reality, would you 
+please send me (at mtk-manpages@gmx.net ) one of the following
+(in decreasing order of preference):
 
-sbp2.ko isn't needed, its for a webcam thats a POS.  I should quit 
-building it altogether.
+1. An in-line "diff -u" patch with text changes for the
+   corresponding manual page.  (The most up-to-date version
+   of the manual pages can always be found at
+   ftp://ftp.win.tue.nl/pub/linux-local/manpages or
+   ftp://ftp.kernel.org/pub/linux/docs/manpages .)
 
-modprobe video1394 inserts that module, but makes zilch difference.
-kino still freezes the instant the capture button is clicked.
+2. Some raw text describing the changes, which I can then
+   integrate into the appropriate manual page.
 
-Unplugging the firewire cable from the camera is silent in messages, but 
-dmesg says:
-ieee1394: Node changed: 0-01:1023 -> 0-00:1023
-ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[08004601044684e4]
-ieee1394: Node resumed: ID:BUS[0-00:1023]  GUID[08004601044684e4]
-ieee1394: Node changed: 0-00:1023 -> 0-01:1023
-ieee1394: Node changed: 0-01:1023 -> 0-00:1023
-ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[08004601044684e4]
-ieee1394: Node resumed: ID:BUS[0-00:1023]  GUID[08004601044684e4]
-ieee1394: Node changed: 0-00:1023 -> 0-01:1023
+3. A message alerting me that some part of the manual pages
+   does not correspond to reality.  Eventually, I will try to
+   remedy the situation.
 
-Then from:
-[root@coyote boot]# lspci -vv |grep -A10 01:09
-01:09.0 FireWire (IEEE 1394): Texas Instruments TSB43AB23 
-IEEE-1394a-2000 Controller (PHY/Link) (prog-if 10 [OHCI])
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (500ns min, 1000ns max), Cache Line Size 08
-        Interrupt: pin A routed to IRQ 12
-        Region 0: Memory at ec004000 (32-bit, non-prefetchable)
-        Region 1: Memory at ec000000 (32-bit, non-prefetchable) 
-[size=16K]
-        Capabilities: [44] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME+
+Obviously, as we get further down this list, more of my time
+is required, and things may go slower, especially when the
+changes concern some part of the kernel that I am ignorant
+about and I can't find someone to assist.
 
-And I'm not smart enough for anything there to raise a flag.
+Cheers,
 
-So obviously something's gone aglay, but what?
-
-The last time I ran this config to do some movie editing of a wedding, 
-along about June of last year, it all Just Worked. And I recently did 
-some much needed housekeeping, such that if I wanted to build a 2.6.14 
-kernel, I'd have to go get the tarball & start from scratch.
-
-Ideas anybody?
+Michael
 
 -- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
 
+Want to help with man page maintenance?  
+Grab the latest tarball at
+ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
+read the HOWTOHELP file and grep the source 
+files for 'FIXME'.

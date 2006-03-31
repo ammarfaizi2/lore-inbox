@@ -1,105 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWCaId5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbWCaIgc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbWCaId5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 03:33:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWCaId4
+	id S1751270AbWCaIgc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 03:36:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWCaIgc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 03:33:56 -0500
-Received: from wproxy.gmail.com ([64.233.184.235]:13144 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751271AbWCaId4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 03:33:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type;
-        b=JCwApybw1jBbGJHuK6WynePuhlmko9iABSwXsMPasyGJ1q9lrgI8LGrrkackP1gig7pCU7JYGXExNjIqKOGQM5i8fu2CPvMHH8QUcfV0wNUlwAxK/ii7V6ZE5wtWKD1v4fjsAPxr5ibbqcjAP1zmpKoT85RaOQY5PoXCMr6bg5w=
-Message-ID: <489ecd0c0603310033x7edcddebi48d6fbb62528a392@mail.gmail.com>
-Date: Fri, 31 Mar 2006 16:33:55 +0800
-From: "Luke Yang" <luke.adi@gmail.com>
-To: "Nick Piggin" <npiggin@suse.de>, "Andrew Morton" <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix mm regression bug: nommu use compound page in slab allocator -- added one comment
+	Fri, 31 Mar 2006 03:36:32 -0500
+Received: from 220-130-178-143.HINET-IP.hinet.net ([220.130.178.143]:63968
+	"EHLO areca.com.tw") by vger.kernel.org with ESMTP id S1751270AbWCaIgb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 03:36:31 -0500
+Message-ID: <002301c6549e$43677f20$b100a8c0@erich2003>
+From: "erich" <erich@areca.com.tw>
+To: "Jens Axboe" <axboe@suse.de>, "Chris Caputo" <ccaputo@alt.net>
+Cc: <dax@gurulabs.com>, <axboe@suse.de>,
+       =?UTF-8?B?Iijlu6Plronnp5HmioAp5a6J5Y+vTyI=?= 
+	<billion.wu@areca.com.tw>,
+       "\"Al Viro\"" <viro@ftp.linux.org.uk>,
+       "\"Andrew Morton\"" <akpm@osdl.org>,
+       "\"Randy.Dunlap\"" <rdunlap@xenotime.net>,
+       "\"Matti Aarnio\"" <matti.aarnio@zmailer.org>,
+       <linux-kernel@vger.kernel.org>,
+       "\"James Bottomley\"" <James.Bottomley@steeleye.com>
+References: <Pine.LNX.4.64.0603212310070.20655@nacho.alt.net> <007701c653d7$8b8ee670$b100a8c0@erich2003> <Pine.LNX.4.64.0603301542590.19680@nacho.alt.net> <004a01c65470$412daaa0$b100a8c0@erich2003> <20060330192057.4bd8c568.akpm@osdl.org> <20060331074237.GH14022@suse.de>
+Subject: Re: new Areca driver in 2.6.16-rc6-mm2 appears to be broken
+Date: Fri, 31 Mar 2006 16:36:50 +0800
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_13293_15369861.1143794035377"
+Content-Type: text/plain;
+	format=flowed;
+	charset="UTF-8";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.3790.1830
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
+X-OriginalArrivalTime: 31 Mar 2006 08:31:39.0093 (UTC) FILETIME=[87C2D850:01C6549D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_13293_15369861.1143794035377
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Dear Jens Axboe,
 
-Hi all,
+I have done this test as your request but it still there.
+But more less.
+I have modify  #define ARCMSR_MAX_XFER_SECTORS  4096 => 512.
+It had worked all of this morning on bonnie++ , iometer and my copy/compare 
+test script.
+All machines in my lab.do not have this message again.
 
- The earlier patch to consolidate mmu and nommu page allocation
-and refcounting by using compound pages for nommu allocations
-had a bug: kmalloc slabs who's pages were initially allocated
-by a non-__GFP_COMP allocator could be passed into mm/nommu.c
-kmalloc allocations which really wanted __GFP_COMP underlying
-pages. Fix that by having nommu pass __GFP_COMP to all higher order
-slab allocations.
+Best Regards
+Erich Chen
 
- Thanks Nick!
 
-Signed-off-by: Luke Yang <luke.adi@gmail.com>
-Acked-by: Nick Piggin <npiggin@suse.de>
+----- Original Message ----- 
+From: "Jens Axboe" <axboe@suse.de>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: "James Bottomley" <James.Bottomley@steeleye.com>; <erich@areca.com.tw>
+Sent: Friday, March 31, 2006 3:42 PM
+Subject: Re: new Areca driver in 2.6.16-rc6-mm2 appears to be broken
 
- slab.c |    7 +++++++
- 1 files changed, 7 insertions(+)
 
-diff --git a/mm/slab.c b/mm/slab.c
-index 4cbf8bb..5a782ff 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -1454,7 +1454,14 @@ static void *kmem_getpages(struct kmem_c
-        int i;
+>
+> (irk, Erich wasn't in the cc, sorry to Andrew and James for getting this
+> mail twice)
+>
+> On Thu, Mar 30 2006, Andrew Morton wrote:
+>> "erich" <erich@areca.com.tw> wrote:
+>> >
+>> > Dear Chris Caputo,
+>> >
+>> >  Thanks you to conform this issue again, my colleague assisted me and 
+>> > to
+>> >  double check my older version driver yesterday.
+>> >  and the old driver is working fine as your mention before.
+>> >
+>> >  The ARCMSR_MAX_XFER_SECTORS is the reason why cause "attempt to access
+>> >  beyond end of device".
+>> >
+>> >  #define ARCMSR_MAX_XFER_SECTORS
+>> >  256     -----old
+>> >  #define ARCMSR_MAX_XFER_SECTORS
+>> >  4096     -----new
+>>
+>> That seems odd.  ARCMSR_MAX_XFER_SECTORS just gets put into
+>> scsi_host_template.max_sectors.  Could it be a scsi core buglet?
+>
+> Perhaps the larger max sectors setting is causing read-ahead to be
+> overly optimistic and going beyond the end? Should not happen.
+>
+> Erich, can you try and shrink read-ahead on that device and retest?
+> Basically just do
+>
+> # echo 0 > /sys/block/sdX/queue/read_ahead_kb
+>
+> and see if it still complains.
+>
+> -- 
+> Jens Axboe
+> 
 
-        flags |=3D cachep->gfpflags;
-+#ifndef CONFIG_MMU
-+       /* nommu uses slab's for process anonymous memory allocations, so
-+        * requires __GFP_COMP to properly refcount higher order allocation=
-s"
-+        */
-+       page =3D alloc_pages_node(nodeid, (flags | __GFP_COMP), cachep->gfp=
-order);
-+#else
-        page =3D alloc_pages_node(nodeid, flags, cachep->gfporder);
-+#endif
-        if (!page)
-                return NULL;
-        addr =3D page_address(page);
-
---
-Best regards,
-Luke Yang,  Kernel for Blackfin maintainer
-luke.adi@gmail.com
-
-------=_Part_13293_15369861.1143794035377
-Content-Type: text/x-patch; name=nommu_use_compound_page_in_slab.patch; 
-	charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Attachment-Id: f_elg9cv1j
-Content-Disposition: attachment; filename="nommu_use_compound_page_in_slab.patch"
-
-diff --git a/mm/slab.c b/mm/slab.c
-index 4cbf8bb..5a782ff 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -1454,7 +1454,14 @@ static void *kmem_getpages(struct kmem_c
- 	int i;
- 
- 	flags |= cachep->gfpflags;
-+#ifndef CONFIG_MMU
-+	/* nommu uses slab's for process anonymous memory allocations, so
-+	 * requires __GFP_COMP to properly refcount higher order allocations"
-+	 */
-+	page = alloc_pages_node(nodeid, (flags | __GFP_COMP), cachep->gfporder);
-+#else
- 	page = alloc_pages_node(nodeid, flags, cachep->gfporder);
-+#endif
- 	if (!page)
- 		return NULL;
- 	addr = page_address(page);
-
-------=_Part_13293_15369861.1143794035377--

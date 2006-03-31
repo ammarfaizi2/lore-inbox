@@ -1,79 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWCaUWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbWCaU1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751287AbWCaUWE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 15:22:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWCaUWE
+	id S1751318AbWCaU1c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 15:27:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWCaU1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 15:22:04 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:62217 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751287AbWCaUWB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 15:22:01 -0500
-Date: Fri, 31 Mar 2006 22:22:03 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Chris Caputo <ccaputo@alt.net>
-Cc: erich <erich@areca.com.tw>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: about ll_rw_blk.c of void generic_make_request(struct bio *bio)
-Message-ID: <20060331202202.GH14022@suse.de>
-References: <001d01c65302$0fee8e10$b100a8c0@erich2003> <20060330155804.GP13476@suse.de> <Pine.LNX.4.64.0603311700310.14317@nacho.alt.net> <Pine.LNX.4.64.0603311748010.14317@nacho.alt.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 31 Mar 2006 15:27:32 -0500
+Received: from xproxy.gmail.com ([66.249.82.199]:28221 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751288AbWCaU1b convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 15:27:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ISgBGCJ7vGA+QFqYyHsU1Jvv2LXfbby7k0G8oqZ8ACcIMQiL3NfF52nyZvsmdG369ZyyJDy9gHfhZPnKiXhaB8T1M9RDr8ksDognbuS3jrNaVjpXyqSOZvmGK9sj2qM24jizFHL5mKSc4i5YM3x/digHkYiLlBGETMDNAd5sTYE=
+Message-ID: <c0a09e5c0603311227r210209c3v19d80386ab9fc168@mail.gmail.com>
+Date: Fri, 31 Mar 2006 12:27:31 -0800
+From: "Andrew Grover" <andy.grover@gmail.com>
+To: "Kumar Gala" <galak@kernel.crashing.org>
+Subject: Re: [PATCH 1/9] [I/OAT] DMA memcpy subsystem
+Cc: "Ingo Oeser" <netdev@axxeo.de>,
+       "Chris Leech" <christopher.leech@intel.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <C46414E1-3A15-48CF-86F9-4D1D219DC1E7@kernel.crashing.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0603311748010.14317@nacho.alt.net>
+References: <20060329225505.25585.30392.stgit@gitlost.site>
+	 <c0a09e5c0603301036s4e9a63e5v476d89ff8ba37760@mail.gmail.com>
+	 <351C5BDA-D7E3-4257-B07E-ABDDCF254954@kernel.crashing.org>
+	 <200603311026.33391.netdev@axxeo.de>
+	 <c0a09e5c0603311204k6b64842bm741d3e7726b39e77@mail.gmail.com>
+	 <C46414E1-3A15-48CF-86F9-4D1D219DC1E7@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 31 2006, Chris Caputo wrote:
-> On Fri, 31 Mar 2006, Chris Caputo wrote:
-> > On Thu, 30 Mar 2006, Jens Axboe wrote:
-> > > I can't really say, from my recollection of leafing over lkml emails, I
-> > > seem to recall someone saying he hit this with a newer kernel where as
-> > > the older one did not?
-> > > 
-> > > What are the sectors exactly it complains about, eg the full line you
-> > > see?
-> > 
-> > I see:
-> > 
-> >   attempt to access beyond end of device
-> >   sdb1: rw=0, want=134744080, limit=128002016
-> 
-> I believe the "rw=0" means that was a simple read request, and not a 
-> read-ahead.
+On 3/31/06, Kumar Gala <galak@kernel.crashing.org> wrote:
+> > Currently the code updates these variables (kept per cpu) every time a
+> > copy is queued. See include/linux/dmaengine.h.
+>
+> Might it be better to update when the transfer is done incase of an
+> error?
 
-Correct.
+The queueing function is really in the best position to do this. It
+knows the size of each request. However in the cleanup/status check
+routine, all we know is the last request completed -- we don't know
+the completed requests' sizes.
 
-> 128002016 equals about 62 gigs, which is the correct volume size:
-> 
->   Filesystem           1K-blocks      Used Available Use% Mounted on
->   /dev/sdb1             62995364   2832696  56962620   5% /xxx
-> 
->   /dev/sdb1 on /xxx type ext2 (rw,noatime)
+The other reason is that the DMA engine should never throw an error.
+If it does then something is very wrong, we print scary warnings, and
+up-to-date stats are the least of our problems.
 
-How are you reproducing this, through the file system (reading files),
-or reading the device? If the former, is the file system definitely
-sound - eg does it pass fsck?
-
-> I'm at a loss as to why ext2 would want to read 3+ gigs past the end of 
-> the volume or why the arcmsr driver setting max_sectors to be 4096 instead 
-> of 512 makes a difference.
-
-It's truly puzzing why the 4k vs 512 would make a difference, except if
-the driver really doesn't support that large requests and corrupts the
-data somehow. I'm having an extraordinarily hard time imaging how the
-SCSI layer could even come up with such a bug.
-
-So everything seems to point us getting wrong data from the hardware,
-most likely because of a driver bug in either handling the larger
-transfers or the hardware just not liking them very much.
-
-> Erich, while using 4096 as the max_sectors count, in your lab can you
-> make it so ll_rw_blk.c:handle_bad_sector() makes a call to
-> dump_stack() after the printk's?  What does it show as the call trace?
-
-Probably wont tell you much.
-
--- 
-Jens Axboe
-
+Regards -- Andy

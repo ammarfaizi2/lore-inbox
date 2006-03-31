@@ -1,150 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWCaKH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWCaKH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbWCaKH3 (ORCPT <rfc822;willy@w.ods.org>);
+	id S932085AbWCaKH3 (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 31 Mar 2006 05:07:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWCaKFR
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWCaKFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 05:05:17 -0500
-Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:14125 "EHLO
-	linux") by vger.kernel.org with ESMTP id S932080AbWCaKEs (ORCPT
+	Fri, 31 Mar 2006 05:05:20 -0500
+Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:17965 "EHLO
+	linux") by vger.kernel.org with ESMTP id S932081AbWCaKEs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 31 Mar 2006 05:04:48 -0500
-Message-Id: <20060331100423.320464000@towertech.it>
+Message-Id: <20060331100424.440602000@towertech.it>
 References: <20060331100423.175139000@towertech.it>
 User-Agent: quilt/0.43-1
-Date: Fri, 31 Mar 2006 12:04:24 +0200
+Date: Fri, 31 Mar 2006 12:04:30 +0200
 From: Alessandro Zummo <a.zummo@towertech.it>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@zip.com.au, akpm@osdl.org, Kumar Gala <galak@kernel.crashing.org>
-Subject: [PATCH 01/10] RTC subsystem, DS1672 oscillator handling
-Content-Disposition: inline; filename=rtc-subsys-ds1672-fix-osc.patch
+Cc: akpm@zip.com.au, akpm@osdl.org, Lennert Buytenhek <buytenh@wantstofly.org>
+Subject: [PATCH 07/10] RTC subsystem, compact error messages
+Content-Disposition: inline; filename=rtc-subsys-compact-err-message.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Kumar Gala <galak@kernel.crashing.org>
+ - move registration error message from drivers
+ to core.
 
-* Always enable the oscillator when we set the time
-* If the oscillator is disable when we probe the RTC report back a warning
-  to the user
-* Added sysfs attribute to represent the state of the oscillator
-
-Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Lennert Buytenhek <buytenh@wantstofly.org>
 
 ---
-commit 3acc1a4629e70bce7493b5463f3c785379ae8b6b
-tree 34463406603ac788697d8d228a2caf2c0ea40b3a
-parent 329b10bb0feacb7fb9a41389313ff0a51ae56f2a
-author Kumar Gala <galak@kernel.crashing.org> Tue, 28 Mar 2006 16:53:43 -0600
-committer Kumar Gala <galak@kernel.crashing.org> Tue, 28 Mar 2006 16:53:43 -0600
+ drivers/rtc/class.c       |    2 ++
+ drivers/rtc/rtc-ds1672.c  |    2 --
+ drivers/rtc/rtc-ep93xx.c  |    1 -
+ drivers/rtc/rtc-m48t86.c  |    4 +---
+ drivers/rtc/rtc-pcf8563.c |    2 --
+ drivers/rtc/rtc-rs5c372.c |    2 --
+ drivers/rtc/rtc-sa1100.c  |    1 -
+ drivers/rtc/rtc-test.c    |    2 --
+ drivers/rtc/rtc-x1205.c   |    2 --
+ 9 files changed, 3 insertions(+), 15 deletions(-)
 
- drivers/rtc/rtc-ds1672.c |   61 ++++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 58 insertions(+), 3 deletions(-)
-
---- linux-rtc.orig/drivers/rtc/rtc-ds1672.c	2006-03-29 02:14:50.000000000 +0200
-+++ linux-rtc/drivers/rtc/rtc-ds1672.c	2006-03-29 02:16:01.000000000 +0200
-@@ -23,6 +23,7 @@ I2C_CLIENT_INSMOD;
+--- linux-rtc.orig/drivers/rtc/class.c	2006-03-29 02:14:50.000000000 +0200
++++ linux-rtc/drivers/rtc/class.c	2006-03-29 02:55:47.000000000 +0200
+@@ -96,6 +96,8 @@ exit_idr:
+ 	idr_remove(&rtc_idr, id);
  
- #define DS1672_REG_CNT_BASE	0
- #define DS1672_REG_CONTROL	4
-+#define DS1672_REG_CONTROL_EOSC	0x80
- #define DS1672_REG_TRICKLE	5
- 
- 
-@@ -72,16 +73,17 @@ static int ds1672_get_datetime(struct i2
- static int ds1672_set_mmss(struct i2c_client *client, unsigned long secs)
- {
- 	int xfer;
--	unsigned char buf[5];
-+	unsigned char buf[6];
- 
- 	buf[0] = DS1672_REG_CNT_BASE;
- 	buf[1] = secs & 0x000000FF;
- 	buf[2] = (secs & 0x0000FF00) >> 8;
- 	buf[3] = (secs & 0x00FF0000) >> 16;
- 	buf[4] = (secs & 0xFF000000) >> 24;
-+	buf[5] = 0;	/* set control reg to enable counting */
- 
--	xfer = i2c_master_send(client, buf, 5);
--	if (xfer != 5) {
-+	xfer = i2c_master_send(client, buf, 6);
-+	if (xfer != 6) {
- 		dev_err(&client->dev, "%s: send: %d\n", __FUNCTION__, xfer);
- 		return -EIO;
- 	}
-@@ -120,6 +122,44 @@ static int ds1672_rtc_set_mmss(struct de
- 	return ds1672_set_mmss(to_i2c_client(dev), secs);
+ exit:
++	dev_err(dev, "rtc core: unable to register %s, err = %d\n",
++			name, err);
+ 	return ERR_PTR(err);
  }
+ EXPORT_SYMBOL_GPL(rtc_device_register);
+--- linux-rtc.orig/drivers/rtc/rtc-x1205.c	2006-03-29 02:50:57.000000000 +0200
++++ linux-rtc/drivers/rtc/rtc-x1205.c	2006-03-29 02:53:01.000000000 +0200
+@@ -544,8 +544,6 @@ static int x1205_probe(struct i2c_adapte
  
-+static int ds1672_get_control(struct i2c_client *client, u8 *status)
-+{
-+	unsigned char addr = DS1672_REG_CONTROL;
-+
-+	struct i2c_msg msgs[] = {
-+		{ client->addr, 0, 1, &addr },		/* setup read ptr */
-+		{ client->addr, I2C_M_RD, 1, status },	/* read control */
-+	};
-+
-+	/* read control register */
-+	if ((i2c_transfer(client->adapter, &msgs[0], 2)) != 2) {
-+		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+/* following are the sysfs callback functions */
-+static ssize_t show_control(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	char *state = "enabled";
-+	u8 control;
-+	int err;
-+
-+	err = ds1672_get_control(client, &control);
-+	if (err)
-+		return err;
-+
-+	if (control & DS1672_REG_CONTROL_EOSC)
-+		state = "disabled";
-+
-+	return sprintf(buf, "%s\n", state);
-+}
-+
-+static DEVICE_ATTR(control, S_IRUGO, show_control, NULL);
-+
- static struct rtc_class_ops ds1672_rtc_ops = {
- 	.read_time	= ds1672_rtc_read_time,
- 	.set_time	= ds1672_rtc_set_time,
-@@ -162,6 +202,7 @@ static struct i2c_driver ds1672_driver =
- static int ds1672_probe(struct i2c_adapter *adapter, int address, int kind)
- {
- 	int err = 0;
-+	u8 control;
- 	struct i2c_client *client;
- 	struct rtc_device *rtc;
+ 	if (IS_ERR(rtc)) {
+ 		err = PTR_ERR(rtc);
+-		dev_err(&client->dev,
+-			"unable to register the class device\n");
+ 		goto exit_detach;
+ 	}
  
-@@ -202,6 +243,20 @@ static int ds1672_probe(struct i2c_adapt
+--- linux-rtc.orig/drivers/rtc/rtc-ds1672.c	2006-03-29 02:29:43.000000000 +0200
++++ linux-rtc/drivers/rtc/rtc-ds1672.c	2006-03-29 02:57:10.000000000 +0200
+@@ -229,8 +229,6 @@ static int ds1672_probe(struct i2c_adapt
  
- 	i2c_set_clientdata(client, rtc);
+ 	if (IS_ERR(rtc)) {
+ 		err = PTR_ERR(rtc);
+-		dev_err(&client->dev,
+-			"unable to register the class device\n");
+ 		goto exit_detach;
+ 	}
  
-+	/* read control register */
-+	err = ds1672_get_control(client, &control);
-+	if (err) {
-+		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
-+		goto exit_detach;
-+	}
-+
-+	if (control & DS1672_REG_CONTROL_EOSC)
-+		dev_warn(&client->dev, "Oscillator not enabled. "
-+					"Set time to enable.\n");
-+
-+	/* Register sysfs hooks */
-+	device_create_file(&client->dev, &dev_attr_control);
-+
- 	return 0;
+--- linux-rtc.orig/drivers/rtc/rtc-m48t86.c	2006-03-29 02:50:57.000000000 +0200
++++ linux-rtc/drivers/rtc/rtc-m48t86.c	2006-03-29 02:56:48.000000000 +0200
+@@ -151,10 +151,8 @@ static int __devinit m48t86_rtc_probe(st
+ 	struct rtc_device *rtc = rtc_device_register("m48t86",
+ 				&dev->dev, &m48t86_rtc_ops, THIS_MODULE);
  
- exit_detach:
+-	if (IS_ERR(rtc)) {
+-		dev_err(&dev->dev, "unable to register\n");
++	if (IS_ERR(rtc))
+ 		return PTR_ERR(rtc);
+-	}
+ 
+ 	platform_set_drvdata(dev, rtc);
+ 
+--- linux-rtc.orig/drivers/rtc/rtc-pcf8563.c	2006-03-29 02:50:57.000000000 +0200
++++ linux-rtc/drivers/rtc/rtc-pcf8563.c	2006-03-29 02:57:01.000000000 +0200
+@@ -290,8 +290,6 @@ static int pcf8563_probe(struct i2c_adap
+ 
+ 	if (IS_ERR(rtc)) {
+ 		err = PTR_ERR(rtc);
+-		dev_err(&client->dev,
+-			"unable to register the class device\n");
+ 		goto exit_detach;
+ 	}
+ 
+--- linux-rtc.orig/drivers/rtc/rtc-test.c	2006-03-29 02:50:57.000000000 +0200
++++ linux-rtc/drivers/rtc/rtc-test.c	2006-03-29 02:56:29.000000000 +0200
+@@ -119,8 +119,6 @@ static int test_probe(struct platform_de
+ 						&test_rtc_ops, THIS_MODULE);
+ 	if (IS_ERR(rtc)) {
+ 		err = PTR_ERR(rtc);
+-		dev_err(&plat_dev->dev,
+-			"unable to register the class device\n");
+ 		return err;
+ 	}
+ 	device_create_file(&plat_dev->dev, &dev_attr_irq);
+--- linux-rtc.orig/drivers/rtc/rtc-ep93xx.c	2006-03-29 02:50:57.000000000 +0200
++++ linux-rtc/drivers/rtc/rtc-ep93xx.c	2006-03-29 02:58:03.000000000 +0200
+@@ -109,7 +109,6 @@ static int __devinit ep93xx_rtc_probe(st
+ 				&dev->dev, &ep93xx_rtc_ops, THIS_MODULE);
+ 
+ 	if (IS_ERR(rtc)) {
+-		dev_err(&dev->dev, "unable to register\n");
+ 		return PTR_ERR(rtc);
+ 	}
+ 
+--- linux-rtc.orig/drivers/rtc/rtc-sa1100.c	2006-03-29 02:14:50.000000000 +0200
++++ linux-rtc/drivers/rtc/rtc-sa1100.c	2006-03-29 02:57:38.000000000 +0200
+@@ -341,7 +341,6 @@ static int sa1100_rtc_probe(struct platf
+ 				THIS_MODULE);
+ 
+ 	if (IS_ERR(rtc)) {
+-		dev_err(&pdev->dev, "Unable to register the RTC device\n");
+ 		return PTR_ERR(rtc);
+ 	}
+ 
+--- linux-rtc.orig/drivers/rtc/rtc-rs5c372.c	2006-03-29 02:50:58.000000000 +0200
++++ linux-rtc/drivers/rtc/rtc-rs5c372.c	2006-03-29 02:59:15.000000000 +0200
+@@ -233,8 +233,6 @@ static int rs5c372_probe(struct i2c_adap
+ 
+ 	if (IS_ERR(rtc)) {
+ 		err = PTR_ERR(rtc);
+-		dev_err(&client->dev,
+-			"unable to register the class device\n");
+ 		goto exit_detach;
+ 	}
+ 
 
 --

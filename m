@@ -1,62 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWCaAXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWCaAdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWCaAXK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 19:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWCaAXK
+	id S1750989AbWCaAdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 19:33:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWCaAdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 19:23:10 -0500
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:26341 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751173AbWCaAXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 19:23:08 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: [PATCH] splice support #3
-To: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       torvalds@osdl.org, Christoph Hellwig <hch@infradead.org>
-Reply-To: 7eggert@gmx.de
-Date: Fri, 31 Mar 2006 02:08:47 +0200
-References: <5W5ei-5kR-11@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1FP7PM-0003E3-PE@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+	Thu, 30 Mar 2006 19:33:25 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:61114 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750890AbWCaAdZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 19:33:25 -0500
+Date: Thu, 30 Mar 2006 16:35:44 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Jens Axboe <axboe@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH] splice: add support for SPLICE_F_MOVE flag
+Message-Id: <20060330163544.72e50aab.akpm@osdl.org>
+In-Reply-To: <200603302109.k2UL9ET0012970@hera.kernel.org>
+References: <200603302109.k2UL9ET0012970@hera.kernel.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
+Linux Kernel Mailing List <linux-kernel@vger.kernel.org> wrote:
+>
+> commit 5abc97aa25b2c41413b3a520faee83f2282d9f18
+> tree 4ba13ae0e91f15d02986df7cdca5e9455212d7d4
+> parent 5274f052e7b3dbd81935772eb551dfd0325dfa9d
+> author Jens Axboe <axboe@suse.de> Thu, 30 Mar 2006 15:16:46 +0200
+> committer Linus Torvalds <torvalds@g5.osdl.org> Fri, 31 Mar 2006 04:28:18 -0800
+> 
+> [PATCH] splice: add support for SPLICE_F_MOVE flag
+> 
+> This enables the caller to migrate pages from one address space page
+> cache to another.  In buzz word marketing, you can do zero-copy file
+> copies!
+> 
+> ...
+>  
+> +static int page_cache_pipe_buf_steal(struct pipe_inode_info *info,
+> +				     struct pipe_buffer *buf)
+> +{
+> +	struct page *page = buf->page;
+> +
+> +	WARN_ON(!PageLocked(page));
+> +	WARN_ON(!PageUptodate(page));
+> +
+> +	if (!remove_mapping(page_mapping(page), page))
+> +		return 1;
+> +
+> +	if (PageLRU(page)) {
+> +		struct zone *zone = page_zone(page);
+> +
+> +		spin_lock_irq(&zone->lru_lock);
+> +		BUG_ON(!PageLRU(page));
+> +		__ClearPageLRU(page);
+> +		del_page_from_lru(zone, page);
+> +		spin_unlock_irq(&zone->lru_lock);
+> +	}
+> +
+> +	buf->stolen = 1;
+> +	return 0;
+> +}
 
-> Ok, this should be it, I hope. Fixed the remaining issues spotted by
-> akpm, and also thanks to KAMEZAWA Hiroyuki for pointing out that the
-> page moving logic could get confused.
+hm.  There's a reason why it is no longer necessary to recheck PG_lru after
+taking the zone->lock, but I'm too lazy to go back through the changelogs
+and we seem to have forgotten to add comments, so I'll cc Nick instead ;)
 
-a) JFTR: When I first read of splice, I imagined the splice call would
-replace the remote side of a pipe with any of the own fds (after flushing
-the buffer). E.g. cat could optionally call splice on the last input file
-and stdout, and on success, exit before the work is done. Is something like
-this planned?
+I worry that the page might still be under writeback when we get here. 
+Probably we'll get lucky because whoever is writing the page probably holds
+a ref on it (BIOs will do this), but a wait_on_page_writeback() after
+locking the page might be prudent.
 
-(Yes, I didn't pay much attention.)
+>  static void page_cache_pipe_buf_unmap(struct pipe_inode_info *info,
+>  				      struct pipe_buffer *buf)
+>  {
+> -	unlock_page(buf->page);
+> +	if (!buf->stolen)
+> +		unlock_page(buf->page);
+>  	kunmap(buf->page);
+>  }
 
-b) Having read Christoph's comment, I think the planned splice syscall
-should overlay the sendfile sysctl (keeping the historic name). Off cause
-the offset parameter will give you strange results (*) if you're expecting
-an input file, but I doubt there are programs using sendfile randomly,
-hoping it would fail on pipes.
-
-If you do that, users can generically call sendfile and it will DTRT if
-possible.
+There go our chances of ever getting rid of kmap().  Is it not feasible to
+use atomic kmaps throughout this code?
 
 
-
-*) Obviously offset = n on pipe-in_fd will either
- - skip n bytes from a pipe/socket, and it will be decremented by the
-   number of skipped bytes after returning from the syscall.
-or
- - be incremented by the number of copied bytes (no skipping happens).
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.

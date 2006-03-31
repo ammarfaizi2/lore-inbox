@@ -1,133 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWCaMpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbWCaMrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751309AbWCaMpU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 07:45:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWCaMpU
+	id S1751065AbWCaMrT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 07:47:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWCaMrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 07:45:20 -0500
-Received: from unthought.net ([212.97.129.88]:25356 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S1751309AbWCaMpU (ORCPT
+	Fri, 31 Mar 2006 07:47:19 -0500
+Received: from ns.firmix.at ([62.141.48.66]:49606 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1751065AbWCaMrS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 07:45:20 -0500
-Date: Fri, 31 Mar 2006 14:45:19 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS client (10x) performance regression 2.6.14.7 -> 2.6.15
-Message-ID: <20060331124518.GH9811@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	linux-kernel@vger.kernel.org
-References: <20060331094850.GF9811@unthought.net> <1143807770.8096.4.camel@lade.trondhjem.org>
+	Fri, 31 Mar 2006 07:47:18 -0500
+Subject: Re: [PATCH] splice support #2
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jeff@garzik.org>, Jens Axboe <axboe@suse.de>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.64.0603301259220.27203@g5.osdl.org>
+References: <20060330100630.GT13476@suse.de>
+	 <20060330120055.GA10402@elte.hu> <20060330120512.GX13476@suse.de>
+	 <Pine.LNX.4.64.0603300853190.27203@g5.osdl.org>
+	 <442C440B.2090700@garzik.org>
+	 <Pine.LNX.4.64.0603301259220.27203@g5.osdl.org>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Fri, 31 Mar 2006 14:46:26 +0200
+Message-Id: <1143809186.32767.33.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1143807770.8096.4.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 31, 2006 at 07:22:50AM -0500, Trond Myklebust wrote:
-...
+On Thu, 2006-03-30 at 13:16 -0800, Linus Torvalds wrote:
+[...]
+> splice() really can handle any fd->fd move.
 > 
-> Some nfsstat output comparing the good and bad cases would help.
+> The reason you want to have a pipe in the middle is that you have to 
+> handle partial moves _some_ way. And the pipe being the buffer really does 
+> allow that, and also handles the case of "what happens when we received 
+> more data than we could write".
+> 
+> So the way to do copies is
+> 
+> 	int pipefd[2];
+> 	unsigned long copied = 0;
+> 
+> 	if (pipe(pipefd) < 0)
+> 		error
+> 
+> 	for (;;) {
+> 		int nr = splice(in, pipefd[1], MAX_INT, 0);
+> 		if (nr <= 0)
+> 			break;
+> 		do {
+> 			int ret = splice(pipefd[0], out, nr, 0);
+> 			if (ret <= 0) {
+> 				error: couldn't write 'nr' bytes
+> 				break;
+> 			}
+> 
+> 			nr -= ret;
+> 		} while (nr);
+> 	}
+> 	close(pipefd[0]);
+> 	close(pipefd[1]);
+> 
+> which may _seem_ very complicated and the extra pipe seems "useless", but 
+> it's (a) actually pretty efficient and (b) allows error recovery.
+> 
+> That (b) is the really important part. I can pretty much guarantee that 
+> without the "useless" pipe, you simply couldn't do it.
+> 
+> In particular, what happens when you try to connect two streaming devices, 
+> but the destination stops accepting data? You cannot put the received data 
+> "back" into the streaming source any way - so if you actually want to be 
+> able to handle error recovery, you _have_ to get access to the source 
+> buffers.
+> 
+> Also, for signal handling, you need to have some way to keep the pipe 
+> around for several iterations on the sender side, while still returning to 
+> user space to do the signal handler. 
+> 
+> And guess what? That's exactly what you get with that "useless" pipe. For 
+> error handling, you can decide to throw the extra data that the recipient 
+> didn't want away (just close the pipe), and maybe that's going to be what 
+> most people do. But you could also decide to just do a "read()" on the 
+> pipefd, to just read the data into user space for debugging and/or error 
+> recovery..
+> 
+> Similarly, for signals, the pipe _is_ that buffer that you need that is 
+> consistent across multiple invocations.
+> 
+> So that pipe is not at all unnecessary, and in fact, it's critical. It may 
 
-Clean boot on 2.6.15 and 2.6.14.7, one run of nfsbench with
-LEADING_EMPTY_SPACE=1.  I've skipped the NFS v2 stats because they're
-all 0.
+IOW the "pipe" above is in fact just a "handle" of a kernel-internal
+buffer (of one page) and the two fd's can be used to tell sys-calls to
+read from or write into the buffer. But it is much faster because it
+avoids real copying of the data into a user-space buffer and out of the
+user-space buffer since the kernel can manipulate the underlying data
+directly as a typical implementation of the above code does (i.e. use
+read(2) and write(2) instead of the two splice(2) calls).
+Uuuuuh, real zero-copy seems possible.
 
---- Run on bad kernel ---
-
-[puffin:joe] $ uname -a
-Linux puffin 2.6.15 #1 SMP Fri Mar 31 11:10:28 CEST 2006 i686 GNU/Linux
-[puffin:joe] $ nfsstat 
-Client rpc stats:
-calls      retrans    authrefrsh
-63         0          0       
-
-<snip v2 stats>
-
-Client nfs v3:
-null       getattr    setattr    lookup     access     readlink   
-0       0% 11     18% 0       0% 26     42% 14     22% 0       0% 
-read       write      create     mkdir      symlink    mknod      
-4       6% 0       0% 0       0% 0       0% 0       0% 0       0% 
-remove     rmdir      rename     link       readdir    readdirplus
-0       0% 0       0% 0       0% 0       0% 0       0% 4       6% 
-fsstat     fsinfo     pathconf   commit     
-0       0% 2       3% 0       0% 0       0% 
-[puffin:joe] $ time ./nfsbench 
-
-real    0m29.242s
-user    0m0.000s
-sys     0m0.160s
-[puffin:joe] $ nfsstat 
-Client rpc stats:
-calls      retrans    authrefrsh
-13240      0          0       
-
-<snip v2 stats>
-
-Client nfs v3:
-null       getattr    setattr    lookup     access     readlink   
-0       0% 2583   19% 0       0% 30      0% 24      0% 0       0% 
-read       write      create     mkdir      symlink    mknod      
-7045   53% 3200   24% 1       0% 0       0% 0       0% 0       0% 
-remove     rmdir      rename     link       readdir    readdirplus
-0       0% 0       0% 0       0% 0       0% 0       0% 34      0% 
-fsstat     fsinfo     pathconf   commit     
-0       0% 2       0% 0       0% 319     2% 
-
-[puffin:joe] $
-
---- Run on good kernel ---
-
-[puffin:joe] $ uname -a
-Linux puffin 2.6.14.7 #1 SMP Fri Mar 31 10:41:59 CEST 2006 i686
-GNU/Linux
-[puffin:joe] $ nfsstat 
-Client rpc stats:
-calls      retrans    authrefrsh
-52         0          0       
-
-<snip v2 stats>
-
-Client nfs v3:
-null       getattr    setattr    lookup     access     readlink   
-0       0% 7      14% 0       0% 24     48% 13     26% 0       0% 
-read       write      create     mkdir      symlink    mknod      
-4       8% 0       0% 0       0% 0       0% 0       0% 0       0% 
-remove     rmdir      rename     link       readdir    readdirplus
-0       0% 0       0% 0       0% 0       0% 0       0% 0       0% 
-fsstat     fsinfo     pathconf   commit     
-0       0% 2       4% 0       0% 0       0% 
-
-[puffin:joe] $ time ./nfsbench 
-
-real    0m0.224s
-user    0m0.000s
-sys     0m0.072s
-[puffin:joe] $ nfsstat 
-Client rpc stats:
-calls      retrans    authrefrsh
-384        0          0       
-
-<snip v2 stats>
-
-Client nfs v3:
-null       getattr    setattr    lookup     access     readlink   
-0       0% 10      2% 1       0% 26      6% 15      3% 0       0% 
-read       write      create     mkdir      symlink    mknod      
-6       1% 321    84% 0       0% 0       0% 0       0% 0       0% 
-remove     rmdir      rename     link       readdir    readdirplus
-0       0% 0       0% 0       0% 0       0% 0       0% 0       0% 
-fsstat     fsinfo     pathconf   commit     
-0       0% 2       0% 0       0% 1       0% 
-
-[puffin:joe] $
-
-
+	Bernd
 -- 
-
- / jakob
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 

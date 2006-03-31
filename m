@@ -1,39 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWCaLCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWCaLFp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbWCaLCe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 06:02:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWCaLCe
+	id S1751319AbWCaLFp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 06:05:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWCaLFp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 06:02:34 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:17709 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751319AbWCaLCd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 06:02:33 -0500
-Date: Fri, 31 Mar 2006 13:02:34 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] splice exports
-Message-ID: <20060331110233.GM14022@suse.de>
-References: <20060331040613.GA23511@havoc.gtf.org> <1143802879.3053.3.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1143802879.3053.3.camel@laptopd505.fenrus.org>
+	Fri, 31 Mar 2006 06:05:45 -0500
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:63122 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751319AbWCaLFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 06:05:44 -0500
+Message-ID: <442D0D06.3050908@bigpond.net.au>
+Date: Fri, 31 Mar 2006 22:05:42 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: Float numbers in module programming
+References: <3fd7d9680603290634n6fabcdc7r193c30447acc1858@mail.gmail.com> <Pine.LNX.4.61.0603290955440.27913@chaos.analogic.com> <Pine.LNX.4.61.0603301010400.30783@yvahk01.tjqt.qr> <Pine.LNX.4.61.0603300739050.32259@chaos.analogic.com> <20060330182643.GV27173@skl-net.de> <Pine.LNX.4.61.0603301342410.1215@chaos.analogic.com> <20060331075758.GB93977@dspnet.fr.eu.org>
+In-Reply-To: <20060331075758.GB93977@dspnet.fr.eu.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 31 Mar 2006 11:05:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 31 2006, Arjan van de Ven wrote:
-> On Thu, 2006-03-30 at 23:06 -0500, Jeff Garzik wrote:
-> > Woe be unto he who builds their filesystems as modules.
+Olivier Galibert wrote:
+> On Thu, Mar 30, 2006 at 01:46:20PM -0500, linux-os (Dick Johnson) wrote:
+>> Yeah. The correct word was irrational, which is its definition. The
+>> point was that one can do a lot of very accurate work on real numbers
+>> without using the FP unit and the decimal system.
 > 
+> As long as you don't use sin/cos (oops, no 3D, no polar coordinates,
+> no FFT), sqrt (oops no lenghts), pi (oops no non-polygonal surfaces)
+> or ln/exp (oops, a lot of things are gone there).
 > 
-> since splice support is highly linux specific and new.. shouldn't these
-> be _GPL exports?
+> Working with rationals is not that realistic nowadays except in things
+> like mathematica, maple and friends.  Fixed-point though is still very
+> realistics, it's just a different precision/scale tradeoff than fp,
+> and one you control.
 
-Yes they should, I'll add that to the current splice tree.
+Fixed point is a special case of rational i.e. with a fixed denominator.
 
+Peter
 -- 
-Jens Axboe
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

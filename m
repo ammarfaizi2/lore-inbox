@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWCaSro@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWCaSwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750959AbWCaSro (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 13:47:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWCaSro
+	id S1751129AbWCaSwv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 13:52:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWCaSwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 13:47:44 -0500
-Received: from smop.co.uk ([81.5.177.201]:64678 "EHLO hades.smop.co.uk")
-	by vger.kernel.org with ESMTP id S1750959AbWCaSro (ORCPT
+	Fri, 31 Mar 2006 13:52:50 -0500
+Received: from unthought.net ([212.97.129.88]:2578 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S1751129AbWCaSwu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 13:47:44 -0500
-Date: Fri, 31 Mar 2006 19:47:33 +0100
-To: "David S. Miller" <davem@davemloft.net>
-Cc: ak@muc.de, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-mm1 leaks in dvb playback (found)
-Message-ID: <20060331184733.GA21384@smop.co.uk>
-Reply-To: adrian@smop.co.uk
-Mail-Followup-To: "David S. Miller" <davem@davemloft.net>, ak@muc.de,
-	akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <20060331072859.GA5389@smop.co.uk> <20060330.234823.109651253.davem@davemloft.net> <20060331095443.GA8616@smop.co.uk> <20060331.020727.122135042.davem@davemloft.net>
-MIME-Version: 1.0
+	Fri, 31 Mar 2006 13:52:50 -0500
+Date: Fri, 31 Mar 2006 20:52:49 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org
+Subject: Re: NFS client (10x) performance regression 2.6.14.7 -> 2.6.15
+Message-ID: <20060331185249.GP9811@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	"Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	linux-kernel@vger.kernel.org
+References: <20060331132131.GI9811@unthought.net> <1143812658.8096.18.camel@lade.trondhjem.org> <20060331140816.GJ9811@unthought.net> <1143814889.8096.22.camel@lade.trondhjem.org> <20060331143500.GK9811@unthought.net> <20060331144951.GA9207@ti64.telemetry-investments.com> <20060331145726.GL9811@unthought.net> <20060331150453.GB9207@ti64.telemetry-investments.com> <20060331152401.GM9811@unthought.net> <20060331163542.GC9207@ti64.telemetry-investments.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060331.020727.122135042.davem@davemloft.net>
-User-Agent: Mutt/1.5.11+cvs20060126
-From: Adrian Bridgett <adrian@smop.co.uk>
-X-smop.co.uk-MailScanner: Found to be clean
-X-smop.co.uk-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.658,
-	required 5, autolearn=not spam, AWL -0.06, BAYES_00 -2.60,
-	NO_RELAYS -0.00)
-X-smop.co.uk-MailScanner-From: adrian@smop.co.uk
+In-Reply-To: <20060331163542.GC9207@ti64.telemetry-investments.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 31, 2006 at 02:07:27 -0800 (-0800), David S. Miller wrote:
-> Strange, can you strace the process and follow the socket
-> operations your application performs?  Something unique
-> is occuring in that app since there have not been other
-> reports of this problem that I am aware of.
+On Fri, Mar 31, 2006 at 11:35:42AM -0500, Bill Rugolsky Jr. wrote:
+...
+> I don't see any problem over loopback either.  Perhaps I'll try increasing
+> delays with tc netem.  That will have to wait until later.
 
-The strace output is the same when run under both kernels (a leaking
-one and a non-leaking one):
+That would be my next try.
 
-7384  socket(PF_FILE, SOCK_STREAM, 0)   = 7
-7384  connect(7, {sa_family=AF_FILE, path="/var/run/nscd/socket"}, 110) = 0
-7384  recvmsg(7, {msg_name(0)=NULL, msg_iov(1)=[{"hosts\0", 6}],
-      msg_controllen=16, {cmsg_len=16, cmsg_level=SOL_SOCKET,
-      cmsg_type=SCM_RIGHTS, {8}}, msg_flags=0}, MSG_NOSIGNAL) = 6
-7384  socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 7
-7384  setsockopt(7, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
-7384  bind(7, {sa_family=AF_INET, sin_port=htons(12345), sin_addr=inet_addr("0.0.0.0")}, 16) = 0
-7384  listen(7, 1)                      = 0
-7384  accept(7, 0x81546e4, [0])         = -1 EAGAIN (Resource temporarily unavailable)
-7384  accept(7, 0x81546e4, [0])         = -1 EAGAIN (Resource temporarily unavai
-[repeated lots and lots ....]
+> In any case, I tried on our NetApp FAS-250, and I see the same problem:
+> Mount options are:
+> netapp:/home /nfs/netapp/home nfs rw,v3,rsize=32768,wsize=32768,hard,intr,tcp,lock,addr=netapp 0 0
 
-So I guess I was _completely_ wrong and that it's the failure case
-that is leaking.
+Thanks a lot!  Ah, I thought the computers only hated me  ;)
 
-It also looks like dvbstream is being a tad silly so I'll go and have
-a look at that (userspace stuff I stand a chance with).
+-- 
 
-Thanks,
+ / jakob
 
-Adrian

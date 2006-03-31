@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWCaHsE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWCaHwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbWCaHsE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 02:48:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWCaHsD
+	id S1751079AbWCaHwM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 02:52:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWCaHwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 02:48:03 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:48326
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751252AbWCaHsC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 02:48:02 -0500
-Date: Thu, 30 Mar 2006 23:48:23 -0800 (PST)
-Message-Id: <20060330.234823.109651253.davem@davemloft.net>
-To: adrian@smop.co.uk
-Cc: ak@muc.de, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-mm1 leaks in dvb playback (found)
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060331072859.GA5389@smop.co.uk>
-References: <20060330.152821.24959319.davem@davemloft.net>
-	<20060331012235.GB45568@muc.de>
-	<20060331072859.GA5389@smop.co.uk>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 31 Mar 2006 02:52:12 -0500
+Received: from smtp6-g19.free.fr ([212.27.42.36]:31183 "EHLO smtp6-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1751079AbWCaHwL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 02:52:11 -0500
+Date: Fri, 31 Mar 2006 09:52:36 +0200
+From: Bertrand Jacquin <beber@gna.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: beber.lkml@gmail.com, gregkh@suse.de, linux-kernel@vger.kernel.org,
+       stable@kernel.org, torvalds@osdl.org, akpm@osdl.org
+Subject: Re: [PATCH] isd200: limit to BLK_DEV_IDE
+Message-Id: <20060331095236.72e5ab52.beber@gna.org>
+In-Reply-To: <Pine.LNX.4.58.0603301431560.26598@shark.he.net>
+References: <20060328075629.GA8083@kroah.com>
+	<4615f4910603301146x5496ccaai17bf5f4636c91c45@mail.gmail.com>
+	<Pine.LNX.4.58.0603301431560.26598@shark.he.net>
+Organization: GMail
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.13; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Fri__31_Mar_2006_09_52_36_+0200_zn4t0pohQTckYBVU"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bridgett <adrian@smop.co.uk>
-Date: Fri, 31 Mar 2006 08:28:59 +0100
+--Signature=_Fri__31_Mar_2006_09_52_36_+0200_zn4t0pohQTckYBVU
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
+Content-Transfer-Encoding: base64
 
-> On Fri, Mar 31, 2006 at 03:22:35 +0200 (+0200), Andi Kleen wrote:
-> > On Thu, Mar 30, 2006 at 03:28:21PM -0800, David S. Miller wrote:
-> > > From: Adrian Bridgett <adrian@smop.co.uk>
-> > > Date: Fri, 31 Mar 2006 00:11:31 +0100
-> > > 
-> > > > Hmm - it looks like it was meant to be reverted in 2.6.16-rc1-mm4,5 FWIW.
-> > > 
-> > > So is the current version in Linus's tree causing this problem?
-> 
-> I'm taking 2.6.16(.0) adding -mm1.  When running dvbstream I get
-> dentry_cache and sock_inode_cache leaking about 4MB/s.
-> 
-> I then revert this ENFILE/EMFILE patch and both leaks stop.
+TGUgVGh1LCAzMCBNYXIgMjAwNiAxNDozNToyNiAtMDgwMCAoUFNUKSwgIlJhbmR5LkR1bmxhcCIg
+PHJkdW5sYXBAeGVub3RpbWUubmV0PiBtJ2EgYXZvdcOpOg0KDQo+IE9uIFRodSwgMzAgTWFyIDIw
+MDYsIEJlYmVyIHdyb3RlOg0KPiANCj4gPiBPbiAzLzI4LzA2LCBHcmVnIEtIIDxncmVna2hAc3Vz
+ZS5kZT4gd3JvdGU6DQo+ID4gPiBXZSAodGhlIC1zdGFibGUgdGVhbSkgYXJlIGFubm91bmNpbmcg
+dGhlIHJlbGVhc2Ugb2YgdGhlIDIuNi4xNi4xIGtlcm5lbC4NCj4gPg0KPiA+IEkgc3RpbGwgZ2V0
+IHRoaXMgZXJyb3IgOg0KPiA+DQo+ID4gIyBtYWtlDQo+IC4uLg0KPiA+IGRyaXZlcnMvYnVpbHQt
+aW4ubzogSW4gZnVuY3Rpb24gYGlzZDIwMF9Jbml0aWFsaXphdGlvbic6DQo+ID4gOiB1bmRlZmlu
+ZWQgcmVmZXJlbmNlIHRvIGBpZGVfZml4X2RyaXZlaWQnDQo+ID4gbWFrZTogKioqIFsudG1wX3Zt
+bGludXgxXSBFcnJvciAxDQo+IA0KPiBXYXMgdGhpcyByZXBvcnRlZCBlYXJsaWVyPw0KDQpZZXMs
+IGl0IHdhcywgYnV0IGlnbm9yZWQsIHNvIEkgcmVwb3N0IGl0IDspDQoNCj4gUGxlYXNlIHRlc3Qg
+dGhlIHBhdGNoIGJlbG93Lg0KPiBJdCB3b3JrcyBmb3IgbWUgd2l0aCB5b3VyIGNvbmZpZyBhbmQg
+dmFyaW91cyBvdGhlcnMuDQoNCkl0IHdvcmsgaGVyZSB0b28uDQpUaGFua3MNCg0KLS0gDQovKiBC
+ZWJlciA6IGJlYmVyIChBVCkgZ25hIChET1QpIG9yZw0KICogaHR0cDovL2d1eWJydXNoLmF0aC5j
+eCwgaXJjOi8vaXJjLmZyZWVub2RlLm5ldC8je2UuZnIsZ2VudG9vZnJ9DQogKiBHdXlicnVzaCBA
+IE1lbGVlICovDQo=
 
-As I stated, there was a bug in the initial patch, which subsequent
-patches fix.
+--Signature=_Fri__31_Mar_2006_09_52_36_+0200_zn4t0pohQTckYBVU
+Content-Type: application/pgp-signature
 
-Can you try Linus's current tree to see if the problem is there?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFELN/HOoDxkpMsDusRAv8+AJ9vNyHss8qAh6ep0qYAmd67y+CIWgCguwk1
+UhEYHmAmiP99g4cUcsSoLyA=
+=dw32
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__31_Mar_2006_09_52_36_+0200_zn4t0pohQTckYBVU--

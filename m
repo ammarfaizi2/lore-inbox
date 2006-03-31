@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWCaRsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbWCaRtN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbWCaRsq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 12:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWCaRsq
+	id S932160AbWCaRtN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 12:49:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWCaRtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 12:48:46 -0500
-Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:46498 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S932148AbWCaRsp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 12:48:45 -0500
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-In-reply-to: <E1FPNgV-0005YY-00@dorka.pomaz.szeredi.hu> (message from Miklos
-	Szeredi on Fri, 31 Mar 2006 19:45:19 +0200)
-Subject: [PATCH 2/10] fuse: fix fuse_dev_poll() return value
-References: <E1FPNgV-0005YY-00@dorka.pomaz.szeredi.hu>
-Message-Id: <E1FPNjd-0005aE-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 31 Mar 2006 19:48:33 +0200
+	Fri, 31 Mar 2006 12:49:12 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:7611 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S932152AbWCaRtG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 12:49:06 -0500
+Message-ID: <442D7790.2010300@wolfmountaingroup.com>
+Date: Fri, 31 Mar 2006 11:40:16 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linas Vepstas <linas@austin.ibm.com>
+CC: john.ronciak@intel.com, jesse.brandeburg@intel.com,
+       jeffrey.t.kirsher@intel.com, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH]: e1000: prevent statistics from getting garbled during
+ reset.
+References: <20060330213928.GQ2172@austin.ibm.com> <20060331000208.GS2172@austin.ibm.com> <442C8069.507@wolfmountaingroup.com> <20060331003506.GU2172@austin.ibm.com> <442CACC0.1060308@wolfmountaingroup.com> <20060331170319.GV2172@austin.ibm.com>
+In-Reply-To: <20060331170319.GV2172@austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fuse_dev_poll() returned an error value instead of a poll mask.
-Luckily (or unluckily) -ENODEV does contain the POLLERR bit.
+Linas Vepstas wrote:
 
-There's also a race if filesystem is unmounted between fuse_get_conn()
-and spin_lock(), in which case this event will be missed by poll().
+>On Thu, Mar 30, 2006 at 09:14:56PM -0700, Jeffrey V. Merkey wrote:
+>  
+>
+>>Yes, we need one. The adapter needs to maintain these stats from the
+>>registers in the kernel structure and not
+>>its own local variables. 
+>>    
+>>
+>
+>Did you read the code to see what the adapter does with these stats? 
+>Among other things, it uses them to adaptively modulate transmit rates 
+>to avoid collisions. Just clearing the hardware-private stats will mess
+>up that function.
+>
+>  
+>
+I noticed that.
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+>>That way, when someone calls to clear the stats
+>>for testing and analysis purposes,
+>>they zero out and are reset.
+>>    
+>>
+>
+>1) ifdown/ifup is guarenteed to to clear things. Try that.
+>  
+>
+No, not dynamic. I'll patch the driver locally, thanks.
 
-Index: linux/fs/fuse/dev.c
-===================================================================
---- linux.orig/fs/fuse/dev.c	2006-03-31 18:55:11.000000000 +0200
-+++ linux/fs/fuse/dev.c	2006-03-31 18:55:30.000000000 +0200
-@@ -804,17 +804,18 @@ static ssize_t fuse_dev_write(struct fil
- 
- static unsigned fuse_dev_poll(struct file *file, poll_table *wait)
- {
--	struct fuse_conn *fc = fuse_get_conn(file);
- 	unsigned mask = POLLOUT | POLLWRNORM;
--
-+	struct fuse_conn *fc = fuse_get_conn(file);
- 	if (!fc)
--		return -ENODEV;
-+		return POLLERR;
- 
- 	poll_wait(file, &fc->waitq, wait);
- 
- 	spin_lock(&fuse_lock);
--	if (!list_empty(&fc->pending))
--                mask |= POLLIN | POLLRDNORM;
-+	if (!fc->connected)
-+		mask = POLLERR;
-+	else if (!list_empty(&fc->pending))
-+		mask |= POLLIN | POLLRDNORM;
- 	spin_unlock(&fuse_lock);
- 
- 	return mask;
+Jeff
+
+>2) What's wrong with taking deltas? Typical through-put performance
+>measurement is done by pre-loading the pipes (i.e. running for
+>a few minutes wihtout measuring, then starting the measurement).
+>I'd think that snapshotting the numbers would be easier, and is 
+>trivially doable in user-space. I guess I don't understand why 
+>you need a new kernel featre to imlement this.
+>
+>--linas
+>
+>  
+>
+

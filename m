@@ -1,62 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWCaUjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbWCaUiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932275AbWCaUjM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 15:39:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWCaUjL
+	id S1751411AbWCaUiK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 15:38:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWCaUiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 15:39:11 -0500
-Received: from zproxy.gmail.com ([64.233.162.193]:23175 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932275AbWCaUjJ (ORCPT
+	Fri, 31 Mar 2006 15:38:09 -0500
+Received: from nacho.alt.net ([207.14.113.18]:17284 "HELO nacho.alt.net")
+	by vger.kernel.org with SMTP id S1751333AbWCaUhe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 15:39:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:thread-index:x-mimeole;
-        b=TEQhkraHqkki6aIuaqqazgpFCrrc8hLaSmpmNuPylaHavtyPmNV6fzQhCLKecfdnhZ3huKcvVdEaZL84kWlXnUDp6d16kMFklBRaeZgQSqYZgF6hZJIS9A7pz4VBCV8Be90BSBWEfkc0iazHBeivwFE7SAtCTb8sGBDGMgPKVes=
-From: "Hua Zhong" <hzhong@gmail.com>
-To: "'Linus Torvalds'" <torvalds@osdl.org>, "'Jens Axboe'" <axboe@suse.de>
-Cc: "'Ingo Molnar'" <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
-       <akpm@osdl.org>
-Subject: RE: [PATCH] splice support #2
-Date: Fri, 31 Mar 2006 12:38:52 -0800
-Message-ID: <000001c65503$207d8e40$853d010a@nuitysystems.com>
+	Fri, 31 Mar 2006 15:37:34 -0500
+Date: Fri, 31 Mar 2006 20:37:30 +0000 (GMT)
+To: Jens Axboe <axboe@suse.de>
+cc: erich <erich@areca.com.tw>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: about ll_rw_blk.c of void generic_make_request(struct bio *bio)
+In-Reply-To: <20060331202202.GH14022@suse.de>
+Message-ID: <Pine.LNX.4.64.0603312028500.14317@nacho.alt.net>
+References: <001d01c65302$0fee8e10$b100a8c0@erich2003>
+	<20060330155804.GP13476@suse.de>
+	<Pine.LNX.4.64.0603311700310.14317@nacho.alt.net>
+	<Pine.LNX.4.64.0603311748010.14317@nacho.alt.net>
+	<20060331202202.GH14022@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <Pine.LNX.4.64.0603300905270.27203@g5.osdl.org>
-Thread-Index: AcZUHhEkS9jh0QzgQI2dJm53hsPMowA5Gdsg
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Delivery-Agent: TMDA/1.0.3 (Seattle Slew)
+From: Chris Caputo <ccaputo@alt.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Fri, 31 Mar 2006, Jens Axboe wrote:
+> On Fri, Mar 31 2006, Chris Caputo wrote:
+> > On Fri, 31 Mar 2006, Chris Caputo wrote:
+> > > On Thu, 30 Mar 2006, Jens Axboe wrote:
+> > > > I can't really say, from my recollection of leafing over lkml emails, I
+> > > > seem to recall someone saying he hit this with a newer kernel where as
+> > > > the older one did not?
+> > > > 
+> > > > What are the sectors exactly it complains about, eg the full line you
+> > > > see?
+> > > 
+> > > I see:
+> > > 
+> > >   attempt to access beyond end of device
+> > >   sdb1: rw=0, want=134744080, limit=128002016
+> > 
+> > I believe the "rw=0" means that was a simple read request, and not a 
+> > read-ahead.
+> 
+> Correct.
+> 
+> > 128002016 equals about 62 gigs, which is the correct volume size:
+> > 
+> >   Filesystem           1K-blocks      Used Available Use% Mounted on
+> >   /dev/sdb1             62995364   2832696  56962620   5% /xxx
+> > 
+> >   /dev/sdb1 on /xxx type ext2 (rw,noatime)
+> 
+> How are you reproducing this, through the file system (reading files),
+> or reading the device? If the former, is the file system definitely
+> sound - eg does it pass fsck?
 
-> The 4th reason is "tee". Again, you _could_ perhaps do "tee" 
-> without the pipe, but it would be a total nightmare. Now, tee 
-> isn't that common, but it does happen, and in particular it 
-> happens a lot with certain streaming content.
+Filesystem level interaction via bonnie++.  Basic repro is, using ccaputo 
+user, is:
 
-If I understand correctly:
+  mke2fs -j -L /xxx /dev/sdb1
+  mount -t ext2 /dev/sdb1 /xxx
+  cd /xxx ; mkdir ccaputo ; chown ccaputo ccaputo ; cd ccaputo ; su ccaputo
+  /usr/sbin/bonnie++
 
-splice is one fd in, one fd out
-tee is one fd in, two fd out (and I'd assume the "one fd in" would always be
-a pipe)
+Filesystem is believed to be sound since it is from a fresh mke2fs.
 
-How about one fd in, N fd out? Do you then stack the tee calls using
-temporary pipes?
+The one strange thing I do is that I format it as ext3 (-j) but mount it 
+as ext2, but I didn't think that would be an issue and I'd be surprised if 
+Erich is doing the same in his tests, which also fail, with ext2.  (I do 
+it in case I later decide to mount the volume as ext3.)
 
-i.e., if N=3, then we'd have:
-
-pipe(fd_tmp_pipe);
-tee(fd_in, fd_out1, fd_tmp_pipe[0];
-tee(fd_tmp_pipe[1], fd_out2, fd_out3);
-
-Basically, N-2 temporary pipes would be required.
-
-Is this the intention?
-
-Hua
-
-
+Chris

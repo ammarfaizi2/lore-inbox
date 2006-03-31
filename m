@@ -1,92 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWCaNVd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWCaNWI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbWCaNVd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 08:21:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWCaNVc
+	id S932123AbWCaNWI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 08:22:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWCaNWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 08:21:32 -0500
-Received: from unthought.net ([212.97.129.88]:26893 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S932119AbWCaNVc (ORCPT
+	Fri, 31 Mar 2006 08:22:07 -0500
+Received: from zeus2.kernel.org ([204.152.191.36]:42908 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S932123AbWCaNWG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 08:21:32 -0500
-Date: Fri, 31 Mar 2006 15:21:31 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS client (10x) performance regression 2.6.14.7 -> 2.6.15
-Message-ID: <20060331132131.GI9811@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	linux-kernel@vger.kernel.org
-References: <20060331094850.GF9811@unthought.net> <1143807770.8096.4.camel@lade.trondhjem.org> <20060331124518.GH9811@unthought.net> <1143810392.8096.11.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1143810392.8096.11.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.9i
+	Fri, 31 Mar 2006 08:22:06 -0500
+Message-Id: <200603311322.k2VDM0LM031259@zeus2.kernel.org>
+From: "Mrs.Winnie warmate" <wwarmate@freesurf.fr>
+To: linux-kernel@vger.kernel.org
+Reply-To: judice@myway.com
+Subject: Please reach my son regarding this project
+Date: Fri, 31 Mar 2006 15:22:05 +0200
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="e0cc89e5-5460-4f12-a4e4-408492308fb4"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 31, 2006 at 08:06:32AM -0500, Trond Myklebust wrote:
-> On Fri, 2006-03-31 at 14:45 +0200, Jakob Oestergaard wrote:
-> > On Fri, Mar 31, 2006 at 07:22:50AM -0500, Trond Myklebust wrote:
-> > ...
-> > > 
-> > > Some nfsstat output comparing the good and bad cases would help.
-> > 
-> > Clean boot on 2.6.15 and 2.6.14.7, one run of nfsbench with
-> > LEADING_EMPTY_SPACE=1.  I've skipped the NFS v2 stats because they're
-> > all 0.
-> 
-> Why all the GETATTR calls?
 
-That's the $1000 question I guess :)
+This is a multi-part message in MIME format
+--e0cc89e5-5460-4f12-a4e4-408492308fb4
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> Are you running with 'noac' set?
+>From Mrs Winnie Warmate
+Cotonou
+Rep.of Benin
+West Africa.
 
-I didn't set it, that's for sure :)  I got the option lines from
-/proc/mounts, if there is any way I can get more/other information
-please advise.
+Dear friend,
 
-2.6.14.7:
- rw,v3,rsize=32768,wsize=32768,hard,intr,udp,lock,addr=...
+I am a widow to the late principal accountant of
+Sierra Leon central bank who was assassinated due to political hostility
+in my country. For the sake of our lives, we fled to the neighbouring
+republic of Benin where we are seeking refuge until my son was
+evacuated to Europe recently where he is also seeking asylum.
 
-2.6.15:
- rw,v3,rsize=32768,wsize=32768,hard,intr,lock,proto=udp,addr=...
+We decided to search for an external assistance because we are having
+problems recovering a large deposit made by our late father overseas
+since the company maintained that instructions left by our late husband
+the original depositor states that the funds be "RELEASED TO MY FOREIGN
+REPRESENTATIVE ONLY", believing he would appoint someone by himself to
+represent him for the claim but eventually he died earlier thereby
+making it impossible for us to go any further regarding this claim.
 
-Except for some formatting (proto=udp insted of udp) I fail to see any
-difference.
+Most importantly, your ability to put the said funds into circulation wisely
+for our joint interest and relocating us is a major considerable factor
+regarding our request as our knowledge on financial matters is not enough to
+handle an amount of money above (us$10,000,000.00) ten million alone.
+On your personal advise,We are also considering the below options as areas
+relative to our interest to put the said funds working.
 
-The way I see it, it seems like caching on the client side fails
-completely if the read requests are not aligned (to some
-buffer/block/page/whatever).
+1) hospitality industry
+2) farming and acquisition of farmlands
 
-> I don't have a 2.6.15 kernel to run with, but on a recent git pull, I
-> get a total of 6 GETATTR calls when I run your nfsbench program.
+In view of this, if you are touched to work with us in sincerity, by
+standing as my late husband,s foreign representative to receive the said
+deposit on our behalf, we shall embrace you as our new found parent/family
+and will compensate you accordingly.
 
-The performance regression is present on 2.6.16.1 too.
+As you indicate interest, please be fast to contact my son Judice on this
+email address ( judice@myway.com ) to enable him give you further
+information relative to the presence/position of funds and the steps we
+shall take to finalize on the project.
 
-Do you have a released kernel you can test with (2.6.1[56].*), or can I
-somehow get the kernel you're testing with, just so that we test on the
-same kernel?
-
-> The number of READ calls is 1, and the number of WRITE calls is 161 (I'm
-> running with 64k wsize).
-
-I can't set 64k wsize:
-
-puffin:~# mount -o rw,wsize=65536,udp sparrow:/exported/joe /mnt
-puffin:~# cat /proc/mounts 
-...
-sparrow:/exported/joe /mnt nfs rw,v3,rsize=32768,wsize=32768,hard,intr,lock,proto=udp,addr=sparrow 0 0
-puffin:~#
-
-Server is running a patched 2.6.11.11 kernel - could that be what's
-preventing me from 64k wsize?
-
-What happens if you run with 32k rsize/wsize?
-
--- 
-
- / jakob
+Do not hesitate to include your personal telephone/fax numbers as this will
+facilitate communication between you and my son. Thanking you in advance for
+your kind and urgent response, more so for keeping our proposal to your
+self.
+Sincerely W.Warmate 
+  
+--e0cc89e5-5460-4f12-a4e4-408492308fb4--
 

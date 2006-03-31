@@ -1,102 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWCaWux@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWCaXMa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbWCaWux (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 17:50:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWCaWux
+	id S1750909AbWCaXMa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 18:12:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbWCaXMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 17:50:53 -0500
-Received: from rune.pobox.com ([208.210.124.79]:3984 "EHLO rune.pobox.com")
-	by vger.kernel.org with ESMTP id S1750720AbWCaWux (ORCPT
+	Fri, 31 Mar 2006 18:12:30 -0500
+Received: from vms046pub.verizon.net ([206.46.252.46]:2233 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1750884AbWCaXM3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 17:50:53 -0500
-Date: Fri, 31 Mar 2006 16:50:34 -0600
-From: Nathan Lynch <ntl@pobox.com>
-To: Markus Rothe <markus@unixforces.net>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Subject: Re: Oops: mounting floppy disk on PPC64 (power3)
-Message-ID: <20060331225034.GA25663@localdomain>
-References: <200603312138.16032.markus@unixforces.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603312138.16032.markus@unixforces.net>
-User-Agent: Mutt/1.5.9i
+	Fri, 31 Mar 2006 18:12:29 -0500
+Date: Fri, 31 Mar 2006 18:12:26 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: 2.6.16.1 (1) vs ieee1394 (0)  HELP! (I told the missus I could do this)
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Reply-to: gene.heskett@verizononline.net
+Message-id: <200603311812.27023.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 8BIT
+Content-disposition: inline
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Greetings all;
 
-Markus Rothe wrote:
-> 
-> this is kernel 2.6.16.1 compiled with gcc 4.1.0 (gentoo patches). I never 
-> tried to mount a floppy on this system before, so I don't know if it Oops'ed 
-> in previous kernel versions, too.
-> 
-> power3 ~ # uname -a
-> Linux power3 2.6.16.1 #1 Fri Mar 31 21:08:43 UTC 2006 ppc64 POWER3 (630+) CHRP 
-> IBM,7044-170 GNU/Linux
-> power3 ~ # modprobe floppy
-> power3 ~ # mount /mnt/floppy/
-> Oops: Kernel access of bad area, sig: 11 [#1]
-> NUMA PSERIES
-> Modules linked in: floppy
-> NIP: C0000000000201E8 LR: D0000000000C43A4 CTR: C0000000000201D8
-> REGS: c0000000003df470 TRAP: 0300   Not tainted  (2.6.16.1)
-> MSR: A000000000001032 <ME,IR,DR>  CR: 48000082  XER: 00000000
-> DAR: 0000000000000178, DSISR: 0000000040000000
-> TASK = c0000000003fc9b0[0] 'swapper' THREAD: c0000000003dc000
-> GPR00: C00000000042FC08 C0000000003DF6F0 C0000000004D3310 0000000000000000
-> GPR04: C00000000161D000 0000000000000400 0000000000000002 0000000000000750
-> GPR08: 0000000000000064 D0000000000D4AE0 D0000000000D5F20 C0000000000201D8
-> GPR12: D0000000000CB280 C0000000003FCF80 0000000000000000 0000000000000000
-> GPR16: 0000000000000000 0000000000000000 4000000001400000 C0000000003595E0
-> GPR20: C0000000003D1F28 00000000017D1A80 C0000000003D1A80 0000000000000060
-> GPR24: 00000000000003F0 A000000000009032 0000000000000044 00000000000000D9
-> GPR28: 0000000000000400 0000000000000002 D0000000000DB880 C00000000161D000
-> NIP [C0000000000201E8] .dma_map_single+0x10/0x70
-> LR [D0000000000C43A4] .setup_rw_floppy+0x2c0/0xaa8 [floppy]
-> Call Trace:
-> [C0000000003DF6F0] [D0000000000C5790] .start_motor+0x108/0x158 [floppy] 
-> (unreli)
-> [C0000000003DF760] [D0000000000C43A4] .setup_rw_floppy+0x2c0/0xaa8 [floppy]
-> [C0000000003DF810] [C000000000044714] .run_timer_softirq+0x174/0x20c
-> [C0000000003DF8B0] [C00000000003FC68] .__do_softirq+0x80/0x128
-> [C0000000003DF940] [C00000000003FD5C] .do_softirq+0x4c/0x68
-> [C0000000003DF9C0] [C00000000001C9E8] .timer_interrupt+0x360/0x388
-> [C0000000003DFA90] [C0000000000034B8] decrementer_common+0xb8/0x100
-> --- Exception: 901 at .ppc64_runlatch_off+0x0/0x50
->     LR = .default_idle+0x48/0x70
-> [C0000000003DFD80] [C000000000016764] .default_idle+0x68/0x70 (unreliable)
-> [C0000000003DFE00] [C0000000000166E8] .cpu_idle+0x40/0x54
-> [C0000000003DFE70] [C0000000000092B0] .rest_init+0x3c/0x54
-> [C0000000003DFEF0] [C0000000003B16D4] .start_kernel+0x1f0/0x208
-> [C0000000003DFF90] [C000000000008514] .start_here_common+0x88/0x174
-> Instruction dump:
-> 4e800421 e8410028 48000008 0fe00000 38210070 e8010010 7c0803a6 4e800020
-> 7c0802a6 f8010010 f821ff91 e80298d0 <e9230178> 7fa90000 409e000c e92298d8
-> 
-> Am I doing something wrong?
+I may have found a gotcha in the 2.6.16.1 and NDI how far back it goes 
+because I haven't used anything ieee1394 in months.
 
-Nope.
+Anyway, I plugged in my camera, a Sony DCR-TVR460 and fired up kino, 
+fully expecting to see the viewfinders image on screen as soon as I 
+switched kino to the capture screen.
 
-I believe this was fixed in Linus' tree as of a couple days ago:
+Unforch, its blank and kino is locked up, needing kde's emergency kill 
+the process to kill it when I click on the closing x.
 
-diff-tree b239cbe957ae730caa8af2f169a4d35b8c1bb299 (from
-69ed3324983bb937d78a857Author: Stephen Rothwell <sfr@canb.auug.org.au>
-Date:   Tue Mar 28 14:40:58 2006 +1100
+>From the logs, I get this is 4 or 5 lines.
 
-    [PATCH] powerpc: make ISA floppies work again
+Mar 31 17:30:16 coyote ieee1394.agent[8925]: ... no drivers for IEEE1394 
+product 0x/0x/0x
+Mar 31 17:30:16 coyote ieee1394.agent[8921]: ... no drivers for IEEE1394 
+product 0x/0x/0x
+Mar 31 17:30:16 coyote kernel: ieee1394: raw1394: /dev/raw1394 device 
+initialized
 
-    We used to assume that a DMA mapping request with a NULL dev was
-    for
-    ISA DMA.  This assumption was broken at some point.  Now we
-    explicitly
-    pass the detected ISA PCI device in the floppy setup.
+And about 6 or 7 lines of gconf verbosy later, this:
 
-    Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
-    Signed-off-by: Paul Mackerras <paulus@samba.org>
+Mar 31 17:31:28 coyote kernel: ohci1394: fw-host0: Waking dma ctx=0 ... 
+processing is probably too slow
 
+then:
 
-Maybe you could verify with latest -git, or 2.6.17-rc1 when it's
-released?
+[root@coyote linux-2.6.16.1]# lsmod |grep 1394
+raw1394                24172  0
+dv1394                 16716  0
+ohci1394               27824  1 dv1394
+ieee1394               82488  3 raw1394,dv1394,ohci1394
 
+And:
+
+[root@coyote linux-2.6.16.1]# 
+ls /lib/modules/2.6.16.1/kernel/drivers/ieee1394
+dv1394.ko  ieee1394.ko  ohci1394.ko  raw1394.ko  sbp2.ko  video1394.ko
+
+sbp2.ko isn't needed, its for a webcam thats a POS.  I should quit 
+building it altogether.
+
+modprobe video1394 inserts that module, but makes zilch difference.
+kino still freezes the instant the capture button is clicked.
+
+Unplugging the firewire cable from the camera is silent in messages, but 
+dmesg says:
+ieee1394: Node changed: 0-01:1023 -> 0-00:1023
+ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[08004601044684e4]
+ieee1394: Node resumed: ID:BUS[0-00:1023]  GUID[08004601044684e4]
+ieee1394: Node changed: 0-00:1023 -> 0-01:1023
+ieee1394: Node changed: 0-01:1023 -> 0-00:1023
+ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[08004601044684e4]
+ieee1394: Node resumed: ID:BUS[0-00:1023]  GUID[08004601044684e4]
+ieee1394: Node changed: 0-00:1023 -> 0-01:1023
+
+Then from:
+[root@coyote boot]# lspci -vv |grep -A10 01:09
+01:09.0 FireWire (IEEE 1394): Texas Instruments TSB43AB23 
+IEEE-1394a-2000 Controller (PHY/Link) (prog-if 10 [OHCI])
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (500ns min, 1000ns max), Cache Line Size 08
+        Interrupt: pin A routed to IRQ 12
+        Region 0: Memory at ec004000 (32-bit, non-prefetchable)
+        Region 1: Memory at ec000000 (32-bit, non-prefetchable) 
+[size=16K]
+        Capabilities: [44] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
+PME(D0+,D1+,D2+,D3hot+,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME+
+
+And I'm not smart enough for anything there to raise a flag.
+
+So obviously something's gone aglay, but what?
+
+The last time I ran this config to do some movie editing of a wedding, 
+along about June of last year, it all Just Worked. And I recently did 
+some much needed housekeeping, such that if I wanted to build a 2.6.14 
+kernel, I'd have to go get the tarball & start from scratch.
+
+Ideas anybody?
+
+-- 
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

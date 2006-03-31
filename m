@@ -1,107 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWCaLWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751327AbWCaLn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWCaLWv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 06:22:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWCaLWv
+	id S1751327AbWCaLn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 06:43:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWCaLn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 06:22:51 -0500
-Received: from unthought.net ([212.97.129.88]:62219 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S1751296AbWCaLWu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 06:22:50 -0500
-Date: Fri, 31 Mar 2006 13:22:49 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
+	Fri, 31 Mar 2006 06:43:58 -0500
+Received: from sandesha.sasken.com ([164.164.56.19]:13309 "EHLO
+	mail3.sasken.com") by vger.kernel.org with ESMTP id S1751327AbWCaLn5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 06:43:57 -0500
+From: "vinayak" <vinayakj@sasken.com>
+Subject: Re: kernel
+Date: Fri, 31 Mar 2006 16:04:50 +0530
+Message-ID: <e0j0kf$fog$1@ncc-w.sasken.com>
+References: <ddi2qu$74p$1@ncc-nt.nt.sasken.com> 
+	<dejie7$m6i$1@ncc-w.sasken.com> <dgdudl$e22$1@ncc-t.sasken.com>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-RFC2646: Format=Flowed; Response
 To: linux-kernel@vger.kernel.org
-Subject: NFS client regression, simple test program
-Message-ID: <20060331112249.GG9811@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	linux-kernel@vger.kernel.org
-References: <20060331094850.GF9811@unthought.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="17pEHd4RhPHOinZp"
-Content-Disposition: inline
-In-Reply-To: <20060331094850.GF9811@unthought.net>
-User-Agent: Mutt/1.5.9i
+X-News-Gateway: ncc-z.sasken.com
+X-imss-version: 2.037
+X-imss-result: Passed
+X-imss-scores: Clean:4.75201 C:2 M:3 S:5 R:5
+X-imss-settings: Baseline:3 C:2 M:3 S:3 R:3 (0.5000 0.5000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---17pEHd4RhPHOinZp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+There is a book called "Begining Linux kernel programming" by wrox 
+publications....
+
+My SignatureWith Regards, Vinayak B. Joshi Software Engineer,Semi Conductors 
+BU Sasken Communication Technologies Limited Gold Hill Square,# 690 Hosur 
+Main Road Bommanahalli Bangalore -560068, India Tel: + 91 80 56945947 Fax: + 
+91 80 56945329
+"Chikkali" <chikkali@sasken.com> wrote in message 
+news:dgdudl$e22$1@ncc-t.sasken.com...
+> For beginners  "Understanding the Linux Kernel, 2nd Edition by Marco 
+> Cesati, Daniel P. Bovet"  book is very good.
+>
+> Basavaraj C
+> Ext 5769
+>
+> "Shwetha V" <shwethav@sasken.com> wrote in message 
+> news:dejie7$m6i$1@ncc-w.sasken.com...
+>> Could anyone inform which will be a good guide to start learning the 
+>> linux kernel programming.
+>>
+>> -- 
+>> Shwetha V
+>> Software Engineer - Networks Business Unit
+>> Sasken Communication Technologies Ltd.
+>> Gold Hill Square, Hosur Road, Bangalore.
+>> Ph: +91-80-25355501 Ext: 5799
+>> Web: www.sasken.com
+>>
+>>
+>> "Srinivas K" <srinuk@sasken.com> wrote in message 
+>> news:ddi2qu$74p$1@ncc-nt.nt.sasken.com...
+>>> hi friends,
+>>>
+>>> post concepts regarding linux kernel which will be useful
+>>>
+>>>
+>>> -- 
+>>> Srinivasa Rao K
+>>> Systems Engineer
+>>> Nortel Business Unit
+>>> Sasken Communication Technologies Ltd
+>>> 139/25, Ring Road, Domlur
+>>> Bangalore - 560 071
+>>> Ph: 2535 5501 Extn.:4804
+>>> mail : srinuk@sasken.com
+>>>
+>>> "SASKEN RATED THE BEST EMPLOYER IN THE COUNTRY by the BUSINESS TODAY 
+>>> Mercer
+>>> Survey 2004"
+>>>
+>>>
+>>> SASKEN BUSINESS DISCLAIMER
+>>> This message may contain confidential, proprietary or legally Privileged
+>>> information. In case you are not the original intended Recipient of the
+>>> message, you must not, directly or indirectly, use, Disclose, 
+>>> distribute,
+>>> print, or copy any part of this message and you are requested to delete 
+>>> it
+>>> and inform the sender. Any views expressed in this message are those of 
+>>> the
+>>> individual sender unless otherwise stated. Nothing contained in this 
+>>> message
+>>> shall be construed as an offer or acceptance of any offer by Sasken
+>>> Communication Technologies Limited ("Sasken") unless sent with that 
+>>> express
+>>> intent and with due authority of Sasken. Sasken has taken enough 
+>>> precautions
+>>> to prevent the spread of viruses. However the company accepts no 
+>>> liability
+>>> for any damage caused by any virus transmitted by this email
+>>>
+>>>
+>>
+>>
+>
+> 
 
 
-Attached is a small test program that exposes the regression.
 
-Kernel LEADING_EMPTY_SPACE wall-clock time to run
-2.6.15    0                0.2s
-2.6.15    1                29.3s
-2.6.14.7  0                0.2s
-2.6.14.7  1                0.2s
+"SASKEN RATED Among THE Top 3 BEST COMPANIES TO WORK FOR IN INDIA - SURVEY 2005 conducted by the BUSINESS TODAY - Mercer - TNS India"
 
-So it seems that if a file is repeatedly read from and written to, it
-matters a lot for later kernels whether or not the blocks that are
-worked on, are offset a single byte or not...
-
-Any ideas?
-
--- 
-
- / jakob
-
-
---17pEHd4RhPHOinZp
-Content-Type: text/x-csrc; charset=us-ascii
-Content-Disposition: attachment; filename="nfsbench.c"
-
-/*
- * Tiny benchmark for Linux NFS client problem 2.6.14.7->2.6.15
- *
- * By Jakob Oestergaard, joe@unthought.net / joe@evalesco.com
- *
- * Compile as:
- *  gcc -o nfsbench -O3 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 nfsbench.c
- */
-
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <stdint.h>
-
-#define MYBLOCKSIZE 32768
-#define MYSUBSIZE 1024
-
-/* Set this define to non-zero to expose the regression */
-#define LEADING_EMPTY_SPACE 1
-
-int main(int argc, char **argv)
-{
-  int testfd = open("testfile", O_RDWR|O_CREAT|O_TRUNC, 0666);
-  off_t blockoff;
-  uint8_t garbage[MYBLOCKSIZE];
-
-  memset(garbage, 42, sizeof garbage);
-
-  for (blockoff = LEADING_EMPTY_SPACE;
-       blockoff < 10 * 1024 * 1024;
-       blockoff += MYBLOCKSIZE) {
-    off_t inblockoff;
-    lseek(testfd, blockoff, SEEK_SET);
-    write(testfd, garbage, MYBLOCKSIZE);
-
-    for (inblockoff = MYBLOCKSIZE / 4;
-	 inblockoff < MYBLOCKSIZE * 3 / 4;
-	 inblockoff += MYSUBSIZE * 2) {
-      uint8_t gdata[MYBLOCKSIZE];
-      lseek(testfd, blockoff, SEEK_SET);
-      read(testfd, gdata, MYBLOCKSIZE);
-      lseek(testfd, -inblockoff, SEEK_CUR);
-      write(testfd, gdata + inblockoff, MYSUBSIZE);
-    }
-  }
-
-  close(testfd);
-}
-
---17pEHd4RhPHOinZp--
+                           SASKEN BUSINESS DISCLAIMER
+This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email

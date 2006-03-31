@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWCaSJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWCaSLG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932184AbWCaSJT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 13:09:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWCaSJT
+	id S932185AbWCaSLG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 13:11:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWCaSLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 13:09:19 -0500
-Received: from nacho.alt.net ([207.14.113.18]:18335 "HELO nacho.alt.net")
-	by vger.kernel.org with SMTP id S932184AbWCaSJS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 13:09:18 -0500
-Date: Fri, 31 Mar 2006 18:09:14 +0000 (GMT)
-To: erich <erich@areca.com.tw>, Jens Axboe <axboe@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: about ll_rw_blk.c of void generic_make_request(struct bio *bio)
-In-Reply-To: <Pine.LNX.4.64.0603311700310.14317@nacho.alt.net>
-Message-ID: <Pine.LNX.4.64.0603311748010.14317@nacho.alt.net>
-References: <001d01c65302$0fee8e10$b100a8c0@erich2003>
-	<20060330155804.GP13476@suse.de>
-	<Pine.LNX.4.64.0603311700310.14317@nacho.alt.net>
+	Fri, 31 Mar 2006 13:11:06 -0500
+Received: from smtp102.sbc.mail.mud.yahoo.com ([68.142.198.201]:37307 "HELO
+	smtp102.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932185AbWCaSLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 13:11:05 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: question on spi_bitbang
+Date: Fri, 31 Mar 2006 10:11:00 -0800
+User-Agent: KMail/1.7.1
+Cc: spi-devel-general@lists.sourceforge.net,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1B2FA58D-1F7F-469E-956D-564947BDA59A@kernel.crashing.org>
+In-Reply-To: <1B2FA58D-1F7F-469E-956D-564947BDA59A@kernel.crashing.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Delivery-Agent: TMDA/1.0.3 (Seattle Slew)
-From: Chris Caputo <ccaputo@alt.net>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603311011.00981.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Mar 2006, Chris Caputo wrote:
-> On Thu, 30 Mar 2006, Jens Axboe wrote:
-> > I can't really say, from my recollection of leafing over lkml emails, I
-> > seem to recall someone saying he hit this with a newer kernel where as
-> > the older one did not?
-> > 
-> > What are the sectors exactly it complains about, eg the full line you
-> > see?
+On Friday 31 March 2006 9:31 am, Kumar Gala wrote:
+> I'm looking at using spi_bitbang for a SPI driver and was trying to  
+> understand were the right point is to handle MODE switches.
 > 
-> I see:
-> 
->   attempt to access beyond end of device
->   sdb1: rw=0, want=134744080, limit=128002016
+> There are 4 function pointers provided for each mode.
 
-I believe the "rw=0" means that was a simple read request, and not a 
-read-ahead.
+That's if you are indeed "bit banging", or your controller is the
+type that's basically a wrapper around a shift register:  each
+txrx_word() function transfers (or bitbangs) a 1-32 bit word in
+the relevant SPI mode (0-3).
 
-128002016 equals about 62 gigs, which is the correct volume size:
+There's also a higher level txrx_bufs() routine for buffer-at-a-time
+access, better suited to DMA, FIFOs, and half-duplex hardware.
 
-  Filesystem           1K-blocks      Used Available Use% Mounted on
-  /dev/sdb1             62995364   2832696  56962620   5% /xxx
 
-  /dev/sdb1 on /xxx type ext2 (rw,noatime)
+> My controller   
+> HW has a mode register which allows setting clock polarity and clock  
+> phase.  I assume what I want is in my chipselect() function is to set  
+> my mode register and have the four function pointers set to the same  
+> function.
 
-I'm at a loss as to why ext2 would want to read 3+ gigs past the end of 
-the volume or why the arcmsr driver setting max_sectors to be 4096 instead 
-of 512 makes a difference.
+I don't know how your particular hardware works, but if you have a
+real SPI controller it would probably be more natural to have your
+setup() function handle that mode register earlier, out of the main
+transfer loop ... unless that mode register is shared among all
+chipselects, in which case you'd use the setup_transfer() call for
+that, inside the transfer loop.  (That call hasn't yet been merged
+into the mainline kernel yet; it's in the MM tree.)
 
-Erich, while using 4096 as the max_sectors count, in your lab can you make 
-it so ll_rw_blk.c:handle_bad_sector() makes a call to dump_stack() after 
-the printk's?  What does it show as the call trace?
+The chipselect() call should only affect the chipselect signal and,
+when you're activating a chip, its initial clock polarity.  Though
+if you're not using the latest from the MM tree, that's also your
+hook for ensuring that the SPI mode is set up right.
 
-Chris
+- Dave
+

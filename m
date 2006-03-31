@@ -1,109 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWCaNod@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWCaNwu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932142AbWCaNod (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 08:44:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWCaNod
+	id S1751297AbWCaNwu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 08:52:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWCaNwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 08:44:33 -0500
-Received: from pat.uio.no ([129.240.10.6]:10910 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932142AbWCaNod (ORCPT
+	Fri, 31 Mar 2006 08:52:49 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:10120 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751297AbWCaNwt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 08:44:33 -0500
-Subject: Re: NFS client (10x) performance regression 2.6.14.7 -> 2.6.15
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Jakob Oestergaard <jakob@unthought.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060331132131.GI9811@unthought.net>
-References: <20060331094850.GF9811@unthought.net>
-	 <1143807770.8096.4.camel@lade.trondhjem.org>
-	 <20060331124518.GH9811@unthought.net>
-	 <1143810392.8096.11.camel@lade.trondhjem.org>
-	 <20060331132131.GI9811@unthought.net>
-Content-Type: text/plain
-Date: Fri, 31 Mar 2006 08:44:18 -0500
-Message-Id: <1143812658.8096.18.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.108, required 12,
-	autolearn=disabled, AWL 1.71, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+	Fri, 31 Mar 2006 08:52:49 -0500
+Message-ID: <442D3596.9090905@openvz.org>
+Date: Fri, 31 Mar 2006 17:58:46 +0400
+From: Kirill Korotaev <dev@openvz.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, xemul@sw.ru,
+       Mishin Dmitry <dim@openvz.org>
+Subject: [PATCH] wrong error path in dup_fd() leading to oopses in RCU
+Content-Type: multipart/mixed;
+ boundary="------------060501060203050801030102"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-31 at 15:21 +0200, Jakob Oestergaard wrote:
-> On Fri, Mar 31, 2006 at 08:06:32AM -0500, Trond Myklebust wrote:
-> > On Fri, 2006-03-31 at 14:45 +0200, Jakob Oestergaard wrote:
-> > > On Fri, Mar 31, 2006 at 07:22:50AM -0500, Trond Myklebust wrote:
-> > > ...
-> > > > 
-> > > > Some nfsstat output comparing the good and bad cases would help.
-> > > 
-> > > Clean boot on 2.6.15 and 2.6.14.7, one run of nfsbench with
-> > > LEADING_EMPTY_SPACE=1.  I've skipped the NFS v2 stats because they're
-> > > all 0.
-> > 
-> > Why all the GETATTR calls?
-> 
-> That's the $1000 question I guess :)
-> 
-> > Are you running with 'noac' set?
-> 
-> I didn't set it, that's for sure :)  I got the option lines from
-> /proc/mounts, if there is any way I can get more/other information
-> please advise.
-> 
-> 2.6.14.7:
->  rw,v3,rsize=32768,wsize=32768,hard,intr,udp,lock,addr=...
-> 
-> 2.6.15:
->  rw,v3,rsize=32768,wsize=32768,hard,intr,lock,proto=udp,addr=...
-> 
-> Except for some formatting (proto=udp insted of udp) I fail to see any
-> difference.
-> 
-> The way I see it, it seems like caching on the client side fails
-> completely if the read requests are not aligned (to some
-> buffer/block/page/whatever).
-> 
-> > I don't have a 2.6.15 kernel to run with, but on a recent git pull, I
-> > get a total of 6 GETATTR calls when I run your nfsbench program.
-> 
-> The performance regression is present on 2.6.16.1 too.
-> 
-> Do you have a released kernel you can test with (2.6.1[56].*), or can I
-> somehow get the kernel you're testing with, just so that we test on the
-> same kernel?
+This is a multi-part message in MIME format.
+--------------060501060203050801030102
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Just apply
-http://client.linux-nfs.org/Linux-2.6.x/2.6.16/linux-2.6.16-NFS_ALL.dif
+Wrong error path in dup_fd() - it should return NULL on error,
+not an address of already freed memory :/
 
-to a clean 2.6.16.
+Triggered by OpenVZ stress test suite.
 
-> > The number of READ calls is 1, and the number of WRITE calls is 161 (I'm
-> > running with 64k wsize).
-> 
-> I can't set 64k wsize:
-> 
-> puffin:~# mount -o rw,wsize=65536,udp sparrow:/exported/joe /mnt
-> puffin:~# cat /proc/mounts 
-> ...
-> sparrow:/exported/joe /mnt nfs rw,v3,rsize=32768,wsize=32768,hard,intr,lock,proto=udp,addr=sparrow 0 0
-> puffin:~#
-> 
-> Server is running a patched 2.6.11.11 kernel - could that be what's
-> preventing me from 64k wsize?
+What is interesting is that it was causing different oopses in RCU like 
+below:
+Call Trace:
+   [<c013492c>] rcu_do_batch+0x2c/0x80
+   [<c0134bdd>] rcu_process_callbacks+0x3d/0x70
+   [<c0126cf3>] tasklet_action+0x73/0xe0
+   [<c01269aa>] __do_softirq+0x10a/0x130
+   [<c01058ff>] do_softirq+0x4f/0x60
+   =======================
+   [<c0113817>] smp_apic_timer_interrupt+0x77/0x110
+   [<c0103b54>] apic_timer_interrupt+0x1c/0x24
+  Code:  Bad EIP value.
+   <0>Kernel panic - not syncing: Fatal exception in interrupt
 
-Linux servers do not yet support anything larger than a 32k r/wsize (and
-in any case, you would have to switch towards using TCP). My home
-directory is on a filer.
+Signed-Off-By: Pavel Emelianov <xemul@sw.ru>
+Signed-Off-By: Dmitry Mishin <dim@openvz.org>
+Signed-Off-By: Kirill Korotaev <dev@openvz.org>
 
-> What happens if you run with 32k rsize/wsize?
+Thanks,
+Kirill
 
-Number of writes balloons to 321.
+--------------060501060203050801030102
+Content-Type: text/plain;
+ name="diff-ms-files-fix-20060329"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-ms-files-fix-20060329"
 
-If I switch to UDP, I get no change.
+--- ./kernel/fork.c.fsfix	2006-03-29 11:42:01.000000000 +0400
++++ ./kernel/fork.c	2006-03-29 19:20:18.000000000 +0400
+@@ -758,7 +758,7 @@ out_release:
+ 	free_fdset (new_fdt->open_fds, new_fdt->max_fdset);
+ 	free_fd_array(new_fdt->fd, new_fdt->max_fds);
+ 	kmem_cache_free(files_cachep, newf);
+-	goto out;
++	return NULL;
+ }
+ 
+ static int copy_files(unsigned long clone_flags, struct task_struct * tsk)
 
-Cheers,
-  Trond
+
+--------------060501060203050801030102--
 

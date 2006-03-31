@@ -1,239 +1,196 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751434AbWCaTZq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWCaTaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751434AbWCaTZq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 14:25:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbWCaTZq
+	id S1751439AbWCaTaK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 14:30:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWCaTaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 14:25:46 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:30357 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751434AbWCaTZp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 14:25:45 -0500
-Date: Fri, 31 Mar 2006 21:23:14 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, tglx@linutronix.de, torvalds@osdl.org,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] PI-futex patchset: -V4
-Message-ID: <20060331192314.GA7060@elte.hu>
-References: <20060325184612.GF16724@elte.hu> <20060325220728.3d5c8d36.akpm@osdl.org> <20060326160353.GA13282@elte.hu> <20060326231638.GA18395@elte.hu> <20060331191445.GA2250@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060331191445.GA2250@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-ELTE-VirusStatus: clean
+	Fri, 31 Mar 2006 14:30:10 -0500
+Received: from smtp105.rog.mail.re2.yahoo.com ([206.190.36.83]:10080 "HELO
+	smtp105.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751439AbWCaTaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 14:30:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Received:Mime-Version:Content-Type:Message-Id:Cc:Content-Transfer-Encoding:From:Subject:Date:To:X-Pgp-Agent:X-Mailer;
+  b=JxjFk29l0DD8rZLAkuXVAXozOpuUZb9i4GkJkCA9uaePenUt4IUaIeHcY4VIvMZVAUAkhGEzlG/1+6M8hBg/KLvzACyT9suK5hue7zpDliA5QORrs4iFfwgHm8DxHjWvut5RnkyPPZMqMxVdE5gA8VOW4JLyWP/7otKPRgE9ms0=  ;
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-38-169959011"
+Message-Id: <BC34AAD1-595C-4E8E-A8D0-D0F1A9E93C69@rogers.com>
+Cc: rmk+serial@arm.linux.org.uk, Georg Nikodym <georgn@rogers.com>
+Content-Transfer-Encoding: 7bit
+From: Georg Nikodym <georgn@rogers.com>
+Subject: [PATCH] 8250: yet another attempt at a serial console fix
+Date: Fri, 31 Mar 2006 14:29:59 -0500
+To: linux-kernel@vger.kernel.org
+X-Pgp-Agent: GPGMail 1.1 (Tiger)
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+--Apple-Mail-38-169959011
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
 
-> this is version -V4 of the PI-futex patchset (ontop of current -mm2, 
-> which includes -V3.)
-> 
-> A clean queue of split-up patches can be found at:
-> 
->   http://redhat.com/~mingo/PI-futex-patches/PI-futex-patches-V4.tar.gz
+Various people have reported a problem in which the serial console  
+output gets stalled / stuck until a receive interrupt is received  
+(typically somebody hitting return a couple of times in an attempt to  
+see if the machine is still alive).
 
-oops, the plist debugging changes were missing from the delta. Find 
-incremental patch ontop of -V4 below. The tarball above contains all the 
-needed patches.
+I'm working on an LSI based ARM SoC and as of 2.6.16, I too  
+experience this.  For me the change that appears to have broken  
+things is where Alan Cox changed the following line in  
+serial8250_console_write() from:
 
-	Ingo
+	serial_out(up, UART_IER, ier);
 
------
-PI-futex -V4 part #2
+to:
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+	serial_out(up, UART_IER, ier | UART_IER_THRI);
 
---
+The documentation I have for my SoC, AMBA Multilayer Reference Design  
+Rev 2.0 TECHNICAL MANUAL (cw001202_MLRD2.0_TechManual.pdf) covers the  
+UART in chapter 10.  There it describes the UART as 16550D compatible  
+with several listed behavioural changes.  Specific to the THRE  
+interrupt, it says the following:
 
- include/asm-generic/bug.h |    6 ++++++
- include/linux/plist.h     |   29 +++++++++++++++++++++++++----
- lib/plist.c               |   45 +++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 76 insertions(+), 4 deletions(-)
+	The previous version of the ApUart would trigger the THRE interrupt if
+	the THRE bit was set and the Enable Transmitter Holding Register Empty
+	Interrupt bit was changed from 0 to 1.
 
-Index: linux-pi-futex.mm.q/include/asm-generic/bug.h
-===================================================================
---- linux-pi-futex.mm.q.orig/include/asm-generic/bug.h
-+++ linux-pi-futex.mm.q/include/asm-generic/bug.h
-@@ -39,4 +39,10 @@
- #endif
- #endif
- 
-+#ifdef CONFIG_SMP
-+# define WARN_ON_SMP(x)			WARN_ON(x)
-+#else
-+# define WARN_ON_SMP(x)			do { } while (0)
+	The new version does this only if the interrupt handler has not already
+	reported this condition (by a read of the IIR when a THRE interrupt  
+is the
+	highest priority pending interrupt). A new interrupt will only be  
+reported
+	by the new version if one or more characters are written to, and
+	eventually emptied out of, the THR or the Transmitter FIFO.
+
+This appears to describe the behaviour observed by Alex Williamson  
+and addressed in his backup-timer-for-uarts-that-lose-interrupts- 
+take-3.patch (http://lkml.org/lkml/2006/1/21/93)
+
+Since the old code worked I had trouble swallowing the backup timer  
+idea.  But the detection logic worked a charm so I lifted that and  
+offer up the attached patch for evisceration.
+
+-g
+
+===== 8250.h 1.27 vs edited =====
+--- 1.27/drivers/serial/8250.h	2006-01-04 14:43:24 -05:00
++++ edited/8250.h	2006-03-30 16:26:56 -05:00
+@@ -50,6 +50,7 @@ struct serial8250_config {
+  #define UART_BUG_QUOT	(1 << 0)	/* UART has buggy quot LSB */
+  #define UART_BUG_TXEN	(1 << 1)	/* UART has buggy TX IIR status */
+  #define UART_BUG_NOMSR	(1 << 2)	/* UART has buggy MSR status bits  
+(Au1x00) */
++#define UART_BUG_THRI	(1 << 3)	/* UART has revised THRE int.  
+semantics */
+
+  #define PROBE_RSA	(1 << 0)
+  #define PROBE_ANY	(~0)
+===== 8250.c 1.140 vs edited =====
+--- 1.140/drivers/serial/8250.c	2006-03-30 14:34:11 -05:00
++++ edited/8250.c	2006-03-30 18:36:35 -05:00
+@@ -298,6 +298,10 @@ static inline int map_8250_out_reg(struc
+
+  #endif
+
++#ifdef CONFIG_SERIAL_8250_CONSOLE
++static void thre_bug_test(struct uart_8250_port *up);
 +#endif
 +
- #endif
-Index: linux-pi-futex.mm.q/include/linux/plist.h
-===================================================================
---- linux-pi-futex.mm.q.orig/include/linux/plist.h
-+++ linux-pi-futex.mm.q/include/linux/plist.h
-@@ -79,6 +79,9 @@
- struct plist_head {
- 	struct list_head prio_list;
- 	struct list_head node_list;
-+#ifdef CONFIG_DEBUG_PI_LIST
-+	spinlock_t *lock;
-+#endif
- };
- 
- struct plist_node {
-@@ -86,15 +89,22 @@ struct plist_node {
- 	struct plist_head	plist;
- };
- 
-+#ifdef CONFIG_DEBUG_PI_LIST
-+# define PLIST_HEAD_LOCK_INIT(_lock)	.lock = _lock
-+#else
-+# define PLIST_HEAD_LOCK_INIT(_lock)
+  static unsigned int serial_in(struct uart_8250_port *up, int offset)
+  {
+  	offset = map_8250_in_reg(up, offset) << up->port.regshift;
+@@ -1389,6 +1393,7 @@ static int serial_link_irq_chain(struct
+  				  irq_flags, "serial", i);
+  		if (ret < 0)
+  			serial_do_unlink(i, up);
++
+  	}
+
+  	return ret;
+@@ -1623,6 +1628,10 @@ static int serial8250_startup(struct uar
+  		up->bugs &= ~UART_BUG_TXEN;
+  	}
+
++#ifdef CONFIG_SERIAL_8250_CONSOLE
++	thre_bug_test(up);
 +#endif
 +
- /**
-  * #PLIST_HEAD_INIT - static struct plist_head initializer
-  *
-  * @head:	struct plist_head variable name
-  */
--#define PLIST_HEAD_INIT(head)				\
-+#define PLIST_HEAD_INIT(head, _lock)			\
- {							\
- 	.prio_list = LIST_HEAD_INIT((head).prio_list),	\
- 	.node_list = LIST_HEAD_INIT((head).node_list),	\
-+	PLIST_HEAD_LOCK_INIT(&(_lock))			\
- }
- 
- /**
-@@ -115,10 +125,13 @@ struct plist_node {
-  * @head:	&struct plist_head pointer
-  */
- static inline void
--plist_head_init(struct plist_head *head)
-+plist_head_init(struct plist_head *head, spinlock_t *lock)
- {
- 	INIT_LIST_HEAD(&head->prio_list);
- 	INIT_LIST_HEAD(&head->node_list);
-+#ifdef CONFIG_DEBUG_PI_LIST
-+	head->lock = lock;
-+#endif
- }
- 
- /**
-@@ -130,7 +143,7 @@ plist_head_init(struct plist_head *head)
- static inline void plist_node_init(struct plist_node *node, int prio)
- {
- 	node->prio = prio;
--	plist_head_init(&node->plist);
-+	plist_head_init(&node->plist, NULL);
- }
- 
- extern void plist_add(struct plist_node *node, struct plist_head *head);
-@@ -207,8 +220,16 @@ static inline int plist_node_empty(const
-  * @type:	the type of the struct this is embedded in.
-  * @member:	the name of the list_struct within the struct.
-  */
--#define plist_first_entry(head, type, member)	\
-+#ifdef CONFIG_DEBUG_PI_LIST
-+# define plist_first_entry(head, type, member)	\
-+({ \
-+	WARN_ON(plist_head_empty(head)); \
-+	container_of(plist_first(head), type, member); \
-+})
-+#else
-+# define plist_first_entry(head, type, member)	\
- 	container_of(plist_first(head), type, member)
-+#endif
- 
- /**
-  * plist_first - return the first node (and thus, highest priority)
-Index: linux-pi-futex.mm.q/lib/plist.c
-===================================================================
---- linux-pi-futex.mm.q.orig/lib/plist.c
-+++ linux-pi-futex.mm.q/lib/plist.c
-@@ -26,6 +26,44 @@
- #include <linux/plist.h>
- #include <linux/spinlock.h>
- 
-+#ifdef CONFIG_DEBUG_PI_LIST
-+
-+static void plist_check_prev_next(struct list_head *t, struct list_head *p,
-+				  struct list_head *n)
+  	spin_unlock_irqrestore(&up->port.lock, flags);
+
+  	/*
+@@ -2182,6 +2191,37 @@ static inline void wait_for_xmitr(struct
+  	}
+  }
+
++static void thre_bug_test(struct uart_8250_port *up)
 +{
-+	if (n->prev != p || p->next != n) {
-+		printk("top: %p, n: %p, p: %p\n", t, t->next, t->prev);
-+		printk("prev: %p, n: %p, p: %p\n", p, p->next, p->prev);
-+		printk("next: %p, n: %p, p: %p\n", n, n->next, n->prev);
-+		WARN_ON(1);
++	unsigned char iir;
++
++	if (is_real_interrupt(up->port.irq) && !timer_pending(&up->timer)) {
++		/*
++		 * Test for UARTs that do not reassert THRE when the
++		 * transmitter is idle and the interrupt has already
++		 * been cleared.  Real 16550s should always reassert
++		 * this interrupt whenever the transmitter is idle and
++		 * the interrupt is enabled.
++		 */
++		wait_for_xmitr(up, BOTH_EMPTY);
++		serial_outp(up, UART_IER, UART_IER_THRI);
++		(void)serial_in(up, UART_IIR);
++		serial_outp(up, UART_IER, 0);
++		serial_outp(up, UART_IER, UART_IER_THRI);
++		iir = serial_in(up, UART_IIR);
++		serial_outp(up, UART_IER, 0);
++
++		/*
++		 * If the interrupt is not reasserted, setup a timer to
++		 * kick the UART on a regular basis.
++		 */
++		if (iir & UART_IIR_NO_INT) {
++			pr_debug("ttyS%d - enabling THRI workaround\n",
++				 up->port.line);
++		}
 +	}
 +}
 +
-+static void plist_check_list(struct list_head *top)
-+{
-+	struct list_head *prev = top, *next = top->next;
-+
-+	plist_check_prev_next(top, prev, next);
-+	while (next != top) {
-+		prev = next;
-+		next = prev->next;
-+		plist_check_prev_next(top, prev, next);
+  /*
+   *	Print a string to the serial port trying not to disturb
+   *	any possible real use of the port...
+@@ -2229,9 +2269,12 @@ serial8250_console_write(struct console
+  	 *	and restore the IER
+  	 */
+  	wait_for_xmitr(up, BOTH_EMPTY);
+-	// up->ier |= UART_IER_THRI;
+-	// serial_out(up, UART_IER, ier | UART_IER_THRI);
+-	serial_out(up, UART_IER, ier);
++	if (up->bugs & UART_BUG_THRI) {
++		serial_out(up, UART_IER, ier);
++	} else {
++		up->ier |= UART_IER_THRI;
++		serial_out(up, UART_IER, ier | UART_IER_THRI);
 +	}
-+}
-+
-+static void plist_check_head(struct plist_head *head)
-+{
-+	WARN_ON(!head->lock);
-+	if (head->lock)
-+		WARN_ON_SMP(!spin_is_locked(head->lock));
-+	plist_check_list(&head->prio_list);
-+	plist_check_list(&head->node_list);
-+}
-+
-+#else
-+# define plist_check_head(h)	do { } while (0)
-+#endif
-+
- /**
-  * plist_add - add @node to @head
-  *
-@@ -36,6 +74,7 @@ void plist_add(struct plist_node *node, 
- {
- 	struct plist_node *iter;
- 
-+	plist_check_head(head);
- 	WARN_ON(!plist_node_empty(node));
- 
- 	list_for_each_entry(iter, &head->prio_list, plist.prio_list) {
-@@ -52,6 +91,8 @@ lt_prio:
- 	list_add_tail(&node->plist.prio_list, &iter->plist.prio_list);
- eq_prio:
- 	list_add_tail(&node->plist.node_list, &iter->plist.node_list);
-+
-+	plist_check_head(head);
- }
- 
- /**
-@@ -62,6 +103,8 @@ eq_prio:
-  */
- void plist_del(struct plist_node *node, struct plist_head *head)
- {
-+	plist_check_head(head);
-+
- 	if (!list_empty(&node->plist.prio_list)) {
- 		struct plist_node *next = plist_first(&node->plist);
- 
-@@ -70,4 +113,6 @@ void plist_del(struct plist_node *node, 
- 	}
- 
- 	list_del_init(&node->plist.node_list);
-+
-+	plist_check_head(head);
- }
+  }
+
+  static int serial8250_console_setup(struct console *co, char *options)
+
+
+--Apple-Mail-38-169959011
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (Darwin)
+
+iD8DBQFELYM7oJNnikTddkMRAl9FAJ9Yth9rqs9vnZYewySIJGEsyAFDoQCfSmxc
+Dg/2n81Cpz4mYp4Txr6Qdgo=
+=m6vG
+-----END PGP SIGNATURE-----
+
+--Apple-Mail-38-169959011--

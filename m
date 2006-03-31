@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWCaTcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWCaTd6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbWCaTcN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 14:32:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWCaTcN
+	id S932107AbWCaTd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 14:33:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbWCaTd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 14:32:13 -0500
-Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:48305 "HELO
-	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932092AbWCaTcK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 14:32:10 -0500
-From: David Brownell <david-b@pacbell.net>
-To: spi-devel-general@lists.sourceforge.net
-Subject: Re: [spi-devel-general] Re: question on spi_bitbang
-Date: Fri, 31 Mar 2006 11:32:06 -0800
-User-Agent: KMail/1.7.1
-Cc: Kumar Gala <galak@kernel.crashing.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1B2FA58D-1F7F-469E-956D-564947BDA59A@kernel.crashing.org> <200603311011.00981.david-b@pacbell.net> <29F33C89-519A-412B-9615-1944ED29FD9C@kernel.crashing.org>
-In-Reply-To: <29F33C89-519A-412B-9615-1944ED29FD9C@kernel.crashing.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Fri, 31 Mar 2006 14:33:58 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:18184 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932107AbWCaTd5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 14:33:57 -0500
+Date: Fri, 31 Mar 2006 21:33:38 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: smp_locks reference_discarded errors
+Message-ID: <20060331193338.GA10664@mars.ravnborg.org>
+References: <20060325033948.GA15564@redhat.com> <20060325235035.5fcb902f.akpm@osdl.org> <20060326154042.GB13684@redhat.com> <20060326161055.GA4584@mars.ravnborg.org> <20060331190851.GB22677@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603311132.06819.david-b@pacbell.net>
+In-Reply-To: <20060331190851.GB22677@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 31 March 2006 11:07 am, Kumar Gala wrote:
-> My controller is just a shift register that I can set the  
-> characteristics of (bit length for example, reverse data).
-
-I've got a patch somewhere to enable LSB-first transfers in the API,
-though without an implementation, if you're interested.  I'll post it
-as an RFC at some point.
-
-
-> > The chipselect() call should only affect the chipselect signal and,
-> > when you're activating a chip, its initial clock polarity.  Though
-> > if you're not using the latest from the MM tree, that's also your
-> > hook for ensuring that the SPI mode is set up right.
+On Fri, Mar 31, 2006 at 09:08:51PM +0200, Adrian Bunk wrote:
+> On Sun, Mar 26, 2006 at 06:10:55PM +0200, Sam Ravnborg wrote:
+> > On Sun, Mar 26, 2006 at 10:40:42AM -0500, Dave Jones wrote:
+> > > 
+> > > came out of a 'make buildcheck' a day or two ago (the following day,
+> > > Sam nuked reference_discarded.pl in favour of it being done
+> > > magically somewhere else (I've not looked into how its done now).
+> > The check is part of modpost now. modpost is only used when building
+> > modules but that holds true for most builds anyway therefore I did not
+> > move it to a separate executable.
+> >...
 > 
-> Why deal with just clock polarity and not clock phase as well in  
-> chipselect()?
+> This doesn't sound good.
+> 
+> This means that we have no longer any tool that warns us about e.g. 
+> references from non-__exit code to __exit code [1]?
+> [1] __exit, not __{dev,cpu,mem}exit
 
-You could, but the point is that you _must_ set the initial polarity
-before setting the chipselect.  Most SPI devices support modes 0 and 3,
-and make the choice based on the clock polarity when chipselect goes
-active.  Changing polarity later would start a transfer.  :)
+It does warn for this also. The test I have carried out has mostly been
+on allmodconfig builds though. I assume you are worried for the case
+when a module is built-in and the __exit section is discarded - or?
 
-
-> It sounds like with the new patch, I'll end up setting txrx_word[] to  
-> the same function for all modes.
-
-Yes, it does sound like that.  If that works for you, I'd like to see
-that go into 2.6.17 kernels.
-
-- Dave
+	Sam

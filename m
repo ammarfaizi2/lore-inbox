@@ -1,38 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbWCaRTS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbWCaRVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750942AbWCaRTS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 12:19:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWCaRTR
+	id S1751010AbWCaRVo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 12:21:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWCaRVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 12:19:17 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:45575 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S1750942AbWCaRTQ (ORCPT
+	Fri, 31 Mar 2006 12:21:44 -0500
+Received: from xenotime.net ([66.160.160.81]:945 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751008AbWCaRVo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 12:19:16 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: Andi Kleen <ak@suse.de>
-Cc: Jes Sorensen <jes@sgi.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [patch] avoid unaligned access when accessing poll stack
-References: <yq0sloytyj5.fsf@jaguar.mkp.net>
-	<87irpupo3y.fsf@duaron.myhome.or.jp> <200603311853.32870.ak@suse.de>
-	<87ek0ipmae.fsf@duaron.myhome.or.jp>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 01 Apr 2006 02:19:12 +0900
-In-Reply-To: <87ek0ipmae.fsf@duaron.myhome.or.jp> (OGAWA Hirofumi's message of "Sat, 01 Apr 2006 02:16:25 +0900")
-Message-ID: <87wteao7lb.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Fri, 31 Mar 2006 12:21:44 -0500
+Date: Fri, 31 Mar 2006 09:21:43 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: linux-kernel@vger.kernel.org
+Subject: about __ARCH_WANT_SYS_GETHOSTNAME
+Message-ID: <Pine.LNX.4.58.0603310911260.6105@shark.he.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> writes:
+Hi,
 
-> 	char stack_pps[POLL_STACK_ALLOC]
->         	__attribute__((aligned (sizeof(struct poll_list))));
+What was/is the purpose of __ARCH_WANT_SYS_GETHOSTNAME?
+and why do a few arches not #define it?
 
-Ugh, just wrong. Please ignore.
+If it is not #defined, should those arches supply their own
+sys_gethostname() function?
+
+21 arches #define __ARCH_WANT_SYS_GETHOSTNAME.
+A few don't:  frv, ia64, & xtensa.
+But all arches (except for um) #define __NR_gethostname.
+
+Is __ARCH_WANT_SYS_GETHOSTNAME just crufty and doesn't matter
+any more?
+
+Thanks,
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+~Randy

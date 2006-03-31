@@ -1,168 +1,211 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWCaSDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWCaSE4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWCaSDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 13:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWCaSDZ
+	id S932177AbWCaSE4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 13:04:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWCaSEz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 13:03:25 -0500
-Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:21664 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S932180AbWCaSDY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 13:03:24 -0500
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-In-reply-to: <E1FPNgV-0005YY-00@dorka.pomaz.szeredi.hu> (message from Miklos
-	Szeredi on Fri, 31 Mar 2006 19:45:19 +0200)
-Subject: [PATCH 9/10] fuse: account background requests
-References: <E1FPNgV-0005YY-00@dorka.pomaz.szeredi.hu>
-Message-Id: <E1FPNxm-0005fC-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 31 Mar 2006 20:03:10 +0200
+	Fri, 31 Mar 2006 13:04:55 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:59089 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932177AbWCaSEz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 13:04:55 -0500
+Date: Fri, 31 Mar 2006 12:04:52 -0600
+To: Nathan Fontenot <nfont@austin.ibm.com>, Paul Mackerras <paulus@samba.org>
+Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] powerpc/pseries: EEH Cleanup
+Message-ID: <20060331180452.GY2172@austin.ibm.com>
+References: <200603311013.22208.nfont@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603311013.22208.nfont@austin.ibm.com>
+User-Agent: Mutt/1.5.9i
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The previous patch removed limiting the number of outstanding
-requests.  This patch adds a much simpler limiting, that is also
-compatible with file locking operations.
 
-A task may have at most one synchronous request allocated.  So these
-requests need not be otherwise limited.
+Please apply.
 
-However the number of background requests (release, forget,
-asynchronous reads, interrupted requests) can grow indefinitely.  This
-can be used by a malicous user to cause FUSE to allocate arbitrary
-amounts of unswappable kernel memory, denying service.
+This patch removes unnecessary exports, marks functions as static when
+possible, and simplifies some list-related code.
 
-For this reason add a limit for the number of background requests, and
-block allocations of new requests until the number goes bellow the
-limit.
+Signed-off-by: Nathan Fontenot <nfont@austin.ibm.com>
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
 
-Also use this mechanism to block all requests until the INIT reply is
-received.
+----
+Paul, please apply and forward upstream.  
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+On Fri, Mar 31, 2006 at 10:13:21AM -0600, Nathan Fontenot wrote:
+> This patch removes unnecessary exports, marks functions as static when
+> possible, and simplifies some list-related code.
 
-Index: linux/fs/fuse/dev.c
+Nathan's original patch did not apply cleanly for me, nor did it build 
+cleanly.  However, the one below does.
+
+Linas.
+
+ arch/powerpc/platforms/pseries/eeh.c |   62 ++++++++++++++++-------------------
+ include/asm-powerpc/eeh.h            |   20 -----------
+ 2 files changed, 30 insertions(+), 52 deletions(-)
+
+Index: linux-2.6.16-git19/arch/powerpc/platforms/pseries/eeh.c
 ===================================================================
---- linux.orig/fs/fuse/dev.c	2006-03-31 18:55:32.000000000 +0200
-+++ linux/fs/fuse/dev.c	2006-03-31 18:55:32.000000000 +0200
-@@ -90,7 +90,17 @@ static void __fuse_put_request(struct fu
- 
- struct fuse_req *fuse_get_req(struct fuse_conn *fc)
+--- linux-2.6.16-git19.orig/arch/powerpc/platforms/pseries/eeh.c	2006-03-31 11:38:49.000000000 -0600
++++ linux-2.6.16-git19/arch/powerpc/platforms/pseries/eeh.c	2006-03-31 11:54:24.901762378 -0600
+@@ -865,7 +865,7 @@ void __init eeh_init(void)
+  * on the CEC architecture, type of the device, on earlier boot
+  * command-line arguments & etc.
+  */
+-void eeh_add_device_early(struct device_node *dn)
++static void eeh_add_device_early(struct device_node *dn)
  {
--	struct fuse_req *req = fuse_request_alloc();
-+	struct fuse_req *req;
-+	sigset_t oldset;
-+	int err;
-+
-+	block_sigs(&oldset);
-+	err = wait_event_interruptible(fc->blocked_waitq, !fc->blocked);
-+	restore_sigs(&oldset);
-+	if (err)
-+		return ERR_PTR(-EINTR);
-+
-+	req = fuse_request_alloc();
- 	if (!req)
- 		return ERR_PTR(-ENOMEM);
+ 	struct pci_controller *phb;
+ 	struct eeh_early_enable_info info;
+@@ -882,7 +882,6 @@ void eeh_add_device_early(struct device_
+ 	info.buid_lo = BUID_LO(phb->buid);
+ 	early_enable_eeh(dn, &info);
+ }
+-EXPORT_SYMBOL_GPL(eeh_add_device_early);
  
-@@ -118,6 +128,11 @@ void fuse_release_background(struct fuse
- 		fput(req->file);
- 	spin_lock(&fc->lock);
- 	list_del(&req->bg_entry);
-+	if (fc->num_background == FUSE_MAX_BACKGROUND) {
-+		fc->blocked = 0;
-+		wake_up_all(&fc->blocked_waitq);
+ void eeh_add_device_tree_early(struct device_node *dn)
+ {
+@@ -893,20 +892,6 @@ void eeh_add_device_tree_early(struct de
+ }
+ EXPORT_SYMBOL_GPL(eeh_add_device_tree_early);
+ 
+-void eeh_add_device_tree_late(struct pci_bus *bus)
+-{
+-	struct pci_dev *dev;
+-
+-	list_for_each_entry(dev, &bus->devices, bus_list) {
+- 		eeh_add_device_late(dev);
+- 		if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE) {
+- 			struct pci_bus *subbus = dev->subordinate;
+- 			if (subbus)
+- 				eeh_add_device_tree_late(subbus);
+- 		}
+-	}
+-}
+-
+ /**
+  * eeh_add_device_late - perform EEH initialization for the indicated pci device
+  * @dev: pci device for which to set up EEH
+@@ -914,7 +899,7 @@ void eeh_add_device_tree_late(struct pci
+  * This routine must be used to complete EEH initialization for PCI
+  * devices that were added after system boot (e.g. hotplug, dlpar).
+  */
+-void eeh_add_device_late(struct pci_dev *dev)
++static void eeh_add_device_late(struct pci_dev *dev)
+ {
+ 	struct device_node *dn;
+ 	struct pci_dn *pdn;
+@@ -933,16 +918,33 @@ void eeh_add_device_late(struct pci_dev 
+ 
+ 	pci_addr_cache_insert_device (dev);
+ }
+-EXPORT_SYMBOL_GPL(eeh_add_device_late);
++
++void eeh_add_device_tree_late(struct pci_bus *bus)
++{
++	struct pci_dev *dev;
++
++	list_for_each_entry(dev, &bus->devices, bus_list) {
++ 		eeh_add_device_late(dev);
++ 		if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE) {
++ 			struct pci_bus *subbus = dev->subordinate;
++ 			if (subbus)
++ 				eeh_add_device_tree_late(subbus);
++ 		}
 +	}
-+	fc->num_background--;
- 	spin_unlock(&fc->lock);
++}
++EXPORT_SYMBOL_GPL(eeh_add_device_tree_late);
+ 
+ /**
+  * eeh_remove_device - undo EEH setup for the indicated pci device
+  * @dev: pci device to be removed
+  *
+- * This routine should be when a device is removed from a running
+- * system (e.g. by hotplug or dlpar).
++ * This routine should be called when a device is removed from
++ * a running system (e.g. by hotplug or dlpar).  It unregisters
++ * the PCI device from the EEH subsystem.  I/O errors affecting
++ * this device will no longer be detected after this call; thus,
++ * i/o errors affecting this slot may leave this device unusable.
+  */
+-void eeh_remove_device(struct pci_dev *dev)
++static void eeh_remove_device(struct pci_dev *dev)
+ {
+ 	struct device_node *dn;
+ 	if (!dev || !eeh_subsystem_enabled)
+@@ -958,21 +960,17 @@ void eeh_remove_device(struct pci_dev *d
+ 	PCI_DN(dn)->pcidev = NULL;
+ 	pci_dev_put (dev);
  }
+-EXPORT_SYMBOL_GPL(eeh_remove_device);
  
-@@ -195,6 +210,9 @@ static void background_request(struct fu
+ void eeh_remove_bus_device(struct pci_dev *dev)
  {
- 	req->background = 1;
- 	list_add(&req->bg_entry, &fc->background);
-+	fc->num_background++;
-+	if (fc->num_background == FUSE_MAX_BACKGROUND)
-+		fc->blocked = 1;
- 	if (req->inode)
- 		req->inode = igrab(req->inode);
- 	if (req->inode2)
-@@ -288,6 +306,7 @@ void request_send(struct fuse_conn *fc, 
- static void request_send_nowait(struct fuse_conn *fc, struct fuse_req *req)
- {
- 	spin_lock(&fc->lock);
-+	background_request(fc, req);
- 	if (fc->connected) {
- 		queue_request(fc, req);
- 		spin_unlock(&fc->lock);
-@@ -306,9 +325,6 @@ void request_send_noreply(struct fuse_co
- void request_send_background(struct fuse_conn *fc, struct fuse_req *req)
- {
- 	req->isreply = 1;
--	spin_lock(&fc->lock);
--	background_request(fc, req);
--	spin_unlock(&fc->lock);
- 	request_send_nowait(fc, req);
- }
- 
-Index: linux/fs/fuse/fuse_i.h
-===================================================================
---- linux.orig/fs/fuse/fuse_i.h	2006-03-31 18:55:32.000000000 +0200
-+++ linux/fs/fuse/fuse_i.h	2006-03-31 18:55:32.000000000 +0200
-@@ -18,6 +18,9 @@
- /** Max number of pages that can be used in a single read request */
- #define FUSE_MAX_PAGES_PER_REQ 32
- 
-+/** Maximum number of outstanding background requests */
-+#define FUSE_MAX_BACKGROUND 10
++	struct pci_bus *bus = dev->subordinate;
++	struct pci_dev *child, *tmp;
 +
- /** It could be as large as PATH_MAX, but would that have any uses? */
- #define FUSE_NAME_MAX 1024
- 
-@@ -241,6 +244,17 @@ struct fuse_conn {
- 	    interrupted request) */
- 	struct list_head background;
- 
-+	/** Number of requests currently in the background */
-+	unsigned num_background;
+ 	eeh_remove_device(dev);
+-	if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE) {
+-		struct pci_bus *bus = dev->subordinate;
+-		struct list_head *ln;
+-		if (!bus)
+-			return; 
+-		for (ln = bus->devices.next; ln != &bus->devices; ln = ln->next) {
+-			struct pci_dev *pdev = pci_dev_b(ln);
+-			if (pdev)
+-				eeh_remove_bus_device(pdev);
+-		}
 +
-+	/** Flag indicating if connection is blocked.  This will be
-+	    the case before the INIT reply is received, and if there
-+	    are too many outstading backgrounds requests */
-+	int blocked;
-+
-+	/** waitq for blocked connection */
-+	wait_queue_head_t blocked_waitq;
-+
- 	/** RW semaphore for exclusion with fuse_put_super() */
- 	struct rw_semaphore sbput_sem;
- 
-Index: linux/fs/fuse/inode.c
-===================================================================
---- linux.orig/fs/fuse/inode.c	2006-03-31 18:55:32.000000000 +0200
-+++ linux/fs/fuse/inode.c	2006-03-31 18:55:32.000000000 +0200
-@@ -381,6 +381,7 @@ static struct fuse_conn *new_conn(void)
- 	if (fc) {
- 		spin_lock_init(&fc->lock);
- 		init_waitqueue_head(&fc->waitq);
-+		init_waitqueue_head(&fc->blocked_waitq);
- 		INIT_LIST_HEAD(&fc->pending);
- 		INIT_LIST_HEAD(&fc->processing);
- 		INIT_LIST_HEAD(&fc->io);
-@@ -392,6 +393,7 @@ static struct fuse_conn *new_conn(void)
- 		fc->bdi.ra_pages = (VM_MAX_READAHEAD * 1024) / PAGE_CACHE_SIZE;
- 		fc->bdi.unplug_io_fn = default_unplug_io_fn;
- 		fc->reqctr = 0;
-+		fc->blocked = 1;
++	if (bus && dev->hdr_type == PCI_HEADER_TYPE_BRIDGE) {
++		list_for_each_entry_safe(child, tmp, &bus->devices, bus_list)
++			 eeh_remove_bus_device(child);
  	}
- 	return fc;
  }
-@@ -438,6 +440,8 @@ static void process_init_reply(struct fu
- 		fc->max_write = arg->minor < 5 ? 4096 : arg->max_write;
- 	}
- 	fuse_put_request(fc, req);
-+	fc->blocked = 0;
-+	wake_up_all(&fc->blocked_waitq);
- }
+ EXPORT_SYMBOL_GPL(eeh_remove_bus_device);
+Index: linux-2.6.16-git19/include/asm-powerpc/eeh.h
+===================================================================
+--- linux-2.6.16-git19.orig/include/asm-powerpc/eeh.h	2006-03-19 23:53:29.000000000 -0600
++++ linux-2.6.16-git19/include/asm-powerpc/eeh.h	2006-03-31 11:47:35.000000000 -0600
+@@ -60,24 +60,10 @@ void __init pci_addr_cache_build(void);
+  * device (including config space i/o).  Call eeh_add_device_late
+  * to finish the eeh setup for this device.
+  */
+-void eeh_add_device_early(struct device_node *);
+-void eeh_add_device_late(struct pci_dev *dev);
+ void eeh_add_device_tree_early(struct device_node *);
+ void eeh_add_device_tree_late(struct pci_bus *);
  
- static void fuse_send_init(struct fuse_conn *fc, struct fuse_req *req)
+ /**
+- * eeh_remove_device - undo EEH setup for the indicated pci device
+- * @dev: pci device to be removed
+- *
+- * This routine should be called when a device is removed from
+- * a running system (e.g. by hotplug or dlpar).  It unregisters
+- * the PCI device from the EEH subsystem.  I/O errors affecting
+- * this device will no longer be detected after this call; thus,
+- * i/o errors affecting this slot may leave this device unusable.
+- */
+-void eeh_remove_device(struct pci_dev *);
+-
+-/**
+  * eeh_remove_device_recursive - undo EEH for device & children.
+  * @dev: pci device to be removed
+  *
+@@ -116,12 +102,6 @@ static inline int eeh_dn_check_failure(s
+ 
+ static inline void pci_addr_cache_build(void) { }
+ 
+-static inline void eeh_add_device_early(struct device_node *dn) { }
+-
+-static inline void eeh_add_device_late(struct pci_dev *dev) { }
+-
+-static inline void eeh_remove_device(struct pci_dev *dev) { }
+-
+ static inline void eeh_add_device_tree_early(struct device_node *dn) { }
+ 
+ static inline void eeh_add_device_tree_late(struct pci_bus *bus) { }

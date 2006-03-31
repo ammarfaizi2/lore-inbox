@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWCaAUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWCaAVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbWCaAUE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 19:20:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWCaAUE
+	id S1751166AbWCaAVb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 19:21:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWCaAVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 19:20:04 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:14172 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751161AbWCaAUC (ORCPT
+	Thu, 30 Mar 2006 19:21:31 -0500
+Received: from smtpout.mac.com ([17.250.248.72]:52730 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751166AbWCaAVa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 19:20:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:x-mimeole:thread-index;
-        b=j3L5baz0wvNoHQ321cSEnTpFxJKBGx/plJMwI3dw/nuGMigaPHhvnxBkreieg6MERzz24TjpkbVHUbiUi3xIXFFPsLNLKbGaNb9V+LZbH3fW1SePhDmIkBKmq3wZhh8BZoup9Nuakr7x/EvdQn19UkU260hz8CXe+TdZibeJFgM=
-From: "Hua Zhong" <hzhong@gmail.com>
-To: <linux-kernel@vger.kernel.org>, <bart.de.schuymer@pandora.be>
-Subject: [PATCH] IDE error handling fixes
-Date: Thu, 30 Mar 2006 16:19:48 -0800
-Message-ID: <000601c65458$d31064c0$853d010a@nuitysystems.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Thu, 30 Mar 2006 19:21:30 -0500
+In-Reply-To: <20060326065205.d691539c.mrmacman_g4@mac.com>
+References: <200603141619.36609.mmazur@kernel.pl> <200603231811.26546.mmazur@kernel.pl> <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com> <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix> <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com> <20060326065205.d691539c.mrmacman_g4@mac.com>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <4B0E79B3-4738-4B6A-82F9-6121E65263EB@mac.com>
+Cc: Andrew Morton <akpm@osdl.org>, Nix <nix@esperi.org.uk>,
+       Rob Landley <rob@landley.net>, Mariusz Mazur <mmazur@kernel.pl>,
+       llh-discuss@lists.pld-linux.org, John Livingston <jujutama@comcast.net>
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Thread-Index: AcZUWGIOedAr94yqRRyc1+Nq1+/MjwAAEVeg
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Arch-specific header inconsistency (asm-*/termios.h)
+Date: Thu, 30 Mar 2006 19:20:52 -0500
+To: LKML Kernel <linux-kernel@vger.kernel.org>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[sorry about the previous email - I forgot to put the subject]
+I'm in the process of cleaning up various headers for use from  
+userspace, and at the same time I'm working to clean up some of the  
+duplication in the kernel-only portions of those headers.  I'm  
+running into one oddity that I can't explain.  In the various asm-*/ 
+termios.h files, there are user_termio_to_kernel_termios functions.   
+The m68k header does this:
 
-Hi,
+get_user((termios)->c_line, &(termio)->c_line);
 
-In 2.6.15.1 I encountered some IDE crashes when unplugging IDE cables to
-emulate disk errors. Below is a patch against 2.6.16 which I think still
-applies.
+The i386 header is missing that line, and after macro expansion the  
+rest of the context is almost exactly identical.  It appears there  
+are a couple other architectures that fall on both sides of the  
+fence.  Can anyone explain this apparently aberrant behavior or is  
+this a bug?  If there's a reason behind it, I'll make sure to put in  
+a useful comment; otherwise I'll fix it.
 
-1. The first BUG_ON could trigger when a PREFLUSH IO fails (it would fail
-the original barrier request which hasn't been marked REQ_STARTED yet).
-2. the rq could have been dequeued already (same as 1).
-3. HWGROUP(drive)->rq could be NULL because of the ide_error() several lines
-earlier.
+Thanks for the help!
 
-Signed off by: Hua Zhong <hzhong@gmail.com>
-
-diff -ur linux-2.6.16.orig/drivers/ide/ide-io.c
-linux-2.6.16/drivers/ide/ide-io.c
---- linux-2.6.16.orig/drivers/ide/ide-io.c	2006-03-19
-21:53:29.000000000 -0800
-+++ linux-2.6.16/drivers/ide/ide-io.c	2006-04-01 00:26:55.411871520 -0800
-@@ -60,8 +60,6 @@
- {
- 	int ret = 1;
- 
--	BUG_ON(!(rq->flags & REQ_STARTED));
--
- 	/*
- 	 * if failfast is set on a request, override number of sectors and
- 	 * complete the whole request right now @@ -83,7 +81,8 @@
- 
- 	if (!end_that_request_first(rq, uptodate, nr_sectors)) {
- 		add_disk_randomness(rq->rq_disk);
--		blkdev_dequeue_request(rq);
-+		if (!list_empty(&rq->queuelist))
-+			blkdev_dequeue_request(rq);
- 		HWGROUP(drive)->rq = NULL;
- 		end_that_request_last(rq, uptodate);
- 		ret = 0;
-@@ -1277,6 +1276,10 @@
- 	 * make sure request is sane
- 	 */
- 	rq = HWGROUP(drive)->rq;
-+
-+	if (!rq)
-+		goto out;
-+
- 	HWGROUP(drive)->rq = NULL;
- 
- 	rq->errors = 0;
+Cheers,
+Kyle Moffett
 

@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWCaXsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWCaX4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWCaXsM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 18:48:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWCaXsM
+	id S1751278AbWCaX4R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 18:56:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWCaX4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 18:48:12 -0500
-Received: from smtp107.rog.mail.re2.yahoo.com ([68.142.225.205]:42364 "HELO
-	smtp107.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750736AbWCaXsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 18:48:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=rogers.com;
-  h=Received:In-Reply-To:References:Mime-Version:Content-Type:Message-Id:Cc:Content-Transfer-Encoding:From:Subject:Date:To:X-Pgp-Agent:X-Mailer;
-  b=j3vrEjVPahAGz0IkSDJay3E9/iITm11TnhaFywEakbnuqgrzfTZebHXit2T6FEcS0/0bSbrAV34Bwx7lrvRsSPotj/qimirJ0wwS+FCCzk4kXo460/tkXk7xXXfgq/5y1bBD6VqY/vmZQLrokMgm2hGZiin0GF1/hTyLBAQhlO8=  ;
-In-Reply-To: <BC34AAD1-595C-4E8E-A8D0-D0F1A9E93C69@rogers.com>
-References: <BC34AAD1-595C-4E8E-A8D0-D0F1A9E93C69@rogers.com>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-45-185442290"
-Message-Id: <4F7382C6-F3E9-4513-865C-695D93811761@rogers.com>
-Cc: linux-kernel@vger.kernel.org, rmk+serial@arm.linux.org.uk
-Content-Transfer-Encoding: 7bit
-From: Georg Nikodym <georgn@rogers.com>
-Subject: Re: [PATCH] 8250: yet another attempt at a serial console fix
-Date: Fri, 31 Mar 2006 18:48:02 -0500
-To: Georg Nikodym <georgn@rogers.com>
-X-Pgp-Agent: GPGMail 1.1 (Tiger)
-X-Mailer: Apple Mail (2.746.3)
+	Fri, 31 Mar 2006 18:56:17 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:49423 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751278AbWCaX4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 18:56:17 -0500
+Date: Sat, 1 Apr 2006 01:56:15 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: smp_locks reference_discarded errors
+Message-ID: <20060331235615.GA28310@stusta.de>
+References: <20060325033948.GA15564@redhat.com> <20060325235035.5fcb902f.akpm@osdl.org> <20060326154042.GB13684@redhat.com> <20060326161055.GA4584@mars.ravnborg.org> <20060331190851.GB22677@stusta.de> <20060331193338.GA10664@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060331193338.GA10664@mars.ravnborg.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 31, 2006 at 09:33:38PM +0200, Sam Ravnborg wrote:
+> On Fri, Mar 31, 2006 at 09:08:51PM +0200, Adrian Bunk wrote:
+> > On Sun, Mar 26, 2006 at 06:10:55PM +0200, Sam Ravnborg wrote:
+> > > On Sun, Mar 26, 2006 at 10:40:42AM -0500, Dave Jones wrote:
+> > > > 
+> > > > came out of a 'make buildcheck' a day or two ago (the following day,
+> > > > Sam nuked reference_discarded.pl in favour of it being done
+> > > > magically somewhere else (I've not looked into how its done now).
+> > > The check is part of modpost now. modpost is only used when building
+> > > modules but that holds true for most builds anyway therefore I did not
+> > > move it to a separate executable.
+> > >...
+> > 
+> > This doesn't sound good.
+> > 
+> > This means that we have no longer any tool that warns us about e.g. 
+> > references from non-__exit code to __exit code [1]?
+> > [1] __exit, not __{dev,cpu,mem}exit
+> 
+> It does warn for this also. The test I have carried out has mostly been
+> on allmodconfig builds though. I assume you are worried for the case
+> when a module is built-in and the __exit section is discarded - or?
 
---Apple-Mail-45-185442290
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Exactly - especially since in kernel 2.6 we are getting on architectures 
+like i386 no longer link errors as we did in kernel 2.4.
 
+Perhaps I'm only concerned because my usual builds didn't produce a 
+single warning...  ;-)
 
-On Mar 31, 2006, at 14:29, Georg Nikodym wrote:
->
-> Since the old code worked I had trouble swallowing the backup timer  
-> idea.  But the detection logic worked a charm so I lifted that and  
-> offer up the attached patch for evisceration.
+> 	Sam
 
-Please ignore my earlier patch submission.  There are at least four  
-things wrong with it.
+cu
+Adrian
 
--g
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
---Apple-Mail-45-185442290
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (Darwin)
-
-iD8DBQFELb+1oJNnikTddkMRAkukAKCQUNvUnkiVaetcUk5WG1dtiM+KmwCdGbPV
-VrdObDZu1Y0fuNsmiJIHBzY=
-=C+gW
------END PGP SIGNATURE-----
-
---Apple-Mail-45-185442290--

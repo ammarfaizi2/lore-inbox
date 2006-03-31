@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWCaBKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWCaBLi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbWCaBKk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 20:10:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWCaBKk
+	id S1751130AbWCaBLi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 20:11:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWCaBLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 20:10:40 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:28557 "EHLO
-	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751096AbWCaBKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 20:10:39 -0500
-Date: Thu, 30 Mar 2006 19:09:39 -0600
+	Thu, 30 Mar 2006 20:11:38 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:63683 "EHLO
+	pd3mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751130AbWCaBLh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 20:11:37 -0500
+Date: Thu, 30 Mar 2006 19:11:24 -0600
 From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: How to debug an Oops on  FC4 2.6 Kernel
-In-reply-to: <5WbMU-6U1-67@gated-at.bofh.it>
+Subject: Re: cannot get clean 2.4.20 kernel to compile
+In-reply-to: <5W8lY-1wF-29@gated-at.bofh.it>
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Peter Van <plst@ws.sbcoxmail.com>
-Message-id: <442C8153.1050907@shaw.ca>
+Cc: George P Nychis <gnychis@cmu.edu>
+Message-id: <442C81BC.7030605@shaw.ca>
 MIME-version: 1.0
 Content-type: text/plain; charset=ISO-8859-1; format=flowed
 Content-transfer-encoding: 7bit
-References: <5WbMU-6U1-67@gated-at.bofh.it>
+References: <5W8lY-1wF-29@gated-at.bofh.it>
 User-Agent: Thunderbird 1.5 (Windows/20051201)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Van wrote:
+George P Nychis wrote:
 > Hi,
 > 
-> My computer hung af few day ago for no apparent  reason requiring a 
-> reboot and clear.
-> /var/log/messages has an  Oops log but I don't know how to use the Oops 
-> log to determine the cause of the problem.  According to some posts,  
-> ksymoops can't be used
-> on a 2.6 kernel.
+> I have downloaded the 2.4.20 kernel from ftp.kernel.org, have checked its sign, and no matter what I try I cannot get it to compile.
+> 
+> I do a make mrproper, I then do make dep which is fine, but then i try "make bzImage modules modules_install", selecting all the defaults, and get an SMP header error:
+> http://rafb.net/paste/results/QzIq7v86.html
+> 
+> I then disable SMP support and get:
+> http://rafb.net/paste/results/muYA9t12.html
+> 
+> I even tried using my config from the 2.4.32 kernel which works perfectly fine, and I also get the sched errors.
 
-That's because it's not needed, the oops already shows the symbols.
-
-That's a somewhat old FC4 kernel now, you could try the latest version.
+What gcc version? Some old kernels might not be buildable with newer 
+compilers.
 
 -- 
 Robert Hancock      Saskatoon, SK, Canada

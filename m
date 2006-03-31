@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbWCaQWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWCaQZz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751403AbWCaQWF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 11:22:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWCaQWF
+	id S1751401AbWCaQZz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 11:25:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWCaQZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 11:22:05 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:16769 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S1751400AbWCaQWE (ORCPT
+	Fri, 31 Mar 2006 11:25:55 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:44978 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751401AbWCaQZy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 11:22:04 -0500
-Date: Fri, 31 Mar 2006 08:22:22 -0800 (PST)
-From: Hans Boehm <Hans.Boehm@hp.com>
-X-X-Sender: hboehm@tomil.hpl.hp.com
-To: Andi Kleen <ak@suse.de>
-Cc: Christoph Lameter <clameter@sgi.com>,
-       Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
-       "Boehm, Hans" <hans.boehm@hp.com>,
-       "Grundler, Grant G" <grant.grundler@hp.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Synchronizing Bit operations V2
-In-Reply-To: <p73vetu921a.fsf@verdi.suse.de>
-Message-ID: <Pine.GHP.4.58.0603310808190.28478@tomil.hpl.hp.com>
-References: <Pine.LNX.4.64.0603301300430.1014@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0603301615540.2023@schroedinger.engr.sgi.com>
- <p73vetu921a.fsf@verdi.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 31 Mar 2006 11:25:54 -0500
+Date: Fri, 31 Mar 2006 11:25:14 -0500
+From: "Frank Ch. Eigler" <fche@redhat.com>
+To: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, davem@davemloft.net, suparna@in.ibm.com,
+       richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: RFC - Approaches to user-space probes
+Message-ID: <20060331162514.GB22505@redhat.com>
+References: <20060327065447.GA25745@in.ibm.com> <1143445068.2886.20.camel@laptopd505.fenrus.org> <20060327100019.GA30427@in.ibm.com> <1143489794.2886.43.camel@laptopd505.fenrus.org> <20060328145441.GA25465@in.ibm.com> <y0m64lye28w.fsf@ton.toronto.redhat.com> <20060331115529.GA3501@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="aVD9QWMuhilNxW9f"
+Content-Disposition: inline
+In-Reply-To: <20060331115529.GA3501@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would argue that there are two semi-viable approaches to this:
 
-1) Guarantee that all atomic operations always include a full
-memory fence/barrier.  That way the programmer can largely ignore
-associated memory ordering issues.
+--aVD9QWMuhilNxW9f
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-2) Make the ordering semantics as explicit and clean as possible, which
-is being proposed here.
+Hi -
 
-It seems to me that anything in the middle doesn't work well.  If
-programmers have to think about ordering at all, you want to make it as
-difficult as possible to overlook.
+On Fri, Mar 31, 2006 at 05:25:29PM +0530, Prasanna S Panchamukhi wrote:
+> [...]
+> > It's pretty clear that writing the dirtied pages to disk is an
+> > *undesirable* side-effect, and should be eliminated. [...]
+>=20
+> What would the typical situations where the text section in the
+> executable is mapped with 'MAP_SHARED'?
 
-My impression is that approach (1) tends not to stick, since it involves
-a substantial performance hit on architectures on which the fence is
-not implicitly included in atomic operations.  Those include Itanium and
-PowerPC.
+Even if such usage is not typical, if it is legal, it may open a
+vulnerability.  Imagine an unprivileged attacker doing just such an
+mmap on some key shared library or executable, hoping that someone
+else puts user-kprobes in there.
 
-Hans
+- FChE
 
-On Fri, 31 Mar 2006, Andi Kleen wrote:
+--aVD9QWMuhilNxW9f
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> Christoph Lameter <clameter@sgi.com> writes:
-> > MODE_BARRIER
-> > 	An atomic operation that is guaranteed to occur between
-> > 	previous and later memory operations.
->
->
-> I think it's a bad idea to create such an complicated interface.
-> The chances that an average kernel coder will get these right are
-> quite small. And it will be 100% untested outside IA64 I guess
-> and thus likely be always slightly buggy as kernel code continues
-> to change.
->
-> -Andi
->
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFELVfqVZbdDOm/ZT0RApSvAJ0QAX7GLz9Efu0EYiFRKtJ617x85gCfUSXW
+jU/vPuF7MatJd9GdWFWNFkw=
+=v2D8
+-----END PGP SIGNATURE-----
+
+--aVD9QWMuhilNxW9f--

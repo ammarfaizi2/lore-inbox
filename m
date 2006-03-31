@@ -1,89 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWCaAdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWCaAfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750989AbWCaAdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 19:33:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWCaAdZ
+	id S1750997AbWCaAfN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 19:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWCaAfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 19:33:25 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:61114 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750890AbWCaAdZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 19:33:25 -0500
-Date: Thu, 30 Mar 2006 16:35:44 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Jens Axboe <axboe@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH] splice: add support for SPLICE_F_MOVE flag
-Message-Id: <20060330163544.72e50aab.akpm@osdl.org>
-In-Reply-To: <200603302109.k2UL9ET0012970@hera.kernel.org>
-References: <200603302109.k2UL9ET0012970@hera.kernel.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 30 Mar 2006 19:35:13 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:40338 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750997AbWCaAfL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 19:35:11 -0500
+Date: Thu, 30 Mar 2006 18:35:06 -0600
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: john.ronciak@intel.com, jesse.brandeburg@intel.com,
+       jeffrey.t.kirsher@intel.com, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH]: e1000: prevent statistics from getting garbled during reset.
+Message-ID: <20060331003506.GU2172@austin.ibm.com>
+References: <20060330213928.GQ2172@austin.ibm.com> <20060331000208.GS2172@austin.ibm.com> <442C8069.507@wolfmountaingroup.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <442C8069.507@wolfmountaingroup.com>
+User-Agent: Mutt/1.5.9i
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List <linux-kernel@vger.kernel.org> wrote:
->
-> commit 5abc97aa25b2c41413b3a520faee83f2282d9f18
-> tree 4ba13ae0e91f15d02986df7cdca5e9455212d7d4
-> parent 5274f052e7b3dbd81935772eb551dfd0325dfa9d
-> author Jens Axboe <axboe@suse.de> Thu, 30 Mar 2006 15:16:46 +0200
-> committer Linus Torvalds <torvalds@g5.osdl.org> Fri, 31 Mar 2006 04:28:18 -0800
+On Thu, Mar 30, 2006 at 06:05:45PM -0700, Jeff V. Merkey wrote:
 > 
-> [PATCH] splice: add support for SPLICE_F_MOVE flag
+> Linas Vepstas wrote:
+
+Well, these comments have nothing to do with my patch, but ... 
+anyway ... 
+
+> The driver also needs to be fixed to allow clearing of the stats (like 
+> all the other adapter drivers). At present, when I run performance
+> and packet drop counts on the cards, I cannot reset the stats with this 
+> code because the driver stores them in the e100_adapter
+> structure. This is busted.
 > 
-> This enables the caller to migrate pages from one address space page
-> cache to another.  In buzz word marketing, you can do zero-copy file
-> copies!
+> This function:
 > 
-> ...
->  
-> +static int page_cache_pipe_buf_steal(struct pipe_inode_info *info,
-> +				     struct pipe_buffer *buf)
-> +{
-> +	struct page *page = buf->page;
-> +
-> +	WARN_ON(!PageLocked(page));
-> +	WARN_ON(!PageUptodate(page));
-> +
-> +	if (!remove_mapping(page_mapping(page), page))
-> +		return 1;
-> +
-> +	if (PageLRU(page)) {
-> +		struct zone *zone = page_zone(page);
-> +
-> +		spin_lock_irq(&zone->lru_lock);
-> +		BUG_ON(!PageLRU(page));
-> +		__ClearPageLRU(page);
-> +		del_page_from_lru(zone, page);
-> +		spin_unlock_irq(&zone->lru_lock);
-> +	}
-> +
-> +	buf->stolen = 1;
-> +	return 0;
-> +}
+> int clear_network_device_stats(BYTE *name)
 
-hm.  There's a reason why it is no longer necessary to recheck PG_lru after
-taking the zone->lock, but I'm too lazy to go back through the changelogs
-and we seem to have forgotten to add comments, so I'll cc Nick instead ;)
+I couldn't find such a function in the kernel.
+ 
+> does not work on e1000 due to this section of code:
+> 
+> void
+> e1000_update_stats(struct e1000_adapter *adapter)
+> {
+> 
+> adapter->stats.xofftxc += E1000_READ_REG(hw, XOFFTXC);
+> adapter->stats.fcruc += E1000_READ_REG(hw, FCRUC);
 
-I worry that the page might still be under writeback when we get here. 
-Probably we'll get lucky because whoever is writing the page probably holds
-a ref on it (BIOs will do this), but a wait_on_page_writeback() after
-locking the page might be prudent.
+These are hardware stats ... presumably useless without
+a detailed understanding of the guts of the e1000.
 
->  static void page_cache_pipe_buf_unmap(struct pipe_inode_info *info,
->  				      struct pipe_buffer *buf)
->  {
-> -	unlock_page(buf->page);
-> +	if (!buf->stolen)
-> +		unlock_page(buf->page);
->  	kunmap(buf->page);
->  }
+> //NOTE These stats need to be stored in the stats structure so they can 
+> be cleared by
+> statistics monitoring programs.
 
-There go our chances of ever getting rid of kmap().  Is it not feasible to
-use atomic kmaps throughout this code?
+I can't imagine what generic interface would allow these 
+to be viewed.
 
+> /* Fill out the OS statistics structure */
+> 
+> adapter->net_stats.rx_packets = adapter->stats.gprc;
+> adapter->net_stats.tx_packets = adapter->stats.gptc;
+> adapter->net_stats.rx_bytes = adapter->stats.gorcl;
+> adapter->net_stats.tx_bytes = adapter->stats.gotcl;
+
+Now *these* are generic ... and fixing this so that the 
+stats increment instead of over-riding would take 
+maybe half-an-hour or so; this is not hard to do ... !? 
+
+Do you want me to write a patch to do this?
+
+--linas
 

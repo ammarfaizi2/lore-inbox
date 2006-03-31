@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWCaBfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWCaBiA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751178AbWCaBfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 20:35:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWCaBfZ
+	id S1751190AbWCaBiA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 20:38:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWCaBh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 20:35:25 -0500
-Received: from dukecmmtao03.coxmail.com ([68.99.120.70]:3790 "EHLO
-	dukecmmtao03.coxmail.com") by vger.kernel.org with ESMTP
-	id S1751178AbWCaBfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 20:35:25 -0500
-Message-ID: <015301c65463$5f0cd5d0$2801010a@Dolphin>
-From: "Peter Van" <plst@ws.sbcoxmail.com>
-To: "Robert Hancock" <hancockr@shaw.ca>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-References: <5WbMU-6U1-67@gated-at.bofh.it> <442C8153.1050907@shaw.ca>
-Subject: Re: How to debug an Oops on  FC4 2.6 Kernel
-Date: Thu, 30 Mar 2006 17:35:19 -0800
+	Thu, 30 Mar 2006 20:37:59 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:10444 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751182AbWCaBh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 20:37:59 -0500
+Date: Thu, 30 Mar 2006 17:37:45 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
+       "Boehm, Hans" <hans.boehm@hp.com>,
+       "Grundler, Grant G" <grant.grundler@hp.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: RE: Synchronizing Bit operations V2
+In-Reply-To: <200603310129.k2V1TCg27391@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.64.0603301736580.2758@schroedinger.engr.sgi.com>
+References: <200603310129.k2V1TCg27391@unix-os.sc.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=response
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, 
+On Thu, 30 Mar 2006, Chen, Kenneth W wrote:
 
-I'll  update the kernel.....
-Pete
+> Christoph Lameter wrote on Thursday, March 30, 2006 5:13 PM
+> > Then there will no barrier since clear_bit only has acquire semantics.
+> > This is a  bug in bit operations since smb_mb__before_clear_bit does
+> > not work as documentted.
+> 
+> Well, please make up your mind with:
+> 
+> Option (1):
+> 
+> #define clear_bit                     clear_bit_mode(..., RELEASE)
+> #define Smp_mb__before_clear_bit      do { } while (0)
+> #define Smp_mb__after_clear_bit       smp_mb()
+> 
+> Or option (2):
+> 
+> #define clear_bit                     clear_bit_mode(..., ACQUIRE)
+> #define Smp_mb__before_clear_bit      smp_mb()
+> #define Smp_mb__after_clear_bit       do { } while (0)
+> 
+> I'm fine with either one.
 
------ Original Message ----- 
-From: "Robert Hancock" <hancockr@shaw.ca>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Cc: "Peter Van" <plst@ws.sbcoxmail.com>
-Sent: Thursday, March 30, 2006 5:09 PM
-Subject: Re: How to debug an Oops on FC4 2.6 Kernel
+Neither one is correct because there will always be one combination of 
+clear_bit with these macros that does not generate the required memory 
+barrier.
 
-
-> Peter Van wrote:
->> Hi,
->> 
->> My computer hung af few day ago for no apparent  reason requiring a 
->> reboot and clear.
->> /var/log/messages has an  Oops log but I don't know how to use the Oops 
->> log to determine the cause of the problem.  According to some posts,  
->> ksymoops can't be used
->> on a 2.6 kernel.
-> 
-> That's because it's not needed, the oops already shows the symbols.
-> 
-> That's a somewhat old FC4 kernel now, you could try the latest version.
-> 
-> -- 
-> Robert Hancock      Saskatoon, SK, Canada
-> To email, remove "nospam" from hancockr@nospamshaw.ca
-> Home Page: http://www.roberthancock.com/
-> 
-> 
-> 
-> -- 
-> No virus found in this incoming message.
-> Checked by AVG Free Edition.
-> Version: 7.1.385 / Virus Database: 268.3.3/298 - Release Date: 3/30/2006
-> 
->

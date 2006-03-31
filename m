@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWCaLFp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWCaLUt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751319AbWCaLFp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 06:05:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWCaLFp
+	id S1751250AbWCaLUt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 06:20:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWCaLUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 06:05:45 -0500
-Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:63122 "EHLO
-	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751319AbWCaLFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 06:05:44 -0500
-Message-ID: <442D0D06.3050908@bigpond.net.au>
-Date: Fri, 31 Mar 2006 22:05:42 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: Float numbers in module programming
-References: <3fd7d9680603290634n6fabcdc7r193c30447acc1858@mail.gmail.com> <Pine.LNX.4.61.0603290955440.27913@chaos.analogic.com> <Pine.LNX.4.61.0603301010400.30783@yvahk01.tjqt.qr> <Pine.LNX.4.61.0603300739050.32259@chaos.analogic.com> <20060330182643.GV27173@skl-net.de> <Pine.LNX.4.61.0603301342410.1215@chaos.analogic.com> <20060331075758.GB93977@dspnet.fr.eu.org>
-In-Reply-To: <20060331075758.GB93977@dspnet.fr.eu.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 31 Mar 2006 06:20:49 -0500
+Received: from morbo.e-centre.net ([66.154.82.3]:12238 "EHLO
+	cubert.e-centre.net") by vger.kernel.org with ESMTP
+	id S1751250AbWCaLUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 06:20:49 -0500
+X-ASG-Debug-ID: 1143804047-22205-391-0
+X-Barracuda-URL: http://10.3.1.19:8000/cgi-bin/mark.cgi
+X-ASG-Orig-Subj: Re: [PATCH] ioremap_cached()
+Subject: Re: [PATCH] ioremap_cached()
+From: Arjan van de Ven <arjan@infradead.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060330164120.GJ13590@parisc-linux.org>
+References: <20060330164120.GJ13590@parisc-linux.org>
+Content-Type: text/plain
+Date: Fri, 31 Mar 2006 13:20:44 +0200
+Message-Id: <1143804045.3053.7.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 31 Mar 2006 11:05:42 +0000
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=4.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.10304
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olivier Galibert wrote:
-> On Thu, Mar 30, 2006 at 01:46:20PM -0500, linux-os (Dick Johnson) wrote:
->> Yeah. The correct word was irrational, which is its definition. The
->> point was that one can do a lot of very accurate work on real numbers
->> without using the FP unit and the decimal system.
+
 > 
-> As long as you don't use sin/cos (oops, no 3D, no polar coordinates,
-> no FFT), sqrt (oops no lenghts), pi (oops no non-polygonal surfaces)
-> or ln/exp (oops, a lot of things are gone there).
+> It seems clear to me that ioremap() and ioremap_nocache() are the
+> wrong way around.  The default needs to be uncached -- and the obvious
+> (rare) alternative becomes ioremap_cached().
 > 
-> Working with rationals is not that realistic nowadays except in things
-> like mathematica, maple and friends.  Fixed-point though is still very
-> realistics, it's just a different precision/scale tradeoff than fp,
-> and one you control.
+> So here's a patch for i386 to add ioremap_cached() and make ioremap()
+> uncached.  ioremap_nocache() remains as an alias for ioremap() so we
+> don't needlessly break old drivers.  Architecture maintainers will need
+> to fix up their ports if this patch is accepted.
 
-Fixed point is a special case of rational i.e. with a fixed denominator.
+I'd actually suggest deprecating ioremap() and moving away from it to
+make sure all users think of which variant they want. Explicit naming is
+always better than "some" unknown behavior (especially for old drivers
+that work on multiple kernels... while you allow them to keep compiling,
+you change the world under them so I think eventually break them
+compiling is actually better than having them limp along broken)
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

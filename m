@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbWCaBMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWCaBNT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751078AbWCaBMz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 20:12:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWCaBMy
+	id S1751172AbWCaBNT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 20:13:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWCaBNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 20:12:54 -0500
-Received: from mga03.intel.com ([143.182.124.21]:63154 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751078AbWCaBMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 20:12:53 -0500
-X-IronPort-AV: i="4.03,148,1141632000"; 
-   d="scan'208"; a="17153827:sNHT52341387"
-Message-Id: <200603310112.k2V1Cpg27150@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Christoph Lameter'" <clameter@sgi.com>
-Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "Zoltan Menyhart" <Zoltan.Menyhart@bull.net>,
+	Thu, 30 Mar 2006 20:13:18 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:35274 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751172AbWCaBNQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 20:13:16 -0500
+Date: Thu, 30 Mar 2006 17:13:07 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
        "Boehm, Hans" <hans.boehm@hp.com>,
-       "Grundler, Grant G" <grant.grundler@hp.com>, <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+       "Grundler, Grant G" <grant.grundler@hp.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
 Subject: RE: Synchronizing Bit operations V2
-Date: Thu, 30 Mar 2006 17:13:35 -0800
+In-Reply-To: <200603310103.k2V13cg27083@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.64.0603301709440.2553@schroedinger.engr.sgi.com>
+References: <200603310103.k2V13cg27083@unix-os.sc.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZUX97hQI02AVNuRMGqurYY24wRCQAADY8g
-In-Reply-To: <Pine.LNX.4.64.0603301707300.2553@schroedinger.engr.sgi.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote on Thursday, March 30, 2006 5:09 PM
-> In general yes the caller should not be thinking about clear_bit having 
-> any memory ordering at all. However for IA64 arch specific code the bit 
-> operations must have a certain ordering semantic and it would be best that 
-> these are also consistent. clear_bit is not a lock operation and may 
-> f.e. be used for locking something.
+On Thu, 30 Mar 2006, Chen, Kenneth W wrote:
 
-OK, fine.  Then please don't change smp_mb__after_clear_bit() for ia64.
-i.e., leave it alone as noop.
+> > Arch specific code should make this explicit too and not rely on implied 
+> > semantics. Otherwise one has to memorize that functions have to work with 
+> > different semantics in arch code and core code which makes the source 
+> > code difficult to maintain.
+> 
+> I don't know whether we are talking about the same thing: I propose for 
+> ia64: 
+>clear_bit to have release semantic,
 
-- Ken
+Inconsistent with other bit operations.
+
+>smp_mb__before_clear_bit will be a noop,
+
+Then there will no barrier since clear_bit only has acquire semantics. This is a 
+bug in bit operations since smb_mb__before_clear_bit does not work as 
+documentted.
+
+>smp_mb_after_clear_bit will be a smp_mb().
+
+Ok.
+
+> Caller are still required to use smp_mb__before_clear_bit if it requires, on
+> ia64, that function will simply be a noop.
+
+Well ultimately I wish we could move away from these 
+smb_mb__before/after_xx macros and use explicit synchronization ordering 
+instead.
+
+If there is agreement on this patch then we can use explicit ordering in 
+core kernel code and slowly get rid of smb_mb__xxx.
+

@@ -1,71 +1,78 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751430AbWC3B77 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 29 Mar 2006 20:59:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWC3B77
+	id S1750732AbWCaPsq (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 31 Mar 2006 10:48:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWCaPsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Mar 2006 20:59:59 -0500
-Received: from stateless4.tiscali.cz ([213.235.135.69]:61148 "EHLO
-	mail.tiscali.cz") by vger.kernel.org with ESMTP id S1751430AbWC3B77 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Mar 2006 20:59:59 -0500
-Date: Thu, 30 Mar 2006 02:54:24 +0100
-Message-ID: <4406E30D00070619@stateless4.tiscali.cz>
-From: "Michael Gabaake" <gabaakemichael@tiscali.cz>
-Subject: READ THIS.....
-Reply-To: michaelgabaake@tiscali.co.uk
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+	Fri, 31 Mar 2006 10:48:46 -0500
+Received: from vsmtp2.tin.it ([212.216.176.222]:56491 "EHLO vsmtp2.tin.it")
+	by vger.kernel.org with ESMTP id S1750732AbWCaPsp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 10:48:45 -0500
+Message-ID: <10a50f48c3b.wintergames2@virgilio.it>
+Date: Fri, 31 Mar 2006 16:38:24 +0100 (GMT+01:00)
+From: <wintergames2@virgilio.it>
+Reply-To: <wintergames2@virgilio.it>
+Subject: 19th ARCTIC WINTER GAMES
+Mime-Version: 1.0
+Content-Type: text/plain;charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: 83.116.99.195
 To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751430AbWC3B77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750732AbWCaPsq@vger.kernel.org>
 
-Good day,
+19th ARCTIC WINTER GAMES
+MARCH 5th - MARCH 11, 2006,
+DISBURSEMENT 
+UNIT.
+IDENTIFICATION NUMBER: XWTR24351423
+Dear Sir/Madam,
 
+Be informed 
+that the arctic winter games has come and gone.As customary,gifts are 
+disbursed to selected recipients/winners via an email pick software.
+Your email information falls within CATEGORY C for year 2006 end of 
+games stakes and a lump sum attached.This was put in place to promote 
+awareness on the games and encourage participants from all corners of 
+the world.
 
+You are hereby required to reach our disbursement unit for 
+further information,verification & release quoting your
+identification 
+number:
 
-My name is Michael Gabaake, I am an Engineer and a Staff of the Ministr=
-y
-of Minerals, Energy and Water Affairs of Botswana presently in London
-for a short service course, as I represent a group that is interested i=
-n
-engaging your service as Manager for investment purpose, of a large
-volume of fund. If this proposal is acceptable to you, please get back
-to me, so that I can work out a remuneration for your participation in
-the transaction, and also let you know how I came to select you for thi=
-s
-purpose.
+REPRESENTATIVE OFFICE:
+SHEIKH P.DAVIES 
+Foreign Unit Manager, 
+of the (Hillstar Finance and Securities) Amsterdam,Netherlands. 
+TEL:
++31-623-009-849
+FAX:+31-847-547-368 
+email:( hillstarfinance@netscape.
+net )
 
-
-
-
-I await your anticipated cooperation
-
-Do respond to me via my private=20
-email:michaelgabaake@tiscali.co.uk
-
-
-Regards,
-=20
-
-Dr. Michael Gabaake
-
-
-
-=20
-
-
-
-_________________________________________________________________
-Nejlevn=ECj=B9=ED ADSL na trhu. Ji=BE od 333 K=E8 za m=ECs=EDc.=20
-http://adsl.tiscali.cz
+Faithfully,
+Sir.Carlos Langer
+Organising Committee.
 
 
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+This 
+message is intended only for the use of the person(s) ("the
+Intended 
+Recipients") to whom it is addressed. It may contain
+information which 
+is privileged and confidential within the meaning of applicable law. If 
+you are not the Intended Recipient, please contact the sender as soon 
+as possible and delete it immediately. If you are not the Intended 
+Recipient you must not copy, distribute, disclose,print or in any way 
+rely upon it.
+The information contained in this email is given in good 
+faith for
+general information only and is subject to change without 
+notice.
+Winter Games Committee uses reasonable efforts to ensure its 
+accuracy but makes no representation and gives no warranty as to its 
+accuracy or otherwise. To the fullest extent permitted by law all such 
+representations and warranties whether expressed or implied are 
+excluded.

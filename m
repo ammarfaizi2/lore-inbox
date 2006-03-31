@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWCaGPK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbWCaGSB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbWCaGPK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 01:15:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbWCaGPJ
+	id S1751071AbWCaGSB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 01:18:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWCaGSB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 01:15:09 -0500
-Received: from mga01.intel.com ([192.55.52.88]:6953 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751027AbWCaGPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 01:15:07 -0500
-X-IronPort-AV: i="4.03,148,1141632000"; 
-   d="scan'208"; a="18065264:sNHT927472490"
-Message-Id: <200603310614.k2V6Ehg30012@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>
-Cc: "'Christoph Lameter'" <clameter@sgi.com>,
-       "Zoltan Menyhart" <Zoltan.Menyhart@bull.net>,
-       "Boehm, Hans" <hans.boehm@hp.com>,
-       "Grundler, Grant G" <grant.grundler@hp.com>, <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-Subject: RE: Synchronizing Bit operations V2
-Date: Thu, 30 Mar 2006 22:15:28 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZUhjITxjcXqXHOQoerYCZ4doKUoQAA48vg
-In-Reply-To: <442C99A1.6060901@yahoo.com.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Fri, 31 Mar 2006 01:18:01 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:24007 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751071AbWCaGSA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 01:18:00 -0500
+Date: Thu, 30 Mar 2006 22:18:22 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Jeremy Higdon <jeremy@sgi.com>
+Cc: bcasavan@sgi.com, Keith Owens <kaos@sgi.com>, Andi Kleen <ak@suse.de>,
+       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
+       vatsa@in.ibm.com, Oleg Nesterov <oleg@tv-sign.ru>,
+       linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: Semantics of smp_mb() [was : Re: [PATCH] Fix RCU race in access of nohz_cpu_mask ]
+Message-ID: <20060331061822.GC20444@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20051213162027.GA14158@us.ibm.com> <17158.1134512861@ocs3.ocs.com.au> <20051216074626.GB201289@sgi.com> <20060313183932.GE1297@us.ibm.com> <20060331045627.GB426545@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060331045627.GB426545@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote on Thursday, March 30, 2006 6:53 PM
-> >>smp_mb__before_clear_bit()
-> >>clear_bit(...)(
+On Thu, Mar 30, 2006 at 08:56:27PM -0800, Jeremy Higdon wrote:
+> On Mon, Mar 13, 2006 at 10:39:32AM -0800, Paul E. McKenney wrote:
+> > On Thu, Dec 15, 2005 at 11:46:26PM -0800, Jeremy Higdon wrote:
+> > > Roland Dreier got this right.  The purpose of the mmiowb is
+> > > to ensure that writes to I/O devices while holding a spinlock
+> > > are ordered with respect to writes issued after the original
+> > > processor releases and a second processor acquires said
+> > > spinlock.
+> > > 
+> > > A MMIO read would be sufficient, but is much heavier weight.
+> > > 
+> > > On the SGI MIPS-based systems, the "sync" instruction was used.
+> > > On the Altix systems, a register on the hub chip is read.
+> > > 
+> > > >From comments by jejb, we're looking at modifying the mmiowb
+> > > API by adding an argument which would be a register to read
+> > > from if the architecture in question needs ordering in this
+> > > way but does not have a lighter weight mechanism like the Altix
+> > > mmiowb.  Since there will now need to be a width indication,
+> > > mmiowb will be replaced with mmiowb[bwlq].
 > > 
-> > Sorry, you totally lost me.  It could me I'm extremely slow today.  For
-> > option (1), on ia64, clear_bit has release semantic already.  The comb
-> > of __before_clear_bit + clear_bit provides the required ordering.  Did
-> > I miss something?  By the way, we are talking about detail implementation
-> > on one specific architecture.  Not some generic concept that clear_bit
-> > has no ordering stuff in there.
+> > Any progress on this front?  I figured that I would wait to update
+> > the ordering document until after this change happened, but if it
+> > is going to be awhile, I should proceed with the current API.
 > > 
+> > Thoughts?
 > 
-> The memory ordering that above combination should produce is a
-> Linux style smp_mb before the clear_bit. Not a release.
+> Brent Casavant was going to be working on this.  I'll CC him so that
+> he can indicate the status.
 
-Whoever designed the smp_mb_before/after_* clearly understand the
-difference between a bidirectional smp_mb() and a one-way memory
-ordering.  If smp_mb_before/after are equivalent to smp_mb, what's
-the point of introducing another interface?
+David Howells is documenting memory barriers in the Documentation
+directory as well.
 
-- Ken
+						Thanx, Paul

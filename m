@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWCaUUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWCaUWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751094AbWCaUUF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 15:20:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWCaUUE
+	id S1751287AbWCaUWE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 15:22:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWCaUWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 15:20:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:1495 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751094AbWCaUUD (ORCPT
+	Fri, 31 Mar 2006 15:22:04 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:62217 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751287AbWCaUWB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 15:20:03 -0500
-Date: Fri, 31 Mar 2006 15:19:59 -0500
-From: Dave Jones <davej@redhat.com>
-To: Jurgen Kramer <gtm.kramer@inter.nl.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Non-Fatal Error PCI Express messages
-Message-ID: <20060331201959.GI4133@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jurgen Kramer <gtm.kramer@inter.nl.net>,
-	linux-kernel@vger.kernel.org
-References: <1143793550.3331.4.camel@paragon.slim>
+	Fri, 31 Mar 2006 15:22:01 -0500
+Date: Fri, 31 Mar 2006 22:22:03 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Chris Caputo <ccaputo@alt.net>
+Cc: erich <erich@areca.com.tw>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: about ll_rw_blk.c of void generic_make_request(struct bio *bio)
+Message-ID: <20060331202202.GH14022@suse.de>
+References: <001d01c65302$0fee8e10$b100a8c0@erich2003> <20060330155804.GP13476@suse.de> <Pine.LNX.4.64.0603311700310.14317@nacho.alt.net> <Pine.LNX.4.64.0603311748010.14317@nacho.alt.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1143793550.3331.4.camel@paragon.slim>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <Pine.LNX.4.64.0603311748010.14317@nacho.alt.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 31, 2006 at 10:25:50AM +0200, Jurgen Kramer wrote:
- > With 2.6.16 (from FC5s 2.6.16-1.2080_FC5smp) I am getting a lot of
- > 
- > Mar 31 09:35:16 paragon kernel: Non-Fatal Error PCI Express B
- > Mar 31 09:35:17 paragon kernel: Non-Fatal Error PCI Express B
- > Mar 31 09:35:17 paragon kernel: Non-Fatal Error PCI Express B
- > Mar 31 09:35:18 paragon kernel: Non-Fatal Error PCI Express B
- > Mar 31 09:35:18 paragon kernel: Non-Fatal Error PCI Express B
- > Mar 31 09:35:20 paragon kernel: Non-Fatal Error PCI Express B
- > Mar 31 09:35:20 paragon kernel: Non-Fatal Error PCI Express B
- > Mar 31 09:35:39 paragon kernel: Non-Fatal Error PCI Express B
- > 
- > messages which presumably come from
- > 
- > Mar 31 09:17:15 paragon kernel: MC: drivers/edac/edac_mc.c version
- > edac_mc  Ver: 2.0.0 Mar 28 2006
- > Mar 31 09:17:15 paragon kernel: EDAC MC0: Giving out device to
- > "e752x_edac" E7525: PCI 0000:00:00.0
- > 
- > Is there really something broken here of just a noisy driver?
+On Fri, Mar 31 2006, Chris Caputo wrote:
+> On Fri, 31 Mar 2006, Chris Caputo wrote:
+> > On Thu, 30 Mar 2006, Jens Axboe wrote:
+> > > I can't really say, from my recollection of leafing over lkml emails, I
+> > > seem to recall someone saying he hit this with a newer kernel where as
+> > > the older one did not?
+> > > 
+> > > What are the sectors exactly it complains about, eg the full line you
+> > > see?
+> > 
+> > I see:
+> > 
+> >   attempt to access beyond end of device
+> >   sdb1: rw=0, want=134744080, limit=128002016
+> 
+> I believe the "rw=0" means that was a simple read request, and not a 
+> read-ahead.
 
-really noisy driver.
-http://lkml.org/lkml/2006/1/26/381
+Correct.
 
-		Dave
+> 128002016 equals about 62 gigs, which is the correct volume size:
+> 
+>   Filesystem           1K-blocks      Used Available Use% Mounted on
+>   /dev/sdb1             62995364   2832696  56962620   5% /xxx
+> 
+>   /dev/sdb1 on /xxx type ext2 (rw,noatime)
+
+How are you reproducing this, through the file system (reading files),
+or reading the device? If the former, is the file system definitely
+sound - eg does it pass fsck?
+
+> I'm at a loss as to why ext2 would want to read 3+ gigs past the end of 
+> the volume or why the arcmsr driver setting max_sectors to be 4096 instead 
+> of 512 makes a difference.
+
+It's truly puzzing why the 4k vs 512 would make a difference, except if
+the driver really doesn't support that large requests and corrupts the
+data somehow. I'm having an extraordinarily hard time imaging how the
+SCSI layer could even come up with such a bug.
+
+So everything seems to point us getting wrong data from the hardware,
+most likely because of a driver bug in either handling the larger
+transfers or the hardware just not liking them very much.
+
+> Erich, while using 4096 as the max_sectors count, in your lab can you
+> make it so ll_rw_blk.c:handle_bad_sector() makes a call to
+> dump_stack() after the printk's?  What does it show as the call trace?
+
+Probably wont tell you much.
 
 -- 
-http://www.codemonkey.org.uk
+Jens Axboe
+

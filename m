@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWCaPhU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWCaPtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbWCaPhU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 10:37:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWCaPhU
+	id S1751386AbWCaPtc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 10:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWCaPtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 10:37:20 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:11150 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1751214AbWCaPhT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 10:37:19 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: [patch] avoid unaligned access when accessing poll stack
-From: Jes Sorensen <jes@sgi.com>
-Date: 31 Mar 2006 10:38:22 -0500
-Message-ID: <yq0sloytyj5.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Fri, 31 Mar 2006 10:49:31 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:54539 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751386AbWCaPtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 10:49:31 -0500
+Date: Fri, 31 Mar 2006 17:49:29 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Jordan Crouse <jordan.crouse@amd.com>
+Subject: [2.6 patch] Enable TSC for AMD Geode GX/LX
+Message-ID: <20060331154929.GI3893@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+From: Jordan Crouse <jordan.crouse@amd.com>
 
-Patch 70674f95c0a2ea694d5c39f4e514f538a09be36f
-  [PATCH] Optimize select/poll by putting small data sets on the stack
-resulted in the poll stack being 4-byte aligned on 64-bit
-architectures, causing misaligned accesses to elements in the array.
+Geode GX/LX should enable X86_TSC.   Pointed out by Adrian Bunk.
 
-This patch fixes it by declaring the stack in terms of 'long' instead
-of 'char'.
-
-Cheers,
-Jes
-
-Force alignment of poll stack to long to avoid unaligned access on 64
-bit architectures.
-
-Signed-off-by: Jes Sorensen <jes@sgi.com>
+Signed-off-by: Jordan Crouse <jordan.crouse@amd.com>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
- fs/select.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Index: linux-2.6/fs/select.c
-===================================================================
---- linux-2.6.orig/fs/select.c
-+++ linux-2.6/fs/select.c
-@@ -639,8 +639,10 @@
-  	struct poll_list *walk;
- 	struct fdtable *fdt;
- 	int max_fdset;
--	/* Allocate small arguments on the stack to save memory and be faster */
--	char stack_pps[POLL_STACK_ALLOC];
-+	/* Allocate small arguments on the stack to save memory and be 
-+	   faster - use long to make sure the buffer is aligned properly
-+	   on 64 bit archs to avoid unaligned access */
-+	long stack_pps[POLL_STACK_ALLOC/sizeof(long)];
- 	struct poll_list *stack_pp = NULL;
+This patch was sent by Jordan Crouse on:
+- 19 Mar 2006
+
+--- a/arch/i386/Kconfig.cpu
++++ b/arch/i386/Kconfig.cpu
+@@ -311,5 +311,5 @@ config X86_OOSTORE
  
- 	/* Do a sanity check on nfds ... */
+ config X86_TSC
+ 	bool
+-	depends on (MWINCHIP3D || MWINCHIP2 || MCRUSOE || MEFFICEON || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMM || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || M586TSC || MK8 || MVIAC3_2 || MGEODEGX1) && !X86_NUMAQ
++	depends on (MWINCHIP3D || MWINCHIP2 || MCRUSOE || MEFFICEON || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMM || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || M586TSC || MK8 || MVIAC3_2 || MGEODEGX1 || MGEODE_LX) && !X86_NUMAQ
+ 	default y
+

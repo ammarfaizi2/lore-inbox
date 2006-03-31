@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWCaGcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWCaGfy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751068AbWCaGcp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 01:32:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWCaGcp
+	id S1751126AbWCaGfy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 01:35:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWCaGfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 01:32:45 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:36578 "EHLO
+	Fri, 31 Mar 2006 01:35:54 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:60037 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751068AbWCaGcp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 01:32:45 -0500
-Date: Fri, 31 Mar 2006 07:32:39 +0100
+	id S1751126AbWCaGfx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 01:35:53 -0500
+Date: Fri, 31 Mar 2006 07:35:24 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: [openib-general] updated InfiniBand 2.6.17 merge plans
-Message-ID: <20060331063239.GA31436@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nickpiggin@yahoo.com.au, torvalds@osdl.org, jeff@garzik.org, axboe@suse.de,
+       mingo@elte.hu, linux-kernel@vger.kernel.org, rpeterso@redhat.com
+Subject: Re: [PATCH] splice support #2
+Message-ID: <20060331063524.GB31436@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Roland Dreier <rdreier@cisco.com>, openib-general@openib.org,
-	linux-kernel@vger.kernel.org
-References: <ada7j6f8xwi.fsf@cisco.com> <ada1wwj1r7r.fsf@cisco.com> <adawtebzfxm.fsf@cisco.com>
+	Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
+	torvalds@osdl.org, jeff@garzik.org, axboe@suse.de, mingo@elte.hu,
+	linux-kernel@vger.kernel.org, rpeterso@redhat.com
+References: <20060330100630.GT13476@suse.de> <20060330120055.GA10402@elte.hu> <20060330120512.GX13476@suse.de> <Pine.LNX.4.64.0603300853190.27203@g5.osdl.org> <442C440B.2090700@garzik.org> <Pine.LNX.4.64.0603301259220.27203@g5.osdl.org> <442C7EF5.8090703@yahoo.com.au> <20060330184325.35e21117.akpm@osdl.org> <20060330185133.176f8210.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <adawtebzfxm.fsf@cisco.com>
+In-Reply-To: <20060330185133.176f8210.akpm@osdl.org>
 User-Agent: Mutt/1.4.2.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 30, 2006 at 03:11:17PM -0800, Roland Dreier wrote:
-> Oh yeah, one other thing I plan to merge unless someone objects:
+On Thu, Mar 30, 2006 at 06:51:33PM -0800, Andrew Morton wrote:
+> Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > splice() may not be suitable for such filesystems.
 > 
->  * Get rid of option for building IPoIB and mthca debug output unless EMBEDDED=y
+> OK, splice() cuts in at the file_operations level, so sych a clustered
+> filesystem _could_ implement it, but none of the code we have there will be
+> usable by it.  If the operations in splice.c were to operate at the
+> file_operations level (->read, ->write) then probably they could be used
+> thusly.
 
-NACK.  Just add a FOO_DEBUG config option, this has noþhing to do with
-EMBEDDED.
+Of course the code would be useable, same as current generic_file_* code
+is useable with small wrappers.
 

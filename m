@@ -1,82 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWCaAfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWCaAjA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750997AbWCaAfN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 19:35:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWCaAfN
+	id S1751181AbWCaAjA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 19:39:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWCaAjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 19:35:13 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:40338 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750997AbWCaAfL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 19:35:11 -0500
-Date: Thu, 30 Mar 2006 18:35:06 -0600
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: john.ronciak@intel.com, jesse.brandeburg@intel.com,
-       jeffrey.t.kirsher@intel.com, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH]: e1000: prevent statistics from getting garbled during reset.
-Message-ID: <20060331003506.GU2172@austin.ibm.com>
-References: <20060330213928.GQ2172@austin.ibm.com> <20060331000208.GS2172@austin.ibm.com> <442C8069.507@wolfmountaingroup.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <442C8069.507@wolfmountaingroup.com>
-User-Agent: Mutt/1.5.9i
-From: linas@austin.ibm.com (Linas Vepstas)
+	Thu, 30 Mar 2006 19:39:00 -0500
+Received: from mga01.intel.com ([192.55.52.88]:30036 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751130AbWCaAi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 19:38:59 -0500
+X-IronPort-AV: i="4.03,148,1141632000"; 
+   d="scan'208"; a="17973915:sNHT25064137"
+Message-Id: <200603310038.k2V0crg26704@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Christoph Lameter'" <clameter@sgi.com>,
+       "Nick Piggin" <nickpiggin@yahoo.com.au>
+Cc: "Zoltan Menyhart" <Zoltan.Menyhart@bull.net>,
+       "Boehm, Hans" <hans.boehm@hp.com>,
+       "Grundler, Grant G" <grant.grundler@hp.com>, <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+Subject: RE: Synchronizing Bit operations V2
+Date: Thu, 30 Mar 2006 16:39:38 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcZUWJm5lGF1WcSDSPG5bufQnTw+bwAALF/A
+In-Reply-To: <Pine.LNX.4.64.0603301615540.2023@schroedinger.engr.sgi.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 30, 2006 at 06:05:45PM -0700, Jeff V. Merkey wrote:
-> 
-> Linas Vepstas wrote:
+Christoph Lameter wrote on Thursday, March 30, 2006 4:18 PM
+> Note that the current semantics for bitops IA64 are broken. Both
+> smp_mb__after/before_clear_bit are now set to full memory barriers
+> to compensate
 
-Well, these comments have nothing to do with my patch, but ... 
-anyway ... 
+Why you say that?  clear_bit has built-in acq or rel semantic depends
+on how you define it. I think only one of smp_mb__after/before need to
+be smp_mb?
 
-> The driver also needs to be fixed to allow clearing of the stats (like 
-> all the other adapter drivers). At present, when I run performance
-> and packet drop counts on the cards, I cannot reset the stats with this 
-> code because the driver stores them in the e100_adapter
-> structure. This is busted.
-> 
-> This function:
-> 
-> int clear_network_device_stats(BYTE *name)
 
-I couldn't find such a function in the kernel.
- 
-> does not work on e1000 due to this section of code:
-> 
-> void
-> e1000_update_stats(struct e1000_adapter *adapter)
-> {
-> 
-> adapter->stats.xofftxc += E1000_READ_REG(hw, XOFFTXC);
-> adapter->stats.fcruc += E1000_READ_REG(hw, FCRUC);
 
-These are hardware stats ... presumably useless without
-a detailed understanding of the guts of the e1000.
+>  static __inline__ void
+>  clear_bit (int nr, volatile void *addr)
+>  {
+> -	__u32 mask, old, new;
+> -	volatile __u32 *m;
+> -	CMPXCHG_BUGCHECK_DECL
+> -
+> -	m = (volatile __u32 *) addr + (nr >> 5);
+> -	mask = ~(1 << (nr & 31));
+> -	do {
+> -		CMPXCHG_BUGCHECK(m);
+> -		old = *m;
+> -		new = old & mask;
+> -	} while (cmpxchg_acq(m, old, new) != old);
+> +	clear_bit_mode(nr, addr, MODE_ATOMIC);
+>  }
 
-> //NOTE These stats need to be stored in the stats structure so they can 
-> be cleared by
-> statistics monitoring programs.
+I would make that MODE_RELEASE for clear_bit, simply to match the
+observation that clear_bit is usually used in unlock path and have
+potential less surprises.
 
-I can't imagine what generic interface would allow these 
-to be viewed.
 
-> /* Fill out the OS statistics structure */
-> 
-> adapter->net_stats.rx_packets = adapter->stats.gprc;
-> adapter->net_stats.tx_packets = adapter->stats.gptc;
-> adapter->net_stats.rx_bytes = adapter->stats.gorcl;
-> adapter->net_stats.tx_bytes = adapter->stats.gotcl;
+> +static __inline__ void
+> +set_bit_mode (int nr, volatile void *addr, int mode)
+> +{
+> +	__u32 bit, old, new;
+> +	volatile __u32 *m;
+> +	CMPXCHG_BUGCHECK_DECL
+> +
+> +	m = (volatile __u32 *) addr + (nr >> 5);
+> +	bit = 1 << (nr & 31);
+> +
+> +	if (mode == MODE_NON_ATOMIC) {
+> +		*m |= bit;
+> +		return;
+> +	}
 
-Now *these* are generic ... and fixing this so that the 
-stats increment instead of over-riding would take 
-maybe half-an-hour or so; this is not hard to do ... !? 
+Please kill all volatile declaration, because for non-atomic version,
+you don't need to do any memory ordering, but compiler automatically
+adds memory order because of volatile.  It's safe to kill them because
+cmpxchg later has explicit mode in there.
 
-Do you want me to write a patch to do this?
+Same thing goes to all other bit ops.
 
---linas
-
+- Ken

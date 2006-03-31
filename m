@@ -1,74 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWCaNBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWCaNGv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbWCaNBm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 08:01:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWCaNBm
+	id S932100AbWCaNGv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 08:06:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWCaNGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 08:01:42 -0500
-Received: from erik-slagter.demon.nl ([83.160.41.216]:45198 "EHLO
-	artemis.slagter.name") by vger.kernel.org with ESMTP
-	id S932096AbWCaNBl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 08:01:41 -0500
-Subject: OOPS 2.6.16 and 2.6.16-git14
-From: Erik Slagter <erik@slagter.name>
-To: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+	Fri, 31 Mar 2006 08:06:51 -0500
+Received: from pat.uio.no ([129.240.10.6]:14484 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932100AbWCaNGu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 08:06:50 -0500
+Subject: Re: NFS client (10x) performance regression 2.6.14.7 -> 2.6.15
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Jakob Oestergaard <jakob@unthought.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060331124518.GH9811@unthought.net>
+References: <20060331094850.GF9811@unthought.net>
+	 <1143807770.8096.4.camel@lade.trondhjem.org>
+	 <20060331124518.GH9811@unthought.net>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 31 Mar 2006 15:01:28 +0200
-Message-Id: <1143810088.15258.1.camel@localhost.localdomain>
+Date: Fri, 31 Mar 2006 08:06:32 -0500
+Message-Id: <1143810392.8096.11.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.09, required 12,
+	autolearn=disabled, AWL 1.72, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get a kernel OOPS using 2.6.16 and 2.6.16-git14, I was using 2.6.14.2
-before without the problem.
+On Fri, 2006-03-31 at 14:45 +0200, Jakob Oestergaard wrote:
+> On Fri, Mar 31, 2006 at 07:22:50AM -0500, Trond Myklebust wrote:
+> ...
+> > 
+> > Some nfsstat output comparing the good and bad cases would help.
+> 
+> Clean boot on 2.6.15 and 2.6.14.7, one run of nfsbench with
+> LEADING_EMPTY_SPACE=1.  I've skipped the NFS v2 stats because they're
+> all 0.
 
-The OOPS happens when doing either
+Why all the GETATTR calls? Are you running with 'noac' set?
 
-echo "3" > /proc/acpi/sleep
+I don't have a 2.6.15 kernel to run with, but on a recent git pull, I
+get a total of 6 GETATTR calls when I run your nfsbench program.
 
-or
+The number of READ calls is 1, and the number of WRITE calls is 161 (I'm
+running with 64k wsize).
 
-echo "mem" > /sys/power/state
+Cheers,
+  Trond
 
-As I have a laptop without serial ports, I'd have to write down the
-oops, so please forgive that I didn't write down ALL the output, I think
-I have the most important stuff, though.
+> --- Run on bad kernel ---
+> 
+> [puffin:joe] $ uname -a
+> Linux puffin 2.6.15 #1 SMP Fri Mar 31 11:10:28 CEST 2006 i686 GNU/Linux
+> [puffin:joe] $ nfsstat 
+> Client rpc stats:
+> calls      retrans    authrefrsh
+> 63         0          0       
+> 
+> <snip v2 stats>
+> 
+> Client nfs v3:
+> null       getattr    setattr    lookup     access     readlink   
+> 0       0% 11     18% 0       0% 26     42% 14     22% 0       0% 
+> read       write      create     mkdir      symlink    mknod      
+> 4       6% 0       0% 0       0% 0       0% 0       0% 0       0% 
+> remove     rmdir      rename     link       readdir    readdirplus
+> 0       0% 0       0% 0       0% 0       0% 0       0% 4       6% 
+> fsstat     fsinfo     pathconf   commit     
+> 0       0% 2       3% 0       0% 0       0% 
+> [puffin:joe] $ time ./nfsbench 
+> 
+> real    0m29.242s
+> user    0m0.000s
+> sys     0m0.160s
+> [puffin:joe] $ nfsstat 
+> Client rpc stats:
+> calls      retrans    authrefrsh
+> 13240      0          0       
+> 
+> <snip v2 stats>
+> 
+> Client nfs v3:
+> null       getattr    setattr    lookup     access     readlink   
+> 0       0% 2583   19% 0       0% 30      0% 24      0% 0       0% 
+> read       write      create     mkdir      symlink    mknod      
+> 7045   53% 3200   24% 1       0% 0       0% 0       0% 0       0% 
+> remove     rmdir      rename     link       readdir    readdirplus
+> 0       0% 0       0% 0       0% 0       0% 0       0% 34      0% 
+> fsstat     fsinfo     pathconf   commit     
+> 0       0% 2       0% 0       0% 319     2% 
+> 
+> [puffin:joe] $
+> 
+> --- Run on good kernel ---
+> 
+> [puffin:joe] $ uname -a
+> Linux puffin 2.6.14.7 #1 SMP Fri Mar 31 10:41:59 CEST 2006 i686
+> GNU/Linux
+> [puffin:joe] $ nfsstat 
+> Client rpc stats:
+> calls      retrans    authrefrsh
+> 52         0          0       
+> 
+> <snip v2 stats>
+> 
+> Client nfs v3:
+> null       getattr    setattr    lookup     access     readlink   
+> 0       0% 7      14% 0       0% 24     48% 13     26% 0       0% 
+> read       write      create     mkdir      symlink    mknod      
+> 4       8% 0       0% 0       0% 0       0% 0       0% 0       0% 
+> remove     rmdir      rename     link       readdir    readdirplus
+> 0       0% 0       0% 0       0% 0       0% 0       0% 0       0% 
+> fsstat     fsinfo     pathconf   commit     
+> 0       0% 2       4% 0       0% 0       0% 
+> 
+> [puffin:joe] $ time ./nfsbench 
+> 
+> real    0m0.224s
+> user    0m0.000s
+> sys     0m0.072s
+> [puffin:joe] $ nfsstat 
+> Client rpc stats:
+> calls      retrans    authrefrsh
+> 384        0          0       
+> 
+> <snip v2 stats>
+> 
+> Client nfs v3:
+> null       getattr    setattr    lookup     access     readlink   
+> 0       0% 10      2% 1       0% 26      6% 15      3% 0       0% 
+> read       write      create     mkdir      symlink    mknod      
+> 6       1% 321    84% 0       0% 0       0% 0       0% 0       0% 
+> remove     rmdir      rename     link       readdir    readdirplus
+> 0       0% 0       0% 0       0% 0       0% 0       0% 0       0% 
+> fsstat     fsinfo     pathconf   commit     
+> 0       0% 2       0% 0       0% 1       0% 
+> 
+> [puffin:joe] $
+> 
+> 
 
-Please note that it also happens when mentioned modules are not linked
-in and that I enabled the kernel read-only pages option (although that
-doesn't seem to be related).
-
-I am not subscribed, so please CC.
-
-========================= OOPS ====================
-
-hci_usb: 2-1:1.1: no suspend for driver hci_usb?
-hci_usb: 2-1:1.0: no suspend for driver hci_usb?
-kernel tried to execute NX-protected page - exploit attempt? (uid 0)
-BUG: unable to handle kernel paging request at virtual address c04ce31
- 
- Printing EIP
-c04ce31c
-*pde = 00000000
-Oops: 0011 [#1]
-Modules linked in: pl2303 usbserial ehci_hcd ipw2200 uhci_hcd
-CPU: 0
-EIP: 0060:[<c04ce31c>] Not tainted VLI
-EFLAGS: 00010046 (2.6.16-git14 #4)
-EIP is at 0x04ce31c
-eax: c04dec00 ebx: c0001000 ecx: c000080 edx: 00000100
-esi: 00000003 edi: 00000000 ebp: 0000046 esp: f4f0bef4
-ds: 007b es: 007b ss: 0068
-Process zsh (pid: 3657, threadinfo=f4f40a000, task=f4c0ea90)
-Stack: <0>c0244b4e c04e3f08 00000000 ....
-Call trace: acpi_pm_enter+0x53/0x99     suspend_enter+0x4f/0x60
-            enter_state+0xde/0x160      state_store+0x97/0xc0
-            state_store+0x0/0xc0        subsys_attr_store+0x29/0x40
-            sysfs_write_file+0x93/0xf0  vfs_write+0xa6/0x160
-            sysfs_write+0x0/0xf0        sys_write+0x41/0x70
-            sysenter_past_esp+0x54/0x75
-
-
-Config and Map not included, they are rather big. Submission on request.

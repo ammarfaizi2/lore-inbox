@@ -1,108 +1,320 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWCaF4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWCaGAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750995AbWCaF4A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 00:56:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbWCaF4A
+	id S1750816AbWCaGAG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 01:00:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750847AbWCaGAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 00:56:00 -0500
-Received: from ns1.siteground.net ([207.218.208.2]:6802 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S1750993AbWCaFz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 00:55:59 -0500
-Date: Thu, 30 Mar 2006 21:56:48 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@engr.sgi.com>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       Alok Kataria <alok.kataria@calsoftinc.com>,
-       Pekka J Enberg <penberg@cs.Helsinki.FI>
-Subject: [patch] slab: add statistics for alien cache overflows
-Message-ID: <20060331055648.GB4334@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 31 Mar 2006 01:00:05 -0500
+Received: from smtp.net4india.com ([202.71.129.68]:14751 "EHLO
+	smx2.net4india.com") by vger.kernel.org with ESMTP id S1750816AbWCaGAE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 01:00:04 -0500
+Message-ID: <442CC5BA.2030901@designergraphix.com>
+Date: Fri, 31 Mar 2006 11:31:30 +0530
+From: Kaiwan N Billimoria <kaiwan@designergraphix.com>
+Organization: Designer Graphix
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jean Delvare <khali@linux-fr.org>
+CC: linux-kernel@vger.kernel.org
+Subject: SPI <-> Parport (light) bridge code  (Re: Stuck creating sysfs hooks
+ for a driver..)
+References: <43F2DE34.60101@designergraphix.com>	<20060215221301.GA25941@kroah.com>	<43F46319.9090400@designergraphix.com> <20060219142311.ba0f8a38.khali@linux-fr.org>
+In-Reply-To: <20060219142311.ba0f8a38.khali@linux-fr.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a statistics counter which is incremented everytime the alien
-cache overflows.  alien_cache limit is hardcoded to 12 right now.
-We can use this statistics to tune alien cache if needed in the future.
+Jean Delvare wrote:
 
-Signed-off-by: Alok N Kataria <alokk@calsoftinc.com>
-Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
-Signed-off-by: Shai Fultheim <shai@scalex86.org>
+>Hi Kaiwan,
+>
+>  
+>
+--snip--
 
-Index: linux-2.6.16mm2/mm/slab.c
-===================================================================
---- linux-2.6.16mm2.orig/mm/slab.c	2006-03-30 11:38:33.000000000 -0800
-+++ linux-2.6.16mm2/mm/slab.c	2006-03-30 15:47:55.000000000 -0800
-@@ -424,6 +424,7 @@ struct kmem_cache {
- 	unsigned long max_freeable;
- 	unsigned long node_allocs;
- 	unsigned long node_frees;
-+	unsigned long node_overflow;
- 	atomic_t allochit;
- 	atomic_t allocmiss;
- 	atomic_t freehit;
-@@ -469,6 +470,7 @@ struct kmem_cache {
- #define	STATS_INC_ERR(x)	((x)->errors++)
- #define	STATS_INC_NODEALLOCS(x)	((x)->node_allocs++)
- #define	STATS_INC_NODEFREES(x)	((x)->node_frees++)
-+#define STATS_INC_ACOVERFLOW(x)   ((x)->node_overflow++)
- #define	STATS_SET_FREEABLE(x, i)					\
- 	do {								\
- 		if ((x)->max_freeable < i)				\
-@@ -488,6 +490,7 @@ struct kmem_cache {
- #define	STATS_INC_ERR(x)	do { } while (0)
- #define	STATS_INC_NODEALLOCS(x)	do { } while (0)
- #define	STATS_INC_NODEFREES(x)	do { } while (0)
-+#define STATS_INC_ACOVERFLOW(x)   do { } while (0)
- #define	STATS_SET_FREEABLE(x, i) do { } while (0)
- #define STATS_INC_ALLOCHIT(x)	do { } while (0)
- #define STATS_INC_ALLOCMISS(x)	do { } while (0)
-@@ -3099,9 +3102,11 @@ static inline void __cache_free(struct k
- 			if (l3->alien && l3->alien[nodeid]) {
- 				alien = l3->alien[nodeid];
- 				spin_lock(&alien->lock);
--				if (unlikely(alien->avail == alien->limit))
-+				if (unlikely(alien->avail == alien->limit)) {
-+					STATS_INC_ACOVERFLOW(cachep);
- 					__drain_alien_cache(cachep,
- 							    alien, nodeid);
-+				}
- 				alien->entry[alien->avail++] = objp;
- 				spin_unlock(&alien->lock);
- 			} else {
-@@ -3779,7 +3784,7 @@ static void print_slabinfo_header(struct
- 	seq_puts(m, " : slabdata <active_slabs> <num_slabs> <sharedavail>");
- #if STATS
- 	seq_puts(m, " : globalstat <listallocs> <maxobjs> <grown> <reaped> "
--		 "<error> <maxfreeable> <nodeallocs> <remotefrees>");
-+		 "<error> <maxfreeable> <nodeallocs> <remotefrees> <alienoverflow>");
- 	seq_puts(m, " : cpustat <allochit> <allocmiss> <freehit> <freemiss>");
- #endif
- 		seq_puts(m, " : shrinker stat <nr requested> <nr freed>");
-@@ -3894,11 +3899,12 @@ static int s_show(struct seq_file *m, vo
- 		unsigned long max_freeable = cachep->max_freeable;
- 		unsigned long node_allocs = cachep->node_allocs;
- 		unsigned long node_frees = cachep->node_frees;
-+		unsigned long overflows = cachep->node_overflow;
+>You must stay away from writing a driver for the board itself. What you
+>must write is in fact two different drivers:
+>
+>1* A driver for the SPI interface of your board (basically a parallel
+>port <-> SPI bridge). This driver will expose the device as an SPI bus
+>to the rest of the kernel. This driver doesn't care about what chip is
+>plugged on it.
+>
+>  
+>
+Hi Jean,
+
+1. Yes, i know, long time since the above message..yet i'm happy to say 
+that i have built a (lightweight version) of the
+SPI<->parport bridge (file pasted below), which is based on your 
+i2c-parport driver bridge code.
+It is built as a header file: the driver developer basically appends 
+his/her adapter entry into the adapter_parm[] data structure and 
+includes this file in the device driver.
+
+>2* A driver for the LM70 temperature sensor chip, which doesn't care
+>about the chip location. This driver will use generic SPI commands as
+>offered by the spi kernel interface.
+>
+>This modular approach makes it possible to then reuse each of the
+>drivers. If you later have a similar board for a different chip, the
+>first driver will still work (assuming the new board uses SPI and the
+>same wiring conventions). If you later have an LM70 chip on a different
+>physical interface, the second driver will still work.
+>
+>  
+>
+2. I have also done this; i now have a working driver for a specific 
+chip (the NS lm70CILD-3 eval board) based on the (above mentioned) 
+SPi<->parport bridge. Basically, the "type 0" entry in the 
+adapter_parm[] data structure is the lm70CILD-3 entry. The driver 
+handles the other things, including creation of a sysfs hook (used to 
+query the temperature from userspace).
+
+>No, just do what every other hardware monitoring chip does, so that
+>support can be added for the lm70 chip in libsensors - then you win
+>instant support in all hardware monitoring application which rely on
+>libsensors, and even a few which do not.
+>
+>It's really not a matter of how many features a chip has. Look at the
+>lm75 or w83l785ts driver, you'll see they have very few features as
+>well. It's a matter of having a common standard for exporting the
+>values to user-space, so that the same library or application can
+>handle all sources with minimum effort.
+>
+>Thanks,
+>  
+>
+3. I still have to work on integrating the userspace conversion into 
+libsensors (as recommended by yourself & others).
+
+4. My intention at this point of time is for you (and others) to take a 
+look at the spi-parport-light.h code and pl give me your feedback. I'm 
+not posting a patch at this time..
+
+5. Also, because it's a header, am not sure what approach to take when 
+patching into the kernel; i mean, i can place it under the spi tree 
+(either drivers/spi or include/linux/spi) but can't add the usual
+"obj-$(CONFIG_xxx) += xxx.o"
+line (as it's a header). Or can I do something like this?? i'm really 
+quite uncertain, forgive me.. any suggestions on how i should go about this?
+
+Thanks very much,
+Kaiwan.
+
+PS> If you'd like to see a usage example, i can post the lm70CILD3.c 
+driver code..
+
++++++++++++++++++++++ File spi-parport-light.h 
++++++++++++++++++++++++++++++++++++++++
+
+---
+/* 
+------------------------------------------------------------------------ *
+ * 
+spi-parport-light.h                                                      *
+ * SPI bus over parallel 
+port                                               *
+ * 
+------------------------------------------------------------------------ *
+   Copyright (C) 2006 Kaiwan N Billimoria <kaiwan@designergraphix.com>
  
- 		seq_printf(m, " : globalstat %7lu %6lu %5lu %4lu \
--				%4lu %4lu %4lu %4lu", allocs, high, grown,
-+				%4lu %4lu %4lu %4lu %4lu", allocs, high, grown,
- 				reaped, errors, max_freeable, node_allocs,
--				node_frees);
-+				node_frees, overflows);
- 	}
- 	/* cpu stats */
- 	{
+   Heavily based on i2c-parport-light.c
+   Copyright (C) 2003-2004 Jean Delvare <khali@linux-fr.org>
+  
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * 
+------------------------------------------------------------------------ */
+
+#ifdef DATA
+#undef DATA
+#endif
+
+#define DATA    0
+#define STAT    1
+#define CTRL    2
+
+struct lineop {
+    u8 val;
+    u8 port;
+    u8 inverted;
+};
+
+struct adapter_parm {
+    char *name;
+    struct lineop setsda;
+    struct lineop setscl;
+    struct lineop setcsl;    // chip select
+    struct lineop getsda;
+    struct lineop getscl;
+    struct lineop init;
+    struct spi_device *spidev;
+};
+
+static struct adapter_parm adapter_parm[] = {
+    /* type 0: National Semiconductor LM70CILD-3 evaluation board */
+    {
+        .name   = "lm70CILD-3",
+        .setscl    = { 0x40, DATA, 0 },
+        .setcsl    = { 0x20, DATA, 1 },
+        .getsda    = { 0x10, STAT, 0 },    // SI/O
+        .init   = { 0xFE, DATA, 0 },
+    },
+    /* add adapters here */
+};
+
+/*----------------Module parameters-----------------------------*/
+static int type;
+module_param(type, int, 0);
+MODULE_PARM_DESC(type,
+    "Type of adapter: (defaults to 0)\n"
+    " 0 = LM70CILD-3 (National Semiconductor) evaluation board\n");
+    /* add new type(s) here */
+
+static u16 base;
+module_param(base, ushort, 0);
+MODULE_PARM_DESC(base, "Parport Base I/O address");
+/*--------------------------------------------------------------*/
+
+#include <linux/ioport.h>
+#include <linux/delay.h>
+#include <asm/io.h>
+
+/* ----- Low-level parallel port access 
+----------------------------------- */
+
+#define DEFAULT_BASE 0x378
+
+static inline void port_write(unsigned char p, unsigned char d)
+{
+    outb(d, base+p);
+}
+
+static inline unsigned char port_read(unsigned char p)
+{
+    return inb(base+p);
+}
+
+/* ----- Unified line operation functions 
+--------------------------------- */
+
+static inline void line_set(int state, const struct lineop *op)
+{
+    u8 oldval = port_read(op->port);
+
+    /* Touch only the bit(s) needed */
+    if ((op->inverted && !state) || (!op->inverted && state))
+        port_write(op->port, oldval | op->val);
+    else
+        port_write(op->port, oldval & ~op->val);
+}
+
+static inline int line_get(const struct lineop *op)
+{
+    u8 oldval = port_read(op->port);
+
+    return ((op->inverted && (oldval & op->val) != op->val)
+        || (!op->inverted && (oldval & op->val) == op->val));
+}
+
+/* ----- SPI call-back functions and structures ----------------- */
+
+static void parport_setscl(void *data, int state)
+{
+    line_set(state, &adapter_parm[type].setscl);
+}
+
+static void parport_setsda(void *data, int state)
+{
+    line_set(state, &adapter_parm[type].setsda);
+}
+
+static int parport_getscl(void *data)
+{
+    return line_get(&adapter_parm[type].getscl);
+}
+
+static int parport_getsda(void *data)
+{
+    return line_get(&adapter_parm[type].getsda);
+}
+
+static void parport_setcsl(void *data, int state)
+{
+    line_set(state, &adapter_parm[type].setcsl);
+}
+
+/* ----- Module init and 
+exit---------------------------------------------- */
+
+/* Module init : to be called from the specific driver init routine */
+static int spi_parport_init(char *name)
+{
+    /* adapter_parm set in the spi-parport-light.h header; type is a 
+module parameter */
+    if (type < 0 || type >= ARRAY_SIZE(adapter_parm)) {
+        printk(KERN_WARNING "%s: invalid parameter \"type\" (%d)\n\
+defaulting to type 0\n", name, type);
+        type = 0;
+    }
+
+    if (base == 0)
+        base = DEFAULT_BASE;
+
+    if (!request_region(base, 3, "spi-parport-light"))
+        return -EBUSY;
+
+    /* Reset hardware to a sane state (SCL and SDA high) */
+    parport_setsda(NULL, 1);
+    parport_setscl(NULL, 1);
+    /* Other init if needed (power on...) */
+    if (adapter_parm[type].init.val)
+        line_set(1, &adapter_parm[type].init);
+    /* CS deselect, if necessary.. */
+    if (adapter_parm[type].setcsl.val)
+        line_set(0, &adapter_parm[type].setcsl);
+
+    /* Memory for the spi_device struct for this adapter */
+    adapter_parm[type].spidev = kzalloc(sizeof(struct spi_device), 
+GFP_KERNEL);
+    if (!adapter_parm[type].spidev) {
+        printk(KERN_ERR "%s: out of memory\n", name);
+        release_region(base, 3);
+        return -ENOMEM;
+    }
+
+    printk(KERN_INFO "%s loaded: adapter type %d (device '%s'), using 
+base address 0x%x\n",
+            name, type, adapter_parm[type].name, base);
+
+    return 0;
+}
+
+/* Module exit : to be called from the specific driver cleanup routine */
+static void spi_parport_exit(char *name)
+{
+    if (adapter_parm[type].spidev)
+        kfree (adapter_parm[type].spidev);
+
+    /* Un-init if needed (power off...) */
+    if (adapter_parm[type].init.val)
+        line_set(0, &adapter_parm[type].init);
+   
+    release_region(base, 3);
+    printk(KERN_INFO "%s unloaded.\n", name);
+}

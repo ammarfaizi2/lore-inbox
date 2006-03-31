@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWCaCwT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWCaCz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751185AbWCaCwT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 21:52:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWCaCwS
+	id S1751200AbWCaCz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 21:55:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWCaCz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 21:52:18 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:33758 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751185AbWCaCwS (ORCPT
+	Thu, 30 Mar 2006 21:55:58 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:25305 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750807AbWCaCz6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 21:52:18 -0500
-Date: Thu, 30 Mar 2006 18:51:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: nickpiggin@yahoo.com.au, torvalds@osdl.org, jeff@garzik.org, axboe@suse.de,
-       mingo@elte.hu, linux-kernel@vger.kernel.org, rpeterso@redhat.com
-Subject: Re: [PATCH] splice support #2
-Message-Id: <20060330185133.176f8210.akpm@osdl.org>
-In-Reply-To: <20060330184325.35e21117.akpm@osdl.org>
-References: <20060330100630.GT13476@suse.de>
-	<20060330120055.GA10402@elte.hu>
-	<20060330120512.GX13476@suse.de>
-	<Pine.LNX.4.64.0603300853190.27203@g5.osdl.org>
-	<442C440B.2090700@garzik.org>
-	<Pine.LNX.4.64.0603301259220.27203@g5.osdl.org>
-	<442C7EF5.8090703@yahoo.com.au>
-	<20060330184325.35e21117.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Mar 2006 21:55:58 -0500
+Date: Thu, 30 Mar 2006 18:55:47 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "'Zoltan Menyhart'" <Zoltan.Menyhart@bull.net>,
+       "'Boehm, Hans'" <hans.boehm@hp.com>,
+       "'Grundler, Grant G'" <grant.grundler@hp.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: RE: Synchronizing Bit operations V2
+In-Reply-To: <200603310250.k2V2ofg28252@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.64.0603301855280.3045@schroedinger.engr.sgi.com>
+References: <200603310250.k2V2ofg28252@unix-os.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> splice() may not be suitable for such filesystems.
+On Thu, 30 Mar 2006, Chen, Kenneth W wrote:
 
-OK, splice() cuts in at the file_operations level, so sych a clustered
-filesystem _could_ implement it, but none of the code we have there will be
-usable by it.  If the operations in splice.c were to operate at the
-file_operations level (->read, ->write) then probably they could be used
-thusly.
+> By the way, this is the same thing on x86: look at include/asm-i386/bitops.h:
+> 
+> #define smp_mb__before_clear_bit()      barrier()
+> #define smp_mb__after_clear_bit()       barrier()
+> 
+> A simple compiler barrier, nothing but
+> #define barrier() __asm__ __volatile__("": : :"memory")
+> 
+> See, no memory ordering there, because clear_bit already has a LOCK prefix.
+
+And that implies barrier behavior right?
 

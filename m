@@ -1,57 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbWCaJe2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWCaJnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751292AbWCaJe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 04:34:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbWCaJe2
+	id S1751300AbWCaJnR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 04:43:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbWCaJnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 04:34:28 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:50364 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751292AbWCaJe2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 04:34:28 -0500
-Date: Fri, 31 Mar 2006 11:31:59 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.16-mm2 patch] don't awaken RT tasks on expired array
-Message-ID: <20060331093159.GA16944@elte.hu>
-References: <1143796729.7524.14.camel@homer>
-Mime-Version: 1.0
+	Fri, 31 Mar 2006 04:43:17 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59912 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751300AbWCaJnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 04:43:17 -0500
+Date: Fri, 31 Mar 2006 11:43:15 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Linda Walsh <lkml@tlinx.org>
+Cc: Paulo Marques <pmarques@grupopie.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Save 320K on production machines?
+Message-ID: <20060331094315.GB3893@stusta.de>
+References: <4426515B.5040307@tlinx.org> <Pine.LNX.4.61.0603261122410.22145@yvahk01.tjqt.qr> <20060326100639.GE4053@stusta.de> <4427BCCC.4080506@tlinx.org> <4427CE4D.5010109@grupopie.com> <442C4ECF.3080505@tlinx.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1143796729.7524.14.camel@homer>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <442C4ECF.3080505@tlinx.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 30, 2006 at 01:34:07PM -0800, Linda Walsh wrote:
+>...
+> If I "doubled" my stack back to 8K, that would lower the "random
+> probability" of hitting a stack limit, but right now, it seems like
+> amount of stack "needed" is nearly guesswork.  Sigh.  Having my
+> kernel fairly static and minimalistic (no unused modules; no loadable
+> modules, etc) I might only "need" 3K.
 
-* Mike Galbraith <efault@gmx.de> wrote:
+Things like unused modules or loadable module support should have more 
+or less zero impact on stack usage.
 
-> RT tasks are being awakened on the expired array when 
-> expired_starving() is true, whereas they really should be excluded.  
-> Fix below.
-> 	
-> Signed-off-by: Mike Galbraith <efault@gmx.de>
+> 1) It would be nice if a "stack usage" option could be turned on
+> that would do some sort of run-time bounds checking that could
+> display the max-stack used "so far" in "/proc".
 
-indeed, good catch.
+The -rt kernel contains something like this.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+> 2) How difficult would it be to place kernel stack in a "pageable" pool 
+> where the limit of valid data in a 4K page is only 3.5K - then
+> when a kernel routine tries to exceed the stack boundary, it takes a
+> page fault where a "note" could be logged that more stack was "needed",
+> then automatically map another 4K page into the stack and return to
+> interrupted routine.
+> 
+> It sounds a bit strange -- the kernel having to call another part of
+> the kernel to handle a pagefault within the kernel, but perhaps there
+> could be another level of "partitioning" w/in kernel space that would
+> allow the non-paging part of the kernel to be paged in/out in a similar
+> way to user code. 
+>...
 
-> --- linux-2.6.16-mm2/kernel/sched.c.org	2006-03-31 09:56:37.000000000 +0200
-> +++ linux-2.6.16-mm2/kernel/sched.c	2006-03-31 10:01:54.000000000 +0200
-> @@ -820,7 +820,7 @@
->  {
->  	prio_array_t *target = rq->active;
+This has been discussed to death, and the consensus was that code 
+resulting in a too high stack usage should be fixed.
 
-[nit: please use -p when generating patches. If you are using quilt you 
-can use QUILT_DIFF_OPTS="-p" in your .bashrc, and do 'quilt diff 
---no-timestamps --sort' to get pretty patch output.]
+If you find any stack problems with 4k stacks and the automatically 
+enabled unit-at-a-time when using gcc 4.x in kernel 2.6.16-mm2, please 
+send a bug report.
 
-	Ingo
+Regarding unit-at-a-time with gcc 3.x, it works most time for most 
+people, but it's completely unsupported. If you want to use 
+unit-at-a-time on i386, please use gcc 4.x.
+
+> -l
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

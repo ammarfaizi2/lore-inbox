@@ -1,64 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWCaS4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWCaTES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbWCaS4a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 13:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWCaS4a
+	id S1751289AbWCaTES (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 14:04:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWCaTES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 13:56:30 -0500
-Received: from mga02.intel.com ([134.134.136.20]:26655 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751302AbWCaS43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 13:56:29 -0500
-X-IronPort-AV: i="4.03,151,1141632000"; 
-   d="scan'208"; a="17756981:sNHT34124104"
-Message-Id: <200603311856.k2VIuPg04814@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>
-Cc: "'Christoph Lameter'" <clameter@sgi.com>,
-       "Zoltan Menyhart" <Zoltan.Menyhart@bull.net>,
-       "Boehm, Hans" <hans.boehm@hp.com>,
-       "Grundler, Grant G" <grant.grundler@hp.com>, <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-Subject: RE: Synchronizing Bit operations V2
-Date: Fri, 31 Mar 2006 10:57:08 -0800
+	Fri, 31 Mar 2006 14:04:18 -0500
+Received: from zproxy.gmail.com ([64.233.162.193]:17423 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751289AbWCaTER convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 14:04:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ORcFTjjeBGgM+83bkyWYGMAah3rYLXacOZRMWpToCToLdiXcc9YVTk0YABoTf9y2xuwP6ckxyOl0aUphEShpCzfM6QqvkK7Hlu01OWlWsLTMtGrITI9kse+8lQsE1vzc4kykWQpMkFul8Da3FspZHC8SYedAKdTZBI5YLPxkkyI=
+Message-ID: <41b516cb0603311104h617a0a7bnc0daefc024911f17@mail.gmail.com>
+Date: Fri, 31 Mar 2006 11:04:14 -0800
+From: "Chris Leech" <christopher.leech@intel.com>
+Reply-To: chris.leech@gmail.com
+To: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>
+Subject: Re: [PATCH 2/9] I/OAT
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <20060330062124.GA8545@2ka.mipt.ru>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZU3wk3Pbf7RWEuSPm+E11xdkEdcgAEwehw
-In-Reply-To: <442CDB98.80803@yahoo.com.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1143672844.27644.5.camel@black-lazer.jf.intel.com>
+	 <20060330062124.GA8545@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote on Thursday, March 30, 2006 11:35 PM
-> > >The memory ordering that above combination should produce is a
-> > >Linux style smp_mb before the clear_bit. Not a release.
-> > 
-> > Whoever designed the smp_mb_before/after_* clearly understand the
-> > difference between a bidirectional smp_mb() and a one-way memory
-> > ordering.  If smp_mb_before/after are equivalent to smp_mb, what's
-> > the point of introducing another interface?
-> > 
-> They are not. They provide equivalent barrier when performed
-> before/after a clear_bit, there is a big difference.
+> Could you please describe how struct ioat_dma_chan channels are freed?
 
-The usage so far that I can see for
+Sorry, I got distracted by other issues and never ended up following
+up on this.  You're right, and it's just sloppiness on my part for
+missing it, those structs are being leaked on module unload.  I'll fix
+it.  Thanks.
 
-  smp_mb__before_clear_bit()
-  clear_bit
-
-is to close a critical section with clear_bit.  I will be hard impressed
-to see a usage that allows stuff follows clear_bit to pass clear_bit, but
-not to pass the smp_mb_before_xxx.
-
-<end of critical section>
-  smp_mb_before_clear_bit
-  clear_bit
-<begin other code>
-
-But if you stand on the ground of smp_mb_before_xxx protects clear_bit
-from occurring before the "end of critical section", then smp_mb_before
-is such a brain dead interface and it is another good reason for having
-an explicit ordering mode built into the clear_bit. 
+-Chris

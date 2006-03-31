@@ -1,78 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWCaACO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWCaADw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbWCaACO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Mar 2006 19:02:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWCaACO
+	id S1750978AbWCaADw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Mar 2006 19:03:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbWCaADw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Mar 2006 19:02:14 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:9612 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751158AbWCaACN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Mar 2006 19:02:13 -0500
-Date: Thu, 30 Mar 2006 18:02:08 -0600
-To: john.ronciak@intel.com, jesse.brandeburg@intel.com,
-       jeffrey.t.kirsher@intel.com
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH]: e1000: prevent statistics from getting garbled during reset.
-Message-ID: <20060331000208.GS2172@austin.ibm.com>
-References: <20060330213928.GQ2172@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060330213928.GQ2172@austin.ibm.com>
-User-Agent: Mutt/1.5.9i
-From: linas@austin.ibm.com (Linas Vepstas)
+	Thu, 30 Mar 2006 19:03:52 -0500
+Received: from science.horizon.com ([192.35.100.1]:4905 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S1750771AbWCaADw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Mar 2006 19:03:52 -0500
+Date: 30 Mar 2006 19:03:44 -0500
+Message-ID: <20060331000344.12797.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] splice support #2
+Cc: torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 30, 2006 at 03:39:28PM -0600, Linas Vepstas wrote:
-> 
-> Please review, sign-off/ack, and forward upstream.
-> --linas
+The Lord High Penguin spake:
+> In particular, what happens when you try to connect two streaming devices,
+> but the destination stops accepting data? You cannot put the received
+> data "back" into the streaming source any way - so if you actually want
+> to be able to handle error recovery, you _have_ to get access to the
+> source buffers.
 
-Per feedback, here's a slightly more human-readable version.
---linas
+Ding!  Ding!  Ding!  The light dawns.
 
-[PATCH]: e1000: prevent statistics from getting garbled during reset.
+Oh my, that *is* clever.  And I remember wrestling with the problem before.
+If you're reading from a seekable fd (a la sendfile()), you can always
+back up the read pointer, but if you're reading from a non-seekable
+fd, what *do* you do if there's a write problem?  The pipe gives you
+a solution.
 
-If a PCI bus error/fault triggers a PCI bus reset, attempts to get the
-ethernet packet count statistics from the hardware will fail, returning
-garbage data upstream.  This patch skips statistics data collection
-if the PCI device is not on the bus. 
 
-This patch presumes that an earlier patch,
-[PATCH] PCI Error Recovery: e1000 network device driver
-has already been applied.
+However, that gets me thinking... what about a pipe lets it be used as
+a splice() source?  The answer is that, like seekable files, it's peekable.
+You can "peek at" an efficiently-sized chunk of data before deciding
+to remove it from the source.  You don't have to read(buf)/write(buf),
+you can buf=peek()/len=write(buf)/accept(len).
 
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+Network sockets have too many features (what with urgent data pointers
+and crap) to make that easy, and some character devices have
+side effects from read() that can't be hidden at all.  So you need
+an explicit buffer.
 
-----
- drivers/net/e1000/e1000_main.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletion(-)
 
-Index: linux-2.6.16-git6/drivers/net/e1000/e1000_main.c
-===================================================================
---- linux-2.6.16-git6.orig/drivers/net/e1000/e1000_main.c	2006-03-30 17:51:37.924162779 -0600
-+++ linux-2.6.16-git6/drivers/net/e1000/e1000_main.c	2006-03-30 17:54:07.659188391 -0600
-@@ -3069,14 +3069,18 @@ void
- e1000_update_stats(struct e1000_adapter *adapter)
- {
- 	struct e1000_hw *hw = &adapter->hw;
-+	struct pci_dev *pdev = adapter->pdev;
- 	unsigned long flags;
- 	uint16_t phy_tmp;
- 
- #define PHY_IDLE_ERROR_COUNT_MASK 0x00FF
- 
--	/* Prevent stats update while adapter is being reset */
-+	/* Prevent stats update while adapter is being reset,
-+	 * or if the pci connection is down. */
- 	if (adapter->link_speed == 0)
- 		return;
-+   if (pdev->error_state && pdev->error_state != pci_channel_io_normal)
-+		return;
- 
- 	spin_lock_irqsave(&adapter->stats_lock, flags);
- 
+Next, what about a pipe makes it an acceptable splice() destination?
+The answer is that space is reservable.  You can know that a write()
+won't fail before read()ing the source.  But a great many devices with
+non-synchronous write semantics behave the same way.  Certainly it's
+not hard to make a non-O_SYNC file system behave that way.
+
+
+Give all that, it it necessary to use the fallback of a pipe all
+the time?  It seems that doing without the pipe would be
+feasible a large fraction of the time And would a
+
+bytes_written = splice2(src, pipefd[1], pipefd[0], dst, &bytes_buffered);
+
+system call be worth it to reduce overhead?  (I'm assuming that
+bytes_read = bytes_written + bytes_buffered, but you can use any two
+of the three in the interface.)  Note that it could bypass the pipe
+entirely for those cases where it's possible.
+
+
+Finally, has anyone thought about the semantics of tee(2)?
+It seems that it could be used on block files to get a second
+handle that does NOT share the file pointer.  But if used on
+a pipe, does the write block if EITHER reader is behind?
+So one reader could block the other?  I can't see any other way
+to implement it, but I would like to be sure those semantics are
+expected.

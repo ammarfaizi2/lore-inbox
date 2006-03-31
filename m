@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWCaRMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWCaROc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbWCaRMO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 12:12:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWCaRMO
+	id S1750772AbWCaROc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 12:14:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWCaROb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 12:12:14 -0500
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:23461
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S1750721AbWCaRMM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 12:12:12 -0500
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: Lee Revell <rlrevell@joe-job.com>
+	Fri, 31 Mar 2006 12:14:31 -0500
+Received: from metis.extern.pengutronix.de ([83.236.181.26]:65461 "EHLO
+	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
+	id S1750772AbWCaROb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 12:14:31 -0500
+Date: Fri, 31 Mar 2006 19:14:18 +0200
+From: Robert Schwebel <r.schwebel@pengutronix.de>
+To: Jeff Dike <jdike@karaya.com>, Gerd Knorr <kraxel@strusel007.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: snd_hda_intel on 2.6.16
-Date: Fri, 31 Mar 2006 11:12:11 -0600
-Message-Id: <20060331171133.M56227@linuxwireless.org>
-In-Reply-To: <1143824834.24736.32.camel@mindpipe>
-References: <20060331162023.M25456@linuxwireless.org> <1143823259.24736.24.camel@mindpipe> <20060331164310.M92123@linuxwireless.org> <1143824834.24736.32.camel@mindpipe>
-X-Mailer: Open WebMail 2.40 20040816
-X-OriginatingIP: 15.235.153.101 (abonilla@linuxwireless.org)
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
+Subject: x11-fb driver
+Message-ID: <20060331171418.GG2542@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Mar 2006 12:07:12 -0500, Lee Revell wrote
-> On Fri, 2006-03-31 at 10:49 -0600, Alejandro Bonilla wrote:
-> > > Does it work with the latest ALSA CVS or 1.0.11-rc4?
-> > 
-> > I don't know. It was working with 2.6.15-X
-> >
-> 
-> Disregard last message, it's probably easiest to test the [ALSA 
-> PATCH] that was just posted.
+Hi, 
 
-I will git fetch soon and see if it got merged and test that out.
+here's an updated patch of Gerd Knorr's x11-fb patch, taken from here: 
+http://user-mode-linux.sourceforge.net/work/current/2.6/2.6.16/patches/x11-fb
 
-Thanks,
+It compiles on 2.6.16 and works at least a little bit. I get some
+initial output, see the screenshot here:
 
-.Alejandro
+http://www.pengutronix.de/uml-x11.gif
 
+However, the window is never redrawn and I didn't manage to make input
+working, but it may be a start for others. It was a little bit messy to
+find the right kconfig switches which had to be enabled, because the
+uml's kconfig structure is very different from the mainstream one. 
 
-> 
-> Lee
+Gerd, are you still actively working on this driver?
+
+Robert
+-- 
+ Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
+     Hannoversche Str. 2, 31134 Hildesheim, Germany
+   Phone: +49-5121-206917-0 |  Fax: +49-5121-206917-9
+

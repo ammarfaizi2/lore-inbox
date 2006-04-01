@@ -1,61 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbWDACRA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbWDACcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751415AbWDACRA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 21:17:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbWDACQ7
+	id S932383AbWDACcG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 21:32:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbWDACcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 21:16:59 -0500
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:23913 "HELO
-	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751477AbWDACQ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 21:16:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=B7PovoOCTBGdw/X1wrZfZZcH5+lw1NqtHQO3jmjZ8KtE3NliQpjaS0q+hvIRrwSyLENyEnkxluZhf3hd7oPcUoytFEHmKHH4D4rJIAjynERXNcUhXTBnu5FKWc3fV0uON+X59SQOEhWNEm0ykXXXruKd0SA7oNW1Pq360KbbU8M=  ;
-Message-ID: <442DE293.8020702@yahoo.com.au>
-Date: Sat, 01 Apr 2006 12:16:51 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: davem@davemloft.net, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
-       "Boehm, Hans" <hans.boehm@hp.com>,
-       "Grundler, Grant G" <grant.grundler@hp.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Synchronizing Bit operations V2
-References: <200603312123.k2VLNqg06655@unix-os.sc.intel.com> <Pine.LNX.4.64.0603311327050.8126@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0603311327050.8126@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 31 Mar 2006 21:32:06 -0500
+Received: from gaz.sfgoth.com ([69.36.241.230]:50649 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S1751471AbWDACcE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 21:32:04 -0500
+Date: Fri, 31 Mar 2006 18:35:38 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Jes Sorensen <jes@sgi.com>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [patch] avoid unaligned access when accessing poll stack
+Message-ID: <20060401023538.GB3157@gaz.sfgoth.com>
+References: <yq0sloytyj5.fsf@jaguar.mkp.net> <200603311800.19364.ak@suse.de> <yq0odzmtwni.fsf@jaguar.mkp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yq0odzmtwni.fsf@jaguar.mkp.net>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Fri, 31 Mar 2006 18:35:39 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Fri, 31 Mar 2006, Chen, Kenneth W wrote:
+Jes Sorensen wrote:
+> I assume you mean select().
 > 
-> 
->>>I think we could say that lock semantics are different from barriers. They 
->>>are more like acquire and release on IA64. The problem with smb_mb_*** is 
->>>that the coder *explicitly* requested a barrier operation and we do not 
->>>give it to him.
->>
->>I was browsing sparc64 code and it defines:
->>
->>include/asm-sparc64/bitops.h:
->>#define smp_mb__after_clear_bit()      membar_storeload_storestore()
->>
->>With my very naïve knowledge of sparc64, it doesn't look like a full barrier.
->>Maybe sparc64 is broken too ...
-> 
-> 
-> Dave, how does sparc64 handle this situation?
+> Updated patch attached.
 
-It looks like sparc64 always expects paired smp_mb__* operations,
-before and after the clear_bit.
+This fixes a few problems introduced by this patch.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+  * Fixes two warnings caused by mixing "char *" and "long *" pointers
+
+  * If SELECT_STACK_ALLOC is not a multiple of sizeof(long) then stack_fds[]
+    would be less than SELECT_STACK_ALLOC bytes and could overflow later in
+    the function.  Fixed by simply rearranging the test later to work on
+    sizeof(stack_fds)
+
+    Currently SELECT_STACK_ALLOC is 256 so this doesn't happen, but it's
+    nasty to have things like this hidden in the code.  What if later
+    someone decides to change SELECT_STACK_ALLOC to 300?
+
+  * I also changed "size" to be unsigned since that makes more sense and
+    is less prone to overflow bugs.  I'm also a little scared by the
+    "kmalloc(6 * size)" since that type of call is a classic multiply-overflow
+    security hole (hence libc's calloc() API).  However "size" is constrained
+    by fdt->max_fdset so I think it isn't exploitable.  The kernel doesn't
+    have an overflow-safe API for kmalloc'ing arrays, does it?
+
+Patch is vs current git HEAD.  Only compile/boot tested.
+
+Signed-off-by: Mitchell Blank Jr <mitch@sfgoth.com>
+
+diff --git a/fs/select.c b/fs/select.c
+index 071660f..bd9c7db 100644
+--- a/fs/select.c
++++ b/fs/select.c
+@@ -311,7 +311,8 @@ static int core_sys_select(int n, fd_set
+ {
+ 	fd_set_bits fds;
+ 	char *bits;
+-	int ret, size, max_fdset;
++	int ret, max_fdset;
++	unsigned int size;
+ 	struct fdtable *fdt;
+ 	/* Allocate small arguments on the stack to save memory and be faster */
+ 	long stack_fds[SELECT_STACK_ALLOC/sizeof(long)];
+@@ -335,8 +336,8 @@ static int core_sys_select(int n, fd_set
+ 	 */
+ 	ret = -ENOMEM;
+ 	size = FDS_BYTES(n);
+-	if (6*size < SELECT_STACK_ALLOC)
+-		bits = stack_fds;
++	if (size < sizeof(stack_fds) / 6)
++		bits = (char *) stack_fds;
+ 	else
+ 		bits = kmalloc(6 * size, GFP_KERNEL);
+ 	if (!bits)
+@@ -373,7 +374,7 @@ static int core_sys_select(int n, fd_set
+ 		ret = -EFAULT;
+ 
+ out:
+-	if (bits != stack_fds)
++	if (bits != (char *) stack_fds)
+ 		kfree(bits);
+ out_nofds:
+ 	return ret;

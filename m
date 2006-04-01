@@ -1,22 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWDANLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbWDANPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbWDANLI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Apr 2006 08:11:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWDANLI
+	id S1751444AbWDANPl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Apr 2006 08:15:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbWDANPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Apr 2006 08:11:08 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:11244 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1751408AbWDANLG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Apr 2006 08:11:06 -0500
-Date: Sat, 1 Apr 2006 21:10:11 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+	Sat, 1 Apr 2006 08:15:40 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:65042 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751444AbWDANPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Apr 2006 08:15:40 -0500
+Date: Sat, 1 Apr 2006 15:15:39 +0200
+From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] i386 zone_sizes_init() fix
-Message-ID: <20060401131011.GA10804@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] the scheduled unexport of panic_timeout
+Message-ID: <20060401131539.GH28310@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,33 +22,57 @@ User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that with MAX_NR_ZONES=4, the last element of zones_size[] is
-left uninitialized in zone_sizes_init() on i386.
+This patch contains the scheduled unexport of panic_timeout.
 
-Fix this by using gcc's range initializer to protect from future changes.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
---- linux-2.6.16-mm2.orig/arch/i386/mm/discontig.c
-+++ linux-2.6.16-mm2/arch/i386/mm/discontig.c
-@@ -355,7 +355,7 @@ void __init zone_sizes_init(void)
+@Andrew:
+Since this was announced and gave compile warnings for one year, it 
+should go into 2.6.17.
+
+ Documentation/feature-removal-schedule.txt |    8 --------
+ include/linux/kernel.h                     |    2 +-
+ kernel/panic.c                             |    1 -
+ 3 files changed, 1 insertion(+), 10 deletions(-)
+
+--- linux-2.6.16-mm2-full/Documentation/feature-removal-schedule.txt.old	2006-04-01 12:44:08.000000000 +0200
++++ linux-2.6.16-mm2-full/Documentation/feature-removal-schedule.txt	2006-04-01 12:44:34.000000000 +0200
+@@ -72,14 +72,6 @@
  
+ ---------------------------
  
- 	for_each_online_node(nid) {
--		unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
-+		unsigned long zones_size[] = { [0 ... MAX_NR_ZONES-1] = 0 };
- 		unsigned long *zholes_size;
- 		unsigned int max_dma;
+-What:	remove EXPORT_SYMBOL(panic_timeout)
+-When:	April 2006
+-Files:	kernel/panic.c
+-Why:	No modular usage in the kernel.
+-Who:	Adrian Bunk <bunk@stusta.de>
+-
+----------------------------
+-
+ What:	remove EXPORT_SYMBOL(insert_resource)
+ When:	April 2006
+ Files:	kernel/resource.c
+--- linux-2.6.16-mm2-full/include/linux/kernel.h.old	2006-04-01 12:43:48.000000000 +0200
++++ linux-2.6.16-mm2-full/include/linux/kernel.h	2006-04-01 12:43:59.000000000 +0200
+@@ -176,7 +176,7 @@
  
---- linux-2.6.16-mm2.orig/arch/i386/kernel/setup.c
-+++ linux-2.6.16-mm2/arch/i386/kernel/setup.c
-@@ -1203,7 +1203,7 @@ static unsigned long __init setup_memory
+ extern void bust_spinlocks(int yes);
+ extern int oops_in_progress;		/* If set, an oops, panic(), BUG() or die() is in progress */
+-extern __deprecated_for_modules int panic_timeout;
++extern int panic_timeout;
+ extern int panic_on_oops;
+ extern int tainted;
+ extern const char *print_tainted(void);
+--- linux-2.6.16-mm2-full/kernel/panic.c.old	2006-04-01 12:44:43.000000000 +0200
++++ linux-2.6.16-mm2-full/kernel/panic.c	2006-04-01 12:44:47.000000000 +0200
+@@ -27,7 +27,6 @@
+ static DEFINE_SPINLOCK(pause_on_oops_lock);
  
- void __init zone_sizes_init(void)
- {
--	unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
-+	unsigned long zones_size[] = { [0 ... MAX_NR_ZONES-1] = 0 };
- 	unsigned int max_dma, low;
+ int panic_timeout;
+-EXPORT_SYMBOL(panic_timeout);
  
- 	max_dma = virt_to_phys((char *)MAX_DMA_ADDRESS) >> PAGE_SHIFT;
+ ATOMIC_NOTIFIER_HEAD(panic_notifier_list);
+ 
+

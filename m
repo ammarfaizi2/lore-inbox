@@ -1,151 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWDAEb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751496AbWDAExL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751500AbWDAEb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 23:31:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWDAEb4
+	id S1751496AbWDAExL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 23:53:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWDAExL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 23:31:56 -0500
-Received: from pat.uio.no ([129.240.10.6]:28855 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751496AbWDAEbz (ORCPT
+	Fri, 31 Mar 2006 23:53:11 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:39127 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751496AbWDAExK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 23:31:55 -0500
-Subject: Re: [PATCH 2/4] locks: don't unnecessarily fail posix lock
-	operations
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <E1FPPZK-0005qJ-00@dorka.pomaz.szeredi.hu>
-References: <E1FPNOD-0005Tg-00@dorka.pomaz.szeredi.hu>
-	 <E1FPNSB-0005VK-00@dorka.pomaz.szeredi.hu>
-	 <1143829641.8085.7.camel@lade.trondhjem.org>
-	 <E1FPPFC-0005mL-00@dorka.pomaz.szeredi.hu>
-	 <1143834022.8116.1.camel@lade.trondhjem.org>
-	 <E1FPPZK-0005qJ-00@dorka.pomaz.szeredi.hu>
-Content-Type: multipart/mixed; boundary="=-cnx4u5V9xO7tjO8FM9bS"
-Date: Fri, 31 Mar 2006 23:30:50 -0500
-Message-Id: <1143865851.8116.30.camel@lade.trondhjem.org>
+	Fri, 31 Mar 2006 23:53:10 -0500
+Date: Fri, 31 Mar 2006 23:53:09 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: cell compile fixes.
+Message-ID: <20060401045309.GA22149@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.172, required 12,
-	autolearn=disabled, AWL 1.69, RCVD_IN_SORBS_DUL 0.14,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Missing include for __NR_syscalls, and missing sys_splice() that
+causes build-time failure due to compile-time bounds check on spu_syscall_table.
 
---=-cnx4u5V9xO7tjO8FM9bS
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-On Fri, 2006-03-31 at 21:46 +0200, Miklos Szeredi wrote:
-> > > In the first case no new locks are needed.  In the second, no locks
-> > > are modified prior to the check.
-> > 
-> > Consider something like
-> > 
-> > fcntl(SETLK, 0, 100)
-> > fcntl(SETLK, 0, 100)
-> > fcntl(SETLK, 0, 100)
-> 
-> Huh?  What is the type of lock in each case.
-> 
-> But anyway your example is no good.  If the new lock completely covers
-> the previous one, then the old lock will simply be adjusted and no new
-> lock is inserted.
-
-Slip of the mailer. It posted when I wanted to cancel the mail (I had to
-step out for an errand)...
-
-OK. I see what you mean now. Do you agree with the following analysis?
-
-        1) We need 2 extra locks for the case where we
-        upgrade/downgrade, a single existing lock and end up splitting
-        it.
-
-        2) We need to use 1 extra lock in the case where we unlock and
-        split a single existing lock.
-
-        3) We also need to use 1 extra lock in the case where there is
-        no existing lock that is contiguous with the region to lock.
-
-In all other cases, we resort to modifying existing locks instead of
-using new_fl/new_fl2.
-
-In cases (1) and (2) we do need to modify the existing lock. Since this
-is only done after we've set up the extra locks, we're safe.
-
-Could I still suggest a couple of modifications to your patch? Firstly,
-we only need to test for 'added' once. Secondly, in cases (2) and (3),
-we can still complete the lock despite one of new_fl/new_fl2 failing to
-be allocated.
-
-Cheers,
-  Trond
-
---=-cnx4u5V9xO7tjO8FM9bS
-Content-Disposition: inline; filename=optimise_lock.dif
-Content-Type: text/plain; name=optimise_lock.dif; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-VFS,locks: locks: don't unnecessarily fail posix lock operations
-
----
-
- fs/locks.c |   27 ++++++++++++++++++++-------
- 1 files changed, 20 insertions(+), 7 deletions(-)
-
-diff --git a/fs/locks.c b/fs/locks.c
-index 6ba3756..973c1d9 100644
---- a/fs/locks.c
-+++ b/fs/locks.c
-@@ -839,10 +839,6 @@ static int __posix_lock_file_conf(struct
- 	if (request->fl_flags & FL_ACCESS)
- 		goto out;
+--- linux-2.6.16.noarch/arch/powerpc/platforms/cell/spufs/run.c~	2006-03-30 15:48:17.000000000 -0500
++++ linux-2.6.16.noarch/arch/powerpc/platforms/cell/spufs/run.c	2006-03-30 15:48:25.000000000 -0500
+@@ -2,6 +2,7 @@
+ #include <linux/ptrace.h>
  
--	error = -ENOLCK; /* "no luck" */
--	if (!(new_fl && new_fl2))
--		goto out;
--
- 	/*
- 	 * We've allocated the new locks in advance, so there are no
- 	 * errors possible (and no blocking operations) from here on.
-@@ -943,9 +939,25 @@ static int __posix_lock_file_conf(struct
- 		before = &fl->fl_next;
- 	}
+ #include <asm/spu.h>
++#include <asm/unistd.h>
  
--	error = 0;
--	if (!added) {
--		if (request->fl_type == F_UNLCK)
-+	if (request->fl_type == F_UNLCK) {
-+		if (!added)
-+			goto out;
-+		if (!new_fl2 && right && left == right) {
-+			new_fl2 = new_fl;
-+			error = -ENOLCK;
-+			if (!new_fl2)
-+				goto out;
-+			new_fl = NULL;
-+		}
-+	} else if (!added) {
-+		error = -ENOLCK;
-+		if (!new_fl) {
-+			new_fl = new_fl2;
-+			if (!new_fl)
-+				goto out;
-+			new_fl2 = NULL;
-+		}
-+		if (!new_fl2 && right && left == right)
- 			goto out;
- 		locks_copy_lock(new_fl, request);
- 		locks_insert_lock(before, new_fl);
-@@ -968,6 +980,7 @@ static int __posix_lock_file_conf(struct
- 		left->fl_end = request->fl_start - 1;
- 		locks_wake_up_blocks(left);
- 	}
-+	error = 0;
-  out:
- 	unlock_kernel();
- 	/*
-
---=-cnx4u5V9xO7tjO8FM9bS--
-
+ #include "spufs.h"
+ 
+--- linux-2.6.16.noarch/arch/powerpc/platforms/cell/spu_callbacks.c~	2006-03-31 21:53:04.000000000 -0500
++++ linux-2.6.16.noarch/arch/powerpc/platforms/cell/spu_callbacks.c	2006-03-31 21:53:43.000000000 -0500
+@@ -316,6 +316,7 @@ void *spu_syscall_table[] = {
+ 	[__NR_pselect6]			sys_ni_syscall, /* sys_pselect */
+ 	[__NR_ppoll]			sys_ni_syscall, /* sys_ppoll */
+ 	[__NR_unshare]			sys_unshare,
++	[__NR_splice]			sys_splice,
+ };
+ 
+ long spu_sys_callback(struct spu_syscall_block *s)

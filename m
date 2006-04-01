@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751531AbWDAOaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751535AbWDAOq1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751531AbWDAOaR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Apr 2006 09:30:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751535AbWDAOaR
+	id S1751535AbWDAOq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Apr 2006 09:46:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751536AbWDAOq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Apr 2006 09:30:17 -0500
-Received: from swan.nt.tuwien.ac.at ([128.131.67.158]:16265 "EHLO
-	swan.nt.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S1751531AbWDAOaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Apr 2006 09:30:15 -0500
-Date: Sat, 1 Apr 2006 16:30:11 +0200
-From: Thomas Zeitlhofer <tzeitlho+lkml@nt.tuwien.ac.at>
-To: linux-kernel@vger.kernel.org
-Subject: bridge+netfilter broken for IP fragments in 2.6.16?
-Message-ID: <20060401143011.GA28333@swan.nt.tuwien.ac.at>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sat, 1 Apr 2006 09:46:27 -0500
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:12301 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751534AbWDAOq0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Apr 2006 09:46:26 -0500
+Date: Sat, 1 Apr 2006 16:46:35 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [PATCH] PCI: Add PCI quirk for SMBus on the Asus A6VA notebook
+Message-Id: <20060401164635.3a69bc24.khali@linux-fr.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi Greg,
 
-I have set up a bridge with two ports:
+The Asus A6VA notebook was reported to need a PCI quirk to unhide
+the SMBus.
 
-# brctl show br0
-bridge name     bridge id               STP enabled     interfaces
-br0             8000.000021f23d58       no              eth1
-                                                        tap1
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+---
+ drivers/pci/quirks.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-Using 2.6.16/.1 non fragmented IP packets are passing the bridge without
-problems, but fragmented IP packets do not show up on the outgoing
-interface. E.g., for fragmented traffic coming in from tap1 and going
-out via eth1 tcpdump shows:
-
-  1) on tap1: fragmented packets
-  2) on br0: the defragmented packet (connection tracking)
-  3) on eth1: no packet!?
-
-This breaks IPsec connections for example.
-
-
-Doing the same on 2.6.15.x shows:
-
-  1) on tap1: fragmented packets
-  2) on br0: the defragmented packet (connection tracking)
-  3) on eth1: fragmented packets
-
-and IPsec connections are ok.
-
-
-If I disable netfilter for bridged traffic in 2.6.16/.1 
-
-# echo 0 > /proc/sys/net/bridge/bridge-nf-call-iptables 
-
-then the fragmented traffic passes the bridge without problems.
+--- linux-2.6.16-git.orig/drivers/pci/quirks.c	2006-03-31 09:37:17.000000000 +0200
++++ linux-2.6.16-git/drivers/pci/quirks.c	2006-03-31 23:30:45.000000000 +0200
+@@ -921,6 +921,7 @@
+ 		if (dev->device == PCI_DEVICE_ID_INTEL_82915GM_HB) {
+ 			switch (dev->subsystem_device) {
+ 			case 0x1882: /* M6V notebook */
++			case 0x1977: /* A6VA notebook */
+ 				asus_hides_smbus = 1;
+ 			}
+ 		}
+@@ -999,6 +1000,7 @@
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801CA_12,	asus_hides_smbus_lpc );
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801DB_12,	asus_hides_smbus_lpc );
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801EB_0,	asus_hides_smbus_lpc );
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH6_1,	asus_hides_smbus_lpc );
+ 
+ static void __init asus_hides_smbus_lpc_ich6(struct pci_dev *dev)
+ {
 
 
-Is this a known issue?
-
---
-Thomas
+-- 
+Jean Delvare

@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWCaX6B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWDAAIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbWCaX6B (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 18:58:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbWCaX6B
+	id S1751412AbWDAAIR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 19:08:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWDAAIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 18:58:01 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:27179 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1750765AbWCaX6A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 18:58:00 -0500
-In-Reply-To: <200603311420.02962.david-b@pacbell.net>
-References: <1B2FA58D-1F7F-469E-956D-564947BDA59A@kernel.crashing.org> <200603311315.14408.david-b@pacbell.net> <61D4885F-D742-4583-939F-FA93A4AAC8D4@kernel.crashing.org> <200603311420.02962.david-b@pacbell.net>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <7BA58A37-79FE-498B-8C1E-07130BFDF86F@kernel.crashing.org>
-Cc: spi-devel-general@lists.sourceforge.net,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [spi-devel-general] Re: question on spi_bitbang
-Date: Fri, 31 Mar 2006 17:58:13 -0600
-To: David Brownell <david-b@pacbell.net>
-X-Mailer: Apple Mail (2.746.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 31 Mar 2006 19:08:17 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:48590 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751412AbWDAAIR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 19:08:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=FuKF411j11BnO5GzZe3GdGuBRZdcOl+DRZkGZszjz+rgmZGW5erFWubbj7UtsGl6KqV1FlbjfgO6rcc5idanojYLvqao80xtK/dAkS5IU+WB/aWK7MP4HywBE7iCteZpALK5AYazGuvIgjYrhc0oBbOV5vnkkZIwqSwMFaYhxLQ=
+Message-ID: <bda6d13a0603311608p5b74df13i259c2b9efa539330@mail.gmail.com>
+Date: Fri, 31 Mar 2006 16:08:16 -0800
+From: "Joshua Hudson" <joshudson@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: RFC replace some locking of i_sem wiht atomic_t
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This might be a way to decrease complexity of locking in vfs.
 
-On Mar 31, 2006, at 4:20 PM, David Brownell wrote:
+Basic idea: for local filesystems, i_sem gets taken on several objects
+only to protect i_nlink.
+These can be removed if i_nlink is atomic.
 
-> On Friday 31 March 2006 2:11 pm, Kumar Gala wrote:
->
->> So I give a new question.  Any issue with adding a rx & tx completion
->> to spi_bitbang?
->
-> What do you mean?
->
->> In my HW I get an interrupt when the transmitter is
->> done transmitting and one when the receiver is done receiving.  I
->> need some way to synchronize and wait for both events to occur before
->> continuing on in txrx_word().
->
-> You can't return from txrx_word() before the RX event, since the
-> return value is the word that was shifted in.  So if you use IRQs
-> to synchronize there (rather than polling a status register), all
-> that would be internal to your code.
+For network filesystems, no amount of locking would ensure atomic
+operations anyway, so
+probably no loss there.
 
-Your right, I just put this in my struct that wraps spi_bitbang.
+inode operations would then lock:
+ lookup:   parent
+ create:   parent
+ link:       both parents
+ mknod:   parent
+ symlink:  parent
+ mkdir:     parent
+ unlink:    parent
+ rmdir:     parent
+ truncate: item
+ rename:  both parents
 
-It's too bad we dont have a better solution for spi_bitbang having to  
-be first.
+A new per-superblock semaphore vfs_link_sem would be created, to be taken
+first on both link and rename, dropped as soon as all other locks are taken.
+This prevents deadlocks in pathelogical cases. vfs_rename_sem is still needed
+(taken after vfs_link_sem) to prevent cycles from being created.
 
-I've got a working driver w/o using the setup_transfer() mods, I'll  
-look at fixing that up next.
+Grabbing the target on link doesn't do much for most filesystems
+because the operation
+is (or should be) syncronized by the page lock for each directory
+pages. If this change
+is made, it is possible to remove this locking from all the filesystems.
 
-- kumar
+Note that locking of source or target is no longer necessary. Except
+for i_nlink, nothing
+can change the source or target anyway.
+
+Comment as you will. I am competent to write this if it is wanted. I
+expect however
+that I will be flamed to ashes for this suggestion.

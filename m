@@ -1,78 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWDAWah@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751579AbWDAWdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751423AbWDAWah (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Apr 2006 17:30:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751576AbWDAWah
+	id S1751579AbWDAWdA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Apr 2006 17:33:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751622AbWDAWdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Apr 2006 17:30:37 -0500
-Received: from ozlabs.org ([203.10.76.45]:8401 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751423AbWDAWah (ORCPT
+	Sat, 1 Apr 2006 17:33:00 -0500
+Received: from gate.ebshome.net ([64.81.67.12]:21424 "EHLO gate.ebshome.net")
+	by vger.kernel.org with ESMTP id S1751579AbWDAWdA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Apr 2006 17:30:37 -0500
-Date: Sun, 2 Apr 2006 08:29:21 +1000
-From: Anton Blanchard <anton@samba.org>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [PATCH] Add prctl to change endian of a task
-Message-ID: <20060401222921.GI23416@krispykreme>
-MIME-Version: 1.0
+	Sat, 1 Apr 2006 17:33:00 -0500
+Date: Sat, 1 Apr 2006 14:32:59 -0800
+From: Eugene Surovegin <ebs@ebshome.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, jbeulich@novell.com, linuxppc-dev@ozlabs.org
+Subject: Re: "tvec_bases too large for per-cpu data" commit broke early_serial_setup()
+Message-ID: <20060401223259.GB5748@gate.ebshome.net>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, jbeulich@novell.com,
+	linuxppc-dev@ozlabs.org
+References: <20060401205336.GA5748@gate.ebshome.net> <20060401140610.2ec67738.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060401140610.2ec67738.akpm@osdl.org>
+X-ICQ-UIN: 1193073
+X-Operating-System: Linux i686
+X-PGP-Key: http://www.ebshome.net/pubkey.asc
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Apr 01, 2006 at 02:06:10PM -0800, Andrew Morton wrote:
 
-Add a prctl to change a tasks endian. While we only have powerpc code to
-implement this so far, it seems like something that warrants a generic
-interface (like setting floating point mode bits).
+[snip]
 
-Signed-off-by: Anton Blanchard <anton@samba.org>
----
+> Early boot is ugly.
+> 
+> Does this fix it?
 
-Index: build/kernel/sys.c
-===================================================================
---- build.orig/kernel/sys.c	2006-04-02 08:11:40.000000000 +1000
-+++ build/kernel/sys.c	2006-04-02 08:13:13.000000000 +1000
-@@ -57,6 +57,12 @@
- #ifndef GET_FPEXC_CTL
- # define GET_FPEXC_CTL(a,b)	(-EINVAL)
- #endif
-+#ifndef GET_ENDIAN
-+# define GET_ENDIAN(a,b)	(-EINVAL)
-+#endif
-+#ifndef SET_ENDIAN
-+# define SET_ENDIAN(a,b)	(-EINVAL)
-+#endif
- 
- /*
-  * this is where the system-wide overflow UID and GID are defined, for
-@@ -2057,6 +2063,13 @@ asmlinkage long sys_prctl(int option, un
- 				return -EFAULT;
- 			return 0;
- 		}
-+		case PR_GET_ENDIAN:
-+			error = GET_ENDIAN(current, arg2);
-+			break;
-+		case PR_SET_ENDIAN:
-+			error = SET_ENDIAN(current, arg2);
-+			break;
-+
- 		default:
- 			error = -EINVAL;
- 			break;
-Index: build/include/linux/prctl.h
-===================================================================
---- build.orig/include/linux/prctl.h	2006-04-02 08:11:40.000000000 +1000
-+++ build/include/linux/prctl.h	2006-04-02 08:13:13.000000000 +1000
-@@ -52,4 +52,10 @@
- #define PR_SET_NAME    15		/* Set process name */
- #define PR_GET_NAME    16		/* Get process name */
- 
-+/* Get/set process endian */
-+#define PR_GET_ENDIAN	19
-+#define PR_SET_ENDIAN	20
-+# define PR_ENDIAN_BIG		0
-+# define PR_ENDIAN_LITTLE	1
-+
- #endif /* _LINUX_PRCTL_H */
+Yep, it works now.
+
+Thanks, Andrew.
+
+-- 
+Eugene

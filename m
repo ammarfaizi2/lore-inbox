@@ -1,80 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751518AbWDAPm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751536AbWDAQq2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751518AbWDAPm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Apr 2006 10:42:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751548AbWDAPm7
+	id S1751536AbWDAQq2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Apr 2006 11:46:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751549AbWDAQq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Apr 2006 10:42:59 -0500
-Received: from host-84-9-202-240.bulldogdsl.com ([84.9.202.240]:7620 "EHLO
-	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S1751518AbWDAPm7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Apr 2006 10:42:59 -0500
-Date: Sat, 1 Apr 2006 16:42:46 +0100
-From: Ben Dooks <ben-linux@fluff.org>
-To: linux-kernel@vger.kernel.org
-Cc: rpurdie@rpsys.net
-Subject: [RFC] [LEDS] reorganise Kconfig
-Message-ID: <20060401154246.GA11649@home.fluff.org>
+	Sat, 1 Apr 2006 11:46:28 -0500
+Received: from mx1.rowland.org ([192.131.102.7]:33297 "HELO mx1.rowland.org")
+	by vger.kernel.org with SMTP id S1751536AbWDAQq2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Apr 2006 11:46:28 -0500
+Date: Sat, 1 Apr 2006 11:46:26 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Handling devices that don't have a bus
+In-Reply-To: <20060401094736.GB2636@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44L0.0604011128020.17557-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="ibTvN161/egqYuK8"
-Content-Disposition: inline
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 1 Apr 2006, Russell King wrote:
 
---ibTvN161/egqYuK8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> On Thu, Mar 30, 2006 at 03:45:50PM -0500, Alan Stern wrote:
+> > I recently tried running the dummy_hcd driver for the first time in a 
+> > while, and it crashed when the gadget driver was unloaded.  It turns out 
+> > this was because the gadget's embedded struct device is registered without 
+> > a bus, which triggers an oops when the device's driver is unbound.  The 
+> > oops could be fixed by doing this:
+> 
+> Can you provide the oops itself please?
 
-This patch reorganises the drivers/leds Kconfig
-file to have the LED trigger enable with the
-triggers themselves.
+No, I don't have it any more.  But I can tell you exactly where the oops 
+occurred.  In __device_release_driver() (in drivers/base/dd.c), this line 
+you added:
 
-The patch also adds comments to divide up the
-sections into the drivers and triggers
+		if (dev->bus->remove)
 
-Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+crashed because dev->bus was NULL.  My patch changes the line to:
 
---ibTvN161/egqYuK8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="2616-leds-kconfig-reorg.patch"
+		if (dev->bus && dev->bus->remove)
 
-diff -urpN -X ../dontdiff linux-2.6.16-git20-bjd3/drivers/leds/Kconfig linux-2.6.16-git20-bjd4/drivers/leds/Kconfig
---- linux-2.6.16-git20-bjd3/drivers/leds/Kconfig	2006-04-01 14:49:22.000000000 +0100
-+++ linux-2.6.16-git20-bjd4/drivers/leds/Kconfig	2006-04-01 16:37:11.000000000 +0100
-@@ -14,13 +14,7 @@ config LEDS_CLASS
- 	  This option enables the led sysfs class in /sys/class/leds.  You'll
- 	  need this to do anything useful with LEDs.  If unsure, say N.
- 
--config LEDS_TRIGGERS
--	bool "LED Trigger support"
--	depends NEW_LEDS
--	help
--	  This option enables trigger support for the leds class.
--	  These triggers allow kernel events to drive the LEDs and can
--	  be configured via sysfs. If unsure, say Y.
-+comment "LED drivers"
- 
- config LEDS_CORGI
- 	tristate "LED Support for the Sharp SL-C7x0 series"
-@@ -66,6 +60,16 @@ config LEDS_S3C24XX
- 	  This option enables support for LEDs connected to GPIO lines
- 	  on Samsung S3C24XX series CPUs, such as the S3C2410 and S3C2440.
- 
-+comment "LED Triggers"
-+
-+config LEDS_TRIGGERS
-+	bool "LED Trigger support"
-+	depends NEW_LEDS
-+	help
-+	  This option enables trigger support for the leds class.
-+	  These triggers allow kernel events to drive the LEDs and can
-+	  be configured via sysfs. If unsure, say Y.
-+
- config LEDS_TRIGGER_TIMER
- 	tristate "LED Timer Trigger"
- 	depends LEDS_TRIGGERS
+Any objection to that?
 
---ibTvN161/egqYuK8--
+> > Part of the problem here is that most of the USB controllers are platform
+> > devices and so belong on the platform bus.
+> 
+> You're making a connection where no such connection exists.  Devices
+> are only part of the platform bus if they explicitly want to be (in
+> much the same way that devices are only part of the PCI bus if they
+> explicitly set dev->bus to be the PCI bus.)
+
+I think you have misunderstood my point.  Yes, devices are part of the
+platform bus only if they explicitly want to be.  My point was that even
+though they _do_ want to be on the platform bus, in this situation they
+_can't_ because they are forced to register a struct device, not a struct
+platform_device.  The choice is not up to the driver; it is determined by
+the USB Gadget framework.  (See the definition of struct usb_gadget in 
+include/linux/usb_gadget.h -- there's an embedded struct device, not an 
+embedded struct platform_device.)
+
+> > But struct usb_gadget contains an embedded struct device, not an embedded
+> > struct platform_device... so the gadget _can't_ be registered on its 
+> > parent's bus.
+> 
+> From what I can see, the embedded device does not belong to any bus at
+> all since dev->bus is NULL.  Hence, I don't think it's the embedded
+> struct device which is causing the problem here.
+> 
+> It would be good to see the entire oops to see what's going on.
+
+Yes, the device did not belong to any bus.  Hence the unguarded reference
+to dev->bus->remove caused the oops.  If it's legal for devices not to
+belong to a bus, then my patch should be applied to guard the reference.  
+If it's not legal then the Gadget framework needs to be changed.
+
+Alan Stern
+
+

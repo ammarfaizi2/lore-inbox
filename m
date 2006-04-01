@@ -1,91 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWDAATO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWDAASX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751451AbWDAATO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 19:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbWDAATO
+	id S1751294AbWDAASX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 19:18:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWDAASX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 19:19:14 -0500
-Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:7135 "EHLO
-	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751451AbWDAATN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 19:19:13 -0500
-Message-ID: <442DC6FE.6070301@bigpond.net.au>
-Date: Sat, 01 Apr 2006 11:19:10 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Fri, 31 Mar 2006 19:18:23 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:56335 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751294AbWDAASW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 19:18:22 -0500
+Date: Sat, 1 Apr 2006 02:18:21 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Eric Persson <eric@persson.tm>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: kernel config repository
+Message-ID: <20060401001821.GB28310@stusta.de>
+References: <442A99CA.20303@persson.tm> <9a8748490603291505h19be30b0ue454437c9aa1faac@mail.gmail.com> <442C4FFC.2040109@persson.tm>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de, torvalds@osdl.org, Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] PI-futex patchset: -V4
-References: <20060325184612.GF16724@elte.hu> <20060325220728.3d5c8d36.akpm@osdl.org> <20060326160353.GA13282@elte.hu> <20060326231638.GA18395@elte.hu> <20060331191445.GA2250@elte.hu>
-In-Reply-To: <20060331191445.GA2250@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 1 Apr 2006 00:19:11 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <442C4FFC.2040109@persson.tm>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> this is version -V4 of the PI-futex patchset (ontop of current -mm2, 
-> which includes -V3.)
+On Thu, Mar 30, 2006 at 11:39:08PM +0200, Eric Persson wrote:
+>...
+> I have experienced a very tough testing phase to make myself believe and 
+> thrust a new kernel config, before I put it to live use. I only use HP 
+> machines, most of them the same model and the difference in hardware are 
+> usually just disks, memory and speed of cpu, which affects the config 
+> inself very minmial, otherwise theyre all the same.
+> And to hook up and see other HP(replace with any brand/model) users and 
+> see what configs they use, so all can benefit from config testing, would 
+> be a great idea, thats what I think at least.
 > 
-> A clean queue of split-up patches can be found at:
-> 
->   http://redhat.com/~mingo/PI-futex-patches/PI-futex-patches-V4.tar.gz
-> 
-> the -V4 codebase has been tested on the glibc code (all testcases pass) 
-> and under load as well. (The -V4 code is included in the 2.6.16-rt12 
-> code as well that i released earlier today.)
-> 
-> Changes since -V3:
-> 
->  - added Esben Nielsen's PI locking code, Thomas Gleixner made it
->    work in cornercases and under load. This is significantly simpler (it 
->    removes 50 lines of code from rtmutex.c). The main difference is that 
->    instead of holding all locks along a dependency chain, this code 
->    propagates PI priorities (and detects deadlocks) by holding at most 
->    two locks at once, and by being preemptible between such steps.
-> 
->  - Jakub Jelinek did a detailed review of the new futex code and found
->    some new races, which Thomas Gleixner fixed.
-> 
->  - to fix a pthread_mutex_trylock() related race, FUTEX_TRYLOCK_PI has 
->    been added (Thomas Gleixner)
-> 
->  - documentation fixes based on feedback from Tim Bird
-> 
->  - added Documentation/pi-futex.txt (in addition to rt-mutex.txt)
-> 
->  - added the plist debugging patch (which was part of -rt but wasnt part
->    of the pi-futex queue before). This caught a couple of SMP bugs in 
->    the past.
-> 
->  - implemented more scalable held-locks debugging - it's now a per-task 
->    list of held locks, instead of a global list. This is similarly 
->    effective to the global list, but much more scalable. (This approach 
->    will also be added to the stock kernel/mutex.c code.)
-> 
->  - do not fiddle with irq flags in rtmutex.c - it's not needed.
-> 
->  - clone/fork fix: do not let parent's potential PI priority 'leak' into 
->    child threads or processes.
-> 
->  - added /proc/sys/kernel/max_lock_depth with a default limit of 1024, 
->    to limit the amount of deadlock-checking the kernel will do.
-> 
->  - small enhancement to the t3-l1-pi-signal.tst testcase.
+> People compiling custom kernels for whatever piece of hardware they can 
+> find will most likely not benefit, but the overall "community wisdom" 
+> that this might generate would perhaps everyone benefit from.
 
-Wouldn't this be a good opportunity to redefine SCHED_BATCH as 4 instead 
-of 3 so that you can use ((p->policy & (SCHED_FIFO|SCHED_RR)) == 0) 
-instead of (p->policy != SCHED_NORMAL && p->policy != SCHED_BATCH)? 
-That expression will be called fairly frequently and SCHED_BATCH hasn't 
-been around long enough for a change of value to break very much use 
-space code.
+Even excluding the case that many computers are more or less unique 
+combinations of half a dozen different components, everyone will use 
+different settings for most hardware-independent things like e.g. file 
+systems, preemption or networking options. Even if I had the same 
+hardware as you have, my config settings would therefore most likely be 
+completely different from yours.
 
-Peter
+> Today, I find it hard find information about all the different configs, 
+> more than whats in the help function in make menuconfig, but thats me. 
+> And I think its a waste if good kernel development get ignored since 
+> people dont know what config options to turn on. ;)
+> 
+> Well, I hope I might inspired or given some clarity on the topic, any 
+> new input from this?
+
+The help texts for the config options should be enough for an 
+experienced system administrator to set the right options.
+
+If you know about help texts that could be improved, patches to improve 
+them are welcome.
+
+> Best regards,
+> 	Eric
+
+cu
+Adrian
+
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751021AbWDAKEq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWDAKm0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751021AbWDAKEq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Apr 2006 05:04:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbWDAKEq
+	id S1751156AbWDAKm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Apr 2006 05:42:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWDAKm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Apr 2006 05:04:46 -0500
-Received: from erik-slagter.demon.nl ([83.160.41.216]:9397 "EHLO
-	artemis.slagter.name") by vger.kernel.org with ESMTP
-	id S1751021AbWDAKEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Apr 2006 05:04:45 -0500
-Subject: OOPS 2.6.16 and 2.6.16-git14
-From: Erik Slagter <erik@slagter.name>
-To: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 01 Apr 2006 12:04:41 +0200
-Message-Id: <1143885881.26249.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+	Sat, 1 Apr 2006 05:42:26 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18194 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751156AbWDAKm0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Apr 2006 05:42:26 -0500
+Date: Sat, 1 Apr 2006 12:42:24 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Bharata B Rao <bharata@in.ibm.com>,
+       Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+Subject: [-mm patch] fix a superfluous kmem_set_shrinker() prototype
+Message-ID: <20060401104224.GE28310@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I get a kernel OOPS using 2.6.16 and 2.6.16-git14, I was using 2.6.14.2
-> before without the problem.
-> 
-> The OOPS happens when doing either
-> 
-> echo "3" > /proc/acpi/sleep
-> 
-> or
-> 
-> echo "mem" > /sys/power/state
-> 
-> As I have a laptop without serial ports, I'd have to write down the
-> oops, so please forgive that I didn't write down ALL the output, I think
-> I have the most important stuff, though.
-> 
-> Please note that it also happens when mentioned modules are not linked
-> in and that I enabled the kernel read-only pages option (although that
-> doesn't seem to be related).
-> 
-> I am not subscribed, so please CC.
+This patch fixes a bug I introduced in 
+slab-cache-shrinker-statistics.patch.
 
-Currently I cannot reproduce this, this may have to do with:
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
- - moved pl2303 adapter from one usb2 hub to another because kernel
-barfed about it and that solved the barfing
- - compiled various versions of the kernel so many times, I lost track
-of the exact config
- - different usb hub and perifs at home and at work.
+--- linux-2.6.16-mm2-full/include/linux/slab.h.old	2006-03-31 15:56:09.000000000 +0200
++++ linux-2.6.16-mm2-full/include/linux/slab.h	2006-03-31 15:56:24.000000000 +0200
+@@ -222,9 +222,6 @@
+ 
+ extern atomic_t slab_reclaim_pages;
+ 
+-struct shrinker;
+-extern void kmem_set_shrinker(kmem_cache_t *cachep, struct shrinker *shrinker);
+-
+ #endif	/* __KERNEL__ */
+ 
+ #endif	/* _LINUX_SLAB_H */
 
-As soon as I can reproduce the issue, I'll file a proper bug report
-including photographs of the output.
-
-Thanks for your time and effort.

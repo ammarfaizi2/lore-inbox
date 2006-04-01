@@ -1,94 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWDAGjz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWDAGvZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750789AbWDAGjz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Apr 2006 01:39:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbWDAGjz
+	id S1751175AbWDAGvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Apr 2006 01:51:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbWDAGvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Apr 2006 01:39:55 -0500
-Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:1694 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1750701AbWDAGjz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Apr 2006 01:39:55 -0500
-To: trond.myklebust@fys.uio.no
-CC: akpm@osdl.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-reply-to: <1143865851.8116.30.camel@lade.trondhjem.org> (message from Trond
-	Myklebust on Fri, 31 Mar 2006 23:30:50 -0500)
-Subject: Re: [PATCH 2/4] locks: don't unnecessarily fail posix lock
-	operations
-References: <E1FPNOD-0005Tg-00@dorka.pomaz.szeredi.hu>
-	 <E1FPNSB-0005VK-00@dorka.pomaz.szeredi.hu>
-	 <1143829641.8085.7.camel@lade.trondhjem.org>
-	 <E1FPPFC-0005mL-00@dorka.pomaz.szeredi.hu>
-	 <1143834022.8116.1.camel@lade.trondhjem.org>
-	 <E1FPPZK-0005qJ-00@dorka.pomaz.szeredi.hu> <1143865851.8116.30.camel@lade.trondhjem.org>
-Message-Id: <E1FPZlS-0007hH-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sat, 01 Apr 2006 08:39:14 +0200
+	Sat, 1 Apr 2006 01:51:25 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:46497 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750722AbWDAGvY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Apr 2006 01:51:24 -0500
+Date: Sat, 1 Apr 2006 16:50:19 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: cmm@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       Takashi Sato <sho@tnes.nec.co.jp>,
+       Laurent Vivier <Laurent.Vivier@bull.net>, linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/2]Extend ext3 filesystem limit from 8TB to 16TB
+Message-ID: <20060401165019.G961681@wobbly.melbourne.sgi.com>
+References: <1143485147.3970.23.camel@dyn9047017067.beaverton.ibm.com> <20060327131049.2c6a5413.akpm@osdl.org> <20060327225847.GC3756@localhost.localdomain> <1143530126.11560.6.camel@openx2.frec.bull.fr> <1143568905.3935.13.camel@dyn9047017067.beaverton.ibm.com> <1143623605.5046.11.camel@openx2.frec.bull.fr> <1143682730.4045.145.camel@dyn9047017067.beaverton.ibm.com> <20060330174008.GW5030@schatzie.adilger.int> <1143746202.3896.32.camel@dyn9047017067.beaverton.ibm.com> <p73r74i91sr.fsf@verdi.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <p73r74i91sr.fsf@verdi.suse.de>; from ak@suse.de on Fri, Mar 31, 2006 at 03:33:24PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> OK. I see what you mean now. Do you agree with the following analysis?
+Hi Andi,
+
+On Fri, Mar 31, 2006 at 03:33:24PM +0200, Andi Kleen wrote:
+> Mingming Cao <cmm@us.ibm.com> writes:
+> > > Have you done tests _near_ 8TB with a 32-bit machine, even without these
+> > > patches?
+> > No I haven't. The >8TB right now is attached to a 64 bit machine, but we
+> > should able to move it to a 32 bit machine.
 > 
->         1) We need 2 extra locks for the case where we
->         upgrade/downgrade, a single existing lock and end up splitting
->         it.
-> 
->         2) We need to use 1 extra lock in the case where we unlock and
->         split a single existing lock.
-> 
->         3) We also need to use 1 extra lock in the case where there is
->         no existing lock that is contiguous with the region to lock.
+> If you use XFS or JFS as backing fs you can use a holey loop device
+> to simulate it.  When I tried this last time JFS worked better for me.
+> XFS doesn't seem to like that many extents as will be created by 
+> mkfs.ext2.
 
-   4) Also 1 extra lock needed if there's an existing lock that is
-      contiguous/overlapping with the new region but it's a different
-      type, and no existing locks are completely covered
+Mainline has this issue resolved now (very recently, post-.16).
 
-> In all other cases, we resort to modifying existing locks instead of
-> using new_fl/new_fl2.
-> 
-> In cases (1) and (2) we do need to modify the existing lock. Since this
-> is only done after we've set up the extra locks, we're safe.
+This (loopback on a local file) technique will get you up to 16TB
+for 32 bit platforms, where you hit the unsigned long page->index
+limit (but sounds like thats fine for the testing you're doing).
 
-And 4.
+A related technique we've used in the past in testing XFS on large
+devices (we've successfully tested in petabyte ranges using this,
+on 64 bit systems of course) is to write a tool that modifies the
+values in the ondisk data structures managing the "lower" areas of
+the device to say "all the space here is used", which then forces
+new allocations to be done in the "higher" parts of the device
+address space.  Testing then follows this recipe: mkfs-on-loop,
+then run the tool, then mount, then run the usual test suites ...
+perhaps thats useful here too (I dunno if the ext2/3 format lends
+itself to that or not).
 
-> Could I still suggest a couple of modifications to your patch? Firstly,
-> we only need to test for 'added' once.
+cheers.
 
-Like this?  
-
- 
-+	/*
-+	 * The above code only modifies existing locks in case of
-+	 * merging or replacing.  If new lock(s) need to be inserted
-+	 * all modifications are done bellow this, so it's safe yet to
-+	 * bail out.
-+	 */
-+	error = -ENOLCK; /* "no luck" */
-+	if (right && left == right && !new_fl2)
-+		goto out;
-+
- 	error = 0;
- 	if (!added) {
- 		if (request->fl_type == F_UNLCK)
- 			goto out;
-+
-+		if (!new_fl) {
-+			error -ENOLCK;
-+			goto out;
-+		}
- 		locks_copy_lock(new_fl, request);
- 		locks_insert_lock(before, new_fl);
- 		new_fl = NULL;
-
-> Secondly, in cases (2) and (3), we can still complete the lock
-> despite one of new_fl/new_fl2 failing to be allocated.
-
-I think it's highly unlikely that one of the allocations would succeed
-and the other fail.  If the machine is OOM, then it will very likely
-fail all allocations.
-
-But even if that would happen it's not worth it to add more
-complexity, just to squeeze the last drop out of the available memory
-for file locking purposes.
-
-Miklos
+-- 
+Nathan

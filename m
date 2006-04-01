@@ -1,44 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751553AbWDAQxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751556AbWDARCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751553AbWDAQxq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Apr 2006 11:53:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751552AbWDAQxq
+	id S1751556AbWDARCY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Apr 2006 12:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWDARCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Apr 2006 11:53:46 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:29894 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751082AbWDAQxq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Apr 2006 11:53:46 -0500
-Subject: Re: [patch 2.6.16-mm2 5/9] sched throttle tree extract - correct
-	idle sleep logic
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>
-In-Reply-To: <1143881983.7617.41.camel@homer>
-References: <1143880124.7617.5.camel@homer> <1143880397.7617.10.camel@homer>
-	 <1143880683.7617.16.camel@homer>  <1143881058.7617.24.camel@homer>
-	 <1143881494.7617.32.camel@homer>  <1143881983.7617.41.camel@homer>
-Content-Type: text/plain
-Date: Sat, 01 Apr 2006 11:53:35 -0500
-Message-Id: <1143910416.2885.17.camel@mindpipe>
+	Sat, 1 Apr 2006 12:02:24 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:1739 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751555AbWDARCX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Apr 2006 12:02:23 -0500
+Date: Sat, 1 Apr 2006 18:02:20 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/6] vfs: propagate mnt_flags into do_loopback/vfsmount
+Message-ID: <20060401170220.GA3940@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Al Viro <viro@ftp.linux.org.uk>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>
+References: <20060121083843.GA10044@MAIL.13thfloor.at> <20060121084055.GC10044@MAIL.13thfloor.at> <20060124190256.GA14201@infradead.org> <20060127200304.GB16752@MAIL.13thfloor.at>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060127200304.GB16752@MAIL.13thfloor.at>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-04-01 at 10:59 +0200, Mike Galbraith wrote:
-> This patch corrects the idle sleep logic to place a long sleeping task
-> into the runqueue at a barely interactive priority such that it can
-> not destroy interactivity should it immediately begin consuming
-> massive cpu. 
+On Fri, Jan 27, 2006 at 09:03:04PM +0100, Herbert Poetzl wrote:
+> 
 
-Did you test this extensively with bloated apps like Evolution and
-Firefox that need to be scheduled as interactive tasks even though they
-often peg the CPU?
+Andrew, Linus any reason this still isn't in?
 
-Lee
+--
+
+From: Herbert P?tzl <herbert@13thfloor.at>
+
+the mnt_flags are propagated into do_loopback(), so that
+they can be stored with the vfsmount
+
+Signed-off-by: Herbert P?tzl <herbert@13thfloor.at>
+Acked-by: Christoph Hellwig <hch@infradead.org>
+
+
+diff -NurpP --minimal linux-2.6.16-rc1/fs/namespace.c linux-2.6.16-rc1-bme0.06.2-lo0.01/fs/namespace.c
+--- linux-2.6.16-rc1/fs/namespace.c	2006-01-18 06:08:30 +0100
++++ linux-2.6.16-rc1-bme0.06.2-lo0.01/fs/namespace.c	2006-01-21 09:08:29 +0100
+@@ -861,11 +861,13 @@ static int do_change_type(struct nameida
+ /*
+  * do loopback mount.
+  */
+-static int do_loopback(struct nameidata *nd, char *old_name, int recurse)
++static int do_loopback(struct nameidata *nd, char *old_name, unsigned long flags, int mnt_flags)
+ {
+ 	struct nameidata old_nd;
+ 	struct vfsmount *mnt = NULL;
++	int recurse = flags & MS_REC;
+ 	int err = mount_is_safe(nd);
++
+ 	if (err)
+ 		return err;
+ 	if (!old_name || !*old_name)
+@@ -899,6 +901,7 @@ static int do_loopback(struct nameidata 
+ 		spin_unlock(&vfsmount_lock);
+ 		release_mounts(&umount_list);
+ 	}
++	mnt->mnt_flags = mnt_flags;
+ 
+ out:
+ 	up_write(&namespace_sem);
+@@ -1312,7 +1315,7 @@ long do_mount(char *dev_name, char *dir_
+ 		retval = do_remount(&nd, flags & ~MS_REMOUNT, mnt_flags,
+ 				    data_page);
+ 	else if (flags & MS_BIND)
+-		retval = do_loopback(&nd, dev_name, flags & MS_REC);
++		retval = do_loopback(&nd, dev_name, flags, mnt_flags);
+ 	else if (flags & (MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNBINDABLE))
+ 		retval = do_change_type(&nd, flags);
+ 	else if (flags & MS_MOVE)
 

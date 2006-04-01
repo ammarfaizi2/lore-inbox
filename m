@@ -1,78 +1,78 @@
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWDAGEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbWCaPsq (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 31 Mar 2006 10:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWCaPsq
+	id S932121AbWDAGEv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Apr 2006 01:04:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWDAGEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 10:48:46 -0500
-Received: from vsmtp2.tin.it ([212.216.176.222]:56491 "EHLO vsmtp2.tin.it")
-	by vger.kernel.org with ESMTP id S1750732AbWCaPsp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 10:48:45 -0500
-Message-ID: <10a50f48c3b.wintergames2@virgilio.it>
-Date: Fri, 31 Mar 2006 16:38:24 +0100 (GMT+01:00)
-From: <wintergames2@virgilio.it>
-Reply-To: <wintergames2@virgilio.it>
-Subject: 19th ARCTIC WINTER GAMES
+	Sat, 1 Apr 2006 01:04:51 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:1042 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932121AbWDAGEu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Apr 2006 01:04:50 -0500
+Date: Sat, 1 Apr 2006 08:04:33 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: George P Nychis <gnychis@cmu.edu>
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: cannot get clean 2.4.20 kernel to compile
+Message-ID: <20060401060433.GK21493@w.ods.org>
+References: <5W8lY-1wF-29@gated-at.bofh.it> <442C81BC.7030605@shaw.ca> <60485.128.237.233.65.1143825987.squirrel@128.237.233.65>
 Mime-Version: 1.0
-Content-Type: text/plain;charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: 83.116.99.195
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <60485.128.237.233.65.1143825987.squirrel@128.237.233.65>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750732AbWCaPsq@vger.kernel.org>
 
-19th ARCTIC WINTER GAMES
-MARCH 5th - MARCH 11, 2006,
-DISBURSEMENT 
-UNIT.
-IDENTIFICATION NUMBER: XWTR24351423
-Dear Sir/Madam,
+On Fri, Mar 31, 2006 at 12:26:27PM -0500, George P Nychis wrote:
+> I see...
+> 
+> here is my gcc version:
+> gcc version 3.3.6 (Gentoo 3.3.6, ssp-3.3.6-1.0, pie-8.7.8)
+> 
+> Is it too new?
 
-Be informed 
-that the arctic winter games has come and gone.As customary,gifts are 
-disbursed to selected recipients/winners via an email pick software.
-Your email information falls within CATEGORY C for year 2006 end of 
-games stakes and a lump sum attached.This was put in place to promote 
-awareness on the games and encourage participants from all corners of 
-the world.
+I think so. Either try with 2.95 or upgrade your kernel to 2.4.32.
 
-You are hereby required to reach our disbursement unit for 
-further information,verification & release quoting your
-identification 
-number:
+Cheers,
+Willy
 
-REPRESENTATIVE OFFICE:
-SHEIKH P.DAVIES 
-Foreign Unit Manager, 
-of the (Hillstar Finance and Securities) Amsterdam,Netherlands. 
-TEL:
-+31-623-009-849
-FAX:+31-847-547-368 
-email:( hillstarfinance@netscape.
-net )
-
-Faithfully,
-Sir.Carlos Langer
-Organising Committee.
-
-
-This 
-message is intended only for the use of the person(s) ("the
-Intended 
-Recipients") to whom it is addressed. It may contain
-information which 
-is privileged and confidential within the meaning of applicable law. If 
-you are not the Intended Recipient, please contact the sender as soon 
-as possible and delete it immediately. If you are not the Intended 
-Recipient you must not copy, distribute, disclose,print or in any way 
-rely upon it.
-The information contained in this email is given in good 
-faith for
-general information only and is subject to change without 
-notice.
-Winter Games Committee uses reasonable efforts to ensure its 
-accuracy but makes no representation and gives no warranty as to its 
-accuracy or otherwise. To the fullest extent permitted by law all such 
-representations and warranties whether expressed or implied are 
-excluded.
+> 
+> Thanks!
+> George
+> 
+> 
+> > George P Nychis wrote:
+> >> Hi,
+> >> 
+> >> I have downloaded the 2.4.20 kernel from ftp.kernel.org, have checked
+> >> its sign, and no matter what I try I cannot get it to compile.
+> >> 
+> >> I do a make mrproper, I then do make dep which is fine, but then i try
+> >> "make bzImage modules modules_install", selecting all the defaults, and
+> >> get an SMP header error: http://rafb.net/paste/results/QzIq7v86.html
+> >> 
+> >> I then disable SMP support and get: 
+> >> http://rafb.net/paste/results/muYA9t12.html
+> >> 
+> >> I even tried using my config from the 2.4.32 kernel which works
+> >> perfectly fine, and I also get the sched errors.
+> > 
+> > What gcc version? Some old kernels might not be buildable with newer 
+> > compilers.
+> > 
+> > -- Robert Hancock      Saskatoon, SK, Canada To email, remove "nospam" from
+> > hancockr@nospamshaw.ca Home Page: http://www.roberthancock.com/
+> > 
+> > 
+> > 
+> 
+> 
+> -- 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

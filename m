@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWDAHn4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751468AbWDAI2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbWDAHn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Apr 2006 02:43:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWDAHn4
+	id S1751468AbWDAI2M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Apr 2006 03:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbWDAI2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Apr 2006 02:43:56 -0500
-Received: from unixforces.net ([217.160.130.73]:61445 "EHLO
-	mail.unixforces.net") by vger.kernel.org with ESMTP id S932129AbWDAHnz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Apr 2006 02:43:55 -0500
-From: Markus Rothe <markus@unixforces.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Oops: mounting floppy disk on PPC64 (power3)
-Date: Sat, 1 Apr 2006 07:43:47 +0000
-User-Agent: KMail/1.8.3
-References: <200603312138.16032.markus@unixforces.net> <20060331225034.GA25663@localdomain>
-In-Reply-To: <20060331225034.GA25663@localdomain>
-Cc: linuxppc-dev@ozlabs.org
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1847019.k06EbHjheZ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Sat, 1 Apr 2006 03:28:12 -0500
+Received: from mail.gmx.de ([213.165.64.20]:58077 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751468AbWDAI2L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Apr 2006 03:28:11 -0500
+X-Authenticated: #14349625
+Subject: [patch 2.6.16-mm2 0/9] sched throttle tree extract
+From: Mike Galbraith <efault@gmx.de>
+To: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>
+Content-Type: text/plain
+Date: Sat, 01 Apr 2006 10:28:44 +0200
+Message-Id: <1143880124.7617.5.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200604010743.55018.markus@unixforces.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1847019.k06EbHjheZ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Greetings,
 
-On Friday 31 March 2006 22:50, Nathan Lynch wrote:
-> Maybe you could verify with latest -git, or 2.6.17-rc1 when it's
-> released?
+The following 9 patches is an extraction of my scheduler throttling tree
+against 2.6.16-mm2.  The patch below has already been applied, and is
+only included such that anyone applying these patches to virgin source
+will see no offsets.
 
-Yes, it is fixed.
+	-Mike
 
-Thanks for help!
+Signed-off-by: Mike Galbraith <efault@gmx.de>
 
-Markus Rothe
+--- linux-2.6.16-mm2/kernel/sched.c.org	2006-03-31 09:56:37.000000000 +0200
++++ linux-2.6.16-mm2/kernel/sched.c	2006-03-31 13:32:40.000000000 +0200
+@@ -820,7 +820,7 @@ static void __activate_task(task_t *p, r
+ {
+ 	prio_array_t *target = rq->active;
+ 
+-	if (unlikely(batch_task(p) || expired_starving(rq)))
++	if (unlikely(batch_task(p) || (expired_starving(rq) && !rt_task(p))))
+ 		target = rq->expired;
+ 	enqueue_task(p, target);
+ 	inc_nr_running(p, rq);
 
---nextPart1847019.k06EbHjheZ
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQBELi86x15fTQSr/HcRAtHSAKCTl1HZ6PXhGJIuAZEmSQ99fGZyGwCfVe3c
-UEKtrgHM2a3ARGMG4Y35KuQ=
-=TDzQ
------END PGP SIGNATURE-----
-
---nextPart1847019.k06EbHjheZ--

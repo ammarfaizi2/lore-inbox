@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbWDAJSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWDAJVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750920AbWDAJSu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Apr 2006 04:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbWDAJSu
+	id S1750755AbWDAJVi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Apr 2006 04:21:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWDAJVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Apr 2006 04:18:50 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56593 "HELO
+	Sat, 1 Apr 2006 04:21:38 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58385 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750892AbWDAJSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Apr 2006 04:18:49 -0500
-Date: Sat, 1 Apr 2006 11:18:47 +0200
+	id S1750755AbWDAJVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Apr 2006 04:21:38 -0500
+Date: Sat, 1 Apr 2006 11:21:36 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Athanasius <link@miggy.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, coreteam@netfilter.org
-Cc: netfilter-devel@lists.netfilter.org, netdev@vger.kernel.org
-Subject: netfilter: IP_NF_CONNTRACK_NETLINK=y, IP_NF_NAT=m compile error
-Message-ID: <20060401091847.GC28310@stusta.de>
-References: <Pine.LNX.4.64.0603192216450.3622@g5.osdl.org> <20060328163932.GJ28030@miggy.org> <20060331170916.GL28030@miggy.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Christian Trefzer <ctrefzer@gmx.de>, Takashi Iwai <tiwai@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+Subject: Re: snd-nm256: hard lockup on every second module load after powerup
+Message-ID: <20060401092136.GD28310@stusta.de>
+References: <20060326054542.GA11961@hermes.uziel.local> <s5hveu0chvy.wl%tiwai@suse.de> <1143500400.1792.314.camel@mindpipe> <20060329144303.GA24146@hermes.uziel.local> <20060331211240.GD22677@stusta.de> <1143841995.27146.25.camel@mindpipe>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060331170916.GL28030@miggy.org>
+In-Reply-To: <1143841995.27146.25.camel@mindpipe>
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 31, 2006 at 06:09:16PM +0100, Athanasius wrote:
-> On Tue, Mar 28, 2006 at 05:39:32PM +0100, Athanasius wrote:
-> >   CC      init/version.o
-> >   LD      init/built-in.o
-> >   LD      .tmp_vmlinux1
-> > net/built-in.o(.text+0x7c990): In function `ctnetlink_parse_nat_proto':
-> > : undefined reference to `ip_nat_proto_find_get'
-> > net/built-in.o(.text+0x7c9b2): In function `ctnetlink_parse_nat_proto':
-> > : undefined reference to `ip_nat_proto_put'
-> > net/built-in.o(.text+0x7d695): In function `ctnetlink_change_conntrack':
-> > : undefined reference to `ip_nat_setup_info'
-> > net/built-in.o(.text+0x7da9f): In function `ctnetlink_create_conntrack':
-> > : undefined reference to `ip_nat_setup_info'
-> > make: *** [.tmp_vmlinux1] Error 1
-> ...
-> > CONFIG_IP_NF_TARGET_TCPMSS=m
-> > CONFIG_IP_NF_NAT=m
-> > CONFIG_IP_NF_NAT_NEEDED=y
-> > CONFIG_IP_NF_TARGET_MASQUERADE=m
+On Fri, Mar 31, 2006 at 04:53:13PM -0500, Lee Revell wrote:
+> On Fri, 2006-03-31 at 23:12 +0200, Adrian Bunk wrote:
+> > > Actually, the changes in Linus' current git have fixed the hang for
+> > me.
+> > > Good job - thanks a lot, guys!
+> > > 
+> > > Kind regards,
+> > > Chris
+> > 
+> > Takashi, would it be possible getting the fixes for this hard lookup 
+> > into 2.6.16.2?
+> > 
 > 
-> ...
-> 
->   It looks like the problem was that "CONFIG_IP_NF_NAT=m".  I changed
-> this to 'y' and things look to be compiling fine now.
->...
+> Is a 225 line patch to fix a driver that's never worked appropriate for
+> -stable?
 
-First of all thanks for your report.
+If it was only "not working" it wasn't that bad, but "hard lockup" is 
+really bad.
 
-More exactly, it's the combination CONFIG_IP_NF_CONNTRACK_NETLINK=y, 
-CONFIG_IP_NF_NAT=m.
-
-Can someone who understands the netfilter dependencies please look into 
-this bug?
-
-It's present in both 2.6.16.1 and 2.6.16-mm2.
- 
-> -Ath
+> Lee
 
 cu
 Adrian

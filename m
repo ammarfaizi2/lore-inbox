@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751455AbWDACyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbWDAC5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751455AbWDACyq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Mar 2006 21:54:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbWDACyq
+	id S932379AbWDAC5E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Mar 2006 21:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWDAC5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Mar 2006 21:54:46 -0500
-Received: from smtpout.mac.com ([17.250.248.97]:51675 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751455AbWDACyp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Mar 2006 21:54:45 -0500
-In-Reply-To: <442DD58B.7070801@shaw.ca>
-References: <5VqEv-46l-49@gated-at.bofh.it> <5VqEv-46l-47@gated-at.bofh.it> <5WA8u-X3-5@gated-at.bofh.it> <5WAi6-19q-13@gated-at.bofh.it> <5WB4M-2kX-29@gated-at.bofh.it> <442DD58B.7070801@shaw.ca>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <7873105C-8F66-4458-B669-3D6677203802@mac.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+	Fri, 31 Mar 2006 21:57:03 -0500
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:38491 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751483AbWDAC5B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Mar 2006 21:57:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=4kpDbPT5/J2nmNX+Q1IznNpCLKlkGheCVnkEAwXqp8Wm7gm55Hr5SkFhlWzB1ansO/utxl9cKbIgDzXC53egga1hR+ysk9xcavmL2KnWiGylcnUqOm6HMhhP5yFjb7bg+WoKFizeqwQuh/uyttjjOozXgcdSaivK6+H07xKjH5M=  ;
+Message-ID: <442DEBF7.1090806@yahoo.com.au>
+Date: Sat, 01 Apr 2006 12:56:55 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@SGI.com>
+CC: Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
+       "Boehm, Hans" <hans.boehm@hp.com>,
+       "Grundler, Grant G" <grant.grundler@hp.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Synchronizing Bit operations V2
+References: <Pine.LNX.4.64.0603301300430.1014@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0603301615540.2023@schroedinger.engr.sgi.com> <442C7B51.1060203@yahoo.com.au> <Pine.LNX.4.64.0603301921550.3145@schroedinger.engr.sgi.com> <442CAC11.4070803@yahoo.com.au> <Pine.LNX.4.64.0603310939570.6628@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0603310939570.6628@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [RESEND][2.6.15] New ATA error messages on upgrade to 2.6.15
-Date: Fri, 31 Mar 2006 21:54:41 -0500
-To: Robert Hancock <hancockr@shaw.ca>
-X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 31, 2006, at 20:21:15, Robert Hancock wrote:
-> Kyle Moffett wrote:
->> hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
->> hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
->
-> Hmm, are these new? Sure you don't have a bad IDE cable?
+Christoph Lameter wrote:
+> On Fri, 31 Mar 2006, Nick Piggin wrote:
 
-Oh, those aren't the errors I'm worried about; I've had those for a  
-while and they're harmless.  Those are due to the kernel running the  
-IDE controller at a higher-than-supported speed.  It gets errors for  
-a couple seconds and automatically drops the bus down to a lower and  
-safer speed.  The cable's aren't bad, I've tried at least 6 different  
-80-conductor cables that all work fine in other systems.  The errors  
-I _am_ worried about are these:
+>>You acknowledge that you have to fix ia64 to match current semantics
+>>first, right?
+> 
+> 
+> Right. I believe I have done so by making both smb_mb_* full barriers.
 
-> Mar 28 03:15:13 penelope kernel: hdi: status timeout: status=0xd0  
-> { Busy }
-> Mar 28 03:15:13 penelope kernel: PDC202XX: Secondary channel reset.
-> Mar 28 03:15:13 penelope kernel: hdi: no DRQ after issuing  
-> MULTWRITE_EXT
-> Mar 28 03:15:13 penelope kernel: ide4: reset: success
-> Mar 28 03:30:13 penelope kernel: hdi: status timeout: status=0xd0  
-> { Busy }
-> Mar 28 03:30:13 penelope kernel: PDC202XX: Secondary channel reset.
-> Mar 28 03:30:13 penelope kernel: hdi: no DRQ after issuing  
-> MULTWRITE_EXT
-> Mar 28 03:30:13 penelope kernel: ide4: reset: success
+All bitop and atomic test_and_set, inc_return, etc etc (ie. everything
+that modifies the operand and returns something) needs to be a full
+barrier before and after too.
 
-Cheers,
-Kyle Moffett
+>>Now people seem to be worried about the performance impact that will
+>>have, so I simply suggest that adding two or three new macros for the
+>>important cases to give you a 90% solution.
+> 
+> 
+> We could transition some key locations of core code to use _mode bitops
+> if there are performance problems.
+> 
+> 
+>>I think Documentation/atomic_ops.txt isn't bad. smp_mb__* really
+>>is a smp_mb, which can be optimised sometimes.
+> 
+> 
+> Ok. Then we are on the same page and the solution I presented may be 
+> acceptable. I have a new rev here that changes the naming a bit but I 
+> think we are okay right?
 
+Not sure, to be honest. I think it is probably something which needs
+input from all the other arch people, and Linus, if you intend to use
+it to introduce new types of barriers.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

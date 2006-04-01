@@ -1,75 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWDATOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWDATQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750860AbWDATOG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Apr 2006 14:14:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWDATOG
+	id S1751350AbWDATQN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Apr 2006 14:16:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbWDATQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Apr 2006 14:14:06 -0500
-Received: from smtpout.mac.com ([17.250.248.47]:25317 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750860AbWDATOE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Apr 2006 14:14:04 -0500
-In-Reply-To: <442ECE9F.4020206@shaw.ca>
-References: <5WD6n-5fR-9@gated-at.bofh.it> <5WD6n-5fR-11@gated-at.bofh.it> <5WD6n-5fR-13@gated-at.bofh.it> <5WD6n-5fR-15@gated-at.bofh.it> <5WD6n-5fR-17@gated-at.bofh.it> <5WD6n-5fR-7@gated-at.bofh.it> <5WEvy-7az-7@gated-at.bofh.it> <442ECE9F.4020206@shaw.ca>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <FA7D3020-0CEF-49DD-A1F3-7D89E92521EC@mac.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [RESEND][2.6.15] New ATA error messages on upgrade to 2.6.15
-Date: Sat, 1 Apr 2006 14:13:55 -0500
-To: Robert Hancock <hancockr@shaw.ca>
-X-Mailer: Apple Mail (2.746.3)
+	Sat, 1 Apr 2006 14:16:13 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:56807 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751350AbWDATQN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Apr 2006 14:16:13 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Sat, 1 Apr 2006 21:11:41 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH] sbp2: fix spinlock recursion
+To: Linus Torvalds <torvalds@osdl.org>
+cc: stable@kernel.org, linux-kernel@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net,
+       Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>
+Message-ID: <tkrat.11bf8809a766b402@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
+X-Spam-Score: (0.835) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 1, 2006, at 14:03:59, Robert Hancock wrote:
-> Kyle Moffett wrote:
->>>> hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
->>>> hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
->>>
->>> Hmm, are these new? Sure you don't have a bad IDE cable?
->> Oh, those aren't the errors I'm worried about; I've had those for  
->> a while and they're harmless.  Those are due to the kernel running  
->> the IDE controller at a higher-than-supported speed.  It gets  
->> errors for a couple seconds and automatically drops the bus down  
->> to a lower and safer speed.
->
-> That would be a bug, no? Sounds dangerous to rely on that.
+sbp2util_mark_command_completed takes a lock which was already taken by
+sbp2scsi_complete_all_commands.  This is a regression in Linux 2.6.15.
+Reported by Kristian Harms at
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=187394
 
-Well, no one else seems concerned by that behavior (and I recall it  
-being mentioned previously on this list somewhere).  I've tested it  
-fairly extensively; if I turn up the drive speed with hdparm, it gets  
-about 4 more CRC errors during data transfer (each badcrc command is  
-retried, of course), and then does a bus reset and drops to a lower  
-speed again.  I've never had any problems with data corruption on  
-this system, and it has been a RAID5 fileserver for several years now.
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+---
+ drivers/ieee1394/sbp2.c |   32 +++++++++++++++-----------------
+ 1 files changed, 15 insertions(+), 17 deletions(-)
 
->>  The cable's aren't bad, I've tried at least 6 different 80- 
->> conductor cables that all work fine in other systems.  The errors  
->> I _am_ worried about are these:
->>> Mar 28 03:15:13 penelope kernel: hdi: status timeout: status=0xd0  
->>> { Busy }
->>> Mar 28 03:15:13 penelope kernel: PDC202XX: Secondary channel reset.
->>> Mar 28 03:15:13 penelope kernel: hdi: no DRQ after issuing  
->>> MULTWRITE_EXT
->>> Mar 28 03:15:13 penelope kernel: ide4: reset: success
->>> Mar 28 03:30:13 penelope kernel: hdi: status timeout: status=0xd0  
->>> { Busy }
->>> Mar 28 03:30:13 penelope kernel: PDC202XX: Secondary channel reset.
->>> Mar 28 03:30:13 penelope kernel: hdi: no DRQ after issuing  
->>> MULTWRITE_EXT
->>> Mar 28 03:30:13 penelope kernel: ide4: reset: success
->
-> That sounds fishy to me. If the controller is having trouble  
-> communicating with the drive causing BadCRC errors, it could easily  
-> cause such errors as the above as well.
+--- linux-2.6.16.1/drivers/ieee1394/sbp2.c.orig	2006-04-01 19:06:31.000000000 +0200
++++ linux-2.6.16.1/drivers/ieee1394/sbp2.c	2006-04-01 19:07:00.000000000 +0200
+@@ -495,22 +495,17 @@ static struct sbp2_command_info *sbp2uti
+ /*
+  * This function finds the sbp2_command for a given outstanding SCpnt.
+  * Only looks at the inuse list.
++ * Must be called with scsi_id->sbp2_command_orb_lock held.
+  */
+-static struct sbp2_command_info *sbp2util_find_command_for_SCpnt(struct scsi_id_instance_data *scsi_id, void *SCpnt)
++static struct sbp2_command_info *sbp2util_find_command_for_SCpnt(
++		struct scsi_id_instance_data *scsi_id, void *SCpnt)
+ {
+ 	struct sbp2_command_info *command;
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&scsi_id->sbp2_command_orb_lock, flags);
+-	if (!list_empty(&scsi_id->sbp2_command_orb_inuse)) {
+-		list_for_each_entry(command, &scsi_id->sbp2_command_orb_inuse, list) {
+-			if (command->Current_SCpnt == SCpnt) {
+-				spin_unlock_irqrestore(&scsi_id->sbp2_command_orb_lock, flags);
++	if (!list_empty(&scsi_id->sbp2_command_orb_inuse))
++		list_for_each_entry(command, &scsi_id->sbp2_command_orb_inuse, list)
++			if (command->Current_SCpnt == SCpnt)
+ 				return command;
+-			}
+-		}
+-	}
+-	spin_unlock_irqrestore(&scsi_id->sbp2_command_orb_lock, flags);
+ 	return NULL;
+ }
+ 
+@@ -579,17 +574,15 @@ static void sbp2util_free_command_dma(st
+ 
+ /*
+  * This function moves a command to the completed orb list.
++ * Must be called with scsi_id->sbp2_command_orb_lock held.
+  */
+-static void sbp2util_mark_command_completed(struct scsi_id_instance_data *scsi_id,
+-					    struct sbp2_command_info *command)
++static void sbp2util_mark_command_completed(
++		struct scsi_id_instance_data *scsi_id,
++		struct sbp2_command_info *command)
+ {
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&scsi_id->sbp2_command_orb_lock, flags);
+ 	list_del(&command->list);
+ 	sbp2util_free_command_dma(command);
+ 	list_add_tail(&command->list, &scsi_id->sbp2_command_orb_completed);
+-	spin_unlock_irqrestore(&scsi_id->sbp2_command_orb_lock, flags);
+ }
+ 
+ /*
+@@ -2177,7 +2170,9 @@ static int sbp2_handle_status_write(stru
+ 		 * Matched status with command, now grab scsi command pointers and check status
+ 		 */
+ 		SCpnt = command->Current_SCpnt;
++		spin_lock_irqsave(&scsi_id->sbp2_command_orb_lock, flags);
+ 		sbp2util_mark_command_completed(scsi_id, command);
++		spin_unlock_irqrestore(&scsi_id->sbp2_command_orb_lock, flags);
+ 
+ 		if (SCpnt) {
+ 
+@@ -2513,6 +2508,7 @@ static int sbp2scsi_abort(struct scsi_cm
+ 		(struct scsi_id_instance_data *)SCpnt->device->host->hostdata[0];
+ 	struct sbp2scsi_host_info *hi = scsi_id->hi;
+ 	struct sbp2_command_info *command;
++	unsigned long flags;
+ 
+ 	SBP2_ERR("aborting sbp2 command");
+ 	scsi_print_command(SCpnt);
+@@ -2523,6 +2519,7 @@ static int sbp2scsi_abort(struct scsi_cm
+ 		 * Right now, just return any matching command structures
+ 		 * to the free pool.
+ 		 */
++		spin_lock_irqsave(&scsi_id->sbp2_command_orb_lock, flags);
+ 		command = sbp2util_find_command_for_SCpnt(scsi_id, SCpnt);
+ 		if (command) {
+ 			SBP2_DEBUG("Found command to abort");
+@@ -2540,6 +2537,7 @@ static int sbp2scsi_abort(struct scsi_cm
+ 				command->Current_done(command->Current_SCpnt);
+ 			}
+ 		}
++		spin_unlock_irqrestore(&scsi_id->sbp2_command_orb_lock, flags);
+ 
+ 		/*
+ 		 * Initiate a fetch agent reset.
 
-Except you seem to have missed the fact that these errors never  
-occurred under 2.6.12, and occur regularly on 2.6.15.  Besides, after  
-the initial boot-time lowering of the speed, I never get another  
-badCRC error from the drive, and I've never had any data corruption.
 
-Cheers,
-Kyle Moffett

@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbWDBR7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWDBR76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932402AbWDBR7r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 13:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWDBR7r
+	id S932403AbWDBR76 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 13:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWDBR76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 13:59:47 -0400
-Received: from wproxy.gmail.com ([64.233.184.228]:24739 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932401AbWDBR7q convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 13:59:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=l4Iu+bi+DZyPNJxPHYITcs6RDGil7IeVTc3rv3QgUBTnie9bTBUNVZbW1BdKtKy5K+rB8EUwajvY+O8Ty+Uyte16CiMSN7AgIwN4NhSjNpBp3RuAfpAc8XSpU/jpNZS7ltwoTXCj48FvfuwuLFoFrSr+TVBSR+SzMHZp2rh4Cco=
-Message-ID: <311601c90604021059jcdf56e4ja35e3507ab291179@mail.gmail.com>
-Date: Sun, 2 Apr 2006 11:59:45 -0600
-From: "Eric D. Mudama" <edmudama@gmail.com>
-To: "Dan Aloni" <da-x@monatomic.org>
-Subject: Re: sata_mv: module reloading doesn't work
-Cc: "Linux Kernel List" <linux-kernel@vger.kernel.org>,
-       "Jeff Garzik" <jgarzik@pobox.com>, "Mark Lord" <lkml@rtr.ca>,
-       "IDE/ATA development list" <linux-ide@vger.kernel.org>
-In-Reply-To: <20060402155647.GB20270@localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 2 Apr 2006 13:59:58 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:43784 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932403AbWDBR75 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 13:59:57 -0400
+Date: Sun, 2 Apr 2006 19:58:59 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: nix@esperi.org.uk, rob@landley.net, mmazur@kernel.pl,
+       linux-kernel@vger.kernel.org, llh-discuss@lists.pld-linux.org
+Subject: Re: [RFC][PATCH 0/2] KABI example conversion and cleanup
+Message-ID: <20060402175859.GA9839@mars.ravnborg.org>
+References: <200603141619.36609.mmazur@kernel.pl> <200603231811.26546.mmazur@kernel.pl> <DE01BAD3-692D-4171-B386-5A5F92B0C09E@mac.com> <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix> <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com> <20060326065205.d691539c.mrmacman_g4@mac.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060402155647.GB20270@localdomain>
+In-Reply-To: <20060326065205.d691539c.mrmacman_g4@mac.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/2/06, Dan Aloni <da-x@monatomic.org> wrote:
-> Hello,
->
-> I'm testing the sata_mv driver to see whether reloading (rmmod
-> - insmod) works, and it seems something is broken there. The
-> first insmod goes okay - however all the insmods that follow
-> emit error=0x01 { AddrMarkNotFound } and status=0x50 { DriveReady
-> SeekComplete } from all the drives.
+On Sun, Mar 26, 2006 at 06:52:05AM -0500, Kyle Moffett wrote:
+> On Fri, 24 Mar 2006 17:46:27 -0500 Kyle Moffett <mrmacman_g4@mac.com> wrote:
+> > I'm working on some sample patches now which I'll try to post in a
+> > few days if I get the time.
+> 
+> Ok, here's a sample of the KABI conversion and cleanup patches that I'm
+> proposing.  I have a few fundamental goals for these patches:
+> 1)  The Linux kernel compiles and works at every step along the way
+> 2)  Since most of the headers are currently quite broken with respect to
+>     GLIBC and userspace, I won't spend much extra time preserving
+>     compatibility with GLIBC, userspace, or non-GCC compilers.
+> 3)  Everything in include/kabi will have a __kabi_ or __KABI_ prefix.
+> 4)  Headers in include/linux that need the KABI interfaces will include
+>     the corresponding <kabi/*.h> header and define or typedef the
+>     necessary KABI definitions to the names the kernel wants.
+> 5)  The stuff in include/kabi/*.h should always be completely independent
+>     of userspace/kernelspace and not require any includes outside of
+>     <kabi/*>.  This means that the only preprocessor symbols that we can
+>     assume are present are those provided by the compiler itself.
+Hi Kyle.
+Been watching this thread evolve for a while - and contributed a little
+myself.
+But I fail to find a rationale for the selected approach.
 
-More to Jeff/Mark etc... wouldn't this be expected?  0x50/0x01 is the
-contents of a reset signature FIS.  If the module was removed, and
-upon insmod the bus came back up, the drive would complete ASR or
-COMRESET processing and post a signature FIS.  Is the phy disabled
-when sata_mv is removed?
+There are at minimum the following options:
+1) Go through current set of headers and sanitize them - using
+   __KERNEL__ to identify kernel only stuff.
+2) Keep user space interface (KABI in your term?) in include/ and slowly
+   move kernel specific definitions somewhere else. This has the great
+   advantage to keep backward compaitibility.
+3) 'Preprocess' include/ and generate a set of KABI files based on
+   current set of (cleaned up) kernel header files.
+   'Preporcess in '' because a C-preprocessor will not be sutilable.
+4) Introduce a virgin KABI (your approach). The virgin KABI has no users
+   today and does in no way preserve backward compatibility.
+
+Can you try to explain why the virgin approach is superior to the
+others.
+
+	Sam

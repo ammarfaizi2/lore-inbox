@@ -1,78 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWDBIYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWDBIkE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbWDBIYa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 04:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWDBIYa
+	id S932168AbWDBIkE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 04:40:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWDBIkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 04:24:30 -0400
-Received: from mail-new.archive.org ([207.241.227.188]:65208 "EHLO
-	mail.archive.org") by vger.kernel.org with ESMTP id S932152AbWDBIY3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 04:24:29 -0400
-Message-ID: <442F8A3A.9000305@archive.org>
-Date: Sun, 02 Apr 2006 00:24:26 -0800
-From: Joerg Bashir <brak@archive.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Sun, 2 Apr 2006 04:40:04 -0400
+Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:60848 "HELO
+	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932168AbWDBIkD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 04:40:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=wxXGI34qv25Zcddop99F+IBjCDGZI6QUs/gznPNvJntk+FTRqtfVTScdxYh0XM4hg6hzac//tFKeD97wgRja6wTw48H9e9OnVgC7QfJppS3D3d4YcUI4gx4qoUTWxNSRixoTObmt4P6wJNBle98zkg6CxfDj3hnra28VEZKn4dw=  ;
+Message-ID: <442F5721.2040906@yahoo.com.au>
+Date: Sun, 02 Apr 2006 14:46:25 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Muli Ben-Yehuda <mulix@mulix.org>
-CC: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>, ak@suse.de,
-       jgarzik@pobox.com
-Subject: Re: PCI-DMA: Out of IOMMU space on x86-64 (Athlon64x2), with solution
-References: <5Mq18-1Na-21@gated-at.bofh.it> <5MqNc-2Y5-3@gated-at.bofh.it> <5MqX4-39H-21@gated-at.bofh.it> <5MyAS-5zh-5@gated-at.bofh.it> <440CD09A.9040005@shaw.ca> <442F827E.8040104@archive.org> <20060402080035.GA7856@granada.merseine.nu>
-In-Reply-To: <20060402080035.GA7856@granada.merseine.nu>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Con Kolivas <kernel@kolivas.org>
+CC: ck list <ck@vds.kolivas.org>, linux list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.16-ck3
+References: <200604021401.13331.kernel@kolivas.org>
+In-Reply-To: <200604021401.13331.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Muli Ben-Yehuda wrote:
-> On Sat, Apr 01, 2006 at 11:51:26PM -0800, Joerg Bashir wrote:
+Con Kolivas wrote:
+> These are patches designed to improve system responsiveness and interactivity. 
+> It is configurable to any workload but the default ck patch is aimed at the 
+> desktop and cks is available with more emphasis on serverspace.
 > 
+> THESE INCLUDE THE PATCHES FROM 2.6.16.1 SO START WITH 2.6.16 AS YOUR BASE
 > 
->>I saw a lot of patches come through by Muli but am not sure they address
->>this issue, do they?
+> Apply to 2.6.16
+> http://www.kernel.org/pub/linux/kernel/people/ck/patches/2.6/2.6.16/2.6.16-ck3/patch-2.6.16-ck3.bz2
 > 
-> 
-> No, I'm afraid not - our patches are to support a different
-> IOMMU, and it looks like this problem is gart specific. I'll go dig
-> through the archive, but is there consensus on how to solve this bug
-> and it's just a question of doing the work, or is the root cause
-> unknown?
 
-I'm unsure.  Here is an earlier message from this thread with info and a
-glimmer of hope.
+The swap prefetching here, and the one in -mm AFAIKS still do not follow
+the lowmem reserve ratio correctly. This might explain why prefetching
+appears to help some people after updatedb swaps stuff out to make room
+for pagecache -- it may actually be dipping into lower zones when it
+shouldn't.
 
-
-------------------------------------
-
-Andi Kleen wrote:
-
-> On Friday 03 March 2006 22:27, Allen Martin wrote:
->
->
->> nForce4 has 64 bit (40 bit AMD64) DMA in the SATA controller.  We gave
->> the docs to Jeff Garzik under NDA.  He posted some non functional driver
->> code to linux-ide earlier this week that has the 64 bit registers and
->> structures although it doesn't make use of them.  Someone could pick
->> this up if they wanted to work on it though.
->
->
->
-> Thanks for the correction. Sounds nice - hopefully we'll get a driver
-soon.
-> I guess it's in good hands with Jeff for now.
-
-
-I'll happen but not soon.  Motivation is low at NV and here as well,
-since newer NV is AHCI.  The code in question, "NV ADMA", is essentially
-legacy at this point -- though I certainly acknowledge the large current
-installed base.  Just being honest about the current state of things...
-
-    Jeff
-
-> 
-> Cheers,
-> Muli
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

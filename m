@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWDBJgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWDBJjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbWDBJgc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 05:36:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWDBJgc
+	id S932187AbWDBJjh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 05:39:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWDBJjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 05:36:32 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:24493 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S932140AbWDBJgb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 05:36:31 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <442F9AEE.3000209@s5r6.in-berlin.de>
-Date: Sun, 02 Apr 2006 11:35:42 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
+	Sun, 2 Apr 2006 05:39:37 -0400
+Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:29663 "EHLO
+	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932187AbWDBJjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 05:39:36 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: ck@vds.kolivas.org
+Subject: Re: [ck] Re: 2.6.16-ck3
+Date: Sun, 2 Apr 2006 19:39:21 +1000
+User-Agent: KMail/1.9.1
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux list <linux-kernel@vger.kernel.org>
+References: <200604021401.13331.kernel@kolivas.org> <442F5721.2040906@yahoo.com.au> <200604021851.39763.kernel@kolivas.org>
+In-Reply-To: <200604021851.39763.kernel@kolivas.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: torvalds@osdl.org, stable@kernel.org, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net, scjody@modernduck.com
-Subject: Re: [PATCH] sbp2: fix spinlock recursion
-References: <tkrat.11bf8809a766b402@s5r6.in-berlin.de> <20060401165241.5989d67f.akpm@osdl.org>
-In-Reply-To: <20060401165241.5989d67f.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: (0.836) AWL,BAYES_50
+Content-Disposition: inline
+Message-Id: <200604021939.21729.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
-> 
->>@@ -2540,6 +2537,7 @@ static int sbp2scsi_abort(struct scsi_cm
->>  				command->Current_done(command->Current_SCpnt);
->>  			}
->>  		}
->> +		spin_unlock_irqrestore(&scsi_id->sbp2_command_orb_lock, flags);
-> 
-> 
-> This changes the call environment for all implementations of
-> ->Current_done().  Are they all safe to call under this lock?
+On Sunday 02 April 2006 18:51, Con Kolivas wrote:
+> On Sunday 02 April 2006 14:46, Nick Piggin wrote:
+> > The swap prefetching here, and the one in -mm AFAIKS still do not follow
+> > the lowmem reserve ratio correctly. This might explain why prefetching
+> > appears to help some people after updatedb swaps stuff out to make room
+> > for pagecache -- it may actually be dipping into lower zones when it
+> > shouldn't.
+>
+> Curious. I was under the impression lowmem reserve only did anything if you
+> manually set it, and the users reporting on swap prefetch behaviour are not
+> the sort of users likely to do so. I'm happy to fix whatever the lowmem
+> reserve bug is but I doubt this bug is making swap prefetch behave better
+> for ordinary users. Well, whatever the case is I'll have another look at
+> lowmem reserve of course.
 
-Short answer: Yes, trust me. ;-) Long answer:
+Ok I can't see what I'm doing wrong.
 
-The done() callbacks are passed on to sbp2 from the SCSI stack along 
-with each SCSI command via the queuecommand hook. The done() callback is 
-safe to call in atomic context. So does 
-Documentation/scsi/scsi_mid_low_api.txt say, and many if not all SCSI 
-low-level handlers rely on this fact. So whatever this callback does, it 
-is "self-contained" and it won't conflict with sbp2's internal ORB list 
-handling. In particular, it won't race with the sbp2_command_orb_lock.
+here are my watermarks
 
-Moreover, sbp2 already calls the done() handler with 
-sbp2_command_orb_lock taken in sbp2scsi_complete_all_commands(). I admit 
-this is ultimately no proof of correctness, especially since this 
-portion of code introduced the spinlock recursion in the first place and 
-we didn't realize it since this code's submission before 2.6.15 until 
-now. (I have learned a lesson from this.)
+idx = zone_idx(z);
+ns->lowfree[idx] = z->pages_high * 3 + z->lowmem_reserve[idx];
+ns->highfree[idx] = ns->lowfree[idx] + z->pages_high;
 
-I stress-tested my patch on x86 uniprocessor with a preemptible SMP 
-kernel (alas I have no SMP machine yet) and made sure that all code 
-paths which involve the sbp2_command_orb_lock were gone through multiple 
-times. Which is of course also no proof.
--- 
-Stefan Richter
--=====-=-==- -=-- ---=-
-http://arcgraph.de/sr/
+It's (3 * pages_high) +lowmem_reserve which is well in excess of the reserve 
+so I can't see any problem. Am I missing something?
+
+Cheers,
+Con

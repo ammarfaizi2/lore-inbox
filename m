@@ -1,73 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWDBHfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWDBHyg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbWDBHfX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 03:35:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWDBHfX
+	id S1751276AbWDBHyg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 03:54:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbWDBHyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 03:35:23 -0400
-Received: from mga06.intel.com ([134.134.136.21]:30354 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750786AbWDBHfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 03:35:23 -0400
-TrustExchangeSourcedMail: True
-X-ExchangeTrusted: True
-X-IronPort-AV: i="4.03,154,1141632000"; 
-   d="scan'208"; a="18165370:sNHT17007879"
-Date: Sat, 1 Apr 2006 23:35:13 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: vatsa@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, suresh.b.siddha@intel.com,
-       Dinakar Guniguntala <dino@in.ibm.com>, pj@sgi.com, hawkes@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.16-mm2 4/4] sched_domain: Allocate sched_group structures dynamically
-Message-ID: <20060401233512.B8662@unix-os.sc.intel.com>
-References: <20060401185644.GC25971@in.ibm.com> <442F2B52.6000205@yahoo.com.au>
+	Sun, 2 Apr 2006 03:54:35 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29705 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751276AbWDBHyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 03:54:35 -0400
+Date: Sun, 2 Apr 2006 08:54:04 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andi Kleen <ak@suse.de>, Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
+       "Boehm, Hans" <hans.boehm@hp.com>,
+       "Grundler, Grant G" <grant.grundler@hp.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Synchronizing Bit operations V2
+Message-ID: <20060402075403.GA19149@flint.arm.linux.org.uk>
+Mail-Followup-To: Christoph Lameter <clameter@sgi.com>,
+	Andi Kleen <ak@suse.de>, Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
+	"Boehm, Hans" <hans.boehm@hp.com>,
+	"Grundler, Grant G" <grant.grundler@hp.com>,
+	"Chen, Kenneth W" <kenneth.w.chen@intel.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+References: <Pine.LNX.4.64.0603301300430.1014@schroedinger.engr.sgi.com> <p73vetu921a.fsf@verdi.suse.de> <Pine.LNX.4.64.0603310943480.6628@schroedinger.engr.sgi.com> <200603311948.38218.ak@suse.de> <Pine.LNX.4.64.0603310952540.6825@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <442F2B52.6000205@yahoo.com.au>; from nickpiggin@yahoo.com.au on Sun, Apr 02, 2006 at 11:39:30AM +1000
+In-Reply-To: <Pine.LNX.4.64.0603310952540.6825@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 02, 2006 at 11:39:30AM +1000, Nick Piggin wrote:
+On Fri, Mar 31, 2006 at 09:56:23AM -0800, Christoph Lameter wrote:
+> On Fri, 31 Mar 2006, Andi Kleen wrote:
 > 
-> Srivatsa Vaddagiri wrote:
-> >  /*
-> > @@ -6113,6 +6125,10 @@ next_sg:
-> >  static int build_sched_domains(const cpumask_t *cpu_map)
-> >  {
-> >  	int i;
-> > +	struct sched_group *sched_group_phys = NULL;
-> > +#ifdef CONFIG_SCHED_MC
-> > +	struct sched_group *sched_group_core = NULL;
-> > +#endif
-> >  #ifdef CONFIG_NUMA
-> >  	struct sched_group **sched_group_nodes = NULL;
-> >  	struct sched_group *sched_group_allnodes = NULL;
-> > @@ -6171,6 +6187,18 @@ static int build_sched_domains(const cpu
-> >  		cpus_and(sd->span, sd->span, *cpu_map);
-> >  #endif
-> >  
-> > +		if (!sched_group_phys) {
-> > +			sched_group_phys
-> > +				= kmalloc(sizeof(struct sched_group) * NR_CPUS,
-> > +					  GFP_KERNEL);
-> > +			if (!sched_group_phys) {
-> > +				printk (KERN_WARNING "Can not alloc phys sched"
-> > +						     "group\n");
-> > +				goto error;
-> > +			}
-> > +			sched_group_phys_bycpu[i] = sched_group_phys;
-> > +		}
+> > > Powerpc can do similar things AFAIK. Not sure what other arches have 
+> > > finer grained control over barriers but it could cover a lot of special 
+> > > cases for other processors as well.
+> > 
+> > Yes, but I don't think the goal of a portable atomic operations API
+> > in Linux is it to cover everybody's special case in every possible 
+> > combination. The goal is to have an abstraction that will lead to 
+> > portable code. I don't think your proposal will do this.
 > 
-> Doesn't the last assignment have to be outside the if statement?
-> 
-> Hmm.. this design seems like the best way to go for now. Suresh?
+> AFAIK The goal of a bitmap operations API (we are not talking about atomic 
+> operations here) is to make bitmap operations as efficient as possible and 
+> as simple as possible.
 
-Only thing I see in this is, even if there are very few cpus in the
-exclusive cpuset, we end up allocating NR_CPUS groups and waste memory.
+If we are not talking about atomic operations...
 
-thanks,
-suresh
+> We already have multiple special cases for each 
+> bitmap operation
+> 
+> I.e.
+> 
+> clear_bit()
+
+why do you then bring up the atomic bitop operation here?
+
+> __clear_bit()
+
+this is the non-atomic bitop operation.
+
+> and some people talk abouit
+> 
+> clear_bit_lock()
+> clear_bit_unlock()
+
+Neither of these exist in the kernel.
+
+> What I am prosing is to do one clear_bit_mode function that can take a 
+> parameter customizing its synchronization behavior.
+> 
+> clear_bit_mode(bit,addr,mode)
+
+Which means for architectures which implement bitops out of line (due
+to their size) that you end up making those architectures even more
+inefficient because they now have to decode the "mode" parameter which
+will take several compares and branches.
+
+The only way around that would be for such architectures to do:
+
+#define clear_bit_mode(bit,addr,mode)	clear_bit_mode_##mode(bit,addr)
+
+and then we're back to the named function approach.
+
+Incidentally, you say that the named function approach is not extensible.
+Do you have a limit on the number of functions you can have in your
+kernel?  If not, I don't see where such a statement would come from -
+you obviously can extend "clear_bit_atomic" and "clear_bit_nonatomic"
+by adding eg, "clear_bit_barrier".  And if you really want to multiplex
+them through one function, you can do:
+
+#define clear_bit_atomic(bit,addr)	clear_bit_mode(bit,addr,MODE_ATOMIC)
+#define clear_bit_nonatomic(bit,addr)	clear_bit_mode(bit,addr,MODE_NONATOMIC)
+#define clear_bit_barrier(bit,addr)	clear_bit_mode(bit,addr,MODE_BARRIER)
+
+etc.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

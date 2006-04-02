@@ -1,90 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWDBLRA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWDBLUF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932329AbWDBLRA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 07:17:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWDBLRA
+	id S932315AbWDBLUF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 07:20:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWDBLUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 07:17:00 -0400
-Received: from smtpout.mac.com ([17.250.248.84]:46823 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932329AbWDBLRA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 07:17:00 -0400
-In-Reply-To: <20060402103223.GD13503@elf.ucw.cz>
-References: <200603241623.49861.rob@landley.net> <878xqzpl8g.fsf@hades.wkstn.nix> <D903C0E1-4F7B-4059-A25D-DD5AB5362981@mac.com> <20060326065205.d691539c.mrmacman_g4@mac.com> <20060326065416.93d5ce68.mrmacman_g4@mac.com> <1143376351.3064.9.camel@laptopd505.fenrus.org> <A6491D09-3BCF-4742-A367-DCE717898446@mac.com> <20060329222640.GA2755@ucw.cz> <20060401162213.dc68d120.rdunlap@xenotime.net> <EB70C0D0-4961-4F78-B245-69C962F8B52E@mac.com> <20060402103223.GD13503@elf.ucw.cz>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <B87D3713-61A4-4C8F-9DEB-01EE2E728787@mac.com>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, nix@esperi.org.uk, rob@landley.net,
-       mmazur@kernel.pl, llh-discuss@lists.pld-linux.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [RFC][PATCH 1/2] Create initial kernel ABI header infrastructure
-Date: Sun, 2 Apr 2006 07:16:15 -0400
-To: Pavel Machek <pavel@ucw.cz>
-X-Mailer: Apple Mail (2.746.3)
+	Sun, 2 Apr 2006 07:20:05 -0400
+Received: from 169.248.adsl.brightview.com ([80.189.248.169]:57349 "EHLO
+	getafix.willow.local") by vger.kernel.org with ESMTP
+	id S932315AbWDBLUE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 07:20:04 -0400
+Date: Sun, 2 Apr 2006 12:20:02 +0100
+From: John Mylchreest <johnm@gentoo.org>
+To: Olaf Hering <olh@suse.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, paulus@samba.org
+Subject: Re: [PATCH 1/1] POWERPC: Fix ppc32 compile with gcc+SSP in 2.6.16
+Message-ID: <20060402112002.GA3443@getafix.willow.local>
+References: <20060401224849.GH16917@getafix.willow.local> <20060402085850.GA28857@suse.de> <20060402102259.GM16917@getafix.willow.local> <20060402102815.GA29717@suse.de> <20060402105859.GN16917@getafix.willow.local> <20060402111002.GA30017@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OXfL5xGRrasGEqWY"
+Content-Disposition: inline
+In-Reply-To: <20060402111002.GA30017@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 2, 2006, at 06:32:23, Pavel Machek wrote:
->> So my question to the list is this:
->> Can you come up with any way other than using a "__kabi_" prefix  
->> to reasonably avoid namespace collisions with that large list of  
->> compilers?  If you have some way, I'd be interested to hear it,  
->> but as a number of those compilers are commercial I'd have no way  
->> to test on them (and I suspect most people on this list would not  
->> either).
->
-> No, you should just not care about anything but gcc. intel-cc- 
-> version-0.3.2.1.2.5 could use __kabi_struct_dirent or whatever, and  
-> collide anyway. By adding __kabi you just make it less likely.
 
-At worst it would just go from "struct dirent" to "struct  
-__kabi_dirent".  One reason for this distinction as I believe was  
-highlighted in another email was so that eventually if necessary libc  
-could export a "struct dirent" not the same as the kernel one, and  
-translate between them internally.  That would be difficult or  
-impossible now, given the way the kernel exports "struct dirent"  
-directly.  I don't remember the specific case where this would have  
-been convenient, but I seem to recall it was mentioned in one of the  
-earlier iterations of this thread.
+--OXfL5xGRrasGEqWY
+Content-Type: text/plain; charset=utf8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I believe __ is enough. If there's one conflict with some obscure  
-> compiler, we can simply fix the conflict (or even fix the  
-> compiler :-).
->
-> If you feel __ is too dangerous, you may go __k ... It will not  
-> look as ugly as __kabi_ , and should be very safe.
+On Sun, Apr 02, 2006 at 01:10:02PM +0200, Olaf Hering <olh@suse.de> wrote:
+>  On Sun, Apr 02, John Mylchreest wrote:
+>=20
+> > On Sun, Apr 02, 2006 at 12:28:15PM +0200, Olaf Hering <olh@suse.de> wro=
+te:
+> > >  On Sun, Apr 02, John Mylchreest wrote:
+> > >=20
+> > > >   BOOTLD  arch/powerpc/boot/zImage.vmode
+> > > >   arch/powerpc/boot/prom.o(.text+0x19c): In function `call_prom':
+> > > >   : undefined reference to `__stack_smash_handler'
+> > >=20
+> > > Any this strange "security feature" is disabled by defining __KERNEL_=
+_?
+> >=20
+> > That correct, yes. SSP is actually used by quite a lot of vendors, and
+> > shouldn't be used outside of userland. Typically speaking it isn't, but
+> > in this case its being leaked.
+>=20
+> Either way, file a bugreport upstream to remove the dep on __KERNEL__ in
+> the gcc patch.
+>=20
+> A patch which adds -fno-dumb-feature to CFLAGS may be acceptable.
 
-I still disagree with you on this point, but I'll save the arguments  
-for when I have some submittable patches I'd like to get feedback  
-on.  I'm also fairly positive that in comparison to the ugliness in  
-some of the necessary C89-compatibility macros, the __kabi_ prefix  
-would be insignificant, but let's leave that discussion for another  
-time as well.
+Going from that, I can push a patch for gcc upstream to remove the
+__KERNEL__ dep, but gcc4.1 ships with ssp by standard, and the semantics
+between the IBM patch for SSP applied to gcc-3 and ggc-4 have changed.
 
-Cheers,
-Kyle Moffett
+-fno-stack-protector would work for gcc4, but for gcc3 it could still be
+patially enabled, and requires -fno-stack-protector-all. Mind If I ask
+whats incorrect about defining __KERNEL__ for the bootcflags?
 
-In any case, for reference, here are a few of the specific arguments  
-for support for other compilers:
+--=20
+Role:            Gentoo Linux Kernel Lead
+Gentoo Linux:    http://www.gentoo.org
+Public Key:      gpg --recv-keys 9C745515
+Key fingerprint: A0AF F3C8 D699 A05A EC5C  24F7 95AA 241D 9C74 5515
 
-On Mar 28, 2006, at 12:28:47, Daniel Jacobowitz wrote:
-> If you want glibc to ever include these things, they had better be  
-> portable C and work without GCC.  Otherwise it's a non-starter.   
-> Only GCC may be used to build glibc, but it deliberately supports  
-> any conforming C compiler to build userspace code.
 
-On Mar 28, 2006, at 12:56:27, Jesper Juhl wrote:
-> Other compilers do exist.
->
-> Over the years I've personally used a few to compile userspace apps
-> for different projects (though never for compiling the kernel).
->
-> Some of the compilers I have personally used for userspace apps on  
-> Linux include: gcc, icc, lcc, tcc
-> Others that I know of but have never used include: sdcc, Compaq C  
-> for Linux, Open Watcom, vacpp, XL C/C++
->
-> and I'm sure many more exist...
+--OXfL5xGRrasGEqWY
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFEL7NiNzVYcyGvtWURAp3GAKCb1CruWzjtycJckQW5lGe0d5vjawCg4KlX
+9F3gDDZGUzNHwFr8Rw7/DLQ=
+=hCD5
+-----END PGP SIGNATURE-----
+
+--OXfL5xGRrasGEqWY--

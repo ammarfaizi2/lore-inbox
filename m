@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWDBJMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWDBJOb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbWDBJMz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 05:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWDBJMz
+	id S932300AbWDBJOb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 05:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWDBJOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 05:12:55 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:34950 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932078AbWDBJMz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 05:12:55 -0400
-Date: Sun, 2 Apr 2006 14:44:37 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       suresh.b.siddha@intel.com, Dinakar Guniguntala <dino@in.ibm.com>,
-       pj@sgi.com, hawkes@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.16-mm2 4/4] sched_domain: Allocate sched_group structures dynamically
-Message-ID: <20060402091437.GB13423@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20060401185644.GC25971@in.ibm.com> <442F2B52.6000205@yahoo.com.au> <20060402050400.GA13423@in.ibm.com> <442F5F51.3030104@yahoo.com.au>
+	Sun, 2 Apr 2006 05:14:31 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:64128
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932300AbWDBJOa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 05:14:30 -0400
+Date: Sun, 02 Apr 2006 01:14:30 -0800 (PST)
+Message-Id: <20060402.011430.02794933.davem@davemloft.net>
+To: linux-kernel@vger.kernel.org
+Subject: /proc/${pid}/auxv
+From: "David S. Miller" <davem@davemloft.net>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <442F5F51.3030104@yahoo.com.au>
-User-Agent: Mutt/1.5.11
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 02, 2006 at 03:21:21PM +1000, Nick Piggin wrote:
-> Then after you have allocated sched_group_phys, subsequent cpus
-> in cpu_map will have their sched_group_phys_bycpu[] entry
-> uninitialised, by the looks?
 
-Not all the CPUs in cpu_map need to have an entry in 
-sched_group_phys_bycpu[]. sched_group_phys_bycpu[] is purely used to
-"remember" the chunk of memory we allocated for sched_group array
-for later freeing. Individual CPU's in cpu_map point to a suitable entry 
-in the sched_group array (thr' their phys_domains structure), as in the 
-following lines of code after memory allocation:
+I think this needs to be handled by the binfmt of the current thread
+because the size of the auxv words themselves is binfmt dependent.
 
-	sd = &per_cpu(phys_domains, i);
+For core file output, the binfmt handler does the auxv writing and
+it interpretes the type of the entry words correctly.
 
-	...
+So what happens now is that, for a 32-bit ELF binary executing on
+64-bit kernel, /proc/${pid}/auxv will report an extra AT_NULL entry or
+garbage at the end (because it's interpreting 32-bit words as 64-bit
+words when trying to find the AT_NULL that ends the auxv vector).
+Whereas core file generation will find the end accurately and place
+only the exact number of AUXV entries into the core file.
 
-	sd->groups = &sched_group_phys[group];
-
-
-Hope this clarifies!
-
--- 
-Regards,
-vatsa
+There is actually a gdb testsuite case that checks that the auxv
+provided by /proc/${pid}/auxv matches what ends up on the core file,
+which is the only reason that I noticed this :-)

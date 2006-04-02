@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWDBAxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbWDBA6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbWDBAxe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Apr 2006 19:53:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWDBAxe
+	id S932357AbWDBA6e (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Apr 2006 19:58:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbWDBA6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Apr 2006 19:53:34 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:9117 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932347AbWDBAxd (ORCPT
+	Sat, 1 Apr 2006 19:58:34 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:52866 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S932354AbWDBA6d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Apr 2006 19:53:33 -0500
-Date: Sat, 1 Apr 2006 16:52:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: torvalds@osdl.org, stable@kernel.org, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net, scjody@modernduck.com
-Subject: Re: [PATCH] sbp2: fix spinlock recursion
-Message-Id: <20060401165241.5989d67f.akpm@osdl.org>
-In-Reply-To: <tkrat.11bf8809a766b402@s5r6.in-berlin.de>
-References: <tkrat.11bf8809a766b402@s5r6.in-berlin.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 1 Apr 2006 19:58:33 -0500
+Date: Sun, 2 Apr 2006 08:58:20 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 zone_sizes_init() fix
+Message-ID: <20060402005820.GA6183@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Andreas Schwab <schwab@suse.de>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20060401131011.GA10804@mail.ustc.edu.cn> <jeacb5pca8.fsf@sykes.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <jeacb5pca8.fsf@sykes.suse.de>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
->
-> @@ -2540,6 +2537,7 @@ static int sbp2scsi_abort(struct scsi_cm
->   				command->Current_done(command->Current_SCpnt);
->   			}
->   		}
->  +		spin_unlock_irqrestore(&scsi_id->sbp2_command_orb_lock, flags);
+On Sat, Apr 01, 2006 at 05:04:47PM +0200, Andreas Schwab wrote:
+> Wu Fengguang <wfg@mail.ustc.edu.cn> writes:
+> 
+> > Now that with MAX_NR_ZONES=4, the last element of zones_size[] is
+> > left uninitialized in zone_sizes_init() on i386.
+> 
+> No, it isn't.  In the presence of an initializer any element not
+> explicitly initialized will be set to 0 of the appropriate type.
 
-This changes the call environment for all implementations of
-->Current_done().  Are they all safe to call under this lock?
+Got it, thanks for the tip.
+
+Wu

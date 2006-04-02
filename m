@@ -1,37 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWDBKog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWDBKuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932311AbWDBKog (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 06:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWDBKog
+	id S932320AbWDBKuy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 06:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWDBKuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 06:44:36 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:42476 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S932311AbWDBKog (ORCPT
+	Sun, 2 Apr 2006 06:50:54 -0400
+Received: from khc.piap.pl ([195.187.100.11]:54538 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S932313AbWDBKux (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 06:44:36 -0400
-Subject: Re: [RFC] [LEDS] reorganise Kconfig
-From: Richard Purdie <rpurdie@rpsys.net>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Cc: Ben Dooks <ben-linux@fluff.org>
-In-Reply-To: <20060401154246.GA11649@home.fluff.org>
-References: <20060401154246.GA11649@home.fluff.org>
-Content-Type: text/plain
-Date: Sun, 02 Apr 2006 11:44:21 +0100
-Message-Id: <1143974661.6423.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Apr 2006 06:50:53 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+Subject: Re: IDE CDROM tail read errors
+References: <m3wtedrrpf.fsf@defiant.localdomain>
+	<1143717489.29388.32.camel@localhost.localdomain>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sun, 02 Apr 2006 12:50:48 +0200
+In-Reply-To: <1143717489.29388.32.camel@localhost.localdomain> (Alan Cox's message of "Thu, 30 Mar 2006 12:18:09 +0100")
+Message-ID: <m3lkuotfnb.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-04-01 at 16:42 +0100, Ben Dooks wrote:
-> This patch reorganises the drivers/leds Kconfig
-> file to have the LED trigger enable with the
-> triggers themselves.
-> 
-> The patch also adds comments to divide up the
-> sections into the drivers and triggers
-> 
-> Signed-off-by: Ben Dooks <ben-linux@fluff.org>
-Acked-by: Richard Purdie <rpurdie@rpsys.net>
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
+>> 1342256 (looks like it has been adjusted to .iso image size / 512 when
+>>          the first I/O error occured)
+>
+> The SCSI layer does this bit for everyone. Its actually not libata or
+> the PATA drivers that have done the work here. You should find ide-scsi
+> does the same.
+
+I see. I wonder if TOC track (in 2KB sectors) longer than ISO image
+is a (recording) bug.
+
+> I patched the old IDE driver a bit to try and deal with this and if you
+> want the patch to hack on and tidy up further feel free. 
+
+Thanks but... now I've converted my last machine to PATA-libata and
+drivers/ide are dead for me:
+
+- no way to hot-swap (permanent modules)
+- IRQ timeouts on my EPIA-M (never seen with libata)
+- now the "end of medium" problems
+- code duplication and different device names
+-- 
+Krzysztof Halasa

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWDBQj6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWDBQjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932390AbWDBQj6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 12:39:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWDBQj5
+	id S932389AbWDBQjm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 12:39:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWDBQjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 12:39:57 -0400
-Received: from cac94-1-81-57-151-96.fbx.proxad.net ([81.57.151.96]:53660 "EHLO
-	localhost") by vger.kernel.org with ESMTP id S932390AbWDBQjo (ORCPT
+	Sun, 2 Apr 2006 12:39:42 -0400
+Received: from cac94-1-81-57-151-96.fbx.proxad.net ([81.57.151.96]:52380 "EHLO
+	localhost") by vger.kernel.org with ESMTP id S932389AbWDBQjl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 12:39:44 -0400
-Message-ID: <442FFE4F.9060307@free.fr>
-Date: Sun, 02 Apr 2006 18:39:43 +0200
+	Sun, 2 Apr 2006 12:39:41 -0400
+Message-ID: <442FFE44.70507@free.fr>
+Date: Sun, 02 Apr 2006 18:39:32 +0200
 From: matthieu castet <castet.matthieu@free.fr>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060205 Debian/1.7.12-1.1
 X-Accept-Language: fr-fr, en, en-us
@@ -18,68 +18,101 @@ MIME-Version: 1.0
 To: greg@kroah.com
 CC: linux-kernel@vger.kernel.org, usbatm@lists.infradead.org,
        linux-usb-devel@lists.sourceforge.net, ueagle <ueagleatm-dev@gna.org>
-Subject: [PATCH 2/4] UEAGLE : support geode
+Subject: [PATCH 1/4] UEAGLE : cosmetic
 Content-Type: multipart/mixed;
- boundary="------------030808090007000609030306"
+ boundary="------------050209070005030104060808"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------030808090007000609030306
+--------------050209070005030104060808
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
 Hi,
 
 this patch :
-- increase ack timeout for slow system (geode 233MHz where HZ=100)
-- reset the cmv ack flag when rebooting
+- improve debug trace in order to make easy to solve user problems.
+- indent some code
+- increase version number
 
 Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
 
-
-
---------------030808090007000609030306
+--------------050209070005030104060808
 Content-Type: text/plain;
- name="ueagle2.patch"
-Content-Transfer-Encoding: 8bit
+ name="ueagle1.patch"
+Content-Transfer-Encoding: base64
 Content-Disposition: inline;
- filename="ueagle2.patch"
+ filename="ueagle1.patch"
 
-Index: ueagle-atm.c
-===================================================================
---- ueagle-atm.c	(révision 264)
-+++ ueagle-atm.c	(révision 265)
-@@ -243,7 +243,7 @@
- #define BULK_TIMEOUT 300
- #define CTRL_TIMEOUT 1000
- 
--#define ACK_TIMEOUT msecs_to_jiffies(1500)
-+#define ACK_TIMEOUT msecs_to_jiffies(3000)
- 
- #define UEA_INTR_IFACE_NO 	0
- #define UEA_US_IFACE_NO		1
-@@ -1079,7 +1079,13 @@
- 	uea_enters(INS_TO_USBDEV(sc));
- 	uea_info(INS_TO_USBDEV(sc), "(re)booting started\n");
- 
-+	/* mask interrupt */
- 	sc->booting = 1;
-+	/* We need to set this here because, a ack timeout could have occured, 
-+	 * but before we start the reboot, the ack occurs and set this to 1.
-+	 * So we will failed to wait Ready CMV.
-+	 */
-+	sc->cmv_ack = 0;
- 	UPDATE_ATM_STAT(signal, ATM_PHY_SIG_LOST);
- 
- 	/* reset statistics */
-@@ -1105,6 +1111,7 @@
- 
- 	msleep(1000);
- 	sc->cmv_function = MAKEFUNCTION(ADSLDIRECTIVE, MODEMREADY);
-+	/* demask interrupt */
- 	sc->booting = 0;
- 
- 	/* start loading DSP */
-
---------------030808090007000609030306--
+SW5kZXg6IHVlYWdsZS1hdG0uYwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSB1ZWFnbGUtYXRtLmMJKHLp
+dmlzaW9uIDI2MykKKysrIHVlYWdsZS1hdG0uYwkocul2aXNpb24gMjY0KQpAQCAtNjgsNyAr
+NjgsNyBAQAogCiAjaW5jbHVkZSAidXNiYXRtLmgiCiAKLSNkZWZpbmUgRUFHTEVVU0JWRVJT
+SU9OICJ1ZWFnbGUgMS4yIgorI2RlZmluZSBFQUdMRVVTQlZFUlNJT04gInVlYWdsZSAxLjMi
+CiAKIAogLyoKQEAgLTMxNCw2ICszMTQsMTAgQEAKIAkgKChkKSAmIDB4ZmYpIDw8IDE2IHwJ
+CQkJCQlcCiAJICgoYSkgJiAweGZmKSA8PCA4ICB8CQkJCQkJXAogCSAoKGIpICYgMHhmZikp
+CisjZGVmaW5lIEdFVFNBMShhKSAoKGEgPj4gOCkgJiAweGZmKQorI2RlZmluZSBHRVRTQTIo
+YSkgKGEgJiAweGZmKQorI2RlZmluZSBHRVRTQTMoYSkgKChhID4+IDI0KSAmIDB4ZmYpCisj
+ZGVmaW5lIEdFVFNBNChhKSAoKGEgPj4gMTYpICYgMHhmZikKIAogI2RlZmluZSBTQV9DTlRM
+IE1BS0VTQSgnQycsICdOJywgJ1QnLCAnTCcpCiAjZGVmaW5lIFNBX0RJQUcgTUFLRVNBKCdE
+JywgJ0knLCAnQScsICdHJykKQEAgLTcyOCwxMSArNzMyLDEyIEBACiAJdWVhX2VycihJTlNf
+VE9fVVNCREVWKHNjKSwgInNlbmRpbmcgRFNQIGJsb2NrICV1IGZhaWxlZFxuIiwgaSk7CiAJ
+cmV0dXJuOwogYmFkMToKLQl1ZWFfZXJyKElOU19UT19VU0JERVYoc2MpLCAiaW52YWxpZCBE
+U1AgcGFnZSAldSByZXF1ZXN0ZWRcbiIscGFnZW5vKTsKKwl1ZWFfZXJyKElOU19UT19VU0JE
+RVYoc2MpLCAiaW52YWxpZCBEU1AgcGFnZSAldSByZXF1ZXN0ZWRcbiIsIHBhZ2Vubyk7CiB9
+CiAKIHN0YXRpYyBpbmxpbmUgdm9pZCB3YWtlX3VwX2Ntdl9hY2soc3RydWN0IHVlYV9zb2Z0
+YyAqc2MpCiB7CisJQlVHX09OKHNjLT5jbXZfYWNrKTsKIAlzYy0+Y212X2FjayA9IDE7CiAJ
+d2FrZV91cCgmc2MtPmNtdl9hY2tfd2FpdCk7CiB9CkBAIC03NDMsNiArNzQ4LDkgQEAKIAkJ
+CQkJCSAgIHNjLT5jbXZfYWNrLCBBQ0tfVElNRU9VVCk7CiAJc2MtPmNtdl9hY2sgPSAwOwog
+CisJdWVhX2RiZyhJTlNfVE9fVVNCREVWKHNjKSwgIndhaXRfZXZlbnRfdGltZW91dCA6ICVk
+IG1zXG4iLAorCQkJamlmZmllc190b19tc2VjcyhyZXQpKTsKKwkKIAlpZiAocmV0IDwgMCkK
+IAkJcmV0dXJuIHJldDsKIApAQCAtNzkxLDYgKzc5OSwxMiBAQAogCXN0cnVjdCBjbXYgY212
+OwogCWludCByZXQ7CiAKKwl1ZWFfZW50ZXJzKElOU19UT19VU0JERVYoc2MpKTsKKwl1ZWFf
+dmRiZyhJTlNfVE9fVVNCREVWKHNjKSwgIkZ1bmN0aW9uIDogJWQtJWQsIEFkZHJlc3MgOiAl
+YyVjJWMlYywgIgorCQkJIm9mZnNldCA6IDB4JTA0eCwgZGF0YSA6IDB4JTA4eFxuIiwgCisJ
+CQlGVU5DVElPTl9UWVBFKGZ1bmN0aW9uKSwgRlVOQ1RJT05fU1VCVFlQRShmdW5jdGlvbiks
+IAorCQkJR0VUU0ExKGFkZHJlc3MpLCBHRVRTQTIoYWRkcmVzcyksIEdFVFNBMyhhZGRyZXNz
+KSwKKwkJCUdFVFNBNChhZGRyZXNzKSwgb2Zmc2V0LCBkYXRhKTsKIAkvKiB3ZSBzZW5kIGEg
+cmVxdWVzdCwgYnV0IHdlIGV4cGVjdCBhIHJlcGx5ICovCiAJc2MtPmNtdl9mdW5jdGlvbiA9
+IGZ1bmN0aW9uIHwgMHgyOwogCXNjLT5jbXZfaWR4Kys7CkBAIC04MDgsNyArODIyLDkgQEAK
+IAlyZXQgPSB1ZWFfcmVxdWVzdChzYywgVUVBX1NFVF9CTE9DSywgVUVBX01QVFhfU1RBUlQs
+IENNVl9TSVpFLCAmY212KTsKIAlpZiAocmV0IDwgMCkKIAkJcmV0dXJuIHJldDsKLQlyZXR1
+cm4gd2FpdF9jbXZfYWNrKHNjKTsKKwlyZXQgPSB3YWl0X2Ntdl9hY2soc2MpOworCXVlYV9s
+ZWF2ZXMoSU5TX1RPX1VTQkRFVihzYykpOworCXJldHVybiByZXQ7CiB9CiAKIHN0YXRpYyBp
+bmxpbmUgaW50IHVlYV9yZWFkX2NtdihzdHJ1Y3QgdWVhX3NvZnRjICpzYywKQEAgLTkyMiw3
+ICs5MzgsNyBAQAogCSAqIHdlIGNoZWNrIHRoZSBzdGF0dXMgYWdhaW4gaW4gb3JkZXIgdG8g
+ZGV0ZWN0IHRoZSBmYWlsdXJlIGVhcmxpZXIKIAkgKi8KIAlpZiAoc2MtPnN0YXRzLnBoeS5m
+bGFncykgewotCQl1ZWFfZGJnKElOU19UT19VU0JERVYoc2MpLCAiU3RhdCBmbGFnID0gJWRc
+biIsCisJCXVlYV9kYmcoSU5TX1RPX1VTQkRFVihzYyksICJTdGF0IGZsYWcgPSAweCV4XG4i
+LAogCQkgICAgICAgc2MtPnN0YXRzLnBoeS5mbGFncyk7CiAJCXJldHVybiAwOwogCX0KQEAg
+LTExMDEsNiArMTExNyw4IEBACiAJaWYgKHJldCA8IDApCiAJCXJldHVybiByZXQ7CiAKKwl1
+ZWFfdmRiZyhJTlNfVE9fVVNCREVWKHNjKSwgIlJlYWR5IENNViByZWNlaXZlZFxuIik7CisK
+IAkvKiBFbnRlciBpbiBSLUlETEUgKGNtdikgdW50aWwgaW5zdHJ1Y3RlZCBvdGhlcndpc2Ug
+Ki8KIAlyZXQgPSB1ZWFfd3JpdGVfY212KHNjLCBTQV9DTlRMLCAwLCAxKTsKIAlpZiAocmV0
+IDwgMCkKQEAgLTExMjEsNiArMTEzOSw3IEBACiAJfQogCS8qIEVudGVyIGluIFItQUNULVJF
+USAqLwogCXJldCA9IHVlYV93cml0ZV9jbXYoc2MsIFNBX0NOVEwsIDAsIDIpOworCXVlYV92
+ZGJnKElOU19UT19VU0JERVYoc2MpLCAiRW50ZXJpbmcgaW4gUi1BQ1QtUkVRIHN0YXRlXG4i
+KTsKIG91dDoKIAlyZWxlYXNlX2Zpcm13YXJlKGNtdnNfZncpOwogCXNjLT5yZXNldCA9IDA7
+CkBAIC0xMjM1LDYgKzEyNTQsNyBAQAogCiAJaWYgKGNtdi0+YkZ1bmN0aW9uID09IE1BS0VG
+VU5DVElPTihBRFNMRElSRUNUSVZFLCBNT0RFTVJFQURZKSkgewogCQl3YWtlX3VwX2Ntdl9h
+Y2soc2MpOworCQl1ZWFfbGVhdmVzKElOU19UT19VU0JERVYoc2MpKTsKIAkJcmV0dXJuOwog
+CX0KIApAQCAtMTI0OSw2ICsxMjY5LDcgQEAKIAlzYy0+ZGF0YSA9IHNjLT5kYXRhIDw8IDE2
+IHwgc2MtPmRhdGEgPj4gMTY7CiAKIAl3YWtlX3VwX2Ntdl9hY2soc2MpOworCXVlYV9sZWF2
+ZXMoSU5TX1RPX1VTQkRFVihzYykpOwogCXJldHVybjsKIAogYmFkMjoKQEAgLTEyNTYsMTIg
+KzEyNzcsMTQgQEAKIAkJCSJGdW5jdGlvbiA6ICVkLCBTdWJmdW5jdGlvbiA6ICVkXG4iLAog
+CQkJRlVOQ1RJT05fVFlQRShjbXYtPmJGdW5jdGlvbiksCiAJCQlGVU5DVElPTl9TVUJUWVBF
+KGNtdi0+YkZ1bmN0aW9uKSk7CisJdWVhX2xlYXZlcyhJTlNfVE9fVVNCREVWKHNjKSk7CiAJ
+cmV0dXJuOwogCiBiYWQxOgogCXVlYV9lcnIoSU5TX1RPX1VTQkRFVihzYyksICJpbnZhbGlk
+IGNtdiByZWNlaXZlZCwgIgogCQkJIndQcmVhbWJsZSAlZCwgYkRpcmVjdGlvbiAlZFxuIiwK
+IAkJCWxlMTZfdG9fY3B1KGNtdi0+d1ByZWFtYmxlKSwgY212LT5iRGlyZWN0aW9uKTsKKwl1
+ZWFfbGVhdmVzKElOU19UT19VU0JERVYoc2MpKTsKIH0KIAogLyoKQEAgLTE1MDgsNyArMTUz
+MSw3IEBACiAJaW50IHJldCA9IC1FTk9ERVY7IAkJCQkJXAogCXN0cnVjdCB1ZWFfc29mdGMg
+KnNjOyAJCQkJCVwKICAJCQkJCQkJCVwKLQltdXRleF9sb2NrKCZ1ZWFfbXV0ZXgpOyAJCQkJ
+CVwKKwltdXRleF9sb2NrKCZ1ZWFfbXV0ZXgpOyAJCQkJXAogCXNjID0gZGV2X3RvX3VlYShk
+ZXYpOwkJCQkJXAogCWlmICghc2MpIAkJCQkJCVwKIAkJZ290byBvdXQ7IAkJCQkJXApAQCAt
+MTUxNiw3ICsxNTM5LDcgQEAKIAlpZiAocmVzZXQpCQkJCQkJXAogCQlzYy0+c3RhdHMucGh5
+Lm5hbWUgPSAwOwkJCQlcCiBvdXQ6IAkJCQkJCQkJXAotCW11dGV4X3VubG9jaygmdWVhX211
+dGV4KTsgCQkJCQlcCisJbXV0ZXhfdW5sb2NrKCZ1ZWFfbXV0ZXgpOyAJCQkJXAogCXJldHVy
+biByZXQ7IAkJCQkJCVwKIH0gCQkJCQkJCQlcCiAJCQkJCQkJCVwK
+--------------050209070005030104060808--

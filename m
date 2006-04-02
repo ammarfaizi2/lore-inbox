@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbWDBSSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWDBSiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750862AbWDBSSW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 14:18:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbWDBSSW
+	id S1751329AbWDBSiM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 14:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWDBSiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 14:18:22 -0400
-Received: from vms048pub.verizon.net ([206.46.252.48]:52707 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1750779AbWDBSSW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 14:18:22 -0400
-Date: Sun, 02 Apr 2006 13:18:16 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Firewire problems, apparently since 2.6.13-rc1
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Reply-to: gene.heskett@verizononline.net
-Message-id: <200604021418.16263.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-User-Agent: KMail/1.7
+	Sun, 2 Apr 2006 14:38:12 -0400
+Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:2207 "HELO
+	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751329AbWDBSiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 14:38:12 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Subject: Re: [patch 2.6.16-git] dma doc updates
+Date: Sun, 2 Apr 2006 08:21:43 -0800
+User-Agent: KMail/1.7.1
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+References: <200604011021.53162.david-b@pacbell.net> <20060402025124.GI25945@granada.merseine.nu>
+In-Reply-To: <20060402025124.GI25945@granada.merseine.nu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604020921.44095.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+On Saturday 01 April 2006 6:51 pm, Muli Ben-Yehuda wrote:
+> On Sat, Apr 01, 2006 at 10:21:52AM -0800, David Brownell wrote:
+> 
+> > +	int
+> > +	dma_map_sg(struct device *dev, struct scatterlist *sg,
+> > +		int nents, enum dma_data_direction direction)
+> 
+> While you're at it, care to s/enum dma_data_direction/int/? some archs
+> use one and some use the other, and there was weak consensus that int
+> is better.
 
-How much trouble will I have if I take the current 2.6.16.1 kernel src 
-tree, nuke the ieee1394 directory of it, and bring the ieee1394 
-directory in from the 2.6.12 tarball?
+Nah.  That patch was just to _clarify_ things not make API changes.
+That particular text was just being indented for readability.
 
-At 2.6.12, all the firewire stuff I needed to import from my camera, 
-edit it, and make vcd's or dvd's out of it worked _flawlessly_.  Now, 
-at 2.6.16.1, and apparently since 2.6.13-rc1, kino is broken and must 
-be killed by the system when it hangs.  I figured it would get sorted, 
-but apparently not.
+Plus, I won't join a consensus to needlessly prevent compilers from
+reporting illegal parameters.
 
-I can recover from backups all the stuff I've overwritten in the last 2 
-days trying to make it work.  That should make it all work again IF the 
-ieee1394 stuff was reverted to the 2.6.12 version.  Is this feasable at 
-all?
-
--- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+- Dave

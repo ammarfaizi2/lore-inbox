@@ -1,172 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWDBKWb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbWDBKXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbWDBKWb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 06:22:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWDBKWa
+	id S932305AbWDBKXF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 06:23:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWDBKXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 06:22:30 -0400
-Received: from noname.neutralserver.com ([70.84.186.210]:48842 "EHLO
-	noname.neutralserver.com") by vger.kernel.org with ESMTP
-	id S932306AbWDBKWa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 06:22:30 -0400
-Date: Sun, 2 Apr 2006 13:23:50 +0300
-From: Dan Aloni <da-x@monatomic.org>
-To: Joe Korty <joe.korty@ccur.com>
-Cc: Keith Owens <kaos@sgi.com>, Nathan Scott <nathans@sgi.com>,
-       kdb@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Announce: kdb v4.4 is available for kernel 2.6.16
-Message-ID: <20060402102350.GA4671@localdomain>
-References: <28258.1142920764@kao2.melbourne.sgi.com> <20060401170430.GA14715@localdomain> <20060401234313.GA22482@tsunami.ccur.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 2 Apr 2006 06:23:04 -0400
+Received: from 169.248.adsl.brightview.com ([80.189.248.169]:2569 "EHLO
+	getafix.willow.local") by vger.kernel.org with ESMTP
+	id S932305AbWDBKXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 06:23:03 -0400
+Date: Sun, 2 Apr 2006 11:22:59 +0100
+From: John Mylchreest <johnm@gentoo.org>
+To: Olaf Hering <olh@suse.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, paulus@samba.org
+Subject: Re: [PATCH 1/1] POWERPC: Fix ppc32 compile with gcc+SSP in 2.6.16
+Message-ID: <20060402102259.GM16917@getafix.willow.local>
+References: <20060401224849.GH16917@getafix.willow.local> <20060402085850.GA28857@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="kK1uqZGE6pgsGNyR"
 Content-Disposition: inline
-In-Reply-To: <20060401234313.GA22482@tsunami.ccur.com>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - noname.neutralserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - monatomic.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <20060402085850.GA28857@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 01, 2006 at 06:43:13PM -0500, Joe Korty wrote:
-> On Sat, Apr 01, 2006 at 08:04:30PM +0300, Dan Aloni wrote:
-> > > Current versions are :-
-> > > 
-> > >   kdb-v4.4-2.6.16-common-1.bz2
-> > >   kdb-v4.4-2.6.16-i386-1.bz2
-> > >   kdb-v4.4-2.6.16-ia64-1.bz2
-> > 
-> > Thanks for this new version, however I'm looking forward to see
-> > kdb maintained also for the x86_64 architecture. Currently I have 
-> > got as far as forward-porting it to a level where it "works" except 
-> > for one annoying issue where setjmp/longjmp looks to be broken:
-> 
-> Problem is due to the mixed C/asm implementation of setjmp/longjmp.
-> Replace that with one written entirely in assemply and it will work.
-> Here's mine:
 
-Thanks, it's obviously a better way to do it, I've tested it and 
-made it into a patch:
+--kK1uqZGE6pgsGNyR
+Content-Type: text/plain; charset=utf8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/arch/x86_64/kdb/kdbasupport.c b/arch/x86_64/kdb/kdbasupport.c
-index 57c2a72..1be4909 100644
---- a/arch/x86_64/kdb/kdbasupport.c
-+++ b/arch/x86_64/kdb/kdbasupport.c
-@@ -1029,71 +1029,41 @@ kdba_clearsinglestep(struct pt_regs *reg
- 		regs->eflags &= ~EF_IE;
- }
- 
--#ifdef KDB_HAVE_LONGJMP
--int asmlinkage
--kdba_setjmp(kdb_jmp_buf *jb)
--{
--#if defined(CONFIG_FRAME_POINTER)
--	__asm__("movq %rbx, (0*8)(%rdi);"
--		"movq %rbp, (1*8)(%rdi);"
--		"movq %r12, (2*8)(%rdi);"
--		"movq %r13, (3*8)(%rdi);"
--		"movq %r14, (4*8)(%rdi);"
--		"movq %r15, (5*8)(%rdi);"
--		"leaq 16(%rsp), %rdx;"
--		"movq %rdx, (6*8)(%rdi);"
--		"movq (%rsp), %rax;"
--		"movq %rax, (7*8)(%rdi)");
--#else	 /* CONFIG_FRAME_POINTER */
--	__asm__("movq %rbx, (0*8)(%rdi);"
--		"movq %rbp, (1*8)(%rdi);"
--		"movq %r12, (2*8)(%rdi);"
--		"movq %r13, (3*8)(%rdi);"
--		"movq %r14, (4*8)(%rdi);"
--		"movq %r15, (5*8)(%rdi);"
--		"leaq 8(%rsp), %rdx;"
--		"movq %rdx, (6*8)(%rdi);"
--		"movq (%rsp), %rax;"
--		"movq %rax, (7*8)(%rdi)");
--#endif   /* CONFIG_FRAME_POINTER */
--	KDB_STATE_SET(LONGJMP);
--	return 0;
--}
--
--void asmlinkage
--kdba_longjmp(kdb_jmp_buf *jb, int reason)
--{
--#if defined(CONFIG_FRAME_POINTER)
--	__asm__("movq (0*8)(%rdi),%rbx;"
--		"movq (1*8)(%rdi),%rbp;"
--		"movq (2*8)(%rdi),%r12;"
--		"movq (3*8)(%rdi),%r13;"
--		"movq (4*8)(%rdi),%r14;"
--		"movq (5*8)(%rdi),%r15;"
--		"test %esi,%esi;"
--		"mov $01,%eax;"
--		"cmove %eax,%esi;"
--		"mov %esi, %eax;"
--		"movq (7*8)(%rdi),%rdx;"
--		"movq (6*8)(%rdi),%rsp;"
--		"jmpq *%rdx");
--#else    /* CONFIG_FRAME_POINTER */
--	__asm__("movq (0*8)(%rdi),%rbx;"
--		"movq (1*8)(%rdi),%rbp;"
--		"movq (2*8)(%rdi),%r12;"
--		"movq (3*8)(%rdi),%r13;"
--		"movq (4*8)(%rdi),%r14;"
--		"movq (5*8)(%rdi),%r15;"
--		"test %esi,%esi;"
--		"mov $01,%eax;"
--		"cmove %eax,%esi;"
--		"mov %esi, %eax;"
--		"movq (7*8)(%rdi),%rdx;"
--		"movq (6*8)(%rdi),%rsp;"
--		"jmpq *%rdx");
--#endif	 /* CONFIG_FRAME_POINTER */
--}
--#endif	/* KDB_HAVE_LONGJMP */
-+asm(
-+"        .section .text\n"
-+"        .globl  kdba_setjmp\n"
-+"        .p2align 4\n"
-+"kdba_setjmp:\n"
-+"        movq    %rbx,0x0(%rdi)\n"
-+"        movq    %rbp,0x8(%rdi)\n"
-+"        movq    %r12,0x10(%rdi)\n"
-+"        movq    %r13,0x18(%rdi)\n"
-+"        movq    %r14,0x20(%rdi)\n"
-+"        movq    %r15,0x28(%rdi)\n"
-+"        leaq    0x8(%rsp),%rdx\n"
-+"        movq    %rdx,0x30(%rdi)\n"
-+"        movq    (%rsp),%rax\n"
-+"        movq    %rax,0x38(%rdi)\n"
-+"        xorq    %rax,%rax\n"
-+"        ret\n"
-+"           \n"
-+"        .globl  kdba_longjmp\n"
-+"kdba_longjmp:\n"
-+"        movq    0x0(%rdi),%rbx\n"
-+"        movq    0x8(%rdi),%rbp\n"
-+"        movq    0x10(%rdi),%r12\n"
-+"        movq    0x18(%rdi),%r13\n"
-+"        movq    0x20(%rdi),%r14\n"
-+"        movq    0x28(%rdi),%r15\n"
-+"        test    %esi,%esi\n"
-+"        mov     $1,%eax\n"
-+"        cmove   %eax,%esi\n"
-+"        mov     %esi,%eax\n"
-+"        movq    0x38(%rdi),%rdx\n"
-+"        movq    0x30(%rdi),%rsp\n"
-+"        jmpq    *%rdx\n"
-+"        .previous\n"
-+);
- 
- /*
-  * kdba_enable_lbr
+On Sun, Apr 02, 2006 at 10:58:50AM +0200, Olaf Hering <olh@suse.de> wrote:
+>  On Sat, Apr 01, John Mylchreest wrote:
+>=20
+> > Since ppc32 has been made to use arch/powerpc it has introduced a build=
+-time
+> > regression where userland CFLAGS are being leaked. This is especially o=
+bvious
+> > when a user tries to "make zImage" with an SSP enabled gcc.
+>=20
+> What build error do you get?
+
+As requested :)
+
+$ gcc -v
+Reading specs from /usr/lib/gcc/powerpc-unknown-linux-gnu/3.4.4/specs
+Configured with: /var/tmp/portage/gcc-3.4.4-r1/work/gcc-3.4.4/configure
+--prefix=3D/usr --bindir=3D/usr/powerpc-unknown-linux-gnu/gcc-bin/3.4.4
+--includedir=3D/usr/lib/gcc/powerpc-unknown-linux-gnu/3.4.4/include
+--datadir=3D/usr/share/gcc-data/powerpc-unknown-linux-gnu/3.4.4
+--mandir=3D/usr/share/gcc-data/powerpc-unknown-linux-gnu/3.4.4/man
+--infodir=3D/usr/share/gcc-data/powerpc-unknown-linux-gnu/3.4.4/info
+--with-gxx-include-dir=3D/usr/lib/gcc/powerpc-unknown-linux-gnu/3.4.4/inclu=
+de/g++-v3
+--host=3Dpowerpc-unknown-linux-gnu --build=3Dpowerpc-unknown-linux-gnu
+--enable-altivec --disable-nls --with-system-zlib --disable-checking
+--disable-werror --disable-libunwind-exceptions --disable-multilib
+--disable-libgcj --enable-languages=3Dc,c++ --enable-shared
+--enable-threads=3Dposix --enable-__cxa_atexit --enable-clocale=3Dgnu
+Thread model: posix
+gcc version 3.4.4 (Gentoo Hardened 3.4.4-r1, HTB-3.4.4-1.00,
+ssp-3.4.4-1.0, pie-8.7.8)
+
+  BOOTLD  arch/powerpc/boot/zImage.vmode
+  arch/powerpc/boot/prom.o(.text+0x19c): In function `call_prom':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/prom.o(.text+0x3a8): In function `call_prom_ret':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/prom.o(.text+0x448): In function `write':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/prom.o(.text+0x4d8): In function `string_match':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/prom.o(.text+0x5ac): In function `claim':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/prom.o(.got2+0x4): undefined reference to `__guard'
+  arch/powerpc/boot/stdio.o(.text+0x84): In function `strnlen':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/stdio.o(.text+0x130): In function `skip_atoi':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/stdio.o(.text+0x374): In function `number':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/stdio.o(.text+0x5b0): In function `vsprintf':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/stdio.o(.text+0xba8): In function `sprintf':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/stdio.o(.text+0xca4): more undefined references to
+  `__stack_smash_handler' follow
+  arch/powerpc/boot/stdio.o(.got2+0x0): undefined reference to `__guard'
+  arch/powerpc/boot/main.o(.text+0x198): In function `gunzip':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/main.o(.text+0x318): In function `try_claim':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/main.o(.text+0x5b0): In function `start':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/main.o(.got2+0x20): undefined reference to `__guard'
+  arch/powerpc/boot/infblock.o(.text+0xac): In function
+  `zlib_inflate_blocks_reset':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/infblock.o(.text+0x180): In function
+  `zlib_inflate_blocks_new':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/infblock.o(.text+0x428): In function
+  `zlib_inflate_blocks':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/infblock.o(.text+0xd00): In function
+  `zlib_inflate_blocks_free':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/infblock.o(.got2+0x0): undefined reference to
+  `__guard'
+  arch/powerpc/boot/infcodes.o(.text+0x68): In function
+  `zlib_inflate_codes_new':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/infcodes.o(.text+0x18c): In function
+  `zlib_inflate_codes':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/infcodes.o(.text+0x8ec): In function
+  `zlib_inflate_codes_free':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/infcodes.o(.got2+0x0): undefined reference to
+  `__guard'
+  arch/powerpc/boot/inffast.o(.text+0x1a4): In function
+  `zlib_inflate_fast':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/inffast.o(.got2+0xc): undefined reference to
+  `__guard'
+  arch/powerpc/boot/inflate.o(.text+0x1b8): In function `zlib_adler32':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/inflate.o(.text+0x21c): In function
+  `zlib_inflate_workspacesize':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/inflate.o(.text+0x2e0): In function
+  `zlib_inflateReset':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/inflate.o(.text+0x38c): In function
+  `zlib_inflateEnd':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/inflate.o(.text+0x438): In function
+  `zlib_inflateInit2_':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/inflate.o(.text+0x570): more undefined references to
+  `__stack_smash_handler' follow
+  arch/powerpc/boot/inflate.o(.got2+0x0): undefined reference to
+  `__guard'
+  arch/powerpc/boot/inftrees.o(.text+0x248): In function `huft_build':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/inftrees.o(.text+0x63c): In function
+  `zlib_inflate_trees_bits':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/inftrees.o(.text+0x784): In function
+  `zlib_inflate_trees_dynamic':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/inftrees.o(.text+0xa68): In function
+  `zlib_inflate_trees_fixed':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/inftrees.o(.got2+0x0): undefined reference to
+  `__guard'
+  arch/powerpc/boot/infutil.o(.text+0x114): In function
+  `zlib_inflate_flush':
+  : undefined reference to `__stack_smash_handler'
+  arch/powerpc/boot/infutil.o(.got2+0x0): undefined reference to
+  `__guard'
+  make[2]: *** [arch/powerpc/boot/zImage.vmode] Error 1
+  make[1]: *** [zImage] Error 2
+  make: *** [zImage] Error 2
+ =20
+
+--=20
+Role:            Gentoo Linux Kernel Lead
+Gentoo Linux:    http://www.gentoo.org
+Public Key:      gpg --recv-keys 9C745515
+Key fingerprint: A0AF F3C8 D699 A05A EC5C  24F7 95AA 241D 9C74 5515
 
 
--- 
-Dan Aloni, Linux specialist
-XIV LTD, http://www.xivstorage.com
-da-x@monatomic.org, da-x@colinux.org, da-x@gmx.net, dan@xiv.co.il
+--kK1uqZGE6pgsGNyR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFEL6YDNzVYcyGvtWURAhFuAJ9fRGD0VGPVrZPmz2838ZYdYopVSQCdHpPh
+f9Dwgjl7qDSNxyb15P1ty6s=
+=ACtz
+-----END PGP SIGNATURE-----
+
+--kK1uqZGE6pgsGNyR--

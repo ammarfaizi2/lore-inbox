@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWDBLd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWDBLmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932326AbWDBLd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 07:33:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWDBLd5
+	id S932314AbWDBLmR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 07:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWDBLmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 07:33:57 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:30848 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932312AbWDBLd4 (ORCPT
+	Sun, 2 Apr 2006 07:42:17 -0400
+Received: from ns.suse.de ([195.135.220.2]:12987 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932314AbWDBLmR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 07:33:56 -0400
-Message-ID: <442FB69F.30000@pobox.com>
-Date: Sun, 02 Apr 2006 07:33:51 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Dan Aloni <da-x@monatomic.org>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>, Mark Lord <lkml@rtr.ca>,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>, sander@humilis.net, dror@xiv.co.il
-Subject: Re: Spradic device disconnections
-References: <20060401145006.GA6504@localdomain>
-In-Reply-To: <20060401145006.GA6504@localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -3.7 (---)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-3.7 points, 5.0 required)
+	Sun, 2 Apr 2006 07:42:17 -0400
+Date: Sun, 2 Apr 2006 13:42:15 +0200
+From: Olaf Hering <olh@suse.de>
+To: John Mylchreest <johnm@gentoo.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, paulus@samba.org
+Subject: Re: [PATCH 1/1] POWERPC: Fix ppc32 compile with gcc+SSP in 2.6.16
+Message-ID: <20060402114215.GA30491@suse.de>
+References: <20060401224849.GH16917@getafix.willow.local> <20060402085850.GA28857@suse.de> <20060402102259.GM16917@getafix.willow.local> <20060402102815.GA29717@suse.de> <20060402105859.GN16917@getafix.willow.local> <20060402111002.GA30017@suse.de> <20060402112002.GA3443@getafix.willow.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060402112002.GA3443@getafix.willow.local>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Aloni wrote:
-> Mar 31 10:41:12 14.10.240.6 kernel: ata12: no device found (phy stat 00000101) 
+ On Sun, Apr 02, John Mylchreest wrote:
 
-Well, with 0x101, the hardware is telling us "device presence detected, 
-but phy communications not yet established"
+> Going from that, I can push a patch for gcc upstream to remove the
+> __KERNEL__ dep, but gcc4.1 ships with ssp by standard, and the semantics
+> between the IBM patch for SSP applied to gcc-3 and ggc-4 have changed.
 
-So, my first instinct would be to look at __mv_phy_reset() code block 
-just above the comment /* work around errata */, and increase the length 
-of the timeout from 200ms to 1-5 seconds.
+gcc4.1 has no obvious problems with --enable-ssp
 
-My second instinct would be to increase the number of retries from 5.
+> -fno-stack-protector would work for gcc4, but for gcc3 it could still be
+> patially enabled, and requires -fno-stack-protector-all. Mind If I ask
+> whats incorrect about defining __KERNEL__ for the bootcflags?
 
-	Jeff
-
-
+arch/powerpc/boot is no kernel code, its supposed to be selfcontained.
+Prepare a patch which uses the cc-option macro.

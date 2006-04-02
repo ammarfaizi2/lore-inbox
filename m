@@ -1,48 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751632AbWDBDyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWDBEy4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751632AbWDBDyl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Apr 2006 22:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751633AbWDBDyl
+	id S1750988AbWDBEy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Apr 2006 23:54:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750864AbWDBEy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Apr 2006 22:54:41 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:6382 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751626AbWDBDyk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Apr 2006 22:54:40 -0500
-Date: Sat, 1 Apr 2006 19:53:49 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: open-iscsi@googlegroups.com
-Cc: Core-iSCSI <Core-iSCSI@googlegroups.com>,
-       iet-dev <iscsitarget-devel@lists.sourceforge.net>,
-       maemo-dev <maemo-developers@maemo.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Core-iSCSI/Nokia770 binaries released!
-Message-ID: <20060402035349.GA14170@us.ibm.com>
-References: <1143948142.26951.199.camel@haakon>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1143948142.26951.199.camel@haakon>
-User-Agent: Mutt/1.4.2.1i
+	Sat, 1 Apr 2006 23:54:56 -0500
+Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:22402 "HELO
+	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750801AbWDBEy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Apr 2006 23:54:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=jxx058RbideqRjHyhHGs9+SYQDeBvMlFYhx7ma3eeS51V0InoJeVdTbpS+YgyT9vmxBBRNU4Ax9jCSfoUwxQ52GBwgzu5P2/sNfzeNZKk9MyqAZjZpcNus9M0xVVK1r9JZwHR2Q64h48LvDrxMOdCtTzY/TGVtAIKlCEHjkkTsM=  ;
+Message-ID: <442F2B52.6000205@yahoo.com.au>
+Date: Sun, 02 Apr 2006 11:39:30 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: vatsa@in.ibm.com
+CC: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       suresh.b.siddha@intel.com, Dinakar Guniguntala <dino@in.ibm.com>,
+       pj@sgi.com, hawkes@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.16-mm2 4/4] sched_domain: Allocate sched_group structures
+ dynamically
+References: <20060401185644.GC25971@in.ibm.com>
+In-Reply-To: <20060401185644.GC25971@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi -
 
-On Sat, Apr 01, 2006 at 07:22:22PM -0800, Nicholas A. Bellinger wrote:
+Srivatsa Vaddagiri wrote:
+>  /*
+> @@ -6113,6 +6125,10 @@ next_sg:
+>  static int build_sched_domains(const cpumask_t *cpu_map)
+>  {
+>  	int i;
+> +	struct sched_group *sched_group_phys = NULL;
+> +#ifdef CONFIG_SCHED_MC
+> +	struct sched_group *sched_group_core = NULL;
+> +#endif
+>  #ifdef CONFIG_NUMA
+>  	struct sched_group **sched_group_nodes = NULL;
+>  	struct sched_group *sched_group_allnodes = NULL;
+> @@ -6171,6 +6187,18 @@ static int build_sched_domains(const cpu
+>  		cpus_and(sd->span, sd->span, *cpu_map);
+>  #endif
+>  
+> +		if (!sched_group_phys) {
+> +			sched_group_phys
+> +				= kmalloc(sizeof(struct sched_group) * NR_CPUS,
+> +					  GFP_KERNEL);
+> +			if (!sched_group_phys) {
+> +				printk (KERN_WARNING "Can not alloc phys sched"
+> +						     "group\n");
+> +				goto error;
+> +			}
+> +			sched_group_phys_bycpu[i] = sched_group_phys;
+> +		}
 
-> not supported in this release and 2) the 2.6.12.3-omap1 for the 770 does
-> NOT ship with CONFIG_SCSI_MULTI_LUN=y, and hence we are only able to
-> detect LUN 0 for each iSCSI Target Node.  Unfortuately scsi_mod is
-> complied directly the 2.6.12.3-omap1 kernel and the only method to get
-> around this is recompiling the kernel.  I would like to see scsi_mod
-> built as a module in future kernel releases for the Nokia 770, and
-> preferably with CONFIG_SCSI_MULTI_LUN=y enabled.
+Doesn't the last assignment have to be outside the if statement?
 
-You should be able to override that via 
+Hmm.. this design seems like the best way to go for now. Suresh?
 
-	scsi_mod.max_luns=512
-
-Or does it have a fixed boot command line?
-
--- Patrick Mansfield
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

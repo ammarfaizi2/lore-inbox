@@ -1,45 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWDBKhc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWDBKle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932308AbWDBKhc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 06:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWDBKhc
+	id S932278AbWDBKle (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 06:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWDBKle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 06:37:32 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39116 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932308AbWDBKhb (ORCPT
+	Sun, 2 Apr 2006 06:41:34 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:36332 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S932278AbWDBKld (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 06:37:31 -0400
-Date: Sun, 2 Apr 2006 12:37:19 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: rpurdie@rpsys.net, kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] fix LED help text
-Message-ID: <20060402103719.GA2475@elf.ucw.cz>
+	Sun, 2 Apr 2006 06:41:33 -0400
+Subject: Re: [LEDS] fix IDE disk trigger name
+From: Richard Purdie <rpurdie@rpsys.net>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Cc: Ben Dooks <ben-linux@fluff.org>
+In-Reply-To: <20060401152941.GA11333@home.fluff.org>
+References: <20060401152941.GA11333@home.fluff.org>
+Content-Type: text/plain
+Date: Sun, 02 Apr 2006 11:41:21 +0100
+Message-Id: <1143974482.6423.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-TRIGGER_IDE_DISK is not really timer-based LED.
+On Sat, 2006-04-01 at 16:29 +0100, Ben Dooks wrote:
+> The IDE Disk LED trigger has the same name
+> as the timer trigger.
+> 
+> Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+Acked-by: Richard Purdie <rpurdie@rpsys.net>
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-
-diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-index 2c4f20b..c02ef24 100644
---- a/drivers/leds/Kconfig
-+++ b/drivers/leds/Kconfig
-@@ -67,7 +67,7 @@ config LEDS_TRIGGER_TIMER
- 	  via sysfs. If unsure, say Y.
- 
- config LEDS_TRIGGER_IDE_DISK
--	bool "LED Timer Trigger"
-+	bool "LED IDE Disk Trigger"
- 	depends LEDS_TRIGGERS && BLK_DEV_IDEDISK
- 	help
- 	  This allows LEDs to be controlled by IDE disk activity.
-
--- 
-Picture of sleeping (Linux) penguin wanted...

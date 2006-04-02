@@ -1,80 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWDBIus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWDBIz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbWDBIus (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 04:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWDBIus
+	id S932283AbWDBIz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 04:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbWDBIz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 04:50:48 -0400
-Received: from lead.cat.pdx.edu ([131.252.208.91]:58873 "EHLO lead.cat.pdx.edu")
-	by vger.kernel.org with ESMTP id S932178AbWDBIur (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 04:50:47 -0400
-Date: Sun, 2 Apr 2006 00:50:30 -0800 (PST)
-From: Suzanne Wood <suzannew@cs.pdx.edu>
-Message-Id: <200604020850.k328oUFC000624@baham.cs.pdx.edu>
-To: dhowells@redhat.com
-Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com
-Subject: [RFC] install_session_keyring
+	Sun, 2 Apr 2006 04:55:29 -0400
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:43390 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932283AbWDBIz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 04:55:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=O9bOPoo0s+Xjt6qPKTF6WZP5ug/X9PfDNXNNgrWsHpdFXkyqKSkkAWvaXdQKwd8nOKSYboDNOxUBdzCUSvtkyIrS9swQHn+/2uhqrxBSW814p/xab0IIeQFXewEKjt4VVlkQFPXwY6QQnjDAcaaUkMiHXpxd0i/YNXi7SoaOQbo=  ;
+Message-ID: <442F5F51.3030104@yahoo.com.au>
+Date: Sun, 02 Apr 2006 15:21:21 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: vatsa@in.ibm.com
+CC: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       suresh.b.siddha@intel.com, Dinakar Guniguntala <dino@in.ibm.com>,
+       pj@sgi.com, hawkes@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.16-mm2 4/4] sched_domain: Allocate sched_group structures
+ dynamically
+References: <20060401185644.GC25971@in.ibm.com> <442F2B52.6000205@yahoo.com.au> <20060402050400.GA13423@in.ibm.com>
+In-Reply-To: <20060402050400.GA13423@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-In a study of the control flow graph dumps to check that 
-an rcu_assign_pointer() with a given argument type has 
-preceded a call to rcu_dereference(), I've come across 
-install_session_keyring() of security/keys/process_keys.c.  
-We note that although no rcu_read_lock() is in place 
-locally or in the function's kernel callers, siglock 
-likely addresses that.  While the rcu_dereference() would 
-indicate a desire for 'old' to persist, synchronize_rcu() 
-is called prior to key_put(old) which "disposes of 
-reference to a key."  The order of events with a use of 
-the copy of the pointer following synchronize_rcu() is 
-what I question.
+Srivatsa Vaddagiri wrote:
+> On Sun, Apr 02, 2006 at 11:39:30AM +1000, Nick Piggin wrote:
+> 
+>>Srivatsa Vaddagiri wrote:
+>>
+>>>+		if (!sched_group_phys) {
+>>>+			sched_group_phys
+>>>+				= kmalloc(sizeof(struct sched_group) * 
+>>>NR_CPUS,
+>>>+					  GFP_KERNEL);
+>>>+			if (!sched_group_phys) {
+>>>+				printk (KERN_WARNING "Can not alloc phys 
+>>>sched"
+>>>+						     "group\n");
+>>>+				goto error;
+>>>+			}
+>>>+			sched_group_phys_bycpu[i] = sched_group_phys;
+>>>+		}
+>>
+>>Doesn't the last assignment have to be outside the if statement?
+> 
+> 
+> I dont think so. The assignment can happen once (when we allocate
+> successfully) and not every time in the for loop?
+> 
 
-Thanks.
-Suzanne
+Then after you have allocated sched_group_phys, subsequent cpus
+in cpu_map will have their sched_group_phys_bycpu[] entry
+uninitialised, by the looks?
 
-/******************************************************/
-/*
- * install a session keyring, discarding the old one
- * - if a keyring is not supplied, an empty one is invented
- */
-static int install_session_keyring(struct task_struct *tsk,
-                                   struct key *keyring)
-{
-        unsigned long flags;
-        struct key *old;
-        char buf[20];
-        int ret;
-
-        /* create an empty session keyring */
-        if (!keyring) {
-                sprintf(buf, "_ses.%u", tsk->tgid);
-
-                keyring = keyring_alloc(buf, tsk->uid, tsk->gid, 1, NULL);
-                if (IS_ERR(keyring)) {
-                        ret = PTR_ERR(keyring);
-                        goto error;
-                }
-        }
-        else {
-                atomic_inc(&keyring->usage);
-        }
-
-        /* install the keyring */
-        spin_lock_irqsave(&tsk->sighand->siglock, flags);
-        old = rcu_dereference(tsk->signal->session_keyring);
-        rcu_assign_pointer(tsk->signal->session_keyring, keyring);
-        spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
-
-        ret = 0;
-
-        /* we're using RCU on the pointer */
-        synchronize_rcu();
-        key_put(old);
-error:
-        return ret;
-
-} /* end install_session_keyring() */
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

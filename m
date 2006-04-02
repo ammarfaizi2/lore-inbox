@@ -1,121 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbWDBW0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWDBWbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932428AbWDBW0m (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 18:26:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWDBW0m
+	id S932431AbWDBWbl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 18:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWDBWbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 18:26:42 -0400
-Received: from kevlar.burdell.org ([66.92.73.214]:36071 "EHLO
-	kevlar.burdell.org") by vger.kernel.org with ESMTP id S932428AbWDBW0l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 18:26:41 -0400
-Date: Sun, 2 Apr 2006 18:19:21 -0400
-From: Sonny Rao <sonny@burdell.org>
-To: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Cc: anton@samba.org
-Subject: 2.6.16 crashes when running numastat on p575
-Message-ID: <20060402221921.GA27513@kevlar.burdell.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Sun, 2 Apr 2006 18:31:41 -0400
+Received: from web30613.mail.mud.yahoo.com ([68.142.201.246]:60496 "HELO
+	web30613.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932431AbWDBWbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 18:31:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=QzNZ7ncOAqpsvMYzSLn0IRK+s6U9bVOvLc85TTlNIbUwBOVauOVq19HSbVfPZ9aXl2s66bbj0t6efxasCmNNHYZi6nMlwpotMVlP/CHQa9AsMooPEEmpuGGxl8rZd5ipwgfdgAi4j2VxUQshzNnFEiGke7k1IYkE15zOATBfie8=  ;
+Message-ID: <20060402223137.30538.qmail@web30613.mail.mud.yahoo.com>
+Date: Mon, 3 Apr 2006 00:31:37 +0200 (CEST)
+From: zine el abidine Hamid <zine46@yahoo.fr>
+Subject: Re: Detecting I/O error and Halting System
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1143560163.17522.29.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I'm getting an immediate crash on 2.6.16 when  I run the numastat
-command.  The machine is a 16-way IBM p575 POWER5+ box.  It has 8 NUMA
-nodes.  Bug is very easy to reproduce on this machine, haven't seen it
-on another machine yet.
+Hi Dick,
 
-exception info:
- 16:mon> e
-cpu 0x16: Vector: 300 (Data Access) at [c0000005aa5db890]
-    pc: c000000000293940: .node_read_numastat+0x7c/0x114
-    lr: c00000000028aeb4: .sysdev_show+0x48/0x64
-    sp: c0000005aa5dbb10
-   msr: 8000000000009032
-   dar: 68
- dsisr: 40000000
-  current = 0xc0000003b7037800
-  paca    = 0xc0000000005a8780
-    pid   = 14382, comm = numastat
+Excuses me for the silence.
 
-disassembly:
+Can you tell me why the drive stops to respond? Where
+the problem starts? As I tell before, we tried
+different drives and that has not help us.
 
- c000000000293930  e9240000      ld      r9,0(r4)
-c000000000293934  38840008      addi    r4,r4,8
-c000000000293938  7c0607b4      extsw   r6,r0
-c00000000029393c  2f86007f      cmpwi   cr7,r6,127
-c000000000293940  e8e90068      ld      r7,104(r9) <----------- Null
-Ptr in r9
-c000000000293944  e8090040      ld      r0,64(r9)
-c000000000293948  e9690048      ld      r11,72(r9)
-c00000000029394c  e9490050      ld      r10,80(r9)
-c000000000293950  e9090058      ld      r8,88(r9)
-c000000000293954  e9290060      ld      r9,96(r9)
-c000000000293958  7f7b0214      add     r27,r27,r0
-c00000000029395c  7f5a5a14      add     r26,r26,r11
-c000000000293960  7f9c3a14      add     r28,r28,r7
-c000000000293964  7fff5214      add     r31,r31,r10
+Friday, The constructor comes to a meeting in our
+offices and they affirm that their materials is ok.
 
-registers:
+Have you read some articles that pointed out failures
+on the South Bridge VIA VT82c686 or other's chipset
+off the VIA PN133 architecture?
+(http://www.via.com.tw/en/products/chipsets/legacy/pn133/)
 
-16:mon> r
-R00 = 0000000000000002   R16 = 000000001009b360
-R01 = c0000005aa5dbb10   R17 = 0000000000000001
-R02 = c00000000077ad10   R18 = 0000000000000000
-R03 = c000000b67459000   R19 = 0000000000000000
-R04 = c000000f7ffd5cd0   R20 = 000000000000001a
-R05 = 0000000000000000   R21 = 00000000101220d0
-R06 = 0000000000000002   R22 = 000000001013fdd8
-R07 = 000000000000161f   R23 = 0000000000001000
-R08 = 0000000000001310   R24 = 0000000000000000
-R09 = 0000000000000000   R25 = 0000000000001310
-R10 = 0000000000000000   R26 = 0000000000000000
-R11 = 0000000000000000   R27 = 000000000000161f
-R12 = c000000f7ffd5c80   R28 = 000000000000161f
-R13 = c0000000005a8780   R29 = 0000000000000000
-R14 = 0000000000000000   R30 = c000000000637430
-R15 = 0000000000000000   R31 = 0000000000000000
-pc  = c000000000293940 .node_read_numastat+0x7c/0x114
-lr  = c00000000028aeb4 .sysdev_show+0x48/0x64
-msr = 8000000000009032   cr  = 44222488
-ctr = c0000000002938c4   xer = 0000000000000010   trap =  300
-dar = 0000000000000068   dsisr = 40000000
-
-source code for the function, I believe r9 corresponds to 
-the struct per_cpu_pageset *ps
-
-static ssize_t node_read_numastat(struct sys_device * dev, char * buf)
-{
-        unsigned long numa_hit, numa_miss, interleave_hit,numa_foreign;
-        unsigned long local_node, other_node;
-        int i, cpu;
-        pg_data_t *pg = NODE_DATA(dev->id);
-        numa_hit = 0;
-        numa_miss = 0;
-        interleave_hit = 0;
-        numa_foreign = 0;
-        local_node = 0;
-        other_node = 0;
-        for (i = 0; i < MAX_NR_ZONES; i++) {
-                struct zone *z = &pg->node_zones[i];
-                for (cpu = 0; cpu < NR_CPUS; cpu++) {
-                        struct per_cpu_pageset *ps = zone_pcp(z,cpu);
-                        numa_hit += ps->numa_hit;
-                        numa_miss += ps->numa_miss;
-                        numa_foreign += ps->numa_foreign;
-                        interleave_hit += ps->interleave_hit;
-                        local_node += ps->local_node;
-                        other_node += ps->other_node;
-                }
-        }
-...
-
-so the first attempt to dereference 'ps' causes an oops.
-
-Anton B. says that if pg is non-NULL, ps should be non-NULL as well...
-
-Sonny
+If it can help, this are the description :
 
 
+00:00.0 Host bridge: VIA Technologies, Inc. VT8605
+[ProSavage PM133] (rev 01)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8605
+[PM133 AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686
+[Apollo Super South] (rev 40
+)
+00:07.1 IDE interface: VIA Technologies, Inc. Bus
+Master IDE (rev 06)
+00:07.2 USB Controller: VIA Technologies, Inc. USB
+(rev 1a)
+00:07.3 USB Controller: VIA Technologies, Inc. USB
+(rev 1a)
+00:07.4 Bridge: VIA Technologies, Inc. VT82C686
+[Apollo Super ACPI] (rev 40)
+00:07.5 Multimedia audio controller: VIA Technologies,
+Inc. VT82C686 AC97 Audio
+Controller (rev 50)
+00:10.0 Ethernet controller: Intel Corp. 82557/8/9
+[Ethernet Pro 100] (rev 08)
+01:00.0 VGA compatible controller: S3 Inc. ProSavage
+PM133 (rev 02)
+[root@Porte_de_Clignancourt_nds_b root]# lspci -n
+00:00.0 Class 0600: 1106:0605 (rev 01)
+00:01.0 Class 0604: 1106:8605
+00:07.0 Class 0601: 1106:0686 (rev 40)
+00:07.1 Class 0101: 1106:0571 (rev 06)
+00:07.2 Class 0c03: 1106:3038 (rev 1a)
+00:07.3 Class 0c03: 1106:3038 (rev 1a)
+00:07.4 Class 0680: 1106:3057 (rev 40)
+00:07.5 Class 0401: 1106:3058 (rev 50)
+00:10.0 Class 0200: 8086:1229 (rev 08)
+01:00.0 Class 0300: 5333:8a25 (rev 02)
+
+
+
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 10
+cpu MHz         : 998.393
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8
+sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips        : 1992.29
+
+
+
+--- Alan Cox <alan@lxorguk.ukuu.org.uk> a écrit :
+
+> On Maw, 2006-03-28 at 17:07 +0200, zine el abidine
+> Hamid wrote:
+> > I don't think that it's a HDD problem nor a cable
+> > problem because the servers are new. We have tried
+> 
+> New. Thats another word for "untested" I believe 8)
+> 
+> > How can I determine the problem?
+> 
+> I would consult the hardware vendor
+> 
+> > I want to add that the HDD seems to be
+> disconnected
+> > (the BIOS can't find any drive for boot) after a
+> > simple reset. We must switch off the servers to
+> get
+> > them work again.
+> 
+> Thats strongly indicating a hardware problem.
+> 
+> > (http://www.tldp.org/LDP/lkmpg/) but how can I
+> > shutdown Linux from inside a module...? 
+> 
+> See the softdog driver for an example.
+> 
+> 
+
+
+
+	
+
+	
+		
+___________________________________________________________________________ 
+Nouveau : téléphonez moins cher avec Yahoo! Messenger ! Découvez les tarifs exceptionnels pour appeler la France et l'international.
+Téléchargez sur http://fr.messenger.yahoo.com

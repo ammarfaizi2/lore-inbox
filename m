@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbWDBSBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWDBSCV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932404AbWDBSBc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 14:01:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWDBSBb
+	id S932406AbWDBSCV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 14:02:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWDBSCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 14:01:31 -0400
-Received: from zproxy.gmail.com ([64.233.162.198]:60879 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932404AbWDBSBb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 14:01:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=S1WWgFHbNZ3PUOEs2neNu7hdB6D2GXWInjlPa87JBgwRd6Ls+tA0aW/5G0vNWkeE+9/RV+JJ7h+UI2WwyVsTkOhexIKAIkquVL+0xY7XtfhDrk3MARuZ2xsGaoyQKMQivApJwKspE0aOIkiFIUHXpZxkVHdETqtKLfdEKIapgsA=
-Message-ID: <bda6d13a0604021101h6cd362efn6d832bfb1275080c@mail.gmail.com>
-Date: Sun, 2 Apr 2006 11:01:30 -0700
-From: "Joshua Hudson" <joshudson@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: RFC replace some locking of i_sem wiht atomic_t
-In-Reply-To: <bda6d13a0603311608p5b74df13i259c2b9efa539330@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 2 Apr 2006 14:02:21 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:3903 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932406AbWDBSCU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 14:02:20 -0400
+Date: Sun, 2 Apr 2006 20:02:16 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] splice exports
+Message-ID: <20060402180216.GD14022@suse.de>
+References: <20060331040613.GA23511@havoc.gtf.org> <1143802879.3053.3.camel@laptopd505.fenrus.org> <20060331110233.GM14022@suse.de> <442D3608.8090906@garzik.org> <20060331183617.GD14022@suse.de> <442DB7F0.8090000@garzik.org> <1143855184.3076.0.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <bda6d13a0603311608p5b74df13i259c2b9efa539330@mail.gmail.com>
+In-Reply-To: <1143855184.3076.0.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/31/06, Joshua Hudson <joshudson@gmail.com> wrote:
-> This might be a way to decrease complexity of locking in vfs.
->
-> Basic idea: for local filesystems, i_sem gets taken on several objects
-> only to protect i_nlink.
-> These can be removed if i_nlink is atomic.
->
-That doesn't work. Some code in affs I don't understand and the code in ext2
-that checks for maximum hard links basically makes this not work. The
-ext2 problem is solvable in assembly (adding a new atomic_* operation),
-but the affs problem is not.
+On Sat, Apr 01 2006, Arjan van de Ven wrote:
+> On Fri, 2006-03-31 at 18:14 -0500, Jeff Garzik wrote:
+> > Jens Axboe wrote:
+> > > On Fri, Mar 31 2006, Jeff Garzik wrote:
+> > >> Jens Axboe wrote:
+> > >>> On Fri, Mar 31 2006, Arjan van de Ven wrote:
+> > >>>> On Thu, 2006-03-30 at 23:06 -0500, Jeff Garzik wrote:
+> > >>>>> Woe be unto he who builds their filesystems as modules.
+> > >>>> since splice support is highly linux specific and new.. shouldn't these
+> > >>>> be _GPL exports?
+> > >>> Yes they should, I'll add that to the current splice tree.
+> > >> Why?  We don't usually restrict filesystems in such ways...  I would 
+> > >> rather a binary-only module reference generic_file_splice_read() than 
+> > >> create its own.
+> > > 
+> > > You could use that very same argument for any piece of the kernel, then,
+> > > so I don't think that adds much value to _not_ exporting it GPL.
+> > 
+> > Not really, because I'm considering the Real World(tm) users, not 
+> > abstract theory :)  The other filesystem junk is exported non-GPL, and 
+> > existing binary-only filesystems use that stuff.
+> > 
+> > IOW its a bit rude to say "oh you can have your BO filesystem, just not 
+> > splice support."
+> 
+> 
+> it's a bit like saying "you can use all the standard unix interfaces,
+> but these are very linux specific"; eg the same arguments for making lsm
+> and other pieces _GPL; they're so linux specific that users that use
+> these do so with linux in mind etc
 
-Scratch that idea.
+Linus seems to agree with the _GPL not being appropriate as well, so I
+guess I'll bow to the majority. This time :-)
 
-Herein lies the problem with the current locking scheme:
-1. rename locks target if it exists, but target may be created by
-link() immediately
-after the check&lock procedure.
-2. The target of link() is completely unprotected.
+-- 
+Jens Axboe
 
-Against ext2, this can result in a corrupted filesystem (two directory
-entries with
-the same name) by a three-way race between two instances of link() and one
-unlink().
-
-1. Both instances of link are started with target being the same name
-in the same directory.
-2. unlink() is started on a different name in the same directory.
-3. link() 1 doesn't find a free slot in the first page, moves to the second.
-    *rescheduled before locking second page*
-4. unlink() finds target in first page, removes it.
-5. link() 2 finds free slot in first page, creates entry, finishes
-6. link() 1 continues, finds space in second page, creates entry

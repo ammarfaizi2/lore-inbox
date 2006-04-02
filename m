@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWDBSiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWDBSnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751329AbWDBSiM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 14:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWDBSiM
+	id S1751395AbWDBSnR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 14:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWDBSnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 14:38:12 -0400
-Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:2207 "HELO
-	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751329AbWDBSiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 14:38:12 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Subject: Re: [patch 2.6.16-git] dma doc updates
-Date: Sun, 2 Apr 2006 08:21:43 -0800
-User-Agent: KMail/1.7.1
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-References: <200604011021.53162.david-b@pacbell.net> <20060402025124.GI25945@granada.merseine.nu>
-In-Reply-To: <20060402025124.GI25945@granada.merseine.nu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Apr 2006 14:43:17 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:44958 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751395AbWDBSnQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 14:43:16 -0400
+Date: Sun, 2 Apr 2006 19:43:15 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Joshua Hudson <joshudson@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC replace some locking of i_sem wiht atomic_t
+Message-ID: <20060402184315.GD27946@ftp.linux.org.uk>
+References: <bda6d13a0603311608p5b74df13i259c2b9efa539330@mail.gmail.com> <bda6d13a0604021101h6cd362efn6d832bfb1275080c@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604020921.44095.david-b@pacbell.net>
+In-Reply-To: <bda6d13a0604021101h6cd362efn6d832bfb1275080c@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 01 April 2006 6:51 pm, Muli Ben-Yehuda wrote:
-> On Sat, Apr 01, 2006 at 10:21:52AM -0800, David Brownell wrote:
-> 
-> > +	int
-> > +	dma_map_sg(struct device *dev, struct scatterlist *sg,
-> > +		int nents, enum dma_data_direction direction)
-> 
-> While you're at it, care to s/enum dma_data_direction/int/? some archs
-> use one and some use the other, and there was weak consensus that int
-> is better.
+On Sun, Apr 02, 2006 at 11:01:30AM -0700, Joshua Hudson wrote:
+> Herein lies the problem with the current locking scheme:
+> 1. rename locks target if it exists, but target may be created by
+> link() immediately
+> after the check&lock procedure.
+> 2. The target of link() is completely unprotected.
+ 
+3. You have failed to RTFS or RTFM.
 
-Nah.  That patch was just to _clarify_ things not make API changes.
-That particular text was just being indented for readability.
+> Against ext2, this can result in a corrupted filesystem (two directory
+> entries with
+> the same name) by a three-way race between two instances of link() and one
+> unlink().
 
-Plus, I won't join a consensus to needlessly prevent compilers from
-reporting illegal parameters.
+Not really.
+ 
+> 1. Both instances of link are started with target being the same name
+> in the same directory.
+> 2. unlink() is started on a different name in the same directory.
+> 3. link() 1 doesn't find a free slot in the first page, moves to the second.
+>     *rescheduled before locking second page*
+> 4. unlink() finds target in first page, removes it.
+> 5. link() 2 finds free slot in first page, creates entry, finishes
+> 6. link() 1 continues, finds space in second page, creates entry
 
-- Dave
+And this is BS, since link() _does_ grab ->i_sem on directory it modifies.
+So does unlink().

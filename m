@@ -1,65 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWDBF0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWDBF42@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbWDBF0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 00:26:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWDBF0Y
+	id S1751123AbWDBF42 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 00:56:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWDBF42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 00:26:24 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:65475 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750801AbWDBF0X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 00:26:23 -0500
-Date: Sat, 1 Apr 2006 21:25:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: vatsa@in.ibm.com, mingo@elte.hu, suresh.b.siddha@intel.com,
-       dino@in.ibm.com, pj@sgi.com, hawkes@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.16-mm2 1/4] sched_domain - handle kmalloc failure
-Message-Id: <20060401212533.61a02f9d.akpm@osdl.org>
-In-Reply-To: <442F2A79.1040903@yahoo.com.au>
-References: <20060401185222.GA10591@in.ibm.com>
-	<442F2A79.1040903@yahoo.com.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 2 Apr 2006 00:56:28 -0500
+Received: from smtp111.sbc.mail.re2.yahoo.com ([68.142.229.94]:15459 "HELO
+	smtp111.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751123AbWDBF41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 00:56:27 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: [git pull] Input update for 2.6.17
+Date: Sun, 2 Apr 2006 00:56:24 -0500
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604020056.25245.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> Srivatsa Vaddagiri wrote:
-> > Andrew/Nick/Ingo,
-> > 	Here's a different version of the patch that tries to handle mem
-> > allocation failures in build_sched_domains by bailing out and cleaning up 
-> > thus-far allocated memory. The patch has a direct consequence that we disable 
-> > load balancing completely (even at sibling level) upon *any* memory allocation 
-> > failure. Is that acceptable?
-> > 
-> 
-> I guess so. Ideal solution would be to make all required allocations first,
-> then fail the build_sched_domains and fall back to the old structure.
+Linus,
 
-I'd have thought so.
+Please pull from:
 
-> But
-> I guess that gets pretty complicated.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
 
-Maybe.  Sometimes it's just a matter of running the code twice - first pass
-is allocate-stuff mode, second pass is use-stuff mode.
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git
 
-> In reality (and after your patch 2/4), I don't think the page allocator will
-> ever fail any of these allocations.
+to receive various updates to the input layer.
 
-That is presently true, as long as the amounts being allocated are small
-enough.
+Diffstat:
 
-> In that case, would it be simpler just
-> to add a __GFP_NOFAIL here and forget about it?
+ Documentation/input/joystick-parport.txt    |   11 
+ arch/alpha/kernel/setup.c                   |   18 +
+ arch/i386/kernel/setup.c                    |   18 +
+ arch/mips/Kconfig                           |    6 
+ arch/mips/kernel/Makefile                   |    2 
+ arch/mips/kernel/i8253.c                    |   28 +
+ arch/powerpc/kernel/setup-common.c          |   24 +
+ drivers/Makefile                            |    4 
+ drivers/char/keyboard.c                     |  118 ++++++-
+ drivers/input/evbug.c                       |    3 
+ drivers/input/evdev.c                       |    6 
+ drivers/input/gameport/gameport.c           |   30 +
+ drivers/input/gameport/ns558.c              |   13 
+ drivers/input/input.c                       |  436 +++++++++++++++++-----------
+ drivers/input/joydev.c                      |    6 
+ drivers/input/joystick/amijoy.c             |   11 
+ drivers/input/joystick/db9.c                |   13 
+ drivers/input/joystick/gamecon.c            |   96 ++++--
+ drivers/input/joystick/iforce/iforce-ff.c   |   24 -
+ drivers/input/joystick/iforce/iforce-main.c |    2 
+ drivers/input/joystick/iforce/iforce.h      |    5 
+ drivers/input/joystick/turbografx.c         |   13 
+ drivers/input/keyboard/Kconfig              |    2 
+ drivers/input/keyboard/atkbd.c              |   24 -
+ drivers/input/keyboard/corgikbd.c           |   35 +-
+ drivers/input/keyboard/hil_kbd.c            |    9 
+ drivers/input/keyboard/spitzkbd.c           |   10 
+ drivers/input/misc/pcspkr.c                 |   27 -
+ drivers/input/misc/uinput.c                 |   14 
+ drivers/input/mouse/hil_ptr.c               |    7 
+ drivers/input/mouse/psmouse-base.c          |   38 +-
+ drivers/input/mouse/synaptics.c             |   18 -
+ drivers/input/mousedev.c                    |    6 
+ drivers/input/power.c                       |    3 
+ drivers/input/serio/hil_mlc.c               |    3 
+ drivers/input/serio/i8042-x86ia64io.h       |   26 +
+ drivers/input/serio/libps2.c                |   10 
+ drivers/input/serio/parkbd.c                |    3 
+ drivers/input/serio/rpckbd.c                |    3 
+ drivers/input/serio/serio.c                 |   48 +--
+ drivers/input/serio/serio_raw.c             |   29 -
+ drivers/input/tsdev.c                       |    6 
+ drivers/usb/input/hid-input.c               |    2 
+ include/linux/gameport.h                    |    7 
+ include/linux/input.h                       |   25 +
+ include/linux/kbd_kern.h                    |    2 
+ include/linux/keyboard.h                    |   13 
+ include/linux/libps2.h                      |    2 
+ include/linux/serio.h                       |    9 
+ include/linux/uinput.h                      |    4 
+ 50 files changed, 821 insertions(+), 451 deletions(-)
 
-No new __GFP_NOFAILs, please.
+Changelog:
 
-The fact that the CPU addition will succeed, but it'll run forever more
-with load balancing disabled still seems Just Wrong to me.  We should
-either completely succeed or completely fail.
+Adrian Bunk:
+      Input: serio - fix memory leak
+      Input: gameport - fix memory leak
+
+Arjan van de Ven:
+      Input: serio - semaphore to mutex conversion
+      Input: gameport - semaphore to mutex conversion
+
+Bjorn Helgaas:
+      Input: ns558 - fix logic around pnp_register_driver()
+      Input: i8042 - fix logic around pnp_register_driver()
+
+Dmitry Torokhov:
+      Input: uinput - semaphore to mutex conversion
+      Input: initialize serio and gameport at subsystem level
+      Input: fix input_free_device() implementation
+      Input: atkbd - allow disabling on X86_PC (if EMBEDDED)
+      Input: limit attributes' output to PAGE_SIZE
+      Input: convert /proc handling to seq_file
+      Input: make modalias code respect allowed buffer size
+
+Eric Sesterhenn:
+      Input: use kzalloc() throughout the code
+
+Ingo Molnar:
+      Input: psmouse - semaphore to mutex conversion
+      Input: atkbd - semaphore to mutex conversion
+      Input: joysticks - semaphore to mutex conversion
+
+Jes Sorensen:
+      Input: input core - semaphore to mutex conversion
+
+Micah F. Galizia:
+      Input: HID - fix duplicate key mapping for Logitech UltraX remote
+
+Michael Neuling:
+      Input: pcspkr - separate device and driver registration
+
+Raphael Assenat:
+      Input: gamecon - add SNES mouse support
+
+Richard Purdie:
+      Input: zaurus keyboard driver updates
+
+Richard Thrippleton:
+      Input: synaptics - limit rate to 40pps on Toshiba Protege M300
+
+Samuel Thibault:
+      Input: add support for Braille devices
+
+Vojtech Pavlik:
+      Input: atkbd - fix complaints about 'releasing unknown key 0x7f'
+      Input: atkbd - disable softrepeat for dumb keyboards
+ 
+-- 
+Dmitry

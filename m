@@ -1,77 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWDBLWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWDBLd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932272AbWDBLWt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 07:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWDBLWt
+	id S932326AbWDBLd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 07:33:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWDBLd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 07:22:49 -0400
-Received: from ns2.suse.de ([195.135.220.15]:51893 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932272AbWDBLWs (ORCPT
+	Sun, 2 Apr 2006 07:33:57 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:30848 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932312AbWDBLd4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 07:22:48 -0400
-From: Andi Kleen <ak@suse.de>
-To: Joerg Bashir <brak@archive.org>
-Subject: Re: PCI-DMA: Out of IOMMU space on x86-64 (Athlon64x2), with solution
-Date: Sun, 2 Apr 2006 13:16:50 +0200
-User-Agent: KMail/1.9.1
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>, jgarzik@pobox.com,
-       mulix@mulix.org
-References: <5Mq18-1Na-21@gated-at.bofh.it> <440CD09A.9040005@shaw.ca> <442F827E.8040104@archive.org>
-In-Reply-To: <442F827E.8040104@archive.org>
+	Sun, 2 Apr 2006 07:33:56 -0400
+Message-ID: <442FB69F.30000@pobox.com>
+Date: Sun, 02 Apr 2006 07:33:51 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200604021316.51019.ak@suse.de>
+To: Dan Aloni <da-x@monatomic.org>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>, Mark Lord <lkml@rtr.ca>,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>, sander@humilis.net, dror@xiv.co.il
+Subject: Re: Spradic device disconnections
+References: <20060401145006.GA6504@localdomain>
+In-Reply-To: <20060401145006.GA6504@localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -3.7 (---)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-3.7 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 02 April 2006 09:51, Joerg Bashir wrote:
-> Robert Hancock wrote:
-> > Michael Monnerie wrote:
-> > 
-> >> On Freitag, 3. März 2006 23:23 Jeff Garzik wrote:
-> >>
-> >>> I'll happen but not soon.  Motivation is low at NV and here as well,
-> >>> since newer NV is AHCI.  The code in question, "NV ADMA", is
-> >>> essentially legacy at this point -- though I certainly acknowledge
-> >>> the large current installed base.  Just being honest about the
-> >>> current state of things...
-> >>
-> >>
-> >> I'd like to raise motivation a lot because most MB sold here (central
-> >> Europe) are Nforce4 with Athlon64x2 at the moment. It would be nice
-> >> from vendors if they support OSS developers more, as it's their
-> >> interest to have good drivers.
-> > 
-> > 
-> > I second that.. It appears that nForce4 will continue to be a popular
-> > chipset even after the Socket AM2 chips are released, so the demand for
-> > this (and for NCQ support as well, likely) will only increase.
-> > 
-> 
-> I'll third it.  Just had another machine blow up it's RAID5 set because
-> of this bug.  Tyan S2895 board, 4 500GB Hitachi SATA drives in RAID5.  I
-> suppose I could buy a 3ware controller I suppose but that's a few
-> hundred dollars per machine.
-> 
-> These machines are running SUSE 9.3 or SUSE 10, I've tried kernel.org
-> kernels as well as the iommu=memaper=3 cmdline option.
+Dan Aloni wrote:
+> Mar 31 10:41:12 14.10.240.6 kernel: ata12: no device found (phy stat 00000101) 
 
-You either have an IOMMU leak or very deep block device queues that overflow
-the aperture. You can either increase it even more or try to reduce
-the block queue lengths using the sysfs knobs (/sys/block/*/queue/)
-The maximum memory pinned by all the block queues must be smaller than
-the IOMMU aperture minus some slack for other devices.
+Well, with 0x101, the hardware is telling us "device presence detected, 
+but phy communications not yet established"
 
-If it's a leak someone has to debug it. 
+So, my first instinct would be to look at __mv_phy_reset() code block 
+just above the comment /* work around errata */, and increase the length 
+of the timeout from 200ms to 1-5 seconds.
 
-Or alternatively someone fixes the driver that can run the NForce4 
-controller without 4GB limits. If you still have a leak somewhere that won't 
-help of course.
+My second instinct would be to increase the number of retries from 5.
 
-Queue overflow is more likely.
+	Jeff
 
--Andi
+

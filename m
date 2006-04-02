@@ -1,45 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWDBUaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbWDBUri@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbWDBUaV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 16:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWDBUaV
+	id S932149AbWDBUri (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 16:47:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWDBUri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 16:30:21 -0400
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:58074
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932377AbWDBUaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 16:30:20 -0400
-Date: Sun, 2 Apr 2006 13:29:57 -0700
-From: Greg KH <greg@kroah.com>
-To: Mikkel Erup <mikkelerup@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: sdhci driver produces kernel oops on ejecting the card
-Message-ID: <20060402202957.GB28614@kroah.com>
-References: <20060402194821.74793.qmail@web52107.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 2 Apr 2006 16:47:38 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:25067 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932149AbWDBUrh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 16:47:37 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC][PATCH 0/2] KABI example conversion and cleanup
+Date: Sun, 2 Apr 2006 22:47:29 +0200
+User-Agent: KMail/1.9.1
+Cc: Sam Ravnborg <sam@ravnborg.org>, nix@esperi.org.uk, rob@landley.net,
+       mmazur@kernel.pl, linux-kernel@vger.kernel.org,
+       llh-discuss@lists.pld-linux.org
+References: <200603141619.36609.mmazur@kernel.pl> <20060402175859.GA9839@mars.ravnborg.org> <1E3BAA12-E97A-410A-8CD1-837EE7F82DFE@mac.com>
+In-Reply-To: <1E3BAA12-E97A-410A-8CD1-837EE7F82DFE@mac.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20060402194821.74793.qmail@web52107.mail.yahoo.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200604022247.29730.arnd@arndb.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 02, 2006 at 12:48:21PM -0700, Mikkel Erup wrote:
-> Using the sdhci driver from 2.6.16*-mm on my thinkpad
-> X40, which has a Ricoh Co Ltd R5C822 card reader the
-> kernel oopses when I eject the card.
-> I reported this bug at the sdhci-devel list and Pierre
-> Ossman advised me to post the bug here with CC Andrew
-> Morton as he might have an idea what's causing it.
-> Pierre said he didn't think it's a problem with the
-> sdhci driver. The oops occurs whether I apply the full
-> 2.6.16*-mm patch set or only the sdhci patches. Using
-> the standalone 0.11 sdhci driver patches with kernel
-> 2.6.15 everything works fine. 
-> So here is the log as well as my kernel .config.
+On Sunday 02 April 2006 21:30, Kyle Moffett wrote:
+> > 3) 'Preprocess' include/ and generate a set of KABI files based on  
+> > current set of (cleaned up) kernel header files.  'Preprocess in ''  
+> > because a C-preprocessor will not be suitable.
+> 
+> I got the idea of preprocessing, but your sentence seems to have  
+> gotten mangled somewhere.  Any chance you could clarify?  From what I  
+> can see by looking through the current headers, preprocessing will  
+> not solve some of the duplication I'd like to try to clean up.  One  
+> example being the duplication of bitops in various macros all over  
+> the place, FD_SET/FD_CLR/FD_ISSET being a prime example of that  
+> duplication.  It would be really nice to be able to implement those  
+> in terms of __set_bit, etc, however those macros themselves must be  
+> made userspace-clean, including adding C89-compat macros for non-GCC  
+> compilers and other mild ugliness, even though they'd never be  
+> directly exposed for user programs.
 
-Does the latest -git tree also have this problem?
+These seem to be two completely independent problems. Reducing the
+amount of duplication is a good thing all by itself that can be done
+independent from finding a better way to provide the headers to 
+user space.
 
-thanks,
+About one year ago, I started down this route in order to autogenerate
+something like linux-libc-headers from the kernel tree, but never got
+around to submitting anything because I could not keep up with the
+changes.
 
-greg k-h
+What I did there was to put a Makefile into each include directory
+with a list of the files that should get installed (the list from
+llc) and then add a headers_install target to Makefile that would
+run each header file through an open-coded version of
+'unifdef -U__KERNEL__ < include/$FILE > $PREFIX/include/$FILE'.
+
+The advantage of this approach is that it minimises the amount of
+change to each of the current header files while making it relatively
+easy to audit by looking for wrong stuff (namespace pollution,
+CONFIG_* dependencies, ...) in the installed headers.
+
+	Arnd <><

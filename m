@@ -1,98 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751441AbWDBEBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751632AbWDBDyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751441AbWDBEBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Apr 2006 23:01:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWDBEBZ
+	id S1751632AbWDBDyl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Apr 2006 22:54:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751633AbWDBDyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Apr 2006 23:01:25 -0500
-Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:17364 "EHLO
-	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751441AbWDBEBY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Apr 2006 23:01:24 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: ck list <ck@vds.kolivas.org>
-Subject: 2.6.16-ck3
-Date: Sun, 2 Apr 2006 14:01:10 +1000
-User-Agent: KMail/1.9.1
-Cc: linux list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Message-Id: <200604021401.13331.kernel@kolivas.org>
-X-Length: 1910
-Content-Type: multipart/signed;
-  boundary="nextPart5949675.2MAPygeK1g";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+	Sat, 1 Apr 2006 22:54:41 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:6382 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751626AbWDBDyk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Apr 2006 22:54:40 -0500
+Date: Sat, 1 Apr 2006 19:53:49 -0800
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: open-iscsi@googlegroups.com
+Cc: Core-iSCSI <Core-iSCSI@googlegroups.com>,
+       iet-dev <iscsitarget-devel@lists.sourceforge.net>,
+       maemo-dev <maemo-developers@maemo.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Core-iSCSI/Nokia770 binaries released!
+Message-ID: <20060402035349.GA14170@us.ibm.com>
+References: <1143948142.26951.199.camel@haakon>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1143948142.26951.199.camel@haakon>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart5949675.2MAPygeK1g
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi -
 
-These are patches designed to improve system responsiveness and interactivi=
-ty.=20
-It is configurable to any workload but the default ck patch is aimed at the=
-=20
-desktop and cks is available with more emphasis on serverspace.
+On Sat, Apr 01, 2006 at 07:22:22PM -0800, Nicholas A. Bellinger wrote:
 
-THESE INCLUDE THE PATCHES FROM 2.6.16.1 SO START WITH 2.6.16 AS YOUR BASE
+> not supported in this release and 2) the 2.6.12.3-omap1 for the 770 does
+> NOT ship with CONFIG_SCSI_MULTI_LUN=y, and hence we are only able to
+> detect LUN 0 for each iSCSI Target Node.  Unfortuately scsi_mod is
+> complied directly the 2.6.12.3-omap1 kernel and the only method to get
+> around this is recompiling the kernel.  I would like to see scsi_mod
+> built as a module in future kernel releases for the Nokia 770, and
+> preferably with CONFIG_SCSI_MULTI_LUN=y enabled.
 
-Apply to 2.6.16
-http://www.kernel.org/pub/linux/kernel/people/ck/patches/2.6/2.6.16/2.6.16-=
-ck3/patch-2.6.16-ck3.bz2
+You should be able to override that via 
 
-or server version
-http://www.kernel.org/pub/linux/kernel/people/ck/patches/cks/patch-2.6.16-c=
-ks3.bz2
+	scsi_mod.max_luns=512
 
-web:
-http://kernel.kolivas.org
+Or does it have a fixed boot command line?
 
-all patches:
-http://www.kernel.org/pub/linux/kernel/people/ck/patches/
-
-Split patches available.
-
-
-Changes:
-
-Added:
- +sched-staircase14.2_15.patch
-A major improvement in the staircase code fixes low I/O under heavy cpu loa=
-d,=20
-makes it starvation resistant, improves behaviour under heavy "system" load=
-s,=20
-fixes a slowdown under "compute" mode and has numerous other=20
-microoptimisations.
-
-
-Modified:
- -swsusp-post_resume_aggressive_swap_prefetch.patch
- +swsusp-post_resume_aggressive_swap_prefetch-1.patch
-A minor change in the code to perform aggressive swap prefetching on swsusp=
-=20
-resume slightly later should speed up resume time.
-
- -2.6.16-ck2-version.patch
- +2.6.16-ck3-version.patch
-Version update
-
-
-Cheers,
-Con
-
---nextPart5949675.2MAPygeK1g
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEL0yJZUg7+tp6mRURAuAUAJ94LQ4D463y7sbSpHqWlawPcb/GnACdFucI
-NCVaa+SbHe1vz1y8HHG6NfM=
-=+nKV
------END PGP SIGNATURE-----
-
---nextPart5949675.2MAPygeK1g--
+-- Patrick Mansfield

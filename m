@@ -1,69 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751509AbWDBWmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751499AbWDBWvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751509AbWDBWmz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 18:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751506AbWDBWmy
+	id S1751499AbWDBWvP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 18:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751506AbWDBWvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 18:42:54 -0400
-Received: from noname.neutralserver.com ([70.84.186.210]:29670 "EHLO
-	noname.neutralserver.com") by vger.kernel.org with ESMTP
-	id S1751479AbWDBWmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 18:42:54 -0400
-Date: Mon, 3 Apr 2006 01:44:16 +0300
-From: Dan Aloni <da-x@monatomic.org>
-To: "Eric D. Mudama" <edmudama@gmail.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Mark Lord <lkml@rtr.ca>,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-Subject: Re: sata_mv: module reloading doesn't work
-Message-ID: <20060402224416.GA9639@localdomain>
-References: <20060402155647.GB20270@localdomain> <311601c90604021059jcdf56e4ja35e3507ab291179@mail.gmail.com>
+	Sun, 2 Apr 2006 18:51:15 -0400
+Received: from web30606.mail.mud.yahoo.com ([68.142.200.129]:44708 "HELO
+	web30606.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751499AbWDBWvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 18:51:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=2FP7i6xFCOUvvQPJfOzhKoRfwpRgME3aa6LciSqx2+79rZffFvJK6lFrfUmGPwyISlPlskoYm5FiE2Mr1fDPdXQqty+Ywt6LiQUh2OBlJuaUU4B0SNMEsyZEm/UW/Sg3x2kGX71lmB3VLEkE1eM8aJPOpSK4c+7SGVn25GZi+Lg=  ;
+Message-ID: <20060402225112.4629.qmail@web30606.mail.mud.yahoo.com>
+Date: Mon, 3 Apr 2006 00:51:12 +0200 (CEST)
+From: zine el abidine Hamid <zine46@yahoo.fr>
+Subject: Re: Detecting I/O error and Halting System
+To: Bernd Eckenfels <be-news06@lina.inka.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <E1FOwGQ-00034J-00@calista.inka.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <311601c90604021059jcdf56e4ja35e3507ab291179@mail.gmail.com>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - noname.neutralserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - monatomic.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 02, 2006 at 11:59:45AM -0600, Eric D. Mudama wrote:
-> On 4/2/06, Dan Aloni <da-x@monatomic.org> wrote:
-> > Hello,
-> >
-> > I'm testing the sata_mv driver to see whether reloading (rmmod
-> > - insmod) works, and it seems something is broken there. The
-> > first insmod goes okay - however all the insmods that follow
-> > emit error=0x01 { AddrMarkNotFound } and status=0x50 { DriveReady
-> > SeekComplete } from all the drives.
+
+watchdog isn't helpfull because some parts of the
+drives (some directories, and some command) seems to
+be accessible and most aren't. But I think that the
+files that seems to be readable are on the cache.
+
+
+--- Bernd Eckenfels <be-news06@lina.inka.de> a écrit :
+
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > See the softdog driver for an example.
 > 
-> More to Jeff/Mark etc... wouldn't this be expected?  0x50/0x01 is the
-> contents of a reset signature FIS.  If the module was removed, and
-> upon insmod the bus came back up, the drive would complete ASR or
-> COMRESET processing and post a signature FIS.  Is the phy disabled
-> when sata_mv is removed?
+> The usermode agent (watchdog(8) can, btw monitor the
+> availableness of a
+> file, no need to write a module. MAybe this feature
+> was added after somebody
+> took that code over from you? :)
+> 
+> watchdog.conf(5) says: 
+> 
+> #     file = <filename> Set file name for file mode.
+>  This option can be
+> #              given as often as you like to check
+> several files.
+> 
+> Bernd
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Should it be disabled or enabled? BTW it seems that the Marvell 3.6.1
-propriety controller driver doesn't exhibit this problem so we can 
-exclude hardware faults.
 
-It looks more like a problem between the controller and the driver. 
-I'm not an expert in PCI, but according to my observation so far, 
-the PCI_STATUS_SIG_TARGET_ABORT bit is turned on in the config space 
-after the driver is unloaded and that might indicate something bad.
 
- kernel: PCI config space regs: 
--kernel: 00: 608111ab 02b00317 01000009 00002008  
-+kernel: 00: 608111ab 02b80713 01000009 00002008  
+	
 
--- 
-Dan Aloni, Linux specialist
-XIV LTD, http://www.xivstorage.com
-da-x@monatomic.org, da-x@colinux.org, da-x@gmx.net, dan@xiv.co.il
+	
+		
+___________________________________________________________________________ 
+Nouveau : téléphonez moins cher avec Yahoo! Messenger ! Découvez les tarifs exceptionnels pour appeler la France et l'international.
+Téléchargez sur http://fr.messenger.yahoo.com

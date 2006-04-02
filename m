@@ -1,41 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWDBJQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWDBJgc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbWDBJQF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 05:16:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWDBJQE
+	id S932140AbWDBJgc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 05:36:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWDBJgc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 05:16:04 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:12694 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932302AbWDBJQB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 05:16:01 -0400
-Date: Sun, 2 Apr 2006 14:47:45 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Dinakar Guniguntala <dino@in.ibm.com>,
-       pj@sgi.com, hawkes@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.16-mm2 4/4] sched_domain: Allocate sched_group structures dynamically
-Message-ID: <20060402091745.GC13423@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20060401185644.GC25971@in.ibm.com> <442F2B52.6000205@yahoo.com.au> <20060401233512.B8662@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060401233512.B8662@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.11
+	Sun, 2 Apr 2006 05:36:32 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:24493 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932140AbWDBJgb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 05:36:31 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <442F9AEE.3000209@s5r6.in-berlin.de>
+Date: Sun, 02 Apr 2006 11:35:42 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: torvalds@osdl.org, stable@kernel.org, linux-kernel@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net, scjody@modernduck.com
+Subject: Re: [PATCH] sbp2: fix spinlock recursion
+References: <tkrat.11bf8809a766b402@s5r6.in-berlin.de> <20060401165241.5989d67f.akpm@osdl.org>
+In-Reply-To: <20060401165241.5989d67f.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: (0.836) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 01, 2006 at 11:35:13PM -0800, Siddha, Suresh B wrote:
-> Only thing I see in this is, even if there are very few cpus in the
-> exclusive cpuset, we end up allocating NR_CPUS groups and waste memory.
+Andrew Morton wrote:
+> Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+> 
+>>@@ -2540,6 +2537,7 @@ static int sbp2scsi_abort(struct scsi_cm
+>>  				command->Current_done(command->Current_SCpnt);
+>>  			}
+>>  		}
+>> +		spin_unlock_irqrestore(&scsi_id->sbp2_command_orb_lock, flags);
+> 
+> 
+> This changes the call environment for all implementations of
+> ->Current_done().  Are they all safe to call under this lock?
 
-I had realized that, but used NR_CPUS just to keep it simple (as is
-being done in the case of NUMA - where they simply allocate for
-MAX_NODES). I can take a shot at optimizing the memory allocation size
-(for NUMA as well) and send another patch later, if people think so.
+Short answer: Yes, trust me. ;-) Long answer:
 
+The done() callbacks are passed on to sbp2 from the SCSI stack along 
+with each SCSI command via the queuecommand hook. The done() callback is 
+safe to call in atomic context. So does 
+Documentation/scsi/scsi_mid_low_api.txt say, and many if not all SCSI 
+low-level handlers rely on this fact. So whatever this callback does, it 
+is "self-contained" and it won't conflict with sbp2's internal ORB list 
+handling. In particular, it won't race with the sbp2_command_orb_lock.
+
+Moreover, sbp2 already calls the done() handler with 
+sbp2_command_orb_lock taken in sbp2scsi_complete_all_commands(). I admit 
+this is ultimately no proof of correctness, especially since this 
+portion of code introduced the spinlock recursion in the first place and 
+we didn't realize it since this code's submission before 2.6.15 until 
+now. (I have learned a lesson from this.)
+
+I stress-tested my patch on x86 uniprocessor with a preemptible SMP 
+kernel (alas I have no SMP machine yet) and made sure that all code 
+paths which involve the sbp2_command_orb_lock were gone through multiple 
+times. Which is of course also no proof.
 -- 
-Regards,
-vatsa
+Stefan Richter
+-=====-=-==- -=-- ---=-
+http://arcgraph.de/sr/

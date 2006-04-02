@@ -1,221 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWDBPzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751481AbWDBQGI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751375AbWDBPzg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 11:55:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbWDBPzg
+	id S1751481AbWDBQGI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 12:06:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWDBQGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 11:55:36 -0400
-Received: from noname.neutralserver.com ([70.84.186.210]:35690 "EHLO
-	noname.neutralserver.com") by vger.kernel.org with ESMTP
-	id S1751375AbWDBPzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 11:55:35 -0400
-Date: Sun, 2 Apr 2006 18:56:47 +0300
-From: Dan Aloni <da-x@monatomic.org>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Mark Lord <lkml@rtr.ca>,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-Subject: sata_mv: module reloading doesn't work
-Message-ID: <20060402155647.GB20270@localdomain>
+	Sun, 2 Apr 2006 12:06:07 -0400
+Received: from rtr.ca ([64.26.128.89]:50606 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751481AbWDBQGG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 12:06:06 -0400
+Message-ID: <442FF65A.6020209@rtr.ca>
+Date: Sun, 02 Apr 2006 12:05:46 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20060305 SeaMonkey/1.1a
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - noname.neutralserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - monatomic.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+To: Dan Aloni <da-x@monatomic.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+Subject: Re: sata_mv: module reloading doesn't work
+References: <20060402155647.GB20270@localdomain>
+In-Reply-To: <20060402155647.GB20270@localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Dan Aloni wrote:
+> Hello,
+> 
+> I'm testing the sata_mv driver to see whether reloading (rmmod 
+> - insmod) works, and it seems something is broken there. The
+> first insmod goes okay - however all the insmods that follow
+> emit error=0x01 { AddrMarkNotFound } and status=0x50 { DriveReady 
+> SeekComplete } from all the drives.
+> 
+> I've enabled DPRINTK and fixed a crash involved with register
+> dumping (posted in my previous mail).
+> 
+> I hope these messages are sufficient, I can provide more 
+> information if needed.
 
-I'm testing the sata_mv driver to see whether reloading (rmmod 
-- insmod) works, and it seems something is broken there. The
-first insmod goes okay - however all the insmods that follow
-emit error=0x01 { AddrMarkNotFound } and status=0x50 { DriveReady 
-SeekComplete } from all the drives.
-
-I've enabled DPRINTK and fixed a crash involved with register
-dumping (posted in my previous mail).
-
-I hope these messages are sufficient, I can provide more 
-information if needed.
-
-Apr  2 15:22:16 14.10.240.6 kernel: sata_mv 0000:06:01.0: 32 slots 8 ports SCSI mode IRQ via INTx 
-Apr  2 15:22:16 14.10.240.6 kernel: ata17: SATA max UDMA/133 cmd 0x0 ctl 0xFFFFC20010922120 bmdma 0x0 irq 21 
-Apr  2 15:22:16 14.10.240.6 kernel: ata18: SATA max UDMA/133 cmd 0x0 ctl 0xFFFFC20010924120 bmdma 0x0 irq 21 
-Apr  2 15:22:16 14.10.240.6 kernel: ata19: SATA max UDMA/133 cmd 0x0 ctl 0xFFFFC20010926120 bmdma 0x0 irq 21 
-Apr  2 15:22:16 14.10.240.6 kernel: ata20: SATA max UDMA/133 cmd 0x0 ctl 0xFFFFC20010928120 bmdma 0x0 irq 21 
-Apr  2 15:22:16 14.10.240.6 kernel: ata21: SATA max UDMA/133 cmd 0x0 ctl 0xFFFFC20010932120 bmdma 0x0 irq 21 
-Apr  2 15:22:16 14.10.240.6 kernel: ata22: SATA max UDMA/133 cmd 0x0 ctl 0xFFFFC20010934120 bmdma 0x0 irq 21 
-Apr  2 15:22:16 14.10.240.6 kernel: ata23: SATA max UDMA/133 cmd 0x0 ctl 0xFFFFC20010936120 bmdma 0x0 irq 21 
-Apr  2 15:22:16 14.10.240.6 kernel: ata24: SATA max UDMA/133 cmd 0x0 ctl 0xFFFFC20010938120 bmdma 0x0 irq 21 
-...
-Apr  2 15:22:18 14.10.240.6 kernel: ata18: dev 0 ATA-7, max UDMA/133, 976773168 sectors: LBA48  
-Apr  2 15:22:18 14.10.240.6 kernel: ata18: dev 0 configured for UDMA/133 
-Apr  2 15:22:18 14.10.240.6 kernel: scsi1 : sata_mv 
-Apr  2 15:22:18 14.10.240.6 kernel: S-regs after ATA_RST: SStat 0x00000104 SErr 0x04000000 SCtrl 0x00000004 
-Apr  2 15:22:18 14.10.240.6 kernel: S-regs after PHY wake: SStat 0x00000123 SErr 0x04190002 SCtrl 0x00000300 
-Apr  2 15:22:18 14.10.240.6 kernel: S-regs after PHY wake: SStat 0x00000123 SErr 0x04190002 SCtrl 0x00000300 
-Apr  2 15:22:18 14.10.240.6 kernel: S-regs after ATA_RST: SStat 0x00000104 SErr 0x04000000 SCtrl 0x00000004 
-Apr  2 15:22:18 14.10.240.6 kernel: S-regs after PHY wake: SStat 0x00000123 SErr 0x04190002 SCtrl 0x00000300 
-Apr  2 15:22:18 14.10.240.6 kernel: S-regs after ATA_RST: SStat 0x00000104 SErr 0x04000000 SCtrl 0x00000004 
-Apr  2 15:22:18 14.10.240.6 kernel: S-regs after PHY wake: SStat 0x00000123 SErr 0x04190002 SCtrl 0x00000300 
-Apr  2 15:22:18 14.10.240.6 kernel: S-regs after ATA_RST: SStat 0x00000104 SErr 0x04000000 SCtrl 0x00000004 
-Apr  2 15:22:18 14.10.240.6 kernel: S-regs after PHY wake: SStat 0x00000123 SErr 0x04190002 SCtrl 0x00000300 
-Apr  2 15:22:19 14.10.240.6 kernel: S-regs after ATA_RST: SStat 0x00000104 SErr 0x04000000 SCtrl 0x00000004 
-Apr  2 15:22:19 14.10.240.6 kernel: S-regs after PHY wake: SStat 0x00000123 SErr 0x04190002 SCtrl 0x00000300 
-Apr  2 15:22:19 14.10.240.6 kernel: S-regs after ATA_RST: SStat 0x00000104 SErr 0x04000000 SCtrl 0x00000004 
-Apr  2 15:22:19 14.10.240.6 kernel: S-regs after PHY wake: SStat 0x00000123 SErr 0x04190002 SCtrl 0x00000300 
-Apr  2 15:22:19 14.10.240.6 kernel: S-regs after PHY wake: SStat 0x00000123 SErr 0x00000000 SCtrl 0x00000300 
-...
-Apr  2 15:22:22 14.10.240.6 kernel:  sdb:<3>ata18: port error; EDMA err cause: 0x00000280 SERR: 0x00000000 
-Apr  2 15:22:22 14.10.240.6 kernel: S-regs after ATA_RST: SStat 0x00000104 SErr 0x04000000 SCtrl 0x00000004 
-Apr  2 15:22:22 14.10.240.6 kernel: S-regs after PHY wake: SStat 0x00000123 SErr 0x04190002 SCtrl 0x00000300 
-Apr  2 15:22:22 14.10.240.6 kernel: ata18: status=0x50 { DriveReady SeekComplete } 
-Apr  2 15:22:22 14.10.240.6 kernel: ata18: error=0x01 { AddrMarkNotFound } 
-Apr  2 15:22:22 14.10.240.6 kernel: All regs @ PCI error 
-Apr  2 15:22:22 14.10.240.6 kernel: All registers for port(s) 0-7: 
-Apr  2 15:22:22 14.10.240.6 kernel: PCI config space regs: 
-Apr  2 15:22:22 14.10.240.6 kernel: 00: 608111ab 02b80313 01000009 00002008  
-Apr  2 15:22:22 14.10.240.6 kernel: 10: dc800004 00000000 00003001 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: 20: 00000000 00000000 00000000 11ab11ab  
-Apr  2 15:22:22 14.10.240.6 kernel: 30: 00000000 00000040 00000000 00000105  
-Apr  2 15:22:22 14.10.240.6 kernel: 40: 00025001 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: 50: 00806005 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: 60: 00300007 01830608  
-Apr  2 15:22:22 14.10.240.6 kernel: PCI regs: 
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010900c00: 0107e371 00000000 0038001e 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010900c10: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010900c20: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010900c30: 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010900d00: 00000034 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010900d10: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010900d20: 00000000 00000000 00000000 00380000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010900d30: 00000008  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010900f00: 000104f0  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010901d00: 00000000 000100ff 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010901d10: 00000000 00000000 00000000 03e500ff  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010901d20: 00070c41 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010901d30: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010901d40: dc801d40 00000000 45003000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010901d50: 00000006 00000000 00000400 00557fee  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010901d60: 00040004 0087ffff 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: HC regs (HC 0): 10900000 10920000: 
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010920000: 000100ff 00000101 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010920010: 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: HC regs (HC 1): 10900000 10930000: 
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010930000: 000100ff 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010930010: 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: EDMA regs (port 0): 
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010922000: 00002900 0000000e 00000000 ffffffff  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010922010: 00000000 6ae76020 00000020 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010922020: 00000000 6ae76400 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010922030: 003f003f 000000bc 00032190 00000080  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010922040: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010922050: 009b70e4  
-Apr  2 15:22:22 14.10.240.6 kernel: SATA regs (port 0): 
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010922300: 00000123 00000000 00000300 000301b0  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010922310: aaaac02a 00186005 4dd3783c 00067bef  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010922320: 00000000 00000000 00000000 40556a88  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010922330: 1c75972f 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010922340: 00000000 00000000 00000000 00404034  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010922350: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: EDMA regs (port 1): 
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010924000: 00002900 0000000e 00000020 ffffffff  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010924010: 00000000 6a8f3020 00000020 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010924020: 00000000 6a8f3400 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010924030: 003f003f 000000bc 00032190 00000080  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010924040: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010924050: 009b70e4  
-Apr  2 15:22:22 14.10.240.6 kernel: SATA regs (port 1): 
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010924300: 00000123 04190002 00000300 000301b0  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010924310: aaaac02a 00186005 4dd3783c 00067bef  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010924320: 00000000 00000000 00000000 40556a80  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010924330: 1c75972f 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010924340: 00000000 00000000 00000000 00404034  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010924350: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: EDMA regs (port 2): 
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010926000: 00002900 00000000 00000000 ffffffff  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010926010: 00000000 7be61000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010926020: 00000000 7be61400 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010926030: 00000000 000000bc 00032190 00000080  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010926040: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010926050: 009b70e4  
-Apr  2 15:22:22 14.10.240.6 kernel: SATA regs (port 2): 
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010926300: 00000123 00000000 00000300 000301b0  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010926310: aaaac02a 00186005 4dd3783c 00067bef  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010926320: 00000000 00000000 00000000 40556a88  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010926330: 1c75972f 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010926340: 00000000 00000000 00000000 00404046  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010926350: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: EDMA regs (port 3): 
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010928000: 00002900 00000000 00000000 ffffffff  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010928010: 00000000 7aa31000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010928020: 00000000 7aa31400 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010928030: 00000000 000000bc 00032190 00000080  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010928040: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010928050: 009b70e4  
-Apr  2 15:22:22 14.10.240.6 kernel: SATA regs (port 3): 
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010928300: 00000123 00000000 00000300 000301b0  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010928310: aaaac02a 00186005 4dd3783c 00067bef  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010928320: 00000000 00000000 00000000 40556a88  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010928330: 1c75972f 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010928340: 00000000 00000000 00000000 00404046  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010928350: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: EDMA regs (port 4): 
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010932000: 00002900 00000000 00000000 ffffffff  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010932010: 00000000 6b05d000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010932020: 00000000 6b05d400 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010932030: 00000000 000000bc 00032190 00000080  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010932040: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010932050: 009b70e4  
-Apr  2 15:22:22 14.10.240.6 kernel: SATA regs (port 4): 
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010932300: 00000123 00000000 00000300 000301b0  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010932310: aaaac02a 00186005 4dd3783c 00067bef  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010932320: 00000000 00000000 00000000 40556a88  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010932330: 1c75972f 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010932340: 00000000 00000000 00000000 00404046  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010932350: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: EDMA regs (port 5): 
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010934000: 00002900 00000000 00000000 ffffffff  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010934010: 00000000 6b11b000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010934020: 00000000 6b11b400 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010934030: 00000000 000000bc 00032190 00000080  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010934040: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010934050: 009b70e4  
-Apr  2 15:22:22 14.10.240.6 kernel: SATA regs (port 5): 
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010934300: 00000123 00000000 00000300 000301b0  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010934310: aaaac02a 00186005 4dd3783c 00067bef  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010934320: 00000000 00000000 00000000 40556a88  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010934330: 1c75972f 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010934340: 00000000 00000000 00000000 00404046  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010934350: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: EDMA regs (port 6): 
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010936000: 00002900 00000000 00000000 ffffffff  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010936010: 00000000 6af33000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010936020: 00000000 6af33400 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010936030: 00000000 000000bc 00032190 00000080  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010936040: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:22 14.10.240.6 kernel: ffffc20010936050: 009b70e4  
-Apr  2 15:22:22 14.10.240.6 kernel: SATA regs (port 6): 
-Apr  2 15:22:23 14.10.240.6 kernel: ffffc20010936300: 00000000 00000000 00000300 000301b0  
-Apr  2 15:22:23 14.10.240.6 kernel: ffffc20010936310: aaaac02a 00186005 4dd3783c 00067bef  
-Apr  2 15:22:23 14.10.240.6 kernel: ffffc20010936320: 00000000 00000000 00000000 40556a88  
-Apr  2 15:22:23 14.10.240.6 kernel: ffffc20010936330: 1c75972f 00000000 00000000 00000000  
-Apr  2 15:22:23 14.10.240.6 kernel: ffffc20010936340: 00000000 00000000 00000000 00804000  
-Apr  2 15:22:23 14.10.240.6 kernel: ffffc20010936350: 00000000 00000000 00000000 00000000  
-Apr  2 15:22:23 14.10.240.6 kernel: EDMA regs (port 7): 
-Apr  2 15:22:23 14.10.240.6 kernel: ffffc20010938000: 00002900 00000000 00000000 ffffffff  
-Apr  2 15:22:23 14.10.240.6 kernel: ffffc20010938010: 00000000 6b91c000 00000000 00000000  
-Apr  2 15:22:23 14.10.240.6 kernel: ffffc20010938020: 00000000 6b91c400 00000000 00000000  
-[kernel buffer filled at this point]
-
--- 
-Dan Aloni, Linux specialist
-XIV LTD, http://www.xivstorage.com
-da-x@monatomic.org, da-x@colinux.org, da-x@gmx.net, dan@xiv.co.il
+What kernel?  Any patches applied to sata_mv.c ??

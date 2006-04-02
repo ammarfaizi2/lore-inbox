@@ -1,26 +1,38 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S964791AbWDZSUv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWDZSUv (ORCPT <rfc822;akpm@zip.com.au>);
-	Wed, 26 Apr 2006 14:20:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbWDZSUu
+	id S932082AbWDBTbd (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 2 Apr 2006 15:31:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWDBTbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 14:20:50 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:2243 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964791AbWDZSUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 14:20:50 -0400
-Date: Wed, 26 Apr 2006 11:18:30 -0700
-From: mark gross <mgross@linux.intel.com>
-To: linux-kernel@vger.kernel.org
-Subject: test
-Message-ID: <20060426181830.GA24812@linux.intel.com>
-Reply-To: mgross@linux.intel.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Sun, 2 Apr 2006 15:31:32 -0400
+Received: from host19-93.pool876.interbusiness.it ([87.6.93.19]:10244 "HELO
+	host19-93.pool876.interbusiness.it") by vger.kernel.org with SMTP
+	id S1751491AbWDBTbb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 15:31:31 -0400
+Date: Sun, 02 Apr 2006 23:30:45 +0300
+From: "Allyson Doherty" <xjlzqbyxeyzf@yahoo.com>
+To: linux-hams@vger.kernel.org
+Subject: Everyone Require This MRz
+Message-ID: <3A837EE3.7684.9815C2D5@localhost>
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932082AbWDBTbd@vger.kernel.org>
 
-outlook sucks.
 
+
+
+Lazy to attend exam or classes?
+
+We have Diplomas, Degrees, Masters' or Doctorate
+to choose from any field of your interest.
+
+Only 2 weeks require to delivers the prestigious non-accredited
+universities paper to your doorstep.
+
+Do not hesitate to give us a call today!
+1-484-693-8861
+
+
+6jSxTb

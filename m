@@ -1,95 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbWDBHIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWDBHva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751368AbWDBHIh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 03:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWDBHIg
+	id S1751222AbWDBHva (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 03:51:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWDBHva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 03:08:36 -0400
-Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:611 "EHLO
-	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751368AbWDBHIg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 03:08:36 -0400
-Message-ID: <442F7871.4030405@bigpond.net.au>
-Date: Sun, 02 Apr 2006 17:08:33 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Sun, 2 Apr 2006 03:51:30 -0400
+Received: from mail-new.archive.org ([207.241.227.188]:3803 "EHLO
+	mail.archive.org") by vger.kernel.org with ESMTP id S1751222AbWDBHva
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 03:51:30 -0400
+Message-ID: <442F827E.8040104@archive.org>
+Date: Sat, 01 Apr 2006 23:51:26 -0800
+From: Joerg Bashir <brak@archive.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Con Kolivas <kernel@kolivas.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: smpnice loadbalancing with high priority tasks
-References: <4428D112.7050704@bigpond.net.au> <20060328112521.A27574@unix-os.sc.intel.com> <4429BC61.7020201@bigpond.net.au> <20060328185202.A1135@unix-os.sc.intel.com> <442A0235.1060305@bigpond.net.au> <20060329145242.A11376@unix-os.sc.intel.com> <442B1AE8.5030005@bigpond.net.au> <20060329165052.C11376@unix-os.sc.intel.com> <442B3111.5030808@bigpond.net.au> <20060401204824.A8662@unix-os.sc.intel.com>
-In-Reply-To: <20060401204824.A8662@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sun, 2 Apr 2006 07:08:33 +0000
+To: Robert Hancock <hancockr@shaw.ca>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, ak@suse.de, jgarzik@pobox.com,
+       mulix@mulix.org
+Subject: Re: PCI-DMA: Out of IOMMU space on x86-64 (Athlon64x2), with solution
+References: <5Mq18-1Na-21@gated-at.bofh.it> <5MqNc-2Y5-3@gated-at.bofh.it> <5MqX4-39H-21@gated-at.bofh.it> <5MyAS-5zh-5@gated-at.bofh.it> <440CD09A.9040005@shaw.ca>
+In-Reply-To: <440CD09A.9040005@shaw.ca>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Siddha, Suresh B wrote:
-> Peter,
+Robert Hancock wrote:
+> Michael Monnerie wrote:
 > 
-> There are still issues which we need to address.. These are surfacing
-> as we are patching issue by issue(instead of addressing the root issue, which
-> is: presence of high priority tasks messes up load balancing of normal
-> priority tasks..)
+>> On Freitag, 3. März 2006 23:23 Jeff Garzik wrote:
+>>
+>>> I'll happen but not soon.  Motivation is low at NV and here as well,
+>>> since newer NV is AHCI.  The code in question, "NV ADMA", is
+>>> essentially legacy at this point -- though I certainly acknowledge
+>>> the large current installed base.  Just being honest about the
+>>> current state of things...
+>>
+>>
+>> I'd like to raise motivation a lot because most MB sold here (central
+>> Europe) are Nforce4 with Athlon64x2 at the moment. It would be nice
+>> from vendors if they support OSS developers more, as it's their
+>> interest to have good drivers.
 > 
-> for example
 > 
-> a) on a simple 4-way MP system, if we have one high priority and 4 normal
-> priority tasks, with smpnice we would like to see the high priority task
-> scheduled on one cpu, two other cpus getting one normal task each and the
-> fourth cpu getting the remaining two normal tasks. but with smpnice that 
-> extra normal priority task keeps jumping from one cpu to another cpu having
-> the normal priority task.
+> I second that.. It appears that nForce4 will continue to be a popular
+> chipset even after the Socket AM2 chips are released, so the demand for
+> this (and for NCQ support as well, likely) will only increase.
 > 
-> This is because of the busiest_has_loaded_cpus, nr_loaded_cpus logic.. We
-> are not including the cpu with high priority task in max_load calculations
-> but including that in total and avg_load calcuations.. leading to max_load <
-> avg_load and load balance between cpus running normal priority tasks(2 Vs 1)
-> will always show imbalanace as one normal priority and the extra normal
-> priority task will keep moving from one cpu to another cpu having
-> normal priority task..
 
-I can't see anything like this in the code.  Can you send a patch to fix 
-what you think the problem in the is?
+I'll third it.  Just had another machine blow up it's RAID5 set because
+of this bug.  Tyan S2895 board, 4 500GB Hitachi SATA drives in RAID5.  I
+suppose I could buy a 3ware controller I suppose but that's a few
+hundred dollars per machine.
 
-The effect you describe can be caused by other tasks running on the 
-system (see below for fuller description).
+These machines are running SUSE 9.3 or SUSE 10, I've tried kernel.org
+kernels as well as the iommu=memaper=3 cmdline option.
 
-> 
-> b) on a simple DP system, if we have two high priority and two normal priority
-> tasks, ideally we should schedule one high and one normal priority task on 
-> each cpu.. current code doesn't find an imbalance if both the normal priority
-> tasks gets scheduled on the same cpu(running one high priority task)
+Any other advice greatly appreciated.
 
-This is one of my standard tests and it works for me.  The only time the 
-two normal priority tasks end up on the same CPU during my tests is when 
-some other normal priority tasks (e.g. top, X.org) happen to be running 
-when load balancing occurs.  This causes an imbalance and tasks that 
-aren't actually on the CPU get moved to fix the imbalance.  This is 
-usually the test tasks as (because they are hard spinners) they have a 
-smaller interactive bonus than the other tasks and get preempted as a 
-result.
+I saw a lot of patches come through by Muli but am not sure they address
+this issue, do they?
 
-> 
-> there may not be benchmarks which expose these conditions.. but I think
-> we haven't addressed the corner case conditions well enough..
+--Joerg
 
-Both of the problems you describe above are probably caused by the fact 
-that there are other tasks (than those in your tests) running on your 
-system and if they happen to be on a run queue at the time load 
-balancing is done they will cause an imbalance to be detected that is 
-different to what you expect based on a simplistic view of the world 
-that only considers the test tasks.  When this happens tasks will get 
-moved to restore balance.  This (in my opinion) is what you are seeing.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

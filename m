@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbWDBO3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWDBOj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932339AbWDBO3q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 10:29:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWDBO3q
+	id S932351AbWDBOj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 10:39:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWDBOj3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 10:29:46 -0400
-Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:31378 "HELO
-	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932339AbWDBO3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 10:29:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=X/nRTOsTM/fvgwjBwc6gxjgI4O2ZRs4yf6WhHeIyrnC3bZoLx/TcIKXcKnH0NMFVf6z5gcKlne62NBLwa9jSrSArstvdWArUs1/WebGo5kFNFLaiFLobGwHaRI/hWAeuRse6MjJzvrTmuVvEuhhM6TokhpmVGVXq8S/iUBtpZkg=  ;
-Message-ID: <442F9E91.1020306@yahoo.com.au>
-Date: Sun, 02 Apr 2006 19:51:13 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Sun, 2 Apr 2006 10:39:29 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:35793 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932351AbWDBOj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 10:39:28 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Anton Blanchard <anton@samba.org>
+Subject: Re: [PATCH] Add prctl to change endian of a task
+Date: Sun, 2 Apr 2006 16:37:41 +0200
+User-Agent: KMail/1.9.1
+References: <20060401222921.GI23416@krispykreme>
+In-Reply-To: <20060401222921.GI23416@krispykreme>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: ck@vds.kolivas.org, Andrew Morton <akpm@osdl.org>,
-       linux list <linux-kernel@vger.kernel.org>
-Subject: Re: [ck] Re: 2.6.16-ck3
-References: <200604021401.13331.kernel@kolivas.org> <442F5721.2040906@yahoo.com.au> <200604021851.39763.kernel@kolivas.org> <200604021939.21729.kernel@kolivas.org>
-In-Reply-To: <200604021939.21729.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1822159.5YcrncgIRZ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200604021637.49759.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
+--nextPart1822159.5YcrncgIRZ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Ok I can't see what I'm doing wrong.
-> 
-> here are my watermarks
-> 
-> idx = zone_idx(z);
-> ns->lowfree[idx] = z->pages_high * 3 + z->lowmem_reserve[idx];
-> ns->highfree[idx] = ns->lowfree[idx] + z->pages_high;
-> 
-> It's (3 * pages_high) +lowmem_reserve which is well in excess of the reserve 
-> so I can't see any problem. Am I missing something?
-> 
+Hi Anton,
 
-That zone->lowmem_reserve[zone_idx(zone)] == 0 ?
+On Sunday, 2. April 2006 00:29, you wrote:
+> Add a prctl to change a tasks endian. While we only have powerpc code to
+> implement this so far, it seems like something that warrants a generic
+> interface (like setting floating point mode bits).
 
-;)
+Most programmers (and thus programs) expect this to be a compile time=20
+decision.
 
-lowmem_reserve could be much bigger than zone->high*3, when higher
-zones are much larger.
+What are the reasons of allowing to change it so dynamic at all?
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+What are the security implications of this?
+My naive guess is, that it might defeat range checking of values=20
+in user space code.
+
+What about limiting this to be called once per task or VM?
+This will prevent most abuse scenarios, I can think of.
+
+
+Regards
+
+Ingo Oeser
+
+--nextPart1822159.5YcrncgIRZ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBEL+G9U56oYWuOrkARAuluAKC7oJQZnSxUfSVa7OXcQ5+Gyv5LbwCgkYHC
+27uh7vvDamTr98goZg3nCUk=
+=YCHE
+-----END PGP SIGNATURE-----
+
+--nextPart1822159.5YcrncgIRZ--

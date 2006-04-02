@@ -1,84 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWDBLUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWDBLWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbWDBLUF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 07:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWDBLUF
+	id S932272AbWDBLWt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 07:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWDBLWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 07:20:05 -0400
-Received: from 169.248.adsl.brightview.com ([80.189.248.169]:57349 "EHLO
-	getafix.willow.local") by vger.kernel.org with ESMTP
-	id S932315AbWDBLUE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 07:20:04 -0400
-Date: Sun, 2 Apr 2006 12:20:02 +0100
-From: John Mylchreest <johnm@gentoo.org>
-To: Olaf Hering <olh@suse.de>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org, paulus@samba.org
-Subject: Re: [PATCH 1/1] POWERPC: Fix ppc32 compile with gcc+SSP in 2.6.16
-Message-ID: <20060402112002.GA3443@getafix.willow.local>
-References: <20060401224849.GH16917@getafix.willow.local> <20060402085850.GA28857@suse.de> <20060402102259.GM16917@getafix.willow.local> <20060402102815.GA29717@suse.de> <20060402105859.GN16917@getafix.willow.local> <20060402111002.GA30017@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OXfL5xGRrasGEqWY"
+	Sun, 2 Apr 2006 07:22:49 -0400
+Received: from ns2.suse.de ([195.135.220.15]:51893 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932272AbWDBLWs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 07:22:48 -0400
+From: Andi Kleen <ak@suse.de>
+To: Joerg Bashir <brak@archive.org>
+Subject: Re: PCI-DMA: Out of IOMMU space on x86-64 (Athlon64x2), with solution
+Date: Sun, 2 Apr 2006 13:16:50 +0200
+User-Agent: KMail/1.9.1
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>, jgarzik@pobox.com,
+       mulix@mulix.org
+References: <5Mq18-1Na-21@gated-at.bofh.it> <440CD09A.9040005@shaw.ca> <442F827E.8040104@archive.org>
+In-Reply-To: <442F827E.8040104@archive.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <20060402111002.GA30017@suse.de>
-User-Agent: Mutt/1.5.11
+Message-Id: <200604021316.51019.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 02 April 2006 09:51, Joerg Bashir wrote:
+> Robert Hancock wrote:
+> > Michael Monnerie wrote:
+> > 
+> >> On Freitag, 3. März 2006 23:23 Jeff Garzik wrote:
+> >>
+> >>> I'll happen but not soon.  Motivation is low at NV and here as well,
+> >>> since newer NV is AHCI.  The code in question, "NV ADMA", is
+> >>> essentially legacy at this point -- though I certainly acknowledge
+> >>> the large current installed base.  Just being honest about the
+> >>> current state of things...
+> >>
+> >>
+> >> I'd like to raise motivation a lot because most MB sold here (central
+> >> Europe) are Nforce4 with Athlon64x2 at the moment. It would be nice
+> >> from vendors if they support OSS developers more, as it's their
+> >> interest to have good drivers.
+> > 
+> > 
+> > I second that.. It appears that nForce4 will continue to be a popular
+> > chipset even after the Socket AM2 chips are released, so the demand for
+> > this (and for NCQ support as well, likely) will only increase.
+> > 
+> 
+> I'll third it.  Just had another machine blow up it's RAID5 set because
+> of this bug.  Tyan S2895 board, 4 500GB Hitachi SATA drives in RAID5.  I
+> suppose I could buy a 3ware controller I suppose but that's a few
+> hundred dollars per machine.
+> 
+> These machines are running SUSE 9.3 or SUSE 10, I've tried kernel.org
+> kernels as well as the iommu=memaper=3 cmdline option.
 
---OXfL5xGRrasGEqWY
-Content-Type: text/plain; charset=utf8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You either have an IOMMU leak or very deep block device queues that overflow
+the aperture. You can either increase it even more or try to reduce
+the block queue lengths using the sysfs knobs (/sys/block/*/queue/)
+The maximum memory pinned by all the block queues must be smaller than
+the IOMMU aperture minus some slack for other devices.
 
-On Sun, Apr 02, 2006 at 01:10:02PM +0200, Olaf Hering <olh@suse.de> wrote:
->  On Sun, Apr 02, John Mylchreest wrote:
->=20
-> > On Sun, Apr 02, 2006 at 12:28:15PM +0200, Olaf Hering <olh@suse.de> wro=
-te:
-> > >  On Sun, Apr 02, John Mylchreest wrote:
-> > >=20
-> > > >   BOOTLD  arch/powerpc/boot/zImage.vmode
-> > > >   arch/powerpc/boot/prom.o(.text+0x19c): In function `call_prom':
-> > > >   : undefined reference to `__stack_smash_handler'
-> > >=20
-> > > Any this strange "security feature" is disabled by defining __KERNEL_=
-_?
-> >=20
-> > That correct, yes. SSP is actually used by quite a lot of vendors, and
-> > shouldn't be used outside of userland. Typically speaking it isn't, but
-> > in this case its being leaked.
->=20
-> Either way, file a bugreport upstream to remove the dep on __KERNEL__ in
-> the gcc patch.
->=20
-> A patch which adds -fno-dumb-feature to CFLAGS may be acceptable.
+If it's a leak someone has to debug it. 
 
-Going from that, I can push a patch for gcc upstream to remove the
-__KERNEL__ dep, but gcc4.1 ships with ssp by standard, and the semantics
-between the IBM patch for SSP applied to gcc-3 and ggc-4 have changed.
+Or alternatively someone fixes the driver that can run the NForce4 
+controller without 4GB limits. If you still have a leak somewhere that won't 
+help of course.
 
--fno-stack-protector would work for gcc4, but for gcc3 it could still be
-patially enabled, and requires -fno-stack-protector-all. Mind If I ask
-whats incorrect about defining __KERNEL__ for the bootcflags?
+Queue overflow is more likely.
 
---=20
-Role:            Gentoo Linux Kernel Lead
-Gentoo Linux:    http://www.gentoo.org
-Public Key:      gpg --recv-keys 9C745515
-Key fingerprint: A0AF F3C8 D699 A05A EC5C  24F7 95AA 241D 9C74 5515
-
-
---OXfL5xGRrasGEqWY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQFEL7NiNzVYcyGvtWURAp3GAKCb1CruWzjtycJckQW5lGe0d5vjawCg4KlX
-9F3gDDZGUzNHwFr8Rw7/DLQ=
-=hCD5
------END PGP SIGNATURE-----
-
---OXfL5xGRrasGEqWY--
+-Andi

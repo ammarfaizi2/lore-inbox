@@ -1,37 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbWDCTYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbWDCTo4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751044AbWDCTYG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 15:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751698AbWDCTYG
+	id S964854AbWDCTo4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 15:44:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWDCTo4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 15:24:06 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:35477 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751044AbWDCTYE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 15:24:04 -0400
-From: Andi Kleen <ak@suse.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH] x86_64: fix CONFIG_REORDER
-Date: Mon, 3 Apr 2006 21:23:59 +0200
-User-Agent: KMail/1.9.1
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <20060403185503.GA22440@mars.ravnborg.org>
-In-Reply-To: <20060403185503.GA22440@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Apr 2006 15:44:56 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57359 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964854AbWDCToz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 15:44:55 -0400
+Date: Mon, 3 Apr 2006 20:44:48 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: "Hyok S. Choi" <hyok.choi@samsung.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.17-rc1] [SERIAL] DCC(JTAG) serial and the console emulation support(revised#2)
+Message-ID: <20060403194448.GC5616@flint.arm.linux.org.uk>
+Mail-Followup-To: "Hyok S. Choi" <hyok.choi@samsung.com>,
+	linux-kernel@vger.kernel.org
+References: <20060403112410.14105.55427.stgit@hyoklinux.sec.samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604032123.59518.ak@suse.de>
+In-Reply-To: <20060403112410.14105.55427.stgit@hyoklinux.sec.samsung.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 03 April 2006 20:55, Sam Ravnborg wrote:
-> Fix CONFIG_REORDER.
-> Value of cflags-y was assined to CFLAGS before cflags-y was
-> assinged the value used for CONFIG_REORDER.
-> Use cflags-y for all CFLAGS options in the Makefile to avoid this
-> happening again.
+On Mon, Apr 03, 2006 at 08:24:10PM +0900, Hyok S. Choi wrote:
 
-Applied. Thanks.
--Andi
+The number of comments is getting smaller.  Only two remaining.
+
+> +	help
+> +	  Say Y here if you want to install DCC driver as a normal serial port
+> +	  /dev/ttyS0 (major 4, minor 64). Otherwise, it appears as /dev/ttyJ0
+> +	  (major 4, minor 128) and can co-exist with other UARTs, such as
+> +	  8250/16C550 compatibles.
+
+Help doesn't match code.
+
+> +static void dcc_shutdown(struct uart_port *port)
+> +{
+> +#ifdef DCC_IRQ_USED /* real IRQ used */
+> +	free_irq(port->irq, port);
+> +#else
+> +	spin_lock(&port->lock);
+> +	cancel_rearming_delayed_work(&dcc_poll_task);
+
+cancel_rearming_delayed_work() might sleep due to it calling
+flush_workqueue.  Therefore, you must not be holding a spinlock.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

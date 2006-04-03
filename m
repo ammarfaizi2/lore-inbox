@@ -1,193 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbWDCWr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbWDCXAB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964888AbWDCWr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 18:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbWDCWr3
+	id S964901AbWDCXAB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 19:00:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWDCXAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 18:47:29 -0400
-Received: from mail.kroah.org ([69.55.234.183]:33517 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964888AbWDCWr2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 18:47:28 -0400
-Subject: patch dma-doc-updates.patch added to gregkh-2.6 tree
-To: david-b@pacbell.net, dbrownell@users.sourceforge.net, greg@kroah.com,
-       gregkh@suse.de, linux-kernel@vger.kernel.org
-From: <gregkh@suse.de>
-Date: Mon, 03 Apr 2006 15:45:29 -0700
-In-Reply-To: <200604011021.53162.david-b@pacbell.net>
-Message-ID: <1FQXnd-8QP-00@press.kroah.org>
+	Mon, 3 Apr 2006 19:00:01 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:44206 "EHLO
+	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S964901AbWDCXAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 19:00:00 -0400
+Message-ID: <4431A93A.2010702@plan99.net>
+Date: Tue, 04 Apr 2006 00:01:14 +0100
+From: Mike Hearn <mike@plan99.net>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: akpm@osdl.org
+Subject: [PATCH] Add a /proc/self/exedir link
+Content-Type: multipart/mixed;
+ boundary="------------010800020501080009000802"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------010800020501080009000802
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This is a note to let you know that I've just added the patch titled
+Alright, Andrew Morton indicated that he liked this patch but the idea 
+needed discussion and mindshare. I asked Con Kolivas if it made sense to 
+go in his desktop patchset for people to try: he said he liked it too 
+but it's not his area, and that it should be discussed here.
 
-     Subject: dma doc updates
+To clarify, I'm proposing this patch for eventual mainline inclusion.
 
-to my gregkh-2.6 tree.  Its filename is
+It adds a simple bit of API - a symlink in /proc/pid - which makes it 
+easy to build relocatable software:
 
-     dma-doc-updates.patch
+   ./configure --prefix=/proc/self/exedir/..
 
-This tree can be found at 
-    http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/
+This is useful for a variety of purposes:
 
+* Distributing programs that are runnable from CD or USB key (useful for
+   Linux magazine cover disks)
 
->From david-b@pacbell.net Sat Apr  1 10:43:27 2006
-From: David Brownell <david-b@pacbell.net>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: dma doc updates
-Date: Sat, 1 Apr 2006 10:21:52 -0800
-Cc: Greg KH <greg@kroah.com>
-Message-Id: <200604011021.53162.david-b@pacbell.net>
+* Binary packages that can be installed anywhere, for instance, to your
+   home directory
 
-This updates the DMA API documentation to address a few issues:
+* Network admins can more easily place programs on network mounts
 
- - The dma_map_sg() call results are used like pci_map_sg() results:
-   using sg_dma_address() and sg_dma_len().  That's not wholly obvious
-   to folk reading _only_ the "new" DMA-API.txt writeup.
+I'm sure you can think of others. You can patch software to be 
+relocatable today, but it's awkward and error prone. A simple patch can 
+allow us to get it "for free" on any UNIX software that uses the 
+idiomatic autotools build system.
 
- - Buffers allocated by dma_alloc_coherent() may not be completely
-   free of coherency concerns ... some CPUs also have write buffers
-   that may need to be flushed.
+So .... does anybody have any objections to this? Would you like to see 
+it go in? Speak now or forever hold your peace! :)
 
- - Cacheline coherence issues are now mentioned as being among issues
-   which affect dma buffers, and complicate/prevent using of static and
-   (especially) stack based buffers with the DMA calls.
+thanks -mike
 
-I don't think many drivers currently need to worry about flushing write
-buffers, but I did hit it with one SOC using external SDRAM for DMA
-descriptors:  without explicit writebuffer flushing, the on-chip DMA
-controller accessed descriptors before the CPU completed the writes.
+--------------010800020501080009000802
+Content-Type: text/x-patch;
+ name="exedir.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="exedir.patch"
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
- Documentation/DMA-API.txt     |   49 ++++++++++++++++++++++++++++++------------
- Documentation/DMA-mapping.txt |   22 ++++++++++++++----
- 2 files changed, 53 insertions(+), 18 deletions(-)
-
---- gregkh-2.6.orig/Documentation/DMA-API.txt
-+++ gregkh-2.6/Documentation/DMA-API.txt
-@@ -33,7 +33,9 @@ pci_alloc_consistent(struct pci_dev *dev
+--- fs/proc/base.c~	2006-03-22 21:39:04.000000000 +0000
++++ fs/proc/base.c	2006-03-22 09:42:28.000000000 +0000
+@@ -95,6 +95,7 @@
+ 	PROC_TGID_CWD,
+ 	PROC_TGID_ROOT,
+ 	PROC_TGID_EXE,
++	PROC_TGID_EXEDIR,
+ 	PROC_TGID_FD,
+ 	PROC_TGID_ENVIRON,
+ 	PROC_TGID_AUXV,
+@@ -135,6 +136,7 @@
+ 	PROC_TID_CWD,
+ 	PROC_TID_ROOT,
+ 	PROC_TID_EXE,
++	PROC_TID_EXEDIR,
+ 	PROC_TID_FD,
+ 	PROC_TID_ENVIRON,
+ 	PROC_TID_AUXV,
+@@ -200,6 +202,7 @@
+ 	E(PROC_TGID_CWD,       "cwd",     S_IFLNK|S_IRWXUGO),
+ 	E(PROC_TGID_ROOT,      "root",    S_IFLNK|S_IRWXUGO),
+ 	E(PROC_TGID_EXE,       "exe",     S_IFLNK|S_IRWXUGO),
++	E(PROC_TGID_EXEDIR,    "exedir",  S_IFLNK|S_IRWXUGO),
+ 	E(PROC_TGID_MOUNTS,    "mounts",  S_IFREG|S_IRUGO),
+ #ifdef CONFIG_MMU
+ 	E(PROC_TGID_SMAPS,     "smaps",   S_IFREG|S_IRUGO),
+@@ -242,6 +245,7 @@
+ 	E(PROC_TID_CWD,        "cwd",     S_IFLNK|S_IRWXUGO),
+ 	E(PROC_TID_ROOT,       "root",    S_IFLNK|S_IRWXUGO),
+ 	E(PROC_TID_EXE,        "exe",     S_IFLNK|S_IRWXUGO),
++	E(PROC_TID_EXEDIR,     "exedir",  S_IFLNK|S_IRWXUGO),
+ 	E(PROC_TID_MOUNTS,     "mounts",  S_IFREG|S_IRUGO),
+ #ifdef CONFIG_MMU
+ 	E(PROC_TID_SMAPS,      "smaps",   S_IFREG|S_IRUGO),
+@@ -1656,6 +1660,11 @@
+ 			inode->i_op = &proc_pid_link_inode_operations;
+ 			ei->op.proc_get_link = proc_exe_link;
+ 			break;
++		case PROC_TID_EXEDIR:
++		case PROC_TGID_EXEDIR:
++			inode->i_op = &proc_pid_link_inode_operations;
++			ei->op.proc_get_link = proc_exedir_link;
++			break;
+ 		case PROC_TID_CWD:
+ 		case PROC_TGID_CWD:
+ 			inode->i_op = &proc_pid_link_inode_operations;
+--- fs/proc/internal.h~	2006-03-13 23:40:39.000000000 +0000
++++ fs/proc/internal.h	2006-03-22 09:46:08.000000000 +0000
+@@ -32,6 +32,7 @@
  
- Consistent memory is memory for which a write by either the device or
- the processor can immediately be read by the processor or device
--without having to worry about caching effects.
-+without having to worry about caching effects.  (You may however need
-+to make sure to flush the processor's write buffers before telling
-+devices to read that memory.)
+ extern void create_seq_entry(char *name, mode_t mode, struct file_operations *f);
+ extern int proc_exe_link(struct inode *, struct dentry **, struct vfsmount **);
++extern int proc_exedir_link(struct inode *inode, struct dentry **dentry, struct vfsmount **mnt);
+ extern int proc_tid_stat(struct task_struct *,  char *);
+ extern int proc_tgid_stat(struct task_struct *, char *);
+ extern int proc_pid_status(struct task_struct *, char *);
+--- fs/proc/task_mmu.c~	2006-03-22 21:43:37.000000000 +0000
++++ fs/proc/task_mmu.c	2006-03-22 10:26:37.000000000 +0000
+@@ -101,6 +101,20 @@
+ 	return result;
+ }
  
- This routine allocates a region of <size> bytes of consistent memory.
- it also returns a <dma_handle> which may be cast to an unsigned
-@@ -304,12 +306,12 @@ dma address with dma_mapping_error(). A 
- could not be created and the driver should take appropriate action (eg
- reduce current DMA mapping usage or delay and try again later).
- 
--int
--dma_map_sg(struct device *dev, struct scatterlist *sg, int nents,
--	   enum dma_data_direction direction)
--int
--pci_map_sg(struct pci_dev *hwdev, struct scatterlist *sg,
--	   int nents, int direction)
-+	int
-+	dma_map_sg(struct device *dev, struct scatterlist *sg,
-+		int nents, enum dma_data_direction direction)
-+	int
-+	pci_map_sg(struct pci_dev *hwdev, struct scatterlist *sg,
-+		int nents, int direction)
- 
- Maps a scatter gather list from the block layer.
- 
-@@ -327,12 +329,33 @@ critical that the driver do something, i
- aborting the request or even oopsing is better than doing nothing and
- corrupting the filesystem.
- 
--void
--dma_unmap_sg(struct device *dev, struct scatterlist *sg, int nhwentries,
--	     enum dma_data_direction direction)
--void
--pci_unmap_sg(struct pci_dev *hwdev, struct scatterlist *sg,
--	     int nents, int direction)
-+With scatterlists, you use the resulting mapping like this:
++int proc_exedir_link(struct inode *inode, struct dentry **dentry, struct vfsmount **mnt)
++{
++	struct dentry *exe;
++	int result = proc_exe_link(inode, &exe, mnt);
 +
-+	int i, count = dma_map_sg(dev, sglist, nents, direction);
-+	struct scatterlist *sg;
++	if (result < 0)
++		return result;
 +
-+	for (i = 0, sg = sglist; i < count; i++, sg++) {
-+		hw_address[i] = sg_dma_address(sg);
-+		hw_len[i] = sg_dma_len(sg);
-+	}
++	*dentry = dget_parent(exe);
++	dput(exe);
 +
-+where nents is the number of entries in the sglist.
++	return result;
++}
 +
-+The implementation is free to merge several consecutive sglist entries
-+into one (e.g. with an IOMMU, or if several pages just happen to be
-+physically contiguous) and returns the actual number of sg entries it
-+mapped them to. On failure 0, is returned.
+ static void pad_len_spaces(struct seq_file *m, int len)
+ {
+ 	len = 25 + sizeof(void*) * 6 - len;
+--- fs/proc/task_nommu.c~	2006-03-22 21:45:24.000000000 +0000
++++ fs/proc/task_nommu.c	2006-03-22 10:20:26.000000000 +0000
+@@ -137,6 +137,20 @@
+ 	return result;
+ }
+ 
++int proc_exedir_link(struct inode *inode, struct dentry **dentry, struct vfsmount **mnt)
++{
++	struct dentry *exe;
++	int result = proc_exe_link(inode, &exe, mnt);
++	
++	if (result < 0)
++		return result;
 +
-+Then you should loop count times (note: this can be less than nents times)
-+and use sg_dma_address() and sg_dma_len() macros where you previously
-+accessed sg->address and sg->length as shown above.
++	*dentry = dget_parent(exe);
++	dput(exe);
 +
-+	void
-+	dma_unmap_sg(struct device *dev, struct scatterlist *sg,
-+		int nhwentries, enum dma_data_direction direction)
-+	void
-+	pci_unmap_sg(struct pci_dev *hwdev, struct scatterlist *sg,
-+		int nents, int direction)
- 
- unmap the previously mapped scatter/gather list.  All the parameters
- must be the same as those and passed in to the scatter/gather mapping
---- gregkh-2.6.orig/Documentation/DMA-mapping.txt
-+++ gregkh-2.6/Documentation/DMA-mapping.txt
-@@ -58,11 +58,15 @@ translating each of those pages back to 
- something like __va().  [ EDIT: Update this when we integrate
- Gerd Knorr's generic code which does this. ]
- 
--This rule also means that you may not use kernel image addresses
--(ie. items in the kernel's data/text/bss segment, or your driver's)
--nor may you use kernel stack addresses for DMA.  Both of these items
--might be mapped somewhere entirely different than the rest of physical
--memory.
-+This rule also means that you may use neither kernel image addresses
-+(items in data/text/bss segments), nor module image addresses, nor
-+stack addresses for DMA.  These could all be mapped somewhere entirely
-+different than the rest of physical memory.  Even if those classes of
-+memory could physically work with DMA, you'd need to ensure the I/O
-+buffers were cacheline-aligned.  Without that, you'd see cacheline
-+sharing problems (data corruption) on CPUs with DMA-incoherent caches.
-+(The CPU could write to one word, DMA would write to a different one
-+in the same cache line, and one of them could be overwritten.)
- 
- Also, this means that you cannot take the return of a kmap()
- call and DMA to/from that.  This is similar to vmalloc().
-@@ -284,6 +288,11 @@ There are two types of DMA mappings:
- 
-              in order to get correct behavior on all platforms.
- 
-+	     Also, on some platforms your driver may need to flush CPU write
-+	     buffers in much the same way as it needs to flush write buffers
-+	     found in PCI bridges (such as by reading a register's value
-+	     after writing it).
++       return result;
++}
 +
- - Streaming DMA mappings which are usually mapped for one DMA transfer,
-   unmapped right after it (unless you use pci_dma_sync_* below) and for which
-   hardware can optimize for sequential accesses.
-@@ -303,6 +312,9 @@ There are two types of DMA mappings:
- 
- Neither type of DMA mapping has alignment restrictions that come
- from PCI, although some devices may have such restrictions.
-+Also, systems with caches that aren't DMA-coherent will work better
-+when the underlying buffers don't share cache lines with other data.
-+
- 
- 		 Using Consistent DMA mappings.
- 
+ /*
+  * Albert D. Cahalan suggested to fake entries for the traditional
+  * sections here.  This might be worth investigating.
 
-
-Patches currently in gregkh-2.6 which might be from david-b@pacbell.net are
-
-driver/spi-add-pxa2xx-ssp-spi-driver.patch
-driver/spi-per-transfer-overrides-for-wordsize-and-clocking.patch
-pci/dma-doc-updates.patch
+--------------010800020501080009000802--

@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWDCSIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWDCSKB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964826AbWDCSIx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 14:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWDCSIx
+	id S964827AbWDCSKB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 14:10:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWDCSKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 14:08:53 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:11993 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S964826AbWDCSIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 14:08:52 -0400
-Date: Mon, 3 Apr 2006 11:08:38 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Nathan Lynch <ntl@pobox.com>
-cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, linuxppc-dev@ozlabs.org,
-       ak@suse.com, pj@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Fw: 2.6.16 crashes when running numastat on p575
-In-Reply-To: <20060403180131.GD25663@localdomain>
-Message-ID: <Pine.LNX.4.64.0604031104110.20903@schroedinger.engr.sgi.com>
-References: <20060402213216.2e61b74e.akpm@osdl.org>
- <Pine.LNX.4.64.0604022149450.15895@schroedinger.engr.sgi.com>
- <20060402221513.96f05bdc.pj@sgi.com> <Pine.LNX.4.64.0604022224001.18401@schroedinger.engr.sgi.com>
- <20060403141027.GB25663@localdomain> <Pine.LNX.4.64.0604031039560.20648@schroedinger.engr.sgi.com>
- <20060403180131.GD25663@localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 3 Apr 2006 14:10:00 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:18866 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S964827AbWDCSKA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 14:10:00 -0400
+Message-Id: <200604031809.k33I9nYn032750@laptop11.inf.utfsm.cl>
+To: Jiri Slaby <jirislaby@gmail.com>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       sds@tycho.nsa.gov, jmorris@namei.org, selinux@tycho.nsa.gov
+Subject: Re: 2.6.17-rc1 compile failure 
+In-Reply-To: Message from Jiri Slaby <jirislaby@gmail.com> 
+   of "Mon, 03 Apr 2006 17:15:56 +0159." <44313C43.7070701@gmail.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Mon, 03 Apr 2006 14:09:49 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 03 Apr 2006 14:09:44 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Apr 2006, Nathan Lynch wrote:
-
-> > There are many other for_each_*_cpu loops in the kernel that do not have 
-> > any of the instrumentation you suggest. I suggest you come up with a 
-> > general solution and then go through all of them and fix this. Please be 
-> > aware that many of these loops are performance critical.
+Jiri Slaby <jirislaby@gmail.com> wrote:
+> Horst von Brand napsal(a):
+> > It ends with:
+> > 
+> >   CC      security/selinux/xfrm.o
+> >   security/selinux/xfrm.c: In function â??selinux_socket_getpeer_dgramâ??:
+> >   security/selinux/xfrm.c:284: error: â??struct sec_pathâ?? has no member named â??xâ??
+> >   security/selinux/xfrm.c: In function â??selinux_xfrm_sock_rcv_skbâ??:
+> >   security/selinux/xfrm.c:317: error: â??struct sec_pathâ?? has no member named â??xâ??
+> >   make[2]: *** [security/selinux/xfrm.o] Error 1
+> Could you test attached patch?
 > 
-> But this one isn't, right?
+> thanks,
+> - --
+> Jiri Slaby         www.fi.muni.cz/~xslaby
+> \_.-^-._   jirislaby@gmail.com   _.-^-._/
+> B67499670407CE62ACC8 22A032CC55C339D47A7E
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.2.2 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> 
+> iD8DBQFEMTxDMsxVwznUen4RAgLCAJ9WEAU018cecP1emeMZKfCTrttVeQCgric6
+> g9Cq+yh5IvmVJGHqlVsIEXs=
+> =9MLb
+> -----END PGP SIGNATURE-----
+> SELinux-xfrm-compilation-fix
+> 
+> sec_path struct no longer contains sec_decap_state struct, but only
+> xfrm_state.
+> 
+> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
-Right. One could use more expensive processing here.
- 
-> And I'm afraid there's a misunderstanding here -- only
-> for_each_online_cpu (or accessing the cpu online map in general) has
-> such restrictions -- for_each_possible_cpu doesn't require any locking
-> or preempt tricks since cpu_possible_map must not change after boot.
-
-Correct. We may want to audit the kernel and check that each 
-for_each_possible_cpu or for_each_cpu is really correct. Developers 
-frequently assume that all processors are up. There may be some 
-complicated interactions with cpusets. Adding Paul to this.
-
-However, note that I am not interested hotplug functionality. It is going 
-to be a difficult task to make the kernel shutdown processors correctly. I 
-can give you feedback but I am not going to do this work.
+Yep, that got it to build. Thanks!
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

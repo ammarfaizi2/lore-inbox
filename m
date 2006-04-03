@@ -1,399 +1,236 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWDCQm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWDCQmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbWDCQm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 12:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbWDCQm3
+	id S932146AbWDCQmP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 12:42:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWDCQls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 12:42:29 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:21151 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751221AbWDCQlv
+	Mon, 3 Apr 2006 12:41:48 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:48864 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751277AbWDCQlr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 12:41:51 -0400
-Subject: [PATCH 3/7] tpm: chip struct update
+	Mon, 3 Apr 2006 12:41:47 -0400
+Subject: [PATCH 2/7] tpm: reorganize sysfs files
 From: Kylene Jo Hall <kjhall@us.ibm.com>
 To: linux-kernel <linux-kernel@vger.kernel.org>
 Cc: akpm@osdl.org, TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>,
        Marcel Selhorst <selhorst@crypto.rub.de>
+In-Reply-To: <1143823488.2992.166.camel@localhost.localdomain>
+References: <1143823488.2992.166.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Mon, 03 Apr 2006 11:42:31 -0500
-Message-Id: <1144082551.29910.9.camel@localhost.localdomain>
+Date: Mon, 03 Apr 2006 11:42:27 -0500
+Message-Id: <1144082547.29910.8.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To assist with chip management and better support the possibility of
-having multiple TPMs in the system of the same kind, the struct
-tpm_vendor_specific member of the tpm_chip was changed from a pointer to
-an instance.  This patch changes that declaration and fixes up all
-accesses to the structure member except in tpm_infineon which is coming
-in a patch from Marcel Selhorst.
+Many of the sysfs files were calling the TPM_GetCapability command with
+different options and each command layed out in its own static const
+array.  Since for 1.2 more sysfs files of this type are coming I am
+generalizing the array so there can be one array and the unique parts
+can be filled in just before the command is called.
 
 Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
 ---
-drivers/char/tpm/tpm.c       |   48 +++++++++++++++------------------
-drivers/char/tpm/tpm.h       |    2 -
-drivers/char/tpm/tpm_atmel.c |   26 ++++++++---------
-drivers/char/tpm/tpm_nsc.c   |   32 +++++++++++-----------
-4 files changed, 53 insertions(+), 55 deletions(-)
+ drivers/char/tpm/tpm.c |  116 ++++++++++++++++++++++++---------------
+ 1 files changed, 72 insertions(+), 44 deletions(-)
 
---- linux-2.6.16/drivers/char/tpm/tpm.c	2006-03-30 15:08:43.400724250 -0600
+--- linux-2.6.16/drivers/char/tpm/tpm.c	2006-03-30 12:27:02.858478250 -0600
 +++ linux-2.6.16-rc1-tpm/drivers/char/tpm/tpm.c	2006-03-29 14:17:14.421822250 -0600
-@@ -78,21 +385,20 @@ static ssize_t tpm_transmit(struct tpm_c
+@@ -119,17 +427,41 @@ out:
+ }
  
- 	down(&chip->tpm_mutex);
+ #define TPM_DIGEST_SIZE 20
+-#define CAP_PCR_RESULT_SIZE 18
+-static const u8 cap_pcr[] = {
++#define TPM_ERROR_SIZE 10
++#define TPM_RET_CODE_IDX 6
++#define TPM_GET_CAP_RET_SIZE_IDX 10
++#define TPM_GET_CAP_RET_UINT32_1_IDX 14
++#define TPM_GET_CAP_RET_UINT32_2_IDX 18
++#define TPM_GET_CAP_RET_UINT32_3_IDX 22
++#define TPM_GET_CAP_RET_UINT32_4_IDX 26
++
++#define TPM_CAP_IDX 13
++#define TPM_CAP_SUBCAP_IDX 21
++
++enum tpm_capabilities {
++	TPM_CAP_PROP = 5,
++};
++
++enum tpm_sub_capabilities {
++	TPM_CAP_PROP_PCR = 0x1,
++	TPM_CAP_PROP_MANUFACTURER = 0x3,
++};
++
++/*
++ * This is a semi generic GetCapability command for use
++ * with the capability type TPM_CAP_PROP or TPM_CAP_FLAG
++ * and their associated sub_capabilities.
++ */
++
++static const u8 tpm_cap[] = {
+ 	0, 193,			/* TPM_TAG_RQU_COMMAND */
+ 	0, 0, 0, 22,		/* length */
+ 	0, 0, 0, 101,		/* TPM_ORD_GetCapability */
+-	0, 0, 0, 5,
+-	0, 0, 0, 4,
+-	0, 0, 1, 1
++	0, 0, 0, 0,		/* TPM_CAP_<TYPE> */
++	0, 0, 0, 4,		/* TPM_CAP_SUB_<TYPE> size */
++	0, 0, 1, 0		/* TPM_CAP_SUB_<TYPE> */
+ };
  
--	if ((rc = chip->vendor->send(chip, (u8 *) buf, count)) < 0) {
-+	if ((rc = chip->vendor.send(chip, (u8 *) buf, count)) < 0) {
- 		dev_err(chip->dev,
- 			"tpm_transmit: tpm_send: error %zd\n", rc);
+-#define READ_PCR_RESULT_SIZE 30
+ static const u8 pcrread[] = {
+ 	0, 193,			/* TPM_TAG_RQU_COMMAND */
+ 	0, 0, 0, 14,		/* length */
+@@ -140,7 +649,7 @@ static const u8 pcrread[] = {
+ ssize_t tpm_show_pcrs(struct device *dev, struct device_attribute *attr,
+ 		      char *buf)
+ {
+-	u8 data[READ_PCR_RESULT_SIZE];
++	u8 data[30];
+ 	ssize_t len;
+ 	int i, j, num_pcrs;
+ 	__be32 index;
+@@ -150,26 +659,28 @@ ssize_t tpm_show_pcrs(struct device *dev
+ 	if (chip == NULL)
+ 		return -ENODEV;
+ 
+-	memcpy(data, cap_pcr, sizeof(cap_pcr));
++	memcpy(data, tpm_cap, sizeof(tpm_cap));
++	data[TPM_CAP_IDX] = TPM_CAP_PROP;
++	data[TPM_CAP_SUBCAP_IDX] = TPM_CAP_PROP_PCR;
++
+ 	if ((len = tpm_transmit(chip, data, sizeof(data)))
+-	    < CAP_PCR_RESULT_SIZE) {
++	    <= TPM_ERROR_SIZE) {
+ 		dev_dbg(chip->dev, "A TPM error (%d) occurred "
+-				"attempting to determine the number of PCRS\n",
+-			be32_to_cpu(*((__be32 *) (data + 6))));
++			"attempting to determine the number of PCRS\n",
++			be32_to_cpu(*((__be32 *) (data + TPM_RET_CODE_IDX))));
+ 		return 0;
+ 	}
+ 
+ 	num_pcrs = be32_to_cpu(*((__be32 *) (data + 14)));
+-
+ 	for (i = 0; i < num_pcrs; i++) {
+ 		memcpy(data, pcrread, sizeof(pcrread));
+ 		index = cpu_to_be32(i);
+ 		memcpy(data + 10, &index, 4);
+ 		if ((len = tpm_transmit(chip, data, sizeof(data)))
+-		    < READ_PCR_RESULT_SIZE){
++		    <= TPM_ERROR_SIZE) {
+ 			dev_dbg(chip->dev, "A TPM error (%d) occurred"
+ 				" attempting to read PCR %d of %d\n",
+-				be32_to_cpu(*((__be32 *) (data + 6))),
++				be32_to_cpu(*((__be32 *) (data + TPM_RET_CODE_IDX))),
+ 				i, num_pcrs);
+ 			goto out;
+ 		}
+@@ -208,11 +724,11 @@ ssize_t tpm_show_pubek(struct device *de
+ 
+ 	memcpy(data, readpubek, sizeof(readpubek));
+ 
+-	if ((len = tpm_transmit(chip, data, READ_PUBEK_RESULT_SIZE)) <
+-	    READ_PUBEK_RESULT_SIZE) {
++	if ((len = tpm_transmit(chip, data, READ_PUBEK_RESULT_SIZE)) <=
++	    TPM_ERROR_SIZE) {
+ 		dev_dbg(chip->dev, "A TPM error (%d) occurred "
+-				"attempting to read the PUBEK\n",
+-			    be32_to_cpu(*((__be32 *) (data + 6))));
++			"attempting to read the PUBEK\n",
++			be32_to_cpu(*((__be32 *) (data + TPM_RET_CODE_IDX))));
+ 		rc = 0;
  		goto out;
  	}
+@@ -250,29 +284,20 @@ out:
+ }
+ EXPORT_SYMBOL_GPL(tpm_show_pubek);
  
-	stop = jiffies + 2 * 60 * HZ;
- 	do {
--		u8 status = chip->vendor->status(chip);
--		if ((status & chip->vendor->req_complete_mask) ==
--		    chip->vendor->req_complete_val) {
-+		u8 status = chip->vendor.status(chip);
-+		if ((status & chip->vendor.req_complete_mask) ==
-+		    chip->vendor.req_complete_val)
- 			goto out_recv;
--		}
+-#define CAP_VER_RESULT_SIZE 18
++#define CAP_VERSION_1_1 6
++#define CAP_VERSION_IDX 13
+ static const u8 cap_version[] = {
+ 	0, 193,			/* TPM_TAG_RQU_COMMAND */
+ 	0, 0, 0, 18,		/* length */
+ 	0, 0, 0, 101,		/* TPM_ORD_GetCapability */
+-	0, 0, 0, 6,
++	0, 0, 0, 0,
+ 	0, 0, 0, 0
+ };
  
--		if ((status == chip->vendor->req_canceled)) {
-+		if ((status == chip->vendor.req_canceled)) {
- 			dev_err(chip->dev, "Operation Canceled\n");
- 			rc = -ECANCELED;
- 			goto out;
-@@ -102,14 +411,13 @@ static ssize_t tpm_transmit(struct tpm_c
- 		rmb();
- 	} while (time_before(jiffies, stop));
- 
+-#define CAP_MANUFACTURER_RESULT_SIZE 18
+-static const u8 cap_manufacturer[] = {
+-	0, 193,			/* TPM_TAG_RQU_COMMAND */
+-	0, 0, 0, 22,		/* length */
+-	0, 0, 0, 101,		/* TPM_ORD_GetCapability */
+-	0, 0, 0, 5,
+-	0, 0, 0, 4,
+-	0, 0, 1, 3
+-};
 -
--	chip->vendor->cancel(chip);
-+	chip->vendor.cancel(chip);
- 	dev_err(chip->dev, "Operation Timed out\n");
- 	rc = -ETIME;
- 	goto out;
+ ssize_t tpm_show_caps(struct device *dev, struct device_attribute *attr,
+ 		      char *buf)
+ {
+-	u8 data[sizeof(cap_manufacturer)];
++	u8 data[30];
+ 	ssize_t len;
+ 	char *str = buf;
  
- out_recv:
--	rc = chip->vendor->recv(chip, (u8 *) buf, bufsiz);
-+	rc = chip->vendor.recv(chip, (u8 *) buf, bufsiz);
- 	if (rc < 0)
- 		dev_err(chip->dev,
- 			"tpm_transmit: tpm_recv: error %zd\n", rc);
-@@ -344,7 +832,7 @@ ssize_t tpm_store_cancel(struct device *dev
+@@ -282,26 +793,37 @@ ssize_t tpm_show_caps(struct device *dev
  	if (chip == NULL)
- 		return 0;
- 
--	chip->vendor->cancel(chip);
-+	chip->vendor.cancel(chip);
- 	return count;
- }
- EXPORT_SYMBOL_GPL(tpm_store_cancel);
-@@ -369,7 +913,7 @@ int tpm_open(struct inode *inode, struct
- 	spin_lock(&driver_lock);
- 
- 	list_for_each_entry(pos, &tpm_chip_list, list) {
--		if (pos->vendor->miscdev.minor == minor) {
-+		if (pos->vendor.miscdev.minor == minor) {
- 			chip = pos;
- 			break;
- 		}
-@@ -502,14 +1049,14 @@ void tpm_remove_hardware(struct device *
- 	spin_unlock(&driver_lock);
- 
- 	dev_set_drvdata(dev, NULL);
--	misc_deregister(&chip->vendor->miscdev);
--	kfree(chip->vendor->miscdev.name);
-+	misc_deregister(&chip->vendor.miscdev);
-+	kfree(chip->vendor.miscdev.name);
- 
--	sysfs_remove_group(&dev->kobj, chip->vendor->attr_group);
-+	sysfs_remove_group(&dev->kobj, chip->vendor.attr_group);
- 	tpm_bios_log_teardown(chip->bios_dir);
- 
--	dev_mask[chip->dev_num / TPM_NUM_MASK_ENTRIES ] &=
--		~(1 << (chip->dev_num % TPM_NUM_MASK_ENTRIES));
-+	dev_mask[chip->dev_num / TPM_NUM_MASK_ENTRIES] &=
-+	    ~(1 << (chip->dev_num % TPM_NUM_MASK_ENTRIES));
- 
- 	kfree(chip);
- 
-@@ -583,7 +1134,7 @@ int tpm_register_hardware(struct device 
- 	chip->user_read_timer.function = user_reader_timeout;
- 	chip->user_read_timer.data = (unsigned long) chip;
- 
--	chip->vendor = entry;
-+	memcpy(&chip->vendor, entry, sizeof(struct tpm_vendor_specific));
- 
- 	chip->dev_num = -1;
- 
-@@ -602,22 +1153,22 @@ dev_num_search_complete:
- 		kfree(chip);
  		return -ENODEV;
- 	} else if (chip->dev_num == 0)
--		chip->vendor->miscdev.minor = TPM_MINOR;
-+		chip->vendor.miscdev.minor = TPM_MINOR;
- 	else
--		chip->vendor->miscdev.minor = MISC_DYNAMIC_MINOR;
-+		chip->vendor.miscdev.minor = MISC_DYNAMIC_MINOR;
  
- 	devname = kmalloc(DEVNAME_SIZE, GFP_KERNEL);
- 	scnprintf(devname, DEVNAME_SIZE, "%s%d", "tpm", chip->dev_num);
--	chip->vendor->miscdev.name = devname;
-+	chip->vendor.miscdev.name = devname;
+-	memcpy(data, cap_manufacturer, sizeof(cap_manufacturer));
++	memcpy(data, tpm_cap, sizeof(tpm_cap));
++	data[TPM_CAP_IDX] = TPM_CAP_PROP;
++	data[TPM_CAP_SUBCAP_IDX] = TPM_CAP_PROP_MANUFACTURER;
  
--	chip->vendor->miscdev.dev = dev;
-+	chip->vendor.miscdev.dev = dev;
- 	chip->dev = get_device(dev);
+-	if ((len = tpm_transmit(chip, data, sizeof(data))) <
+-	    CAP_MANUFACTURER_RESULT_SIZE)
+-		return len;
++	if ((len = tpm_transmit(chip, data, sizeof(data))) <=
++	    TPM_ERROR_SIZE) {
++		dev_dbg(chip->dev, "A TPM error (%d) occurred "
++			"attempting to determine the manufacturer\n",
++			be32_to_cpu(*((__be32 *) (data + TPM_RET_CODE_IDX))));
++		return 0;
++	}
  
--	if (misc_register(&chip->vendor->miscdev)) {
-+	if (misc_register(&chip->vendor.miscdev)) {
- 		dev_err(chip->dev,
- 			"unable to misc_register %s, minor %d\n",
--			chip->vendor->miscdev.name,
--			chip->vendor->miscdev.minor);
-+			chip->vendor.miscdev.name,
-+			chip->vendor.miscdev.minor);
- 		put_device(dev);
- 		kfree(chip);
- 		dev_mask[i] &= !(1 << j);
-@@ -632,7 +1183,7 @@ dev_num_search_complete:
+ 	str += sprintf(str, "Manufacturer: 0x%x\n",
+-		       be32_to_cpu(*((__be32 *) (data + 14))));
++		       be32_to_cpu(*((__be32 *) (data + TPM_GET_CAP_RET_UINT32_1_IDX))));
  
- 	spin_unlock(&driver_lock);
+ 	memcpy(data, cap_version, sizeof(cap_version));
++	data[CAP_VERSION_IDX] = CAP_VERSION_1_1;
++	if ((len = tpm_transmit(chip, data, sizeof(data))) <=
++	    TPM_ERROR_SIZE) {
++		dev_err(chip->dev, "A TPM error (%d) occurred "
++			"attempting to determine the 1.1 version\n",
++			be32_to_cpu(*((__be32 *) (data + TPM_RET_CODE_IDX))));
++		goto out;
++	}
  
--	sysfs_create_group(&dev->kobj, chip->vendor->attr_group);
-+	sysfs_create_group(&dev->kobj, chip->vendor.attr_group);
+-	if ((len = tpm_transmit(chip, data, sizeof(data))) <
+-	    CAP_VER_RESULT_SIZE)
+-		return len;
+-
+-	str +=
+-	    sprintf(str, "TCG version: %d.%d\nFirmware version: %d.%d\n",
+-		    (int) data[14], (int) data[15], (int) data[16],
+-		    (int) data[17]);
++	str += sprintf(str,
++		       "TCG version: %d.%d\nFirmware version: %d.%d\n",
++		       (int) data[14], (int) data[15], (int) data[16],
++		       (int) data[17]);
  
- 	chip->bios_dir = tpm_bios_log_setup(devname);
- 
---- linux-2.6.16/drivers/char/tpm/tpm_atmel.c	2006-03-19 23:53:29.000000000 -0600
-+++ linux-2.6.16-rc1-tpm/drivers/char/tpm/tpm_atmel.c	2006-03-02 15:04:40.663271500 -0600
-@@ -47,12 +47,12 @@ static int tpm_atml_recv(struct tpm_chip
- 		return -EIO;
- 
- 	for (i = 0; i < 6; i++) {
--		status = ioread8(chip->vendor->iobase + 1);
-+		status = ioread8(chip->vendor.iobase + 1);
- 		if ((status & ATML_STATUS_DATA_AVAIL) == 0) {
- 			dev_err(chip->dev, "error reading header\n");
- 			return -EIO;
- 		}
--		*buf++ = ioread8(chip->vendor->iobase);
-+		*buf++ = ioread8(chip->vendor.iobase);
- 	}
- 
- 	/* size of the data received */
-@@ -63,7 +63,7 @@ static int tpm_atml_recv(struct tpm_chip
- 		dev_err(chip->dev,
- 			"Recv size(%d) less than available space\n", size);
- 		for (; i < size; i++) {	/* clear the waiting data anyway */
--			status = ioread8(chip->vendor->iobase + 1);
-+			status = ioread8(chip->vendor.iobase + 1);
- 			if ((status & ATML_STATUS_DATA_AVAIL) == 0) {
- 				dev_err(chip->dev, "error reading data\n");
- 				return -EIO;
-@@ -74,16 +74,16 @@ static int tpm_atml_recv(struct tpm_chip
- 
- 	/* read all the data available */
- 	for (; i < size; i++) {
--		status = ioread8(chip->vendor->iobase + 1);
-+		status = ioread8(chip->vendor.iobase + 1);
- 		if ((status & ATML_STATUS_DATA_AVAIL) == 0) {
- 			dev_err(chip->dev, "error reading data\n");
- 			return -EIO;
- 		}
--		*buf++ = ioread8(chip->vendor->iobase);
-+		*buf++ = ioread8(chip->vendor.iobase);
- 	}
- 
- 	/* make sure data available is gone */
--	status = ioread8(chip->vendor->iobase + 1);
-+	status = ioread8(chip->vendor.iobase + 1);
- 
- 	if (status & ATML_STATUS_DATA_AVAIL) {
- 		dev_err(chip->dev, "data available is stuck\n");
-@@ -100,7 +100,7 @@ static int tpm_atml_send(struct tpm_chip
- 	dev_dbg(chip->dev, "tpm_atml_send:\n");
- 	for (i = 0; i < count; i++) {
- 		dev_dbg(chip->dev, "%d 0x%x(%d)\n",  i, buf[i], buf[i]);
-- 		iowrite8(buf[i], chip->vendor->iobase);
-+ 		iowrite8(buf[i], chip->vendor.iobase);
- 	}
- 
- 	return count;
-@@ -108,12 +108,12 @@ static int tpm_atml_send(struct tpm_chip
- 
- static void tpm_atml_cancel(struct tpm_chip *chip)
- {
--	iowrite8(ATML_STATUS_ABORT, chip->vendor->iobase + 1);
-+	iowrite8(ATML_STATUS_ABORT, chip->vendor.iobase + 1);
++out:
+ 	return str - buf;
  }
- 
- static u8 tpm_atml_status(struct tpm_chip *chip)
- {
--	return ioread8(chip->vendor->iobase + 1);
-+	return ioread8(chip->vendor.iobase + 1);
- }
- 
- static struct file_operations atmel_ops = {
-@@ -159,10 +159,10 @@ static void atml_plat_remove(void)
- 	struct tpm_chip *chip = dev_get_drvdata(&pdev->dev);
- 
- 	if (chip) {
--		if (chip->vendor->have_region)
--			atmel_release_region(chip->vendor->base,
--					     chip->vendor->region_size);
--		atmel_put_base_addr(chip->vendor);
-+		if (chip->vendor.have_region)
-+			atmel_release_region(chip->vendor.base,
-+					     chip->vendor.region_size);
-+		atmel_put_base_addr(chip->vendor.iobase);
- 		tpm_remove_hardware(chip->dev);
- 		platform_device_unregister(pdev);
- 	}
---- linux-2.6.16/drivers/char/tpm/tpm_nsc.c	2006-03-19 23:53:29.000000000 -0600
-+++ linux-2.6.16-rc1-tpm/drivers/char/tpm/tpm_nsc.c	2006-03-02 15:06:07.188679000 -0600
-@@ -71,7 +71,7 @@ static int wait_for_stat(struct tpm_chip
- 	unsigned long stop;
- 
- 	/* status immediately available check */
--	*data = inb(chip->vendor->base + NSC_STATUS);
-+	*data = inb(chip->vendor.base + NSC_STATUS);
- 	if ((*data & mask) == val)
- 		return 0;
- 
-@@ -79,7 +79,7 @@ static int wait_for_stat(struct tpm_chip
- 	stop = jiffies + 10 * HZ;
- 	do {
- 		msleep(TPM_TIMEOUT);
--		*data = inb(chip->vendor->base + 1);
-+		*data = inb(chip->vendor.base + 1);
- 		if ((*data & mask) == val)
- 			return 0;
- 	}
-@@ -94,9 +94,9 @@ static int nsc_wait_for_ready(struct tpm
- 	unsigned long stop;
- 
- 	/* status immediately available check */
--	status = inb(chip->vendor->base + NSC_STATUS);
-+	status = inb(chip->vendor.base + NSC_STATUS);
- 	if (status & NSC_STATUS_OBF)
--		status = inb(chip->vendor->base + NSC_DATA);
-+		status = inb(chip->vendor.base + NSC_DATA);
- 	if (status & NSC_STATUS_RDY)
- 		return 0;
- 
-@@ -104,9 +104,9 @@ static int nsc_wait_for_ready(struct tpm
- 	stop = jiffies + 100;
- 	do {
- 		msleep(TPM_TIMEOUT);
--		status = inb(chip->vendor->base + NSC_STATUS);
-+		status = inb(chip->vendor.base + NSC_STATUS);
- 		if (status & NSC_STATUS_OBF)
--			status = inb(chip->vendor->base + NSC_DATA);
-+			status = inb(chip->vendor.base + NSC_DATA);
- 		if (status & NSC_STATUS_RDY)
- 			return 0;
- 	}
-@@ -132,7 +132,7 @@ static int tpm_nsc_recv(struct tpm_chip 
- 		return -EIO;
- 	}
- 	if ((data =
--	     inb(chip->vendor->base + NSC_DATA)) != NSC_COMMAND_NORMAL) {
-+	     inb(chip->vendor.base + NSC_DATA)) != NSC_COMMAND_NORMAL) {
- 		dev_err(chip->dev, "not in normal mode (0x%x)\n",
- 			data);
- 		return -EIO;
-@@ -148,7 +148,7 @@ static int tpm_nsc_recv(struct tpm_chip 
- 		}
- 		if (data & NSC_STATUS_F0)
- 			break;
--		*p = inb(chip->vendor->base + NSC_DATA);
-+		*p = inb(chip->vendor.base + NSC_DATA);
- 	}
- 
- 	if ((data & NSC_STATUS_F0) == 0 &&
-@@ -156,7 +156,7 @@ static int tpm_nsc_recv(struct tpm_chip 
- 		dev_err(chip->dev, "F0 not set\n");
- 		return -EIO;
- 	}
--	if ((data = inb(chip->vendor->base + NSC_DATA)) != NSC_COMMAND_EOC) {
-+	if ((data = inb(chip->vendor.base + NSC_DATA)) != NSC_COMMAND_EOC) {
- 		dev_err(chip->dev,
- 			"expected end of command(0x%x)\n", data);
- 		return -EIO;
-@@ -182,7 +182,7 @@ static int tpm_nsc_send(struct tpm_chip 
- 	 * fix it. Not sure why this is needed, we followed the flow
- 	 * chart in the manual to the letter.
- 	 */
--	outb(NSC_COMMAND_CANCEL, chip->vendor->base + NSC_COMMAND);
-+	outb(NSC_COMMAND_CANCEL, chip->vendor.base + NSC_COMMAND);
- 
- 	if (nsc_wait_for_ready(chip) != 0)
- 		return -EIO;
-@@ -192,7 +192,7 @@ static int tpm_nsc_send(struct tpm_chip 
- 		return -EIO;
- 	}
- 
--	outb(NSC_COMMAND_NORMAL, chip->vendor->base + NSC_COMMAND);
-+	outb(NSC_COMMAND_NORMAL, chip->vendor.base + NSC_COMMAND);
- 	if (wait_for_stat(chip, NSC_STATUS_IBR, NSC_STATUS_IBR, &data) < 0) {
- 		dev_err(chip->dev, "IBR timeout\n");
- 		return -EIO;
-@@ -204,26 +204,26 @@ static int tpm_nsc_send(struct tpm_chip 
- 				"IBF timeout (while writing data)\n");
- 			return -EIO;
- 		}
--		outb(buf[i], chip->vendor->base + NSC_DATA);
-+		outb(buf[i], chip->vendor.base + NSC_DATA);
- 	}
- 
- 	if (wait_for_stat(chip, NSC_STATUS_IBF, 0, &data) < 0) {
- 		dev_err(chip->dev, "IBF timeout\n");
- 		return -EIO;
- 	}
--	outb(NSC_COMMAND_EOC, chip->vendor->base + NSC_COMMAND);
-+	outb(NSC_COMMAND_EOC, chip->vendor.base + NSC_COMMAND);
- 
- 	return count;
- }
- 
- static void tpm_nsc_cancel(struct tpm_chip *chip)
- {
--	outb(NSC_COMMAND_CANCEL, chip->vendor->base + NSC_COMMAND);
-+	outb(NSC_COMMAND_CANCEL, chip->vendor.base + NSC_COMMAND);
- }
- 
- static u8 tpm_nsc_status(struct tpm_chip *chip)
- {
--	return inb(chip->vendor->base + NSC_STATUS);
-+	return inb(chip->vendor.base + NSC_STATUS);
- }
- 
- static struct file_operations nsc_ops = {
-@@ -268,7 +268,7 @@ static void __devexit tpm_nsc_remove(str
- {
- 	struct tpm_chip *chip = dev_get_drvdata(dev);
- 	if ( chip ) {
--		release_region(chip->vendor->base, 2);
-+		release_region(chip->vendor.base, 2);
- 		tpm_remove_hardware(chip->dev);
- 	}
- }
---- linux-2.6.16/drivers/char/tpm/tpm.h	2006-03-19 23:53:29.000000000 -0600
-+++ linux-2.6.16-rc1-tpm/drivers/char/tpm/tpm.h	2006-03-29 14:16:30.119053500 -0600
-@@ -80,7 +93,7 @@ struct tpm_chip {
- 	struct work_struct work;
- 	struct semaphore tpm_mutex;	/* tpm is processing */
- 
--	struct tpm_vendor_specific *vendor;
-+	struct tpm_vendor_specific vendor;
- 
- 	struct dentry **bios_dir;
- 
+ EXPORT_SYMBOL_GPL(tpm_show_caps);
 
 

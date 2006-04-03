@@ -1,80 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbWDCHoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWDCHuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932276AbWDCHoE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 03:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWDCHoD
+	id S964786AbWDCHuA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 03:50:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWDCHuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 03:44:03 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:23020 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932276AbWDCHoB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 03:44:01 -0400
-Date: Mon, 3 Apr 2006 16:44:34 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: pavel@ucw.cz, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: include/asm-arm/memory.h changes break zaurus sl-5500 boot
-Message-Id: <20060403164434.fdb5020c.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060403073653.GA13275@flint.arm.linux.org.uk>
-References: <20060402210003.GA11979@elf.ucw.cz>
-	<20060402220807.GD13901@flint.arm.linux.org.uk>
-	<20060402222314.GC12166@elf.ucw.cz>
-	<20060403091504.ecd341a3.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060403073653.GA13275@flint.arm.linux.org.uk>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Mon, 3 Apr 2006 03:50:00 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:12641 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932355AbWDCHt7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 03:49:59 -0400
+Date: Mon, 3 Apr 2006 09:50:00 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Neil Brown <neilb@suse.de>
+Cc: Nathan Scott <nathans@sgi.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, drepper@redhat.com, mtk-manpages@gmx.net,
+       nickpiggin@yahoo.com.au
+Subject: Re: [patch 1/1] sys_sync_file_range()
+Message-ID: <20060403074959.GG3770@suse.de>
+References: <200603300741.k2U7fQLe002202@shell0.pdx.osdl.net> <17451.36790.450410.79788@cse.unsw.edu.au> <20060331071736.K921158@wobbly.melbourne.sgi.com> <17456.31028.173800.615259@cse.unsw.edu.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17456.31028.173800.615259@cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Apr 2006 08:36:53 +0100
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-
-> On Mon, Apr 03, 2006 at 09:15:04AM +0900, KAMEZAWA Hiroyuki wrote:
-> > On Mon, 3 Apr 2006 00:23:14 +0200
-> > Pavel Machek <pavel@ucw.cz> wrote:
-> > > > Not surprising given this gem:
-> > > > 
-> > > > > -#define arch_local_page_offset(pfn, nid) (LOCAL_MAP_NR((pfn) << PAGE_OFFSET))
-> > > > 
-> > > > PAGE_OFFSET being 3GB - that's one hell of a shift value!
+On Mon, Apr 03 2006, Neil Brown wrote:
+> On Friday March 31, nathans@sgi.com wrote:
+> > On Thu, Mar 30, 2006 at 06:58:46PM +1100, Neil Brown wrote:
+> > > On Wednesday March 29, akpm@osdl.org wrote:
+> > > > Remove the recently-added LINUX_FADV_ASYNC_WRITE and LINUX_FADV_WRITE_WAIT
+> > > > fadvise() additions, do it in a new sys_sync_file_range() syscall
+> > > > instead. 
 > > > 
-> > > Unfortunately this is mainline now. Is there some better fix than
-> > > simply reverting the offending patches?
+> > > Hmmm... any chance this could be split into a sys_sync_file_range and
+> > > a vfs_sync_file_range which takes a 'struct file*' and does less (or
+> > > no) sanity checking, so I can call it from nfsd?
+> > > 
+> > > Currently I implement COMMIT (which has a range) with a by messing
+> > > around with filemap_fdatawrite and filemap_fdatawait (ignoring the
+> > > range) and I'd rather than a vfs helper.
 > > 
-> > Maybe this one will fix (against 2.6.16-mm2)
-> > 
-> > LOCAL_MAP_NR(kaddr) returns page offset in a node.
+> > I'm not 100% sure, but it looks like the PF_SYNCWRITE process flag
+> > should be set on the nfsd's while they're doing that, which doesn't
+> > seem to be happening atm.  Looks like a couple of the IO schedulers
+> > will make use of that knowledge now.  All the more reason for a VFS
+> > helper here I guess. ;)
 > 
-> LOCAL_MAP_NR does not take a kernel virtual address.  If you look at how
-> it's defined (Eg):
+> PF_SYNCWRITE? What's that???
 > 
-> #define LOCAL_MAP_NR(addr) \
->         (((unsigned long)(addr) & 0x07ffffff) >> PAGE_SHIFT)
+> (find | xargs grep ...)
+> Oh.  The block device schedulers like to know if a request is sync or
+> async (and all reads are assumed to be sync) - which is reasonable -
+> and so have a per-task flag to tell them - which isn't (IMO).
 > 
+> md/raid (particularly raid5) often does the write from a different
+> process than generated the original request, so that will break
+> completely. 
 
-Hmm..from include/asm-arm/arch-clps711x/memory.h
+I don't think any disagrees with you, the sync-write process flag is
+indeed an atrocious beast...
 
-==
-/*
- * Given a kaddr, LOCAL_MAR_NR finds the owning node of the memory
- * and returns the index corresponding to the appropriate page in the
- * node's mem_map.
- */
-#define LOCAL_MAP_NR(addr) \
-        (((unsigned long)(addr) & (NODE_MAX_MEM_SIZE - 1)) >> PAGE_SHIFT)
-==
+> What is wrong with a bio flag I wonder....
 
-Is this comment wrong ???
+Nothing, in fact I would love for it to be changed. I'm sure such a
+patch would be accepted with open arms! :-)
 
-I already posted patch against 2.6.17-rc1. so, please NACK for it.
-sorry for annoying.
-
-Thanks,
--- Kame
-
-
+-- 
+Jens Axboe
 

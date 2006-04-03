@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751739AbWDCPpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751742AbWDCPq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751739AbWDCPpU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 11:45:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751740AbWDCPpU
+	id S1751742AbWDCPq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 11:46:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751740AbWDCPq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 11:45:20 -0400
-Received: from unthought.net ([212.97.129.88]:8202 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S1751738AbWDCPpU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 11:45:20 -0400
-Date: Mon, 3 Apr 2006 17:45:19 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS client (10x) performance regression 2.6.14.7 -> 2.6.15
-Message-ID: <20060403154519.GB14981@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	linux-kernel@vger.kernel.org
-References: <1143810392.8096.11.camel@lade.trondhjem.org> <20060331132131.GI9811@unthought.net> <1143812658.8096.18.camel@lade.trondhjem.org> <20060331140816.GJ9811@unthought.net> <1143814889.8096.22.camel@lade.trondhjem.org> <20060331143500.GK9811@unthought.net> <1143820520.8096.24.camel@lade.trondhjem.org> <20060331160426.GN9811@unthought.net> <20060403152628.GA14981@unthought.net> <1144078900.9111.41.camel@lade.trondhjem.org>
-Mime-Version: 1.0
+	Mon, 3 Apr 2006 11:46:56 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:41301 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S1751748AbWDCPqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 11:46:55 -0400
+X-IronPort-AV: i="4.03,159,1141632000"; 
+   d="scan'208"; a="266208210:sNHT30223416"
+To: "Dan Bar Dov" <bardov@gmail.com>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [openib-general] InfiniBand 2.6.17 merge plans
+X-Message-Flag: Warning: May contain useful information
+References: <ada7j6f8xwi.fsf@cisco.com>
+	<d6944c490603290028n70725678g287445429a9c2ae5@mail.gmail.com>
+	<ada7j6d89oz.fsf@cisco.com>
+	<d6944c490604030331s78ba93dap3496b10a08d81326@mail.gmail.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 03 Apr 2006 08:46:52 -0700
+In-Reply-To: <d6944c490604030331s78ba93dap3496b10a08d81326@mail.gmail.com> (Dan Bar Dov's message of "Mon, 3 Apr 2006 12:31:20 +0200")
+Message-ID: <ada3bguwtjn.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1144078900.9111.41.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.9i
+X-OriginalArrivalTime: 03 Apr 2006 15:46:54.0279 (UTC) FILETIME=[D4DD3D70:01C65735]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 03, 2006 at 11:41:40AM -0400, Trond Myklebust wrote:
-..
-> > Could I ask you to try: 
-> >  for i in `seq 1 100`; do time ./nfsbench; done
-> > or something like that?
-> 
-> OK. Thanks for helping narrow this down! I'm travelling right now, so I
-> can't promise that I'll be able to run any tests until tomorrow. I'll
-> have a look, though.
+    Dan> On the other hand, there are user-space consumers for CMA,
+    Dan> such as udapl, so although ISER will attempt only at 2.6.18,
+    Dan> maybe it is a good idea to get CMA into 2.6.17
 
-Thanks a lot, and no problem :)
+Well, too late now anyway.
 
--- 
+But Sean and I agreed that the userspace interface to CMA was not
+mature enough to merge for 2.6.17.
 
- / jakob
-
+ - R.

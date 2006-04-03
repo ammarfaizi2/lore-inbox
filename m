@@ -1,35 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWDCRx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWDCR7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964822AbWDCRx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 13:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWDCRx2
+	id S964817AbWDCR7V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 13:59:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWDCR7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 13:53:28 -0400
-Received: from ns.suse.de ([195.135.220.2]:21175 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964822AbWDCRx1 (ORCPT
+	Mon, 3 Apr 2006 13:59:21 -0400
+Received: from nsm.pl ([195.34.211.229]:20255 "EHLO nsm.pl")
+	by vger.kernel.org with ESMTP id S964817AbWDCR7U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 13:53:27 -0400
-From: Andi Kleen <ak@suse.de>
-To: john.blackwood@ccur.com
-Subject: Re: [PATCH] arch/x86_64/kernel/process.c do_arch_prctl() ARCH_GET_GS
-Date: Mon, 3 Apr 2006 12:52:51 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, bugsy@ccur.com
-References: <443135C9.7070008@ccur.com>
-In-Reply-To: <443135C9.7070008@ccur.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Apr 2006 13:59:20 -0400
+Date: Mon, 3 Apr 2006 18:24:18 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux 2.6.17-rc1
+Message-ID: <20060403162418.GA4014@irc.pl>
+References: <Pine.LNX.4.64.0604022037380.3781@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
 Content-Disposition: inline
-Message-Id: <200604031252.51867.ak@suse.de>
+In-Reply-To: <Pine.LNX.4.64.0604022037380.3781@g5.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 03 April 2006 16:48, John Blackwood wrote:
 
-> Maybe one of these approaches could be used as a fix.
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thank you. I applied approach #1
+On Sun, Apr 02, 2006 at 08:47:06PM -0700, Linus Torvalds wrote:
+> Ok,=20
+>  it's two weeks since 2.6.16, and the merge window is closed.
 
--Andi
+  For the record: old udev (064) stopped renaming net devices with this
+release.  Well, it seems U'll have to update this perfectly working
+version to something newer.
+
+--=20
+Tomasz Torcz               RIP is irrevelant. Spoofing is futile.
+zdzichu@irc.-nie.spam-.pl     Your routes will be aggreggated. -- Alex Yuri=
+ev
+
+
+--LZvS9be/3tNcYl/X
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: gpg --search-keys Tomasz Torcz
+
+iD8DBQFEMUwyThhlKowQALQRAnLFAJ9LSyDF2egcXeZpkXWZbrr69WtjGgCg4EeJ
+tqrKl3JzdNlVAHdgZWE2rU4=
+=dPdT
+-----END PGP SIGNATURE-----
+
+--LZvS9be/3tNcYl/X--

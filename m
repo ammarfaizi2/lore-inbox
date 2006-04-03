@@ -1,86 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbWDCURU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWDCU0P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964877AbWDCURU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 16:17:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964876AbWDCURU
+	id S964878AbWDCU0P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 16:26:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964883AbWDCU0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 16:17:20 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:29857 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964875AbWDCURT (ORCPT
+	Mon, 3 Apr 2006 16:26:15 -0400
+Received: from h-66-17-68-74.noclli.covad.net ([66.17.68.74]:40703 "EHLO
+	mail.merunetworks.com") by vger.kernel.org with ESMTP
+	id S964878AbWDCU0O convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 16:17:19 -0400
-In-Reply-To: <20060328130253.GA19243@sergelap.austin.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>, linux-security-module@vger.kernel.org
-Cc: jmorris@namei.org, davem@davemloft.net, sds@tycho.nsa.gov,
-       serue@us.ibm.com, chrisw@osdl.org
+	Mon, 3 Apr 2006 16:26:14 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Subject: Re: [PATCH] fix up security_socket_getpeersec_* documentation
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFCA09638F.4494EDCD-ON85257145.006ED940-85257145.006F6814@us.ibm.com>
-From: Xiaolan Zhang <cxzhang@us.ibm.com>
-Date: Mon, 3 Apr 2006 16:17:06 -0400
-X-MIMETrack: Serialize by Router on D01ML605/01/M/IBM(Release 7.0.1HF18 | February 28, 2006) at
- 04/03/2006 16:17:07,
-	Serialize complete at 04/03/2006 16:17:07
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: Kernel panic in add_entropy_words
+Date: Mon, 3 Apr 2006 13:24:08 -0700
+Message-ID: <61716BB31DD0AE469370BBE04DD6C07A0CF2A1@hail.merunetworks.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Kernel panic in add_entropy_words
+Thread-Index: AcZXXI+ajEJ7JcoLS4OI3TMMSdcO2A==
+From: "Kim Le" <kle@merunetworks.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Kim Le" <kle@merunetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Acked-by: Catherine Zhang <cxzhang@watson.ibm.com>
+Folks,
 
-Catherine
+Any one ever encounter this kernel panic.
+I am pulling my hair finding the fix for this.  So any help is appreciate.
+Please reply to my email address if you could.
 
-serue@us.ltcfwd.linux.ibm.com wrote on 03/28/2006 08:02:53 AM:
+Thanks
+Kim
 
-> Update the security_socket_peersec documentation in
-> include/linux/security.h.  security_socket_peersec has been split
-> into two functions - _stream and _dgram, with new capabilities.
-> 
-> Signed-off-by: Serge Hallyn <serue@us.ibm.com>
-> 
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -782,9 +782,11 @@ struct swap_info_struct;
->   *   incoming sk_buff @skb has been associated with a particular 
-socket, @sk.
->   *   @sk contains the sock (not socket) associated with the incoming 
-sk_buff.
->   *   @skb contains the incoming network data.
-> - * @socket_getpeersec:
-> + * @socket_getpeersec_stream:
->   *   This hook allows the security module to provide peer socket 
-security
-> - *   state to userspace via getsockopt SO_GETPEERSEC.
-> + *   state for unix or connected tcp sockets to userspace via 
-getsockopt
-> + *   SO_GETPEERSEC.  For tcp sockets this can be meaningful if the
-> + *   socket is associated with an ipsec SA.
->   *   @sock is the local socket.
->   *   @optval userspace memory where the security state is to be copied.
->   *   @optlen userspace int where the module should copy the actual 
-length
-> @@ -793,6 +795,17 @@ struct swap_info_struct;
->   *   by the caller.
->   *   Return 0 if all is well, otherwise, typical getsockopt return
->   *   values.
-> + * @socket_getpeersec_dgram:
-> + *    This hook allows the security module to provide peer socket 
-security
-> + *    state for udp sockets on a per-packet basis to userspace via
-> + *    getsockopt SO_GETPEERSEC.  The application must first have 
-indicated
-> + *    the IP_PASSSEC option via getsockopt.  It can then retrieve the
-> + *    security state returned by this hook for a packet via the 
-SCM_SECURITY
-> + *    ancillary message type.
-> + *    @skb is the skbuff for the packet being queried
-> + *    @secdata is a pointer to a buffer in which to copy the security 
-data
-> + *    @seclen is the maximum length for @secdata
-> + *    Return 0 on success, error on failure.
->   * @sk_alloc_security:
->   *      Allocate and attach a security structure to the 
-> sk->sk_security field,
->   *      which is used to copy security attributes between local 
-> stream sockets.
+EIP is at add_entropy_words [kernel] 0x92 (2.4.18-3-meruenabled)
+eax: 08000001   ebx: 1fa96582   ecx: 00000007   edx: c16b2b00
+esi: c16ba300   edi: 0000001f   ebp: 00000000   esp: dc809d08
+ds: 0018   es: 0018   ss: 0018
+Process coordinator (pid: 1266, stackpage=dc809000)
+Stack: c16ba300 00000400 c16ba280 00000000 c017c4e9 c16ba300 c1757b3c 00000002
+       dc809d3c dc809d3c c02e4c00 c011d6d9 c16ba280 c02fe72c c02fe72c c02ecb14
+       c02ecb00 c0120699 c029de60 dc809db0 00000000 00000000 00000000 c011d60b
+Call Trace: [<c017c4e9>] batch_entropy_process [kernel] 0x59
+[<c011d6d9>] __run_task_queue [kernel] 0x49
+[<c0120699>] tqueue_bh [kernel] 0x19
+[<c011d60b>] bh_action [kernel] 0x1b
+[<c011d51e>] tasklet_hi_action [kernel] 0x4e
+[<c011d33b>] do_softirq [kernel] 0x4b
+[<c010a06c>] do_IRQ [kernel] 0x9c
+[<c012fd87>] kmalloc [kernel] 0x37
+[<e08d9e43>] kcomm_mailbox_sendto [kcomm] 0x6b
+[<c01b627f>] alloc_skb [kernel] 0xdf
+[<e08d9f8a>] kcomm_mailbox_alloc_skb [kcomm] 0x12
+[<e08dcb78>] kcomm_socket_sendmsg [kcomm] 0x8c
+[<e08d6634>] nulldevname.0 [ip_tables] 0x0
 

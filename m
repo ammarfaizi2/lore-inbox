@@ -1,57 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751548AbWDCIqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751522AbWDCIs5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751548AbWDCIqb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 04:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbWDCIqb
+	id S1751522AbWDCIs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 04:48:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWDCIs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 04:46:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:48296 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751414AbWDCIqa (ORCPT
+	Mon, 3 Apr 2006 04:48:57 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:3489 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751406AbWDCIs5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 04:46:30 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <200604020850.k328oUFC000624@baham.cs.pdx.edu> 
-References: <200604020850.k328oUFC000624@baham.cs.pdx.edu> 
-To: Suzanne Wood <suzannew@cs.pdx.edu>
-Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org, paulmck@us.ibm.com
-Subject: Re: [RFC] install_session_keyring 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Mon, 03 Apr 2006 09:45:35 +0100
-Message-ID: <1279.1144053935@warthog.cambridge.redhat.com>
+	Mon, 3 Apr 2006 04:48:57 -0400
+Date: Mon, 3 Apr 2006 10:48:50 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix console utf8 composing (F) (fwd)
+In-Reply-To: <44308100.6080009@ums.usu.ru>
+Message-ID: <Pine.LNX.4.61.0604031048330.2220@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0604022005290.12603@yvahk01.tjqt.qr>
+ <44308100.6080009@ums.usu.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suzanne Wood <suzannew@cs.pdx.edu> wrote:
+> Yes, please assume this line on all utf8 composing patches I submitted to LKML:
+>
+> Signed-off-by: Alexander E. Patrakov <patrakov@ums.usu.ru>
+Acked-by: Jan Engelhardt <jengelh@gmx.de>
 
-> In a study of the control flow graph dumps to check that 
-> an rcu_assign_pointer() with a given argument type has 
-> preceded a call to rcu_dereference(), I've come across 
-> install_session_keyring() of security/keys/process_keys.c.  
-> We note that although no rcu_read_lock() is in place 
-> locally or in the function's kernel callers, siglock 
-> likely addresses that.  While the rcu_dereference() would 
-> indicate a desire for 'old' to persist, synchronize_rcu() 
-> is called prior to key_put(old) which "disposes of 
-> reference to a key."  The order of events with a use of 
-> the copy of the pointer following synchronize_rcu() is 
-> what I question.
+>
+> But this line already exists in http://lkml.org/lkml/2006/3/20/571 :)
 
-Are you simply suggesting that the rcu_dereference() in:
+Must have missed it.
 
-	/* install the keyring */
-       	spin_lock_irqsave(&tsk->sighand->siglock, flags);
-       	old = rcu_dereference(tsk->signal->session_keyring);
-       	rcu_assign_pointer(tsk->signal->session_keyring, keyring);
-       	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
 
-is unnecessary?
-
-If so, I think you are right since the pointer is only changed with the
-siglock held[*], and so modify/modify conflict isn't a problem and doesn't
-need memory barriers.
-
-[*] Apart from during the exit() cleanup, when I don't think this should be a
-problem anyway.
-
-David
-
+Jan Engelhardt
+-- 

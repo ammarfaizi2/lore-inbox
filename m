@@ -1,71 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbWDCXEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751666AbWDCXL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964916AbWDCXEK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 19:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbWDCXEK
+	id S1751666AbWDCXL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 19:11:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751576AbWDCXL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 19:04:10 -0400
-Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:12542 "EHLO
-	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S964916AbWDCXEJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 19:04:09 -0400
-Message-ID: <4431A9E7.40406@bigpond.net.au>
-Date: Tue, 04 Apr 2006 09:04:07 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
-References: <200604031459.51542.a1426z@gawab.com>
-In-Reply-To: <200604031459.51542.a1426z@gawab.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 3 Apr 2006 23:04:07 +0000
+	Mon, 3 Apr 2006 19:11:26 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:50692 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751092AbWDCXLZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 19:11:25 -0400
+Date: Tue, 4 Apr 2006 09:11:22 +1000
+To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] crypto: fix unaligned access in khazad module
+Message-ID: <20060403231122.GA32271@gondor.apana.org.au>
+References: <20060309.122638.07642914.nemoto@toshiba-tops.co.jp> <20060404.000518.126141927.anemo@mba.ocn.ne.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060404.000518.126141927.anemo@mba.ocn.ne.jp>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
-> Peter Williams wrote:
->> Peter Williams wrote:
->>> Peter Williams wrote:
->> Now available for 2.6.16 at:
+On Tue, Apr 04, 2006 at 12:05:18AM +0900, Atsushi Nemoto wrote:
 > 
-> Thanks a lot!
-> 
->>>> You can select a default scheduler at kernel build time.  If you wish
->>>> to boot with a scheduler other than the default it can be selected at
->>>> boot time by adding:
->>>>
->>>> cpusched=<scheduler>
-> 
-> Can this be made runtime selectable/loadable, akin to iosched?
+> -	K2 = be64_to_cpu(key[0]);
+> -	K1 = be64_to_cpu(key[1]);
+> +	K2 = be64_to_cpu(get_unaligned(&key[0]));
+> +	K1 = be64_to_cpu(get_unaligned(&key[1]));
 
-See <https://sourceforge.net/projects/dynsched>.  It's an extension to 
-PlugSched that allows schedulers to be changed at run time.
+Would it be possible to turn these into two 32-bit aligned reads instead?
 
-> 
->>>> Control parameters for the scheduler can be read/set via files in:
->>>>
->>>> /sys/cpusched/<scheduler>/
-> 
-> The default values for spa make it really easy to lock up the system.
-
-Which one of the SPA schedulers and under what conditions?  I've been 
-mucking around with these and may have broken something.  If so I'd like 
-to fix it.
-
-> Is there a module to autotune these values according to cpu/mem/ctxt 
-> performance?
-> 
-> Also, different schedulers per cpu could be rather useful.
-
-I think that would be dangerous.  However, different schedulers per 
-cpuset might make sense but it involve a fair bit of work.
-
-Peter
+Thanks,
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

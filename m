@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751604AbWDCIzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751676AbWDCJBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751604AbWDCIzy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 04:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751576AbWDCIzy
+	id S1751676AbWDCJBn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 05:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751661AbWDCJBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 04:55:54 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:7084 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751501AbWDCIzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 04:55:53 -0400
-Date: Mon, 3 Apr 2006 17:56:03 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: rmk+lkml@arm.linux.org.uk
-Cc: pavel@ucw.cz, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: include/asm-arm/memory.h changes break zaurus sl-5500 boot
-Message-Id: <20060403175603.7a3dd64f.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060403164434.fdb5020c.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20060402210003.GA11979@elf.ucw.cz>
-	<20060402220807.GD13901@flint.arm.linux.org.uk>
-	<20060402222314.GC12166@elf.ucw.cz>
-	<20060403091504.ecd341a3.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060403073653.GA13275@flint.arm.linux.org.uk>
-	<20060403164434.fdb5020c.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
+	Mon, 3 Apr 2006 05:01:43 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:34356 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751670AbWDCJBm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 05:01:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Tk9zVv6py5DWQZlbU+dlhKmayekOwKRkBNfO32/fEiuAvEJUtXtV1kTLIxZaiMQhCg9n9YRFDRslSA2Eb0YX7utMrNjlrlersiI05TyIh3FkuZbZAXSHMCR6emQjXBUajPReg3fB4ZqT4S9XD1fG4CBPk2uz5gyZYb2zyJ6lYoY=
+Message-ID: <1458d9610604030201t18e47e96x3d606915c8227991@mail.gmail.com>
+Date: Mon, 3 Apr 2006 17:01:41 +0800
+From: "Sumit Narayan" <talk2sumit@gmail.com>
+To: Tushar <tushar.telichari@gmail.com>
+Subject: Re: Linux research projects
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <323d1f6f0604022038g4db29fb6vc489a163e53374f3@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <323d1f6f0604022038g4db29fb6vc489a163e53374f3@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Apr 2006 16:44:34 +0900
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+Check under "Projects" in http://www.kernelnewbies.org/
 
-> On Mon, 3 Apr 2006 08:36:53 +0100
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> Hmm..from include/asm-arm/arch-clps711x/memory.h
-> 
-> ==
-> /*
->  * Given a kaddr, LOCAL_MAR_NR finds the owning node of the memory
->  * and returns the index corresponding to the appropriate page in the
->  * node's mem_map.
->  */
-> #define LOCAL_MAP_NR(addr) \
->         (((unsigned long)(addr) & (NODE_MAX_MEM_SIZE - 1)) >> PAGE_SHIFT)
-> ==
-> 
-> Is this comment wrong ???
-> 
-Russell-san
+-- Sumit
 
-All of sub-arch's comment says "Given a kaddr" but all of them just uses "offset".
-So, paddr can be given as arg. 
-__va()(or pfn_to_kaddr()) adds unnecessary calcs, so paddr should be used instead of kaddr.
-Right ?
 
--Kame
-
+On 4/3/06, Tushar <tushar.telichari@gmail.com> wrote:
+> Hi guys,
+>
+> Can someone please point me to a list of todo things for Linux 2.6 ?.
+>
+> - Tushar
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

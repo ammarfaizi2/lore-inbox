@@ -1,388 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbWDCT4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWDCT5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964864AbWDCT4A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 15:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbWDCT4A
+	id S964865AbWDCT5M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 15:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWDCT5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 15:56:00 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:65512 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S964864AbWDCT4A (ORCPT
+	Mon, 3 Apr 2006 15:57:12 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:1257 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S964865AbWDCT5K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 15:56:00 -0400
-Date: Mon, 3 Apr 2006 21:55:53 +0200 (CEST)
+	Mon, 3 Apr 2006 15:57:10 -0400
+Date: Mon, 3 Apr 2006 21:57:05 +0200 (CEST)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
 To: johnstul@us.ibm.com, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: [PATCH 1/5] generic clocksource updates
-Message-ID: <Pine.LNX.4.64.0604032155070.4707@scrub.home>
+Subject: [PATCH 3/5] periodic clocksource update
+Message-ID: <Pine.LNX.4.64.0604032156430.4714@scrub.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-A number of changes to the clocksource infrastructur:
-- use xtime_lock instead of clocksource_lock, so it's easier to
-  synchronize the clocksource switch for gettimeofday.
-- add a few clock state variables (instead of making them global).
-- clocksource_get_nsec_offset(): this should become clocksource specific
-  later.
-- select_clocks: immediately switch clocksource.
-- cleanup naming to put the subsystem name in front
+This introduces the clocksource equivalent of do_timer().
+clocksource_update() periodically updates the clocksource state, which
+includes updating jiffies_64 and NTP state. After that we adjust the
+clocksource multiplier to reduce the error difference between NTP
+updates and clock updates.
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
 ---
 
- include/linux/clocksource.h |   33 +++++++-------
- kernel/Makefile             |    1 
- kernel/time/clocksource.c   |   99 +++++++++++++++++---------------------------
- kernel/time/jiffies.c       |   16 ++++---
- 4 files changed, 67 insertions(+), 82 deletions(-)
+ include/linux/sched.h |    1 
+ kernel/timer.c        |  109 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 110 insertions(+)
 
-Index: linux-2.6-mm/include/linux/clocksource.h
+Index: linux-2.6-mm/include/linux/sched.h
 ===================================================================
---- linux-2.6-mm.orig/include/linux/clocksource.h	2006-04-02 06:53:29.000000000 +0200
-+++ linux-2.6-mm/include/linux/clocksource.h	2006-04-02 16:12:28.000000000 +0200
-@@ -45,9 +45,8 @@ typedef u64 cycle_t;
-  * @mult:		cycle to nanosecond multiplier
-  * @shift:		cycle to nanosecond divisor (power of two)
-  * @update_callback:	called when safe to alter clocksource values
-- * @is_continuous:	defines if clocksource is free-running.
-- * @interval_cycles:	Used internally by timekeeping core, please ignore.
-- * @interval_snsecs:	Used internally by timekeeping core, please ignore.
-+ * @cycle_update:	Used internally by timekeeping core, please ignore.
-+ * @xtime_update:	Used internally by timekeeping core, please ignore.
-  */
- struct clocksource {
- 	char *name;
-@@ -58,11 +57,11 @@ struct clocksource {
- 	u32 mult;
- 	u32 shift;
- 	int (*update_callback)(void);
--	int is_continuous;
+--- linux-2.6-mm.orig/include/linux/sched.h	2006-04-02 17:23:15.000000000 +0200
++++ linux-2.6-mm/include/linux/sched.h	2006-04-02 17:23:36.000000000 +0200
+@@ -1044,6 +1044,7 @@ extern void switch_uid(struct user_struc
+ #include <asm/current.h>
  
- 	/* timekeeping specific data, ignore */
--	cycle_t interval_cycles;
--	u64 interval_snsecs;
-+	u64 cycles_last, cycle_update;
-+	u64 xtime_nsec, xtime_update;
-+	s64 ntp_error;
- };
+ extern void do_timer(struct pt_regs *);
++extern void clocksource_update(struct pt_regs *);
  
- 
-@@ -145,7 +144,7 @@ static inline s64 cyc2ns(struct clocksou
- }
- 
- /**
-- * calculate_clocksource_interval - Calculates a clocksource interval struct
-+ * clocksource_calculate_interval - Calculates a clocksource interval struct
-  *
-  * @c:		Pointer to clocksource.
-  * @length_nsec: Desired interval length in nanoseconds.
-@@ -155,8 +154,8 @@ static inline s64 cyc2ns(struct clocksou
-  *
-  * Unless you're the timekeeping code, you should not be using this!
-  */
--static inline void calculate_clocksource_interval(struct clocksource *c,
--						unsigned long length_nsec)
-+static inline void clocksource_calculate_interval(struct clocksource *c,
-+						  unsigned long length_nsec)
- {
- 	u64 tmp;
- 
-@@ -166,16 +165,18 @@ static inline void calculate_clocksource
- 	tmp += c->mult/2;
- 	do_div(tmp, c->mult);
- 
--	c->interval_cycles = (cycle_t)tmp;
--	if(c->interval_cycles == 0)
--		c->interval_cycles = 1;
-+	c->cycle_update = (cycle_t)tmp;
-+	if (c->cycle_update == 0)
-+		c->cycle_update = 1;
- 
--	c->interval_snsecs = (u64)c->interval_cycles * c->mult;
-+	c->xtime_update = (u64)c->cycle_update * c->mult;
- }
- 
- /* used to install a new clocksource */
--int register_clocksource(struct clocksource*);
--void reselect_clocksource(void);
--struct clocksource* get_next_clocksource(void);
-+int clocksource_register(struct clocksource *);
-+void clocksource_reselect(void);
-+unsigned long clocksource_get_nsec_offset(struct clocksource *cs);
-+
-+extern struct clocksource *curr_clocksource;
- 
- #endif /* _LINUX_CLOCKSOURCE_H */
-Index: linux-2.6-mm/kernel/Makefile
+ extern int FASTCALL(wake_up_state(struct task_struct * tsk, unsigned int state));
+ extern int FASTCALL(wake_up_process(struct task_struct * tsk));
+Index: linux-2.6-mm/kernel/timer.c
 ===================================================================
---- linux-2.6-mm.orig/kernel/Makefile	2006-04-02 06:52:06.000000000 +0200
-+++ linux-2.6-mm/kernel/Makefile	2006-04-02 16:11:03.000000000 +0200
-@@ -10,6 +10,7 @@ obj-y     = sched.o fork.o exec_domain.o
- 	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o mutex.o \
- 	    hrtimer.o
+--- linux-2.6-mm.orig/kernel/timer.c	2006-04-02 17:23:23.000000000 +0200
++++ linux-2.6-mm/kernel/timer.c	2006-04-02 17:30:19.000000000 +0200
+@@ -34,6 +34,7 @@
+ #include <linux/cpu.h>
+ #include <linux/syscalls.h>
+ #include <linux/delay.h>
++#include <linux/clocksource.h>
  
-+obj-y += time/
- obj-$(CONFIG_DEBUG_MUTEXES) += mutex-debug.o
- obj-$(CONFIG_FUTEX) += futex.o
- ifeq ($(CONFIG_COMPAT),y)
-Index: linux-2.6-mm/kernel/time/clocksource.c
-===================================================================
---- linux-2.6-mm.orig/kernel/time/clocksource.c	2006-04-02 06:53:29.000000000 +0200
-+++ linux-2.6-mm/kernel/time/clocksource.c	2006-04-02 16:11:28.000000000 +0200
-@@ -35,57 +35,28 @@ extern struct clocksource clocksource_ji
- /*[Clocksource internal variables]---------
-  * curr_clocksource:
-  *	currently selected clocksource. Initialized to clocksource_jiffies.
-- * next_clocksource:
-- *	pending next selected clocksource.
-  * clocksource_list:
-  *	linked list with the registered clocksources
-- * clocksource_lock:
-- *	protects manipulations to curr_clocksource and next_clocksource
-- *	and the clocksource_list
-  * override_name:
-  *	Name of the user-specified clocksource.
-  */
--static struct clocksource *curr_clocksource = &clocksource_jiffies;
--static struct clocksource *next_clocksource;
-+struct clocksource *curr_clocksource = &clocksource_jiffies;
- static LIST_HEAD(clocksource_list);
--static DEFINE_SPINLOCK(clocksource_lock);
- static char override_name[32];
--static int finished_booting;
- 
--/* clocksource_done_booting - Called near the end of bootup
-- *
-- * Hack to avoid lots of clocksource churn at boot time
-- */
--static int clocksource_done_booting(void)
-+unsigned long clocksource_get_nsec_offset(struct clocksource *cs)
- {
--	finished_booting = 1;
--	return 0;
--}
-+	cycle_t cycle_delta;
- 
--late_initcall(clocksource_done_booting);
-+	cycle_delta = (cs->read() - cs->cycles_last) & cs->mask;
- 
--/**
-- * get_next_clocksource - Returns the selected clocksource
-- *
-- */
--struct clocksource *get_next_clocksource(void)
--{
--	unsigned long flags;
--
--	spin_lock_irqsave(&clocksource_lock, flags);
--	if (next_clocksource && finished_booting) {
--		curr_clocksource = next_clocksource;
--		next_clocksource = NULL;
--	}
--	spin_unlock_irqrestore(&clocksource_lock, flags);
--
--	return curr_clocksource;
-+	return (cs->xtime_nsec + cycle_delta * cs->mult) >> cs->shift;
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -923,6 +924,114 @@ void do_timer(struct pt_regs *regs)
+ 	update_times();
  }
  
- /**
-  * select_clocksource - Finds the best registered clocksource.
-  *
-- * Private function. Must hold clocksource_lock when called.
-+ * Private function. Must hold xtime_lock when called.
-  *
-  * Looks through the list of registered clocksources, returning
-  * the one with the highest rating value. If there is a clocksource
-@@ -114,6 +85,17 @@ static struct clocksource *select_clocks
- 		 	best = src;
- 	}
- 
-+	if (curr_clocksource != best) {
-+		printk("switching to clocksource %s\n", best->name);
-+		if (curr_clocksource)
-+			xtime.tv_nsec = clocksource_get_nsec_offset(curr_clocksource);
-+		best->ntp_error = 0;
-+		best->cycles_last = best->read();
-+		best->xtime_nsec = (u64)xtime.tv_nsec << best->shift;
-+		clocksource_calculate_interval(best, tick_nsec);
-+		curr_clocksource = best;
-+	}
-+
- 	return best;
- }
- 
-@@ -121,7 +103,7 @@ static struct clocksource *select_clocks
-  * is_registered_source - Checks if clocksource is registered
-  * @c:		pointer to a clocksource
-  *
-- * Private helper function. Must hold clocksource_lock when called.
-+ * Private helper function. Must hold xtime_lock when called.
-  *
-  * Returns one if the clocksource is already registered, zero otherwise.
-  */
-@@ -142,48 +124,45 @@ static int is_registered_source(struct c
- }
- 
- /**
-- * register_clocksource - Used to install new clocksources
-+ * clocksource_register - Used to install new clocksources
-  * @t:		clocksource to be registered
-  *
-  * Returns -EBUSY if registration fails, zero otherwise.
-  */
--int register_clocksource(struct clocksource *c)
-+int clocksource_register(struct clocksource *c)
- {
- 	int ret = 0;
--	unsigned long flags;
- 
--	spin_lock_irqsave(&clocksource_lock, flags);
-+	write_seqlock_irq(&xtime_lock);
- 	/* check if clocksource is already registered */
- 	if (is_registered_source(c)) {
--		printk("register_clocksource: Cannot register %s. "
-+		printk("clocksource_register: Cannot register %s. "
- 			"Already registered!", c->name);
- 		ret = -EBUSY;
- 	} else {
- 		/* register it */
-  		list_add(&c->list, &clocksource_list);
- 		/* scan the registered clocksources, and pick the best one */
--		next_clocksource = select_clocksource();
-+		select_clocksource();
- 	}
--	spin_unlock_irqrestore(&clocksource_lock, flags);
-+	write_sequnlock_irq(&xtime_lock);
- 	return ret;
- }
- 
--EXPORT_SYMBOL(register_clocksource);
-+EXPORT_SYMBOL(clocksource_register);
- 
- /**
-- * reselect_clocksource - Rescan list for next clocksource
-+ * clocksource_reselect - Rescan list for next clocksource
-  *
-  * A quick helper function to be used if a clocksource changes its
-  * rating. Forces the clocksource list to be re-scaned for the best
-  * clocksource.
-  */
--void reselect_clocksource(void)
-+void clocksource_reselect(void)
- {
--	unsigned long flags;
--
--	spin_lock_irqsave(&clocksource_lock, flags);
--	next_clocksource = select_clocksource();
--	spin_unlock_irqrestore(&clocksource_lock, flags);
-+	write_seqlock_irq(&xtime_lock);
-+	select_clocksource();
-+	write_sequnlock_irq(&xtime_lock);
- }
- 
- /**
-@@ -198,9 +177,9 @@ sysfs_show_current_clocksources(struct s
- {
- 	char *curr = buf;
- 
--	spin_lock_irq(&clocksource_lock);
-+	write_seqlock_irq(&xtime_lock);
- 	curr += sprintf(curr, "%s ", curr_clocksource->name);
--	spin_unlock_irq(&clocksource_lock);
-+	write_sequnlock_irq(&xtime_lock);
- 
- 	curr += sprintf(curr, "\n");
- 
-@@ -230,16 +209,16 @@ static ssize_t sysfs_override_clocksourc
- 	if (count < 1)
- 		return -EINVAL;
- 
--	spin_lock_irq(&clocksource_lock);
-+	write_seqlock_irq(&xtime_lock);
- 
- 	/* copy the name given: */
- 	memcpy(override_name, buf, count);
- 	override_name[count] = 0;
- 
- 	/* try to select it: */
--	next_clocksource = select_clocksource();
-+	select_clocksource();
- 
--	spin_unlock_irq(&clocksource_lock);
-+	write_sequnlock_irq(&xtime_lock);
- 
- 	return ret;
- }
-@@ -257,14 +236,14 @@ sysfs_show_available_clocksources(struct
- 	struct list_head *tmp;
- 	char *curr = buf;
- 
--	spin_lock_irq(&clocksource_lock);
-+	write_seqlock_irq(&xtime_lock);
- 	list_for_each(tmp, &clocksource_list) {
- 		struct clocksource *src;
- 
- 		src = list_entry(tmp, struct clocksource, list);
- 		curr += sprintf(curr, "%s ", src->name);
- 	}
--	spin_unlock_irq(&clocksource_lock);
-+	write_sequnlock_irq(&xtime_lock);
- 
- 	curr += sprintf(curr, "\n");
- 
-@@ -318,10 +297,10 @@ device_initcall(init_clocksource_sysfs);
- static int __init boot_override_clocksource(char* str)
- {
- 	unsigned long flags;
--	spin_lock_irqsave(&clocksource_lock, flags);
-+	write_seqlock_irqsave(&xtime_lock, flags);
- 	if (str)
- 		strlcpy(override_name, str, sizeof(override_name));
--	spin_unlock_irqrestore(&clocksource_lock, flags);
-+	write_sequnlock_irqrestore(&xtime_lock, flags);
- 	return 1;
- }
- 
-Index: linux-2.6-mm/kernel/time/jiffies.c
-===================================================================
---- linux-2.6-mm.orig/kernel/time/jiffies.c	2006-04-02 06:53:29.000000000 +0200
-+++ linux-2.6-mm/kernel/time/jiffies.c	2006-04-02 06:53:29.000000000 +0200
-@@ -50,10 +50,7 @@
-  */
- #define JIFFIES_SHIFT	8
- 
--static cycle_t jiffies_read(void)
--{
--	return (cycle_t) jiffies;
--}
-+static cycle_t jiffies_read(void);
- 
- struct clocksource clocksource_jiffies = {
- 	.name		= "jiffies",
-@@ -62,12 +59,19 @@ struct clocksource clocksource_jiffies =
- 	.mask		= 0xffffffff, /*32bits*/
- 	.mult		= NSEC_PER_JIFFY << JIFFIES_SHIFT, /* details above */
- 	.shift		= JIFFIES_SHIFT,
--	.is_continuous	= 0, /* tick based, not free running */
-+
-+	.cycle_update	= 1,
-+	.xtime_update	= NSEC_PER_JIFFY << JIFFIES_SHIFT,
- };
- 
-+static cycle_t jiffies_read(void)
++/*
++ * Periodically update the clocksource
++ */
++static inline void clocksource_update_tick(void)
 +{
-+	return clocksource_jiffies.cycles_last + 1;
++	curr_clocksource->cycles_last += curr_clocksource->cycle_update;
++	curr_clocksource->xtime_nsec += curr_clocksource->xtime_update;
++	if (curr_clocksource->xtime_nsec >= (u64)NSEC_PER_SEC << curr_clocksource->shift) {
++		curr_clocksource->xtime_nsec -= (u64)NSEC_PER_SEC << curr_clocksource->shift;
++		xtime.tv_sec++;
++		second_overflow();
++	}
++	jiffies_64++;
++	curr_clocksource->ntp_error += current_tick_length();
++	curr_clocksource->ntp_error -= curr_clocksource->xtime_update << (32 - curr_clocksource->shift);
++
++	if (time_next_adjust) {
++		time_adjust = time_next_adjust;
++		time_next_adjust = 0;
++	} else if (time_adjust)
++		time_adjust -= adjtime_adjustment();
 +}
 +
- static int __init init_jiffies_clocksource(void)
- {
--	return register_clocksource(&clocksource_jiffies);
-+	return clocksource_register(&clocksource_jiffies);
- }
++/*
++ * If the error is already larger, we look ahead another tick,
++ * to compensate for late or lost adjustments.
++ */
++static int __always_inline clocksource_bigadjust(int sign, s64 error, s64 update)
++{
++	int adj = 0;
++
++	error += current_tick_length() >> (33 - curr_clocksource->shift);
++	error -= curr_clocksource->xtime_update >> 1;
++
++	while (1) {
++		error >>= 1;
++		if (likely(sign > 0 ? error <= update : error >= update))
++			return adj;
++		adj++;
++	}
++}
++
++#define clocksource_adjustcheck(sign, error, update, offset) ({		\
++	int adj = sign;							\
++	error >>= 2;							\
++	if (unlikely(sign > 0 ? error > update : error < update)) {	\
++		adj = clocksource_bigadjust(sign, error, update);	\
++		update <<= adj;						\
++		offset <<= adj;						\
++		adj = sign << adj;					\
++	}								\
++	adj;								\
++})
++
++/*
++ * adjust the multiplier to reduce the error value,
++ * this is optimized for the most common adjustments of -1,0,1,
++ * for other values we can do a bit more work.
++ */
++static void clocksource_adjust(s64 offset)
++{
++	s64 error = curr_clocksource->ntp_error >> (31 - curr_clocksource->shift);
++	s64 update = curr_clocksource->cycle_update;
++	int adj;
++
++	if (error > update) {
++		adj = clocksource_adjustcheck(1, error, update, offset);
++	} else if (error < -update) {
++		update = -update;
++		offset = -offset;
++		adj = clocksource_adjustcheck(-1, error, update, offset);
++	} else
++		goto done;
++
++	curr_clocksource->mult += adj;
++	curr_clocksource->xtime_update += update;
++	curr_clocksource->xtime_nsec -= offset;
++	curr_clocksource->ntp_error -= (update - offset) << (32 - curr_clocksource->shift);
++done:
++	xtime.tv_nsec = curr_clocksource->xtime_nsec >> curr_clocksource->shift;
++}
++
++void clocksource_update(struct pt_regs *regs)
++{
++	unsigned long ticks;
++	u64 cycles, cycle_offset;
++
++	cycles = curr_clocksource->read();
++	while (1) {
++		cycle_offset = cycles - curr_clocksource->cycles_last;
++		cycle_offset &= curr_clocksource->mask;
++		if (cycle_offset < curr_clocksource->cycle_update)
++			break;
++		clocksource_update_tick();
++	}
++
++	clocksource_adjust(cycle_offset);
++
++	/* prevent loading jiffies before storing new jiffies_64 value. */
++	barrier();
++	ticks = jiffies - wall_jiffies;
++	if (ticks) {
++		wall_jiffies += ticks;
++		calc_load(ticks);
++	}
++	softlockup_tick();
++}
++
+ #ifdef __ARCH_WANT_SYS_ALARM
  
- module_init(init_jiffies_clocksource);
+ /*

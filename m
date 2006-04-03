@@ -1,36 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751756AbWDCQNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751764AbWDCQQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751756AbWDCQNo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 12:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751763AbWDCQNo
+	id S1751764AbWDCQQL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 12:16:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751765AbWDCQQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 12:13:44 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:6065 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751764AbWDCQNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 12:13:43 -0400
-Date: Mon, 3 Apr 2006 18:13:42 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: False OOM with swappiness == 0
-In-Reply-To: <Pine.LNX.4.64.0604031811270.7588@artax.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.64.0604031812350.7588@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0604031811270.7588@artax.karlin.mff.cuni.cz>
-X-Personality-Disorder: Schizoid
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 3 Apr 2006 12:16:10 -0400
+Received: from ftp.linux-mips.org ([194.74.144.162]:33200 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1751764AbWDCQQJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 12:16:09 -0400
+Date: Mon, 3 Apr 2006 17:16:04 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix MIPS PFN/page borkage
+Message-ID: <20060403161604.GA29351@linux-mips.org>
+References: <20060403161131.0790DD9A@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060403161131.0790DD9A@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi
->
-> On one our server we've seen that OOM killer kills a process even if there's 
-> plenty of free swap space. The server had swappiness set to 0 which probably 
-> triggered the bug.
->
-> Mikulas
+On Mon, Apr 03, 2006 at 09:11:31AM -0700, Dave Hansen wrote:
 
-I forgot to tell kernel version: 2.6.15-gentoo-r1. Dual Opteron with 4G 
-RAM.
+> The "unify PFN_* macros" patch screwed up and somehow modified
+> the MIPS code where it shouldn't have.  This backs those changes
+> back out.
 
-Mikulas
+You need to include <linux/pfn.h> for this to build.
+
+  Ralf

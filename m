@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWDCMmZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWDCMtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932290AbWDCMmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 08:42:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWDCMmZ
+	id S932309AbWDCMtU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 08:49:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWDCMtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 08:42:25 -0400
-Received: from mail.gmx.de ([213.165.64.20]:36324 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932290AbWDCMmY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 08:42:24 -0400
-X-Authenticated: #14349625
-Subject: Re: [RFC] sched.c : procfs tunables
-From: Mike Galbraith <efault@gmx.de>
-To: Al Boldi <a1426z@gawab.com>
-Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
-       linux-smp@vger.kernel.org
-In-Reply-To: <200604031459.43105.a1426z@gawab.com>
-References: <200603311723.49049.a1426z@gawab.com>
-	 <200604010044.09185.kernel@kolivas.org>
-	 <200604031459.43105.a1426z@gawab.com>
-Content-Type: text/plain
-Date: Mon, 03 Apr 2006 14:43:15 +0200
-Message-Id: <1144068196.8083.30.camel@homer>
+	Mon, 3 Apr 2006 08:49:20 -0400
+Received: from ftp.linux-mips.org ([194.74.144.162]:6572 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S932309AbWDCMtU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 08:49:20 -0400
+Date: Mon, 3 Apr 2006 13:49:16 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] unify PFN_* macros
+Message-ID: <20060403124916.GA14044@linux-mips.org>
+References: <20060323162459.6D45D1CE@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060323162459.6D45D1CE@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-03 at 14:59 +0300, Al Boldi wrote:
-> Mike Galbraith wrote:
-> > Nope, not the existing tunables anyway.  The full effect of even a tiny
-> > scheduler knob tweak is hard to predict even if you've studied the code
-> > carefully.  These knobs are just not generic enough to be exposed IMHO.
+On Thu, Mar 23, 2006 at 08:24:59AM -0800, Dave Hansen wrote:
+
+> Just about every architecture defines some macros to do operations on
+> pfns.  They're all virtually identical.  This patch consolidates all
+> of them.
 > 
-> Are you implying that the code is built around these tunables rather than 
-> using them?
+> One minor glitch is that at least i386 uses them in a very skeletal
+> header file.  To keep away from #include dependency hell, I stuck
+> the new definitions in a new, isolated header.
+> 
+> Of all of the implementations, sh64 is the only one that varied by a
+> bit.  It used some masks to ensure that any sign-extension got
+> ripped away before the arithmetic is done.  This has been posted to
+> that sh64 maintainers and the development list.
+> 
+> Compiles on x86, x86_64, ia64 and ppc64.
 
-I'm not implying anything, I'm merely stating my opinion: these knobs
-have subtle effects which render them unsuitable for export.
+Ehhh...  Looks at this patch I wonder if you actually read the MIPS bits
+before submitting it:
 
-	-Mike
+ o replaces PFN_ALIGN with PAGE_ALIGN
+ o replaces the IP27 definition of PFN_ALIGN with a different one.
 
+How about posting such stuff to linux-arch?  No sane person follows l-k.
+
+  Ralf

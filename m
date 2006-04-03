@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbWDCNfq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWDCOHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750963AbWDCNfq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 09:35:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbWDCNfq
+	id S1751133AbWDCOHB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 10:07:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWDCOHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 09:35:46 -0400
-Received: from web33012.mail.mud.yahoo.com ([68.142.206.76]:13448 "HELO
-	web33012.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750866AbWDCNfq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 09:35:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=hfta9F8J+8lyWHRGkdXCMOvcbUpyTxMPa86MoL3lHXk1xe6+wp+Ba5tbLfXlJPFJi9K3m3JakWCDRRiNHEQfYocV7zn2hMI7A89xAc6wbf2HY3bw+7InyAaAww0+CJaUM+IP4L7RL+nzzTe70pZC26KPt09rEyCIZJpCWKMoXRs=  ;
-Message-ID: <20060403133545.52779.qmail@web33012.mail.mud.yahoo.com>
-Date: Mon, 3 Apr 2006 06:35:45 -0700 (PDT)
-From: Stephen Cameron <smcameron@yahoo.com>
-Subject: Re: Problem with diskstats (kernel 2.6.15-gentoo-r1)
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 3 Apr 2006 10:07:01 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:27844 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751133AbWDCOHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 10:07:00 -0400
+Date: Mon, 3 Apr 2006 16:06:54 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Remove unused exports and save 98Kb of kernel size
+Message-ID: <20060403140654.GB12873@wohnheim.fh-wedel.de>
+References: <1143925545.3076.35.camel@laptopd505.fenrus.org> <1143926338.18439.3.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1143926338.18439.3.camel@localhost>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 1 April 2006 23:18:58 +0200, Marcel Holtmann wrote:
+> 
+> > I've made a patch to remove all EXPORT_SYMBOL's that aren't used in the
+> > kernel; it's too big for the list so it can be found at
+> > 
+> > http://www.kernelmorons.org/unexport.patch
+> 
+> no ack for net/bluetooth/ from me.
 
-Toon van der Pas wrote:
- 
-> This morning I discovered a strange problem with the output of
-> /proc/diskstats; the cciss driver only produces the first 4 fields:
->
+Why not?  Do you have patches pending for submission that will use
+those exported symbols?
 
-It's working correctly so far as I can tell. 
-Check block/genhd.c, diskstat_show().
+Jörn
 
-It prints per-disk and per-partition information.
-There are 4 fields printed for each partition, but more
-fields per each disk.  (check your output again, and note
-the lines for cciss/c0d0 and cciss/c0d1 (the disks) vs.
-the lines for cciss/c0d?p? (the partitions.) Most of your 
-devices in there don't have any partition information so 
-you just see the per-disk lines, not the per-partition lines
-since there are no partitions.  Cciss looks different
-than the others because you actually have partitions on that 
-device.
-
--- steve
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+-- 
+The strong give up and move away, while the weak give up and stay.
+-- unknown

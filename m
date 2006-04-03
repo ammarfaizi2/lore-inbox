@@ -1,218 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbWDCIvK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbWDCIyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750859AbWDCIvK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 04:51:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWDCIvK
+	id S1751414AbWDCIyN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 04:54:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWDCIyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 04:51:10 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50959 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750859AbWDCIvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 04:51:09 -0400
-Date: Mon, 3 Apr 2006 09:50:58 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Hyok S. Choi" <hyok.choi@samsung.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.16-git] [SERIAL] Adds DCC(JTAG) serial and the console emulation support (revised)
-Message-ID: <20060403085058.GA15606@flint.arm.linux.org.uk>
-Mail-Followup-To: "Hyok S. Choi" <hyok.choi@samsung.com>,
-	linux-kernel@vger.kernel.org
-References: <20060403082001.26644.18948.stgit@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060403082001.26644.18948.stgit@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Mon, 3 Apr 2006 04:54:13 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:50110 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751414AbWDCIyM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 04:54:12 -0400
+Date: Mon, 3 Apr 2006 10:54:09 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: George Petre <glpetre@bitdefender.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: stealth firewall problem
+In-Reply-To: <442956F8.6070401@bitdefender.com>
+Message-ID: <Pine.LNX.4.61.0604031050170.2220@yvahk01.tjqt.qr>
+References: <442956F8.6070401@bitdefender.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 03, 2006 at 05:20:02PM +0900, Hyok S. Choi wrote:
 
-Thanks for looking at the previous points, this driver is much better.
-However, there's still some bits which could be even better.
+> ifconfig $INTERIOR_IFACE 0.0.0.0 promisc up -arp
+> ifconfig $EXTERIOR_IFACE 0.0.0.0 promisc up -arp
+> brctl addif $BRIDGE_IFACE $INTERIOR_IFACE
+> brctl addif $BRIDGE_IFACE $EXTERIOR_IFACE
+> ifconfig $BRIDGE_IFACE 0.0.0.0 up -arp
 
-> +/* use ttyJ0(128) */
-> +#define SERIAL_DCC_NAME		"ttyJ"
-> +#define SERIAL_DCC_MINOR	(64 + 64)
-> +#endif
-> +#define SERIAL_DCC_MAJOR	TTY_MAJOR
+       [-]arp Enable or disable the use of the ARP protocol on this 
+interface.
 
-Why not just get a proper legal allocation from LANANA ?
+Maybe you should leave the arp bit on, i.e.
+  ip l s eth0 up
+  ip l s eth1 up
+  brctl addif br0 eth0 eth1
+  ip l s br0 up
+  (by default it will take 15 seconds for the bridge to become alive now)
 
-> +static inline u32
-> +__dcc_getstatus(void)
+> /sbin/modprobe ipt_LOG
 
-Column space is not at a premium.
+Not explicitly needed.
 
-static inline u32 __dcc_getstatus(void)
+> echo "1" > /proc/sys/net/ipv4/ip_forward
 
-will do just as well.  Does the double underscore here serve any purpose?
+This is not needed for brX.
 
-> +{
-> +	u32 __ret;
+> iptables -A FORWARD -i $EXTERIOR_IFACE -p tcp -m state --state NEW -j LOG
+> --log-prefix "INBOUND TCP: "
 
-The double underscore here serves no purpose.
+That won't work. A bridged packet has -i br0 -o br0. You must match it with 
+-m physdev --physdev-in $EXTERIOR --physdev-out $INTERIOR.
 
-> +
-> +	asm("mrc p14, 0, %0, c0, c0	@ read comms ctrl reg"
-> +		: "=r" (__ret));
-> +
-> +	return __ret;
-> +}
-> +
-> +static inline char
-> +__dcc_getchar(void)
-> +{
-> +	char __c;
 
-Ditto.
 
-> +
-> +	asm("mrc p14, 0, %0, c1, c0	@ read comms data reg"
-> +		: "=r" (__c));
-> +
-> +	return __c;
-> +}
-> +
-> +static inline void
-> +__dcc_putchar(char c)
-> +{
-> +	asm("mcr p14, 0, %0, c1, c0	@ write a char"
-> +		: /* no output register */
-> +		: "r" (c));
-> +}
-> +
-> +static void
-> +dcc_putchar(struct uart_port *port, int ch)
-> +{
-> +	while (__dcc_getstatus() & DCC_STATUS_TX)
-> +		cpu_relax();
-> +	__dcc_putchar((char)(ch & 0xFF));
-
-Since this is the only place __dcc_putchar is used, might be an idea to
-move it into this function?
-
-> +}
-> +
-> +static inline void
-> +xmit_string(struct uart_port *port, char *p, int len)
-> +{
-> +	for ( ; len; len--, p++)
-> +		dcc_putchar(port, *p);
-> +}
-> +
-> +static inline void
-> +dcc_transmit_buffer(struct uart_port *port)
-> +{
-> +	struct circ_buf *xmit = &port->info->xmit;
-> +	int pendings = uart_circ_chars_pending(xmit);
-> +
-> +	if(pendings + xmit->tail > UART_XMIT_SIZE)
-> +	{
-
-Mixture of bracing styles, and there should be a space between if and (.
-
-	if (pendings + xmit->tail > UART_XMIT_SIZE) {
-
-> +		xmit_string(port, &(xmit->buf[xmit->tail]),
-> +			UART_XMIT_SIZE - xmit->tail);
-> +		xmit_string(port, &(xmit->buf[0]), xmit->head);
-> +	} else
-> +		xmit_string(port, &(xmit->buf[xmit->tail]), pendings);
-> +	
-> +	xmit->tail = (xmit->tail + pendings) & (UART_XMIT_SIZE-1);
-> +	port->icount.tx += pendings;
-> +}
->...
-> +dcc_rx_chars(struct uart_port *port)
-> +{
-> +	unsigned char ch;
-> +	struct tty_struct *tty = port->info->tty;
-> +
-> +	/*
-> +	 * check input.
-> +	 * checking JTAG flag is better to resolve the status test.
-> +	 * incount is NOT used for JTAG1 protocol.
-> +	 */
-> +
-> +	if (__dcc_getstatus() & DCC_STATUS_RX)
-> +	{
-
-Mixture of bracing styles again.  Either always place the { at the end of
-the previous line (preferred) or separately on the next line, but don't
-do both in the same file.
-
-> +		/* for JTAG 1 protocol, incount is always 1. */
-> +		ch = __dcc_getchar();
-> +
-> +		if (tty) {
-> +			tty_insert_flip_char(tty, ch, TTY_NORMAL);
-> +			port->icount.rx++;
-> +			tty_flip_buffer_push(tty);
-> +		}
-> +	}
-> +}
-> +
-> +static inline void
-> +dcc_overrun_chars(struct uart_port *port)
-> +{
-> +	port->icount.overrun++;
-> +}
-
-This doesn't seem to be used anywhere.
-
-> +static int
-> +dcc_startup(struct uart_port *port)
-> +{
-> +#ifdef DCC_IRQ_USED /* real IRQ used */
-> +	int retval;
-> +
-> +	/* Allocate the IRQ */
-> +	retval = request_irq(port->irq, dcc_int, SA_INTERRUPT,
-> +			     "serial_dcc", port);
-> +	if (retval)
-> +		return retval;
-> +#else /* emulation */
-> +	/* Initialize the work, and shcedule it. */
-> +	INIT_WORK(&dcc_poll_task, dcc_poll, port);
-> +	spin_lock(&port->lock);
-> +	if (dcc_poll_state != DCC_POLL_RUN)
-> +		dcc_poll_state = DCC_POLL_RUN;
-> +	schedule_delayed_work(&dcc_poll_task, 1);
-> +	spin_unlock(&port->lock);
-
-Hmm, this looks over complex:
-
-	if (dcc_poll_state != DCC_POLL_RUN)
-		dcc_poll_state = DCC_POLL_RUN;
-
-and unnecessary (see dcc_shutdown comments.)
-
-Secondly, wouldn't it be better to have INIT_WORK() in the driver
-initialisation?
-
-> +#endif
-> +
-> +	return 0;
-> +}
-> +
-> +static void
-> +dcc_shutdown(struct uart_port *port)
-> +{
-> +#ifdef DCC_IRQ_USED /* real IRQ used */
-> +	free_irq(port->irq, port);
-> +#else
-> +	spin_lock(&port->lock);
-> +	dcc_poll_state = DCC_POLL_STOP;
-> +	spin_unlock(&port->lock);
-
-Rather than having this dcc_poll_state, wouldn't the use of:
-
-	cancel_rearming_delayed_work(&dcc_poll_task);
-
-suffice?
-
+Jan Engelhardt
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

@@ -1,85 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWDCCJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWDCCsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964810AbWDCCJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 22:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbWDCCJ2
+	id S1750748AbWDCCsY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 22:48:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWDCCsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 22:09:28 -0400
-Received: from mx1.rowland.org ([192.131.102.7]:41224 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S964810AbWDCCJ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 22:09:28 -0400
-Date: Sun, 2 Apr 2006 22:09:24 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Joshua Kwan <joshk@triplehelix.org>
-cc: linux-kernel@vger.kernel.org, <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Problems with USB setup with Linux 2.6.16
-In-Reply-To: <20060403004806.GA25553@triplehelix.org>
-Message-ID: <Pine.LNX.4.44L0.0604022155060.29134-100000@netrider.rowland.org>
+	Sun, 2 Apr 2006 22:48:24 -0400
+Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:12178 "EHLO
+	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750748AbWDCCsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 22:48:23 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: lowmem_reserve question
+Date: Mon, 3 Apr 2006 12:48:13 +1000
+User-Agent: KMail/1.9.1
+Cc: ck@vds.kolivas.org, Andrew Morton <akpm@osdl.org>,
+       linux list <linux-kernel@vger.kernel.org>
+References: <200604021401.13331.kernel@kolivas.org> <200604021939.21729.kernel@kolivas.org> <442F9E91.1020306@yahoo.com.au>
+In-Reply-To: <442F9E91.1020306@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604031248.13532.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Apr 2006, Joshua Kwan wrote:
+On Sunday 02 April 2006 19:51, Nick Piggin wrote:
+> That zone->lowmem_reserve[zone_idx(zone)] == 0 ?
 
-> Hello,
-> 
-> I've got some problems getting my USB stuff to work in 2.6.16.
-> 
-> I see normal USB initialization as the machine comes up, then suddenly:
-> 
-> ehci_hcd 0000:00:10.4: EHCI Host Controller
-> ehci_hcd 0000:00:10.4: new USB bus registered, assigned bus number 5
-> ehci_hcd 0000:00:10.4: irq 17, io mem 0xf9e00000
-> ehci_hcd 0000:00:10.4: USB 2.0 started, EHCI 1.00, driver 10 Dec 2004
-> usb usb5: configuration #1 chosen from 1 choice
-> hub 5-0:1.0: USB hub found
-> usb 2-1: USB disconnect, address 2
-> hub 5-0:1.0: 8 ports detected
-> usb 2-2: USB disconnect, address 3
-> usb 3-1: USB disconnect, address 2
-> Initializing USB Mass Storage driver...
-> GSI 21 sharing vector 0xD1 and IRQ 21
-> usb 1-1: USB disconnect, address 2
-> drivers/usb/class/usblp.c: usblp0: removed
-> 
-> Everything that just got probed gets 'disconnected', udev's startup
-> script times out, and cupsd will hang forever looking for my printer.
-> 
-> Interestingly, it worked perfectly one time, and I saw a 'EHCI BIOS handoff
-> failed' message way at the top of dmesg.
-> 
-> What's going on? I assume this is EHCI's fault. I'm on a VIA K8T800 chipset,
-> Asus A8V Deluxe motherboard.
+I haven't figured out how to tackle the swap prefetch issue with lowmem 
+reserve just yet. While trying to digest just what the lowmem_reserve does 
+and how it's utilised I looked at some of the numbers
 
-If you want to point a finger, I suppose you could say it's EHCI's fault.  
-However, this is how things are _supposed_ to work (all except for the 
-"cupsd will hang forever part" -- it's not clear whether that's a kernel 
-issue or an application program issue).
+int sysctl_lowmem_reserve_ratio[MAX_NR_ZONES-1] = { 256, 256, 32 };
 
-The idea is that each USB connector on your motherboard is wired to two
-USB controller ports: one on a UHCI controller (for low- and full-speed
-devices) and one on the EHCI controller (for high-speed devices).  The
-connections are controlled by switches inside the EHCI controller.
+lower_zone->lowmem_reserve[j] = present_pages / 
+sysctl_lowmem_reserve_ratio[idx];
 
-Initially the switches are set to hook each connector up to a UHCI
-controller, so your devices enumerate on the various UHCI buses.  Then
-when ehci-hcd gets loaded it takes over, and the switches are changed to
-hook each device up to the EHCI controller.  As far as the UHCI
-controllers are concerned this looks like the devices were unplugged.  
-Hence all those "disconnect" messages.
+This is interesting because there are no bounds on this value and it seems 
+possible to set the sysctl to have a lowmem_reserve that is larger than the 
+zone size. Ok that's a sysctl so if a user is setting it wrongly that's their 
+fault... or should there be some upper bound?
 
-If you were to continue looking farther down in the log, you would find
-that ehci-hcd sees all those devices.  Those that can run at high speed
-continue using the EHCI controller.  For those that can't, the switch is 
-reset and they get reconnected to their UHCI controller.
+Furthermore, now that we have the option of up to 3GB lowmem split on 32bit we 
+can have a default lowmem_reserve of almost 12MB (if I'm reading it right) 
+which seems very tight with only 16MB of ZONE_DMA. 
 
-All this backing and forthing would be eliminated if the ehci-hcd driver
-was loaded before uhci-hcd rather than after.  Perhaps you can fiddle with
-your startup scripts to make that happen.  But even if things always go
-the way you showed here, the devices should all work properly in the end.
+On a basically idle 1GB lowmem box that I have it looks like this:
 
-Alan Stern
+Node 0, zone      DMA
+  pages free     1025
+        min      15
+        low      18
+        high     22
+        active   2185
+        inactive 0
+        scanned  555 (a: 21 i: 6)
+        spanned  4096
+        present  4096
+        protection: (0, 0, 1007, 1007)
 
+With 3GB lowmem the default settings seem too tight to me. The way I see it, 
+there should be some upper bounds on the lowmem reserves. Or perhaps I'm just 
+missing something again... I'm feeling even thicker than usual.
+
+Cheers,
+Con

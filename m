@@ -1,20 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbWDCRV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWDCRW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932372AbWDCRV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 13:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWDCRV6
+	id S932374AbWDCRW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 13:22:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWDCRW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 13:21:58 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:43036 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S932363AbWDCRV5
+	Mon, 3 Apr 2006 13:22:26 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:33950 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932368AbWDCRWZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 13:21:57 -0400
-Date: Mon, 3 Apr 2006 19:21:55 +0200
+	Mon, 3 Apr 2006 13:22:25 -0400
+Date: Mon, 3 Apr 2006 19:22:24 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, peter.oberparleiter@de.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: [patch 3/9] s390: invalid check after kzalloc()
-Message-ID: <20060403172155.GC11049@skybase>
+To: akpm@osdl.org, cornelia.huck@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: [patch 4/9] s390: Wrong return codes in cio_ignore_proc_init().
+Message-ID: <20060403172224.GD11049@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,29 +21,35 @@ User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-[patch 3/9] s390: invalid check after kzalloc()
+[patch 4/9] s390: Wrong return codes in cio_ignore_proc_init().
 
-Typo. After the call to kzalloc() for kdb->key_maps the test
-for NULL checks the wrong variable.
+cio_ignore_proc_init() returns 1 in case of success and 0 in case
+of failure. The caller tests for != 0, so better return 0 in case of
+success and -ENOENT in case of failure.
 
-Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/char/keyboard.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/cio/blacklist.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/char/keyboard.c linux-2.6-patched/drivers/s390/char/keyboard.c
---- linux-2.6/drivers/s390/char/keyboard.c	2006-04-03 18:46:20.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/char/keyboard.c	2006-04-03 18:46:36.000000000 +0200
-@@ -54,7 +54,7 @@ kbd_alloc(void) {
- 	if (!kbd)
- 		goto out;
- 	kbd->key_maps = kzalloc(sizeof(key_maps), GFP_KERNEL);
--	if (!key_maps)
-+	if (!kbd->key_maps)
- 		goto out_kbd;
- 	for (i = 0; i < ARRAY_SIZE(key_maps); i++) {
- 		if (key_maps[i]) {
+diff -urpN linux-2.6/drivers/s390/cio/blacklist.c linux-2.6-patched/drivers/s390/cio/blacklist.c
+--- linux-2.6/drivers/s390/cio/blacklist.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/cio/blacklist.c	2006-04-03 18:46:37.000000000 +0200
+@@ -414,11 +414,11 @@ cio_ignore_proc_init (void)
+ 	entry = create_proc_entry ("cio_ignore", S_IFREG | S_IRUGO | S_IWUSR,
+ 				   &proc_root);
+ 	if (!entry)
+-		return 0;
++		return -ENOENT;
+ 
+ 	entry->proc_fops = &cio_ignore_proc_fops;
+ 
+-	return 1;
++	return 0;
+ }
+ 
+ __initcall (cio_ignore_proc_init);

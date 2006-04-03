@@ -1,157 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWDCT5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWDCT5a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964863AbWDCT5d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 15:57:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWDCT5c
+	id S964866AbWDCT5a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 15:57:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWDCT5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 15:57:32 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:2793 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S964867AbWDCT5b (ORCPT
+	Mon, 3 Apr 2006 15:57:30 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:2537 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S964866AbWDCT53 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 15:57:31 -0400
-Date: Mon, 3 Apr 2006 21:57:26 +0200 (CEST)
+	Mon, 3 Apr 2006 15:57:29 -0400
+Date: Mon, 3 Apr 2006 21:56:32 +0200 (CEST)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
 To: johnstul@us.ibm.com, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: [PATCH 4/5] generic gettimeofday functions
-Message-ID: <Pine.LNX.4.64.0604032157100.4718@scrub.home>
+Subject: [PATCH 2/5] increase current_tick_length() resolution
+Message-ID: <Pine.LNX.4.64.0604032156070.4711@scrub.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This provides generic functions for gettimeofday/settimeofday for archs,
-which are ready to completely switch to clocksources.
-
- kernel/time.c  |    2 +
- kernel/timer.c |   91 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 93 insertions(+)
+Increase the scale for current_tick_length() to 32bit, which gives NTP
+more room for improvement and makes it simpler to extract the full nsec
+part.
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
 ---
 
-Index: linux-2.6-mm/kernel/time.c
+ arch/powerpc/kernel/time.c |    2 +-
+ kernel/timer.c             |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+Index: linux-2.6-mm/arch/powerpc/kernel/time.c
 ===================================================================
---- linux-2.6-mm.orig/kernel/time.c	2006-04-02 17:23:13.000000000 +0200
-+++ linux-2.6-mm/kernel/time.c	2006-04-02 17:23:52.000000000 +0200
-@@ -523,6 +523,7 @@ EXPORT_SYMBOL(do_gettimeofday);
+--- linux-2.6-mm.orig/arch/powerpc/kernel/time.c	2006-04-02 17:23:17.000000000 +0200
++++ linux-2.6-mm/arch/powerpc/kernel/time.c	2006-04-02 17:23:23.000000000 +0200
+@@ -103,7 +103,7 @@ EXPORT_SYMBOL(tb_ticks_per_sec);	/* for 
+ u64 tb_to_xs;
+ unsigned tb_to_us;
  
+-#define TICKLEN_SCALE	(SHIFT_SCALE - 10)
++#define TICKLEN_SCALE	32
+ u64 last_tick_len;	/* units are ns / 2^TICKLEN_SCALE */
+ u64 ticklen_to_xs;	/* 0.64 fraction */
  
- #else
-+#ifndef CONFIG_GENERIC_TIME
- /*
-  * Simulate gettimeofday using do_gettimeofday which only allows a timeval
-  * and therefore only yields usec accuracy
-@@ -537,6 +538,7 @@ void getnstimeofday(struct timespec *tv)
- }
- EXPORT_SYMBOL_GPL(getnstimeofday);
- #endif
-+#endif
- 
- /* Converts Gregorian date to seconds since 1970-01-01 00:00:00.
-  * Assumes input in normal date format, i.e. 1980-12-31 23:59:59
 Index: linux-2.6-mm/kernel/timer.c
 ===================================================================
---- linux-2.6-mm.orig/kernel/timer.c	2006-04-02 17:23:36.000000000 +0200
-+++ linux-2.6-mm/kernel/timer.c	2006-04-02 17:23:52.000000000 +0200
-@@ -1030,6 +1030,97 @@ void clocksource_update(struct pt_regs *
- 	softlockup_tick();
- }
+--- linux-2.6-mm.orig/kernel/timer.c	2006-04-02 17:23:17.000000000 +0200
++++ linux-2.6-mm/kernel/timer.c	2006-04-02 17:23:23.000000000 +0200
+@@ -767,7 +767,7 @@ static void update_wall_time_one_tick(vo
+  * Return how long ticks are at the moment, that is, how much time
+  * update_wall_time_one_tick will add to xtime next time we call it
+  * (assuming no calls to do_adjtimex in the meantime).
+- * The return value is in fixed-point nanoseconds with SHIFT_SCALE-10
++ * The return value is in fixed-point nanoseconds with 32
+  * bits to the right of the binary point.
+  * This function has no side-effects.
+  */
+@@ -776,7 +776,7 @@ u64 current_tick_length(void)
+ 	long delta_nsec;
  
-+#ifdef CONFIG_GENERIC_TIME
-+
-+/**
-+ * get_realtime_clock_ts - Returns the time of day in a timespec
-+ * @ts:		pointer to the timespec to be set
-+ *
-+ * Returns the time of day in a timespec.
-+ */
-+void getnstimeofday(struct timespec *ts)
-+{
-+	unsigned long seq, nsec;
-+
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+		ts->tv_sec = xtime.tv_sec;
-+		nsec = clocksource_get_nsec_offset(curr_clocksource);
-+	} while (read_seqretry(&xtime_lock, seq));
-+
-+	while (nsec >= NSEC_PER_SEC) {
-+		nsec -= NSEC_PER_SEC;
-+		ts->tv_sec++;
-+	}
-+	ts->tv_nsec = nsec;
-+}
-+
-+EXPORT_SYMBOL(getnstimeofday);
-+/**
-+ * do_gettimeofday - Returns the time of day in a timeval
-+ * @tv:		pointer to the timeval to be set
-+ *
-+ * NOTE: Users should be converted to using get_realtime_clock_ts()
-+ */
-+void do_gettimeofday(struct timeval *tv)
-+{
-+	unsigned long seq, nsec;
-+
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+		tv->tv_sec = xtime.tv_sec;
-+		nsec = clocksource_get_nsec_offset(curr_clocksource);
-+	} while (read_seqretry(&xtime_lock, seq));
-+
-+	while (nsec >= NSEC_PER_SEC) {
-+		nsec -= NSEC_PER_SEC;
-+		tv->tv_sec++;
-+	}
-+	tv->tv_usec = nsec / NSEC_PER_USEC;
-+}
-+
-+EXPORT_SYMBOL(do_gettimeofday);
-+
-+/**
-+ * do_settimeofday - Sets the time of day
-+ * @tv:		pointer to the timespec variable containing the new time
-+ *
-+ * Sets the time of day to the new time and update NTP and notify hrtimers
-+ */
-+int do_settimeofday(struct timespec *ts)
-+{
-+	time_t wtm_sec;
-+	long wtm_nsec;
-+
-+	if ((unsigned long)ts->tv_nsec >= NSEC_PER_SEC)
-+		return -EINVAL;
-+
-+	write_seqlock_irq(&xtime_lock);
-+
-+	wtm_sec  = wall_to_monotonic.tv_sec + (xtime.tv_sec - ts->tv_sec);
-+	wtm_nsec = wall_to_monotonic.tv_nsec + (xtime.tv_nsec - ts->tv_nsec);
-+	set_normalized_timespec(&wall_to_monotonic, wtm_sec, wtm_nsec);
-+
-+	xtime = *ts;
-+
-+	curr_clocksource->ntp_error = 0;
-+	curr_clocksource->cycles_last = curr_clocksource->read();
-+	curr_clocksource->xtime_nsec = (u64)xtime.tv_nsec << curr_clocksource->shift;
-+
-+	ntp_clear();
-+
-+	write_sequnlock_irq(&xtime_lock);
-+
-+	/* signal hrtimers about time change */
-+	clock_was_set();
-+
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL(do_settimeofday);
-+
-+#endif
-+
- #ifdef __ARCH_WANT_SYS_ALARM
+ 	delta_nsec = tick_nsec + adjtime_adjustment() * 1000;
+-	return ((u64) delta_nsec << (SHIFT_SCALE - 10)) + time_adj;
++	return ((u64)delta_nsec << 32) + ((s64)time_adj << (32 - (SHIFT_SCALE - 10)));
+ }
  
  /*

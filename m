@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751551AbWDCFa2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751592AbWDCG3v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751551AbWDCFa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 01:30:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751558AbWDCFa1
+	id S1751592AbWDCG3v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 02:29:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751588AbWDCG3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 01:30:27 -0400
-Received: from mail.gmx.de ([213.165.64.20]:56517 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751551AbWDCFa0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 01:30:26 -0400
-X-Authenticated: #14349625
-Subject: Re: lowmem_reserve question
-From: Mike Galbraith <efault@gmx.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, ck@vds.kolivas.org,
-       Andrew Morton <akpm@osdl.org>,
-       linux list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200604031518.49184.kernel@kolivas.org>
-References: <200604021401.13331.kernel@kolivas.org>
-	 <200604031448.01391.kernel@kolivas.org> <1144041247.8198.8.camel@homer>
-	 <200604031518.49184.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Mon, 03 Apr 2006 07:31:12 +0200
-Message-Id: <1144042272.8198.16.camel@homer>
+	Mon, 3 Apr 2006 02:29:50 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:6575
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751577AbWDCG3u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 02:29:50 -0400
+Date: Sun, 02 Apr 2006 23:29:33 -0700 (PDT)
+Message-Id: <20060402.232933.01462994.davem@davemloft.net>
+To: davej@redhat.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [IPSEC]: Kill unused decap state argument
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060403043134.GA7173@redhat.com>
+References: <200604022014.k32KE6LH011600@hera.kernel.org>
+	<20060403043134.GA7173@redhat.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-03 at 15:18 +1000, Con Kolivas wrote:
-> On Monday 03 April 2006 15:14, Mike Galbraith wrote:
-> > If that dinky 16MB zone still exists, and always appears nearly full, be
-> > happy.  It used to be a real PITA.
+From: Dave Jones <davej@redhat.com>
+Date: Sun, 2 Apr 2006 23:31:34 -0500
+
+> This breaks SELinux compilation.
+> security/selinux/xfrm.c: In function 'selinux_socket_getpeer_dgram':
+> security/selinux/xfrm.c:284: error: 'struct sec_path' has no member named 'x'
+> security/selinux/xfrm.c: In function 'selinux_xfrm_sock_rcv_skb':
+> security/selinux/xfrm.c:317: error: 'struct sec_path' has no member named 'x'
 > 
-> That's not the point. If you try to do any allocation anywhere else it also 
-> checks that zone, and it will find it full (always) leading to reclaim all 
-> over the place for no good reason. This has nothing to do with actually 
-> wanting to use that space or otherwise.
+> Does this look sane ?
 
-That doesn't make any sense.  Why would you scan/reclaim if the zone is
-not depleted?
-
-Like I said, I'm _way_ out of date.  The problem scenario used to be
-that you run low on memory, dip into dinky dma zone, pin it, then grind
-to powder trying to find a reclaimable dma page.
-
-	-Mike
-
+Yes it does, thanks Dave.

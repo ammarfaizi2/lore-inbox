@@ -1,184 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWDCQwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWDCQyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbWDCQwE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 12:52:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751769AbWDCQwE
+	id S932157AbWDCQyp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 12:54:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWDCQyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 12:52:04 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:6532 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751277AbWDCQwB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 12:52:01 -0400
-Subject: [PATCH -rt] new update for tod periodic hook cycle times.
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>
+	Mon, 3 Apr 2006 12:54:45 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:52136 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932157AbWDCQyo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 12:54:44 -0400
+Subject: Re: [PATCH 2/7] tpm: reorganize sysfs files
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>,
+       Marcel Selhorst <selhorst@crypto.rub.de>
+In-Reply-To: <1144082547.29910.8.camel@localhost.localdomain>
+References: <1143823488.2992.166.camel@localhost.localdomain>
+	 <1144082547.29910.8.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Mon, 03 Apr 2006 12:51:44 -0400
-Message-Id: <1144083104.24581.6.camel@localhost.localdomain>
+Date: Mon, 03 Apr 2006 09:54:02 -0700
+Message-Id: <1144083243.9731.140.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, scratch the two patches that I sent earlier. The ones that added the
-enqueue to the hrtimer_interrupt and the tod update.  This patch does
-the tod update from update_process_times.  This way we don't need to
-allow driver writers the ability to create large latencies, because they
-can add their call backs into the hrtimer_interrupt.
+On Mon, 2006-04-03 at 11:42 -0500, Kylene Jo Hall wrote:
+>  ssize_t tpm_show_pcrs(struct device *dev, struct device_attribute *attr,
+>  		      char *buf)
+>  {
+> -	u8 data[READ_PCR_RESULT_SIZE];
+> +	u8 data[30];
 
--- Steve
+Is this correct?  Are you guaranteed that this data read will never,
+ever exceed 30 bytes?  Any reason it shouldn't be a variable?
 
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+>  	ssize_t len;
+>  	int i, j, num_pcrs;
+>  	__be32 index;
+> @@ -150,26 +659,28 @@ ssize_t tpm_show_pcrs(struct device *dev
+>  	if (chip == NULL)
+>  		return -ENODEV;
+>  
+> -	memcpy(data, cap_pcr, sizeof(cap_pcr));
+> +	memcpy(data, tpm_cap, sizeof(tpm_cap));
+> +	data[TPM_CAP_IDX] = TPM_CAP_PROP;
+> +	data[TPM_CAP_SUBCAP_IDX] = TPM_CAP_PROP_PCR;
+> +
+>  	if ((len = tpm_transmit(chip, data, sizeof(data)))
+> -	    < CAP_PCR_RESULT_SIZE) {
+> +	    <= TPM_ERROR_SIZE) {
+>  		dev_dbg(chip->dev, "A TPM error (%d) occurred "
+> -				"attempting to determine the number of PCRS\n",
+> -			be32_to_cpu(*((__be32 *) (data + 6))));
+> +			"attempting to determine the number of PCRS\n",
+> +			be32_to_cpu(*((__be32 *) (data + TPM_RET_CODE_IDX))));
+>  		return 0;
+>  	}
 
-Index: linux-2.6.16-rt12/kernel/time/timeofday.c
-===================================================================
---- linux-2.6.16-rt12.orig/kernel/time/timeofday.c	2006-04-03 12:09:48.000000000 -0400
-+++ linux-2.6.16-rt12/kernel/time/timeofday.c	2006-04-03 12:23:59.000000000 -0400
-@@ -69,8 +69,19 @@ static struct timespec monotonic_time_of
-  * cycle_last:
-  *	Value of the clocksource at the last timeofday_periodic_hook()
-  *	(adjusted only minorly to account for rounded off cycles)
-+ * cycle_last_interval:
-+ *	A value called at small intervals to prevent the cycle_last
-+ *	from wrapping.  The difference is added to cycle_last_index
-+ *	to keep a running value of the time from the last call to
-+ *	timeofday_periodic_hook.
-+ * cycle_last_index:
-+ *	The time called by the cycle update between calls
-+ *	to timeofday_periodic_hook.  The cycle update can be done in
-+ *	interrupt context, where as the periodic hook is too heavy.
-  */
- static cycle_t cycle_last;
-+static cycle_t cycle_last_interval;
-+static cycle_t cycle_last_index;
- 
- /* [clocksource_interval variables]
-  * ts_interval:
-@@ -271,7 +282,8 @@ static inline s64 __get_nsec_offset(void
- 	cycle_now = read_clocksource(clock);
- 
- 	/* calculate the delta since the last timeofday_periodic_hook: */
--	cycle_delta = (cycle_now - cycle_last) & clock->mask;
-+	cycle_delta = (cycle_now - cycle_last_interval) & clock->mask;
-+	cycle_delta += cycle_last_index;
- 
- 	/* convert to nanoseconds: */
- 	ns_offset = cyc2ns(clock, ntp_adj, cycle_delta);
-@@ -575,7 +587,8 @@ static int timeofday_resume_hook(struct 
- 	 * time drift.
- 	 */
- 	suspend_end = read_persistent_clock();
--	cycle_last = read_clocksource(clock);
-+	cycle_last = cycle_last_interval = read_clocksource(clock);
-+	cycle_last_index = 0;
- 
- 	/* calculate suspend time and add it to system time: */
- 	suspend_time = suspend_end - suspend_start;
-@@ -618,6 +631,34 @@ static int timeofday_init_device(void)
- }
- 
- device_initcall(timeofday_init_device);
-+/**
-+ * timeofday_update_cycles - Does periodic update of the cycle_last_interval
-+ *	this prevents cycle_last from wrapping in the case that
-+ *	 timeofday_periodic_hook is preempted too long to do a update in time.
-+ *
-+ * Does small interval updates to assist with timeofday_periodic_hook, since
-+ * that function is too big to be called from hard interrupt context.
-+ *
-+ * Called via update_process_times (in interrupt context)
-+ */
-+
-+void timeofday_update_cycles(void)
-+{
-+	unsigned long flags;
-+
-+	cycle_t cycle_now, cycle_delta;
-+
-+	write_seqlock_irqsave(&system_time_lock, flags);
-+
-+	/* read time source & calc time since last call: */
-+	cycle_now = read_clocksource(clock);
-+	cycle_delta = (cycle_now - cycle_last_interval) & clock->mask;
-+	cycle_last_interval = cycle_now;
-+
-+	cycle_last_index += cycle_delta;
-+
-+	write_sequnlock_irqrestore(&system_time_lock, flags);
-+}
- 
- /**
-  * timeofday_periodic_hook - Does periodic update of timekeeping values.
-@@ -652,10 +693,12 @@ static void timeofday_periodic_hook(unsi
- 	/* read time source & calc time since last call: */
- 	cycle_now = read_clocksource(clock);
- 	check_periodic_interval(cycle_now);
--	cycle_delta = (cycle_now - cycle_last) & clock->mask;
-+	cycle_delta = (cycle_now - cycle_last_interval) & clock->mask;
-+	cycle_delta += cycle_last_index;
-+	cycle_last = cycle_last_interval = cycle_now;
-+	cycle_last_index = 0;
- 
- 	delta_nsec = cyc2ns_fixed_rem(ts_interval, &cycle_delta, &remainder);
--	cycle_last = (cycle_now - cycle_delta)&clock->mask;
- 
- 	/* update system_time:  */
- 	__increment_system_time(delta_nsec);
-@@ -681,7 +724,8 @@ static void timeofday_periodic_hook(unsi
- 	next = get_next_clocksource();
- 	if (next != clock) {
- 		/* immediately set new cycle_last: */
--		cycle_last = read_clocksource(next);
-+		cycle_last = cycle_last_interval = read_clocksource(next);
-+		cycle_last_index = 0;
- 		/* update cycle_now to avoid problems in accumulation later: */
- 		cycle_now = cycle_last;
- 		/* swap clocksources: */
-@@ -728,7 +772,8 @@ static void timeofday_periodic_hook(unsi
- 		if (cycle_delta) {
- 			delta_nsec = cyc2ns_rem(&old_clock, ntp_adj,
- 						cycle_delta, &remainder);
--			cycle_last = cycle_now;
-+			cycle_last = cycle_last_interval = cycle_now;
-+			cycle_last_index = 0;
- 			__increment_system_time(delta_nsec);
- 			ntp_advance(delta_nsec);
- 		}
-@@ -810,7 +855,7 @@ void __init timeofday_init(void)
- 	clock = get_next_clocksource();
- 
- 	/* initialize cycle_last offset base: */
--	cycle_last = read_clocksource(clock);
-+	cycle_last = cycle_last_interval = read_clocksource(clock);
- 
- 	/* initialize wall_time_offset to now: */
- 	/* XXX - this should be something like ns_to_ktime() */
-Index: linux-2.6.16-rt12/include/linux/timeofday.h
-===================================================================
---- linux-2.6.16-rt12.orig/include/linux/timeofday.h	2006-03-31 20:24:38.000000000 -0500
-+++ linux-2.6.16-rt12/include/linux/timeofday.h	2006-04-03 12:13:38.000000000 -0400
-@@ -32,6 +32,7 @@ extern int do_settimeofday(struct timesp
- extern int timeofday_is_continuous(void);
- extern u32 timeofday_get_clockres(void);
- extern void timeofday_init(void);
-+extern void timeofday_update_cycles(void);
- 
- #ifndef CONFIG_IS_TICK_BASED
- #define arch_getoffset() (0)
-Index: linux-2.6.16-rt12/kernel/timer.c
-===================================================================
---- linux-2.6.16-rt12.orig/kernel/timer.c	2006-04-03 12:14:44.000000000 -0400
-+++ linux-2.6.16-rt12/kernel/timer.c	2006-04-03 12:14:54.000000000 -0400
-@@ -1015,6 +1015,7 @@ void update_process_times(int user_tick)
- 	if (rcu_pending(cpu))
- 		rcu_check_callbacks(cpu, user_tick);
- 	scheduler_tick();
-+	timeofday_update_cycles();
- #ifndef CONFIG_PREEMPT_RT
-  	run_posix_cpu_timers(p);
- #endif
+I know this is old code, but I see this little 
 
+	be32_to_cpu(*((__be32 *) (data + TPM_RET_CODE_IDX))));
+
+snippet at least twice.  It is also a bit hard to read.  Seems likt it
+would be a great candidate for a little helper function.
+
+Come to think of it, that entire if() sequence appears to be repeated
+quite a few times.
+
+>  	num_pcrs = be32_to_cpu(*((__be32 *) (data + 14)));
+> -
+>  	for (i = 0; i < num_pcrs; i++) {
+>  		memcpy(data, pcrread, sizeof(pcrread));
+>  		index = cpu_to_be32(i);
+>  		memcpy(data + 10, &index, 4);
+>  		if ((len = tpm_transmit(chip, data, sizeof(data)))
+> -		    < READ_PCR_RESULT_SIZE){
+> +		    <= TPM_ERROR_SIZE) {
+>  			dev_dbg(chip->dev, "A TPM error (%d) occurred"
+>  				" attempting to read PCR %d of %d\n",
+> -				be32_to_cpu(*((__be32 *) (data + 6))),
+> +				be32_to_cpu(*((__be32 *) (data + TPM_RET_CODE_IDX))),
+>  				i, num_pcrs);
+>  			goto out;
+>  		}
+> @@ -208,11 +724,11 @@ ssize_t tpm_show_pubek(struct device *de
+>  
+>  	memcpy(data, readpubek, sizeof(readpubek));
+>  
+> -	if ((len = tpm_transmit(chip, data, READ_PUBEK_RESULT_SIZE)) <
+> -	    READ_PUBEK_RESULT_SIZE) {
+> +	if ((len = tpm_transmit(chip, data, READ_PUBEK_RESULT_SIZE)) <=
+> +	    TPM_ERROR_SIZE) {
+>  		dev_dbg(chip->dev, "A TPM error (%d) occurred "
+> -				"attempting to read the PUBEK\n",
+> -			    be32_to_cpu(*((__be32 *) (data + 6))));
+> +			"attempting to read the PUBEK\n",
+> +			be32_to_cpu(*((__be32 *) (data + TPM_RET_CODE_IDX))));
+>  		rc = 0;
+>  		goto out;
+>  	}
+> @@ -250,29 +284,20 @@ out:
+>  }
+>  EXPORT_SYMBOL_GPL(tpm_show_pubek);
+>  
+> -#define CAP_VER_RESULT_SIZE 18
+> +#define CAP_VERSION_1_1 6
+> +#define CAP_VERSION_IDX 13
+>  static const u8 cap_version[] = {
+>  	0, 193,			/* TPM_TAG_RQU_COMMAND */
+>  	0, 0, 0, 18,		/* length */
+>  	0, 0, 0, 101,		/* TPM_ORD_GetCapability */
+> -	0, 0, 0, 6,
+> +	0, 0, 0, 0,
+>  	0, 0, 0, 0
+>  };
+>  
+> -#define CAP_MANUFACTURER_RESULT_SIZE 18
+> -static const u8 cap_manufacturer[] = {
+> -	0, 193,			/* TPM_TAG_RQU_COMMAND */
+> -	0, 0, 0, 22,		/* length */
+> -	0, 0, 0, 101,		/* TPM_ORD_GetCapability */
+> -	0, 0, 0, 5,
+> -	0, 0, 0, 4,
+> -	0, 0, 1, 3
+> -};
+> -
+>  ssize_t tpm_show_caps(struct device *dev, struct device_attribute *attr,
+>  		      char *buf)
+>  {
+> -	u8 data[sizeof(cap_manufacturer)];
+> +	u8 data[30];
+>  	ssize_t len;
+>  	char *str = buf;
+>  
+> @@ -282,26 +793,37 @@ ssize_t tpm_show_caps(struct device *dev
+>  	if (chip == NULL)
+>  		return -ENODEV;
+>  
+> -	memcpy(data, cap_manufacturer, sizeof(cap_manufacturer));
+> +	memcpy(data, tpm_cap, sizeof(tpm_cap));
+> +	data[TPM_CAP_IDX] = TPM_CAP_PROP;
+> +	data[TPM_CAP_SUBCAP_IDX] = TPM_CAP_PROP_MANUFACTURER;
+>  
+> -	if ((len = tpm_transmit(chip, data, sizeof(data))) <
+> -	    CAP_MANUFACTURER_RESULT_SIZE)
+> -		return len;
+> +	if ((len = tpm_transmit(chip, data, sizeof(data))) <=
+> +	    TPM_ERROR_SIZE) {
+> +		dev_dbg(chip->dev, "A TPM error (%d) occurred "
+> +			"attempting to determine the manufacturer\n",
+> +			be32_to_cpu(*((__be32 *) (data + TPM_RET_CODE_IDX))));
+> +		return 0;
+> +	}
+
+Since you're going through and modifying these, it might be nice to
+change them to the more normal (and readable) style of 
+
+
+	len = tpm_transmit(chip, data, sizeof(data));
+	if (len < CAP_MANUFACTURER_RESULT_SIZE)
+		return len;
+
+Note that that doesn't even increase the number of lines of code.
+
+-- Dave
 

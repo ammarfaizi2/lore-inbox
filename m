@@ -1,58 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751687AbWDCJRw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWDCJSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751687AbWDCJRw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 05:17:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751688AbWDCJRw
+	id S964773AbWDCJSV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 05:18:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751691AbWDCJSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 05:17:52 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:30398 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751687AbWDCJRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 05:17:51 -0400
-Date: Mon, 3 Apr 2006 18:19:26 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: rmk+lkml@arm.linux.org.uk, pavel@ucw.cz, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] arm's arch_local_page_offset() fix against 2.6.17-rc1
-Message-Id: <20060403181926.38cb5abe.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Mon, 3 Apr 2006 05:18:21 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:50315 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751689AbWDCJSU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 05:18:20 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: Mitchell Blank Jr <mitch@sfgoth.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc1 core_sys_select incompatible pointer types 
+In-reply-to: Your message of "Mon, 03 Apr 2006 02:09:16 MST."
+             <20060403020916.57c9eaec.akpm@osdl.org> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 03 Apr 2006 19:18:12 +1000
+Message-ID: <26766.1144055892@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes arch_local_page_offset(pfn,nid) in arm.
-This new one (added by unify_pfn_to_page patches) is obviously buggy.
+Andrew Morton (on Mon, 3 Apr 2006 02:09:16 -0700) wrote:
+>Mitchell Blank Jr <mitch@sfgoth.com> wrote:
+>>  I posted a patch to fix this and another problem with the recent select
+>>  changes a couple days ago.
+>> 
+>>  Original version, with description:
+>>    http://lkml.org/lkml/2006/3/31/308
+>>  Slightly updated:
+>>    http://lkml.org/lkml/2006/3/31/316
+>> 
+>>  I'm hoping that Andrew picked it up.
+>
+>Nope.  I queued up the below.  If anything additional is needed, please
+>resend.
+>
+>
+>diff -puN fs/select.c~select-warning-fixes fs/select.c
+>--- devel/fs/select.c~select-warning-fixes	2006-04-01 22:27:14.000000000 -0800
+>+++ devel-akpm/fs/select.c	2006-04-01 22:28:50.000000000 -0800
+>@@ -310,7 +310,7 @@ static int core_sys_select(int n, fd_set
+> 			   fd_set __user *exp, s64 *timeout)
+> {
+> 	fd_set_bits fds;
+>-	char *bits;
+>+	void *bits;
+> 	int ret, size, max_fdset;
+> 	struct fdtable *fdt;
+> 	/* Allocate small arguments on the stack to save memory and be faster */
+>@@ -341,12 +341,12 @@ static int core_sys_select(int n, fd_set
+> 		bits = kmalloc(6 * size, GFP_KERNEL);
+> 	if (!bits)
+> 		goto out_nofds;
+>-	fds.in      = (unsigned long *)  bits;
+>-	fds.out     = (unsigned long *) (bits +   size);
+>-	fds.ex      = (unsigned long *) (bits + 2*size);
+>-	fds.res_in  = (unsigned long *) (bits + 3*size);
+>-	fds.res_out = (unsigned long *) (bits + 4*size);
+>-	fds.res_ex  = (unsigned long *) (bits + 5*size);
+>+	fds.in      = bits;
+>+	fds.out     = bits +   size;
+>+	fds.ex      = bits + 2*size;
+>+	fds.res_in  = bits + 3*size;
+>+	fds.res_out = bits + 4*size;
+>+	fds.res_ex  = bits + 5*size;
+> 
+> 	if ((ret = get_fd_set(n, inp, fds.in)) ||
+> 	    (ret = get_fd_set(n, outp, fds.out)) ||
 
-This macro calculate page offset in a node.
-
-Note: about LOCAL_MAP_NR()
-comment in arm's sub-archs says...
-
- /*
-  * Given a kaddr, LOCAL_MAP_NR finds the owning node of the memory
-  * and returns the index corresponding to the appropriate page in the
-  * node's mem_map.
-  */
-
-but LOCAL_MAP_NR() is designed to be able to take both paddr and kaddr.
-In this case, paddr is better.
-
-Signed-Off-By:KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitu.com>
-
-Index: linux-2.6.17-rc1/include/asm-arm/memory.h
-===================================================================
---- linux-2.6.17-rc1.orig/include/asm-arm/memory.h
-+++ linux-2.6.17-rc1/include/asm-arm/memory.h
-@@ -188,7 +188,7 @@ static inline __deprecated void *bus_to_
-  */
- #include <linux/numa.h>
- #define arch_pfn_to_nid(pfn)	(PFN_TO_NID(pfn))
--#define arch_local_page_offset(pfn, nid) (LOCAL_MAP_NR((pfn) << PAGE_OFFSET))
-+#define arch_local_page_offset(pfn, nid) LOCAL_MAP_NR((pfn) << PAGE_SHIFT)
- 
- #define pfn_valid(pfn)						\
- 	({							\
+When did arithmetic on void pointers become acceptable?  I know that it
+is a gcc extension but AFAIK its use is discouraged.  Or am I in the
+wrong parallel universe again?
 

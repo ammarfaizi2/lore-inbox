@@ -1,176 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWDCT5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWDCT5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964865AbWDCT5M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 15:57:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWDCT5M
+	id S964863AbWDCT5d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 15:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWDCT5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 15:57:12 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:1257 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S964865AbWDCT5K (ORCPT
+	Mon, 3 Apr 2006 15:57:32 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:2793 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S964867AbWDCT5b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 15:57:10 -0400
-Date: Mon, 3 Apr 2006 21:57:05 +0200 (CEST)
+	Mon, 3 Apr 2006 15:57:31 -0400
+Date: Mon, 3 Apr 2006 21:57:26 +0200 (CEST)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
 To: johnstul@us.ibm.com, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: [PATCH 3/5] periodic clocksource update
-Message-ID: <Pine.LNX.4.64.0604032156430.4714@scrub.home>
+Subject: [PATCH 4/5] generic gettimeofday functions
+Message-ID: <Pine.LNX.4.64.0604032157100.4718@scrub.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This introduces the clocksource equivalent of do_timer().
-clocksource_update() periodically updates the clocksource state, which
-includes updating jiffies_64 and NTP state. After that we adjust the
-clocksource multiplier to reduce the error difference between NTP
-updates and clock updates.
+This provides generic functions for gettimeofday/settimeofday for archs,
+which are ready to completely switch to clocksources.
+
+ kernel/time.c  |    2 +
+ kernel/timer.c |   91 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 93 insertions(+)
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
 ---
 
- include/linux/sched.h |    1 
- kernel/timer.c        |  109 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 110 insertions(+)
-
-Index: linux-2.6-mm/include/linux/sched.h
+Index: linux-2.6-mm/kernel/time.c
 ===================================================================
---- linux-2.6-mm.orig/include/linux/sched.h	2006-04-02 17:23:15.000000000 +0200
-+++ linux-2.6-mm/include/linux/sched.h	2006-04-02 17:23:36.000000000 +0200
-@@ -1044,6 +1044,7 @@ extern void switch_uid(struct user_struc
- #include <asm/current.h>
+--- linux-2.6-mm.orig/kernel/time.c	2006-04-02 17:23:13.000000000 +0200
++++ linux-2.6-mm/kernel/time.c	2006-04-02 17:23:52.000000000 +0200
+@@ -523,6 +523,7 @@ EXPORT_SYMBOL(do_gettimeofday);
  
- extern void do_timer(struct pt_regs *);
-+extern void clocksource_update(struct pt_regs *);
  
- extern int FASTCALL(wake_up_state(struct task_struct * tsk, unsigned int state));
- extern int FASTCALL(wake_up_process(struct task_struct * tsk));
+ #else
++#ifndef CONFIG_GENERIC_TIME
+ /*
+  * Simulate gettimeofday using do_gettimeofday which only allows a timeval
+  * and therefore only yields usec accuracy
+@@ -537,6 +538,7 @@ void getnstimeofday(struct timespec *tv)
+ }
+ EXPORT_SYMBOL_GPL(getnstimeofday);
+ #endif
++#endif
+ 
+ /* Converts Gregorian date to seconds since 1970-01-01 00:00:00.
+  * Assumes input in normal date format, i.e. 1980-12-31 23:59:59
 Index: linux-2.6-mm/kernel/timer.c
 ===================================================================
---- linux-2.6-mm.orig/kernel/timer.c	2006-04-02 17:23:23.000000000 +0200
-+++ linux-2.6-mm/kernel/timer.c	2006-04-02 17:30:19.000000000 +0200
-@@ -34,6 +34,7 @@
- #include <linux/cpu.h>
- #include <linux/syscalls.h>
- #include <linux/delay.h>
-+#include <linux/clocksource.h>
- 
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -923,6 +924,114 @@ void do_timer(struct pt_regs *regs)
- 	update_times();
+--- linux-2.6-mm.orig/kernel/timer.c	2006-04-02 17:23:36.000000000 +0200
++++ linux-2.6-mm/kernel/timer.c	2006-04-02 17:23:52.000000000 +0200
+@@ -1030,6 +1030,97 @@ void clocksource_update(struct pt_regs *
+ 	softlockup_tick();
  }
  
-+/*
-+ * Periodically update the clocksource
++#ifdef CONFIG_GENERIC_TIME
++
++/**
++ * get_realtime_clock_ts - Returns the time of day in a timespec
++ * @ts:		pointer to the timespec to be set
++ *
++ * Returns the time of day in a timespec.
 + */
-+static inline void clocksource_update_tick(void)
++void getnstimeofday(struct timespec *ts)
 +{
-+	curr_clocksource->cycles_last += curr_clocksource->cycle_update;
-+	curr_clocksource->xtime_nsec += curr_clocksource->xtime_update;
-+	if (curr_clocksource->xtime_nsec >= (u64)NSEC_PER_SEC << curr_clocksource->shift) {
-+		curr_clocksource->xtime_nsec -= (u64)NSEC_PER_SEC << curr_clocksource->shift;
-+		xtime.tv_sec++;
-+		second_overflow();
-+	}
-+	jiffies_64++;
-+	curr_clocksource->ntp_error += current_tick_length();
-+	curr_clocksource->ntp_error -= curr_clocksource->xtime_update << (32 - curr_clocksource->shift);
++	unsigned long seq, nsec;
 +
-+	if (time_next_adjust) {
-+		time_adjust = time_next_adjust;
-+		time_next_adjust = 0;
-+	} else if (time_adjust)
-+		time_adjust -= adjtime_adjustment();
++	do {
++		seq = read_seqbegin(&xtime_lock);
++		ts->tv_sec = xtime.tv_sec;
++		nsec = clocksource_get_nsec_offset(curr_clocksource);
++	} while (read_seqretry(&xtime_lock, seq));
++
++	while (nsec >= NSEC_PER_SEC) {
++		nsec -= NSEC_PER_SEC;
++		ts->tv_sec++;
++	}
++	ts->tv_nsec = nsec;
 +}
 +
-+/*
-+ * If the error is already larger, we look ahead another tick,
-+ * to compensate for late or lost adjustments.
++EXPORT_SYMBOL(getnstimeofday);
++/**
++ * do_gettimeofday - Returns the time of day in a timeval
++ * @tv:		pointer to the timeval to be set
++ *
++ * NOTE: Users should be converted to using get_realtime_clock_ts()
 + */
-+static int __always_inline clocksource_bigadjust(int sign, s64 error, s64 update)
++void do_gettimeofday(struct timeval *tv)
 +{
-+	int adj = 0;
++	unsigned long seq, nsec;
 +
-+	error += current_tick_length() >> (33 - curr_clocksource->shift);
-+	error -= curr_clocksource->xtime_update >> 1;
++	do {
++		seq = read_seqbegin(&xtime_lock);
++		tv->tv_sec = xtime.tv_sec;
++		nsec = clocksource_get_nsec_offset(curr_clocksource);
++	} while (read_seqretry(&xtime_lock, seq));
 +
-+	while (1) {
-+		error >>= 1;
-+		if (likely(sign > 0 ? error <= update : error >= update))
-+			return adj;
-+		adj++;
++	while (nsec >= NSEC_PER_SEC) {
++		nsec -= NSEC_PER_SEC;
++		tv->tv_sec++;
 +	}
++	tv->tv_usec = nsec / NSEC_PER_USEC;
 +}
 +
-+#define clocksource_adjustcheck(sign, error, update, offset) ({		\
-+	int adj = sign;							\
-+	error >>= 2;							\
-+	if (unlikely(sign > 0 ? error > update : error < update)) {	\
-+		adj = clocksource_bigadjust(sign, error, update);	\
-+		update <<= adj;						\
-+		offset <<= adj;						\
-+		adj = sign << adj;					\
-+	}								\
-+	adj;								\
-+})
++EXPORT_SYMBOL(do_gettimeofday);
 +
-+/*
-+ * adjust the multiplier to reduce the error value,
-+ * this is optimized for the most common adjustments of -1,0,1,
-+ * for other values we can do a bit more work.
++/**
++ * do_settimeofday - Sets the time of day
++ * @tv:		pointer to the timespec variable containing the new time
++ *
++ * Sets the time of day to the new time and update NTP and notify hrtimers
 + */
-+static void clocksource_adjust(s64 offset)
++int do_settimeofday(struct timespec *ts)
 +{
-+	s64 error = curr_clocksource->ntp_error >> (31 - curr_clocksource->shift);
-+	s64 update = curr_clocksource->cycle_update;
-+	int adj;
++	time_t wtm_sec;
++	long wtm_nsec;
 +
-+	if (error > update) {
-+		adj = clocksource_adjustcheck(1, error, update, offset);
-+	} else if (error < -update) {
-+		update = -update;
-+		offset = -offset;
-+		adj = clocksource_adjustcheck(-1, error, update, offset);
-+	} else
-+		goto done;
++	if ((unsigned long)ts->tv_nsec >= NSEC_PER_SEC)
++		return -EINVAL;
 +
-+	curr_clocksource->mult += adj;
-+	curr_clocksource->xtime_update += update;
-+	curr_clocksource->xtime_nsec -= offset;
-+	curr_clocksource->ntp_error -= (update - offset) << (32 - curr_clocksource->shift);
-+done:
-+	xtime.tv_nsec = curr_clocksource->xtime_nsec >> curr_clocksource->shift;
++	write_seqlock_irq(&xtime_lock);
++
++	wtm_sec  = wall_to_monotonic.tv_sec + (xtime.tv_sec - ts->tv_sec);
++	wtm_nsec = wall_to_monotonic.tv_nsec + (xtime.tv_nsec - ts->tv_nsec);
++	set_normalized_timespec(&wall_to_monotonic, wtm_sec, wtm_nsec);
++
++	xtime = *ts;
++
++	curr_clocksource->ntp_error = 0;
++	curr_clocksource->cycles_last = curr_clocksource->read();
++	curr_clocksource->xtime_nsec = (u64)xtime.tv_nsec << curr_clocksource->shift;
++
++	ntp_clear();
++
++	write_sequnlock_irq(&xtime_lock);
++
++	/* signal hrtimers about time change */
++	clock_was_set();
++
++	return 0;
 +}
 +
-+void clocksource_update(struct pt_regs *regs)
-+{
-+	unsigned long ticks;
-+	u64 cycles, cycle_offset;
++EXPORT_SYMBOL(do_settimeofday);
 +
-+	cycles = curr_clocksource->read();
-+	while (1) {
-+		cycle_offset = cycles - curr_clocksource->cycles_last;
-+		cycle_offset &= curr_clocksource->mask;
-+		if (cycle_offset < curr_clocksource->cycle_update)
-+			break;
-+		clocksource_update_tick();
-+	}
-+
-+	clocksource_adjust(cycle_offset);
-+
-+	/* prevent loading jiffies before storing new jiffies_64 value. */
-+	barrier();
-+	ticks = jiffies - wall_jiffies;
-+	if (ticks) {
-+		wall_jiffies += ticks;
-+		calc_load(ticks);
-+	}
-+	softlockup_tick();
-+}
++#endif
 +
  #ifdef __ARCH_WANT_SYS_ALARM
  

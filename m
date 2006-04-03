@@ -1,83 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751776AbWDCQVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWDCQgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751776AbWDCQVw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 12:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751765AbWDCQVv
+	id S1751067AbWDCQgE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 12:36:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWDCQgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 12:21:51 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:61094 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751768AbWDCQVu (ORCPT
+	Mon, 3 Apr 2006 12:36:04 -0400
+Received: from smtp1.xs4all.be ([195.144.64.135]:35230 "EHLO smtp1.xs4all.be")
+	by vger.kernel.org with ESMTP id S1751067AbWDCQgD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 12:21:50 -0400
-Subject: [PATCH] fix MIPS PFN/page borkage (take 2)
-To: ralf@linux-mips.org
-Cc: linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Mon, 03 Apr 2006 09:21:17 -0700
-Message-Id: <20060403162117.39F1BBF7@localhost.localdomain>
+	Mon, 3 Apr 2006 12:36:03 -0400
+Date: Mon, 3 Apr 2006 18:35:41 +0200
+From: Frank Gevaerts <frank@gevaerts.be>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Frank Gevaerts <frank@gevaerts.be>, Robert Love <rlove@rlove.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: patch : hdaps on Thinkpad R52
+Message-ID: <20060403163541.GA4571@gevaerts.be>
+Mail-Followup-To: Jean Delvare <khali@linux-fr.org>,
+	Frank Gevaerts <frank@gevaerts.be>, Robert Love <rlove@rlove.org>,
+	linux-kernel@vger.kernel.org
+References: <20060314205758.GA9229@gevaerts.be> <20060328182933.4184db3f.khali@linux-fr.org> <20060328170045.GA10334@gevaerts.be> <20060401170422.cc2ff8c2.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060401170422.cc2ff8c2.khali@linux-fr.org>
+X-flash-is-evil: do not use it
+X-virus: If this mail contains a virus, feel free to send one back
+User-Agent: Mutt/1.5.9i
+X-gevaerts-MailScanner: Found to be clean
+X-MailScanner-From: fg@gevaerts.be
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Apr 01, 2006 at 05:04:22PM +0200, Jean Delvare wrote:
+> Hi Frank,
+> 
+> > # dmidecode 2.8
+> > (...)
+> > System Information
+> > 	Manufacturer: IBM
+> > 	Product Name: 1846AQG
+> > 	Version: ThinkPad H   
+> 
+> OK, so as strange as it sounds, that's really the string as stored in
+> the DMI table. How odd... You have to understand that I'm a bit
+> reluctant to adding it officially to the hdaps driver, given that it
+> clearly looks like a bogus table in your laptop. I guess that you only
+> have one laptop with this string?
 
-The "unify PFN_* macros" patch screwed up and somehow modified
-the MIPS code where it shouldn't have.  This backs those changes
-back out.
+I just had a mail from another R52 user, reporting that his system
+(also 1846AQG) also reports ThinkPad H.
 
-Also remember to include the new header in the MIPS files.
+Frank
 
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
----
-
- work-dave/arch/mips/mips-boards/generic/memory.c |    5 +++--
- work-dave/arch/mips/mips-boards/sim/sim_mem.c    |    5 +++--
- 2 files changed, 6 insertions(+), 4 deletions(-)
-
-diff -puN arch/mips/mips-boards/generic/memory.c~unify_PFN_macros arch/mips/mips-boards/generic/memory.c
---- work/arch/mips/mips-boards/generic/memory.c~unify_PFN_macros	2006-04-03 09:09:42.000000000 -0700
-+++ work-dave/arch/mips/mips-boards/generic/memory.c	2006-04-03 09:20:36.000000000 -0700
-@@ -22,6 +22,7 @@
- #include <linux/init.h>
- #include <linux/mm.h>
- #include <linux/bootmem.h>
-+#include <linux/pfn.h>
- #include <linux/string.h>
- 
- #include <asm/bootinfo.h>
-@@ -106,10 +107,10 @@ struct prom_pmemblock * __init prom_getm
- 
- 	mdesc[3].type = yamon_dontuse;
- 	mdesc[3].base = 0x00100000;
--	mdesc[3].size = CPHYSADDR(PAGE_ALIGN(&_end)) - mdesc[3].base;
-+	mdesc[3].size = CPHYSADDR(PFN_ALIGN(&_end)) - mdesc[3].base;
- 
- 	mdesc[4].type = yamon_free;
--	mdesc[4].base = CPHYSADDR(PAGE_ALIGN(&_end));
-+	mdesc[4].base = CPHYSADDR(PFN_ALIGN(&_end));
- 	mdesc[4].size = memsize - mdesc[4].base;
- 
- 	return &mdesc[0];
-diff -puN arch/mips/mips-boards/sim/sim_mem.c~unify_PFN_macros arch/mips/mips-boards/sim/sim_mem.c
---- work/arch/mips/mips-boards/sim/sim_mem.c~unify_PFN_macros	2006-04-03 09:09:42.000000000 -0700
-+++ work-dave/arch/mips/mips-boards/sim/sim_mem.c	2006-04-03 09:20:46.000000000 -0700
-@@ -17,6 +17,7 @@
-  */
- #include <linux/init.h>
- #include <linux/mm.h>
-+#include <linux/pfn.h>
- #include <linux/bootmem.h>
- 
- #include <asm/bootinfo.h>
-@@ -61,10 +62,10 @@ struct prom_pmemblock * __init prom_getm
- 
- 	mdesc[2].type = simmem_reserved;
- 	mdesc[2].base = 0x00100000;
--	mdesc[2].size = CPHYSADDR(PAGE_ALIGN(&_end)) - mdesc[2].base;
-+	mdesc[2].size = CPHYSADDR(PFN_ALIGN(&_end)) - mdesc[2].base;
- 
- 	mdesc[3].type = simmem_free;
--	mdesc[3].base = CPHYSADDR(PAGE_ALIGN(&_end));
-+	mdesc[3].base = CPHYSADDR(PFN_ALIGN(&_end));
- 	mdesc[3].size = memsize - mdesc[3].base;
- 
- 	return &mdesc[0];
-_
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

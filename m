@@ -1,76 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWDCD2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWDCDgF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751291AbWDCD2r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 23:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWDCD2r
+	id S932073AbWDCDgF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 23:36:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWDCDgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 23:28:47 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:51375 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751291AbWDCD2q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 23:28:46 -0400
-In-Reply-To: <17456.30621.579579.483287@cse.unsw.edu.au>
-To: Neil Brown <neilb@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net, nfs-admin@lists.sourceforge.net
-Subject: Re: [NFS] [PATCH] knfsd: Correct reserved reply space for read requests.
+	Sun, 2 Apr 2006 23:36:05 -0400
+Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:37760 "HELO
+	smtp112.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932073AbWDCDgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 23:36:04 -0400
+Message-ID: <44309821.1090600@triplehelix.org>
+Date: Sun, 02 Apr 2006 20:36:01 -0700
+From: Joshua Kwan <joshk@triplehelix.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Lotus Notes Release 7.0 HF85 November 04, 2005
-Message-ID: <OF8E2FDC8A.57540B9E-ON88257145.0010DA43-88257145.0012B720@us.ibm.com>
-From: Marc Eshel <eshel@almaden.ibm.com>
-Date: Sun, 2 Apr 2006 20:28:33 -0700
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0.1HF18 | February 28, 2006) at
- 04/02/2006 23:28:43,
-	Serialize complete at 04/02/2006 23:28:43
-Content-Type: text/plain; charset="US-ASCII"
+To: Alan Stern <stern@rowland.harvard.edu>
+CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Problems with USB setup with Linux 2.6.16
+References: <Pine.LNX.4.44L0.0604022155060.29134-100000@netrider.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0604022155060.29134-100000@netrider.rowland.org>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nfs-admin@lists.sourceforge.net wrote on 04/02/2006 06:17:17 PM:
+On 04/02/2006 07:09 PM, Alan Stern wrote:
+> If you were to continue looking farther down in the log, you would find
+> that ehci-hcd sees all those devices.  Those that can run at high speed
+> continue using the EHCI controller.  For those that can't, the switch is 
+> reset and they get reconnected to their UHCI controller.
 
-> On Thursday March 30, eshel@almaden.ibm.com wrote:
-> > Hi Neil
-> > Can we use this opportunity to change NFSSVC_MAXBLKSIZE from 32K to 
-64K to 
-> > match RPCSVC_MAXPAYLOAD. It makes real difference in I/O performance 
-(we 
-> > will still be saving half the space we used to allocate :).
-> > Thanks, Marc. 
-> 
-> Maybe... but why not 128K ??
- 
-Yes, It would be nice to be able to match the Linux client side that can 
-go to 1MB. 
+That makes sense - that is indeed what happens when it DOES work (i.e.
+with 2.6.15), but the fact is that they don't come back in 2.6.16. I
+will try building ehci-hcd in and see what happens.
 
-> There is certainly room to increase NFSSVC_MAXBLKSIZE, but I feel that
-> it needs to be done together with a more detailed look at consequences
-> in the network layer, particularly TCP window sizes.  I wouldn't mind
-> making a CONFIG_ tunable without that detailed look, but making it a
-> fixed change I feel less comfortable about.
+More in a bit, thanks for your help so far.
 
-Like you said it will need match more work to do it right and also not 
-waste space for all RPC request to which the maximum possible size is 
-allocated up front. But until than way not take advantage of this minor 
-change that can give us significant performance improvement. I run with 
-NFSSVC_MAXBLKSIZE set to 64K (the only change I made) and saw 10%-15% 
-improvement for NFS reads. Is there anyone out there that is looking at 
-making this improvement ?
-
-Marc.
-
-> 
-> NeilBrown
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by xPML, a groundbreaking scripting 
-language
-> that extends applications into web and mobile media. Attend the live 
-webcast
-> and join the prime developer group breaking into this new coding 
-territory!
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=110944&bid=241720&dat=121642
-> _______________________________________________
-> NFS maillist  -  NFS@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/nfs
-
+-- 
+Joshua Kwan

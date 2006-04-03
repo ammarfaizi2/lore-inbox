@@ -1,98 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751615AbWDCLVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751705AbWDCLbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751615AbWDCLVM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 07:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWDCLVM
+	id S1751705AbWDCLbU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 07:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751706AbWDCLbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 07:21:12 -0400
-Received: from lug-owl.de ([195.71.106.12]:65187 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1751266AbWDCLVL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 07:21:11 -0400
-Date: Mon, 3 Apr 2006 13:21:07 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Silence a const vs non-const warning
-Message-ID: <20060403112107.GQ1259@lug-owl.de>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MM5RgFPKyuP3gDcV"
-Content-Disposition: inline
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+	Mon, 3 Apr 2006 07:31:20 -0400
+Received: from vanessarodrigues.com ([192.139.46.150]:24036 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1750900AbWDCLbU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 07:31:20 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       bjorn_helgaas@hp.com, cotte@de.ibm.com
+Subject: [patch] do_no_pfn handler
+From: Jes Sorensen <jes@sgi.com>
+Date: 03 Apr 2006 07:32:01 -0400
+Message-ID: <yq0k6a6uc7i.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus,
 
---MM5RgFPKyuP3gDcV
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Attached is a repost of the do_no_pfn handler patch which is needed
+for the MSPEC driver and Bjorn and Carsten have expressed strong
+interest in using this interface for other things as well.
 
-Hi!
+You mentioned earlier that you preferred an alternative approach, do
+you still feel that given the additional interest from other Bjorn and
+Carsten? If this is still the case, I'd love to get some guidance as
+to what that should be.
 
-This patch silences a const vs. non-const warning issued by very
-recent GCC versions:
+I had hoped to get this in before 2.6.17 closed, but I guess I missed
+that window. If we can agree on the interface it would be ok for the
+-mm series for a while.
 
-$ vax-linux-uclibc-gcc -v 2>&1 | grep version
-gcc version 4.2.0 20060331 (experimental)
+Thanks,
+Jes
 
-$ make CROSS_COMPILE=3Dvax-linux-uclibc- ARCH=3Dvax mopboot
-[...]
-  CC      lib/string.o
-lib/string.c: In function 'memcpy':
-lib/string.c:470: warning: initialization discards qualifiers from pointer =
-target type
-[...]
+Implement do_no_pfn() for handling mapping of memory without a struct
+page backing it. This avoids creating fake page table entries for
+regions which are not backed by real memory.
 
-Signed-off-by: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Signed-off-by: Jes Sorensen <jes@sgi.com>
 
-----
+---
+ include/linux/mm.h |    1 +
+ mm/memory.c        |   51 ++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 51 insertions(+), 1 deletion(-)
 
- string.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/lib/string.c b/lib/string.c
-index b3c28a3..dd2bfdd 100644
---- a/lib/string.c
-+++ b/lib/string.c
-@@ -467,7 +467,7 @@ EXPORT_SYMBOL(memset);
- void *memcpy(void *dest, const void *src, size_t count)
- {
- 	char *tmp =3D dest;
--	char *s =3D src;
-+	const char *s =3D src;
-=20
- 	while (count--)
- 		*tmp++ =3D *s++;
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---MM5RgFPKyuP3gDcV
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFEMQUjHb1edYOZ4bsRAnGvAJ4uw9lPhoNSuLYtwliagmghB+5xPwCfT+wS
-7VAl2YQ1PHqvJvjxsWcJP64=
-=jB3a
------END PGP SIGNATURE-----
-
---MM5RgFPKyuP3gDcV--
+Index: linux-2.6/include/linux/mm.h
+===================================================================
+--- linux-2.6.orig/include/linux/mm.h
++++ linux-2.6/include/linux/mm.h
+@@ -199,6 +199,7 @@
+ 	void (*open)(struct vm_area_struct * area);
+ 	void (*close)(struct vm_area_struct * area);
+ 	struct page * (*nopage)(struct vm_area_struct * area, unsigned long address, int *type);
++	long (*nopfn)(struct vm_area_struct * area, unsigned long address, int *type);
+ 	int (*populate)(struct vm_area_struct * area, unsigned long address, unsigned long len, pgprot_t prot, unsigned long pgoff, int nonblock);
+ #ifdef CONFIG_NUMA
+ 	int (*set_policy)(struct vm_area_struct *vma, struct mempolicy *new);
+Index: linux-2.6/mm/memory.c
+===================================================================
+--- linux-2.6.orig/mm/memory.c
++++ linux-2.6/mm/memory.c
+@@ -2146,6 +2146,51 @@
+ }
+ 
+ /*
++ * do_no_pfn() tries to create a new page mapping for a page without
++ * a struct_page backing it
++ *
++ * As this is called only for pages that do not currently exist, we
++ * do not need to flush old virtual caches or the TLB.
++ *
++ * We enter with non-exclusive mmap_sem (to exclude vma changes,
++ * but allow concurrent faults), and pte mapped but not yet locked.
++ * We return with mmap_sem still held, but pte unmapped and unlocked.
++ *
++ * It is expected that the ->nopfn handler always returns the same pfn
++ * for a given virtual mapping.
++ */
++static int do_no_pfn(struct mm_struct *mm, struct vm_area_struct *vma,
++		     unsigned long address, pte_t *page_table, pmd_t *pmd,
++		     int write_access)
++{
++	spinlock_t *ptl;
++	pte_t entry;
++	long pfn;
++	int ret = VM_FAULT_MINOR;
++
++	pte_unmap(page_table);
++	BUG_ON(!(vma->vm_flags & VM_PFNMAP));
++
++	pfn = vma->vm_ops->nopfn(vma, address & PAGE_MASK, &ret);
++	if (pfn == -ENOMEM)
++		return VM_FAULT_OOM;
++	if (pfn == -EFAULT)
++		return VM_FAULT_SIGBUS;
++	if (pfn < 0)
++		return VM_FAULT_SIGBUS;
++
++	page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
++
++	entry = pfn_pte(pfn, vma->vm_page_prot);
++	if (write_access)
++		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
++	set_pte_at(mm, address, page_table, entry);
++
++	pte_unmap_unlock(page_table, ptl);
++	return ret;
++}
++
++/*
+  * Fault of a previously existing named mapping. Repopulate the pte
+  * from the encoded file_pte if possible. This enables swappable
+  * nonlinear vmas.
+@@ -2207,9 +2252,13 @@
+ 	old_entry = entry = *pte;
+ 	if (!pte_present(entry)) {
+ 		if (pte_none(entry)) {
+-			if (!vma->vm_ops || !vma->vm_ops->nopage)
++			if (!vma->vm_ops ||
++			    (!vma->vm_ops->nopage && !vma->vm_ops->nopfn))
+ 				return do_anonymous_page(mm, vma, address,
+ 					pte, pmd, write_access);
++			if (vma->vm_ops->nopfn)
++				return do_no_pfn(mm, vma, address,
++						 pte, pmd, write_access);
+ 			return do_no_page(mm, vma, address,
+ 					pte, pmd, write_access);
+ 		}

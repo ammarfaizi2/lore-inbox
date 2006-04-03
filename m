@@ -1,46 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWDCRw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWDCRx2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbWDCRw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 13:52:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbWDCRw5
+	id S964822AbWDCRx2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 13:53:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWDCRx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 13:52:57 -0400
-Received: from [69.90.147.196] ([69.90.147.196]:42456 "EHLO mail.kenati.com")
-	by vger.kernel.org with ESMTP id S1750897AbWDCRw5 (ORCPT
+	Mon, 3 Apr 2006 13:53:28 -0400
+Received: from ns.suse.de ([195.135.220.2]:21175 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964822AbWDCRx1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 13:52:57 -0400
-Message-ID: <443162B4.60500@kenati.com>
-Date: Mon, 03 Apr 2006 11:00:20 -0700
-From: Carlos Munoz <carlos@kenati.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Mon, 3 Apr 2006 13:53:27 -0400
+From: Andi Kleen <ak@suse.de>
+To: john.blackwood@ccur.com
+Subject: Re: [PATCH] arch/x86_64/kernel/process.c do_arch_prctl() ARCH_GET_GS
+Date: Mon, 3 Apr 2006 12:52:51 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, bugsy@ccur.com
+References: <443135C9.7070008@ccur.com>
+In-Reply-To: <443135C9.7070008@ccur.com>
 MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: Adrian McMenamin <adrian@mcmen.demon.co.uk>,
-       Alsa-devel <alsa-devel@lists.sourceforge.net>,
-       linux-sh <linuxsh-dev@lists.sourceforge.net>,
-       Paul Mundt <lethal@linux-sh.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Patch for AICA sound support on SEGA Dreamcast
-References: <1144075522.11511.20.camel@localhost.localdomain> <s5hvetqac7i.wl%tiwai@suse.de>
-In-Reply-To: <s5hvetqac7i.wl%tiwai@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604031252.51867.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote:
+On Monday 03 April 2006 16:48, John Blackwood wrote:
 
->Please avoid use of typedefs as much as possible.
->We (finally :-) got rid of whole typedefs recently from the ALSA core
->code.
->
->  
->
-Hi Takashi,
+> Maybe one of these approaches could be used as a fix.
 
-Just out of curiosity. What is the reason for no using typedefs ?
+Thank you. I applied approach #1
 
-Thanks,
-
-
-Carlos Munoz
+-Andi

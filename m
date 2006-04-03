@@ -1,151 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751670AbWDCJEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751674AbWDCJH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751670AbWDCJEM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 05:04:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751674AbWDCJEM
+	id S1751674AbWDCJH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 05:07:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751673AbWDCJH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 05:04:12 -0400
-Received: from baldrick.bootc.net ([83.142.228.48]:12740 "EHLO
-	baldrick.bootc.net") by vger.kernel.org with ESMTP id S1751673AbWDCJEL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 05:04:11 -0400
-In-Reply-To: <20060402185229.GA5985@kroah.com>
-References: <442FE22E.9090000@bootc.net> <20060402185229.GA5985@kroah.com>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <8FAD3D92-6562-47CC-B170-B37DC82DB661@bootc.net>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Content-Transfer-Encoding: 7bit
-From: Chris Boot <bootc@bootc.net>
-Subject: Re: Occasional APC Smart-UPS CS 500 USB UPS troubles
-Date: Mon, 3 Apr 2006 10:04:03 +0100
-To: Greg KH <greg@kroah.com>
-X-Mailer: Apple Mail (2.746.3)
+	Mon, 3 Apr 2006 05:07:27 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:15057 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S1751520AbWDCJH0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 05:07:26 -0400
+Date: Mon, 3 Apr 2006 11:07:04 +0200 (MEST)
+Message-Id: <200604030907.k33974O9020701@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: alan@lxorguk.ukuu.org.uk, mrmacman_g4@mac.com
+Subject: Re: [RESEND][2.6.15] New ATA error messages on upgrade to 2.6.15
+Cc: edmudama@gmail.com, hahn@physics.mcmaster.ca, hancockr@shaw.ca,
+       jujutama@comcast.net, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2 Apr 2006, at 19:52, Greg KH wrote:
-
-> On Sun, Apr 02, 2006 at 03:39:42PM +0100, Chris Boot wrote:
->> Hi all,
->>
->> I have an APC Smart-UPS CS 500, and most of the time it works really
->> nicely. I was stupefied to find it worked out of the box in Ubuntu
->> Dapper and pops up a nice little icon when the power goes out, etc...
->> The trouble is, that's only most of the time.
->>
->> I'm guessing the USB controller in the device is buggy or something,
->> because occasionally, when I reboot my machine with the UPS  
->> plugged in,
->> the boot hangs or produces strange errors when detecting USB devices.
->> All it takes to get the machine to boot properly is yank the USB  
->> plug on
->> the UPS, plug it in again, and reboot.
+On Sun, 02 Apr 2006 22:24:43 +0100, Alan Cox wrote:
+>Unless anyone else is seeing the same problem with the same card variant
+>or you have two cards that do it then there isn't much that can be done
+>I suspect other than assume the hardware is iffy, rightly or wrongly.
+>I'd have expected a lot more reports if it were the controller.
 >
-> What exactly are these "strange errors"?
+>(Having said that if you are reading this and your controller is a
+>Promise and does the same, please say so it might be vital to deducing a
+>pattern to problems)
 
-Well I haven't seen them for a long time now, but error messages that  
-say very little other than an error code (which, from memory, was -47  
-or something).
+I have a Beige G3 PowerMac upgraded with a 1GHz G4 CPU
+(a 7455 on a Sonnet board) and a standard (for x86) Promise
+20269 PCI controller card. The 20269+cable+disk does udma5
+just fine in a PC, but throws a few BadCRCs at bootup on
+the PowerMac, resets and drops to udma4, and then things work
+OK for me, but I don't stress it very much (no RAID).
 
->> Has anyone seen this before?
->
-> It hasn't been reported, no.
+Since the card's bios doesn't get run at powerup, I always
+suspected that the driver fails to initialize some timing thing.
 
-Well next time it happens I'll try to gather as much information as  
-possible. What sort of stuff would help diagnose the problem?
+Another possibility is the "data coherency" issue in some
+G4 CPUs which requires mappings of memory shared with other
+agents to use some additional magic in the page table.
+This issue caused file system corruption when I used
+my G4 + 20269 combo under load with 2.4 kernels, until
+I found and backported a fix from 2.6 to 2.4.28. It's
+supposed to be handled transparently by arch/{ppc,powerpc},
+but it's possible the driver is mapping things incorrectly.
+(This is just speculation.)
 
->> Not exactly kernel related I must admit, but this never seems to  
->> happen
->> on *shudder* Windows, and I wouldn't expect such severe behaviour in
->> case of trouble...
->>
->> I've seen this on all sorts of kernels starting with the early 2.6
->> series up to 2.6.16.1 and 2.6.16-ck3. My latest hang was with the  
->> latter
->> kernel, and modprobe got stuck with the following trace:
->>
->> modprobe      D ED465280     0   819    815                      
->> (NOTLB)
->> f7cfade4 f7d0366c f7d03540 ed465280 000f41fd 005b8d80 00000000  
->> f7794d1c
->>        00000292 f7cfa000 f7d03540 c02d0e0e 00000001 f7d03540 c0113f02
->> f7794d24
->>        f7794d24 f6e31c58 f9734f40 f97e2f44 c0257dc6 c02cf89f f97e2f44
->> f7794c58
->> Call Trace:
->>  [__down+202/240] __down+0xca/0xf0
->>  [default_wake_function+0/12] default_wake_function+0x0/0xc
->>  [__driver_attach+0/89] __driver_attach+0x0/0x59
->>  [__sched_text_start+7/12] __down_failed+0x7/0xc
->>  [.text.lock.dd+39/188] .text.lock.dd+0x27/0xbc
->>  [bus_for_each_dev+55/89] bus_for_each_dev+0x37/0x59
->>  [driver_attach+17/19] driver_attach+0x11/0x13
->>  [__driver_attach+0/89] __driver_attach+0x0/0x59
->>  [bus_add_driver+90/211] bus_add_driver+0x5a/0xd3
->>  [pg0+959850838/1069790208] usb_register_driver+0x50/0xae [usbcore]
->>  [pg0+949030918/1069790208] hid_init+0x6/0x3d [usbhid]
->>  [sys_init_module+4905/5197] sys_init_module+0x1329/0x144d
->>  [cp_new_stat64+237/255] cp_new_stat64+0xed/0xff
->>  [vma_prio_tree_insert+23/42] vma_prio_tree_insert+0x17/0x2a
->>  [vma_link+162/223] vma_link+0xa2/0xdf
->>  [do_mmap_pgoff+1202/1535] do_mmap_pgoff+0x4b2/0x5ff
->>  [sys_mmap2+97/144] sys_mmap2+0x61/0x90
->>  [sysenter_past_esp+84/117] sysenter_past_esp+0x54/0x75
->>
->> Let me know if you need more info!
->
-> That's really odd.  What else is happening in the sysrq-t output at  
-> this
-> moment in time?
+I can provide bootup logs and lspci dumps if you want.
 
-Well, everything else is waiting for the modprobe to finish. There's  
-rather a lot of processes and fortunately by then klogd is running so  
-I can get the logs. Shall I send over the full bootlog and sysrq-t  
-trace for that boot? It's long and there doesn't appear to be  
-anything particularly juicy other than the above trace.
-
-Actually with the above trace modprobe eventually returned, but USB  
-was unusable. I tried to rmmod it and it hung again, hard this time.  
-Again no interesting kernel messages, but the following sysrq-t trace:
-
-rmmod         D 0F203D40     0  4902   3752                     (NOTLB)
-f1068e9c f17001bc f1700090 0f203d40 000f4239 15382100 00000000 f7794d1c
-        00000282 f1068000 f1700090 c02d0e0e 00000001 f1700090  
-c0113f02 f7794d24
-        f7cfadf8 f7794c00 f972d359 f8cfad2c f779be28 c02cf89f  
-f7e3a000 f1068000
-Call Trace:
-[__down+202/240] __down+0xca/0xf0
-[default_wake_function+0/12] default_wake_function+0x0/0xc
-[__sched_text_start+7/12] __down_failed+0x7/0xc
-[pg0+959837300/1069790208] .text.lock.hub+0xc7/0xef [usbcore]
-[pg0+959838978/1069790208] usb_remove_hcd+0x7c/0xcd [usbcore]
-[pg0+959869461/1069790208] usb_hcd_pci_remove+0x15/0x68 [usbcore]
-[pci_device_remove+22/40] pci_device_remove+0x16/0x28
-[__device_release_driver+83/107] __device_release_driver+0x53/0x6b
-[driver_detach+117/165] driver_detach+0x75/0xa5
-[bus_remove_driver+87/117] bus_remove_driver+0x57/0x75
-[driver_unregister+11/19] driver_unregister+0xb/0x13
-[pci_unregister_driver+12/103] pci_unregister_driver+0xc/0x67
-[pg0+949181306/1069790208] uhci_hcd_cleanup+0xa/0x33 [uhci_hcd]
-[sys_delete_module+353/393] sys_delete_module+0x161/0x189
-[.text.lock.mlock+14/126] .text.lock.mlock+0xe/0x7e
-[do_munmap+392/418] do_munmap+0x188/0x1a2
-[sysenter_past_esp+84/117] sysenter_past_esp+0x54/0x75
-
-It appears none of my other mishaps were actually logged... :-(
-
-> Also CCing the linux-usb-devel list, as the people there can help out.
->
-> thanks,
->
-> greg k-h
-
--- 
-Chris Boot
-bootc@bootc.net
-http://www.bootc.net/
-
-
+/Mikael

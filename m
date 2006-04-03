@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWDCAZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWDCAsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932144AbWDCAZU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 20:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWDCAZU
+	id S932147AbWDCAsS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 20:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWDCAsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 20:25:20 -0400
-Received: from hera.kernel.org ([140.211.167.34]:5042 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932157AbWDCAZS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 20:25:18 -0400
-Date: Mon, 3 Apr 2006 00:25:03 GMT
-From: Eric Van Hensbergen <ericvh@hera.kernel.org>
-Message-Id: <200604030025.k330P30m023809@hera.kernel.org>
-To: akpm@osdl.org
-Subject: [PATCH] 9p: handle sget() failure
-Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net,
-       ericvh@gmail.com, hch@lst.de
+	Sun, 2 Apr 2006 20:48:17 -0400
+Received: from zydeco.triplehelix.org ([64.20.44.103]:35528 "EHLO
+	triplehelix.org") by vger.kernel.org with ESMTP id S932147AbWDCAsR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 20:48:17 -0400
+Date: Sun, 2 Apr 2006 17:48:06 -0700
+To: linux-kernel@vger.kernel.org
+Cc: linux-usb-devel@lists.sourceforge.net
+Subject: Problems with USB setup with Linux 2.6.16
+Message-ID: <20060403004806.GA25553@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org,
+	linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: joshk@triplehelix.org (Joshua Kwan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Handle a failing sget() in v9fs_get_sb().
+Hello,
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
+I've got some problems getting my USB stuff to work in 2.6.16.
 
----
+I see normal USB initialization as the machine comes up, then suddenly:
 
- fs/9p/vfs_super.c |   13 ++++++++++---
- 1 files changed, 10 insertions(+), 3 deletions(-)
+ehci_hcd 0000:00:10.4: EHCI Host Controller
+ehci_hcd 0000:00:10.4: new USB bus registered, assigned bus number 5
+ehci_hcd 0000:00:10.4: irq 17, io mem 0xf9e00000
+ehci_hcd 0000:00:10.4: USB 2.0 started, EHCI 1.00, driver 10 Dec 2004
+usb usb5: configuration #1 chosen from 1 choice
+hub 5-0:1.0: USB hub found
+usb 2-1: USB disconnect, address 2
+hub 5-0:1.0: 8 ports detected
+usb 2-2: USB disconnect, address 3
+usb 3-1: USB disconnect, address 2
+Initializing USB Mass Storage driver...
+GSI 21 sharing vector 0xD1 and IRQ 21
+usb 1-1: USB disconnect, address 2
+drivers/usb/class/usblp.c: usblp0: removed
 
-fc6530fb690a8a7b2cd9f5581debcf0f7d98074d
-diff --git a/fs/9p/vfs_super.c b/fs/9p/vfs_super.c
-index b0a0ae5..61c599b 100644
---- a/fs/9p/vfs_super.c
-+++ b/fs/9p/vfs_super.c
-@@ -127,12 +127,13 @@ static struct super_block *v9fs_get_sb(s
- 
- 	if ((newfid = v9fs_session_init(v9ses, dev_name, data)) < 0) {
- 		dprintk(DEBUG_ERROR, "problem initiating session\n");
--		kfree(v9ses);
--		return ERR_PTR(newfid);
-+		sb = ERR_PTR(newfid);
-+		goto out_free_session;
- 	}
- 
- 	sb = sget(fs_type, NULL, v9fs_set_super, v9ses);
--
-+	if (IS_ERR(sb))
-+		goto out_close_session;
- 	v9fs_fill_super(sb, v9ses, flags);
- 
- 	inode = v9fs_get_inode(sb, S_IFDIR | mode);
-@@ -185,6 +186,12 @@ static struct super_block *v9fs_get_sb(s
- 
- 	return sb;
- 
-+out_close_session:
-+	v9fs_session_close(v9ses);
-+out_free_session:
-+	kfree(v9ses);
-+	return sb;
-+
- put_back_sb:
- 	/* deactivate_super calls v9fs_kill_super which will frees the rest */
- 	up_write(&sb->s_umount);
+Everything that just got probed gets 'disconnected', udev's startup
+script times out, and cupsd will hang forever looking for my printer.
+
+Interestingly, it worked perfectly one time, and I saw a 'EHCI BIOS handoff
+failed' message way at the top of dmesg.
+
+What's going on? I assume this is EHCI's fault. I'm on a VIA K8T800 chipset,
+Asus A8V Deluxe motherboard.
+
+Please CC me on replies as I'm not subscribed to either list.
+
+Thanks!
+
 -- 
-1.2.GIT
-
+Joshua Kwan

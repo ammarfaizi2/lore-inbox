@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWDCFTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWDCFTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751402AbWDCFTE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 01:19:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWDCFTD
+	id S964836AbWDCFTu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 01:19:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWDCFTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 01:19:03 -0400
-Received: from mail27.syd.optusnet.com.au ([211.29.133.168]:953 "EHLO
-	mail27.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751402AbWDCFTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 01:19:01 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: lowmem_reserve question
-Date: Mon, 3 Apr 2006 15:18:48 +1000
-User-Agent: KMail/1.9.1
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, ck@vds.kolivas.org,
-       Andrew Morton <akpm@osdl.org>,
-       linux list <linux-kernel@vger.kernel.org>
-References: <200604021401.13331.kernel@kolivas.org> <200604031448.01391.kernel@kolivas.org> <1144041247.8198.8.camel@homer>
-In-Reply-To: <1144041247.8198.8.camel@homer>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604031518.49184.kernel@kolivas.org>
+	Mon, 3 Apr 2006 01:19:50 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:31900 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751417AbWDCFTt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 01:19:49 -0400
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Mon, 3 Apr 2006 15:18:01 +1000
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 000 of 16] knfsd: Introduction
+Message-ID: <20060403151452.1567.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 03 April 2006 15:14, Mike Galbraith wrote:
-> On Mon, 2006-04-03 at 14:48 +1000, Con Kolivas wrote:
-> > On Monday 03 April 2006 14:42, Mike Galbraith wrote:
-> > > On Mon, 2006-04-03 at 12:48 +1000, Con Kolivas wrote:
-> > > > Furthermore, now that we have the option of up to 3GB lowmem split on
-> > > > 32bit we can have a default lowmem_reserve of almost 12MB (if I'm
-> > > > reading it right) which seems very tight with only 16MB of ZONE_DMA.
-> > >
-> > > I haven't crawled around in the vm for ages, but I think that's only
-> > > 16MB if you support antique cards.
-> >
-> > That's what the ram is used for, but that is all the ZONE_DMA 32bit
-> > machines get, whether you use it for that purpose or not. My concern is
-> > that this will have all sorts of effects on the balancing since it will
-> > always appear almost full.
->
-> If that dinky 16MB zone still exists, and always appears nearly full, be
-> happy.  It used to be a real PITA.
+Groan, I missed the merge-window, but that's for new features, and this
+is bug fixes...
 
-That's not the point. If you try to do any allocation anywhere else it also 
-checks that zone, and it will find it full (always) leading to reclaim all 
-over the place for no good reason. This has nothing to do with actually 
-wanting to use that space or otherwise.
+The following 16 patches fix various bugs in the nfs server, mostly
+related to NFSv4, but there are a couple that are more generally
+applicable (005 in particular).
 
-Cheers,
-Con
+They are against 2.6.16-mm2 and should be suitable for 2.6.17-rc2.
+
+Thanks,
+NeilBrown
+
+
+ [PATCH 001 of 16] knfsd: locks: flag NFSv4-owned locks
+ [PATCH 002 of 16] knfsd: nfsd4: Wrong error handling in nfs4acl
+ [PATCH 003 of 16] knfsd: nfsd4: better nfs4acl errors
+ [PATCH 004 of 16] knfsd: nfsd4: fix acl xattr length return
+ [PATCH 005 of 16] knfsd: nfsd: oops exporting nonexistent directory
+ [PATCH 006 of 16] knfsd: nfsd: nfsd_setuser doesn't really need to modify rqstp->rq_cred.
+ [PATCH 007 of 16] knfsd: nfsd4: remove nfsd_setuser from putrootfh
+ [PATCH 008 of 16] knfsd: nfsd4: fix corruption of returned data when using 64k pages
+ [PATCH 009 of 16] knfsd: nfsd4: fix corruption on readdir encoding with 64k pages
+ [PATCH 010 of 16] knfsd: svcrpc: gss: don't call svc_take_page unnecessarily
+ [PATCH 011 of 16] knfsd: svcrpc: WARN() instead of returning an error from svc_take_page
+ [PATCH 012 of 16] knfsd: nfsd4: fix laundromat shutdown race
+ [PATCH 013 of 16] knfsd: nfsd4: nfsd4_probe_callback cleanup
+ [PATCH 014 of 16] knfsd: nfsd4: add missing rpciod_down()
+ [PATCH 015 of 16] knfsd: nfsd4: limit number of delegations handed out.
+ [PATCH 016 of 16] knfsd: nfsd4: grant delegations more frequently

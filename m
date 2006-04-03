@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751749AbWDCQLy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751767AbWDCQNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751749AbWDCQLy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 12:11:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751761AbWDCQLy
+	id S1751767AbWDCQNN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 12:13:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751765AbWDCQNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 12:11:54 -0400
-Received: from iron.cat.pdx.edu ([131.252.208.92]:22982 "EHLO iron.cat.pdx.edu")
-	by vger.kernel.org with ESMTP id S1751749AbWDCQLy (ORCPT
+	Mon, 3 Apr 2006 12:13:12 -0400
+Received: from rtr.ca ([64.26.128.89]:25269 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751756AbWDCQNK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 12:11:54 -0400
-Date: Mon, 3 Apr 2006 09:11:16 -0700 (PDT)
-From: Suzanne Wood <suzannew@cs.pdx.edu>
-Message-Id: <200604031611.k33GBGAF022737@murzim.cs.pdx.edu>
-To: dhowells@redhat.com
-Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com
-Subject: Re: [RFC] install_session_keyring
+	Mon, 3 Apr 2006 12:13:10 -0400
+Message-ID: <44314974.90907@rtr.ca>
+Date: Mon, 03 Apr 2006 12:12:36 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20060402 SeaMonkey/1.1a
+MIME-Version: 1.0
+To: Joshua Kwan <joshk@triplehelix.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Problems with USB setup with Linux 2.6.16
+References: <Pine.LNX.4.44L0.0604022155060.29134-100000@netrider.rowland.org> <44309821.1090600@triplehelix.org>
+In-Reply-To: <44309821.1090600@triplehelix.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  > From David Howells Mon Apr  3 01:46:08 2006
+Joshua Kwan wrote:
+> On 04/02/2006 07:09 PM, Alan Stern wrote:
+>> If you were to continue looking farther down in the log, you would find
+>> that ehci-hcd sees all those devices.  Those that can run at high speed
+>> continue using the EHCI controller.  For those that can't, the switch is 
+>> reset and they get reconnected to their UHCI controller.
+> 
+> That makes sense - that is indeed what happens when it DOES work (i.e.
+> with 2.6.15), but the fact is that they don't come back in 2.6.16. I
+> will try building ehci-hcd in and see what happens.
 
-  > Suzanne Wood <suzannew@cs.pdx.edu> wrote:
+Around 2.6.13, I noticed that EHCI stopped working after a suspend/resume
+(to/from RAM) cycle.  So I updated my suspend script to unload/reload EHCI
+each time, which fixed the problem for me.  My script still does that.
 
-  > > In a study of the control flow graph dumps to check that 
-  > > an rcu_assign_pointer() with a given argument type has 
-  > > preceded a call to rcu_dereference(), I've come across 
-  > > install_session_keyring() of security/keys/process_keys.c.  
-  > > We note that although no rcu_read_lock() is in place 
-  > > locally or in the function's kernel callers, siglock 
-  > > likely addresses that.  While the rcu_dereference() would 
-  > > indicate a desire for 'old' to persist, synchronize_rcu() 
-  > > is called prior to key_put(old) which "disposes of 
-  > > reference to a key."  The order of events with a use of 
-  > > the copy of the pointer following synchronize_rcu() is 
-  > > what I question.
+Dunno if it's fixed in mainline or not.
+Does unloading/reloading EHCI help you?
 
-  > Are you simply suggesting that the rcu_dereference() in:
+   rmmod ehci_hcd ; modprobe ehci_hcd
 
-  > 	/* install the keyring */
-  >        	spin_lock_irqsave(&tsk->sighand->siglock, flags);
-  >        	old = rcu_dereference(tsk->signal->session_keyring);
-  >        	rcu_assign_pointer(tsk->signal->session_keyring, keyring);
-  >        	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
-
-  > is unnecessary?
-
-Since RCU is applicable in read intensive environments and I
-look for rcu_dereference() on the read side to be paired with
-rcu_assign_pointer() on the update side, I wonder if key_put()
-might be redundant or risky after synchronize_rcu(), because 
-key_put() opens with if(key) and employs atomic_dec_and_test(&key->usage)) 
-before schedule_work(&key_cleanup_task).  If the memory referenced 
-by old has already been reclaimed which appears is made possible by 
-synchronize_rcu(), it seems that there is a contention here.
-
-Yes, so I guess you mean to get rid of 'old' altogether and the three
-lines that refer to it.  But I think the original intent was to have
-the former session keyring persist to some extent.
-Thanks.
-Suzanne 
-
-  > If so, I think you are right since the pointer is only changed with the
-  > siglock held[*], and so modify/modify conflict isn't a problem and doesn't
-  > need memory barriers.
-
-  > [*] Apart from during the exit() cleanup, when I don't think this should be a
-  > problem anyway.
-
-  > David
-
+Cheers

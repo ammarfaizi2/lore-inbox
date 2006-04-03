@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751758AbWDCP50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751759AbWDCQGj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751758AbWDCP50 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 11:57:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751759AbWDCP50
+	id S1751759AbWDCQGj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 12:06:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751760AbWDCQGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 11:57:26 -0400
-Received: from mfc.musees-franchecomte.com ([83.143.18.224]:38282 "EHLO
-	mfc.musees-franchecomte.com") by vger.kernel.org with ESMTP
-	id S1751758AbWDCP5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 11:57:25 -0400
-Subject: how to use v4l / em2820 | em2840
-From: Rakotomandimby Mihamina 
-	<mihamina.rakotomandimby@etu.univ-orleans.fr>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Mon, 03 Apr 2006 18:00:01 +0200
-Message-Id: <1144080001.5919.37.camel@localhost.localdomain>
+	Mon, 3 Apr 2006 12:06:39 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:51600 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751759AbWDCQGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 12:06:38 -0400
+Date: Mon, 3 Apr 2006 11:07:34 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: torvalds@osdl.org
+Cc: Blaisorblade <blaisorblade@yahoo.it>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH] UML - TLS fixlets
+Message-ID: <20060403150734.GA4081@ccure.user-mode-linux.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-3.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I just bougth a Pinnacle Dazzle DV90 USB device:
-http://www.mwave.com/mwave/skusearch.hmx?SCriteria=3491061&CartID=done&nextloc=
-It is known to work on Linux:
-http://www.linuxhq.com/kernel/v2.6/15/Documentation/video4linux/CARDLIST.em28xx
+Two small TLS fixes -
 
-The problem... I did not find any documentation about how to use the
-module, to acquire some video + audio with this device.
-- I should load em2820
-- What others modules have I got to load too?
-- Then what command line to perform to save the capture to a file?
-	( what is the /dev/foo/bar? ....)
+arch/um/os-Linux/sys-i386/tls.c uses errno and -E* so it should include 
+    errno.h
+__setup_host_supports_tls returns 1, but as an initcall, it should return 0
 
-I dont use any particular distribution for the moment, but ask to all
-the MLs.
-Thank you for your help.
-The reply-to is set to me first but I will merge all the information
-into a tutorial if I get ver it.
--- 
-A powerfull GroupWare, CMS, CRM, ECM: CPS (Open Source & GPL).
-Opengroupware, SPIP, Plone, PhpBB, JetSpeed... are good: CPS is better.
-http://www.cps-project.org for downloads & documentation.
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
+Index: linux-2.6.16/arch/um/os-Linux/sys-i386/tls.c
+===================================================================
+--- linux-2.6.16.orig/arch/um/os-Linux/sys-i386/tls.c	2006-04-03 09:39:23.000000000 -0400
++++ linux-2.6.16/arch/um/os-Linux/sys-i386/tls.c	2006-04-03 09:39:42.000000000 -0400
+@@ -1,3 +1,4 @@
++#include <errno.h>
+ #include <linux/unistd.h>
+ #include "sysdep/tls.h"
+ #include "user_util.h"
+Index: linux-2.6.16/arch/um/sys-i386/tls.c
+===================================================================
+--- linux-2.6.16.orig/arch/um/sys-i386/tls.c	2006-04-03 09:39:15.000000000 -0400
++++ linux-2.6.16/arch/um/sys-i386/tls.c	2006-04-03 09:39:43.000000000 -0400
+@@ -378,7 +378,7 @@ static int __init __setup_host_supports_
+ 	} else
+ 		printk(KERN_ERR "  Host TLS support NOT detected! "
+ 				"TLS support inside UML will not work\n");
+-	return 1;
++	return 0;
+ }
+ 
+ __initcall(__setup_host_supports_tls);

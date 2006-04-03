@@ -1,47 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751677AbWDCJIO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751679AbWDCJKG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751677AbWDCJIO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 05:08:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751679AbWDCJIO
+	id S1751679AbWDCJKG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 05:10:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751681AbWDCJKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 05:08:14 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:9346 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S1751673AbWDCJIM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 05:08:12 -0400
-Date: Mon, 3 Apr 2006 11:08:11 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.14.6 BUG: spinlock cpu recursion on CPU#1, kswapd0/185
-Message-ID: <20060403090811.GA27736@janus>
+	Mon, 3 Apr 2006 05:10:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54755 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751679AbWDCJKF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 05:10:05 -0400
+Date: Mon, 3 Apr 2006 02:09:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mitchell Blank Jr <mitch@sfgoth.com>
+Cc: kaos@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc1 core_sys_select incompatible pointer types
+Message-Id: <20060403020916.57c9eaec.akpm@osdl.org>
+In-Reply-To: <20060403084410.GD3157@gaz.sfgoth.com>
+References: <25355.1144052926@kao2.melbourne.sgi.com>
+	<20060403084410.GD3157@gaz.sfgoth.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cannot reproduce but the stack trace might be useful:
+Mitchell Blank Jr <mitch@sfgoth.com> wrote:
+>
+>  Keith Owens wrote:
+>  > 2.6.17-rc1, ia64, gcc 3.3.3
+>  > 
+>  > fs/select.c: In function `core_sys_select':
+>  > fs/select.c:339: warning: assignment from incompatible pointer type
+>  > fs/select.c:376: warning: comparison of distinct pointer types lacks a cast
+> 
+>  I posted a patch to fix this and another problem with the recent select
+>  changes a couple days ago.
+> 
+>  Original version, with description:
+>    http://lkml.org/lkml/2006/3/31/308
+>  Slightly updated:
+>    http://lkml.org/lkml/2006/3/31/316
+> 
+>  I'm hoping that Andrew picked it up.
 
-kernel: BUG: spinlock cpu recursion on CPU#1, kswapd0/185
-kernel:  lock: cedef1d0, .magic: dead4ead, .owner: lk166/2501, .owner_cpu: 1
-kernel:  [dump_stack+23/32] dump_stack+0x17/0x20
-kernel:  [spin_bug+134/144] spin_bug+0x86/0x90
-kernel:  [_raw_spin_lock+85/128] _raw_spin_lock+0x55/0x80
-kernel:  [_spin_lock+9/16] _spin_lock+0x9/0x10
-kernel:  [page_check_address+27/128] page_check_address+0x1b/0x80
-kernel:  [page_referenced_one+71/208] page_referenced_one+0x47/0xd0
-kernel:  [page_referenced_file+128/192] page_referenced_file+0x80/0xc0
-kernel:  [page_referenced+125/144] page_referenced+0x7d/0x90
-kernel:  [shrink_list+200/1024] shrink_list+0xc8/0x400
-kernel:  [shrink_cache+262/672] shrink_cache+0x106/0x2a0
-kernel:  [shrink_zone+197/256] shrink_zone+0xc5/0x100
-kernel:  [balance_pgdat+598/832] balance_pgdat+0x256/0x340
-kernel:  [kswapd+220/272] kswapd+0xdc/0x110
-kernel:  [kernel_thread_helper+5/12] kernel_thread_helper+0x5/0xc
+Nope.  I queued up the below.  If anything additional is needed, please
+resend.
 
-gcc version 3.3.5 (Debian 1:3.3.5-13)
 
--- 
-Frank
+diff -puN fs/select.c~select-warning-fixes fs/select.c
+--- devel/fs/select.c~select-warning-fixes	2006-04-01 22:27:14.000000000 -0800
++++ devel-akpm/fs/select.c	2006-04-01 22:28:50.000000000 -0800
+@@ -310,7 +310,7 @@ static int core_sys_select(int n, fd_set
+ 			   fd_set __user *exp, s64 *timeout)
+ {
+ 	fd_set_bits fds;
+-	char *bits;
++	void *bits;
+ 	int ret, size, max_fdset;
+ 	struct fdtable *fdt;
+ 	/* Allocate small arguments on the stack to save memory and be faster */
+@@ -341,12 +341,12 @@ static int core_sys_select(int n, fd_set
+ 		bits = kmalloc(6 * size, GFP_KERNEL);
+ 	if (!bits)
+ 		goto out_nofds;
+-	fds.in      = (unsigned long *)  bits;
+-	fds.out     = (unsigned long *) (bits +   size);
+-	fds.ex      = (unsigned long *) (bits + 2*size);
+-	fds.res_in  = (unsigned long *) (bits + 3*size);
+-	fds.res_out = (unsigned long *) (bits + 4*size);
+-	fds.res_ex  = (unsigned long *) (bits + 5*size);
++	fds.in      = bits;
++	fds.out     = bits +   size;
++	fds.ex      = bits + 2*size;
++	fds.res_in  = bits + 3*size;
++	fds.res_out = bits + 4*size;
++	fds.res_ex  = bits + 5*size;
+ 
+ 	if ((ret = get_fd_set(n, inp, fds.in)) ||
+ 	    (ret = get_fd_set(n, outp, fds.out)) ||
+_
+

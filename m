@@ -1,58 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWDCIEz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWDCIOs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932355AbWDCIEz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 04:04:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWDCIEz
+	id S932367AbWDCIOs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 04:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWDCIOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 04:04:55 -0400
-Received: from cicero0.cybercity.dk ([212.242.40.52]:14288 "EHLO
-	cicero0.cybercity.dk") by vger.kernel.org with ESMTP
-	id S932355AbWDCIEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 04:04:55 -0400
-Date: Mon, 3 Apr 2006 09:04:46 +0100 (BST)
-From: Thomas Horsten <thomas@horsten.com>
-X-X-Sender: thomas@jehova.dsm.dk
+	Mon, 3 Apr 2006 04:14:48 -0400
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:55198 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S932367AbWDCIOs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 04:14:48 -0400
+From: Felix Schmitt <fschmitt@stanford.edu>
 To: linux-kernel@vger.kernel.org
-Subject: [2.6.16.1 BUG?] EXT3 error on encrypted volume on top of RAID5
-Message-ID: <Pine.LNX.4.40.0604030848420.23478-100000@jehova.dsm.dk>
+Subject: Minor(maybe even impossible) request: WPA with Hermes?
+Date: Mon, 3 Apr 2006 01:15:00 -0700
+User-Agent: KMail/1.8.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200604030115.00344.fschmitt@stanford.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I set up a new file server with 4*250GB SATA disks, on top of that I run
-RAID5 (and RAID1 for the boot partition).
+Hi all,
+I would like to run WPA (not WPA2) with my Lucent WaveLan/IEEE (pcmcia) 
+(11mbit/s), but the linux wireless extension seems only to be implemented in 
+the atmel (2.6.16 kernel), the ipw2100 and the ipw2200 wireless drivers. I 
+conclude that from wpa_supplement (using the wext driver) complaining:
+ioctl[SIOCSIWENCODEEXT]: Operation not supported
+[...]
+I am not that good at this stuff, but
+- Since the WaveLan/IEEE is 802.11b compatible, it should be able to handle 
+WPA (which is --- roughly speaking --- a spiced-up WEP, unlike WPA2 which is 
+802.11i) ?
+- Is there a WPA capability for the Hermes-based cards planned in the future? 
+(there are drivers from Agere, version 7.22, but they are horribly old with 
+outdated kernel patches. I would rather like to use the linux wireless 
+extensions...)
 
-There is a RAID5 volume of 332GB, on top of that I created an encrypted
-volume with cryptsetup like this:
+Thanks very much for your help!
 
-cryptsetup create vol1s /dev/md4 -h sha256 -y
+----++== Please CC me on the answer. ==++----
 
-On the encrypted volume I have a standard EXT3 file system. Everything
-seems okay. I then copied a lot of files from Windows with Samba, and
-suddenly this error occurred about halfway through copying a large file
-(about 8GB):
+Felix
 
-Apr  3 01:28:54 localhost kernel: EXT3-fs error (device dm-0): ext3_readdir: bad entry in directory #6275075: rec_len %% 4 != 0 - offset=0, inode=1896112483, rec_len=55802, name_len=122
-Apr  3 01:28:55 localhost kernel: Aborting journal on device dm-0.
-Apr  3 01:28:55 localhost kernel: ext3_abort called.
-Apr  3 01:28:55 localhost kernel: EXT3-fs error (device dm-0): ext3_journal_start_sb: Detected aborted journal
-Apr  3 01:28:55 localhost kernel: Remounting filesystem read-only
-Apr  3 01:28:56 localhost kernel: __journal_remove_journal_head: freeing b_frozen_data
-Apr  3 01:28:56 localhost kernel: __journal_remove_journal_head: freeing b_frozen_data
-Apr  3 01:28:56 localhost kernel: __journal_remove_journal_head: freeing b_committed_data
-Apr  3 01:28:56 localhost kernel: __journal_remove_journal_head: freeing b_frozen_data
-Apr  3 01:31:07 localhost kernel: EXT3-fs error (device dm-0): ext3_readdir: bad entry in directory #6275075: rec_len %% 4 != 0 - offset=0, inode=1896112483, rec_len=55802, name_len=122
+======== HW-info ========
+=======================
+gentoo, linux-2.6.15-gentoo-r1, sony vaio srx-pcg41p, 256mb, P3 800MHz
 
-Then in the morning I unmounted the file system and ran fsck on it. There wasn't any errors found, but I got this in the syslog:
+~ # cardctl ident
+Socket 0:
+  no product info available
+Socket 1:
+  product info: "Lucent Technologies", "WaveLAN/IEEE", "Version 01.01", ""
+  manfid: 0x0156, 0x0002
+  function: 6 (network)
 
-Apr  3 08:20:46 localhost kernel: __journal_remove_journal_head: freeing b_committed_data
-Apr  3 08:20:46 localhost kernel: __journal_remove_journal_head: freeing b_frozen_data
-Apr  3 08:20:46 localhost last message repeated 2 times
+wireless # /etc/init.d/net.eth1 start
+ * Starting eth1
+ *   Starting wpa_supplicant on eth1 ...
+ioctl[SIOCSIWAUTH]: Operation not supported
+WEXT auth param 7 value 0x1 - ioctl[SIOCSIWENCODEEXT]: Operation not supported
+ioctl[SIOCSIWENCODE]: Invalid argument
+ioctl[SIOCSIWENCODEEXT]: Operation not supported
+ioctl[SIOCSIWENCODE]: Invalid argument
+ioctl[SIOCSIWENCODEEXT]: Operation not supported
+ioctl[SIOCSIWENCODE]: Invalid argument
+ioctl[SIOCSIWENCODEEXT]: Operation not supported
+ioctl[SIOCSIWENCODE]: Invalid argument
+ioctl[SIOCSIWAUTH]: Operation not supported
+WEXT auth param 4 value 0x0 - ioctl[SIOCSIWAUTH]: Operation not supported
+ *     timed out5 value 0x1 -
 
-After running fsck, I mounted it back online and copied the big file again, this time there was no error and no messages in the syslog.
-
-If more info is needed, please CC me at thomas dot horsten, append '@' and gmail.com.
-
-Thomas
-
+~ $ lsmod
+Module                  Size  Used by
+orinoco_tmd             3680  0
+orinoco_plx             4736  0
+orinoco_pci             4896  0
+snd_pcm_oss            41536  0
+ieee80211_crypt_wep     3520  0
+ieee80211_crypt_tkip     8768  0
+ieee80211_crypt_ccmp     5664  0
+ieee80211              26120  0
+ieee80211_crypt         4288  4 
+ieee80211_crypt_wep,ieee80211_crypt_tkip,ieee80211_crypt_ccmp,ieee80211
+snd_mixer_oss          14144  1 snd_pcm_oss
+vfat                    9280  1
+fat                    39900  1 vfat
+sd_mod                 11760  0
+usbhid                 25892  0
+usb_storage            29572  0
+scsi_mod               75688  2 sd_mod,usb_storage
+orinoco_cs             14632  1
+pcmcia                 28876  5 orinoco_cs
+firmware_class          7264  1 pcmcia
+crc32                   3872  3 
+ieee80211_crypt_wep,ieee80211_crypt_tkip,pcmcia
+orinoco                34036  4 orinoco_tmd,orinoco_plx,orinoco_pci,orinoco_cs
+hermes                  6080  5 
+orinoco_tmd,orinoco_plx,orinoco_pci,orinoco_cs,orinoco
+e100                   30884  0
+slip                    8384  0
+ppp_async               7840  0
+ppp_generic            20884  1 ppp_async
+slhc                    5504  2 slip,ppp_generic
+crc_ccitt               1792  1 ppp_async
+snd_intel8x0m          12908  1
+uhci_hcd               26704  0
+ehci_hcd               24680  0
+usbcore               101604  5 usbhid,usb_storage,uhci_hcd,ehci_hcd
+snd_intel8x0           25404  1
+snd_ac97_codec         79936  2 snd_intel8x0m,snd_intel8x0
+snd_ac97_bus            1856  1 snd_ac97_codec
+snd_pcm                67560  4 
+snd_pcm_oss,snd_intel8x0m,snd_intel8x0,snd_ac97_codec
+snd_timer              17956  1 snd_pcm
+snd                    39940  11 
+snd_pcm_oss,snd_mixer_oss,snd_intel8x0m,snd_intel8x0,snd_ac97_codec,snd_pcm,snd_timer
+soundcore               6656  1 snd
+snd_page_alloc          7944  3 snd_intel8x0m,snd_intel8x0,snd_pcm
+yenta_socket           21996  7
+rsrc_nonstatic         10336  1 yenta_socket
+pcmcia_core            32368  3 pcmcia,yenta_socket,rsrc_nonstatic
+===== end HW-info ========
+=======================

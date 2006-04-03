@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbWDCXCd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbWDCXEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964914AbWDCXCd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 19:02:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964917AbWDCXCd
+	id S964916AbWDCXEK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 19:04:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbWDCXEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 19:02:33 -0400
-Received: from mail.gmx.net ([213.165.64.20]:30948 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964914AbWDCXCc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 19:02:32 -0400
-X-Authenticated: #31060655
-Message-ID: <4431A986.1070402@gmx.net>
-Date: Tue, 04 Apr 2006 01:02:30 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.12) Gecko/20050921
-X-Accept-Language: de, en
+	Mon, 3 Apr 2006 19:04:10 -0400
+Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:12542 "EHLO
+	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S964916AbWDCXEJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 19:04:09 -0400
+Message-ID: <4431A9E7.40406@bigpond.net.au>
+Date: Tue, 04 Apr 2006 09:04:07 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix unneeded rebuilds in drivers/net/chelsio after moving
- source tree
-References: <442BC74B.7060305@gmx.net> <20060330202208.GA14016@mars.ravnborg.org> <442C4469.1040408@gmx.net> <20060331152226.GB8992@mars.ravnborg.org> <4431A338.3000709@gmx.net>
-In-Reply-To: <4431A338.3000709@gmx.net>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+To: Al Boldi <a1426z@gawab.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
+References: <200604031459.51542.a1426z@gawab.com>
+In-Reply-To: <200604031459.51542.a1426z@gawab.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 3 Apr 2006 23:04:07 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes some uneeded rebuilds under drivers/net/chelsio after moving
-the source tree. The makefiles used $(TOPDIR) for include paths, which 
-is unnecessary. Changed to use relative paths.
+Al Boldi wrote:
+> Peter Williams wrote:
+>> Peter Williams wrote:
+>>> Peter Williams wrote:
+>> Now available for 2.6.16 at:
+> 
+> Thanks a lot!
+> 
+>>>> You can select a default scheduler at kernel build time.  If you wish
+>>>> to boot with a scheduler other than the default it can be selected at
+>>>> boot time by adding:
+>>>>
+>>>> cpusched=<scheduler>
+> 
+> Can this be made runtime selectable/loadable, akin to iosched?
 
-Compile tested, produces byte-identical code to the previous makefiles.
+See <https://sourceforge.net/projects/dynsched>.  It's an extension to 
+PlugSched that allows schedulers to be changed at run time.
 
-Signed-off-by: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+> 
+>>>> Control parameters for the scheduler can be read/set via files in:
+>>>>
+>>>> /sys/cpusched/<scheduler>/
+> 
+> The default values for spa make it really easy to lock up the system.
 
+Which one of the SPA schedulers and under what conditions?  I've been 
+mucking around with these and may have broken something.  If so I'd like 
+to fix it.
+
+> Is there a module to autotune these values according to cpu/mem/ctxt 
+> performance?
+> 
+> Also, different schedulers per cpu could be rather useful.
+
+I think that would be dangerous.  However, different schedulers per 
+cpuset might make sense but it involve a fair bit of work.
+
+Peter
 -- 
-http://www.hailfinger.org/
+Peter Williams                                   pwil3058@bigpond.net.au
 
---- linux-2.6.16/drivers/net/chelsio/Makefile	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6.16-fixed/drivers/net/chelsio/Makefile	2006-04-04 00:45:21.000000000 +0200
-@@ -4,7 +4,7 @@
- 
- obj-$(CONFIG_CHELSIO_T1) += cxgb.o
- 
--EXTRA_CFLAGS += -I$(TOPDIR)/drivers/net/chelsio $(DEBUG_FLAGS)
-+EXTRA_CFLAGS += -Idrivers/net/chelsio $(DEBUG_FLAGS)
- 
- 
- cxgb-objs := cxgb2.o espi.o pm3393.o sge.o subr.o mv88x201x.o
-
-
-
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

@@ -1,73 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWDCB0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWDCB4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964805AbWDCB0A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 21:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWDCB0A
+	id S964806AbWDCB4J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 21:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbWDCB4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 21:26:00 -0400
-Received: from cantor.suse.de ([195.135.220.2]:15774 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964805AbWDCB0A (ORCPT
+	Sun, 2 Apr 2006 21:56:09 -0400
+Received: from relay4.usu.ru ([194.226.235.39]:31142 "EHLO relay4.usu.ru")
+	by vger.kernel.org with ESMTP id S964806AbWDCB4I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 21:26:00 -0400
-From: Neil Brown <neilb@suse.de>
-To: Nathan Scott <nathans@sgi.com>
-Date: Mon, 3 Apr 2006 11:24:04 +1000
+	Sun, 2 Apr 2006 21:56:08 -0400
+Message-ID: <44308100.6080009@ums.usu.ru>
+Date: Mon, 03 Apr 2006 07:57:20 +0600
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix console utf8 composing (F) (fwd)
+References: <Pine.LNX.4.61.0604022005290.12603@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0604022005290.12603@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17456.31028.173800.615259@cse.unsw.edu.au>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, drepper@redhat.com,
-       mtk-manpages@gmx.net, nickpiggin@yahoo.com.au
-Subject: Re: [patch 1/1] sys_sync_file_range()
-In-Reply-To: message from Nathan Scott on Friday March 31
-References: <200603300741.k2U7fQLe002202@shell0.pdx.osdl.net>
-	<17451.36790.450410.79788@cse.unsw.edu.au>
-	<20060331071736.K921158@wobbly.melbourne.sgi.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.34.0.14; VDF: 6.34.0.129; host: usu2.usu.ru)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday March 31, nathans@sgi.com wrote:
-> On Thu, Mar 30, 2006 at 06:58:46PM +1100, Neil Brown wrote:
-> > On Wednesday March 29, akpm@osdl.org wrote:
-> > > Remove the recently-added LINUX_FADV_ASYNC_WRITE and LINUX_FADV_WRITE_WAIT
-> > > fadvise() additions, do it in a new sys_sync_file_range() syscall
-> > > instead. 
-> > 
-> > Hmmm... any chance this could be split into a sys_sync_file_range and
-> > a vfs_sync_file_range which takes a 'struct file*' and does less (or
-> > no) sanity checking, so I can call it from nfsd?
-> > 
-> > Currently I implement COMMIT (which has a range) with a by messing
-> > around with filemap_fdatawrite and filemap_fdatawait (ignoring the
-> > range) and I'd rather than a vfs helper.
+Jan Engelhardt wrote:
+> Hi,
 > 
-> I'm not 100% sure, but it looks like the PF_SYNCWRITE process flag
-> should be set on the nfsd's while they're doing that, which doesn't
-> seem to be happening atm.  Looks like a couple of the IO schedulers
-> will make use of that knowledge now.  All the more reason for a VFS
-> helper here I guess. ;)
+> Can you sign this off?
 
-PF_SYNCWRITE? What's that???
+Yes, please assume this line on all utf8 composing patches I submitted to LKML:
 
-(find | xargs grep ...)
-Oh.  The block device schedulers like to know if a request is sync or
-async (and all reads are assumed to be sync) - which is reasonable -
-and so have a per-task flag to tell them - which isn't (IMO).
+Signed-off-by: Alexander E. Patrakov <patrakov@ums.usu.ru>
 
-md/raid (particularly raid5) often does the write from a different
-process than generated the original request, so that will break
-completely. 
+But this line already exists in http://lkml.org/lkml/2006/3/20/571 :)
 
-What is wrong with a bio flag I wonder....
-
-Hopefully this will get wrapped up in a do_X helper so nfsd won't need
-to know about it.
-
-Thanks for the heads-up.
-
-NeilBrown
-
+-- 
+Alexander E. Patrakov

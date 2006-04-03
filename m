@@ -1,207 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751654AbWDCPDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751671AbWDCPQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751654AbWDCPDz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 11:03:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751646AbWDCPDy
+	id S1751671AbWDCPQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 11:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751693AbWDCPQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 11:03:54 -0400
-Received: from mba.ocn.ne.jp ([210.190.142.172]:28895 "EHLO smtp.mba.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S1751641AbWDCPDy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 11:03:54 -0400
-Date: Tue, 04 Apr 2006 00:04:07 +0900 (JST)
-Message-Id: <20060404.000407.41198995.anemo@mba.ocn.ne.jp>
-To: linux-kernel@vger.kernel.org
-Cc: linux-crypto@vger.kernel.org, herbert@gondor.apana.org.au, akpm@osdl.org
-Subject: Re: [PATCH] crypto: add alignment handling to digest layer
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-In-Reply-To: <20060309.123608.08076793.nemoto@toshiba-tops.co.jp>
-References: <20060309.123608.08076793.nemoto@toshiba-tops.co.jp>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Apr 2006 11:16:28 -0400
+Received: from orfeus.profiwh.com ([82.100.20.117]:61964 "EHLO
+	orfeus.profiwh.com") by vger.kernel.org with ESMTP id S1751669AbWDCPQ1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 11:16:27 -0400
+Message-ID: <44313C43.7070701@gmail.com>
+Date: Mon, 03 Apr 2006 17:15:56 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       sds@tycho.nsa.gov, jmorris@namei.org, selinux@tycho.nsa.gov
+Subject: Re: 2.6.17-rc1 compile failure
+References: <200604030521.k335LRu4018913@laptop11.inf.utfsm.cl>
+In-Reply-To: <200604030521.k335LRu4018913@laptop11.inf.utfsm.cl>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/mixed;
+ boundary="------------040607050101050902060705"
+X-SpamReason: {}-{0,00}-{0,00}-{0,00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ping.  This patch can be applied cleanly to 2.6.17-rc1.
+This is a multi-part message in MIME format.
+--------------040607050101050902060705
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Some hash modules load/store data words directly.  The digest layer
-should pass properly aligned buffer to update()/final() method.  This
-patch also add cra_alignmask to some hash modules.
+Horst von Brand napsal(a):
+> It ends with:
+> 
+>   CC      security/selinux/xfrm.o
+>   security/selinux/xfrm.c: In function â??selinux_socket_getpeer_dgramâ??:
+>   security/selinux/xfrm.c:284: error: â??struct sec_pathâ?? has no member named â??xâ??
+>   security/selinux/xfrm.c: In function â??selinux_xfrm_sock_rcv_skbâ??:
+>   security/selinux/xfrm.c:317: error: â??struct sec_pathâ?? has no member named â??xâ??
+>   make[2]: *** [security/selinux/xfrm.o] Error 1
+Could you test attached patch?
 
-Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+thanks,
+- --
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
- digest.c      |   42 +++++++++++++++++++++++++++---------------
- michael_mic.c |    1 +
- sha1.c        |    1 +
- sha256.c      |    1 +
- sha512.c      |    2 ++
- tgr192.c      |    3 +++
- 6 files changed, 35 insertions(+), 15 deletions(-)
+iD8DBQFEMTxDMsxVwznUen4RAgLCAJ9WEAU018cecP1emeMZKfCTrttVeQCgric6
+g9Cq+yh5IvmVJGHqlVsIEXs=
+=9MLb
+-----END PGP SIGNATURE-----
 
-diff --git a/crypto/digest.c b/crypto/digest.c
-index d9b6ac9..062d0a5 100644
---- a/crypto/digest.c
-+++ b/crypto/digest.c
-@@ -27,6 +27,7 @@ static void update(struct crypto_tfm *tf
-                    struct scatterlist *sg, unsigned int nsg)
- {
- 	unsigned int i;
-+	unsigned int alignmask = crypto_tfm_alg_alignmask(tfm);
+--------------040607050101050902060705
+Content-Type: text/plain;
+ name="selinux-xfrm.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="selinux-xfrm.txt"
+
+SELinux-xfrm-compilation-fix
+
+sec_path struct no longer contains sec_decap_state struct, but only
+xfrm_state.
+
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+
+---
+commit 87b9e5f728ab1f5f805f1db9d96d569b1218b611
+tree 60d080432a06f8bdddb8665a89dd825a33b2b01f
+parent 9e4a4f43bab1268fc459295a673d00470d5e150d
+author Jiri Slaby <ku@bellona.localdomain> Mon, 03 Apr 2006 17:11:07 +0159
+committer Jiri Slaby <ku@bellona.localdomain> Mon, 03 Apr 2006 17:11:07 +0159
+
+ security/selinux/xfrm.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+index dfab6c8..abe99d8 100644
+--- a/security/selinux/xfrm.c
++++ b/security/selinux/xfrm.c
+@@ -281,7 +281,7 @@ u32 selinux_socket_getpeer_dgram(struct 
+ 		int i;
  
- 	for (i = 0; i < nsg; i++) {
+ 		for (i = sp->len-1; i >= 0; i--) {
+-			struct xfrm_state *x = sp->x[i].xvec;
++			struct xfrm_state *x = sp->xvec[i];
+ 			if (selinux_authorizable_xfrm(x)) {
+ 				struct xfrm_sec_ctx *ctx = x->security;
+ 				return ctx->ctx_sid;
+@@ -314,7 +314,7 @@ int selinux_xfrm_sock_rcv_skb(u32 isec_s
+ 		 *  Only need to verify the existence of an authorizable sp.
+ 		 */
+ 		for (i = 0; i < sp->len; i++) {
+-			struct xfrm_state *x = sp->x[i].xvec;
++			struct xfrm_state *x = sp->xvec[i];
  
-@@ -38,12 +39,24 @@ static void update(struct crypto_tfm *tf
- 			unsigned int bytes_from_page = min(l, ((unsigned int)
- 							   (PAGE_SIZE)) - 
- 							   offset);
--			char *p = crypto_kmap(pg, 0) + offset;
-+			char *src = crypto_kmap(pg, 0);
-+			char *p = src + offset;
- 
-+			if (unlikely(offset & alignmask)) {
-+				unsigned int bytes =
-+					alignmask + 1 - (offset & alignmask);
-+				bytes = min(bytes, bytes_from_page);
-+				tfm->__crt_alg->cra_digest.dia_update
-+						(crypto_tfm_ctx(tfm), p,
-+						 bytes);
-+				p += bytes;
-+				bytes_from_page -= bytes;
-+				l -= bytes;
-+			}
- 			tfm->__crt_alg->cra_digest.dia_update
- 					(crypto_tfm_ctx(tfm), p,
- 					 bytes_from_page);
--			crypto_kunmap(p, 0);
-+			crypto_kunmap(src, 0);
- 			crypto_yield(tfm);
- 			offset = 0;
- 			pg++;
-@@ -54,7 +67,15 @@ static void update(struct crypto_tfm *tf
- 
- static void final(struct crypto_tfm *tfm, u8 *out)
- {
--	tfm->__crt_alg->cra_digest.dia_final(crypto_tfm_ctx(tfm), out);
-+	unsigned long alignmask = crypto_tfm_alg_alignmask(tfm);
-+	if (unlikely((unsigned long)out & alignmask)) {
-+		unsigned int size = crypto_tfm_alg_digestsize(tfm);
-+		u8 buffer[size + alignmask];
-+		u8 *dst = (u8 *)ALIGN((unsigned long)buffer, alignmask + 1);
-+		tfm->__crt_alg->cra_digest.dia_final(crypto_tfm_ctx(tfm), dst);
-+		memcpy(out, dst, size);
-+	} else
-+		tfm->__crt_alg->cra_digest.dia_final(crypto_tfm_ctx(tfm), out);
- }
- 
- static int setkey(struct crypto_tfm *tfm, const u8 *key, unsigned int keylen)
-@@ -69,18 +90,9 @@ static int setkey(struct crypto_tfm *tfm
- static void digest(struct crypto_tfm *tfm,
-                    struct scatterlist *sg, unsigned int nsg, u8 *out)
- {
--	unsigned int i;
--
--	tfm->crt_digest.dit_init(tfm);
--		
--	for (i = 0; i < nsg; i++) {
--		char *p = crypto_kmap(sg[i].page, 0) + sg[i].offset;
--		tfm->__crt_alg->cra_digest.dia_update(crypto_tfm_ctx(tfm),
--		                                      p, sg[i].length);
--		crypto_kunmap(p, 0);
--		crypto_yield(tfm);
--	}
--	crypto_digest_final(tfm, out);
-+	init(tfm);
-+	update(tfm, sg, nsg);
-+	final(tfm, out);
- }
- 
- int crypto_init_digest_flags(struct crypto_tfm *tfm, u32 flags)
-diff --git a/crypto/michael_mic.c b/crypto/michael_mic.c
-index 4f6ab23..701f859 100644
---- a/crypto/michael_mic.c
-+++ b/crypto/michael_mic.c
-@@ -145,6 +145,7 @@ static struct crypto_alg michael_mic_alg
- 	.cra_blocksize	= 8,
- 	.cra_ctxsize	= sizeof(struct michael_mic_ctx),
- 	.cra_module	= THIS_MODULE,
-+	.cra_alignmask	= 3,
- 	.cra_list	= LIST_HEAD_INIT(michael_mic_alg.cra_list),
- 	.cra_u		= { .digest = {
- 	.dia_digestsize	= 8,
-diff --git a/crypto/sha1.c b/crypto/sha1.c
-index 21571ed..b96f57d 100644
---- a/crypto/sha1.c
-+++ b/crypto/sha1.c
-@@ -112,6 +112,7 @@ static struct crypto_alg alg = {
- 	.cra_blocksize	=	SHA1_HMAC_BLOCK_SIZE,
- 	.cra_ctxsize	=	sizeof(struct sha1_ctx),
- 	.cra_module	=	THIS_MODULE,
-+	.cra_alignmask	=	3,
- 	.cra_list       =       LIST_HEAD_INIT(alg.cra_list),
- 	.cra_u		=	{ .digest = {
- 	.dia_digestsize	=	SHA1_DIGEST_SIZE,
-diff --git a/crypto/sha256.c b/crypto/sha256.c
-index 9d5ef67..d62264a 100644
---- a/crypto/sha256.c
-+++ b/crypto/sha256.c
-@@ -313,6 +313,7 @@ static struct crypto_alg alg = {
- 	.cra_blocksize	=	SHA256_HMAC_BLOCK_SIZE,
- 	.cra_ctxsize	=	sizeof(struct sha256_ctx),
- 	.cra_module	=	THIS_MODULE,
-+	.cra_alignmask	=	3,
- 	.cra_list       =       LIST_HEAD_INIT(alg.cra_list),
- 	.cra_u		=	{ .digest = {
- 	.dia_digestsize	=	SHA256_DIGEST_SIZE,
-diff --git a/crypto/sha512.c b/crypto/sha512.c
-index 3e6e939..7dbec4f 100644
---- a/crypto/sha512.c
-+++ b/crypto/sha512.c
-@@ -281,6 +281,7 @@ static struct crypto_alg sha512 = {
-         .cra_blocksize  = SHA512_HMAC_BLOCK_SIZE,
-         .cra_ctxsize    = sizeof(struct sha512_ctx),
-         .cra_module     = THIS_MODULE,
-+	.cra_alignmask	= 3,
-         .cra_list       = LIST_HEAD_INIT(sha512.cra_list),
-         .cra_u          = { .digest = {
-                                 .dia_digestsize = SHA512_DIGEST_SIZE,
-@@ -295,6 +296,7 @@ static struct crypto_alg sha384 = {
-         .cra_flags      = CRYPTO_ALG_TYPE_DIGEST,
-         .cra_blocksize  = SHA384_HMAC_BLOCK_SIZE,
-         .cra_ctxsize    = sizeof(struct sha512_ctx),
-+	.cra_alignmask	= 3,
-         .cra_module     = THIS_MODULE,
-         .cra_list       = LIST_HEAD_INIT(sha384.cra_list),
-         .cra_u          = { .digest = {
-diff --git a/crypto/tgr192.c b/crypto/tgr192.c
-index 2d8e44f..1eae1bb 100644
---- a/crypto/tgr192.c
-+++ b/crypto/tgr192.c
-@@ -627,6 +627,7 @@ static struct crypto_alg tgr192 = {
- 	.cra_blocksize = TGR192_BLOCK_SIZE,
- 	.cra_ctxsize = sizeof(struct tgr192_ctx),
- 	.cra_module = THIS_MODULE,
-+	.cra_alignmask = 7,
- 	.cra_list = LIST_HEAD_INIT(tgr192.cra_list),
- 	.cra_u = {.digest = {
- 			     .dia_digestsize = TGR192_DIGEST_SIZE,
-@@ -641,6 +642,7 @@ static struct crypto_alg tgr160 = {
- 	.cra_blocksize = TGR192_BLOCK_SIZE,
- 	.cra_ctxsize = sizeof(struct tgr192_ctx),
- 	.cra_module = THIS_MODULE,
-+	.cra_alignmask = 7,
- 	.cra_list = LIST_HEAD_INIT(tgr160.cra_list),
- 	.cra_u = {.digest = {
- 			     .dia_digestsize = TGR160_DIGEST_SIZE,
-@@ -655,6 +657,7 @@ static struct crypto_alg tgr128 = {
- 	.cra_blocksize = TGR192_BLOCK_SIZE,
- 	.cra_ctxsize = sizeof(struct tgr192_ctx),
- 	.cra_module = THIS_MODULE,
-+	.cra_alignmask = 7,
- 	.cra_list = LIST_HEAD_INIT(tgr128.cra_list),
- 	.cra_u = {.digest = {
- 			     .dia_digestsize = TGR128_DIGEST_SIZE,
+ 			if (x && selinux_authorizable_xfrm(x))
+ 				goto accept;
+
+--------------040607050101050902060705--

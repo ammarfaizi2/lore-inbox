@@ -1,26 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWDCS37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbWDCScN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbWDCS37 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 14:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWDCS37
+	id S1750905AbWDCScN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 14:32:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbWDCScN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 14:29:59 -0400
-Received: from ns2.suse.de ([195.135.220.15]:2448 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964841AbWDCS37 (ORCPT
+	Mon, 3 Apr 2006 14:32:13 -0400
+Received: from ns1.suse.de ([195.135.220.2]:16316 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750897AbWDCScM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 14:29:59 -0400
-Date: Mon, 03 Apr 2006 20:29:57 +0200
-Message-ID: <s5h1wwea4wq.wl%tiwai@suse.de>
+	Mon, 3 Apr 2006 14:32:12 -0400
+Date: Mon, 03 Apr 2006 20:32:11 +0200
+Message-ID: <s5hzmj28q8k.wl%tiwai@suse.de>
 From: Takashi Iwai <tiwai@suse.de>
-To: Adrian McMenamin <adrian@mcmen.demon.co.uk>
-Cc: Alsa-devel <alsa-devel@lists.sourceforge.net>,
+To: Carlos Munoz <carlos@kenati.com>
+Cc: Adrian McMenamin <adrian@mcmen.demon.co.uk>,
+       Alsa-devel <alsa-devel@lists.sourceforge.net>,
        linux-sh <linuxsh-dev@lists.sourceforge.net>,
        Paul Mundt <lethal@linux-sh.org>, LKML <linux-kernel@vger.kernel.org>
 Subject: Re: Patch for AICA sound support on SEGA Dreamcast
-In-Reply-To: <1144086510.11511.46.camel@localhost.localdomain>
+In-Reply-To: <443162B4.60500@kenati.com>
 References: <1144075522.11511.20.camel@localhost.localdomain>
 	<s5hvetqac7i.wl%tiwai@suse.de>
-	<1144086510.11511.46.camel@localhost.localdomain>
+	<443162B4.60500@kenati.com>
 User-Agent: Wanderlust/2.12.0 (Your Wildest Dreams) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.7 (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 MULE XEmacs/21.5 (beta25)
  (eggplant) (+CVS-20060326) (i386-suse-linux)
@@ -29,183 +30,25 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Mon, 03 Apr 2006 18:48:30 +0100,
-Adrian McMenamin wrote:
+At Mon, 03 Apr 2006 11:00:20 -0700,
+Carlos Munoz wrote:
 > 
-> > > +/* SPU specific functions */
-> > > +
-> > > +inline void spu_write_wait()
-> > 
-> > Lack of static.  And lack of (void) argument.
-> > 
+> Takashi Iwai wrote:
 > 
+> >Please avoid use of typedefs as much as possible.
+> >We (finally :-) got rid of whole typedefs recently from the ALSA core
+> >code.
+> >
+> >  
+> >
+> Hi Takashi,
 > 
-> lack of static yes - but void inside the brackets - really?
+> Just out of curiosity. What is the reason for no using typedefs ?
 
-The driver codes are not in K&R style...
+Just to follow the convention of coding style in kernel tree.
 
-> > 
-> > > +{
-> > > +	while (1) {
-> > > +		if (!(readl(G2_FIFO) & 0x11))
-> > > +			break;
-> > > +	}
-> > 
-> > Safer to have a timeout?
-> > 
-> 
-> No - this is correct
-
-But what happens if the hardware has a problem?
-
-
-> > > +{
-> > > +	uint32_t *to = (uint32_t *) (SPU_MEMORY_BASE + toi);
-> > > +	int i;
-> > > +
-> > > +	if (length % 4)
-> > > +		length = (length / 4) + 1;
-> > > +	else
-> > > +		length = length / 4;
-> > 
-> > Shouldn't be always aligned to 4?  Something like
-> > 
-> > 	snd_assert(length % 4 == 0, return);
-> > 
-> 
-> but that would break and the code fixes it and works
-
-Accessing unaligned char pointers and assuming the unaligned size is
-broken.
-
-
-> > > +		udelay(5);
-> > > +		transferred = get_dma_residue(0);
-> > > +	}
-> > > +	while (transferred < buffer_size / 2);
-> > 
-> > Hmm, is this a correct implementation?  It doesf looping in a timer
-> > handler.  Surely it works, but...
-> > 
-> 
-> What's the alternative? I need to wait for one dma transfer to end
-> before the next begins
->
-> > > +			/* get_dma_residue reports residue until completion when it reports total bytes transferred */
-> > > +			transferred = get_dma_residue(0);
-> > > +		}
-> > > +		while (transferred < AICA_PERIOD_SIZE);
-> > 
-> > Another busy loop in timer callback.
-> > 
-> 
-> As before - I cannot have a second dma transfer begin until the first
-> has ended, the transfer is fast (about 12 Mb/s aiui so the busy looping
-> should not last *too* long). If you can suggest an alternative?
-
-Hmm, but it can be still over 1ms?
-
-Anyway, you should use dma_wait_for_completion() instead of your
-home-made one.
-
-
-> > > +
-> > > +static int snd_aicapcm_pcm_open(snd_pcm_substream_t * substream)
-> > > +{
-> > > +	if (!enable) return -ENOENT;
-> > 
-> > This check is useless.  If needed, do it in module initialization.
-> > 
-> 
-> Why is it useless? If I do it in initialisation what is the point of the
-> parameter? ie why load a module with a perameter that means don't load?
-> If I do it this way then the user can turn enable on and off by writing
-> to sysfs. Isn't that what it is supposed to be there for?
-
-The enable option itself is useless for drivers supporting single
-devices.  It was introduced to choose devices to use if multiple
-devices are available.
-
-
-> > > +	return 0;
-> 
-> > > +	startup_aica();
-> > > +	init_timer(&(dreamcastcard->timer));
-> > > +	dreamcastcard->timer.function = aica_period_elapsed;
-> > 
-> > This is dangerous.  The timer can be running, e.g. when a PCM stream
-> > is replayed.
-> > 
-> 
-> I don't understand the point you are making. Do you mean the timer could
-> be runing when this is (re)assigned? It's always the same function
-> though.
-
-Yes.  Because you don't delete timer, it's possible to call
-trigger(start) even before the next timer interrupt occurs.
-
-
-> > > +}
-> > > +
-> > > +static snd_kcontrol_new_t snd_aica_masterswitch_control __devinitdata = {
-> > > +	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
-> > > +	.name = "Playback Switch",
-> > 
-> > Should be "Master Playback Switch".
-> > 
-> 
-> Not what the documentation says:
-> 
-> 
-> "Capture Source", "Capture Switch" and "Capture Volume" are used for the
-> global capture (input) source, switch and volume. Similarly, "Playback
-> Switch" and "Playback Volume" are used for the global output gain switch
-> and volume. 
-
-Then rename the variable name to follow that!
-In practice, "Master Playback *" is used more commonly in other drivers.
-
-> > > +	.info = aica_pcmswitch_info,
-> > > +	.get = aica_pcmswitch_get,
-> > > +	.put = aica_pcmswitch_put
-> > > +};
-> > 
-> > ... But why do you need two different switches for the very same
-> > thing? 
-> 
-> 
-> Relic of trying to get this to work. Might matter if I seriously
-> developed this driver to use the full capacity of the device (though
-> that requires significant additional reversing). Would it help with
-> badly configured OSS apps?
-
-Having two control items for the same thing is just confusing and a
-broken design.
-
-> > Should be "Master Playback Volume".
-> > 
-> 
-> See above. Incidentally, when it was Master Playback Volume it didn't
-> work with OSS :(
-
-Then likely something wrong with your code.  "Master Playback XXX"
-works fine with other drivers.
-
-
-> > > 
-> > > +	}
-> > 
-> > The code looks odd.  Simply call snd_card_new() once because this driver
-> > supports only one instance anyway.
-> 
-> 
-> Yes, but when I did that and then loaded the dummy device the driver
-> broke! As the dummy device can be loaded and as there are capyure
-> devices for the Dreamcast (never managed to get my driver to work
-> though) then I think it is needed
-
-Maybe you didn't pass a proper index argument.  When it's -1, the next
-free slot is assigned.
+There are some reasons that typedefs are evil, but I don't want to
+start flames :)
 
 
 Takashi

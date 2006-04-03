@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWDCBHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbWDCBTL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbWDCBHY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Apr 2006 21:07:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWDCBHY
+	id S964802AbWDCBTL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Apr 2006 21:19:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWDCBTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Apr 2006 21:07:24 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:57864 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S964800AbWDCBHX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Apr 2006 21:07:23 -0400
-Date: Mon, 3 Apr 2006 09:04:54 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Joel Becker <Joel.Becker@oracle.com>
-cc: Akinobu Mita <mita@miraclelinux.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, Neil Brown <neilb@cse.unsw.edu.au>,
-       Hans Reiser <reiserfs-dev@namesys.com>,
-       Urban Widmark <urban@teststation.com>,
-       David Howells <dhowells@redhat.com>,
-       Mark Fasheh <mark.fasheh@oracle.com>
-Subject: Re: [patch 8/8] fs: use list_move()
-In-Reply-To: <20060330190740.GB29730@ca-server1.us.oracle.com>
-Message-ID: <Pine.LNX.4.64.0604030904370.2348@eagle.themaw.net>
-References: <20060330081605.085383000@localhost.localdomain>
- <20060330081731.538392000@localhost.localdomain> <20060330190740.GB29730@ca-server1.us.oracle.com>
+	Sun, 2 Apr 2006 21:19:10 -0400
+Received: from cantor.suse.de ([195.135.220.2]:48541 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964802AbWDCBTJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Apr 2006 21:19:09 -0400
+From: Neil Brown <neilb@suse.de>
+To: Marc Eshel <eshel@almaden.ibm.com>
+Date: Mon, 3 Apr 2006 11:17:17 +1000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-themaw-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-1.896,
-	required 5, autolearn=not spam, BAYES_00 -2.60,
-	DATE_IN_PAST_12_24 0.70)
-X-themaw-MailScanner-From: raven@themaw.net
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17456.30621.579579.483287@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net
+Subject: Re: [NFS] [PATCH] knfsd: Correct reserved reply space for read requests.
+In-Reply-To: message from Marc Eshel on Thursday March 30
+References: <1060330055350.25337@suse.de>
+	<OF66A2887E.D01D36C5-ON88257141.0061C8EF-88257141.00626357@us.ibm.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Mar 2006, Joel Becker wrote:
+On Thursday March 30, eshel@almaden.ibm.com wrote:
+> Hi Neil
+> Can we use this opportunity to change NFSSVC_MAXBLKSIZE from 32K to 64K to 
+> match RPCSVC_MAXPAYLOAD. It makes real difference in I/O performance (we 
+> will still be saving half the space we used to allocate :).
+> Thanks, Marc. 
 
-> On Thu, Mar 30, 2006 at 04:16:13PM +0800, Akinobu Mita wrote:
-> > This patch converts the combination of list_del(A) and list_add(A, B)
-> > to list_move(A, B) under fs/.
-> > 
-> > CC: Ian Kent <raven@themaw.net>
-> > CC: Joel Becker <joel.becker@oracle.com>
-> > CC: Neil Brown <neilb@cse.unsw.edu.au>
-> > CC: Hans Reiser <reiserfs-dev@namesys.com>
-> > CC: Urban Widmark <urban@teststation.com>
-> > CC: David Howells <dhowells@redhat.com>
-> > CC: Mark Fasheh <mark.fasheh@oracle.com>
-> > Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
-> Acked-by: Joel Becker <joel.becker@oracle.com>
-> 
-> -- 
-> 
-> "And yet I find,
->  And yet I find repeating in my head.
->  If I can't be my own, 
->  I'd feel better dead."
+Maybe... but why not 128K ??
 
-ACK
+There is certainly room to increase NFSSVC_MAXBLKSIZE, but I feel that
+it needs to be done together with a more detailed look at consequences
+in the network layer, particularly TCP window sizes.  I wouldn't mind
+making a CONFIG_ tunable without that detailed look, but making it a
+fixed change I feel less comfortable about.
 
-
+NeilBrown

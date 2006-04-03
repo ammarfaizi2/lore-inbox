@@ -1,25 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751791AbWDCVLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751711AbWDCVST@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751791AbWDCVLe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 17:11:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751792AbWDCVLe
+	id S1751711AbWDCVST (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 17:18:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751724AbWDCVST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 17:11:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5085 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751791AbWDCVLd (ORCPT
+	Mon, 3 Apr 2006 17:18:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8672 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751707AbWDCVSS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 17:11:33 -0400
-Date: Mon, 3 Apr 2006 14:12:23 -0700
+	Mon, 3 Apr 2006 17:18:18 -0400
+Date: Mon, 3 Apr 2006 14:18:34 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: rdunlap@xenotime.net, haveblue@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: lkml traffic (was:: [PATCH] unify PFN_* macros)
-Message-Id: <20060403141223.469280c1.akpm@osdl.org>
-In-Reply-To: <20060403171113.GB29351@linux-mips.org>
-References: <20060323162459.6D45D1CE@localhost.localdomain>
-	<20060403124916.GA14044@linux-mips.org>
-	<20060403083940.a9dff4a3.rdunlap@xenotime.net>
-	<20060403171113.GB29351@linux-mips.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: ntl@pobox.com, pj@sgi.com, linuxppc-dev@ozlabs.org, ak@suse.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Fw: 2.6.16 crashes when running numastat on p575
+Message-Id: <20060403141834.31cd9dea.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0604031104110.20903@schroedinger.engr.sgi.com>
+References: <20060402213216.2e61b74e.akpm@osdl.org>
+	<Pine.LNX.4.64.0604022149450.15895@schroedinger.engr.sgi.com>
+	<20060402221513.96f05bdc.pj@sgi.com>
+	<Pine.LNX.4.64.0604022224001.18401@schroedinger.engr.sgi.com>
+	<20060403141027.GB25663@localdomain>
+	<Pine.LNX.4.64.0604031039560.20648@schroedinger.engr.sgi.com>
+	<20060403180131.GD25663@localdomain>
+	<Pine.LNX.4.64.0604031104110.20903@schroedinger.engr.sgi.com>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,22 +32,38 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf Baechle <ralf@linux-mips.org> wrote:
+Christoph Lameter <clameter@sgi.com> wrote:
 >
-> On Mon, Apr 03, 2006 at 08:39:40AM -0700, Randy.Dunlap wrote:
+> On Mon, 3 Apr 2006, Nathan Lynch wrote:
 > 
-> > On Mon, 3 Apr 2006 13:49:16 +0100 Ralf Baechle wrote:
+> > > There are many other for_each_*_cpu loops in the kernel that do not have 
+> > > any of the instrumentation you suggest. I suggest you come up with a 
+> > > general solution and then go through all of them and fix this. Please be 
+> > > aware that many of these loops are performance critical.
 > > 
-> > > How about posting such stuff to linux-arch?  No sane person follows l-k.
-> > 
-> > Can we do anything about lkml?  It "doesn't scale."
+> > But this one isn't, right?
 > 
-> Not terribly much other than carefully choosing the right addresses of
-> people and lists to post to.  The only thing that's worse than too much
-> email is no email ...
-> 
+> Right. One could use more expensive processing here.
 
-I work hard to ensure that all the right people are cc'ed on all the
-relevant patches.
+Hopefully none of the for_each_foo() loops are performance-critical - those
+things are expensive.
 
-Except for this one, which I phuk tup.  Sorry.
+> > And I'm afraid there's a misunderstanding here -- only
+> > for_each_online_cpu (or accessing the cpu online map in general) has
+> > such restrictions -- for_each_possible_cpu doesn't require any locking
+> > or preempt tricks since cpu_possible_map must not change after boot.
+
+for_each_present_cpu() presumably has the same problems.
+
+> Correct. We may want to audit the kernel and check that each 
+> for_each_possible_cpu or for_each_cpu is really correct.
+
+A fair bit of that has been happening in recent weeks.
+
+But yes, we should be protecting these things with rcu_read_lock() if
+possible, lock_cpu_hotplug() otherwise.
+
+(rcu_read_lock() might not be the appropriate name for this operation -
+maybe it should be an open-coded preempt_disable().  Or some other suitably
+named alias; dunno).
+

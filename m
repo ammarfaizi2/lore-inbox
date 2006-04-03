@@ -1,80 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751607AbWDCJCQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751670AbWDCJEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751607AbWDCJCQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 05:02:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751670AbWDCJCQ
+	id S1751670AbWDCJEM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 05:04:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751674AbWDCJEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 05:02:16 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10254 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751607AbWDCJCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 05:02:15 -0400
-Date: Mon, 3 Apr 2006 10:02:07 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: pavel@ucw.cz, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: include/asm-arm/memory.h changes break zaurus sl-5500 boot
-Message-ID: <20060403090207.GB15606@flint.arm.linux.org.uk>
-Mail-Followup-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-	pavel@ucw.cz, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-	linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <20060402210003.GA11979@elf.ucw.cz> <20060402220807.GD13901@flint.arm.linux.org.uk> <20060402222314.GC12166@elf.ucw.cz> <20060403091504.ecd341a3.kamezawa.hiroyu@jp.fujitsu.com> <20060403073653.GA13275@flint.arm.linux.org.uk> <20060403164434.fdb5020c.kamezawa.hiroyu@jp.fujitsu.com> <20060403175603.7a3dd64f.kamezawa.hiroyu@jp.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060403175603.7a3dd64f.kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 3 Apr 2006 05:04:12 -0400
+Received: from baldrick.bootc.net ([83.142.228.48]:12740 "EHLO
+	baldrick.bootc.net") by vger.kernel.org with ESMTP id S1751673AbWDCJEL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 05:04:11 -0400
+In-Reply-To: <20060402185229.GA5985@kroah.com>
+References: <442FE22E.9090000@bootc.net> <20060402185229.GA5985@kroah.com>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <8FAD3D92-6562-47CC-B170-B37DC82DB661@bootc.net>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Content-Transfer-Encoding: 7bit
+From: Chris Boot <bootc@bootc.net>
+Subject: Re: Occasional APC Smart-UPS CS 500 USB UPS troubles
+Date: Mon, 3 Apr 2006 10:04:03 +0100
+To: Greg KH <greg@kroah.com>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 03, 2006 at 05:56:03PM +0900, KAMEZAWA Hiroyuki wrote:
-> On Mon, 3 Apr 2006 16:44:34 +0900
-> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
-> 
-> > On Mon, 3 Apr 2006 08:36:53 +0100
-> > Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > Hmm..from include/asm-arm/arch-clps711x/memory.h
-> > 
-> > ==
-> > /*
-> >  * Given a kaddr, LOCAL_MAR_NR finds the owning node of the memory
-> >  * and returns the index corresponding to the appropriate page in the
-> >  * node's mem_map.
-> >  */
-> > #define LOCAL_MAP_NR(addr) \
-> >         (((unsigned long)(addr) & (NODE_MAX_MEM_SIZE - 1)) >> PAGE_SHIFT)
-> > ==
-> > 
-> > Is this comment wrong ???
+On 2 Apr 2006, at 19:52, Greg KH wrote:
 
-The comment isn't entirely accurate.
+> On Sun, Apr 02, 2006 at 03:39:42PM +0100, Chris Boot wrote:
+>> Hi all,
+>>
+>> I have an APC Smart-UPS CS 500, and most of the time it works really
+>> nicely. I was stupefied to find it worked out of the box in Ubuntu
+>> Dapper and pops up a nice little icon when the power goes out, etc...
+>> The trouble is, that's only most of the time.
+>>
+>> I'm guessing the USB controller in the device is buggy or something,
+>> because occasionally, when I reboot my machine with the UPS  
+>> plugged in,
+>> the boot hangs or produces strange errors when detecting USB devices.
+>> All it takes to get the machine to boot properly is yank the USB  
+>> plug on
+>> the UPS, plug it in again, and reboot.
+>
+> What exactly are these "strange errors"?
 
-> All of sub-arch's comment says "Given a kaddr" but all of them just uses
-> "offset".  So, paddr can be given as arg. 
+Well I haven't seen them for a long time now, but error messages that  
+say very little other than an error code (which, from memory, was -47  
+or something).
 
-Yes.
+>> Has anyone seen this before?
+>
+> It hasn't been reported, no.
 
-> __va()(or pfn_to_kaddr()) adds unnecessary calcs, so paddr should be used
-> instead of kaddr.
+Well next time it happens I'll try to gather as much information as  
+possible. What sort of stuff would help diagnose the problem?
 
-The problem with __va() and pfn_to_kaddr() is that it adds unnecessary
-calculation which the compiler can not optimise away.
+>> Not exactly kernel related I must admit, but this never seems to  
+>> happen
+>> on *shudder* Windows, and I wouldn't expect such severe behaviour in
+>> case of trouble...
+>>
+>> I've seen this on all sorts of kernels starting with the early 2.6
+>> series up to 2.6.16.1 and 2.6.16-ck3. My latest hang was with the  
+>> latter
+>> kernel, and modprobe got stuck with the following trace:
+>>
+>> modprobe      D ED465280     0   819    815                      
+>> (NOTLB)
+>> f7cfade4 f7d0366c f7d03540 ed465280 000f41fd 005b8d80 00000000  
+>> f7794d1c
+>>        00000292 f7cfa000 f7d03540 c02d0e0e 00000001 f7d03540 c0113f02
+>> f7794d24
+>>        f7794d24 f6e31c58 f9734f40 f97e2f44 c0257dc6 c02cf89f f97e2f44
+>> f7794c58
+>> Call Trace:
+>>  [__down+202/240] __down+0xca/0xf0
+>>  [default_wake_function+0/12] default_wake_function+0x0/0xc
+>>  [__driver_attach+0/89] __driver_attach+0x0/0x59
+>>  [__sched_text_start+7/12] __down_failed+0x7/0xc
+>>  [.text.lock.dd+39/188] .text.lock.dd+0x27/0xbc
+>>  [bus_for_each_dev+55/89] bus_for_each_dev+0x37/0x59
+>>  [driver_attach+17/19] driver_attach+0x11/0x13
+>>  [__driver_attach+0/89] __driver_attach+0x0/0x59
+>>  [bus_add_driver+90/211] bus_add_driver+0x5a/0xd3
+>>  [pg0+959850838/1069790208] usb_register_driver+0x50/0xae [usbcore]
+>>  [pg0+949030918/1069790208] hid_init+0x6/0x3d [usbhid]
+>>  [sys_init_module+4905/5197] sys_init_module+0x1329/0x144d
+>>  [cp_new_stat64+237/255] cp_new_stat64+0xed/0xff
+>>  [vma_prio_tree_insert+23/42] vma_prio_tree_insert+0x17/0x2a
+>>  [vma_link+162/223] vma_link+0xa2/0xdf
+>>  [do_mmap_pgoff+1202/1535] do_mmap_pgoff+0x4b2/0x5ff
+>>  [sys_mmap2+97/144] sys_mmap2+0x61/0x90
+>>  [sysenter_past_esp+84/117] sysenter_past_esp+0x54/0x75
+>>
+>> Let me know if you need more info!
+>
+> That's really odd.  What else is happening in the sysrq-t output at  
+> this
+> moment in time?
 
->From the use of LOCAL_MAP_NR(), we know that it's returning an offset
-into a particular node, and that there's a 1:1 relationship between
-the virtual and physical addresses within nodes.  That means that
-LOCAL_MAP_NR() can take either a virtual address, a physical address,
-or even a byte offset into the node.
+Well, everything else is waiting for the modprobe to finish. There's  
+rather a lot of processes and fortunately by then klogd is running so  
+I can get the logs. Shall I send over the full bootlog and sysrq-t  
+trace for that boot? It's long and there doesn't appear to be  
+anything particularly juicy other than the above trace.
 
-In turn, that means that we can pass it whatever address we happen to
-have available at the time, or whichever is simpler to calculate.
+Actually with the above trace modprobe eventually returned, but USB  
+was unusable. I tried to rmmod it and it hung again, hard this time.  
+Again no interesting kernel messages, but the following sysrq-t trace:
 
-In the cases you're looking at (pfn to map number) giving it pfn <<
-PAGE_SHIFT is entirely sufficient, and is in fact optimal for
-performance.
+rmmod         D 0F203D40     0  4902   3752                     (NOTLB)
+f1068e9c f17001bc f1700090 0f203d40 000f4239 15382100 00000000 f7794d1c
+        00000282 f1068000 f1700090 c02d0e0e 00000001 f1700090  
+c0113f02 f7794d24
+        f7cfadf8 f7794c00 f972d359 f8cfad2c f779be28 c02cf89f  
+f7e3a000 f1068000
+Call Trace:
+[__down+202/240] __down+0xca/0xf0
+[default_wake_function+0/12] default_wake_function+0x0/0xc
+[__sched_text_start+7/12] __down_failed+0x7/0xc
+[pg0+959837300/1069790208] .text.lock.hub+0xc7/0xef [usbcore]
+[pg0+959838978/1069790208] usb_remove_hcd+0x7c/0xcd [usbcore]
+[pg0+959869461/1069790208] usb_hcd_pci_remove+0x15/0x68 [usbcore]
+[pci_device_remove+22/40] pci_device_remove+0x16/0x28
+[__device_release_driver+83/107] __device_release_driver+0x53/0x6b
+[driver_detach+117/165] driver_detach+0x75/0xa5
+[bus_remove_driver+87/117] bus_remove_driver+0x57/0x75
+[driver_unregister+11/19] driver_unregister+0xb/0x13
+[pci_unregister_driver+12/103] pci_unregister_driver+0xc/0x67
+[pg0+949181306/1069790208] uhci_hcd_cleanup+0xa/0x33 [uhci_hcd]
+[sys_delete_module+353/393] sys_delete_module+0x161/0x189
+[.text.lock.mlock+14/126] .text.lock.mlock+0xe/0x7e
+[do_munmap+392/418] do_munmap+0x188/0x1a2
+[sysenter_past_esp+84/117] sysenter_past_esp+0x54/0x75
+
+It appears none of my other mishaps were actually logged... :-(
+
+> Also CCing the linux-usb-devel list, as the people there can help out.
+>
+> thanks,
+>
+> greg k-h
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/
+
+

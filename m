@@ -1,84 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751733AbWDCPkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751737AbWDCPlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751733AbWDCPkl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 11:40:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751735AbWDCPkl
+	id S1751737AbWDCPlw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 11:41:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751738AbWDCPlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 11:40:41 -0400
-Received: from 216.255.188.82-custblock.intercage.com ([216.255.188.82]:7142
-	"EHLO main.astronetworks.net") by vger.kernel.org with ESMTP
-	id S1751732AbWDCPkk convert rfc822-to-8bit (ORCPT
+	Mon, 3 Apr 2006 11:41:52 -0400
+Received: from pat.uio.no ([129.240.10.6]:60566 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751736AbWDCPlv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 11:40:40 -0400
-From: =?iso-8859-2?q?T=F6r=F6k_Edwin?= <edwin@gurde.com>
-Reply-To: edwin@gurde.com
-To: James Morris <jmorris@namei.org>
-Subject: Re: [RFC] packet/socket owner match (fireflier) using skfilter
-Date: Mon, 3 Apr 2006 18:39:38 +0300
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net,
-       Stephen Smalley <sds@tycho.nsa.gov>
-References: <200604021240.21290.edwin@gurde.com> <Pine.LNX.4.64.0604031117070.7743@d.namei>
-In-Reply-To: <Pine.LNX.4.64.0604031117070.7743@d.namei>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200604031839.38590.edwin@gurde.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - main.astronetworks.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - gurde.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Mon, 3 Apr 2006 11:41:51 -0400
+Subject: Re: NFS client (10x) performance regression 2.6.14.7 -> 2.6.15
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Jakob Oestergaard <jakob@unthought.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060403152628.GA14981@unthought.net>
+References: <1143807770.8096.4.camel@lade.trondhjem.org>
+	 <20060331124518.GH9811@unthought.net>
+	 <1143810392.8096.11.camel@lade.trondhjem.org>
+	 <20060331132131.GI9811@unthought.net>
+	 <1143812658.8096.18.camel@lade.trondhjem.org>
+	 <20060331140816.GJ9811@unthought.net>
+	 <1143814889.8096.22.camel@lade.trondhjem.org>
+	 <20060331143500.GK9811@unthought.net>
+	 <1143820520.8096.24.camel@lade.trondhjem.org>
+	 <20060331160426.GN9811@unthought.net>
+	 <20060403152628.GA14981@unthought.net>
+Content-Type: text/plain
+Date: Mon, 03 Apr 2006 11:41:40 -0400
+Message-Id: <1144078900.9111.41.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-5, required 12,
+	autolearn=disabled, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 03 April 2006 18:18, James Morris wrote:
-> On Sun, 2 Apr 2006, Török Edwin wrote:
-> > Before continuing the work on it, I ask for your advice, and comments on
-> > what I've done so far.
->
-> I would suggest dropping your LSM stuff and just using SELinux.  It's
-> crazy to try and reinvent it.
-I am not trying to reinvent SELinux. But I do not know how to accomplish what 
-I want with SELinux.
+On Mon, 2006-04-03 at 17:26 +0200, Jakob Oestergaard wrote:
+> I've run a git bisect from 2.6.14 to 2.6.15 to find what broke the NFS
+> client.
+> 
+> It seems to be the GIT patch: 24aa1fe6779eaddb3e0b1b802585dcf6faf9cc44
+> that introduces the problem.
+> 
+> Trond, it took me a lot of tries with GIT to narrow this down, because
+> the problem does not show up consistently. Some times nfsbench would
+> complete very quickly, but then a second (or third or ...) run would run
+> slow.
+> 
+> Could I ask you to try: 
+>  for i in `seq 1 100`; do time ./nfsbench; done
+> or something like that?
 
-Here it is what I want:
-- have security labels applied to sockets based on their owners (ok, I guess 
-SELinux does this by default)
+OK. Thanks for helping narrow this down! I'm travelling right now, so I
+can't promise that I'll be able to run any tests until tomorrow. I'll
+have a look, though.
 
-- the security labels of processes be assigned based on their executable's 
-inode+mountpoint.
-Is there a way to do auto-labeling with SELinux? I mean having a security 
-context applied based on the inode, without me having to run 'make relabel', 
-setfiles, and so on....
-Let's say I compile&install a program. Can it have a security label 
-auto(magically) applied, based on the inode of its executable? (without 
-recompiling, & reloading the policy)
+Cheers,
+  Trond
 
-(From my very limited understanding of SELinux, this would mean creating a 
-context for each executable, that is altering the policy, if each executable 
-needs to have a separate context. Is it possible to dinamically generate the 
-context at runtime? Is it possible to integrate my autolabel.c with SELinux?)
-
-It doesn't have to have a security label applied by its inode, but that is 
-unique, I don't know how secure would it be to identify processes by path...
-
-If the above is possible, could you please provide pointers to documentation?
-
-How can I implement auto-labeling with SELinux? (is there a possibility to 
-write some sort of plugins that provide this functionality?)
-
-To sum up, I wrote my LSM stuff because I didn't know how to use SELinux to 
-accomplish what I wanted. 
-If it can be done with SELinux easily, I'm happy to switch to that. (easy from 
-the end-user's perspective, using fireflier for example. it doesn't matter 
-how much work it would imply to make fireflier handle the stuff "behind the 
-scenes")
-
-Thanks in advance,
-Edwin

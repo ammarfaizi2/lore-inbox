@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWDCFNW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWDCFMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964803AbWDCFNW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 01:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWDCFNV
+	id S964780AbWDCFMs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 01:12:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWDCFMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 01:13:21 -0400
-Received: from mail.gmx.net ([213.165.64.20]:40910 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751387AbWDCFNV (ORCPT
+	Mon, 3 Apr 2006 01:12:48 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:30947 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751387AbWDCFMr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 01:13:21 -0400
-X-Authenticated: #14349625
-Subject: Re: lowmem_reserve question
-From: Mike Galbraith <efault@gmx.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, ck@vds.kolivas.org,
-       Andrew Morton <akpm@osdl.org>,
-       linux list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200604031448.01391.kernel@kolivas.org>
-References: <200604021401.13331.kernel@kolivas.org>
-	 <200604031248.13532.kernel@kolivas.org> <1144039366.8198.2.camel@homer>
-	 <200604031448.01391.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Mon, 03 Apr 2006 07:14:07 +0200
-Message-Id: <1144041247.8198.8.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Mon, 3 Apr 2006 01:12:47 -0400
+Date: Sun, 2 Apr 2006 22:12:29 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Sonny Rao <sonny@burdell.org>
+cc: ak@suse.com, Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: Fw: 2.6.16 crashes when running numastat on p575
+In-Reply-To: <20060402213216.2e61b74e.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0604022149450.15895@schroedinger.engr.sgi.com>
+References: <20060402213216.2e61b74e.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-03 at 14:48 +1000, Con Kolivas wrote:
-> On Monday 03 April 2006 14:42, Mike Galbraith wrote:
-> > On Mon, 2006-04-03 at 12:48 +1000, Con Kolivas wrote:
-> > > Furthermore, now that we have the option of up to 3GB lowmem split on
-> > > 32bit we can have a default lowmem_reserve of almost 12MB (if I'm reading
-> > > it right) which seems very tight with only 16MB of ZONE_DMA.
-> >
-> > I haven't crawled around in the vm for ages, but I think that's only
-> > 16MB if you support antique cards.
-> 
-> That's what the ram is used for, but that is all the ZONE_DMA 32bit machines 
-> get, whether you use it for that purpose or not. My concern is that this will 
-> have all sorts of effects on the balancing since it will always appear almost 
-> full.
+On Sun, 2 Apr 2006, Andrew Morton wrote:
 
-If that dinky 16MB zone still exists, and always appears nearly full, be
-happy.  It used to be a real PITA.
+> I have a vague feeling that you guys worked on numastat?
 
-	-Mike
+This is mostly Andi's code although I added the zone_pcp() stuff. This is 
+failing because zone_pcp() only returns valid information for online 
+processors.
+
+Initially all zone_pcps() point to the boot_cpuset (see zone_pcp_init)
+and therefore zone_pcp) is always valid and we do not see this bug. But 
+if someone downs a processor or a processor dies then free_zone_pageset() 
+is called which will set zone_pcp() = NULL.
+
+
+Fix NULL pointer dereference in node_read_numastat()
+
+zone_pcp() only returns valid values if the processor is online.
+
+Change node_read_numastat() to only scan online processors.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.16/drivers/base/node.c
+===================================================================
+--- linux-2.6.16.orig/drivers/base/node.c	2006-03-19 21:53:29.000000000 -0800
++++ linux-2.6.16/drivers/base/node.c	2006-04-02 21:59:49.000000000 -0700
+@@ -106,7 +106,7 @@ static ssize_t node_read_numastat(struct
+ 	other_node = 0;
+ 	for (i = 0; i < MAX_NR_ZONES; i++) {
+ 		struct zone *z = &pg->node_zones[i];
+-		for (cpu = 0; cpu < NR_CPUS; cpu++) {
++		for_each_online_cpu(cpu) {
+ 			struct per_cpu_pageset *ps = zone_pcp(z,cpu);
+ 			numa_hit += ps->numa_hit;
+ 			numa_miss += ps->numa_miss;
 

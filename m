@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbWDCMK7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751560AbWDCMNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750833AbWDCMK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 08:10:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbWDCMK7
+	id S1751560AbWDCMNS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 08:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751554AbWDCMNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 08:10:59 -0400
-Received: from gaz.sfgoth.com ([69.36.241.230]:57561 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S1750833AbWDCMK6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 08:10:58 -0400
-Date: Mon, 3 Apr 2006 05:15:04 -0700
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Silence a const vs non-const warning
-Message-ID: <20060403121503.GF3157@gaz.sfgoth.com>
-References: <20060403112107.GQ1259@lug-owl.de>
+	Mon, 3 Apr 2006 08:13:18 -0400
+Received: from 213-140-2-72.ip.fastwebnet.it ([213.140.2.72]:61323 "EHLO
+	aa005msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1751443AbWDCMNS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 08:13:18 -0400
+Date: Mon, 3 Apr 2006 14:13:15 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Al Boldi <a1426z@gawab.com>
+Cc: Peter Williams <pwil3058@bigpond.net.au>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
+Message-ID: <20060403141315.5a95497b@localhost>
+In-Reply-To: <200604031459.51542.a1426z@gawab.com>
+References: <200604031459.51542.a1426z@gawab.com>
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.12; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060403112107.GQ1259@lug-owl.de>
-User-Agent: Mutt/1.4.2.1i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Mon, 03 Apr 2006 05:15:04 -0700 (PDT)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Benedict Glaw wrote:
-> This patch silences a const vs. non-const warning issued by very
-> recent GCC versions:
+On Mon, 3 Apr 2006 14:59:51 +0300
+Al Boldi <a1426z@gawab.com> wrote:
+
+> > >> You can select a default scheduler at kernel build time.  If you wish
+> > >> to boot with a scheduler other than the default it can be selected at
+> > >> boot time by adding:
+> > >>
+> > >> cpusched=<scheduler>
 > 
-> $ vax-linux-uclibc-gcc -v 2>&1 | grep version
-[...]
->  void *memcpy(void *dest, const void *src, size_t count)
->  {
->  	char *tmp = dest;
-> -	char *s = src;
-> +	const char *s = src;
+> Can this be made runtime selectable/loadable, akin to iosched?
 
-Actually the compiler version has nothing to do with it -- I'm pretty
-sure even gcc 2.X would warn on that.  The actual reason that most people
-don't see that is that an arch w/o __HAVE_ARCH_MEMCPY is pretty rare.
+There is a project to do so:
 
-Still, no reason for the reference C version of that function to emit
-a warning, so it's worth fixing.
+http://groups.google.com/group/fa.linux.kernel/msg/d555ecee596690d1
 
--Mitch
+-- 
+	Paolo Ornati
+	Linux 2.6.16-mm2 on x86_64

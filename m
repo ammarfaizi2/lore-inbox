@@ -1,83 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751679AbWDCJKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751682AbWDCJMG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751679AbWDCJKG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 05:10:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751681AbWDCJKG
+	id S1751682AbWDCJMG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 05:12:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751684AbWDCJMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 05:10:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:54755 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751679AbWDCJKF (ORCPT
+	Mon, 3 Apr 2006 05:12:06 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:31925 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751682AbWDCJMF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 05:10:05 -0400
-Date: Mon, 3 Apr 2006 02:09:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mitchell Blank Jr <mitch@sfgoth.com>
-Cc: kaos@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc1 core_sys_select incompatible pointer types
-Message-Id: <20060403020916.57c9eaec.akpm@osdl.org>
-In-Reply-To: <20060403084410.GD3157@gaz.sfgoth.com>
-References: <25355.1144052926@kao2.melbourne.sgi.com>
-	<20060403084410.GD3157@gaz.sfgoth.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Apr 2006 05:12:05 -0400
+Date: Mon, 3 Apr 2006 11:11:31 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Arjan van de Ven <arjan@infradead.org>, Ben Ford <ben@kalifornia.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Who wants to test cracklinux??
+In-Reply-To: <1144019771.31123.31.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0604031109500.2220@yvahk01.tjqt.qr>
+References: <20060328221223.80753cab.letterdrop@gmx.de>  <20060328224929.GC5760@elf.ucw.cz>
+  <44305193.5080408@kalifornia.com>  <1144017581.3066.34.camel@testmachine>
+ <1144019771.31123.31.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-1352155675-1144055491=:2220"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mitchell Blank Jr <mitch@sfgoth.com> wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+--1283855629-1352155675-1144055491=:2220
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+
+>> is there any difference? I mean... if you can outb you for all intents
+>> and purposes are root anyway ;) (like you can overwrite any memory in
+>> the system etc etc)
 >
->  Keith Owens wrote:
->  > 2.6.17-rc1, ia64, gcc 3.3.3
->  > 
->  > fs/select.c: In function `core_sys_select':
->  > fs/select.c:339: warning: assignment from incompatible pointer type
->  > fs/select.c:376: warning: comparison of distinct pointer types lacks a cast
-> 
->  I posted a patch to fix this and another problem with the recent select
->  changes a couple days ago.
-> 
->  Original version, with description:
->    http://lkml.org/lkml/2006/3/31/308
->  Slightly updated:
->    http://lkml.org/lkml/2006/3/31/316
-> 
->  I'm hoping that Andrew picked it up.
+>There are two clear uses
+>
+>#1	Its possible to write such a module to allow only some ports to be
+>accessed, eg to export a PCI device for learning purposes
+>
+You can do parts of that in userspace, which is A Good Thing(tm).
 
-Nope.  I queued up the below.  If anything additional is needed, please
-resend.
+Write a SUID wrapper which ioperm's (or denies it) a range request, opens 
+/dev/mem or /dev/port and then drops privilegues. Voilà.
+
+(Not sure if outb requires root too, besides ioperm.)
 
 
-diff -puN fs/select.c~select-warning-fixes fs/select.c
---- devel/fs/select.c~select-warning-fixes	2006-04-01 22:27:14.000000000 -0800
-+++ devel-akpm/fs/select.c	2006-04-01 22:28:50.000000000 -0800
-@@ -310,7 +310,7 @@ static int core_sys_select(int n, fd_set
- 			   fd_set __user *exp, s64 *timeout)
- {
- 	fd_set_bits fds;
--	char *bits;
-+	void *bits;
- 	int ret, size, max_fdset;
- 	struct fdtable *fdt;
- 	/* Allocate small arguments on the stack to save memory and be faster */
-@@ -341,12 +341,12 @@ static int core_sys_select(int n, fd_set
- 		bits = kmalloc(6 * size, GFP_KERNEL);
- 	if (!bits)
- 		goto out_nofds;
--	fds.in      = (unsigned long *)  bits;
--	fds.out     = (unsigned long *) (bits +   size);
--	fds.ex      = (unsigned long *) (bits + 2*size);
--	fds.res_in  = (unsigned long *) (bits + 3*size);
--	fds.res_out = (unsigned long *) (bits + 4*size);
--	fds.res_ex  = (unsigned long *) (bits + 5*size);
-+	fds.in      = bits;
-+	fds.out     = bits +   size;
-+	fds.ex      = bits + 2*size;
-+	fds.res_in  = bits + 3*size;
-+	fds.res_out = bits + 4*size;
-+	fds.res_ex  = bits + 5*size;
- 
- 	if ((ret = get_fd_set(n, inp, fds.in)) ||
- 	    (ret = get_fd_set(n, outp, fds.out)) ||
-_
-
+Jan Engelhardt
+-- 
+--1283855629-1352155675-1144055491=:2220--

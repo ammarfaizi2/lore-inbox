@@ -1,72 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbWDDDgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964996AbWDDDhB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964992AbWDDDgj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 23:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbWDDDgj
+	id S964996AbWDDDhB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 23:37:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbWDDDhA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 23:36:39 -0400
-Received: from twin.uoregon.edu ([128.223.214.27]:39345 "EHLO twin.uoregon.edu")
-	by vger.kernel.org with ESMTP id S964993AbWDDDgj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 23:36:39 -0400
-Date: Mon, 3 Apr 2006 20:36:33 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Larry McVoy <lm@bitmover.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: blade servers?
-In-Reply-To: <20060404024244.28E9A5F76B@work.bitmover.com>
-Message-ID: <Pine.LNX.4.64.0604031956210.23087@twin.uoregon.edu>
-References: <20060404024244.28E9A5F76B@work.bitmover.com>
+	Mon, 3 Apr 2006 23:37:00 -0400
+Received: from adelphi.physics.adelaide.edu.au ([129.127.102.1]:13243 "EHLO
+	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
+	id S964993AbWDDDg7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 23:36:59 -0400
+From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+Message-Id: <200604040340.k343ewe3029930@auster.physics.adelaide.edu.au>
+Subject: 2.6.16-rt11: Hires timer makes sleep wait far too long
+To: linux-kernel@vger.kernel.org
+Date: Tue, 4 Apr 2006 13:10:58 +0930 (CST)
+Cc: jwoithe@physics.adelaide.edu.au (Jonathan Woithe)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Apr 2006, Larry McVoy wrote:
+A few days ago I compiled and tested 2.6.16-rt11 on a Pentium3 desktop box
+with the high resolution timer feature enabled.  It was set to a frequency
+of 1000.  Things appeared to work fine so I tried exactly the same thing
+on a 2.0 GHz Centrino-based laptop last night.
 
-> I figured that people here would know.  If you were looking for blade
-> servers and you were more interested in cost and heat generation than the
-> most performance, what would you buy?  We're looking for 20 x86 cpus.
-> They have to beat ASUS terminators (nice little boxes, if you haven't
-> checked them out you should, about $100 + cpu + mem + disk and they are
-> quiet and run on ~100watt power supplies so they don't generate a lot
-> of heat).
+Unfortunately the laptop had an issue: whenever the system scripts called
+sleep the system would wait for *way* longer than it should have.  Calling
+  sleep 1
+would give rise to a wait of as much as 45 seconds before the command 
+prompt returned.
 
-You're  not going to find blade hardware that's cost competitive with 
-barebones pc chasis on a per unit basis...
+This was similar to an issue I had earlier (around 2.6.13) which was
+associated with the new clock source infrastructure.  However, this time
+around the timekeeping (as in the time of day reported by "date") did not
+appear to run slow as it did in this previous fault condition.
 
-That said you over-simplifying the issue a bit. Terminator minitowers 
-are 11" high so if you set them on a shelf in a rack you get 2 in 7u or 
-maybe 4, if you're willing to have a cable management nightmare and a 
-heat problem in the middle.
+I tested the situation under the four clock sources reported to be available
+in /sys/devices/system/clocksource/clocksource0/:
 
-People are willing to pay a lot relatively speaking for space efficiency, 
-rack hardware, sane cable cable management, and easly repalacable parts.
+  pit, jiffies, acpi_pm (the default), tsc
 
-In general, managing costs has a lot to do with not buying what you don't 
-need which in this case sounds like lots of cpu power, but in the case of 
-cluster users includes cdrom drives, floppies, occasionaly harddisks etc.
+The actual amount of time waited by a "sleep 1" call from bash was tested
+at least twice for each timer source:
 
-> So far, the stuff at www.rackmount.com looks pretty good but they are
-> (like everyone else so far as I can tell) focussed on performance.
-> For all of the Unix like platforms, we'd be happy with 2Ghz Athlons (don't
-> need opterons) with 256MB.  It's true that for the windows platforms we
-> like 2GB because we use 1GB as a ram disk to get reasonable performance
-> out of @#!! Windows.
->
-> Thanks in advance,
->
-> --lm
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+  pit: 12 seconds, 29 seconds, 28 seconds
+  tsc: 45 seconds, 45 seconds
+  acpi_pm: 45 seconds, 29 seconds
+  jiffies: 45 seconds, 32 seconds
 
--- 
---------------------------------------------------------------------------
-Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu
-GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+I then rebuilt the 2.6.16-rt11 kernel without the HR-timers option selected.
+After rebooting, running sleep worked exactly as expected.
 
+I'm more than happy to run additional tests to try to narrow down the
+problem.
+
+Regards
+  jonathan

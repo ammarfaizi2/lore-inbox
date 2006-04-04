@@ -1,57 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWDDOCS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWDDOPP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbWDDOCS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 10:02:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWDDOCS
+	id S932443AbWDDOPP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 10:15:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWDDOPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 10:02:18 -0400
-Received: from mail1.utc.com ([192.249.46.190]:39127 "EHLO mail1.utc.com")
-	by vger.kernel.org with ESMTP id S932202AbWDDOCS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 10:02:18 -0400
-Message-ID: <44327C48.80200@cybsft.com>
-Date: Tue, 04 Apr 2006 09:01:44 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Tue, 4 Apr 2006 10:15:14 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:35495 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932210AbWDDOPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 10:15:12 -0400
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Subject: Re: Issues with uli526x networking module
+Date: Tue, 4 Apr 2006 16:15:10 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+References: <200601260900.57951.prakash@punnoor.de> <200603281930.53859.prakash@punnoor.de> <200603290747.38402.ncunningham@cyclades.com>
+In-Reply-To: <200603290747.38402.ncunningham@cyclades.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [RT] 2.6.16-rt12 hrtimer compile error
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/mixed;
- boundary="------------000400060900060803090901"
+Content-Type: multipart/signed;
+  boundary="nextPart1201403.fFoqaPSsLl";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200604041615.10749.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000400060900060803090901
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+--nextPart1201403.fFoqaPSsLl
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-The attached patch is necessary to build 2.6.16-rt12 with
-CONFIG_HIGH_RES_TIMERS disabled.
+Am Dienstag M=E4rz 28 2006 23:47 schrieb Nigel Cunningham:
+> Hi.
+>
+> On Wednesday 29 March 2006 03:30, Prakash Punnoor wrote:
+> > Hi, I am just wondering whether you found out what the issue is with the
+> > link problem. If you have some patch ready (even if it is hackish) I
+> > would be happy to use it.
+> >
+> > Anyways, I know you are busy with swsusp2. ;-)
+> >
+> > Cheers,
+>
+> Yes, I do have a patch. It is hackish at the moment because as you've
+> rightly guessed, I haven't gotten around to finishing it. It also doesn't
+> work perfectly - I sometimes need to rmmod and insmod after booting a new
+> kernel to get the link to come up. But, apart from that, it works fine.
 
--- 
-   kr
+Thx for sharing it. Unfortunately it doesn't help me. (I am not using suspe=
+nd=20
+or anything on that machine as it is supposed to be running 24/7.) After=20
+pulling out the LAN cable and putting it back in. network is dead. The driv=
+er=20
+(even unpatched) sees the cable is back in, but obviously wrongly=20
+reinitializes(?) the nic: Ie, kernel says after pluggin cable back in:
 
+uli526x: eth0 NIC Link is Up 100 Mbps Full duplex
 
---------------000400060900060803090901
-Content-Type: text/x-patch;
- name="hrtdef.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="hrtdef.patch"
+but network is dead.
 
---- linux-2.6.16/kernel/hrtimer.h.orig	2006-04-04 08:50:14.000000000 -0500
-+++ linux-2.6.16/kernel/hrtimer.h	2006-04-04 08:50:18.000000000 -0500
-@@ -207,6 +207,7 @@
- # define hrtimer_init_hres(c)		do { } while (0)
- # define hrtimer_init_timer_hres(t)	do { } while (0)
- # define hrtimer_update_timer_prio(t)	do { } while (0)
-+# define hrtimer_adjust_softirq_prio(b)	do { } while (0)
- 
- static inline void hrtimer_init_base(struct hrtimer_base *base)
- {
+I have to do:
 
---------------000400060900060803090901--
+ifconfig eth0 down
+modprobe -r uli526x
+modprobe uli526x
+ifconfig eth0 up
+dhclient
+
+And then it works again.
+
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
+
+--nextPart1201403.fFoqaPSsLl
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBEMn9uxU2n/+9+t5gRAp3HAKDRdZbU1aDoiO8aMtDvzsxIA+GvlACgvO6R
+IPSJ8tka5Y9qz2bDslYiIUU=
+=BGN+
+-----END PGP SIGNATURE-----
+
+--nextPart1201403.fFoqaPSsLl--

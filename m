@@ -1,68 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWDDSFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWDDSIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbWDDSFf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 14:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWDDSFf
+	id S1750788AbWDDSIH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 14:08:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWDDSIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 14:05:35 -0400
-Received: from ns01.unsolicited.net ([69.10.132.115]:19977 "EHLO
-	ns01.unsolicited.net") by vger.kernel.org with ESMTP
-	id S1750770AbWDDSFe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 14:05:34 -0400
-Message-ID: <4432B556.4030204@unsolicited.net>
-Date: Tue, 04 Apr 2006 19:05:10 +0100
-From: David R <david@unsolicited.net>
+	Tue, 4 Apr 2006 14:08:07 -0400
+Received: from 64-44-36-66.user.uswo.net ([64.44.36.66]:24377 "EHLO
+	mail.int.automatika.com") by vger.kernel.org with ESMTP
+	id S1750783AbWDDSIG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 14:08:06 -0400
+Message-ID: <4432B5D8.5050003@automatika.com>
+Date: Tue, 04 Apr 2006 14:07:20 -0400
+From: Kartik Babu <kbabu@automatika.com>
 User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: blade servers?
-References: <20060404024244.28E9A5F76B@work.bitmover.com>
-In-Reply-To: <20060404024244.28E9A5F76B@work.bitmover.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigD68A3404759205556D5CBA34"
+To: linux-kernel@vger.kernel.org
+Subject: dma_alloc_coherent
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigD68A3404759205556D5CBA34
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+  I'm trying to replace consistent_alloc in a driver that was written 
+for the 2.4 kernel with dma_alloc_coherent. My question is that I do not 
+use a struct device * pointer at all. Browsing through the source for 
+the 2.6.12
+on ARM XScale PXA255, I see that this argument may be NULL.
 
-Larry McVoy wrote:
+ Still, I'd like to know if passing NULL has any side effects. If so, 
+what are they?
 
-> For all of the Unix like platforms, we'd be happy with 2Ghz Athlons (do=
-n't
-> need opterons) with 256MB.  It's true that for the windows platforms we=
+ I do however have a cdev structure taht I use for device registration, 
+but I do not see how that would help.
 
-
-No specific recommendations, but one thing to keep in mind is that later
-process/stepping Athlon 64/Opterons are far more power efficient (especia=
-lly
-when using powernow) than older 32 bit Athlons.
-
-I'm not sure why Xeon based space heaters^H^H blades have been recommende=
-d in
-previous posts when low power is an issue?!?
-
-Cheers
-David
-
-
---------------enigD68A3404759205556D5CBA34
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEMrVb2qx5JuSvnlQRAtXxAJ0YHakMIEuLvCWfGoo5KZwOFvG0RwCeLXm8
-teY4BpPiQRPaLqw16Y2sLyM=
-=hObe
------END PGP SIGNATURE-----
-
---------------enigD68A3404759205556D5CBA34--
+Thanks
+Kartik

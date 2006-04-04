@@ -1,94 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751821AbWDDG1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751820AbWDDGav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751821AbWDDG1o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 02:27:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751820AbWDDG1o
+	id S1751820AbWDDGav (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 02:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751822AbWDDGav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 02:27:44 -0400
-Received: from ozlabs.org ([203.10.76.45]:43939 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751818AbWDDG1n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 02:27:43 -0400
-Subject: Re: [Fastboot] Re: [PATCH] kexec on ia64
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-To: Andrew Morton <akpm@osdl.org>
-Cc: Khalid Aziz <khalid_aziz@hp.com>, linux-ia64@vger.kernel.org,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060403212049.480ad388.akpm@osdl.org>
-References: <1144102818.8279.6.camel@localhost.localdomain>
-	 <20060403212049.480ad388.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mUP8jHBGvwM4iAqIVSJ1"
-Date: Tue, 04 Apr 2006 08:07:58 +0200
-Message-Id: <1144130879.29756.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+	Tue, 4 Apr 2006 02:30:51 -0400
+Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:7371 "EHLO
+	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751820AbWDDGav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 02:30:51 -0400
+Message-ID: <44321298.4000409@bigpond.net.au>
+Date: Tue, 04 Apr 2006 16:30:48 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Peter Williams <pwil3058@bigpond.net.au>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>,
+       Paolo Ornati <ornati@fastwebnet.it>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.2 for  2.6.17-rc1
+References: <4431FB72.9030907@bigpond.net.au>
+In-Reply-To: <4431FB72.9030907@bigpond.net.au>
+Content-Type: multipart/mixed;
+ boundary="------------000102090202070008050109"
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 4 Apr 2006 06:30:49 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------000102090202070008050109
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
---=-mUP8jHBGvwM4iAqIVSJ1
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Peter Williams wrote:
+> This version updates staircase scheduler to version 15 (thanks Con)
+> and includes the latest smpnice patches
+> 
+> A patch for 2.6.17-rc1 is available at:
+> 
+> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.3.2-for-2.6.17-rc1.patch?download> 
+> 
+> 
+> Very Brief Documentation:
+> 
+> You can select a default scheduler at kernel build time.  If you wish to
+> boot with a scheduler other than the default it can be selected at boot
+> time by adding:
+> 
+> cpusched=<scheduler>
+> 
+> to the boot command line where <scheduler> is one of: ingosched,
+> ingo_ll, nicksched, staircase, spa_no_frills, spa_ws, spa_svr, spa_ebs
+> or zaphod.  If you don't change the default when you build the kernel
+> the default scheduler will be ingosched (which is the normal scheduler).
+> 
+> The scheduler in force on a running system can be determined by the
+> contents of:
+> 
+> /proc/scheduler
+> 
+> Control parameters for the scheduler can be read/set via files in:
+> 
+> /sys/cpusched/<scheduler>/
+> 
+> Peter
 
-On Mon, 2006-04-03 at 21:20 -0700, Andrew Morton wrote:
-> Khalid Aziz <khalid_aziz@hp.com> wrote:
-> > +/*
-> > + * Terminate any outstanding interrupts
-> > + */
-> > +void terminate_irqs(void)
-> > +{
-> > +	struct irqaction * action;
-> > +	irq_desc_t *idesc;
-> > +	int i;
-> > +
-> > +	for (i=3D0; i<NR_IRQS; i++) {
->=20
-> 	for (i =3D 0; i < NR_IRQS; i++) {
->=20
-> > +		idesc =3D irq_descp(i);
-> > +		action =3D idesc->action;
-> > +		if (!action)
-> > +			continue;
-> > +		if (idesc->handler->end)
-> > +			idesc->handler->end(i);
-> > +	}
-> > +}
->=20
-> Could we have a bit more description of what this function does, and why =
-we
-> need it?
->=20
-> Should other kexec-using architectures be using this?  If not, why does
-> ia64 need it?
+This fails to build when SCHEDSTATS is not configured in.  The attached 
+patch fixes that problem.
 
-We've been kicking around a patch to do something similar, we also eoi
-anything that's outstanding. I can't find the patch just now, but it's
-on linuxppc somewhere I think.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-cheers
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce
 
---=20
-Michael Ellerman
-IBM OzLabs
+--------------000102090202070008050109
+Content-Type: text/plain;
+ name="build-without-schedstats"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="build-without-schedstats"
 
-wwweb: http://michael.ellerman.id.au
-phone: +61 2 6212 1183 (tie line 70 21183)
+Index: Linux-2.6.17-rc1/include/linux/sched_pvt.h
+===================================================================
+--- Linux-2.6.17-rc1.orig/include/linux/sched_pvt.h	2006-04-04 12:20:47.000000000 +1000
++++ Linux-2.6.17-rc1/include/linux/sched_pvt.h	2006-04-04 16:27:33.000000000 +1000
+@@ -209,6 +209,7 @@ static inline void sched_info_switch(tas
+ 		sched_info_arrive(next);
+ }
+ #else
++#define schedstat_inc(rq, field)	do { } while (0)
+ #define sched_info_queued(t)		do { } while (0)
+ #define sched_info_switch(t, next)	do { } while (0)
+ #endif /* CONFIG_SCHEDSTATS */
 
-We do not inherit the earth from our ancestors,
-we borrow it from our children. - S.M.A.R.T Person
-
---=-mUP8jHBGvwM4iAqIVSJ1
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQBEMg0+dSjSd0sB4dIRAgIBAJ94wIIGbAjYSxFFw3lLB67gq/4BBgCfZHk6
-6yDkgrajRYWfS5wbEXIy1rE=
-=Ykix
------END PGP SIGNATURE-----
-
---=-mUP8jHBGvwM4iAqIVSJ1--
-
+--------------000102090202070008050109--

@@ -1,84 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWDDJZX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWDDJ0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbWDDJZX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 05:25:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWDDJZX
+	id S932411AbWDDJ0m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 05:26:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbWDDJ0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 05:25:23 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47334 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932405AbWDDJZW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 05:25:22 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-X-Fcc: ~/Mail/linus
-Cc: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Fix pacct bug in multithreading case.
-In-Reply-To: KaiGai Kohei's message of  Tuesday, 28 March 2006 20:43:49 +0900 <44292175.6030605@ak.jp.nec.com>
-X-Windows: it could be worse, but it'll take time.
-Message-Id: <20060404092507.753721809CE@magilla.sf.frob.com>
-Date: Tue,  4 Apr 2006 02:25:07 -0700 (PDT)
+	Tue, 4 Apr 2006 05:26:42 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:23170 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S932411AbWDDJ0l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 05:26:41 -0400
+Date: Tue, 4 Apr 2006 11:26:28 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       "Eric W. Biederman" <ebiederman@lnxi.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Thomas Gleixner <tglx@linutronix.de>, Simon Evans <spse@secret.org.uk>
+Subject: [Patch 0/3] Remove blkmtd
+Message-ID: <20060404092628.GA12277@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That change looks correct to me, and I see that it's gone in.
+This patchset removed blkmtd in three steps:
+1. Mark it as deprecated,
+2. mark block2mtd, the replacement, as no longer experimental and
+3. remove the driver.
 
-It made me think of another issue affecting the accounting records in
-related circumstances when the old group leader died after a non-leader exec.
-I think this patch addresses that, and along with your patch, gives more
-sensible times in all cases.
+Eric suggested sending patch 1 and 2 directly to Linus while leaving
+patch 3 in -mm as long as klibc remains there as well.  Andrew, do you
+prefer me to send the first two patches to Linus or will you rather do
+it yourself?
 
+Jörn
 
-Thanks,
-Roland
-
-
-[PATCH] Take original leader's start_time in non-leader exec.
-
-The only record we have of the real-time age of a process, regardless of
-execs it's done, is start_time.  When a non-leader thread exec, the
-original start_time of the process is lost.  Things looking at the
-real-time age of the process are fooled, for example the process
-accounting record when the process finally dies.  This change makes the
-oldest start_time stick around with the process after a non-leader exec.
-This way the association between PID and start_time is kept constant,
-which seems correct to me.
-
-Signed-off-by: Roland McGrath <roland@redhat.com>
-
----
-
- fs/exec.c |   12 ++++++++++++
- 1 files changed, 12 insertions(+), 0 deletions(-)
-
-7cda52efb6ff969f049bc2ab3742b0341e45184a
-diff --git a/fs/exec.c b/fs/exec.c
-index 0291a68..a45f712 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -678,6 +678,18 @@ static int de_thread(struct task_struct 
- 		while (leader->exit_state != EXIT_ZOMBIE)
- 			yield();
- 
-+		/*
-+		 * The only record we have of the real-time age of a
-+		 * process, regardless of execs it's done, is start_time.
-+		 * All the past CPU time is accumulated in signal_struct
-+		 * from sister threads now dead.  But in this non-leader
-+		 * exec, nothing survives from the original leader thread,
-+		 * whose birth marks the true age of this process now.
-+		 * When we take on its identity by switching to its PID, we
-+		 * also take its birthdate (always earlier than our own).
-+		 */
-+		current->start_time = leader->start_time;
-+
- 		spin_lock(&leader->proc_lock);
- 		spin_lock(&current->proc_lock);
- 		proc_dentry1 = proc_pid_unhash(current);
 -- 
-1.2.4
-
+When people work hard for you for a pat on the back, you've got
+to give them that pat.
+-- Robert Heinlein

@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbWDDXl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbWDDXrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750942AbWDDXl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 19:41:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbWDDXl0
+	id S1750936AbWDDXrL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 19:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWDDXrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 19:41:26 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:50139 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1750941AbWDDXlZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 19:41:25 -0400
-From: Ingo Oeser <ioe-lists@rameria.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [FUN]Re: Linux 2.6.17-rc1
-Date: Wed, 5 Apr 2006 01:39:34 +0200
-User-Agent: KMail/1.9.1
-References: <20060403180207.E849EE007A12@knarzkiste.dyndns.org> <20060403190915.GA10584@charite.de> <20060403202539.65cf6e33.akpm@osdl.org>
-In-Reply-To: <20060403202539.65cf6e33.akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604050139.35435.ioe-lists@rameria.de>
+	Tue, 4 Apr 2006 19:47:11 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:33060 "EHLO
+	pd5mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1750936AbWDDXrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 19:47:10 -0400
+Date: Tue, 04 Apr 2006 17:45:57 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: dma_alloc_coherent
+In-reply-to: <5XY8B-82x-1@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Kartik Babu <kbabu@automatika.com>
+Message-id: <44330535.2070803@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <5XY8B-82x-1@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 4. April 2006 05:25, you wrote:
-> +	WARN_ON(!performance);
-> +
+Kartik Babu wrote:
+>  I'm trying to replace consistent_alloc in a driver that was written for 
+> the 2.4 kernel with dma_alloc_coherent. My question is that I do not use 
+> a struct device * pointer at all. Browsing through the source for the 
+> 2.6.12
+> on ARM XScale PXA255, I see that this argument may be NULL.
+> 
+> Still, I'd like to know if passing NULL has any side effects. If so, 
+> what are they?
+> 
+> I do however have a cdev structure taht I use for device registration, 
+> but I do not see how that would help.
 
-I love this change. Can we keep it :-)
+What kind of a device is it? If it's a PCI device, the struct device can 
+be accessed with the dev pointer inside the struct pci_dev.
 
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-Regards
-
-Ingo Oeser, who likes to be warned if Linux doesn't have performance

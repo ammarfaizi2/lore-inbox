@@ -1,63 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWDDEwH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751732AbWDDEx2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751437AbWDDEwH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 00:52:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751554AbWDDEwH
+	id S1751732AbWDDEx2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 00:53:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751813AbWDDEx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 00:52:07 -0400
-Received: from omta05sl.mx.bigpond.com ([144.140.93.195]:27573 "EHLO
-	omta05sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751437AbWDDEwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 00:52:05 -0400
-Message-ID: <4431FB72.9030907@bigpond.net.au>
-Date: Tue, 04 Apr 2006 14:52:02 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>,
-       Paolo Ornati <ornati@fastwebnet.it>, Ingo Molnar <mingo@elte.hu>
-Subject: [ANNOUNCE][RFC] PlugSched-6.3.2 for  2.6.17-rc1
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 4 Apr 2006 00:53:28 -0400
+Received: from www.osadl.org ([213.239.205.134]:26003 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751732AbWDDEx2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 00:53:28 -0400
+Subject: Re: [PATCH 0/5] clocksource patches
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <Pine.LNX.4.64.0604031431220.25825@scrub.home>
+References: <Pine.LNX.4.64.0604031431220.25825@scrub.home>
+Content-Type: text/plain
+Date: Tue, 04 Apr 2006 06:53:42 +0200
+Message-Id: <1144126422.5344.418.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 4 Apr 2006 04:52:03 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This version updates staircase scheduler to version 15 (thanks Con)
-and includes the latest smpnice patches
+On Mon, 2006-04-03 at 21:54 +0200, Roman Zippel wrote:
+> Another general comment from an arch/driver specific perspective: right 
+> now everything is rather concentrated on getting the time, but AFAICT it's 
+> more common that the subsystem which is used to read the time is also used 
+> as timer (i.e. for the scheduler tick), this means the clocksource driver 
+> should also include the interrupt setup.
 
-A patch for 2.6.17-rc1 is available at:
+I don't think so. Coupling the clock sources to clock event sources is
+wrong. In many systems the clock event source delivering the next event
+interrupt - either periodic or per event programmed - is independend
+from the clock source which is used to read the time.
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-6.3.2-for-2.6.17-rc1.patch?download>
+Also we want to distribute multiple clock event sources for various
+services. Hardwiring those into combos is counter productive.
 
-Very Brief Documentation:
+> i386 is currently rather hardcoded to use the i8253 timer, but AFAIK it 
+> would be desirable to e.g. use HPET for that (especially for hrtimer). 
+> Something like TSC should internally use another clocksource to provide 
+> the timer interrupt.
 
-You can select a default scheduler at kernel build time.  If you wish to
-boot with a scheduler other than the default it can be selected at boot
-time by adding:
+This is exactly the result of such an artificial combo. "Use internally
+something else." Thats fundamentally wrong and violates every basic rule
+of abstraction.
 
-cpusched=<scheduler>
+>  Anyway, i386 is quite a mess here right now and I can 
+> understand that you wanted to stay away from it with the generic 
+> gettimeofday infrastructure. :-)
 
-to the boot command line where <scheduler> is one of: ingosched,
-ingo_ll, nicksched, staircase, spa_no_frills, spa_ws, spa_svr, spa_ebs
-or zaphod.  If you don't change the default when you build the kernel
-the default scheduler will be ingosched (which is the normal scheduler).
+He ? John addressed the clock source (timeofday) related problem in
+x386. He never claimed that his timeofday code is solving the clock
+event source problem. gettimeofday() exactly does what it says: it gets
+the time of day. And it does it independend of any interrupt source in
+the first place.
 
-The scheduler in force on a running system can be determined by the
-contents of:
+Clock event sources need their own independent abstraction layer, as one
+can be found in my high resolution timer patch queue. There is
+interaction between the timekeeping and the next event interrupt
+programming, but it's important to keep them seperate.
 
-/proc/scheduler
+How should a combo solution allow to add special hardware, which
+provides only one of the services ? By using "something else
+internally" ? No, thanks.
 
-Control parameters for the scheduler can be read/set via files in:
+	tglx
 
-/sys/cpusched/<scheduler>/
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

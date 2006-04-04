@@ -1,38 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWDDPVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWDDPYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWDDPVk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 11:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWDDPVk
+	id S1750707AbWDDPYc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 11:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWDDPYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 11:21:40 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:35031 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750706AbWDDPVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 11:21:39 -0400
-Date: Tue, 4 Apr 2006 08:21:33 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Nick Piggin <npiggin@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [patch 2/3] mm: speculative get_page
-In-Reply-To: <20060219020159.9923.94877.sendpatchset@linux.site>
-Message-ID: <Pine.LNX.4.64.0604040820540.26807@schroedinger.engr.sgi.com>
-References: <20060219020140.9923.43378.sendpatchset@linux.site>
- <20060219020159.9923.94877.sendpatchset@linux.site>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 4 Apr 2006 11:24:32 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:22685 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750707AbWDDPYb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 11:24:31 -0400
+Date: Tue, 4 Apr 2006 16:24:30 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: regression in kbiuld with O=
+Message-ID: <20060404152430.GG27946@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Apr 2006, Nick Piggin wrote:
-
-> +	/*
-> +	 * PageNoNewRefs is set in order to prevent new references to the
-> +	 * page (eg. before it gets removed from pagecache). Wait until it
-> +	 * becomes clear (and checks below will ensure we still have the
-> +	 * correct one).
-> +	 */
-> +	while (unlikely(PageNoNewRefs(page)))
-> +		cpu_relax();
-
-That part looks suspiciously like we need some sort of lock here.
+make O=../test kernel/sched.o produces kernel/sched.o is source tree
+now.  AFAICS, breakage started in 06300b21f4c79fd1578f4b7ca4b314fbab61a383
+(kbuild: support building individual files for external modules).

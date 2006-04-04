@@ -1,86 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWDDQHv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWDDQQf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbWDDQHv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 12:07:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWDDQHv
+	id S1750735AbWDDQQf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 12:16:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWDDQQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 12:07:51 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:20168 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750730AbWDDQHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 12:07:50 -0400
-From: <christian@scharff-home.de>
-To: <linux-kernel@vger.kernel.org>
-Cc: <christian@scharff-home.de>
-Subject: EPIA-M: DMA & VT8235 Lock-up
-Date: Tue, 4 Apr 2006 18:07:57 +0200
-Message-ID: <17624747.9731144160783244.JavaMail.servlet@kundenserver>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Webmail
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Binford: 6100 (more power)
-X-Originating-From: 31661542
-X-Routing: DE
-X-Message-Id: <31661542$1144160783243172.23.4.15714433154@pustefix157.kundenserver.de-2113841273>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:b77685ddbddf372e99c047856fb7fc81
+	Tue, 4 Apr 2006 12:16:35 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:7884 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1750735AbWDDQQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 12:16:35 -0400
+Date: Tue, 4 Apr 2006 18:16:27 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Richard Purdie <richard@openedhand.com>
+Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
+Subject: Re: [PATCH RFC/testing] Upgrade the zlib_inflate library code to a recent version
+Message-ID: <20060404161627.GH25130@wohnheim.fh-wedel.de>
+References: <1144163888.6441.48.camel@localhost.localdomain> <20060404153354.GD25130@wohnheim.fh-wedel.de> <1144166212.6441.57.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1144166212.6441.57.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 4 April 2006 16:56:51 +0100, Richard Purdie wrote:
+> On Tue, 2006-04-04 at 17:33 +0200, Jörn Engel wrote:
+> > On Tue, 4 April 2006 16:18:08 +0100, Richard Purdie wrote: 
+> > > Upgrade the zlib_inflate implementation in the kernel from a patched
+> > > version 1.1.3 to a patched 1.2.3. 
+> > 
+> > s/1.1.3/1.1.4/
+> >
+> > I once pulled all the bugfixes between the versions into the kernel.
+> 
+> That's not what the header says :)
 
-I am writing to this list since I think solving this issue may have some
-importance also to other Linux users.
+Well, the complete patch from 1.1.3 to 1.1.4 was rather big.  Every
+single copyright line got updated to a current date, without any other
+changes in those files.  I found it rather silly and took the bugfixes
+only. ;)
 
-Please CC me if you answer since I am not subscribed to this list!
+> > > +#if 0
+> > > +int zlib_inflatePrime(z_streamp strm, int bits, int value)
+> > 
+> > Was this code dead in 1.2.3 as well?
+> 
+> This code was commented out in the kernel by Adrian Bunk as it has no
+> users and I just followed that example when updating  I'm sure if
+> someone needed it, it could be enabled.
 
-Here is the issue:
+My thinking was rather that we could remove it.  #if 0 has an
+advantage in case you made a mistake - easy to revert.  But after a
+while...
 
-I have severe lock-ups with Vias ME6000 motherboard with UDMA100
-transfers. 
+> > > +#ifndef PKZIP_BUG_WORKAROUND
+> > 
+> > For the kernel, we can remove compat code against DOS compilers, etc.
+> > In this particular case, I believe we can just consider data
+> > compressed with PKZIP to be illegal and throw an error.
+> 
+> Agreed, there are places it can be tidied up a bit further. I was trying
+> not to make too many changes so any future updates against zlib are
+> easier.
 
-MY Hardaware: 
+Fair enough.
 
-VIA EPIA ME6000 (VIA VT8235 south bridge)
-512 MB DDR400 RAM (verified OK!)
-Technotrend DVBs 1.5 card 
-Intel Pro 1000 desktop ethernet card (e1000)
-Linux Kernel 2.6.13
-Bios: 1.16 
-hard drive Samsung HM100JC (UDMA 100 capable)
+Jörn
 
-I made some test copying some files back and forth on my HD
-
-When I run this in dma4 and dma5 mode my systems stops working after a
-while. 
-With lower DMA modes or in PIO mode everything is fine. 
-I tested already different 80 pin ATA cables, but the cable does not
-solve the problem.
-
-So the board or the drivers have a DMA issue.  
-
-I am wondering if this can be fixed in the LINUX Kernel or if this is an
-unsolved VT8235 hardware issue.
-
-Lockups usually occur if there is also other traffic, like network
-traffic.
-Via seems to have a solution for its Windows drivers since it has been
-reported that with a driver update in 2005 the issue was solved.
-
-Others users report similar problems. See related thread here:
-
-http://forums.viaarena.com/messageview.aspx?catid=28&threadid=60131&STAR
-TPAGE=1&FTVAR_FORUMVIEWTMP=Linear
-
-Are there any suggestions if this can be fixed by modifying kernel
-divers?
-
-RGDS
-
-Christian
-
+-- 
+Data expands to fill the space available for storage.
+-- Parkinson's Law

@@ -1,158 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbWDDJzm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWDDKBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964928AbWDDJzm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 05:55:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbWDDJzm
+	id S964898AbWDDKBR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 06:01:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbWDDKBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 05:55:42 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:21128 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964928AbWDDJzm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 05:55:42 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH] Keys: Improve usage of memory barriers and remove IRQ disablement
-Date: Tue, 04 Apr 2006 10:55:30 +0100
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
-Message-Id: <20060404095529.31311.3892.stgit@warthog.cambridge.redhat.com>
+	Tue, 4 Apr 2006 06:01:17 -0400
+Received: from 169.248.adsl.brightview.com ([80.189.248.169]:64267 "EHLO
+	getafix.willow.local") by vger.kernel.org with ESMTP
+	id S964898AbWDDKBR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 06:01:17 -0400
+Date: Tue, 4 Apr 2006 10:01:15 +0000
+From: John Mylchreest <johnm@gentoo.org>
+To: Olaf Hering <olh@suse.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, paulus@samba.org
+Subject: Re: [PATCH 1/1] POWERPC: Fix ppc32 compile with gcc+SSP in 2.6.16
+Message-ID: <20060404100115.GI3443@getafix.willow.local>
+References: <20060401224849.GH16917@getafix.willow.local> <20060402085850.GA28857@suse.de> <20060402102259.GM16917@getafix.willow.local> <20060402102815.GA29717@suse.de> <20060402105859.GN16917@getafix.willow.local> <20060402111002.GA30017@suse.de> <20060402112002.GA3443@getafix.willow.local> <20060402114215.GA30491@suse.de> <20060404085729.GH3443@getafix.willow.local> <20060404094124.GA22332@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VSaCG/zfRnOiPJtU"
+Content-Disposition: inline
+In-Reply-To: <20060404094124.GA22332@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch adds a missing memory barrier into the key_put() and removes
-an unnecessary barrier from install_session_keyring().
 
-install_session_keyring() is also rearranged a little to make it slightly more
-efficient.
+--VSaCG/zfRnOiPJtU
+Content-Type: text/plain; charset=utf8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-As install_*_keyring() may schedule (in synchronize_rcu() or keyring_alloc()),
-they may not be entered with interrupts disabled - and so there's no point
-saving the interrupt disablement state over the critical section.
+On Tue, Apr 04, 2006 at 11:41:24AM +0200, Olaf Hering <olh@suse.de> wrote:
+> I think this should go into the main makefile, HOSTCFLAGS or similar. If
+> you look around quickly in the gentoo bugzilla, all non-userland
+> packages (grub, xen, kernel etc.) require the -fno-feature.
 
-exec_keys() will also be invoked with interrupts enabled, and so that doesn't
-need to save the interrupt state either.
----
+I'm not completely sure I understand where you are coming from here?
+I assume you mean adding -fno-stack-protector to the host userlands
+CFLAGS variable (or similar) to make it a global change, but if so
+you're missing my point.
 
- security/keys/key.c          |    1 +
- security/keys/process_keys.c |   41 ++++++++++++++++++++---------------------
- 2 files changed, 21 insertions(+), 21 deletions(-)
+Effectively, anyone who currently has -fstack-protector enabled in
+userland (regardless of distribution, or otherwise) will fail to build
+the tools required. I do realise that gcc should not call this stuff
+with ssp enabled, but there are legitimate cases for this to happen.
+Also, just to bare in mind that this does not occur anywhere else except
+for the "self-contained" code in arch/powerpc/boot, and it only occurs
+here because we have a different userland and kernel ABI.
 
-diff --git a/security/keys/key.c b/security/keys/key.c
-index 99781b7..d8a6e00 100644
---- a/security/keys/key.c
-+++ b/security/keys/key.c
-@@ -619,6 +619,7 @@ void key_put(struct key *key)
- 	if (key) {
- 		key_check(key);
- 
-+		smp_mb__before_atomic_dec();
- 		if (atomic_dec_and_test(&key->usage))
- 			schedule_work(&key_cleanup_task);
- 	}
-diff --git a/security/keys/process_keys.c b/security/keys/process_keys.c
-index 74cb79e..ad123c3 100644
---- a/security/keys/process_keys.c
-+++ b/security/keys/process_keys.c
-@@ -167,11 +167,12 @@ error:
-  */
- int install_process_keyring(struct task_struct *tsk)
- {
--	unsigned long flags;
- 	struct key *keyring;
- 	char buf[20];
- 	int ret;
- 
-+	might_sleep();
-+
- 	if (!tsk->signal->process_keyring) {
- 		sprintf(buf, "_pid.%u", tsk->tgid);
- 
-@@ -182,12 +183,12 @@ int install_process_keyring(struct task_
- 		}
- 
- 		/* attach keyring */
--		spin_lock_irqsave(&tsk->sighand->siglock, flags);
-+		spin_lock_irq(&tsk->sighand->siglock);
- 		if (!tsk->signal->process_keyring) {
- 			tsk->signal->process_keyring = keyring;
- 			keyring = NULL;
- 		}
--		spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
-+		spin_unlock_irq(&tsk->sighand->siglock);
- 
- 		key_put(keyring);
- 	}
-@@ -206,38 +207,37 @@ error:
- static int install_session_keyring(struct task_struct *tsk,
- 				   struct key *keyring)
- {
--	unsigned long flags;
- 	struct key *old;
- 	char buf[20];
--	int ret;
-+
-+	might_sleep();
- 
- 	/* create an empty session keyring */
- 	if (!keyring) {
- 		sprintf(buf, "_ses.%u", tsk->tgid);
- 
- 		keyring = keyring_alloc(buf, tsk->uid, tsk->gid, 1, NULL);
--		if (IS_ERR(keyring)) {
--			ret = PTR_ERR(keyring);
--			goto error;
--		}
-+		if (IS_ERR(keyring))
-+			return PTR_ERR(keyring);
- 	}
- 	else {
- 		atomic_inc(&keyring->usage);
- 	}
- 
- 	/* install the keyring */
--	spin_lock_irqsave(&tsk->sighand->siglock, flags);
--	old = rcu_dereference(tsk->signal->session_keyring);
-+	spin_lock_irq(&tsk->sighand->siglock);
-+	old = tsk->signal->session_keyring;
- 	rcu_assign_pointer(tsk->signal->session_keyring, keyring);
--	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
-+	spin_unlock_irq(&tsk->sighand->siglock);
- 
--	ret = 0;
-+	/* we're using RCU on the pointer, but there's no point synchronising
-+	 * on it if it didn't previously point to anything */
-+	if (old) {
-+		synchronize_rcu();
-+		key_put(old);
-+	}
- 
--	/* we're using RCU on the pointer */
--	synchronize_rcu();
--	key_put(old);
--error:
--	return ret;
-+	return 0;
- 
- } /* end install_session_keyring() */
- 
-@@ -310,7 +310,6 @@ void exit_keys(struct task_struct *tsk)
-  */
- int exec_keys(struct task_struct *tsk)
- {
--	unsigned long flags;
- 	struct key *old;
- 
- 	/* newly exec'd tasks don't get a thread keyring */
-@@ -322,10 +321,10 @@ int exec_keys(struct task_struct *tsk)
- 	key_put(old);
- 
- 	/* discard the process keyring from a newly exec'd task */
--	spin_lock_irqsave(&tsk->sighand->siglock, flags);
-+	spin_lock_irq(&tsk->sighand->siglock);
- 	old = tsk->signal->process_keyring;
- 	tsk->signal->process_keyring = NULL;
--	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
-+	spin_unlock_irq(&tsk->sighand->siglock);
- 
- 	key_put(old);
- 
+--=20
+Role:            Gentoo Linux Kernel Lead
+Gentoo Linux:    http://www.gentoo.org
+Public Key:      gpg --recv-keys 9C745515
+Key fingerprint: A0AF F3C8 D699 A05A EC5C  24F7 95AA 241D 9C74 5515
 
+
+--VSaCG/zfRnOiPJtU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFEMkPrNzVYcyGvtWURAsblAKCwDfywmfmStsQcuHhiMMqTJZClZwCgqZEY
+sPa2lWxJfnMqSDBICS5O1Ns=
+=+nbR
+-----END PGP SIGNATURE-----
+
+--VSaCG/zfRnOiPJtU--

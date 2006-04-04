@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWDDO2P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWDDOar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbWDDO2P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 10:28:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWDDO2P
+	id S932214AbWDDOar (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 10:30:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWDDOar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 10:28:15 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:36738 "EHLO
-	pd5mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S932212AbWDDO2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 10:28:14 -0400
-Date: Tue, 04 Apr 2006 08:27:07 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: 2.2 kernel
-In-reply-to: <5XMAv-17T-11@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: tim tim <tictactoe.tim@gmail.com>
-Message-id: <4432823B.4020606@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <5XMAv-17T-11@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 4 Apr 2006 10:30:47 -0400
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:18742 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S932214AbWDDOar (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 10:30:47 -0400
+In-Reply-To: <20060404014504.564bf45a.akpm@osdl.org>
+References: <20060404014504.564bf45a.akpm@osdl.org>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <B19E9BA0-E04C-46F2-AC22-113E4D6AC8D3@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: 2.6.17-rc1-mm1
+Date: Tue, 4 Apr 2006 09:31:10 -0500
+To: Andrew Morton <akpm@osdl.org>
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tim tim wrote:
-> hello everybody.. i want to install 2.2 kernel .. and currently i have
-> installed 2.6.10 kernel.. but when i compile 2.2 it says errors.. can
-> some body plz tell me why.. or how to install that kernel..
-> thankss
+>
+> Boilerplate:
+>
+> - See the `hot-fixes' directory for any important updates to this  
+> patchset.
+>
+> - To fetch an -mm tree using git, use (for example)
+>
+>   git fetch git://git.kernel.org/pub/scm/linux/kernel/git/smurf/ 
+> linux-trees.git v2.6.16-rc2-mm1
 
-Your compiler is probably too new to build a 2.2 kernel. You likely need 
-to use gcc 2.95. Also, a 2.2 kernel is unlikely to have a hope of 
-running on a distribution made for 2.6.
+It doesn't seem like the git tree got updated correctly.  The 2.6.17- 
+rc1-mm1 seems to be just 2.6.17-rc1 (just a quick spot check at  
+Makefile and a few patches I expected in like the 64-bit resource  
+change)
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+- kumar

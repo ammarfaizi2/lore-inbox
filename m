@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWDDQab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWDDQb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbWDDQab (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 12:30:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWDDQ36
+	id S1750743AbWDDQb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 12:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWDDQac
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 12:29:58 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3086 "HELO
+	Tue, 4 Apr 2006 12:30:32 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:7438 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750745AbWDDQ34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 12:29:56 -0400
-Date: Tue, 4 Apr 2006 18:29:55 +0200
+	id S1750752AbWDDQaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 12:30:12 -0400
+Date: Tue, 4 Apr 2006 18:30:10 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, len.brown@intel.com
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: 2.6.17-rc1-mm1: why did acpi_ns_build_external_path() become global?
-Message-ID: <20060404162955.GN6529@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, NeilBrown <neilb@suse.de>
+Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: [-mm patch] fs/nfsd/nfs4state.c: make a struct static
+Message-ID: <20060404163010.GQ6529@stusta.de>
 References: <20060404014504.564bf45a.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,24 +27,24 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 On Tue, Apr 04, 2006 at 01:45:04AM -0700, Andrew Morton wrote:
 >...
 > Changes since 2.6.16-mm2:
-> 
->  git-acpi.patch
 >...
->  git trees.
+> +knfsd-locks-flag-nfsv4-owned-locks.patch
+>...
+>  knfsd updates.
 >...
 
-acpi_ns_build_external_path() became global but isn't used outside the 
-file it's defined in.
+This patch makes the needlessly global struct nfsd_posix_mng_ops static.
 
-Was this accidental or is a usage pending?
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--- linux-2.6.17-rc1-mm1-full/fs/nfsd/nfs4state.c.old	2006-04-04 18:03:25.000000000 +0200
++++ linux-2.6.17-rc1-mm1-full/fs/nfsd/nfs4state.c	2006-04-04 18:03:38.000000000 +0200
+@@ -2507,7 +2507,7 @@
+ 
+ /* Hack!: For now, we're defining this just so we can use a pointer to it
+  * as a unique cookie to identify our (NFSv4's) posix locks. */
+-struct lock_manager_operations nfsd_posix_mng_ops  = {
++static struct lock_manager_operations nfsd_posix_mng_ops  = {
+ };
+ 
+ static inline void

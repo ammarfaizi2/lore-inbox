@@ -1,116 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbWDDDYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964989AbWDDD3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964983AbWDDDYM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 23:24:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWDDDYL
+	id S964989AbWDDD3c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 23:29:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWDDD3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 23:24:11 -0400
-Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:17584 "EHLO
-	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S964983AbWDDDYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 23:24:10 -0400
-Message-ID: <4431E6D7.2060604@bigpond.net.au>
-Date: Tue, 04 Apr 2006 13:24:07 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Con Kolivas <kernel@kolivas.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: smpnice loadbalancing with high priority tasks
-References: <20060328185202.A1135@unix-os.sc.intel.com> <442A0235.1060305@bigpond.net.au> <20060329145242.A11376@unix-os.sc.intel.com> <442B1AE8.5030005@bigpond.net.au> <20060329165052.C11376@unix-os.sc.intel.com> <442B3111.5030808@bigpond.net.au> <20060401204824.A8662@unix-os.sc.intel.com> <442F7871.4030405@bigpond.net.au> <20060403172408.A31895@unix-os.sc.intel.com> <4431CA4F.3020304@bigpond.net.au> <20060403191122.B31895@unix-os.sc.intel.com>
-In-Reply-To: <20060403191122.B31895@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 3 Apr 2006 23:29:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36321 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964989AbWDDD3b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 23:29:31 -0400
+Date: Mon, 3 Apr 2006 20:25:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+Cc: linux-kernel@vger.kernel.org, Jacob Shin <jacob.shin@amd.com>,
+       Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: Linux 2.6.17-rc1
+Message-Id: <20060403202539.65cf6e33.akpm@osdl.org>
+In-Reply-To: <20060403190915.GA10584@charite.de>
+References: <20060403180207.E849EE007A12@knarzkiste.dyndns.org>
+	<Pine.LNX.4.64.0604022037380.3781@g5.osdl.org>
+	<20060403190915.GA10584@charite.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 4 Apr 2006 03:24:08 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Siddha, Suresh B wrote:
-> On Tue, Apr 04, 2006 at 11:22:23AM +1000, Peter Williams wrote:
->> OK.  I think this means some fiddling with avg_load may be necessary in 
->> some cases but this will be complex.  I'm not really happy about making 
->> this code more complex until some of the current unnecessary complexity 
->> is removed.  I.e. until a proper solution to the problem of triggering 
->> active_load_balance() is implemented.
+Ralf Hildebrandt <Ralf.Hildebrandt@charite.de> wrote:
+>
+> * Linus Torvalds <torvalds@osdl.org>:
+> > 
+> > Ok, 
+> >  it's two weeks since 2.6.16, and the merge window is closed.
 > 
-> Here is Nicks view about active_load_balance()
+> loading an unloading the powernow-k8 modules causes an EIP:
 > 
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=3950745131e23472fb5ace2ee4a2093e7590ec69
+> % modprobe powernow_k8
+> 
+> > Apr  3 19:52:32 knarzkiste kernel: powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.60.1)
+> > Apr  3 19:52:32 knarzkiste kernel: powernow-k8:    0 : fid 0x0 (800 MHz), vid 0x12 (1100 mV)
+> > Apr  3 19:52:32 knarzkiste kernel: powernow-k8:    1 : fid 0x8 (1600 MHz), vid 0x4 (1450 mV)
+> > Apr  3 19:52:32 knarzkiste kernel: cpu_init done, current fid 0x8, vid 0x2
+> > Apr  3 19:52:32 knarzkiste kernel: powernow-k8: ph2 null fid transition 0x8
+> 
+> % rmmod powernow_k8
+> 
+> > Apr  3 19:52:58 knarzkiste kernel: BUG: unable to handle kernel NULL pointer dereference at virtual address 0000002c
+> > Apr  3 19:52:58 knarzkiste kernel:  printing eip:
+> > Apr  3 19:52:58 knarzkiste kernel: ded6db09
+> > Apr  3 19:52:58 knarzkiste kernel: *pde = 00000000
+> > Apr  3 19:52:58 knarzkiste kernel: Oops: 0000 [#1]
+> > Apr  3 19:52:58 knarzkiste kernel: PREEMPT
+> > Apr  3 19:52:58 knarzkiste kernel: Modules linked in: powernow_k8 freq_table thermal fan button processor ac battery af_packet ide_scsi sata_sil libata scsi_mod eeprom saa7134_dvb mt352 saa7134 compat_ioctl32 v4l2_common v4l1_compat ir_kbd_i2c ir_common videodev video_buf_dvb dvb_core video_buf nxt200x dvb_pll tda1004x usbhid usbmouse pcmcia firmware_class tsdev 8250_pci 8250 serial_core 8139too evdev psmouse yenta_socket rsrc_nonstatic pcmcia_core ehci_hcd ohci_hcd snd_atiixp_modem snd_atiixp usbcore ide_cd snd_ac97_codec snd_ac97_bus ati_agp agpgart snd_pcm snd_timer snd soundcore snd_page_alloc cdrom unix
+> > Apr  3 19:52:58 knarzkiste kernel: CPU:    0
+> > Apr  3 19:52:58 knarzkiste kernel: EIP:    0060:[pg0+513383177/1069720576]    Not tainted VLI
+> > Apr  3 19:52:58 knarzkiste kernel: EFLAGS: 00010286   (2.6.17-rc1 #1)
+> > Apr  3 19:52:58 knarzkiste kernel: EIP is at acpi_processor_unregister_performance+0x1e/0x3e [processor]
+> > Apr  3 19:52:58 knarzkiste kernel: eax: 00000000   ebx: dd1f5000   ecx: 00000001   edx: 00000000
+> > Apr  3 19:52:58 knarzkiste kernel: esi: dca68980   edi: 00000286   ebp: dca68a0c   esp: dd002f1c
+> > Apr  3 19:52:58 knarzkiste kernel: ds: 007b   es: 007b   ss: 0068
+> > Apr  3 19:52:58 knarzkiste kernel: Process rmmod (pid: 4806, threadinfo=dd002000 task=ddd6f070)
+> > Apr  3 19:52:58 knarzkiste kernel: Stack: <0>dc1d1640 ded684d6 dca68980 dca689a8 c0296582 c03adf88 c034ca50 c0349d9c
+> > Apr  3 19:52:58 knarzkiste kernel:        c0349d80 c0274eb7 00000880 ded6a100 00000000 dd002000 c02953f5 c0136706
+> > Apr  3 19:52:58 knarzkiste kernel:        65776f70 776f6e72 00386b5f da8999bc c0149d89 b7fa0000 dd62bac0 c014b198
+> > Apr  3 19:52:58 knarzkiste kernel: Call Trace:
+> > Apr  3 19:52:58 knarzkiste kernel:  <ded684d6> powernowk8_cpu_exit+0x26/0x50 [powernow_k8]   <c0296582> cpufreq_remove_dev+0xb2/0x120
+> > Apr  3 19:52:58 knarzkiste kernel:  <c0274eb7> sysdev_driver_unregister+0x67/0x80   <c02953f5> cpufreq_unregister_driver+0x25/0x60
+> > Apr  3 19:52:58 knarzkiste kernel:  <c0136706> sys_delete_module+0x146/0x1c0   <c0149d89> remove_vma+0x39/0x50
+> > Apr  3 19:52:58 knarzkiste kernel:  <c014b198> do_munmap+0x198/0x1f0   <c0102e93> sysenter_past_esp+0x54/0x75
+> > Apr  3 19:52:58 knarzkiste kernel: Code: 01 00 00 31 c0 83 c4 2c 5b 5e 5f 5d c3 53 ff 0d e0 00 d7 de 0f 88 f8 01 00 00 8b 1c 95 8c 02 d7 de 85 db 74 18 8b 83 6c 02 00 00 <8b> 40 2c e8 ff 83 3e e1 c7 83 6c 02 00 00 00 00 00 00 ff 05 e0
+> 
 
-That's pre smpnice. :-)
+In acpi_processor_unregister_performance(), pr->performance is NULL.
 
-> 
->>> c) DP system: if the cpu-0 has two high priority and cpu-1 has one normal
->>> priority task, how can the current code detect this imbalance..
->> How would it not?
-> 
-> imbalance will be always < busiest_load_per_task and
-> max_load - this_load will be < 2 * busiest_load_per_task...
-> and pwr_move will be <= pwr_now...
+Can you add the below?  It should tell us who forgot to register the
+performance data, as well as working around the crash.
 
-I had thought about substituting (busiest_load_per_task + 
-this_load_per_task) for (busiest_load_per_task * 2) but couldn't 
-convince myself that it was the right thing to do.  (The final update to 
-this_load_per_task would need to be moved.)  The reason I couldn't 
-convince myself is that I thought it might be too aggressive and cause 
-excessive balancing.  Maybe something more sophisticated is needed to 
-prevent that possibility.  It should be noted that the relative sizes of 
-busiest_load_per_task and this_load_per_task my be useful in deciding 
-what to do in these cases.  I'll put some thought into that.
 
-BTW load balancing without smpnice would do just as badly here in that 
-it wouldn't notice an imbalance either.
+diff -puN drivers/acpi/processor_perflib.c~a drivers/acpi/processor_perflib.c
+--- devel/drivers/acpi/processor_perflib.c~a	2006-04-03 20:23:55.000000000 -0700
++++ devel-akpm/drivers/acpi/processor_perflib.c	2006-04-03 20:24:46.000000000 -0700
+@@ -577,6 +577,8 @@ acpi_processor_register_performance(stru
+ 		return_VALUE(-EBUSY);
+ 	}
+ 
++	WARN_ON(!performance);
++
+ 	pr->performance = performance;
+ 
+ 	if (acpi_processor_get_performance_info(pr)) {
+@@ -609,7 +611,8 @@ acpi_processor_unregister_performance(st
+ 		return_VOID;
+ 	}
+ 
+-	kfree(pr->performance->states);
++	if (pr->performance)
++		kfree(pr->performance->states);
+ 	pr->performance = NULL;
+ 
+ 	acpi_cpufreq_remove_file(pr);
+_
 
-> 
->>> d) 4-way MP system: if the cpu-0 has two high priority tasks, cpu-1 has
->>> one high priority and four normal priority and cpu-2,3 each has one
->>> high priority task.. how does the current code distribute the normal
->>> priority tasks among cpu-1,2,3... (in this case, max_load will always
->>> point to cpu-0 and will never distribute the noraml priority tasks...)
->> This should cause cpu-0 to lose one of its tasks creating a new state 
-> 
-> how? in this case also...
-> 
-> imbalance will be always < busiest_load_per_task and
-> max_load - this_load will be < 2 * busiest_load_per_task...
-> and pwr_move will be <= pwr_now...
-> 
-> 
->> Without smpnice, can you show how the default load balancing would 
->> result in the "nice" values being reliably enforced in your examples.
-> 
-> I agree with the issue that we are trying to fix here.. but I feel
-> it is incomplete.. With the current code in mainline, anyone can say the 
-> behavior by going through the code.... with smpnice code, code is complex
-> and really doesn't achieve what that patch really wants to fix..
-
-It does in most cases and we could reduce the complexity if we had an 
-alternative trigger for active_load_balance() :-)
-
-> 
->> The good news is that, in real life, high priority tasks generally only 
->> use very short bursts of CPU. :-)
-> 
-> do we then really need smpnice complexity?
-
-Most people who express unhappiness with SMP and nice are looking at the 
-other end of the problem i.e. they nice 19 a process to make it run in 
-the background but it gets a CPU to itself while a couple nice 0 tasks 
-have to share the other CPU.  The high priority case has to be 
-considered as well (e.g. one high priority task and one normal priority 
-task running on a 2 CPU machine with a CPU each when another task wakes 
--- you'd like that to end up on the CPU of the normal priority task not 
-the one with the high priority task, etc.) but its effects are more 
-likely to be transitory and high priority tasks would not be expected to 
-have a long term effect on balancing.
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWDDVCu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWDDVGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750871AbWDDVCu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 17:02:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWDDVCu
+	id S1750881AbWDDVGq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 17:06:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbWDDVGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 17:02:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10895 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750871AbWDDVCt (ORCPT
+	Tue, 4 Apr 2006 17:06:46 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:47754 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750879AbWDDVGq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 17:02:49 -0400
-Message-ID: <4432DF23.50004@redhat.com>
-Date: Tue, 04 Apr 2006 14:03:31 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Tue, 4 Apr 2006 17:06:46 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.17-rc1-mm1: mlockall() regression on x86_64
+Date: Tue, 4 Apr 2006 22:53:05 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <20060404014504.564bf45a.akpm@osdl.org>
+In-Reply-To: <20060404014504.564bf45a.akpm@osdl.org>
 MIME-Version: 1.0
-To: "Luck, Tony" <tony.luck@intel.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, mtk-manpages@gmx.net,
-       nickpiggin@yahoo.com.au
-Subject: Re: [patch 1/1] sys_sync_file_range()
-References: <200603300741.k2U7fQLe002202@shell0.pdx.osdl.net> <20060404205055.GA5745@agluck-lia64.sc.intel.com>
-In-Reply-To: <20060404205055.GA5745@agluck-lia64.sc.intel.com>
-X-Enigmail-Version: 0.93.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig1508F2E1914071C18C18FD4E"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604042253.06378.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig1508F2E1914071C18C18FD4E
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Tuesday 04 April 2006 10:45, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc1/2.6.17-rc1-mm1/
 
-Luck, Tony wrote:
-> Is it too late to fix __NR_sys_kexec_load (since it is out in the
-> wild now?)
+With this kernel mlockall(MCL_CURRENT | MCL_FUTURE) returns -EFAULT if called
+by root (unconditionally, it seems) on x86_64.
 
-It's not too late IMO.  The only real users are the libcs.  And in fact,
-I'm already checking for __NR_sync_file_range and not the sys_ variant.
- Andrew, please change it.
+On my box the output of:
 
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
+#include <sys/mman.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
 
+int main()
+{
+	int ret;
 
---------------enig1508F2E1914071C18C18FD4E
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+	ret = mlockall(MCL_CURRENT | MCL_FUTURE);
+	if (ret < 0)
+		printf("%s\n", strerror(errno));
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+	return 0;
+}
 
-iD8DBQFEMt8j2ijCOnn/RHQRAnx+AKCI1xThoPCk3ey/eU99H+hZQU2JLwCeJvM+
-8k4zShjlaHNs+XzsSWeAZI4=
-=QW4S
------END PGP SIGNATURE-----
+is "Bad address", if run by root.
 
---------------enig1508F2E1914071C18C18FD4E--
+Greetings,
+Rafael

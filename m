@@ -1,74 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750926AbWDDXAo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWDDXRf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750926AbWDDXAo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 19:00:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbWDDXAo
+	id S1750929AbWDDXRf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 19:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbWDDXRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 19:00:44 -0400
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:43476 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1750925AbWDDXAo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 19:00:44 -0400
-X-Sasl-enc: x7VzMl9O07GP9ApmAtGYRXN6pohEpp1zs+OURmefdHJr 1144191633
-Message-ID: <4432FABE.1000900@imap.cc>
-Date: Wed, 05 Apr 2006 01:01:18 +0200
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de,en,fr
+	Tue, 4 Apr 2006 19:17:35 -0400
+Received: from omta01sl.mx.bigpond.com ([144.140.92.153]:20324 "EHLO
+	omta01sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750909AbWDDXRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 19:17:34 -0400
+Message-ID: <4432FE8C.7010900@bigpond.net.au>
+Date: Wed, 05 Apr 2006 09:17:32 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linux-kernel@vger.kernel.org, hjlipp@web.de, kkeil@suse.de
-Subject: Re: + isdn4linux-siemens-gigaset-drivers-logging-usage.patch added
- to -mm tree
-References: <200604040051.k340p0RI008205@shell0.pdx.osdl.net> <1144113590.3067.4.camel@laptopd505.fenrus.org>
-In-Reply-To: <1144113590.3067.4.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig3A6D247CA587FAC89E4BE2B5"
+To: Al Boldi <a1426z@gawab.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
+References: <200604031459.51542.a1426z@gawab.com> <4431A9E7.40406@bigpond.net.au> <200604041627.25359.a1426z@gawab.com>
+In-Reply-To: <200604041627.25359.a1426z@gawab.com>
+Content-Type: text/plain; charset=windows-1256; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 4 Apr 2006 23:17:32 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig3A6D247CA587FAC89E4BE2B5
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+Al Boldi wrote:
+> Peter Williams wrote:
+>> Al Boldi wrote:
+>>>>>> Control parameters for the scheduler can be read/set via files in:
+>>>>>>
+>>>>>> /sys/cpusched/<scheduler>/
+>>> The default values for spa make it really easy to lock up the system.
+>> Which one of the SPA schedulers and under what conditions?  I've been
+>> mucking around with these and may have broken something.  If so I'd like
+>> to fix it.
+> 
+> spa_no_frills, with a malloc-hog less than timeslice.  Setting 
+> promotion_floor to max unlocks the console.
 
-On 04.04.2006 03:19, Arjan van de Ven wrote:
+OK, you could also try increasing the promotion interval.
 
->>+	struct semaphore sem;		/* locks this structure:
-[...]
->=20
-> please consider turning this into a mutex=20
+It should be noted that spa_no_frills isn't really expected to behave 
+very well as it's a pure round robin scheduler.  It's intended purpose 
+is as a basis for more sophisticated schedulers.  I've been thinking 
+about removing it as a bootable scheduler and only making its children 
+available but I find it useful to compare benchmark and other test 
+results from it with that from the other schedulers to get an idea of 
+the extra costs involved.
 
-Your wish is our command. Consider it already done. :-)
+Similarly, zaphod is really just a vehicle for trying different ideas 
+and the spa_ws, spa_svr and spa_ebs are the ones intended for use on 
+real systems.  Of these, spa_svr isn't very good for interactive systems 
+as it is designed to maximize throughput on a server (it actually beats 
+spa_no_frills by about 1% on kernbench) which isn't always compatible 
+with good interactive response.
 
-See isdn4linux-siemens-gigaset-drivers-mutex-conversion.patch in the
-same series.
+Thanks,
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Regards
-Tilman
-
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
-
-
---------------enig3A6D247CA587FAC89E4BE2B5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEMvrOMdB4Whm86/kRAvZRAJ9glJIhmBwW2MFZRcBnRZ0++ICeaQCfQM5Z
-8+Av4cHjxnGvyaiMQKqvIYE=
-=XRkU
------END PGP SIGNATURE-----
-
---------------enig3A6D247CA587FAC89E4BE2B5--
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

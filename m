@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWDDN2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWDDN2n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWDDN2m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 09:28:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWDDN2m
+	id S932268AbWDDN2n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 09:28:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWDDN2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 09:28:42 -0400
-Received: from [212.33.180.135] ([212.33.180.135]:60176 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S932189AbWDDN2l (ORCPT
+	Tue, 4 Apr 2006 09:28:43 -0400
+Received: from [212.33.180.135] ([212.33.180.135]:59152 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S932268AbWDDN2l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 4 Apr 2006 09:28:41 -0400
 From: Al Boldi <a1426z@gawab.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
+To: Con Kolivas <kernel@kolivas.org>
 Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
-Date: Tue, 4 Apr 2006 16:27:14 +0300
+Date: Tue, 4 Apr 2006 16:27:09 +0300
 User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, Jake Moilanen <moilanen@austin.ibm.com>
-References: <200604031459.51542.a1426z@gawab.com> <4431AF69.1000708@bigpond.net.au>
-In-Reply-To: <4431AF69.1000708@bigpond.net.au>
+Cc: linux-kernel@vger.kernel.org, Peter Williams <pwil3058@bigpond.net.au>
+References: <200604031459.51542.a1426z@gawab.com> <200604041012.04591.kernel@kolivas.org> <4431CC12.8060707@bigpond.net.au>
+In-Reply-To: <4431CC12.8060707@bigpond.net.au>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="windows-1256"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200604041627.14871.a1426z@gawab.com>
+Message-Id: <200604041627.09740.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Peter Williams wrote:
-> Al Boldi wrote:
-> > The default values for spa make it really easy to lock up the system.
-> > Is there a module to autotune these values according to cpu/mem/ctxt
-> > performance?
->
-> Jake Moilanen had a genetic algorithm autotuner for Zaphod at one time
-> which I believe he ported over to PlugSched
+> Con Kolivas wrote:
+> >>>> Al Boldi wrote:
+> >>>>> Also, different schedulers per cpu could be rather useful.
+> >>>>
+> >>>> I think that would be dangerous.  However, different schedulers per
+> >>>> cpuset might make sense but it involve a fair bit of work.
+> >>>
+> >>> I'm curious. How do you think different schedulers per cpu would be
+> >>> useful?
+> >>
+> >> I don't but I think they MIGHT make sense for cpusets e.g. one set with
+> >> a scheduler targeted at interactive tasks and another targeted at
+> >> server tasks.  NB the emphasis on might.
 
-Would this be a load-adaptive dynamic tuner?
+Exactly.
 
-What I meant was a lock-preventive static tuner.  Something that would take 
-hw-latencies into account at boot and set values for non-locking console 
-operation.
+> > I am curious as to Al's answer since he asked for the feature.
 
-> I could generate a patch to gather the statistic again and make them
-> available via /proc if you would like to try a user space version of
-> Jake's work (his was in kernel).
+Can you imagine how neat it would be to set timeslice per cpuset/workload?
 
-That would be great!
+> > It would be
+> > easy for me to modify the staircase cpu scheduler to allow the
+> > interactive and compute modes be set on a per-cpu basis if that was
+> > desired.  For that to be helpful of course you'd have to manually set
+> > affinity for the tasks or logins you wanted to run on each cpu(s).
+
+Your staircase scheduler is great, and adding this feature would make it 
+unique.
 
 Thanks!
 

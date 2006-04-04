@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWDDOWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWDDO2P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932209AbWDDOWd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 10:22:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWDDOWc
+	id S932212AbWDDO2P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 10:28:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWDDO2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 10:22:32 -0400
-Received: from mail.gondor.com ([212.117.64.182]:3333 "EHLO moria.gondor.com")
-	by vger.kernel.org with ESMTP id S932209AbWDDOWc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 10:22:32 -0400
-Date: Tue, 4 Apr 2006 16:21:43 +0200
-From: Jan Niehusmann <jan@gondor.com>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       Paul Fulghum <paulkf@microgate.com>, linux-kernel@vger.kernel.org
-Subject: Re: yet more slab corruption.
-Message-ID: <20060404142143.GA5159@knautsch.gondor.com>
-References: <20060307235940.GA16843@redhat.com> <20060307231414.34c3b3a4.akpm@osdl.org> <200604041544.01656.agruen@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200604041544.01656.agruen@suse.de>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 4 Apr 2006 10:28:15 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:36738 "EHLO
+	pd5mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932212AbWDDO2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 10:28:14 -0400
+Date: Tue, 04 Apr 2006 08:27:07 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: 2.2 kernel
+In-reply-to: <5XMAv-17T-11@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: tim tim <tictactoe.tim@gmail.com>
+Message-id: <4432823B.4020606@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <5XMAv-17T-11@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 04, 2006 at 03:44:01PM +0200, Andreas Gruenbacher wrote:
-> We have two similar bug reports to 
-> https://bugzilla.redhat.com/bugzilla/184310, slab corruption in an object 
-> freed by release_mem:
-> 
-> 	https://bugzilla.novell.com/151111 (i386)
-> 	https://bugzilla.novell.com/154601 (x86_64)
-> 
-> So this bug seems to trigger on different architectures, and with different 
-> hardware.
+tim tim wrote:
+> hello everybody.. i want to install 2.2 kernel .. and currently i have
+> installed 2.6.10 kernel.. but when i compile 2.2 it says errors.. can
+> some body plz tell me why.. or how to install that kernel..
+> thankss
 
-I also got a few of these, just reported in a different thread, 
-see http://lkml.org/lkml/2006/4/4/86 for details.
+Your compiler is probably too new to build a 2.2 kernel. You likely need 
+to use gcc 2.95. Also, a 2.2 kernel is unlikely to have a hope of 
+running on a distribution made for 2.6.
 
-Jan
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

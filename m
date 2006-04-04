@@ -1,24 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWDDS4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWDDS6P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbWDDS4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 14:56:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWDDS4Y
+	id S1750806AbWDDS6P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 14:58:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWDDS6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 14:56:24 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35087 "HELO
+	Tue, 4 Apr 2006 14:58:15 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:37903 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750717AbWDDS4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 14:56:23 -0400
-Date: Tue, 4 Apr 2006 20:56:22 +0200
+	id S1750806AbWDDS6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 14:58:14 -0400
+Date: Tue, 4 Apr 2006 20:58:13 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Martin Langer <martin-langer@gmx.de>, Stefano Brivio <st3@riseup.net>,
-       Michael Buesch <mbuesch@freenet.de>,
-       Danny van Dyk <kugelfang@gentoo.org>,
-       Andreas Jaggi <andreas.jaggi@waterwave.ch>
-Cc: jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linville@tuxdriver.com
-Subject: [2.6 patch] bcm43xx_phy.c: fix a memory leak
-Message-ID: <20060404185622.GX6529@stusta.de>
+To: mchehab@infradead.org
+Cc: v4l-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] video/bt8xx/bttv-cards.c: fix off-by-one errors
+Message-ID: <20060404185813.GY6529@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,39 +22,31 @@ User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a memory leak spotted by the Coverity checker.
+This patch fixes two off-by-one errors spotted by the Coverity checker.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- drivers/net/wireless/bcm43xx/bcm43xx_phy.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/video/bt8xx/bttv-cards.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- linux-2.6.17-rc1-mm1-full/drivers/net/wireless/bcm43xx/bcm43xx_phy.c.old	2006-04-04 19:43:04.000000000 +0200
-+++ linux-2.6.17-rc1-mm1-full/drivers/net/wireless/bcm43xx/bcm43xx_phy.c	2006-04-04 19:43:38.000000000 +0200
-@@ -2143,22 +2143,23 @@ int bcm43xx_phy_init_tssi2dbm_table(stru
- 		dyn_tssi2dbm = kmalloc(64, GFP_KERNEL);
- 		if (dyn_tssi2dbm == NULL) {
- 			printk(KERN_ERR PFX "Could not allocate memory"
- 					    "for tssi2dbm table\n");
- 			return -ENOMEM;
+--- linux-2.6.17-rc1-mm1-full/drivers/media/video/bt8xx/bttv-cards.c.old	2006-04-04 20:27:10.000000000 +0200
++++ linux-2.6.17-rc1-mm1-full/drivers/media/video/bt8xx/bttv-cards.c	2006-04-04 20:28:24.000000000 +0200
+@@ -2991,13 +2991,13 @@ void __devinit bttv_idcard(struct bttv *
+ 
+ 	if (UNSET != audiomux[0]) {
+ 		gpiobits = 0;
+-		for (i = 0; i < 5; i++) {
++		for (i = 0; i < 4; i++) {
+ 			bttv_tvcards[btv->c.type].gpiomux[i] = audiomux[i];
+ 			gpiobits |= audiomux[i];
  		}
- 		for (idx = 0; idx < 64; idx++)
- 			if (bcm43xx_tssi2dbm_entry(dyn_tssi2dbm, idx, pab0, pab1, pab2)) {
- 				phy->tssi2dbm = NULL;
- 				printk(KERN_ERR PFX "Could not generate "
- 						    "tssi2dBm table\n");
-+				kfree(dyn_tssi2dbm);
- 				return -ENODEV;
- 			}
- 		phy->tssi2dbm = dyn_tssi2dbm;
- 		phy->dyn_tssi_tbl = 1;
  	} else {
- 		/* pabX values not set in SPROM. */
- 		switch (phy->type) {
- 		case BCM43xx_PHYTYPE_A:
- 			/* APHY needs a generated table. */
- 			phy->tssi2dbm = NULL;
- 			printk(KERN_ERR PFX "Could not generate tssi2dBm "
+ 		gpiobits = audioall;
+-		for (i = 0; i < 5; i++) {
++		for (i = 0; i < 4; i++) {
+ 			bttv_tvcards[btv->c.type].gpiomux[i] = audioall;
+ 		}
+ 	}
 

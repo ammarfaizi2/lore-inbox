@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWDDJfz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbWDDJl0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932430AbWDDJfz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 05:35:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWDDJfy
+	id S932433AbWDDJl0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 05:41:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbWDDJl0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 05:35:54 -0400
-Received: from pproxy.gmail.com ([64.233.166.183]:1157 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932430AbWDDJfx (ORCPT
+	Tue, 4 Apr 2006 05:41:26 -0400
+Received: from ns2.suse.de ([195.135.220.15]:60899 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932433AbWDDJl0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 05:35:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=BQof846QaO7EizWkKEm1IHq52RxMDZawHgMzQNux/8ehnDOH2jCLEmwnV8lGeGIMGrxss04G64q5LJFPSZjHPIh2DPNnDbZqge3cyQo1k117bDcv4dCJbCd7o/QrIkSNVHb85EI4p52QDtu2y+ueza97qmH/FrzDDEQo8S6HEOg=
-Message-ID: <44323DE9.7030106@gmail.com>
-Date: Tue, 04 Apr 2006 18:35:37 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Mail/News 1.5 (X11/20060318)
-MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: Mauro Tassinari <mtassinari@cmanet.it>, linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: libata/sata status on ich[?]
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA//gP36uv0hG9NQDAJogAp8KAAAAQAAAAyTp2U2YnGEW3ub1INE9nAAEAAAAA@cmanet.it> <44323C24.4010402@garzik.org>
-In-Reply-To: <44323C24.4010402@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Apr 2006 05:41:26 -0400
+Date: Tue, 4 Apr 2006 11:41:24 +0200
+From: Olaf Hering <olh@suse.de>
+To: John Mylchreest <johnm@gentoo.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, paulus@samba.org
+Subject: Re: [PATCH 1/1] POWERPC: Fix ppc32 compile with gcc+SSP in 2.6.16
+Message-ID: <20060404094124.GA22332@suse.de>
+References: <20060401224849.GH16917@getafix.willow.local> <20060402085850.GA28857@suse.de> <20060402102259.GM16917@getafix.willow.local> <20060402102815.GA29717@suse.de> <20060402105859.GN16917@getafix.willow.local> <20060402111002.GA30017@suse.de> <20060402112002.GA3443@getafix.willow.local> <20060402114215.GA30491@suse.de> <20060404085729.GH3443@getafix.willow.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060404085729.GH3443@getafix.willow.local>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Mauro Tassinari wrote:
->> Hi Jeff, All,
->>
->> our latest tests on previously reported ICH6 platforms show
->> 2.6.16.git not reporting any device on 4th master port.
->> The same behaviour was previously observed with 2.6.16-mm2,
->> regardless the hd brand and type.
-> 
-> Is this fixed in 2.6.17-rc1?
-> 
-> 
->> 2.6.16.1
->> ata1: dev 0 ATA-6, max UDMA/100, 321672960 sectors: LBA48
->> ata2: dev 0 ATA-7, max UDMA/133, 320173056 sectors: LBA48
-> 
->> 2.6.16-git16
->> ata_piix 0000:00:1f.2: MAP [ P0 P1 P2 P3 ]
->> ata1: dev 0 ATA-6, max UDMA/100, 321672960 sectors: LBA48
->> ata2: SATA port has no device.
-> 
-> Thanks for that info.  Can you also provide 'lspci -vvv' (run as root)?
-> 
+ On Tue, Apr 04, John Mylchreest wrote:
 
-Hello, all.
+> On Sun, Apr 02, 2006 at 01:42:15PM +0200, Olaf Hering <olh@suse.de> wrote:
+> >  On Sun, Apr 02, John Mylchreest wrote:
+> > 
+> > > Going from that, I can push a patch for gcc upstream to remove the
+> > > __KERNEL__ dep, but gcc4.1 ships with ssp by standard, and the semantics
+> > > between the IBM patch for SSP applied to gcc-3 and ggc-4 have changed.
+> > 
+> > gcc4.1 has no obvious problems with --enable-ssp
+> > 
+> > > -fno-stack-protector would work for gcc4, but for gcc3 it could still be
+> > > patially enabled, and requires -fno-stack-protector-all. Mind If I ask
+> > > whats incorrect about defining __KERNEL__ for the bootcflags?
+> > 
+> > arch/powerpc/boot is no kernel code, its supposed to be selfcontained.
+> > Prepare a patch which uses the cc-option macro.
+> 
+> As requested, please see attached a small patch which rectifies this
+> with negating cflags. The cc-option macro won't always work, and as such
+> I have declared a new macro to honour $(CROSS32CC).
 
-This should be fixed by the ata_piix map patch I've submitted and is 
-currently in #upstream. [ P0 P1 P2 P3 ] should be [ P0 P2 P1 P3 ].
-
-Thanks.
-
--- 
-tejun
+I think this should go into the main makefile, HOSTCFLAGS or similar. If
+you look around quickly in the gentoo bugzilla, all non-userland
+packages (grub, xen, kernel etc.) require the -fno-feature.

@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWDDN2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbWDDNcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbWDDN2M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 09:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWDDN2M
+	id S964789AbWDDNcl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 09:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbWDDNcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 09:28:12 -0400
-Received: from ns2.suse.de ([195.135.220.15]:12942 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750866AbWDDN2K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 09:28:10 -0400
-From: Ciaran Farrell <ciaranfarrell@babelworx.net>
-Reply-To: ciaranfarrell@babelworx.net
-Organization: Babelworx
-To: linux-kernel@vger.kernel.org
-Subject: BSD 4 license (again) in drivers/net/hydra.h
-Date: Tue, 4 Apr 2006 15:27:59 +0200
-User-Agent: KMail/1.9.1
+	Tue, 4 Apr 2006 09:32:41 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:34189 "EHLO
+	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S964789AbWDDNck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 09:32:40 -0400
+Message-ID: <44327574.1030803@smallworld.cx>
+Date: Tue, 04 Apr 2006 14:32:36 +0100
+From: Ian Leonard <ian@smallworld.cx>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: linux-kernel@vger.kernel.org
+Subject: Serial port problem
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604041528.00142.ciaranfarrell@babelworx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We were discussing this topic again and thought it should be reported here. As 
-you are probably aware, the file 
+Hi,
 
-linux-2.6.16.tar.bz2/linux-2.6.16/drivers/net/hydra.h
+The trouble started when I upgraded a machine from FC3 to FC4. It had a 
+serial touchscreen. With FC4 it stopped working completely. I added 
+debug to the X input driver and found read() permanently blocked despite 
+the file having been opened with O_NDELAY.
 
-contains a BSD 4 license. This was discussed on bugs.debian.org and on the 
-debian legal mailing list - see 
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=242895
+I then tried a simple test with two machine connected with a serial 
+cable and using minicom to send characters both ways. One was a laptop. 
+If you typed from the failing machine to the laptop all was well. Typing 
+the other way caused one character to be displayed and then it hung 
+(although I could use 'cat >/dev/ttyS0' to send data just fine).
 
-The debian people were of the opinion that this was fixed - "We believe that 
-the bug you reported is fixed in the latest version of
-kernel-source-2.6.7". I would just like to inquire as to the official status 
-of this.
+I then repeated the test using 4 different motherboards. 2 exhibited the 
+problem 2 didn't. So to recap, sending data without changing the driver 
+settings (stty) seems to work. Configuring the port seems to cause a 
+problem on some motherboards. One of those is a VIA mini-itx. The other 
+is more standard Gigabyte.
+
+I have tried using the standard FC4 kernel and 2.6.15.6.
+
+Not sure what to try next, so any pointer gratefully received.
 
 
---
-cheers
+-- 
+Ian Leonard
 
-CFarrell 
-
-
+Please ignore spelling and punctuation - I did.

@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWDDRco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWDDRef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWDDRco (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 13:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWDDRco
+	id S1750767AbWDDRef (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 13:34:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWDDRee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 13:32:44 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:45759 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1750747AbWDDRco (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 13:32:44 -0400
-Date: Tue, 4 Apr 2006 18:32:40 +0100 (BST)
-From: Ken Moffat <zarniwhoop@ntlworld.com>
-To: Takashi Iwai <tiwai@suse.de>
-cc: Jan Niehusmann <jan@gondor.com>, Ken Moffat <zarniwhoop@ntlworld.com>,
-       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: Re: [Alsa-devel] Slab corruptions & Re: 2.6.17-rc1: Oops in sound
- applications
-In-Reply-To: <s5hlkul72rv.wl%tiwai@suse.de>
-Message-ID: <Pine.LNX.4.63.0604041827290.8756@deepthought.mydomain>
-References: <Pine.LNX.4.63.0604032155220.17605@deepthought.mydomain>
- <20060404133814.GA11741@knautsch.gondor.com> <s5hlkul72rv.wl%tiwai@suse.de>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463809536-1923691522-1144171960=:8756"
+	Tue, 4 Apr 2006 13:34:34 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:35112 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750767AbWDDRee (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 13:34:34 -0400
+Date: Tue, 4 Apr 2006 19:34:49 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andy Lutomirski <luto@myrealbox.com>
+Cc: tridge@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] splice support #2
+Message-ID: <20060404173449.GS4385@suse.de>
+References: <17452.50912.404106.256236@samba.org> <20060331095711.GK14022@suse.de> <Pine.LNX.4.64.0603311110540.27203@g5.osdl.org> <20060331194012.GE14022@suse.de> <4432A9DE.9090902@myrealbox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4432A9DE.9090902@myrealbox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
----1463809536-1923691522-1144171960=:8756
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
-
-On Tue, 4 Apr 2006, Takashi Iwai wrote:
-
+On Tue, Apr 04 2006, Andy Lutomirski wrote:
+> Jens Axboe wrote:
+> >On Fri, Mar 31 2006, Linus Torvalds wrote:
+> >
+> >>
+> >>On Fri, 31 Mar 2006, Jens Axboe wrote:
+> >>
+> >>>> ssize_t psplice(int fdin, int fdout, size_t len, off_t ofs, unsigned 
+> >>>> flags);
+> >>>
+> >>>I definitely see some valid reasons for adding a file offset instead of
+> >>>using ->f_pos, I'll leave that decision up to Linus though. Linus?
+> >>
+> >>I think a file offset is fine, the one thing holding me back was just the 
+> >>interface. One file offset per fd? Or just have the rule that the file 
+> >>offset is for the "non-pipe" device?
+> >
+> >
+> >Intuitively, I'd expect the offset to be tied to the non-pipe if I were
+> >to eg see this for the first time. So my vote would go for that.
+> >
 > 
-> Could you try the patch below by OGAWA Hirofumi
-> <hirofumi@mail.parknet.co.jp>?
+> Eee!  That means that splice(file_fd, pipe_fd, 1000) and splice(pipe_fd, 
+> file_fd, 1000) have different semantics.  It also would seem to prevent 
+> ever implementing direct file-to-file splicing.
 
- I'm not sure if this is helping or not - a few hours ago, I took a 
-couple of new things out of my .config (vga scrollback, new rtc) and the 
-oops only happened when I opened a second tab in firefox (that is, start 
-the sound app, then start firefox, then open another tab).  With this 
-patch, it oopsed when I opened a _third_ tab.
+The semantics as written: (fdin, fdout, len). But yes the offset gets
+ugly, unless you add two offsets. And you are right it would not go well
+with file -> file splicing, which btw is already implemented (just not
+in 2.6.17-rc1) along with file -> socket.
 
- I guess something else is involved.
-
-Ken
 -- 
-das eine Mal als Tragödie, das andere Mal als Farce
----1463809536-1923691522-1144171960=:8756--
+Jens Axboe
+

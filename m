@@ -1,47 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWDDJw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbWDDJzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964890AbWDDJw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 05:52:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbWDDJw5
+	id S964928AbWDDJzm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 05:55:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbWDDJzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 05:52:57 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:24264 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964883AbWDDJw4 (ORCPT
+	Tue, 4 Apr 2006 05:55:42 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:21128 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964928AbWDDJzm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 05:52:56 -0400
-Message-ID: <443241F4.7080801@garzik.org>
-Date: Tue, 04 Apr 2006 05:52:52 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Mauro Tassinari <mtassinari@cmanet.it>, linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: libata/sata status on ich[?]
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA//gP36uv0hG9NQDAJogAp8KAAAAQAAAAyTp2U2YnGEW3ub1INE9nAAEAAAAA@cmanet.it> <44323C24.4010402@garzik.org> <44323DE9.7030106@gmail.com>
-In-Reply-To: <44323DE9.7030106@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -3.7 (---)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-3.7 points, 5.0 required)
+	Tue, 4 Apr 2006 05:55:42 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH] Keys: Improve usage of memory barriers and remove IRQ disablement
+Date: Tue, 04 Apr 2006 10:55:30 +0100
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
+Message-Id: <20060404095529.31311.3892.stgit@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> This should be fixed by the ata_piix map patch I've submitted and is 
-> currently in #upstream. [ P0 P1 P2 P3 ] should be [ P0 P2 P1 P3 ].
+The attached patch adds a missing memory barrier into the key_put() and removes
+an unnecessary barrier from install_session_keyring().
 
-If you are referring to this fix:
+install_session_keyring() is also rearranged a little to make it slightly more
+efficient.
 
-> commit 79ea24e72e59b5f0951483cc4f357afe9bf7ff89
-> Author: Tejun Heo <htejun@gmail.com>
-> Date:   Fri Mar 31 20:01:50 2006 +0900
-> 
->     [PATCH] ata_piix: fix ich6/m_map_db
+As install_*_keyring() may schedule (in synchronize_rcu() or keyring_alloc()),
+they may not be entered with interrupts disabled - and so there's no point
+saving the interrupt disablement state over the critical section.
 
-then its already in linux-2.6.git, and 2.6.17-rc1.
+exec_keys() will also be invoked with interrupts enabled, and so that doesn't
+need to save the interrupt state either.
+---
 
-	Jeff
+ security/keys/key.c          |    1 +
+ security/keys/process_keys.c |   41 ++++++++++++++++++++---------------------
+ 2 files changed, 21 insertions(+), 21 deletions(-)
 
+diff --git a/security/keys/key.c b/security/keys/key.c
+index 99781b7..d8a6e00 100644
+--- a/security/keys/key.c
++++ b/security/keys/key.c
+@@ -619,6 +619,7 @@ void key_put(struct key *key)
+ 	if (key) {
+ 		key_check(key);
+ 
++		smp_mb__before_atomic_dec();
+ 		if (atomic_dec_and_test(&key->usage))
+ 			schedule_work(&key_cleanup_task);
+ 	}
+diff --git a/security/keys/process_keys.c b/security/keys/process_keys.c
+index 74cb79e..ad123c3 100644
+--- a/security/keys/process_keys.c
++++ b/security/keys/process_keys.c
+@@ -167,11 +167,12 @@ error:
+  */
+ int install_process_keyring(struct task_struct *tsk)
+ {
+-	unsigned long flags;
+ 	struct key *keyring;
+ 	char buf[20];
+ 	int ret;
+ 
++	might_sleep();
++
+ 	if (!tsk->signal->process_keyring) {
+ 		sprintf(buf, "_pid.%u", tsk->tgid);
+ 
+@@ -182,12 +183,12 @@ int install_process_keyring(struct task_
+ 		}
+ 
+ 		/* attach keyring */
+-		spin_lock_irqsave(&tsk->sighand->siglock, flags);
++		spin_lock_irq(&tsk->sighand->siglock);
+ 		if (!tsk->signal->process_keyring) {
+ 			tsk->signal->process_keyring = keyring;
+ 			keyring = NULL;
+ 		}
+-		spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
++		spin_unlock_irq(&tsk->sighand->siglock);
+ 
+ 		key_put(keyring);
+ 	}
+@@ -206,38 +207,37 @@ error:
+ static int install_session_keyring(struct task_struct *tsk,
+ 				   struct key *keyring)
+ {
+-	unsigned long flags;
+ 	struct key *old;
+ 	char buf[20];
+-	int ret;
++
++	might_sleep();
+ 
+ 	/* create an empty session keyring */
+ 	if (!keyring) {
+ 		sprintf(buf, "_ses.%u", tsk->tgid);
+ 
+ 		keyring = keyring_alloc(buf, tsk->uid, tsk->gid, 1, NULL);
+-		if (IS_ERR(keyring)) {
+-			ret = PTR_ERR(keyring);
+-			goto error;
+-		}
++		if (IS_ERR(keyring))
++			return PTR_ERR(keyring);
+ 	}
+ 	else {
+ 		atomic_inc(&keyring->usage);
+ 	}
+ 
+ 	/* install the keyring */
+-	spin_lock_irqsave(&tsk->sighand->siglock, flags);
+-	old = rcu_dereference(tsk->signal->session_keyring);
++	spin_lock_irq(&tsk->sighand->siglock);
++	old = tsk->signal->session_keyring;
+ 	rcu_assign_pointer(tsk->signal->session_keyring, keyring);
+-	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
++	spin_unlock_irq(&tsk->sighand->siglock);
+ 
+-	ret = 0;
++	/* we're using RCU on the pointer, but there's no point synchronising
++	 * on it if it didn't previously point to anything */
++	if (old) {
++		synchronize_rcu();
++		key_put(old);
++	}
+ 
+-	/* we're using RCU on the pointer */
+-	synchronize_rcu();
+-	key_put(old);
+-error:
+-	return ret;
++	return 0;
+ 
+ } /* end install_session_keyring() */
+ 
+@@ -310,7 +310,6 @@ void exit_keys(struct task_struct *tsk)
+  */
+ int exec_keys(struct task_struct *tsk)
+ {
+-	unsigned long flags;
+ 	struct key *old;
+ 
+ 	/* newly exec'd tasks don't get a thread keyring */
+@@ -322,10 +321,10 @@ int exec_keys(struct task_struct *tsk)
+ 	key_put(old);
+ 
+ 	/* discard the process keyring from a newly exec'd task */
+-	spin_lock_irqsave(&tsk->sighand->siglock, flags);
++	spin_lock_irq(&tsk->sighand->siglock);
+ 	old = tsk->signal->process_keyring;
+ 	tsk->signal->process_keyring = NULL;
+-	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
++	spin_unlock_irq(&tsk->sighand->siglock);
+ 
+ 	key_put(old);
+ 
 

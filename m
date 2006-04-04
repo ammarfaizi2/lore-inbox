@@ -1,37 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbWDDCmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbWDDCru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964975AbWDDCmz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 22:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964976AbWDDCmz
+	id S964974AbWDDCru (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 22:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbWDDCru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 22:42:55 -0400
-Received: from ipcop.bitmover.com ([192.132.92.15]:17592 "EHLO
-	mail.bitmover.com") by vger.kernel.org with ESMTP id S964975AbWDDCmz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 22:42:55 -0400
-To: linux-kernel@vger.kernel.org
-Subject: blade servers?
-Message-Id: <20060404024244.28E9A5F76B@work.bitmover.com>
-Date: Mon,  3 Apr 2006 19:42:44 -0700 (PDT)
-From: lm@bitmover.com (Larry McVoy)
+	Mon, 3 Apr 2006 22:47:50 -0400
+Received: from rtr.ca ([64.26.128.89]:30597 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S964963AbWDDCrt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 22:47:49 -0400
+Message-ID: <4431DE2B.1020306@rtr.ca>
+Date: Mon, 03 Apr 2006 22:47:07 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20060402 SeaMonkey/1.1a
+MIME-Version: 1.0
+To: Dan Aloni <da-x@monatomic.org>
+Cc: "Eric D. Mudama" <edmudama@gmail.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Mark Lord <lkml@rtr.ca>,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+Subject: Re: sata_mv: module reloading doesn't work
+References: <20060402155647.GB20270@localdomain> <311601c90604021059jcdf56e4ja35e3507ab291179@mail.gmail.com> <20060403215729.GA17731@localdomain>
+In-Reply-To: <20060403215729.GA17731@localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I figured that people here would know.  If you were looking for blade
-servers and you were more interested in cost and heat generation than the
-most performance, what would you buy?  We're looking for 20 x86 cpus.
-They have to beat ASUS terminators (nice little boxes, if you haven't
-checked them out you should, about $100 + cpu + mem + disk and they are
-quiet and run on ~100watt power supplies so they don't generate a lot
-of heat).
+Dan Aloni wrote:
+>
+>  * Normal boot
+>  * insmod sata_mv
+>  * all is okay, as expected
+>  * rmmod sata_mv
+>  * insmod sata_mv 
+>  * all is bad, as expected
+>  * kexec
+>  * insmod sata_mv
+>  * all is bad!
+> 
+> Conclusion: sata_mv's shutdown does something bad.
 
-So far, the stuff at www.rackmount.com looks pretty good but they are
-(like everyone else so far as I can tell) focussed on performance.
-For all of the Unix like platforms, we'd be happy with 2Ghz Athlons (don't
-need opterons) with 256MB.  It's true that for the windows platforms we
-like 2GB because we use 1GB as a ram disk to get reasonable performance
-out of @#!! Windows.
+sata_mv seems to just use the default libata shutdown sequence,
+so perhaps it's leaving the device in EDMA mode with interrupt
+coalescing still on (from the BIOS), and interrupts are still
+coming in or something..
 
-Thanks in advance,
+I suppose it really ought to shut down the device before exiting,
+and maybe the default of pci_disable_device() is not enough.. ?
 
---lm
+Cheers
+

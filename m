@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWDDOAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWDDOCS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932169AbWDDOAY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 10:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWDDOAY
+	id S932202AbWDDOCS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 10:02:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWDDOCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 10:00:24 -0400
-Received: from ns.suse.de ([195.135.220.2]:13524 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932169AbWDDOAY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 10:00:24 -0400
-From: Ciaran Farrell <cfarrell@suse.de>
-Organization: SuSE Linux Products GmbH
-To: linux-kernel@vger.kernel.org
-Subject: BSD 4 license (again) in drivers/net/hydra.h
-Date: Tue, 4 Apr 2006 16:00:22 +0200
-User-Agent: KMail/1.9.1
+	Tue, 4 Apr 2006 10:02:18 -0400
+Received: from mail1.utc.com ([192.249.46.190]:39127 "EHLO mail1.utc.com")
+	by vger.kernel.org with ESMTP id S932202AbWDDOCS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 10:02:18 -0400
+Message-ID: <44327C48.80200@cybsft.com>
+Date: Tue, 04 Apr 2006 09:01:44 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200604041600.22690.cfarrell@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [RT] 2.6.16-rt12 hrtimer compile error
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/mixed;
+ boundary="------------000400060900060803090901"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We were discussing this topic again and thought it should be reported here. As 
-you are probably aware, the file 
+This is a multi-part message in MIME format.
+--------------000400060900060803090901
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-linux-2.6.16.tar.bz2/linux-2.6.16/drivers/net/hydra.h
+The attached patch is necessary to build 2.6.16-rt12 with
+CONFIG_HIGH_RES_TIMERS disabled.
 
-contains a BSD 4 license. This was discussed on bugs.debian.org and on the 
-debian legal mailing list - see 
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=242895
-
-The debian people were of the opinion that this was fixed - "We believe that 
-the bug you reported is fixed in the latest version of
-kernel-source-2.6.7". I would just like to inquire as to the official status 
-of this and would be grateful for any answer.
+-- 
+   kr
 
 
---
-cheers
+--------------000400060900060803090901
+Content-Type: text/x-patch;
+ name="hrtdef.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="hrtdef.patch"
 
-CFarrell              
-						
+--- linux-2.6.16/kernel/hrtimer.h.orig	2006-04-04 08:50:14.000000000 -0500
++++ linux-2.6.16/kernel/hrtimer.h	2006-04-04 08:50:18.000000000 -0500
+@@ -207,6 +207,7 @@
+ # define hrtimer_init_hres(c)		do { } while (0)
+ # define hrtimer_init_timer_hres(t)	do { } while (0)
+ # define hrtimer_update_timer_prio(t)	do { } while (0)
++# define hrtimer_adjust_softirq_prio(b)	do { } while (0)
+ 
+ static inline void hrtimer_init_base(struct hrtimer_base *base)
+ {
+
+--------------000400060900060803090901--

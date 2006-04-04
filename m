@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751839AbWDDIUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751840AbWDDIaU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751839AbWDDIUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 04:20:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751840AbWDDIUP
+	id S1751840AbWDDIaU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 04:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751842AbWDDIaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 04:20:15 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3344 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751839AbWDDIUO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 04:20:14 -0400
-Date: Tue, 4 Apr 2006 09:20:05 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Hyok S. Choi" <hyok.choi@samsung.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.17-rc1] [SERIAL] DCC(JTAG) serial and the console emulation support(revised#2)
-Message-ID: <20060404082005.GB8573@flint.arm.linux.org.uk>
-Mail-Followup-To: "Hyok S. Choi" <hyok.choi@samsung.com>,
-	linux-kernel@vger.kernel.org
-References: <20060403112410.14105.55427.stgit@hyoklinux.sec.samsung.com> <20060403194448.GC5616@flint.arm.linux.org.uk> <200604041127.07290.hyok.choi@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 4 Apr 2006 04:30:19 -0400
+Received: from pproxy.gmail.com ([64.233.166.182]:41999 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751840AbWDDIaS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 04:30:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=qw4rcM+KVXNTl81/IQX7CMhHJk9EoXkjRKYL+qGAEEBW6+1veZpi8CKghJBCzQB5LEDGdzS+0ceaPRC0nAMg3GwwIkUZo50k3LxFeT8ZWEcJXkkBL7tfuyZHNjkbU4Fsq7hqB7QO4qE5uZbAU/DyKsgHa5znnGol6IJBH5Lnkc4=
+Message-ID: <8bf247760604040130n155eeffauc5798750f8357bca@mail.gmail.com>
+Date: Tue, 4 Apr 2006 01:30:17 -0700
+From: Ram <vshrirama@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: SDIO Drivers?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200604041127.07290.hyok.choi@samsung.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 04, 2006 at 11:27:06AM +0900, Hyok S. Choi wrote:
-> On Tuesday 04 April 2006 04:44 am, Russell King wrote:
-> > On Mon, Apr 03, 2006 at 08:24:10PM +0900, Hyok S. Choi wrote:
-> > 
-> > > +static void dcc_shutdown(struct uart_port *port)
-> > > +{
-> > > +#ifdef DCC_IRQ_USED /* real IRQ used */
-> > > +	free_irq(port->irq, port);
-> > > +#else
-> > > +	spin_lock(&port->lock);
-> > > +	cancel_rearming_delayed_work(&dcc_poll_task);
-> > 
-> > cancel_rearming_delayed_work() might sleep due to it calling
-> > flush_workqueue.  Therefore, you must not be holding a spinlock.
-> 
-> Thus, I've just revised the code to lock around a counter variable
-> operation, which is used for life control of the polling task.
-> I've just posted the revised #3. :-)
+Hi,
+   i want to write an SDIO driver. There is not much information of
+what an SDIO driver is
+   supposed to do or any sample sdio drivers.
 
-Why do you think you need such complexity?
+   I have a few questions regarding that:
 
-cancel_rearming_delayed_work() will wait until the poll task has
-completed and has been removed from the system.  It's explicitly
-designed for work handlers which self-rearm.
+   1) What is an SDIO Driver?.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+   2) Is SDIO a protocol/standard to which all devices confirm?.
+
+   3)  Is it a generic driver ?. (Same for a set of devices) or
+different for each device?
+        Suppose i want to run an SDIO WLAN Card?. will the
+manufacturer support it or
+       an will a Generic Driver "drive" it?
+
+   4) What is a SD Driver?
+
+   5) What are the differences between SD Driver and SDIO Driver?.
+
+
+   6) Are there any sample/Open Source SDIO drivers available in Linux
+Kernel or else where?.If, not when can one expect/is anyone working on
+it currently?.
+
+
+  Please CC your responses to  vshrirama-at-gmail.com
+
+Thanks and Regards,
+sriram

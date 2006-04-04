@@ -1,61 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWDDPRB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWDDPSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWDDPRB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 11:17:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbWDDPRB
+	id S1750702AbWDDPSS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 11:18:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbWDDPSS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 11:17:01 -0400
-Received: from mtiwmhc12.worldnet.att.net ([204.127.131.116]:23435 "EHLO
-	mtiwmhc12.worldnet.att.net") by vger.kernel.org with ESMTP
-	id S1750704AbWDDPRA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 11:17:00 -0400
-Message-ID: <44328DE5.3010600@lwfinger.net>
-Date: Tue, 04 Apr 2006 10:16:53 -0500
-From: Larry Finger <Larry.Finger@lwfinger.net>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
+	Tue, 4 Apr 2006 11:18:18 -0400
+Received: from o-hand.com ([70.86.75.186]:6607 "EHLO o-hand.com")
+	by vger.kernel.org with ESMTP id S1750702AbWDDPSS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 11:18:18 -0400
+Subject: [PATCH RFC/testing] Upgrade the zlib_inflate library code to a
+	recent version
+From: Richard Purdie <richard@openedhand.com>
 To: linux-kernel@vger.kernel.org
-Subject: Regression since 2.6.15 - Cardbus system interrupt failure
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: linux-mtd@lists.infradead.org
+Content-Type: text/plain
+Date: Tue, 04 Apr 2006 16:18:08 +0100
+Message-Id: <1144163888.6441.48.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently switched to v2.6.17-rc1 on my HP ze1115 notebook with a mobile AMD Duron stepping 01
-processor. I found that none of my cardbus peripherals would work. The relevant lines from a dmesg 
-output were:
+Upgrade the zlib_inflate implementation in the kernel from a patched
+version 1.1.3 to a patched 1.2.3. 
 
-ACPI: PCI Interrupt 0000:00:0a.0[A] -> Link [LNKA] -> GSI 11 (level, low) -> IRQ 11
-ACPI: PCI interrupt for device 0000:00:0a.0 disabled
-yenta_cardbus: probe of 0000:00:0a.0 failed with error -12
+The code in the kernel is about seven years old and I noticed that the
+external zlib library's inflate performance was significantly faster
+(~50%) than the code in the kernel on ARM (and faster again on x86_32).
 
-I used 'git bisect' to localize the problem, which turned out to be the changes in commit 
-b408cbc704352eccee301e1103b23203ba1c3a0e, which was made on March 23. When I revert this patch, my 
-cardbus system behaves normally and the cardbus controller initialization is
+For comparison the newer deflate code is 20% slower on ARM and 50%
+slower on x86_32 but gives an approx 1% compression ratio improvement. I
+don't consider this to be an improvement for kernel use so have no plans
+to change the zlib_deflate code.
 
-ACPI: PCI Interrupt 0000:00:0a.0[A] -> Link [LNKA] -> GSI 11 (level, low) -> IRQ 11
-Yenta: CardBus bridge found at 0000:00:0a.0 [103c:0022]
-Yenta O2: res at 0x94/0xD4: 00/ea
-Yenta O2: enabling read prefetch/write burst
-Yenta: ISA IRQ mask 0x0038, PCI irq 11
-Socket status: 30000821
+Various changes have been made to the zlib code in the kernel, the most
+significant being the extra functions/flush option used by ppp_deflate.
+This update reimplements the features PPP needs to ensure it continues
+to work.
 
-The memory map at the beginning of the dmesg buffer is
+This code has been tested on ARM under both JFFS2 (with zlib compression
+enabled) and ppp_deflate and on x86_32. JFFS2 sees an approx. 10% real
+world file read speed improvement.
 
-BIOS-provided physical RAM map:
-  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
-  BIOS-e820: 0000000000100000 - 0000000023ff0000 (usable)
-  BIOS-e820: 0000000023ff0000 - 0000000023ffffc0 (ACPI data)
-  BIOS-e820: 0000000023ffffc0 - 0000000024000000 (ACPI NVS)
-  BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
-575MB LOWMEM available.
-On node 0 totalpages: 147440
-   DMA zone: 4096 pages, LIFO batch:0
-   Normal zone: 143344 pages, LIFO batch:31
+This patch also removes ZLIB_VERSION as it no longer has a correct
+value. We don't need version checks anyway as the kernel's module
+handling will take care of that for us. This removal is also more in
+keeping with the zlib author's wishes
+(http://www.zlib.net/zlib_faq.html#faq24) and I've added something to
+the zlib.h header to note its a modified version.
 
-Please let me know if there is any further information that is required or if there are patches to test.
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+---
 
-Larry
+ include/linux/zconf.h           |   12
+ include/linux/zlib.h            |  209 ++++---
+ include/linux/zutil.h           |   12
+ lib/zlib_deflate/deflate.c      |   25
+ lib/zlib_deflate/deflate_syms.c |    3
+ lib/zlib_inflate/Makefile       |    4
+ lib/zlib_inflate/infblock.c     |  365 -------------
+ lib/zlib_inflate/infblock.h     |   48 -
+ lib/zlib_inflate/infcodes.c     |  202 -------
+ lib/zlib_inflate/infcodes.h     |   33 -
+ lib/zlib_inflate/inffast.c      |  462 ++++++++++------
+ lib/zlib_inflate/inffast.h      |   12
+ lib/zlib_inflate/inffixed.h     |   94 +++
+ lib/zlib_inflate/inflate.c      | 1114 +++++++++++++++++++++++++++++++---------
+ lib/zlib_inflate/inflate.h      |  107 +++
+ lib/zlib_inflate/inflate_syms.c |    3
+ lib/zlib_inflate/inflate_sync.c |  152 -----
+ lib/zlib_inflate/inftrees.c     |  677 ++++++++++--------------
+ lib/zlib_inflate/inftrees.h     |   99 +--
+ lib/zlib_inflate/infutil.c      |   88 ---
+ lib/zlib_inflate/infutil.h      |  178 ------
+ 21 files changed, 1886 insertions(+), 2013 deletions(-)
+
+The patch is ~160kb so I'll link to it:
+
+http://www.o-hand.com/~richard/zlib_inflate-r3.patch
+
+
 

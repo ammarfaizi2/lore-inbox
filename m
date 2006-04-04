@@ -1,71 +1,214 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWDDTOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWDDTWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWDDTOb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 15:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWDDTOb
+	id S1750764AbWDDTWY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 15:22:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWDDTWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 15:14:31 -0400
-Received: from mail.kroah.org ([69.55.234.183]:30889 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750817AbWDDTOa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 15:14:30 -0400
-Date: Tue, 4 Apr 2006 09:48:23 -0700
-From: Greg KH <greg@kroah.com>
-To: "Artem B. Bityutskiy" <dedekind@yandex.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: device model and character devices
-Message-ID: <20060404164823.GA31398@kroah.com>
-References: <44322A6F.4000402@yandex.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44322A6F.4000402@yandex.ru>
-User-Agent: Mutt/1.5.11
+	Tue, 4 Apr 2006 15:22:24 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:42479 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1750764AbWDDTWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 15:22:23 -0400
+Message-ID: <4432C9C5.7090800@mvista.com>
+Date: Tue, 04 Apr 2006 12:32:21 -0700
+From: Mark Bellon <mbellon@mvista.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, mark.gross@intel.com,
+       sebastien.bouchard@ca.kontron.com
+Subject: [PATCH] MPBL0010 driver sysfs permissions wide open
+Content-Type: multipart/mixed;
+ boundary="------------070106090701040201020401"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 04, 2006 at 12:12:31PM +0400, Artem B. Bityutskiy wrote:
-> Hello Greg,
-> 
-> at the moment the device model and the character devices subsystem are 
-> distinct and different things. I mean, if I have a device xdev, I do the 
-> following:
-> 
-> struct xdev_device {
-> 	struct cdev cdev;
-> 	struct device dev;
-> 	/* xdev-specific stuff */
-> 	...
-> } xdev;
-> 
-> I use xdev.cdev to register character device:
-> 
-> cdev_add(&xdev.cdev, ...);
-> ...
-> 
-> I use xdev.dev functions to include my device to the device-model:
-> 
-> device_register(&xdev.dev, ...);
-> ...
-> 
-> But why not to merge the character device stuff and the device model? 
-> Roughly speaking, why not to embed 'struct cdev' to 'struct device'? Why 
-> do driver writers have to distinguish between these things?
+This is a multi-part message in MIME format.
+--------------070106090701040201020401
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Because "struct device" generally is not related to a major:minor pair
-at all.  That is what a struct class_device is for.  Lots of struct
-device users have nothing to do with a char device, and some have
-multiple char devices associated with a single struct device.
+The MPBL0010 Telco clock driver (drivers/char/tlclk.c) uses 0222 (anyone 
+can write) permissions on its writable sysfs entries. IMHO this is a bit 
+too wide open for proper security. The patch (against 2.6.16.1) alters 
+the permissions to 0220 (owner and group can write).
 
-You need to create a struct class_device in order to export the proper
-information to userspace so that udev and other tools can pick up the
-fact that your device is present and it needs to create a device for it.
+Signed-off-by: Mark Bellon <mbellon@mvista.com>
 
-All that being said, yes, there is a disconnect between the driver model
-parts and the char subsystem.  It's been something that I've wanted to
-fix for a number of years, but never had the time to do so.  If you want
-to work toward doing this, I'd be glad to review any patches.
+mark
 
-thanks,
 
-greg k-h
+
+--------------070106090701040201020401
+Content-Type: text/plain;
+ name="lkml-patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="lkml-patch"
+
+diff -Naur linux-2.6.16.1-orig/drivers/char/tlclk.c linux-2.6.16.1/drivers/char/tlclk.c
+--- linux-2.6.16.1-orig/drivers/char/tlclk.c	2006-03-27 23:49:02.000000000 -0700
++++ linux-2.6.16.1/drivers/char/tlclk.c	2006-04-04 12:17:14.000000000 -0700
+@@ -327,7 +327,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(received_ref_clk3a, S_IWUGO, NULL,
++static DEVICE_ATTR(received_ref_clk3a, (S_IWUSR|S_IWGRP), NULL,
+ 		store_received_ref_clk3a);
+ 
+ 
+@@ -349,7 +349,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(received_ref_clk3b, S_IWUGO, NULL,
++static DEVICE_ATTR(received_ref_clk3b, (S_IWUSR|S_IWGRP), NULL,
+ 		store_received_ref_clk3b);
+ 
+ 
+@@ -371,7 +371,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(enable_clk3b_output, S_IWUGO, NULL,
++static DEVICE_ATTR(enable_clk3b_output, (S_IWUSR|S_IWGRP), NULL,
+ 		store_enable_clk3b_output);
+ 
+ static ssize_t store_enable_clk3a_output(struct device *d,
+@@ -392,7 +392,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(enable_clk3a_output, S_IWUGO, NULL,
++static DEVICE_ATTR(enable_clk3a_output, (S_IWUSR|S_IWGRP), NULL,
+ 		store_enable_clk3a_output);
+ 
+ static ssize_t store_enable_clkb1_output(struct device *d,
+@@ -413,7 +413,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(enable_clkb1_output, S_IWUGO, NULL,
++static DEVICE_ATTR(enable_clkb1_output, (S_IWUSR|S_IWGRP), NULL,
+ 		store_enable_clkb1_output);
+ 
+ 
+@@ -435,7 +435,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(enable_clka1_output, S_IWUGO, NULL,
++static DEVICE_ATTR(enable_clka1_output, (S_IWUSR|S_IWGRP), NULL,
+ 		store_enable_clka1_output);
+ 
+ static ssize_t store_enable_clkb0_output(struct device *d,
+@@ -456,7 +456,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(enable_clkb0_output, S_IWUGO, NULL,
++static DEVICE_ATTR(enable_clkb0_output, (S_IWUSR|S_IWGRP), NULL,
+ 		store_enable_clkb0_output);
+ 
+ static ssize_t store_enable_clka0_output(struct device *d,
+@@ -477,7 +477,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(enable_clka0_output, S_IWUGO, NULL,
++static DEVICE_ATTR(enable_clka0_output, (S_IWUSR|S_IWGRP), NULL,
+ 		store_enable_clka0_output);
+ 
+ static ssize_t store_select_amcb2_transmit_clock(struct device *d,
+@@ -519,7 +519,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(select_amcb2_transmit_clock, S_IWUGO, NULL,
++static DEVICE_ATTR(select_amcb2_transmit_clock, (S_IWUSR|S_IWGRP), NULL,
+ 	store_select_amcb2_transmit_clock);
+ 
+ static ssize_t store_select_amcb1_transmit_clock(struct device *d,
+@@ -560,7 +560,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(select_amcb1_transmit_clock, S_IWUGO, NULL,
++static DEVICE_ATTR(select_amcb1_transmit_clock, (S_IWUSR|S_IWGRP), NULL,
+ 		store_select_amcb1_transmit_clock);
+ 
+ static ssize_t store_select_redundant_clock(struct device *d,
+@@ -581,7 +581,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(select_redundant_clock, S_IWUGO, NULL,
++static DEVICE_ATTR(select_redundant_clock, (S_IWUSR|S_IWGRP), NULL,
+ 		store_select_redundant_clock);
+ 
+ static ssize_t store_select_ref_frequency(struct device *d,
+@@ -602,7 +602,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(select_ref_frequency, S_IWUGO, NULL,
++static DEVICE_ATTR(select_ref_frequency, (S_IWUSR|S_IWGRP), NULL,
+ 		store_select_ref_frequency);
+ 
+ static ssize_t store_filter_select(struct device *d,
+@@ -623,7 +623,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(filter_select, S_IWUGO, NULL, store_filter_select);
++static DEVICE_ATTR(filter_select, (S_IWUSR|S_IWGRP), NULL, store_filter_select);
+ 
+ static ssize_t store_hardware_switching_mode(struct device *d,
+ 		 struct device_attribute *attr, const char *buf, size_t count)
+@@ -643,7 +643,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(hardware_switching_mode, S_IWUGO, NULL,
++static DEVICE_ATTR(hardware_switching_mode, (S_IWUSR|S_IWGRP), NULL,
+ 		store_hardware_switching_mode);
+ 
+ static ssize_t store_hardware_switching(struct device *d,
+@@ -664,7 +664,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(hardware_switching, S_IWUGO, NULL,
++static DEVICE_ATTR(hardware_switching, (S_IWUSR|S_IWGRP), NULL,
+ 		store_hardware_switching);
+ 
+ static ssize_t store_refalign (struct device *d,
+@@ -684,7 +684,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(refalign, S_IWUGO, NULL, store_refalign);
++static DEVICE_ATTR(refalign, (S_IWUSR|S_IWGRP), NULL, store_refalign);
+ 
+ static ssize_t store_mode_select (struct device *d,
+ 		 struct device_attribute *attr, const char *buf, size_t count)
+@@ -704,7 +704,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(mode_select, S_IWUGO, NULL, store_mode_select);
++static DEVICE_ATTR(mode_select, (S_IWUSR|S_IWGRP), NULL, store_mode_select);
+ 
+ static ssize_t store_reset (struct device *d,
+ 		 struct device_attribute *attr, const char *buf, size_t count)
+@@ -724,7 +724,7 @@
+ 	return strnlen(buf, count);
+ }
+ 
+-static DEVICE_ATTR(reset, S_IWUGO, NULL, store_reset);
++static DEVICE_ATTR(reset, (S_IWUSR|S_IWGRP), NULL, store_reset);
+ 
+ static struct attribute *tlclk_sysfs_entries[] = {
+ 	&dev_attr_current_ref.attr,
+
+--------------070106090701040201020401--

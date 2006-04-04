@@ -1,42 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751847AbWDDKVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751837AbWDDKYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751847AbWDDKVG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 06:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751848AbWDDKVF
+	id S1751837AbWDDKYN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 06:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751848AbWDDKYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 06:21:05 -0400
-Received: from mercury.sdinet.de ([193.103.161.30]:43907 "EHLO
-	mercury.sdinet.de") by vger.kernel.org with ESMTP id S1751847AbWDDKVE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 06:21:04 -0400
-Date: Tue, 4 Apr 2006 12:21:01 +0200 (CEST)
-From: Sven-Haegar Koch <haegar@sdinet.de>
-To: Stephen Clark <Stephen.Clark@seclark.us>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: VMware-workstation-3.2.1-2242
-In-Reply-To: <4431D840.5000105@seclark.us>
-Message-ID: <Pine.LNX.4.64.0604041219450.9610@mercury.sdinet.de>
-References: <4431D840.5000105@seclark.us>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 4 Apr 2006 06:24:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8086 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751837AbWDDKYL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 06:24:11 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060404095529.31311.3892.stgit@warthog.cambridge.redhat.com> 
+References: <20060404095529.31311.3892.stgit@warthog.cambridge.redhat.com> 
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, keyrings@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Keyrings] [PATCH] Keys: Improve usage of memory barriers and remove IRQ disablement 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Tue, 04 Apr 2006 11:23:59 +0100
+Message-ID: <31870.1144146239@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Apr 2006, Stephen Clark wrote:
+David Howells <dhowells@redhat.com> wrote:
 
-> Anyone able to get VMware-workstation-3.2.1-2242 running on 2.6.15 or 
-> 2.6.16?
+> The attached patch adds a missing memory barrier into the key_put() and
+> removes an unnecessary barrier from install_session_keyring().
+> ...
 
-Perhaps it works with the kernel modules from 
-http://platan.vc.cvut.cz/ftp/pub/vmware/vmware-any-any-update101.tar.gz
-(or any newer vmware-any-any-* available there).
-
-But never tried it with vmware 3.
-
-c'ya
-sven
-
--- 
-
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)
+Signed-Off-By: David Howells <dhowells@redhat.com>

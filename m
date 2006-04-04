@@ -1,76 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWDDVPv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbWDDVVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750884AbWDDVPv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 17:15:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWDDVPu
+	id S1750888AbWDDVVs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 17:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbWDDVVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 17:15:50 -0400
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:32153
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1750883AbWDDVPt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 17:15:49 -0400
-Date: Tue, 4 Apr 2006 14:15:05 -0700
-From: Greg KH <gregkh@suse.de>
-To: dtor_core@ameritech.net
-Cc: rene.herman@keyaccess.nl, alsa-devel@alsa-project.org,
-       linux-kernel@vger.kernel.org, tiwai@suse.de
-Subject: Re: patch bus_add_device-losing-an-error-return-from-the-probe-method.patch added to gregkh-2.6 tree
-Message-ID: <20060404211505.GA7760@suse.de>
-References: <44238489.8090402@keyaccess.nl> <1FQquz-2CO-00@press.kroah.org> <d120d5000604041323h448c1ccfi7e9dcedd82c385ba@mail.gmail.com> <20060404210048.GA5694@suse.de>
+	Tue, 4 Apr 2006 17:21:48 -0400
+Received: from mail.charite.de ([160.45.207.131]:48540 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S1750886AbWDDVVr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 17:21:47 -0400
+Date: Tue, 4 Apr 2006 23:21:44 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Cc: linux-xfs@oss.sgi.com
+Subject: 2.6.16.1: XFS internal error xfs_btree_check_lblock at line 215 of file fs/xfs/xfs_btree.c
+Message-ID: <20060404212144.GM15722@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060404210048.GA5694@suse.de>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 04, 2006 at 02:00:48PM -0700, Greg KH wrote:
-> On Tue, Apr 04, 2006 at 04:23:43PM -0400, Dmitry Torokhov wrote:
-> > On 4/4/06, gregkh@suse.de <gregkh@suse.de> wrote:
-> > >
-> > > --- gregkh-2.6.orig/drivers/base/bus.c
-> > > +++ gregkh-2.6/drivers/base/bus.c
-> > > @@ -372,14 +372,17 @@ int bus_add_device(struct device * dev)
-> > >
-> > >        if (bus) {
-> > >                pr_debug("bus %s: add device %s\n", bus->name, dev->bus_id);
-> > > -               device_attach(dev);
-> > > +               error = device_attach(dev);
-> > > +               if (error < 0)
-> > > +                       goto exit;
-> > 
-> > I do not believe that this is correct. The fact that _some_ driver
-> > failed to attach to a device does not necessarily mean that device
-> > itself does not exist. While this assuption might work for platform
-> > devices it won't work for other busses.
-> 
-> Hm, no, I unwound this mess, and found the following:
-> 
->  - bus_add_device() calls device_attach()
->  - device_attach() calls bus_for_each_drv() for every driver on the bus
->  - bus_for_each_drv() walks all drivers on the bus and calls
->    __device_attach() for every individual driver
->  - __device_attach() calls driver_probe_device() for that driver and device
->  - driver_probe_device() calls down to the probe() function for the
->    driver, passing it that driver, if match() for the bus matches this
->    device.
->  - if that probe() function returns -ENODEV or -ENXIO[1] then the error
->    is ignored and 0 is returned, causing the loop to continue to try
->    more drivers
->  - if the probe() function returns any other error code, it is
->    propagated up, all the way back to bus_add_device.
->  - if the probe() function returns 0, the device is bound to the driver,
->    and it returns 0.  Hm, looks like we continue to loop here too, we
->    could probably stop now that we have bound a driver to the device.
-> 
-> So, I'm pretty sure that this is safe and should work just fine.  To be
-> sure, let me go reboot my box with this change on it after I finish this
-> email :)
+I was running xfs_fsr on our /home at night when this happened:
+(Kernel 2.6.16.1)
 
-Yup, things still seem to work properly for me.  The patch will show up
-in the next -mm for others to beat on...
+Security Events
+=-=-=-=-=-=-=-=
+Apr  2 00:26:17 postamt kernel: xfs_force_shutdown(sda5,0x8) called from line 1032 of file fs/xfs/xfs_trans.c.  Return address = 0xb1128274
 
-thanks,
+System Events
+=-=-=-=-=-=-=
+Apr  2 00:17:10 postamt fsr[28019]: /home start inode=0
+Apr  2 00:25:29 postamt fsr[28938]: /home start inode=0
+Apr  2 00:26:17 postamt kernel: Filesystem "sda5": XFS internal error xfs_btree_check_lblock at line 215 of file fs/xfs/xfs_btree.c.  Caller 0xb10dba58
+Apr  2 00:26:17 postamt kernel:  [xfs_btree_check_lblock+82/407] xfs_btree_check_lblock+0x52/0x197
+Apr  2 00:26:17 postamt kernel:  [xfs_bmbt_lookup+636/1471] xfs_bmbt_lookup+0x27c/0x5bf
+Apr  2 00:26:17 postamt kernel:  [xfs_bmbt_lookup+636/1471] xfs_bmbt_lookup+0x27c/0x5bf
+Apr  2 00:26:17 postamt kernel:  [xfs_bmap_del_extent+491/2774] xfs_bmap_del_extent+0x1eb/0xad6
+Apr  2 00:26:17 postamt kernel:  [xfs_mod_incore_sb_batch+60/134] xfs_mod_incore_sb_batch+0x3c/0x86
+Apr  2 00:26:17 postamt kernel:  [kmem_zone_alloc+61/176] kmem_zone_alloc+0x3d/0xb0
+Apr  2 00:26:17 postamt kernel:  [xfs_bmap_search_extents+117/279] xfs_bmap_search_extents+0x75/0x117
+Apr  2 00:26:17 postamt kernel:  [xfs_bunmapi+1851/4334] xfs_bunmapi+0x73b/0x10ee
+Apr  2 00:26:17 postamt kernel:  [xfs_trans_ijoin+43/134] xfs_trans_ijoin+0x2b/0x86
+Apr  2 00:26:17 postamt kernel:  [xfs_itruncate_finish+617/942] xfs_itruncate_finish+0x269/0x3ae
+Apr  2 00:26:17 postamt kernel:  [xfs_trans_ijoin+43/134] xfs_trans_ijoin+0x2b/0x86
+Apr  2 00:26:17 postamt kernel:  [xfs_inactive+1058/1282] xfs_inactive+0x422/0x502
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr/ag0: Input/output error
+Apr  2 00:26:17 postamt kernel:  [linvfs_clear_inode+140/164] linvfs_clear_inode+0x8c/0xa4
+Apr  2 00:26:17 postamt kernel:  [dquot_drop+0/106] dquot_drop+0x0/0x6a
+Apr  2 00:26:17 postamt kernel:  [clear_inode+173/290] clear_inode+0xad/0x122
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr/ag1: Input/output error
+Apr  2 00:26:17 postamt kernel:  [truncate_inode_pages+23/27] truncate_inode_pages+0x17/0x1b
+Apr  2 00:26:17 postamt kernel:  [generic_delete_inode+207/284] generic_delete_inode+0xcf/0x11c
+Apr  2 00:26:17 postamt kernel:  [iput+83/101] iput+0x53/0x65
+Apr  2 00:26:17 postamt kernel:  [dput+106/302] dput+0x6a/0x12e
+Apr  2 00:26:17 postamt kernel:  [__fput+258/350] __fput+0x102/0x15e
+Apr  2 00:26:17 postamt kernel:  [filp_close+60/123] filp_close+0x3c/0x7b
+Apr  2 00:26:17 postamt kernel:  [sys_close+86/143] sys_close+0x56/0x8f
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr/ag2: Input/output error
+Apr  2 00:26:17 postamt kernel:  [sysenter_past_esp+84/117] sysenter_past_esp+0x54/0x75
+Apr  2 00:26:17 postamt kernel: Filesystem "sda5": XFS internal error xfs_trans_cancel at line 1031 of file fs/xfs/xfs_trans.c.  Caller 0xb1118f9f
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr/ag3: Input/output error
+Apr  2 00:26:17 postamt kernel:  [xfs_trans_cancel+211/270] xfs_trans_cancel+0xd3/0x10e
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr/ag4: Input/output error
+Apr  2 00:26:17 postamt kernel:  [xfs_inactive+1080/1282] xfs_inactive+0x438/0x502
+Apr  2 00:26:17 postamt kernel:  [xfs_inactive+1080/1282] xfs_inactive+0x438/0x502
+Apr  2 00:26:17 postamt kernel:  [linvfs_clear_inode+140/164] linvfs_clear_inode+0x8c/0xa4
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr/ag5: Input/output error
+Apr  2 00:26:17 postamt kernel:  [dquot_drop+0/106] dquot_drop+0x0/0x6a
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr/ag6: Input/output error
+Apr  2 00:26:17 postamt kernel:  [clear_inode+173/290] clear_inode+0xad/0x122
+Apr  2 00:26:17 postamt kernel:  [truncate_inode_pages+23/27] truncate_inode_pages+0x17/0x1b
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr/ag7: Input/output error
+Apr  2 00:26:17 postamt kernel:  [generic_delete_inode+207/284] generic_delete_inode+0xcf/0x11c
+Apr  2 00:26:17 postamt kernel:  [iput+83/101] iput+0x53/0x65
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr/ag8: Input/output error
+Apr  2 00:26:17 postamt kernel:  [dput+106/302] dput+0x6a/0x12e
+Apr  2 00:26:17 postamt kernel:  [__fput+258/350] __fput+0x102/0x15e
+Apr  2 00:26:17 postamt kernel:  [filp_close+60/123] filp_close+0x3c/0x7b
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr/ag9: Input/output error
+Apr  2 00:26:17 postamt kernel:  [sys_close+86/143] sys_close+0x56/0x8f
+Apr  2 00:26:17 postamt kernel:  [sysenter_past_esp+84/117] sysenter_past_esp+0x54/0x75
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr/ag10: Input/output error
+Apr  2 00:26:17 postamt kernel: Filesystem "sda5": Corruption of in-memory data detected.  Shutting down filesystem: sda5
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr/ag11: Input/output error
+Apr  2 00:26:17 postamt kernel: Please umount the filesystem, and rectify the problem(s)
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr/ag12: Input/output error
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr/ag13: Input/output error
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr/ag14: Input/output error
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr/ag15: Input/output error
+Apr  2 00:26:17 postamt fsr[28938]: could not remove tmpdir: /home/.fsr: Input/output error
+Apr  2 00:26:17 postamt fsr[29047]: /home start inode=0
+Apr  2 00:26:17 postamt fsr[29047]: could not create tmpdir: /home/.fsr: Input/output error
+Apr  2 00:26:17 postamt fsr[29048]: /home start inode=0
+Apr  2 00:26:17 postamt fsr[29048]: could not create tmpdir: /home/.fsr: Input/output error
+Apr  2 00:26:17 postamt fsr[29049]: /home start inode=0
+Apr  2 00:26:17 postamt fsr[29049]: could not create tmpdir: /home/.fsr: Input/output error
+Apr  2 00:26:17 postamt fsr[29050]: /home start inode=0
+Apr  2 00:26:17 postamt fsr[29050]: could not create tmpdir: /home/.fsr: Input/output error
+Apr  2 00:26:17 postamt fsr[29051]: /home start inode=0
+Apr  2 00:26:17 postamt fsr[29051]: could not create tmpdir: /home/.fsr: Input/output error
+Apr  2 00:26:17 postamt fsr[29052]: /home start inode=0
+Apr  2 00:26:17 postamt fsr[29052]: could not create tmpdir: /home/.fsr: Input/output error
+Apr  2 00:26:17 postamt fsr[29053]: /home start inode=0
+Apr  2 00:26:17 postamt fsr[29053]: could not create tmpdir: /home/.fsr: Input/output error
+Apr  2 00:26:17 postamt fsr[25409]: Completed all 10 passes
 
-greg k-h
+-- 
+Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

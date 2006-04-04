@@ -1,86 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751572AbWDDCIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751809AbWDDCLt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751572AbWDDCIM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 22:08:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751726AbWDDCIL
+	id S1751809AbWDDCLt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 22:11:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751808AbWDDCLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 22:08:11 -0400
-Received: from h-66-17-68-74.noclli.covad.net ([66.17.68.74]:1875 "EHLO
-	mail.merunetworks.com") by vger.kernel.org with ESMTP
-	id S1751572AbWDDCIK convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 22:08:10 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: Kernel panic in add_entropy_words
-Date: Mon, 3 Apr 2006 18:40:18 -0700
-Message-ID: <61716BB31DD0AE469370BBE04DD6C07A0CF2A2@hail.merunetworks.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Kernel panic in add_entropy_words
-Thread-Index: AcZXhHLGbJoCVNktQNeZi+Nt2S1B+gAA7cnw
-From: "Kim Le" <kle@merunetworks.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>
+	Mon, 3 Apr 2006 22:11:49 -0400
+Received: from mga06.intel.com ([134.134.136.21]:61117 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751809AbWDDCLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 22:11:48 -0400
+TrustExchangeSourcedMail: True
+X-ExchangeTrusted: True
+X-IronPort-AV: i="4.03,160,1141632000"; 
+   d="scan'208"; a="18895540:sNHT17259949"
+Date: Mon, 3 Apr 2006 19:11:22 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Con Kolivas <kernel@kolivas.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: smpnice loadbalancing with high priority tasks
+Message-ID: <20060403191122.B31895@unix-os.sc.intel.com>
+References: <20060328185202.A1135@unix-os.sc.intel.com> <442A0235.1060305@bigpond.net.au> <20060329145242.A11376@unix-os.sc.intel.com> <442B1AE8.5030005@bigpond.net.au> <20060329165052.C11376@unix-os.sc.intel.com> <442B3111.5030808@bigpond.net.au> <20060401204824.A8662@unix-os.sc.intel.com> <442F7871.4030405@bigpond.net.au> <20060403172408.A31895@unix-os.sc.intel.com> <4431CA4F.3020304@bigpond.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4431CA4F.3020304@bigpond.net.au>; from pwil3058@bigpond.net.au on Tue, Apr 04, 2006 at 11:22:23AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 04, 2006 at 11:22:23AM +1000, Peter Williams wrote:
+> OK.  I think this means some fiddling with avg_load may be necessary in 
+> some cases but this will be complex.  I'm not really happy about making 
+> this code more complex until some of the current unnecessary complexity 
+> is removed.  I.e. until a proper solution to the problem of triggering 
+> active_load_balance() is implemented.
 
-Thanks for the response.
-It is a kernel module that we developed.
-The kernel itself is not modified.
+Here is Nicks view about active_load_balance()
 
-My question is if any one ecounter a similar panic?  And what could possible cause it.
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=3950745131e23472fb5ace2ee4a2093e7590ec69
 
-Thanks
-Kim
-
------Original Message-----
-From: Arjan van de Ven [mailto:arjan@infradead.org]
-Sent: Monday, April 03, 2006 6:12 PM
-To: Kim Le
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel panic in add_entropy_words
-
-
-On Mon, 2006-04-03 at 13:24 -0700, Kim Le wrote:
-> Folks,
+> > 
+> > c) DP system: if the cpu-0 has two high priority and cpu-1 has one normal
+> > priority task, how can the current code detect this imbalance..
 > 
-> Any one ever encounter this kernel panic.
-> I am pulling my hair finding the fix for this.  So any help is appreciate.
-> Please reply to my email address if you could.
+> How would it not?
+
+imbalance will be always < busiest_load_per_task and
+max_load - this_load will be < 2 * busiest_load_per_task...
+and pwr_move will be <= pwr_now...
+
+> > d) 4-way MP system: if the cpu-0 has two high priority tasks, cpu-1 has
+> > one high priority and four normal priority and cpu-2,3 each has one
+> > high priority task.. how does the current code distribute the normal
+> > priority tasks among cpu-1,2,3... (in this case, max_load will always
+> > point to cpu-0 and will never distribute the noraml priority tasks...)
 > 
-> Thanks
-> Kim
-> 
-> EIP is at add_entropy_words [kernel] 0x92 (2.4.18-3-meruenabled)
-> eax: 08000001   ebx: 1fa96582   ecx: 00000007   edx: c16b2b00
-> esi: c16ba300   edi: 0000001f   ebp: 00000000   esp: dc809d08
-> ds: 0018   es: 0018   ss: 0018
-> Process coordinator (pid: 1266, stackpage=dc809000)
-> Stack: c16ba300 00000400 c16ba280 00000000 c017c4e9 c16ba300 c1757b3c 00000002
->        dc809d3c dc809d3c c02e4c00 c011d6d9 c16ba280 c02fe72c c02fe72c c02ecb14
->        c02ecb00 c0120699 c029de60 dc809db0 00000000 00000000 00000000 c011d60b
-> Call Trace: [<c017c4e9>] batch_entropy_process [kernel] 0x59
-> [<c011d6d9>] __run_task_queue [kernel] 0x49
-> [<c0120699>] tqueue_bh [kernel] 0x19
-> [<c011d60b>] bh_action [kernel] 0x1b
-> [<c011d51e>] tasklet_hi_action [kernel] 0x4e
-> [<c011d33b>] do_softirq [kernel] 0x4b
-> [<c010a06c>] do_IRQ [kernel] 0x9c
-> [<c012fd87>] kmalloc [kernel] 0x37
-> [<e08d9e43>] kcomm_mailbox_sendto [kcomm] 0x6b
-> [<c01b627f>] alloc_skb [kernel] 0xdf
-> [<e08d9f8a>] kcomm_mailbox_alloc_skb [kcomm] 0x12
-> [<e08dcb78>] kcomm_socket_sendmsg [kcomm] 0x8c
-> [<e08d6634>] nulldevname.0 [ip_tables] 0x0
+> This should cause cpu-0 to lose one of its tasks creating a new state 
+
+how? in this case also...
+
+imbalance will be always < busiest_load_per_task and
+max_load - this_load will be < 2 * busiest_load_per_task...
+and pwr_move will be <= pwr_now...
 
 
-what is this kcomm thing? You forgot to put in a pointer to the source
-of that :)
-Also you seem to run a very modified kernel... what did you change?
+> Without smpnice, can you show how the default load balancing would 
+> result in the "nice" values being reliably enforced in your examples.
 
+I agree with the issue that we are trying to fix here.. but I feel
+it is incomplete.. With the current code in mainline, anyone can say the 
+behavior by going through the code.... with smpnice code, code is complex
+and really doesn't achieve what that patch really wants to fix..
 
+> The good news is that, in real life, high priority tasks generally only 
+> use very short bursts of CPU. :-)
+
+do we then really need smpnice complexity?
+
+thanks,
+suresh

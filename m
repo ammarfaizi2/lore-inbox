@@ -1,112 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbWDDTOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWDDTOb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750820AbWDDTOb (ORCPT <rfc822;willy@w.ods.org>);
+	id S1750817AbWDDTOb (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 4 Apr 2006 15:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbWDDTOb
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWDDTOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Tue, 4 Apr 2006 15:14:31 -0400
-Received: from mail.kroah.org ([69.55.234.183]:28585 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750820AbWDDTOa (ORCPT
+Received: from mail.kroah.org ([69.55.234.183]:30889 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750817AbWDDTOa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 4 Apr 2006 15:14:30 -0400
-Subject: patch bus_add_device-losing-an-error-return-from-the-probe-method.patch added to gregkh-2.6 tree
-To: rene.herman@keyaccess.nl, alsa-devel@alsa-project.org, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, tiwai@suse.de
-From: <gregkh@suse.de>
-Date: Tue, 04 Apr 2006 12:10:20 -0700
-In-Reply-To: <44238489.8090402@keyaccess.nl>
-Message-ID: <1FQquz-2CO-00@press.kroah.org>
+Date: Tue, 4 Apr 2006 09:48:23 -0700
+From: Greg KH <greg@kroah.com>
+To: "Artem B. Bityutskiy" <dedekind@yandex.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: device model and character devices
+Message-ID: <20060404164823.GA31398@kroah.com>
+References: <44322A6F.4000402@yandex.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44322A6F.4000402@yandex.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 04, 2006 at 12:12:31PM +0400, Artem B. Bityutskiy wrote:
+> Hello Greg,
+> 
+> at the moment the device model and the character devices subsystem are 
+> distinct and different things. I mean, if I have a device xdev, I do the 
+> following:
+> 
+> struct xdev_device {
+> 	struct cdev cdev;
+> 	struct device dev;
+> 	/* xdev-specific stuff */
+> 	...
+> } xdev;
+> 
+> I use xdev.cdev to register character device:
+> 
+> cdev_add(&xdev.cdev, ...);
+> ...
+> 
+> I use xdev.dev functions to include my device to the device-model:
+> 
+> device_register(&xdev.dev, ...);
+> ...
+> 
+> But why not to merge the character device stuff and the device model? 
+> Roughly speaking, why not to embed 'struct cdev' to 'struct device'? Why 
+> do driver writers have to distinguish between these things?
 
-This is a note to let you know that I've just added the patch titled
+Because "struct device" generally is not related to a major:minor pair
+at all.  That is what a struct class_device is for.  Lots of struct
+device users have nothing to do with a char device, and some have
+multiple char devices associated with a single struct device.
 
-     Subject: bus_add_device() losing an error return from the probe() method
+You need to create a struct class_device in order to export the proper
+information to userspace so that udev and other tools can pick up the
+fact that your device is present and it needs to create a device for it.
 
-to my gregkh-2.6 tree.  Its filename is
+All that being said, yes, there is a disconnect between the driver model
+parts and the char subsystem.  It's been something that I've wanted to
+fix for a number of years, but never had the time to do so.  If you want
+to work toward doing this, I'd be glad to review any patches.
 
-     bus_add_device-losing-an-error-return-from-the-probe-method.patch
+thanks,
 
-This tree can be found at 
-    http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/
-
-Patches currently in gregkh-2.6 which might be from rene.herman@keyaccess.nl are
-
-driver/bus_add_device-losing-an-error-return-from-the-probe-method.patch
-
-
->From rene.herman@keyaccess.nl Thu Mar 23 21:32:00 2006
-Message-ID: <44238489.8090402@keyaccess.nl>
-Date: Fri, 24 Mar 2006 06:32:57 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: Takashi Iwai <tiwai@suse.de>, ALSA devel <alsa-devel@alsa-project.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: bus_add_device() losing an error return from the probe() method
-
-ALSA moved all ISA drivers over to the platform_driver interface in
-2.6.16, using this code structure in the module_inits:
-
-    cards = 0;
-    for (i = 0; i < SNDRV_CARDS; i++) {
-	  struct platform_device *device;
-	  device = platform_device_register_simple(
-			SND_FOO_DRIVER, i, NULL, 0);
-	  if (IS_ERR(device)) {
-		  err = PTR_ERR(device);
-		  goto errout;
-	  }
-	  devices[i] = device;
-	  cards++;
-    }
-    if (!cards) {
-	  printk(KERN_ERR "FOO soundcard not found or device busy\n");
-	  err = -ENODEV;
-	  goto errout;
-    }
-    return 0;
-errout:
-    snd_foo_unregister_all();
-    return err;
-
-Unfortunately, the snd_foo_unregister_all() part here is unreachable
-under normal circumstances, since platform_device_register_simple()
-returns !IS_ERR, regardless of what the driver probe method returned.
-The driver then never fails to load, even when no cards were found.
-
-An error return from the driver probe() method is carried up through
-device_attach, but is then dropped on the floor in bus_add_device(). If
-I apply the attached patch, things work as I (and ALSA it seems) expect.
-
-From: Rene Herman <rene.herman@keyaccess.nl>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
- drivers/base/bus.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
-
---- gregkh-2.6.orig/drivers/base/bus.c
-+++ gregkh-2.6/drivers/base/bus.c
-@@ -372,14 +372,17 @@ int bus_add_device(struct device * dev)
- 
- 	if (bus) {
- 		pr_debug("bus %s: add device %s\n", bus->name, dev->bus_id);
--		device_attach(dev);
-+		error = device_attach(dev);
-+		if (error < 0)
-+			goto exit;
- 		klist_add_tail(&dev->knode_bus, &bus->klist_devices);
- 		error = device_add_attrs(bus, dev);
--		if (!error) {
--			sysfs_create_link(&bus->devices.kobj, &dev->kobj, dev->bus_id);
--			sysfs_create_link(&dev->kobj, &dev->bus->subsys.kset.kobj, "bus");
--		}
-+		if (error)
-+			goto exit;
-+		sysfs_create_link(&bus->devices.kobj, &dev->kobj, dev->bus_id);
-+		sysfs_create_link(&dev->kobj, &dev->bus->subsys.kset.kobj, "bus");
- 	}
-+exit:
- 	return error;
- }
- 
+greg k-h

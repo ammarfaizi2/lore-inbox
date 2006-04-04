@@ -1,69 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbWDDWm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbWDDWqc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750887AbWDDWm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 18:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbWDDWm5
+	id S1750899AbWDDWqc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 18:46:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbWDDWqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 18:42:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30091 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750825AbWDDWm4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 18:42:56 -0400
-Date: Tue, 4 Apr 2006 15:38:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Zachary Amsden <zach@vmware.com>
-Cc: ebiederm@xmission.com, bunk@stusta.de, linux-kernel@vger.kernel.org,
-       rdunlap@xenotime.net, fastboot@osdl.org
-Subject: Re: 2.6.17-rc1-mm1: KEXEC became SMP-only
-Message-Id: <20060404153848.55c4811a.akpm@osdl.org>
-In-Reply-To: <4432F469.1040405@vmware.com>
-References: <20060404014504.564bf45a.akpm@osdl.org>
-	<20060404162921.GK6529@stusta.de>
-	<m1acb15ja2.fsf@ebiederm.dsl.xmission.com>
-	<4432B22F.6090803@vmware.com>
-	<m1irpp41wx.fsf@ebiederm.dsl.xmission.com>
-	<4432C7AC.9020106@vmware.com>
-	<20060404132546.565b3dae.akpm@osdl.org>
-	<4432ECF1.8040606@vmware.com>
-	<20060404151904.764ad9f4.akpm@osdl.org>
-	<4432F469.1040405@vmware.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 4 Apr 2006 18:46:32 -0400
+Received: from 69.0.103.46.adsl.snet.net ([69.0.103.46]:57280 "EHLO
+	Power-Mac-G5.local") by vger.kernel.org with ESMTP id S1750898AbWDDWqb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 18:46:31 -0400
+Date: Tue, 4 Apr 2006 18:46:31 -0400
+From: Ron McCall <ronald.mccall@snet.net>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel for SBS VG5 SBC
+Message-ID: <20060404224631.GA455@Power-Mac-G5.local>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zachary Amsden <zach@vmware.com> wrote:
->
-> Do weak symbols work with all tool chains?
-> 
+Hi,
 
-I hope so.  `grep weak */*.c'.
+Does anyone happen to know if any stock Linux kernel can be configured
+to run on SBS Technologies' VG5 Dual PowerPC VME Single Board Computer?
+SBS says this board supports Linux but I can't find much info about this
+at all.  The board is an asymmetric dual PowerPC 7455 or 7457 with a
+Marvell MV64360 system controller.  I would be happy to use just one of
+the processors.  I don't have the serial ATA option for the board so I
+would need to netboot (and use an NFS root).  It has the PMON 2000 ROM
+monitor on board.  A couple of hits on Google found a German web site
+that looked like MontaVista might have had patches to support the VG5
+with kernel 2.4.22 at some time but I can't seem to find any more about
+it.  Just wondering whether anyone knew if this might be doable.  Thanks
+in advance!
 
-> >   
-> >> 2) You don't need #ifdef SUBARCH_FUNC_FOO goo to do this (renaming 
-> >> voyager_halt -> default)
-> >>     
-> >
-> > Why would one need that?  Isn't it simply a matter of renaming
-> > machine_halt() to subarch_machine_halt() everywhere?
-> >   
-> 
-> No - if you rename machine_halt to subarch_machine_halt, you again can't 
-> add a new subarch interface without changing all subarchitectures.  If I 
-> add voyager_smp_bless_voyage(), I now need to add #define 
-> visws_smp_bless_voyage default_smp_bless_voyage, ... or did you mean 
-> subarch_machine_halt literally?
-
-Yes, I meant subarch_machine_halt() literally.
-
-> > I'm just looking for the simplest option here.  Eric has identified a code
-> > maintainability problem - it'd be good to fix that, but we shouldn't add
-> > runtime cost/complexity unless we actually gain something from it.
-> >   
-> 
-> I think weak symbols are the best approach, if they indeed work with all 
-> tool chains.
-
-They do.
+Ron McCall

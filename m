@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWDDEeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWDDEwH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750851AbWDDEeh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 00:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751473AbWDDEeh
+	id S1751437AbWDDEwH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 00:52:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751554AbWDDEwH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 00:34:37 -0400
-Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:22338 "EHLO
-	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750851AbWDDEeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 00:34:37 -0400
-Message-ID: <4431F75A.3070701@bigpond.net.au>
-Date: Tue, 04 Apr 2006 14:34:34 +1000
+	Tue, 4 Apr 2006 00:52:07 -0400
+Received: from omta05sl.mx.bigpond.com ([144.140.93.195]:27573 "EHLO
+	omta05sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751437AbWDDEwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 00:52:05 -0400
+Message-ID: <4431FB72.9030907@bigpond.net.au>
+Date: Tue, 04 Apr 2006 14:52:02 +1000
 From: Peter Williams <pwil3058@bigpond.net.au>
 User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Con Kolivas <kernel@kolivas.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: smpnice loadbalancing with high priority tasks
-References: <20060328185202.A1135@unix-os.sc.intel.com> <442A0235.1060305@bigpond.net.au> <20060329145242.A11376@unix-os.sc.intel.com> <442B1AE8.5030005@bigpond.net.au> <20060329165052.C11376@unix-os.sc.intel.com> <442B3111.5030808@bigpond.net.au> <20060401204824.A8662@unix-os.sc.intel.com> <442F7871.4030405@bigpond.net.au> <20060403172408.A31895@unix-os.sc.intel.com> <4431CA4F.3020304@bigpond.net.au> <20060403191122.B31895@unix-os.sc.intel.com> <4431E6D7.2060604@bigpond.net.au>
-In-Reply-To: <4431E6D7.2060604@bigpond.net.au>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>,
+       Paolo Ornati <ornati@fastwebnet.it>, Ingo Molnar <mingo@elte.hu>
+Subject: [ANNOUNCE][RFC] PlugSched-6.3.2 for  2.6.17-rc1
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 4 Apr 2006 04:34:34 +0000
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 4 Apr 2006 04:52:03 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Siddha, Suresh B wrote:
->>>> c) DP system: if the cpu-0 has two high priority and cpu-1 has one 
->>>> normal
->>>> priority task, how can the current code detect this imbalance..
->>> How would it not?
->>
->> imbalance will be always < busiest_load_per_task and
->> max_load - this_load will be < 2 * busiest_load_per_task...
->> and pwr_move will be <= pwr_now...
-> 
-> I had thought about substituting (busiest_load_per_task + 
-> this_load_per_task) for (busiest_load_per_task * 2) but couldn't 
-> convince myself that it was the right thing to do.  (The final update to 
-> this_load_per_task would need to be moved.)  The reason I couldn't 
-> convince myself is that I thought it might be too aggressive and cause 
-> excessive balancing.  Maybe something more sophisticated is needed to 
-> prevent that possibility.  It should be noted that the relative sizes of 
-> busiest_load_per_task and this_load_per_task my be useful in deciding 
-> what to do in these cases.  I'll put some thought into that.
+This version updates staircase scheduler to version 15 (thanks Con)
+and includes the latest smpnice patches
 
-How does this bit of code look?
+A patch for 2.6.17-rc1 is available at:
 
-if (busiest_load_per_task > this_load_per_task) {
-	if (max_load - this_load > busiest_load_per_task) {
-		*imbalance = busiest_load_per_task;
-		return busiest;
-	}
-} else if (max_load - this_load >= busiest_load_per_task*2) {
-	*imbalance = busiest_load_per_task;
-	return busiest;
-}
+<http://prdownloads.sourceforge.net/cpuse/plugsched-6.3.2-for-2.6.17-rc1.patch?download>
 
-My maths indicate this will work even in cases when the difference 
-between the two load per task values is small.  By "work" I mean that it 
-will one of the high priority tasks and it won't bounce back. Do you agree?
+Very Brief Documentation:
 
-The actual patch would be a little neater than this, of course.
+You can select a default scheduler at kernel build time.  If you wish to
+boot with a scheduler other than the default it can be selected at boot
+time by adding:
+
+cpusched=<scheduler>
+
+to the boot command line where <scheduler> is one of: ingosched,
+ingo_ll, nicksched, staircase, spa_no_frills, spa_ws, spa_svr, spa_ebs
+or zaphod.  If you don't change the default when you build the kernel
+the default scheduler will be ingosched (which is the normal scheduler).
+
+The scheduler in force on a running system can be determined by the
+contents of:
+
+/proc/scheduler
+
+Control parameters for the scheduler can be read/set via files in:
+
+/sys/cpusched/<scheduler>/
 
 Peter
 -- 

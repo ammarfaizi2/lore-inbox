@@ -1,112 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751817AbWDDGTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751821AbWDDG1o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751817AbWDDGTV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 02:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751713AbWDDGTV
+	id S1751821AbWDDG1o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 02:27:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751820AbWDDG1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 02:19:21 -0400
-Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:47353 "EHLO
-	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751464AbWDDGTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 02:19:20 -0400
-Message-ID: <44320FE5.5080309@bigpond.net.au>
-Date: Tue, 04 Apr 2006 16:19:17 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
+	Tue, 4 Apr 2006 02:27:44 -0400
+Received: from ozlabs.org ([203.10.76.45]:43939 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751818AbWDDG1n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 02:27:43 -0400
+Subject: Re: [Fastboot] Re: [PATCH] kexec on ia64
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
 To: Andrew Morton <akpm@osdl.org>
-CC: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Con Kolivas <kernel@kolivas.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Mike Galbraith <efault@gmx.de>, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] sched: improve smpnice load balancing when load per task
- imbalanced
-Content-Type: multipart/mixed;
- boundary="------------010201010900090207050609"
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 4 Apr 2006 06:19:18 +0000
+Cc: Khalid Aziz <khalid_aziz@hp.com>, linux-ia64@vger.kernel.org,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060403212049.480ad388.akpm@osdl.org>
+References: <1144102818.8279.6.camel@localhost.localdomain>
+	 <20060403212049.480ad388.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mUP8jHBGvwM4iAqIVSJ1"
+Date: Tue, 04 Apr 2006 08:07:58 +0200
+Message-Id: <1144130879.29756.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010201010900090207050609
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Problem:
+--=-mUP8jHBGvwM4iAqIVSJ1
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-2 CPU system: if the cpu-0 has two high priority and cpu-1 has one 
-normal priority task, how can the current code detect this imbalance 
-because imbalance will be always < busiest_load_per_task and max_load - 
-this_load will be < 2 * busiest_load_per_task and pwr_move will be <= 
-pwr_now.
+On Mon, 2006-04-03 at 21:20 -0700, Andrew Morton wrote:
+> Khalid Aziz <khalid_aziz@hp.com> wrote:
+> > +/*
+> > + * Terminate any outstanding interrupts
+> > + */
+> > +void terminate_irqs(void)
+> > +{
+> > +	struct irqaction * action;
+> > +	irq_desc_t *idesc;
+> > +	int i;
+> > +
+> > +	for (i=3D0; i<NR_IRQS; i++) {
+>=20
+> 	for (i =3D 0; i < NR_IRQS; i++) {
+>=20
+> > +		idesc =3D irq_descp(i);
+> > +		action =3D idesc->action;
+> > +		if (!action)
+> > +			continue;
+> > +		if (idesc->handler->end)
+> > +			idesc->handler->end(i);
+> > +	}
+> > +}
+>=20
+> Could we have a bit more description of what this function does, and why =
+we
+> need it?
+>=20
+> Should other kexec-using architectures be using this?  If not, why does
+> ia64 need it?
 
-Solution:
+We've been kicking around a patch to do something similar, we also eoi
+anything that's outstanding. I can't find the patch just now, but it's
+on linuxppc somewhere I think.
 
-Modify the assessment of small imbalances to take into account the 
-relative sizes of busiest_load_per_task and this_load_per_task.  This is 
-exploiting the fact that if the difference between the loads is greater 
-than busiest_load_per_task and busiest_load_per_task is greater than 
-this_load_per_task then moving busiest_load_per_task worth of load from 
-busiest to this will be an improvement in the distribution of weighted load.
+cheers
 
-Required patches:
+--=20
+Michael Ellerman
+IBM OzLabs
 
-sched-prevent-high-load-weight-tasks-suppressing-balancing.patch
-sched-improve-stability-of-smpnice-load-balancing.patch
+wwweb: http://michael.ellerman.id.au
+phone: +61 2 6212 1183 (tie line 70 21183)
 
-Note: This patch makes no change to load balancing in the case where all 
-tasks are nice==0.
+We do not inherit the earth from our ancestors,
+we borrow it from our children. - S.M.A.R.T Person
 
-Signed-off-by: Peter Williams <pwil3058@bigpond.com.au>
+--=-mUP8jHBGvwM4iAqIVSJ1
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-   -- Ambrose Bierce
+iD8DBQBEMg0+dSjSd0sB4dIRAgIBAJ94wIIGbAjYSxFFw3lLB67gq/4BBgCfZHk6
+6yDkgrajRYWfS5wbEXIy1rE=
+=Ykix
+-----END PGP SIGNATURE-----
 
+--=-mUP8jHBGvwM4iAqIVSJ1--
 
---------------010201010900090207050609
-Content-Type: text/plain;
- name="smpnice-handle-unbalanced-load-per-task"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="smpnice-handle-unbalanced-load-per-task"
-
-Index: MM-2.6.X/kernel/sched.c
-===================================================================
---- MM-2.6.X.orig/kernel/sched.c	2006-04-04 15:18:19.000000000 +1000
-+++ MM-2.6.X/kernel/sched.c	2006-04-04 15:53:48.000000000 +1000
-@@ -2252,8 +2252,16 @@ find_busiest_group(struct sched_domain *
- 	if (*imbalance < busiest_load_per_task) {
- 		unsigned long pwr_now = 0, pwr_move = 0;
- 		unsigned long tmp;
-+		unsigned int imbn = 2;
- 
--		if (max_load - this_load >= busiest_load_per_task*2) {
-+		if (this_nr_running) {
-+			this_load_per_task /= this_nr_running;
-+			if (busiest_load_per_task > this_load_per_task)
-+				imbn = 1;
-+		} else
-+			this_load_per_task = SCHED_LOAD_SCALE;
-+
-+		if (max_load - this_load >= busiest_load_per_task * imbn) {
- 			*imbalance = busiest_load_per_task;
- 			return busiest;
- 		}
-@@ -2266,10 +2274,6 @@ find_busiest_group(struct sched_domain *
- 
- 		pwr_now += busiest->cpu_power *
- 			min(busiest_load_per_task, max_load);
--		if (this_nr_running)
--			this_load_per_task /= this_nr_running;
--		else
--			this_load_per_task = SCHED_LOAD_SCALE;
- 		pwr_now += this->cpu_power *
- 			min(this_load_per_task, this_load);
- 		pwr_now /= SCHED_LOAD_SCALE;
-
---------------010201010900090207050609--

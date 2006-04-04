@@ -1,106 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWDDWXG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWDDWXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750789AbWDDWXG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 18:23:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWDDWXG
+	id S1750800AbWDDWXN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 18:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWDDWXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 18:23:06 -0400
-Received: from smtp05.auna.com ([62.81.186.15]:10995 "EHLO smtp05.retemail.es")
-	by vger.kernel.org with ESMTP id S1750789AbWDDWXF (ORCPT
+	Tue, 4 Apr 2006 18:23:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15237 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750800AbWDDWXM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 18:23:05 -0400
-Date: Wed, 5 Apr 2006 00:22:58 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: "Linux-Kernel, " <linux-kernel@vger.kernel.org>,
-       linux-hotplug-devel@lists.sourceforge.net
-Subject: udev, PROGRAM and races...
-Message-ID: <20060405002258.18fddd87@werewolf.auna.net>
-X-Mailer: Sylpheed-Claws 2.0.0cvs180 (GTK+ 2.8.16; i686-pc-linux-gnu)
+	Tue, 4 Apr 2006 18:23:12 -0400
+Date: Tue, 4 Apr 2006 15:19:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: ebiederm@xmission.com, bunk@stusta.de, linux-kernel@vger.kernel.org,
+       rdunlap@xenotime.net, fastboot@osdl.org
+Subject: Re: 2.6.17-rc1-mm1: KEXEC became SMP-only
+Message-Id: <20060404151904.764ad9f4.akpm@osdl.org>
+In-Reply-To: <4432ECF1.8040606@vmware.com>
+References: <20060404014504.564bf45a.akpm@osdl.org>
+	<20060404162921.GK6529@stusta.de>
+	<m1acb15ja2.fsf@ebiederm.dsl.xmission.com>
+	<4432B22F.6090803@vmware.com>
+	<m1irpp41wx.fsf@ebiederm.dsl.xmission.com>
+	<4432C7AC.9020106@vmware.com>
+	<20060404132546.565b3dae.akpm@osdl.org>
+	<4432ECF1.8040606@vmware.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_meF20r/jIK52=WLjH5ba2IB";
- protocol="application/pgp-signature"; micalg=PGP-SHA1
-X-Auth-Info: Auth:LOGIN IP:[83.138.210.119] Login:jamagallon@able.es Fecha:Wed, 5 Apr 2006 00:22:59 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Sig_meF20r/jIK52=WLjH5ba2IB
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Zachary Amsden <zach@vmware.com> wrote:
+>
+> Andrew Morton wrote:
+> >
+> >>  struct subarch_hooks subarch_hook_vector = {
+> >>       .machine_power_off = machine_power_off,
+> >>       .machine_halt = machine_halt,
+> >>       .machine_irq_setup = machine_irq_setup,
+> >>       .machine_subarch_setup = machine_subarch_probe
+> >>       ...
+> >>  };
+> >>
+> >>  And machine_subarch_probe can dynamically change this vector if it 
+> >>  confirms that the platform is appropriate?
+> >>     
+> >
+> > I don't recall anyone expressing any desire for the ability to set these
+> > things at runtime.  Unless there is such a requirement I'd suggest that the
+> > best way to address Eric's point is to simply rename the relevant functions
+> > from foo() to subarch_foo().
+> >   
+> 
+> Avoiding the runtime assignment isn't possible if you want a generic 
+> subarch that truly can run on multiple different platforms.
 
-Hi...
+Well as I said - I haven't seen any requirement for this expressed.  That
+doesn't mean that such a requirements doesn't exist, of course.
 
-I (well, the distro I use) has a little problem with creation of links
-for CD-ROM devices.
+> I prefer runtime assignment not for this reason, but simply because it 
+> also eliminates two artifacts:
+> 
+> 1) You can add new subarch hooks without breaking every other 
+> sub-architecture
 
-For example, in my box, hda is a DVDRW and hdd is a DVD reader.
-I think I should have something like
-cdrom0 -> hda
-cdrom1 -> hdd
-dvd0 -> hda
-dvd1 -> hdd
-cdrw0 -> hda
-dvdrw0 -> hda
+Is that useful?   If you need a new subarch_bar() then
 
-(with optional cdrom and dvd links to the default one, say just the
-first).
+a) Implement it in the subarch which needs it
+b) Implement an attribute(weak) stub in a new subarch-stubs.c
+c) call it.
 
-This is done with rule like:
+That's a little more costly than a static inline stub, but not much.  Are
+there likely to be any subarch calls which are a) called frequently and b)
+not required on some subarchs?
 
-SUBSYSTEM=3D=3D"block", ACTION=3D=3D"add", ENV{ID_CDROM}=3D=3D"?*", PROGRAM=
-=3D"/lib/udev/udev_cdrom_helper", SYMLINK+=3D"%c"
+> 2) You don't need #ifdef SUBARCH_FUNC_FOO goo to do this (renaming 
+> voyager_halt -> default)
 
-This helper tries to get the next free %d index to create cdrom%d, for
-example.
-The problem is that the launch of both helpers for hda and add seems to be =
-done
-in parallel and the helper gets racy, so both cdroms get id 0, and the last
-that comes owns it:
+Why would one need that?  Isn't it simply a matter of renaming
+machine_halt() to subarch_machine_halt() everywhere?
 
-helper instance for hda        helper instance for hdd
-Does cdrom0 exist ? No
-                               Does cdrom0 exist ? No
-ln -sf hda cdrom0
-                               ln -sf hdd cdrom0
-
-????
-
-Is there any way to serialize the calls to 'PROGRAM'. I tried something lik=
-e:
-
-SUBSYSTEM=3D=3D"block", ACTION=3D=3D"add", ENV{ID_CDROM}=3D=3D"?*",
-PROGRAM=3D"/usr/bin/flock /sys/block /lib/udev/udev_cdrom_helper", SYMLINK+=
-=3D"%c"
-
-But looks a lot ugly.
-
-Any standard way to do this ?
-Can I still use %e, or is it really really deprecated ? this was easy:
-
-ENV{ID_CDROM_CD_RW}=3D=3D"?*",  SYMLINK+=3D"burner%e", MODE=3D"0666", GROUP=
-=3D"cdwriter"
-ENV{ID_CDROM_DVD_R}=3D=3D"?*",  SYMLINK+=3D"burner%e", MODE=3D"0666", GROUP=
-=3D"cdwriter"
-
-TIA
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandriva Linux release 2006.1 (Cooker) for i586
-Linux 2.6.16-jam5 (gcc 4.1.1 20060330 (prerelease)) #1 SMP PREEMPT Tue
-
---Sig_meF20r/jIK52=WLjH5ba2IB
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQFEMvHCRlIHNEGnKMMRArKJAJ92u2lYBEpeDjwgwqHy6iAaM2TROQCgo6ZU
-Y/bCThfLnK7F//11rW6TOX4=
-=wB/h
------END PGP SIGNATURE-----
-
---Sig_meF20r/jIK52=WLjH5ba2IB--
+I'm just looking for the simplest option here.  Eric has identified a code
+maintainability problem - it'd be good to fix that, but we shouldn't add
+runtime cost/complexity unless we actually gain something from it.

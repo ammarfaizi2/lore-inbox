@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWDDT4y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWDDUBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750829AbWDDT4y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 15:56:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWDDT4y
+	id S1750832AbWDDUBE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 16:01:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWDDUBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 15:56:54 -0400
-Received: from main.gmane.org ([80.91.229.2]:8162 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750829AbWDDT4x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 15:56:53 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Wes Felter <wesley@felter.org>
-Subject: Re: blade servers?
-Date: Tue, 04 Apr 2006 14:55:24 -0500
-Message-ID: <4432CF2C.8000208@felter.org>
-References: <20060404024244.28E9A5F76B@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: pixpat.austin.ibm.com
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-In-Reply-To: <20060404024244.28E9A5F76B@work.bitmover.com>
+	Tue, 4 Apr 2006 16:01:04 -0400
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:10231 "EHLO
+	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1750832AbWDDUBD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 16:01:03 -0400
+Date: Tue, 4 Apr 2006 21:00:59 +0100 (BST)
+From: Ken Moffat <zarniwhoop@ntlworld.com>
+To: Takashi Iwai <tiwai@suse.de>
+cc: Jan Niehusmann <jan@gondor.com>, Ken Moffat <zarniwhoop@ntlworld.com>,
+       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: Re: [Alsa-devel] Slab corruptions & Re: 2.6.17-rc1: Oops in sound
+ applications
+In-Reply-To: <s5h7j656tpp.wl%tiwai@suse.de>
+Message-ID: <Pine.LNX.4.63.0604042058560.11426@deepthought.mydomain>
+References: <Pine.LNX.4.63.0604032155220.17605@deepthought.mydomain>
+ <20060404133814.GA11741@knautsch.gondor.com> <s5hlkul72rv.wl%tiwai@suse.de>
+ <20060404190631.GA4895@knautsch.gondor.com> <s5h7j656tpp.wl%tiwai@suse.de>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463809536-1788178793-1144180859=:11426"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> I figured that people here would know.  If you were looking for blade
-> servers and you were more interested in cost and heat generation than the
-> most performance, what would you buy?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Consider systems based on the "Sossaman" Xeon LV processor; it has good 
-integer performance and low power.
+---1463809536-1788178793-1144180859=:11426
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 
-For example, at IBM we just released a new model of the BladeCenter HS20 
-(model 7981); I've seen one of these servers using only 100W when 
-running. Real servers are never going to be as cheap as the cheapest 
-whiteboxes, but they do run cool.
+On Tue, 4 Apr 2006, Takashi Iwai wrote:
 
-Wes Felter - wesley@felter.org
+> What happens if you copy the whole subtree linux/sound and
+> linux/include/sound from 2.6.16?
 
+ also needs include/linux/sound.h (building at the moment)
+
+Ken
+-- 
+das eine Mal als Tragödie, das andere Mal als Farce
+---1463809536-1788178793-1144180859=:11426--

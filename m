@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbWDDK4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751852AbWDDK63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964932AbWDDK4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 06:56:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751854AbWDDK4Y
+	id S1751852AbWDDK63 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 06:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751854AbWDDK63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 06:56:24 -0400
-Received: from xproxy.gmail.com ([66.249.82.193]:47561 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751853AbWDDK4X (ORCPT
+	Tue, 4 Apr 2006 06:58:29 -0400
+Received: from mx2.suse.de ([195.135.220.15]:14572 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751852AbWDDK62 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 06:56:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=sHIoBZIEdwdGdwN2APiF6kEjnFS2y2TY0EdmVwnUaPAFsibIYfZIobep69r9ylgXMMTAkomIzyXVHoZLQ8Qpt+mA+4dc7RLUozZGIKsivy/6um19ygCI7cbUCl8Wt3DRpc0VBshfv20toDg1FitCHff275qSZR+pCpUEJvsvuuo=
-Message-ID: <443250D1.3020403@gmail.com>
-Date: Tue, 04 Apr 2006 19:56:17 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Mail/News 1.5 (X11/20060318)
-MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: Mauro Tassinari <mtassinari@cmanet.it>, linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: libata/sata status on ich[?]
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA//gP36uv0hG9NQDAJogAp8KAAAAQAAAAyTp2U2YnGEW3ub1INE9nAAEAAAAA@cmanet.it> <44323C24.4010402@garzik.org> <44323DE9.7030106@gmail.com> <443241F4.7080801@garzik.org>
-In-Reply-To: <443241F4.7080801@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Apr 2006 06:58:28 -0400
+Date: Tue, 4 Apr 2006 12:58:26 +0200
+From: Olaf Hering <olh@suse.de>
+To: John Mylchreest <johnm@gentoo.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, paulus@samba.org
+Subject: Re: [PATCH 1/1] POWERPC: Fix ppc32 compile with gcc+SSP in 2.6.16
+Message-ID: <20060404105826.GA22820@suse.de>
+References: <20060402085850.GA28857@suse.de> <20060402102259.GM16917@getafix.willow.local> <20060402102815.GA29717@suse.de> <20060402105859.GN16917@getafix.willow.local> <20060402111002.GA30017@suse.de> <20060402112002.GA3443@getafix.willow.local> <20060402114215.GA30491@suse.de> <20060404085729.GH3443@getafix.willow.local> <20060404094124.GA22332@suse.de> <20060404100115.GI3443@getafix.willow.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060404100115.GI3443@getafix.willow.local>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Tejun Heo wrote:
->> This should be fixed by the ata_piix map patch I've submitted and is 
->> currently in #upstream. [ P0 P1 P2 P3 ] should be [ P0 P2 P1 P3 ].
-> 
-> If you are referring to this fix:
-> 
->> commit 79ea24e72e59b5f0951483cc4f357afe9bf7ff89
->> Author: Tejun Heo <htejun@gmail.com>
->> Date:   Fri Mar 31 20:01:50 2006 +0900
->>
->>     [PATCH] ata_piix: fix ich6/m_map_db
-> 
-> then its already in linux-2.6.git, and 2.6.17-rc1.
-> 
+ On Tue, Apr 04, John Mylchreest wrote:
 
-Yeap, that one.  I'm very sure 2.6.17-rc1 fixes the problem then.
+> On Tue, Apr 04, 2006 at 11:41:24AM +0200, Olaf Hering <olh@suse.de> wrote:
+> > I think this should go into the main makefile, HOSTCFLAGS or similar. If
+> > you look around quickly in the gentoo bugzilla, all non-userland
+> > packages (grub, xen, kernel etc.) require the -fno-feature.
+> 
+> I'm not completely sure I understand where you are coming from here?
+> I assume you mean adding -fno-stack-protector to the host userlands
+> CFLAGS variable (or similar) to make it a global change, but if so
+> you're missing my point.
 
--- 
-tejun
+I mean the whole kernel should be compiled with it, if you put it into
+global cflags, the boot parts will pick it up from there.

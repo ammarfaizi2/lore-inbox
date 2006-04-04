@@ -1,44 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWDDJWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWDDJZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbWDDJWp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 05:22:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWDDJWp
+	id S932405AbWDDJZX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 05:25:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWDDJZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 05:22:45 -0400
-Received: from unthought.net ([212.97.129.88]:60175 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S932407AbWDDJWo (ORCPT
+	Tue, 4 Apr 2006 05:25:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47334 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932405AbWDDJZW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 05:22:44 -0400
-Date: Tue, 4 Apr 2006 11:22:43 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
-Subject: Re: NFS client (10x) performance regression 2.6.14.7 -> 2.6.15
-Message-ID: <20060404092243.GC14981@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	linux-kernel@vger.kernel.org
-References: <20060331132131.GI9811@unthought.net> <1143812658.8096.18.camel@lade.trondhjem.org> <20060331140816.GJ9811@unthought.net> <1143814889.8096.22.camel@lade.trondhjem.org> <20060331143500.GK9811@unthought.net> <1143820520.8096.24.camel@lade.trondhjem.org> <20060331160426.GN9811@unthought.net> <20060403152628.GA14981@unthought.net> <1144078900.9111.41.camel@lade.trondhjem.org> <20060403154519.GB14981@unthought.net>
-Mime-Version: 1.0
+	Tue, 4 Apr 2006 05:25:22 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060403154519.GB14981@unthought.net>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+X-Fcc: ~/Mail/linus
+Cc: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Fix pacct bug in multithreading case.
+In-Reply-To: KaiGai Kohei's message of  Tuesday, 28 March 2006 20:43:49 +0900 <44292175.6030605@ak.jp.nec.com>
+X-Windows: it could be worse, but it'll take time.
+Message-Id: <20060404092507.753721809CE@magilla.sf.frob.com>
+Date: Tue,  4 Apr 2006 02:25:07 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 03, 2006 at 05:45:19PM +0200, Jakob Oestergaard wrote:
-> On Mon, Apr 03, 2006 at 11:41:40AM -0400, Trond Myklebust wrote:
-> ..
-> > OK. Thanks for helping narrow this down! I'm travelling right now, so I
-> > can't promise that I'll be able to run any tests until tomorrow. I'll
-> > have a look, though.
+That change looks correct to me, and I see that it's gone in.
 
-Just another datapoint;
+It made me think of another issue affecting the accounting records in
+related circumstances when the old group leader died after a non-leader exec.
+I think this patch addresses that, and along with your patch, gives more
+sensible times in all cases.
 
-2.6.16.1 with that one patch reverted does no longer exhibit the
-problem.
 
+Thanks,
+Roland
+
+
+[PATCH] Take original leader's start_time in non-leader exec.
+
+The only record we have of the real-time age of a process, regardless of
+execs it's done, is start_time.  When a non-leader thread exec, the
+original start_time of the process is lost.  Things looking at the
+real-time age of the process are fooled, for example the process
+accounting record when the process finally dies.  This change makes the
+oldest start_time stick around with the process after a non-leader exec.
+This way the association between PID and start_time is kept constant,
+which seems correct to me.
+
+Signed-off-by: Roland McGrath <roland@redhat.com>
+
+---
+
+ fs/exec.c |   12 ++++++++++++
+ 1 files changed, 12 insertions(+), 0 deletions(-)
+
+7cda52efb6ff969f049bc2ab3742b0341e45184a
+diff --git a/fs/exec.c b/fs/exec.c
+index 0291a68..a45f712 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -678,6 +678,18 @@ static int de_thread(struct task_struct 
+ 		while (leader->exit_state != EXIT_ZOMBIE)
+ 			yield();
+ 
++		/*
++		 * The only record we have of the real-time age of a
++		 * process, regardless of execs it's done, is start_time.
++		 * All the past CPU time is accumulated in signal_struct
++		 * from sister threads now dead.  But in this non-leader
++		 * exec, nothing survives from the original leader thread,
++		 * whose birth marks the true age of this process now.
++		 * When we take on its identity by switching to its PID, we
++		 * also take its birthdate (always earlier than our own).
++		 */
++		current->start_time = leader->start_time;
++
+ 		spin_lock(&leader->proc_lock);
+ 		spin_lock(&current->proc_lock);
+ 		proc_dentry1 = proc_pid_unhash(current);
 -- 
-
- / jakob
+1.2.4
 

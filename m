@@ -1,76 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWDDNne@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWDDNwB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbWDDNne (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 09:43:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbWDDNne
+	id S932163AbWDDNwB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 09:52:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWDDNwB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 09:43:34 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:32912 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751045AbWDDNnd (ORCPT
+	Tue, 4 Apr 2006 09:52:01 -0400
+Received: from ccerelbas03.cce.hp.com ([161.114.21.106]:54188 "EHLO
+	ccerelbas03.cce.hp.com") by vger.kernel.org with ESMTP
+	id S932163AbWDDNwA convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 09:43:33 -0400
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: Novell, SUSE Labs
-To: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       Paul Fulghum <paulkf@microgate.com>
-Subject: Re: yet more slab corruption.
-Date: Tue, 4 Apr 2006 15:44:01 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <20060307235940.GA16843@redhat.com> <20060307231414.34c3b3a4.akpm@osdl.org>
-In-Reply-To: <20060307231414.34c3b3a4.akpm@osdl.org>
+	Tue, 4 Apr 2006 09:52:00 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604041544.01656.agruen@suse.de>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Problem with diskstats (kernel 2.6.15-gentoo-r1)
+Date: Tue, 4 Apr 2006 08:51:59 -0500
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF10BE8D29D@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Problem with diskstats (kernel 2.6.15-gentoo-r1)
+Thread-Index: AcZVX2QAsEa9V6zTQ9yOzybjnKHlPgCj0BWw
+From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
+To: "Toon van der Pas" <toon@hout.vanvergehaald.nl>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 04 Apr 2006 13:51:59.0493 (UTC) FILETIME=[F1AA2350:01C657EE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 08 March 2006 08:14, Andrew Morton wrote:
-> Dave Jones <davej@redhat.com> wrote:
-> > Garg. Is there no end to these ?
-> > That kernel is based off 2.6.16rc5-git8
-> >
-> > This brings the current count up to 8 different patterns filed
-> > against our 2.6.16rc tree in Fedora bugzilla.
-> > (One of them doesn't count as it's against the out-of-tree bcm43xx
-> > driver).
+> -----Original Message-----
+> From: Toon van der Pas [mailto:toon@hout.vanvergehaald.nl] 
+> Sent: Saturday, April 01, 2006 1:39 AM
+> To: linux-kernel@vger.kernel.org; Miller, Mike (OS Dev)
+> Subject: Problem with diskstats (kernel 2.6.15-gentoo-r1)
+> 
+> Hi,
+> 
+> This morning I discovered a strange problem with the output 
+> of /proc/diskstats; the cciss driver only produces the first 4 fields:
+> 
+> # cat /proc/diskstats
+>    2    0 fd0 0 0 0 0 0 0 0 0 0 0 0
+>    1    0 ram0 0 0 0 0 0 0 0 0 0 0 0
+---
+---
+---
+>    7    6 loop6 0 0 0 0 0 0 0 0 0 0 0
+>    7    7 loop7 0 0 0 0 0 0 0 0 0 0 0
+>  104    0 cciss/c0d0 847389 32332 0 2982364 1619046 4086174 0
+> 52598252 0 12069816 55580352
+>  104    1 cciss/c0d0p1 554 52382 7 20
+>  104    2 cciss/c0d0p2 29 232 42 336
+>  104    3 cciss/c0d0p3 84233 5811794 1516187 12129496
+>  104    4 cciss/c0d0p4 795049 17425244 4190632 33525064
+>  104   16 cciss/c0d1 86563628 212593 0 655297532 13528298 14360980 0
+> 1485869084 502 371162916 2142684840
+>  104   17 cciss/c0d1p1 86776123 1102284661 27890200 223121616
+>    3    0 hda 0 0 0 0 0 0 0 0 0 0 0
+>  254    0 dm-0 0 0 0 0 0 0 0 0 0 0 0
+>  254    1 dm-1 0 0 0 0 0 0 0 0 0 0 0
+>  254    2 dm-2 0 0 0 0 0 0 0 0 0 0 0
+>  254    3 dm-3 0 0 0 0 0 0 0 0 0 0 0
+>  254    4 dm-4 0 0 0 0 0 0 0 0 0 0 0
+>  254    5 dm-5 0 0 0 0 0 0 0 0 0 0 0
+>  254    6 dm-6 0 0 0 0 0 0 0 0 0 0 0
+>  254    7 dm-7 0 0 0 0 0 0 0 0 0 0 0
+> 
+> Maybe the cciss maintainer can comment?
 
-We have two similar bug reports to 
-https://bugzilla.redhat.com/bugzilla/184310, slab corruption in an object 
-freed by release_mem:
+I'm not sure what to comment. I've not made any changes for diskstats to
+work with cciss. Or is your concern that no other devices seem to work?
 
-	https://bugzilla.novell.com/151111 (i386)
-	https://bugzilla.novell.com/154601 (x86_64)
+mikem
 
-So this bug seems to trigger on different architectures, and with different 
-hardware.
-
-> A use-after-free on size-2048.  We wrote -1L and 0L apparently 0x6b8 bytes
-> into the object.  That's an awfully large offset for tty_struct - off the
-> end.  Sometimes the buffer was used as skb data too.
-
-I don't know about offset 0x6b8: 0x6b is POISON_FREE in mm/slab.c, so this is 
-probably a misread. I think the correct offset is 0xbc. Bug 151111 has the 
-corruption at the same offset. On x86_64, the offset is 0x124. This seems to 
-be tty_struct->winsize in all cases, even though I can't tell for sure for 
-most of the reports anymore.
-
-So this could be a tty_struct locking bug -- it's surprising that we are also 
-seeing filesystem corruption, but only in some cases. There was a recent 
-locking fix in this area by Paul Fulghum <paulkf@microgate.com> from Feb 15 
-which might be related, but the fix looks good to me: 
-http://www.kernel.org/hg/linux-2.6/?cs=623e3c38a511.
-
-> Unless it was a DMA scribble, CONFIG_DEBUG_PAGEALLOC should catch this.
-
-This didn't trigger anything in an overnight run. Any further ideas?
-
-Thanks,
-Andreas
-
--- 
-Andreas Gruenbacher <agruen@suse.de>
-Novell / SUSE Labs
+> Regards,
+> Toon.
+> 

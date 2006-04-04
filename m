@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWDDV6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWDDWC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbWDDV6m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 17:58:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbWDDV6m
+	id S1750762AbWDDWC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 18:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWDDWC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 17:58:42 -0400
-Received: from zrtps0kn.nortel.com ([47.140.192.55]:30848 "EHLO
-	zrtps0kn.nortel.com") by vger.kernel.org with ESMTP
-	id S1750733AbWDDV6l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 17:58:41 -0400
-Message-ID: <4432EC08.4010104@nortel.com>
-Date: Tue, 04 Apr 2006 15:58:32 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Tue, 4 Apr 2006 18:02:27 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:3332 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1750762AbWDDWC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 18:02:26 -0400
+Message-ID: <4432ECF1.8040606@vmware.com>
+Date: Tue, 04 Apr 2006 15:02:25 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: CONFIG_FRAME_POINTER and module vermagic
-References: <442ACAD6.6@nortel.com> <Pine.LNX.4.61.0603291308240.28274@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0603291308240.28274@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+Cc: ebiederm@xmission.com, bunk@stusta.de, linux-kernel@vger.kernel.org,
+       rdunlap@xenotime.net, fastboot@osdl.org
+Subject: Re: 2.6.17-rc1-mm1: KEXEC became SMP-only
+References: <20060404014504.564bf45a.akpm@osdl.org>	<20060404162921.GK6529@stusta.de>	<m1acb15ja2.fsf@ebiederm.dsl.xmission.com>	<4432B22F.6090803@vmware.com>	<m1irpp41wx.fsf@ebiederm.dsl.xmission.com>	<4432C7AC.9020106@vmware.com> <20060404132546.565b3dae.akpm@osdl.org>
+In-Reply-To: <20060404132546.565b3dae.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Apr 2006 21:58:33.0357 (UTC) FILETIME=[EA9043D0:01C65832]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+>
+>>  struct subarch_hooks subarch_hook_vector = {
+>>       .machine_power_off = machine_power_off,
+>>       .machine_halt = machine_halt,
+>>       .machine_irq_setup = machine_irq_setup,
+>>       .machine_subarch_setup = machine_subarch_probe
+>>       ...
+>>  };
+>>
+>>  And machine_subarch_probe can dynamically change this vector if it 
+>>  confirms that the platform is appropriate?
+>>     
+>
+> I don't recall anyone expressing any desire for the ability to set these
+> things at runtime.  Unless there is such a requirement I'd suggest that the
+> best way to address Eric's point is to simply rename the relevant functions
+> from foo() to subarch_foo().
+>   
 
-A while back there was a post that CONFIG_FRAME_POINTER doesn't affect 
-calling conventions and doesn't need to be in vermagic.
+Avoiding the runtime assignment isn't possible if you want a generic 
+subarch that truly can run on multiple different platforms.
 
-One of my coworkers seems to think otherwise, and I don't know enough 
-about the issue to know for sure.  Could someone with i386 knowledge 
-comment on his thoughts?
+I prefer runtime assignment not for this reason, but simply because it 
+also eliminates two artifacts:
 
-Here's what he's currently thinking:
+1) You can add new subarch hooks without breaking every other 
+sub-architecture
+2) You don't need #ifdef SUBARCH_FUNC_FOO goo to do this (renaming 
+voyager_halt -> default)
 
-1) regs->ebp hold a copy of the stack frame pointer. It's value is 
-conserved through any function that are compiled with FRAME_POINTER on.
-
-2) (unsigned long *)(regs->ebp + 4) is the "pc" of the caller (like the 
-link register on PPC which is relative to "fp")
-
-3) The profile_pc function usually look directly at "pc" to do it's 
-profiling magic but sometimes (when the current "pc" is inside a 
-lock_function, we're SMP, and CONFIG_FRAME_POINTER is enabled) it uses 
-"regs->ebp+4" to be more accurate on the profiling. In other word 
-profile_pc doesn't want to create a profiling entry that would show 
-redundant information about being stuck into a spin_lock...
-
-So, if the kernel was built with SMP and FRAME_POINTER, a module wasn't, 
-the module used ebp as a general register, then blocked in a spinlock 
-when profile_pc started...then a regs->ebp value of something 
-interesting (like "0", for instance) could cause interesting behaviour.
-
-Seems reasonable to me, but like I said, I'm not an expert on i386.
-
-Chris
+Zach

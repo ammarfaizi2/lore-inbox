@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWDDJwD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWDDJw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbWDDJwD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 05:52:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbWDDJwD
+	id S964890AbWDDJw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 05:52:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbWDDJw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 05:52:03 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50190 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964883AbWDDJwA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 05:52:00 -0400
-Date: Tue, 4 Apr 2006 10:51:54 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Hyok S. Choi" <hyok.choi@samsung.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.17-rc1] [SERIAL] DCC(JTAG) serial and the console emulation support(revised#2)
-Message-ID: <20060404095154.GC8573@flint.arm.linux.org.uk>
-Mail-Followup-To: "Hyok S. Choi" <hyok.choi@samsung.com>,
-	linux-kernel@vger.kernel.org
-References: <20060403112410.14105.55427.stgit@hyoklinux.sec.samsung.com> <200604041127.07290.hyok.choi@samsung.com> <20060404082005.GB8573@flint.arm.linux.org.uk> <200604041846.46366.hyok.choi@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200604041846.46366.hyok.choi@samsung.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 4 Apr 2006 05:52:57 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:24264 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964883AbWDDJw4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 05:52:56 -0400
+Message-ID: <443241F4.7080801@garzik.org>
+Date: Tue, 04 Apr 2006 05:52:52 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Tejun Heo <htejun@gmail.com>
+CC: Mauro Tassinari <mtassinari@cmanet.it>, linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: libata/sata status on ich[?]
+References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA//gP36uv0hG9NQDAJogAp8KAAAAQAAAAyTp2U2YnGEW3ub1INE9nAAEAAAAA@cmanet.it> <44323C24.4010402@garzik.org> <44323DE9.7030106@gmail.com>
+In-Reply-To: <44323DE9.7030106@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -3.7 (---)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-3.7 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 04, 2006 at 06:46:45PM +0900, Hyok S. Choi wrote:
-> On Tuesday 04 April 2006 05:20 pm, Russell King wrote:
-> > Why do you think you need such complexity?
-> > 
-> > cancel_rearming_delayed_work() will wait until the poll task has
-> > completed and has been removed from the system.  It's explicitly
-> > designed for work handlers which self-rearm.
+Tejun Heo wrote:
+> This should be fixed by the ata_piix map patch I've submitted and is 
+> currently in #upstream. [ P0 P1 P2 P3 ] should be [ P0 P2 P1 P3 ].
+
+If you are referring to this fix:
+
+> commit 79ea24e72e59b5f0951483cc4f357afe9bf7ff89
+> Author: Tejun Heo <htejun@gmail.com>
+> Date:   Fri Mar 31 20:01:50 2006 +0900
 > 
-> Hmm.. Maybe you're right, because dcc_shutdown and dcc_startup, which
-> are the only functions that initiate or stop the work, will never be
-> called concurrently by different callers?
+>     [PATCH] ata_piix: fix ich6/m_map_db
 
-RTFD.  This behaviour _is_ documented.  Documentation/serial/driver:
+then its already in linux-2.6.git, and 2.6.17-rc1.
 
-  startup(port)
-	Grab any interrupt resources and initialise any low level driver
-	state.  Enable the port for reception.  It should not activate
-	RTS nor DTR; this will be done via a separate call to set_mctrl.
+	Jeff
 
-	Locking: port_sem taken.
-	Interrupts: globally disabled.
 
-  shutdown(port)
-	Disable the port, disable any break condition that may be in
-	effect, and free any interrupt resources.  It should not disable
-	RTS nor DTR; this will have already been done via a separate
-	call to set_mctrl.
-
-	Locking: port_sem taken.
-	Interrupts: caller dependent.
-
-If the port semaphore is taken prior to calling either function...
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

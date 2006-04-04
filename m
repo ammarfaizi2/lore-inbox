@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbWDDXyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbWDEAAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750947AbWDDXyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 19:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWDDXyQ
+	id S1750949AbWDEAAU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 20:00:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbWDEAAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 19:54:16 -0400
-Received: from mga02.intel.com ([134.134.136.20]:32612 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750943AbWDDXyP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 19:54:15 -0400
-X-IronPort-AV: i="4.03,165,1141632000"; 
-   d="scan'208"; a="19375418:sNHT39090807"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] MPBL0010 driver sysfs permissions wide open
-Date: Tue, 4 Apr 2006 16:54:08 -0700
-Message-ID: <5389061B65D50446B1783B97DFDB392D56B3A7@orsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] MPBL0010 driver sysfs permissions wide open
-thread-index: AcZYHRqO/Pk22Fr/Ty6PlMN0C0DmfgAJaZGg
-From: "Gross, Mark" <mark.gross@intel.com>
-To: "Mark Bellon" <mbellon@mvista.com>, <linux-kernel@vger.kernel.org>,
-       <sebastien.bouchard@ca.kontron.com>
-X-OriginalArrivalTime: 04 Apr 2006 23:54:13.0393 (UTC) FILETIME=[1325B810:01C65843]
+	Tue, 4 Apr 2006 20:00:20 -0400
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:63119
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1750949AbWDEAAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 20:00:19 -0400
+Date: Tue, 4 Apr 2006 16:59:27 -0700
+From: gregkh@suse.de
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: [patch 00/26] 2.6.16.2 -stable review
+Message-ID: <20060404235927.GA27049@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ACK.
+This is the start of the stable review cycle for the 2.6.16.1 release.
+There are 26 patches in this series, all will be posted as a response to
+this one.  If anyone has any issues with these being applied, please let
+us know.  If anyone is a maintainer of the proper subsystem, and wants
+to add a signed-off-by: line to the patch, please respond with it.
 
-This looks good to me.  
+These patches are sent out with a number of different people on the Cc:
+line.  If you wish to be a reviewer, please email stable@kernel.org to
+add your name to the list.  If you want to be off the reviewer list,
+also email us.
 
-The use case for this driver is to configure the fail over behavior of
-the clock hardware.  That should be done by the more privileged users.
+Responses should be made by Thursday April 6, 23:00:00 UTC.  Anything
+received after that time, might be too late.
 
-Thanks,
+thanks,
 
---mgross
-
->-----Original Message-----
->From: Mark Bellon [mailto:mbellon@mvista.com]
->Sent: Tuesday, April 04, 2006 12:32 PM
->To: linux-kernel@vger.kernel.org; Gross, Mark;
->sebastien.bouchard@ca.kontron.com
->Subject: [PATCH] MPBL0010 driver sysfs permissions wide open
->
->The MPBL0010 Telco clock driver (drivers/char/tlclk.c) uses 0222
-(anyone
->can write) permissions on its writable sysfs entries. IMHO this is a
-bit
->too wide open for proper security. The patch (against 2.6.16.1) alters
->the permissions to 0220 (owner and group can write).
->
->Signed-off-by: Mark Bellon <mbellon@mvista.com>
->
->mark
->
+the -stable release team

@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbWDDDMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWDDDP6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964987AbWDDDMe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 23:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964988AbWDDDMe
+	id S964986AbWDDDP6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 23:15:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964988AbWDDDP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 23:12:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12510 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964987AbWDDDMd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 23:12:33 -0400
-Date: Mon, 3 Apr 2006 20:11:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <gregkh@suse.de>
-Cc: hjlipp@web.de, kkeil@suse.de, i4ldeveloper@listserv.isdn4linux.de,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       tilman@imap.cc
-Subject: Re: [PATCH 0/13] isdn4linux: Siemens Gigaset drivers update
-Message-Id: <20060403201132.3d0f51e7.akpm@osdl.org>
-In-Reply-To: <20060404025818.GA12076@suse.de>
-References: <gigaset307x.2006.04.04.001.0@hjlipp.my-fqdn.de>
-	<20060404025818.GA12076@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Apr 2006 23:15:58 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:3501 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S964986AbWDDDP5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 23:15:57 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 3 Apr 2006 20:15:45 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@alien.or.mcafeemobile.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@osdl.org>, Michael Kerrisk <mtk-manpages@gmx.net>,
+       michael.kerrisk@gmx.net
+Subject: [patch] uniform POLLRDHUP handling between epoll and poll/select
+ ...
+Message-ID: <Pine.LNX.4.64.0604032011040.30048@alien.or.mcafeemobile.com>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <gregkh@suse.de> wrote:
->
-> On Tue, Apr 04, 2006 at 02:00:24AM +0200, Hansjoerg Lipp wrote:
-> > The following series of patches contains updates to the Siemens Gigaset
-> > drivers suggested by various reviewers on lkml. These should go into
-> > 2.6.17 if at all possible. Please apply in order.
-> 
-> Hm, the big merge window for 2.6.17 is past.  If this is a
-> single-driver-only update, it might be argued that this should be
-> accepted into 2.6.17, but only after it has had a few weeks of testing
-> in -mm.  After a few weeks being in -mm however, it will be too late to
-> go into 2.6.17.
-> 
-> So, is 2.6.18 ok?
-> 
 
-This driver will be new-in-2.6.17.  Usually after a feature is first merged
-in mainline there will be a string of fairly significant updates from the
-original development team and from others as things get sorted out.
+Like reported by Michael Kerrisk, POLLRDHUP handling was not consistent 
+between epoll and poll/select, since in epoll it was unmaskeable. This 
+patch brings uniformity in POLLRDHUP handling.
 
-These patches are almost always good and they're things which we want to
-get into the next release, so I tend to ignore the merging rules in this
-case, particularly around the -rc1-rc2 timeframe when we have lots of
-testing/eyeballing time to go.
 
-Plus these patches provide things which were supposed to be in the initial
-merge, only nobody told us..
+
+Signed-off-by: Davide Libenzi <davidel@xmailserver.org>
+
+
+- Davide
+
+
+
+diff -Nru linux-2.6.16/fs/eventpoll.c linux-2.6.16.mod/fs/eventpoll.c
+--- linux-2.6.16/fs/eventpoll.c	2006-04-03 20:08:23.000000000 -0700
++++ linux-2.6.16.mod/fs/eventpoll.c	2006-04-03 20:09:51.000000000 -0700
+@@ -599,7 +599,7 @@
+  	switch (op) {
+  	case EPOLL_CTL_ADD:
+  		if (!epi) {
+-			epds.events |= POLLERR | POLLHUP | POLLRDHUP;
++			epds.events |= POLLERR | POLLHUP;
+
+  			error = ep_insert(ep, &epds, tfile, fd);
+  		} else
+@@ -613,7 +613,7 @@
+  		break;
+  	case EPOLL_CTL_MOD:
+  		if (epi) {
+-			epds.events |= POLLERR | POLLHUP | POLLRDHUP;
++			epds.events |= POLLERR | POLLHUP;
+  			error = ep_modify(ep, epi, &epds);
+  		} else
+  			error = -ENOENT;

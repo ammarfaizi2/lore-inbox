@@ -1,74 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWDDU72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWDDVBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750867AbWDDU72 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 16:59:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbWDDU72
+	id S1750869AbWDDVBj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 17:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbWDDVBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 16:59:28 -0400
-Received: from xenotime.net ([66.160.160.81]:40091 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750863AbWDDU72 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 16:59:28 -0400
-Date: Tue, 4 Apr 2006 14:01:40 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, drepper@redhat.com,
-       mtk-manpages@gmx.net, nickpiggin@yahoo.com.au
-Subject: Re: [patch 1/1] sys_sync_file_range()
-Message-Id: <20060404140140.f13b8606.rdunlap@xenotime.net>
-In-Reply-To: <20060404205055.GA5745@agluck-lia64.sc.intel.com>
-References: <200603300741.k2U7fQLe002202@shell0.pdx.osdl.net>
-	<20060404205055.GA5745@agluck-lia64.sc.intel.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 4 Apr 2006 17:01:39 -0400
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:16070
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1750869AbWDDVBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 17:01:37 -0400
+Date: Tue, 4 Apr 2006 14:00:48 -0700
+From: Greg KH <gregkh@suse.de>
+To: dtor_core@ameritech.net
+Cc: rene.herman@keyaccess.nl, alsa-devel@alsa-project.org,
+       linux-kernel@vger.kernel.org, tiwai@suse.de
+Subject: Re: patch bus_add_device-losing-an-error-return-from-the-probe-method.patch added to gregkh-2.6 tree
+Message-ID: <20060404210048.GA5694@suse.de>
+References: <44238489.8090402@keyaccess.nl> <1FQquz-2CO-00@press.kroah.org> <d120d5000604041323h448c1ccfi7e9dcedd82c385ba@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000604041323h448c1ccfi7e9dcedd82c385ba@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Apr 2006 13:50:55 -0700 Luck, Tony wrote:
-
-> On Wed, Mar 29, 2006 at 11:41:11PM -0800, akpm@osdl.org wrote:
-> > @@ -318,8 +318,9 @@
-> >  #define __NR_unshare		310
-> >  #define __NR_set_robust_list	311
-> >  #define __NR_get_robust_list	312
-> > +#define __NR_sys_sync_file_range 313
+On Tue, Apr 04, 2006 at 04:23:43PM -0400, Dmitry Torokhov wrote:
+> On 4/4/06, gregkh@suse.de <gregkh@suse.de> wrote:
+> >
+> > --- gregkh-2.6.orig/drivers/base/bus.c
+> > +++ gregkh-2.6/drivers/base/bus.c
+> > @@ -372,14 +372,17 @@ int bus_add_device(struct device * dev)
+> >
+> >        if (bus) {
+> >                pr_debug("bus %s: add device %s\n", bus->name, dev->bus_id);
+> > -               device_attach(dev);
+> > +               error = device_attach(dev);
+> > +               if (error < 0)
+> > +                       goto exit;
 > 
-> What's up with the __NR_sys_yada_yada?  Except for recent entries (kexec,
-> splice, and now sync_file_range) all of the other names in here have
-> dropped the "sys_".
-> 
-> Is it too late to fix __NR_sys_kexec_load (since it is out in the
-> wild now?)
+> I do not believe that this is correct. The fact that _some_ driver
+> failed to attach to a device does not necessarily mean that device
+> itself does not exist. While this assuption might work for platform
+> devices it won't work for other busses.
 
-already been done:  (copy-n-paste warning here:)
-~~~~~
+Hm, no, I unwound this mess, and found the following:
 
-On i386, we don't use sys_ prefix for __NR_*. This patch removes it.
-[FWIW, _syscall*() macros will generate foo() instead of sys_foo().]
+ - bus_add_device() calls device_attach()
+ - device_attach() calls bus_for_each_drv() for every driver on the bus
+ - bus_for_each_drv() walks all drivers on the bus and calls
+   __device_attach() for every individual driver
+ - __device_attach() calls driver_probe_device() for that driver and device
+ - driver_probe_device() calls down to the probe() function for the
+   driver, passing it that driver, if match() for the bus matches this
+   device.
+ - if that probe() function returns -ENODEV or -ENXIO[1] then the error
+   is ignored and 0 is returned, causing the loop to continue to try
+   more drivers
+ - if the probe() function returns any other error code, it is
+   propagated up, all the way back to bus_add_device.
+ - if the probe() function returns 0, the device is bound to the driver,
+   and it returns 0.  Hm, looks like we continue to loop here too, we
+   could probably stop now that we have bound a driver to the device.
 
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
----
+So, I'm pretty sure that this is safe and should work just fine.  To be
+sure, let me go reboot my box with this change on it after I finish this
+email :)
 
- include/asm-i386/unistd.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Does that help?
 
-diff -puN include/asm-i386/unistd.h~remove-sys_-prefix include/asm-i386/unistd.h
---- linux-2.6/include/asm-i386/unistd.h~remove-sys_-prefix	2006-04-02 05:23:57.000000000 +0900
-+++ linux-2.6-hirofumi/include/asm-i386/unistd.h	2006-04-02 05:24:10.000000000 +0900
-@@ -318,8 +318,8 @@
- #define __NR_unshare		310
- #define __NR_set_robust_list	311
- #define __NR_get_robust_list	312
--#define __NR_sys_splice		313
--#define __NR_sys_sync_file_range 314
-+#define __NR_splice		313
-+#define __NR_sync_file_range	314
- 
- #define NR_syscalls 315
+thanks,
 
+greg k-h
 
----
-~Randy
+[1] - stupid agp drivers (or some other video drivers) require this.  I
+    need to go fix them up so they don't do this, if they haven't been
+    fixed already...

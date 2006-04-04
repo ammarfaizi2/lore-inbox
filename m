@@ -1,41 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbWDDMoB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWDDN2m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932421AbWDDMoB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 08:44:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbWDDMoB
+	id S932189AbWDDN2m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 09:28:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWDDN2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 08:44:01 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1805 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932421AbWDDMoA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 08:44:00 -0400
-Date: Tue, 4 Apr 2006 13:43:50 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@suse.cz>
-Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.17-rc1: collie -- oopsen in pccardd?
-Message-ID: <20060404124350.GA16857@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>, rpurdie@rpsys.net,
-	lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
-References: <20060404122212.GG19139@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 4 Apr 2006 09:28:42 -0400
+Received: from [212.33.180.135] ([212.33.180.135]:60176 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S932189AbWDDN2l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 09:28:41 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
+Date: Tue, 4 Apr 2006 16:27:14 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, Jake Moilanen <moilanen@austin.ibm.com>
+References: <200604031459.51542.a1426z@gawab.com> <4431AF69.1000708@bigpond.net.au>
+In-Reply-To: <4431AF69.1000708@bigpond.net.au>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20060404122212.GG19139@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="windows-1256"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200604041627.14871.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 04, 2006 at 02:22:12PM +0200, Pavel Machek wrote:
-> I'm getting some oopses when inserting/removing pccard (on collie,
-> oopses in pccardd). It does not break boot, so it is not immediate
-> problem, but I wonder if it also happens on non-collie machines?
+Peter Williams wrote:
+> Al Boldi wrote:
+> > The default values for spa make it really easy to lock up the system.
+> > Is there a module to autotune these values according to cpu/mem/ctxt
+> > performance?
+>
+> Jake Moilanen had a genetic algorithm autotuner for Zaphod at one time
+> which I believe he ported over to PlugSched
 
-No idea what so ever.  Not even any clues as to what might be going wrong
-due to the lack of oops dump.  (Not that I even look after PCMCIA anymore.)
+Would this be a load-adaptive dynamic tuner?
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+What I meant was a lock-preventive static tuner.  Something that would take 
+hw-latencies into account at boot and set values for non-locking console 
+operation.
+
+> I could generate a patch to gather the statistic again and make them
+> available via /proc if you would like to try a user space version of
+> Jake's work (his was in kernel).
+
+That would be great!
+
+Thanks!
+
+--
+Al
+

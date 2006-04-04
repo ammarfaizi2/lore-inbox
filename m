@@ -1,71 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWDDEXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbWDDEVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbWDDEXL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 00:23:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbWDDEXL
+	id S964940AbWDDEVo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 00:21:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWDDEVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 00:23:11 -0400
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:33043 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1751310AbWDDEXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 00:23:09 -0400
-In-Reply-To: <200604031948.38101.david-b@pacbell.net>
-References: <Pine.LNX.4.44.0603241429220.19557-100000@gate.crashing.org> <200604031948.38101.david-b@pacbell.net>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <074E7D37-773D-4203-BB09-20040C5D5D5B@kernel.crashing.org>
-Cc: linux-usb-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
-       LKML mailing list <linux-kernel@vger.kernel.org>
+	Tue, 4 Apr 2006 00:21:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38893 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751437AbWDDEVn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 00:21:43 -0400
+Date: Mon, 3 Apr 2006 21:20:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Khalid Aziz <khalid_aziz@hp.com>
+Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] kexec on ia64
+Message-Id: <20060403212049.480ad388.akpm@osdl.org>
+In-Reply-To: <1144102818.8279.6.camel@localhost.localdomain>
+References: <1144102818.8279.6.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [linux-usb-devel] compile error when building multiple EHCI host controllers as modules
-Date: Mon, 3 Apr 2006 23:23:29 -0500
-To: David Brownell <david-b@pacbell.net>
-X-Mailer: Apple Mail (2.746.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Apr 3, 2006, at 9:48 PM, David Brownell wrote:
-
-> On Friday 24 March 2006 12:32 pm, Kumar Gala wrote:
->>> The issue I have this is that it makes two (or more) things that  
->>> were
->>> independent now dependent.  What about just moving the module_init/
->>> exit() functions into files that are built separately.  For the  
->>> ehci-
->>> fsl case it was trivial, need to look at ehci-pci case.
->>
->> Ok, my idea required exporting things I didn't really want to  
->> export, so
->> what about something like this or where you thinking of some more
->> sophisticated?
->>
->> If this is good, I'll do the same for ohci.
+Khalid Aziz <khalid_aziz@hp.com> wrote:
 >
-> How about this one instead?  It requires fewer per-SOC hacks in  
-> generic
-> code when adding a new SOC.  And it also removes a platform device  
-> naming
-> goof for your mpc83xx support ... that's a case where you should  
-> just let
-> the platform device IDs distinguish things.
+> Add kexec support on ia64.
+> 
 
-Let me test this patch out.  I'm ok with the changes for handling  
-both PCI and platform driver.  However, I need to take a look at the  
-renaming of the fsl driver.  The "dr" device supports device and OTG  
-modes.  I'm concerned about how we distinguish that in the future.
+Neat.  How well does it work?
 
-(also, we need to fixup arch/powerpc/sysdev/fsl_soc.c)
+> +#ifdef CONFIG_PCI
+> +void machine_shutdown(void)
+> +{
+> +	struct pci_dev *dev;
+> +	irq_desc_t *idesc;
+> +	cpumask_t mask = CPU_MASK_NONE;
+> +
+> +	/* Disable all PCI devices */
+> +	list_for_each_entry(dev, &pci_devices, global_list) {
+> +		if (!(dev->is_enabled))
+> +			continue;
+> +		idesc = irq_descp(dev->irq);
+> +		if (!idesc)
+> +			continue;
+> +		cpu_set(0, mask);
+> +		disable_irq_nosync(dev->irq);
+> +		idesc->handler->end(dev->irq);
+> +		idesc->handler->set_affinity(dev->irq, mask);
+> +		idesc->action = NULL;
+> +		pci_disable_device(dev);
+> +		pci_set_power_state(dev, 0);
+> +	}
+> +}
+> +#endif
 
-- k
+Ahem.
 
+  /* Do NOT directly access these two variables, unless you are arch specific pci
+   * code, or pci core code. */
+  extern struct list_head pci_root_buses;	/* list of all known PCI buses */
+  extern struct list_head pci_devices;	/* list of all devices */
 
+I think it would be kinder to the API to use pci_find_device(PCI_ANY_ID,
+PCI_ANY_ID, ...) here.
+
+> +/*
+> + * Do not allocate memory (or fail in any way) in machine_kexec().
+> + * We are past the point of no return, committed to rebooting now. 
+> + */
+> +void machine_kexec(struct kimage *image)
+> +{
+> +	unsigned long indirection_page;
+> +	relocate_new_kernel_t rnk;
+> +	unsigned long pta, impl_va_bits;
+> +	void *pal_addr = efi_get_pal_addr();
+> +	unsigned long code_addr = (unsigned long)page_address(image->control_code_page);
+> +
+> +#ifdef CONFIG_HOTPLUG_CPU
+> +	int cpu;
+> +
+> +	for_each_online_cpu(cpu) {
+> +		if (cpu != smp_processor_id())
+> +			cpu_down(cpu);
+> +	}
+> +#elif CONFIG_SMP
+
+This will generate a CPP warning if CONFIG_SMP is not defined.
+
+	#elif defined(CONFIG_SMP)
+
+would be preferred.
+
+> --- linux-2.6.16/kernel/irq/manage.c	2006-03-19 22:53:29.000000000 -0700
+> +++ linux-2.6.16-kexec/kernel/irq/manage.c	2006-03-27 17:02:08.000000000 -0700
+> @@ -377,3 +377,22 @@ int request_irq(unsigned int irq,
+>  
+>  EXPORT_SYMBOL(request_irq);
+>  
+> +/*
+> + * Terminate any outstanding interrupts
+> + */
+> +void terminate_irqs(void)
+> +{
+> +	struct irqaction * action;
+> +	irq_desc_t *idesc;
+> +	int i;
+> +
+> +	for (i=0; i<NR_IRQS; i++) {
+
+	for (i = 0; i < NR_IRQS; i++) {
+
+> +		idesc = irq_descp(i);
+> +		action = idesc->action;
+> +		if (!action)
+> +			continue;
+> +		if (idesc->handler->end)
+> +			idesc->handler->end(i);
+> +	}
+> +}
+
+Could we have a bit more description of what this function does, and why we
+need it?
+
+Should other kexec-using architectures be using this?  If not, why does
+ia64 need it?
+
+Thanks.

@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbWDDD66@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWDDEXL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964891AbWDDD66 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 23:58:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751473AbWDDD66
+	id S1751310AbWDDEXL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 00:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbWDDEXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 23:58:58 -0400
-Received: from mail.kroah.org ([69.55.234.183]:7321 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751467AbWDDD65 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 23:58:57 -0400
-Date: Mon, 3 Apr 2006 20:52:55 -0700
-From: Greg KH <gregkh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: hjlipp@web.de, kkeil@suse.de, i4ldeveloper@listserv.isdn4linux.de,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       tilman@imap.cc
-Subject: Re: [PATCH 0/13] isdn4linux: Siemens Gigaset drivers update
-Message-ID: <20060404035255.GA12156@suse.de>
-References: <gigaset307x.2006.04.04.001.0@hjlipp.my-fqdn.de> <20060404025818.GA12076@suse.de> <20060403201132.3d0f51e7.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060403201132.3d0f51e7.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+	Tue, 4 Apr 2006 00:23:11 -0400
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:33043 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1751310AbWDDEXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 00:23:09 -0400
+In-Reply-To: <200604031948.38101.david-b@pacbell.net>
+References: <Pine.LNX.4.44.0603241429220.19557-100000@gate.crashing.org> <200604031948.38101.david-b@pacbell.net>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <074E7D37-773D-4203-BB09-20040C5D5D5B@kernel.crashing.org>
+Cc: linux-usb-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
+       LKML mailing list <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [linux-usb-devel] compile error when building multiple EHCI host controllers as modules
+Date: Mon, 3 Apr 2006 23:23:29 -0500
+To: David Brownell <david-b@pacbell.net>
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 03, 2006 at 08:11:32PM -0700, Andrew Morton wrote:
-> Greg KH <gregkh@suse.de> wrote:
-> >
-> > On Tue, Apr 04, 2006 at 02:00:24AM +0200, Hansjoerg Lipp wrote:
-> > > The following series of patches contains updates to the Siemens Gigaset
-> > > drivers suggested by various reviewers on lkml. These should go into
-> > > 2.6.17 if at all possible. Please apply in order.
-> > 
-> > Hm, the big merge window for 2.6.17 is past.  If this is a
-> > single-driver-only update, it might be argued that this should be
-> > accepted into 2.6.17, but only after it has had a few weeks of testing
-> > in -mm.  After a few weeks being in -mm however, it will be too late to
-> > go into 2.6.17.
-> > 
-> > So, is 2.6.18 ok?
-> > 
-> 
-> This driver will be new-in-2.6.17.  Usually after a feature is first merged
-> in mainline there will be a string of fairly significant updates from the
-> original development team and from others as things get sorted out.
-> 
-> These patches are almost always good and they're things which we want to
-> get into the next release, so I tend to ignore the merging rules in this
-> case, particularly around the -rc1-rc2 timeframe when we have lots of
-> testing/eyeballing time to go.
-> 
-> Plus these patches provide things which were supposed to be in the initial
-> merge, only nobody told us..
 
-Ah, ok, I didn't realize this was that same driver.  So in that case,
-yes, I agree with you, these should go in.
+On Apr 3, 2006, at 9:48 PM, David Brownell wrote:
 
-thanks,
+> On Friday 24 March 2006 12:32 pm, Kumar Gala wrote:
+>>> The issue I have this is that it makes two (or more) things that  
+>>> were
+>>> independent now dependent.  What about just moving the module_init/
+>>> exit() functions into files that are built separately.  For the  
+>>> ehci-
+>>> fsl case it was trivial, need to look at ehci-pci case.
+>>
+>> Ok, my idea required exporting things I didn't really want to  
+>> export, so
+>> what about something like this or where you thinking of some more
+>> sophisticated?
+>>
+>> If this is good, I'll do the same for ohci.
+>
+> How about this one instead?  It requires fewer per-SOC hacks in  
+> generic
+> code when adding a new SOC.  And it also removes a platform device  
+> naming
+> goof for your mpc83xx support ... that's a case where you should  
+> just let
+> the platform device IDs distinguish things.
 
-greg k-h
+Let me test this patch out.  I'm ok with the changes for handling  
+both PCI and platform driver.  However, I need to take a look at the  
+renaming of the fsl driver.  The "dr" device supports device and OTG  
+modes.  I'm concerned about how we distinguish that in the future.
+
+(also, we need to fixup arch/powerpc/sysdev/fsl_soc.c)
+
+- k
+
+

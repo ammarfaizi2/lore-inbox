@@ -1,60 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWDDP6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWDDP7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbWDDP6t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 11:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWDDP6t
+	id S1750726AbWDDP7j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 11:59:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWDDP7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 11:58:49 -0400
-Received: from o-hand.com ([70.86.75.186]:1488 "EHLO o-hand.com")
-	by vger.kernel.org with ESMTP id S1750724AbWDDP6s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 11:58:48 -0400
-Subject: Re: [PATCH RFC/testing] Upgrade the zlib_inflate library code to a
-	recent version
-From: Richard Purdie <richard@openedhand.com>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-In-Reply-To: <20060404153354.GD25130@wohnheim.fh-wedel.de>
-References: <1144163888.6441.48.camel@localhost.localdomain>
-	 <20060404153354.GD25130@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Tue, 04 Apr 2006 16:56:51 +0100
-Message-Id: <1144166212.6441.57.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 8bit
+	Tue, 4 Apr 2006 11:59:39 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:64184 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1750726AbWDDP7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 11:59:38 -0400
+Date: Tue, 4 Apr 2006 17:59:27 +0200 (CEST)
+From: Simon Derr <Simon.Derr@bull.net>
+X-X-Sender: derrs@openx3.frec.bull.fr
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Simon Derr <Simon.Derr@bull.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rt10
+In-Reply-To: <20060404120003.GA15847@elte.hu>
+Message-ID: <Pine.LNX.4.61.0604041726490.15050@openx3.frec.bull.fr>
+References: <Pine.LNX.4.44L0.0603262214060.8060-100000@lifa03.phys.au.dk>
+ <Pine.LNX.4.44L0.0603262255150.8060-100000@lifa03.phys.au.dk>
+ <20060326233530.GA22496@elte.hu> <Pine.LNX.4.58.0603281142410.17504@apollon>
+ <20060328204944.GA1217@elte.hu> <Pine.LNX.4.61.0604041344000.15050@openx3.frec.bull.fr>
+ <20060404120003.GA15847@elte.hu>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 04/04/2006 18:01:49,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 04/04/2006 18:01:50,
+	Serialize complete at 04/04/2006 18:01:50
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-04 at 17:33 +0200, Jörn Engel wrote:
-> On Tue, 4 April 2006 16:18:08 +0100, Richard Purdie wrote: 
-> > Upgrade the zlib_inflate implementation in the kernel from a patched
-> > version 1.1.3 to a patched 1.2.3. 
+On Tue, 4 Apr 2006, Ingo Molnar wrote:
+
 > 
-> s/1.1.3/1.1.4/
->
-> I once pulled all the bugfixes between the versions into the kernel.
-
-That's not what the header says :)
-
-> > +#if 0
-> > +int zlib_inflatePrime(z_streamp strm, int bits, int value)
+> * Simon Derr <Simon.Derr@bull.net> wrote:
 > 
-> Was this code dead in 1.2.3 as well?
-
-This code was commented out in the kernel by Adrian Bunk as it has no
-users and I just followed that example when updating  I'm sure if
-someone needed it, it could be enabled.
-
-> > +#ifndef PKZIP_BUG_WORKAROUND
+> > On Tue, 28 Mar 2006, Ingo Molnar wrote:
+> > 
+> > First issue: 'BUG: udev:45 task might have lost a preemption check!'
+> > 
+> > When looking at the code in preempt_enable_no_resched(), why is the 
+> > value of preempt_count() checked to be non-zero _after_ calling 
+> > dec_preempt_count() ?
+> > 
+> > I saw several posts on this list claiming that this message is 
+> > harmless, but I'd like to figure what's going on.
 > 
-> For the kernel, we can remove compat code against DOS compilers, etc.
-> In this particular case, I believe we can just consider data
-> compressed with PKZIP to be illegal and throw an error.
+> the warning means that doing a preempt_enable_no_resched() while being 
+> in a preemptible section is most likely a bug, and that you could lose a 
+> need_resched() check. (and introduce a scheduling latency) What's the 
+> backtrace? This could be the sign of a not fully/correctly converted 
+> arch/*/kernel/process.c (but i'm only guessing here).
 
-Agreed, there are places it can be tidied up a bit further. I was trying
-not to make too many changes so any future updates against zlib are
-easier.
+Wow, thanks for the fast reply !
 
-Richard
+The backtrace is:
+
+[<a00000010007fc50>] preempt_enable_no_resched+0xb0/0xe0
+[<a000000100037510>] disabled_fph_fault+0x110/0x140
+[<a0000001000378e0>] ia64_fault+0x240/0x11c0
+[<a00000010000be40>] ia64_leave_kernel+0x0/0x290
+
+But I must be severely misunderstanding something.
+
+What I understood is that in preemptible sections preempt_count() is 
+zero, and in non preemptible sections it is >0.
+
+If preempt_count() is 1, then preempt_enable_no_resched() will decrement 
+it and issue a warning. This is what happens in disabled_fph_fault().
+
+Where am I wrong ?
+
+
+> you should first check the PREEMPT_NONE kernel with PREEMPT_SOFTIRQS and 
+> PREEMPT_HARDIRQS enabled. I.e. first check whether IRQ threading works.  
+> Then enable all the other PREEMPT options one by one: PREEMPT_DESKTOP, 
+> PREEMPT_RCU, PREEMPT_BKL. Only when all these work switch to PREEMPT_RT.
+> 
+Thanks, I'll try that.
+
+
+	Simon.
 

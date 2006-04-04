@@ -1,51 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWDDOar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWDDOjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbWDDOar (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 10:30:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWDDOar
+	id S932218AbWDDOjm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 10:39:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWDDOjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 10:30:47 -0400
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:18742 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S932214AbWDDOar (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 10:30:47 -0400
-In-Reply-To: <20060404014504.564bf45a.akpm@osdl.org>
-References: <20060404014504.564bf45a.akpm@osdl.org>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <B19E9BA0-E04C-46F2-AC22-113E4D6AC8D3@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: 2.6.17-rc1-mm1
-Date: Tue, 4 Apr 2006 09:31:10 -0500
-To: Andrew Morton <akpm@osdl.org>
-X-Mailer: Apple Mail (2.746.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 4 Apr 2006 10:39:42 -0400
+Received: from pproxy.gmail.com ([64.233.166.179]:41736 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932218AbWDDOjm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 10:39:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=g3vl637OSlP72+87WbEGbckooF5NhmWyGbhLM9HBCrX2nfDsHuqm7/Zq4VReFpBtI3FBIrI3isgWDEZFCiIvpDL7OrSic18/5B3OOhsJMASjirp5rSoGb+ne4iYnMZ8kYEJBq7frx3OeyRpGQt6p85SDCkDx47G8gn/uBowOaUQ=
+Message-ID: <61291d840604040739m69642b26x4b24615112e37ce@mail.gmail.com>
+Date: Tue, 4 Apr 2006 22:39:39 +0800
+From: "pin xue" <pinxue@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: a minor bug in via-rhine driver for linux
+In-Reply-To: <61291d840604040738k1477cf72w7aadbc1e83d67bba@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <61291d840604040738k1477cf72w7aadbc1e83d67bba@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Boilerplate:
->
-> - See the `hot-fixes' directory for any important updates to this  
-> patchset.
->
-> - To fetch an -mm tree using git, use (for example)
->
->   git fetch git://git.kernel.org/pub/scm/linux/kernel/git/smurf/ 
-> linux-trees.git v2.6.16-rc2-mm1
+Hi:
 
-It doesn't seem like the git tree got updated correctly.  The 2.6.17- 
-rc1-mm1 seems to be just 2.6.17-rc1 (just a quick spot check at  
-Makefile and a few patches I expected in like the 64-bit resource  
-change)
+kernel source version : 2.6.14
 
-- kumar
+file : drivers/net/via-rhine.c
+
+function : alloc_tbufs(), line 1021~1039
+
+problem line : 1035
+        rp->tx_buf[i] = &rp->tx_bufs[i * PKT_BUF_SZ];
+
+fix: line 1035 should be
+        if ( rp->quirks & rqRhineI )
+            rp->tx_buf[i] = &rp->tx_bufs[i * PKT_BUF_SZ];
+
+explaination:
+line 718 : here we set rqRhineI flag only for old chips
+line 922 : here we allocate buffers and alloc rp->tx_bufs only when
+rqRhineI flag setted.
+line 1035: here we initialize buffers, but set rp->tx_buf[] based on
+tx_bufs anyway.
+line 1273: here we use the buffers and refer rp->tx_buf[] only when
+rqRhineI flag setted.
+Currently, line 1035 does not cause any invalid memory accessing but
+calculating and saving some invalid memory address.
+
+comments:
+I'm reading this driver and line 1035 confused me for a moment.
+
+
+
+--
+Best Regards!
+
+Yang Wu
+
+Mobile Phone: +86-013636674084
+WorldWideWeb:  http://www.pinxue.net
+
+--
+Best Regards!
+
+Yang Wu
+
+Mobile Phone: +86-013636674084
+WorldWideWeb: http://www.pinxue.net

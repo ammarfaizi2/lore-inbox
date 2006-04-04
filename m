@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751830AbWDDHjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751608AbWDDH4D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751830AbWDDHjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 03:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751834AbWDDHjI
+	id S1751608AbWDDH4D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 03:56:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751838AbWDDH4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 03:39:08 -0400
-Received: from mail.knowledgetools.de ([212.5.29.62]:48817 "EHLO
-	isoconazol.knowledgetools.de") by vger.kernel.org with ESMTP
-	id S1751830AbWDDHjI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 03:39:08 -0400
-From: Thomas Stein <thomas.stein@knowledgetools.de>
-To: linux-kernel@vger.kernel.org
-Subject: dma_map_sg badness
-Date: Tue, 4 Apr 2006 09:39:13 +0200
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Tue, 4 Apr 2006 03:56:03 -0400
+Received: from topsns2.toshiba-tops.co.jp ([202.230.225.126]:49218 "EHLO
+	topsns2.toshiba-tops.co.jp") by vger.kernel.org with ESMTP
+	id S1751608AbWDDH4B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 03:56:01 -0400
+Date: Tue, 04 Apr 2006 16:55:52 +0900 (JST)
+Message-Id: <20060404.165552.52129978.nemoto@toshiba-tops.co.jp>
+To: herbert@gondor.apana.org.au
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] crypto: fix unaligned access in khazad module
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <20060403231122.GA32271@gondor.apana.org.au>
+References: <20060309.122638.07642914.nemoto@toshiba-tops.co.jp>
+	<20060404.000518.126141927.anemo@mba.ocn.ne.jp>
+	<20060403231122.GA32271@gondor.apana.org.au>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604040939.13912.thomas.stein@knowledgetools.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody.
+On Tue, 4 Apr 2006 09:11:22 +1000, Herbert Xu <herbert@gondor.apana.org.au> wrote:
+> > -	K2 = be64_to_cpu(key[0]);
+> > -	K1 = be64_to_cpu(key[1]);
+> > +	K2 = be64_to_cpu(get_unaligned(&key[0]));
+> > +	K1 = be64_to_cpu(get_unaligned(&key[1]));
+> 
+> Would it be possible to turn these into two 32-bit aligned reads instead?
 
-I have some weird messages in my systemlog since upgrading to kernel 2.6.16.
+Done now.  I've missed your comment on 10 Mar, sorry for duplication.
 
-Badness in dma_map_sg at include/asm/dma-mapping.h:47
- [<c02893da>] ide_build_sglist+0x7f/0xb6
- [<c028944e>] ide_build_dmatable+0x3d/0x12d
- [<c0289780>] ide_dma_setup+0x22/0x8a
- [<c0290ecf>] idetape_issue_packet_command+0x122/0x20a
- [<c02917e2>] idetape_do_request+0x29f/0x2a9
- [<c02836c4>] start_request+0x189/0x1a7
- [<c02839e4>] ide_do_request+0x2da/0x31e
- [<c0283a3f>] do_ide_request+0x17/0x1a
- [<c0224015>] elv_insert+0x5c/0x141
- [<c0283ec4>] ide_do_drive_cmd+0x96/0xd6
- [<c0291914>] __idetape_kmalloc_stage+0x128/0x19e
- [<c02921ea>] idetape_insert_pipeline_into_queue+0x39/0x3f
- [<c02923d2>] idetape_add_chrdev_write_request+0x105/0x141
- [<c029300f>] idetape_chrdev_write+0x1ea/0x22d
- [<c0140796>] vfs_write+0x88/0x11c
- [<c01408c8>] sys_write+0x3b/0x63
- [<c01029e1>] syscall_call+0x7/0xb
 
-Its a regular x86 machine (athlon-xp) with a IDE Tape Writer ( Sony 
-Storestation) connected to the Secondary IDE channel. Someone knows whats 
-causing this? 
+On 64-bit platform, reading 64-bit keys (which is supposed to be
+32-bit aligned) at a time will result in unaligned access.
 
-Oh before i forget, i am not subscribed to the list. Please CC me if you 
-answer to that posting. Thanks.
+Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
 
-best regards
-t.
+diff --git a/crypto/khazad.c b/crypto/khazad.c
+index 807f2bf..5b8dc9a 100644
+--- a/crypto/khazad.c
++++ b/crypto/khazad.c
+@@ -758,7 +758,7 @@ static int khazad_setkey(void *ctx_arg, 
+                        unsigned int key_len, u32 *flags)
+ {
+ 	struct khazad_ctx *ctx = ctx_arg;
+-	const __be64 *key = (const __be64 *)in_key;
++	const __be32 *key = (const __be32 *)in_key;
+ 	int r;
+ 	const u64 *S = T7;
+ 	u64 K2, K1;
+@@ -769,8 +769,9 @@ static int khazad_setkey(void *ctx_arg, 
+ 		return -EINVAL;
+ 	}
+ 
+-	K2 = be64_to_cpu(key[0]);
+-	K1 = be64_to_cpu(key[1]);
++	/* key is supposed to be 32-bit aligned */
++	K2 = ((u64)be32_to_cpu(key[0]) << 32) | be32_to_cpu(key[1]);
++	K1 = ((u64)be32_to_cpu(key[2]) << 32) | be32_to_cpu(key[3]);
+ 
+ 	/* setup the encrypt key */
+ 	for (r = 0; r <= KHAZAD_ROUNDS; r++) {

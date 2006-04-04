@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWDDE0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWDDEcA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbWDDE0J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 00:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750851AbWDDE0J
+	id S1751467AbWDDEcA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 00:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751473AbWDDEcA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 00:26:09 -0400
-Received: from www.osadl.org ([213.239.205.134]:9619 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1750810AbWDDE0I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 00:26:08 -0400
-Subject: Re: 2.6.16-rt11: Hires timer makes sleep wait far too long
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200604040340.k343ewe3029930@auster.physics.adelaide.edu.au>
-References: <200604040340.k343ewe3029930@auster.physics.adelaide.edu.au>
-Content-Type: text/plain
-Date: Tue, 04 Apr 2006 06:26:22 +0200
-Message-Id: <1144124783.5344.396.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Apr 2006 00:32:00 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:64111 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1751467AbWDDEb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 00:31:59 -0400
+Date: Mon, 3 Apr 2006 21:28:34 -0700
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: kurt.hackel@oracle.com, ocfs2-devel@oss.oracle.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] fs/ocfs2/dlm/dlmrecovery.c: make dlm_lockres_master_requery() static
+Message-ID: <20060404042834.GZ25194@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <20060331145355.GF3893@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060331145355.GF3893@stusta.de>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-04 at 13:10 +0930, Jonathan Woithe wrote:
-> The actual amount of time waited by a "sleep 1" call from bash was tested
-> at least twice for each timer source:
-> 
->   pit: 12 seconds, 29 seconds, 28 seconds
->   tsc: 45 seconds, 45 seconds
->   acpi_pm: 45 seconds, 29 seconds
->   jiffies: 45 seconds, 32 seconds
+On Fri, Mar 31, 2006 at 04:53:55PM +0200, Adrian Bunk wrote:
+> dlm_lockres_master_requery() became global without any external usage.
+Looks good, thanks.
+	--Mark
 
-Hmm, can you please send me your .config and the bootlog of the
-machine ?
-
-	tglx
-
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com
 

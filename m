@@ -1,59 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWDDRef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWDDRhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbWDDRef (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 13:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWDDRee
+	id S1750771AbWDDRhS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 13:37:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWDDRhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 13:34:34 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:35112 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750767AbWDDRee (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 13:34:34 -0400
-Date: Tue, 4 Apr 2006 19:34:49 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andy Lutomirski <luto@myrealbox.com>
-Cc: tridge@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] splice support #2
-Message-ID: <20060404173449.GS4385@suse.de>
-References: <17452.50912.404106.256236@samba.org> <20060331095711.GK14022@suse.de> <Pine.LNX.4.64.0603311110540.27203@g5.osdl.org> <20060331194012.GE14022@suse.de> <4432A9DE.9090902@myrealbox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4432A9DE.9090902@myrealbox.com>
+	Tue, 4 Apr 2006 13:37:18 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:3341 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1750771AbWDDRhR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 13:37:17 -0400
+Message-ID: <4432AB57.1040006@vmware.com>
+Date: Tue, 04 Apr 2006 10:22:31 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ebiederm@xmission.com, rdunlap@xenotime.net, fastboot@osdl.org
+Subject: Re: 2.6.17-rc1-mm1: KEXEC became SMP-only
+References: <20060404014504.564bf45a.akpm@osdl.org> <20060404162921.GK6529@stusta.de>
+In-Reply-To: <20060404162921.GK6529@stusta.de>
+Content-Type: multipart/mixed;
+ boundary="------------040706000709010304070503"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 04 2006, Andy Lutomirski wrote:
-> Jens Axboe wrote:
-> >On Fri, Mar 31 2006, Linus Torvalds wrote:
-> >
-> >>
-> >>On Fri, 31 Mar 2006, Jens Axboe wrote:
-> >>
-> >>>> ssize_t psplice(int fdin, int fdout, size_t len, off_t ofs, unsigned 
-> >>>> flags);
-> >>>
-> >>>I definitely see some valid reasons for adding a file offset instead of
-> >>>using ->f_pos, I'll leave that decision up to Linus though. Linus?
-> >>
-> >>I think a file offset is fine, the one thing holding me back was just the 
-> >>interface. One file offset per fd? Or just have the rule that the file 
-> >>offset is for the "non-pipe" device?
-> >
-> >
-> >Intuitively, I'd expect the offset to be tied to the non-pipe if I were
-> >to eg see this for the first time. So my vote would go for that.
-> >
-> 
-> Eee!  That means that splice(file_fd, pipe_fd, 1000) and splice(pipe_fd, 
-> file_fd, 1000) have different semantics.  It also would seem to prevent 
-> ever implementing direct file-to-file splicing.
+This is a multi-part message in MIME format.
+--------------040706000709010304070503
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The semantics as written: (fdin, fdout, len). But yes the offset gets
-ugly, unless you add two offsets. And you are right it would not go well
-with file -> file splicing, which btw is already implemented (just not
-in 2.6.17-rc1) along with file -> socket.
+Adrian Bunk wrote:
+> On Tue, Apr 04, 2006 at 01:45:04AM -0700, Andrew Morton wrote:
+>   
+>> ...
+>> Changes since 2.6.16-mm2:
+>> ...
+>> +x86-clean-up-subarch-definitions.patch
+>> ...
+>>  x86 updates.
+>> ...
+>>     
+>
+> The following looks bogus:
+>
+>  config KEXEC
+>         bool "kexec system call (EXPERIMENTAL)"
+> -       depends on EXPERIMENTAL
+> +       depends on EXPERIMENTAL && (!X86_VOYAGER && SMP)
+>
+> The dependencies do now say that KEXEC is only offered for machines that 
+> are _both_ non-Voyager and SMP.
+>
+> Is the problem you wanted to express that a non-SMP Voyager config 
+> didn't compile?
+>   
 
--- 
-Jens Axboe
+Whoops, that should be
 
+depends on EXPERIMENTAL && !(X86_VOYAGER && SMP)
+
+Voyager SMP builds don't compile with kexec(), and it isn't clear how to 
+shootdown CPUs using NMIs without an APIC.
+
+--------------040706000709010304070503
+Content-Type: text/plain;
+ name="voyager-smp-bogosity"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="voyager-smp-bogosity"
+
+Signed-off-by: Zachary Amsden <zach@vmware.com>
+
+Index: linux-2.6.16.1/arch/i386/Kconfig
+===================================================================
+--- linux-2.6.16.1.orig/arch/i386/Kconfig	2006-04-03 12:37:11.000000000 -0700
++++ linux-2.6.16.1/arch/i386/Kconfig	2006-04-04 10:18:25.000000000 -0700
+@@ -813,7 +813,7 @@ source kernel/Kconfig.hz
+ 
+ config KEXEC
+ 	bool "kexec system call (EXPERIMENTAL)"
+-	depends on EXPERIMENTAL && (!X86_VOYAGER && SMP)
++	depends on EXPERIMENTAL && !(X86_VOYAGER && SMP)
+ 	help
+ 	  kexec is a system call that implements the ability to shutdown your
+ 	  current kernel, and to start another kernel.  It is like a reboot
+
+--------------040706000709010304070503--

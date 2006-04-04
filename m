@@ -1,71 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751608AbWDDH4D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751838AbWDDIFk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751608AbWDDH4D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 03:56:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751838AbWDDH4D
+	id S1751838AbWDDIFk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 04:05:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751839AbWDDIFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 03:56:03 -0400
-Received: from topsns2.toshiba-tops.co.jp ([202.230.225.126]:49218 "EHLO
-	topsns2.toshiba-tops.co.jp") by vger.kernel.org with ESMTP
-	id S1751608AbWDDH4B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 03:56:01 -0400
-Date: Tue, 04 Apr 2006 16:55:52 +0900 (JST)
-Message-Id: <20060404.165552.52129978.nemoto@toshiba-tops.co.jp>
-To: herbert@gondor.apana.org.au
-Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] crypto: fix unaligned access in khazad module
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-In-Reply-To: <20060403231122.GA32271@gondor.apana.org.au>
-References: <20060309.122638.07642914.nemoto@toshiba-tops.co.jp>
-	<20060404.000518.126141927.anemo@mba.ocn.ne.jp>
-	<20060403231122.GA32271@gondor.apana.org.au>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+	Tue, 4 Apr 2006 04:05:40 -0400
+Received: from mail.charite.de ([160.45.207.131]:38805 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S1751838AbWDDIFj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 04:05:39 -0400
+Date: Tue, 4 Apr 2006 10:05:29 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.17-rc1
+Message-ID: <20060404080529.GM7849@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060404080205.C8B29E007A12@knarzkiste.dyndns.org> <20060403180207.E849EE007A12@knarzkiste.dyndns.org> <Pine.LNX.4.64.0604022037380.3781@g5.osdl.org> <20060403190915.GA10584@charite.de> <20060403202539.65cf6e33.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060404080205.C8B29E007A12@knarzkiste.dyndns.org> <20060403202539.65cf6e33.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Apr 2006 09:11:22 +1000, Herbert Xu <herbert@gondor.apana.org.au> wrote:
-> > -	K2 = be64_to_cpu(key[0]);
-> > -	K1 = be64_to_cpu(key[1]);
-> > +	K2 = be64_to_cpu(get_unaligned(&key[0]));
-> > +	K1 = be64_to_cpu(get_unaligned(&key[1]));
+* Andrew Morton <akpm@osdl.org>:
+
+> In acpi_processor_unregister_performance(), pr->performance is NULL.
 > 
-> Would it be possible to turn these into two 32-bit aligned reads instead?
+> Can you add the below?  It should tell us who forgot to register the
+> performance data, as well as working around the crash.
 
-Done now.  I've missed your comment on 10 Mar, sorry for duplication.
+I added the patch.
+in dmesg I now get:
+
+> Apr  4 09:54:06 knarzkiste kernel: powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.60.1)
+> Apr  4 09:54:06 knarzkiste kernel: powernow-k8:    0 : fid 0x0 (800 MHz), vid 0x12 (1100 mV)
+> Apr  4 09:54:06 knarzkiste kernel: powernow-k8:    1 : fid 0x8 (1600 MHz), vid 0x4 (1450 mV)
+> Apr  4 09:54:06 knarzkiste kernel: cpu_init done, current fid 0x8, vid 0x2
+> Apr  4 09:54:06 knarzkiste kernel: powernow-k8: ph2 null fid transition 0x8
+
+> Apr  4 09:54:25 knarzkiste kernel: powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.60.1)
+> Apr  4 09:54:25 knarzkiste kernel: powernow-k8:    0 : fid 0x0 (800 MHz), vid 0x12 (1100 mV)
+> Apr  4 09:54:25 knarzkiste kernel: powernow-k8:    1 : fid 0x8 (1600 MHz), vid 0x4 (1450 mV)
+> Apr  4 09:54:25 knarzkiste kernel: cpu_init done, current fid 0x8, vid 0x4
+
+> Apr  4 09:54:44 knarzkiste kernel: powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.60.1)
+> Apr  4 09:54:45 knarzkiste kernel: powernow-k8:    0 : fid 0x0 (800 MHz), vid 0x12 (1100 mV)
+> Apr  4 09:54:45 knarzkiste kernel: powernow-k8:    1 : fid 0x8 (1600 MHz), vid 0x4 (1450 mV)
+> Apr  4 09:54:45 knarzkiste kernel: cpu_init done, current fid 0x8, vid 0x4
+
+So, no more EIPs, but no conclusive messages either!
 
 
-On 64-bit platform, reading 64-bit keys (which is supposed to be
-32-bit aligned) at a time will result in unaligned access.
-
-Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-
-diff --git a/crypto/khazad.c b/crypto/khazad.c
-index 807f2bf..5b8dc9a 100644
---- a/crypto/khazad.c
-+++ b/crypto/khazad.c
-@@ -758,7 +758,7 @@ static int khazad_setkey(void *ctx_arg, 
-                        unsigned int key_len, u32 *flags)
- {
- 	struct khazad_ctx *ctx = ctx_arg;
--	const __be64 *key = (const __be64 *)in_key;
-+	const __be32 *key = (const __be32 *)in_key;
- 	int r;
- 	const u64 *S = T7;
- 	u64 K2, K1;
-@@ -769,8 +769,9 @@ static int khazad_setkey(void *ctx_arg, 
- 		return -EINVAL;
- 	}
- 
--	K2 = be64_to_cpu(key[0]);
--	K1 = be64_to_cpu(key[1]);
-+	/* key is supposed to be 32-bit aligned */
-+	K2 = ((u64)be32_to_cpu(key[0]) << 32) | be32_to_cpu(key[1]);
-+	K1 = ((u64)be32_to_cpu(key[2]) << 32) | be32_to_cpu(key[3]);
- 
- 	/* setup the encrypt key */
- 	for (r = 0; r <= KHAZAD_ROUNDS; r++) {
+-- 
+Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

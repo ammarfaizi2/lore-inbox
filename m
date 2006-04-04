@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbWDDFLN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbWDDFNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964948AbWDDFLN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 01:11:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbWDDFLM
+	id S964933AbWDDFNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 01:13:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbWDDFNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 01:11:12 -0400
-Received: from nproxy.gmail.com ([64.233.182.190]:23094 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964948AbWDDFLM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 01:11:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PEWvCgNVfCz7mztiVyBk/lnPyprUqOo/0ruykfr8+Bbqevg7djez6+mFn4xPjqY38uoJFbiBDeUxwqlgDRY20aONgtKap1i0FfV2TPEVNhvoo8bBEzds8WwcXi40RuD0d81/CvQwrGpW+3BacTTM/Zq2ZmWla+HqH3IcnD1MRns=
-Message-ID: <661de9470604032211n3ea98a99j2fce3fd8faf39081@mail.gmail.com>
-Date: Tue, 4 Apr 2006 10:41:11 +0530
-From: "Balbir Singh" <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-To: NeilBrown <neilb@suse.de>
-Subject: Re: [PATCH] Fix dcache race during umount
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Jan Blunck" <jblunck@suse.de>, "Kirill Korotaev" <dev@openvz.org>,
-       "Olaf Hering" <olh@suse.de>
-In-Reply-To: <1060404010506.27391@suse.de>
-MIME-Version: 1.0
+	Tue, 4 Apr 2006 01:13:25 -0400
+Received: from xenotime.net ([66.160.160.81]:35472 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964933AbWDDFNZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 01:13:25 -0400
+Date: Mon, 3 Apr 2006 22:15:37 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: menuconfig search (Re: [rfc] fix Kconfig, hotplug_cpu is needed for
+ swsusp)
+Message-Id: <20060403221537.79bb3af9.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.61.0603301022400.30783@yvahk01.tjqt.qr>
+References: <20060329220808.GA1716@elf.ucw.cz>
+	<200603300936.22757.ncunningham@cyclades.com>
+	<20060329154748.A12897@unix-os.sc.intel.com>
+	<200603300953.32298.ncunningham@cyclades.com>
+	<Pine.LNX.4.61.0603301022400.30783@yvahk01.tjqt.qr>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060404110351.27364.patches@notabene>
-	 <1060404010506.27391@suse.de>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Trying again after some useful comments from Balbir.
-> Note: the change to prune_dcache looks quite different now.
->
-> NeilBrown
->
-<snip>
->                 tmp = dentry_unused.prev;
-> +               if (unlikely(sb)) {
-> +                       /* Try to find a dentry for this sb, but don't try
-> +                        * too hard, if they aren't near the tail they will
-> +                        * be moved down again soon
-> +                        */
-> +                       int skip = count;
-> +                       while (skip &&
-> +                              tmp != &dentry_unused &&
-> +                              list_entry(tmp, struct dentry, d_lru)->d_sb != sb) {
-> +                               skip--;
-> +                               tmp = tmp->prev;
-> +                       }
-> +               }
+On Thu, 30 Mar 2006 10:24:30 +0200 (MEST) Jan Engelhardt wrote:
 
-This code looks very similar to the first pass in dcache_shrink_sb().
-I would prefer if we could re-use that code here, but that would
-require creating a helper function by splitting the function.
+> >Most people don't seem to know 
+> >about '/' in make menuconfig.
 
-Looks like a good solution to me.
+That's a shame.
 
-Regards,
-Balbir
+> I find it very confusing to use, since it returns too verbose text to skim 
+> through. Probably the search function should be split into "only search 
+> titles[*]" and "search description too".
+
+Re verbosity:  do you know that menuconfig search (/) takes regular
+expressions?  That could help someone limit the amount of output
+from it.
+
+Can you give an example of being too verbose?
+
+>   config UNIX
+>     bool "Unix socket"            <-- that's a "title", as in menuconfig
+
+The search function of menuconfig (currently) works in the namespace of
+CONFIG_ symbols.  It will search for a regex in the symbol tables.
+Yes, someone could modify it to search thru the prompt strings of the
+symbols.  I don't know if that would help or not.
+
+I have just modified menuconfig search to make displaying the
+Selects: and Selected by: output be an option (actually it's a
+different search command (\) to not see those lines.
+Would that help any regarding verbosity?
+
+The patch is here if you would care to try it:
+  http://www.xenotime.net/linux/patches/menuconfig-search2.patch
+
+---
+~Randy

@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWDDTZX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWDDT0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750819AbWDDTZX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 15:25:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWDDTZX
+	id S1750824AbWDDT0V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 15:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWDDT0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 15:25:23 -0400
-Received: from mail.gmx.net ([213.165.64.20]:4576 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750819AbWDDTZV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 15:25:21 -0400
-X-Authenticated: #704063
-Subject: [Patch] Possible double free in net/bluetooth/sco.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: maxk@qualcomm.com
-Content-Type: text/plain
-Date: Tue, 04 Apr 2006 21:25:18 +0200
-Message-Id: <1144178718.12132.4.camel@alice>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Tue, 4 Apr 2006 15:26:21 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:63499 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1750824AbWDDT0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 15:26:20 -0400
+Message-ID: <4432C7AC.9020106@vmware.com>
+Date: Tue, 04 Apr 2006 12:23:24 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, rdunlap@xenotime.net, fastboot@osdl.org
+Subject: Re: 2.6.17-rc1-mm1: KEXEC became SMP-only
+References: <20060404014504.564bf45a.akpm@osdl.org>	<20060404162921.GK6529@stusta.de>	<m1acb15ja2.fsf@ebiederm.dsl.xmission.com>	<4432B22F.6090803@vmware.com> <m1irpp41wx.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1irpp41wx.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Eric W. Biederman wrote:
+>
+> If all you are doing is this one little clean up we can probably stop here.
+> But this looks like a start on getting a vmi or xen subarch working.
+>   
 
-this fixes coverity bug id #1068. 
-hci_send_sco() frees skb if (skb->len > hdev->sco_mtu).
-Since it returns a negative error value only in this case, we
-can directly return here.
+Yes, that is certainly part of the purpose.  But the subarch layer 
+really should be cleaned up, and getting rid of code duplication seems 
+like a good first step.
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+> If this is really a prelude to introducing more subarchitectures we
+> need to fix the infrastructure, so it is obvious what is going on.
+> I would really like to see a machine vector, so we could compile in
+> multiple subarchitectures at the same time.  That makes building
+> a generic kernel easier, and the requirement that the we need
+> to build a generic kernel makes the structure of the subarchiteture
+> hooks hierarchical and you wind up with code whose dependencies
+> are visible.  Instead of the current linker and preprocessor magic.
+> Functions named hook are impossible to comprehend what they
+> are supposed to do while reading through the code.
+>   
 
---- linux-2.6.17-rc1/net/bluetooth/sco.c.orig	2006-04-04 21:19:51.000000000 +0200
-+++ linux-2.6.17-rc1/net/bluetooth/sco.c	2006-04-04 21:20:34.000000000 +0200
-@@ -255,7 +255,7 @@ static inline int sco_send_frame(struct 
- 	}
- 
- 	if ((err = hci_send_sco(conn->hcon, skb)) < 0)
--		goto fail;
-+		return err;
- 
- 	return count;
- 
+I see your point.  Are you thinking of something like:
+
+struct subarch_hooks subarch_hook_vector = {
+     .machine_power_off = machine_power_off,
+     .machine_halt = machine_halt,
+     .machine_irq_setup = machine_irq_setup,
+     .machine_subarch_setup = machine_subarch_probe
+     ...
+};
+
+And machine_subarch_probe can dynamically change this vector if it 
+confirms that the platform is appropriate?
+
+This gets rid of both the code duplication and makes it somewhat more 
+obvious what is going on - plus it is easy to extend to other functions, 
+and as a bonus feature, you don't need to change any code in other 
+subarchitectures if you need to add a new hook.
 
 
+Zach

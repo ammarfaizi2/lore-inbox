@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWDDQBF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWDDQCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbWDDQBF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 12:01:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWDDQBF
+	id S1750728AbWDDQCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 12:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWDDQCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 12:01:05 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:52699 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1750727AbWDDQBE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 12:01:04 -0400
-Subject: Re: Remove unused exports and save 98Kb of kernel size
-From: Marcel Holtmann <marcel@holtmann.org>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060403140654.GB12873@wohnheim.fh-wedel.de>
-References: <1143925545.3076.35.camel@laptopd505.fenrus.org>
-	 <1143926338.18439.3.camel@localhost>
-	 <20060403140654.GB12873@wohnheim.fh-wedel.de>
-Content-Type: text/plain
-Date: Tue, 04 Apr 2006 18:00:06 +0200
-Message-Id: <1144166406.8102.1.camel@aeonflux.holtmann.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Apr 2006 12:02:25 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:45325 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750728AbWDDQCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 12:02:25 -0400
+Date: Tue, 4 Apr 2006 18:02:23 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.17-mm1: drivers/w1/: patch undoes reasonable cleanups
+Message-ID: <20060404160223.GG6529@stusta.de>
+References: <20060404014504.564bf45a.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060404014504.564bf45a.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Joern,
+On Tue, Apr 04, 2006 at 01:45:04AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.16-mm2:
+>...
+> +gregkh-i2c-w1-userspace-communication-protocol-over-connector.patch
+>...
+>  I2C tree.
+>...
 
-> > > I've made a patch to remove all EXPORT_SYMBOL's that aren't used in the
-> > > kernel; it's too big for the list so it can be found at
-> > > 
-> > > http://www.kernelmorons.org/unexport.patch
-> > 
-> > no ack for net/bluetooth/ from me.
-> 
-> Why not?  Do you have patches pending for submission that will use
-> those exported symbols?
+Evgeniy Polyakov did ACK my patch 
+a9fb1c7b950bed4afe208c9d67e20f086bb6abbb, and I'm therefore really 
+pissed off seeing him silently reverting it for no good reason as part 
+of this patch.
 
-yes, I do.
+Greg, please drop this patch.
 
-Regards
+cu
+Adrian
 
-Marcel
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

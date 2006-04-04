@@ -1,59 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWDDWC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWDDWHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbWDDWC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 18:02:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWDDWC1
+	id S1750778AbWDDWHq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 18:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWDDWHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 18:02:27 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:3332 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1750762AbWDDWC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 18:02:26 -0400
-Message-ID: <4432ECF1.8040606@vmware.com>
-Date: Tue, 04 Apr 2006 15:02:25 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: ebiederm@xmission.com, bunk@stusta.de, linux-kernel@vger.kernel.org,
-       rdunlap@xenotime.net, fastboot@osdl.org
-Subject: Re: 2.6.17-rc1-mm1: KEXEC became SMP-only
-References: <20060404014504.564bf45a.akpm@osdl.org>	<20060404162921.GK6529@stusta.de>	<m1acb15ja2.fsf@ebiederm.dsl.xmission.com>	<4432B22F.6090803@vmware.com>	<m1irpp41wx.fsf@ebiederm.dsl.xmission.com>	<4432C7AC.9020106@vmware.com> <20060404132546.565b3dae.akpm@osdl.org>
-In-Reply-To: <20060404132546.565b3dae.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Apr 2006 18:07:46 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:16106 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750778AbWDDWHp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 18:07:45 -0400
+Date: Wed, 5 Apr 2006 08:07:31 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: 2.6.16.1: XFS internal error xfs_btree_check_lblock at line 215 of file fs/xfs/xfs_btree.c
+Message-ID: <20060405080731.B1071351@wobbly.melbourne.sgi.com>
+References: <20060404212144.GM15722@charite.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060404212144.GM15722@charite.de>; from Ralf.Hildebrandt@charite.de on Tue, Apr 04, 2006 at 11:21:44PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->
->>  struct subarch_hooks subarch_hook_vector = {
->>       .machine_power_off = machine_power_off,
->>       .machine_halt = machine_halt,
->>       .machine_irq_setup = machine_irq_setup,
->>       .machine_subarch_setup = machine_subarch_probe
->>       ...
->>  };
->>
->>  And machine_subarch_probe can dynamically change this vector if it 
->>  confirms that the platform is appropriate?
->>     
->
-> I don't recall anyone expressing any desire for the ability to set these
-> things at runtime.  Unless there is such a requirement I'd suggest that the
-> best way to address Eric's point is to simply rename the relevant functions
-> from foo() to subarch_foo().
->   
+On Tue, Apr 04, 2006 at 11:21:44PM +0200, Ralf Hildebrandt wrote:
+> I was running xfs_fsr on our /home at night when this happened:
+> (Kernel 2.6.16.1)
+> ...
+> Apr  2 00:26:17 postamt kernel: Filesystem "sda5": XFS internal error xfs_btree_check_lblock at line 215 of file fs/xfs/xfs_btree.c.  Caller 0xb10dba58
+> Apr  2 00:26:17 postamt kernel:  [xfs_btree_check_lblock+82/407] xfs_btree_check_lblock+0x52/0x197
 
-Avoiding the runtime assignment isn't possible if you want a generic 
-subarch that truly can run on multiple different platforms.
+What does xfs_repair report?  Is it (the forced shutdown) reproducible?
 
-I prefer runtime assignment not for this reason, but simply because it 
-also eliminates two artifacts:
+thanks.
 
-1) You can add new subarch hooks without breaking every other 
-sub-architecture
-2) You don't need #ifdef SUBARCH_FUNC_FOO goo to do this (renaming 
-voyager_halt -> default)
-
-Zach
+-- 
+Nathan

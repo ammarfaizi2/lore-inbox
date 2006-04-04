@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751846AbWDDKVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751847AbWDDKVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751846AbWDDKVE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 06:21:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751848AbWDDKVE
+	id S1751847AbWDDKVG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 06:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751848AbWDDKVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 4 Apr 2006 06:21:05 -0400
+Received: from mercury.sdinet.de ([193.103.161.30]:43907 "EHLO
+	mercury.sdinet.de") by vger.kernel.org with ESMTP id S1751847AbWDDKVE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 4 Apr 2006 06:21:04 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:39143 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751846AbWDDKVD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 06:21:03 -0400
-Date: Tue, 4 Apr 2006 12:21:02 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <npiggin@suse.de>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [patch 2/3] mm: speculative get_page
-Message-ID: <20060404102101.GA21329@wotan.suse.de>
-References: <20060219020140.9923.43378.sendpatchset@linux.site> <20060219020159.9923.94877.sendpatchset@linux.site> <20060404024715.6555d8e2.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060404024715.6555d8e2.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Date: Tue, 4 Apr 2006 12:21:01 +0200 (CEST)
+From: Sven-Haegar Koch <haegar@sdinet.de>
+To: Stephen Clark <Stephen.Clark@seclark.us>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: VMware-workstation-3.2.1-2242
+In-Reply-To: <4431D840.5000105@seclark.us>
+Message-ID: <Pine.LNX.4.64.0604041219450.9610@mercury.sdinet.de>
+References: <4431D840.5000105@seclark.us>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 04, 2006 at 02:47:15AM -0700, Andrew Morton wrote:
-> Nick Piggin <npiggin@suse.de> wrote:
-> >
-> > +static inline struct page *page_cache_get_speculative(struct page **pagep)
-> 
-> Seems rather large to inline.
-> 
+On Mon, 3 Apr 2006, Stephen Clark wrote:
 
-Possibly... with all the debugging turned off, it is only atomic_inc
-on UP, and atomic_inc_not_zero + several branches and barriers on SMP.
+> Anyone able to get VMware-workstation-3.2.1-2242 running on 2.6.15 or 
+> 2.6.16?
 
-With only two callsites, I figure it is probably OK to be inline. It
-probably looks bigger than it is...
+Perhaps it works with the kernel modules from 
+http://platan.vc.cvut.cz/ftp/pub/vmware/vmware-any-any-update101.tar.gz
+(or any newer vmware-any-any-* available there).
 
-> >  +{
-> >  +	struct page *page;
-> >  +
-> >  +	VM_BUG_ON(in_interrupt());
-> >  +
-> >  +#ifndef CONFIG_SMP
-> >  +	page = *pagep;
-> >  +	if (unlikely(!page))
-> >  +		return NULL;
-> >  +
-> >  +	VM_BUG_ON(!in_atomic());
-> 
-> This will go blam if !CONFIG_PREEMPT.
+But never tried it with vmware 3.
 
-Hmm yes. Is there a safe way to do that? I guess it is pretty trivally
-safely under rcu_read_lock , so that can probably just be removed.
+c'ya
+sven
 
+-- 
+
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)

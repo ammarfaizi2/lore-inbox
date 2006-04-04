@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbWDDXrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbWDDXyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750936AbWDDXrL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 19:47:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWDDXrL
+	id S1750947AbWDDXyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 19:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWDDXyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 19:47:11 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:33060 "EHLO
-	pd5mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1750936AbWDDXrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 19:47:10 -0400
-Date: Tue, 04 Apr 2006 17:45:57 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: dma_alloc_coherent
-In-reply-to: <5XY8B-82x-1@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Kartik Babu <kbabu@automatika.com>
-Message-id: <44330535.2070803@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <5XY8B-82x-1@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 4 Apr 2006 19:54:16 -0400
+Received: from mga02.intel.com ([134.134.136.20]:32612 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750943AbWDDXyP convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 19:54:15 -0400
+X-IronPort-AV: i="4.03,165,1141632000"; 
+   d="scan'208"; a="19375418:sNHT39090807"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] MPBL0010 driver sysfs permissions wide open
+Date: Tue, 4 Apr 2006 16:54:08 -0700
+Message-ID: <5389061B65D50446B1783B97DFDB392D56B3A7@orsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] MPBL0010 driver sysfs permissions wide open
+thread-index: AcZYHRqO/Pk22Fr/Ty6PlMN0C0DmfgAJaZGg
+From: "Gross, Mark" <mark.gross@intel.com>
+To: "Mark Bellon" <mbellon@mvista.com>, <linux-kernel@vger.kernel.org>,
+       <sebastien.bouchard@ca.kontron.com>
+X-OriginalArrivalTime: 04 Apr 2006 23:54:13.0393 (UTC) FILETIME=[1325B810:01C65843]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kartik Babu wrote:
->  I'm trying to replace consistent_alloc in a driver that was written for 
-> the 2.4 kernel with dma_alloc_coherent. My question is that I do not use 
-> a struct device * pointer at all. Browsing through the source for the 
-> 2.6.12
-> on ARM XScale PXA255, I see that this argument may be NULL.
-> 
-> Still, I'd like to know if passing NULL has any side effects. If so, 
-> what are they?
-> 
-> I do however have a cdev structure taht I use for device registration, 
-> but I do not see how that would help.
+ACK.
 
-What kind of a device is it? If it's a PCI device, the struct device can 
-be accessed with the dev pointer inside the struct pci_dev.
+This looks good to me.  
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+The use case for this driver is to configure the fail over behavior of
+the clock hardware.  That should be done by the more privileged users.
 
+Thanks,
+
+--mgross
+
+>-----Original Message-----
+>From: Mark Bellon [mailto:mbellon@mvista.com]
+>Sent: Tuesday, April 04, 2006 12:32 PM
+>To: linux-kernel@vger.kernel.org; Gross, Mark;
+>sebastien.bouchard@ca.kontron.com
+>Subject: [PATCH] MPBL0010 driver sysfs permissions wide open
+>
+>The MPBL0010 Telco clock driver (drivers/char/tlclk.c) uses 0222
+(anyone
+>can write) permissions on its writable sysfs entries. IMHO this is a
+bit
+>too wide open for proper security. The patch (against 2.6.16.1) alters
+>the permissions to 0220 (owner and group can write).
+>
+>Signed-off-by: Mark Bellon <mbellon@mvista.com>
+>
+>mark
+>

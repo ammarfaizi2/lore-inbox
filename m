@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbWDES1E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWDES0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751316AbWDES1E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 14:27:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWDES1E
+	id S1751320AbWDES0y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 14:26:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWDES0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 14:27:04 -0400
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:21942 "EHLO
+	Wed, 5 Apr 2006 14:26:54 -0400
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:13494 "EHLO
 	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1751316AbWDES1B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 14:27:01 -0400
-Message-ID: <4432C8E6.6010301@tmr.com>
-Date: Tue, 04 Apr 2006 15:28:38 -0400
+	id S1751315AbWDES0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 14:26:53 -0400
+Message-ID: <4432C460.3080606@tmr.com>
+Date: Tue, 04 Apr 2006 15:09:20 -0400
 From: Bill Davidsen <davidsen@tmr.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9a1) Gecko/20060330 SeaMonkey/1.5a
 MIME-Version: 1.0
-To: Roger Heflin <rheflin@atipa.com>
-CC: "'linux mailing-list'" <linux-kernel@vger.kernel.org>
-Subject: Re: RSS Limit implementation issue
-References: <442AEB3A.9030503@tmr.com> <EXCHG2003g3Sv0YKpDS000000d0@EXCHG2003.microtech-ks.com>
-In-Reply-To: <EXCHG2003g3Sv0YKpDS000000d0@EXCHG2003.microtech-ks.com>
+Newsgroups: gmane.linux.ide
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+Subject: Re: IDE CDROM tail read errors
+References: <m3wtedrrpf.fsf@defiant.localdomain> <1143717489.29388.32.camel@localhost.localdomain>
+In-Reply-To: <1143717489.29388.32.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roger Heflin wrote:
->  
-> 
->> A process has no control over its RSS size, only its virtual 
->> size. I'm not sure you're clear on that, or just not saying 
->> it clearly. Therefore the same process, say a largish perl 
->> run, may be 175mB in vsize, and during the day have rss of 
->> perhaps half that. At night, with next to no load on the 
->> machine, the rss is 175mB because there is a bunch of free 
->> memory available.
+Alan Cox wrote:
+> On Mer, 2006-03-29 at 21:11 +0200, Krzysztof Halasa wrote:
+>> # ls -l
+>> -rw-r--r-- 1 root root 687177728 Mar 29 15:51 img-15.iso
+>> -rw-r--r-- 1 root root 687177728 Mar 29 15:58 img-15a.iso
 >>
->> If you want to make rss a hard limit the result should be 
->> swapping, not failure to run. I'm not sure the limit in that 
->> form is a good idea, and before someone reminds me, I do 
->> remember liking it better a few years ago.
+>> The files are just truncated FC5d1 images (57344 bytes missing).
 > 
-> working_set_size limits sucked on VMS.  The OS would limit a process to
-> its working set size and casue the entire machine to swap
-> even though there was adequate free memory.   I believe they
-> had a normalworkingset size variable, and a maxworkingsetsize
-> one indicated how much ram you could get on a memory limited 
-> system, the other indicated the most it would ever let you get even if
-> there was plenty of free ram.   The maxworkingsetsize caused
-> a lot of issues, as the default appeared to be defined for
-> much smaller systems that we were using at the time, and so
-> were much too low, and cause unnecessary swapping.  Part of the
-> issue would be that the admin would need to know what he was
-> doing to use the feature, and most don't.
+> The final partial read is dropped rather than partially completed.
 > 
-> The argument from the admins at the time was that this limited
-> the damage to other processes by preventing certain processes
-> from getting too much memory, they ignored the fact that
-> anything swapping (even only the one process) unnecessarly 
-> *KILLED* performance for the entire machine, since swapping
-> is rather expensive on the os.
+>> # cat /sys/block/sr0/size
+>> 1342264 (i.e., the same as with 2.6.15 + drivers/ide)
+>>
+>> # cat /dev/cdrw > img-16a.iso
+>> cat: /dev/cdrw: Input/output error
+>>
+>> # cat /sys/block/sr0/size
+>> 1342256 (looks like it has been adjusted to .iso image size / 512 when
+>>          the first I/O error occured)
+> 
+> The SCSI layer does this bit for everyone. Its actually not libata or
+> the PATA drivers that have done the work here. You should find ide-scsi
+> does the same.
+> 
+> I patched the old IDE driver a bit to try and deal with this and if you
+> want the patch to hack on and tidy up further feel free. 
+> 
+> 
+Any hope in hell of getting this fixed? It's been broken for too long to 
+remember. IIRC the problem is that on a read which hits EOF, instead of 
+returning partial data read and no error, the status returned is just 
+some "didn't work" variant and the partial read is lost. I also seem to 
+remember that if the length of the ISO was a multiple of a magic number, 
+32k, or the metric hexadecimal phase of the moon, you got a clean EOF.
 
-After thinking about this, I have the opinion that if an RSS limit is 
-working it would be a hard limit. The alternative is a process which 
-gets large and then when memory pressure increases the oversize process 
-either causes a lot of swapping or worse yet ties up a lot of memory if 
-swap rate is limited.
+As you say, ide-scsi fixes this, if the people who don't like it would 
+make the alternatives work right it wouldn't be an issue...
 
-There are many ways to tune Linux badly, adding one more will not add 
-much to the pain if the default is off. The values available to a normal 
-users might be limited to prevent the most obvious bad choices. Or a 
-corresponding option could be provided to take corrective action for a 
-process with RSS set (to any value) and swap rate high.
+Thanks for the info.
 

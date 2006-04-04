@@ -1,72 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbWDDMEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbWDDMaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964981AbWDDMEp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 08:04:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbWDDMEp
+	id S964982AbWDDMaP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 08:30:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWDDMaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 08:04:45 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:51462 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932397AbWDDMEo convert rfc822-to-8bit
+	Tue, 4 Apr 2006 08:30:15 -0400
+Received: from userg500.nifty.com ([202.248.238.80]:25954 "EHLO
+	userg500.nifty.com") by vger.kernel.org with ESMTP id S932417AbWDDMaN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 08:04:44 -0400
-MIME-Version: 1.0
+	Tue, 4 Apr 2006 08:30:13 -0400
+Authentication-Results: userg500.nifty.com from=komurojun-mbn@nifty.com; sender-id=softfail; spf=softfail
+DomainKey-Signature: a=rsa-sha1; s=userg500; d=nifty.com; c=simple; q=dns;
+	b=xG18LAarGBN4rRPUx4HIBzR018znCwrEXNZX2+ywmo47VB6dxm2av0uqy4usWrgCl
+	0qrk3N5+uhkCuSaprg6Yg==
+Date: Tue, 4 Apr 2006 21:30:57 +0900
+From: Komuro <komurojun-mbn@nifty.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IDE CMD 64x PCI driver
+Message-Id: <20060404213057.2a3268cb.komurojun-mbn@nifty.com>
+In-Reply-To: <1143848776.16133.0.camel@localhost.localdomain>
+References: <27060187.14131143847493404.komurojun-mbn@nifty.com>
+	<1143848776.16133.0.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.3 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <20060404024244.28E9A5F76B@work.bitmover.com>
-x-originalarrivaltime: 04 Apr 2006 12:04:43.0571 (UTC) FILETIME=[F58E6030:01C657DF]
-Content-class: urn:content-classes:message
-Subject: Re: blade servers?
-Date: Tue, 4 Apr 2006 08:04:43 -0400
-Message-ID: <Pine.LNX.4.61.0604040754590.32402@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: blade servers?
-Thread-Index: AcZX3/WtOG/LWHElQayevr8UzVzRQQ==
-References: <20060404024244.28E9A5F76B@work.bitmover.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Larry McVoy" <lm@bitmover.com>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On Mon, 3 Apr 2006, Larry McVoy wrote:
+> > 
+> > >I am having difficultly getting the IDE CMD 64x PCI driver to work for the
+> > >CMD PCI-648 device.  I have decided to dig through kernel and driver code
+> > >to find out why and hopefully correct the problem.
+> > 
+> > 
+> > 
+> > It seems nobody maintains the CMD64x driver.
+> 
+> I've been working on CMD648 support for the libata PATA set. I don't
+> have a CMD648 so testers would be most welcome.
 
-> I figured that people here would know.  If you were looking for blade
-> servers and you were more interested in cost and heat generation than the
-> most performance, what would you buy?  We're looking for 20 x86 cpus.
-> They have to beat ASUS terminators (nice little boxes, if you haven't
-> checked them out you should, about $100 + cpu + mem + disk and they are
-> quiet and run on ~100watt power supplies so they don't generate a lot
-> of heat).
->
-> So far, the stuff at www.rackmount.com looks pretty good but they are
-> (like everyone else so far as I can tell) focussed on performance.
-> For all of the Unix like platforms, we'd be happy with 2Ghz Athlons (don't
-> need opterons) with 256MB.  It's true that for the windows platforms we
-> like 2GB because we use 1GB as a ram disk to get reasonable performance
-> out of @#!! Windows.
->
-> Thanks in advance,
->
-> --lm
+Thanks for your information.
 
-Check out http://www.siliconmechanics.com/c292/blage-server.php.
-We evaluated one (so far). Prices are not too bad, plus you
-can get 5 different blades. The full chassis, with 14 blades,
-needs good ventilation -- lots of power -- lots of heat!
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.42 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+Best Regards
+Komuro

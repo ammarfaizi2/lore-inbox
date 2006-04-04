@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbWDDCru@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbWDDCsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964974AbWDDCru (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Apr 2006 22:47:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbWDDCru
+	id S964969AbWDDCsN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Apr 2006 22:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964976AbWDDCsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 22:47:50 -0400
-Received: from rtr.ca ([64.26.128.89]:30597 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S964963AbWDDCrt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 22:47:49 -0400
-Message-ID: <4431DE2B.1020306@rtr.ca>
-Date: Mon, 03 Apr 2006 22:47:07 -0400
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20060402 SeaMonkey/1.1a
-MIME-Version: 1.0
-To: Dan Aloni <da-x@monatomic.org>
-Cc: "Eric D. Mudama" <edmudama@gmail.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Mark Lord <lkml@rtr.ca>,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-Subject: Re: sata_mv: module reloading doesn't work
-References: <20060402155647.GB20270@localdomain> <311601c90604021059jcdf56e4ja35e3507ab291179@mail.gmail.com> <20060403215729.GA17731@localdomain>
-In-Reply-To: <20060403215729.GA17731@localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Apr 2006 22:48:12 -0400
+Received: from spooner.celestial.com ([192.136.111.35]:7913 "EHLO
+	spooner.celestial.com") by vger.kernel.org with ESMTP
+	id S964969AbWDDCsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Apr 2006 22:48:11 -0400
+Date: Mon, 3 Apr 2006 22:48:10 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PoC "make xconfig" Search Facility
+Message-ID: <20060404024810.GF6031@kurtwerks.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200603272150.42305.shlomif@iglu.org.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603272150.42305.shlomif@iglu.org.il>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.16krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Aloni wrote:
->
->  * Normal boot
->  * insmod sata_mv
->  * all is okay, as expected
->  * rmmod sata_mv
->  * insmod sata_mv 
->  * all is bad, as expected
->  * kexec
->  * insmod sata_mv
->  * all is bad!
+On Mon, Mar 27, 2006 at 09:50:41PM +0200, Shlomi Fish took 238 lines to write:
+> Hi all!
 > 
-> Conclusion: sata_mv's shutdown does something bad.
+> [ I'm not subscribed to this list so please CC me on your replies. ]
+> 
+> This patch adds a proof-of-concept search facility to "make xconfig". Current 
+> problems and limitations:
+> 
+> 1. Only case-insensitive single-substring search is supported.
 
-sata_mv seems to just use the default libata shutdown sequence,
-so perhaps it's leaving the device in EDMA mode with interrupt
-coalescing still on (from the BIOS), and interrupts are still
-coming in or something..
+That's a good start.
 
-I suppose it really ought to shut down the device before exiting,
-and maybe the default of pci_disable_device() is not enough.. ?
+> 2. The style is completely wrong, as I could not find a suitable vim 
+> configuration for editing Linux kernel source (and Google was not help). If 
+> anyone can refer me to one, I'll be grateful.
 
-Cheers
+Documentation/CodingStyle
+scripts/Lindent
 
+Kurt
+-- 
+Forgetfulness, n.:
+	A gift of God bestowed upon debtors in compensation for their
+destitution of conscience.

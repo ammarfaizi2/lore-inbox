@@ -1,69 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWDDSoW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWDDSog@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbWDDSoW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 14:44:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWDDSoW
+	id S1750798AbWDDSog (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 14:44:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWDDSof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 14:44:22 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:24335 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750791AbWDDSoV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 14:44:21 -0400
-Date: Tue, 4 Apr 2006 20:44:18 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Martin Langer <martin-langer@gmx.de>, Stefano Brivio <st3@riseup.net>,
-       Michael Buesch <mbuesch@freenet.de>,
-       Danny van Dyk <kugelfang@gentoo.org>,
-       Andreas Jaggi <andreas.jaggi@waterwave.ch>
-Cc: jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linville@tuxdriver.com
-Subject: bcm43xx_power.c: uninitialized variable used
-Message-ID: <20060404184418.GU6529@stusta.de>
+	Tue, 4 Apr 2006 14:44:35 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:31887 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750796AbWDDSoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 14:44:34 -0400
+To: Zachary Amsden <zach@vmware.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, rdunlap@xenotime.net, fastboot@osdl.org
+Subject: Re: 2.6.17-rc1-mm1: KEXEC became SMP-only
+References: <20060404014504.564bf45a.akpm@osdl.org>
+	<20060404162921.GK6529@stusta.de>
+	<m1acb15ja2.fsf@ebiederm.dsl.xmission.com>
+	<4432B22F.6090803@vmware.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 04 Apr 2006 12:43:26 -0600
+In-Reply-To: <4432B22F.6090803@vmware.com> (Zachary Amsden's message of
+ "Tue, 04 Apr 2006 10:51:43 -0700")
+Message-ID: <m1irpp41wx.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker found this case where the variable "tmp" is used 
-uninitialized:
+Zachary Amsden <zach@vmware.com> writes:
 
-<--  snip  -->
+> No, this cleanup only eliminates the need to duplicate redundant code.   How
+> does a machine vector make it any harder to break?  You still have a function
+> with multiple definitions.  Duplicating code makes things really easy to break -
+> twice.
 
-...
-static int bcm43xx_pctl_clockfreqlimit(struct bcm43xx_private *bcm,
-                                       int get_max)
-{
-        int limit = 0;
-        int divisor;
-        int selection;
-        int err;
-        u32 tmp;
-        struct bcm43xx_coreinfo *old_core;
+Sharing functions is good, but if you don't share things carefully your code
+becomes very brittle because it depends in non obvious ways on other
+code.
 
-        if (!(bcm->chipcommon_capabilities & BCM43xx_CAPABILITIES_PCTL))
-                goto out;
-        old_core = bcm->current_core;
-        err = bcm43xx_switch_core(bcm, &bcm->core_chipcommon);
-        if (err)
-                goto out;
+A machine vector isn't exactly what is needed (although that allows building
+all of the subarches at the same time).  What is needed are clear places
+where the sub architectures get called.
 
-        if (bcm->current_core->rev < 6) {
-...
-        } else if (bcm->current_core->rev < 10) {
-                selection = (tmp & 0x07);
-...
+The lack of visibility is what makes subarch code so easy to break right now.
 
-<--  snip  -->
+I have had times where I have made a global change and fixed up the entire
+kernel and all that broke was the i386 subarchitectures because there
+was a dependency but it was totally invisible.  Despite testing on and
+being most familiar with i386.
 
-cu
-Adrian
+For example every other arch only has one implementation
+of machine_restart, machine_halt, machine_power_off, and if they
+have subarchitectures they have calls to subarch_restart, subarch_halt,
+and subarch_power_off.  At which point it is trivial to see that
+the code lives in a subarchitecture.
 
--- 
+Even if that code turns right around and calls a common function on
+all but one of the subarchitectures, at least the logic is visible when
+you read the code.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+If all you are doing is this one little clean up we can probably stop here.
+But this looks like a start on getting a vmi or xen subarch working.
+
+If this is really a prelude to introducing more subarchitectures we
+need to fix the infrastructure, so it is obvious what is going on.
+I would really like to see a machine vector, so we could compile in
+multiple subarchitectures at the same time.  That makes building
+a generic kernel easier, and the requirement that the we need
+to build a generic kernel makes the structure of the subarchiteture
+hooks hierarchical and you wind up with code whose dependencies
+are visible.  Instead of the current linker and preprocessor magic.
+Functions named hook are impossible to comprehend what they
+are supposed to do while reading through the code.
+
+Eric
 

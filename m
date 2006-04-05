@@ -1,71 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWDENnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWDENrG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbWDENnY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 09:43:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWDENnY
+	id S1751151AbWDENrG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 09:47:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWDENrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 09:43:24 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:36762 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751148AbWDENnX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 09:43:23 -0400
-Date: Wed, 5 Apr 2006 15:40:57 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Roman Zippel <zippel@linux-m68k.org>, johnstul@us.ibm.com,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 0/5] clocksource patches
-Message-ID: <20060405134057.GA30299@elte.hu>
-References: <Pine.LNX.4.64.0604031431220.25825@scrub.home> <1144126422.5344.418.camel@localhost.localdomain> <Pine.LNX.4.64.0604041218250.32445@scrub.home> <1144236167.5344.581.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 5 Apr 2006 09:47:05 -0400
+Received: from xproxy.gmail.com ([66.249.82.200]:21118 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751151AbWDENrE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 09:47:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OrdmvnsyMPgEZBzu48cDRuNRySKGyb5WYp6JeMFNu2nHw92iraEdMBFU8Ns+hutZoXpM2x6oRJXGN9Q2oP1l+uYwUS/iGic13dMqm4ccsd4PAtiUye76s50Zelazy4tYEZUgDley9Ni6PQZvS8ZUHkcsk9JxkYmgmQKDrHC7GXw=
+Message-ID: <4745278c0604050646n668bc9fy2b8c18462439ae5d@mail.gmail.com>
+Date: Wed, 5 Apr 2006 09:46:58 -0400
+From: "Vishal Patil" <vishpat@gmail.com>
+To: "Antonio Vargas" <windenntw@gmail.com>
+Subject: Re: CSCAN I/O scheduler for 2.6.10 kernel
+Cc: "Bill Davidsen" <davidsen@tmr.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <69304d110604050448x60fd5bb1ub74f66b720dc7d8a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1144236167.5344.581.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <4745278c0603301955w26fea42eid6bcab91c573eaa3@mail.gmail.com>
+	 <4745278c0603301958o4c2ed282x3513fdb459d8ec7c@mail.gmail.com>
+	 <4432D6D4.2020102@tmr.com>
+	 <4745278c0604041402n5c6329ebw71d7fdc5c3a9dd68@mail.gmail.com>
+	 <69304d110604050448x60fd5bb1ub74f66b720dc7d8a@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The two queues are used for sorting purposes ONLY. There is the
+dispatch queue to which the requests are moved from one of the queues
+and the request is processes of the dispatch queue.
 
-* Thomas Gleixner <tglx@linutronix.de> wrote:
+Example:
 
-> > For example above you bascially only state that your clock event source 
-> > is superior and the correct way of doing this without any explanation why 
-> > (and the "No, thanks." doesn't exactly imply that you're even interested 
-> > in alternatives). 
-> 
-> The question arises, who is not interested in alternatives. You are 
-> well aware about the efforts others made, but you don't even think 
-> about working together with them. Do you really expect people to jump 
-> on your train, when you entirely ignore their work and efforts and 
-> just propose your own view of the world?
-> 
-> I did nowhere say that I'm not interested in alternative solutions.  
-> You interpret it into my words for whatever reason.
+Current request  = 40
+Q1 = 55 58 67 72
+Q2 = 10 23 38
 
-just to explain it to everyone: the code Thomas refers to and which we 
-are working on is John's GTOD patchset with Thomas' high-resolution 
-timers patches ontop of it. [all of that (and more) is glued together in 
-the -rt tree as well].
+Assuming no other request arrives, these will be pushed on the
+dispatch queue in the following order
+55 58 67 72 10 23 38
 
-Thomas' hrtimers queue (ontop of 2.6.16) is a practical, working 
-implementation of the clock-event design Thomas is talking about, 
-resulting in a working high-resolution timers solution that spans all 
-the relevant Linux APIs: nanosleep() and POSIX timers. So Thomas' 
-arguments derive straight from that experience.
+I hope this clears things up.
 
-for more details, the latest hrtimers code can be found at:
+Also I have found that the patch that I had submitted earlier has few
+bugs in it. I am going to fix those and then submit a patch for 2.6.16
+Thanks.
 
-  http://tglx.de/projects/hrtimers
 
-the merge of the hrtimers subsystem into 2.6.16 was just the first step, 
-and the next steps are expressed in the patches above.
+- Vishal
 
-	Ingo
+
+
+On 4/5/06, Antonio Vargas <windenntw@gmail.com> wrote:
+> On 4/4/06, Vishal Patil <vishpat@gmail.com> wrote:
+> > In that case it would be a normal elevator algorithm and that has a
+> > possiblity of starving the requests at one end of the disk.
+> >
+> > - Vishal
+> >
+> > On 4/4/06, Bill Davidsen <davidsen@tmr.com> wrote:
+> > > Vishal Patil wrote:
+> > > > Maintain two queues which will be sorted in ascending order using Red
+> > > > Black Trees. When a disk request arrives and if the block number it
+> > > > refers to is greater than the block number of the current request
+> > > > being served add (merge) it to the first sorted queue or else add
+> > > > (merge) it to the second sorted queue. Keep on servicing the requests
+> > > > from the first request queue until it is empty after which switch over
+> > > > to the second queue and now reverse the roles of the two queues.
+> > > > Simple and Sweet. Many thanks for the awesome block I/O layer in the
+> > > > 2.6 kernel.
+> > > >
+> > > Why both queues sorting in ascending order? I would think that one
+> > > should be in descending order, which would reduce the seek distance
+> > > between the last i/o on one queue and the first on the next.
+> > >
+>
+> But, if there are two queues, one which is being processed and other
+> which gets the new requests (and the corresponding queue switch when
+> the current is empty), then there is no way to get starved when they
+> are sorted in opposite order.
+>
+>
+> --
+> Greetz, Antonio Vargas aka winden of network
+>
+> http://wind.codepixel.com/
+> windNOenSPAMntw@gmail.com
+> thesameasabove@amigascne.org
+>
+> Every day, every year
+> you have to work
+> you have to study
+> you have to scene.
+>
+
+
+--
+Every passing minute is another chance to turn it all around.

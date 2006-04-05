@@ -1,1012 +1,2276 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWDENVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWDEN0l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751112AbWDENVY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 09:21:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWDENVY
+	id S1751118AbWDEN0l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 09:26:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWDEN0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 09:21:24 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:54965 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751112AbWDENVX (ORCPT
+	Wed, 5 Apr 2006 09:26:41 -0400
+Received: from mail.bredband.no ([217.14.1.50]:12695 "EHLO mail.bredband.no")
+	by vger.kernel.org with ESMTP id S1751118AbWDEN0k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 09:21:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-        b=FHxQwH77wCXQDkgEB6YwgVQlJNt9uQgLWZ+ncgqNvhDJdPKEcXdYYxrD9Bf5Sl0L/xZCwEgDe1M0j/vjZttjK/KBKlgvh0JN7woehyyge5IC1yMRVQi70CbeETrmO1KLikp6jVe8VvxSoutiXOVt7xzGoaFYPVmdeGN/pFMVKvE=
-Message-ID: <4433C456.7010708@gmail.com>
-Date: Wed, 05 Apr 2006 21:21:26 +0800
-From: Yi Yang <yang.y.yi@gmail.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Wed, 5 Apr 2006 09:26:40 -0400
+From: Per =?iso-8859-1?q?=D8yvind_Karlsen?= <peroyvind@sintrax.net>
+To: linux-kernel@vger.kernel.org
+Subject: unresolved symbols for drm module on sparc64
+Date: Wed, 5 Apr 2006 15:30:00 +0200
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Matt Helsley <matthltc@us.ibm.com>
-Subject: [2.6.16 PATCH] Filessytem Events Reporter V2
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_YZ8MEVSxaDPlkSg"
+Message-Id: <200604051530.00883.peroyvind@sintrax.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compared with Filesystem Events Reporter v1, the following changes are done:
-  - Use workqueue/keventd instead of kfseventd. 
-  - fsevent_mask can be set by sysctl and proc
-    interface.
-  - Add missed spinlock
-  - Ensure fsevent sequence number is uniqe
+--Boundary-00=_YZ8MEVSxaDPlkSg
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This patch implements a filsystem events report facitily, Filesystem Events
-Reporter, the user can monitor filesystem activities via it, currently, it
- can monitor access, attribute change, open, create, modify, delete,
- move and close of any file or directory as well as mount/umount.
+When building 2.6.17-rc1 on sparc64 I run into this problem:
+if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F System.ma=
+p=20
+=2Db /root/RPM/BUILD/kernel-linus-2.6/temp-root -r 2.6.17-rc1.16mdksmp; fi
+WARNING: /root/RPM/BUILD/kernel-linus-2.6/temp-root/lib/modules/2.6.17-rc1.=
+16mdksmp/kernel/drivers/char/drm/drm.ko=20
+needs unknown symbol dma_alloc_coherent
+WARNING: /root/RPM/BUILD/kernel-linus-2.6/temp-root/lib/modules/2.6.17-rc1.=
+16mdksmp/kernel/drivers/char/drm/drm.ko=20
+needs unknown symbol dma_free_coherent
+make: *** [_modinst_post] Error 1
 
-Every filesystem event will include tgid, uid and gid of the process
- which triggered this event, process name, file or directory name 
-operated by it.
+I'm not subscribed to the list, just thought that I should report since it=
+=20
+recently broke, so CC me if any more info is needed.
+I'm also attaching my .config in case it might be of help:)
+=2D-=20
+Med vennlig hilsen
+Per =D8yvind Karlsen
 
-Filesystem Events Reporter is never a duplicate of inotify, inotify
- just concerns change on file or directory, Beagle uses it to watch
- file changes in order to regenerate index for it, inotify can't tell
- us who did that change and what is its process name, but filesystem
- events reporter can do these, moreover inotify's overhead is greater
- than filesystem events reporter, inotify needs compare inode with 
-watched file or directories list to decide whether it should generate an
- inotify_event, some locks also increase overhead, filesystem event 
-connector hasn't these overhead, it just generates a fsevent and send.
+--Boundary-00=_YZ8MEVSxaDPlkSg
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="kernel-2.6.16-sparc64-smp.config"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="kernel-2.6.16-sparc64-smp.config"
 
-To be important, filesystem event reporter doesn't add any new system 
-call, the user space application can make use of it by netlink socket, 
-but inotify added several system calls, many events mechanism in kernel
- have used netlink as communication way with user space, for example, 
-KOBJECT_UEVENT, PROC_EVENTS, to use netlink will make it more possible
- to unify events interface to netlink, the user space application can use 
-it very easy.
+#
+# Automatically generated make config: don't edit
+# Linux kernel version: 2.6.17-rc1.16mdksmp
+# Tue Apr  4 15:51:31 2006
+#
+CONFIG_SPARC=y
+CONFIG_SPARC64=y
+CONFIG_64BIT=y
+CONFIG_MMU=y
+CONFIG_TIME_INTERPOLATION=y
+CONFIG_ARCH_MAY_HAVE_PC_FDC=y
+CONFIG_SPARC64_PAGE_SIZE_8KB=y
+# CONFIG_SPARC64_PAGE_SIZE_64KB is not set
+# CONFIG_SPARC64_PAGE_SIZE_512KB is not set
+# CONFIG_SPARC64_PAGE_SIZE_4MB is not set
+CONFIG_SECCOMP=y
+CONFIG_HZ_100=y
+# CONFIG_HZ_250 is not set
+# CONFIG_HZ_1000 is not set
+CONFIG_HZ=100
 
-Every application using fsevent can set its own fsevent filter list 
-without effect in other applications using fsevent, there are three
-filter lists, they are pid filter list, uid filetr list and gid 
-filter list, respectively, moreover, there is a fsevent mask used to
-control those fsevents which fail to match  three filter lists, an 
-application using fsevent can listen those fsevents it want to 
-monitor and ignore those fsevents it doesn't interest in by set 
-series of filters, there is a fsevent mask used to take effects on
-all the applications using fsevent, it can be set by sysctl and proc
-interface.
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+CONFIG_LOCK_KERNEL=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
 
- fs/Kconfig               |   10 
- fs/Makefile              |    1 
- fs/fsevent.c             |  598 +++++++++++++++++++++++++++++++++++++++++++++++
- fs/namespace.c           |   12 
- include/linux/fsevent.h  |  131 ++++++++++
- include/linux/fsnotify.h |   37 ++
- include/linux/netlink.h  |    1 
- 7 files changed, 790 insertions(+)
+#
+# General setup
+#
+CONFIG_LOCALVERSION=""
+CONFIG_LOCALVERSION_AUTO=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+# CONFIG_BSD_PROCESS_ACCT is not set
+CONFIG_SYSCTL=y
+# CONFIG_AUDIT is not set
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_CPUSETS=y
+CONFIG_RELAY=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_UID16=y
+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+# CONFIG_EMBEDDED is not set
+CONFIG_KALLSYMS=y
+# CONFIG_KALLSYMS_ALL is not set
+# CONFIG_KALLSYMS_EXTRA_PASS is not set
+CONFIG_HOTPLUG=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_ELF_CORE=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_SLAB=y
+# CONFIG_TINY_SHMEM is not set
+CONFIG_BASE_SMALL=0
+# CONFIG_SLOB is not set
 
-Signed-off-by: Yi Yang <yang.y.yi@gmail.com>
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_MODVERSIONS=y
+CONFIG_MODULE_SRCVERSION_ALL=y
+CONFIG_KMOD=y
+CONFIG_STOP_MACHINE=y
 
---- a/include/linux/netlink.h.orig	2006-03-31 22:58:50.000000000 +0800
-+++ b/include/linux/netlink.h	2006-04-05 20:34:23.000000000 +0800
-@@ -21,6 +21,7 @@
- #define NETLINK_DNRTMSG		14	/* DECnet routing messages */
- #define NETLINK_KOBJECT_UEVENT	15	/* Kernel messages to userspace */
- #define NETLINK_GENERIC		16
-+#define NETLINK_FSEVENT		17	/* File system events to userspace */
- 
- #define MAX_LINKS 32		
- 
---- a/include/linux/fsnotify.h.orig	2006-01-03 11:21:10.000000000 +0800
-+++ b/include/linux/fsnotify.h	2006-04-03 22:12:52.000000000 +0800
-@@ -15,6 +15,7 @@
- 
- #include <linux/dnotify.h>
- #include <linux/inotify.h>
-+#include <linux/fsevent.h>
- 
- /*
-  * fsnotify_move - file old_name at old_dir was moved to new_name at new_dir
-@@ -45,6 +46,8 @@ static inline void fsnotify_move(struct 
- 	if (source) {
- 		inotify_inode_queue_event(source, IN_MOVE_SELF, 0, NULL);
- 	}
-+	raise_fsevent_move(old_dir, old_name, new_dir, new_name,
-+			   FSEVENT_MOVE | (isdir?FSEVENT_ISDIR:0));
- }
- 
- /*
-@@ -56,6 +59,8 @@ static inline void fsnotify_nameremove(s
- 		isdir = IN_ISDIR;
- 	dnotify_parent(dentry, DN_DELETE);
- 	inotify_dentry_parent_queue_event(dentry, IN_DELETE|isdir, 0, dentry->d_name.name);
-+	raise_fsevent(dentry,
-+		      FSEVENT_DELETE | (isdir?FSEVENT_ISDIR:0));
- }
- 
- /*
-@@ -74,6 +79,7 @@ static inline void fsnotify_create(struc
- {
- 	inode_dir_notify(inode, DN_CREATE);
- 	inotify_inode_queue_event(inode, IN_CREATE, 0, name);
-+	raise_fsevent_create(inode, name, FSEVENT_CREATE);
- }
- 
- /*
-@@ -83,6 +89,8 @@ static inline void fsnotify_mkdir(struct
- {
- 	inode_dir_notify(inode, DN_CREATE);
- 	inotify_inode_queue_event(inode, IN_CREATE | IN_ISDIR, 0, name);
-+	raise_fsevent_create(inode, name,
-+			     FSEVENT_CREATE | FSEVENT_ISDIR);
- }
- 
- /*
-@@ -99,6 +107,8 @@ static inline void fsnotify_access(struc
- 	dnotify_parent(dentry, DN_ACCESS);
- 	inotify_dentry_parent_queue_event(dentry, mask, 0, dentry->d_name.name);
- 	inotify_inode_queue_event(inode, mask, 0, NULL);
-+	raise_fsevent(dentry, FSEVENT_ACCESS |
-+				((S_ISDIR(inode->i_mode))?FSEVENT_ISDIR:0));
- }
- 
- /*
-@@ -115,6 +125,8 @@ static inline void fsnotify_modify(struc
- 	dnotify_parent(dentry, DN_MODIFY);
- 	inotify_dentry_parent_queue_event(dentry, mask, 0, dentry->d_name.name);
- 	inotify_inode_queue_event(inode, mask, 0, NULL);
-+	raise_fsevent(dentry, FSEVENT_MODIFY |
-+				((S_ISDIR(inode->i_mode))?FSEVENT_ISDIR:0));
- }
- 
- /*
-@@ -130,6 +142,9 @@ static inline void fsnotify_open(struct 
- 
- 	inotify_dentry_parent_queue_event(dentry, mask, 0, dentry->d_name.name);
- 	inotify_inode_queue_event(inode, mask, 0, NULL);	
-+	raise_fsevent(dentry, FSEVENT_OPEN |
-+				((S_ISDIR(inode->i_mode))?FSEVENT_ISDIR:0));
-+
- }
- 
- /*
-@@ -148,6 +163,8 @@ static inline void fsnotify_close(struct
- 
- 	inotify_dentry_parent_queue_event(dentry, mask, 0, name);
- 	inotify_inode_queue_event(inode, mask, 0, NULL);
-+	raise_fsevent(dentry, FSEVENT_CLOSE |
-+				((S_ISDIR(inode->i_mode))?FSEVENT_ISDIR:0));
- }
- 
- /*
-@@ -163,6 +180,8 @@ static inline void fsnotify_xattr(struct
- 
- 	inotify_dentry_parent_queue_event(dentry, mask, 0, dentry->d_name.name);
- 	inotify_inode_queue_event(inode, mask, 0, NULL);
-+	raise_fsevent(dentry, FSEVENT_MODIFY_ATTRIB |
-+				((S_ISDIR(inode->i_mode))?FSEVENT_ISDIR:0));
- }
- 
- /*
-@@ -213,6 +232,24 @@ static inline void fsnotify_change(struc
- 		inotify_dentry_parent_queue_event(dentry, in_mask, 0,
- 						  dentry->d_name.name);
- 	}
-+
-+#ifdef CONFIG_FS_EVENTS
-+	{
-+	u32 fsevent_mask = 0;
-+	if (ia_valid & (ATTR_UID | ATTR_GID | ATTR_MODE))
-+		fsevent_mask |= FSEVENT_MODIFY_ATTRIB;
-+	if ((ia_valid & ATTR_ATIME) && (ia_valid & ATTR_MTIME))
-+		fsevent_mask |= FSEVENT_MODIFY_ATTRIB;
-+	else if (ia_valid & ATTR_ATIME)
-+		fsevent_mask |= FSEVENT_ACCESS;
-+	else if (ia_valid & ATTR_MTIME)
-+		fsevent_mask |= FSEVENT_MODIFY;
-+	if (ia_valid & ATTR_SIZE)
-+		fsevent_mask |= FSEVENT_MODIFY;
-+	if (fsevent_mask)
-+		raise_fsevent(dentry, fsevent_mask);
-+	}
-+#endif /* CONFIG_FS_EVENTS */
- }
- 
- #ifdef CONFIG_INOTIFY	/* inotify helpers */
---- a/fs/namespace.c.orig	2006-03-25 23:13:42.000000000 +0800
-+++ b/fs/namespace.c	2006-04-03 22:12:52.000000000 +0800
-@@ -25,6 +25,7 @@
- #include <linux/mount.h>
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-+#include <linux/fsevent.h>
- #include "pnode.h"
- 
- extern int __init init_rootfs(void);
-@@ -612,6 +613,13 @@ asmlinkage long sys_umount(char __user *
- 		goto dput_and_out;
- 
- 	retval = do_umount(nd.mnt, flags);
-+
-+	if (retval == 0) {
-+		char * tmp = getname(name);
-+		raise_fsevent_umount(tmp);
-+		putname(tmp);
-+	}
-+
- dput_and_out:
- 	path_release_on_umount(&nd);
- out:
-@@ -1459,6 +1467,10 @@ asmlinkage long sys_mount(char __user * 
- 	retval = do_mount((char *)dev_page, dir_page, (char *)type_page,
- 			  flags, (void *)data_page);
- 	unlock_kernel();
-+
-+	if (retval == 0)
-+		raise_fsevent_mount((char *)dev_page, dir_page);
-+
- 	free_page(data_page);
- 
- out3:
---- a/fs/Kconfig.orig	2006-03-31 21:23:20.000000000 +0800
-+++ b/fs/Kconfig	2006-04-03 22:12:52.000000000 +0800
-@@ -405,6 +405,16 @@ config INOTIFY
- 
- 	  If unsure, say Y.
- 
-+config FS_EVENTS
-+	tristate "Report filesystem events to userspace"
-+	---help---
-+	  Provide a facility that reports filesystem events to userspace. The
-+	  reported event include access, write, utime, chmod, chown, chgrp,
-+	  close, open, create, rename, unlink, mkdir, rmdir, mount, umount.
-+
-+	  The user can set filesystem events filter to filter its events, so
-+	  that he just get those events he concerns.
-+
- config QUOTA
- 	bool "Quota support"
- 	help
---- a/fs/Makefile.orig	2006-03-31 21:23:33.000000000 +0800
-+++ b/fs/Makefile	2006-04-03 22:12:52.000000000 +0800
-@@ -13,6 +13,7 @@ obj-y :=	open.o read_write.o file_table.
- 		ioprio.o pnode.o drop_caches.o
- 
- obj-$(CONFIG_INOTIFY)		+= inotify.o
-+obj-$(CONFIG_FS_EVENTS)		+= fsevent.o
- obj-$(CONFIG_EPOLL)		+= eventpoll.o
- obj-$(CONFIG_COMPAT)		+= compat.o compat_ioctl.o
- 
---- /dev/null	2003-01-30 18:24:37.000000000 +0800
-+++ b/include/linux/fsevent.h	2006-04-04 23:18:01.000000000 +0800
-@@ -0,0 +1,131 @@
-+/*
-+ * fsevent.h - filesystem events connector
-+ *
-+ * Copyright (C) 2006 Yi Yang <yang.y.yi@gmail.com>
-+ * Based on cn_proc.h by Matt Helsley, IBM Corp
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ */
-+
-+#ifndef LINUX_FSEVENT_H
-+#define LINUX_FSEVENT_H
-+
-+#include <linux/types.h>
-+#include <linux/time.h>
-+#include <linux/netlink.h>
-+
-+enum  fsevent_type {
-+	FSEVENT_ACCESS = 	0x00000001,	/* File was accessed */
-+	FSEVENT_MODIFY = 	0x00000002,	/* File was modified */
-+	FSEVENT_MODIFY_ATTRIB = 0x00000004,	/* Metadata changed */
-+	FSEVENT_CLOSE = 	0x00000008,	/* File was closed */
-+	FSEVENT_OPEN = 		0x00000010,	/* File was opened */
-+	FSEVENT_MOVE = 		0x00000020,	/* File was moved */
-+	FSEVENT_CREATE = 	0x00000040,	/* File was created */
-+	FSEVENT_DELETE =	0x00000080,	/* File was deleted */
-+	FSEVENT_MOUNT =		0x00000100,	/* File system is mounted */
-+	FSEVENT_UMOUNT =	0x00000200,	/* File system is umounted */
-+
-+	/* The following definitions are command types for fsevent filter
-+	 * or acknowlege types of the corresponding commands
-+	 */
-+	FSEVENT_FILTER_ALL = 	0x08000000,	/* For all events */
-+	FSEVENT_FILTER_PID = 	0x10000000,	/* For some process ID */
-+	FSEVENT_FILTER_UID = 	0x20000000,	/* For some user ID */
-+	FSEVENT_FILTER_GID =	0x40000000,	/* For some group ID */
-+
-+	FSEVENT_ISDIR = 	0x80000000	/* It is set for a dir */
-+};
-+
-+#define FSEVENT_MASK 0x800003ff
-+
-+typedef unsigned long fsevent_mask_t;
-+
-+enum filter_control {
-+	FSEVENT_FILTER_LISTEN = 1,		/* Listen fsevents mask defines*/
-+	FSEVENT_FILTER_IGNORE ,		/* Ignore fsevents mask defines*/
-+	FSEVENT_FILTER_REMOVE,			/* Remove a given filter */
-+};	
-+
-+struct fsevent_filter {
-+	/* filter type, it just is one of them
-+	 * FSEVENT_FILTER_ALL
-+	 * FSEVENT_FILTER_PID
-+	 * FSEVENT_FILTER_UID
-+	 * FSEVENT_FILTER_GID
-+	 */
-+	enum fsevent_type type;	/* filter type */
-+
-+	/* mask of file system events the user listen or ignore
-+	 * if the user need to ignore all the events of some pid
-+	 * , gid or uid, he(she) must set mask to FSEVENT_MASK.
-+	 */ 
-+	fsevent_mask_t mask;
-+	union {
-+		pid_t pid;
-+		uid_t uid;
-+		gid_t gid;
-+	} id;
-+
-+	enum filter_control control;
-+};
-+
-+struct fsevent {
-+	__u32 type;
-+	__u32 cpu;
-+	struct timespec timestamp;
-+	pid_t pid;
-+	uid_t uid;
-+	gid_t gid;
-+	int err;
-+	__u32 len;
-+	__u32 pname_len;
-+	__u32 fname_len;
-+	__u32 new_fname_len;
-+	char name[0];
-+};
-+
-+#define FSEVENT_FILTER_MSGSIZE \
-+	(sizeof(struct fsevent_filter) + sizeof(struct nlmsghdr))
-+
-+#ifdef __KERNEL__
-+#ifdef CONFIG_FS_EVENTS
-+extern void raise_fsevent(struct dentry * dentryp, u32 mask);
-+extern void raise_fsevent_move(struct inode * olddir, const char * oldname, 
-+		struct inode * newdir, const char * newname, u32 mask);
-+extern void raise_fsevent_create(struct inode * inode, 
-+		const char * name, u32 mask);
-+extern void raise_fsevent_mount(const char * devname, const char * mountpoint);
-+extern void raise_fsevent_umount(const char * mountpoint);
-+#else
-+static void raise_fsevent(struct dentry * dentryp,  u32 mask)
-+{}
-+
-+static void raise_fsevent_move(struct inode * olddir, const char * oldname, 
-+		struct inode * newdir, const char * newname, u32 mask)
-+{}
-+
-+static void raise_fsevent_create(struct inode * inode, 
-+		const char * name, u32 mask)
-+{}
-+
-+static void raise_fsevent_mount(const char * devname, const char * mountpoint)
-+{}
-+
-+static void raise_fsevent_umount(const char * mountpoint)
-+{}
-+#endif	/* CONFIG_FS_EVENTS */
-+#endif	/* __KERNEL__ */
-+#endif	/* LINUX_FSEVENT_H */
---- /dev/null	2003-01-30 18:24:37.000000000 +0800
-+++ b/fs/fsevent.c	2006-04-05 20:52:53.000000000 +0800
-@@ -0,0 +1,598 @@
-+/*
-+ * 	fsevent.c
-+ * 
-+ * 2006 Copyright (c) Yi Yang <yang.y.yi@gmail.com>
-+ * All rights reserved.
-+ * 
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/skbuff.h>
-+#include <linux/netlink.h>
-+#include <linux/moduleparam.h>
-+#include <linux/fsevent.h>
-+#include <linux/skbuff.h>
-+#include <net/sock.h>
-+#include <linux/list.h>
-+#include <linux/percpu.h>
-+#include <linux/cpu.h>
-+#include <linux/kthread.h>
-+#include <linux/notifier.h>
-+#include <linux/compiler.h>
-+#include <linux/workqueue.h>
-+#include <linux/sysctl.h>
-+
-+#define FSEVENT_MASK_CTL_NAME -2
-+
-+static DEFINE_PER_CPU(struct sk_buff_head, fsevent_send_queue);
-+static DEFINE_PER_CPU(struct work_struct, fsevent_work);
-+
-+typedef struct pid_filter {
-+	pid_t pid;
-+	u32 mask;
-+	struct list_head list;
-+} pid_filter;
-+
-+typedef struct uid_filter {
-+	uid_t uid;
-+	u32 mask;
-+	struct list_head list;
-+} uid_filter;
-+
-+typedef struct gid_filter {
-+	gid_t gid;
-+	u32 mask;
-+	struct list_head list;
-+} gid_filter;
-+
-+typedef struct fsevent_listener {
-+	pid_t pid;
-+	struct list_head pid_filter_list_head;
-+	struct list_head uid_filter_list_head;
-+	struct list_head gid_filter_list_head;
-+	u32 mask;
-+	struct list_head list;
-+} listener;
-+
-+	
-+/* The netlink socket. */
-+static struct sock * fsevent_sock = NULL;
-+static LIST_HEAD(listener_list_head);
-+static DEFINE_SPINLOCK(listener_list_lock);
-+
-+static atomic_t fsevent_count = ATOMIC_INIT(0);
-+static int fsevent_burst_limit = 100;
-+static int fsevent_ratelimit = 5 * HZ;
-+static unsigned long last = 0;
-+static int fsevent_sum = 0;
-+static u32 fsevents_mask = FSEVENT_MASK;
-+static atomic_t fsevent_listener_num = ATOMIC_INIT(0);
-+
-+static inline void get_seq(__u32 *ts, int *cpu)
-+{
-+	*ts = atomic_inc_return(&fsevent_count);
-+	*cpu = smp_processor_id();
-+}
-+
-+static void append_string(char **dest, const char *src, size_t len)
-+{
-+	strncpy(*dest, src, len);
-+	(*dest)[len] = '\0';
-+	*dest += len + 1;
-+}
-+
-+static inline int filter_fsevent(u32 filter_mask, u32 event_mask)
-+{
-+	event_mask &= FSEVENT_MASK;
-+	event_mask &= filter_mask;
-+	if (event_mask == 0) {
-+		return -1;
-+	}
-+	return 0;
-+}
-+
-+static int filter_fsevent_all(u32 * mask)
-+{
-+	int ret = 0;
-+
-+	(*mask) &= FSEVENT_MASK;
-+
-+	if ((((*mask) & FSEVENT_ISDIR) == FSEVENT_ISDIR)
-+		 && ((fsevents_mask & FSEVENT_ISDIR) == 0)) {
-+		ret = -1;
-+		goto out;
-+	}
-+
-+	(*mask) &= fsevents_mask;
-+	if ((*mask) == 0) {
-+		ret = -5;
-+	}
-+
-+out:
-+	return ret;
-+}
-+
-+static void fsevent_send(struct sk_buff * skb)
-+{
-+	struct sk_buff_head * head = &get_cpu_var(fsevent_send_queue);
-+	skb_queue_tail(head, skb);
-+	schedule_work(&per_cpu(fsevent_work, smp_processor_id()));
-+	put_cpu_var(fsevent_send_queue);
-+}
-+
-+int __raise_fsevent(const char * oldname, const char * newname, u32 mask)
-+{
-+	struct fsevent *event;
-+	int namelen = 0;
-+	char * nameptr = NULL;
-+	unsigned int size;
-+	struct nlmsghdr * nlhdr;
-+	struct sk_buff * skb = NULL;
-+
-+	if (filter_fsevent_all(&mask) != 0)
-+		return -1;
-+
-+	if (atomic_read(&fsevent_listener_num) <= 0)
-+		return -1;
-+
-+	if (jiffies - last <= fsevent_ratelimit) {
-+		if (fsevent_sum > fsevent_burst_limit)
-+			return -2;
-+		fsevent_sum++;
-+	} else {
-+		last = jiffies;
-+		fsevent_sum = 0;
-+	}
-+
-+	namelen = strlen(current->comm) + strlen(oldname) + 2;
-+	if (newname)
-+		namelen += strlen(newname) + 1;
-+
-+	size = NLMSG_SPACE(sizeof(struct fsevent) + namelen);
-+	                                                                                                                                       
-+	skb = alloc_skb(size, GFP_KERNEL);
-+	if (!skb)
-+	        return -ENOMEM;
-+	                                                                                                                                       
-+	nlhdr = NLMSG_PUT(skb, 0, 0, NLMSG_DONE, size - sizeof(*nlhdr));
-+	event = NLMSG_DATA(nlhdr);
-+
-+	get_seq(&(nlhdr->nlmsg_seq), &event->cpu);
-+	ktime_get_ts(&event->timestamp);
-+	event->type = mask;
-+	event->pid = current->tgid;
-+	event->uid = current->uid;
-+	event->gid = current->gid;
-+	nameptr = event->name;
-+	event->pname_len = strlen(current->comm);
-+	append_string(&nameptr, current->comm, event->pname_len);
-+	event->fname_len = strlen(oldname);
-+	append_string(&nameptr, oldname, event->fname_len);
-+	event->len = event->pname_len +  event->fname_len + 2;
-+	event->new_fname_len = 0;
-+	if (newname) {
-+		event->new_fname_len = strlen(newname);
-+		append_string(&nameptr, newname, event->new_fname_len);
-+		event->len += event->new_fname_len + 1;
-+	}
-+	fsevent_send(skb);
-+	return 0;
-+
-+nlmsg_failure:
-+	kfree_skb(skb);
-+	return -1;
-+}
-+
-+void raise_fsevent(struct dentry * dentryp, u32 mask)
-+{
-+	if (dentryp->d_inode && (MAJOR(dentryp->d_inode->i_rdev) == 4))
-+		return;
-+	__raise_fsevent(dentryp->d_name.name, NULL, mask);
-+}
-+EXPORT_SYMBOL_GPL(raise_fsevent);
-+
-+void raise_fsevent_create(struct inode * inode, const char * name, u32 mask)
-+{
-+	__raise_fsevent(name, NULL, mask);
-+}
-+EXPORT_SYMBOL_GPL(raise_fsevent_create);
-+
-+void raise_fsevent_move(struct inode * olddir, const char * oldname, 
-+		struct inode * newdir, const char * newname, u32 mask)
-+{
-+	__raise_fsevent(oldname, newname, mask);
-+}
-+EXPORT_SYMBOL_GPL(raise_fsevent_move);
-+
-+void raise_fsevent_mount(const char * devname, const char * mountpoint)
-+{
-+	__raise_fsevent(devname, mountpoint, FSEVENT_MOUNT);
-+}
-+
-+void raise_fsevent_umount(const char * mountpoint)
-+{
-+	__raise_fsevent(mountpoint, NULL, FSEVENT_UMOUNT);
-+}
-+
-+static int fsevent_ack(enum fsevent_type type, pid_t pid, u32 seq)
-+{
-+	struct fsevent *event;
-+	unsigned int size;
-+	struct sk_buff * skb = NULL;
-+	struct nlmsghdr * nlhdr = NULL;
-+
-+	size = NLMSG_SPACE(sizeof(struct fsevent));
-+	                                                                                                                                       
-+	skb = alloc_skb(size, GFP_KERNEL);
-+	if (!skb)
-+	        return -ENOMEM;
-+	                                                                                                                                       
-+	nlhdr = NLMSG_PUT(skb, 0, seq, NLMSG_DONE, size - sizeof(*nlhdr));
-+	event = NLMSG_DATA(nlhdr);
-+
-+	ktime_get_ts(&event->timestamp);
-+	event->cpu = -1;
-+	event->type = type; 
-+	event->pid = 0;
-+	event->uid = 0;
-+	event->gid = 0;
-+	event->len = 0;
-+	event->pname_len = 0;
-+	event->fname_len = 0;
-+	event->new_fname_len = 0;
-+	event->err = 0;
-+	                                                                                                                                       
-+	NETLINK_CB(skb).dst_group = 0;
-+	NETLINK_CB(skb).dst_pid = pid;
-+	NETLINK_CB(skb).pid = 0;
-+
-+	return (netlink_unicast(fsevent_sock, skb, pid, MSG_DONTWAIT));
-+
-+nlmsg_failure:
-+	kfree_skb(skb);
-+	return -1;
-+}
-+
-+static void set_fsevent_mask(u32 * to_mask, u32 from_mask, int mode)
-+{
-+	if (mode == FSEVENT_FILTER_IGNORE)
-+		(*to_mask) &= ~(from_mask);
-+	else if (mode == FSEVENT_FILTER_LISTEN)
-+		(*to_mask) |= from_mask;
-+}
-+
-+#define DEFINE_FILTER_FIND_FUNC(type, key) 				\
-+	type * find_##type(struct list_head * head, key##_t id)		\
-+	{								\
-+		int alloc_flag = 1;					\
-+		type * entry = NULL;					\
-+									\
-+		list_for_each_entry(entry, head, list) {		\
-+			if (entry->key == id) {				\
-+				alloc_flag = 0;				\
-+				break;					\
-+			}						\
-+		}							\
-+									\
-+		if (alloc_flag == 1) {					\
-+			entry  = (type *)kmalloc(sizeof(type), GFP_ATOMIC); \
-+			if (entry == NULL) 				\
-+				return NULL;				\
-+			memset(entry, 0, sizeof(type));			\
-+			entry->key = id;				\
-+			list_add_tail(&(entry->list), head);		\
-+		}							\
-+		return entry;						\
-+	}								\
-+
-+DEFINE_FILTER_FIND_FUNC(pid_filter, pid)
-+
-+DEFINE_FILTER_FIND_FUNC(uid_filter, uid)
-+
-+DEFINE_FILTER_FIND_FUNC(gid_filter, gid)
-+		
-+DEFINE_FILTER_FIND_FUNC(listener, pid)
-+
-+static void set_fsevent_filter(struct fsevent_filter * filter, pid_t pid)
-+{
-+	enum fsevent_type type;
-+	u32 mask = 0;
-+	int control = 0;
-+	listener * listenerp = NULL;
-+	pid_filter * pfilter = NULL;
-+	uid_filter * ufilter = NULL;
-+	gid_filter * gfilter = NULL;
-+
-+
-+	mask = filter->mask;
-+	control = filter->control;
-+	type = filter->type;
-+	mask &= FSEVENT_MASK;
-+	if (mask == 0)
-+		goto out;
-+
-+	spin_lock(&listener_list_lock);
-+	listenerp = find_listener(&listener_list_head, pid);
-+	if (unlikely(listenerp == NULL)) {
-+		spin_unlock(&listener_list_lock);
-+		return;
-+	}
-+
-+	if (!(listenerp->pid_filter_list_head.next)) {
-+		INIT_LIST_HEAD(&(listenerp->pid_filter_list_head));
-+		INIT_LIST_HEAD(&(listenerp->uid_filter_list_head));
-+		INIT_LIST_HEAD(&(listenerp->gid_filter_list_head));
-+	}
-+
-+	if ((type & FSEVENT_FILTER_ALL) == FSEVENT_FILTER_ALL) {
-+		if (control == FSEVENT_FILTER_REMOVE) {
-+			atomic_dec(&fsevent_listener_num);
-+			list_del(&(listenerp->list));
-+			kfree(listenerp);
-+		} else
-+			set_fsevent_mask(&(listenerp->mask), mask, control);
-+	} else if ((type & FSEVENT_FILTER_PID) == FSEVENT_FILTER_PID) {
-+		pfilter = find_pid_filter(&(listenerp->pid_filter_list_head),
-+				filter->id.pid);
-+		if (unlikely(pfilter == NULL))
-+			return;
-+
-+		if (control == FSEVENT_FILTER_REMOVE) {
-+			list_del(&(pfilter->list));
-+			kfree(pfilter);
-+		} else
-+			set_fsevent_mask(&(pfilter->mask), mask, control);
-+	} else if ((type & FSEVENT_FILTER_UID) == FSEVENT_FILTER_UID) {
-+		ufilter = find_uid_filter(&(listenerp->uid_filter_list_head),
-+						filter->id.uid);
-+		if (unlikely(ufilter == NULL))
-+			return;
-+
-+		if (control == FSEVENT_FILTER_REMOVE) {
-+			list_del(&(ufilter->list));
-+			kfree(ufilter);
-+		} else
-+			set_fsevent_mask(&(ufilter->mask), mask, control);
-+	} else if ((type & FSEVENT_FILTER_GID) == FSEVENT_FILTER_GID) {
-+		gfilter = find_gid_filter(&(listenerp->gid_filter_list_head),
-+						filter->id.gid);
-+		if (unlikely(gfilter == NULL))
-+			return;
-+
-+		if (control == FSEVENT_FILTER_REMOVE) {
-+			list_del(&(gfilter->list));
-+			kfree(gfilter);
-+		} else
-+			set_fsevent_mask(&(gfilter->mask), mask, control);
-+	}
-+	spin_unlock(&listener_list_lock);
-+
-+out:
-+	fsevent_ack(type, pid, 0);
-+}
-+
-+static listener * find_fsevent_listener(pid_t pid)
-+{
-+	listener * listenerp = NULL;
-+	spin_lock(&listener_list_lock);
-+	list_for_each_entry(listenerp, &listener_list_head, list) {
-+		if (listenerp->pid == pid) {
-+			spin_unlock(&listener_list_lock);
-+			return listenerp;
-+		}
-+	}
-+	spin_unlock(&listener_list_lock);
-+	return NULL;
-+}
-+
-+static void cleanup_dead_listener(listener * x)
-+{
-+	pid_filter * p = NULL, * pq = NULL;
-+	uid_filter * u = NULL, * uq = NULL;
-+	gid_filter * g = NULL, * gq = NULL;
-+
-+	if (p == NULL)
-+		return;
-+
-+	list_del(&(x->list));
-+
-+	list_for_each_entry_safe(p, pq, &(x->pid_filter_list_head), list) {
-+		list_del(&(p->list));
-+		kfree(p);
-+	}
-+
-+	list_for_each_entry_safe(u, uq, &(x->uid_filter_list_head), list) {
-+		list_del(&(u->list));
-+		kfree(u);
-+	}
-+
-+	list_for_each_entry_safe(g, gq, &(x->gid_filter_list_head), list) {
-+		list_del(&(g->list));
-+		kfree(g);
-+	}
-+	
-+	kfree(x);
-+}
-+
-+static void fsevent_recv(struct sock *sk, int len)
-+{
-+	struct sk_buff *skb = NULL;
-+	struct nlmsghdr *nlhdr = NULL;
-+	struct fsevent_filter * filter = NULL;
-+	pid_t pid;
-+
-+	while ((skb = skb_dequeue(&sk->sk_receive_queue)) != NULL) {
-+		skb_get(skb);
-+		if (skb->len >= FSEVENT_FILTER_MSGSIZE) {
-+			nlhdr = (struct nlmsghdr *)skb->data;
-+			filter = NLMSG_DATA(nlhdr);
-+			pid = NETLINK_CREDS(skb)->pid;
-+			if (find_fsevent_listener(pid) == NULL)
-+				atomic_inc(&fsevent_listener_num);
-+			set_fsevent_filter(filter, pid);
-+		}
-+		kfree_skb(skb);
-+	}
-+}
-+
-+#define DEFINE_FILTER_MATCH_FUNC(filtertype, key) 			\
-+	static int match_##filtertype(listener * p,			\
-+				struct fsevent * event,			\
-+				struct sk_buff * skb)			\
-+	{								\
-+		int ret = 0;						\
-+		filtertype * xfilter = NULL;				\
-+		struct sk_buff * skb2 = NULL;				\
-+		struct list_head *  head = &(p->key##_filter_list_head);  \
-+		list_for_each_entry(xfilter, head, list) {		\
-+			if (xfilter->key != event->key)			\
-+				continue;				\
-+			ret = filter_fsevent(xfilter->mask, event->type); \
-+			if ( ret != 0)					\
-+				return -1;				\
-+			skb2 = skb_clone(skb, GFP_KERNEL);		\
-+       			if (skb2 == NULL)				\
-+				return -ENOMEM;				\
-+			NETLINK_CB(skb2).dst_group = 0;			\
-+			NETLINK_CB(skb2).dst_pid = p->pid;		\
-+			NETLINK_CB(skb2).pid = 0;			\
-+			return (netlink_unicast(fsevent_sock, skb2,	\
-+					p->pid, MSG_DONTWAIT));		\
-+		}							\
-+		return -ENODEV;						\
-+	}								\
-+
-+DEFINE_FILTER_MATCH_FUNC(pid_filter, pid)
-+
-+DEFINE_FILTER_MATCH_FUNC(uid_filter, uid)
-+
-+DEFINE_FILTER_MATCH_FUNC(gid_filter, gid)
-+
-+#define MATCH_XID(key, listenerp, event, skb) 			\
-+	ret = match_##key##_filter(listenerp, event, skb); 	\
-+	if (ret == 0) {					 	\
-+		kfree_skb(skb);				 	\
-+	        continue;				 	\
-+	}						 	\
-+	do {} while (0)					 	\
-+
-+static int fsevent_send_to_process(struct sk_buff * skb)
-+{
-+	listener * p  = NULL, * q = NULL;
-+	struct fsevent * event = NULL;
-+	struct sk_buff * skb2 = NULL;
-+	int ret = 0;
-+
-+	event = (struct fsevent *)(skb->data + sizeof(struct nlmsghdr));
-+	spin_lock(&listener_list_lock);
-+	list_for_each_entry_safe(p, q, &listener_list_head, list) {
-+		MATCH_XID(pid, p, event, skb);
-+		MATCH_XID(uid, p, event, skb);
-+		MATCH_XID(gid, p, event, skb);
-+
-+		if (filter_fsevent(p->mask, event->type) == 0) {
-+			 skb2 = skb_clone(skb, GFP_KERNEL);
-+	                 if (skb2 == NULL)
-+	                 	return -ENOMEM;
-+	                 NETLINK_CB(skb2).dst_group = 0;
-+	                 NETLINK_CB(skb2).dst_pid = p->pid;
-+	                 NETLINK_CB(skb2).pid = 0;
-+	                 ret = netlink_unicast(fsevent_sock, skb2,
-+	                                p->pid, MSG_DONTWAIT);
-+			if (ret == -ECONNREFUSED) {
-+				atomic_dec(&fsevent_listener_num);
-+				cleanup_dead_listener(p);
-+			}
-+		}
-+	}
-+	spin_unlock(&listener_list_lock);
-+	return ret;
-+}
-+
-+static void fsevent_commit(void * unused)
-+{
-+	struct sk_buff * skb = NULL;
-+		
-+	while((skb = skb_dequeue(&get_cpu_var(fsevent_send_queue)))
-+		!= NULL) {
-+		fsevent_send_to_process(skb);
-+		put_cpu_var(fsevent_send_queue);
-+	}
-+}
-+
-+static struct ctl_table fsevent_mask_sysctl[] = {
-+	{
-+		.ctl_name = FSEVENT_MASK_CTL_NAME,
-+		.procname = "fsevent_mask",
-+		.data = &fsevents_mask,
-+		.maxlen = sizeof(u32),
-+		.mode = 0644,
-+		.proc_handler = &proc_dointvec,
-+	},
-+	{ .ctl_name = 0 }
-+};
-+
-+static struct ctl_table fs_root_sysctl[] = {
-+	{
-+		.ctl_name = CTL_FS,
-+		.procname = "fs",
-+		.mode = 0555,
-+		.child = fsevent_mask_sysctl,
-+	},
-+	{ .ctl_name = 0 }
-+};
-+
-+static int __init fsevent_init(void)
-+{
-+	int cpu;
-+	struct sk_buff_head * listptr;
-+	struct work_struct * workptr;
-+
-+	fsevent_sock = netlink_kernel_create(NETLINK_FSEVENT, 0,
-+					 fsevent_recv, THIS_MODULE);
-+	if (!fsevent_sock)
-+		return -EIO;
-+	for_each_cpu(cpu) {
-+		listptr = &per_cpu(fsevent_send_queue, cpu);
-+		skb_queue_head_init(listptr);
-+		workptr = &per_cpu(fsevent_work, cpu);
-+		INIT_WORK(workptr, fsevent_commit, NULL);
-+	}
-+
-+	if (register_sysctl_table(fs_root_sysctl, 0) == NULL)
-+                return -ENOMEM;
-+
-+	return 0;
-+}
-+
-+static void __exit fsevent_exit(void)
-+{
-+	listener * p = NULL, * q = NULL;
-+	sock_release(fsevent_sock->sk_socket);
-+	spin_lock(&listener_list_lock);
-+	list_for_each_entry_safe(p, q, &listener_list_head, list) {
-+		cleanup_dead_listener(p);
-+	}
-+	spin_unlock(&listener_list_lock);
-+}
-+
-+module_init(fsevent_init);
-+module_exit(fsevent_exit);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Yi Yang <yang.y.yi@gmail.com>");
-+MODULE_DESCRIPTION("File System Events Reporter");
+#
+# Block layer
+#
+CONFIG_BLK_DEV_IO_TRACE=y
 
+#
+# IO Schedulers
+#
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_DEFAULT_AS=y
+# CONFIG_DEFAULT_DEADLINE is not set
+# CONFIG_DEFAULT_CFQ is not set
+# CONFIG_DEFAULT_NOOP is not set
+CONFIG_DEFAULT_IOSCHED="anticipatory"
+CONFIG_SYSVIPC_COMPAT=y
 
+#
+# General machine setup
+#
+CONFIG_SMP=y
+# CONFIG_PREEMPT is not set
+CONFIG_NR_CPUS=32
+CONFIG_CPU_FREQ=y
+CONFIG_CPU_FREQ_TABLE=m
+# CONFIG_CPU_FREQ_DEBUG is not set
+CONFIG_CPU_FREQ_STAT=m
+CONFIG_CPU_FREQ_STAT_DETAILS=y
+CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
+# CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE is not set
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_POWERSAVE=m
+CONFIG_CPU_FREQ_GOV_USERSPACE=m
+CONFIG_CPU_FREQ_GOV_ONDEMAND=m
+# CONFIG_CPU_FREQ_GOV_CONSERVATIVE is not set
+CONFIG_US3_FREQ=m
+CONFIG_US2E_FREQ=m
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_FIND_NEXT_BIT=y
+CONFIG_GENERIC_HWEIGHT=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_HUGETLB_PAGE_SIZE_4MB=y
+# CONFIG_HUGETLB_PAGE_SIZE_512K is not set
+# CONFIG_HUGETLB_PAGE_SIZE_64K is not set
+CONFIG_ARCH_SPARSEMEM_ENABLE=y
+CONFIG_ARCH_SPARSEMEM_DEFAULT=y
+CONFIG_LARGE_ALLOCS=y
+CONFIG_SELECT_MEMORY_MODEL=y
+# CONFIG_FLATMEM_MANUAL is not set
+# CONFIG_DISCONTIGMEM_MANUAL is not set
+CONFIG_SPARSEMEM_MANUAL=y
+CONFIG_SPARSEMEM=y
+CONFIG_HAVE_MEMORY_PRESENT=y
+# CONFIG_SPARSEMEM_STATIC is not set
+CONFIG_SPARSEMEM_EXTREME=y
+CONFIG_MEMORY_HOTPLUG=y
+CONFIG_SPLIT_PTLOCK_CPUS=4
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_SBUS=y
+CONFIG_SBUSCHAR=y
+CONFIG_SUN_AUXIO=y
+CONFIG_SUN_IO=y
+CONFIG_PCI=y
+CONFIG_PCI_DOMAINS=y
+# CONFIG_PCI_DEBUG is not set
+CONFIG_SUN_OPENPROMFS=m
+CONFIG_SPARC32_COMPAT=y
+CONFIG_COMPAT=y
+CONFIG_BINFMT_ELF32=y
+# CONFIG_BINFMT_AOUT32 is not set
+
+#
+# Executable file formats
+#
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_SOLARIS_EMUL=m
+CONFIG_SCHED_SMT=y
+# CONFIG_CMDLINE_BOOL is not set
+
+#
+# Networking
+#
+CONFIG_NET=y
+
+#
+# Networking options
+#
+# CONFIG_NETDEBUG is not set
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_XFRM=y
+CONFIG_XFRM_USER=m
+CONFIG_NET_KEY=m
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+# CONFIG_IP_ADVANCED_ROUTER is not set
+CONFIG_IP_FIB_HASH=y
+# CONFIG_IP_PNP is not set
+CONFIG_NET_IPIP=m
+CONFIG_NET_IPGRE=m
+CONFIG_NET_IPGRE_BROADCAST=y
+CONFIG_IP_MROUTE=y
+CONFIG_IP_PIMSM_V1=y
+CONFIG_IP_PIMSM_V2=y
+CONFIG_ARPD=y
+CONFIG_SYN_COOKIES=y
+CONFIG_INET_AH=y
+CONFIG_INET_ESP=y
+CONFIG_INET_IPCOMP=y
+CONFIG_INET_XFRM_TUNNEL=y
+CONFIG_INET_TUNNEL=y
+CONFIG_INET_DIAG=y
+CONFIG_INET_TCP_DIAG=y
+# CONFIG_TCP_CONG_ADVANCED is not set
+CONFIG_TCP_CONG_BIC=y
+
+#
+# IP: Virtual Server Configuration
+#
+CONFIG_IP_VS=m
+# CONFIG_IP_VS_DEBUG is not set
+CONFIG_IP_VS_TAB_BITS=12
+
+#
+# IPVS transport protocol load balancing support
+#
+CONFIG_IP_VS_PROTO_TCP=y
+CONFIG_IP_VS_PROTO_UDP=y
+CONFIG_IP_VS_PROTO_ESP=y
+CONFIG_IP_VS_PROTO_AH=y
+
+#
+# IPVS scheduler
+#
+CONFIG_IP_VS_RR=m
+CONFIG_IP_VS_WRR=m
+CONFIG_IP_VS_LC=m
+CONFIG_IP_VS_WLC=m
+CONFIG_IP_VS_LBLC=m
+CONFIG_IP_VS_LBLCR=m
+CONFIG_IP_VS_DH=m
+CONFIG_IP_VS_SH=m
+CONFIG_IP_VS_SED=m
+CONFIG_IP_VS_NQ=m
+
+#
+# IPVS application helper
+#
+CONFIG_IP_VS_FTP=m
+CONFIG_IPV6=m
+CONFIG_IPV6_PRIVACY=y
+CONFIG_IPV6_ROUTER_PREF=y
+CONFIG_IPV6_ROUTE_INFO=y
+CONFIG_INET6_AH=m
+CONFIG_INET6_ESP=m
+CONFIG_INET6_IPCOMP=m
+CONFIG_INET6_XFRM_TUNNEL=m
+CONFIG_INET6_TUNNEL=m
+CONFIG_IPV6_TUNNEL=m
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+CONFIG_BRIDGE_NETFILTER=y
+
+#
+# Core Netfilter Configuration
+#
+# CONFIG_NETFILTER_NETLINK is not set
+# CONFIG_NETFILTER_XTABLES is not set
+
+#
+# IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_CT_ACCT=y
+CONFIG_IP_NF_CONNTRACK_MARK=y
+# CONFIG_IP_NF_CONNTRACK_EVENTS is not set
+CONFIG_IP_NF_CT_PROTO_SCTP=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+# CONFIG_IP_NF_NETBIOS_NS is not set
+CONFIG_IP_NF_TFTP=m
+CONFIG_IP_NF_AMANDA=m
+# CONFIG_IP_NF_PPTP is not set
+CONFIG_IP_NF_H323=m
+CONFIG_IP_NF_QUEUE=m
+
+#
+# IPv6: Netfilter Configuration (EXPERIMENTAL)
+#
+CONFIG_IP6_NF_QUEUE=m
+
+#
+# DECnet: Netfilter Configuration
+#
+CONFIG_DECNET_NF_GRABULATOR=m
+
+#
+# Bridge: Netfilter Configuration
+#
+CONFIG_BRIDGE_NF_EBTABLES=m
+CONFIG_BRIDGE_EBT_BROUTE=m
+CONFIG_BRIDGE_EBT_T_FILTER=m
+CONFIG_BRIDGE_EBT_T_NAT=m
+CONFIG_BRIDGE_EBT_802_3=m
+CONFIG_BRIDGE_EBT_AMONG=m
+CONFIG_BRIDGE_EBT_ARP=m
+CONFIG_BRIDGE_EBT_IP=m
+CONFIG_BRIDGE_EBT_LIMIT=m
+CONFIG_BRIDGE_EBT_MARK=m
+CONFIG_BRIDGE_EBT_PKTTYPE=m
+CONFIG_BRIDGE_EBT_STP=m
+CONFIG_BRIDGE_EBT_VLAN=m
+CONFIG_BRIDGE_EBT_ARPREPLY=m
+CONFIG_BRIDGE_EBT_DNAT=m
+CONFIG_BRIDGE_EBT_MARK_T=m
+CONFIG_BRIDGE_EBT_REDIRECT=m
+CONFIG_BRIDGE_EBT_SNAT=m
+CONFIG_BRIDGE_EBT_LOG=m
+CONFIG_BRIDGE_EBT_ULOG=m
+
+#
+# DCCP Configuration (EXPERIMENTAL)
+#
+# CONFIG_IP_DCCP is not set
+
+#
+# SCTP Configuration (EXPERIMENTAL)
+#
+CONFIG_IP_SCTP=m
+# CONFIG_SCTP_DBG_MSG is not set
+# CONFIG_SCTP_DBG_OBJCNT is not set
+# CONFIG_SCTP_HMAC_NONE is not set
+# CONFIG_SCTP_HMAC_SHA1 is not set
+CONFIG_SCTP_HMAC_MD5=y
+
+#
+# TIPC Configuration (EXPERIMENTAL)
+#
+# CONFIG_TIPC is not set
+CONFIG_ATM=y
+CONFIG_ATM_CLIP=y
+# CONFIG_ATM_CLIP_NO_ICMP is not set
+CONFIG_ATM_LANE=m
+CONFIG_ATM_MPOA=m
+CONFIG_ATM_BR2684=m
+CONFIG_ATM_BR2684_IPFILTER=y
+CONFIG_BRIDGE=m
+CONFIG_VLAN_8021Q=m
+CONFIG_DECNET=m
+CONFIG_DECNET_ROUTER=y
+CONFIG_DECNET_ROUTE_FWMARK=y
+CONFIG_LLC=m
+CONFIG_LLC2=m
+CONFIG_IPX=m
+# CONFIG_IPX_INTERN is not set
+CONFIG_ATALK=m
+# CONFIG_DEV_APPLETALK is not set
+CONFIG_X25=m
+CONFIG_LAPB=m
+CONFIG_NET_DIVERT=y
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+
+#
+# QoS and/or fair queueing
+#
+CONFIG_NET_SCHED=y
+# CONFIG_NET_SCH_CLK_JIFFIES is not set
+# CONFIG_NET_SCH_CLK_GETTIMEOFDAY is not set
+CONFIG_NET_SCH_CLK_CPU=y
+
+#
+# Queueing/Scheduling
+#
+CONFIG_NET_SCH_CBQ=m
+CONFIG_NET_SCH_HTB=m
+CONFIG_NET_SCH_HFSC=m
+CONFIG_NET_SCH_ATM=y
+CONFIG_NET_SCH_PRIO=m
+CONFIG_NET_SCH_RED=m
+CONFIG_NET_SCH_SFQ=m
+CONFIG_NET_SCH_TEQL=m
+CONFIG_NET_SCH_TBF=m
+CONFIG_NET_SCH_GRED=m
+CONFIG_NET_SCH_DSMARK=m
+CONFIG_NET_SCH_NETEM=m
+CONFIG_NET_SCH_INGRESS=m
+
+#
+# Classification
+#
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_BASIC=m
+CONFIG_NET_CLS_TCINDEX=m
+CONFIG_NET_CLS_ROUTE4=m
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=m
+CONFIG_NET_CLS_U32=m
+CONFIG_CLS_U32_PERF=y
+CONFIG_CLS_U32_MARK=y
+CONFIG_NET_CLS_RSVP=m
+CONFIG_NET_CLS_RSVP6=m
+CONFIG_NET_EMATCH=y
+CONFIG_NET_EMATCH_STACK=32
+CONFIG_NET_EMATCH_CMP=m
+CONFIG_NET_EMATCH_NBYTE=m
+CONFIG_NET_EMATCH_U32=m
+CONFIG_NET_EMATCH_META=m
+# CONFIG_NET_EMATCH_TEXT is not set
+CONFIG_NET_CLS_ACT=y
+CONFIG_NET_ACT_POLICE=m
+CONFIG_NET_ACT_GACT=m
+CONFIG_GACT_PROB=y
+CONFIG_NET_ACT_MIRRED=m
+CONFIG_NET_ACT_PEDIT=m
+# CONFIG_NET_ACT_SIMP is not set
+CONFIG_NET_CLS_IND=y
+CONFIG_NET_ESTIMATOR=y
+
+#
+# Network testing
+#
+CONFIG_NET_PKTGEN=m
+CONFIG_HAMRADIO=y
+
+#
+# Packet Radio protocols
+#
+CONFIG_AX25=m
+CONFIG_AX25_DAMA_SLAVE=y
+CONFIG_NETROM=m
+CONFIG_ROSE=m
+
+#
+# AX.25 network device drivers
+#
+# CONFIG_MKISS is not set
+# CONFIG_6PACK is not set
+# CONFIG_BPQETHER is not set
+# CONFIG_BAYCOM_SER_FDX is not set
+# CONFIG_BAYCOM_SER_HDX is not set
+# CONFIG_BAYCOM_PAR is not set
+# CONFIG_YAM is not set
+CONFIG_IRDA=m
+
+#
+# IrDA protocols
+#
+CONFIG_IRLAN=m
+CONFIG_IRNET=m
+CONFIG_IRCOMM=m
+CONFIG_IRDA_ULTRA=y
+
+#
+# IrDA options
+#
+CONFIG_IRDA_CACHE_LAST_LSAP=y
+CONFIG_IRDA_FAST_RR=y
+# CONFIG_IRDA_DEBUG is not set
+
+#
+# Infrared-port device drivers
+#
+
+#
+# SIR device drivers
+#
+# CONFIG_IRTTY_SIR is not set
+
+#
+# Dongle support
+#
+
+#
+# Old SIR device drivers
+#
+
+#
+# Old Serial dongle support
+#
+
+#
+# FIR device drivers
+#
+# CONFIG_USB_IRDA is not set
+CONFIG_SIGMATEL_FIR=m
+# CONFIG_VLSI_FIR is not set
+CONFIG_BT=m
+CONFIG_BT_L2CAP=m
+CONFIG_BT_SCO=m
+CONFIG_BT_RFCOMM=m
+CONFIG_BT_RFCOMM_TTY=y
+CONFIG_BT_BNEP=m
+CONFIG_BT_BNEP_MC_FILTER=y
+CONFIG_BT_BNEP_PROTO_FILTER=y
+CONFIG_BT_CMTP=m
+CONFIG_BT_HIDP=m
+
+#
+# Bluetooth device drivers
+#
+CONFIG_BT_HCIUSB=m
+CONFIG_BT_HCIUSB_SCO=y
+CONFIG_BT_HCIUART=m
+CONFIG_BT_HCIUART_H4=y
+CONFIG_BT_HCIUART_BCSP=y
+CONFIG_BT_HCIBCM203X=m
+CONFIG_BT_HCIBPA10X=m
+CONFIG_BT_HCIBFUSB=m
+CONFIG_BT_HCIVHCI=m
+CONFIG_IEEE80211=m
+# CONFIG_IEEE80211_DEBUG is not set
+CONFIG_IEEE80211_CRYPT_WEP=m
+CONFIG_IEEE80211_CRYPT_CCMP=m
+CONFIG_IEEE80211_CRYPT_TKIP=m
+CONFIG_IEEE80211_SOFTMAC=m
+# CONFIG_IEEE80211_SOFTMAC_DEBUG is not set
+CONFIG_WIRELESS_EXT=y
+
+#
+# Device Drivers
+#
+
+#
+# Generic Driver Options
+#
+CONFIG_STANDALONE=y
+# CONFIG_PREVENT_FIRMWARE_BUILD is not set
+CONFIG_FW_LOADER=m
+# CONFIG_DEBUG_DRIVER is not set
+
+#
+# Connector - unified userspace <-> kernelspace linker
+#
+# CONFIG_CONNECTOR is not set
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_FIFO=y
+# CONFIG_PARPORT_PC_SUPERIO is not set
+CONFIG_PARPORT_NOT_PC=y
+# CONFIG_PARPORT_GSC is not set
+CONFIG_PARPORT_SUNBPP=m
+CONFIG_PARPORT_1284=y
+
+#
+# Plug and Play support
+#
+
+#
+# Block devices
+#
+# CONFIG_BLK_DEV_FD is not set
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+# CONFIG_BLK_DEV_UMEM is not set
+# CONFIG_BLK_DEV_COW_COMMON is not set
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_CRYPTOLOOP=m
+CONFIG_BLK_DEV_NBD=m
+CONFIG_BLK_DEV_SX8=m
+CONFIG_BLK_DEV_UB=m
+# CONFIG_BLK_DEV_RAM is not set
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_CDROM_PKTCDVD=m
+CONFIG_CDROM_PKTCDVD_BUFFERS=8
+CONFIG_CDROM_PKTCDVD_WCACHE=y
+CONFIG_ATA_OVER_ETH=m
+
+#
+# ATA/ATAPI/MFM/RLL support
+#
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_IDE_SATA is not set
+CONFIG_BLK_DEV_IDEDISK=y
+# CONFIG_IDEDISK_MULTI_MODE is not set
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDETAPE=m
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+CONFIG_BLK_DEV_IDESCSI=m
+# CONFIG_IDE_TASK_IOCTL is not set
+
+#
+# IDE chipset support/bugfixes
+#
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+# CONFIG_IDEPCI_SHARE_IRQ is not set
+# CONFIG_BLK_DEV_OFFBOARD is not set
+CONFIG_BLK_DEV_GENERIC=m
+CONFIG_BLK_DEV_OPTI621=m
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+# CONFIG_BLK_DEV_AEC62XX is not set
+CONFIG_BLK_DEV_ALI15X3=y
+# CONFIG_WDC_ALI15X3 is not set
+CONFIG_BLK_DEV_AMD74XX=m
+CONFIG_BLK_DEV_CMD64X=m
+CONFIG_BLK_DEV_TRIFLEX=m
+CONFIG_BLK_DEV_CY82C693=m
+CONFIG_BLK_DEV_CS5520=m
+CONFIG_BLK_DEV_CS5530=m
+CONFIG_BLK_DEV_HPT34X=m
+# CONFIG_HPT34X_AUTODMA is not set
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_SC1200=m
+CONFIG_BLK_DEV_PIIX=m
+# CONFIG_BLK_DEV_IT821X is not set
+CONFIG_BLK_DEV_NS87415=m
+CONFIG_BLK_DEV_PDC202XX_OLD=m
+# CONFIG_PDC202XX_BURST is not set
+CONFIG_BLK_DEV_PDC202XX_NEW=m
+CONFIG_BLK_DEV_SVWKS=m
+CONFIG_BLK_DEV_SIIMAGE=m
+CONFIG_BLK_DEV_SLC90E66=m
+CONFIG_BLK_DEV_TRM290=m
+CONFIG_BLK_DEV_VIA82CXXX=m
+# CONFIG_IDE_ARM is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_BLK_DEV_HD is not set
+
+#
+# SCSI device support
+#
+# CONFIG_RAID_ATTRS is not set
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+
+#
+# SCSI support type (disk, tape, CD-ROM)
+#
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=m
+CONFIG_CHR_DEV_OSST=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_CHR_DEV_SG=m
+# CONFIG_CHR_DEV_SCH is not set
+
+#
+# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+#
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+# CONFIG_SCSI_LOGGING is not set
+
+#
+# SCSI Transport Attributes
+#
+CONFIG_SCSI_SPI_ATTRS=y
+CONFIG_SCSI_FC_ATTRS=m
+CONFIG_SCSI_ISCSI_ATTRS=m
+# CONFIG_SCSI_SAS_ATTRS is not set
+
+#
+# SCSI low-level drivers
+#
+# CONFIG_ISCSI_TCP is not set
+CONFIG_BLK_DEV_3W_XXXX_RAID=m
+CONFIG_SCSI_3W_9XXX=m
+CONFIG_SCSI_ACARD=m
+CONFIG_SCSI_AACRAID=m
+# CONFIG_SCSI_AIC7XXX is not set
+# CONFIG_SCSI_AIC7XXX_OLD is not set
+CONFIG_SCSI_AIC79XX=m
+CONFIG_AIC79XX_CMDS_PER_DEVICE=32
+CONFIG_AIC79XX_RESET_DELAY_MS=15000
+# CONFIG_AIC79XX_BUILD_FIRMWARE is not set
+# CONFIG_AIC79XX_ENABLE_RD_STRM is not set
+# CONFIG_AIC79XX_DEBUG_ENABLE is not set
+CONFIG_AIC79XX_DEBUG_MASK=0
+# CONFIG_AIC79XX_REG_PRETTY_PRINT is not set
+# CONFIG_MEGARAID_NEWGEN is not set
+# CONFIG_MEGARAID_LEGACY is not set
+# CONFIG_MEGARAID_SAS is not set
+CONFIG_SCSI_SATA=y
+CONFIG_SCSI_SATA_AHCI=m
+CONFIG_SCSI_SATA_SVW=m
+CONFIG_SCSI_ATA_PIIX=m
+# CONFIG_SCSI_SATA_MV is not set
+CONFIG_SCSI_SATA_NV=m
+# CONFIG_SCSI_PDC_ADMA is not set
+CONFIG_SCSI_SATA_QSTOR=m
+CONFIG_SCSI_SATA_PROMISE=m
+CONFIG_SCSI_SATA_SX4=m
+CONFIG_SCSI_SATA_SIL=m
+# CONFIG_SCSI_SATA_SIL24 is not set
+CONFIG_SCSI_SATA_SIS=m
+CONFIG_SCSI_SATA_ULI=m
+CONFIG_SCSI_SATA_VIA=m
+CONFIG_SCSI_SATA_VITESSE=m
+CONFIG_SCSI_SATA_INTEL_COMBINED=y
+CONFIG_SCSI_DMX3191D=m
+# CONFIG_SCSI_FUTURE_DOMAIN is not set
+CONFIG_SCSI_IPS=m
+CONFIG_SCSI_INITIO=m
+CONFIG_SCSI_INIA100=m
+CONFIG_SCSI_PPA=m
+CONFIG_SCSI_IMM=m
+# CONFIG_SCSI_IZIP_EPP16 is not set
+# CONFIG_SCSI_IZIP_SLOW_CTR is not set
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+# CONFIG_SCSI_SYM53C8XX_IOMAPPED is not set
+# CONFIG_SCSI_IPR is not set
+CONFIG_SCSI_QLOGIC_FC=y
+CONFIG_SCSI_QLOGIC_FC_FIRMWARE=y
+# CONFIG_SCSI_QLOGIC_1280 is not set
+CONFIG_SCSI_QLOGICPTI=m
+# CONFIG_SCSI_QLA_FC is not set
+# CONFIG_SCSI_LPFC is not set
+CONFIG_SCSI_DC395x=m
+# CONFIG_SCSI_DC390T is not set
+CONFIG_SCSI_DEBUG=m
+CONFIG_SCSI_SUNESP=y
+
+#
+# Multi-device support (RAID and LVM)
+#
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=m
+CONFIG_MD_LINEAR=m
+CONFIG_MD_RAID0=m
+CONFIG_MD_RAID1=m
+CONFIG_MD_RAID10=m
+CONFIG_MD_RAID5=m
+CONFIG_MD_RAID5_RESHAPE=y
+CONFIG_MD_RAID6=m
+CONFIG_MD_MULTIPATH=m
+# CONFIG_MD_FAULTY is not set
+CONFIG_BLK_DEV_DM=m
+CONFIG_DM_CRYPT=m
+CONFIG_DM_SNAPSHOT=m
+CONFIG_DM_MIRROR=m
+CONFIG_DM_ZERO=m
+# CONFIG_DM_MULTIPATH is not set
+
+#
+# Fusion MPT device support
+#
+# CONFIG_FUSION is not set
+# CONFIG_FUSION_SPI is not set
+# CONFIG_FUSION_FC is not set
+# CONFIG_FUSION_SAS is not set
+
+#
+# IEEE 1394 (FireWire) support
+#
+CONFIG_IEEE1394=m
+
+#
+# Subsystem Options
+#
+# CONFIG_IEEE1394_VERBOSEDEBUG is not set
+CONFIG_IEEE1394_OUI_DB=y
+CONFIG_IEEE1394_EXTRA_CONFIG_ROMS=y
+CONFIG_IEEE1394_CONFIG_ROM_IP1394=y
+# CONFIG_IEEE1394_EXPORT_FULL_API is not set
+
+#
+# Device Drivers
+#
+CONFIG_IEEE1394_PCILYNX=m
+CONFIG_IEEE1394_OHCI1394=m
+
+#
+# Protocol Drivers
+#
+CONFIG_IEEE1394_VIDEO1394=m
+CONFIG_IEEE1394_SBP2=m
+# CONFIG_IEEE1394_SBP2_PHYS_DMA is not set
+CONFIG_IEEE1394_ETH1394=m
+CONFIG_IEEE1394_DV1394=m
+CONFIG_IEEE1394_RAWIO=m
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+# CONFIG_IFB is not set
+CONFIG_DUMMY=m
+CONFIG_BONDING=m
+CONFIG_EQUALIZER=m
+CONFIG_TUN=m
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+
+#
+# PHY device support
+#
+# CONFIG_PHYLIB is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=m
+CONFIG_SUNLANCE=y
+CONFIG_HAPPYMEAL=y
+CONFIG_SUNBMAC=m
+CONFIG_SUNQE=m
+CONFIG_SUNGEM=y
+# CONFIG_CASSINI is not set
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=m
+CONFIG_TYPHOON=m
+
+#
+# Tulip family network device support
+#
+CONFIG_NET_TULIP=y
+CONFIG_DE2104X=m
+CONFIG_TULIP=m
+# CONFIG_TULIP_MWI is not set
+# CONFIG_TULIP_MMIO is not set
+CONFIG_TULIP_NAPI=y
+CONFIG_TULIP_NAPI_HW_MITIGATION=y
+CONFIG_DE4X5=m
+CONFIG_WINBOND_840=m
+# CONFIG_DM9102 is not set
+# CONFIG_ULI526X is not set
+# CONFIG_HP100 is not set
+CONFIG_NET_PCI=y
+CONFIG_PCNET32=m
+# CONFIG_AMD8111_ETH is not set
+CONFIG_ADAPTEC_STARFIRE=m
+CONFIG_ADAPTEC_STARFIRE_NAPI=y
+CONFIG_B44=m
+CONFIG_FORCEDETH=m
+CONFIG_DGRS=m
+CONFIG_EEPRO100=m
+CONFIG_E100=m
+CONFIG_FEALNX=m
+CONFIG_NATSEMI=m
+CONFIG_NE2K_PCI=m
+# CONFIG_8139CP is not set
+CONFIG_8139TOO=m
+# CONFIG_8139TOO_PIO is not set
+# CONFIG_8139TOO_TUNE_TWISTER is not set
+# CONFIG_8139TOO_8129 is not set
+# CONFIG_8139_OLD_RX_RESET is not set
+CONFIG_SIS900=m
+CONFIG_EPIC100=m
+CONFIG_SUNDANCE=m
+CONFIG_SUNDANCE_MMIO=y
+CONFIG_VIA_RHINE=m
+# CONFIG_VIA_RHINE_MMIO is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+CONFIG_ACENIC=m
+# CONFIG_ACENIC_OMIT_TIGON_I is not set
+CONFIG_DL2K=m
+CONFIG_E1000=m
+CONFIG_E1000_NAPI=y
+# CONFIG_E1000_DISABLE_PACKET_SPLIT is not set
+CONFIG_MYRI_SBUS=m
+CONFIG_NS83820=m
+CONFIG_HAMACHI=m
+CONFIG_YELLOWFIN=m
+CONFIG_R8169=m
+CONFIG_R8169_NAPI=y
+CONFIG_R8169_VLAN=y
+# CONFIG_SIS190 is not set
+# CONFIG_SKGE is not set
+# CONFIG_SKY2 is not set
+CONFIG_SK98LIN=m
+CONFIG_VIA_VELOCITY=m
+CONFIG_TIGON3=m
+# CONFIG_BNX2 is not set
+
+#
+# Ethernet (10000 Mbit)
+#
+# CONFIG_CHELSIO_T1 is not set
+CONFIG_IXGB=m
+CONFIG_IXGB_NAPI=y
+CONFIG_S2IO=m
+CONFIG_S2IO_NAPI=y
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+CONFIG_NET_RADIO=y
+CONFIG_NET_WIRELESS_RTNETLINK=y
+
+#
+# Obsolete Wireless cards support (pre-802.11)
+#
+# CONFIG_STRIP is not set
+
+#
+# Wireless 802.11b ISA/PCI cards support
+#
+CONFIG_IPW2100=m
+CONFIG_IPW2100_MONITOR=y
+# CONFIG_IPW2100_DEBUG is not set
+CONFIG_IPW2200=m
+CONFIG_IPW2200_MONITOR=y
+CONFIG_IPW_QOS=y
+# CONFIG_IPW2200_DEBUG is not set
+CONFIG_HERMES=m
+CONFIG_PLX_HERMES=m
+CONFIG_TMD_HERMES=m
+# CONFIG_NORTEL_HERMES is not set
+CONFIG_PCI_HERMES=m
+CONFIG_ATMEL=m
+CONFIG_PCI_ATMEL=m
+
+#
+# Prism GT/Duette 802.11(a/b/g) PCI/Cardbus support
+#
+CONFIG_PRISM54=m
+# CONFIG_HOSTAP is not set
+CONFIG_BCM43XX=m
+# CONFIG_BCM43XX_DEBUG is not set
+CONFIG_BCM43XX_DMA=y
+CONFIG_BCM43XX_PIO=y
+CONFIG_BCM43XX_DMA_AND_PIO_MODE=y
+# CONFIG_BCM43XX_DMA_MODE is not set
+# CONFIG_BCM43XX_PIO_MODE is not set
+CONFIG_NET_WIRELESS=y
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# ATM drivers
+#
+# CONFIG_ATM_DUMMY is not set
+CONFIG_ATM_TCP=m
+# CONFIG_ATM_LANAI is not set
+# CONFIG_ATM_ENI is not set
+# CONFIG_ATM_FIRESTREAM is not set
+# CONFIG_ATM_ZATM is not set
+# CONFIG_ATM_IDT77252 is not set
+# CONFIG_ATM_AMBASSADOR is not set
+# CONFIG_ATM_HORIZON is not set
+CONFIG_ATM_FORE200E_MAYBE=m
+CONFIG_ATM_FORE200E_PCA=y
+CONFIG_ATM_FORE200E_PCA_DEFAULT_FW=y
+CONFIG_ATM_FORE200E_SBA=y
+CONFIG_ATM_FORE200E_SBA_DEFAULT_FW=y
+CONFIG_ATM_FORE200E_USE_TASKLET=y
+CONFIG_ATM_FORE200E_TX_RETRY=16
+CONFIG_ATM_FORE200E_DEBUG=0
+CONFIG_ATM_FORE200E=m
+CONFIG_ATM_HE=m
+CONFIG_ATM_HE_USE_SUNI=y
+CONFIG_FDDI=y
+# CONFIG_DEFXX is not set
+CONFIG_SKFP=m
+CONFIG_HIPPI=y
+# CONFIG_ROADRUNNER is not set
+CONFIG_PLIP=m
+CONFIG_PPP=m
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+# CONFIG_PPP_MPPE is not set
+CONFIG_PPPOE=m
+CONFIG_PPPOATM=m
+CONFIG_SLIP=m
+CONFIG_SLIP_COMPRESSED=y
+CONFIG_SLIP_SMART=y
+# CONFIG_SLIP_MODE_SLIP6 is not set
+CONFIG_NET_FC=y
+CONFIG_SHAPER=m
+CONFIG_NETCONSOLE=m
+CONFIG_NETPOLL=y
+# CONFIG_NETPOLL_RX is not set
+# CONFIG_NETPOLL_TRAP is not set
+CONFIG_NET_POLL_CONTROLLER=y
+
+#
+# ISDN subsystem
+#
+CONFIG_ISDN=m
+
+#
+# Old ISDN4Linux
+#
+# CONFIG_ISDN_I4L is not set
+
+#
+# CAPI subsystem
+#
+CONFIG_ISDN_CAPI=m
+# CONFIG_ISDN_DRV_AVMB1_VERBOSE_REASON is not set
+# CONFIG_ISDN_CAPI_MIDDLEWARE is not set
+CONFIG_ISDN_CAPI_CAPI20=m
+
+#
+# CAPI hardware drivers
+#
+
+#
+# Active AVM cards
+#
+CONFIG_CAPI_AVM=y
+CONFIG_ISDN_DRV_AVMB1_B1PCI=m
+CONFIG_ISDN_DRV_AVMB1_B1PCIV4=y
+CONFIG_ISDN_DRV_AVMB1_B1PCMCIA=m
+CONFIG_ISDN_DRV_AVMB1_T1PCI=m
+CONFIG_ISDN_DRV_AVMB1_C4=m
+
+#
+# Active Eicon DIVA Server cards
+#
+CONFIG_CAPI_EICON=y
+CONFIG_ISDN_DIVAS=m
+CONFIG_ISDN_DIVAS_BRIPCI=y
+CONFIG_ISDN_DIVAS_PRIPCI=y
+CONFIG_ISDN_DIVAS_DIVACAPI=m
+CONFIG_ISDN_DIVAS_USERIDI=m
+CONFIG_ISDN_DIVAS_MAINT=m
+
+#
+# Telephony Support
+#
+CONFIG_PHONE=m
+CONFIG_PHONE_IXJ=m
+
+#
+# Input device support
+#
+CONFIG_INPUT=y
+
+#
+# Userland interfaces
+#
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+CONFIG_INPUT_EVDEV=y
+# CONFIG_INPUT_EVBUG is not set
+
+#
+# Input Device Drivers
+#
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_KEYBOARD_SUNKBD=y
+CONFIG_KEYBOARD_LKKBD=m
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_MOUSE_SERIAL=y
+CONFIG_MOUSE_VSXXXAA=m
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_SPARCSPKR=m
+CONFIG_INPUT_UINPUT=m
+
+#
+# Hardware I/O ports
+#
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+# CONFIG_SERIO_SERPORT is not set
+# CONFIG_SERIO_PARKBD is not set
+CONFIG_SERIO_PCIPS2=m
+CONFIG_SERIO_LIBPS2=y
+CONFIG_SERIO_RAW=m
+CONFIG_GAMEPORT=m
+# CONFIG_GAMEPORT_NS558 is not set
+# CONFIG_GAMEPORT_L4 is not set
+# CONFIG_GAMEPORT_EMU10K1 is not set
+# CONFIG_GAMEPORT_FM801 is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+# CONFIG_SERIAL_NONSTANDARD is not set
+
+#
+# Serial drivers
+#
+
+#
+# Non-8250 serial port support
+#
+CONFIG_SERIAL_SUNCORE=y
+CONFIG_SERIAL_SUNZILOG=y
+CONFIG_SERIAL_SUNZILOG_CONSOLE=y
+CONFIG_SERIAL_SUNSU=y
+CONFIG_SERIAL_SUNSU_CONSOLE=y
+CONFIG_SERIAL_SUNSAB=m
+CONFIG_SERIAL_SUNHV=y
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+# CONFIG_SERIAL_JSM is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+CONFIG_PRINTER=m
+# CONFIG_LP_CONSOLE is not set
+# CONFIG_PPDEV is not set
+# CONFIG_TIPAR is not set
+
+#
+# IPMI
+#
+# CONFIG_IPMI_HANDLER is not set
+
+#
+# Watchdog Cards
+#
+CONFIG_WATCHDOG=y
+# CONFIG_WATCHDOG_NOWAYOUT is not set
+
+#
+# Watchdog Device Drivers
+#
+CONFIG_SOFT_WATCHDOG=m
+CONFIG_WATCHDOG_CP1XXX=m
+CONFIG_WATCHDOG_RIO=m
+
+#
+# PCI-based Watchdog Cards
+#
+CONFIG_PCIPCWATCHDOG=m
+CONFIG_WDTPCI=m
+CONFIG_WDT_501_PCI=y
+
+#
+# USB-based Watchdog Cards
+#
+CONFIG_USBPCWATCHDOG=m
+CONFIG_RTC=y
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+CONFIG_DRM=m
+CONFIG_DRM_TDFX=m
+CONFIG_DRM_R128=m
+CONFIG_DRM_RADEON=m
+CONFIG_DRM_MGA=m
+CONFIG_DRM_VIA=m
+CONFIG_DRM_SAVAGE=m
+# CONFIG_RAW_DRIVER is not set
+
+#
+# TPM devices
+#
+# CONFIG_TCG_TPM is not set
+# CONFIG_TELCLOCK is not set
+
+#
+# I2C support
+#
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=m
+
+#
+# I2C Algorithms
+#
+CONFIG_I2C_ALGOBIT=y
+CONFIG_I2C_ALGOPCF=m
+CONFIG_I2C_ALGOPCA=m
+
+#
+# I2C Hardware Bus support
+#
+CONFIG_I2C_ALI1535=m
+CONFIG_I2C_ALI1563=m
+CONFIG_I2C_ALI15X3=m
+CONFIG_I2C_AMD756=m
+# CONFIG_I2C_AMD756_S4882 is not set
+CONFIG_I2C_AMD8111=m
+CONFIG_I2C_I801=m
+CONFIG_I2C_I810=m
+CONFIG_I2C_PIIX4=m
+CONFIG_I2C_ISA=m
+CONFIG_I2C_NFORCE2=m
+CONFIG_I2C_PARPORT=m
+CONFIG_I2C_PARPORT_LIGHT=m
+CONFIG_I2C_PROSAVAGE=m
+CONFIG_I2C_SAVAGE4=m
+CONFIG_I2C_SIS5595=m
+CONFIG_I2C_SIS630=m
+CONFIG_I2C_SIS96X=m
+CONFIG_I2C_STUB=m
+CONFIG_I2C_VIA=m
+CONFIG_I2C_VIAPRO=m
+CONFIG_I2C_VOODOO3=m
+CONFIG_I2C_PCA_ISA=m
+
+#
+# Miscellaneous I2C Chip support
+#
+# CONFIG_SENSORS_DS1337 is not set
+# CONFIG_SENSORS_DS1374 is not set
+CONFIG_SENSORS_EEPROM=m
+CONFIG_SENSORS_PCF8574=m
+# CONFIG_SENSORS_PCA9539 is not set
+CONFIG_SENSORS_PCF8591=m
+# CONFIG_SENSORS_MAX6875 is not set
+# CONFIG_I2C_DEBUG_CORE is not set
+# CONFIG_I2C_DEBUG_ALGO is not set
+# CONFIG_I2C_DEBUG_BUS is not set
+# CONFIG_I2C_DEBUG_CHIP is not set
+
+#
+# SPI support
+#
+# CONFIG_SPI is not set
+# CONFIG_SPI_MASTER is not set
+
+#
+# Dallas's 1-wire bus
+#
+# CONFIG_W1 is not set
+
+#
+# Hardware Monitoring support
+#
+CONFIG_HWMON=y
+CONFIG_HWMON_VID=m
+CONFIG_SENSORS_ADM1021=m
+CONFIG_SENSORS_ADM1025=m
+CONFIG_SENSORS_ADM1026=m
+CONFIG_SENSORS_ADM1031=m
+# CONFIG_SENSORS_ADM9240 is not set
+CONFIG_SENSORS_ASB100=m
+# CONFIG_SENSORS_ATXP1 is not set
+CONFIG_SENSORS_DS1621=m
+# CONFIG_SENSORS_F71805F is not set
+CONFIG_SENSORS_FSCHER=m
+CONFIG_SENSORS_FSCPOS=m
+CONFIG_SENSORS_GL518SM=m
+CONFIG_SENSORS_GL520SM=m
+CONFIG_SENSORS_IT87=m
+CONFIG_SENSORS_LM63=m
+CONFIG_SENSORS_LM75=m
+CONFIG_SENSORS_LM77=m
+CONFIG_SENSORS_LM78=m
+CONFIG_SENSORS_LM80=m
+CONFIG_SENSORS_LM83=m
+CONFIG_SENSORS_LM85=m
+CONFIG_SENSORS_LM87=m
+CONFIG_SENSORS_LM90=m
+# CONFIG_SENSORS_LM92 is not set
+CONFIG_SENSORS_MAX1619=m
+CONFIG_SENSORS_PC87360=m
+CONFIG_SENSORS_SIS5595=m
+CONFIG_SENSORS_SMSC47M1=m
+CONFIG_SENSORS_SMSC47B397=m
+CONFIG_SENSORS_VIA686A=m
+# CONFIG_SENSORS_VT8231 is not set
+CONFIG_SENSORS_W83781D=m
+# CONFIG_SENSORS_W83792D is not set
+CONFIG_SENSORS_W83L785TS=m
+CONFIG_SENSORS_W83627HF=m
+# CONFIG_SENSORS_W83627EHF is not set
+# CONFIG_HWMON_DEBUG_CHIP is not set
+
+#
+# Misc devices
+#
+
+#
+# Multimedia devices
+#
+CONFIG_VIDEO_DEV=m
+
+#
+# Video For Linux
+#
+
+#
+# Video Adapters
+#
+# CONFIG_VIDEO_ADV_DEBUG is not set
+CONFIG_VIDEO_BT848=m
+# CONFIG_VIDEO_BT848_DVB is not set
+# CONFIG_VIDEO_SAA6588 is not set
+CONFIG_VIDEO_BWQCAM=m
+CONFIG_VIDEO_CQCAM=m
+CONFIG_VIDEO_W9966=m
+CONFIG_VIDEO_CPIA=m
+CONFIG_VIDEO_CPIA_PP=m
+CONFIG_VIDEO_CPIA_USB=m
+CONFIG_VIDEO_CPIA2=m
+CONFIG_VIDEO_SAA5246A=m
+CONFIG_VIDEO_SAA5249=m
+CONFIG_TUNER_3036=m
+# CONFIG_VIDEO_STRADIS is not set
+# CONFIG_VIDEO_ZORAN is not set
+# CONFIG_VIDEO_SAA7134 is not set
+CONFIG_VIDEO_MXB=m
+CONFIG_VIDEO_DPC=m
+CONFIG_VIDEO_HEXIUM_ORION=m
+CONFIG_VIDEO_HEXIUM_GEMINI=m
+CONFIG_VIDEO_CX88=m
+# CONFIG_VIDEO_CX88_ALSA is not set
+# CONFIG_VIDEO_CX88_DVB is not set
+CONFIG_VIDEO_OVCAMCHIP=m
+
+#
+# Encoders and Decoders
+#
+CONFIG_VIDEO_MSP3400=m
+CONFIG_VIDEO_CS53L32A=m
+CONFIG_VIDEO_WM8775=m
+CONFIG_VIDEO_WM8739=m
+CONFIG_VIDEO_CX25840=m
+CONFIG_VIDEO_SAA711X=m
+CONFIG_VIDEO_SAA7127=m
+CONFIG_VIDEO_UPD64031A=m
+CONFIG_VIDEO_UPD64083=m
+
+#
+# V4L USB devices
+#
+# CONFIG_VIDEO_EM28XX is not set
+# CONFIG_USB_DSBR is not set
+# CONFIG_USB_VICAM is not set
+# CONFIG_USB_IBMCAM is not set
+# CONFIG_USB_KONICAWC is not set
+# CONFIG_USB_ET61X251 is not set
+# CONFIG_USB_OV511 is not set
+# CONFIG_USB_SE401 is not set
+CONFIG_USB_SN9C102=m
+# CONFIG_USB_STV680 is not set
+CONFIG_USB_W9968CF=m
+CONFIG_USB_ZC0301=m
+# CONFIG_USB_PWC is not set
+
+#
+# Radio Adapters
+#
+CONFIG_RADIO_GEMTEK_PCI=m
+CONFIG_RADIO_MAXIRADIO=m
+CONFIG_RADIO_MAESTRO=m
+
+#
+# Digital Video Broadcasting Devices
+#
+CONFIG_DVB=y
+CONFIG_DVB_CORE=m
+
+#
+# Supported SAA7146 based PCI Adapters
+#
+CONFIG_DVB_AV7110=m
+# CONFIG_DVB_AV7110_OSD is not set
+CONFIG_DVB_BUDGET=m
+CONFIG_DVB_BUDGET_CI=m
+CONFIG_DVB_BUDGET_AV=m
+CONFIG_DVB_BUDGET_PATCH=m
+
+#
+# Supported USB Adapters
+#
+# CONFIG_DVB_USB is not set
+# CONFIG_DVB_TTUSB_BUDGET is not set
+CONFIG_DVB_TTUSB_DEC=m
+CONFIG_DVB_CINERGYT2=m
+# CONFIG_DVB_CINERGYT2_TUNING is not set
+
+#
+# Supported FlexCopII (B2C2) Adapters
+#
+# CONFIG_DVB_B2C2_FLEXCOP is not set
+
+#
+# Supported BT878 Adapters
+#
+CONFIG_DVB_BT8XX=m
+
+#
+# Supported Pluto2 Adapters
+#
+# CONFIG_DVB_PLUTO2 is not set
+
+#
+# Supported DVB Frontends
+#
+
+#
+# Customise DVB Frontends
+#
+
+#
+# DVB-S (satellite) frontends
+#
+CONFIG_DVB_STV0299=m
+CONFIG_DVB_CX24110=m
+# CONFIG_DVB_CX24123 is not set
+CONFIG_DVB_TDA8083=m
+CONFIG_DVB_MT312=m
+CONFIG_DVB_VES1X93=m
+CONFIG_DVB_S5H1420=m
+
+#
+# DVB-T (terrestrial) frontends
+#
+CONFIG_DVB_SP8870=m
+CONFIG_DVB_SP887X=m
+CONFIG_DVB_CX22700=m
+CONFIG_DVB_CX22702=m
+CONFIG_DVB_L64781=m
+CONFIG_DVB_TDA1004X=m
+CONFIG_DVB_NXT6000=m
+CONFIG_DVB_MT352=m
+CONFIG_DVB_ZL10353=m
+CONFIG_DVB_DIB3000MB=m
+CONFIG_DVB_DIB3000MC=m
+
+#
+# DVB-C (cable) frontends
+#
+CONFIG_DVB_VES1820=m
+CONFIG_DVB_TDA10021=m
+CONFIG_DVB_STV0297=m
+
+#
+# ATSC (North American/Korean Terresterial DTV) frontends
+#
+# CONFIG_DVB_NXT200X is not set
+CONFIG_DVB_OR51211=m
+# CONFIG_DVB_OR51132 is not set
+# CONFIG_DVB_BCM3510 is not set
+CONFIG_DVB_LGDT330X=m
+CONFIG_VIDEO_SAA7146=m
+CONFIG_VIDEO_SAA7146_VV=m
+CONFIG_VIDEO_VIDEOBUF=m
+CONFIG_VIDEO_TUNER=m
+CONFIG_VIDEO_BUF=m
+CONFIG_VIDEO_BTCX=m
+CONFIG_VIDEO_IR=m
+CONFIG_VIDEO_TVEEPROM=m
+# CONFIG_USB_DABUSB is not set
+
+#
+# Graphics support
+#
+CONFIG_FB=y
+CONFIG_FB_CFB_FILLRECT=y
+CONFIG_FB_CFB_COPYAREA=y
+CONFIG_FB_CFB_IMAGEBLIT=y
+# CONFIG_FB_MACMODES is not set
+CONFIG_FB_FIRMWARE_EDID=y
+CONFIG_FB_MODE_HELPERS=y
+CONFIG_FB_TILEBLITTING=y
+# CONFIG_FB_CIRRUS is not set
+CONFIG_FB_PM2=y
+# CONFIG_FB_PM2_FIFO_DISCONNECT is not set
+# CONFIG_FB_ASILIANT is not set
+# CONFIG_FB_IMSTT is not set
+CONFIG_FB_SBUS=y
+# CONFIG_FB_BW2 is not set
+# CONFIG_FB_CG3 is not set
+CONFIG_FB_CG6=y
+# CONFIG_FB_S1D13XXX is not set
+# CONFIG_FB_NVIDIA is not set
+# CONFIG_FB_RIVA is not set
+# CONFIG_FB_MATROX is not set
+# CONFIG_FB_RADEON is not set
+# CONFIG_FB_ATY128 is not set
+CONFIG_FB_ATY=y
+CONFIG_FB_ATY_CT=y
+# CONFIG_FB_ATY_GENERIC_LCD is not set
+CONFIG_FB_ATY_GX=y
+# CONFIG_FB_SAVAGE is not set
+# CONFIG_FB_SIS is not set
+# CONFIG_FB_NEOMAGIC is not set
+# CONFIG_FB_KYRO is not set
+# CONFIG_FB_3DFX is not set
+# CONFIG_FB_VOODOO1 is not set
+# CONFIG_FB_TRIDENT is not set
+CONFIG_FB_FFB=y
+# CONFIG_FB_TCX is not set
+# CONFIG_FB_CG14 is not set
+# CONFIG_FB_P9100 is not set
+# CONFIG_FB_LEO is not set
+# CONFIG_FB_PCI is not set
+# CONFIG_FB_VIRTUAL is not set
+
+#
+# Console display driver support
+#
+# CONFIG_PROM_CONSOLE is not set
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+# CONFIG_FRAMEBUFFER_CONSOLE_ROTATION is not set
+CONFIG_FONTS=y
+# CONFIG_FONT_8x8 is not set
+# CONFIG_FONT_8x16 is not set
+# CONFIG_FONT_6x11 is not set
+# CONFIG_FONT_7x14 is not set
+# CONFIG_FONT_PEARL_8x8 is not set
+# CONFIG_FONT_ACORN_8x8 is not set
+CONFIG_FONT_SUN8x16=y
+# CONFIG_FONT_SUN12x22 is not set
+# CONFIG_FONT_10x18 is not set
+
+#
+# Logo configuration
+#
+CONFIG_LOGO=y
+# CONFIG_LOGO_LINUX_MONO is not set
+# CONFIG_LOGO_LINUX_VGA16 is not set
+# CONFIG_LOGO_LINUX_CLUT224 is not set
+CONFIG_LOGO_SUN_CLUT224=y
+# CONFIG_BACKLIGHT_LCD_SUPPORT is not set
+
+#
+# Sound
+#
+CONFIG_SOUND=m
+
+#
+# Advanced Linux Sound Architecture
+#
+CONFIG_SND=m
+CONFIG_SND_TIMER=m
+CONFIG_SND_PCM=m
+CONFIG_SND_HWDEP=m
+CONFIG_SND_RAWMIDI=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_SEQ_DUMMY=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_PCM_OSS_PLUGINS=y
+CONFIG_SND_SEQUENCER_OSS=y
+# CONFIG_SND_RTCTIMER is not set
+# CONFIG_SND_DYNAMIC_MINORS is not set
+# CONFIG_SND_SUPPORT_OLD_API is not set
+CONFIG_SND_VERBOSE_PROCFS=y
+# CONFIG_SND_VERBOSE_PRINTK is not set
+# CONFIG_SND_DEBUG is not set
+
+#
+# Generic devices
+#
+CONFIG_SND_MPU401_UART=m
+CONFIG_SND_OPL3_LIB=m
+CONFIG_SND_VX_LIB=m
+CONFIG_SND_AC97_CODEC=m
+CONFIG_SND_AC97_BUS=m
+CONFIG_SND_DUMMY=m
+CONFIG_SND_VIRMIDI=m
+CONFIG_SND_MTPAV=m
+CONFIG_SND_SERIAL_U16550=m
+CONFIG_SND_MPU401=m
+
+#
+# PCI devices
+#
+CONFIG_SND_AD1889=m
+CONFIG_SND_ALS300=m
+CONFIG_SND_ALI5451=m
+CONFIG_SND_ATIIXP=m
+CONFIG_SND_ATIIXP_MODEM=m
+CONFIG_SND_AU8810=m
+CONFIG_SND_AU8820=m
+CONFIG_SND_AU8830=m
+CONFIG_SND_AZT3328=m
+CONFIG_SND_BT87X=m
+# CONFIG_SND_BT87X_OVERCLOCK is not set
+CONFIG_SND_CA0106=m
+CONFIG_SND_CMIPCI=m
+CONFIG_SND_CS4281=m
+CONFIG_SND_CS46XX=m
+# CONFIG_SND_CS46XX_NEW_DSP is not set
+CONFIG_SND_EMU10K1=m
+CONFIG_SND_EMU10K1X=m
+CONFIG_SND_ENS1370=m
+CONFIG_SND_ENS1371=m
+CONFIG_SND_ES1938=m
+CONFIG_SND_ES1968=m
+CONFIG_SND_FM801=m
+CONFIG_SND_FM801_TEA575X=m
+CONFIG_SND_HDA_INTEL=m
+CONFIG_SND_HDSP=m
+CONFIG_SND_HDSPM=m
+CONFIG_SND_ICE1712=m
+CONFIG_SND_ICE1724=m
+CONFIG_SND_INTEL8X0=m
+CONFIG_SND_INTEL8X0M=m
+CONFIG_SND_KORG1212=m
+CONFIG_SND_MAESTRO3=m
+CONFIG_SND_MIXART=m
+CONFIG_SND_NM256=m
+CONFIG_SND_PCXHR=m
+CONFIG_SND_RIPTIDE=m
+CONFIG_SND_RME32=m
+CONFIG_SND_RME96=m
+CONFIG_SND_RME9652=m
+CONFIG_SND_SONICVIBES=m
+CONFIG_SND_TRIDENT=m
+CONFIG_SND_VIA82XX=m
+CONFIG_SND_VIA82XX_MODEM=m
+CONFIG_SND_VX222=m
+CONFIG_SND_YMFPCI=m
+
+#
+# USB devices
+#
+CONFIG_SND_USB_AUDIO=m
+
+#
+# ALSA Sparc devices
+#
+CONFIG_SND_SUN_AMD7930=m
+CONFIG_SND_SUN_CS4231=m
+CONFIG_SND_SUN_DBRI=m
+
+#
+# Open Sound System
+#
+CONFIG_SOUND_PRIME=m
+CONFIG_OBSOLETE_OSS_DRIVER=y
+CONFIG_SOUND_BT878=m
+CONFIG_SOUND_CMPCI=m
+CONFIG_SOUND_EMU10K1=m
+# CONFIG_SOUND_FUSION is not set
+# CONFIG_SOUND_CS4281 is not set
+CONFIG_SOUND_ES1370=m
+CONFIG_SOUND_ES1371=m
+# CONFIG_SOUND_ESSSOLO1 is not set
+# CONFIG_SOUND_MAESTRO is not set
+# CONFIG_SOUND_MAESTRO3 is not set
+CONFIG_SOUND_ICH=m
+# CONFIG_SOUND_SONICVIBES is not set
+CONFIG_SOUND_TRIDENT=m
+# CONFIG_SOUND_MSNDCLAS is not set
+# CONFIG_SOUND_MSNDPIN is not set
+CONFIG_SOUND_VIA82CXXX=m
+CONFIG_SOUND_TVMIXER=m
+# CONFIG_SOUND_ALI5455 is not set
+CONFIG_SOUND_FORTE=m
+# CONFIG_SOUND_RME96XX is not set
+CONFIG_SOUND_AD1980=m
+
+#
+# USB support
+#
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB_ARCH_HAS_EHCI=y
+CONFIG_USB=y
+# CONFIG_USB_DEBUG is not set
+
+#
+# Miscellaneous USB options
+#
+CONFIG_USB_DEVICEFS=y
+# CONFIG_USB_BANDWIDTH is not set
+# CONFIG_USB_DYNAMIC_MINORS is not set
+# CONFIG_USB_OTG is not set
+
+#
+# USB Host Controller Drivers
+#
+CONFIG_USB_EHCI_HCD=m
+# CONFIG_USB_EHCI_SPLIT_ISO is not set
+# CONFIG_USB_EHCI_ROOT_HUB_TT is not set
+# CONFIG_USB_ISP116X_HCD is not set
+CONFIG_USB_OHCI_HCD=y
+# CONFIG_USB_OHCI_BIG_ENDIAN is not set
+CONFIG_USB_OHCI_LITTLE_ENDIAN=y
+CONFIG_USB_UHCI_HCD=m
+CONFIG_USB_SL811_HCD=m
+
+#
+# USB Device Class drivers
+#
+CONFIG_USB_ACM=m
+CONFIG_USB_PRINTER=m
+
+#
+# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support'
+#
+
+#
+# may also be needed; see USB_STORAGE Help for more information
+#
+CONFIG_USB_STORAGE=m
+# CONFIG_USB_STORAGE_DEBUG is not set
+# CONFIG_USB_STORAGE_DATAFAB is not set
+CONFIG_USB_STORAGE_FREECOM=y
+CONFIG_USB_STORAGE_ISD200=y
+CONFIG_USB_STORAGE_DPCM=y
+# CONFIG_USB_STORAGE_USBAT is not set
+CONFIG_USB_STORAGE_SDDR09=y
+CONFIG_USB_STORAGE_SDDR55=y
+# CONFIG_USB_STORAGE_JUMPSHOT is not set
+# CONFIG_USB_STORAGE_ALAUDA is not set
+# CONFIG_USB_STORAGE_ONETOUCH is not set
+# CONFIG_USB_LIBUSUAL is not set
+
+#
+# USB Input Devices
+#
+CONFIG_USB_HID=y
+CONFIG_USB_HIDINPUT=y
+# CONFIG_USB_HIDINPUT_POWERBOOK is not set
+# CONFIG_HID_FF is not set
+CONFIG_USB_HIDDEV=y
+# CONFIG_USB_AIPTEK is not set
+CONFIG_USB_WACOM=m
+# CONFIG_USB_ACECAD is not set
+CONFIG_USB_KBTAB=m
+# CONFIG_USB_POWERMATE is not set
+CONFIG_USB_MTOUCH=m
+# CONFIG_USB_ITMTOUCH is not set
+CONFIG_USB_EGALAX=m
+# CONFIG_USB_YEALINK is not set
+# CONFIG_USB_XPAD is not set
+CONFIG_USB_ATI_REMOTE=m
+# CONFIG_USB_ATI_REMOTE2 is not set
+# CONFIG_USB_KEYSPAN_REMOTE is not set
+# CONFIG_USB_APPLETOUCH is not set
+
+#
+# USB Imaging devices
+#
+CONFIG_USB_MDC800=m
+CONFIG_USB_MICROTEK=m
+
+#
+# USB Network Adapters
+#
+CONFIG_USB_CATC=m
+CONFIG_USB_KAWETH=m
+CONFIG_USB_PEGASUS=m
+CONFIG_USB_RTL8150=m
+CONFIG_USB_USBNET=m
+CONFIG_USB_NET_AX8817X=m
+CONFIG_USB_NET_CDCETHER=m
+# CONFIG_USB_NET_GL620A is not set
+CONFIG_USB_NET_NET1080=m
+# CONFIG_USB_NET_PLUSB is not set
+# CONFIG_USB_NET_RNDIS_HOST is not set
+# CONFIG_USB_NET_CDC_SUBSET is not set
+CONFIG_USB_NET_ZAURUS=m
+# CONFIG_USB_ZD1201 is not set
+CONFIG_USB_MON=y
+
+#
+# USB port drivers
+#
+CONFIG_USB_USS720=m
+
+#
+# USB Serial Converter support
+#
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_GENERIC=y
+# CONFIG_USB_SERIAL_AIRPRIME is not set
+# CONFIG_USB_SERIAL_ANYDATA is not set
+CONFIG_USB_SERIAL_BELKIN=m
+# CONFIG_USB_SERIAL_WHITEHEAT is not set
+CONFIG_USB_SERIAL_DIGI_ACCELEPORT=m
+# CONFIG_USB_SERIAL_CP2101 is not set
+CONFIG_USB_SERIAL_CYPRESS_M8=m
+CONFIG_USB_SERIAL_EMPEG=m
+CONFIG_USB_SERIAL_FTDI_SIO=m
+# CONFIG_USB_SERIAL_VISOR is not set
+CONFIG_USB_SERIAL_IPAQ=m
+# CONFIG_USB_SERIAL_IR is not set
+CONFIG_USB_SERIAL_EDGEPORT=m
+# CONFIG_USB_SERIAL_EDGEPORT_TI is not set
+CONFIG_USB_SERIAL_GARMIN=m
+CONFIG_USB_SERIAL_IPW=m
+CONFIG_USB_SERIAL_KEYSPAN_PDA=m
+CONFIG_USB_SERIAL_KEYSPAN=m
+# CONFIG_USB_SERIAL_KEYSPAN_MPR is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28 is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28X is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28XA is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28XB is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19 is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA18X is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19W is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19QW is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19QI is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA49W is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA49WLC is not set
+CONFIG_USB_SERIAL_KLSI=m
+# CONFIG_USB_SERIAL_KOBIL_SCT is not set
+CONFIG_USB_SERIAL_MCT_U232=m
+CONFIG_USB_SERIAL_NAVMAN=m
+CONFIG_USB_SERIAL_PL2303=m
+# CONFIG_USB_SERIAL_HP4X is not set
+# CONFIG_USB_SERIAL_SAFE is not set
+CONFIG_USB_SERIAL_TI=m
+CONFIG_USB_SERIAL_CYBERJACK=m
+CONFIG_USB_SERIAL_XIRCOM=m
+CONFIG_USB_SERIAL_OMNINET=m
+CONFIG_USB_EZUSB=y
+
+#
+# USB Miscellaneous drivers
+#
+CONFIG_USB_EMI62=m
+CONFIG_USB_EMI26=m
+CONFIG_USB_AUERSWALD=m
+CONFIG_USB_RIO500=m
+CONFIG_USB_LEGOTOWER=m
+CONFIG_USB_LCD=m
+CONFIG_USB_LED=m
+CONFIG_USB_CYTHERM=m
+CONFIG_USB_PHIDGETKIT=m
+CONFIG_USB_PHIDGETSERVO=m
+CONFIG_USB_IDMOUSE=m
+# CONFIG_USB_SISUSBVGA is not set
+# CONFIG_USB_LD is not set
+CONFIG_USB_TEST=m
+
+#
+# USB DSL modem support
+#
+CONFIG_USB_ATM=m
+CONFIG_USB_SPEEDTOUCH=m
+# CONFIG_USB_CXACRU is not set
+# CONFIG_USB_UEAGLEATM is not set
+# CONFIG_USB_XUSBATM is not set
+
+#
+# USB Gadget Support
+#
+# CONFIG_USB_GADGET is not set
+
+#
+# MMC/SD Card support
+#
+CONFIG_MMC=m
+# CONFIG_MMC_DEBUG is not set
+CONFIG_MMC_BLOCK=m
+CONFIG_MMC_SDHCI=m
+
+#
+# LED devices
+#
+CONFIG_NEW_LEDS=y
+CONFIG_LEDS_CLASS=m
+CONFIG_LEDS_TRIGGERS=y
+CONFIG_LEDS_TRIGGER_TIMER=m
+CONFIG_LEDS_TRIGGER_IDE_DISK=y
+
+#
+# InfiniBand support
+#
+CONFIG_INFINIBAND=m
+# CONFIG_INFINIBAND_USER_MAD is not set
+# CONFIG_INFINIBAND_USER_ACCESS is not set
+CONFIG_INFINIBAND_MTHCA=m
+# CONFIG_INFINIBAND_MTHCA_DEBUG is not set
+CONFIG_INFINIBAND_IPOIB=m
+# CONFIG_INFINIBAND_IPOIB_DEBUG is not set
+# CONFIG_INFINIBAND_SRP is not set
+
+#
+# EDAC - error detection and reporting (RAS) (EXPERIMENTAL)
+#
+
+#
+# Real Time Clock
+#
+CONFIG_RTC_LIB=m
+CONFIG_RTC_CLASS=m
+
+#
+# RTC interfaces
+#
+CONFIG_RTC_INTF_SYSFS=m
+CONFIG_RTC_INTF_PROC=m
+CONFIG_RTC_INTF_DEV=m
+
+#
+# RTC drivers
+#
+CONFIG_RTC_DRV_X1205=m
+CONFIG_RTC_DRV_DS1672=m
+CONFIG_RTC_DRV_PCF8563=m
+CONFIG_RTC_DRV_RS5C372=m
+CONFIG_RTC_DRV_M48T86=m
+CONFIG_RTC_DRV_TEST=m
+
+#
+# Misc Linux/SPARC drivers
+#
+CONFIG_SUN_OPENPROMIO=m
+CONFIG_SUN_MOSTEK_RTC=y
+CONFIG_OBP_FLASH=m
+# CONFIG_SUN_BPP is not set
+CONFIG_BBC_I2C=m
+CONFIG_ENVCTRL=m
+CONFIG_DISPLAY7SEG=m
+
+#
+# Fibre Channel support
+#
+CONFIG_FC4=m
+
+#
+# FC4 drivers
+#
+CONFIG_FC4_SOC=m
+CONFIG_FC4_SOCAL=m
+
+#
+# FC4 targets
+#
+CONFIG_SCSI_PLUTO=m
+CONFIG_SCSI_FCAL=m
+
+#
+# File systems
+#
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+CONFIG_EXT2_FS_SECURITY=y
+# CONFIG_EXT2_FS_XIP is not set
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_EXT3_FS_SECURITY=y
+CONFIG_JBD=y
+# CONFIG_JBD_DEBUG is not set
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=m
+# CONFIG_REISERFS_CHECK is not set
+# CONFIG_REISERFS_PROC_INFO is not set
+CONFIG_REISERFS_FS_XATTR=y
+CONFIG_REISERFS_FS_POSIX_ACL=y
+CONFIG_REISERFS_FS_SECURITY=y
+CONFIG_JFS_FS=m
+CONFIG_JFS_POSIX_ACL=y
+CONFIG_JFS_SECURITY=y
+# CONFIG_JFS_DEBUG is not set
+# CONFIG_JFS_STATISTICS is not set
+CONFIG_FS_POSIX_ACL=y
+CONFIG_XFS_FS=m
+CONFIG_XFS_EXPORT=y
+CONFIG_XFS_QUOTA=y
+CONFIG_XFS_SECURITY=y
+CONFIG_XFS_POSIX_ACL=y
+# CONFIG_XFS_RT is not set
+# CONFIG_OCFS2_FS is not set
+CONFIG_MINIX_FS=m
+CONFIG_ROMFS_FS=m
+CONFIG_INOTIFY=y
+CONFIG_QUOTA=y
+CONFIG_QFMT_V1=m
+CONFIG_QFMT_V2=m
+CONFIG_QUOTACTL=y
+CONFIG_DNOTIFY=y
+CONFIG_AUTOFS_FS=m
+CONFIG_AUTOFS4_FS=m
+CONFIG_FUSE_FS=m
+
+#
+# CD-ROM/DVD Filesystems
+#
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=m
+CONFIG_UDF_FS=m
+CONFIG_UDF_NLS=y
+
+#
+# DOS/FAT/NT Filesystems
+#
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_FAT_DEFAULT_CODEPAGE=865
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_NTFS_FS=m
+# CONFIG_NTFS_DEBUG is not set
+CONFIG_NTFS_RW=y
+
+#
+# Pseudo filesystems
+#
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_HUGETLBFS=y
+CONFIG_HUGETLB_PAGE=y
+CONFIG_RAMFS=y
+# CONFIG_CONFIGFS_FS is not set
+
+#
+# Miscellaneous filesystems
+#
+CONFIG_ADFS_FS=m
+# CONFIG_ADFS_FS_RW is not set
+CONFIG_AFFS_FS=m
+CONFIG_HFS_FS=m
+CONFIG_HFSPLUS_FS=m
+CONFIG_BEFS_FS=m
+# CONFIG_BEFS_DEBUG is not set
+CONFIG_BFS_FS=m
+CONFIG_EFS_FS=m
+CONFIG_CRAMFS=m
+CONFIG_VXFS_FS=m
+CONFIG_HPFS_FS=m
+CONFIG_QNX4FS_FS=m
+CONFIG_SYSV_FS=m
+CONFIG_UFS_FS=m
+
+#
+# Network File Systems
+#
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+# CONFIG_NFS_V3_ACL is not set
+CONFIG_NFS_V4=y
+CONFIG_NFS_DIRECTIO=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+# CONFIG_NFSD_V3_ACL is not set
+CONFIG_NFSD_V4=y
+CONFIG_NFSD_TCP=y
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+CONFIG_NFS_COMMON=y
+CONFIG_SUNRPC=m
+CONFIG_SUNRPC_GSS=m
+CONFIG_RPCSEC_GSS_KRB5=m
+CONFIG_RPCSEC_GSS_SPKM3=m
+CONFIG_SMB_FS=m
+# CONFIG_SMB_NLS_DEFAULT is not set
+CONFIG_CIFS=m
+# CONFIG_CIFS_STATS is not set
+# CONFIG_CIFS_XATTR is not set
+# CONFIG_CIFS_EXPERIMENTAL is not set
+CONFIG_NCP_FS=m
+# CONFIG_NCPFS_PACKET_SIGNING is not set
+# CONFIG_NCPFS_IOCTL_LOCKING is not set
+# CONFIG_NCPFS_STRONG is not set
+# CONFIG_NCPFS_NFS_NS is not set
+# CONFIG_NCPFS_OS2_NS is not set
+# CONFIG_NCPFS_SMALLDOS is not set
+# CONFIG_NCPFS_NLS is not set
+# CONFIG_NCPFS_EXTRAS is not set
+CONFIG_CODA_FS=m
+# CONFIG_CODA_FS_OLD_API is not set
+CONFIG_AFS_FS=m
+CONFIG_RXRPC=m
+# CONFIG_9P_FS is not set
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SUN_PARTITION=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_737=m
+CONFIG_NLS_CODEPAGE_775=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_CODEPAGE_852=m
+CONFIG_NLS_CODEPAGE_855=m
+CONFIG_NLS_CODEPAGE_857=m
+CONFIG_NLS_CODEPAGE_860=m
+CONFIG_NLS_CODEPAGE_861=m
+CONFIG_NLS_CODEPAGE_862=m
+CONFIG_NLS_CODEPAGE_863=m
+CONFIG_NLS_CODEPAGE_864=m
+CONFIG_NLS_CODEPAGE_865=m
+CONFIG_NLS_CODEPAGE_866=m
+CONFIG_NLS_CODEPAGE_869=m
+CONFIG_NLS_CODEPAGE_936=m
+CONFIG_NLS_CODEPAGE_950=m
+CONFIG_NLS_CODEPAGE_932=m
+CONFIG_NLS_CODEPAGE_949=m
+CONFIG_NLS_CODEPAGE_874=m
+CONFIG_NLS_ISO8859_8=m
+CONFIG_NLS_CODEPAGE_1250=m
+CONFIG_NLS_CODEPAGE_1251=m
+CONFIG_NLS_ASCII=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_2=m
+CONFIG_NLS_ISO8859_3=m
+CONFIG_NLS_ISO8859_4=m
+CONFIG_NLS_ISO8859_5=m
+CONFIG_NLS_ISO8859_6=m
+CONFIG_NLS_ISO8859_7=m
+CONFIG_NLS_ISO8859_9=m
+CONFIG_NLS_ISO8859_13=m
+CONFIG_NLS_ISO8859_14=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_KOI8_R=m
+CONFIG_NLS_KOI8_U=m
+CONFIG_NLS_UTF8=m
+
+#
+# Instrumentation Support
+#
+CONFIG_PROFILING=y
+CONFIG_OPROFILE=m
+CONFIG_KPROBES=y
+
+#
+# Kernel hacking
+#
+# CONFIG_PRINTK_TIME is not set
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_LOG_BUF_SHIFT=15
+CONFIG_DETECT_SOFTLOCKUP=y
+CONFIG_SCHEDSTATS=y
+# CONFIG_DEBUG_SLAB is not set
+CONFIG_DEBUG_MUTEXES=y
+# CONFIG_DEBUG_SPINLOCK is not set
+# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+# CONFIG_DEBUG_KOBJECT is not set
+CONFIG_DEBUG_BUGVERBOSE=y
+# CONFIG_DEBUG_INFO is not set
+CONFIG_DEBUG_FS=y
+# CONFIG_DEBUG_VM is not set
+# CONFIG_FORCED_INLINING is not set
+# CONFIG_RCU_TORTURE_TEST is not set
+# CONFIG_DEBUG_STACK_USAGE is not set
+# CONFIG_DEBUG_DCFLUSH is not set
+# CONFIG_STACK_DEBUG is not set
+# CONFIG_DEBUG_BOOTMEM is not set
+# CONFIG_DEBUG_PAGEALLOC is not set
+
+#
+# Security options
+#
+CONFIG_KEYS=y
+# CONFIG_KEYS_DEBUG_PROC_KEYS is not set
+# CONFIG_SECURITY is not set
+
+#
+# Cryptographic options
+#
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_NULL=m
+CONFIG_CRYPTO_MD4=y
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+CONFIG_CRYPTO_SHA256=m
+CONFIG_CRYPTO_SHA512=m
+CONFIG_CRYPTO_WP512=m
+CONFIG_CRYPTO_TGR192=m
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_BLOWFISH=m
+CONFIG_CRYPTO_TWOFISH=m
+CONFIG_CRYPTO_SERPENT=m
+CONFIG_CRYPTO_AES=m
+CONFIG_CRYPTO_CAST5=m
+CONFIG_CRYPTO_CAST6=m
+CONFIG_CRYPTO_TEA=m
+CONFIG_CRYPTO_ARC4=m
+CONFIG_CRYPTO_KHAZAD=m
+CONFIG_CRYPTO_ANUBIS=m
+CONFIG_CRYPTO_DEFLATE=y
+CONFIG_CRYPTO_MICHAEL_MIC=m
+CONFIG_CRYPTO_CRC32C=m
+CONFIG_CRYPTO_TEST=m
+
+#
+# Hardware crypto devices
+#
+
+#
+# Library routines
+#
+CONFIG_CRC_CCITT=m
+# CONFIG_CRC16 is not set
+CONFIG_CRC32=y
+CONFIG_LIBCRC32C=m
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+
+--Boundary-00=_YZ8MEVSxaDPlkSg--

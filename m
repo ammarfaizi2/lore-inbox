@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWDERBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWDERC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbWDERBS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 13:01:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWDERBS
+	id S1751283AbWDERC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 13:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWDERC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 13:01:18 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:4507 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751280AbWDERBR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 13:01:17 -0400
-Subject: Re: [OT] Non-GCC compilers used for linux userspace
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Jason L Tibbitts III <tibbs@math.uh.edu>,
-       Eric Piel <Eric.Piel@tremplin-utc.net>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Rob Landley <rob@landley.net>,
-       nix@esperi.org.uk, mmazur@kernel.pl, linux-kernel@vger.kernel.org,
-       llh-discuss@lists.pld-linux.org
-In-Reply-To: <54199D84-7DB7-434E-BA83-9B2658182124@mac.com>
-References: <200603141619.36609.mmazur@kernel.pl>
-	 <20060326065205.d691539c.mrmacman_g4@mac.com>
-	 <4426A5BF.2080804@tremplin-utc.net> <200603261609.10992.rob@landley.net>
-	 <44271E88.6040101@tremplin-utc.net>
-	 <5DC72207-3C0B-44C2-A9E5-319C0A965E9D@mac.com>
-	 <Pine.LNX.4.61.0603281619300.27529@yvahk01.tjqt.qr>
-	 <36A8C3CC-3E4D-4158-AABB-F4D2C66AA8CD@mac.com>
-	 <442960B6.2040502@tremplin-utc.net>
-	 <7E2F0C3C-4091-4EEB-8E10-C1F58F94BD59@mac.com>
-	 <ufazmjaec9q.fsf@epithumia.math.uh.edu>
-	 <54199D84-7DB7-434E-BA83-9B2658182124@mac.com>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Wed, 05 Apr 2006 10:01:12 -0700
-Message-Id: <1144256472.3984.7.camel@chalcedony.internal.keyresearch.com>
+	Wed, 5 Apr 2006 13:02:28 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:50873 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751283AbWDERC1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 13:02:27 -0400
+Date: Wed, 5 Apr 2006 18:02:26 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: [patch 03/26] sysfs: zero terminate sysfs write buffers (CVE-2006-1055)
+Message-ID: <20060405170226.GL27946@ftp.linux.org.uk>
+References: <20060404235634.696852000@quad.kroah.org> <20060404235947.GD27049@kroah.com> <20060405190928.17b9ba6a.vsu@altlinux.ru> <20060405152123.GH27946@ftp.linux.org.uk> <9e4733910604050934s46ec20fbr905f78832431d91d@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e4733910604050934s46ec20fbr905f78832431d91d@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-28 at 12:13 -0500, Kyle Moffett wrote:
+On Wed, Apr 05, 2006 at 12:34:49PM -0400, Jon Smirl wrote:
+> On 4/5/06, Al Viro <viro@ftp.linux.org.uk> wrote:
+> > On Wed, Apr 05, 2006 at 07:09:28PM +0400, Sergey Vlasov wrote:
+> > > This will break the "color_map" sysfs file for framebuffers -
+> > > drivers/video/fbsysfs.c:store_cmap() expects to get exactly 4096 bytes
+> > > for a colormap with 256 entries.  In fact, the original patch which
+> > > changed PAGE_SIZE - 1 to PAGE_SIZE:
+> >
+> > ... cheerfully assuming that nobody assumes NUL-termination and
+> > everyone (sysfs patch writers!) certainly uses the length argument.
+> > Fscking brilliant, that.
+> 
+> Why does sysfs have two string length determination methods - both
+> NULL termination and a length parameter. It should be one or the
+> other, not both. Having both simply cause problems when some
+> developers implement one scheme and others only implement the other.
 
-> Mainly I want to know if I should even bother making the kabi headers  
-> compile with anything other than GCC.
-
-The PathScale compiler is gcc-compatible, so there should be no problems
-for us using gcc-isms in those headers.
-
-	<b
-
+Which part of "sysfs patches can be written by idiots and usually are"
+is too hard to understand?  Oh, wait.  I see...  Well, nevermind, then...

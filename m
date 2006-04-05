@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWDEAUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWDEAV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751025AbWDEAUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 20:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWDEAUZ
+	id S1751027AbWDEAV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 20:21:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWDEAV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 20:20:25 -0400
-Received: from xenotime.net ([66.160.160.81]:37275 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751024AbWDEAUY (ORCPT
+	Tue, 4 Apr 2006 20:21:27 -0400
+Received: from dvhart.com ([64.146.134.43]:48069 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1751026AbWDEAV0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 20:20:24 -0400
-Date: Tue, 4 Apr 2006 17:22:37 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org, jmforbes@linuxtx.org,
-       zwane@arm.linux.org.uk, tytso@mit.edu, davej@redhat.com,
-       chuckw@quantumlinux.com, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, eugene.teo@eugeneteo.net, davem@davemloft.net,
-       gregkh@suse.de
-Subject: Re: [patch 02/26] USB: Fix irda-usb use after use
-Message-Id: <20060404172237.d08cdc43.rdunlap@xenotime.net>
-In-Reply-To: <20060404235943.GC27049@kroah.com>
-References: <20060404235634.696852000@quad.kroah.org>
-	<20060404235943.GC27049@kroah.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 4 Apr 2006 20:21:26 -0400
+Message-ID: <44330D7F.3070109@mbligh.org>
+Date: Tue, 04 Apr 2006 17:21:19 -0700
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Zachary Amsden <zach@vmware.com>, ebiederm@xmission.com, bunk@stusta.de,
+       linux-kernel@vger.kernel.org, rdunlap@xenotime.net, fastboot@osdl.org
+Subject: Re: 2.6.17-rc1-mm1: KEXEC became SMP-only
+References: <20060404014504.564bf45a.akpm@osdl.org>	<20060404162921.GK6529@stusta.de>	<m1acb15ja2.fsf@ebiederm.dsl.xmission.com>	<4432B22F.6090803@vmware.com>	<m1irpp41wx.fsf@ebiederm.dsl.xmission.com>	<4432C7AC.9020106@vmware.com>	<20060404132546.565b3dae.akpm@osdl.org>	<4432ECF1.8040606@vmware.com> <20060404151904.764ad9f4.akpm@osdl.org>
+In-Reply-To: <20060404151904.764ad9f4.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Apr 2006 16:59:43 -0700 gregkh@suse.de wrote:
+>>>I don't recall anyone expressing any desire for the ability to set these
+>>>things at runtime.  Unless there is such a requirement I'd suggest that the
+>>>best way to address Eric's point is to simply rename the relevant functions
+>>>from foo() to subarch_foo().
+>>>  
+>>
+>>Avoiding the runtime assignment isn't possible if you want a generic 
+>>subarch that truly can run on multiple different platforms.
+> 
+> Well as I said - I haven't seen any requirement for this expressed.  That
+> doesn't mean that such a requirements doesn't exist, of course.
 
-> Don't read from free'd memory after calling netif_rx().  docopy is used as
-> a boolean (0 and 1) so unsigned int is sufficient.
-> 
-> Coverity bug #928
-> 
-> Signed-off-by: Eugene Teo <eugene.teo@eugeneteo.net>
-> Cc: "David Miller" <davem@davemloft.net>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> 
-> ---
-> 
->  drivers/net/irda/irda-usb.c |    5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> --- linux-2.6.16.1.orig/drivers/net/irda/irda-usb.c
-> +++ linux-2.6.16.1/drivers/net/irda/irda-usb.c
-> @@ -740,7 +740,7 @@ static void irda_usb_receive(struct urb 
->  	struct sk_buff *newskb;
->  	struct sk_buff *dataskb;
->  	struct urb *next_urb;
-> -	int		docopy;
-> +	unsigned int len, docopy;
->  
+I think there is a real requirement to do this at boot-time, yes. We 
+don't want a proliferation of different kernel builds in distros,
+but one kernel that installs and boots everywhere (think installer
+kernels on boot CDs, etc ... plus testing requirements). Autoswitching,
+without magic user-flags. That's what the generic subarch was always
+for, and frankly the others all ought to die (apart from possibly really
+specialised non-mainstream stuff like voyager and NUMA-Q).
 
-Is the <docopy> part of the patch just a convenience so that the patch
-doesn't have to be split?  I don't see this part as critical.
-
->  	IRDA_DEBUG(2, "%s(), len=%d\n", __FUNCTION__, urb->actual_length);
->  	
-> @@ -851,10 +851,11 @@ static void irda_usb_receive(struct urb 
->  	dataskb->dev = self->netdev;
->  	dataskb->mac.raw  = dataskb->data;
->  	dataskb->protocol = htons(ETH_P_IRDA);
-> +	len = dataskb->len;
->  	netif_rx(dataskb);
->  
->  	/* Keep stats up to date */
-> -	self->stats.rx_bytes += dataskb->len;
-> +	self->stats.rx_bytes += len;
->  	self->stats.rx_packets++;
->  	self->netdev->last_rx = jiffies;
->  
-> 
-
----
-~Randy
+M.

@@ -1,60 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWDEBfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWDEBfn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750954AbWDEBfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 21:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbWDEBfJ
+	id S1751059AbWDEBfn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 21:35:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbWDEBfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 21:35:09 -0400
-Received: from mga01.intel.com ([192.55.52.88]:5465 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750954AbWDEBfH convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 21:35:07 -0400
-X-IronPort-AV: i="4.03,165,1141632000"; 
-   d="scan'208"; a="20004434:sNHT622047426"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Tue, 4 Apr 2006 21:35:43 -0400
+Received: from smtp112.sbc.mail.re2.yahoo.com ([68.142.229.93]:14482 "HELO
+	smtp112.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751058AbWDEBfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 21:35:42 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Greg KH <gregkh@suse.de>
+Subject: Re: patch bus_add_device-losing-an-error-return-from-the-probe-method.patch added to gregkh-2.6 tree
+Date: Tue, 4 Apr 2006 21:35:40 -0400
+User-Agent: KMail/1.9.1
+Cc: rene.herman@keyaccess.nl, alsa-devel@alsa-project.org,
+       linux-kernel@vger.kernel.org, tiwai@suse.de
+References: <44238489.8090402@keyaccess.nl> <d120d5000604041428h65931eb6qffe1af04d91e7f31@mail.gmail.com> <20060404214522.GA20390@suse.de>
+In-Reply-To: <20060404214522.GA20390@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [Fastboot] [PATCH] kexec on ia64
-Date: Wed, 5 Apr 2006 09:34:56 +0800
-Message-ID: <08B1877B2880CE42811294894F33AD5C053A86@pdsmsx411.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Fastboot] [PATCH] kexec on ia64
-Thread-Index: AcZYT+lBX9ZKdhK0Q/SGPehpmQMyXAAALvmw
-From: "Zou, Nanhai" <nanhai.zou@intel.com>
-To: "KAMEZAWA Hiroyuki" <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: <ebiederm@xmission.com>, <khalid_aziz@hp.com>,
-       <linux-kernel@vger.kernel.org>, <fastboot@lists.osdl.org>,
-       <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 05 Apr 2006 01:34:56.0431 (UTC) FILETIME=[251423F0:01C65851]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604042135.41371.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: KAMEZAWA Hiroyuki [mailto:kamezawa.hiroyu@jp.fujitsu.com]
-> Sent: 2006Äê4ÔÂ5ÈÕ 9:28
-> To: Zou, Nanhai
-> Cc: ebiederm@xmission.com; khalid_aziz@hp.com; linux-kernel@vger.kernel.org;
-> fastboot@lists.osdl.org; linux-ia64@vger.kernel.org
-> Subject: Re: [Fastboot] [PATCH] kexec on ia64
-> 
-> On Wed, 5 Apr 2006 09:13:36 +0800
-> "Zou, Nanhai" <nanhai.zou@intel.com> wrote:
-> > > I'm working for memory hotplug. When memory is hot-added, memory layout
-> > > changes.
-> > > But I think there is no code to manage memory layout information of added
-> memory.
+On Tuesday 04 April 2006 17:45, Greg KH wrote:
+> On Tue, Apr 04, 2006 at 05:28:48PM -0400, Dmitry Torokhov wrote:
+> > On 4/4/06, Greg KH <gregkh@suse.de> wrote:
 > > >
-> >  It reads memory layout from /proc/iomem...,
-> >  If memory is hotpluged, I think we need a reload of kdump.
-> >
-> If /proc/iomem is updated at hotplug event (this is not updated now),
-> is there no problem ?
+> > > Hm, no, I unwound this mess, and found the following:
+> > >
+> > >  - bus_add_device() calls device_attach()
+> > >  - device_attach() calls bus_for_each_drv() for every driver on the bus
+> > >  - bus_for_each_drv() walks all drivers on the bus and calls
+> > >   __device_attach() for every individual driver
+> > >  - __device_attach() calls driver_probe_device() for that driver and device
+> > >  - driver_probe_device() calls down to the probe() function for the
+> > >   driver, passing it that driver, if match() for the bus matches this
+> > >   device.
+> > >  - if that probe() function returns -ENODEV or -ENXIO[1] then the error
+> > >   is ignored and 0 is returned, causing the loop to continue to try
+> > >   more drivers
+> > >  - if the probe() function returns any other error code, it is
+> > >   propagated up, all the way back to bus_add_device.
+> > 
+> > But why do we do that? probe() failing is driver's problem. The device
+> > is still there and should still be presented in sysfs. I don't think
+> > that we should stop if probe() fails - maybe next driver manages to
+> > bind itself.
 > 
- The crash dumping kernel also needs a reload, because the physical memory list is read and saved at kdump kernel loading time instead of crashing time.
+> The device is still there.
+> 
+> Ah, I see what you are saying now.  Yeah, we should still add the
+> default attributes for the bus and create the bus link even if some
+> random driver had problems.  But then, we should still propagate the
+> error back up, right?
+> 
 
-Zou Nan hai
+I don't think so because device creation did not fail. Otherwise how
+would you as a caller of device_register() distinguish between the
+following 2 scenarios:
+
+ - you got -ENOMEM (or other error code) because device creation
+   indeed failed;
+ - you got -ENOMEM because some odd driver could not allocate 4MB
+   of memory.
+
+IOW you trying to propagate driver error to device creation code...
+
+Also result of device_register() should not depend on whether
+driver_register() was called earlier or not.
+
+-- 
+Dmitry

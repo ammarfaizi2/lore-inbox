@@ -1,75 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWDETF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWDETKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751333AbWDETF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 15:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWDETF2
+	id S1751255AbWDETKU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 15:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWDETKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 15:05:28 -0400
-Received: from xenotime.net ([66.160.160.81]:1471 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751333AbWDETF2 (ORCPT
+	Wed, 5 Apr 2006 15:10:20 -0400
+Received: from mx1.mail.ru ([194.67.23.121]:37429 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S1751255AbWDETKT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 15:05:28 -0400
-Date: Wed, 5 Apr 2006 12:07:42 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: jzb@aexorsyst.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mem= causes oops (was Re: BIOS causes (exposes?) modprobe
- (load_module) kernel oops)
-Message-Id: <20060405120742.ee9af120.rdunlap@xenotime.net>
-In-Reply-To: <200603251036.40379.jzb@aexorsyst.com>
-References: <200603212005.58274.jzb@aexorsyst.com>
-	<200603240936.13178.jzb@aexorsyst.com>
-	<20060324163237.5743bd3c.rdunlap@xenotime.net>
-	<200603251036.40379.jzb@aexorsyst.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 5 Apr 2006 15:10:19 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: udev, PROGRAM and races...
+Date: Wed, 5 Apr 2006 23:10:14 +0400
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, oblin@mandriva.com
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604052310.14967.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Mar 2006 10:36:40 -0800 John Z. Bohach wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Friday 24 March 2006 16:32, Randy.Dunlap wrote:
-> > > Here it is:
-> > >
-> > > fails with cmdline:
-> > >
-> > > Kernel command line: ro root=/dev/sda1 rootdelay=10 mem=0x200M
-> > > console=ttyS0,115200n8
-> > >
-> > > works with:
-> > >
-> > > Kernel command line: ro root=/dev/sda1 rootdelay=10
-> > > console=ttyS0,115200n8
-> > >
-> > > Note the "mem=" being the differentiator!
-> >
-> > OK, that is memory map difference.
-> >
-> > Can you test a more recent kernel to see if it has the same problem?
-> > (like 2.6.16 or 2.6.16-git9)
-> 
-> No luck, or difference, for that matter.  2.6.16 behaves identically.  I'm
-> trying a few different options, such as disabling MSI/MSI-X support,
-> because what I've seen is that it all works fine with it as long as the h/w
-> has MSI support, but in all the case I've seen fail, the common denominator
-> is no MSI (and also all ICH4 platforms).  The cases where I can't make it fail
-> is where the h/w has MSI support.  One other noteworthy difference is that the
-> failures all occur on Intel graphics chipsets, while the successes are non-graphics.
-> Still trying to find out whether the failure follows graphics or the ICH4.
-> 
-> Anyway, what would help me is if someone could tell me if the page fault is a normal and
-> expected code path by design, in order to page in the area setup by __vmalloc_area()
-> as triggered by the module_alloc() call.  I'd really rather not have to trace through the
-> page fault handler to identify the difference between success/failure unless I have to.
+> This is done with rule like:
+>
+> SUBSYSTEM=="block", ACTION=="add", ENV{ID_CDROM}=="?*", \
+> PROGRAM="/lib/udev/udev_cdrom_helper", SYMLINK+="%c"
+>
+> This helper tries to get the next free %d index to create cdrom%d, for
+> example.
+> The problem is that the launch of both helpers for hda and add seems to be
+> done in parallel and the helper gets racy, so both cdroms get id 0, and the
+> last that comes owns it:
+>
+> helper instance for hda        helper instance for hdd
+> Does cdrom0 exist ? No
+>                                Does cdrom0 exist ? No
+> ln -sf hda cdrom0
+>                                ln -sf hdd cdrom0
+>
+> ????
+>
 
-AFAIK the page fault is not expected, but I would be happier if someone else
-confirmed that.
+Do you have real example of race condition?
 
-BTW, Documentation/kernel-parameters.txt suggests using mem= and memmap=
-together, so maybe you could use memmap=.... to prevent this problem.
+> Is there any way to serialize the calls to 'PROGRAM'. I tried something
+> like:
+>
+> SUBSYSTEM=="block", ACTION=="add", ENV{ID_CDROM}=="?*",
+> PROGRAM="/usr/bin/flock /sys/block /lib/udev/udev_cdrom_helper",
+> SYMLINK+="%c"
+>
+> But looks a lot ugly.
+>
 
----
-~Randy
+Why? It is probably the simplest fix actually (assuming sysfs does support 
+locking, I am not sure).
+
+> Any standard way to do this ?
+
+I never liked this automatic creation of symlinks, I believe this has to be 
+done as part of device configuration (harddrake on distro you likely mean :)
+
+> Can I still use %e, or is it really really deprecated ? this was easy:
+>
+> ENV{ID_CDROM_CD_RW}=="?*",  SYMLINK+="burner%e", MODE="0666",
+> GROUP="cdwriter" ENV{ID_CDROM_DVD_R}=="?*",  SYMLINK+="burner%e",
+> MODE="0666", GROUP="cdwriter"
+
+Yes it is deprecated exactly for the same reason. What ensures uniqueness of 
+%e?
+
+regards
+
+- -andrey
+
+PS I believe it is more appropriate for distro-specific list actually.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFENBYWR6LMutpd94wRAk4qAJoDaSaLY4nDCgif0ybFdumc2Q7NzACgvo1n
+U6fB7VUhQ70FG4nql8a6Nwk=
+=fnir
+-----END PGP SIGNATURE-----

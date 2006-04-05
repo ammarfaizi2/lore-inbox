@@ -1,60 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWDEQJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWDEQLa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751145AbWDEQJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 12:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWDEQJ2
+	id S1751201AbWDEQLa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 12:11:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWDEQLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 12:09:28 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:55195 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751145AbWDEQJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 12:09:27 -0400
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, Horms <horms@verge.net.au>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, fastboot@osdl.org
-Subject: Re: [PATCH] kexec: typo in machine_kexec()
-References: <20060404234806.GA25761@verge.net.au>
-	<20060404200557.1e95bdd8.rdunlap@xenotime.net>
-	<20060405055754.GA3277@verge.net.au>
-	<200604051624.35358.kernel@kolivas.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 05 Apr 2006 09:49:40 -0600
-In-Reply-To: <200604051624.35358.kernel@kolivas.org> (Con Kolivas's message
- of "Wed, 5 Apr 2006 16:24:34 +1000")
-Message-ID: <m13bgs3tuz.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 5 Apr 2006 12:11:30 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:5296 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S1751132AbWDEQL3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 12:11:29 -0400
+Subject: Re: [PATCH] kexec on ia64
+From: Khalid Aziz <khalid_aziz@hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       Linux ia64 <linux-ia64@vger.kernel.org>
+In-Reply-To: <20060403212049.480ad388.akpm@osdl.org>
+References: <1144102818.8279.6.camel@localhost.localdomain>
+	 <20060403212049.480ad388.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 05 Apr 2006 10:11:27 -0600
+Message-Id: <1144253487.16025.21.camel@lyra.fc.hp.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-04-03 at 21:20 -0700, Andrew Morton wrote:
+> Khalid Aziz <khalid_aziz@hp.com> wrote:
+> >
+> > Add kexec support on ia64.
+> > 
+> 
+> Neat.  How well does it work?
 
-How does this look for making that comment readable?
+Works well on my test machines - HP rx2600 and HP cx2600. Hopefully
+others can test it on other machines.
 
-Eric
+> > +/*
+> > + * Terminate any outstanding interrupts
+> > + */
+> > +void terminate_irqs(void)
+> > +{
+> > +	struct irqaction * action;
+> > +	irq_desc_t *idesc;
+> > +	int i;
+> > +
+> > +	for (i=0; i<NR_IRQS; i++) {
+> 
+> 	for (i = 0; i < NR_IRQS; i++) {
+> 
+> > +		idesc = irq_descp(i);
+> > +		action = idesc->action;
+> > +		if (!action)
+> > +			continue;
+> > +		if (idesc->handler->end)
+> > +			idesc->handler->end(i);
+> > +	}
+> > +}
+> 
+> Could we have a bit more description of what this function does, and why we
+> need it?
+> 
+> Should other kexec-using architectures be using this?  If not, why does
+> ia64 need it?
+> 
+> Thanks.
 
+This funtion terminates any outstanding interrupts. I found it to be
+necessary for devices that use level interrupt. If a device, using level
+interrupt, asserted its interrupt as kernel goes into panic, nobody
+acknowledges its interrupt. As a result, this interrupt stays asserted
+as the new kernel comes up. All drivers in their initialization routine
+should clear any pending interrupts, but most do not. As a result, when
+driver attempts to use the interrupt, it is unable to since the
+interrupt was already asserted and any new interrupts from the device
+simply cause interrupt line to continue to be asserted. terminate_irqs()
+tries to acknowledge any pending interrupts so the interrupts will be
+usable when the new kernel comes up. This is not specific to ia64 and I
+would think this problem would show up on other architectures as well. I
+happened to find it on ia64 because HP rx2600 uses level interrupts for
+SCSI controller.
 
-diff --git a/arch/i386/kernel/machine_kexec.c b/arch/i386/kernel/machine_kexec.c
-index f73d737..7a344b6 100644
---- a/arch/i386/kernel/machine_kexec.c
-+++ b/arch/i386/kernel/machine_kexec.c
-@@ -189,14 +189,11 @@ NORET_TYPE void machine_kexec(struct kim
- 	memcpy((void *)reboot_code_buffer, relocate_new_kernel,
- 						relocate_new_kernel_size);
+--
+Khalid
  
--	/* The segment registers are funny things, they are
--	 * automatically loaded from a table, in memory wherever you
--	 * set them to a specific selector, but this table is never
--	 * accessed again you set the segment to a different selector.
--	 *
--	 * The more common model is are caches where the behide
--	 * the scenes work is done, but is also dropped at arbitrary
--	 * times.
-+	/* The segment registers are funny things, they have both a
-+	 * visible and an invisible part.  Whenver the visible part is
-+	 * set to a specific selector, the invisible part is loaded
-+	 * with from a table in memory.  At no other time is the
-+	 * descriptor table in memory accessed. 
- 	 *
- 	 * I take advantage of this here by force loading the
- 	 * segments, before I zap the gdt with an invalid value.
+====================================================================
+Khalid Aziz                       Open Source and Linux Organization
+(970)898-9214                                        Hewlett-Packard
+khalid.aziz@hp.com                                  Fort Collins, CO
+
+"The Linux kernel is subject to relentless development" 
+                                - Alessandro Rubini
+
+

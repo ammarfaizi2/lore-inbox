@@ -1,94 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWDENRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWDENR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751005AbWDENRI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 09:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWDENRI
+	id S1751105AbWDENR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 09:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWDENR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 09:17:08 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:21512 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751005AbWDENRI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 09:17:08 -0400
-Date: Wed, 5 Apr 2006 15:17:06 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Eric Sesterhenn <snakebyte@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Pointer dereference in net/irda/ircomm/ircomm_tty.c
-Message-ID: <20060405131706.GB8673@stusta.de>
-References: <1143067566.26895.8.camel@alice> <20060322232247.GD7790@mipter.zuzino.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060322232247.GD7790@mipter.zuzino.mipt.ru>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 5 Apr 2006 09:17:26 -0400
+Received: from smtpout.mac.com ([17.250.248.84]:50125 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751105AbWDENRZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 09:17:25 -0400
+In-Reply-To: <200604051206.k35C6Uiq009761@wildsau.enemy.org>
+References: <200604051206.k35C6Uiq009761@wildsau.enemy.org>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <0CC157BB-7180-4B94-817A-E96A6099FBA6@mac.com>
+Cc: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Q on audit, audit-syscall
+Date: Wed, 5 Apr 2006 09:17:13 -0400
+To: Herbert Rosmanith <kernel@wildsau.enemy.org>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2006 at 02:22:47AM +0300, Alexey Dobriyan wrote:
-> On Wed, Mar 22, 2006 at 11:46:05PM +0100, Eric Sesterhenn wrote:
-> > this fixes coverity bugs #855 and #854. In both cases tty
-> > is dereferenced before getting checked for NULL.
-> 
-> Before Al will flame you,
-> 
-> IMO, what should be done is removing asserts checking for "self",
-> because ->driver_data is filled in ircomm_tty_open() with valid pointer.
+On Apr 5, 2006, at 08:06:30, Herbert Rosmanith wrote:
+>> On Wed, Apr 05, 2006 at 01:27:03PM +0200, Herbert Rosmanith wrote:
+>>>
+>>> good afternoon,
+>>>
+>>> I'm searching for a way to trace/intercept syscalls, both before  
+>>> and after execution. "ptrace" is not an option (you probably know  
+>>> why).
+>>
+>> Does strace do what you are asking for?
+>
+> as I said, "ptrace" is not an option.
 
-That's not what the Coverity checker is warning about.
+Why not, exactly?  (No, we don't know why).  ptrace is _the_ Linux  
+mechanism to trace and intercept syscalls.  There is no other way.
 
-It warns that "tty" is first dereferenced and later checked for NULL.
-
-> > --- linux-2.6.16/net/irda/ircomm/ircomm_tty.c.orig
-> > +++ linux-2.6.16/net/irda/ircomm/ircomm_tty.c
-> > @@ -493,7 +493,7 @@ static int ircomm_tty_open(struct tty_st
-> >   */
-> >  static void ircomm_tty_close(struct tty_struct *tty, struct file *filp)
-> >  {
-> > -	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) tty->driver_data;
-> > +	struct ircomm_tty_cb *self;
-> >  	unsigned long flags;
-> >
-> >  	IRDA_DEBUG(0, "%s()\n", __FUNCTION__ );
-> > @@ -501,6 +501,8 @@ static void ircomm_tty_close(struct tty_
-> >  	if (!tty)
-> >  		return;
-> >
-> > +	self = (struct ircomm_tty_cb *) tty->driver_data;
-> > +
-> >  	IRDA_ASSERT(self != NULL, return;);
-> >  	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
-> >
-> > @@ -1006,17 +1008,19 @@ static void ircomm_tty_shutdown(struct i
-> >   */
-> >  static void ircomm_tty_hangup(struct tty_struct *tty)
-> >  {
-> > -	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) tty->driver_data;
-> > +	struct ircomm_tty_cb *self;
-> >  	unsigned long	flags;
-> >
-> >  	IRDA_DEBUG(0, "%s()\n", __FUNCTION__ );
-> >
-> > -	IRDA_ASSERT(self != NULL, return;);
-> > -	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
-> > -
-> >  	if (!tty)
-> >  		return;
-> >
-> > +	self = (struct ircomm_tty_cb *) tty->driver_data;
-> > +
-> > +	IRDA_ASSERT(self != NULL, return;);
-> > +	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
-> > +
-> >  	/* ircomm_tty_flush_buffer(tty); */
-> >  	ircomm_tty_shutdown(self);
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Cheers,
+Kyle Moffett
 

@@ -1,77 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWDEVSE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWDEVSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWDEVSE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 17:18:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWDEVSE
+	id S1751134AbWDEVSj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 17:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWDEVSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 17:18:04 -0400
-Received: from mga01.intel.com ([192.55.52.88]:3473 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751124AbWDEVSC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 17:18:02 -0400
-X-IronPort-AV: i="4.04,91,1144047600"; 
-   d="scan'208"; a="20408992:sNHT53647398"
-Date: Wed, 5 Apr 2006 14:17:57 -0700
-From: "Luck, Tony" <tony.luck@intel.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Zou Nan hai <nanhai.zou@intel.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, linux-ia64@vger.kernel.org
-Subject: Re: 2.6.17-rc1-mm1
-Message-ID: <20060405211757.GA8536@agluck-lia64.sc.intel.com>
-References: <20060404014504.564bf45a.akpm@osdl.org> <20060404233851.GA6411@agluck-lia64.sc.intel.com> <1144202706.3197.11.camel@linux-znh> <200604051015.34217.bjorn.helgaas@hp.com>
+	Wed, 5 Apr 2006 17:18:39 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:34312 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751134AbWDEVSi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 17:18:38 -0400
+Date: Wed, 5 Apr 2006 23:18:37 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Kristis Makris <kristis.makris@asu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Issues with symbol names
+Message-ID: <20060405211837.GB2398@mars.ravnborg.org>
+References: <1144268838.8306.16.camel@syd.mkgnu.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200604051015.34217.bjorn.helgaas@hp.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1144268838.8306.16.camel@syd.mkgnu.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 05, 2006 at 10:15:34AM -0600, Bjorn Helgaas wrote:
-> Huh.  Intel firmware used to just not mention the VGA framebuffer
-> (0xa0000-0xc0000) at all in the EFI memory map.  I think that was
-> clearly a bug.  So maybe they fixed that by marking it WB (and
-> hopefully UC as well).
-
-Nope ... not fixed (at least not in the f/w that I'm running). The
-VGA buffer is still simply not mentioned in the EFI memory map.
-
-The problem looks to come from this code in vgacon.c:
-
-	vga_vram_base = VGA_MAP_MEM(vga_vram_base);
-	vga_vram_end = VGA_MAP_MEM(vga_vram_end);
-	vga_vram_size = vga_vram_end - vga_vram_base;
-
-vga_vram_base is 0xb8000, and this call gets a UC return of
-c0000000000b8000.  But vga_vram_end is 0xc0000 ... which is
-the address of the start of a block of memory that is both
-WB and UC capable.  So ioremap() gives us e0000000000c0000
-(which means that vga_vram_size is 2000000000008000, surely
-the biggest, baddest video card in the history of the world!).
-
-Perhaps the right fix is to subtract 1 from vga_vram_end and pass
-that into VGA_MAP_MEM(), and then add the 1 byte back when computing
-the size?  But I don't know whether that might do something bad on
-some other architecture that uses vgacon.c.  If this is not
-acceptable, then we can fall back and use the Nanhai/Bjorn fix
-of using ioremap_nocache().
-
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-
----
-
-diff --git a/drivers/video/console/vgacon.c b/drivers/video/console/vgacon.c
-index d5a04b6..4ca9877 100644
---- a/drivers/video/console/vgacon.c
-+++ b/drivers/video/console/vgacon.c
-@@ -484,8 +484,8 @@ #endif
- 	}
  
- 	vga_vram_base = VGA_MAP_MEM(vga_vram_base);
--	vga_vram_end = VGA_MAP_MEM(vga_vram_end);
--	vga_vram_size = vga_vram_end - vga_vram_base;
-+	vga_vram_end = VGA_MAP_MEM(vga_vram_end - 1);
-+	vga_vram_size = vga_vram_end - vga_vram_base + 1;
- 
- 	/*
- 	 *      Find out if there is a graphics card present.
+> So in summary:
+> 
+>  - Can the kernel from now on start being linked with --warn-common ?
+
+Please try this with an allyesconfig build a enjoy the result.
+There is a huge effort involded before getting remotely warning free in
+this area.
+
+Your approch seems to neglect the fact that the linker may rearrange
+functions if it decide to do so.
+And on X86_64 we actually do so with CONFIG_REORDER.
+
+Someone on the list will probarly have som inputs how to do what you try
+in a more protable way.
+
+	Sam

@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbWDESms@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWDESoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751328AbWDESms (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 14:42:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWDESms
+	id S1751325AbWDESoP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 14:44:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWDESoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 14:42:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8097 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751324AbWDESmr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 14:42:47 -0400
-Message-ID: <44340ED6.2060208@redhat.com>
-Date: Wed, 05 Apr 2006 14:39:18 -0400
-From: William Cohen <wcohen@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 5 Apr 2006 14:44:15 -0400
+Received: from wproxy.gmail.com ([64.233.184.234]:36549 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751325AbWDESoO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 14:44:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Hjiewva7dgyhDjAuJwKtxu5ra/k+yF6u2Pk16k9j5kADegpFbUFGRyvvYDtP76bv9oWZHHO5IgGsTjfro6//zIDv47TGGbMDKAaqSOpHjl5Rf6GDyM+7tMrxcrr+DIO0HQDqu9Xgw72fBxkQsZ9rs2hwUnD6tSm4n9VRALaBgtY=
+Message-ID: <d120d5000604051144r535e1b5k763269f1f5ef17ea@mail.gmail.com>
+Date: Wed, 5 Apr 2006 14:44:13 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "Rene Herman" <rene.herman@keyaccess.nl>
+Subject: Re: patch bus_add_device-losing-an-error-return-from-the-probe-method.patch added to gregkh-2.6 tree
+Cc: "Greg KH" <gregkh@suse.de>, alsa-devel@alsa-project.org,
+       linux-kernel@vger.kernel.org, tiwai@suse.de,
+       "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <44340E12.9000202@keyaccess.nl>
 MIME-Version: 1.0
-To: eranian@hpl.hp.com
-CC: perfmon@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, oprofile-list@lists.sourceforge.net,
-       perfctr-devel@lists.sourceforge.net
-Subject: Re: 2.6.17-rc1 perfmon2 new code base + libpfm available
-References: <20060405154319.GD6232@frankl.hpl.hp.com>
-In-Reply-To: <20060405154319.GD6232@frankl.hpl.hp.com>
-Content-Type: multipart/mixed;
- boundary="------------000508030400010306050906"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <44238489.8090402@keyaccess.nl> <4432EF58.1060502@keyaccess.nl>
+	 <44330DFA.4080106@keyaccess.nl>
+	 <200604042145.24685.dtor_core@ameritech.net>
+	 <44340E12.9000202@keyaccess.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000508030400010306050906
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On 4/5/06, Rene Herman <rene.herman@keyaccess.nl> wrote:
+> Dmitry Torokhov wrote:
+>
+> >> Well, we could in fact hang an unregister off device->private_data as
+> >> per attached example. Wouldn't be _excessively_ ugly. Still sucks
+> >> though.
+> >
+> > Plus it broke all the drivers that create platform devices before
+> > registering drivers or the ones simply not using private data.
+>
+> No, this was just a suggestion for an ALSA specific workaround. I was
+> suggesting ALSA drivers could do this.
+>
 
-Stephane Eranian wrote:
+Yes, I am sorry - I misread the code snipped as if it was in driver
+core, not in ALSA itself.
 
-> The new version of the library, libpfm, includes the following changes:
-> 
-> 	- updated to match 2.6.17-rc1 new system call numbers
-> 
-> 	- modified pfmlib.h to use 64-bit integer for generic PMC register
-> 	  (submitted by Kevin Corry from IBM)
-
-Hi Stephane,
-
-There isn't an perfmon_x86_64.h file anymore. Shouldn't the Makefile 
-eliminate that? The stock "make install" fails because that file doesn't 
-exist. I think the attached patch fixes this problem.
-
--Will
-
---------------000508030400010306050906
-Content-Type: text/x-patch;
- name="x86_64_merge.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x86_64_merge.diff"
-
---- libpfm-3.2-060405/include/Makefile.orig	2006-04-05 14:09:32.000000000 -0400
-+++ libpfm-3.2-060405/include/Makefile	2006-04-05 14:35:09.000000000 -0400
-@@ -40,7 +40,6 @@
- 
- ifeq ($(CONFIG_PFMLIB_ARCH_X86_64),y)
- HEADERS += perfmon/pfmlib_os_x86_64.h   \
--	   perfmon/perfmon_x86_64.h     \
- 	   perfmon/pfmlib_comp_x86_64.h
- endif
- 
-
---------------000508030400010306050906--
+--
+Dmitry

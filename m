@@ -1,54 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWDEM7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWDENRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbWDEM7j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 08:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWDEM7j
+	id S1751005AbWDENRI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 09:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWDENRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 08:59:39 -0400
-Received: from tassadar.physics.auth.gr ([155.207.123.25]:61115 "EHLO
-	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
-	id S1751225AbWDEM7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 08:59:38 -0400
-Date: Wed, 5 Apr 2006 15:00:19 +0300 (EEST)
-From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
-To: linux-kernel@vger.kernel.org
-Subject: mpi application fails with vanilla 2.6 kernels, works with rhel
- kernels
-Message-ID: <Pine.LNX.4.64.0604051450430.24394@tassadar.physics.auth.gr>
+	Wed, 5 Apr 2006 09:17:08 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:21512 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751005AbWDENRI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 09:17:08 -0400
+Date: Wed, 5 Apr 2006 15:17:06 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Eric Sesterhenn <snakebyte@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Pointer dereference in net/irda/ircomm/ircomm_tty.c
+Message-ID: <20060405131706.GB8673@stusta.de>
+References: <1143067566.26895.8.camel@alice> <20060322232247.GD7790@mipter.zuzino.mipt.ru>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060322232247.GD7790@mipter.zuzino.mipt.ru>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 23, 2006 at 02:22:47AM +0300, Alexey Dobriyan wrote:
+> On Wed, Mar 22, 2006 at 11:46:05PM +0100, Eric Sesterhenn wrote:
+> > this fixes coverity bugs #855 and #854. In both cases tty
+> > is dereferenced before getting checked for NULL.
+> 
+> Before Al will flame you,
+> 
+> IMO, what should be done is removing asserts checking for "self",
+> because ->driver_data is filled in ircomm_tty_open() with valid pointer.
 
+That's not what the Coverity checker is warning about.
 
-         Hi all,
+It warns that "tty" is first dereferenced and later checked for NULL.
 
-         I am trying to run WRF model (http://wrf-model.org) on a dual core 
-dual cpu opteron system with intel c/fortran 9 , scientific linux (rhel compatible,
-tried 3.0.4 ,3.0.5 , 4.2) and mpich 1.2.7p1. As long as I use the vendor supplied
-kernels everything works fine.However , when I use kernels compiled on my own, I am
-getting erratic behaviour: the model will either crash, or produce invalid results,
-or complete successfully approximately once in 20 attemps. If I run it on one CPU
-it completes successfully with all kernels.
-         I have tried with 2.6.14.3, 2.6.15.6 and 2.6.9. Both show the same 
-erratic behaviour. Kernels 2.6.9-22 and 2.6.9-34 as supplied by scientific 
-linux 4.2 and 2.4.21-37.0.1 in 3.0.4 work fine. All kernels are smp enabled.
-I am copying the .config of the vendor kernels, compiling mpt fusion scsi 
-drivers in kernel and not as modules in some cases. The application runs 
-exclusively on the opteron system.
- 	I have no idea how to deal with this situation. Any help is 
-appreciated.
+> > --- linux-2.6.16/net/irda/ircomm/ircomm_tty.c.orig
+> > +++ linux-2.6.16/net/irda/ircomm/ircomm_tty.c
+> > @@ -493,7 +493,7 @@ static int ircomm_tty_open(struct tty_st
+> >   */
+> >  static void ircomm_tty_close(struct tty_struct *tty, struct file *filp)
+> >  {
+> > -	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) tty->driver_data;
+> > +	struct ircomm_tty_cb *self;
+> >  	unsigned long flags;
+> >
+> >  	IRDA_DEBUG(0, "%s()\n", __FUNCTION__ );
+> > @@ -501,6 +501,8 @@ static void ircomm_tty_close(struct tty_
+> >  	if (!tty)
+> >  		return;
+> >
+> > +	self = (struct ircomm_tty_cb *) tty->driver_data;
+> > +
+> >  	IRDA_ASSERT(self != NULL, return;);
+> >  	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+> >
+> > @@ -1006,17 +1008,19 @@ static void ircomm_tty_shutdown(struct i
+> >   */
+> >  static void ircomm_tty_hangup(struct tty_struct *tty)
+> >  {
+> > -	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) tty->driver_data;
+> > +	struct ircomm_tty_cb *self;
+> >  	unsigned long	flags;
+> >
+> >  	IRDA_DEBUG(0, "%s()\n", __FUNCTION__ );
+> >
+> > -	IRDA_ASSERT(self != NULL, return;);
+> > -	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+> > -
+> >  	if (!tty)
+> >  		return;
+> >
+> > +	self = (struct ircomm_tty_cb *) tty->driver_data;
+> > +
+> > +	IRDA_ASSERT(self != NULL, return;);
+> > +	IRDA_ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+> > +
+> >  	/* ircomm_tty_flush_buffer(tty); */
+> >  	ircomm_tty_shutdown(self);
 
- 	Best regards,
+cu
+Adrian
 
---
-============================================================================
+-- 
 
-Dimitris Zilaskos
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-Department of Physics @ Aristotle University of Thessaloniki , Greece
-PGP key : http://tassadar.physics.auth.gr/~dzila/pgp_public_key.asc
- 	  http://egnatia.ee.auth.gr/~dzila/pgp_public_key.asc
-MD5sum  : de2bd8f73d545f0e4caf3096894ad83f  pgp_public_key.asc
-============================================================================

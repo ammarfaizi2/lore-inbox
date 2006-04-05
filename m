@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWDEPRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbWDEPVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbWDEPRH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 11:17:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWDEPRH
+	id S1750920AbWDEPVv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 11:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbWDEPVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 11:17:07 -0400
-Received: from xenotime.net ([66.160.160.81]:31981 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750834AbWDEPRG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 11:17:06 -0400
-Date: Wed, 5 Apr 2006 08:19:20 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: horms@verge.net.au, linux-kernel@vger.kernel.org, fastboot@osdl.org,
-       akpm <akpm@osdl.org>, torvalds <torvalds@osdl.org>
-Subject: [PATCH] kexec: update MAINTAINERS
-Message-Id: <20060405081920.3655ddb2.rdunlap@xenotime.net>
-In-Reply-To: <m1mzf0in0n.fsf@ebiederm.dsl.xmission.com>
-References: <20060404234806.GA25761@verge.net.au>
-	<20060404200557.1e95bdd8.rdunlap@xenotime.net>
-	<m1mzf0in0n.fsf@ebiederm.dsl.xmission.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Wed, 5 Apr 2006 11:21:51 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:32977 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750885AbWDEPVv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 11:21:51 -0400
+Date: Wed, 5 Apr 2006 16:21:23 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Sergey Vlasov <vsu@altlinux.ru>
+Cc: gregkh@suse.de, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org, stable@kernel.org,
+       Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [patch 03/26] sysfs: zero terminate sysfs write buffers (CVE-2006-1055)
+Message-ID: <20060405152123.GH27946@ftp.linux.org.uk>
+References: <20060404235634.696852000@quad.kroah.org> <20060404235947.GD27049@kroah.com> <20060405190928.17b9ba6a.vsu@altlinux.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060405190928.17b9ba6a.vsu@altlinux.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+On Wed, Apr 05, 2006 at 07:09:28PM +0400, Sergey Vlasov wrote:
+> This will break the "color_map" sysfs file for framebuffers -
+> drivers/video/fbsysfs.c:store_cmap() expects to get exactly 4096 bytes
+> for a colormap with 256 entries.  In fact, the original patch which
+> changed PAGE_SIZE - 1 to PAGE_SIZE:
 
-Eric is the kexec maintainer.
+... cheerfully assuming that nobody assumes NUL-termination and
+everyone (sysfs patch writers!) certainly uses the length argument.
+Fscking brilliant, that.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- MAINTAINERS |    2 --
- 1 files changed, 2 deletions(-)
+Are you willing to audit all sysfs ->show() in the kernel?  Original
+author of that turd had not been.
 
---- linux-2617-rc1.orig/MAINTAINERS
-+++ linux-2617-rc1/MAINTAINERS
-@@ -1556,9 +1556,7 @@ S:	Maintained
- 
- KEXEC
- P:	Eric Biederman
--P:	Randy Dunlap
- M:	ebiederm@xmission.com
--M:	rdunlap@xenotime.net
- W:	http://www.xmission.com/~ebiederm/files/kexec/
- L:	linux-kernel@vger.kernel.org
- L:	fastboot@osdl.org
+FWIW, "color_map" is a blatant abuse of interface.  Doesn't get
+any more borderline...
 
-
----

@@ -1,114 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWDEVVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWDEVW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbWDEVVb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 17:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWDEVVa
+	id S932075AbWDEVW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 17:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbWDEVW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 17:21:30 -0400
-Received: from smtpq2.groni1.gr.home.nl ([213.51.130.201]:36571 "EHLO
-	smtpq2.groni1.gr.home.nl") by vger.kernel.org with ESMTP
-	id S1751178AbWDEVVa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 17:21:30 -0400
-Message-ID: <44343510.6040100@keyaccess.nl>
-Date: Wed, 05 Apr 2006 23:22:24 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Wed, 5 Apr 2006 17:22:28 -0400
+Received: from adsl-67-116-42-147.dsl.sntc01.pacbell.net ([67.116.42.147]:33551
+	"EHLO avtrex.com") by vger.kernel.org with ESMTP id S1751178AbWDEVW1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 17:22:27 -0400
+From: David Daney <ddaney@avtrex.com>
 MIME-Version: 1.0
-To: dtor_core@ameritech.net
-CC: Greg KH <gregkh@suse.de>, alsa-devel@alsa-project.org,
-       linux-kernel@vger.kernel.org, tiwai@suse.de,
-       Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: patch bus_add_device-losing-an-error-return-from-the-probe-method.patch
- added to gregkh-2.6 tree
-References: <44238489.8090402@keyaccess.nl> <20060404210048.GA5694@suse.de>	 <4432EF58.1060502@keyaccess.nl>	 <200604042148.57286.dtor_core@ameritech.net>	 <4433CB34.6010707@keyaccess.nl> <d120d5000604050759k576133a9t90dd02c35fce91af@mail.gmail.com>
-In-Reply-To: <d120d5000604050759k576133a9t90dd02c35fce91af@mail.gmail.com>
-Content-Type: multipart/mixed;
- boundary="------------010900030401010001020405"
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17460.13568.175877.44476@dl2.hq2.avtrex.com>
+Date: Wed, 5 Apr 2006 14:22:08 -0700
+To: netdev@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+CC: pgf@foxharp.boston.ma.us
+CC: freek@macfreek.nl
+Subject: [PATCH] net: Broadcast ARP packets on link local addresses (Version2).
+X-Mailer: VM 7.19 under Emacs 21.3.1
+Reply-To: ddaney@avtrex.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010900030401010001020405
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: David Daney
 
-Dmitry Torokhov wrote:
+Here is a new version of the patch I sent March 31.  For background,
+this is my description from the first patch:
 
-> You need to let go of the model that driver that drives hardware also
-> do the device discovery and it will all fall into place.
+> When an internet host joins a network where there is no DHCP server,
+> it may auto-allocate an IP address by the method described in RFC
+> 3927.  There are several user space daemons available that implement
+> most of the protocol (zcip, busybox, ...).  The kernel's APR driver
+> should function in the normal manner except that it is required to
+> broadcast all ARP packets that it originates in the link local address
+> space (169.254.0.0/16).  RFC 3927 section 2.5 explains the requirement.
 
-It's not possible to sanely let go of that model. ISA discovery involves 
-(as an example) poking at the same I/O ports as using does, meaning you 
-will have to share a request_region() over discovery and use for one -- 
-you can't decouple that due to obvious races.
+> The current ARP code is non-compliant because it does not broadcast
+> some ARP packets as required by RFC 3927.
 
->> Anyways, the additional method would, I feel, be the conceptually
->> cleanest approach. Practically speaking though, simply doing a manual
->> probe and only calling platform_register() after everything is found to
->> be present and accounted for is not much of a problem either.
->>
-> 
-> Unfortunately it breaks manual driver binding/unbinding through sysfs
-> so I don't think it is a good long-term solution.
+> This patch to net/ipv4/arp.c checks the source address of all ARP
+> packets and if the fall in 169.254.0.0/16, they are broadcast instead
+> of unicast.
 
-Yes. I don't see a significantly cleaner solution then than the slightly 
-hackish "using drvdata as a private success flag" that I posted before. 
-Example patch versus snd_adlib attached again. This seems to work well.
+All of that is still true.
 
-Takashi: do you agree? If the probe() method return is not going to be 
-propagated up, there are few other options.
+The changes in this version are that it tests the source IP address
+instead of the destination.  The test now matches the test described
+in the RFC.  Also a small cleanup as suggested by Herbert Xu.
 
-(Continuing the loop on IS_ERR(device) is then also a bit questionable 
-again as the IS_ERR then signifies an eror in the bowels of the device 
-model, but I feel it's still the correct thing to do)
+Some comments on the first version of the patch suggested that I do
+'X' instead.  Where 'X' was behavior different than that REQUIRED by
+the RFC (the RFC's always seem to capitalize the word 'required').
 
-Rene.
+The reason that I implemented the behavior required by the RFC is so
+that a device running the kernel can pass compliance tests that
+mandate RFC compliance.
 
+If the patch is deemed good and correct, great, please apply it.
 
---------------010900030401010001020405
-Content-Type: text/plain;
- name="adlib_unregister.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="adlib_unregister.diff"
+Othwise comments about how to improve it are always welcome.  But keep
+in mind that I would like to end up with something that complies with
+the RFC.
 
-Index: local/sound/isa/adlib.c
-===================================================================
---- local.orig/sound/isa/adlib.c	2006-04-05 02:00:55.000000000 +0200
-+++ local/sound/isa/adlib.c	2006-04-05 02:05:45.000000000 +0200
-@@ -43,8 +43,7 @@ static int __devinit snd_adlib_probe(str
- 	struct snd_card *card;
- 	struct snd_opl3 *opl3;
+This patch is against 2.6.16.1
+
+Signed-off-by: David Daney <ddaney@avtrex.com>
+
+---
+
+--- net/ipv4/arp.c.orig	2006-03-31 13:44:50.000000000 -0800
++++ net/ipv4/arp.c	2006-04-05 13:33:19.000000000 -0700
+@@ -690,6 +690,11 @@ void arp_send(int type, int ptype, u32 d
+ 	if (dev->flags&IFF_NOARP)
+ 		return;
  
--	int error;
--	int i = device->id;
-+	int error, i = device->id;
- 
- 	if (port[i] == SNDRV_AUTO_PORT) {
- 		snd_printk(KERN_ERR DRV_NAME ": please specify port\n");
-@@ -95,8 +94,7 @@ static int __devinit snd_adlib_probe(str
- 	return 0;
- 
- out1:	snd_card_free(card);
-- out0:	error = -EINVAL; /* FIXME: should be the original error code */
--	return error;
-+out0:	return error;
- }
- 
- static int __devexit snd_adlib_remove(struct platform_device *device)
-@@ -134,6 +132,11 @@ static int __init alsa_card_adlib_init(v
- 		if (IS_ERR(device))
- 			continue;
- 
-+		if (!platform_get_drvdata(device)) {
-+			platform_device_unregister(device);
-+			continue;
-+		}
++        /* If link local address (169.254.0.0/16) we must broadcast
++         * the ARP packet.  See RFC 3927 section 2.5 for details. */
++	if ((src_ip & htonl(0xFFFF0000UL)) == htonl(0xA9FE0000UL))
++		dest_hw = NULL;
 +
- 		devices[i] = device;
- 		cards++;
- 	}
-
---------------010900030401010001020405--
+ 	skb = arp_create(type, ptype, dest_ip, dev, src_ip,
+ 			 dest_hw, src_hw, target_hw);
+ 	if (skb == NULL) {

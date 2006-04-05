@@ -1,74 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWDEMC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWDEMBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751229AbWDEMC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 08:02:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWDEMC1
+	id S1751224AbWDEMBP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 08:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWDEMBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 08:02:27 -0400
-Received: from ranger.systems.pipex.net ([62.241.162.32]:62668 "EHLO
-	ranger.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S1751225AbWDEMC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 08:02:26 -0400
-From: Tim Phipps <tim@phipps-hutton.freeserve.co.uk>
-To: Tim Phipps <tim@computer.systems.pipex.net>, linux-kernel@vger.kernel.org
-Subject: Re: p4-clockmod not working in 2.6.16
-Date: Wed, 5 Apr 2006 13:02:13 +0100
-User-Agent: KMail/1.8.3
-Cc: Mike Galbraith <efault@gmx.de>, Edgar Toernig <froese@gmx.de>,
-       Dave Jones <davej@redhat.com>
-References: <1142974528.3470.4.camel@localhost> <1143008405.13748.4.camel@homer> <1144147663.2588.247.camel@elsdt-scarecrow.arc.com>
-In-Reply-To: <1144147663.2588.247.camel@elsdt-scarecrow.arc.com>
+	Wed, 5 Apr 2006 08:01:15 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:40207 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1751224AbWDEMBO convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 08:01:14 -0400
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_HH7MEoCk4GiMpZq"
-Message-Id: <200604051302.15576.tim@phipps-hutton.freeserve.co.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+in-reply-to: <4432EC08.4010104@nortel.com>
+x-originalarrivaltime: 05 Apr 2006 12:01:13.0320 (UTC) FILETIME=[A2A65E80:01C658A8]
+Content-class: urn:content-classes:message
+Subject: Re: CONFIG_FRAME_POINTER and module vermagic
+Date: Wed, 5 Apr 2006 08:01:12 -0400
+Message-ID: <Pine.LNX.4.61.0604050729210.4636@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: CONFIG_FRAME_POINTER and module vermagic
+Thread-Index: AcZYqKKtlTrODgAsTtSONAKj+FQnmA==
+References: <442ACAD6.6@nortel.com> <Pine.LNX.4.61.0603291308240.28274@chaos.analogic.com> <4432EC08.4010104@nortel.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Christopher Friesen" <cfriesen@nortel.com>
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_HH7MEoCk4GiMpZq
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-On Tuesday 04 Apr 2006 11:47, Tim Phipps wrote:
-> On Wed, 2006-03-22 at 06:20, Mike Galbraith wrote:
-> > On Wed, 2006-03-22 at 06:57 +0100, Edgar Toernig wrote:
-> > > | N60.         Processor May Hang under Certain Frequencies and 12.5%
-> > > |              STPCLK# Duty Cycle
-> > > |
-> > > | Problem:     If a system de-asserts STPCLK# at a 12.5% duty cycle,
-> > > | the processor is running below 2 GHz, and the processor thermal
-> > > | control circuit (TCC) on-demand clock modulation is active, the
-> > > | processor may hang. This erratum does not occur under the automatic
-> > > | mode of the TCC.
+On Tue, 4 Apr 2006, Christopher Friesen wrote:
+
 >
-Here's a patch to 2.6.17-rc1 that disables the 12.5% DC on any CPU that has 
-N60. The frequencies in the errata are a bit vague so this is the safe bet 
-and it only disables one of the eight frequencies rather than the current 
-behaviour which disables all of mine!
+> A while back there was a post that CONFIG_FRAME_POINTER doesn't affect
+> calling conventions and doesn't need to be in vermagic.
+>
+> One of my coworkers seems to think otherwise, and I don't know enough
+> about the issue to know for sure.  Could someone with i386 knowledge
+> comment on his thoughts?
+>
+> Here's what he's currently thinking:
+>
+> 1) regs->ebp hold a copy of the stack frame pointer. It's value is
+> conserved through any function that are compiled with FRAME_POINTER on.
+>
+> 2) (unsigned long *)(regs->ebp + 4) is the "pc" of the caller (like the
+> link register on PPC which is relative to "fp")
+>
+> 3) The profile_pc function usually look directly at "pc" to do it's
+> profiling magic but sometimes (when the current "pc" is inside a
+> lock_function, we're SMP, and CONFIG_FRAME_POINTER is enabled) it uses
+> "regs->ebp+4" to be more accurate on the profiling. In other word
+> profile_pc doesn't want to create a profiling entry that would show
+> redundant information about being stuck into a spin_lock...
+>
+> So, if the kernel was built with SMP and FRAME_POINTER, a module wasn't,
+> the module used ebp as a general register, then blocked in a spinlock
+> when profile_pc started...then a regs->ebp value of something
+> interesting (like "0", for instance) could cause interesting behaviour.
+>
+> Seems reasonable to me, but like I said, I'm not an expert on i386.
+>
+> Chris
+>
+
+Register EBP is used to set up a stack frame. The CPU has internal
+macros that do this for you with 'enter nn' and 'leave'. Properly
+used, these will also collapse the stack to its entry value,
+discarding local variables when leaving the procedure.
+
+Register EBP is an index register, considered precious by the 'C'
+compiler. Such other registers are EBX, ESI, and EDI. These are
+never to be destroyed by a called function.
+
+When EBP is used for a frame pointer, it must always be
+saved prior to use and restored after...
+
+PAR1 = 0x08
+PAR2 = 0x0c
+PAR3 = 0x10
+ 		push	%ebp
+ 		movl	%esp, %ebp		# Enter
+ 		movl	PAR1(%ebp), %eax	# Get first parameter
+ 		movl	PAR2(%ebp), %ecx	# Get second parameter
+ 		movl	PAR3(%ebp), %edx	# Get third parameter
+ 		.........
+ 		.........
+ 		movl	%ebp, %esp		# leave
+ 		popl	%esp
+ 		ret
+
+If a frame-pointer is not used, the code becomes.
+
+PAR1 = 0x04
+PAR2 = 0x08
+PAR3 = 0x0c
+ 		movl	PAR1(%esp), %eax
+ 		movl	PAR2(%esp), %ecx
+ 		movl	PAR3(%esp), %edx
+
+This saves instuctions and frees up register EBP for use as a general
+purpose register, or as an index register off from the stack segment.
+However, since EBP is precious, its contents must be saved before use
+and restored later, as:
+
+ 		pushl	EBP
+ 		...........
+ 		...........
+ 		popl	EBP
+
+
+Failure to do this is a BUG. If you find any code that uses either
+EBP, EBX, ESI, or EDI in a called function, without first saving and
+then later restoring them, it is a BUG and needs to be reported.
+
+There is a possibility that some inline assembly was improperly
+coded and ends up using some register it shouldn't, but this
+would quickly lead to crash and would be descovered early in
+the development phase. Note that upon entry to the kernel all
+the caller's registers are saved on the intermediate kernel
+stack and restored upon exit. That's what the (regs *) to which
+you refer, points to. The structure member, ebp, contains the
+value of the EBP register when the kernel was called. Since EBP
+was the first register saved in the array, it is likely (didn't check)
+that the location referenced by "regs->ebp + 4" was, in fact, the
+return address. In any event, the value of regs->ebp is simply
+the value in a structure member, not the value of any current
+registers.
+
+Again, you can use a stack-frame if you want, or not in your
+modules. It makes no difference to the rest of the kernel.
 
 Cheers,
-Tim.
+Dick Johnson
+Penguin : Linux version 2.6.15.4 on an i686 machine (5589.42 BogoMips).
+Warning : 98.36% of all statistics are fiction, book release in April.
+_
+
 
---Boundary-00=_HH7MEoCk4GiMpZq
-Content-Type: text/x-diff;
-  charset="utf-8";
-  name="kpatch-p4clockmod"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="kpatch-p4clockmod"
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
---- linux-2.6.17-rc1/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c.orig	2006-04-04 14:54:49.000000000 +0100
-+++ linux-2.6.17-rc1/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2006-04-04 15:19:02.000000000 +0100
-@@ -244,7 +244,7 @@
- 	for (i=1; (p4clockmod_table[i].frequency != CPUFREQ_TABLE_END); i++) {
- 		if ((i<2) && (has_N44_O17_errata[policy->cpu]))
- 			p4clockmod_table[i].frequency = CPUFREQ_ENTRY_INVALID;
--		else if (has_N60_errata[policy->cpu] && ((stock_freq * i)/8) < 2000000)
-+		else if ((i<2) && (has_N60_errata[policy->cpu]))
- 			p4clockmod_table[i].frequency = CPUFREQ_ENTRY_INVALID;
- 		else
- 			p4clockmod_table[i].frequency = (stock_freq * i)/8;
-
---Boundary-00=_HH7MEoCk4GiMpZq--
+Thank you.

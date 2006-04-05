@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWDEDDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWDEDGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbWDEDDn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 23:03:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWDEDDn
+	id S1751090AbWDEDGR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 23:06:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWDEDGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 23:03:43 -0400
-Received: from xenotime.net ([66.160.160.81]:24011 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750833AbWDEDDn (ORCPT
+	Tue, 4 Apr 2006 23:06:17 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:48554 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S1751090AbWDEDGQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 23:03:43 -0400
-Date: Tue, 4 Apr 2006 20:05:57 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Horms <horms@verge.net.au>
-Cc: linux-kernel@vger.kernel.org, fastboot@osdl.org, ebiederm@xmission.com
-Subject: Re: [PATCH] kexec: typo in machine_kexec()
-Message-Id: <20060404200557.1e95bdd8.rdunlap@xenotime.net>
-In-Reply-To: <20060404234806.GA25761@verge.net.au>
-References: <20060404234806.GA25761@verge.net.au>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 4 Apr 2006 23:06:16 -0400
+Date: Wed, 5 Apr 2006 13:05:53 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: paulus@samba.org, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: Please pull from 'for_paulus' branch of powerpc
+Message-Id: <20060405130553.3240e5ea.sfr@canb.auug.org.au>
+In-Reply-To: <1E1C6A02-5C4D-4A3A-8483-8D5E2773680B@kernel.crashing.org>
+References: <Pine.LNX.4.44.0604041612320.30113-100000@gate.crashing.org>
+	<20060405102837.66b44c43.sfr@canb.auug.org.au>
+	<1E1C6A02-5C4D-4A3A-8483-8D5E2773680B@kernel.crashing.org>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Wed__5_Apr_2006_13_05_53_+1000_pXShg8Y1kSkbxYU1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Apr 2006 08:48:08 +0900 Horms wrote:
+--Signature=_Wed__5_Apr_2006_13_05_53_+1000_pXShg8Y1kSkbxYU1
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Signed-Off-By: Horms <horms@verge.net.au
-> 
->  machine_kexec.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+Hi Kumar,
 
-Can you use diffstat -p1 ?  does git allow/support that option, so that
-more complete filenames are visible?
+On Tue, 4 Apr 2006 20:23:23 -0500 Kumar Gala <galak@kernel.crashing.org> wr=
+ote:
+>
+> We need the irq rework before I'd be willing to do this.  The main =20
+> dependancy between asm-ppc and asm-powerpc is the static IRQs we =20
+> currently have.  I'd rather spend time on fixing up the IRQ handling =20
+> to parse the flat dev tree.
 
-> b242c77f387d75d1bfa377d1870c0037d9e0c364
-> diff --git a/arch/i386/kernel/machine_kexec.c b/arch/i386/kernel/machine_kexec.c
-> index f73d737..beaad58 100644
-> --- a/arch/i386/kernel/machine_kexec.c
-> +++ b/arch/i386/kernel/machine_kexec.c
-> @@ -194,7 +194,7 @@ NORET_TYPE void machine_kexec(struct kim
->  	 * set them to a specific selector, but this table is never
->  	 * accessed again you set the segment to a different selector.
->  	 *
-> -	 * The more common model is are caches where the behide
-> +	 * The more common model is are caches where the behind
+I agree entirely.  To clrify, I was referring to header files that only
+exist in include/asm-ppc and are trivial to move.
 
-Also delete /are/, but that sentence and the previous one still need some
-work, so fixing "behide" isn't a big deal IMO.  However, Eric can decide
-about the patch; he is the kexec maintainer.
+Patches following ...
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
->  	 * the scenes work is done, but is also dropped at arbitrary
->  	 * times.
->  	 *
+--Signature=_Wed__5_Apr_2006_13_05_53_+1000_pXShg8Y1kSkbxYU1
+Content-Type: application/pgp-signature
 
----
-~Randy
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFEMzQSFdBgD/zoJvwRAkFUAJ44xAkco6RX1R9+lw8g46s+/3tBCACfTWL8
+J/eVgu5VQ3KZto+WaMsLZi8=
+=Qv15
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__5_Apr_2006_13_05_53_+1000_pXShg8Y1kSkbxYU1--

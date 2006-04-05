@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWDEORi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbWDEOrS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750828AbWDEORi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 10:17:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbWDEORh
+	id S1750752AbWDEOrS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 10:47:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbWDEOrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 10:17:37 -0400
-Received: from smtpout.mac.com ([17.250.248.46]:49388 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750828AbWDEORh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 10:17:37 -0400
-In-Reply-To: <200604051350.k35DoIXF009872@wildsau.enemy.org>
-References: <200604051350.k35DoIXF009872@wildsau.enemy.org>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <296FAFD9-3D3E-421C-A474-1998BCB8F718@mac.com>
-Cc: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Q on audit, audit-syscall
-Date: Wed, 5 Apr 2006 10:17:30 -0400
-To: Herbert Rosmanith <kernel@wildsau.enemy.org>
-X-Mailer: Apple Mail (2.746.3)
+	Wed, 5 Apr 2006 10:47:18 -0400
+Received: from wilma.widomaker.com ([204.17.220.5]:3347 "EHLO
+	wilma.widomaker.com") by vger.kernel.org with ESMTP
+	id S1750752AbWDEOrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 10:47:18 -0400
+Date: Wed, 5 Apr 2006 10:47:17 -0400
+From: Charles Shannon Hendrix <shannon@widomaker.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: OOM kills if swappiness set to 0, swap storms otherwise
+Message-ID: <20060405144716.GA10353@widomaker.com>
+References: <1143510828.1792.353.camel@mindpipe> <20060327195905.7f666cb5.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060327195905.7f666cb5.akpm@osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 5, 2006, at 09:50:17, Herbert Rosmanith wrote:
->> On Apr 5, 2006, at 08:06:30, Herbert Rosmanith wrote:
->>> as I said, "ptrace" is not an option.
->>
->> Why not, exactly?  (No, we don't know why).
->
-> according to the man-page:
->
-> RETURN VALUES
->      EPERM   The specified process [...] is already being traced.
->
-> this makes it unusable for me.
+Mon, 27 Mar 2006 @ 19:59 -0800, Andrew Morton said:
 
-Please stop being unclear and describe _exactly_ what you want to do;  
-otherwise it's impossible to help you.  You want to trace and  
-intercept syscalls, no?  It implicitly doesn't make any sense to try  
-to trace and intercept syscalls from one process in more than one other.
+> Much porkiness.
+> 
+> /proc/meminfo is very useful for obtaining a top-level view of where all
+> the memory's gone to.  I'd tentatively say that your options are to put up
+> with the swapping or find a new mail client.
 
->> ptrace is _the_ Linux  mechanism to trace and intercept syscalls.   
->> There is no other way.
-> "there is no other way": [1,2,3,4]
->
-> [1] http://www.uniforum.chi.il.us/slides/HardeningLinux/LAuS- 
-> Design.pdf
-> [2] http://www.usenix.org/publications/library/proceedings/als01/ 
-> full_papers/edwards/edwards.pdf
-> [3] http://www.citi.umich.edu/u/provos/papers/systrace.pdf
-> [4] http://www.nsa.gov/selinux/papers/freenix01.pdf
+I use mutt for my email, and I have the same issue on a 1GB system.
 
-It looks like you solved your own problem, then!  Feel free to use  
-any one of those.  The only commonly-available mainline mechanism to  
-_trace_ and _intercept_ syscalls is ptrace.  If you happen to be  
-looking for how to implement extra process security checks, might I  
-suggest looking at Linux Security Modules?  On the other hand, I  
-think LSMs may never even see some requests if they fail access- 
-restrictions before calling into the LSM.  I believe there's  
-documentation on them in the linux/Documentation dir of your copies  
-of the linux sources.
+I really wish we could put an upper limit on what file cache can use.
 
-Cheers,
-Kyle Moffett
+I understand the original poster was running a lot of pork, but you
+don't have to and still see a problem with swapping.  Even running KDE
+my total application memory most of the time is 300MB or less on a
+machine with 1GB of memory.
 
+I shouldn't be suffering from swap storms.
+
+For example, my normal working set of programs eats about 250MB of memory. If
+I also start a job running to something like tag some mp3s, copy a CD, or just
+process a lot of files, it only takes a few minutes before performance becomes
+unacceptable.  
+
+If you are doing some work where you switch among several applications
+frequently, the pigginess of file cache becomes a serious problem.
+
+Isn't that bad behavior by any measure?
+
+
+
+-- 
+shannon "AT" widomaker.com -- ["It's a damn poor mind that can only think
+of one way to spell a word." -- Andrew Jackson]

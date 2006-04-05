@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWDEHD6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWDEHCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbWDEHD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 03:03:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWDEHD6
+	id S1751127AbWDEHCm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 03:02:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbWDEHCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 03:03:58 -0400
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:61566 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751129AbWDEHD5 (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 03:03:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=c7oadi0EHvDh04aJB883jbAfnwZ1ANyrEDsWl6hFxmGApsKRUSyHQxzhzU2PdHch4fBdw9Nt553J0tWPsxMUm6LsZUAudB6emcSgCTBTnFEVtM5ZG0nph1/ZT8psi03TaaFgaq5oW+HU1JWxMCB1K/AfrY242OlFTuhj3NtOutA=  ;
-Message-ID: <44326738.1090707@yahoo.com.au>
-Date: Tue, 04 Apr 2006 22:31:52 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: pomac@vapor.com
-CC: Linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] related to swap?
-References: <1144104593.30036.38.camel@localhost>
-In-Reply-To: <1144104593.30036.38.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Apr 2006 03:02:42 -0400
+Received: from mail17.bluewin.ch ([195.186.18.64]:10439 "EHLO
+	mail17.bluewin.ch") by vger.kernel.org with ESMTP id S1751127AbWDEHCl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 03:02:41 -0400
+Date: Wed, 5 Apr 2006 09:01:50 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Zan Lynx <zlynx@acm.org>, linux-kernel@vger.kernel.org,
+       "John W. Linville" <linville@tuxdriver.com>
+Subject: Re: 2.6.17-rc1-mm1
+Message-ID: <20060405070150.GA10351@k3.hellgate.ch>
+References: <20060404014504.564bf45a.akpm@osdl.org> <1144187618.26812.7.camel@localhost> <20060404150953.41d7e04e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060404150953.41d7e04e.akpm@osdl.org>
+X-Operating-System: Linux 2.6.16 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Kumlien wrote:
+On Tue, 04 Apr 2006 15:09:53 -0700, Andrew Morton wrote:
+> Zan Lynx <zlynx@acm.org> wrote:
+> > Has anyone seen this yet?
+> > 
+> > BUG: scheduling while atomic: mii-tool/0x00000001/2968
+> >  <c02db7f7> schedule+0x43/0x540   
+> >  <c02dc617> schedule_timeout+0x7a/0x95
+> >  <c011d687> process_timeout+0x0/0x5   
+> >  <c011e8a4> msleep+0x1a/0x1f
+> >  <e09100c9> rhine_disable_linkmon+0x40/0xf1 [via_rhine]   
+[...]
+> 
+> hmm, according to git-whatchanged, this bug has been in there since October
+> last year.  Weird that it hasn't been spotted before now.
 
-> Yes, i run a tainted kernel! either live with it or ignore this mail =)
+It has been spotted [1] and diagnosed [2] about two weeks ago. I guess the
+reason it took so long is that in addition to the debugging options, you
+need a kernel that does call the spinlock code _and_ you need to look at
+the kernel log even though the behavior is unchanged.
 
-> starting swap lead to a deadlock within 15 mins
+Anyhow, the mdelay to msleep conversion is useful only for a corner case: a
+user with Rhine-I hardware (ancient) who needs low latency even while
+fiddling with the NIC's media settings. I am not sure it's worth the
+trouble. Any suggestions for an elegant solution?
 
-> I have never had the energy to perform a full memtext86+
+Roger
 
-It would be useful if you could perform a memtest overnight one night,
-then run a non-patched and non-tained 2.6.16.1 kernel, and try to
-reproduce the problems.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+[1] http://marc.theaimsgroup.com/?l=linux-netdev&m=114321570402396
+[2] http://marc.theaimsgroup.com/?l=linux-netdev&m=114349201223976

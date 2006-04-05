@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbWDEBTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWDEBXv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751044AbWDEBTn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 21:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbWDEBTn
+	id S1751052AbWDEBXv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 21:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWDEBXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 21:19:43 -0400
-Received: from morbo.e-centre.net ([66.154.82.3]:47612 "EHLO
-	cubert.e-centre.net") by vger.kernel.org with ESMTP
-	id S1751044AbWDEBTn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 21:19:43 -0400
-X-ASG-Debug-ID: 1144199977-21504-83-0
-X-Barracuda-URL: http://10.3.1.19:8000/cgi-bin/mark.cgi
-X-ASG-Orig-Subj: Re: + isdn4linux-siemens-gigaset-drivers-logging-usage.patch added
-	to -mm tree
-Subject: Re: + isdn4linux-siemens-gigaset-drivers-logging-usage.patch added
-	to -mm tree
-From: Arjan van de Ven <arjan@infradead.org>
-To: Tilman Schmidt <tilman@imap.cc>
-Cc: linux-kernel@vger.kernel.org, hjlipp@web.de, kkeil@suse.de
-In-Reply-To: <4432FABE.1000900@imap.cc>
-References: <200604040051.k340p0RI008205@shell0.pdx.osdl.net>
-	 <1144113590.3067.4.camel@laptopd505.fenrus.org>  <4432FABE.1000900@imap.cc>
-Content-Type: text/plain
-Date: Wed, 05 Apr 2006 03:19:38 +0200
-Message-Id: <1144199982.3047.0.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 4 Apr 2006 21:23:51 -0400
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:33884 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1751051AbWDEBXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 21:23:50 -0400
+In-Reply-To: <20060405102837.66b44c43.sfr@canb.auug.org.au>
+References: <Pine.LNX.4.44.0604041612320.30113-100000@gate.crashing.org> <20060405102837.66b44c43.sfr@canb.auug.org.au>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+X-Gpgmail-State: !signed
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <1E1C6A02-5C4D-4A3A-8483-8D5E2773680B@kernel.crashing.org>
+Cc: paulus@samba.org, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=4.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.10492
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: Please pull from 'for_paulus' branch of powerpc
+Date: Tue, 4 Apr 2006 20:23:23 -0500
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-05 at 01:01 +0200, Tilman Schmidt wrote:
-> On 04.04.2006 03:19, Arjan van de Ven wrote:
-> 
-> >>+	struct semaphore sem;		/* locks this structure:
-> [...]
-> > 
-> > please consider turning this into a mutex 
-> 
-> Your wish is our command. Consider it already done. :-)
-> 
 
-great!
+On Apr 4, 2006, at 7:28 PM, Stephen Rothwell wrote:
 
-apologies for missing that; that's what you get for trusting mail
-filters to trigger on patch fragments ;(
+> On Tue, 4 Apr 2006 16:14:04 -0500 (CDT) Kumar Gala  
+> <galak@kernel.crashing.org> wrote:
+>>
+>> Please pull from 'for_paulus' branch of
+>> master.kernel.org:/pub/scm/linux/kernel/git/galak/powerpc.git
+>>
+>> to receive the following updates:
+>>
+>>  arch/powerpc/configs/mpc85xx_cds_defconfig |  846 ++++++++++++++++ 
+>> +++++++++++++
+>>  arch/powerpc/kernel/ppc_ksyms.c            |    1
+>>  arch/powerpc/platforms/85xx/Kconfig        |    9
+>>  arch/powerpc/platforms/85xx/Makefile       |    1
+>>  arch/powerpc/platforms/85xx/mpc85xx_cds.c  |  359 ++++++++++++
+>>  arch/powerpc/platforms/85xx/mpc85xx_cds.h  |   43 +
+>>  arch/ppc/kernel/ppc_ksyms.c                |    1
+>>  include/asm-ppc/mpc85xx.h                  |    3
+>>  8 files changed, 1262 insertions(+), 1 deletion(-)
+>>
+>> Andy Fleming:
+>>       Add 85xx CDS to arch/powerpc
+>
+> Could these "add xxx to arch/powerpc" patches please move any relevant
+> headers files to include/asm-powerpc as well.  It would be nice if we
+> could remove the hack from the powerpc Makefile that include files  
+> from
+> include/asm-ppc.  i.e. My opinion is that if any ARCH=powerpc build
+> requires a file in include/asm-ppc, then that file should be moved to
+> include/asm-powerpc.  I am doing a set of patches to that effect.
 
+We need the irq rework before I'd be willing to do this.  The main  
+dependancy between asm-ppc and asm-powerpc is the static IRQs we  
+currently have.  I'd rather spend time on fixing up the IRQ handling  
+to parse the flat dev tree.
 
+- kumar

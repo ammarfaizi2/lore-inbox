@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWDEWuf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWDEWuq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWDEWuf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 18:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbWDEWuf
+	id S932109AbWDEWuq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 18:50:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbWDEWup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 18:50:35 -0400
-Received: from mga01.intel.com ([192.55.52.88]:25099 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932096AbWDEWue convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 18:50:34 -0400
-X-IronPort-AV: i="4.04,91,1144047600"; 
-   d="scan'208"; a="20445385:sNHT37330734"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Wed, 5 Apr 2006 18:50:45 -0400
+Received: from wildsau.enemy.org ([193.170.194.34]:19083 "EHLO
+	wildsau.enemy.org") by vger.kernel.org with ESMTP id S932109AbWDEWup
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 18:50:45 -0400
+From: Herbert Rosmanith <kernel@wildsau.enemy.org>
+Message-Id: <200604052246.k35Mkl6L010288@wildsau.enemy.org>
+Subject: Re: Q on audit, audit-syscall
+In-Reply-To: <20060405223052.GE14724@sorel.sous-sol.org>
+To: Chris Wright <chrisw@sous-sol.org>
+Date: Thu, 6 Apr 2006 00:46:47 +0200 (MET DST)
+CC: Valdis.Kletnieks@vt.edu, Kyle Moffett <mrmacman_g4@mac.com>,
+       Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL100 (25)]
 MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: 2.6.17-rc1-mm1
-Date: Wed, 5 Apr 2006 15:50:30 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F06290233@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.17-rc1-mm1
-Thread-Index: AcZY/HfZ87ohMQBARrmZvtfEnA+DKAABsFAw
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>
-Cc: "Zou, Nanhai" <nanhai.zou@intel.com>, "Andrew Morton" <akpm@osdl.org>,
-       "LKML" <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 05 Apr 2006 22:50:33.0662 (UTC) FILETIME=[58D2C5E0:01C65903]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think the VGA_MAP_MEM(vga_vram_end) is just bogus -- it's not
-> that we need to map the memory starting at vga_vram_end.  I think
-> it would cleaner (though much more intrusive) to do something like
-> the patch below, which basically just hard-codes (base, size)
-> rather than (base, end).
+> * Herbert Rosmanith (kernel@wildsau.enemy.org) wrote:
+> > anyway, the manpage describes how auditd/libaudit works - not how it has been
+> > implemented/how it communicates with the kernel.
+> > I want to know how it works "under the hood", not just how to use it.
+> 
+> Then grab the source, and read its READMEs.
 
-This patch works for me on ia64/Tiger
-
--Tony
+good point. I was reading netlink.c and libaudit.c. obviously the wrong
+place ;-)
+ 
+> > LSM depends
+> > on CONFIG_AUDIT* (this is correct, isn't it?)
+> 
+> No.
+> 

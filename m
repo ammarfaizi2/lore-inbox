@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWDESoP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWDESqX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbWDESoP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 14:44:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWDESoP
+	id S1751329AbWDESqX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 14:46:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWDESqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 14:44:15 -0400
-Received: from wproxy.gmail.com ([64.233.184.234]:36549 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751325AbWDESoO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 14:44:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Hjiewva7dgyhDjAuJwKtxu5ra/k+yF6u2Pk16k9j5kADegpFbUFGRyvvYDtP76bv9oWZHHO5IgGsTjfro6//zIDv47TGGbMDKAaqSOpHjl5Rf6GDyM+7tMrxcrr+DIO0HQDqu9Xgw72fBxkQsZ9rs2hwUnD6tSm4n9VRALaBgtY=
-Message-ID: <d120d5000604051144r535e1b5k763269f1f5ef17ea@mail.gmail.com>
-Date: Wed, 5 Apr 2006 14:44:13 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Rene Herman" <rene.herman@keyaccess.nl>
-Subject: Re: patch bus_add_device-losing-an-error-return-from-the-probe-method.patch added to gregkh-2.6 tree
-Cc: "Greg KH" <gregkh@suse.de>, alsa-devel@alsa-project.org,
-       linux-kernel@vger.kernel.org, tiwai@suse.de,
-       "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <44340E12.9000202@keyaccess.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 5 Apr 2006 14:46:23 -0400
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:47579
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751329AbWDESqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 14:46:22 -0400
+Date: Wed, 5 Apr 2006 11:45:32 -0700
+From: Greg KH <greg@kroah.com>
+To: Beber <beber.lkml@gmail.com>
+Cc: Bertrand Jacquin <beber@gna.org>, gregkh@suse.de,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, stable@kernel.org
+Subject: Re: [stable] Re: [PATCH] isd200: limit to BLK_DEV_IDE
+Message-ID: <20060405184532.GA2577@kroah.com>
+References: <20060328075629.GA8083@kroah.com> <4615f4910603301146x5496ccaai17bf5f4636c91c45@mail.gmail.com> <Pine.LNX.4.58.0603301431560.26598@shark.he.net> <20060331095236.72e5ab52.beber@gna.org> <4615f4910604050635v5af3dbc6w17849adb2fd64593@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <44238489.8090402@keyaccess.nl> <4432EF58.1060502@keyaccess.nl>
-	 <44330DFA.4080106@keyaccess.nl>
-	 <200604042145.24685.dtor_core@ameritech.net>
-	 <44340E12.9000202@keyaccess.nl>
+In-Reply-To: <4615f4910604050635v5af3dbc6w17849adb2fd64593@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/5/06, Rene Herman <rene.herman@keyaccess.nl> wrote:
-> Dmitry Torokhov wrote:
->
-> >> Well, we could in fact hang an unregister off device->private_data as
-> >> per attached example. Wouldn't be _excessively_ ugly. Still sucks
-> >> though.
+On Wed, Apr 05, 2006 at 03:35:38PM +0200, Beber wrote:
+> On 3/31/06, Bertrand Jacquin <beber@gna.org> wrote:
+> > Le Thu, 30 Mar 2006 14:35:26 -0800 (PST), "Randy.Dunlap" <rdunlap@xenotime.net> m'a avou?:
 > >
-> > Plus it broke all the drivers that create platform devices before
-> > registering drivers or the ones simply not using private data.
->
-> No, this was just a suggestion for an ALSA specific workaround. I was
-> suggesting ALSA drivers could do this.
->
+> > > On Thu, 30 Mar 2006, Beber wrote:
+> > >
+> > > > On 3/28/06, Greg KH <gregkh@suse.de> wrote:
+> > > > > We (the -stable team) are announcing the release of the 2.6.16.1 kernel.
+> > > >
+> > > > I still get this error :
+> > > >
+> > > > # make
+> > > ...
+> > > > drivers/built-in.o: In function `isd200_Initialization':
+> > > > : undefined reference to `ide_fix_driveid'
+> > > > make: *** [.tmp_vmlinux1] Error 1
+> > >
+> > > Was this reported earlier?
+> >
+> > Yes, it was, but ignored, so I repost it ;)
+> >
+> > > Please test the patch below.
+> > > It works for me with your config and various others.
+> >
+> > It work here too.
+> > Thanks
+> 
+> I look on last GIT history and didn't find this applyed upstream. Will it be ?
 
-Yes, I am sorry - I misread the code snipped as if it was in driver
-core, not in ALSA itself.
+No one has forwarded it to the stable group, so it's a bit hard to apply
+it to the tree if that doesn't happen :)
 
---
-Dmitry
+thanks,
+
+greg k-h

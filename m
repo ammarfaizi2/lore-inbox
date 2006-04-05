@@ -1,74 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWDELs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWDEMC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751223AbWDELs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 07:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWDELs5
+	id S1751229AbWDEMC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 08:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWDEMC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 07:48:57 -0400
-Received: from nproxy.gmail.com ([64.233.182.189]:11478 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751223AbWDELs5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 07:48:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kr6tEyZWI4BkQngnyee5TKoVzSTRCWu+xZBWz7rlC9RkzJMh25e1p3ei5Crzv8sC/LaFq/35Wivdqy82++bJeQ7RTk9MnIKWC4TYjbNK8cI+yK7QgcDzjk8a5E5E+2PDI6/tgP5hnOXehl/36+JDyfEYHdAGOjS+FMHwuB8PB1A=
-Message-ID: <69304d110604050448x60fd5bb1ub74f66b720dc7d8a@mail.gmail.com>
-Date: Wed, 5 Apr 2006 13:48:55 +0200
-From: "Antonio Vargas" <windenntw@gmail.com>
-To: "Vishal Patil" <vishpat@gmail.com>
-Subject: Re: CSCAN I/O scheduler for 2.6.10 kernel
-Cc: "Bill Davidsen" <davidsen@tmr.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <4745278c0604041402n5c6329ebw71d7fdc5c3a9dd68@mail.gmail.com>
+	Wed, 5 Apr 2006 08:02:27 -0400
+Received: from ranger.systems.pipex.net ([62.241.162.32]:62668 "EHLO
+	ranger.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S1751225AbWDEMC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 08:02:26 -0400
+From: Tim Phipps <tim@phipps-hutton.freeserve.co.uk>
+To: Tim Phipps <tim@computer.systems.pipex.net>, linux-kernel@vger.kernel.org
+Subject: Re: p4-clockmod not working in 2.6.16
+Date: Wed, 5 Apr 2006 13:02:13 +0100
+User-Agent: KMail/1.8.3
+Cc: Mike Galbraith <efault@gmx.de>, Edgar Toernig <froese@gmx.de>,
+       Dave Jones <davej@redhat.com>
+References: <1142974528.3470.4.camel@localhost> <1143008405.13748.4.camel@homer> <1144147663.2588.247.camel@elsdt-scarecrow.arc.com>
+In-Reply-To: <1144147663.2588.247.camel@elsdt-scarecrow.arc.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4745278c0603301955w26fea42eid6bcab91c573eaa3@mail.gmail.com>
-	 <4745278c0603301958o4c2ed282x3513fdb459d8ec7c@mail.gmail.com>
-	 <4432D6D4.2020102@tmr.com>
-	 <4745278c0604041402n5c6329ebw71d7fdc5c3a9dd68@mail.gmail.com>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_HH7MEoCk4GiMpZq"
+Message-Id: <200604051302.15576.tim@phipps-hutton.freeserve.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/4/06, Vishal Patil <vishpat@gmail.com> wrote:
-> In that case it would be a normal elevator algorithm and that has a
-> possiblity of starving the requests at one end of the disk.
+--Boundary-00=_HH7MEoCk4GiMpZq
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+On Tuesday 04 Apr 2006 11:47, Tim Phipps wrote:
+> On Wed, 2006-03-22 at 06:20, Mike Galbraith wrote:
+> > On Wed, 2006-03-22 at 06:57 +0100, Edgar Toernig wrote:
+> > > | N60.         Processor May Hang under Certain Frequencies and 12.5%
+> > > |              STPCLK# Duty Cycle
+> > > |
+> > > | Problem:     If a system de-asserts STPCLK# at a 12.5% duty cycle,
+> > > | the processor is running below 2 GHz, and the processor thermal
+> > > | control circuit (TCC) on-demand clock modulation is active, the
+> > > | processor may hang. This erratum does not occur under the automatic
+> > > | mode of the TCC.
 >
-> - Vishal
->
-> On 4/4/06, Bill Davidsen <davidsen@tmr.com> wrote:
-> > Vishal Patil wrote:
-> > > Maintain two queues which will be sorted in ascending order using Red
-> > > Black Trees. When a disk request arrives and if the block number it
-> > > refers to is greater than the block number of the current request
-> > > being served add (merge) it to the first sorted queue or else add
-> > > (merge) it to the second sorted queue. Keep on servicing the requests
-> > > from the first request queue until it is empty after which switch over
-> > > to the second queue and now reverse the roles of the two queues.
-> > > Simple and Sweet. Many thanks for the awesome block I/O layer in the
-> > > 2.6 kernel.
-> > >
-> > Why both queues sorting in ascending order? I would think that one
-> > should be in descending order, which would reduce the seek distance
-> > between the last i/o on one queue and the first on the next.
-> >
+Here's a patch to 2.6.17-rc1 that disables the 12.5% DC on any CPU that has 
+N60. The frequencies in the errata are a bit vague so this is the safe bet 
+and it only disables one of the eight frequencies rather than the current 
+behaviour which disables all of mine!
 
-But, if there are two queues, one which is being processed and other
-which gets the new requests (and the corresponding queue switch when
-the current is empty), then there is no way to get starved when they
-are sorted in opposite order.
+Cheers,
+Tim.
 
+--Boundary-00=_HH7MEoCk4GiMpZq
+Content-Type: text/x-diff;
+  charset="utf-8";
+  name="kpatch-p4clockmod"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="kpatch-p4clockmod"
 
---
-Greetz, Antonio Vargas aka winden of network
+--- linux-2.6.17-rc1/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c.orig	2006-04-04 14:54:49.000000000 +0100
++++ linux-2.6.17-rc1/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2006-04-04 15:19:02.000000000 +0100
+@@ -244,7 +244,7 @@
+ 	for (i=1; (p4clockmod_table[i].frequency != CPUFREQ_TABLE_END); i++) {
+ 		if ((i<2) && (has_N44_O17_errata[policy->cpu]))
+ 			p4clockmod_table[i].frequency = CPUFREQ_ENTRY_INVALID;
+-		else if (has_N60_errata[policy->cpu] && ((stock_freq * i)/8) < 2000000)
++		else if ((i<2) && (has_N60_errata[policy->cpu]))
+ 			p4clockmod_table[i].frequency = CPUFREQ_ENTRY_INVALID;
+ 		else
+ 			p4clockmod_table[i].frequency = (stock_freq * i)/8;
 
-http://wind.codepixel.com/
-windNOenSPAMntw@gmail.com
-thesameasabove@amigascne.org
-
-Every day, every year
-you have to work
-you have to study
-you have to scene.
+--Boundary-00=_HH7MEoCk4GiMpZq--

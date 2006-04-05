@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWDEJBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWDEJCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751181AbWDEJBX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 05:01:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWDEJBX
+	id S1751179AbWDEJCU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 05:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWDEJCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 05:01:23 -0400
-Received: from mail.gondor.com ([212.117.64.182]:42756 "EHLO moria.gondor.com")
-	by vger.kernel.org with ESMTP id S1751181AbWDEJBX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 05:01:23 -0400
-Date: Wed, 5 Apr 2006 11:01:17 +0200
-From: Jan Niehusmann <jan@gondor.com>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Ken Moffat <zarniwhoop@ntlworld.com>, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org
-Subject: Re: [Alsa-devel] Slab corruptions & Re: 2.6.17-rc1: Oops in sound applications
-Message-ID: <20060405090117.GB4794@knautsch.gondor.com>
-References: <Pine.LNX.4.63.0604032155220.17605@deepthought.mydomain> <20060404133814.GA11741@knautsch.gondor.com> <s5hlkul72rv.wl%tiwai@suse.de> <20060404190631.GA4895@knautsch.gondor.com> <s5h7j656tpp.wl%tiwai@suse.de> <20060404231911.GA4862@knautsch.gondor.com> <20060405002846.GA5201@knautsch.gondor.com>
+	Wed, 5 Apr 2006 05:02:20 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:774 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751179AbWDEJCT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 05:02:19 -0400
+Date: Wed, 5 Apr 2006 11:02:18 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Martin Samuelsson <sam@home.se>, linux-kernel@vger.kernel.org,
+       mchehab@infradead.org, js@linuxtv.org, v4l-dvb-maintainer@linuxtv.org
+Subject: Re: [-mm patch] drivers/media/video/bt866.c: small fixes
+Message-ID: <20060405090218.GA8673@stusta.de>
+References: <20060404014504.564bf45a.akpm@osdl.org> <20060404163001.GO6529@stusta.de> <20060404203219.40fe6b4c.sam@home.se> <20060405004212.47312021.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060405002846.GA5201@knautsch.gondor.com>
+In-Reply-To: <20060405004212.47312021.akpm@osdl.org>
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 05, 2006 at 02:28:47AM +0200, Jan Niehusmann wrote:
-> If I now add the patch you suggested, correcting the check in
-> snd_pcm_oss_open_file(), accessing /dev/dsp instead leads to EINVAL.
+On Wed, Apr 05, 2006 at 12:42:12AM -0700, Andrew Morton wrote:
+> Martin Samuelsson <sam@home.se> wrote:
+> >
+> > This should fix all things Andrew pointed out when I first submitted the 
+> >  avs6eyes driver.
 > 
-> So I guess git bisect really lead me to this already known bug.
+> We still have all that #ifdef MODULE stuff at the end of bt866.c. 
+> (Shouldn't it have module_init() and module_exit() handlers?)
+>...
 
-And another update. Sorry for sending so many small mails, but I want to
-keep you informed to avoid unnecessary duplication of work.
+This is what my patch does.
 
-To make sure I didn't do something stupid like confusing kernel
-versions, I retried with 2.6.17-rc1 and the mentioned patch. It oopses
-again, but the behaviour is different:
+Martin's patch does not include my patch, it is on top of it.
 
-Versions 2.6.16 to commit bf1bbb5a49eec51c30d341606885507b501b37e8 only
-allow a single open of /dev/dsp, and do not oops.
+You should have seen a merge conflict when merging Martin's patch, and 
+the reason is that you hadn't applied my patch before his patch.
 
-Commit 3bf75f9b90c981f18f27a0d35a44f488ab68c8ea and later do oops with
-commands as simple as 'yes >/dev/dsp'.
+cu
+Adrian
 
-Commit 3bf75f9b90c981f18f27a0d35a44f488ab68c8ea with the patch to
-snd_pcm_oss_open_file() applied do not oops, but block every access to
-/dev/dsp with EINVAL.
+-- 
 
-2.6.17-rc1 with the patch to snd_pcm_oss_open_file(), again, allows
-opening of /dev/dsp, 'yes >/dev/dsp' does work as expected, but for
-example twinkle (a VoIP application) gives garbled sound. Additionally,
-I am now able to open /dev/dsp a second time (eg. 'yes >/dev/dsp' while
-twinkle uses the sound device), immediately leading to an oops.
-
-My guess is that this bug is just not triggered in commit
-3bf75f9b90c981f18f27a0d35a44f488ab68c8ea because, for some other reason,
-/dev/dsp is completely unusable.
-
-Jan
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

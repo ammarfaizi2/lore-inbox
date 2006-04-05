@@ -1,57 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWDEAOd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWDEARt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751020AbWDEAOd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 20:14:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWDEAOd
+	id S1750945AbWDEARt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 20:17:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWDEARt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 20:14:33 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:56432 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1750954AbWDEAOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 20:14:32 -0400
-X-IronPort-AV: i="4.04,88,1144047600"; 
-   d="scan'208"; a="266645765:sNHT35265452"
-To: "David S. Miller" <davem@davemloft.net>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, stable@kernel.org,
-       openib-general@openib.org, bunk@stusta.de, jmforbes@linuxtx.org,
-       zwane@arm.linux.org.uk, tytso@mit.edu, rdunlap@xenotime.net,
-       davej@redhat.com, chuckw@quantumlinux.com, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, mst@mellanox.co.il,
-       rolandd@cisco.com
-Subject: Re: [patch 11/26] IPOB: Move destructor from neigh->ops to neigh_param
-X-Message-Flag: Warning: May contain useful information
-References: <20060404235634.696852000@quad.kroah.org>
-	<20060404235927.GA27049@kroah.com> <20060405000030.GL27049@kroah.com>
-	<20060404.170720.61536177.davem@davemloft.net>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 04 Apr 2006 17:14:27 -0700
-In-Reply-To: <20060404.170720.61536177.davem@davemloft.net> (David S. Miller's message of "Tue, 04 Apr 2006 17:07:20 -0700 (PDT)")
-Message-ID: <adar74cnajg.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Tue, 4 Apr 2006 20:17:49 -0400
+Received: from adelphi.physics.adelaide.edu.au ([129.127.102.1]:38296 "EHLO
+	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
+	id S1750945AbWDEARs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 20:17:48 -0400
+From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+Message-Id: <200604050021.k350LnVF029703@auster.physics.adelaide.edu.au>
+Subject: Re: 2.6.16-rt11: Hires timer makes sleep wait far too long
+To: tglx@linutronix.de
+Date: Wed, 5 Apr 2006 09:51:49 +0930 (CST)
+Cc: jwoithe@physics.adelaide.edu.au (Jonathan Woithe),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1144124783.5344.396.camel@localhost.localdomain> from "Thomas Gleixner" at Apr 04, 2006 06:26:22 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 05 Apr 2006 00:14:28.0523 (UTC) FILETIME=[E76BD7B0:01C65845]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    David> Major NAK.
+Thomas
 
-    David> This does not fix a bug, it is merely and API change that
-    David> the inifiniband folks want for some of their infrastructure.
+> On Tue, 2006-04-04 at 13:10 +0930, Jonathan Woithe wrote:
+> > The actual amount of time waited by a "sleep 1" call from bash was tested
+> > at least twice for each timer source:
+> > 
+> >   pit: 12 seconds, 29 seconds, 28 seconds
+> >   tsc: 45 seconds, 45 seconds
+> >   acpi_pm: 45 seconds, 29 seconds
+> >   jiffies: 45 seconds, 32 seconds
+> 
+> Hmm, can you please send me your .config and the bootlog of the
+> machine ?
 
-It definitely does fix a bug: without the change, because
-ops->destructor is shared (possibly with other net devices), IPoIB
-ops->can't set it or clear it safely.  I don't have exact details at
-hand but this was definitely causing panics for people.
+Because of the size of the files I've posted this privately.  The following
+are extracts from the files in case others are interested.
 
-    David> Furthermore, this version of the patch here will break the
-    David> build of ATM.
+Selected boot messages with hr-timers enabled:
+  ACPI: PM-Timer IO Port: 0x1008
+  ACPI: Local APIC address 0xfee00000
+  ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
+  Processor #0 6:13 APIC version 20
+  :
+  Detected 1995.072 MHz processor.
+  Real-Time Preemption Support (C) 2004-2006 Ingo Molnar
+  :
+  CPU: Intel(R) Pentium(R) M processor 2.00GHz stepping 08
+  :
+  ENABLING IO-APIC IRQs
+  ..TIMER: vector=0x31 apic1=0 pin1=2 apic2=-1 pin2=-1
+  Event source pit new caps set: 05
+  Event source lapic installed with caps set: 02
+  :
+  Time: tsc clocksource has been installed.
+  hrtimers: Switched to high resolution mode CPU 0
+  :
+  Time: acpi_pm clocksource has been installed.
+  hrtimers: Switched to high resolution mode CPU 0
 
-I'll admit I haven't tested but it looks OK to me -- it seems to have
-the required chunk in clip.c.
+Config options related to timers:
+  CONFIG_HPET_TIMER=y
+  CONFIG_HPET_EMULATE_RTC=y
+  CONFIG_HIGH_RES_TIMERS=y
+  CONFIG_HIGH_RES_RESOLUTION=10000
+  :
+  CONFIG_X86_PM_TIMER=y
 
-I'm not going to fight too hard for it (I'll let Michael champion it
-if he really cares), but I think this is a legitimate -stable patch:
-it fixes a panic that real users are seeing.
-
- - R.
+Regards
+  jonathan

@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWDEHtk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWDEH51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbWDEHtk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 03:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWDEHtk
+	id S1751155AbWDEH51 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 03:57:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWDEH51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 03:49:40 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:38311 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751062AbWDEHtj (ORCPT
+	Wed, 5 Apr 2006 03:57:27 -0400
+Received: from [194.90.237.34] ([194.90.237.34]:39764 "EHLO mtlexch01.mtl.com")
+	by vger.kernel.org with ESMTP id S1751155AbWDEH51 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 03:49:39 -0400
-Date: Wed, 5 Apr 2006 00:42:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Samuelsson <sam@home.se>
-Cc: bunk@stusta.de, linux-kernel@vger.kernel.org, mchehab@infradead.org,
-       js@linuxtv.org, v4l-dvb-maintainer@linuxtv.org
-Subject: Re: [-mm patch] drivers/media/video/bt866.c: small fixes
-Message-Id: <20060405004212.47312021.akpm@osdl.org>
-In-Reply-To: <20060404203219.40fe6b4c.sam@home.se>
-References: <20060404014504.564bf45a.akpm@osdl.org>
-	<20060404163001.GO6529@stusta.de>
-	<20060404203219.40fe6b4c.sam@home.se>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 5 Apr 2006 03:57:27 -0400
+Date: Wed, 5 Apr 2006 10:58:39 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: rdreier@cisco.com, gregkh@suse.de, linux-kernel@vger.kernel.org,
+       stable@kernel.org, openib-general@openib.org, bunk@stusta.de,
+       jmforbes@linuxtx.org, zwane@arm.linux.org.uk, tytso@mit.edu,
+       rdunlap@xenotime.net, davej@redhat.com, chuckw@quantumlinux.com,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       rolandd@cisco.com
+Subject: Re: [patch 11/26] IPOB: Move destructor from neigh->ops to neigh_param
+Message-ID: <20060405075839.GD14808@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <adar74cnajg.fsf@cisco.com> <20060404.171739.92845421.davem@davemloft.net> <adamzf0n98z.fsf@cisco.com> <20060404.174741.63557413.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060404.174741.63557413.davem@davemloft.net>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 05 Apr 2006 08:00:12.0156 (UTC) FILETIME=[F71FDBC0:01C65886]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Samuelsson <sam@home.se> wrote:
->
-> This should fix all things Andrew pointed out when I first submitted the 
->  avs6eyes driver.
+Quoting r. David S. Miller <davem@davemloft.net>:
+> I think it's too risky.  It fixes a panic for infiniband.
 
-We still have all that #ifdef MODULE stuff at the end of bt866.c. 
-(Shouldn't it have module_init() and module_exit() handlers?)
+Fair enough.
 
-All those ".input_mux = 0," lines you added to the struct initialisation
-are unneeded - the compiler did that for you.
+> I think you should not have submitted such a core networking change to
+> -stable without passing it by netdev CC:'ing me first.
 
+OK, note taken.
 
+-- 
+Michael S. Tsirkin

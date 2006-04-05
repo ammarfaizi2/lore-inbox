@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWDELCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWDELCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbWDELCT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 07:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWDELCT
+	id S1751215AbWDELCn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 07:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWDELCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 07:02:19 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:53908 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751214AbWDELCT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 07:02:19 -0400
-Date: Wed, 05 Apr 2006 20:01:41 +0900
+	Wed, 5 Apr 2006 07:02:21 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:31147 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751218AbWDELCU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 07:02:20 -0400
+Date: Wed, 05 Apr 2006 20:01:47 +0900
 From: Yasunori Goto <y-goto@jp.fujitsu.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [Patch:003/004] wait_table and zonelist initializing for memory hotadd (wait_table initialization)
+Subject: [Patch:004/004] wait_table and zonelist initializing for memory hotadd (update zonelists)
 Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
        linux-mm <linux-mm@kvack.org>
 In-Reply-To: <20060405192737.3C3F.Y-GOTO@jp.fujitsu.com>
 References: <20060405192737.3C3F.Y-GOTO@jp.fujitsu.com>
 X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060405195913.3C45.Y-GOTO@jp.fujitsu.com>
+Message-Id: <20060405200021.3C47.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
@@ -26,109 +26,111 @@ X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In current code, zonelist is considered to be build once, no modification.
+But MemoryHotplug can add new zone/pgdat. It must be updated.
 
-Wait_table is initialized according to zone size at boot time.
-But, we cannot know the maixmum zone size when memory hotplug is enabled.
-It can be changed.... And resizing of wait_table is hard.
+This patch modifies build_all_zonelists(). 
+By this, build_all_zonelist() can reconfig pgdat's zonelists.
 
-So kernel allocate and initialzie wait_table as its maximum size.
+To update them safety, this patch use stop_machine_run().
+Other cpus don't touch among updating them by using it.
 
+In previous version (V2), kernel updated them after zone initialization.
+But present_page of its new zone is still 0, because online_page()
+is not called yet at this time. 
+Build_zonelists() checks present_pages to find present zone.
+It was too early. So, I changed it after online_pages().
+
+Signed-off-by: Yasunori Goto     <y-goto@jp.fujitsu.com>
 Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
- mm/page_alloc.c |   45 +++++++++++++++++++++++++++++++++++++++------
- 1 files changed, 39 insertions(+), 6 deletions(-)
+ mm/memory_hotplug.c |   12 ++++++++++++
+ mm/page_alloc.c     |   26 +++++++++++++++++++++-----
+ 2 files changed, 33 insertions(+), 5 deletions(-)
 
 Index: pgdat10/mm/page_alloc.c
 ===================================================================
---- pgdat10.orig/mm/page_alloc.c	2006-04-05 16:04:22.000000000 +0900
-+++ pgdat10/mm/page_alloc.c	2006-04-05 16:10:17.000000000 +0900
-@@ -1785,6 +1785,7 @@ void __init build_all_zonelists(void)
-  */
- #define PAGES_PER_WAITQUEUE	256
+--- pgdat10.orig/mm/page_alloc.c	2006-04-04 20:42:51.000000000 +0900
++++ pgdat10/mm/page_alloc.c	2006-04-04 20:42:52.000000000 +0900
+@@ -37,6 +37,7 @@
+ #include <linux/nodemask.h>
+ #include <linux/vmalloc.h>
+ #include <linux/mempolicy.h>
++#include <linux/stop_machine.h>
  
-+#ifdef CONFIG_MEMORY_HOTPLUG
- static inline unsigned long wait_table_size(unsigned long pages)
+ #include <asm/tlbflush.h>
+ #include "internal.h"
+@@ -1762,14 +1763,29 @@ static void __init build_zonelists(pg_da
+ 
+ #endif	/* CONFIG_NUMA */
+ 
+-void __init build_all_zonelists(void)
++/* return values int ....just for stop_machine_run() */
++static int __meminit __build_all_zonelists(void *dummy)
  {
- 	unsigned long size = 1;
-@@ -1803,6 +1804,17 @@ static inline unsigned long wait_table_s
- 
- 	return max(size, 4UL);
- }
-+#else
-+/*
-+ * XXX: Because zone size might be changed by hot-add,
-+ *      It is hard to determin suitable size for wait_table as traditional.
-+ *      So, we use maximum size now.
-+ */
-+static inline unsigned long wait_table_size(unsigned long pages)
-+{
-+	return 4096UL;
+-	int i;
++	int nid;
++	for_each_online_node(nid)
++		build_zonelists(NODE_DATA(nid));
++	return 0;
 +}
-+#endif
++
++void __meminit build_all_zonelists(void)
++{
++	if (system_state == SYSTEM_BOOTING) {
++		__build_all_zonelists(0);
++		cpuset_init_current_mems_allowed();
++	} else {
++		/* we have to stop all cpus to guaranntee there is no user
++		   of zonelist */
++		stop_machine_run(__build_all_zonelists, NULL, NR_CPUS);
++		/* cpuset refresh routine should be here */
++	}
+ 
+-	for_each_online_node(i)
+-		build_zonelists(NODE_DATA(i));
+ 	printk("Built %i zonelists\n", num_online_nodes());
+-	cpuset_init_current_mems_allowed();
++
+ }
  
  /*
-  * This is an integer logarithm so that shifts can be used later
-@@ -2071,10 +2083,11 @@ void __init setup_per_cpu_pageset(void)
- #endif
- 
- static __meminit
--void zone_wait_table_init(struct zone *zone, unsigned long zone_size_pages)
-+int zone_wait_table_init(struct zone *zone, unsigned long zone_size_pages)
- {
- 	int i;
- 	struct pglist_data *pgdat = zone->zone_pgdat;
-+	size_t alloc_size;
+Index: pgdat10/mm/memory_hotplug.c
+===================================================================
+--- pgdat10.orig/mm/memory_hotplug.c	2006-04-04 20:42:49.000000000 +0900
++++ pgdat10/mm/memory_hotplug.c	2006-04-04 20:42:52.000000000 +0900
+@@ -123,6 +123,7 @@ int online_pages(unsigned long pfn, unsi
+ 	unsigned long flags;
+ 	unsigned long onlined_pages = 0;
+ 	struct zone *zone;
++	int need_zonelists_rebuild = 0;
  
  	/*
- 	 * The per-page waitqueue mechanism uses hashed waitqueues
-@@ -2082,12 +2095,30 @@ void zone_wait_table_init(struct zone *z
- 	 */
- 	zone->wait_table_size = wait_table_size(zone_size_pages);
- 	zone->wait_table_bits =	wait_table_bits(zone->wait_table_size);
--	zone->wait_table = (wait_queue_head_t *)
--		alloc_bootmem_node(pgdat, zone->wait_table_size
--					* sizeof(wait_queue_head_t));
-+	alloc_size = zone->wait_table_size * sizeof(wait_queue_head_t);
+ 	 * This doesn't need a lock to do pfn_to_page().
+@@ -135,6 +136,14 @@ int online_pages(unsigned long pfn, unsi
+ 	grow_pgdat_span(zone->zone_pgdat, pfn, pfn + nr_pages);
+ 	pgdat_resize_unlock(zone->zone_pgdat, &flags);
+ 
++	/*
++	 * If this zone is not populated, then it is not in zonelist.
++	 * This means the page allocator ignores this zone.
++	 * So, zonelist must be updated after online.
++	 */
++	if (!populated_zone(zone))
++		need_zonelists_rebuild = 1;
 +
-+	if (system_state == SYSTEM_BOOTING) {
-+		zone->wait_table = (wait_queue_head_t *)
-+			alloc_bootmem_node(pgdat, alloc_size);
-+	} else {
-+		/*
-+		 * XXX: This case means that a zone whose size was 0 gets new
-+		 *      memory by memory hot-add.
-+		 *      But, this may be the case that "new node" is hotadded.
-+		 * 	If its case, vmalloc() will not get this new node's
-+		 *      memory. Because this wait_table must be initialized
-+		 *      to use this new node itself too.
-+		 *      To use this new node's memory, further consideration
-+		 *      will be necessary.
-+		 */
-+		zone->wait_table = (wait_queue_head_t *)vmalloc(alloc_size);
-+	}
-+	if (!zone->wait_table)
-+		return -ENOMEM;
+ 	for (i = 0; i < nr_pages; i++) {
+ 		struct page *page = pfn_to_page(pfn + i);
+ 		online_page(page);
+@@ -145,5 +154,8 @@ int online_pages(unsigned long pfn, unsi
  
- 	for(i = 0; i < zone->wait_table_size; ++i)
- 		init_waitqueue_head(zone->wait_table + i);
-+	return 0;
+ 	setup_per_zone_pages_min();
+ 
++	if (need_zonelists_rebuild)
++		build_all_zonelists();
++
+ 	return 0;
  }
- 
- static __meminit void zone_pcp_init(struct zone *zone)
-@@ -2114,8 +2145,10 @@ __meminit int init_currently_empty_zone(
- 					unsigned long size)
- {
- 	struct pglist_data *pgdat = zone->zone_pgdat;
--
--	zone_wait_table_init(zone, size);
-+	int ret;
-+	ret = zone_wait_table_init(zone, size);
-+	if (ret)
-+		return ret;
- 	pgdat->nr_zones = zone_idx(zone) + 1;
- 
- 	zone->zone_start_pfn = zone_start_pfn;
 
 -- 
 Yasunori Goto 

@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWDEIeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWDEIhm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbWDEIeL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 04:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWDEIeL
+	id S1751166AbWDEIhm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 04:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWDEIhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 04:34:11 -0400
-Received: from allen.werkleitz.de ([80.190.251.108]:19082 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1750823AbWDEIeK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 04:34:10 -0400
-Date: Wed, 5 Apr 2006 10:32:04 +0200
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Martin Samuelsson <sam@home.se>
-Cc: Adrian Bunk <bunk@stusta.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org
-Message-ID: <20060405083204.GA5058@linuxtv.org>
-References: <20060404014504.564bf45a.akpm@osdl.org> <20060404163001.GO6529@stusta.de> <20060404203219.40fe6b4c.sam@home.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 5 Apr 2006 04:37:42 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:18082 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751166AbWDEIhl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 04:37:41 -0400
+Date: Wed, 5 Apr 2006 10:37:38 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Richard Purdie <richard@openedhand.com>
+Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
+Subject: Re: [PATCH RFC/testing] Upgrade the zlib_inflate library code to a recent version
+Message-ID: <20060405083738.GA2505@wohnheim.fh-wedel.de>
+References: <1144163888.6441.48.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060404203219.40fe6b4c.sam@home.se>
-User-Agent: Mutt/1.5.11+cvs20060330
-X-SA-Exim-Connect-IP: 84.189.224.114
-Subject: Re: [-mm patch] drivers/media/video/bt866.c: small fixes
-X-SA-Exim-Version: 4.2 (built Thu, 16 Feb 2006 12:49:04 +1100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1144163888.6441.48.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 04, 2006, Martin Samuelsson wrote:
->  		current->state = TASK_INTERRUPTIBLE;
-> -		schedule_timeout(HZ/10);
-> +		schedule_timeout_interruptible(HZ/10);
+On Tue, 4 April 2006 16:18:08 +0100, Richard Purdie wrote:
+> 
+> Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
 
-schedule_timeout_interruptible() already sets current->state.
+Acked-by: Joern Engel <joern@wh.fh-wedel.de>
 
-Johannes
+Jörn
+
+-- 
+There is no worse hell than that provided by the regrets
+for wasted opportunities.
+-- Andre-Louis Moreau in Scarabouche

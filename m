@@ -1,47 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWDEJTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWDEJWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbWDEJTu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 05:19:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWDEJTu
+	id S1751187AbWDEJWN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 05:22:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWDEJWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 05:19:50 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:47907 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751184AbWDEJTt (ORCPT
+	Wed, 5 Apr 2006 05:22:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2226 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751183AbWDEJWM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 05:19:49 -0400
-Date: Wed, 5 Apr 2006 11:20:06 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Vishal Patil <vishpat@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: CSCAN I/O scheduler for 2.6.10 kernel
-Message-ID: <20060405092006.GA4117@suse.de>
-References: <4745278c0603301955w26fea42eid6bcab91c573eaa3@mail.gmail.com> <4745278c0603301958o4c2ed282x3513fdb459d8ec7c@mail.gmail.com> <4432D6D4.2020102@tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4432D6D4.2020102@tmr.com>
+	Wed, 5 Apr 2006 05:22:12 -0400
+From: David Howells <dhowells@redhat.com>
+To: torvalds@osdl.org, akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: [PATCH] Improve data-dependency memory barrier example in documentation
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Wed, 05 Apr 2006 10:22:03 +0100
+Message-ID: <29899.1144228923@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 04 2006, Bill Davidsen wrote:
-> Vishal Patil wrote:
-> >Maintain two queues which will be sorted in ascending order using Red
-> >Black Trees. When a disk request arrives and if the block number it
-> >refers to is greater than the block number of the current request
-> >being served add (merge) it to the first sorted queue or else add
-> >(merge) it to the second sorted queue. Keep on servicing the requests
-> >from the first request queue until it is empty after which switch over
-> >to the second queue and now reverse the roles of the two queues.
-> >Simple and Sweet. Many thanks for the awesome block I/O layer in the
-> >2.6 kernel.
-> >
-> Why both queues sorting in ascending order? I would think that one 
-> should be in descending order, which would reduce the seek distance 
-> between the last i/o on one queue and the first on the next.
 
-Then it wouldn't be CSCAN, now would it? :-)
+In the memory barrier document, improve the example of the data dependency
+barrier situation by:
 
--- 
-Jens Axboe
+ (1) showing the initial values of the variables involved; and
 
+ (2) repeating the instruction sequence description, this time with the data
+     dependency barrier actually shown to make it clear what the revised
+     sequence actually is.
+
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+warthog>diffstat -p1 /tmp/mb.diff 
+ Documentation/memory-barriers.txt |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/memory-barriers.txt b/Documentation/memory-barriers.txt
+index f855031..822fc45 100644
+--- a/Documentation/memory-barriers.txt
++++ b/Documentation/memory-barriers.txt
+@@ -610,6 +610,7 @@ loads.  Consider the following sequence 
+ 
+ 	CPU 1			CPU 2
+ 	=======================	=======================
++		{ B = 7; X = 9; Y = 8; C = &Y }
+ 	STORE A = 1
+ 	STORE B = 2
+ 	<write barrier>
+@@ -651,7 +652,20 @@ In the above example, CPU 2 perceives th
+ (which would be B) coming after the the LOAD of C.
+ 
+ If, however, a data dependency barrier were to be placed between the load of C
+-and the load of *C (ie: B) on CPU 2, then the following will occur:
++and the load of *C (ie: B) on CPU 2:
++
++	CPU 1			CPU 2
++	=======================	=======================
++		{ B = 7; X = 9; Y = 8; C = &Y }
++	STORE A = 1
++	STORE B = 2
++	<write barrier>
++	STORE C = &B		LOAD X
++	STORE D = 4		LOAD C (gets &B)
++				<data dependency barrier>
++				LOAD *C (reads B)
++
++then the following will occur:
+ 
+ 	+-------+       :      :                :       :
+ 	|       |       +------+                +-------+

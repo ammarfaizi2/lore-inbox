@@ -1,74 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWDEBXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWDEB0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbWDEBXv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 21:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWDEBXv
+	id S1751064AbWDEB0J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 21:26:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbWDEB0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 21:23:51 -0400
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:33884 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1751051AbWDEBXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 21:23:50 -0400
-In-Reply-To: <20060405102837.66b44c43.sfr@canb.auug.org.au>
-References: <Pine.LNX.4.44.0604041612320.30113-100000@gate.crashing.org> <20060405102837.66b44c43.sfr@canb.auug.org.au>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-X-Gpgmail-State: !signed
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <1E1C6A02-5C4D-4A3A-8483-8D5E2773680B@kernel.crashing.org>
-Cc: paulus@samba.org, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+	Tue, 4 Apr 2006 21:26:09 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:51169 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751063AbWDEB0H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 21:26:07 -0400
+Date: Wed, 5 Apr 2006 10:27:33 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: "Zou, Nanhai" <nanhai.zou@intel.com>
+Cc: ebiederm@xmission.com, khalid_aziz@hp.com, linux-kernel@vger.kernel.org,
+       fastboot@lists.osdl.org, linux-ia64@vger.kernel.org
+Subject: Re: [Fastboot] [PATCH] kexec on ia64
+Message-Id: <20060405102733.eabc00fe.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <08B1877B2880CE42811294894F33AD5C053A85@pdsmsx411.ccr.corp.intel.com>
+References: <08B1877B2880CE42811294894F33AD5C053A85@pdsmsx411.ccr.corp.intel.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: Please pull from 'for_paulus' branch of powerpc
-Date: Tue, 4 Apr 2006 20:23:23 -0500
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-X-Mailer: Apple Mail (2.746.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 5 Apr 2006 09:13:36 +0800
+"Zou, Nanhai" <nanhai.zou@intel.com> wrote:
+> > I'm working for memory hotplug. When memory is hot-added, memory layout
+> > changes.
+> > But I think there is no code to manage memory layout information of added memory.
+> > 
+>  It reads memory layout from /proc/iomem...,
+>  If memory is hotpluged, I think we need a reload of kdump.
+> 
+If /proc/iomem is updated at hotplug event (this is not updated now),
+is there no problem ?
 
-On Apr 4, 2006, at 7:28 PM, Stephen Rothwell wrote:
+calling insert_resource like  efi_initialize_iomem_resources() is good ?
 
-> On Tue, 4 Apr 2006 16:14:04 -0500 (CDT) Kumar Gala  
-> <galak@kernel.crashing.org> wrote:
->>
->> Please pull from 'for_paulus' branch of
->> master.kernel.org:/pub/scm/linux/kernel/git/galak/powerpc.git
->>
->> to receive the following updates:
->>
->>  arch/powerpc/configs/mpc85xx_cds_defconfig |  846 ++++++++++++++++ 
->> +++++++++++++
->>  arch/powerpc/kernel/ppc_ksyms.c            |    1
->>  arch/powerpc/platforms/85xx/Kconfig        |    9
->>  arch/powerpc/platforms/85xx/Makefile       |    1
->>  arch/powerpc/platforms/85xx/mpc85xx_cds.c  |  359 ++++++++++++
->>  arch/powerpc/platforms/85xx/mpc85xx_cds.h  |   43 +
->>  arch/ppc/kernel/ppc_ksyms.c                |    1
->>  include/asm-ppc/mpc85xx.h                  |    3
->>  8 files changed, 1262 insertions(+), 1 deletion(-)
->>
->> Andy Fleming:
->>       Add 85xx CDS to arch/powerpc
->
-> Could these "add xxx to arch/powerpc" patches please move any relevant
-> headers files to include/asm-powerpc as well.  It would be nice if we
-> could remove the hack from the powerpc Makefile that include files  
-> from
-> include/asm-ppc.  i.e. My opinion is that if any ARCH=powerpc build
-> requires a file in include/asm-ppc, then that file should be moved to
-> include/asm-powerpc.  I am doing a set of patches to that effect.
+-Kame
 
-We need the irq rework before I'd be willing to do this.  The main  
-dependancy between asm-ppc and asm-powerpc is the static IRQs we  
-currently have.  I'd rather spend time on fixing up the IRQ handling  
-to parse the flat dev tree.
-
-- kumar

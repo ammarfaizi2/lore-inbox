@@ -1,145 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWDEJ7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWDEKXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWDEJ7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 05:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWDEJ7Q
+	id S1751205AbWDEKXM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 06:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWDEKXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 05:59:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40645 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751188AbWDEJ7P (ORCPT
+	Wed, 5 Apr 2006 06:23:12 -0400
+Received: from mx2.suse.de ([195.135.220.15]:19096 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751205AbWDEKXL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 05:59:15 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH] Keys: Improve usage of memory barriers and remove IRQ disablement [try #2]
-Date: Wed, 05 Apr 2006 10:58:59 +0100
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
-Message-Id: <20060405095859.32282.86624.stgit@warthog.cambridge.redhat.com>
+	Wed, 5 Apr 2006 06:23:11 -0400
+Message-ID: <44339A8F.7030305@suse.de>
+Date: Wed, 05 Apr 2006 12:23:11 +0200
+From: Gerd Hoffmann <kraxel@suse.de>
+User-Agent: Thunderbird 1.5 (X11/20060111)
+MIME-Version: 1.0
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [patch] serial: fix UART_BUG_TXEN test
+Content-Type: multipart/mixed;
+ boundary="------------080105030708090209010506"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch removes an unnecessary memory barrier (implicit in
-rcu_dereference()) from install_session_keyring().
+This is a multi-part message in MIME format.
+--------------080105030708090209010506
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-install_session_keyring() is also rearranged a little to make it slightly more
-efficient.
+  Hi,
 
-As install_*_keyring() may schedule (in synchronize_rcu() or keyring_alloc()),
-they may not be entered with interrupts disabled - and so there's no point
-saving the interrupt disablement state over the critical section.
+There is a bug in the UART_BUG_TXEN test: It gives false positives in
+case the UART_IER_THRI bit is set.  Fixed by explicitly clearing the
+UART_IER register first.
 
-exec_keys() will also be invoked with interrupts enabled, and so that doesn't
-need to save the interrupt state either.
----
+It may trigger with an active serial console as serial console writes
+set the UART_IER_THRI bit.
 
- security/keys/process_keys.c |   41 ++++++++++++++++++++---------------------
- 1 files changed, 20 insertions(+), 21 deletions(-)
+cheers,
 
-diff --git a/security/keys/process_keys.c b/security/keys/process_keys.c
-index 74cb79e..ad123c3 100644
---- a/security/keys/process_keys.c
-+++ b/security/keys/process_keys.c
-@@ -167,11 +167,12 @@ error:
-  */
- int install_process_keyring(struct task_struct *tsk)
- {
--	unsigned long flags;
- 	struct key *keyring;
- 	char buf[20];
- 	int ret;
- 
-+	might_sleep();
-+
- 	if (!tsk->signal->process_keyring) {
- 		sprintf(buf, "_pid.%u", tsk->tgid);
- 
-@@ -182,12 +183,12 @@ int install_process_keyring(struct task_
- 		}
- 
- 		/* attach keyring */
--		spin_lock_irqsave(&tsk->sighand->siglock, flags);
-+		spin_lock_irq(&tsk->sighand->siglock);
- 		if (!tsk->signal->process_keyring) {
- 			tsk->signal->process_keyring = keyring;
- 			keyring = NULL;
- 		}
--		spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
-+		spin_unlock_irq(&tsk->sighand->siglock);
- 
- 		key_put(keyring);
- 	}
-@@ -206,38 +207,37 @@ error:
- static int install_session_keyring(struct task_struct *tsk,
- 				   struct key *keyring)
- {
--	unsigned long flags;
- 	struct key *old;
- 	char buf[20];
--	int ret;
-+
-+	might_sleep();
- 
- 	/* create an empty session keyring */
- 	if (!keyring) {
- 		sprintf(buf, "_ses.%u", tsk->tgid);
- 
- 		keyring = keyring_alloc(buf, tsk->uid, tsk->gid, 1, NULL);
--		if (IS_ERR(keyring)) {
--			ret = PTR_ERR(keyring);
--			goto error;
--		}
-+		if (IS_ERR(keyring))
-+			return PTR_ERR(keyring);
- 	}
- 	else {
- 		atomic_inc(&keyring->usage);
- 	}
- 
- 	/* install the keyring */
--	spin_lock_irqsave(&tsk->sighand->siglock, flags);
--	old = rcu_dereference(tsk->signal->session_keyring);
-+	spin_lock_irq(&tsk->sighand->siglock);
-+	old = tsk->signal->session_keyring;
- 	rcu_assign_pointer(tsk->signal->session_keyring, keyring);
--	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
-+	spin_unlock_irq(&tsk->sighand->siglock);
- 
--	ret = 0;
-+	/* we're using RCU on the pointer, but there's no point synchronising
-+	 * on it if it didn't previously point to anything */
-+	if (old) {
-+		synchronize_rcu();
-+		key_put(old);
-+	}
- 
--	/* we're using RCU on the pointer */
--	synchronize_rcu();
--	key_put(old);
--error:
--	return ret;
-+	return 0;
- 
- } /* end install_session_keyring() */
- 
-@@ -310,7 +310,6 @@ void exit_keys(struct task_struct *tsk)
-  */
- int exec_keys(struct task_struct *tsk)
- {
--	unsigned long flags;
- 	struct key *old;
- 
- 	/* newly exec'd tasks don't get a thread keyring */
-@@ -322,10 +321,10 @@ int exec_keys(struct task_struct *tsk)
- 	key_put(old);
- 
- 	/* discard the process keyring from a newly exec'd task */
--	spin_lock_irqsave(&tsk->sighand->siglock, flags);
-+	spin_lock_irq(&tsk->sighand->siglock);
- 	old = tsk->signal->process_keyring;
- 	tsk->signal->process_keyring = NULL;
--	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
-+	spin_unlock_irq(&tsk->sighand->siglock);
- 
- 	key_put(old);
- 
+  Gerd
 
+--------------080105030708090209010506
+Content-Type: text/plain;
+ name="fix-serial-8250-UART_BUG_TXEN-test"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix-serial-8250-UART_BUG_TXEN-test"
+
+Signed-off-by: Gerd Hoffmann <kraxel@suse.de>
+--- linux-2.6.16/drivers/serial/8250.c.serial	2006-04-05 12:04:31.000000000 +0200
++++ linux-2.6.16/drivers/serial/8250.c	2006-04-05 12:04:49.000000000 +0200
+@@ -1712,6 +1712,7 @@
+ 	 * Do a quick test to see if we receive an
+ 	 * interrupt when we enable the TX irq.
+ 	 */
++	serial_outp(up, UART_IER, 0);
+ 	serial_outp(up, UART_IER, UART_IER_THRI);
+ 	lsr = serial_in(up, UART_LSR);
+ 	iir = serial_in(up, UART_IIR);
+
+--------------080105030708090209010506--

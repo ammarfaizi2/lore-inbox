@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWDEXcg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbWDEXoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751054AbWDEXcg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 19:32:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbWDEXcf
+	id S1750994AbWDEXoM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 19:44:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWDEXoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 19:32:35 -0400
-Received: from mail.gmx.net ([213.165.64.20]:34004 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751054AbWDEXcf (ORCPT
+	Wed, 5 Apr 2006 19:44:12 -0400
+Received: from pproxy.gmail.com ([64.233.166.177]:30223 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751194AbWDEXoL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 19:32:35 -0400
-X-Authenticated: #31060655
-Message-ID: <44345391.4000704@gmx.net>
-Date: Thu, 06 Apr 2006 01:32:33 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.12) Gecko/20050921
-X-Accept-Language: de, en
+	Wed, 5 Apr 2006 19:44:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=ZuoHR9/sBkAz3KFZsGM2jV5UopzpjEAM0OIWNC5AtHM6+rDpmjyDkVxZIBr0iZwguUaJUnyQCW9gu1AIJGr5SmaxtUkOzxnIkDXoNxU+hS2zyybp+TBof+b+CxuvF5gkn8iTvNFYPqRAqI7LqrQjdpAd2IU4WeR2GH+I5KKsAjs=
+Message-ID: <44345693.9000208@gmail.com>
+Date: Thu, 06 Apr 2006 07:45:23 +0800
+From: Yi Yang <yang.y.yi@gmail.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix unneeded rebuilds in drivers/media/video after moving
- source tree
-References: <442BC74B.7060305@gmx.net> <20060330202208.GA14016@mars.ravnborg.org> <442C4469.1040408@gmx.net> <20060331152226.GB8992@mars.ravnborg.org> <4431A338.3000709@gmx.net> <20060404150233.GA10608@mars.ravnborg.org>
-In-Reply-To: <20060404150233.GA10608@mars.ravnborg.org>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+To: Carlos Silva <r3pek@r3pek.homelinux.org>
+CC: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       Matt Helsley <matthltc@us.ibm.com>
+Subject: Re: [2.6.16 PATCH] Filessytem Events Reporter V2
+References: <4433C456.7010708@gmail.com> <1144257124.2075.10.camel@localhost>
+In-Reply-To: <1144257124.2075.10.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg schrieb:
->>This fixes some uneeded rebuilds under drivers/media/video after moving
->>the source tree. The makefiles used $(src) and $(srctree) for include
->>paths, which is unnecessary. Changed to use relative paths.
->>
->>Compile tested, produces byte-identical code to the previous makefiles.
-> 
-> 
-> Thanks, applied both.
-> Did similar changes in bt8xx + some ppc code.
-
-Thanks. Was it intentional to leave the line below in
-drivers/media/video/bt8xx/Makefile?
-
-EXTRA_CFLAGS += -I$(src)/..
-
-I think it could be replaced with
-
-EXTRA_CFLAGS += -Idrivers/media/video
-
-but I'm not a kbuild expert.
-
-
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+Carlos Silva wrote:
+> On Wed, 2006-04-05 at 21:21 +0800, Yi Yang wrote:
+>   
+>> <snip>
+>> +static void cleanup_dead_listener(listener * x)
+>> +{
+>> +	pid_filter * p = NULL, * pq = NULL;
+>> +	uid_filter * u = NULL, * uq = NULL;
+>> +	gid_filter * g = NULL, * gq = NULL;
+>> +
+>> +	if (p == NULL)
+>> +		return;
+>> <snip>
+>>     
+>
+> I think you ment "if (x == NULL)" here.  Otherwise, the condition will always be true.
+> btw, I'm not reviewing your code, just stumbled across this while reading it.
+>   
+Yes, it is my mistake, thank you.

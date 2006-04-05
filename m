@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWDEVkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWDEVvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbWDEVkh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 17:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWDEVkh
+	id S932081AbWDEVvG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 17:51:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWDEVvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 17:40:37 -0400
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:45521 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1751183AbWDEVkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 17:40:36 -0400
-Message-ID: <44342CE2.208@tmr.com>
-Date: Wed, 05 Apr 2006 16:47:30 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9a1) Gecko/20060330 SeaMonkey/1.5a
+	Wed, 5 Apr 2006 17:51:05 -0400
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:42630 "EHLO
+	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932081AbWDEVvE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 17:51:04 -0400
+Message-ID: <44343C25.2000306@plan99.net>
+Date: Wed, 05 Apr 2006 22:52:37 +0100
+From: Mike Hearn <mike@plan99.net>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: Charles Shannon Hendrix <shannon@widomaker.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: OOM kills if swappiness set to 0, swap storms otherwise
-References: <1143510828.1792.353.camel@mindpipe> <20060327195905.7f666cb5.akpm@osdl.org> <20060405144716.GA10353@widomaker.com>
-In-Reply-To: <20060405144716.GA10353@widomaker.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] Add a /proc/self/exedir link
+References: <4431A93A.2010702@plan99.net> <m1fykr3ggb.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1fykr3ggb.fsf@ebiederm.dsl.xmission.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Charles Shannon Hendrix wrote:
-> Mon, 27 Mar 2006 @ 19:59 -0800, Andrew Morton said:
-> 
->> Much porkiness.
->>
->> /proc/meminfo is very useful for obtaining a top-level view of where all
->> the memory's gone to.  I'd tentatively say that your options are to put up
->> with the swapping or find a new mail client.
-> 
-> I use mutt for my email, and I have the same issue on a 1GB system.
-> 
-> I really wish we could put an upper limit on what file cache can use.
-> 
-> I understand the original poster was running a lot of pork, but you
-> don't have to and still see a problem with swapping.  Even running KDE
-> my total application memory most of the time is 300MB or less on a
-> machine with 1GB of memory.
-> 
-> I shouldn't be suffering from swap storms.
+> I think if we can fix namespaces you don't have to be root to use
+> them that is a superioir approach, and will cover more cases.
 
-Agreed, does meminfo show that you are? The reason I ask is that I have 
-noted that large memory machines and CD/DVD image writing suffer from 
-some interesting disk write patterns. The image being built gets cached 
-but not written, then the file is closed. At some point the kernel 
-notices several GB of old unwritten data and decides to write it. This 
-makes everything pretty slow for a while, even if you have 100MB/s disk 
-system.
-> 
-> For example, my normal working set of programs eats about 250MB of memory. If
-> I also start a job running to something like tag some mp3s, copy a CD, or just
-> process a lot of files, it only takes a few minutes before performance becomes
-> unacceptable.  
+That would be nice. I assumed they needed root for security reasons 
+rather than architectural reasons.
 
-In theory you should be able to tune this, but in practice I see what 
-you do. On small memory machines it's less noticable, oddly.
-> 
-> If you are doing some work where you switch among several applications
-> frequently, the pigginess of file cache becomes a serious problem.
-> 
-> Isn't that bad behavior by any measure?
+> I have concerns about security policy ...
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+I'm not sure I understand. Only if you run that program, and if you 
+don't have access to the intermediate directory, how do you run it?
 
+> This means I can not run any of your relocatable executalbes in 
+ > a chroot environment unless I mount proc.
+
+Why is mounting proc a bad thing? I have never seen a Linux distro that 
+does not provide proc and many desktop-level things depend on it.
+
+> Given how long we have been without this I doubt many people actually
+> care
+
+You could argue the same for any new feature. Writing relocatable 
+software on UNIX is absolutely standard, except it's done at source 
+compile time not runtime. That fits with the traditional UNIX culture of 
+compiling software to install it, but the times they are a changin :)
+
+> I'm not certain the directory of an inode even makes sense, and
+> that is what you are asking for us to export.
+
+How so? The code does work, though I guess you could devise a scenario 
+in which there is a running executable that is not attached to any 
+directory.
+
+thanks -mike

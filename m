@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWDEIrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWDEJBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWDEIrP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 04:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWDEIrP
+	id S1751181AbWDEJBX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 05:01:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWDEJBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 04:47:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17824 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751177AbWDEIrO (ORCPT
+	Wed, 5 Apr 2006 05:01:23 -0400
+Received: from mail.gondor.com ([212.117.64.182]:42756 "EHLO moria.gondor.com")
+	by vger.kernel.org with ESMTP id S1751181AbWDEJBX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 04:47:14 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <4432515F.4030108@yahoo.com.au> 
-References: <4432515F.4030108@yahoo.com.au>  <20060404095529.31311.3892.stgit@warthog.cambridge.redhat.com> 
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] Keys: Improve usage of memory barriers and remove IRQ disablement 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Wed, 05 Apr 2006 09:46:10 +0100
-Message-ID: <29064.1144226770@warthog.cambridge.redhat.com>
+	Wed, 5 Apr 2006 05:01:23 -0400
+Date: Wed, 5 Apr 2006 11:01:17 +0200
+From: Jan Niehusmann <jan@gondor.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Ken Moffat <zarniwhoop@ntlworld.com>, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org
+Subject: Re: [Alsa-devel] Slab corruptions & Re: 2.6.17-rc1: Oops in sound applications
+Message-ID: <20060405090117.GB4794@knautsch.gondor.com>
+References: <Pine.LNX.4.63.0604032155220.17605@deepthought.mydomain> <20060404133814.GA11741@knautsch.gondor.com> <s5hlkul72rv.wl%tiwai@suse.de> <20060404190631.GA4895@knautsch.gondor.com> <s5h7j656tpp.wl%tiwai@suse.de> <20060404231911.GA4862@knautsch.gondor.com> <20060405002846.GA5201@knautsch.gondor.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060405002846.GA5201@knautsch.gondor.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+On Wed, Apr 05, 2006 at 02:28:47AM +0200, Jan Niehusmann wrote:
+> If I now add the patch you suggested, correcting the check in
+> snd_pcm_oss_open_file(), accessing /dev/dsp instead leads to EINVAL.
+> 
+> So I guess git bisect really lead me to this already known bug.
 
-> Shouldn't be needed: Documentation/atomic_ops.txt specifies that any atomic_
-> which both modifies its atomic operand and returns something is to be a full
-> barrier before and after the operation.
+And another update. Sorry for sending so many small mails, but I want to
+keep you informed to avoid unnecessary duplication of work.
 
-Hmmm... It's possible that I've misunderstood what atomic_ops.txt actually
-says.  For instance:
+To make sure I didn't do something stupid like confusing kernel
+versions, I retried with 2.6.17-rc1 and the mentioned patch. It oopses
+again, but the behaviour is different:
 
-| 	int atomic_inc_and_test(atomic_t *v);
-| 	int atomic_dec_and_test(atomic_t *v);
-| 
-| These two routines increment and decrement by 1, respectively, the
-| given atomic counter.  They return a boolean indicating whether the
-| resulting counter value was zero or not.
-| 
-| It requires explicit memory barrier semantics around the operation as
-| above.
+Versions 2.6.16 to commit bf1bbb5a49eec51c30d341606885507b501b37e8 only
+allow a single open of /dev/dsp, and do not oops.
 
-Note the last paragraph.  "It requires" should be "They require", but the
-sense would seem to be obvious.  However, it's not clear on a second reading
-as to whether this is an instruction to the _caller_ or an instruction to the
-arch _implementer_.
+Commit 3bf75f9b90c981f18f27a0d35a44f488ab68c8ea and later do oops with
+commands as simple as 'yes >/dev/dsp'.
 
-I suppose from reading the abstract at the top:
+Commit 3bf75f9b90c981f18f27a0d35a44f488ab68c8ea with the patch to
+snd_pcm_oss_open_file() applied do not oops, but block every access to
+/dev/dsp with EINVAL.
 
-| This document is intended to serve as a guide to Linux port maintainers on
-| how to implement atomic counter, bitops, and spinlock interfaces properly.
+2.6.17-rc1 with the patch to snd_pcm_oss_open_file(), again, allows
+opening of /dev/dsp, 'yes >/dev/dsp' does work as expected, but for
+example twinkle (a VoIP application) gives garbled sound. Additionally,
+I am now able to open /dev/dsp a second time (eg. 'yes >/dev/dsp' while
+twinkle uses the sound device), immediately leading to an oops.
 
-that it is meant to be read by the implementor and not the user/caller, in which
-case, Nick is correct.
+My guess is that this bug is just not triggered in commit
+3bf75f9b90c981f18f27a0d35a44f488ab68c8ea because, for some other reason,
+/dev/dsp is completely unusable.
 
-It seems I need to adjust my memory barrier doc, and perhaps I should adjust
-atomic_ops.txt too to make it clearer.
+Jan
 
-David

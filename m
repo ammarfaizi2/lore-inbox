@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWDERAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWDERBS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbWDERAY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 13:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWDERAY
+	id S1751280AbWDERBS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 13:01:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWDERBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 13:00:24 -0400
-Received: from pproxy.gmail.com ([64.233.166.180]:26298 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751278AbWDERAY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 13:00:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NLVRg0PkaoBKQ9N4eIvKbMiwVuJizPm/BNY1CVvnZBcDYktU2oaZHrFKaiS1NHKXZHYAQFDJNuF4JHqWtMFiAmZfSIUKr15tOx6EqgQWeVVYH0daWUYsHD/un25aieZMn9lVa3U3sJWMrvcuFUvCMm5iKIOFx7NFJ+qfN5oyKo0=
-Message-ID: <bda6d13a0604051000l6b804576wd211ac98d59756d8@mail.gmail.com>
-Date: Wed, 5 Apr 2006 10:00:23 -0700
-From: "Joshua Hudson" <joshudson@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_FRAME_POINTER and module vermagic
-In-Reply-To: <Pine.LNX.4.61.0604050729210.4636@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <442ACAD6.6@nortel.com>
-	 <Pine.LNX.4.61.0603291308240.28274@chaos.analogic.com>
-	 <4432EC08.4010104@nortel.com>
-	 <Pine.LNX.4.61.0604050729210.4636@chaos.analogic.com>
+	Wed, 5 Apr 2006 13:01:18 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:4507 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751280AbWDERBR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 13:01:17 -0400
+Subject: Re: [OT] Non-GCC compilers used for linux userspace
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Jason L Tibbitts III <tibbs@math.uh.edu>,
+       Eric Piel <Eric.Piel@tremplin-utc.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Rob Landley <rob@landley.net>,
+       nix@esperi.org.uk, mmazur@kernel.pl, linux-kernel@vger.kernel.org,
+       llh-discuss@lists.pld-linux.org
+In-Reply-To: <54199D84-7DB7-434E-BA83-9B2658182124@mac.com>
+References: <200603141619.36609.mmazur@kernel.pl>
+	 <20060326065205.d691539c.mrmacman_g4@mac.com>
+	 <4426A5BF.2080804@tremplin-utc.net> <200603261609.10992.rob@landley.net>
+	 <44271E88.6040101@tremplin-utc.net>
+	 <5DC72207-3C0B-44C2-A9E5-319C0A965E9D@mac.com>
+	 <Pine.LNX.4.61.0603281619300.27529@yvahk01.tjqt.qr>
+	 <36A8C3CC-3E4D-4158-AABB-F4D2C66AA8CD@mac.com>
+	 <442960B6.2040502@tremplin-utc.net>
+	 <7E2F0C3C-4091-4EEB-8E10-C1F58F94BD59@mac.com>
+	 <ufazmjaec9q.fsf@epithumia.math.uh.edu>
+	 <54199D84-7DB7-434E-BA83-9B2658182124@mac.com>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Wed, 05 Apr 2006 10:01:12 -0700
+Message-Id: <1144256472.3984.7.camel@chalcedony.internal.keyresearch.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> you refer, points to. The structure member, ebp, contains the
-> value of the EBP register when the kernel was called. Since EBP
-> was the first register saved in the array, it is likely (didn't check)
-> that the location referenced by "regs->ebp + 4" was, in fact, the
-> return address. In any event, the value of regs->ebp is simply
-> the value in a structure member, not the value of any current
-> registers.
-Confirmed. This is the standard stack frame, and all debuggers assume this.
+On Tue, 2006-03-28 at 12:13 -0500, Kyle Moffett wrote:
+
+> Mainly I want to know if I should even bother making the kabi headers  
+> compile with anything other than GCC.
+
+The PathScale compiler is gcc-compatible, so there should be no problems
+for us using gcc-isms in those headers.
+
+	<b
+

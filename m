@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbWDESxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbWDETBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751332AbWDESxb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 14:53:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWDESxa
+	id S1751122AbWDETBd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 15:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWDETBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 14:53:30 -0400
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:10385
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751332AbWDESxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 14:53:30 -0400
-Date: Wed, 5 Apr 2006 11:52:43 -0700
-From: Greg KH <greg@kroah.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Sergey Vlasov <vsu@altlinux.ru>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: [stable] Re: [patch 03/26] sysfs: zero terminate sysfs write buffers (CVE-2006-1055)
-Message-ID: <20060405185243.GD2577@kroah.com>
-References: <20060404235634.696852000@quad.kroah.org> <20060404235947.GD27049@kroah.com> <20060405190928.17b9ba6a.vsu@altlinux.ru> <9e4733910604050830x2daf2ec1vd1fe16073b51de8c@mail.gmail.com>
+	Wed, 5 Apr 2006 15:01:33 -0400
+Received: from xenotime.net ([66.160.160.81]:53433 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751122AbWDETBd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 15:01:33 -0400
+Date: Wed, 5 Apr 2006 12:03:45 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: stable@kernel.org, lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] isd200: limit to BLK_DEV_IDE
+Message-Id: <20060405120345.6ad380de.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e4733910604050830x2daf2ec1vd1fe16073b51de8c@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 05, 2006 at 11:30:54AM -0400, Jon Smirl wrote:
-> 
-> The one attribute per file model doesn't work well when the attributes
-> need to be changed in a transaction. For example you want to change
-> your display to 1024x768 16bit color.  As you set the attributes one
-> at a time the display has to change since there is not guarantee that
-> you will complete the sequence. The framebuffer sysfs interface breaks
-> the one attribute per file rule and uses strings for grouped
-> attributes.
 
-I suggest you use configfs instead for this.  It allows this kind of
-"grouped attributes".
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-good luck,
+Limit USB_STORAGE_ISD200 to whatever BLK_DEV_IDE and USB_STORAGE
+are set to (y, m) since isd200 calls ide_fix_driveid() in the
+BLK_DEV_IDE code.
 
-greg k-h
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ drivers/usb/storage/Kconfig |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+--- linux-2616-z.orig/drivers/usb/storage/Kconfig
++++ linux-2616-z/drivers/usb/storage/Kconfig
+@@ -48,7 +48,8 @@ config USB_STORAGE_FREECOM
+
+ config USB_STORAGE_ISD200
+ 	bool "ISD-200 USB/ATA Bridge support"
+-	depends on USB_STORAGE && BLK_DEV_IDE
++	depends on USB_STORAGE
++	depends on BLK_DEV_IDE=y || BLK_DEV_IDE=USB_STORAGE
+ 	---help---
+ 	  Say Y here if you want to use USB Mass Store devices based
+ 	  on the In-Systems Design ISD-200 USB/ATA bridge.
+
+
+---

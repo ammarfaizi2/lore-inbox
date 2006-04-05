@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWDEMjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWDEM4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751232AbWDEMjb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 08:39:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWDEMjb
+	id S1751234AbWDEM4q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 08:56:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWDEM4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 08:39:31 -0400
-Received: from ns.suse.de ([195.135.220.2]:12191 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751232AbWDEMja (ORCPT
+	Wed, 5 Apr 2006 08:56:46 -0400
+Received: from mail.suse.de ([195.135.220.2]:42914 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751234AbWDEM4p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 08:39:30 -0400
-Date: Wed, 05 Apr 2006 14:39:29 +0200
-Message-ID: <s5hslosnqm6.wl%tiwai@suse.de>
+	Wed, 5 Apr 2006 08:56:45 -0400
+Date: Wed, 05 Apr 2006 14:56:44 +0200
+Message-ID: <s5hodzgnptf.wl%tiwai@suse.de>
 From: Takashi Iwai <tiwai@suse.de>
 To: Jan Niehusmann <jan@gondor.com>
 Cc: Ken Moffat <zarniwhoop@ntlworld.com>, linux-kernel@vger.kernel.org,
        alsa-devel@alsa-project.org
 Subject: Re: [Alsa-devel] Slab corruptions & Re: 2.6.17-rc1: Oops in sound applications
-In-Reply-To: <20060405121537.GA4807@knautsch.gondor.com>
+In-Reply-To: <s5hslosnqm6.wl%tiwai@suse.de>
 References: <Pine.LNX.4.63.0604032155220.17605@deepthought.mydomain>
 	<20060404133814.GA11741@knautsch.gondor.com>
 	<s5hlkul72rv.wl%tiwai@suse.de>
@@ -27,6 +27,7 @@ References: <Pine.LNX.4.63.0604032155220.17605@deepthought.mydomain>
 	<20060405090117.GB4794@knautsch.gondor.com>
 	<s5h1wwcp93l.wl%tiwai@suse.de>
 	<20060405121537.GA4807@knautsch.gondor.com>
+	<s5hslosnqm6.wl%tiwai@suse.de>
 User-Agent: Wanderlust/2.12.0 (Your Wildest Dreams) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.7 (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 MULE XEmacs/21.5 (beta25)
  (eggplant) (+CVS-20060326) (i386-suse-linux)
@@ -35,23 +36,43 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Wed, 5 Apr 2006 14:15:38 +0200,
-Jan Niehusmann wrote:
+At Wed, 05 Apr 2006 14:39:29 +0200,
+I wrote:
 > 
-> On Wed, Apr 05, 2006 at 01:14:54PM +0200, Takashi Iwai wrote:
-> > Try the patch below.  The change in pcm_native.c may be unnecessary,
-> > but it's better so.
-> > If it works, I'll submit the patches with a proper log.
+> At Wed, 5 Apr 2006 14:15:38 +0200,
+> Jan Niehusmann wrote:
+> > 
+> > On Wed, Apr 05, 2006 at 01:14:54PM +0200, Takashi Iwai wrote:
+> > > Try the patch below.  The change in pcm_native.c may be unnecessary,
+> > > but it's better so.
+> > > If it works, I'll submit the patches with a proper log.
+> > 
+> > The patch (applied to 2.6.17-rc1) does fix the oops, but sound is still
+> > garbled with twinkle using /dev/dsp. 
+> > 
+> > About this garbled sound: I call an echo service on my asterisk server,
+> > which just echoes back everything I say. Works well using /dev/dsp with
+> > 2.6.16, but with 2.6.17-rc1, even with the patch applied, I hear no echo
+> > at all for ~1s. After that, I hear a strongly distorted echo.
 > 
-> The patch (applied to 2.6.17-rc1) does fix the oops, but sound is still
-> garbled with twinkle using /dev/dsp. 
-> 
-> About this garbled sound: I call an echo service on my asterisk server,
-> which just echoes back everything I say. Works well using /dev/dsp with
-> 2.6.16, but with 2.6.17-rc1, even with the patch applied, I hear no echo
-> at all for ~1s. After that, I hear a strongly distorted echo.
+> Did you have any special setting (e.g. oss proc file)?
 
-Did you have any special setting (e.g. oss proc file)?
+How about the patch below?
 
 
 Takashi
+
+
+diff --git a/sound/core/oss/pcm_oss.c b/sound/core/oss/pcm_oss.c
+index 91114c7..c951cf8 100644
+--- a/sound/core/oss/pcm_oss.c
++++ b/sound/core/oss/pcm_oss.c
+@@ -1682,7 +1682,7 @@ static void snd_pcm_oss_init_substream(s
+ 	substream->oss.setup = *setup;
+ 	if (setup->nonblock)
+ 		substream->ffile->f_flags |= O_NONBLOCK;
+-	else
++	else if (setup->block)
+ 		substream->ffile->f_flags &= ~O_NONBLOCK;
+ 	runtime = substream->runtime;
+ 	runtime->oss.params = 1;

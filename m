@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWDEAAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWDEANd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750951AbWDEAAw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 20:00:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750958AbWDEAAo
+	id S1751017AbWDEANd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 20:13:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWDEANc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 20:00:44 -0400
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:65167
+	Tue, 4 Apr 2006 20:13:32 -0400
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:62091
 	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1750951AbWDEAA1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 20:00:27 -0400
-Date: Tue, 4 Apr 2006 16:59:43 -0700
-From: gregkh@suse.de
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Eugene Teo <eugene.teo@eugeneteo.net>,
-       David Miller <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 02/26] USB: Fix irda-usb use after use
-Message-ID: <20060404235943.GC27049@kroah.com>
-References: <20060404235634.696852000@quad.kroah.org>
+	id S1750954AbWDEANc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 20:13:32 -0400
+Date: Tue, 4 Apr 2006 17:12:26 -0700
+From: Greg KH <greg@kroah.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: gregkh@suse.de, torvalds@osdl.org, tytso@mit.edu, zwane@arm.linux.org.uk,
+       jmforbes@linuxtx.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, bunk@stusta.de, rdunlap@xenotime.net,
+       mst@mellanox.co.il, davej@redhat.com, rolandd@cisco.com,
+       chuckw@quantumlinux.com, stable@kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [stable] Re: [patch 11/26] IPOB: Move destructor from neigh->ops to neigh_param
+Message-ID: <20060405001226.GA29002@kroah.com>
+References: <20060404235634.696852000@quad.kroah.org> <20060404235927.GA27049@kroah.com> <20060405000030.GL27049@kroah.com> <20060404.170720.61536177.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="usb-0079-Fix-irda-usb-use-after-use.patch"
-In-Reply-To: <20060404235927.GA27049@kroah.com>
+Content-Disposition: inline
+In-Reply-To: <20060404.170720.61536177.davem@davemloft.net>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't read from free'd memory after calling netif_rx().  docopy is used as
-a boolean (0 and 1) so unsigned int is sufficient.
+On Tue, Apr 04, 2006 at 05:07:20PM -0700, David S. Miller wrote:
+> From: gregkh@suse.de
+> Date: Tue, 4 Apr 2006 17:00:30 -0700
+> 
+> > From: Michael Tsirkin <mst@mellanox.co.il>
+> > 
+> > struct neigh_ops currently has a destructor field, but not a constructor field.
+> > The infiniband/ulp/ipoib in-tree driver stashes some info in the neighbour
+> > structure (the results of the second-stage lookup from ARP results to real
+> > link-level path), and it uses neigh->ops->destructor to get a callback so it can
+> > clean up this extra info when a neighbour is freed.  We've run into problems
+> > with this: since the destructor is in an ops field that is shared between
+> > neighbours that may belong to different net devices, there's no way to set/clear
+> > it safely.
+> > 
+> > The following patch moves this field to neigh_parms where it can be safely set,
+> > together with its twin neigh_setup, and switches the only two in-kernel users
+> > (ipoib and clip) to this interface.
+> 
+> Major NAK.
+> 
+> This does not fix a bug, it is merely and API change that the
+> inifiniband folks want for some of their infrastructure.
+> 
+> It was accepted for 2.6.17, but this change is not appropriate
+> for the -stable release branch.
+> 
+> Furthermore, this version of the patch here will break the build of
+> ATM.
 
-Coverity bug #928
+Thanks for the information and the review, I've dropped this patch from
+the queue now.
 
-Signed-off-by: Eugene Teo <eugene.teo@eugeneteo.net>
-Cc: "David Miller" <davem@davemloft.net>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
-
- drivers/net/irda/irda-usb.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
---- linux-2.6.16.1.orig/drivers/net/irda/irda-usb.c
-+++ linux-2.6.16.1/drivers/net/irda/irda-usb.c
-@@ -740,7 +740,7 @@ static void irda_usb_receive(struct urb 
- 	struct sk_buff *newskb;
- 	struct sk_buff *dataskb;
- 	struct urb *next_urb;
--	int		docopy;
-+	unsigned int len, docopy;
- 
- 	IRDA_DEBUG(2, "%s(), len=%d\n", __FUNCTION__, urb->actual_length);
- 	
-@@ -851,10 +851,11 @@ static void irda_usb_receive(struct urb 
- 	dataskb->dev = self->netdev;
- 	dataskb->mac.raw  = dataskb->data;
- 	dataskb->protocol = htons(ETH_P_IRDA);
-+	len = dataskb->len;
- 	netif_rx(dataskb);
- 
- 	/* Keep stats up to date */
--	self->stats.rx_bytes += dataskb->len;
-+	self->stats.rx_bytes += len;
- 	self->stats.rx_packets++;
- 	self->netdev->last_rx = jiffies;
- 
-
---
+greg k-h

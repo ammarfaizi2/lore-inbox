@@ -1,63 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWDEJJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWDEJSB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbWDEJJs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 05:09:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWDEJJs
+	id S1751186AbWDEJSB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 05:18:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWDEJSB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 05:09:48 -0400
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:25484 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751182AbWDEJJs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 05:09:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=EUnXm4eWCcg90twpYG4dSeD3BsN7sBu2NK+/PvcfMWsbifeQfSnMKdS0sLBJI6/+bvlGEWz1qNU8WnPD5HzZULnV14Uj8zp2LZl1ReEjkfcemZUk94VXZ5aVj4mMpg+YbEIWQGKlOjbn7ZECne7AMSV9zFB9rLShs//p4p43ftw=  ;
-Message-ID: <4432530A.70606@yahoo.com.au>
-Date: Tue, 04 Apr 2006 21:05:46 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jes Sorensen <jes@sgi.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       bjorn_helgaas@hp.com, cotte@de.ibm.com
-Subject: Re: [patch] do_no_pfn handler
-References: <yq0k6a6uc7i.fsf@jaguar.mkp.net> <yq01wwdppyc.fsf@jaguar.mkp.net>
-In-Reply-To: <yq01wwdppyc.fsf@jaguar.mkp.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Apr 2006 05:18:01 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23216 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751183AbWDEJSA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 05:18:00 -0400
+From: David Howells <dhowells@redhat.com>
+To: torvalds@osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au
+cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       davem@davemloft.net
+Subject: [PATCH] Fix memory barrier docs wrt atomic ops
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Wed, 05 Apr 2006 10:17:19 +0100
+Message-ID: <29800.1144228639@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen wrote:
-> Hi,
-> 
-> Ingo Oeser suggested reorganizing the hangle_pte_fault code in a way
-> that simplifies the code deciding which fault handler to call. It
-> makes the call to ->nopfn and ->nopage a lot clearer.
-> 
 
-Probably doesn't make much difference, but I'd rather do the nopage
-check first, as that will obviously be the most common.
+Fix the memory barrier documentation to attempt to describe atomic ops
+correctly.
 
-> It doesn't address Nick's suggestion as whether to recheck for someone
-> else faulting it as I didn't see a consensus on that yet.
-> 
+atomic_t ops that return a value _do_ imply smp_mb() either side, and so don't
+actually require smp_mb__*_atomic_*() special barriers.
 
-I first thought this might be a good idea because some archs have a
-pretty heavy-weight set_pte_at (eg. powerpc, which is even heavier if
-it is to replace an existing entry). This is not going to be very
-common, but there have been cases where multiple threads all try to
-fault in a particular page, which has caused performance problems.
+Also explains why special barriers exist in addition to normal barriers.
 
-Other than that, you never know what a nopfn handler will want to do,
-so I think it is better to be consistent with other faults. Shouldn't
-need much more than a `if (pte_none()) { /* do it */ }`.
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+warthog>diffstat -p1 /tmp/mb.diff 
+ Documentation/memory-barriers.txt |   47 +++++++++++++++++++++++++-------------
+ 1 file changed, 31 insertions(+), 16 deletions(-)
 
-> Updated patch attached.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+diff --git a/Documentation/memory-barriers.txt b/Documentation/memory-barriers.txt
+index f855031..822fc45 100644
+--- a/Documentation/memory-barriers.txt
++++ b/Documentation/memory-barriers.txt
+@@ -829,8 +829,8 @@ There are some more advanced barrier fun
+  (*) smp_mb__after_atomic_inc();
+ 
+      These are for use with atomic add, subtract, increment and decrement
+-     functions, especially when used for reference counting.  These functions
+-     do not imply memory barriers.
++     functions that don't return a value, especially when used for reference
++     counting.  These functions do not imply memory barriers.
+ 
+      As an example, consider a piece of code that marks an object as being dead
+      and then decrements the object's reference count:
+@@ -1263,15 +1263,15 @@ else.
+ ATOMIC OPERATIONS
+ -----------------
+ 
+-Though they are technically interprocessor interaction considerations, atomic
+-operations are noted specially as they do _not_ generally imply memory
+-barriers.  The possible offenders include:
++Whilst they are technically interprocessor interaction considerations, atomic
++operations are noted specially as some of them imply full memory barriers and
++some don't, but they're very heavily relied on as a group throughout the
++kernel.
++
++Any atomic_t operation, for instance, that returns a value implies an
++SMP-conditional general memory barrier (smp_mb()) on each side of the actual
++operation.  These include:
+ 
+-	xchg();
+-	cmpxchg();
+-	test_and_set_bit();
+-	test_and_clear_bit();
+-	test_and_change_bit();
+ 	atomic_cmpxchg();
+ 	atomic_inc_return();
+ 	atomic_dec_return();
+@@ -1283,20 +1283,30 @@ barriers.  The possible offenders includ
+ 	atomic_add_negative();
+ 	atomic_add_unless();
+ 
+-These may be used for such things as implementing LOCK operations or controlling
+-the lifetime of objects by decreasing their reference counts.  In such cases
+-they need preceding memory barriers.
+ 
+-The following may also be possible offenders as they may be used as UNLOCK
+-operations.
++The following, however, do _not_ imply memory barrier effects:
++
++	xchg();
++	cmpxchg();
++	test_and_set_bit();
++	test_and_clear_bit();
++	test_and_change_bit();
++
++These may be used for such things as implementing LOCK-class operations.  In
++such cases they need explicit memory barriers.
++
++The following are also potential offenders as they may be used as UNLOCK-class
++operations, amongst other things, but do _not_ imply memory barriers either:
+ 
+ 	set_bit();
+ 	clear_bit();
+ 	change_bit();
+ 	atomic_set();
+ 
++With these the appropriate explicit memory barrier should be used if necessary.
++
+ 
+-The following are a little tricky:
++The following also don't imply memory barriers, and so may be a little tricky:
+ 
+ 	atomic_add();
+ 	atomic_sub();
+@@ -1322,6 +1332,11 @@ operation is protected by a lock, then i
+ there's another operation within the critical section with respect to which an
+ ordering must be maintained.
+ 
++[!] Note that special memory barrier primitives are available for these
++situations because on some CPUs the atomic instructions used imply full memory
++barriers, and so barrier instructions are superfluous in conjunction with them,
++and in such cases the special barrier primitives will be no-ops.
++
+ See Documentation/atomic_ops.txt for more information.
+ 
+ 

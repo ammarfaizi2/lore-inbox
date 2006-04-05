@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751062AbWDEHxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWDEHtk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751062AbWDEHxA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 03:53:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWDEHxA
+	id S1751152AbWDEHtk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 03:49:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWDEHtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 03:53:00 -0400
-Received: from [84.204.75.166] ([84.204.75.166]:701 "EHLO shelob.oktetlabs.ru")
-	by vger.kernel.org with ESMTP id S1751062AbWDEHw7 (ORCPT
+	Wed, 5 Apr 2006 03:49:40 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38311 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751062AbWDEHtj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 03:52:59 -0400
-Message-ID: <44337759.4040507@yandex.ru>
-Date: Wed, 05 Apr 2006 11:52:57 +0400
-From: "Artem B. Bityutskiy" <dedekind@yandex.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
-X-Accept-Language: en, ru, en-us
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: device model and character devices
-References: <44322A6F.4000402@yandex.ru> <20060404164823.GA31398@kroah.com>
-In-Reply-To: <20060404164823.GA31398@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 5 Apr 2006 03:49:39 -0400
+Date: Wed, 5 Apr 2006 00:42:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Samuelsson <sam@home.se>
+Cc: bunk@stusta.de, linux-kernel@vger.kernel.org, mchehab@infradead.org,
+       js@linuxtv.org, v4l-dvb-maintainer@linuxtv.org
+Subject: Re: [-mm patch] drivers/media/video/bt866.c: small fixes
+Message-Id: <20060405004212.47312021.akpm@osdl.org>
+In-Reply-To: <20060404203219.40fe6b4c.sam@home.se>
+References: <20060404014504.564bf45a.akpm@osdl.org>
+	<20060404163001.GO6529@stusta.de>
+	<20060404203219.40fe6b4c.sam@home.se>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> Because "struct device" generally is not related to a major:minor pair
-> at all.  That is what a struct class_device is for.  Lots of struct
-> device users have nothing to do with a char device, and some have
-> multiple char devices associated with a single struct device.
-Well, OK, but AFAIK, your long-term plan is to merge class_device and 
-device, so in the long-term perspective it does not matter. And those 
-who do not need a character device support may have a possibility to 
-disable it.
+Martin Samuelsson <sam@home.se> wrote:
+>
+> This should fix all things Andrew pointed out when I first submitted the 
+>  avs6eyes driver.
 
-> All that being said, yes, there is a disconnect between the driver model
-> parts and the char subsystem.  It's been something that I've wanted to
-> fix for a number of years, but never had the time to do so.  If you want
-> to work toward doing this, I'd be glad to review any patches.
-Will see. At this point my knowledge and understanding is not so deep, 
-so I don't think I'm able to provide decent patches. May be in future. 
-For now I'm only wondering.
+We still have all that #ifdef MODULE stuff at the end of bt866.c. 
+(Shouldn't it have module_init() and module_exit() handlers?)
 
-Thanks.
+All those ".input_mux = 0," lines you added to the struct initialisation
+are unneeded - the compiler did that for you.
 
--- 
-Best Regards,
-Artem B. Bityutskiy,
-St.-Petersburg, Russia.
+

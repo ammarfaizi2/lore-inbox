@@ -1,131 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWDERGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWDERHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbWDERGf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 13:06:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWDERGf
+	id S1751303AbWDERHB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 13:07:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWDERG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 13:06:35 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:51978 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751292AbWDERGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 13:06:34 -0400
-Date: Wed, 5 Apr 2006 19:06:32 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] net/wanrouter/wanmain.c: cleanups
-Message-ID: <20060405170632.GI8673@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 5 Apr 2006 13:06:58 -0400
+Received: from xenotime.net ([66.160.160.81]:2200 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751294AbWDERGw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 13:06:52 -0400
+Date: Wed, 5 Apr 2006 10:09:07 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: kernel@kolivas.org, linux-kernel@vger.kernel.org, horms@verge.net.au,
+       fastboot@osdl.org
+Subject: Re: [PATCH] kexec: typo in machine_kexec()
+Message-Id: <20060405100907.ff1318cf.rdunlap@xenotime.net>
+In-Reply-To: <m13bgs3tuz.fsf@ebiederm.dsl.xmission.com>
+References: <20060404234806.GA25761@verge.net.au>
+	<20060404200557.1e95bdd8.rdunlap@xenotime.net>
+	<20060405055754.GA3277@verge.net.au>
+	<200604051624.35358.kernel@kolivas.org>
+	<m13bgs3tuz.fsf@ebiederm.dsl.xmission.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following cleanups:
-- make the following needlessly global functions static:
-  - lock_adapter_irq()
-  - unlock_adapter_irq()
-- #if 0 the following unused global functions:
-  - wanrouter_encapsulate()
-  - wanrouter_type_trans()
+On Wed, 05 Apr 2006 09:49:40 -0600 Eric W. Biederman wrote:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+one typo (below):
+
+> How does this look for making that comment readable?
+> 
+> Eric
+> 
+> 
+> diff --git a/arch/i386/kernel/machine_kexec.c b/arch/i386/kernel/machine_kexec.c
+> index f73d737..7a344b6 100644
+> --- a/arch/i386/kernel/machine_kexec.c
+> +++ b/arch/i386/kernel/machine_kexec.c
+> @@ -189,14 +189,11 @@ NORET_TYPE void machine_kexec(struct kim
+>  	memcpy((void *)reboot_code_buffer, relocate_new_kernel,
+>  						relocate_new_kernel_size);
+>  
+> -	/* The segment registers are funny things, they are
+> -	 * automatically loaded from a table, in memory wherever you
+> -	 * set them to a specific selector, but this table is never
+> -	 * accessed again you set the segment to a different selector.
+> -	 *
+> -	 * The more common model is are caches where the behide
+> -	 * the scenes work is done, but is also dropped at arbitrary
+> -	 * times.
+> +	/* The segment registers are funny things, they have both a
+> +	 * visible and an invisible part.  Whenver the visible part is
+*                                          Whenever
+> +	 * set to a specific selector, the invisible part is loaded
+> +	 * with from a table in memory.  At no other time is the
+> +	 * descriptor table in memory accessed. 
+>  	 *
+>  	 * I take advantage of this here by force loading the
+>  	 * segments, before I zap the gdt with an invalid value.
+
+Much better, thanks.
 
 ---
-
- include/linux/wanrouter.h |    8 --------
- net/wanrouter/wanmain.c   |   17 ++++++++---------
- 2 files changed, 8 insertions(+), 17 deletions(-)
-
---- linux-2.6.17-rc1-mm1-full/include/linux/wanrouter.h.old	2006-04-05 17:03:07.000000000 +0200
-+++ linux-2.6.17-rc1-mm1-full/include/linux/wanrouter.h	2006-04-05 17:15:20.000000000 +0200
-@@ -516,9 +516,6 @@
- /* Public functions available for device drivers */
- extern int register_wan_device(struct wan_device *wandev);
- extern int unregister_wan_device(char *name);
--__be16 wanrouter_type_trans(struct sk_buff *skb, struct net_device *dev);
--int wanrouter_encapsulate(struct sk_buff *skb, struct net_device *dev,
--			  unsigned short type);
- 
- /* Proc interface functions. These must not be called by the drivers! */
- extern int wanrouter_proc_init(void);
-@@ -527,11 +524,6 @@
- extern int wanrouter_proc_delete(struct wan_device *wandev);
- extern int wanrouter_ioctl( struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg);
- 
--extern void lock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags);
--extern void unlock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags);
--
--
--
- /* Public Data */
- /* list of registered devices */
- extern struct wan_device *wanrouter_router_devlist;
---- linux-2.6.17-rc1-mm1-full/net/wanrouter/wanmain.c.old	2006-04-05 17:03:39.000000000 +0200
-+++ linux-2.6.17-rc1-mm1-full/net/wanrouter/wanmain.c	2006-04-05 17:18:32.000000000 +0200
-@@ -144,8 +144,8 @@
- 
- static struct wan_device *wanrouter_find_device(char *name);
- static int wanrouter_delete_interface(struct wan_device *wandev, char *name);
--void lock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags);
--void unlock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags);
-+static void lock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags);
-+static void unlock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags);
- 
- 
- 
-@@ -162,8 +162,8 @@
-  *	Organize Unique Identifiers for encapsulation/decapsulation
-  */
- 
--static unsigned char wanrouter_oui_ether[] = { 0x00, 0x00, 0x00 };
- #if 0
-+static unsigned char wanrouter_oui_ether[] = { 0x00, 0x00, 0x00 };
- static unsigned char wanrouter_oui_802_2[] = { 0x00, 0x80, 0xC2 };
- #endif
- 
-@@ -304,6 +304,8 @@
- 	return 0;
- }
- 
-+#if 0
-+
- /*
-  *	Encapsulate packet.
-  *
-@@ -399,6 +401,7 @@
- 	return ethertype;
- }
- 
-+#endif  /*  0  */
- 
- /*
-  *	WAN device IOCTL.
-@@ -860,23 +863,19 @@
- 	return 0;
- }
- 
--void lock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags)
-+static void lock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags)
- {
-        	spin_lock_irqsave(lock, *smp_flags);
- }
- 
- 
--void unlock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags)
-+static void unlock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags)
- {
- 	spin_unlock_irqrestore(lock, *smp_flags);
- }
- 
- EXPORT_SYMBOL(register_wan_device);
- EXPORT_SYMBOL(unregister_wan_device);
--EXPORT_SYMBOL(wanrouter_encapsulate);
--EXPORT_SYMBOL(wanrouter_type_trans);
--EXPORT_SYMBOL(lock_adapter_irq);
--EXPORT_SYMBOL(unlock_adapter_irq);
- 
- MODULE_LICENSE("GPL");
- 
-
+~Randy

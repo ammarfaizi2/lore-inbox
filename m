@@ -1,84 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWDEAHG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWDEAIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750966AbWDEAHG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 20:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWDEABM
+	id S1750956AbWDEAIb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 20:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWDEAIC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 20:01:12 -0400
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:19088
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1750966AbWDEABD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 20:01:03 -0400
-Date: Tue, 4 Apr 2006 17:00:20 -0700
-From: gregkh@suse.de
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Takashi Iwai <tiwai@suse.de>, Adrian Bunk <bunk@stusta.de>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 10/26] opti9x - Fix compile without CONFIG_PNP
-Message-ID: <20060405000020.GK27049@kroah.com>
+	Tue, 4 Apr 2006 20:08:02 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:30927
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750956AbWDEAH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 20:07:29 -0400
+Date: Tue, 04 Apr 2006 17:07:20 -0700 (PDT)
+Message-Id: <20060404.170720.61536177.davem@davemloft.net>
+To: gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, openib-general@openib.org,
+       bunk@stusta.de, jmforbes@linuxtx.org, zwane@arm.linux.org.uk,
+       tytso@mit.edu, rdunlap@xenotime.net, davej@redhat.com,
+       chuckw@quantumlinux.com, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, mst@mellanox.co.il, rolandd@cisco.com
+Subject: Re: [patch 11/26] IPOB: Move destructor from neigh->ops to
+ neigh_param
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060405000030.GL27049@kroah.com>
 References: <20060404235634.696852000@quad.kroah.org>
+	<20060404235927.GA27049@kroah.com>
+	<20060405000030.GL27049@kroah.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="opti9x-fix-compile-without-config_pnp.patch"
-In-Reply-To: <20060404235927.GA27049@kroah.com>
-User-Agent: Mutt/1.5.11
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: gregkh@suse.de
+Date: Tue, 4 Apr 2006 17:00:30 -0700
 
-Modules: Opti9xx drivers
+> From: Michael Tsirkin <mst@mellanox.co.il>
+> 
+> struct neigh_ops currently has a destructor field, but not a constructor field.
+> The infiniband/ulp/ipoib in-tree driver stashes some info in the neighbour
+> structure (the results of the second-stage lookup from ARP results to real
+> link-level path), and it uses neigh->ops->destructor to get a callback so it can
+> clean up this extra info when a neighbour is freed.  We've run into problems
+> with this: since the destructor is in an ops field that is shared between
+> neighbours that may belong to different net devices, there's no way to set/clear
+> it safely.
+> 
+> The following patch moves this field to neigh_parms where it can be safely set,
+> together with its twin neigh_setup, and switches the only two in-kernel users
+> (ipoib and clip) to this interface.
 
-Fix compile errors without CONFIG_PNP.
+Major NAK.
 
-This patch was already included in Linus' tree.
- 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+This does not fix a bug, it is merely and API change that the
+inifiniband folks want for some of their infrastructure.
 
----
- sound/isa/opti9xx/opti92x-ad1848.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+It was accepted for 2.6.17, but this change is not appropriate
+for the -stable release branch.
 
---- linux-2.6.16.1.orig/sound/isa/opti9xx/opti92x-ad1848.c
-+++ linux-2.6.16.1/sound/isa/opti9xx/opti92x-ad1848.c
-@@ -2088,9 +2088,11 @@ static int __init alsa_card_opti9xx_init
- 	int error;
- 	struct platform_device *device;
- 
-+#ifdef CONFIG_PNP
- 	pnp_register_card_driver(&opti9xx_pnpc_driver);
- 	if (snd_opti9xx_pnp_is_probed)
- 		return 0;
-+#endif
- 	if (! is_isapnp_selected()) {
- 		error = platform_driver_register(&snd_opti9xx_driver);
- 		if (error < 0)
-@@ -2102,7 +2104,9 @@ static int __init alsa_card_opti9xx_init
- 		}
- 		platform_driver_unregister(&snd_opti9xx_driver);
- 	}
-+#ifdef CONFIG_PNP
- 	pnp_unregister_card_driver(&opti9xx_pnpc_driver);
-+#endif
- #ifdef MODULE
- 	printk(KERN_ERR "no OPTi " CHIP_NAME " soundcard found\n");
- #endif
-@@ -2115,7 +2119,9 @@ static void __exit alsa_card_opti9xx_exi
- 		platform_device_unregister(snd_opti9xx_platform_device);
- 		platform_driver_unregister(&snd_opti9xx_driver);
- 	}
-+#ifdef CONFIG_PNP
- 	pnp_unregister_card_driver(&opti9xx_pnpc_driver);
-+#endif
- }
- 
- module_init(alsa_card_opti9xx_init)
-
---
+Furthermore, this version of the patch here will break the build of
+ATM.

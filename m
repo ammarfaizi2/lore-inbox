@@ -1,35 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbWDEDOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbWDEDQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750833AbWDEDOw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 23:14:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbWDEDOw
+	id S1750934AbWDEDQw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 23:16:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWDEDQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 23:14:52 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:48858
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750833AbWDEDOw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 23:14:52 -0400
-Date: Tue, 04 Apr 2006 20:11:57 -0700 (PDT)
-Message-Id: <20060404.201157.129806132.davem@davemloft.net>
-To: mpm@selenic.com
-Cc: rdunlap@xenotime.net, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] netconsole: set .name in struct console
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060405024746.GH15445@waste.org>
-References: <20060404185420.fbf128c8.rdunlap@xenotime.net>
-	<20060405024746.GH15445@waste.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 4 Apr 2006 23:16:52 -0400
+Received: from xenotime.net ([66.160.160.81]:215 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750934AbWDEDQv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 23:16:51 -0400
+Date: Tue, 4 Apr 2006 20:15:11 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: rgooch@atnf.csiro.au, akpm <akpm@osdl.org>
+Subject: [PATCH] Doc; fix mtrr userspace programs to build cleanly
+Message-Id: <20060404201511.6859070a.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Matt Mackall <mpm@selenic.com>
-Date: Tue, 4 Apr 2006 21:47:46 -0500
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-> On Tue, Apr 04, 2006 at 06:54:20PM -0700, Randy.Dunlap wrote:
-> > Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-> Acked-by: Matt Mackall <mpm@selenic.com>
+Fix mtrr-add.c and mtrr-show.c in Doc/mtrr.txt to build cleanly.
 
-Applied, thanks Randy.
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ Documentation/mtrr.txt |   23 +++++++++++++++++++++--
+ 1 files changed, 21 insertions(+), 2 deletions(-)
+
+--- linux-2617-rc1-docsrc.orig/Documentation/mtrr.txt
++++ linux-2617-rc1-docsrc/Documentation/mtrr.txt
+@@ -138,19 +138,29 @@ Reading MTRRs from a C program using ioc
+ 
+ */
+ #include <stdio.h>
++#include <stdlib.h>
+ #include <string.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <sys/ioctl.h>
+ #include <errno.h>
+-#define MTRR_NEED_STRINGS
+ #include <asm/mtrr.h>
+ 
+ #define TRUE 1
+ #define FALSE 0
+ #define ERRSTRING strerror (errno)
+ 
++static char *mtrr_strings[MTRR_NUM_TYPES] =
++{
++    "uncachable",               /* 0 */
++    "write-combining",          /* 1 */
++    "?",                        /* 2 */
++    "?",                        /* 3 */
++    "write-through",            /* 4 */
++    "write-protect",            /* 5 */
++    "write-back",               /* 6 */
++};
+ 
+ int main ()
+ {
+@@ -232,13 +242,22 @@ Creating MTRRs from a C programme using 
+ #include <fcntl.h>
+ #include <sys/ioctl.h>
+ #include <errno.h>
+-#define MTRR_NEED_STRINGS
+ #include <asm/mtrr.h>
+ 
+ #define TRUE 1
+ #define FALSE 0
+ #define ERRSTRING strerror (errno)
+ 
++static char *mtrr_strings[MTRR_NUM_TYPES] =
++{
++    "uncachable",               /* 0 */
++    "write-combining",          /* 1 */
++    "?",                        /* 2 */
++    "?",                        /* 3 */
++    "write-through",            /* 4 */
++    "write-protect",            /* 5 */
++    "write-back",               /* 6 */
++};
+ 
+ int main (int argc, char **argv)
+ {
+
+
+---

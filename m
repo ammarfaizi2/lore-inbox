@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbWDEQyR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWDERAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751274AbWDEQyR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 12:54:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWDEQyR
+	id S1751278AbWDERAY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 13:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWDERAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 12:54:17 -0400
-Received: from zrtps0kn.nortel.com ([47.140.192.55]:25530 "EHLO
-	zrtps0kn.nortel.com") by vger.kernel.org with ESMTP
-	id S1751274AbWDEQyQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 12:54:16 -0400
-Message-ID: <4433F636.3090705@nortel.com>
-Date: Wed, 05 Apr 2006 10:54:14 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 5 Apr 2006 13:00:24 -0400
+Received: from pproxy.gmail.com ([64.233.166.180]:26298 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751278AbWDERAY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 13:00:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NLVRg0PkaoBKQ9N4eIvKbMiwVuJizPm/BNY1CVvnZBcDYktU2oaZHrFKaiS1NHKXZHYAQFDJNuF4JHqWtMFiAmZfSIUKr15tOx6EqgQWeVVYH0daWUYsHD/un25aieZMn9lVa3U3sJWMrvcuFUvCMm5iKIOFx7NFJ+qfN5oyKo0=
+Message-ID: <bda6d13a0604051000l6b804576wd211ac98d59756d8@mail.gmail.com>
+Date: Wed, 5 Apr 2006 10:00:23 -0700
+From: "Joshua Hudson" <joshudson@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: help? converting to single global prio_array in scheduler, ran into
- snag
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Apr 2006 16:54:13.0724 (UTC) FILETIME=[916321C0:01C658D1]
+Subject: Re: CONFIG_FRAME_POINTER and module vermagic
+In-Reply-To: <Pine.LNX.4.61.0604050729210.4636@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <442ACAD6.6@nortel.com>
+	 <Pine.LNX.4.61.0603291308240.28274@chaos.analogic.com>
+	 <4432EC08.4010104@nortel.com>
+	 <Pine.LNX.4.61.0604050729210.4636@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-We're having some issues with the load balancer algorithm in CKRM, so 
-due to time pressure I'm looking at converting the scheduler to use a 
-single global prio_array rather than the per-cpu ones that it currently 
-uses.  I realize we're going to take a hit, but we don't have too many 
-cpus so I'm hoping it won't be too bad.
-
-So far I've removed arrays/expired/active from the runqueue and made 
-them global, added a new spinlock to protect the global list (always 
-taken after the runqueue lock), and converted all the callers to use the 
-appropriate variable.  All changes were in sched.h and sched.c.
-
-This builds for both UP and SMP, boots for UP, and boots for SMP if I 
-set the "nosmp" boot arg.
-
-Unfortunately I seem to have missed something. On my Mac G5 if I allow 
-it to use both cpus it gets to "smp_core99_setup_cpu 0 done", then hangs.
-
-Anyone have any suggestions as to what I should look at?  Maybe the idle 
-task initialization?
-
-Thanks,
-
-Chris
-
+> you refer, points to. The structure member, ebp, contains the
+> value of the EBP register when the kernel was called. Since EBP
+> was the first register saved in the array, it is likely (didn't check)
+> that the location referenced by "regs->ebp + 4" was, in fact, the
+> return address. In any event, the value of regs->ebp is simply
+> the value in a structure member, not the value of any current
+> registers.
+Confirmed. This is the standard stack frame, and all debuggers assume this.

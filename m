@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWDEWFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWDEWH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932097AbWDEWFN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 18:05:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWDEWFN
+	id S932102AbWDEWH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 18:07:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbWDEWH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 18:05:13 -0400
-Received: from mx2.suse.de ([195.135.220.15]:37504 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932097AbWDEWFL (ORCPT
+	Wed, 5 Apr 2006 18:07:26 -0400
+Received: from mx2.suse.de ([195.135.220.15]:53888 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932102AbWDEWH0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 18:05:11 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: Kristis Makris <kristis.makris@asu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Issues with symbol names
-References: <1144268838.8306.16.camel@syd.mkgnu.net>
-X-Yow: I am NOT a nut....
-Date: Thu, 06 Apr 2006 00:05:09 +0200
-In-Reply-To: <1144268838.8306.16.camel@syd.mkgnu.net> (Kristis Makris's
-	message of "Wed, 05 Apr 2006 13:27:17 -0700")
-Message-ID: <jeirpn7k6i.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+	Wed, 5 Apr 2006 18:07:26 -0400
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SUSE Labs / Novell Inc.
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: [PATCH] modules_install must not remove existing modules
+Date: Thu, 6 Apr 2006 00:06:30 +0200
+User-Agent: KMail/1.8.2
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+References: <200604052333.51085.agruen@suse.de> <200604052152.k35LqtQ0032100@turing-police.cc.vt.edu>
+In-Reply-To: <200604052152.k35LqtQ0032100@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604060006.30759.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kristis Makris <kristis.makris@asu.edu> writes:
+On Wednesday 05 April 2006 23:52, Valdis.Kletnieks@vt.edu wrote:
+> Can this be re-worked to ensure that it clears the target directory
+> the *first* time?  It would suck mightily if a previous build of 2.6.17-rc2
+> left a net_foo.ko lying around to get insmod'ed by accident (consider the
+> case of CONFIG_NETFOO=m getting changed to y or n, and other possible
+> horkage. Module versioning will catch some, but not all, of this crap....)
 
-> My goal here is to use /proc/kallsyms to determine the size of a function
-> image at runtime.
+We could wipe away everything in the non-external modules_install case (not 
+only everything below kernel/ as is done now). The problem here is that 
+different external modules_install calls into the same dir conflict.
 
-The size is also recorded in the symbol table.
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Andreas

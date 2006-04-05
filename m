@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbWDEAHG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWDEAHG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750960AbWDEAHG (ORCPT <rfc822;willy@w.ods.org>);
+	id S1750966AbWDEAHG (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 4 Apr 2006 20:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbWDEAAy
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWDEABM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 20:00:54 -0400
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:10128
+	Tue, 4 Apr 2006 20:01:12 -0400
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:19088
 	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1750960AbWDEAAs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 20:00:48 -0400
-Date: Tue, 4 Apr 2006 17:00:04 -0700
+	id S1750966AbWDEABD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 20:01:03 -0400
+Date: Tue, 4 Apr 2006 17:00:20 -0700
 From: gregkh@suse.de
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,67 +17,68 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       sfr@canb.auug.org.au, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 07/26] powerpc: make ISA floppies work again
-Message-ID: <20060405000004.GH27049@kroah.com>
+       Takashi Iwai <tiwai@suse.de>, Adrian Bunk <bunk@stusta.de>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 10/26] opti9x - Fix compile without CONFIG_PNP
+Message-ID: <20060405000020.GK27049@kroah.com>
 References: <20060404235634.696852000@quad.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="powerpc-make-isa-floppies-work-again.patch"
+Content-Disposition: inline; filename="opti9x-fix-compile-without-config_pnp.patch"
 In-Reply-To: <20060404235927.GA27049@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Takashi Iwai <tiwai@suse.de>
 
-From: Stephen Rothwell <sfr@canb.auug.org.au>
+Modules: Opti9xx drivers
 
-We used to assume that a DMA mapping request with a NULL dev was for
-ISA DMA.  This assumption was broken at some point.  Now we explicitly
-pass the detected ISA PCI device in the floppy setup.
+Fix compile errors without CONFIG_PNP.
 
-Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+This patch was already included in Linus' tree.
+ 
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- arch/powerpc/kernel/pci_64.c |    1 +
- include/asm-powerpc/floppy.h |    5 +++--
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ sound/isa/opti9xx/opti92x-ad1848.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- linux-2.6.16.1.orig/arch/powerpc/kernel/pci_64.c
-+++ linux-2.6.16.1/arch/powerpc/kernel/pci_64.c
-@@ -78,6 +78,7 @@ int global_phb_number;		/* Global phb co
+--- linux-2.6.16.1.orig/sound/isa/opti9xx/opti92x-ad1848.c
++++ linux-2.6.16.1/sound/isa/opti9xx/opti92x-ad1848.c
+@@ -2088,9 +2088,11 @@ static int __init alsa_card_opti9xx_init
+ 	int error;
+ 	struct platform_device *device;
  
- /* Cached ISA bridge dev. */
- struct pci_dev *ppc64_isabridge_dev = NULL;
-+EXPORT_SYMBOL_GPL(ppc64_isabridge_dev);
- 
- static void fixup_broken_pcnet32(struct pci_dev* dev)
- {
---- linux-2.6.16.1.orig/include/asm-powerpc/floppy.h
-+++ linux-2.6.16.1/include/asm-powerpc/floppy.h
-@@ -35,6 +35,7 @@
- #ifdef CONFIG_PCI
- 
- #include <linux/pci.h>
-+#include <asm/ppc-pci.h>	/* for ppc64_isabridge_dev */
- 
- #define fd_dma_setup(addr,size,mode,io) powerpc_fd_dma_setup(addr,size,mode,io)
- 
-@@ -52,12 +53,12 @@ static __inline__ int powerpc_fd_dma_set
- 	if (bus_addr 
- 	    && (addr != prev_addr || size != prev_size || dir != prev_dir)) {
- 		/* different from last time -- unmap prev */
--		pci_unmap_single(NULL, bus_addr, prev_size, prev_dir);
-+		pci_unmap_single(ppc64_isabridge_dev, bus_addr, prev_size, prev_dir);
- 		bus_addr = 0;
++#ifdef CONFIG_PNP
+ 	pnp_register_card_driver(&opti9xx_pnpc_driver);
+ 	if (snd_opti9xx_pnp_is_probed)
+ 		return 0;
++#endif
+ 	if (! is_isapnp_selected()) {
+ 		error = platform_driver_register(&snd_opti9xx_driver);
+ 		if (error < 0)
+@@ -2102,7 +2104,9 @@ static int __init alsa_card_opti9xx_init
+ 		}
+ 		platform_driver_unregister(&snd_opti9xx_driver);
  	}
++#ifdef CONFIG_PNP
+ 	pnp_unregister_card_driver(&opti9xx_pnpc_driver);
++#endif
+ #ifdef MODULE
+ 	printk(KERN_ERR "no OPTi " CHIP_NAME " soundcard found\n");
+ #endif
+@@ -2115,7 +2119,9 @@ static void __exit alsa_card_opti9xx_exi
+ 		platform_device_unregister(snd_opti9xx_platform_device);
+ 		platform_driver_unregister(&snd_opti9xx_driver);
+ 	}
++#ifdef CONFIG_PNP
+ 	pnp_unregister_card_driver(&opti9xx_pnpc_driver);
++#endif
+ }
  
- 	if (!bus_addr)	/* need to map it */
--		bus_addr = pci_map_single(NULL, addr, size, dir);
-+		bus_addr = pci_map_single(ppc64_isabridge_dev, addr, size, dir);
- 
- 	/* remember this one as prev */
- 	prev_addr = addr;
+ module_init(alsa_card_opti9xx_init)
 
 --

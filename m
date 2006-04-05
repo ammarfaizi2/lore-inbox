@@ -1,78 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWDEIRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbWDEISZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751174AbWDEIRf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 04:17:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWDEIRf
+	id S1751176AbWDEISZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 04:18:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWDEISZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 04:17:35 -0400
-Received: from dial169-41.awalnet.net ([213.184.169.41]:38674 "EHLO
-	raad.intranet") by vger.kernel.org with ESMTP id S1751174AbWDEIRf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 04:17:35 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
-Date: Wed, 5 Apr 2006 11:16:08 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, Jake Moilanen <moilanen@austin.ibm.com>
-References: <200604031459.51542.a1426z@gawab.com> <200604041627.14871.a1426z@gawab.com> <4432FF26.6050207@bigpond.net.au>
-In-Reply-To: <4432FF26.6050207@bigpond.net.au>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="windows-1256"
+	Wed, 5 Apr 2006 04:18:25 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:17144 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S1751176AbWDEISY (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 04:18:24 -0400
+Subject: Re: [OOPS] related to swap?
+From: Ian Kumlien <pomac@vapor.com>
+Reply-To: pomac@vapor.com
+To: nickpiggin@yahoo.com.au
+Cc: Linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 05 Apr 2006 08:22:43 +0000
+Message-Id: <1144225363.7112.10.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200604051116.08353.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Al Boldi wrote:
-> > Peter Williams wrote:
-> >> Al Boldi wrote:
-> >>> The default values for spa make it really easy to lock up the system.
-> >>> Is there a module to autotune these values according to cpu/mem/ctxt
-> >>> performance?
-> >>
-> >> Jake Moilanen had a genetic algorithm autotuner for Zaphod at one time
-> >> which I believe he ported over to PlugSched
-> >
-> > Would this be a load-adaptive dynamic tuner?
+> Ian Kumlien wrote:
 >
-> Yes.
-
-Wow!
-
-> > What I meant was a lock-preventive static tuner.  Something that would
-> > take hw-latencies into account at boot and set values for non-locking
-> > console operation.
+> > Yes, i run a tainted kernel! either live with it or ignore this mail
+> > =)
 >
-> I'm not sure what you mean here.  Can you elaborate?
-
-In another thread Al Boldi wrote:
-> After playing w/ these tunables it occurred to me that they are really
-> only deadline limits, w/ a direct relation to cpu/mem/ctxt perf.
+> > starting swap lead to a deadlock within 15 mins
 >
-> i.e timeslice=1 on i386sx means something other than timeslice=1 on amd64
+> > I have never had the energy to perform a full memtext86+
 >
-> It follows that w/o autotuning, the static default values have to be
-> selected to allow for a large underlying perf range w/ a preference for
-> the high range.  This is also the reason why 2.6 feels really crummy on
-> low perf ranges.
->
-> Autotuning the default values would allow to tighten this range specific
-> to the hw used, thus allowing for a smoother desktop experience.
+> It would be useful if you could perform a memtest overnight one night,
+> then run a non-patched and non-tained 2.6.16.1 kernel, and try to
+> reproduce the problems.
 
-> >> I could generate a patch to gather the statistic again and make them
-> >> available via /proc if you would like to try a user space version of
-> >> Jake's work (his was in kernel).
-> >
-> > That would be great!
->
-> OK, I'll put it on my "to do" list.
+As i said, i really doubt that the memory is at fault here, it has done
+several passes over the memory but not all tests. I can give it a go
+though, but i really doubt it'll find anything.
 
-Thanks!
+The kernel i run is a plain 2.6.16.1 from kernel.org (i have heard that
+you can actually compile gentoos own these days)
 
---
-Al
+Since this is my *cough* desktop, running it without that ability is
+kinda a show stopper, thats why i included the thing above.
+
+But the thing is, my laptop runs with the same compiler, "same" nvidia
+driver and the "same" kernel ("same" as in 32 bit not 64 bit).
+Eventhough "same" in this case usually means nothing, i doubt that one
+would have a serius bug and the other wouldn't, ie it's most likley a
+bug related to 64 bits or one or more of the drivers involved.
+
+The only errors i get in dmesg atm is:
+KERNEL: assertion (!sk->sk_forward_alloc) failed at net/core/stream.c
+(283)
+KERNEL: assertion (!sk->sk_forward_alloc) failed at net/ipv4/af_inet.c
+(150)
+
+Which is related to TSO, from what i gather, but i can't turn off tso on
+forcedeth... (i suspected this to cause corruption a while back....)
+
+And:
+eth0: too many iterations (6) in nv_nic_irq.
+
+Which seems to be a warning of some sort (haven't checked the source
+yet).
+
+PS. Reply-to-all is your friend... =)
+DS.
+
+-- 
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
 

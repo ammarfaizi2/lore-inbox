@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWDEQag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbWDEQcF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbWDEQag (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 12:30:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWDEQag
+	id S1751256AbWDEQcF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 12:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWDEQcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 12:30:36 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:9738 "HELO
+	Wed, 5 Apr 2006 12:32:05 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10506 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751251AbWDEQag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 12:30:36 -0400
-Date: Wed, 5 Apr 2006 18:30:34 +0200
+	id S1751256AbWDEQcE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 12:32:04 -0400
+Date: Wed, 5 Apr 2006 18:32:03 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Per =?iso-8859-1?Q?=D8yvind?= Karlsen <peroyvind@sintrax.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: unresolved symbols for drm module on sparc64
-Message-ID: <20060405163034.GE8673@stusta.de>
-References: <200604051530.00883.peroyvind@sintrax.net>
+To: hjlipp@web.de, tilman@imap.cc
+Cc: gigaset307x-common@lists.sourceforge.net, kkeil@suse.de,
+       isdn4linux@listserv.isdn4linux.de, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] ISDN_DRV_GIGASET should select, not depend on CRC_CCITT
+Message-ID: <20060405163202.GF8673@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200604051530.00883.peroyvind@sintrax.net>
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 05, 2006 at 03:30:00PM +0200, Per Øyvind Karlsen wrote:
-> When building 2.6.17-rc1 on sparc64 I run into this problem:
-> if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F System.map 
-> -b /root/RPM/BUILD/kernel-linus-2.6/temp-root -r 2.6.17-rc1.16mdksmp; fi
-> WARNING: /root/RPM/BUILD/kernel-linus-2.6/temp-root/lib/modules/2.6.17-rc1.16mdksmp/kernel/drivers/char/drm/drm.ko 
-> needs unknown symbol dma_alloc_coherent
-> WARNING: /root/RPM/BUILD/kernel-linus-2.6/temp-root/lib/modules/2.6.17-rc1.16mdksmp/kernel/drivers/char/drm/drm.ko 
-> needs unknown symbol dma_free_coherent
-> make: *** [_modinst_post] Error 1
-> 
-> I'm not subscribed to the list, just thought that I should report since it 
-> recently broke, so CC me if any more info is needed.
-> I'm also attaching my .config in case it might be of help:)
->...
+CRC_CCITT is an internal helper function that should be select'ed.
 
-Thanks for your report.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-This is a known bug, and a fix is available at
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc1/2.6.17-rc1-mm1/broken-out/drm_pci-needs-dma-mappingh.patch
+--- linux-2.6.17-rc1-mm1-full/drivers/isdn/gigaset/Kconfig.old	2006-04-05 17:42:54.000000000 +0200
++++ linux-2.6.17-rc1-mm1-full/drivers/isdn/gigaset/Kconfig	2006-04-05 17:43:07.000000000 +0200
+@@ -3,7 +3,8 @@
  
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+ config ISDN_DRV_GIGASET
+ 	tristate "Siemens Gigaset support (isdn)"
+-	depends on ISDN_I4L && CRC_CCITT
++	depends on ISDN_I4L
++	select CRC_CCITT
+ 	help
+ 	  Say m here if you have a Gigaset or Sinus isdn device.
+ 
 

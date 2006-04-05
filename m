@@ -1,50 +1,69 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964840AbWDCWVf (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 3 Apr 2006 18:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751815AbWDCWVf
+	id S1751239AbWDEMgj (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 5 Apr 2006 08:36:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWDEMgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Apr 2006 18:21:35 -0400
-Received: from lebeda.miton.cz ([212.67.79.108]:11710 "EHLO lebeda.miton.cz")
-	by vger.kernel.org with ESMTP id S1751817AbWDCWVe (ORCPT
+	Wed, 5 Apr 2006 08:36:37 -0400
+Received: from vsmtp3alice.tin.it ([212.216.176.143]:49845 "EHLO vsmtp3.tin.it")
+	by vger.kernel.org with ESMTP id S1751232AbWDEMge (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Apr 2006 18:21:34 -0400
-To: linux-kernel@vger.kernel.org
-Subject: HELLO!!!
-From: Catherine Sullivan <cathy.sullivan00@yahoo.com>
-Reply-To: cathy.sullivan00@hotmail.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1FQXOS-0004IQ-29@lebeda.miton.cz>
-Date: Tue, 04 Apr 2006 00:19:28 +0200
+	Wed, 5 Apr 2006 08:36:34 -0400
+Message-ID: <10a6a0dcfb6.ebanx_cons6@virgilio.it>
+Date: Wed, 5 Apr 2006 13:36:30 +0100 (GMT+01:00)
+From: Ebanx_cons <ebanx_cons6@virgilio.it>
+Reply-To: ebanxcon1@mixmail.com
+Subject: Relatives
+Mime-Version: 1.0
+Content-Type: text/plain;charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: 82.158.170.143
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S964840AbWDCWVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751239AbWDEMgj@vger.kernel.org>
 
-Goodday,
+EBANX CONSULTANTS.
+ebanxcon1@mixmail.com
 
-This letter is personal, intimate and confidential. Forgive this unusual manner of contacting you, but this is the only option I have.
+Ebanx Consultants:Private 
+Investigators and Security Consultants is conducting a standard process 
+investigation on behalf of Deutsche Bank AG,the international Banking 
+conglomerate, and we will like you to assist with this Independent 
+Enquiry.
 
-There will absolutely be great doubt and distrust in your heart in respect of this email, coupled with the fact that so many miscreants have taken possession of the Internet to facilitate their nefarious deeds, thereby making it extremely difficult for genuine purposes.
+My name is MAR WOLF. I am a senior partner in the firm. This 
+investigation involves a client who shares the same surname with you 
+and also the circumstances surrounding investments made by this client 
+at Deutsche Bank AG.
 
-There is no other way for me to know whether I will be properly understood, but I have to reach out to someone. For I know that there will be one that can be trusted.
-I am Mrs. catherine Sullivan, wife of late mr John Sullivan. I am 47 years old with no children. I have been presently diagnosed with severe lungs cancer and my doctor says it will be a miracle if i exceed thirty days.
+The Deutsche Bank AG Banking client died 
+intestate and nominated no successor in title over the investments made 
+with the Bank. The essence of this communication with you is to request 
+you provide us information/comments on any or all of the four issues:
 
-My late husband whom died of heart attack was a bussiness mogul in ireland. Until recently, I discovered he deposited a huge amount of money in England and with my present condition I cannot withstand the procedures involved in acquiring this money.
-All i request from you,is a letter of guarantee stating that if this fund is eventually in your possession,85% percent of it shall be donated to charity. I shall specifically state the charity homes that would benefit from this funds.
+1-Are you aware of any relative/relation who shares your same surname 
+whose last known contact address was Hamburg, Germany?
 
-If you are honest,capable,trust worthy and interested I would require the following information from you:
+2-Are you aware 
+of any investment of considerable value made by such aperson at the 
+Deutsche Bank AG?
 
-1. Your full name.
-2. Nationality.
-3. Occupation.
-4. Age.
+3-Born on the 1st of June 1927
 
-If I happen to be pleased with your informations, I shall forward your mail to the attorney that will handle the Change Of Ownership.
+4-Can you establish 
+beyond reasonable doubt your eligibility to assume status of successor 
+in title to the deceased?
 
-Bless You,
+It is pertinent that you inform us ASAP 
+whether or not you are familiar with this personality that we may put 
+an end to this communication with you and our inquiries surrounding 
+this personality. You must appreciate that we are constrained from 
+providing you with more detailed 
+information at this point.
 
-Mrs.Catherine Sullivan.
+Please 
+respond to this mail as soon as possible to afford us the opportunity 
+to close this investigation. Thank you for accommodating our enquiry.
 
-
-
+ebanxcon1@mixmail.com
+Mar Wolf.

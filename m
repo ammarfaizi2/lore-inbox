@@ -1,75 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWDEARt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWDEAUZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750945AbWDEARt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 20:17:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWDEARt
+	id S1751025AbWDEAUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 20:20:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWDEAUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 20:17:49 -0400
-Received: from adelphi.physics.adelaide.edu.au ([129.127.102.1]:38296 "EHLO
-	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
-	id S1750945AbWDEARs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 20:17:48 -0400
-From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
-Message-Id: <200604050021.k350LnVF029703@auster.physics.adelaide.edu.au>
-Subject: Re: 2.6.16-rt11: Hires timer makes sleep wait far too long
-To: tglx@linutronix.de
-Date: Wed, 5 Apr 2006 09:51:49 +0930 (CST)
-Cc: jwoithe@physics.adelaide.edu.au (Jonathan Woithe),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1144124783.5344.396.camel@localhost.localdomain> from "Thomas Gleixner" at Apr 04, 2006 06:26:22 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 4 Apr 2006 20:20:25 -0400
+Received: from xenotime.net ([66.160.160.81]:37275 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751024AbWDEAUY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 20:20:24 -0400
+Date: Tue, 4 Apr 2006 17:22:37 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, jmforbes@linuxtx.org,
+       zwane@arm.linux.org.uk, tytso@mit.edu, davej@redhat.com,
+       chuckw@quantumlinux.com, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, eugene.teo@eugeneteo.net, davem@davemloft.net,
+       gregkh@suse.de
+Subject: Re: [patch 02/26] USB: Fix irda-usb use after use
+Message-Id: <20060404172237.d08cdc43.rdunlap@xenotime.net>
+In-Reply-To: <20060404235943.GC27049@kroah.com>
+References: <20060404235634.696852000@quad.kroah.org>
+	<20060404235943.GC27049@kroah.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas
+On Tue, 4 Apr 2006 16:59:43 -0700 gregkh@suse.de wrote:
 
-> On Tue, 2006-04-04 at 13:10 +0930, Jonathan Woithe wrote:
-> > The actual amount of time waited by a "sleep 1" call from bash was tested
-> > at least twice for each timer source:
-> > 
-> >   pit: 12 seconds, 29 seconds, 28 seconds
-> >   tsc: 45 seconds, 45 seconds
-> >   acpi_pm: 45 seconds, 29 seconds
-> >   jiffies: 45 seconds, 32 seconds
+> Don't read from free'd memory after calling netif_rx().  docopy is used as
+> a boolean (0 and 1) so unsigned int is sufficient.
 > 
-> Hmm, can you please send me your .config and the bootlog of the
-> machine ?
+> Coverity bug #928
+> 
+> Signed-off-by: Eugene Teo <eugene.teo@eugeneteo.net>
+> Cc: "David Miller" <davem@davemloft.net>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> 
+> ---
+> 
+>  drivers/net/irda/irda-usb.c |    5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> --- linux-2.6.16.1.orig/drivers/net/irda/irda-usb.c
+> +++ linux-2.6.16.1/drivers/net/irda/irda-usb.c
+> @@ -740,7 +740,7 @@ static void irda_usb_receive(struct urb 
+>  	struct sk_buff *newskb;
+>  	struct sk_buff *dataskb;
+>  	struct urb *next_urb;
+> -	int		docopy;
+> +	unsigned int len, docopy;
+>  
 
-Because of the size of the files I've posted this privately.  The following
-are extracts from the files in case others are interested.
+Is the <docopy> part of the patch just a convenience so that the patch
+doesn't have to be split?  I don't see this part as critical.
 
-Selected boot messages with hr-timers enabled:
-  ACPI: PM-Timer IO Port: 0x1008
-  ACPI: Local APIC address 0xfee00000
-  ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
-  Processor #0 6:13 APIC version 20
-  :
-  Detected 1995.072 MHz processor.
-  Real-Time Preemption Support (C) 2004-2006 Ingo Molnar
-  :
-  CPU: Intel(R) Pentium(R) M processor 2.00GHz stepping 08
-  :
-  ENABLING IO-APIC IRQs
-  ..TIMER: vector=0x31 apic1=0 pin1=2 apic2=-1 pin2=-1
-  Event source pit new caps set: 05
-  Event source lapic installed with caps set: 02
-  :
-  Time: tsc clocksource has been installed.
-  hrtimers: Switched to high resolution mode CPU 0
-  :
-  Time: acpi_pm clocksource has been installed.
-  hrtimers: Switched to high resolution mode CPU 0
+>  	IRDA_DEBUG(2, "%s(), len=%d\n", __FUNCTION__, urb->actual_length);
+>  	
+> @@ -851,10 +851,11 @@ static void irda_usb_receive(struct urb 
+>  	dataskb->dev = self->netdev;
+>  	dataskb->mac.raw  = dataskb->data;
+>  	dataskb->protocol = htons(ETH_P_IRDA);
+> +	len = dataskb->len;
+>  	netif_rx(dataskb);
+>  
+>  	/* Keep stats up to date */
+> -	self->stats.rx_bytes += dataskb->len;
+> +	self->stats.rx_bytes += len;
+>  	self->stats.rx_packets++;
+>  	self->netdev->last_rx = jiffies;
+>  
+> 
 
-Config options related to timers:
-  CONFIG_HPET_TIMER=y
-  CONFIG_HPET_EMULATE_RTC=y
-  CONFIG_HIGH_RES_TIMERS=y
-  CONFIG_HIGH_RES_RESOLUTION=10000
-  :
-  CONFIG_X86_PM_TIMER=y
-
-Regards
-  jonathan
+---
+~Randy

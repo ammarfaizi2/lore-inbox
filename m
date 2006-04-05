@@ -1,83 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWDEJdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWDEJeH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751190AbWDEJdh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 05:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWDEJdh
+	id S1751193AbWDEJeH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 05:34:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWDEJeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 05:33:37 -0400
-Received: from mail.phnxsoft.com ([195.227.45.4]:23050 "EHLO
-	posthamster.phnxsoft.com") by vger.kernel.org with ESMTP
-	id S1751190AbWDEJdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 05:33:37 -0400
-Message-ID: <44338EDA.4020909@imap.cc>
-Date: Wed, 05 Apr 2006 11:33:14 +0200
-From: Tilman Schmidt <tilman@imap.cc>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.8) Gecko/20050511
-X-Accept-Language: de, en, fr
+	Wed, 5 Apr 2006 05:34:07 -0400
+Received: from vanessarodrigues.com ([192.139.46.150]:20422 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1751193AbWDEJeF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 05:34:05 -0400
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
+       bjorn_helgaas@hp.com, cotte@de.ibm.com
+Subject: Re: [patch] do_no_pfn handler
+References: <yq0k6a6uc7i.fsf@jaguar.mkp.net> <yq01wwdppyc.fsf@jaguar.mkp.net>
+	<4432530A.70606@yahoo.com.au>
+From: Jes Sorensen <jes@sgi.com>
+Date: 05 Apr 2006 05:34:31 -0400
+In-Reply-To: <4432530A.70606@yahoo.com.au>
+Message-ID: <yq0vetonz6g.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linux-kernel@vger.kernel.org, hjlipp@web.de, kkeil@suse.de
-Subject: Re: + isdn4linux-siemens-gigaset-drivers-logging-usage.patch added
- to -mm tree
-References: <200604040051.k340p0RI008205@shell0.pdx.osdl.net>	 <1144113590.3067.4.camel@laptopd505.fenrus.org>  <4432FABE.1000900@imap.cc> <1144199982.3047.0.camel@laptopd505.fenrus.org>
-In-Reply-To: <1144199982.3047.0.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigE17E0AF18DF47C602C8F87E9"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigE17E0AF18DF47C602C8F87E9
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+>>>>> "Nick" == Nick Piggin <nickpiggin@yahoo.com.au> writes:
 
-Arjan van de Ven wrote:
+Nick> Jes Sorensen wrote:
+>> Hi, Ingo Oeser suggested reorganizing the hangle_pte_fault code in
+>> a way that simplifies the code deciding which fault handler to
+>> call. It makes the call to ->nopfn and ->nopage a lot clearer.
 
-> On Wed, 2006-04-05 at 01:01 +0200, Tilman Schmidt wrote:
->> On 04.04.2006 03:19, Arjan van de Ven wrote:
->>
->> >>+	struct semaphore sem;		/* locks this structure:
->> [...]
->> >
->> > please consider turning this into a mutex
->>
->> Your wish is our command. Consider it already done. :-)
->
-> great!
->
-> apologies for missing that; that's what you get for trusting mail
-> filters to trigger on patch fragments ;(
+Nick> Probably doesn't make much difference, but I'd rather do the
+Nick> nopage check first, as that will obviously be the most common.
 
-No trouble. Happens to the best of us.
+Hi Nick,
 
-Thanks for the time and effort you are putting into all this.
-I appreciate it.
+Fair 'nuff. I guess I had had a more hierarchical approach in mind,
+but then a driver really shouldn't provide both.
 
-Regards
-Tilman
+Nick> Other than that, you never know what a nopfn handler will want
+Nick> to do, so I think it is better to be consistent with other
+Nick> faults. Shouldn't need much more than a `if (pte_none()) { /* do
+Nick> it */ }`.
 
---
-Tilman Schmidt                    E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Ungeöffnet mindestens haltbar bis: (siehe Rückseite)
+Like this?
 
---------------enigE17E0AF18DF47C602C8F87E9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Thanks for the input, updated patch attached.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Cheers,
+Jes
 
-iD8DBQFEM47aMdB4Whm86/kRAtoOAJwI/Pjj8xbQjE6WbUIK/MummAPaugCeLr+B
-Lk/fTMdRwK+vqBXkZgoTMf4=
-=dSE4
------END PGP SIGNATURE-----
+Implement do_no_pfn() for handling mapping of memory without a struct
+page backing it. This avoids creating fake page table entries for
+regions which are not backed by real memory.
 
---------------enigE17E0AF18DF47C602C8F87E9--
+Signed-off-by: Jes Sorensen <jes@sgi.com>
+
+---
+ include/linux/mm.h |    1 
+ mm/memory.c        |   63 ++++++++++++++++++++++++++++++++++++++++++++++++-----
+ 2 files changed, 59 insertions(+), 5 deletions(-)
+
+Index: linux-2.6/include/linux/mm.h
+===================================================================
+--- linux-2.6.orig/include/linux/mm.h
++++ linux-2.6/include/linux/mm.h
+@@ -199,6 +199,7 @@
+ 	void (*open)(struct vm_area_struct * area);
+ 	void (*close)(struct vm_area_struct * area);
+ 	struct page * (*nopage)(struct vm_area_struct * area, unsigned long address, int *type);
++	long (*nopfn)(struct vm_area_struct * area, unsigned long address, int *type);
+ 	int (*populate)(struct vm_area_struct * area, unsigned long address, unsigned long len, pgprot_t prot, unsigned long pgoff, int nonblock);
+ #ifdef CONFIG_NUMA
+ 	int (*set_policy)(struct vm_area_struct *vma, struct mempolicy *new);
+Index: linux-2.6/mm/memory.c
+===================================================================
+--- linux-2.6.orig/mm/memory.c
++++ linux-2.6/mm/memory.c
+@@ -2146,6 +2146,53 @@
+ }
+ 
+ /*
++ * do_no_pfn() tries to create a new page mapping for a page without
++ * a struct_page backing it
++ *
++ * As this is called only for pages that do not currently exist, we
++ * do not need to flush old virtual caches or the TLB.
++ *
++ * We enter with non-exclusive mmap_sem (to exclude vma changes,
++ * but allow concurrent faults), and pte mapped but not yet locked.
++ * We return with mmap_sem still held, but pte unmapped and unlocked.
++ *
++ * It is expected that the ->nopfn handler always returns the same pfn
++ * for a given virtual mapping.
++ */
++static int do_no_pfn(struct mm_struct *mm, struct vm_area_struct *vma,
++		     unsigned long address, pte_t *page_table, pmd_t *pmd,
++		     int write_access)
++{
++	spinlock_t *ptl;
++	pte_t entry;
++	long pfn;
++	int ret = VM_FAULT_MINOR;
++
++	pte_unmap(page_table);
++	BUG_ON(!(vma->vm_flags & VM_PFNMAP));
++
++	pfn = vma->vm_ops->nopfn(vma, address & PAGE_MASK, &ret);
++	if (pfn == -ENOMEM)
++		return VM_FAULT_OOM;
++	if (pfn == -EFAULT)
++		return VM_FAULT_SIGBUS;
++	if (pfn < 0)
++		return VM_FAULT_SIGBUS;
++
++	page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
++
++	/* Only go through if we didn't race with anybody else... */
++	if (pte_none(*page_table)) {
++		entry = pfn_pte(pfn, vma->vm_page_prot);
++		if (write_access)
++			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
++		set_pte_at(mm, address, page_table, entry);
++	}
++	pte_unmap_unlock(page_table, ptl);
++	return ret;
++}
++
++/*
+  * Fault of a previously existing named mapping. Repopulate the pte
+  * from the encoded file_pte if possible. This enables swappable
+  * nonlinear vmas.
+@@ -2207,11 +2254,17 @@
+ 	old_entry = entry = *pte;
+ 	if (!pte_present(entry)) {
+ 		if (pte_none(entry)) {
+-			if (!vma->vm_ops || !vma->vm_ops->nopage)
+-				return do_anonymous_page(mm, vma, address,
+-					pte, pmd, write_access);
+-			return do_no_page(mm, vma, address,
+-					pte, pmd, write_access);
++			if (vma->vm_ops) {
++				if (vma->vm_ops->nopage)
++					return do_no_page(mm, vma, address,
++							  pte, pmd,
++							  write_access);
++				if (vma->vm_ops->nopfn)
++					return do_no_pfn(mm, vma, address, pte,
++							 pmd, write_access);
++			}
++			return do_anonymous_page(mm, vma, address,
++						 pte, pmd, write_access);
+ 		}
+ 		if (pte_file(entry))
+ 			return do_file_page(mm, vma, address,

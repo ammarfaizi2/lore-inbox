@@ -1,113 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWDEKvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWDEK6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751192AbWDEKvP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 06:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWDEKvP
+	id S1751212AbWDEK6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 06:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWDEK6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 06:51:15 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:54287 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751192AbWDEKvP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 06:51:15 -0400
-Date: Wed, 5 Apr 2006 12:51:07 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: regression in kbiuld with O=
-Message-ID: <20060405105107.GA22375@mars.ravnborg.org>
-References: <20060404152430.GG27946@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060404152430.GG27946@ftp.linux.org.uk>
-User-Agent: Mutt/1.5.11
+	Wed, 5 Apr 2006 06:58:24 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:37287 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751212AbWDEK6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 06:58:23 -0400
+Date: Wed, 05 Apr 2006 19:57:08 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [Patch:000/004] wait_table and zonelist initializing for memory hotadd
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, Yasunori Goto <y-goto@jp.fujitsu.com>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060405192737.3C3F.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 04, 2006 at 04:24:30PM +0100, Al Viro wrote:
-> make O=../test kernel/sched.o produces kernel/sched.o is source tree
-> now.  AFAICS, breakage started in 06300b21f4c79fd1578f4b7ca4b314fbab61a383
-> (kbuild: support building individual files for external modules).
+Hi.
 
-Fixed by patch below.
-Tested with diverse combinations of separate outut directories and
-external modules.
-The target-dir variable was renamed to build-dir to better relect usage.
-Also added dependency on prepare for %.ko targets so it can be used on
-a cleaned tree.
+These are parts of patches for new nodes addition v4.
+I picked them up because v4 might be a bit too many patches.
+These patches can be used even when a new zone becomes available.
+When empty zone becomes not empty, wait_table must be initialized,
+and zonelists must be updated.
+So, They are a good group for once post.
 
-	Sam
+  ex) x86-64 is good example of new zone addition.
+      - System boot up with memory under 4G address.
+        All of memory will be ZONE_DMA32.
+      - Then hot-add over 4G memory. It becomes ZONE_NORMAL. But, 
+        wait table of zone normal is not initialized at this time.
 
-diff --git a/Makefile b/Makefile
-index b401942..131950c 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1275,40 +1275,43 @@ kernelversion:
- 
- # Single targets
- # ---------------------------------------------------------------------------
--# The directory part is taken from first prerequisite, so this
--# works even with external modules
-+# Single targets are compatible with:
-+# - build whith mixed source and output
-+# - build with separate output dir 'make O=...'
-+# - external modules
-+#
-+#  target-dir => where to store outputfile
-+#  build-dir  => directory in kernel source tree to use
-+
-+ifeq ($(KBUILD_EXTMOD),)
-+        build-dir  = $(dir $@)
-+        target-dir = $(dir $@)
-+else
-+        zap-slash=$(filter-out .,$(patsubst %/,%,$(dir $@)))
-+        build-dir  = $(KBUILD_EXTMOD)$(if $(zap-slash),/$(zap-slash))
-+        target-dir = $(if $(KBUILD_EXTMOD),$(dir $<),$(dir $@))
-+endif
-+
- %.s: %.c prepare scripts FORCE
--	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
-+	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
- %.i: %.c prepare scripts FORCE
--	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
-+	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
- %.o: %.c prepare scripts FORCE
--	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
-+	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
- %.lst: %.c prepare scripts FORCE
--	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
-+	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
- %.s: %.S prepare scripts FORCE
--	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
-+	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
- %.o: %.S prepare scripts FORCE
--	$(Q)$(MAKE) $(build)=$(dir $<) $(dir $<)$(notdir $@)
--
--# For external modules we shall include any directory of the target,
--# but usual case there is no directory part.
--# make M=`pwd` module.o     => $(dir $@)=./
--# make M=`pwd` foo/module.o => $(dir $@)=foo/
--# make M=`pwd` /            => $(dir $@)=/
-- 
--ifeq ($(KBUILD_EXTMOD),)
--        target-dir = $(@D)
--else
--        zap-slash=$(filter-out .,$(patsubst %/,%,$(dir $@)))
--        target-dir = $(KBUILD_EXTMOD)$(if $(zap-slash),/$(zap-slash))
--endif
-+	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
- 
--/ %/:      scripts prepare FORCE
-+# Modules
-+/ %/: prepare scripts FORCE
- 	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1) \
--	$(build)=$(target-dir)
--%.ko: scripts FORCE
-+	$(build)=$(build-dir)
-+%.ko: prepare scripts FORCE
- 	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1)   \
--	$(build)=$(target-dir) $(@:.ko=.o)
-+	$(build)=$(build-dir) $(@:.ko=.o)
- 	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.modpost
- 
- # FIXME Should go into a make.lib or something 
+This patch is for 2.6.17-rc1-mm1.
+
+Please apply.
+
+----------------------------
+Change log from v4 of hot-add.
+  - update for 2.6.17-rc1-mm1.
+  - change allocation for wait_table from kmalloc() to vmalloc().
+    vmalloc() is enough for it.
+
+V4 of post is here.
+<description>
+http://marc.theaimsgroup.com/?l=linux-mm&w=2&r=1&s=memory+hotplug+node+v.4&q=b
+<patches>
+http://marc.theaimsgroup.com/?l=linux-mm&w=2&r=1&s=memory+hotplug+node+v.4.&q=b
+
+
+
+-- 
+Yasunori Goto 
+
+

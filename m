@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbWDERoi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbWDESFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751311AbWDERoi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 13:44:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWDERoi
+	id S1751318AbWDESFY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 14:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWDESFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 13:44:38 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:24247 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751311AbWDERoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 13:44:38 -0400
-Subject: Re: [Alsa-devel] [2.6.17-rc1] ALSA oops with multiple OSS clients
-From: Lee Revell <rlrevell@joe-job.com>
-To: Luca <kronos.it@gmail.com>
-Cc: linux-kernel@vger.kernel.org, perex@suse.cz, alsa-devel@alsa-project.org
-In-Reply-To: <20060405173002.GA5306@dreamland.darkstar.lan>
-References: <20060405173002.GA5306@dreamland.darkstar.lan>
-Content-Type: text/plain
-Date: Wed, 05 Apr 2006 13:44:32 -0400
-Message-Id: <1144259073.10626.2.camel@mindpipe>
+	Wed, 5 Apr 2006 14:05:24 -0400
+Received: from CyborgDefenseSystems.Corporatebeast.com ([64.62.148.172]:13075
+	"EHLO arnor.apana.org.au") by vger.kernel.org with ESMTP
+	id S1751313AbWDESFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 14:05:24 -0400
+Date: Thu, 6 Apr 2006 04:05:20 +1000
+To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] crypto: add alignment handling to digest layer
+Message-ID: <20060405180520.GA15151@gondor.apana.org.au>
+References: <20060309.123608.08076793.nemoto@toshiba-tops.co.jp> <20060404.000407.41198995.anemo@mba.ocn.ne.jp>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060404.000407.41198995.anemo@mba.ocn.ne.jp>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-05 at 19:30 +0200, Luca wrote:
-> Hello,
-> I've a reproducible OOPS when starting multiple OSS clients.
-> To reproduce I do this:
-> mpg123 song.mp3
-> mpg123 song.mp3 (another time)
-> 
-> At this point the song restart from the beginning (i.e. I think that 
-> the second mpg123 takes over the device). When the second instance
-> terminates the song I get the following OOPS:
+On Tue, Apr 04, 2006 at 12:04:07AM +0900, Atsushi Nemoto wrote:
+>
+> @@ -38,12 +39,24 @@ static void update(struct crypto_tfm *tf
+>  			unsigned int bytes_from_page = min(l, ((unsigned int)
+>  							   (PAGE_SIZE)) - 
+>  							   offset);
+> -			char *p = crypto_kmap(pg, 0) + offset;
+> +			char *src = crypto_kmap(pg, 0);
+> +			char *p = src + offset;
+>  
+> +			if (unlikely(offset & alignmask)) {
+> +				unsigned int bytes =
+> +					alignmask + 1 - (offset & alignmask);
+> +				bytes = min(bytes, bytes_from_page);
+> +				tfm->__crt_alg->cra_digest.dia_update
+> +						(crypto_tfm_ctx(tfm), p,
+> +						 bytes);
 
-Known bug, please try the patch:
+Don't we need to copy this to an aligned buffer?
 
-http://bugzilla.kernel.org/show_bug.cgi?id=6329
-
-Lee
-
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

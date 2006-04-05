@@ -1,75 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbWDEISZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWDEIRf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751176AbWDEISZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 04:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWDEISZ
+	id S1751175AbWDEIRf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 04:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWDEIRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 04:18:25 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:17144 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S1751176AbWDEISY (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 04:18:24 -0400
-Subject: Re: [OOPS] related to swap?
-From: Ian Kumlien <pomac@vapor.com>
-Reply-To: pomac@vapor.com
-To: nickpiggin@yahoo.com.au
-Cc: Linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 05 Apr 2006 08:22:43 +0000
-Message-Id: <1144225363.7112.10.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Wed, 5 Apr 2006 04:17:35 -0400
+Received: from dial169-41.awalnet.net ([213.184.169.41]:38930 "EHLO
+	raad.intranet") by vger.kernel.org with ESMTP id S1751175AbWDEIRe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 04:17:34 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
+Date: Wed, 5 Apr 2006 11:16:05 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200604031459.51542.a1426z@gawab.com> <200604041627.25359.a1426z@gawab.com> <4432FE8C.7010900@bigpond.net.au>
+In-Reply-To: <4432FE8C.7010900@bigpond.net.au>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="windows-1256"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200604051116.05270.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ian Kumlien wrote:
+Peter Williams wrote:
+> Al Boldi wrote:
+> > Peter Williams wrote:
+> >> Al Boldi wrote:
+> >>>>>> Control parameters for the scheduler can be read/set via files in:
+> >>>>>>
+> >>>>>> /sys/cpusched/<scheduler>/
+> >>>
+> >>> The default values for spa make it really easy to lock up the system.
+> >>
+> >> Which one of the SPA schedulers and under what conditions?  I've been
+> >> mucking around with these and may have broken something.  If so I'd
+> >> like to fix it.
+> >
+> > spa_no_frills, with a malloc-hog less than timeslice.  Setting
+> > promotion_floor to max unlocks the console.
 >
-> > Yes, i run a tainted kernel! either live with it or ignore this mail
-> > =)
->
-> > starting swap lead to a deadlock within 15 mins
->
-> > I have never had the energy to perform a full memtext86+
->
-> It would be useful if you could perform a memtest overnight one night,
-> then run a non-patched and non-tained 2.6.16.1 kernel, and try to
-> reproduce the problems.
+> OK, you could also try increasing the promotion interval.
 
-As i said, i really doubt that the memory is at fault here, it has done
-several passes over the memory but not all tests. I can give it a go
-though, but i really doubt it'll find anything.
+Seems that this will only delay the lock in spa_svr but not inhibit it.
 
-The kernel i run is a plain 2.6.16.1 from kernel.org (i have heard that
-you can actually compile gentoos own these days)
+> It should be noted that spa_no_frills isn't really expected to behave
+> very well as it's a pure round robin scheduler.
 
-Since this is my *cough* desktop, running it without that ability is
-kinda a show stopper, thats why i included the thing above.
+It's a bare bone scheduler that allows to prioritize procs to the admins 
+desire, instead of leaving the priority management to the scheduler, which 
+may be undesirable for some but not all.
 
-But the thing is, my laptop runs with the same compiler, "same" nvidia
-driver and the "same" kernel ("same" as in 32 bit not 64 bit).
-Eventhough "same" in this case usually means nothing, i doubt that one
-would have a serius bug and the other wouldn't, ie it's most likley a
-bug related to 64 bits or one or more of the drivers involved.
+> It's intended purpose is as a basis for more sophisticated schedulers.
 
-The only errors i get in dmesg atm is:
-KERNEL: assertion (!sk->sk_forward_alloc) failed at net/core/stream.c
-(283)
-KERNEL: assertion (!sk->sk_forward_alloc) failed at net/ipv4/af_inet.c
-(150)
+And that's why the same problem exists in the child scheds, i.e. spa_ws, 
+spa_svr, zaphod, but not spa_ebs.
 
-Which is related to TSO, from what i gather, but i can't turn off tso on
-forcedeth... (i suspected this to cause corruption a while back....)
+> I've been thinking
+> about removing it as a bootable scheduler and only making its children
+> available but I find it useful to compare benchmark and other test
+> results from it with that from the other schedulers to get an idea of
+> the extra costs involved.
 
-And:
-eth0: too many iterations (6) in nv_nic_irq.
+Thanks!
 
-Which seems to be a warning of some sort (haven't checked the source
-yet).
-
-PS. Reply-to-all is your friend... =)
-DS.
-
--- 
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+--
+Al
 

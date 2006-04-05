@@ -1,61 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWDERGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWDERGf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751288AbWDERGe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 13:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWDERGd
+	id S1751290AbWDERGf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 13:06:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWDERGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 13:06:33 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:55570 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751288AbWDERGd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 13:06:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UC80zqI/foh5C/s6qyBnEveQrJ3+YX44ZrWU+RjrOPdpEazOQKKse5C3p8Z5jAZDOFjU73SXumgj35ljbga/72ofREQSHxTfVfTjQCjSkbF472U3yUGQUeARN68I9Cb/ElxgbQcZJJeWdDhgT5QUI+0WGpnqAFuc0liRLfNE+uE=
-Message-ID: <9e4733910604051006q447ec3absec038732c5a7a9f2@mail.gmail.com>
-Date: Wed, 5 Apr 2006 13:06:32 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Al Viro" <viro@ftp.linux.org.uk>
-Subject: Re: [patch 03/26] sysfs: zero terminate sysfs write buffers (CVE-2006-1055)
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, stable@kernel.org
-In-Reply-To: <20060405170226.GL27946@ftp.linux.org.uk>
+	Wed, 5 Apr 2006 13:06:35 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:51978 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751292AbWDERGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 13:06:34 -0400
+Date: Wed, 5 Apr 2006 19:06:32 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/wanrouter/wanmain.c: cleanups
+Message-ID: <20060405170632.GI8673@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060404235634.696852000@quad.kroah.org>
-	 <20060404235947.GD27049@kroah.com>
-	 <20060405190928.17b9ba6a.vsu@altlinux.ru>
-	 <20060405152123.GH27946@ftp.linux.org.uk>
-	 <9e4733910604050934s46ec20fbr905f78832431d91d@mail.gmail.com>
-	 <20060405170226.GL27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/5/06, Al Viro <viro@ftp.linux.org.uk> wrote:
-> On Wed, Apr 05, 2006 at 12:34:49PM -0400, Jon Smirl wrote:
-> > On 4/5/06, Al Viro <viro@ftp.linux.org.uk> wrote:
-> > > On Wed, Apr 05, 2006 at 07:09:28PM +0400, Sergey Vlasov wrote:
-> > > > This will break the "color_map" sysfs file for framebuffers -
-> > > > drivers/video/fbsysfs.c:store_cmap() expects to get exactly 4096 bytes
-> > > > for a colormap with 256 entries.  In fact, the original patch which
-> > > > changed PAGE_SIZE - 1 to PAGE_SIZE:
-> > >
-> > > ... cheerfully assuming that nobody assumes NUL-termination and
-> > > everyone (sysfs patch writers!) certainly uses the length argument.
-> > > Fscking brilliant, that.
-> >
-> > Why does sysfs have two string length determination methods - both
-> > NULL termination and a length parameter. It should be one or the
-> > other, not both. Having both simply cause problems when some
-> > developers implement one scheme and others only implement the other.
->
-> Which part of "sysfs patches can be written by idiots and usually are"
-> is too hard to understand?  Oh, wait.  I see...  Well, nevermind, then...
+This patch contains the following cleanups:
+- make the following needlessly global functions static:
+  - lock_adapter_irq()
+  - unlock_adapter_irq()
+- #if 0 the following unused global functions:
+  - wanrouter_encapsulate()
+  - wanrouter_type_trans()
 
-I look forward to seeing your patches address these problems.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---
-Jon Smirl
-jonsmirl@gmail.com
+---
+
+ include/linux/wanrouter.h |    8 --------
+ net/wanrouter/wanmain.c   |   17 ++++++++---------
+ 2 files changed, 8 insertions(+), 17 deletions(-)
+
+--- linux-2.6.17-rc1-mm1-full/include/linux/wanrouter.h.old	2006-04-05 17:03:07.000000000 +0200
++++ linux-2.6.17-rc1-mm1-full/include/linux/wanrouter.h	2006-04-05 17:15:20.000000000 +0200
+@@ -516,9 +516,6 @@
+ /* Public functions available for device drivers */
+ extern int register_wan_device(struct wan_device *wandev);
+ extern int unregister_wan_device(char *name);
+-__be16 wanrouter_type_trans(struct sk_buff *skb, struct net_device *dev);
+-int wanrouter_encapsulate(struct sk_buff *skb, struct net_device *dev,
+-			  unsigned short type);
+ 
+ /* Proc interface functions. These must not be called by the drivers! */
+ extern int wanrouter_proc_init(void);
+@@ -527,11 +524,6 @@
+ extern int wanrouter_proc_delete(struct wan_device *wandev);
+ extern int wanrouter_ioctl( struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg);
+ 
+-extern void lock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags);
+-extern void unlock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags);
+-
+-
+-
+ /* Public Data */
+ /* list of registered devices */
+ extern struct wan_device *wanrouter_router_devlist;
+--- linux-2.6.17-rc1-mm1-full/net/wanrouter/wanmain.c.old	2006-04-05 17:03:39.000000000 +0200
++++ linux-2.6.17-rc1-mm1-full/net/wanrouter/wanmain.c	2006-04-05 17:18:32.000000000 +0200
+@@ -144,8 +144,8 @@
+ 
+ static struct wan_device *wanrouter_find_device(char *name);
+ static int wanrouter_delete_interface(struct wan_device *wandev, char *name);
+-void lock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags);
+-void unlock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags);
++static void lock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags);
++static void unlock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags);
+ 
+ 
+ 
+@@ -162,8 +162,8 @@
+  *	Organize Unique Identifiers for encapsulation/decapsulation
+  */
+ 
+-static unsigned char wanrouter_oui_ether[] = { 0x00, 0x00, 0x00 };
+ #if 0
++static unsigned char wanrouter_oui_ether[] = { 0x00, 0x00, 0x00 };
+ static unsigned char wanrouter_oui_802_2[] = { 0x00, 0x80, 0xC2 };
+ #endif
+ 
+@@ -304,6 +304,8 @@
+ 	return 0;
+ }
+ 
++#if 0
++
+ /*
+  *	Encapsulate packet.
+  *
+@@ -399,6 +401,7 @@
+ 	return ethertype;
+ }
+ 
++#endif  /*  0  */
+ 
+ /*
+  *	WAN device IOCTL.
+@@ -860,23 +863,19 @@
+ 	return 0;
+ }
+ 
+-void lock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags)
++static void lock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags)
+ {
+        	spin_lock_irqsave(lock, *smp_flags);
+ }
+ 
+ 
+-void unlock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags)
++static void unlock_adapter_irq(spinlock_t *lock, unsigned long *smp_flags)
+ {
+ 	spin_unlock_irqrestore(lock, *smp_flags);
+ }
+ 
+ EXPORT_SYMBOL(register_wan_device);
+ EXPORT_SYMBOL(unregister_wan_device);
+-EXPORT_SYMBOL(wanrouter_encapsulate);
+-EXPORT_SYMBOL(wanrouter_type_trans);
+-EXPORT_SYMBOL(lock_adapter_irq);
+-EXPORT_SYMBOL(unlock_adapter_irq);
+ 
+ MODULE_LICENSE("GPL");
+ 
+

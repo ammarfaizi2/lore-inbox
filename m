@@ -1,61 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWDEAIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWDEAIB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750956AbWDEAIb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Apr 2006 20:08:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWDEAIC
+	id S1751012AbWDEAIB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Apr 2006 20:08:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750978AbWDEAHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Apr 2006 20:08:02 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:30927
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750956AbWDEAH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Apr 2006 20:07:29 -0400
-Date: Tue, 04 Apr 2006 17:07:20 -0700 (PDT)
-Message-Id: <20060404.170720.61536177.davem@davemloft.net>
-To: gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org, openib-general@openib.org,
-       bunk@stusta.de, jmforbes@linuxtx.org, zwane@arm.linux.org.uk,
-       tytso@mit.edu, rdunlap@xenotime.net, davej@redhat.com,
-       chuckw@quantumlinux.com, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, mst@mellanox.co.il, rolandd@cisco.com
-Subject: Re: [patch 11/26] IPOB: Move destructor from neigh->ops to
- neigh_param
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060405000030.GL27049@kroah.com>
+	Tue, 4 Apr 2006 20:07:06 -0400
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:40130
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1750975AbWDEABk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Apr 2006 20:01:40 -0400
+Date: Tue, 4 Apr 2006 17:00:56 -0700
+From: gregkh@suse.de
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Robert Olsson <robert.olsson@its.uu.se>,
+       David Miller <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 18/26] fib_trie.c node freeing fix
+Message-ID: <20060405000056.GS27049@kroah.com>
 References: <20060404235634.696852000@quad.kroah.org>
-	<20060404235927.GA27049@kroah.com>
-	<20060405000030.GL27049@kroah.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="fib_trie.c-node-freeing-fix.patch"
+In-Reply-To: <20060404235927.GA27049@kroah.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: gregkh@suse.de
-Date: Tue, 4 Apr 2006 17:00:30 -0700
 
-> From: Michael Tsirkin <mst@mellanox.co.il>
-> 
-> struct neigh_ops currently has a destructor field, but not a constructor field.
-> The infiniband/ulp/ipoib in-tree driver stashes some info in the neighbour
-> structure (the results of the second-stage lookup from ARP results to real
-> link-level path), and it uses neigh->ops->destructor to get a callback so it can
-> clean up this extra info when a neighbour is freed.  We've run into problems
-> with this: since the destructor is in an ops field that is shared between
-> neighbours that may belong to different net devices, there's no way to set/clear
-> it safely.
-> 
-> The following patch moves this field to neigh_parms where it can be safely set,
-> together with its twin neigh_setup, and switches the only two in-kernel users
-> (ipoib and clip) to this interface.
+Please apply to 2.6.{14,15,16} -stable, thanks a lot.
 
-Major NAK.
+From: Robert Olsson <robert.olsson@its.uu.se>
 
-This does not fix a bug, it is merely and API change that the
-inifiniband folks want for some of their infrastructure.
+[FIB_TRIE]: Fix leaf freeing.
 
-It was accepted for 2.6.17, but this change is not appropriate
-for the -stable release branch.
+Seems like leaf (end-nodes) has been freed by __tnode_free_rcu and not
+by __leaf_free_rcu. This fixes the problem. Only tnode_free is now
+used which checks for appropriate node type. free_leaf can be removed.
 
-Furthermore, this version of the patch here will break the build of
-ATM.
+Signed-off-by: Robert Olsson <robert.olsson@its.uu.se>
+Signed-off-by: David Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+ net/ipv4/fib_trie.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+--- linux-2.6.16.1.orig/net/ipv4/fib_trie.c
++++ linux-2.6.16.1/net/ipv4/fib_trie.c
+@@ -314,11 +314,6 @@ static void __leaf_free_rcu(struct rcu_h
+ 	kfree(container_of(head, struct leaf, rcu));
+ }
+ 
+-static inline void free_leaf(struct leaf *leaf)
+-{
+-	call_rcu(&leaf->rcu, __leaf_free_rcu);
+-}
+-
+ static void __leaf_info_free_rcu(struct rcu_head *head)
+ {
+ 	kfree(container_of(head, struct leaf_info, rcu));
+@@ -357,7 +352,12 @@ static void __tnode_free_rcu(struct rcu_
+ 
+ static inline void tnode_free(struct tnode *tn)
+ {
+-	call_rcu(&tn->rcu, __tnode_free_rcu);
++	if(IS_LEAF(tn)) {
++		struct leaf *l = (struct leaf *) tn;
++		call_rcu_bh(&l->rcu, __leaf_free_rcu);
++	}
++        else
++		call_rcu(&tn->rcu, __tnode_free_rcu);
+ }
+ 
+ static struct leaf *leaf_new(void)
+
+--

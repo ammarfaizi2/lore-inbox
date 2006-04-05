@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWDES0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWDEScj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbWDES0y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 14:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWDES0y
+	id S1751319AbWDEScj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 14:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWDEScj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 14:26:54 -0400
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:13494 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1751315AbWDES0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 14:26:53 -0400
-Message-ID: <4432C460.3080606@tmr.com>
-Date: Tue, 04 Apr 2006 15:09:20 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9a1) Gecko/20060330 SeaMonkey/1.5a
-MIME-Version: 1.0
-Newsgroups: gmane.linux.ide
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re: IDE CDROM tail read errors
-References: <m3wtedrrpf.fsf@defiant.localdomain> <1143717489.29388.32.camel@localhost.localdomain>
-In-Reply-To: <1143717489.29388.32.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Apr 2006 14:32:39 -0400
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:43489
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751319AbWDEScj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 14:32:39 -0400
+Date: Wed, 5 Apr 2006 11:31:54 -0700
+From: Greg KH <greg@kroah.com>
+To: "Artem B. Bityutskiy" <dedekind@yandex.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: device model and character devices
+Message-ID: <20060405183154.GB2466@kroah.com>
+References: <44322A6F.4000402@yandex.ru> <20060404164823.GA31398@kroah.com> <44337759.4040507@yandex.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44337759.4040507@yandex.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Mer, 2006-03-29 at 21:11 +0200, Krzysztof Halasa wrote:
->> # ls -l
->> -rw-r--r-- 1 root root 687177728 Mar 29 15:51 img-15.iso
->> -rw-r--r-- 1 root root 687177728 Mar 29 15:58 img-15a.iso
->>
->> The files are just truncated FC5d1 images (57344 bytes missing).
-> 
-> The final partial read is dropped rather than partially completed.
-> 
->> # cat /sys/block/sr0/size
->> 1342264 (i.e., the same as with 2.6.15 + drivers/ide)
->>
->> # cat /dev/cdrw > img-16a.iso
->> cat: /dev/cdrw: Input/output error
->>
->> # cat /sys/block/sr0/size
->> 1342256 (looks like it has been adjusted to .iso image size / 512 when
->>          the first I/O error occured)
-> 
-> The SCSI layer does this bit for everyone. Its actually not libata or
-> the PATA drivers that have done the work here. You should find ide-scsi
-> does the same.
-> 
-> I patched the old IDE driver a bit to try and deal with this and if you
-> want the patch to hack on and tidy up further feel free. 
-> 
-> 
-Any hope in hell of getting this fixed? It's been broken for too long to 
-remember. IIRC the problem is that on a read which hits EOF, instead of 
-returning partial data read and no error, the status returned is just 
-some "didn't work" variant and the partial read is lost. I also seem to 
-remember that if the length of the ISO was a multiple of a magic number, 
-32k, or the metric hexadecimal phase of the moon, you got a clean EOF.
+On Wed, Apr 05, 2006 at 11:52:57AM +0400, Artem B. Bityutskiy wrote:
+> Greg KH wrote:
+> >Because "struct device" generally is not related to a major:minor pair
+> >at all.  That is what a struct class_device is for.  Lots of struct
+> >device users have nothing to do with a char device, and some have
+> >multiple char devices associated with a single struct device.
+> Well, OK, but AFAIK, your long-term plan is to merge class_device and 
+> device, so in the long-term perspective it does not matter. And those 
+> who do not need a character device support may have a possibility to 
+> disable it.
 
-As you say, ide-scsi fixes this, if the people who don't like it would 
-make the alternatives work right it wouldn't be an issue...
+Yes, that's my goal in the long term, and I have a patch availble that
+starts to do that:
+	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/device-class.patch
 
-Thanks for the info.
+but we have a lot of work to get there.
 
+And even then, a struct device will be separate from a char device.  For
+one example, the cdev structure is used by the kernel to look up the
+device properly, which has nothing to do with struct device (or struct
+class_device) at all at this time.
+
+thanks,
+
+greg k-h

@@ -1,86 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWDERFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWDERGe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751287AbWDERFS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 13:05:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWDERFS
+	id S1751288AbWDERGe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 13:06:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWDERGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 13:05:18 -0400
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:24787 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1751287AbWDERFP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 13:05:15 -0400
-X-Sasl-enc: zRGBjPqA7v4RtBF0V2CFSKLA/uiOveVr7uvQoN3tKo7g 1144256704
-Message-ID: <4433F8F4.4060707@imap.cc>
-Date: Wed, 05 Apr 2006 19:05:56 +0200
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de,en,fr
+	Wed, 5 Apr 2006 13:06:33 -0400
+Received: from zproxy.gmail.com ([64.233.162.202]:55570 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751288AbWDERGd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 13:06:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UC80zqI/foh5C/s6qyBnEveQrJ3+YX44ZrWU+RjrOPdpEazOQKKse5C3p8Z5jAZDOFjU73SXumgj35ljbga/72ofREQSHxTfVfTjQCjSkbF472U3yUGQUeARN68I9Cb/ElxgbQcZJJeWdDhgT5QUI+0WGpnqAFuc0liRLfNE+uE=
+Message-ID: <9e4733910604051006q447ec3absec038732c5a7a9f2@mail.gmail.com>
+Date: Wed, 5 Apr 2006 13:06:32 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Al Viro" <viro@ftp.linux.org.uk>
+Subject: Re: [patch 03/26] sysfs: zero terminate sysfs write buffers (CVE-2006-1055)
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, stable@kernel.org
+In-Reply-To: <20060405170226.GL27946@ftp.linux.org.uk>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: hjlipp@web.de, gigaset307x-common@lists.sourceforge.net, kkeil@suse.de,
-       isdn4linux@listserv.isdn4linux.de, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] ISDN_DRV_GIGASET should select, not depend on CRC_CCITT
-References: <20060405163202.GF8673@stusta.de>
-In-Reply-To: <20060405163202.GF8673@stusta.de>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigA5E0AE3385DC21E688C1E483"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060404235634.696852000@quad.kroah.org>
+	 <20060404235947.GD27049@kroah.com>
+	 <20060405190928.17b9ba6a.vsu@altlinux.ru>
+	 <20060405152123.GH27946@ftp.linux.org.uk>
+	 <9e4733910604050934s46ec20fbr905f78832431d91d@mail.gmail.com>
+	 <20060405170226.GL27946@ftp.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigA5E0AE3385DC21E688C1E483
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On 4/5/06, Al Viro <viro@ftp.linux.org.uk> wrote:
+> On Wed, Apr 05, 2006 at 12:34:49PM -0400, Jon Smirl wrote:
+> > On 4/5/06, Al Viro <viro@ftp.linux.org.uk> wrote:
+> > > On Wed, Apr 05, 2006 at 07:09:28PM +0400, Sergey Vlasov wrote:
+> > > > This will break the "color_map" sysfs file for framebuffers -
+> > > > drivers/video/fbsysfs.c:store_cmap() expects to get exactly 4096 bytes
+> > > > for a colormap with 256 entries.  In fact, the original patch which
+> > > > changed PAGE_SIZE - 1 to PAGE_SIZE:
+> > >
+> > > ... cheerfully assuming that nobody assumes NUL-termination and
+> > > everyone (sysfs patch writers!) certainly uses the length argument.
+> > > Fscking brilliant, that.
+> >
+> > Why does sysfs have two string length determination methods - both
+> > NULL termination and a length parameter. It should be one or the
+> > other, not both. Having both simply cause problems when some
+> > developers implement one scheme and others only implement the other.
+>
+> Which part of "sysfs patches can be written by idiots and usually are"
+> is too hard to understand?  Oh, wait.  I see...  Well, nevermind, then...
 
-On 05.04.2006 18:32, Adrian Bunk wrote:
-> CRC_CCITT is an internal helper function that should be select'ed.
+I look forward to seeing your patches address these problems.
 
-Good point. Thanks.
-
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
-Acked-by: Tilman Schmidt <tilman@imap.cc>
-
->=20
-> --- linux-2.6.17-rc1-mm1-full/drivers/isdn/gigaset/Kconfig.old	2006-04-=
-05 17:42:54.000000000 +0200
-> +++ linux-2.6.17-rc1-mm1-full/drivers/isdn/gigaset/Kconfig	2006-04-05 1=
-7:43:07.000000000 +0200
-> @@ -3,7 +3,8 @@
-> =20
->  config ISDN_DRV_GIGASET
->  	tristate "Siemens Gigaset support (isdn)"
-> -	depends on ISDN_I4L && CRC_CCITT
-> +	depends on ISDN_I4L
-> +	select CRC_CCITT
->  	help
->  	  Say m here if you have a Gigaset or Sinus isdn device.
-> =20
->=20
-
-
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
-
-
---------------enigA5E0AE3385DC21E688C1E483
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEM/j+MdB4Whm86/kRAssFAJ9L34vpvkQ8p7nf1VUXfj2v6ydawQCfekYF
-3kSTYm6ZtWbSzLHwKs4Wqmo=
-=e1Al
------END PGP SIGNATURE-----
-
---------------enigA5E0AE3385DC21E688C1E483--
+--
+Jon Smirl
+jonsmirl@gmail.com

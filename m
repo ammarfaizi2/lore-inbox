@@ -1,97 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWDEPJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWDEPRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750813AbWDEPJw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 11:09:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWDEPJw
+	id S1750834AbWDEPRH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 11:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWDEPRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 11:09:52 -0400
-Received: from mivlgu.ru ([81.18.140.87]:4032 "EHLO mail.mivlgu.ru")
-	by vger.kernel.org with ESMTP id S1750813AbWDEPJv (ORCPT
+	Wed, 5 Apr 2006 11:17:07 -0400
+Received: from xenotime.net ([66.160.160.81]:31981 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750834AbWDEPRG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 11:09:51 -0400
-Date: Wed, 5 Apr 2006 19:09:28 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: gregkh@suse.de
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       stable@kernel.org, Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [patch 03/26] sysfs: zero terminate sysfs write buffers
- (CVE-2006-1055)
-Message-Id: <20060405190928.17b9ba6a.vsu@altlinux.ru>
-In-Reply-To: <20060404235947.GD27049@kroah.com>
-References: <20060404235634.696852000@quad.kroah.org>
-	<20060404235947.GD27049@kroah.com>
-X-Mailer: Sylpheed version 1.0.0beta4 (GTK+ 1.2.10; i586-alt-linux-gnu)
+	Wed, 5 Apr 2006 11:17:06 -0400
+Date: Wed, 5 Apr 2006 08:19:20 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: horms@verge.net.au, linux-kernel@vger.kernel.org, fastboot@osdl.org,
+       akpm <akpm@osdl.org>, torvalds <torvalds@osdl.org>
+Subject: [PATCH] kexec: update MAINTAINERS
+Message-Id: <20060405081920.3655ddb2.rdunlap@xenotime.net>
+In-Reply-To: <m1mzf0in0n.fsf@ebiederm.dsl.xmission.com>
+References: <20060404234806.GA25761@verge.net.au>
+	<20060404200557.1e95bdd8.rdunlap@xenotime.net>
+	<m1mzf0in0n.fsf@ebiederm.dsl.xmission.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Wed__5_Apr_2006_19_09_28_+0400_F1S3hoOv1lCBuwZ2"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__5_Apr_2006_19_09_28_+0400_F1S3hoOv1lCBuwZ2
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-On Tue, 4 Apr 2006 16:59:47 -0700 gregkh@suse.de wrote:
+Eric is the kexec maintainer.
 
-> No one should be writing a PAGE_SIZE worth of data to a normal sysfs
-> file, so properly terminate the buffer.
-> 
-> Thanks to Al Viro for pointing out my stupidity here.
-> 
-> CVE-2006-1055 has been assigned for this.
-> 
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> 
-> ---
->  fs/sysfs/file.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- linux-2.6.16.1.orig/fs/sysfs/file.c
-> +++ linux-2.6.16.1/fs/sysfs/file.c
-> @@ -183,7 +183,7 @@ fill_write_buffer(struct sysfs_buffer * 
->  		return -ENOMEM;
->  
->  	if (count >= PAGE_SIZE)
-> -		count = PAGE_SIZE;
-> +		count = PAGE_SIZE - 1;
->  	error = copy_from_user(buffer->page,buf,count);
->  	buffer->needs_read_fill = 1;
->  	return error ? -EFAULT : count;
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ MAINTAINERS |    2 --
+ 1 files changed, 2 deletions(-)
 
-This will break the "color_map" sysfs file for framebuffers -
-drivers/video/fbsysfs.c:store_cmap() expects to get exactly 4096 bytes
-for a colormap with 256 entries.  In fact, the original patch which
-changed PAGE_SIZE - 1 to PAGE_SIZE:
+--- linux-2617-rc1.orig/MAINTAINERS
++++ linux-2617-rc1/MAINTAINERS
+@@ -1556,9 +1556,7 @@ S:	Maintained
+ 
+ KEXEC
+ P:	Eric Biederman
+-P:	Randy Dunlap
+ M:	ebiederm@xmission.com
+-M:	rdunlap@xenotime.net
+ W:	http://www.xmission.com/~ebiederm/files/kexec/
+ L:	linux-kernel@vger.kernel.org
+ L:	fastboot@osdl.org
 
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=9d9d27fb651a7c95a46f276bacb4329db47470a6
 
-was done exactly for use with that "color_map" file.
-
-This patch also does not completely guarantee that the buffer will be
-null-terminated.  A program may first call read() on the sysfs file,
-which will allocate buffer->page and invoke ->show to fill that page;
-then subsequent write() on the same file will reuse buffer->page.  To
-get really bad results, you need to have ->store which assumes
-null-terminated buffer together with ->show which writes to the last
-byte of the page (which is probably rare, but show_cmap() does exactly
-that).
-
---Signature=_Wed__5_Apr_2006_19_09_28_+0400_F1S3hoOv1lCBuwZ2
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFEM92rW82GfkQfsqIRAjJnAJ4kOJ71t0ATW5PaM8RxKBiItdz48ACfdSO5
-XCs/gzjuMHyQgMG25/FIaPs=
-=hwuC
------END PGP SIGNATURE-----
-
---Signature=_Wed__5_Apr_2006_19_09_28_+0400_F1S3hoOv1lCBuwZ2--
+---

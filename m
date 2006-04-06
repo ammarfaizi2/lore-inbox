@@ -1,39 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWDFHeH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWDFHkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbWDFHeH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 03:34:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbWDFHeH
+	id S932136AbWDFHkk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 03:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWDFHkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 03:34:07 -0400
-Received: from pproxy.gmail.com ([64.233.166.176]:10818 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932130AbWDFHeG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 03:34:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=soWUERi69Hidom/0l8k160L44l5MY1eHMqNqDfW1lisJ4BfWGB8C8ASCnMvVKEXPVXYReA5Kr9ONkwX+v4XGxdIzh7mGA95i7LoIyT61FlAb0HXaL8fcueZIHVHZusibZNeX8mKvApbMPn4B67nBF3Kom41f6d//A1Gy7tUk2GQ=
-Message-ID: <f066e8e40604060034g7df5a9aau4f58f4fb01e2642a@mail.gmail.com>
-Date: Thu, 6 Apr 2006 15:34:05 +0800
-From: "Maze Maze" <linuxmaze@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: SCSI Bidirectional data transfer
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 6 Apr 2006 03:40:40 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:14215 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932136AbWDFHkk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 03:40:40 -0400
+Date: Thu, 6 Apr 2006 09:37:53 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Darren Hart <darren@dvhart.com>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       "Stultz, John" <johnstul@us.ibm.com>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: RT task scheduling
+Message-ID: <20060406073753.GA18349@elte.hu>
+References: <200604052025.05679.darren@dvhart.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200604052025.05679.darren@dvhart.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I am using redhate linux (kernel 2.4.20)
+* Darren Hart <darren@dvhart.com> wrote:
 
-SCSI supports bidirectional data transfer. However, the two variants
-request_bufflen and bufflen of a scsi_cmd are set to be the same in
-the scsi_init_cmd_from_req(). I am wondering if i want to send and
-receive data with different lengths, how do i pass the lengths to SCSI
-layer? The scsi_wait_req() accepts only one length.... Can I make use
-of extended CDB? Thanks!
+> My last mail specifically addresses preempt-rt, but I'd like to know 
+> people's thoughts regarding this issue in the mainline kernel.  Please 
+> see my previous post "realtime-preempt scheduling - rt_overload 
+> behavior" for a testcase that produces unpredictable scheduling 
+> results.
 
-Maze
+the rt_overload feature i intend to push upstream-wards too, i just 
+didnt separate it out of -rt yet.
+
+"RT overload scheduling" is a totally orthogonal mechanism to the SMP 
+load-balancer (and this includes smpnice too) that is more or less 
+equivalent to having a 'global runqueue' for real-time tasks, without 
+the SMP overhead associated with that. If there is no "RT overload" [the 
+common case even on Linux systems that _do_ make use of RT tasks 
+occasionally], the new mechanism is totally inactive and there's no 
+overhead. But once there are more RT tasks than CPUs, the scheduler will 
+do "global" decisions for what RT tasks to run on which CPU. To put even 
+less overhead on the mainstream kernel, i plan to introduce a new 
+SCHED_FIFO_GLOBAL scheduling policy to trigger this behavior. [it doesnt 
+make much sense to extend SCHED_RR in that direction.]
+
+my gut feeling is that it would be wrong to integrate this feature into 
+smpnice: SCHED_FIFO is about determinism, and smpnice is a fundamentally 
+statistical approach. Also, smpnice doesnt have to try as hard to pick 
+the right task as rt_overload does, so there would be constant 
+'friction' between "overhead" optimizations (dont be over-eager) and 
+"latency" optimizations (dont be _under_-eager). So i'm quite sure we 
+want this feature separate. [nevertheless i'd happy to be proven wrong 
+via some good and working smpnice based solution]
+
+in any case, i'll check your -rt testcase to see why it fails.
+
+	Ingo

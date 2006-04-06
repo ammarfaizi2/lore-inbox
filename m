@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWDFDzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWDFEGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbWDFDzG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 23:55:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWDFDzF
+	id S1751147AbWDFEGP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 00:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWDFEGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 23:55:05 -0400
-Received: from mail.kroah.org ([69.55.234.183]:23503 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751357AbWDFDzE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 23:55:04 -0400
-Date: Wed, 5 Apr 2006 20:50:12 -0700
-From: Greg KH <gregkh@suse.de>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: ACPI Compile error in current git (pci.h)
-Message-ID: <20060406035012.GB26601@suse.de>
-References: <200603241404.08109.ncunningham@cyclades.com> <200603241437.26633.ncunningham@cyclades.com>
+	Thu, 6 Apr 2006 00:06:15 -0400
+Received: from h80ad24de.async.vt.edu ([128.173.36.222]:18366 "EHLO
+	h80ad24de.async.vt.edu") by vger.kernel.org with ESMTP
+	id S1751147AbWDFEGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 00:06:14 -0400
+Message-Id: <200604060405.k36451P7006883@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] modules_install must not remove existing modules 
+In-Reply-To: Your message of "Thu, 06 Apr 2006 00:12:29 +0200."
+             <20060405221229.GA8972@mars.ravnborg.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <200604052333.51085.agruen@suse.de>
+            <20060405221229.GA8972@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603241437.26633.ncunningham@cyclades.com>
-User-Agent: Mutt/1.5.11
+Content-Type: multipart/signed; boundary="==_Exmh_1144296294_2641P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 06 Apr 2006 00:04:54 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 24, 2006 at 02:37:18PM +1000, Nigel Cunningham wrote:
-> Hi again.
-> 
-> On Friday 24 March 2006 14:04, Nigel Cunningham wrote:
-> > Hi.
-> >
-> > Current git produces the following compile error (x86_64 uniprocessor
-> > compile):
-> >
-> > arch/x86_64/pci/mmconfig.c:152: error: conflicting types for
-> > ???pci_mmcfg_init??? arch/i386/pci/pci.h:85: error: previous declaration of
-> > ???pci_mmcfg_init??? was here make[1]: *** [arch/x86_64/pci/mmconfig.o] Error 1
-> > make: *** [arch/x86_64/pci] Error 2
-> >
-> > I haven't found out yet how the i386 file is getting included, but I
-> > can say that git compiled fine last night.
-> 
-> Got the answer to this bit - it is included via the Makefile in the directory 
-> setting a -I flag, and the file including "pci.h".
+--==_Exmh_1144296294_2641P
+Content-Type: text/plain; charset=us-ascii
 
-Does this still happen for 2.6.17-rc1?
+On Thu, 06 Apr 2006 00:12:29 +0200, Sam Ravnborg said:
 
-thanks,
+> I see no way to detect when it is OK to remove or not, so in the
+> principle of least suprise I prefer having the removal unconditional for
+> normal kernel builds, and no removal for external modules.
 
-greg k-h
+That sounds workable to me.
+
+--==_Exmh_1144296294_2641P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFENJNmcC3lWbTT17ARAhSoAKDasQu35+25eSMd9u3/QLcpRQWTnACgpQ6K
+3sqH1+mBnsuoMqkS4cCPP9Q=
+=Utvc
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1144296294_2641P--

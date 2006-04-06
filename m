@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbWDFBie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbWDFBlz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbWDFBie (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 21:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWDFBie
+	id S1750906AbWDFBlz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 21:41:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWDFBlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 21:38:34 -0400
-Received: from wproxy.gmail.com ([64.233.184.236]:59001 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751208AbWDFBie convert rfc822-to-8bit
+	Wed, 5 Apr 2006 21:41:55 -0400
+Received: from pproxy.gmail.com ([64.233.166.182]:10712 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750906AbWDFBly convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 21:38:34 -0400
+	Wed, 5 Apr 2006 21:41:54 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=YT3udQ+Y9oR46XL+N+5D3LTZLZC4Xq7EzUkIueJbCTQpbc2CzW5hUKpxHNHSWlHPekcBrwEL4/iPlzMVOGXOt20xzFUn15/1A8b6KHpRF+tNMSCpBv/J+iqnlrRjqujpeKnEoKurFiE9VeJiLJ/yS5l4Lu95q8Gn0aq+OVMEGg0=
-Message-ID: <6ff3e7140604051838k1b332990i488f373aad99fa71@mail.gmail.com>
-Date: Thu, 6 Apr 2006 09:38:33 +0800
-From: "openbsd shen" <openbsd.shen@gmail.com>
-To: kernel <linux-kernel@vger.kernel.org>
-Subject: What means "\xc7\x44\x24\x18\xda\xff\xff\xff\xe8"
+        b=WOb3llNSBfYWjG350AZQDwAxMDNO3Ws07x7F3WMsJF8E4lrrswb10fLy0Rq18OSsx64atGCSp6dRh80QDZDrVBg+Cce/Qyw9CIGtMPEgs3CCnt/SdNDZcWgH50XcD0YHo2JKbCQYloZGosnqVuwZ3docfEQwIKo/BB7EEgTMItQ=
+Message-ID: <3fe1d240604051841k353c5ed0u37358578c1ffb7a2@mail.gmail.com>
+Date: Thu, 6 Apr 2006 09:41:54 +0800
+From: HuaFeijun <hua.feijun@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: about the function register_profile_notifier
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -25,53 +25,5 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this code from get_sct() of suckit 2, why memmem()
-"\xc7\x44\x24\x18\xda\xff\xff\xff\xe8"use, what it want to find?
-The get_sct() founction:
-
-ulong   get_sct()
-{
-        uchar   code[SCLEN+256];
-        uchar   *p, *pt;
-        ulong   r;
-        uchar   pt_off, pt_bit;
-        int     i;
-
-        kernel_old80 = get_ep();
-
-        if (!kernel_old80)
-                return 0;
-        if (rkm(code, sizeof(code), kernel_old80-4) <= 0)
-                return 0;
-
-        if (!memcmp(code, "PUNK", 4))
-                return 0;
-
-        p = (char *) memmem(code, SCLEN, "\xff\x14\x85", 3);
-        if (!p) return 0;
-
-        pt = (char *) memmem(p+7, SCLEN-(p-code)-7,
-                "\xc7\x44\x24\x18\xda\xff\xff\xff\xe8", 9);
-        /* when run at here , it always return 0 */
-        if (!pt) {
-                eprintf("pt = %s\n", pt);
-                return 0;
-        }
-
-        sc.trace = *((ulong *) (pt + 9));
-        sc.trace += kernel_old80 + (pt - code) - 4 + 9 + 4;
-
-        pt = (char *) memmem(p+7, SCLEN-(p-code)-7, "\xff\x14\x85", 3);
-        if (!pt) return 0;
-
-        for (i = 0; i < (p-code); i++) {
-                if ((code[i] == 0xf6) && (code[i+1] == 0x43) &&
-                    (code[i+4] == 0x75) && (code[i+2] < 127)) {
-                        pt_off = code[i+2];
-                        pt_bit = code[i+3];
-                        goto cc;
-                }
-        }
-
-        return 0;
-}
+who can tell me .which  function has the same function as the
+register_profile_notifier function in linux 2.6.12 kernel.Thanks.

@@ -1,79 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWDFHUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWDFHbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbWDFHUp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 03:20:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWDFHUp
+	id S932123AbWDFHbk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 03:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWDFHbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 03:20:45 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:428 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932126AbWDFHUo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 03:20:44 -0400
-Message-ID: <4434C12A.4000108@redhat.com>
-Date: Thu, 06 Apr 2006 03:20:10 -0400
-From: Hideo AOKI <haoki@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 6 Apr 2006 03:31:40 -0400
+Received: from zeus.itg.uiuc.edu ([130.126.126.162]:49107 "EHLO
+	zeus.itg.uiuc.edu") by vger.kernel.org with ESMTP id S932123AbWDFHbj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 03:31:39 -0400
+Date: Thu, 6 Apr 2006 02:31:31 -0500 (CDT)
+From: Damian Menscher <menscher@uiuc.edu>
+X-X-Sender: menscher@zeus.itg.uiuc.edu
+To: Sumit Narayan <talk2sumit@gmail.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, ext3-users@redhat.com
+Subject: Re: deleting partition does not effect superblock?
+In-Reply-To: <1458d9610604052337p2cafa6c8j78fc6da8c5f8be1a@mail.gmail.com>
+Message-ID: <Pine.LNX.4.63.0604060228560.8287@zeus.itg.uiuc.edu>
+References: <1458d9610604052337p2cafa6c8j78fc6da8c5f8be1a@mail.gmail.com>
 MIME-Version: 1.0
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [patch 1/3] mm: An enhancement of OVERCOMMIT_GUESS
-References: <4434570F.9030507@redhat.com> <20060406094533.b340f633.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060406094533.b340f633.kamezawa.hiroyu@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Kamezawa-san,
+On Thu, 6 Apr 2006, Sumit Narayan wrote:
 
-Thank you for your comments.
+> On my system, I first created a partition with EXT3 and put some data
+> on it. Later, I deleted the partition, and re-created another
+> partition with the same starting block number and a higher ending
+> block number. I intended to format it with another filesystem, but
+> surprisingly (or maybe just to me), the superblock of the partition
+> had not changed. I could still mount the new partition as the same old
+> filesystem. I could see all the files which was present earlier. Doing
+> 'df' showed me the older partition details (size, % used etc.).
+>
+> Shouldn't the superblock be changed/deleted once the partition is
+> deleted? I tried a reboot, but the output remained the same.
 
-KAMEZAWA Hiroyuki wrote:
-> Hi, AOKI-san
-> 
-> On Wed, 05 Apr 2006 19:47:27 -0400
-> Hideo AOKI <haoki@redhat.com> wrote:
-> 
-> 
->>Hello Andrew,
->>
->>Could you apply my patches to your tree?
->>
->>These patches are an enhancement of OVERCOMMIT_GUESS algorithm in
->>__vm_enough_memory(). The detailed description is in attached patch.
-> 
-> I think adding a function like this is more simple way.
-> (call this istead of nr_free_pages().)
-> ==
-> int nr_available_memory() 
-> {
-> 	unsigned long sum = 0;
-> 	for_each_zone(zone) {
-> 		if (zone->free_pages > zone->pages_high)
-> 			sum += zone->free_pages - zone->pages_high;
-> 	}
-> 	return sum;
-> }
-> ==
+This is the expected behavior.  A filesystem is created within the 
+partition.  If you grow the partition, the filesystem doesn't 
+automatically grow (use resize2fs for that).  In fact, you should 
+probably read the resize2fs manpage, as it might give you some starting 
+clue of what's going on.
 
-I like your idea. But, in the function, I think we need to care
-lowmem_reserve too.
-
-Since __vm_enough_memory() doesn't know zone and cpuset information,
-we have to guess proper value of lowmem_reserve in each zone
-like I did in calculate_totalreserve_pages() in my patch.
-Do you think that we can do this calculation every time?
-
-If it is good enough, I'll make revised patch.
-
-
-> BTW, vm_enough_memory() doesn't eat cpuset information ?
-
-I think this is another point which we should improve.
-
-Best regards,
-Hideo Aoki
-
----
-Hideo Aoki, Hitachi Computer Products (America) Inc.
+Damian Menscher
+-- 
+-=#| <menscher@uiuc.edu> www.uiuc.edu/~menscher/ Ofc:(650)253-2757 |#=-
+-=#| The above opinions are not necessarily those of my employers. |#=-

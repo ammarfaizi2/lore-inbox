@@ -1,86 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWDFEJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWDFEKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbWDFEJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 00:09:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWDFEJ4
+	id S932142AbWDFEKL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 00:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWDFEKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 00:09:56 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:48008 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932141AbWDFEJz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 00:09:55 -0400
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: Greg KH <gregkh@suse.de>
-Subject: Re: ACPI Compile error in current git (pci.h)
-Date: Thu, 6 Apr 2006 14:09:12 +1000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-References: <200603241404.08109.ncunningham@cyclades.com> <200603241437.26633.ncunningham@cyclades.com> <20060406035012.GB26601@suse.de>
-In-Reply-To: <20060406035012.GB26601@suse.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2647126.qoGodFjIgt";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Thu, 6 Apr 2006 00:10:11 -0400
+Received: from mail.gmx.de ([213.165.64.20]:10433 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932142AbWDFEKJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 00:10:09 -0400
+X-Authenticated: #14349625
+Subject: Re: [patch 2.6.16-mm2 10/9] sched throttle tree extract - kill
+	interactive task feedback loop
+From: Mike Galbraith <efault@gmx.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+In-Reply-To: <200604060915.07036.kernel@kolivas.org>
+References: <1143880124.7617.5.camel@homer> <1143883915.7617.77.camel@homer>
+	 <1144258731.7894.12.camel@homer>  <200604060915.07036.kernel@kolivas.org>
+Content-Type: text/plain
+Date: Thu, 06 Apr 2006 06:10:19 +0200
+Message-Id: <1144296619.7436.8.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200604061409.16581.ncunningham@cyclades.com>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2647126.qoGodFjIgt
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-Hi Greg.
-
-On Thursday 06 April 2006 13:50, Greg KH wrote:
-> On Fri, Mar 24, 2006 at 02:37:18PM +1000, Nigel Cunningham wrote:
-> > Hi again.
+On Thu, 2006-04-06 at 09:15 +1000, Con Kolivas wrote:
+> On Thursday 06 April 2006 03:38, Mike Galbraith wrote:
+> > Greetings,
 > >
-> > On Friday 24 March 2006 14:04, Nigel Cunningham wrote:
-> > > Hi.
-> > >
-> > > Current git produces the following compile error (x86_64 uniprocessor
-> > > compile):
-> > >
-> > > arch/x86_64/pci/mmconfig.c:152: error: conflicting types for
-> > > ???pci_mmcfg_init??? arch/i386/pci/pci.h:85: error: previous
-> > > declaration of ???pci_mmcfg_init??? was here make[1]: ***
-> > > [arch/x86_64/pci/mmconfig.o] Error 1 make: *** [arch/x86_64/pci] Error
-> > > 2
-> > >
-> > > I haven't found out yet how the i386 file is getting included, but I
-> > > can say that git compiled fine last night.
+> > The patch below stops interactive tasks from feeding off each other
+> > during round-robin.
 > >
-> > Got the answer to this bit - it is included via the Makefile in the
-> > directory setting a -I flag, and the file including "pci.h".
->
-> Does this still happen for 2.6.17-rc1?
->
-> thanks,
->
-> greg k-h
+> > With this 10th patch in place, a busy server with _default_ throttle
+> > settings (ie tunables may now be mostly unneeded) looks like this:
+> 
+> > --- linux-2.6.16-mm2/kernel/sched.c-9.export_tunables	2006-03-31
+> > 13:37:09.000000000 +0200 +++ linux-2.6.16-mm2/kernel/sched.c	2006-04-05
+> > 19:22:01.000000000 +0200 @@ -3480,7 +3480,7 @@ go_idle:
+> >  	queue = array->queue + idx;
+> >  	next = list_entry(queue->next, task_t, run_list);
+> >
+> > -	if (!rt_task(next) && interactive_sleep(next->sleep_type)) {
+> > +	if (!TASK_INTERACTIVE(next) && interactive_sleep(next->sleep_type)) {
+> 
+> You can't remove that rt_task check from there can you? We shouldn't ever 
+> requeue a rt task.
 
-No, it's fixed. I figured out the cause a little later the same day, and so=
-=20
-did someone else (don't recall the name now). A patch has been merged.
+RT tasks are always interactive aren't they?  (I'll check)
 
-Regards,
+Anyway, this is definitely a large part of the problem with the ssh to
+busy server, but a complete block of interactive tasks isn't quite the
+right solution.  With an SMP kernel, my desktop appeared to be fine, but
+a quick spin with UP kernel isn't looking quite so good.  This needs
+more investigation.
 
-Nigel
+	-Mike
 
---nextPart2647126.qoGodFjIgt
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBENJRsN0y+n1M3mo0RAnDgAKDpzMp0j7rfUi5sUgGjE/UQt2m4xwCfWlb7
-E2a3FS4iTZ3AE5r69KUvEaI=
-=Szod
------END PGP SIGNATURE-----
-
---nextPart2647126.qoGodFjIgt--

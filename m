@@ -1,322 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWDFKeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbWDFK70@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751144AbWDFKeh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 06:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWDFKeh
+	id S1750939AbWDFK70 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 06:59:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbWDFK70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 06:34:37 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18451 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751144AbWDFKeg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 06:34:36 -0400
-Date: Thu, 6 Apr 2006 11:34:27 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>, "Luck, Tony" <tony.luck@intel.com>,
-       Zou Nan hai <nanhai.zou@intel.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, linux-ia64@vger.kernel.org
-Subject: Re: 2.6.17-rc1-mm1
-Message-ID: <20060406103427.GC28056@flint.arm.linux.org.uk>
-Mail-Followup-To: Bjorn Helgaas <bjorn.helgaas@hp.com>,
-	"Luck, Tony" <tony.luck@intel.com>,
-	Zou Nan hai <nanhai.zou@intel.com>, Andrew Morton <akpm@osdl.org>,
-	LKML <linux-kernel@vger.kernel.org>, linux-ia64@vger.kernel.org
-References: <20060404014504.564bf45a.akpm@osdl.org> <200604051015.34217.bjorn.helgaas@hp.com> <20060405211757.GA8536@agluck-lia64.sc.intel.com> <200604051601.08776.bjorn.helgaas@hp.com> <20060406102154.GB28056@flint.arm.linux.org.uk>
+	Thu, 6 Apr 2006 06:59:26 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:37967 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1750793AbWDFK7Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 06:59:25 -0400
+Date: Thu, 6 Apr 2006 12:59:21 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Subject: [BUG NET/PCMCIA 2.6.17-rc1] Oops with cardctl eject
+Message-ID: <20060406105921.GE20402@harddisk-recovery.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060406102154.GB28056@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 06, 2006 at 11:21:54AM +0100, Russell King wrote:
-> On Wed, Apr 05, 2006 at 04:01:08PM -0600, Bjorn Helgaas wrote:
-> > [PATCH] vgacon: make VGA_MAP_MEM take size, remove extra use
-> 
-> Ah, seems to be what I just suggested...
-> 
-> > @@ -1020,14 +1019,14 @@
-> >  	char *charmap;
-> >  	
-> >  	if (vga_video_type != VIDEO_TYPE_EGAM) {
-> > -		charmap = (char *) VGA_MAP_MEM(colourmap);
-> > +		charmap = (char *) VGA_MAP_MEM(colourmap, 0);
-> 
-> Don't like this though - can't we pass a real size here rather than zero?
-> There seems to be several clues as to the maximum size:
-> 
-> #define cmapsz 8192
-> 
->         if (!vga_font_is_default)
->                 charmap += 4 * cmapsz;
-> 
->                         charmap += 2 * cmapsz;
->                                 for (i = 0; i < cmapsz; i++)
->                                         vga_writeb(arg[i], charmap + i);
-> 
-> so that's about 7 * cmapsz - call that 8 for completeness, which is 64K.
+Hi,
 
-Oh, and obviously, can we also have a VGA_UNMAP_MEM() macro as well please?
-8)  IOW, something like this (which I cobbled together from your patch, some
-of it by hand-edits - couldn't get it to apply cleanly to current -git.)
+I got this oops while ejecting a Lucent Orinico Silver card:
 
-diff --git a/drivers/video/console/vgacon.c b/drivers/video/console/vgacon.c
---- a/drivers/video/console/vgacon.c
-+++ b/drivers/video/console/vgacon.c
-@@ -391,7 +391,7 @@ static const char __init *vgacon_startup
- 			static struct resource ega_console_resource =
- 			    { .name = "ega", .start = 0x3B0, .end = 0x3BF };
- 			vga_video_type = VIDEO_TYPE_EGAM;
--			vga_vram_end = 0xb8000;
-+			vga_vram_size = 0x8000;
- 			display_desc = "EGA+";
- 			request_resource(&ioport_resource,
- 					 &ega_console_resource);
-@@ -401,7 +401,7 @@ static const char __init *vgacon_startup
- 			static struct resource mda2_console_resource =
- 			    { .name = "mda", .start = 0x3BF, .end = 0x3BF };
- 			vga_video_type = VIDEO_TYPE_MDA;
--			vga_vram_end = 0xb2000;
-+			vga_vram_size = 0x2000;
- 			display_desc = "*MDA";
- 			request_resource(&ioport_resource,
- 					 &mda1_console_resource);
-@@ -418,7 +418,7 @@ static const char __init *vgacon_startup
- 		if ((ORIG_VIDEO_EGA_BX & 0xff) != 0x10) {
- 			int i;
- 
--			vga_vram_end = 0xc0000;
-+			vga_vram_size = 0x8000;
- 
- 			if (!ORIG_VIDEO_ISVGA) {
- 				static struct resource ega_console_resource
-@@ -443,7 +443,7 @@ static const char __init *vgacon_startup
- 				 * and COE=1 isn't necessarily a good idea)
- 				 */
- 				vga_vram_base = 0xa0000;
--				vga_vram_end = 0xb0000;
-+				vga_vram_size = 0x10000;
- 				outb_p(6, VGA_GFX_I);
- 				outb_p(6, VGA_GFX_D);
- #endif
-@@ -475,7 +475,7 @@ static const char __init *vgacon_startup
- 			static struct resource cga_console_resource =
- 			    { .name = "cga", .start = 0x3D4, .end = 0x3D5 };
- 			vga_video_type = VIDEO_TYPE_CGA;
--			vga_vram_end = 0xba000;
-+			vga_vram_size = 0x2000;
- 			display_desc = "*CGA";
- 			request_resource(&ioport_resource,
- 					 &cga_console_resource);
-@@ -483,9 +483,8 @@ static const char __init *vgacon_startup
- 		}
- 	}
- 
--	vga_vram_base = VGA_MAP_MEM(vga_vram_base);
--	vga_vram_end = VGA_MAP_MEM(vga_vram_end);
--	vga_vram_size = vga_vram_end - vga_vram_base;
-+	vga_vram_base = VGA_MAP_MEM(vga_vram_base, vga_vram_size);
-+	vga_vram_end = vga_vram_base + vga_vram_size;
- 
- 	/*
- 	 *      Find out if there is a graphics card present.
-@@ -1020,14 +1019,14 @@ static int vgacon_do_font_op(struct vgas
- 	char *charmap;
- 	
- 	if (vga_video_type != VIDEO_TYPE_EGAM) {
--		charmap = (char *) VGA_MAP_MEM(colourmap);
-+		charmap = (char *) VGA_MAP_MEM(colourmap, 8 * cmapsz);
- 		beg = 0x0e;
- #ifdef VGA_CAN_DO_64KB
- 		if (vga_video_type == VIDEO_TYPE_VGAC)
- 			beg = 0x06;
- #endif
- 	} else {
--		charmap = (char *) VGA_MAP_MEM(blackwmap);
-+		charmap = (char *) VGA_MAP_MEM(blackwmap, 8 * cmapsz);
- 		beg = 0x0a;
- 	}
- 
-@@ -1102,6 +1101,8 @@ static int vgacon_do_font_op(struct vgas
- 		}
- 	}
- 
-+	VGA_UNMAP_MEM(charmap, 8 * cmapsz);
-+
- 	spin_lock_irq(&vga_lock);
- 	/* First, the sequencer, Synchronous reset */
- 	vga_wseq(state->vgabase, VGA_SEQ_RESET, 0x01);	
-Index: work-mm5/include/asm-alpha/vga.h
-===================================================================
---- work-mm5.orig/include/asm-alpha/vga.h	2006-01-02 20:21:10.000000000 -0700
-+++ work-mm5/include/asm-alpha/vga.h	2006-04-05 15:42:35.000000000 -0600
-@@ -46,6 +46,7 @@
- #define vga_readb(a)	readb((u8 __iomem *)(a))
- #define vga_writeb(v,a)	writeb(v, (u8 __iomem *)(a))
- 
--#define VGA_MAP_MEM(x)	((unsigned long) ioremap(x, 0))
-+#define VGA_MAP_MEM(x,s)	((unsigned long) ioremap(x, s))
-+#define VGA_UNMAP_MEM(x,s)	do { } while (0)
- 
- #endif
-Index: work-mm5/include/asm-arm/vga.h
-===================================================================
---- work-mm5.orig/include/asm-arm/vga.h	2006-01-02 20:21:10.000000000 -0700
-+++ work-mm5/include/asm-arm/vga.h	2006-04-05 15:42:21.000000000 -0600
-@@ -4,7 +4,8 @@
- #include <asm/hardware.h>
- #include <asm/io.h>
- 
--#define VGA_MAP_MEM(x)	(PCIMEM_BASE + (x))
-+#define VGA_MAP_MEM(x,s)	(PCIMEM_BASE + (x))
-+#define VGA_UNMAP_MEM(x,s)	do { } while (0)
- 
- #define vga_readb(x)	(*((volatile unsigned char *)x))
- #define vga_writeb(x,y)	(*((volatile unsigned char *)y) = (x))
-Index: work-mm5/include/asm-i386/vga.h
-===================================================================
---- work-mm5.orig/include/asm-i386/vga.h	2006-01-02 20:21:10.000000000 -0700
-+++ work-mm5/include/asm-i386/vga.h	2006-04-05 15:42:49.000000000 -0600
-@@ -12,7 +12,8 @@
-  *	access the videoram directly without any black magic.
-  */
- 
--#define VGA_MAP_MEM(x) (unsigned long)phys_to_virt(x)
-+#define VGA_MAP_MEM(x,s) (unsigned long)phys_to_virt(x)
-+#define VGA_UNMAP_MEM(x,s)	do { } while (0)
- 
- #define vga_readb(x) (*(x))
- #define vga_writeb(x,y) (*(y) = (x))
-Index: work-mm5/include/asm-ia64/vga.h
-===================================================================
---- work-mm5.orig/include/asm-ia64/vga.h	2006-04-05 09:57:55.000000000 -0600
-+++ work-mm5/include/asm-ia64/vga.h	2006-04-05 15:43:09.000000000 -0600
-@@ -17,7 +17,8 @@
- extern unsigned long vga_console_iobase;
- extern unsigned long vga_console_membase;
- 
--#define VGA_MAP_MEM(x)	((unsigned long) ioremap_nocache(vga_console_membase + (x), 0))
-+#define VGA_MAP_MEM(x,s)	((unsigned long) ioremap_nocache(vga_console_membase + (x), s))
-+#define VGA_UNMAP_MEM(x,s)	do { } while (0)
- 
- #define vga_readb(x)	(*(x))
- #define vga_writeb(x,y)	(*(y) = (x))
-Index: work-mm5/include/asm-m32r/vga.h
-===================================================================
---- work-mm5.orig/include/asm-m32r/vga.h	2006-01-02 20:21:10.000000000 -0700
-+++ work-mm5/include/asm-m32r/vga.h	2006-04-05 15:43:22.000000000 -0600
-@@ -14,7 +14,8 @@
-  *	access the videoram directly without any black magic.
-  */
- 
--#define VGA_MAP_MEM(x) (unsigned long)phys_to_virt(x)
-+#define VGA_MAP_MEM(x,s) (unsigned long)phys_to_virt(x)
-+#define VGA_UNMAP_MEM(x,s)	do { } while (0)
- 
- #define vga_readb(x) (*(x))
- #define vga_writeb(x,y) (*(y) = (x))
-Index: work-mm5/include/asm-mips/vga.h
-===================================================================
---- work-mm5.orig/include/asm-mips/vga.h	2006-03-23 10:22:17.000000000 -0700
-+++ work-mm5/include/asm-mips/vga.h	2006-04-05 15:43:32.000000000 -0600
-@@ -13,7 +13,8 @@
-  *	access the videoram directly without any black magic.
-  */
- 
--#define VGA_MAP_MEM(x)	(0xb0000000L + (unsigned long)(x))
-+#define VGA_MAP_MEM(x,s)	(0xb0000000L + (unsigned long)(x))
-+#define VGA_UNMAP_MEM(x,s)	do { } while (0)
- 
- #define vga_readb(x)	(*(x))
- #define vga_writeb(x,y)	(*(y) = (x))
-Index: work-mm5/include/asm-powerpc/vga.h
-===================================================================
---- work-mm5.orig/include/asm-powerpc/vga.h	2006-01-02 20:21:10.000000000 -0700
-+++ work-mm5/include/asm-powerpc/vga.h	2006-04-05 15:43:57.000000000 -0600
-@@ -42,9 +42,11 @@
- extern unsigned long vgacon_remap_base;
- 
- #ifdef __powerpc64__
--#define VGA_MAP_MEM(x) ((unsigned long) ioremap((x), 0))
-+#define VGA_MAP_MEM(x,s) ((unsigned long) ioremap((x), s))
-+#define VGA_UNMAP_MEM(x,s)	do { } while (0)
- #else
--#define VGA_MAP_MEM(x) (x + vgacon_remap_base)
-+#define VGA_MAP_MEM(x,s) (x + vgacon_remap_base)
-+#define VGA_UNMAP_MEM(x,s)	do { } while (0)
- #endif
- 
- #define vga_readb(x) (*(x))
-Index: work-mm5/include/asm-sparc64/vga.h
-===================================================================
---- work-mm5.orig/include/asm-sparc64/vga.h	2006-01-02 20:21:10.000000000 -0700
-+++ work-mm5/include/asm-sparc64/vga.h	2006-04-05 15:44:08.000000000 -0600
-@@ -28,6 +28,7 @@
- 	return *addr;
- }
- 
--#define VGA_MAP_MEM(x) (x)
-+#define VGA_MAP_MEM(x,s) (x)
-+#define VGA_UNMAP_MEM(x,s)	do { } while (0)
- 
- #endif
-Index: work-mm5/include/asm-x86_64/vga.h
-===================================================================
---- work-mm5.orig/include/asm-x86_64/vga.h	2006-01-02 20:21:10.000000000 -0700
-+++ work-mm5/include/asm-x86_64/vga.h	2006-04-05 15:44:18.000000000 -0600
-@@ -12,7 +12,8 @@
-  *	access the videoram directly without any black magic.
-  */
- 
--#define VGA_MAP_MEM(x) (unsigned long)phys_to_virt(x)
-+#define VGA_MAP_MEM(x,s) (unsigned long)phys_to_virt(x)
-+#define VGA_UNMAP_MEM(x,s)	do { } while (0)
- 
- #define vga_readb(x) (*(x))
- #define vga_writeb(x,y) (*(y) = (x))
-Index: work-mm5/include/asm-xtensa/vga.h
-===================================================================
---- work-mm5.orig/include/asm-xtensa/vga.h	2006-01-02 20:21:10.000000000 -0700
-+++ work-mm5/include/asm-xtensa/vga.h	2006-04-05 15:44:31.000000000 -0600
-@@ -11,7 +11,8 @@
- #ifndef _XTENSA_VGA_H
- #define _XTENSA_VGA_H
- 
--#define VGA_MAP_MEM(x) (unsigned long)phys_to_virt(x)
-+#define VGA_MAP_MEM(x,s) (unsigned long)phys_to_virt(x)
-+#define VGA_UNMAP_MEM(x,s)	do { } while (0)
- 
- #define vga_readb(x)	(*(x))
- #define vga_writeb(x,y)	(*(y) = (x))
-Index: work-mm5/drivers/video/console/mdacon.c
-===================================================================
---- work-mm5.orig/drivers/video/console/mdacon.c	2006-01-02 20:21:10.000000000 -0700
-+++ work-mm5/drivers/video/console/mdacon.c	2006-04-05 15:46:33.000000000 -0600
-@@ -313,8 +313,8 @@
- 	mda_num_columns = 80;
- 	mda_num_lines   = 25;
- 
--	mda_vram_base = VGA_MAP_MEM(0xb0000);
- 	mda_vram_len  = 0x01000;
-+	mda_vram_base = VGA_MAP_MEM(0xb0000, mda_vram_len);
- 
- 	mda_index_port  = 0x3b4;
- 	mda_value_port  = 0x3b5;
-Index: work-mm5/drivers/video/vga16fb.c
-===================================================================
---- work-mm5.orig/drivers/video/vga16fb.c	2006-03-23 10:22:16.000000000 -0700
-+++ work-mm5/drivers/video/vga16fb.c	2006-04-05 15:49:34.000000000 -0600
-@@ -1351,7 +1351,7 @@
- 	}
- 
- 	/* XXX share VGA_FB_PHYS and I/O region with vgacon and others */
--	info->screen_base = (void __iomem *)VGA_MAP_MEM(VGA_FB_PHYS);
-+	info->screen_base = (void __iomem *)VGA_MAP_MEM(VGA_FB_PHYS, VGA_FB_PHYS_LEN);
- 
- 	if (!info->screen_base) {
- 		printk(KERN_ERR "vga16fb: unable to map device\n");
+root@arthur:~ # cardctl ident 0
+  product info: "Lucent Technologies", "WaveLAN/IEEE", "Version 01.01", ""
+  manfid: 0x0156, 0x0002
+  function: 6 (network)
+root@arthur:~ # ifdown eth2
+root@arthur:~ # cardctl eject 0
+pccard: card ejected from slot 0
+------------[ cut here ]------------
+kernel BUG at net/core/dev.c:3140!
+invalid opcode: 0000 [#1]
+Modules linked in: lp orinoco_cs orinoco hermes af_packet arc4 ieee80211_crypt_wep bcm43xx ieee80211softmac ieee80211 ieee80211_crypt binfmt_misc autofs4 ipv6 ide_cd cdrom 8250_pnp floppy eth1394 8139too mii ohci1394 ieee1394 snd_via82xx_modem snd_via82xx gameport snd_ac97_codec snd_ac97_bus snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore via686a i2c_isa i2c_core usbhid uhci_hcd usbcore parport_pc parport tun cpufreq_conservative cpufreq_ondemand powernow_k7 freq_table 8250 serial_core psmouse pcspkr r128 drm via_agp agpgart
+CPU:    0
+EIP:    0060:[<c020d1cb>]    Not tainted VLI
+EFLAGS: 00210293   (2.6.17-rc1-dirty #2)
+EIP is at free_netdev+0x22/0x43
+eax: 00000002   ebx: d23ab600   ecx: 00000000   edx: d3dc1000
+esi: d23ab684   edi: e0ba08c0   ebp: dfe5e174   esp: d7b29e60
+ds: 007b   es: 007b   ss: 0068
+Process cardctl (pid: 12725, threadinfo=d7b29000 task=dfe08110)
+Stack: <0>c01f2246 d3dc1000 d23ab6ec d23ab684 e0ba08d8 c01ddba5 d23ab684 d23ab684
+       dfebd448 dfe5e028 c01ddbe8 d23ab684 d23ab684 c01dd3fc d23ab684 d23ab684
+       c01dc67a d23ab684 d23ab684 d23ab600 c01dc6b1 d23ab684 00200286 c01f21d9
+Call Trace:
+ <c01f2246> pcmcia_device_remove+0x52/0xbd   <c01ddba5> __device_release_driver+0x54/0x7b
+ <c01ddbe8> device_release_driver+0x1c/0x2b   <c01dd3fc> bus_remove_device+0x52/0x65
+ <c01dc67a> device_del+0x39/0x65   <c01dc6b1> device_unregister+0xb/0x16
+ <c01f21d9> pcmcia_card_remove+0x64/0x7f   <c01f2f6f> ds_event+0x4f/0x8c
+ <c01ee6f0> send_event+0x42/0x6e   <c01ee729> socket_remove_drivers+0xd/0x11
+ <c01ee7e6> socket_shutdown+0xc/0xc8   <c01ef02d> pcmcia_eject_card+0x41/0x52
+ <c01f4d7b> ds_ioctl+0x3f5/0x5c6   <c0152ce1> do_ioctl+0x49/0x4f
+ <c0152f0e> vfs_ioctl+0x170/0x17d   <c0152f46> sys_ioctl+0x2b/0x45
+ <c0102a07> syscall_call+0x7/0xb
+Code: df 5e 5b 5e 89 f8 5f 5d c3 8b 54 24 04 8b 82 70 01 00 00 85 c0 75 0f 0f b7 42 64 29 c2 89 54 24 04 e9 a6 57 f3 ff 83 f8 04 74 08 <0f> 0b 44 0c 3b f1 27 c0 c7 82 70 01 00 00 05 00 00 00 8d 82 c4
+ BUG: cardctl/12725, lock held at task exit time!
+ [dfe5e140] {pcmcia_register_socket}
+.. held by:           cardctl:12725 [dfe08110, 115]
+... acquired at:               pcmcia_eject_card+0x11/0x52
+
+
+Kernel version: Linux version 2.6.17-rc1-dirty (root@arthur) (gcc
+version 3.3.5 (Debian 1:3.3.5-13)) #2 Mon Apr 3 16:18:21 CEST 2006
+
+This used to work with 2.6.16. Cardctl is from the Debian pcmcia-cs
+3.2.5-10 package. CPU is a Mobile Athlon 1.2 GHz on a Sony Vaio
+PCG-FX505 laptop.
+
+Output from lspci:
+
+0000:00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 03)
+0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+0000:00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
+0000:00:07.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+0000:00:07.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1a)
+0000:00:07.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1a)
+0000:00:07.4 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+0000:00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686 AC97 Audio Controller (rev 50)
+0000:00:07.6 Communication controller: VIA Technologies, Inc. AC'97 Modem Controller (rev 30)
+0000:00:0a.0 CardBus bridge: Texas Instruments PCI1420
+0000:00:0a.1 CardBus bridge: Texas Instruments PCI1420
+0000:00:0e.0 FireWire (IEEE 1394): Texas Instruments TSB12LV26 IEEE-1394 Controller (Link)
+0000:00:10.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc Rage Mobility P/M AGP 2x (rev 64)
+0000:02:00.0 Network controller: Broadcom Corporation BCM4318 [AirForce One 54g] 802.11g Wireless LAN Controller (rev 02)
+
+At time of Oops, the Linksys/Broadcom wireless card wasn't in the
+system. I can recreate the Oops also when the Linksys card hasn't been
+inserted into the system (and the bcm43xx modules haven't been loaded).
+
+Don't know if it's a locking error or a network error, so I'm sending
+this message to lkml and netdev. If you need more information, feel
+free to ask.
+
+
+Erik
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWDFOd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWDFOeU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbWDFOd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 10:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWDFOd7
+	id S932157AbWDFOeU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 10:34:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWDFOeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 10:33:59 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:38543 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932153AbWDFOd6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 10:33:58 -0400
-Date: Thu, 6 Apr 2006 16:31:39 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Serge Noiraud <serge.noiraud@bull.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PREEMPT_RT : 2.6.16-rt12 and boot : BUG ?
-Message-ID: <20060406143139.GA28724@elte.hu>
-References: <200604061416.00741.Serge.Noiraud@bull.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200604061416.00741.Serge.Noiraud@bull.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 6 Apr 2006 10:34:20 -0400
+Received: from mail.advantech.ca ([207.35.60.239]:56782 "EHLO
+	exch2k.Advantech.ca") by vger.kernel.org with ESMTP id S932157AbWDFOeT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 10:34:19 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [2.6.16 PATCH] Filessytem Events Reporter V2
+Date: Thu, 6 Apr 2006 10:34:18 -0400
+Message-ID: <1A60C93388AFD3419AEE0E20A116D3201D24D3@exch2k>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6.16 PATCH] Filessytem Events Reporter V2
+Thread-Index: AcZZCqzLc5SsfCx4RYK7KoOj/HileQAfBnkw
+From: "Michael Guo" <Michael.Guo@advantechAMT.com>
+To: "Yi Yang" <yang.y.yi@gmail.com>
+Cc: "LKML" <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
+       "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>,
+       "Matt Helsley" <matthltc@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ok, when kernel developers throw "everything" to libraries and let them encapsulate "everything", it sounds like old story: hardware engineers hope software engineers to do more things, however, software engineers think it reservedly. And for application engineers, it is also unfair because they have to follow new features added by libraries even worse have to update their programs from time to time. Who knows library programmers never change their own interface in order to keep to trace new kernel due to similar functionalities but different interfaces. 
 
-* Serge Noiraud <serge.noiraud@bull.net> wrote:
+               Kernel size UP -> Library size UP -> Application size UP (chain reaction)
+            
+I don't know if the time when users complain that their systems are running slowly and slowly and memory is becoming scarce even if fastest CPU (whatever single or multiple cores) and tons of memory is coming very soon. By the way, it is pleasure to discuss the problem with you
 
-> input: ImPS/2 Generic Wheel Mouse as /class/input/input1
-> VFS: Mounted root (ext2 filesystem).
-> Fusion MPT base driver 3.03.07
-> Copyright (c) 1999-2005 LSI Logic Corporation
-> Could not allocate 8 bytes percpu data
-> mptscsih: Unknown symbol scsi_remove_host
 
-could you increase (double) PERCPU_ENOUGH_ROOM in 
-include/linux/percpu.h, does that solve this problem? (and make sure you 
-use -rt13, -rt12 had a couple of bugs)
+-----Original Message-----
+From: Yi Yang [mailto:yang.y.yi@gmail.com]
+Sent: Wednesday, April 05, 2006 7:44 PM
+To: Michael Guo
+Cc: LKML; Andrew Morton; Evgeniy Polyakov; Matt Helsley
+Subject: Re: [2.6.16 PATCH] Filessytem Events Reporter V2
 
-	Ingo
+
+Michael Guo wrote:
+> Hi,
+>   Now, kernel is growing bigger and bigger continuously and performance is becoming slower. So, if possible, please consider to add a 
+> common and simple interface which is scalable and flexible to satisfy real requirement of users instead of telling users use this or that like Microsoft. In a word, simple makes application programmers happy!
+>
+>
+> Guo
+>   
+Your requirement should be done by a userspace library, in fact, most of
+functions provided by kernel are exported
+to the final application in this way

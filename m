@@ -1,28 +1,28 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751231AbWDFT6Q (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 6 Apr 2006 15:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbWDFT6Q
+	id S1751292AbWDFUBh (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 6 Apr 2006 16:01:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWDFUBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 15:58:16 -0400
-Received: from airspan-206-42-static.32.radom.pilicka.pl ([82.197.42.206]:46095
-	"HELO 143505992") by vger.kernel.org with SMTP id S1751231AbWDFT6P convert rfc822-to-8bit
+	Thu, 6 Apr 2006 16:01:37 -0400
+Received: from c9118217.bhz.virtua.com.br ([201.17.130.23]:15629 "HELO
+	143570392") by vger.kernel.org with SMTP id S1751292AbWDFUBg convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 15:58:15 -0400
-Message-ID: <100001c659b5$2b15e0d4$e0d3f78f@bkkmail.com>
-From: "Yoknapatawpha H. Heraldic" <email@bkkmail.com>
+	Thu, 6 Apr 2006 16:01:36 -0400
+Message-ID: <000001c659b6$39e9a03d$6b58f2cf@celineclub.com>
+From: "Burlesquing J. Effigy" <holzer@celineclub.com>
 To: Linux <linux-kernel@vger.kernel.org>
 Subject: =?windows-1251?B?wiDg8OXt5PMg0err4OT7IO7yIDE3MDAg6uLsIO3gIOwuINfl8Oro5+7i?=
 	=?windows-1251?B?8erg/w==?=
-Date: Thu, 06 Apr 2006 16:04:58 -0400
+Date: Thu, 06 Apr 2006 16:09:31 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=windows-1251
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-Mailer: Microsoft Outlook Express 6.00.2800.1081
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751231AbWDFT6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751292AbWDFUBh@vger.kernel.org>
 
 =FF=FE=12=04=20
 -

@@ -1,71 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWDFVEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWDFVXn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbWDFVEB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 17:04:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWDFVEB
+	id S1751331AbWDFVXn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 17:23:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWDFVXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 17:04:01 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:10918
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751321AbWDFVEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 17:04:01 -0400
-Date: Thu, 06 Apr 2006 14:03:57 -0700 (PDT)
-Message-Id: <20060406.140357.14088592.davem@davemloft.net>
-To: linux-kernel@vger.kernel.org
-Subject: fs/binfmt_elf.c:maydump()
-From: "David S. Miller" <davem@davemloft.net>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 6 Apr 2006 17:23:43 -0400
+Received: from mxfep01.bredband.com ([195.54.107.70]:28848 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S1751334AbWDFVXm (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 17:23:42 -0400
+Subject: Re: [OOPS] related to swap?
+From: Ian Kumlien <pomac@vapor.com>
+Reply-To: pomac@vapor.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Linux-kernel@vger.kernel.org
+In-Reply-To: <44339031.4040307@yahoo.com.au>
+References: <1144225363.7112.10.camel@localhost>
+	 <44339031.4040307@yahoo.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NxgmHOLEUaYotlMBh/WZ"
+Date: Thu, 06 Apr 2006 23:28:04 +0200
+Message-Id: <1144358884.30252.16.camel@localhost>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I sort of understand the idea behind this check in maydump():
+--=-NxgmHOLEUaYotlMBh/WZ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-	/* If it hasn't been written to, don't write it out */
-	if (!vma->anon_vma)
-		return 0;
+On Wed, 2006-04-05 at 19:38 +1000, Nick Piggin wrote:
+> Ian Kumlien wrote:
+> >>Ian Kumlien wrote:
+> >>
+> >>
+> >>>Yes, i run a tainted kernel! either live with it or ignore this mail
+> >>>=3D)
+> >>
+> >>>starting swap lead to a deadlock within 15 mins
+> >>
+> >>>I have never had the energy to perform a full memtext86+
+> >>
+> >>It would be useful if you could perform a memtest overnight one night,
+> >>then run a non-patched and non-tained 2.6.16.1 kernel, and try to
+> >>reproduce the problems.
+> >=20
+> >=20
+> > As i said, i really doubt that the memory is at fault here, it has done
+> > several passes over the memory but not all tests. I can give it a go
+> > though, but i really doubt it'll find anything.
+> >=20
+>=20
+> If it doesn't cost you much time (ie. do it overnight) it could save some
+> developers a lot of time.
 
-but it causes real problems for debugging.  In fact a GDB testcase
-breaks because of this check.
+Yes, i'll try to do it this weekend... Since i need to keep this box
+running most of the time.
 
-In the GDB testcase, the application mmap()'s a file with some
-text in it.  It then calls abort() to dump core.  Then GDB loads
-up the application again using that core file, and it tries to
-look at the mmap()'d file, and that doesn't work.  We don't dump
-the file contents because of the above check so GDB has no idea
-how to reproduce the application state at the time of the core
-dump.
+> > The kernel i run is a plain 2.6.16.1 from kernel.org (i have heard that
+> > you can actually compile gentoos own these days)
+>=20
+> OK, good.
 
-Furthermore, it is vitally important to dump such areas to handle the
-case where the file contents change after the core dump occurs.
-So even if we had some way to tell GDB the full pathname of the
-file which was mapped at that location, we should still dump the
-contents and not try to elide them via this check in maydump().
+Kernel.org, it's the only flavor =3D)
 
-Yes, this means we might hit the core dump limits quicker but we
-shouldn't be doing anything which makes less debugging information
-than necessary available.  Software development is hard enough as
-it is right? :)
+> > Since this is my *cough* desktop, running it without that ability is
+> > kinda a show stopper, thats why i included the thing above.
+>=20
+> But if the problem can be reproduced in 15 minutes, it shouldn't be
+> too hard to get a trace without nvidia loaded.
 
-I also have a strange feeling that the VM_SHARED/i_nlink==0 check
-might cause similar problems, but I won't touch that for now.
+The major bit is, this worked with single core with reiser... Someone
+else reported problems with XFS lately though, i'll have to read all
+about it...=20
 
-diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
-index 537893a..7fea878 100644
---- a/fs/binfmt_elf.c
-+++ b/fs/binfmt_elf.c
-@@ -1167,10 +1167,6 @@ static int maydump(struct vm_area_struct
- 	if (vma->vm_flags & VM_SHARED)
- 		return vma->vm_file->f_dentry->d_inode->i_nlink == 0;
- 
--	/* If it hasn't been written to, don't write it out */
--	if (!vma->anon_vma)
--		return 0;
--
- 	return 1;
- }
- 
+> > But the thing is, my laptop runs with the same compiler, "same" nvidia
+> > driver and the "same" kernel ("same" as in 32 bit not 64 bit).
+> > Eventhough "same" in this case usually means nothing, i doubt that one
+> > would have a serius bug and the other wouldn't, ie it's most likley a
+> > bug related to 64 bits or one or more of the drivers involved.
+> >=20
+> > The only errors i get in dmesg atm is:
+> > KERNEL: assertion (!sk->sk_forward_alloc) failed at net/core/stream.c
+> > (283)
+> > KERNEL: assertion (!sk->sk_forward_alloc) failed at net/ipv4/af_inet.c
+> > (150)
+> >=20
+> > Which is related to TSO, from what i gather, but i can't turn off tso o=
+n
+> > forcedeth... (i suspected this to cause corruption a while back....)
+>=20
+> If your network hardware or driver is flakey, try compiling a kernel
+> without that as well before reproducing this swap problem.
+
+Well, flakey and flakey, it's been running with pretty heavy network and
+io load for 4 days now... (with forcedeth, but there is no ethtool
+interface for disabling TSO, if that is the problem)
+
+The sky2 driver tended to just die and lockup the box after a while, but
+i haven't tested Stepehns recent changes yet since i want something
+reliable first, to i have a base for comparison.
+
+Oh, Btw:
+free
+             total       used       free     shared    buffers
+cached
+Mem:       3056436    3039052      17384          0       4804
+2001672
+-/+ buffers/cache:    1032576    2023860
+Swap:            0          0          0
+
+If the memory was faulty, i'd have a corrupt filesystem by now imho...
+=3D)
+
+Btw, sorry about being unclear, i spotted it after i mailed, but...
+Running without nvidia drivers on a nvdidia card is pretty horrible on a
+desktop machine, the kind of resolutions you can get would have been ok
+on a amiga, but with X, everything is sooo much bigger... =3DP
+
+Also, sorry about the CC comment, but it took a day for your mail to hit
+my inbox, ie a day after it appeared on lkml, must be the greylists
+being overly efficient... =3DP
+
+--=20
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+
+--=-NxgmHOLEUaYotlMBh/WZ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2-ecc0.1.6 (GNU/Linux)
+
+iD8DBQBENYfk7F3Euyc51N8RAnsAAJ9REOQztTb2sO+wZu23taQCKPVU4wCfT/q9
+Tpqlvj6yZAi7tk2Y7sVFNLA=
+=DQKY
+-----END PGP SIGNATURE-----
+
+--=-NxgmHOLEUaYotlMBh/WZ--
 

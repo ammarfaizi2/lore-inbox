@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWDFDUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWDFDZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751348AbWDFDUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 23:20:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWDFDUJ
+	id S1750861AbWDFDZK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 23:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWDFDZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 23:20:09 -0400
-Received: from wproxy.gmail.com ([64.233.184.235]:19159 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751348AbWDFDUI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 23:20:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=p2NCeVKn1F4ffvdDtMzUJ9NyDMnXf9Wfsw21JdA3rVtE+DBQ6AmaUkIdReLhw6EfC2iw9YIXim8q2Inh9nj2Sk8J1RsN+kQADJIfUEMAvB5RgGWWcWxOctO7IQ17ijr/9Coqx48uo3kC/eEm6BM3q0WHycAzr2o3ioYem/VuyZU=
-Message-ID: <787b0d920604052020rdaa5146q58720e7fd82ce0bb@mail.gmail.com>
-Date: Wed, 5 Apr 2006 23:20:07 -0400
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: ak@muc.de, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: 32-on-64 (x86-64) siginfo corruption
+	Wed, 5 Apr 2006 23:25:10 -0400
+Received: from dvhart.com ([64.146.134.43]:36806 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1750861AbWDFDZJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 23:25:09 -0400
+From: Darren Hart <darren@dvhart.com>
+To: linux-kernel@vger.kernel.org
+Subject: RT task scheduling
+User-Agent: KMail/1.8.3
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       "Stultz, John" <johnstul@us.ibm.com>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Date: Wed, 5 Apr 2006 20:25:04 -0700
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200604052025.05679.darren@dvhart.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The situation:  32-bit debugger, 32-bit child, 64-bit kernel
+My last mail specifically addresses preempt-rt, but I'd like to know people's 
+thoughts regarding this issue in the mainline kernel.  Please see my previous 
+post "realtime-preempt scheduling - rt_overload behavior" for a testcase that 
+produces unpredictable scheduling results.
 
-The debugger sends an RT signal to the child. (to stop it, with
-a queue and siginfo so that non-debugger signals don't get lost)
-To do this, the debugger uses tgkill().
+Part of the issue here is to define what we consider "correct behavior" for 
+SCHED_FIFO realtime tasks.  Do we (A) need to strive for "strict realtime 
+priority scheduling" where the NR_CPUS highest priority runnable SCHED_FIFO 
+tasks are _always_ running?  Or do we (B) take the best effort approach with 
+an upper limit RT priority imbalances, where an imbalance may occur (say at 
+wakeup or exit) but will be remedied within 1 tick.  The smpnice patches 
+improve load balancing, but don't provide (A).
 
-Later, the debugger checks the child's siginfo_t before discarding
-it. This is to be sure that the child didn't get the RT signal from
-some other source. The debugger fills a siginfo_t with 0xff, then
-fetches siginfo data via ptrace. The data is corrupt:
+More details in the previous mail...
 
-FIELD     32-ON-64   NORMAL
-si_pid      -1       getpid()
-si_uid    getpid()   getuid()
+Thanks,
 
-The "getpid" and "getuid" above are done in the debugger, not in
-the child. The si_code values are SI_TKILL.
-
-Probably the other ports with 32-on-64 support ought to verify
-that this stuff works right.
+--Darren

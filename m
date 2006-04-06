@@ -1,87 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWDFSQG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWDFSaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932221AbWDFSQG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 14:16:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWDFSQG
+	id S932219AbWDFSaX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 14:30:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWDFSaX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 14:16:06 -0400
-Received: from dvhart.com ([64.146.134.43]:31431 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S932221AbWDFSQF (ORCPT
+	Thu, 6 Apr 2006 14:30:23 -0400
+Received: from mail.kroah.org ([69.55.234.183]:55480 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932219AbWDFSaW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 14:16:05 -0400
-From: Darren Hart <darren@dvhart.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: RT task scheduling
-Date: Thu, 6 Apr 2006 11:16:01 -0700
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       "Stultz, John" <johnstul@us.ibm.com>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-References: <200604052025.05679.darren@dvhart.com> <20060406073753.GA18349@elte.hu>
-In-Reply-To: <20060406073753.GA18349@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Apr 2006 14:30:22 -0400
+Date: Thu, 6 Apr 2006 11:27:22 -0700
+From: Greg KH <greg@kroah.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: anton@samba.org, akpm@osdl.org, gregkh@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix pciehp driver on non ACPI systems
+Message-ID: <20060406182722.GA31712@kroah.com>
+References: <20060406101731.GA9989@krispykreme> <20060406160527.GA2965@kroah.com> <20060406104113.08311cdc.rdunlap@xenotime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604061116.02429.darren@dvhart.com>
+In-Reply-To: <20060406104113.08311cdc.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 April 2006 00:37, Ingo Molnar wrote:
-> * Darren Hart <darren@dvhart.com> wrote:
-> > My last mail specifically addresses preempt-rt, but I'd like to know
-> > people's thoughts regarding this issue in the mainline kernel.  Please
-> > see my previous post "realtime-preempt scheduling - rt_overload
-> > behavior" for a testcase that produces unpredictable scheduling
-> > results.
->
-> the rt_overload feature i intend to push upstream-wards too, i just
-> didnt separate it out of -rt yet.
->
-> "RT overload scheduling" is a totally orthogonal mechanism to the SMP
-> load-balancer (and this includes smpnice too) that is more or less
-> equivalent to having a 'global runqueue' for real-time tasks, without
-> the SMP overhead associated with that. If there is no "RT overload" [the
-> common case even on Linux systems that _do_ make use of RT tasks
-> occasionally], the new mechanism is totally inactive and there's no
-> overhead. But once there are more RT tasks than CPUs, the scheduler will
-> do "global" decisions for what RT tasks to run on which CPU. To put even
-> less overhead on the mainstream kernel, i plan to introduce a new
-> SCHED_FIFO_GLOBAL scheduling policy to trigger this behavior. [it doesnt
-> make much sense to extend SCHED_RR in that direction.]
->
-> my gut feeling is that it would be wrong to integrate this feature into
-> smpnice: SCHED_FIFO is about determinism, and smpnice is a fundamentally
-> statistical approach. Also, smpnice doesnt have to try as hard to pick
-> the right task as rt_overload does, so there would be constant
-> 'friction' between "overhead" optimizations (dont be over-eager) and
-> "latency" optimizations (dont be _under_-eager). So i'm quite sure we
-> want this feature separate. [nevertheless i'd happy to be proven wrong
-> via some good and working smpnice based solution]
->
-> in any case, i'll check your -rt testcase to see why it fails.
+On Thu, Apr 06, 2006 at 10:41:13AM -0700, Randy.Dunlap wrote:
+> On Thu, 6 Apr 2006 09:05:27 -0700 Greg KH wrote:
+> 
+> > On Thu, Apr 06, 2006 at 08:17:31PM +1000, Anton Blanchard wrote:
+> > > 
+> > > Wrap some ACPI specific headers. ACPI hasnt taken over the whole world yet.
+> > > 
+> > > Signed-off-by: Anton Blanchard <anton@samba.org>
+> > > ---
+> > > 
+> > > Index: kernel/drivers/pci/hotplug/pciehp_hpc.c
+> > > ===================================================================
+> > > --- kernel.orig/drivers/pci/hotplug/pciehp_hpc.c	2006-04-06 05:01:32.000000000 -0500
+> > > +++ kernel/drivers/pci/hotplug/pciehp_hpc.c	2006-04-06 05:09:48.501122395 -0500
+> > > @@ -38,10 +38,14 @@
+> > >  
+> > >  #include "../pci.h"
+> > >  #include "pciehp.h"
+> > > +
+> > > +#ifdef CONFIG_ACPI
+> > >  #include <acpi/acpi.h>
+> > >  #include <acpi/acpi_bus.h>
+> > >  #include <acpi/actypes.h>
+> > >  #include <linux/pci-acpi.h>
+> > > +#endif
+> > 
+> > Shouldn't the ACPI headers handle it if CONFIG_ACPI is not enabled?  All
+> > other header files work that way, and we shouldn't have to add this to
+> > the .c files.
+> 
+> maybe the C file could just #include <linux/acpi.h> ?
 
-Just as an example, here is the output a failing test case on a 4way machine 
-running 2.6.16-rt13 (a successful run would have a final ball position of 0).
+Would that solve this issue?  I'm guessing that they are being included
+as it needs something in those headers...
 
-[root@box sched_football]# ./sched_football 4 10
-Starting 4 offense threads at priority 15
-Starting 4 defense threads at priority 30
-Starting referee thread
-Game On (10 seconds)!
-Game Over!
-Final ball position: 5
-[root@box sched_football]#
+thanks,
 
---Darren
-
->
-> 	Ingo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+greg k-h

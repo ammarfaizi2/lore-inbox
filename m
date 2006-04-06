@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbWDFVVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbWDFVXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932165AbWDFVVl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 17:21:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWDFVVl
+	id S1751324AbWDFVXk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 17:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWDFVXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 17:21:41 -0400
-Received: from mail.gmx.de ([213.165.64.20]:63725 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751324AbWDFVVl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 17:21:41 -0400
-X-Authenticated: #13243522
-Message-ID: <4435865D.9020608@gmx.de>
-Date: Thu, 06 Apr 2006 23:21:33 +0200
-From: Michael Schierl <schierlm@gmx.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.8) Gecko/20051201 Thunderbird/1.5 Mnenhy/0.7.3.0
-MIME-Version: 1.0
-To: Martin Michlmayr <tbm@cyrius.com>
-CC: linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: Linux 2.6.17-rc1
-References: <Pine.LNX.4.64.0604022037380.3781@g5.osdl.org> <e0r09j$gu5$1@sea.gmane.org> <20060403194727.GD5616@flint.arm.linux.org.uk> <20060406142727.GA22724@unjust.cyrius.com>
-In-Reply-To: <20060406142727.GA22724@unjust.cyrius.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 6 Apr 2006 17:23:40 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:64202 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751324AbWDFVXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 17:23:39 -0400
+Subject: Re: [PATCH 2/4] coredump: speedup SIGKILL sending
+From: Lee Revell <rlrevell@joe-job.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060406235519.GA331@oleg>
+References: <20060406220628.GA237@oleg> <1144352758.2866.105.camel@mindpipe>
+	 <20060406235519.GA331@oleg>
+Content-Type: text/plain
+Date: Thu, 06 Apr 2006 16:07:45 -0400
+Message-Id: <1144354065.2866.116.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Michlmayr schrieb:
-> * Russell King <rmk+lkml@arm.linux.org.uk> [2006-04-03 20:47]:
->>> kernel/built-in.o:(.data+0x758): undefined reference to `uevent_helper'
->>> make: *** [.tmp_vmlinux1] Error 1
->> I've reported this bug several times but I seem to be getting absolutely
->> no response.  So I submitted it to bugzilla.
->> http://bugzilla.kernel.org/show_bug.cgi?id=6306
->>
->> Feel free to add your voice to that bug to try to get someone to fix it.
->> I'm not hopeful though.
+On Fri, 2006-04-07 at 03:55 +0400, Oleg Nesterov wrote:
+> On 04/06, Lee Revell wrote:
+> > On Fri, 2006-04-07 at 02:06 +0400, Oleg Nesterov wrote:
+> > > With this patch a thread group is killed atomically under ->siglock.
+> > > This is faster because we can use sigaddset() instead of force_sig_info()
+> > > and this is used in further patches.
+> > > 
+> > > Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+> > 
+> > Won't this cause huge latencies when a process with lots of threads is
+> > killed?
 > 
-> Kay Sievers has added a patch to Bugzilla a few days ago.  Can you
-> confirm that it works?
+> Yes, irqs are disabled. But this is not worse than 'kill -9 pid', note
+> that __group_complete_signal() or zap_other_threads() do the same.
 
-It does indeed work for me,
+Those have been problematic in the past.  I am just wondering if this
+will be a latency regression, or if changes elsewhere in your patch
+negate the effect.
 
-Thank you,
+I'm just concerned because it was a lot of work over ~2 years to get 2.6
+to perform decently in this area, and we have regressed since 2.6.14 (VM
+issue).
 
-Michael
+Lee
+

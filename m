@@ -1,61 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWDFRyW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWDFR7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbWDFRyW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 13:54:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWDFRyV
+	id S932074AbWDFR7z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 13:59:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWDFR7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 13:54:21 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:9910 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751294AbWDFRyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 13:54:21 -0400
-Message-Id: <200604061655.k36GtRNa005151@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 2/2] UML memory hotplug cleanups
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 06 Apr 2006 12:55:27 -0400
-From: Jeff Dike <jdike@addtoit.com>
+	Thu, 6 Apr 2006 13:59:55 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:8196 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S932074AbWDFR7y convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 13:59:54 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+in-reply-to: <44354D7B.9070207@gmail.com>
+x-originalarrivaltime: 06 Apr 2006 17:59:50.0040 (UTC) FILETIME=[E6070980:01C659A3]
+Content-class: urn:content-classes:message
+Subject: Re: Badness in local_bh_enable at kernel/softirq.c:140 with inet_stream
+Date: Thu, 6 Apr 2006 13:59:49 -0400
+Message-ID: <Pine.LNX.4.61.0604061351120.9302@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Badness in local_bh_enable at kernel/softirq.c:140 with inet_stream
+Thread-Index: AcZZo+YQTGQPfEWdSU6K6uNjcepJpQ==
+References: <44354D7B.9070207@gmail.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "jordi Vaquero" <jordi.vaquero@gmail.com>
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change memory hotplug to use GFP_NOWAIT instead of GFP_ATOMIC, so that it
-will grab memory without sleeping, but doesn't try to use the emergency pools.
 
-A small list initialization suggested by Daniel Phillips - don't initialize
-lists which are just about to be list_add-ed.
+On Thu, 6 Apr 2006, jordi Vaquero wrote:
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+> Hello
+>
+> I'm trying to make a Linux Kernel module. My module has a network
+> comunication with sockets, I use the functions like this skeleton,
+>
+>            sd = sock_create(AF_INET,SOCK_STREAM,IPPROTO_TCP,&sock);
+>                if(sd<0){
+>                printk(KERN_ERR "Error\n");
+>            }else{
+>                sout.sin_family = AF_INET;
+>                err = inet_aton("172.16.151.1",&sout.sin_addr); //this
+>        function works well, I implemented it.
+>                sout.sin_port = htons(20000);
+>                sd = sock->ops->connect(sock,(struct sockaddr*)&sout,
+>        sizeof(sout),O_RDWR);
+>                if(sd<0){
+>                    printk(KERN_ERR "Error \n");
+>                    sock_release(sock);
+>                }else{
+>                     USE SENDMSG and RECVMSG
+>                        ...
+>                        ...
+>                        ...
+>                   sock_release(sock);
+>                }
+>
+> My problem is that sometimes, at some point near the connect function, a
+> warning is launched and dmesg shows this:
+>
+[SNIPPED... Crap]
 
-Index: linux-2.6.16/arch/um/drivers/mconsole_kern.c
-===================================================================
---- linux-2.6.16.orig/arch/um/drivers/mconsole_kern.c	2006-04-06 12:10:41.000000000 -0400
-+++ linux-2.6.16/arch/um/drivers/mconsole_kern.c	2006-04-06 12:21:07.000000000 -0400
-@@ -87,7 +87,7 @@ static irqreturn_t mconsole_interrupt(in
- 		if(req.cmd->context == MCONSOLE_INTR)
- 			(*req.cmd->handler)(&req);
- 		else {
--			new = kmalloc(sizeof(*new), GFP_ATOMIC);
-+			new = kmalloc(sizeof(*new), GFP_NOWAIT);
- 			if(new == NULL)
- 				mconsole_reply(&req, "Out of memory", 1, 0);
- 			else {
-@@ -415,7 +415,6 @@ static int mem_config(char *str)
- 
- 			unplugged = page_address(page);
- 			if(unplug_index == UNPLUGGED_PER_PAGE){
--				INIT_LIST_HEAD(&unplugged->list);
- 				list_add(&unplugged->list, &unplugged_pages);
- 				unplug_index = 0;
- 			}
-@@ -655,7 +654,6 @@ static void with_console(struct mc_reque
- 	struct mconsole_entry entry;
- 	unsigned long flags;
- 
--	INIT_LIST_HEAD(&entry.list);
- 	entry.request = *req;
- 	list_add(&entry.list, &clients);
- 	spin_lock_irqsave(&console_lock, flags);
+This has become a FAQ...
+If you need to do this INSIDE the kernel, you need to do it from
+a kernel thread. Otherwise, your socket is indistinguishable
+from somebody else's open file descriptor. A file descriptor needs
+a CONTEXT! The kernel doesn't have a CONTEXT! You need a process
+to have a context, either a kernel thread or a user-mode task.
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.15.4 on an i686 machine (5589.42 BogoMips).
+Warning : 98.36% of all statistics are fiction, book release in April.
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

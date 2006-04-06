@@ -1,63 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWDFLol@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWDFMLV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbWDFLol (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 07:44:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWDFLol
+	id S1751204AbWDFMLV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 08:11:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbWDFMLV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 07:44:41 -0400
-Received: from nacho.alt.net ([207.14.113.18]:39591 "HELO nacho.alt.net")
-	by vger.kernel.org with SMTP id S1751156AbWDFLol (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 07:44:41 -0400
-Date: Thu, 6 Apr 2006 11:44:38 +0000 (GMT)
-To: erich <erich@areca.com.tw>
-cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: about ll_rw_blk.c of void generic_make_request(struct bio *bio)
-In-Reply-To: <026001c6595c$f6c5a890$b100a8c0@erich2003>
-Message-ID: <Pine.LNX.4.64.0604060953000.13282@nacho.alt.net>
-References: <001d01c65302$0fee8e10$b100a8c0@erich2003><20060330155804.GP13476@suse.de><Pine.LNX.4.64.0603311700310.14317@nacho.alt.net><Pine.LNX.4.64.0603311748010.14317@nacho.alt.net><20060331202202.GH14022@suse.de>
-	<Pine.LNX.4.64.0603312028500.14317@nacho.alt.net>
-	<026001c6595c$f6c5a890$b100a8c0@erich2003>
+	Thu, 6 Apr 2006 08:11:21 -0400
+Received: from 220-130-178-143.HINET-IP.hinet.net ([220.130.178.143]:11771
+	"EHLO areca.com.tw") by vger.kernel.org with ESMTP id S1751204AbWDFMLU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 08:11:20 -0400
+Message-ID: <001901c65973$0bf933b0$b100a8c0@erich2003>
+From: "erich" <erich@areca.com.tw>
+To: "Linux Andrew Morton" <akpm@osdl.org>
+Cc: <oliver@neukum.org>, <akpm@osdl.org>, <alan@lxorguk.ukuu.org.uk>,
+       <billion.wu@areca.com.tw>, <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>,
+       "\"\"\"Christoph Hellwig\"\"\"" <hch@infradead.org>,
+       "Chris Caputo" <ccaputo@alt.net>
+Subject: areca-raid-linux-scsi-driver-update5.patch for 2.6.17-rc1-mm1
+Date: Thu, 6 Apr 2006 20:10:05 +0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Delivery-Agent: TMDA/1.0.3 (Seattle Slew)
-From: Chris Caputo <ccaputo@alt.net>
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0016_01C659B6.18986BC0"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.3790.1830
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
+X-OriginalArrivalTime: 06 Apr 2006 12:06:15.0046 (UTC) FILETIME=[80E7DA60:01C65972]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Apr 2006, erich wrote:
-> I am so sorry that I reply this mail today.
-> At 2006/4/3 my mother unexpectedly got paralysis and dead.
-> I can not do any more "request testing" with this bug for some days.
-> I do dump_stack as your request and attach it.
-> And I do "fsck" before test this volume every time.
-> It appears fine when do fsck with each testing volume.
-> You can easily reproduce this bug from copy a 900MB file from ARECA volume
-> (mkfs.ext2, mount -t ext2) to none ARECA volume.
+This is a multi-part message in MIME format.
 
-Erich, my sincere condolences to you and your family.
+------=_NextPart_000_0016_01C659B6.18986BC0
+Content-Type: text/plain;
+	format=flowed;
+	charset="big5";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
 
-With respect to this problem, is it possible with your driver that if a 
-transfer read request is above a certain size, data corruption occurs?
+From: Erich Chen <erich@areca.com.tw>
 
-It may be that fsck passes because it is doing smaller transfers while a 
-file copy under ext2 (or in your example, ext3) fails because it is during 
-those operations that the higher max_sectors makes a difference.
+  1- modify ARCMSR_MAX_XFER_SECTORS 4096 into 512
+  2- add new SAS RAID Adapter device id
 
-Curiously, the hex values of the "want=" field in your report are as 
-follows:
+Signed-off-by: Erich Chen <erich@areca.com.tw>
+---
+ drivers/scsi/arcmsr/arcmsr.h     |    2 
+ drivers/scsi/arcmsr/arcmsr_hba.c |   80 ++++++++---------------------
+ include/linux/pci_ids.h          |    4 +
+ 3 files changed, 28 insertions(+), 58 deletions(-)
 
-  sdb1: rw=0, want=12126966488, limit=312496317
-  2D2D2D2D8
-  sdb1: rw=0, want=12126967088, limit=312496317
-  2D2D2D530
-  sdb1: rw=0, want=22232771288, limit=312496317
-  52D2D2AD8
-  sdb1: rw=0, want=22232771888, limit=312496317
-  52D2D2D30
+Best Regards
+Erich Chen
+------=_NextPart_000_0016_01C659B6.18986BC0
+Content-Type: application/x-compressed;
+	name="areca-raid-linux-scsi-driver-update5.patch.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="areca-raid-linux-scsi-driver-update5.patch.gz"
 
-I wonder if 0x2D or 0xD2 corresponds to something on the disk such as in 
-the file being copied or is otherwise familiar.
+H4sICId3NUQAA2FyZWNhLXJhaWQtbGludXgtc2NzaS1kcml2ZXItdXBkYXRlNS5wYXRjaADNWP9P
+o0gU/7n8FS9eLmkt08JQvti9NSJFl0TbBtDzkksIArVkKzWA6xrP//1mgFpra4fTvV0nKUOGz3vz
+Po/PvGF6lM6v+2CmcTAFYxol8EdE7w/8NAr8TjC/7uR3+xwHICK4nofx5B502zh1bO9Uv/Aujkzb
+c0zDHdkO9IQ9BeIkn4MsYmKBEfhhCEl0B47ugK1bA9BD/yaPUgijb3EQQRxynBNfJVGI5pMJurxn
+h4IQ4iBM429RmnWzIIu7fhpcZ2nVdaZA2z/0gmEb0pteEq8FUhOgXTW0qXGEVjC7DaPuLE5uv3dv
+gtiLw6yaazlhD9ocSDCJZ1EGwdRPrqKQB6wR8yxK83ieZM12iwdZIwmYReUAanGUFJSutzHrzNP4
+qoEFQUFCDwkKiFIf9/qy0BEWDciwIHCESA1/L10p/Z625urgAFBP41VoF9eDAw5+C6NJnETPhXBk
+m6ZhHHrDs9NG2bCmrSEHtnVOBEN+jjUaUtTOoIgPzkmMJBsgdjBl0xGlnTVrx3AszxparqUTvXnW
+oJpIljm0IaTn2iyR1auiOuXatSwahZI3QF3dPjbdRQgNENUtsJOz4QIH60mhOON04I1NuwI+fzI6
+cx1XHw6s4TFF1VJKqeyNapH7kvgmtZQ+X7jr4b6oblSMKEm8Am3aiQIRDWS5n8cB6dLbIAe6gMoS
+QNYRVDMUAxw0HsaG5Q3Mc8swm/T23BwOivft6bZp6Dwsnz8NeiJWhNYj/3Zz9X3mWmHefqO59F5z
+8T3myvtmV8rZSeoEHoRHHrq74EbpdZyQV55cQZTk6T3sdjl4/MTB6WhwdmIuvLj64YnZJHLgV1RA
+ZeHl/uUsan2q9CSrPC3ToqSIfA8/k1RAimhOq20Ku5WPOJnMm5XUHCqpG904hM+wGKt2IWNOIpvP
+Dmfz4CvstmA6z3K0T6+hn/sk1sZSo5+B+kD7N2QI7ZfjFJHdxXkwbT4BW/DAoUbgZ9HmZImi0CeQ
+NgOyFYAJ4IHM3WhkNynZcCfNy9sJT6Yl9bSA0AJC3VBzdEG2pfHIdh2yC7t6uQ0bo6Frj05OTBt2
+yFRPdgXiy8hxQR/oY5c8XofTeXf+ThYb3+9ZOcRvLvKtT8XTyzTyvxa3j9vTg9npwYz0iBILoLAA
+KusNsGLArBgwKwbMjEErUsWUAV7IQPvxMmjScQWZw2NraIKVZHEYtf43bUhMbZA6uj1ppFJuBygs
+D6Ta1Uq7tEi7iP9D3p0PmHalSDtiEVaeCCvbCaOaFNBWCmhJATEpqPUoqAsKmFEyfz4FLNaigKui
+b16MbdNxWKUfrdfyHxgyrhcyXg2ZUaZ+QeqlejykVR6sdf8LiNRbyVh5QeTDrWdcbz1jdZXIB1zV
+dLehn5kT/3aWs/aVC+T+NTZr7CMV8GdvJcuz6St/l2w8kop9GW85kr7i6oUXWe3Le5tPonuaXBxF
+aV+cRZcn8NdWSUP4TjsWUC2BKhOolUBNWP7t8NrnCwVKNYBiCRQZQKX0qDA9KqVH0nGwSmd5CHSw
+NYKVRizUUH6NPsV7f1rD53hZlUTuX8n0lLF1FAAA
 
-Chris
+------=_NextPart_000_0016_01C659B6.18986BC0--
+

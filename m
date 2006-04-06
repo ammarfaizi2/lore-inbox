@@ -1,33 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWDFDiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWDFDl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751359AbWDFDiW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 23:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWDFDiW
+	id S1751360AbWDFDl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 23:41:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWDFDl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 23:38:22 -0400
-Received: from wproxy.gmail.com ([64.233.184.233]:18662 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751359AbWDFDiV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 23:38:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=G5873KYYUJOItyx/iDVZdDKkbaVkHjB9B6lupD+B3YJWIjiA28NWn+K4dOzt3JuSs8Gqpe2wokDPmCENxORDYX8F4CW5LLaAh9/dAg9hBmGPTt32irrcDG+cFQifMvgLrcRzuxCdUlKlBtbg4Tnuu4Ak1axJcYJOdoeORm8eg4o=
-Message-ID: <787b0d920604052038i3a75bdb6ic0818d93805b881b@mail.gmail.com>
-Date: Wed, 5 Apr 2006 23:38:20 -0400
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: wait4/waitpid/waitid oddness
-MIME-Version: 1.0
+	Wed, 5 Apr 2006 23:41:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52362 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751360AbWDFDl2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 23:41:28 -0400
+Date: Wed, 5 Apr 2006 20:40:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: ck@vds.kolivas.org, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: Respin: [PATCH] mm: limit lowmem_reserve
+Message-Id: <20060405204009.3235b021.akpm@osdl.org>
+In-Reply-To: <200604061258.40487.kernel@kolivas.org>
+References: <200604021401.13331.kernel@kolivas.org>
+	<20060405194344.1915b57a.akpm@osdl.org>
+	<200604061255.55055.kernel@kolivas.org>
+	<200604061258.40487.kernel@kolivas.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The kernel prohibits:
+Con Kolivas <kernel@kolivas.org> wrote:
+>
+> On Thursday 06 April 2006 12:55, Con Kolivas wrote:
+> > On Thursday 06 April 2006 12:43, Andrew Morton wrote:
+> > > Con Kolivas <kernel@kolivas.org> wrote:
+> > > > It is possible with a low enough lowmem_reserve ratio to make
+> > > >  zone_watermark_ok fail repeatedly if the lower_zone is small enough.
+> > >
+> > > Is that actually a problem?
+> >
+> > Every single call to get_page_from_freelist will call on zone reclaim. It
+> > seems a problem to me if every call to __alloc_pages will do that?
+> 
+> every call to __alloc_pages of that zone I mean
+> 
 
-1. WNOHANG on waitpid/wait4
-2. __WALL on waitid
+One would need to check with the NUMA guys.  zone_reclaim() has a
+(lame-looking) timer in there to prevent it from doing too much work.
 
-Why? I need both at once.
+That, or I'm missing something.  This problem wasn't particularly well
+described, sorry.

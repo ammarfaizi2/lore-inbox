@@ -1,90 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWDFU6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWDFVEB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751275AbWDFU6h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 16:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWDFU6h
+	id S1751321AbWDFVEB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 17:04:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWDFVEB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 16:58:37 -0400
-Received: from xproxy.gmail.com ([66.249.82.204]:15464 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751275AbWDFU6g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 16:58:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=gbmCgaQtBGy3XHeHUCFw+gWnT5UWKpSvz1YqKdruBepR3kmzvJopdJMJjRIjphIWYP20zAAonafbNCqKzK0EUlGAkFMV2J8uevoMrQYjcxLL1JtkkpLlxdPS6oPSvH7dTsjUDApwbZYxQJcsFATD3aFlDxvPqTYs3SPbCZpWOZs=
-Message-ID: <4b73d43f0604061358v1c619e21rc6f3af2cdc4545a3@mail.gmail.com>
-Date: Thu, 6 Apr 2006 14:58:34 -0600
-From: "John Rigby" <jcrigby@gmail.com>
-To: "Roman Zippel" <zippel@linux-m68k.org>
-Subject: [PATCH] Allow menuconfig to cycle through choices
-Cc: "Sam Ravnborg" <sam@ravnborg.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <4b73d43f0604061339n35a4d98ha08bf8d7fc0bef0b@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_28581_26538231.1144357114180"
-References: <4b73d43f0604061338i1c5315f1t34761380b620fc57@mail.gmail.com>
-	 <4b73d43f0604061339n35a4d98ha08bf8d7fc0bef0b@mail.gmail.com>
+	Thu, 6 Apr 2006 17:04:01 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:10918
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751321AbWDFVEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 17:04:01 -0400
+Date: Thu, 06 Apr 2006 14:03:57 -0700 (PDT)
+Message-Id: <20060406.140357.14088592.davem@davemloft.net>
+To: linux-kernel@vger.kernel.org
+Subject: fs/binfmt_elf.c:maydump()
+From: "David S. Miller" <davem@davemloft.net>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_28581_26538231.1144357114180
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
+I sort of understand the idea behind this check in maydump():
 
+	/* If it hasn't been written to, don't write it out */
+	if (!vma->anon_vma)
+		return 0;
 
-------=_Part_28581_26538231.1144357114180
-Content-Type: text/plain; 
-	name=0001-Allow-menuconfig-to-cycle-through-choices.txt; 
-	charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Attachment-Id: f_elpjydot
-Content-Disposition: attachment; filename="0001-Allow-menuconfig-to-cycle-through-choices.txt"
+but it causes real problems for debugging.  In fact a GDB testcase
+breaks because of this check.
 
->From nobody Mon Sep 17 00:00:00 2001
-From: John Rigby <jrigby@freescale.com>
-Date: Thu Apr 6 14:25:19 2006 -0600
-Subject: [PATCH] Allow menuconfig to cycle through choices
+In the GDB testcase, the application mmap()'s a file with some
+text in it.  It then calls abort() to dump core.  Then GDB loads
+up the application again using that core file, and it tries to
+look at the mmap()'d file, and that doesn't work.  We don't dump
+the file contents because of the above check so GDB has no idea
+how to reproduce the application state at the time of the core
+dump.
 
-Added cycling logic to dialog_checklist identical to what
-dialog_menu already has.
+Furthermore, it is vitally important to dump such areas to handle the
+case where the file contents change after the core dump occurs.
+So even if we had some way to tell GDB the full pathname of the
+file which was mapped at that location, we should still dump the
+contents and not try to elide them via this check in maydump().
 
-Signed-off-by: John Rigby <jrigby@freescale.com>
+Yes, this means we might hit the core dump limits quicker but we
+shouldn't be doing anything which makes less debugging information
+than necessary available.  Software development is hard enough as
+it is right? :)
 
----
+I also have a strange feeling that the VM_SHARED/i_nlink==0 check
+might cause similar problems, but I won't touch that for now.
 
- scripts/kconfig/lxdialog/checklist.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletions(-)
-
-8c5500ea727987ea35a7ccaa463dcaf50eb731b2
-diff --git a/scripts/kconfig/lxdialog/checklist.c b/scripts/kconfig/lxdialog/checklist.c
-index db07ae7..af41cb1 100644
---- a/scripts/kconfig/lxdialog/checklist.c
-+++ b/scripts/kconfig/lxdialog/checklist.c
-@@ -203,10 +203,15 @@ int dialog_checklist(const char *title, 
- 	while (key != ESC) {
- 		key = wgetch(dialog);
+diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+index 537893a..7fea878 100644
+--- a/fs/binfmt_elf.c
++++ b/fs/binfmt_elf.c
+@@ -1167,10 +1167,6 @@ static int maydump(struct vm_area_struct
+ 	if (vma->vm_flags & VM_SHARED)
+ 		return vma->vm_file->f_dentry->d_inode->i_nlink == 0;
  
--		for (i = 0; i < max_choice; i++)
-+		for (i = choice + 1; i < max_choice; i++)
- 			if (toupper(key) ==
- 			    toupper(items[(scroll + i) * 3 + 1][0]))
- 				break;
-+		if (i == max_choice)
-+			for (i = 0; i < max_choice; i++)
-+			    if (toupper(key) ==
-+				toupper(items[(scroll + i) * 3 + 1][0]))
-+				    break;
+-	/* If it hasn't been written to, don't write it out */
+-	if (!vma->anon_vma)
+-		return 0;
+-
+ 	return 1;
+ }
  
- 		if (i < max_choice || key == KEY_UP || key == KEY_DOWN ||
- 		    key == '+' || key == '-') {
--- 
-1.2.4
 
-
-
-
-
-------=_Part_28581_26538231.1144357114180--

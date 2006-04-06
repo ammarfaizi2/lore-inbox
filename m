@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWDFKWD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWDFKWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbWDFKWD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 06:22:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWDFKWB
+	id S932164AbWDFKWE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 06:22:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWDFKWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 6 Apr 2006 06:22:03 -0400
+Received: from ozlabs.org ([203.10.76.45]:20899 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932164AbWDFKWB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 6 Apr 2006 06:22:01 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39439 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932162AbWDFKWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 06:22:00 -0400
-Date: Thu, 6 Apr 2006 11:21:54 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: "Luck, Tony" <tony.luck@intel.com>, Zou Nan hai <nanhai.zou@intel.com>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-Subject: Re: 2.6.17-rc1-mm1
-Message-ID: <20060406102154.GB28056@flint.arm.linux.org.uk>
-Mail-Followup-To: Bjorn Helgaas <bjorn.helgaas@hp.com>,
-	"Luck, Tony" <tony.luck@intel.com>,
-	Zou Nan hai <nanhai.zou@intel.com>, Andrew Morton <akpm@osdl.org>,
-	LKML <linux-kernel@vger.kernel.org>, linux-ia64@vger.kernel.org
-References: <20060404014504.564bf45a.akpm@osdl.org> <200604051015.34217.bjorn.helgaas@hp.com> <20060405211757.GA8536@agluck-lia64.sc.intel.com> <200604051601.08776.bjorn.helgaas@hp.com>
-Mime-Version: 1.0
+Date: Thu, 6 Apr 2006 20:17:31 +1000
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org, gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix pciehp driver on non ACPI systems
+Message-ID: <20060406101731.GA9989@krispykreme>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200604051601.08776.bjorn.helgaas@hp.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 05, 2006 at 04:01:08PM -0600, Bjorn Helgaas wrote:
-> [PATCH] vgacon: make VGA_MAP_MEM take size, remove extra use
 
-Ah, seems to be what I just suggested...
+Wrap some ACPI specific headers. ACPI hasnt taken over the whole world yet.
 
-> @@ -1020,14 +1019,14 @@
->  	char *charmap;
->  	
->  	if (vga_video_type != VIDEO_TYPE_EGAM) {
-> -		charmap = (char *) VGA_MAP_MEM(colourmap);
-> +		charmap = (char *) VGA_MAP_MEM(colourmap, 0);
+Signed-off-by: Anton Blanchard <anton@samba.org>
+---
 
-Don't like this though - can't we pass a real size here rather than zero?
-There seems to be several clues as to the maximum size:
-
-#define cmapsz 8192
-
-        if (!vga_font_is_default)
-                charmap += 4 * cmapsz;
-
-                        charmap += 2 * cmapsz;
-                                for (i = 0; i < cmapsz; i++)
-                                        vga_writeb(arg[i], charmap + i);
-
-so that's about 7 * cmapsz - call that 8 for completeness, which is 64K.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Index: kernel/drivers/pci/hotplug/pciehp_hpc.c
+===================================================================
+--- kernel.orig/drivers/pci/hotplug/pciehp_hpc.c	2006-04-06 05:01:32.000000000 -0500
++++ kernel/drivers/pci/hotplug/pciehp_hpc.c	2006-04-06 05:09:48.501122395 -0500
+@@ -38,10 +38,14 @@
+ 
+ #include "../pci.h"
+ #include "pciehp.h"
++
++#ifdef CONFIG_ACPI
+ #include <acpi/acpi.h>
+ #include <acpi/acpi_bus.h>
+ #include <acpi/actypes.h>
+ #include <linux/pci-acpi.h>
++#endif
++
+ #ifdef DEBUG
+ #define DBG_K_TRACE_ENTRY      ((unsigned int)0x00000001)	/* On function entry */
+ #define DBG_K_TRACE_EXIT       ((unsigned int)0x00000002)	/* On function exit */

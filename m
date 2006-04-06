@@ -1,95 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWDFSJr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWDFSOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbWDFSJr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 14:09:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWDFSJq
+	id S932204AbWDFSOk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 14:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWDFSOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 14:09:46 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:30872 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932156AbWDFSJa (ORCPT
+	Thu, 6 Apr 2006 14:14:40 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:8209 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932204AbWDFSOk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 14:09:30 -0400
-Date: Fri, 7 Apr 2006 02:06:36 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Ingo Molnar <mingo@elte.hu>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] coredump: don't take tasklist_lock
-Message-ID: <20060406220635.GA243@oleg>
+	Thu, 6 Apr 2006 14:14:40 -0400
+Date: Thu, 6 Apr 2006 20:14:22 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Greg KH <gregkh@suse.de>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Greg KH <greg@kroah.com>,
+       anton@samba.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix pciehp driver on non ACPI systems
+Message-ID: <20060406181422.GA6998@mars.ravnborg.org>
+References: <20060406101731.GA9989@krispykreme> <20060406160527.GA2965@kroah.com> <20060406104113.08311cdc.rdunlap@xenotime.net> <20060406174644.GD6598@mars.ravnborg.org> <20060406175704.GA30949@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060406175704.GA30949@suse.de>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-depends on
-	"[PATCH rc1-mm] de_thread: fix deadlockable process addition"
+On Thu, Apr 06, 2006 at 10:57:04AM -0700, Greg KH wrote:
+> > > > >  #include "../pci.h"
+> > 
+> > When one introdues relative apths like the above this is a good sign
+> > that the header file ought to move to a common place somewhere in
+> > include/.
+> 
+> No, this is a pci-core only header file.  I really don't want to have
+> these in include/linux/pci.h as no one other than the pci core, or pci
+> hotplug drivers need to use it.
 
-This patch removes tasklist_lock from zap_threads().
-This is safe wrt:
+But that hold true for other stuff in include/* also.
 
-	do_exit:
-		The caller holds mm->mmap_sem. This means that task which
-		shares the same ->mm can't pass exit_mm(), so it can't be
-		unhashed from init_task.tasks or ->thread_group lists.
+The guideline is (my understanding):
+- Use .h files only when declarations are shared by more than one .c
+  file
+- Put the .h file in same dir as the .c files, iff the .c files are all
+  in same dir (and include using #include "file.h")
+- For bigger subsystems create an include/<subsystem> dir for shared .h
+  files (and include using #include <file.h>)
+- For smaller subsystems create an include/linux/<subsystem> dir for
+  shared .h files (and include using #include <file.h>)
 
-	fork:
-		None of sub-threads can fork after zap_process(leader). All
-		processes which were created before this point should be
-		visible to zap_threads() because copy_process() adds the new
-		process to the tail of init_task.tasks list, and ->siglock
-		lock/unlock provides a memory barrier.
+And then we also have:
+- For Greg's pci-core keep the shared .h file with the .c files
+  (and include using #include "../file.h")
 
-	de_thread:
-		It does list_replace_rcu(&leader->tasks, &current->tasks).
-		So zap_threads() will see either old or new leader, it does
-		not matter. However, it can change p->sighand, so we should
-		use lock_task_sighand() in zap_process().
+See why this sticks out a bit.
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+Not that I imply the above guidlines are strictly followed - but thats
+the best I have seen.
 
---- MM/fs/exec.c~4_TLOCK	2006-04-07 01:21:41.000000000 +0400
-+++ MM/fs/exec.c	2006-04-07 01:32:02.000000000 +0400
-@@ -1385,7 +1385,11 @@ static void zap_process(struct task_stru
- 	struct task_struct *t;
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&start->sighand->siglock, flags);
-+	/*
-+	 * start->sighand can't disappear, but may be
-+	 * changed by de_thread()
-+	 */
-+	lock_task_sighand(start, &flags);
- 	start->signal->flags = SIGNAL_GROUP_EXIT;
- 	start->signal->group_stop_count = 0;
- 
-@@ -1398,7 +1402,7 @@ static void zap_process(struct task_stru
- 		}
- 	} while ((t = next_thread(t)) != start);
- 
--	spin_unlock_irqrestore(&start->sighand->siglock, flags);
-+	unlock_task_sighand(start, &flags);
- }
- 
- static void zap_threads(struct mm_struct *mm)
-@@ -1416,7 +1420,7 @@ static void zap_threads(struct mm_struct
- 		complete(vfork_done);
- 	}
- 
--	read_lock(&tasklist_lock);
-+	rcu_read_lock();
- 	for_each_process(g) {
- 		p = g;
- 		do {
-@@ -1427,7 +1431,7 @@ static void zap_threads(struct mm_struct
- 			}
- 		} while ((p = next_thread(p)) != g);
- 	}
--	read_unlock(&tasklist_lock);
-+	rcu_read_unlock();
- }
- 
- static void coredump_wait(struct mm_struct *mm)
-
+	Sam

@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWDFWMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWDFWPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWDFWMe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 18:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWDFWMe
+	id S932182AbWDFWPV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 18:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWDFWPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 18:12:34 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:57052 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932181AbWDFWMd (ORCPT
+	Thu, 6 Apr 2006 18:15:20 -0400
+Received: from nevyn.them.org ([66.93.172.17]:7078 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S1751327AbWDFWPU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 18:12:33 -0400
-Date: Fri, 7 Apr 2006 08:11:48 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: akpm@osdl.org, linux-xfs@oss.sgi.com,
-       Daniel Phillips <phillips@google.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH 1/2] Add GFP_NOWAIT
-Message-ID: <20060407081148.J1110920@wobbly.melbourne.sgi.com>
-References: <200604061655.k36GtMvc005146@ccure.user-mode-linux.org>
+	Thu, 6 Apr 2006 18:15:20 -0400
+Date: Thu, 6 Apr 2006 18:15:19 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fs/binfmt_elf.c:maydump()
+Message-ID: <20060406221519.GA5453@nevyn.them.org>
+Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
+	linux-kernel@vger.kernel.org
+References: <20060406.140357.14088592.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200604061655.k36GtMvc005146@ccure.user-mode-linux.org>; from jdike@addtoit.com on Thu, Apr 06, 2006 at 12:55:22PM -0400
+In-Reply-To: <20060406.140357.14088592.davem@davemloft.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 06, 2006 at 12:55:22PM -0400, Jeff Dike wrote:
-> Introduce GFP_NOWAIT, as an alias for GFP_ATOMIC & ~__GFP_HIGH.
-> 
-> This also changes XFS, which is the only in-tree user of this idiom that I 
-> could find.  The XFS piece is compile-tested only.
+On Thu, Apr 06, 2006 at 02:03:57PM -0700, David S. Miller wrote:
+> Yes, this means we might hit the core dump limits quicker but we
+> shouldn't be doing anything which makes less debugging information
+> than necessary available.  Software development is hard enough as
+> it is right? :)
 
-Looks fine, thanks Jeff.
+> -	/* If it hasn't been written to, don't write it out */
+> -	if (!vma->anon_vma)
+> -		return 0;
+> -
 
-> Signed-off-by: Jeff Dike <jdike@addtoit.com>
-Acked-by: Nathan Scott <nathans@sgi.com>
-
-cheers.
+Isn't this, um, a little more extreme than what you really want?
+What goes into coredumps with this patch applied?  I bet it includes
+the complete text segments of every executable and shared library
+involved in the link.  You're going to need those if you want to debug,
+anyway.
 
 -- 
-Nathan
+Daniel Jacobowitz
+CodeSourcery

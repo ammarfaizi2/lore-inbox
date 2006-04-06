@@ -1,66 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWDFQxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWDFQ50@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932192AbWDFQxK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 12:53:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWDFQxJ
+	id S932201AbWDFQ50 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 12:57:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWDFQ50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 12:53:09 -0400
-Received: from zproxy.gmail.com ([64.233.162.195]:43342 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932192AbWDFQxI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 12:53:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fOVjoEtjw5fqAJSwtgkWegsAI4P5KhCPs1VAVs+BnXo0HWz+ICX9AkzIbn2lQT5emNVFhWOItZDAXolz12seVyPZDq3jszzSTvG1+xIf+giFiMC1AHU7Oz9LD3PVdKynKKHUygLEtrc1ZSmPATVbLN86sXTUJnclVer4a0VD+ww=
-Message-ID: <493eee610604060953jcfdd2b6wdf773f4fb828aafa@mail.gmail.com>
-Date: Thu, 6 Apr 2006 18:53:07 +0200
-From: "Janos Farkas" <chexum+dev@gmail.com>
-To: "David Daney" <ddaney@avtrex.com>
-Subject: Re: Broadcast ARP packets on link local addresses (Version2).
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       pgf@foxharp.boston.ma.us, freek@macfreek.nl
-In-Reply-To: <44353F36.9070404@avtrex.com>
+	Thu, 6 Apr 2006 12:57:26 -0400
+Received: from mailserv.trstone.com ([12.109.59.11]:44742 "EHLO
+	mailserv.trstone.com") by vger.kernel.org with ESMTP
+	id S932201AbWDFQ5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 12:57:25 -0400
+Message-ID: <44354866.3030200@rosettastone.com>
+Date: Thu, 06 Apr 2006 17:57:10 +0100
+From: Brian Uhrain <buhrain@rosettastone.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060302)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <17460.13568.175877.44476@dl2.hq2.avtrex.com>
-	 <priv$efbe06144502$2d51735f79@200604.gmail.com>
-	 <44353F36.9070404@avtrex.com>
+To: linux-kernel@vger.kernel.org
+CC: rth@twiddle.net, Alan Cox <alan@redhat.com>
+Subject: [PATCH] Small fixes for Alpha architecture
+Content-Type: multipart/mixed;
+ boundary="------------040408010107000403060708"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/6/06, David Daney <ddaney@avtrex.com> wrote:
-> Janos Farkas wrote:
-> > Shouldn't it
-> > be more correct to not depend on the ip address of the used network,
-> > but to use the "scope" parameter of the given address?
+This is a multi-part message in MIME format.
+--------------040408010107000403060708
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> RFC 3927 specifies the Ethernet arp broadcast behavior for only
-> 169.254.0.0/16.  Presumably you could set the scope parameter to local
-> for addresses outside of that range or even for protocols other than
-> Ethernet.  Since broadcasting ARP packets usually adversely effects
-> usable network bandwidth, we should probably only do it where it is
-> absolutely required.  The overhead of testing the value required by the
-> RFC is quite low (3 machine instructions on i686 is the size of the
-> entire patch), so using some proxy like the scope parameter would not
-> even be a performance win.
+Hi,
 
-Indeed, I just have a bad feeling about hardwiring IP addresses this deep.
+I've encountered two problems with 2.6.16 and newer kernels on my API 
+CS20 (dual 833MHz Alpha 21264b processors).  The first is the kernel 
+OOPSing because of a NULL pointer dereference while trying to populate 
+SysFS with the CPU information.  The other is that only one processor 
+was being brought up.  I've included a small Alpha-specific patch that 
+fixes both problems.
 
-The problems with "my" idea would be, summarily, after a day:
+The first problem was caused by the CPUs never being properly registered 
+using register_cpu(), the way it's done on other architectures.  I've 
+added an arch_initcall called alpha_init that is modelled after the 
+ppc_init arch_initcall.
 
-Q: Is there are reason to use broadcast ARP semantics for other IP
-address ranges?
-A: Maybe, but no RFC defines that.
-Q: Is there are reason to NOT use broadcast ARP semantics for the
-defined IP address ranges?
-A: Maybe, but the RFC is against it.
-Q: Is there a reason to expect people (and tools) to use/define scopes?
-A: Probably, but it's still uncommon practice :)  I mean, how many of
-us have 192.168.x.x addresses with "global" scope? I know I do.
+The second problem has to do with the removal of hwrpb_cpu_present_mask 
+in arch/alpha/kernel/smp.c.  In setup_smp() in the 2.6.15 kernel 
+sources, hwrpb_cpu_present_mask has a bit set for each processor that is 
+probed, and afterwards cpu_present_mask is set to the cpumask for the 
+boot CPU.  In the same function of the same file in the 2.6.16 sources, 
+instead of hwrpb_cpu_present_mask being set, cpu_possible_map is updated 
+for each probed CPU.  cpu_present_mask is still set to the cpumask of 
+the boot CPU afterwards.  The problem lies in include/asm-alpha/smp.h, 
+where cpu_possible_map is #define'd to be cpu_present_mask.  My patch 
+just replaces the #define with an actual cpumask_t declaration for 
+cpu_possible_map since it is used separately from cpu_present_mask in 
+the Alpha SMP code.
 
-I'm still in a losing position :)
+Regards,
+Brian Uhrain
 
-Janos
+--------------040408010107000403060708
+Content-Type: text/plain;
+ name="alpha-fixes-2.6.16.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="alpha-fixes-2.6.16.diff"
+
+diff -rudp linux-2.6.16/arch/alpha/kernel/setup.c linux-2.6.16.new/arch/alpha/kernel/setup.c
+--- linux-2.6.16/arch/alpha/kernel/setup.c	2006-03-20 05:53:29.000000000 +0000
++++ linux-2.6.16.new/arch/alpha/kernel/setup.c	2006-04-06 17:45:04.009752787 +0100
+@@ -24,6 +24,7 @@
+ #include <linux/config.h>	/* CONFIG_ALPHA_LCA etc */
+ #include <linux/mc146818rtc.h>
+ #include <linux/console.h>
++#include <linux/cpu.h>
+ #include <linux/errno.h>
+ #include <linux/init.h>
+ #include <linux/string.h>
+@@ -477,6 +478,22 @@ page_is_ram(unsigned long pfn)
+ #undef PFN_PHYS
+ #undef PFN_MAX
+ 
++static struct cpu cpu_devices[NR_CPUS];
++
++int __init alpha_init(void)
++{
++	int i;
++
++	/* register CPU devices */
++	for (i = 0; i < NR_CPUS; i++)
++		if (cpu_possible(i))
++			register_cpu(&cpu_devices[i], i, NULL);
++
++	return 0;
++}
++
++arch_initcall(alpha_init);
++
+ void __init
+ setup_arch(char **cmdline_p)
+ {
+diff -rudp linux-2.6.16/arch/alpha/kernel/smp.c linux-2.6.16.new/arch/alpha/kernel/smp.c
+--- linux-2.6.16/arch/alpha/kernel/smp.c	2006-03-20 05:53:29.000000000 +0000
++++ linux-2.6.16.new/arch/alpha/kernel/smp.c	2006-04-06 17:45:08.810533978 +0100
+@@ -69,6 +69,7 @@ static int smp_secondary_alive __initdat
+ 
+ /* Which cpus ids came online.  */
+ cpumask_t cpu_present_mask;
++cpumask_t cpu_possible_map;
+ cpumask_t cpu_online_map;
+ 
+ EXPORT_SYMBOL(cpu_online_map);
+diff -rudp linux-2.6.16/include/asm-alpha/smp.h linux-2.6.16.new/include/asm-alpha/smp.h
+--- linux-2.6.16/include/asm-alpha/smp.h	2006-03-20 05:53:29.000000000 +0000
++++ linux-2.6.16.new/include/asm-alpha/smp.h	2006-04-06 17:45:08.812487103 +0100
+@@ -46,9 +46,9 @@ extern struct cpuinfo_alpha cpu_data[NR_
+ #define raw_smp_processor_id()	(current_thread_info()->cpu)
+ 
+ extern cpumask_t cpu_present_mask;
++extern cpumask_t cpu_possible_map;
+ extern cpumask_t cpu_online_map;
+ extern int smp_num_cpus;
+-#define cpu_possible_map	cpu_present_mask
+ 
+ int smp_call_function_on_cpu(void (*func) (void *info), void *info,int retry, int wait, cpumask_t cpu);
+ 
+
+--------------040408010107000403060708--

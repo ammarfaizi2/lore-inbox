@@ -1,92 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWDFG6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWDFHUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbWDFG6g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 02:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWDFG6g
+	id S932126AbWDFHUp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 03:20:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWDFHUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 02:58:36 -0400
-Received: from lug-owl.de ([195.71.106.12]:56765 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1751108AbWDFG6g (ORCPT
+	Thu, 6 Apr 2006 03:20:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:428 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932126AbWDFHUo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 02:58:36 -0400
-Date: Thu, 6 Apr 2006 08:58:32 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Sumit Narayan <talk2sumit@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, ext3-users@redhat.com
-Subject: Re: deleting partition does not effect superblock?
-Message-ID: <20060406065832.GK13324@lug-owl.de>
-Mail-Followup-To: Sumit Narayan <talk2sumit@gmail.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>, ext3-users@redhat.com
-References: <1458d9610604052337p2cafa6c8j78fc6da8c5f8be1a@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GmiNL4+5WUWrod5m"
-Content-Disposition: inline
-In-Reply-To: <1458d9610604052337p2cafa6c8j78fc6da8c5f8be1a@mail.gmail.com>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+	Thu, 6 Apr 2006 03:20:44 -0400
+Message-ID: <4434C12A.4000108@redhat.com>
+Date: Thu, 06 Apr 2006 03:20:10 -0400
+From: Hideo AOKI <haoki@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [patch 1/3] mm: An enhancement of OVERCOMMIT_GUESS
+References: <4434570F.9030507@redhat.com> <20060406094533.b340f633.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060406094533.b340f633.kamezawa.hiroyu@jp.fujitsu.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Kamezawa-san,
 
---GmiNL4+5WUWrod5m
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thank you for your comments.
 
-On Thu, 2006-04-06 14:37:33 +0800, Sumit Narayan <talk2sumit@gmail.com> wro=
-te:
-> Shouldn't the superblock be changed/deleted once the partition is
-> deleted? I tried a reboot, but the output remained the same.
+KAMEZAWA Hiroyuki wrote:
+> Hi, AOKI-san
+> 
+> On Wed, 05 Apr 2006 19:47:27 -0400
+> Hideo AOKI <haoki@redhat.com> wrote:
+> 
+> 
+>>Hello Andrew,
+>>
+>>Could you apply my patches to your tree?
+>>
+>>These patches are an enhancement of OVERCOMMIT_GUESS algorithm in
+>>__vm_enough_memory(). The detailed description is in attached patch.
+> 
+> I think adding a function like this is more simple way.
+> (call this istead of nr_free_pages().)
+> ==
+> int nr_available_memory() 
+> {
+> 	unsigned long sum = 0;
+> 	for_each_zone(zone) {
+> 		if (zone->free_pages > zone->pages_high)
+> 			sum += zone->free_pages - zone->pages_high;
+> 	}
+> 	return sum;
+> }
+> ==
 
-No, everything you see is "works as expected."  A partition is only a
-container (as well as "disks", "volume groups", "RAID arrays",
-"logical volumes", "image files" etc. are.)
+I like your idea. But, in the function, I think we need to care
+lowmem_reserve too.
 
-Whenever you destroy such a container, its contents isn't modified (or
-deleted) or otherwise modified. So it's perfectly okay to delete such
-a container (eg. remove start and end from the partition table) and
-recreate it at some time later (by adding those values back to the
-partition table.)  As long as the new container starts at the same
-location, a filesystem driver will be able to find the old
-information. If you start a block later, it won't find it's
-superblocks.
+Since __vm_enough_memory() doesn't know zone and cpuset information,
+we have to guess proper value of lowmem_reserve in each zone
+like I did in calculate_totalreserve_pages() in my patch.
+Do you think that we can do this calculation every time?
 
-Finally, you have several choices how to defeat getting back old data.
-Most probably, you'd just zero it out before deleting the partition
-with something like:
+If it is good enough, I'll make revised patch.
 
-# cat /dev/zero > /dev/hda3
 
-(of course with the correct device name!)
+> BTW, vm_enough_memory() doesn't eat cpuset information ?
 
-MfG, JBG
+I think this is another point which we should improve.
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+Best regards,
+Hideo Aoki
 
---GmiNL4+5WUWrod5m
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFENLwYHb1edYOZ4bsRAqmpAJ9xEHG5uBpoig6R0u8koosGzeLcigCfRQCq
-fBlGG16bfZSbwbI9B6HEtOk=
-=vkZ4
------END PGP SIGNATURE-----
-
---GmiNL4+5WUWrod5m--
+---
+Hideo Aoki, Hitachi Computer Products (America) Inc.

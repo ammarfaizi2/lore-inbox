@@ -1,88 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWDFLkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWDFLol@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbWDFLkh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 07:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWDFLkh
+	id S1751156AbWDFLol (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 07:44:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWDFLol
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 07:40:37 -0400
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:16798 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751136AbWDFLkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 07:40:36 -0400
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: [PATCH] Add a /proc/self/exedir link
-To: Neil Brown <neilb@suse.de>, Mike Hearn <mike@plan99.net>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Reply-To: 7eggert@gmx.de
-Date: Thu, 06 Apr 2006 13:39:49 +0200
-References: <5XGlt-GY-23@gated-at.bofh.it> <5XGOz-1eP-35@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Thu, 6 Apr 2006 07:44:41 -0400
+Received: from nacho.alt.net ([207.14.113.18]:39591 "HELO nacho.alt.net")
+	by vger.kernel.org with SMTP id S1751156AbWDFLol (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 07:44:41 -0400
+Date: Thu, 6 Apr 2006 11:44:38 +0000 (GMT)
+To: erich <erich@areca.com.tw>
+cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: about ll_rw_blk.c of void generic_make_request(struct bio *bio)
+In-Reply-To: <026001c6595c$f6c5a890$b100a8c0@erich2003>
+Message-ID: <Pine.LNX.4.64.0604060953000.13282@nacho.alt.net>
+References: <001d01c65302$0fee8e10$b100a8c0@erich2003><20060330155804.GP13476@suse.de><Pine.LNX.4.64.0603311700310.14317@nacho.alt.net><Pine.LNX.4.64.0603311748010.14317@nacho.alt.net><20060331202202.GH14022@suse.de>
+	<Pine.LNX.4.64.0603312028500.14317@nacho.alt.net>
+	<026001c6595c$f6c5a890$b100a8c0@erich2003>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1FRSqP-0000g3-9i@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Delivery-Agent: TMDA/1.0.3 (Seattle Slew)
+From: Chris Caputo <ccaputo@alt.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown <neilb@suse.de> wrote:
-> On Tuesday April 4, mike@plan99.net wrote:
+On Thu, 6 Apr 2006, erich wrote:
+> I am so sorry that I reply this mail today.
+> At 2006/4/3 my mother unexpectedly got paralysis and dead.
+> I can not do any more "request testing" with this bug for some days.
+> I do dump_stack as your request and attach it.
+> And I do "fsck" before test this volume every time.
+> It appears fine when do fsck with each testing volume.
+> You can easily reproduce this bug from copy a 900MB file from ARECA volume
+> (mkfs.ext2, mount -t ext2) to none ARECA volume.
 
->> To clarify, I'm proposing this patch for eventual mainline inclusion.
->> 
->> It adds a simple bit of API - a symlink in /proc/pid - which makes it
->> easy to build relocatable software:
->> 
->>    ./configure --prefix=/proc/self/exedir/..
+Erich, my sincere condolences to you and your family.
 
-[...]
+With respect to this problem, is it possible with your driver that if a 
+transfer read request is above a certain size, data corruption occurs?
 
-> It strikes me that this is very fragile.  If the application calls
-> anything out of /bin or /usr/bin etc passing a path name which works
-> for the application, it will break for the helper.
+It may be that fsck passes because it is doing smaller transfers while a 
+file copy under ext2 (or in your example, ext3) fails because it is during 
+those operations that the higher max_sectors makes a difference.
 
-ACK.
+Curiously, the hex values of the "want=" field in your report are as 
+follows:
 
-> It also requires all binaries use by the application to live in the
-> same directory.  This would be OK  for some applications, but not for
-> everything.
-> 
-> It sounds to me like you want a private, inherited, name space, and
-> Linux provides those via CLONE_NEWNS, however you probably need root
-> access to make that work, which isn't ideal.
+  sdb1: rw=0, want=12126966488, limit=312496317
+  2D2D2D2D8
+  sdb1: rw=0, want=12126967088, limit=312496317
+  2D2D2D530
+  sdb1: rw=0, want=22232771288, limit=312496317
+  52D2D2AD8
+  sdb1: rw=0, want=22232771888, limit=312496317
+  52D2D2D30
 
-This isn't going to rock either. If process A links
-$PID->namespace:/const/exedir/ to /mnt/net/host_a/foo/bin and passes
-/const/exedir/../lib/foo to process B, this process B must not
-link it's $PID->namespace:/const/exedir/ to e.g. /opt/B/bin, but
-exactly this is going to happen if you use a constant string.
+I wonder if 0x2D or 0xD2 corresponds to something on the disk such as in 
+the file being copied or is otherwise familiar.
 
-> I think you'd have move luck (ab)using an environment variable.
-> Make
->    /proc/self/env_prefix
-> be a symlink pointing to whatever the "PREFIX" environment variable
-> stores.
-
-Same problem.
-
-
-IMO the program must be aware of the get-my-exedir feature, just configuring
---prefix=/proc/... is aiming for your feet.
-
-/proc/pid/exedir may be a way to access the program files after changing the
-namespace, but it may also be a security risk leaving the original namespace
-accessible. Therefore I suggest abandoning the exedir idea and instead
-
-1) change the programs to be aware of it's exedir:
-   (my $exedir=`cat /proc/self/exe`) =~ s,/[^/]+$,,);
-   if ($libdir !~ m,^/,) { $libdir = $exedir.'/'.$libdir };
- - or -
-   ln -s /mnt/net/host_a/foo /usr/local/foo
-   (cd /usr/local/bin && for a in ../foo/bin; do ln -s "$a";done)
-2) If you want access across namespaces, use fopen etc. on an open
-   directory handle
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Chris

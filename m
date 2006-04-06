@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWDFWPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWDFWQD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbWDFWPV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 18:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWDFWPU
+	id S932183AbWDFWQD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 18:16:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWDFWQD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 18:15:20 -0400
-Received: from nevyn.them.org ([66.93.172.17]:7078 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S1751327AbWDFWPU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 18:15:20 -0400
-Date: Thu, 6 Apr 2006 18:15:19 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fs/binfmt_elf.c:maydump()
-Message-ID: <20060406221519.GA5453@nevyn.them.org>
-Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
-	linux-kernel@vger.kernel.org
-References: <20060406.140357.14088592.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060406.140357.14088592.davem@davemloft.net>
-User-Agent: Mutt/1.5.8i
+	Thu, 6 Apr 2006 18:16:03 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:51615 "EHLO
+	clueserver.org") by vger.kernel.org with ESMTP id S1751343AbWDFWQB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 18:16:01 -0400
+Date: Thu, 6 Apr 2006 15:16:00 -0700 (PDT)
+From: alan <alan@clueserver.org>
+X-X-Sender: alan@blackbox.fnordora.org
+To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
+cc: "Ju, Seokmann" <Seokmann.Ju@engenio.com>,
+       linux-scsi <linux-scsi@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Question: how to redirect Ctrl-Alt-F4 output to serial during
+ installation?
+In-Reply-To: <890BF3111FB9484E9526987D912B261901BCB4@NAMAIL3.ad.lsil.com>
+Message-ID: <Pine.LNX.4.64.0604061514500.7269@blackbox.fnordora.org>
+References: <890BF3111FB9484E9526987D912B261901BCB4@NAMAIL3.ad.lsil.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 06, 2006 at 02:03:57PM -0700, David S. Miller wrote:
-> Yes, this means we might hit the core dump limits quicker but we
-> shouldn't be doing anything which makes less debugging information
-> than necessary available.  Software development is hard enough as
-> it is right? :)
+On Thu, 6 Apr 2006, Ju, Seokmann wrote:
 
-> -	/* If it hasn't been written to, don't write it out */
-> -	if (!vma->anon_vma)
-> -		return 0;
-> -
+> Hi,
+>
+> During installation, I'm seeing all messages coming from SCSI HBA driver
+> displayed on Ctrl-Alt-F4 (not on console).
+> I would like to capture/analyze all messages stored in file.
+> Is there anyway that I could redirect Ctrl-Alt-F4 output to serial?
 
-Isn't this, um, a little more extreme than what you really want?
-What goes into coredumps with this patch applied?  I bet it includes
-the complete text segments of every executable and shared library
-involved in the link.  You're going to need those if you want to debug,
-anyway.
+I would try redirecting the kernel messages to the serial device of choice 
+via /etc/syslog.conf.
 
 -- 
-Daniel Jacobowitz
-CodeSourcery
+"Remember there is a big difference between kneeling down and bending over." - Frank Zappa

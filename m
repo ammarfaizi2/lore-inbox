@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWDFEYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWDFEaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbWDFEYs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 00:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWDFEYs
+	id S932145AbWDFEaF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 00:30:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWDFEaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 00:24:48 -0400
-Received: from h80ad24de.async.vt.edu ([128.173.36.222]:63891 "EHLO
-	h80ad24de.async.vt.edu") by vger.kernel.org with ESMTP
-	id S932147AbWDFEYr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 00:24:47 -0400
-Message-Id: <200604060424.k364OYYV007333@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Herbert Rosmanith <kernel@wildsau.enemy.org>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Robin Holt <holt@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Q on audit, audit-syscall 
-In-Reply-To: Your message of "Wed, 05 Apr 2006 23:47:24 +0200."
-             <200604052147.k35LlOpK010229@wildsau.enemy.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <200604052147.k35LlOpK010229@wildsau.enemy.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1144297473_2641P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 6 Apr 2006 00:30:05 -0400
+Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:18136 "EHLO
+	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932145AbWDFEaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 00:30:03 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch 2.6.16-mm2 10/9] sched throttle tree extract - kill interactive task feedback loop
+Date: Thu, 6 Apr 2006 14:29:39 +1000
+User-Agent: KMail/1.9.1
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+References: <1143880124.7617.5.camel@homer> <200604060915.07036.kernel@kolivas.org> <1144296619.7436.8.camel@homer>
+In-Reply-To: <1144296619.7436.8.camel@homer>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Thu, 06 Apr 2006 00:24:33 -0400
+Content-Disposition: inline
+Message-Id: <200604061429.40207.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1144297473_2641P
-Content-Type: text/plain; charset=us-ascii
+On Thursday 06 April 2006 14:10, Mike Galbraith wrote:
+> On Thu, 2006-04-06 at 09:15 +1000, Con Kolivas wrote:
+> > On Thursday 06 April 2006 03:38, Mike Galbraith wrote:
+> > > -	if (!rt_task(next) && interactive_sleep(next->sleep_type)) {
+> > > +	if (!TASK_INTERACTIVE(next) && interactive_sleep(next->sleep_type)) {
+> >
+> > You can't remove that rt_task check from there can you? We shouldn't ever
+> > requeue a rt task.
+>
+> RT tasks are always interactive aren't they?  (I'll check)
 
-On Wed, 05 Apr 2006 23:47:24 +0200, Herbert Rosmanith said:
+No, they're always equal to their static_prio. This rt_task check was added 
+originally because it was found to inappropriately be requeueing SCHED_FIFO 
+tasks.
 
-> anyway, the manpage describes how auditd/libaudit works - not how it has been
-> implemented/how it communicates with the kernel.
-> I want to know how it works "under the hood", not just how to use it.
-
-One thing that's not at all clear from casual reading of the source code
-of either the kernel or the userspace, or most of the existing docs...
-
-The audit facility is *very much* an after-the-fact logging - there are a
-few places where the code jumps through very odd hoops to deal with the fact
-that by the time an actual notification is generated, the entire process that
-triggered the event could be *gone*, completely and totally.
-
---==_Exmh_1144297473_2641P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFENJgBcC3lWbTT17ARAoMKAJ9RYJ4k0erm4OJvGGv8NSqPvbGMOACgxVJ9
-B+8yVP5695tejJspgOPYJ/8=
-=HEFE
------END PGP SIGNATURE-----
-
---==_Exmh_1144297473_2641P--
+Cheers,
+Con

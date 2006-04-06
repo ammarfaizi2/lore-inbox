@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWDFEgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWDFElf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbWDFEgg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 00:36:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWDFEgg
+	id S932154AbWDFElf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 00:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWDFElf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 00:36:36 -0400
-Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:17057 "EHLO
-	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932148AbWDFEgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 00:36:35 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Respin: [PATCH] mm: limit lowmem_reserve
-Date: Thu, 6 Apr 2006 14:36:16 +1000
-User-Agent: KMail/1.9.1
-Cc: ck@vds.kolivas.org, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-References: <200604021401.13331.kernel@kolivas.org> <200604061258.40487.kernel@kolivas.org> <20060405204009.3235b021.akpm@osdl.org>
-In-Reply-To: <20060405204009.3235b021.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 6 Apr 2006 00:41:35 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:8887
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932150AbWDFEle (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 00:41:34 -0400
+Date: Wed, 05 Apr 2006 21:41:20 -0700 (PDT)
+Message-Id: <20060405.214120.71087991.davem@davemloft.net>
+To: acahalan@gmail.com
+Cc: ak@muc.de, ak@suse.de, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: 32-on-64 (x86-64) siginfo corruption
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <787b0d920604052020rdaa5146q58720e7fd82ce0bb@mail.gmail.com>
+References: <787b0d920604052020rdaa5146q58720e7fd82ce0bb@mail.gmail.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604061436.16907.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 April 2006 13:40, Andrew Morton wrote:
-> Con Kolivas <kernel@kolivas.org> wrote:
-> > On Thursday 06 April 2006 12:55, Con Kolivas wrote:
-> > > On Thursday 06 April 2006 12:43, Andrew Morton wrote:
-> > > > Con Kolivas <kernel@kolivas.org> wrote:
-> > > > > It is possible with a low enough lowmem_reserve ratio to make
-> > > > >  zone_watermark_ok fail repeatedly if the lower_zone is small
-> > > > > enough.
-> > > >
-> > > > Is that actually a problem?
-> > >
-> > > Every single call to get_page_from_freelist will call on zone reclaim.
-> > > It seems a problem to me if every call to __alloc_pages will do that?
-> >
-> > every call to __alloc_pages of that zone I mean
->
-> One would need to check with the NUMA guys.  zone_reclaim() has a
-> (lame-looking) timer in there to prevent it from doing too much work.
->
-> That, or I'm missing something.  This problem wasn't particularly well
-> described, sorry.
+From: "Albert Cahalan" <acahalan@gmail.com>
+Date: Wed, 5 Apr 2006 23:20:07 -0400
 
-Ah ok. This all came about because I'm trying to honour the lowmem_reserve 
-better in swap_prefetch at Nick's request. It's hard to honour a watermark 
-that on some configurations is never reached.
+> The situation:  32-bit debugger, 32-bit child, 64-bit kernel
+> 
+> The debugger sends an RT signal to the child. (to stop it, with
+> a queue and siginfo so that non-debugger signals don't get lost)
+> To do this, the debugger uses tgkill().
+> 
+> Later, the debugger checks the child's siginfo_t before discarding
+> it. This is to be sure that the child didn't get the RT signal from
+> some other source. The debugger fills a siginfo_t with 0xff, then
+> fetches siginfo data via ptrace. The data is corrupt:
+> 
+> FIELD     32-ON-64   NORMAL
+> si_pid      -1       getpid()
+> si_uid    getpid()   getuid()
+> 
+> The "getpid" and "getuid" above are done in the debugger, not in
+> the child. The si_code values are SI_TKILL.
+> 
+> Probably the other ports with 32-on-64 support ought to verify
+> that this stuff works right.
 
-Cheers,
-Con
+Ugh, just like PTRACE_GETEVENTMSG we'll need translations for
+GETSIGINFO and SETSIGINFO.
+
+I've CC'd linux-arch which is where the port maintainers hang
+out and look for postings about issues like this.  I mentioned
+the PTRACE_GETEVENTMSG issue there just the other day.

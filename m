@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWDFS7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWDFTcA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbWDFS7g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 14:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWDFS7g
+	id S932159AbWDFTcA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 15:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWDFTb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 14:59:36 -0400
-Received: from blackbird.sr71.net ([64.146.134.44]:27779 "EHLO
-	blackbird.sr71.net") by vger.kernel.org with ESMTP id S932125AbWDFS7f
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 14:59:35 -0400
-Subject: Re: [PATCH] Fix pciehp driver on non ACPI systems
-From: Dave Hansen <dave@sr71.net>
-To: Greg KH <greg@kroah.com>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, anton@samba.org, akpm@osdl.org,
-       gregkh@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20060406182722.GA31712@kroah.com>
-References: <20060406101731.GA9989@krispykreme>
-	 <20060406160527.GA2965@kroah.com>
-	 <20060406104113.08311cdc.rdunlap@xenotime.net>
-	 <20060406182722.GA31712@kroah.com>
+	Thu, 6 Apr 2006 15:31:59 -0400
+Received: from www.osadl.org ([213.239.205.134]:1212 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S932159AbWDFTb7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 15:31:59 -0400
+Subject: Re: [PATCH 1/5] generic clocksource updates
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: johnstul@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0604062048130.17704@scrub.home>
+References: <Pine.LNX.4.64.0604032155070.4707@scrub.home>
+	 <1144317972.5344.681.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0604062048130.17704@scrub.home>
 Content-Type: text/plain
-Date: Thu, 06 Apr 2006 11:58:58 -0700
-Message-Id: <1144349938.9731.185.camel@localhost.localdomain>
+Date: Thu, 06 Apr 2006 21:32:24 +0200
+Message-Id: <1144351944.5925.23.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-06 at 11:27 -0700, Greg KH wrote:
-> Would that solve this issue?  I'm guessing that they are being included
-> as it needs something in those headers... 
+On Thu, 2006-04-06 at 21:00 +0200, Roman Zippel wrote:
+> > > -	int is_continuous;
+> > 
+> > This field was introduced to have a clear property description. The
+> > rating field might be used for this, but from a given rating on a
+> > particular CPU architecture it might be hard to deduce whether this
+> > clock source is good enough so we can switch to high resolution timer
+> > mode.
+> 
+> Currently this field isn't needed and as soon we have a need for it, we 
+> can add proper capability information.
 
-There's another #ifdef CONFIG_ACPI area in the .c file.  I doubt
-anything else in there really needs ACPI.  Maybe the #ifdef'd area could
-go into its own _acpi.c file?
+Is there a reason, why requirements which are known from existing
+experience must be discarded to be reintroduced later ?
 
--- Dave
+	tglx
+
 

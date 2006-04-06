@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWDFSAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWDFSHM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWDFSAV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 14:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWDFSAU
+	id S932101AbWDFSHM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 14:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWDFSHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 14:00:20 -0400
-Received: from mail.kroah.org ([69.55.234.183]:62379 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932113AbWDFSAS (ORCPT
+	Thu, 6 Apr 2006 14:07:11 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:64663 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932101AbWDFSHK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 14:00:18 -0400
-Date: Thu, 6 Apr 2006 10:57:04 -0700
-From: Greg KH <gregkh@suse.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Greg KH <greg@kroah.com>,
-       anton@samba.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix pciehp driver on non ACPI systems
-Message-ID: <20060406175704.GA30949@suse.de>
-References: <20060406101731.GA9989@krispykreme> <20060406160527.GA2965@kroah.com> <20060406104113.08311cdc.rdunlap@xenotime.net> <20060406174644.GD6598@mars.ravnborg.org>
+	Thu, 6 Apr 2006 14:07:10 -0400
+Date: Fri, 7 Apr 2006 02:04:03 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH rc1-mm] de_thread: fix deadlockable process addition
+Message-ID: <20060406220403.GA205@oleg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060406174644.GD6598@mars.ravnborg.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 06, 2006 at 07:46:44PM +0200, Sam Ravnborg wrote:
-> On Thu, Apr 06, 2006 at 10:41:13AM -0700, Randy.Dunlap wrote:
-> > On Thu, 6 Apr 2006 09:05:27 -0700 Greg KH wrote:
-> > 
-> > > On Thu, Apr 06, 2006 at 08:17:31PM +1000, Anton Blanchard wrote:
-> > > > 
-> > > > Wrap some ACPI specific headers. ACPI hasnt taken over the whole world yet.
-> > > > 
-> > > > Signed-off-by: Anton Blanchard <anton@samba.org>
-> > > > ---
-> > > > 
-> > > > Index: kernel/drivers/pci/hotplug/pciehp_hpc.c
-> > > > ===================================================================
-> > > > --- kernel.orig/drivers/pci/hotplug/pciehp_hpc.c	2006-04-06 05:01:32.000000000 -0500
-> > > > +++ kernel/drivers/pci/hotplug/pciehp_hpc.c	2006-04-06 05:09:48.501122395 -0500
-> > > > @@ -38,10 +38,14 @@
-> > > >  
-> > > >  #include "../pci.h"
-> 
-> When one introdues relative apths like the above this is a good sign
-> that the header file ought to move to a common place somewhere in
-> include/.
+On top of
+	task-make-task-list-manipulations-rcu-safe.patch
+	
+This patch
+	pidhash-kill-switch_exec_pids.patch
 
-No, this is a pci-core only header file.  I really don't want to have
-these in include/linux/pci.h as no one other than the pci core, or pci
-hotplug drivers need to use it.
+changed de_thread() so that it doesn't remove 'leader' from it's thread group.
+However de_thread() still adds current to init_task.tasks without removing
+'leader' from this list. What if another CLONE_VM task starts do_coredump()
+after de_thread() drops tasklist_lock but before it calls release_task(leader) ?
 
-I guess I could create,
-include/linux/pci-core-only-dont-use-unless-you-really-know-what-you-are-doing.h
-but that might be a bit rude :)
+do_coredump()->zap_threads() will find this thread group twice on init_task.tasks
+list. And it will increment mm->core_waiters twice for the new leader (current in
+de_thread). So, exit_mm()->complete(mm->core_startup_done) doesn't happen, and we
+have a deadlock.
 
-thanks,
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-greg k-h
+--- MM/fs/exec.c~0_DET	2006-04-06 22:37:33.000000000 +0400
++++ MM/fs/exec.c	2006-04-06 22:51:51.000000000 +0400
+@@ -713,7 +713,7 @@ static int de_thread(struct task_struct 
+ 		attach_pid(current, PIDTYPE_PID,  current->pid);
+ 		attach_pid(current, PIDTYPE_PGID, current->signal->pgrp);
+ 		attach_pid(current, PIDTYPE_SID,  current->signal->session);
+-		list_add_tail_rcu(&current->tasks, &init_task.tasks);
++		list_replace_rcu(&leader->tasks, &current->tasks);
+ 
+ 		current->parent = current->real_parent = leader->real_parent;
+ 		leader->parent = leader->real_parent = child_reaper;
+--- MM/kernel/exit.c~0_DET	2006-03-23 23:02:53.000000000 +0300
++++ MM/kernel/exit.c	2006-04-06 23:01:37.000000000 +0400
+@@ -55,7 +55,9 @@ static void __unhash_process(struct task
+ 		detach_pid(p, PIDTYPE_PGID);
+ 		detach_pid(p, PIDTYPE_SID);
+ 
+-		list_del_rcu(&p->tasks);
++		/* see de_thread()->list_replace_rcu() */
++		if (likely(p->tasks.prev != LIST_POISON2))
++			list_del_rcu(&p->tasks);
+ 		__get_cpu_var(process_counts)--;
+ 	}
+ 	list_del_rcu(&p->thread_group);
+

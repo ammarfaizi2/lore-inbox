@@ -1,58 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWDFUHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWDFUPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbWDFUHb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 16:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbWDFUHa
+	id S932134AbWDFUPv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 16:15:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbWDFUPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 16:07:30 -0400
-Received: from smtp10k.poczta.onet.pl ([213.180.130.90]:47517 "EHLO
-	smtp10k.poczta.onet.pl") by vger.kernel.org with ESMTP
-	id S1751267AbWDFUHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 16:07:30 -0400
+	Thu, 6 Apr 2006 16:15:51 -0400
+Received: from xenotime.net ([66.160.160.81]:49871 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751267AbWDFUPv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 16:15:51 -0400
+Date: Thu, 6 Apr 2006 13:18:05 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: jzb@aexorsyst.com
+Cc: linux-kernel@vger.kernel.org, akpm <akpm@osdl.org>
+Subject: [PATCH] mpparse: prevent table index out-of-bounds
+Message-Id: <20060406131805.d6eb0fe7.rdunlap@xenotime.net>
+In-Reply-To: <200604060918.45185.jzb@aexorsyst.com>
+References: <200603212005.58274.jzb@aexorsyst.com>
+	<200603251036.40379.jzb@aexorsyst.com>
+	<20060405120742.ee9af120.rdunlap@xenotime.net>
+	<200604060918.45185.jzb@aexorsyst.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-MIME-Version: 1.0
-Date: Thu, 06 Apr 2006 22:07:12 +0200
-From: tomek.fizyk@op.pl
-To: greg@kroah.com
-Cc: linux-usb-users@lists.sourceforge.net,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] pl2303: added support for OTi's DKU-5 clone cable
-X-Priority: 3
-X-Mailer: onet.poczta
-Message-Id: <20060406200716Z2608200-18763+115@kps10.test.onet.pl>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Tomasz Kazmierczak <tomek.fizyk@op.pl>
+On Thu, 6 Apr 2006 09:18:45 -0700 John Z. Bohach wrote:
 
-This patch adds support for a clone of Nokia DKU-5 cable made by
-Ours Technology Inc for Nokia phones with PopPort (Nokia 3100 and others).
-The cable uses PL2303 USB-to-serial converter from Prolific Technology Inc.
-Signed-off-by: Tomasz Kazmierczak <tomek.fizyk@op.pl>
+Re: mem= causes oops (was Re: BIOS causes (exposes?) modprobe (load_module) kernel oops)
+
+> I found the root cause, but don't know if its worth fixing.  If the board has more than
+> 32 PCI busses on it, the mptable bus array will overwrite its bounds for the PCI busses,
+> and stomp on anything that's after it.  In this case, what got stomped on is the PAGE_KERNEL_EXEC
+> variable, which changed the bit-field settings for the page tables (cleared the 'present' bit,
+> and screwed up the rest), hence accounting for the page fault.
+
+Well, > 32 busses or just one busid value >= 32.
+
+> This can only happen if there are more than 32 PCI busses, so I'd say its an _extremely_ rare
+> condition on a desktop system.  At any rate, the fix would simply be to change the value of the
+> #define in the mptable.h header file (I forget which exactly, but its easy to find) from 32 to 256.
+> The side effect of that is that the kernel data area would grow, and mostly be a total waste,
+> since I can't fathom a desktop system with more than 32 PCI busses.  On arch's where more than
+> 32 PCI busses are likely, the #define is already 256.
+
+I think that the kernel init code should detect and prevent the
+data corruption.  Here's a patch to do that, by ignoring busses
+whose busid value is too large.
+~~~
+
+
+From: Randy Dunlap <rdunlap@xenotime.net>
+
+Prevent possible table overflow and unknown data corruption.
+Code is in an __init section so it will be discarded after init.
+
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
-kernel version: linux-2.6.17-rc1
+ arch/i386/kernel/mpparse.c |    7 +++++++
+ 1 files changed, 7 insertions(+)
 
-diff --git a/drivers/usb/serial/pl2303.c b/drivers/usb/serial/pl2303.c
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -78,6 +78,7 @@ static struct usb_device_id id_table [] 
- 	{ USB_DEVICE(SAGEM_VENDOR_ID, SAGEM_PRODUCT_ID) },
- 	{ USB_DEVICE(LEADTEK_VENDOR_ID, LEADTEK_9531_PRODUCT_ID) },
- 	{ USB_DEVICE(SPEEDDRAGON_VENDOR_ID, SPEEDDRAGON_PRODUCT_ID) },
-+	{ USB_DEVICE(OTI_VENDOR_ID, OTI_PRODUCT_ID) },
- 	{ }					/* Terminating entry */
- };
+--- linux-2617-rc1.orig/arch/i386/kernel/mpparse.c
++++ linux-2617-rc1/arch/i386/kernel/mpparse.c
+@@ -249,6 +249,13 @@ static void __init MP_bus_info (struct m
  
-diff --git a/drivers/usb/serial/pl2303.h b/drivers/usb/serial/pl2303.h
---- a/drivers/usb/serial/pl2303.h
-+++ b/drivers/usb/serial/pl2303.h
-@@ -79,3 +79,7 @@
- /* USB GSM cable from Speed Dragon Multimedia, Ltd */
- #define SPEEDDRAGON_VENDOR_ID	0x0e55
- #define SPEEDDRAGON_PRODUCT_ID	0x110b
+ 	mpc_oem_bus_info(m, str, translation_table[mpc_record]);
+ 
++	if (m->mpc_busid >= MAX_MP_BUSSES) {
++		printk(KERN_WARNING "MP table busid value (%d) for bustype %s "
++			" is too large, max. supported is %d\n",
++			m->mpc_busid, str, MAX_MP_BUSSES - 1);
++		return;
++	}
 +
-+/* Ours Technology Inc DKU-5 clone, chipset: Prolific Technology Inc */
-+#define OTI_VENDOR_ID	0x0ea0
-+#define OTI_PRODUCT_ID	0x6858
+ 	if (strncmp(str, BUSTYPE_ISA, sizeof(BUSTYPE_ISA)-1) == 0) {
+ 		mp_bus_id_to_type[m->mpc_busid] = MP_BUS_ISA;
+ 	} else if (strncmp(str, BUSTYPE_EISA, sizeof(BUSTYPE_EISA)-1) == 0) {
+
+---

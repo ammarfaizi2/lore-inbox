@@ -1,70 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWDFKWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWDFKWD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932167AbWDFKWa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 06:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWDFKW3
+	id S932162AbWDFKWD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 06:22:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWDFKWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 06:22:29 -0400
-Received: from mail-in-06.arcor-online.net ([151.189.21.46]:18618 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932083AbWDFKWY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 06:22:24 -0400
-Date: Thu, 6 Apr 2006 12:21:59 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: [BUG] No PS/2 mouse in 2.6.16 - bisect result
-Message-ID: <Pine.LNX.4.58.0604061145230.2262@be1.lrz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
+	Thu, 6 Apr 2006 06:22:01 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39439 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932162AbWDFKWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 06:22:00 -0400
+Date: Thu, 6 Apr 2006 11:21:54 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: "Luck, Tony" <tony.luck@intel.com>, Zou Nan hai <nanhai.zou@intel.com>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org
+Subject: Re: 2.6.17-rc1-mm1
+Message-ID: <20060406102154.GB28056@flint.arm.linux.org.uk>
+Mail-Followup-To: Bjorn Helgaas <bjorn.helgaas@hp.com>,
+	"Luck, Tony" <tony.luck@intel.com>,
+	Zou Nan hai <nanhai.zou@intel.com>, Andrew Morton <akpm@osdl.org>,
+	LKML <linux-kernel@vger.kernel.org>, linux-ia64@vger.kernel.org
+References: <20060404014504.564bf45a.akpm@osdl.org> <200604051015.34217.bjorn.helgaas@hp.com> <20060405211757.GA8536@agluck-lia64.sc.intel.com> <200604051601.08776.bjorn.helgaas@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200604051601.08776.bjorn.helgaas@hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As decribed in the thread
-http://groups.google.com/groups?selm=5V6m7-81J-11@gated-at.bofh.it ,
-my mouse does not work in 2.6.16.
+On Wed, Apr 05, 2006 at 04:01:08PM -0600, Bjorn Helgaas wrote:
+> [PATCH] vgacon: make VGA_MAP_MEM take size, remove extra use
 
-Copying the drivers/input/mouse directory from 2.6.15 helped, but 
-bisecting gave the below result. Reverting this patch did help,
-so it must be some kind of conflict with an input patch, but I can't find 
-a way to make git tell me all commits between foo and bar affecting baz.
-I don't intend to do it manually.
+Ah, seems to be what I just suggested...
 
----------------------------
+> @@ -1020,14 +1019,14 @@
+>  	char *charmap;
+>  	
+>  	if (vga_video_type != VIDEO_TYPE_EGAM) {
+> -		charmap = (char *) VGA_MAP_MEM(colourmap);
+> +		charmap = (char *) VGA_MAP_MEM(colourmap, 0);
 
-8ba7b0a14b2ec19583bedbcdbea7f1c5008fc922 is first bad commit
-diff-tree 8ba7b0a14b2ec19583bedbcdbea7f1c5008fc922 (from 
-91c0bce29e4050a59ee5fdc1192b60bbf8693a6d)
-Author: Linus Torvalds <torvalds@g5.osdl.org>
-Date:   Mon Mar 6 17:38:49 2006 -0800
+Don't like this though - can't we pass a real size here rather than zero?
+There seems to be several clues as to the maximum size:
 
-    Add early-boot-safety check to cond_resched()
+#define cmapsz 8192
 
-    Just to be safe, we should not trigger a conditional reschedule during
-    the early boot sequence.  We've historically done some questionable
-    early on, and the safety warnings in __might_sleep() are generally
-    turned off during that period, so there might be problems lurking.
+        if (!vga_font_is_default)
+                charmap += 4 * cmapsz;
 
-    This affects CONFIG_PREEMPT_VOLUNTARY, which takes over might_sleep() 
-to
-    cause a voluntary conditional reschedule.
+                        charmap += 2 * cmapsz;
+                                for (i = 0; i < cmapsz; i++)
+                                        vga_writeb(arg[i], charmap + i);
 
-    Acked-by: Ingo Molnar <mingo@elte.hu>
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-:040000 040000 397bb2be72349a868d25f8668ee4a7dd86e53c3e 
-459acaeb07f5d1b1f993a38b084af4c71d76e354 M        kernel
-
---------------------------
-
-# CONFIG_PREEMPT_NONE is not set
-CONFIG_PREEMPT_VOLUNTARY=y
-# CONFIG_PREEMPT is not set
-
---------------------------
+so that's about 7 * cmapsz - call that 8 for completeness, which is 64K.
 
 -- 
-Never be afraid to try something new. Remember, amateurs built the
-ark; professionals built the Titanic. -- Anonymous
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

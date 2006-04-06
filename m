@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWDFRxa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWDFRy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751302AbWDFRxa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 13:53:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWDFRxa
+	id S1751296AbWDFRy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 13:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWDFRy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 13:53:30 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:12998 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751292AbWDFRx3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 13:53:29 -0400
-In-Reply-To: <1142948528.28120.34.camel@moss-spartans.epoch.ncsc.mil>
-To: sds@tycho.nsa.gov
-Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
-       cxzhang@watson.ibm.com, davem@davemloft.net, ioe-lkml@rameria.de,
-       James Morris <jmorris@namei.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, netdev@axxeo.de
-MIME-Version: 1.0
-Subject: Re: [PATCH] scm: fold __scm_send() into scm_send()
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFD873D233.5BCDC487-ON85257148.0061E542-85257148.00623838@us.ibm.com>
-From: Xiaolan Zhang <cxzhang@us.ibm.com>
-Date: Thu, 6 Apr 2006 13:52:48 -0400
-X-MIMETrack: Serialize by Router on D01ML605/01/M/IBM(Release 7.0.1HF18 | February 28, 2006) at
- 04/06/2006 13:52:54,
-	Serialize complete at 04/06/2006 13:52:54
-Content-Type: text/plain; charset="US-ASCII"
+	Thu, 6 Apr 2006 13:54:27 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:10422 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751296AbWDFRy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 13:54:26 -0400
+Message-Id: <200604061655.k36GtMvc005146@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-xfs@oss.sgi.com, Daniel Phillips <phillips@google.com>,
+       linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH 1/2] Add GFP_NOWAIT
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 06 Apr 2006 12:55:22 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Stephen and James,
+Introduce GFP_NOWAIT, as an alias for GFP_ATOMIC & ~__GFP_HIGH.
 
-Looks like the selinux_sk_ctxid() call implemented in James' patch also 
-requires the sk_callback_lock (see below).  I am planning to introduce a 
-new exported fucntion selinux_sock_ctxid() which does not require any 
-locking.  Comments?
+This also changes XFS, which is the only in-tree user of this idiom that I 
+could find.  The XFS piece is compile-tested only.
 
-thanks,
-Catherine
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote on 03/21/2006 08:42:08 AM:
-
-> On Tue, 2006-03-21 at 08:32 -0500, Stephen Smalley wrote:
-> > > I don't expect security_sk_sid() to be terribly expensive.  It's not
-> > > an AVC check, it's just propagating a label.  But I've not done any
-> > > benchmarking on that.
-> > 
-> > No permission check there, but it looks like it does read lock
-> > sk_callback_lock.  Not sure if that is truly justified here.
-> 
-> Ah, that is because it is also called from the xfrm code, introduced by
-> Trent's patches.  But that locking shouldn't be necessary from scm_send,
-> right?  So she likely wants a separate hook for it to avoid that
-> overhead, or even just a direct SELinux interface?
-> 
-> -- 
-> Stephen Smalley
-> National Security Agency
-> 
+Index: linux-2.6.16/fs/xfs/linux-2.6/xfs_buf.c
+===================================================================
+--- linux-2.6.16.orig/fs/xfs/linux-2.6/xfs_buf.c	2006-04-06 12:16:14.000000000 -0400
++++ linux-2.6.16/fs/xfs/linux-2.6/xfs_buf.c	2006-04-06 12:16:54.000000000 -0400
+@@ -182,7 +182,7 @@ free_address(
+ {
+ 	a_list_t	*aentry;
+ 
+-	aentry = kmalloc(sizeof(a_list_t), GFP_ATOMIC & ~__GFP_HIGH);
++	aentry = kmalloc(sizeof(a_list_t), GFP_NOWAIT);
+ 	if (likely(aentry)) {
+ 		spin_lock(&as_lock);
+ 		aentry->next = as_free_head;
+Index: linux-2.6.16/include/linux/gfp.h
+===================================================================
+--- linux-2.6.16.orig/include/linux/gfp.h	2006-03-21 11:50:12.000000000 -0500
++++ linux-2.6.16/include/linux/gfp.h	2006-04-06 12:15:18.000000000 -0400
+@@ -57,6 +57,8 @@ struct vm_area_struct;
+ 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
+ 			__GFP_NOMEMALLOC|__GFP_HARDWALL)
+ 
++/* This equals 0, but use constants in case they ever change */
++#define GFP_NOWAIT	(GFP_ATOMIC & ~__GFP_HIGH)
+ /* GFP_ATOMIC means both !wait (__GFP_WAIT not set) and use emergency pool */
+ #define GFP_ATOMIC	(__GFP_HIGH)
+ #define GFP_NOIO	(__GFP_WAIT)
 

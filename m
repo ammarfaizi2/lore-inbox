@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWDFBGI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbWDFBHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751207AbWDFBGI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 21:06:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbWDFBGI
+	id S1751238AbWDFBHA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 21:07:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWDFBHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 21:06:08 -0400
-Received: from mx2.suse.de ([195.135.220.15]:6030 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751207AbWDFBGG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 21:06:06 -0400
-Date: Wed, 5 Apr 2006 18:05:15 -0700
-From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>, Greg KH <gregkh@suse.de>,
-       rene.herman@keyaccess.nl, alsa-devel@alsa-project.org,
-       linux-kernel@vger.kernel.org, tiwai@suse.de
-Subject: Re: patch bus_add_device-losing-an-error-return-from-the-probe-method.patch added to gregkh-2.6 tree
-Message-ID: <20060406010515.GB18567@kroah.com>
-References: <44238489.8090402@keyaccess.nl> <d120d5000604041428h65931eb6qffe1af04d91e7f31@mail.gmail.com> <20060404214522.GA20390@suse.de> <200604042135.41371.dtor_core@ameritech.net> <20060405073602.GA1380@flint.arm.linux.org.uk>
+	Wed, 5 Apr 2006 21:07:00 -0400
+Received: from morbo.e-centre.net ([66.154.82.3]:17128 "EHLO
+	cubert.e-centre.net") by vger.kernel.org with ESMTP
+	id S1751238AbWDFBG7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 21:06:59 -0400
+X-ASG-Debug-ID: 1144285617-22974-2-0
+X-Barracuda-URL: http://10.3.1.19:8000/cgi-bin/mark.cgi
+X-ASG-Orig-Subj: Re: readers-writers mutex
+Subject: Re: readers-writers mutex
+From: Arjan van de Ven <arjan@infradead.org>
+To: Joshua Hudson <joshudson@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <bda6d13a0604051521o229de77dvb38992d6427a450c@mail.gmail.com>
+References: <bda6d13a0604051521o229de77dvb38992d6427a450c@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 06 Apr 2006 03:06:55 +0200
+Message-Id: <1144285616.3023.3.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060405073602.GA1380@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=4.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.10542
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 05, 2006 at 08:36:02AM +0100, Russell King wrote:
-> On Tue, Apr 04, 2006 at 09:35:40PM -0400, Dmitry Torokhov wrote:
-> > On Tuesday 04 April 2006 17:45, Greg KH wrote:
-> > > Ah, I see what you are saying now.  Yeah, we should still add the
-> > > default attributes for the bus and create the bus link even if some
-> > > random driver had problems.  But then, we should still propagate the
-> > > error back up, right?
-> > 
-> > I don't think so because device creation did not fail. Otherwise how
-> > would you as a caller of device_register() distinguish between the
-> > following 2 scenarios:
-> > 
-> >  - you got -ENOMEM (or other error code) because device creation
-> >    indeed failed;
-> >  - you got -ENOMEM because some odd driver could not allocate 4MB
-> >    of memory.
-> > 
-> > IOW you trying to propagate driver error to device creation code...
-> > 
-> > Also result of device_register() should not depend on whether
-> > driver_register() was called earlier or not.
-> 
-> Indeed.  Greg - this patch is bogus.
+On Wed, 2006-04-05 at 15:21 -0700, Joshua Hudson wrote:
+> Since we are moving from semaphores to mutex, there should be a
+> mutex_rw.
 
-You and Dmitry are correct.  I'm dropping this patch.  The ISA drivers
-just need to get used to the proper way to use the driver model (they do
-not know if they have been bound to a device when the driver is loaded,
-no big deal).
+should there really? We discussed this briefly during the mutex work
+the conclusion was that rw_sems
+1) are rare (thankfully; they're highly expensive)
+2) do not have mutex semantics
 
-If there's other issues with platform devices still, without this patch
-applied, please let me know.
+so... can you explain how your rw_mutex is behaving different from an
+rw_sem, and can you explain what the gains are for that conversion?
+(eg for mutex it was better defined semantics, lots better debugging
+(possible due to the semantics) and more performance). What is that for
+rw_mutex ?
 
-thanks to you all for pointing out the real issues here.
 
-greg k-h

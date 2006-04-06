@@ -1,91 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWDFRYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWDFRjA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932215AbWDFRYj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 13:24:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWDFRYj
+	id S1751284AbWDFRjA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 13:39:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbWDFRjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 13:24:39 -0400
-Received: from dvhart.com ([64.146.134.43]:24519 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S932215AbWDFRYj (ORCPT
+	Thu, 6 Apr 2006 13:39:00 -0400
+Received: from xenotime.net ([66.160.160.81]:14236 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751284AbWDFRi7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 13:24:39 -0400
-From: Darren Hart <darren@dvhart.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: RT task scheduling
-Date: Thu, 6 Apr 2006 10:24:34 -0700
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       "Stultz, John" <johnstul@us.ibm.com>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-References: <200604052025.05679.darren@dvhart.com> <443496CA.6050905@bigpond.net.au>
-In-Reply-To: <443496CA.6050905@bigpond.net.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 6 Apr 2006 13:38:59 -0400
+Date: Thu, 6 Apr 2006 10:41:13 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Greg KH <greg@kroah.com>
+Cc: anton@samba.org, akpm@osdl.org, gregkh@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix pciehp driver on non ACPI systems
+Message-Id: <20060406104113.08311cdc.rdunlap@xenotime.net>
+In-Reply-To: <20060406160527.GA2965@kroah.com>
+References: <20060406101731.GA9989@krispykreme>
+	<20060406160527.GA2965@kroah.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604061024.35300.darren@dvhart.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 05 April 2006 21:19, Peter Williams wrote:
-> Darren Hart wrote:
-> > My last mail specifically addresses preempt-rt, but I'd like to know
-> > people's thoughts regarding this issue in the mainline kernel.  Please
-> > see my previous post "realtime-preempt scheduling - rt_overload behavior"
-> > for a testcase that produces unpredictable scheduling results.
-> >
-> > Part of the issue here is to define what we consider "correct behavior"
-> > for SCHED_FIFO realtime tasks.  Do we (A) need to strive for "strict
-> > realtime priority scheduling" where the NR_CPUS highest priority runnable
-> > SCHED_FIFO tasks are _always_ running?  Or do we (B) take the best effort
-> > approach with an upper limit RT priority imbalances, where an imbalance
-> > may occur (say at wakeup or exit) but will be remedied within 1 tick. 
-> > The smpnice patches improve load balancing, but don't provide (A).
-> >
-> > More details in the previous mail...
->
-> I'm currently researching some ideas to improve smpnice that may help in
-> this situation.  The basic idea is that as well as trying to equally
-> distribute the weighted load among the groups/queues we should also try
-> to achieve equal "average load per task" for each group/queue.  (As well
-> as helping with problems such as yours, this will help to restore the
-> "equal distribution of nr_running" amongst groups/queues aim that is
-> implicit without smpnice due to the fact that load is just a smoothed
-> version of nr_running.)
+On Thu, 6 Apr 2006 09:05:27 -0700 Greg KH wrote:
 
-Can you elaborate on what you mean by "average load per task" ?  
+> On Thu, Apr 06, 2006 at 08:17:31PM +1000, Anton Blanchard wrote:
+> > 
+> > Wrap some ACPI specific headers. ACPI hasnt taken over the whole world yet.
+> > 
+> > Signed-off-by: Anton Blanchard <anton@samba.org>
+> > ---
+> > 
+> > Index: kernel/drivers/pci/hotplug/pciehp_hpc.c
+> > ===================================================================
+> > --- kernel.orig/drivers/pci/hotplug/pciehp_hpc.c	2006-04-06 05:01:32.000000000 -0500
+> > +++ kernel/drivers/pci/hotplug/pciehp_hpc.c	2006-04-06 05:09:48.501122395 -0500
+> > @@ -38,10 +38,14 @@
+> >  
+> >  #include "../pci.h"
+> >  #include "pciehp.h"
+> > +
+> > +#ifdef CONFIG_ACPI
+> >  #include <acpi/acpi.h>
+> >  #include <acpi/acpi_bus.h>
+> >  #include <acpi/actypes.h>
+> >  #include <linux/pci-acpi.h>
+> > +#endif
+> 
+> Shouldn't the ACPI headers handle it if CONFIG_ACPI is not enabled?  All
+> other header files work that way, and we shouldn't have to add this to
+> the .c files.
 
-Also, since smpnice is (correct me if I am wrong) load_balancing, I don't 
-think it will prevent the problem from happening, but rather fix it when it 
-does.  If we want to prevent it from happening, I think we need to do 
-something like the rt_overload code from the RT patchset.
+maybe the C file could just #include <linux/acpi.h> ?
 
->
-> In find_busiest_group(), I think that load balancing in the case where
-> *imbalance is greater than busiest_load_per_task will tend towards this
-> result and also when *imbalance is less than busiest_load_per_task AND
-> busiest_load_per_task is less than this_load_per_task.  However, in the
-> case where *imbalance is less than busiest_load_per_task AND
-> busiest_load_per_task is greater than this_load_per_task this will not
-> be the case as the amount of load moved from "busiest" to "this" will be
-> less than or equal to busiest_load_per_task and this will actually
-> increase the value of busiest_load_per_task.  So, although it will
-> achieve the aim of equally distributing the weighted load, it won't help
-> the second aim of equal "average load per task" values for groups/queues.
->
-> The obvious way to fix this problem is to alter the code so that more
-> than busiest_load_per_task is moved from "busiest" to "this" in these
-> cases while at the same time ensuring that the imbalance between their
-> loads doesn't get any bigger.  I'm working on a patch along these lines.
->
-> Changes to find_idlest_group() and try_to_wake_up() taking into account
-> the "average load per task" on the candidate queues/groups as well as
-> their weighted loads may also help and I'll be looking at them as well.
->   It's not immediately obvious to me how this can be done so any ideas
-> would be welcome.  It will likely involve taking the load weight of the
-> waking task into account as well.
->
-> Peter
+---
+~Randy

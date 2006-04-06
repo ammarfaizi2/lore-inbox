@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWDFEaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWDFEgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932145AbWDFEaF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 00:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWDFEaF
+	id S932148AbWDFEgg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 00:36:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWDFEgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 00:30:05 -0400
-Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:18136 "EHLO
-	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932145AbWDFEaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 00:30:03 -0400
+	Thu, 6 Apr 2006 00:36:36 -0400
+Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:17057 "EHLO
+	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932148AbWDFEgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 00:36:35 -0400
 From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: [patch 2.6.16-mm2 10/9] sched throttle tree extract - kill interactive task feedback loop
-Date: Thu, 6 Apr 2006 14:29:39 +1000
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Respin: [PATCH] mm: limit lowmem_reserve
+Date: Thu, 6 Apr 2006 14:36:16 +1000
 User-Agent: KMail/1.9.1
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-References: <1143880124.7617.5.camel@homer> <200604060915.07036.kernel@kolivas.org> <1144296619.7436.8.camel@homer>
-In-Reply-To: <1144296619.7436.8.camel@homer>
+Cc: ck@vds.kolivas.org, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+References: <200604021401.13331.kernel@kolivas.org> <200604061258.40487.kernel@kolivas.org> <20060405204009.3235b021.akpm@osdl.org>
+In-Reply-To: <20060405204009.3235b021.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200604061429.40207.kernel@kolivas.org>
+Message-Id: <200604061436.16907.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 April 2006 14:10, Mike Galbraith wrote:
-> On Thu, 2006-04-06 at 09:15 +1000, Con Kolivas wrote:
-> > On Thursday 06 April 2006 03:38, Mike Galbraith wrote:
-> > > -	if (!rt_task(next) && interactive_sleep(next->sleep_type)) {
-> > > +	if (!TASK_INTERACTIVE(next) && interactive_sleep(next->sleep_type)) {
+On Thursday 06 April 2006 13:40, Andrew Morton wrote:
+> Con Kolivas <kernel@kolivas.org> wrote:
+> > On Thursday 06 April 2006 12:55, Con Kolivas wrote:
+> > > On Thursday 06 April 2006 12:43, Andrew Morton wrote:
+> > > > Con Kolivas <kernel@kolivas.org> wrote:
+> > > > > It is possible with a low enough lowmem_reserve ratio to make
+> > > > >  zone_watermark_ok fail repeatedly if the lower_zone is small
+> > > > > enough.
+> > > >
+> > > > Is that actually a problem?
+> > >
+> > > Every single call to get_page_from_freelist will call on zone reclaim.
+> > > It seems a problem to me if every call to __alloc_pages will do that?
 > >
-> > You can't remove that rt_task check from there can you? We shouldn't ever
-> > requeue a rt task.
+> > every call to __alloc_pages of that zone I mean
 >
-> RT tasks are always interactive aren't they?  (I'll check)
+> One would need to check with the NUMA guys.  zone_reclaim() has a
+> (lame-looking) timer in there to prevent it from doing too much work.
+>
+> That, or I'm missing something.  This problem wasn't particularly well
+> described, sorry.
 
-No, they're always equal to their static_prio. This rt_task check was added 
-originally because it was found to inappropriately be requeueing SCHED_FIFO 
-tasks.
+Ah ok. This all came about because I'm trying to honour the lowmem_reserve 
+better in swap_prefetch at Nick's request. It's hard to honour a watermark 
+that on some configurations is never reached.
 
 Cheers,
 Con

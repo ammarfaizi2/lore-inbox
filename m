@@ -1,128 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWDFQ50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbWDFRDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932201AbWDFQ50 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 12:57:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWDFQ50
+	id S932200AbWDFRDH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 13:03:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWDFRDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 12:57:26 -0400
-Received: from mailserv.trstone.com ([12.109.59.11]:44742 "EHLO
-	mailserv.trstone.com") by vger.kernel.org with ESMTP
-	id S932201AbWDFQ5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 12:57:25 -0400
-Message-ID: <44354866.3030200@rosettastone.com>
-Date: Thu, 06 Apr 2006 17:57:10 +0100
-From: Brian Uhrain <buhrain@rosettastone.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060302)
-X-Accept-Language: en-us, en
+	Thu, 6 Apr 2006 13:03:07 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:10382 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932200AbWDFRDE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 13:03:04 -0400
+Date: Thu, 6 Apr 2006 19:02:44 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Mike Hearn <mike@plan99.net>
+cc: 7eggert@gmx.de, Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] Add a /proc/self/exedir link
+In-Reply-To: <443515E1.1000600@plan99.net>
+Message-ID: <Pine.LNX.4.58.0604061841150.1941@be1.lrz>
+References: <5XGlt-GY-23@gated-at.bofh.it> <5XGOz-1eP-35@gated-at.bofh.it>
+ <E1FRSqP-0000g3-9i@be1.lrz> <443515E1.1000600@plan99.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: rth@twiddle.net, Alan Cox <alan@redhat.com>
-Subject: [PATCH] Small fixes for Alpha architecture
-Content-Type: multipart/mixed;
- boundary="------------040408010107000403060708"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040408010107000403060708
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 6 Apr 2006, Mike Hearn wrote:
 
-Hi,
+> > IMO the program must be aware of the get-my-exedir feature, just configuring
+> > --prefix=/proc/... is aiming for your feet.
+> 
+> I disagree, though /proc/self/exedir may not be the right answer. The 
+> problem with the original proposal is there's no concept of a group 
+> leader to which files are resolved relative to so there is this problem 
+> with child processes.
 
-I've encountered two problems with 2.6.16 and newer kernels on my API 
-CS20 (dual 833MHz Alpha 21264b processors).  The first is the kernel 
-OOPSing because of a NULL pointer dereference while trying to populate 
-SysFS with the CPU information.  The other is that only one processor 
-was being brought up.  I've included a small Alpha-specific patch that 
-fixes both problems.
+The problem ist the word 'the'. If parent and child are using 'the foo',
+they will clash.
 
-The first problem was caused by the CPUs never being properly registered 
-using register_cpu(), the way it's done on other architectures.  I've 
-added an arch_initcall called alpha_init that is modelled after the 
-ppc_init arch_initcall.
+> I sent a mail outlining a scheme that used file descriptor passing to 
+> achieve the same effect but with the needed "inheritance" of the path, 
+> but, vger seems to have munched it! At least I don't see it on the gmane 
+> archives. But the scheme is simple enough:
+> 
+>   * get_prefix() reads /proc/self/exe and turns it into the correct
+>     directory
+> 
+>   * dup2(open(get_my_exedir()), 999)
+>
+>   * ./configure --prefix=/proc/self/fd/999
 
-The second problem has to do with the removal of hwrpb_cpu_present_mask 
-in arch/alpha/kernel/smp.c.  In setup_smp() in the 2.6.15 kernel 
-sources, hwrpb_cpu_present_mask has a bit set for each processor that is 
-probed, and afterwards cpu_present_mask is set to the cpumask for the 
-boot CPU.  In the same function of the same file in the 2.6.16 sources, 
-instead of hwrpb_cpu_present_mask being set, cpu_possible_map is updated 
-for each probed CPU.  cpu_present_mask is still set to the cpumask of 
-the boot CPU afterwards.  The problem lies in include/asm-alpha/smp.h, 
-where cpu_possible_map is #define'd to be cpu_present_mask.  My patch 
-just replaces the #define with an actual cpumask_t declaration for 
-cpu_possible_map since it is used separately from cpu_present_mask in 
-the Alpha SMP code.
+bin/foo calls bin/bar refering to /proc/self/fd/999
+bin_2/bar does dup2(open(get_my_exedir()), 999)  ***FUBAR***
 
-Regards,
-Brian Uhrain
+possible solution:
 
---------------040408010107000403060708
-Content-Type: text/plain;
- name="alpha-fixes-2.6.16.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="alpha-fixes-2.6.16.diff"
+don't dup2, and only close fds you opened yourself.
 
-diff -rudp linux-2.6.16/arch/alpha/kernel/setup.c linux-2.6.16.new/arch/alpha/kernel/setup.c
---- linux-2.6.16/arch/alpha/kernel/setup.c	2006-03-20 05:53:29.000000000 +0000
-+++ linux-2.6.16.new/arch/alpha/kernel/setup.c	2006-04-06 17:45:04.009752787 +0100
-@@ -24,6 +24,7 @@
- #include <linux/config.h>	/* CONFIG_ALPHA_LCA etc */
- #include <linux/mc146818rtc.h>
- #include <linux/console.h>
-+#include <linux/cpu.h>
- #include <linux/errno.h>
- #include <linux/init.h>
- #include <linux/string.h>
-@@ -477,6 +478,22 @@ page_is_ram(unsigned long pfn)
- #undef PFN_PHYS
- #undef PFN_MAX
- 
-+static struct cpu cpu_devices[NR_CPUS];
-+
-+int __init alpha_init(void)
-+{
-+	int i;
-+
-+	/* register CPU devices */
-+	for (i = 0; i < NR_CPUS; i++)
-+		if (cpu_possible(i))
-+			register_cpu(&cpu_devices[i], i, NULL);
-+
-+	return 0;
-+}
-+
-+arch_initcall(alpha_init);
-+
- void __init
- setup_arch(char **cmdline_p)
- {
-diff -rudp linux-2.6.16/arch/alpha/kernel/smp.c linux-2.6.16.new/arch/alpha/kernel/smp.c
---- linux-2.6.16/arch/alpha/kernel/smp.c	2006-03-20 05:53:29.000000000 +0000
-+++ linux-2.6.16.new/arch/alpha/kernel/smp.c	2006-04-06 17:45:08.810533978 +0100
-@@ -69,6 +69,7 @@ static int smp_secondary_alive __initdat
- 
- /* Which cpus ids came online.  */
- cpumask_t cpu_present_mask;
-+cpumask_t cpu_possible_map;
- cpumask_t cpu_online_map;
- 
- EXPORT_SYMBOL(cpu_online_map);
-diff -rudp linux-2.6.16/include/asm-alpha/smp.h linux-2.6.16.new/include/asm-alpha/smp.h
---- linux-2.6.16/include/asm-alpha/smp.h	2006-03-20 05:53:29.000000000 +0000
-+++ linux-2.6.16.new/include/asm-alpha/smp.h	2006-04-06 17:45:08.812487103 +0100
-@@ -46,9 +46,9 @@ extern struct cpuinfo_alpha cpu_data[NR_
- #define raw_smp_processor_id()	(current_thread_info()->cpu)
- 
- extern cpumask_t cpu_present_mask;
-+extern cpumask_t cpu_possible_map;
- extern cpumask_t cpu_online_map;
- extern int smp_num_cpus;
--#define cpu_possible_map	cpu_present_mask
- 
- int smp_call_function_on_cpu(void (*func) (void *info), void *info,int retry, int wait, cpumask_t cpu);
- 
+Disadvantage: Leaky (too), may break scripts.
 
---------------040408010107000403060708--
+.oO(Can you chroot a single filedescriptor or somehow make 
+    /proc/self/fd/$n/.. be unavailable?)
+
+> It also restricts the problem to passing paths to other processes that 
+> are not subprocesses (eg via rpc). But as each process can have its own 
+> namespace this will always be an issue that needs careful treatment, and 
+> the pain of adjusting software to realpath() it is much lower than 
+> modifying every path in every piece of software. That approach was 
+> already tried and sucks.
+
+There may be no "real path" corresponding to /proc/self/fd/4711.
+
+IMO it's still best to just symlink the program directory to the correct 
+place and make the programs search in e.g. ~/opt/ and /opt/.
+-- 
+Fun things to slip into your budget
+An abacus

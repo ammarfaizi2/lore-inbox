@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWDFGbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWDFGhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWDFGbg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 02:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWDFGbf
+	id S932088AbWDFGhe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 02:37:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWDFGhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 02:31:35 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:58375 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751135AbWDFGbf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 02:31:35 -0400
-Date: Thu, 6 Apr 2006 08:31:25 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix unneeded rebuilds in drivers/media/video after moving source tree
-Message-ID: <20060406063125.GA24352@mars.ravnborg.org>
-References: <442BC74B.7060305@gmx.net> <20060330202208.GA14016@mars.ravnborg.org> <442C4469.1040408@gmx.net> <20060331152226.GB8992@mars.ravnborg.org> <4431A338.3000709@gmx.net> <20060404150233.GA10608@mars.ravnborg.org> <44345391.4000704@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 Apr 2006 02:37:34 -0400
+Received: from pproxy.gmail.com ([64.233.166.179]:28882 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751130AbWDFGhd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 02:37:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=OqxNHsoXWuy5sSC2SXHrkXtH2hhjGaiQijrA1x61cjPo4YOri76rUUIiyYaT29IJesKM0KkOh0DDxvA0TqqWDrGyTQpvp3SftboNOy4+DpCAuLOYaenKJPW1b757sSUTJ/yJYT8TmbAO5M2dgjseBWu0V+QjJ3Ydz0lN99YooDI=
+Message-ID: <1458d9610604052337p2cafa6c8j78fc6da8c5f8be1a@mail.gmail.com>
+Date: Thu, 6 Apr 2006 14:37:33 +0800
+From: "Sumit Narayan" <talk2sumit@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, ext3-users@redhat.com
+Subject: deleting partition does not effect superblock?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <44345391.4000704@gmx.net>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 06, 2006 at 01:32:33AM +0200, Carl-Daniel Hailfinger wrote:
-> 
-> Thanks. Was it intentional to leave the line below in
-> drivers/media/video/bt8xx/Makefile?
-> 
-> EXTRA_CFLAGS += -I$(src)/..
-> 
-> I think it could be replaced with
-> 
-> EXTRA_CFLAGS += -Idrivers/media/video
-> 
-> but I'm not a kbuild expert.
+Hi,
 
-That's a functionality equivalent - yes.
-Since it was not a bug-fix I left it as is.
-One day I will sweep through all of the kernel Makefiles and get rid of
-the relative paths. But thats not -rc fodder.
+I am using kernel 2.6.15.4.
 
-	Sam
+On my system, I first created a partition with EXT3 and put some data
+on it. Later, I deleted the partition, and re-created another
+partition with the same starting block number and a higher ending
+block number. I intended to format it with another filesystem, but
+surprisingly (or maybe just to me), the superblock of the partition
+had not changed. I could still mount the new partition as the same old
+filesystem. I could see all the files which was present earlier. Doing
+'df' showed me the older partition details (size, % used etc.).
+
+Shouldn't the superblock be changed/deleted once the partition is
+deleted? I tried a reboot, but the output remained the same.
+
+-- Sumit

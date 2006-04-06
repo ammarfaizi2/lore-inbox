@@ -1,68 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWDFLii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWDFLkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbWDFLii (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 07:38:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWDFLii
+	id S1751136AbWDFLkh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 07:40:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWDFLkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 07:38:38 -0400
-Received: from zproxy.gmail.com ([64.233.162.198]:6528 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751136AbWDFLih convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 07:38:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=b3MBTLumRW/3j8pLrpR9tEHzhA1ERJMEHq7kOG53hGrrzBLgbyO1eLWIiRPv0XQGBKCPRl6GkW2pEnDn6xa696oiIhYi8+ZH3SaUyQIXu5S0z6gZpTf3aXQ6OR2lk4Wi8xqqVilP5TMt1NtRBdEG4Kbzb2utUqtA8ToXBU1oAjU=
-Message-ID: <c03109120604060438n58657c97iea4bfa5342747f18@mail.gmail.com>
-Date: Thu, 6 Apr 2006 20:38:34 +0900
-From: "Piotr Muszynski" <piotru@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: make *config problem (breaks miniconfig.sh)
+	Thu, 6 Apr 2006 07:40:37 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:16798 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751136AbWDFLkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 07:40:36 -0400
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: [PATCH] Add a /proc/self/exedir link
+To: Neil Brown <neilb@suse.de>, Mike Hearn <mike@plan99.net>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Reply-To: 7eggert@gmx.de
+Date: Thu, 06 Apr 2006 13:39:49 +0200
+References: <5XGlt-GY-23@gated-at.bofh.it> <5XGOz-1eP-35@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1FRSqP-0000g3-9i@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There seems to be an error in config system, which I have discovered
-while playing with miniconfig (it breaks miniconfig.sh in some cases).
-miniconfig.sh workaround included at the end.
+Neil Brown <neilb@suse.de> wrote:
+> On Tuesday April 4, mike@plan99.net wrote:
 
-Spotted on 2.6.15.[1,2] and 2.6.16
+>> To clarify, I'm proposing this patch for eventual mainline inclusion.
+>> 
+>> It adds a simple bit of API - a symlink in /proc/pid - which makes it
+>> easy to build relocatable software:
+>> 
+>>    ./configure --prefix=/proc/self/exedir/..
 
-How to trigger:
-make menuconfig, change CONFIG_EXPERIMENTAL y --> n, save
-$ cp .config .config_old
-make menuconfig, change nothing, save
-$ diff .config .config_old
-4c4
-< # Thu Apr  6 20:23:19 2006
----
-> # Thu Apr  6 20:22:40 2006
-157a158,160
-> # CONFIG_FLATMEM_MANUAL is not set
-> # CONFIG_DISCONTIGMEM_MANUAL is not set
-> # CONFIG_SPARSEMEM_MANUAL is not set
+[...]
 
-I thought the .config shouldn't change... Is this a feature?
+> It strikes me that this is very fragile.  If the application calls
+> anything out of /bin or /usr/bin etc passing a path name which works
+> for the application, it will break for the helper.
 
-Workaround for miniconfig.sh:
-$ diff -u miniconfig.sh-backup miniconfig.sh
---- miniconfig.sh-backup        2006-04-06 20:06:26.000000000 +0900
-+++ miniconfig.sh       2006-04-06 20:07:10.000000000 +0900
-@@ -15,6 +15,9 @@
-   exit 1
- fi
+ACK.
 
-+make allnoconfig KCONFIG_ALLCONFIG=$1 > /dev/null
-+mv .config $1
-+
- cp $1 mini.config
- echo "Calculating mini.config..."
+> It also requires all binaries use by the application to live in the
+> same directory.  This would be OK  for some applications, but not for
+> everything.
+> 
+> It sounds to me like you want a private, inherited, name space, and
+> Linux provides those via CLONE_NEWNS, however you probably need root
+> access to make that work, which isn't ideal.
 
-Regards.
---
-/*
- * Piotr Muszynski <piotru.org>
- */
+This isn't going to rock either. If process A links
+$PID->namespace:/const/exedir/ to /mnt/net/host_a/foo/bin and passes
+/const/exedir/../lib/foo to process B, this process B must not
+link it's $PID->namespace:/const/exedir/ to e.g. /opt/B/bin, but
+exactly this is going to happen if you use a constant string.
+
+> I think you'd have move luck (ab)using an environment variable.
+> Make
+>    /proc/self/env_prefix
+> be a symlink pointing to whatever the "PREFIX" environment variable
+> stores.
+
+Same problem.
+
+
+IMO the program must be aware of the get-my-exedir feature, just configuring
+--prefix=/proc/... is aiming for your feet.
+
+/proc/pid/exedir may be a way to access the program files after changing the
+namespace, but it may also be a security risk leaving the original namespace
+accessible. Therefore I suggest abandoning the exedir idea and instead
+
+1) change the programs to be aware of it's exedir:
+   (my $exedir=`cat /proc/self/exe`) =~ s,/[^/]+$,,);
+   if ($libdir !~ m,^/,) { $libdir = $exedir.'/'.$libdir };
+ - or -
+   ln -s /mnt/net/host_a/foo /usr/local/foo
+   (cd /usr/local/bin && for a in ../foo/bin; do ln -s "$a";done)
+2) If you want access across namespaces, use fopen etc. on an open
+   directory handle
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

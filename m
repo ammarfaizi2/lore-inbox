@@ -1,98 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWDFH76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWDFIHx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbWDFH76 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 03:59:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWDFH76
+	id S932152AbWDFIHx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 04:07:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWDFIHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 03:59:58 -0400
-Received: from s2.ukfsn.org ([217.158.120.143]:45270 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S932150AbWDFH75 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 03:59:57 -0400
-Message-ID: <4434CA7A.6020802@dgreaves.com>
-Date: Thu, 06 Apr 2006 08:59:54 +0100
-From: David Greaves <david@dgreaves.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-Cc: Kurt Wall <kwall@kurtwerks.com>, LKML <linux-kernel@vger.kernel.org>,
-       linux-xfs@oss.sgi.com
-Subject: Re: Bonnie++ Burps on XFS
-References: <20060406023445.GB5806@kurtwerks.com> <20060406125756.H1110920@wobbly.melbourne.sgi.com> <20060406151301.I1110920@wobbly.melbourne.sgi.com>
-In-Reply-To: <20060406151301.I1110920@wobbly.melbourne.sgi.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 6 Apr 2006 04:07:53 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:35295 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932152AbWDFIHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 04:07:52 -0400
+Date: Thu, 6 Apr 2006 17:08:51 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Hideo AOKI <haoki@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [patch 1/3] mm: An enhancement of OVERCOMMIT_GUESS
+Message-Id: <20060406170851.1402c78d.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <4434C12A.4000108@redhat.com>
+References: <4434570F.9030507@redhat.com>
+	<20060406094533.b340f633.kamezawa.hiroyu@jp.fujitsu.com>
+	<4434C12A.4000108@redhat.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Scott wrote:
+On Thu, 06 Apr 2006 03:20:10 -0400
+Hideo AOKI <haoki@redhat.com> wrote:
 
->On Thu, Apr 06, 2006 at 12:57:56PM +1000, Nathan Scott wrote:
->  
->
->>On Wed, Apr 05, 2006 at 10:34:45PM -0400, Kurt Wall wrote:
->>    
->>
->>>I've been using bonnie++ off and on for a long time. Suddenly, it has
->>>started failing when run against an XFS filesystem situated on a SATA
->>>drive. Here's the output of a run:
->>>      
->>>
->>[ Please report these things to linux-xfs@oss.sgi.com... ]
->>
->>    
->>
->>>Delete files in sequential order...Bonnie: drastic I/O error (rmdir):
->>>      
->>>
->>Anything in your system log?
->>    
->>
->
->Lemme answer that for you - "no".  I've reproduced the problem,
->I'll get back to you once I've nutted out whats gone wrong.
->
->Thanks for reporting it.
->
->cheers.
->
->  
->
-Me too.
+> Hi Kamezawa-san,
+> 
+> Thank you for your comments.
+> 
+> KAMEZAWA Hiroyuki wrote:
+> > Hi, AOKI-san
+> I like your idea. But, in the function, I think we need to care
+> lowmem_reserve too.
+> 
+Ah, I see.
 
-2.6.16
+> Since __vm_enough_memory() doesn't know zone and cpuset information,
+> we have to guess proper value of lowmem_reserve in each zone
+> like I did in calculate_totalreserve_pages() in my patch.
+> Do you think that we can do this calculation every time?
+> 
+> If it is good enough, I'll make revised patch.
+> 
+I just thought to show "how to calculate" in unified way is better.
+But if things goes ugly, please ignore my comment.
 
-I had filesystem corruption and needed ran xfs_repair.
+Do you have a detailed comparison of test result with and without this patch ?
+I'm interested in.
+I'm sorry if I missed your post of result.
 
-After I finished I removed most of the lost and found bits but was left
-with:
 
-haze:/scratch/lost+found# ll
-total 28
-drwxr-xr-x   4 root root   38 2006-04-02 08:29 ./
-drwxrwxrwx  26 root root 4096 2006-04-04 18:25 ../
-drwxrwxr-x   2 1046 1046 8192 2006-04-02 08:30 658616481/
-drwxrwxr-x   2 1046 1046 8192 2006-04-02 08:22 823441168/
-haze:/scratch/lost+found# rmdir *
-rmdir: `658616481': Directory not empty
-rmdir: `823441168': Directory not empty
-haze:/scratch/lost+found# ll *
-658616481:
-total 12
-drwxrwxr-x  2 1046 1046 8192 2006-04-02 08:30 ./
-drwxr-xr-x  4 root root   38 2006-04-02 08:29 ../
-
-823441168:
-total 12
-drwxrwxr-x  2 1046 1046 8192 2006-04-02 08:22 ./
-drwxr-xr-x  4 root root   38 2006-04-02 08:29 ../
-
-Obviously I had an fs corruption (due to raid failure due to some bogus
-libata errors) so this may not be the same thing.
-
-David
-
--- 
-
+Cheers!
+-Kame

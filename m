@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWDFBFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWDFBGI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWDFBFP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Apr 2006 21:05:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbWDFBFP
+	id S1751207AbWDFBGI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Apr 2006 21:06:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbWDFBGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Apr 2006 21:05:15 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:64397 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750777AbWDFBFO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Apr 2006 21:05:14 -0400
-Date: Thu, 6 Apr 2006 02:05:09 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Valdis.Kletnieks@vt.edu
-Cc: Jon Smirl <jonsmirl@gmail.com>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: [patch 03/26] sysfs: zero terminate sysfs write buffers (CVE-2006-1055)
-Message-ID: <20060406010509.GO27946@ftp.linux.org.uk>
-References: <20060404235634.696852000@quad.kroah.org> <20060404235947.GD27049@kroah.com> <20060405190928.17b9ba6a.vsu@altlinux.ru> <20060405152123.GH27946@ftp.linux.org.uk> <9e4733910604050838g339d48cao4e0f8582f6d90187@mail.gmail.com> <20060405153957.GI27946@ftp.linux.org.uk> <200604051958.k35JwF0M019652@turing-police.cc.vt.edu>
+	Wed, 5 Apr 2006 21:06:08 -0400
+Received: from mx2.suse.de ([195.135.220.15]:6030 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751207AbWDFBGG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Apr 2006 21:06:06 -0400
+Date: Wed, 5 Apr 2006 18:05:15 -0700
+From: Greg KH <greg@kroah.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>, Greg KH <gregkh@suse.de>,
+       rene.herman@keyaccess.nl, alsa-devel@alsa-project.org,
+       linux-kernel@vger.kernel.org, tiwai@suse.de
+Subject: Re: patch bus_add_device-losing-an-error-return-from-the-probe-method.patch added to gregkh-2.6 tree
+Message-ID: <20060406010515.GB18567@kroah.com>
+References: <44238489.8090402@keyaccess.nl> <d120d5000604041428h65931eb6qffe1af04d91e7f31@mail.gmail.com> <20060404214522.GA20390@suse.de> <200604042135.41371.dtor_core@ameritech.net> <20060405073602.GA1380@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200604051958.k35JwF0M019652@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060405073602.GA1380@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 05, 2006 at 03:58:15PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Wed, 05 Apr 2006 16:39:57 BST, Al Viro said:
+On Wed, Apr 05, 2006 at 08:36:02AM +0100, Russell King wrote:
+> On Tue, Apr 04, 2006 at 09:35:40PM -0400, Dmitry Torokhov wrote:
+> > On Tuesday 04 April 2006 17:45, Greg KH wrote:
+> > > Ah, I see what you are saying now.  Yeah, we should still add the
+> > > default attributes for the bus and create the bus link even if some
+> > > random driver had problems.  But then, we should still propagate the
+> > > error back up, right?
+> > 
+> > I don't think so because device creation did not fail. Otherwise how
+> > would you as a caller of device_register() distinguish between the
+> > following 2 scenarios:
+> > 
+> >  - you got -ENOMEM (or other error code) because device creation
+> >    indeed failed;
+> >  - you got -ENOMEM because some odd driver could not allocate 4MB
+> >    of memory.
+> > 
+> > IOW you trying to propagate driver error to device creation code...
+> > 
+> > Also result of device_register() should not depend on whether
+> > driver_register() was called earlier or not.
 > 
-> > How about _NOT_ using sysfs and just having ->read()/->write() on a file in fs
-> > of your own?  ~20 lines for all of it, not counting #include...
-> 
-> Great.  Instead of everybody using the same piece-of-manure sysfs interface,
-> each driver carries around its 20 lines to implement read() and write() in
-> subtly buggy and incompatible ways.
+> Indeed.  Greg - this patch is bogus.
 
-No, that would be 20 lines to tell what and where you want in that fs and
-how long should the things live.  Plus whatever you've got for your ->read()
-and ->write() - using existing libfs helpers if needed.  Instead of pushing
-into sysfs the things that do not fit sysfs interfaces.
+You and Dmitry are correct.  I'm dropping this patch.  The ISA drivers
+just need to get used to the proper way to use the driver model (they do
+not know if they have been bound to a device when the driver is loaded,
+no big deal).
 
-BTW, in my experience "subtly buggy and incompatible ways" describes sysfs
-uses, except that there's rarely anything subtle about that.  Care to name
-four kernel data structures that got kobjects embedded into them (directly
-or via struct device and it ilk) and had _NOT_ required at one point or
-another (post-merge) fixing of blatant user-exploitable holes due to botched
-lifetime rules?
+If there's other issues with platform devices still, without this patch
+applied, please let me know.
 
-Not that you had to embed them to achieve the same wonderful effect -
-witness fbsysfs.c user-exploitable holes on unregister_framebuffer();
-sure, fb_info->class_device will stay allocated if you have one of the
-attributes opened.  Now try to call read(); what will it access?
+thanks to you all for pointing out the real issues here.
 
-Not to mention that the same file has a pile of ->store() assuming we
-have NUL-termination, or the lovely use of sscanf() on non-NUL-terminated
-array right in store_cmap() itself.  Equivalent of
-	p = malloc(5);
-	if (p) {
-		memcpy(p, q, 5);
-		sscanf(p, "%4hx", &v);
-	}
-You do realize that it's broken, don't you?  sscanf field width for %x
-applies _after_ skipping the whitespace, not to the total amount of
-characters being eaten.  And in reality this buffer comes from the end
-of get_zeroed_page() result, so there's really nothing past its end.
+greg k-h

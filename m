@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWDFWhM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWDFWiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751343AbWDFWhM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 18:37:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWDFWhM
+	id S932188AbWDFWiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 18:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWDFWiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 18:37:12 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:59312
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751343AbWDFWhK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 18:37:10 -0400
-Date: Thu, 06 Apr 2006 15:35:18 -0700 (PDT)
-Message-Id: <20060406.153518.60508780.davem@davemloft.net>
-To: dan@debian.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fs/binfmt_elf.c:maydump()
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060406221519.GA5453@nevyn.them.org>
-References: <20060406.140357.14088592.davem@davemloft.net>
-	<20060406221519.GA5453@nevyn.them.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 6 Apr 2006 18:38:25 -0400
+Received: from xenotime.net ([66.160.160.81]:42158 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932188AbWDFWiY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 18:38:24 -0400
+Date: Thu, 6 Apr 2006 15:40:40 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "John Rigby" <jcrigby@gmail.com>
+Cc: zippel@linux-m68k.org, sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Allow menuconfig to cycle through choices
+Message-Id: <20060406154040.c5430029.rdunlap@xenotime.net>
+In-Reply-To: <4b73d43f0604061358v1c619e21rc6f3af2cdc4545a3@mail.gmail.com>
+References: <4b73d43f0604061338i1c5315f1t34761380b620fc57@mail.gmail.com>
+	<4b73d43f0604061339n35a4d98ha08bf8d7fc0bef0b@mail.gmail.com>
+	<4b73d43f0604061358v1c619e21rc6f3af2cdc4545a3@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Daniel Jacobowitz <dan@debian.org>
-Date: Thu, 6 Apr 2006 18:15:19 -0400
+On Thu, 6 Apr 2006 14:58:34 -0600 John Rigby wrote:
 
-> On Thu, Apr 06, 2006 at 02:03:57PM -0700, David S. Miller wrote:
-> > Yes, this means we might hit the core dump limits quicker but we
-> > shouldn't be doing anything which makes less debugging information
-> > than necessary available.  Software development is hard enough as
-> > it is right? :)
 > 
-> > -	/* If it hasn't been written to, don't write it out */
-> > -	if (!vma->anon_vma)
-> > -		return 0;
-> > -
 > 
-> Isn't this, um, a little more extreme than what you really want?
-> What goes into coredumps with this patch applied?  I bet it includes
-> the complete text segments of every executable and shared library
-> involved in the link.  You're going to need those if you want to debug,
-> anyway.
+Subject: [PATCH] Allow menuconfig to cycle through choices
 
-With this patch applied, yes, it includes the complete text segments of
-every executable and shared library mapped into the program which is
-dumping core.
+Added cycling logic to dialog_checklist identical to what
+dialog_menu already has.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-What's a good check to avoid shared libraries and executables?  And do
-we really want to avoid including them?  What if a new version of one
-of the shared libraries is installed on the system after the core file
-is generated?  Wouldn't you want the complete original image so that
-the program could be debugged accurately in the face of such changes?
+Hi,
+Can you give an example of a checklist (aka radiolist in menuconfig)
+where this change has an effect?
 
-Anyways a possible check would be if the object was mapped with
-execute permission, so a test on VM_EXEC being set in vma->vm_flags.
+I expected Timer frequency (choosing between 100, 250, 1000 HZ) to
+cycle, but it does not.  And I expected Default I/O scheduler
+to cycle, but it does not.  So where can I look for a change
+after applying this patch?
 
-But like the comment above maydump() seems to suggest, I'm of the
-opinion that we should include as much as possible into the core
-file image.
+Thanks,
+---
+~Randy

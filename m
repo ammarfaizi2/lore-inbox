@@ -1,86 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWDFR7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWDFSAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbWDFR7z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 13:59:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWDFR7z
+	id S932113AbWDFSAV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 14:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWDFSAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 13:59:55 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:8196 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S932074AbWDFR7y convert rfc822-to-8bit (ORCPT
+	Thu, 6 Apr 2006 14:00:20 -0400
+Received: from mail.kroah.org ([69.55.234.183]:62379 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932113AbWDFSAS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 13:59:54 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <44354D7B.9070207@gmail.com>
-x-originalarrivaltime: 06 Apr 2006 17:59:50.0040 (UTC) FILETIME=[E6070980:01C659A3]
-Content-class: urn:content-classes:message
-Subject: Re: Badness in local_bh_enable at kernel/softirq.c:140 with inet_stream
-Date: Thu, 6 Apr 2006 13:59:49 -0400
-Message-ID: <Pine.LNX.4.61.0604061351120.9302@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Badness in local_bh_enable at kernel/softirq.c:140 with inet_stream
-Thread-Index: AcZZo+YQTGQPfEWdSU6K6uNjcepJpQ==
-References: <44354D7B.9070207@gmail.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "jordi Vaquero" <jordi.vaquero@gmail.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Thu, 6 Apr 2006 14:00:18 -0400
+Date: Thu, 6 Apr 2006 10:57:04 -0700
+From: Greg KH <gregkh@suse.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Greg KH <greg@kroah.com>,
+       anton@samba.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix pciehp driver on non ACPI systems
+Message-ID: <20060406175704.GA30949@suse.de>
+References: <20060406101731.GA9989@krispykreme> <20060406160527.GA2965@kroah.com> <20060406104113.08311cdc.rdunlap@xenotime.net> <20060406174644.GD6598@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060406174644.GD6598@mars.ravnborg.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 06, 2006 at 07:46:44PM +0200, Sam Ravnborg wrote:
+> On Thu, Apr 06, 2006 at 10:41:13AM -0700, Randy.Dunlap wrote:
+> > On Thu, 6 Apr 2006 09:05:27 -0700 Greg KH wrote:
+> > 
+> > > On Thu, Apr 06, 2006 at 08:17:31PM +1000, Anton Blanchard wrote:
+> > > > 
+> > > > Wrap some ACPI specific headers. ACPI hasnt taken over the whole world yet.
+> > > > 
+> > > > Signed-off-by: Anton Blanchard <anton@samba.org>
+> > > > ---
+> > > > 
+> > > > Index: kernel/drivers/pci/hotplug/pciehp_hpc.c
+> > > > ===================================================================
+> > > > --- kernel.orig/drivers/pci/hotplug/pciehp_hpc.c	2006-04-06 05:01:32.000000000 -0500
+> > > > +++ kernel/drivers/pci/hotplug/pciehp_hpc.c	2006-04-06 05:09:48.501122395 -0500
+> > > > @@ -38,10 +38,14 @@
+> > > >  
+> > > >  #include "../pci.h"
+> 
+> When one introdues relative apths like the above this is a good sign
+> that the header file ought to move to a common place somewhere in
+> include/.
 
-On Thu, 6 Apr 2006, jordi Vaquero wrote:
+No, this is a pci-core only header file.  I really don't want to have
+these in include/linux/pci.h as no one other than the pci core, or pci
+hotplug drivers need to use it.
 
-> Hello
->
-> I'm trying to make a Linux Kernel module. My module has a network
-> comunication with sockets, I use the functions like this skeleton,
->
->            sd = sock_create(AF_INET,SOCK_STREAM,IPPROTO_TCP,&sock);
->                if(sd<0){
->                printk(KERN_ERR "Error\n");
->            }else{
->                sout.sin_family = AF_INET;
->                err = inet_aton("172.16.151.1",&sout.sin_addr); //this
->        function works well, I implemented it.
->                sout.sin_port = htons(20000);
->                sd = sock->ops->connect(sock,(struct sockaddr*)&sout,
->        sizeof(sout),O_RDWR);
->                if(sd<0){
->                    printk(KERN_ERR "Error \n");
->                    sock_release(sock);
->                }else{
->                     USE SENDMSG and RECVMSG
->                        ...
->                        ...
->                        ...
->                   sock_release(sock);
->                }
->
-> My problem is that sometimes, at some point near the connect function, a
-> warning is launched and dmesg shows this:
->
-[SNIPPED... Crap]
+I guess I could create,
+include/linux/pci-core-only-dont-use-unless-you-really-know-what-you-are-doing.h
+but that might be a bit rude :)
 
-This has become a FAQ...
-If you need to do this INSIDE the kernel, you need to do it from
-a kernel thread. Otherwise, your socket is indistinguishable
-from somebody else's open file descriptor. A file descriptor needs
-a CONTEXT! The kernel doesn't have a CONTEXT! You need a process
-to have a context, either a kernel thread or a user-mode task.
+thanks,
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.42 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+greg k-h

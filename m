@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWDFOdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWDFOd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbWDFOdi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 10:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWDFOdi
+	id S932153AbWDFOd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 10:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWDFOd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 10:33:38 -0400
-Received: from cirse.extra.cea.fr ([132.166.172.102]:13184 "EHLO
-	cirse.extra.cea.fr") by vger.kernel.org with ESMTP id S932140AbWDFOdh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 10:33:37 -0400
-Message-ID: <443526B6.6090709@cea.fr>
-Date: Thu, 06 Apr 2006 16:33:26 +0200
-From: Aurelien Degremont <aurelien.degremont@cea.fr>
-User-Agent: Mozilla Thunderbird 1.0.6-1.4.1 (X11/20050719)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 6 Apr 2006 10:33:59 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:38543 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932153AbWDFOd6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 10:33:58 -0400
+Date: Thu, 6 Apr 2006 16:31:39 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: Serge Noiraud <serge.noiraud@bull.net>
-CC: Ingo Molnar <mingo@elte.hu>, "" <linux-kernel@vger.kernel.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: PREEMPT_RT : 2.6.16-rt12 and boot : BUG ?
+Message-ID: <20060406143139.GA28724@elte.hu>
 References: <200604061416.00741.Serge.Noiraud@bull.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <200604061416.00741.Serge.Noiraud@bull.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge Noiraud wrote:
-> I get symbol resolution error when I try to load my scsi modules in the initrd.
 
-I've got quite the same issue concerning initrd and scsi modules since 
-the change in MPT FUSION drivers which happened in 2.6.10, and that you 
-seem to use also. (No RT code is involved here)
-I tested many different configurations and the only solution I found 
-consist in setting some sleep calls in the 'init' script of the initrd, 
-between each 'insmod' call. Let me know if this change something for you.
+* Serge Noiraud <serge.noiraud@bull.net> wrote:
 
-ie:
+> input: ImPS/2 Generic Wheel Mouse as /class/input/input1
+> VFS: Mounted root (ext2 filesystem).
+> Fusion MPT base driver 3.03.07
+> Copyright (c) 1999-2005 LSI Logic Corporation
+> Could not allocate 8 bytes percpu data
+> mptscsih: Unknown symbol scsi_remove_host
 
-echo "Loading scsi_mod.ko module"
-insmod /lib/scsi_mod.ko
-sleep 1
-echo "Loading sd_mod.ko module"
-insmod /lib/sd_mod.ko
-sleep 1
-echo "Loading mptbase.ko module"
-insmod /lib/mptbase.ko
-sleep 1
-echo "Loading mptscsih.ko module"
-insmod /lib/mptscsih.ko
-sleep 1
-echo "Loading jbd.ko module"
-insmod /lib/jbd.ko
-sleep 1
-echo "Loading ext3.ko module"
-insmod /lib/ext3.ko
-sleep 1
+could you increase (double) PERCPU_ENOUGH_ROOM in 
+include/linux/percpu.h, does that solve this problem? (and make sure you 
+use -rt13, -rt12 had a couple of bugs)
 
-
--- 
-Aurelien Degremont
+	Ingo

@@ -1,763 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWDFRTD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWDFRYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932203AbWDFRTD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 13:19:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWDFRTB
+	id S932215AbWDFRYj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 13:24:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWDFRYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 13:19:01 -0400
-Received: from nproxy.gmail.com ([64.233.182.189]:51207 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932203AbWDFRTA (ORCPT
+	Thu, 6 Apr 2006 13:24:39 -0400
+Received: from dvhart.com ([64.146.134.43]:24519 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S932215AbWDFRYj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 13:19:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=cc2LQcOGQTigBnMziY4X5zj+JkTcZdJyjWIDnLWYldFKKwO8N23s97Cf9BvnRsfwv7ul6b0SPiVhSL2SmnoL7Vtc60aFgDvXRKKJy/z8T/bC42tH4Fk3u3psZLr1iPrtpzxQj+qAHCRyB7aTqWsQk5peFC3xuLuoK+nZGEiOMHo=
-Message-ID: <44354D7B.9070207@gmail.com>
-Date: Thu, 06 Apr 2006 19:18:51 +0200
-From: jordi Vaquero <jordi.vaquero@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Thu, 6 Apr 2006 13:24:39 -0400
+From: Darren Hart <darren@dvhart.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: RT task scheduling
+Date: Thu, 6 Apr 2006 10:24:34 -0700
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       "Stultz, John" <johnstul@us.ibm.com>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+References: <200604052025.05679.darren@dvhart.com> <443496CA.6050905@bigpond.net.au>
+In-Reply-To: <443496CA.6050905@bigpond.net.au>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Badness in local_bh_enable at kernel/softirq.c:140 with inet_stream
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604061024.35300.darren@dvhart.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Wednesday 05 April 2006 21:19, Peter Williams wrote:
+> Darren Hart wrote:
+> > My last mail specifically addresses preempt-rt, but I'd like to know
+> > people's thoughts regarding this issue in the mainline kernel.  Please
+> > see my previous post "realtime-preempt scheduling - rt_overload behavior"
+> > for a testcase that produces unpredictable scheduling results.
+> >
+> > Part of the issue here is to define what we consider "correct behavior"
+> > for SCHED_FIFO realtime tasks.  Do we (A) need to strive for "strict
+> > realtime priority scheduling" where the NR_CPUS highest priority runnable
+> > SCHED_FIFO tasks are _always_ running?  Or do we (B) take the best effort
+> > approach with an upper limit RT priority imbalances, where an imbalance
+> > may occur (say at wakeup or exit) but will be remedied within 1 tick. 
+> > The smpnice patches improve load balancing, but don't provide (A).
+> >
+> > More details in the previous mail...
+>
+> I'm currently researching some ideas to improve smpnice that may help in
+> this situation.  The basic idea is that as well as trying to equally
+> distribute the weighted load among the groups/queues we should also try
+> to achieve equal "average load per task" for each group/queue.  (As well
+> as helping with problems such as yours, this will help to restore the
+> "equal distribution of nr_running" amongst groups/queues aim that is
+> implicit without smpnice due to the fact that load is just a smoothed
+> version of nr_running.)
 
-I'm trying to make a Linux Kernel module. My module has a network
-comunication with sockets, I use the functions like this skeleton,
+Can you elaborate on what you mean by "average load per task" ?  
 
-            sd = sock_create(AF_INET,SOCK_STREAM,IPPROTO_TCP,&sock);
-                if(sd<0){
-                printk(KERN_ERR "Error\n");
-            }else{
-                sout.sin_family = AF_INET;
-                err = inet_aton("172.16.151.1",&sout.sin_addr); //this
-        function works well, I implemented it.
-                sout.sin_port = htons(20000);
-                sd = sock->ops->connect(sock,(struct sockaddr*)&sout,
-        sizeof(sout),O_RDWR);
-                if(sd<0){
-                    printk(KERN_ERR "Error \n");
-                    sock_release(sock);
-                }else{
-                     USE SENDMSG and RECVMSG
-                        ...
-                        ...
-                        ...
-                   sock_release(sock);
-                }
+Also, since smpnice is (correct me if I am wrong) load_balancing, I don't 
+think it will prevent the problem from happening, but rather fix it when it 
+does.  If we want to prevent it from happening, I think we need to do 
+something like the rt_overload code from the RT patchset.
 
-My problem is that sometimes, at some point near the connect function, a
-warning is launched and dmesg shows this:
-
-                                                            Badness in
-        local_bh_enable at kernel/softirq.c:140
-        Apr  5 20:24:57 localhost kernel:  [local_bh_enable+37/92]
-        local_bh_enable+0x25/0x5c
-        Apr  5 20:24:57 localhost kernel:  [inet_stream_connect+22/324]
-        inet_stream_connect+0x16/0x144
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346179/1070617600]
-        remote_send_swap+0xad/0x33d [rswap]
-        Apr  5 20:24:57 localhost kernel:  [printk+18/22] printk+0x12/0x16
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346824/1070617600]
-        remote_send_swap+0x332/0x33d [rswap]
-        Apr  5 20:24:57 localhost kernel:  [scrup+81/174] scrup+0x51/0xae
-        Apr  5 20:24:57 localhost kernel:  [vgacon_cursor+307/314]
-        vgacon_cursor+0x133/0x13a
-        Apr  5 20:24:57 localhost kernel:  [set_cursor+78/91]
-        set_cursor+0x4e/0x5b
-        Apr  5 20:24:57 localhost kernel:  [vt_console_print+523/540]
-        vt_console_print+0x20b/0x21c
-        Apr  5 20:24:57 localhost kernel: 
-        [__call_console_drivers+55/69] __call_console_drivers+0x37/0x45
-        Apr  5 20:24:57 localhost kernel: 
-        [call_console_drivers+226/234] call_console_drivers+0xe2/0xea
-        Apr  5 20:24:57 localhost kernel:  [vprintk+467/494]
-        vprintk+0x1d3/0x1ee
-        Apr  5 20:24:57 localhost kernel:  [__make_request+1020/1068]
-        __make_request+0x3fc/0x42c
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346943/1070617600]
-        rswap_send+0x6c/0x88 [rswap]
-        Apr  5 20:24:57 localhost kernel:  [pg0+140347045/1070617600]
-        request_dd+0x4a/0x71 [rswap]
-        Apr  5 20:24:57 localhost kernel:  [blk_remove_plug+70/80]
-        blk_remove_plug+0x46/0x50
-        Apr  5 20:24:57 localhost kernel:  [sync_page+0/61]
-        sync_page+0x0/0x3d
-        Apr  5 20:24:57 localhost kernel:  [generic_unplug_device+10/13]
-        generic_unplug_device+0xa/0xd
-        Apr  5 20:24:57 localhost kernel:  [block_sync_page+53/58]
-        block_sync_page+0x35/0x3a
-        Apr  5 20:24:57 localhost kernel:  [sync_page+52/61]
-        sync_page+0x34/0x3d
-        Apr  5 20:24:57 localhost kernel:  [__wait_on_bit_lock+43/81]
-        __wait_on_bit_lock+0x2b/0x51
-        Apr  5 20:24:57 localhost kernel:  [__lock_page+84/90]
-        __lock_page+0x54/0x5a
-        Apr  5 20:24:57 localhost kernel:  [wake_bit_function+0/52]
-        wake_bit_function+0x0/0x34
-        Apr  5 20:24:57 localhost kernel:  [read_cache_page+198/271]
-        read_cache_page+0xc6/0x10f
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [read_dev_sector+44/131]
-        read_dev_sector+0x2c/0x83
-        Apr  5 20:24:57 localhost kernel:  [blkdev_readpage+0/21]
-        blkdev_readpage+0x0/0x15
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+30/263]
-        parse_solaris_x86+0x1e/0x107
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [msdos_partition+514/596]
-        msdos_partition+0x202/0x254
-        Apr  5 20:24:57 localhost kernel:  [check_partition+136/204]
-        check_partition+0x88/0xcc
-        Apr  5 20:24:57 localhost kernel:  [rescan_partitions+97/166]
-        rescan_partitions+0x61/0xa6
-        Apr  5 20:24:57 localhost kernel:  [blkdev_reread_part+73/97]
-        blkdev_reread_part+0x49/0x61
-        Apr  5 20:24:57 localhost kernel:  [blkdev_ioctl+250/297]
-        blkdev_ioctl+0xfa/0x129
-        Apr  5 20:24:57 localhost kernel:  [block_ioctl+26/30]
-        block_ioctl+0x1a/0x1e
-        Apr  5 20:24:57 localhost kernel:  [do_ioctl+33/86]
-        do_ioctl+0x21/0x56
-        Apr  5 20:24:57 localhost kernel:  [vfs_ioctl+348/363]
-        vfs_ioctl+0x15c/0x16b
-        Apr  5 20:24:57 localhost kernel:  [sys_ioctl+43/70]
-        sys_ioctl+0x2b/0x46
-        Apr  5 20:24:57 localhost kernel:  [sysenter_past_esp+84/117]
-        sysenter_past_esp+0x54/0x75
-        Apr  5 20:24:57 localhost kernel: Badness in local_bh_enable at
-        kernel/softirq.c:140
-        Apr  5 20:24:57 localhost kernel:  [local_bh_enable+37/92]
-        local_bh_enable+0x25/0x5c
-        Apr  5 20:24:57 localhost kernel: 
-        [__ip_route_output_key+188/196] __ip_route_output_key+0xbc/0xc4
-        Apr  5 20:24:57 localhost kernel:  [tcp_v4_connect+273/2229]
-        tcp_v4_connect+0x111/0x8b5
-        Apr  5 20:24:57 localhost kernel:  [dump_stack+18/22]
-        dump_stack+0x12/0x16
-        Apr  5 20:24:57 localhost kernel:  [inet_stream_connect+123/324]
-        inet_stream_connect+0x7b/0x144
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346179/1070617600]
-        remote_send_swap+0xad/0x33d [rswap]
-        Apr  5 20:24:57 localhost kernel:  [printk+18/22] printk+0x12/0x16
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346824/1070617600]
-        remote_send_swap+0x332/0x33d [rswap]
-        Apr  5 20:24:57 localhost kernel:  [scrup+81/174] scrup+0x51/0xae
-        Apr  5 20:24:57 localhost kernel:  [vgacon_cursor+307/314]
-        vgacon_cursor+0x133/0x13a
-        Apr  5 20:24:57 localhost kernel:  [set_cursor+78/91]
-        set_cursor+0x4e/0x5b
-        Apr  5 20:24:57 localhost kernel:  [vt_console_print+523/540]
-        vt_console_print+0x20b/0x21c
-        Apr  5 20:24:57 localhost kernel: 
-        [__call_console_drivers+55/69] __call_console_drivers+0x37/0x45
-        Apr  5 20:24:57 localhost kernel: 
-        [call_console_drivers+226/234] call_console_drivers+0xe2/0xea
-        Apr  5 20:24:57 localhost kernel:  [vprintk+467/494]
-        vprintk+0x1d3/0x1ee
-        Apr  5 20:24:57 localhost kernel:  [__make_request+1020/1068]
-        __make_request+0x3fc/0x42c
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346943/1070617600]
-        rswap_send+0x6c/0x88 [rswap]
-        Apr  5 20:24:57 localhost kernel:  [pg0+140347045/1070617600]
-        request_dd+0x4a/0x71 [rswap]
-        Apr  5 20:24:57 localhost kernel:  [blk_remove_plug+70/80]
-        blk_remove_plug+0x46/0x50
-        Apr  5 20:24:57 localhost kernel:  [sync_page+0/61]
-        sync_page+0x0/0x3d
-        Apr  5 20:24:57 localhost kernel:  [generic_unplug_device+10/13]
-        generic_unplug_device+0xa/0xd
-        Apr  5 20:24:57 localhost kernel:  [block_sync_page+53/58]
-        block_sync_page+0x35/0x3a
-        Apr  5 20:24:57 localhost kernel:  [sync_page+52/61]
-        sync_page+0x34/0x3d
-        Apr  5 20:24:57 localhost kernel:  [__wait_on_bit_lock+43/81]
-        __wait_on_bit_lock+0x2b/0x51
-        Apr  5 20:24:57 localhost kernel:  [__lock_page+84/90]
-        __lock_page+0x54/0x5a
-        Apr  5 20:24:57 localhost kernel:  [wake_bit_function+0/52]
-        wake_bit_function+0x0/0x34
-        Apr  5 20:24:57 localhost kernel:  [read_cache_page+198/271]
-        read_cache_page+0xc6/0x10f
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [read_dev_sector+44/131]
-        read_dev_sector+0x2c/0x83
-        Apr  5 20:24:57 localhost kernel:  [blkdev_readpage+0/21]
-        blkdev_readpage+0x0/0x15
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+30/263]
-        parse_solaris_x86+0x1e/0x107
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [msdos_partition+514/596]
-        msdos_partition+0x202/0x254
-        Apr  5 20:24:57 localhost kernel:  [check_partition+136/204]
-        check_partition+0x88/0xcc
-        Apr  5 20:24:57 localhost kernel:  [rescan_partitions+97/166]
-        rescan_partitions+0x61/0xa6
-        Apr  5 20:24:57 localhost kernel:  [blkdev_reread_part+73/97]
-        blkdev_reread_part+0x49/0x61
-        Apr  5 20:24:57 localhost kernel:  [blkdev_ioctl+250/297]
-        blkdev_ioctl+0xfa/0x129
-        Apr  5 20:24:57 localhost kernel:  [block_ioctl+26/30]
-        block_ioctl+0x1a/0x1e
-        Apr  5 20:24:57 localhost kernel:  [do_ioctl+33/86]
-        do_ioctl+0x21/0x56
-        Apr  5 20:24:57 localhost kernel:  [vfs_ioctl+348/363]
-        vfs_ioctl+0x15c/0x16b
-        Apr  5 20:24:57 localhost kernel:  [sys_ioctl+43/70]
-        sys_ioctl+0x2b/0x46
-        Apr  5 20:24:57 localhost kernel:  [sysenter_past_esp+84/117]
-        sysenter_past_esp+0x54/0x75
-        Apr  5 20:24:57 localhost kernel: Badness in local_bh_enable at
-        kernel/softirq.c:140
-        Apr  5 20:24:57 localhost kernel:  [local_bh_enable+37/92]
-        local_bh_enable+0x25/0x5c
-        Apr  5 20:24:57 localhost kernel: 
-        [__ip_route_output_key+188/196] __ip_route_output_key+0xbc/0xc4
-        Apr  5 20:24:57 localhost kernel:  [ip_route_output_flow+17/74]
-        ip_route_output_flow+0x11/0x4a
-        Apr  5 20:24:57 localhost kernel:  [tcp_v4_connect+387/2229]
-        tcp_v4_connect+0x183/0x8b5
-        Apr  5 20:24:57 localhost kernel:  [dump_stack+18/22]
-        dump_stack+0x12/0x16
-        Apr  5 20:24:57 localhost kernel:  [inet_stream_connect+123/324]
-        inet_stream_connect+0x7b/0x144
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346179/1070617600]
-        remote_send_swap+0xad/0x33d [rswap]
-        Apr  5 20:24:57 localhost kernel:  [printk+18/22] printk+0x12/0x16
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346824/1070617600]
-        remote_send_swap+0x332/0x33d [rswap]
-        Apr  5 20:24:57 localhost kernel:  [scrup+81/174] scrup+0x51/0xae
-        Apr  5 20:24:57 localhost kernel:  [vgacon_cursor+307/314]
-        vgacon_cursor+0x133/0x13a
-        Apr  5 20:24:57 localhost kernel:  [set_cursor+78/91]
-        set_cursor+0x4e/0x5b
-        Apr  5 20:24:57 localhost kernel:  [vt_console_print+523/540]
-        vt_console_print+0x20b/0x21c
-        Apr  5 20:24:57 localhost kernel: 
-        [__call_console_drivers+55/69] __call_console_drivers+0x37/0x45
-        Apr  5 20:24:57 localhost kernel: 
-        [call_console_drivers+226/234] call_console_drivers+0xe2/0xea
-        Apr  5 20:24:57 localhost kernel:  [vprintk+467/494]
-        vprintk+0x1d3/0x1ee
-        Apr  5 20:24:57 localhost kernel:  [__make_request+1020/1068]
-        __make_request+0x3fc/0x42c
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346943/1070617600]
-        rswap_send+0x6c/0x88 [rswap]
-        Apr  5 20:24:57 localhost kernel:  [pg0+140347045/1070617600]
-        request_dd+0x4a/0x71 [rswap]
-        Apr  5 20:24:57 localhost kernel:  [blk_remove_plug+70/80]
-        blk_remove_plug+0x46/0x50
-        Apr  5 20:24:57 localhost kernel:  [sync_page+0/61]
-        sync_page+0x0/0x3d
-        Apr  5 20:24:57 localhost kernel:  [generic_unplug_device+10/13]
-        generic_unplug_device+0xa/0xd
-        Apr  5 20:24:57 localhost kernel:  [block_sync_page+53/58]
-        block_sync_page+0x35/0x3a
-        Apr  5 20:24:57 localhost kernel:  [sync_page+52/61]
-        sync_page+0x34/0x3d
-        Apr  5 20:24:57 localhost kernel:  [__wait_on_bit_lock+43/81]
-        __wait_on_bit_lock+0x2b/0x51
-        Apr  5 20:24:57 localhost kernel:  [__lock_page+84/90]
-        __lock_page+0x54/0x5a
-        Apr  5 20:24:57 localhost kernel:  [wake_bit_function+0/52]
-        wake_bit_function+0x0/0x34
-        Apr  5 20:24:57 localhost kernel:  [read_cache_page+198/271]
-        read_cache_page+0xc6/0x10f
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [read_dev_sector+44/131]
-        read_dev_sector+0x2c/0x83
-        Apr  5 20:24:57 localhost kernel:  [blkdev_readpage+0/21]
-        blkdev_readpage+0x0/0x15
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+30/263]
-        parse_solaris_x86+0x1e/0x107
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [msdos_partition+514/596]
-        msdos_partition+0x202/0x254
-        Apr  5 20:24:57 localhost kernel:  [check_partition+136/204]
-        check_partition+0x88/0xcc
-        Apr  5 20:24:57 localhost kernel:  [rescan_partitions+97/166]
-        rescan_partitions+0x61/0xa6
-        Apr  5 20:24:57 localhost kernel:  [blkdev_reread_part+73/97]
-        blkdev_reread_part+0x49/0x61
-        Apr  5 20:24:57 localhost kernel:  [blkdev_ioctl+250/297]
-        blkdev_ioctl+0xfa/0x129
-        Apr  5 20:24:57 localhost kernel:  [block_ioctl+26/30]
-        block_ioctl+0x1a/0x1e
-        Apr  5 20:24:57 localhost kernel:  [do_ioctl+33/86]
-        do_ioctl+0x21/0x56
-        Apr  5 20:24:57 localhost kernel:  [vfs_ioctl+348/363]
-        vfs_ioctl+0x15c/0x16b
-        Apr  5 20:24:57 localhost kernel:  [sys_ioctl+43/70]
-        sys_ioctl+0x2b/0x46
-        Apr  5 20:24:57 localhost kernel:  [sysenter_past_esp+84/117]
-        sysenter_past_esp+0x54/0x75
-        Apr  5 20:24:57 localhost kernel: Badness in local_bh_enable at
-        kernel/softirq.c:140
-        Apr  5 20:24:57 localhost kernel:  [local_bh_enable+37/92]
-        local_bh_enable+0x25/0x5c
-        Apr  5 20:24:57 localhost kernel:  [tcp_v4_connect+1613/2229]
-        tcp_v4_connect+0x64d/0x8b5
-        Apr  5 20:24:57 localhost kernel:  [inet_stream_connect+123/324]
-        inet_stream_connect+0x7b/0x144
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346179/1070617600]
-        remote_send_swap+0xad/0x33d [rswap]
-        Apr  5 20:24:57 localhost kernel:  [printk+18/22] printk+0x12/0x16
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346824/1070617600]
-        remote_send_swap+0x332/0x33d [rswap]
-        Apr  5 20:24:57 localhost kernel:  [scrup+81/174] scrup+0x51/0xae
-        Apr  5 20:24:57 localhost kernel:  [vgacon_cursor+307/314]
-        vgacon_cursor+0x133/0x13a
-        Apr  5 20:24:57 localhost kernel:  [set_cursor+78/91]
-        set_cursor+0x4e/0x5b
-        Apr  5 20:24:57 localhost kernel:  [vt_console_print+523/540]
-        vt_console_print+0x20b/0x21c
-        Apr  5 20:24:57 localhost kernel: 
-        [__call_console_drivers+55/69] __call_console_drivers+0x37/0x45
-        Apr  5 20:24:57 localhost kernel: 
-        [call_console_drivers+226/234] call_console_drivers+0xe2/0xea
-        Apr  5 20:24:57 localhost kernel:  [vprintk+467/494]
-        vprintk+0x1d3/0x1ee
-        Apr  5 20:24:57 localhost kernel:  [__make_request+1020/1068]
-        __make_request+0x3fc/0x42c
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346943/1070617600]
-        rswap_send+0x6c/0x88 [rswap]
-        Apr  5 20:24:57 localhost kernel:  [pg0+140347045/1070617600]
-        request_dd+0x4a/0x71 [rswap]
-        Apr  5 20:24:57 localhost kernel:  [blk_remove_plug+70/80]
-        blk_remove_plug+0x46/0x50
-        Apr  5 20:24:57 localhost kernel:  [sync_page+0/61]
-        sync_page+0x0/0x3d
-        Apr  5 20:24:57 localhost kernel:  [generic_unplug_device+10/13]
-        generic_unplug_device+0xa/0xd
-        Apr  5 20:24:57 localhost kernel:  [block_sync_page+53/58]
-        block_sync_page+0x35/0x3a
-        Apr  5 20:24:57 localhost kernel:  [sync_page+52/61]
-        sync_page+0x34/0x3d
-        Apr  5 20:24:57 localhost kernel:  [__wait_on_bit_lock+43/81]
-        __wait_on_bit_lock+0x2b/0x51
-        Apr  5 20:24:57 localhost kernel:  [__lock_page+84/90]
-        __lock_page+0x54/0x5a
-        Apr  5 20:24:57 localhost kernel:  [wake_bit_function+0/52]
-        wake_bit_function+0x0/0x34
-        Apr  5 20:24:57 localhost kernel:  [read_cache_page+198/271]
-        read_cache_page+0xc6/0x10f
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [read_dev_sector+44/131]
-        read_dev_sector+0x2c/0x83
-        Apr  5 20:24:57 localhost kernel:  [blkdev_readpage+0/21]
-        blkdev_readpage+0x0/0x15
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+30/263]
-        parse_solaris_x86+0x1e/0x107
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [msdos_partition+514/596]
-        msdos_partition+0x202/0x254
-        Apr  5 20:24:57 localhost kernel:  [check_partition+136/204]
-        check_partition+0x88/0xcc
-        Apr  5 20:24:57 localhost kernel:  [rescan_partitions+97/166]
-        rescan_partitions+0x61/0xa6
-        Apr  5 20:24:57 localhost kernel:  [blkdev_reread_part+73/97]
-        blkdev_reread_part+0x49/0x61
-        Apr  5 20:24:57 localhost kernel:  [blkdev_ioctl+250/297]
-        blkdev_ioctl+0xfa/0x129
-        Apr  5 20:24:57 localhost kernel:  [block_ioctl+26/30]
-        block_ioctl+0x1a/0x1e
-        Apr  5 20:24:57 localhost kernel:  [do_ioctl+33/86]
-        do_ioctl+0x21/0x56
-        Apr  5 20:24:57 localhost kernel:  [vfs_ioctl+348/363]
-        vfs_ioctl+0x15c/0x16b
-        Apr  5 20:24:57 localhost kernel:  [sys_ioctl+43/70]
-        sys_ioctl+0x2b/0x46
-        Apr  5 20:24:57 localhost kernel:  [sysenter_past_esp+84/117]
-        sysenter_past_esp+0x54/0x75
-        Apr  5 20:24:57 localhost kernel: Badness in local_bh_enable at
-        kernel/softirq.c:140
-        Apr  5 20:24:57 localhost kernel:  [local_bh_enable+37/92]
-        local_bh_enable+0x25/0x5c
-        Apr  5 20:24:57 localhost kernel: 
-        [__ip_route_output_key+188/196] __ip_route_output_key+0xbc/0xc4
-        Apr  5 20:24:57 localhost kernel:  [ip_route_output_flow+17/74]
-        ip_route_output_flow+0x11/0x4a
-        Apr  5 20:24:57 localhost kernel:  [tcp_v4_connect+1793/2229]
-        tcp_v4_connect+0x701/0x8b5
-        Apr  5 20:24:57 localhost kernel:  [inet_stream_connect+123/324]
-        inet_stream_connect+0x7b/0x144
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346179/1070617600]
-        remote_send_swap+0xad/0x33d [rswap]
-        Apr  5 20:24:57 localhost kernel:  [printk+18/22] printk+0x12/0x16
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346824/1070617600]
-        remote_send_swap+0x332/0x33d [rswap]
-        Apr  5 20:24:57 localhost kernel:  [scrup+81/174] scrup+0x51/0xae
-        Apr  5 20:24:57 localhost kernel:  [vgacon_cursor+307/314]
-        vgacon_cursor+0x133/0x13a
-        Apr  5 20:24:57 localhost kernel:  [set_cursor+78/91]
-        set_cursor+0x4e/0x5b
-        Apr  5 20:24:57 localhost kernel:  [vt_console_print+523/540]
-        vt_console_print+0x20b/0x21c
-        Apr  5 20:24:57 localhost kernel: 
-        [__call_console_drivers+55/69] __call_console_drivers+0x37/0x45
-        Apr  5 20:24:57 localhost kernel: 
-        [call_console_drivers+226/234] call_console_drivers+0xe2/0xea
-        Apr  5 20:24:57 localhost kernel:  [vprintk+467/494]
-        vprintk+0x1d3/0x1ee
-        Apr  5 20:24:57 localhost kernel:  [__make_request+1020/1068]
-        __make_request+0x3fc/0x42c
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346943/1070617600]
-        rswap_send+0x6c/0x88 [rswap]
-        Apr  5 20:24:57 localhost kernel:  [pg0+140347045/1070617600]
-        request_dd+0x4a/0x71 [rswap]
-        Apr  5 20:24:57 localhost kernel:  [blk_remove_plug+70/80]
-        blk_remove_plug+0x46/0x50
-        Apr  5 20:24:57 localhost kernel:  [sync_page+0/61]
-        sync_page+0x0/0x3d
-        Apr  5 20:24:57 localhost kernel:  [generic_unplug_device+10/13]
-        generic_unplug_device+0xa/0xd
-        Apr  5 20:24:57 localhost kernel:  [block_sync_page+53/58]
-        block_sync_page+0x35/0x3a
-        Apr  5 20:24:57 localhost kernel:  [sync_page+52/61]
-        sync_page+0x34/0x3d
-        Apr  5 20:24:57 localhost kernel:  [__wait_on_bit_lock+43/81]
-        __wait_on_bit_lock+0x2b/0x51
-        Apr  5 20:24:57 localhost kernel:  [__lock_page+84/90]
-        __lock_page+0x54/0x5a
-        Apr  5 20:24:57 localhost kernel:  [wake_bit_function+0/52]
-        wake_bit_function+0x0/0x34
-        Apr  5 20:24:57 localhost kernel:  [read_cache_page+198/271]
-        read_cache_page+0xc6/0x10f
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [read_dev_sector+44/131]
-        read_dev_sector+0x2c/0x83
-        Apr  5 20:24:57 localhost kernel:  [blkdev_readpage+0/21]
-        blkdev_readpage+0x0/0x15
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+30/263]
-        parse_solaris_x86+0x1e/0x107
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [msdos_partition+514/596]
-        msdos_partition+0x202/0x254
-        Apr  5 20:24:57 localhost kernel:  [check_partition+136/204]
-        check_partition+0x88/0xcc
-        Apr  5 20:24:57 localhost kernel:  [rescan_partitions+97/166]
-        rescan_partitions+0x61/0xa6
-        Apr  5 20:24:57 localhost kernel:  [blkdev_reread_part+73/97]
-        blkdev_reread_part+0x49/0x61
-        Apr  5 20:24:57 localhost kernel:  [blkdev_ioctl+250/297]
-        blkdev_ioctl+0xfa/0x129
-        Apr  5 20:24:57 localhost kernel:  [block_ioctl+26/30]
-        block_ioctl+0x1a/0x1e
-        Apr  5 20:24:57 localhost kernel:  [do_ioctl+33/86]
-        do_ioctl+0x21/0x56
-        Apr  5 20:24:57 localhost kernel:  [vfs_ioctl+348/363]
-        vfs_ioctl+0x15c/0x16b
-        Apr  5 20:24:57 localhost kernel:  [sys_ioctl+43/70]
-        sys_ioctl+0x2b/0x46
-        Apr  5 20:24:57 localhost kernel:  [sysenter_past_esp+84/117]
-        sysenter_past_esp+0x54/0x75
-        Apr  5 20:24:57 localhost kernel: Badness in local_bh_enable at
-        kernel/softirq.c:140
-        Apr  5 20:24:57 localhost kernel:  [local_bh_enable+37/92]
-        local_bh_enable+0x25/0x5c
-        Apr  5 20:24:57 localhost kernel:  [ip_output+399/533]
-        ip_output+0x18f/0x215
-        Apr  5 20:24:57 localhost kernel:  [ip_queue_xmit+909/1011]
-        ip_queue_xmit+0x38d/0x3f3
-        Apr  5 20:24:57 localhost kernel:  [sysenter_past_esp+84/117]
-        sysenter_past_esp+0x54/0x75
-        Apr  5 20:24:57 localhost kernel:  [tcp_v4_send_check+123/193]
-        tcp_v4_send_check+0x7b/0xc1
-        Apr  5 20:24:57 localhost kernel:  [tcp_transmit_skb+1437/1642]
-        tcp_transmit_skb+0x59d/0x66a
-        Apr  5 20:24:57 localhost kernel:  [tcp_connect+693/794]
-        tcp_connect+0x2b5/0x31a
-        Apr  5 20:24:57 localhost kernel:  [tcp_v4_connect+1983/2229]
-        tcp_v4_connect+0x7bf/0x8b5
-        Apr  5 20:24:57 localhost kernel:  [inet_stream_connect+123/324]
-        inet_stream_connect+0x7b/0x144
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346179/1070617600]
-        remote_send_swap+0xad/0x33d [rswap]
-        Apr  5 20:24:57 localhost kernel:  [printk+18/22] printk+0x12/0x16
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346824/1070617600]
-        remote_send_swap+0x332/0x33d [rswap]
-        Apr  5 20:24:57 localhost kernel:  [scrup+81/174] scrup+0x51/0xae
-        Apr  5 20:24:57 localhost kernel:  [vgacon_cursor+307/314]
-        vgacon_cursor+0x133/0x13a
-        Apr  5 20:24:57 localhost kernel:  [set_cursor+78/91]
-        set_cursor+0x4e/0x5b
-        Apr  5 20:24:57 localhost kernel:  [vt_console_print+523/540]
-        vt_console_print+0x20b/0x21c
-        Apr  5 20:24:57 localhost kernel: 
-        [__call_console_drivers+55/69] __call_console_drivers+0x37/0x45
-        Apr  5 20:24:57 localhost kernel: 
-        [call_console_drivers+226/234] call_console_drivers+0xe2/0xea
-        Apr  5 20:24:57 localhost kernel:  [vprintk+467/494]
-        vprintk+0x1d3/0x1ee
-        Apr  5 20:24:57 localhost kernel:  [__make_request+1020/1068]
-        __make_request+0x3fc/0x42c
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346943/1070617600]
-        rswap_send+0x6c/0x88 [rswap]
-        Apr  5 20:24:57 localhost kernel:  [pg0+140347045/1070617600]
-        request_dd+0x4a/0x71 [rswap]
-        Apr  5 20:24:57 localhost kernel:  [blk_remove_plug+70/80]
-        blk_remove_plug+0x46/0x50
-        Apr  5 20:24:57 localhost kernel:  [sync_page+0/61]
-        sync_page+0x0/0x3d
-        Apr  5 20:24:57 localhost kernel:  [generic_unplug_device+10/13]
-        generic_unplug_device+0xa/0xd
-        Apr  5 20:24:57 localhost kernel:  [block_sync_page+53/58]
-        block_sync_page+0x35/0x3a
-        Apr  5 20:24:57 localhost kernel:  [sync_page+52/61]
-        sync_page+0x34/0x3d
-        Apr  5 20:24:57 localhost kernel:  [__wait_on_bit_lock+43/81]
-        __wait_on_bit_lock+0x2b/0x51
-        Apr  5 20:24:57 localhost kernel:  [__lock_page+84/90]
-        __lock_page+0x54/0x5a
-        Apr  5 20:24:57 localhost kernel:  [wake_bit_function+0/52]
-        wake_bit_function+0x0/0x34
-        Apr  5 20:24:57 localhost kernel:  [read_cache_page+198/271]
-        read_cache_page+0xc6/0x10f
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [read_dev_sector+44/131]
-        read_dev_sector+0x2c/0x83
-        Apr  5 20:24:57 localhost kernel:  [blkdev_readpage+0/21]
-        blkdev_readpage+0x0/0x15
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+30/263]
-        parse_solaris_x86+0x1e/0x107
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [msdos_partition+514/596]
-        msdos_partition+0x202/0x254
-        Apr  5 20:24:57 localhost kernel:  [check_partition+136/204]
-        check_partition+0x88/0xcc
-        Apr  5 20:24:57 localhost kernel:  [rescan_partitions+97/166]
-        rescan_partitions+0x61/0xa6
-        Apr  5 20:24:57 localhost kernel:  [blkdev_reread_part+73/97]
-        blkdev_reread_part+0x49/0x61
-        Apr  5 20:24:57 localhost kernel:  [blkdev_ioctl+250/297]
-        blkdev_ioctl+0xfa/0x129
-        Apr  5 20:24:57 localhost kernel:  [block_ioctl+26/30]
-        block_ioctl+0x1a/0x1e
-        Apr  5 20:24:57 localhost kernel:  [do_ioctl+33/86]
-        do_ioctl+0x21/0x56
-        Apr  5 20:24:57 localhost kernel:  [vfs_ioctl+348/363]
-        vfs_ioctl+0x15c/0x16b
-        Apr  5 20:24:57 localhost kernel:  [sys_ioctl+43/70]
-        sys_ioctl+0x2b/0x46
-        Apr  5 20:24:57 localhost kernel:  [sysenter_past_esp+84/117]
-        sysenter_past_esp+0x54/0x75
-        Apr  5 20:24:57 localhost kernel: Badness in local_bh_enable at
-        kernel/softirq.c:140
-        Apr  5 20:24:57 localhost kernel:  [local_bh_enable+37/92]
-        local_bh_enable+0x25/0x5c
-        Apr  5 20:24:57 localhost kernel:  [dev_queue_xmit+410/416]
-        dev_queue_xmit+0x19a/0x1a0
-        Apr  5 20:24:57 localhost kernel:  [ip_output+447/533]
-        ip_output+0x1bf/0x215
-        Apr  5 20:24:57 localhost kernel:  [ip_queue_xmit+909/1011]
-        ip_queue_xmit+0x38d/0x3f3
-        Apr  5 20:24:57 localhost kernel:  [sysenter_past_esp+84/117]
-        sysenter_past_esp+0x54/0x75
-        Apr  5 20:24:57 localhost kernel:  [tcp_v4_send_check+123/193]
-        tcp_v4_send_check+0x7b/0xc1
-        Apr  5 20:24:57 localhost kernel:  [tcp_transmit_skb+1437/1642]
-        tcp_transmit_skb+0x59d/0x66a
-        Apr  5 20:24:57 localhost kernel:  [tcp_connect+693/794]
-        tcp_connect+0x2b5/0x31a
-        Apr  5 20:24:57 localhost kernel:  [tcp_v4_connect+1983/2229]
-        tcp_v4_connect+0x7bf/0x8b5
-        Apr  5 20:24:57 localhost kernel:  [inet_stream_connect+123/324]
-        inet_stream_connect+0x7b/0x144
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346179/1070617600]
-        remote_send_swap+0xad/0x33d [rswap]
-        Apr  5 20:24:57 localhost kernel:  [printk+18/22] printk+0x12/0x16
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346824/1070617600]
-        remote_send_swap+0x332/0x33d [rswap]
-        Apr  5 20:24:57 localhost kernel:  [scrup+81/174] scrup+0x51/0xae
-        Apr  5 20:24:57 localhost kernel:  [vgacon_cursor+307/314]
-        vgacon_cursor+0x133/0x13a
-        Apr  5 20:24:57 localhost kernel:  [set_cursor+78/91]
-        set_cursor+0x4e/0x5b
-        Apr  5 20:24:57 localhost kernel:  [vt_console_print+523/540]
-        vt_console_print+0x20b/0x21c
-        Apr  5 20:24:57 localhost kernel: 
-        [__call_console_drivers+55/69] __call_console_drivers+0x37/0x45
-        Apr  5 20:24:57 localhost kernel: 
-        [call_console_drivers+226/234] call_console_drivers+0xe2/0xea
-        Apr  5 20:24:57 localhost kernel:  [vprintk+467/494]
-        vprintk+0x1d3/0x1ee
-        Apr  5 20:24:57 localhost kernel:  [__make_request+1020/1068]
-        __make_request+0x3fc/0x42c
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346943/1070617600]
-        rswap_send+0x6c/0x88 [rswap]
-        Apr  5 20:24:57 localhost kernel:  [pg0+140347045/1070617600]
-        request_dd+0x4a/0x71 [rswap]
-        Apr  5 20:24:57 localhost kernel:  [blk_remove_plug+70/80]
-        blk_remove_plug+0x46/0x50
-        Apr  5 20:24:57 localhost kernel:  [sync_page+0/61]
-        sync_page+0x0/0x3d
-        Apr  5 20:24:57 localhost kernel:  [generic_unplug_device+10/13]
-        generic_unplug_device+0xa/0xd
-        Apr  5 20:24:57 localhost kernel:  [block_sync_page+53/58]
-        block_sync_page+0x35/0x3a
-        Apr  5 20:24:57 localhost kernel:  [sync_page+52/61]
-        sync_page+0x34/0x3d
-        Apr  5 20:24:57 localhost kernel:  [__wait_on_bit_lock+43/81]
-        __wait_on_bit_lock+0x2b/0x51
-        Apr  5 20:24:57 localhost kernel:  [__lock_page+84/90]
-        __lock_page+0x54/0x5a
-        Apr  5 20:24:57 localhost kernel:  [wake_bit_function+0/52]
-        wake_bit_function+0x0/0x34
-        Apr  5 20:24:57 localhost kernel:  [read_cache_page+198/271]
-        read_cache_page+0xc6/0x10f
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [read_dev_sector+44/131]
-        read_dev_sector+0x2c/0x83
-        Apr  5 20:24:57 localhost kernel:  [blkdev_readpage+0/21]
-        blkdev_readpage+0x0/0x15
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+30/263]
-        parse_solaris_x86+0x1e/0x107
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [msdos_partition+514/596]
-        msdos_partition+0x202/0x254
-        Apr  5 20:24:57 localhost kernel:  [check_partition+136/204]
-        check_partition+0x88/0xcc
-        Apr  5 20:24:57 localhost kernel:  [rescan_partitions+97/166]
-        rescan_partitions+0x61/0xa6
-        Apr  5 20:24:57 localhost kernel:  [blkdev_reread_part+73/97]
-        blkdev_reread_part+0x49/0x61
-        Apr  5 20:24:57 localhost kernel:  [blkdev_ioctl+250/297]
-        blkdev_ioctl+0xfa/0x129
-        Apr  5 20:24:57 localhost kernel:  [block_ioctl+26/30]
-        block_ioctl+0x1a/0x1e
-        Apr  5 20:24:57 localhost kernel:  [do_ioctl+33/86]
-        do_ioctl+0x21/0x56
-        Apr  5 20:24:57 localhost kernel:  [vfs_ioctl+348/363]
-        vfs_ioctl+0x15c/0x16b
-        Apr  5 20:24:57 localhost kernel:  [sys_ioctl+43/70]
-        sys_ioctl+0x2b/0x46
-        Apr  5 20:24:57 localhost kernel:  [sysenter_past_esp+84/117]
-        sysenter_past_esp+0x54/0x75
-        Apr  5 20:24:57 localhost kernel: Badness in local_bh_enable at
-        kernel/softirq.c:140
-        Apr  5 20:24:57 localhost kernel:  [local_bh_enable+37/92]
-        local_bh_enable+0x25/0x5c
-        Apr  5 20:24:57 localhost kernel: 
-        [inet_wait_for_connect+76/163] inet_wait_for_connect+0x4c/0xa3
-        Apr  5 20:24:57 localhost kernel: 
-        [autoremove_wake_function+0/58] autoremove_wake_function+0x0/0x3a
-        Apr  5 20:24:57 localhost kernel:  [inet_stream_connect+191/324]
-        inet_stream_connect+0xbf/0x144
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346179/1070617600]
-        remote_send_swap+0xad/0x33d [rswap]
-        Apr  5 20:24:57 localhost kernel:  [printk+18/22] printk+0x12/0x16
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346824/1070617600]
-        remote_send_swap+0x332/0x33d [rswap]
-        Apr  5 20:24:57 localhost kernel:  [scrup+81/174] scrup+0x51/0xae
-        Apr  5 20:24:57 localhost kernel:  [vgacon_cursor+307/314]
-        vgacon_cursor+0x133/0x13a
-        Apr  5 20:24:57 localhost kernel:  [set_cursor+78/91]
-        set_cursor+0x4e/0x5b
-        Apr  5 20:24:57 localhost kernel:  [vt_console_print+523/540]
-        vt_console_print+0x20b/0x21c
-        Apr  5 20:24:57 localhost kernel: 
-        [__call_console_drivers+55/69] __call_console_drivers+0x37/0x45
-        Apr  5 20:24:57 localhost kernel: 
-        [call_console_drivers+226/234] call_console_drivers+0xe2/0xea
-        Apr  5 20:24:57 localhost kernel:  [vprintk+467/494]
-        vprintk+0x1d3/0x1ee
-        Apr  5 20:24:57 localhost kernel:  [__make_request+1020/1068]
-        __make_request+0x3fc/0x42c
-        Apr  5 20:24:57 localhost kernel:  [pg0+140346943/1070617600]
-        rswap_send+0x6c/0x88 [rswap]
-        Apr  5 20:24:57 localhost kernel:  [pg0+140347045/1070617600]
-        request_dd+0x4a/0x71 [rswap]
-        Apr  5 20:24:57 localhost kernel:  [blk_remove_plug+70/80]
-        blk_remove_plug+0x46/0x50
-        Apr  5 20:24:57 localhost kernel:  [sync_page+0/61]
-        sync_page+0x0/0x3d
-        Apr  5 20:24:57 localhost kernel:  [generic_unplug_device+10/13]
-        generic_unplug_device+0xa/0xd
-        Apr  5 20:24:57 localhost kernel:  [block_sync_page+53/58]
-        block_sync_page+0x35/0x3a
-        Apr  5 20:24:57 localhost kernel:  [sync_page+52/61]
-        sync_page+0x34/0x3d
-        Apr  5 20:24:57 localhost kernel:  [__wait_on_bit_lock+43/81]
-        __wait_on_bit_lock+0x2b/0x51
-        Apr  5 20:24:57 localhost kernel:  [__lock_page+84/90]
-        __lock_page+0x54/0x5a
-        Apr  5 20:24:57 localhost kernel:  [wake_bit_function+0/52]
-        wake_bit_function+0x0/0x34
-        Apr  5 20:24:57 localhost kernel:  [read_cache_page+198/271]
-        read_cache_page+0xc6/0x10f
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [read_dev_sector+44/131]
-        read_dev_sector+0x2c/0x83
-        Apr  5 20:24:57 localhost kernel:  [blkdev_readpage+0/21]
-        blkdev_readpage+0x0/0x15
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+30/263]
-        parse_solaris_x86+0x1e/0x107
-        Apr  5 20:24:57 localhost kernel:  [parse_solaris_x86+0/263]
-        parse_solaris_x86+0x0/0x107
-        Apr  5 20:24:57 localhost kernel:  [msdos_partition+514/596]
-        msdos_partition+0x202/0x254
-        Apr  5 20:24:57 localhost kernel:  [check_partition+136/204]
-        check_partition+0x88/0xcc
-        Apr  5 20:24:57 localhost kernel:  [rescan_partitions+97/166]
-        rescan_partitions+0x61/0xa6
-        Apr  5 20:24:57 localhost kernel:  [blkdev_reread_part+73/97]
-        blkdev_reread_part+0x49/0x61
-        Apr  5 20:24:57 localhost kernel:  [blkdev_ioctl+250/297]
-        blkdev_ioctl+0xfa/0x129
-        Apr  5 20:24:57 localhost kernel:  [block_ioctl+26/30]
-        block_ioctl+0x1a/0x1e
-        Apr  5 20:24:57 localhost kernel:  [do_ioctl+33/86]
-        do_ioctl+0x21/0x56
-        Apr  5 20:24:57 localhost kernel:  [vfs_ioctl+348/363]
-        vfs_ioctl+0x15c/0x16b
-        Apr  5 20:24:57 localhost kernel:  [sys_ioctl+43/70]
-        sys_ioctl+0x2b/0x46
-        Apr  5 20:24:57 localhost kernel:  [sysenter_past_esp+84/117]
-        sysenter_past_esp+0x54/0x75
-
-I don't find any pattern that causes this log,
-My kernel is 2.6.15. Someone knows what is the error, or something that
-could help me to find it??
-thanks in advance
-
-jordi  
-
-
-
+>
+> In find_busiest_group(), I think that load balancing in the case where
+> *imbalance is greater than busiest_load_per_task will tend towards this
+> result and also when *imbalance is less than busiest_load_per_task AND
+> busiest_load_per_task is less than this_load_per_task.  However, in the
+> case where *imbalance is less than busiest_load_per_task AND
+> busiest_load_per_task is greater than this_load_per_task this will not
+> be the case as the amount of load moved from "busiest" to "this" will be
+> less than or equal to busiest_load_per_task and this will actually
+> increase the value of busiest_load_per_task.  So, although it will
+> achieve the aim of equally distributing the weighted load, it won't help
+> the second aim of equal "average load per task" values for groups/queues.
+>
+> The obvious way to fix this problem is to alter the code so that more
+> than busiest_load_per_task is moved from "busiest" to "this" in these
+> cases while at the same time ensuring that the imbalance between their
+> loads doesn't get any bigger.  I'm working on a patch along these lines.
+>
+> Changes to find_idlest_group() and try_to_wake_up() taking into account
+> the "average load per task" on the candidate queues/groups as well as
+> their weighted loads may also help and I'll be looking at them as well.
+>   It's not immediately obvious to me how this can be done so any ideas
+> would be welcome.  It will likely involve taking the load weight of the
+> waking task into account as well.
+>
+> Peter

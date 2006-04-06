@@ -1,20 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWDFSHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWDFSJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbWDFSHM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 14:07:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWDFSHL
+	id S932144AbWDFSJY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 14:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWDFSJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 14:07:11 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:64663 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932101AbWDFSHK (ORCPT
+	Thu, 6 Apr 2006 14:09:23 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:23960 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932151AbWDFSJW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 14:07:10 -0400
-Date: Fri, 7 Apr 2006 02:04:03 +0400
+	Thu, 6 Apr 2006 14:09:22 -0400
+Date: Fri, 7 Apr 2006 02:06:28 +0400
 From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH rc1-mm] de_thread: fix deadlockable process addition
-Message-ID: <20060406220403.GA205@oleg>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Ingo Molnar <mingo@elte.hu>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH 2/4] coredump: speedup SIGKILL sending
+Message-ID: <20060406220628.GA237@oleg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,46 +24,38 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On top of
-	task-make-task-list-manipulations-rcu-safe.patch
-	
-This patch
-	pidhash-kill-switch_exec_pids.patch
-
-changed de_thread() so that it doesn't remove 'leader' from it's thread group.
-However de_thread() still adds current to init_task.tasks without removing
-'leader' from this list. What if another CLONE_VM task starts do_coredump()
-after de_thread() drops tasklist_lock but before it calls release_task(leader) ?
-
-do_coredump()->zap_threads() will find this thread group twice on init_task.tasks
-list. And it will increment mm->core_waiters twice for the new leader (current in
-de_thread). So, exit_mm()->complete(mm->core_startup_done) doesn't happen, and we
-have a deadlock.
+With this patch a thread group is killed atomically under ->siglock.
+This is faster because we can use sigaddset() instead of force_sig_info()
+and this is used in further patches.
 
 Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
---- MM/fs/exec.c~0_DET	2006-04-06 22:37:33.000000000 +0400
-+++ MM/fs/exec.c	2006-04-06 22:51:51.000000000 +0400
-@@ -713,7 +713,7 @@ static int de_thread(struct task_struct 
- 		attach_pid(current, PIDTYPE_PID,  current->pid);
- 		attach_pid(current, PIDTYPE_PGID, current->signal->pgrp);
- 		attach_pid(current, PIDTYPE_SID,  current->signal->session);
--		list_add_tail_rcu(&current->tasks, &init_task.tasks);
-+		list_replace_rcu(&leader->tasks, &current->tasks);
+--- rc1/fs/exec.c~2_KILL	2006-04-06 15:10:28.000000000 +0400
++++ rc1/fs/exec.c	2006-04-06 15:19:33.000000000 +0400
+@@ -1387,17 +1387,24 @@ static void format_corename(char *corena
+ static void zap_process(struct task_struct *start, int *ptraced)
+ {
+ 	struct task_struct *t;
++	unsigned long flags;
++
++	spin_lock_irqsave(&start->sighand->siglock, flags);
  
- 		current->parent = current->real_parent = leader->real_parent;
- 		leader->parent = leader->real_parent = child_reaper;
---- MM/kernel/exit.c~0_DET	2006-03-23 23:02:53.000000000 +0300
-+++ MM/kernel/exit.c	2006-04-06 23:01:37.000000000 +0400
-@@ -55,7 +55,9 @@ static void __unhash_process(struct task
- 		detach_pid(p, PIDTYPE_PGID);
- 		detach_pid(p, PIDTYPE_SID);
+ 	t = start;
+ 	do {
+ 		if (t != current && t->mm) {
+ 			t->mm->core_waiters++;
+-			force_sig_specific(SIGKILL, t);
++			sigaddset(&t->pending.signal, SIGKILL);
++			signal_wake_up(t, 1);
++
+ 			if (unlikely(t->ptrace) &&
+ 			    unlikely(t->parent->mm == t->mm))
+ 				*ptraced = 1;
+ 		}
+ 	} while ((t = next_thread(t)) != start);
++
++	spin_unlock_irqrestore(&start->sighand->siglock, flags);
+ }
  
--		list_del_rcu(&p->tasks);
-+		/* see de_thread()->list_replace_rcu() */
-+		if (likely(p->tasks.prev != LIST_POISON2))
-+			list_del_rcu(&p->tasks);
- 		__get_cpu_var(process_counts)--;
- 	}
- 	list_del_rcu(&p->thread_group);
+ static void zap_threads (struct mm_struct *mm)
 

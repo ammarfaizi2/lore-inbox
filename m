@@ -1,106 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbWDGVlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbWDGVlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964972AbWDGVlD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 17:41:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbWDGVlD
+	id S964974AbWDGVlY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 17:41:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWDGVlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 17:41:03 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:18644 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S964972AbWDGVlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 17:41:01 -0400
-Message-ID: <4436DC4A.1060604@t-online.de>
-Date: Fri, 07 Apr 2006 23:40:26 +0200
-From: Hartmut Hackmann <hartmut.hackmann@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Fri, 7 Apr 2006 17:41:23 -0400
+Received: from [212.70.37.6] ([212.70.37.6]:63762 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S964977AbWDGVlW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 17:41:22 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
+Date: Sat, 8 Apr 2006 00:32:28 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200604031459.51542.a1426z@gawab.com> <200604051116.05270.a1426z@gawab.com> <44344A59.9070007@bigpond.net.au>
+In-Reply-To: <44344A59.9070007@bigpond.net.au>
 MIME-Version: 1.0
-To: Linux and Kernel Video <video4linux-list@redhat.com>
-CC: stable@kernel.org, Brian Marete <bgmarete@gmail.com>,
-       David Liontooth <liontooth@cogweb.net>, linux-kernel@vger.kernel.org,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [2.6.16] saa7134 disable_ir oops
-References: <44246C0E.3080306@cogweb.net>	<20060406202016.05db1eca.vsu@altlinux.ru>	<1144415771.28307.13.camel@praia> <20060407133628.GG10864@master.mivlgu.local>
-In-Reply-To: <20060407133628.GG10864@master.mivlgu.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ID: r11+BiZZZeRQB9HSvQRVtdIs9IS6nKziOdk1RafuNw+ETpnjbUTg6s
-X-TOI-MSGID: eb82bb64-0543-4890-81db-40cd722adac8
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_sptNEKoJM+TFhBF"
+Message-Id: <200604080032.28911.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+
+--Boundary-00=_sptNEKoJM+TFhBF
+Content-Type: text/plain;
+  charset="windows-1256"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Peter Williams wrote:
+> Al Boldi wrote:
+> > Peter Williams wrote:
+> >> Al Boldi wrote:
+> >>> Peter Williams wrote:
+> >>>> Al Boldi wrote:
+> >>>>>>>> Control parameters for the scheduler can be read/set via files
+> >>>>>>>> in:
+> >>>>>>>>
+> >>>>>>>> /sys/cpusched/<scheduler>/
+> >>>>>
+> >>>>> The default values for spa make it really easy to lock up the
+> >>>>> system.
+> >>>>
+> >>>> Which one of the SPA schedulers and under what conditions?  I've been
+> >>>> mucking around with these and may have broken something.  If so I'd
+> >>>> like to fix it.
+> >>>
+> >>> spa_no_frills, with a malloc-hog less than timeslice.  Setting
+> >>> promotion_floor to max unlocks the console.
+> >>
+> >> OK, you could also try increasing the promotion interval.
+> >
+> > Seems that this will only delay the lock in spa_svr but not inhibit it.
+>
+> OK. But turning the promotion mechanism off completely (which is what
+> setting the floor to the maximum) runs the risk of a runaway high
+> priority task locking the whole system up.  IMHO the only SPA scheduler
+> where it's safe for the promotion floor to be greater than MAX_RT_PRIO
+> is spa_ebs.  So a better solution is highly desirable.
+
+Yes.
+
+> I'd like to fix this problem but don't fully understand what it is.
+> What do you mean by a malloc-hog?  Would it possible for you to give me
+> an example of how to reproduce the problem?
+
+Can you try the attached mem-eater passing it the number of kb to be eaten.
+
+	i.e. '# while :; do ./eatm 9999 ; done' 
+
+This will print the number of bytes eaten and the timing in ms.
+
+Adjust the number of kb to be eaten such that the timing will be less than 
+timeslice (120ms by default for spa).  Switch to another vt and start 
+pressing enter.  A console lockup should follow within seconds for all spas 
+except ebs.
+
+Thanks!
+
+--
+Al
 
 
-Sergey Vlasov wrote:
-> On Fri, Apr 07, 2006 at 10:16:10AM -0300, Mauro Carvalho Chehab wrote:
-> 
->>Em Qui, 2006-04-06 ?s 20:20 +0400, Sergey Vlasov escreveu:
->>
->>>On Fri, 24 Mar 2006 14:00:46 -0800 David Liontooth wrote:
->>
->>>Does the following patch fix things?
->>>
->>
->>Applied at v4l-dvb tree. Thanks.
-> 
-> 
-> IMHO this patch should also be added to 2.6.16-stable - it fixes oops in
-> configurations which worked fine with older kernels.
-> 
-> -----------------------------------------------------------------------
-> 
-> saa7134: Fix oops with disable_ir=1
-> 
-> When disable_ir=1 parameter is used, or when saa7134_input_init1()
-> fails for any other reason, dev->remote will remain NULL, and the
-> driver will oops in saa7134_hwinit2().  Therefore dev->remote must be
-> checked before dereferencing.
-> 
-> Signed-off-by: Sergey Vlasov <vsu@altlinux.ru>
-> 
-> --- linux-2.6.16.orig/drivers/media/video/saa7134/saa7134-core.c	2006-03-20 08:53:29 +0300
-> +++ linux-2.6.16/drivers/media/video/saa7134/saa7134-core.c	2006-04-06 20:00:56 +0400
-> @@ -543,6 +543,8 @@ static irqreturn_t saa7134_irq(int irq, 
->  		if (report & SAA7134_IRQ_REPORT_GPIO16) {
->  			switch (dev->has_remote) {
->  				case SAA7134_REMOTE_GPIO:
-> +					if (!dev->remote)
-> +						break;
->  					if  (dev->remote->mask_keydown & 0x10000) {
->  						saa7134_input_irq(dev);
->  					}
-> @@ -559,6 +561,8 @@ static irqreturn_t saa7134_irq(int irq, 
->  		if (report & SAA7134_IRQ_REPORT_GPIO18) {
->  			switch (dev->has_remote) {
->  				case SAA7134_REMOTE_GPIO:
-> +					if (!dev->remote)
-> +						break;
->  					if ((dev->remote->mask_keydown & 0x40000) ||
->  					    (dev->remote->mask_keyup & 0x40000)) {
->  						saa7134_input_irq(dev);
-> @@ -671,7 +675,7 @@ static int saa7134_hwinit2(struct saa713
->  		SAA7134_IRQ2_INTE_PE      |
->  		SAA7134_IRQ2_INTE_AR;
->  
-> -	if (dev->has_remote == SAA7134_REMOTE_GPIO) {
-> +	if (dev->has_remote == SAA7134_REMOTE_GPIO && dev->remote) {
->  		if (dev->remote->mask_keydown & 0x10000)
->  			irq2_mask |= SAA7134_IRQ2_INTE_GPIO16;
->  		else if (dev->remote->mask_keydown & 0x40000)
-> 
 
-Let's think this over, please.
-1) The problem originally was that a card type with remote control was
-    forced for a card that doesn't have one.
-2) On the other hand you are right, this situation should not cause an oops.
-The code should be that GPIO irqs should be completely ignored unless a handler
-has been installed, so the
-  if (dev->has_remote)
-is completely wrong and should be repaced by something explictly initialized,
-maybe the dev->remote pointer does the trick better.
-I never worked seriously on this fraction of the driver, so there might be a
-better solution.
+--Boundary-00=_sptNEKoJM+TFhBF
+Content-Type: text/x-csrc;
+  charset="windows-1256";
+  name="eatm.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="eatm.c"
 
-Comments?
-    Hartmut
+#include <stdio.h>
+#include <sys/time.h>
+
+unsigned long elapsed(int start) {
+
+	static struct timeval s,e;
+
+	if (start) return gettimeofday(&s, NULL);
+
+	gettimeofday(&e, NULL);
+
+	return ((e.tv_sec - s.tv_sec) * 1000 + (e.tv_usec - s.tv_usec) / 1000);
+
+}
+
+int main(int argc, char **argv) {
+
+    unsigned long int i,j,max;
+    unsigned char *p;
+
+    if (argc>1)
+	max=atol(argv[1]);
+    else
+	max=0x60000;
+
+
+    elapsed(1); 
+
+    for (i=0;((i<max/1024) && (p = (char *)malloc(1024*1024)));i++) {
+        for (j=0;j<1024;p[1024*j++]=0);
+	fprintf(stderr,"\r%d MB ",i+1);
+    }
+
+    for (j=max-(i*=1024);((i<max) && (p = (char *)malloc(1024)));i++) {
+	*p = 0;
+    }
+    fprintf(stderr,"%d KB ",j-(max-i));
+
+    fprintf(stderr,"eaten in %lu msec (%lu MB/s)\n",elapsed(0),i/(elapsed(0)?:1)*1000/1024);
+
+    return 0;
+}
+
+--Boundary-00=_sptNEKoJM+TFhBF--
+

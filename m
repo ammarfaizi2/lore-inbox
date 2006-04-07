@@ -1,80 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWDGRzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWDGR5P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbWDGRzK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 13:55:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWDGRzJ
+	id S932336AbWDGR5P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 13:57:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWDGR5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 13:55:09 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:37826 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S964832AbWDGRzB (ORCPT
+	Fri, 7 Apr 2006 13:57:15 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:7584 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932336AbWDGR5O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 13:55:01 -0400
-Message-ID: <4436A770.3080905@zabbo.net>
-Date: Fri, 07 Apr 2006 10:54:56 -0700
-From: Zach Brown <zab@zabbo.net>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Xin Zhao <uszhaoxin@gmail.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: Re: How to know when file data has been flushed into disk?
-References: <4ae3c140604070842x537353c4s9a60706c2a2d25d9@mail.gmail.com>
-In-Reply-To: <4ae3c140604070842x537353c4s9a60706c2a2d25d9@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Apr 2006 13:57:14 -0400
+Date: Fri, 7 Apr 2006 13:59:21 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>
+Cc: Morton Andrew Morton <akpm@osdl.org>, Theodore Y Tso <theotso@us.ibm.com>
+Subject: [PATCH] kdump: enable CONFIG_PROC_VMCORE by default
+Message-ID: <20060407175921.GA22556@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> If a program access data like this:
-> 
-> 1. open the file
-> 2. write a lot of data into this file
 
-You don't say if this is an extending write or overwriting existing file
-data.  I'm going to assume extending writes so that data=ordered kicks in.
+o Everybody seems to be using /proc/vmcore as a method to access the kernel
+  crash dump. Hence probably it makes sense to enable CONFIG_PROC_VMCORE by
+  default if CONFIG_CRASH_DUMP is selected. This makes kdump configuration
+  further easier for a user.
 
-> 3. close the file
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
 
-> So my questions are:
-> 1. How will the file system be notified after all data has been
-> flushed into disk?
+ fs/Kconfig |    1 +
+ 1 files changed, 1 insertion(+)
 
-Look at phase 2 in journal_commit_transaction().  The kjournald thread
-issues the writeback of the file data by walking t_sync_datalist and
-then waits for the writeback to complete by using wait_on_buffer()
-before committing the transaction.
-
-> 2. Unlike data=journal mode, in data=order mode, the data could be
-> lost if system crashes when data is being flushed to disk. When system
-> reboots, does journal contains the old meta data for undo?
-
-No, ext3 isn't roll-backward.  It doesn't store the *old* data in the
-journal and undo the change if it fails halfway through.  It's
-roll-forward.  It stores the *new* data in the journal and replays
-complete transactions in the journal that weren't moved out to their
-final place on disk at the time of the crash.
-
-So if the machine reboots during the writeback phase then the
-transaction won't be committed yet and recovery won't replay that
-transaction from the journal.  From the metadata's point of view the
-file extension will never have happened.
-
-> 3. Does sys_close() have to  be blocked until all data and metadata
-> are committed?
-
-No, and neither does sys_getpid() :)
-
-> to take subsequent operation. However, data flush could be failed. In
-> this case, file system seems to mislead the application. Is this true?
-
-No.  The application has no grounds for assuming that a successful
-close() has synced previous operations to disk.  It's simply not part of
-the API.
-
-> If so, any solutions?
-
-The application should rely on tools like fsync(), fdatasync(), O_SYNC,
-mount -o sync, etc.  Whatever suits it best.
-
-- z
+diff -puN fs/Kconfig~kdump-enable-config-proc-vmcore-by-default fs/Kconfig
+--- linux-2.6.17-rc1-1M/fs/Kconfig~kdump-enable-config-proc-vmcore-by-default	2006-04-07 12:44:29.000000000 -0400
++++ linux-2.6.17-rc1-1M-root/fs/Kconfig	2006-04-07 12:44:29.000000000 -0400
+@@ -799,6 +799,7 @@ config PROC_KCORE
+ config PROC_VMCORE
+         bool "/proc/vmcore support (EXPERIMENTAL)"
+         depends on PROC_FS && EXPERIMENTAL && CRASH_DUMP
++	default y
+         help
+         Exports the dump image of crashed kernel in ELF format.
+ 
+_

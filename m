@@ -1,267 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWDGN3I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWDGNaz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964780AbWDGN3I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 09:29:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWDGN3I
+	id S964785AbWDGNaz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 09:30:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWDGNaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 09:29:08 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:42459 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S964780AbWDGN3H
+	Fri, 7 Apr 2006 09:30:55 -0400
+Received: from mx02.cybersurf.com ([209.197.145.105]:31131 "EHLO
+	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S964785AbWDGNay
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 09:29:07 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       David Miller <davem@davemloft.net>, Jeff Garzik <jgarzik@pobox.com>
-Subject: [PATCH] deinline a few large functions in vlan code
-Date: Fri, 7 Apr 2006 16:28:30 +0300
-User-Agent: KMail/1.8.2
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_+jmNEazPgWxQusV"
-Message-Id: <200604071628.30486.vda@ilport.com.ua>
+	Fri, 7 Apr 2006 09:30:54 -0400
+Subject: Re: Broadcast ARP packets on link local addresses (Version2).
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: David Daney <ddaney@avtrex.com>
+Cc: Janos Farkas <chexum+dev@gmail.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, pgf@foxharp.boston.ma.us,
+       freek@macfreek.nl
+In-Reply-To: <44353F36.9070404@avtrex.com>
+References: <17460.13568.175877.44476@dl2.hq2.avtrex.com>
+	 <priv$efbe06144502$2d51735f79@200604.gmail.com>
+	 <44353F36.9070404@avtrex.com>
+Content-Type: text/plain
+Organization: unknown
+Date: Fri, 07 Apr 2006 09:30:38 -0400
+Message-Id: <1144416638.5082.33.camel@jzny2>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_+jmNEazPgWxQusV
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Thu, 2006-06-04 at 09:17 -0700, David Daney wrote:
+> Janos Farkas wrote:
 
-Deinline a few functions which produce 150+ bytes of code.
+> > Sorry for chiming in this late in the discussion, but...  Shouldn't it
+> > be more correct to not depend on the ip address of the used network,
+> > but to use the "scope" parameter of the given address?
+> > 
+> 
 
-This patch is slightly problematic: it moves __vlan_hwaccel_rx
-and __vlan_put_tag from if_vlan.h into vlan_dev.c,
-but vlan_dev can be modular, and then a bunch of network drivers
-won't link.
+Excellent point! It was bothering me as well but i couldnt express my
+view eloquently as you did.
 
-What should be done with this?
-1) Should I add respective select statements into Kconfigs
-   of those drivers?
-2) Make vlan_dev non-modular?
-3) Move functions to another .c file?
---
-vda
+> RFC 3927 specifies the Ethernet arp broadcast behavior for only 
+> 169.254.0.0/16.
 
---Boundary-00=_+jmNEazPgWxQusV
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="2.6.16.vlan_inline2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="2.6.16.vlan_inline2.patch"
+Thats besides the point. You could, for example, use 1.1.1.1/24 in your
+network instead of the 10.x or 192.x; and i have seen people use 10.x
+in what appears to be public networks. We dont have speacial checks for 
+RFC 1918 IP addresses for example.
 
-Size  Uses Wasted Name and definition
-===== ==== ====== ================================================
-  162   12   1562 vlan_hwaccel_receive_skb      include/linux/if_vlan.h
-  162    4    426 vlan_hwaccel_rx       include/linux/if_vlan.h
-  241    2    221 vlan_put_tag  include/linux/if_vlan.h
+169.254.0.0/16 is by definition link local. I think point made by Janos
+is we should look at the attributes rather than value.
 
-diff -urpN linux-2.6.16.org/include/linux/if_vlan.h linux-2.6.16.vlan/include/linux/if_vlan.h
---- linux-2.6.16.org/include/linux/if_vlan.h	Mon Mar 20 07:53:29 2006
-+++ linux-2.6.16.vlan/include/linux/if_vlan.h	Thu Apr  6 22:11:23 2006
-@@ -149,49 +149,9 @@ struct vlan_skb_tx_cookie {
- #define vlan_tx_tag_get(__skb)	(VLAN_TX_SKB_CB(__skb)->vlan_tag)
- 
- /* VLAN rx hw acceleration helper.  This acts like netif_{rx,receive_skb}(). */
--static inline int __vlan_hwaccel_rx(struct sk_buff *skb,
-+int __vlan_hwaccel_rx(struct sk_buff *skb,
- 				    struct vlan_group *grp,
--				    unsigned short vlan_tag, int polling)
--{
--	struct net_device_stats *stats;
--
--	skb->dev = grp->vlan_devices[vlan_tag & VLAN_VID_MASK];
--	if (skb->dev == NULL) {
--		dev_kfree_skb_any(skb);
--
--		/* Not NET_RX_DROP, this is not being dropped
--		 * due to congestion.
--		 */
--		return 0;
--	}
--
--	skb->dev->last_rx = jiffies;
--
--	stats = vlan_dev_get_stats(skb->dev);
--	stats->rx_packets++;
--	stats->rx_bytes += skb->len;
--
--	skb->priority = vlan_get_ingress_priority(skb->dev, vlan_tag);
--	switch (skb->pkt_type) {
--	case PACKET_BROADCAST:
--		break;
--
--	case PACKET_MULTICAST:
--		stats->multicast++;
--		break;
--
--	case PACKET_OTHERHOST:
--		/* Our lower layer thinks this is not local, let's make sure.
--		 * This allows the VLAN to have a different MAC than the underlying
--		 * device, and still route correctly.
--		 */
--		if (!memcmp(eth_hdr(skb)->h_dest, skb->dev->dev_addr, ETH_ALEN))
--			skb->pkt_type = PACKET_HOST;
--		break;
--	};
--
--	return (polling ? netif_receive_skb(skb) : netif_rx(skb));
--}
-+				    unsigned short vlan_tag, int polling);
- 
- static inline int vlan_hwaccel_rx(struct sk_buff *skb,
- 				  struct vlan_group *grp,
-@@ -218,43 +178,7 @@ static inline int vlan_hwaccel_receive_s
-  * Following the skb_unshare() example, in case of error, the calling function
-  * doesn't have to worry about freeing the original skb.
-  */
--static inline struct sk_buff *__vlan_put_tag(struct sk_buff *skb, unsigned short tag)
--{
--	struct vlan_ethhdr *veth;
--
--	if (skb_headroom(skb) < VLAN_HLEN) {
--		struct sk_buff *sk_tmp = skb;
--		skb = skb_realloc_headroom(sk_tmp, VLAN_HLEN);
--		kfree_skb(sk_tmp);
--		if (!skb) {
--			printk(KERN_ERR "vlan: failed to realloc headroom\n");
--			return NULL;
--		}
--	} else {
--		skb = skb_unshare(skb, GFP_ATOMIC);
--		if (!skb) {
--			printk(KERN_ERR "vlan: failed to unshare skbuff\n");
--			return NULL;
--		}
--	}
--
--	veth = (struct vlan_ethhdr *)skb_push(skb, VLAN_HLEN);
--
--	/* Move the mac addresses to the beginning of the new header. */
--	memmove(skb->data, skb->data + VLAN_HLEN, 2 * VLAN_ETH_ALEN);
--
--	/* first, the ethernet type */
--	veth->h_vlan_proto = __constant_htons(ETH_P_8021Q);
--
--	/* now, the tag */
--	veth->h_vlan_TCI = htons(tag);
--
--	skb->protocol = __constant_htons(ETH_P_8021Q);
--	skb->mac.raw -= VLAN_HLEN;
--	skb->nh.raw -= VLAN_HLEN;
--
--	return skb;
--}
-+struct sk_buff *__vlan_put_tag(struct sk_buff *skb, unsigned short tag);
- 
- /**
-  * __vlan_hwaccel_put_tag - hardware accelerated VLAN inserting
-diff -urpN linux-2.6.16.org/net/8021q/vlan_dev.c linux-2.6.16.vlan/net/8021q/vlan_dev.c
---- linux-2.6.16.org/net/8021q/vlan_dev.c	Thu Apr  6 21:41:57 2006
-+++ linux-2.6.16.vlan/net/8021q/vlan_dev.c	Thu Apr  6 22:11:52 2006
-@@ -37,6 +37,102 @@
- #include <linux/if_vlan.h>
- #include <net/ip.h>
- 
-+/* VLAN rx hw acceleration helper.  This acts like netif_{rx,receive_skb}(). */
-+int __vlan_hwaccel_rx(struct sk_buff *skb,
-+				    struct vlan_group *grp,
-+				    unsigned short vlan_tag, int polling)
-+{
-+	struct net_device_stats *stats;
-+
-+	skb->dev = grp->vlan_devices[vlan_tag & VLAN_VID_MASK];
-+	if (skb->dev == NULL) {
-+		dev_kfree_skb_any(skb);
-+
-+		/* Not NET_RX_DROP, this is not being dropped
-+		 * due to congestion.
-+		 */
-+		return 0;
-+	}
-+
-+	skb->dev->last_rx = jiffies;
-+
-+	stats = vlan_dev_get_stats(skb->dev);
-+	stats->rx_packets++;
-+	stats->rx_bytes += skb->len;
-+
-+	skb->priority = vlan_get_ingress_priority(skb->dev, vlan_tag);
-+	switch (skb->pkt_type) {
-+	case PACKET_BROADCAST:
-+		break;
-+
-+	case PACKET_MULTICAST:
-+		stats->multicast++;
-+		break;
-+
-+	case PACKET_OTHERHOST:
-+		/* Our lower layer thinks this is not local, let's make sure.
-+		 * This allows the VLAN to have a different MAC than the underlying
-+		 * device, and still route correctly.
-+		 */
-+		if (!memcmp(eth_hdr(skb)->h_dest, skb->dev->dev_addr, ETH_ALEN))
-+			skb->pkt_type = PACKET_HOST;
-+		break;
-+	};
-+
-+	return (polling ? netif_receive_skb(skb) : netif_rx(skb));
-+}
-+EXPORT_SYMBOL(__vlan_hwaccel_rx);
-+
-+/**
-+ * __vlan_put_tag - regular VLAN tag inserting
-+ * @skb: skbuff to tag
-+ * @tag: VLAN tag to insert
-+ *
-+ * Inserts the VLAN tag into @skb as part of the payload
-+ * Returns a VLAN tagged skb. If a new skb is created, @skb is freed.
-+ * 
-+ * Following the skb_unshare() example, in case of error, the calling function
-+ * doesn't have to worry about freeing the original skb.
-+ */
-+struct sk_buff *__vlan_put_tag(struct sk_buff *skb, unsigned short tag)
-+{
-+	struct vlan_ethhdr *veth;
-+
-+	if (skb_headroom(skb) < VLAN_HLEN) {
-+		struct sk_buff *sk_tmp = skb;
-+		skb = skb_realloc_headroom(sk_tmp, VLAN_HLEN);
-+		kfree_skb(sk_tmp);
-+		if (!skb) {
-+			printk(KERN_ERR "vlan: failed to realloc headroom\n");
-+			return NULL;
-+		}
-+	} else {
-+		skb = skb_unshare(skb, GFP_ATOMIC);
-+		if (!skb) {
-+			printk(KERN_ERR "vlan: failed to unshare skbuff\n");
-+			return NULL;
-+		}
-+	}
-+
-+	veth = (struct vlan_ethhdr *)skb_push(skb, VLAN_HLEN);
-+
-+	/* Move the mac addresses to the beginning of the new header. */
-+	memmove(skb->data, skb->data + VLAN_HLEN, 2 * VLAN_ETH_ALEN);
-+
-+	/* first, the ethernet type */
-+	veth->h_vlan_proto = __constant_htons(ETH_P_8021Q);
-+
-+	/* now, the tag */
-+	veth->h_vlan_TCI = htons(tag);
-+
-+	skb->protocol = __constant_htons(ETH_P_8021Q);
-+	skb->mac.raw -= VLAN_HLEN;
-+	skb->nh.raw -= VLAN_HLEN;
-+
-+	return skb;
-+}
-+EXPORT_SYMBOL(__vlan_put_tag);
-+
- /*
-  *	Rebuild the Ethernet MAC header. This is called after an ARP
-  *	(or in future other address resolution) has completed on this
+Have your user space set it to be link local and then fix the kernel if
+it doesnt do the right thing.
 
---Boundary-00=_+jmNEazPgWxQusV--
+>   Presumably you could set the scope parameter to local 
+> for addresses outside of that range or even for protocols other than 
+> Ethernet.  Since broadcasting ARP packets usually adversely effects 
+> usable network bandwidth, we should probably only do it where it is 
+> absolutely required.  The overhead of testing the value required by the 
+> RFC is quite low (3 machine instructions on i686 is the size of the 
+> entire patch), so using some proxy like the scope parameter would not 
+> even be a performance win.
+> 
+
+Again, that is beside the point. 
+
+cheers,
+jamal
+

@@ -1,48 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWDGLCU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWDGLDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbWDGLCU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 07:02:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWDGLCU
+	id S964772AbWDGLDB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 07:03:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWDGLDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 07:02:20 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:25150 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932435AbWDGLCT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 07:02:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=akRq0umVTtoA/oT97SF4CehmexQyDb+yWwXBdcYI0bcLHvgxTxV60lOmEVpoZD1U5S7HzzVehA0aRIWlxPmJ4lqxyloy7k87/MTXcdpSSQlHTEG3vU/cViQS30TQLut7GOJHPj8bcMtNyhnncV5qzJB8IsE9RfkOHGq7PFgxuZM=
-Message-ID: <c70ff3ad0604070402p355a5695y28b5806cbf7bed0a@mail.gmail.com>
-Date: Fri, 7 Apr 2006 14:02:18 +0300
-From: "saeed bishara" <saeed.bishara@gmail.com>
-To: "Paolo Ornati" <ornati@fastwebnet.it>
-Subject: Re: add new code section for kernel code
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk,
-       Linux-arm-toolchain@lists.arm.linux.org.uk
-In-Reply-To: <c70ff3ad0604060947t728fbad9g2e3b35198f9b0f66@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <c70ff3ad0604060545o2e2dc8fcg2948ca53b3b3c8b0@mail.gmail.com>
-	 <20060406151003.0ef4e637@localhost>
-	 <c70ff3ad0604060947t728fbad9g2e3b35198f9b0f66@mail.gmail.com>
+	Fri, 7 Apr 2006 07:03:01 -0400
+Received: from mail.renesas.com ([202.234.163.13]:19857 "EHLO
+	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S932431AbWDGLDA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 07:03:00 -0400
+Date: Fri, 07 Apr 2006 20:02:54 +0900 (JST)
+Message-Id: <20060407.200254.468708675.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org,
+       Mikael Starvik <starvik@axis.com>, David Howells <dhowells@redhat.com>,
+       Yoshinori Sato <ysato@users.sourceforge.jp>,
+       Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Chris Zankel <chris@zankel.net>
+Subject: [PATCH 2.6.17-rc1-mm1] Remove unused prepare_to_switch macro
+From: Hirokazu Takata <takata@linux-m32r.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.19 (Constant Variable)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed the arch/arm/boot/compressed/ files compiled with
-ffunction-sections switch, so I added the -fno-function-sections to
-the EXTRA_CFLAGS of the compressed/Makefile. And this solved the
-problem.
+This patch removes prepare_to_switch() macros.
+It seems that they are no longer used in the kernel.
 
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+Cc: Mikael Starvik <starvik@axis.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Miles Bader <uclinux-v850@lsi.nec.co.jp>
+Cc: Chris Zankel <chris@zankel.net>
+---
 
+ include/asm-cris/system.h   |    1 -
+ include/asm-frv/system.h    |    2 --
+ include/asm-h8300/system.h  |    2 --
+ include/asm-m32r/system.h   |    4 ----
+ include/asm-v850/system.h   |    2 --
+ include/asm-xtensa/system.h |    2 --
+ 6 files changed, 13 deletions(-)
 
-On 4/6/06, saeed bishara <saeed.bishara@gmail.com> wrote:
-> Hi,
->     I've tried to port this to my kernel (2.6.12.6), but the kenel
-> fails to boot; it stops after Starting kernel ....
->    I tried to add only the CFLAGS += -ffunction-sections to the
-> arch/arm/Makefile, and it still fails. my tool chains is "gcc version
-> 3.4.4 (release) (CodeSourcery ARM 2005q3-2)"
-> any ideas?
+Index: linux-2.6.17-rc1-mm1/include/asm-cris/system.h
+===================================================================
+--- linux-2.6.17-rc1-mm1.orig/include/asm-cris/system.h	2006-04-07 12:16:12.536648308 +0900
++++ linux-2.6.17-rc1-mm1/include/asm-cris/system.h	2006-04-07 14:59:15.539846173 +0900
+@@ -8,7 +8,6 @@
+  */
+ 
+ extern struct task_struct *resume(struct task_struct *prev, struct task_struct *next, int);
+-#define prepare_to_switch()     do { } while(0)
+ #define switch_to(prev,next,last) last = resume(prev,next, \
+ 					 (int)&((struct task_struct *)0)->thread)
+ 
+Index: linux-2.6.17-rc1-mm1/include/asm-frv/system.h
+===================================================================
+--- linux-2.6.17-rc1-mm1.orig/include/asm-frv/system.h	2006-04-07 12:16:13.424508512 +0900
++++ linux-2.6.17-rc1-mm1/include/asm-frv/system.h	2006-04-07 14:59:15.547844914 +0900
+@@ -18,8 +18,6 @@
+ 
+ struct thread_struct;
+ 
+-#define prepare_to_switch()    do { } while(0)
+-
+ /*
+  * switch_to(prev, next) should switch from task `prev' to `next'
+  * `prev' will never be the same as `next'.
+Index: linux-2.6.17-rc1-mm1/include/asm-h8300/system.h
+===================================================================
+--- linux-2.6.17-rc1-mm1.orig/include/asm-h8300/system.h	2006-04-07 12:16:16.056094164 +0900
++++ linux-2.6.17-rc1-mm1/include/asm-h8300/system.h	2006-04-07 14:59:15.559843026 +0900
+@@ -4,8 +4,6 @@
+ #include <linux/config.h> /* get configuration macros */
+ #include <linux/linkage.h>
+ 
+-#define prepare_to_switch()	do { } while(0)
+-
+ /*
+  * switch_to(n) should switch tasks to task ptr, first checking that
+  * ptr isn't the current task, in which case it does nothing.  This
+Index: linux-2.6.17-rc1-mm1/include/asm-m32r/system.h
+===================================================================
+--- linux-2.6.17-rc1-mm1.orig/include/asm-m32r/system.h	2006-04-07 12:16:21.918171168 +0900
++++ linux-2.6.17-rc1-mm1/include/asm-m32r/system.h	2006-04-07 14:59:15.568841610 +0900
+@@ -22,10 +22,6 @@
+  * `next' and `prev' should be struct task_struct, but it isn't always defined
+  */
+ 
+-#ifndef CONFIG_SMP
+-#define prepare_to_switch()  do { } while(0)
+-#endif	/* not CONFIG_SMP */
+-
+ #define switch_to(prev, next, last)  do { \
+ 	register unsigned long  arg0 __asm__ ("r0") = (unsigned long)prev; \
+ 	register unsigned long  arg1 __asm__ ("r1") = (unsigned long)next; \
+Index: linux-2.6.17-rc1-mm1/include/asm-v850/system.h
+===================================================================
+--- linux-2.6.17-rc1-mm1.orig/include/asm-v850/system.h	2006-04-07 12:16:51.535507822 +0900
++++ linux-2.6.17-rc1-mm1/include/asm-v850/system.h	2006-04-07 14:59:15.576840351 +0900
+@@ -18,8 +18,6 @@
+ #include <asm/ptrace.h>
+ 
+ 
+-#define prepare_to_switch()	do { } while (0)
+-
+ /*
+  * switch_to(n) should switch tasks to task ptr, first checking that
+  * ptr isn't the current task, in which case it does nothing.
+Index: linux-2.6.17-rc1-mm1/include/asm-xtensa/system.h
+===================================================================
+--- linux-2.6.17-rc1-mm1.orig/include/asm-xtensa/system.h	2006-04-07 12:16:53.529193908 +0900
++++ linux-2.6.17-rc1-mm1/include/asm-xtensa/system.h	2006-04-07 14:59:15.585838935 +0900
+@@ -111,8 +111,6 @@ extern void *_switch_to(void *last, void
+ 
+ #endif	/* __ASSEMBLY__ */
+ 
+-#define prepare_to_switch()	do { } while(0)
+-
+ #define switch_to(prev,next,last)		\
+ do {						\
+ 	clear_cpenable();			\
+
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/
+

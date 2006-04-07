@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbWDGSCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWDGSCp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964837AbWDGSCP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 14:02:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWDGSCP
+	id S964836AbWDGSCp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 14:02:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbWDGSCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 14:02:15 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:49539 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964837AbWDGSCP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 14:02:15 -0400
-Subject: Re: [PATCH 2.6.17-rc1-mm1] sched_domain-handle-kmalloc-failure-fix
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Lee Schermerhorn <Lee.Schermerhorn@hp.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Eric Whitney <eric.whitney@hp.com>
-In-Reply-To: <1144353528.5162.190.camel@localhost.localdomain>
-References: <1144353528.5162.190.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 07 Apr 2006 11:01:33 -0700
-Message-Id: <1144432893.24221.3.camel@localhost.localdomain>
+	Fri, 7 Apr 2006 14:02:45 -0400
+Received: from nevyn.them.org ([66.93.172.17]:52958 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S964836AbWDGSCo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 14:02:44 -0400
+Date: Fri, 7 Apr 2006 14:02:43 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fs/binfmt_elf.c:maydump()
+Message-ID: <20060407180243.GA27828@nevyn.them.org>
+Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
+	linux-kernel@vger.kernel.org
+References: <20060406.140357.14088592.davem@davemloft.net> <20060406221519.GA5453@nevyn.them.org> <20060406.153518.60508780.davem@davemloft.net> <20060406.221807.114721185.davem@davemloft.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060406.221807.114721185.davem@davemloft.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-06 at 15:58 -0400, Lee Schermerhorn wrote:
-> 2.6.17-rc1-mm1 hangs during boot on HP rx8620 and dl585 -- both 4 node
-> NUMA platforms.  Problem is in build_sched_domains() setting up the
-> sched_group_nodes[] lists, resulting from patch:
-> sched_domain-handle-kmalloc-failure.patch
-> 
-> The referenced patch does not propagate the "next" pointer from the head
-> of the list, resulting in a loop between the last 2 groups in the list.
-> This causes a tight loop/hang in init_numa_sched_groups_power() because 
-> 'sg->next' never == 'group_head' when you have > 2 nodes. 
+On Thu, Apr 06, 2006 at 10:18:07PM -0700, David S. Miller wrote:
+> How about something like the following patch?  If it's executable
+> and not written to, skip it.  This would skip the main executable
+> image and all text segments of the shared libraries mapped in.
 
-Wow.  I'm incredibly impressed that you tracked that down.  I can't
-believe how horribly unintelligible that code is.
+Will this dump text segments that have been COW'd for the purposes of
+inserting a breakpoint?
 
-I ran into the same freeze on a 4-node NUMA-Q.  Your patch fixed it.
+It's just a question of goals, I guess.  We could dump code, but it's
+rarely useful, so historically we didn't.  Similarly, we could dump
+mapped data from shared memory, but it can be huge and is rarely
+useful, so generally we don't.
 
-Is there any good reason that sched domains has to roll its own linked
-lists?  Why not use list_heads?  Seems like it would avoid crappy
-problems like this.
-
--- Dave
-
+-- 
+Daniel Jacobowitz
+CodeSourcery

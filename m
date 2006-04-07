@@ -1,125 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbWDGPyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWDGPxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932338AbWDGPyn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 11:54:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWDGPyn
+	id S964814AbWDGPxb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 11:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWDGPxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 11:54:43 -0400
-Received: from smtp102.sbc.mail.mud.yahoo.com ([68.142.198.201]:52618 "HELO
-	smtp102.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932338AbWDGPym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 11:54:42 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [PATCH] spi: Added spi master driver for Freescale MPC83xx SPI controller
-Date: Fri, 7 Apr 2006 08:54:41 -0700
-User-Agent: KMail/1.7.1
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       spi-devel-general@lists.sourceforge.net
-References: <Pine.LNX.4.44.0604061329550.20620-100000@gate.crashing.org> <200604062222.05661.david-b@pacbell.net> <CE7ECCE7-ADF7-40B7-8B37-5046D9505F1C@kernel.crashing.org>
-In-Reply-To: <CE7ECCE7-ADF7-40B7-8B37-5046D9505F1C@kernel.crashing.org>
+	Fri, 7 Apr 2006 11:53:31 -0400
+Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:54968 "EHLO
+	suzuka.mcnaught.org") by vger.kernel.org with ESMTP id S964810AbWDGPxa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 11:53:30 -0400
+To: "Xin Zhao" <uszhaoxin@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: Re: How to know when file data has been flushed into disk?
+References: <4ae3c140604070842x537353c4s9a60706c2a2d25d9@mail.gmail.com>
+From: Douglas McNaught <doug@mcnaught.org>
+Date: Fri, 07 Apr 2006 11:53:29 -0400
+In-Reply-To: <4ae3c140604070842x537353c4s9a60706c2a2d25d9@mail.gmail.com> (Xin
+ Zhao's message of "Fri, 7 Apr 2006 11:42:09 -0400")
+Message-ID: <87slop1ix2.fsf@suzuka.mcnaught.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604070854.41383.david-b@pacbell.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Xin Zhao" <uszhaoxin@gmail.com> writes:
 
-> > Hmm, it will of course be overridden as soon as needed, but shouldn't
-> > that default be "inactive low" clock?  SPI mode 0 that is.  That  
-> > stands
-> > out mostly because you were interpreting CPOL=0 as inactive high, and
-> > that's not my understanding of how that signal works...
-> 
-> I'll change it, not sure what I was thinking but SPI mode 0 being the  
-> default makes sense.
+> 3. Does sys_close() have to  be blocked until all data and metadata
+> are committed? If not, sys_close() may give application an illusion
+> that the file is successfully written, which can cause the application
+> to take subsequent operation. However, data flush could be failed. In
+> this case, file system seems to mislead the application. Is this true?
+> If so, any solutions?
 
-The default doesn't really matter, since it will be overridden ... I was
-more concerned about CPOL=0 being misinterpreted ...
+The fsync() call is the way to make sure written data has hit the
+disk.  close() doesn't guarantee that.
 
-
-
-> > ... here you use "__be32" not "u32", and no "__iomem" annotation.  So
-> > this is inconsistent with the declaration above.  Note that if you
-> > just made this "&bank->regname" you'd be having the compiler do any
-> > offset calculation magic, and the source code will be more obvious.
-> 
-> Yep, I know what you mean.
-
-Good rule of thumb:  run "sparse -Wbitwise" on your drivers, and have it
-tell you about goofed up things.  (Assuming the asm-ppc headers are safe
-to run that on!)  It's nice having tools tell you about bugs before you
-run into them "live", and GCC only goes so far.
-
-
-> >> +static
-> >> +int mpc83xx_spi_setup_transfer(struct spi_device *spi, struct  
-> >> spi_transfer *t)
-> >> +{
-> >> +	struct mpc83xx_spi *mpc83xx_spi;
-> >> +	u32 regval;
-> >> +	u32 len = t->bits_per_word - 1;
-> >> +
-> >> +	if (len == 32)
-> >> +		len = 0;
-> >
-> > So the hardware handles 1-33 bit words?  It'd be good to filter
-> > the spi_setup() path directly then, returning EINVAL for illegal
-> > word lengths (and clock speeds).
-> 
-> Uhh, no.  The HW supports 4-bit to 32-bit words.  However the  
-> encoding of 32-bit is 0 in the register field, and 8-bit is a value  
-> of 7, etc.. (bit encodings 1 & 2 are invalid).
-
-So that test should be "len == 31" too ...
-
-> I'm not following you on spi_setup(), but I think you mean to error  
-> change bits_per_word there and return EINVAL if its not one we support.
-
-Yes, but do it early:  provide your own code to implement spi_setup(), which
-makes a range test and then either fails immediately or else delegates the
-rest of the work to spi_bitbang_setup() ... rather than only using that as
-the default.
-
-Your current code would claim to accept transfers with 64 bit words,
-but it wouldn't actually handle them correctly...
- 
-
-> > I guess I'm surprised you're not using txrx_buffers() and having
-> > that whole thing be IRQ driven, so the per-word cost eliminates
-> > the task scheduling.  You already paid for IRQ handling ... why
-> > not have it store the rx byte into the buffer, and write the tx
-> > byte froom the other buffer?  That'd be cheaper than what you're
-> > doing now ... in both time and code.  Only wake up a task at
-> > the end of a given spi_transfer().
-> 
-> I dont follow you at all here.  What are you suggesting I do?
-
-Don't do word-at-a-time I/O with spi_bitbang; you're using IRQs, and
-that's oriented towards polling.  Don't fill bitbang->txrx_word[]; don't
-use the default spi_bitbang_setup().
-
-Instead, provide your own setup(), and provide bitbang->txrx_buffers.
-
-Then when the generic not-really-bitbang core calls your txrx_buffers(),
-your code would record the "current" spi_transfer buffer pair and length
-then kickstart the I/O by writing the first byte from the TX buffer
-(or maybe zero if there is none).  Wait on some completion event; return
-when the whole transfer has completed (or stopped after an error).
-
-Then the rest will be IRQ driven; you'll care only about "rx word ready"
-or whatever.  When you get that IRQ, read the word ... and if there's
-an RX buffer, store it in the next location (else discard it).  Decrement
-the length (by 1, 2, or 4 bytes).  If length is nonzero, kickstart the
-next step by writing the next word from the TX buffer (or zero).  When
-length is zero, trigger txrx_buffers() completion.  Return from IRQ handler.
-
-See for example how bitbang_txrx_8() works; you'd basically be doing that
-as an irq-driven copy, instead of polling txrx_word().  The first version
-of your IRQ handler might be easier if it only handles 4-8 bit words,
-leaving 9-16 bits (and 17-32 bits) till later.
-
-- Dave
+-Doug

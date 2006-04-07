@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWDGSza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWDGSzX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964878AbWDGSza (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 14:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWDGSz3
+	id S964865AbWDGSzX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 14:55:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWDGSzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 14:55:29 -0400
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:25149 "EHLO
+	Fri, 7 Apr 2006 14:55:22 -0400
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:24637 "EHLO
 	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S964878AbWDGSz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 14:55:28 -0400
-In-Reply-To: <Pine.LNX.4.44.0603301711240.10382-100000@gate.crashing.org>
-References: <Pine.LNX.4.44.0603301711240.10382-100000@gate.crashing.org>
+	id S964865AbWDGSzV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 14:55:21 -0400
+In-Reply-To: <Pine.LNX.4.44.0603301700160.10117-100000@gate.crashing.org>
+References: <Pine.LNX.4.44.0603301700160.10117-100000@gate.crashing.org>
 Mime-Version: 1.0 (Apple Message framework v746.3)
-X-Gpgmail-State: !signed
 Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <8F6363F6-83DE-40EF-B7F2-CBF48952CCE5@kernel.crashing.org>
+Message-Id: <1E2624A3-3014-4FF6-9690-752347E1AAAB@kernel.crashing.org>
 Cc: khali@linux-fr.org, linux-kernel@vger.kernel.org,
        <lm-sensors@lm-sensors.org>, Greg KH <greg@kroah.com>
 Content-Transfer-Encoding: 7bit
 From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [PATCH] i2c: pca954x I2C mux driver
-Date: Fri, 7 Apr 2006 13:55:27 -0500
+Subject: Re: [PATCH][UPDATE] i2c: Add support for virtual I2C adapters
+Date: Fri, 7 Apr 2006 13:55:00 -0500
 To: Kumar Gala <galak@kernel.crashing.org>
 X-Mailer: Apple Mail (2.746.3)
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
@@ -34,419 +33,438 @@ X-Source-Dir:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any comment or acceptance of this patch?
+Any comments or acceptance of this patch?
 
 - k
 
-On Mar 30, 2006, at 5:11 PM, Kumar Gala wrote:
+On Mar 30, 2006, at 5:05 PM, Kumar Gala wrote:
 
-> Driver for the Phillips pca954x I2C mux/switches devices.  These  
-> devices handle
-> the fact that a number of I2C devices have limited address  
-> selection capablities
-> and systems may end up having to mux to access all the I2C devices.
+> Virtual adapters are useful to handle multiplexed I2C bus  
+> topologies, by
+> presenting each multiplexed segment as a I2C adapter.  Typically,  
+> either
+> a mux (or switch) exists which is an I2C device on the parent bus.   
+> One
+> selects a given child bus via programming the mux and then all the  
+> devices
+> on that bus become present on the parent bus.  The intent is to allow
+> multiple devices of the same type to exist in a system which would  
+> normally
+> have address conflicts.
 >
-> The driver uses the i2c virtual adapter support to make each mux/ 
-> switch port
-> look like its own i2c bus.
+> Since virtual adapters will get registered in an I2C client's detect
+> function we have to expose versions of i2c_{add,del}_adapter for
+> i2c_{add,del}_virt_adapter to call that don't lock.
+>
+> Additionally, i2c_virt_master_xfer (and i2c_virt_smbus_xfer) acquire
+> the parent->bus_lock and call the parent's master_xfer directly.  This
+> is because on a i2c_virt_master_xfer we have issue an i2c write on
+> the parent bus to select the given virtual adapter, then do the i2c
+> operation on the parent bus, followed by another i2c write on the
+> parent to deslect the virtual adapter.
 >
 > Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 >
 > ---
-> commit 735344d2f587938da9012070f881b725269c4dc9
-> tree a12c50c7f3d34b44e33397863dc7e57f8fd0e3ec
-> parent 862cbc263e3d3e44028d7465a912847cf5366163
+> commit 862cbc263e3d3e44028d7465a912847cf5366163
+> tree 2c91bad8eb66cab9727f3071831a916ada41edf8
+> parent 5d4fe2c1ce83c3e967ccc1ba3d580c1a5603a866
 > author Kumar Gala <galak@kernel.crashing.org> Thu, 30 Mar 2006  
-> 17:05:14 -0600
+> 17:03:42 -0600
 > committer Kumar Gala <galak@kernel.crashing.org> Thu, 30 Mar 2006  
-> 17:05:14 -0600
+> 17:03:42 -0600
 >
->  drivers/i2c/chips/Kconfig   |   10 +
->  drivers/i2c/chips/Makefile  |    1
->  drivers/i2c/chips/pca954x.c |  320 ++++++++++++++++++++++++++++++++ 
+>  drivers/i2c/Kconfig    |    9 ++
+>  drivers/i2c/Makefile   |    1
+>  drivers/i2c/i2c-core.c |   42 ++++++++----
+>  drivers/i2c/i2c-virt.c |  173 +++++++++++++++++++++++++++++++++++++ 
 > +++++++++++
->  include/linux/i2c-id.h      |    1
->  4 files changed, 332 insertions(+), 0 deletions(-)
+>  include/linux/i2c-id.h |    2 +
+>  include/linux/i2c.h    |   20 ++++++
+>  6 files changed, 234 insertions(+), 13 deletions(-)
 >
-> diff --git a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
-> index 7aa5c38..894c95e 100644
-> --- a/drivers/i2c/chips/Kconfig
-> +++ b/drivers/i2c/chips/Kconfig
-> @@ -56,6 +56,16 @@ config SENSORS_PCA9539
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called pca9539.
+> diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+> index 24383af..b8a8fc1 100644
+> --- a/drivers/i2c/Kconfig
+> +++ b/drivers/i2c/Kconfig
+> @@ -34,6 +34,15 @@ config I2C_CHARDEV
+>  	  This support is also available as a module.  If so, the module
+>  	  will be called i2c-dev.
 >
-> +config SENSORS_PCA954x
-> +	tristate "Philips PCA954x I2C Mux/switches"
-> +	depends on I2C && I2C_VIRT && EXPERIMENTAL
+> +config I2C_VIRT
+> +	tristate "I2C virtual adapter support"
+> +	depends on I2C
 > +	help
-> +	  If you say yes here you get support for the Philips PCA954x
-> +	  I2C mux/switch devices.
+> +	  Say Y here if you want the I2C core to support the ability to have
+> +	  virtual adapters. Virtual adapters are useful to handle  
+> multiplexed
+> +	  I2C bus topologies, by presenting each multiplexed segment as a
+> +	  I2C adapter.
 > +
-> +	  This driver can also be built as a module.  If so, the module
-> +	  will be called pca954x.
+>  source drivers/i2c/algos/Kconfig
+>  source drivers/i2c/busses/Kconfig
+>  source drivers/i2c/chips/Kconfig
+> diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
+> index 71c5a85..4467db2 100644
+> --- a/drivers/i2c/Makefile
+> +++ b/drivers/i2c/Makefile
+> @@ -3,6 +3,7 @@
+>  #
+>
+>  obj-$(CONFIG_I2C)		+= i2c-core.o
+> +obj-$(CONFIG_I2C_VIRT)		+= i2c-virt.o
+>  obj-$(CONFIG_I2C_CHARDEV)	+= i2c-dev.o
+>  obj-y				+= busses/ chips/ algos/
+>
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 45e2cdf..64c1c9e 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -150,22 +150,31 @@ static struct device_attribute dev_attr_
+>   */
+>  int i2c_add_adapter(struct i2c_adapter *adap)
+>  {
+> +	int res;
 > +
->  config SENSORS_PCF8591
->  	tristate "Philips PCF8591"
->  	depends on I2C && EXPERIMENTAL
-> diff --git a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
-> index 779868e..e69190d 100644
-> --- a/drivers/i2c/chips/Makefile
-> +++ b/drivers/i2c/chips/Makefile
-> @@ -8,6 +8,7 @@ obj-$(CONFIG_SENSORS_EEPROM)	+= eeprom.o
->  obj-$(CONFIG_SENSORS_MAX6875)	+= max6875.o
->  obj-$(CONFIG_SENSORS_M41T00)	+= m41t00.o
->  obj-$(CONFIG_SENSORS_PCA9539)	+= pca9539.o
-> +obj-$(CONFIG_SENSORS_PCA954x)	+= pca954x.o
->  obj-$(CONFIG_SENSORS_PCF8574)	+= pcf8574.o
->  obj-$(CONFIG_SENSORS_PCF8591)	+= pcf8591.o
->  obj-$(CONFIG_ISP1301_OMAP)	+= isp1301_omap.o
-> diff --git a/drivers/i2c/chips/pca954x.c b/drivers/i2c/chips/pca954x.c
+> +	mutex_lock(&core_lists);
+> +	res = i2c_add_adapter_nolock(adap);
+> +	mutex_unlock(&core_lists);
+> +
+> +	return res;
+> +}
+> +
+> +int i2c_add_adapter_nolock(struct i2c_adapter *adap)
+> +{
+>  	int id, res = 0;
+>  	struct list_head   *item;
+>  	struct i2c_driver  *driver;
+>
+> -	mutex_lock(&core_lists);
+> -
+>  	if (idr_pre_get(&i2c_adapter_idr, GFP_KERNEL) == 0) {
+>  		res = -ENOMEM;
+> -		goto out_unlock;
+> +		goto out;
+>  	}
+>
+>  	res = idr_get_new(&i2c_adapter_idr, adap, &id);
+>  	if (res < 0) {
+>  		if (res == -EAGAIN)
+>  			res = -ENOMEM;
+> -		goto out_unlock;
+> +		goto out;
+>  	}
+>
+>  	adap->nr =  id & MAX_ID_MASK;
+> @@ -203,21 +212,29 @@ int i2c_add_adapter(struct i2c_adapter *
+>  			driver->attach_adapter(adap);
+>  	}
+>
+> -out_unlock:
+> -	mutex_unlock(&core_lists);
+> +out:
+>  	return res;
+>  }
+>
+> -
+>  int i2c_del_adapter(struct i2c_adapter *adap)
+>  {
+> +	int res;
+> +
+> +	mutex_lock(&core_lists);
+> +	res = i2c_del_adapter_nolock(adap);
+> +	mutex_unlock(&core_lists);
+> +
+> +	return res;
+> +}
+> +
+> +int i2c_del_adapter_nolock(struct i2c_adapter *adap)
+> +{
+>  	struct list_head  *item, *_n;
+>  	struct i2c_adapter *adap_from_list;
+>  	struct i2c_driver *driver;
+>  	struct i2c_client *client;
+>  	int res = 0;
+>
+> -	mutex_lock(&core_lists);
+>
+>  	/* First make sure that this adapter was ever added */
+>  	list_for_each_entry(adap_from_list, &adapters, list) {
+> @@ -228,7 +245,7 @@ int i2c_del_adapter(struct i2c_adapter *
+>  		pr_debug("i2c-core: attempting to delete unregistered "
+>  			 "adapter [%s]\n", adap->name);
+>  		res = -EINVAL;
+> -		goto out_unlock;
+> +		goto out;
+>  	}
+>
+>  	list_for_each(item,&drivers) {
+> @@ -238,7 +255,7 @@ int i2c_del_adapter(struct i2c_adapter *
+>  				dev_err(&adap->dev, "detach_adapter failed "
+>  					"for driver [%s]\n",
+>  					driver->driver.name);
+> -				goto out_unlock;
+> +				goto out;
+>  			}
+>  	}
+>
+> @@ -251,7 +268,7 @@ int i2c_del_adapter(struct i2c_adapter *
+>  			dev_err(&adap->dev, "detach_client failed for client "
+>  				"[%s] at address 0x%02x\n", client->name,
+>  				client->addr);
+> -			goto out_unlock;
+> +			goto out;
+>  		}
+>  	}
+>
+> @@ -272,8 +289,7 @@ int i2c_del_adapter(struct i2c_adapter *
+>
+>  	dev_dbg(&adap->dev, "adapter [%s] unregistered\n", adap->name);
+>
+> - out_unlock:
+> -	mutex_unlock(&core_lists);
+> +out:
+>  	return res;
+>  }
+>
+> diff --git a/drivers/i2c/i2c-virt.c b/drivers/i2c/i2c-virt.c
 > new file mode 100644
-> index 0000000..f300493
+> index 0000000..2bd9ea3
 > --- /dev/null
-> +++ b/drivers/i2c/chips/pca954x.c
-> @@ -0,0 +1,320 @@
+> +++ b/drivers/i2c/i2c-virt.c
+> @@ -0,0 +1,173 @@
 > +/*
-> + * pca954x.c - Part of lm_sensors, Linux kernel modules for hardware
-> + *             monitoring
-> + * This module supports the PCA954x series of I2C multiplexer/ 
-> switch chips
-> + * made by Philips Semiconductors.  This includes the
-> + *	PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547  
-> and PCA9548.
+> + * i2c-virtual.c - Virtual I2C bus driver.
 > + *
-> + * These chips are all controlled via the I2C bus itself, and all  
-> have a
-> + * single 8-bit register (normally at 0x70).  The upstream  
-> "parent" bus fans
-> + * out to two, four, or eight downstream busses or channels; which  
-> of these
-> + * are selected is determined by the chip type and register  
-> contents.  A
-> + * mux can select only one sub-bus at a time; a switch can select any
-> + * combination simultaneously.
+> + * Simplifies access to complex multiplexed I2C bus topologies, by  
+> presenting
+> + * each multiplexed bus segment as a virtual I2C adapter.   
+> Supports multi-level
+> + * mux'ing (mux behind a mux).
 > + *
 > + * Based on:
-> + *    pca954x.c from Ken Harrenstien
-> + * Copyright (C) 2004 Google, Inc. (Ken Harrenstien)
-> + *
-> + * Based on:
-> + *    i2c-virtual_cb.c from Brian Kuschak <bkuschak@yahoo.com>
-> + * and
-> + *    pca9540.c from Jean Delvare <khali@linux-fr.org>, which was
-> + *	based on pcf8574.c from the same project by Frodo Looijaard,
-> + *	Philip Edelbrock, Dan Eaton and Aurelien Jarno.
+> + *    i2c-virtual.c from Copyright (c) 2004 Google, Inc. (Ken  
+> Harrenstien)
+> + *    i2c-virtual.c from Brian Kuschak <bkuschak@yahoo.com>
+> + * which was:
+> + *    Adapted from i2c-adap-ibm_ocp.c
+> + *    Original file Copyright 2000-2002 MontaVista Software Inc.
 > + *
 > + * This file is licensed under the terms of the GNU General Public
 > + * License version 2. This program is licensed "as is" without any
 > + * warranty of any kind, whether express or implied.
 > + */
 > +
+> +#include <linux/kernel.h>
 > +#include <linux/module.h>
 > +#include <linux/i2c.h>
-> +#include <linux/init.h>
+> +#include <linux/i2c-id.h>
 > +
-> +#define PCA954X_MAX_NCHANS 8
+> +struct i2c_virt_priv {
+> +	struct i2c_adapter *parent_adap;
+> +	struct i2c_client *client;	/* The mux chip/device */
 > +
-> +static struct i2c_driver pca954x_driver;
+> +	u32 id;				/* the mux id */
 > +
-> +/* Addresses to scan: none. These chip cannot be detected. */
-> +static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+> +	/* fn which enables the mux */
+> +	int (*select) (struct i2c_adapter *, struct i2c_client *, u32);
 > +
-> +/* Chip type must normally be specified using a parameter of the form
-> +	"force_pca9544=0,0x70"
-> +   The following declares the possible types.
-> +*/
-> +I2C_CLIENT_INSMOD_8(pca9540, pca9542, pca9543, pca9544,
-> +		    pca9545, pca9546, pca9547, pca9548);
-> +
-> +struct pca954x_chipdef {
-> +	enum chips type;
-> +	const char *name;
-> +	u8 nchans;
-> +	u8 enable;		/* used for muxes only */
-> +	enum muxtype { pca954x_ismux = 0, pca954x_isswi } muxtype;
+> +	/* fn which disables the mux */
+> +	int (*deselect) (struct i2c_adapter *, struct i2c_client *, u32);
 > +};
 > +
-> +/* Provide specs for the PCA954x types we know about */
-> +static struct pca954x_chipdef pca954x_chipdefs[] = {
-> +	{
-> +		.type = pca9540,
-> +		.name = "pca9540",
-> +		.nchans = 2,
-> +		.enable = 0x4,
-> +		.muxtype = pca954x_ismux,
-> +	},
-> +	{
-> +		.type = pca9542,
-> +		.name = "pca9542",
-> +		.nchans = 2,
-> +		.enable = 0x4,
-> +		.muxtype = pca954x_ismux,
-> +	},
-> +	{
-> +		.type = pca9543,
-> +		.name = "pca9543",
-> +		.nchans = 2,
-> +		.enable = 0x0,
-> +		.muxtype = pca954x_isswi,
-> +	},
-> +	{
-> +		.type = pca9544,
-> +		.name = "pca9544",
-> +		.nchans = 4,
-> +		.enable = 0x4,
-> +		.muxtype = pca954x_ismux,
-> +	},
-> +	{
-> +		.type = pca9545,
-> +		.name = "pca9545",
-> +		.nchans = 4,
-> +		.enable = 0x0,
-> +		.muxtype = pca954x_isswi,
-> +	},
-> +	{
-> +		.type = pca9546,
-> +		.name = "pca9546",
-> +		.nchans = 4,
-> +		.enable = 0x0,
-> +		.muxtype = pca954x_isswi,
-> +	},
-> +	{
-> +		.type = pca9547,
-> +		.name = "pca9547",
-> +		.nchans = 8,
-> +		.enable = 0x8,
-> +		.muxtype = pca954x_ismux,
-> +	},
-> +	{
-> +		.type = pca9548,
-> +		.name = "pca9548",
-> +		.nchans = 8,
-> +		.enable = 0x0,
-> +		.muxtype = pca954x_isswi,
-> +	},
-> +};
+> +#define VIRT_TIMEOUT		(HZ/2)
+> +#define VIRT_RETRIES		3
 > +
-> +struct pca954x_data {
-> +	struct i2c_client client;
-> +	unsigned int chip_offset;
-> +	u8 last_chan;
-> +	struct i2c_adapter *virt_adapters[PCA954X_MAX_NCHANS];
-> +};
-> +
-> +static int pca954x_xfer(struct i2c_adapter *adap,
-> +			struct i2c_client *client, int read_write, u8 * val)
+> +static int
+> +i2c_virt_master_xfer(struct i2c_adapter *adap, struct i2c_msg msgs 
+> [], int num)
 > +{
-> +	int ret = -ENODEV;
+> +	struct i2c_virt_priv *priv = adap->algo_data;
+> +	struct i2c_adapter *parent = priv->parent_adap;
+> +	int ret;
 > +
-> +	if (adap->algo->master_xfer) {
-> +		struct i2c_msg msg;
-> +		char buf[1];
-> +
-> +		msg.addr = client->addr;
-> +		msg.flags = (read_write == I2C_SMBUS_READ ? I2C_M_RD : 0);
-> +		msg.len = 1;
-> +		buf[0] = *val;
-> +		msg.buf = buf;
-> +		ret = adap->algo->master_xfer(adap, &msg, 1);
-> +	} else if (adap->algo->smbus_xfer) {
-> +		union i2c_smbus_data data;
-> +		ret = adap->algo->smbus_xfer(adap,
-> +					     client->addr,
-> +					     client->flags & I2C_M_TEN,
-> +					     read_write,
-> +					     *val, I2C_SMBUS_BYTE, &data);
-> +	}
-> +
-> +	return ret;
-> +}
-> +
-> +static int pca954x_select_chan(struct i2c_adapter *adap,
-> +			       struct i2c_client *client, u32 chan)
-> +{
-> +	struct pca954x_data *data = i2c_get_clientdata(client);
-> +	struct pca954x_chipdef *chip = &pca954x_chipdefs[data->chip_offset];
-> +	u8 regval = 0;
-> +	int ret = 0;
-> +
-> +	/* we make switches look like muxes, not sure how to be smarter */
-> +	if (chip->muxtype == pca954x_ismux)
-> +		regval = chan | chip->enable;
-> +	else
-> +		regval = 1 << chan;
-> +
-> +	/* Only select the channel if its different from the last channel */
-> +	if (data->last_chan != chan) {
-> +		ret = pca954x_xfer(adap, client, I2C_SMBUS_WRITE, &regval);
-> +		data->last_chan = chan;
-> +	}
-> +
-> +	return ret;
-> +}
-> +
-> +static int pca954x_deselect_mux(struct i2c_adapter *adap,
-> +				struct i2c_client *client, u32 value)
-> +{
-> +	/* We never deselect, just stay on the last channel we selected */
-> +	return 0;
-> +}
-> +
-> +static int pca954x_detect(struct i2c_adapter *bus, int address,  
-> int kind)
-> +{
-> +	int i, n;
-> +	struct i2c_client *client;
-> +	struct pca954x_data *data;
-> +	int ret = -ENODEV;
-> +
-> +	if (!i2c_check_functionality(bus, I2C_FUNC_SMBUS_BYTE))
-> +		goto err;
-> +
-> +	if (!(data = kzalloc(sizeof(struct pca954x_data), GFP_KERNEL))) {
-> +		ret = -ENOMEM;
-> +		goto err;
-> +	}
-> +
-> +	client = &data->client;
-> +	client->addr = address;
-> +	client->adapter = bus;
-> +	client->driver = &pca954x_driver;
-> +	client->flags = 0;
-> +	i2c_set_clientdata(client, data);
-> +	if (kind < 0) {
-> +		dev_err(&bus->dev, "Attempted ill-advised probe at addr 0x%x\n",
-> +			address);
-> +		goto exit_free;
-> +	}
-> +
-> +	/* Read the mux register at addr.  This does two things: it verifies
-> +	   that the mux is in fact present, and fetches its current
-> +	   contents for possible use with a future deselect algorithm.
+> +	/* Grab the lock for the parent adapter.  We already hold the  
+> lock for
+> +	   the virtual adapter.  Then select the right mux port and perform
+> +	   the transfer.
 > +	 */
-> +	if ((i = i2c_smbus_read_byte(client)) < 0) {
-> +		dev_warn(&bus->dev, "pca954x failed to read reg at 0x%x\n",
-> +			 address);
-> +		goto exit_free;
+> +
+> +	mutex_lock(&parent->bus_lock);
+> +	if ((ret = priv->select(parent, priv->client, priv->id)) >= 0) {
+> +		ret = parent->algo->master_xfer(parent, msgs, num);
 > +	}
+> +	priv->deselect(parent, priv->client, priv->id);
+> +	mutex_unlock(&parent->bus_lock);
 > +
-> +	if (kind == any_chip) {
-> +		dev_warn(&bus->dev, "pca954x needs advice on chip type - "
-> +			 "wildly guessing 0x%x is a PCA9540\n", address);
-> +		kind = pca9540;
-> +	}
-> +
-> +	/* Look up in table */
-> +	for (i = sizeof(pca954x_chipdefs) / sizeof(pca954x_chipdefs[0]);
-> +	     --i >= 0;) {
-> +		if (pca954x_chipdefs[i].type == kind)
-> +			break;
-> +	}
-> +	if (i < 0) {
-> +		dev_err(&bus->dev, "Internal error: unknown kind (%d)\n", kind);
-> +		goto exit_free;
-> +	}
-> +
-> +	data->chip_offset = i;
-> +
-> +	if ((ret = i2c_attach_client(client)))
-> +		goto exit_free;
-> +
-> +	/* Now create virtual busses and adapters for them */
-> +	for (i = 0; i < pca954x_chipdefs[data->chip_offset].nchans; i++) {
-> +		data->virt_adapters[i] =
-> +		    i2c_add_virt_adapter(bus, client, i,
-> +					 &pca954x_select_chan,
-> +					 &pca954x_deselect_mux);
-> +		if (data->virt_adapters[i] == NULL) {
-> +			ret = -ENODEV;
-> +			goto virt_reg_failed;
-> +		}
-> +	}
-> +
-> +	dev_info(&client->dev,
-> +		 "Registered %d virtual busses for I2C %s %s\n", i,
-> +		 pca954x_chipdefs[data->chip_offset].muxtype == pca954x_ismux ?
-> +		 "mux" : "switch", pca954x_chipdefs[data->chip_offset].name);
-> +
-> +	return 0;
-> +
-> +virt_reg_failed:
-> +	for (n = 0; n < i; n++)
-> +		i2c_del_virt_adapter(data->virt_adapters[n]);
-> +	i2c_detach_client(client);
-> +exit_free:
-> +	kfree(data);
-> +err:
 > +	return ret;
 > +}
 > +
-> +static int pca954x_attach_adapter(struct i2c_adapter *adapter)
+> +static int
+> +i2c_virt_smbus_xfer(struct i2c_adapter *adap, u16 addr,
+> +		    unsigned short flags, char read_write,
+> +		    u8 command, int size, union i2c_smbus_data *data)
 > +{
-> +	return i2c_probe(adapter, &addr_data, pca954x_detect);
+> +	struct i2c_virt_priv *priv = adap->algo_data;
+> +	struct i2c_adapter *parent = priv->parent_adap;
+> +	int ret;
+> +
+> +	/* Grab the lock for the parent adapter.  We already hold the  
+> lock for
+> +	   the virtual adapter.  Then select the right mux port and perform
+> +	   the transfer.
+> +	 */
+> +
+> +	mutex_lock(&parent->bus_lock);
+> +	if ((ret = priv->select(parent, priv->client, priv->id)) == 0) {
+> +		ret = parent->algo->smbus_xfer(parent, addr, flags,
+> +					       read_write, command, size, data);
+> +	}
+> +	priv->deselect(parent, priv->client, priv->id);
+> +	mutex_unlock(&parent->bus_lock);
+> +
+> +	return ret;
 > +}
 > +
-> +static int pca954x_detach_client(struct i2c_client *client)
+> +/* return the parent's functionality for the virtual adapter */
+> +static u32 i2c_virt_functionality(struct i2c_adapter *adap)
 > +{
-> +	struct pca954x_data *data = i2c_get_clientdata(client);
-> +	struct pca954x_chipdef *chip = &pca954x_chipdefs[data->chip_offset];
-> +	int i, err;
+> +	struct i2c_virt_priv *priv = adap->algo_data;
+> +	struct i2c_adapter *parent = priv->parent_adap;
 > +
-> +	for (i = 0; i < chip->nchans; ++i) {
-> +		if (data->virt_adapters[i]) {
-> +			if ((err =
-> +			     i2c_del_virt_adapter(data->virt_adapters[i])))
-> +				return err;
-> +			data->virt_adapters[i] = NULL;
-> +		}
+> +	return parent->algo->functionality(parent);
+> +}
+> +
+> +struct i2c_adapter *
+> +i2c_add_virt_adapter(struct i2c_adapter *parent, struct i2c_client  
+> *client,
+> +		     u32 mux_val,
+> +		     int (*select_cb) (struct i2c_adapter *,
+> +				       struct i2c_client *, u32),
+> +		     int (*deselect_cb) (struct i2c_adapter *,
+> +					 struct i2c_client *, u32))
+> +{
+> +	struct i2c_adapter *adap;
+> +	struct i2c_virt_priv *priv;
+> +	struct i2c_algorithm *algo;
+> +
+> +	if (!(adap = kzalloc(sizeof(struct i2c_adapter)
+> +			     + sizeof(struct i2c_virt_priv)
+> +			     + sizeof(struct i2c_algorithm), GFP_KERNEL)))
+> +		return NULL;
+> +
+> +	priv = (struct i2c_virt_priv *)(adap + 1);
+> +	algo = (struct i2c_algorithm *)(priv + 1);
+> +
+> +	/* Set up private adapter data */
+> +	priv->parent_adap = parent;
+> +	priv->client = client;
+> +	priv->id = mux_val;
+> +	priv->select = select_cb;
+> +	priv->deselect = deselect_cb;
+> +
+> +	/* Need to do algo dynamically because we don't know ahead
+> +	   of time what sort of physical adapter we'll be dealing with.
+> +	 */
+> +	algo->master_xfer = (parent->algo->master_xfer
+> +			     ? i2c_virt_master_xfer : NULL);
+> +	algo->smbus_xfer = (parent->algo->smbus_xfer
+> +			    ? i2c_virt_smbus_xfer : NULL);
+> +	algo->functionality = i2c_virt_functionality;
+> +
+> +	/* Now fill out new adapter structure */
+> +	snprintf(adap->name, sizeof(adap->name),
+> +		 "Virtual I2C (i2c-%d, mux %02x:%02x)",
+> +		 i2c_adapter_id(parent), client->addr, mux_val);
+> +	adap->id = I2C_HW_VIRT | i2c_adapter_id(parent);
+> +	adap->algo = algo;
+> +	adap->algo_data = priv;
+> +	adap->timeout = VIRT_TIMEOUT;
+> +	adap->retries = VIRT_RETRIES;
+> +	adap->dev.parent = &parent->dev;
+> +
+> +	if (i2c_add_adapter_nolock(adap) < 0) {
+> +		kfree(adap);
+> +		return NULL;
 > +	}
 > +
-> +	if ((err = i2c_detach_client(client)))
-> +		return err;
+> +	printk(KERN_NOTICE "i2c-%d: Virtual I2C bus "
+> +	       "(Physical bus i2c-%d, multiplexer 0x%02x port %d)\n",
+> +	       i2c_adapter_id(adap), i2c_adapter_id(parent),
+> +	       client->addr, mux_val);
 > +
-> +	kfree(data);
+> +	return adap;
+> +}
+> +
+> +int i2c_del_virt_adapter(struct i2c_adapter *adap)
+> +{
+> +	int ret;
+> +
+> +	if ((ret = i2c_del_adapter_nolock(adap)) < 0)
+> +		return ret;
+> +	kfree(adap);
+> +
 > +	return 0;
 > +}
 > +
-> +static struct i2c_driver pca954x_driver = {
-> +	.driver = {
-> +		   .name = "pca954x",
-> +		   },
-> +	.id = I2C_DRIVERID_PCA954X,
-> +	.attach_adapter = pca954x_attach_adapter,
-> +	.detach_client = pca954x_detach_client,
-> +};
-> +
-> +static int __init pca954x_init(void)
-> +{
-> +	return i2c_add_driver(&pca954x_driver);
-> +}
-> +
-> +static void __exit pca954x_exit(void)
-> +{
-> +	i2c_del_driver(&pca954x_driver);
-> +}
-> +
-> +module_init(pca954x_init);
-> +module_exit(pca954x_exit);
+> +EXPORT_SYMBOL_GPL(i2c_add_virt_adapter);
+> +EXPORT_SYMBOL_GPL(i2c_del_virt_adapter);
 > +
 > +MODULE_AUTHOR("Kumar Gala <galak@kernel.crashing.org>");
-> +MODULE_DESCRIPTION("PCA954X I2C mux/switch driver");
+> +MODULE_DESCRIPTION("Virtual I2C driver for multiplexed I2C busses");
 > +MODULE_LICENSE("GPL");
 > diff --git a/include/linux/i2c-id.h b/include/linux/i2c-id.h
-> index 66d5533..f8f7f20 100644
+> index c8b81f4..66d5533 100644
 > --- a/include/linux/i2c-id.h
 > +++ b/include/linux/i2c-id.h
-> @@ -112,6 +112,7 @@
->  #define I2C_DRIVERID_X1205	82	/* Xicor/Intersil X1205 RTC	*/
->  #define I2C_DRIVERID_PCF8563	83	/* Philips PCF8563 RTC		*/
->  #define I2C_DRIVERID_RS5C372	84	/* Ricoh RS5C372 RTC		*/
-> +#define I2C_DRIVERID_PCA954X	85	/* pca954x I2C mux/switch	*/
+> @@ -265,4 +265,6 @@
+>  #define I2C_HW_SAA7146		0x060000 /* SAA7146 video decoder bus */
+>  #define I2C_HW_SAA7134		0x090000 /* SAA7134 video decoder bus */
 >
->  #define I2C_DRIVERID_I2CDEV	900
->  #define I2C_DRIVERID_ARP        902    /* SMBus ARP  
-> Client              */
+> +#define I2C_HW_VIRT		0x80000000 /* a virtual adapter */
+> +
+>  #endif /* LINUX_I2C_ID_H */
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 1635ee2..ba41f97 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -294,6 +294,10 @@ struct i2c_client_address_data {
+>  extern int i2c_add_adapter(struct i2c_adapter *);
+>  extern int i2c_del_adapter(struct i2c_adapter *);
+>
+> +/* Assume the caller has the core_list lock already */
+> +extern int i2c_add_adapter_nolock(struct i2c_adapter *);
+> +extern int i2c_del_adapter_nolock(struct i2c_adapter *);
+> +
+>  extern int i2c_register_driver(struct module *, struct i2c_driver *);
+>  extern int i2c_del_driver(struct i2c_driver *);
+>
+> @@ -440,6 +444,22 @@ union i2c_smbus_data {
+>  #define I2C_SMBUS_I2C_BLOCK_DATA    6
+>  #define I2C_SMBUS_BLOCK_PROC_CALL   7		/* SMBus 2.0 */
+>
+> +/*
+> + * Called to create a 'virtual' i2c bus which represents a  
+> multiplexed bus
+> + * segment.  The client and mux_val are passed to the select and  
+> deselect
+> + * callback functions to perform hardware-specific mux control.
+> + *
+> + * The caller is expected to have the core_lists lock
+> + */
+> +struct i2c_adapter *
+> +i2c_add_virt_adapter(struct i2c_adapter *parent, struct i2c_client  
+> *client,
+> +		     u32 mux_val,
+> +		     int (*select_cb) (struct i2c_adapter *,
+> +				       struct i2c_client *, u32),
+> +		     int (*deselect_cb) (struct i2c_adapter *,
+> +					 struct i2c_client *, u32));
+> +
+> +int i2c_del_virt_adapter(struct i2c_adapter *adap);
+>
+>  /* ----- commands for the ioctl like i2c_command call:
+>   * note that additional calls are defined in the algorithm and hw
 >
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux- 

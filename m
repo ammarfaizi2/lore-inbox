@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWDGOcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWDGOcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932358AbWDGOcs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 10:32:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWDGOcg
+	id S932292AbWDGOcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 10:32:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbWDGOcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 10:32:36 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:43740 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S932350AbWDGOcY (ORCPT
+	Fri, 7 Apr 2006 10:32:25 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:31196 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S932292AbWDGOcX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 10:32:24 -0400
+	Fri, 7 Apr 2006 10:32:23 -0400
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 12/17] uml: fix hang on run_helper() failure on uml_net
-Date: Fri, 07 Apr 2006 16:31:17 +0200
+Subject: [PATCH 06/17] uml: fix some double export warnings
+Date: Fri, 07 Apr 2006 16:31:03 +0200
 To: Andrew Morton <akpm@osdl.org>
 Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20060407143117.19201.85132.stgit@zion.home.lan>
+Message-Id: <20060407143102.19201.91032.stgit@zion.home.lan>
 In-Reply-To: <20060407142709.19201.99196.stgit@zion.home.lan>
 References: <20060407142709.19201.99196.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,61 +23,77 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Fix an hang on a pipe when run_helper() fails when called by change_tramp()
-(i.e. when calling uml_net) - reproduced the bug and verified this fixes it.
+Some functions are exported twice in current code - remove the excess export.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- arch/um/drivers/net_user.c |    4 +++-
- arch/um/os-Linux/helper.c  |   10 +++++-----
- 2 files changed, 8 insertions(+), 6 deletions(-)
+ arch/um/kernel/ksyms.c       |    5 +----
+ arch/um/os-Linux/user_syms.c |    9 +++++++--
+ arch/um/sys-i386/ksyms.c     |    4 ----
+ 3 files changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/arch/um/drivers/net_user.c b/arch/um/drivers/net_user.c
-index 0e2f061..0a7786e 100644
---- a/arch/um/drivers/net_user.c
-+++ b/arch/um/drivers/net_user.c
-@@ -182,7 +182,9 @@ static int change_tramp(char **argv, cha
- 	pe_data.stdout = fds[1];
- 	pid = run_helper(change_pre_exec, &pe_data, argv, NULL);
+diff --git a/arch/um/kernel/ksyms.c b/arch/um/kernel/ksyms.c
+index 7713e7a..432cf0b 100644
+--- a/arch/um/kernel/ksyms.c
++++ b/arch/um/kernel/ksyms.c
+@@ -39,7 +39,6 @@ EXPORT_SYMBOL(um_virt_to_phys);
+ EXPORT_SYMBOL(mode_tt);
+ EXPORT_SYMBOL(handle_page_fault);
+ EXPORT_SYMBOL(find_iomem);
+-EXPORT_SYMBOL(end_iomem);
  
--	read_output(fds[0], output, output_len);
-+	if (pid > 0)	/* Avoid hang as we won't get data in failure case. */
-+		read_output(fds[0], output, output_len);
+ #ifdef CONFIG_MODE_TT
+ EXPORT_SYMBOL(strncpy_from_user_tt);
+@@ -89,12 +88,10 @@ EXPORT_SYMBOL(dump_thread);
+ EXPORT_SYMBOL(do_gettimeofday);
+ EXPORT_SYMBOL(do_settimeofday);
+ 
+-/* This is here because UML expands open to sys_open, not to a system
++/* This is here because UML expands lseek to sys_lseek, not to a system
+  * call instruction.
+  */
+-EXPORT_SYMBOL(sys_open);
+ EXPORT_SYMBOL(sys_lseek);
+-EXPORT_SYMBOL(sys_read);
+ EXPORT_SYMBOL(sys_wait4);
+ 
+ #ifdef CONFIG_SMP
+diff --git a/arch/um/os-Linux/user_syms.c b/arch/um/os-Linux/user_syms.c
+index 8da6ab3..2598158 100644
+--- a/arch/um/os-Linux/user_syms.c
++++ b/arch/um/os-Linux/user_syms.c
+@@ -18,14 +18,19 @@ extern void *memmove(void *, const void 
+ extern void *memset(void *, int, size_t);
+ extern int printf(const char *, ...);
+ 
++/* If they're not defined, the export is included in lib/string.c.*/
++#ifdef __HAVE_ARCH_STRLEN
+ EXPORT_SYMBOL(strlen);
++#endif
++#ifdef __HAVE_ARCH_STRSTR
++EXPORT_SYMBOL(strstr);
++#endif
 +
- 	os_close_file(fds[0]);
- 	os_close_file(fds[1]);
+ EXPORT_SYMBOL(memcpy);
+ EXPORT_SYMBOL(memmove);
+ EXPORT_SYMBOL(memset);
+ EXPORT_SYMBOL(printf);
  
-diff --git a/arch/um/os-Linux/helper.c b/arch/um/os-Linux/helper.c
-index 6490a4f..6987d1d 100644
---- a/arch/um/os-Linux/helper.c
-+++ b/arch/um/os-Linux/helper.c
-@@ -43,7 +43,7 @@ static int helper_child(void *arg)
- 		(*data->pre_exec)(data->pre_data);
- 	execvp(argv[0], argv);
- 	errval = errno;
--	printk("execvp of '%s' failed - errno = %d\n", argv[0], errno);
-+	printk("helper_child - execve of '%s' failed - errno = %d\n", argv[0], errno);
- 	os_write_file(data->fd, &errval, sizeof(errval));
- 	kill(os_getpid(), SIGKILL);
- 	return(0);
-@@ -92,15 +92,15 @@ int run_helper(void (*pre_exec)(void *),
- 	close(fds[1]);
- 	fds[1] = -1;
+-EXPORT_SYMBOL(strstr);
+-
+ /* Here, instead, I can provide a fake prototype. Yes, someone cares: genksyms.
+  * However, the modules will use the CRC defined *here*, no matter if it is
+  * good; so the versions of these symbols will always match
+diff --git a/arch/um/sys-i386/ksyms.c b/arch/um/sys-i386/ksyms.c
+index db524ab..2a1eac1 100644
+--- a/arch/um/sys-i386/ksyms.c
++++ b/arch/um/sys-i386/ksyms.c
+@@ -15,7 +15,3 @@ EXPORT_SYMBOL(__up_wakeup);
  
--	/*Read the errno value from the child.*/
-+	/* Read the errno value from the child, if the exec failed, or get 0 if
-+	 * the exec succeeded because the pipe fd was set as close-on-exec. */
- 	n = os_read_file(fds[0], &ret, sizeof(ret));
--	if(n < 0){
-+	if (n < 0) {
- 		printk("run_helper : read on pipe failed, ret = %d\n", -n);
- 		ret = n;
- 		kill(pid, SIGKILL);
- 		CATCH_EINTR(waitpid(pid, NULL, 0));
--	}
--	else if(n != 0){
-+	} else if(n != 0){
- 		CATCH_EINTR(n = waitpid(pid, NULL, 0));
- 		ret = -errno;
- 	} else {
+ /* Networking helper routines. */
+ EXPORT_SYMBOL(csum_partial);
+-
+-/* delay core functions */
+-EXPORT_SYMBOL(__const_udelay);
+-EXPORT_SYMBOL(__udelay);

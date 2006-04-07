@@ -1,83 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbWDGU1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbWDGU2N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964921AbWDGU1b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 16:27:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWDGU1b
+	id S964926AbWDGU2N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 16:28:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964933AbWDGU2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 16:27:31 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:24787 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932455AbWDGU1a (ORCPT
+	Fri, 7 Apr 2006 16:28:13 -0400
+Received: from mail.gmx.net ([213.165.64.20]:6031 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964926AbWDGU2M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 16:27:30 -0400
-Date: Sat, 8 Apr 2006 00:27:04 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Yi Yang <yang.y.yi@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Matt Helsley <matthltc@us.ibm.com>
-Subject: Re: [2.6.16 PATCH] Filessytem Events Reporter V2
-Message-ID: <20060407202704.GA1406@2ka.mipt.ru>
-References: <4433C456.7010708@gmail.com> <20060407062428.GA31351@2ka.mipt.ru> <44361F39.4020501@gmail.com> <20060407094732.GA13235@2ka.mipt.ru> <443638D8.2010800@gmail.com> <20060407102602.GA27764@2ka.mipt.ru> <443681D3.8000805@gmail.com> <20060407194716.GA27652@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Fri, 7 Apr 2006 16:28:12 -0400
+X-Authenticated: #342784
+From: jensmh@gmx.de
+To: Ashok Raj <ashok.raj@intel.com>
+Subject: Re: 2.6.16.1 lost cpu, was: 2.6.16-rc5 'lost' cpu
+Date: Fri, 7 Apr 2006 22:27:56 +0200
+User-Agent: KMail/1.9.1
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0603030954230.28074@montezuma.fsmlabs.com> <200604071845.38371.jensmh@gmx.de> <20060407132206.A27131@unix-os.sc.intel.com>
+In-Reply-To: <20060407132206.A27131@unix-os.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060407194716.GA27652@2ka.mipt.ru>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 08 Apr 2006 00:27:05 +0400 (MSD)
+Message-Id: <200604072227.58594.jensmh@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 07, 2006 at 11:47:16PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
-> On Fri, Apr 07, 2006 at 11:14:27PM +0800, Yi Yang (yang.y.yi@gmail.com) wrote:
-> > Evgeniy Polyakov ??????:
-> > >On Fri, Apr 07, 2006 at 06:03:04PM +0800, Yi Yang (yang.y.yi@gmail.com) 
-> > >wrote:
-> > >  
-> > >>>>Can you explain why there is such a big difference between 
-> > >>>>netlink_unicast and netlink_broadcast?
-> > >>>>   
-> > >>>>        
-> > >>>Netlink broadcast clones skbs, while unicasting requires the whole new
-> > >>>one.
-> > >>> 
-> > >>>      
-> > >>No, I also use clone to send skb, so they should have the same overhead.
-> > >>    
-> > >
-> > >I missed that.
-> > >After rereading fsevent_send_to_process() I do not see how original skb
-> > >is freed though.
-> > >  
-> > I'm considering how to free it, because cloned skbs share data with 
-> > original skb, so this case is special,
-> > I try to clarify the logic of kfree_skb.
+Ashok Raj writes:
+> On Fri, Apr 07, 2006 at 06:45:36PM +0200, jensmh@gmx.de wrote:
 > 
-> Just call kfree_skb() after fsevent_send_to_process() or at the very
-> end of this function. If unicast delivering fails you also need to free cloned skb.
-
-For clarification: I mean if any error happens before netlink_unicast()
-call, you need to free skb. If netlink_unicast() is called, it will take
-care of skb in any case.
-
-> > >  
-> > >>>>>Btw, you need some rebalancing of the per-cpu queues, probably in
-> > >>>>>keventd, since CPUs can go offline and your messages will stuck foreve
-> > >>>>>there.
-> > >>>>>
-> > >>>>>     
-> > >>>>>          
-> > >>>>Does keventd not do it? if so, keventd should be modified.
-> > >>>>   
-> > >>>>        
-> > >>>How does keventd know about your own structures?
-> > >>>You have an per-cpu object, but your keventd function gets object 
-> > >>>      
-> > >>>from running cpu, not from any other cpus.
-> > >>    
-> > >
-> > >  
+> Oh well, seems like that CPU has trouble booting, per message below
+> we seemed to start it, but processor didnt run startup code... Suspect its a 
+> failing part probably..
 > 
-> -- 
-> 	Evgeniy Polyakov
+> > CPU1: Intel P4/Xeon Extended MCE MSRs (12) available
+> > CPU1: Thermal monitoring enabled
+> > CPU1: Intel(R) Xeon(TM) CPU 2.80GHz stepping 09
+> > Booting processor 2/6 eip 2000
 
--- 
-	Evgeniy Polyakov
+shouldn't that be "Booting processor 2/_4_ eip 2000"?
+
+> > CPU 2 irqstacks, hard=c04b8000 soft=c04b0000
+> > Not responding.
+> > Inquiring remote APIC #6...
+> > ... APIC #6 ID: failed
+> > ... APIC #6 VERSION: failed
+> > ... APIC #6 SPIV: failed
+> > CPU #6 not responding - cannot use it.
+> 

@@ -1,63 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWDGRwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWDGRzK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964830AbWDGRwc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 13:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWDGRwc
+	id S964832AbWDGRzK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 13:55:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWDGRzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 13:52:32 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:21643 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S932336AbWDGRwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 13:52:31 -0400
-Message-ID: <4436A6D2.3070408@t-online.de>
-Date: Fri, 07 Apr 2006 19:52:18 +0200
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Mail/News 1.5 (X11/20060318)
+	Fri, 7 Apr 2006 13:55:09 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:37826 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S964832AbWDGRzB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 13:55:01 -0400
+Message-ID: <4436A770.3080905@zabbo.net>
+Date: Fri, 07 Apr 2006 10:54:56 -0700
+From: Zach Brown <zab@zabbo.net>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: nice device running linux
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig3B66973FC657C84650B1172A"
-X-ID: SmSlD8Zp8e+o1pexU12xMIqK4aDQNeG7o8Za8nZIjOimcG7I03P88Y
-X-TOI-MSGID: 600c133c-ec77-418c-a8ce-d12ba2ac7c5b
+To: Xin Zhao <uszhaoxin@gmail.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: Re: How to know when file data has been flushed into disk?
+References: <4ae3c140604070842x537353c4s9a60706c2a2d25d9@mail.gmail.com>
+In-Reply-To: <4ae3c140604070842x537353c4s9a60706c2a2d25d9@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig3B66973FC657C84650B1172A
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
 
-Hi folks,
+> If a program access data like this:
+> 
+> 1. open the file
+> 2. write a lot of data into this file
 
-Have you seen this one?
+You don't say if this is an extending write or overwriting existing file
+data.  I'm going to assume extending writes so that data=ordered kicks in.
 
-	http://www.iamm.co.kr/eng/product/ntd25/ntd25.php
+> 3. close the file
 
-It seems to be Linux-powered (derived from 2.4.17). ESR is
-explicitly mentioned in the firmware :-).
+> So my questions are:
+> 1. How will the file system be notified after all data has been
+> flushed into disk?
 
+Look at phase 2 in journal_commit_transaction().  The kjournald thread
+issues the writeback of the file data by walking t_sync_datalist and
+then waits for the writeback to complete by using wait_on_buffer()
+before committing the transaction.
 
-Regards
+> 2. Unlike data=journal mode, in data=order mode, the data could be
+> lost if system crashes when data is being flushed to disk. When system
+> reboots, does journal contains the old meta data for undo?
 
-Harri
+No, ext3 isn't roll-backward.  It doesn't store the *old* data in the
+journal and undo the change if it fails halfway through.  It's
+roll-forward.  It stores the *new* data in the journal and replays
+complete transactions in the journal that weren't moved out to their
+final place on disk at the time of the crash.
 
+So if the machine reboots during the writeback phase then the
+transaction won't be committed yet and recovery won't replay that
+transaction from the journal.  From the metadata's point of view the
+file extension will never have happened.
 
+> 3. Does sys_close() have to  be blocked until all data and metadata
+> are committed?
 
---------------enig3B66973FC657C84650B1172A
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+No, and neither does sys_getpid() :)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+> to take subsequent operation. However, data flush could be failed. In
+> this case, file system seems to mislead the application. Is this true?
 
-iD8DBQFENqbXUTlbRTxpHjcRAhZ1AJ9BbASRDrtt84JyPJtelRRfMRl7egCgkmkJ
-MwJHT7JORdQu0j4y0IRkM8Y=
-=O2M2
------END PGP SIGNATURE-----
+No.  The application has no grounds for assuming that a successful
+close() has synced previous operations to disk.  It's simply not part of
+the API.
 
---------------enig3B66973FC657C84650B1172A--
+> If so, any solutions?
+
+The application should rely on tools like fsync(), fdatasync(), O_SYNC,
+mount -o sync, etc.  Whatever suits it best.
+
+- z

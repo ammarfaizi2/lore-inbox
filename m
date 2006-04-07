@@ -1,51 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWDGJQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWDGJWk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932390AbWDGJQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 05:16:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWDGJQQ
+	id S932387AbWDGJWk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 05:22:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWDGJWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 05:16:16 -0400
-Received: from rtsoft2.corbina.net ([85.21.88.2]:27082 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S932390AbWDGJQQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 05:16:16 -0400
-Message-ID: <44362DDE.3010203@gmail.com>
-Date: Fri, 07 Apr 2006 13:16:14 +0400
-From: Vitaly Wool <vitalywool@gmail.com>
-User-Agent: Mail/News 1.5 (X11/20060228)
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: Kumar Gala <galak@kernel.crashing.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, spi-devel-general@lists.sourceforge.net
-Subject: Re: [spi-devel-general] Re: [PATCH] spi: Added spi master driver
- for Freescale MPC83xx SPI controller
-References: <Pine.LNX.4.44.0604061329550.20620-100000@gate.crashing.org> <200604062222.05661.david-b@pacbell.net>
-In-Reply-To: <200604062222.05661.david-b@pacbell.net>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Apr 2006 05:22:40 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:22223 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932387AbWDGJWj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 05:22:39 -0400
+Date: Fri, 7 Apr 2006 11:19:46 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Bill Huey <billh@gnuppy.monkey.org>
+Cc: Darren Hart <darren@dvhart.com>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       "Stultz, John" <johnstul@us.ibm.com>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: RT task scheduling
+Message-ID: <20060407091946.GA28421@elte.hu>
+References: <200604052025.05679.darren@dvhart.com> <20060406073753.GA18349@elte.hu> <20060407030713.GA9623@gnuppy.monkey.org> <20060407071125.GA2563@elte.hu> <20060407083931.GA11393@gnuppy.monkey.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060407083931.GA11393@gnuppy.monkey.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-> I guess I'm surprised you're not using txrx_buffers() and having
-> that whole thing be IRQ driven, so the per-word cost eliminates
-> the task scheduling.  You already paid for IRQ handling ... why
-> not have it store the rx byte into the buffer, and write the tx
-> byte froom the other buffer?  That'd be cheaper than what you're
-> doing now ... in both time and code.  Only wake up a task at
-> the end of a given spi_transfer().
->   
-I might be completely wrong here, but I was asking myself this very 
-question, and it looks like that's the way to implement full duplex 
-transfers.
-For txrx_buffers to be properly implemented, you need to take a lot of 
-things into account. The main idea is not to lose the data in the 
-receive buffer due to overflow, and thus you need to set up 'Rx buffer 
-not free' int or whatever similar which will actually trigger after the 
-first word is sent. So therefore implementing txrx_buffers within these 
-conditions doesn't make much sense IMHO, unless you meant having a 
-separate thread to read from the Rx buffer, which is woken up on, say, 
-half-full Rx buffer.
+* Bill Huey <billh@gnuppy.monkey.org> wrote:
 
-Vitaly
+> On Fri, Apr 07, 2006 at 09:11:25AM +0200, Ingo Molnar wrote:
+> > * Bill Huey <billh@gnuppy.monkey.org> wrote:
+> > 
+> > > On Thu, Apr 06, 2006 at 09:37:53AM +0200, Ingo Molnar wrote:
+> > > > do "global" decisions for what RT tasks to run on which CPU. To put even 
+> > > > less overhead on the mainstream kernel, i plan to introduce a new 
+> > > > SCHED_FIFO_GLOBAL scheduling policy to trigger this behavior. [it doesnt 
+> > > > make much sense to extend SCHED_RR in that direction.]
+> > > 
+> > > You should consider for a moment to allow for the binding of a thread 
+> > > to a CPU to determine the behavior of a SCHED_FIFO class task instead 
+> > > of creating a new run category. [...]
+> > 
+> > That is already possible and has been possible for years.
+> 
+> I know that this is already the case. What I'm saying is that the 
+> creation of new globally scheduled run case isn't necessarly if you 
+> have a robust thread to CPU binding mechanism, [...]
+
+-ENOPARSE. CPU binding brings with itself obvious disadvantages that 
+some applications are not ready to pay. CPU binding restricts the 
+scheduler from achieving best resource utilization. That may be fine for 
+some applications, but is not good enough for a good number of 
+applications. So in no way can any 'CPU binding mechanism' (which 
+already exists in multiple forms) replace the need and desire for a 
+globally scheduled class of RT tasks.
+
+> [...] the key here is "robust". [...]
+
+-ENOPARSE. CPU binding is CPU binding. Could you outline an example of a 
+"non-robust" CPU binding solution?
+
+	Ingo

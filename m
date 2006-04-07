@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWDGT2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbWDGTbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964911AbWDGT2J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 15:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWDGT2I
+	id S964908AbWDGTbl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 15:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWDGTbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 15:28:08 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:15002 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964908AbWDGT2H (ORCPT
+	Fri, 7 Apr 2006 15:31:41 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:31883 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S964908AbWDGTbl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 15:28:07 -0400
-Date: Fri, 7 Apr 2006 14:28:00 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@sw.ru>, herbert@13thfloor.at, devel@openvz.org,
-       sam@vilain.net, xemul@sw.ru, James Morris <jmorris@namei.org>
-Subject: Re: [RFC][PATCH 0/5] uts namespaces: Introduction
-Message-ID: <20060407192800.GE28729@sergelap.austin.ibm.com>
-References: <20060407095132.455784000@sergelap> <m1wte1mcim.fsf@ebiederm.dsl.xmission.com>
+	Fri, 7 Apr 2006 15:31:41 -0400
+Date: Sat, 8 Apr 2006 03:28:38 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/4] coredump: speedup SIGKILL sending
+Message-ID: <20060407232838.GA11460@oleg>
+References: <20060406220628.GA237@oleg> <1144352758.2866.105.camel@mindpipe> <20060406235519.GA331@oleg> <1144354065.2866.116.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1wte1mcim.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <1144354065.2866.116.camel@mindpipe>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Eric W. Biederman (ebiederm@xmission.com):
-> "Serge E. Hallyn" <serue@us.ibm.com> writes:
-> 
-> > Introduce utsname namespaces.  Instead of a single system_utsname
-> > containing hostname domainname etc, a process can request it's
-> > copy of the uts info to be cloned.  The data will be copied from
-> > it's original, but any further changes will not be seen by processes
-> > which are not it's children, and vice versa.
+On 04/06, Lee Revell wrote:
+> On Fri, 2006-04-07 at 03:55 +0400, Oleg Nesterov wrote:
+> > On 04/06, Lee Revell wrote:
+> > > On Fri, 2006-04-07 at 02:06 +0400, Oleg Nesterov wrote:
+> > > > With this patch a thread group is killed atomically under ->siglock.
+> > > > This is faster because we can use sigaddset() instead of force_sig_info()
+> > > > and this is used in further patches.
+> > > >
+> > > > Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+> > >
+> > > Won't this cause huge latencies when a process with lots of threads is
+> > > killed?
 > >
-> > This is useful, for instance, for vserver/openvz, which can now clone
-> > a new uts namespace for each new virtual server.
-> >
-> > This patchset is based on Kirill Korotaev's Mar 24 submission, taking
-> > comments (in particular from James Morris and Eric Biederman) into
-> > account.
-> >
-> > Some performance results are attached.  I was mainly curious whether
-> > it would be worth putting the task_struct->uts_ns pointer inside
-> > a #ifdef CONFIG_UTS_NS.  The result show that leaving it in when
-> > CONFIG_UTS_NS=n has negligable performance impact, so that is the
-> > approach this patch takes.
-> 
-> Ok.  This looks like the best version so far.
-> 
-> I like the utsname() function thing to shorten the 
-> idiom of  current->uts_ns->name.
-> 
-> We probably want to introduce utsname() and an init_utsname()
-> before any of the other changes, and then perform the substitutions,
+> > Yes, irqs are disabled. But this is not worse than 'kill -9 pid', note
+> > that __group_complete_signal() or zap_other_threads() do the same.
+>
+> Those have been problematic in the past.  I am just wondering if this
+> will be a latency regression, or if changes elsewhere in your patch
+> negate the effect.
 
-This is the same as what Sam is saying, right?  Just making sure I
-understand.
+zap_process() disables irqs while traversing ->thread_group list.
+So yes, if a process has a lot of threads it will be a latency regression.
+(but again, __group_complete_signal() does the same while delivering this
+signal, so I don't think this change can make things worse).
 
-> before we actually change the code so the patchset can make it
-> through a git-bisect.  This will also allows for something
+However this allows us to avoid tasklist_lock in zap_threads() so I think
+it is worth it. Please note that tasklist_lock was held while iterating
+over _all_ threads in system, not only current's thread group.
 
-Ok, I've finally got the rest of git doing my bidding, I'll go read
-up on git-bisect.
+Oleg.
 
-thanks for the comments,
--serge

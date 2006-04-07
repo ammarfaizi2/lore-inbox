@@ -1,80 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWDGNhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWDGNhl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964792AbWDGNhO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 09:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbWDGNhN
+	id S964794AbWDGNhl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 09:37:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbWDGNhl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 09:37:13 -0400
-Received: from mx02.cybersurf.com ([209.197.145.105]:46755 "EHLO
-	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S964792AbWDGNhL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 09:37:11 -0400
-Subject: Re: [PATCH] net: Broadcast ARP packets on link local addresses
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Anand Kumria <wildfire@progsoc.org>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <pan.2006.04.07.07.20.44.797909@progsoc.org>
-References: <17453.47752.914390.692779@dl2.hq2.avtrex.com>
-	 <pan.2006.04.07.07.20.44.797909@progsoc.org>
+	Fri, 7 Apr 2006 09:37:41 -0400
+Received: from mail.gmx.de ([213.165.64.20]:43907 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964794AbWDGNhj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 09:37:39 -0400
+X-Authenticated: #14349625
+Subject: Re: [patch][rfc] quell interactive feeding frenzy
+From: Mike Galbraith <efault@gmx.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Peter Williams <pwil3058@bigpond.net.au>
+In-Reply-To: <200604072256.27665.kernel@kolivas.org>
+References: <1144402690.7857.31.camel@homer>
+	 <200604072256.27665.kernel@kolivas.org>
 Content-Type: text/plain
-Organization: unknown
-Date: Fri, 07 Apr 2006 09:37:06 -0400
-Message-Id: <1144417027.5082.41.camel@jzny2>
+Date: Fri, 07 Apr 2006 15:37:44 +0200
+Message-Id: <1144417064.8114.26.camel@homer>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-04 at 17:20 +1000, Anand Kumria wrote:
-> On Fri, 31 Mar 2006 15:26:00 -0800, David Daney wrote:
-> 
-> > From: David Daney
-> > 
+On Fri, 2006-04-07 at 22:56 +1000, Con Kolivas wrote:
+> On Friday 07 April 2006 19:38, Mike Galbraith wrote:
 > > Greetings,
-> > 
-> > When an internet host joins a network where there is no DHCP server,
-> > it may auto-allocate an IP address by the method described in RFC
-> > 3927.  There are several user space daemons available that implement
-> > most of the protocol (zcip, busybox, ...).  The kernel's APR driver
-> > should function in the normal manner except that it is required to
-> > broadcast all ARP packets that it originates in the link local address
-> > space (169.254.0.0/16).  RFC 3927 section 2.5 explains the requirement.
-> > 
-> > The current ARP code is non-compliant because it does not broadcast
-> > some ARP packets as required by RFC 3927.
+> >
+> > Problem:  Wake-up -> cpu latency increases with the number of runnable
+> > tasks, ergo adding this latency to sleep_avg becomes increasingly potent
+> > as nr_running increases.  This turns into a very nasty problem with as
+> > few as 10 httpd tasks doing round robin scheduling.  The result is that
+> > you can only login with difficulty, and interactivity is nonexistent.
+> >
+> > Solution:  Restrict the amount of boost a task can receive from this
+> > mechanism, and disable the mechanism entirely when load is high.  As
+> > always, there is a price for increasing fairness.  In this case, the
+> > price seems worth it.  It bought me a usable 2.6 apache server.
 > 
-> I haven't seem anyone comment on this, 
-
-Theres a lot of comments - check the archives of netdev on the thread
-as well as a newer thread under "Broadcast ARP packets on link local
-addresses (Version2)"
-
-> but it would be useful to see this
-> integrated.
-
-IMO not the way it is defined right now in that patch. 
-As suggested in the thread, best way is for the kernel to check
-if it is link local and do the advert in broadcast instead of unicast.
-
+> Since this is an RFC, here's my comments :)
 > 
-> Something else I've noticed while I've been implementing my zeroconf
-> daemon is that the kernel returns link-scoped primary addresses first to
-> 'ifconfig'.  Unfortunately quite a lot of user-space programs parse its
-> output and interpret the address it presents as the primary for the
-> specified interface.
-> 
+> This mechanism is designed to convert on-runqueue waiting time into sleep. The 
+> basic reason is that when the system is loaded, every task is fighting for 
+> cpu even if they only want say 1% cpu which means they never sleep and are 
+> waiting on a runqueue instead of sleeping 99% of the time. What you're doing 
+> is exactly biasing against what this mechanism is in place for. You'll get 
+> the same effect by bypassing or removing it entirely. Should we do that 
+> instead?
 
-Not sure i followed.
+Heck no.  That mechanism is just as much about fairness as it is about
+intertactivity, and as such is just fine and dandy in my book... once
+it's toned down a bit^H^H^Htruckload.  What I'm doing isn't biasing
+against the intent, I'm merely straightening the huge bend in favor of
+interactive tasks who get this added boost over and over again, and
+restricting the general effect to something practical.
 
-> Is that a case of user-space breakage that the kernel team would
-> ordinarily worry about?
+Just look at what that mechanism does now with a 10 deep queue.  Every
+dinky sleep can have an absolutely huge gob added to it, the exact worst
+case number depends on how many cpus you have and whatnot.  Start a slew
+of tasks, and you are doomed to have every task that sleeps for the
+tiniest bit pegged at max interactive.
 
-I think user space setting the attribute of the address to be link local
-would be a sufficient hint to the kernel to broadcast the arps.
+Maybe what I did isn't the best that can be done, but something has to
+be done about that.  It is very b0rken under heavy load.
 
-cheers,
-jamal
-
+	-Mike
 

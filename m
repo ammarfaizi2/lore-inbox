@@ -1,64 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbWDGORM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWDGOUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932339AbWDGORM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 10:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWDGORM
+	id S932250AbWDGOUG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 10:20:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWDGOUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 10:17:12 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:154 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S932339AbWDGORL (ORCPT
+	Fri, 7 Apr 2006 10:20:06 -0400
+Received: from nproxy.gmail.com ([64.233.182.187]:54632 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932250AbWDGOUF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 10:17:11 -0400
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH] [RFC] [Oops fix] module support: record in vermagic ability to unload a module
-Date: Fri, 07 Apr 2006 16:16:16 +0200
-To: Andrew Morton <akpm@osdl.org>
+	Fri, 7 Apr 2006 10:20:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=B6kVxWAN4tVyNB6wCXQe89d9f6skjNjqX/kVAuauAN9faoZP7YwlQA3cYOjgXROBGoxjg5fuB8lZpllYxjym2Zcfo79IuAgM1Ck10DQoe6R4FZnLwysOdQb/kyVsCer0PhYzSbTtdTRhYbrGmfiAlqMvgngBtJQ9PFcaJHT/Cdc=
+Date: Fri, 7 Apr 2006 16:16:45 +0200
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Andrew Clayton <andrew@rootshell.co.uk>
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <20060407141616.15173.53025.stgit@zion.home.lan>
+Subject: Re: [oops] 2.6.17-rc1
+Message-ID: <20060407141645.GB9911@silenus.home.res>
+References: <1144416008.22650.13.camel@zeus.pccl.info>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1144416008.22650.13.camel@zeus.pccl.info>
+User-Agent: mutt-ng/devel-r796 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+On Fri, Apr 07, 2006 at 03:20:08PM +0100, Andrew Clayton wrote:
+> Just got the following while watching a .avi with mplayer.
+> 
+> System is FC4 running on a single proc AMD64 with 1GB RAM.
+> 
+This as been reported several times, have a look at bug #6329 
+It is reported that this patch helps:
+http://bugzilla.kernel.org/attachment.cgi?id=7779&action=view
 
-An UML user reported (against 2.6.13.3/UML) he got kernel Oopses when trying to
-rmmod (on a kernel with module unloading enabled) a module compiled with module
-unloading disabled. As crashing is a very correct thing to do in that case, a
-solution is altering the vermagic string to include this too.
-
-Possibly, however, the code should not crash in this case, even if the module
-didn't support unloading - it should simply abort the module removal. In this case,
-fixing that bug would be a better solution. I've not investigated though.
-
-Thanks to Hayim for reporting.
-
-Cc: Hayim Shaul <hayim@post.tau.ac.il>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- include/linux/vermagic.h |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletions(-)
-
-diff --git a/include/linux/vermagic.h b/include/linux/vermagic.h
-index fadc535..dc7c621 100644
---- a/include/linux/vermagic.h
-+++ b/include/linux/vermagic.h
-@@ -12,6 +12,11 @@
- #else
- #define MODULE_VERMAGIC_PREEMPT ""
- #endif
-+#ifdef CONFIG_MODULE_UNLOAD
-+#define MODULE_VERMAGIC_MODULE_UNLOAD "mod_unload "
-+#else
-+#define MODULE_VERMAGIC_MODULE_UNLOAD ""
-+#endif
- #ifndef MODULE_ARCH_VERMAGIC
- #define MODULE_ARCH_VERMAGIC ""
- #endif
-@@ -19,5 +24,5 @@
- #define VERMAGIC_STRING 						\
- 	UTS_RELEASE " "							\
- 	MODULE_VERMAGIC_SMP MODULE_VERMAGIC_PREEMPT 			\
--	MODULE_ARCH_VERMAGIC 						\
-+	MODULE_VERMAGIC_MODULE_UNLOAD MODULE_ARCH_VERMAGIC 		\
- 	"gcc-" __stringify(__GNUC__) "." __stringify(__GNUC_MINOR__)
+Regards,
+Frederik

@@ -1,108 +1,270 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWDGQSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbWDGQZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932452AbWDGQSY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 12:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWDGQSX
+	id S932450AbWDGQZU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 12:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWDGQZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 12:18:23 -0400
-Received: from adsl-67-116-42-147.dsl.sntc01.pacbell.net ([67.116.42.147]:8989
-	"EHLO avtrex.com") by vger.kernel.org with ESMTP id S932341AbWDGQSX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 12:18:23 -0400
-Message-ID: <443690C9.5090500@avtrex.com>
-Date: Fri, 07 Apr 2006 09:18:17 -0700
-From: David Daney <ddaney@avtrex.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc3 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 7 Apr 2006 12:25:20 -0400
+Received: from smtpq2.tilbu1.nb.home.nl ([213.51.146.201]:19175 "EHLO
+	smtpq2.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S932450AbWDGQZT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 12:25:19 -0400
+Message-ID: <443692B2.7000309@keyaccess.nl>
+Date: Fri, 07 Apr 2006 18:26:26 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: hadi@cyberus.ca
-CC: Janos Farkas <chexum+dev@gmail.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, pgf@foxharp.boston.ma.us,
-       freek@macfreek.nl
-Subject: Re: Broadcast ARP packets on link local addresses (Version2).
-References: <17460.13568.175877.44476@dl2.hq2.avtrex.com>	 <priv$efbe06144502$2d51735f79@200604.gmail.com>	 <44353F36.9070404@avtrex.com> <1144416638.5082.33.camel@jzny2>
-In-Reply-To: <1144416638.5082.33.camel@jzny2>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Apr 2006 16:18:18.0016 (UTC) FILETIME=[E14FB200:01C65A5E]
+To: Takashi Iwai <tiwai@suse.de>
+CC: ALSA devel <alsa-devel@alsa-project.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [ALSA 1/2] continue on IS_ERR from platform device registration
+References: <44347822.9050206@keyaccess.nl> <s5h3bgqlcfd.wl%tiwai@suse.de>
+In-Reply-To: <s5h3bgqlcfd.wl%tiwai@suse.de>
+Content-Type: multipart/mixed;
+ boundary="------------090501020707060306030104"
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jamal wrote:
-> On Thu, 2006-06-04 at 09:17 -0700, David Daney wrote:
-> 
->>Janos Farkas wrote:
-> 
-> 
->>>Sorry for chiming in this late in the discussion, but...  Shouldn't it
->>>be more correct to not depend on the ip address of the used network,
->>>but to use the "scope" parameter of the given address?
->>>
->>
-> 
-> Excellent point! It was bothering me as well but i couldnt express my
-> view eloquently as you did.
-> 
-> 
->>RFC 3927 specifies the Ethernet arp broadcast behavior for only 
->>169.254.0.0/16.
-> 
-> 
-> Thats besides the point. You could, for example, use 1.1.1.1/24 in your
-> network instead of the 10.x or 192.x; and i have seen people use 10.x
-> in what appears to be public networks. We dont have speacial checks for 
-> RFC 1918 IP addresses for example.
-> 
+This is a multi-part message in MIME format.
+--------------090501020707060306030104
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Following your logic through, It seems that you are advocating 
-broadcasting *all* ARP packets on *all* link local addresses.  That 
-would mean that on a 192.168.* switched Ethernet network with DHCP that 
-twice as many ARP packets would be broadcast.
+Takashi Iwai wrote:
 
-I don't think that is a good idea.  On networks with DHCP or statically 
-allocated addresses, it would be a hard sell to tell people that they 
-have to broadcast *all* ARP traffic even though there are neither 
-standards that require nor suggest such action.
+[ unregistering platform devices again when no device found ]
 
-The scope parameter, as far as I can tell, is used to make routing 
-decisions.  Overloading it to also implement the RFC 3927 ARP 
-broadcasting requirement would result in generation of unnecessary 
-network traffic in configurations that are probably the majority of 
-Linux deployments.
+> Well, I'm not so confident that it's the way to go.
 
-> 169.254.0.0/16 is by definition link local. I think point made by Janos
-> is we should look at the attributes rather than value.
+Okay... Added Greg back to the CC. Don't know if he wants to comment or not.
+
+> The problem is that currently the ALSA ISA driver wants to refuse 
+> loading (and modprobe returns an error) when no devices are found at 
+> loading time.  On 2.2/2.4 kernels, PCI drivers also show the same 
+> behavior, but it was changed for a good reason.
 > 
+> Then, shouldn't be the ISA drivers changed to follow the same style? 
+> That is, we keep pnp_driver and platform_driver regardless probe
+> calls succeeded or not.  They can be, in theory, later
+> bound/activated over sysfs.
 
-The converse is not true.  And that is my problem with this idea.
+The thing I'm stumbling over is the non (generic) discoverability of ISA 
+versus busses such as ISA-PnP and PCI which makes for a big conceptual 
+difference.
 
-> Have your user space set it to be link local and then fix the kernel if
-> it doesnt do the right thing.
-> 
+A PnP/PCI device has a life all by itself by virtue of its bus knowing 
+that it's present. For one, the device will be present in /sys/devices/ 
+without any specific driver for the device loaded yet. A platform device 
+on the other hand only "exists" by virtue of a driver creating it 
+because it might want to drive it. If we keep it registered even after 
+failing a probe, then /sys/devices/platform turns into a view of "what 
+drivers did we load" rather then "what's present in this system". As far 
+as I'm aware, that latter view of /sys/devices was at one time the idea. 
+Just imagine loading all ISA drivers for an appreciation of the amount 
+of pollution to this view always keeping the devices registered does.
 
-I could see adding an additional interface attribute that specifies link 
-local, and then testing that.  But that adds substantially more overhead 
-as you would have to allocate space for the attribute somewhere, and 
-have extra code to allow setting/querying of the attribute from user space.
+However!
 
-The requirement of RFC 3927 is very tightly targeted.  My patch does 
-only what is required, no more.  It does not change ARP behavior for 
-commonly deployed configurations.
+I must say I wasn't aware that ALSA PCI devices at the moment load 
+without devices. Wasn't there even an oft used ALSA configuration script 
+out there that worked by loading all drivers and checking which ones stuck?
 
-> 
->>  Presumably you could set the scope parameter to local 
->>for addresses outside of that range or even for protocols other than 
->>Ethernet.  Since broadcasting ARP packets usually adversely effects 
->>usable network bandwidth, we should probably only do it where it is 
->>absolutely required.  The overhead of testing the value required by the 
->>RFC is quite low (3 machine instructions on i686 is the size of the 
->>entire patch), so using some proxy like the scope parameter would not 
->>even be a performance win.
->>
-> 
-> 
-> Again, that is beside the point. 
+I just checked the behaviour and yes, the drivers load. Most importantly 
+to the analogy, even without any of the supported IDs present.
 
-It may be beside your point, I happen to think that it has some relevance.
+I have a 125d:1978 (ESS Canyon3D) at PCI 0000\:00\:08\:0. If I remove 
+the 125d:1978 device ID from snd-es1968, then yes, snd-es1968 still 
+loads. With the ID still not present, a:
 
-David Daney
+echo -n 0000\:00\:08.0 >"/sys/bus/pci/drivers/ES1968 (ESS Maestro)/bind"
+
+runs into a bug somewhere it seems. The xterm I'm doing that in now 
+hangs (but is killable). Doing:
+
+echo "125d 1978" >"/sys/bus/pci/drivers/ES1968 (ESS Maestro)/new_id"
+
+instead does work fine, and after this binding and unbinding work fine 
+as well again, which means there at least seems to be some point.
+
+In the analogy, given that the PCI driver loads even without any of its 
+IDs present means a platform_driver loading without anything present as 
+well isn't, from the view of the driver model, much of a difference 
+after all. PnP doesn't have a "new_id" field, but could have, and I 
+therefore in fact agree by now that it's best to follow PCI's lead here.
+
+> At least it would make the code more simpler, I guess.
+
+Not significantly. We'd need to seperate the probe() method a bit, so 
+that the things we need before a bind _could_ ever succeed were in the 
+main loop and would make the driver skip device registration if not 
+fullfilled. For example, if with the snd-adlib driver no port= is given, 
+then attempted binds would simply tell you "please specify port" over 
+and over again, something which can only be solved by unloading and 
+reloading the driver, this time specifying the port. This is still a 
+difference due to non-discoverability, and I feel this should still make 
+the driver fail to load.
+
+For snd-adlib, this would look like the attached patch. I'm also being 
+more verbose about which bus_id is failing. The !cards printk() is gone, 
+as it is no longer a matter of "device not found or busy" (and there 
+will be a printk() from the actual error spot anyway) and changed the 
+-ENODEV there to -EINVAL.
+
+It works. "modprobe snd-adlib" fails to load, and "modprobe snd-adlib 
+port=0x388" succeeds, with or without probe failures. I can for example 
+now do:
+
+# modprobe snd-cs4236		// which claims 0x388
+# modprobe snd-adlib port=0x388	// which has it load
+# modprobe -r snd-cs4236 && modprobe snd-cs4236 fm_port=0
+
+which enables the OPL at 0x388, but leaves it alone, so that I can then:
+
+# echo -n snd_adlib.0 >/sys/bus/platform/drivers/snd_adlib/bind
+
+to bind the snd_adlib driver to it. Which is... erm... great fun I guess.
+
+(I am by the way being so specific about what I'm doing with these sysfs 
+things because until Dmitry pointed them out to me in the precursor 
+discussion, I was't even aware of bind/unbind. Want to make sure I 
+understand how to operate it all).
+
+How do you feel about this one?
+
+Rene.
+
+
+--------------090501020707060306030104
+Content-Type: text/plain;
+ name="adlib-platform_keep.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="adlib-platform_keep.diff"
+
+Index: local/sound/isa/adlib.c
+===================================================================
+--- local.orig/sound/isa/adlib.c	2006-04-06 23:10:52.000000000 +0200
++++ local/sound/isa/adlib.c	2006-04-07 01:42:11.000000000 +0200
+@@ -43,25 +43,19 @@ static int __devinit snd_adlib_probe(str
+ 	struct snd_card *card;
+ 	struct snd_opl3 *opl3;
+ 
+-	int error;
+-	int i = device->id;
+-
+-	if (port[i] == SNDRV_AUTO_PORT) {
+-		snd_printk(KERN_ERR DRV_NAME ": please specify port\n");
+-		error = -EINVAL;
+-		goto out0;
+-	}
++	int error, i = device->id;
++	char *bus_id = device->dev.bus_id;
+ 
+ 	card = snd_card_new(index[i], id[i], THIS_MODULE, 0);
+ 	if (!card) {
+-		snd_printk(KERN_ERR DRV_NAME ": could not create card\n");
++		snd_printk(KERN_ERR "%s: could not create card\n", bus_id);
+ 		error = -EINVAL;
+ 		goto out0;
+ 	}
+ 
+ 	card->private_data = request_region(port[i], 4, CRD_NAME);
+ 	if (!card->private_data) {
+-		snd_printk(KERN_ERR DRV_NAME ": could not grab ports\n");
++		snd_printk(KERN_ERR "%s: could not grab ports\n", bus_id);
+ 		error = -EBUSY;
+ 		goto out1;
+ 	}
+@@ -69,13 +63,13 @@ static int __devinit snd_adlib_probe(str
+ 
+ 	error = snd_opl3_create(card, port[i], port[i] + 2, OPL3_HW_AUTO, 1, &opl3);
+ 	if (error < 0) {
+-		snd_printk(KERN_ERR DRV_NAME ": could not create OPL\n");
++		snd_printk(KERN_ERR "%s: could not create OPL\n", bus_id);
+ 		goto out1;
+ 	}
+ 
+ 	error = snd_opl3_hwdep_new(opl3, 0, 0, NULL);
+ 	if (error < 0) {
+-		snd_printk(KERN_ERR DRV_NAME ": could not create FM\n");
++		snd_printk(KERN_ERR "%s: could not create FM\n", bus_id);
+ 		goto out1;
+ 	}
+ 
+@@ -87,7 +81,7 @@ static int __devinit snd_adlib_probe(str
+ 
+ 	error = snd_card_register(card);
+ 	if (error < 0) {
+-		snd_printk(KERN_ERR DRV_NAME ": could not register card\n");
++		snd_printk(KERN_ERR "%s: could not register card\n", bus_id);
+ 		goto out1;
+ 	}
+ 
+@@ -95,8 +89,7 @@ static int __devinit snd_adlib_probe(str
+ 	return 0;
+ 
+ out1:	snd_card_free(card);
+- out0:	error = -EINVAL; /* FIXME: should be the original error code */
+-	return error;
++out0:	return error;
+ }
+ 
+ static int __devexit snd_adlib_remove(struct platform_device *device)
+@@ -109,7 +102,6 @@ static int __devexit snd_adlib_remove(st
+ static struct platform_driver snd_adlib_driver = {
+ 	.probe		= snd_adlib_probe,
+ 	.remove		= __devexit_p(snd_adlib_remove),
+-
+ 	.driver		= {
+ 		.name	= DRV_NAME
+ 	}
+@@ -119,9 +111,10 @@ static int __init alsa_card_adlib_init(v
+ {
+ 	int i, cards;
+ 
+-	if (platform_driver_register(&snd_adlib_driver) < 0) {
++	i = platform_driver_register(&snd_adlib_driver);
++	if (i < 0) {
+ 		snd_printk(KERN_ERR DRV_NAME ": could not register driver\n");
+-		return -ENODEV;
++		return i;
+ 	}
+ 
+ 	for (cards = 0, i = 0; i < SNDRV_CARDS; i++) {
+@@ -130,21 +123,26 @@ static int __init alsa_card_adlib_init(v
+ 		if (!enable[i])
+ 			continue;
+ 
++		if (port[i] == SNDRV_AUTO_PORT) {
++			snd_printk(KERN_ERR DRV_NAME ": please specify port for card %d\n", i);
++			continue;
++		}
++
+ 		device = platform_device_register_simple(DRV_NAME, i, NULL, 0);
+-		if (IS_ERR(device))
++		if (IS_ERR(device)) {
++			snd_printk(KERN_ERR DRV_NAME ": could not register device for card %d\n", i);
+ 			continue;
++		}
+ 
+ 		devices[i] = device;
+ 		cards++;
+ 	}
+ 
+ 	if (!cards) {
+-#ifdef MODULE
+-		printk(KERN_ERR CRD_NAME " soundcard not found or device busy\n");
+-#endif
+ 		platform_driver_unregister(&snd_adlib_driver);
+-		return -ENODEV;
++		return -EINVAL;
+ 	}
++
+ 	return 0;
+ }
+ 
+
+--------------090501020707060306030104--

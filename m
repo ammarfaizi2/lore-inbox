@@ -1,109 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWDGC5k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWDGDHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbWDGC5k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 22:57:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWDGC5k
+	id S932302AbWDGDHV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 23:07:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWDGDHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 22:57:40 -0400
-Received: from stark.xeocode.com ([216.58.44.227]:58050 "EHLO
-	stark.xeocode.com") by vger.kernel.org with ESMTP id S932299AbWDGC5j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 22:57:39 -0400
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: pchdtv 3000 cx88 audio very very low level
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-Date: 06 Apr 2006 22:57:34 -0400
-Message-ID: <8764lmnlcx.fsf@stark.xeocode.com>
+	Thu, 6 Apr 2006 23:07:21 -0400
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:39559
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S932302AbWDGDHV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 23:07:21 -0400
+Date: Thu, 6 Apr 2006 20:07:13 -0700
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Darren Hart <darren@dvhart.com>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       "Stultz, John" <johnstul@us.ibm.com>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: RT task scheduling
+Message-ID: <20060407030713.GA9623@gnuppy.monkey.org>
+References: <200604052025.05679.darren@dvhart.com> <20060406073753.GA18349@elte.hu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060406073753.GA18349@elte.hu>
+User-Agent: Mutt/1.5.11+cvs20060126
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 06, 2006 at 09:37:53AM +0200, Ingo Molnar wrote:
+> do "global" decisions for what RT tasks to run on which CPU. To put even 
+> less overhead on the mainstream kernel, i plan to introduce a new 
+> SCHED_FIFO_GLOBAL scheduling policy to trigger this behavior. [it doesnt 
+> make much sense to extend SCHED_RR in that direction.]
 
-Is this video4linux list still active? I see very little traffic on it. Is
-there a better place for questions about v4l drivers for the pchdtv 3000 cx88
-NTSC tuner?
+Ingo,
 
-I have it working fine but the audio is extremely low level. Even if I boost
-the line-in level and the master output level to max on my sound card it's
-barely audible over the background static.
+You should consider for a moment to allow for the binding of a thread to
+a CPU to determine the behavior of a SCHED_FIFO class task instead of 
+creating a new run category. Trying to anticipate the behavior of a
+thread via a kernel semantic removes control from the applications using
+them and into the kernel which is often incorrect about those assumption.
 
-Is there something wrong with my card? Or with my drivers?
+Con might have comments the matter that might be useful.
 
-bash-3.1$ lsmod | grep cx
-cx88_alsa              13408  0 
-cx8800                 32268  1 
-compat_ioctl32          1792  1 cx8800
-cx88xx                 63524  2 cx88_alsa,cx8800
-i2c_algo_bit            9480  1 cx88xx
-video_buf              21764  3 cx88_alsa,cx8800,cx88xx
-ir_common               9988  1 cx88xx
-btcx_risc               5384  3 cx88_alsa,cx8800,cx88xx
-v4l2_common             8064  3 cx8800,msp3400,tuner
-v4l1_compat            13956  2 cx8800,ivtv
-tveeprom               14992  2 cx88xx,ivtv
-videodev               10368  6 cx8800,cx88xx,ivtv
-snd_pcm                84484  4 cx88_alsa,snd_pcm_oss,snd_intel8x0,snd_ac97_codec
-i2c_core               22400  13 cx88xx,i2c_algo_bit,msp3400,saa7127,saa7115,tda9887,tuner,ivtv,tveeprom,w83627hf,eeprom,i2c_isa,i2c_i801
-snd                    52576  11 cx88_alsa,snd_pcm_oss,snd_mixer_oss,snd_intel8x0,snd_ac97_codec,snd_pcm,snd_timer,snd_mpu401_uart,snd_rawmidi,snd_seq_device
+The current IPI method you use to balance RT is fine. I don't think it
+should be changed for the general SCHED_FIFO case, but I do think that
+binding a thread to a certain CPU, or set of CPUs, would simplify various
+control cases, where the default case is to rebalance immediately via an
+IPI. Having a specific case only running on a specific CPU or CPU set
+should be the only mechanism to either "isolate" a CPU or create a
+condition that's more deterministic than a global policy that -rt is
+doing now.
+ 
+This is consistent to how I would use it in an app and wouldn't create
+clutter in scheduling code that is already under minor refactoring.
 
+> my gut feeling is that it would be wrong to integrate this feature into 
+> smpnice: SCHED_FIFO is about determinism, and smpnice is a fundamentally 
+> statistical approach. Also, smpnice doesnt have to try as hard to pick 
+> the right task as rt_overload does, so there would be constant 
+> 'friction' between "overhead" optimizations (dont be over-eager) and 
+> "latency" optimizations (dont be _under_-eager). So i'm quite sure we 
+> want this feature separate. [nevertheless i'd happy to be proven wrong 
+> via some good and working smpnice based solution]
 
-[ 5020.495242] cx2388x v4l2 driver version 0.0.5 loaded
-[ 5020.499005] ACPI: PCI Interrupt 0000:02:0d.0[A] -> GSI 21 (level, low) -> IRQ 22
-[ 5020.499140] CORE cx88[0]: subsystem: 7063:3000, board: pcHDTV HD3000 HDTV [card=22,autodetected]
-[ 5020.499194] TV tuner 52 at 0x1fe, Radio tuner -1 at 0x1fe
-[ 5020.676748] tuner 2-0061: chip found @ 0xc2 (cx88[0])
-[ 5020.679548] tuner 2-0061: type set to 52 (Thomson DTT 7610 (ATSC/NTSC))
-[ 5020.720003] tda9887 2-0043: chip found @ 0x86 (cx88[0])
-[ 5020.846947] cx88[0]/0: found at 0000:02:0d.0, rev: 5, irq: 22, latency: 64, mmio: 0xf2000000
-[ 5020.854107] cx88[0]/0: registered device video1 [v4l2]
-[ 5020.863507] cx88[0]/0: registered device vbi1
-[ 5020.868332] cx88[0]/0: registered device radio1
-[ 5020.873685] set_control id=0x980900 reg=0x310110 val=0x00 (mask 0xff)
-[ 5020.873777] set_control id=0x980901 reg=0x310110 val=0x3f00 (mask 0xff00)
-[ 5020.873822] set_control id=0x980903 reg=0x310118 val=0x00 (mask 0xff)
-[ 5020.873856] set_control id=0x980902 reg=0x310114 val=0x5a7f (mask 0xffff)
-[ 5020.873891] set_control id=0x980909 reg=0x320594 val=0x40 (mask 0x40) [shadowed]
-[ 5020.873933] set_control id=0x980905 reg=0x320594 val=0x20 (mask 0x3f) [shadowed]
-[ 5020.874000] set_control id=0x980906 reg=0x320598 val=0x40 (mask 0x7f) [shadowed]
-[ 5046.024833] get_control id=0x980900 reg=0x310110 val=0x80 (mask 0xff)
-[ 5046.024860] get_control id=0x980901 reg=0x310110 val=0x3f (mask 0xff00)
-[ 5046.024873] get_control id=0x980902 reg=0x310114 val=0x7f (mask 0xff)
-[ 5046.024885] get_control id=0x980903 reg=0x310118 val=0x80 (mask 0xff)
-[ 5046.024897] get_control id=0x980906 reg=0x320598 val=0x00 (mask 0x7f) [shadowed]
-[ 5046.024911] set_control id=0x980909 reg=0x320594 val=0x00 (mask 0x40) [shadowed]
-[ 5046.024920] get_control id=0x980905 reg=0x320594 val=0x1f (mask 0x3f) [shadowed]
-[ 5046.024929] get_control id=0x980909 reg=0x320594 val=0x00 (mask 0x40) [shadowed]
-[ 5046.124609] set_control id=0x980909 reg=0x320594 val=0x40 (mask 0x40) [shadowed]
-[ 5046.124619] set_control id=0x980902 reg=0x310114 val=0x577c (mask 0xffff)
-[ 5046.124638] set_control id=0x980900 reg=0x310110 val=0xff (mask 0xff)
-[ 5046.124652] set_control id=0x980903 reg=0x310118 val=0x00 (mask 0xff)
-[ 5046.124665] set_control id=0x980901 reg=0x310110 val=0x3800 (mask 0xff00)
-[ 5046.166913] set_control id=0x980909 reg=0x320594 val=0x00 (mask 0x40) [shadowed]
-[ 5200.569119] set_control id=0x980909 reg=0x320594 val=0x40 (mask 0x40) [shadowed]
-[ 5200.569129] set_control id=0x980902 reg=0x310114 val=0x577c (mask 0xffff)
-[ 5200.569147] set_control id=0x980900 reg=0x310110 val=0xff (mask 0xff)
-[ 5200.569161] set_control id=0x980903 reg=0x310118 val=0x00 (mask 0xff)
-[ 5200.569174] set_control id=0x980901 reg=0x310110 val=0x3800 (mask 0xff00)
-[ 5200.613786] set_control id=0x980909 reg=0x320594 val=0x00 (mask 0x40) [shadowed]
-[ 5389.899723] set_control id=0x980905 reg=0x320594 val=0x20 (mask 0x3f) [shadowed]
-[ 5389.899733] set_control id=0x980909 reg=0x320594 val=0x40 (mask 0x40) [shadowed]
-[ 5390.931524] set_control id=0x980905 reg=0x320594 val=0x20 (mask 0x3f) [shadowed]
-[ 5390.931534] set_control id=0x980909 reg=0x320594 val=0x00 (mask 0x40) [shadowed]
-[ 6560.963631] set_control id=0x980905 reg=0x320594 val=0x20 (mask 0x3f) [shadowed]
-[ 6560.963641] set_control id=0x980909 reg=0x320594 val=0x40 (mask 0x40) [shadowed]
-[ 6563.560136] set_control id=0x980905 reg=0x320594 val=0x20 (mask 0x3f) [shadowed]
-[ 6563.560147] set_control id=0x980909 reg=0x320594 val=0x00 (mask 0x40) [shadowed]
-[ 6564.125801] set_control id=0x980905 reg=0x320594 val=0x20 (mask 0x3f) [shadowed]
-[ 6564.125811] set_control id=0x980909 reg=0x320594 val=0x40 (mask 0x40) [shadowed]
-[ 6750.293689] set_control id=0x980905 reg=0x320594 val=0x20 (mask 0x3f) [shadowed]
-[ 6750.293699] set_control id=0x980909 reg=0x320594 val=0x00 (mask 0x40) [shadowed]
-[ 6824.893884] cx2388x alsa driver version 0.0.5 loaded
+Please consider the ideas I've mentioned above and research how other
+RTOSes deal with these critical issues.
 
+Thanks
 
-
--- 
-greg
+bill
 

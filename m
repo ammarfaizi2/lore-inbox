@@ -1,66 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbWDGRT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWDGRZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964823AbWDGRT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 13:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbWDGRT1
+	id S964822AbWDGRZE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 13:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWDGRZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 13:19:27 -0400
-Received: from master.altlinux.org ([62.118.250.235]:37899 "EHLO
-	master.altlinux.org") by vger.kernel.org with ESMTP id S964824AbWDGRT0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 13:19:26 -0400
-Date: Fri, 7 Apr 2006 21:19:10 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: David Liontooth <liontooth@cogweb.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.16] saa7134 disable_ir oops
-Message-ID: <20060407171910.GB8376@procyon.home>
-References: <44246C0E.3080306@cogweb.net> <20060406202016.05db1eca.vsu@altlinux.ru> <4435BA58.4080709@cogweb.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mxv5cy4qt+RJ9ypb"
+	Fri, 7 Apr 2006 13:25:04 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:21919 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S964822AbWDGRZC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 13:25:02 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.17-rc1: bcm43xx problems with BCM4306 on x86_64
+Date: Fri, 7 Apr 2006 18:59:23 +0200
+User-Agent: KMail/1.9.1
+Cc: bcm43xx-dev@lists.berlios.de
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4435BA58.4080709@cogweb.net>
+Message-Id: <200604071859.23452.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---mxv5cy4qt+RJ9ypb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I've just tried the version of the driver included in 2.6.17-rc1 on an x86_64
+box (Asus L5D) with a built-in PCI BCM4306 adapter (Broadcom Corporation
+BCM4306 802.11b/g Wireless LAN Controller (rev 03)), and unfortunately
+it doesn't seem to work.
 
-On Thu, Apr 06, 2006 at 06:03:20PM -0700, David Liontooth wrote:
-> >Does the following patch fix things?
-> > =20
-> The patch fixes the oops -- thank you! Yet the ir modules get loaded in=
-=20
-> spite of the "disable_ir=3D1" parameter:
->=20
-> # sudo modprobe -vvv saa7134 card=3D2 tuner=3D43 disable_ir=3D1
-> insmod /lib/modules/2.6.16/kernel/drivers/media/common/ir-common.ko
-> insmod /lib/modules/2.6.16/kernel/drivers/media/video/ir-kbd-i2c.ko
-> insmod /lib/modules/2.6.16/kernel/drivers/media/video/video-buf.ko
-> insmod /lib/modules/2.6.16/kernel/drivers/media/video/saa7134/saa7134.ko=
-=20
-> card=3D2 tuner=3D43 disable_ir=3D1
+The driver loads and seems to initialize the adapter, but that's all,
+apparently.
 
-This is normal - saa7134 uses some symbols from these modules, and
-such dependencies cannot be dynamic.  The disable_ir=3D1 option just
-prevents saa7134 from enabling the IR input and registering the
-corresponding input device with the kernel, therefore the IR code will
-stay unused.
+First, I compiled the driver with DMA and PIO support, but it hanged my box
+solid when I tried "iwconfig eth1 essid on" on it.  On the next boot I noticed
+it caused the following messages to appear in dmesg:
 
---mxv5cy4qt+RJ9ypb
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+nommu_map_single: overflow 58ee7010+2404 of device mask 3fffffff
+nommu_map_single: overflow 53669010+2404 of device mask 3fffffff
+nommu_map_single: overflow 50180010+2404 of device mask 3fffffff
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
+and so on, down to 455aa010.  Then I thought the adapter might be unable
+to DMA for some reason and compiled it with PIO support only.  It did not
+hang the box any more, but I couldn't make it work.
 
-iD8DBQFENp8OW82GfkQfsqIRAhvMAJ0fnSbfkU0GtIJGQPhhJlfNyrq7AQCePwSO
-pcUxkgCF3mBtVY524rdfB2k=
-=2mLI
------END PGP SIGNATURE-----
+It causes the following messages to appear in dmesg:
 
---mxv5cy4qt+RJ9ypb--
+bcm43xx: set security called
+bcm43xx:    .level = 0
+bcm43xx:    .enabled = 0
+bcm43xx:    .encrypt = 0
+bcm43xx: PHY connected
+bcm43xx: Radio turned on
+bcm43xx: Chip initialized
+bcm43xx: PIO initialized
+bcm43xx: 80211 cores initialized
+bcm43xx: Keys cleared
+ADDRCONF(NETDEV_UP): eth1: link is not ready
+bcm43xx: FATAL ERROR: BCM43xx_IRQ_XMIT_ERROR
+bcm43xx: FATAL ERROR: BCM43xx_IRQ_XMIT_ERROR
+bcm43xx: FATAL ERROR: BCM43xx_IRQ_XMIT_ERROR
+bcm43xx: ASSERTION FAILED (0) at: drivers/net/wireless/bcm43xx/bcm43xx_pio.c:167:parse_cookie()
+bcm43xx: ASSERTION FAILED (packetindex >= 0 && packetindex < BCM43xx_PIO_MAXTXPACKETS) at: drivers/net/wireless/bcm43xx/bcm43xx_
+pio.c:170:parse_cookie()
+bcm43xx: ASSERTION FAILED (queue) at: drivers/net/wireless/bcm43xx/bcm43xx_pio.c:482:bcm43xx_pio_handle_xmitstatus()
+bcm43xx: FATAL ERROR: BCM43xx_IRQ_XMIT_ERROR
+bcm43xx: FATAL ERROR: BCM43xx_IRQ_XMIT_ERROR
+bcm43xx: FATAL ERROR: BCM43xx_IRQ_XMIT_ERROR
+bcm43xx: ASSERTION FAILED (0) at: drivers/net/wireless/bcm43xx/bcm43xx_pio.c:167:parse_cookie()
+bcm43xx: ASSERTION FAILED (packetindex >= 0 && packetindex < BCM43xx_PIO_MAXTXPACKETS) at: drivers/net/wireless/bcm43xx/bcm43xx_
+pio.c:170:parse_cookie()
+bcm43xx: ASSERTION FAILED (queue) at: drivers/net/wireless/bcm43xx/bcm43xx_pio.c:482:bcm43xx_pio_handle_xmitstatus()
+
+and so on.
+
+I used fwcutter 004 to extract the firmvare from the Windows file delivered
+with the machine (BCMWL5.SYS).
+
+If you need/want any more information from me, please let me know.
+
+Greetings,
+Rafael

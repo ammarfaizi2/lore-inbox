@@ -1,149 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbWDGWzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965050AbWDGXLj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965041AbWDGWzV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 18:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbWDGWzU
+	id S965050AbWDGXLj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 19:11:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbWDGXLj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 18:55:20 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:55214 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965041AbWDGWzS (ORCPT
+	Fri, 7 Apr 2006 19:11:39 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:50816 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965047AbWDGXLi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 18:55:18 -0400
-From: Vernon Mauery <vernux@us.ibm.com>
-To: Darren Hart <darren@dvhart.com>
-Subject: Re: RT task scheduling
-Date: Fri, 7 Apr 2006 15:58:25 -0700
-User-Agent: KMail/1.8.3
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       "Stultz, John" <johnstul@us.ibm.com>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-References: <200604052025.05679.darren@dvhart.com> <200604061116.02429.darren@dvhart.com> <200604061535.28952.darren@dvhart.com>
-In-Reply-To: <200604061535.28952.darren@dvhart.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Apr 2006 19:11:38 -0400
+Date: Fri, 7 Apr 2006 18:11:34 -0500
+To: Greg KH <greg@kroah.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, john.ronciak@intel.com,
+       jesse.brandeburg@intel.com, jeffrey.t.kirsher@intel.com
+Subject: Re: [PATCH] PCI Error Recovery: e100 network device driver
+Message-ID: <20060407231134.GN25225@austin.ibm.com>
+References: <20060406222359.GA30037@austin.ibm.com> <20060406224643.GA6278@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604071558.26491.vernux@us.ibm.com>
+In-Reply-To: <20060406224643.GA6278@kroah.com>
+User-Agent: Mutt/1.5.9i
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 April 2006 15:35, you wrote:
-> On Thursday 06 April 2006 11:16, you wrote:
-> > On Thursday 06 April 2006 00:37, Ingo Molnar wrote:
-> > > * Darren Hart <darren@dvhart.com> wrote:
+On Thu, Apr 06, 2006 at 03:46:43PM -0700, Greg KH wrote:
+> On Thu, Apr 06, 2006 at 05:24:00PM -0500, Linas Vepstas wrote:
+> > +	if(pci_enable_device(pdev)) {
+> 
+> Add a space after "if" and before "(" please.
 
-[snip]
+I guess I'm immune to learning from experience. :-/
 
-> On a related note, I tried observing the rt stats in /proc/stats while
-> running sched_football on 2.6.16-rt13.  The entire log is nearly a MB so I
-> placed it on my website for reference
-> (http://www.dvhart.com/~dvhart/sched_football_stats.log), an excerpt
-> follows:
->
-> ---------------------
->
-> The following is the output of sched_football run with 1 thread for offense
-> and 1 thread for defense on a 4 way machine.  The ball position is
-> irrelevant in this case since there are more CPUs than threads (they should
-> all be able to run).  What is disturbing is that over the entire run, I
-> never see RT tasks on every CPU.  Even though there are usually 5 total
-> runnnable threads, we constantly see groupings of 2 and 3 on the runqueues
-> while the others have no running rt tasks.
->
-> Looking back, I should have added a sleep to the loop - oops - still, I
-> think the data is interesting and suggests a problem with sceduling RT
-> tasks across all available CPUs.  Does this seem like a valid test to
-> everyone?  Is there perhaps some explanation as to why this would be
-> expected (when the cat process get's to read the proc information or
-> something) ?
+Here's a new improved patch.
 
-A better way to do the logging loop would be to write a program that simply 
-reads the contents of /proc/stat, filters for rt and writes out to your log 
-and run that at a high realtime priority.  That way, the logging task will be 
-(more) sure to be capturing the data for the other 3 CPUs constantly and get 
-a clearer picture of what is happening.  Naturally, the monitoring task would 
-interfere with the execution of the rest of the football game, but it should 
-just hog the single CPU while the rest of the game could play out on the 
-remaining three.  And from the logs below, it seemed to only use two CPUs 
-part of the time anyway.
+--linas
 
-Having a constantly running logger would also avoid all the forky-execy the 
-bash loop has.
+[PATCH] PCI Error Recovery: e100 network device driver
 
---Vernon
+Various PCI bus errors can be signaled by newer PCI controllers.  This
+patch adds the PCI error recovery callbacks to the intel ethernet e100
+device driver. The patch has been tested, and appears to work well.
 
-> # ./sched_football 1 60
-> Starting 1 offense threads at priority 15
-> Starting 1 defense threads at priority 30
-> Starting referee thread
-> Game On (60 seconds)!
-> Game Over!
-> Final ball position: 20359767
->
-> # while true; do clear; cat /proc/stat | grep rt >>
-> sched_football_stats.log; done
->
-> sched_football_stats.log
-> ------------------------------
-> rt_overload_schedule: 57768
-> rt_overload_wakeup:   157501
-> rt_overload_pulled:   13722934
-> rt_nr_running(0): 0
-> rt_nr_running(1): 0
-> rt_nr_running(2): 0
-> rt_nr_running(3): 0
-> rt_overload: 0
-> rt_overload_schedule: 57769
-> rt_overload_wakeup:   157514
-> rt_overload_pulled:   13722937
-> rt_nr_running(0): 0
-> rt_nr_running(1): 2
-> rt_nr_running(2): 3
-> rt_nr_running(3): 0
-> rt_overload: 2
-> ...
-> rt_overload_schedule: 57774
-> rt_overload_wakeup:   157738
-> rt_overload_pulled:   13722941
-> rt_nr_running(0): 0
-> rt_nr_running(1): 2
-> rt_nr_running(2): 4
-> rt_nr_running(3): 0
-> rt_overload: 2
-> ...
-> rt_overload_schedule: 57791
-> rt_overload_wakeup:   158650
-> rt_overload_pulled:   13722964
-> rt_nr_running(0): 0
-> rt_nr_running(1): 2
-> rt_nr_running(2): 0
-> rt_nr_running(3): 3
-> rt_overload: 2
-> ...
-> rt_overload_schedule: 57808
-> rt_overload_wakeup:   166924
-> rt_overload_pulled:   13722973
-> rt_nr_running(0): 0
-> rt_nr_running(1): 0
-> rt_nr_running(2): 0
-> rt_nr_running(3): 2
-> rt_overload: 1
-> rt_overload_schedule: 57808
-> rt_overload_wakeup:   166927
-> rt_overload_pulled:   13722973
-> rt_nr_running(0): 0
-> rt_nr_running(1): 0
-> rt_nr_running(2): 0
-> rt_nr_running(3): 0
-> rt_overload: 0
->
-> ---------------------
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Signed-off-by: Linas Vepstas <linas@linas.org>
+Acked-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+
+----
+
+ drivers/net/e100.c |   75 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 75 insertions(+)
+
+Index: linux-2.6.17-rc1/drivers/net/e100.c
+===================================================================
+--- linux-2.6.17-rc1.orig/drivers/net/e100.c	2006-04-07 16:21:46.000000000 -0500
++++ linux-2.6.17-rc1/drivers/net/e100.c	2006-04-07 18:10:52.411266545 -0500
+@@ -2780,6 +2780,80 @@ static void e100_shutdown(struct pci_dev
+ 		DPRINTK(PROBE,ERR, "Error enabling wake\n");
+ }
+ 
++/* ------------------ PCI Error Recovery infrastructure  -------------- */
++/**
++ * e100_io_error_detected - called when PCI error is detected.
++ * @pdev: Pointer to PCI device
++ * @state: The current pci conneection state
++ */
++static pci_ers_result_t e100_io_error_detected(struct pci_dev *pdev, pci_channel_state_t state)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++
++	/* Similar to calling e100_down(), but avoids adpater I/O. */
++	netdev->stop(netdev);
++
++	/* Detach; put netif into state similar to hotplug unplug. */
++	netif_poll_enable(netdev);
++	netif_device_detach(netdev);
++
++	/* Request a slot reset. */
++	return PCI_ERS_RESULT_NEED_RESET;
++}
++
++/**
++ * e100_io_slot_reset - called after the pci bus has been reset.
++ * @pdev: Pointer to PCI device
++ *
++ * Restart the card from scratch.
++ */
++static pci_ers_result_t e100_io_slot_reset(struct pci_dev *pdev)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct nic *nic = netdev_priv(netdev);
++
++	if (pci_enable_device(pdev)) {
++		printk(KERN_ERR "e100: Cannot re-enable PCI device after reset.\n");
++		return PCI_ERS_RESULT_DISCONNECT;
++	}
++	pci_set_master(pdev);
++
++	/* Only one device per card can do a reset */
++	if (0 != PCI_FUNC(pdev->devfn))
++		return PCI_ERS_RESULT_RECOVERED;
++	e100_hw_reset(nic);
++	e100_phy_init(nic);
++
++	return PCI_ERS_RESULT_RECOVERED;
++}
++
++/**
++ * e100_io_resume - resume normal operations
++ * @pdev: Pointer to PCI device
++ *
++ * Resume normal operations after an error recovery
++ * sequence has been completed.
++ */
++static void e100_io_resume(struct pci_dev *pdev)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct nic *nic = netdev_priv(netdev);
++
++	/* ack any pending wake events, disable PME */
++	pci_enable_wake(pdev, 0, 0);
++
++	netif_device_attach(netdev);
++	if (netif_running(netdev)) {
++		e100_open(netdev);
++		mod_timer(&nic->watchdog, jiffies);
++	}
++}
++
++static struct pci_error_handlers e100_err_handler = {
++	.error_detected = e100_io_error_detected,
++	.slot_reset = e100_io_slot_reset,
++	.resume = e100_io_resume,
++};
+ 
+ static struct pci_driver e100_driver = {
+ 	.name =         DRV_NAME,
+@@ -2791,6 +2865,7 @@ static struct pci_driver e100_driver = {
+ 	.resume =       e100_resume,
+ #endif
+ 	.shutdown =     e100_shutdown,
++	.err_handler = &e100_err_handler,
+ };
+ 
+ static int __init e100_init_module(void)

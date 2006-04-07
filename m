@@ -1,73 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWDGNaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWDGNgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbWDGNaz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 09:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWDGNaz
+	id S964787AbWDGNgl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 09:36:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbWDGNgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 09:30:55 -0400
-Received: from mx02.cybersurf.com ([209.197.145.105]:31131 "EHLO
-	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S964785AbWDGNay
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 09:30:54 -0400
-Subject: Re: Broadcast ARP packets on link local addresses (Version2).
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: David Daney <ddaney@avtrex.com>
-Cc: Janos Farkas <chexum+dev@gmail.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, pgf@foxharp.boston.ma.us,
-       freek@macfreek.nl
-In-Reply-To: <44353F36.9070404@avtrex.com>
-References: <17460.13568.175877.44476@dl2.hq2.avtrex.com>
-	 <priv$efbe06144502$2d51735f79@200604.gmail.com>
-	 <44353F36.9070404@avtrex.com>
-Content-Type: text/plain
-Organization: unknown
-Date: Fri, 07 Apr 2006 09:30:38 -0400
-Message-Id: <1144416638.5082.33.camel@jzny2>
+	Fri, 7 Apr 2006 09:36:41 -0400
+Received: from mivlgu.ru ([81.18.140.87]:62115 "EHLO master.mivlgu.local")
+	by vger.kernel.org with ESMTP id S964787AbWDGNgk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 09:36:40 -0400
+Date: Fri, 7 Apr 2006 17:36:28 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: stable@kernel.org
+Cc: Mauro Carvalho Chehab <mchehab@infradead.org>,
+       David Liontooth <liontooth@cogweb.net>, linux-kernel@vger.kernel.org,
+       video4linux-list@redhat.com, Brian Marete <bgmarete@gmail.com>,
+       Ricardo Cerqueira <v4l@cerqueira.org>
+Subject: Re: [2.6.16] saa7134 disable_ir oops
+Message-ID: <20060407133628.GG10864@master.mivlgu.local>
+References: <44246C0E.3080306@cogweb.net> <20060406202016.05db1eca.vsu@altlinux.ru> <1144415771.28307.13.camel@praia>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RDS4xtyBfx+7DiaI"
+Content-Disposition: inline
+In-Reply-To: <1144415771.28307.13.camel@praia>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-04 at 09:17 -0700, David Daney wrote:
-> Janos Farkas wrote:
 
-> > Sorry for chiming in this late in the discussion, but...  Shouldn't it
-> > be more correct to not depend on the ip address of the used network,
-> > but to use the "scope" parameter of the given address?
-> > 
-> 
+--RDS4xtyBfx+7DiaI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Excellent point! It was bothering me as well but i couldnt express my
-view eloquently as you did.
+On Fri, Apr 07, 2006 at 10:16:10AM -0300, Mauro Carvalho Chehab wrote:
+> Em Qui, 2006-04-06 ?s 20:20 +0400, Sergey Vlasov escreveu:
+> > On Fri, 24 Mar 2006 14:00:46 -0800 David Liontooth wrote:
+>=20
+> > Does the following patch fix things?
+> >=20
+> Applied at v4l-dvb tree. Thanks.
 
-> RFC 3927 specifies the Ethernet arp broadcast behavior for only 
-> 169.254.0.0/16.
+IMHO this patch should also be added to 2.6.16-stable - it fixes oops in
+configurations which worked fine with older kernels.
 
-Thats besides the point. You could, for example, use 1.1.1.1/24 in your
-network instead of the 10.x or 192.x; and i have seen people use 10.x
-in what appears to be public networks. We dont have speacial checks for 
-RFC 1918 IP addresses for example.
+-----------------------------------------------------------------------
 
-169.254.0.0/16 is by definition link local. I think point made by Janos
-is we should look at the attributes rather than value.
+saa7134: Fix oops with disable_ir=3D1
 
-Have your user space set it to be link local and then fix the kernel if
-it doesnt do the right thing.
+When disable_ir=3D1 parameter is used, or when saa7134_input_init1()
+fails for any other reason, dev->remote will remain NULL, and the
+driver will oops in saa7134_hwinit2().  Therefore dev->remote must be
+checked before dereferencing.
 
->   Presumably you could set the scope parameter to local 
-> for addresses outside of that range or even for protocols other than 
-> Ethernet.  Since broadcasting ARP packets usually adversely effects 
-> usable network bandwidth, we should probably only do it where it is 
-> absolutely required.  The overhead of testing the value required by the 
-> RFC is quite low (3 machine instructions on i686 is the size of the 
-> entire patch), so using some proxy like the scope parameter would not 
-> even be a performance win.
-> 
+Signed-off-by: Sergey Vlasov <vsu@altlinux.ru>
 
-Again, that is beside the point. 
+--- linux-2.6.16.orig/drivers/media/video/saa7134/saa7134-core.c	2006-03-20=
+ 08:53:29 +0300
++++ linux-2.6.16/drivers/media/video/saa7134/saa7134-core.c	2006-04-06 20:0=
+0:56 +0400
+@@ -543,6 +543,8 @@ static irqreturn_t saa7134_irq(int irq,=20
+ 		if (report & SAA7134_IRQ_REPORT_GPIO16) {
+ 			switch (dev->has_remote) {
+ 				case SAA7134_REMOTE_GPIO:
++					if (!dev->remote)
++						break;
+ 					if  (dev->remote->mask_keydown & 0x10000) {
+ 						saa7134_input_irq(dev);
+ 					}
+@@ -559,6 +561,8 @@ static irqreturn_t saa7134_irq(int irq,=20
+ 		if (report & SAA7134_IRQ_REPORT_GPIO18) {
+ 			switch (dev->has_remote) {
+ 				case SAA7134_REMOTE_GPIO:
++					if (!dev->remote)
++						break;
+ 					if ((dev->remote->mask_keydown & 0x40000) ||
+ 					    (dev->remote->mask_keyup & 0x40000)) {
+ 						saa7134_input_irq(dev);
+@@ -671,7 +675,7 @@ static int saa7134_hwinit2(struct saa713
+ 		SAA7134_IRQ2_INTE_PE      |
+ 		SAA7134_IRQ2_INTE_AR;
+=20
+-	if (dev->has_remote =3D=3D SAA7134_REMOTE_GPIO) {
++	if (dev->has_remote =3D=3D SAA7134_REMOTE_GPIO && dev->remote) {
+ 		if (dev->remote->mask_keydown & 0x10000)
+ 			irq2_mask |=3D SAA7134_IRQ2_INTE_GPIO16;
+ 		else if (dev->remote->mask_keydown & 0x40000)
 
-cheers,
-jamal
 
+--RDS4xtyBfx+7DiaI
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFENmrcW82GfkQfsqIRAgcDAJ0QEpPzu6A2iE6QRRCMaPJafz3eRACeNDHE
+5JugTCEYt7pws7Uwgm+txcc=
+=CjyE
+-----END PGP SIGNATURE-----
+
+--RDS4xtyBfx+7DiaI--

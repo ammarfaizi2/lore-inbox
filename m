@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWDGJYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWDGJYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932398AbWDGJYe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 05:24:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWDGJYe
+	id S932395AbWDGJYL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 05:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWDGJYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 05:24:34 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:21910 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S932398AbWDGJYd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 05:24:33 -0400
-Date: Fri, 7 Apr 2006 11:24:26 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Greg Stark <gsstark@mit.edu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: pchdtv 3000 cx88 audio very very low level
-Message-ID: <20060407092426.GA21330@rhlx01.fht-esslingen.de>
-References: <8764lmnlcx.fsf@stark.xeocode.com>
-Mime-Version: 1.0
+	Fri, 7 Apr 2006 05:24:11 -0400
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:32176
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S932395AbWDGJYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 05:24:10 -0400
+Date: Fri, 7 Apr 2006 02:23:59 -0700
+To: Darren Hart <darren@dvhart.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       "Stultz, John" <johnstul@us.ibm.com>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
+Subject: Re: RT task scheduling
+Message-ID: <20060407092359.GB11706@gnuppy.monkey.org>
+References: <200604052025.05679.darren@dvhart.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8764lmnlcx.fsf@stark.xeocode.com>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+In-Reply-To: <200604052025.05679.darren@dvhart.com>
+User-Agent: Mutt/1.5.11+cvs20060126
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Apr 05, 2006 at 08:25:04PM -0700, Darren Hart wrote:
+> Part of the issue here is to define what we consider "correct behavior" for 
+> SCHED_FIFO realtime tasks.  Do we (A) need to strive for "strict realtime 
+> priority scheduling" where the NR_CPUS highest priority runnable SCHED_FIFO 
+> tasks are _always_ running?  Or do we (B) take the best effort approach with 
+> an upper limit RT priority imbalances, where an imbalance may occur (say at 
+> wakeup or exit) but will be remedied within 1 tick.  The smpnice patches 
+> improve load balancing, but don't provide (A).
 
-On Thu, Apr 06, 2006 at 10:57:34PM -0400, Greg Stark wrote:
-> 
-> Is this video4linux list still active? I see very little traffic on it. Is
-> there a better place for questions about v4l drivers for the pchdtv 3000 cx88
-> NTSC tuner?
-> 
-> I have it working fine but the audio is extremely low level. Even if I boost
-> the line-in level and the master output level to max on my sound card it's
-> barely audible over the background static.
-> 
-> Is there something wrong with my card? Or with my drivers?
-Since I once tweaked bttv for my card, I'm almost damn sure that this must
-be an audio multiplexer (mux) issue. Many TV/tuner cards route their audio
-output through incredibly many different types of multiplexer ICs, each
-of which requires their own switch mask.
-If the mux isn't configured properly, then audio will be switched off
-completely except for possibly some very, very silent cross-channel speak.
+I regret getting into this discussion late, but it should always be (A)
+if you're building a kernel for strict RT usage. (B) is for a system that's
+more general purpose. It's not a "one policy fits all" kind of problem.
 
-IOW, you need to examine the driver sources of cx88xx, cx8800, cx88_alsa,
-btcx_risc, tveeprom (?) for some multiplexer bit mask and tweak/twiddle that
-for your tuner until you manage to hear something properly.
+The search costs of (A) could be be significant and may degrade system
+performance. Optimizations for that case is for another discussion.
 
-Oh, and:
+bill
 
-> [ 5020.679548] tuner 2-0061: type set to 52 (Thomson DTT 7610 (ATSC/NTSC))
-
-That module probably has a type= parameter. Experiment with that one until
-you possibly even hear something properly, then try to fix type autodetection
-for your card.
-
-Andreas Mohr
-
--- 
-No programming skills!? Why not help translate many Linux applications! 
-https://launchpad.ubuntu.com/rosetta
-(or alternatively buy nicely packaged Linux distros/OSS software to help
-support Linux developers creating shiny new things for you?)

@@ -1,59 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWDGAm2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWDGAqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbWDGAm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 20:42:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWDGAm2
+	id S932251AbWDGAqr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 20:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWDGAqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 20:42:28 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:13451 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932248AbWDGAm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 20:42:28 -0400
-Date: Thu, 6 Apr 2006 17:41:53 -0700
-From: Valerie Henson <val_henson@linux.intel.com>
-To: J?rn Engel <joern@wohnheim.fh-wedel.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Remove unused exports and save 98Kb of kernel size
-Message-ID: <20060407004153.GA11362@goober>
-References: <1143925545.3076.35.camel@laptopd505.fenrus.org> <20060403141027.GC12873@wohnheim.fh-wedel.de>
+	Thu, 6 Apr 2006 20:46:47 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:45202 "EHLO machine.or.cz")
+	by vger.kernel.org with ESMTP id S932251AbWDGAqr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 20:46:47 -0400
+Date: Fri, 7 Apr 2006 02:47:28 +0200
+From: Petr Baudis <pasky@suse.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Script for automated historical Git tree grafting
+Message-ID: <20060407004728.GA16588@pasky.or.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060403141027.GC12873@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.5.9i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 03, 2006 at 04:10:27PM +0200, J?rn Engel wrote:
-> On Sat, 1 April 2006 23:05:45 +0200, Arjan van de Ven wrote:
-> > 
-> > I've made a patch to remove all EXPORT_SYMBOL's that aren't used in the
-> > kernel; it's too big for the list so it can be found at
-> > 
-> > http://www.kernelmorons.org/unexport.patch
-> > 
-> > -rwxr-xr-x 1 root root 34476416 Apr  1 21:59 vmlinux.before
-> > -rwxr-xr-x 1 root root 34378112 Apr  1 22:48 vmlinux.after
-> > 
-> > As you can see this saves 98Kb kernel size... that's not peanuts.
-> > 
-> > Signed-off-by: Arjan van de Ven <arjan@kernelmorons.org>
-> 
-> Is there a reason that you always leave the newline instead of
-> removing it as well?  Looks script-generated, so it should be a simple
-> change for the script to remove the newline as well.
+This script enables Git users to easily graft the historical Git tree
+(Bitkeeper history import) to the current history.
 
-Because it wasn't worth fixing for a silly April Fool's joke? :)
+Signed-off-by: Petr Baudis <pasky@suse.cz>
 
-> On Sat, 1 April 2006 23:05:45 +0200, Arjan van de Ven wrote:
-          ^^^^^^^
-> > http://www.kernelmorons.org/unexport.patch
-               ^^^^^^^^^^^^^^^^
+---
+ git-gethistory.sh |   40 +++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 39 insertions(+), 1 deletion(-)
 
-Of course, there's a serious side to this patch.  Who knows how many
-of these exported symbols are actually used?  I can imagine a config
-option to turn off these symbols which is shipped as on by default for
-a few weeks, in order to flush out people who are actually using these
-symbols.
+diff --git a/scripts/git-gethistory.sh b/scripts/git-gethistory.sh
+new file mode 100755
+index 0000000..97b3e78
+--- /dev/null
++++ b/scripts/git-gethistory.sh
+@@ -0,0 +1,39 @@
++#!/bin/sh
++#
++# Graft the development history imported from BitKeeper to the current Git
++# history tree.
++#
++# Note that this will download about 260M.
++
++httpget="curl -O -C -"
++
++if [ -z "`which curl 2>/dev/null`" ]; then
++  httpget="wget -c"
++  if [ -z "`which wget 2>/dev/null`" ]; then
++    echo "Error: You need to have wget or curl installed so that I can fetch the history." >&2
++    exit 1
++  fi
++fi
++
++[ "$GIT_DIR" ] || GIT_DIR=.git
++if ! [ -d "$GIT_DIR" ]; then
++  echo "Error: You must run this from the project root (or set GIT_DIR to your .git directory)." >&2
++  exit 1
++fi
++cd "$GIT_DIR"
++
++echo "[git-gethistory] Downloading the history"
++mkdir -p objects/pack
++cd objects/pack
++$httpget http://www.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/objects/pack/pack-cc3517351ecce3ef7ba010559992bdfc10b7acd4.idx
++$httpget http://www.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/objects/pack/pack-cc3517351ecce3ef7ba010559992bdfc10b7acd4.pack
++
++echo "[git-gethistory] Setting up the grafts"
++cd ../..
++mkdir -p info
++# master
++echo 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 e7e173af42dbf37b1d946f9ee00219cb3b2bea6a >>info/grafts
++
++echo "[git-gethistory] Refreshing the dumb server info wrt. new packs"
++cd ..
++git-update-server-info
 
--VAL
+
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+Right now I am having amnesia and deja-vu at the same time.  I think
+I have forgotten this before.

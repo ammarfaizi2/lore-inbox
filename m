@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWDGFt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWDGFxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932288AbWDGFt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 01:49:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWDGFtz
+	id S932284AbWDGFxO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 01:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbWDGFxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 01:49:55 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:40210 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932272AbWDGFtz
+	Fri, 7 Apr 2006 01:53:14 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:52673 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S932284AbWDGFxN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 01:49:55 -0400
-Date: Fri, 7 Apr 2006 15:49:51 +1000
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] crypto: add alignment handling to digest layer
-Message-ID: <20060407054951.GA29737@gondor.apana.org.au>
-References: <20060405180520.GA15151@gondor.apana.org.au> <20060406.113742.15248428.nemoto@toshiba-tops.co.jp> <20060406232454.GA27623@gondor.apana.org.au> <20060407.142755.55146269.nemoto@toshiba-tops.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 7 Apr 2006 01:53:13 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: gene.heskett@verizononline.net
+Subject: Re: [RFC: 2.6 patch] the overdue removal of RAW1394_REQ_ISO_{LISTEN,SEND}
+Date: Fri, 7 Apr 2006 08:52:36 +0300
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <20060406224706.GD7118@stusta.de> <200604062035.23880.gene.heskett@verizon.net>
+In-Reply-To: <200604062035.23880.gene.heskett@verizon.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060407.142755.55146269.nemoto@toshiba-tops.co.jp>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Message-Id: <200604070852.36924.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 07, 2006 at 02:27:55PM +0900, Atsushi Nemoto wrote:
+On Friday 07 April 2006 03:35, Gene Heskett wrote:
+> >This patch contains the overdue removal of the RAW1394_REQ_ISO_SEND
+> > and RAW1394_REQ_ISO_LISTEN request types plus all support code for
+> > them.
+> >
+> >Signed-off-by: Adrian Bunk <bunk@stusta.de>
 > 
-> It seems modern gcc (at least gcc 3.4 on i386 and mips) can allocate
-> the buffer conditionally.  It is better to optimize for newer gcc,
-> isn't it?
+> NAK if my vote is worth $.02.  ieee1394 has been broken since 
+> 2.6.13-rc1, and apparently no one cares.  I have a firewire movie 
+> camera I haven't been able to use since then.  A Sony DVR-TVR460.
 
-Of course it does.  I must've been confused.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+You may help by narrowing it down to exact 2.6.x[-rcY] where it broke.
+--
+vda

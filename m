@@ -1,53 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbWDGUW7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWDGU0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964885AbWDGUW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 16:22:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWDGUW7
+	id S964930AbWDGU0S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 16:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbWDGU0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 16:22:59 -0400
-Received: from mga06.intel.com ([134.134.136.21]:41738 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932373AbWDGUW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 16:22:58 -0400
-TrustExchangeSourcedMail: True
-X-ExchangeTrusted: True
-X-IronPort-AV: i="4.04,98,1144047600"; 
-   d="scan'208"; a="20716102:sNHT21801787"
-Date: Fri, 7 Apr 2006 13:22:07 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: jensmh@gmx.de
-Cc: Ashok Raj <ashok.raj@intel.com>, Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16.1 lost cpu, was: 2.6.16-rc5 'lost' cpu
-Message-ID: <20060407132206.A27131@unix-os.sc.intel.com>
-References: <Pine.LNX.4.64.0603030954230.28074@montezuma.fsmlabs.com> <20060303103002.A26876@unix-os.sc.intel.com> <200604071845.38371.jensmh@gmx.de>
+	Fri, 7 Apr 2006 16:26:17 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:33975
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S964888AbWDGU0R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 16:26:17 -0400
+Date: Fri, 07 Apr 2006 13:25:11 -0700 (PDT)
+Message-Id: <20060407.132511.09521964.davem@davemloft.net>
+To: vda@ilport.com.ua
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [PATCH] deinline a few large functions in vlan code
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <200604071628.30486.vda@ilport.com.ua>
+References: <200604071628.30486.vda@ilport.com.ua>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200604071845.38371.jensmh@gmx.de>; from jensmh@gmx.de on Fri, Apr 07, 2006 at 06:45:36PM +0200
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 07, 2006 at 06:45:36PM +0200, jensmh@gmx.de wrote:
+From: Denis Vlasenko <vda@ilport.com.ua>
+Date: Fri, 7 Apr 2006 16:28:30 +0300
 
-Oh well, seems like that CPU has trouble booting, per message below
-we seemed to start it, but processor didnt run startup code... Suspect its a 
-failing part probably..
+> What should be done with this?
+> 1) Should I add respective select statements into Kconfigs
+>    of those drivers?
+> 2) Make vlan_dev non-modular?
+> 3) Move functions to another .c file?
 
-> CPU1: Intel P4/Xeon Extended MCE MSRs (12) available
-> CPU1: Thermal monitoring enabled
-> CPU1: Intel(R) Xeon(TM) CPU 2.80GHz stepping 09
-> Booting processor 2/6 eip 2000
-> CPU 2 irqstacks, hard=c04b8000 soft=c04b0000
-> Not responding.
-> Inquiring remote APIC #6...
-> ... APIC #6 ID: failed
-> ... APIC #6 VERSION: failed
-> ... APIC #6 SPIV: failed
-> CPU #6 not responding - cannot use it.
+4) Leave it inline.
 
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+That's why we inline it in the first place.
+

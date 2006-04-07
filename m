@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWDGPnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWDGPoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964807AbWDGPnd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 11:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWDGPnd
+	id S964811AbWDGPoK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 11:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWDGPoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 11:43:33 -0400
-Received: from xenotime.net ([66.160.160.81]:62179 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964807AbWDGPnd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 11:43:33 -0400
-Date: Fri, 7 Apr 2006 08:45:48 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: [RFC/POC] multiple CONFIG y/m/n
-Message-Id: <20060407084548.f676f2a6.rdunlap@xenotime.net>
-In-Reply-To: <87odzdh1fp.fsf@duaron.myhome.or.jp>
-References: <20060406224134.0430e827.rdunlap@xenotime.net>
-	<87odzdh1fp.fsf@duaron.myhome.or.jp>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Fri, 7 Apr 2006 11:44:10 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52492 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964811AbWDGPoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 11:44:08 -0400
+Date: Fri, 7 Apr 2006 16:43:50 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: saeed bishara <saeed.bishara@gmail.com>,
+       Paolo Ornati <ornati@fastwebnet.it>, linux-kernel@vger.kernel.org,
+       linux-arm-kernel@lists.arm.linux.org.uk,
+       Linux-arm-toolchain@lists.arm.linux.org.uk
+Subject: Re: add new code section for kernel code
+Message-ID: <20060407154349.GB31458@flint.arm.linux.org.uk>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	saeed bishara <saeed.bishara@gmail.com>,
+	Paolo Ornati <ornati@fastwebnet.it>, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.arm.linux.org.uk,
+	Linux-arm-toolchain@lists.arm.linux.org.uk
+References: <c70ff3ad0604060545o2e2dc8fcg2948ca53b3b3c8b0@mail.gmail.com> <20060406151003.0ef4e637@localhost> <c70ff3ad0604060947t728fbad9g2e3b35198f9b0f66@mail.gmail.com> <c70ff3ad0604070402p355a5695y28b5806cbf7bed0a@mail.gmail.com> <1144422864.3117.0.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1144422864.3117.0.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 08 Apr 2006 00:04:26 +0900 OGAWA Hirofumi wrote:
-
-> "Randy.Dunlap" <rdunlap@xenotime.net> writes:
+On Fri, Apr 07, 2006 at 05:14:24PM +0200, Arjan van de Ven wrote:
+> On Fri, 2006-04-07 at 14:02 +0300, saeed bishara wrote:
+> > I noticed the arch/arm/boot/compressed/ files compiled with
+> > ffunction-sections switch, so I added the -fno-function-sections to
+> > the EXTRA_CFLAGS of the compressed/Makefile. And this solved the
+> > problem.
 > 
-> > As it is here, PARPORT_ENABLE_ALL tracks PARPORT (y/m/n) when the former
-> > is enabled/configured.  The downside of this Kconfig usage is that almost
-> > all lines of "depends" are duplicated as "select" (and that it uses "select").
-> > It would be good if there was some way to automate this.
-> >
-> > Comments?
-> 
-> Umm... Oh, how about the following?  It seems work...
-> 
->	$ perl -spi -e 's/CONFIG_SND.*//' .config
->	$ KCONFIG_ALLCONFIG=.config make allmodconfig or allyesconfig
+> can you send a patch for this to Russell ?
 
-Yes, that seems to do what I want to do.
+I'd prefer not to paper over such bugs.  Maybe the following patch will
+fix the decompressor for saeed?
 
-Very nice, thanks.
+diff --git a/arch/arm/boot/compressed/vmlinux.lds.in b/arch/arm/boot/compressed/vmlinux.lds.in
+--- a/arch/arm/boot/compressed/vmlinux.lds.in
++++ b/arch/arm/boot/compressed/vmlinux.lds.in
+@@ -18,6 +18,7 @@ SECTIONS
+     _start = .;
+     *(.start)
+     *(.text)
++    *(.text.*)
+     *(.fixup)
+     *(.gnu.warning)
+     *(.rodata)
 
----
-~Randy
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

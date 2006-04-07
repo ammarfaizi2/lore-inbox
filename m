@@ -1,68 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbWDGUal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbWDGUaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964940AbWDGUal (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 16:30:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbWDGUak
+	id S964941AbWDGUaj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 16:30:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWDGUaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 16:30:40 -0400
-Received: from mx27.mail.ru ([194.67.23.63]:59397 "EHLO mx27.mail.ru")
-	by vger.kernel.org with ESMTP id S964931AbWDGUaP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 16:30:15 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-ide@vger.kernel.org
-Subject: HDIO_SCAN_HWIF causes hwif to "forget" PCI parent
-Date: Sat, 8 Apr 2006 00:30:06 +0400
-User-Agent: KMail/1.9.1
+	Fri, 7 Apr 2006 16:30:39 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:17348 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S964937AbWDGUaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 16:30:16 -0400
+Date: Fri, 7 Apr 2006 15:31:09 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Christopher Friesen <cfriesen@nortel.com>
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Subject: Re: problem building UML kernel with 2.6.16.1 -- dies when linking vmlinux
+Message-ID: <20060407193109.GB6087@ccure.user-mode-linux.org>
+References: <443580A4.1020806@nortel.com> <20060406215131.GA6422@ccure.user-mode-linux.org> <4435A0DA.1030606@nortel.com> <20060406234145.GA6893@ccure.user-mode-linux.org> <443676ED.10907@nortel.com> <20060407154309.GA4911@ccure.user-mode-linux.org> <4436C422.4000300@nortel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604080030.07236.arvidjaar@mail.ru>
+In-Reply-To: <4436C422.4000300@nortel.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Apr 07, 2006 at 01:57:22PM -0600, Christopher Friesen wrote:
+> Okay...now how about running SMP in UML with skas?
 
-I have notebook with ALi IDE interface:
+Not yet, but it's in the works.
 
-00:04.0 IDE interface: ALi Corporation M5229 IDE (rev c3)
-
-One of scripts called on Mandriva during suspend/resume calls hdparm -U for 
-hdc on suspend and hdparm -R on resume.
-
-Now, hdparm -U (HDIO_UNREGISTER_HWIF) completely wipes out hwif reinitializing 
-it. It means, that also hwif->pci_dev is nulled. On hdparm -R 
-(HDIO_SCAN_HWIF) it basically calls hwif_register without initializing 
-pci_dev which means hdc appears in sysfs in different place:
-
-before
-
-lrwxrwxrwx  1 root root 0 Apr  7 23:53 /sys/block/hdc/device 
-- -> ../../devices/pci0000:00/0000:00:04.0/ide1/1.0/
-
-after
-
-lrwxrwxrwx  1 root root 0 Apr  7 23:53 /sys/block/hdc/device 
-- -> ../../devices/ide1/1.0/
-
-this slightly confuses udev that receives a new path and regenerates cdrom 
-links (OK this is no more kernel problem but how I noticed it in the first 
-place :) so what has been cdrom0 before suddenly becomes cdrom1.
-
-Looking at ide.c, I do not see any obvious ways to fix it. I appreciate any 
-hint how this can be fixed; alternatively if libpata does not have this issue 
-I am ready to test it.
-
-Thank you
-
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQFENsvPR6LMutpd94wRAjFNAJ0VsKOZZOKn6/SIilrblrXuj4eGhgCePEnm
-VP+KZQOGbpye9esLG6lSC/k=
-=VXbN
------END PGP SIGNATURE-----
+			Jeff

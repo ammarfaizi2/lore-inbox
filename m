@@ -1,75 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWDGDHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWDGDLF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbWDGDHV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 23:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWDGDHV
+	id S932304AbWDGDLF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 23:11:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWDGDLF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 23:07:21 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:39559
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S932302AbWDGDHV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 23:07:21 -0400
-Date: Thu, 6 Apr 2006 20:07:13 -0700
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Darren Hart <darren@dvhart.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       "Stultz, John" <johnstul@us.ibm.com>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: RT task scheduling
-Message-ID: <20060407030713.GA9623@gnuppy.monkey.org>
-References: <200604052025.05679.darren@dvhart.com> <20060406073753.GA18349@elte.hu>
+	Thu, 6 Apr 2006 23:11:05 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:28372 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932304AbWDGDLD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 23:11:03 -0400
+Date: Fri, 07 Apr 2006 12:10:15 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Dave Hansen <dave@sr71.net>
+Subject: Re: [Patch:003/004] wait_table and zonelist initializing for memory hotadd (wait_table initialization)
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+In-Reply-To: <1144361104.9731.190.camel@localhost.localdomain>
+References: <20060405195913.3C45.Y-GOTO@jp.fujitsu.com> <1144361104.9731.190.camel@localhost.localdomain>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060407104859.EBED.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060406073753.GA18349@elte.hu>
-User-Agent: Mutt/1.5.11+cvs20060126
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 06, 2006 at 09:37:53AM +0200, Ingo Molnar wrote:
-> do "global" decisions for what RT tasks to run on which CPU. To put even 
-> less overhead on the mainstream kernel, i plan to introduce a new 
-> SCHED_FIFO_GLOBAL scheduling policy to trigger this behavior. [it doesnt 
-> make much sense to extend SCHED_RR in that direction.]
+> On Wed, 2006-04-05 at 20:01 +0900, Yasunori Goto wrote:
+> > 
+> > +#ifdef CONFIG_MEMORY_HOTPLUG
+> >  static inline unsigned long wait_table_size(unsigned long pages)
+> >  {
+> >         unsigned long size = 1;
+> > @@ -1803,6 +1804,17 @@ static inline unsigned long wait_table_s
+> >  
+> >         return max(size, 4UL);
+> >  }
+> > +#else
+> > +/*
+> > + * XXX: Because zone size might be changed by hot-add,
+> > + *      It is hard to determin suitable size for wait_table as
+> > traditional.
+> > + *      So, we use maximum size now.
+> > + */
+> > +static inline unsigned long wait_table_size(unsigned long pages)
+> > +{
+> > +       return 4096UL;
+> > +}
+> > +#endif 
+> 
+> Sorry for the slow response.  My IBM email is temporarily dead.
+> 
+> Couple of things.  
+> 
+> First, is there anything useful that prepending UL to the constants does
+> to the functions?  It ends up looking a little messy to me.
 
-Ingo,
+I would like to show that it is max size of original wait_table_size().
+Original one uses 4096UL for it.
 
-You should consider for a moment to allow for the binding of a thread to
-a CPU to determine the behavior of a SCHED_FIFO class task instead of 
-creating a new run category. Trying to anticipate the behavior of a
-thread via a kernel semantic removes control from the applications using
-them and into the kernel which is often incorrect about those assumption.
+> Also, I thought you were going to put a big fat comment on there about
+> doing it correctly in the future.  It would also be nice to quantify the
+> wasted space in terms of bytes, just so that people get a feel for it.
 
-Con might have comments the matter that might be useful.
+Hmmm. Ok.
 
-The current IPI method you use to balance RT is fine. I don't think it
-should be changed for the general SCHED_FIFO case, but I do think that
-binding a thread to a certain CPU, or set of CPUs, would simplify various
-control cases, where the default case is to rebalance immediately via an
-IPI. Having a specific case only running on a specific CPU or CPU set
-should be the only mechanism to either "isolate" a CPU or create a
-condition that's more deterministic than a global policy that -rt is
-doing now.
- 
-This is consistent to how I would use it in an app and wouldn't create
-clutter in scheduling code that is already under minor refactoring.
+> Oh, and wait_table_size() needs a unit.  wait_table_size_bytes() sounds
+> like a winner to me.
 
-> my gut feeling is that it would be wrong to integrate this feature into 
-> smpnice: SCHED_FIFO is about determinism, and smpnice is a fundamentally 
-> statistical approach. Also, smpnice doesnt have to try as hard to pick 
-> the right task as rt_overload does, so there would be constant 
-> 'friction' between "overhead" optimizations (dont be over-eager) and 
-> "latency" optimizations (dont be _under_-eager). So i'm quite sure we 
-> want this feature separate. [nevertheless i'd happy to be proven wrong 
-> via some good and working smpnice based solution]
+This size doesn't mean bytes. It is hash table entry size.
+So, wait_table_hash_size() or wait_table_entry_size() might be better.
 
-Please consider the ideas I've mentioned above and research how other
-RTOSes deal with these critical issues.
+Thanks.
 
-Thanks
+-- 
+Yasunori Goto 
 
-bill
 

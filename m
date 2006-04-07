@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWDGORN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbWDGORM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbWDGORN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 10:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWDGORN
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 10:17:13 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:410 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S932332AbWDGORM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S932339AbWDGORM (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 7 Apr 2006 10:17:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWDGORM
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 7 Apr 2006 10:17:12 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:154 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S932339AbWDGORL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 10:17:11 -0400
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH] Fix mode of checkstack.pl and other files.
-Date: Fri, 07 Apr 2006 16:16:40 +0200
-To: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] [RFC] [Oops fix] module support: record in vermagic ability to unload a module
+Date: Fri, 07 Apr 2006 16:16:16 +0200
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <20060407141639.15204.34538.stgit@zion.home.lan>
+Message-Id: <20060407141616.15173.53025.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Make it executable like it should be. Do the same for other files intended to be
-executed by the user - the ones called by the build process needn't be
-executable as they already work (as argument to their interpreter).
+An UML user reported (against 2.6.13.3/UML) he got kernel Oopses when trying to
+rmmod (on a kernel with module unloading enabled) a module compiled with module
+unloading disabled. As crashing is a very correct thing to do in that case, a
+solution is altering the vermagic string to include this too.
 
+Possibly, however, the code should not crash in this case, even if the module
+didn't support unloading - it should simply abort the module removal. In this case,
+fixing that bug would be a better solution. I've not investigated though.
+
+Thanks to Hayim for reporting.
+
+Cc: Hayim Shaul <hayim@post.tau.ac.il>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- scripts/bloat-o-meter |    0 
- scripts/checkstack.pl |    0 
- scripts/namespace.pl  |    0 
- scripts/show_delta    |    0 
- 4 files changed, 0 insertions(+), 0 deletions(-)
+ include/linux/vermagic.h |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletions(-)
 
-diff --git a/scripts/bloat-o-meter b/scripts/bloat-o-meter
-old mode 100644
-new mode 100755
-diff --git a/scripts/checkstack.pl b/scripts/checkstack.pl
-old mode 100644
-new mode 100755
-diff --git a/scripts/namespace.pl b/scripts/namespace.pl
-old mode 100644
-new mode 100755
-diff --git a/scripts/show_delta b/scripts/show_delta
-old mode 100644
-new mode 100755
+diff --git a/include/linux/vermagic.h b/include/linux/vermagic.h
+index fadc535..dc7c621 100644
+--- a/include/linux/vermagic.h
++++ b/include/linux/vermagic.h
+@@ -12,6 +12,11 @@
+ #else
+ #define MODULE_VERMAGIC_PREEMPT ""
+ #endif
++#ifdef CONFIG_MODULE_UNLOAD
++#define MODULE_VERMAGIC_MODULE_UNLOAD "mod_unload "
++#else
++#define MODULE_VERMAGIC_MODULE_UNLOAD ""
++#endif
+ #ifndef MODULE_ARCH_VERMAGIC
+ #define MODULE_ARCH_VERMAGIC ""
+ #endif
+@@ -19,5 +24,5 @@
+ #define VERMAGIC_STRING 						\
+ 	UTS_RELEASE " "							\
+ 	MODULE_VERMAGIC_SMP MODULE_VERMAGIC_PREEMPT 			\
+-	MODULE_ARCH_VERMAGIC 						\
++	MODULE_VERMAGIC_MODULE_UNLOAD MODULE_ARCH_VERMAGIC 		\
+ 	"gcc-" __stringify(__GNUC__) "." __stringify(__GNUC_MINOR__)

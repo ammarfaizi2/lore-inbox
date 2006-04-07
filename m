@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbWDGJPf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWDGJQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932393AbWDGJPf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 05:15:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWDGJPf
+	id S932390AbWDGJQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 05:16:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWDGJQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 05:15:35 -0400
-Received: from mx1.suse.de ([195.135.220.2]:15528 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932393AbWDGJPf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 05:15:35 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: Neil Brown <neilb@suse.de>
-Cc: "Tony Luck" <tony.luck@gmail.com>, "Mike Hearn" <mike@plan99.net>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] Add a /proc/self/exedir link
-References: <4431A93A.2010702@plan99.net>
-	<m1fykr3ggb.fsf@ebiederm.dsl.xmission.com>
-	<44343C25.2000306@plan99.net>
-	<12c511ca0604061633p2fb1796axd5acad8373532834@mail.gmail.com>
-	<17462.6689.821815.412458@cse.unsw.edu.au>
-X-Yow: Civilization is fun!  Anyway, it keeps me busy!!
-Date: Fri, 07 Apr 2006 11:15:33 +0200
-In-Reply-To: <17462.6689.821815.412458@cse.unsw.edu.au> (Neil Brown's message
-	of "Fri, 7 Apr 2006 17:52:01 +1000")
-Message-ID: <jeirplrbka.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+	Fri, 7 Apr 2006 05:16:16 -0400
+Received: from rtsoft2.corbina.net ([85.21.88.2]:27082 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S932390AbWDGJQQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 05:16:16 -0400
+Message-ID: <44362DDE.3010203@gmail.com>
+Date: Fri, 07 Apr 2006 13:16:14 +0400
+From: Vitaly Wool <vitalywool@gmail.com>
+User-Agent: Mail/News 1.5 (X11/20060228)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: David Brownell <david-b@pacbell.net>
+CC: Kumar Gala <galak@kernel.crashing.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, spi-devel-general@lists.sourceforge.net
+Subject: Re: [spi-devel-general] Re: [PATCH] spi: Added spi master driver
+ for Freescale MPC83xx SPI controller
+References: <Pine.LNX.4.44.0604061329550.20620-100000@gate.crashing.org> <200604062222.05661.david-b@pacbell.net>
+In-Reply-To: <200604062222.05661.david-b@pacbell.net>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown <neilb@suse.de> writes:
+Hi,
 
-> On Thursday April 6, tony.luck@gmail.com wrote:
->> > > I have concerns about security policy ...
->> >
->> > I'm not sure I understand. Only if you run that program, and if you
->> > don't have access to the intermediate directory, how do you run it?
->> 
->> It leaks information about the parts of the pathname below the
->> directory that you otherwise would not be able to see.  E.g. if
->> I have $HOME/top-secret-projects/secret-code-name1/binary
->> where the top-secret-projects directory isn't readable by you,
->> then you may find out secret-code-name1 by reading the
->> /proc/{pid}/exedir symlink.
->
-> But we already have /proc/{pid}/exe which is a symlink to the
-> executable, thus exposing all the directory names already.
+> I guess I'm surprised you're not using txrx_buffers() and having
+> that whole thing be IRQ driven, so the per-word cost eliminates
+> the task scheduling.  You already paid for IRQ handling ... why
+> not have it store the rx byte into the buffer, and write the tx
+> byte froom the other buffer?  That'd be cheaper than what you're
+> doing now ... in both time and code.  Only wake up a task at
+> the end of a given spi_transfer().
+>   
+I might be completely wrong here, but I was asking myself this very 
+question, and it looks like that's the way to implement full duplex 
+transfers.
+For txrx_buffers to be properly implemented, you need to take a lot of 
+things into account. The main idea is not to lose the data in the 
+receive buffer due to overflow, and thus you need to set up 'Rx buffer 
+not free' int or whatever similar which will actually trigger after the 
+first word is sent. So therefore implementing txrx_buffers within these 
+conditions doesn't make much sense IMHO, unless you meant having a 
+separate thread to read from the Rx buffer, which is woken up on, say, 
+half-full Rx buffer.
 
-Neither of which should be readable by anyone but the owner of the
-process, which is the one who was able to read the secret directory in the
-first place.
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Vitaly

@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWDGQm2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932457AbWDGQoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932437AbWDGQm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 12:42:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWDGQm2
+	id S932457AbWDGQoL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 12:44:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWDGQoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 12:42:28 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:48833 "EHLO
+	Fri, 7 Apr 2006 12:44:11 -0400
+Received: from saraswathi.solana.com ([198.99.130.12]:51137 "EHLO
 	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932437AbWDGQm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 12:42:28 -0400
-Date: Fri, 7 Apr 2006 11:43:09 -0400
+	id S932457AbWDGQoJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 12:44:09 -0400
+Date: Fri, 7 Apr 2006 11:45:14 -0400
 From: Jeff Dike <jdike@addtoit.com>
-To: Christopher Friesen <cfriesen@nortel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problem building UML kernel with 2.6.16.1 -- dies when linking vmlinux
-Message-ID: <20060407154309.GA4911@ccure.user-mode-linux.org>
-References: <443580A4.1020806@nortel.com> <20060406215131.GA6422@ccure.user-mode-linux.org> <4435A0DA.1030606@nortel.com> <20060406234145.GA6893@ccure.user-mode-linux.org> <443676ED.10907@nortel.com>
+To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PATCH 09/17] uml: fix critical typo for TT mode
+Message-ID: <20060407154514.GB4911@ccure.user-mode-linux.org>
+References: <20060407142709.19201.99196.stgit@zion.home.lan> <20060407143110.19201.91963.stgit@zion.home.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <443676ED.10907@nortel.com>
+In-Reply-To: <20060407143110.19201.91963.stgit@zion.home.lan>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 07, 2006 at 08:27:57AM -0600, Christopher Friesen wrote:
-> I just used CONFIG_MODE_TT based on the config comments for 
-> CONFIG_PT_PROXY: "If you want to do kernel debugging, say Y here; 
-> otherwise say N.".  This then required MODE_TT.
+On Fri, Apr 07, 2006 at 04:31:10PM +0200, Paolo 'Blaisorblade' Giarrusso wrote:
+> Noticed this for a compilation-time warning, so I'm fixing it even for TT mode -
+> this is not put_user, but copy_to_user, so we need a pointer to sp, not sp
+> itself (we're trying to write the word pointed to by the "sp" var.).
+> 
+> Jeff, have I misunderstood anything?
 
-Yeah, that's out of date, and I'm in the process of fixing stuff like that.
-
-> Can I run UML under gdb in skas mode?
-
-"gdb linux" and away you go.
+No, you're right.  Al spotted this as well, and I have this fix in my tree.
 
 				Jeff

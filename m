@@ -1,93 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWDGFi4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWDGFjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbWDGFi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 01:38:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWDGFi4
+	id S932277AbWDGFjT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 01:39:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWDGFjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 01:38:56 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:27017 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932286AbWDGFiz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 01:38:55 -0400
-Date: Fri, 7 Apr 2006 14:40:33 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, jbarnes@sgi.com, jes@trained-monkey.org,
-       nickpiggin@yahoo.com.au, tony.luck@intel.com,
-       mm-commits@vger.kernel.org
-Subject: Re: + pg_uncached-is-ia64-only.patch added to -mm tree
-Message-Id: <20060407144033.8e02ad64.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060406215242.245340de.akpm@osdl.org>
-References: <200604070421.k374LXFs011197@shell0.pdx.osdl.net>
-	<20060407134827.91a47e69.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060406215242.245340de.akpm@osdl.org>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Fri, 7 Apr 2006 01:39:19 -0400
+Received: from xenotime.net ([66.160.160.81]:28590 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932272AbWDGFjR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 01:39:17 -0400
+Date: Thu, 6 Apr 2006 22:41:34 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: zippel@linux-m68k.org
+Subject: [RFC/POC] multiple CONFIG y/m/n
+Message-Id: <20060406224134.0430e827.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Apr 2006 21:52:42 -0700
-Andrew Morton <akpm@osdl.org> wrote:
 
-> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
->
-> -#define FLAGS_RESERVED		32
-> +#define FLAGS_RESERVED		24
->
-  
-Oh..we get more 8bits flags on 64bit machines !!!
-but could you reserve 30bits now ?
+In doing lots of kernel build testing, I often want to enable all options
+in a sub-menu and their sub-sub-menus.  Sound is one of the worst^W longest
+of these, so I chose a shorter (easier) one to practice on:  parport.
 
-This is my understanding..
-==
-At the first look, SPARSEMEM with ia64
+For PARPORT, this isn't terribly needed; it's just being a guinea pig
+for me.  The point is to be able to enable all applicable options at
+one time (one line or one click).
 
-#define SECTION_SIZE_BITS       (30)
-#define MAX_PHYSMEM_BITS        (50)
+So if no (top-level of a CONFIG, like CONFIG_PARPORT) options are enabled,
+you can step thru the entire menu and sub-menus, taking a few minutes
+sometimes (see SOUND or USB), or the kconfig system could enable some
+way to do this for us.  For version 1, all that I have done is modify
+driver/parport/Kconfig -- no code changes.  I haven't even looked at the
+source code to see if that would be the right thing to do.  I'm just
+taken liberties with the famous Kconfig "select" to make it work.
 
-so SECTIONS_SHIFT = 50 - 30 = 20bits.
+I can already see that I find this useful, but is there a good (better)
+way to implement this in kconfig?
 
-20bits of page->flags is used for SPARSEMEM's section id.
+As it is here, PARPORT_ENABLE_ALL tracks PARPORT (y/m/n) when the former
+is enabled/configured.  The downside of this Kconfig usage is that almost
+all lines of "depends" are duplicated as "select" (and that it uses "select").
+It would be good if there was some way to automate this.
 
-sgi have NODES_SHIFT=8, and always ZONES_SHIFT=2 .
+Comments?
+---
+~Randy
 
-At worst, 20 + 8 + 2 = 30bits should be used. but..
 
-extra code is here..
-==
-#if SECTIONS_WIDTH+ZONES_WIDTH+NODES_SHIFT <= FLAGS_RESERVED
-#define NODES_WIDTH             NODES_SHIFT
-#else
-#define NODES_WIDTH             0
-#endif
-==
-So, node-id is not encoded into flags.
-In this case, 
-==
-<snip>
-#define FLAGS_HAS_NODE          (NODES_WIDTH > 0 || NODES_SHIFT == 0)
+---
+ drivers/parport/Kconfig |   17 +++++++++++++++++
+ 1 files changed, 17 insertions(+)
 
-<snip>
-static inline unsigned long page_to_nid(struct page *page)
-{
-        if (FLAGS_HAS_NODE)
-                return (page->flags >> NODES_PGSHIFT) & NODES_MASK;
-        else
-                return page_zone(page)->zone_pgdat->node_id;
-}
-==
-page_zone(page) looks up zone from zone_table[].
-If FLAGS_HAS_NODE=0, zone_table indexing is this.
-==
-
-(page->flags >> (offset of zone bit)) & ((1 << (SECTIONS_SHIFT + ZONES_SHIFT)) - 1)
-
-See above, SECTIONS_SHIFT + ZONES_SHIFT = 22bits.
-
-so, many ia64 people has to use 32M(22bits * 8bytes) zone_table[] ???
-please fix if I'm wrong ...this is complicated.
-
--Kame
+--- linux-2617-rc1.orig/drivers/parport/Kconfig
++++ linux-2617-rc1/drivers/parport/Kconfig
+@@ -151,5 +151,22 @@ config PARPORT_1284
+ 	  transfer modes. Also say Y if you want device ID information to
+ 	  appear in /proc/sys/dev/parport/*/autoprobe*. It is safe to say N.
+ 
++config PARPORT_ENABLE_ALL
++	tristate "Enable all (non-BROKEN) PARPORT options"
++	depends on PARPORT
++	select PARPORT_PC if (!SPARC64 || PCI) && !SPARC32 && !M32R && !FRV
++	select PARPORT_SERIAL if SERIAL_8250 && PARPORT_PC && PCI
++	select PARPORT_PC_FIFO if PARPORT_PC && EXPERIMENTAL
++	select PARPORT_PC_SUPERIO if PARPORT_PC && EXPERIMENTAL
++	select PARPORT_PC_PCMCIA if PCMCIA && PARPORT_PC
++	select PARPORT_ARC if ARM && PARPORT
++	select PARPORT_IP32 if SGI_IP32 && PARPORT && EXPERIMENTAL
++	select PARPORT_AMIGA if AMIGA && PARPORT
++	select PARPORT_MFC3 if ZORRO && PARPORT
++	select PARPORT_ATARI if ATARI && PARPORT
++	select PARPORT_GSC if PARPORT && GSC
++	select PARPORT_SUNBPP if SBUS && PARPORT && EXPERIMENTAL
++	select PARPORT_1284 if PARPORT
++
+ endmenu
+ 

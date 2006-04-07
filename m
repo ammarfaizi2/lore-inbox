@@ -1,45 +1,250 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWDGJjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWDGJrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbWDGJjv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 05:39:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWDGJju
+	id S932400AbWDGJrz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 05:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWDGJrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 05:39:50 -0400
-Received: from sainfoin.extra.cea.fr ([132.166.172.103]:53635 "EHLO
-	sainfoin.extra.cea.fr") by vger.kernel.org with ESMTP
-	id S932401AbWDGJju (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 05:39:50 -0400
-Message-ID: <44363359.9010707@cea.fr>
-Date: Fri, 07 Apr 2006 11:39:37 +0200
-From: Aurelien Degremont <aurelien.degremont@cea.fr>
-User-Agent: Mozilla Thunderbird 1.0.6-1.4.1 (X11/20050719)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Serge Noiraud <serge.noiraud@bull.net>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: PREEMPT_RT : 2.6.16-rt12 and boot : BUG ?
-References: <200604061416.00741.Serge.Noiraud@bull.net> <443526B6.6090709@cea.fr> <200604061710.28293.Serge.Noiraud@bull.net>
-In-Reply-To: <200604061710.28293.Serge.Noiraud@bull.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Apr 2006 05:47:55 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:39825 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932400AbWDGJrz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 05:47:55 -0400
+Date: Fri, 7 Apr 2006 13:47:32 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Yi Yang <yang.y.yi@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Matt Helsley <matthltc@us.ibm.com>
+Subject: Re: [2.6.16 PATCH] Filessytem Events Reporter V2
+Message-ID: <20060407094732.GA13235@2ka.mipt.ru>
+References: <4433C456.7010708@gmail.com> <20060407062428.GA31351@2ka.mipt.ru> <44361F39.4020501@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <44361F39.4020501@gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 07 Apr 2006 13:47:35 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge Noiraud wrote:
-> I know this. We need to use the mptspi module.
-> I need to add "--with mptspi" to the mkinitrd command
-> and that works correctly without the RT patch.
+On Fri, Apr 07, 2006 at 04:13:45PM +0800, Yi Yang (yang.y.yi@gmail.com) wrote:
+> >>+
+> >>+	return (netlink_unicast(fsevent_sock, skb, pid, MSG_DONTWAIT));
+> >>    
+> >
+> >netlink_unicast() uses boolean value but ont MSG_* flags for nonblocking, 
+> >so this should be netlink_unicast(fsevent_sock, skb, pid, 0);
+> >  
+> a example invocation in file net/netlink/af_netlink.c:
+> netlink_unicast(in_skb->sk, skb, NETLINK_CB(in_skb).pid, MSG_DONTWAIT);
+> so, it hasn't any problem.
 
-The problem is not that the mptspi module is missing. It is correctly 
-inserted in the initrd. The problem is whichever order I set in the 
-initrd concerning the module loading, I always got an symbol errors.
-And what is really strange is that the 'sleep 1' solved the error...
+Well...
 
-I was wondering if this is not linked to hardware probe issue. It seems 
-the kernel need few seconds to correctly initialize each module, and if 
-another module is loaded at the same time, this hangs.
-Very strange...
+static inline long sock_sndtimeo(const struct sock *sk, int noblock)
+{
+	return noblock ? 0 : sk->sk_sndtimeo;
+}
+
+int netlink_unicast(struct sock *ssk, struct sk_buff *skb, u32 pid, int nonblock)
+{
+	struct sock *sk;
+	int err;
+	long timeo;
+
+	skb = netlink_trim(skb, gfp_any());
+
+	timeo = sock_sndtimeo(ssk, nonblock);
+
+I mean that it is boolean value, MSG_PEEK will produce the same result.
+But it is a matter of coding style probably.
+
+> >>+nlmsg_failure:
+> >>+	kfree_skb(skb);
+> >>+	return -1;
+> >>+}
+> >>    
+> >
+> >...
+> >
+> >  
+> >>+static void fsevent_recv(struct sock *sk, int len)
+> >>+{
+> >>+	struct sk_buff *skb = NULL;
+> >>+	struct nlmsghdr *nlhdr = NULL;
+> >>+	struct fsevent_filter * filter = NULL;
+> >>+	pid_t pid;
+> >>+
+> >>+	while ((skb = skb_dequeue(&sk->sk_receive_queue)) != NULL) {
+> >>+		skb_get(skb);
+> >>+		if (skb->len >= FSEVENT_FILTER_MSGSIZE) {
+> >>+			nlhdr = (struct nlmsghdr *)skb->data;
+> >>+			filter = NLMSG_DATA(nlhdr);
+> >>+			pid = NETLINK_CREDS(skb)->pid;
+> >>+			if (find_fsevent_listener(pid) == NULL)
+> >>+				atomic_inc(&fsevent_listener_num);
+> >>+			set_fsevent_filter(filter, pid);
+> >>    
+> >
+> >What is the logic behind this steps?
+> >If there are no listeners you increment it's number no matter if it will
+> >or not be added in set_fsevent_filter().
+> >  
+> fsevent_recv is used to receive listener's commands, a listener must 
+> send commands in order to get fsevents it
+> interests, so this is the best point to increment number of listeners. 
+> set_fsevent_filter will add listener to listener
+> list, so it is OK.
+
+And what if set_fsevent_filter() fails?
+
+> >>+		}
+> >>+		kfree_skb(skb);
+> >>+	}
+> >>+}
+> >>+
+> >>+#define DEFINE_FILTER_MATCH_FUNC(filtertype, key) 			\
+> >>+	static int match_##filtertype(listener * p,			\
+> >>+				struct fsevent * event,			\
+> >>+				struct sk_buff * skb)			\
+> >>+	{								\
+> >>+		int ret = 0;						\
+> >>+		filtertype * xfilter = NULL;				\
+> >>+		struct sk_buff * skb2 = NULL;				\
+> >>+		struct list_head *  head = &(p->key##_filter_list_head);  \
+> >>+		list_for_each_entry(xfilter, head, list) {		\
+> >>+			if (xfilter->key != event->key)			\
+> >>+				continue;				\
+> >>+			ret = filter_fsevent(xfilter->mask, event->type); \
+> >>+			if ( ret != 0)					\
+> >>+				return -1;				\
+> >>+			skb2 = skb_clone(skb, GFP_KERNEL);		\
+> >>+       			if (skb2 == NULL)			 \
+> >>+				return -ENOMEM;				\
+> >>+			NETLINK_CB(skb2).dst_group = 0;			\
+> >>+			NETLINK_CB(skb2).dst_pid = p->pid;		\
+> >>+			NETLINK_CB(skb2).pid = 0;			\
+> >>+			return (netlink_unicast(fsevent_sock, skb2,	\
+> >>+					p->pid, MSG_DONTWAIT));		\
+> >>    
+> >
+> >The same issue about nonblocking sending.
+> >
+> >  
+> >>+		}							\
+> >>+		return -ENODEV;						\
+> >>+	}								\
+> >>+
+> >>+DEFINE_FILTER_MATCH_FUNC(pid_filter, pid)
+> >>+
+> >>+DEFINE_FILTER_MATCH_FUNC(uid_filter, uid)
+> >>+
+> >>+DEFINE_FILTER_MATCH_FUNC(gid_filter, gid)
+> >>+
+> >>+#define MATCH_XID(key, listenerp, event, skb) 			\
+> >>+	ret = match_##key##_filter(listenerp, event, skb); 	\
+> >>+	if (ret == 0) {					 	\
+> >>+		kfree_skb(skb);				 	\
+> >>+	        continue;				 	\
+> >>+	}						 	\
+> >>+	do {} while (0)					 	\
+> >>+
+> >>+static int fsevent_send_to_process(struct sk_buff * skb)
+> >>+{
+> >>+	listener * p  = NULL, * q = NULL;
+> >>+	struct fsevent * event = NULL;
+> >>+	struct sk_buff * skb2 = NULL;
+> >>+	int ret = 0;
+> >>+
+> >>+	event = (struct fsevent *)(skb->data + sizeof(struct nlmsghdr));
+> >>+	spin_lock(&listener_list_lock);
+> >>+	list_for_each_entry_safe(p, q, &listener_list_head, list) {
+> >>+		MATCH_XID(pid, p, event, skb);
+> >>+		MATCH_XID(uid, p, event, skb);
+> >>+		MATCH_XID(gid, p, event, skb);
+> >>+
+> >>+		if (filter_fsevent(p->mask, event->type) == 0) {
+> >>+			 skb2 = skb_clone(skb, GFP_KERNEL);
+> >>+	                 if (skb2 == NULL)
+> >>+	                 	return -ENOMEM;
+> >>+	                 NETLINK_CB(skb2).dst_group = 0;
+> >>+	                 NETLINK_CB(skb2).dst_pid = p->pid;
+> >>+	                 NETLINK_CB(skb2).pid = 0;
+> >>+	                 ret = netlink_unicast(fsevent_sock, skb2,
+> >>+	                                p->pid, MSG_DONTWAIT);
+> >>+			if (ret == -ECONNREFUSED) {
+> >>+				atomic_dec(&fsevent_listener_num);
+> >>+				cleanup_dead_listener(p);
+> >>+			}
+> >>+		}
+> >>+	}
+> >>+	spin_unlock(&listener_list_lock);
+> >>+	return ret;
+> >>+}
+> >>+
+> >>+static void fsevent_commit(void * unused)
+> >>+{
+> >>+	struct sk_buff * skb = NULL;
+> >>+		
+> >>+	while((skb = skb_dequeue(&get_cpu_var(fsevent_send_queue)))
+> >>+		!= NULL) {
+> >>+		fsevent_send_to_process(skb);
+> >>+		put_cpu_var(fsevent_send_queue);
+> >>+	}
+> >>+}
+> >>    
+> >
+> >Really strange mix of per-cpu variables for optimized performance and
+> >global spin locking.
+> >Consider using RCU for list of listeners.
+> >  
+> per cpu queue is used to avoid raise_fsevent to contend spinlock, but 
+> listener_list_lock just is used
+> to synchronize the operations of userspace applications(listener) on 
+> listener list, it just protect listener
+> list.
+> 
+> Of course, your advice is good, RCU will be better, I'm considering 
+> substitute spinlock with RCU,
+> maybe list*_rcu  functions can help me.
+
+You get global lock in each processor when traverse the list
+&listener_list_lock.
+
+And you call GFP_KERNEL allocation under that lock, which is wrong.
+
+If all your code is called from process context (it looks so), you
+could mutexes.
+
+> >You use unicast delivery for netlink messages. 
+> >According to my investigation [1], it's performance is better only when
+> >there is only one listener (or maybe two in some cases), but then it is
+> >noticebly slower than broadcasting.
+> >
+> >1. http://marc.theaimsgroup.com/?l=linux-netdev&m=114424884216006&w=2
+> >  
+> Because fsevent has to deliver different events to different listeners, 
+> so I must use netlink_unicast,
+> in fact, netlink_broadcast also must send skb to every member of the 
+> group, so in my opinion,
+> they haven't  big difference.
+
+And what if there are several listeners for the same type of events?
+
+> Can you explain why there is such a big difference between 
+> netlink_unicast and netlink_broadcast?
+
+Netlink broadcast clones skbs, while unicasting requires the whole new
+one.
+
+> >Btw, you need some rebalancing of the per-cpu queues, probably in
+> >keventd, since CPUs can go offline and your messages will stuck foreve
+> >there.
+> >  
+> Does keventd not do it? if so, keventd should be modified.
+
+How does keventd know about your own structures?
+You have an per-cpu object, but your keventd function gets object 
+from running cpu, not from any other cpus.
 
 -- 
-Aurelien Degremont
-
+	Evgeniy Polyakov

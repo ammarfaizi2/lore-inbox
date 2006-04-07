@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbWDGTIN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbWDGTMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964893AbWDGTIN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 15:08:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbWDGTIN
+	id S964894AbWDGTMX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 15:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbWDGTMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 15:08:13 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17601 "EHLO
+	Fri, 7 Apr 2006 15:12:23 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:22465 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964893AbWDGTIM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 15:08:12 -0400
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@sw.ru>,
-       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net, xemul@sw.ru,
-       James Morris <jmorris@namei.org>
-Subject: Re: [RFC][PATCH 0/5] uts namespaces: Introduction
-References: <20060407095132.455784000@sergelap>
+	id S964894AbWDGTMX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 15:12:23 -0400
+To: Andreas Schwab <schwab@suse.de>
+Cc: Neil Brown <neilb@suse.de>, "Tony Luck" <tony.luck@gmail.com>,
+       "Mike Hearn" <mike@plan99.net>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] Add a /proc/self/exedir link
+References: <4431A93A.2010702@plan99.net>
+	<m1fykr3ggb.fsf@ebiederm.dsl.xmission.com>
+	<44343C25.2000306@plan99.net>
+	<12c511ca0604061633p2fb1796axd5acad8373532834@mail.gmail.com>
+	<17462.6689.821815.412458@cse.unsw.edu.au>
+	<jeirplrbka.fsf@sykes.suse.de>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 07 Apr 2006 13:06:09 -0600
-In-Reply-To: <20060407095132.455784000@sergelap> (Serge E. Hallyn's message
- of "Fri,  7 Apr 2006 13:36:00 -0500 (CDT)")
-Message-ID: <m1wte1mcim.fsf@ebiederm.dsl.xmission.com>
+Date: Fri, 07 Apr 2006 13:10:26 -0600
+In-Reply-To: <jeirplrbka.fsf@sykes.suse.de> (Andreas Schwab's message of
+ "Fri, 07 Apr 2006 11:15:33 +0200")
+Message-ID: <m1odzdmcbh.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Serge E. Hallyn" <serue@us.ibm.com> writes:
+Andreas Schwab <schwab@suse.de> writes:
 
-> Introduce utsname namespaces.  Instead of a single system_utsname
-> containing hostname domainname etc, a process can request it's
-> copy of the uts info to be cloned.  The data will be copied from
-> it's original, but any further changes will not be seen by processes
-> which are not it's children, and vice versa.
+> Neil Brown <neilb@suse.de> writes:
 >
-> This is useful, for instance, for vserver/openvz, which can now clone
-> a new uts namespace for each new virtual server.
+>> On Thursday April 6, tony.luck@gmail.com wrote:
+>>> > > I have concerns about security policy ...
+>>> >
+>>> > I'm not sure I understand. Only if you run that program, and if you
+>>> > don't have access to the intermediate directory, how do you run it?
+>>> 
+>>> It leaks information about the parts of the pathname below the
+>>> directory that you otherwise would not be able to see.  E.g. if
+>>> I have $HOME/top-secret-projects/secret-code-name1/binary
+>>> where the top-secret-projects directory isn't readable by you,
+>>> then you may find out secret-code-name1 by reading the
+>>> /proc/{pid}/exedir symlink.
+>>
+>> But we already have /proc/{pid}/exe which is a symlink to the
+>> executable, thus exposing all the directory names already.
 >
-> This patchset is based on Kirill Korotaev's Mar 24 submission, taking
-> comments (in particular from James Morris and Eric Biederman) into
-> account.
->
-> Some performance results are attached.  I was mainly curious whether
-> it would be worth putting the task_struct->uts_ns pointer inside
-> a #ifdef CONFIG_UTS_NS.  The result show that leaving it in when
-> CONFIG_UTS_NS=n has negligable performance impact, so that is the
-> approach this patch takes.
+> Neither of which should be readable by anyone but the owner of the
+> process, which is the one who was able to read the secret directory in the
+> first place.
 
-Ok.  This looks like the best version so far.
+In most cases.  It is possible you got the executable through
+file descriptor passing and the like.
 
-I like the utsname() function thing to shorten the 
-idiom of  current->uts_ns->name.
-
-We probably want to introduce utsname() and an init_utsname()
-before any of the other changes, and then perform the substitutions,
-before we actually change the code so the patchset can make it
-through a git-bisect.  This will also allows for something
-that can be put in compat-mac.h for backports of anything that
-cares.
+The security check in -mm allows anyone who may ptrace the
+process to have read access.  In 2.6.17-rc1 the check is
+still the owner of the process and anyone with CAP_DAC_ACCESS
+may read or use the link.
 
 Eric

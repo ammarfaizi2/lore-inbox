@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWDGJLz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbWDGJPf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932389AbWDGJLz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 05:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWDGJLz
+	id S932393AbWDGJPf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 05:15:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWDGJPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 05:11:55 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:41351
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S932389AbWDGJLy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 05:11:54 -0400
-Date: Fri, 7 Apr 2006 02:11:40 -0700
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Darren Hart <darren@dvhart.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       "Stultz, John" <johnstul@us.ibm.com>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: RT task scheduling
-Message-ID: <20060407091140.GA11706@gnuppy.monkey.org>
-References: <200604052025.05679.darren@dvhart.com> <20060406073753.GA18349@elte.hu> <20060407030713.GA9623@gnuppy.monkey.org> <20060407071125.GA2563@elte.hu> <20060407083931.GA11393@gnuppy.monkey.org>
+	Fri, 7 Apr 2006 05:15:35 -0400
+Received: from mx1.suse.de ([195.135.220.2]:15528 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932393AbWDGJPf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 05:15:35 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Neil Brown <neilb@suse.de>
+Cc: "Tony Luck" <tony.luck@gmail.com>, "Mike Hearn" <mike@plan99.net>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] Add a /proc/self/exedir link
+References: <4431A93A.2010702@plan99.net>
+	<m1fykr3ggb.fsf@ebiederm.dsl.xmission.com>
+	<44343C25.2000306@plan99.net>
+	<12c511ca0604061633p2fb1796axd5acad8373532834@mail.gmail.com>
+	<17462.6689.821815.412458@cse.unsw.edu.au>
+X-Yow: Civilization is fun!  Anyway, it keeps me busy!!
+Date: Fri, 07 Apr 2006 11:15:33 +0200
+In-Reply-To: <17462.6689.821815.412458@cse.unsw.edu.au> (Neil Brown's message
+	of "Fri, 7 Apr 2006 17:52:01 +1000")
+Message-ID: <jeirplrbka.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060407083931.GA11393@gnuppy.monkey.org>
-User-Agent: Mutt/1.5.11+cvs20060126
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 07, 2006 at 01:39:31AM -0700, Bill Huey wrote:
-[Me and Ingo's comments about creation of a new run class and thread
-binding...]
-> The RT rebalancing discussion should be oriented toward manual techniques
-> for dealing with this on an app basis and not automatic load balancing
-> stuff or anything like that. IMO, going down this direction is basically
-> trying to solve a problem with the wrong tool set.
+Neil Brown <neilb@suse.de> writes:
 
-If some kind of automatic load balance is the focus, then extending the
-notion of a CPU package for multicore processors sharing the same cache
-controller and memory would be a better track to take. I saw this in the
--mm tree over a year ago an I haven't looked at the scheduler code recently
-to see if it made into the mainline. If the RT load balancing is to be
-extended, it should take into consideration whether the migration of a
-thread should go to a core that's closer or farther away in terms of
-memory hierarchy instead of just grabbing the first non-RT task running
-CPU and hijacking it to run that RT task.
+> On Thursday April 6, tony.luck@gmail.com wrote:
+>> > > I have concerns about security policy ...
+>> >
+>> > I'm not sure I understand. Only if you run that program, and if you
+>> > don't have access to the intermediate directory, how do you run it?
+>> 
+>> It leaks information about the parts of the pathname below the
+>> directory that you otherwise would not be able to see.  E.g. if
+>> I have $HOME/top-secret-projects/secret-code-name1/binary
+>> where the top-secret-projects directory isn't readable by you,
+>> then you may find out secret-code-name1 by reading the
+>> /proc/{pid}/exedir symlink.
+>
+> But we already have /proc/{pid}/exe which is a symlink to the
+> executable, thus exposing all the directory names already.
 
-bill
+Neither of which should be readable by anyone but the owner of the
+process, which is the one who was able to read the secret directory in the
+first place.
 
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

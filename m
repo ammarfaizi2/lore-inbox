@@ -1,130 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbWDGTFB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbWDGTIN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964891AbWDGTFB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 15:05:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbWDGTFB
+	id S964893AbWDGTIN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 15:08:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbWDGTIN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 15:05:01 -0400
-Received: from mail.timesys.com ([65.117.135.102]:19673 "EHLO
-	postfix.timesys.com") by vger.kernel.org with ESMTP id S964891AbWDGTFA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 15:05:00 -0400
-Subject: [PATCH] Fix compilation of 2.6.16-rt13 real-time preemption patch
-	on PowerPC
-From: "Walter L. Wimer III" <walt.wimer@timesys.com>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>,
-       "Gleixner, Thomas" <thomas.gleixner@timesys.com>
-Content-Type: text/plain
-Date: Fri, 07 Apr 2006 14:58:16 -0400
-Message-Id: <1144436297.10765.52.camel@excalibur.timesys.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Apr 2006 18:58:17.0720 (UTC) FILETIME=[3B2E4780:01C65A75]
+	Fri, 7 Apr 2006 15:08:13 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17601 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S964893AbWDGTIM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 15:08:12 -0400
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@sw.ru>,
+       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net, xemul@sw.ru,
+       James Morris <jmorris@namei.org>
+Subject: Re: [RFC][PATCH 0/5] uts namespaces: Introduction
+References: <20060407095132.455784000@sergelap>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 07 Apr 2006 13:06:09 -0600
+In-Reply-To: <20060407095132.455784000@sergelap> (Serge E. Hallyn's message
+ of "Fri,  7 Apr 2006 13:36:00 -0500 (CDT)")
+Message-ID: <m1wte1mcim.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Serge E. Hallyn" <serue@us.ibm.com> writes:
 
-The following patch corrects errors encountered when compiling the
-2.6.16-rt13 real-time preemption patch on the PowerPC architecture:
+> Introduce utsname namespaces.  Instead of a single system_utsname
+> containing hostname domainname etc, a process can request it's
+> copy of the uts info to be cloned.  The data will be copied from
+> it's original, but any further changes will not be seen by processes
+> which are not it's children, and vice versa.
+>
+> This is useful, for instance, for vserver/openvz, which can now clone
+> a new uts namespace for each new virtual server.
+>
+> This patchset is based on Kirill Korotaev's Mar 24 submission, taking
+> comments (in particular from James Morris and Eric Biederman) into
+> account.
+>
+> Some performance results are attached.  I was mainly curious whether
+> it would be worth putting the task_struct->uts_ns pointer inside
+> a #ifdef CONFIG_UTS_NS.  The result show that leaving it in when
+> CONFIG_UTS_NS=n has negligable performance impact, so that is the
+> approach this patch takes.
 
-      * The INIT_FS and INIT_FILES macro definitions changed, but
-        corresponding changes to the calls were missed on PowerPC.
+Ok.  This looks like the best version so far.
 
-      * The new TIF_NEED_RESCHED_DELAYED definition caused an overflow
-        of a 16-bit immediate load field in several PowerPC
-        assembly-language instructions (e.g. in entry.S).  This patch
-        changes the definition of TIF_NEED_RESCHED_DELAYED from the
-        value 16 to the value 13 (which appears to have been previously
-        unused).  (All bits from 0 to 15 are now in use on PPC, so if
-        any new thread_info flags are needed, we'll have to actually fix
-        the PPC assembly code to deal with the resulting 32-bit
-        quantity.)
+I like the utsname() function thing to shorten the 
+idiom of  current->uts_ns->name.
 
-      * The file include/asm-powerpc/irqflags.h was missing completely
-        on PowerPC.  For now, I've supplied a stub file.  There is
-        currently no support for CONFIG_DEBUG_TRACE_IRQFLAGS.
+We probably want to introduce utsname() and an init_utsname()
+before any of the other changes, and then perform the substitutions,
+before we actually change the code so the patchset can make it
+through a git-bisect.  This will also allows for something
+that can be put in compat-mac.h for backports of anything that
+cares.
 
-Thanks go to Thomas Gleixner for his comments/suggestions on this patch.
-
-I've successfully built and test-booted this on an AMCC440EP "Bamboo" board.
-
-
-Signed-off-by: Walt Wimer <walt.wimer@timesys.com>
-
-
-
-diff -Naur linux-2.6.16-rt13-orig/arch/powerpc/kernel/init_task.c linux-2.6.16-rt13-fixd/arch/powerpc/kernel/init_task.c
---- linux-2.6.16-rt13-orig/arch/powerpc/kernel/init_task.c	2006-04-07 13:26:49.000000000 -0400
-+++ linux-2.6.16-rt13-fixd/arch/powerpc/kernel/init_task.c	2006-03-20 00:53:29.000000000 -0500
-@@ -3,12 +3,12 @@
- #include <linux/sched.h>
- #include <linux/init.h>
- #include <linux/init_task.h>
--#include <linux/fs_struct.h>
-+#include <linux/fs.h>
- #include <linux/mqueue.h>
- #include <asm/uaccess.h>
- 
--static struct fs_struct init_fs = INIT_FS(init_fs);
--static struct files_struct init_files = INIT_FILES(init_files);
-+static struct fs_struct init_fs = INIT_FS;
-+static struct files_struct init_files = INIT_FILES;
- static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
- static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
- struct mm_struct init_mm = INIT_MM(init_mm);
-diff -Naur linux-2.6.16-rt13-orig/include/asm-powerpc/thread_info.h linux-2.6.16-rt13-fixd/include/asm-powerpc/thread_info.h
---- linux-2.6.16-rt13-orig/include/asm-powerpc/thread_info.h	2006-04-07 13:26:55.000000000 -0400
-+++ linux-2.6.16-rt13-fixd/include/asm-powerpc/thread_info.h	2006-04-07 12:44:05.000000000 -0400
-@@ -119,9 +119,9 @@
- #define TIF_MEMDIE		10
- #define TIF_SECCOMP		11	/* secure computing */
- #define TIF_RESTOREALL		12	/* Restore all regs (implies NOERROR) */
-+#define TIF_NEED_RESCHED_DELAYED 13	/* reschedule on return to userspace */
- #define TIF_NOERROR		14	/* Force successful syscall return */
- #define TIF_RESTORE_SIGMASK	15	/* Restore signal mask in do_signal */
--#define TIF_NEED_RESCHED_DELAYED 16	/* reschedule on return to userspace */
- 
- /* as above, but as bit values */
- #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
-diff -Naur linux-2.6.16-rt13-orig/include/asm-powerpc/irqflags.h linux-2.6.16-rt13-fixd/include/asm-powerpc/irqflags.h
---- linux-2.6.16-rt13-orig/include/asm-powerpc/irqflags.h	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6.16-rt13-fixd/include/asm-powerpc/irqflags.h	2006-04-07 12:39:01.000000000 -0400
-@@ -0,0 +1,33 @@
-+/*
-+ * include/asm-powerpc/irqflags.h
-+ *
-+ * IRQ flags handling
-+ *
-+ * This file gets included from lowlevel asm headers too, to provide
-+ * wrapped versions of the local_irq_*() APIs, based on the
-+ * raw_local_irq_*() macros from the lowlevel headers.
-+ */
-+#ifndef _ASM_IRQFLAGS_H
-+#define _ASM_IRQFLAGS_H
-+
-+/*
-+ * Get definitions for raw_local_save_flags(x), etc.
-+ */
-+#include <asm-powerpc/hw_irq.h>
-+
-+/*
-+ * Do the CPU's IRQ-state tracing from assembly code. We call a
-+ * C function, so save all the C-clobbered registers:
-+ */
-+#ifdef CONFIG_DEBUG_TRACE_IRQFLAGS
-+
-+#error No support on PowerPC yet for CONFIG_DEBUG_TRACE_IRQFLAGS
-+
-+#else
-+# define TRACE_IRQS_ON
-+# define TRACE_IRQS_OFF
-+# define TRACE_IRQS_ON_STR
-+# define TRACE_IRQS_OFF_STR
-+#endif
-+
-+#endif
-
-
-
+Eric

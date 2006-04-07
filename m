@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWDGQEx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWDGQJI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932362AbWDGQEx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 12:04:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWDGQEx
+	id S932439AbWDGQJI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 12:09:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWDGQJH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 12:04:53 -0400
-Received: from wproxy.gmail.com ([64.233.184.234]:36046 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932362AbWDGQEw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 12:04:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SZ4/2D0Pn8eSRN5do3mOQXUeTWKn/E54xVNHNmUvN0Tw7UAycKDytDxH4eN7eBMp+WSPzvUuuwAN0F5ROMF1xj1n7OUl7HRQujnjMyzzOWReoYxItF7z1kSWYtEi1K+atqoVTazTEdobkSbn6URHOf98D4ikRUJf8ckZDZNwOb0=
-Message-ID: <4ae3c140604070904j51d1b968l2f62a1de647c0b02@mail.gmail.com>
-Date: Fri, 7 Apr 2006 12:04:51 -0400
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How to know when file data has been flushed into disk?
-Cc: linux-fsdevel@vger.kernel.org
-In-Reply-To: <87slop1ix2.fsf@suzuka.mcnaught.org>
+	Fri, 7 Apr 2006 12:09:07 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:16574 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932439AbWDGQJG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 12:09:06 -0400
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: Nick Piggin <npiggin@suse.de>
+Subject: [PATCH] inotify: check for NULL inode in inotify_d_instantiate
+Date: Fri, 7 Apr 2006 18:08:41 +0200
+User-Agent: KMail/1.9.1
+Cc: cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <4ae3c140604070842x537353c4s9a60706c2a2d25d9@mail.gmail.com>
-	 <87slop1ix2.fsf@suzuka.mcnaught.org>
+Message-Id: <200604071808.41953.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your reply.
+The spufs file system creates files in a directory before instantiating
+the directory itself, which causes a NULL pointer access in
+inotify_d_instantiate since c32ccd87bfd1414b0aabfcd8dbc7539ad23bcbaa.
 
-That make sense. But at least ext3 needs to know when all data has
-been flushed so that it can commit the meta data. Question is how can
-ext3 knows that? The data flushing is done by flush daemon. There go
-to be some way to notify ext3 that data is flushed. Where  is this
-part of code in ext3 module?
+I'd like to keep this behavior since it means that the user
+will not have access to files in the directory before I know
+that I succeed in creating everything in it. This patch adds
+a simple check for the inode to keep that working.
 
-Xin
+Cc: Nick Piggin <npiggin@suse.de>
+Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+---
 
-On 4/7/06, Douglas McNaught <doug@mcnaught.org> wrote:
-> "Xin Zhao" <uszhaoxin@gmail.com> writes:
->
-> > 3. Does sys_close() have to  be blocked until all data and metadata
-> > are committed? If not, sys_close() may give application an illusion
-> > that the file is successfully written, which can cause the application
-> > to take subsequent operation. However, data flush could be failed. In
-> > this case, file system seems to mislead the application. Is this true?
-> > If so, any solutions?
->
-> The fsync() call is the way to make sure written data has hit the
-> disk.  close() doesn't guarantee that.
->
-> -Doug
->
+diff --git a/fs/inotify.c b/fs/inotify.c
+index 367c487..1f50302 100644
+--- a/fs/inotify.c
++++ b/fs/inotify.c
+@@ -538,7 +538,7 @@ void inotify_d_instantiate(struct dentry
+ 	WARN_ON(entry->d_flags & DCACHE_INOTIFY_PARENT_WATCHED);
+ 	spin_lock(&entry->d_lock);
+ 	parent = entry->d_parent;
+-	if (inotify_inode_watched(parent->d_inode))
++	if (parent->d_inode && inotify_inode_watched(parent->d_inode))
+ 		entry->d_flags |= DCACHE_INOTIFY_PARENT_WATCHED;
+ 	spin_unlock(&entry->d_lock);
+ }

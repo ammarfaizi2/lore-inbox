@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbWDGTbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbWDGTjw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964908AbWDGTbl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 15:31:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWDGTbl
+	id S964914AbWDGTjw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 15:39:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbWDGTjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 15:31:41 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:31883 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S964908AbWDGTbl (ORCPT
+	Fri, 7 Apr 2006 15:39:52 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:2207 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964914AbWDGTjv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 15:31:41 -0400
-Date: Sat, 8 Apr 2006 03:28:38 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/4] coredump: speedup SIGKILL sending
-Message-ID: <20060407232838.GA11460@oleg>
-References: <20060406220628.GA237@oleg> <1144352758.2866.105.camel@mindpipe> <20060406235519.GA331@oleg> <1144354065.2866.116.camel@mindpipe>
+	Fri, 7 Apr 2006 15:39:51 -0400
+Date: Fri, 7 Apr 2006 14:39:37 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Kirill Korotaev <dev@sw.ru>, herbert@13thfloor.at, devel@openvz.org,
+       sam@vilain.net, "Eric W. Biederman" <ebiederm@xmission.com>,
+       xemul@sw.ru, James Morris <jmorris@namei.org>
+Subject: Re: [RFC][PATCH 1/5] uts namespaces: Implement utsname namespaces
+Message-ID: <20060407193937.GA15494@sergelap.austin.ibm.com>
+References: <20060407095132.455784000@sergelap> <20060407183600.C8A8F19B8FD@sergelap.hallyn.com> <20060407191359.GC9097@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1144354065.2866.116.camel@mindpipe>
+In-Reply-To: <20060407191359.GC9097@mars.ravnborg.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04/06, Lee Revell wrote:
-> On Fri, 2006-04-07 at 03:55 +0400, Oleg Nesterov wrote:
-> > On 04/06, Lee Revell wrote:
-> > > On Fri, 2006-04-07 at 02:06 +0400, Oleg Nesterov wrote:
-> > > > With this patch a thread group is killed atomically under ->siglock.
-> > > > This is faster because we can use sigaddset() instead of force_sig_info()
-> > > > and this is used in further patches.
-> > > >
-> > > > Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-> > >
-> > > Won't this cause huge latencies when a process with lots of threads is
-> > > killed?
-> >
-> > Yes, irqs are disabled. But this is not worse than 'kill -9 pid', note
-> > that __group_complete_signal() or zap_other_threads() do the same.
->
-> Those have been problematic in the past.  I am just wondering if this
-> will be a latency regression, or if changes elsewhere in your patch
-> negate the effect.
+Quoting Sam Ravnborg (sam@ravnborg.org):
+> > diff --git a/include/linux/utsname.h b/include/linux/utsname.h
+> > index 13e1da0..cc28ac5 100644
+> > --- a/include/linux/utsname.h
+> > +++ b/include/linux/utsname.h
+> > @@ -1,5 +1,8 @@
+> >  #ifndef _LINUX_UTSNAME_H
+> >  #define _LINUX_UTSNAME_H
+> You can kill this include
+> > +#include <linux/sched.h>
+> 
+> if you move this static inline to sched.h
+>  +
+> > +static inline struct new_utsname *utsname(void)
+> > +{
+> > +	return &current->uts_ns->name;
+> > +}
+> And since it operates on &current that may make sense.
 
-zap_process() disables irqs while traversing ->thread_group list.
-So yes, if a process has a lot of threads it will be a latency regression.
-(but again, __group_complete_signal() does the same while delivering this
-signal, so I don't think this change can make things worse).
+I had it there originally.  Don't mind moving it back if that
+seems more appropriate, but of course then we'll need
+to #include <linux/utsname.h> in sched.h, since we need to
+know struct uts_ns to get uts_ns->name.
 
-However this allows us to avoid tasklist_lock in zap_threads() so I think
-it is worth it. Please note that tasklist_lock was held while iterating
-over _all_ threads in system, not only current's thread group.
+So is moving it to sched.h the way to go?
 
-Oleg.
-
+thanks,
+-serge

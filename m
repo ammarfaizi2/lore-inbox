@@ -1,842 +1,457 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWDGSvO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWDGSza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964874AbWDGSvO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 14:51:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbWDGSsl
+	id S964878AbWDGSza (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 14:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWDGSz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 14:48:41 -0400
-Received: from 216.255.188.82-custblock.intercage.com ([216.255.188.82]:2192
-	"EHLO main.astronetworks.net") by vger.kernel.org with ESMTP
-	id S964874AbWDGSsg convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 14:48:36 -0400
-From: =?utf-8?q?T=C3=B6r=C3=B6k_Edwin?= <edwin@gurde.com>
-To: linux-security-module@vger.kernel.org
-Subject: [RFC][PATCH 2/7] implementation of LSM hooks
-Date: Fri, 7 Apr 2006 21:38:34 +0300
-User-Agent: KMail/1.9.1
-Cc: James Morris <jmorris@namei.org>, linux-kernel@vger.kernel.org,
-       fireflier-devel@lists.sourceforge.net, sds@tycho.nsa.gov
-References: <200604021240.21290.edwin@gurde.com> <200604072034.20972.edwin@gurde.com> <200604072124.24000.edwin@gurde.com>
-In-Reply-To: <200604072124.24000.edwin@gurde.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200604072138.35201.edwin@gurde.com>
+	Fri, 7 Apr 2006 14:55:29 -0400
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:25149 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S964878AbWDGSz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 14:55:28 -0400
+In-Reply-To: <Pine.LNX.4.44.0603301711240.10382-100000@gate.crashing.org>
+References: <Pine.LNX.4.44.0603301711240.10382-100000@gate.crashing.org>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+X-Gpgmail-State: !signed
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <8F6363F6-83DE-40EF-B7F2-CBF48952CCE5@kernel.crashing.org>
+Cc: khali@linux-fr.org, linux-kernel@vger.kernel.org,
+       <lm-sensors@lm-sensors.org>, Greg KH <greg@kroah.com>
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH] i2c: pca954x I2C mux driver
+Date: Fri, 7 Apr 2006 13:55:27 -0500
+To: Kumar Gala <galak@kernel.crashing.org>
+X-Mailer: Apple Mail (2.746.3)
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - main.astronetworks.net
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
 X-AntiAbuse: Original Domain - vger.kernel.org
 X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - gurde.com
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Implementation of the LSM hooks. It is based on hooks.c from SELinux. 
-I replaced the avc with calls to functions from autolabel.c
+Any comment or acceptance of this patch?
 
-Also, one important difference:
-- when open files are checked during an execve, they are NOT closed when a 
-domain transition occurs to a different sid. A group SID is created, and both 
-the old sid, and new sids can be retrieved later.
+- k
 
-How could I write an SELinux policy that does this?
+On Mar 30, 2006, at 5:11 PM, Kumar Gala wrote:
 
+> Driver for the Phillips pca954x I2C mux/switches devices.  These  
+> devices handle
+> the fact that a number of I2C devices have limited address  
+> selection capablities
+> and systems may end up having to mux to access all the I2C devices.
+>
+> The driver uses the i2c virtual adapter support to make each mux/ 
+> switch port
+> look like its own i2c bus.
+>
+> Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+>
+> ---
+> commit 735344d2f587938da9012070f881b725269c4dc9
+> tree a12c50c7f3d34b44e33397863dc7e57f8fd0e3ec
+> parent 862cbc263e3d3e44028d7465a912847cf5366163
+> author Kumar Gala <galak@kernel.crashing.org> Thu, 30 Mar 2006  
+> 17:05:14 -0600
+> committer Kumar Gala <galak@kernel.crashing.org> Thu, 30 Mar 2006  
+> 17:05:14 -0600
+>
+>  drivers/i2c/chips/Kconfig   |   10 +
+>  drivers/i2c/chips/Makefile  |    1
+>  drivers/i2c/chips/pca954x.c |  320 ++++++++++++++++++++++++++++++++ 
+> +++++++++++
+>  include/linux/i2c-id.h      |    1
+>  4 files changed, 332 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
+> index 7aa5c38..894c95e 100644
+> --- a/drivers/i2c/chips/Kconfig
+> +++ b/drivers/i2c/chips/Kconfig
+> @@ -56,6 +56,16 @@ config SENSORS_PCA9539
+>  	  This driver can also be built as a module.  If so, the module
+>  	  will be called pca9539.
+>
+> +config SENSORS_PCA954x
+> +	tristate "Philips PCA954x I2C Mux/switches"
+> +	depends on I2C && I2C_VIRT && EXPERIMENTAL
+> +	help
+> +	  If you say yes here you get support for the Philips PCA954x
+> +	  I2C mux/switch devices.
+> +
+> +	  This driver can also be built as a module.  If so, the module
+> +	  will be called pca954x.
+> +
+>  config SENSORS_PCF8591
+>  	tristate "Philips PCF8591"
+>  	depends on I2C && EXPERIMENTAL
+> diff --git a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
+> index 779868e..e69190d 100644
+> --- a/drivers/i2c/chips/Makefile
+> +++ b/drivers/i2c/chips/Makefile
+> @@ -8,6 +8,7 @@ obj-$(CONFIG_SENSORS_EEPROM)	+= eeprom.o
+>  obj-$(CONFIG_SENSORS_MAX6875)	+= max6875.o
+>  obj-$(CONFIG_SENSORS_M41T00)	+= m41t00.o
+>  obj-$(CONFIG_SENSORS_PCA9539)	+= pca9539.o
+> +obj-$(CONFIG_SENSORS_PCA954x)	+= pca954x.o
+>  obj-$(CONFIG_SENSORS_PCF8574)	+= pcf8574.o
+>  obj-$(CONFIG_SENSORS_PCF8591)	+= pcf8591.o
+>  obj-$(CONFIG_ISP1301_OMAP)	+= isp1301_omap.o
+> diff --git a/drivers/i2c/chips/pca954x.c b/drivers/i2c/chips/pca954x.c
+> new file mode 100644
+> index 0000000..f300493
+> --- /dev/null
+> +++ b/drivers/i2c/chips/pca954x.c
+> @@ -0,0 +1,320 @@
+> +/*
+> + * pca954x.c - Part of lm_sensors, Linux kernel modules for hardware
+> + *             monitoring
+> + * This module supports the PCA954x series of I2C multiplexer/ 
+> switch chips
+> + * made by Philips Semiconductors.  This includes the
+> + *	PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547  
+> and PCA9548.
+> + *
+> + * These chips are all controlled via the I2C bus itself, and all  
+> have a
+> + * single 8-bit register (normally at 0x70).  The upstream  
+> "parent" bus fans
+> + * out to two, four, or eight downstream busses or channels; which  
+> of these
+> + * are selected is determined by the chip type and register  
+> contents.  A
+> + * mux can select only one sub-bus at a time; a switch can select any
+> + * combination simultaneously.
+> + *
+> + * Based on:
+> + *    pca954x.c from Ken Harrenstien
+> + * Copyright (C) 2004 Google, Inc. (Ken Harrenstien)
+> + *
+> + * Based on:
+> + *    i2c-virtual_cb.c from Brian Kuschak <bkuschak@yahoo.com>
+> + * and
+> + *    pca9540.c from Jean Delvare <khali@linux-fr.org>, which was
+> + *	based on pcf8574.c from the same project by Frodo Looijaard,
+> + *	Philip Edelbrock, Dan Eaton and Aurelien Jarno.
+> + *
+> + * This file is licensed under the terms of the GNU General Public
+> + * License version 2. This program is licensed "as is" without any
+> + * warranty of any kind, whether express or implied.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/i2c.h>
+> +#include <linux/init.h>
+> +
+> +#define PCA954X_MAX_NCHANS 8
+> +
+> +static struct i2c_driver pca954x_driver;
+> +
+> +/* Addresses to scan: none. These chip cannot be detected. */
+> +static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+> +
+> +/* Chip type must normally be specified using a parameter of the form
+> +	"force_pca9544=0,0x70"
+> +   The following declares the possible types.
+> +*/
+> +I2C_CLIENT_INSMOD_8(pca9540, pca9542, pca9543, pca9544,
+> +		    pca9545, pca9546, pca9547, pca9548);
+> +
+> +struct pca954x_chipdef {
+> +	enum chips type;
+> +	const char *name;
+> +	u8 nchans;
+> +	u8 enable;		/* used for muxes only */
+> +	enum muxtype { pca954x_ismux = 0, pca954x_isswi } muxtype;
+> +};
+> +
+> +/* Provide specs for the PCA954x types we know about */
+> +static struct pca954x_chipdef pca954x_chipdefs[] = {
+> +	{
+> +		.type = pca9540,
+> +		.name = "pca9540",
+> +		.nchans = 2,
+> +		.enable = 0x4,
+> +		.muxtype = pca954x_ismux,
+> +	},
+> +	{
+> +		.type = pca9542,
+> +		.name = "pca9542",
+> +		.nchans = 2,
+> +		.enable = 0x4,
+> +		.muxtype = pca954x_ismux,
+> +	},
+> +	{
+> +		.type = pca9543,
+> +		.name = "pca9543",
+> +		.nchans = 2,
+> +		.enable = 0x0,
+> +		.muxtype = pca954x_isswi,
+> +	},
+> +	{
+> +		.type = pca9544,
+> +		.name = "pca9544",
+> +		.nchans = 4,
+> +		.enable = 0x4,
+> +		.muxtype = pca954x_ismux,
+> +	},
+> +	{
+> +		.type = pca9545,
+> +		.name = "pca9545",
+> +		.nchans = 4,
+> +		.enable = 0x0,
+> +		.muxtype = pca954x_isswi,
+> +	},
+> +	{
+> +		.type = pca9546,
+> +		.name = "pca9546",
+> +		.nchans = 4,
+> +		.enable = 0x0,
+> +		.muxtype = pca954x_isswi,
+> +	},
+> +	{
+> +		.type = pca9547,
+> +		.name = "pca9547",
+> +		.nchans = 8,
+> +		.enable = 0x8,
+> +		.muxtype = pca954x_ismux,
+> +	},
+> +	{
+> +		.type = pca9548,
+> +		.name = "pca9548",
+> +		.nchans = 8,
+> +		.enable = 0x0,
+> +		.muxtype = pca954x_isswi,
+> +	},
+> +};
+> +
+> +struct pca954x_data {
+> +	struct i2c_client client;
+> +	unsigned int chip_offset;
+> +	u8 last_chan;
+> +	struct i2c_adapter *virt_adapters[PCA954X_MAX_NCHANS];
+> +};
+> +
+> +static int pca954x_xfer(struct i2c_adapter *adap,
+> +			struct i2c_client *client, int read_write, u8 * val)
+> +{
+> +	int ret = -ENODEV;
+> +
+> +	if (adap->algo->master_xfer) {
+> +		struct i2c_msg msg;
+> +		char buf[1];
+> +
+> +		msg.addr = client->addr;
+> +		msg.flags = (read_write == I2C_SMBUS_READ ? I2C_M_RD : 0);
+> +		msg.len = 1;
+> +		buf[0] = *val;
+> +		msg.buf = buf;
+> +		ret = adap->algo->master_xfer(adap, &msg, 1);
+> +	} else if (adap->algo->smbus_xfer) {
+> +		union i2c_smbus_data data;
+> +		ret = adap->algo->smbus_xfer(adap,
+> +					     client->addr,
+> +					     client->flags & I2C_M_TEN,
+> +					     read_write,
+> +					     *val, I2C_SMBUS_BYTE, &data);
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static int pca954x_select_chan(struct i2c_adapter *adap,
+> +			       struct i2c_client *client, u32 chan)
+> +{
+> +	struct pca954x_data *data = i2c_get_clientdata(client);
+> +	struct pca954x_chipdef *chip = &pca954x_chipdefs[data->chip_offset];
+> +	u8 regval = 0;
+> +	int ret = 0;
+> +
+> +	/* we make switches look like muxes, not sure how to be smarter */
+> +	if (chip->muxtype == pca954x_ismux)
+> +		regval = chan | chip->enable;
+> +	else
+> +		regval = 1 << chan;
+> +
+> +	/* Only select the channel if its different from the last channel */
+> +	if (data->last_chan != chan) {
+> +		ret = pca954x_xfer(adap, client, I2C_SMBUS_WRITE, &regval);
+> +		data->last_chan = chan;
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static int pca954x_deselect_mux(struct i2c_adapter *adap,
+> +				struct i2c_client *client, u32 value)
+> +{
+> +	/* We never deselect, just stay on the last channel we selected */
+> +	return 0;
+> +}
+> +
+> +static int pca954x_detect(struct i2c_adapter *bus, int address,  
+> int kind)
+> +{
+> +	int i, n;
+> +	struct i2c_client *client;
+> +	struct pca954x_data *data;
+> +	int ret = -ENODEV;
+> +
+> +	if (!i2c_check_functionality(bus, I2C_FUNC_SMBUS_BYTE))
+> +		goto err;
+> +
+> +	if (!(data = kzalloc(sizeof(struct pca954x_data), GFP_KERNEL))) {
+> +		ret = -ENOMEM;
+> +		goto err;
+> +	}
+> +
+> +	client = &data->client;
+> +	client->addr = address;
+> +	client->adapter = bus;
+> +	client->driver = &pca954x_driver;
+> +	client->flags = 0;
+> +	i2c_set_clientdata(client, data);
+> +	if (kind < 0) {
+> +		dev_err(&bus->dev, "Attempted ill-advised probe at addr 0x%x\n",
+> +			address);
+> +		goto exit_free;
+> +	}
+> +
+> +	/* Read the mux register at addr.  This does two things: it verifies
+> +	   that the mux is in fact present, and fetches its current
+> +	   contents for possible use with a future deselect algorithm.
+> +	 */
+> +	if ((i = i2c_smbus_read_byte(client)) < 0) {
+> +		dev_warn(&bus->dev, "pca954x failed to read reg at 0x%x\n",
+> +			 address);
+> +		goto exit_free;
+> +	}
+> +
+> +	if (kind == any_chip) {
+> +		dev_warn(&bus->dev, "pca954x needs advice on chip type - "
+> +			 "wildly guessing 0x%x is a PCA9540\n", address);
+> +		kind = pca9540;
+> +	}
+> +
+> +	/* Look up in table */
+> +	for (i = sizeof(pca954x_chipdefs) / sizeof(pca954x_chipdefs[0]);
+> +	     --i >= 0;) {
+> +		if (pca954x_chipdefs[i].type == kind)
+> +			break;
+> +	}
+> +	if (i < 0) {
+> +		dev_err(&bus->dev, "Internal error: unknown kind (%d)\n", kind);
+> +		goto exit_free;
+> +	}
+> +
+> +	data->chip_offset = i;
+> +
+> +	if ((ret = i2c_attach_client(client)))
+> +		goto exit_free;
+> +
+> +	/* Now create virtual busses and adapters for them */
+> +	for (i = 0; i < pca954x_chipdefs[data->chip_offset].nchans; i++) {
+> +		data->virt_adapters[i] =
+> +		    i2c_add_virt_adapter(bus, client, i,
+> +					 &pca954x_select_chan,
+> +					 &pca954x_deselect_mux);
+> +		if (data->virt_adapters[i] == NULL) {
+> +			ret = -ENODEV;
+> +			goto virt_reg_failed;
+> +		}
+> +	}
+> +
+> +	dev_info(&client->dev,
+> +		 "Registered %d virtual busses for I2C %s %s\n", i,
+> +		 pca954x_chipdefs[data->chip_offset].muxtype == pca954x_ismux ?
+> +		 "mux" : "switch", pca954x_chipdefs[data->chip_offset].name);
+> +
+> +	return 0;
+> +
+> +virt_reg_failed:
+> +	for (n = 0; n < i; n++)
+> +		i2c_del_virt_adapter(data->virt_adapters[n]);
+> +	i2c_detach_client(client);
+> +exit_free:
+> +	kfree(data);
+> +err:
+> +	return ret;
+> +}
+> +
+> +static int pca954x_attach_adapter(struct i2c_adapter *adapter)
+> +{
+> +	return i2c_probe(adapter, &addr_data, pca954x_detect);
+> +}
+> +
+> +static int pca954x_detach_client(struct i2c_client *client)
+> +{
+> +	struct pca954x_data *data = i2c_get_clientdata(client);
+> +	struct pca954x_chipdef *chip = &pca954x_chipdefs[data->chip_offset];
+> +	int i, err;
+> +
+> +	for (i = 0; i < chip->nchans; ++i) {
+> +		if (data->virt_adapters[i]) {
+> +			if ((err =
+> +			     i2c_del_virt_adapter(data->virt_adapters[i])))
+> +				return err;
+> +			data->virt_adapters[i] = NULL;
+> +		}
+> +	}
+> +
+> +	if ((err = i2c_detach_client(client)))
+> +		return err;
+> +
+> +	kfree(data);
+> +	return 0;
+> +}
+> +
+> +static struct i2c_driver pca954x_driver = {
+> +	.driver = {
+> +		   .name = "pca954x",
+> +		   },
+> +	.id = I2C_DRIVERID_PCA954X,
+> +	.attach_adapter = pca954x_attach_adapter,
+> +	.detach_client = pca954x_detach_client,
+> +};
+> +
+> +static int __init pca954x_init(void)
+> +{
+> +	return i2c_add_driver(&pca954x_driver);
+> +}
+> +
+> +static void __exit pca954x_exit(void)
+> +{
+> +	i2c_del_driver(&pca954x_driver);
+> +}
+> +
+> +module_init(pca954x_init);
+> +module_exit(pca954x_exit);
+> +
+> +MODULE_AUTHOR("Kumar Gala <galak@kernel.crashing.org>");
+> +MODULE_DESCRIPTION("PCA954X I2C mux/switch driver");
+> +MODULE_LICENSE("GPL");
+> diff --git a/include/linux/i2c-id.h b/include/linux/i2c-id.h
+> index 66d5533..f8f7f20 100644
+> --- a/include/linux/i2c-id.h
+> +++ b/include/linux/i2c-id.h
+> @@ -112,6 +112,7 @@
+>  #define I2C_DRIVERID_X1205	82	/* Xicor/Intersil X1205 RTC	*/
+>  #define I2C_DRIVERID_PCF8563	83	/* Philips PCF8563 RTC		*/
+>  #define I2C_DRIVERID_RS5C372	84	/* Ricoh RS5C372 RTC		*/
+> +#define I2C_DRIVERID_PCA954X	85	/* pca954x I2C mux/switch	*/
+>
+>  #define I2C_DRIVERID_I2CDEV	900
+>  #define I2C_DRIVERID_ARP        902    /* SMBus ARP  
+> Client              */
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux- 
+> kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
----
- hooks.c      |  669 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- structures.h |   76 ++++++
- 2 files changed, 745 insertions(+)
-
-diff -uprN null/hooks.c fireflier_lsm/hooks.c
---- null/hooks.c	1970-01-01 02:00:00.000000000 +0200
-+++ fireflier_lsm/hooks.c	2006-04-07 17:43:37.000000000 +0300
-@@ -0,0 +1,669 @@
-+
-+/*
-+ *  Fireflier security labeling module
-+ *
-+ *
-+ *  This file contains the Fireflier hook function implementations.
-+ *
-+ *  Based on the SELinux hooks.c
-+ *
-+ *  The Fireflier security module won't deny any operations
-+ *  Its sole purpose is to label processes, and files, so that the sk_filter 
-context match
-+ *  will be able to do context matching without selinux being active
-+ *
-+ *  You shouldn't use SELinux and Fireflier LSM at the same time 
-+ *  You can either have:
-+ *   - Having SELinux compiled in your kernel, and disabled at boot, and 
-fireflier enabled at boot /loaded as a module  
-+ *   - Having SELinux compiled in your kernel, and enabled at boot, and 
-fireflier disabled on boot/not loaded.
-+ *	
-+ *  Currently you have to turn off the capability module 
-(capability.disable=1 on boot). See README for details
-+ *
-+ *  Copyright (C) 2006 Török Edwin <edwin@gurde.com>
-+ *
-+ *
-+ *	This program is free software; you can redistribute it and/or modify
-+ *	it under the terms of the GNU General Public License version 2,
-+ *      as published by the Free Software Foundation.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/security.h>
-+
-+#include <linux/mount.h>
-+#include <linux/xattr.h>
-+#include <net/sock.h>
-+#include "fireflier_debug.h"
-+#include "constants.h"
-+#include "structures.h"
-+#include "autolabel.h"
-+
-+//TODO: document all these functions here
-+
-+/* Original (dummy) security module. */
-+static struct security_operations *original_ops = NULL;
-+static struct security_operations *secondary_ops = NULL;
-+static struct security_operations dummy_security_ops;
-+
-+
-+#define XATTR_FIREFLIER_SUFFIX "fireflier"
-+#define XATTR_NAME_FIREFLIER XATTR_SECURITY_PREFIX XATTR_FIREFLIER_SUFFIX
-+
-+
-+/* module stacking operations */
-+/**
-+ * fireflier_register_security - register a stacked security module
-+ * @name: the name of the secondary security module to register
-+ * @ops:  the stacked module's security_operations 
-+ */
-+static int fireflier_register_security (const char *name, struct 
-security_operations *ops)
-+{
-+        if (secondary_ops != original_ops)
-+        {
-+                printk(KERN_INFO "%s:  There is already a secondary 
-security "
-+                       "module registered.\n", __FUNCTION__);
-+                return -EINVAL;
-+        }
-+	
-+        secondary_ops = ops;
-+	
-+        printk(KERN_INFO "%s:  Registering secondary module %s\n",
-+               __FUNCTION__,
-+               name);
-+
-+        return 0;
-+}
-+
-+/**
-+ * fireflier_unregister_security - unregister a stacked security 
-+ * @name: the name of the secondary security module to unregister
-+ * @ops:  the security_operations of the stacked module
-+ */
-+static int fireflier_unregister_security (const char *name, struct 
-security_operations *ops)
-+{
-+        if (ops != secondary_ops)
-+        {
-+                printk (KERN_INFO "%s:  trying to unregister a security 
-module "
-+                        "that is not registered.\n", __FUNCTION__);
-+                return -EINVAL;
-+        }
-+
-+        secondary_ops = original_ops;
-+
-+        return 0;
-+}
-+
-+
-+/**
-+ * task_alloc_security - allocate the security structure for a task
-+ * @task: the task to allocate the security structure for
-+ * Allocates and initializes the security structure of a task.
-+ * Returns -ENOMEM in case of an allocation failure.
-+ * This function might sleep.
-+ */
-+static int task_alloc_security(struct task_struct *task)
-+{
-+	struct fireflier_task_security_struct *tsec;
-+	
-+	tsec = kzalloc(sizeof(*tsec), GFP_ATOMIC);
-+	if (!tsec)
-+		return -ENOMEM;
-+	
-+	tsec->magic = FIREFLIER_MAGIC;
-+	tsec->task = task;
-+	tsec->osid = tsec->sid = tsec->ptrace_sid = FIREFLIER_SID_UNLABELED;
-+	task->security = tsec;
-+	
-+	return 0;
-+}
-+
-+/**
-+ * task_free_security - free the security structure of a task
-+ */
-+static void task_free_security(struct task_struct *task)
-+{
-+	struct fireflier_task_security_struct *tsec = task->security;
-+	
-+	if (!tsec || tsec->magic != FIREFLIER_MAGIC)
-+		return;
-+	
-+	task->security = NULL;
-+	kfree(tsec);
-+}
-+
-+/**
-+ * fireflier_task_alloc_security - allocate & initialize the security 
-structure of tsk from current
-+ * @tsk: the task who's security context needs to be initialized
-+ * In case of allocation failure returns -ENOMEM
-+ * otherwise calls secondary security module.
-+ * Might sleep.
-+ */
-+static int fireflier_task_alloc_security(struct task_struct *tsk)
-+{
-+	struct fireflier_task_security_struct *tsec_current, *tsec_tsk;
-+
-+
-+	int rc;
-+	rc = task_alloc_security(tsk);
-+	if (rc)
-+		return rc;
-+	tsec_current = current->security;
-+	if(tsec_current) {
-+		tsec_tsk = tsk->security;
-+
-+		tsec_tsk->sid = tsec_current->sid;
-+		tsec_tsk->osid = tsec_current->osid;
-+		/* Retain ptracer SID across fork, if any.
-+		   This will be reset by the ptrace hook upon any
-+		   subsequent ptrace_attach operations. */
-+		tsec_tsk->ptrace_sid = tsec_current->ptrace_sid;
-+	}
-+	//else printk(KERN_DEBUG "current has no security info\n");
-+	return secondary_ops->task_alloc_security(tsk);
-+}
-+
-+
-+/**
-+ * fireflier_bprm_alloc_security - allocate & initialize a linux_bprm 
-structure
-+ * @bprm: the linux_bprm structure to initialize
-+ * Returns -ENOMEM on allocation failure, otherwise calls stacked security 
-module.
-+ * Might sleep.
-+ */
-+static int fireflier_bprm_alloc_security(struct linux_binprm *bprm)
-+{
-+	struct fireflier_bprm_security_struct *bsec;
-+
-+	bsec = kzalloc(sizeof(*bsec), GFP_KERNEL);
-+	if (!bsec)
-+		return -ENOMEM;
-+
-+	bsec->magic = FIREFLIER_MAGIC;
-+	bsec->bprm = bprm;
-+	bsec->sid = FIREFLIER_SID_UNLABELED;
-+	bsec->set = 0;
-+
-+	bprm->security = bsec;
-+	
-+	return secondary_ops->bprm_alloc_security(bprm);
-+}
-+
-+/**
-+ * fireflier_bprm_set_security - Sets the SID of bprm
-+ * @bprm: linux_bprm structure, its SID will be calculated here
-+ * This is where the (autolabeling) sid generation function is called, i.e.
-+ * this function is responsible for computing the SID of the process that is 
-going to be executed
-+ * Calls secondary security module.
-+ * Can this sleep?
-+ */
-+static int fireflier_bprm_set_security(struct linux_binprm *bprm)
-+{
-+	struct fireflier_bprm_security_struct *bsec;
-+
-+	bsec = bprm->security;
-+	if(unlikely(!bsec)) {
-+		printk(KERN_DEBUG "Fireflier: bprm->security not set\n");
-+		return  secondary_ops->bprm_set_security(bprm);
-+	}
-+		
-+	if (bsec->set)
-+		return  secondary_ops->bprm_set_security(bprm);
-+
-+
-+	bsec->sid = get_or_generate_sid(bprm->file,0);
-+        printk(KERN_DEBUG "sid:%d\n",bsec->sid);
-+	bsec->set = 1;
-+	return  secondary_ops->bprm_set_security(bprm);
-+}
-+
-+/**
-+ * fireflier_bprm_free_security - free the binbprm's security structure
-+ * @bprm: linux_binprm structure, who's security structure is to be freed
-+ */
-+static void fireflier_bprm_free_security(struct linux_binprm *bprm)
-+{
-+	BUG_ON(!bprm->security);
-+	kfree(bprm->security);
-+	bprm->security = NULL;
-+	return secondary_ops->bprm_free_security(bprm);
-+}
-+
-+/**
-+ * fireflier_bprm_apply_creds - compute the sid of the current task based on 
-bprm
-+ * @bprm: linux_binprm structure
-+ * @unsafe: reasons why the transition might be unsafe
-+ * Compute the sid of a process being transformed by an execve operation
-+ */
-+static void fireflier_bprm_apply_creds(struct linux_binprm *bprm, int unsafe)
-+{
-+	struct fireflier_task_security_struct *tsec;
-+	struct fireflier_bprm_security_struct *bsec;
-+	u32 sid;
-+
-+
-+	secondary_ops->bprm_apply_creds(bprm, unsafe);
-+
-+	tsec = current->security;
-+	bsec = bprm->security;
-+	if(unlikely(!bsec)) {
-+		printk(KERN_DEBUG "No bprm security structure allocated\n");
-+		dump_stack();
-+		return;
-+	}
-+	sid = bsec->sid;
-+
-+
-+	bsec->unsafe = 0;
-+	if(unlikely(!tsec)) {
-+		printk(KERN_DEBUG "No security structure allocated\n");
-+		dump_stack();
-+		return;
-+	}
-+	if (tsec->sid != sid) {
-+		/* hmmm unsafe&ptrace stuff.... need to think over this a bit*/
-+		if(unsafe & (LSM_UNSAFE_SHARE | LSM_UNSAFE_PTRACE|LSM_UNSAFE_PTRACE_CAP)) 
-+		{	   
-+		
-+			printk(KERN_DEBUG "marking SID as unsafe\n");
-+			bsec->unsafe=unsafe;
-+		}
-+	   
-+		tsec->sid = sid;
-+	}	
-+}
-+
-+
-+/**
-+ * inode_update_perm - update the group SID of this inode
-+ * @tsk - the task that has accesses the inode
-+ * @inode - the inode who's SID has to be updated
-+ * A task has accessed this file, add the task's SID to the group SID of 
-tasks
-+ * accessing the file
-+ * based on inode_has_perm 
-+ */
-+static void inode_update_perm(struct task_struct *tsk,struct inode *inode)
-+{
-+	struct fireflier_task_security_struct *tsec;
-+	struct fireflier_inode_security_struct *isec;
-+
-+     	tsec = tsk->security;
-+   	isec = inode->i_security;
-+   	if(!isec) 
-+     		return;
-+   
-+     	if(unlikely(!tsec))
-+       		isec->sid = compute_inode_sid(isec->sid,FIREFLIER_SID_UNLABELED);
-+   	else
-+     		isec->sid = compute_inode_sid(isec->sid,tsec->sid);
-+   	printk(KERN_DEBUG "computed inode 
-sid: %ld->%d\n",inode->i_ino,isec->sid);   
-+}
-+
-+
-+
-+/** 
-+ * file_update_perm - update the group SID of this file
-+ * @tsk - the task that has accessed the file
-+ * @file - the file that has been accessed
-+ * A task has accessed this file, add the task's SID to the group SID of 
-tasks
-+ * accessing the file
-+ * Based on file_has_perm 
-+ */
-+static  inline void file_update_perm(struct task_struct *tsk, struct file 
-*file)    
-+{
-+   
-+	struct fireflier_task_security_struct *tsec = tsk->security;
-+	struct fireflier_file_security_struct *fsec = file->f_security;
-+	struct dentry *dentry = file->f_dentry;
-+	struct inode *inode = dentry->d_inode;
-+   
-+	inode_update_perm(tsk, inode);
-+   
-+	if(!fsec)
-+		return;
-+	if(unlikely(!tsec))
-+		fsec->sid=compute_inode_sid(fsec->sid,FIREFLIER_SID_UNLABELED);
-+	else
-+		fsec->sid=compute_inode_sid(fsec->sid,tsec->sid);
-+}
-+
-+
-+  
-+ 
-+/** 
-+ * update_files_auth - update the group SID of the files
-+ * @files - a files_struct containing all files of the forked process
-+ * Derived from fs/exec.c:flush_old_files. 
-+ *  Should deal only with sockets 
-+ */
-+static inline void update_files_auth(struct files_struct * files)  
-+{
-+   
-+   
-+	struct file *file;
-+	struct fdtable *fdt;
-+	long j = -1;
-+  
-+	/* Revalidate access to inherited open files. */
-+	spin_lock(&files->file_lock);
-+	for (;;) 
-+	{
-+		unsigned long set, i;
-+	
-+		j++;
-+		i = j * __NFDBITS;
-+		fdt = files_fdtable(files);
-+		if (i >= fdt->max_fds || i >= fdt->max_fdset)
-+			break;
-+		set = fdt->open_fds->fds_bits[j];
-+		if (!set)
-+			continue;
-+		spin_unlock(&files->file_lock);
-+		for ( ; set ; i++,set >>= 1) 
-+		{
-+			if (set & 1) 
-+			{
-+				file = fget(i);
-+				if (!file)
-+					continue;
-+				file_update_perm(current,file);
-+				fput(file);
-+			}
-+		}
-+		spin_lock(&files->file_lock);
-+	}
-+	spin_unlock(&files->file_lock);
-+}
-+
-+	 
-+/**
-+ * fireflier_bprm_post_apply_creds - updates files' SID
-+ * @bprm - a linux_bprm structure
-+ * update the security field of bprm
-+ */
-+static void fireflier_bprm_post_apply_creds(struct linux_binprm *bprm)
-+{
-+	struct fireflier_task_security_struct *tsec = current->security;
-+	struct fireflier_bprm_security_struct *bsec  = bprm->security;
-+	secondary_ops->bprm_post_apply_creds(bprm);
-+	
-+	if(bsec->unsafe) 
-+	{
-+	
-+		printk(KERN_DEBUG "computing unsafe SID\n");
-+		tsec->sid = get_or_generate_unsafe_sid(tsec->sid,bsec->unsafe);
-+	
-+	}
-+   
-+	ff_debug_map_pidsid(tsec->sid);
-+	if (tsec->osid == tsec->sid)
-+		return;
-+   	//SID changed, so update the files's SIDs, i.e. turn them into group SIDs
-+	update_files_auth(current->files);
-+}
-+
-+/**
-+ * fireflier_inode_alloc_security - allocate the security structure of an 
-inode
-+ * @inode - inode
-+ * allocate the security field of inode
-+ */
-+static int inode_alloc_security(struct inode *inode)
-+{
-+	struct fireflier_task_security_struct *tsec = current->security;
-+	struct fireflier_inode_security_struct *isec;
-+	     
-+	isec = kzalloc(sizeof(struct fireflier_inode_security_struct), GFP_KERNEL);
-+	if (!isec)
-+		return -ENOMEM;
-+	     
-+	INIT_LIST_HEAD(&isec->list);
-+	isec->magic = FIREFLIER_MAGIC;
-+	isec->inode = inode;
-+	//isec->sclass = SECCLASS_FILE;
-+	if (tsec && tsec->magic == FIREFLIER_MAGIC)
-+		isec->sid = tsec->sid;
-+	else
-+		isec->sid = FIREFLIER_SID_UNLABELED;
-+	inode->i_security = isec;
-+	return 0;
-+}
-+	
-+/**
-+ * fireflier_inode_free_security - free the security structure of the inode
-+ * @inode - inode
-+ * free the security field of inode
-+ */
-+static void fireflier_inode_free_security(struct inode *inode)
-+{
-+	struct fireflier_inode_security_struct *isec = inode->i_security;
-+//	struct fireflier_superblock_security_struct *sbsec = 
-inode->i_sb->s_security;
-+	     
-+	secondary_ops->inode_free_security(inode);
-+	if (!isec || isec->magic != FIREFLIER_MAGIC)// || !sbsec)
-+		return;
-+	     
-+//	spin_lock(&sbsec->isec_lock);
-+	if (!list_empty(&isec->list))
-+		list_del_init(&isec->list);
-+//	spin_unlock(&sbsec->isec_lock);
-+	     
-+	inode->i_security = NULL;
-+	kfree(isec);
-+}
-+
-+static int fireflier_socket_accept(struct socket *sock, struct socket 
-*newsock)
-+{
-+	struct fireflier_inode_security_struct *isec = SOCK_INODE(sock)->i_security;        
-+        struct inode* newinode = SOCK_INODE(newsock);
-+	struct fireflier_inode_security_struct *newisec;
-+   
-+        inode_alloc_security(newinode);
-+   
-+        newisec = newinode->i_security;    
-+        newisec->sid = isec->sid;
-+   
-+	return secondary_ops->socket_accept(sock,newsock);
-+}
-+	
-+/** fireflier_file_receive - file received (via SysV IPC?)
-+ * update group SID of file
-+ */
-+
-+static int fireflier_file_receive(struct file* file)
-+{
-+	file_update_perm(current,file);
-+	return secondary_ops->file_receive(file);
-+}
-+
-+/*
-+ * Copy the in-core inode security context value to the user.  If the
-+ * getxattr() prior to this succeeded, check to see if we need to
-+ * canonicalize the value to be finally returned to the user.
-+ *
-+ * Permission check is handled by selinux_inode_getxattr hook.
-+ */
-+static int fireflier_inode_getsecurity(struct inode *inode, const char *name, 
-void *buffer, size_t size, int err)
-+{
-+	struct fireflier_inode_security_struct *isec = inode->i_security;
-+	char *context=NULL;/* required!*/
-+	unsigned len;
-+	int rc;
-+
-+	if (strcmp(name, XATTR_FIREFLIER_SUFFIX) || !isec) {
-+		rc = -EOPNOTSUPP;
-+		goto out;
-+	}
-+     
-+	rc = fireflier_sid_to_context(isec->sid, &context, &len);
-+	if (rc)
-+		goto out;
-+
-+	/* Probe for required buffer size */
-+	if (!buffer || !size) {
-+		rc = len;
-+		goto out_free;
-+	}
-+
-+	if (size < len) {
-+		rc = -ERANGE;
-+		goto out_free;
-+	}
-+
-+	if (err > 0) {
-+		if ((len == err) && !(memcmp(context, buffer, len))) {
-+			/* Don't need to canonicalize value */
-+			rc = err;
-+			goto out_free;
-+		}
-+		memset(buffer, 0, size);
-+	}
-+	memcpy(buffer, context, len);
-+	rc = len;
-+ out_free:
-+	kfree(context);
-+ out:
-+	return secondary_ops->inode_getsecurity(inode,name,buffer,size,err);
-+}
-+
-+static int fireflier_inode_listsecurity(struct inode *inode, char *buffer, 
-size_t buffer_size)
-+{
-+	if(inode->i_security) 
-+	{
-+	
-+		const int len = sizeof(XATTR_NAME_FIREFLIER);
-+		if (buffer && len <= buffer_size)
-+			memcpy(buffer, XATTR_NAME_FIREFLIER, len);
-+		return len+
-+			secondary_ops->inode_listsecurity(inode,buffer+len,buffer_size-len);
-+	}
-+	else 
-+		return 0;
-+   
-+
-+}
-+
-+static void fireflier_socket_post_create(struct socket *sock, int family,
-+					 int type, int protocol, int kern)
-+{
-+	struct fireflier_inode_security_struct *isec;
-+	struct fireflier_task_security_struct *tsec = current->security;
-+        struct inode* inode=SOCK_INODE(sock);
-+   
-+	secondary_ops->socket_post_create(sock,family,type,protocol,kern);
-+	
-+        inode_alloc_security(inode);
-+	isec = inode->i_security;
-+   
-+	isec->sid = kern ? FIREFLIER_SECINITSID_KERNEL : tsec->sid;
-+		
-+	return;
-+}
-+
-+/**
-+ * fireflier_ops - our security_operations hooks
-+ * Unused security hooks will be automatically redirected to the dummy 
-security module
-+ * Does the dummy module call the secondary module? Maybe we should implement 
-all the hooks, and call
-+ * the secondary module
-+ */
-+static struct security_operations fireflier_ops =
-+{
-+	.bprm_alloc_security  	= fireflier_bprm_alloc_security,
-+	.bprm_free_security  	= fireflier_bprm_free_security,
-+	.bprm_apply_creds  	= fireflier_bprm_apply_creds,
-+	.bprm_post_apply_creds  = fireflier_bprm_post_apply_creds,
-+	.bprm_set_security 	= fireflier_bprm_set_security,
-+	.inode_free_security 	= fireflier_inode_free_security,
-+    	.inode_getsecurity 	= fireflier_inode_getsecurity,
-+   	.inode_listsecurity 	= fireflier_inode_listsecurity,
-+	.file_receive 		= fireflier_file_receive,
-+	.task_alloc_security 	= fireflier_task_alloc_security,
-+	.task_free_security 	= task_free_security,
-+	.socket_post_create 	= fireflier_socket_post_create,
-+	.socket_accept 		= fireflier_socket_accept,
-+	.register_security 	= fireflier_register_security,
-+	.unregister_security 	= fireflier_unregister_security,
-+};
-+
-+/**
-+ * stacked - is a secondary module registered
-+ */
-+static int stacked=0;
-+
-+/**
-+ * label_all_processes - labels already running processes
-+ * Can this be done at all? Or do we need to have fireflier loaded during 
-boot?
-+ */
-+static void label_all_processes(void)
-+{
-+	/* Labeling running processes without using the task_lock seems not possible 
-for now*/
-+        /* TODO: label processes that are already running */
-+        /* TODO: prevent processes from being spawned while we label the 
-running ones */
-+	/* TODO Priority:Low, it works without this too */
-+}
-+
-+/**
-+ * fireflier_cleanup - Cleans up fireflier module
-+ * Unregisters security module
-+ */
-+static void __exit fireflier_cleanup(void)
-+{
-+	if(stacked) {
-+		if(mod_unreg_security("fireflier",&fireflier_ops))
-+			printk(KERN_ERR "Fireflier: Error unregistering stacked security module.
-\n");
-+	}
-+	else
-+		if(unregister_security(&fireflier_ops))
-+			printk(KERN_ERR "Fireflier: Error unregistering security module.\n");
-+}
-+
-+int ff_debug;
-+module_param(ff_debug,int,0);
-+MODULE_PARM_DESC(ff_debug,"Enable debug info dumping in debugfs");
-+/**
-+ * fireflier_init - module loading initialization
-+ * Registers fireflier as primary or secondary security module
-+ */
-+static int __init fireflier_init(void)
-+{
-+        /*Register security_ops with kernel*/
-+        int err;
-+
-+        original_ops = security_ops;
-+        /* initialize dummy_security_ops to dummy ops */
-+        register_security(&dummy_security_ops);
-+        unregister_security(&dummy_security_ops);
-+        secondary_ops = &dummy_security_ops;//avoid recursion with capability 
-module
-+        if (!secondary_ops) {
-+                printk (KERN_ERR "Fireflier: No initial security 
-operations\n");
-+                return -EAGAIN;
-+        }
-+        if ((err=register_security (&fireflier_ops))) {
-+                printk(KERN_INFO "Fireflier: Unable to register as primary 
-security module. Attempting to register as stacked security module\n");
-+                stacked=1;
-+                if((err=mod_reg_security("fireflier",&fireflier_ops))) {
-+                        printk(KERN_ERR "Fireflier: Unable to register with 
-kernel.\n");
-+                        return err;
-+                }
-+        }
-+        else
-+                stacked=0;
-+        /* Do initialization */
-+	if((err=autolabel_init())) {
-+		printk(KERN_ERR "Fireflier: autolabeling initialization failed (OOM?)\n");
-+		fireflier_cleanup();
-+		return err;
-+	}
-+        label_all_processes();
-+	
-+	/* Debugging stuff */
-+	ff_debug_startup();
-+	
-+        return 0;
-+}
-+
-+security_initcall(fireflier_init);
-+module_exit(fireflier_cleanup);
-+
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR("Török Edwin <edwin@gurde.com>");
-+MODULE_DESCRIPTION("Fireflier security module");
-+MODULE_VERSION("0.01");
-+
-diff -uprN null/structures.h fireflier_lsm/structures.h
---- null/structures.h	1970-01-01 02:00:00.000000000 +0200
-+++ fireflier_lsm/structures.h	2006-04-07 14:41:30.000000000 +0300
-@@ -0,0 +1,76 @@
-+/*
-+ *  Fireflier security labeling module
-+ *
-+ *
-+ *  This file contains the Fireflier hook function implementations.
-+ *
-+ *  Based on the SELinux hooks.c
-+ *
-+ *  Copyright (C) 2006 Török Edwin <edwin@gurde.com>
-+ *
-+ *
-+ *	This program is free software; you can redistribute it and/or modify
-+ *	it under the terms of the GNU General Public License version 2,
-+ *      as published by the Free Software Foundation.
-+ */
-+#ifndef _FF_STRUCTURES_H_
-+#define _FF_STRUCTURES_H_
-+#include <linux/list.h>
-+#include <linux/spinlock.h>
-+#include "constants.h"
-+/* Structures copied from SELinux, and prefixed with fireflier_ to avoid 
-conflicts
-+ * I don't want to use SELinux internal structures.
-+ */ 
-+ 
-+ 
-+struct fireflier_task_security_struct {
-+	unsigned long magic;           /* magic number for this module */
-+	struct task_struct *task;      /* back pointer to task object */
-+	u32 sid;             /* current SID */
-+	u32 osid;	     /* SID prior to execve */
-+	u32 ptrace_sid;      /* SID of ptrace parent */
-+};
-+
-+struct fireflier_inode_security_struct {
-+	unsigned long magic;           /* magic number for this module */
-+	struct inode *inode;           /* back pointer to inode object */
-+	struct list_head list;         /* list of inode_security_struct */
-+	u32 task_sid;        /* SID of creating task */
-+	u32 sid;             /* SID of this object */
-+	u16 sclass;       /* security class of this object */
-+	unsigned char initialized;     /* initialization flag */
-+	unsigned char inherit;         /* inherit SID from parent entry */
-+};
-+
-+struct fireflier_file_security_struct {
-+	unsigned long magic;            /* magic number for this module */
-+	struct file *file;              /* back pointer to file object */
-+	u32 sid;              /* SID of open file description */
-+	u32 fown_sid;         /* SID of file owner (for SIGIO) */
-+};
-+
-+struct fireflier_bprm_security_struct {
-+	unsigned long magic;           /* magic number for this module */
-+	struct linux_binprm *bprm;     /* back pointer to bprm object */
-+	u32 sid;                       /* SID for transformed process */
-+	unsigned char set;
-+
-+	/*
-+	 * unsafe is used to share failure information from bprm_apply_creds()
-+	 * to bprm_post_apply_creds().
-+	 */
-+	char unsafe;
-+};
-+/**
-+ * getsid_safe - returns the SID, safe to be called with a  NULL pointer
-+ * @tsec: a task's security structure to get the SID from, it can be NULL
-+ */
-+static inline u32 getsid_safe(const struct fireflier_task_security_struct* 
-tsec)
-+{
-+	if(likely(tsec))
-+		return tsec->sid;
-+	else
-+		return FIREFLIER_SID_UNLABELED;
-+}
-+
-+#endif

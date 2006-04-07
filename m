@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWDGOmr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbWDGOne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932355AbWDGOmr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 10:42:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWDGOmq
+	id S932434AbWDGOne (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 10:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbWDGOne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 10:42:46 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:32647 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932355AbWDGOmp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 10:42:45 -0400
-Subject: Re: [Patch] Change interface of add/remove_memory() from paddr to
-	pfn
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060404135636.ED23.Y-GOTO@jp.fujitsu.com>
-References: <20060404135636.ED23.Y-GOTO@jp.fujitsu.com>
-Content-Type: text/plain
-Date: Fri, 07 Apr 2006 07:41:56 -0700
-Message-Id: <1144420916.9731.208.camel@localhost.localdomain>
+	Fri, 7 Apr 2006 10:43:34 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40209 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932434AbWDGOnc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 10:43:32 -0400
+Date: Fri, 7 Apr 2006 15:43:14 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Ram <vshrirama@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: SDIO Drivers?
+Message-ID: <20060407144314.GB21049@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	Ram <vshrirama@gmail.com>, linux-kernel@vger.kernel.org
+References: <8bf247760604040130n155eeffauc5798750f8357bca@mail.gmail.com> <443628F3.9050107@drzeus.cx>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <443628F3.9050107@drzeus.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-04 at 14:06 +0900, Yasunori Goto wrote:
-> This patch is to change interfaces of add/remove_memory()
-> from physicall address to pfn.
-> Current add_memory() of each architecture changes paddr to pfn,
-> and __add_pages() are called by pfn after all.
-> So, it is not for un-alignment memory.
-> Using pfn is a bit better to avoid misunderstanding to use add_memory().
+On Fri, Apr 07, 2006 at 10:55:15AM +0200, Pierre Ossman wrote:
+> Ram wrote:
+> > Hi,
+> >    i want to write an SDIO driver. There is not much information of
+> > what an SDIO driver is
+> >    supposed to do or any sample sdio drivers.
+> > 
+> >    I have a few questions regarding that:
+> > 
+> >    1) What is an SDIO Driver?.
+> > 
 > 
-> In addition, this patch reduces a few lines of kernel.
-> (Unfortunately, x86-64 and powerpc look using paddr for some
->  reasons.)
+> They don't exist in the kernel right now, that's why you haven't found
+> any examples.
+> 
+> To support SDIO, the MMC layer would need to be extended to handle the
+> initialisation of SDIO cards (they're a bit different from SD storage
+> and MMC). After that, a driver model needs to be constructed. It might
+> be possible to build upon the current MMC driver model, but one would
+> need to make sure that cards that are both storage and SDIO are handled.
 
-Sorry for the horribly late response.  I've been without email since
-shortly before you sent this.
+I think we would be forced to re-think the existing model - SDIO cards
+seem to be able to support simultaneously both block device and IO.
+Therefore, it would appear that we need the ability to register two
+drivers against the same device.
 
-I don't have a horribly serious problem with this patch, but I would
-prefer that it not go in.
-
-I really wanted to have a uniform, easily understood interface for each
-of the firmware drivers which will do memory hotplug.  As far as I have
-seen, they almost exclusively deal in physical addresses.
-
-I just think that keeping the interfaces at u64 is a _clearer_
-interface, although it does cost a few shifts in each implementation.  I
-would have less of a problem with something like
-__add_memory_pfn_range() that sits under add_memory() where and the
-architectures only implement *it*.  
-
--- Dave
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

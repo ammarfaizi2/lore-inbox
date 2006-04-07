@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWDGSCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964839AbWDGSGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbWDGSCp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 14:02:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbWDGSCp
+	id S964839AbWDGSGF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 14:06:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964840AbWDGSGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 14:02:45 -0400
-Received: from nevyn.them.org ([66.93.172.17]:52958 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S964836AbWDGSCo (ORCPT
+	Fri, 7 Apr 2006 14:06:05 -0400
+Received: from dvhart.com ([64.146.134.43]:18376 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S964839AbWDGSGE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 14:02:44 -0400
-Date: Fri, 7 Apr 2006 14:02:43 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fs/binfmt_elf.c:maydump()
-Message-ID: <20060407180243.GA27828@nevyn.them.org>
-Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
-	linux-kernel@vger.kernel.org
-References: <20060406.140357.14088592.davem@davemloft.net> <20060406221519.GA5453@nevyn.them.org> <20060406.153518.60508780.davem@davemloft.net> <20060406.221807.114721185.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060406.221807.114721185.davem@davemloft.net>
-User-Agent: Mutt/1.5.8i
+	Fri, 7 Apr 2006 14:06:04 -0400
+Message-ID: <4436AA05.7020203@mbligh.org>
+Date: Fri, 07 Apr 2006 11:05:57 -0700
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: wierd failures from -mm1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 06, 2006 at 10:18:07PM -0700, David S. Miller wrote:
-> How about something like the following patch?  If it's executable
-> and not written to, skip it.  This would skip the main executable
-> image and all text segments of the shared libraries mapped in.
+I hadn't mailed this out for a while, cause we weren't sure if it was 
+-mm or a testing glitch, but there's been no -git releases, so Andy 
+reran -mm to double check, and it still seems to be there. a subsequent
+test of rc1 + cons patches didn't hit this ... I think -mm has issues ;-)
 
-Will this dump text segments that have been COW'd for the purposes of
-inserting a breakpoint?
+Look at the 2.6.17-rc1-mm1 column from: http://test.kernel.org/
 
-It's just a question of goals, I guess.  We could dump code, but it's
-rarely useful, so historically we didn't.  Similarly, we could dump
-mapped data from shared memory, but it can be huge and is rarely
-useful, so generally we don't.
+Drilling down into the console logs:
 
--- 
-Daniel Jacobowitz
-CodeSourcery
+http://test.kernel.org/abat/27597/debug/console.log
+Hangs after testing NMI watchdog.
+http://test.kernel.org/abat/27596/debug/console.log
+Hangs after bringing up cpus.
+
+http://test.kernel.org/abat/27598/debug/console.log
+http://test.kernel.org/abat/27593/debug/console.log
+Both fail with reiserfs fsck errors; at first sight look like just dirty
+root partitions, but I don't think they are.
+
+
+
+Filesystem is clean
+Failed to lock the process to fsck the mounted ro partition. Bad address.
+fsck.reiserfs /dev/sda3 failed (status 0x8). Run manually!
+
+
+Note that it's actually saying it's clean.

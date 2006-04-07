@@ -1,628 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWDGR3G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWDGRdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbWDGR3G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 13:29:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbWDGR3F
+	id S964826AbWDGRdj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 13:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbWDGRdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 13:29:05 -0400
-Received: from mail.kroah.org ([69.55.234.183]:47533 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964827AbWDGR3C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 13:29:02 -0400
-Date: Fri, 7 Apr 2006 10:25:37 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: stable@kernel.org, torvalds@osdl.org
-Subject: Re: Linux 2.6.16.2
-Message-ID: <20060407172537.GB29863@kroah.com>
-References: <20060407172353.GA29863@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060407172353.GA29863@kroah.com>
-User-Agent: Mutt/1.5.11
+	Fri, 7 Apr 2006 13:33:39 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:1993 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S964826AbWDGRdi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 13:33:38 -0400
+Message-ID: <4436A260.9070603@zytor.com>
+Date: Fri, 07 Apr 2006 10:33:20 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, klibc@zytor.com,
+       Al Viro <viro@ftp.linux.org.uk>, hpa@zytor.com, miltonm@bga.com
+Subject: [PATCH] initramfs: CPIO unpacking fix
+References: <20060216183745.50cc2bf6.mikey@neuling.org>	<20060217160621.99b0ffd4.mikey@neuling.org>
+In-Reply-To: <20060217160621.99b0ffd4.mikey@neuling.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-diff --git a/Makefile b/Makefile
-index fcc862a..3933cfc 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 16
--EXTRAVERSION = .1
-+EXTRAVERSION = .2
- NAME=Sliding Snow Leopard
- 
- # *DOCUMENTATION*
-diff --git a/arch/i386/kernel/cpu/cpufreq/Kconfig b/arch/i386/kernel/cpu/cpufreq/Kconfig
-index 26892d2..16f2e35 100644
---- a/arch/i386/kernel/cpu/cpufreq/Kconfig
-+++ b/arch/i386/kernel/cpu/cpufreq/Kconfig
-@@ -203,6 +203,7 @@ config X86_LONGRUN
- config X86_LONGHAUL
- 	tristate "VIA Cyrix III Longhaul"
- 	select CPU_FREQ_TABLE
-+	depends on BROKEN
- 	help
- 	  This adds the CPUFreq driver for VIA Samuel/CyrixIII, 
- 	  VIA Cyrix Samuel/C3, VIA Cyrix Ezra and VIA Cyrix Ezra-T 
-diff --git a/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c b/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
-index cc73a7a..ebe1848 100644
---- a/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
-+++ b/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
-@@ -244,7 +244,7 @@ static int cpufreq_p4_cpu_init(struct cp
- 	for (i=1; (p4clockmod_table[i].frequency != CPUFREQ_TABLE_END); i++) {
- 		if ((i<2) && (has_N44_O17_errata[policy->cpu]))
- 			p4clockmod_table[i].frequency = CPUFREQ_ENTRY_INVALID;
--		else if (has_N60_errata[policy->cpu] && p4clockmod_table[i].frequency < 2000000)
-+		else if (has_N60_errata[policy->cpu] && ((stock_freq * i)/8) < 2000000)
- 			p4clockmod_table[i].frequency = CPUFREQ_ENTRY_INVALID;
- 		else
- 			p4clockmod_table[i].frequency = (stock_freq * i)/8;
-diff --git a/arch/powerpc/kernel/pci_64.c b/arch/powerpc/kernel/pci_64.c
-index ba92bab..4c4449b 100644
---- a/arch/powerpc/kernel/pci_64.c
-+++ b/arch/powerpc/kernel/pci_64.c
-@@ -78,6 +78,7 @@ int global_phb_number;		/* Global phb co
- 
- /* Cached ISA bridge dev. */
- struct pci_dev *ppc64_isabridge_dev = NULL;
-+EXPORT_SYMBOL_GPL(ppc64_isabridge_dev);
- 
- static void fixup_broken_pcnet32(struct pci_dev* dev)
- {
-diff --git a/drivers/base/node.c b/drivers/base/node.c
-index 16c513a..c80c3ae 100644
---- a/drivers/base/node.c
-+++ b/drivers/base/node.c
-@@ -106,7 +106,7 @@ static ssize_t node_read_numastat(struct
- 	other_node = 0;
- 	for (i = 0; i < MAX_NR_ZONES; i++) {
- 		struct zone *z = &pg->node_zones[i];
--		for (cpu = 0; cpu < NR_CPUS; cpu++) {
-+		for_each_online_cpu(cpu) {
- 			struct per_cpu_pageset *ps = zone_pcp(z,cpu);
- 			numa_hit += ps->numa_hit;
- 			numa_miss += ps->numa_miss;
-diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index 05ba410..8b72a61 100644
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -187,6 +187,7 @@ config MOXA_SMARTIO
- config ISI
- 	tristate "Multi-Tech multiport card support (EXPERIMENTAL)"
- 	depends on SERIAL_NONSTANDARD
-+	select FW_LOADER
- 	help
- 	  This is a driver for the Multi-Tech cards which provide several
- 	  serial ports.  The driver is experimental and can currently only be
-diff --git a/drivers/char/tlclk.c b/drivers/char/tlclk.c
-index 4c27218..2546637 100644
---- a/drivers/char/tlclk.c
-+++ b/drivers/char/tlclk.c
-@@ -767,6 +767,7 @@ static int __init tlclk_init(void)
- 		printk(KERN_ERR "tlclk: can't get major %d.\n", tlclk_major);
- 		return ret;
- 	}
-+	tlclk_major = ret;
- 	alarm_events = kzalloc( sizeof(struct tlclk_alarms), GFP_KERNEL);
- 	if (!alarm_events)
- 		goto out1;
-diff --git a/drivers/ieee1394/sbp2.c b/drivers/ieee1394/sbp2.c
-index eca92eb..d83248e 100644
---- a/drivers/ieee1394/sbp2.c
-+++ b/drivers/ieee1394/sbp2.c
-@@ -495,22 +495,17 @@ static struct sbp2_command_info *sbp2uti
- /*
-  * This function finds the sbp2_command for a given outstanding SCpnt.
-  * Only looks at the inuse list.
-+ * Must be called with scsi_id->sbp2_command_orb_lock held.
-  */
--static struct sbp2_command_info *sbp2util_find_command_for_SCpnt(struct scsi_id_instance_data *scsi_id, void *SCpnt)
-+static struct sbp2_command_info *sbp2util_find_command_for_SCpnt(
-+		struct scsi_id_instance_data *scsi_id, void *SCpnt)
- {
- 	struct sbp2_command_info *command;
--	unsigned long flags;
- 
--	spin_lock_irqsave(&scsi_id->sbp2_command_orb_lock, flags);
--	if (!list_empty(&scsi_id->sbp2_command_orb_inuse)) {
--		list_for_each_entry(command, &scsi_id->sbp2_command_orb_inuse, list) {
--			if (command->Current_SCpnt == SCpnt) {
--				spin_unlock_irqrestore(&scsi_id->sbp2_command_orb_lock, flags);
-+	if (!list_empty(&scsi_id->sbp2_command_orb_inuse))
-+		list_for_each_entry(command, &scsi_id->sbp2_command_orb_inuse, list)
-+			if (command->Current_SCpnt == SCpnt)
- 				return command;
--			}
--		}
--	}
--	spin_unlock_irqrestore(&scsi_id->sbp2_command_orb_lock, flags);
- 	return NULL;
- }
- 
-@@ -579,17 +574,15 @@ static void sbp2util_free_command_dma(st
- 
- /*
-  * This function moves a command to the completed orb list.
-+ * Must be called with scsi_id->sbp2_command_orb_lock held.
-  */
--static void sbp2util_mark_command_completed(struct scsi_id_instance_data *scsi_id,
--					    struct sbp2_command_info *command)
-+static void sbp2util_mark_command_completed(
-+		struct scsi_id_instance_data *scsi_id,
-+		struct sbp2_command_info *command)
- {
--	unsigned long flags;
--
--	spin_lock_irqsave(&scsi_id->sbp2_command_orb_lock, flags);
- 	list_del(&command->list);
- 	sbp2util_free_command_dma(command);
- 	list_add_tail(&command->list, &scsi_id->sbp2_command_orb_completed);
--	spin_unlock_irqrestore(&scsi_id->sbp2_command_orb_lock, flags);
- }
- 
- /*
-@@ -2177,7 +2170,9 @@ static int sbp2_handle_status_write(stru
- 		 * Matched status with command, now grab scsi command pointers and check status
- 		 */
- 		SCpnt = command->Current_SCpnt;
-+		spin_lock_irqsave(&scsi_id->sbp2_command_orb_lock, flags);
- 		sbp2util_mark_command_completed(scsi_id, command);
-+		spin_unlock_irqrestore(&scsi_id->sbp2_command_orb_lock, flags);
- 
- 		if (SCpnt) {
- 
-@@ -2513,6 +2508,7 @@ static int sbp2scsi_abort(struct scsi_cm
- 		(struct scsi_id_instance_data *)SCpnt->device->host->hostdata[0];
- 	struct sbp2scsi_host_info *hi = scsi_id->hi;
- 	struct sbp2_command_info *command;
-+	unsigned long flags;
- 
- 	SBP2_ERR("aborting sbp2 command");
- 	scsi_print_command(SCpnt);
-@@ -2523,6 +2519,7 @@ static int sbp2scsi_abort(struct scsi_cm
- 		 * Right now, just return any matching command structures
- 		 * to the free pool.
- 		 */
-+		spin_lock_irqsave(&scsi_id->sbp2_command_orb_lock, flags);
- 		command = sbp2util_find_command_for_SCpnt(scsi_id, SCpnt);
- 		if (command) {
- 			SBP2_DEBUG("Found command to abort");
-@@ -2540,6 +2537,7 @@ static int sbp2scsi_abort(struct scsi_cm
- 				command->Current_done(command->Current_SCpnt);
- 			}
- 		}
-+		spin_unlock_irqrestore(&scsi_id->sbp2_command_orb_lock, flags);
- 
- 		/*
- 		 * Initiate a fetch agent reset.
-diff --git a/drivers/net/irda/irda-usb.c b/drivers/net/irda/irda-usb.c
-index 8936058..6e2ec56 100644
---- a/drivers/net/irda/irda-usb.c
-+++ b/drivers/net/irda/irda-usb.c
-@@ -740,7 +740,7 @@ static void irda_usb_receive(struct urb 
- 	struct sk_buff *newskb;
- 	struct sk_buff *dataskb;
- 	struct urb *next_urb;
--	int		docopy;
-+	unsigned int len, docopy;
- 
- 	IRDA_DEBUG(2, "%s(), len=%d\n", __FUNCTION__, urb->actual_length);
- 	
-@@ -851,10 +851,11 @@ static void irda_usb_receive(struct urb 
- 	dataskb->dev = self->netdev;
- 	dataskb->mac.raw  = dataskb->data;
- 	dataskb->protocol = htons(ETH_P_IRDA);
-+	len = dataskb->len;
- 	netif_rx(dataskb);
- 
- 	/* Keep stats up to date */
--	self->stats.rx_bytes += dataskb->len;
-+	self->stats.rx_bytes += len;
- 	self->stats.rx_packets++;
- 	self->netdev->last_rx = jiffies;
- 
-diff --git a/drivers/net/wireless/Kconfig b/drivers/net/wireless/Kconfig
-index ef85d76..8101657 100644
---- a/drivers/net/wireless/Kconfig
-+++ b/drivers/net/wireless/Kconfig
-@@ -239,7 +239,8 @@ config IPW2200_DEBUG
- 
- config AIRO
- 	tristate "Cisco/Aironet 34X/35X/4500/4800 ISA and PCI cards"
--	depends on NET_RADIO && ISA_DMA_API && CRYPTO && (PCI || BROKEN)
-+ 	depends on NET_RADIO && ISA_DMA_API && (PCI || BROKEN)
-+	select CRYPTO
- 	---help---
- 	  This is the standard Linux driver to support Cisco/Aironet ISA and
- 	  PCI 802.11 wireless cards.
-@@ -374,6 +375,7 @@ config PCMCIA_HERMES
- config PCMCIA_SPECTRUM
- 	tristate "Symbol Spectrum24 Trilogy PCMCIA card support"
- 	depends on NET_RADIO && PCMCIA && HERMES
-+	select FW_LOADER
- 	---help---
- 
- 	  This is a driver for 802.11b cards using RAM-loadable Symbol
-@@ -387,6 +389,7 @@ config PCMCIA_SPECTRUM
- config AIRO_CS
- 	tristate "Cisco/Aironet 34X/35X/4500/4800 PCMCIA cards"
- 	depends on NET_RADIO && PCMCIA && (BROKEN || !M32R)
-+	select CRYPTO
- 	---help---
- 	  This is the standard Linux driver to support Cisco/Aironet PCMCIA
- 	  802.11 wireless cards.  This driver is the same as the Aironet
-diff --git a/drivers/net/wireless/hostap/hostap_80211_tx.c b/drivers/net/wireless/hostap/hostap_80211_tx.c
-index 4a85e63..5f398bd 100644
---- a/drivers/net/wireless/hostap/hostap_80211_tx.c
-+++ b/drivers/net/wireless/hostap/hostap_80211_tx.c
-@@ -469,7 +469,7 @@ int hostap_master_start_xmit(struct sk_b
- 	}
- 
- 	if (local->ieee_802_1x && meta->ethertype == ETH_P_PAE && tx.crypt &&
--	    !(fc & IEEE80211_FCTL_VERS)) {
-+	    !(fc & IEEE80211_FCTL_PROTECTED)) {
- 		no_encrypt = 1;
- 		PDEBUG(DEBUG_EXTRA2, "%s: TX: IEEE 802.1X - passing "
- 		       "unencrypted EAPOL frame\n", dev->name);
-diff --git a/drivers/net/wireless/ipw2200.c b/drivers/net/wireless/ipw2200.c
-index 287676a..aa6f3a4 100644
---- a/drivers/net/wireless/ipw2200.c
-+++ b/drivers/net/wireless/ipw2200.c
-@@ -9956,9 +9956,8 @@ static int ipw_ethtool_set_eeprom(struct
- 		return -EINVAL;
- 	down(&p->sem);
- 	memcpy(&p->eeprom[eeprom->offset], bytes, eeprom->len);
--	for (i = IPW_EEPROM_DATA;
--	     i < IPW_EEPROM_DATA + IPW_EEPROM_IMAGE_SIZE; i++)
--		ipw_write8(p, i, p->eeprom[i]);
-+	for (i = 0; i < IPW_EEPROM_IMAGE_SIZE; i++)
-+		ipw_write8(p, i + IPW_EEPROM_DATA, p->eeprom[i]);
- 	up(&p->sem);
- 	return 0;
- }
-diff --git a/drivers/pcmcia/ds.c b/drivers/pcmcia/ds.c
-index bb96ce1..a4333a8 100644
---- a/drivers/pcmcia/ds.c
-+++ b/drivers/pcmcia/ds.c
-@@ -546,7 +546,7 @@ static int pcmcia_device_query(struct pc
- 			tmp = vers1->str + vers1->ofs[i];
- 
- 			length = strlen(tmp) + 1;
--			if ((length < 3) || (length > 255))
-+			if ((length < 2) || (length > 255))
- 				continue;
- 
- 			p_dev->prod_id[i] = kmalloc(sizeof(char) * length,
-diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
-index 7135e54..96cabeb 100644
---- a/drivers/usb/core/message.c
-+++ b/drivers/usb/core/message.c
-@@ -1388,11 +1388,13 @@ free_interfaces:
- 	if (dev->state != USB_STATE_ADDRESS)
- 		usb_disable_device (dev, 1);	// Skip ep0
- 
--	i = dev->bus_mA - cp->desc.bMaxPower * 2;
--	if (i < 0)
--		dev_warn(&dev->dev, "new config #%d exceeds power "
--				"limit by %dmA\n",
--				configuration, -i);
-+	if (cp) {
-+		i = dev->bus_mA - cp->desc.bMaxPower * 2;
-+		if (i < 0)
-+			dev_warn(&dev->dev, "new config #%d exceeds power "
-+					"limit by %dmA\n",
-+					configuration, -i);
-+	}
- 
- 	if ((ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
- 			USB_REQ_SET_CONFIGURATION, 0, configuration, 0,
-diff --git a/drivers/usb/host/ehci-sched.c b/drivers/usb/host/ehci-sched.c
-index ebcca97..88419c6 100644
---- a/drivers/usb/host/ehci-sched.c
-+++ b/drivers/usb/host/ehci-sched.c
-@@ -707,6 +707,7 @@ iso_stream_init (
- 	} else {
- 		u32		addr;
- 		int		think_time;
-+		int		hs_transfers;
- 
- 		addr = dev->ttport << 24;
- 		if (!ehci_is_TDI(ehci)
-@@ -719,6 +720,7 @@ iso_stream_init (
- 		think_time = dev->tt ? dev->tt->think_time : 0;
- 		stream->tt_usecs = NS_TO_US (think_time + usb_calc_bus_time (
- 				dev->speed, is_input, 1, maxp));
-+		hs_transfers = max (1u, (maxp + 187) / 188);
- 		if (is_input) {
- 			u32	tmp;
- 
-@@ -727,12 +729,11 @@ iso_stream_init (
- 			stream->usecs = HS_USECS_ISO (1);
- 			stream->raw_mask = 1;
- 
--			/* pessimistic c-mask */
--			tmp = usb_calc_bus_time (USB_SPEED_FULL, 1, 0, maxp)
--					/ (125 * 1000);
--			stream->raw_mask |= 3 << (tmp + 9);
-+			/* c-mask as specified in USB 2.0 11.18.4 3.c */
-+			tmp = (1 << (hs_transfers + 2)) - 1;
-+			stream->raw_mask |= tmp << (8 + 2);
- 		} else
--			stream->raw_mask = smask_out [maxp / 188];
-+			stream->raw_mask = smask_out [hs_transfers - 1];
- 		bandwidth = stream->usecs + stream->c_usecs;
- 		bandwidth /= 1 << (interval + 2);
- 
-diff --git a/drivers/video/cfbimgblt.c b/drivers/video/cfbimgblt.c
-index 910e233..8ba6152 100644
---- a/drivers/video/cfbimgblt.c
-+++ b/drivers/video/cfbimgblt.c
-@@ -169,7 +169,7 @@ static inline void slow_imageblit(const 
- 
- 		while (j--) {
- 			l--;
--			color = (*s & 1 << (FB_BIT_NR(l))) ? fgcolor : bgcolor;
-+			color = (*s & (1 << l)) ? fgcolor : bgcolor;
- 			val |= FB_SHIFT_HIGH(color, shift);
- 			
- 			/* Did the bitshift spill bits to the next long? */
-diff --git a/fs/nfsd/nfs3proc.c b/fs/nfsd/nfs3proc.c
-index 6d2dfed..f61142a 100644
---- a/fs/nfsd/nfs3proc.c
-+++ b/fs/nfsd/nfs3proc.c
-@@ -682,7 +682,7 @@ static struct svc_procedure		nfsd_proced
-   PROC(lookup,	 dirop,		dirop,		fhandle2, RC_NOCACHE, ST+FH+pAT+pAT),
-   PROC(access,	 access,	access,		fhandle,  RC_NOCACHE, ST+pAT+1),
-   PROC(readlink, readlink,	readlink,	fhandle,  RC_NOCACHE, ST+pAT+1+NFS3_MAXPATHLEN/4),
--  PROC(read,	 read,		read,		fhandle,  RC_NOCACHE, ST+pAT+4+NFSSVC_MAXBLKSIZE),
-+  PROC(read,	 read,		read,		fhandle,  RC_NOCACHE, ST+pAT+4+NFSSVC_MAXBLKSIZE/4),
-   PROC(write,	 write,		write,		fhandle,  RC_REPLBUFF, ST+WC+4),
-   PROC(create,	 create,	create,		fhandle2, RC_REPLBUFF, ST+(1+FH+pAT)+WC),
-   PROC(mkdir,	 mkdir,		create,		fhandle2, RC_REPLBUFF, ST+(1+FH+pAT)+WC),
-diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
-index 6d63f1d..ca8a4c4 100644
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -975,7 +975,7 @@ struct nfsd4_voidargs { int dummy; };
-  */
- static struct svc_procedure		nfsd_procedures4[2] = {
-   PROC(null,	 void,		void,		void,	  RC_NOCACHE, 1),
--  PROC(compound, compound,	compound,	compound, RC_NOCACHE, NFSD_BUFSIZE)
-+  PROC(compound, compound,	compound,	compound, RC_NOCACHE, NFSD_BUFSIZE/4)
- };
- 
- struct svc_version	nfsd_version4 = {
-diff --git a/fs/nfsd/nfsproc.c b/fs/nfsd/nfsproc.c
-index 3e6b75c..06cd0db 100644
---- a/fs/nfsd/nfsproc.c
-+++ b/fs/nfsd/nfsproc.c
-@@ -553,7 +553,7 @@ static struct svc_procedure		nfsd_proced
-   PROC(none,	 void,		void,		none,		RC_NOCACHE, ST),
-   PROC(lookup,	 diropargs,	diropres,	fhandle,	RC_NOCACHE, ST+FH+AT),
-   PROC(readlink, readlinkargs,	readlinkres,	none,		RC_NOCACHE, ST+1+NFS_MAXPATHLEN/4),
--  PROC(read,	 readargs,	readres,	fhandle,	RC_NOCACHE, ST+AT+1+NFSSVC_MAXBLKSIZE),
-+  PROC(read,	 readargs,	readres,	fhandle,	RC_NOCACHE, ST+AT+1+NFSSVC_MAXBLKSIZE/4),
-   PROC(none,	 void,		void,		none,		RC_NOCACHE, ST),
-   PROC(write,	 writeargs,	attrstat,	fhandle,	RC_REPLBUFF, ST+AT),
-   PROC(create,	 createargs,	diropres,	fhandle,	RC_REPLBUFF, ST+FH+AT),
-diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
-index 4063fb3..164a7d0 100644
---- a/fs/proc/vmcore.c
-+++ b/fs/proc/vmcore.c
-@@ -103,8 +103,8 @@ static ssize_t read_vmcore(struct file *
- 				size_t buflen, loff_t *fpos)
- {
- 	ssize_t acc = 0, tmp;
--	size_t tsz, nr_bytes;
--	u64 start;
-+	size_t tsz;
-+	u64 start, nr_bytes;
- 	struct vmcore *curr_m = NULL;
- 
- 	if (buflen == 0 || *fpos >= vmcore_size)
-diff --git a/fs/sysfs/file.c b/fs/sysfs/file.c
-index d0e3d84..2ecc58c 100644
---- a/fs/sysfs/file.c
-+++ b/fs/sysfs/file.c
-@@ -183,7 +183,7 @@ fill_write_buffer(struct sysfs_buffer * 
- 		return -ENOMEM;
- 
- 	if (count >= PAGE_SIZE)
--		count = PAGE_SIZE;
-+		count = PAGE_SIZE - 1;
- 	error = copy_from_user(buffer->page,buf,count);
- 	buffer->needs_read_fill = 1;
- 	return error ? -EFAULT : count;
-diff --git a/include/asm-powerpc/floppy.h b/include/asm-powerpc/floppy.h
-index e258778..608164c 100644
---- a/include/asm-powerpc/floppy.h
-+++ b/include/asm-powerpc/floppy.h
-@@ -35,6 +35,7 @@
- #ifdef CONFIG_PCI
- 
- #include <linux/pci.h>
-+#include <asm/ppc-pci.h>	/* for ppc64_isabridge_dev */
- 
- #define fd_dma_setup(addr,size,mode,io) powerpc_fd_dma_setup(addr,size,mode,io)
- 
-@@ -52,12 +53,12 @@ static __inline__ int powerpc_fd_dma_set
- 	if (bus_addr 
- 	    && (addr != prev_addr || size != prev_size || dir != prev_dir)) {
- 		/* different from last time -- unmap prev */
--		pci_unmap_single(NULL, bus_addr, prev_size, prev_dir);
-+		pci_unmap_single(ppc64_isabridge_dev, bus_addr, prev_size, prev_dir);
- 		bus_addr = 0;
- 	}
- 
- 	if (!bus_addr)	/* need to map it */
--		bus_addr = pci_map_single(NULL, addr, size, dir);
-+		bus_addr = pci_map_single(ppc64_isabridge_dev, addr, size, dir);
- 
- 	/* remember this one as prev */
- 	prev_addr = addr;
-diff --git a/include/linux/fb.h b/include/linux/fb.h
-index 2cb19e6..2fdd8ae 100644
---- a/include/linux/fb.h
-+++ b/include/linux/fb.h
-@@ -839,12 +839,10 @@ struct fb_info {
- #define FB_LEFT_POS(bpp)          (32 - bpp)
- #define FB_SHIFT_HIGH(val, bits)  ((val) >> (bits))
- #define FB_SHIFT_LOW(val, bits)   ((val) << (bits))
--#define FB_BIT_NR(b)              (7 - (b))
- #else
- #define FB_LEFT_POS(bpp)          (0)
- #define FB_SHIFT_HIGH(val, bits)  ((val) << (bits))
- #define FB_SHIFT_LOW(val, bits)   ((val) >> (bits))
--#define FB_BIT_NR(b)              (b)
- #endif
- 
-     /*
-diff --git a/include/linux/proc_fs.h b/include/linux/proc_fs.h
-index aa6322d..6c1e347 100644
---- a/include/linux/proc_fs.h
-+++ b/include/linux/proc_fs.h
-@@ -78,7 +78,7 @@ struct kcore_list {
- struct vmcore {
- 	struct list_head list;
- 	unsigned long long paddr;
--	unsigned long size;
-+	unsigned long long size;
- 	loff_t offset;
- };
- 
-diff --git a/kernel/exec_domain.c b/kernel/exec_domain.c
-index 867d6db..c01cead 100644
---- a/kernel/exec_domain.c
-+++ b/kernel/exec_domain.c
-@@ -140,6 +140,7 @@ __set_personality(u_long personality)
- 	ep = lookup_exec_domain(personality);
- 	if (ep == current_thread_info()->exec_domain) {
- 		current->personality = personality;
-+		module_put(ep->module);
- 		return 0;
- 	}
- 
-diff --git a/kernel/fork.c b/kernel/fork.c
-index b373322..9d4e0d8 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -720,7 +720,7 @@ out_release:
- 	free_fdset (new_fdt->open_fds, new_fdt->max_fdset);
- 	free_fd_array(new_fdt->fd, new_fdt->max_fds);
- 	kmem_cache_free(files_cachep, newf);
--	goto out;
-+	return NULL;
- }
- 
- static int copy_files(unsigned long clone_flags, struct task_struct * tsk)
-diff --git a/net/ipv4/fib_trie.c b/net/ipv4/fib_trie.c
-index e320b32..24009be 100644
---- a/net/ipv4/fib_trie.c
-+++ b/net/ipv4/fib_trie.c
-@@ -314,11 +314,6 @@ static void __leaf_free_rcu(struct rcu_h
- 	kfree(container_of(head, struct leaf, rcu));
- }
- 
--static inline void free_leaf(struct leaf *leaf)
--{
--	call_rcu(&leaf->rcu, __leaf_free_rcu);
--}
--
- static void __leaf_info_free_rcu(struct rcu_head *head)
- {
- 	kfree(container_of(head, struct leaf_info, rcu));
-@@ -357,7 +352,12 @@ static void __tnode_free_rcu(struct rcu_
- 
- static inline void tnode_free(struct tnode *tn)
- {
--	call_rcu(&tn->rcu, __tnode_free_rcu);
-+	if(IS_LEAF(tn)) {
-+		struct leaf *l = (struct leaf *) tn;
-+		call_rcu_bh(&l->rcu, __leaf_free_rcu);
-+	}
-+        else
-+		call_rcu(&tn->rcu, __tnode_free_rcu);
- }
- 
- static struct leaf *leaf_new(void)
-diff --git a/net/ipv4/netfilter/ip_conntrack_netlink.c b/net/ipv4/netfilter/ip_conntrack_netlink.c
-index e0b5926..d4e6d0a 100644
---- a/net/ipv4/netfilter/ip_conntrack_netlink.c
-+++ b/net/ipv4/netfilter/ip_conntrack_netlink.c
-@@ -1619,7 +1619,7 @@ static void __exit ctnetlink_exit(void)
- 	printk("ctnetlink: unregistering from nfnetlink.\n");
- 
- #ifdef CONFIG_IP_NF_CONNTRACK_EVENTS
--	ip_conntrack_unregister_notifier(&ctnl_notifier_exp);
-+	ip_conntrack_expect_unregister_notifier(&ctnl_notifier_exp);
- 	ip_conntrack_unregister_notifier(&ctnl_notifier);
- #endif
- 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index 9ff3463..40edeef 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -1641,7 +1641,7 @@ static void __exit ctnetlink_exit(void)
- 	printk("ctnetlink: unregistering from nfnetlink.\n");
- 
- #ifdef CONFIG_NF_CONNTRACK_EVENTS
--	nf_conntrack_unregister_notifier(&ctnl_notifier_exp);
-+	nf_conntrack_expect_unregister_notifier(&ctnl_notifier_exp);
- 	nf_conntrack_unregister_notifier(&ctnl_notifier);
- #endif
- 
-diff --git a/sound/isa/opti9xx/opti92x-ad1848.c b/sound/isa/opti9xx/opti92x-ad1848.c
-index 63d96be..65b28cb 100644
---- a/sound/isa/opti9xx/opti92x-ad1848.c
-+++ b/sound/isa/opti9xx/opti92x-ad1848.c
-@@ -2088,9 +2088,11 @@ static int __init alsa_card_opti9xx_init
- 	int error;
- 	struct platform_device *device;
- 
-+#ifdef CONFIG_PNP
- 	pnp_register_card_driver(&opti9xx_pnpc_driver);
- 	if (snd_opti9xx_pnp_is_probed)
- 		return 0;
-+#endif
- 	if (! is_isapnp_selected()) {
- 		error = platform_driver_register(&snd_opti9xx_driver);
- 		if (error < 0)
-@@ -2102,7 +2104,9 @@ static int __init alsa_card_opti9xx_init
- 		}
- 		platform_driver_unregister(&snd_opti9xx_driver);
- 	}
-+#ifdef CONFIG_PNP
- 	pnp_unregister_card_driver(&opti9xx_pnpc_driver);
-+#endif
- #ifdef MODULE
- 	printk(KERN_ERR "no OPTi " CHIP_NAME " soundcard found\n");
- #endif
-@@ -2115,7 +2119,9 @@ static void __exit alsa_card_opti9xx_exi
- 		platform_device_unregister(snd_opti9xx_platform_device);
- 		platform_driver_unregister(&snd_opti9xx_driver);
- 	}
-+#ifdef CONFIG_PNP
- 	pnp_unregister_card_driver(&opti9xx_pnpc_driver);
-+#endif
- }
- 
- module_init(alsa_card_opti9xx_init)
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index b767552..d5cd3a1 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2948,6 +2948,8 @@ static struct hda_board_config alc260_cf
- 	{ .modelname = "basic", .config = ALC260_BASIC },
- 	{ .pci_subvendor = 0x104d, .pci_subdevice = 0x81bb,
- 	  .config = ALC260_BASIC }, /* Sony VAIO */
-+	{ .pci_subvendor = 0x152d, .pci_subdevice = 0x0729,
-+	  .config = ALC260_BASIC }, /* CTL Travel Master U553W */
- 	{ .modelname = "hp", .config = ALC260_HP },
- 	{ .pci_subvendor = 0x103c, .pci_subdevice = 0x3010, .config = ALC260_HP },
- 	{ .pci_subvendor = 0x103c, .pci_subdevice = 0x3011, .config = ALC260_HP },
+Unlink files, symlinks, FIFOs, devices etc. (except directories) before
+writing them when extracting CPIOs.  This stops weird behaviour like:
+  1) writing through symlinks created in earlier CPIOs. eg foo->bar in
+     the first CPIO.  Having foo as a non-link in a subsequent CPIO,
+     results in bar being written and foo remaining as a symlink.
+  2) if the first version of file foo is larger than foo in a
+     subsequent CPIO, we end up with a mix of the two.  ie. neither
+     the first or second version of /foo.
+  3) special files like devices, fifo etc. can't be overwritten in
+     subsequent CPIOS.
+
+With this, the kernel will more closely replicate
+   for i in *.cpio; do cpio --extract --unconditional < $i ; done
+
+This is a change but it's regarded as fixing broken functionality.
+
+Signed-off-by: Michael Neuling <mikey@neuling.org>
+Signed-off-by: H. Peter Anvin <hpa@zytor.com>
+
+  init/initramfs.c |    3 +++
+  1 files changed, 3 insertions(+)
+
+Index: linux-2.6.15/init/initramfs.c
+===================================================================
+--- linux-2.6.15.orig/init/initramfs.c
++++ linux-2.6.15/init/initramfs.c
+@@ -249,6 +249,7 @@ static int __init do_name(void)
+  	if (dry_run)
+  		return 0;
+  	if (S_ISREG(mode)) {
++		sys_unlink(collected);
+  		if (maybe_link() >= 0) {
+  			wfd = sys_open(collected, O_WRONLY|O_CREAT, mode);
+  			if (wfd >= 0) {
+@@ -263,6 +264,7 @@ static int __init do_name(void)
+  		sys_chmod(collected, mode);
+  	} else if (S_ISBLK(mode) || S_ISCHR(mode) ||
+  		   S_ISFIFO(mode) || S_ISSOCK(mode)) {
++		sys_unlink(collected);
+  		if (maybe_link() == 0) {
+  			sys_mknod(collected, mode, rdev);
+  			sys_chown(collected, uid, gid);
+@@ -291,6 +293,7 @@ static int __init do_copy(void)
+  static int __init do_symlink(void)
+  {
+  	collected[N_ALIGN(name_len) + body_len] = '\0';
++	sys_unlink(collected);
+  	sys_symlink(collected + N_ALIGN(name_len), collected);
+  	sys_lchown(collected, uid, gid);
+  	state = SkipIt;
+

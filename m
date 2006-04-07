@@ -1,90 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWDGKZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWDGK3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbWDGKZr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 06:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWDGKZr
+	id S932407AbWDGK3c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 06:29:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWDGK3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 06:25:47 -0400
-Received: from mail.bmlv.gv.at ([193.171.152.37]:20123 "EHLO mail.bmlv.gv.at")
-	by vger.kernel.org with ESMTP id S1751253AbWDGKZq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 06:25:46 -0400
-From: "Ph. Marek" <philipp.marek@bmlv.gv.at>
+	Fri, 7 Apr 2006 06:29:32 -0400
+Received: from sandesha.sasken.com ([164.164.56.19]:19412 "EHLO
+	mail3.sasken.com") by vger.kernel.org with ESMTP id S932407AbWDGK3b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 06:29:31 -0400
+From: "Sreenivasulu Y" <ysreenu@sasken.com>
+Subject: kernel socket select issue
+Date: Fri, 7 Apr 2006 15:59:04 +0530
+Message-ID: <e15eu7$3t6$1@ncc-t.sasken.com>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-RFC2646: Format=Flowed; Original
 To: linux-kernel@vger.kernel.org
-Subject: Problem substituting /proc/mounts for recovery
-Date: Fri, 7 Apr 2006 12:24:31 +0200
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604071224.31851.philipp.marek@bmlv.gv.at>
+X-News-Gateway: ncc-z.sasken.com
+X-imss-version: 2.037
+X-imss-result: Passed
+X-imss-scores: Clean:10.64643 C:2 M:3 S:5 R:5
+X-imss-settings: Baseline:3 C:2 M:3 S:3 R:3 (0.5000 0.5000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody!
 
-During recovery I'm running off a chroot (booted via knoppix); 
-I'm trying to fake a mount table, so that the output of mount 
-and df can be correctly parsed by the boot loader installation 
-(in the chroot the "df -k /boot" returns no device).
+Hi,
 
-But that is nowadays (2.6.14-1-686-smp (Debian 2.6.14-2)) a problem, 
-since /proc/mounts is a symlink.
+I am trying to create multiple sockets in kernel space and use
+'sys_select' call on them for reading data from them whenever it is 
+available.
 
+But the problem is  socket structures are returned during creation whereas
+sys_selct accepts  a set of socket descriptors ( integers ) as input. Is 
+there any
+API or macro to convert socket structure to socket desciptor ?
 
-Observe:
-        # cat /proc/mounts > /tmp/mymounts
-        # vi /tmp/mymounts
-        # mount --bind /tmp/mymounts /proc/mounts
-        # ls -la /proc/mounts
-        lrwxrwxrwx 1 root root 11 2006-04-07 12:13 /proc/mounts -> self/mounts
-        # mount
-        ...
-        /tmp/mymounts on /proc/17496/mounts type none (rw,bind)
-        # ls -la /proc/17496
-        ls: /proc/17496: Datei oder Verzeichnis nicht gefunden
-        # umount /proc/17496/mounts
-        umount: /tmp/mymounts: not mounted
-        umount: /proc/17496/mounts: not found
-        umount: /tmp/mymounts: not mounted
-        umount: /proc/17496/mounts: not found
-        # umount /tmp/mymounts
-        umount: /tmp/mymounts: not mounted
+It is easy to use 'select' in user space as socket creation would return a 
+socket
+descriptor which can be used in either 'select' or 'poll' system calls.
 
-It seems not to be a simple userspace problem:
-	# strace -e umount umount -f /proc/17496/mounts
-	umount("/proc/17496/mounts", MNT_FORCE) = -1 ENOENT (No such file or directory)
-	umount2: Datei oder Verzeichnis nicht gefunden
-	umount: /proc/17496/mounts: not found
-
-
-So the following questions come to my mind:
-- Is that a kernel bug, ie. the dentry of /proc/17496/mounts is not 
-  kept in memory for releasing? (along with /proc/17496)
-- Should the mount be automatically release if there's no 
-  possible user left?
-- Should "mount --bind" not follow symlinks, but replace them? That's 
-  what I'd need here, to fake the mount table.
-- Is there a better way to achieve that?
-
-Also I remember that /proc/mounts was filtered in older kernel versions, 
-ie. mounts not visible in the chroot would not be shown. Maybe that would 
-be enough to solve my problem of device detection.
-
-
-Kernel version:
-	# cat /proc/version
-	Linux version 2.6.14-1-686-smp (Debian 2.6.14-2) (horms@debian.org) (gcc version 4.0.3 20051023 (prerelease) (Debian 4.0.2-3)) #1 SMP Tue Nov 1 16:06:13 JST 2005
-
-
-
-Please keep me CC'd, as I'm not subscribed.
-
-Thank you for all answers!
-
-
+Anyone faced a similar problem? Please suggest on this.
+-- 
 Regards,
+Sreenivasulu Y
+Senior software Engineer
+Sasken Communication Technologies Limited 
 
-Phil
+
+
+"SASKEN RATED Among THE Top 3 BEST COMPANIES TO WORK FOR IN INDIA - SURVEY 2005 conducted by the BUSINESS TODAY - Mercer - TNS India"
+
+                           SASKEN BUSINESS DISCLAIMER
+This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email

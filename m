@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbWDGUim@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbWDGUnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964947AbWDGUim (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 16:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbWDGUim
+	id S964944AbWDGUnv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 16:43:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbWDGUnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 16:38:42 -0400
-Received: from [166.70.100.114] ([166.70.100.114]:57002 "EHLO mail.middle.net")
-	by vger.kernel.org with ESMTP id S964942AbWDGUil (ORCPT
+	Fri, 7 Apr 2006 16:43:51 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:33436 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S964944AbWDGUnv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 16:38:41 -0400
-Message-ID: <4436CDD2.7010303@middle.net>
-Date: Fri, 07 Apr 2006 14:38:42 -0600
-From: Mark Butler <butlerm@middle.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
-X-Accept-Language: en-us, en
+	Fri, 7 Apr 2006 16:43:51 -0400
+Date: Fri, 7 Apr 2006 22:43:45 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: johnstul@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] generic clocksource updates
+In-Reply-To: <1144351944.5925.23.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0604072239110.32445@scrub.home>
+References: <Pine.LNX.4.64.0604032155070.4707@scrub.home> 
+ <1144317972.5344.681.camel@localhost.localdomain>  <Pine.LNX.4.64.0604062048130.17704@scrub.home>
+ <1144351944.5925.23.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: David Daney <ddaney@avtrex.com>
-CC: hadi@cyberus.ca, Janos Farkas <chexum+dev@gmail.com>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       pgf@foxharp.boston.ma.us, freek@macfreek.nl
-Subject: Re: Broadcast ARP packets on link local addresses (Version2).
-References: <17460.13568.175877.44476@dl2.hq2.avtrex.com>	 <priv$efbe06144502$2d51735f79@200604.gmail.com>	 <44353F36.9070404@avtrex.com> <1144416638.5082.33.camel@jzny2> <443690C9.5090500@avtrex.com>
-In-Reply-To: <443690C9.5090500@avtrex.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 67.137.150.193
-X-SA-Exim-Mail-From: butlerm@middle.net
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Daney wrote:
+Hi,
 
-> Following your logic through, It seems that you are advocating 
-> broadcasting *all* ARP packets on *all* link local addresses.  That 
-> would mean that on a 192.168.* switched Ethernet network with DHCP 
-> that twice as many ARP packets would be broadcast.
+On Thu, 6 Apr 2006, Thomas Gleixner wrote:
 
-192.168.* addresses are not considered "link local", they are rather 
-"private" or "site local" addresses.
+> > Currently this field isn't needed and as soon we have a need for it, we 
+> > can add proper capability information.
+> 
+> Is there a reason, why requirements which are known from existing
+> experience must be discarded to be reintroduced later ?
 
-> The scope parameter, as far as I can tell, is used to make routing 
-> decisions.  Overloading it to also implement the RFC 3927 ARP 
-> broadcasting requirement would result in generation of unnecessary 
-> network traffic in configurations that are probably the majority of 
-> Linux deployments.
+Then please explain these requirements.
+This field shouldn't have been added in first place, I guess I managed to 
+confuse John when I talked about handling of continuous vs. tick based 
+clocks. Currently no user should even care about this, it's an 
+implementation detail of the clock.
 
-No extra network traffic, but there is some measurable overhead to 
-looking up the scope in the routing table.
-
-One problem is having this type of scheme behave properly by default, 
-i.e. in the absence of user specified entries.  Having to create an 
-entry for every interface in the system just to get RFC standard 
-behavior is silly.
-
-- Mark
+bye, Roman

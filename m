@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbWDGVy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbWDGWBU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964942AbWDGVy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 17:54:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964975AbWDGVy5
+	id S964929AbWDGWBU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 18:01:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbWDGWBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 17:54:57 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:16797
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S964942AbWDGVy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 17:54:57 -0400
-Date: Fri, 07 Apr 2006 14:53:40 -0700 (PDT)
-Message-Id: <20060407.145340.44275423.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: blaisorblade@yahoo.it, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kzalloc: use in alloc_netdev
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060406225232.660e8251.akpm@osdl.org>
-References: <20060407053204.11316.44763.stgit@zion.home.lan>
-	<20060406225232.660e8251.akpm@osdl.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 7 Apr 2006 18:01:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41404 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964929AbWDGWBT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 18:01:19 -0400
+Date: Fri, 7 Apr 2006 15:03:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hirokazu Takata <takata@linux-m32r.org>
+Cc: linux-kernel@vger.kernel.org, fujiwara@linux-m32r.org,
+       takata@linux-m32r.org
+Subject: Re: [PATCH 2.6.17-rc1-mm1] m32r: Fix cpu_possible_map and
+ cpu_present_map initialization for SMP kernel
+Message-Id: <20060407150337.7cc0c462.akpm@osdl.org>
+In-Reply-To: <20060407.194745.233672521.takata.hirokazu@renesas.com>
+References: <20060407.194745.233672521.takata.hirokazu@renesas.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Thu, 6 Apr 2006 22:52:32 -0700
+Hirokazu Takata <takata@linux-m32r.org> wrote:
+>
+> This patch fixes a boot problem of the m32r SMP kernel
+> 2.6.16-rc1-mm3 or later.
 
-> "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it> wrote:
-> >
-> > Noticed this use, fixed it.
-> 
-> OK, but I think that if we're going to make conversions like this it's best
-> to do it in decent-sized chunks, just to keep the patch volume down.
+This sounds like something which needs to be backported into 2.6.16.x,
+correct?
 
-Applied, thanks.
+Also, should "m32r: security fix of {get,put}_user macros" go into 2.6.16.x?

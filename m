@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbWDGTMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbWDGTM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964894AbWDGTMX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 15:12:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbWDGTMX
+	id S964895AbWDGTM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 15:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWDGTM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 15:12:23 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:22465 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964894AbWDGTMX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 15:12:23 -0400
-To: Andreas Schwab <schwab@suse.de>
-Cc: Neil Brown <neilb@suse.de>, "Tony Luck" <tony.luck@gmail.com>,
-       "Mike Hearn" <mike@plan99.net>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] Add a /proc/self/exedir link
-References: <4431A93A.2010702@plan99.net>
-	<m1fykr3ggb.fsf@ebiederm.dsl.xmission.com>
-	<44343C25.2000306@plan99.net>
-	<12c511ca0604061633p2fb1796axd5acad8373532834@mail.gmail.com>
-	<17462.6689.821815.412458@cse.unsw.edu.au>
-	<jeirplrbka.fsf@sykes.suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 07 Apr 2006 13:10:26 -0600
-In-Reply-To: <jeirplrbka.fsf@sykes.suse.de> (Andreas Schwab's message of
- "Fri, 07 Apr 2006 11:15:33 +0200")
-Message-ID: <m1odzdmcbh.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 7 Apr 2006 15:12:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:42890 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932361AbWDGTM5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 15:12:57 -0400
+Date: Fri, 7 Apr 2006 12:11:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Bligh <mbligh@mbligh.org>
+Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org, apw@shadowen.org
+Subject: Re: wierd failures from -mm1
+Message-Id: <20060407121122.61d7f979.akpm@osdl.org>
+In-Reply-To: <4436AD7D.5070307@mbligh.org>
+References: <4436AA05.7020203@mbligh.org>
+	<1144433309.24221.7.camel@localhost.localdomain>
+	<4436AD7D.5070307@mbligh.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schwab <schwab@suse.de> writes:
-
-> Neil Brown <neilb@suse.de> writes:
+Martin Bligh <mbligh@mbligh.org> wrote:
 >
->> On Thursday April 6, tony.luck@gmail.com wrote:
->>> > > I have concerns about security policy ...
->>> >
->>> > I'm not sure I understand. Only if you run that program, and if you
->>> > don't have access to the intermediate directory, how do you run it?
->>> 
->>> It leaks information about the parts of the pathname below the
->>> directory that you otherwise would not be able to see.  E.g. if
->>> I have $HOME/top-secret-projects/secret-code-name1/binary
->>> where the top-secret-projects directory isn't readable by you,
->>> then you may find out secret-code-name1 by reading the
->>> /proc/{pid}/exedir symlink.
->>
->> But we already have /proc/{pid}/exe which is a symlink to the
->> executable, thus exposing all the directory names already.
->
-> Neither of which should be readable by anyone but the owner of the
-> process, which is the one who was able to read the secret directory in the
-> first place.
+> Dave Hansen wrote:
+>  > On Fri, 2006-04-07 at 11:05 -0700, Martin Bligh wrote:
+>  > 
+>  >>http://test.kernel.org/abat/27596/debug/console.log
+>  >>Hangs after bringing up cpus. 
+>  > 
+>  > 
+>  > See attached patch.  It fixes curly.
+> 
+>  Splendid -thanks. This may well fix the first two ... I think the reiser
+>  thing is likely still borked though.
 
-In most cases.  It is possible you got the executable through
-file descriptor passing and the like.
+The reiserfsck problem looks like a failed mlockall.  Reverting
+mm-posix-memory-lock.patch should fix it.
 
-The security check in -mm allows anyone who may ptrace the
-process to have read access.  In 2.6.17-rc1 the check is
-still the owner of the process and anyone with CAP_DAC_ACCESS
-may read or use the link.
-
-Eric

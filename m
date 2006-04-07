@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWDGIPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWDGIPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbWDGIPm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 04:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWDGIPm
+	id S932365AbWDGIPt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 04:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWDGIPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 04:15:42 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:19694 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932360AbWDGIPl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 04:15:41 -0400
-Date: Fri, 7 Apr 2006 10:15:33 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Frank Pavlic <fpavlic@de.ibm.com>
-Subject: [patch] ipv4: initialize arp_tbl rw lock
-Message-ID: <20060407081533.GC11353@osiris.boeblingen.de.ibm.com>
-MIME-Version: 1.0
+	Fri, 7 Apr 2006 04:15:49 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:31365 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S932365AbWDGIPs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 04:15:48 -0400
+Date: Fri, 7 Apr 2006 10:15:46 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: Re: [Alsa-devel] [BUG ALSA 2.6.17-rc1] Oops when Gaim tries to play sound
+Message-ID: <20060407081546.GC3947@harddisk-recovery.com>
+References: <20060406132042.GF20402@harddisk-recovery.nl> <1144338706.2866.62.camel@mindpipe>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: mutt-ng/devel-r796 (Linux)
+In-Reply-To: <1144338706.2866.62.camel@mindpipe>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+On Thu, Apr 06, 2006 at 11:51:45AM -0400, Lee Revell wrote:
+> On Thu, 2006-04-06 at 15:20 +0200, Erik Mouw wrote:
+> > Could be a locking error or an ALSA error, so message posted to lkml
+> > and alsa-devel lists. Feel free to ask for more information.
+> 
+> Already reported (several times) to both LKML and alsa-devel.
+> 
+> See kernel bugzilla #6329
 
-The qeth driver makes use of the arp_tbl rw lock. CONFIG_DEBUG_SPINLOCK
-detects that this lock is not initialized as it is supposed to be.
+Rene Herman pointed it out in private. I applied
+http://bugzilla.kernel.org/attachment.cgi?id=7779&action=view and
+everything seems to work again.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
 
- net/ipv4/arp.c |    1 +
- 1 file changed, 1 insertion(+)
+Erik
 
-diff --git a/net/ipv4/arp.c b/net/ipv4/arp.c
-index 041dadd..ea54216 100644
---- a/net/ipv4/arp.c
-+++ b/net/ipv4/arp.c
-@@ -202,6 +202,7 @@ struct neigh_table arp_tbl = {
- 	.gc_thresh1 =	128,
- 	.gc_thresh2 =	512,
- 	.gc_thresh3 =	1024,
-+	.lock = RW_LOCK_UNLOCKED,
- };
- 
- int arp_mc_map(u32 addr, u8 *haddr, struct net_device *dev, int dir)
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

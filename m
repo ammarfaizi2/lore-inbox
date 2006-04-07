@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWDGOcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWDGOdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932292AbWDGOcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 10:32:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbWDGOcZ
+	id S932351AbWDGOdh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 10:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWDGOcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 10:32:25 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:31196 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S932292AbWDGOcX (ORCPT
+	Fri, 7 Apr 2006 10:32:33 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:36572 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S932347AbWDGOcY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 10:32:23 -0400
+	Fri, 7 Apr 2006 10:32:24 -0400
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 06/17] uml: fix some double export warnings
-Date: Fri, 07 Apr 2006 16:31:03 +0200
+Subject: [PATCH 05/17] uml: fix format errors
+Date: Fri, 07 Apr 2006 16:31:00 +0200
 To: Andrew Morton <akpm@osdl.org>
 Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20060407143102.19201.91032.stgit@zion.home.lan>
+Message-Id: <20060407143059.19201.58265.stgit@zion.home.lan>
 In-Reply-To: <20060407142709.19201.99196.stgit@zion.home.lan>
 References: <20060407142709.19201.99196.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,77 +23,92 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Some functions are exported twice in current code - remove the excess export.
+Now that GCC warns about format errors, fix them. Nothing able to cause a crash,
+however.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- arch/um/kernel/ksyms.c       |    5 +----
- arch/um/os-Linux/user_syms.c |    9 +++++++--
- arch/um/sys-i386/ksyms.c     |    4 ----
- 3 files changed, 8 insertions(+), 10 deletions(-)
+ arch/um/drivers/slirp_user.c             |    2 +-
+ arch/um/os-Linux/drivers/ethertap_user.c |    2 +-
+ arch/um/os-Linux/skas/mem.c              |    4 ++--
+ arch/um/os-Linux/skas/process.c          |    4 ++--
+ arch/um/sys-i386/ptrace_user.c           |    2 +-
+ 5 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/arch/um/kernel/ksyms.c b/arch/um/kernel/ksyms.c
-index 7713e7a..432cf0b 100644
---- a/arch/um/kernel/ksyms.c
-+++ b/arch/um/kernel/ksyms.c
-@@ -39,7 +39,6 @@ EXPORT_SYMBOL(um_virt_to_phys);
- EXPORT_SYMBOL(mode_tt);
- EXPORT_SYMBOL(handle_page_fault);
- EXPORT_SYMBOL(find_iomem);
--EXPORT_SYMBOL(end_iomem);
+diff --git a/arch/um/drivers/slirp_user.c b/arch/um/drivers/slirp_user.c
+index b94c661..33c5f6e 100644
+--- a/arch/um/drivers/slirp_user.c
++++ b/arch/um/drivers/slirp_user.c
+@@ -104,7 +104,7 @@ static void slirp_close(int fd, void *da
+ 	}
  
- #ifdef CONFIG_MODE_TT
- EXPORT_SYMBOL(strncpy_from_user_tt);
-@@ -89,12 +88,10 @@ EXPORT_SYMBOL(dump_thread);
- EXPORT_SYMBOL(do_gettimeofday);
- EXPORT_SYMBOL(do_settimeofday);
+ 	if(err == 0) {
+-		printk("slirp_close: process %d has not exited\n");
++		printk("slirp_close: process %d has not exited\n", pri->pid);
+ 		return;
+ 	}
  
--/* This is here because UML expands open to sys_open, not to a system
-+/* This is here because UML expands lseek to sys_lseek, not to a system
-  * call instruction.
-  */
--EXPORT_SYMBOL(sys_open);
- EXPORT_SYMBOL(sys_lseek);
--EXPORT_SYMBOL(sys_read);
- EXPORT_SYMBOL(sys_wait4);
+diff --git a/arch/um/os-Linux/drivers/ethertap_user.c b/arch/um/os-Linux/drivers/ethertap_user.c
+index 901b85e..8f49507 100644
+--- a/arch/um/os-Linux/drivers/ethertap_user.c
++++ b/arch/um/os-Linux/drivers/ethertap_user.c
+@@ -40,7 +40,7 @@ static void etap_change(int op, unsigned
+ 			int fd)
+ {
+ 	struct addr_change change;
+-	void *output;
++	char *output;
+ 	int n;
  
- #ifdef CONFIG_SMP
-diff --git a/arch/um/os-Linux/user_syms.c b/arch/um/os-Linux/user_syms.c
-index 8da6ab3..2598158 100644
---- a/arch/um/os-Linux/user_syms.c
-+++ b/arch/um/os-Linux/user_syms.c
-@@ -18,14 +18,19 @@ extern void *memmove(void *, const void 
- extern void *memset(void *, int, size_t);
- extern int printf(const char *, ...);
+ 	change.what = op;
+diff --git a/arch/um/os-Linux/skas/mem.c b/arch/um/os-Linux/skas/mem.c
+index fbb080c..b3c11cf 100644
+--- a/arch/um/os-Linux/skas/mem.c
++++ b/arch/um/os-Linux/skas/mem.c
+@@ -82,8 +82,8 @@ static inline long do_syscall_stub(struc
+ 	if (offset) {
+ 		data = (unsigned long *)(mm_idp->stack +
+ 					 offset - UML_CONFIG_STUB_DATA);
+-		printk("do_syscall_stub : ret = %d, offset = %d, "
+-		       "data = 0x%x\n", ret, offset, data);
++		printk("do_syscall_stub : ret = %ld, offset = %ld, "
++		       "data = %p\n", ret, offset, data);
+ 		syscall = (unsigned long *)((unsigned long)data + data[0]);
+ 		printk("do_syscall_stub: syscall %ld failed, return value = "
+ 		       "0x%lx, expected return value = 0x%lx\n",
+diff --git a/arch/um/os-Linux/skas/process.c b/arch/um/os-Linux/skas/process.c
+index bbf34cb..045ae00 100644
+--- a/arch/um/os-Linux/skas/process.c
++++ b/arch/um/os-Linux/skas/process.c
+@@ -265,7 +265,7 @@ void userspace(union uml_pt_regs *regs)
+ 		if(err)
+ 			panic("userspace - could not resume userspace process, "
+ 			      "pid=%d, ptrace operation = %d, errno = %d\n",
+-			      op, errno);
++			      pid, op, errno);
  
-+/* If they're not defined, the export is included in lib/string.c.*/
-+#ifdef __HAVE_ARCH_STRLEN
- EXPORT_SYMBOL(strlen);
-+#endif
-+#ifdef __HAVE_ARCH_STRSTR
-+EXPORT_SYMBOL(strstr);
-+#endif
-+
- EXPORT_SYMBOL(memcpy);
- EXPORT_SYMBOL(memmove);
- EXPORT_SYMBOL(memset);
- EXPORT_SYMBOL(printf);
+ 		CATCH_EINTR(err = waitpid(pid, &status, WUNTRACED));
+ 		if(err < 0)
+@@ -369,7 +369,7 @@ int copy_context_skas0(unsigned long new
+ 	 */
+ 	wait_stub_done(pid, -1, "copy_context_skas0");
+ 	if (child_data->err != UML_CONFIG_STUB_DATA)
+-		panic("copy_context_skas0 - stub-child reports error %d\n",
++		panic("copy_context_skas0 - stub-child reports error %ld\n",
+ 		      child_data->err);
  
--EXPORT_SYMBOL(strstr);
--
- /* Here, instead, I can provide a fake prototype. Yes, someone cares: genksyms.
-  * However, the modules will use the CRC defined *here*, no matter if it is
-  * good; so the versions of these symbols will always match
-diff --git a/arch/um/sys-i386/ksyms.c b/arch/um/sys-i386/ksyms.c
-index db524ab..2a1eac1 100644
---- a/arch/um/sys-i386/ksyms.c
-+++ b/arch/um/sys-i386/ksyms.c
-@@ -15,7 +15,3 @@ EXPORT_SYMBOL(__up_wakeup);
- 
- /* Networking helper routines. */
- EXPORT_SYMBOL(csum_partial);
--
--/* delay core functions */
--EXPORT_SYMBOL(__const_udelay);
--EXPORT_SYMBOL(__udelay);
+ 	if (ptrace(PTRACE_OLDSETOPTIONS, pid, NULL,
+diff --git a/arch/um/sys-i386/ptrace_user.c b/arch/um/sys-i386/ptrace_user.c
+index 9f3bd8e..40aa885 100644
+--- a/arch/um/sys-i386/ptrace_user.c
++++ b/arch/um/sys-i386/ptrace_user.c
+@@ -57,7 +57,7 @@ static void write_debugregs(int pid, uns
+ 		if(ptrace(PTRACE_POKEUSR, pid, &dummy->u_debugreg[i],
+ 			  regs[i]) < 0)
+ 			printk("write_debugregs - ptrace failed on "
+-			       "register %d, value = 0x%x, errno = %d\n", i,
++			       "register %d, value = 0x%lx, errno = %d\n", i,
+ 			       regs[i], errno);
+ 	}
+ }

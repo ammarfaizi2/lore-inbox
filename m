@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbWDGH2P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbWDGHw1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932327AbWDGH2P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 03:28:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWDGH2P
+	id S932328AbWDGHw1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 03:52:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbWDGHw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 03:28:15 -0400
-Received: from wproxy.gmail.com ([64.233.184.232]:33975 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932327AbWDGH2O convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 03:28:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KPW3vyptmMIReDLUNxEqfOKTLFD0z938mxvGMVHaPDE26iibmofYKb2MG8gOKCEJ9dQEsT2/ZowOEANIemoH9ezCR/c+QaqOoNTWZsWC/Z+MrEu/iJsoiYBag9CTFiG/b5+0H1kNmxReQgBqYRV36z9kG5d9yGjWVB3jut2Usc4=
-Message-ID: <489ecd0c0604070028s2f6dc900ha4b5b3d19ef7df41@mail.gmail.com>
-Date: Fri, 7 Apr 2006 15:28:13 +0800
-From: "Luke Yang" <luke.adi@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: Fw: [PATCH] use "#ifdef __KERNEL" to avoid compile error in input.h
-Cc: "Dmitry Torokhov" <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060406230822.2f3e45df.akpm@osdl.org>
+	Fri, 7 Apr 2006 03:52:27 -0400
+Received: from mail.suse.de ([195.135.220.2]:3232 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932328AbWDGHw0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 03:52:26 -0400
+From: Neil Brown <neilb@suse.de>
+To: "Tony Luck" <tony.luck@gmail.com>
+Date: Fri, 7 Apr 2006 17:52:01 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060406230822.2f3e45df.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17462.6689.821815.412458@cse.unsw.edu.au>
+Cc: "Mike Hearn" <mike@plan99.net>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] Add a /proc/self/exedir link
+In-Reply-To: message from Tony Luck on Thursday April 6
+References: <4431A93A.2010702@plan99.net>
+	<m1fykr3ggb.fsf@ebiederm.dsl.xmission.com>
+	<44343C25.2000306@plan99.net>
+	<12c511ca0604061633p2fb1796axd5acad8373532834@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/7/06, Andrew Morton <akpm@osdl.org> wrote:
-> Hi all,
->
->     In linux/input.h, struct input_device_id uses type kernel_ulong_t,
-> which is defined in linux/mod_devicetable.h,  but which is only
-> included when __KERNEL__ is defined. So struct input_device_id should
-> also be exported only in kernel mode.
->
-> Signed-off-by: Luke Yang <luke.adi@gmail.com>
->
-> diff --git a/include/linux/input.h b/include/linux/input.h
-> index b0e612d..0319b65 100644
-> --- a/include/linux/input.h
-> +++ b/include/linux/input.h
-> @@ -805,6 +805,7 @@ #define FF_AUTOCENTER       0x61
->
->  #define FF_MAX         0x7f
->
-> +#ifdef __KERNEL__
->  struct input_device_id {
->
->         kernel_ulong_t flags;
-> @@ -823,6 +824,7 @@ struct input_device_id {
->
->         kernel_ulong_t driver_info;
->  };
-> +#endif
->
->  /*
->   * Structure for hotplug & device<->driver matching.
->
-  Ooops, there is problem with the patch. The script/mod/file2alias.c
-need the struct input_device_id, and it defines the "kernel_ulong_t"
-by itself... Dmitry, any thought on how to solve the problem?
+On Thursday April 6, tony.luck@gmail.com wrote:
+> > > I have concerns about security policy ...
+> >
+> > I'm not sure I understand. Only if you run that program, and if you
+> > don't have access to the intermediate directory, how do you run it?
+> 
+> It leaks information about the parts of the pathname below the
+> directory that you otherwise would not be able to see.  E.g. if
+> I have $HOME/top-secret-projects/secret-code-name1/binary
+> where the top-secret-projects directory isn't readable by you,
+> then you may find out secret-code-name1 by reading the
+> /proc/{pid}/exedir symlink.
 
+But we already have /proc/{pid}/exe which is a symlink to the
+executable, thus exposing all the directory names already.
 
-
---
-Best regards,
-Luke Yang
-luke.adi@gmail.com
+NeilBrown

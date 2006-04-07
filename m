@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964927AbWDGTnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWDGTrl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964927AbWDGTnl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 15:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWDGTnk
+	id S964870AbWDGTrl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 15:47:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWDGTrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 15:43:40 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:19841 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S964927AbWDGTnj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 15:43:39 -0400
-Date: Fri, 7 Apr 2006 12:45:45 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: =?iso-8859-1?B?VPZy9ms=?= Edwin <edwin@gurde.com>
-Cc: linux-security-module@vger.kernel.org, James Morris <jmorris@namei.org>,
-       linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net,
-       sds@tycho.nsa.gov
-Subject: Re: [RFC][PATCH 0/7] fireflier LSM for labeling sockets based on its creator (owner)
-Message-ID: <20060407194545.GA15997@sorel.sous-sol.org>
-References: <200604021240.21290.edwin@gurde.com> <1144249591.25790.56.camel@moss-spartans.epoch.ncsc.mil> <200604072034.20972.edwin@gurde.com> <200604072124.24000.edwin@gurde.com>
+	Fri, 7 Apr 2006 15:47:41 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:29347 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932453AbWDGTrk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 15:47:40 -0400
+Date: Fri, 7 Apr 2006 23:47:16 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Yi Yang <yang.y.yi@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Matt Helsley <matthltc@us.ibm.com>
+Subject: Re: [2.6.16 PATCH] Filessytem Events Reporter V2
+Message-ID: <20060407194716.GA27652@2ka.mipt.ru>
+References: <4433C456.7010708@gmail.com> <20060407062428.GA31351@2ka.mipt.ru> <44361F39.4020501@gmail.com> <20060407094732.GA13235@2ka.mipt.ru> <443638D8.2010800@gmail.com> <20060407102602.GA27764@2ka.mipt.ru> <443681D3.8000805@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200604072124.24000.edwin@gurde.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <443681D3.8000805@gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 07 Apr 2006 23:47:19 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Török Edwin (edwin@gurde.com) wrote:
-> The purpose of the fireflier LSM is to "label" each socket with a context, 
-> where the context is a (list of) the program(s) that has/have access to it.
-> 
-> I've written fireflier LSM to allow filtering packets "per application". It is 
-> meant to be used only when SELinux is not available (not available/disabled 
-> at boot). For more details, see the initial discussion [1]
+On Fri, Apr 07, 2006 at 11:14:27PM +0800, Yi Yang (yang.y.yi@gmail.com) wrote:
+> Evgeniy Polyakov ??????:
+> >On Fri, Apr 07, 2006 at 06:03:04PM +0800, Yi Yang (yang.y.yi@gmail.com) 
+> >wrote:
+> >  
+> >>>>Can you explain why there is such a big difference between 
+> >>>>netlink_unicast and netlink_broadcast?
+> >>>>   
+> >>>>        
+> >>>Netlink broadcast clones skbs, while unicasting requires the whole new
+> >>>one.
+> >>> 
+> >>>      
+> >>No, I also use clone to send skb, so they should have the same overhead.
+> >>    
+> >
+> >I missed that.
+> >After rereading fsevent_send_to_process() I do not see how original skb
+> >is freed though.
+> >  
+> I'm considering how to free it, because cloned skbs share data with 
+> original skb, so this case is special,
+> I try to clarify the logic of kfree_skb.
 
-There is so much SELinux code in here, it's really not making sense to
-do this as separate work.
+Just call kfree_skb() after fsevent_send_to_process() or at the very
+end of this function. If unicast delivering fails you also need to free cloned skb.
 
-> Summary of how fireflier LSM works:
-> - each program is associated a sid, depending on its mountpoint+inode, i.e. 2 
-> processes launched from the same program have the same sid
+> >  
+> >>>>>Btw, you need some rebalancing of the per-cpu queues, probably in
+> >>>>>keventd, since CPUs can go offline and your messages will stuck foreve
+> >>>>>there.
+> >>>>>
+> >>>>>     
+> >>>>>          
+> >>>>Does keventd not do it? if so, keventd should be modified.
+> >>>>   
+> >>>>        
+> >>>How does keventd know about your own structures?
+> >>>You have an per-cpu object, but your keventd function gets object 
+> >>>      
+> >>>from running cpu, not from any other cpus.
+> >>    
+> >
+> >  
 
-That sounds like a problem.  Ptrace can undermine that really easily.
-Also bind mounts will give you a different sid for same exectuable, with
-a possible way to get into interesting 'group' situation.
- 
-> - each socket created by a processis labeled with the process's sid
-> - if 2 or more programs have access to the socket, it is labeled with a "group 
-> sid". A group sid contains a list of the sids of programs having access
-> - userspace, or iptables module can match packets on this "fireflier context"
-
-How do you keep from joining the group?
-
-> As I stated in my previous mail, I intend to write a userspace policy module 
-> generator, that is to be used when selinux is enabled.
-> When it is disabled, then only would the fireflier lsm be used.
-> 
-> I am asking for your comments/suggestions on the following issues:
-> - security/correctness of the LSM (is there a way for a program to have access 
-> to a socket, and escaping the labeling?)
-
-what do you do about ptrace, /proc/[pid]/mem, fd passing, bind mounts, /proc/self/mem, etc.
-
-> - how do I generate an SELinux policy, that does what this LSM module does?
-
-Sounds like the best solution.
-
-thanks,
--chris
+-- 
+	Evgeniy Polyakov

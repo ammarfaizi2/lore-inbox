@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbWDGTVB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964906AbWDGTYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964905AbWDGTVB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 15:21:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbWDGTVA
+	id S964906AbWDGTYX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 15:24:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWDGTYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 15:21:00 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:58091 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964905AbWDGTU7
+	Fri, 7 Apr 2006 15:24:23 -0400
+Received: from pproxy.gmail.com ([64.233.166.182]:23258 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964906AbWDGTYW convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 15:20:59 -0400
-Date: Fri, 7 Apr 2006 14:20:52 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@sw.ru>, herbert@13thfloor.at, devel@openvz.org,
-       sam@vilain.net, "Eric W. Biederman" <ebiederm@xmission.com>,
-       xemul@sw.ru, James Morris <jmorris@namei.org>, serge@hallyn.com
-Subject: Re: [RFC][PATCH 1/5] uts namespaces: Implement utsname namespaces
-Message-ID: <20060407192052.GB28729@sergelap.austin.ibm.com>
-References: <20060407095132.455784000@sergelap> <20060407183600.C8A8F19B8FD@sergelap.hallyn.com> <20060407191359.GC9097@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 7 Apr 2006 15:24:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=B0WcS2+Yx9NvZhmE41feJ88j+aQLzDokdw6UgcEYXZgV9m2bUiNraYM30ar7WUWLLoDqO93g4txyhamw7bTSAoGJShfDj+DZ5LZx8YSnw7uwB4gP4x3quWiB6r7jNYWmwgG/VQlLoTJxcO5BvFqoyZbAIF9LBFlM20DuJ4kN4AE=
+Message-ID: <bda6d13a0604071224u7b7ada61l16059cd538a8ee7e@mail.gmail.com>
+Date: Fri, 7 Apr 2006 12:24:21 -0700
+From: "Joshua Hudson" <joshudson@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: wait4/waitpid/waitid oddness
+In-Reply-To: <m1fykpmbw2.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060407191359.GC9097@mars.ravnborg.org>
-User-Agent: Mutt/1.5.11
+References: <787b0d920604052038i3a75bdb6ic0818d93805b881b@mail.gmail.com>
+	 <m1acaxnt1x.fsf@ebiederm.dsl.xmission.com>
+	 <bda6d13a0604071158x33080de3ya8016dde59c2d97f@mail.gmail.com>
+	 <m1fykpmbw2.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Sam Ravnborg (sam@ravnborg.org):
-> On Fri, Apr 07, 2006 at 01:36:00PM -0500, Serge E. Hallyn wrote:
-> > This patch defines the uts namespace and some manipulators.
-> > Adds the uts namespace to task_struct, and initializes a
-> > system-wide init namespace which will continue to be used when
-> > it makes sense.
-> It also kills system_utsname so you left the kernel uncompileable.
-> Can you kill it later?
-
-I can insert a #define system_utsname (init_uts_ns.name) in patch 1
-and nuke it at patch 3.
-
--serge
+> So what I see current in wait4 is:
+> > asmlinkage long sys_wait4(pid_t pid, int __user *stat_addr,
+> >                         int options, struct rusage __user *ru)
+> > {
+> >       long ret;
+> >
+> >       if (options & ~(WNOHANG|WUNTRACED|WCONTINUED|
+> >                       __WNOTHREAD|__WCLONE|__WALL))
+> >               return -EINVAL;
+>
+> So where are you seeing the check in 2.6.16.1?
+>
+> Eric
+Stupid me. I read that w/o the tilde.

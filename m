@@ -1,140 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbWDGVlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbWDGVqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964974AbWDGVlY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 17:41:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWDGVlX
+	id S964976AbWDGVqu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 17:46:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWDGVqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 17:41:23 -0400
-Received: from [212.70.37.6] ([212.70.37.6]:63762 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S964977AbWDGVlW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 17:41:22 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
-Date: Sat, 8 Apr 2006 00:32:28 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200604031459.51542.a1426z@gawab.com> <200604051116.05270.a1426z@gawab.com> <44344A59.9070007@bigpond.net.au>
-In-Reply-To: <44344A59.9070007@bigpond.net.au>
+	Fri, 7 Apr 2006 17:46:50 -0400
+Received: from smtp008.mail.ukl.yahoo.com ([217.12.11.62]:47754 "HELO
+	smtp008.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932451AbWDGVqt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 17:46:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=lXDcqwzk7OMQDEZ7kS3eLiudVPPHiTchsAkcCqrwBFHLVu5/bsAHZ+uNrfSrmfzFNv24z3SD/B1Ls8n6AiByQO0P/MuyS7ZVy1Zxks1in8O1mVKS+Ygd2iwGahd/WAfGkv9sZjyPzy309v6OWoD5BP4YB4590Oy0KqhcrR/GbvQ=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: [PATCH 03/17] uml: fix 2 harmless cast warnings for 64-bit
+Date: Fri, 7 Apr 2006 23:46:44 +0200
+User-Agent: KMail/1.8.3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+References: <20060407142709.19201.99196.stgit@zion.home.lan> <20060407143054.19201.89200.stgit@zion.home.lan> <20060407160218.GA4962@ccure.user-mode-linux.org>
+In-Reply-To: <20060407160218.GA4962@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_sptNEKoJM+TFhBF"
-Message-Id: <200604080032.28911.a1426z@gawab.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604072346.45225.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Boundary-00=_sptNEKoJM+TFhBF
-Content-Type: text/plain;
-  charset="windows-1256"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Peter Williams wrote:
-> Al Boldi wrote:
-> > Peter Williams wrote:
-> >> Al Boldi wrote:
-> >>> Peter Williams wrote:
-> >>>> Al Boldi wrote:
-> >>>>>>>> Control parameters for the scheduler can be read/set via files
-> >>>>>>>> in:
-> >>>>>>>>
-> >>>>>>>> /sys/cpusched/<scheduler>/
-> >>>>>
-> >>>>> The default values for spa make it really easy to lock up the
-> >>>>> system.
-> >>>>
-> >>>> Which one of the SPA schedulers and under what conditions?  I've been
-> >>>> mucking around with these and may have broken something.  If so I'd
-> >>>> like to fix it.
-> >>>
-> >>> spa_no_frills, with a malloc-hog less than timeslice.  Setting
-> >>> promotion_floor to max unlocks the console.
-> >>
-> >> OK, you could also try increasing the promotion interval.
+On Friday 07 April 2006 18:02, Jeff Dike wrote:
+> On Fri, Apr 07, 2006 at 04:30:54PM +0200, Paolo 'Blaisorblade' Giarrusso 
+wrote:
+> > From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 > >
-> > Seems that this will only delay the lock in spa_svr but not inhibit it.
->
-> OK. But turning the promotion mechanism off completely (which is what
-> setting the floor to the maximum) runs the risk of a runaway high
-> priority task locking the whole system up.  IMHO the only SPA scheduler
-> where it's safe for the promotion floor to be greater than MAX_RT_PRIO
-> is spa_ebs.  So a better solution is highly desirable.
+> > Fix two harmless warnings in 64-bit compilation (the 2nd doesn't trigger
+> > for now because of a missing __attribute((format)) for cow_printf, but
+> > next patches fix that).
 
-Yes.
+> I don't object to this bit, but it doesn't seem to match the comment.  Was
+> there another cast that you meant to have here, but missed?
 
-> I'd like to fix this problem but don't fully understand what it is.
-> What do you mean by a malloc-hog?  Would it possible for you to give me
-> an example of how to reproduce the problem?
+No, the below one was a whitespace change which slipped in without mention 
+(but that I confirm).
 
-Can you try the attached mem-eater passing it the number of kb to be eaten.
+> > -		n = min((size_t)len, ARRAY_SIZE(console_buf) - console_index);
+> > +		n = min((size_t) len, ARRAY_SIZE(console_buf) - console_index);
 
-	i.e. '# while :; do ./eatm 9999 ; done' 
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
 
-This will print the number of bytes eaten and the timing in ms.
+	
 
-Adjust the number of kb to be eaten such that the timing will be less than 
-timeslice (120ms by default for spa).  Switch to another vt and start 
-pressing enter.  A console lockup should follow within seconds for all spas 
-except ebs.
-
-Thanks!
-
---
-Al
-
-
-
---Boundary-00=_sptNEKoJM+TFhBF
-Content-Type: text/x-csrc;
-  charset="windows-1256";
-  name="eatm.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="eatm.c"
-
-#include <stdio.h>
-#include <sys/time.h>
-
-unsigned long elapsed(int start) {
-
-	static struct timeval s,e;
-
-	if (start) return gettimeofday(&s, NULL);
-
-	gettimeofday(&e, NULL);
-
-	return ((e.tv_sec - s.tv_sec) * 1000 + (e.tv_usec - s.tv_usec) / 1000);
-
-}
-
-int main(int argc, char **argv) {
-
-    unsigned long int i,j,max;
-    unsigned char *p;
-
-    if (argc>1)
-	max=atol(argv[1]);
-    else
-	max=0x60000;
-
-
-    elapsed(1); 
-
-    for (i=0;((i<max/1024) && (p = (char *)malloc(1024*1024)));i++) {
-        for (j=0;j<1024;p[1024*j++]=0);
-	fprintf(stderr,"\r%d MB ",i+1);
-    }
-
-    for (j=max-(i*=1024);((i<max) && (p = (char *)malloc(1024)));i++) {
-	*p = 0;
-    }
-    fprintf(stderr,"%d KB ",j-(max-i));
-
-    fprintf(stderr,"eaten in %lu msec (%lu MB/s)\n",elapsed(0),i/(elapsed(0)?:1)*1000/1024);
-
-    return 0;
-}
-
---Boundary-00=_sptNEKoJM+TFhBF--
-
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

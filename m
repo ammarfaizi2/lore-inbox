@@ -1,99 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbWDGSUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbWDGS3G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964844AbWDGSUq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 14:20:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWDGSUq
+	id S964838AbWDGS3G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 14:29:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWDGS3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 14:20:46 -0400
-Received: from dvhart.com ([64.146.134.43]:20168 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S964844AbWDGSUq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 14:20:46 -0400
-Message-ID: <4436AD7D.5070307@mbligh.org>
-Date: Fri, 07 Apr 2006 11:20:45 -0700
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Fri, 7 Apr 2006 14:29:06 -0400
+Received: from pproxy.gmail.com ([64.233.166.182]:17255 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964838AbWDGS3E convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 14:29:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=V68enYGENpESe0l3tvlzEseqh3PjjXEZobFpYhxjwtLCFO1uJvjVJzyMAshGT4nOHWvuM2cFRhZMEePZ22PGktzdFGetgP0rQSZvtnlcXkez45O2AzxnaWJprltWl7XM/rUko454cw4ErujYsbJ7/isqdnRVeOilahMYx7YLuNQ=
+Message-ID: <632b79000604071129hf28af6x59d73f6708ccff6b@mail.gmail.com>
+Date: Fri, 7 Apr 2006 13:29:03 -0500
+From: "Don Dupuis" <dondster@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: Oops at __bio_clone with 2.6.16-rc6 anyone??????
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <632b79000604070823s7f495d5ci416c9cef63ba11b@mail.gmail.com>
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Andy Whitcroft <apw@shadowen.org>
-Subject: Re: wierd failures from -mm1
-References: <4436AA05.7020203@mbligh.org> <1144433309.24221.7.camel@localhost.localdomain>
-In-Reply-To: <1144433309.24221.7.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <632b79000603271917h4104049dh9b6b8251feac0437@mail.gmail.com>
+	 <20060327200134.7369c7f8.akpm@osdl.org>
+	 <632b79000603280735w1908684djab2798c3f35cfebb@mail.gmail.com>
+	 <20060328113150.0acf2b60.akpm@osdl.org>
+	 <632b79000604070823s7f495d5ci416c9cef63ba11b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> On Fri, 2006-04-07 at 11:05 -0700, Martin Bligh wrote:
-> 
->>http://test.kernel.org/abat/27596/debug/console.log
->>Hangs after bringing up cpus. 
-> 
-> 
-> See attached patch.  It fixes curly.
+On 4/7/06, Don Dupuis <dondster@gmail.com> wrote:
+> On 3/28/06, Andrew Morton <akpm@osdl.org> wrote:
+> > "Don Dupuis" <dondster@gmail.com> wrote:
+> > >
+> > > Yes it does also happen on 2.6.16
+> > >
+> >
+> > (please don't top-post).
+> >
+> > >
+> > > On 3/27/06, Andrew Morton <akpm@osdl.org> wrote:
+> > > > "Don Dupuis" <dondster@gmail.com> wrote:
+> > > > >
+> > > > > I will get this oops during reboots. It doesn't happen everytime, but
+> > > > > It happens on this system at least 1 to 2 out of 10 reboots. The
+> > > > > machine is a Dell Powervault 745n. Here is the oops output:
+> > > > >
+> > > > > Mar 20 22:27:49 (none) kernel: EXT3-fs: mounted filesystem with
+> > > > > journal data mode.
+> > > > > Mar 20 22:27:49 (none) kernel: Unable to handle kernel paging request
+> > > > > at virtual address f8000000
+> > > > > Mar 20 22:27:49 (none) kernel: printing eip:
+> > > > > Mar 20 22:27:49 (none) kernel: c0156db1
+> > > > > Mar 20 22:27:49 (none) kernel: *pde = 00000000
+> > > > > Mar 20 22:27:49 (none) kernel: Oops: 0000 [#1]
+> > > > > Mar 20 22:27:49 (none) kernel: SMP
+> > > > > Mar 20 22:27:49 (none) kernel: Modules linked in:
+> > > > > Mar 20 22:27:49 (none) kernel: CPU: 0
+> > > > > Mar 20 22:27:50 (none) kernel: EIP: 0060:[<c0156db1>] Not tainted VLI
+> > > > > Mar 20 22:27:50 (none) kernel: EFLAGS: 00010206 (2.6.16-rc6 #3)
+> > > > > Mar 20 22:27:50 (none) kernel: EIP is at __bio_clone+0x29/0x9b
+> > > > > Mar 20 22:27:50 (none) kernel: eax: 00000300 ebx: f68f3700 ecx:
+> > > > > 00000002 edx: f7fffc80
+> > > > > Mar 20 22:27:50 (none) kernel: esi: f8000000 edi: f7f3d378 ebp:
+> > > > > f7c44b98 esp: f7c44b84
+> > > > > Mar 20 22:27:50 (none) kernel: ds: 007b es: 007b ss: 0068
+> > > > > Mar 20 22:27:50 (none) kernel: Process ldconfig (pid: 581,
+> > > > > threadinfo=f7c44000 task=f7db9070)
+> > > > > Mar 20 22:27:50 (none) kernel: Stack: <0>f7d3b458 f68f3700 f68f3700
+> > > > > f7fffc80 f65b4640 f7c44ba8 c0156e4e f7d4c664
+> > > > > Mar 20 22:27:50 (none) kernel: 00000010 f7c44bf4 c02c8346
+> > > > > 00000080 00000000 00000e00 c0154b1b 00000000
+> > > > > Mar 20 22:27:50 (none) kernel: 0000007f 00000080 f7fffc80
+> > > > > f7d4a740 f7d44400 f7fffc80 f7d3b458 c01579c3
+> > > > > Mar 20 22:27:50 (none) kernel: Call Trace:
+> > > > > Mar 20 22:27:50 (none) kernel: [<c0104260>] show_stack_log_lvl+0xa8/0xb0
+> > > > > Mar 20 22:27:50 (none) kernel: [<c0104397>] show_registers+0x109/0x171
+> > > > > Mar 20 22:27:50 (none) kernel: [<c010456e>] die+0xfb/0x16f
+> > > > > Mar 20 22:27:50 (none) kernel: [<c0114750>] do_page_fault+0x359/0x48b
+> > > > > Mar 20 22:27:50 (none) kernel: [<c0103f0b>] error_code+0x4f/0x54
+> > > > > Mar 20 22:27:50 (none) kernel: [<c0156e4e>] bio_clone+0x2b/0x31
+> > > > > Mar 20 22:27:50 (none) kernel: [<c02c8346>] make_request+0x208/0x3d4
+> > > > > Mar 20 22:27:50 (none) kernel: [<c02c8211>] make_request+0xd3/0x3d4
+> > > > > Mar 20 22:27:50 (none) kernel: [<c01d3b68>] generic_make_request+0xf5/0x105
+> > > > > Mar 20 22:27:50 (none) kernel: [<c01d3c19>] submit_bio+0xa1/0xa9
+> > > > > Mar 20 22:27:50 (none) kernel: [<c0170453>] mpage_bio_submit+0x1c/0x21
+> > > > > Mar 20 22:27:50 (none) kernel: [<c017085c>] do_mpage_readpage+0x30b/0x44d
+> > > > > Mar 20 22:27:50 (none) kernel: [<c0170a2b>] mpage_readpages+0x8d/0xf1
+> > > > > Mar 20 22:27:50 (none) kernel: [<c01a7ee7>] ext3_readpages+0x14/0x16
+> > > > > Mar 20 22:27:50 (none) kernel: [<c013e92f>] read_pages+0x26/0xc6
+> >
+> > Jens points out that the "dm: bio split bvec fix" patch which went into
+> > 2.6.16.1 might fix this.  Can you try it please?
+> >
+> Sorry about the late response. I have been out of town for a week and
+> didn't get to try it until last night. It STILL HAPPENS with 2.6.16.1
+>
+> Don
+>
 
-Splendid -thanks. This may well fix the first two ... I think the reiser
-thing is likely still borked though.
+This is the oops output from 2.6.16.1
 
-M.
-
-> -- Dave
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> Subject:
-> [PATCH 2.6.17-rc1-mm1] sched_domain-handle-kmalloc-failure-fix
-> From:
-> Lee Schermerhorn <Lee.Schermerhorn@hp.com>
-> Date:
-> Thu, 06 Apr 2006 15:58:47 -0400
-> To:
-> linux-kernel <linux-kernel@vger.kernel.org>
-> 
-> To:
-> linux-kernel <linux-kernel@vger.kernel.org>
-> CC:
-> Andrew Morton <akpm@osdl.org>, Eric Whitney <eric.whitney@hp.com>
-> 
-> 
-> [PATCH] sched_domain-handle-kmalloc-failure-fix
-> 
-> 2.6.17-rc1-mm1 hangs during boot on HP rx8620 and dl585 -- both 4 node
-> NUMA platforms.  Problem is in build_sched_domains() setting up the
-> sched_group_nodes[] lists, resulting from patch:
-> sched_domain-handle-kmalloc-failure.patch
-> 
-> The referenced patch does not propagate the "next" pointer from the head
-> of the list, resulting in a loop between the last 2 groups in the list.
-> This causes a tight loop/hang in init_numa_sched_groups_power() because 
-> 'sg->next' never == 'group_head' when you have > 2 nodes.
-> 
-> This patch seems to fix the problem.  
-> 
-> Signed-off-by:  Lee Schermerhorn <lee.schermerhorn@hp.com>
-> 
-> Index: linux-2.6.17-rc1-mm1/kernel/sched.c
-> ===================================================================
-> --- linux-2.6.17-rc1-mm1.orig/kernel/sched.c	2006-04-06 15:18:32.000000000 -0400
-> +++ linux-2.6.17-rc1-mm1/kernel/sched.c	2006-04-06 15:20:49.000000000 -0400
-> @@ -6360,7 +6360,7 @@ static int build_sched_domains(const cpu
->  			}
->  			sg->cpu_power = 0;
->  			sg->cpumask = tmp;
-> -			sg->next = prev;
-> +			sg->next = prev->next;
->  			cpus_or(covered, covered, tmp);
->  			prev->next = sg;
->  			prev = sg;
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Apr  7 07:12:52 (none) kernel: Unable to handle kernel paging request at
+virtual address f8000000
+Apr  7 07:12:52 (none) kernel:  printing eip:
+Apr  7 07:12:52 (none) kernel: c0155cfd
+Apr  7 07:12:52 (none) kernel: *pde = 00000000
+Apr  7 07:12:52 (none) kernel: Oops: 0000 [#1]
+Apr  7 07:12:52 (none) kernel: SMP
+Apr  7 07:12:52 (none) kernel: Modules linked in:
+Apr  7 07:12:52 (none) kernel: CPU:    1
+Apr  7 07:12:52 (none) kernel: EIP:    0060:[<c0155cfd>]    Not tainted VLI
+Apr  7 07:12:52 (none) kernel: EFLAGS: 00010206   (2.6.16.1 #4)
+Apr  7 07:12:52 (none) kernel: EIP is at __bio_clone+0x29/0x9b
+Apr  7 07:12:52 (none) kernel: eax: 00000300   ebx: f5e37280   ecx: 00000082
+edx: f7fffe80
+Apr  7 07:12:52 (none) kernel: esi: f8000000   edi: f7f56a78   ebp: f7ce9b98
+esp: f7ce9b84
+Apr  7 07:12:52 (none) kernel: ds: 007b   es: 007b   ss: 0068
+Apr  7 07:12:52 (none) kernel: Process ldconfig (pid: 533, threadinfo=f7ce9000
+task=f7c3d540)
+Apr  7 07:12:52 (none) kernel: Stack: <0>f7e29458 f5e37280 f5e37280 f7fffe80
+f5e2b140 f7ce9ba8 c0155d9a f7d9ed98
+Apr  7 07:12:52 (none) kernel:        00000000 f7ce9bf4 c02c7126 00000080
+00000000 00000e00 c01d2a5c 00000000
+Apr  7 07:12:52 (none) kernel:        0000007f 00000080 f7fffe80 f7e23bc0
+f7e22000 f7fffe80 f7e29458 c015690f
+Apr  7 07:12:52 (none) kernel: Call Trace:
+Apr  7 07:12:52 (none) kernel:  [<c0104260>] show_stack_log_lvl+0xa8/0xb0
+Apr  7 07:12:52 (none) kernel:  [<c0104397>] show_registers+0x109/0x171
+Apr  7 07:12:52 (none) kernel:  [<c010456e>] die+0xfb/0x16f
+Apr  7 07:12:52 (none) kernel:  [<c0114754>] do_page_fault+0x359/0x48b
+Apr  7 07:12:52 (none) kernel:  [<c0103f0b>] error_code+0x4f/0x54
+Apr  7 07:12:52 (none) kernel:  [<c0155d9a>] bio_clone+0x2b/0x31
+Apr  7 07:12:52 (none) kernel:  [<c02c7126>] make_request+0x208/0x3d4
+Apr  7 07:12:52 (none) kernel:  [<c02c6ff1>] make_request+0xd3/0x3d4
+Apr  7 07:12:52 (none) kernel:  [<c01d2a5c>] generic_make_request+0xf5/0x105
+Apr  7 07:12:52 (none) kernel:  [<c01d2b0d>] submit_bio+0xa1/0xa9
+Apr  7 07:12:52 (none) kernel:  [<c016f307>] mpage_bio_submit+0x1c/0x21
+Apr  7 07:12:52 (none) kernel:  [<c016f710>] do_mpage_readpage+0x30b/0x44d
+Apr  7 07:12:52 (none) kernel:  [<c016f8df>] mpage_readpages+0x8d/0xf1
+Apr  7 07:12:52 (none) kernel:  [<c01a6dc3>] ext3_readpages+0x14/0x16
+Apr  7 07:12:52 (none) kernel:  [<c013d867>] read_pages+0x26/0xc6
+Apr  7 07:12:53 (none) kernel:  [<c013da20>]
+__do_page_cache_readahead+0x119/0x135
+Apr  7 07:12:53 (none) kernel:  [<c013dae4>] do_page_cache_readahead+0x3d/0x49
+Apr  7 07:12:53 (none) kernel:  [<c0138c5e>] filemap_nopage+0x149/0x2c9
+Apr  7 07:12:53 (none) kernel:  [<c0143528>] do_no_page+0x82/0x245
+Apr  7 07:12:53 (none) kernel:  [<c0143855>] __handle_mm_fault+0xf4/0x1ba
+Apr  7 07:12:53 (none) kernel:  [<c011456f>] do_page_fault+0x174/0x48b
+Apr  7 07:12:53 (none) kernel:  [<c0103f0b>] error_code+0x4f/0x54
+Apr  7 07:12:53 (none) kernel: Code: 5d c3 55 89 e5 57 56 53 51 51 89 45 f0 8b
+42

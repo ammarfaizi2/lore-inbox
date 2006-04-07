@@ -1,124 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbWDGAbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWDGAbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932236AbWDGAbF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Apr 2006 20:31:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWDGAbE
+	id S932242AbWDGAbO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Apr 2006 20:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbWDGAbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Apr 2006 20:31:04 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56327 "HELO
+	Thu, 6 Apr 2006 20:31:13 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:57351 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932241AbWDGAbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Apr 2006 20:31:03 -0400
-Date: Fri, 7 Apr 2006 02:31:01 +0200
+	id S932242AbWDGAbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Apr 2006 20:31:07 -0400
+Date: Fri, 7 Apr 2006 02:31:05 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Sergei Shtylylov <sshtylyov@ru.mvista.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: [2.6 patch] remove the obsolete IDEPCI_FLAG_FORCE_PDC
-Message-ID: <20060407003101.GF7118@stusta.de>
-References: <20060122171239.GD10003@stusta.de> <4427F5E7.1000108@ru.mvista.com> <58cb370e0603270640v7c6070a9gb7dbd2aa5fcbbf98@mail.gmail.com>
+To: perex@suse.cz
+Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] move EXPORT_SYMBOL's away from sound/pci/emu10k1/emu10k1_main.c
+Message-ID: <20060407003105.GG7118@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <58cb370e0603270640v7c6070a9gb7dbd2aa5fcbbf98@mail.gmail.com>
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 27, 2006 at 04:40:20PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> On 3/27/06, Sergei Shtylylov <sshtylyov@ru.mvista.com> wrote:
->...
-> > >               .flags          = IDEPCI_FLAG_FORCE_PDC,
-> >
-> >     A late question: wasn't that IDEPCI_FLAG_FORCE_PDC flag there for the same
-> > purpose -- to bypass enablebits check? Wasn't it enough?
-> 
-> It was for the same purpose but it wasn't enough,
-> now this flag can die...
-
-IOW, we want the patch below?
-
-> Bartlomiej
-
-cu
-Adrian
-
-
-<--  snip  -->
-
-
-This patch removes the obsolete IDEPCI_FLAG_FORCE_PDC.
-
-Noted by Sergei Shtylylov <sshtylyov@ru.mvista.com>
+This patch moves the EXPORT_SYMBOL's from 
+sound/pci/emu10k1/emu10k1_main.c to the files with the actual functions.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- drivers/ide/pci/pdc202xx_old.c |    2 --
- drivers/ide/setup-pci.c        |   13 -------------
- include/linux/ide.h            |    1 -
- 3 files changed, 16 deletions(-)
+ sound/pci/emu10k1/emu10k1_main.c |   12 ------------
+ sound/pci/emu10k1/io.c           |    2 ++
+ sound/pci/emu10k1/memory.c       |    6 ++++++
+ sound/pci/emu10k1/voice.c        |    3 +++
+ 4 files changed, 11 insertions(+), 12 deletions(-)
 
---- linux-2.6.17-rc1-mm1-full/include/linux/ide.h.old	2006-04-07 00:51:49.000000000 +0200
-+++ linux-2.6.17-rc1-mm1-full/include/linux/ide.h	2006-04-07 00:52:03.000000000 +0200
-@@ -1221,7 +1221,6 @@
- enum {
- 	/* Uses ISA control ports not PCI ones. */
- 	IDEPCI_FLAG_ISA_PORTS		= (1 << 0),
--	IDEPCI_FLAG_FORCE_PDC		= (1 << 1),
- };
+--- linux-2.6.17-rc1-mm1-full/sound/pci/emu10k1/emu10k1_main.c.old	2006-04-07 01:08:22.000000000 +0200
++++ linux-2.6.17-rc1-mm1-full/sound/pci/emu10k1/emu10k1_main.c	2006-04-07 01:08:32.000000000 +0200
+@@ -1419,15 +1419,3 @@
+ }
+ #endif
  
- typedef struct ide_pci_device_s {
---- linux-2.6.17-rc1-mm1-full/drivers/ide/pci/pdc202xx_old.c.old	2006-04-07 00:52:13.000000000 +0200
-+++ linux-2.6.17-rc1-mm1-full/drivers/ide/pci/pdc202xx_old.c	2006-04-07 00:52:19.000000000 +0200
-@@ -798,7 +798,6 @@
- 		.autodma	= AUTODMA,
- 		.bootable	= OFF_BOARD,
- 		.extra		= 48,
--		.flags		= IDEPCI_FLAG_FORCE_PDC,
- 	},{	/* 2 */
- 		.name		= "PDC20263",
- 		.init_setup	= init_setup_pdc202ata4,
-@@ -819,7 +818,6 @@
- 		.autodma	= AUTODMA,
- 		.bootable	= OFF_BOARD,
- 		.extra		= 48,
--		.flags		= IDEPCI_FLAG_FORCE_PDC,
- 	},{	/* 4 */
- 		.name		= "PDC20267",
- 		.init_setup	= init_setup_pdc202xx,
---- linux-2.6.17-rc1-mm1-full/drivers/ide/setup-pci.c.old	2006-04-07 00:52:27.000000000 +0200
-+++ linux-2.6.17-rc1-mm1-full/drivers/ide/setup-pci.c	2006-04-07 00:54:28.000000000 +0200
-@@ -580,7 +580,6 @@
- 	int port;
- 	int at_least_one_hwif_enabled = 0;
- 	ide_hwif_t *hwif, *mate = NULL;
--	static int secondpdc = 0;
- 	u8 tmp;
+-/* memory.c */
+-EXPORT_SYMBOL(snd_emu10k1_synth_alloc);
+-EXPORT_SYMBOL(snd_emu10k1_synth_free);
+-EXPORT_SYMBOL(snd_emu10k1_synth_bzero);
+-EXPORT_SYMBOL(snd_emu10k1_synth_copy_from_user);
+-EXPORT_SYMBOL(snd_emu10k1_memblk_map);
+-/* voice.c */
+-EXPORT_SYMBOL(snd_emu10k1_voice_alloc);
+-EXPORT_SYMBOL(snd_emu10k1_voice_free);
+-/* io.c */
+-EXPORT_SYMBOL(snd_emu10k1_ptr_read);
+-EXPORT_SYMBOL(snd_emu10k1_ptr_write);
+--- linux-2.6.17-rc1-mm1-full/sound/pci/emu10k1/memory.c.old	2006-04-07 01:09:12.000000000 +0200
++++ linux-2.6.17-rc1-mm1-full/sound/pci/emu10k1/memory.c	2006-04-07 01:10:01.000000000 +0200
+@@ -286,6 +286,7 @@
+ 	spin_unlock_irqrestore(&emu->memblk_lock, flags);
+ 	return err;
+ }
++EXPORT_SYMBOL(snd_emu10k1_memblk_map);
  
- 	index->all = 0xf0f0;
-@@ -592,21 +591,9 @@
- 	for (port = 0; port <= 1; ++port) {
- 		ide_pci_enablebit_t *e = &(d->enablebits[port]);
- 	
--		/* 
--		 * If this is a Promise FakeRaid controller,
--		 * the 2nd controller will be marked as 
--		 * disabled while it is actually there and enabled
--		 * by the bios for raid purposes. 
--		 * Skip the normal "is it enabled" test for those.
--		 */
--		if ((d->flags & IDEPCI_FLAG_FORCE_PDC) &&
--		    (secondpdc++==1) && (port==1))
--			goto controller_ok;
--			
- 		if (e->reg && (pci_read_config_byte(dev, e->reg, &tmp) ||
- 		    (tmp & e->mask) != e->val))
- 			continue;	/* port not enabled */
--controller_ok:
+ /*
+  * page allocation for DMA
+@@ -386,6 +387,7 @@
+ 	mutex_unlock(&hdr->block_mutex);
+ 	return (struct snd_util_memblk *)blk;
+ }
++EXPORT_SYMBOL(snd_emu10k1_synth_alloc);
  
- 		if (d->channels	<= port)
- 			break;
-
+ 
+ /*
+@@ -408,6 +410,7 @@
+ 	mutex_unlock(&hdr->block_mutex);
+ 	return 0;
+ }
++EXPORT_SYMBOL(snd_emu10k1_synth_free);
+ 
+ 
+ /* check new allocation range */
+@@ -539,6 +542,7 @@
+ 	} while (offset < end_offset);
+ 	return 0;
+ }
++EXPORT_SYMBOL(snd_emu10k1_synth_bzero);
+ 
+ /*
+  * copy_from_user(blk + offset, data, size)
+@@ -568,3 +572,5 @@
+ 	} while (offset < end_offset);
+ 	return 0;
+ }
++EXPORT_SYMBOL(snd_emu10k1_synth_copy_from_user);
++
+--- linux-2.6.17-rc1-mm1-full/sound/pci/emu10k1/voice.c.old	2006-04-07 01:10:14.000000000 +0200
++++ linux-2.6.17-rc1-mm1-full/sound/pci/emu10k1/voice.c	2006-04-07 01:10:35.000000000 +0200
+@@ -138,6 +138,7 @@
+ 
+ 	return result;
+ }
++EXPORT_SYMBOL(snd_emu10k1_voice_alloc);
+ 
+ int snd_emu10k1_voice_free(struct snd_emu10k1 *emu,
+ 			   struct snd_emu10k1_voice *pvoice)
+@@ -153,3 +154,5 @@
+ 	spin_unlock_irqrestore(&emu->voice_lock, flags);
+ 	return 0;
+ }
++EXPORT_SYMBOL(snd_emu10k1_voice_free);
++
+--- linux-2.6.17-rc1-mm1-full/sound/pci/emu10k1/io.c.old	2006-04-07 01:10:46.000000000 +0200
++++ linux-2.6.17-rc1-mm1-full/sound/pci/emu10k1/io.c	2006-04-07 02:19:43.000000000 +0200
+@@ -61,6 +61,7 @@
+ 		return val;
+ 	}
+ }
++EXPORT_SYMBOL(snd_emu10k1_ptr_read);
+ 
+ void snd_emu10k1_ptr_write(struct snd_emu10k1 *emu, unsigned int reg, unsigned int chn, unsigned int data)
+ {
+@@ -91,6 +92,7 @@
+ 		spin_unlock_irqrestore(&emu->emu_lock, flags);
+ 	}
+ }
++EXPORT_SYMBOL(snd_emu10k1_ptr_write);
+ 
+ unsigned int snd_emu10k1_ptr20_read(struct snd_emu10k1 * emu, 
+ 					  unsigned int reg, 

@@ -1,49 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbWDGIsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWDGIzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932392AbWDGIsT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 04:48:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWDGIsT
+	id S932391AbWDGIzb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 04:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWDGIzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 04:48:19 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:20197 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932392AbWDGIsR
+	Fri, 7 Apr 2006 04:55:31 -0400
+Received: from 85.8.13.51.se.wasadata.net ([85.8.13.51]:4805 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S932391AbWDGIzb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 04:48:17 -0400
-Message-ID: <4436271B.4020808@aitel.hist.no>
-Date: Fri, 07 Apr 2006 10:47:23 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Fri, 7 Apr 2006 04:55:31 -0400
+Message-ID: <443628F3.9050107@drzeus.cx>
+Date: Fri, 07 Apr 2006 10:55:15 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: Jan Kara <jack@suse.cz>
-CC: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: Hanging ext3 or USB, linux 2.6.16-rc6-mm2
-References: <20060327210514.GA24421@aitel.hist.no> <20060406184712.GA5458@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20060406184712.GA5458@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Ram <vshrirama@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SDIO Drivers?
+References: <8bf247760604040130n155eeffauc5798750f8357bca@mail.gmail.com>
+In-Reply-To: <8bf247760604040130n155eeffauc5798750f8357bca@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kara wrote:
+Ram wrote:
+> Hi,
+>    i want to write an SDIO driver. There is not much information of
+> what an SDIO driver is
+>    supposed to do or any sample sdio drivers.
+> 
+>    I have a few questions regarding that:
+> 
+>    1) What is an SDIO Driver?.
+> 
 
->>Could this be a ext3 problem due to the small journal or something?
->>
->>Or is a usb problem more likely? "Dmesg" shows an
->>usb disconnect sometime after I mounted that filesystem,
->>but it seems to be usblp0 which looks like the printer to me.
->>    
->>
->  I'd guess it is some USB/block layer problem. If just ext3 hung, then
->you would not see [usb-storage] and similar hung. I would need to see
->where each process hung to tell more..
->
-You are right, it is block layer for I have seen problems with
-vfat formatted compactflash too now.  On my home machine, the
-problems are intermittent.  The hang can happen after
-writing almost one GB, or it can happen early, in "mount"
+They don't exist in the kernel right now, that's why you haven't found
+any examples.
 
-I also have a via epia board that consistently fails to use
-its compactflash reader, but that one is cardbus, not usb.
+To support SDIO, the MMC layer would need to be extended to handle the
+initialisation of SDIO cards (they're a bit different from SD storage
+and MMC). After that, a driver model needs to be constructed. It might
+be possible to build upon the current MMC driver model, but one would
+need to make sure that cards that are both storage and SDIO are handled.
 
-Helge Hafting
+>    2) Is SDIO a protocol/standard to which all devices confirm?.
+> 
+
+It's a subset of the SD standard suite. Note that it only specifies how
+to get access to registers in the card (like for instance PCI). To
+actually use the card you also need a specification for how to use the
+registers.
+
+>    3)  Is it a generic driver ?. (Same for a set of devices) or
+> different for each device?
+>         Suppose i want to run an SDIO WLAN Card?. will the
+> manufacturer support it or
+>        an will a Generic Driver "drive" it?
+> 
+
+Depends on if there is a generic interface for SDIO WLAN cards. SD is a
+very closed world so we know very little about the protocols.
+
+>    4) What is a SD Driver?
+> 
+
+Depends on context. It might refer to the driver for SD storage cards.
+Or it might refer to a driver for the SD controller (that interfaces to
+the card(s)).
+
+>    5) What are the differences between SD Driver and SDIO Driver?.
+> 
+
+If we're talking about SD storage vs SDIO, then the drivers use
+different parts of the SD protocol. They share the same bus interface
+though (which is implemented as the MMC layer in Linux).
+
+> 
+>    6) Are there any sample/Open Source SDIO drivers available in Linux
+> Kernel or else where?.If, not when can one expect/is anyone working on
+> it currently?.
+> 
+
+There are a lot of people interested, but I haven't seen anyone working
+on it yet.
+
+Rgds
+Pierre
+

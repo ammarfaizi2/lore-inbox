@@ -1,276 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWDGKB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWDGKPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbWDGKB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 06:01:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWDGKB6
+	id S932410AbWDGKPd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 06:15:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWDGKPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 06:01:58 -0400
-Received: from xproxy.gmail.com ([66.249.82.192]:27981 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932217AbWDGKB5 (ORCPT
+	Fri, 7 Apr 2006 06:15:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:38091 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932410AbWDGKPc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 06:01:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=hyds3yVc3TEO0mG3UmbbYgX3YAgDw/XE1+Q3DJTrNjDHxpt1qGv34ptPfi4ttPiK9D8DrkMJhT/knhhiNG5PatOpJwgc3v4YytfqYg6Xm92abI8B404IXsnWPOUG7Vlq8NB0UFpWcnRBaidyDt9nYUTmTM+LWTr8PT7qUWAETFc=
-Message-ID: <443638D8.2010800@gmail.com>
-Date: Fri, 07 Apr 2006 18:03:04 +0800
-From: Yi Yang <yang.y.yi@gmail.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Fri, 7 Apr 2006 06:15:32 -0400
 MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Matt Helsley <matthltc@us.ibm.com>
-Subject: Re: [2.6.16 PATCH] Filessytem Events Reporter V2
-References: <4433C456.7010708@gmail.com> <20060407062428.GA31351@2ka.mipt.ru> <44361F39.4020501@gmail.com> <20060407094732.GA13235@2ka.mipt.ru>
-In-Reply-To: <20060407094732.GA13235@2ka.mipt.ru>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Gerd Knorr <kraxel@suse.de>
+X-Fcc: ~/Mail/linus
+Cc: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Wu Zhou <woodzltc@cn.ibm.com>
+Subject: Re: [PATCH] ptrace/coredump/exit_group deadlock
+In-Reply-To: Andrea Arcangeli's message of  Monday, 3 October 2005 13:29:31 +0200 <20051003112931.GA5209@opteron.random>
+Emacs: if SIGINT doesn't work, try a tranquilizer.
+Message-Id: <20060407101519.7BA861809D1@magilla.sf.frob.com>
+Date: Fri,  7 Apr 2006 03:15:19 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> On Fri, Apr 07, 2006 at 04:13:45PM +0800, Yi Yang (yang.y.yi@gmail.com) wrote:
->   
->>>> +
->>>> +	return (netlink_unicast(fsevent_sock, skb, pid, MSG_DONTWAIT));
->>>>    
->>>>         
->>> netlink_unicast() uses boolean value but ont MSG_* flags for nonblocking, 
->>> so this should be netlink_unicast(fsevent_sock, skb, pid, 0);
->>>  
->>>       
->> a example invocation in file net/netlink/af_netlink.c:
->> netlink_unicast(in_skb->sk, skb, NETLINK_CB(in_skb).pid, MSG_DONTWAIT);
->> so, it hasn't any problem.
->>     
->
-> Well...
->
-> static inline long sock_sndtimeo(const struct sock *sk, int noblock)
-> {
-> 	return noblock ? 0 : sk->sk_sndtimeo;
-> }
->
-> int netlink_unicast(struct sock *ssk, struct sk_buff *skb, u32 pid, int nonblock)
-> {
-> 	struct sock *sk;
-> 	int err;
-> 	long timeo;
->
-> 	skb = netlink_trim(skb, gfp_any());
->
-> 	timeo = sock_sndtimeo(ssk, nonblock);
->
-> I mean that it is boolean value, MSG_PEEK will produce the same result.
-> But it is a matter of coding style probably.
->
->   
->>>> +nlmsg_failure:
->>>> +	kfree_skb(skb);
->>>> +	return -1;
->>>> +}
->>>>    
->>>>         
->>> ...
->>>
->>>  
->>>       
->>>> +static void fsevent_recv(struct sock *sk, int len)
->>>> +{
->>>> +	struct sk_buff *skb = NULL;
->>>> +	struct nlmsghdr *nlhdr = NULL;
->>>> +	struct fsevent_filter * filter = NULL;
->>>> +	pid_t pid;
->>>> +
->>>> +	while ((skb = skb_dequeue(&sk->sk_receive_queue)) != NULL) {
->>>> +		skb_get(skb);
->>>> +		if (skb->len >= FSEVENT_FILTER_MSGSIZE) {
->>>> +			nlhdr = (struct nlmsghdr *)skb->data;
->>>> +			filter = NLMSG_DATA(nlhdr);
->>>> +			pid = NETLINK_CREDS(skb)->pid;
->>>> +			if (find_fsevent_listener(pid) == NULL)
->>>> +				atomic_inc(&fsevent_listener_num);
->>>> +			set_fsevent_filter(filter, pid);
->>>>    
->>>>         
->>> What is the logic behind this steps?
->>> If there are no listeners you increment it's number no matter if it will
->>> or not be added in set_fsevent_filter().
->>>  
->>>       
->> fsevent_recv is used to receive listener's commands, a listener must 
->> send commands in order to get fsevents it
->> interests, so this is the best point to increment number of listeners. 
->> set_fsevent_filter will add listener to listener
->> list, so it is OK.
->>     
->
-> And what if set_fsevent_filter() fails?
->   
-I didn't consider this case, thanks, I will do with it.
->   
->>>> +		}
->>>> +		kfree_skb(skb);
->>>> +	}
->>>> +}
->>>> +
->>>> +#define DEFINE_FILTER_MATCH_FUNC(filtertype, key) 			\
->>>> +	static int match_##filtertype(listener * p,			\
->>>> +				struct fsevent * event,			\
->>>> +				struct sk_buff * skb)			\
->>>> +	{								\
->>>> +		int ret = 0;						\
->>>> +		filtertype * xfilter = NULL;				\
->>>> +		struct sk_buff * skb2 = NULL;				\
->>>> +		struct list_head *  head = &(p->key##_filter_list_head);  \
->>>> +		list_for_each_entry(xfilter, head, list) {		\
->>>> +			if (xfilter->key != event->key)			\
->>>> +				continue;				\
->>>> +			ret = filter_fsevent(xfilter->mask, event->type); \
->>>> +			if ( ret != 0)					\
->>>> +				return -1;				\
->>>> +			skb2 = skb_clone(skb, GFP_KERNEL);		\
->>>> +       			if (skb2 == NULL)			 \
->>>> +				return -ENOMEM;				\
->>>> +			NETLINK_CB(skb2).dst_group = 0;			\
->>>> +			NETLINK_CB(skb2).dst_pid = p->pid;		\
->>>> +			NETLINK_CB(skb2).pid = 0;			\
->>>> +			return (netlink_unicast(fsevent_sock, skb2,	\
->>>> +					p->pid, MSG_DONTWAIT));		\
->>>>    
->>>>         
->>> The same issue about nonblocking sending.
->>>
->>>  
->>>       
->>>> +		}							\
->>>> +		return -ENODEV;						\
->>>> +	}								\
->>>> +
->>>> +DEFINE_FILTER_MATCH_FUNC(pid_filter, pid)
->>>> +
->>>> +DEFINE_FILTER_MATCH_FUNC(uid_filter, uid)
->>>> +
->>>> +DEFINE_FILTER_MATCH_FUNC(gid_filter, gid)
->>>> +
->>>> +#define MATCH_XID(key, listenerp, event, skb) 			\
->>>> +	ret = match_##key##_filter(listenerp, event, skb); 	\
->>>> +	if (ret == 0) {					 	\
->>>> +		kfree_skb(skb);				 	\
->>>> +	        continue;				 	\
->>>> +	}						 	\
->>>> +	do {} while (0)					 	\
->>>> +
->>>> +static int fsevent_send_to_process(struct sk_buff * skb)
->>>> +{
->>>> +	listener * p  = NULL, * q = NULL;
->>>> +	struct fsevent * event = NULL;
->>>> +	struct sk_buff * skb2 = NULL;
->>>> +	int ret = 0;
->>>> +
->>>> +	event = (struct fsevent *)(skb->data + sizeof(struct nlmsghdr));
->>>> +	spin_lock(&listener_list_lock);
->>>> +	list_for_each_entry_safe(p, q, &listener_list_head, list) {
->>>> +		MATCH_XID(pid, p, event, skb);
->>>> +		MATCH_XID(uid, p, event, skb);
->>>> +		MATCH_XID(gid, p, event, skb);
->>>> +
->>>> +		if (filter_fsevent(p->mask, event->type) == 0) {
->>>> +			 skb2 = skb_clone(skb, GFP_KERNEL);
->>>> +	                 if (skb2 == NULL)
->>>> +	                 	return -ENOMEM;
->>>> +	                 NETLINK_CB(skb2).dst_group = 0;
->>>> +	                 NETLINK_CB(skb2).dst_pid = p->pid;
->>>> +	                 NETLINK_CB(skb2).pid = 0;
->>>> +	                 ret = netlink_unicast(fsevent_sock, skb2,
->>>> +	                                p->pid, MSG_DONTWAIT);
->>>> +			if (ret == -ECONNREFUSED) {
->>>> +				atomic_dec(&fsevent_listener_num);
->>>> +				cleanup_dead_listener(p);
->>>> +			}
->>>> +		}
->>>> +	}
->>>> +	spin_unlock(&listener_list_lock);
->>>> +	return ret;
->>>> +}
->>>> +
->>>> +static void fsevent_commit(void * unused)
->>>> +{
->>>> +	struct sk_buff * skb = NULL;
->>>> +		
->>>> +	while((skb = skb_dequeue(&get_cpu_var(fsevent_send_queue)))
->>>> +		!= NULL) {
->>>> +		fsevent_send_to_process(skb);
->>>> +		put_cpu_var(fsevent_send_queue);
->>>> +	}
->>>> +}
->>>>    
->>>>         
->>> Really strange mix of per-cpu variables for optimized performance and
->>> global spin locking.
->>> Consider using RCU for list of listeners.
->>>  
->>>       
->> per cpu queue is used to avoid raise_fsevent to contend spinlock, but 
->> listener_list_lock just is used
->> to synchronize the operations of userspace applications(listener) on 
->> listener list, it just protect listener
->> list.
->>
->> Of course, your advice is good, RCU will be better, I'm considering 
->> substitute spinlock with RCU,
->> maybe list*_rcu  functions can help me.
->>     
->
-> You get global lock in each processor when traverse the list
-> &listener_list_lock.
->
-> And you call GFP_KERNEL allocation under that lock, which is wrong.
->
-> If all your code is called from process context (it looks so), you
-> could mutexes.
->   
-Yes, mutex should be the best choice.
->   
->>> You use unicast delivery for netlink messages. 
->>> According to my investigation [1], it's performance is better only when
->>> there is only one listener (or maybe two in some cases), but then it is
->>> noticebly slower than broadcasting.
->>>
->>> 1. http://marc.theaimsgroup.com/?l=linux-netdev&m=114424884216006&w=2
->>>  
->>>       
->> Because fsevent has to deliver different events to different listeners, 
->> so I must use netlink_unicast,
->> in fact, netlink_broadcast also must send skb to every member of the 
->> group, so in my opinion,
->> they haven't  big difference.
->>     
->
-> And what if there are several listeners for the same type of events?
->
->   
->> Can you explain why there is such a big difference between 
->> netlink_unicast and netlink_broadcast?
->>     
->
-> Netlink broadcast clones skbs, while unicasting requires the whole new
-> one.
->   
-No, I also use clone to send skb, so they should have the same overhead.
->   
->>> Btw, you need some rebalancing of the per-cpu queues, probably in
->>> keventd, since CPUs can go offline and your messages will stuck foreve
->>> there.
->>>  
->>>       
->> Does keventd not do it? if so, keventd should be modified.
->>     
->
-> How does keventd know about your own structures?
-> You have an per-cpu object, but your keventd function gets object 
-> from running cpu, not from any other cpus.
->
->   
+Sorry I have been absent from the discussion for such a long time.
+I'm trying to catch up on old issues that I should have reviewed earlier.
 
+This is about Andrea's change:
+
+	commit 30e0fca6c1d7d26f3f2daa4dd2b12c51dadc778a
+	Author: Andrea Arcangeli <andrea@suse.de>
+	Date:   Sun Oct 30 15:02:38 2005 -0800
+
+	    [PATCH] ptrace/coredump/exit_group deadlock
+
+I am quite dubious about this change, and a little confused about the bug
+it's addressing.  The change broke the non-leader MT exec case when
+ptraced, and this is still broken in 2.6.16.1; the execing thread does
+ptrace_unlink in de_thread and winds up SIGKILL'ing itself so it dies as
+soon as it finishes the exec.  (Wu Zhou posted about this problem, but I
+didn't see that he got any response.  To reproduce the problem, see
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=177240.)  With the
+aforementioned commit reverted, the exec problem goes away.  (2.6.17-rc1
+no longer suffers this symptom because of other cleanups in de_thread.
+But that only further masks the real issues.)
+
+Do you have a self-contained test program to exercise the original bug
+you were dealing with?  It looks like maybe you had one, but I didn't see
+where you posted it.  I was not really able to follow the description of
+the scenario precisely enough to understand the situation.  (I think you
+are saying that all the threads you mention are in the same thread group,
+with PTRACE_ATTACH from one thread to another in the group, but I am not
+entirely sure.)
+
+> I could seldom reproduce a deadlock with a task not killable in T state
+> (TASK_STOPPED, not TASK_TRACED) by attaching a NPTL threaded program to
+> gdb, by segfaulting the task and triggering a core dump while some other
+> task is executing exit_group and while one task is in ptrace_attached
+> TASK_STOPPED state (not TASK_TRACED yet). 
+
+I don't understand this part: "TASK_STOPPED state (not TASK_TRACED yet)".
+What does that mean?  The only threads that should have a chance to enter
+TASK_STOPPED are those that are not ptrace'd, but "not TASK_TRACED yet"
+would obviously not apply to those, so I am confused as to what you mean.
+
+> Most threads hangs in exit_mm because the core_dumping is still going,
+> the core dumping hangs because the stopped task doesn't exit, the
+> stopped task can't wakeup because it has SIGNAL_GROUP_EXIT set, hence
+> the deadlock.
+
+I also don't understand this: "the stopped task can't wakeup because it
+has SIGNAL_GROUP_EXIT set".  
+
+> To me it seems that the problem is that the force_sig_specific(SIGKILL)
+> in zap_threads is a noop if the task has PF_PTRACED set (like in this
+> case because gdb is attached). 
+
+This should not be so.  I agree that this is a problem if it's happening.
+The SIGKILL ought to wake up any thread that is stopped in whichever
+state.  I suspect that what you saw is the scenario that Oleg described
+(and fixed), in which a SIGKILL is left pending before the thread stops.
+Later SIGKILLs are then no-ops because there is already one pending, but
+that is not because of PT_PTRACED (and indeed it need not have it set for
+this failure mode, and it's more likely if it doesn't).
+
+> The __ptrace_unlink does nothing because the signal->flags is set to
+> SIGNAL_GROUP_EXIT|SIGNAL_STOP_DEQUEUED (verified).
+
+I think here you must be talking about the "if (unlikely(traced))" case
+in zap_threads.  Is that right?  Sorry, I'm really having a hard time
+understanding your description of the situation.  I'm sure I'm being dense.
+
+This combination of bits should never be possible.  Since you verified
+it, I wonder if that might have been on a kernel before this change,
+which fixes a clearly related bug:
+
+	commit 788e05a67c343fa22f2ae1d3ca264e7f15c25eaf
+	Author: Oleg Nesterov <oleg@tv-sign.ru>
+	Date:   Fri Oct 7 17:46:19 2005 +0400
+
+	    [PATCH] fix do_coredump() vs SIGSTOP race
+
+	diff --git a/kernel/signal.c b/kernel/signal.c
+	index 619b027..c135f5a 100644
+	--- a/kernel/signal.c
+	+++ b/kernel/signal.c
+	@@ -578,7 +578,8 @@ int dequeue_signal(struct task_struct *t
+			 * is to alert stop-signal processing code when another
+			 * processor has come along and cleared the flag.
+			 */
+	- 		tsk->signal->flags |= SIGNAL_STOP_DEQUEUED;
+	+ 		if (!(tsk->signal->flags & SIGNAL_GROUP_EXIT))
+	+ 			tsk->signal->flags |= SIGNAL_STOP_DEQUEUED;
+		}
+		if ( signr &&
+		     ((info->si_code & __SI_MASK) == __SI_TIMER) &&
+
+> The above info also shows that the stopped task hit a race and got the
+> stop signal (presumably by the ptrace_attach, only the attach, state is
+> still TASK_STOPPED and gdb hangs waiting the core before it can set it
+> to TASK_TRACED) after one of the thread invoked the core dump (it's the
+> core dump that sets signal->flags to SIGNAL_GROUP_EXIT).
+
+Sorry again, I'm having a lot of trouble understanding some of this
+paragraph, mostly the first parenthetical part.  Could you restate what
+you think is going on here?
+
+> So beside the fact nobody would wakeup the task in __ptrace_unlink (the
+> state is _not_ TASK_TRACED), there's a secondary problem in the signal
+> handling code, where a task should ignore the ptrace-sigstops as long as
+> SIGNAL_GROUP_EXIT is set (or the wakeup in __ptrace_unlink path wouldn't
+> be enough).
+
+I don't think this is actually a problem.  After Oleg's fix, I believe it
+is impossible to get a SIGNAL_GROUP_EXIT|SIGNAL_STOP_DEQUEUED combination.
+That being the case, the check in do_signal_stop should prevent the thread
+that dequeued a SIGSTOP from acting on it.  In the case of some other
+signal passed through by ptrace, it will have its normal action before
+getting the the group exit, which is fine.  The thread should not stop for
+any reason here and will then go back and see the SIGKILL next.  I don't
+think your change in get_signal_to_deliver does any real harm, but I don't
+see any reason to put an extra check here just to short-circuit the code
+path in this rare race condition.
+
+> So I attempted to make this patch that seems to fix the problem. There
+> were various ways to fix it, perhaps you prefer a different one, I just
+> opted to the one that looked safer to me.
+
+I am still sufficiently unclear on what your analysis of the situation is
+that I cannot be sure I am addressing all of the problems.  I do
+understand the scenario Oleg described (see the full log message for his
+change).  If what you observed was not different from that, then I think
+that your changes to ptrace_untrace and get_signal_to_deliver should be
+reverted.  If there is more going on in your case than what I understand,
+then please help me understand it.
+
+> I also removed the clearing of the stopped bits from the
+> zap_other_threads (zap_other_threads was safe unlike zap_threads). 
+
+This change in zap_other_threads seems fine.  I think that it was just
+written trying to be safe without the assumption that SIGKILL will always
+be selected from the queue in preference to any stop signals.
+
+
+Thanks,
+Roland

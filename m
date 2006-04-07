@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWDGHJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWDGHON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbWDGHJw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 03:09:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbWDGHJw
+	id S932320AbWDGHON (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 03:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWDGHON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 03:09:52 -0400
-Received: from pproxy.gmail.com ([64.233.166.179]:6629 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932313AbWDGHJw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 03:09:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PF65Mcg9jk6ODeOSKxlqatNvHW7m7Jljj3OSQ38NgTb23Q/J5CMYu7B0ryI9FT24fBv09WdJ36G6VlDBVpTNzHX4oVIHdKVWK9rV0DiyglX6tkKIZGgWKxmABfWabojkz0iLbQ2W0LIn4LZ3nLuEd27ylVpBWgRGoQ+3KrYJnvE=
-Message-ID: <bda6d13a0604070009x59c1517bw28c2f4f5e24ffe96@mail.gmail.com>
-Date: Fri, 7 Apr 2006 00:09:51 -0700
-From: "Joshua Hudson" <joshudson@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: wait4/waitpid/waitid oddness
-In-Reply-To: <17462.3003.229525.874004@cse.unsw.edu.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 7 Apr 2006 03:14:13 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:63629 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932320AbWDGHOM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 03:14:12 -0400
+Date: Fri, 7 Apr 2006 09:11:25 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Bill Huey <billh@gnuppy.monkey.org>
+Cc: Darren Hart <darren@dvhart.com>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       "Stultz, John" <johnstul@us.ibm.com>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: RT task scheduling
+Message-ID: <20060407071125.GA2563@elte.hu>
+References: <200604052025.05679.darren@dvhart.com> <20060406073753.GA18349@elte.hu> <20060407030713.GA9623@gnuppy.monkey.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <787b0d920604052038i3a75bdb6ic0818d93805b881b@mail.gmail.com>
-	 <bda6d13a0604061909u69dd8453me4c9b96cca8d34f5@mail.gmail.com>
-	 <217AB2B7-BD72-49BE-AB02-AA952728073B@mac.com>
-	 <bda6d13a0604062340p5f5ff496u20c7f6135284b43f@mail.gmail.com>
-	 <17462.3003.229525.874004@cse.unsw.edu.au>
+In-Reply-To: <20060407030713.GA9623@gnuppy.monkey.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I wonder what you are doing about the conceptual problem of
->   What does ".." mean now?
->
-> NeilBrown
-dnode->d_parent.
+
+* Bill Huey <billh@gnuppy.monkey.org> wrote:
+
+> On Thu, Apr 06, 2006 at 09:37:53AM +0200, Ingo Molnar wrote:
+> > do "global" decisions for what RT tasks to run on which CPU. To put even 
+> > less overhead on the mainstream kernel, i plan to introduce a new 
+> > SCHED_FIFO_GLOBAL scheduling policy to trigger this behavior. [it doesnt 
+> > make much sense to extend SCHED_RR in that direction.]
+> 
+> You should consider for a moment to allow for the binding of a thread 
+> to a CPU to determine the behavior of a SCHED_FIFO class task instead 
+> of creating a new run category. [...]
+
+That is already possible and has been possible for years.
+
+	Ingo

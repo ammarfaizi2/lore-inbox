@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWDGGus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWDGG6G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbWDGGus (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 02:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbWDGGus
+	id S932319AbWDGG6G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 02:58:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWDGG6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 02:50:48 -0400
-Received: from mx2.suse.de ([195.135.220.15]:23171 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932317AbWDGGur (ORCPT
+	Fri, 7 Apr 2006 02:58:06 -0400
+Received: from holly.csn.ul.ie ([193.1.99.76]:22464 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S932319AbWDGG6F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 02:50:47 -0400
-From: Neil Brown <neilb@suse.de>
-To: "Joshua Hudson" <joshudson@gmail.com>
-Date: Fri, 7 Apr 2006 16:50:35 +1000
+	Fri, 7 Apr 2006 02:58:05 -0400
+Date: Fri, 7 Apr 2006 07:57:51 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet.skynet.ie
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: [PATCH] deinline a few large inlines in DRM code
+In-Reply-To: <200604070826.40453.vda@ilport.com.ua>
+Message-ID: <Pine.LNX.4.64.0604070757160.22730@skynet.skynet.ie>
+References: <200604070826.40453.vda@ilport.com.ua>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17462.3003.229525.874004@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: wait4/waitpid/waitid oddness
-In-Reply-To: message from Joshua Hudson on Thursday April 6
-References: <787b0d920604052038i3a75bdb6ic0818d93805b881b@mail.gmail.com>
-	<bda6d13a0604061909u69dd8453me4c9b96cca8d34f5@mail.gmail.com>
-	<217AB2B7-BD72-49BE-AB02-AA952728073B@mac.com>
-	<bda6d13a0604062340p5f5ff496u20c7f6135284b43f@mail.gmail.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday April 6, joshudson@gmail.com wrote:
-> On 4/6/06, Kyle Moffett <mrmacman_g4@mac.com> wrote:
-> > On Apr 6, 2006, at 22:09:48, Joshua Hudson wrote:
-> > > I'm the guy who removed the check in link() about source is a
-> > > directory, found out what broke, and am working on a patch to fix
-> > > all the resulting breakage.  Your task is apt to be a lot simpler.
-> >
-> > I seem to recall the reason why hardlinking directories was
-> > prohibited had something more to do with some unfixable races and
-> > deadlocks in the kernel; not to mention creating self-referential
-> > directory trees that are never freed and chew up disk space.
-> 
-> You recall correctly. I have fixed the self-referrential problem, and I
-> am testing a fix for the races and deadlocks. Desk proof is not good
-> enough for me.
 
-I wonder what you are doing about the conceptual problem of 
-  What does ".." mean now?
+> Please apply.
+>
+> Signed-off-by: Denis Vlasenko <vda@ilport.com.ua>
 
-NeilBrown
+Applied to drm git tree...
+
+Thanks,
+Dave.
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+Linux kernel - DRI, VAX / pam_smb / ILUG
+

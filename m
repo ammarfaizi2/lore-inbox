@@ -1,159 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWDGGDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWDGGPF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbWDGGDf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 02:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWDGGDf
+	id S932293AbWDGGPF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 02:15:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWDGGPF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 02:03:35 -0400
-Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:47020 "HELO
-	smtp108.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932283AbWDGGDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 02:03:34 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [PATCH] spi: Added spi master driver for Freescale MPC83xx SPI controller
-Date: Thu, 6 Apr 2006 22:22:05 -0700
-User-Agent: KMail/1.7.1
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       spi-devel-general@lists.sourceforge.net
-References: <Pine.LNX.4.44.0604061329550.20620-100000@gate.crashing.org>
-In-Reply-To: <Pine.LNX.4.44.0604061329550.20620-100000@gate.crashing.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604062222.05661.david-b@pacbell.net>
+	Fri, 7 Apr 2006 02:15:05 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:50914 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932293AbWDGGPD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 02:15:03 -0400
+Date: Fri, 07 Apr 2006 02:15:01 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [RFC: 2.6 patch] the overdue removal of
+ RAW1394_REQ_ISO_{LISTEN,SEND}
+In-reply-to: <200604070852.36924.vda@ilport.com.ua>
+To: linux-kernel@vger.kernel.org
+Reply-to: gene.heskett@verizononline.net
+Message-id: <200604070215.01791.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20060406224706.GD7118@stusta.de>
+ <200604062035.23880.gene.heskett@verizon.net>
+ <200604070852.36924.vda@ilport.com.ua>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This driver supports the SPI controller on the MPC83xx SoC devices from Freescale.
-> Note, this driver supports only the simple shift register SPI controller and not
-> the descriptor based CPM or QUICCEngine SPI controller.
+On Friday 07 April 2006 01:52, Denis Vlasenko wrote:
+>On Friday 07 April 2006 03:35, Gene Heskett wrote:
+>> >This patch contains the overdue removal of the RAW1394_REQ_ISO_SEND
+>> > and RAW1394_REQ_ISO_LISTEN request types plus all support code for
+>> > them.
+>> >
+>> >Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>>
+>> NAK if my vote is worth $.02.  ieee1394 has been broken since
+>> 2.6.13-rc1, and apparently no one cares.  I have a firewire movie
+>> camera I haven't been able to use since then.  A Sony DVR-TVR460.
+>
+>You may help by narrowing it down to exact 2.6.x[-rcY] where it broke.
 
-Or the QSPI on Coldfire; there's a driver for that floating around, but for an
-older version of this framework (sans lists).
+Apparently it broke with the commits that came in between 2.6.12 and 
+2.6.13-rc1.
 
+I can't get any closer than that, and someone else has also commented 
+that this is when it died.  I hadn't needed it between may-june of last 
+year and now, so I hadn't dug out the camera and tested it until the 
+missus asked if I could make dvd's of some of her vhs stuff since the 
+vhs player is on its last legs, not from head wear, but something on 
+the board requires a healthy slap in the chops to make it work after 
+its been off for a few weeks.
 
-> --- /dev/null
-> +++ b/drivers/spi/spi_mpc83xx.c
-> @@ -0,0 +1,349 @@
-> +/*
-> + * MPC83xx SPI controller driver.
-> + *
-> + * Maintainer: Kumar Gala
+I was going to use the camera as a transcoder between the sloppily timed 
+ntsc, and the firewire port.  Now it locks kino up tighter than a drum 
+the minute you select the capture screen.  You have to click on the 
+close button, and wait for the x server to ask you if you want to stop 
+the process since it isn't responding.  But that once done, seems to 
+clean up the mess nicely.
 
-Needs a "Copyright (C) 2006 <NAME>" for the GPL to be valid; it's
-the copyright holder who licences the code.
+>--
+>vda
 
-
-> + *
-> + * This program is free software; you can redistribute  it and/or modify it
-> + * under  the terms of  the GNU General  Public License as published by the
-> + * Free Software Foundation;  either version 2 of the  License, or (at your
-> + * option) any later version.
-> + */
-> ...
-> +
-> +/* Default for SPI Mode, slowest speed, MSB, inactive high, 8-bit char */
-> +#define	SPMODE_INIT_VAL (SPMODE_CI_INACTIVEHIGH | SPMODE_CP_RISE_EDGECLK | \
-> +			 SPMODE_DIV16 | SPMODE_REV | SPMODE_MS | \
-> +			 SPMODE_LEN(7) | SPMODE_PM(0xf))
-
-Hmm, it will of course be overridden as soon as needed, but shouldn't
-that default be "inactive low" clock?  SPI mode 0 that is.  That stands
-out mostly because you were interpreting CPOL=0 as inactive high, and
-that's not my understanding of how that signal works...
-
-
-> +struct mpc83xx_spi {
-> +	/* bitbang has to be first */
-> +	struct spi_bitbang bitbang;
-> +	struct completion tx_done, rx_ready;
-> +
-> +	u32 __iomem *base;
-
-Erm, OK, but fwiw my preference is to have pointer-to-struct and let
-the compiler calculate the offsets (and tell you when you pass the wrong
-kind of pointer).  Otherwise such pointers should use "void __iomem *"
-(or maybe in your case "__be32 *"?) for explicit {base,offset} addressing.
-
-
-> +static inline void mpc83xx_spi_write_reg(__be32 * base, u32 reg, u32 val)
-> +{
-> +	out_be32(base + (reg >> 2), val);
-> +}
-> +
-> +static inline u32 mpc83xx_spi_read_reg(__be32 * base, u32 reg)
-> +{
-> +	return in_be32(base + (reg >> 2));
-> +}
-
-... here you use "__be32" not "u32", and no "__iomem" annotation.  So
-this is inconsistent with the declaration above.  Note that if you
-just made this "&bank->regname" you'd be having the compiler do any
-offset calculation magic, and the source code will be more obvious.
-
-
-> +static
-> +int mpc83xx_spi_setup_transfer(struct spi_device *spi, struct spi_transfer *t)
-> +{
-> +	struct mpc83xx_spi *mpc83xx_spi;
-> +	u32 regval;
-> +	u32 len = t->bits_per_word - 1;
-> +
-> +	if (len == 32)
-> +		len = 0;
-
-So the hardware handles 1-33 bit words?  It'd be good to filter
-the spi_setup() path directly then, returning EINVAL for illegal
-word lengths (and clock speeds).
-
-
-
-> +static u32
-> +mpc83xx_spi_txrx(struct spi_device *spi, unsigned nsecs, u32 word, u8 bits)
-> +{
-> +	struct mpc83xx_spi *mpc83xx_spi;
-> +	mpc83xx_spi = spi_master_get_devdata(spi->master);
-> +
-> +	INIT_COMPLETION(mpc83xx_spi->tx_done);
-> +	INIT_COMPLETION(mpc83xx_spi->rx_ready);
-> +
-> +	/* enable tx/rx ints */
-> +	mpc83xx_spi_write_reg(mpc83xx_spi->base, SPIM_REG, SPIM_NF | SPIM_NE);
-> +
-> +	/* transmit word */
-> +	mpc83xx_spi_write_reg(mpc83xx_spi->base, SPITD_REG, word);
-> +
-> +	/* wait for both a tx & rx interrupt */
-> +	wait_for_completion(&mpc83xx_spi->tx_done);
-> +	wait_for_completion(&mpc83xx_spi->rx_ready);
-
-I guess I'm surprised you're not using txrx_buffers() and having
-that whole thing be IRQ driven, so the per-word cost eliminates
-the task scheduling.  You already paid for IRQ handling ... why
-not have it store the rx byte into the buffer, and write the tx
-byte froom the other buffer?  That'd be cheaper than what you're
-doing now ... in both time and code.  Only wake up a task at
-the end of a given spi_transfer().
-
-Plus, your IRQ handler should _not_ always return IRQ_HANDLED.
-Only return it if you actually do enter one of those branches...
-
-
-> +	mpc83xx_spi->sysclk = pdata->sysclk;
-
-When MPC/PPC starts to support <linux/clk.h> would seem to be
-the right sort of time to
-
-	mpc83xx-spi->clk = clk_get(&pdev->dev, "spi_clk");
-
-or whatever.
-
-
-> +MODULE_DESCRIPTION("Simple Platform SPI Driver");
-
-How about "Simple MPC83xx SPI driver"?
-
-- Dave
+-- 
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

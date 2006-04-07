@@ -1,74 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWDGNhl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWDGNwq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964794AbWDGNhl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 09:37:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbWDGNhl
+	id S964793AbWDGNwq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 09:52:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbWDGNwq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 09:37:41 -0400
-Received: from mail.gmx.de ([213.165.64.20]:43907 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964794AbWDGNhj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 09:37:39 -0400
-X-Authenticated: #14349625
-Subject: Re: [patch][rfc] quell interactive feeding frenzy
-From: Mike Galbraith <efault@gmx.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Peter Williams <pwil3058@bigpond.net.au>
-In-Reply-To: <200604072256.27665.kernel@kolivas.org>
-References: <1144402690.7857.31.camel@homer>
-	 <200604072256.27665.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Fri, 07 Apr 2006 15:37:44 +0200
-Message-Id: <1144417064.8114.26.camel@homer>
+	Fri, 7 Apr 2006 09:52:46 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:49843 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964793AbWDGNwp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 09:52:45 -0400
+Date: Fri, 7 Apr 2006 19:27:14 +0530
+From: Rachita Kothiyal <rachita@in.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] Patch to fix cdrom being confused on using kdump
+Message-ID: <20060407135714.GA25569@in.ibm.com>
+Reply-To: rachita@in.ibm.com
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-07 at 22:56 +1000, Con Kolivas wrote:
-> On Friday 07 April 2006 19:38, Mike Galbraith wrote:
-> > Greetings,
-> >
-> > Problem:  Wake-up -> cpu latency increases with the number of runnable
-> > tasks, ergo adding this latency to sleep_avg becomes increasingly potent
-> > as nr_running increases.  This turns into a very nasty problem with as
-> > few as 10 httpd tasks doing round robin scheduling.  The result is that
-> > you can only login with difficulty, and interactivity is nonexistent.
-> >
-> > Solution:  Restrict the amount of boost a task can receive from this
-> > mechanism, and disable the mechanism entirely when load is high.  As
-> > always, there is a price for increasing fairness.  In this case, the
-> > price seems worth it.  It bought me a usable 2.6 apache server.
-> 
-> Since this is an RFC, here's my comments :)
-> 
-> This mechanism is designed to convert on-runqueue waiting time into sleep. The 
-> basic reason is that when the system is loaded, every task is fighting for 
-> cpu even if they only want say 1% cpu which means they never sleep and are 
-> waiting on a runqueue instead of sleeping 99% of the time. What you're doing 
-> is exactly biasing against what this mechanism is in place for. You'll get 
-> the same effect by bypassing or removing it entirely. Should we do that 
-> instead?
+Hi Jens
 
-Heck no.  That mechanism is just as much about fairness as it is about
-intertactivity, and as such is just fine and dandy in my book... once
-it's toned down a bit^H^H^Htruckload.  What I'm doing isn't biasing
-against the intent, I'm merely straightening the huge bend in favor of
-interactive tasks who get this added boost over and over again, and
-restricting the general effect to something practical.
+As we had discussed earlier, I had seen the cdrom drive appearing
+confused on using kdump on certain x86_64 systems. During the booting 
+up of the second kernel, the following message would keep flooding
+the console, and the booting would not proceed any further.
 
-Just look at what that mechanism does now with a 10 deep queue.  Every
-dinky sleep can have an absolutely huge gob added to it, the exact worst
-case number depends on how many cpus you have and whatnot.  Start a slew
-of tasks, and you are doomed to have every task that sleeps for the
-tiniest bit pegged at max interactive.
+hda: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
 
-Maybe what I did isn't the best that can be done, but something has to
-be done about that.  It is very b0rken under heavy load.
+In this patch, whenever we are hitting a confused state in the interrupt
+handler with the DRQ set, we clear the DSC bit of the status register and 
+return 'ide_stopped' from the interrupt handler. 
 
-	-Mike
+Please provide your comments and feedback.
 
+Thanks
+Rachita
+
+
+Signed-off-by: Rachita Kothiyal <rachita@in.ibm.com>
+---
+
+ drivers/ide/ide-cd.c |    5 +++++
+ 1 files changed, 5 insertions(+)
+
+diff -puN drivers/ide/ide-cd.c~cdrom-confused-clrinterrupt drivers/ide/ide-cd.c
+--- linux-2.6.16-mm2/drivers/ide/ide-cd.c~cdrom-confused-clrinterrupt	2006-03-29 11:23:18.000000000 +0530
++++ linux-2.6.16-mm2-rachita/drivers/ide/ide-cd.c	2006-04-07 19:05:48.962710872 +0530
+@@ -1450,6 +1450,11 @@ static ide_startstop_t cdrom_pc_intr (id
+ 			rq->sense_len += thislen;
+ 	} else {
+ confused:
++		if (( stat & DRQ_STAT) == DRQ_STAT) {
++			/* DRQ is set. Interrupt not welcome now. Ignore */
++			HWIF(drive)->OUTB((stat & 0xEF), IDE_STATUS_REG);
++			return ide_stopped;
++		}
+ 		printk (KERN_ERR "%s: cdrom_pc_intr: The drive "
+ 			"appears confused (ireason = 0x%02x)\n",
+ 			drive->name, ireason);
+_

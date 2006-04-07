@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWDGOfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWDGOgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbWDGOfL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 10:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWDGOc1
+	id S932349AbWDGOgT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 10:36:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWDGOgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 10:32:27 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:31964 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S932301AbWDGOcX (ORCPT
+	Fri, 7 Apr 2006 10:36:06 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:49372 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S932357AbWDGOcZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 10:32:23 -0400
+	Fri, 7 Apr 2006 10:32:25 -0400
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 08/17] uml: prepare fixing compilation output
-Date: Fri, 07 Apr 2006 16:31:08 +0200
+Subject: [PATCH 16/17] uml: fix parallel make early failure on clean tree
+Date: Fri, 07 Apr 2006 16:31:26 +0200
 To: Andrew Morton <akpm@osdl.org>
 Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20060407143107.19201.23684.stgit@zion.home.lan>
+Message-Id: <20060407143126.19201.92294.stgit@zion.home.lan>
 In-Reply-To: <20060407142709.19201.99196.stgit@zion.home.lan>
 References: <20060407142709.19201.99196.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,39 +23,33 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Move the build of user-offsets to arch/um/Kbuild, this will allow using the
-normal user-objs machinery. I had written this to fixup for a Kbuild change, but
-another fix was merged. This is still useful however.
+Parallel make failed once for me - fix this by adding the appropriate command
+(mkdir before creating a link in that dir).
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- arch/um/Kbuild   |    4 ++++
- arch/um/Makefile |    4 ++--
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ arch/um/Makefile |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/arch/um/Kbuild b/arch/um/Kbuild
-new file mode 100644
-index 0000000..ae2a254
---- /dev/null
-+++ b/arch/um/Kbuild
-@@ -0,0 +1,4 @@
-+ARCH_DIR := arch/um
-+
-+$(ARCH_DIR)/user-offsets.s: $(ARCH_DIR)/sys-$(SUBARCH)/user-offsets.c
-+	$(CC) $(USER_CFLAGS) -S -o $@ $<
 diff --git a/arch/um/Makefile b/arch/um/Makefile
-index 24790be..ef8d71d 100644
+index ef8d71d..e79454d 100644
 --- a/arch/um/Makefile
 +++ b/arch/um/Makefile
-@@ -202,8 +202,8 @@ endef
- $(ARCH_DIR)/include/uml-config.h : include/linux/autoconf.h
- 	$(call filechk,umlconfig)
- 
--$(ARCH_DIR)/user-offsets.s: $(ARCH_DIR)/sys-$(SUBARCH)/user-offsets.c
--	$(CC) $(USER_CFLAGS) -S -o $@ $<
-+$(ARCH_DIR)/user-offsets.s: FORCE
-+	$(Q)$(MAKE) $(build)=$(ARCH_DIR) $@
- 
- define filechk_gen-asm-offsets
-         (set -e; \
+@@ -159,6 +159,7 @@ archclean:
+ $(SYMLINK_HEADERS):
+ 	@echo '  SYMLINK $@'
+ ifneq ($(KBUILD_SRC),)
++	$(Q)mkdir -p $(objtree)/include/asm-um
+ 	$(Q)ln -fsn $(srctree)/include/asm-um/$(basename $(notdir $@))-$(SUBARCH)$(suffix $@) $@
+ else
+ 	$(Q)cd $(TOPDIR)/$(dir $@) ; \
+@@ -168,7 +169,7 @@ endif
+ include/asm-um/arch:
+ 	@echo '  SYMLINK $@'
+ ifneq ($(KBUILD_SRC),)
+-	$(Q)mkdir -p include/asm-um
++	$(Q)mkdir -p $(objtree)/include/asm-um
+ 	$(Q)ln -fsn $(srctree)/include/asm-$(SUBARCH) include/asm-um/arch
+ else
+ 	$(Q)cd $(TOPDIR)/include/asm-um && ln -sf ../asm-$(SUBARCH) arch

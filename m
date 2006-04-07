@@ -1,139 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbWDGVHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbWDGVJG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964954AbWDGVHe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 17:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbWDGVHe
+	id S964952AbWDGVJG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 17:09:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWDGVJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 17:07:34 -0400
-Received: from mail.advantech.ca ([207.35.60.239]:26949 "EHLO
-	exch2k.Advantech.ca") by vger.kernel.org with ESMTP id S964958AbWDGVHd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 17:07:33 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: How to know when file data has been flushed into disk?
-Date: Fri, 7 Apr 2006 17:07:31 -0400
-Message-ID: <1A60C93388AFD3419AEE0E20A116D3201D24D8@exch2k>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: How to know when file data has been flushed into disk?
-Thread-Index: AcZaZ2+So95V8IB7TjaO2xWoh5BRiwAHyBrg
-From: "Michael Guo" <Michael.Guo@advantechAMT.com>
-To: "Xin Zhao" <uszhaoxin@gmail.com>,
-       "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
-       <linux-fsdevel@vger.kernel.org>
+	Fri, 7 Apr 2006 17:09:05 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:14290 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964958AbWDGVJE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 17:09:04 -0400
+Subject: Re: [PATCH 1/5] generic clocksource updates
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0604072239110.32445@scrub.home>
+References: <Pine.LNX.4.64.0604032155070.4707@scrub.home>
+	 <1144317972.5344.681.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0604062048130.17704@scrub.home>
+	 <1144351944.5925.23.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0604072239110.32445@scrub.home>
+Content-Type: text/plain
+Date: Fri, 07 Apr 2006 14:08:45 -0700
+Message-Id: <1144444126.2745.125.camel@leatherman>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1)Checking source code following fsync() system call. I believe that you would get more information.
-2)Dick tell you ext3 based on journaling is a crash safety filesystem 
+On Fri, 2006-04-07 at 22:43 +0200, Roman Zippel wrote:
+> Hi,
+> 
+> On Thu, 6 Apr 2006, Thomas Gleixner wrote:
+> 
+> > > Currently this field isn't needed and as soon we have a need for it, we 
+> > > can add proper capability information.
+> > 
+> > Is there a reason, why requirements which are known from existing
+> > experience must be discarded to be reintroduced later ?
+> 
+> Then please explain these requirements.
+> This field shouldn't have been added in first place, I guess I managed to 
+> confuse John when I talked about handling of continuous vs. tick based 
+> clocks. Currently no user should even care about this, it's an 
+> implementation detail of the clock.
 
+I don't think you confused me on this issue (although, I admit I'm prone
+to confusion). 
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Xin Zhao
-Sent: Friday, April 07, 2006 1:19 PM
-To: linux-os (Dick Johnson)
-Cc: linux-kernel; linux-fsdevel@vger.kernel.org
-Subject: Re: How to know when file data has been flushed into disk?
+The is_continuous flag on the clocksource is used so other systems can
+query if timekeeping is able to function without regular timer ticks.
+This would be necessary for the HRT patchset, as well as the dynamic
+tick patches, as they both reprograms the tick frequency, and need to
+know if that will affect time.
 
+I can reasonably drop this bit from the current patches, but it is very
+small and and will be needed shortly, so I'm not sure its that big of a
+deal.
 
-Thanks for reply.
+thanks
+-john
 
-I think Douglas answered the third question, I guess you are trying to
-answer the first two questions. Maybe I don't get your point. But my
-question is:
-
-Since ext3 will commit the transaction AFTER all data is flushed to
-disk, it must know when the data flush is done. But how does ext3 know
-that? Where can I find this code in ext3 module?
-
-Maybe software has no way to know when the data is really written into
-disk platters since hard drive has cache too. But software (like
-flushd) should know when it finishes sending the data to hard drive. I
-guess ext3 will commit transaction at that time. So the mysterious
-thing to me is how ext3 get notified that data has been flushed.
-
-Any further thoughts?
-
-cheers,
-Xin
-
-On 4/7/06, linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
->
-> On Fri, 7 Apr 2006, Xin Zhao wrote:
->
-> > Thanks for your reply.
-> >
-> > That make sense. But at least ext3 needs to know when all data has
-> > been flushed so that it can commit the meta data. Question is how can
-> > ext3 knows that? The data flushing is done by flush daemon. There go
-> > to be some way to notify ext3 that data is flushed. Where  is this
-> > part of code in ext3 module?
-> >
-> > Xin
-> >
-> > On 4/7/06, Douglas McNaught <doug@mcnaught.org> wrote:
-> >> "Xin Zhao" <uszhaoxin@gmail.com> writes:
-> >>
-> >>> 3. Does sys_close() have to  be blocked until all data and metadata
-> >>> are committed? If not, sys_close() may give application an illusion
-> >>> that the file is successfully written, which can cause the application
-> >>> to take subsequent operation. However, data flush could be failed. In
-> >>> this case, file system seems to mislead the application. Is this true?
-> >>> If so, any solutions?
-> >>
-> >> The fsync() call is the way to make sure written data has hit the
-> >> disk.  close() doesn't guarantee that.
-> >>
-> >> -Doug
-> >>
->
-> In principle, you __never__ know that the data got to the
-> disk platter(s). Any database that thinks differently is
-> broken by design. You need transaction processing to be
-> assured that you have all the (correct) data available
-> in the database. Transaction processing provides atomic
-> stepping stones so that, in the event of a failure, the
-> transactions can be rolled back to the last complete one
-> and then restarted.
->
-> The simplest example is the use of a number of journal
-> files, each containing a record of the previous
-> transactions and enough information to roll-back the
-> database to the point at which these files were saved.
-> These files are checksummed and saved in order. In the
-> event of a crash, these files are read until the latest
-> of the readable ones has a correct checksum. The database
-> manager uses the information in the file to roll-back
-> the main database to the exact content at the time the
-> journal file was saved.
->
-> Once the database is restarted, any previous journal
-> files can be deleted as well as the bad ones that followed.
-> However, the journal file that was used to restart the
-> database is never deleted until it has been superseded
-> by another that worked in a database restart. That way,
-> there is always a way to get back to a clean database.
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.15.4 on an i686 machine (5589.42 BogoMips).
-> Warning : 98.36% of all statistics are fiction, book release in April.
-> _
-> 
->
-> ****************************************************************
-> The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
->
-> Thank you.
->
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

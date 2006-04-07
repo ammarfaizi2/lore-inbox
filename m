@@ -1,54 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWDGTtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbWDGT53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964871AbWDGTtw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 15:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWDGTtw
+	id S964875AbWDGT53 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 15:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWDGT53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 15:49:52 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:57229 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932431AbWDGTtv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 15:49:51 -0400
-Date: Sat, 8 Apr 2006 03:46:53 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH rc1-mm] de_thread: fix deadlockable process addition
-Message-ID: <20060407234653.GB11460@oleg>
-References: <20060406220403.GA205@oleg> <m1acay1fbh.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1acay1fbh.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+	Fri, 7 Apr 2006 15:57:29 -0400
+Received: from zcars04e.nortel.com ([47.129.242.56]:19921 "EHLO
+	zcars04e.nortel.com") by vger.kernel.org with ESMTP id S932431AbWDGT53
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 15:57:29 -0400
+Message-ID: <4436C422.4000300@nortel.com>
+Date: Fri, 07 Apr 2006 13:57:22 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Dike <jdike@addtoit.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: problem building UML kernel with 2.6.16.1 -- dies when linking
+ vmlinux
+References: <443580A4.1020806@nortel.com> <20060406215131.GA6422@ccure.user-mode-linux.org> <4435A0DA.1030606@nortel.com> <20060406234145.GA6893@ccure.user-mode-linux.org> <443676ED.10907@nortel.com> <20060407154309.GA4911@ccure.user-mode-linux.org>
+In-Reply-To: <20060407154309.GA4911@ccure.user-mode-linux.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Apr 2006 19:57:24.0005 (UTC) FILETIME=[7CEE6D50:01C65A7D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04/06, Eric W. Biederman wrote:
-> 
-> Ack.  The evils of de_thread!
+Jeff Dike wrote:
+> On Fri, Apr 07, 2006 at 08:27:57AM -0600, Christopher Friesen wrote:
 
-Yes, just noticed another thing,
+>>Can I run UML under gdb in skas mode?
+> "gdb linux" and away you go.
 
-[PATCH] task-make-task-list-manipulations-rcu-safe-fix-fix
+Okay...now how about running SMP in UML with skas?
 
-We shoudn't decrement process_counts if de_thread() unhashed the task.
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- MM/kernel/exit.c~	2006-04-06 23:01:37.000000000 +0400
-+++ MM/kernel/exit.c	2006-04-08 03:35:24.000000000 +0400
-@@ -56,9 +56,10 @@ static void __unhash_process(struct task
- 		detach_pid(p, PIDTYPE_SID);
- 
- 		/* see de_thread()->list_replace_rcu() */
--		if (likely(p->tasks.prev != LIST_POISON2))
-+		if (likely(p->tasks.prev != LIST_POISON2)) {
- 			list_del_rcu(&p->tasks);
--		__get_cpu_var(process_counts)--;
-+			__get_cpu_var(process_counts)--;
-+		}
- 	}
- 	list_del_rcu(&p->thread_group);
- 	remove_parent(p);
-
+Chris

@@ -1,85 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbWDGEZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWDGEr2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbWDGEZl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 00:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWDGEZl
+	id S932260AbWDGEr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 00:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWDGEr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 00:25:41 -0400
-Received: from mx2.suse.de ([195.135.220.15]:4584 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932252AbWDGEZk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 00:25:40 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 7 Apr 2006 14:25:15 +1000
-Message-Id: <1060407042515.22091@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] md: Make sure 64bit fields in version-1 metadata are 64-bit aligned.
-References: <20060407142239.19652.patches@notabene>
+	Fri, 7 Apr 2006 00:47:28 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:29899 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932256AbWDGEr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 00:47:27 -0400
+Date: Fri, 7 Apr 2006 13:48:27 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, jbarnes@sgi.com, jes@trained-monkey.org,
+       nickpiggin@yahoo.com.au, tony.luck@intel.com,
+       mm-commits@vger.kernel.org
+Subject: Re: + pg_uncached-is-ia64-only.patch added to -mm tree
+Message-Id: <20060407134827.91a47e69.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <200604070421.k374LXFs011197@shell0.pdx.osdl.net>
+References: <200604070421.k374LXFs011197@shell0.pdx.osdl.net>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch should go in 2.6.17-rc2 if at all possible.  If the problem
-gets left much longer, a more ugly solution might be needed.
+Hi, Andrew
 
-### Comments for Changeset
+On Thu, 06 Apr 2006 21:20:26 -0700
+akpm@osdl.org wrote:
 
-reshape_position is a 64bit field that was not 64bit aligned.
-So swap with new_level.
+> 
+> The patch titled
+> 
+>      PG_uncached is ia64 only
+> 
+> has been added to the -mm tree.  Its filename is
+> 
+>      pg_uncached-is-ia64-only.patch
+> 
+> See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
+> out what to do about this
+> 
 
-NOTE: this is a user-visible change.  However:
-  - The bad code has not appeared in a released kernel
-  - This code is still marked 'experimental'
-  - This only affects version-1 superblock, which are not in wide use
-  - These field are only used (rather than simply reported) by user-space
-    tools in extemely rare circumstances : after a reshape crashes in the
-    first second of the reshape process.
+in include/linux/mmzone.h
+==
+#elif BITS_PER_LONG == 64
+/*
+ * with 64 bit flags field, there's plenty of room.
+ */
+#define FLAGS_RESERVED          32
 
-So I believe that, at this stage, the change is safe.  Especially if
-people heed the 'help' message on use mdadm-2.4.1.
+#else
+==
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+it looks this is used here.
 
-### Diffstat output
- ./drivers/md/Kconfig        |   11 ++++++-----
- ./include/linux/raid/md_p.h |    2 +-
- 2 files changed, 7 insertions(+), 6 deletions(-)
+#if SECTIONS_WIDTH+NODES_WIDTH+ZONES_WIDTH > FLAGS_RESERVED
+#error SECTIONS_WIDTH+NODES_WIDTH+ZONES_WIDTH > FLAGS_RESERVED
+#endif
 
-diff ./drivers/md/Kconfig~current~ ./drivers/md/Kconfig
---- ./drivers/md/Kconfig~current~	2006-04-07 14:15:42.000000000 +1000
-+++ ./drivers/md/Kconfig	2006-04-07 14:16:35.000000000 +1000
-@@ -139,11 +139,12 @@ config MD_RAID5_RESHAPE
- 	  is online.  However it is still EXPERIMENTAL code.  It should
- 	  work, but please be sure that you have backups.
- 
--	  You will need a version of mdadm newer than 2.3.1.   During the
--	  early stage of reshape there is a critical section where live data
--	  is being over-written.  A crash during this time needs extra care
--	  for recovery.  The newer mdadm takes a copy of the data in the
--	  critical section and will restore it, if necessary, after a crash.
-+	  You will need mdadm verion 2.4.1 or later to use this
-+	  feature safely.  During the early stage of reshape there is
-+	  a critical section where live data is being over-written.  A
-+	  crash during this time needs extra care for recovery.  The
-+	  newer mdadm takes a copy of the data in the critical section
-+	  and will restore it, if necessary, after a crash.
- 
- 	  The mdadm usage is e.g.
- 	       mdadm --grow /dev/md1 --raid-disks=6
+I'm not sure but please compile check FLAGS_RESRVED with SPARSEMEM or
 
-diff ./include/linux/raid/md_p.h~current~ ./include/linux/raid/md_p.h
---- ./include/linux/raid/md_p.h~current~	2006-04-07 14:11:53.000000000 +1000
-+++ ./include/linux/raid/md_p.h	2006-04-07 14:14:48.000000000 +1000
-@@ -227,8 +227,8 @@ struct mdp_superblock_1 {
- 				 */
- 
- 	/* These are only valid with feature bit '4' */
--	__u64	reshape_position;	/* next address in array-space for reshape */
- 	__u32	new_level;	/* new level we are reshaping to		*/
-+	__u64	reshape_position;	/* next address in array-space for reshape */
- 	__u32	delta_disks;	/* change in number of raid_disks		*/
- 	__u32	new_layout;	/* new layout					*/
- 	__u32	new_chunk;	/* new chunk size (bytes)			*/
+just 
+
+#if (BITS_PER_LONG > 32)               /* 64-bit only flags. we can use full 
+                                          low 32bits */
+#define PG_uncached	31
+#endif
+
+Hm..Is this  ugly ? :(
+
+-Kame
+
+
+> 
+> From: Andrew Morton <akpm@osdl.org>
+> 
+> As Nick points out, only ia64 uses PG_uncached.  So we can push it up into the
+> higher 32-bits of page->flgs and make room for another flag on 32-bit
+> machines.
+> 
+> Cc: "Luck, Tony" <tony.luck@intel.com>
+> Cc: Jesse Barnes <jbarnes@sgi.com>
+> Cc: Jes Sorensen <jes@trained-monkey.org>
+> Cc: Nick Piggin <nickpiggin@yahoo.com.au>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> ---
+> 
+>  include/linux/page-flags.h |    7 ++++++-
+>  1 files changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff -puN include/linux/page-flags.h~pg_uncached-is-ia64-only include/linux/page-flags.h
+> --- devel/include/linux/page-flags.h~pg_uncached-is-ia64-only	2006-04-06 21:17:16.000000000 -0700
+> +++ devel-akpm/include/linux/page-flags.h	2006-04-06 21:18:31.000000000 -0700
+> @@ -7,6 +7,8 @@
+>  
+>  #include <linux/percpu.h>
+>  #include <linux/cache.h>
+> +
+> +#include <asm/types.h>
+>  #include <asm/pgtable.h>
+>  
+>  /*
+> @@ -86,7 +88,10 @@
+>  #define PG_mappedtodisk		16	/* Has blocks allocated on-disk */
+>  #define PG_reclaim		17	/* To be reclaimed asap */
+>  #define PG_nosave_free		18	/* Free, should not be written */
+> -#define PG_uncached		19	/* Page has been mapped as uncached */
+> +
+> +#if (BITS_PER_LONG > 32)
+> +#define PG_uncached		32	/* Page has been mapped as uncached */
+> +#endif
+>  
+>  /*
+>   * Global page accounting.  One instance per CPU.  Only unsigned longs are
+> _
+> 
+> Patches currently in -mm which might be from akpm@osdl.org are
+> 
+> select-warning-fixes.patch
+> config_net=n-build-fix.patch
+> git-acpi.patch
+> acpi-update-asus_acpi-driver-registration-fix.patch
+> acpi-memory-hotplug-cannot-manage-_crs-with-plural-resoureces.patch
+> catch-notification-of-memory-add-event-of-acpi-via-container-driver-register-start-func-for-memory-device.patch
+> catch-notification-of-memory-add-event-of-acpi-via-container-driveravoid-redundant-call-add_memory.patch
+> sony_apci-resume.patch
+> powernow-k8-crash-workaround.patch
+> git-drm.patch
+> bt866-build-fix.patch
+> connector-exports.patch
+> git-ia64.patch
+> git-libata-all.patch
+> pci-error-recovery-e1000-network-device-driver.patch
+> pcmcia-remove-unneeded-forward-declarations.patch
+> git-scsi-misc.patch
+> megaraid-unused-variable.patch
+> git-sas-jg.patch
+> git-sas-jg-build-hack.patch
+> git-watchdog.patch
+> arm-add_memory-build-fix.patch
+> acx1xx-wireless-driver.patch
+> ext3-ext3-in-kernel-block-number-type-fixes-fix.patch
+> sync_file_range-use-unsigned-for-flags.patch
+> timer-initialisation-fix.patch
+> timer-initialisation-fix-tidy.patch
+> s3c24xx-gpio-led-support-tidy.patch
+> make-tty_insert_flip_string_flags-a-non-gpl-export.patch
+> prune_one_dentry-tweaks.patch
+> sys_kexec_load-naming-fixups.patch
+> hangcheck-remove-monotomic_clock-on-x86.patch
+> knfsd-nfsd4-limit-number-of-delegations-handed-out-fix.patch
+> pi-futex-futex-code-cleanups-fix.patch
+> reiser4.patch
+> kgdb-core-lite-add-reboot-command.patch
+> kgdb-8250-fix.patch
+> nr_blockdev_pages-in_interrupt-warning.patch
+> device-suspend-debug.patch
+> revert-tty-buffering-comment-out-debug-code.patch
+> slab-leaks3-default-y.patch
+> x86-kmap_atomic-debugging.patch
+> pg_uncached-is-ia64-only.patch
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe mm-commits" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

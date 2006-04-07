@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbWDGVqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964979AbWDGVuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964976AbWDGVqu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 17:46:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWDGVqu
+	id S964979AbWDGVuf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 17:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbWDGVuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 17:46:50 -0400
-Received: from smtp008.mail.ukl.yahoo.com ([217.12.11.62]:47754 "HELO
-	smtp008.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932451AbWDGVqt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 17:46:49 -0400
+	Fri, 7 Apr 2006 17:50:35 -0400
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:29830 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S964979AbWDGVuf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 17:50:35 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.it;
   h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=lXDcqwzk7OMQDEZ7kS3eLiudVPPHiTchsAkcCqrwBFHLVu5/bsAHZ+uNrfSrmfzFNv24z3SD/B1Ls8n6AiByQO0P/MuyS7ZVy1Zxks1in8O1mVKS+Ygd2iwGahd/WAfGkv9sZjyPzy309v6OWoD5BP4YB4590Oy0KqhcrR/GbvQ=  ;
+  b=K0YoCyZAYjK6onV3VdXmnwSljnI6nmXl4xFY26nybS9XALMYzVjbed9NQ3xGMwyn6SFIcqSWzmYPg2XvZn0rP6Ig2qISuV7k2YT9J4i/Badl4HuPB7oQrvuJJGKnozHiV7ZyQrFJG5WPcwOdr+IrFbCX1PPHvohZpArzqaNrlkM=  ;
 From: Blaisorblade <blaisorblade@yahoo.it>
 To: Jeff Dike <jdike@addtoit.com>
-Subject: Re: [PATCH 03/17] uml: fix 2 harmless cast warnings for 64-bit
-Date: Fri, 7 Apr 2006 23:46:44 +0200
+Subject: Re: [PATCH 08/17] uml: prepare fixing compilation output
+Date: Fri, 7 Apr 2006 23:50:32 +0200
 User-Agent: KMail/1.8.3
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net
-References: <20060407142709.19201.99196.stgit@zion.home.lan> <20060407143054.19201.89200.stgit@zion.home.lan> <20060407160218.GA4962@ccure.user-mode-linux.org>
-In-Reply-To: <20060407160218.GA4962@ccure.user-mode-linux.org>
+References: <20060407142709.19201.99196.stgit@zion.home.lan> <20060407143107.19201.23684.stgit@zion.home.lan> <20060407160540.GB4962@ccure.user-mode-linux.org>
+In-Reply-To: <20060407160540.GB4962@ccure.user-mode-linux.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200604072346.45225.blaisorblade@yahoo.it>
+Message-Id: <200604072350.33176.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 07 April 2006 18:02, Jeff Dike wrote:
-> On Fri, Apr 07, 2006 at 04:30:54PM +0200, Paolo 'Blaisorblade' Giarrusso 
+On Friday 07 April 2006 18:05, Jeff Dike wrote:
+> On Fri, Apr 07, 2006 at 04:31:08PM +0200, Paolo 'Blaisorblade' Giarrusso 
 wrote:
-> > From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> >
-> > Fix two harmless warnings in 64-bit compilation (the 2nd doesn't trigger
-> > for now because of a missing __attribute((format)) for cow_printf, but
-> > next patches fix that).
+> > Move the build of user-offsets to arch/um/Kbuild, this will allow using
+> > the normal user-objs machinery. I had written this to fixup for a Kbuild
+> > change, but another fix was merged. This is still useful however.
 
-> I don't object to this bit, but it doesn't seem to match the comment.  Was
-> there another cast that you meant to have here, but missed?
-
-No, the below one was a whitespace change which slipped in without mention 
-(but that I confirm).
-
-> > -		n = min((size_t)len, ARRAY_SIZE(console_buf) - console_index);
-> > +		n = min((size_t) len, ARRAY_SIZE(console_buf) - console_index);
-
+> What's the benefit of this?
+Er, just a style issue - or now it's a little cleanup just for style - I've 
+thought to merge it anyway, even if I haven't converted it to a standard 
+rule.
 -- 
 Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
 Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)

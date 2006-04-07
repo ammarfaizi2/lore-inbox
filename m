@@ -1,41 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbWDGTSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964904AbWDGTUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964896AbWDGTSP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 15:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbWDGTSO
+	id S964904AbWDGTUq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 15:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWDGTUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 15:18:14 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:40935 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964896AbWDGTSM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 15:18:12 -0400
-Date: Fri, 7 Apr 2006 14:18:04 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: T??r??k Edwin <edwin@gurde.com>
-Cc: linux-security-module@vger.kernel.org, James Morris <jmorris@namei.org>,
-       linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net,
-       sds@tycho.nsa.gov
-Subject: Re: [RFC][PATCH 7/7] stacking support for capability module
-Message-ID: <20060407191804.GA28729@sergelap.austin.ibm.com>
-References: <200604021240.21290.edwin@gurde.com> <200604072034.20972.edwin@gurde.com> <200604072124.24000.edwin@gurde.com> <200604072146.53572.edwin@gurde.com>
-Mime-Version: 1.0
+	Fri, 7 Apr 2006 15:20:46 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27585 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S964904AbWDGTUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 15:20:45 -0400
+To: "Joshua Hudson" <joshudson@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: wait4/waitpid/waitid oddness
+References: <787b0d920604052038i3a75bdb6ic0818d93805b881b@mail.gmail.com>
+	<m1acaxnt1x.fsf@ebiederm.dsl.xmission.com>
+	<bda6d13a0604071158x33080de3ya8016dde59c2d97f@mail.gmail.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 07 Apr 2006 13:19:41 -0600
+In-Reply-To: <bda6d13a0604071158x33080de3ya8016dde59c2d97f@mail.gmail.com> (Joshua
+ Hudson's message of "Fri, 7 Apr 2006 11:58:40 -0700")
+Message-ID: <m1fykpmbw2.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200604072146.53572.edwin@gurde.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting T??r??k Edwin (edwin@gurde.com):
-> Adds stacking support to capability module. Without this patch, I have to boot 
-> with capability.disable=1 to get fireflier registered as security module.
+"Joshua Hudson" <joshudson@gmail.com> writes:
+
+> On 4/7/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
+>> "Albert Cahalan" <acahalan@gmail.com> writes:
+>>
+>> > The kernel prohibits:
+>> >
+>> > 1. WNOHANG on waitpid/wait4
+>>
+>> Not 2.6.17-rc1, and not for a lot of earlier kernels.
+>> At least not on ingress, and just skimming the code
+>> I can't see any deeper checks that would prevent this.
+>>
+>> > 2. __WALL on waitid
+>> >
+>> > Why? I need both at once.
+>>
+>> Which kernel is failing, and how?
+>
+> LKNL 2.6.16.1 has this check. Haven't checked any others.
+
+So what I see current in wait4 is:
+> asmlinkage long sys_wait4(pid_t pid, int __user *stat_addr,
+> 			  int options, struct rusage __user *ru)
+> {
+> 	long ret;
 > 
-> What is current status of stacking support, how should LSM's handle stacking 
-> with the capability module?
+> 	if (options & ~(WNOHANG|WUNTRACED|WCONTINUED|
+> 			__WNOTHREAD|__WCLONE|__WALL))
+> 		return -EINVAL;
 
-For now, pretty much like this.
+This denies access if you use other flags but it should allow
+__WALL and WNOHANG together.  I didn't see anything in do_wait,
+that would prohibit this.
 
-The lsm stacker is still being kept up to date at
-www.sf.net/projects/lsm-stacker.
+> 	ret = do_wait(pid, options | WEXITED, NULL, stat_addr, ru);
+> 
+> 	/* avoid REGPARM breakage on x86: */
+> 	prevent_tail_call(ret);
+> 	return ret;
+> }
 
--serge
+So where are you seeing the check in 2.6.16.1?
+
+Eric
+
+

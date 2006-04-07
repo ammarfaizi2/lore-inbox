@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbWDGSsh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWDGSto@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964877AbWDGSsh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 14:48:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964876AbWDGSsh
+	id S964866AbWDGSto (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 14:49:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbWDGSsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 14:48:37 -0400
-Received: from 216.255.188.82-custblock.intercage.com ([216.255.188.82]:912
+	Fri, 7 Apr 2006 14:48:46 -0400
+Received: from 216.255.188.82-custblock.intercage.com ([216.255.188.82]:400
 	"EHLO main.astronetworks.net") by vger.kernel.org with ESMTP
-	id S964870AbWDGSsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S964866AbWDGSsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 7 Apr 2006 14:48:36 -0400
 From: =?utf-8?q?T=C3=B6r=C3=B6k_Edwin?= <edwin@gurde.com>
 To: linux-security-module@vger.kernel.org
-Subject: [RFC][PATCH 4/7] exports
-Date: Fri, 7 Apr 2006 21:41:05 +0300
+Subject: [RFC][PATCH 5/7] debugging/testing support
+Date: Fri, 7 Apr 2006 21:43:48 +0300
 User-Agent: KMail/1.9.1
 Cc: James Morris <jmorris@namei.org>, linux-kernel@vger.kernel.org,
        fireflier-devel@lists.sourceforge.net, sds@tycho.nsa.gov
@@ -23,7 +23,7 @@ Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200604072141.05791.edwin@gurde.com>
+Message-Id: <200604072143.48918.edwin@gurde.com>
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - main.astronetworks.net
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -35,59 +35,176 @@ X-Source-Dir:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These symbols are exported, to be used by an iptables module.
+This dumps sid/pid maps to debugfs.
+It is to be used for debugging/testing only.
 
 ---
- exports.c   |   33 +++++++++++++++++++++++++++++++++
- fireflier.h |    9 +++++++++
- 2 files changed, 42 insertions(+)
-diff -uprN null/exports.c fireflier_lsm/exports.c
---- null/exports.c	1970-01-01 02:00:00.000000000 +0200
-+++ fireflier_lsm/exports.c	2006-04-07 14:39:27.000000000 +0300
-@@ -0,0 +1,33 @@
-+#include "fireflier.h"
-+#include "structures.h"
-+#include "autolabel.h"
-+#include <linux/socket.h>
-+#include <net/sock.h>
-+void fireflier_sk_ctxid(struct sock *sk,u32 *sid) 
+ fireflier_debug.c |  134 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ fireflier_debug.h |   18 +++++++
+ 2 files changed, 152 insertions(+)
+diff -uprN null/fireflier_debug.c fireflier_lsm/fireflier_debug.c
+--- null/fireflier_debug.c	1970-01-01 02:00:00.000000000 +0200
++++ fireflier_lsm/fireflier_debug.c	2006-03-29 23:23:57.000000000 +0300
+@@ -0,0 +1,134 @@
++#include <linux/debugfs.h>
++#include <linux/seq_file.h>
++
++#include "fireflier_debug.h"
++static struct dentry* fireflier_debugfs=0;
++static struct dentry* sidmap_debugfs=0;
++static struct dentry* pidmap_debugfs=0;
++
++extern int ff_debug;
++
++static int debug_show(struct seq_file *s, void *_)
 +{
-+	struct socket *sock;
-+	sock = sk->sk_socket;
-+	if (sock)
++	seq_printf(s,"%s\n",(char*)s->private);
++	return 0;
++}
++
++static int debug_string_open(struct inode* inode, struct file* file)
++{
++	return single_open(file,debug_show,inode->u.generic_ip);
++}
++
++
++static struct file_operations fops_string = {
++	.open           = debug_string_open,
++	.read           = seq_read,
++	.llseek         = seq_lseek,
++	.release        = single_release,
++};
++
++
++
++static inline struct dentry* debugfs_create_readonly_string(const char* 
+name,mode_t mode,struct dentry* parent,char* value)
++{
++	return debugfs_create_file(name,mode,parent,value,&fops_string);
++}
++
++void ff_debug_map_pidsid(u32 sid)
++{
++	u32* sid_d = kmalloc(sizeof(u32),GFP_ATOMIC);
++	char pid_s[16];
++
++	if(unlikely(!ff_debug))
++		return;
++
++	if(unlikely(!sid_d)) {
++		printk(KERN_DEBUG "fireflier::ff_debug_map_pidsid: OOM\n");
++		return;
++	}
++	*sid_d = sid;
++	snprintf(pid_s,16,"%d",current->pid);
++
++	debugfs_create_u32(pid_s,0,pidmap_debugfs,sid_d);
++}
++
++void ff_debug_dump_sid(const struct context* context,u32 sid)
++{
++	struct
 +	{
-+		struct inode *inode;
-+		inode = SOCK_INODE(sock);
-+		if (inode)
++
++		u32 inode;
++		u8  unsafe;
++		char mntpoint[];
++
++	}
++	* sid_debug = kmalloc( sizeof(*sid_debug)+strlen(context->mnt_devname)+1, 
+GFP_ATOMIC);
++	//	u32* inode_d = kmalloc(sizeof(u32),GFP_ATOMIC);
++	char sid_s[16];
++	struct dentry* sid_dentry=NULL;
++	//	char* mntpoint_d = kmalloc(strlen(mntpoint)+1,GFP_ATOMIC);
++	//	strncpy(mntpoint_d,mntpoint,strlen(mntpoint)+1);
++
++	if(unlikely(!ff_debug))
++		return;
++
++	
+strncpy(sid_debug->mntpoint,context->mnt_devname,strlen(context->mnt_devname)+1);
++	sid_debug->inode=context->inode;
++	sid_debug->unsafe=context->unsafe;
++
++	/*	if(unlikely(!inode_d)) {
++		printk(KERN_DEBUG "fireflier::ff_debug_dump_sid: OOM\n");
++		return;
++		}
++		*inode_d=inode;*/
++	snprintf(sid_s,16,"%d",sid);
++
++	sid_dentry = debugfs_create_dir(sid_s,sidmap_debugfs);
++	if(!sid_dentry) {
++		//already created
++		return;
++	}
++
++
++	debugfs_create_u32("inode",0,sid_dentry,&sid_debug->inode);
++	debugfs_create_u8("unsafe",0,sid_dentry,&sid_debug->unsafe);
++	
+debugfs_create_readonly_string("mountpoint",0,sid_dentry,sid_debug->mntpoint);
++	if(context->groupmembers>0)
++	{
++		int i;
++		for(i=0;i<context->groupmembers;i++)
 +		{
-+			struct fireflier_inode_security_struct *isec;
-+			isec = inode->i_security;
-+			if (sid && isec)
-+				*sid = isec->sid;
-+			//	     if (class)
-+			//	       *class = isec->sclass;
++			snprintf(sid_s,16,"%d",context->sids[i]);
++			debugfs_create_u8(sid_s,0,sid_dentry,&sid_debug->unsafe);
 +		}
 +	}
 +}
 +
-+int fireflier_available(void)
++
++
++void ff_debug_startup(void)
 +{
-+	return 1;
++	if(!ff_debug)
++		return;
++	ff_debug=0;
++	fireflier_debugfs = debugfs_create_dir("fireflier",NULL);
++	if(!fireflier_debugfs)  {
++		printk(KERN_DEBUG "fireflier: failed to create debug root fs!\n");
++		return;
++	}
++
++	sidmap_debugfs = debugfs_create_dir("sidmap",fireflier_debugfs);
++	if(!sidmap_debugfs) {
++		printk(KERN_DEBUG "fireflier: failed to create debug sidmap fs!\n");
++		return;
++	}
++
++	pidmap_debugfs = debugfs_create_dir("pidmap",fireflier_debugfs);
++	if(!pidmap_debugfs) {
++		printk(KERN_DEBUG "fireflier: failed to create debug sidmap fs!\n");
++		return;
++	}
++
++	ff_debug=1;
++	printk(KERN_DEBUG "fireflier: debugging enabled\n");
 +}
+diff -uprN null/fireflier_debug.h fireflier_lsm/fireflier_debug.h
+--- null/fireflier_debug.h	1970-01-01 02:00:00.000000000 +0200
++++ fireflier_lsm/fireflier_debug.h	2006-03-29 23:23:57.000000000 +0300
+@@ -0,0 +1,18 @@
++#ifndef _FIREFLIER_DEBUG_H
++#define _FIREFLIER_DEBUG_H
 +
-+EXPORT_SYMBOL_GPL(fireflier_sk_ctxid);
-+EXPORT_SYMBOL_GPL(fireflier_available);
++#define FIREFLIER_DEBUG 1
++#include "context.h"
++//extern struct dentry* fireflier_debugfs;
 +
-diff -uprN null/fireflier.h fireflier_lsm/fireflier.h
---- null/fireflier.h	1970-01-01 02:00:00.000000000 +0200
-+++ fireflier_lsm/fireflier.h	2006-03-29 23:07:46.000000000 +0300
-@@ -0,0 +1,9 @@
-+#ifndef _FIREFLIER_H
-+#define _FIREFLIER_H
-+#include <linux/types.h>
-+#include <linux/module.h>
-+struct sock;
-+void fireflier_sk_ctxid(struct sock *sk,u32 *ctxid);
-+int fireflier_available(void);
-+int fireflier_ctx_to_id(const char* dev,unsigned long inode,u32 *ctxid);
++#ifndef FIREFLIER_DEBUG
++static inline void ff_debug_dump_sid(const struct context* context,u32 sid) 
+{}
++static inline void ff_debug_startup(void) {}
++static inline void ff_debug_map_pidsid(u32 sid) {}
++#else
++void ff_debug_dump_sid(const struct context* context,u32 sid);
++void ff_debug_startup(void);
++void ff_debug_map_pidsid(u32 sid);
++#endif
++
 +#endif

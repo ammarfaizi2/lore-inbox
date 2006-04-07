@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbWDGTM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbWDGTOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964895AbWDGTM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 15:12:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWDGTM6
+	id S964897AbWDGTOS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 15:14:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWDGTOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 15:12:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:42890 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932361AbWDGTM5 (ORCPT
+	Fri, 7 Apr 2006 15:14:18 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:27147 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932431AbWDGTOS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 15:12:57 -0400
-Date: Fri, 7 Apr 2006 12:11:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Bligh <mbligh@mbligh.org>
-Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org, apw@shadowen.org
-Subject: Re: wierd failures from -mm1
-Message-Id: <20060407121122.61d7f979.akpm@osdl.org>
-In-Reply-To: <4436AD7D.5070307@mbligh.org>
-References: <4436AA05.7020203@mbligh.org>
-	<1144433309.24221.7.camel@localhost.localdomain>
-	<4436AD7D.5070307@mbligh.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 7 Apr 2006 15:14:18 -0400
+Date: Fri, 7 Apr 2006 21:13:59 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@sw.ru>,
+       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
+       "Eric W. Biederman" <ebiederm@xmission.com>, xemul@sw.ru,
+       James Morris <jmorris@namei.org>
+Subject: Re: [RFC][PATCH 1/5] uts namespaces: Implement utsname namespaces
+Message-ID: <20060407191359.GC9097@mars.ravnborg.org>
+References: <20060407095132.455784000@sergelap> <20060407183600.C8A8F19B8FD@sergelap.hallyn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060407183600.C8A8F19B8FD@sergelap.hallyn.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Bligh <mbligh@mbligh.org> wrote:
->
-> Dave Hansen wrote:
->  > On Fri, 2006-04-07 at 11:05 -0700, Martin Bligh wrote:
->  > 
->  >>http://test.kernel.org/abat/27596/debug/console.log
->  >>Hangs after bringing up cpus. 
->  > 
->  > 
->  > See attached patch.  It fixes curly.
-> 
->  Splendid -thanks. This may well fix the first two ... I think the reiser
->  thing is likely still borked though.
+On Fri, Apr 07, 2006 at 01:36:00PM -0500, Serge E. Hallyn wrote:
+> This patch defines the uts namespace and some manipulators.
+> Adds the uts namespace to task_struct, and initializes a
+> system-wide init namespace which will continue to be used when
+> it makes sense.
+It also kills system_utsname so you left the kernel uncompileable.
+Can you kill it later?
 
-The reiserfsck problem looks like a failed mlockall.  Reverting
-mm-posix-memory-lock.patch should fix it.
+> diff --git a/include/linux/utsname.h b/include/linux/utsname.h
+> index 13e1da0..cc28ac5 100644
+> --- a/include/linux/utsname.h
+> +++ b/include/linux/utsname.h
+> @@ -1,5 +1,8 @@
+>  #ifndef _LINUX_UTSNAME_H
+>  #define _LINUX_UTSNAME_H
+You can kill this include
+> +#include <linux/sched.h>
 
+if you move this static inline to sched.h
+ +
+> +static inline struct new_utsname *utsname(void)
+> +{
+> +	return &current->uts_ns->name;
+> +}
+And since it operates on &current that may make sense.
+
+	Sam

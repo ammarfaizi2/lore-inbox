@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWDGK3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWDGKbj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbWDGK3c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 06:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWDGK3c
+	id S1751263AbWDGKbj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 06:31:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWDGKbj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 06:29:32 -0400
-Received: from sandesha.sasken.com ([164.164.56.19]:19412 "EHLO
-	mail3.sasken.com") by vger.kernel.org with ESMTP id S932407AbWDGK3b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 06:29:31 -0400
-From: "Sreenivasulu Y" <ysreenu@sasken.com>
-Subject: kernel socket select issue
-Date: Fri, 7 Apr 2006 15:59:04 +0530
-Message-ID: <e15eu7$3t6$1@ncc-t.sasken.com>
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-RFC2646: Format=Flowed; Original
-To: linux-kernel@vger.kernel.org
-X-News-Gateway: ncc-z.sasken.com
-X-imss-version: 2.037
-X-imss-result: Passed
-X-imss-scores: Clean:10.64643 C:2 M:3 S:5 R:5
-X-imss-settings: Baseline:3 C:2 M:3 S:3 R:3 (0.5000 0.5000)
+	Fri, 7 Apr 2006 06:31:39 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:17845 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751263AbWDGKbi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 06:31:38 -0400
+Date: Fri, 7 Apr 2006 14:26:03 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Yi Yang <yang.y.yi@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Matt Helsley <matthltc@us.ibm.com>
+Subject: Re: [2.6.16 PATCH] Filessytem Events Reporter V2
+Message-ID: <20060407102602.GA27764@2ka.mipt.ru>
+References: <4433C456.7010708@gmail.com> <20060407062428.GA31351@2ka.mipt.ru> <44361F39.4020501@gmail.com> <20060407094732.GA13235@2ka.mipt.ru> <443638D8.2010800@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <443638D8.2010800@gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 07 Apr 2006 14:26:04 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 07, 2006 at 06:03:04PM +0800, Yi Yang (yang.y.yi@gmail.com) wrote:
+> >>Can you explain why there is such a big difference between 
+> >>netlink_unicast and netlink_broadcast?
+> >>    
+> >
+> >Netlink broadcast clones skbs, while unicasting requires the whole new
+> >one.
+> >  
+> No, I also use clone to send skb, so they should have the same overhead.
 
-Hi,
+I missed that.
+After rereading fsevent_send_to_process() I do not see how original skb
+is freed though.
 
-I am trying to create multiple sockets in kernel space and use
-'sys_select' call on them for reading data from them whenever it is 
-available.
+> >>>Btw, you need some rebalancing of the per-cpu queues, probably in
+> >>>keventd, since CPUs can go offline and your messages will stuck foreve
+> >>>there.
+> >>> 
+> >>>      
+> >>Does keventd not do it? if so, keventd should be modified.
+> >>    
+> >
+> >How does keventd know about your own structures?
+> >You have an per-cpu object, but your keventd function gets object 
+> >from running cpu, not from any other cpus.
 
-But the problem is  socket structures are returned during creation whereas
-sys_selct accepts  a set of socket descriptors ( integers ) as input. Is 
-there any
-API or macro to convert socket structure to socket desciptor ?
-
-It is easy to use 'select' in user space as socket creation would return a 
-socket
-descriptor which can be used in either 'select' or 'poll' system calls.
-
-Anyone faced a similar problem? Please suggest on this.
 -- 
-Regards,
-Sreenivasulu Y
-Senior software Engineer
-Sasken Communication Technologies Limited 
-
-
-
-"SASKEN RATED Among THE Top 3 BEST COMPANIES TO WORK FOR IN INDIA - SURVEY 2005 conducted by the BUSINESS TODAY - Mercer - TNS India"
-
-                           SASKEN BUSINESS DISCLAIMER
-This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email
+	Evgeniy Polyakov

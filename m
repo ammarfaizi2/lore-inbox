@@ -1,63 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWDGPoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbWDGPyn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964811AbWDGPoK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 11:44:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWDGPoK
+	id S932338AbWDGPyn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 11:54:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWDGPyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 11:44:10 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52492 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964811AbWDGPoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 11:44:08 -0400
-Date: Fri, 7 Apr 2006 16:43:50 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: saeed bishara <saeed.bishara@gmail.com>,
-       Paolo Ornati <ornati@fastwebnet.it>, linux-kernel@vger.kernel.org,
-       linux-arm-kernel@lists.arm.linux.org.uk,
-       Linux-arm-toolchain@lists.arm.linux.org.uk
-Subject: Re: add new code section for kernel code
-Message-ID: <20060407154349.GB31458@flint.arm.linux.org.uk>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	saeed bishara <saeed.bishara@gmail.com>,
-	Paolo Ornati <ornati@fastwebnet.it>, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.arm.linux.org.uk,
-	Linux-arm-toolchain@lists.arm.linux.org.uk
-References: <c70ff3ad0604060545o2e2dc8fcg2948ca53b3b3c8b0@mail.gmail.com> <20060406151003.0ef4e637@localhost> <c70ff3ad0604060947t728fbad9g2e3b35198f9b0f66@mail.gmail.com> <c70ff3ad0604070402p355a5695y28b5806cbf7bed0a@mail.gmail.com> <1144422864.3117.0.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 7 Apr 2006 11:54:43 -0400
+Received: from smtp102.sbc.mail.mud.yahoo.com ([68.142.198.201]:52618 "HELO
+	smtp102.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932338AbWDGPym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 11:54:42 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH] spi: Added spi master driver for Freescale MPC83xx SPI controller
+Date: Fri, 7 Apr 2006 08:54:41 -0700
+User-Agent: KMail/1.7.1
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       spi-devel-general@lists.sourceforge.net
+References: <Pine.LNX.4.44.0604061329550.20620-100000@gate.crashing.org> <200604062222.05661.david-b@pacbell.net> <CE7ECCE7-ADF7-40B7-8B37-5046D9505F1C@kernel.crashing.org>
+In-Reply-To: <CE7ECCE7-ADF7-40B7-8B37-5046D9505F1C@kernel.crashing.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1144422864.3117.0.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200604070854.41383.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 07, 2006 at 05:14:24PM +0200, Arjan van de Ven wrote:
-> On Fri, 2006-04-07 at 14:02 +0300, saeed bishara wrote:
-> > I noticed the arch/arm/boot/compressed/ files compiled with
-> > ffunction-sections switch, so I added the -fno-function-sections to
-> > the EXTRA_CFLAGS of the compressed/Makefile. And this solved the
-> > problem.
+
+> > Hmm, it will of course be overridden as soon as needed, but shouldn't
+> > that default be "inactive low" clock?  SPI mode 0 that is.  That  
+> > stands
+> > out mostly because you were interpreting CPOL=0 as inactive high, and
+> > that's not my understanding of how that signal works...
 > 
-> can you send a patch for this to Russell ?
+> I'll change it, not sure what I was thinking but SPI mode 0 being the  
+> default makes sense.
 
-I'd prefer not to paper over such bugs.  Maybe the following patch will
-fix the decompressor for saeed?
-
-diff --git a/arch/arm/boot/compressed/vmlinux.lds.in b/arch/arm/boot/compressed/vmlinux.lds.in
---- a/arch/arm/boot/compressed/vmlinux.lds.in
-+++ b/arch/arm/boot/compressed/vmlinux.lds.in
-@@ -18,6 +18,7 @@ SECTIONS
-     _start = .;
-     *(.start)
-     *(.text)
-+    *(.text.*)
-     *(.fixup)
-     *(.gnu.warning)
-     *(.rodata)
+The default doesn't really matter, since it will be overridden ... I was
+more concerned about CPOL=0 being misinterpreted ...
 
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+> > ... here you use "__be32" not "u32", and no "__iomem" annotation.  So
+> > this is inconsistent with the declaration above.  Note that if you
+> > just made this "&bank->regname" you'd be having the compiler do any
+> > offset calculation magic, and the source code will be more obvious.
+> 
+> Yep, I know what you mean.
+
+Good rule of thumb:  run "sparse -Wbitwise" on your drivers, and have it
+tell you about goofed up things.  (Assuming the asm-ppc headers are safe
+to run that on!)  It's nice having tools tell you about bugs before you
+run into them "live", and GCC only goes so far.
+
+
+> >> +static
+> >> +int mpc83xx_spi_setup_transfer(struct spi_device *spi, struct  
+> >> spi_transfer *t)
+> >> +{
+> >> +	struct mpc83xx_spi *mpc83xx_spi;
+> >> +	u32 regval;
+> >> +	u32 len = t->bits_per_word - 1;
+> >> +
+> >> +	if (len == 32)
+> >> +		len = 0;
+> >
+> > So the hardware handles 1-33 bit words?  It'd be good to filter
+> > the spi_setup() path directly then, returning EINVAL for illegal
+> > word lengths (and clock speeds).
+> 
+> Uhh, no.  The HW supports 4-bit to 32-bit words.  However the  
+> encoding of 32-bit is 0 in the register field, and 8-bit is a value  
+> of 7, etc.. (bit encodings 1 & 2 are invalid).
+
+So that test should be "len == 31" too ...
+
+> I'm not following you on spi_setup(), but I think you mean to error  
+> change bits_per_word there and return EINVAL if its not one we support.
+
+Yes, but do it early:  provide your own code to implement spi_setup(), which
+makes a range test and then either fails immediately or else delegates the
+rest of the work to spi_bitbang_setup() ... rather than only using that as
+the default.
+
+Your current code would claim to accept transfers with 64 bit words,
+but it wouldn't actually handle them correctly...
+ 
+
+> > I guess I'm surprised you're not using txrx_buffers() and having
+> > that whole thing be IRQ driven, so the per-word cost eliminates
+> > the task scheduling.  You already paid for IRQ handling ... why
+> > not have it store the rx byte into the buffer, and write the tx
+> > byte froom the other buffer?  That'd be cheaper than what you're
+> > doing now ... in both time and code.  Only wake up a task at
+> > the end of a given spi_transfer().
+> 
+> I dont follow you at all here.  What are you suggesting I do?
+
+Don't do word-at-a-time I/O with spi_bitbang; you're using IRQs, and
+that's oriented towards polling.  Don't fill bitbang->txrx_word[]; don't
+use the default spi_bitbang_setup().
+
+Instead, provide your own setup(), and provide bitbang->txrx_buffers.
+
+Then when the generic not-really-bitbang core calls your txrx_buffers(),
+your code would record the "current" spi_transfer buffer pair and length
+then kickstart the I/O by writing the first byte from the TX buffer
+(or maybe zero if there is none).  Wait on some completion event; return
+when the whole transfer has completed (or stopped after an error).
+
+Then the rest will be IRQ driven; you'll care only about "rx word ready"
+or whatever.  When you get that IRQ, read the word ... and if there's
+an RX buffer, store it in the next location (else discard it).  Decrement
+the length (by 1, 2, or 4 bytes).  If length is nonzero, kickstart the
+next step by writing the next word from the TX buffer (or zero).  When
+length is zero, trigger txrx_buffers() completion.  Return from IRQ handler.
+
+See for example how bitbang_txrx_8() works; you'd basically be doing that
+as an irq-driven copy, instead of polling txrx_word().  The first version
+of your IRQ handler might be easier if it only handles 4-8 bit words,
+leaving 9-16 bits (and 17-32 bits) till later.
+
+- Dave

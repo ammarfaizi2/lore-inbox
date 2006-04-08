@@ -1,76 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965010AbWDHQKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965016AbWDHQ1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965010AbWDHQKf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 12:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbWDHQKf
+	id S965016AbWDHQ1J (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 12:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965018AbWDHQ1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 12:10:35 -0400
-Received: from amdext3.amd.com ([139.95.251.6]:43472 "EHLO amdext3.amd.com")
-	by vger.kernel.org with ESMTP id S965010AbWDHQKe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 12:10:34 -0400
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-Date: Sat, 8 Apr 2006 10:43:22 -0600
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: "Andrew Morton" <akpm@osdl.org>
-cc: johnstul@us.ibm.com, jim.cromie@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: Fw: Re: 2.6.17-rc1-mm1 - detects buggy TSC on GEODE
-Message-ID: <20060408164322.GF17356@cosmic.amd.com>
-References: <20060407174129.67e0bc45.akpm@osdl.org>
-MIME-Version: 1.0
-In-Reply-To: <20060407174129.67e0bc45.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
-X-OriginalArrivalTime: 08 Apr 2006 16:04:52.0095 (UTC)
- FILETIME=[2B5BA8F0:01C65B26]
-X-WSS-ID: 682900AE3H43593836-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Disposition: inline
+	Sat, 8 Apr 2006 12:27:09 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:8579 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S965016AbWDHQ1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 12:27:08 -0400
+Subject: Re: [BUG] 2.6.16.2 (like olders) fails to suspend audio device
+From: Lee Revell <rlrevell@joe-job.com>
+To: patrizio.bassi@gmail.com
+Cc: "Kernel," <linux-kernel@vger.kernel.org>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+In-Reply-To: <4437BB29.8050502@gmail.com>
+References: <4437BB29.8050502@gmail.com>
+Content-Type: text/plain
+Date: Sat, 08 Apr 2006 12:27:02 -0400
+Message-Id: <1144513623.22490.150.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07/04/06 17:41 -0700, Andrew Morton wrote:
+It would help if you cc'ed the right list (added)
+
+On Sat, 2006-04-08 at 15:31 +0200, Patrizio Bassi wrote:
+> I've already posted same bug some weeks ago.
 > 
-> Sorry, I should have cc'ed you on this :(
- 
-No worries. 
-
-> > > 1.   the new kernel is now detecting the buggy TSC on the GEODE-sc1100
-> > > 2.    the bug is apparently correctable by passing 'idle=poll' on kernel 
-> > > boot-line.
-
-I am assuming that this is the problem where the TSC doesn't roll over
-correctly on the SC1100 and SC1200.
-
-> > John, does this mean that enable-tsc-for-amd-geode-gx-lx.patch is only safe
-> > to merge after all your time-management patches have gone in?
-
-If that is the case, then the enable-tsc-for-amd-geode-gx-lx.patch is still
-safe since the TSC on the GX and LX doesn't have that same problem.
-
-For what its worth, we used to have a fix for the TSC issue back
-in the 2.4 days that looked something like this:
-
-#ifdef CONFIG_GEODE_SC1200
-#define rdtsc(low,high) \
-	__asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high)); \
-	if ((unsigned long) low > 0xFFFFFFFC) high--
-#else
-#define rdtsc(low,high) \
-	__asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high))
-#endif
-
-That seemed to work, but it is ugly, and I didn't bring it forward
-when we moved to 2.6.  Perhaps we can revive it if there are SC1100/SC1200
-users who need it.
-
-Thanks,
-Jordan
-
--- 
-Jordan Crouse
-Senior Linux Engineer
-AMD - Personal Connectivity Solutions Group
-<www.amd.com/embeddedprocessors>
+> this is just a reminder and to confirm bug is still there.
+> 
+> 00:0b.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI] (rev 01)
+> 
+> Alsa driver: 1370
+> 
+> 1) if builtin in kernel, on resume it doesn't work any more.
+> 2) if built as module on resume it works with no need to remove/readd 
+> module.
+> 
+> in both situations dmesg shows:
+> 
+> pnp: Failed to activate device 00:0b.
+> 
+> 
+> Stopping tasks: ===========================================|
+> Shrinking memory... done (39214 pages freed)
+> pnp: Device 00:0c disabled.
+> pnp: Device 00:08 disabled.
+> swsusp: Need to copy 13752 pages
+> ACPI: PCI Interrupt 0000:00:04.2[D] -> Link [LNKD] -> GSI 9 (level, low) 
+> -> IRQ 9
+> ACPI: PCI Interrupt 0000:00:09.0[A] -> Link [LNKD] -> GSI 9 (level, low) 
+> -> IRQ 9
+> ACPI: PCI Interrupt 0000:00:09.0[A] -> Link [LNKD] -> GSI 9 (level, low) 
+> -> IRQ 9
+> ACPI: PCI Interrupt 0000:00:0a.0[A] -> Link [LNKC] -> GSI 5 (level, low) 
+> -> IRQ 5
+> ACPI: PCI Interrupt 0000:00:0a.1[B] -> Link [LNKD] -> GSI 9 (level, low) 
+> -> IRQ 9
+> ACPI: PCI Interrupt 0000:00:0a.2[C] -> Link [LNKA] -> GSI 11 (level, 
+> low) -> IRQ 11
+> usb usb1: root hub lost power or was reset
+> ehci_hcd 0000:00:0a.2: USB 2.0 started, EHCI 0.95, driver 10 Dec 2004
+> ACPI: PCI Interrupt 0000:00:0b.0[A] -> Link [LNKB] -> GSI 10 (level, 
+> low) -> IRQ 10
+> pnp: Device 00:08 activated.
+> pnp: Failed to activate device 00:0b.
+> pnp: Device 00:0c activated.
+> Restarting tasks... done
+> agpgart: Found an AGP 1.0 compliant device at 0000:00:00.0.
+> agpgart: Putting AGP V2 device at 0000:00:00.0 into 2x mode
+> agpgart: Putting AGP V2 device at 0000:01:00.0 into 2x mode
+> 
+> lspci
+> 00:00.0 Host bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX Host 
+> bridge (rev 03)
+> 00:01.0 PCI bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX AGP 
+> bridge (rev 03)
+> 00:04.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 02)
+> 00:04.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
+> 00:04.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev 01)
+> 00:04.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 02)
+> 00:09.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] 
+> (rev 74)
+> 00:0a.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
+> Controller (rev 50)
+> 00:0a.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
+> Controller (rev 50)
+> 00:0a.2 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 51)
+> 00:0b.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI] (rev 01)
+> 01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 RF/SG AGP
+> 
+> 
+> dmesg says 00:08 and 00:0c are activated..but i've no idea which devices 
+> they are, lspci -vv shows nothing about that.
+> 
+> Ready to give more infos and test patches.
+> 
+> Patrizio Bassi
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

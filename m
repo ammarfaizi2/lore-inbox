@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751431AbWDHVGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751434AbWDHVKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751431AbWDHVGE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 17:06:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWDHVGE
+	id S1751434AbWDHVKo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 17:10:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWDHVKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 17:06:04 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:15306 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S1751431AbWDHVGD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 17:06:03 -0400
-Date: Sat, 8 Apr 2006 23:06:01 +0200 (MEST)
-From: <Andries.Brouwer@cwi.nl>
-Message-Id: <200604082106.k38L61j25619@apps.cwi.nl>
-To: linux-kernel@vger.kernel.org
-Subject: strlen_user and keys
+	Sat, 8 Apr 2006 17:10:44 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:35824 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751434AbWDHVKn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 17:10:43 -0400
+From: Hans-Peter Jansen <hpj@urpla.net>
+To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+Subject: Re: Linux 2.6.17-rc1
+Date: Sat, 8 Apr 2006 23:10:21 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <20060404080205.C8B29E007A12@knarzkiste.dyndns.org> <20060403202539.65cf6e33.akpm@osdl.org> <20060404080529.GM7849@charite.de>
+In-Reply-To: <20060404080529.GM7849@charite.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604082310.22079.hpj@urpla.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:18d01dd0a2a377f0376b761557b5e99a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[faraway from home, not near recent kernel source]
+Am Dienstag, 4. April 2006 10:05 schrieb Ralf Hildebrandt:
+>
+> I added the patch.
+>
+> [...]
+>
+> So, no more EIPs, but no conclusive messages either!
 
-strnlen_user() is documented as returning the string length including
-terminating NUL. Probably that was a bad idea - people expect that
-if user space and kernel library functions have similar names, they do
-similar things. The shouting "INCLUDING" in the description already
-shows that also the author expected that bugs would be created by
-using this name.
+Just for the record:
+Ralf, if I'm not completely mistaken, EIP just means Extended 
+Instruction Pointer, which names a single cpu internal register per 
+core pointing to the next instruction to execute. So better keep it ;-)
 
-[see, e.g., arch/i386/lib/usercopy.c]
-
-security/keys/keyctl.c does
-
-        dlen = strnlen_user(_description, PAGE_SIZE - 1);
-	description = kmalloc(dlen + 1, GFP_KERNEL);
-	copy_from_user(description, _description, dlen + 1);
-
-copying one byte too many.
-(Thus in some unknown kernel source tree, maybe 2.6.14.
-This may have been fixed already.)
-
-Andries
+Pete

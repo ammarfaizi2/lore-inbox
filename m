@@ -1,110 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWDHUeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbWDHVHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751407AbWDHUeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 16:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWDHUeJ
+	id S964783AbWDHVHi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 17:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWDHVHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 16:34:09 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:27087 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751408AbWDHUeH (ORCPT
+	Sat, 8 Apr 2006 17:07:38 -0400
+Received: from mail.gmx.net ([213.165.64.20]:65181 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751432AbWDHVHh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 16:34:07 -0400
-Date: Sat, 8 Apr 2006 15:27:01 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@sw.ru>, herbert@13thfloor.at, devel@openvz.org,
-       sam@vilain.net, xemul@sw.ru, James Morris <jmorris@namei.org>
-Subject: Re: [PATCH 3/7] uts namespaces: use init_utsname when appropriate
-Message-ID: <20060408202701.GA26403@sergelap.austin.ibm.com>
-References: <20060407234815.849357768@sergelap> <20060408045206.EAA8E19B8FF@sergelap.hallyn.com> <m1psjslf1s.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1psjslf1s.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+	Sat, 8 Apr 2006 17:07:37 -0400
+Date: Sat, 8 Apr 2006 23:07:36 +0200 (MEST)
+From: "Michael Kerrisk" <mtk-manpages@gmx.net>
+To: linux-kernel@vger.kernel.org
+Cc: michael.kerrisk@gmx.net
+MIME-Version: 1.0
+References: <5159.1143403544@www006.gmx.net>
+Subject: man-pages-2.29 is released
+X-Priority: 3 (Normal)
+X-Authenticated: #24879014
+Message-ID: <877.1144530456@www042.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Eric W. Biederman (ebiederm@xmission.com):
-> "Serge E. Hallyn" <serue@us.ibm.com> writes:
-> 
-> > diff --git a/include/asm-i386/elf.h b/include/asm-i386/elf.h
-> > index 4153d80..8d455e2 100644
-> > --- a/include/asm-i386/elf.h
-> > +++ b/include/asm-i386/elf.h
-> > @@ -108,7 +108,7 @@ typedef struct user_fxsr_struct elf_fpxr
-> >     For the moment, we have only optimizations for the Intel generations,
-> >     but that could change... */
-> >  
-> > -#define ELF_PLATFORM  (system_utsname.machine)
-> > +#define ELF_PLATFORM  (init_utsname()->machine)
-> >  
-> >  #ifdef __KERNEL__
-> >  #define SET_PERSONALITY(ex, ibcs2) do { } while (0)
-> 
-> I think this one needs to be utsname()->machine.
-> 
-> Currently it doesn't matter.  But Herbert has expressed
-> the desire to make a machine appear like an older one.
+Gidday,
 
-Ok.
+I recently released man-pages-2.29, which can be found at the 
+location in the .sig.  A list of some notable changes can be found
+further down in this message
 
-> > diff --git a/net/ipv4/ipconfig.c b/net/ipv4/ipconfig.c
-> > index cb8a92f..81db372 100644
-...
-> > @@ -1479,11 +1479,11 @@ static int __init ip_auto_config_setup(c
-> >  			case 4:
-> >  				if ((dp = strchr(ip, '.'))) {
-> >  					*dp++ = '\0';
-> > -					strlcpy(system_utsname.domainname, dp,
-> > - sizeof(system_utsname.domainname));
-> > +					strlcpy(init_utsname()->domainname, dp,
-> > + sizeof(init_utsname()->domainname));
-> >  				}
-> > -				strlcpy(system_utsname.nodename, ip,
-> > -					sizeof(system_utsname.nodename));
-> > +				strlcpy(init_utsname()->nodename, ip,
-> > +					sizeof(init_utsname()->nodename));
-> >  				ic_host_name_set = 1;
-> >  				break;
-> >  			case 5:
-> 
-> This also probably makes sense as utsname().  It doesn't
-> really matter as this is before init is executed. But logically
-> this is a user space or per namespace action.
+*** A request ***
 
-Right, I was kind of favoring using init_utsname() for anything
-__init.  But utsname() will of course work just as well there.
+Manual pages for the follwoing system calls are notably absent
+from the man-pages set.  Contributions would be most welcome.
 
-> > diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-> > index aa8965e..97c8439 100644
-> > --- a/net/sunrpc/clnt.c
-> > +++ b/net/sunrpc/clnt.c
-> > @@ -176,10 +176,10 @@ rpc_new_client(struct rpc_xprt *xprt, ch
-> >  	}
-> >  
-> >  	/* save the nodename */
-> > -	clnt->cl_nodelen = strlen(system_utsname.nodename);
-> > +	clnt->cl_nodelen = strlen(init_utsname()->nodename);
-> >  	if (clnt->cl_nodelen > UNX_MAXNODENAME)
-> >  		clnt->cl_nodelen = UNX_MAXNODENAME;
-> > -	memcpy(clnt->cl_nodename, system_utsname.nodename, clnt->cl_nodelen);
-> > +	memcpy(clnt->cl_nodename, init_utsname()->nodename, clnt->cl_nodelen);
-> >  	return clnt;
-> >  
-> >  out_no_auth:
-> 
-> Using nodename is practically the definition of something
-> that should per namespace I think.  Plus it would be really inconsistent
-> to use utsname() and the init_utsname for the nfs rpc calls.
-> 
-> Unless I am missing something.
+add_key(2)              (new in kernel 2.6.10)
+keyctl(2)               (new in kernel 2.6.10)
+request_key(2)          (new in kernel 2.6.10)
+    See:
+        Documentation/keys.txt
+        Documentation/keys-request-key.txt
 
-It seemed like this would be happening in any old context, so that
-current->uts_ns could be any process'.  Tracing it back further,
-it seems like nfs+lockd should have the context available.  So I'll
-switch this as well.
+ioprio_get(2)           (new in kernel 2.6.13)
+ioprio_set(2)           (new in kernel 2.6.13)
+    See:
+        Documentation/block/ioprio.txt
 
-thanks,
--serge
+restart_syscall(2)      (new in kernel 2.6)
+
+kexec_load(2)           (new in kernel 2.6.13)
+
+migrate_pages(2)        (new in kernel 2.6.16)
+                        See Documentation/vm/page_migration
+
+2.29 Changes
+============
+
+Changes in this release that may be of interest to readers
+of this list include the following:
+
+New pages
+---------
+
+mkdirat.2
+    mtk
+        New page describing mkdirat(2), new in 2.6.16.
+
+mknodat.2
+    mtk
+        New page describing mknodat(2), new in 2.6.16.
+
+core.5
+    mtk
+        New page describing core dump files.
+
+mkfifoat.3
+    mtk
+        New page describing mkfifoat(3).
+
+
+Changes to individual pages
+---------------------------
+
+getrlimit.2
+    mtk
+        Added BUGS text on 2.6.x handling of RLIMIT_CPU limit
+        of zero seconds.  See
+        http://marc.theaimsgroup.com/?l=linux-kernel&m=112256338703880&w=2
+
+==========
+
+The man-pages set contains sections 2, 3, 4, 5, and 7 of
+the manual pages.  These sections describe the following:
+
+2: (Linux) system calls
+3: (libc) library functions
+4: Devices
+5: File formats and protocols
+7: Overview pages, conventions, etc.
+
+As far as this list is concerned the most relevant parts are:
+all of sections 2 and 4, which describe kernel-userland interfaces;
+in section 5, the proc(5) manual page, which attempts (it's always
+catching up) to be a comprehensive description of /proc; and
+various pages in section 7, some of which are overview pages of
+kernel features (e.g., networking protocols).
+
+If you make a change to a kernel-userland interface, or observe 
+a discrepancy between the manual pages and reality, would you 
+please send me (at mtk-manpages@gmx.net ) one of the following
+(in decreasing order of preference):
+
+1. An in-line "diff -u" patch with text changes for the
+   corresponding manual page.  (The most up-to-date version
+   of the manual pages can always be found at
+   ftp://ftp.win.tue.nl/pub/linux-local/manpages or
+   ftp://ftp.kernel.org/pub/linux/docs/manpages .)
+
+2. Some raw text describing the changes, which I can then
+   integrate into the appropriate manual page.
+
+3. A message alerting me that some part of the manual pages
+   does not correspond to reality.  Eventually, I will try to
+   remedy the situation.
+
+Obviously, as we get further down this list, more of my time
+is required, and things may go slower, especially when the
+changes concern some part of the kernel that I am ignorant
+about and I can't find someone to assist.
+
+Cheers,
+
+Michael
+
+-- 
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
+
+Want to help with man page maintenance?  
+Grab the latest tarball at
+ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
+read the HOWTOHELP file and grep the source 
+files for 'FIXME'.

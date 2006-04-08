@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965024AbWDHRQL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbWDHRRi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965024AbWDHRQL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 13:16:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965030AbWDHRQL
+	id S965028AbWDHRRi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 13:17:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965030AbWDHRRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 13:16:11 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:60297 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S965024AbWDHRQK (ORCPT
+	Sat, 8 Apr 2006 13:17:38 -0400
+Received: from bsamwel.xs4all.nl ([82.92.179.183]:44734 "EHLO samwel.tk")
+	by vger.kernel.org with ESMTP id S965028AbWDHRRi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 13:16:10 -0400
-Date: Sun, 9 Apr 2006 01:13:08 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH rc1-mm] de_thread: fix deadlockable process addition
-Message-ID: <20060408211308.GA1845@oleg>
-References: <20060406220403.GA205@oleg> <m1acay1fbh.fsf@ebiederm.dsl.xmission.com> <20060407234653.GB11460@oleg> <20060407155113.37d6a3b3.akpm@osdl.org> <20060407155619.18f3c5ec.akpm@osdl.org> <m1d5fslcwx.fsf@ebiederm.dsl.xmission.com> <20060408172745.GA89@oleg> <m1r748jbju.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1r748jbju.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+	Sat, 8 Apr 2006 13:17:38 -0400
+Message-ID: <4437EFD7.2070401@samwel.tk>
+Date: Sat, 08 Apr 2006 19:16:08 +0200
+From: Bart Samwel <bart@samwel.tk>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] represent-dirty__centisecs-as-jiffies-internally.patch
+ comment fix
+References: <2cd57c900604080310l454eec24m7298e01001f132af@mail.gmail.com>
+In-Reply-To: <2cd57c900604080310l454eec24m7298e01001f132af@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: bart@samwel.tk
+X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04/08, Eric W. Biederman wrote:
-> Oleg Nesterov <oleg@tv-sign.ru> writes:
+Coywolf Qi Hunt wrote:
+> 2006/3/25, akpm@osdl.org <akpm@osdl.org>:
 > 
-> > This change can confuse next_tid(), but this is minor.
-> > I don't see other problems.
+>> From: Bart Samwel <bart@samwel.tk>
+>>
+>> Make that the internal values for:
+>>
+>> /proc/sys/vm/dirty_writeback_centisecs
+>> /proc/sys/vm/dirty_expire_centisecs
+>>
+>> are stored as jiffies instead of centiseconds.  Let the sysctl interface do
+>> the conversions with full precision using clock_t_to_jiffies, instead of
+>> doing overflow-sensitive on-the-fly conversions every time the values are
+>> used.
 > 
-> next_tid?
+>> diff -puN mm/page-writeback.c~represent-dirty__centisecs-as-jiffies-internally mm/page-writeback.c
+>> --- devel/mm/page-writeback.c~represent-dirty__centisecs-as-jiffies-internally  2006-03-24 03:00:41.000000000 -0800
+>> +++ devel-akpm/mm/page-writeback.c      2006-03-24 03:00:41.000000000 -0800
+>> @@ -75,12 +75,12 @@ int vm_dirty_ratio = 40;
+>>   * The interval between `kupdate'-style writebacks, in centiseconds
+>>   * (hundredths of a second)
+> 
+> Bart,
+> 
+> You forgot to fix the comments. The attached patch fixes them.
 
-proc_task_readdir:
+Thanks, well spotted. I think the other patch already went into Linus' 
+tree, I guess this should go in there as well?
 
-	first_tid() returns old_leader
-
-	next_tid()  returns new_leader
-	
-						de_thread:
-							old_leader->group_leader = new_leader;
-
-	
-	next_rid()  returns old_leader again,
-	because it is not thread_group_leader()
-	anymore
-			
-
-> This means your patch doesn't go far enough.  We should be
-> able to kill all of the parent list manipulation in
-> de_thread.   Doing reduces the places that assign
-> real_parent to just fork and exit.
-
-Yes!
-
-I think I understand why we had the reason to reparent 'leader'
-in the past. We used to set leader->exit_state = EXIT_ZOMBIE,
-so without reparenting current's parent could have a bogus do_wait()
-result if this do_wait() happens before release_task(leader).
-
-Now we set leader->exit_state = EXIT_DEAD, which means this task
-is not visible to do_wait().
-
-Oleg.
-
+Cheers,
+Bart

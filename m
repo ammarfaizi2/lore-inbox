@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWDHLHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbWDHLNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964876AbWDHLHM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 07:07:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbWDHLHM
+	id S964892AbWDHLNF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 07:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbWDHLNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 07:07:12 -0400
-Received: from wproxy.gmail.com ([64.233.184.224]:22334 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964876AbWDHLHK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 07:07:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FYI+lEFxO+LtKziiVINsyOY8b7Fw8/XAdFuC6bRGerGYh9mWZNanlie3vr2ntddghckzOt3fv3iLiophg35kAp505BWBiBac/T49EGwE6Pk2hWFHJEayzQaLfTcoz4Th2LM3KGUtuslG5Hie2i5fN+IvOv1EAAnaGCkBe6myOI4=
-Message-ID: <e5bfff550604080407g7606d515qec566f83e0e2d7cb@mail.gmail.com>
-Date: Sat, 8 Apr 2006 13:07:09 +0200
-From: "Marco Costalba" <mcostalba@gmail.com>
-To: git@vger.kernel.org
-Subject: Re: [ANNOUNCE] qgit-1.2rc1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <e5bfff550604080244y40b36292ja5cfecac28e1e749@mail.gmail.com>
+	Sat, 8 Apr 2006 07:13:05 -0400
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:36876 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id S964892AbWDHLNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 07:13:04 -0400
+Message-ID: <44379AB8.6050808@superbug.co.uk>
+Date: Sat, 08 Apr 2006 12:12:56 +0100
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Mail/News 1.5 (X11/20060405)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <e5bfff550604080244y40b36292ja5cfecac28e1e749@mail.gmail.com>
+To: linux list <linux-kernel@vger.kernel.org>
+Subject: Black box flight recorder for Linux
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/8/06, Marco Costalba <mcostalba@gmail.com> wrote:
-> qgit is a very fast git GUI viewer with a lot of features .
->
-> The biggest new feature this time is *code range filtering*
->
+Hi,
 
-Before hitting the warning pop-up about git version compatibility at
-qgit launch,please note that a git with --boundary option support
-is required.
+I have had an idea for a black box flight recorder type feature for 
+Linux. Before I try to implement it, I just wish to ask here if anyone 
+has already tried it, and whether the idea works or not.
 
-git-rev-list --boundary has been merged after git-1.3.0.rc1, so better
-upgrade git to latest upstream snapshot git-1.3.0rc3
+Description for feature:
+Stamp the dmesg output on RAM somewhere, so that after a reset (reset 
+button pressed, not power off), the RAM can be read and details of 
+oopses etc. can be read.
 
-Of course final qgit-1.2 will be out only _after_  released git-1.3.0
+Now, the question I have is, if I write values to RAM, do any of those 
+values survive a reset? If any did survive, one could use them to store 
+oops output in. I am currently only interested in Intel CPU and AMD CPU 
+based motherboards. If only some values survived, one could use some 
+sort of redundant encoding so the good values could be recovered.
 
-    Marco
+The main advantage of something like this would be for newer 
+motherboards that are around now that don't have a serial port.
+
+If no one has tried this, I will spend some time testing.
+
+James
+
+
+

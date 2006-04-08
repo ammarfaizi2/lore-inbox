@@ -1,66 +1,48 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964856AbWDGSlx (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 7 Apr 2006 14:41:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWDGSlx
+	id S1751371AbWDHANV (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 7 Apr 2006 20:13:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWDHANV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 14:41:53 -0400
-Received: from vsmtp3alice.tin.it ([212.216.176.143]:15601 "EHLO vsmtp3.tin.it")
-	by vger.kernel.org with ESMTP id S964856AbWDGSlw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 14:41:52 -0400
-Message-ID: <10a75a13b99.mowafaq_mahmood1@virgilio.it>
-Date: Fri, 7 Apr 2006 19:33:21 +0100 (GMT+01:00)
-From: Bank of Baghdad Managing Director <mowafaq_mahmood1@virgilio.it>
-Reply-To: mowafaq_mahmood@hotmail.com
-To: mahmood@hotmail.com
-Subject: A Representation
-Mime-Version: 1.0
-Content-Type: text/plain;charset="UTF-8"
+	Fri, 7 Apr 2006 20:13:21 -0400
+Received: from c9263498.bsb.virtua.com.br ([201.38.52.152]:37389 "HELO
+	-1221539096") by vger.kernel.org with SMTP id S1751371AbWDHANU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 20:13:20 -0400
+Date: Sat, 08 Apr 2006 09:27:00 -0700
+From: "Visions P. Overplayed" <kataoka@louiskoo.com>
+X-Mailer: The Bat! (v2.00.9) Personal
+X-Priority: 3
+Message-ID: <6871849676.20060408092700@louiskoo.com>
+To: Linux <linux-kernel@vger.kernel.org>
+Subject: Archieve new horizons in your carreer
+MIME-Version: 1.0
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: 87.74.83.101
+X-AntiVirus: skaner antywirusowy poczty Wirtualnej Polski S. A.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S964856AbWDGSlx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751371AbWDHANV@vger.kernel.org>
 
-From: Mowafaq H. Mahmood
-Bank of Baghdad
-Baghdad, Iraq.
+Please read this letter attentively! 
+
+Hello, our company opens a new vacancy. 
+Now we have started our activity in the territory of the UK a nd we need to  
+employ people who will work as our representative in the territory of the UK. 
+Any interested person can become our manager. 
+
+Our vacancy is opened for you if you are:
+
+- Age: from 18 till 60 years  
+- Located in the territory of the UK 
+- Have a skill to communicate and access to the Internet.  
  
-Following the 
-first Gulf War in 1991, Saddam Hussein authorized for the first time 
-the formation of private banks in Iraq. From 1992 until the end of the 
-decade, 17 such banks were established. Up until the second Gulf War, 
-however, Saddam prohibited these banks from conducting international 
-transactions - including payments, remittances, and letters of credit. 
-Now, as Iraq develops a market- driven banking system, these 
-restrictions are being reduced and the importance of Iraq's private 
-banks is expected to grow significantly.
+You will earn from 1000 up to 3000 pounds, working only some hours per day.
+You can work part time or full time. 
+Any person located in the UK can become our employee.  
  
-An important step was taken 
-on October 28, 2003, when the Central
-Bank of Iraq authorized Iraq's 
-private banks to process international payments, remittances and 
-foreign currency letters of credit. This action follows other important 
-steps taken recently to modernize Iraq's banking system - the 
-establishment of a new national currency, for instance, and the 
-launching of daily foreign exchange auctions by the Central Bank.
- 
-Subsequently, I personally was able to hide away One Hundred Million 
-United States Dollars in the wake of the United States of American led 
-war on Iraq. This money was meant for investments but it is believed 
-that we have lost this money to looters during the War in Iraq. Since 
-after the war, I have safely tucked away this money with the hope that 
-I will be able to do something with it as soon as things cool down. Now 
-intend to do so.
- 
-I just need that I get you as my reliable foreign 
-partner who will as it is be my representative out there in your 
-Country; I want you as a partner who will assist me in investing in 
-profitable ventures in your Country. I need a person I could rely on.
- 
-Faithfully,
- 
-Mowafaq H. Mahmood
-Bank of Baghdad
-Iraq.
+If you are interested in our offer send the following data to our e-mail uk@ExlDisc.com  
+  
+- Your full name   
+- Your contact e-mail  
+- Your phone number
 

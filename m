@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbWDHLNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWDHL3I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964892AbWDHLNF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 07:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbWDHLNF
+	id S964800AbWDHL3I (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 07:29:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWDHL3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 07:13:05 -0400
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:36876 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S964892AbWDHLNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 07:13:04 -0400
-Message-ID: <44379AB8.6050808@superbug.co.uk>
-Date: Sat, 08 Apr 2006 12:12:56 +0100
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Mail/News 1.5 (X11/20060405)
-MIME-Version: 1.0
-To: linux list <linux-kernel@vger.kernel.org>
-Subject: Black box flight recorder for Linux
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 8 Apr 2006 07:29:07 -0400
+Received: from soohrt.org ([85.131.246.150]:62621 "EHLO quickstop.soohrt.org")
+	by vger.kernel.org with ESMTP id S964800AbWDHL3G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 07:29:06 -0400
+Date: Sat, 8 Apr 2006 13:28:59 +0200
+From: Horst Schirmeier <horst@schirmeier.com>
+To: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
+Subject: [PATCH] trivial fs/select.c compiler warning fix
+Message-ID: <20060408112859.GS2335@quickstop.soohrt.org>
+Mail-Followup-To: Alexander Viro <viro@zeniv.linux.org.uk>,
+	linux-kernel@vger.kernel.org, trivial@kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This trivial patch fixes
+fs/select.c: In function `core_sys_select':
+fs/select.c:339: warning: assignment from incompatible pointer type
+fs/select.c:376: warning: comparison of distinct pointer types lacks a cast
+by casting to (char *) when accessing stack_fds.
 
-I have had an idea for a black box flight recorder type feature for 
-Linux. Before I try to implement it, I just wish to ask here if anyone 
-has already tried it, and whether the idea works or not.
+Signed-off-by: Horst Schirmeier <horst@schirmeier.com>
 
-Description for feature:
-Stamp the dmesg output on RAM somewhere, so that after a reset (reset 
-button pressed, not power off), the RAM can be read and details of 
-oopses etc. can be read.
+---
 
-Now, the question I have is, if I write values to RAM, do any of those 
-values survive a reset? If any did survive, one could use them to store 
-oops output in. I am currently only interested in Intel CPU and AMD CPU 
-based motherboards. If only some values survived, one could use some 
-sort of redundant encoding so the good values could be recovered.
+diff --git a/fs/select.c b/fs/select.c
+index 071660f..3025cec 100644
+--- a/fs/select.c
++++ b/fs/select.c
+@@ -336,7 +336,7 @@ static int core_sys_select(int n, fd_set
+ 	ret = -ENOMEM;
+ 	size = FDS_BYTES(n);
+ 	if (6*size < SELECT_STACK_ALLOC)
+-		bits = stack_fds;
++		bits = (char *) stack_fds;
+ 	else
+ 		bits = kmalloc(6 * size, GFP_KERNEL);
+ 	if (!bits)
+@@ -373,7 +373,7 @@ static int core_sys_select(int n, fd_set
+ 		ret = -EFAULT;
+ 
+ out:
+-	if (bits != stack_fds)
++	if (bits != (char *) stack_fds)
+ 		kfree(bits);
+ out_nofds:
+ 	return ret;
 
-The main advantage of something like this would be for newer 
-motherboards that are around now that don't have a serial port.
-
-If no one has tried this, I will spend some time testing.
-
-James
-
-
-
+-- 
+PGP-Key 0xD40E0E7A

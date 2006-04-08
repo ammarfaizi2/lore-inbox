@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbWDHKmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWDHLHM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964888AbWDHKmy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 06:42:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWDHKmy
+	id S964876AbWDHLHM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 07:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbWDHLHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 06:42:54 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:23774 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S964847AbWDHKmx
+	Sat, 8 Apr 2006 07:07:12 -0400
+Received: from wproxy.gmail.com ([64.233.184.224]:22334 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964876AbWDHLHK convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 06:42:53 -0400
-Date: Sat, 8 Apr 2006 12:42:44 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: shemminger@osdl.org, jgarzik@pobox.com, akpm@osdl.org,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       fpavlic@de.ibm.com, davem@sunset.davemloft.net
-Subject: Re: [patch] ipv4: initialize arp_tbl rw lock
-Message-ID: <20060408104244.GB9412@osiris.boeblingen.de.ibm.com>
-References: <20060407081533.GC11353@osiris.boeblingen.de.ibm.com> <20060407074627.2f525b2e@localhost.localdomain> <20060408100213.GA9412@osiris.boeblingen.de.ibm.com> <20060408.031404.111884281.davem@davemloft.net>
+	Sat, 8 Apr 2006 07:07:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FYI+lEFxO+LtKziiVINsyOY8b7Fw8/XAdFuC6bRGerGYh9mWZNanlie3vr2ntddghckzOt3fv3iLiophg35kAp505BWBiBac/T49EGwE6Pk2hWFHJEayzQaLfTcoz4Th2LM3KGUtuslG5Hie2i5fN+IvOv1EAAnaGCkBe6myOI4=
+Message-ID: <e5bfff550604080407g7606d515qec566f83e0e2d7cb@mail.gmail.com>
+Date: Sat, 8 Apr 2006 13:07:09 +0200
+From: "Marco Costalba" <mcostalba@gmail.com>
+To: git@vger.kernel.org
+Subject: Re: [ANNOUNCE] qgit-1.2rc1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <e5bfff550604080244y40b36292ja5cfecac28e1e749@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060408.031404.111884281.davem@davemloft.net>
-User-Agent: mutt-ng/devel-r796 (Linux)
+References: <e5bfff550604080244y40b36292ja5cfecac28e1e749@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We could make inet_init() a subsystem init but I vaguely recall
-> that we were doing that at one point and it broke things for
-> some reason.
-> 
-> Perhaps fs_initcall() would work better.  Or if that causes
-> problems we could create a net_initcall() that sits between
-> fs_initcall() and device_initcall().
-> 
-> Or any other ideas?
+On 4/8/06, Marco Costalba <mcostalba@gmail.com> wrote:
+> qgit is a very fast git GUI viewer with a lot of features .
+>
+> The biggest new feature this time is *code range filtering*
+>
 
-Just tried fs_initcall() and net_initcall(). Both seem to have some
-side effects:
-Symptom is that console output sometimes hangs for several seconds at:
-"NET: Registered protocol family 2" while all cpus are in cpu_idle().
+Before hitting the warning pop-up about git version compatibility at
+qgit launch,please note that a git with --boundary option support
+is required.
 
-Heiko
+git-rev-list --boundary has been merged after git-1.3.0.rc1, so better
+upgrade git to latest upstream snapshot git-1.3.0rc3
+
+Of course final qgit-1.2 will be out only _after_  released git-1.3.0
+
+    Marco

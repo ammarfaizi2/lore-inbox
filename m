@@ -1,66 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbWDHKC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964821AbWDHKKS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751415AbWDHKC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 06:02:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWDHKC7
+	id S964821AbWDHKKS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 06:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbWDHKKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 06:02:59 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:656
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S1751415AbWDHKC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 06:02:58 -0400
-Date: Sat, 8 Apr 2006 03:02:43 -0700
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Darren Hart <darren@dvhart.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       "Stultz, John" <johnstul@us.ibm.com>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: RT task scheduling
-Message-ID: <20060408100243.GA20624@gnuppy.monkey.org>
-References: <200604052025.05679.darren@dvhart.com> <20060407091946.GA28421@elte.hu> <20060407103926.GC11706@gnuppy.monkey.org> <200604070756.21625.darren@dvhart.com> <20060407210633.GA15971@gnuppy.monkey.org> <20060408071657.GA11660@elte.hu> <20060408072530.GA14364@elte.hu> <20060408075430.GA19403@gnuppy.monkey.org> <20060408080349.GA19195@elte.hu>
+	Sat, 8 Apr 2006 06:10:17 -0400
+Received: from nproxy.gmail.com ([64.233.182.187]:40164 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964821AbWDHKKQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 06:10:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
+        b=Kc1Qu+Rk9nJ2I5ZkiEF79LqLMuqfeStUovfwlDXEtSUoD1H0lAZjkPPePmX8ufoDCwDLpqoUswRLXCx6RzQdk/u2UNi4SQlFn0fMhiHNGLdN6QvjGhtxhvLbxQ1FNmY6pUmxPgQp0rEyc4h+zBvMvPyu+YU+PmqDFmRvI0BaqMg=
+Message-ID: <2cd57c900604080310l454eec24m7298e01001f132af@mail.gmail.com>
+Date: Sat, 8 Apr 2006 18:10:14 +0800
+From: "Coywolf Qi Hunt" <coywolf@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] represent-dirty__centisecs-as-jiffies-internally.patch comment fix
+Cc: bart@samwel.tk, "Andrew Morton" <akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060408080349.GA19195@elte.hu>
-User-Agent: Mutt/1.5.11+cvs20060126
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_10168_31836365.1144491014957"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 08, 2006 at 10:03:49AM +0200, Ingo Molnar wrote:
-> * Bill Huey <billh@gnuppy.monkey.org> wrote:
-> > As far as CPU binding goes, I'm wanting a method of getting around the 
-> > latency of the rt overload logic in certain cases at the expense of 
-> > rebalancing. That's what I ment by it.
-> 
-> yeah, that certainly makes sense, and it's one reason why i'm thinking 
-> about the separate SCHED_FIFO_GLOBAL policy for 'globally scheduled' RT 
-> tasks, while still keeping the current lightweight non-global RT 
-> scheduling. Global scheduling either means a global lock, or as in the 
-> -rt implementation means a "global IPI", but there's always a nontrivial 
-> "global" cost involved.
+------=_Part_10168_31836365.1144491014957
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This is an extremely tricky problem which is why I lean toward manual
-techniques to resolve the issue. All automatic policies seem to fail for
-one reason or another. Significant thought needs to be put to this
-problem and you might not be able to effective address all parts of it.
+2006/3/25, akpm@osdl.org <akpm@osdl.org>:
 
-It goes far beyond the conventions of SCHED_FIFO itself and really
-forces one to think about what "priority" really is in the context of
-the -rt patch, whether the priority range needs to be extended to a much
-larger range (0-512 or larger) and other issues regarding that. I see
--rt SCHED_FIFO as a basic building block for other policies (done by
-researchers) that can be faked in userspace (like scheduler activations),
-but policies vary greatly given a typical load characteritic or demands
-of a -rt app. No single policy can fullfill those needs and it's still
-largely a research topic in many areas. Rebalancing in allocation
-schedulers is still voodoo in SMP environments for example.
+> From: Bart Samwel <bart@samwel.tk>
+>
+> Make that the internal values for:
+>
+> /proc/sys/vm/dirty_writeback_centisecs
+> /proc/sys/vm/dirty_expire_centisecs
+>
+> are stored as jiffies instead of centiseconds.  Let the sysctl interface =
+do
+> the conversions with full precision using clock_t_to_jiffies, instead of
+> doing overflow-sensitive on-the-fly conversions every time the values are
+> used.
 
-Please take this into consideration when thinking about SCHED_FIFO_GLOBAL
-and related topics.
+> diff -puN mm/page-writeback.c~represent-dirty__centisecs-as-jiffies-inter=
+nally mm/page-writeback.c
+> --- devel/mm/page-writeback.c~represent-dirty__centisecs-as-jiffies-inter=
+nally  2006-03-24 03:00:41.000000000 -0800
+> +++ devel-akpm/mm/page-writeback.c      2006-03-24 03:00:41.000000000 -08=
+00
+> @@ -75,12 +75,12 @@ int vm_dirty_ratio =3D 40;
+>   * The interval between `kupdate'-style writebacks, in centiseconds
+>   * (hundredths of a second)
 
-bill
+Bart,
 
+You forgot to fix the comments. The attached patch fixes them.
+--
+Coywolf Qi Hunt
+
+------=_Part_10168_31836365.1144491014957
+Content-Type: text/x-patch; 
+	name=represent-dirty__centisecs-as-jiffies-internally-comment-fix.diff; 
+	charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Attachment-Id: 0.1
+Content-Disposition: attachment; filename="represent-dirty__centisecs-as-jiffies-internally-comment-fix.diff"
+
+
+Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
+---
+
+diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+index 6dcce3a..75d7f48 100644
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -72,13 +72,12 @@ int dirty_background_ratio = 10;
+ int vm_dirty_ratio = 40;
+ 
+ /*
+- * The interval between `kupdate'-style writebacks, in centiseconds
+- * (hundredths of a second)
++ * The interval between `kupdate'-style writebacks, in jiffies
+  */
+ int dirty_writeback_interval = 5 * HZ;
+ 
+ /*
+- * The longest number of centiseconds for which data is allowed to remain dirty
++ * The longest number of jiffies for which data is allowed to remain dirty
+  */
+ int dirty_expire_interval = 30 * HZ;
+ 
+
+------=_Part_10168_31836365.1144491014957--

@@ -1,58 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWDHHyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWDHH4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbWDHHyl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 03:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWDHHyl
+	id S932289AbWDHH4X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 03:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWDHH4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 03:54:41 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:21678
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S1751397AbWDHHyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 03:54:40 -0400
-Date: Sat, 8 Apr 2006 00:54:30 -0700
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Darren Hart <darren@dvhart.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       "Stultz, John" <johnstul@us.ibm.com>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: RT task scheduling
-Message-ID: <20060408075430.GA19403@gnuppy.monkey.org>
-References: <200604052025.05679.darren@dvhart.com> <20060407091946.GA28421@elte.hu> <20060407103926.GC11706@gnuppy.monkey.org> <200604070756.21625.darren@dvhart.com> <20060407210633.GA15971@gnuppy.monkey.org> <20060408071657.GA11660@elte.hu> <20060408072530.GA14364@elte.hu>
+	Sat, 8 Apr 2006 03:56:23 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24520 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751394AbWDHH4W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 03:56:22 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: oleg@tv-sign.ru, ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH rc1-mm] de_thread: fix deadlockable process addition
+References: <20060406220403.GA205@oleg>
+	<m1acay1fbh.fsf@ebiederm.dsl.xmission.com>
+	<20060407234653.GB11460@oleg> <20060407155113.37d6a3b3.akpm@osdl.org>
+	<20060407155619.18f3c5ec.akpm@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sat, 08 Apr 2006 01:55:10 -0600
+In-Reply-To: <20060407155619.18f3c5ec.akpm@osdl.org> (Andrew Morton's
+ message of "Fri, 7 Apr 2006 15:56:19 -0700")
+Message-ID: <m1d5fslcwx.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060408072530.GA14364@elte.hu>
-User-Agent: Mutt/1.5.11+cvs20060126
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 08, 2006 at 09:25:30AM +0200, Ingo Molnar wrote:
-> > to the contrary, the "RT overload" code in the -rt tree does strict, 
-> > system-wide RT priority scheduling. That's the whole point of it.
-> 
-> so after this "clarification of terminology" i hope you are in picture 
-> now, so could you please explain to me what you meant by:
+Andrew Morton <akpm@osdl.org> writes:
 
-> > > You should consider for a moment to allow for the binding of a 
-> > > thread to a CPU to determine the behavior of a SCHED_FIFO class task 
-> > > instead of creating a new run category. [...]
-> 
-> to me it still makes no sense, and much of the followups were based on 
-> this. Or were you simply confused about what the scheduling code in -rt 
-> does precisely? Did that get clarified now?
+> Andrew Morton <akpm@osdl.org> wrote:
+>>
+>> Oleg Nesterov <oleg@tv-sign.ru> wrote:
+>> >
+>> > -		if (likely(p->tasks.prev != LIST_POISON2))
+>> > +		if (likely(p->tasks.prev != LIST_POISON2)) {
+>> 
+>> argh.
+>> 
+>> c'mon guys, we can't put a dependency on list_head poisoning into generic
+>> code.
+>> 
+>
+> A suitable fix might be to add a new list_del_poison() (or
+> list_del_rcu_something()?) and use that everywhere.
+>
+> But it should use a different poisoning pattern, so we know that the kernel
+> will still work correctly when someone removes the list_head debugging.
 
-The last time I looked at it I thought it did something pretty simplistic
-in that it just dumped any RT thread to another CPU but didn't do it in
-a strict manner with regard to priority. Maybe that's changed or else I
-didn't pay attention to it that as carefully as I thought.
+Agreed.  That is ugly.  I would recommend some new functions
+list functions but in thinking about this I believe I see
+how we can avoid this case completely.
 
-As far as CPU binding goes, I'm wanting a method of getting around the
-latency of the rt overload logic in certain cases at the expense of
-rebalancing. That's what I ment by it.
+The first step is to optimize thread_group_leader to be
+defined in terms of tasks and not process ids.  Which
+is one less pointer dereference.
 
-bill
+The second step is to modify de_thread to reduce the
+old thread group leader to a thread.  This requires changing the
+leaders parents, changing the leaders thread_group leader, unhashing
+the leader from the process group and session, and removing
+the leader from the task list.
 
+With those two changes exit.c should not need to account for 
+the de_thread case.
+
+Oleg please take a hard look and see if you can find anything
+that will break with the patch below.
+
+I believe that is all that is needed to cleanly keep do_each_thread
+from seeing a single thread multiple times.
+
+Eric
+
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 541f482..2964a2c 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1203,7 +1203,7 @@ extern void wait_task_inactive(task_t * 
+ #define while_each_thread(g, t) \
+ 	while ((t = next_thread(t)) != g)
+ 
+-#define thread_group_leader(p)	(p->pid == p->tgid)
++#define thread_group_leader(p)	(p == p->group_leader)
+ 
+ static inline task_t *next_thread(task_t *p)
+ {
+
+
+diff --git a/fs/exec.c b/fs/exec.c
+index 0291a68..9b0f9c4 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -721,9 +721,14 @@ static int de_thread(struct task_struct 
+ 		list_add_tail(&current->tasks, &init_task.tasks);
+ 
+ 		current->parent = current->real_parent = leader->real_parent;
+-		leader->parent = leader->real_parent = child_reaper;
++		leader->parent = leader->real_parent = current;
+ 		current->group_leader = current;
+-		leader->group_leader = leader;
++		leader->group_leader = current;
++
++		/* Reduce leader to a thread */
++		detach_pid(leader, PIDTYPE_PGID, current->signal->pgrp);
++		detach_pid(leader, PIDTYPE_SID   current->signal->session);
++		list_del_init(&leader->tasks);
+ 
+ 		add_parent(current);
+ 		add_parent(leader);

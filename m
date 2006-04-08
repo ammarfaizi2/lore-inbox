@@ -1,102 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWDHJoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWDHKCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751413AbWDHJoj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 05:44:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWDHJoi
+	id S964813AbWDHKCY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 06:02:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWDHKCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 05:44:38 -0400
-Received: from wproxy.gmail.com ([64.233.184.226]:30992 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751413AbWDHJoi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 05:44:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=JYt/FEWEqsXmlIouNOmQNCYclpjIry/zipKnbWKm2hWxQs7jxZRsQsEV5J50SONhvpZKFl21ZiF/32jhpDD/vWDOyteY9ek8b9bP0L8EehyCbOtaoU4/VzC2cHuYrTt9oRR1a6LbkTvffnByuzdYDafPfhuqTh2Hy2bN0hQYiLA=
-Message-ID: <e5bfff550604080244y40b36292ja5cfecac28e1e749@mail.gmail.com>
-Date: Sat, 8 Apr 2006 11:44:37 +0200
-From: "Marco Costalba" <mcostalba@gmail.com>
-To: git@vger.kernel.org
-Subject: [ANNOUNCE] qgit-1.2rc1
-Cc: linux-kernel@vger.kernel.org
+	Sat, 8 Apr 2006 06:02:24 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:1500 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751412AbWDHKCX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 06:02:23 -0400
+Date: Sat, 8 Apr 2006 12:02:13 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Frank Pavlic <fpavlic@de.ibm.com>,
+       "David S. Miller" <davem@sunset.davemloft.net>
+Subject: Re: [patch] ipv4: initialize arp_tbl rw lock
+Message-ID: <20060408100213.GA9412@osiris.boeblingen.de.ibm.com>
+References: <20060407081533.GC11353@osiris.boeblingen.de.ibm.com> <20060407074627.2f525b2e@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060407074627.2f525b2e@localhost.localdomain>
+User-Agent: mutt-ng/devel-r796 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-qgit is a very fast git GUI viewer with a lot of features .
+> > The qeth driver makes use of the arp_tbl rw lock. CONFIG_DEBUG_SPINLOCK
+> > detects that this lock is not initialized as it is supposed to be.
+>
+> This is a initialization order problem then, because:
+> 	arp_init
+> 	   neigh_table_init
+> 		rwlock_init
+> 
+> does the initialization already. So fix the initialization sequence
+> of the qeth driver or you will have other problems.
+> 
+> My impression was the -rt folks wanted all lock initializations t be
+> done at runtime not compile time.
 
-The biggest new feature this time is *code range filtering*
+Ok, so the problem seems to be that inet_init gets called after qeth_init.
+Looking at the top level Makefile this seems to be true for all network
+drivers in drivers/net/ and drivers/s390/net/ since we have
 
-Select a file and  open the file/annotation viewer, then wait for
-annotation finished and then select a history revision just to be sure
-annotation info is displayed.
+vmlinux-main := $(core-y) $(libs-y) $(drivers-y) $(net-y)
 
-You will see the new 'filter' button (in annotation window tool
-bar, not in main view tool bar) enabled. Press it and the file history
-will be shrinked to show only revisions that modified the selected lines.
+The patch below works for me... I guess there must be a better way to make
+sure that any networking driver's initcall is made before inet_init?
 
-Selected code region is also highlighted for better browsing.
-Filter button is a toggle button, so just press again it to release the filter.
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
 
-NOTE NOTE: Range filtering it's  _slippery_   code, there are a lot of
-subtle details involved, so may be something it's still missing/bogous,
-qgit-1.2rc1 it's here to let properly test before final release.
+ Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
-DOWNLOAD
-
-Tarball is at
-http://prdownloads.sourceforge.net/qgit/qgit-1.2rc1.tar.bz2?download
-
-Git archive is at
-http://digilander.libero.it/mcostalba/scm/qgit.git
-
-See http://digilander.libero.it/mcostalba/  for detailed download information.
-
-
-INSTALLATION
-
-To install from tarball use:
-
-./configure
-make
-make install-strip
-
-To install from git archive:
-
-autoreconf -i
-./configure
-make
-make install-strip
-
-Or check the shipped README for detailed information.
-
-CHANGELOG
-
- - add support for code range filtering
-
-- much improved graph for partial repos views. Use new --boundary
-git-rev-list option
-
-- pressing ESC in startup dialog make application to quit
-
-- add support for quick open of latest visited repositories
-
-- add support for launching an external diff viewer
-
-- speed-up git commands execution using usleep() in external program launcher
-
-- highlight filter matches in revision logs
-
-- add git version compatibility check
-
-- fix duplicated unapplied patches in StGIT when qgit is called with
---all option
-
-- fix run from subdirectory regression
-
-
-             Marco
+diff --git a/Makefile b/Makefile
+index b401942..c5cea07 100644
+--- a/Makefile
++++ b/Makefile
+@@ -567,7 +567,7 @@ #
+ # System.map is generated to document addresses of all kernel symbols
+ 
+ vmlinux-init := $(head-y) $(init-y)
+-vmlinux-main := $(core-y) $(libs-y) $(drivers-y) $(net-y)
++vmlinux-main := $(core-y) $(libs-y) $(net-y) $(drivers-y)
+ vmlinux-all  := $(vmlinux-init) $(vmlinux-main)
+ vmlinux-lds  := arch/$(ARCH)/kernel/vmlinux.lds
+ 

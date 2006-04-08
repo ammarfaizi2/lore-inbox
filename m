@@ -1,42 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWDHMP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWDHNa7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbWDHMP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 08:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbWDHMP3
+	id S1751386AbWDHNa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 09:30:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWDHNa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 08:15:29 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:15630 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751363AbWDHMP2 (ORCPT
+	Sat, 8 Apr 2006 09:30:59 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:38117 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751386AbWDHNa6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 08:15:28 -0400
-Date: Sat, 8 Apr 2006 14:14:54 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: heiko.carstens@de.ibm.com, shemminger@osdl.org, jgarzik@pobox.com,
-       akpm@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       fpavlic@de.ibm.com, davem@sunset.davemloft.net
-Subject: Re: [patch] ipv4: initialize arp_tbl rw lock
-Message-ID: <20060408121454.GA16761@mars.ravnborg.org>
-References: <20060407081533.GC11353@osiris.boeblingen.de.ibm.com> <20060407074627.2f525b2e@localhost.localdomain> <20060408100213.GA9412@osiris.boeblingen.de.ibm.com> <20060408.031404.111884281.davem@davemloft.net>
+	Sat, 8 Apr 2006 09:30:58 -0400
+Date: Sat, 8 Apr 2006 21:27:45 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH rc1-mm] de_thread: fix deadlockable process addition
+Message-ID: <20060408172745.GA89@oleg>
+References: <20060406220403.GA205@oleg> <m1acay1fbh.fsf@ebiederm.dsl.xmission.com> <20060407234653.GB11460@oleg> <20060407155113.37d6a3b3.akpm@osdl.org> <20060407155619.18f3c5ec.akpm@osdl.org> <m1d5fslcwx.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060408.031404.111884281.davem@davemloft.net>
+In-Reply-To: <m1d5fslcwx.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 08, 2006 at 03:14:04AM -0700, David S. Miller wrote:
+On 04/08, Eric W. Biederman wrote:
+>
+> Agreed.  That is ugly.
+
+Yes, I agree also.
+
+>
+> -#define thread_group_leader(p)	(p->pid == p->tgid)
+> +#define thread_group_leader(p)	(p == p->group_leader)
+>
+> ...
+>
+> -		leader->group_leader = leader;
+> +		leader->group_leader = current;
+
+I thought about similar change too, but I am unsure about
+release_task(old_leader)->proc_flush_task() path (because
+I don't understand this code).
+
+This change can confuse next_tid(), but this is minor.
+I don't see other problems.
+
+However, I think we can do something better instead of
+attach_pid(current)/detach_pid(leader):
+
+	void exec_pid(task_t *old, task_t * new, enum pid_type type)
+	{
+		new->pids[type].pid = old->pids[type].pid;
+		hlist_replace_rcu(&old->pids[type].node, &new->pids[type].node);
+		old->pids[type].pid = NULL;
+	}
+
+So de_thread() can do
+
+	exec_pid(leader, current, PIDTYPE_PGID);
+	exec_pid(leader, current, PIDTYPE_SID);
+
+This allows us to iterate over pgrp/session lockless without
+seeing the same task twice, btw. But may be it is just unneeded
+complication.
+
+> This requires changing the leaders parents
+>
+>  		current->parent = current->real_parent = leader->real_parent;
+> -		leader->parent = leader->real_parent = child_reaper;
+> +		leader->parent = leader->real_parent = current;
+>  		current->group_leader = current;
+
+I don't understand why do we need this change.
+
+Actually, I think leader doesn't need reparenting at all.
+ptrace_unlink(leader) already restored leader->parent = ->real_parent
+and ->sibling. So I think we can do (for review only, should go in a
+separate patch) this:
+
+--- MM/fs/exec.c~	2006-04-08 02:19:15.000000000 +0400
++++ MM/fs/exec.c	2006-04-08 18:50:35.000000000 +0400
+@@ -704,7 +704,6 @@ static int de_thread(struct task_struct 
+ 		ptrace_unlink(current);
+ 		ptrace_unlink(leader);
+ 		remove_parent(current);
+-		remove_parent(leader);
  
-> Perhaps fs_initcall() would work better.  Or if that causes
-> problems we could create a net_initcall() that sits between
-> fs_initcall() and device_initcall().
+ 
+ 		/* Become a process group leader with the old leader's pid.
+@@ -718,13 +717,11 @@ static int de_thread(struct task_struct 
+ 		attach_pid(current, PIDTYPE_SID,  current->signal->session);
+ 		list_replace_rcu(&leader->tasks, &current->tasks);
+ 
+-		current->parent = current->real_parent = leader->real_parent;
+-		leader->parent = leader->real_parent = child_reaper;
++		current->parent = current->real_parent = leader->parent;
+ 		current->group_leader = current;
+ 		leader->group_leader = leader;
+ 
+ 		add_parent(current);
+-		add_parent(leader);
+ 		if (ptrace) {
+ 			current->ptrace = ptrace;
+ 			__ptrace_link(current, parent);
 
-fs_initcall() seems to be used mainly for "init after subsystem" stuff.
-Within fs/ only pipe.c uses fs_initcall().
+Oleg.
 
-If we are going to overload the usage of fs_initcall() even more then
-we should maybe try to rename it?
-
-
-	Sam

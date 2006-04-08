@@ -1,35 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbWDHW2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965031AbWDHWpo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751435AbWDHW2t (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 18:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWDHW2t
+	id S965031AbWDHWpo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 18:45:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbWDHWpo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 18:28:49 -0400
-Received: from main.gmane.org ([80.91.229.2]:21379 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751435AbWDHW2t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 18:28:49 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Sat, 8 Apr 2006 18:45:44 -0400
+Received: from science.horizon.com ([192.35.100.1]:7470 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S965031AbWDHWpo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 18:45:44 -0400
+Date: 8 Apr 2006 18:45:33 -0400
+Message-ID: <20060408224533.23065.qmail@science.horizon.com>
+From: linux@horizon.com
 To: linux-kernel@vger.kernel.org
-From: JustFillBug <mozbugbox@yahoo.com.au>
 Subject: Re: Black box flight recorder for Linux
-Date: Sat, 8 Apr 2006 22:28:39 +0000 (UTC)
-Message-ID: <slrne3ge8n.ps.mozbugbox@mozbugbox.somehost.org>
-References: <5ZjEd-4ym-37@gated-at.bofh.it> <5ZlZk-7VF-13@gated-at.bofh.it> <4437C335.30107@shaw.ca> <200604080917.39562.ak@suse.de> <4437E4B7.40208@superbug.co.uk>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cm218-253-44-231.hkcable.com.hk
-X-Mail-Copies-To: nobody
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+Cc: hancockr@shaw.ca, James@superbug.co.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-04-08, James Courtier-Dutton <James@superbug.co.uk> wrote:
-> Andi Kleen wrote:
->> Reset button is like a cold boot and it generally ends up with cleared 
->> RAM.
->> 
-> Thank you. That saved me 30mins hacking. :-)
->
+> I wouldn't think most BIOSes these days would bother to clear system RAM 
+> on a reboot. Certainly Microsoft was encouraging vendors not to do this 
+> because it slowed down system boot time.
 
-How about Magic sysRq reboot? 
+I don't think they explicitly clear it all, but they do write to it to
+test how much RAM is installed and don't bother to put back what they
+scribbled on.
 
+
+Sufficient ECC techniques sould probably recover from the damage.  For a
+first attempt, I'd take 4096-byte pages, not use the first and last 8
+bytes at all, and divide the remaining 4080 bytes into 16 interleaved
+255-byte ECC segments, each using a byte-wide Reed-Solomon code.
+(The fraction of that 255 devoted to ECC is up to you; n-bit-wide
+Reed-Solomon just requires that data + ECC <= (2^n - 1) bytes of n
+bits each.)
+
+For extra hack value, you could detect at boot what parts of your
+log got corrupted and avoid using those parts when logging new data.
+(There are complications...)
+
+It is possible to update RS ECC incrementally, or perhaps it would be
+better to store the tail of the log in some less efficient form (like
+multiple replication) and then pack it into ECC when full.
+
+
+The other thing that might be a problem is that I don't know how long
+refresh stops during reset.  Again, ECC can be your friend.
+(And code for it already exists in lib/reed_solomon/)

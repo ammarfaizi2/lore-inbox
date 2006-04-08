@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965040AbWDHWsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbWDHWrf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965040AbWDHWsX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 18:48:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbWDHWsX
+	id S965038AbWDHWrf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 18:47:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965040AbWDHWrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 18:48:23 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:26534 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S965040AbWDHWsW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 18:48:22 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Userland swsusp failure (mm-related)
-Date: Sun, 9 Apr 2006 00:47:16 +0200
-User-Agent: KMail/1.9.1
-Cc: Fabio Comolli <fabio.comolli@gmail.com>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-References: <b637ec0b0604080537s55e63544r8bb63c887e81ecaf@mail.gmail.com> <200604081716.31836.rjw@sisk.pl> <20060408161555.GA1722@elf.ucw.cz>
-In-Reply-To: <20060408161555.GA1722@elf.ucw.cz>
+	Sat, 8 Apr 2006 18:47:35 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.82]:8091 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S965038AbWDHWre
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 18:47:34 -0400
+Message-ID: <32947.128.2.140.234.1144536454.squirrel@128.2.140.234>
+Date: Sat, 8 Apr 2006 18:47:34 -0400 (EDT)
+Subject: 2.4.32: unresolved symbol unregister_qdisc
+From: "George P Nychis" <gnychis@cmu.edu>
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.5.1 [CVS]
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604090047.17372.rjw@sisk.pl>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hey,
 
-On Saturday 08 April 2006 18:15, Pavel Machek wrote:
-> > > This is my first (and unique) failure since I began testing uswsusp
-> > > (2.6.17-rc1 version). It happened (I think) because more than 50% of
-> > > physical memory was occupied at suspend time (about 550 megs out og
-> > > 1G) and that was what I was trying to test. After freeing some memory
-> > > suspend worked (there was no need to reboot).
-> > 
-> > Well, it looks like we didn't free enough RAM for suspend in this case.
-> > Unfortunately we were below the min watermark for ZONE_NORMAL and
-> > we tried to allocate with GFP_ATOMIC (Nick, shouldn't we fall back to
-> > ZONE_DMA in this case?).
-> > 
-> > I think we can safely ignore the watermarks in swsusp, so probably
-> > we can set PF_MEMALLOC for the current task temporarily and reset
-> > it when we have allocated memory.  Pavel, what do you think?
-> 
-> Seems little hacky but okay to me.
-> 
-> Should not fixing "how much to free" computation to free a bit more be
-> enough to handle this?
+I have a kernel module that uses unregister_qdisc and register_qdisc, whenever i try to insert the module I get:
+/lib/modules/2.4.32/kernel/net/sched/sch_xcp.o: /lib/modules/2.4.32/kernel/net/sched/sch_xcp.o: unresolved symbol unregister_qdisc
+/lib/modules/2.4.32/kernel/net/sched/sch_xcp.o: /lib/modules/2.4.32/kernel/net/sched/sch_xcp.o: unresolved symbol register_qdisc
 
-Yes, but in that case we'll leave some memory unused. ;-)
+Am i missing some sort of support in the kernel?
 
-Rafael
+Please CC all responses directly to me :)
+
+Thanks!
+George
+

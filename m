@@ -1,117 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964996AbWDHPeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbWDHPmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964996AbWDHPeG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 11:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbWDHPeF
+	id S965007AbWDHPmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 11:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbWDHPmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 11:34:05 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:1038 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964996AbWDHPeD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 11:34:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pQP9ga2HXSY2SfDLsnM1jGRywfKD795pBgwv63DuKPc+EkCOtkTp0RV7yrtD5Mxg9lGbZYvauBF7q8cX87cMUsww/ucr6zdUX5RXiDqfvrLNFXwZN2Wvv/6ai8vvxHcTj84ZRk5Lv8YeQdyHBOCJQV+eTXyLLluwQWIgGXCHV3Q=
-Message-ID: <5a4c581d0604080834k7961aff5l7794b8893325a90c@mail.gmail.com>
-Date: Sat, 8 Apr 2006 17:34:00 +0200
-From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: 40% IDE performance regression going from FC3 to FC5 with same kernel
-In-Reply-To: <5a4c581d0604080747w61464d48k5480391d98b2bc47@mail.gmail.com>
+	Sat, 8 Apr 2006 11:42:25 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:57350 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S964989AbWDHPmY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 11:42:24 -0400
+Message-ID: <4437D9BB.30207@shadowen.org>
+Date: Sat, 08 Apr 2006 16:41:47 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5a4c581d0604080747w61464d48k5480391d98b2bc47@mail.gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+CC: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       linux-kernel@vger.kernel.org, jbarnes@sgi.com, jes@trained-monkey.org,
+       nickpiggin@yahoo.com.au, tony.luck@intel.com,
+       mm-commits@vger.kernel.org
+Subject: Re: + pg_uncached-is-ia64-only.patch added to -mm tree
+References: <200604070421.k374LXFs011197@shell0.pdx.osdl.net>	<20060407134827.91a47e69.kamezawa.hiroyu@jp.fujitsu.com> <20060406215242.245340de.akpm@osdl.org>
+In-Reply-To: <20060406215242.245340de.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/8/06, Alessandro Suardi <alessandro.suardi@gmail.com> wrote:
-> I'll be filing a FC5 performance bug for this but would like an opinion
->  from the IDE kernel people just in case this has already been seen...
->
-> I just upgraded my home K7-800, 512MB RAM box from FC3 to FC5
->  and noticed a disk performance slowdown while copying files around.
->
-> System has two 160GB disks, a Samsung SP1604N 2MB cache and
->  a Maxtor 6Y160P0 8MB cache; both disks appear to be almost 2x
->  slower both on hdparm -t tests (17-19MB/s against 33/35 MB/s) and
->  on dd tests, like this:
->
-> FC3
-> [root@donkey tmp]# time dd if=/dev/hda of=/dev/null skip=200 bs=1024k count=200
-> 200+0 records in
-> 200+0 records out
->
-> real    0m4.623s
-> user    0m0.004s
-> sys     0m1.308s
->
-> FC5
-> [root@donkey tmp]#  time dd if=/dev/hda of=/dev/null skip=200 bs=1024k count=200
-> 200+0 records in
-> 200+0 records out
-> 209715200 bytes (210 MB) copied, 9.67808 seconds, 21.7 MB/s
->
-> real    0m9.683s
-> user    0m0.008s
-> sys     0m1.400s
->
->
-> The initial tests were my last FC3 self-compiled kernel (2.6.16-rc5-git8)
->  vs FC5's 2.6.16-1.2080_FC5 kernel; so just to be sure, I copied over
->  from my FC3 partition the 2.6.16-rc5-git8 kernel and its config file,
->  and rebuilt it under FC5, with just a few differences for the new USB
->  2.0 disk I added to a PCI controller I just put in, namely
->
-> [root@donkey linux-2.6.16-rc5-git8]# diff .config
-> /fc3/usr/src/linux-2.6.16-rc5-git8/.config
-> 4c4
-> < # Fri Apr  7 03:58:23 2006
-> ---
-> > # Mon Mar  6 22:49:32 2006
-> 1110,1112c1110
-> < CONFIG_USB_EHCI_HCD=m
-> < CONFIG_USB_EHCI_SPLIT_ISO=y
-> < CONFIG_USB_EHCI_ROOT_HUB_TT=y
-> ---
-> > # CONFIG_USB_EHCI_HCD is not set
-> 1115c1113
-> < CONFIG_USB_UHCI_HCD=m
-> ---
-> > CONFIG_USB_UHCI_HCD=y
-> 1218d1215
-> < # CONFIG_USB_SISUSBVGA is not set
->
-> The result is unexpected - performance delta is still there. Concatenating
->  output from hdparm -i /dev/hda and hdparm /dev/hda for the same kernel
->  under FC3 and FC5, the only difference is
->
-> [root@donkey ~]# diff /tmp/hdparm.out.2616rc2git8-fc5
-> /tmp/hdparm.out.2616rc2git8
-> 14c14
-> <  Drive conforms to: (null):  ATA/ATAPI-1 ATA/ATAPI-2 ATA/ATAPI-3
-> ATA/ATAPI-4 ATA/ATAPI-5 ATA/ATAPI-6 ATA/ATAPI-7
-> ---
-> >  Drive conforms to: (null):
-> 27c27
-> <  geometry     = 19457/255/63, sectors = 312581808, start = 0
-> ---
-> >  geometry     = 19457/255/63, sectors = 160041885696, start = 0
->
-> I'll try now and rebuild a 2.6.16-rc5-git8 kernel under FC5 with the
->  FC3 GCC and see whether that is responsible for the performance
->  drop... of course if anyone has any idea about what's going on, I
->  will be happy to try out stuff. Attaching hdparm output from the FC5
->  2.6.16-rc5-git8 just to show that there is DMA etc. all configured fine.
+Andrew Morton wrote:
+> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+> 
+>>Hi, Andrew
+>>
+>>On Thu, 06 Apr 2006 21:20:26 -0700
+>>akpm@osdl.org wrote:
+>>
+>>
+>>>The patch titled
+>>>
+>>>     PG_uncached is ia64 only
+>>>
+>>>has been added to the -mm tree.  Its filename is
+>>>
+>>>     pg_uncached-is-ia64-only.patch
+>>>
+>>>See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
+>>>out what to do about this
+>>>
+>>
+>>in include/linux/mmzone.h
+>>==
+>>#elif BITS_PER_LONG == 64
+>>/*
+>> * with 64 bit flags field, there's plenty of room.
+>> */
+>>#define FLAGS_RESERVED          32
+>>
+>>#else
+> 
+> 
+> OK.
+> 
+> 
+>>it looks this is used here.
+>>
+>>#if SECTIONS_WIDTH+NODES_WIDTH+ZONES_WIDTH > FLAGS_RESERVED
+>>#error SECTIONS_WIDTH+NODES_WIDTH+ZONES_WIDTH > FLAGS_RESERVED
+>>#endif
+>>
+>>I'm not sure but please compile check FLAGS_RESRVED with SPARSEMEM or
+>>
+> 
+> 
+> Yes, that test won't trigger.
+> 
+> 
+>>#if (BITS_PER_LONG > 32)               /* 64-bit only flags. we can use full 
+>>                                          low 32bits */
+>>#define PG_uncached	31
+>>#endif
+>>
+>>Hm..Is this  ugly ? :(
+> 
+> 
+> It's easier to change FLAGS_RESERVED ;)
+> 
+> diff -puN include/linux/page-flags.h~pg_uncached-is-ia64-only include/linux/page-flags.h
+> --- devel/include/linux/page-flags.h~pg_uncached-is-ia64-only	2006-04-06 21:50:51.000000000 -0700
+> +++ devel-akpm/include/linux/page-flags.h	2006-04-06 21:50:51.000000000 -0700
+> @@ -7,6 +7,8 @@
+>  
+>  #include <linux/percpu.h>
+>  #include <linux/cache.h>
+> +#include <linux/types.h>
+> +
+>  #include <asm/pgtable.h>
+>  
+>  /*
+> @@ -86,7 +88,10 @@
+>  #define PG_mappedtodisk		16	/* Has blocks allocated on-disk */
+>  #define PG_reclaim		17	/* To be reclaimed asap */
+>  #define PG_nosave_free		18	/* Free, should not be written */
+> -#define PG_uncached		19	/* Page has been mapped as uncached */
+> +
+> +#if (BITS_PER_LONG > 32)
+> +#define PG_uncached		32	/* Page has been mapped as uncached */
+> +#endif
 
-Just for the record - no, even rebuilding same kernel with same GCC
- (3.4.4) under FC5, disk performance is much slower than FC3 -
- according to hdparm _and_ dd tests.
+As Hiroyuki-san points out we can need up to 30 bits to encode large 64
+bit machines right now.  Reducing the space available for FIELDS but
+reducing FLAGS_RESERVED for 64 bit machines will negativly impact them
+when SPARSEMEM is enabled.  I think it makes much more sense here to use
+the bits which have been released by the movement of the FIELDS upwards
+in the 64 bit case.
 
---alessandro
+32 bit  -------------------------------| FIELDS |       FLAGS         |
+64 bit  |           FIELDS             | ??????         FLAGS         |
+        63                            32                              0
 
- "Dreamer ? Each one of us is a dreamer. We just push it down deep because
-   we are repeatedly told that we are not allowed to dream in real life"
-     (Reinhold Ziegler)
+Logically we should in the general case have FLAGS_RESERVED in 64 bit be
+the value for 32 bit + 32; currently 9 + 32.  If we desire to have 64
+bit only flags then it seems keeping FLAGS_RESERVED at 32 for 64 bit
+would leave '32 bit FIELDS' segment free for those flags.
+
+In short with the current values of FLAGS_RESERVED I would think
+starting at 31 working downwards towards the 'common'/32 bit flags would
+be the most logical.
+
+Cheers.
+
+-apw

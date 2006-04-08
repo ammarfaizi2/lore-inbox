@@ -1,48 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbWDHNpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWDHNwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751385AbWDHNpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 09:45:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWDHNpZ
+	id S964842AbWDHNwb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 09:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWDHNwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 09:45:25 -0400
-Received: from cantor.suse.de ([195.135.220.2]:59354 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751385AbWDHNpX (ORCPT
+	Sat, 8 Apr 2006 09:52:31 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:48823 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964842AbWDHNwb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 09:45:23 -0400
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 1/5] uts namespaces: Implement utsname namespaces
-References: <20060407095132.455784000@sergelap>
-	<20060407183600.C8A8F19B8FD@sergelap.hallyn.com>
-From: Andi Kleen <ak@suse.de>
-In-Reply-To: <20060407183600.C8A8F19B8FD@sergelap.hallyn.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-Date: 08 Apr 2006 15:45:17 +0200
-Message-ID: <p73hd549o5u.fsf@bragg.suse.de>
-MIME-Version: 1.0
+	Sat, 8 Apr 2006 09:52:31 -0400
+Date: Sat, 8 Apr 2006 15:50:13 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Walter L. Wimer III" <walt.wimer@timesys.com>
+Cc: linux-kernel@vger.kernel.org,
+       "Gleixner, Thomas" <thomas.gleixner@timesys.com>
+Subject: Re: [PATCH] Fix compilation of 2.6.16-rt13 real-time preemption patch on PowerPC
+Message-ID: <20060408135013.GA30488@elte.hu>
+References: <1144436297.10765.52.camel@excalibur.timesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1144436297.10765.52.camel@excalibur.timesys.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Serge E. Hallyn" <serue@us.ibm.com> writes:
 
-> This patch defines the uts namespace and some manipulators.
-> Adds the uts namespace to task_struct, and initializes a
-> system-wide init namespace which will continue to be used when
-> it makes sense.
+* Walter L. Wimer III <walt.wimer@timesys.com> wrote:
 
-So to get this straight - you want to add a new pointer to 
-task_struct for each possible virtualized entity? 
+> The following patch corrects errors encountered when compiling the 
+> 2.6.16-rt13 real-time preemption patch on the PowerPC architecture:
+> 
+>       * The INIT_FS and INIT_FILES macro definitions changed, but
+>         corresponding changes to the calls were missed on PowerPC.
+> 
+>       * The new TIF_NEED_RESCHED_DELAYED definition caused an overflow
+>         of a 16-bit immediate load field in several PowerPC
+>         assembly-language instructions (e.g. in entry.S).  This patch
+>         changes the definition of TIF_NEED_RESCHED_DELAYED from the
+>         value 16 to the value 13 (which appears to have been previously
+>         unused).  (All bits from 0 to 15 are now in use on PPC, so if
+>         any new thread_info flags are needed, we'll have to actually fix
+>         the PPC assembly code to deal with the resulting 32-bit
+>         quantity.)
+> 
+>       * The file include/asm-powerpc/irqflags.h was missing completely
+>         on PowerPC.  For now, I've supplied a stub file.  There is
+>         currently no support for CONFIG_DEBUG_TRACE_IRQFLAGS.
+> 
+> Thanks go to Thomas Gleixner for his comments/suggestions on this 
+> patch.
+> 
+> I've successfully built and test-booted this on an AMCC440EP "Bamboo" 
+> board.
 
-After you're doing by how many bytes will task_struct be bloated? 
-I don't think that's a very good approach because you'll crank
-up the per thread memory overhead which is already far too big
-in Linux. Also it adds cache foot print and generally makes
-things slower.
+thanks, applied.
 
-If anything I would request using a proxy data structure
-that contains all the virtualized namespaces for a set
-of processes. And give each task only has a single pointer
-to one of these.
-
--Andi
+	Ingo

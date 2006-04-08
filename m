@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWDHADc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWDHAEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbWDHADc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 20:03:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWDHADc
+	id S1751366AbWDHAEp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 20:04:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWDHAEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 20:03:32 -0400
-Received: from nproxy.gmail.com ([64.233.182.191]:39173 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751363AbWDHADb (ORCPT
+	Fri, 7 Apr 2006 20:04:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26582 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751366AbWDHAEo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 20:03:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=LZumlH8LbBLlBR6ypZD9UG38I3Uk/ueQdx/4VLKXSM2tmIYJYpO6wQdcQvy550G7bM7fMJXFoU0/5JDKRw+hdIDFsWi2pKRxqupipThv6xs9ltKBNxuH2S5b1HWLKxDWoOIBdHnAxXVPwmNblNcjzCL3h/YTi+Ot7i+VErkYewM=
-Date: Sat, 8 Apr 2006 04:03:40 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: Greg KH <greg@kroah.com>, Jeff Garzik <jgarzik@pobox.com>,
-       netdev@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       john.ronciak@intel.com, jesse.brandeburg@intel.com,
-       jeffrey.t.kirsher@intel.com
-Subject: Re: [PATCH] PCI Error Recovery: e100 network device driver
-Message-ID: <20060408000339.GE7167@mipter.zuzino.mipt.ru>
-References: <20060406222359.GA30037@austin.ibm.com> <20060406224643.GA6278@kroah.com> <20060407231134.GN25225@austin.ibm.com>
+	Fri, 7 Apr 2006 20:04:44 -0400
+Date: Fri, 7 Apr 2006 17:07:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jim Cromie <jim.cromie@gmail.com>
+Cc: linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+Subject: Re: 2.6.17-rc1-mm1 - detects buggy TSC on GEODE
+Message-Id: <20060407170706.1ae11ea1.akpm@osdl.org>
+In-Reply-To: <4436D275.2010402@gmail.com>
+References: <20060404014504.564bf45a.akpm@osdl.org>
+	<4436D275.2010402@gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060407231134.GN25225@austin.ibm.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 07, 2006 at 06:11:34PM -0500, Linas Vepstas wrote:
-> --- linux-2.6.17-rc1.orig/drivers/net/e100.c
-> +++ linux-2.6.17-rc1/drivers/net/e100.c
+Jim Cromie <jim.cromie@gmail.com> wrote:
+>
+> 
+> FYI, 
+> 
+> as the 2 syslog extracts show;
+> 1.   the new kernel is now detecting the buggy TSC on the GEODE-sc1100
+> 2.    the bug is apparently correctable by passing 'idle=poll' on kernel 
+> boot-line.
+> 
+> Heres one vendor's bug/erratta description:
+>     http://soekris.com/Issue0003.htm
+> 
+> 
+> Apr  7 11:42:01 truck kernel: [   19.160016] Kernel command line: 
+> console=ttyS0,115200n81 root=/dev/nfs 
+> nfsroot=192.168.42.1:/nfshost/soekris 
+> nfsaddrs=192.168.42.100:192.168.42.1:192.168.42.1:255.255.255.0:soekris:eth0 
+> panic=5   BOOT_IMAGE=vmlinuz-2.6.17-rc1-mm1-sk
+> Apr  7 11:42:01 truck kernel: [   24.314851] Time: tsc clocksource has 
+> been installed.
+> Apr  7 11:42:01 truck kernel: [   29.977802] TSC appears to be running 
+> slowly. Marking it as unstable
+> Apr  7 11:42:01 truck kernel: [   20.460000] Time: pit clocksource has 
+> been installed.
+> 
+> 
+> Apr  7 12:35:56 truck kernel: [   21.562573] Kernel command line: 
+> console=ttyS0,115200n81 root=/dev/nfs 
+> nfsroot=192.168.42.1:/nfshost/soekris 
+> nfsaddrs=192.168.42.100:192.168.42.1:192.168.42.1:255.255.255.0:soekris:eth0 
+> panic=5  idle=poll BOOT_IMAGE=vmlinuz-2.6.17-rc1-mm1-sk
+> Apr  7 12:35:56 truck kernel: [   21.563049] using polling idle threads.
+> Apr  7 12:35:56 truck kernel: [   28.393469] Time: tsc clocksource has 
+> been installed.
+> 
+> 
+> Its nice to see the buggy TSC detector detect, and the work-around work.
 
-> + * @state: The current pci conneection state
+hm.
 
-connection
-
-> +static pci_ers_result_t e100_io_error_detected(struct pci_dev *pdev, pci_channel_state_t state)
-> +{
-> +	struct net_device *netdev = pci_get_drvdata(pdev);
-> +
-> +	/* Similar to calling e100_down(), but avoids adpater I/O. */
-
-adapter
-
-> +static pci_ers_result_t e100_io_slot_reset(struct pci_dev *pdev)
-> +{
-> +	struct net_device *netdev = pci_get_drvdata(pdev);
-> +	struct nic *nic = netdev_priv(netdev);
-> +
-> +	if (pci_enable_device(pdev)) {
-> +		printk(KERN_ERR "e100: Cannot re-enable PCI device after reset.\n");
-> +		return PCI_ERS_RESULT_DISCONNECT;
-> +	}
-> +	pci_set_master(pdev);
-> +
-> +	/* Only one device per card can do a reset */
-> +	if (0 != PCI_FUNC(pdev->devfn))
-
-Wrong order.
-
+John, does this mean that enable-tsc-for-amd-geode-gx-lx.patch is only safe
+to merge after all your time-management patches have gone in?

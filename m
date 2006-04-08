@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965031AbWDHWpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965040AbWDHWsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965031AbWDHWpo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 18:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbWDHWpo
+	id S965040AbWDHWsX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 18:48:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbWDHWsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 18:45:44 -0400
-Received: from science.horizon.com ([192.35.100.1]:7470 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S965031AbWDHWpo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 18:45:44 -0400
-Date: 8 Apr 2006 18:45:33 -0400
-Message-ID: <20060408224533.23065.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: Black box flight recorder for Linux
-Cc: hancockr@shaw.ca, James@superbug.co.uk
+	Sat, 8 Apr 2006 18:48:23 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:26534 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S965040AbWDHWsW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 18:48:22 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Userland swsusp failure (mm-related)
+Date: Sun, 9 Apr 2006 00:47:16 +0200
+User-Agent: KMail/1.9.1
+Cc: Fabio Comolli <fabio.comolli@gmail.com>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+References: <b637ec0b0604080537s55e63544r8bb63c887e81ecaf@mail.gmail.com> <200604081716.31836.rjw@sisk.pl> <20060408161555.GA1722@elf.ucw.cz>
+In-Reply-To: <20060408161555.GA1722@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604090047.17372.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I wouldn't think most BIOSes these days would bother to clear system RAM 
-> on a reboot. Certainly Microsoft was encouraging vendors not to do this 
-> because it slowed down system boot time.
+Hi,
 
-I don't think they explicitly clear it all, but they do write to it to
-test how much RAM is installed and don't bother to put back what they
-scribbled on.
+On Saturday 08 April 2006 18:15, Pavel Machek wrote:
+> > > This is my first (and unique) failure since I began testing uswsusp
+> > > (2.6.17-rc1 version). It happened (I think) because more than 50% of
+> > > physical memory was occupied at suspend time (about 550 megs out og
+> > > 1G) and that was what I was trying to test. After freeing some memory
+> > > suspend worked (there was no need to reboot).
+> > 
+> > Well, it looks like we didn't free enough RAM for suspend in this case.
+> > Unfortunately we were below the min watermark for ZONE_NORMAL and
+> > we tried to allocate with GFP_ATOMIC (Nick, shouldn't we fall back to
+> > ZONE_DMA in this case?).
+> > 
+> > I think we can safely ignore the watermarks in swsusp, so probably
+> > we can set PF_MEMALLOC for the current task temporarily and reset
+> > it when we have allocated memory.  Pavel, what do you think?
+> 
+> Seems little hacky but okay to me.
+> 
+> Should not fixing "how much to free" computation to free a bit more be
+> enough to handle this?
 
+Yes, but in that case we'll leave some memory unused. ;-)
 
-Sufficient ECC techniques sould probably recover from the damage.  For a
-first attempt, I'd take 4096-byte pages, not use the first and last 8
-bytes at all, and divide the remaining 4080 bytes into 16 interleaved
-255-byte ECC segments, each using a byte-wide Reed-Solomon code.
-(The fraction of that 255 devoted to ECC is up to you; n-bit-wide
-Reed-Solomon just requires that data + ECC <= (2^n - 1) bytes of n
-bits each.)
-
-For extra hack value, you could detect at boot what parts of your
-log got corrupted and avoid using those parts when logging new data.
-(There are complications...)
-
-It is possible to update RS ECC incrementally, or perhaps it would be
-better to store the tail of the log in some less efficient form (like
-multiple replication) and then pack it into ECC when full.
-
-
-The other thing that might be a problem is that I don't know how long
-refresh stops during reset.  Again, ECC can be your friend.
-(And code for it already exists in lib/reed_solomon/)
+Rafael

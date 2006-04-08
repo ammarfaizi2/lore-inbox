@@ -1,62 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWDHUeV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWDHUeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbWDHUeV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 16:34:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWDHUeV
+	id S1751407AbWDHUeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 16:34:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWDHUeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 16:34:21 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:36058 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751408AbWDHUeU (ORCPT
+	Sat, 8 Apr 2006 16:34:09 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:27087 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751408AbWDHUeH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 16:34:20 -0400
-Date: Sat, 8 Apr 2006 15:28:40 -0500
+	Sat, 8 Apr 2006 16:34:07 -0400
+Date: Sat, 8 Apr 2006 15:27:01 -0500
 From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 1/5] uts namespaces: Implement utsname namespaces
-Message-ID: <20060408202840.GB26403@sergelap.austin.ibm.com>
-References: <20060407095132.455784000@sergelap> <20060407183600.C8A8F19B8FD@sergelap.hallyn.com> <p73hd549o5u.fsf@bragg.suse.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Kirill Korotaev <dev@sw.ru>, herbert@13thfloor.at, devel@openvz.org,
+       sam@vilain.net, xemul@sw.ru, James Morris <jmorris@namei.org>
+Subject: Re: [PATCH 3/7] uts namespaces: use init_utsname when appropriate
+Message-ID: <20060408202701.GA26403@sergelap.austin.ibm.com>
+References: <20060407234815.849357768@sergelap> <20060408045206.EAA8E19B8FF@sergelap.hallyn.com> <m1psjslf1s.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <p73hd549o5u.fsf@bragg.suse.de>
+In-Reply-To: <m1psjslf1s.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Andi Kleen (ak@suse.de):
+Quoting Eric W. Biederman (ebiederm@xmission.com):
 > "Serge E. Hallyn" <serue@us.ibm.com> writes:
 > 
-> > This patch defines the uts namespace and some manipulators.
-> > Adds the uts namespace to task_struct, and initializes a
-> > system-wide init namespace which will continue to be used when
-> > it makes sense.
+> > diff --git a/include/asm-i386/elf.h b/include/asm-i386/elf.h
+> > index 4153d80..8d455e2 100644
+> > --- a/include/asm-i386/elf.h
+> > +++ b/include/asm-i386/elf.h
+> > @@ -108,7 +108,7 @@ typedef struct user_fxsr_struct elf_fpxr
+> >     For the moment, we have only optimizations for the Intel generations,
+> >     but that could change... */
+> >  
+> > -#define ELF_PLATFORM  (system_utsname.machine)
+> > +#define ELF_PLATFORM  (init_utsname()->machine)
+> >  
+> >  #ifdef __KERNEL__
+> >  #define SET_PERSONALITY(ex, ibcs2) do { } while (0)
 > 
-> So to get this straight - you want to add a new pointer to 
-> task_struct for each possible virtualized entity? 
+> I think this one needs to be utsname()->machine.
 > 
-> After you're doing by how many bytes will task_struct be bloated? 
-> I don't think that's a very good approach because you'll crank
-> up the per thread memory overhead which is already far too big
-> in Linux. Also it adds cache foot print and generally makes
-> things slower.
+> Currently it doesn't matter.  But Herbert has expressed
+> the desire to make a machine appear like an older one.
+
+Ok.
+
+> > diff --git a/net/ipv4/ipconfig.c b/net/ipv4/ipconfig.c
+> > index cb8a92f..81db372 100644
+...
+> > @@ -1479,11 +1479,11 @@ static int __init ip_auto_config_setup(c
+> >  			case 4:
+> >  				if ((dp = strchr(ip, '.'))) {
+> >  					*dp++ = '\0';
+> > -					strlcpy(system_utsname.domainname, dp,
+> > - sizeof(system_utsname.domainname));
+> > +					strlcpy(init_utsname()->domainname, dp,
+> > + sizeof(init_utsname()->domainname));
+> >  				}
+> > -				strlcpy(system_utsname.nodename, ip,
+> > -					sizeof(system_utsname.nodename));
+> > +				strlcpy(init_utsname()->nodename, ip,
+> > +					sizeof(init_utsname()->nodename));
+> >  				ic_host_name_set = 1;
+> >  				break;
+> >  			case 5:
 > 
-> If anything I would request using a proxy data structure
-> that contains all the virtualized namespaces for a set
-> of processes. And give each task only has a single pointer
-> to one of these.
+> This also probably makes sense as utsname().  It doesn't
+> really matter as this is before init is executed. But logically
+> this is a user space or per namespace action.
 
-This is something we've been discussing - whether to use a single
-"container" structure pointing to all the namespaces, or put everything
-into the task_struct.  Using container structs means more cache misses
-and refcounting issues, but keeps task_struct smaller as you point out.
+Right, I was kind of favoring using init_utsname() for anything
+__init.  But utsname() will of course work just as well there.
 
-The consensus so far has been to start putting things into task_struct
-and move if needed.  At least the performance numbers show that so far
-there is no impact.
+> > diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+> > index aa8965e..97c8439 100644
+> > --- a/net/sunrpc/clnt.c
+> > +++ b/net/sunrpc/clnt.c
+> > @@ -176,10 +176,10 @@ rpc_new_client(struct rpc_xprt *xprt, ch
+> >  	}
+> >  
+> >  	/* save the nodename */
+> > -	clnt->cl_nodelen = strlen(system_utsname.nodename);
+> > +	clnt->cl_nodelen = strlen(init_utsname()->nodename);
+> >  	if (clnt->cl_nodelen > UNX_MAXNODENAME)
+> >  		clnt->cl_nodelen = UNX_MAXNODENAME;
+> > -	memcpy(clnt->cl_nodename, system_utsname.nodename, clnt->cl_nodelen);
+> > +	memcpy(clnt->cl_nodename, init_utsname()->nodename, clnt->cl_nodelen);
+> >  	return clnt;
+> >  
+> >  out_no_auth:
+> 
+> Using nodename is practically the definition of something
+> that should per namespace I think.  Plus it would be really inconsistent
+> to use utsname() and the init_utsname for the nfs rpc calls.
+> 
+> Unless I am missing something.
 
-iirc container patches have been sent before.  Should those be resent,
-then, and perhaps this patchset rebased on those?
+It seemed like this would be happening in any old context, so that
+current->uts_ns could be any process'.  Tracing it back further,
+it seems like nfs+lockd should have the context available.  So I'll
+switch this as well.
 
 thanks,
 -serge

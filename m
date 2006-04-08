@@ -1,61 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbWDHXYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbWDHXfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965051AbWDHXYi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 19:24:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965053AbWDHXYi
+	id S964918AbWDHXfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 19:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751443AbWDHXfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 19:24:38 -0400
-Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:20916 "EHLO
-	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S965051AbWDHXYh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 19:24:37 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Userland swsusp failure (mm-related)
-Date: Sun, 9 Apr 2006 09:24:04 +1000
-User-Agent: KMail/1.9.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@ucw.cz>,
-       Fabio Comolli <fabio.comolli@gmail.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-References: <b637ec0b0604080537s55e63544r8bb63c887e81ecaf@mail.gmail.com> <20060408161555.GA1722@elf.ucw.cz> <200604090047.17372.rjw@sisk.pl>
-In-Reply-To: <200604090047.17372.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 8 Apr 2006 19:35:25 -0400
+Received: from xenotime.net ([66.160.160.81]:52961 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751441AbWDHXfY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 19:35:24 -0400
+Date: Sat, 8 Apr 2006 16:37:43 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "George P Nychis" <gnychis@cmu.edu>
+Cc: davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: 2.4.32: unresolved symbol unregister_qdisc
+Message-Id: <20060408163743.c59d6e59.rdunlap@xenotime.net>
+In-Reply-To: <33083.128.2.140.234.1144538327.squirrel@128.2.140.234>
+References: <32947.128.2.140.234.1144536454.squirrel@128.2.140.234>
+	<20060408.155430.111013393.davem@davemloft.net>
+	<33083.128.2.140.234.1144538327.squirrel@128.2.140.234>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604090924.04951.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 April 2006 08:47, Rafael J. Wysocki wrote:
-> Hi,
->
-> On Saturday 08 April 2006 18:15, Pavel Machek wrote:
-> > > > This is my first (and unique) failure since I began testing uswsusp
-> > > > (2.6.17-rc1 version). It happened (I think) because more than 50% of
-> > > > physical memory was occupied at suspend time (about 550 megs out og
-> > > > 1G) and that was what I was trying to test. After freeing some memory
-> > > > suspend worked (there was no need to reboot).
-> > >
-> > > Well, it looks like we didn't free enough RAM for suspend in this case.
-> > > Unfortunately we were below the min watermark for ZONE_NORMAL and
-> > > we tried to allocate with GFP_ATOMIC (Nick, shouldn't we fall back to
-> > > ZONE_DMA in this case?).
-> > >
-> > > I think we can safely ignore the watermarks in swsusp, so probably
-> > > we can set PF_MEMALLOC for the current task temporarily and reset
-> > > it when we have allocated memory.  Pavel, what do you think?
-> >
-> > Seems little hacky but okay to me.
-> >
-> > Should not fixing "how much to free" computation to free a bit more be
-> > enough to handle this?
->
-> Yes, but in that case we'll leave some memory unused. ;-)
+On Sat, 8 Apr 2006 19:18:47 -0400 (EDT) George P Nychis wrote:
 
-How's the shrink_all_memory tweaks I sent performing for you Rafael? It may 
-theoretically be prone to the same issue but I tried to make it less likely.
+> Yeah, this module is unfortunately not under the GPL, it was made for research and i am not the author, I was only given the code for my own research.
+> 
+> I enabled that support in the kernel, and then tried to recompile and get tons of errors/warnings... so maybe I am missing something else to be enabled in the kernel... here are a few examples of errors:
+> /usr/include/linux/skbuff.h:30:26: net/checksum.h: No such file or directory
+> /usr/include/asm/irq.h:16:25: irq_vectors.h: No such file or directory
+> /usr/include/linux/irq.h:72: error: `NR_IRQS' undeclared here (not in a function)
+> /usr/include/asm/hw_irq.h:28: error: `NR_IRQ_VECTORS' undeclared here (not in a function)
+> 
+> I think those are the top most errors, so if i can fix those hopefully the rest shall vanish!
 
--- 
--ck
+Looks like a Makefile problem then.  Can you post the Makefile?
+Hopefully it is using a Makefile and not just an elaborate gcc command line.
+
+[and please don't top-post]
+
+> - George
+> 
+> 
+> > From: "George P Nychis" <gnychis@cmu.edu> Date: Sat, 8 Apr 2006 18:47:34
+> > -0400 (EDT)
+> > 
+> >> Hey,
+> >> 
+> >> I have a kernel module that uses unregister_qdisc and register_qdisc,
+> >> whenever i try to insert the module I get: 
+> >> /lib/modules/2.4.32/kernel/net/sched/sch_xcp.o:
+> >> /lib/modules/2.4.32/kernel/net/sched/sch_xcp.o: unresolved symbol
+> >> unregister_qdisc /lib/modules/2.4.32/kernel/net/sched/sch_xcp.o:
+> >> /lib/modules/2.4.32/kernel/net/sched/sch_xcp.o: unresolved symbol
+> >> register_qdisc
+> >> 
+> >> Am i missing some sort of support in the kernel?
+> > 
+> > Make sure CONFIG_NET_SCHED is enabled and that you compiled your module
+> > against that kernel.
+> > 
+> > Where does this sch_xcp come from?  It's not in the vanilla sources.
+> > 
+> > Also, please direct networking questions to the netdev@vger.kernel.org 
+> > mailing list which I have added to the CC:.
+
+---
+~Randy

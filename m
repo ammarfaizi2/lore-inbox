@@ -1,91 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964990AbWDHBjw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbWDHBoc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964990AbWDHBjw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 21:39:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbWDHBjw
+	id S964993AbWDHBoc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 21:44:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbWDHBoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 21:39:52 -0400
-Received: from wproxy.gmail.com ([64.233.184.230]:34292 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964990AbWDHBjv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 21:39:51 -0400
+	Fri, 7 Apr 2006 21:44:32 -0400
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:12110 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964993AbWDHBoc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 21:44:32 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rHPGNQ68uJibL6yQSfwIsTsJvtp+eGVEYDV6IodGtsz2BtG19gJYevcc3lFPMX/vtOw+VGJs97hti1RPNAfLBwyjr7P1984aRTHYtk+PWD9mMcbVHBYeKZTGJu8Z4OguOGFMcWvdBaULFFG+KUtWotbMcm3Wnz5XzkwhtH4qE5s=
-Message-ID: <4ae3c140604071839v1b570d37y57c7e06233028e8f@mail.gmail.com>
-Date: Fri, 7 Apr 2006 21:39:50 -0400
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: "Zach Brown" <zab@zabbo.net>
-Subject: Re: How to know when file data has been flushed into disk?
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-In-Reply-To: <4436A770.3080905@zabbo.net>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=VChrlzJI+dle83x4tYkh9sXGmsEeNx38WkICynPrm12tx/f7GhsAwJarnuxRLpyY1NUjRxojhwsf1aRyqa8zYKKyHWBxdoPk4fBfyd3DxWmD1lSekKkEFiz7FR8/KXX+TDrwuxW12VK2Sd5A2Ic1FezaUCmoFgsAU3lWLrOx+K4=  ;
+Message-ID: <443710F7.3040201@yahoo.com.au>
+Date: Sat, 08 Apr 2006 11:25:11 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4ae3c140604070842x537353c4s9a60706c2a2d25d9@mail.gmail.com>
-	 <4436A770.3080905@zabbo.net>
+To: Con Kolivas <kernel@kolivas.org>
+CC: Andrew Morton <akpm@osdl.org>, ck@vds.kolivas.org,
+       linux list <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: [PATCH] mm: limit lowmem_reserve
+References: <200604021401.13331.kernel@kolivas.org> <200604081015.44771.kernel@kolivas.org> <443709F1.90906@yahoo.com.au> <200604081101.06066.kernel@kolivas.org>
+In-Reply-To: <200604081101.06066.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This answered all my questions! Many thanks! Will check the phase 2 code.
+Con Kolivas wrote:
+> On Saturday 08 April 2006 10:55, Nick Piggin wrote:
+> 
+>>Con Kolivas wrote:
+>>
+>>>On Friday 07 April 2006 22:40, Nick Piggin wrote:
+>>>
+>>>>How would zone_watermark_ok always fail though?
+>>>
+>>>Withdrew this patch a while back; ignore
+>>
+>>Well, whether or not that particular patch isa good idea, it
+>>is definitely a bug if zone_watermark_ok could ever always
+>>fail due to lowmem reserve and we should fix it.
+> 
+> 
+> Ok. I think I presented enough information for why I thought zone_watermark_ok 
+> would fail (for ZONE_DMA). With 16MB ZONE_DMA and a vmsplit of 3GB we have a 
+> lowmem_reserve of 12MB. It's pretty hard to keep that much ZONE_DMA free, I 
+> don't think I've ever seen that much free on my ZONE_DMA on an ordinary 
+> desktop without any particular ZONE_DMA users. Changing the tunable can make 
+> the lowmem_reserve larger than ZONE_DMA is on any vmsplit too as far as I 
+> understand the ratio.
+> 
 
-Xin
+Umm, for ZONE_DMA allocations, ZONE_DMA isn't a lower zone. So that
+12MB protection should never come into it (unless it is buggy?).
 
-
-On 4/7/06, Zach Brown <zab@zabbo.net> wrote:
->
-> > If a program access data like this:
-> >
-> > 1. open the file
-> > 2. write a lot of data into this file
->
-> You don't say if this is an extending write or overwriting existing file
-> data.  I'm going to assume extending writes so that data=ordered kicks in.
->
-> > 3. close the file
->
-> > So my questions are:
-> > 1. How will the file system be notified after all data has been
-> > flushed into disk?
->
-> Look at phase 2 in journal_commit_transaction().  The kjournald thread
-> issues the writeback of the file data by walking t_sync_datalist and
-> then waits for the writeback to complete by using wait_on_buffer()
-> before committing the transaction.
->
-> > 2. Unlike data=journal mode, in data=order mode, the data could be
-> > lost if system crashes when data is being flushed to disk. When system
-> > reboots, does journal contains the old meta data for undo?
->
-> No, ext3 isn't roll-backward.  It doesn't store the *old* data in the
-> journal and undo the change if it fails halfway through.  It's
-> roll-forward.  It stores the *new* data in the journal and replays
-> complete transactions in the journal that weren't moved out to their
-> final place on disk at the time of the crash.
->
-> So if the machine reboots during the writeback phase then the
-> transaction won't be committed yet and recovery won't replay that
-> transaction from the journal.  From the metadata's point of view the
-> file extension will never have happened.
->
-> > 3. Does sys_close() have to  be blocked until all data and metadata
-> > are committed?
->
-> No, and neither does sys_getpid() :)
->
-> > to take subsequent operation. However, data flush could be failed. In
-> > this case, file system seems to mislead the application. Is this true?
->
-> No.  The application has no grounds for assuming that a successful
-> close() has synced previous operations to disk.  It's simply not part of
-> the API.
->
-> > If so, any solutions?
->
-> The application should rely on tools like fsync(), fdatasync(), O_SYNC,
-> mount -o sync, etc.  Whatever suits it best.
->
-> - z
->
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

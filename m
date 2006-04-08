@@ -1,27 +1,27 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbWDHANV (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 7 Apr 2006 20:13:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWDHANV
+	id S1751374AbWDHANb (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 7 Apr 2006 20:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWDHANb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 20:13:21 -0400
+	Fri, 7 Apr 2006 20:13:31 -0400
 Received: from c9263498.bsb.virtua.com.br ([201.38.52.152]:37389 "HELO
-	-1221539096") by vger.kernel.org with SMTP id S1751371AbWDHANU
+	-1221539096") by vger.kernel.org with SMTP id S1751374AbWDHANa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 20:13:20 -0400
-Date: Sat, 08 Apr 2006 09:27:00 -0700
-From: "Visions P. Overplayed" <kataoka@louiskoo.com>
-X-Mailer: The Bat! (v2.00.9) Personal
+	Fri, 7 Apr 2006 20:13:30 -0400
+Date: Sat, 08 Apr 2006 09:27:10 -0700
+From: "Repasting G. Captivity" <barkey@yahoo.com>
+X-Mailer: The Bat! (v2.00.4) Personal
 X-Priority: 3
-Message-ID: <6871849676.20060408092700@louiskoo.com>
+Message-ID: <0070621888.20060408092710@yahoo.com>
 To: Linux <linux-kernel@vger.kernel.org>
-Subject: Archieve new horizons in your carreer
+Subject: Work in our accounting department
 MIME-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: skaner antywirusowy poczty Wirtualnej Polski S. A.
+X-GMX-Antivirus: 0 (no virus found)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751371AbWDHANV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751374AbWDHANb@vger.kernel.org>
 
 Please read this letter attentively! 
 

@@ -1,71 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWDHKCY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbWDHKC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964813AbWDHKCY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 06:02:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWDHKCY
+	id S1751415AbWDHKC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 06:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWDHKC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 06:02:24 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:1500 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751412AbWDHKCX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 06:02:23 -0400
-Date: Sat, 8 Apr 2006 12:02:13 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Frank Pavlic <fpavlic@de.ibm.com>,
-       "David S. Miller" <davem@sunset.davemloft.net>
-Subject: Re: [patch] ipv4: initialize arp_tbl rw lock
-Message-ID: <20060408100213.GA9412@osiris.boeblingen.de.ibm.com>
-References: <20060407081533.GC11353@osiris.boeblingen.de.ibm.com> <20060407074627.2f525b2e@localhost.localdomain>
+	Sat, 8 Apr 2006 06:02:59 -0400
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:656
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S1751415AbWDHKC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 06:02:58 -0400
+Date: Sat, 8 Apr 2006 03:02:43 -0700
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Darren Hart <darren@dvhart.com>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       "Stultz, John" <johnstul@us.ibm.com>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
+Subject: Re: RT task scheduling
+Message-ID: <20060408100243.GA20624@gnuppy.monkey.org>
+References: <200604052025.05679.darren@dvhart.com> <20060407091946.GA28421@elte.hu> <20060407103926.GC11706@gnuppy.monkey.org> <200604070756.21625.darren@dvhart.com> <20060407210633.GA15971@gnuppy.monkey.org> <20060408071657.GA11660@elte.hu> <20060408072530.GA14364@elte.hu> <20060408075430.GA19403@gnuppy.monkey.org> <20060408080349.GA19195@elte.hu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060407074627.2f525b2e@localhost.localdomain>
-User-Agent: mutt-ng/devel-r796 (Linux)
+In-Reply-To: <20060408080349.GA19195@elte.hu>
+User-Agent: Mutt/1.5.11+cvs20060126
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The qeth driver makes use of the arp_tbl rw lock. CONFIG_DEBUG_SPINLOCK
-> > detects that this lock is not initialized as it is supposed to be.
->
-> This is a initialization order problem then, because:
-> 	arp_init
-> 	   neigh_table_init
-> 		rwlock_init
+On Sat, Apr 08, 2006 at 10:03:49AM +0200, Ingo Molnar wrote:
+> * Bill Huey <billh@gnuppy.monkey.org> wrote:
+> > As far as CPU binding goes, I'm wanting a method of getting around the 
+> > latency of the rt overload logic in certain cases at the expense of 
+> > rebalancing. That's what I ment by it.
 > 
-> does the initialization already. So fix the initialization sequence
-> of the qeth driver or you will have other problems.
-> 
-> My impression was the -rt folks wanted all lock initializations t be
-> done at runtime not compile time.
+> yeah, that certainly makes sense, and it's one reason why i'm thinking 
+> about the separate SCHED_FIFO_GLOBAL policy for 'globally scheduled' RT 
+> tasks, while still keeping the current lightweight non-global RT 
+> scheduling. Global scheduling either means a global lock, or as in the 
+> -rt implementation means a "global IPI", but there's always a nontrivial 
+> "global" cost involved.
 
-Ok, so the problem seems to be that inet_init gets called after qeth_init.
-Looking at the top level Makefile this seems to be true for all network
-drivers in drivers/net/ and drivers/s390/net/ since we have
+This is an extremely tricky problem which is why I lean toward manual
+techniques to resolve the issue. All automatic policies seem to fail for
+one reason or another. Significant thought needs to be put to this
+problem and you might not be able to effective address all parts of it.
 
-vmlinux-main := $(core-y) $(libs-y) $(drivers-y) $(net-y)
+It goes far beyond the conventions of SCHED_FIFO itself and really
+forces one to think about what "priority" really is in the context of
+the -rt patch, whether the priority range needs to be extended to a much
+larger range (0-512 or larger) and other issues regarding that. I see
+-rt SCHED_FIFO as a basic building block for other policies (done by
+researchers) that can be faked in userspace (like scheduler activations),
+but policies vary greatly given a typical load characteritic or demands
+of a -rt app. No single policy can fullfill those needs and it's still
+largely a research topic in many areas. Rebalancing in allocation
+schedulers is still voodoo in SMP environments for example.
 
-The patch below works for me... I guess there must be a better way to make
-sure that any networking driver's initcall is made before inet_init?
+Please take this into consideration when thinking about SCHED_FIFO_GLOBAL
+and related topics.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
+bill
 
- Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/Makefile b/Makefile
-index b401942..c5cea07 100644
---- a/Makefile
-+++ b/Makefile
-@@ -567,7 +567,7 @@ #
- # System.map is generated to document addresses of all kernel symbols
- 
- vmlinux-init := $(head-y) $(init-y)
--vmlinux-main := $(core-y) $(libs-y) $(drivers-y) $(net-y)
-+vmlinux-main := $(core-y) $(libs-y) $(net-y) $(drivers-y)
- vmlinux-all  := $(vmlinux-init) $(vmlinux-main)
- vmlinux-lds  := arch/$(ARCH)/kernel/vmlinux.lds
- 

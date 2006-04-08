@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbWDHOSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWDHO2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964959AbWDHOSW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 10:18:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWDHOSW
+	id S964861AbWDHO2X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 10:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWDHO2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 10:18:22 -0400
-Received: from mail.suse.de ([195.135.220.2]:61917 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751390AbWDHOSW (ORCPT
+	Sat, 8 Apr 2006 10:28:23 -0400
+Received: from dvhart.com ([64.146.134.43]:63176 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1750952AbWDHO2W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 10:18:22 -0400
-From: Andi Kleen <ak@suse.de>
-To: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Black box flight recorder for Linux
-Date: Sat, 8 Apr 2006 09:17:39 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <5ZjEd-4ym-37@gated-at.bofh.it> <5ZlZk-7VF-13@gated-at.bofh.it> <4437C335.30107@shaw.ca>
-In-Reply-To: <4437C335.30107@shaw.ca>
+	Sat, 8 Apr 2006 10:28:22 -0400
+Message-ID: <4437C883.20207@mbligh.org>
+Date: Sat, 08 Apr 2006 07:28:19 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org, apw@shadowen.org
+Subject: Re: wierd failures from -mm1
+References: <4436AA05.7020203@mbligh.org>	<1144433309.24221.7.camel@localhost.localdomain>	<4436AD7D.5070307@mbligh.org> <20060407121122.61d7f979.akpm@osdl.org>
+In-Reply-To: <20060407121122.61d7f979.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604080917.39562.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 08 April 2006 16:05, Robert Hancock wrote:
-> Andi Kleen wrote:
-> > James Courtier-Dutton <James@superbug.co.uk> writes:
-> >> Now, the question I have is, if I write values to RAM, do any of those
-> >> values survive a reset?
-> >
-> > They don't generally.
-> >
-> > Some people used to write the oopses into video memory, but that
-> > is not portable.
->
-> I wouldn't think most BIOSes these days would bother to clear system RAM
-> on a reboot. Certainly Microsoft was encouraging vendors not to do this
-> because it slowed down system boot time.to
+Andrew Morton wrote:
+> Martin Bligh <mbligh@mbligh.org> wrote:
+> 
+>>Dave Hansen wrote:
+>> > On Fri, 2006-04-07 at 11:05 -0700, Martin Bligh wrote:
+>> > 
+>> >>http://test.kernel.org/abat/27596/debug/console.log
+>> >>Hangs after bringing up cpus. 
+>> > 
+>> > 
+>> > See attached patch.  It fixes curly.
+>>
+>> Splendid -thanks. This may well fix the first two ... I think the reiser
+>> thing is likely still borked though.
+> 
+> 
+> The reiserfsck problem looks like a failed mlockall.  Reverting
+> mm-posix-memory-lock.patch should fix it.
 
-Reset button is like a cold boot and it generally ends up with cleared 
-RAM.
+Didn't manage to get that test kicked off before you released -mm2,
+which seems to work fine (across the boxes that still work, at least)
 
--Andi
+M.

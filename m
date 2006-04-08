@@ -1,111 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWDHH4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWDHIDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbWDHH4X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 03:56:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWDHH4X
+	id S932290AbWDHIDH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 04:03:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWDHIDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 03:56:23 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24520 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751394AbWDHH4W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 03:56:22 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: oleg@tv-sign.ru, ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH rc1-mm] de_thread: fix deadlockable process addition
-References: <20060406220403.GA205@oleg>
-	<m1acay1fbh.fsf@ebiederm.dsl.xmission.com>
-	<20060407234653.GB11460@oleg> <20060407155113.37d6a3b3.akpm@osdl.org>
-	<20060407155619.18f3c5ec.akpm@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sat, 08 Apr 2006 01:55:10 -0600
-In-Reply-To: <20060407155619.18f3c5ec.akpm@osdl.org> (Andrew Morton's
- message of "Fri, 7 Apr 2006 15:56:19 -0700")
-Message-ID: <m1d5fslcwx.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Sat, 8 Apr 2006 04:03:07 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:38415 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S932290AbWDHIDD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 04:03:03 -0400
+Message-ID: <44376E2E.3020201@aknet.ru>
+Date: Sat, 08 Apr 2006 12:02:54 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: dtor_core@ameritech.net
+Cc: 7eggert@gmx.de, Linux kernel <linux-kernel@vger.kernel.org>,
+       vojtech@suse.cz
+Subject: Re: [patch 1/1] pc-speaker: add SND_SILENT
+References: <5TCqf-E6-49@gated-at.bofh.it> <5TCqf-E6-51@gated-at.bofh.it>	 <5TCqf-E6-53@gated-at.bofh.it> <5TCqg-E6-55@gated-at.bofh.it>	 <5TCqf-E6-47@gated-at.bofh.it> <E1FMv1A-0000fN-Lp@be1.lrz>	 <44266472.5080309@aknet.ru> <d120d5000603270834j79e707ffu760eba3062531b64@mail.gmail.com>
+In-Reply-To: <d120d5000603270834j79e707ffu760eba3062531b64@mail.gmail.com>
+Content-Type: multipart/mixed;
+ boundary="------------020306080708010001080305"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+This is a multi-part message in MIME format.
+--------------020306080708010001080305
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Andrew Morton <akpm@osdl.org> wrote:
->>
->> Oleg Nesterov <oleg@tv-sign.ru> wrote:
->> >
->> > -		if (likely(p->tasks.prev != LIST_POISON2))
->> > +		if (likely(p->tasks.prev != LIST_POISON2)) {
->> 
->> argh.
->> 
->> c'mon guys, we can't put a dependency on list_head poisoning into generic
->> code.
->> 
->
-> A suitable fix might be to add a new list_del_poison() (or
-> list_del_rcu_something()?) and use that everywhere.
->
-> But it should use a different poisoning pattern, so we know that the kernel
-> will still work correctly when someone removes the list_head debugging.
+Hi.
 
-Agreed.  That is ugly.  I would recommend some new functions
-list functions but in thinking about this I believe I see
-how we can avoid this case completely.
+Dmitry Torokhov wrote:
+> etc. All these alternative bells would not disrupt operation of your
+> snd_pcsp module but it still would disable the bell because it does
+> not know better.
+OK, I now used INPUT_DEVICE_ID_MATCH_BUS, and, with something
+like the attached patch, it seems to work. So essentially my
+driver has enough of the knowledge about the device in question,
+and this seems to be possible exactly only with the input subsystem.
+(which makes me confident again that using the input subsystem
+was exactly the right choice :)
+What do you think about that approach?
 
-The first step is to optimize thread_group_leader to be
-defined in terms of tasks and not process ids.  Which
-is one less pointer dereference.
 
-The second step is to modify de_thread to reduce the
-old thread group leader to a thread.  This requires changing the
-leaders parents, changing the leaders thread_group leader, unhashing
-the leader from the process group and session, and removing
-the leader from the task list.
+--------------020306080708010001080305
+Content-Type: text/x-patch;
+ name="input_en.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="input_en.diff"
 
-With those two changes exit.c should not need to account for 
-the de_thread case.
-
-Oleg please take a hard look and see if you can find anything
-that will break with the patch below.
-
-I believe that is all that is needed to cleanly keep do_each_thread
-from seeing a single thread multiple times.
-
-Eric
-
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 541f482..2964a2c 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1203,7 +1203,7 @@ extern void wait_task_inactive(task_t * 
- #define while_each_thread(g, t) \
- 	while ((t = next_thread(t)) != g)
+--- a/include/linux/input.h	2006-04-05 17:10:01.000000000 +0400
++++ b/include/linux/input.h	2006-04-05 17:36:49.000000000 +0400
+@@ -862,7 +862,7 @@
  
--#define thread_group_leader(p)	(p->pid == p->tgid)
-+#define thread_group_leader(p)	(p == p->group_leader)
+ 	struct pt_regs *regs;
+ 	int state;
+-
++	int enabled;
+ 	int sync;
  
- static inline task_t *next_thread(task_t *p)
- {
-
-
-diff --git a/fs/exec.c b/fs/exec.c
-index 0291a68..9b0f9c4 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -721,9 +721,14 @@ static int de_thread(struct task_struct 
- 		list_add_tail(&current->tasks, &init_task.tasks);
+ 	int abs[ABS_MAX + 1];
+@@ -1019,6 +1019,8 @@
+ int input_open_device(struct input_handle *);
+ void input_close_device(struct input_handle *);
  
- 		current->parent = current->real_parent = leader->real_parent;
--		leader->parent = leader->real_parent = child_reaper;
-+		leader->parent = leader->real_parent = current;
- 		current->group_leader = current;
--		leader->group_leader = leader;
-+		leader->group_leader = current;
++void input_enable_device(struct input_handle *handle, int enab);
 +
-+		/* Reduce leader to a thread */
-+		detach_pid(leader, PIDTYPE_PGID, current->signal->pgrp);
-+		detach_pid(leader, PIDTYPE_SID   current->signal->session);
-+		list_del_init(&leader->tasks);
+ int input_accept_process(struct input_handle *handle, struct file *file);
+ int input_flush_device(struct input_handle* handle, struct file* file);
  
- 		add_parent(current);
- 		add_parent(leader);
+--- a/drivers/input/input.c	2006-01-12 11:23:09.000000000 +0300
++++ b/drivers/input/input.c	2006-04-05 17:51:27.000000000 +0400
+@@ -36,6 +36,7 @@
+ EXPORT_SYMBOL(input_release_device);
+ EXPORT_SYMBOL(input_open_device);
+ EXPORT_SYMBOL(input_close_device);
++EXPORT_SYMBOL(input_enable_device);
+ EXPORT_SYMBOL(input_accept_process);
+ EXPORT_SYMBOL(input_flush_device);
+ EXPORT_SYMBOL(input_event);
+@@ -52,7 +53,7 @@
+ {
+ 	struct input_handle *handle;
+ 
+-	if (type > EV_MAX || !test_bit(type, dev->evbit))
++	if (type > EV_MAX || !test_bit(type, dev->evbit) || !dev->enabled)
+ 		return;
+ 
+ 	add_input_randomness(type, code, value);
+@@ -265,6 +266,11 @@
+ 	up(&dev->sem);
+ }
+ 
++void input_enable_device(struct input_handle *handle, int enab)
++{
++	handle->dev->enabled = enab;
++}
++
+ static void input_link_handle(struct input_handle *handle)
+ {
+ 	list_add_tail(&handle->d_node, &handle->dev->h_list);
+@@ -712,6 +718,7 @@
+ 		class_device_initialize(&dev->cdev);
+ 		INIT_LIST_HEAD(&dev->h_list);
+ 		INIT_LIST_HEAD(&dev->node);
++		dev->enabled = 1;
+ 	}
+ 
+ 	return dev;
+
+--------------020306080708010001080305--

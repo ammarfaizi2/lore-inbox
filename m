@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWDHU1V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbWDHUdq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751406AbWDHU1V (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 16:27:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbWDHU1V
+	id S1751403AbWDHUdq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 16:33:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWDHUdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 16:27:21 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:52183 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751403AbWDHU1U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 16:27:20 -0400
-Message-ID: <44381C9A.3050502@zytor.com>
-Date: Sat, 08 Apr 2006 13:27:06 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Sat, 8 Apr 2006 16:33:46 -0400
+Received: from [212.33.163.172] ([212.33.163.172]:19219 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1751403AbWDHUdp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 16:33:45 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
+Date: Sat, 8 Apr 2006 23:31:56 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200604031459.51542.a1426z@gawab.com> <200604080032.28911.a1426z@gawab.com> <443711EC.7070003@bigpond.net.au>
+In-Reply-To: <443711EC.7070003@bigpond.net.au>
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>, Herbert Xu <herbert@gondor.apana.org.au>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org, mm-commits@vger.kernel.org
-Subject: Re: + git-klibc-mktemp-fix.patch added to -mm tree
-References: <200604080707.k38778VV023208@shell0.pdx.osdl.net> <20060408201412.GA26946@mars.ravnborg.org>
-In-Reply-To: <20060408201412.GA26946@mars.ravnborg.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="windows-1256"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200604082331.56715.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> On Sat, Apr 08, 2006 at 12:05:54AM -0700, akpm@osdl.org wrote:
->> diff -puN usr/dash/mkbuiltins~git-klibc-mktemp-fix usr/dash/mkbuiltins
->> --- 25/usr/dash/mkbuiltins~git-klibc-mktemp-fix	Sat Apr  8 14:51:11 2006
->> +++ 25-akpm/usr/dash/mkbuiltins	Sat Apr  8 14:51:11 2006
->> @@ -37,7 +37,7 @@
->>  
->>  tempfile=tempfile
->>  if ! type tempfile > /dev/null 2>&1; then
->> -	tempfile=mktemp
->> +	tempfile="mktemp /tmp/tmp.XXXXXX"
-> 
-> Shouldn't that be:
->> +	tempfile="$(mktemp /tmp/tmp.XXXXXX)"
-> 
+Peter Williams wrote:
+> Al Boldi wrote:
+> > Can you try the attached mem-eater passing it the number of kb to be
+> > eaten.
+> >
+> > 	i.e. '# while :; do ./eatm 9999 ; done'
+> >
+> > This will print the number of bytes eaten and the timing in ms.
+> >
+> > Adjust the number of kb to be eaten such that the timing will be less
+> > than timeslice (120ms by default for spa).  Switch to another vt and
+> > start pressing enter.  A console lockup should follow within seconds for
+> > all spas except ebs.
+>
+> This doesn't seem to present a problem (other than the eatme loop being
+> hard to kill with control-C) on my system using spa_ws with standard
+> settings.  I tried both UP and SMP.  I may be doing something wrong or
+> perhaps don't understand what you mean by a console lock up.
 
-No, it's invoked later on as:
+Switching from one vt to another receives hardly any response.
 
-temp=$($tempfile)
-temp2=$($tempfile)
+This is especially visible in spa_no_frills, and spa_ws recovers from this 
+lockup somewhat and starts exhibiting this problem as a choking behavior.
 
-Either which way; I have a better fix for the bison issue (this all has 
-to do with the fact that make's handling of tools that output more than 
-one file at a time is at the very best insane); however, I'm getting 
-rather unhappy with some of the code in dash.
+Running '# top d.1 (then shift T)' on another vt shows this choking behavior 
+as the proc gets boosted.
 
-In particular, mksyntax.c seems to assume it runs on the same machine 
-that the resulting code is going to execute on, for example, it tries to 
-detect whether or not "char" is signed, but that doesn't work when 
-cross-compiling.
+> When you say "less than the timeslice" how much smaller do you mean?
 
-dash isn't actually necessary in the in-kernel build, although it's a 
-very nice bonus for customizing initramfs to have a shell to glue things 
-together with.
+This depends on your machine's performance.  On my 400MhzP2 UP 128MB, w/ 
+spa_no_frills default settings, looping eatm 9999 takes 63ms per eat and 
+causes the rest of the system to be starved.  Raising kb to 19999 takes 
+126ms which is greater than the default 120ms timeslice and causes no system 
+starvation.
 
-Herbert: can the code be restructured with appropriate casts so that 
-signed/unsigned is factored out of mksyntax?  As it currently stands, 
-it's not cross-compile-safe, which is unacceptable.
+What numbers do you get?
 
-	-hpa
+Thanks!
+
+--
+Al
+

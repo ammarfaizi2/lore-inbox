@@ -1,84 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbWDHB3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964990AbWDHBjw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751391AbWDHB3U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Apr 2006 21:29:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWDHB3U
+	id S964990AbWDHBjw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Apr 2006 21:39:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbWDHBjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Apr 2006 21:29:20 -0400
-Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:31877 "EHLO
-	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751391AbWDHB3T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Apr 2006 21:29:19 -0400
-Message-ID: <443711EC.7070003@bigpond.net.au>
-Date: Sat, 08 Apr 2006 11:29:16 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Fri, 7 Apr 2006 21:39:52 -0400
+Received: from wproxy.gmail.com ([64.233.184.230]:34292 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964990AbWDHBjv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Apr 2006 21:39:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rHPGNQ68uJibL6yQSfwIsTsJvtp+eGVEYDV6IodGtsz2BtG19gJYevcc3lFPMX/vtOw+VGJs97hti1RPNAfLBwyjr7P1984aRTHYtk+PWD9mMcbVHBYeKZTGJu8Z4OguOGFMcWvdBaULFFG+KUtWotbMcm3Wnz5XzkwhtH4qE5s=
+Message-ID: <4ae3c140604071839v1b570d37y57c7e06233028e8f@mail.gmail.com>
+Date: Fri, 7 Apr 2006 21:39:50 -0400
+From: "Xin Zhao" <uszhaoxin@gmail.com>
+To: "Zach Brown" <zab@zabbo.net>
+Subject: Re: How to know when file data has been flushed into disk?
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+In-Reply-To: <4436A770.3080905@zabbo.net>
 MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
-References: <200604031459.51542.a1426z@gawab.com> <200604051116.05270.a1426z@gawab.com> <44344A59.9070007@bigpond.net.au> <200604080032.28911.a1426z@gawab.com>
-In-Reply-To: <200604080032.28911.a1426z@gawab.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 8 Apr 2006 01:29:17 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4ae3c140604070842x537353c4s9a60706c2a2d25d9@mail.gmail.com>
+	 <4436A770.3080905@zabbo.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
-> Peter Williams wrote:
->> Al Boldi wrote:
->>> Peter Williams wrote:
->>>> Al Boldi wrote:
->>>>> Peter Williams wrote:
->>>>>> Al Boldi wrote:
->>>>>>>>>> Control parameters for the scheduler can be read/set via files
->>>>>>>>>> in:
->>>>>>>>>>
->>>>>>>>>> /sys/cpusched/<scheduler>/
->>>>>>> The default values for spa make it really easy to lock up the
->>>>>>> system.
->>>>>> Which one of the SPA schedulers and under what conditions?  I've been
->>>>>> mucking around with these and may have broken something.  If so I'd
->>>>>> like to fix it.
->>>>> spa_no_frills, with a malloc-hog less than timeslice.  Setting
->>>>> promotion_floor to max unlocks the console.
->>>> OK, you could also try increasing the promotion interval.
->>> Seems that this will only delay the lock in spa_svr but not inhibit it.
->> OK. But turning the promotion mechanism off completely (which is what
->> setting the floor to the maximum) runs the risk of a runaway high
->> priority task locking the whole system up.  IMHO the only SPA scheduler
->> where it's safe for the promotion floor to be greater than MAX_RT_PRIO
->> is spa_ebs.  So a better solution is highly desirable.
-> 
-> Yes.
-> 
->> I'd like to fix this problem but don't fully understand what it is.
->> What do you mean by a malloc-hog?  Would it possible for you to give me
->> an example of how to reproduce the problem?
-> 
-> Can you try the attached mem-eater passing it the number of kb to be eaten.
-> 
-> 	i.e. '# while :; do ./eatm 9999 ; done' 
-> 
-> This will print the number of bytes eaten and the timing in ms.
-> 
-> Adjust the number of kb to be eaten such that the timing will be less than 
-> timeslice (120ms by default for spa).  Switch to another vt and start 
-> pressing enter.  A console lockup should follow within seconds for all spas 
-> except ebs.
+This answered all my questions! Many thanks! Will check the phase 2 code.
 
-This doesn't seem to present a problem (other than the eatme loop being 
-hard to kill with control-C) on my system using spa_ws with standard 
-settings.  I tried both UP and SMP.  I may be doing something wrong or 
-perhaps don't understand what you mean by a console lock up.  When you 
-say "less than the timeslice" how much smaller do you mean?
+Xin
 
-Peter
-PS I even managed to do a kernel build with the eatme loop running on a 
-single processor system.
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+On 4/7/06, Zach Brown <zab@zabbo.net> wrote:
+>
+> > If a program access data like this:
+> >
+> > 1. open the file
+> > 2. write a lot of data into this file
+>
+> You don't say if this is an extending write or overwriting existing file
+> data.  I'm going to assume extending writes so that data=ordered kicks in.
+>
+> > 3. close the file
+>
+> > So my questions are:
+> > 1. How will the file system be notified after all data has been
+> > flushed into disk?
+>
+> Look at phase 2 in journal_commit_transaction().  The kjournald thread
+> issues the writeback of the file data by walking t_sync_datalist and
+> then waits for the writeback to complete by using wait_on_buffer()
+> before committing the transaction.
+>
+> > 2. Unlike data=journal mode, in data=order mode, the data could be
+> > lost if system crashes when data is being flushed to disk. When system
+> > reboots, does journal contains the old meta data for undo?
+>
+> No, ext3 isn't roll-backward.  It doesn't store the *old* data in the
+> journal and undo the change if it fails halfway through.  It's
+> roll-forward.  It stores the *new* data in the journal and replays
+> complete transactions in the journal that weren't moved out to their
+> final place on disk at the time of the crash.
+>
+> So if the machine reboots during the writeback phase then the
+> transaction won't be committed yet and recovery won't replay that
+> transaction from the journal.  From the metadata's point of view the
+> file extension will never have happened.
+>
+> > 3. Does sys_close() have to  be blocked until all data and metadata
+> > are committed?
+>
+> No, and neither does sys_getpid() :)
+>
+> > to take subsequent operation. However, data flush could be failed. In
+> > this case, file system seems to mislead the application. Is this true?
+>
+> No.  The application has no grounds for assuming that a successful
+> close() has synced previous operations to disk.  It's simply not part of
+> the API.
+>
+> > If so, any solutions?
+>
+> The application should rely on tools like fsync(), fdatasync(), O_SYNC,
+> mount -o sync, etc.  Whatever suits it best.
+>
+> - z
+>

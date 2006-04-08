@@ -1,96 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbWDHEqV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWDHFzI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965017AbWDHEqV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 00:46:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965018AbWDHEqV
+	id S1751124AbWDHFzI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 01:55:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWDHFzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 00:46:21 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:64239 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965017AbWDHEqU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 00:46:20 -0400
-Subject: Re: RT task scheduling
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Vernon Mauery <vernux@us.ibm.com>
-Cc: Bill Huey <billh@gnuppy.monkey.org>, Darren Hart <dvhltc@us.ibm.com>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       "Stultz, John" <johnstul@us.ibm.com>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-In-Reply-To: <200604072128.36868.vernux@us.ibm.com>
-References: <200604052025.05679.darren@dvhart.com>
-	 <20060407233631.GA17574@gnuppy.monkey.org>
-	 <1144465282.30689.62.camel@localhost.localdomain>
-	 <200604072128.36868.vernux@us.ibm.com>
-Content-Type: text/plain
-Date: Sat, 08 Apr 2006 00:45:49 -0400
-Message-Id: <1144471549.21670.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Sat, 8 Apr 2006 01:55:08 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:30925 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751124AbWDHFzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 01:55:06 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <44374FC0.3070507@s5r6.in-berlin.de>
+Date: Sat, 08 Apr 2006 07:53:04 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: scjody@modernduck.com, linux1394-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] the overdue removal of RAW1394_REQ_ISO_{LISTEN,SEND}
+References: <20060406224706.GD7118@stusta.de>
+In-Reply-To: <20060406224706.GD7118@stusta.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: (0.841) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Vernon,
+Adrian Bunk wrote:
+> This patch contains the overdue removal of the RAW1394_REQ_ISO_SEND and 
+> RAW1394_REQ_ISO_LISTEN request types plus all support code for them.
+[...]
 
+I am not familiar with the isochronous part of Linux' 1394 software 
+stack, so I can't comment whether there are high-profile applications 
+which still did not migrate away from this interface, or did so only 
+recently.
 
-On Fri, 2006-04-07 at 21:28 -0700, Vernon Mauery wrote:
+However I have a few remarks about this patch:
 
-> 1) Deterministic scheduling algorithms (SWSRPS).  Basically, with uniprocessor 
-> systems (or smp with a global run queue), it was really easy to say, run the 
-> highest priority task in the queue.  But when there are several queues that 
-> are independent of each other, it is difficult.  According to SWSRPS, nr_cpus 
-> highest priority runnable tasks should _always_ be running (regardless of 
-> which queue they are on).  This might mean that there are longer latencies a) 
-> to determine the nr_cpus highest priority tasks and b) because of cache 
-> issues.
+  1. You are not only removing the two ioctls but also two EXPORTs and
+     their implementations, i.e. hpsb_listen_channel() and
+     hpsb_make_isopacket().
+     1.a  Nobody scheduled to remove these EXPORTs.
+     1.b  So far we moved unused ieee1394 EXPORTs into #if/#endif blocks
+          and let people reactivate them via kernel config.
 
-Yep, and task cpu dancing.  Everytime a High prio task preempts a lower
-prio RT task, that RT task might be pushed to another CPU.
+  2. If it will be decided to remove or hide the EXPORTs and
+     implementations, then the following should go as well:
+     2.a  EXPORT and implementation of hpsb_unlisten_channel()
+     2.b  struct member hpsb_host.iso_listen_count[]
 
-> 
-> 2) Maximum deterministic latency.  A task should be able to say that if it 
-> relinquishes the processor for now, MAX_LATENCY nanoseconds (or ticks or 
-> whatever you want to measure time in) later, it will be back in time to meet 
-> a deadline.
+  3. These should go regardless of the EXPORTs matter:
+     struct members file_info.listen_channels, file_info.iso_buffer,
+     file_info.iso_buffer_length.
 
-Yep, but the more important thing than latency, is to make your
-deadline.  Sometimes people forget that and just concentrate on latency.
-But that's another story.
-
-
-> 
-> As I understand it, real time is all about determinism.  But there are several 
-> places where we have to focus on determinism to make it all behave as it 
-> should.
-> 
-> Priority A > B > C
-> If a lower priority task C gets run just because it is the highest in that 
-> CPU's run queue while there is a higher priority task B is sleeping while A 
-> runs (on a 2 proc system), this is WRONG.
-
-Argh, terminology is killing us all.  For this to be wrong, B isn't
-"sleeping" it's "waiting" while in the run state.  "Sleeping" means that
-it's not on the run queue and is just waiting for some event.  Which
-would be OK for C to run then.  But if B is on the run queue and in the
-the TASK_RUNNING state, it would be wrong for C to be running somewhere
-where B could be running.
-
->   But then again, we need to make 
-> sure that we can determine the maximum latency to preempt C to run B and try 
-> to minimize that.
-
-And here I don't know of another way besides an IPI to preempt C.  If C
-is in userspace, how would you preempt C right a way if B suddenly wakes
-up on the runqueue of A?
-
-> 
-> Poof!  More smoke in the air.  I hope that clears it up.
-
-It's as clear as my face was in High School ;)
-
--- Steve
-
-
+Perhaps there is even *much* more code which becomes superfluous which I 
+am unable to identify now.
+-- 
+Stefan Richter
+-=====-=-==- -=-- -=---
+http://arcgraph.de/sr/

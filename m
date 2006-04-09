@@ -1,254 +1,290 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWDIPct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWDIPa2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbWDIPct (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 11:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbWDIPcs
+	id S1750789AbWDIPa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 11:30:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbWDIPaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 11:32:48 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:34986 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750780AbWDIP3h (ORCPT
+	Sun, 9 Apr 2006 11:30:20 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:36522 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750789AbWDIPaB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 11:29:37 -0400
-Date: Sun, 9 Apr 2006 17:29:35 +0200 (CEST)
+	Sun, 9 Apr 2006 11:30:01 -0400
+Date: Sun, 9 Apr 2006 17:29:59 +0200 (CEST)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
 To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 13/19] kconfig: add defconfig_list/module option
-Message-ID: <Pine.LNX.4.64.0604091729270.23155@scrub.home>
+Subject: [PATCH 16/19] kconfig: create links in info window
+Message-ID: <Pine.LNX.4.64.0604091729540.23167@scrub.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This makes it possible to change two options which were hardcoded sofar.
-1. Any symbol can now take the role of CONFIG_MODULES
-2. The more useful option is to change the list of default file names,
-   which kconfig uses to load the base configuration if .config isn't
-   available.
+Extend the expression print helper function to allow customization of
+the symbol output and use it to add links to the info window.
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
 ---
 
- init/Kconfig                        |    8 ++++++++
- scripts/kconfig/confdata.c          |   26 +++++++++++---------------
- scripts/kconfig/expr.h              |    1 +
- scripts/kconfig/lkc.h               |    1 +
- scripts/kconfig/menu.c              |   14 ++++++++++++++
- scripts/kconfig/symbol.c            |   15 ++++++++-------
- scripts/kconfig/zconf.tab.c_shipped |   10 +++++++++-
- scripts/kconfig/zconf.y             |   10 +++++++++-
- 8 files changed, 61 insertions(+), 24 deletions(-)
+ scripts/kconfig/expr.c      |   50 +++++++++++++++++++-------------------
+ scripts/kconfig/lkc_proto.h |    2 -
+ scripts/kconfig/qconf.cc    |   57 ++++++++++++++++++++++++++++++++++++++++----
+ scripts/kconfig/qconf.h     |    4 ++-
+ 4 files changed, 81 insertions(+), 32 deletions(-)
 
-Index: linux-2.6-git/init/Kconfig
+Index: linux-2.6-git/scripts/kconfig/expr.c
 ===================================================================
---- linux-2.6-git.orig/init/Kconfig
-+++ linux-2.6-git/init/Kconfig
-@@ -1,3 +1,11 @@
-+config DEFCONFIG_LIST
-+	string
-+	option defconfig_list
-+	default "/lib/modules/$UNAME_RELEASE/.config"
-+	default "/etc/kernel-config"
-+	default "/boot/config-$UNAME_RELEASE"
-+	default "arch/$ARCH/defconfig"
-+
- menu "Code maturity level options"
- 
- config EXPERIMENTAL
-Index: linux-2.6-git/scripts/kconfig/confdata.c
-===================================================================
---- linux-2.6-git.orig/scripts/kconfig/confdata.c
-+++ linux-2.6-git/scripts/kconfig/confdata.c
-@@ -25,15 +25,6 @@ const char conf_def_filename[] = ".confi
- 
- const char conf_defname[] = "arch/$ARCH/defconfig";
- 
--const char *conf_confnames[] = {
--	".config",
--	"/lib/modules/$UNAME_RELEASE/.config",
--	"/etc/kernel-config",
--	"/boot/config-$UNAME_RELEASE",
--	conf_defname,
--	NULL,
--};
--
- static void conf_warning(const char *fmt, ...)
- {
- 	va_list ap;
-@@ -98,16 +89,21 @@ int conf_read_simple(const char *name, i
- 	if (name) {
- 		in = zconf_fopen(name);
- 	} else {
--		const char **names = conf_confnames;
--		name = *names++;
--		if (!name)
--			return 1;
-+		struct property *prop;
-+
-+		name = conf_def_filename;
- 		in = zconf_fopen(name);
- 		if (in)
- 			goto load;
- 		sym_change_count++;
--		while ((name = *names++)) {
--			name = conf_expand_value(name);
-+		if (!sym_defconfig_list)
-+			return 1;
-+
-+		for_all_defaults(sym_defconfig_list, prop) {
-+			if (expr_calc_value(prop->visible.expr) == no ||
-+			    prop->expr->type != E_SYMBOL)
-+				continue;
-+			name = conf_expand_value(prop->expr->left.sym->name);
- 			in = zconf_fopen(name);
- 			if (in) {
- 				printf(_("#\n"
-Index: linux-2.6-git/scripts/kconfig/expr.h
-===================================================================
---- linux-2.6-git.orig/scripts/kconfig/expr.h
-+++ linux-2.6-git/scripts/kconfig/expr.h
-@@ -156,6 +156,7 @@ struct file *lookup_file(const char *nam
- 
- extern struct symbol symbol_yes, symbol_no, symbol_mod;
- extern struct symbol *modules_sym;
-+extern struct symbol *sym_defconfig_list;
- extern int cdebug;
- struct expr *expr_alloc_symbol(struct symbol *sym);
- struct expr *expr_alloc_one(enum expr_type type, struct expr *ce);
-Index: linux-2.6-git/scripts/kconfig/lkc.h
-===================================================================
---- linux-2.6-git.orig/scripts/kconfig/lkc.h
-+++ linux-2.6-git/scripts/kconfig/lkc.h
-@@ -104,6 +104,7 @@ const char *str_get(struct gstr *gs);
- /* symbol.c */
- void sym_init(void);
- void sym_clear_all_valid(void);
-+void sym_set_all_changed(void);
- void sym_set_changed(struct symbol *sym);
- struct symbol *sym_check_deps(struct symbol *sym);
- struct property *prop_alloc(enum prop_type type, struct symbol *sym);
-Index: linux-2.6-git/scripts/kconfig/menu.c
-===================================================================
---- linux-2.6-git.orig/scripts/kconfig/menu.c
-+++ linux-2.6-git/scripts/kconfig/menu.c
-@@ -154,6 +154,20 @@ void menu_add_symbol(enum prop_type type
- 
- void menu_add_option(int token, char *arg)
- {
-+	struct property *prop;
-+
-+	switch (token) {
-+	case T_OPT_MODULES:
-+		prop = prop_alloc(P_DEFAULT, modules_sym);
-+		prop->expr = expr_alloc_symbol(current_entry->sym);
-+		break;
-+	case T_OPT_DEFCONFIG_LIST:
-+		if (!sym_defconfig_list)
-+			sym_defconfig_list = current_entry->sym;
-+		else if (sym_defconfig_list != current_entry->sym)
-+			zconf_error("trying to redefine defconfig symbol");
-+		break;
-+	}
+--- linux-2.6-git.orig/scripts/kconfig/expr.c
++++ linux-2.6-git/scripts/kconfig/expr.c
+@@ -1013,73 +1013,73 @@ int expr_compare_type(enum expr_type t1,
+ #endif
  }
  
- static int menu_range_valid_sym(struct symbol *sym, struct symbol *sym2)
-Index: linux-2.6-git/scripts/kconfig/symbol.c
-===================================================================
---- linux-2.6-git.orig/scripts/kconfig/symbol.c
-+++ linux-2.6-git/scripts/kconfig/symbol.c
-@@ -31,6 +31,7 @@ struct symbol symbol_yes = {
- };
- 
- int sym_change_count;
-+struct symbol *sym_defconfig_list;
- struct symbol *modules_sym;
- tristate modules_val;
- 
-@@ -352,10 +353,13 @@ void sym_calc_value(struct symbol *sym)
- 		sym->curr.val = sym_calc_choice(sym);
- 	sym_validate_range(sym);
- 
--	if (memcmp(&oldval, &sym->curr, sizeof(oldval)))
-+	if (memcmp(&oldval, &sym->curr, sizeof(oldval))) {
- 		sym_set_changed(sym);
--	if (modules_sym == sym)
--		modules_val = modules_sym->curr.tri;
-+		if (modules_sym == sym) {
-+			sym_set_all_changed();
-+			modules_val = modules_sym->curr.tri;
-+		}
-+	}
- 
- 	if (sym_is_choice(sym)) {
- 		int flags = sym->flags & (SYMBOL_CHANGED | SYMBOL_WRITE);
-@@ -449,11 +453,8 @@ bool sym_set_tristate_value(struct symbo
+-void expr_print(struct expr *e, void (*fn)(void *, const char *), void *data, int prevtoken)
++void expr_print(struct expr *e, void (*fn)(void *, struct symbol *, const char *), void *data, int prevtoken)
+ {
+ 	if (!e) {
+-		fn(data, "y");
++		fn(data, NULL, "y");
+ 		return;
  	}
  
- 	sym->def[S_DEF_USER].tri = val;
--	if (oldval != val) {
-+	if (oldval != val)
- 		sym_clear_all_valid();
--		if (sym == modules_sym)
--			sym_set_all_changed();
--	}
- 
- 	return true;
+ 	if (expr_compare_type(prevtoken, e->type) > 0)
+-		fn(data, "(");
++		fn(data, NULL, "(");
+ 	switch (e->type) {
+ 	case E_SYMBOL:
+ 		if (e->left.sym->name)
+-			fn(data, e->left.sym->name);
++			fn(data, e->left.sym, e->left.sym->name);
+ 		else
+-			fn(data, "<choice>");
++			fn(data, NULL, "<choice>");
+ 		break;
+ 	case E_NOT:
+-		fn(data, "!");
++		fn(data, NULL, "!");
+ 		expr_print(e->left.expr, fn, data, E_NOT);
+ 		break;
+ 	case E_EQUAL:
+-		fn(data, e->left.sym->name);
+-		fn(data, "=");
+-		fn(data, e->right.sym->name);
++		fn(data, e->left.sym, e->left.sym->name);
++		fn(data, NULL, "=");
++		fn(data, e->right.sym, e->right.sym->name);
+ 		break;
+ 	case E_UNEQUAL:
+-		fn(data, e->left.sym->name);
+-		fn(data, "!=");
+-		fn(data, e->right.sym->name);
++		fn(data, e->left.sym, e->left.sym->name);
++		fn(data, NULL, "!=");
++		fn(data, e->right.sym, e->right.sym->name);
+ 		break;
+ 	case E_OR:
+ 		expr_print(e->left.expr, fn, data, E_OR);
+-		fn(data, " || ");
++		fn(data, NULL, " || ");
+ 		expr_print(e->right.expr, fn, data, E_OR);
+ 		break;
+ 	case E_AND:
+ 		expr_print(e->left.expr, fn, data, E_AND);
+-		fn(data, " && ");
++		fn(data, NULL, " && ");
+ 		expr_print(e->right.expr, fn, data, E_AND);
+ 		break;
+ 	case E_CHOICE:
+-		fn(data, e->right.sym->name);
++		fn(data, e->right.sym, e->right.sym->name);
+ 		if (e->left.expr) {
+-			fn(data, " ^ ");
++			fn(data, NULL, " ^ ");
+ 			expr_print(e->left.expr, fn, data, E_CHOICE);
+ 		}
+ 		break;
+ 	case E_RANGE:
+-		fn(data, "[");
+-		fn(data, e->left.sym->name);
+-		fn(data, " ");
+-		fn(data, e->right.sym->name);
+-		fn(data, "]");
++		fn(data, NULL, "[");
++		fn(data, e->left.sym, e->left.sym->name);
++		fn(data, NULL, " ");
++		fn(data, e->right.sym, e->right.sym->name);
++		fn(data, NULL, "]");
+ 		break;
+ 	default:
+ 	  {
+ 		char buf[32];
+ 		sprintf(buf, "<unknown type %d>", e->type);
+-		fn(data, buf);
++		fn(data, NULL, buf);
+ 		break;
+ 	  }
+ 	}
+ 	if (expr_compare_type(prevtoken, e->type) > 0)
+-		fn(data, ")");
++		fn(data, NULL, ")");
  }
-Index: linux-2.6-git/scripts/kconfig/zconf.tab.c_shipped
+ 
+-static void expr_print_file_helper(void *data, const char *str)
++static void expr_print_file_helper(void *data, struct symbol *sym, const char *str)
+ {
+ 	fwrite(str, strlen(str), 1, data);
+ }
+@@ -1089,7 +1089,7 @@ void expr_fprint(struct expr *e, FILE *o
+ 	expr_print(e, expr_print_file_helper, out, E_NONE);
+ }
+ 
+-static void expr_print_gstr_helper(void *data, const char *str)
++static void expr_print_gstr_helper(void *data, struct symbol *sym, const char *str)
+ {
+ 	str_append((struct gstr*)data, str);
+ }
+Index: linux-2.6-git/scripts/kconfig/lkc_proto.h
 ===================================================================
---- linux-2.6-git.orig/scripts/kconfig/zconf.tab.c_shipped
-+++ linux-2.6-git/scripts/kconfig/zconf.tab.c_shipped
-@@ -2112,7 +2112,9 @@ void conf_parse(const char *name)
+--- linux-2.6-git.orig/scripts/kconfig/lkc_proto.h
++++ linux-2.6-git/scripts/kconfig/lkc_proto.h
+@@ -39,4 +39,4 @@ P(prop_get_type_name,const char *,(enum 
  
- 	sym_init();
- 	menu_init();
--	modules_sym = sym_lookup("MODULES", 0);
-+	modules_sym = sym_lookup(NULL, 0);
-+	modules_sym->type = S_BOOLEAN;
-+	modules_sym->flags |= SYMBOL_AUTO;
- 	rootmenu.prompt = menu_add_prompt(P_MENU, "Linux Kernel Configuration", NULL);
- 
- #if YYDEBUG
-@@ -2122,6 +2124,12 @@ void conf_parse(const char *name)
- 	zconfparse();
- 	if (zconfnerrs)
- 		exit(1);
-+	if (!modules_sym->prop) {
-+		struct property *prop;
-+
-+		prop = prop_alloc(P_DEFAULT, modules_sym);
-+		prop->expr = expr_alloc_symbol(sym_lookup("MODULES", 0));
-+	}
- 	menu_finalize(&rootmenu);
- 	for_all_symbols(i, sym) {
- 		sym_check_deps(sym);
-Index: linux-2.6-git/scripts/kconfig/zconf.y
+ /* expr.c */
+ P(expr_compare_type,int,(enum expr_type t1, enum expr_type t2));
+-P(expr_print,void,(struct expr *e, void (*fn)(void *, const char *), void *data, int prevtoken));
++P(expr_print,void,(struct expr *e, void (*fn)(void *, struct symbol *, const char *), void *data, int prevtoken));
+Index: linux-2.6-git/scripts/kconfig/qconf.cc
 ===================================================================
---- linux-2.6-git.orig/scripts/kconfig/zconf.y
-+++ linux-2.6-git/scripts/kconfig/zconf.y
-@@ -481,7 +481,9 @@ void conf_parse(const char *name)
+--- linux-2.6-git.orig/scripts/kconfig/qconf.cc
++++ linux-2.6-git/scripts/kconfig/qconf.cc
+@@ -925,6 +925,8 @@ void ConfigInfoView::setShowDebug(bool b
+ 		_showDebug = b;
+ 		if (menu)
+ 			menuInfo();
++		else if (sym)
++			symbolInfo();
+ 		emit showDebugChanged(b);
+ 	}
+ }
+@@ -943,15 +945,44 @@ void ConfigInfoView::setSource(const QSt
+ 	const char *p = name.latin1();
  
- 	sym_init();
- 	menu_init();
--	modules_sym = sym_lookup("MODULES", 0);
-+	modules_sym = sym_lookup(NULL, 0);
-+	modules_sym->type = S_BOOLEAN;
-+	modules_sym->flags |= SYMBOL_AUTO;
- 	rootmenu.prompt = menu_add_prompt(P_MENU, "Linux Kernel Configuration", NULL);
+ 	menu = NULL;
++	sym = NULL;
  
- #if YYDEBUG
-@@ -491,6 +493,12 @@ void conf_parse(const char *name)
- 	zconfparse();
- 	if (zconfnerrs)
- 		exit(1);
-+	if (!modules_sym->prop) {
-+		struct property *prop;
+ 	switch (p[0]) {
+ 	case 'm':
+-		if (sscanf(p, "m%p", &menu) == 1)
++		struct menu *m;
 +
-+		prop = prop_alloc(P_DEFAULT, modules_sym);
-+		prop->expr = expr_alloc_symbol(sym_lookup("MODULES", 0));
-+	}
- 	menu_finalize(&rootmenu);
- 	for_all_symbols(i, sym) {
- 		sym_check_deps(sym);
++		if (sscanf(p, "m%p", &m) == 1 && menu != m) {
++			menu = m;
+ 			menuInfo();
++		}
++		break;
++	case 's':
++		struct symbol *s;
++
++		if (sscanf(p, "s%p", &s) == 1 && sym != s) {
++			sym = s;
++			symbolInfo();
++		}
+ 		break;
+ 	}
+ }
+ 
++void ConfigInfoView::symbolInfo(void)
++{
++	QString str;
++
++	str += "<big>Symbol: <b>";
++	str += print_filter(sym->name);
++	str += "</b></big><br><br>value: ";
++	str += print_filter(sym_get_string_value(sym));
++	str += "<br>visibility: ";
++	str += sym->visible == yes ? "y" : sym->visible == mod ? "m" : "n";
++	str += "<br>";
++	str += debug_info(sym);
++
++	setText(str);
++}
++
+ void ConfigInfoView::menuInfo(void)
+ {
+ 	struct symbol* sym;
+@@ -965,12 +996,20 @@ void ConfigInfoView::menuInfo(void)
+ 			head += "</b></big>";
+ 			if (sym->name) {
+ 				head += " (";
++				if (showDebug())
++					head += QString().sprintf("<a href=\"s%p\">", sym);
+ 				head += print_filter(sym->name);
++				if (showDebug())
++					head += "</a>";
+ 				head += ")";
+ 			}
+ 		} else if (sym->name) {
+ 			head += "<big><b>";
++			if (showDebug())
++				head += QString().sprintf("<a href=\"s%p\">", sym);
+ 			head += print_filter(sym->name);
++			if (showDebug())
++				head += "</a>";
+ 			head += "</b></big>";
+ 		}
+ 		head += "<br><br>";
+@@ -1015,9 +1054,9 @@ QString ConfigInfoView::debug_info(struc
+ 		switch (prop->type) {
+ 		case P_PROMPT:
+ 		case P_MENU:
+-			debug += "prompt: ";
++			debug += QString().sprintf("prompt: <a href=\"m%p\">", prop->menu);
+ 			debug += print_filter(_(prop->text));
+-			debug += "<br>";
++			debug += "</a><br>";
+ 			break;
+ 		case P_DEFAULT:
+ 			debug += "default: ";
+@@ -1088,9 +1127,17 @@ QString ConfigInfoView::print_filter(con
+ 	return res;
+ }
+ 
+-void ConfigInfoView::expr_print_help(void *data, const char *str)
++void ConfigInfoView::expr_print_help(void *data, struct symbol *sym, const char *str)
+ {
+-	reinterpret_cast<QString*>(data)->append(print_filter(str));
++	QString* text = reinterpret_cast<QString*>(data);
++	QString str2 = print_filter(str);
++
++	if (sym && sym->name && !(sym->flags & SYMBOL_CONST)) {
++		*text += QString().sprintf("<a href=\"s%p\">", sym);
++		*text += str2;
++		*text += "</a>";
++	} else
++		*text += str2;
+ }
+ 
+ QPopupMenu* ConfigInfoView::createPopupMenu(const QPoint& pos)
+Index: linux-2.6-git/scripts/kconfig/qconf.h
+===================================================================
+--- linux-2.6-git.orig/scripts/kconfig/qconf.h
++++ linux-2.6-git/scripts/kconfig/qconf.h
+@@ -260,13 +260,15 @@ signals:
+ 	void showDebugChanged(bool);
+ 
+ protected:
++	void symbolInfo(void);
+ 	void menuInfo(void);
+ 	QString debug_info(struct symbol *sym);
+ 	static QString print_filter(const QString &str);
+-	static void expr_print_help(void *data, const char *str);
++	static void expr_print_help(void *data, struct symbol *sym, const char *str);
+ 	QPopupMenu* createPopupMenu(const QPoint& pos);
+ 	void contentsContextMenuEvent(QContextMenuEvent *e);
+ 
++	struct symbol *sym;
+ 	struct menu *menu;
+ 	bool _showDebug;
+ };

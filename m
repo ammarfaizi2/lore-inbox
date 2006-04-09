@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWDINHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWDINTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbWDINHe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 09:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWDINHe
+	id S1750740AbWDINTX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 09:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWDINTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 09:07:34 -0400
-Received: from ns.suse.de ([195.135.220.2]:49626 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750745AbWDINHd (ORCPT
+	Sun, 9 Apr 2006 09:19:23 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:41192 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750740AbWDINTW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 09:07:33 -0400
-Date: Sun, 9 Apr 2006 15:07:30 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: isdn4linux@listserv.isdn4linux.de, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/isdn/capi/capiutil.c: unexport capi_message2str
-Message-ID: <20060409130730.GA27948@pingi.kke.suse.de>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	isdn4linux@listserv.isdn4linux.de, linux-kernel@vger.kernel.org
-References: <20060407211736.GO7118@stusta.de>
+	Sun, 9 Apr 2006 09:19:22 -0400
+Date: Sun, 9 Apr 2006 15:16:49 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Darren Hart <darren@dvhart.com>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       "Stultz, John" <johnstul@us.ibm.com>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: RT task scheduling
+Message-ID: <20060409131649.GA19082@elte.hu>
+References: <200604052025.05679.darren@dvhart.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060407211736.GO7118@stusta.de>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.13-15.7-smp x86_64
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200604052025.05679.darren@dvhart.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 07, 2006 at 11:17:36PM +0200, Adrian Bunk wrote:
-> This patch removes an unused EXPORT_SYMBOL.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.17-rc1-mm1-full/drivers/isdn/capi/capiutil.c.old	2006-04-07 10:47:30.000000000 +0200
-> +++ linux-2.6.17-rc1-mm1-full/drivers/isdn/capi/capiutil.c	2006-04-07 10:47:37.000000000 +0200
-> @@ -855,5 +855,4 @@
->  EXPORT_SYMBOL(capi_cmsg_header);
->  EXPORT_SYMBOL(capi_cmd2str);
->  EXPORT_SYMBOL(capi_cmsg2str);
-> -EXPORT_SYMBOL(capi_message2str);
->  EXPORT_SYMBOL(capi_info2str);
-> 
 
-Yes it is currently unused, but part of the CAPI driver SDK for supporting
-debug messages in capi drivers, so I would tend to let it exported, if here
-are not strong arguments against exporting it.
+* Darren Hart <darren@dvhart.com> wrote:
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+> My last mail specifically addresses preempt-rt, but I'd like to know 
+> people's thoughts regarding this issue in the mainline kernel.  Please 
+> see my previous post "realtime-preempt scheduling - rt_overload 
+> behavior" for a testcase that produces unpredictable scheduling 
+> results.
+
+thanks for the testcase! It indeed triggered a bug in the -rt tree's 
+"RT-overload" balancing feature. The nature of the bug made it trigger 
+much less likely on 2-way boxes (where i do most of my -rt testing), 
+probably that's why it didnt get discovered before. I've uploaded the 
+-rt14 tree with this bug fixed - does it fix the failures for you?
+
+	Ingo

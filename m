@@ -1,59 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbWDISG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWDISHu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750833AbWDISG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 14:06:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbWDISG4
+	id S1750837AbWDISHu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 14:07:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWDISHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 14:06:56 -0400
-Received: from mail.gmx.de ([213.165.64.20]:45963 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750833AbWDISG4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 14:06:56 -0400
-X-Authenticated: #14349625
-Subject: Re: [patch][rfc] quell interactive feeding frenzy
-From: Mike Galbraith <efault@gmx.de>
-To: bert hubert <bert.hubert@netherlabs.nl>
-Cc: Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Peter Williams <pwil3058@bigpond.net.au>
-In-Reply-To: <20060409121436.GA28075@outpost.ds9a.nl>
-References: <1144402690.7857.31.camel@homer>
-	 <200604072256.27665.kernel@kolivas.org> <1144417064.8114.26.camel@homer>
-	 <200604072356.03580.kernel@kolivas.org> <1144419294.14231.7.camel@homer>
-	 <20060409111436.GA26533@outpost.ds9a.nl> <1144582778.13991.10.camel@homer>
-	 <20060409121436.GA28075@outpost.ds9a.nl>
-Content-Type: text/plain
-Date: Sun, 09 Apr 2006 20:07:41 +0200
-Message-Id: <1144606061.7408.14.camel@homer>
+	Sun, 9 Apr 2006 14:07:50 -0400
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:53265 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1750835AbWDISHt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Apr 2006 14:07:49 -0400
+Date: Sun, 9 Apr 2006 20:07:35 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [PATCH] PCI: Use new PCI_CLASS_SERIAL_USB_* defines
+Message-Id: <20060409200735.822a1c30.khali@linux-fr.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-04-09 at 14:14 +0200, bert hubert wrote:
-> On Sun, Apr 09, 2006 at 01:39:38PM +0200, Mike Galbraith wrote:
-> > Ok, unusable may be overstated.  Nonetheless, that bit of code causes
-> > serious problems.  It makes my little PIII/500 test box trying to fill
-> > one 100Mbit local network unusable.  That is not overstated.
-> 
-> If you try to make a PIII/500 fill 100mbit of TCP/IP using lots of different
-> processes, that IS a corner load.
->  
-> I'm sure you can fix this (rare) workload but are you very sure you are not
-> killing off performance for other situations?
+We could use the recently added PCI_CLASS_SERIAL_USB_UHCI,
+PCI_CLASS_SERIAL_USB_OHCI and PCI_CLASS_SERIAL_USB_EHCI defines in
+more places, for slightly shorter and clearer code.
 
-Rare?  What exactly is rare about a number of tasks serving data?  I
-don't care if it's a P4 serving gigabit.  If you have to divide your
-server into pieces (you do, and you know it) you're screwed. 
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+---
+ arch/powerpc/platforms/powermac/pci.c |    2 +-
+ drivers/usb/host/ehci-pci.c           |    2 +-
+ drivers/usb/host/ohci-pci.c           |    2 +-
+ drivers/usb/host/uhci-hcd.c           |    2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
-> I get flashbacks to the old days of the VM where we had lots patches around
-> that would all solve (more or less) real problems, but never all at the same
-> time..
+--- linux-2.6.17-rc1.orig/arch/powerpc/platforms/powermac/pci.c	2006-04-03 20:12:30.000000000 +0200
++++ linux-2.6.17-rc1/arch/powerpc/platforms/powermac/pci.c	2006-04-09 19:12:07.000000000 +0200
+@@ -1097,7 +1097,7 @@
+ 	 * (iBook second controller)
+ 	 */
+ 	if (dev->vendor == PCI_VENDOR_ID_APPLE
+-	    && (dev->class == ((PCI_CLASS_SERIAL_USB << 8) | 0x10))
++	    && dev->class == PCI_CLASS_SERIAL_USB_OHCI
+ 	    && !node) {
+ 		printk(KERN_INFO "Apple USB OHCI %s disabled by firmware\n",
+ 		       pci_name(dev));
+--- linux-2.6.17-rc1.orig/drivers/usb/host/ehci-pci.c	2006-04-03 20:13:10.000000000 +0200
++++ linux-2.6.17-rc1/drivers/usb/host/ehci-pci.c	2006-04-09 19:12:44.000000000 +0200
+@@ -350,7 +350,7 @@
+ /* PCI driver selection metadata; PCI hotplugging uses this */
+ static const struct pci_device_id pci_ids [] = { {
+ 	/* handle any USB 2.0 EHCI controller */
+-	PCI_DEVICE_CLASS(((PCI_CLASS_SERIAL_USB << 8) | 0x20), ~0),
++	PCI_DEVICE_CLASS(PCI_CLASS_SERIAL_USB_EHCI, ~0),
+ 	.driver_data =	(unsigned long) &ehci_pci_hc_driver,
+ 	},
+ 	{ /* end: all zeroes */ }
+--- linux-2.6.17-rc1.orig/drivers/usb/host/ohci-pci.c	2006-04-03 20:13:10.000000000 +0200
++++ linux-2.6.17-rc1/drivers/usb/host/ohci-pci.c	2006-04-09 19:12:27.000000000 +0200
+@@ -206,7 +206,7 @@
+ 
+ static const struct pci_device_id pci_ids [] = { {
+ 	/* handle any USB OHCI controller */
+-	PCI_DEVICE_CLASS((PCI_CLASS_SERIAL_USB << 8) | 0x10, ~0),
++	PCI_DEVICE_CLASS(PCI_CLASS_SERIAL_USB_OHCI, ~0),
+ 	.driver_data =	(unsigned long) &ohci_pci_hc_driver,
+ 	}, { /* end: all zeroes */ }
+ };
+--- linux-2.6.17-rc1.orig/drivers/usb/host/uhci-hcd.c	2006-04-03 20:13:10.000000000 +0200
++++ linux-2.6.17-rc1/drivers/usb/host/uhci-hcd.c	2006-04-09 19:10:16.000000000 +0200
+@@ -861,7 +861,7 @@
+ 
+ static const struct pci_device_id uhci_pci_ids[] = { {
+ 	/* handle any USB UHCI controller */
+-	PCI_DEVICE_CLASS(((PCI_CLASS_SERIAL_USB << 8) | 0x00), ~0),
++	PCI_DEVICE_CLASS(PCI_CLASS_SERIAL_USB_UHCI, ~0),
+ 	.driver_data =	(unsigned long) &uhci_driver,
+ 	}, { /* end: all zeroes */ }
+ };
 
-I choose to take the high road here, and will not respond.
 
-	-Mike
-
+-- 
+Jean Delvare

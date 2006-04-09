@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWDITMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWDITRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbWDITMc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 15:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWDITMc
+	id S1750911AbWDITRm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 15:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750912AbWDITRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 15:12:32 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:22434 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750835AbWDITMc (ORCPT
+	Sun, 9 Apr 2006 15:17:42 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:29602 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750908AbWDITRm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 15:12:32 -0400
-Message-ID: <44395C98.7010208@garzik.org>
-Date: Sun, 09 Apr 2006 15:12:24 -0400
+	Sun, 9 Apr 2006 15:17:42 -0400
+Message-ID: <44395DD2.8080700@garzik.org>
+Date: Sun, 09 Apr 2006 15:17:38 -0400
 From: Jeff Garzik <jeff@garzik.org>
 User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Nick Orlov <bugfixer@list.ru>, linux-kernel@vger.kernel.org, axboe@suse.de,
-       James.Bottomley@SteelEye.com
-Subject: Re: 2.6.17-rc1-mm2: badness in 3w_xxxx driver
-References: <20060409182306.GA4680@nickolas.homeunix.com> <20060409113240.630b9a24.akpm@osdl.org>
-In-Reply-To: <20060409113240.630b9a24.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386/x86-64: Return defined error value for bad PCI config
+ space accesses
+References: <200604091900.k39J0uVn013016@hera.kernel.org>
+In-Reply-To: <200604091900.k39J0uVn013016@hera.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: -3.8 (---)
 X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
@@ -28,74 +28,46 @@ X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nick Orlov <bugfixer@list.ru> wrote:
->> The following patch: x86-kmap_atomic-debugging.patch exposed a badness
->> in 3w_xxx driver.
-> 
-> Sweet, thanks.
-> 
->> I'm getting a lot of:
->>
->> Apr  9 13:00:04 nickolas kernel: kmap_atomic: local irqs are enabled while using KM_IRQn
->> Apr  9 13:00:04 nickolas kernel:  <c0104103> show_trace+0x13/0x20   <c010412e> dump_stack+0x1e/0x20
->> Apr  9 13:00:04 nickolas kernel:  <c01159c9> kmap_atomic+0x79/0xe0   <c028b885> tw_transfer_internal+0x85/0xa0
->> Apr  9 13:00:04 nickolas kernel:  <c028ca7e> tw_interrupt+0x3fe/0x820   <c0143b9e> handle_IRQ_event+0x3e/0x80
->> Apr  9 13:00:04 nickolas kernel:  <c0143c70> __do_IRQ+0x90/0x100   <c01057a6> do_IRQ+0x26/0x40
->> Apr  9 13:00:04 nickolas kernel:  <c010396e> common_interrupt+0x1a/0x20   <c0101cdd> cpu_idle+0x4d/0xb0
->> Apr  9 13:00:04 nickolas kernel:  <c010f2cc> start_secondary+0x24c/0x4b0   <00000000> 0x0
->> Apr  9 13:00:04 nickolas kernel:  <c214ffb4> 0xc214ffb4  
->>
->> I'm running 32 bit kernel on AMD64x2 w/ HIGHMEM enabled.
->> I think this is an old bug since the 3w_xxxx.c has not been changed for
->> a long time (at least since 2.6.16-rc1-mm4).
->>
->> Please let me know if you want me to try some patches.
->>
-> 
-> 
-> From: Andrew Morton <akpm@osdl.org>
-> 
-> We must disable local IRQs while holding KM_IRQ0 or KM_IRQ1.  Otherwise, an
-> IRQ handler could use those kmap slots while this code is using them,
-> resulting in memory corruption.
-> 
-> Thanks to Nick Orlov <bugfixer@list.ru> for reporting.
-> 
-> Cc: <linuxraid@amcc.com>
-> Cc: James Bottomley <James.Bottomley@SteelEye.com>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> ---
-> 
->  drivers/scsi/3w-xxxx.c |    3 +++
->  1 files changed, 3 insertions(+)
-> 
-> diff -puN drivers/scsi/3w-xxxx.c~3ware-kmap_atomic-fix drivers/scsi/3w-xxxx.c
-> --- devel/drivers/scsi/3w-xxxx.c~3ware-kmap_atomic-fix	2006-04-09 11:28:08.000000000 -0700
-> +++ devel-akpm/drivers/scsi/3w-xxxx.c	2006-04-09 11:29:21.000000000 -0700
-> @@ -1508,10 +1508,12 @@ static void tw_transfer_internal(TW_Devi
->  	struct scsi_cmnd *cmd = tw_dev->srb[request_id];
->  	void *buf;
->  	unsigned int transfer_len;
-> +	unsigned long flags = 0;
+Linux Kernel Mailing List wrote:
+> -	if (!value || (bus > 255) || (devfn > 255) || (reg > 255))
+> +	if (!value || (bus > 255) || (devfn > 255) || (reg > 255)) {
+> +		*value = -1;
+>  		return -EINVAL;
+> +	}
 >  
->  	if (cmd->use_sg) {
->  		struct scatterlist *sg =
->  			(struct scatterlist *)cmd->request_buffer;
-> +		local_irq_save(flags);
->  		buf = kmap_atomic(sg->page, KM_IRQ0) + sg->offset;
->  		transfer_len = min(sg->length, len);
->  	} else {
-> @@ -1526,6 +1528,7 @@ static void tw_transfer_internal(TW_Devi
+>  	spin_lock_irqsave(&pci_config_lock, flags);
 >  
->  		sg = (struct scatterlist *)cmd->request_buffer;
->  		kunmap_atomic(buf - sg->offset, KM_IRQ0);
-> +		local_irq_restore(flags);
+> diff --git a/arch/i386/pci/mmconfig.c b/arch/i386/pci/mmconfig.c
+> index 2002c74..f77d7f8 100644
+> --- a/arch/i386/pci/mmconfig.c
+> +++ b/arch/i386/pci/mmconfig.c
+> @@ -80,8 +80,10 @@ static int pci_mmcfg_read(unsigned int s
+>  	unsigned long flags;
+>  	u32 base;
+>  
+> -	if (!value || (bus > 255) || (devfn > 255) || (reg > 4095))
+> +	if (!value || (bus > 255) || (devfn > 255) || (reg > 4095)) {
+> +		*value = -1;
+>  		return -EINVAL;
+> +	}
+>  
+>  	base = get_base_addr(seg, bus, devfn);
+>  	if (!base)
+> diff --git a/arch/x86_64/pci/mmconfig.c b/arch/x86_64/pci/mmconfig.c
+> index d4e25f3..b493ed9 100644
+> --- a/arch/x86_64/pci/mmconfig.c
+> +++ b/arch/x86_64/pci/mmconfig.c
+> @@ -75,8 +75,10 @@ static int pci_mmcfg_read(unsigned int s
+>  	char __iomem *addr;
+>  
+>  	/* Why do we have this when nobody checks it. How about a BUG()!? -AK */
+> -	if (unlikely(!value || (bus > 255) || (devfn > 255) || (reg > 4095)))
+> +	if (unlikely(!value || (bus > 255) || (devfn > 255) || (reg > 4095))) {
+> +		*value = -1;
 
-ACK.
+As the code check indicates, value might be NULL.
 
-Though please make sure the active maintainer is CC'd on this...  There 
-is even a helpful MAINTAINERS entry for this driver.
+Please fix.
 
 	Jeff
 

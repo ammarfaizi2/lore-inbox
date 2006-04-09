@@ -1,74 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWDIL2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWDILi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbWDIL2v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 07:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWDIL2v
+	id S1750730AbWDILi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 07:38:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWDILi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 07:28:51 -0400
-Received: from mail.charite.de ([160.45.207.131]:6027 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S1750726AbWDIL2u (ORCPT
+	Sun, 9 Apr 2006 07:38:59 -0400
+Received: from mail.gmx.net ([213.165.64.20]:20389 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750730AbWDILi6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 07:28:50 -0400
-Date: Sun, 9 Apr 2006 13:28:48 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-       linux-kernel@vger.kernel.org, Jacob Shin <jacob.shin@amd.com>,
-       Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: Linux 2.6.17-rc1
-Message-ID: <20060409112847.GA30909@charite.de>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Jacob Shin <jacob.shin@amd.com>,
-	Dave Jones <davej@codemonkey.org.uk>
-References: <20060404080205.C8B29E007A12@knarzkiste.dyndns.org> <20060403180207.E849EE007A12@knarzkiste.dyndns.org> <Pine.LNX.4.64.0604022037380.3781@g5.osdl.org> <20060403190915.GA10584@charite.de> <20060403202539.65cf6e33.akpm@osdl.org> <20060404080529.GM7849@charite.de> <20060404014421.635b2c51.akpm@osdl.org>
+	Sun, 9 Apr 2006 07:38:58 -0400
+X-Authenticated: #14349625
+Subject: Re: [patch][rfc] quell interactive feeding frenzy
+From: Mike Galbraith <efault@gmx.de>
+To: bert hubert <bert.hubert@netherlabs.nl>
+Cc: Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Peter Williams <pwil3058@bigpond.net.au>
+In-Reply-To: <20060409111436.GA26533@outpost.ds9a.nl>
+References: <1144402690.7857.31.camel@homer>
+	 <200604072256.27665.kernel@kolivas.org> <1144417064.8114.26.camel@homer>
+	 <200604072356.03580.kernel@kolivas.org> <1144419294.14231.7.camel@homer>
+	 <20060409111436.GA26533@outpost.ds9a.nl>
+Content-Type: text/plain
+Date: Sun, 09 Apr 2006 13:39:38 +0200
+Message-Id: <1144582778.13991.10.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060404014421.635b2c51.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton <akpm@osdl.org>:
-
-> OK, thanks.  That indicates that we did install a
-> acpi_processor_performance structure, but something must have later on
-> zeroed it.
+On Sun, 2006-04-09 at 13:14 +0200, bert hubert wrote:
+> On Fri, Apr 07, 2006 at 04:14:54PM +0200, Mike Galbraith wrote:
+> > Ok.  Do we then agree that it makes 2.6 unusable for small servers, and
+> > that this constitutes a serious problem? :)
 > 
-> Hopefully the cpufreq guys will be able to reproduce this.
-> 
-> <tries it>
-> 
-> Actually, I cannot even rmmod the thing:
-> 
-> Module                  Size  Used by
-> p4_clockmod             6980  1 
-> speedstep_lib           5376  1 p4_clockmod
-> 
-> It looks like either it has a refcounting problem or it has been changed so
-> that it is deliberately pinned.
+> You sure? I may be down there in userspace dirt with the other actual Linux
+> users, but I hadn't noticed.
 
-I tried 2.6.17-rc1-mm2 today and got better (?) output when modprobing
-the module:
+Ok, unusable may be overstated.  Nonetheless, that bit of code causes
+serious problems.  It makes my little PIII/500 test box trying to fill
+one 100Mbit local network unusable.  That is not overstated.
 
-powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.60.2)
-ACPI Warning (acpi_utils-0065): Invalid package argument [20060310]
-ACPI Exception (acpi_processor-0275): AE_BAD_PARAMETER, Invalid _PSS data [20060310]
-powernow-k8:    0 : fid 0x0 (800 MHz), vid 0x12 (1100 mV)
-powernow-k8:    1 : fid 0x8 (1600 MHz), vid 0x4 (1450 mV)
-cpu_init done, current fid 0x8, vid 0x4
+	-Mike
 
--- 
-_________________________________________________
-
-  Charité - Universitätsmedizin Berlin
-_________________________________________________
-
-  Ralf Hildebrandt
-   i.A. Geschäftsbereich Informationsmanagement
-   Campus Benjamin Franklin
-   Hindenburgdamm 30 | Berlin
-   Tel. +49 30 450 570155 | Fax +49 30 450 570962
-   Ralf.Hildebrandt@charite.de
-   http://www.charite.de

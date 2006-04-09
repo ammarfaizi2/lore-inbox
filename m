@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWDIN5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWDIOWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbWDIN5d (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 09:57:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWDIN5d
+	id S1750722AbWDIOWe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 10:22:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWDIOWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 09:57:33 -0400
-Received: from mailfe12.tele2.fr ([212.247.155.108]:62604 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S1750753AbWDIN5c (ORCPT
+	Sun, 9 Apr 2006 10:22:34 -0400
+Received: from everest.sosdg.org ([66.93.203.161]:2503 "EHLO mail.sosdg.org")
+	by vger.kernel.org with ESMTP id S1750722AbWDIOWe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 09:57:32 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-X-Cloudmark-Score: 0.000000 []
-Date: Sun, 9 Apr 2006 15:57:20 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: torvalds@osdl.org
-Cc: jordan.crouse@amd.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: "apm: set display: Interface not engaged" is back on armada laptops [Was: APM Screen Blanking fix]
-Message-ID: <20060409135720.GH4708@bouh.residence.ens-lyon.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	torvalds@osdl.org, jordan.crouse@amd.com,
-	linux-kernel@vger.kernel.org
-References: <20060325134625.GA4593@bouh.residence.ens-lyon.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sun, 9 Apr 2006 10:22:34 -0400
+Date: Sun, 9 Apr 2006 10:22:32 -0400
+From: Coywolf Qi Hunt <coywolf@sosdg.org>
+To: tiwai@suse.de
+Cc: linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net,
+       akpm@osdl.org
+Subject: [patch] support HP Compaq Presario B2800 laptop with AD1986A codec
+Message-ID: <20060409142232.GA26779@everest.sosdg.org>
+Reply-To: qiyong@freeforge.net
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060325134625.GA4593@bouh.residence.ens-lyon.fr>
-User-Agent: Mutt/1.5.9i-nntp
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: coywolf@mail.sosdg.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Samuel Thibault, le Sat 25 Mar 2006 14:46:25 +0100, a écrit :
-> Part of a fix for APM Screen Blanking in
-> arch/i386/kernel/apm.c:apm_console_blank() from Jordan Crouse was:
-> 
-> -       if (error == APM_NOT_ENGAGED) {
-> +       if (error == APM_NOT_ENGAGED && state != APM_STATE_READY) {
-> 
-> for "Prevent[ing] the error message from printing out twice."
-> 
-> However, this puts the "apm: set display: Interface not engaged"
-> error back on armada laptops (which was the original need for this if
-> statement).
+This adds the support for HP Compaq Presario B2800 laptop with AD1986A codec.
 
-Here is a fix:
+Signed-off-by: Coywolf Qi Hunt <qiyong@freeforge.net>
+---
 
-Fix the "apm: set display: Interface not engaged" error on Armada
-laptops again.
-
-Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
-
-diff --git a/arch/i386/kernel/apm.c b/arch/i386/kernel/apm.c
-index da30a37..df0e174 100644
---- a/arch/i386/kernel/apm.c
-+++ b/arch/i386/kernel/apm.c
-@@ -1079,7 +1079,7 @@ static int apm_console_blank(int blank)
- 			break;
- 	}
+diff --git a/sound/pci/hda/patch_analog.c b/sound/pci/hda/patch_analog.c
+index 2bfe37e..921118f 100644
+--- a/sound/pci/hda/patch_analog.c
++++ b/sound/pci/hda/patch_analog.c
+@@ -801,6 +801,8 @@ static struct hda_board_config ad1986a_c
+ 	  .config = AD1986A_LAPTOP_EAPD }, /* Samsung R65-T2300 Charis */
+ 	{ .pci_subvendor = 0x1043, .pci_subdevice = 0x1213,
+ 	  .config = AD1986A_LAPTOP_EAPD }, /* ASUS A6J */
++	{ .pci_subvendor = 0x103c, .pci_subdevice = 0x30af,
++	  .config = AD1986A_LAPTOP_EAPD }, /* HP Compaq Presario B2800 */
+ 	{}
+ };
  
--	if (error == APM_NOT_ENGAGED && state != APM_STATE_READY) {
-+	if (error == APM_NOT_ENGAGED) {
- 		static int tried;
- 		int eng_error;
- 		if (tried++ == 0) {

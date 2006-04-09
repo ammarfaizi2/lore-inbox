@@ -1,96 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWDIJqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWDIJso@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWDIJqO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 05:46:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWDIJqO
+	id S1750712AbWDIJso (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 05:48:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWDIJso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 05:46:14 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51414 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750714AbWDIJqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 05:46:13 -0400
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@sw.ru>,
-       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net, xemul@sw.ru,
-       James Morris <jmorris@namei.org>
-Subject: Re: [PATCH 3/7] uts namespaces: use init_utsname when appropriate
-References: <20060407234815.849357768@sergelap>
-	<20060408045206.EAA8E19B8FF@sergelap.hallyn.com>
-	<m1psjslf1s.fsf@ebiederm.dsl.xmission.com>
-	<20060408202701.GA26403@sergelap.austin.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sun, 09 Apr 2006 03:44:19 -0600
-In-Reply-To: <20060408202701.GA26403@sergelap.austin.ibm.com> (Serge E.
- Hallyn's message of "Sat, 8 Apr 2006 15:27:01 -0500")
-Message-ID: <m164ljjd70.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Sun, 9 Apr 2006 05:48:44 -0400
+Received: from ns2.suse.de ([195.135.220.15]:22919 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750712AbWDIJso (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Apr 2006 05:48:44 -0400
+From: Neil Brown <neilb@suse.de>
+To: Robert Hancock <hancockr@shaw.ca>
+Date: Sun, 9 Apr 2006 19:48:22 +1000
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17464.55398.270243.839773@cse.unsw.edu.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: How to correct ELCR? - was Re: [PATCH 2.6.16] Shared interrupts sometimes lost
+In-Reply-To: message from Robert Hancock on Saturday April 8
+References: <5Zd5E-3vi-7@gated-at.bofh.it>
+	<4437C45E.8010503@shaw.ca>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Serge E. Hallyn" <serue@us.ibm.com> writes:
+On Saturday April 8, hancockr@shaw.ca wrote:
+> Neil Brown wrote:
+> >  However there is room for a race here.  If an event occurs between
+> >  the read and the write, then this will NOT de-assert the IRQ line.
+> >  It will remain asserted throughout.
+> > 
+> >  Now if the IRQ is handled as an edge-triggered line (which I believe
+> >  they are in Linux), then losing this race will mean that we don't see
+> >  any more interrupts on this line.
+> 
+> PCI interrupts should always be level triggered, not edge triggered 
 
->> This also probably makes sense as utsname().  It doesn't
->> really matter as this is before init is executed. But logically
->> this is a user space or per namespace action.
->
-> Right, I was kind of favoring using init_utsname() for anything
-> __init.  But utsname() will of course work just as well there.
+Ok... so I guess I jumped to the wrong conclusion. Thanks for
+straightening me out.
+But it is behaving like edge-triggered..
 
-Basically anything that should move to klibc I favor using
-utsname() for.  That tends to make it clear it follows
-the usual user space rules.
+So I have explored about the i8259 (wikipedia helped) and discovered
+the ELCR (Edge/Level Control Register).  Apparently this is meant to
+be set up by the BIOS to the correct values.  It seems that this isn't
+happening. 
 
-With a little luck HPA might actually have this code deleted
-in -mm before we get to far.
+It seems to get the value 0x0800 which corresponds to IRQ11 being the
+only level-triggered interrupt.  But I need IRQ10 to be level
+triggered.  I hacked the code to set the 0x0400 bit, and it seems to
+work OK without my other patch.
 
->> > diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
->> > index aa8965e..97c8439 100644
->> > --- a/net/sunrpc/clnt.c
->> > +++ b/net/sunrpc/clnt.c
->> > @@ -176,10 +176,10 @@ rpc_new_client(struct rpc_xprt *xprt, ch
->> >  	}
->> >  
->> >  	/* save the nodename */
->> > -	clnt->cl_nodelen = strlen(system_utsname.nodename);
->> > +	clnt->cl_nodelen = strlen(init_utsname()->nodename);
->> >  	if (clnt->cl_nodelen > UNX_MAXNODENAME)
->> >  		clnt->cl_nodelen = UNX_MAXNODENAME;
->> > -	memcpy(clnt->cl_nodename, system_utsname.nodename, clnt->cl_nodelen);
->> > +	memcpy(clnt->cl_nodename, init_utsname()->nodename, clnt->cl_nodelen);
->> >  	return clnt;
->> >  
->> >  out_no_auth:
->> 
->> Using nodename is practically the definition of something
->> that should per namespace I think.  Plus it would be really inconsistent
->> to use utsname() and the init_utsname for the nfs rpc calls.
->> 
->> Unless I am missing something.
->
-> It seemed like this would be happening in any old context, so that
-> current->uts_ns could be any process'.  Tracing it back further,
-> it seems like nfs+lockd should have the context available.  So I'll
-> switch this as well.
+Now I just need a way to set this correctly at boot time without a
+hack.
 
-I have not traced that path recently.  So I don't remember.
-This is one of those odd cases that makes a real difference.
+I currently have Linux compiled without ACPI support (as I don't
+really want that and being an oldish notebook I gather it has a good
+chance of causing problems) so that isn't fiddling with the ELCR.
 
-This reminds me of another piece of the conversation.
-kernel_thread vs. kthread, and the oddities of daemonize.
+So thank you for helping me a step further in understand, but now I
+have a new question:
 
-In general user space cannot kill kernel threads, so having
-a kernel thread inside a namespace is dangerous because it
-means the namespace can never exit.
+ How can I make sure the ELCR is set correctly?
+and I guess,
+ What is the correct setting?
 
-There are two ways to avoid the associated problems.
-- modify daemonize to always use the instance of that
-  namespace associated with init_task.
-- modify all interesting kernel threads to use the
-  kthread api instead of kernel_thread.  Using kthread
-  makes the kernel threads children of keventd and always
-  in the initial namespace instance.  As such we know
-  we aren't inside of any user space namespace instance.
+My /proc/interrupts is below.
 
-Eric
+Thanks.
+
+NeilBrown
+
+           CPU0       
+  0:     505852          XT-PIC  timer
+  1:         10          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  4:         10          XT-PIC  serial
+  8:          4          XT-PIC  rtc
+ 10:      16442          XT-PIC  yenta, yenta, ohci_hcd:usb1, ohci_hcd:usb2, ehci_hcd:usb4, eth0
+ 11:          0          XT-PIC  uhci_hcd:usb3
+ 12:        110          XT-PIC  i8042
+ 14:       5114          XT-PIC  ide0
+ 15:         38          XT-PIC  ide1
+NMI:          0 
+ERR:          0

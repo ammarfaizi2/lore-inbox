@@ -1,47 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWDILny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWDILpO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbWDILny (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 07:43:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWDILny
+	id S1750733AbWDILpO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 07:45:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWDILpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 07:43:54 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:1467 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1750729AbWDILny (ORCPT
+	Sun, 9 Apr 2006 07:45:14 -0400
+Received: from alpha.polcom.net ([83.143.162.52]:29139 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S1750733AbWDILpN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 07:43:54 -0400
-Date: Sun, 9 Apr 2006 15:39:50 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
-Subject: Re: [-mm patch] drivers/w1/w1.c: fix a compile error
-Message-ID: <20060409113950.GA29990@2ka.mipt.ru>
-References: <20060408031405.5e5131da.akpm@osdl.org> <20060409113110.GA8454@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20060409113110.GA8454@stusta.de>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sun, 09 Apr 2006 15:39:52 +0400 (MSD)
+	Sun, 9 Apr 2006 07:45:13 -0400
+Date: Sun, 9 Apr 2006 13:45:07 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: linux-kernel@vger.kernel.org
+Subject: Slow swapon for big (12GB) swap
+Message-ID: <Pine.LNX.4.63.0604091338030.31989@alpha.polcom.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 09, 2006 at 01:31:10PM +0200, Adrian Bunk (bunk@stusta.de) wrote:
-> This patch fixes the following compile error:
-> 
-> <--  snip  -->
-> 
-> ...
->   CC      drivers/w1/w1.o
-> drivers/w1/w1.c:197: error: static declaration of 'w1_bus_type' follows non-static declaration
-> drivers/w1/w1.h:217: error: previous declaration of 'w1_bus_type' was here
-> make[2]: *** [drivers/w1/w1.o] Error 1
-> 
-> <--  snip  -->
->
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Hi,
 
-Thank you, Adrian, your patch is correct.
+I am using big swap here (as a backing for potentially huge tmpfs). And I 
+wonder why swapon on such big (like 12GB) swap takes about 7 minutes 
+(continuous disk IO). Is this expected? Why it is like that? Can I do 
+anything to speed it up? Or maybe remove it into the background with low 
+priority or something like that?
 
--- 
-	Evgeniy Polyakov
+
+Thanks in advance,
+
+Grzegorz Kulewski
+

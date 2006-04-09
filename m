@@ -1,84 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWDISdu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWDISlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWDISdu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 14:33:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWDISdu
+	id S1750784AbWDISlY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 14:41:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWDISlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 14:33:50 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:13772 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750746AbWDISdt (ORCPT
+	Sun, 9 Apr 2006 14:41:24 -0400
+Received: from wproxy.gmail.com ([64.233.184.239]:55241 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750784AbWDISlY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 14:33:49 -0400
-Date: Sun, 9 Apr 2006 20:31:21 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Darren Hart <dvhltc@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       "Stultz, John" <johnstul@us.ibm.com>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: RT task scheduling
-Message-ID: <20060409183121.GA29851@elte.hu>
-References: <200604052025.05679.darren@dvhart.com> <20060409131649.GA19082@elte.hu> <200604091025.17518.dvhltc@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200604091025.17518.dvhltc@us.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sun, 9 Apr 2006 14:41:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=VXRJmzDeOljrcJ4Pa/sYTgUnAjCU8wlBZxEVKDr1wZxvfW06OBUdNg/UUjvi9jJwf8UCXGkkXhwIP8/LJv7oLkQbV7ciYdVc2cxFgkFnDpFzoU7UTEudLLPcWHxq2qXPgaR/hrsv65MVNxBzhQmn3SR2mK35sjG208WWouKaGx8=
+Message-ID: <4439554E.4050200@gmail.com>
+Date: Sun, 09 Apr 2006 22:41:18 +0400
+From: Manu Abraham <abraham.manu@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: v4l-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] dvb/bt8xx/bt878.c: don't export static variables
+References: <20060409174846.GJ8454@stusta.de>
+In-Reply-To: <20060409174846.GJ8454@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adrian Bunk wrote:
+> Static variables mustn't be EXPORT_SYMBOL'ed.
+>
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+> ---
+>
+>  drivers/media/dvb/bt8xx/bt878.c |    2 --
+>  1 file changed, 2 deletions(-)
+>
+> --- linux-2.6.17-rc1-mm2-full/drivers/media/dvb/bt8xx/bt878.c.old	2006-04-09 18:43:28.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-full/drivers/media/dvb/bt8xx/bt878.c	2006-04-09 18:44:26.000000000 +0200
+> @@ -54,26 +54,24 @@
+>  static unsigned int bt878_verbose = 1;
+>  static unsigned int bt878_debug;
+>  
+>  module_param_named(verbose, bt878_verbose, int, 0444);
+>  MODULE_PARM_DESC(verbose,
+>  		 "verbose startup messages, default is 1 (yes)");
+>  module_param_named(debug, bt878_debug, int, 0644);
+>  MODULE_PARM_DESC(debug, "Turn on/off debugging, default is 0 (off).");
+>  
+>  int bt878_num;
+>  struct bt878 bt878[BT878_MAX];
+>  
+> -EXPORT_SYMBOL(bt878_debug);
+> -EXPORT_SYMBOL(bt878_verbose);
+>  EXPORT_SYMBOL(bt878_num);
+>  EXPORT_SYMBOL(bt878);
+>  
+>  #define btwrite(dat,adr)    bmtwrite((dat), (bt->bt878_mem+(adr)))
+>  #define btread(adr)         bmtread(bt->bt878_mem+(adr))
+>  
+>  #define btand(dat,adr)      btwrite((dat) & btread(adr), adr)
+>  #define btor(dat,adr)       btwrite((dat) | btread(adr), adr)
+>  #define btaor(dat,mask,adr) btwrite((dat) | ((mask) & btread(adr)), adr)
+>  
+>  #if defined(dprintk)
+>  #undef dprintk
+>
+> -
+>   
 
-* Darren Hart <dvhltc@us.ibm.com> wrote:
+Ack'd-by: Manu Abraham <manu@linuxtv.org>
 
-> > -rt14 tree with this bug fixed - does it fix the failures for you?
-> 
-> I ran the test 100 times, no failures!  Looks good to me.
-> 
-> # for ((i=0;i<100;i++)); do ./sched_football 4 10 | grep "Final ball position" 
-> | tee sched_football_ball.log; sleep 1; done
-> Final ball position: 0
-> ...
-> Final ball position: 0
-
-cool!
-
-> Looking at the patch, it looks like the problem was a race on the 
-> runqueue lock - when we called double_runqueue_lock(a,b) we risked 
-> dropping the lock on b, giving another CPU opportunity to grab it and 
-> pull our next task.  The API change to double_runqueue_lock() and 
-> checking the new return code in balance_rt_tasks() is what fixed the 
-> issue.  Is that accurate?
-
-this was one problem, yes. There was another problem too: the code 
-checked against rq->curr, while it has to consider the 'next' task (the 
-current task might just be about to leave the CPU at the point we do the 
-rebalancing). (A third problem was an efficiency issue: the code 
-indiscriminately pulled all RT tasks it found eligible - while it should 
-only have pulled ones that preempt the next CPU.)
-
-> I was doing some testing to see why the RT tasks don't appear to be 
-> evenly distributed across the CPUs (in my earlier post using the 
-> output of /proc/stat). [...]
-
-could you explain this in a bit more detailed way? [what is the behavior 
-you observe, and what would be your expectation.]
-
-> [...] I was wondering if the load_balancing code might be interfering 
-> with the balance_rt_tasks() code.  Should the normal load_balancer 
-> even touch RT tasks in the presence of balance_rt_tasks() ?  I'm 
-> thinking not.
-
-if there is RT overload then running the highest-prio RT tasks trumps 
-any other consideration - including load_balance(). Also, same-prio 
-SCHED_FIFO tasks can starve each other indefinitely, so there's not much 
-the load-balancer can do.
-
-	Ingo

@@ -1,183 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWDIPby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWDIPmG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750792AbWDIPby (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 11:31:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbWDIPbV
+	id S1750791AbWDIPmG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 11:42:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWDIPmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 11:31:21 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:38058 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750792AbWDIPbQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 11:31:16 -0400
-Date: Sun, 9 Apr 2006 17:31:15 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 19/19] kconfig: remove leading whitespace in menu prompts
-Message-ID: <Pine.LNX.4.64.0604091731020.23191@scrub.home>
+	Sun, 9 Apr 2006 11:42:06 -0400
+Received: from wproxy.gmail.com ([64.233.184.239]:65364 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750791AbWDIPmF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Apr 2006 11:42:05 -0400
+Message-ID: <b29067a0604090842h3bb11a88re9c175a467763c9f@mail.gmail.com>
+Date: Sun, 9 Apr 2006 11:42:02 -0400
+From: "Rahul Karnik" <rahul@genebrew.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Tracking down leaking applications
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+We are using an old P3 866 MHz with 512 MB of RAM to host a
+development Apache server, and over the past few days have experienced
+oom kills on a regular basis. Kernel being used is Fedora Core's
+2.6.15-1_1831. A typical oom trace is shown below.
 
-This removes all the leading whitespace kconfig now warns about.
+Apr  4 14:41:13 fedora kernel: oom-killer: gfp_mask=0x201d2, order=0
+Apr  4 14:41:13 fedora kernel: Mem-info:
+Apr  4 14:41:13 fedora kernel: DMA per-cpu:
+Apr  4 14:41:13 fedora kernel: cpu 0 hot: low 0, high 0, batch 1 used:0
+Apr  4 14:41:13 fedora kernel: cpu 0 cold: low 0, high 0, batch 1 used:0
+Apr  4 14:41:13 fedora kernel: DMA32 per-cpu: empty
+Apr  4 14:41:13 fedora kernel: Normal per-cpu:
+Apr  4 14:41:13 fedora kernel: cpu 0 hot: low 0, high 186, batch 31 used:171
+Apr  4 14:41:13 fedora kernel: cpu 0 cold: low 0, high 62, batch 15 used:49
+Apr  4 14:41:13 fedora kernel: HighMem per-cpu: empty
+Apr  4 14:41:13 fedora kernel: Free pages:        5320kB (0kB HighMem)
+Apr  4 14:41:13 fedora kernel: Active:122584 inactive:645 dirty:0
+writeback:0 unstable:0 free:1330 slab:2313 mapped:122684
+pagetables:726
+Apr  4 14:41:13 fedora kernel: DMA free:2068kB min:88kB low:108kB
+high:132kB active:10280kB inactive:8kB present:16384kB
+pages_scanned:12133 all_unreclaimable? yes
+Apr  4 14:41:13 fedora kernel: lowmem_reserve[]: 0 0 495 495
+Apr  4 14:41:13 fedora kernel: DMA32 free:0kB min:0kB low:0kB high:0kB
+active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable?
+no
+Apr  4 14:41:13 fedora kernel: lowmem_reserve[]: 0 0 495 495
+Apr  4 14:41:13 fedora kernel: Normal free:3252kB min:2800kB
+low:3500kB high:4200kB active:480056kB inactive:2572kB
+present:506880kB pages_scanned:671522 all_unreclaimable? yes
+Apr  4 14:41:13 fedora kernel: lowmem_reserve[]: 0 0 0 0
+Apr  4 14:41:13 fedora kernel: HighMem free:0kB min:128kB low:128kB
+high:128kB active:0kB inactive:0kB present:0kB pages_scanned:0
+all_unreclaimable? no
+Apr  4 14:41:13 fedora kernel: lowmem_reserve[]: 0 0 0 0
+Apr  4 14:41:13 fedora kernel: DMA: 1*4kB 0*8kB 1*16kB 0*32kB 0*64kB
+0*128kB 0*256kB 0*512kB 0*1024kB 1*2048kB 0*4096kB = 2068kB
+Apr  4 14:41:13 fedora kernel: DMA32: empty
+Apr  4 14:41:13 fedora kernel: Normal: 137*4kB 2*8kB 2*16kB 1*32kB
+1*64kB 0*128kB 0*256kB 1*512kB 0*1024kB 1*2048kB 0*4096kB = 3252kB
+Apr  4 14:41:13 fedora kernel: HighMem: empty
+Apr  4 14:41:13 fedora kernel: Swap cache: add 0, delete 0, find 0/0, race 0+0
+Apr  4 14:41:13 fedora kernel: Free swap  = 0kB
+Apr  4 14:41:13 fedora kernel: Total swap = 0kB
+Apr  4 14:41:13 fedora kernel: Free swap:            0kB
+Apr  4 14:41:13 fedora kernel: 130816 pages of RAM
+Apr  4 14:41:13 fedora kernel: 0 pages of HIGHMEM
+Apr  4 14:41:13 fedora kernel: 2143 reserved pages
+Apr  4 14:41:13 fedora kernel: 74708 pages shared
+Apr  4 14:41:13 fedora kernel: 0 pages swap cached
+Apr  4 14:41:13 fedora kernel: 0 pages dirty
+Apr  4 14:41:13 fedora kernel: 0 pages writeback
+Apr  4 14:41:13 fedora kernel: 122684 pages mapped
+Apr  4 14:41:13 fedora kernel: 2313 pages slab
+Apr  4 14:41:13 fedora kernel: 726 pages pagetables
+Apr  4 14:41:13 fedora kernel: Out of Memory: Killed process 24188 (httpd).
 
-Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+The process killed has been either httpd or cronolog so far. For now,
+I have upgraded to FC4's 2.6.16-1_1069 and added some swap, where
+previously there was none.
 
----
+Is there a way to:
+- confirm that it is a userspace and not a kernel issue?
+- track down the application that is leaking memory?
 
- drivers/mtd/Kconfig          |    4 ++--
- drivers/mtd/maps/Kconfig     |    2 +-
- drivers/scsi/Kconfig         |   10 +++++-----
- drivers/scsi/qla2xxx/Kconfig |   12 ++++++------
- sound/oss/Kconfig            |    2 +-
- 5 files changed, 15 insertions(+), 15 deletions(-)
-
-Index: linux-2.6-git/drivers/mtd/Kconfig
-===================================================================
---- linux-2.6-git.orig/drivers/mtd/Kconfig
-+++ linux-2.6-git/drivers/mtd/Kconfig
-@@ -86,14 +86,14 @@ config MTD_REDBOOT_DIRECTORY_BLOCK
- 	  block and "-2" means the penultimate block.
- 
- config MTD_REDBOOT_PARTS_UNALLOCATED
--	bool "  Include unallocated flash regions"
-+	bool "Include unallocated flash regions"
- 	depends on MTD_REDBOOT_PARTS
- 	help
- 	  If you need to register each unallocated flash region as a MTD
- 	  'partition', enable this option.
- 
- config MTD_REDBOOT_PARTS_READONLY
--	bool "  Force read-only for RedBoot system images"
-+	bool "Force read-only for RedBoot system images"
- 	depends on MTD_REDBOOT_PARTS
- 	help
- 	  If you need to force read-only for 'RedBoot', 'RedBoot Config' and
-Index: linux-2.6-git/drivers/mtd/maps/Kconfig
-===================================================================
---- linux-2.6-git.orig/drivers/mtd/maps/Kconfig
-+++ linux-2.6-git/drivers/mtd/maps/Kconfig
-@@ -212,7 +212,7 @@ config MTD_NETtel
- 	  Support for flash chips on NETtel/SecureEdge/SnapGear boards.
- 
- config MTD_ALCHEMY
--	tristate '  AMD Alchemy Pb1xxx/Db1xxx/RDK MTD support'
-+	tristate "AMD Alchemy Pb1xxx/Db1xxx/RDK MTD support"
- 	depends on SOC_AU1X00
- 	help
- 	  Flash memory access on AMD Alchemy Pb/Db/RDK Reference Boards
-Index: linux-2.6-git/drivers/scsi/Kconfig
-===================================================================
---- linux-2.6-git.orig/drivers/scsi/Kconfig
-+++ linux-2.6-git/drivers/scsi/Kconfig
-@@ -1156,7 +1156,7 @@ config SCSI_NCR_Q720
- 	  you do not have this SCSI card, so say N.
- 
- config SCSI_NCR53C8XX_DEFAULT_TAGS
--	int "  default tagged command queue depth"
-+	int "default tagged command queue depth"
- 	depends on SCSI_ZALON || SCSI_NCR_Q720
- 	default "8"
- 	---help---
-@@ -1182,7 +1182,7 @@ config SCSI_NCR53C8XX_DEFAULT_TAGS
- 	  There is no safe option other than using good SCSI devices.
- 
- config SCSI_NCR53C8XX_MAX_TAGS
--	int "  maximum number of queued commands"
-+	int "maximum number of queued commands"
- 	depends on SCSI_ZALON || SCSI_NCR_Q720
- 	default "32"
- 	---help---
-@@ -1199,7 +1199,7 @@ config SCSI_NCR53C8XX_MAX_TAGS
- 	  There is no safe option and the default answer is recommended.
- 
- config SCSI_NCR53C8XX_SYNC
--	int "  synchronous transfers frequency in MHz"
-+	int "synchronous transfers frequency in MHz"
- 	depends on SCSI_ZALON || SCSI_NCR_Q720
- 	default "20"
- 	---help---
-@@ -1233,7 +1233,7 @@ config SCSI_NCR53C8XX_SYNC
- 	  terminations and SCSI conformant devices.
- 
- config SCSI_NCR53C8XX_PROFILE
--	bool "  enable profiling"
-+	bool "enable profiling"
- 	depends on SCSI_ZALON || SCSI_NCR_Q720
- 	help
- 	  This option allows you to enable profiling information gathering.
-@@ -1244,7 +1244,7 @@ config SCSI_NCR53C8XX_PROFILE
- 	  The normal answer therefore is N.
- 
- config SCSI_NCR53C8XX_NO_DISCONNECT
--	bool "  not allow targets to disconnect"
-+	bool "not allow targets to disconnect"
- 	depends on (SCSI_ZALON || SCSI_NCR_Q720) && SCSI_NCR53C8XX_DEFAULT_TAGS=0
- 	help
- 	  This option is only provided for safety if you suspect some SCSI
-Index: linux-2.6-git/drivers/scsi/qla2xxx/Kconfig
-===================================================================
---- linux-2.6-git.orig/drivers/scsi/qla2xxx/Kconfig
-+++ linux-2.6-git/drivers/scsi/qla2xxx/Kconfig
-@@ -30,7 +30,7 @@ config SCSI_QLA_FC
- 	be removed from the kernel sources.
- 
- config SCSI_QLA2XXX_EMBEDDED_FIRMWARE
--	bool "  Use firmware-loader modules (DEPRECATED)"
-+	bool "Use firmware-loader modules (DEPRECATED)"
- 	depends on SCSI_QLA_FC
- 	help
- 	  This option offers you the deprecated firmware-loader
-@@ -38,33 +38,33 @@ config SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	  Firmware Loader interface in the qla2xxx driver.
- 
- config SCSI_QLA21XX
--	tristate "  Build QLogic ISP2100 firmware-module"
-+	tristate "Build QLogic ISP2100 firmware-module"
- 	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 21xx (ISP2100) host adapter family.
- 
- config SCSI_QLA22XX
--	tristate "  Build QLogic ISP2200 firmware-module"
-+	tristate "Build QLogic ISP2200 firmware-module"
- 	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 22xx (ISP2200) host adapter family.
- 
- config SCSI_QLA2300
--	tristate "  Build QLogic ISP2300/ISP6312 firmware-module"
-+	tristate "Build QLogic ISP2300/ISP6312 firmware-module"
- 	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 2300 (ISP2300, ISP2312 and
- 	ISP6312) host adapter family.
- 
- config SCSI_QLA2322
--	tristate "  Build QLogic ISP2322/ISP6322 firmware-module"
-+	tristate "Build QLogic ISP2322/ISP6322 firmware-module"
- 	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 2322 (ISP2322 and ISP6322) host
- 	adapter family.
- 
- config SCSI_QLA24XX
--	tristate "  Build QLogic ISP24xx firmware-module"
-+	tristate "Build QLogic ISP24xx firmware-module"
- 	depends on SCSI_QLA_FC && SCSI_QLA2XXX_EMBEDDED_FIRMWARE
- 	---help---
- 	This driver supports the QLogic 24xx (ISP2422 and ISP2432) host
-Index: linux-2.6-git/sound/oss/Kconfig
-===================================================================
---- linux-2.6-git.orig/sound/oss/Kconfig
-+++ linux-2.6-git/sound/oss/Kconfig
-@@ -1130,6 +1130,6 @@ config SOUND_SH_DAC_AUDIO
- 	depends on SOUND_PRIME && CPU_SH3
- 
- config SOUND_SH_DAC_AUDIO_CHANNEL
--	int "    DAC channel"
-+	int "DAC channel"
- 	default "1"
- 	depends on SOUND_SH_DAC_AUDIO
+Thanks for the help,
+Rahul
+--
+Rahul Karnik
+rahul@genebrew.com

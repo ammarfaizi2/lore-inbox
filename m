@@ -1,117 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965060AbWDIC1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965063AbWDIC6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965060AbWDIC1m (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 22:27:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965061AbWDIC1m
+	id S965063AbWDIC6c (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 22:58:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965064AbWDIC6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 22:27:42 -0400
-Received: from xenotime.net ([66.160.160.81]:29617 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S965060AbWDIC1m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 22:27:42 -0400
-Date: Sat, 8 Apr 2006 19:29:59 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: menuconfig search (Re: [rfc] fix Kconfig, hotplug_cpu is needed
- for swsusp)
-Message-Id: <20060408192959.1fa9f401.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.61.0604081030201.21887@yvahk01.tjqt.qr>
-References: <20060329220808.GA1716@elf.ucw.cz>
-	<200603300936.22757.ncunningham@cyclades.com>
-	<20060329154748.A12897@unix-os.sc.intel.com>
-	<200603300953.32298.ncunningham@cyclades.com>
-	<Pine.LNX.4.61.0603301022400.30783@yvahk01.tjqt.qr>
-	<20060403221537.79bb3af9.rdunlap@xenotime.net>
-	<Pine.LNX.4.61.0604081030201.21887@yvahk01.tjqt.qr>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Sat, 8 Apr 2006 22:58:32 -0400
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:2218 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S965063AbWDIC6b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 22:58:31 -0400
+Message-ID: <44387855.30004@bigpond.net.au>
+Date: Sun, 09 Apr 2006 12:58:29 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Al Boldi <a1426z@gawab.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
+References: <200604031459.51542.a1426z@gawab.com> <200604080032.28911.a1426z@gawab.com> <443711EC.7070003@bigpond.net.au> <200604082331.56715.a1426z@gawab.com>
+In-Reply-To: <200604082331.56715.a1426z@gawab.com>
+Content-Type: text/plain; charset=windows-1256; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sun, 9 Apr 2006 02:58:29 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Apr 2006 10:42:46 +0200 (MEST) Jan Engelhardt wrote:
-
-> >> I find it very confusing to use, since it returns too verbose text to skim 
-> >> through. Probably the search function should be split into "only search 
-> >> titles[*]" and "search description too".
-> >
-> >Re verbosity:  do you know that menuconfig search (/) takes regular
-> >expressions?
+Al Boldi wrote:
+> Peter Williams wrote:
+>> Al Boldi wrote:
+>>> Can you try the attached mem-eater passing it the number of kb to be
+>>> eaten.
+>>>
+>>> 	i.e. '# while :; do ./eatm 9999 ; done'
+>>>
+>>> This will print the number of bytes eaten and the timing in ms.
+>>>
+>>> Adjust the number of kb to be eaten such that the timing will be less
+>>> than timeslice (120ms by default for spa).  Switch to another vt and
+>>> start pressing enter.  A console lockup should follow within seconds for
+>>> all spas except ebs.
+>> This doesn't seem to present a problem (other than the eatme loop being
+>> hard to kill with control-C) on my system using spa_ws with standard
+>> settings.  I tried both UP and SMP.  I may be doing something wrong or
+>> perhaps don't understand what you mean by a console lock up.
 > 
-> Regexes are not mentioned in the "Help" menu.
+> Switching from one vt to another receives hardly any response.
 
-It is mentioned in the Help text after one enters '/'.
+Aah.  Virtual terminals.  I was using Gnome terminals under X.
 
-  │ Search for CONFIG_ symbols and display their relations.                 │
-  │ Regular expressions are allowed.                                        │
-  │ Example: search for "^FOO"                                              │
+> 
+> This is especially visible in spa_no_frills, and spa_ws recovers from this 
+> lockup somewhat and starts exhibiting this problem as a choking behavior.
+> 
+> Running '# top d.1 (then shift T)' on another vt shows this choking behavior 
+> as the proc gets boosted.
+> 
+>> When you say "less than the timeslice" how much smaller do you mean?
+> 
+> This depends on your machine's performance.  On my 400MhzP2 UP 128MB, w/ 
+> spa_no_frills default settings, looping eatm 9999 takes 63ms per eat and 
+> causes the rest of the system to be starved.  Raising kb to 19999 takes 
+> 126ms which is greater than the default 120ms timeslice and causes no system 
+> starvation.
+> 
+> What numbers do you get?
 
+For 9999 I get 20ms.  I have 1GB of memory and no swapping is taking 
+place but with only 128MB it's possible that your system is swapping and 
+that could make the effect more pronounced.
 
-> >That could help someone limit the amount of output
-> >from it.
-> >Can you give an example of being too verbose?
-> 
-> / UNIX
->  Symbol: UNIX [=y]
->  Prompt: Unix domain sockets
->    Defined at net/unix/Kconfig:5
->    Depends on: NET
->    Location:
->      -> Networking
->        -> Networking support (NET [=y])
->          -> Networking options
-> 
->  Symbol: UNIXWARE_DISKSLICES ...
->   ...
-> 
-> 
-> What would be more useful:
->  UNIX
->    Unix domain sockets
->    Networking > Networking Support > Networking options
-> 
->  UNIXWARE_DISKSLICES
->    Unixware slices support
->    File systems > Advanced ...
-> 
-> I.e. strip the Defined and Depends lines and crunch the Location lines inasfar
-> as that the full width of the window is used (break at col 70).
+But anyway, based on the evidence, I think the problem is caused by the 
+fact that the eatm tasks are running to completion in less than one time 
+slice without sleeping and this means that they never have their 
+priorities reassessed.  The reason that spa_ebs doesn't demonstrate the 
+problem is that it uses a smaller time slice for the first time slice 
+that a task gets. The reason that it does this is that it gives newly 
+forked processes a fairly high priority and if they're left to run for a 
+full 120 msecs at that high priority they can hose the system.  Having a 
+shorter first time slice gives the scheduler a chance to reassess the 
+task's priority before it does much damage.
 
-I don't see any need to limit it to 70 columns wide.  It knows how to
-scroll left/right (using arrow keys).
+The reason that the other schedulers don't have this strategy is that I 
+didn't think that it was necessary.  Obviously I was wrong and should 
+extend it to the other schedulers.  It's doubtful whether this will help 
+a great deal with spa_no_frills as it is pure round robin and doesn't 
+reassess priorities except when nice changes of the task changes 
+policies.  This is one good reason not to use spa_no_frills on 
+production systems.  Perhaps you should consider creating a child 
+scheduler on top of it that meets your needs?
 
- 
->  DEEP_FS
->    Just a symbol
->    File systems > Advanced filesystems > Very advanced filesystems >\n
->    Extremely advanced filesystems > Deep filesystem
-> 
-> 
-> >I have just modified menuconfig search to make displaying the
-> >Selects: and Selected by: output be an option (actually it's a
-> >different search command (\) to not see those lines.
-> >Would that help any regarding verbosity?
-> 
-> At the moment, entering e.g. UNIX in both the / and \ menus return the very 
-> same output. Bug?
-> 
-> The \ should include everything what the original / had, plus the symbol
-> description ("Say Y here if ....").
+Anyway, an alternative (and safer) way to reduce the effects of this 
+problem (while your waiting for me to do the above change) is to reduce 
+the size of the time slice.  The only bad effects of doing this is that 
+you'll do slightly worse (less than 1%) on kernbench.
 
-Nope, the only thing that the "reduced" search excludes atm is SELECT info.
->From my original email, as you quoted above, the less-verbose '\' search
-only eliminates the Selects: and Selected by: output, and the UNIX
-config symbols don't have any SELECT info.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-I don't know if we are converging any, but I made a new patch:
-  http://www.xenotime.net/linux/patches/menuconfig-search2b.patch
-
-This one changes the default '/' search to NOT be verbose and the
-new, extended '\' search to be verbose.  The non-verbose search omits
-Selects:, Selected by:, and Location: information.
-
----
-~Randy
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

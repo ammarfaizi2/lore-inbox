@@ -1,74 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWDITRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750914AbWDITWQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750911AbWDITRm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 15:17:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750912AbWDITRm
+	id S1750914AbWDITWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 15:22:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750912AbWDITWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 15:17:42 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:29602 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750908AbWDITRm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 15:17:42 -0400
-Message-ID: <44395DD2.8080700@garzik.org>
-Date: Sun, 09 Apr 2006 15:17:38 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386/x86-64: Return defined error value for bad PCI config
- space accesses
-References: <200604091900.k39J0uVn013016@hera.kernel.org>
-In-Reply-To: <200604091900.k39J0uVn013016@hera.kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -3.8 (---)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-3.8 points, 5.0 required)
+	Sun, 9 Apr 2006 15:22:16 -0400
+Received: from mxfep01.bredband.com ([195.54.107.70]:16022 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S1750774AbWDITWQ (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
+	Sun, 9 Apr 2006 15:22:16 -0400
+Subject: Re: [OOPS] related to swap?
+From: Ian Kumlien <pomac@vapor.com>
+Reply-To: pomac@vapor.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Linux-kernel@vger.kernel.org
+In-Reply-To: <44339031.4040307@yahoo.com.au>
+References: <1144225363.7112.10.camel@localhost>
+	 <44339031.4040307@yahoo.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-AZ7pfOZ6coK0cNDrfO0c"
+Date: Sun, 09 Apr 2006 21:31:58 +0200
+Message-Id: <1144611118.7535.5.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List wrote:
-> -	if (!value || (bus > 255) || (devfn > 255) || (reg > 255))
-> +	if (!value || (bus > 255) || (devfn > 255) || (reg > 255)) {
-> +		*value = -1;
->  		return -EINVAL;
-> +	}
->  
->  	spin_lock_irqsave(&pci_config_lock, flags);
->  
-> diff --git a/arch/i386/pci/mmconfig.c b/arch/i386/pci/mmconfig.c
-> index 2002c74..f77d7f8 100644
-> --- a/arch/i386/pci/mmconfig.c
-> +++ b/arch/i386/pci/mmconfig.c
-> @@ -80,8 +80,10 @@ static int pci_mmcfg_read(unsigned int s
->  	unsigned long flags;
->  	u32 base;
->  
-> -	if (!value || (bus > 255) || (devfn > 255) || (reg > 4095))
-> +	if (!value || (bus > 255) || (devfn > 255) || (reg > 4095)) {
-> +		*value = -1;
->  		return -EINVAL;
-> +	}
->  
->  	base = get_base_addr(seg, bus, devfn);
->  	if (!base)
-> diff --git a/arch/x86_64/pci/mmconfig.c b/arch/x86_64/pci/mmconfig.c
-> index d4e25f3..b493ed9 100644
-> --- a/arch/x86_64/pci/mmconfig.c
-> +++ b/arch/x86_64/pci/mmconfig.c
-> @@ -75,8 +75,10 @@ static int pci_mmcfg_read(unsigned int s
->  	char __iomem *addr;
->  
->  	/* Why do we have this when nobody checks it. How about a BUG()!? -AK */
-> -	if (unlikely(!value || (bus > 255) || (devfn > 255) || (reg > 4095)))
-> +	if (unlikely(!value || (bus > 255) || (devfn > 255) || (reg > 4095))) {
-> +		*value = -1;
 
-As the code check indicates, value might be NULL.
+--=-AZ7pfOZ6coK0cNDrfO0c
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Please fix.
+On Wed, 2006-04-05 at 19:38 +1000, Nick Piggin wrote:
+> Ian Kumlien wrote:
+> > As i said, i really doubt that the memory is at fault here, it has done
+> > several passes over the memory but not all tests. I can give it a go
+> > though, but i really doubt it'll find anything.
+>=20
+> If it doesn't cost you much time (ie. do it overnight) it could save some
+> developers a lot of time.
 
-	Jeff
+Well, the memory passes test 1-5 and 8. The 32 bit thingies all fail on
+4 dimms, so either 4 dimms are broken or the test is broken for amd64.
 
+Anyways, i noticed that the memory clocking got skewed when all the
+memory was in the machine, so i've removed 1gb of memory.
+
+> > The kernel i run is a plain 2.6.16.1 from kernel.org (i have heard that
+> > you can actually compile gentoos own these days)
+>=20
+> OK, good.
+
+2.6.16.2 now... And a new nvidia driver...
+
+--=20
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+
+--=-AZ7pfOZ6coK0cNDrfO0c
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2-ecc0.1.6 (GNU/Linux)
+
+iD8DBQBEOWEu7F3Euyc51N8RAjJIAKCRgab3zW8+hJy2BZZUnXJFGxAzyACfZ3lO
+CWe2T6G4airxRhol8t0BQbk=
+=xsDI
+-----END PGP SIGNATURE-----
+
+--=-AZ7pfOZ6coK0cNDrfO0c--
 

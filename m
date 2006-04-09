@@ -1,92 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWDIUdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWDIUhu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750825AbWDIUdK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 16:33:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbWDIUdK
+	id S1750703AbWDIUhu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 16:37:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbWDIUhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 16:33:10 -0400
-Received: from mta8.srv.hcvlny.cv.net ([167.206.4.203]:19549 "EHLO
-	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S1750936AbWDIUdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 16:33:09 -0400
-Date: Sun, 09 Apr 2006 15:12:56 -0400
-From: Nick Orlov <bugfixer@list.ru>
-Subject: Re: 2.6.17-rc1-mm2: badness in 3w_xxxx driver
-In-reply-to: <20060409113240.630b9a24.akpm@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Mail-followup-to: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Message-id: <20060409191256.GA4609@nickolas.homeunix.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=koi8-r
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <20060409182306.GA4680@nickolas.homeunix.com>
- <20060409113240.630b9a24.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+	Sun, 9 Apr 2006 16:37:50 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:21418 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750703AbWDIUht (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Apr 2006 16:37:49 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: shrink_all_memory tweaks (was: Re: Userland swsusp failure (mm-related))
+Date: Sun, 9 Apr 2006 22:36:44 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+       Fabio Comolli <fabio.comolli@gmail.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+References: <b637ec0b0604080537s55e63544r8bb63c887e81ecaf@mail.gmail.com> <200604090047.17372.rjw@sisk.pl> <200604090924.04951.kernel@kolivas.org>
+In-Reply-To: <200604090924.04951.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604092236.45768.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 09, 2006 at 11:32:40AM -0700, Andrew Morton wrote:
-> Nick Orlov <bugfixer@list.ru> wrote:
+Hi Con,
+
+On Sunday 09 April 2006 01:24, Con Kolivas wrote:
+> On Sunday 09 April 2006 08:47, Rafael J. Wysocki wrote:
+> > On Saturday 08 April 2006 18:15, Pavel Machek wrote:
+> > > > > This is my first (and unique) failure since I began testing uswsusp
+> > > > > (2.6.17-rc1 version). It happened (I think) because more than 50% of
+> > > > > physical memory was occupied at suspend time (about 550 megs out og
+> > > > > 1G) and that was what I was trying to test. After freeing some memory
+> > > > > suspend worked (there was no need to reboot).
+> > > >
+> > > > Well, it looks like we didn't free enough RAM for suspend in this case.
+> > > > Unfortunately we were below the min watermark for ZONE_NORMAL and
+> > > > we tried to allocate with GFP_ATOMIC (Nick, shouldn't we fall back to
+> > > > ZONE_DMA in this case?).
+> > > >
+> > > > I think we can safely ignore the watermarks in swsusp, so probably
+> > > > we can set PF_MEMALLOC for the current task temporarily and reset
+> > > > it when we have allocated memory.  Pavel, what do you think?
+> > >
+> > > Seems little hacky but okay to me.
+> > >
+> > > Should not fixing "how much to free" computation to free a bit more be
+> > > enough to handle this?
 > >
-> > The following patch: x86-kmap_atomic-debugging.patch exposed a badness
-> > in 3w_xxx driver.
+> > Yes, but in that case we'll leave some memory unused. ;-)
 > 
-> Sweet, thanks.
-> 
-[[ skipped ]]
-> 
-> From: Andrew Morton <akpm@osdl.org>
-> 
-> We must disable local IRQs while holding KM_IRQ0 or KM_IRQ1.  Otherwise, an
-> IRQ handler could use those kmap slots while this code is using them,
-> resulting in memory corruption.
-> 
-> Thanks to Nick Orlov <bugfixer@list.ru> for reporting.
-> 
-> Cc: <linuxraid@amcc.com>
-> Cc: James Bottomley <James.Bottomley@SteelEye.com>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> ---
-> 
->  drivers/scsi/3w-xxxx.c |    3 +++
->  1 files changed, 3 insertions(+)
-> 
-> diff -puN drivers/scsi/3w-xxxx.c~3ware-kmap_atomic-fix drivers/scsi/3w-xxxx.c
-> --- devel/drivers/scsi/3w-xxxx.c~3ware-kmap_atomic-fix	2006-04-09 11:28:08.000000000 -0700
-> +++ devel-akpm/drivers/scsi/3w-xxxx.c	2006-04-09 11:29:21.000000000 -0700
-> @@ -1508,10 +1508,12 @@ static void tw_transfer_internal(TW_Devi
->  	struct scsi_cmnd *cmd = tw_dev->srb[request_id];
->  	void *buf;
->  	unsigned int transfer_len;
-> +	unsigned long flags = 0;
->  
->  	if (cmd->use_sg) {
->  		struct scatterlist *sg =
->  			(struct scatterlist *)cmd->request_buffer;
-> +		local_irq_save(flags);
->  		buf = kmap_atomic(sg->page, KM_IRQ0) + sg->offset;
->  		transfer_len = min(sg->length, len);
->  	} else {
-> @@ -1526,6 +1528,7 @@ static void tw_transfer_internal(TW_Devi
->  
->  		sg = (struct scatterlist *)cmd->request_buffer;
->  		kunmap_atomic(buf - sg->offset, KM_IRQ0);
-> +		local_irq_restore(flags);
->  	}
->  }
->  
-> _
+> How's the shrink_all_memory tweaks I sent performing for you Rafael? It may 
+> theoretically be prone to the same issue but I tried to make it less likely.
 
-Confirmed, this patch solves the "badness" problem for me.
-I still experiencing a weird hangs though (the box just hangs, no
-messages on console/syslog, nothing). I'll try to nail it down.
+Well, I don't think it would help in this particular case.  The memory got divided
+almost ideally in swsusp_shrink_memory() and we were hit by the lowmem
+reserve in ZONE_DMA, apparently.
 
-2.6.16-mm2 works like a charm with the same config.
-Do you know which patches should I try to revert first?
+Still I've been doing a crash course in mm internals recently and I can say a
+bit more about your patch now. ;-)
 
--- 
-With best wishes,
-	Nick Orlov.
+First, I agree that using balance_pgdat() for freeing memory by swsusp is
+overkill, so the removal of its second argument seems to be a good idea to
+me.  However, I'd rather avoid modifying struct scan_control and shrink_zone()
+and reimplement the shrink_zone()'s logic directly in shrink_all_memory(),
+with some modifications (eg. we can explicitly avoid shrinking of the active
+list until we decide it's worth it) -- or we can define a separate function for
+this purpose.
 
+Second, there are a couple of details I'd do in a different way.  For example
+I think we should call shrink_slab() with the non-zero first argument
+(otherwise it'll use SWAP_CLUSTER_MAX) and instead of setting
+zone->prev_priority to 0 I'd set vm_swappiness to 100 temporarily
+(or maybe l'd left it to the user to set swappiness before suspend?).
+
+Also I think we can try to avoid slab shrinking until we start to shrink the
+active zone or IOW until we can't get any more pages from the inactive
+list alone.
+
+If you don't mind, I'll try to rework your patch a bit in accordance with
+the above remarks in the next couple of days.
+
+Greetings,
+Rafael

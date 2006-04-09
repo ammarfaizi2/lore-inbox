@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965049AbWDIANT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965055AbWDIBbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965049AbWDIANT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 20:13:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965053AbWDIANT
+	id S965055AbWDIBbE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 21:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965057AbWDIBbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 20:13:19 -0400
-Received: from [62.205.161.221] ([62.205.161.221]:39360 "EHLO kir.sacred.ru")
-	by vger.kernel.org with ESMTP id S965049AbWDIANT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 20:13:19 -0400
-Message-ID: <4438518A.1040801@openvz.org>
-Date: Sun, 09 Apr 2006 04:12:58 +0400
-From: Kir Kolyshkin <kir@openvz.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060217)
-X-Accept-Language: en-us, en
+	Sat, 8 Apr 2006 21:31:04 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.152]:30400 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S965055AbWDIBbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 21:31:01 -0400
+From: Dan Dennedy <dan@dennedy.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: [RFC: 2.6 patch] the overdue removal of RAW1394_REQ_ISO_{LISTEN,SEND}
+Date: Sat, 8 Apr 2006 18:25:53 -0700
+User-Agent: KMail/1.9
+Cc: linux1394-devel@lists.sourceforge.net, Adrian Bunk <bunk@stusta.de>,
+       scjody@modernduck.com, linux-kernel@vger.kernel.org
+References: <20060406224706.GD7118@stusta.de> <200604081218.24544.dan@dennedy.org> <443813C4.9090000@s5r6.in-berlin.de>
+In-Reply-To: <443813C4.9090000@s5r6.in-berlin.de>
 MIME-Version: 1.0
-To: devel@openvz.org, Sam Vilain <sam@vilain.net>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
-       herbert@13thfloor.at, "Serge E. Hallyn" <serue@us.ibm.com>,
-       James Morris <jmorris@namei.org>
-Subject: Re: [Devel] Re: [PATCH 3/7] uts namespaces: use init_utsname when
- appropriate
-References: <20060407234815.849357768@sergelap>	<20060408045206.EAA8E19B8FF@sergelap.hallyn.com>	<m1psjslf1s.fsf@ebiederm.dsl.xmission.com> <1144539879.11689.1.camel@localhost.localdomain>
-In-Reply-To: <1144539879.11689.1.camel@localhost.localdomain>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604081825.53461.dan@dennedy.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Vilain wrote:
+On Saturday 08 April 2006 12:49, Stefan Richter wrote:
+> Dan Dennedy wrote:
+> > can nag someone at Fluendo. I think another high profile app that might
+> > be affected is GnomeMeeting/Ekiga, but I have not kept close track of it.
+> >
+> It appears from grep'ing through the sources of Ekiga 2.0.1 that it does
+> not access (lib)raw1394 by itself.
 
->On Sat, 2006-04-08 at 01:09 -0600, Eric W. Biederman wrote:
->  
->
->>>-#define ELF_PLATFORM  (system_utsname.machine)
->>>+#define ELF_PLATFORM  (init_utsname()->machine)
->>> 
->>> #ifdef __KERNEL__
->>> #define SET_PERSONALITY(ex, ibcs2) do { } while (0)
->>>      
->>>
->>I think this one needs to be utsname()->machine.
->>Currently it doesn't matter.  But Herbert has expressed
->>the desire to make a machine appear like an older one.
->>    
->>
->
->This is extremely useful for faking it as "i386" on x86_64 systems, for
->instance.
->  
->
-Could 'setarch' be of any help here? Works fine for us. Or am I missing 
-something?
+I just checked, and it is actually in the openh323 pwlib's vidinput_avc 
+module.

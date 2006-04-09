@@ -1,55 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbWDIGzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWDIHnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964909AbWDIGzf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 02:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWDIGzf
+	id S1750705AbWDIHnR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 03:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWDIHnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 02:55:35 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:31111 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751416AbWDIGze
+	Sun, 9 Apr 2006 03:43:17 -0400
+Received: from herkules.vianova.fi ([194.100.28.129]:23943 "HELO
+	mail.vianova.fi") by vger.kernel.org with SMTP id S1750705AbWDIHnR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 02:55:34 -0400
-Subject: Re: SDIO Drivers?
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Ram <vshrirama@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <443628F3.9050107@drzeus.cx>
-References: <8bf247760604040130n155eeffauc5798750f8357bca@mail.gmail.com>
-	 <443628F3.9050107@drzeus.cx>
-Content-Type: text/plain
-Date: Sun, 09 Apr 2006 08:55:53 +0200
-Message-Id: <1144565753.2633.5.camel@localhost>
+	Sun, 9 Apr 2006 03:43:17 -0400
+Date: Sun, 9 Apr 2006 10:43:13 +0300
+From: Ville Herva <vherva@vianova.fi>
+To: Patrick McHardy <kaber@trash.net>
+Cc: linux-kernel@vger.kernel.org, netfilter@lists.netfilter.org,
+       davem@davemloft.net
+Subject: Re: Linux 2.6.17-rc1: /sbin/iptables does not find kernel netfilter
+Message-ID: <20060409074313.GZ15954@vianova.fi>
+Reply-To: vherva@vianova.fi
+References: <Pine.LNX.4.64.0604022037380.3781@g5.osdl.org> <20060408200915.GN1686@vianova.fi> <44388908.6070602@trash.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44388908.6070602@trash.net>
+X-Operating-System: Linux herkules.vianova.fi 2.4.32-rc1
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pierre,
-
-> >    3)  Is it a generic driver ?. (Same for a set of devices) or
-> > different for each device?
-> >         Suppose i want to run an SDIO WLAN Card?. will the
-> > manufacturer support it or
-> >        an will a Generic Driver "drive" it?
-
-for WiFi this is unlikely, but for Bluetooth there exists an open
-standard on how to access Bluetooth cards. So the easiest way might be
-to use a Bluetooth SDIO device to build the driver model.
-
-> >    6) Are there any sample/Open Source SDIO drivers available in Linux
-> > Kernel or else where?.If, not when can one expect/is anyone working on
-> > it currently?.
+On Sun, Apr 09, 2006 at 06:09:44AM +0200, you [Patrick McHardy] wrote:
+> Ville Herva wrote:
+> > I upgraded from 2.6.15-rc7 to 2.6.17-rc1. rc1 seems nice other than that
+> > iptables stopped working:
+> > 
+> >  failed iptables v1.3.5: can't initialize iptables table filter: iptables
+> >  who? (do you need to insmod?) 
+> >  Perhaps iptables or your kernel needs to be upgraded.
+> > 
+> > iptables is compiled in the kernel, not a module:
+> >  CONFIG_NETFILTER=y
+> > 
+> > I can even do "modprobe iptable_nat" successfully (iptable_nat is module),
+> > but iptables refuses to work. iptables is of version iptables-1.3.5-1.2. 
+> > 
+> > The kernel config is copied with make oldconfig from 2.6.15-rc7 (which
+> > worked), not much else has changed. I just booted back to 2.6.15-rc7 and
+> > verified it works. Any ideas?
 > 
-> There are a lot of people interested, but I haven't seen anyone working
-> on it yet.
+> Most likely you didn't enable the new xtables options. Please post your
+> full config.
 
-This includes me and I finally have a SDHCI capable laptop and one of
-the Bluetooth SDIO cards. However my time is so limited at the moment,
-that I haven't looked at it.
+The full .config is here
+ http://www.iki.fi/v/tmp/2.6.17-rc1.config
 
-Regards
+I indeed do not have xfilter enabled (I was unaware that such thing had been
+introduced :):
+--8<-----------------------------------------------------------------------
+...
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
 
-Marcel
+#
+# Core Netfilter Configuration
+#
+# CONFIG_NETFILTER_NETLINK is not set
+# CONFIG_NETFILTER_XTABLES is not set
 
+#
+# IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=m
+# CONFIG_IP_NF_CT_ACCT is not set
+# CONFIG_IP_NF_CONNTRACK_MARK is not set
+# CONFIG_IP_NF_CONNTRACK_EVENTS is not set
+# CONFIG_IP_NF_CT_PROTO_SCTP is not set
+CONFIG_IP_NF_FTP=m
+# CONFIG_IP_NF_IRC is not set
+# CONFIG_IP_NF_NETBIOS_NS is not set
+# CONFIG_IP_NF_TFTP is not set
+# CONFIG_IP_NF_AMANDA is not set
+# CONFIG_IP_NF_PPTP is not set
+# CONFIG_IP_NF_H323 is not set
+# CONFIG_IP_NF_QUEUE is not set
+...
+--8<-----------------------------------------------------------------------
+
+I'll try building a new kernel with CONFIG_NETFILTER_XTABLES enabled and
+report back. Thanks!
+
+
+-- v -- 
+
+v@iki.fi
 

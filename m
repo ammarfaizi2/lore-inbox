@@ -1,52 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWDIMOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWDIM5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbWDIMOp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 08:14:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWDIMOp
+	id S1750743AbWDIM5G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 08:57:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbWDIM5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 08:14:45 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:12736 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S1750735AbWDIMOp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 08:14:45 -0400
-Date: Sun, 9 Apr 2006 14:14:37 +0200
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [patch][rfc] quell interactive feeding frenzy
-Message-ID: <20060409121436.GA28075@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	Mike Galbraith <efault@gmx.de>, Con Kolivas <kernel@kolivas.org>,
-	lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-	Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-	Peter Williams <pwil3058@bigpond.net.au>
-References: <1144402690.7857.31.camel@homer> <200604072256.27665.kernel@kolivas.org> <1144417064.8114.26.camel@homer> <200604072356.03580.kernel@kolivas.org> <1144419294.14231.7.camel@homer> <20060409111436.GA26533@outpost.ds9a.nl> <1144582778.13991.10.camel@homer>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1144582778.13991.10.camel@homer>
-User-Agent: Mutt/1.5.9i
+	Sun, 9 Apr 2006 08:57:06 -0400
+Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:46797 "EHLO
+	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750743AbWDIM5E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Apr 2006 08:57:04 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>
+Subject: [PATCH] Staircase cpu scheduler v15 for 2.6.17-rc1*
+Date: Sun, 9 Apr 2006 22:56:52 +1000
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1261907.opEz6yhXuD";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200604092256.56437.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 09, 2006 at 01:39:38PM +0200, Mike Galbraith wrote:
-> Ok, unusable may be overstated.  Nonetheless, that bit of code causes
-> serious problems.  It makes my little PIII/500 test box trying to fill
-> one 100Mbit local network unusable.  That is not overstated.
+--nextPart1261907.opEz6yhXuD
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-If you try to make a PIII/500 fill 100mbit of TCP/IP using lots of different
-processes, that IS a corner load.
- 
-I'm sure you can fix this (rare) workload but are you very sure you are not
-killing off performance for other situations?
+Patches for the current staircase cpu scheduler (v15) for 2.6.17-rc1 are he=
+re:
 
-I get flashbacks to the old days of the VM where we had lots patches around
-that would all solve (more or less) real problems, but never all at the same
-time..
+http://www.kernel.org/pub/linux/kernel/people/ck/patches/staircase/2.6.17-r=
+c1/2.6.17-rc1-staircase-15.patch
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+and for mm2 here:
+
+http://www.kernel.org/pub/linux/kernel/people/ck/patches/staircase/2.6.17-r=
+c1/2.6.17-rc1-mm2/2.6.17-rc1-mm2-staircase-15.patch
+
+Martin Bligh was kind enough to put the current version of staircase on=20
+2.6.17-rc1 for testing on http://test.kernel.org/
+
+Performance more or less parallels mainline 2.6.17-rc1 (apart from=20
+interactivity as shown here previously where staircase mostly trumps=20
+mainline).
+
+Jens Axboe was also kind enough to do a kernbench run on 4xIA64 which also=
+=20
+showed no performance difference. See=20
+http://article.gmane.org/gmane.linux.kernel.ck/5472 (the 2nd run is stairca=
+se=20
+and the attachments seem to be listed twice by gmane)
+
+Just as a reminder of how much less code than the ever increasing complexit=
+y=20
+mainline scheduler staircase is, here is a diffstat of the patch for=20
+2.6.17-rc1-mm2:
+
+ fs/proc/array.c       |    4=20
+ include/linux/sched.h |   20 -
+ kernel/exit.c         |    1=20
+ kernel/sched.c        |  987=20
+++++++++++++++++----------------------------------
+ 4 files changed, 327 insertions(+), 685 deletions(-)
+
+=2D-=20
+=2Dck
+
+--nextPart1261907.opEz6yhXuD
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEOQSYZUg7+tp6mRURAiReAJ9VJ/VfU74VPP6OipKPa1z8r30WNACcCzPi
+i99L7R7uIiwXwsEg8k6b1Ns=
+=XXdF
+-----END PGP SIGNATURE-----
+
+--nextPart1261907.opEz6yhXuD--

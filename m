@@ -1,77 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbWDIPFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWDIP0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750769AbWDIPFm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 11:05:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWDIPFm
+	id S1750764AbWDIP0T (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 11:26:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWDIP0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 11:05:42 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:45124 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750769AbWDIPFk (ORCPT
+	Sun, 9 Apr 2006 11:26:18 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:27050 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750764AbWDIP0S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 11:05:40 -0400
-Message-ID: <44392378.3090400@sw.ru>
-Date: Sun, 09 Apr 2006 19:08:40 +0400
-From: Vasily Averin <vvs@sw.ru>
-Organization: SW-soft
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050921
-X-Accept-Language: en-us, en, ru
+	Sun, 9 Apr 2006 11:26:18 -0400
+Date: Sun, 9 Apr 2006 17:26:16 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH 0/19] kconfig patches
+Message-ID: <Pine.LNX.4.64.0604091628240.21970@scrub.home>
 MIME-Version: 1.0
-To: Len Brown <len.brown@intel.com>, linux-acpi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@sw.ru>,
-       devel@openvz.org
-Subject: [PATCH ACPI] memory leakages in drivers/acpi/thermal.c
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------050302050304010808070409"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050302050304010808070409
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi,
 
-acpi_thermal_write_trip_points() and acpi_thermal_add() do not call kfree() for
-allocated memory on the error path.
+Here is a batch of kconfig (and also some kbuild related) patches. The 
+first four patches I'd like to see to go into 2.6.17 if possible. Although 
+I'm quite confident about the remaining patches, a bit more testing can't 
+hurt.
 
-Signed-off-by: Vasily Averin <vvs@sw.ru>
+Some comments about the most interesting aspects from a user perspective 
+for these patches:
 
-Thank you,
-	Vasily Averin
+Now it's possible to do something like "vi .config; make" and be 
+reasonably certain it does the right thing, before especially kbuild 
+related config changes were not correctly picked up by make and required 
+an explicit "make oldconfig".
 
-SWsoft Virtuozzo/OpenVZ Linux kernel team
+Andrew, what might be very interesting for you is that kconfig is not 
+rewriting .config anymore all the time by itself and if you set 
+KCONFIG_NOSILENTUPDATE you can even omit the silent updates, so unless you 
+explicitly call one of the config targets, you can be sure kbuild won't 
+touch your .config symlink anymore and as long as the .config is in sync 
+with the Kconfig files you shouldn't see a difference. I'm very interested 
+how that works for you.
 
---------------050302050304010808070409
-Content-Type: text/plain;
- name="diff-ms-acpi-thermal-20060409"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-ms-acpi-thermal-20060409"
+Another interesting feature are the xconfig changes, it supports now a 
+search option like menuconfig and the help output links to other symbols, 
+so one can basically browse through the kconfig info. The latter is still 
+a bit experimental, so it's only visible if the debug info option is 
+enabled.
 
---- a/drivers/acpi/thermal.c	2006-04-09 17:03:50.000000000 +0400
-+++ b/drivers/acpi/thermal.c	2006-04-09 17:46:41.000000000 +0400
-@@ -942,8 +942,10 @@ acpi_thermal_write_trip_points(struct fi
- 	memset(limit_string, 0, ACPI_THERMAL_MAX_LIMIT_STR_LEN);
- 
- 	active = kmalloc(ACPI_THERMAL_MAX_ACTIVE * sizeof(int), GFP_KERNEL);
--	if (!active)
-+	if (!active) {
-+		kfree(limit_string);
- 		return_VALUE(-ENOMEM);
-+	}
- 
- 	if (!tz || (count > ACPI_THERMAL_MAX_LIMIT_STR_LEN - 1)) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid argument\n"));
-@@ -1342,7 +1344,7 @@ static int acpi_thermal_add(struct acpi_
- 
- 	result = acpi_thermal_add_fs(device);
- 	if (result)
--		return_VALUE(result);
-+		goto end;
- 
- 	init_timer(&tz->timer);
- 
-
---------------050302050304010808070409--
+bye, Roman

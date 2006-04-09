@@ -1,141 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWDIUGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWDIUbf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbWDIUGs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 16:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbWDIUGs
+	id S1750710AbWDIUbf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 16:31:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWDIUbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 16:06:48 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.83]:12751 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S1750700AbWDIUGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 16:06:47 -0400
-Message-ID: <2112.128.2.140.234.1144613204.squirrel@128.2.140.234>
-In-Reply-To: <20060409130315.50daaec9.rdunlap@xenotime.net>
-References: <32947.128.2.140.234.1144536454.squirrel@128.2.140.234>
-    <20060408.155430.111013393.davem@davemloft.net>
-    <33083.128.2.140.234.1144538327.squirrel@128.2.140.234>
-    <20060408163743.c59d6e59.rdunlap@xenotime.net>
-    <1786.128.2.140.234.1144604245.squirrel@128.2.140.234>
-    <20060409130315.50daaec9.rdunlap@xenotime.net>
-Date: Sun, 9 Apr 2006 16:06:44 -0400 (EDT)
-Subject: Re: 2.4.32: unresolved symbol unregister_qdisc
-From: "George P Nychis" <gnychis@cmu.edu>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-User-Agent: SquirrelMail/1.5.1 [CVS]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Sun, 9 Apr 2006 16:31:35 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16906 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750710AbWDIUbf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Apr 2006 16:31:35 -0400
+Date: Sun, 9 Apr 2006 21:30:47 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: saeed bishara <saeed.bishara@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Paolo Ornati <ornati@fastwebnet.it>, linux-kernel@vger.kernel.org,
+       linux-arm-kernel@lists.arm.linux.org.uk,
+       Linux-arm-toolchain@lists.arm.linux.org.uk
+Subject: Re: add new code section for kernel code
+Message-ID: <20060409203046.GA24461@flint.arm.linux.org.uk>
+Mail-Followup-To: saeed bishara <saeed.bishara@gmail.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Paolo Ornati <ornati@fastwebnet.it>, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.arm.linux.org.uk,
+	Linux-arm-toolchain@lists.arm.linux.org.uk
+References: <c70ff3ad0604060545o2e2dc8fcg2948ca53b3b3c8b0@mail.gmail.com> <20060406151003.0ef4e637@localhost> <c70ff3ad0604060947t728fbad9g2e3b35198f9b0f66@mail.gmail.com> <c70ff3ad0604070402p355a5695y28b5806cbf7bed0a@mail.gmail.com> <1144422864.3117.0.camel@laptopd505.fenrus.org> <20060407154349.GB31458@flint.arm.linux.org.uk> <c70ff3ad0604090253n7fe4de4che67f18380ffa2efd@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c70ff3ad0604090253n7fe4de4che67f18380ffa2efd@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Apr 09, 2006 at 12:53:56PM +0300, saeed bishara wrote:
+> > I'd prefer not to paper over such bugs.  Maybe the following patch will
+> > fix the decompressor for saeed?
+> 
+> yes, this patch fixed the problem.
 
-> On Sun, 9 Apr 2006 13:37:25 -0400 (EDT) George P Nychis wrote:
-> 
->> Thanks for the help.
->> 
->> Here is the makefile: http://rafb.net/paste/results/auchPH75.html
->> 
->> And here is the full errors I receive: 
->> http://rafb.net/paste/results/Qplpqw74.html
->> 
->> Greatly appreciate it
->> 
->> - George
-> 
-> [repeat: please don't top-post]
-> 
-> I don't know how much I can help you.  It's been a long time since I've
-> built external modules on 2.4.x.
-> 
-> Problems that I see: - the Makefile does not use the expected 2.4 kernel
-> build infrastructure; - kernel Makefile uses -nostdinc to prevent use of
-> userspace headers; - Makefile is trying to include userspace headers
-> instead of kernel headers, e.g.: In file included from
-> /usr/include/linux/if_ether.h:107, from /usr/include/linux/netdevice.h:29,
->  from sch_xcp.c:8: - this specified include directory is only in 2.6.x,
-> not 2.4.x: -I/lib/modules/`uname -r`/build/include/asm/mach-default
-> 
-> It's not clear to me how this makefile could work with 2.4.x at all. Is it
-> supposed to, or that's just what you want to see it do?
-> 
-> You could try to fix the Makefile based on makefile-changes articles at
-> lwn.net. E.g.: http://lwn.net/Articles/151784/ 
-> http://lwn.net/Articles/79984/ http://lwn.net/Articles/74767/ 
-> http://lwn.net/Articles/69148/ http://lwn.net/Articles/21823/
-> 
-> 
-> 
->>> On Sat, 8 Apr 2006 19:18:47 -0400 (EDT) George P Nychis wrote:
->>> 
->>>> Yeah, this module is unfortunately not under the GPL, it was made
->>>> for research and i am not the author, I was only given the code for
->>>> my own research.
->>>> 
->>>> I enabled that support in the kernel, and then tried to recompile
->>>> and get tons of errors/warnings... so maybe I am missing something
->>>> else to be enabled in the kernel... here are a few examples of
->>>> errors: /usr/include/linux/skbuff.h:30:26: net/checksum.h: No such
->>>> file or directory /usr/include/asm/irq.h:16:25: irq_vectors.h: No
->>>> such file or directory /usr/include/linux/irq.h:72: error: `NR_IRQS'
->>>> undeclared here (not in a function) /usr/include/asm/hw_irq.h:28:
->>>> error: `NR_IRQ_VECTORS' undeclared here (not in a function)
->>>> 
->>>> I think those are the top most errors, so if i can fix those
->>>> hopefully the rest shall vanish!
->>> 
->>> Looks like a Makefile problem then.  Can you post the Makefile?
->>> Hopefully it is using a Makefile and not just an elaborate gcc command
->>> line.
->>> 
->>> [and please don't top-post]
->>> 
->>>> - George
->>>> 
->>>> 
->>>>> From: "George P Nychis" <gnychis@cmu.edu> Date: Sat, 8 Apr 2006 
->>>>> 18:47:34 -0400 (EDT)
->>>>> 
->>>>>> Hey,
->>>>>> 
->>>>>> I have a kernel module that uses unregister_qdisc and 
->>>>>> register_qdisc, whenever i try to insert the module I get: 
->>>>>> /lib/modules/2.4.32/kernel/net/sched/sch_xcp.o: 
->>>>>> /lib/modules/2.4.32/kernel/net/sched/sch_xcp.o: unresolved
->>>>>> symbol unregister_qdisc
->>>>>> /lib/modules/2.4.32/kernel/net/sched/sch_xcp.o: 
->>>>>> /lib/modules/2.4.32/kernel/net/sched/sch_xcp.o: unresolved
->>>>>> symbol register_qdisc
->>>>>> 
->>>>>> Am i missing some sort of support in the kernel?
->>>>> 
->>>>> Make sure CONFIG_NET_SCHED is enabled and that you compiled your 
->>>>> module against that kernel.
->>>>> 
->>>>> Where does this sch_xcp come from?  It's not in the vanilla
->>>>> sources.
->>>>> 
->>>>> Also, please direct networking questions to the 
->>>>> netdev@vger.kernel.org mailing list which I have added to the
->>>>> CC:.
-> 
-> --- ~Randy
-> 
-> 
+Thanks for testing; I've applied this patch so 2.6.17-rc2 onwards will
+have this fixed.
 
-Sorry, I thought when you said top-post, I thought you were telling me about only posting the "top" most errors in my original e-mail, thats why i pasted full error output.
-
-
-The thing is, it compiles successfully when CONFIG_NET_SCHED is not enabled in the kernel.  But when its not enabled, i get the external symbol errors.
-
-As soon as I enable CONFIG_NET_SCHED ... it no longer compiles.
-
-I will look into this, it is supposed to work... the code has been used by others before.
-
-If you or anyone else come up with anything, please let me know
-
-Thanks!
-George
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

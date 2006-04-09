@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWDIKjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWDILOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbWDIKjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 06:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWDIKjJ
+	id S1750725AbWDILOp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 07:14:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWDILOp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 06:39:09 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:21975 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750720AbWDIKjI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 06:39:08 -0400
-To: Christoph Hellwig <hch@infradead.org>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Kirill Korotaev <dev@sw.ru>, herbert@13thfloor.at, sam@vilain.net,
-       xemul@sw.ru, James Morris <jmorris@namei.org>
-Subject: Re: [PATCH 3/7] uts namespaces: use init_utsname when appropriate
-References: <20060407234815.849357768@sergelap>
-	<20060408045206.EAA8E19B8FF@sergelap.hallyn.com>
-	<m1psjslf1s.fsf@ebiederm.dsl.xmission.com>
-	<20060408202701.GA26403@sergelap.austin.ibm.com>
-	<m164ljjd70.fsf@ebiederm.dsl.xmission.com>
-	<20060409101436.GA20084@infradead.org>
-	<20060409102522.GA20276@infradead.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sun, 09 Apr 2006 04:36:25 -0600
-In-Reply-To: <20060409102522.GA20276@infradead.org> (Christoph Hellwig's
- message of "Sun, 9 Apr 2006 11:25:22 +0100")
-Message-ID: <m1wtdzhw7q.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Sun, 9 Apr 2006 07:14:45 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:18366 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S1750725AbWDILOo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Apr 2006 07:14:44 -0400
+Date: Sun, 9 Apr 2006 13:14:36 +0200
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [patch][rfc] quell interactive feeding frenzy
+Message-ID: <20060409111436.GA26533@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Mike Galbraith <efault@gmx.de>, Con Kolivas <kernel@kolivas.org>,
+	lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+	Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+	Peter Williams <pwil3058@bigpond.net.au>
+References: <1144402690.7857.31.camel@homer> <200604072256.27665.kernel@kolivas.org> <1144417064.8114.26.camel@homer> <200604072356.03580.kernel@kolivas.org> <1144419294.14231.7.camel@homer>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1144419294.14231.7.camel@homer>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
+On Fri, Apr 07, 2006 at 04:14:54PM +0200, Mike Galbraith wrote:
+> Ok.  Do we then agree that it makes 2.6 unusable for small servers, and
+> that this constitutes a serious problem? :)
 
-> And folks, please remove devel@openvz.org from this thead, it's subscribers
-> only and gives everyone else nasty bounces.
+You sure? I may be down there in userspace dirt with the other actual Linux
+users, but I hadn't noticed.
 
-Odd.  I haven't been getting bounces, and I'm not subscribed.
-
-I wonder if some of the principals in the conversation were given an
-explicit exception.  If so that is a subtle pain.
-
-Eric
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

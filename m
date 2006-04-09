@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWDIRGL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbWDIRJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbWDIRGL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 13:06:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWDIRGL
+	id S1750820AbWDIRJp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 13:09:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWDIRJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 13:06:11 -0400
-Received: from mail.gmx.de ([213.165.64.20]:3009 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750732AbWDIRGJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 13:06:09 -0400
-X-Authenticated: #704063
-Subject: [Patch] Wrong out of range check in drivers/char/applicom.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: dwmw2@infradead.org
-Content-Type: text/plain
-Date: Sun, 09 Apr 2006 19:06:06 +0200
-Message-Id: <1144602367.19348.3.camel@alice>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Sun, 9 Apr 2006 13:09:45 -0400
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:18963 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1750797AbWDIRJo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Apr 2006 13:09:44 -0400
+Message-ID: <44393FD7.8080904@superbug.co.uk>
+Date: Sun, 09 Apr 2006 18:09:43 +0100
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Mail/News 1.5 (X11/20060405)
+MIME-Version: 1.0
+To: JustFillBug <mozbugbox@yahoo.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Black box flight recorder for Linux
+References: <5ZjEd-4ym-37@gated-at.bofh.it> <5ZlZk-7VF-13@gated-at.bofh.it> <4437C335.30107@shaw.ca> <200604080917.39562.ak@suse.de> <4437E4B7.40208@superbug.co.uk> <slrne3ge8n.ps.mozbugbox@mozbugbox.somehost.org>
+In-Reply-To: <slrne3ge8n.ps.mozbugbox@mozbugbox.somehost.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+JustFillBug wrote:
+> On 2006-04-08, James Courtier-Dutton <James@superbug.co.uk> wrote:
+>> Andi Kleen wrote:
+>>> Reset button is like a cold boot and it generally ends up with cleared 
+>>> RAM.
+>>>
+>> Thank you. That saved me 30mins hacking. :-)
+>>
+> 
+> How about Magic sysRq reboot? 
+> 
 
-this fixes coverity bug id #469. The out of range check didnt
-work as intended, as seen by the printk(), which states that 
-boardno has to be 1 <= boardno <= MAX_BOARD.
+Another alternative is that the motherboard in question has a PS2 mouse 
+port, but not RS232 serial port.
+Can I connect the PS2 ports of two PCs together and get the console 
+working through that?
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-
---- linux-2.6.17-rc1/drivers/char/applicom.c.orig	2006-04-09 18:57:29.000000000 +0200
-+++ linux-2.6.17-rc1/drivers/char/applicom.c	2006-04-09 18:57:55.000000000 +0200
-@@ -142,7 +142,7 @@ static int ac_register_board(unsigned lo
- 	if (!boardno)
- 		boardno = readb(loc + NUMCARD_OWNER_TO_PC);
- 
--	if (!boardno && boardno > MAX_BOARD) {
-+	if (!boardno || boardno > MAX_BOARD) {
- 		printk(KERN_WARNING "Board #%d (at 0x%lx) is out of range (1 <= x <= %d).\n",
- 		       boardno, physloc, MAX_BOARD);
- 		return 0;
-
-
+James

@@ -1,94 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWDISeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWDISdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbWDISeM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 14:34:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWDISeL
+	id S1750746AbWDISdu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 14:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWDISdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 14:34:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62336 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750803AbWDISeK (ORCPT
+	Sun, 9 Apr 2006 14:33:50 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:13772 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750746AbWDISdt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 14:34:10 -0400
-Date: Sun, 9 Apr 2006 11:32:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Orlov <bugfixer@list.ru>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de, James.Bottomley@SteelEye.com
-Subject: Re: 2.6.17-rc1-mm2: badness in 3w_xxxx driver
-Message-Id: <20060409113240.630b9a24.akpm@osdl.org>
-In-Reply-To: <20060409182306.GA4680@nickolas.homeunix.com>
-References: <20060409182306.GA4680@nickolas.homeunix.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 9 Apr 2006 14:33:49 -0400
+Date: Sun, 9 Apr 2006 20:31:21 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Darren Hart <dvhltc@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       "Stultz, John" <johnstul@us.ibm.com>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: RT task scheduling
+Message-ID: <20060409183121.GA29851@elte.hu>
+References: <200604052025.05679.darren@dvhart.com> <20060409131649.GA19082@elte.hu> <200604091025.17518.dvhltc@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200604091025.17518.dvhltc@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Orlov <bugfixer@list.ru> wrote:
->
-> The following patch: x86-kmap_atomic-debugging.patch exposed a badness
-> in 3w_xxx driver.
 
-Sweet, thanks.
+* Darren Hart <dvhltc@us.ibm.com> wrote:
 
-> I'm getting a lot of:
+> > -rt14 tree with this bug fixed - does it fix the failures for you?
 > 
-> Apr  9 13:00:04 nickolas kernel: kmap_atomic: local irqs are enabled while using KM_IRQn
-> Apr  9 13:00:04 nickolas kernel:  <c0104103> show_trace+0x13/0x20   <c010412e> dump_stack+0x1e/0x20
-> Apr  9 13:00:04 nickolas kernel:  <c01159c9> kmap_atomic+0x79/0xe0   <c028b885> tw_transfer_internal+0x85/0xa0
-> Apr  9 13:00:04 nickolas kernel:  <c028ca7e> tw_interrupt+0x3fe/0x820   <c0143b9e> handle_IRQ_event+0x3e/0x80
-> Apr  9 13:00:04 nickolas kernel:  <c0143c70> __do_IRQ+0x90/0x100   <c01057a6> do_IRQ+0x26/0x40
-> Apr  9 13:00:04 nickolas kernel:  <c010396e> common_interrupt+0x1a/0x20   <c0101cdd> cpu_idle+0x4d/0xb0
-> Apr  9 13:00:04 nickolas kernel:  <c010f2cc> start_secondary+0x24c/0x4b0   <00000000> 0x0
-> Apr  9 13:00:04 nickolas kernel:  <c214ffb4> 0xc214ffb4  
+> I ran the test 100 times, no failures!  Looks good to me.
 > 
-> I'm running 32 bit kernel on AMD64x2 w/ HIGHMEM enabled.
-> I think this is an old bug since the 3w_xxxx.c has not been changed for
-> a long time (at least since 2.6.16-rc1-mm4).
-> 
-> Please let me know if you want me to try some patches.
-> 
+> # for ((i=0;i<100;i++)); do ./sched_football 4 10 | grep "Final ball position" 
+> | tee sched_football_ball.log; sleep 1; done
+> Final ball position: 0
+> ...
+> Final ball position: 0
 
+cool!
 
-From: Andrew Morton <akpm@osdl.org>
+> Looking at the patch, it looks like the problem was a race on the 
+> runqueue lock - when we called double_runqueue_lock(a,b) we risked 
+> dropping the lock on b, giving another CPU opportunity to grab it and 
+> pull our next task.  The API change to double_runqueue_lock() and 
+> checking the new return code in balance_rt_tasks() is what fixed the 
+> issue.  Is that accurate?
 
-We must disable local IRQs while holding KM_IRQ0 or KM_IRQ1.  Otherwise, an
-IRQ handler could use those kmap slots while this code is using them,
-resulting in memory corruption.
+this was one problem, yes. There was another problem too: the code 
+checked against rq->curr, while it has to consider the 'next' task (the 
+current task might just be about to leave the CPU at the point we do the 
+rebalancing). (A third problem was an efficiency issue: the code 
+indiscriminately pulled all RT tasks it found eligible - while it should 
+only have pulled ones that preempt the next CPU.)
 
-Thanks to Nick Orlov <bugfixer@list.ru> for reporting.
+> I was doing some testing to see why the RT tasks don't appear to be 
+> evenly distributed across the CPUs (in my earlier post using the 
+> output of /proc/stat). [...]
 
-Cc: <linuxraid@amcc.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+could you explain this in a bit more detailed way? [what is the behavior 
+you observe, and what would be your expectation.]
 
- drivers/scsi/3w-xxxx.c |    3 +++
- 1 files changed, 3 insertions(+)
+> [...] I was wondering if the load_balancing code might be interfering 
+> with the balance_rt_tasks() code.  Should the normal load_balancer 
+> even touch RT tasks in the presence of balance_rt_tasks() ?  I'm 
+> thinking not.
 
-diff -puN drivers/scsi/3w-xxxx.c~3ware-kmap_atomic-fix drivers/scsi/3w-xxxx.c
---- devel/drivers/scsi/3w-xxxx.c~3ware-kmap_atomic-fix	2006-04-09 11:28:08.000000000 -0700
-+++ devel-akpm/drivers/scsi/3w-xxxx.c	2006-04-09 11:29:21.000000000 -0700
-@@ -1508,10 +1508,12 @@ static void tw_transfer_internal(TW_Devi
- 	struct scsi_cmnd *cmd = tw_dev->srb[request_id];
- 	void *buf;
- 	unsigned int transfer_len;
-+	unsigned long flags = 0;
- 
- 	if (cmd->use_sg) {
- 		struct scatterlist *sg =
- 			(struct scatterlist *)cmd->request_buffer;
-+		local_irq_save(flags);
- 		buf = kmap_atomic(sg->page, KM_IRQ0) + sg->offset;
- 		transfer_len = min(sg->length, len);
- 	} else {
-@@ -1526,6 +1528,7 @@ static void tw_transfer_internal(TW_Devi
- 
- 		sg = (struct scatterlist *)cmd->request_buffer;
- 		kunmap_atomic(buf - sg->offset, KM_IRQ0);
-+		local_irq_restore(flags);
- 	}
- }
- 
-_
+if there is RT overload then running the highest-prio RT tasks trumps 
+any other consideration - including load_balance(). Also, same-prio 
+SCHED_FIFO tasks can starve each other indefinitely, so there's not much 
+the load-balancer can do.
 
+	Ingo

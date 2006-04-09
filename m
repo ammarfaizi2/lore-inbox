@@ -1,62 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965058AbWDIBve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965060AbWDIC1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965058AbWDIBve (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Apr 2006 21:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965059AbWDIBve
+	id S965060AbWDIC1m (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Apr 2006 22:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965061AbWDIC1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Apr 2006 21:51:34 -0400
-Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:42415 "HELO
-	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965058AbWDIBve (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Apr 2006 21:51:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=Jnb9teLRmSKeKD40wUfSQ8EeROqk1hJ9kz3bgRtIh+Yeo2fBelIcVe4krrKDaq+S1f0ULzCrhF5CT50OHpvFfPTtEW8sYpGYLnRk7sZsBVen9Vvnq00a9d5C5UvJp/pyUTzoyeyxg/vfdeYDLPaZLIVCQQwcztSK/vZagCmqlnM=  ;
-Message-ID: <443868A5.1020503@yahoo.com.au>
-Date: Sun, 09 Apr 2006 11:51:33 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-CC: Pavel Machek <pavel@ucw.cz>, Fabio Comolli <fabio.comolli@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Userland swsusp failure (mm-related)
-References: <b637ec0b0604080537s55e63544r8bb63c887e81ecaf@mail.gmail.com> <200604081716.31836.rjw@sisk.pl> <20060408161555.GA1722@elf.ucw.cz> <200604090047.17372.rjw@sisk.pl>
-In-Reply-To: <200604090047.17372.rjw@sisk.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 8 Apr 2006 22:27:42 -0400
+Received: from xenotime.net ([66.160.160.81]:29617 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965060AbWDIC1m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Apr 2006 22:27:42 -0400
+Date: Sat, 8 Apr 2006 19:29:59 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: menuconfig search (Re: [rfc] fix Kconfig, hotplug_cpu is needed
+ for swsusp)
+Message-Id: <20060408192959.1fa9f401.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.61.0604081030201.21887@yvahk01.tjqt.qr>
+References: <20060329220808.GA1716@elf.ucw.cz>
+	<200603300936.22757.ncunningham@cyclades.com>
+	<20060329154748.A12897@unix-os.sc.intel.com>
+	<200603300953.32298.ncunningham@cyclades.com>
+	<Pine.LNX.4.61.0603301022400.30783@yvahk01.tjqt.qr>
+	<20060403221537.79bb3af9.rdunlap@xenotime.net>
+	<Pine.LNX.4.61.0604081030201.21887@yvahk01.tjqt.qr>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
-> Hi,
-> 
+On Sat, 8 Apr 2006 10:42:46 +0200 (MEST) Jan Engelhardt wrote:
 
->>>Well, it looks like we didn't free enough RAM for suspend in this case.
->>>Unfortunately we were below the min watermark for ZONE_NORMAL and
->>>we tried to allocate with GFP_ATOMIC (Nick, shouldn't we fall back to
->>>ZONE_DMA in this case?).
->>>
->>>I think we can safely ignore the watermarks in swsusp, so probably
->>>we can set PF_MEMALLOC for the current task temporarily and reset
->>>it when we have allocated memory.  Pavel, what do you think?
->>
->>Seems little hacky but okay to me.
->>
->>Should not fixing "how much to free" computation to free a bit more be
->>enough to handle this?
+> >> I find it very confusing to use, since it returns too verbose text to skim 
+> >> through. Probably the search function should be split into "only search 
+> >> titles[*]" and "search description too".
+> >
+> >Re verbosity:  do you know that menuconfig search (/) takes regular
+> >expressions?
 > 
-> 
-> Yes, but in that case we'll leave some memory unused. ;-)
-> 
+> Regexes are not mentioned in the "Help" menu.
 
-Probably doesn't fall back to ZONE_DMA because of lowmem reserve.
-Yes, PF_MEMALLOC sounds like it might do what you want. A little
-hackish perhaps, but better than putting swsusp special cases
-into page_alloc.c.
+It is mentioned in the Help text after one enters '/'.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+  │ Search for CONFIG_ symbols and display their relations.                 │
+  │ Regular expressions are allowed.                                        │
+  │ Example: search for "^FOO"                                              │
+
+
+> >That could help someone limit the amount of output
+> >from it.
+> >Can you give an example of being too verbose?
+> 
+> / UNIX
+>  Symbol: UNIX [=y]
+>  Prompt: Unix domain sockets
+>    Defined at net/unix/Kconfig:5
+>    Depends on: NET
+>    Location:
+>      -> Networking
+>        -> Networking support (NET [=y])
+>          -> Networking options
+> 
+>  Symbol: UNIXWARE_DISKSLICES ...
+>   ...
+> 
+> 
+> What would be more useful:
+>  UNIX
+>    Unix domain sockets
+>    Networking > Networking Support > Networking options
+> 
+>  UNIXWARE_DISKSLICES
+>    Unixware slices support
+>    File systems > Advanced ...
+> 
+> I.e. strip the Defined and Depends lines and crunch the Location lines inasfar
+> as that the full width of the window is used (break at col 70).
+
+I don't see any need to limit it to 70 columns wide.  It knows how to
+scroll left/right (using arrow keys).
+
+ 
+>  DEEP_FS
+>    Just a symbol
+>    File systems > Advanced filesystems > Very advanced filesystems >\n
+>    Extremely advanced filesystems > Deep filesystem
+> 
+> 
+> >I have just modified menuconfig search to make displaying the
+> >Selects: and Selected by: output be an option (actually it's a
+> >different search command (\) to not see those lines.
+> >Would that help any regarding verbosity?
+> 
+> At the moment, entering e.g. UNIX in both the / and \ menus return the very 
+> same output. Bug?
+> 
+> The \ should include everything what the original / had, plus the symbol
+> description ("Say Y here if ....").
+
+Nope, the only thing that the "reduced" search excludes atm is SELECT info.
+>From my original email, as you quoted above, the less-verbose '\' search
+only eliminates the Selects: and Selected by: output, and the UNIX
+config symbols don't have any SELECT info.
+
+I don't know if we are converging any, but I made a new patch:
+  http://www.xenotime.net/linux/patches/menuconfig-search2b.patch
+
+This one changes the default '/' search to NOT be verbose and the
+new, extended '\' search to be verbose.  The non-verbose search omits
+Selects:, Selected by:, and Location: information.
+
+---
+~Randy

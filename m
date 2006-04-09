@@ -1,240 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWDIP3B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWDIP20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbWDIP3B (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 11:29:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWDIP2y
+	id S1750783AbWDIP20 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 11:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWDIP20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 11:28:54 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:31914 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750776AbWDIP23 (ORCPT
+	Sun, 9 Apr 2006 11:28:26 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:31402 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750778AbWDIP2Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 11:28:29 -0400
-Date: Sun, 9 Apr 2006 17:28:28 +0200 (CEST)
+	Sun, 9 Apr 2006 11:28:16 -0400
+Date: Sun, 9 Apr 2006 17:28:15 +0200 (CEST)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
 To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 8/19] kconfig: allow multiple default values per symbol
-Message-ID: <Pine.LNX.4.64.0604091728190.23136@scrub.home>
+Subject: [PATCH 7/19] kconfig: remove SYMBOL_{YES,MOD,NO}
+Message-ID: <Pine.LNX.4.64.0604091728080.23132@scrub.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Extend struct symbol to allow storing multiple default values, which can
-be used to hold multiple configurations.
+The SYMBOL_{YES,MOD,NO} are not really used anymore (they were more used
+be the cml1 converter), so just remove them.
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
 ---
 
- scripts/kconfig/confdata.c |   34 +++++++++++++++++-----------------
- scripts/kconfig/expr.h     |    7 ++++++-
- scripts/kconfig/symbol.c   |   16 ++++++++--------
- 3 files changed, 31 insertions(+), 26 deletions(-)
+ scripts/kconfig/expr.c   |    3 ++-
+ scripts/kconfig/expr.h   |    5 +----
+ scripts/kconfig/gconf.c  |    6 ------
+ scripts/kconfig/symbol.c |    6 +++---
+ 4 files changed, 6 insertions(+), 14 deletions(-)
 
-Index: linux-2.6-git/scripts/kconfig/confdata.c
+Index: linux-2.6-git/scripts/kconfig/expr.c
 ===================================================================
---- linux-2.6-git.orig/scripts/kconfig/confdata.c
-+++ linux-2.6-git/scripts/kconfig/confdata.c
-@@ -133,11 +133,11 @@ load:
- 		case S_INT:
- 		case S_HEX:
- 		case S_STRING:
--			if (sym->user.val)
--				free(sym->user.val);
-+			if (sym->def[S_DEF_USER].val)
-+				free(sym->def[S_DEF_USER].val);
- 		default:
--			sym->user.val = NULL;
--			sym->user.tri = no;
-+			sym->def[S_DEF_USER].val = NULL;
-+			sym->def[S_DEF_USER].tri = no;
- 		}
+--- linux-2.6-git.orig/scripts/kconfig/expr.c
++++ linux-2.6-git/scripts/kconfig/expr.c
+@@ -145,7 +145,8 @@ static void __expr_eliminate_eq(enum exp
+ 		return;
  	}
- 
-@@ -165,7 +165,7 @@ load:
- 			switch (sym->type) {
- 			case S_BOOLEAN:
- 			case S_TRISTATE:
--				sym->user.tri = no;
-+				sym->def[S_DEF_USER].tri = no;
- 				sym->flags &= ~SYMBOL_NEW;
- 				break;
- 			default:
-@@ -195,18 +195,18 @@ load:
- 			switch (sym->type) {
- 			case S_TRISTATE:
- 				if (p[0] == 'm') {
--					sym->user.tri = mod;
-+					sym->def[S_DEF_USER].tri = mod;
- 					sym->flags &= ~SYMBOL_NEW;
- 					break;
- 				}
- 			case S_BOOLEAN:
- 				if (p[0] == 'y') {
--					sym->user.tri = yes;
-+					sym->def[S_DEF_USER].tri = yes;
- 					sym->flags &= ~SYMBOL_NEW;
- 					break;
- 				}
- 				if (p[0] == 'n') {
--					sym->user.tri = no;
-+					sym->def[S_DEF_USER].tri = no;
- 					sym->flags &= ~SYMBOL_NEW;
- 					break;
- 				}
-@@ -229,7 +229,7 @@ load:
- 			case S_INT:
- 			case S_HEX:
- 				if (sym_string_valid(sym, p)) {
--					sym->user.val = strdup(p);
-+					sym->def[S_DEF_USER].val = strdup(p);
- 					sym->flags &= ~SYMBOL_NEW;
- 				} else {
- 					conf_warning("symbol value '%s' invalid for %s", p, sym->name);
-@@ -248,24 +248,24 @@ load:
- 		}
- 		if (sym && sym_is_choice_value(sym)) {
- 			struct symbol *cs = prop_get_symbol(sym_get_choice_prop(sym));
--			switch (sym->user.tri) {
-+			switch (sym->def[S_DEF_USER].tri) {
- 			case no:
- 				break;
- 			case mod:
--				if (cs->user.tri == yes) {
-+				if (cs->def[S_DEF_USER].tri == yes) {
- 					conf_warning("%s creates inconsistent choice state", sym->name);
- 					cs->flags |= SYMBOL_NEW;
- 				}
- 				break;
- 			case yes:
--				if (cs->user.tri != no) {
-+				if (cs->def[S_DEF_USER].tri != no) {
- 					conf_warning("%s creates inconsistent choice state", sym->name);
- 					cs->flags |= SYMBOL_NEW;
- 				} else
--					cs->user.val = sym;
-+					cs->def[S_DEF_USER].val = sym;
- 				break;
- 			}
--			cs->user.tri = E_OR(cs->user.tri, sym->user.tri);
-+			cs->def[S_DEF_USER].tri = E_OR(cs->def[S_DEF_USER].tri, sym->def[S_DEF_USER].tri);
- 		}
- 	}
- 	fclose(in);
-@@ -294,12 +294,12 @@ int conf_read(const char *name)
- 			switch (sym->type) {
- 			case S_BOOLEAN:
- 			case S_TRISTATE:
--				if (sym->user.tri != sym_get_tristate_value(sym))
-+				if (sym->def[S_DEF_USER].tri != sym_get_tristate_value(sym))
- 					break;
- 				if (!sym_is_choice(sym))
- 					goto sym_ok;
- 			default:
--				if (!strcmp(sym->curr.val, sym->user.val))
-+				if (!strcmp(sym->curr.val, sym->def[S_DEF_USER].val))
- 					goto sym_ok;
- 				break;
- 			}
-@@ -316,7 +316,7 @@ int conf_read(const char *name)
- 			case S_STRING:
- 			case S_INT:
- 			case S_HEX:
--				if (!sym_string_within_range(sym, sym->user.val)) {
-+				if (!sym_string_within_range(sym, sym->def[S_DEF_USER].val)) {
- 					sym->flags |= SYMBOL_NEW;
- 					sym->flags &= ~SYMBOL_VALID;
- 				}
+ 	if (e1->type == E_SYMBOL && e2->type == E_SYMBOL &&
+-	    e1->left.sym == e2->left.sym && (e1->left.sym->flags & (SYMBOL_YES|SYMBOL_NO)))
++	    e1->left.sym == e2->left.sym &&
++	    (e1->left.sym == &symbol_yes || e1->left.sym == &symbol_no))
+ 		return;
+ 	if (!expr_eq(e1, e2))
+ 		return;
 Index: linux-2.6-git/scripts/kconfig/expr.h
 ===================================================================
 --- linux-2.6-git.orig/scripts/kconfig/expr.h
 +++ linux-2.6-git/scripts/kconfig/expr.h
-@@ -63,12 +63,17 @@ enum symbol_type {
- 	S_UNKNOWN, S_BOOLEAN, S_TRISTATE, S_INT, S_HEX, S_STRING, S_OTHER
- };
+@@ -78,10 +78,7 @@ struct symbol {
  
-+enum {
-+	S_DEF_USER,		/* main user value */
-+};
-+
- struct symbol {
- 	struct symbol *next;
- 	char *name;
- 	char *help;
- 	enum symbol_type type;
--	struct symbol_value curr, user;
-+	struct symbol_value curr;
-+	struct symbol_value def[4];
- 	tristate visible;
- 	int flags;
- 	struct property *prop;
+ #define for_all_symbols(i, sym) for (i = 0; i < 257; i++) for (sym = symbol_hash[i]; sym; sym = sym->next) if (sym->type != S_OTHER)
+ 
+-#define SYMBOL_YES		0x0001
+-#define SYMBOL_MOD		0x0002
+-#define SYMBOL_NO		0x0004
+-#define SYMBOL_CONST		0x0007
++#define SYMBOL_CONST		0x0001
+ #define SYMBOL_CHECK		0x0008
+ #define SYMBOL_CHOICE		0x0010
+ #define SYMBOL_CHOICEVAL	0x0020
+Index: linux-2.6-git/scripts/kconfig/gconf.c
+===================================================================
+--- linux-2.6-git.orig/scripts/kconfig/gconf.c
++++ linux-2.6-git/scripts/kconfig/gconf.c
+@@ -114,12 +114,6 @@ const char *dbg_print_flags(int val)
+ 
+ 	bzero(buf, 256);
+ 
+-	if (val & SYMBOL_YES)
+-		strcat(buf, "yes/");
+-	if (val & SYMBOL_MOD)
+-		strcat(buf, "mod/");
+-	if (val & SYMBOL_NO)
+-		strcat(buf, "no/");
+ 	if (val & SYMBOL_CONST)
+ 		strcat(buf, "const/");
+ 	if (val & SYMBOL_CHECK)
 Index: linux-2.6-git/scripts/kconfig/symbol.c
 ===================================================================
 --- linux-2.6-git.orig/scripts/kconfig/symbol.c
 +++ linux-2.6-git/scripts/kconfig/symbol.c
-@@ -227,7 +227,7 @@ static struct symbol *sym_calc_choice(st
- 	struct expr *e;
- 
- 	/* is the user choice visible? */
--	def_sym = sym->user.val;
-+	def_sym = sym->def[S_DEF_USER].val;
- 	if (def_sym) {
- 		sym_calc_visibility(def_sym);
- 		if (def_sym->visible != no)
-@@ -306,7 +306,7 @@ void sym_calc_value(struct symbol *sym)
- 		} else if (E_OR(sym->visible, sym->rev_dep.tri) != no) {
- 			sym->flags |= SYMBOL_WRITE;
- 			if (sym_has_value(sym))
--				newval.tri = sym->user.tri;
-+				newval.tri = sym->def[S_DEF_USER].tri;
- 			else if (!sym_is_choice(sym)) {
- 				prop = sym_get_default_prop(sym);
- 				if (prop)
-@@ -329,7 +329,7 @@ void sym_calc_value(struct symbol *sym)
- 		if (sym->visible != no) {
- 			sym->flags |= SYMBOL_WRITE;
- 			if (sym_has_value(sym)) {
--				newval.val = sym->user.val;
-+				newval.val = sym->def[S_DEF_USER].val;
- 				break;
- 			}
- 		}
-@@ -439,7 +439,7 @@ bool sym_set_tristate_value(struct symbo
- 		struct property *prop;
- 		struct expr *e;
- 
--		cs->user.val = sym;
-+		cs->def[S_DEF_USER].val = sym;
- 		cs->flags &= ~SYMBOL_NEW;
- 		prop = sym_get_choice_prop(cs);
- 		for (e = prop->expr; e; e = e->left.expr) {
-@@ -448,7 +448,7 @@ bool sym_set_tristate_value(struct symbo
- 		}
- 	}
- 
--	sym->user.tri = val;
-+	sym->def[S_DEF_USER].tri = val;
- 	if (oldval != val) {
- 		sym_clear_all_valid();
- 		if (sym == modules_sym)
-@@ -596,15 +596,15 @@ bool sym_set_string_value(struct symbol 
- 		sym_set_changed(sym);
- 	}
- 
--	oldval = sym->user.val;
-+	oldval = sym->def[S_DEF_USER].val;
- 	size = strlen(newval) + 1;
- 	if (sym->type == S_HEX && (newval[0] != '0' || (newval[1] != 'x' && newval[1] != 'X'))) {
- 		size += 2;
--		sym->user.val = val = malloc(size);
-+		sym->def[S_DEF_USER].val = val = malloc(size);
- 		*val++ = '0';
- 		*val++ = 'x';
- 	} else if (!oldval || strcmp(oldval, newval))
--		sym->user.val = val = malloc(size);
-+		sym->def[S_DEF_USER].val = val = malloc(size);
- 	else
- 		return true;
- 
+@@ -15,15 +15,15 @@
+ struct symbol symbol_yes = {
+ 	.name = "y",
+ 	.curr = { "y", yes },
+-	.flags = SYMBOL_YES|SYMBOL_VALID,
++	.flags = SYMBOL_CONST|SYMBOL_VALID,
+ }, symbol_mod = {
+ 	.name = "m",
+ 	.curr = { "m", mod },
+-	.flags = SYMBOL_MOD|SYMBOL_VALID,
++	.flags = SYMBOL_CONST|SYMBOL_VALID,
+ }, symbol_no = {
+ 	.name = "n",
+ 	.curr = { "n", no },
+-	.flags = SYMBOL_NO|SYMBOL_VALID,
++	.flags = SYMBOL_CONST|SYMBOL_VALID,
+ }, symbol_empty = {
+ 	.name = "",
+ 	.curr = { "", no },

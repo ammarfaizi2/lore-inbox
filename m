@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbWDISYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWDISXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750843AbWDISYn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 14:24:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWDISYn
+	id S1750838AbWDISXU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 14:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWDISXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 14:24:43 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:50636 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750842AbWDISYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 14:24:42 -0400
-Subject: Re: [PATCH 2.6.16] Shared interrupts sometimes lost
-From: Lee Revell <rlrevell@joe-job.com>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <44394EA6.3000309@shaw.ca>
-References: <5Zd5E-3vi-7@gated-at.bofh.it> <5ZoDL-3rE-7@gated-at.bofh.it>
-	 <44394EA6.3000309@shaw.ca>
+	Sun, 9 Apr 2006 14:23:19 -0400
+Received: from mail.gmx.net ([213.165.64.20]:19409 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750838AbWDISXT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Apr 2006 14:23:19 -0400
+X-Authenticated: #14349625
+Subject: Re: [patch][rfc] quell interactive feeding frenzy
+From: Mike Galbraith <efault@gmx.de>
+To: bert hubert <bert.hubert@netherlabs.nl>
+Cc: Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Peter Williams <pwil3058@bigpond.net.au>
+In-Reply-To: <20060409121436.GA28075@outpost.ds9a.nl>
+References: <1144402690.7857.31.camel@homer>
+	 <200604072256.27665.kernel@kolivas.org> <1144417064.8114.26.camel@homer>
+	 <200604072356.03580.kernel@kolivas.org> <1144419294.14231.7.camel@homer>
+	 <20060409111436.GA26533@outpost.ds9a.nl> <1144582778.13991.10.camel@homer>
+	 <20060409121436.GA28075@outpost.ds9a.nl>
 Content-Type: text/plain
-Date: Sun, 09 Apr 2006 14:24:36 -0400
-Message-Id: <1144607077.22490.204.camel@mindpipe>
+Date: Sun, 09 Apr 2006 20:24:02 +0200
+Message-Id: <1144607042.7408.28.camel@homer>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-04-09 at 12:12 -0600, Robert Hancock wrote:
-> Lee Revell wrote: 
-> > Isn't a more typical IRQ handler:
-> > 
-> > while (events = read_register(INTERRUPTS) != 0) {
-> >       ...handle each bit in events and ACK it...
-> > }
+On Sun, 2006-04-09 at 14:14 +0200, bert hubert wrote:
+> On Sun, Apr 09, 2006 at 01:39:38PM +0200, Mike Galbraith wrote:
+> > Ok, unusable may be overstated.  Nonetheless, that bit of code causes
+> > serious problems.  It makes my little PIII/500 test box trying to fill
+> > one 100Mbit local network unusable.  That is not overstated.
 > 
-> That would be less efficient, it would read the register twice or more
-> if any events have been set, and reading device registers can be 
-> expensive. In the unlikely event the event was set while inside the
-> ISR the interrupt should be asserted again so there is no need to do
-> this. 
+> If you try to make a PIII/500 fill 100mbit of TCP/IP using lots of different
+> processes, that IS a corner load.
 
-OK.  FWIW I am looking at the emu10k1 driver (though I've seen this in
-others).  The OSS driver has this comment:
+I'm trying to wrap my head around this statement, and failing.  I have
+10 tasks, I divide 100mbs/10 (_very_ modest concurrency) , and I can't
+even login.
 
-    /*
-     ** NOTE :
-     ** We do a 'while loop' here cos on certain machines, with both
-     ** playback and recording going on at the same time, IRQs will
-     ** stop coming in after a while. Checking IPND indeed shows that
-     ** there are interrupts pending but the PIC says no IRQs pending.
-     ** I suspect that some boards need edge-triggered IRQs but are not
-     ** getting that condition if we don't completely clear the IPND
-     ** (make sure no more interrupts are pending).
-     ** - Eric
-     */
-
-The ALSA driver preserves the while loop but omits the comment :-/
-
-Lee
-
-
+	-Mike 
 

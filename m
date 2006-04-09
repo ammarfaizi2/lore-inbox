@@ -1,80 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWDITKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWDITMc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750830AbWDITKb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 15:10:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbWDITKb
+	id S1750835AbWDITMc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 15:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWDITMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 15:10:31 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8668 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750830AbWDITKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 15:10:31 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 1/5] uts namespaces: Implement utsname namespaces
-References: <20060407095132.455784000@sergelap>
-	<p73hd549o5u.fsf@bragg.suse.de>
-	<20060408202840.GB26403@sergelap.austin.ibm.com>
-	<200604090800.57814.ak@suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sun, 09 Apr 2006 13:08:36 -0600
-In-Reply-To: <200604090800.57814.ak@suse.de> (Andi Kleen's message of "Sun,
- 9 Apr 2006 08:00:57 +0200")
-Message-ID: <m1slomin2j.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Sun, 9 Apr 2006 15:12:32 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:22434 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750835AbWDITMc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Apr 2006 15:12:32 -0400
+Message-ID: <44395C98.7010208@garzik.org>
+Date: Sun, 09 Apr 2006 15:12:24 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@osdl.org>
+CC: Nick Orlov <bugfixer@list.ru>, linux-kernel@vger.kernel.org, axboe@suse.de,
+       James.Bottomley@SteelEye.com
+Subject: Re: 2.6.17-rc1-mm2: badness in 3w_xxxx driver
+References: <20060409182306.GA4680@nickolas.homeunix.com> <20060409113240.630b9a24.akpm@osdl.org>
+In-Reply-To: <20060409113240.630b9a24.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -3.8 (---)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-3.8 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+Andrew Morton wrote:
+> Nick Orlov <bugfixer@list.ru> wrote:
+>> The following patch: x86-kmap_atomic-debugging.patch exposed a badness
+>> in 3w_xxx driver.
+> 
+> Sweet, thanks.
+> 
+>> I'm getting a lot of:
+>>
+>> Apr  9 13:00:04 nickolas kernel: kmap_atomic: local irqs are enabled while using KM_IRQn
+>> Apr  9 13:00:04 nickolas kernel:  <c0104103> show_trace+0x13/0x20   <c010412e> dump_stack+0x1e/0x20
+>> Apr  9 13:00:04 nickolas kernel:  <c01159c9> kmap_atomic+0x79/0xe0   <c028b885> tw_transfer_internal+0x85/0xa0
+>> Apr  9 13:00:04 nickolas kernel:  <c028ca7e> tw_interrupt+0x3fe/0x820   <c0143b9e> handle_IRQ_event+0x3e/0x80
+>> Apr  9 13:00:04 nickolas kernel:  <c0143c70> __do_IRQ+0x90/0x100   <c01057a6> do_IRQ+0x26/0x40
+>> Apr  9 13:00:04 nickolas kernel:  <c010396e> common_interrupt+0x1a/0x20   <c0101cdd> cpu_idle+0x4d/0xb0
+>> Apr  9 13:00:04 nickolas kernel:  <c010f2cc> start_secondary+0x24c/0x4b0   <00000000> 0x0
+>> Apr  9 13:00:04 nickolas kernel:  <c214ffb4> 0xc214ffb4  
+>>
+>> I'm running 32 bit kernel on AMD64x2 w/ HIGHMEM enabled.
+>> I think this is an old bug since the 3w_xxxx.c has not been changed for
+>> a long time (at least since 2.6.16-rc1-mm4).
+>>
+>> Please let me know if you want me to try some patches.
+>>
+> 
+> 
+> From: Andrew Morton <akpm@osdl.org>
+> 
+> We must disable local IRQs while holding KM_IRQ0 or KM_IRQ1.  Otherwise, an
+> IRQ handler could use those kmap slots while this code is using them,
+> resulting in memory corruption.
+> 
+> Thanks to Nick Orlov <bugfixer@list.ru> for reporting.
+> 
+> Cc: <linuxraid@amcc.com>
+> Cc: James Bottomley <James.Bottomley@SteelEye.com>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> ---
+> 
+>  drivers/scsi/3w-xxxx.c |    3 +++
+>  1 files changed, 3 insertions(+)
+> 
+> diff -puN drivers/scsi/3w-xxxx.c~3ware-kmap_atomic-fix drivers/scsi/3w-xxxx.c
+> --- devel/drivers/scsi/3w-xxxx.c~3ware-kmap_atomic-fix	2006-04-09 11:28:08.000000000 -0700
+> +++ devel-akpm/drivers/scsi/3w-xxxx.c	2006-04-09 11:29:21.000000000 -0700
+> @@ -1508,10 +1508,12 @@ static void tw_transfer_internal(TW_Devi
+>  	struct scsi_cmnd *cmd = tw_dev->srb[request_id];
+>  	void *buf;
+>  	unsigned int transfer_len;
+> +	unsigned long flags = 0;
+>  
+>  	if (cmd->use_sg) {
+>  		struct scatterlist *sg =
+>  			(struct scatterlist *)cmd->request_buffer;
+> +		local_irq_save(flags);
+>  		buf = kmap_atomic(sg->page, KM_IRQ0) + sg->offset;
+>  		transfer_len = min(sg->length, len);
+>  	} else {
+> @@ -1526,6 +1528,7 @@ static void tw_transfer_internal(TW_Devi
+>  
+>  		sg = (struct scatterlist *)cmd->request_buffer;
+>  		kunmap_atomic(buf - sg->offset, KM_IRQ0);
+> +		local_irq_restore(flags);
 
-> On Saturday 08 April 2006 22:28, Serge E. Hallyn wrote:
->
->> The consensus so far has been to start putting things into task_struct
->> and move if needed.  At least the performance numbers show that so far
->> there is no impact.
->
-> Performance is not the only consider consideration here. Overall 
-> memory consumption is important too.
->
-> Sure for a single namespace like utsname it won't make much difference,
-> but it likely will if you have 10-20 of these things.
+ACK.
 
-The highest estimate I have seen is 10, including the current
-mount namespace.
+Though please make sure the active maintainer is CC'd on this...  There 
+is even a helpful MAINTAINERS entry for this driver.
 
-Basically it looks like: mounts, uts, sysvipc, net, pid, uid. 
-Not very many.
+	Jeff
 
-Even in your worst cast estimate of 20.  That puts
-us at.  8*20 = 160.  160 vs 10K. or about a 1% size increase.
-Not terribly noticeable.
 
-And I think 20 - 40 bytes of increase not 160 is a lot
-closer to where we will be in the short term.
-
->> iirc container patches have been sent before.  Should those be resent,
->> then, and perhaps this patchset rebased on those?
->
-> I think so.
-
-That is premature optimization, and it ties the implementations
-together.  Which makes implementing this that much harder,
-and we do want separate sharing of these things.
-
-Once we have something working I don't have a problem going back
-and revisiting what it takes to optimize the size of the
-implementation.  But while we still have correctness issues
-to worry about such a small optimization before we can
-even measure the benefit or have a good feel of the users
-does not make sense.
-
-If you really think this is a beneficial approach to reducing
-size you can already apply it to all of the thread pointers.
-Where the gain is immediately noticeable, and the count is
-similar.
-
-We will be happy to follow the best current practices.
-
-Eric

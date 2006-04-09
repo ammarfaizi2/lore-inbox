@@ -1,89 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWDIJso@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWDIJx6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750712AbWDIJso (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 05:48:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWDIJso
+	id S1750715AbWDIJx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 05:53:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWDIJx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 05:48:44 -0400
-Received: from ns2.suse.de ([195.135.220.15]:22919 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750712AbWDIJso (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 05:48:44 -0400
-From: Neil Brown <neilb@suse.de>
-To: Robert Hancock <hancockr@shaw.ca>
-Date: Sun, 9 Apr 2006 19:48:22 +1000
+	Sun, 9 Apr 2006 05:53:57 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:38104 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750715AbWDIJx5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Apr 2006 05:53:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hh5jHIB7Xet29eqFe7YUVbxbHbiiLKl5CrQIoMj45g8MF5sVqGyv0E183Er2LsuN3RR/TPXK/B+2vfQIp+nJZ+4tze60DFV3YV+uspq6XaD4hS8VduLUb+o3GNTtZpzbhCyREaYWLyRJNSbi4S6t/L/VSIMEc5yHaJrcUQ49LfY=
+Message-ID: <c70ff3ad0604090253n7fe4de4che67f18380ffa2efd@mail.gmail.com>
+Date: Sun, 9 Apr 2006 12:53:56 +0300
+From: "saeed bishara" <saeed.bishara@gmail.com>
+To: "Arjan van de Ven" <arjan@infradead.org>,
+       "saeed bishara" <saeed.bishara@gmail.com>,
+       "Paolo Ornati" <ornati@fastwebnet.it>, linux-kernel@vger.kernel.org,
+       linux-arm-kernel@lists.arm.linux.org.uk,
+       Linux-arm-toolchain@lists.arm.linux.org.uk
+Subject: Re: add new code section for kernel code
+In-Reply-To: <20060407154349.GB31458@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17464.55398.270243.839773@cse.unsw.edu.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: How to correct ELCR? - was Re: [PATCH 2.6.16] Shared interrupts sometimes lost
-In-Reply-To: message from Robert Hancock on Saturday April 8
-References: <5Zd5E-3vi-7@gated-at.bofh.it>
-	<4437C45E.8010503@shaw.ca>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <c70ff3ad0604060545o2e2dc8fcg2948ca53b3b3c8b0@mail.gmail.com>
+	 <20060406151003.0ef4e637@localhost>
+	 <c70ff3ad0604060947t728fbad9g2e3b35198f9b0f66@mail.gmail.com>
+	 <c70ff3ad0604070402p355a5695y28b5806cbf7bed0a@mail.gmail.com>
+	 <1144422864.3117.0.camel@laptopd505.fenrus.org>
+	 <20060407154349.GB31458@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday April 8, hancockr@shaw.ca wrote:
-> Neil Brown wrote:
-> >  However there is room for a race here.  If an event occurs between
-> >  the read and the write, then this will NOT de-assert the IRQ line.
-> >  It will remain asserted throughout.
-> > 
-> >  Now if the IRQ is handled as an edge-triggered line (which I believe
-> >  they are in Linux), then losing this race will mean that we don't see
-> >  any more interrupts on this line.
-> 
-> PCI interrupts should always be level triggered, not edge triggered 
+> I'd prefer not to paper over such bugs.  Maybe the following patch will
+> fix the decompressor for saeed?
 
-Ok... so I guess I jumped to the wrong conclusion. Thanks for
-straightening me out.
-But it is behaving like edge-triggered..
+yes, this patch fixed the problem.
 
-So I have explored about the i8259 (wikipedia helped) and discovered
-the ELCR (Edge/Level Control Register).  Apparently this is meant to
-be set up by the BIOS to the correct values.  It seems that this isn't
-happening. 
-
-It seems to get the value 0x0800 which corresponds to IRQ11 being the
-only level-triggered interrupt.  But I need IRQ10 to be level
-triggered.  I hacked the code to set the 0x0400 bit, and it seems to
-work OK without my other patch.
-
-Now I just need a way to set this correctly at boot time without a
-hack.
-
-I currently have Linux compiled without ACPI support (as I don't
-really want that and being an oldish notebook I gather it has a good
-chance of causing problems) so that isn't fiddling with the ELCR.
-
-So thank you for helping me a step further in understand, but now I
-have a new question:
-
- How can I make sure the ELCR is set correctly?
-and I guess,
- What is the correct setting?
-
-My /proc/interrupts is below.
-
-Thanks.
-
-NeilBrown
-
-           CPU0       
-  0:     505852          XT-PIC  timer
-  1:         10          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  4:         10          XT-PIC  serial
-  8:          4          XT-PIC  rtc
- 10:      16442          XT-PIC  yenta, yenta, ohci_hcd:usb1, ohci_hcd:usb2, ehci_hcd:usb4, eth0
- 11:          0          XT-PIC  uhci_hcd:usb3
- 12:        110          XT-PIC  i8042
- 14:       5114          XT-PIC  ide0
- 15:         38          XT-PIC  ide1
-NMI:          0 
-ERR:          0
+>
+> diff --git a/arch/arm/boot/compressed/vmlinux.lds.in b/arch/arm/boot/compressed/vmlinux.lds.in
+> --- a/arch/arm/boot/compressed/vmlinux.lds.in
+> +++ b/arch/arm/boot/compressed/vmlinux.lds.in
+> @@ -18,6 +18,7 @@ SECTIONS
+>      _start = .;
+>      *(.start)
+>      *(.text)
+> +    *(.text.*)
+>      *(.fixup)
+>      *(.gnu.warning)
+>      *(.rodata)
+>
+>
+> --
+> Russell King
+>  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+>  maintainer of:  2.6 Serial core
+>

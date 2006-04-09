@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWDILi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWDILny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbWDILi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 07:38:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWDILi7
+	id S1750729AbWDILny (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 07:43:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWDILny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 07:38:59 -0400
-Received: from mail.gmx.net ([213.165.64.20]:20389 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750730AbWDILi6 (ORCPT
+	Sun, 9 Apr 2006 07:43:54 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:1467 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1750729AbWDILny (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 07:38:58 -0400
-X-Authenticated: #14349625
-Subject: Re: [patch][rfc] quell interactive feeding frenzy
-From: Mike Galbraith <efault@gmx.de>
-To: bert hubert <bert.hubert@netherlabs.nl>
-Cc: Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Peter Williams <pwil3058@bigpond.net.au>
-In-Reply-To: <20060409111436.GA26533@outpost.ds9a.nl>
-References: <1144402690.7857.31.camel@homer>
-	 <200604072256.27665.kernel@kolivas.org> <1144417064.8114.26.camel@homer>
-	 <200604072356.03580.kernel@kolivas.org> <1144419294.14231.7.camel@homer>
-	 <20060409111436.GA26533@outpost.ds9a.nl>
-Content-Type: text/plain
-Date: Sun, 09 Apr 2006 13:39:38 +0200
-Message-Id: <1144582778.13991.10.camel@homer>
+	Sun, 9 Apr 2006 07:43:54 -0400
+Date: Sun, 9 Apr 2006 15:39:50 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
+Subject: Re: [-mm patch] drivers/w1/w1.c: fix a compile error
+Message-ID: <20060409113950.GA29990@2ka.mipt.ru>
+References: <20060408031405.5e5131da.akpm@osdl.org> <20060409113110.GA8454@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20060409113110.GA8454@stusta.de>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sun, 09 Apr 2006 15:39:52 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-04-09 at 13:14 +0200, bert hubert wrote:
-> On Fri, Apr 07, 2006 at 04:14:54PM +0200, Mike Galbraith wrote:
-> > Ok.  Do we then agree that it makes 2.6 unusable for small servers, and
-> > that this constitutes a serious problem? :)
+On Sun, Apr 09, 2006 at 01:31:10PM +0200, Adrian Bunk (bunk@stusta.de) wrote:
+> This patch fixes the following compile error:
 > 
-> You sure? I may be down there in userspace dirt with the other actual Linux
-> users, but I hadn't noticed.
+> <--  snip  -->
+> 
+> ...
+>   CC      drivers/w1/w1.o
+> drivers/w1/w1.c:197: error: static declaration of 'w1_bus_type' follows non-static declaration
+> drivers/w1/w1.h:217: error: previous declaration of 'w1_bus_type' was here
+> make[2]: *** [drivers/w1/w1.o] Error 1
+> 
+> <--  snip  -->
+>
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Ok, unusable may be overstated.  Nonetheless, that bit of code causes
-serious problems.  It makes my little PIII/500 test box trying to fill
-one 100Mbit local network unusable.  That is not overstated.
+Thank you, Adrian, your patch is correct.
 
-	-Mike
-
+-- 
+	Evgeniy Polyakov

@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWDIQkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbWDIQqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750811AbWDIQkW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 12:40:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbWDIQkW
+	id S1750812AbWDIQqD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 12:46:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbWDIQqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 12:40:22 -0400
-Received: from stinky.trash.net ([213.144.137.162]:58774 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S1750811AbWDIQkV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 12:40:21 -0400
-Message-ID: <4439385B.6010908@trash.net>
-Date: Sun, 09 Apr 2006 18:37:47 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Sun, 9 Apr 2006 12:46:03 -0400
+Received: from [212.33.180.21] ([212.33.180.21]:24324 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1750812AbWDIQqC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Apr 2006 12:46:02 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch][rfc] quell interactive feeding frenzy
+Date: Sun, 9 Apr 2006 19:44:28 +0300
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-To: Nix <nix@esperi.org.uk>
-CC: vherva@vianova.fi, linux-kernel@vger.kernel.org,
-       netfilter@lists.netfilter.org, davem@davemloft.net
-Subject: Re: Linux 2.6.17-rc1: /sbin/iptables does not find kernel netfilter
-References: <Pine.LNX.4.64.0604022037380.3781@g5.osdl.org>	<20060408200915.GN1686@vianova.fi> <44388908.6070602@trash.net>	<20060409074313.GZ15954@vianova.fi> <20060409144416.GO1686@vianova.fi>	<20060409144534.GN29797@vianova.fi> <87psjqg2nt.fsf@hades.wkstn.nix>
-In-Reply-To: <87psjqg2nt.fsf@hades.wkstn.nix>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200604091944.28954.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nix wrote:
-> On 9 Apr 2006, Ville Herva yowled:
-> 
->>On Sun, Apr 09, 2006 at 05:44:16PM +0300, you [Ville Herva] wrote:
->>
->>>I just realized 
->>># CONFIG_NETFILTER_XT_MATCH_STATE is not set
->>>should probably be set. I'm building a new kernel now...
->>
->>Ok, that seems to do it.
->>
->>Thanks for the help, and sorry for the noise. I hope not too many people hit
->>the same glitch while upgrading...
-> 
-> 
-> I cetainly did. A simple `make oldconfig' ends up zapping pretty much
-> all the old iptables CONFIG_ options, so you end up with not much of
-> iptables or netfilter left.
+bert hubert wrote:
+> On Sun, Apr 09, 2006 at 01:39:38PM +0200, Mike Galbraith wrote:
+> > Ok, unusable may be overstated.  Nonetheless, that bit of code causes
+> > serious problems.  It makes my little PIII/500 test box trying to fill
+> > one 100Mbit local network unusable.  That is not overstated.
+>
+> If you try to make a PIII/500 fill 100mbit of TCP/IP using lots of
+> different processes, that IS a corner load.
+>
+> I'm sure you can fix this (rare) workload but are you very sure you are
+> not killing off performance for other situations?
 
-But it does show you all the new options. Admittedly, it would
-have been better to automatically select the new options when
-needed, but probably not worth changing it now, it has been
-like this for two releases I think.
+This really has nothing to do w/ workload but rather w/ multi-user processing 
+/tasking /threading.  And the mere fact that the 2.6 kernel prefers 
+kernel-threads should imply an overall performance increase (think pdflush).
 
-> I must admit not quite understanding why the xtables stuff is needed:
-> I thought that was needed for userspace connection tracking, which
-> while it sounds cool isn't something I'm using yet.
+The reason why not many have noticed this scheduler problem(s) is because 
+most hackers nowadays work w/ the latest fastest hw available which does not 
+allow them to see these problems (think Windows, where most problems are 
+resolved by buying the latest hw).
 
-Its a unification of the matches and targets that are address family
-independant.
+Real Hackers never miss out on making their work run on the smallest common 
+denominator (think i386dx :).
+
+Thanks!
+
+--
+Al
+

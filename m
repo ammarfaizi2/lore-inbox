@@ -1,85 +1,584 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWDJS6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWDJTBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWDJS6t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 14:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbWDJS6s
+	id S932101AbWDJTBY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 15:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWDJTBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 14:58:48 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:7871 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932100AbWDJS6r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 14:58:47 -0400
-Message-ID: <443AAAE5.2020208@garzik.org>
-Date: Mon, 10 Apr 2006 14:58:45 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Mon, 10 Apr 2006 15:01:24 -0400
+Received: from smtp113.sbc.mail.mud.yahoo.com ([68.142.198.212]:33367 "HELO
+	smtp113.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932101AbWDJTBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 15:01:23 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH][UPDATE] spi: Added spi master driver for Freescale MPC83xx SPI controller
+Date: Mon, 10 Apr 2006 12:01:19 -0700
+User-Agent: KMail/1.7.1
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       spi-devel-general@lists.sourceforge.net
+References: <Pine.LNX.4.44.0604101237520.3000-100000@gate.crashing.org>
+In-Reply-To: <Pine.LNX.4.44.0604101237520.3000-100000@gate.crashing.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [git patch] libata scsi eh fixed to use transport class
-References: <20060410185039.GA32027@havoc.gtf.org>
-In-Reply-To: <20060410185039.GA32027@havoc.gtf.org>
-Content-Type: multipart/mixed;
- boundary="------------020001030408040004000904"
-X-Spam-Score: -3.8 (---)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-3.8 points, 5.0 required)
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604101201.19658.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020001030408040004000904
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Monday 10 April 2006 10:38 am, Kumar Gala wrote:
+> This driver supports the SPI controller on the MPC83xx SoC devices from
+> Freescale.  Note, this driver supports only the simple shift register SPI
+> controller and not the descriptor based CPM or QUICCEngine SPI controller.
+> 
+> Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 
-Jeff Garzik wrote:
-> diff --git a/drivers/scsi/sata_mv.c b/drivers/scsi/sata_mv.c
-> index fa901fd..0ebf136 100644
-> --- a/drivers/scsi/sata_mv.c
-> +++ b/drivers/scsi/sata_mv.c
-> @@ -378,8 +378,6 @@ static struct scsi_host_template mv_sht 
->  	.name			= DRV_NAME,
->  	.ioctl			= ata_scsi_ioctl,
->  	.queuecommand		= ata_scsi_queuecmd,
-> -	.eh_strategy_handler	= ata_scsi_error,
-> -	.can_queue		= MV_USE_Q_DEPTH,
->  	.this_id		= ATA_SHT_THIS_ID,
->  	.sg_tablesize		= MV_MAX_SG_CT / 2,
->  	.cmd_per_lun		= ATA_SHT_CMD_PER_LUN,
+Looks much better.  It could be improved further, but this doesn't
+have enough glitches that I'd object.  However, I think you may need
+to re-diff against the MM tree (or at least Greg's patches) since
+the Makefile and Kconfig updates will conflict with pxa2xx_spi.
 
-And the obvious patch (attached) was just checked in, to fix the above 
-deletion that was in Christoph's original patch, subsequently merged.
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
-	Jeff
-
-
-
---------------020001030408040004000904
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-commit 1b72373491a061be6d456d219a4e2d054ac2aaad
-Author: Jeff Garzik <jeff@garzik.org>
-Date:   Mon Apr 10 14:56:39 2006 -0400
-
-    [libata] sata_mv: fix can_queue line accidentally removed in scsi-eh patch
-
-1b72373491a061be6d456d219a4e2d054ac2aaad
-diff --git a/drivers/scsi/sata_mv.c b/drivers/scsi/sata_mv.c
-index 0ebf136..b64b077 100644
---- a/drivers/scsi/sata_mv.c
-+++ b/drivers/scsi/sata_mv.c
-@@ -378,6 +378,7 @@ static struct scsi_host_template mv_sht 
- 	.name			= DRV_NAME,
- 	.ioctl			= ata_scsi_ioctl,
- 	.queuecommand		= ata_scsi_queuecmd,
-+	.can_queue		= MV_USE_Q_DEPTH,
- 	.this_id		= ATA_SHT_THIS_ID,
- 	.sg_tablesize		= MV_MAX_SG_CT / 2,
- 	.cmd_per_lun		= ATA_SHT_CMD_PER_LUN,
-
---------------020001030408040004000904--
+> 
+> ---
+> commit 1e01024d79c1805e880d8863e03b6db91fc2dd25
+> tree 21744404d18abbee7bc8387bd74ec018e413fab8
+> parent bc33ba02f8414e91a3b2afa877be2c54d6fce564
+> author Kumar Gala <galak@kernel.crashing.org> Mon, 10 Apr 2006 12:38:11 -0500
+> committer Kumar Gala <galak@kernel.crashing.org> Mon, 10 Apr 2006 12:38:11 -0500
+> 
+>  drivers/spi/Kconfig       |   10 +
+>  drivers/spi/Makefile      |    1 
+>  drivers/spi/spi_mpc83xx.c |  488 +++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 499 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
+> index 7a75fae..af937bc 100644
+> --- a/drivers/spi/Kconfig
+> +++ b/drivers/spi/Kconfig
+> @@ -75,6 +75,16 @@ config SPI_BUTTERFLY
+>  	  inexpensive battery powered microcontroller evaluation board.
+>  	  This same cable can be used to flash new firmware.
+>  
+> +config SPI_MPC83xx
+> +	tristate "Freescale MPC83xx SPI controller"
+> +	depends on SPI_MASTER && PPC_83xx && EXPERIMENTAL
+> +	select SPI_BITBANG
+> +	help
+> +	  This enables using the Freescale MPC83xx SPI controller in master mode.
+> +	  Note, this driver uniquely supports the SPI controller on the MPC83xx
+> +	  family of PowerPC processors.  The MPC83xx uses a simple set of shift
+> +	  registers for data (opposed to the CPM based descriptor model).
+> +
+>  #
+>  # Add new SPI master controllers in alphabetical order above this line
+>  #
+> diff --git a/drivers/spi/Makefile b/drivers/spi/Makefile
+> index c2c87e8..502ac0b 100644
+> --- a/drivers/spi/Makefile
+> +++ b/drivers/spi/Makefile
+> @@ -13,6 +13,7 @@ obj-$(CONFIG_SPI_MASTER)		+= spi.o
+>  # SPI master controller drivers (bus)
+>  obj-$(CONFIG_SPI_BITBANG)		+= spi_bitbang.o
+>  obj-$(CONFIG_SPI_BUTTERFLY)		+= spi_butterfly.o
+> +obj-$(CONFIG_SPI_MPC83xx)		+= spi_mpc83xx.o
+>  # 	... add above this line ...
+>  
+>  # SPI protocol drivers (device/link on bus)
+> diff --git a/drivers/spi/spi_mpc83xx.c b/drivers/spi/spi_mpc83xx.c
+> new file mode 100644
+> index 0000000..a5ecdec
+> --- /dev/null
+> +++ b/drivers/spi/spi_mpc83xx.c
+> @@ -0,0 +1,488 @@
+> +/*
+> + * MPC83xx SPI controller driver.
+> + *
+> + * Maintainer: Kumar Gala
+> + *
+> + * Copyright (C) 2006 Polycom, Inc.
+> + *
+> + * This program is free software; you can redistribute  it and/or modify it
+> + * under  the terms of  the GNU General  Public License as published by the
+> + * Free Software Foundation;  either version 2 of the  License, or (at your
+> + * option) any later version.
+> + */
+> +#include <linux/module.h>
+> +#include <linux/init.h>
+> +#include <linux/types.h>
+> +#include <linux/kernel.h>
+> +#include <linux/completion.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/delay.h>
+> +#include <linux/irq.h>
+> +#include <linux/device.h>
+> +#include <linux/spi/spi.h>
+> +#include <linux/spi/spi_bitbang.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/fsl_devices.h>
+> +
+> +#include <asm/irq.h>
+> +#include <asm/io.h>
+> +
+> +/* SPI Controller registers */
+> +struct mpc83xx_spi_reg {
+> +	u8 res1[0x20];
+> +	__be32 mode;
+> +	__be32 event;
+> +	__be32 mask;
+> +	__be32 command;
+> +	__be32 transmit;
+> +	__be32 receive;
+> +};
+> +
+> +/* SPI Controller mode register definitions */
+> +#define	SPMODE_CI_INACTIVEHIGH	(1 << 29)
+> +#define	SPMODE_CP_BEGIN_EDGECLK	(1 << 28)
+> +#define	SPMODE_DIV16		(1 << 27)
+> +#define	SPMODE_REV		(1 << 26)
+> +#define	SPMODE_MS		(1 << 25)
+> +#define	SPMODE_ENABLE		(1 << 24)
+> +#define	SPMODE_LEN(x)		((x) << 20)
+> +#define	SPMODE_PM(x)		((x) << 16)
+> +
+> +/*
+> + * Default for SPI Mode:
+> + * 	SPI MODE 0 (inactive low, phase middle, MSB, 8-bit length, slow clk
+> + */
+> +#define	SPMODE_INIT_VAL (SPMODE_CI_INACTIVEHIGH | SPMODE_DIV16 | SPMODE_REV | \
+> +			 SPMODE_MS | SPMODE_LEN(7) | SPMODE_PM(0xf))
+> +
+> +/* SPIE register values */
+> +#define	SPIE_NE		0x00000200	/* Not empty */
+> +#define	SPIE_NF		0x00000100	/* Not full */
+> +
+> +/* SPIM register values */
+> +#define	SPIM_NE		0x00000200	/* Not empty */
+> +#define	SPIM_NF		0x00000100	/* Not full */
+> +
+> +/* SPI Controller driver's private data. */
+> +struct mpc83xx_spi {
+> +	/* bitbang has to be first */
+> +	struct spi_bitbang bitbang;
+> +	struct completion done;
+> +
+> +	struct mpc83xx_spi_reg __iomem *base;
+> +
+> +	/* rx & tx bufs from the spi_transfer */
+> +	const void *tx;
+> +	void *rx;
+> +
+> +	/* functions to deal with different sized buffers */
+> +	void (*get_rx) (u32 rx_data, struct mpc83xx_spi *);
+> +	u32(*get_tx) (struct mpc83xx_spi *);
+> +
+> +	unsigned int count;
+> +	u32 irq;
+> +
+> +	unsigned nsecs;		/* (clock cycle time)/2 */
+> +
+> +	u32 sysclk;
+> +	void (*activate_cs) (u8 cs, u8 polarity);
+> +	void (*deactivate_cs) (u8 cs, u8 polarity);
+> +};
+> +
+> +static inline void mpc83xx_spi_write_reg(__be32 __iomem * reg, u32 val)
+> +{
+> +	out_be32(reg, val);
+> +}
+> +
+> +static inline u32 mpc83xx_spi_read_reg(__be32 __iomem * reg)
+> +{
+> +	return in_be32(reg);
+> +}
+> +
+> +#define MPC83XX_SPI_RX_BUF(type) 					  \
+> +void mpc83xx_spi_rx_buf_##type(u32 data, struct mpc83xx_spi *mpc83xx_spi) \
+> +{									  \
+> +	type * rx = mpc83xx_spi->rx;					  \
+> +	*rx++ = (type)data;						  \
+> +	mpc83xx_spi->rx = rx;						  \
+> +}
+> +
+> +#define MPC83XX_SPI_TX_BUF(type)				\
+> +u32 mpc83xx_spi_tx_buf_##type(struct mpc83xx_spi *mpc83xx_spi)	\
+> +{								\
+> +	u32 data;						\
+> +	const type * tx = mpc83xx_spi->tx;			\
+> +	data = *tx++;						\
+> +	mpc83xx_spi->tx = tx;					\
+> +	return data;						\
+> +}
+> +
+> +MPC83XX_SPI_RX_BUF(u8)
+> +MPC83XX_SPI_RX_BUF(u16)
+> +MPC83XX_SPI_RX_BUF(u32)
+> +MPC83XX_SPI_TX_BUF(u8)
+> +MPC83XX_SPI_TX_BUF(u16)
+> +MPC83XX_SPI_TX_BUF(u32)
+> +
+> +static void mpc83xx_spi_chipselect(struct spi_device *spi, int value)
+> +{
+> +	struct mpc83xx_spi *mpc83xx_spi;
+> +	u8 pol = spi->mode & SPI_CS_HIGH ? 1 : 0;
+> +
+> +	mpc83xx_spi = spi_master_get_devdata(spi->master);
+> +
+> +	if (value == BITBANG_CS_INACTIVE) {
+> +		if (mpc83xx_spi->deactivate_cs)
+> +			mpc83xx_spi->deactivate_cs(spi->chip_select, pol);
+> +	}
+> +
+> +	if (value == BITBANG_CS_ACTIVE) {
+> +		u32 regval = mpc83xx_spi_read_reg(&mpc83xx_spi->base->mode);
+> +		u32 len = spi->bits_per_word;
+> +		if (len == 32)
+> +			len = 0;
+> +		else
+> +			len = len - 1;
+> +
+> +		/* mask out bits we are going to set */
+> +		regval &= ~0x38ff0000;
+> +
+> +		if (spi->mode & SPI_CPHA)
+> +			regval |= SPMODE_CP_BEGIN_EDGECLK;
+> +		if (spi->mode & SPI_CPOL)
+> +			regval |= SPMODE_CI_INACTIVEHIGH;
+> +
+> +		regval |= SPMODE_LEN(len);
+> +
+> +		if ((mpc83xx_spi->sysclk / spi->max_speed_hz) >= 64) {
+> +			u8 pm = mpc83xx_spi->sysclk / (spi->max_speed_hz * 64);
+> +			regval |= SPMODE_PM(pm) | SPMODE_DIV16;
+> +		} else {
+> +			u8 pm = mpc83xx_spi->sysclk / (spi->max_speed_hz * 4);
+> +			regval |= SPMODE_PM(pm);
+> +		}
+> +
+> +		mpc83xx_spi_write_reg(&mpc83xx_spi->base->mode, regval);
+> +		if (mpc83xx_spi->activate_cs)
+> +			mpc83xx_spi->activate_cs(spi->chip_select, pol);
+> +	}
+> +}
+> +
+> +static
+> +int mpc83xx_spi_setup_transfer(struct spi_device *spi, struct spi_transfer *t)
+> +{
+> +	struct mpc83xx_spi *mpc83xx_spi;
+> +	u32 regval;
+> +	u8 bits_per_word;
+> +	u32 hz;
+> +
+> +	mpc83xx_spi = spi_master_get_devdata(spi->master);
+> +
+> +	if (t) {
+> +		bits_per_word = t->bits_per_word;
+> +		hz = t->speed_hz;
+> +	} else {
+> +		bits_per_word = 0;
+> +		hz = 0;
+> +	}
+> +
+> +	/* spi_transfer level calls that work per-word */
+> +	if (!bits_per_word)
+> +		bits_per_word = spi->bits_per_word;
+> +
+> +	/* Make sure its a bit width we support [4..16, 32] */
+> +	if ((bits_per_word < 4)
+> +	    || ((bits_per_word > 16) && (bits_per_word != 32)))
+> +		return -EINVAL;
+> +
+> +	if (bits_per_word <= 8) {
+> +		mpc83xx_spi->get_rx = mpc83xx_spi_rx_buf_u8;
+> +		mpc83xx_spi->get_tx = mpc83xx_spi_tx_buf_u8;
+> +	} else {
+> +		if (bits_per_word <= 16) {
+> +			mpc83xx_spi->get_rx = mpc83xx_spi_rx_buf_u16;
+> +			mpc83xx_spi->get_tx = mpc83xx_spi_tx_buf_u16;
+> +		} else {
+> +			if (bits_per_word <= 32) {
+> +				mpc83xx_spi->get_rx = mpc83xx_spi_rx_buf_u32;
+> +				mpc83xx_spi->get_tx = mpc83xx_spi_tx_buf_u32;
+> +			} else {
+> +				return -EINVAL;
+> +			}
+> +		}
+> +	}
+> +
+> +	/* nsecs = (clock period)/2 */
+> +	if (!hz)
+> +		hz = spi->max_speed_hz;
+> +	mpc83xx_spi->nsecs = (1000000000 / 2) / hz;
+> +	if (mpc83xx_spi->nsecs > MAX_UDELAY_MS * 1000)
+> +		return -EINVAL;
+> +
+> +	if (bits_per_word == 32)
+> +		bits_per_word = 0;
+> +	else
+> +		bits_per_word = bits_per_word - 1;
+> +
+> +	regval = mpc83xx_spi_read_reg(&mpc83xx_spi->base->mode);
+> +
+> +	/* Mask out bits_per_wordgth */
+> +	regval &= 0xff0fffff;
+> +	regval |= SPMODE_LEN(bits_per_word);
+> +
+> +	mpc83xx_spi_write_reg(&mpc83xx_spi->base->mode, regval);
+> +
+> +	return 0;
+> +}
+> +
+> +static int mpc83xx_spi_setup(struct spi_device *spi)
+> +{
+> +	struct spi_bitbang *bitbang;
+> +	struct mpc83xx_spi *mpc83xx_spi;
+> +	int retval;
+> +
+> +	if (!spi->max_speed_hz)
+> +		return -EINVAL;
+> +
+> +	bitbang = spi_master_get_devdata(spi->master);
+> +	mpc83xx_spi = spi_master_get_devdata(spi->master);
+> +
+> +	if (!spi->bits_per_word)
+> +		spi->bits_per_word = 8;
+> +
+> +	retval = mpc83xx_spi_setup_transfer(spi, NULL);
+> +	if (retval < 0)
+> +		return retval;
+> +
+> +	dev_dbg(&spi->dev, "%s, mode %d, %u bits/w, %u nsec\n",
+> +		__FUNCTION__, spi->mode & (SPI_CPOL | SPI_CPHA),
+> +		spi->bits_per_word, 2 * mpc83xx_spi->nsecs);
+> +
+> +	/* NOTE we _need_ to call chipselect() early, ideally with adapter
+> +	 * setup, unless the hardware defaults cooperate to avoid confusion
+> +	 * between normal (active low) and inverted chipselects.
+> +	 */
+> +
+> +	/* deselect chip (low or high) */
+> +	spin_lock(&bitbang->lock);
+> +	if (!bitbang->busy) {
+> +		bitbang->chipselect(spi, BITBANG_CS_INACTIVE);
+> +		ndelay(mpc83xx_spi->nsecs);
+> +	}
+> +	spin_unlock(&bitbang->lock);
+> +
+> +	return 0;
+> +}
+> +
+> +static int mpc83xx_spi_bufs(struct spi_device *spi, struct spi_transfer *t)
+> +{
+> +	struct mpc83xx_spi *mpc83xx_spi;
+> +	u32 word;
+> +
+> +	mpc83xx_spi = spi_master_get_devdata(spi->master);
+> +
+> +	mpc83xx_spi->tx = t->tx_buf;
+> +	mpc83xx_spi->rx = t->rx_buf;
+> +	mpc83xx_spi->count = t->len;
+> +	INIT_COMPLETION(mpc83xx_spi->done);
+> +
+> +	/* enable rx ints */
+> +	mpc83xx_spi_write_reg(&mpc83xx_spi->base->mask, SPIM_NE);
+> +
+> +	/* transmit word */
+> +	word = mpc83xx_spi->get_tx(mpc83xx_spi);
+> +	mpc83xx_spi_write_reg(&mpc83xx_spi->base->transmit, word);
+> +
+> +	wait_for_completion(&mpc83xx_spi->done);
+> +
+> +	/* disable rx ints */
+> +	mpc83xx_spi_write_reg(&mpc83xx_spi->base->mask, 0);
+> +
+> +	return t->len - mpc83xx_spi->count;
+> +}
+> +
+> +irqreturn_t mpc83xx_spi_irq(s32 irq, void *context_data,
+> +			    struct pt_regs * ptregs)
+> +{
+> +	struct mpc83xx_spi *mpc83xx_spi = context_data;
+> +	u32 event;
+> +	irqreturn_t ret = IRQ_NONE;
+> +
+> +	/* Get interrupt events(tx/rx) */
+> +	event = mpc83xx_spi_read_reg(&mpc83xx_spi->base->event);
+> +
+> +	/* We need handle RX first */
+> +	if (event & SPIE_NE) {
+> +		u32 rx_data = mpc83xx_spi_read_reg(&mpc83xx_spi->base->receive);
+> +
+> +		if (mpc83xx_spi->rx)
+> +			mpc83xx_spi->get_rx(rx_data, mpc83xx_spi);
+> +
+> +		ret = IRQ_HANDLED;
+> +	}
+> +
+> +	if ((event & SPIE_NF) == 0)
+> +		/* spin until TX is done */
+> +		while (((event =
+> +			 mpc83xx_spi_read_reg(&mpc83xx_spi->base->event)) &
+> +						SPIE_NF) == 0)
+> +			 ;
+> +
+> +	mpc83xx_spi->count -= 1;
+> +	if (mpc83xx_spi->count) {
+> +		if (mpc83xx_spi->tx) {
+> +			u32 word = mpc83xx_spi->get_tx(mpc83xx_spi);
+> +			mpc83xx_spi_write_reg(&mpc83xx_spi->base->transmit,
+> +					      word);
+> +		}
+> +	} else {
+> +		complete(&mpc83xx_spi->done);
+> +	}
+> +
+> +	/* Clear the events */
+> +	mpc83xx_spi_write_reg(&mpc83xx_spi->base->event, event);
+> +
+> +	return ret;
+> +}
+> +
+> +static int __devinit mpc83xx_spi_probe(struct platform_device *dev)
+> +{
+> +	struct spi_master *master;
+> +	struct mpc83xx_spi *mpc83xx_spi;
+> +	struct fsl_spi_platform_data *pdata;
+> +	struct resource *r;
+> +	u32 regval;
+> +	int ret = 0;
+> +
+> +	/* Get resources(memory, IRQ) associated with the device */
+> +	master = spi_alloc_master(&dev->dev, sizeof(struct mpc83xx_spi));
+> +
+> +	if (master == NULL) {
+> +		ret = -ENOMEM;
+> +		goto err;
+> +	}
+> +
+> +	platform_set_drvdata(dev, master);
+> +	pdata = dev->dev.platform_data;
+> +
+> +	if (pdata == NULL) {
+> +		ret = -ENODEV;
+> +		goto free_master;
+> +	}
+> +
+> +	r = platform_get_resource(dev, IORESOURCE_MEM, 0);
+> +	if (r == NULL) {
+> +		ret = -ENODEV;
+> +		goto free_master;
+> +	}
+> +
+> +	mpc83xx_spi = spi_master_get_devdata(master);
+> +	mpc83xx_spi->bitbang.master = spi_master_get(master);
+> +	mpc83xx_spi->bitbang.chipselect = mpc83xx_spi_chipselect;
+> +	mpc83xx_spi->bitbang.setup_transfer = mpc83xx_spi_setup_transfer;
+> +	mpc83xx_spi->bitbang.txrx_bufs = mpc83xx_spi_bufs;
+> +	mpc83xx_spi->sysclk = pdata->sysclk;
+> +	mpc83xx_spi->activate_cs = pdata->activate_cs;
+> +	mpc83xx_spi->deactivate_cs = pdata->deactivate_cs;
+> +	mpc83xx_spi->get_rx = mpc83xx_spi_rx_buf_u8;
+> +	mpc83xx_spi->get_tx = mpc83xx_spi_tx_buf_u8;
+> +
+> +	mpc83xx_spi->bitbang.master->setup = mpc83xx_spi_setup;
+> +	init_completion(&mpc83xx_spi->done);
+> +
+> +	mpc83xx_spi->base = ioremap(r->start, r->end - r->start + 1);
+> +	if (mpc83xx_spi->base == NULL) {
+> +		ret = -ENOMEM;
+> +		goto put_master;
+> +	}
+> +
+> +	mpc83xx_spi->irq = platform_get_irq(dev, 0);
+> +
+> +	if (mpc83xx_spi->irq < 0) {
+> +		ret = -ENXIO;
+> +		goto unmap_io;
+> +	}
+> +
+> +	/* Register for SPI Interrupt */
+> +	ret = request_irq(mpc83xx_spi->irq, mpc83xx_spi_irq,
+> +			  0, "mpc83xx_spi", mpc83xx_spi);
+> +
+> +	if (ret != 0)
+> +		goto unmap_io;
+> +
+> +	master->bus_num = pdata->bus_num;
+> +	master->num_chipselect = pdata->max_chipselect;
+> +
+> +	/* SPI controller initializations */
+> +	mpc83xx_spi_write_reg(&mpc83xx_spi->base->mode, 0);
+> +	mpc83xx_spi_write_reg(&mpc83xx_spi->base->mask, 0);
+> +	mpc83xx_spi_write_reg(&mpc83xx_spi->base->command, 0);
+> +	mpc83xx_spi_write_reg(&mpc83xx_spi->base->event, 0xffffffff);
+> +
+> +	/* Enable SPI interface */
+> +	regval = pdata->initial_spmode | SPMODE_INIT_VAL | SPMODE_ENABLE;
+> +	mpc83xx_spi_write_reg(&mpc83xx_spi->base->mode, regval);
+> +
+> +	ret = spi_bitbang_start(&mpc83xx_spi->bitbang);
+> +
+> +	if (ret != 0)
+> +		goto free_irq;
+> +
+> +	printk(KERN_INFO
+> +	       "%s: MPC83xx SPI Controller driver at 0x%p (irq = %d)\n",
+> +	       dev->dev.bus_id, mpc83xx_spi->base, mpc83xx_spi->irq);
+> +
+> +	return ret;
+> +
+> +free_irq:
+> +	free_irq(mpc83xx_spi->irq, mpc83xx_spi);
+> +unmap_io:
+> +	iounmap(mpc83xx_spi->base);
+> +put_master:
+> +	spi_master_put(master);
+> +free_master:
+> +	kfree(master);
+> +err:
+> +	return ret;
+> +}
+> +
+> +static int __devexit mpc83xx_spi_remove(struct platform_device *dev)
+> +{
+> +	struct mpc83xx_spi *mpc83xx_spi;
+> +	struct spi_master *master;
+> +
+> +	master = platform_get_drvdata(dev);
+> +	mpc83xx_spi = spi_master_get_devdata(master);
+> +
+> +	spi_bitbang_stop(&mpc83xx_spi->bitbang);
+> +	free_irq(mpc83xx_spi->irq, mpc83xx_spi);
+> +	iounmap(mpc83xx_spi->base);
+> +	spi_master_put(mpc83xx_spi->bitbang.master);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver mpc83xx_spi_driver = {
+> +	.probe = mpc83xx_spi_probe,
+> +	.remove = __devexit_p(mpc83xx_spi_remove),
+> +	.driver = {
+> +		   .name = "mpc83xx_spi",
+> +	},
+> +};
+> +
+> +static int __init mpc83xx_spi_init(void)
+> +{
+> +	return platform_driver_register(&mpc83xx_spi_driver);
+> +}
+> +
+> +static void __exit mpc83xx_spi_exit(void)
+> +{
+> +	platform_driver_unregister(&mpc83xx_spi_driver);
+> +}
+> +
+> +module_init(mpc83xx_spi_init);
+> +module_exit(mpc83xx_spi_exit);
+> +
+> +MODULE_AUTHOR("Kumar Gala");
+> +MODULE_DESCRIPTION("Simple MPC83xx SPI Driver");
+> +MODULE_LICENSE("GPL");
+> 

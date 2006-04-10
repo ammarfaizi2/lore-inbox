@@ -1,221 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWDJWdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWDJWrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbWDJWdp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 18:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWDJWdp
+	id S932151AbWDJWrK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 18:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWDJWrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 18:33:45 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:21667 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932153AbWDJWdo (ORCPT
+	Mon, 10 Apr 2006 18:47:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4060 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932151AbWDJWrJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 18:33:44 -0400
-Message-ID: <443ADD2C.7080103@engr.sgi.com>
-Date: Mon, 10 Apr 2006 15:33:16 -0700
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, balbir@in.ibm.com, greg@kroah.com,
-       arjan@infradead.org, hadi@cyberus.ca, ak@suse.de,
-       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       erikj@sgi.com, lserinol@gmail.com, guillaume.thouvenin@bull.net,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Peter Chubb <peterc@gelato.unsw.edu.au>, Jes Sorensen <jes@sgi.com>
-Subject: Re: [Lse-tech] Re: [Patch 0/8] per-task delay accounting
-References: <442B271D.10208@watson.ibm.com> <20060329210314.3db53aaa.akpm@osdl.org> <20060330062357.GB18387@in.ibm.com> <20060329224737.071b9567.akpm@osdl.org> <442CCF54.3000501@watson.ibm.com> <442D8E39.8080606@engr.sgi.com> <442DED81.5060009@engr.sgi.com> <443A929A.9040102@engr.sgi.com> <443AD1DB.5090303@watson.ibm.com>
-In-Reply-To: <443AD1DB.5090303@watson.ibm.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 10 Apr 2006 18:47:09 -0400
+Date: Mon, 10 Apr 2006 14:46:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, tpmdd-devel@lists.sourceforge.net
+Subject: Re: [PATCH 2/7] tpm: reorganize sysfs files - Updated patch
+Message-Id: <20060410144623.110895d0.akpm@osdl.org>
+In-Reply-To: <1144679825.4917.10.camel@localhost.localdomain>
+References: <1144679825.4917.10.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shailabh Nagar wrote:
-> Jay Lan wrote:
-> 
-[ text deleted ]
->>> This taskstats thing is much more complicated than what Guillaume
->>> used to have when he put up a prototype of doing ELSA over netlink.
->>> One confusing point is the struct taskstats. If it is to be used
->>> as the big data struct to contain all accounting data everybody
->>> needs (as Shailabh suggested on his CSA analysis section), then
->>> if at do_exit() every accounting methods are to be invoked to
->>> handle their netlink transmission (as currently implemented in
->>> delayed accounting), would it be a lot of overhead sending "grand
->>> data" too many times? Maybe each layer should just format data of
->>> their interest when invoked from do_exit, and then we do one call
->>> to genetlink to deliver formated struct taskstats data? 
->>
->>
-> 
-> Good idea. One can already do this in the code we submitted by adding
-> functions similar to delayacct_add_tsk() within the fill_pid() and 
-> fill_tgid() parts
-> of the taskstats code. Then the delayacct_tsk_exit() routine will serve 
-> as the
-> "one call" to deliver formatted data.
-> 
-> However, using delayacct_tsk_exit (which does have delay accounting 
-> specific
-> bits too) as the data delivery call isn't intuitive. So I'll separate 
-> out the taskstats_exit_pid
-> as a separate call directly made within do_exit(). Will require some 
-> refactoring but it
-> can be done.
+Kylene Jo Hall <kjhall@us.ibm.com> wrote:
+>
+>  ssize_t tpm_show_pcrs(struct device *dev, struct device_attribute *attr,
+>   		      char *buf)
+>   {
+>  -	u8 data[READ_PCR_RESULT_SIZE];
+>  -	ssize_t len;
+>  +	u8 data[30];
+>  +	ssize_t rc;
+>   	int i, j, num_pcrs;
+>   	__be32 index;
+>   	char *str = buf;
+>  @@ -150,29 +190,24 @@ ssize_t tpm_show_pcrs(struct device *dev
+>   	if (chip == NULL)
+>   		return -ENODEV;
+>   
+>  -	memcpy(data, cap_pcr, sizeof(cap_pcr));
+>  -	if ((len = tpm_transmit(chip, data, sizeof(data)))
+>  -	    < CAP_PCR_RESULT_SIZE) {
+>  -		dev_dbg(chip->dev, "A TPM error (%d) occurred "
+>  -				"attempting to determine the number of PCRS\n",
+>  -			be32_to_cpu(*((__be32 *) (data + 6))));
+>  +	memcpy(data, tpm_cap, sizeof(tpm_cap));
 
-The "one call" to deliver formatted data should be placed between
-    if (tsk->mm) {
-            <statements to update tsk->mm hiwater data>
-            ...
-    }
+I'd be a bit worried about potential for array overruns here.  If someone
+later were to increase the size of tpm_cap[] we'll silently overrun data[].
 
-and
-    exit_mm(tsk);
-since CSA needs to pick up data from tsk->mm.
+One approach would be to do:
 
-I would say to place it immediately before exit_mm(tsk) would be
-perfect since it is done after BSD's "acct_process()" call, just
-in case somebody one day volunteers to clean up BSD codes. :)
+--- devel/drivers/char/tpm/tpm.c~tpm-reorganize-sysfs-files-fix	2006-04-10 14:43:16.000000000 -0700
++++ devel-akpm/drivers/char/tpm/tpm.c	2006-04-10 14:45:19.000000000 -0700
+@@ -180,7 +180,7 @@ static const u8 pcrread[] = {
+ ssize_t tpm_show_pcrs(struct device *dev, struct device_attribute *attr,
+ 		      char *buf)
+ {
+-	u8 data[30];
++	u8 data[ARRAY_SIZE(tpm_cap)];
+ 	ssize_t rc;
+ 	int i, j, num_pcrs;
+ 	__be32 index;
+@@ -296,7 +296,7 @@ static const u8 cap_version[] = {
+ ssize_t tpm_show_caps(struct device *dev, struct device_attribute *attr,
+ 		      char *buf)
+ {
+-	u8 data[30];
++	u8 data[max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(cap_version))];
+ 	ssize_t rc;
+ 	char *str = buf;
+ 
+_
 
-Regards,
-  - jay
 
-> 
-> 
->>>
->>> Also, as you pointed out, CSA only retrieve data at end of task
->>> but delayed accounting needs to retrieve data during the process.
->>> So, i think we need more than one record types, not just the
->>> struct taskstats, so that the user space delayed accounting 
->>> application can specify to get only delayed accounting record. 
->>
->>
-> A separate record type isn't needed, atleast for now. For delay 
-> accounting, the data obtained during a
-> process' lifetime is the same as the one expected at the end. So by 
-> itself, it has no need to distinguish
-> records generated during the lifetime and those generated after a 
-> process exits.
-> 
-> Yes, the additional fields added to the taskstats struct by CSA will be 
-> "unnecessary" for delay accounting
-> users but they will have to be able to deal with that anyway (for the 
-> process exit records where CSA and delay
-> will share a common exit record).
-> 
-> So creating a separate record structure for the "during lifetime" 
-> records trades off transmission of a larger structure (relatively cheap) 
-> vs. the added complexity of tracking two types of records.
-> At this point, the tradeoff isn't worth it for us.
-> 
-> 
->>> Honestly, this taskstats.c layer looks more like something
->>> extracted from delayed accounting than a carefully designed common 
->>> ground to me. 
->>
->>
-> If you have other specific suggestions about the interface and why it 
-> doesn't meet CSA's needs,
-> we can work to fix them.
-> 
->>> Patch 8/8 is about documentation of delayed
->>> accounting than the common ground for various accounting methods.
->>
->>
-> True. Patch 8/8 was meant to document delay accounting alone. I'll 
-> extract the
-> taskstats specific parts out.
-> 
->>> Can you please present us a documentation of design concept of
->>> such a common layer ?
->>
->>
-> Well, the design is fairly straightforward and is probably apparent by now.
-> A common per-task accounting structure called taskstats exists.
-> Userspace can use a NETLINK_GENERIC interface to send queries for
-> statistics of a particular pid or tgid during the lifetime of a process.
-> Specifying the pid gives the stats for just that pid. Specifying the 
-> tgid returns
-> the sum of stats for all threads of the tgid.
-> 
-> Userspace can also choose to open the NETLINK_GENERIC socket in 
-> multicast and
-> listen for per-pid and per-tgid statistics that are automatically  sent 
-> from the kernel using a whenever a task exits. These stats are sent
-> whenever there is any listener on the genetlink socket. The per-pid and 
-> per-tgid
-> data are exactly the same as what you would get if a query could be done 
-> just before
-> a task exited. Sending the per-tgid data at the exit of each pid/tid is 
-> necessary since
-> there is no well-defined "tgid exit" point in the kernel (we do not 
-> define a thread group to
-> cease existence when the thread group leader exits...rather it ceases to 
-> exist when the
-> last thread of the thread group exits). Also, per-tgid accumalation is 
-> only done dynamically in the kernel, not maintained as a separate 
-> statistic (to avoid wasting time and space). So each time a  tid from a 
-> tgid exits, one needs to collect and send the whole tgid's data in case 
-> userspace is trying to track the stats at a per-tgid level.
-> 
-> The statistic structure contents are documented in 
-> include/linux/taskstats.h
-> and by the accounting subsystem which fills in the fields. Currently 
-> delay accounting
-> is the only user so all the fields are of the form
->    XXX_count and XXX_delay_total
-> 
-> where the former is a count of number of values added in the latter. 
-> Latter is the
-> cumulative "delay", in nanoseconds, seen by a pid waiting for the 
-> resource XXX.
-> e.g. cpu_delay_total is the total time spent waiting for a cpu to run 
-> on, blkio_delay_total
-> is the time spent waiting for  sync block I/O to complete etc.
-> 
-> As more per-task accounting packages get added to the kernel, they can 
-> define
-> additional fields following the instructions in 
-> include/linux/taskstats.h and define their
-> own userspace utilities similar to getdelays.c
-> Querying for data during a task's lifetime is done completely 
-> independently by all the utilities
-> (using unicast queries and replies) - responses to queries by one are 
-> not seen by the others.
-> The stats sent on task exit are common and multicast to all listening 
-> utilities.
-> 
-> 
-> Will add this to a separate taskstats doc in Documentation/.
-> 
->>> That would help me. I guess i also need to catch up on genetlink to 
->>> better understand taskstats code.
->>
->>
-> Please do so soon. The usage of genetlink for taskstats has gone through 
-> a detailed review by Jamal etc. so there shouldn't be any genetlink 
-> issues that are pertinent to the potential CSA usage of taskstats.
-> 
-> 
-> --Shailabh
-> 
-> 
->>>
->>> Regards.
->>>  - jay
->>>
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by xPML, a groundbreaking scripting language
-> that extends applications into web and mobile media. Attend the live 
-> webcast
-> and join the prime developer group breaking into this new coding territory!
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=110944&bid=241720&dat=121642
-> _______________________________________________
-> Lse-tech mailing list
-> Lse-tech@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/lse-tech
-
+Does that look OK?

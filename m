@@ -1,105 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWDJMSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWDJMqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbWDJMSS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 08:18:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWDJMSS
+	id S1750866AbWDJMqB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 08:46:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbWDJMqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 08:18:18 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:58125 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1751155AbWDJMSR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 08:18:17 -0400
+	Mon, 10 Apr 2006 08:46:00 -0400
+Received: from odin2.bull.net ([129.184.85.11]:62182 "EHLO odin2.bull.net")
+	by vger.kernel.org with ESMTP id S1750865AbWDJMqA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 08:46:00 -0400
+From: "Serge Noiraud" <serge.noiraud@bull.net>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: PREEMPT_RT : 2.6.16-rt12 and boot : BUG ?
+Date: Mon, 10 Apr 2006 14:46:13 +0200
+User-Agent: KMail/1.7.1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <200604061416.00741.Serge.Noiraud@bull.net> <20060406143139.GA28724@elte.hu> <200604061705.36303.Serge.Noiraud@bull.net>
+In-Reply-To: <200604061705.36303.Serge.Noiraud@bull.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <200604080917.39562.ak@suse.de>
-x-originalarrivaltime: 10 Apr 2006 12:18:02.0775 (UTC) FILETIME=[D065BA70:01C65C98]
-Content-class: urn:content-classes:message
-Subject: Re: Black box flight recorder for Linux
-Date: Mon, 10 Apr 2006 08:18:01 -0400
-Message-ID: <Pine.LNX.4.61.0604100754340.25546@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Black box flight recorder for Linux
-Thread-Index: AcZcmNBv0N2qS7ToRKKgXDIfnxodxg==
-References: <5ZjEd-4ym-37@gated-at.bofh.it> <5ZlZk-7VF-13@gated-at.bofh.it> <4437C335.30107@shaw.ca> <200604080917.39562.ak@suse.de>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: "Robert Hancock" <hancockr@shaw.ca>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200604101446.13610.Serge.Noiraud@bull.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+jeudi 6 Avril 2006 17:05, Serge Noiraud wrote/a écrit :
+> jeudi 6 Avril 2006 16:31, Ingo Molnar wrote/a écrit :
+> > 
+> > * Serge Noiraud <serge.noiraud@bull.net> wrote:
+> > 
+> > > input: ImPS/2 Generic Wheel Mouse as /class/input/input1
+> > > VFS: Mounted root (ext2 filesystem).
+> > > Fusion MPT base driver 3.03.07
+> > > Copyright (c) 1999-2005 LSI Logic Corporation
+> > > Could not allocate 8 bytes percpu data
+> > > mptscsih: Unknown symbol scsi_remove_host
+> > 
+> > could you increase (double) PERCPU_ENOUGH_ROOM in 
+> > include/linux/percpu.h, does that solve this problem? (and make sure you 
+> > use -rt13, -rt12 had a couple of bugs)
+> Tested with rt12 and 192K : same problem
+> Tested with rt12 and 256K : same problem.
+> Tested with rt13 and 256K : same problem.
+> I'm currently compiling with CONFIG_KALLSYMS_ALL not set.
+Same thing.
 
-On Sat, 8 Apr 2006, Andi Kleen wrote:
+The boot succeed if I set CONFIG_CRITICAL_IRQSOFF_TIMING to no.
+If I set this parameter to yes, I get the scsi unresolved symbols.
+PERCPU_ENOUGH_ROOM  is actually set to 256K.
+I'll try to set the original value.
 
-> On Saturday 08 April 2006 16:05, Robert Hancock wrote:
->> Andi Kleen wrote:
->>> James Courtier-Dutton <James@superbug.co.uk> writes:
->>>> Now, the question I have is, if I write values to RAM, do any of those
->>>> values survive a reset?
->>>
->>> They don't generally.
->>>
->>> Some people used to write the oopses into video memory, but that
->>> is not portable.
->>
->> I wouldn't think most BIOSes these days would bother to clear system RAM
->> on a reboot. Certainly Microsoft was encouraging vendors not to do this
->> because it slowed down system boot time.to
->
-> Reset button is like a cold boot and it generally ends up with cleared
-> RAM.
->
-> -Andi
+I don't see the relation between this parameter and the missing scsi symbols resolution.
+Timing problem ?
 
-Further, in a boot where the BIOS needs to initialize hardware,
-It will write all RAM before enabling NMI. This makes sure that
-the parity bit(s) are set properly. Most BIOS will attempt to
-preserve RAM on a 'warm' boot as a throw-back to the '286 days
-with their above-1MB-memory-manager paged RAM because the
-only way to get back from protected mode to 16-bit real mode
-was a hardware reset. When using a memory-manager like DOS's
-HIMEM.SYS, you might actually be rebooting the machine hundreds
-of times per second!
+> > 
+> > 	Ingo
 
-If you want to make a flight-data recorder, you need to use
-FAA specs and, as such, you can't rely on second-order effects.
-You will need write all the parameters to flash (or equivalent)
-at least 10 times per second. I would advise against putting
-a file-system on the flash because the file-system might get
-corrupt because of a bad write during a crash. Instead, I would
-write a large number of identical groups of parameters (a structure
-image) at a large number of raw offsets, each with the required
-time-stamp. This, done the required 10 times per second.
-
-Note that the NTSB, in investigating some light airplane accidents,
-has been successful extracting data from hand-held GPS receivers
-and FADEC controllers, so using flash RAM for accident investigation
-has some successful history (useful for obtaining certification).
-
-I once proposed a FDR for light aircraft that would cost the end-user
-under $2,000. This was to use a small embedded CPU, raw NAV inputs
-from the panel, a cheap accelerometer, and some pressure sensors
-for altimetry. This would be mounted in the tail, requiring no
-user (pilot) input at all. In the event of a crash, the last
-hour of flight could be retrieved.
-
-Typical response; "There is no market for this...."
-
-Good luck!
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.42 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+-- 
+Serge Noiraud

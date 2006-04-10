@@ -1,66 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWDJP0w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWDJP0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751100AbWDJP0w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 11:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWDJP0w
+	id S1751012AbWDJP0n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 11:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWDJP0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 11:26:52 -0400
-Received: from ns1.idleaire.net ([65.220.16.2]:30638 "EHLO iasrv1.idleaire.net")
-	by vger.kernel.org with ESMTP id S1750839AbWDJP0v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 11:26:51 -0400
-Subject: Re: [PATCH] deinline a few large functions in vlan code v2
-From: Dave Dillow <dave@thedillows.org>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, jgarzik@pobox.com
-In-Reply-To: <200604101716.58463.vda@ilport.com.ua>
-References: <200604071628.30486.vda@ilport.com.ua>
-	 <200604100828.20994.vda@ilport.com.ua>
-	 <20060409.224559.124326025.davem@davemloft.net>
-	 <200604101716.58463.vda@ilport.com.ua>
-Content-Type: text/plain
-Date: Mon, 10 Apr 2006 11:26:46 -0400
-Message-Id: <1144682807.12177.22.camel@dillow.idleaire.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+	Mon, 10 Apr 2006 11:26:43 -0400
+Received: from sa12.bezeqint.net ([192.115.104.27]:11457 "EHLO
+	sa12.bezeqint.net") by vger.kernel.org with ESMTP id S1750839AbWDJP0n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 11:26:43 -0400
+From: Shlomi Fish <shlomif@iglu.org.il>
+To: linux-kernel@vger.kernel.org
+Subject: Two OOPSes in ALSA with kernel-2.6.17-rc1
+Date: Mon, 10 Apr 2006 18:23:54 +0300
+User-Agent: KMail/1.8.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Apr 2006 15:26:14.0435 (UTC) FILETIME=[1AC04F30:01C65CB3]
+Content-Disposition: inline
+Message-Id: <200604101823.54600.shlomif@iglu.org.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-10 at 17:16 +0300, Denis Vlasenko wrote:
-> On Monday 10 April 2006 08:45, David S. Miller wrote:
-> > From: Denis Vlasenko <vda@ilport.com.ua>
-> > Date: Mon, 10 Apr 2006 08:28:20 +0300
-> > 
-> > > IOW: shouldn't calls to these functions sit in
-> > > #if defined(CONFIG_VLAN_8021Q) || defined (CONFIG_VLAN_8021Q_MODULE)
-> > > block? For example, typhoon.c:
-> > > 
-> > >                 spin_lock(&tp->state_lock);
-> > > +#if defined(CONFIG_VLAN_8021Q) || defined (CONFIG_VLAN_8021Q_MODULE)
-> > >                 if(tp->vlgrp != NULL && rx->rxStatus & TYPHOON_RX_VLAN)
-> > >                         vlan_hwaccel_receive_skb(new_skb, tp->vlgrp,
-> > >                                                  ntohl(rx->vlanTag) & 0xffff);
-> > >                 else
-> > > +#endif
-> > >                         netif_receive_skb(new_skb);
-> > >                 spin_unlock(&tp->state_lock);
-> > > 
-> > > Same for s2io.c, chelsio/sge.c, etc...
-> > 
-> > Very likely yes.  tp->vlgrp will never be non-NULL in such situations
-> > so it's not a correctness issue, but rather an optimization :-)
-> 
-> Done. Please see attached.
+Hi all!
 
-I see this as a minor optimization, at the cost uglifying the body of a
-function. Besides, if you're going to do this, you can get rid of the
-spin_lock functions around it to, since they only protect tp->vlgrp in
-this instance.
+(Please CC me on the replies)
 
-Please don't apply this to typhoon.c
--- 
-Dave Dillow <dave@thedillows.org>
+I recently received these two OOPSes with kernel-2.6.17-rc1. They happened 
+while mpg123 was playing a WAV file and I invoked KDE (along with artsd).
 
+My soundcard is snd_intel8x0.
+
+Let me know if you need any other information.
+
+Regards,
+
+	Shlomi Fish
+
+BUG: unable to handle kernel NULL pointer dereference at virtual address 
+00000098
+ printing eip:
+e09c4d2c
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT SMP 
+Modules linked in: binfmt_misc autofs4 ipv6 snd_seq_dummy snd_seq_oss 
+snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss 
+snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd_page_alloc snd 
+soundcore 8139too mii af_packet floppy ide_cd cdrom loop nls_cp1255 nls_cp862 
+vfat fat hw_random usbhid video thermal processor fan button battery ac 
+ehci_hcd uhci_hcd usbcore
+CPU:    1
+EIP:    0060:[<e09c4d2c>]    Not tainted VLI
+EFLAGS: 00210282   (2.6.17-rc1 #1) 
+EIP is at snd_pcm_mmap_status_nopage+0x17/0x4e [snd_pcm]
+eax: 00000000   ebx: d3257f58   ecx: ffffffff   edx: b7f8d000
+esi: 00000000   edi: 00000000   ebp: d3257f1c   esp: d3257f18
+ds: 007b   es: 007b   ss: 0068
+Process artsd (pid: 24484, threadinfo=d3256000 task=dfc69580)
+Stack: <0>d7cb1e34 d3257f68 c013ec2a df939d84 b7f8d000 d3257f58 00000e34 
+d33dbb7c 
+       00200246 dc4bf580 00000000 00000000 bf8d461c d3257f68 00000002 d3256000 
+       00000002 d1c79af4 d1c79ac0 df939d84 d3257fb4 c0111d85 d1c79ac0 df939d84 
+Call Trace:
+ <c0103996> show_stack_log_lvl+0x8b/0x95   <c0103af5> 
+show_registers+0x155/0x1c6
+ <c0103e3d> die+0x16e/0x1f3   <c0111fc6> do_page_fault+0x458/0x53e
+ <c01033fb> error_code+0x4f/0x54   <c013ec2a> __handle_mm_fault+0x246/0x6cd
+ <c0111d85> do_page_fault+0x217/0x53e   <c01033fb> error_code+0x4f/0x54
+Code: e8 98 69 79 df 83 c4 10 85 c0 ba 00 00 00 00 0f 49 c2 c9 c3 55 89 e5 53 
+8b 5d 10 8b 45 08 8b 40 50 83 c9 ff 85 c0 74 35 8b 40 5c <8b> 88 98 00 00 00 
+81 c1 00 00 00 40 c1 e9 0c c1 e1 05 03 0d 40 
+ <1>BUG: unable to handle kernel NULL pointer dereference at virtual address 
+000000a0
+ printing eip:
+e09c43f8
+*pde = 00000000
+Oops: 0002 [#2]
+PREEMPT SMP 
+Modules linked in: binfmt_misc autofs4 ipv6 snd_seq_dummy snd_seq_oss 
+snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss 
+snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd_page_alloc snd 
+soundcore 8139too mii af_packet floppy ide_cd cdrom loop nls_cp1255 nls_cp862 
+vfat fat hw_random usbhid video thermal processor fan button battery ac 
+ehci_hcd uhci_hcd usbcore
+CPU:    1
+EIP:    0060:[<e09c43f8>]    Not tainted VLI
+EFLAGS: 00210282   (2.6.17-rc1 #1) 
+EIP is at snd_pcm_mmap_data_close+0xc/0x15 [snd_pcm]
+eax: 00000000   ebx: dfd674ec   ecx: 00000000   edx: d30dff94
+esi: dfd67ee4   edi: d1c79ac0   ebp: d3257dd8   esp: d3257dd8
+ds: 007b   es: 007b   ss: 0068
+Process artsd (pid: 24484, threadinfo=d3256000 task=dfc69580)
+Stack: <0>d3257dec c013fc26 dfd674ec c140b0a0 dfd674ec d3257e08 c0140086 
+000001e7 
+       c140b0a0 d1c79ac0 d1c79af4 dfc69580 d3257e1c c0117094 d1c79ac0 d1c79ac0 
+       d1c79af4 d3257e38 c011a558 d1c79ac0 dfc69a14 d3256000 dfc69580 dfc69580 
+Call Trace:
+ <c0103996> show_stack_log_lvl+0x8b/0x95   <c0103af5> 
+show_registers+0x155/0x1c6
+ <c0103e3d> die+0x16e/0x1f3   <c0111fc6> do_page_fault+0x458/0x53e
+ <c01033fb> error_code+0x4f/0x54   <c013fc26> remove_vma+0x1b/0x3d
+ <c0140086> exit_mmap+0xe1/0x100   <c0117094> mmput+0x20/0x7e
+ <c011a558> exit_mm+0xfb/0x104   <c011b24d> do_exit+0x1a7/0x766
+ <c0103eba> die+0x1eb/0x1f3   <c0111fc6> do_page_fault+0x458/0x53e
+ <c01033fb> error_code+0x4f/0x54   <c013ec2a> __handle_mm_fault+0x246/0x6cd
+ <c0111d85> do_page_fault+0x217/0x53e   <c01033fb> error_code+0x4f/0x54
+Code: c3 8e df 5a 59 e9 33 f2 ff ff 66 4a 0f 85 6f f2 ff ff 51 e8 bd 44 83 df 
+59 e9 63 f2 ff ff 90 55 89 e5 8b 45 08 8b 40 50 8b 40 5c <f0> ff 88 a0 00 00 
+00 5d c3 55 89 e5 53 89 c2 8b 58 5c 8b 03 85 
+ <1>Fixing recursive fault but reboot is needed!
+
+---------------------------------------------------------------------
+Shlomi Fish      shlomif@iglu.org.il
+Homepage:        http://www.shlomifish.org/
+
+95% of the programmers consider 95% of the code they did not write, in the
+bottom 5%.

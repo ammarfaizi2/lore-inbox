@@ -1,84 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbWDJOpk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWDJOqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751194AbWDJOpk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 10:45:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWDJOpk
+	id S1751195AbWDJOqB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 10:46:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWDJOqB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 10:45:40 -0400
-Received: from [212.33.188.179] ([212.33.188.179]:37380 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1751194AbWDJOpi (ORCPT
+	Mon, 10 Apr 2006 10:46:01 -0400
+Received: from [212.33.188.179] ([212.33.188.179]:37892 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1751196AbWDJOpl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 10:45:38 -0400
+	Mon, 10 Apr 2006 10:45:41 -0400
 From: Al Boldi <a1426z@gawab.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch][rfc] quell interactive feeding frenzy
-Date: Mon, 10 Apr 2006 17:43:17 +0300
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
+Date: Mon, 10 Apr 2006 17:43:23 +0300
 User-Agent: KMail/1.5
-Cc: Mike Galbraith <efault@gmx.de>, bert hubert <bert.hubert@netherlabs.nl>
-References: <200604091944.28954.a1426z@gawab.com> <1144607596.7408.34.camel@homer>
-In-Reply-To: <1144607596.7408.34.camel@homer>
+Cc: linux-kernel@vger.kernel.org
+References: <200604031459.51542.a1426z@gawab.com> <200604090804.40867.a1426z@gawab.com> <44399E81.9050908@bigpond.net.au>
+In-Reply-To: <44399E81.9050908@bigpond.net.au>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="windows-1256"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200604101743.17518.a1426z@gawab.com>
+Message-Id: <200604101743.23072.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert wrote:
-> In general, Linux systems are not maxed out as they will disappoint that
-> way (like any system running with id=0).
+Peter Williams wrote:
+> Al Boldi wrote:
+> > But how does this explain spa_no_frills setting promotion to max not
+> > having this problem?
+>
+> I'm still puzzled by this.  The only thing I can think of is that the
+> promotion mechanism is to simple in that it just moves all promotable
+> tasks up one slot without regard for how long they've been on the queue.
+>   Doing this was a deliberate decision based on the desire to minimize
+> overhead and the belief that it wouldn't matter in the grand scheme of
+> things.  I may do some experimenting with slightly more sophisticated
+> version.
+>
+> Properly done, promotion should hardly ever occur but the cost would be
+> slightly more complex enqueue/dequeue operations.  The current version
+> will do unnecessary promotions but it was felt this was more than
+> compensated for by the lower enqueue/dequeue costs.  We'll see how a
+> more sophisticated version goes in terms of trade offs.
 
-top - 16:59:23 up 29 min,  0 users,  load average: 993.49, 796.33, 496.21
-Tasks: 1039 total, 1000 running,  39 sleeping,   0 stopped,   0 zombie
-Cpu(s):  47.6% user,  52.4% system,   0.0% nice,   0.0% idle,   0.0% IO-wait
-Mem:    125796k total,   123344k used,     2452k free,       64k buffers
-Swap:  1020088k total,     9176k used,  1010912k free,     1752k cached
+Would this affect the current, nearly perfect, spa_no_frills rr-behaviour w/ 
+its ability to circumvent the timeslice problem when setting promo to max?
 
-  PID  PR  NI  VIRT  RES  SHR SWAP S %CPU    TIME+  Command
- 3946  28   0  2404 1460  720  944 R  5.8   0:14.78 top
- 4219  37   0  1580  488  416 1092 R  3.0   0:00.45 ping
- 4214  37   0  1584  480  408 1104 R  2.8   0:00.46 ping
- 4196  37   0  1580  480  408 1100 R  2.5   0:00.45 ping
- 4175  37   0  1584  488  416 1096 R  2.3   0:00.30 ping
- 3950  37   1  1580  492  416 1088 R  2.0   0:08.77 ping
- 4136  37   0  1580  488  416 1092 R  2.0   0:00.36 ping
- 4158  37   0  1584  484  408 1100 R  2.0   0:00.35 ping
- 4177  37   0  1580  480  408 1100 R  2.0   0:00.27 ping
- 4180  37   0  1580  484  408 1096 R  2.0   0:00.33 ping
- 4194  37   0  1580  480  408 1100 R  2.0   0:00.40 ping
- 4199  37   0  1584  484  408 1100 R  2.0   0:00.47 ping
- 4189  37   0  1580  488  416 1092 R  1.8   0:00.43 ping
- 4153  37   0  1584  480  408 1104 R  1.5   0:00.31 ping
- 4170  37   0  1584  484  408 1100 R  1.5   0:00.30 ping
- 4191  37   0  1584  492  416 1092 R  1.5   0:00.41 ping
- 4209  37   0  1584  484  408 1100 R  1.5   0:00.39 ping
- 4215  37   0  1584  484  408 1100 R  1.5   0:00.39 ping
- 4221  37   0  1580  492  416 1088 R  1.5   0:00.37 ping
- 4146  37   0  1580  488  416 1092 R  1.3   0:00.29 ping
- 4156  37   0  1584  484  408 1100 R  1.3   0:00.32 ping
- 4166  37   0  1584  488  416 1096 R  1.3   0:00.33 ping
- 4183  37   0  1580  480  408 1100 R  1.3   0:00.37 ping
- 4216  37   0  1584  480  408 1104 R  1.3   0:00.39 ping
- 4229  37   0  1584  484  408 1100 R  1.3   0:00.41 ping
- 4233  37   0  1584  488  416 1096 R  1.3   0:00.41 ping
- 4137  37   0  1580  484  408 1096 R  1.0   0:00.33 ping
- 4141  37   0  1584  484  408 1100 R  1.0   0:00.31 ping
- 4150  37   0  1580  484  408 1096 R  1.0   0:00.30 ping
- 4161  37   0  1580  480  408 1100 R  1.0   0:00.29 ping
- 4172  37   0  1584  484  408 1100 R  1.0   0:00.28 ping
- 4178  37   0  1580  480  408 1100 R  1.0   0:00.25 ping
- 4182  37   0  1584  484  408 1100 R  1.0   0:00.23 ping
+> >> This is one good reason not to use spa_no_frills on
+> >> production systems.
+> >
+> > spa_ebs is great, but rather bursty.  Even setting max_ia_bonus=0
+> > doesn't fix that.   Is there a way to smooth it like spa_no_frills?
+>
+> The principal determinant would be the smoothness of the yardstick.
+> This is supposed to represent the task with the highest (recent) CPU
+> usage rate per share and is used to determine how fairly CPU is being
+> distributed among the currently active tasks.  Tasks are given a
+> priority based on how their CPU usage rate per share compares to this
+> yardstick.  This means that as the system load and/or type of task
+> running changes the priorities of the tasks can change dramatically.
+>
+> Is the burstiness that you're seeing just in the observed priorities or
+> is it associated with behavioural burstiness as well?
 
-After that the loadavg starts to wrap.
-And even then it is possible to login.
-And that's not with the default 2.6 scheduler, but rather w/ spa.
+It's behavioural, exhibited in a choking style, like a jumpy mouse move 
+during ia boosts.
+
+> >> Perhaps you should consider creating a child
+> >> scheduler on top of it that meets your needs?
+> >
+> > Perhaps.
+>
+> Good.  I've been hoping that other interested parties might be
+> encouraged by the small interface to SPA children to try different ideas
+> for scheduling.
+
+Is there a no-op child skeleton available?
+
+> One thing that could be played with here is to vary the time slice based
+> on the priority.  This would be in the opposite direction to the normal
+> scheduler with higher priority tasks (i.e. those with lower prio values)
+> getting smaller time slices.  The rationale being:
+>
+> 1. stop tasks that have been given large bonuses from shutting out other
+> tasks for too long, and
+> 2. reduce the context switch rate for tasks that haven't received bonuses.
+>
+> Because tasks that get large bonuses will have short CPU bursts they
+> should not be adversely effected (if this is done properly) as they will
+> (except in exceptional circumstances such as a change in behaviour)
+> surrender the CPU voluntarily before their reduced time slice has
+> expired.  Imaginative use of the available statistics could make this
+> largely automatic but there would be a need to be aware that the
+> statistics can be distorted by the shorter time slices.
+>
+> On the other hand, giving tasks without bonuses longer time slices
+> shouldn't adversely effect interactive performance as the interactive
+> tasks will (courtesy of their bonuses) preempt them.
+
+I couldn't agree more.  Tackling the problem on both fronts (prio/tslice) may 
+give us more control, which could result in a more appropriate / fairer / 
+smoother scheduler.
 
 Thanks!
 
 --
 Al
-
-
 

@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWDJEhN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbWDJEzI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750867AbWDJEhN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 00:37:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbWDJEhN
+	id S1750876AbWDJEzI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 00:55:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750966AbWDJEzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 00:37:13 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:31158 "EHLO
-	pilet.ens-lyon.fr") by vger.kernel.org with ESMTP id S1750867AbWDJEhL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 00:37:11 -0400
-Date: Mon, 10 Apr 2006 06:38:08 +0200
-From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-To: Michael Buesch <mb@bu3sch.de>
-Cc: netdev@vger.kernel.org, bcm43xx-dev@lists.berlios.de,
-       linux-kernel@vger.kernel.org, linville@tuxdriver.com,
-       benh@kernel.crashing.org
-Subject: Re: [RFC/PATCH] remove unneeded check in bcm43xx
-Message-ID: <20060410043808.GP27596@ens-lyon.fr>
-References: <20060410040120.GA4860@ens-lyon.fr> <200604100607.33362.mb@bu3sch.de> <20060410042228.GN27596@ens-lyon.fr> <200604100628.01483.mb@bu3sch.de>
-Mime-Version: 1.0
+	Mon, 10 Apr 2006 00:55:08 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2726 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750876AbWDJEzG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 00:55:06 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <200604100628.01483.mb@bu3sch.de>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+X-Fcc: ~/Mail/linus
+Cc: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/4] coredump: kill ptrace related stuff
+In-Reply-To: Oleg Nesterov's message of  Friday, 7 April 2006 02:06:31 +0400 <20060406220631.GA240@oleg>
+Emacs: impress your (remaining) friends and neighbors.
+Message-Id: <20060410045451.434ED1809D1@magilla.sf.frob.com>
+Date: Sun,  9 Apr 2006 21:54:51 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 10, 2006 at 06:28:00AM +0200, Michael Buesch wrote:
-> On Monday 10 April 2006 06:22, you wrote:
-> > Either the ppc code is wrong (it doesn't enforce dma_mask) either the
-> > driver still works without the check.
-> > 
-> > Maybe ppc should do the same thing as i386:
-> > 
-> > 47         if (dev == NULL || (dev->coherent_dma_mask < 0xffffffff))
-> > 48                 gfp |= GFP_DMA;
+> With this patch zap_process() sets SIGNAL_GROUP_EXIT while sending
+> SIGKILL to the thread group. 
+
+do_coredump has already done this.  So you are addressing the case of other
+thread groups sharing the mm, right?
+
+> This means that a TASK_TRACED task
 > 
-> No, GFP_DMA is a NOP on PPC.
-> Actually the problems seems much more complex and a correct fix
-> seems to be hard to do.
-> I think benh is actually fixing this.
-> 
-> To summerize: I actually added these messages, because people were
-> hitting "this does not work with >1G" issues and did not get an error message.
-> So I decided to insert warnings until the issue is fixed inside the arch code.
-> I will remove them once the issue is fixed.
->
+> 	1. Will be awakened by signal_wake_up(1)
 
-Thanks for the explainations.
+That should always happen regardless of signal->flags, so yes.
 
-Benoit
+> 	2. Can't sleep again via ptrace_notify()
+
+What makes this be so?  What if it's entering a notification event now?
+What about exit tracing?
+
+> 	3. Can't go to do_signal_stop() after return
+> 	   from ptrace_stop() in get_signal_to_deliver()
+
+This is only true because of the check in get_signal_to_deliver,
+which I've said I think should be taken out for other reasons.
+
+I guess I'm missing something here.
 
 
--- 
-powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS
+Thanks,
+Roland

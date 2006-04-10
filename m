@@ -1,49 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWDJFqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWDJFqo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750871AbWDJFqT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 01:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWDJFqT
+	id S1750875AbWDJFqo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 01:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751003AbWDJFqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 01:46:19 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:37295
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750871AbWDJFqS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 01:46:18 -0400
-Date: Sun, 09 Apr 2006 22:45:59 -0700 (PDT)
-Message-Id: <20060409.224559.124326025.davem@davemloft.net>
-To: vda@ilport.com.ua
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [PATCH] deinline a few large functions in vlan code
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200604100828.20994.vda@ilport.com.ua>
-References: <200604071628.30486.vda@ilport.com.ua>
-	<20060407.132511.09521964.davem@davemloft.net>
-	<200604100828.20994.vda@ilport.com.ua>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Apr 2006 01:46:44 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:19896 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1750997AbWDJFqn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 01:46:43 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] deinline some functions in aic7xxx drivers, save 80k of text
+Date: Mon, 10 Apr 2006 08:46:17 +0300
+User-Agent: KMail/1.8.2
+Cc: gibbs@scsiguy.com, linux-kernel@vger.kernel.org
+References: <200604100844.12151.vda@ilport.com.ua>
+In-Reply-To: <200604100844.12151.vda@ilport.com.ua>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_pEfOENl39s3HIQf"
+Message-Id: <200604100846.17877.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Denis Vlasenko <vda@ilport.com.ua>
-Date: Mon, 10 Apr 2006 08:28:20 +0300
+--Boundary-00=_pEfOENl39s3HIQf
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> IOW: shouldn't calls to these functions sit in
-> #if defined(CONFIG_VLAN_8021Q) || defined (CONFIG_VLAN_8021Q_MODULE)
-> block? For example, typhoon.c:
-> 
->                 spin_lock(&tp->state_lock);
-> +#if defined(CONFIG_VLAN_8021Q) || defined (CONFIG_VLAN_8021Q_MODULE)
->                 if(tp->vlgrp != NULL && rx->rxStatus & TYPHOON_RX_VLAN)
->                         vlan_hwaccel_receive_skb(new_skb, tp->vlgrp,
->                                                  ntohl(rx->vlanTag) & 0xffff);
->                 else
-> +#endif
->                         netif_receive_skb(new_skb);
->                 spin_unlock(&tp->state_lock);
-> 
-> Same for s2io.c, chelsio/sge.c, etc...
+On Monday 10 April 2006 08:44, Denis Vlasenko wrote:
+> I also spotted two bugs in the process, patches
+> for those will follow.
 
-Very likely yes.  tp->vlgrp will never be non-NULL in such situations
-so it's not a correctness issue, but rather an optimization :-)
+Fix ahc_pci_write_config's (wrong order of arguments).
+
+Signed-off-by: Denis Vlasenko <vda@ilport.com.ua>
+--
+vda
+
+--Boundary-00=_pEfOENl39s3HIQf
+Content-Type: text/x-diff;
+  charset="koi8-r";
+  name="2.6.16.aic7_41.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="2.6.16.aic7_41.patch"
+
+Fix a bug uncovered by previous change
+
+diff -urpN linux-2.6.16.aic7/drivers/scsi/aic7xxx/aic7xxx_pci.c linux-2.6.16.aic7_2/drivers/scsi/aic7xxx/aic7xxx_pci.c
+--- linux-2.6.16.aic7/drivers/scsi/aic7xxx/aic7xxx_pci.c	Sun Apr  9 22:11:13 2006
++++ linux-2.6.16.aic7_2/drivers/scsi/aic7xxx/aic7xxx_pci.c	Sun Apr  9 22:09:45 2006
+@@ -2036,12 +2036,12 @@ ahc_pci_resume(struct ahc_softc *ahc)
+ 	 * that the OS doesn't know about and rely on our chip
+ 	 * reset handler to handle the rest.
+ 	 */
+-	ahc_pci_write_config(ahc->dev_softc, DEVCONFIG, /*bytes*/4,
+-			     ahc->bus_softc.pci_softc.devconfig);
+-	ahc_pci_write_config(ahc->dev_softc, PCIR_COMMAND, /*bytes*/1,
+-			     ahc->bus_softc.pci_softc.command);
+-	ahc_pci_write_config(ahc->dev_softc, CSIZE_LATTIME, /*bytes*/1,
+-			     ahc->bus_softc.pci_softc.csize_lattime);
++	ahc_pci_write_config(ahc->dev_softc, DEVCONFIG,
++			     ahc->bus_softc.pci_softc.devconfig, /*bytes*/4);
++	ahc_pci_write_config(ahc->dev_softc, PCIR_COMMAND,
++			     ahc->bus_softc.pci_softc.command, /*bytes*/1);
++	ahc_pci_write_config(ahc->dev_softc, CSIZE_LATTIME,
++			     ahc->bus_softc.pci_softc.csize_lattime, /*bytes*/1);
+ 	if ((ahc->flags & AHC_HAS_TERM_LOGIC) != 0) {
+ 		struct	seeprom_descriptor sd;
+ 		u_int	sxfrctl1;
+
+--Boundary-00=_pEfOENl39s3HIQf--

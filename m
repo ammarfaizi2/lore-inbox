@@ -1,72 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWDJTab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWDJTmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbWDJTab (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 15:30:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWDJTab
+	id S932117AbWDJTmb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 15:42:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWDJTmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 15:30:31 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:6924 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932123AbWDJTab (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 15:30:31 -0400
-Date: Mon, 10 Apr 2006 21:30:24 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Aubrey <aubreylee@gmail.com>,
-       Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org
-Subject: Re: The assemble file under the driver folder can not be recognized when the driver is built as module
-Message-ID: <20060410193024.GA11292@mars.ravnborg.org>
-References: <6d6a94c50604100316j43bcc32p6fa781c0ce47182d@mail.gmail.com> <20060410112817.GE12896@harddisk-recovery.com> <6d6a94c50604100627q297b7335yb58288356aaa8edd@mail.gmail.com> <20060410174252.GD2408@stusta.de> <Pine.LNX.4.61.0604101402400.26129@chaos.analogic.com> <20060410182421.GA22440@mars.ravnborg.org> <Pine.LNX.4.61.0604101506430.26625@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 10 Apr 2006 15:42:31 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:9305 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932117AbWDJTma convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 15:42:30 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:mime-version:
+	content-type:content-transfer-encoding:content-disposition;
+	b=l6DOfPPXjd3+Udhx+YZe8MOP3mpUvWKmEN0r7uxSL6ugILF0QjU9KUjPJQdPgt73I
+	KMfRY/JRs4TmpUBuqVZ4A==
+Message-ID: <608a53b0604101242v4778af80ybaf639c38cc00587@mail.google.com>
+Date: Tue, 11 Apr 2006 01:12:24 +0530
+From: "Prasanna Meda" <mlp@google.com>
+To: akpm@osdl.org, ebiederm@xmission.com
+Subject: Comment about proc-dont-lock-task_structs-indefinitely.patch
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0604101506430.26625@chaos.analogic.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 10, 2006 at 03:12:55PM -0400, linux-os (Dick Johnson) wrote:
-> 
-> On Mon, 10 Apr 2006, Sam Ravnborg wrote:
-> 
-> > On Mon, Apr 10, 2006 at 02:04:59PM -0400, linux-os (Dick Johnson) wrote:
-> >
-> >> Can't he just put his own private compile definition in his
-> >> own Makefile?
-> >>
-> >> %.o:	%.S
-> >>  	as -o $@ $<
-> >
-> > That would never generate a module anyway. And kbuild support building
-> > .o from .S with all the kbuild argument chechking etc.
-> > Doing it so would be wrong.
-> >
-> > 	Sam
-> >
-> 
-> 
-> Really?? Here is a Makefile that has been known to work for sometime.
-> As you can clearly see, it has lots of ".S" files. The last compile
-> was on Linux-2.6.15.4. If current kernel building procedures prevents
-> the assembly of assembly-language files and requires that the kernel
-> modules be written entirely in 'C', then it is broken beyond all
-> belief and must be fixed.
-kbuild does not support a single-file module being written entirely in
-assembler.
-kbuild obviously support multi file modules where one file is in
-assembler.
+Hi,
 
-In your example you generate a multi file module where some files are in
-assembler - supported.
-And the point was that one should NOT define private rules like:
-%.o:	%.S
-	as -o $@ $<
+   In reply to http://marc.theaimsgroup.com/?l=linux-kernel&m=114119848908725&q=raw
+I was not following and  just noticed it.  The bug is introduced in the patch
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.16-mm1/broken-out/proc-dont-lock-task_structs-indefinitely.patch
 
-If there is a valid need for such stuff - then kbuild needs to be fixed.
-But I have yet to see a need like this.
+The task decrement problem is fixed, but I think we have two more
+problems in the following patch segment.
 
-I know several external modules plays all sort of tricks to avoid using
-kbuild infrastructure - I recall you have posted such receipts before.
-Recently posted loop-aes is another example (if USE_KBUILD is not set).
+The priv->tail_vma should not be set NULL; In old code, the local
+variable tail vma was overloaded for two more purposes as return value
+and also in version calculation, in addition to beging initialised
+from  gate vma. It we set the priv->tail_vma as NULL as the following
+patch does, and if we seek back, we will not be able to see the gate
+vma anymore from m_next.
 
-	Sam
+@@ -337,35 +349,37 @@ static void *m_start(struct seq_file *m,
+ 	}
+
+ 	if (l != mm->map_count)
+-		tail_vma = NULL; /* After gate vma */
++		priv->tail_vma = NULL; /* After gate vma */
+
+ out:
+  	if (vma)
+  		return vma;
+
+  	/* End of vmas has been reached */
+-	m->version = (tail_vma != NULL)? 0: -1UL;
++	m->version = (priv->tail_vma != NULL)? 0: -1UL;
+ 	up_read(&mm->mmap_sem);
+  	mmput(mm);
+-	return tail_vma;
++	return priv->tail_vma;
+
+
+Thanks,
+Prasanna.

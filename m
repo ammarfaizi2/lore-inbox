@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbWDJELu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWDJEVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750960AbWDJELu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 00:11:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWDJELu
+	id S1750972AbWDJEVc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 00:21:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWDJEVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 00:11:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5780 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750953AbWDJELt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 00:11:49 -0400
-MIME-Version: 1.0
+	Mon, 10 Apr 2006 00:21:32 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:39091 "EHLO
+	pilet.ens-lyon.fr") by vger.kernel.org with ESMTP id S1750918AbWDJEVb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 00:21:31 -0400
+Date: Mon, 10 Apr 2006 06:22:28 +0200
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+To: Michael Buesch <mb@bu3sch.de>
+Cc: netdev@vger.kernel.org, bcm43xx-dev@lists.berlios.de,
+       linux-kernel@vger.kernel.org, linville@tuxdriver.com,
+       benh@kernel.crashing.org
+Subject: Re: [RFC/PATCH] remove unneeded check in bcm43xx
+Message-ID: <20060410042228.GN27596@ens-lyon.fr>
+References: <20060410040120.GA4860@ens-lyon.fr> <200604100607.33362.mb@bu3sch.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-X-Fcc: ~/Mail/linus
-Cc: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/4] coredump: speedup SIGKILL sending
-In-Reply-To: Oleg Nesterov's message of  Friday, 7 April 2006 02:06:28 +0400 <20060406220628.GA237@oleg>
-X-Windows: the first fully modular software disaster.
-Message-Id: <20060410041139.D64A61809D1@magilla.sf.frob.com>
-Date: Sun,  9 Apr 2006 21:11:39 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <200604100607.33362.mb@bu3sch.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> With this patch a thread group is killed atomically under ->siglock.
-> This is faster because we can use sigaddset() instead of force_sig_info()
-> and this is used in further patches.
+On Mon, Apr 10, 2006 at 06:07:32AM +0200, Michael Buesch wrote:
+> On Monday 10 April 2006 06:01, you wrote:
+> > Since the driver already sets the correct dma_mask, there is no reason
+> > to bail there. In fact if you have an iommu, I think you can have a
+> > address above 1G which will be ok for the device (if it isn't true then
+> > the powerpc dma_alloc_coherent with iommu needs to be fixed because it
+> > doesn't respect the the dma_mask).
+> > 
+> > Please comment or apply.
 > 
-> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+> NACK. Don't apply that patch.
+> I know it is odd, but people are actually hitting these messages.
+> Maybe benh can explain the issues. I don't know...
+> 
+Yes, I know they hit the message, that's from a message in some forum
+that i got interested in the issue. It probably comes from an allocation
+from:
+http://www.linux-m32r.org/lxr/http/source/arch/powerpc/kernel/pci_direct_iommu.c#L32
 
-Looks good to me.
+Either the ppc code is wrong (it doesn't enforce dma_mask) either the
+driver still works without the check.
 
-Signed-off-by: Roland McGrath <roland@redhat.com>
+Maybe ppc should do the same thing as i386:
 
+47         if (dev == NULL || (dev->coherent_dma_mask < 0xffffffff))
+48                 gfp |= GFP_DMA;
 
-Thanks,
-Roland
+thanks,
+
+Benoit
+
+-- 
+powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS

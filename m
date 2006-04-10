@@ -1,159 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWDJMBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWDJMG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751144AbWDJMBs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 08:01:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWDJMBs
+	id S1751146AbWDJMG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 08:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWDJMG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 08:01:48 -0400
-Received: from mog.warmcat.com ([62.193.232.24]:60088 "EHLO
-	mailserver.mog.warmcat.com") by vger.kernel.org with ESMTP
-	id S1751144AbWDJMBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 08:01:47 -0400
-Message-ID: <443A4927.5040801@warmcat.com>
-Date: Mon, 10 Apr 2006 13:01:43 +0100
-From: Andy Green <andy@warmcat.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Mon, 10 Apr 2006 08:06:28 -0400
+Received: from uproxy.gmail.com ([66.249.92.172]:9969 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751146AbWDJMG1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 08:06:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=nF8I5Nac6Yf3YLptxZUdXsNjTUziUzkf8yFHSmMJ2a6hIbK9nXxOC6H14Y31WC1W6tCudzKQ3DnG1//Xe9zI9qGXWO5RQsV/PHonv2qCU3lfn4v2PhLAvzQTAoo1RkR5HuAvTfXN1GttiGrpV+lqSIaYvAk6LkXP66jibSmSu6U=
+Message-ID: <40cb3b290604100506xcf1d00cr34a64bc076b3c88f@mail.gmail.com>
+Date: Mon, 10 Apr 2006 14:06:26 +0200
+From: "Charles Majola" <chmj@rootcore.co.za>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] NFS_FS needs to depend on PROC_FS for proc_*_iostats
 MIME-Version: 1.0
-Cc: linux list <linux-kernel@vger.kernel.org>
-Subject: Re: Black box flight recorder for Linux
-References: <44379AB8.6050808@superbug.co.uk> <m3psjqeeor.fsf@defiant.localdomain>
-In-Reply-To: <m3psjqeeor.fsf@defiant.localdomain>
-Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwAQMAAABtzGvEAAAABlBMVEUAAAD///+l2Z/dAAAA
- CXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH1QgcEB8sRzxF1wAAAO5JREFUGNMlj6FuAkEQhn8u
- 3ANU4GlVU9NXOFGB3BBqalBNmmBxTWAlqSkadZKgEK1t7hFoAoYgcD1IGmqA5Jrt9J/ZFfPl251/
- JgvhcQBrWBr2IM7yTYSLoasTq+5UL1cDf030ugXt+CmsON3djjJgd9kGEV56fs6W/ZcfAa/H56JF
- m4lHE/Ih285YNxRXmWLbcGb3TcXPTR7N3spoi0a02FmmtCBljfYrZZIZ1A6ygI/Q3CGv2VdyaPwv
- h21w+gcJT3VDP4HG1ylRcQo7z0ukltugwJC5xKu92ZQqWjWxKfLoEp3yninkgQvFev4Brbazn0BT
- QlUAAAAASUVORK5CYII=
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms060406000004070307060104"
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+NFS_FS inode.c need stats.c
 
---------------ms060406000004070307060104
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+from net/sunrpc/Makefile :
+<snip>
+sunrpc-$(CONFIG_PROC_FS) += stats.o
+<snip>
 
-Krzysztof Halasa wrote:
 
-> I think the most trivial and reliable way would be to solder some
-> I^2 or similar EEPROM chip to, for example, parallel port connector.
-> 
-> Most motherboards have an internal I^2C bus / SMBus (for reading RAM
-> types and for other things) and I think it could be used to connect
-> the EEPROM instead of external port.
-> 
-> There are 512 Kbit (64 KB) and 1 Mbit (128 KB) EEPROMs available -
-> there is plenty of space not only for crash dump but for whole dmesg.
+diff --git a/fs/Kconfig b/fs/Kconfig
+index e207be6..e7362b9 100644
+--- a/fs/Kconfig
++++ b/fs/Kconfig
+@@ -1325,7 +1325,7 @@ menu "Network File Systems"
 
-Just an additional thought on this idea... both VGA and DVI connectors 
-on modern video cards appear to have DDC-2 connections, which is in fact 
-I2C.  This would provide an (inherently bidirectional :-) ) 3-pin 
-digital interface out of a mostly dead box even on laptops and so on 
-with no serial, parallel or legacy keyboard/mouse, so long as they had 
-reasonably modern VGA or DVI out.  You would need to get access to the 
-two I2C pins and Gnd somehow in that scenario.   Since I2C has a concept 
-of addressing it should be possible to choose I2C addresses for this 
-communication that doesn't address whatever may be listening on the same 
-bus in the monitor.
-
-I don't know if you bitbang these or there is some kind of 
-shifter/management logic in the video chip, in which case some minimal 
-case by case support is needed, but since simple IO is otherwise all but 
-gone on modern laptops so I thought it worth mentioning.
-
--Andy
-
---------------ms060406000004070307060104
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIMpDCC
-A2IwggLLoAMCAQICEAvaCxfBP4mOqwl0erTOLjMwDQYJKoZIhvcNAQECBQAwXzELMAkGA1UE
-BhMCVVMxFzAVBgNVBAoTDlZlcmlTaWduLCBJbmMuMTcwNQYDVQQLEy5DbGFzcyAxIFB1Ymxp
-YyBQcmltYXJ5IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTk4MDUxMjAwMDAwMFoXDTA4
-MDUxMjIzNTk1OVowgcwxFzAVBgNVBAoTDlZlcmlTaWduLCBJbmMuMR8wHQYDVQQLExZWZXJp
-U2lnbiBUcnVzdCBOZXR3b3JrMUYwRAYDVQQLEz13d3cudmVyaXNpZ24uY29tL3JlcG9zaXRv
-cnkvUlBBIEluY29ycC4gQnkgUmVmLixMSUFCLkxURChjKTk4MUgwRgYDVQQDEz9WZXJpU2ln
-biBDbGFzcyAxIENBIEluZGl2aWR1YWwgU3Vic2NyaWJlci1QZXJzb25hIE5vdCBWYWxpZGF0
-ZWQwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALtaRIoEFrtV/QN6ii2UTxV4NrgNSrJv
-nFS/vOh3Kp258Gi7ldkxQXB6gUu5SBNWLccI4YRCq8CikqtEXKpC8IIOAukv+8I7u77JJwpd
-trA2QjO1blSIT4dKvxna+RXoD4e2HOPMxpqOf2okkuP84GW6p7F+78nbN2rISsgJBuSZAgMB
-AAGjgbAwga0wDwYDVR0TBAgwBgEB/wIBADBHBgNVHSAEQDA+MDwGC2CGSAGG+EUBBwEBMC0w
-KwYIKwYBBQUHAgEWH3d3dy52ZXJpc2lnbi5jb20vcmVwb3NpdG9yeS9SUEEwMQYDVR0fBCow
-KDAmoCSgIoYgaHR0cDovL2NybC52ZXJpc2lnbi5jb20vcGNhMS5jcmwwCwYDVR0PBAQDAgEG
-MBEGCWCGSAGG+EIBAQQEAwIBBjANBgkqhkiG9w0BAQIFAAOBgQACfZ5vRUs4oLje6VNkIbzk
-TCuPHv6SQKzYCjlqoTIhLAebq1n+0mIafVU4sDdz3PQHZmNiveFTcFKH56jYUulbLarh3s+s
-MVTUixnI2COo7wQrMn0sGBzIfImoLnfyRNFlCk10te7TG5JzdC6JOzUTcudAMZrTssSr51a+
-i+P7FTCCBJswggQEoAMCAQICEAll5IguNdKurnal3pXm16MwDQYJKoZIhvcNAQEFBQAwgcwx
-FzAVBgNVBAoTDlZlcmlTaWduLCBJbmMuMR8wHQYDVQQLExZWZXJpU2lnbiBUcnVzdCBOZXR3
-b3JrMUYwRAYDVQQLEz13d3cudmVyaXNpZ24uY29tL3JlcG9zaXRvcnkvUlBBIEluY29ycC4g
-QnkgUmVmLixMSUFCLkxURChjKTk4MUgwRgYDVQQDEz9WZXJpU2lnbiBDbGFzcyAxIENBIElu
-ZGl2aWR1YWwgU3Vic2NyaWJlci1QZXJzb25hIE5vdCBWYWxpZGF0ZWQwHhcNMDUwOTE1MDAw
-MDAwWhcNMDYwOTE1MjM1OTU5WjCCAQ0xFzAVBgNVBAoTDlZlcmlTaWduLCBJbmMuMR8wHQYD
-VQQLExZWZXJpU2lnbiBUcnVzdCBOZXR3b3JrMUYwRAYDVQQLEz13d3cudmVyaXNpZ24uY29t
-L3JlcG9zaXRvcnkvUlBBIEluY29ycC4gYnkgUmVmLixMSUFCLkxURChjKTk4MR4wHAYDVQQL
-ExVQZXJzb25hIE5vdCBWYWxpZGF0ZWQxMzAxBgNVBAsTKkRpZ2l0YWwgSUQgQ2xhc3MgMSAt
-IE5ldHNjYXBlIEZ1bGwgU2VydmljZTETMBEGA1UEAxQKQW5keSBHcmVlbjEfMB0GCSqGSIb3
-DQEJARYQYW5keUB3YXJtY2F0LmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
-ANVXhXb2ER/6xqRdPiTDMKAhHrAGM1d98Da4sQXNVXozfDiMoEgFAH/TqemjfT3+8pLqoQIL
-3U/3sLe3OObeKdnr3fqqVsWsKYr8xG+gfF9I8iqoDcClyHynYKYvlJHZLE8dRSq4yzzEOl+3
-XaDNaoCqH3Ib5BdJoewdHRmr/gEd3XHMcHzbpRs4a25ypX3iIOi4SLEUZzisenqZpneTnImS
-OjbopmPMQ3YAyF7bOqT3KBSFbDWwa4gb/qBw8xH/dn1RdH51FoJptwcu2NNZDnLcXU7ypmzT
-zhCDYk+b5+OYRG+vlLN/pcpXi0MZjHLluF2QOnKDmwjBHfCr/S/16KsCAwEAAaOBtTCBsjAJ
-BgNVHRMEAjAAMEQGA1UdIAQ9MDswOQYLYIZIAYb4RQEHFwMwKjAoBggrBgEFBQcCARYcaHR0
-cHM6Ly93d3cudmVyaXNpZ24uY29tL3JwYTALBgNVHQ8EBAMCBaAwHQYDVR0lBBYwFAYIKwYB
-BQUHAwQGCCsGAQUFBwMCMDMGA1UdHwQsMCowKKAmoCSGImh0dHA6Ly9jcmwudmVyaXNpZ24u
-Y29tL2NsYXNzMS5jcmwwDQYJKoZIhvcNAQEFBQADgYEAbF6fDKkfo8tb37H9zFd0p4xSAeyi
-ujHP0fmAlBpic8zEIIysMGhPvX2vZZrV46rI6yYq0KYSRdG98UKjXDimYxe48lwL/QRJ54m9
-iIdsp7+kw5yo9fmj7micjVQ0tHHZYFIzC5ogaDmWVEBuJYNznLF52d2wtwlmJ29nOjkZx5Mw
-ggSbMIIEBKADAgECAhAJZeSILjXSrq52pd6V5tejMA0GCSqGSIb3DQEBBQUAMIHMMRcwFQYD
-VQQKEw5WZXJpU2lnbiwgSW5jLjEfMB0GA1UECxMWVmVyaVNpZ24gVHJ1c3QgTmV0d29yazFG
-MEQGA1UECxM9d3d3LnZlcmlzaWduLmNvbS9yZXBvc2l0b3J5L1JQQSBJbmNvcnAuIEJ5IFJl
-Zi4sTElBQi5MVEQoYyk5ODFIMEYGA1UEAxM/VmVyaVNpZ24gQ2xhc3MgMSBDQSBJbmRpdmlk
-dWFsIFN1YnNjcmliZXItUGVyc29uYSBOb3QgVmFsaWRhdGVkMB4XDTA1MDkxNTAwMDAwMFoX
-DTA2MDkxNTIzNTk1OVowggENMRcwFQYDVQQKEw5WZXJpU2lnbiwgSW5jLjEfMB0GA1UECxMW
-VmVyaVNpZ24gVHJ1c3QgTmV0d29yazFGMEQGA1UECxM9d3d3LnZlcmlzaWduLmNvbS9yZXBv
-c2l0b3J5L1JQQSBJbmNvcnAuIGJ5IFJlZi4sTElBQi5MVEQoYyk5ODEeMBwGA1UECxMVUGVy
-c29uYSBOb3QgVmFsaWRhdGVkMTMwMQYDVQQLEypEaWdpdGFsIElEIENsYXNzIDEgLSBOZXRz
-Y2FwZSBGdWxsIFNlcnZpY2UxEzARBgNVBAMUCkFuZHkgR3JlZW4xHzAdBgkqhkiG9w0BCQEW
-EGFuZHlAd2FybWNhdC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDVV4V2
-9hEf+sakXT4kwzCgIR6wBjNXffA2uLEFzVV6M3w4jKBIBQB/06npo309/vKS6qECC91P97C3
-tzjm3inZ6936qlbFrCmK/MRvoHxfSPIqqA3Apch8p2CmL5SR2SxPHUUquMs8xDpft12gzWqA
-qh9yG+QXSaHsHR0Zq/4BHd1xzHB826UbOGtucqV94iDouEixFGc4rHp6maZ3k5yJkjo26KZj
-zEN2AMhe2zqk9ygUhWw1sGuIG/6gcPMR/3Z9UXR+dRaCabcHLtjTWQ5y3F1O8qZs084Qg2JP
-m+fjmERvr5Szf6XKV4tDGYxy5bhdkDpyg5sIwR3wq/0v9eirAgMBAAGjgbUwgbIwCQYDVR0T
-BAIwADBEBgNVHSAEPTA7MDkGC2CGSAGG+EUBBxcDMCowKAYIKwYBBQUHAgEWHGh0dHBzOi8v
-d3d3LnZlcmlzaWduLmNvbS9ycGEwCwYDVR0PBAQDAgWgMB0GA1UdJQQWMBQGCCsGAQUFBwME
-BggrBgEFBQcDAjAzBgNVHR8ELDAqMCigJqAkhiJodHRwOi8vY3JsLnZlcmlzaWduLmNvbS9j
-bGFzczEuY3JsMA0GCSqGSIb3DQEBBQUAA4GBAGxenwypH6PLW9+x/cxXdKeMUgHsoroxz9H5
-gJQaYnPMxCCMrDBoT719r2Wa1eOqyOsmKtCmEkXRvfFCo1w4pmMXuPJcC/0ESeeJvYiHbKe/
-pMOcqPX5o+5onI1UNLRx2WBSMwuaIGg5llRAbiWDc5yxedndsLcJZidvZzo5GceTMYIEqjCC
-BKYCAQEwgeEwgcwxFzAVBgNVBAoTDlZlcmlTaWduLCBJbmMuMR8wHQYDVQQLExZWZXJpU2ln
-biBUcnVzdCBOZXR3b3JrMUYwRAYDVQQLEz13d3cudmVyaXNpZ24uY29tL3JlcG9zaXRvcnkv
-UlBBIEluY29ycC4gQnkgUmVmLixMSUFCLkxURChjKTk4MUgwRgYDVQQDEz9WZXJpU2lnbiBD
-bGFzcyAxIENBIEluZGl2aWR1YWwgU3Vic2NyaWJlci1QZXJzb25hIE5vdCBWYWxpZGF0ZWQC
-EAll5IguNdKurnal3pXm16MwCQYFKw4DAhoFAKCCAp0wGAYJKoZIhvcNAQkDMQsGCSqGSIb3
-DQEHATAcBgkqhkiG9w0BCQUxDxcNMDYwNDEwMTIwMTQzWjAjBgkqhkiG9w0BCQQxFgQUeztW
-eLzLjmK14PeqD2cKgFU15LwwUgYJKoZIhvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG
-9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgwgfIGCSsG
-AQQBgjcQBDGB5DCB4TCBzDEXMBUGA1UEChMOVmVyaVNpZ24sIEluYy4xHzAdBgNVBAsTFlZl
-cmlTaWduIFRydXN0IE5ldHdvcmsxRjBEBgNVBAsTPXd3dy52ZXJpc2lnbi5jb20vcmVwb3Np
-dG9yeS9SUEEgSW5jb3JwLiBCeSBSZWYuLExJQUIuTFREKGMpOTgxSDBGBgNVBAMTP1ZlcmlT
-aWduIENsYXNzIDEgQ0EgSW5kaXZpZHVhbCBTdWJzY3JpYmVyLVBlcnNvbmEgTm90IFZhbGlk
-YXRlZAIQCWXkiC410q6udqXelebXozCB9AYLKoZIhvcNAQkQAgsxgeSggeEwgcwxFzAVBgNV
-BAoTDlZlcmlTaWduLCBJbmMuMR8wHQYDVQQLExZWZXJpU2lnbiBUcnVzdCBOZXR3b3JrMUYw
-RAYDVQQLEz13d3cudmVyaXNpZ24uY29tL3JlcG9zaXRvcnkvUlBBIEluY29ycC4gQnkgUmVm
-LixMSUFCLkxURChjKTk4MUgwRgYDVQQDEz9WZXJpU2lnbiBDbGFzcyAxIENBIEluZGl2aWR1
-YWwgU3Vic2NyaWJlci1QZXJzb25hIE5vdCBWYWxpZGF0ZWQCEAll5IguNdKurnal3pXm16Mw
-DQYJKoZIhvcNAQEBBQAEggEAlbEf5rAZp43/q16kXf8i3fiBkCI0mR0KdYM/NKAgxVr6j9lP
-VsoTRLqritL6K7SVlo5JNvJo4DJa0ZuUkkSUFSWo/utldxXShLILyfin2QmFzTAIhYfFiG/i
-/3voTfy/+QXgjAdUsyEvMJquuKe8BviZzZ2JoZ4QmEALtza1hNJlaL27G9dKT+Fj+f93ep85
-vxVJ3exrLKwehr/P7V2zIttkjXlB61L65QYLxqjtUf/IOYoqvNp4q5wbfx+xMSqPUPq8yWH7
-EQVGWrlFLawZzdfz5iiPCbDTazAqINFbAvRYw6srqwmNGvHZmC9YK973hce9NPqDdZHtTS5p
-RvOcAAAAAAAAAA==
---------------ms060406000004070307060104--
+ config NFS_FS
+        tristate "NFS file system support"
+-       depends on INET
++       depends on INET && PROC_FS
+        select LOCKD
+        select SUNRPC
+        select NFS_ACL_SUPPORT if NFS_V3_ACL

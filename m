@@ -1,99 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWDJR7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWDJSFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbWDJR7r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 13:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbWDJR7q
+	id S932070AbWDJSFF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 14:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbWDJSFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 13:59:46 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:64451 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932068AbWDJR71
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 13:59:27 -0400
-Subject: [RFC][PATCH 2/3] ext3 percpu counter read fix to suppport more
-	than 2**31 free blocks
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-To: akpm@osdl.org
-Cc: kiran@scalex86.org, Laurent Vivier <Laurent.Vivier@bull.net>,
-       linux-kernel@vger.kernel.org,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-fsdevel@vger.kernel.org
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Mon, 10 Apr 2006 10:59:25 -0700
-Message-Id: <1144691965.3964.55.camel@dyn9047017067.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Apr 2006 14:05:05 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:63492 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S932070AbWDJSFD convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 14:05:03 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+in-reply-to: <20060410174252.GD2408@stusta.de>
+x-originalarrivaltime: 10 Apr 2006 18:04:59.0569 (UTC) FILETIME=[482C6A10:01C65CC9]
+Content-class: urn:content-classes:message
+Subject: Re: The assemble file under the driver folder can not be recognized when the driver is built as module
+Date: Mon, 10 Apr 2006 14:04:59 -0400
+Message-ID: <Pine.LNX.4.61.0604101402400.26129@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: The assemble file under the driver folder can not be recognized when the driver is built as module
+Thread-Index: AcZcyUg15GEJ1n17R0C+qHQVMD1Kqg==
+References: <6d6a94c50604100316j43bcc32p6fa781c0ce47182d@mail.gmail.com> <20060410112817.GE12896@harddisk-recovery.com> <6d6a94c50604100627q297b7335yb58288356aaa8edd@mail.gmail.com> <20060410174252.GD2408@stusta.de>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Adrian Bunk" <bunk@stusta.de>
+Cc: "Aubrey" <aubreylee@gmail.com>, "Erik Mouw" <erik@harddisk-recovery.com>,
+       <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 2/3] - Currently percpu_counter_read_positive() always return 1
-if the counter(singed type) is negative. This leads the ext3 always get
-free blocks as 1 if there are more than 2**31 free blocks, thus prevent
-non-root users to write(file creation) to the filesystem. This patch
-fixed this by using percpu_counter_read() instead.
 
-Signed-Off-By: Mingming Cao <cmm@us.ibm.com>
----
+On Mon, 10 Apr 2006, Adrian Bunk wrote:
 
- linux-2.6.16-cmm/fs/ext3/balloc.c |    2 +-
- linux-2.6.16-cmm/fs/ext3/ialloc.c |   10 +++++-----
- 2 files changed, 6 insertions(+), 6 deletions(-)
+> On Mon, Apr 10, 2006 at 09:27:18PM +0800, Aubrey wrote:
+>> ...
+>> Makefile is simple.
+>> ===============================
+>> ----snip----
+>> obj-$(CONFIG_FB_BFIN_7171)	  += bfin_ad7171fb.o rgb2ycbcr.o
+>> ----snip----
+>> ===============================
+>> There are two files, bfin_ad7171fb.c and rgb2ycbcr.S under the folder
+>> " ./drivers/video".
+>> It should be OK because the driver can pass the compilation when
+>> select it as built-in.
+>> It just failed when select it as module.
+>>
+>> Thanks your any hints.
+>
+> You can't build an object only built from an assembler file.
+>
+> But you don't want to get two modules, you want one module built from
+> two source files.
+>
+> IOW, you want:
+>
+>  obj-$(CONFIG_FB_BFIN_7171)	+= bfin_ad7171fb.o
+>  bfin_ad7171fb-objs		:= bfin_ad7171fb_main.o rgb2ycbcr.o
+>
+> Note that this requires renaming bfin_ad7171fb.c to bfin_ad7171fb_main.c.
+>
+>> Regards,
+>> -Aubrey
+>
+> cu
+> Adrian
 
-diff -puN fs/ext3/balloc.c~ext3_16tb_free_blks_counter_read_fix fs/ext3/balloc.c
---- linux-2.6.16/fs/ext3/balloc.c~ext3_16tb_free_blks_counter_read_fix	2006-04-02 11:50:06.000000000 -0700
-+++ linux-2.6.16-cmm/fs/ext3/balloc.c	2006-04-02 11:50:06.000000000 -0700
-@@ -1168,7 +1168,7 @@ static int ext3_has_free_blocks(struct e
- {
- 	unsigned long free_blocks, root_blocks;
- 
--	free_blocks = percpu_counter_read_positive(&sbi->s_freeblocks_counter);
-+	free_blocks = (unsigned long)percpu_counter_read(&sbi->s_freeblocks_counter);
- 	root_blocks = le32_to_cpu(sbi->s_es->s_r_blocks_count);
- 	if (free_blocks < root_blocks + 1 && !capable(CAP_SYS_RESOURCE) &&
- 		sbi->s_resuid != current->fsuid &&
-diff -puN fs/ext3/ialloc.c~ext3_16tb_free_blks_counter_read_fix fs/ext3/ialloc.c
---- linux-2.6.16/fs/ext3/ialloc.c~ext3_16tb_free_blks_counter_read_fix	2006-04-02 11:50:06.000000000 -0700
-+++ linux-2.6.16-cmm/fs/ext3/ialloc.c	2006-04-02 11:50:06.000000000 -0700
-@@ -202,12 +202,12 @@ error_return:
- static int find_group_dir(struct super_block *sb, struct inode *parent)
- {
- 	int ngroups = EXT3_SB(sb)->s_groups_count;
--	int freei, avefreei;
-+	unsigned long freei, avefreei;
- 	struct ext3_group_desc *desc, *best_desc = NULL;
- 	struct buffer_head *bh;
- 	int group, best_group = -1;
- 
--	freei = percpu_counter_read_positive(&EXT3_SB(sb)->s_freeinodes_counter);
-+	freei = (unsigned long)percpu_counter_read(&EXT3_SB(sb)->s_freeinodes_counter);
- 	avefreei = freei / ngroups;
- 
- 	for (group = 0; group < ngroups; group++) {
-@@ -261,7 +261,7 @@ static int find_group_orlov(struct super
- 	struct ext3_super_block *es = sbi->s_es;
- 	int ngroups = sbi->s_groups_count;
- 	int inodes_per_group = EXT3_INODES_PER_GROUP(sb);
--	int freei, avefreei;
-+	unsigned long freei, avefreei;
- 	unsigned long freeb, avefreeb;
- 	int blocks_per_dir, ndirs;
- 	int max_debt, max_dirs, min_blocks, min_inodes;
-@@ -269,9 +269,9 @@ static int find_group_orlov(struct super
- 	struct ext3_group_desc *desc;
- 	struct buffer_head *bh;
- 
--	freei = percpu_counter_read_positive(&sbi->s_freeinodes_counter);
-+	freei = (unsigned long)percpu_counter_read(&sbi->s_freeinodes_counter);
- 	avefreei = freei / ngroups;
--	freeb = percpu_counter_read_positive(&sbi->s_freeblocks_counter);
-+	freeb = (unsigned long)percpu_counter_read(&sbi->s_freeblocks_counter);
- 	avefreeb = freeb / ngroups;
- 	ndirs = percpu_counter_read_positive(&sbi->s_dirs_counter);
- 
-diff -puN -L ext3_16tb_freeblks_counter_mod_fix.patch /dev/null /dev/null
+Can't he just put his own private compile definition in his
+own Makefile?
 
+%.o:	%.S
+ 	as -o $@ $<
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.15.4 on an i686 machine (5589.42 BogoMips).
+Warning : 98.36% of all statistics are fiction, book release in April.
 _
+
 
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
+Thank you.

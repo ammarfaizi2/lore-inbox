@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWDJKRD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWDJKNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbWDJKRD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 06:17:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbWDJKRD
+	id S1751118AbWDJKNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 06:13:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWDJKNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 06:17:03 -0400
-Received: from nproxy.gmail.com ([64.233.182.189]:54371 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751113AbWDJKRC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 06:17:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=nPMPiLWRCwrXXMUb3IUbNjm8k/4GBfII+gEYoU82enKeT3E1maQ4aeLGifM6+YSuivIXDiw39QhmD/lxuo+UMEeK6kM23hSqWX3EV8Ya+CtRtxx0rc1n6Tguvu2YpP+PD+sPR5nKDfCZUc4x6GFWz+R6JBAQVOi0r/SlaCk5EKU=
-Message-ID: <6d6a94c50604100316j43bcc32p6fa781c0ce47182d@mail.gmail.com>
-Date: Mon, 10 Apr 2006 18:16:56 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: The assemble file under the driver folder can not be recognized when the driver is built as module
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Mon, 10 Apr 2006 06:13:25 -0400
+Received: from mail.gmx.net ([213.165.64.20]:45016 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751118AbWDJKNY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 06:13:24 -0400
+X-Authenticated: #704063
+Subject: [Patch] Overrun in sound/pci/au88x0/au88x0_pcm.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Mon, 10 Apr 2006 12:13:21 +0200
+Message-Id: <1144664001.15821.1.camel@alice>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+hi,
 
-I've written a framebuffer driver and put it under the folder
-"./drivers/video", it consists of two files" mydriver.c and myfun.S".
-When I build it into the kernel image, everything is ok.
-But when I build it as module, I got the following error message:
-===========================================
-aubrey@linux:~/cvs/kernel/uClinux-dist> make V=1
---------snip---------
-make -f scripts/Makefile.build obj=drivers/video
-make -f scripts/Makefile.build obj=drivers/video/backlight
-make[3]: *** No rule to make target `drivers/video/rgb2ycbcr.c',
-needed by `drivers/video/rgb2ycbcr.o'.  Stop.
-make[2]: *** [drivers/video] Error 2
-make[1]: *** [drivers] Error 2
-make[1]: Leaving directory `/home/aubrey/cvs/kernel/uClinux-dist/linux-2.6.x'
-make: *** [linux] Error 1
-===========================================
+since idx is used as an index for vortex_pcm_prettyname[VORTEX_PCM_LAST],
+it should not be equal to VORTEX_PCM_LAST. This fixes coverity bug id #572
 
-Make ask me for ".c" file. But it's an assemble file indeed.
-Is it a bug of kernel script? (I'm using 2.6.16)
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
-Regards,
--Aubrey
+--- linux-2.6.17-rc1/sound/pci/au88x0/au88x0_pcm.c.orig	2006-04-10 12:10:22.000000000 +0200
++++ linux-2.6.17-rc1/sound/pci/au88x0/au88x0_pcm.c	2006-04-10 12:10:41.000000000 +0200
+@@ -506,7 +506,7 @@ static int __devinit snd_vortex_new_pcm(
+ 	int i;
+ 	int err, nr_capt;
+ 
+-	if ((chip == 0) || (idx < 0) || (idx > VORTEX_PCM_LAST))
++	if ((chip == 0) || (idx < 0) || (idx >= VORTEX_PCM_LAST))
+ 		return -ENODEV;
+ 
+ 	/* idx indicates which kind of PCM device. ADB, SPDIF, I2S and A3D share the 
+
+

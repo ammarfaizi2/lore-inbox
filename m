@@ -1,56 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbWDJEzI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWDJE4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750876AbWDJEzI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 00:55:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750966AbWDJEzI
+	id S1750968AbWDJE4r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 00:56:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750975AbWDJE4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 00:55:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:2726 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750876AbWDJEzG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 00:55:06 -0400
+	Mon, 10 Apr 2006 00:56:47 -0400
+Received: from bureau14.utcc.utoronto.ca ([128.100.132.42]:20895 "EHLO
+	bureau14.utcc.utoronto.ca") by vger.kernel.org with ESMTP
+	id S1750966AbWDJE4r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 00:56:47 -0400
+Message-ID: <4439E507.6060000@utoronto.ca>
+Date: Mon, 10 Apr 2006 00:54:31 -0400
+From: Marek Olszewski <m.olszewski@utoronto.ca>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: JIT based dynamic instrumentation in the linux kernel.  We need your
+ help!
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-X-Fcc: ~/Mail/linus
-Cc: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] coredump: kill ptrace related stuff
-In-Reply-To: Oleg Nesterov's message of  Friday, 7 April 2006 02:06:31 +0400 <20060406220631.GA240@oleg>
-Emacs: impress your (remaining) friends and neighbors.
-Message-Id: <20060410045451.434ED1809D1@magilla.sf.frob.com>
-Date: Sun,  9 Apr 2006 21:54:51 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> With this patch zap_process() sets SIGNAL_GROUP_EXIT while sending
-> SIGKILL to the thread group. 
+Hello,
 
-do_coredump has already done this.  So you are addressing the case of other
-thread groups sharing the mm, right?
+For a class project we have built an x86 kernel module which can 
+dynamically instrument system calls with very fine granularity.  It does 
+so (explained a bit below) in a similar fashion to Valgrind, Pin, and 
+DynamoRio, except that it runs in the kernel.  It's interface is quite 
+similar to Pin except that the "tools" or plugins (that dictate the kind 
+of instrumentation) are written as kernel modules.  Our goal is to open 
+source the project after the class for everyone to enjoy.
 
-> This means that a TASK_TRACED task
-> 
-> 	1. Will be awakened by signal_wake_up(1)
+This is not a probe based instrumentation tool such as kprobes.  Our 
+tool instruments code by copying dynamic basic blocks over to a code 
+cache while instrumenting them according to the wishes of a user written 
+plugin.  This plugin can look at all the instructions being executed and 
+decide (the first time they are encountered) whether to instrument them 
+or not.  This allows users to write tools that can instrument branches, 
+memory references or just about any type of instruction without 
+specifying the exact instruction locations.  Instrumentation is provided 
+in the form of a function, however, our tool will try to inline for 
+improved performance.  The end result is a simple to use, fast 
+(hopefully, we haven't gotten around to performance tests) 
+instrumentation tool to help kernel hackers debug, profile, monitor, and 
+annotate system calls (instrumenting arbitrary kernel code is future 
+work).  We believe that the size and complexity of the Linux kernel 
+motivates such a tool.
 
-That should always happen regardless of signal->flags, so yes.
+We are hoping to publish our work in the near future, and to that end, 
+we are looking for plugin ideas from real kernel hackers.  We ourselves 
+are not kernel hackers (maybe one day) and therefore are not aware of 
+the needs of the potential users of our tool (please don't flame us for 
+this, it's only a class project).  These ideas should require fine 
+grained instrumentation making them not suitable for probed based 
+instrumentation.
 
-> 	2. Can't sleep again via ptrace_notify()
+To give you a rough idea of what's possible: we are currently working on 
+a plugin that would find branches with hint prefixes and monitor their 
+directions at runtime.  Hence, for a given workload, the plugin will be 
+able to check for branches that are incorrectly hinted (possibly with 
+the likely() macro) and report these back to the user.  We are thinking 
+that a similar plugin that monitors all branches to detect whether a 
+hint could be profitable might also be useful.
 
-What makes this be so?  What if it's entering a notification event now?
-What about exit tracing?
+If you think that you might have a nice idea, please let us know.  We 
+will try to write it and include it in our paper.  It will also be 
+available for all to use when we release the tool.
 
-> 	3. Can't go to do_signal_stop() after return
-> 	   from ptrace_stop() in get_signal_to_deliver()
+Thank you!
 
-This is only true because of the check in get_signal_to_deliver,
-which I've said I think should be taken out for other reasons.
+Marek
 
-I guess I'm missing something here.
-
-
-Thanks,
-Roland

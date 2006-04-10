@@ -1,121 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWDJMIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWDJMSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751147AbWDJMIn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 08:08:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWDJMIn
+	id S1751155AbWDJMSS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 08:18:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWDJMSS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 08:08:43 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:40425 "EHLO
-	pilet.ens-lyon.fr") by vger.kernel.org with ESMTP id S1751147AbWDJMIm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 08:08:42 -0400
-Date: Mon, 10 Apr 2006 14:09:22 +0200
-From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-To: akpm@osdl.org
-Cc: linville@tuxdriver.com, linux-kernel@vger.kernel.org,
-       Michael Buesch <mb@bu3sch.de>
-Subject: Re: + remove-unneeded-check-in-bcm43xx.patch added to -mm tree
-Message-ID: <20060410120922.GR27596@ens-lyon.fr>
-References: <200604100816.k3A8GUve001390@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200604100816.k3A8GUve001390@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.11
+	Mon, 10 Apr 2006 08:18:18 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:58125 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1751155AbWDJMSR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 08:18:17 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+in-reply-to: <200604080917.39562.ak@suse.de>
+x-originalarrivaltime: 10 Apr 2006 12:18:02.0775 (UTC) FILETIME=[D065BA70:01C65C98]
+Content-class: urn:content-classes:message
+Subject: Re: Black box flight recorder for Linux
+Date: Mon, 10 Apr 2006 08:18:01 -0400
+Message-ID: <Pine.LNX.4.61.0604100754340.25546@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Black box flight recorder for Linux
+Thread-Index: AcZcmNBv0N2qS7ToRKKgXDIfnxodxg==
+References: <5ZjEd-4ym-37@gated-at.bofh.it> <5ZlZk-7VF-13@gated-at.bofh.it> <4437C335.30107@shaw.ca> <200604080917.39562.ak@suse.de>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: "Robert Hancock" <hancockr@shaw.ca>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 10, 2006 at 12:15:53AM -0700, akpm@osdl.org wrote:
-> 
-> The patch titled
-> 
->      remove unneeded check in bcm43xx
-> 
-> has been added to the -mm tree.  Its filename is
-> 
->      remove-unneeded-check-in-bcm43xx.patch
 
-It has been NACKed by Michael Buesch. The problem is in the ppc
-dma_alloc_coherent that returns a non suitable zone (it doesn't respect
-dma_mask).
+On Sat, 8 Apr 2006, Andi Kleen wrote:
 
-Please remove from -mm, sorry for bothering.
+> On Saturday 08 April 2006 16:05, Robert Hancock wrote:
+>> Andi Kleen wrote:
+>>> James Courtier-Dutton <James@superbug.co.uk> writes:
+>>>> Now, the question I have is, if I write values to RAM, do any of those
+>>>> values survive a reset?
+>>>
+>>> They don't generally.
+>>>
+>>> Some people used to write the oopses into video memory, but that
+>>> is not portable.
+>>
+>> I wouldn't think most BIOSes these days would bother to clear system RAM
+>> on a reboot. Certainly Microsoft was encouraging vendors not to do this
+>> because it slowed down system boot time.to
+>
+> Reset button is like a cold boot and it generally ends up with cleared
+> RAM.
+>
+> -Andi
 
-Benoit
-> 
-> See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
-> out what to do about this
-> 
-> 
-> From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-> 
-> Since the driver already sets the correct dma_mask, there is no reason to
-> bail there.  In fact if you have an iommu, I think you can have a address
-> above 1G which will be ok for the device (if it isn't true then the powerpc
-> dma_alloc_coherent with iommu needs to be fixed because it doesn't respect
-> the the dma_mask).
-> 
-> Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.fr>
-> Cc: "John W. Linville" <linville@tuxdriver.com>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> ---
-> 
->  drivers/net/wireless/bcm43xx/bcm43xx_dma.c |   23 -------------------
->  1 files changed, 23 deletions(-)
-> 
-> diff -puN drivers/net/wireless/bcm43xx/bcm43xx_dma.c~remove-unneeded-check-in-bcm43xx drivers/net/wireless/bcm43xx/bcm43xx_dma.c
-> --- devel/drivers/net/wireless/bcm43xx/bcm43xx_dma.c~remove-unneeded-check-in-bcm43xx	2006-04-10 00:15:40.000000000 -0700
-> +++ devel-akpm/drivers/net/wireless/bcm43xx/bcm43xx_dma.c	2006-04-10 00:15:40.000000000 -0700
-> @@ -194,14 +194,6 @@ static int alloc_ringmemory(struct bcm43
->  		printk(KERN_ERR PFX "DMA ringmemory allocation failed\n");
->  		return -ENOMEM;
->  	}
-> -	if (ring->dmabase + BCM43xx_DMA_RINGMEMSIZE > BCM43xx_DMA_BUSADDRMAX) {
-> -		printk(KERN_ERR PFX ">>>FATAL ERROR<<<  DMA RINGMEMORY >1G "
-> -				    "(0x%08x, len: %lu)\n",
-> -		       ring->dmabase, BCM43xx_DMA_RINGMEMSIZE);
-> -		dma_free_coherent(dev, BCM43xx_DMA_RINGMEMSIZE,
-> -				  ring->vbase, ring->dmabase);
-> -		return -ENOMEM;
-> -	}
->  	assert(!(ring->dmabase & 0x000003FF));
->  	memset(ring->vbase, 0, BCM43xx_DMA_RINGMEMSIZE);
->  
-> @@ -303,14 +295,6 @@ static int setup_rx_descbuffer(struct bc
->  	if (unlikely(!skb))
->  		return -ENOMEM;
->  	dmaaddr = map_descbuffer(ring, skb->data, ring->rx_buffersize, 0);
-> -	if (unlikely(dmaaddr + ring->rx_buffersize > BCM43xx_DMA_BUSADDRMAX)) {
-> -		unmap_descbuffer(ring, dmaaddr, ring->rx_buffersize, 0);
-> -		dev_kfree_skb_any(skb);
-> -		printk(KERN_ERR PFX ">>>FATAL ERROR<<<  DMA RX SKB >1G "
-> -				    "(0x%08x, len: %u)\n",
-> -		       dmaaddr, ring->rx_buffersize);
-> -		return -ENOMEM;
-> -	}
->  	meta->skb = skb;
->  	meta->dmaaddr = dmaaddr;
->  	skb->dev = ring->bcm->net_dev;
-> @@ -726,13 +710,6 @@ static int dma_tx_fragment(struct bcm43x
->  
->  	meta->skb = skb;
->  	meta->dmaaddr = map_descbuffer(ring, skb->data, skb->len, 1);
-> -	if (unlikely(meta->dmaaddr + skb->len > BCM43xx_DMA_BUSADDRMAX)) {
-> -		return_slot(ring, slot);
-> -		printk(KERN_ERR PFX ">>>FATAL ERROR<<<  DMA TX SKB >1G "
-> -				    "(0x%08x, len: %u)\n",
-> -		       meta->dmaaddr, skb->len);
-> -		return -ENOMEM;
-> -	}
->  
->  	desc_addr = (u32)(meta->dmaaddr + ring->memoffset);
->  	desc_ctl = BCM43xx_DMADTOR_FRAMESTART | BCM43xx_DMADTOR_FRAMEEND;
-> _
-> 
-> Patches currently in -mm which might be from benoit.boissinot@ens-lyon.org are
-> 
-> remove-unneeded-check-in-bcm43xx.patch
-> 
+Further, in a boot where the BIOS needs to initialize hardware,
+It will write all RAM before enabling NMI. This makes sure that
+the parity bit(s) are set properly. Most BIOS will attempt to
+preserve RAM on a 'warm' boot as a throw-back to the '286 days
+with their above-1MB-memory-manager paged RAM because the
+only way to get back from protected mode to 16-bit real mode
+was a hardware reset. When using a memory-manager like DOS's
+HIMEM.SYS, you might actually be rebooting the machine hundreds
+of times per second!
 
--- 
-powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS
+If you want to make a flight-data recorder, you need to use
+FAA specs and, as such, you can't rely on second-order effects.
+You will need write all the parameters to flash (or equivalent)
+at least 10 times per second. I would advise against putting
+a file-system on the flash because the file-system might get
+corrupt because of a bad write during a crash. Instead, I would
+write a large number of identical groups of parameters (a structure
+image) at a large number of raw offsets, each with the required
+time-stamp. This, done the required 10 times per second.
+
+Note that the NTSB, in investigating some light airplane accidents,
+has been successful extracting data from hand-held GPS receivers
+and FADEC controllers, so using flash RAM for accident investigation
+has some successful history (useful for obtaining certification).
+
+I once proposed a FDR for light aircraft that would cost the end-user
+under $2,000. This was to use a small embedded CPU, raw NAV inputs
+from the panel, a cheap accelerometer, and some pressure sensors
+for altimetry. This would be mounted in the tail, requiring no
+user (pilot) input at all. In the event of a crash, the last
+hour of flight could be retrieved.
+
+Typical response; "There is no market for this...."
+
+Good luck!
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.15.4 on an i686 machine (5589.42 BogoMips).
+Warning : 98.36% of all statistics are fiction, book release in April.
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

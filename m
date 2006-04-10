@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbWDJP7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWDJQAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750939AbWDJP7A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 11:59:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWDJP7A
+	id S1750978AbWDJQAz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 12:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbWDJQAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 11:59:00 -0400
-Received: from nproxy.gmail.com ([64.233.182.187]:57385 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750939AbWDJP67 (ORCPT
+	Mon, 10 Apr 2006 12:00:55 -0400
+Received: from lug-owl.de ([195.71.106.12]:28075 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1750978AbWDJQAy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 11:58:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=FHl3L4xoFamc3QSo5rduiNND3SOudVo1yww2W3a+r91jqM190lZdvQ5hWhzr9lJWabT0DrVG1JBjE+IEf6stBTPHpriDvHj/4pazW0Uy/NsxsjcceKmxfmpN+FyGMGwFFOyIjCBRSBw/LXE0wCIzUbfh0waWUjVVKS2KIwJ2Gs8=
-Message-ID: <443A8093.80505@gmail.com>
-Date: Mon, 10 Apr 2006 17:57:48 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Shlomi Fish <shlomif@iglu.org.il>
-CC: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, perex@suse.cz
-Subject: Re: Two OOPSes in ALSA with kernel-2.6.17-rc1
-References: <200604101823.54600.shlomif@iglu.org.il>
-In-Reply-To: <200604101823.54600.shlomif@iglu.org.il>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Apr 2006 12:00:54 -0400
+Date: Mon, 10 Apr 2006 18:00:52 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Sumit Narayan <talk2sumit@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, ext3-users@redhat.com
+Subject: Re: deleting partition does not effect superblock?
+Message-ID: <20060410160052.GO13324@lug-owl.de>
+Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	Sumit Narayan <talk2sumit@gmail.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>, ext3-users@redhat.com
+References: <1458d9610604052337p2cafa6c8j78fc6da8c5f8be1a@mail.gmail.com> <20060406065832.GK13324@lug-owl.de> <Pine.LNX.4.61.0604101725130.922@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xsFQtFdnkC8cTCzR"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0604101725130.922@yvahk01.tjqt.qr>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Shlomi Fish napsal(a):
-> Hi all!
-> 
-> (Please CC me on the replies)
-> 
-> I recently received these two OOPSes with kernel-2.6.17-rc1. They happened 
-> while mpg123 was playing a WAV file and I invoked KDE (along with artsd).
-> 
-> My soundcard is snd_intel8x0.
-> 
-> Let me know if you need any other information.
-Try to turn sound debug on and retest.
-It seems like struct snd_pcm_runtime *runtime is NULL.
+--xsFQtFdnkC8cTCzR
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-regards,
-- --
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+On Mon, 2006-04-10 17:28:18 +0200, Jan Engelhardt <jengelh@linux01.gwdg.de>=
+ wrote:
+> >deleted) or otherwise modified. So it's perfectly okay to delete such
+> >a container (eg. remove start and end from the partition table) and
+> >recreate it at some time later (by adding those values back to the
+> >partition table.)  As long as the new container starts at the same
+> >location, a filesystem driver will be able to find the old
+> >information. If you start a block later, it won't find it's
+> >superblocks.
+> >
+> If using a filesystem with replicated superblocks (ext*, xfs), then ...?
+> [Includes expecting weird breakage.]
+
+I'll possibly test if this works in another life...
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--xsFQtFdnkC8cTCzR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFEOoCTMsxVwznUen4RAkbcAJ4lYUt9LK5t9ECKbcy453qYPlOahACfR5pz
-zWEa8B9DzvmbKsdwyTVe49c=
-=YvAt
+iD8DBQFEOoE0Hb1edYOZ4bsRAlxVAJ9FdGu1YRCjbE0iUzxn5tYGUwY9iQCeL62C
+w9zqN1Pu+tAW+go6n/7++uo=
+=DmYz
 -----END PGP SIGNATURE-----
+
+--xsFQtFdnkC8cTCzR--

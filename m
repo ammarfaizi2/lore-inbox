@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWDJJNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWDJJNK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbWDJJNM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 05:13:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbWDJJNM
+	id S1751038AbWDJJNK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 05:13:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWDJJNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 05:13:12 -0400
-Received: from tensor.andric.com ([213.154.244.69]:14573 "EHLO
-	tensor.andric.com") by vger.kernel.org with ESMTP id S1751052AbWDJJNL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 05:13:11 -0400
-Message-ID: <443A2196.5090306@andric.com>
-Date: Mon, 10 Apr 2006 11:12:54 +0200
-From: Dimitry Andric <dimitry@andric.com>
-User-Agent: Thunderbird 2.0a1 (Windows/20060324)
-MIME-Version: 1.0
-To: saeed bishara <saeed.bishara@gmail.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Paolo Ornati <ornati@fastwebnet.it>, linux-kernel@vger.kernel.org,
-       linux-arm-kernel@lists.arm.linux.org.uk,
-       Linux-arm-toolchain@lists.arm.linux.org.uk
-Subject: Re: add new code section for kernel code
-References: <c70ff3ad0604060545o2e2dc8fcg2948ca53b3b3c8b0@mail.gmail.com>	<20060406151003.0ef4e637@localhost>	<c70ff3ad0604060947t728fbad9g2e3b35198f9b0f66@mail.gmail.com>	<c70ff3ad0604070402p355a5695y28b5806cbf7bed0a@mail.gmail.com>	<1144422864.3117.0.camel@laptopd505.fenrus.org>	<20060407154349.GB31458@flint.arm.linux.org.uk>	<c70ff3ad0604090253n7fe4de4che67f18380ffa2efd@mail.gmail.com> <20060409203046.GA24461@flint.arm.linux.org.uk>
-In-Reply-To: <20060409203046.GA24461@flint.arm.linux.org.uk>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Apr 2006 05:13:10 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:28850 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S1751038AbWDJJNJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 05:13:09 -0400
+Date: Mon, 10 Apr 2006 11:12:59 +0200
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [patch][rfc] quell interactive feeding frenzy
+Message-ID: <20060410091248.GA32468@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Mike Galbraith <efault@gmx.de>, Con Kolivas <kernel@kolivas.org>,
+	lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+	Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+	Peter Williams <pwil3058@bigpond.net.au>
+References: <1144402690.7857.31.camel@homer> <200604072256.27665.kernel@kolivas.org> <1144417064.8114.26.camel@homer> <200604072356.03580.kernel@kolivas.org> <1144419294.14231.7.camel@homer> <20060409111436.GA26533@outpost.ds9a.nl> <1144582778.13991.10.camel@homer> <20060409121436.GA28075@outpost.ds9a.nl> <1144606061.7408.14.camel@homer>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1144606061.7408.14.camel@homer>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> Thanks for testing; I've applied this patch so 2.6.17-rc2 onwards will
-> have this fixed.
+On Sun, Apr 09, 2006 at 08:07:41PM +0200, Mike Galbraith wrote:
+> Rare?  What exactly is rare about a number of tasks serving data?  I
+> don't care if it's a P4 serving gigabit.  If you have to divide your
+> server into pieces (you do, and you know it) you're screwed. 
 
-Maybe this can also be applied to the data sections, for people who
-compile with -fdata-sections?  As in the following patch (note that the
-.rodata sections are already wildcarded):
+You've not detailed your load. I assume it consists of lots of small files
+being transferred over 10 apache processes? I also assume you max out your
+system using apachebench? 
 
-diff -urNd a/arch/arm/boot/compressed/vmlinux.lds.in
-b/arch/arm/boot/compressed/vmlinux.lds.in
---- a/arch/arm/boot/compressed/vmlinux.lds.in	2006-03-20
-06:53:29.000000000 +0100
-+++ b/arch/arm/boot/compressed/vmlinux.lds.in	2006-04-10
-11:06:03.000000000 +0200
-@@ -34,7 +35,7 @@
-   .got			: { *(.got) }
-   _got_end = .;
-   .got.plt		: { *(.got.plt) }
--  .data			: { *(.data) }
-+  .data			: { *(.data) *(.data.*) }
-   _edata = .;
+In general, Linux systems are not maxed out as they will disappoint that way
+(like any system running with id=0). 
 
-   . = BSS_START;
+So yes, what you do is a 'rare load' as anybody trying to do this will
+disappoint his users.
+
+And any tweak you make to the scheduler this way is bound to affect another
+load.
+
+	Bert
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

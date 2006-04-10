@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWDJTmb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWDJToK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWDJTmb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 15:42:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWDJTmb
+	id S932126AbWDJToK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 15:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWDJToK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 15:42:31 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:9305 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932117AbWDJTma convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 15:42:30 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:mime-version:
-	content-type:content-transfer-encoding:content-disposition;
-	b=l6DOfPPXjd3+Udhx+YZe8MOP3mpUvWKmEN0r7uxSL6ugILF0QjU9KUjPJQdPgt73I
-	KMfRY/JRs4TmpUBuqVZ4A==
-Message-ID: <608a53b0604101242v4778af80ybaf639c38cc00587@mail.google.com>
-Date: Tue, 11 Apr 2006 01:12:24 +0530
-From: "Prasanna Meda" <mlp@google.com>
-To: akpm@osdl.org, ebiederm@xmission.com
-Subject: Comment about proc-dont-lock-task_structs-indefinitely.patch
-Cc: linux-kernel@vger.kernel.org
+	Mon, 10 Apr 2006 15:44:10 -0400
+Received: from khc.piap.pl ([195.187.100.11]:44040 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S932126AbWDJToJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 15:44:09 -0400
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Cc: "Andi Kleen" <ak@suse.de>, "Robert Hancock" <hancockr@shaw.ca>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: Black box flight recorder for Linux
+References: <5ZjEd-4ym-37@gated-at.bofh.it> <5ZlZk-7VF-13@gated-at.bofh.it>
+	<4437C335.30107@shaw.ca> <200604080917.39562.ak@suse.de>
+	<Pine.LNX.4.61.0604100754340.25546@chaos.analogic.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Mon, 10 Apr 2006 21:44:06 +0200
+In-Reply-To: <Pine.LNX.4.61.0604100754340.25546@chaos.analogic.com> (linux-os@analogic.com's message of "Mon, 10 Apr 2006 08:18:01 -0400")
+Message-ID: <m3k69xkygp.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"linux-os \(Dick Johnson\)" <linux-os@analogic.com> writes:
 
-   In reply to http://marc.theaimsgroup.com/?l=linux-kernel&m=114119848908725&q=raw
-I was not following and  just noticed it.  The bug is introduced in the patch
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16/2.6.16-mm1/broken-out/proc-dont-lock-task_structs-indefinitely.patch
+> Further, in a boot where the BIOS needs to initialize hardware,
+> It will write all RAM before enabling NMI. This makes sure that
+> the parity bit(s) are set properly. Most BIOS will attempt to
+> preserve RAM on a 'warm' boot as a throw-back to the '286 days
+> with their above-1MB-memory-manager paged RAM because the
+> only way to get back from protected mode to 16-bit real mode
+> was a hardware reset.
 
-The task decrement problem is fixed, but I think we have two more
-problems in the following patch segment.
+I think there is no distinction WRT RAM test between cold and warm
+boot anymore. If the BIOS clears the RAM is, I think, determined by
+the "fast POST" option in BIOS setup (it always checks the size
+so some bytes will be changed anyway).
 
-The priv->tail_vma should not be set NULL; In old code, the local
-variable tail vma was overloaded for two more purposes as return value
-and also in version calculation, in addition to beging initialised
-from  gate vma. It we set the priv->tail_vma as NULL as the following
-patch does, and if we seek back, we will not be able to see the gate
-vma anymore from m_next.
+> When using a memory-manager like DOS's
+> HIMEM.SYS, you might actually be rebooting the machine hundreds
+> of times per second!
 
-@@ -337,35 +349,37 @@ static void *m_start(struct seq_file *m,
- 	}
+Yes but it uses (or, rather, used) a CMOS flag to skip POST (not only
+the RAM test) and to go directly to the entry point in real mode.
 
- 	if (l != mm->map_count)
--		tail_vma = NULL; /* After gate vma */
-+		priv->tail_vma = NULL; /* After gate vma */
-
- out:
-  	if (vma)
-  		return vma;
-
-  	/* End of vmas has been reached */
--	m->version = (tail_vma != NULL)? 0: -1UL;
-+	m->version = (priv->tail_vma != NULL)? 0: -1UL;
- 	up_read(&mm->mmap_sem);
-  	mmput(mm);
--	return tail_vma;
-+	return priv->tail_vma;
+IIRC (I may be wrong, that was 15+ years ago) only 286 required
+KBC reset to return to real mode (did LOADALL matter?), 386s have
+no such problem.
 
 
-Thanks,
-Prasanna.
+BTW I understand the idea have nothing to do with actual aircraft,
+so it would be the admin rather than NTSB looking at the data(?).
+-- 
+Krzysztof Halasa

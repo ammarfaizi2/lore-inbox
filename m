@@ -1,66 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWDJHfO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbWDJHeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750988AbWDJHfO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 03:35:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWDJHfO
+	id S1750990AbWDJHeT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 03:34:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWDJHeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 03:35:14 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:16515 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750988AbWDJHfM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 03:35:12 -0400
-Message-ID: <443A0A6F.2040500@aitel.hist.no>
-Date: Mon, 10 Apr 2006 09:34:07 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Grzegorz Kulewski <kangur@polcom.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Slow swapon for big (12GB) swap
-References: <Pine.LNX.4.63.0604091338030.31989@alpha.polcom.net>
-In-Reply-To: <Pine.LNX.4.63.0604091338030.31989@alpha.polcom.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Apr 2006 03:34:19 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:60123 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750724AbWDJHeS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 03:34:18 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@ocs.com.au>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Sam Ravnborg <sam@ravnborg.org>, Herbert Xu <herbert@gondor.apana.org.au>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, mm-commits@vger.kernel.org
+Subject: Re: + git-klibc-mktemp-fix.patch added to -mm tree 
+In-reply-to: Your message of "Sat, 08 Apr 2006 13:27:06 MST."
+             <44381C9A.3050502@zytor.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 10 Apr 2006 17:33:33 +1000
+Message-ID: <14836.1144654413@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grzegorz Kulewski wrote:
+"H. Peter Anvin" (on Sat, 08 Apr 2006 13:27:06 -0700) wrote:
+>Either which way; I have a better fix for the bison issue (this all has 
+>to do with the fact that make's handling of tools that output more than 
+>one file at a time is at the very best insane)
 
-> Hi,
->
-> I am using big swap here (as a backing for potentially huge tmpfs). 
-> And I wonder why swapon on such big (like 12GB) swap takes about 7 
-> minutes (continuous disk IO). Is this expected? Why it is like that? 
-> Can I do anything to speed it up? Or maybe remove it into the 
-> background with low priority or something like that?
+Hit the same problem back in the 2.5 kbuild days, and worked around it
+with some dummy dependency rules.  Like this one for bison/yacc.
 
-I don't know why it is slow.  But you can certainly do something like:
+side_effect(aicasm_gram.tab.h aicasm_gram.tab.c)
 
-nice swapon /dev/yourdisk &
+which expands to
 
-Then it will happen in the background and with low priority.  Of course,
-you can't start filling your tmpfs until this completes.
+$(objtree)/aicasm_gram.tab.h: $objtree/aicasm_gram.tab.c
+	@/bin/true
 
+That forces make to wait until aicasm_gram.tab.c is built before using
+aicasm_gram.tab.h, and allows the following code to depend on either
+aicasm_gram.tab.h or aicasm_gram.tab.c without any races.  The command
+should not get executed, but you still need a command to keep make
+happy.
 
-I don't think tmpfs+swap was made with this sort of use in mind,
-so you may want to test the performance when you fill up such a
-tmpfs, and compare to the performance of /tmp on a 12GB
-ordinary filesystem.  It seems to me that the advantage of /tmp on
-tmpfs is lost completely if most of it has to be written to disk anyway.
-(Ordinary filesystems are cached too, the "tmpfs advantage" is that
-truly temporary (but possibly long-lived) files are never written
-to disk _if_ you have enough memory.  /tmp on a plain filesystem
-is just as fast due to caching, but may delay other use of the
-disk as the ordinary filesystem writes stuff out so it will be
-saved for the future.)
-
-If you go for a plain filesystem, consider ext2 which is simple faster
-than journalling systems like ext3.  You don't need the added
-safety for temporary stuff.  Now ext2 have long fsck times if
-something goes wrong, but you don't need to fsck this filesystem.
-Have your bootscripts run mke2fs at boot instead of fsck for
-this filesystem.  mke2fs on 12GB is fast, much faster than
-7 minutes. Expect a few seconds only.
-
-Helge Hafting

@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWDJULy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbWDJURt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbWDJULy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 16:11:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWDJULy
+	id S1751165AbWDJURt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 16:17:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWDJURt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 16:11:54 -0400
-Received: from ms-smtp-04.texas.rr.com ([24.93.47.43]:43518 "EHLO
-	ms-smtp-04.texas.rr.com") by vger.kernel.org with ESMTP
-	id S1751161AbWDJULw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 16:11:52 -0400
-Date: Mon, 10 Apr 2006 15:11:26 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Christoph Lameter <clameter@sgi.com>
-cc: Hugh Dickins <hugh@veritas.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Adam Litke <agl@us.ibm.com>, wli@holomorphy.com
-Subject: Re: [RFC/PATCH] Shared Page Tables [0/2]
-Message-ID: <200ED4FEFEB8AA8427120DE7@[10.1.1.4]>
-In-Reply-To: <Pine.LNX.4.64.0604101020230.22947@schroedinger.engr.sgi.com>
-References: <1144685588.570.35.camel@wildcat.int.mccr.org>
- <Pine.LNX.4.64.0604101020230.22947@schroedinger.engr.sgi.com>
-X-Mailer: Mulberry/4.0.0b4 (Linux/x86)
+	Mon, 10 Apr 2006 16:17:49 -0400
+Received: from wolfbane.caret.cam.ac.uk ([131.111.21.16]:35969 "EHLO
+	caret.cam.ac.uk") by vger.kernel.org with ESMTP id S1751165AbWDJURs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 16:17:48 -0400
+Message-ID: <443ABD63.1080006@chiark.greenend.org.uk>
+Date: Mon, 10 Apr 2006 21:17:39 +0100
+From: Dan Sheppard <dans@chiark.greenend.org.uk>
+Reply-To: dans@chiark.greenend.org.uk
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: openbsd shen <openbsd.shen@gmail.com>
+CC: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: What means "\xc7\x44\x24\x18\xda\xff\xff\xff\xe8"
+References: <6ff3e7140604051838k1b332990i488f373aad99fa71@mail.gmail.com>
+In-Reply-To: <6ff3e7140604051838k1b332990i488f373aad99fa71@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-CARET-Spam-Score: -1.4 (-)
+X-CARET-Scan-Signature: 2343794501e4a9406136c9325ed6cc3c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I can explain this, but I'll need a bit more convincing about your whitehated-ness.
 
---On Monday, April 10, 2006 10:22:34 -0700 Christoph Lameter
-<clameter@sgi.com> wrote:
+I've been dabbling for a while with custom-kitting a honeypot machine with a kit 
+which sits under suckit2 and event-logs it, to see what da kidz get up to on 
+sukit'ed machines. Just curiosity, really, having come up against suckit a fair 
+few times.
 
->> Here's a new cut of the shared page table patch.  I divided it into
->> two patches.  The first one just fleshes out the
->> pxd_page/pxd_page_kernel macros across the architectures.  The
->> second one is the main patch.
->> (...)
-> 
-> Could you break out the locking changes to huge pages?
-
-The lock changes to hugetlb are only to support sharing of pmd pages when
-they contain hugetlb pages.  They just substitute the struct page lock for
-the page_table_lock, and are only about 30 lines of code.  Is this really
-worth separating out?
-
-Dave McCracken
-
+Dan.

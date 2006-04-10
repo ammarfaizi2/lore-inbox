@@ -1,67 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWDJRmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWDJRnS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751158AbWDJRmy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 13:42:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWDJRmy
+	id S1751174AbWDJRnS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 13:43:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWDJRnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 13:42:54 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:38671 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751158AbWDJRmx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 13:42:53 -0400
-Date: Mon, 10 Apr 2006 19:42:52 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Aubrey <aubreylee@gmail.com>
-Cc: Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org
-Subject: Re: The assemble file under the driver folder can not be recognized when the driver is built as module
-Message-ID: <20060410174252.GD2408@stusta.de>
-References: <6d6a94c50604100316j43bcc32p6fa781c0ce47182d@mail.gmail.com> <20060410112817.GE12896@harddisk-recovery.com> <6d6a94c50604100627q297b7335yb58288356aaa8edd@mail.gmail.com>
-MIME-Version: 1.0
+	Mon, 10 Apr 2006 13:43:17 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:61842 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751161AbWDJRnP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 13:43:15 -0400
+Date: Tue, 11 Apr 2006 01:40:18 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Roland McGrath <roland@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Michael Kerrisk <mtk-lkml@gmx.net>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] fix de_thread() vs do_coredump() deadlock
+Message-ID: <20060410214018.GA635@oleg>
+References: <434E906E.85BD86BF@tv-sign.ru> <20060410013651.4D1791809D1@magilla.sf.frob.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <6d6a94c50604100627q297b7335yb58288356aaa8edd@mail.gmail.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060410013651.4D1791809D1@magilla.sf.frob.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 10, 2006 at 09:27:18PM +0800, Aubrey wrote:
->...
-> Makefile is simple.
-> ===============================
-> ----snip----
-> obj-$(CONFIG_FB_BFIN_7171)	  += bfin_ad7171fb.o rgb2ycbcr.o
-> ----snip----
-> ===============================
-> There are two files, bfin_ad7171fb.c and rgb2ycbcr.S under the folder
-> " ./drivers/video".
-> It should be OK because the driver can pass the compilation when
-> select it as built-in.
-> It just failed when select it as module.
-> 
-> Thanks your any hints.
+On 04/09, Roland McGrath wrote:
+>
+>                                                                  Now, the
+> coredump case matches the non-coredump fatal signal: the signal is dropped
+> on the floor.
 
-You can't build an object only built from an assembler file. 
+A fatal signal is placed to ->shared_pending in any (non tkill) case, so I
+think it is not lost (but may be unnoticed for a while).
 
-But you don't want to get two modules, you want one module built from 
-two source files.
+sig_kernel_coredump() is different. It could be stealed by one of sub-threads
+while another one does de_thread(), that is why it could be lost.
 
-IOW, you want:
+What do you think about something like this untested patch instead?
+I am far from sure it is correct, I need a sleep ...
 
-  obj-$(CONFIG_FB_BFIN_7171)	+= bfin_ad7171fb.o
-  bfin_ad7171fb-objs		:= bfin_ad7171fb_main.o rgb2ycbcr.o
+Oleg.
 
-Note that this requires renaming bfin_ad7171fb.c to bfin_ad7171fb_main.c.
-
-> Regards,
-> -Aubrey
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--- fs/exec.c~	2006-04-10 22:15:06.000000000 +0400
++++ fs/exec.c	2006-04-11 00:56:52.000000000 +0400
+@@ -657,6 +657,7 @@ static int de_thread(struct task_struct 
+ 	}
+ 	sig->group_exit_task = NULL;
+ 	sig->notify_count = 0;
++	recalc_sigpending();
+ 	spin_unlock_irq(lock);
+ 
+ 	/*
+@@ -1478,9 +1479,15 @@ int do_coredump(long signr, int exit_cod
+ 	}
+ 	mm->dumpable = 0;
+ 
+-	retval = -EAGAIN;
+ 	spin_lock_irq(&current->sighand->siglock);
+-	if (!(current->signal->flags & SIGNAL_GROUP_EXIT)) {
++	if (current->signal->flags & SIGNAL_GROUP_EXIT) {
++		// Re-add the signal. This does not matter
++		// if we are doing do_group_exit().
++		// If it was de_thread(), this signal will be
++		// received again after sys_exec() succeeds.
++		sigaddset(&current->signal->shared_pending.signal, signr);
++		retval = -EAGAIN;
++	} else {
+ 		current->signal->flags = SIGNAL_GROUP_EXIT;
+ 		current->signal->group_exit_code = exit_code;
+ 		current->signal->group_stop_count = 0;
 

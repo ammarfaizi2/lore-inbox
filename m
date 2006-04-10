@@ -1,47 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbWDJHeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWDJHnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750990AbWDJHeT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 03:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWDJHeT
+	id S1750997AbWDJHnL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 03:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbWDJHnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 03:34:19 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:60123 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750724AbWDJHeS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 03:34:18 -0400
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@ocs.com.au>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Sam Ravnborg <sam@ravnborg.org>, Herbert Xu <herbert@gondor.apana.org.au>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, mm-commits@vger.kernel.org
-Subject: Re: + git-klibc-mktemp-fix.patch added to -mm tree 
-In-reply-to: Your message of "Sat, 08 Apr 2006 13:27:06 MST."
-             <44381C9A.3050502@zytor.com> 
-Mime-Version: 1.0
+	Mon, 10 Apr 2006 03:43:11 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14563 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750884AbWDJHnK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 03:43:10 -0400
+To: Petr Baudis <pasky@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dumpable tasks and ownership of /proc/*/fd
+References: <20060408120815.GB16588@pasky.or.cz>
+	<m17j5yhtp4.fsf@ebiederm.dsl.xmission.com>
+	<20060410065332.GD16588@pasky.or.cz>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Mon, 10 Apr 2006 01:42:03 -0600
+In-Reply-To: <20060410065332.GD16588@pasky.or.cz> (Petr Baudis's message of
+ "Mon, 10 Apr 2006 08:53:32 +0200")
+Message-ID: <m1r745ho6s.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 10 Apr 2006 17:33:33 +1000
-Message-ID: <14836.1144654413@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" (on Sat, 08 Apr 2006 13:27:06 -0700) wrote:
->Either which way; I have a better fix for the bison issue (this all has 
->to do with the fact that make's handling of tools that output more than 
->one file at a time is at the very best insane)
+Petr Baudis <pasky@ucw.cz> writes:
 
-Hit the same problem back in the 2.5 kbuild days, and worked around it
-with some dummy dependency rules.  Like this one for bison/yacc.
+> Dear diary, on Mon, Apr 10, 2006 at 07:43:03AM CEST, I got a letter
+> where "Eric W. Biederman" <ebiederm@xmission.com> said that...
+>> Speaking of things why does the *at() emulation need to touch
+>> /proc/self/fd/*?  I may be completely dense but if the practical
+>> justification for allowing access to /proc/self/fd/ is that we
+>> already have access then we shouldn't need /proc/self/fd.
+>> 
+>> I suspect this a matter of convenience where you are prepending
+>> /proc/self/fd/xxx/ to the path before you open it instead of calling
+>> fchdir openat() and the doing fchdir back.  Have I properly guessed
+>> how the *at() emulation works?
+>
+> Ok, now I'm not completely following you. Only i386 and x86_64 appears
+> to provide the openat() syscall (only in new kernels, furthermore) and
+> glibc otherwise emulates openat(n, "relpath") with
+> open("/proc/self/fd/<n>/relpath"). I don't know of any other way how to
+> emulate it.
 
-side_effect(aicasm_gram.tab.h aicasm_gram.tab.c)
+I can think of a couple of ways, but thanks for confirming
+I properly guessed how the openat emulation was working.
 
-which expands to
+The first point to note is that fixing proc and exporting
+syscalls to new architectures is going to take about equally
+long with a chance that fixing proc will take longer because
+that needs to be understood.
 
-$(objtree)/aicasm_gram.tab.h: $objtree/aicasm_gram.tab.c
-	@/bin/true
+With that said I can think of a couple of different ways
+to implement openat that won't have proc permission problems.
 
-That forces make to wait until aicasm_gram.tab.c is built before using
-aicasm_gram.tab.h, and allows the following code to depend on either
-aicasm_gram.tab.h or aicasm_gram.tab.c without any races.  The command
-should not get executed, but you still need a command to keep make
-happy.
+The most straight forward is:
+int openat(int dirfd, const char *path, int flags, int mode)
+{
+        int orig_dir_fd;
+        int result;
+	lock()
+	orig_dir_fd = open(".");
+	fchdir(dirfd);
+        result = open(relpath);
+        fchdir(orig_dir_fd);
+        close(orig_dir_fd);
+        unlock();
+        return result;
+}
+
+I suspect something like the above needs to be considered if
+you want the emulation to work on old kernels, in the presence
+of suid applications.
+
+I will look at fixing proc but I none of my work on /proc
+is going to get merged until 2.6.18 at this point.
+
+I doubt a proc permission change could count as a simply
+a bug fix, and even then it doesn't matter because it won't
+be available for your emulation.
+
+Although I guess you could attempt to use /proc/self/fd/<n>
+and if that gets a permission problem try a slower but more
+reliable path in the emulation.
+
+Eric
+
 

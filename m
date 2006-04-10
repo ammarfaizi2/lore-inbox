@@ -1,84 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWDJWUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWDJWZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbWDJWUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 18:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWDJWUZ
+	id S932087AbWDJWZp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 18:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWDJWZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 18:20:25 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:30994 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932132AbWDJWUZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 18:20:25 -0400
-Date: Tue, 11 Apr 2006 00:20:24 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Neil Brown <neilb@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] drivers/md/md.c: make md_print_devices() static
-Message-ID: <20060410222024.GL2408@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 10 Apr 2006 18:25:45 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54997 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932087AbWDJWZo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 18:25:44 -0400
+Date: Mon, 10 Apr 2006 14:24:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
+Subject: Re: [PATCH 0/19] kconfig patches
+Message-Id: <20060410142458.1aec19e4.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0604101331030.32445@scrub.home>
+References: <Pine.LNX.4.64.0604091628240.21970@scrub.home>
+	<20060409235548.52b563a9.akpm@osdl.org>
+	<Pine.LNX.4.64.0604101035240.32445@scrub.home>
+	<20060410005153.2a5c19e2.akpm@osdl.org>
+	<Pine.LNX.4.64.0604101122530.32445@scrub.home>
+	<20060410014113.5ba40dd9.akpm@osdl.org>
+	<Pine.LNX.4.64.0604101331030.32445@scrub.home>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes the needlessly global md_print_devices() static.
+Roman Zippel <zippel@linux-m68k.org> wrote:
+>
+> > > Could you send me link or a copy of your build tools, which deals with the 
+>  > > symlink?
+>  > 
+>  > Not sure what you mean really.  I use the normal in-tree things, plus the
+>  > patch in the earlier email.
+> 
+>  What creates/updates the symlink
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Me, typing `ln -s'.
 
----
+I keep 20-odd favourite .configs under revision control and symlink to the
+one I'm using.
 
- drivers/md/md.c         |    7 +++++--
- include/linux/raid/md.h |    4 ----
- 2 files changed, 5 insertions(+), 6 deletions(-)
+> and what does update the file the symlink 
+>  points to?
 
---- linux-2.6.17-rc1-mm2-full/include/linux/raid/md.h.old	2006-04-10 22:51:39.000000000 +0200
-+++ linux-2.6.17-rc1-mm2-full/include/linux/raid/md.h	2006-04-10 22:53:00.000000000 +0200
-@@ -85,8 +85,6 @@
- extern void md_error (mddev_t *mddev, mdk_rdev_t *rdev);
- extern void md_unplug_mddev(mddev_t *mddev);
- 
--extern void md_print_devices (void);
--
- extern void md_super_write(mddev_t *mddev, mdk_rdev_t *rdev,
- 			   sector_t sector, int size, struct page *page);
- extern void md_super_wait(mddev_t *mddev);
-@@ -97,7 +95,5 @@
- 
- extern void md_update_sb(mddev_t * mddev);
- 
--#define MD_BUG(x...) { printk("md: bug in file %s, line %d\n", __FILE__, __LINE__); md_print_devices(); }
--
- #endif 
- 
---- linux-2.6.17-rc1-mm2-full/drivers/md/md.c.old	2006-04-10 22:51:56.000000000 +0200
-+++ linux-2.6.17-rc1-mm2-full/drivers/md/md.c	2006-04-10 22:53:32.000000000 +0200
-@@ -72,6 +72,10 @@
- static LIST_HEAD(pers_list);
- static DEFINE_SPINLOCK(pers_lock);
- 
-+static void md_print_devices(void);
-+
-+#define MD_BUG(x...) { printk("md: bug in file %s, line %d\n", __FILE__, __LINE__); md_print_devices(); }
-+
- /*
-  * Current RAID-1,4,5 parallel reconstruction 'guaranteed speed limit'
-  * is 1000 KB/sec, so the extra system load does not show up that much.
-@@ -1503,7 +1507,7 @@
- 		printk(KERN_INFO "md: no rdev superblock!\n");
- }
- 
--void md_print_devices(void)
-+static void md_print_devices(void)
- {
- 	struct list_head *tmp, *tmp2;
- 	mdk_rdev_t *rdev;
-@@ -5205,7 +5209,6 @@
- EXPORT_SYMBOL(md_register_thread);
- EXPORT_SYMBOL(md_unregister_thread);
- EXPORT_SYMBOL(md_wakeup_thread);
--EXPORT_SYMBOL(md_print_devices);
- EXPORT_SYMBOL(md_check_recovery);
- MODULE_LICENSE("GPL");
- MODULE_ALIAS("md");
+Me, using oldconfig, menuconfig, etc.  I want those changes to be made in
+the symlinked-to revision-controlled config file.
 

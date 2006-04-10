@@ -1,35 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWDJWv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWDJWyT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932159AbWDJWv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 18:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbWDJWv0
+	id S932161AbWDJWyT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 18:54:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWDJWyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 18:51:26 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39133 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932159AbWDJWvZ (ORCPT
+	Mon, 10 Apr 2006 18:54:19 -0400
+Received: from mail.gmx.de ([213.165.64.20]:48615 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932161AbWDJWyS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 18:51:25 -0400
-Date: Mon, 10 Apr 2006 14:50:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, tpmdd-devel@lists.sourceforge.net
-Subject: Re: [PATCH 3/7] tpm: chip struct update
-Message-Id: <20060410145030.0b719e18.akpm@osdl.org>
-In-Reply-To: <1144679828.4917.11.camel@localhost.localdomain>
-References: <1144679828.4917.11.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 10 Apr 2006 18:54:18 -0400
+X-Authenticated: #704063
+Subject: [Patch] Use of NULL variable in scripts/mod/modpost.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 11 Apr 2006 00:54:16 +0200
+Message-Id: <1144709657.31850.1.camel@alice>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kylene Jo Hall <kjhall@us.ibm.com> wrote:
->
-> +	dev_mask[chip->dev_num / TPM_NUM_MASK_ENTRIES] &=
->  +	    ~(1 << (chip->dev_num % TPM_NUM_MASK_ENTRIES));
+hi,
 
-If you were to make dev_mask[] an array of longs, this could perhaps become
+before is NULL in this case, concluding from the surrounding code
+it seems that after is the right one to use.
 
-	clear_bit(dev_mask, chip->dev_num);
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+
+--- linux-2.6.17-rc1/scripts/mod/modpost.c.orig	2006-04-11 00:50:34.000000000 +0200
++++ linux-2.6.17-rc1/scripts/mod/modpost.c	2006-04-11 00:50:47.000000000 +0200
+@@ -658,7 +658,7 @@ static void warn_sec_mismatch(const char
+ 		warn("%s - Section mismatch: reference to %s:%s from %s "
+ 		     "before '%s' (at offset -0x%llx)\n",
+ 		     modname, secname, refsymname, fromsec,
+-		     elf->strtab + before->st_name,
++		     elf->strtab + after->st_name,
+ 		     (long long)r.r_offset);
+ 	} else {
+ 		warn("%s - Section mismatch: reference to %s:%s from %s "
+
 

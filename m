@@ -1,37 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWDJIFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751076AbWDJISA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751017AbWDJIFm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 04:05:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWDJIFl
+	id S1751076AbWDJISA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 04:18:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbWDJISA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 04:05:41 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:48784 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751017AbWDJIFl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 04:05:41 -0400
+	Mon, 10 Apr 2006 04:18:00 -0400
+Received: from pproxy.gmail.com ([64.233.166.180]:50091 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751076AbWDJIR7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 04:17:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=ajMksJUVdJ5TVRT62Dd8r3405g858cfJQjEk1GMKFbqKvaiezytwHbEq0R2RJQF9V2jZKdg1hW65tkIqReN1oPRu7pJBu3XLzltoMqbgloggTlxFDkW0x6UmhTsmLdUBxDkSDJ86oaqRrHE8To9hJsaElWlLhjLpLBiaeN1wk/8=
+Message-ID: <3fe1d240604100117v2f686592kd92bb7967d7d5f51@mail.gmail.com>
+Date: Mon, 10 Apr 2006 16:17:56 +0800
+From: HuaFeijun <hua.feijun@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: hugetlb_page in 2.6.12
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-X-Fcc: ~/Mail/linus
-Cc: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/4] coredump: don't take tasklist_lock
-In-Reply-To: Oleg Nesterov's message of  Friday, 7 April 2006 02:06:36 +0400 <20060406220635.GA243@oleg>
-X-Antipastobozoticataclysm: Bariumenemanilow
-Message-Id: <20060410080525.9C3661809D1@magilla.sf.frob.com>
-Date: Mon, 10 Apr 2006 01:05:25 -0700 (PDT)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This patch removes tasklist_lock from zap_threads().
-
-That's a very worthwhile thing to do, and this change looks good to me.
-I have not 100% followed the recent related de_thread discussion, but
-certainly issues there should be resolved such that this change can be done.
-
-
-Thanks,
-Roland
+Is there no the file  /proc/sys/vm/nr_hugepages in 2.6.12? And which
+is the function has the same function as
+register_profile_notifier,profile_event_register or 
+task_handoff_register. If none of the two functions,what is the
+function on earth?

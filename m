@@ -1,38 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWDJTYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWDJTab@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbWDJTYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 15:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWDJTYI
+	id S932123AbWDJTab (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 15:30:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWDJTab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 15:24:08 -0400
-Received: from khc.piap.pl ([195.187.100.11]:17167 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S932122AbWDJTYI (ORCPT
+	Mon, 10 Apr 2006 15:30:31 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:6924 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932123AbWDJTab (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 15:24:08 -0400
-To: Andy Green <andy@warmcat.com>
-Illegal-Object: Syntax error in Cc: address found on vger.kernel.org:
-	Cc:	unlisted-recipients:; (no To-header on input)linux list <linux-kernel@vger.kernel.org>
-								     ^-missing end of address
-Subject: Re: Black box flight recorder for Linux
-References: <44379AB8.6050808@superbug.co.uk>
-	<m3psjqeeor.fsf@defiant.localdomain> <443A4927.5040801@warmcat.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Mon, 10 Apr 2006 21:24:01 +0200
-In-Reply-To: <443A4927.5040801@warmcat.com> (Andy Green's message of "Mon, 10 Apr 2006 13:01:43 +0100")
-Message-ID: <m3odz9kze6.fsf@defiant.localdomain>
-MIME-Version: 1.0
+	Mon, 10 Apr 2006 15:30:31 -0400
+Date: Mon, 10 Apr 2006 21:30:24 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Aubrey <aubreylee@gmail.com>,
+       Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org
+Subject: Re: The assemble file under the driver folder can not be recognized when the driver is built as module
+Message-ID: <20060410193024.GA11292@mars.ravnborg.org>
+References: <6d6a94c50604100316j43bcc32p6fa781c0ce47182d@mail.gmail.com> <20060410112817.GE12896@harddisk-recovery.com> <6d6a94c50604100627q297b7335yb58288356aaa8edd@mail.gmail.com> <20060410174252.GD2408@stusta.de> <Pine.LNX.4.61.0604101402400.26129@chaos.analogic.com> <20060410182421.GA22440@mars.ravnborg.org> <Pine.LNX.4.61.0604101506430.26625@chaos.analogic.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0604101506430.26625@chaos.analogic.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Green <andy@warmcat.com> writes:
+On Mon, Apr 10, 2006 at 03:12:55PM -0400, linux-os (Dick Johnson) wrote:
+> 
+> On Mon, 10 Apr 2006, Sam Ravnborg wrote:
+> 
+> > On Mon, Apr 10, 2006 at 02:04:59PM -0400, linux-os (Dick Johnson) wrote:
+> >
+> >> Can't he just put his own private compile definition in his
+> >> own Makefile?
+> >>
+> >> %.o:	%.S
+> >>  	as -o $@ $<
+> >
+> > That would never generate a module anyway. And kbuild support building
+> > .o from .S with all the kbuild argument chechking etc.
+> > Doing it so would be wrong.
+> >
+> > 	Sam
+> >
+> 
+> 
+> Really?? Here is a Makefile that has been known to work for sometime.
+> As you can clearly see, it has lots of ".S" files. The last compile
+> was on Linux-2.6.15.4. If current kernel building procedures prevents
+> the assembly of assembly-language files and requires that the kernel
+> modules be written entirely in 'C', then it is broken beyond all
+> belief and must be fixed.
+kbuild does not support a single-file module being written entirely in
+assembler.
+kbuild obviously support multi file modules where one file is in
+assembler.
 
-> Just an additional thought on this idea... both VGA and DVI connectors
-> on modern video cards appear to have DDC-2 connections, which is in
-> fact I2C.
+In your example you generate a multi file module where some files are in
+assembler - supported.
+And the point was that one should NOT define private rules like:
+%.o:	%.S
+	as -o $@ $<
 
-Yes, that could be used, too. It would be a bit more complicated as
-different VGA cards use different access methods (i.e., different
-I/O port and bit numbers). X11 drivers probably know how to drive it.
--- 
-Krzysztof Halasa
+If there is a valid need for such stuff - then kbuild needs to be fixed.
+But I have yet to see a need like this.
+
+I know several external modules plays all sort of tricks to avoid using
+kbuild infrastructure - I recall you have posted such receipts before.
+Recently posted loop-aes is another example (if USE_KBUILD is not set).
+
+	Sam

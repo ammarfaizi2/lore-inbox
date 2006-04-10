@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWDJXeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWDJXjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbWDJXeO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 19:34:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWDJXeO
+	id S932185AbWDJXjh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 19:39:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWDJXjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 19:34:14 -0400
-Received: from [4.79.56.4] ([4.79.56.4]:43662 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S932176AbWDJXeO (ORCPT
+	Mon, 10 Apr 2006 19:39:37 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:6592 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S932179AbWDJXjg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 19:34:14 -0400
-Subject: Re: [2.6 patch] move EXPORT_SYMBOL's away from
-	sound/pci/emu10k1/emu10k1_main.c
-From: Arjan van de Ven <arjan@infradead.org>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Adrian Bunk <bunk@stusta.de>,
-       perex@suse.cz, alsa-devel@alsa-project.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <s5hodz992lx.wl%tiwai@suse.de>
-References: <20060407003105.GG7118@stusta.de> <s5hu095y367.wl%tiwai@suse.de>
-	 <20060407184909.GB9097@mars.ravnborg.org>  <s5hodz992lx.wl%tiwai@suse.de>
-Content-Type: text/plain
-Date: Mon, 10 Apr 2006 18:21:54 +0200
-Message-Id: <1144686114.2876.4.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Apr 2006 19:39:36 -0400
+From: Zach Brown <zach.brown@oracle.com>
+To: linux-driver@qlogic.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Message-Id: <20060410233936.28628.13303.sendpatchset@tetsuo.zabbo.net>
+Subject: [PATCH] [qla2xxx] only free_irq() after request_irq() succeeds
+Date: Mon, 10 Apr 2006 16:39:36 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[qla2xxx] only free_irq() after request_irq() succeeds
 
-> I know the above for the new codes, yes.  But my question is wheter do
-> we get a good enough benifit by changing the existing code.
-> 
-> I'm not against such an action but just wornder whether it's really
-> needed.  If yes, we should do it over the whole tree.
-> 
+If qla2x00_probe_one() fails before calling request_irq() but gets to
+qla2x00_free_device() then it will mistakenly tree to free an irq it didn't
+request.  It's chosing to free based on ha->pdev->irq which is always set.
 
-that's what Adrian is doing, one subsystem at a time ;)
-it was just your turn...
+host->irq is set after request_irq() succeeds so let's use that to decide
+to free or not.
 
+This was observed and tested when a silly set of circumstances lead to firmware
+loading failing on a 2100.
+
+  Signed-off-by: Zach Brown <zach.brown@oracle.com>
+---
+
+ drivers/scsi/qla2xxx/qla_os.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Index: 2.6.17-rc1-mm2-qlafreeirq/drivers/scsi/qla2xxx/qla_os.c
+===================================================================
+--- 2.6.17-rc1-mm2-qlafreeirq.orig/drivers/scsi/qla2xxx/qla_os.c
++++ 2.6.17-rc1-mm2-qlafreeirq/drivers/scsi/qla2xxx/qla_os.c
+@@ -1700,8 +1700,8 @@ qla2x00_free_device(scsi_qla_host_t *ha)
+ 	ha->flags.online = 0;
+ 
+ 	/* Detach interrupts */
+-	if (ha->pdev->irq)
+-		free_irq(ha->pdev->irq, ha);
++	if (ha->host->irq)
++		free_irq(ha->host->irq, ha);
+ 
+ 	/* release io space registers  */
+ 	if (ha->iobase)

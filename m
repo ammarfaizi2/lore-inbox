@@ -1,34 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWDJXmA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWDJXnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWDJXmA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 19:42:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWDJXmA
+	id S932198AbWDJXnq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 19:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWDJXnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 19:42:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:129 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932191AbWDJXl7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 19:41:59 -0400
-Date: Mon, 10 Apr 2006 15:38:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       steve.cameron@hp.com
-Subject: Re: [PATCH 1/1] cciss: bug fix for crash when running hpacucli
-Message-Id: <20060410153800.3c018fc1.akpm@osdl.org>
-In-Reply-To: <20060410202541.GA28328@beardog.cca.cpqcorp.net>
-References: <20060410202541.GA28328@beardog.cca.cpqcorp.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 10 Apr 2006 19:43:46 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:36314
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932198AbWDJXnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 19:43:46 -0400
+Date: Mon, 10 Apr 2006 16:43:16 -0700 (PDT)
+Message-Id: <20060410.164316.93690683.davem@davemloft.net>
+To: snakebyte@gmx.de
+Cc: linux-kernel@vger.kernel.org, acme@conectiva.com.br
+Subject: Re: [Patch] leak in net/dccp/ipv4.c
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <1144706846.31667.1.camel@alice>
+References: <1144706846.31667.1.camel@alice>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net> wrote:
->
-> This patch fixes a crash when running hpacucli with multiple logical volumes
->  on a cciss controller. We were not properly initializing the disk->queue
->  and causing a fault.
+From: Eric Sesterhenn <snakebyte@gmx.de>
+Date: Tue, 11 Apr 2006 00:07:26 +0200
 
-Please confirm that this is safe&appropriate for backporting into 2.6.16.x?
+> we dont free req if we cant parse the options.
+> This fixes coverity bug id #1046
+> 
+> Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+
+Looks good.
+
+Applied, thanks Eric.

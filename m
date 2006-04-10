@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWDJJmB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWDJJoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbWDJJmB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 05:42:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWDJJmB
+	id S1751094AbWDJJoU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 05:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWDJJoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 05:42:01 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:53716 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751099AbWDJJmA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 05:42:00 -0400
-Date: Mon, 10 Apr 2006 01:41:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
-Subject: Re: [PATCH 0/19] kconfig patches
-Message-Id: <20060410014113.5ba40dd9.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0604101122530.32445@scrub.home>
-References: <Pine.LNX.4.64.0604091628240.21970@scrub.home>
-	<20060409235548.52b563a9.akpm@osdl.org>
-	<Pine.LNX.4.64.0604101035240.32445@scrub.home>
-	<20060410005153.2a5c19e2.akpm@osdl.org>
-	<Pine.LNX.4.64.0604101122530.32445@scrub.home>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Mon, 10 Apr 2006 05:44:20 -0400
+Received: from nproxy.gmail.com ([64.233.182.188]:1818 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751094AbWDJJoT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 05:44:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DdEE/j7oydbqEFDQMi2TE6tX2OhZ57uJzKh2CrvUAWOFxAR+HXBhfTjJ7q5VjbEVSJ8/4XTGVXQarAZMyCEebYI43jorAx+OV6lU7YrWkhuYIJbGfN8WKSxiZCAi2AGGocYt0slXxJSnjIdqdsZ5HNck9n9PQhV5F9/VjefGszQ=
+Message-ID: <69304d110604100244l691e0100o21007e4b852b7c42@mail.gmail.com>
+Date: Mon, 10 Apr 2006 11:44:18 +0200
+From: "Antonio Vargas" <windenntw@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: Slow swapon for big (12GB) swap
+Cc: "Grzegorz Kulewski" <kangur@polcom.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060410004030.5e48be79.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.63.0604091338030.31989@alpha.polcom.net>
+	 <20060410004030.5e48be79.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel <zippel@linux-m68k.org> wrote:
+On 4/10/06, Andrew Morton <akpm@osdl.org> wrote:
+> Grzegorz Kulewski <kangur@polcom.net> wrote:
+> >
+> > I am using big swap here (as a backing for potentially huge tmpfs). And I
+> >  wonder why swapon on such big (like 12GB) swap takes about 7 minutes
+> >  (continuous disk IO).
 >
-> Hi,
-> 
-> On Mon, 10 Apr 2006, Andrew Morton wrote:
-> 
-> > > If you call "make oldconfig", you have to restore the symlink manually.
-> > 
-> > Why?  What advantage does that have?
-> > 
-> > I've been using the copy-it-there approach for maybe four years and have
-> > yet to notice any problem with it.
-> 
-> Pretty much every other tool removes the old file before or after creating 
-> the new file. This allows it to work with a hardlinked tree, which 
-> unfortunately is currently broken for other reasons in kbuild.
+> It's a bit quicker here:
+>
+> vmm:/usr/src/25# mkswap /dev/hda6
+> Setting up swapspace version 1, size = 54031826 kB
+> vmm:/usr/src/25# time swapon /dev/hda6
+> swapon /dev/hda6  0.00s user 0.04s system 74% cpu 0.054 total
+>
+>
+> > Is this expected?
+>
+> Nope.
+>
 
-OK.  S_ISLNK?  `setenv DONT_BE_IRRITATING 1'?
+I'm running swap on a 8G LVM logical volume and /tmp on tmpfs and it
+works great (used for compilation & DVD-burning stagning area from
+other hosts on the network), with no delays on swapon nor mount.
 
-> Could you send me link or a copy of your build tools, which deals with the 
-> symlink?
 
-Not sure what you mean really.  I use the normal in-tree things, plus the
-patch in the earlier email.
+--
+Greetz, Antonio Vargas aka winden of network
 
+http://wind.codepixel.com/
+windNOenSPAMntw@gmail.com
+thesameasabove@amigascne.org
+
+Every day, every year
+you have to work
+you have to study
+you have to scene.

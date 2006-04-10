@@ -1,53 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWDJNq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWDJNqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbWDJNq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 09:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWDJNqz
+	id S1751000AbWDJNqq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 09:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWDJNqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 09:46:55 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:56584 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751138AbWDJNqy (ORCPT
+	Mon, 10 Apr 2006 09:46:46 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:52696 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751000AbWDJNqp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 09:46:54 -0400
-Date: Mon, 10 Apr 2006 09:46:30 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Michael Buesch <mb@bu3sch.de>
-Cc: Benoit Boissinot <benoit.boissinot@ens-lyon.org>, netdev@vger.kernel.org,
-       bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org,
-       benh@kernel.crashing.org
-Subject: Re: [RFC/PATCH] remove unneeded check in bcm43xx
-Message-ID: <20060410134625.GA25360@tuxdriver.com>
-Mail-Followup-To: Michael Buesch <mb@bu3sch.de>,
-	Benoit Boissinot <benoit.boissinot@ens-lyon.org>,
-	netdev@vger.kernel.org, bcm43xx-dev@lists.berlios.de,
-	linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-References: <20060410040120.GA4860@ens-lyon.fr> <200604100607.33362.mb@bu3sch.de> <20060410042228.GN27596@ens-lyon.fr> <200604100628.01483.mb@bu3sch.de>
+	Mon, 10 Apr 2006 09:46:45 -0400
+Date: Mon, 10 Apr 2006 21:43:46 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Roland McGrath <roland@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Michael Kerrisk <mtk-lkml@gmx.net>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] fix de_thread() vs do_coredump() deadlock
+Message-ID: <20060410174346.GA100@oleg>
+References: <434E906E.85BD86BF@tv-sign.ru> <20060410013651.4D1791809D1@magilla.sf.frob.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200604100628.01483.mb@bu3sch.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060410013651.4D1791809D1@magilla.sf.frob.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 10, 2006 at 06:28:00AM +0200, Michael Buesch wrote:
+On 04/09, Roland McGrath wrote:
+>
+> [PATCH] Fix race between exec and fatal signals
 
-> To summerize: I actually added these messages, because people were
-> hitting "this does not work with >1G" issues and did not get an error message.
-> So I decided to insert warnings until the issue is fixed inside the arch code.
-> I will remove them once the issue is fixed.
+I'll try to study this patch carefully tomorrow, but now I have
+the feeling it is not right (probably my misunderstanding after
+the quick reading).
 
-This sounds like the same sort of problems w/ the b44 driver.
-I surmise that both use the same (broken) DMA engine from Broadcom.
+> --- a/fs/exec.c
+> +++ b/fs/exec.c
+> @@ -606,15 +606,16 @@ static int de_thread(struct task_struct 
+>
+> ... [snip] ...
+>
+> -	zap_other_threads(current);
+> +	zap_other_threads(current, SIGNAL_GROUP_EXEC);
+>
+> ... [snip] ...
+>
+> -void zap_other_threads(struct task_struct *p)
+> +void zap_other_threads(struct task_struct *p, int flag)
+>  {
+>  	struct task_struct *t;
+>
+> -	p->signal->flags = SIGNAL_GROUP_EXIT;
+> +	if (unlikely(p->signal->flags & SIGNAL_GROUP_EXEC)) {
+> +		/*
+> +		 * We are cancelling an exec that is in progress, to let
+> +		 * the thread group die instead.  We need to wake the
+> +		 * exec'ing thread up from uninterruptible wait.
+> +		 */
+> +		BUG_ON(flag != SIGNAL_GROUP_EXIT);
+> +		t = p->signal->group_exit_task;
+> +		p->signal->group_exit_task = NULL;
+> +		p->signal->notify_count = 0;
+> +		wake_up_process(t);
+> +	}
+> +
+> +	p->signal->flags = flag;
+>  	p->signal->group_stop_count = 0;
 
-Unfortunately, I don't know of any good solution to this.  There are
-a few hacks in b44 that deal with the issue.  I don't like them,
-although I am the perpetrator of at least one of them.  It might be
-worth looking at what was done there?
+So, de_thread() sets SIGNAL_GROUP_EXEC and sends SIGKILL to other thereads.
 
-YMMV...
+Sub-thread receives the signal, and calls get_signal_to_deliver->do_group_exit.
+do_group_exit() calls zap_other_threads(SIGNAL_GROUP_EXIT) because there is no
+SIGNAL_GROUP_EXIT set. zap_other_threads() notices SIGNAL_GROUP_EXEC, wakes up
+execer, and changes ->signal->flags to SIGNAL_GROUP_EXIT.
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+de_thread() re-locks sighand, sees !SIGNAL_GROUP_EXEC and goes to 'dying:'.
+
+No?
+
+Another problem. de_thread() sets '->group_exit_task = current' _only_ if
+'atomic_read(&sig->count) > count', so wake_up_process(->group_exit_task)
+in zap_other_threads() is unsafe.
+
+Oleg.
+

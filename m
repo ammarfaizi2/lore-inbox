@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbWDJHLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWDJHNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbWDJHLX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 03:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751062AbWDJHLX
+	id S1751066AbWDJHNM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 03:13:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751067AbWDJHNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 03:11:23 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:14251 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751050AbWDJHLX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 03:11:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XDepdB3Bt10YJqPlCsmP4VHpktF1ioruxHSmYW0mn2PMMaTFkbS21/wBCuj2Fr1hGzLNEummLEPPKxgEfdTFuMDZwiHtnZH4eiM1O3DStM1M7Jq5CfS4d4/DVHeySaW3kixilaxipaij2oHAk43w7VOALq0Q5NGcG0gvjZN5keY=
-Message-ID: <c70ff3ad0604100011l1ce1b7c4qbadbf1576aebb5e9@mail.gmail.com>
-Date: Mon, 10 Apr 2006 10:11:22 +0300
-From: "saeed bishara" <saeed.bishara@gmail.com>
-To: "saeed bishara" <saeed.bishara@gmail.com>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Paolo Ornati" <ornati@fastwebnet.it>, linux-kernel@vger.kernel.org,
-       linux-arm-kernel@lists.arm.linux.org.uk,
-       Linux-arm-toolchain@lists.arm.linux.org.uk
-Subject: Re: add new code section for kernel code
-In-Reply-To: <20060409203046.GA24461@flint.arm.linux.org.uk>
+	Mon, 10 Apr 2006 03:13:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:59619 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751065AbWDJHNM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 03:13:12 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <c70ff3ad0604060545o2e2dc8fcg2948ca53b3b3c8b0@mail.gmail.com>
-	 <20060406151003.0ef4e637@localhost>
-	 <c70ff3ad0604060947t728fbad9g2e3b35198f9b0f66@mail.gmail.com>
-	 <c70ff3ad0604070402p355a5695y28b5806cbf7bed0a@mail.gmail.com>
-	 <1144422864.3117.0.camel@laptopd505.fenrus.org>
-	 <20060407154349.GB31458@flint.arm.linux.org.uk>
-	 <c70ff3ad0604090253n7fe4de4che67f18380ffa2efd@mail.gmail.com>
-	 <20060409203046.GA24461@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+X-Fcc: ~/Mail/linus
+Cc: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [PATCH rc1-mm 3/3] coredump: copy_process: don't check SIGNAL_GROUP_EXIT
+In-Reply-To: Oleg Nesterov's message of  Sunday, 9 April 2006 04:11:30 +0400 <20060409001130.GA104@oleg>
+X-Zippy-Says: If Robert Di Niro assassinates Walter Slezak, will Jodie Foster
+   marry Bonzo??
+Message-Id: <20060410071308.CBC4E1809D1@magilla.sf.frob.com>
+Date: Mon, 10 Apr 2006 00:13:08 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just want to say that this code reordering reduced the I cache
-misses of my system that includes direct mapped caches,  and the
-perforamance of a the optimezed tests increased up to 10% and in some
-case it improved by 20%.
+> After the previous patch SIGNAL_GROUP_EXIT implies a pending SIGKILL,
+> we can remove this check from copy_process() because we already checked
+> !signal_pending().
 
-saeed
+My SIGNAL_GROUP_EXEC change made this spot check for either flag, but this
+already holds true for the exec case and so my change to this check here
+was not needed.  With the coredump change done, I concur that the exit
+cases are covered too and so this check can go.  For paranoia's sake,
+perhaps we should leave behind a BUG_ON.
 
 
-> Thanks for testing; I've applied this patch so 2.6.17-rc2 onwards will
-> have this fixed.
->
+Thanks,
+Roland

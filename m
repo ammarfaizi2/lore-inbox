@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbWDJDAq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbWDJDGW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750854AbWDJDAq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Apr 2006 23:00:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWDJDAq
+	id S1750896AbWDJDGW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Apr 2006 23:06:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbWDJDGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Apr 2006 23:00:46 -0400
-Received: from nproxy.gmail.com ([64.233.182.188]:5865 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750854AbWDJDAp (ORCPT
+	Sun, 9 Apr 2006 23:06:22 -0400
+Received: from bonneville.tdb.com ([216.99.214.10]:24716 "HELO mail.tdb.com")
+	by vger.kernel.org with SMTP id S1750893AbWDJDGV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Apr 2006 23:00:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=GvAiDbfZlGNOXDVjVPopwNbtx+04UUY4nu5Cva8W5A2XVQfImDcw8+WT4nlWCHulY/b3EuYA0GBWz/hCHIDYXqtERHxvkBbNo856pB1aeGLIfVMUBKMPDN/HaoeJS6l7tqL7xbL8EXkDcobkqk4gMpNN7RuvzDbEVAE3UShvQ6c=
-Date: Mon, 10 Apr 2006 07:01:04 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove duplicate check after powernow-k8 changes
-Message-ID: <20060410030104.GB32151@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
+	Sun, 9 Apr 2006 23:06:21 -0400
+To: James Courtier-Dutton <James@superbug.co.uk>
+Cc: linux list <linux-kernel@vger.kernel.org>
+Subject: Re: Black box flight recorder for Linux
+References: <44379AB8.6050808@superbug.co.uk>
+From: Russell Senior <seniorr@aracnet.com>
+Date: 09 Apr 2006 20:06:18 -0700
+In-Reply-To: <44379AB8.6050808@superbug.co.uk>
+Message-ID: <8664lim8np.fsf@coulee.tdb.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+>>>>> "James" == James Courtier-Dutton <James@superbug.co.uk> writes:
 
---- a/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
-+++ b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
-@@ -1109,9 +1109,6 @@ static unsigned int powernowk8_get (unsi
- 	if (!data)
- 		return -EINVAL;
- 
--	if (!data)
--		return -EINVAL;
--
- 	set_cpus_allowed(current, cpumask_of_cpu(cpu));
- 	if (smp_processor_id() != cpu) {
- 		printk(KERN_ERR PFX "limiting to CPU %d failed in powernowk8_get\n", cpu);
+James> The main advantage of something like this would be for newer
+James> motherboards that are around now that don't have a serial port.
 
+If it has a PCI slot, you could _add_ a serial port, of course.
+
+
+-- 
+Russell Senior         ``I have nine fingers; you have ten.''
+seniorr@aracnet.com

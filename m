@@ -1,66 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWDJFRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbWDJF3n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbWDJFRL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 01:17:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbWDJFRL
+	id S1750872AbWDJF3n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 01:29:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbWDJF3n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 01:17:11 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:19862 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S1750748AbWDJFRL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 01:17:11 -0400
-Date: Mon, 10 Apr 2006 15:16:51 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix block device symlink name
-Message-Id: <20060410151651.01fd6167.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+	Mon, 10 Apr 2006 01:29:43 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:43719
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750869AbWDJF3m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 01:29:42 -0400
+Date: Sun, 09 Apr 2006 22:29:26 -0700 (PDT)
+Message-Id: <20060409.222926.61912446.davem@davemloft.net>
+To: bunk@stusta.de
+Cc: akpm@osdl.org, mpm@selenic.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/char/random.c: unexport
+ secure_ipv6_port_ephemeral
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060409155822.GI8454@stusta.de>
+References: <20060409155822.GI8454@stusta.de>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As noted further on the this file, some block devices have a / in their
-name, so fix the "block:..." symlink name the same as the /sys/block name.
+From: Adrian Bunk <bunk@stusta.de>
+Date: Sun, 9 Apr 2006 17:58:22 +0200
 
-(code and comment copied from below)
+> This patch removes the unused EXPORT_SYMBOL(secure_ipv6_port_ephemeral).
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
----
-
- fs/partitions/check.c |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
-
-This might also be a candidate for a stable kernel.
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-
-088ec2acec602096210801cfdc0e4732d81de10d
-diff --git a/fs/partitions/check.c b/fs/partitions/check.c
-index f924f45..2ef03aa 100644
---- a/fs/partitions/check.c
-+++ b/fs/partitions/check.c
-@@ -345,6 +345,7 @@ static char *make_block_name(struct gend
- 	char *name;
- 	static char *block_str = "block:";
- 	int size;
-+	char *s;
- 
- 	size = strlen(block_str) + strlen(disk->disk_name) + 1;
- 	name = kmalloc(size, GFP_KERNEL);
-@@ -352,6 +353,10 @@ static char *make_block_name(struct gend
- 		return NULL;
- 	strcpy(name, block_str);
- 	strcat(name, disk->disk_name);
-+	/* ewww... some of these buggers have / in name... */
-+	s = strchr(name, '/');
-+	if (s)
-+		*s = '!';
- 	return name;
- }
- 
--- 
-1.2.4
+Applied, thanks Adrian.

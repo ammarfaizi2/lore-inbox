@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWDJWZp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWDJW2c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbWDJWZp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 18:25:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWDJWZp
+	id S932146AbWDJW2c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 18:28:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbWDJW2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 18:25:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:54997 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932087AbWDJWZo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 18:25:44 -0400
-Date: Mon, 10 Apr 2006 14:24:58 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
-Subject: Re: [PATCH 0/19] kconfig patches
-Message-Id: <20060410142458.1aec19e4.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0604101331030.32445@scrub.home>
-References: <Pine.LNX.4.64.0604091628240.21970@scrub.home>
-	<20060409235548.52b563a9.akpm@osdl.org>
-	<Pine.LNX.4.64.0604101035240.32445@scrub.home>
-	<20060410005153.2a5c19e2.akpm@osdl.org>
-	<Pine.LNX.4.64.0604101122530.32445@scrub.home>
-	<20060410014113.5ba40dd9.akpm@osdl.org>
-	<Pine.LNX.4.64.0604101331030.32445@scrub.home>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Apr 2006 18:28:32 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:34834 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932146AbWDJW2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 18:28:32 -0400
+Date: Tue, 11 Apr 2006 00:28:31 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: James.Bottomley@HansenPartnership.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] arch/i386/mach-voyager/voyager_cat.c: named initializers
+Message-ID: <20060410222831.GN2408@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel <zippel@linux-m68k.org> wrote:
->
-> > > Could you send me link or a copy of your build tools, which deals with the 
->  > > symlink?
->  > 
->  > Not sure what you mean really.  I use the normal in-tree things, plus the
->  > patch in the earlier email.
-> 
->  What creates/updates the symlink
+This patch switches arch/i386/mach-voyager/voyager_cat.c to using named 
+initializers for struct resource.
 
-Me, typing `ln -s'.
+Besides a fixing compile error in -mm, it makes the code better 
+readable.
 
-I keep 20-odd favourite .configs under revision control and symlink to the
-one I'm using.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> and what does update the file the symlink 
->  points to?
+---
 
-Me, using oldconfig, menuconfig, etc.  I want those changes to be made in
-the symlinked-to revision-controlled config file.
+This patch was already sent on:
+- 7 Apr 2006
+
+ arch/i386/mach-voyager/voyager_cat.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+--- linux-2.6.17-rc1-mm1-voyager/arch/i386/mach-voyager/voyager_cat.c.old	2006-04-07 00:18:01.000000000 +0200
++++ linux-2.6.17-rc1-mm1-voyager/arch/i386/mach-voyager/voyager_cat.c	2006-04-07 00:19:31.000000000 +0200
+@@ -106,9 +106,15 @@
+ 
+ /* the I/O port assignments for the VIC and QIC */
+ static struct resource vic_res = {
+-	"Voyager Interrupt Controller", 0xFC00, 0xFC6F };
++	.name	= "Voyager Interrupt Controller",
++	.start	= 0xFC00,
++	.end	= 0xFC6F 
++};
+ static struct resource qic_res = {
+-	"Quad Interrupt Controller", 0xFC70, 0xFCFF };
++	.name	= "Quad Interrupt Controller",
++	.start	= 0xFC70,
++	.end	= 0xFCFF 
++};
+ 
+ /* This function is used to pack a data bit stream inside a message.
+  * It writes num_bits of the data buffer in msg starting at start_bit.
 

@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWDJKEf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWDJKRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751115AbWDJKEf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 06:04:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWDJKEf
+	id S1751113AbWDJKRD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 06:17:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbWDJKRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 06:04:35 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:23210 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751115AbWDJKEe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 06:04:34 -0400
-Date: Mon, 10 Apr 2006 18:01:31 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Roland McGrath <roland@redhat.com>
-Cc: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [PATCH rc1-mm 2/3] coredump: shutdown current process first
-Message-ID: <20060410140131.GB85@oleg>
-References: <20060409001127.GA101@oleg> <20060410070840.26AE41809D1@magilla.sf.frob.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 10 Apr 2006 06:17:03 -0400
+Received: from nproxy.gmail.com ([64.233.182.189]:54371 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751113AbWDJKRC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 06:17:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=nPMPiLWRCwrXXMUb3IUbNjm8k/4GBfII+gEYoU82enKeT3E1maQ4aeLGifM6+YSuivIXDiw39QhmD/lxuo+UMEeK6kM23hSqWX3EV8Ya+CtRtxx0rc1n6Tguvu2YpP+PD+sPR5nKDfCZUc4x6GFWz+R6JBAQVOi0r/SlaCk5EKU=
+Message-ID: <6d6a94c50604100316j43bcc32p6fa781c0ce47182d@mail.gmail.com>
+Date: Mon, 10 Apr 2006 18:16:56 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: The assemble file under the driver folder can not be recognized when the driver is built as module
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060410070840.26AE41809D1@magilla.sf.frob.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04/10, Roland McGrath wrote:
->
-> I would be inclined to restructure the inner loop something like this:
-> 
-> 		p = g;
-> 		while (unlikely(p->mm == NULL)) {
-> 			p = next_thread(p);
-> 			if (p == g)
-> 				break;
-> 		}
-> 		if (p->mm == mm) {
-> 			/*
-> 			 * p->sighand can't disappear, but
-> 			 * may be changed by de_thread()
-> 			 */
-> 			lock_task_sighand(p, &flags);
-> 			zap_process(p);
-> 			unlock_task_sighand(p, &flags);
-> 		}
+Hi all,
 
-Yes, I agree, this is much more understandable.
+I've written a framebuffer driver and put it under the folder
+"./drivers/video", it consists of two files" mydriver.c and myfun.S".
+When I build it into the kernel image, everything is ok.
+But when I build it as module, I got the following error message:
+===========================================
+aubrey@linux:~/cvs/kernel/uClinux-dist> make V=1
+--------snip---------
+make -f scripts/Makefile.build obj=drivers/video
+make -f scripts/Makefile.build obj=drivers/video/backlight
+make[3]: *** No rule to make target `drivers/video/rgb2ycbcr.c',
+needed by `drivers/video/rgb2ycbcr.o'.  Stop.
+make[2]: *** [drivers/video] Error 2
+make[1]: *** [drivers] Error 2
+make[1]: Leaving directory `/home/aubrey/cvs/kernel/uClinux-dist/linux-2.6.x'
+make: *** [linux] Error 1
+===========================================
 
-Oleg.
+Make ask me for ".c" file. But it's an assemble file indeed.
+Is it a bug of kernel script? (I'm using 2.6.16)
 
+Regards,
+-Aubrey

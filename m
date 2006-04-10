@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWDJW2c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWDJW3L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbWDJW2c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 18:28:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbWDJW2c
+	id S932156AbWDJW3L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 18:29:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWDJW3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 18:28:32 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:34834 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932146AbWDJW2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 18:28:32 -0400
-Date: Tue, 11 Apr 2006 00:28:31 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: James.Bottomley@HansenPartnership.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] arch/i386/mach-voyager/voyager_cat.c: named initializers
-Message-ID: <20060410222831.GN2408@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 10 Apr 2006 18:29:11 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:49899
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932152AbWDJW3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 18:29:09 -0400
+Date: Mon, 10 Apr 2006 15:28:49 -0700 (PDT)
+Message-Id: <20060410.152849.25734948.davem@davemloft.net>
+To: benoit.boissinot@ens-lyon.org
+Cc: mb@bu3sch.de, netdev@vger.kernel.org, bcm43xx-dev@lists.berlios.de,
+       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Subject: Re: [RFC/PATCH] remove unneeded check in bcm43xx
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060410221359.GC27596@ens-lyon.fr>
+References: <200604100628.01483.mb@bu3sch.de>
+	<20060410134625.GA25360@tuxdriver.com>
+	<20060410221359.GC27596@ens-lyon.fr>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch switches arch/i386/mach-voyager/voyager_cat.c to using named 
-initializers for struct resource.
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+Date: Tue, 11 Apr 2006 00:13:59 +0200
 
-Besides a fixing compile error in -mm, it makes the code better 
-readable.
+> On Mon, Apr 10, 2006 at 09:46:30AM -0400, John W. Linville wrote:
+> > On Mon, Apr 10, 2006 at 06:28:00AM +0200, Michael Buesch wrote:
+> > 
+> > > To summerize: I actually added these messages, because people were
+> > > hitting "this does not work with >1G" issues and did not get an error message.
+> > > So I decided to insert warnings until the issue is fixed inside the arch code.
+> > > I will remove them once the issue is fixed.
+> > 
+> > This sounds like the same sort of problems w/ the b44 driver.
+> > I surmise that both use the same (broken) DMA engine from Broadcom.
+> > 
+> > Unfortunately, I don't know of any good solution to this.  There are
+> > a few hacks in b44 that deal with the issue.  I don't like them,
+> > although I am the perpetrator of at least one of them.  It might be
+> > worth looking at what was done there?
+> 
+> The hacks i see there is reallocating a buffer with GFP_DMA, so that
+> means that if the ppc dma_alloc_coherent did the same thing as the i386
+> counterpart (adding GFP_DMA if dma_mask is less than 32bits) it should
+> work, no ?
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
-This patch was already sent on:
-- 7 Apr 2006
-
- arch/i386/mach-voyager/voyager_cat.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
-
---- linux-2.6.17-rc1-mm1-voyager/arch/i386/mach-voyager/voyager_cat.c.old	2006-04-07 00:18:01.000000000 +0200
-+++ linux-2.6.17-rc1-mm1-voyager/arch/i386/mach-voyager/voyager_cat.c	2006-04-07 00:19:31.000000000 +0200
-@@ -106,9 +106,15 @@
- 
- /* the I/O port assignments for the VIC and QIC */
- static struct resource vic_res = {
--	"Voyager Interrupt Controller", 0xFC00, 0xFC6F };
-+	.name	= "Voyager Interrupt Controller",
-+	.start	= 0xFC00,
-+	.end	= 0xFC6F 
-+};
- static struct resource qic_res = {
--	"Quad Interrupt Controller", 0xFC70, 0xFCFF };
-+	.name	= "Quad Interrupt Controller",
-+	.start	= 0xFC70,
-+	.end	= 0xFCFF 
-+};
- 
- /* This function is used to pack a data bit stream inside a message.
-  * It writes num_bits of the data buffer in msg starting at start_bit.
-
+PowerPC doesn't have a seperate GFP_DMA page pool, so this won't work.

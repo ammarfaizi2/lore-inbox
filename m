@@ -1,230 +1,236 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWDKAgL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWDKAgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbWDKAgL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 20:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWDKAgL
+	id S932217AbWDKAgM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 20:36:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWDKAgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 20:36:11 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:8420 "EHLO
+	Mon, 10 Apr 2006 20:36:12 -0400
+Received: from saraswathi.solana.com ([198.99.130.12]:7396 "EHLO
 	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932213AbWDKAgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 20:36:09 -0400
-Message-Id: <200604102337.k3ANb8M7006858@ccure.user-mode-linux.org>
+	id S932217AbWDKAgK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 20:36:10 -0400
+Message-Id: <200604102337.k3ANb659006843@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
 To: akpm@osdl.org
 cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
-       Rob Landley <rob@landley.net>
-Subject: [PATCH 3/3] UML - 
+       Blaisorblade <blaisorblade@yahoo.it>
+Subject: [PATCH 1/3] UML - Change sigjmp_buf to jmp_buf
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 10 Apr 2006 19:37:08 -0400
+Date: Mon, 10 Apr 2006 19:37:06 -0400
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Rob Landley <rob@landley.net>
+Clean up the jmpbuf code.  Since softints, we no longer use sig_setjmp, so
+the UML_SIGSETJMP wrapper now has a misleading name.  Also, I forgot to
+change the buffers from sigjmp_buf to jmp_buf.
 
-UML really wants shared memory semantics form its physical memory map file,
-and the place for that is /dev/shm.  So move the default, and fix the error
-messages to recognize that this value can be overridden.
-
-Signed-off-by: Rob Landley <rob@landley.net>
 Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Index: linux-2.6.16-mm/arch/um/os-Linux/mem.c
+Index: linux-2.6.16-mm/arch/um/include/longjmp.h
 ===================================================================
---- linux-2.6.16-mm.orig/arch/um/os-Linux/mem.c	2006-04-08 17:21:35.000000000 -0400
-+++ linux-2.6.16-mm/arch/um/os-Linux/mem.c	2006-04-10 20:15:26.000000000 -0400
-@@ -8,6 +8,7 @@
- #include <fcntl.h>
- #include <sys/types.h>
- #include <sys/mman.h>
-+#include <sys/statfs.h>
- #include "kern_util.h"
- #include "user.h"
- #include "user_util.h"
-@@ -19,6 +20,7 @@
+--- linux-2.6.16-mm.orig/arch/um/include/longjmp.h	2006-04-08 17:21:34.000000000 -0400
++++ linux-2.6.16-mm/arch/um/include/longjmp.h	2006-04-10 12:52:04.000000000 -0400
+@@ -4,11 +4,11 @@
+ #include <setjmp.h>
+ #include "os.h"
  
- #include <sys/param.h>
+-#define UML_SIGLONGJMP(buf, val) do { \
++#define UML_LONGJMP(buf, val) do { \
+ 	longjmp(*buf, val);	\
+ } while(0)
  
-+static char *default_tmpdir = "/tmp";
- static char *tempdir = NULL;
- 
- static void __init find_tempdir(void)
-@@ -34,7 +36,7 @@ static void __init find_tempdir(void)
- 			break;
- 	}
- 	if((dir == NULL) || (*dir == '\0'))
--		dir = "/tmp";
-+		dir = default_tmpdir;
- 
- 	tempdir = malloc(strlen(dir) + 2);
- 	if(tempdir == NULL){
-@@ -46,6 +48,96 @@ static void __init find_tempdir(void)
- 	strcat(tempdir, "/");
- }
- 
-+/* This will return 1, with the first character in buf being the
-+ * character following the next instance of c in the file.  This will
-+ * read the file as needed.  If there's an error, -errno is returned;
-+ * if the end of the file is reached, 0 is returned.
-+ */
-+static int next(int fd, char *buf, int size, char c)
-+{
-+	int n;
-+	char *ptr;
-+
-+	while((ptr = strchr(buf, c)) == NULL){
-+		n = read(fd, buf, size - 1);
-+		if(n == 0)
-+			return 0;
-+		else if(n < 0)
-+			return -errno;
-+
-+		buf[n] = '\0';
-+	}
-+
-+	ptr++;
-+	memmove(buf, ptr, strlen(ptr) + 1);
-+	return 1;
-+}
-+
-+static int checked_tmpdir = 0;
-+
-+/* Look for a tmpfs mounted at /dev/shm.  I couldn't find a cleaner
-+ * way to do this than to parse /proc/mounts.  statfs will return the
-+ * same filesystem magic number and fs id for both /dev and /dev/shm
-+ * when they are both tmpfs, so you can't tell if they are different
-+ * filesystems.  Also, there seems to be no other way of finding the
-+ * mount point of a filesystem from within it.
-+ *
-+ * If a /dev/shm tmpfs entry is found, then we switch to using it.
-+ * Otherwise, we stay with the default /tmp.
-+ */
-+static void which_tmpdir(void)
-+{
-+	int fd, found;
-+	char buf[128] = { '\0' };
-+
-+	if(checked_tmpdir)
-+		return;
-+
-+	checked_tmpdir = 1;
-+
-+	printf("Checking for tmpfs mount on /dev/shm...");
-+
-+	fd = open("/proc/mounts", O_RDONLY);
-+	if(fd < 0){
-+		printf("failed to open /proc/mounts, errno = %d\n", errno);
-+		return;
-+	}
-+
-+	while(1){
-+		found = next(fd, buf, sizeof(buf) / sizeof(buf[0]), ' ');
-+		if(found != 1)
-+			break;
-+
-+		if(!strncmp(buf, "/dev/shm", strlen("/dev/shm")))
-+			goto found;
-+
-+		found = next(fd, buf, sizeof(buf) / sizeof(buf[0]), '\n');
-+		if(found != 1)
-+			break;
-+	}
-+
-+err:
-+	if(found == 0)
-+		printf("nothing mounted on /dev/shm\n");
-+	else if(found < 0)
-+		printf("read returned errno %d\n", -found);
-+
-+	return;
-+
-+found:
-+	found = next(fd, buf, sizeof(buf) / sizeof(buf[0]), ' ');
-+	if(found != 1)
-+		goto err;
-+
-+	if(strncmp(buf, "tmpfs", strlen("tmpfs"))){
-+		printf("not tmpfs\n");
-+		return;
-+	}
-+
-+	printf("OK\n");
-+	default_tmpdir = "/dev/shm";
-+}
-+
- /*
-  * This proc still used in tt-mode
-  * (file: kernel/tt/ptproxy/proxy.c, proc: start_debugger).
-@@ -56,6 +148,7 @@ int make_tempfile(const char *template, 
- 	char *tempname;
- 	int fd;
- 
-+	which_tmpdir();
- 	tempname = malloc(MAXPATHLEN);
- 
- 	find_tempdir();
-@@ -137,3 +230,26 @@ int create_mem_file(unsigned long long l
- 	}
- 	return(fd);
- }
-+
-+
-+void check_tmpexec(void)
-+{
-+	void *addr;
-+	int err, fd = create_tmp_file(UM_KERN_PAGE_SIZE);
-+
-+	addr = mmap(NULL, UM_KERN_PAGE_SIZE,
-+		    PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE, fd, 0);
-+	printf("Checking PROT_EXEC mmap in %s...",tempdir);
-+	fflush(stdout);
-+	if(addr == MAP_FAILED){
-+		err = errno;
-+		perror("failed");
-+		if(err == EPERM)
-+			printf("%s must be not mounted noexec\n",tempdir);
-+		exit(1);
-+	}
-+	printf("OK\n");
-+	munmap(addr, UM_KERN_PAGE_SIZE);
-+
-+	close(fd);
-+}
-Index: linux-2.6.16-mm/arch/um/os-Linux/start_up.c
+-#define UML_SIGSETJMP(buf, enable) ({ \
++#define UML_SETJMP(buf, enable) ({ \
+ 	int n; \
+ 	enable = get_signals(); \
+ 	n = setjmp(*buf); \
+Index: linux-2.6.16-mm/arch/um/os-Linux/process.c
 ===================================================================
---- linux-2.6.16-mm.orig/arch/um/os-Linux/start_up.c	2006-04-08 17:21:35.000000000 -0400
-+++ linux-2.6.16-mm/arch/um/os-Linux/start_up.c	2006-04-10 14:53:26.000000000 -0400
-@@ -296,29 +296,7 @@ static void __init check_ptrace(void)
- 	check_sysemu();
- }
+--- linux-2.6.16-mm.orig/arch/um/os-Linux/process.c	2006-04-08 17:21:34.000000000 -0400
++++ linux-2.6.16-mm/arch/um/os-Linux/process.c	2006-04-10 12:52:04.000000000 -0400
+@@ -266,11 +266,11 @@ void init_new_thread_signals(int altstac
  
--extern int create_tmp_file(unsigned long long len);
--
--static void check_tmpexec(void)
--{
--	void *addr;
--	int err, fd = create_tmp_file(UM_KERN_PAGE_SIZE);
--
--	addr = mmap(NULL, UM_KERN_PAGE_SIZE,
--		    PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE, fd, 0);
--	printf("Checking PROT_EXEC mmap in /tmp...");
--	fflush(stdout);
--	if(addr == MAP_FAILED){
--		err = errno;
--		perror("failed");
--		if(err == EPERM)
--			printf("/tmp must be not mounted noexec\n");
--		exit(1);
--	}
--	printf("OK\n");
--	munmap(addr, UM_KERN_PAGE_SIZE);
--
--	close(fd);
--}
-+extern void check_tmpexec(void);
- 
- void os_early_checks(void)
+ int run_kernel_thread(int (*fn)(void *), void *arg, void **jmp_ptr)
  {
+-	sigjmp_buf buf;
++	jmp_buf buf;
+ 	int n, enable;
+ 
+ 	*jmp_ptr = &buf;
+-	n = UML_SIGSETJMP(&buf, enable);
++	n = UML_SETJMP(&buf, enable);
+ 	if(n != 0)
+ 		return(n);
+ 	(*fn)(arg);
+Index: linux-2.6.16-mm/arch/um/os-Linux/skas/process.c
+===================================================================
+--- linux-2.6.16-mm.orig/arch/um/os-Linux/skas/process.c	2006-04-08 17:21:35.000000000 -0400
++++ linux-2.6.16-mm/arch/um/os-Linux/skas/process.c	2006-04-10 12:52:04.000000000 -0400
+@@ -434,7 +434,7 @@ void new_thread(void *stack, void **swit
+ 		void (*handler)(int))
+ {
+ 	unsigned long flags;
+-	sigjmp_buf switch_buf, fork_buf;
++	jmp_buf switch_buf, fork_buf;
+ 	int enable;
+ 
+ 	*switch_buf_ptr = &switch_buf;
+@@ -450,7 +450,7 @@ void new_thread(void *stack, void **swit
+ 	 */
+ 	flags = get_signals();
+ 	block_signals();
+-	if(UML_SIGSETJMP(&fork_buf, enable) == 0)
++	if(UML_SETJMP(&fork_buf, enable) == 0)
+ 		new_thread_proc(stack, handler);
+ 
+ 	remove_sigstack();
+@@ -466,35 +466,35 @@ void new_thread(void *stack, void **swit
+ 
+ void thread_wait(void *sw, void *fb)
+ {
+-	sigjmp_buf buf, **switch_buf = sw, *fork_buf;
++	jmp_buf buf, **switch_buf = sw, *fork_buf;
+ 	int enable;
+ 
+ 	*switch_buf = &buf;
+ 	fork_buf = fb;
+-	if(UML_SIGSETJMP(&buf, enable) == 0)
++	if(UML_SETJMP(&buf, enable) == 0)
+ 		siglongjmp(*fork_buf, INIT_JMP_REMOVE_SIGSTACK);
+ }
+ 
+ void switch_threads(void *me, void *next)
+ {
+-	sigjmp_buf my_buf, **me_ptr = me, *next_buf = next;
++	jmp_buf my_buf, **me_ptr = me, *next_buf = next;
+ 	int enable;
+ 
+ 	*me_ptr = &my_buf;
+-	if(UML_SIGSETJMP(&my_buf, enable) == 0)
+-		UML_SIGLONGJMP(next_buf, 1);
++	if(UML_SETJMP(&my_buf, enable) == 0)
++		UML_LONGJMP(next_buf, 1);
+ }
+ 
+-static sigjmp_buf initial_jmpbuf;
++static jmp_buf initial_jmpbuf;
+ 
+ /* XXX Make these percpu */
+ static void (*cb_proc)(void *arg);
+ static void *cb_arg;
+-static sigjmp_buf *cb_back;
++static jmp_buf *cb_back;
+ 
+ int start_idle_thread(void *stack, void *switch_buf_ptr, void **fork_buf_ptr)
+ {
+-	sigjmp_buf **switch_buf = switch_buf_ptr;
++	jmp_buf **switch_buf = switch_buf_ptr;
+ 	int n, enable;
+ 
+ 	set_handler(SIGWINCH, (__sighandler_t) sig_handler,
+@@ -502,7 +502,7 @@ int start_idle_thread(void *stack, void 
+ 		    SIGVTALRM, -1);
+ 
+ 	*fork_buf_ptr = &initial_jmpbuf;
+-	n = UML_SIGSETJMP(&initial_jmpbuf, enable);
++	n = UML_SETJMP(&initial_jmpbuf, enable);
+ 	switch(n){
+ 	case INIT_JMP_NEW_THREAD:
+ 		new_thread_proc((void *) stack, new_thread_handler);
+@@ -512,7 +512,7 @@ int start_idle_thread(void *stack, void 
+ 		break;
+ 	case INIT_JMP_CALLBACK:
+ 		(*cb_proc)(cb_arg);
+-		UML_SIGLONGJMP(cb_back, 1);
++		UML_LONGJMP(cb_back, 1);
+ 		break;
+ 	case INIT_JMP_HALT:
+ 		kmalloc_ok = 0;
+@@ -523,12 +523,12 @@ int start_idle_thread(void *stack, void 
+ 	default:
+ 		panic("Bad sigsetjmp return in start_idle_thread - %d\n", n);
+ 	}
+-	UML_SIGLONGJMP(*switch_buf, 1);
++	UML_LONGJMP(*switch_buf, 1);
+ }
+ 
+ void initial_thread_cb_skas(void (*proc)(void *), void *arg)
+ {
+-	sigjmp_buf here;
++	jmp_buf here;
+ 	int enable;
+ 
+ 	cb_proc = proc;
+@@ -536,8 +536,8 @@ void initial_thread_cb_skas(void (*proc)
+ 	cb_back = &here;
+ 
+ 	block_signals();
+-	if(UML_SIGSETJMP(&here, enable) == 0)
+-		UML_SIGLONGJMP(&initial_jmpbuf, INIT_JMP_CALLBACK);
++	if(UML_SETJMP(&here, enable) == 0)
++		UML_LONGJMP(&initial_jmpbuf, INIT_JMP_CALLBACK);
+ 	unblock_signals();
+ 
+ 	cb_proc = NULL;
+@@ -548,13 +548,13 @@ void initial_thread_cb_skas(void (*proc)
+ void halt_skas(void)
+ {
+ 	block_signals();
+-	UML_SIGLONGJMP(&initial_jmpbuf, INIT_JMP_HALT);
++	UML_LONGJMP(&initial_jmpbuf, INIT_JMP_HALT);
+ }
+ 
+ void reboot_skas(void)
+ {
+ 	block_signals();
+-	UML_SIGLONGJMP(&initial_jmpbuf, INIT_JMP_REBOOT);
++	UML_LONGJMP(&initial_jmpbuf, INIT_JMP_REBOOT);
+ }
+ 
+ void switch_mm_skas(struct mm_id *mm_idp)
+Index: linux-2.6.16-mm/arch/um/os-Linux/trap.c
+===================================================================
+--- linux-2.6.16-mm.orig/arch/um/os-Linux/trap.c	2006-04-08 17:21:34.000000000 -0400
++++ linux-2.6.16-mm/arch/um/os-Linux/trap.c	2006-04-10 12:52:04.000000000 -0400
+@@ -35,7 +35,7 @@ void os_fill_handlinfo(struct kern_handl
+ 
+ void do_longjmp(void *b, int val)
+ {
+-	sigjmp_buf *buf = b;
++	jmp_buf *buf = b;
+ 
+-	UML_SIGLONGJMP(buf, val);
++	UML_LONGJMP(buf, val);
+ }
+Index: linux-2.6.16-mm/arch/um/os-Linux/uaccess.c
+===================================================================
+--- linux-2.6.16-mm.orig/arch/um/os-Linux/uaccess.c	2006-04-08 17:21:34.000000000 -0400
++++ linux-2.6.16-mm/arch/um/os-Linux/uaccess.c	2006-04-10 12:52:04.000000000 -0400
+@@ -16,9 +16,9 @@ unsigned long __do_user_copy(void *to, c
+ 	unsigned long *faddrp = (unsigned long *) fault_addr, ret;
+ 	int enable;
+ 
+-	sigjmp_buf jbuf;
++	jmp_buf jbuf;
+ 	*fault_catcher = &jbuf;
+-	if(UML_SIGSETJMP(&jbuf, enable) == 0){
++	if(UML_SETJMP(&jbuf, enable) == 0){
+ 		(*op)(to, from, n);
+ 		ret = 0;
+ 		*faulted_out = 0;
+Index: linux-2.6.16-mm/arch/um/os-Linux/util.c
+===================================================================
+--- linux-2.6.16-mm.orig/arch/um/os-Linux/util.c	2006-04-08 17:21:35.000000000 -0400
++++ linux-2.6.16-mm/arch/um/os-Linux/util.c	2006-04-10 12:52:04.000000000 -0400
+@@ -104,7 +104,7 @@ void setup_hostinfo(void)
+ int setjmp_wrapper(void (*proc)(void *, void *), ...)
+ {
+ 	va_list args;
+-	sigjmp_buf buf;
++	jmp_buf buf;
+ 	int n;
+ 
+ 	n = sigsetjmp(buf, 1);
 

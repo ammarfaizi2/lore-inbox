@@ -1,65 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWDJOkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWDJOmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751179AbWDJOkh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 10:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWDJOkh
+	id S1751183AbWDJOmn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 10:42:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWDJOmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 10:40:37 -0400
-Received: from rtr.ca ([64.26.128.89]:35751 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1751179AbWDJOkg (ORCPT
+	Mon, 10 Apr 2006 10:42:43 -0400
+Received: from xproxy.gmail.com ([66.249.82.204]:38344 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751183AbWDJOmm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 10:40:36 -0400
-Message-ID: <443A6E3A.9080002@rtr.ca>
-Date: Mon, 10 Apr 2006 10:39:54 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Mon, 10 Apr 2006 10:42:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
+        b=AD8pihU/Gb4MGGHKdzrdpwLmuLVkdTS6G/CKcEx1fDn4Afl4M/0JYdNXr1PaGfcm3jDI8fuH8yEZ7C+yBPFTxFdDHurDF84gtf3EhweBRyBo0OuQzSOy0pirgdz7UPRcDOyuTVVMRVMZCD1BriGhuwwYkwOch6bPPMwE/9VCZ0E=
+Message-ID: <4b73d43f0604100742s5b7fa0e6ge2df5e011068e4c2@mail.gmail.com>
+Date: Mon, 10 Apr 2006 08:42:41 -0600
+From: "John Rigby" <jcrigby@gmail.com>
+To: "Roman Zippel" <zippel@linux-m68k.org>
+Subject: Subject: [PATCH] Allow menuconfig to hotkey cycle through choices
+Cc: lkml <linux-kernel@vger.kernel.org>, "Sam Ravnborg" <sam@ravnborg.org>
 MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Sergey Vlasov <vsu@altlinux.ru>, Jens Axboe <axboe@suse.de>,
-       Byron Stanoszek <gandalf@winds.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2G memory split
-References: <20060110125852.GA3389@suse.de>	<20060110132957.GA28666@elte.hu>	<20060110133728.GB3389@suse.de>	<Pine.LNX.4.63.0601100840400.9511@winds.org>	<20060110143931.GM3389@suse.de> <20060110200755.55ee8215.vsu@altlinux.ru> <443A6789.9090809@sw.ru>
-In-Reply-To: <443A6789.9090809@sw.ru>
-Content-Type: text/plain; charset=windows-1251; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_3579_18847937.1144680161863"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
->>> +#if defined(CONFIG_DEFAULT_3G)
->>> +#define __PAGE_OFFSET_RAW    (0xC0000000)
->>> +#elif defined(CONFIG_DEFAULT_3G_OPT)
->>> +#define    __PAGE_OFFSET_RAW    (0xB0000000)
->>> +#elif defined(CONFIG_DEFAULT_2G)
->>> +#define __PAGE_OFFSET_RAW    (0x78000000)
->>> +#elif defined(CONFIG_DEFAULT_1G)
->>> +#define __PAGE_OFFSET_RAW    (0x40000000)
->>> +#else
->>> +#error "Bad user/kernel offset"
->>> +#endif
->>> +
->>>  #ifdef __ASSEMBLY__
->>> -#define __PAGE_OFFSET        (0xC0000000)
->>> +#define __PAGE_OFFSET        __PAGE_OFFSET_RAW
->>>  #define __PHYSICAL_START    CONFIG_PHYSICAL_START
->>>  #else
->>> -#define __PAGE_OFFSET        (0xC0000000UL)
->>> +#define __PAGE_OFFSET        ((unsigned long)__PAGE_OFFSET_RAW)
->>>  #define __PHYSICAL_START    ((unsigned long)CONFIG_PHYSICAL_START)
->>>  #endif
->>>  #define __KERNEL_START        (__PAGE_OFFSET + __PHYSICAL_START)
->>
->> Changing PAGE_OFFSET this way would break at least Valgrind (the latest
->> release 3.1.0 by default is statically linked at address 0xb0000000, and
->> PIE support does not seem to be present in that release).  I remember
->> that similar changes were also breaking Lisp implementations (cmucl,
->> sbcl), however, I am not really sure about this.
-> it also breaks some java versions, so we use 3:4 Gb split in OpenVZ, but 
-> redhat still uses 4:4 in enterprise version, so number of such 
-> applications should decrease :)
+------=_Part_3579_18847937.1144680161863
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Mmm.. that's an old thread.  The reply above was to
-a posting from Sergey Vlasov (the same) on Tue Jan 10 2006,
-12:06:50 EST.
+Same patch as before now with better description added as requested by Roma=
+n.
+
+------=_Part_3579_18847937.1144680161863
+Content-Type: text/plain; 
+	name=0001-Allow-menuconfig-to-cycle-through-choices.txt; 
+	charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Attachment-Id: f_eluwxkow
+Content-Disposition: attachment; filename="0001-Allow-menuconfig-to-cycle-through-choices.txt"
+
+Subject: [PATCH] Allow menuconfig to hotkey cycle through choices
+
+If you have multiple configs inside a choice with prompts that start with the
+same character typing the first character takes you to the first one under
+the old behavior.  You have to use arrow or +/- keys to go to the other choices.
+
+With the patch typing the first character will cycle between all the
+prompts starting with that character.
+
+This behavior has always been available in normal "menus" which are handled by
+dialog_menu.  This patch adds the same functionality to dialog_checklist.
+
+Signed-off-by: John Rigby <jrigby@freescale.com>
+
+---
+
+ scripts/kconfig/lxdialog/checklist.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletions(-)
+
+8c5500ea727987ea35a7ccaa463dcaf50eb731b2
+diff --git a/scripts/kconfig/lxdialog/checklist.c b/scripts/kconfig/lxdialog/checklist.c
+index db07ae7..af41cb1 100644
+--- a/scripts/kconfig/lxdialog/checklist.c
++++ b/scripts/kconfig/lxdialog/checklist.c
+@@ -203,10 +203,15 @@ int dialog_checklist(const char *title, 
+ 	while (key != ESC) {
+ 		key = wgetch(dialog);
+ 
+-		for (i = 0; i < max_choice; i++)
++		for (i = choice + 1; i < max_choice; i++)
+ 			if (toupper(key) ==
+ 			    toupper(items[(scroll + i) * 3 + 1][0]))
+ 				break;
++		if (i == max_choice)
++			for (i = 0; i < max_choice; i++)
++			    if (toupper(key) ==
++				toupper(items[(scroll + i) * 3 + 1][0]))
++				    break;
+ 
+ 		if (i < max_choice || key == KEY_UP || key == KEY_DOWN ||
+ 		    key == '+' || key == '-') {
+-- 
+1.2.4
+
+
+------=_Part_3579_18847937.1144680161863--

@@ -1,103 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWDJSjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWDJStS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbWDJSjN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 14:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWDJSjN
+	id S932086AbWDJStS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 14:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbWDJStS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 14:39:13 -0400
-Received: from xenotime.net ([66.160.160.81]:16830 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932098AbWDJSjM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 14:39:12 -0400
-Date: Mon, 10 Apr 2006 11:41:26 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH] hugetlbfs doc. update
-Message-Id: <20060410114126.a17b7e11.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Apr 2006 14:49:18 -0400
+Received: from agminet01.oracle.com ([141.146.126.228]:8831 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S932086AbWDJStR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 14:49:17 -0400
+Date: Mon, 10 Apr 2006 11:46:04 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] CONFIGFS_FS must depend on SYSFS
+Message-ID: <20060410184604.GZ29730@ca-server1.us.oracle.com>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	linux-kernel@vger.kernel.org
+References: <20060326122552.GM4053@stusta.de> <20060327030622.GV7844@ca-server1.us.oracle.com> <20060410183522.GE2408@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060410183522.GE2408@stusta.de>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+On Mon, Apr 10, 2006 at 08:35:22PM +0200, Adrian Bunk wrote:
+> OTOH, there's the question whether it matters at all - is the 
+> intersection of the people who are in such space-limited environments 
+> that they are setting CONFIG_EMBEDDED=y and then CONFIG_SYSFS=n and
+> the people using OCFS2 actually non-empty?
 
-Fix typos, spelling, etc., in Doc/vm/hugetlbpage.txt.
+	We decided that (configfs + !sysfs == 0), and we just went with
+the direct dependancy.  It's in my tree, going to Linus whenever it gets
+there.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- Documentation/vm/hugetlbpage.txt |   20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+Joel
 
---- linux-2617-rc1.orig/Documentation/vm/hugetlbpage.txt
-+++ linux-2617-rc1/Documentation/vm/hugetlbpage.txt
-@@ -27,7 +27,7 @@ number of free hugetlb pages at any time
- the configured hugepage size - this is needed for generating the proper
- alignment and size of the arguments to the above system calls.
- 
--The output of "cat /proc/meminfo" will have output like:
-+The output of "cat /proc/meminfo" will have lines like:
- 
- .....
- HugePages_Total: xxx
-@@ -42,11 +42,11 @@ pages in the kernel.  Super user can dyn
- pre-configured) hugepages.
- The allocation (or deallocation) of hugetlb pages is possible only if there are
- enough physically contiguous free pages in system (freeing of hugepages is
--possible only if there are enough hugetlb pages free that can be transfered
-+possible only if there are enough hugetlb pages free that can be transferred
- back to regular memory pool).
- 
--Pages that are used as hugetlb pages are reserved inside the kernel and can
--not be used for other purposes.
-+Pages that are used as hugetlb pages are reserved inside the kernel and cannot
-+be used for other purposes.
- 
- Once the kernel with Hugetlb page support is built and running, a user can
- use either the mmap system call or shared memory system calls to start using
-@@ -60,7 +60,7 @@ Use the following command to dynamically
- This command will try to configure 20 hugepages in the system.  The success
- or failure of allocation depends on the amount of physically contiguous
- memory that is preset in system at this time.  System administrators may want
--to put this command in one of the local rc init file.  This will enable the
-+to put this command in one of the local rc init files.  This will enable the
- kernel to request huge pages early in the boot process (when the possibility
- of getting physical contiguous pages is still very high).
- 
-@@ -78,8 +78,8 @@ the uid and gid of the current process a
- mode of root of file system to value & 0777.  This value is given in octal.
- By default the value 0755 is picked. The size option sets the maximum value of
- memory (huge pages) allowed for that filesystem (/mnt/huge). The size is
--rounded down to HPAGE_SIZE.  The option nr_inode sets the maximum number of
--inodes that /mnt/huge can use.  If the size or nr_inode options are not
-+rounded down to HPAGE_SIZE.  The option nr_inodes sets the maximum number of
-+inodes that /mnt/huge can use.  If the size or nr_inodes options are not
- provided on command line then no limits are set.  For size and nr_inodes
- options, you can use [G|g]/[M|m]/[K|k] to represent giga/mega/kilo. For
- example, size=2K has the same meaning as size=2048. An example is given at
-@@ -88,7 +88,7 @@ the end of this document.
- read and write system calls are not supported on files that reside on hugetlb
- file systems.
- 
--A regular chown, chgrp and chmod commands (with right permissions) could be
-+Regular chown, chgrp, and chmod commands (with right permissions) could be
- used to change the file attributes on hugetlbfs.
- 
- Also, it is important to note that no such mount command is required if the
-@@ -96,8 +96,8 @@ applications are going to use only shmat
- wish to use hugetlb page via shared memory segment should be a member of
- a supplementary group and system admin needs to configure that gid into
- /proc/sys/vm/hugetlb_shm_group.  It is possible for same or different
--applications to use any combination of mmaps and shm* calls.  Though the
--mount of filesystem will be required for using mmaps.
-+applications to use any combination of mmaps and shm* calls, though the
-+mount of filesystem will be required for using mmap calls.
- 
- *******************************************************************
- 
+-- 
 
+"I don't even butter my bread; I consider that cooking."
+         - Katherine Cebrian
 
----
+Joel Becker
+Principal Software Developer
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

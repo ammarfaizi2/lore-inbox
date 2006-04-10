@@ -1,233 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWDJFeg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWDJFoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750987AbWDJFeg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 01:34:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbWDJFef
+	id S1750853AbWDJFoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 01:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWDJFoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 01:34:35 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:15235 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1750983AbWDJFef
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 01:34:35 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: David Miller <davem@davemloft.net>, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] deinline few large functions in inet6 code
-Date: Mon, 10 Apr 2006 08:33:36 +0300
-User-Agent: KMail/1.8.2
+	Mon, 10 Apr 2006 01:44:16 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8162 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750853AbWDJFoP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 01:44:15 -0400
+To: Petr Baudis <pasky@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dumpable tasks and ownership of /proc/*/fd
+References: <20060408120815.GB16588@pasky.or.cz>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sun, 09 Apr 2006 23:43:03 -0600
+In-Reply-To: <20060408120815.GB16588@pasky.or.cz> (Petr Baudis's message of
+ "Sat, 8 Apr 2006 14:08:16 +0200")
+Message-ID: <m17j5yhtp4.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_x4eOEvNBfsf5JAC"
-Message-Id: <200604100833.37016.vda@ilport.com.ua>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_x4eOEvNBfsf5JAC
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Petr Baudis <pasky@suse.cz> writes:
 
-Deinline a few functions which produce 200+ bytes of code.
+>   Hello,
+>
+>   I would like to ask why is /proc/*/fd owned by root when the task is
+> not dumpable - what security concern does it address? It would seem more
+> reasonable to me if the /proc/*/fd owner would be simply always the real
+> uid of the process.
+>
+>   The issue is that now all tasks calling setuid() from root to non-root
+> during their lifetime will not be able to access their /proc/self/fd.
+> This is troublesome because the fstatat() and other *at() routines are
+> emulated by accessing /proc/self/fd/*/path and that will break with
+> setuid()ing programs, leading to various weird consequences (e.g. with
+> the latest glibc, nftw() does not work with setuid()ing programs and
+> furthermore causes the LSB testsuite to fail because of this, etc.).
 
-Signed-off-by: Denis Vlasenko <vda@ilport.com.ua>
---
-vda
+Looking at it the current check is indeed incorrect.
+Primarily because it is a check on open and not a check
+on access.  We can open the directory anytime so if
+this is a serious permission we need to check on access.
 
---Boundary-00=_x4eOEvNBfsf5JAC
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="2.6.16.inet6.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="2.6.16.inet6.patch"
+Further when it is ourselves we always have access to that
+information directly, and /proc is just a convenience.  So
+we should not be denying ourselves.
 
-Size  Uses Wasted Name and definition
-===== ==== ====== ================================================
-  429    3    818 __inet6_lookup        include/net/inet6_hashtables.h
-  404    2    384 __inet6_lookup_established    include/net/inet6_hashtables.h
-  206    3    372 __inet6_hash  include/net/inet6_hashtables.h
+Other processes we do need to deny if we aren't dumpable because
+they don't have another way to get that information.
 
-diff -urpN linux-2.6.16.org/include/net/inet6_hashtables.h linux-2.6.16.inet6/include/net/inet6_hashtables.h
---- linux-2.6.16.org/include/net/inet6_hashtables.h	Mon Mar 20 07:53:29 2006
-+++ linux-2.6.16.inet6/include/net/inet6_hashtables.h	Sun Apr  9 01:33:39 2006
-@@ -48,31 +48,7 @@ static inline int inet6_sk_ehashfn(const
- 	return inet6_ehashfn(laddr, lport, faddr, fport);
- }
- 
--static inline void __inet6_hash(struct inet_hashinfo *hashinfo,
--				struct sock *sk)
--{
--	struct hlist_head *list;
--	rwlock_t *lock;
--
--	BUG_TRAP(sk_unhashed(sk));
--
--	if (sk->sk_state == TCP_LISTEN) {
--		list = &hashinfo->listening_hash[inet_sk_listen_hashfn(sk)];
--		lock = &hashinfo->lhash_lock;
--		inet_listen_wlock(hashinfo);
--	} else {
--		unsigned int hash;
--		sk->sk_hash = hash = inet6_sk_ehashfn(sk);
--		hash &= (hashinfo->ehash_size - 1);
--		list = &hashinfo->ehash[hash].chain;
--		lock = &hashinfo->ehash[hash].lock;
--		write_lock(lock);
--	}
--
--	__sk_add_node(sk, list);
--	sock_prot_inc_use(sk->sk_prot);
--	write_unlock(lock);
--}
-+extern void __inet6_hash(struct inet_hashinfo *hashinfo, struct sock *sk);
- 
- /*
-  * Sockets in TCP_CLOSE state are _always_ taken out of the hash, so
-@@ -80,52 +56,12 @@ static inline void __inet6_hash(struct i
-  *
-  * The sockhash lock must be held as a reader here.
-  */
--static inline struct sock *
--		__inet6_lookup_established(struct inet_hashinfo *hashinfo,
-+extern struct sock *__inet6_lookup_established(struct inet_hashinfo *hashinfo,
- 					   const struct in6_addr *saddr,
- 					   const u16 sport,
- 					   const struct in6_addr *daddr,
- 					   const u16 hnum,
--					   const int dif)
--{
--	struct sock *sk;
--	const struct hlist_node *node;
--	const __u32 ports = INET_COMBINED_PORTS(sport, hnum);
--	/* Optimize here for direct hit, only listening connections can
--	 * have wildcards anyways.
--	 */
--	unsigned int hash = inet6_ehashfn(daddr, hnum, saddr, sport);
--	struct inet_ehash_bucket *head = inet_ehash_bucket(hashinfo, hash);
--
--	prefetch(head->chain.first);
--	read_lock(&head->lock);
--	sk_for_each(sk, node, &head->chain) {
--		/* For IPV6 do the cheaper port and family tests first. */
--		if (INET6_MATCH(sk, hash, saddr, daddr, ports, dif))
--			goto hit; /* You sunk my battleship! */
--	}
--	/* Must check for a TIME_WAIT'er before going to listener hash. */
--	sk_for_each(sk, node, &(head + hashinfo->ehash_size)->chain) {
--		const struct inet_timewait_sock *tw = inet_twsk(sk);
--
--		if(*((__u32 *)&(tw->tw_dport))	== ports	&&
--		   sk->sk_family		== PF_INET6) {
--			const struct inet6_timewait_sock *tw6 = inet6_twsk(sk);
--
--			if (ipv6_addr_equal(&tw6->tw_v6_daddr, saddr)	&&
--			    ipv6_addr_equal(&tw6->tw_v6_rcv_saddr, daddr)	&&
--			    (!sk->sk_bound_dev_if || sk->sk_bound_dev_if == dif))
--				goto hit;
--		}
--	}
--	read_unlock(&head->lock);
--	return NULL;
--
--hit:
--	sock_hold(sk);
--	read_unlock(&head->lock);
--	return sk;
--}
-+					   const int dif);
- 
- extern struct sock *inet6_lookup_listener(struct inet_hashinfo *hashinfo,
- 					  const struct in6_addr *daddr,
-diff -urpN linux-2.6.16.org/net/ipv6/inet6_hashtables.c linux-2.6.16.inet6/net/ipv6/inet6_hashtables.c
---- linux-2.6.16.org/net/ipv6/inet6_hashtables.c	Mon Mar 20 07:53:29 2006
-+++ linux-2.6.16.inet6/net/ipv6/inet6_hashtables.c	Sun Apr  9 01:41:54 2006
-@@ -23,6 +23,86 @@
- #include <net/inet6_hashtables.h>
- #include <net/ip.h>
- 
-+void __inet6_hash(struct inet_hashinfo *hashinfo,
-+				struct sock *sk)
-+{
-+	struct hlist_head *list;
-+	rwlock_t *lock;
-+
-+	BUG_TRAP(sk_unhashed(sk));
-+
-+	if (sk->sk_state == TCP_LISTEN) {
-+		list = &hashinfo->listening_hash[inet_sk_listen_hashfn(sk)];
-+		lock = &hashinfo->lhash_lock;
-+		inet_listen_wlock(hashinfo);
-+	} else {
-+		unsigned int hash;
-+		sk->sk_hash = hash = inet6_sk_ehashfn(sk);
-+		hash &= (hashinfo->ehash_size - 1);
-+		list = &hashinfo->ehash[hash].chain;
-+		lock = &hashinfo->ehash[hash].lock;
-+		write_lock(lock);
-+	}
-+
-+	__sk_add_node(sk, list);
-+	sock_prot_inc_use(sk->sk_prot);
-+	write_unlock(lock);
-+}
-+EXPORT_SYMBOL(__inet6_hash);
-+
-+/*
-+ * Sockets in TCP_CLOSE state are _always_ taken out of the hash, so
-+ * we need not check it for TCP lookups anymore, thanks Alexey. -DaveM
-+ *
-+ * The sockhash lock must be held as a reader here.
-+ */
-+struct sock *__inet6_lookup_established(struct inet_hashinfo *hashinfo,
-+					   const struct in6_addr *saddr,
-+					   const u16 sport,
-+					   const struct in6_addr *daddr,
-+					   const u16 hnum,
-+					   const int dif)
-+{
-+	struct sock *sk;
-+	const struct hlist_node *node;
-+	const __u32 ports = INET_COMBINED_PORTS(sport, hnum);
-+	/* Optimize here for direct hit, only listening connections can
-+	 * have wildcards anyways.
-+	 */
-+	unsigned int hash = inet6_ehashfn(daddr, hnum, saddr, sport);
-+	struct inet_ehash_bucket *head = inet_ehash_bucket(hashinfo, hash);
-+
-+	prefetch(head->chain.first);
-+	read_lock(&head->lock);
-+	sk_for_each(sk, node, &head->chain) {
-+		/* For IPV6 do the cheaper port and family tests first. */
-+		if (INET6_MATCH(sk, hash, saddr, daddr, ports, dif))
-+			goto hit; /* You sunk my battleship! */
-+	}
-+	/* Must check for a TIME_WAIT'er before going to listener hash. */
-+	sk_for_each(sk, node, &(head + hashinfo->ehash_size)->chain) {
-+		const struct inet_timewait_sock *tw = inet_twsk(sk);
-+
-+		if(*((__u32 *)&(tw->tw_dport))	== ports	&&
-+		   sk->sk_family		== PF_INET6) {
-+			const struct inet6_timewait_sock *tw6 = inet6_twsk(sk);
-+
-+			if (ipv6_addr_equal(&tw6->tw_v6_daddr, saddr)	&&
-+			    ipv6_addr_equal(&tw6->tw_v6_rcv_saddr, daddr)	&&
-+			    (!sk->sk_bound_dev_if || sk->sk_bound_dev_if == dif))
-+				goto hit;
-+		}
-+	}
-+	read_unlock(&head->lock);
-+	return NULL;
-+
-+hit:
-+	sock_hold(sk);
-+	read_unlock(&head->lock);
-+	return sk;
-+}
-+EXPORT_SYMBOL(__inet6_lookup_established);
-+
- struct sock *inet6_lookup_listener(struct inet_hashinfo *hashinfo,
- 				   const struct in6_addr *daddr,
- 				   const unsigned short hnum, const int dif)
+Speaking of things why does the *at() emulation need to touch
+/proc/self/fd/*?  I may be completely dense but if the practical
+justification for allowing access to /proc/self/fd/ is that we
+already have access then we shouldn't need /proc/self/fd.
 
---Boundary-00=_x4eOEvNBfsf5JAC--
+I suspect this a matter of convenience where you are prepending
+/proc/self/fd/xxx/ to the path before you open it instead of calling
+fchdir openat() and the doing fchdir back.  Have I properly guessed
+how the *at() emulation works?
+
+Eric

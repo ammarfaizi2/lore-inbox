@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWDJKAA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWDJKBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbWDJKAA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 06:00:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWDJKAA
+	id S1751114AbWDJKBN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 06:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWDJKBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 06:00:00 -0400
-Received: from mail.gmx.de ([213.165.64.20]:64160 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751108AbWDJJ77 (ORCPT
+	Mon, 10 Apr 2006 06:01:13 -0400
+Received: from cantor.suse.de ([195.135.220.2]:7133 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751111AbWDJKBM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 05:59:59 -0400
-X-Authenticated: #14349625
-Subject: Re: [patch][rfc] quell interactive feeding frenzy
-From: Mike Galbraith <efault@gmx.de>
-To: bert hubert <bert.hubert@netherlabs.nl>
-Cc: Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Peter Williams <pwil3058@bigpond.net.au>
-In-Reply-To: <20060410091248.GA32468@outpost.ds9a.nl>
-References: <1144402690.7857.31.camel@homer>
-	 <200604072256.27665.kernel@kolivas.org> <1144417064.8114.26.camel@homer>
-	 <200604072356.03580.kernel@kolivas.org> <1144419294.14231.7.camel@homer>
-	 <20060409111436.GA26533@outpost.ds9a.nl> <1144582778.13991.10.camel@homer>
-	 <20060409121436.GA28075@outpost.ds9a.nl> <1144606061.7408.14.camel@homer>
-	 <20060410091248.GA32468@outpost.ds9a.nl>
-Content-Type: text/plain
-Date: Mon, 10 Apr 2006 12:00:42 +0200
-Message-Id: <1144663242.8040.27.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Mon, 10 Apr 2006 06:01:12 -0400
+Message-ID: <443A2CDB.5060404@suse.de>
+Date: Mon, 10 Apr 2006 12:00:59 +0200
+From: Hannes Reinecke <hare@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.11) Gecko/20050727
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: Rolf Eike Beer <eike-kernel@sf-tec.de>, Denis Vlasenko <vda@ilport.com.ua>,
+       SCSI List <linux-scsi@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       gibbs@scsiguy.com
+Subject: Re: [PATCH] deinline some functions in aic7xxx drivers, save 80k
+ of text
+References: <200604100844.12151.vda@ilport.com.ua> <200604100903.35431.eike-kernel@sf-tec.de> <200604101015.36869.vda@ilport.com.ua> <200604100919.23244.eike-kernel@sf-tec.de> <443A2805.6000806@s5r6.in-berlin.de>
+In-Reply-To: <443A2805.6000806@s5r6.in-berlin.de>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-10 at 11:12 +0200, bert hubert wrote:
-> On Sun, Apr 09, 2006 at 08:07:41PM +0200, Mike Galbraith wrote:
-> > Rare?  What exactly is rare about a number of tasks serving data?  I
-> > don't care if it's a P4 serving gigabit.  If you have to divide your
-> > server into pieces (you do, and you know it) you're screwed. 
+Stefan Richter wrote:
+> Rolf Eike Beer wrote:
+>> Denis Vlasenko wrote:
+>>> I am leaving it up to maintainer to decide. After all, the driver
+>>> is for multiple OSes, other OS may lack mdelay().
+>> The comment says about multiple milliseconds sleeps which just don't happen.
 > 
-> You've not detailed your load. I assume it consists of lots of small files
-> being transferred over 10 apache processes? I also assume you max out your
-> system using apachebench?
+> Given what ah{c,d}_delay are (OS dependent wrappers) and how they are
+> used (definitely not for multi-msec delays), they should just be changed
+> into a #define ah{c,d}_delay(us) udelay(us) or into void inline
+> ah{c,d}_delay(long us) {udelay(us);}.
 
-It's just retrieving the directory, so it's all cached.  Yes, it's ab.  
+I'd rather do a #define. Inlining simple functions is quite unneccessary
+here.
 
-If it had to hit disk constantly, I'd probably be able to login, because
-the stock scheduler blocks IO bound tasks from achieving max priority.
+Re multiplatform development: aic7{9,x}xx have ceased to be
+multiplatfrom since the integration of scsi_transport_spi.
+So I wouldn't worry too much about it.
 
-> In general, Linux systems are not maxed out as they will disappoint that way
-> (like any system running with id=0). 
-> 
-> So yes, what you do is a 'rare load' as anybody trying to do this will
-> disappoint his users.
+Cheers,
 
-Ok, it's rare... if you buy your hardware 10 sizes too large ;-)
-
-The load just doesn't matter though, this apache load is by the
-scheduler's own standard a cpu hog.  If you eliminate the man made
-sleep, those httpds drop right down where they belong.
-
-> And any tweak you make to the scheduler this way is bound to affect another
-> load.
-
-It's not a tweak, it's a bug fix, and course it will affect other loads.
-As things stand, that code is contributing to interactivity, and
-fairness, but is also contributing heavily to grotesque _unfairness_ to
-the point of starvation in the extreme.
-
-You may not like the testcase, but it remains a bug exposing testcase.
-
-	-Mike
-
+Hannes
+-- 
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux Products GmbH		S390 & zSeries
+Maxfeldstraße 5				+49 911 74053 688
+90409 Nürnberg				http://www.suse.de

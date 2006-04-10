@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWDJNx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWDJOL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751160AbWDJNx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 09:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWDJNx2
+	id S1751163AbWDJOL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 10:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWDJOL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 09:53:28 -0400
-Received: from mail.tnnet.fi ([217.112.240.26]:29592 "EHLO mail.tnnet.fi")
-	by vger.kernel.org with ESMTP id S1751160AbWDJNx1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 09:53:27 -0400
-Message-ID: <443A6354.F9C720EF@users.sourceforge.net>
-Date: Mon, 10 Apr 2006 16:53:24 +0300
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-To: linux-crypto@nl.linux.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Announce loop-AES-v3.1d file/swap crypto package
-Content-Type: text/plain; charset=us-ascii
+	Mon, 10 Apr 2006 10:11:58 -0400
+Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:14319 "EHLO
+	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
+	id S1751163AbWDJOL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 10:11:57 -0400
+Message-ID: <443A6789.9090809@sw.ru>
+Date: Mon, 10 Apr 2006 18:11:21 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sergey Vlasov <vsu@altlinux.ru>
+CC: Jens Axboe <axboe@suse.de>, Byron Stanoszek <gandalf@winds.org>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2G memory split
+References: <20060110125852.GA3389@suse.de>	<20060110132957.GA28666@elte.hu>	<20060110133728.GB3389@suse.de>	<Pine.LNX.4.63.0601100840400.9511@winds.org>	<20060110143931.GM3389@suse.de> <20060110200755.55ee8215.vsu@altlinux.ru>
+In-Reply-To: <20060110200755.55ee8215.vsu@altlinux.ru>
+Content-Type: text/plain; charset=windows-1251; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-loop-AES changes since previous release:
-- Fixed Makefile incompatibility with USE_KBUILD=y build option.
-- Fixed incompatibility with CONFIG_PAX_KERNEXEC=y PAX config option.
-- Fixed incompatibility with old SuSE 8.0 kernel that caused scheduler
-  interface to be misdetected.
-- Changed mount to honor offset=N and sizelimit=N mount options when they
-  were used in combination with random keys generating phash=random mount
-  option. Old encrypted data is used in new keys generation, but earlier
-  buggy version always read and erased old data at offset=0.
-- Added mount patch from Max Vozeler that makes it easier to first fsck and
-  then mount encrypted file systems.
+>> +#if defined(CONFIG_DEFAULT_3G)
+>> +#define __PAGE_OFFSET_RAW	(0xC0000000)
+>> +#elif defined(CONFIG_DEFAULT_3G_OPT)
+>> +#define	__PAGE_OFFSET_RAW	(0xB0000000)
+>> +#elif defined(CONFIG_DEFAULT_2G)
+>> +#define __PAGE_OFFSET_RAW	(0x78000000)
+>> +#elif defined(CONFIG_DEFAULT_1G)
+>> +#define __PAGE_OFFSET_RAW	(0x40000000)
+>> +#else
+>> +#error "Bad user/kernel offset"
+>> +#endif
+>> +
+>>  #ifdef __ASSEMBLY__
+>> -#define __PAGE_OFFSET		(0xC0000000)
+>> +#define __PAGE_OFFSET		__PAGE_OFFSET_RAW
+>>  #define __PHYSICAL_START	CONFIG_PHYSICAL_START
+>>  #else
+>> -#define __PAGE_OFFSET		(0xC0000000UL)
+>> +#define __PAGE_OFFSET		((unsigned long)__PAGE_OFFSET_RAW)
+>>  #define __PHYSICAL_START	((unsigned long)CONFIG_PHYSICAL_START)
+>>  #endif
+>>  #define __KERNEL_START		(__PAGE_OFFSET + __PHYSICAL_START)
+> 
+> Changing PAGE_OFFSET this way would break at least Valgrind (the latest
+> release 3.1.0 by default is statically linked at address 0xb0000000, and
+> PIE support does not seem to be present in that release).  I remember
+> that similar changes were also breaking Lisp implementations (cmucl,
+> sbcl), however, I am not really sure about this.
+it also breaks some java versions, so we use 3:4 Gb split in OpenVZ, but 
+redhat still uses 4:4 in enterprise version, so number of such 
+applications should decrease :)
 
-bzip2 compressed tarball is here:
-
-    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v3.1d.tar.bz2
-    md5sum b4d13d6421382ea048e113ad8a868dfa
-
-    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v3.1d.tar.bz2.sign
-
-
-Additional ciphers package changes since previous release:
-- Fixed Makefile incompatibility with USE_KBUILD=y build option.
-
-bzip2 compressed tarball is here:
-
-    http://loop-aes.sourceforge.net/ciphers/ciphers-v3.0d.tar.bz2
-    md5sum 65d5e85b3aabd5a36a199814c66cd7f9
-
-    http://loop-aes.sourceforge.net/ciphers/ciphers-v3.0d.tar.bz2.sign
-
--- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+Thanks,
+Kirill
